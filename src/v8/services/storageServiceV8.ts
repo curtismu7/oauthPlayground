@@ -177,7 +177,7 @@ export class StorageServiceV8 {
 		try {
 			await ensureMigration();
 			const keys = await unifiedTokenStorage.getAllV8Keys();
-			return keys.filter(key => key.startsWith(STORAGE_KEYS.PREFIX));
+			return keys.filter((key) => key.startsWith(STORAGE_KEYS.PREFIX));
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to get all keys`, {
 				error: error instanceof Error ? error.message : String(error),

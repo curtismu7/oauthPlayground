@@ -49,9 +49,9 @@ const Step = styled.div<{ $active: boolean; $completed: boolean; $brandColor: st
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: ${({ $active, $completed, $brandColor }) => 
-    $completed ? $brandColor : $active ? $brandColor : '#e0e0e0'};
-  color: ${({ $active, $completed }) => ($active || $completed) ? 'white' : '#666'};
+  background: ${({ $active, $completed, $brandColor }) =>
+		$completed ? $brandColor : $active ? $brandColor : '#e0e0e0'};
+  color: ${({ $active, $completed }) => (($active || $completed) ? 'white' : '#666')};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -166,11 +166,11 @@ const ResendLink = styled.button<{ $brandColor: string }>`
 // ============================================================================
 
 interface TwoStepOTPLoginProps {
-  step: 'username' | 'otp';
-  username: string;
-  onStepChange: (step: 'username' | 'otp', username: string) => void;
-  onSubmit: (credentials: { username: string; otp?: string }) => void;
-  config: CorporatePortalConfig;
+	step: 'username' | 'otp';
+	username: string;
+	onStepChange: (step: 'username' | 'otp', username: string) => void;
+	onSubmit: (credentials: { username: string; otp?: string }) => void;
+	config: CorporatePortalConfig;
 }
 
 // ============================================================================
@@ -178,118 +178,118 @@ interface TwoStepOTPLoginProps {
 // ============================================================================
 
 const TwoStepOTPLogin: React.FC<TwoStepOTPLoginProps> = ({
-  step,
-  username,
-  onStepChange,
-  onSubmit,
-  config,
+	step,
+	username,
+	onStepChange,
+	onSubmit,
+	config,
 }) => {
-  const [formData, setFormData] = useState({
-    username: username,
-    otp: '',
-  });
+	const [formData, setFormData] = useState({
+		username: username,
+		otp: '',
+	});
 
-  // Handle username step submission
-  const handleUsernameSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // In a real implementation, this would send OTP
-    onStepChange('otp', formData.username);
-  };
+	// Handle username step submission
+	const handleUsernameSubmit = (e: React.FormEvent) => {
+		e.preventDefault();
+		// In a real implementation, this would send OTP
+		onStepChange('otp', formData.username);
+	};
 
-  // Handle OTP step submission
-  const handleOTPSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit({ username: formData.username, otp: formData.otp });
-  };
+	// Handle OTP step submission
+	const handleOTPSubmit = (e: React.FormEvent) => {
+		e.preventDefault();
+		onSubmit({ username: formData.username, otp: formData.otp });
+	};
 
-  // Handle input changes
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
+	// Handle input changes
+	const handleInputChange = (field: string, value: string) => {
+		setFormData((prev) => ({ ...prev, [field]: value }));
+	};
 
-  // Handle resend OTP
-  const handleResendOTP = () => {
-    // In a real implementation, this would resend OTP
-    console.log('Resending OTP to:', formData.username);
-  };
+	// Handle resend OTP
+	const handleResendOTP = () => {
+		// In a real implementation, this would resend OTP
+		console.log('Resending OTP to:', formData.username);
+	};
 
-  const brandColor = config.branding.colors.primary;
-  const accentColor = config.branding.colors.accent;
+	const brandColor = config.branding.colors.primary;
+	const accentColor = config.branding.colors.accent;
 
-  return (
-    <LoginContainer $brandColor={brandColor}>
-      <StepIndicator $brandColor={brandColor}>
-        <Step $active={step === 'username'} $completed={step === 'otp'} $brandColor={brandColor}>
-          1
-        </Step>
-        <Step $active={step === 'otp'} $completed={false} $brandColor={brandColor}>
-          2
-        </Step>
-      </StepIndicator>
+	return (
+		<LoginContainer $brandColor={brandColor}>
+			<StepIndicator $brandColor={brandColor}>
+				<Step $active={step === 'username'} $completed={step === 'otp'} $brandColor={brandColor}>
+					1
+				</Step>
+				<Step $active={step === 'otp'} $completed={false} $brandColor={brandColor}>
+					2
+				</Step>
+			</StepIndicator>
 
-      {step === 'username' ? (
-        <>
-          <StepTitle>Enter Your Username</StepTitle>
-          <StepDescription>
-            Enter your username to receive a one-time verification code
-          </StepDescription>
+			{step === 'username' ? (
+				<>
+					<StepTitle>Enter Your Username</StepTitle>
+					<StepDescription>
+						Enter your username to receive a one-time verification code
+					</StepDescription>
 
-          <LoginForm onSubmit={handleUsernameSubmit}>
-            <InputGroup>
-              <InputLabel htmlFor="username">Username</InputLabel>
-              <Input
-                id="username"
-                type="text"
-                value={formData.username}
-                onChange={(e) => handleInputChange('username', e.target.value)}
-                placeholder="Enter your username"
-                required
-                $brandColor={brandColor}
-              />
-            </InputGroup>
+					<LoginForm onSubmit={handleUsernameSubmit}>
+						<InputGroup>
+							<InputLabel htmlFor="username">Username</InputLabel>
+							<Input
+								id="username"
+								type="text"
+								value={formData.username}
+								onChange={(e) => handleInputChange('username', e.target.value)}
+								placeholder="Enter your username"
+								required
+								$brandColor={brandColor}
+							/>
+						</InputGroup>
 
-            <ActionButton type="submit" $brandColor={brandColor} $accentColor={accentColor}>
-              Send Code
-              <FiArrowRight />
-            </ActionButton>
-          </LoginForm>
-        </>
-      ) : (
-        <>
-          <StepTitle>Enter Verification Code</StepTitle>
-          <StepDescription>
-            We've sent a verification code to your device. Enter the code below to continue.
-          </StepDescription>
+						<ActionButton type="submit" $brandColor={brandColor} $accentColor={accentColor}>
+							Send Code
+							<FiArrowRight />
+						</ActionButton>
+					</LoginForm>
+				</>
+			) : (
+				<>
+					<StepTitle>Enter Verification Code</StepTitle>
+					<StepDescription>
+						We've sent a verification code to your device. Enter the code below to continue.
+					</StepDescription>
 
-          <LoginForm onSubmit={handleOTPSubmit}>
-            <InputGroup>
-              <InputLabel htmlFor="otp">Verification Code</InputLabel>
-              <OTPInput
-                id="otp"
-                type="text"
-                value={formData.otp}
-                onChange={(e) => handleInputChange('otp', e.target.value)}
-                placeholder="000000"
-                maxLength={6}
-                required
-                $brandColor={brandColor}
-              />
-            </InputGroup>
+					<LoginForm onSubmit={handleOTPSubmit}>
+						<InputGroup>
+							<InputLabel htmlFor="otp">Verification Code</InputLabel>
+							<OTPInput
+								id="otp"
+								type="text"
+								value={formData.otp}
+								onChange={(e) => handleInputChange('otp', e.target.value)}
+								placeholder="000000"
+								maxLength={6}
+								required
+								$brandColor={brandColor}
+							/>
+						</InputGroup>
 
-            <ActionButton type="submit" $brandColor={brandColor} $accentColor={accentColor}>
-              <FiLock />
-              Verify Code
-            </ActionButton>
+						<ActionButton type="submit" $brandColor={brandColor} $accentColor={accentColor}>
+							<FiLock />
+							Verify Code
+						</ActionButton>
 
-            <ResendLink type="button" onClick={handleResendOTP} $brandColor={brandColor}>
-              <FiMail />
-              Resend Code
-            </ResendLink>
-          </LoginForm>
-        </>
-      )}
-    </LoginContainer>
-  );
+						<ResendLink type="button" onClick={handleResendOTP} $brandColor={brandColor}>
+							<FiMail />
+							Resend Code
+						</ResendLink>
+					</LoginForm>
+				</>
+			)}
+		</LoginContainer>
+	);
 };
 
 export default TwoStepOTPLogin;

@@ -170,7 +170,6 @@ const InfoBox = styled.div<{ $type: 'info' | 'success' | 'warning' }>`
 	font-size: 0.875rem;
 `;
 
-
 const CodeBlock = styled.pre`
 	background: #1e293b;
 	color: #f1f5f9;
@@ -571,23 +570,23 @@ code_challenge_method=S256`}
 								</CodeBlock>
 
 								<ButtonSpinner
-								loading={false}
-								onClick={handleAuthorize}
-								spinnerSize={16}
-								spinnerPosition="left"
-								style={{
-									background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
-									color: 'white',
-									border: 'none',
-									padding: '0.75rem 1.5rem',
-									borderRadius: '0.5rem',
-									fontWeight: '600',
-									cursor: 'pointer',
-									transition: 'all 0.2s ease',
-								}}
-							>
-								Authorize with PingOne
-							</ButtonSpinner>
+									loading={false}
+									onClick={handleAuthorize}
+									spinnerSize={16}
+									spinnerPosition="left"
+									style={{
+										background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+										color: 'white',
+										border: 'none',
+										padding: '0.75rem 1.5rem',
+										borderRadius: '0.5rem',
+										fontWeight: '600',
+										cursor: 'pointer',
+										transition: 'all 0.2s ease',
+									}}
+								>
+									Authorize with PingOne
+								</ButtonSpinner>
 							</>
 						)}
 
@@ -756,7 +755,7 @@ code_challenge_method=S256`}
 					/>
 				</div>
 			</MainCard>
-			
+
 			{/* Spinner Modals */}
 			{parRequestSpinner.isLoading && (
 				<CommonSpinner
@@ -768,7 +767,10 @@ code_challenge_method=S256`}
 			)}
 			{tokenExchangeSpinner.isLoading && (
 				<CommonSpinner
-					message={tokenExchangeSpinner.spinnerState.message || 'Exchanging authorization code for tokens...'}
+					message={
+						tokenExchangeSpinner.spinnerState.message ||
+						'Exchanging authorization code for tokens...'
+					}
 					theme="blue"
 					variant="modal"
 					allowDismiss={false}

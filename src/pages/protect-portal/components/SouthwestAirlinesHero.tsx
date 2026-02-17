@@ -299,8 +299,8 @@ const SouthwestAirlinesHero: React.FC<SouthwestAirlinesHeroProps> = ({
 							<LoginSection>
 								<LoginTitle>{isCustomer ? 'Customer Sign In' : 'Employee Sign In'}</LoginTitle>
 								<LoginSubtitle>
-									{isCustomer 
-										? 'Access your Southwest Airlines customer account' 
+									{isCustomer
+										? 'Access your Southwest Airlines customer account'
 										: 'Access your Southwest Airlines employee account'}
 								</LoginSubtitle>
 							</LoginSection>
@@ -332,9 +332,11 @@ const SouthwestAirlinesHero: React.FC<SouthwestAirlinesHeroProps> = ({
 						</Navigation>
 						<MainContent>
 							<LeftContent>
-								<HeroTitle>{isCustomer ? 'Secure Customer Portal' : 'Secure Employee Portal'}</HeroTitle>
+								<HeroTitle>
+									{isCustomer ? 'Secure Customer Portal' : 'Secure Employee Portal'}
+								</HeroTitle>
 								<HeroSubtitle>
-									{isCustomer 
+									{isCustomer
 										? 'Access your Southwest Airlines customer account with enhanced security features.'
 										: 'Access your Southwest Airlines employee account with enhanced security features.'}
 								</HeroSubtitle>
@@ -352,8 +354,8 @@ const SouthwestAirlinesHero: React.FC<SouthwestAirlinesHeroProps> = ({
 								<LoginSection>
 									<LoginTitle>{isCustomer ? 'Customer Sign In' : 'Employee Sign In'}</LoginTitle>
 									<LoginSubtitle>
-										{isCustomer 
-											? 'Access your Southwest Airlines customer account' 
+										{isCustomer
+											? 'Access your Southwest Airlines customer account'
 											: 'Access your Southwest Airlines employee account'}
 									</LoginSubtitle>
 								</LoginSection>

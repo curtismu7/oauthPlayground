@@ -13,91 +13,91 @@ import type { BrandTheme } from './brand-theme.interface';
 import type { CorporatePortalConfig } from '../types/CorporatePortalConfig';
 
 export const bankOfAmericaConfig: CorporatePortalConfig = {
-  company: {
-    name: 'bank-of-america',
-    displayName: 'Bank of America',
-    industry: 'banking',
-    logo: {
-      url: '',
-      alt: 'Bank of America Logo',
-      width: '140px',
-      height: '40px',
-      text: 'BANK OF AMERICA',
-      colors: {
-        primary: '#012169',
-        accent: '#E31837',
-      },
-    },
-  },
-  login: {
-    pattern: 'embedded',
-    position: 'hero',
-    animation: { type: 'fadeIn', duration: '0.4s' },
-  },
-  navigation: {
-    style: 'corporate',
-    showBrandSelector: true,
-    stickyHeader: true,
-  },
-  content: {
-    customerTerminology: true,
-    tone: 'corporate',
-    heroTitle: 'Online Banking',
-    heroSubtitle: 'Open new accounts, manage your finances, and access banking services',
-    features: [
-      {
-        title: 'Open Checking Account',
-        description: 'Start your banking journey with our secure checking account options',
-        icon: 'account',
-      },
-      {
-        title: 'Open Savings Account',
-        description: 'Build your savings with competitive interest rates and flexible terms',
-        icon: 'transfer',
-      },
-      {
-        title: 'Open IRA Account',
-        description: 'Plan for retirement with our individual retirement account options',
-        icon: 'cards',
-      },
-    ],
-  },
-  branding: {
-    colors: {
-      primary: '#012169', // Bank of America blue
-      primaryDark: '#011a58',
-      secondary: '#FFFFFF',
-      accent: '#E31837', // Bank of America red
-      background: '#FFFFFF',
-      surface: '#FFFFFF',
-      muted: '#6b7280',
-      border: '#d1d5db',
-      text: '#1F2937',
-      textSecondary: '#6B7280',
-      error: '#E31837',
-      success: '#059669',
-      warning: '#D97706',
-      info: '#012169',
-      primaryLight: '#0033A0',
-      secondaryLight: '#F8F9FA',
-      secondaryDark: '#E9ECEF',
-      errorLight: '#FEE2E2',
-      warningLight: '#FEF3C7',
-      successLight: '#D1FAE5',
-    },
-    typography: {
-      heading: 'Arial, Helvetica Neue, sans-serif',
-      body: 'Arial, Helvetica Neue, sans-serif',
-    },
-    spacing: {
-      xs: '0.25rem',
-      sm: '0.5rem',
-      md: '1rem',
-      lg: '1.5rem',
-      xl: '2rem',
-      xxl: '3rem',
-    },
-  },
+	company: {
+		name: 'bank-of-america',
+		displayName: 'Bank of America',
+		industry: 'banking',
+		logo: {
+			url: '',
+			alt: 'Bank of America Logo',
+			width: '140px',
+			height: '40px',
+			text: 'BANK OF AMERICA',
+			colors: {
+				primary: '#012169',
+				accent: '#E31837',
+			},
+		},
+	},
+	login: {
+		pattern: 'embedded',
+		position: 'hero',
+		animation: { type: 'fadeIn', duration: '0.4s' },
+	},
+	navigation: {
+		style: 'corporate',
+		showBrandSelector: true,
+		stickyHeader: true,
+	},
+	content: {
+		customerTerminology: true,
+		tone: 'corporate',
+		heroTitle: 'Online Banking',
+		heroSubtitle: 'Open new accounts, manage your finances, and access banking services',
+		features: [
+			{
+				title: 'Open Checking Account',
+				description: 'Start your banking journey with our secure checking account options',
+				icon: 'account',
+			},
+			{
+				title: 'Open Savings Account',
+				description: 'Build your savings with competitive interest rates and flexible terms',
+				icon: 'transfer',
+			},
+			{
+				title: 'Open IRA Account',
+				description: 'Plan for retirement with our individual retirement account options',
+				icon: 'cards',
+			},
+		],
+	},
+	branding: {
+		colors: {
+			primary: '#012169', // Bank of America blue
+			primaryDark: '#011a58',
+			secondary: '#FFFFFF',
+			accent: '#E31837', // Bank of America red
+			background: '#FFFFFF',
+			surface: '#FFFFFF',
+			muted: '#6b7280',
+			border: '#d1d5db',
+			text: '#1F2937',
+			textSecondary: '#6B7280',
+			error: '#E31837',
+			success: '#059669',
+			warning: '#D97706',
+			info: '#012169',
+			primaryLight: '#0033A0',
+			secondaryLight: '#F8F9FA',
+			secondaryDark: '#E9ECEF',
+			errorLight: '#FEE2E2',
+			warningLight: '#FEF3C7',
+			successLight: '#D1FAE5',
+		},
+		typography: {
+			heading: 'Arial, Helvetica Neue, sans-serif',
+			body: 'Arial, Helvetica Neue, sans-serif',
+		},
+		spacing: {
+			xs: '0.25rem',
+			sm: '0.5rem',
+			md: '1rem',
+			lg: '1.5rem',
+			xl: '2rem',
+			xxl: '3rem',
+		},
+	},
 };
 
 export const bankOfAmericaTheme: BrandTheme = {

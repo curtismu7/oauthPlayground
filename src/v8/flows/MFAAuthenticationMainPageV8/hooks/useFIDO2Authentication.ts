@@ -103,56 +103,57 @@ export const useFIDO2Authentication = (): FIDO2AuthenticationHookResult => {
 			}
 
 			return await fido2AuthSpinner.withSpinner(async () => {
-			try {
-				// Import passkey service dynamically
-				const { PasskeyServiceV8 } = await import('@/v8/services/passkeyServiceV8');
+				try {
+					// Import passkey service dynamically
+					const { PasskeyServiceV8 } = await import('@/v8/services/passkeyServiceV8');
 
-				// Step 1: Try authentication first (discoverable credentials)
-				const authResult = await PasskeyServiceV8.authenticateUsernameless({
-					environmentId: credentials.environmentId,
-					deviceAuthenticationPolicyId: credentials.deviceAuthenticationPolicyId,
-				});
+					// Step 1: Try authentication first (discoverable credentials)
+					const authResult = await PasskeyServiceV8.authenticateUsernameless({
+						environmentId: credentials.environmentId,
+						deviceAuthenticationPolicyId: credentials.deviceAuthenticationPolicyId,
+					});
 
-				if (authResult.success) {
-					// Authentication successful!
-					toastV8.success(
-						`Authenticated successfully as ${authResult.username || authResult.userId}`
+					if (authResult.success) {
+						// Authentication successful!
+						toastV8.success(
+							`Authenticated successfully as ${authResult.username || authResult.userId}`
+						);
+						return;
+					}
+
+					// Step 2: Check for NO_USABLE_DEVICES error
+					if (authResult.errorCode === 'NO_USABLE_DEVICES') {
+						const unavailableDevices: UnavailableDevice[] = (
+							authResult.unavailableDevices || []
+						).map((d) => ({ id: d.id }));
+
+						onDeviceFailure(
+							authResult.error || 'No usable devices found for authentication',
+							unavailableDevices
+						);
+						return;
+					}
+
+					// Step 3: If authentication failed and requires registration, show registration modal
+					if (authResult.requiresRegistration) {
+						// Show username input modal for registration
+						onRegistrationRequired();
+						toastV8.info('No passkey found. Please enter your username to register a new passkey.');
+						return;
+					}
+
+					// Other error - show error message
+					toastV8.error(authResult.error || 'Authentication failed');
+				} catch (error) {
+					console.error(`${MODULE_TAG} Usernameless FIDO2 failed:`, error);
+					toastV8.error(
+						error instanceof Error ? error.message : 'Usernameless authentication failed'
 					);
-					return;
+					throw error; // Re-throw to let spinner handle it
 				}
-
-				// Step 2: Check for NO_USABLE_DEVICES error
-				if (authResult.errorCode === 'NO_USABLE_DEVICES') {
-					const unavailableDevices: UnavailableDevice[] = (authResult.unavailableDevices || []).map(
-						(d) => ({ id: d.id })
-					);
-
-					onDeviceFailure(
-						authResult.error || 'No usable devices found for authentication',
-						unavailableDevices
-					);
-					return;
-				}
-
-				// Step 3: If authentication failed and requires registration, show registration modal
-				if (authResult.requiresRegistration) {
-					// Show username input modal for registration
-					onRegistrationRequired();
-					toastV8.info('No passkey found. Please enter your username to register a new passkey.');
-					return;
-				}
-
-				// Other error - show error message
-				toastV8.error(authResult.error || 'Authentication failed');
-			} catch (error) {
-				console.error(`${MODULE_TAG} Usernameless FIDO2 failed:`, error);
-				toastV8.error(
-					error instanceof Error ? error.message : 'Usernameless authentication failed'
-				);
-				throw error; // Re-throw to let spinner handle it
-			}
-		}, 'Authenticating with FIDO2...');
-	}, [fido2AuthSpinner]
+			}, 'Authenticating with FIDO2...');
+		},
+		[fido2AuthSpinner]
 	);
 
 	return {

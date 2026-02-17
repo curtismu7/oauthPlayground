@@ -307,9 +307,7 @@ export async function handleShowWorkerTokenModal(
 		if (!credentialsCheck) {
 			// ALWAYS show modal when credentials are missing, even in silent mode
 			// User needs to configure credentials to continue
-			console.warn(
-				`${MODULE_TAG} No credentials configured. Showing modal for credential setup.`
-			);
+			console.warn(`${MODULE_TAG} No credentials configured. Showing modal for credential setup.`);
 			setShowModal(true);
 			return;
 		}

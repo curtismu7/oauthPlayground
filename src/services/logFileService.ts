@@ -88,7 +88,8 @@ export class LogFileService {
 			try {
 				data = JSON.parse(text);
 			} catch (parseError: unknown) {
-				const errorMessage = parseError instanceof Error ? parseError.message : 'Unknown parsing error';
+				const errorMessage =
+					parseError instanceof Error ? parseError.message : 'Unknown parsing error';
 				throw new Error(`Invalid JSON response: ${errorMessage}`);
 			}
 			return {
