@@ -6,7 +6,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { FiKey, FiRefreshCw, FiSmartphone, FiUser } from 'react-icons/fi';
 import styled from 'styled-components';
 import { useCredentialStoreV8 } from '../../hooks/useCredentialStoreV8';
-import { useWorkerTokenState } from '../../services/workerTokenUIService';
+import { useWorkerToken } from '../../v8/hooks/useWorkerToken';
 import { WorkerTokenModalV8 } from '../../v8/components/WorkerTokenModalV8';
 
 // Test Configuration for MFA flows
@@ -237,10 +237,18 @@ const CodeBlock = styled.pre`
 const MFAFlowsApiTest: React.FC = () => {
 	const { apps, selectedAppId, selectApp, getActiveAppConfig } = useCredentialStoreV8();
 	const {
-		hasValidToken: hasWorkerToken,
+		tokenStatus,
 		showWorkerTokenModal,
 		setShowWorkerTokenModal,
-	} = useWorkerTokenState();
+	} = useWorkerToken();
+
+	const hasWorkerToken = tokenStatus.isValid;
+
+	// Mock worker token function
+	const getWorkerToken = async (): Promise<string> => {
+		// This would normally get the worker token from storage
+		return `mock-worker-token-${Date.now()}`;
+	};
 
 	const [config, setConfig] = useState<MFATestConfig>({
 		environmentId: '',
@@ -739,12 +747,6 @@ const MFAFlowsApiTest: React.FC = () => {
 			setIsRunning(false);
 		}
 	}, [testAdminAuthActivationRequired]);
-
-	// Mock worker token function
-	const getWorkerToken = async (): Promise<string> => {
-		// This would normally get the worker token from storage
-		return `mock-worker-token-${Date.now()}`;
-	};
 
 	return (
 		<Container>
