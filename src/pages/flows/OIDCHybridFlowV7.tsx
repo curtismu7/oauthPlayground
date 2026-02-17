@@ -35,9 +35,9 @@ import {
 	log,
 } from '../../services/hybridFlowSharedService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
-import type { V7FlowName } from '../../services/v7SharedService';
+import type { V7FlowName } from '../../services/sharedService';
 // Import V7 Shared Service for compliance features
-import { V7SharedService } from '../../services/v7SharedService';
+import { V7SharedService } from '../../services/sharedService';
 import { checkCredentialsAndWarn } from '../../utils/credentialsWarningService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
