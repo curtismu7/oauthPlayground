@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FiEye, FiEyeOff, FiLoader, FiLock, FiShield, FiUser, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
+import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 
 interface RedirectlessLoginModalProps {
 	isOpen: boolean;
@@ -363,9 +364,17 @@ const RedirectlessLoginModal: React.FC<RedirectlessLoginModalProps> = ({
 		<ModalOverlay $isOpen={isOpen} onKeyDown={handleKeyDown}>
 			<ModalContent onClick={(e) => e.stopPropagation()}>
 				<ModalHeader>
-					<button className="close-button" onClick={onClose} disabled={isLoading}>
+					<ButtonSpinner
+						loading={false}
+						onClick={onClose}
+						disabled={isLoading}
+						spinnerSize={10}
+						spinnerPosition="left"
+						loadingText="Closing..."
+						className="close-button"
+					>
 						<FiX />
-					</button>
+					</ButtonSpinner>
 					<IconBadge>
 						<FiShield />
 					</IconBadge>
@@ -416,14 +425,17 @@ const RedirectlessLoginModal: React.FC<RedirectlessLoginModalProps> = ({
 									className={displayError && !password.trim() ? 'is-invalid' : ''}
 									autoComplete="current-password"
 								/>
-								<button
-									type="button"
-									className="toggle-password"
+								<ButtonSpinner
+									loading={false}
 									onClick={() => setShowPassword(!showPassword)}
 									disabled={isLoading}
+									spinnerSize={10}
+									spinnerPosition="left"
+									loadingText="Toggling..."
+									className="toggle-password"
 								>
 									{showPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
-								</button>
+								</ButtonSpinner>
 							</InputContainer>
 						</FormGroup>
 
