@@ -1825,8 +1825,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						flexWrap: 'wrap',
 					}}
 				>
-					<button
-						type="button"
+					<ButtonSpinner
+						loading={false}
 						onClick={() => {
 							const mfaCreds = CredentialsServiceV8.loadCredentials('mfa-v8', {
 								flowKey: 'mfa-v8',
@@ -1851,6 +1851,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 								'Postman collection and environment downloaded! Import both into Postman to test all MFA flows.'
 							);
 						}}
+						spinnerSize={16}
+						spinnerPosition="left"
 						style={{
 							display: 'flex',
 							alignItems: 'center',
@@ -1866,21 +1868,12 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							boxShadow: '0 2px 8px rgba(139, 92, 246, 0.3)',
 							transition: 'all 0.2s ease',
 						}}
-						onMouseEnter={(e) => {
-							e.currentTarget.style.background = '#7c3aed';
-							e.currentTarget.style.boxShadow = '0 4px 12px rgba(139, 92, 246, 0.4)';
-						}}
-						onMouseLeave={(e) => {
-							e.currentTarget.style.background = '#8b5cf6';
-							e.currentTarget.style.boxShadow = '0 2px 8px rgba(139, 92, 246, 0.3)';
-						}}
-						title="Download comprehensive Postman collection for all MFA device types (SMS, Email, OATH TOTP (RFC 6238), FIDO2, Mobile, WhatsApp) grouped by Registration and Authentication"
 					>
 						<FiPackage size={18} />
 						Download All MFA Flows Postman Collection
-					</button>
-					<button
-						type="button"
+					</ButtonSpinner>
+					<ButtonSpinner
+						loading={false}
 						onClick={() => {
 							// Get Unified credentials for complete collection
 							const unifiedCreds = CredentialsServiceV8.loadCredentials('oauth-authz-v8u', {
@@ -1916,6 +1909,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 								'Complete Postman collection (Unified + MFA) downloaded! Import both files into Postman.'
 							);
 						}}
+						spinnerSize={16}
+						spinnerPosition="left"
 						style={{
 							display: 'flex',
 							alignItems: 'center',
@@ -1931,23 +1926,14 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
 							transition: 'all 0.2s ease',
 						}}
-						onMouseEnter={(e) => {
-							e.currentTarget.style.background = '#059669';
-							e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.4)';
-						}}
-						onMouseLeave={(e) => {
-							e.currentTarget.style.background = '#10b981';
-							e.currentTarget.style.boxShadow = '0 2px 8px rgba(16, 185, 129, 0.3)';
-						}}
-						title="Download complete Postman collection for all Unified OAuth/OIDC flows AND all MFA device types in one collection"
 					>
 						<FiPackage size={18} />
 						Download Complete Collection (Unified + MFA)
-					</button>
+					</ButtonSpinner>
 
 					{/* API Test Button */}
-					<button
-						type="button"
+					<ButtonSpinner
+						loading={false}
 						onClick={() => {
 							// Use the centralized redirect URI service for MFA flows
 							const redirectUri = MFARedirectUriServiceV8.getRedirectUri('unified-mfa-v8');
@@ -1956,6 +1942,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 								'_blank'
 							);
 						}}
+						spinnerSize={16}
+						spinnerPosition="left"
 						style={{
 							display: 'flex',
 							alignItems: 'center',
@@ -1971,19 +1959,10 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)',
 							transition: 'all 0.2s ease',
 						}}
-						onMouseEnter={(e) => {
-							e.currentTarget.style.background = '#2563eb';
-							e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.4)';
-						}}
-						onMouseLeave={(e) => {
-							e.currentTarget.style.background = '#3b82f6';
-							e.currentTarget.style.boxShadow = '0 2px 8px rgba(59, 130, 246, 0.3)';
-						}}
-						title="Open unified OAuth flow app in new tab"
 					>
 						<FiCode size={18} />
 						OAuth & MFA API Test
-					</button>
+					</ButtonSpinner>
 				</div>
 			</div>
 
