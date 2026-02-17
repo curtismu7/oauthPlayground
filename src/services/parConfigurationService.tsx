@@ -6,6 +6,7 @@ import React, { useCallback, useState } from 'react';
 import { FiCheckCircle, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
 import { CollapsibleHeader } from './collapsibleHeaderService';
+import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 
 // PAR Configuration Types
 export interface PARConfiguration {
@@ -220,8 +221,8 @@ export const PARConfigurationService: React.FC<PARConfigurationServiceProps> = (
 
 				{/* Quick-fill buttons for common configurations */}
 				<div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-					<button
-						type="button"
+					<ButtonSpinner
+						loading={false}
 						onClick={() => {
 							const basicConfig = {
 								acrValues: '1',
@@ -232,6 +233,9 @@ export const PARConfigurationService: React.FC<PARConfigurationServiceProps> = (
 							};
 							handleFullConfigChange(basicConfig);
 						}}
+						spinnerSize={10}
+						spinnerPosition="left"
+						loadingText="Applying..."
 						style={{
 							padding: '0.5rem 1rem',
 							backgroundColor: '#3b82f6',
@@ -243,9 +247,9 @@ export const PARConfigurationService: React.FC<PARConfigurationServiceProps> = (
 						}}
 					>
 						📝 Basic Profile
-					</button>
-					<button
-						type="button"
+					</ButtonSpinner>
+					<ButtonSpinner
+						loading={false}
 						onClick={() => {
 							const secureConfig = {
 								acrValues: '2',
@@ -256,6 +260,9 @@ export const PARConfigurationService: React.FC<PARConfigurationServiceProps> = (
 							};
 							handleFullConfigChange(secureConfig);
 						}}
+						spinnerSize={10}
+						spinnerPosition="left"
+						loadingText="Applying..."
 						style={{
 							padding: '0.5rem 1rem',
 							backgroundColor: '#dc2626',
@@ -267,9 +274,9 @@ export const PARConfigurationService: React.FC<PARConfigurationServiceProps> = (
 						}}
 					>
 						🔒 High Security
-					</button>
-					<button
-						type="button"
+					</ButtonSpinner>
+					<ButtonSpinner
+						loading={false}
 						onClick={() => {
 							const fullConfig = {
 								acrValues: '1, 2',
@@ -283,6 +290,9 @@ export const PARConfigurationService: React.FC<PARConfigurationServiceProps> = (
 							};
 							handleFullConfigChange(fullConfig);
 						}}
+						spinnerSize={10}
+						spinnerPosition="left"
+						loadingText="Applying..."
 						style={{
 							padding: '0.5rem 1rem',
 							backgroundColor: '#059669',
@@ -294,9 +304,9 @@ export const PARConfigurationService: React.FC<PARConfigurationServiceProps> = (
 						}}
 					>
 						📋 Complete Profile
-					</button>
-					<button
-						type="button"
+					</ButtonSpinner>
+					<ButtonSpinner
+						loading={false}
 						onClick={() => {
 							const minimalConfig = {
 								acrValues: '',
@@ -307,6 +317,9 @@ export const PARConfigurationService: React.FC<PARConfigurationServiceProps> = (
 							};
 							handleConfigChange(minimalConfig);
 						}}
+						spinnerSize={10}
+						spinnerPosition="left"
+						loadingText="Applying..."
 						style={{
 							padding: '0.5rem 1rem',
 							backgroundColor: '#6b7280',
@@ -318,7 +331,7 @@ export const PARConfigurationService: React.FC<PARConfigurationServiceProps> = (
 						}}
 					>
 						⚡ Minimal
-					</button>
+					</ButtonSpinner>
 				</div>
 
 				<ParameterGrid>

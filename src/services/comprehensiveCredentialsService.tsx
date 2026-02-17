@@ -13,6 +13,7 @@ const SERVICE_VERSION = '2.0.0';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FiCheckCircle, FiKey, FiSettings } from 'react-icons/fi';
 import styled from 'styled-components';
+import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 import ClientAuthMethodSelector from '../components/ClientAuthMethodSelector';
 import ComprehensiveDiscoveryInput from '../components/ComprehensiveDiscoveryInput';
 import { ConfigCheckerButtons } from '../components/ConfigCheckerButtons';
@@ -1378,9 +1379,13 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 									grant (no redirect URI or response type needed). Then select an application from
 									your PingOne environment to auto-fill all configuration fields.
 								</p>
-								<button
+								<ButtonSpinner
+									loading={false}
 									onClick={() => setShowWorkerTokenModal(true)}
 									disabled={false}
+									spinnerSize={12}
+									spinnerPosition="left"
+									loadingText="Opening..."
 									style={{
 										background: '#007bff',
 										color: 'white',
@@ -1393,7 +1398,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 									}}
 								>
 									Get Worker Token
-								</button>
+								</ButtonSpinner>
 							</div>
 						)}
 
@@ -2005,8 +2010,12 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 						>
 							Generate a worker token to use Config Checker and create PingOne applications.
 						</div>
-						<button
+						<ButtonSpinner
+							loading={false}
 							onClick={() => setShowWorkerTokenModal(true)}
+							spinnerSize={12}
+							spinnerPosition="left"
+							loadingText="Generating..."
 							style={{
 								display: 'inline-flex',
 								alignItems: 'center',
@@ -2021,12 +2030,10 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 								transition: 'background 120ms ease',
 								fontSize: '0.875rem',
 							}}
-							onMouseOver={(e) => (e.currentTarget.style.background = '#1e40af')}
-							onMouseOut={(e) => (e.currentTarget.style.background = '#2563eb')}
 						>
 							<FiKey />
 							Generate Worker Token
-						</button>
+						</ButtonSpinner>
 					</div>
 				)}
 
