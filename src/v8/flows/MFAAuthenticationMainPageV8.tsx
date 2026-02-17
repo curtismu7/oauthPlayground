@@ -3559,8 +3559,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						<h2 style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
 							User Devices
 						</h2>
-						<button
-							type="button"
+						<ButtonSpinner
+							loading={isLoadingDevices}
 							onClick={async () => {
 								if (!credentials.environmentId || !usernameInput.trim() || !tokenStatus.isValid)
 									return;
@@ -3584,6 +3584,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 								}
 							}}
 							disabled={isLoadingDevices}
+							spinnerSize={12}
+							spinnerPosition="left"
+							loadingText="Loading..."
 							style={{
 								padding: '6px 12px',
 								border: '1px solid #d1d5db',
@@ -3597,11 +3600,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 								gap: '6px',
 							}}
 						>
-							<FiLoader
-								style={{ animation: isLoadingDevices ? 'spin 1s linear infinite' : 'none' }}
-							/>
-							Refresh
-						</button>
+							{isLoadingDevices ? '' : 'Refresh'}
+						</ButtonSpinner>
 					</div>
 
 					{devicesError && (
@@ -3640,9 +3640,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							}}
 						>
 							{userDevices.map((device) => (
-								<button
+								<ButtonSpinner
 									key={device.id as string}
-									type="button"
+									loading={authState.isLoading}
 									onClick={async () => {
 										// Start authentication with this specific device (for all device types)
 										if (!tokenStatus.isValid) {
@@ -3776,27 +3776,18 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											setAuthState((prev) => ({ ...prev, isLoading: false }));
 										}
 									}}
+									spinnerSize={14}
+									spinnerPosition="left"
+									loadingText="Authenticating..."
 									style={{
 										padding: '16px',
 										border: '1px solid #e5e7eb',
 										borderRadius: '8px',
 										background: '#f9fafb',
-										cursor: 'pointer',
+										cursor: authState.isLoading ? 'not-allowed' : 'pointer',
 										transition: 'all 0.2s',
 										textAlign: 'left',
 										width: '100%',
-									}}
-									onMouseOver={(e) => {
-										e.currentTarget.style.background = '#f3f4f6';
-										e.currentTarget.style.borderColor = '#3b82f6';
-										e.currentTarget.style.transform = 'translateY(-2px)';
-										e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
-									}}
-									onMouseOut={(e) => {
-										e.currentTarget.style.background = '#f9fafb';
-										e.currentTarget.style.borderColor = '#e5e7eb';
-										e.currentTarget.style.transform = 'translateY(0)';
-										e.currentTarget.style.boxShadow = 'none';
 									}}
 								>
 									<div
@@ -3842,7 +3833,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									<div style={{ fontSize: '12px', color: '#6b7280' }}>
 										Status: <strong style={{ color: '#1f2937' }}>{device.status as string}</strong>
 									</div>
-								</button>
+								</ButtonSpinner>
 							))}
 						</div>
 					) : (
