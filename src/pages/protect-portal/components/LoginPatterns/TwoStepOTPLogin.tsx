@@ -9,7 +9,7 @@
  */
 
 import React, { useState } from 'react';
-import { FiLock, FiMail, FiArrowRight } from 'react-icons/fi';
+import { FiArrowRight, FiLock, FiMail } from 'react-icons/fi';
 import styled from 'styled-components';
 import type { CorporatePortalConfig } from '../../types/CorporatePortalConfig';
 

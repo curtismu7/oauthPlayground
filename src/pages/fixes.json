@@ -1,5 +1,3 @@
-
-
 1) reset button not working on IMplcit flow, check all flows
 2) OIDC authz - after oidc discvoery its not filling in environment id. Can make sure this is standard everywhere, I have had to fix it sseveral times
 3) OIDC authz - auto redirecting on Authz urls modal. Thsi should be waiting 20 seconds and have a button the user can hit.  This was fixed before, its a regrssion

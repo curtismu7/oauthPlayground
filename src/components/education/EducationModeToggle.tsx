@@ -10,11 +10,11 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiBook, FiMinimize2, FiEyeOff, FiChevronDown } from 'react-icons/fi';
+import { FiBook, FiChevronDown, FiEyeOff, FiMinimize2 } from 'react-icons/fi';
 import styled from 'styled-components';
 import {
-	EducationPreferenceService,
 	type EducationMode,
+	EducationPreferenceService,
 } from '../../services/educationPreferenceService';
 
 const ToggleContainer = styled.div`

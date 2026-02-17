@@ -8,8 +8,8 @@
  * FedEx brand theme with purple and orange colors, professional logistics styling.
  */
 
-import type { BrandTheme } from './brand-theme.interface';
 import type { CorporatePortalConfig } from '../types/CorporatePortalConfig';
+import type { BrandTheme } from './brand-theme.interface';
 
 export const fedexConfig: CorporatePortalConfig = {
 	company: {
