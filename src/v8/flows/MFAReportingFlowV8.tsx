@@ -328,6 +328,7 @@ export const MFAReportingFlowV8: React.FC = () => {
 	const [selectedReport, setSelectedReport] = useState<ReportType>('all-devices');
 	const [reports, setReports] = useState<unknown[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
 	const [username, setUsername] = useState('');
 	const [region, setRegion] = useState<'us' | 'eu' | 'ap' | 'ca' | 'na'>('us');
 	const [customDomain, setCustomDomain] = useState('');
@@ -431,6 +432,8 @@ export const MFAReportingFlowV8: React.FC = () => {
 			try {
 				const config = REPORT_CONFIGS[selectedReport];
 				let result: unknown[] = [];
+				
+				if (selectedReport === 'user-authentications') {
 					result = await MFAReportingServiceV8.getUserAuthenticationReports({
 						environmentId: credentials.environmentId,
 						username: username.trim(),
@@ -443,8 +446,7 @@ export const MFAReportingFlowV8: React.FC = () => {
 						region,
 						customDomain,
 					});
-				}
-			} else if (isDeviceReport) {
+				} else if (isDeviceReport) {
 				// Handle device reports (SMS, Email, Voice, TOTP, FIDO2, WhatsApp)
 				const reportResult = await MFAReportingServiceV8.createMFADevicesReport({
 					environmentId: credentials.environmentId,
@@ -491,9 +493,7 @@ export const MFAReportingFlowV8: React.FC = () => {
 		} finally {
 			setIsLoading(false);
 		}
-	}, 'Loading MFA reports...');
-	}, [reportingSpinner]
-	);
+	});
 
 	// Get report title
 	const getReportTitle = () => {
@@ -881,5 +881,3 @@ export const MFAReportingFlowV8: React.FC = () => {
 		</>
 	);
 };
-
-export default MFAReportingFlowV8;

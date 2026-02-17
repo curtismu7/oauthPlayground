@@ -930,6 +930,21 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							</MigrationBadge>
 						),
 					},
+					{
+						id: 'oidc-hybrid-v8',
+						path: '/flows/hybrid-v8',
+						label: 'Hybrid Flow (V8)',
+						icon: (
+							<ColoredIcon $color="#3b82f6">
+								<FiGitBranch />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="V8: Modern OIDC Hybrid Flow with enhanced UX and real-time token management">
+								<FiCheckCircle />
+							</MigrationBadge>
+						),
+					},
 				],
 			},
 			{
