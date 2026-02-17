@@ -28,6 +28,7 @@ import {
 } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { ButtonSpinner } from '../../components/ui/ButtonSpinner';
 import { usePageScroll } from '@/hooks/usePageScroll';
 import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
@@ -956,13 +957,26 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 								onChange={(e) => setRedirectUri(e.target.value)}
 							/>
 						</FormGroup>
-						<Button
-							$variant="primary"
+						<ButtonSpinner
+							loading={stepStates[0]?.status === 'loading'}
 							onClick={handleStep0}
 							disabled={stepStates[0]?.status === 'loading'}
+							spinnerSize={16}
+							spinnerPosition="left"
+							loadingText="Creating..."
+							style={{
+								background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+								color: 'white',
+								border: 'none',
+								padding: '0.75rem 1.5rem',
+								borderRadius: '0.375rem',
+								fontWeight: '600',
+								cursor: stepStates[0]?.status === 'loading' ? 'not-allowed' : 'pointer',
+								transition: 'all 0.2s ease',
+							}}
 						>
-							Create Application
-						</Button>
+							{stepStates[0]?.status === 'loading' ? '' : 'Create Application'}
+						</ButtonSpinner>
 						{stepStates[0]?.result && (
 							<ResultBox $success={true}>
 								<strong>Application Created:</strong>
