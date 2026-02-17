@@ -761,6 +761,21 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							</MigrationBadge>
 						),
 					},
+					{
+						id: 'ciba-v7',
+						path: '/flows/ciba-v7',
+						label: 'CIBA Flow (V7)',
+						icon: (
+							<ColoredIcon $color="#8b5cf6">
+								<FiShield />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="V7: CIBA (RFC 9436) Client Initiated Backchannel Authentication - Real PingOne API">
+								<FiCheckCircle />
+							</MigrationBadge>
+						),
+					},
 				],
 			},
 			{
@@ -860,22 +875,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							</MigrationBadge>
 						),
 					},
-					{
-						id: 'ciba-v7',
-						path: '/flows/ciba-v7',
-						label: 'CIBA Flow (V7)',
-						icon: (
-							<ColoredIcon $color="#8b5cf6">
-								<FiShield />
-							</ColoredIcon>
-						),
-						badge: (
-							<MigrationBadge title="V7: CIBA (RFC 9436) Client Initiated Backchannel Authentication - Real PingOne API">
-								<FiCheckCircle />
-							</MigrationBadge>
-						),
-					},
-				],
+									],
 			},
 			{
 				id: 'oidc-flows',
@@ -2003,7 +2003,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 		];
 
 		// Menu structure version - increment when menu structure changes significantly
-		const MENU_VERSION = '2.6'; // Moved SDK Examples to Production menu group
+		const MENU_VERSION = '2.7'; // Moved CIBA to Production (Legacy) menu group
 		const savedVersion = localStorage.getItem('simpleDragDropSidebar.menuVersion');
 
 		// If version changed, clear old menu layout and use new structure
