@@ -2983,120 +2983,95 @@ const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowCont
 						tokenType: 'user',
 						userToken: token,
 					};
-				} else {
-					baseParams = {
-						...baseParams,
+				}
 
-          console.log('[UNIFIED-FLOW] Registration base params:', {
-            environmentId: baseParams.environmentId,
-            username: baseParams.username,
-            type: baseParams.type,
-            tokenType: baseParams.tokenType,
-            status: baseParams.status,
-            flowType,
-          });
+				console.log('[UNIFIED-FLOW] Registration base params:', {
+					environmentId: baseParams.environmentId,
+					username: baseParams.username,
+					type: baseParams.type,
+					tokenType: baseParams.tokenType,
+					status: baseParams.status,
+					flowType,
+				});
 
-          // Map form field names to API field names
-          // Form uses 'deviceName' but API expects 'nickname' or 'name'
-          const mappedFields: Record<string, string> = { ...fields };
-          if (mappedFields.deviceName) {
-            mappedFields.nickname = mappedFields.deviceName;
-            mappedFields.name = mappedFields.deviceName;
-            delete mappedFields.deviceName;
-          }
+				// Map form field names to API field names
+				// Form uses 'deviceName' but API expects 'nickname' or 'name'
+				const mappedFields: Record<string, string> = { ...fields };
+				if (mappedFields.deviceName) {
+					mappedFields.nickname = mappedFields.deviceName;
+					mappedFields.name = mappedFields.deviceName;
+					delete mappedFields.deviceName;
+				}
 
-          // Format phone number for SMS/WhatsApp devices
-          // Form sends: { phoneNumber: '9725231586', countryCode: '+1' }
-          // API expects: { phone: '+1.9725231586' }
-          if (mappedFields.phoneNumber && mappedFields.countryCode) {
-            const countryCode = mappedFields.countryCode.replace('+', ''); // Remove + for formatting
-            const phoneNumber = mappedFields.phoneNumber.replace(/\D/g, ''); // Remove non-digits
-            mappedFields.phone = `+${countryCode}.${phoneNumber}`;
-            console.log('[UNIFIED-FLOW] Formatted phone:', mappedFields.phone);
-            delete mappedFields.phoneNumber;
-            delete mappedFields.countryCode;
-          }
+				// Format phone number for SMS/WhatsApp devices
+				// Form sends: { phoneNumber: '9725231586', countryCode: '+1' }
+				// API expects: { phone: '+1.9725231586' }
+				if (mappedFields.phoneNumber && mappedFields.countryCode) {
+					const countryCode = mappedFields.countryCode.replace('+', ''); // Remove + for formatting
+					const phoneNumber = mappedFields.phoneNumber.replace(/\D/g, ''); // Remove non-digits
+					mappedFields.phone = `+${countryCode}.${phoneNumber}`;
+					console.log('[UNIFIED-FLOW] Formatted phone:', mappedFields.phone);
+					delete mappedFields.phoneNumber;
+					delete mappedFields.countryCode;
+				}
 
-          // Include device-specific fields (phone, email, etc.)
-          const deviceParams: RegisterDeviceParamsWithToken = {
-            ...baseParams,
-            ...mappedFields,
-            // Include policy for TOTP devices (required for secret and keyUri to be returned)
-            // Note: deviceAuthenticationPolicyId should be passed via props if needed
-            // Temporarily disabled - TOTP devices will need policy configuration
-            // ...(selectedDeviceType === 'TOTP' && deviceAuthenticationPolicyId
-            //	? { policy: deviceAuthenticationPolicyId }
-            //	: {}),
-          };
+				// Include device-specific fields (phone, email, etc.)
+				const deviceParams: RegisterDeviceParamsWithToken = {
+					...baseParams,
+					...mappedFields,
+				};
 
-          console.log('[UNIFIED-FLOW] Registering device with params:', deviceParams);
+				console.log('[UNIFIED-FLOW] Registering device with params:', deviceParams);
 
-          const result = await MFAServiceV8_Legacy.registerDevice(deviceParams);
-          console.log('[UNIFIED-FLOW] Device registered:', result);
+				const result = await MFAServiceV8_Legacy.registerDevice(deviceParams);
+				console.log('[UNIFIED-FLOW] Device registered:', result);
 
-          // Update MFA state with device info
-          const registrationResult = result as unknown as Record<string, unknown>;
+				// Update MFA state with device info
+				const registrationResult = result as unknown as Record<string, unknown>;
 
-          // ========== DEBUG: TOTP QR CODE DATA ==========
-          if (selectedDeviceType === 'TOTP') {
-            console.log('🔍 [TOTP DEBUG] Registration result for TOTP:', {
-              deviceId: result.deviceId,
-              status: result.status,
-              qrCode: registrationResult.qrCode,
-              qrCodeUrl: registrationResult.qrCodeUrl,
-              secret: registrationResult.secret,
-              totpSecret: registrationResult.totpSecret,
-              fullResult: result,
-            });
-          }
-          // ===============================================
+				// ========== DEBUG: TOTP QR CODE DATA ==========
+				if (selectedDeviceType === 'TOTP') {
+					console.log('🔍 [TOTP DEBUG] Registration result for TOTP:', {
+						deviceId: result.deviceId,
+						status: result.status,
+						qrCode: registrationResult.qrCode,
+						qrCodeUrl: registrationResult.qrCodeUrl,
+						secret: registrationResult.secret,
+						totpSecret: registrationResult.totpSecret,
+						fullResult: result,
+					});
+				}
+				// ===============================================
 
-          // Clear stored registration data after successful use
-          localStorage.removeItem('mfa_registration_flow_type');
-          localStorage.removeItem('mfa_registration_fields');
-          localStorage.removeItem('mfa_registration_device_type');
+				// Clear stored registration data after successful use
+				localStorage.removeItem('mfa_registration_flow_type');
+				localStorage.removeItem('mfa_registration_fields');
+				localStorage.removeItem('mfa_registration_device_type');
 
-          props.setMfaState((prev) => {
-            // TOTP: QR code will be rendered by QRCodeSVG component in UnifiedActivationStep
-            // No need to generate QR code data URL here - just pass the keyUri
-            const newState: MFAState = {
-              ...prev,
-              deviceId: result.deviceId,
-              deviceStatus: result.status,
-              ...(registrationResult.deviceActivateUri
-                ? { deviceActivateUri: String(registrationResult.deviceActivateUri) }
-                : {}),
-              ...(selectedDeviceType === 'TOTP'
-                ? {
-                    totpSecret: String(registrationResult.secret || ''),
-                    keyUri: String(registrationResult.keyUri || ''),
-                    qrCodeUrl: String(registrationResult.keyUri || ''),
-                    showQr: !!(registrationResult.secret || registrationResult.keyUri),
-                  }
-                : {}),
-              ...(selectedDeviceType === 'FIDO2' &&
-              registrationResult.publicKeyCredentialCreationOptions
-                ? {
-                    publicKeyCredentialCreationOptions:
-                      registrationResult.publicKeyCredentialCreationOptions,
-                  }
-                : {}),
-              ...(selectedDeviceType === 'MOBILE' && registrationResult.pairingKey
-                ? { pairingKey: String(registrationResult.pairingKey) }
-                : {}),
-            };
-
-            // ========== DEBUG: TOTP MFA STATE UPDATE ==========
-            if (selectedDeviceType === 'TOTP') {
-              console.log('🔍 [TOTP DEBUG] Updated mfaState:', {
-                qrCodeUrl: newState.qrCodeUrl,
-                totpSecret: newState.totpSecret,
-                showQr: newState.showQr,
-                deviceStatus: newState.deviceStatus,
-                fullState: newState,
-              });
-            }
-            // ================================================
+				props.setMfaState((prev) => {
+					// TOTP: QR code will be rendered by QRCodeSVG component in UnifiedActivationStep
+					// No need to generate QR code data URL here - just pass the keyUri
+					const newState: MFAState = {
+						...prev,
+						deviceId: result.deviceId,
+						deviceStatus: result.status,
+						...(registrationResult.deviceActivateUri
+							? { deviceActivateUri: String(registrationResult.deviceActivateUri) }
+							: {}),
+						...(selectedDeviceType === 'TOTP'
+							? {
+									totpSecret: String(registrationResult.secret || ''),
+									keyUri: String(registrationResult.keyUri || ''),
+									qrCodeUrl: String(registrationResult.keyUri || ''),
+									showQr: !!(registrationResult.secret || registrationResult.keyUri),
+								}
+							: {}),
+						...(selectedDeviceType === 'FIDO2' &&
+						registrationResult.publicKeyCredentialCreationOptions
+							? {
+									publicKeyCredentialCreationOptions:
+										registrationResult.publicKeyCredentialCreationOptions,
+								}
 							: {}),
 						...(selectedDeviceType === 'MOBILE' && registrationResult.pairingKey
 							? { pairingKey: String(registrationResult.pairingKey) }
@@ -3118,22 +3093,42 @@ const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowCont
 					return newState;
 				});
 
-				// FIDO2: Check if we already have credential data (from WebAuthn modal)
-				// If credentialId and publicKey are present, registration is complete
-
-      toastV8.success('✅ Authentication successful! Your user token is ready.', {
-        duration: 4000,
-      });
-
-      // Close login modal and show success page
-      setShowUserLoginModal(false);
-      setShowUserTokenSuccess(true);
-    } else {
-      console.log('[UNIFIED-FLOW] WARNING: No pending registration found after OAuth!');
-    }
-  },
-  [setUserToken]
-);
+				// Auto-advance to appropriate step based on device type and status
+				if (selectedDeviceType === 'FIDO2') {
+					// FIDO2 devices need activation - go to Step 3
+					setTimeout(() => {
+						props.nav.goToStep(3); // FIDO2 Activation step
+					}, 1000);
+				} else if (selectedDeviceType === 'TOTP') {
+					// TOTP shows QR code - go to Step 4 for activation
+					setTimeout(() => {
+						props.nav.goToStep(4); // OTP Activation step (shows QR code)
+					}, 1000);
+				} else {
+					// Other devices (SMS, Email, etc.) - go to Step 4 for OTP or Step 5 for docs
+					setTimeout(() => {
+						if (result.status === 'ACTIVE') {
+							// Device is already active - go to API docs
+							props.nav.goToStep(5); // API Documentation
+						} else {
+							// Device needs activation - go to OTP step
+							props.nav.goToStep(4); // OTP Activation step
+						}
+					}, 1000);
+				}
+			},
+			{
+				onSuccess: () => {
+					// Success handled in main function
+				},
+				onError: (error) => {
+					// Error already handled in main function
+				}
+			}
+		);
+	},
+	[registerSpinner]
+	);
 
 /**
  * Handle continue from user token success page
