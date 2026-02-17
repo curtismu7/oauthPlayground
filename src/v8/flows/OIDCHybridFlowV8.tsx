@@ -18,7 +18,6 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import styled from 'styled-components';
 import {
 	FiAlertTriangle,
 	FiCheckCircle,
@@ -28,11 +27,12 @@ import {
 	FiKey,
 	FiRefreshCw,
 } from 'react-icons/fi';
+import styled from 'styled-components';
 import { CommonSpinner } from '@/components/common/CommonSpinner';
 import { useProductionSpinner } from '@/hooks/useProductionSpinner';
 import { useHybridFlowV8 } from '@/v8/hooks/useHybridFlowV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import type { HybridFlowCredentials } from '@/v8/services/hybridFlowIntegrationServiceV8';
+import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 // V8 styled components (following V8 patterns)
 const Container = styled.div`
@@ -364,7 +364,9 @@ const OIDCHybridFlowV8: React.FC = () => {
 			redirectUri: formData.redirectUri || `${window.location.origin}/flows/hybrid-v8/callback`,
 			scopes: formData.scopes || 'openid profile email',
 			responseType: hybridFlow.variant,
-			clientAuthMethod: (formData.clientAuthMethod as any) || 'client_secret_post',
+			clientAuthMethod:
+				(formData.clientAuthMethod as 'client_secret_post' | 'client_secret_basic' | 'none') ||
+				'client_secret_post',
 		};
 
 		hybridFlow.saveCredentials(credentials);

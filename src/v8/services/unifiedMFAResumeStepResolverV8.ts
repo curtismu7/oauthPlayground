@@ -243,7 +243,7 @@ export class UnifiedMFAResumeStepResolverV8 {
 		const serverSessionStep = sessionStorage['mfa_server_session_step'];
 		if (serverSessionStep) {
 			const step = parseInt(serverSessionStep, 10);
-			if (this.isValidStep(step) && step !== 0) {
+			if (UnifiedMFAResumeStepResolverV8.isValidStep(step) && step !== 0) {
 				return {
 					step,
 					source: StepResolutionSource.SERVER_SESSION,
@@ -270,7 +270,7 @@ export class UnifiedMFAResumeStepResolverV8 {
 		const urlStep = searchParams.get('step');
 		if (urlStep) {
 			const step = parseInt(urlStep, 10);
-			if (this.isValidStep(step) && step !== 0) {
+			if (UnifiedMFAResumeStepResolverV8.isValidStep(step) && step !== 0) {
 				return {
 					step,
 					source: StepResolutionSource.STATE_PARAM,
@@ -288,10 +288,10 @@ export class UnifiedMFAResumeStepResolverV8 {
 		const callbackStep = sessionStorage['mfa_oauth_callback_step'];
 		if (callbackStep) {
 			const step = parseInt(callbackStep, 10);
-			if (this.isValidStep(step) && step !== 0) {
+			if (UnifiedMFAResumeStepResolverV8.isValidStep(step) && step !== 0) {
 				// Verify timestamp is not expired
 				const timestamp = sessionStorage['mfa_oauth_callback_timestamp'];
-				if (!timestamp || this.isStateExpired(timestamp)) {
+				if (!timestamp || UnifiedMFAResumeStepResolverV8.isStateExpired(timestamp)) {
 					return null; // Expired state
 				}
 
@@ -323,7 +323,7 @@ export class UnifiedMFAResumeStepResolverV8 {
 		const targetStep = sessionStorage['mfa_target_step_after_callback'];
 		if (targetStep) {
 			const step = parseInt(targetStep, 10);
-			if (this.isValidStep(step) && step !== 0) {
+			if (UnifiedMFAResumeStepResolverV8.isValidStep(step) && step !== 0) {
 				return {
 					step,
 					source: StepResolutionSource.CLIENT_STORAGE,
@@ -344,7 +344,7 @@ export class UnifiedMFAResumeStepResolverV8 {
 				const parsed = JSON.parse(flowState);
 				if (
 					parsed.currentStep &&
-					this.isValidStep(parsed.currentStep) &&
+					UnifiedMFAResumeStepResolverV8.isValidStep(parsed.currentStep) &&
 					parsed.currentStep !== 0
 				) {
 					return {
@@ -378,7 +378,7 @@ export class UnifiedMFAResumeStepResolverV8 {
 		const lastKnownStep = localStorage['unified-mfa-last-known-step'];
 		if (lastKnownStep) {
 			const step = parseInt(lastKnownStep, 10);
-			if (this.isValidStep(step) && step !== 0) {
+			if (UnifiedMFAResumeStepResolverV8.isValidStep(step) && step !== 0) {
 				return {
 					step,
 					source: StepResolutionSource.LAST_KNOWN_STEP,
@@ -421,35 +421,47 @@ export class UnifiedMFAResumeStepResolverV8 {
 	 * @returns Step resolution result with full context
 	 */
 	public static resolveResumeStep(currentUrl: string = window.location.href): StepResolutionResult {
-		const correlationId = this.generateCorrelationId();
+		const correlationId = UnifiedMFAResumeStepResolverV8.generateCorrelationId();
 		const startTime = Date.now();
 
 		// Build context
 		const searchParams = new URL(window.location.href).searchParams;
-		const { sessionStorage, localStorage } = this.getStorageData();
+		const { sessionStorage, localStorage } = UnifiedMFAResumeStepResolverV8.getStorageData();
 
 		const context: StepResolverContext = {
-			currentUrl: this.sanitizeUrl(currentUrl),
+			currentUrl: UnifiedMFAResumeStepResolverV8.sanitizeUrl(currentUrl),
 			searchParams,
 			sessionStorage,
 			localStorage,
 			correlationId,
-			redirectParams: this.sanitizeRedirectParams(searchParams),
+			redirectParams: UnifiedMFAResumeStepResolverV8.sanitizeRedirectParams(searchParams),
 		};
 
 		const rejectedSources: Array<{ source: StepResolutionSource; reason: string }> = [];
 
 		// Try each source in precedence order
 		const sources = [
-			{ resolver: this.resolveFromServerSession, source: StepResolutionSource.SERVER_SESSION },
-			{ resolver: this.resolveFromStateParam, source: StepResolutionSource.STATE_PARAM },
-			{ resolver: this.resolveFromClientStorage, source: StepResolutionSource.CLIENT_STORAGE },
-			{ resolver: this.resolveFromLastKnownStep, source: StepResolutionSource.LAST_KNOWN_STEP },
+			{
+				resolver: UnifiedMFAResumeStepResolverV8.resolveFromServerSession,
+				source: StepResolutionSource.SERVER_SESSION,
+			},
+			{
+				resolver: UnifiedMFAResumeStepResolverV8.resolveFromStateParam,
+				source: StepResolutionSource.STATE_PARAM,
+			},
+			{
+				resolver: UnifiedMFAResumeStepResolverV8.resolveFromClientStorage,
+				source: StepResolutionSource.CLIENT_STORAGE,
+			},
+			{
+				resolver: UnifiedMFAResumeStepResolverV8.resolveFromLastKnownStep,
+				source: StepResolutionSource.LAST_KNOWN_STEP,
+			},
 		];
 
 		for (const { resolver, source } of sources) {
 			try {
-				const result = resolver.call(this, context);
+				const result = resolver.call(UnifiedMFAResumeStepResolverV8, context);
 				if (result) {
 					// ENFORCE INVARIANT: Step 0 is forbidden for redirect resumes
 					if (result.step === 0) {
@@ -461,7 +473,12 @@ export class UnifiedMFAResumeStepResolverV8 {
 					}
 
 					// Log successful resolution
-					this.logDecision(correlationId, context, result, rejectedSources);
+					UnifiedMFAResumeStepResolverV8.logDecision(
+						correlationId,
+						context,
+						result,
+						rejectedSources
+					);
 
 					const endTime = Date.now();
 					console.log(
@@ -478,8 +495,13 @@ export class UnifiedMFAResumeStepResolverV8 {
 		}
 
 		// FOOL-PROOF: If no source worked, fallback to Step 2 (never Step 0)
-		const fallbackResult = this.resolveFallbackStep2(context);
-		this.logDecision(correlationId, context, fallbackResult, rejectedSources);
+		const fallbackResult = UnifiedMFAResumeStepResolverV8.resolveFallbackStep2(context);
+		UnifiedMFAResumeStepResolverV8.logDecision(
+			correlationId,
+			context,
+			fallbackResult,
+			rejectedSources
+		);
 
 		const endTime = Date.now();
 		console.log(
@@ -494,7 +516,7 @@ export class UnifiedMFAResumeStepResolverV8 {
 	 */
 	public static isRedirectResumeScenario(): boolean {
 		const searchParams = new URL(window.location.href).searchParams;
-		const { sessionStorage } = this.getStorageData();
+		const { sessionStorage } = UnifiedMFAResumeStepResolverV8.getStorageData();
 
 		// Check for OAuth callback indicators
 		const hasCode = searchParams.has('code');
