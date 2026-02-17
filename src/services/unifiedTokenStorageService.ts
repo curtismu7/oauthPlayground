@@ -2221,6 +2221,340 @@ export class UnifiedTokenStorageService {
 			throw error;
 		}
 	}
+
+	// ===== FLOW STORAGE SERVICE COMPATIBILITY METHODS =====
+	// These methods provide backward compatibility with FlowStorageService
+
+	/**
+	 * Save flow storage data (FlowStorageService compatibility)
+	 */
+	async saveFlowStorageData(
+		storageType: 'session' | 'local',
+		flowId: string,
+		dataType: string,
+		data: unknown
+	): Promise<void> {
+		try {
+			const key = `${storageType}:${flowId}:${dataType}`;
+			const storageData = {
+				data,
+				timestamp: Date.now(),
+				storageType,
+				flowId,
+				dataType,
+			};
+
+			await this.storeToken({
+				id: `flow_storage_${key}`,
+				type: 'flow_state' as any,
+				value: JSON.stringify(storageData),
+				expiresAt: null,
+				issuedAt: Date.now(),
+				source: 'indexeddb',
+				flowName: flowId,
+				metadata: {
+					originalKey: key,
+					storageType,
+					flowId,
+					dataType,
+				},
+			});
+
+			// Also save to original storage for immediate compatibility
+			try {
+				if (storageType === 'session') {
+					sessionStorage.setItem(key, JSON.stringify(storageData));
+				} else {
+					localStorage.setItem(key, JSON.stringify(storageData));
+				}
+			} catch {}
+
+			logger.info(MODULE_TAG, 'Flow storage data saved', { storageType, flowId, dataType });
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to save flow storage data', error as Error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Load flow storage data (FlowStorageService compatibility)
+	 */
+	async loadFlowStorageData(
+		storageType: 'session' | 'local',
+		flowId: string,
+		dataType: string
+	): Promise<unknown | null> {
+		try {
+			const key = `${storageType}:${flowId}:${dataType}`;
+
+			// Try unified storage first
+			const tokens = await this.getTokens({
+				type: 'flow_state' as any,
+				id: `flow_storage_${key}`,
+			});
+
+			if (tokens.length > 0) {
+				const token = tokens[0];
+				const storageData = JSON.parse(token.value);
+				logger.info(MODULE_TAG, 'Flow storage data loaded from unified storage', {
+					storageType,
+					flowId,
+					dataType,
+				});
+				return storageData.data;
+			}
+
+			// Fallback to original storage
+			try {
+				const stored =
+					storageType === 'session' ? sessionStorage.getItem(key) : localStorage.getItem(key);
+				if (stored) {
+					const storageData = JSON.parse(stored);
+					// Migrate to unified storage
+					await this.saveFlowStorageData(storageType, flowId, dataType, storageData.data);
+					// Remove from original storage
+					if (storageType === 'session') {
+						sessionStorage.removeItem(key);
+					} else {
+						localStorage.removeItem(key);
+					}
+					logger.info(MODULE_TAG, 'Flow storage data migrated from original storage', {
+						storageType,
+						flowId,
+						dataType,
+					});
+					return storageData.data;
+				}
+			} catch (error) {
+				logger.error(MODULE_TAG, 'Failed to load from original storage', { key, error });
+			}
+
+			return null;
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to load flow storage data', {
+				storageType,
+				flowId,
+				dataType,
+				error,
+			});
+			return null;
+		}
+	}
+
+	/**
+	 * Remove flow storage data (FlowStorageService compatibility)
+	 */
+	async removeFlowStorageData(
+		storageType: 'session' | 'local',
+		flowId: string,
+		dataType: string
+	): Promise<void> {
+		try {
+			const key = `${storageType}:${flowId}:${dataType}`;
+
+			// Remove from unified storage
+			await this.deleteTokens({
+				type: 'flow_state' as any,
+				id: `flow_storage_${key}`,
+			});
+
+			// Remove from original storage
+			try {
+				if (storageType === 'session') {
+					sessionStorage.removeItem(key);
+				} else {
+					localStorage.removeItem(key);
+				}
+			} catch {}
+
+			logger.info(MODULE_TAG, 'Flow storage data removed', { storageType, flowId, dataType });
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to remove flow storage data', {
+				storageType,
+				flowId,
+				dataType,
+				error,
+			});
+		}
+	}
+
+	/**
+	 * Check if flow storage data exists (FlowStorageService compatibility)
+	 */
+	async hasFlowStorageData(
+		storageType: 'session' | 'local',
+		flowId: string,
+		dataType: string
+	): Promise<boolean> {
+		try {
+			const key = `${storageType}:${flowId}:${dataType}`;
+
+			// Check unified storage first
+			const tokens = await this.getTokens({
+				type: 'flow_state' as any,
+				id: `flow_storage_${key}`,
+			});
+
+			if (tokens.length > 0) {
+				return true;
+			}
+
+			// Check original storage
+			if (storageType === 'session') {
+				return sessionStorage.getItem(key) !== null;
+			} else {
+				return localStorage.getItem(key) !== null;
+			}
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to check flow storage data existence', {
+				storageType,
+				flowId,
+				dataType,
+				error,
+			});
+			return false;
+		}
+	}
+
+	/**
+	 * Clear all flow storage data for a flow (FlowStorageService compatibility)
+	 */
+	async clearFlowStorageData(flowId: string): Promise<void> {
+		try {
+			// Get all flow storage keys for this flow
+			const tokens = await this.getTokens({
+				type: 'flow_state' as any,
+				flowName: flowId,
+			});
+
+			// Remove from unified storage
+			for (const token of tokens) {
+				await this.deleteTokens({
+					type: 'flow_state' as any,
+					id: token.id,
+				});
+			}
+
+			// Remove from original storage
+			const sessionKeys = this.getFlowStorageKeysFromStorage('session', flowId);
+			const localKeys = this.getFlowStorageKeysFromStorage('local', flowId);
+
+			for (const key of sessionKeys) {
+				sessionStorage.removeItem(key);
+			}
+			for (const key of localKeys) {
+				localStorage.removeItem(key);
+			}
+
+			logger.info(MODULE_TAG, 'All flow storage data cleared', { flowId });
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to clear flow storage data', { flowId, error });
+		}
+	}
+
+	/**
+	 * Get flow storage keys from storage (helper method)
+	 */
+	private getFlowStorageKeysFromStorage(
+		storageType: 'session' | 'local',
+		flowId: string
+	): string[] {
+		const keys: string[] = [];
+		const storage = storageType === 'session' ? sessionStorage : localStorage;
+		const prefix = `${storageType}:${flowId}:`;
+
+		for (let i = 0; i < storage.length; i++) {
+			const key = storage.key(i);
+			if (key?.startsWith(prefix)) {
+				keys.push(key);
+			}
+		}
+
+		return keys;
+	}
+
+	/**
+	 * Export all flow storage data
+	 */
+	async exportAllFlowStorageData(): Promise<string> {
+		try {
+			const tokens = await this.getTokens({
+				type: 'flow_state' as any,
+			});
+			const data: Record<string, any> = {};
+
+			tokens.forEach((token) => {
+				try {
+					const storageData = JSON.parse(token.value);
+					const key = token.metadata?.originalKey || token.id.replace('flow_storage_', '');
+					data[key] = storageData.data;
+				} catch (error) {
+					logger.warn(MODULE_TAG, 'Failed to parse flow storage data for export', { id: token.id });
+				}
+			});
+
+			const exported = JSON.stringify(data, null, 2);
+
+			logger.info(MODULE_TAG, 'Flow storage data exported', {
+				keyCount: tokens.length,
+				size: exported.length,
+			});
+
+			return exported;
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to export flow storage data', error as Error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Import flow storage data
+	 */
+	async importAllFlowStorageData(jsonData: string, overwrite = false): Promise<void> {
+		try {
+			const data: Record<string, any> = JSON.parse(jsonData);
+
+			let imported = 0;
+			let skipped = 0;
+
+			for (const [key, value] of Object.entries(data)) {
+				// Parse the key to extract storage info
+				const parts = key.split(':');
+				if (parts.length >= 3) {
+					const storageType = parts[0] as 'session' | 'local';
+					const flowId = parts[1];
+					const dataType = parts.slice(2).join(':');
+
+					// Check if data already exists
+					if (!overwrite) {
+						const exists = await this.hasFlowStorageData(storageType, flowId, dataType);
+						if (exists) {
+							logger.info(MODULE_TAG, 'Skipping existing flow storage data', {
+								storageType,
+								flowId,
+								dataType,
+							});
+							skipped++;
+							continue;
+						}
+					}
+
+					// Import flow storage data
+					await this.saveFlowStorageData(storageType, flowId, dataType, value);
+					imported++;
+				}
+			}
+
+			logger.info(MODULE_TAG, 'Flow storage data imported', {
+				imported,
+				skipped,
+				total: Object.keys(data).length,
+			});
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to import flow storage data', error as Error);
+			throw error;
+		}
+	}
 }
 
 // Export singleton instance
