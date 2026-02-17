@@ -776,6 +776,21 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							</MigrationBadge>
 						),
 					},
+					{
+						id: 'ciba-v9',
+						path: '/flows/ciba-v9',
+						label: 'CIBA Flow (V9)',
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<FiShield />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="V9: OpenID Connect Core 1.0 Compliant CIBA with Enhanced Features" style={{ background: '#10b981', color: 'white' }}>
+								NEW
+							</MigrationBadge>
+						),
+					},
 				],
 			},
 			{
@@ -2003,7 +2018,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 		];
 
 		// Menu structure version - increment when menu structure changes significantly
-		const MENU_VERSION = '2.7'; // Moved CIBA to Production (Legacy) menu group
+		const MENU_VERSION = '2.8'; // Added CIBA V9 - OpenID Connect Core 1.0 Compliant
 		const savedVersion = localStorage.getItem('simpleDragDropSidebar.menuVersion');
 
 		// If version changed, clear old menu layout and use new structure

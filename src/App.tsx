@@ -94,6 +94,7 @@ import CIBAvsDeviceAuthz from './pages/CIBAvsDeviceAuthz';
 import CompetitiveAnalysis from './pages/CompetitiveAnalysis';
 import ComprehensiveOAuthEducation from './pages/ComprehensiveOAuthEducation';
 import Dashboard from './pages/Dashboard';
+import DpopAuthorizationCodeFlowV8 from './pages/DpopAuthorizationCodeFlowV8';
 import OAuth2SecurityBestPractices from './pages/docs/OAuth2SecurityBestPractices.tsx';
 import OAuthForAI from './pages/docs/OAuthForAI.tsx';
 import OIDCForAI from './pages/docs/OIDCForAI.tsx';
@@ -111,7 +112,7 @@ import SpiffeSpirePingOne from './pages/docs/SpiffeSpirePingOne.tsx';
 import EnvironmentIdInputDemo from './pages/EnvironmentIdInputDemo';
 import AdvancedOAuthParametersDemoFlow from './pages/flows/AdvancedOAuthParametersDemoFlow';
 import CIBAFlowV7 from './pages/flows/CIBAFlowV7';
-import CIBAFlowV8 from './v8/flows/CIBAFlowV8';
+import CIBAFlowV9 from './pages/flows/CIBAFlowV9';
 import ClientCredentialsFlowV7 from './pages/flows/ClientCredentialsFlowV7';
 import DeviceAuthorizationFlowV7 from './pages/flows/DeviceAuthorizationFlowV7';
 import DPoPFlow from './pages/flows/DPoPFlow';
@@ -129,7 +130,6 @@ import OAuthImplicitFlowCompletion from './pages/flows/OAuthImplicitFlowCompleti
 import OAuthROPCFlowV7 from './pages/flows/OAuthROPCFlowV7';
 import OIDCCompliantAuthorizationCodeFlow from './pages/flows/OIDCCompliantAuthorizationCodeFlow';
 import OIDCHybridFlowV7 from './pages/flows/OIDCHybridFlowV7';
-import OIDCHybridFlowV8 from './v8/flows/OIDCHybridFlowV8';
 import PARFlow from './pages/flows/PARFlow';
 import PARFlowV7 from './pages/flows/PARFlowV7';
 import PingOneCompleteMFAFlowV7 from './pages/flows/PingOneCompleteMFAFlowV7';
@@ -184,6 +184,7 @@ import { FIDO2SampleApp } from './samples/p1mfa/fido2/FIDO2SampleApp';
 import { IntegratedMFASample } from './samples/p1mfa/IntegratedMFASample';
 import { SMSSampleApp } from './samples/p1mfa/sms/SMSSampleApp';
 import { MFAAuthenticationSuccessPage } from './v8/components/MFAAuthenticationSuccessPage';
+import CIBAFlowV8 from './v8/flows/CIBAFlowV8';
 import { EmailMFASignOnFlowV8 } from './v8/flows/EmailMFASignOnFlowV8';
 import { ImplicitFlowV8 } from './v8/flows/ImplicitFlowV8';
 import { MFAAuthenticationMainPageV8 } from './v8/flows/MFAAuthenticationMainPageV8';
@@ -193,7 +194,7 @@ import { MFADeviceOrderingFlowV8 } from './v8/flows/MFADeviceOrderingFlowV8';
 import { MFAFlowV8 } from './v8/flows/MFAFlowV8';
 import MFAReportingFlowV8 from './v8/flows/MFAReportingFlowV8';
 import OAuthAuthorizationCodeFlowV8 from './v8/flows/OAuthAuthorizationCodeFlowV8';
-import DpopAuthorizationCodeFlowV8 from './pages/DpopAuthorizationCodeFlowV8';
+import OIDCHybridFlowV8 from './v8/flows/OIDCHybridFlowV8';
 import PingOneProtectFlowV8 from './v8/flows/PingOneProtectFlowV8';
 import ResourcesAPIFlowV8 from './v8/flows/ResourcesAPIFlowV8';
 import { TokenExchangeFlowV8 } from './v8/flows/TokenExchangeFlowV8';
@@ -1117,6 +1118,8 @@ const AppRoutes: React.FC = () => {
 								<Route path="/flows/ciba-v7" element={<CIBAFlowV7 />} />
 								{/* V8 CIBA Flow */}
 								<Route path="/flows/ciba-v8" element={<CIBAFlowV8 />} />
+								{/* V9 CIBA Flow */}
+								<Route path="/flows/ciba-v9" element={<CIBAFlowV9 />} />
 								{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
 								<Route path="/flows/ciba-v6" element={<Navigate to="/flows/ciba-v7" replace />} />
 								{/* Legacy Advanced Parameters V6 route - redirect to dashboard */}
