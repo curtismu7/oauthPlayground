@@ -22,7 +22,8 @@ import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationService
 import { RedirectlessServiceV8 } from '@/v8/services/redirectlessServiceV8';
 import { PKCEStorageServiceV8U } from '@/v8u/services/pkceStorageServiceV8U';
 import { TokenMonitoringService } from '@/v8u/services/tokenMonitoringService';
-import { useStandardSpinner, StandardModalSpinner } from '../../components/ui/StandardSpinner';
+import { useProductionSpinner } from '../../hooks/useProductionSpinner';
+import { CommonSpinner } from '../../components/common/CommonSpinner';
 
 const MODULE_TAG = '[🔐 OAUTH-AUTHZ-CODE-V8]';
 const FLOW_KEY = 'oauth-authz-v8';
@@ -92,9 +93,9 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 	const [isActionInProgress, setIsActionInProgress] = useState<boolean>(false);
 
 	// Standardized spinner hooks for OAuth authorization operations
-	const authUrlSpinner = useStandardSpinner(4000); // Generate auth URL - 4 seconds
-	const redirectlessSpinner = useStandardSpinner(8000); // Redirectless flow - 8 seconds
-	const tokenExchangeSpinner = useStandardSpinner(5000); // Token exchange - 5 seconds
+	const authUrlSpinner = useProductionSpinner('oauth-auth-url');
+	const redirectlessSpinner = useProductionSpinner('oauth-redirectless');
+	const tokenExchangeSpinner = useProductionSpinner('oauth-token-exchange');
 
 	// Initialize auth state and restore PKCE codes from bulletproof storage if available
 	const [authState, setAuthState] = useState<AuthorizationState>(() => {
@@ -250,7 +251,7 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 				onClick={async () => {
 					const spinner = useRedirectless ? redirectlessSpinner : authUrlSpinner;
 					
-					await spinner.executeWithSpinner(
+					await spinner.withSpinner(
 						async () => {
 							console.log(
 								`${MODULE_TAG} ${useRedirectless ? 'Starting redirectless flow' : 'Generating authorization URL'}`
@@ -360,17 +361,9 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 								});
 								nav.nextStep();
 							}
-						},
-						{
-							onError: (error) => {
-								console.error(`${MODULE_TAG} Error:`, error);
-								nav.setValidationErrors([
-									error instanceof Error ? error.message : 'Failed to generate authorization URL',
-								]);
-							}
 						}
-					);
-				}}
+						}, useRedirectless ? 'Processing redirectless flow...' : 'Generating authorization URL...');
+				}
 				isLoading={isActionInProgress}
 				disabled={isActionInProgress}
 			>
@@ -575,21 +568,30 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 	return (
 		<>
 			{/* Modal Spinners for OAuth Authorization Operations */}
-			<StandardModalSpinner
-				show={authUrlSpinner.isLoading}
-				message="Generating authorization URL..."
-				theme="blue"
-			/>
-			<StandardModalSpinner
-				show={redirectlessSpinner.isLoading}
-				message="Processing redirectless flow..."
-				theme="purple"
-			/>
-			<StandardModalSpinner
-				show={tokenExchangeSpinner.isLoading}
-				message="Exchanging authorization code..."
-				theme="green"
-			/>
+			{authUrlSpinner.isLoading && (
+				<CommonSpinner
+					message={authUrlSpinner.spinnerState.message || 'Generating authorization URL...'}
+					theme="blue"
+					variant="modal"
+					allowDismiss={false}
+				/>
+			)}
+			{redirectlessSpinner.isLoading && (
+				<CommonSpinner
+					message={redirectlessSpinner.spinnerState.message || 'Processing redirectless flow...'}
+					theme="purple"
+					variant="modal"
+					allowDismiss={false}
+				/>
+			)}
+			{tokenExchangeSpinner.isLoading && (
+				<CommonSpinner
+					message={tokenExchangeSpinner.spinnerState.message || 'Exchanging authorization code...'}
+					theme="green"
+					variant="modal"
+					allowDismiss={false}
+				/>
+			)}
 			
 			<div className="oauth-authz-code-flow-v8">
 				<div className="flow-header">
