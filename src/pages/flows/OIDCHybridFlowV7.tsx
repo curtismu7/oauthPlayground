@@ -232,14 +232,6 @@ const HYBRID_VARIANTS: Array<{
 
 const OIDCHybridFlowV7: React.FC = () => {
 	usePageScroll({ pageName: 'OIDC Hybrid Flow V7', force: true });
-	// Check credentials on mount and show warning if missing
-	useEffect(() => {
-		checkCredentialsAndWarn(controller.credentials, {
-			flowName: 'OIDC Hybrid Flow',
-			requiredFields: ['environmentId', 'clientId', 'clientSecret'],
-			showToast: true,
-		});
-	}, [controller.credentials]); // Only run once on mount
 
 	// Initialize V7 compliance features
 	const flowName: V7FlowName = 'oidc-hybrid-v7';
@@ -253,6 +245,15 @@ const OIDCHybridFlowV7: React.FC = () => {
 	const controller = useHybridFlowControllerV7({
 		enableDebugger: true,
 	});
+
+	// Check credentials on mount and show warning if missing
+	useEffect(() => {
+		checkCredentialsAndWarn(controller.credentials, {
+			flowName: 'OIDC Hybrid Flow',
+			requiredFields: ['environmentId', 'clientId', 'clientSecret'],
+			showToast: true,
+		});
+	}, [controller.credentials]); // Only run once on mount
 
 	const [currentStep, setCurrentStep] = useState(0);
 	const [selectedVariant, setSelectedVariant] = useState(controller.flowVariant);
@@ -1255,8 +1256,7 @@ const OIDCHybridFlowV7: React.FC = () => {
 								<ActionRow>
 									<HighlightedActionButton
 										onClick={handleExchangeCode}
-										priority="primary"
-										loading={isExchanging || controller.isExchangingCode}
+										$priority="primary"
 										disabled={!controller.tokens.code}
 									>
 										<FiRefreshCw /> Exchange Authorization Code
