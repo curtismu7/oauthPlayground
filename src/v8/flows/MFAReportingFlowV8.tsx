@@ -19,6 +19,7 @@
 import React, { useEffect, useState } from 'react';
 import { FiPackage } from 'react-icons/fi';
 import { usePageScroll } from '@/hooks/usePageScroll';
+import { ButtonSpinner } from '../../components/ui/ButtonSpinner';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
@@ -649,9 +650,11 @@ export const MFAReportingFlowV8: React.FC = () => {
 
 					{/* Worker Token Section */}
 					<div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '16px' }}>
-						<button
-							type="button"
+						<ButtonSpinner
+							loading={false}
 							onClick={handleManageWorkerToken}
+							spinnerSize={14}
+							spinnerPosition="left"
 							style={{
 								padding: '10px 16px',
 								background: tokenStatus.isValid ? '#10b981' : '#ef4444',
@@ -667,8 +670,8 @@ export const MFAReportingFlowV8: React.FC = () => {
 							}}
 						>
 							<span>🔑</span>
-							<span>{tokenStatus.isValid ? 'Manage Token' : 'Add Token'}</span>
-						</button>
+							{tokenStatus.isValid ? 'Manage Token' : 'Add Token'}
+						</ButtonSpinner>
 
 						<div
 							style={{
@@ -748,13 +751,17 @@ export const MFAReportingFlowV8: React.FC = () => {
 						</div>
 
 						<div style={{ display: 'flex', alignItems: 'flex-end' }}>
-							<button
+							<ButtonSpinner
+								loading={isLoading}
 								onClick={loadReports}
 								disabled={
 									!credentials.environmentId ||
 									!tokenStatus.isValid ||
 									(needsUsername && !username.trim())
 								}
+								spinnerSize={16}
+								spinnerPosition="left"
+								loadingText="Loading..."
 								style={{
 									padding: '10px 20px',
 									background: '#3b82f6',
@@ -772,8 +779,8 @@ export const MFAReportingFlowV8: React.FC = () => {
 											: 1,
 								}}
 							>
-								{isLoading ? 'Loading...' : 'Generate Report'}
-							</button>
+								{isLoading ? '' : 'Generate Report'}
+							</ButtonSpinner>
 						</div>
 					</div>
 
