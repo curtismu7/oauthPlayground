@@ -1,8 +1,8 @@
 // src/services/credentialsServiceV8Migration.ts
 // Migration layer for CredentialsServiceV8 to unified storage
 
-import { unifiedTokenStorage } from './unifiedTokenStorageService';
 import type { V8Credentials } from './unifiedTokenStorageService';
+import { unifiedTokenStorage } from './unifiedTokenStorageService';
 
 const MODULE_TAG = '[🔄 CREDENTIALS-V8-MIGRATION]';
 
@@ -19,13 +19,13 @@ export class CredentialsServiceV8Migration {
 
 		try {
 			// Get all V8 credentials keys from localStorage
-			const v8Keys = this.getV8CredentialsKeys();
+			const v8Keys = CredentialsServiceV8Migration.getV8CredentialsKeys();
 
 			console.log(`${MODULE_TAG} Starting credentials migration`, { keyCount: v8Keys.length });
 
 			for (const key of v8Keys) {
 				try {
-					await this.migrateCredentialsKey(key);
+					await CredentialsServiceV8Migration.migrateCredentialsKey(key);
 					results.migrated++;
 				} catch (error) {
 					const errorMsg = `Failed to migrate credentials key ${key}: ${error}`;
@@ -96,14 +96,14 @@ export class CredentialsServiceV8Migration {
 	 * Check if credentials migration is needed
 	 */
 	static needsMigration(): boolean {
-		return this.getV8CredentialsKeys().length > 0;
+		return CredentialsServiceV8Migration.getV8CredentialsKeys().length > 0;
 	}
 
 	/**
 	 * Get migration statistics
 	 */
 	static getMigrationStats(): { localStorageKeys: number; unifiedStorageKeys: number } {
-		const localStorageKeys = this.getV8CredentialsKeys().length;
+		const localStorageKeys = CredentialsServiceV8Migration.getV8CredentialsKeys().length;
 
 		// We'll need to implement this method in unified storage
 		// For now, return a placeholder

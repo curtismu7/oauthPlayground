@@ -3,7 +3,7 @@
  * @module v8/utils
  * @description Check if analytics server is available before making calls
  * @version 1.0.0
- * 
+ *
  * to prevent console spam from connection refused errors.
  */
 
@@ -23,10 +23,9 @@ let hasEverSucceeded = false; // Track if server has ever been available
 export async function isAnalyticsServerAvailable(): Promise<boolean> {
 	// Return cached result if still valid
 	const now = Date.now();
-	const cacheDuration = serverAvailable === false && !hasEverSucceeded 
-		? FAILED_CACHE_DURATION 
-		: CACHE_DURATION;
-	
+	const cacheDuration =
+		serverAvailable === false && !hasEverSucceeded ? FAILED_CACHE_DURATION : CACHE_DURATION;
+
 	if (serverAvailable !== null && now - lastCheckTime < cacheDuration) {
 		return serverAvailable;
 	}
@@ -49,7 +48,7 @@ export async function isAnalyticsServerAvailable(): Promise<boolean> {
 
 		const response = await checkPromise;
 		clearTimeout(timeoutId);
-		
+
 		if (response !== null) {
 			// If we get here, server is reachable (even if CORS blocks it)
 			serverAvailable = true;
@@ -84,10 +83,13 @@ export async function safeAnalyticsFetch(_data: Record<string, unknown>): Promis
 			method: 'POST',
 			headers: 'Content-Type': 'application/json' ,
 			body: JSON.stringify(data),
-		}).catch(() => );
-	} catch {
-		// Silently ignore all errors
-	}
+		}
+	).catch(() => )
+}
+catch
+{
+	// Silently ignore all errors
+}
 }
 
 /**

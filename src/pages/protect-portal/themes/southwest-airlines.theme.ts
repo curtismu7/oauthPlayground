@@ -8,8 +8,8 @@
  * Southwest Airlines brand theme with blue, red, and gold colors, friendly aviation styling.
  */
 
-import type { BrandTheme } from './brand-theme.interface';
 import type { CorporatePortalConfig } from '../types/CorporatePortalConfig';
+import type { BrandTheme } from './brand-theme.interface';
 
 export const southwestAirlinesConfig: CorporatePortalConfig = {
 	company: {
