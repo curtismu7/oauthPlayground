@@ -1,7 +1,7 @@
 import React from 'react';
 import { FiLoader, FiX } from 'react-icons/fi';
-import { PingIdentityLogo } from '@/v8/components/shared/PingIdentityLogo';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
+import { PingIdentityLogo } from '@/v8/components/shared/PingIdentityLogo';
 
 export interface MFAPushConfirmationModalProps {
 	show: boolean;

@@ -51,7 +51,7 @@ const Step = styled.div<{ $active: boolean; $completed: boolean; $brandColor: st
   border-radius: 50%;
   background: ${({ $active, $completed, $brandColor }) =>
 		$completed ? $brandColor : $active ? $brandColor : '#e0e0e0'};
-  color: ${({ $active, $completed }) => (($active || $completed) ? 'white' : '#666')};
+  color: ${({ $active, $completed }) => ($active || $completed ? 'white' : '#666')};
   display: flex;
   align-items: center;
   justify-content: center;

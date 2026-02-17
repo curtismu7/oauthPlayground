@@ -20,15 +20,15 @@
  */
 
 import { useCallback, useEffect, useState } from 'react';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { useProductionSpinner } from '@/hooks/useProductionSpinner';
+import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import type {
 	HybridAuthorizationUrlParams,
 	HybridFlowCredentials,
 	TokenResponse,
 } from '@/v8/services/hybridFlowIntegrationServiceV8';
 import { HybridFlowIntegrationServiceV8 } from '@/v8/services/hybridFlowIntegrationServiceV8';
+import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 export interface HybridFlowState {
 	// Flow configuration
@@ -66,7 +66,7 @@ const FLOW_KEY = 'hybrid-flow-v8';
 const DEFAULT_VARIANT: HybridFlowState['variant'] = 'code id_token';
 
 export const useHybridFlowV8 = (options: UseHybridFlowV8Options = {}) => {
-	const spinner = useProductionSpinner('hybrid-flow-v8');
+	const _spinner = useProductionSpinner('hybrid-flow-v8');
 
 	// State management
 	const [state, setState] = useState<HybridFlowState>({
