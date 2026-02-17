@@ -31,9 +31,10 @@ import { ButtonSpinner } from '../../components/ui/ButtonSpinner';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
-import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { CredentialsServiceV8, type Credentials } from '@/v8/services/credentialsServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import uiNotificationServiceV8 from '@/v8/services/uiNotificationServiceV8';
+import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { useStandardSpinner, StandardModalSpinner } from '../../components/ui/StandardSpinner';
 
@@ -176,7 +177,7 @@ export const PingOneProtectFlowV8: React.FC = () => {
 		const handleConfigUpdate = (event: CustomEvent) => {
 			if (event.detail?.workerToken) {
 				setSilentApiRetrieval(event.detail.workerToken.silentApiRetrieval || false);
-				setShowTokenAtEnd(event.detail.workerToken.showTokenAtEnd !== false);
+				setShowTokenAtEnd(event.detail.workerToken.showTokenAtEnd !== false ? true : false);
 			}
 		};
 		window.addEventListener('mfaConfigurationUpdated', handleConfigUpdate as EventListener);
@@ -247,7 +248,7 @@ export const PingOneProtectFlowV8: React.FC = () => {
 		const syncCredentials = () => {
 			const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
 				flowKey: FLOW_KEY,
-				flowType: 'protect',
+				flowType: 'oauth',
 				includeClientSecret: false,
 				includeRedirectUri: false,
 				includeLogoutUri: false,
@@ -270,7 +271,10 @@ export const PingOneProtectFlowV8: React.FC = () => {
 		const saveTimeout = setTimeout(() => {
 			CredentialsServiceV8.saveCredentials(
 				FLOW_KEY,
-				credentials as Credentials & { flowType?: string }
+				{
+					environmentId: credentials.environmentId,
+					clientId: 'protect-flow-client', // Required field
+				} as Credentials
 			);
 		}, 300);
 		return () => clearTimeout(saveTimeout);
@@ -512,10 +516,11 @@ export const PingOneProtectFlowV8: React.FC = () => {
 
 			<div style={{ display: 'grid', gap: '20px', maxWidth: '600px' }}>
 				<div>
-					<label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>
+					<label htmlFor="protect-environment-id" style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>
 						Environment ID
 					</label>
 					<input
+						id="protect-environment-id"
 						type="text"
 						value={credentials.environmentId}
 						onChange={(e) => setCredentials((prev) => ({ ...prev, environmentId: e.target.value }))}
@@ -531,8 +536,9 @@ export const PingOneProtectFlowV8: React.FC = () => {
 				</div>
 
 				<div>
-					<label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>Region</label>
+					<label htmlFor="protect-region" style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>Region</label>
 					<select
+						id="protect-region"
 						value={credentials.region}
 						onChange={(e) =>
 							setCredentials((prev) => ({
@@ -710,7 +716,7 @@ export const PingOneProtectFlowV8: React.FC = () => {
 							checked={showTokenAtEnd}
 							onChange={async (e) => {
 								const newValue = e.target.checked;
-								setShowTokenAtEnd(newValue);
+								setShowTokenAtEnd(newValue ? true : false);
 								// Update config service immediately (no cache)
 								const config = MFAConfigurationServiceV8.loadConfiguration();
 								config.workerToken.showTokenAtEnd = newValue;
@@ -830,10 +836,11 @@ export const PingOneProtectFlowV8: React.FC = () => {
 					<div style={{ display: 'grid', gap: '16px' }}>
 						<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
 							<div>
-								<label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>
+								<label htmlFor="protect-ip-address" style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>
 									IP Address *
 								</label>
 								<input
+									id="protect-ip-address"
 									type="text"
 									value={evaluationEvent.ip || ''}
 									onChange={(e) =>
@@ -853,10 +860,11 @@ export const PingOneProtectFlowV8: React.FC = () => {
 								/>
 							</div>
 							<div>
-								<label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>
+								<label htmlFor="protect-user-id" style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>
 									User ID *
 								</label>
 								<input
+									id="protect-user-id"
 									type="text"
 									value={evaluationEvent.user?.id || ''}
 									onChange={(e) =>
@@ -879,10 +887,11 @@ export const PingOneProtectFlowV8: React.FC = () => {
 
 						<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
 							<div>
-								<label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>
+								<label htmlFor="protect-user-name" style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>
 									User Name
 								</label>
 								<input
+									id="protect-user-name"
 									type="text"
 									value={evaluationEvent.user?.name || ''}
 									onChange={(e) =>
@@ -902,10 +911,11 @@ export const PingOneProtectFlowV8: React.FC = () => {
 								/>
 							</div>
 							<div>
-								<label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>
+								<label htmlFor="protect-user-type" style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>
 									User Type
 								</label>
 								<select
+									id="protect-user-type"
 									value={evaluationEvent.user?.type || 'EXTERNAL'}
 									onChange={(e) =>
 										setEvaluationEvent((prev) => ({
@@ -929,10 +939,11 @@ export const PingOneProtectFlowV8: React.FC = () => {
 
 						<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
 							<div>
-								<label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>
+								<label htmlFor="protect-flow-type" style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>
 									Flow Type
 								</label>
 								<select
+									id="protect-flow-type"
 									value={evaluationEvent.flow?.type || 'AUTHENTICATION'}
 									onChange={(e) =>
 										setEvaluationEvent((prev) => ({
@@ -959,10 +970,11 @@ export const PingOneProtectFlowV8: React.FC = () => {
 								</select>
 							</div>
 							<div>
-								<label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>
+								<label htmlFor="protect-target-resource" style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>
 									Target Resource
 								</label>
 								<input
+									id="protect-target-resource"
 									type="text"
 									value={evaluationEvent.targetResource?.name || ''}
 									onChange={(e) =>
@@ -984,10 +996,11 @@ export const PingOneProtectFlowV8: React.FC = () => {
 						</div>
 
 						<div>
-							<label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>
+							<label htmlFor="protect-browser-ua" style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>
 								Browser User Agent
 							</label>
 							<textarea
+								id="protect-browser-ua"
 								value={evaluationEvent.browser?.userAgent || ''}
 								onChange={(e) =>
 									setEvaluationEvent((prev) => ({
