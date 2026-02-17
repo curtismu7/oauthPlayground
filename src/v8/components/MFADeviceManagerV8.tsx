@@ -24,6 +24,7 @@ import { FiInfo } from 'react-icons/fi';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { ButtonSpinner } from '../../components/ui';
+import { useStandardSpinner, StandardModalSpinner } from '../../components/ui/StandardSpinner';
 
 const MODULE_TAG = '[🔧 DEVICE-MANAGER-V8]';
 
@@ -73,6 +74,14 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 	const [expandedSecurityDevices, setExpandedSecurityDevices] = useState<Set<string>>(new Set());
 	const [expandedRawDevices, setExpandedRawDevices] = useState<Set<string>>(new Set());
 
+	// Standardized spinner hooks for MFA device management operations
+	const loadDevicesSpinner = useStandardSpinner(3000); // Load devices - 3 seconds
+	const renameSpinner = useStandardSpinner(2000);     // Rename device - 2 seconds
+	const blockSpinner = useStandardSpinner(4000);      // Block/unblock - 4 seconds
+	const deleteSpinner = useStandardSpinner(5000);     // Delete device - 5 seconds
+	const activateSpinner = useStandardSpinner(6000);   // Activate device - 6 seconds
+	const bypassSpinner = useStandardSpinner(3000);    // Bypass operations - 3 seconds
+
 	useEffect(() => {
 		if (devices.length > 0) {
 			const autoExpanded = devices
@@ -87,25 +96,27 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 	}, [devices]);
 
 	const loadDevices = useCallback(async () => {
-		console.log(`${MODULE_TAG} Loading devices for user`, { username });
-		setIsLoading(true);
-		try {
-			const deviceList = await MFAServiceV8.getAllDevices({
-				environmentId,
-				username,
-			});
-
-			setDevices(deviceList as Device[]);
-			console.log(`${MODULE_TAG} Loaded ${deviceList.length} devices`);
-		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to load devices`, error);
-			toastV8.error(
-				`Failed to load devices: ${error instanceof Error ? error.message : 'Unknown error'}`
-			);
-		} finally {
-			setIsLoading(false);
-		}
-	}, [environmentId, username]);
+		await loadDevicesSpinner.executeWithSpinner(
+			async () => {
+				console.log(`${MODULE_TAG} Loading devices for user`, { username });
+				const deviceList = await MFAServiceV8.getAllDevices({
+					environmentId,
+					username,
+				});
+				setDevices(deviceList);
+				console.log(`${MODULE_TAG} Loaded ${deviceList.length} devices`);
+			},
+			{
+				onSuccess: () => {
+					// Success handled in main function
+				},
+				onError: (error) => {
+					console.error(`${MODULE_TAG} Failed to load devices`, error);
+					toastV8.error('Failed to load devices');
+				}
+			}
+		);
+	}, [environmentId, username, loadDevicesSpinner]);
 
 	useEffect(() => {
 		if (environmentId && username) {
@@ -237,32 +248,40 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 	};
 
 	const handleRename = async (deviceId: string) => {
-		if (!newName.trim()) {
-			toastV8.error('Device nickname cannot be empty');
-			return;
-		}
+		await renameSpinner.executeWithSpinner(
+			async () => {
+				if (!newName.trim()) {
+					toastV8.error('Device nickname cannot be empty');
+					throw new Error('Device nickname cannot be empty');
+				}
 
-		console.log(`${MODULE_TAG} Renaming device`, { deviceId, newName });
-		try {
-			await MFAServiceV8.updateDeviceNickname(
-				{
-					environmentId,
-					username,
-					deviceId,
+				console.log(`${MODULE_TAG} Renaming device`, { deviceId, newName });
+				await MFAServiceV8.updateDeviceNickname(
+					{
+						environmentId,
+						username,
+						deviceId,
+					},
+					newName
+				);
+
+				toastV8.success('Device nickname updated successfully');
+				setEditingDeviceId(null);
+				setNewName('');
+				await loadDevices();
+			},
+			{
+				onSuccess: () => {
+					// Success handled in main function
 				},
-				newName
-			);
-
-			toastV8.success('Device nickname updated successfully');
-			setEditingDeviceId(null);
-			setNewName('');
-			await loadDevices();
-		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to rename device`, error);
-			toastV8.error(
-				`Failed to rename device: ${error instanceof Error ? error.message : 'Unknown error'}`
-			);
-		}
+				onError: (error) => {
+					console.error(`${MODULE_TAG} Failed to rename device`, error);
+					toastV8.error(
+						`Failed to rename device: ${error instanceof Error ? error.message : 'Unknown error'}`
+					);
+				}
+			}
+		);
 	};
 
 	const handleBlock = async (deviceId: string) => {
@@ -507,9 +526,42 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 	}
 
 	return (
-		<div style={{ padding: '20px', maxWidth: '1000px', margin: '0 auto' }}>
-			<div
-				style={{
+		<>
+			{/* Modal Spinners for MFA Device Management Operations */}
+			<StandardModalSpinner
+				show={loadDevicesSpinner.isLoading}
+				message="Loading devices..."
+				theme="blue"
+			/>
+			<StandardModalSpinner
+				show={renameSpinner.isLoading}
+				message="Renaming device..."
+				theme="green"
+			/>
+			<StandardModalSpinner
+				show={blockSpinner.isLoading}
+				message="Updating device status..."
+				theme="orange"
+			/>
+			<StandardModalSpinner
+				show={deleteSpinner.isLoading}
+				message="Deleting device..."
+				theme="red"
+			/>
+			<StandardModalSpinner
+				show={activateSpinner.isLoading}
+				message="Activating device..."
+				theme="purple"
+			/>
+			<StandardModalSpinner
+				show={bypassSpinner.isLoading}
+				message="Updating bypass settings..."
+				theme="blue"
+			/>
+			
+			<div style={{ padding: '20px', maxWidth: '1000px', margin: '0 auto' }}>
+				<div
+					style={{
 					display: 'flex',
 					justifyContent: 'space-between',
 					alignItems: 'center',
@@ -1325,6 +1377,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 				</div>
 			)}
 		</div>
+		</>
 	);
 };
 export default MFADeviceManagerV8;
