@@ -843,6 +843,21 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							</MigrationBadge>
 						),
 					},
+					{
+						id: 'ciba-v8',
+						path: '/flows/ciba-v8',
+						label: 'CIBA Flow (V8)',
+						icon: (
+							<ColoredIcon $color="#3b82f6">
+								<FiShield />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="V8: Modern CIBA with real-time polling, enhanced UX, RFC 9439 compliance">
+								<FiCheckCircle />
+							</MigrationBadge>
+						),
+					},
 				],
 			},
 			{
