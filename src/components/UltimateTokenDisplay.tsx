@@ -13,8 +13,9 @@ import {
 	FiShield,
 	FiTag,
 	FiUnlock,
-	FiZap,
+FiZap,
 } from 'react-icons/fi';
+import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import TokenDisplayService from '../services/tokenDisplayService';
@@ -660,9 +661,12 @@ export const UltimateTokenDisplay: React.FC<UltimateTokenDisplayProps> = ({
 						</Title>
 						{subtitle !== false && <Subtitle>{displaySubtitle}</Subtitle>}
 					</div>
-					<button
-						type="button"
+					<ButtonSpinner
+						loading={false}
 						onClick={() => setShowInfo((prev) => !prev)}
+						spinnerSize={10}
+						spinnerPosition="left"
+						loadingText="Loading..."
 						style={{
 							padding: '6px 12px',
 							borderRadius: '999px',
@@ -676,7 +680,7 @@ export const UltimateTokenDisplay: React.FC<UltimateTokenDisplayProps> = ({
 						}}
 					>
 						{showInfo ? 'Hide token guide' : 'What is this?'}
-					</button>
+					</ButtonSpinner>
 				</div>
 			</Header>
 
