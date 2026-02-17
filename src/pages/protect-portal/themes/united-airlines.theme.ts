@@ -8,8 +8,8 @@
  * United Airlines brand theme with blue and white colors, global aviation styling.
  */
 
-import type { BrandTheme } from './brand-theme.interface';
 import type { CorporatePortalConfig } from '../types/CorporatePortalConfig';
+import type { BrandTheme } from './brand-theme.interface';
 
 export const unitedAirlinesConfig: CorporatePortalConfig = {
 	company: {

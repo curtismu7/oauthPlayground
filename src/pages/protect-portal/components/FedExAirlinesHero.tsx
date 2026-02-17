@@ -11,8 +11,8 @@
 
 import React from 'react';
 import styled from 'styled-components';
-import BrandDropdownSelector from './BrandDropdownSelector';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
+import BrandDropdownSelector from './BrandDropdownSelector';
 
 // ============================================================================
 // STYLED COMPONENTS
