@@ -1406,7 +1406,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 						// Try to extract error information from HTML
 						const errorMatch = responseText.match(/<title[^>]*>([^<]+)<\/title>/i);
-						const title = errorMatch ? errorMatch[1] : 'Unknown Error';
+						const title: string = errorMatch ? errorMatch[1] : 'Unknown Error';
 						console.log(`🔐 [MFA Flow V7] HTML Page Title:`, title);
 
 						throw new Error(
@@ -1710,37 +1710,6 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 						v4ToastManager.showSuccess(
 							'✅ Redirectless authentication completed! Proceeding to device pairing.'
 						);
-					} else if (responseData.access_token) {
-						console.log(`🔐 [MFA Flow V7] Received tokens directly from pi.flow`);
-						v4ToastManager.showSuccess('Redirectless authentication completed successfully');
-
-						// Extract userId from id_token
-						let userId = '';
-						if (responseData.id_token) {
-							try {
-								// Decode JWT payload (base64url decode the middle part)
-								const payload = JSON.parse(atob(responseData.id_token.split('.')[1]));
-								userId = payload.sub || payload.user_id || payload.id || '';
-								console.log(`🔐 [MFA Flow V7] Extracted userId from id_token: ${userId}`);
-							} catch (error) {
-								console.error('🔐 [MFA Flow V7] Failed to decode id_token:', error);
-							}
-						}
-
-						// Store the tokens and userId in flow context
-						setFlowContext((prev) => ({
-							...prev,
-							userId: userId,
-							tokens: {
-								access_token: responseData.access_token,
-								refresh_token: responseData.refresh_token,
-								id_token: responseData.id_token,
-								token_type: responseData.token_type,
-								expires_in: responseData.expires_in,
-							},
-						}));
-
-						setCurrentStep('success');
 					} else if (responseData.id && responseData.resumeUrl) {
 						// Handle PingOne flow response format with id and resumeUrl
 						console.log(`🔐 [MFA Flow V7] Received PingOne flow response:`, {
@@ -2999,6 +2968,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 											}}
 										>
 											<button
+												type="button"
 												onClick={getWorkerToken}
 												disabled={isLoading}
 												style={{
@@ -3048,6 +3018,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 											Worker token API call will be displayed here after authentication
 										</p>
 										<button
+											type="button"
 											onClick={getWorkerToken}
 											disabled={isLoading}
 											style={{
@@ -3130,6 +3101,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 									>
 										<div>
 											<label
+												htmlFor="username-input"
 												style={{
 													display: 'block',
 													fontSize: '0.75rem',
@@ -3141,6 +3113,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 												Username
 											</label>
 											<input
+												id="username-input"
 												type="text"
 												value={credentials.username || 'curtis7'}
 												onChange={(e) =>
@@ -3159,6 +3132,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 										</div>
 										<div>
 											<label
+												htmlFor="password-input"
 												style={{
 													display: 'block',
 													fontSize: '0.75rem',
@@ -3170,6 +3144,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 												Password
 											</label>
 											<input
+												id="password-input"
 												type="password"
 												value={credentials.password || 'Wolverine7&'}
 												onChange={(e) =>
@@ -3198,6 +3173,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 									}}
 								>
 									<button
+										type="button"
 										onClick={() => handleUsernameLogin('redirectless')}
 										disabled={isLoading || !credentials.username || !credentials.password}
 										style={{
@@ -3264,6 +3240,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 									</button>
 
 									<button
+										type="button"
 										onClick={() => handleUsernameLogin('redirect')}
 										disabled={false}
 										style={{
@@ -3416,6 +3393,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								}}
 							>
 								<button
+									type="button"
 									onClick={() => handlePingOneMfaResponse('pi.flow')}
 									disabled={isLoading}
 									style={{
@@ -3440,6 +3418,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								</button>
 
 								<button
+									type="button"
 									onClick={() => handlePingOneMfaResponse('redirect')}
 									disabled={isLoading}
 									style={{
@@ -3464,6 +3443,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								</button>
 
 								<button
+									type="button"
 									onClick={() => handlePingOneMfaResponse('form_post')}
 									disabled={isLoading}
 									style={{
@@ -3488,6 +3468,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								</button>
 
 								<button
+									type="button"
 									onClick={() => handlePingOneMfaResponse('fragment')}
 									disabled={isLoading}
 									style={{
@@ -3549,6 +3530,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 							}}
 						>
 							<NavigationButton
+								type="button"
 								onClick={() => {
 									setCurrentStep('username_login');
 									onStepChange?.('username_login');
@@ -3559,6 +3541,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								Back to Login
 							</NavigationButton>
 							<NavigationButton
+								type="button"
 								onClick={() => {
 									setCurrentStep('device_pairing');
 									onStepChange?.('device_pairing');
@@ -3656,8 +3639,9 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 										description: 'Mobile app push notifications',
 									},
 								].map((device) => (
-									<div
+									<button
 										key={device.id}
+										type="button"
 										onClick={() => {
 											setSelectedDeviceType(device.id);
 											// Clear device name when switching device types
@@ -3680,7 +3664,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 										<div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
 											{device.description}
 										</div>
-									</div>
+									</button>
 								))}
 							</div>
 						</div>
@@ -3710,6 +3694,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								{/* Device Name Input */}
 								<div style={{ marginBottom: '1rem' }}>
 									<label
+										htmlFor="device-name-input"
 										style={{
 											display: 'block',
 											marginBottom: '0.5rem',
@@ -3721,6 +3706,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 										Device Name <span style={{ color: '#ef4444' }}>*</span>
 									</label>
 									<input
+										id="device-name-input"
 										type="text"
 										value={deviceInfo.deviceName}
 										onChange={(e) =>
@@ -3762,6 +3748,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								{selectedDeviceType === 'email' && (
 									<div>
 										<label
+											htmlFor="email-input"
 											style={{
 												display: 'block',
 												marginBottom: '0.5rem',
@@ -3772,6 +3759,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 											Email Address *
 										</label>
 										<input
+											id="email-input"
 											type="email"
 											value={deviceInfo.email}
 											onChange={(e) =>
@@ -3829,6 +3817,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 												<div>3. Enter the 6-digit code from your app to verify</div>
 											</div>
 											<button
+												type="button"
 												onClick={handleShowTOTPQRCode}
 												style={{
 													padding: '0.75rem 1rem',
@@ -3851,6 +3840,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 										<div>
 											<label
+												htmlFor="verification-code-input"
 												style={{
 													display: 'block',
 													marginBottom: '0.5rem',
@@ -3861,6 +3851,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 												Verification Code *
 											</label>
 											<input
+												id="verification-code-input"
 												type="text"
 												value={deviceInfo.verificationCode}
 												onChange={(e) =>
@@ -3876,6 +3867,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 													fontSize: '0.875rem',
 													textAlign: 'center',
 													letterSpacing: '0.1em',
+													fontFamily: 'monospace',
 												}}
 											/>
 											<div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
@@ -3924,6 +3916,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 												<div>3. Follow the browser prompts to complete setup</div>
 											</div>
 											<button
+												type="button"
 												onClick={handleShowFIDO2Registration}
 												style={{
 													padding: '0.75rem 1rem',
@@ -3989,6 +3982,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								}}
 							>
 								<Button
+									type="button"
 									onClick={handleDeviceRegistration}
 									disabled={isLoading || !isDeviceInfoValid()}
 									style={{
@@ -4031,6 +4025,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								}}
 							>
 								<NavigationButton
+									type="button"
 									onClick={() => {
 										setCurrentStep('mfa_enrollment');
 										onStepChange?.('mfa_enrollment');
@@ -4041,6 +4036,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 									Back to MFA Enrollment
 								</NavigationButton>
 								<NavigationButton
+									type="button"
 									onClick={() => {
 										setCurrentStep('mfa_challenge');
 										onStepChange?.('mfa_challenge');
@@ -4089,8 +4085,9 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								<div style={{ display: 'grid', gap: '0.75rem' }}>
 									{flowContext.userDevices.length > 0 ? (
 										flowContext.userDevices.map((device) => (
-											<div
+											<button
 												key={device.id}
+												type="button"
 												onClick={() => initiateMfaChallenge(device)}
 												style={{
 													padding: '1rem',
@@ -4131,7 +4128,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 												<div style={{ color: '#3b82f6', fontSize: '0.875rem', fontWeight: '500' }}>
 													Send Challenge
 												</div>
-											</div>
+											</button>
 										))
 									) : (
 										<div
@@ -4198,6 +4195,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								<div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-end' }}>
 									<div style={{ flex: 1 }}>
 										<label
+											htmlFor="mfa-verification-code-input"
 											style={{
 												display: 'block',
 												marginBottom: '0.5rem',
@@ -4209,6 +4207,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 											Verification Code
 										</label>
 										<input
+											id="mfa-verification-code-input"
 											type="text"
 											value={mfaChallenge.challengeCode || ''}
 											onChange={(e) =>
@@ -4228,6 +4227,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 										/>
 									</div>
 									<button
+										type="button"
 										onClick={() =>
 											mfaChallenge.challengeCode && verifyMfaChallenge(mfaChallenge.challengeCode)
 										}
@@ -4315,6 +4315,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 							}}
 						>
 							<NavigationButton
+								type="button"
 								onClick={() => {
 									setCurrentStep('device_pairing');
 									onStepChange?.('device_pairing');
@@ -4326,6 +4327,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 							</NavigationButton>
 							{mfaChallenge.challengeStatus === 'completed' && (
 								<NavigationButton
+									type="button"
 									onClick={() => {
 										setCurrentStep('token_retrieval');
 										onStepChange?.('token_retrieval');
@@ -4381,6 +4383,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 							}}
 						>
 							<NavigationButton
+								type="button"
 								onClick={() => {
 									setCurrentStep('mfa_challenge');
 									onStepChange?.('mfa_challenge');
@@ -4392,6 +4395,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 							</NavigationButton>
 							{!flowContext.tokens ? (
 								<NavigationButton
+									type="button"
 									onClick={exchangeToken}
 									disabled={isLoading || !flowContext.authCode}
 									style={{ backgroundColor: '#10b981' }}
@@ -4401,6 +4405,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								</NavigationButton>
 							) : (
 								<NavigationButton
+									type="button"
 									onClick={() => {
 										setCurrentStep('success');
 										onStepChange?.('success');
@@ -4459,12 +4464,21 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 						<div style={{ marginTop: '1.5rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
 							{retryCount < maxRetries && (
-								<Button $variant="primary" onClick={handleRetry}>
+								<Button
+									type="button"
+									$variant="primary"
+									onClick={handleRetry}
+								>
 									<FiRefreshCw size={16} />
 									Try Again ({maxRetries - retryCount} attempts left)
 								</Button>
 							)}
-							<Button onClick={handleRestart}>Start Over</Button>
+							<Button
+								type="button"
+								onClick={handleRestart}
+							>
+								Start Over
+							</Button>
 						</div>
 					</div>
 				);
