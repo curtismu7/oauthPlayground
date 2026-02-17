@@ -1068,66 +1068,78 @@ export const PingOneProtectFlowV8: React.FC = () => {
 							</div>
 
 							<div style={{ display: 'flex', gap: '12px' }}>
-								<button
-									type="button"
+								<ButtonSpinner
+									loading={false}
 									onClick={() => updateRiskEvaluation(riskEvaluation.id, 'SUCCESS')}
+									spinnerSize={12}
+									spinnerPosition="left"
 									style={{
 										padding: '8px 16px',
 										background: '#10b981',
 										color: 'white',
 										border: 'none',
 										borderRadius: '4px',
-										cursor: 'pointer',
 										fontSize: '12px',
+										fontWeight: '500',
+										cursor: 'pointer',
 									}}
 								>
 									Mark as Success
-								</button>
-								<button
-									type="button"
+								</ButtonSpinner>
+								<ButtonSpinner
+									loading={false}
 									onClick={() => updateRiskEvaluation(riskEvaluation.id, 'FAILED')}
+									spinnerSize={12}
+									spinnerPosition="left"
 									style={{
 										padding: '8px 16px',
 										background: '#ef4444',
 										color: 'white',
 										border: 'none',
 										borderRadius: '4px',
-										cursor: 'pointer',
 										fontSize: '12px',
+										fontWeight: '500',
+										cursor: 'pointer',
 									}}
 								>
 									Mark as Failed
-								</button>
-								<button
-									type="button"
+								</ButtonSpinner>
+								<ButtonSpinner
+									loading={false}
 									onClick={() => provideFeedback(riskEvaluation.id, 'POSITIVE')}
+									spinnerSize={12}
+									spinnerPosition="left"
 									style={{
 										padding: '8px 16px',
 										background: '#3b82f6',
 										color: 'white',
 										border: 'none',
 										borderRadius: '4px',
-										cursor: 'pointer',
 										fontSize: '12px',
+										fontWeight: '500',
+										cursor: 'pointer',
 									}}
 								>
 									Positive Feedback
-								</button>
-								<button
-									type="button"
+								</ButtonSpinner>
+								<ButtonSpinner
+									loading={false}
 									onClick={() => provideFeedback(riskEvaluation.id, 'NEGATIVE')}
+									spinnerSize={12}
+									spinnerPosition="left"
 									style={{
 										padding: '8px 16px',
 										background: '#f59e0b',
 										color: 'white',
 										border: 'none',
 										borderRadius: '4px',
-										cursor: 'pointer',
 										fontSize: '12px',
+										fontWeight: '500',
+										cursor: 'pointer',
 									}}
 								>
 									Negative Feedback
-								</button>
+								</ButtonSpinner>
 							</div>
 						</div>
 					</div>
@@ -1418,10 +1430,12 @@ await updateRiskEvaluation(registrationRisk.id, 'SUCCESS');`}
 
 			{/* Navigation */}
 			<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-				<button
-					type="button"
+				<ButtonSpinner
+					loading={false}
 					onClick={handlePrevious}
 					disabled={currentStep === 0}
+					spinnerSize={14}
+					spinnerPosition="left"
 					style={{
 						padding: '12px 24px',
 						background: currentStep === 0 ? '#f3f4f6' : '#3b82f6',
@@ -1434,12 +1448,14 @@ await updateRiskEvaluation(registrationRisk.id, 'SUCCESS');`}
 					}}
 				>
 					Previous
-				</button>
+				</ButtonSpinner>
 
-				<button
-					type="button"
+				<ButtonSpinner
+					loading={false}
 					onClick={handleNext}
 					disabled={currentStep === 3}
+					spinnerSize={14}
+					spinnerPosition="left"
 					style={{
 						padding: '12px 24px',
 						background: currentStep === 3 ? '#f3f4f6' : '#3b82f6',
@@ -1452,7 +1468,7 @@ await updateRiskEvaluation(registrationRisk.id, 'SUCCESS');`}
 					}}
 				>
 					{currentStep === 3 ? 'Complete' : 'Next'}
-				</button>
+				</ButtonSpinner>
 			</div>
 
 			{/* API Response Display */}
