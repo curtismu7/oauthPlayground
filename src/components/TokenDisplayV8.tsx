@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FiCopy, FiEye, FiEyeOff } from 'react-icons/fi';
+import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 
 interface TokenDisplayV8Props {
 	idToken?: string;
@@ -47,20 +48,28 @@ export const TokenDisplayV8: React.FC<TokenDisplayV8Props> = ({
 					<div className="flex items-center justify-between mb-2">
 						<h4 className="text-sm font-semibold text-gray-800">ID Token (OIDC)</h4>
 						<div className="flex gap-2">
-							<button
+							<ButtonSpinner
+								loading={false}
 								onClick={() => setShowIdToken(!showIdToken)}
+								spinnerSize={10}
+								spinnerPosition="left"
+								loadingText="Loading..."
 								className="text-xs text-gray-600 hover:text-gray-800 flex items-center gap-1"
 							>
 								{showIdToken ? <FiEyeOff size={14} /> : <FiEye size={14} />}
 								{showIdToken ? 'Hide' : 'Show'}
-							</button>
-							<button
+							</ButtonSpinner>
+							<ButtonSpinner
+								loading={false}
 								onClick={() => copyToClipboard(idToken)}
+								spinnerSize={10}
+								spinnerPosition="left"
+								loadingText="Copying..."
 								className="text-xs text-gray-600 hover:text-gray-800 flex items-center gap-1"
 							>
 								<FiCopy size={14} />
 								Copy
-							</button>
+							</ButtonSpinner>
 						</div>
 					</div>
 					<div className="text-xs font-mono bg-white p-2 rounded border break-all">
@@ -78,20 +87,28 @@ export const TokenDisplayV8: React.FC<TokenDisplayV8Props> = ({
 					<div className="flex items-center justify-between mb-2">
 						<h4 className="text-sm font-semibold text-gray-800">Access Token</h4>
 						<div className="flex gap-2">
-							<button
+							<ButtonSpinner
+								loading={false}
 								onClick={() => setShowAccessToken(!showAccessToken)}
+								spinnerSize={10}
+								spinnerPosition="left"
+								loadingText="Loading..."
 								className="text-xs text-gray-600 hover:text-gray-800 flex items-center gap-1"
 							>
 								{showAccessToken ? <FiEyeOff size={14} /> : <FiEye size={14} />}
 								{showAccessToken ? 'Hide' : 'Show'}
-							</button>
-							<button
+							</ButtonSpinner>
+							<ButtonSpinner
+								loading={false}
 								onClick={() => copyToClipboard(accessToken)}
+								spinnerSize={10}
+								spinnerPosition="left"
+								loadingText="Copying..."
 								className="text-xs text-gray-600 hover:text-gray-800 flex items-center gap-1"
 							>
 								<FiCopy size={14} />
 								Copy
-							</button>
+							</ButtonSpinner>
 						</div>
 					</div>
 					<div className="text-xs font-mono bg-white p-2 rounded border break-all">
