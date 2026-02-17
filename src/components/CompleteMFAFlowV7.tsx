@@ -29,7 +29,6 @@ import ComprehensiveCredentialsService from '../services/comprehensiveCredential
 import { FlowHeader } from '../services/flowHeaderService';
 import FlowUIService from '../services/flowUIService';
 import { oidcDiscoveryService } from '../services/oidcDiscoveryService';
-import { useStandardSpinner, StandardModalSpinner } from '../components/ui/StandardSpinner';
 
 import type { MfaCredentials, MfaDevice } from '../services/pingOneMfaService';
 
@@ -347,17 +346,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 		deviceName: '',
 		verificationCode: '',
 	});
-
-	// Standardized spinner hooks for CompleteMFAFlowV7 operations
-	const workerTokenSpinner = useStandardSpinner(5000); // Worker token - 5 seconds
-	const authSpinner = useStandardSpinner(6000);         // Authentication - 6 seconds
-	const deviceSpinner = useStandardSpinner(4000);       // Device registration - 4 seconds
-	const mfaSpinner = useStandardSpinner(5000);          // MFA challenge - 5 seconds
-	const tokenSpinner = useStandardSpinner(4000);         // Token retrieval - 4 seconds
-	const saveSpinner = useStandardSpinner(2000);          // Save credentials - 2 seconds
-
-	// Password visibility states
-	const [showPassword, setShowPassword] = useState(false);
+	const [selectedCountryCode, setSelectedCountryCode] = useState('+1');
 
 	// Device Registration Modal state
 	const [showDeviceRegistrationModal, setShowDeviceRegistrationModal] = useState(false);
@@ -721,18 +710,31 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 		// Add scroll prevention listeners
 		window.addEventListener('scroll', preventScroll, { passive: false });
 		window.addEventListener('wheel', preventScroll, { passive: false });
+		window.addEventListener('touchmove', preventScroll, { passive: false });
+
+		setIsLoading(true);
+		try {
+			console.log('🔑 [MFA Flow V7] Requesting worker token...');
+			console.log('🔍 [MFA Flow V7] Worker Token Credentials being used:', {
+				environmentId: workerTokenCredentials.environmentId,
+				clientId: workerTokenCredentials.clientId,
+				hasClientSecret: !!workerTokenCredentials.clientSecret,
+				clientSecretLength: workerTokenCredentials.clientSecret?.length || 0,
+				allCredentials: workerTokenCredentials,
+			});
+
+			// Prepare credentials for worker token request
 			const workerCredentials = {
 				environmentId: workerTokenCredentials.environmentId,
 				clientId: workerTokenCredentials.clientId,
 				clientSecret: workerTokenCredentials.clientSecret,
-				region: workerTokenCredentials.region || 'us',
+				scope: 'p1:read:user p1:update:user p1:read:device p1:update:device',
+				tokenEndpoint: `https://auth.pingone.com/${workerTokenCredentials.environmentId}/as/token`,
 			};
 
-			console.log('🔐 [MFA Flow V7] Worker credentials:', {
-				environmentId: workerCredentials.environmentId,
-				clientId: workerCredentials.clientId ? '***' : 'none',
-				clientSecret: workerCredentials.clientSecret ? '***' : 'none',
-				region: workerCredentials.region,
+			console.log('🔍 [MFA Flow V7] Worker credentials prepared:', {
+				...workerCredentials,
+				clientSecret: workerCredentials.clientSecret ? '[REDACTED]' : 'MISSING',
 			});
 
 			// Make real API call to get worker token
@@ -741,14 +743,24 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 				'client_secret_post'
 			);
 
-			console.log('🔐 [MFA Flow V7] Worker token obtained:', {
-				access_token: tokenData.access_token ? '***' : 'none',
-				token_type: tokenData.token_type,
-				expires_in: tokenData.expires_in,
-			});
+			console.log('✅ [MFA Flow V7] Worker token received:', tokenData);
 
-			// Store worker token in localStorage and state
-			localStorage.setItem('worker_token', tokenData.access_token);
+			// Create API call data for display
+			const workerTokenCall = createApiCallData(
+				'workerToken',
+				'POST',
+				workerCredentials.tokenEndpoint,
+				{
+					'Content-Type': 'application/x-www-form-urlencoded',
+					Authorization: `Basic ${btoa(`${workerCredentials.clientId}:${workerCredentials.clientSecret}`)}`,
+				},
+				{
+					grant_type: 'client_credentials',
+					scope: 'p1:read:user p1:update:user p1:read:device p1:update:device',
+				},
+				{
+					status: 200,
+					statusText: 'OK',
 					data: tokenData as unknown as Record<string, unknown>,
 				},
 				[
@@ -1391,7 +1403,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					const contentType = response.headers.get('content-type');
 					console.log(`🔐 [MFA Flow V7] Response content-type:`, contentType);
 
-					let responseData;
+					let responseData: any;
 					if (contentType?.includes('application/json')) {
 						responseData = await response.json();
 						console.log(`🔐 [MFA Flow V7] Response data:`, responseData);
@@ -1406,7 +1418,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 						// Try to extract error information from HTML
 						const errorMatch = responseText.match(/<title[^>]*>([^<]+)<\/title>/i);
-						const title: string = errorMatch ? errorMatch[1] : 'Unknown Error';
+						const title = errorMatch ? errorMatch[1] : 'Unknown Error';
 						console.log(`🔐 [MFA Flow V7] HTML Page Title:`, title);
 
 						throw new Error(
@@ -3530,7 +3542,6 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 							}}
 						>
 							<NavigationButton
-								type="button"
 								onClick={() => {
 									setCurrentStep('username_login');
 									onStepChange?.('username_login');
@@ -3541,7 +3552,6 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								Back to Login
 							</NavigationButton>
 							<NavigationButton
-								type="button"
 								onClick={() => {
 									setCurrentStep('device_pairing');
 									onStepChange?.('device_pairing');
@@ -3748,7 +3758,6 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								{selectedDeviceType === 'email' && (
 									<div>
 										<label
-											htmlFor="email-input"
 											style={{
 												display: 'block',
 												marginBottom: '0.5rem',
@@ -3759,7 +3768,6 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 											Email Address *
 										</label>
 										<input
-											id="email-input"
 											type="email"
 											value={deviceInfo.email}
 											onChange={(e) =>
@@ -3840,7 +3848,6 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 										<div>
 											<label
-												htmlFor="verification-code-input"
 												style={{
 													display: 'block',
 													marginBottom: '0.5rem',
@@ -3851,7 +3858,6 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 												Verification Code *
 											</label>
 											<input
-												id="verification-code-input"
 												type="text"
 												value={deviceInfo.verificationCode}
 												onChange={(e) =>
@@ -4025,7 +4031,6 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								}}
 							>
 								<NavigationButton
-									type="button"
 									onClick={() => {
 										setCurrentStep('mfa_enrollment');
 										onStepChange?.('mfa_enrollment');
@@ -4036,7 +4041,6 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 									Back to MFA Enrollment
 								</NavigationButton>
 								<NavigationButton
-									type="button"
 									onClick={() => {
 										setCurrentStep('mfa_challenge');
 										onStepChange?.('mfa_challenge');
@@ -4195,7 +4199,6 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								<div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-end' }}>
 									<div style={{ flex: 1 }}>
 										<label
-											htmlFor="mfa-verification-code-input"
 											style={{
 												display: 'block',
 												marginBottom: '0.5rem',
@@ -4207,7 +4210,6 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 											Verification Code
 										</label>
 										<input
-											id="mfa-verification-code-input"
 											type="text"
 											value={mfaChallenge.challengeCode || ''}
 											onChange={(e) =>
@@ -4315,7 +4317,6 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 							}}
 						>
 							<NavigationButton
-								type="button"
 								onClick={() => {
 									setCurrentStep('device_pairing');
 									onStepChange?.('device_pairing');
@@ -4327,7 +4328,6 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 							</NavigationButton>
 							{mfaChallenge.challengeStatus === 'completed' && (
 								<NavigationButton
-									type="button"
 									onClick={() => {
 										setCurrentStep('token_retrieval');
 										onStepChange?.('token_retrieval');
@@ -4383,7 +4383,6 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 							}}
 						>
 							<NavigationButton
-								type="button"
 								onClick={() => {
 									setCurrentStep('mfa_challenge');
 									onStepChange?.('mfa_challenge');
@@ -4395,7 +4394,6 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 							</NavigationButton>
 							{!flowContext.tokens ? (
 								<NavigationButton
-									type="button"
 									onClick={exchangeToken}
 									disabled={isLoading || !flowContext.authCode}
 									style={{ backgroundColor: '#10b981' }}
@@ -4405,7 +4403,6 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								</NavigationButton>
 							) : (
 								<NavigationButton
-									type="button"
 									onClick={() => {
 										setCurrentStep('success');
 										onStepChange?.('success');
@@ -4464,21 +4461,14 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 						<div style={{ marginTop: '1.5rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
 							{retryCount < maxRetries && (
-								<Button
-									type="button"
-									$variant="primary"
-									onClick={handleRetry}
-								>
+								<Button $variant="primary" onClick={handleRetry}>
 									<FiRefreshCw size={16} />
 									Try Again ({maxRetries - retryCount} attempts left)
 								</Button>
 							)}
 							<Button
-								type="button"
-								onClick={handleRestart}
-							>
-								Start Over
-							</Button>
+									type="button"
+									onClick={handleRetry}>Start Over</Button>
 						</div>
 					</div>
 				);
@@ -4489,41 +4479,8 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 	};
 
 	return (
-		<>
-			{/* Modal Spinners for CompleteMFAFlowV7 Operations */}
-			<StandardModalSpinner
-				show={workerTokenSpinner.isLoading}
-				message="Obtaining worker token..."
-				theme="purple"
-			/>
-			<StandardModalSpinner
-				show={authSpinner.isLoading}
-				message="Authenticating user..."
-				theme="blue"
-			/>
-			<StandardModalSpinner
-				show={deviceSpinner.isLoading}
-				message="Registering device..."
-				theme="green"
-			/>
-			<StandardModalSpinner
-				show={mfaSpinner.isLoading}
-				message="Completing MFA challenge..."
-				theme="orange"
-			/>
-			<StandardModalSpinner
-				show={tokenSpinner.isLoading}
-				message="Retrieving tokens..."
-				theme="blue"
-			/>
-			<StandardModalSpinner
-				show={saveSpinner.isLoading}
-				message="Saving credentials..."
-				theme="green"
-			/>
-			
-			<Container>
-				{/* Network Status Bar */}
+		<Container>
+			{/* Network Status Bar */}
 
 			<ContentWrapper>
 				<FlowHeader flowId="pingone-complete-mfa-v7" />
@@ -4730,7 +4687,6 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 				/>
 			)}
 		</Container>
-		</>
 	);
 };
 
