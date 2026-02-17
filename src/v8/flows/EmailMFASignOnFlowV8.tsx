@@ -138,52 +138,6 @@ const Input = styled.input`
 	}
 `;
 
-const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'success' | 'danger' }>`
-	padding: 0.75rem 1.5rem;
-	border: none;
-	border-radius: 0.375rem;
-	font-size: 0.875rem;
-	font-weight: 500;
-	cursor: pointer;
-	display: inline-flex;
-	align-items: center;
-	gap: 0.5rem;
-	transition: all 0.2s;
-	
-	${(props) => {
-		switch (props.$variant) {
-			case 'primary':
-				return `
-					background: #3b82f6;
-					color: white;
-					&:hover:not(:disabled) { background: #2563eb; }
-				`;
-			case 'success':
-				return `
-					background: #10b981;
-					color: white;
-					&:hover:not(:disabled) { background: #059669; }
-				`;
-			case 'danger':
-				return `
-					background: #ef4444;
-					color: white;
-					&:hover:not(:disabled) { background: #dc2626; }
-				`;
-			default:
-				return `
-					background: #f3f4f6;
-					color: #374151;
-					&:hover:not(:disabled) { background: #e5e7eb; }
-				`;
-		}
-	}}
-	
-	&:disabled {
-		opacity: 0.5;
-		cursor: not-allowed;
-	}
-`;
 
 const ResultBox = styled.div<{ $success?: boolean }>`
 	padding: 1rem;
@@ -995,13 +949,26 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 						{renderStepStatus(1)}
 					</StepHeader>
 					<StepContent>
-						<Button
-							$variant="primary"
+						<ButtonSpinner
+							loading={stepStates[1]?.status === 'loading'}
 							onClick={handleStep1}
 							disabled={stepStates[1]?.status === 'loading'}
+							spinnerSize={16}
+							spinnerPosition="left"
+							loadingText="Creating..."
+							style={{
+								background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+								color: 'white',
+								border: 'none',
+								padding: '0.75rem 1.5rem',
+								borderRadius: '0.375rem',
+								fontWeight: '600',
+								cursor: stepStates[1]?.status === 'loading' ? 'not-allowed' : 'pointer',
+								transition: 'all 0.2s ease',
+							}}
 						>
-							Create Sign-On Policy
-						</Button>
+							{stepStates[1]?.status === 'loading' ? '' : 'Create Sign-On Policy'}
+						</ButtonSpinner>
 						{stepStates[1]?.result && (
 							<ResultBox $success={true}>
 								<strong>Sign-On Policy Created:</strong>
@@ -1040,13 +1007,26 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 								onChange={(e) => setPassword(e.target.value)}
 							/>
 						</FormGroup>
-						<Button
-							$variant="primary"
+						<ButtonSpinner
+							loading={stepStates[2]?.status === 'loading'}
 							onClick={handleStep2}
 							disabled={stepStates[2]?.status === 'loading'}
+							spinnerSize={16}
+							spinnerPosition="left"
+							loadingText="Creating..."
+							style={{
+								background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+								color: 'white',
+								border: 'none',
+								padding: '0.75rem 1.5rem',
+								borderRadius: '0.375rem',
+								fontWeight: '600',
+								cursor: stepStates[2]?.status === 'loading' ? 'not-allowed' : 'pointer',
+								transition: 'all 0.2s ease',
+							}}
 						>
-							Create User and Enable MFA
-						</Button>
+							{stepStates[2]?.status === 'loading' ? '' : 'Create User and Enable MFA'}
+						</ButtonSpinner>
 						{stepStates[2]?.result && (
 							<ResultBox $success={true}>
 								<strong>User Created:</strong>
@@ -1073,13 +1053,26 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 								onChange={(e) => setDeviceEmail(e.target.value)}
 							/>
 						</FormGroup>
-						<Button
-							$variant="primary"
+						<ButtonSpinner
+							loading={stepStates[3]?.status === 'loading'}
 							onClick={handleStep3}
 							disabled={stepStates[3]?.status === 'loading'}
+							spinnerSize={16}
+							spinnerPosition="left"
+							loadingText="Creating..."
+							style={{
+								background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+								color: 'white',
+								border: 'none',
+								padding: '0.75rem 1.5rem',
+								borderRadius: '0.375rem',
+								fontWeight: '600',
+								cursor: stepStates[3]?.status === 'loading' ? 'not-allowed' : 'pointer',
+								transition: 'all 0.2s ease',
+							}}
 						>
-							Create Policy and Register Device
-						</Button>
+							{stepStates[3]?.status === 'loading' ? '' : 'Create Policy and Register Device'}
+						</ButtonSpinner>
 						{stepStates[3]?.result && (
 							<ResultBox $success={true}>
 								<strong>Device Registered:</strong>
@@ -1098,13 +1091,26 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 						{renderStepStatus(4)}
 					</StepHeader>
 					<StepContent>
-						<Button
-							$variant="primary"
+						<ButtonSpinner
+							loading={stepStates[4]?.status === 'loading'}
 							onClick={handleStep4}
 							disabled={stepStates[4]?.status === 'loading'}
+							spinnerSize={16}
+							spinnerPosition="left"
+							loadingText="Initiating..."
+							style={{
+								background: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
+								color: 'white',
+								border: 'none',
+								padding: '0.75rem 1.5rem',
+								borderRadius: '0.375rem',
+								fontWeight: '600',
+								cursor: stepStates[4]?.status === 'loading' ? 'not-allowed' : 'pointer',
+								transition: 'all 0.2s ease',
+							}}
 						>
-							Initiate Authorization
-						</Button>
+							{stepStates[4]?.status === 'loading' ? '' : 'Initiate Authorization'}
+						</ButtonSpinner>
 						{stepStates[4]?.result && (
 							<ResultBox $success={true}>
 								<strong>Authorization Initiated:</strong>
@@ -1132,13 +1138,26 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 								placeholder="Enter OTP code from email"
 							/>
 						</FormGroup>
-						<Button
-							$variant="primary"
+						<ButtonSpinner
+							loading={stepStates[5]?.status === 'loading'}
 							onClick={handleStep5}
 							disabled={stepStates[5]?.status === 'loading'}
+							spinnerSize={16}
+							spinnerPosition="left"
+							loadingText="Completing..."
+							style={{
+								background: 'linear-gradient(135deg, #ec4899 0%, #db2777 100%)',
+								color: 'white',
+								border: 'none',
+								padding: '0.75rem 1.5rem',
+								borderRadius: '0.375rem',
+								fontWeight: '600',
+								cursor: stepStates[5]?.status === 'loading' ? 'not-allowed' : 'pointer',
+								transition: 'all 0.2s ease',
+							}}
 						>
-							Complete MFA Action
-						</Button>
+							{stepStates[5]?.status === 'loading' ? '' : 'Complete MFA Action'}
+						</ButtonSpinner>
 						{stepStates[5]?.result && (
 							<ResultBox $success={true}>
 								<strong>MFA Action Completed:</strong>
@@ -1157,13 +1176,26 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 						{renderStepStatus(6)}
 					</StepHeader>
 					<StepContent>
-						<Button
-							$variant="primary"
+						<ButtonSpinner
+							loading={stepStates[6]?.status === 'loading'}
 							onClick={handleStep6}
 							disabled={stepStates[6]?.status === 'loading'}
+							spinnerSize={16}
+							spinnerPosition="left"
+							loadingText="Exchanging..."
+							style={{
+								background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+								color: 'white',
+								border: 'none',
+								padding: '0.75rem 1.5rem',
+								borderRadius: '0.375rem',
+								fontWeight: '600',
+								cursor: stepStates[6]?.status === 'loading' ? 'not-allowed' : 'pointer',
+								transition: 'all 0.2s ease',
+							}}
 						>
-							Resume Flow and Exchange Code
-						</Button>
+							{stepStates[6]?.status === 'loading' ? '' : 'Resume Flow and Exchange Code'}
+						</ButtonSpinner>
 						{stepStates[6]?.result && (
 							<ResultBox $success={true}>
 								<strong>Token Received:</strong>
