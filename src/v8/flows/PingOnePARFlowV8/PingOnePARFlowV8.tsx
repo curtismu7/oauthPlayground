@@ -168,33 +168,6 @@ const InfoBox = styled.div<{ $type: 'info' | 'success' | 'warning' }>`
 	font-size: 0.875rem;
 `;
 
-const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'next' }>`
-	padding: 0.75rem 1.5rem;
-	border-radius: 0.5rem;
-	border: none;
-	background: ${(props) => {
-		if (props.$variant === 'secondary') return '#64748b';
-		if (props.$variant === 'next') return '#10b981';
-		return '#3b82f6';
-	}};
-	color: white;
-	font-weight: 600;
-	cursor: pointer;
-	transition: all 0.2s;
-
-	&:hover:not(:disabled) {
-		background: ${(props) => {
-			if (props.$variant === 'secondary') return '#475569';
-			if (props.$variant === 'next') return '#059669';
-			return '#2563eb';
-		}};
-	}
-
-	&:disabled {
-		opacity: 0.5;
-		cursor: not-allowed;
-	}
-`;
 
 const CodeBlock = styled.pre`
 	background: #1e293b;
@@ -525,9 +498,26 @@ code_challenge=${state.pkceCodes.codeChallenge}
 code_challenge_method=S256`}
 								</CodeBlock>
 
-								<Button onClick={handlePushAuthRequest} disabled={operations.isLoading}>
-									{operations.isLoading ? 'Pushing Request...' : 'Push Authorization Request'}
-								</Button>
+								<ButtonSpinner
+									loading={operations.isLoading}
+									onClick={handlePushAuthRequest}
+									disabled={operations.isLoading}
+									spinnerSize={16}
+									spinnerPosition="left"
+									loadingText="Pushing Request..."
+									style={{
+										background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+										color: 'white',
+										border: 'none',
+										padding: '0.75rem 1.5rem',
+										borderRadius: '0.5rem',
+										fontWeight: '600',
+										cursor: operations.isLoading ? 'not-allowed' : 'pointer',
+										transition: 'all 0.2s ease',
+									}}
+								>
+									{operations.isLoading ? '' : 'Push Authorization Request'}
+								</ButtonSpinner>
 							</>
 						)}
 
@@ -573,7 +563,24 @@ code_challenge_method=S256`}
 									)}
 								</CodeBlock>
 
-								<Button onClick={handleAuthorize}>Authorize with PingOne</Button>
+								<ButtonSpinner
+								loading={false}
+								onClick={handleAuthorize}
+								spinnerSize={16}
+								spinnerPosition="left"
+								style={{
+									background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+									color: 'white',
+									border: 'none',
+									padding: '0.75rem 1.5rem',
+									borderRadius: '0.5rem',
+									fontWeight: '600',
+									cursor: 'pointer',
+									transition: 'all 0.2s ease',
+								}}
+							>
+								Authorize with PingOne
+							</ButtonSpinner>
 							</>
 						)}
 
@@ -610,13 +617,26 @@ code_challenge_method=S256`}
 						</InfoBox>
 
 						{state.flowState.authCode && (
-							<Button
-								$variant="next"
+							<ButtonSpinner
+								loading={operations.isLoading}
 								onClick={handleExchangeTokens}
 								disabled={operations.isLoading}
+								spinnerSize={16}
+								spinnerPosition="left"
+								loadingText="Exchanging..."
+								style={{
+									background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+									color: 'white',
+									border: 'none',
+									padding: '0.75rem 1.5rem',
+									borderRadius: '0.5rem',
+									fontWeight: '600',
+									cursor: operations.isLoading ? 'not-allowed' : 'pointer',
+									transition: 'all 0.2s ease',
+								}}
 							>
-								{operations.isLoading ? 'Exchanging...' : 'Exchange Code for Tokens'}
-							</Button>
+								{operations.isLoading ? '' : 'Exchange Code for Tokens'}
+							</ButtonSpinner>
 						)}
 
 						{state.tokens && (
