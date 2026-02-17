@@ -7,24 +7,10 @@
  *
  * This is the V8 conversion of CompleteMFAFlowV7.tsx, using modern V8 UI components
  * and services for better consistency and maintainability.
- *
- * Key improvements from V7:
- * - Uses V8 UI components (MFAHeaderV8, SuperSimpleApiDisplayV8, etc.)
- * - Uses V8 services (CredentialsServiceV8, MFAConfigurationServiceV8, etc.)
- * - Uses V8 hooks (useWorkerToken, useStepNavigationV8, etc.)
- * - Uses V8 contexts (MFACredentialProvider, GlobalMFAProvider)
- * - Replaces styled-components with inline styles or V8 styling patterns
- * - Uses ButtonSpinner for loading states
- * - Follows V8 error handling patterns
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import {
-	FiAlertTriangle,
-	FiArrowLeft,
-	FiArrowRight,
-	FiCheckCircle,
-} from 'react-icons/fi';
+import { FiAlertTriangle, FiArrowLeft, FiArrowRight, FiCheckCircle } from 'react-icons/fi';
 
 // V8 UI Components
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
@@ -34,7 +20,6 @@ import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 import { MFAErrorBoundary } from '@/v8/components/MFAErrorBoundary';
 
 // V8 Services
-import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
@@ -66,7 +51,7 @@ interface CompleteMfaCredentials {
 		| 'client_secret_post'
 		| 'client_secret_jwt'
 		| 'private_key_jwt';
-	environmentId?: string;
+	environmentId?: string | undefined;
 	workerToken?: string;
 }
 
@@ -103,7 +88,7 @@ interface FlowState {
 	flowData: Record<string, unknown>;
 }
 
-	const CompleteMFAFlowV8: React.FC<CompleteMFAFlowV8Props> = ({
+const CompleteMFAFlowV8: React.FC<CompleteMFAFlowV8Props> = ({
 	maxRetries = 3,
 	onFlowComplete,
 	onFlowError,
@@ -120,7 +105,7 @@ interface FlowState {
 		credentials: {
 			clientId: '',
 			clientSecret: '',
-			environmentId: '',
+			environmentId: undefined,
 		},
 		isLoading: false,
 		error: null,
@@ -185,41 +170,6 @@ interface FlowState {
 		toastV8.error(error);
 	}, [onFlowError]);
 
-	// Network status check (unused for now but available for future use)
-	// const checkNetworkStatus = useCallback(async () => {
-	// 	setFlowState(prev => ({ ...prev, networkStatus: 'checking' }));
-	// 	
-	// 	try {
-	// 		// Use V8 service to check connectivity
-	// 		await CredentialsServiceV8.validateCredentials(flowState.credentials);
-	// 		setFlowState(prev => ({ ...prev, networkStatus: 'online' }));
-	// 	} catch (error) {
-	// 		setFlowState(prev => ({ ...prev, networkStatus: 'offline' }));
-	// 		handleError('Network connectivity issue', { error });
-	// 	}
-	// }, [flowState.credentials, handleError]);
-
-	// User login handler
-	const handleUserLogin = useCallback(async (credentials: CompleteMfaCredentials) => {
-		setFlowState(prev => ({ ...prev, isLoading: true, error: null }));
-		
-			try {
-				// Use V8 credentials service
-				await CredentialsServiceV8.saveCredentials(credentials, flowState.credentials.environmentId || '');
-				
-				setFlowState(prev => ({
-					...prev,
-					credentials: { ...prev.credentials, ...credentials },
-					isLoading: false,
-					currentStep: 'mfa_enrollment',
-				}));
-				
-				toastV8.success('User credentials saved successfully');
-			} catch (error) {
-				handleError('Failed to save user credentials', { error });
-			}
-	}, [handleError]);
-
 	// MFA enrollment handler
 	const handleMFAEnrollment = useCallback(async () => {
 		if (!tokenStatus.isValid) {
@@ -231,10 +181,7 @@ interface FlowState {
 		
 		try {
 			// Use V8 MFA configuration service
-			const mfaConfig = await MFAConfigurationServiceV8.getApplicationMFAConfiguration(
-				flowState.credentials.environmentId!,
-				tokenStatus.token
-			);
+			const mfaConfig = MFAConfigurationServiceV8.loadConfiguration();
 
 			setFlowState(prev => ({
 				...prev,
@@ -247,7 +194,7 @@ interface FlowState {
 		} catch (error) {
 			handleError('Failed to load MFA configuration', { error });
 		}
-	}, [tokenStatus, flowState.credentials.environmentId, handleError]);
+	}, [tokenStatus, handleError]);
 
 	// Device pairing handler
 	const handleDevicePairing = useCallback(async () => {
@@ -357,8 +304,6 @@ interface FlowState {
 						<MFAHeaderV8
 							title="User Login"
 							description="Enter your credentials to begin the MFA flow"
-							step={1}
-							totalSteps={5}
 						/>
 						
 						<div style={{ marginBottom: '24px' }}>
@@ -384,9 +329,16 @@ interface FlowState {
 
 						{showUserLoginModal && (
 							<UserLoginModalV8
+								isOpen={showUserLoginModal}
 								onClose={() => setShowUserLoginModal(false)}
-								onSuccess={handleUserLogin}
-								initialCredentials={flowState.credentials}
+								onCredentialsSaved={() => {
+									setFlowState(prev => ({
+										...prev,
+										currentStep: 'mfa_enrollment',
+									}));
+									toastV8.success('User credentials saved successfully');
+								}}
+								environmentId={flowState.credentials.environmentId || ''}
 							/>
 						)}
 					</div>
@@ -398,8 +350,6 @@ interface FlowState {
 						<MFAHeaderV8
 							title="MFA Enrollment"
 							description="Setting up multi-factor authentication"
-							step={2}
-							totalSteps={5}
 						/>
 						
 						<div style={{ marginBottom: '24px' }}>
@@ -446,8 +396,6 @@ interface FlowState {
 						<MFAHeaderV8
 							title="Device Pairing"
 							description={`Pair your ${deviceType} device for MFA`}
-							step={3}
-							totalSteps={5}
 						/>
 						
 						<div style={{ marginBottom: '24px' }}>
@@ -479,8 +427,6 @@ interface FlowState {
 						<MFAHeaderV8
 							title="MFA Challenge"
 							description="Complete the multi-factor authentication challenge"
-							step={4}
-							totalSteps={5}
 						/>
 						
 						<div style={{ marginBottom: '24px' }}>
@@ -512,8 +458,6 @@ interface FlowState {
 						<MFAHeaderV8
 							title="Setup Complete"
 							description="MFA has been successfully configured"
-							step={5}
-							totalSteps={5}
 						/>
 						
 						<div style={{
@@ -560,8 +504,6 @@ interface FlowState {
 						<MFAHeaderV8
 							title="Error"
 							description="An error occurred during the MFA flow"
-							step={flowState.retryCount + 1}
-							totalSteps={5}
 						/>
 						
 						<div style={{
