@@ -19,7 +19,8 @@
 import React, { useEffect, useState } from 'react';
 import { FiPackage } from 'react-icons/fi';
 import { usePageScroll } from '@/hooks/usePageScroll';
-import { ButtonSpinner } from '../../components/ui/ButtonSpinner';
+import { useProductionSpinner } from '../../hooks/useProductionSpinner';
+import { CommonSpinner } from '../../components/common/CommonSpinner';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
@@ -319,6 +320,10 @@ export const MFAReportingFlowV8: React.FC = () => {
 		}
 	});
 
+	// Spinner hooks for async operations
+	const reportingSpinner = useProductionSpinner('mfa-reporting');
+	const workerTokenSpinner = useProductionSpinner('mfa-worker-token');
+
 	// Report state
 	const [selectedReport, setSelectedReport] = useState<ReportType>('all-devices');
 	const [reports, setReports] = useState<unknown[]>([]);
@@ -418,14 +423,14 @@ export const MFAReportingFlowV8: React.FC = () => {
 			return;
 		}
 
-		setIsLoading(true);
-		try {
-			const config = REPORT_CONFIGS[selectedReport];
-			let result: unknown[] = [];
+		return await reportingSpinner.withSpinner(async () => {
+			setIsLoading(true);
+			setReports([]);
+			setError(null);
 
-			if (isAsyncReport) {
-				// Handle async reports (user authentication reports)
-				if (selectedReport === 'user-authentications') {
+			try {
+				const config = REPORT_CONFIGS[selectedReport];
+				let result: unknown[] = [];
 					result = await MFAReportingServiceV8.getUserAuthenticationReports({
 						environmentId: credentials.environmentId,
 						username: username.trim(),
@@ -486,7 +491,9 @@ export const MFAReportingFlowV8: React.FC = () => {
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, 'Loading MFA reports...');
+	}, [reportingSpinner]
+	);
 
 	// Get report title
 	const getReportTitle = () => {
@@ -495,6 +502,24 @@ export const MFAReportingFlowV8: React.FC = () => {
 
 	return (
 		<>
+			{/* Modal Spinners for MFA Reporting Operations */}
+			{reportingSpinner.isLoading && (
+				<CommonSpinner
+					message={reportingSpinner.spinnerState.message || 'Loading MFA reports...'}
+					theme="blue"
+					variant="modal"
+					allowDismiss={false}
+				/>
+			)}
+			{workerTokenSpinner.isLoading && (
+				<CommonSpinner
+					message={workerTokenSpinner.spinnerState.message || 'Managing worker token...'}
+					theme="green"
+					variant="modal"
+					allowDismiss={false}
+				/>
+			)}
+
 			<div
 				className="mfa-reporting-flow-v8"
 				style={{
