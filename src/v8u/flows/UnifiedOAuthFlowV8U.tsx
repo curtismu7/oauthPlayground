@@ -65,9 +65,7 @@ import {
 	type UnifiedOAuthCredentials,
 	UnifiedOAuthCredentialsServiceV8U,
 } from '../services/unifiedOAuthCredentialsServiceV8U';
-import { 
-	StandardizedCredentialExportImport
-} from '@/components/StandardizedCredentialExportImport';
+import { StandardizedCredentialExportImport } from '@/components/StandardizedCredentialExportImport';
 import { EducationModeToggle } from '@/components/education/EducationModeToggle';
 import { MasterEducationSection } from '@/components/education/MasterEducationSection';
 
@@ -1913,15 +1911,31 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						summary: 'Single UI for all OAuth 2.0, OAuth 2.1/OIDC 2.1, and OIDC Core 1.0 flows',
 						content: (
 							<div>
-								<p><strong>The Unified OAuth/OIDC Flow</strong> provides a single interface for all OAuth and OpenID Connect flows:</p>
+								<p>
+									<strong>The Unified OAuth/OIDC Flow</strong> provides a single interface for all
+									OAuth and OpenID Connect flows:
+								</p>
 								<ul>
-									<li><strong>Authorization Code Flow</strong> - Most secure flow for web applications</li>
-									<li><strong>Client Credentials Flow</strong> - Machine-to-machine authentication</li>
-									<li><strong>Device Authorization Flow</strong> - For devices with limited input</li>
-									<li><strong>Implicit Flow</strong> - Legacy flow (not recommended)</li>
-									<li><strong>Hybrid Flow</strong> - OIDC combination flow</li>
+									<li>
+										<strong>Authorization Code Flow</strong> - Most secure flow for web applications
+									</li>
+									<li>
+										<strong>Client Credentials Flow</strong> - Machine-to-machine authentication
+									</li>
+									<li>
+										<strong>Device Authorization Flow</strong> - For devices with limited input
+									</li>
+									<li>
+										<strong>Implicit Flow</strong> - Legacy flow (not recommended)
+									</li>
+									<li>
+										<strong>Hybrid Flow</strong> - OIDC combination flow
+									</li>
 								</ul>
-								<p>Each flow adapts to the selected specification version (OAuth 2.0, OAuth 2.1/OIDC 2.1, or OIDC Core 1.0).</p>
+								<p>
+									Each flow adapts to the selected specification version (OAuth 2.0, OAuth 2.1/OIDC
+									2.1, or OIDC Core 1.0).
+								</p>
 							</div>
 						),
 					},
@@ -1932,13 +1946,25 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						summary: 'Support for OAuth 2.0, OAuth 2.1/OIDC 2.1, and OIDC Core 1.0 specifications',
 						content: (
 							<div>
-								<p><strong>Specification Support:</strong></p>
+								<p>
+									<strong>Specification Support:</strong>
+								</p>
 								<ul>
-									<li><strong>OAuth 2.0</strong> - Original OAuth 2.0 specification (RFC 6749)</li>
-									<li><strong>OAuth 2.1 / OIDC 2.1</strong> - Modern security best practices with PKCE required</li>
-									<li><strong>OIDC Core 1.0</strong> - OpenID Connect for identity and authentication</li>
+									<li>
+										<strong>OAuth 2.0</strong> - Original OAuth 2.0 specification (RFC 6749)
+									</li>
+									<li>
+										<strong>OAuth 2.1 / OIDC 2.1</strong> - Modern security best practices with PKCE
+										required
+									</li>
+									<li>
+										<strong>OIDC Core 1.0</strong> - OpenID Connect for identity and authentication
+									</li>
 								</ul>
-								<p>The UI automatically adapts based on your selected specification version, showing only compatible flows and features.</p>
+								<p>
+									The UI automatically adapts based on your selected specification version, showing
+									only compatible flows and features.
+								</p>
 							</div>
 						),
 					},
@@ -2416,13 +2442,15 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 								}
 							}}
 						/>
-						
+
 						{/* Standardized Export/Import Buttons */}
-						<div style={{ 
-							marginTop: '20px', 
-							paddingTop: '20px', 
-							borderTop: '1px solid #e2e8f0' 
-						}}>
+						<div
+							style={{
+								marginTop: '20px',
+								paddingTop: '20px',
+								borderTop: '1px solid #e2e8f0',
+							}}
+						>
 							<StandardizedCredentialExportImport
 								appName="Unified OAuth & OIDC"
 								appType="oauth"
@@ -2430,19 +2458,19 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 								metadata={{
 									flowType: effectiveFlowType,
 									specVersion: specVersion,
-									environment: credentials.environmentId
+									environment: credentials.environmentId,
 								}}
 								onExport={() => {
 									logger.info('Credentials exported', { flowKey, flowType: effectiveFlowType });
 								}}
 								onImport={(imported) => {
-									logger.info('Credentials imported', { 
-										flowKey, 
+									logger.info('Credentials imported', {
+										flowKey,
 										importedApp: imported.appName,
-										importedType: imported.appType 
+										importedType: imported.appType,
 									});
 									// Reload credentials after import
-									reloadCredentialsAfterReset(flowKey).then(creds => {
+									reloadCredentialsAfterReset(flowKey).then((creds) => {
 										setCredentials(creds);
 									});
 								}}

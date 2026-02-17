@@ -15,7 +15,15 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiDatabase, FiHardDrive, FiSave, FiActivity, FiClock, FiCheckCircle, FiAlertTriangle } from 'react-icons/fi';
+import {
+	FiDatabase,
+	FiHardDrive,
+	FiSave,
+	FiActivity,
+	FiClock,
+	FiCheckCircle,
+	FiAlertTriangle,
+} from 'react-icons/fi';
 import styled from 'styled-components';
 import { useEnhancedCredentialsTracking } from '../hooks/useEnhancedCredentialsTracking';
 import { EnhancedCredentialsServiceV8 } from '../services/enhancedCredentialsServiceV8';
@@ -71,29 +79,41 @@ const StorageBackend = styled.div<{ status: 'available' | 'unavailable' | 'activ
   font-size: 0.875rem;
   font-weight: 600;
   background: ${({ status }) => {
-    switch (status) {
-      case 'available': return '#f0fdf4';
-      case 'unavailable': return '#fef2f2';
-      case 'active': return '#dbeafe';
-      default: return '#f9fafb';
-    }
-  }};
+		switch (status) {
+			case 'available':
+				return '#f0fdf4';
+			case 'unavailable':
+				return '#fef2f2';
+			case 'active':
+				return '#dbeafe';
+			default:
+				return '#f9fafb';
+		}
+	}};
   color: ${({ status }) => {
-    switch (status) {
-      case 'available': return '#166534';
-      case 'unavailable': return '#991b1b';
-      case 'active': return '#1e40af';
-      default: return '#6b7280';
-    }
-  }};
+		switch (status) {
+			case 'available':
+				return '#166534';
+			case 'unavailable':
+				return '#991b1b';
+			case 'active':
+				return '#1e40af';
+			default:
+				return '#6b7280';
+		}
+	}};
   border: 1px solid ${({ status }) => {
-    switch (status) {
-      case 'available': return '#bbf7d0';
-      case 'unavailable': return '#fecaca';
-      case 'active': return '#bfdbfe';
-      default: return '#e5e7eb';
-    }
-  }};
+		switch (status) {
+			case 'available':
+				return '#bbf7d0';
+			case 'unavailable':
+				return '#fecaca';
+			case 'active':
+				return '#bfdbfe';
+			default:
+				return '#e5e7eb';
+		}
+	}};
 `;
 
 const FormGroup = styled.div`
@@ -185,36 +205,36 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
   gap: 0.5rem;
 
   ${({ variant = 'primary' }) => {
-    switch (variant) {
-      case 'primary':
-        return `
+		switch (variant) {
+			case 'primary':
+				return `
           background: #3b82f6;
           color: white;
           &:hover { background: #2563eb; }
           &:disabled { background: #9ca3af; cursor: not-allowed; }
         `;
-      case 'secondary':
-        return `
+			case 'secondary':
+				return `
           background: #6b7280;
           color: white;
           &:hover { background: #4b5563; }
           &:disabled { background: #9ca3af; cursor: not-allowed; }
         `;
-      case 'danger':
-        return `
+			case 'danger':
+				return `
           background: #ef4444;
           color: white;
           &:hover { background: #dc2626; }
           &:disabled { background: #9ca3af; cursor: not-allowed; }
         `;
-      default:
-        return `
+			default:
+				return `
           background: #3b82f6;
           color: white;
           &:hover { background: #2563eb; }
         `;
-    }
-  }}
+		}
+	}}
 
   &:disabled {
     opacity: 0.6;
@@ -304,7 +324,7 @@ export const EnhancedCredentialsFormV8: React.FC<EnhancedCredentialsFormV8Props>
 	environmentId,
 	appName = 'OAuth Playground',
 	flowType = 'oauth',
-	onCredentialsChange
+	onCredentialsChange,
 }) => {
 	// Form state
 	const [credentials, setCredentials] = useState({
@@ -314,10 +334,12 @@ export const EnhancedCredentialsFormV8: React.FC<EnhancedCredentialsFormV8Props>
 		redirectUri: '',
 		scopes: 'openid profile email',
 		clientAuthMethod: 'client_secret_post' as const,
-		responseType: 'code'
+		responseType: 'code',
 	});
 
-	const [storageBackends, setStorageBackends] = useState<Array<{ name: string; available: boolean }>>([]);
+	const [storageBackends, setStorageBackends] = useState<
+		Array<{ name: string; available: boolean }>
+	>([]);
 	const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
 	const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
@@ -329,7 +351,7 @@ export const EnhancedCredentialsFormV8: React.FC<EnhancedCredentialsFormV8Props>
 		clientId: credentials.clientId || 'unknown',
 		autoSave: true,
 		autoSaveDelay: 2000,
-		trackPerformance: true
+		trackPerformance: true,
 	});
 
 	// Load storage backend status
@@ -337,7 +359,7 @@ export const EnhancedCredentialsFormV8: React.FC<EnhancedCredentialsFormV8Props>
 		const loadBackendStatus = async () => {
 			try {
 				const backends = await EnhancedCredentialsServiceV8.getBackendStatus();
-				setStorageBackends(backends.map(b => ({ name: b.name, available: b.available })));
+				setStorageBackends(backends.map((b) => ({ name: b.name, available: b.available })));
 			} catch (error) {
 				console.error('Failed to load backend status:', error);
 			}
@@ -359,7 +381,7 @@ export const EnhancedCredentialsFormV8: React.FC<EnhancedCredentialsFormV8Props>
 						redirectUri: existing.redirectUri || '',
 						scopes: existing.scopes || 'openid profile email',
 						clientAuthMethod: existing.clientAuthMethod || 'client_secret_post',
-						responseType: existing.responseType || 'code'
+						responseType: existing.responseType || 'code',
 					});
 				}
 			} catch (error) {
@@ -371,83 +393,90 @@ export const EnhancedCredentialsFormV8: React.FC<EnhancedCredentialsFormV8Props>
 	}, [tracking]);
 
 	// Field change handler with tracking
-	const handleFieldChange = useCallback((
-		fieldName: string,
-		value: string,
-		validate = false
-	) => {
-		setCredentials(prev => ({ ...prev, [fieldName]: value }));
-		
-		// Track field interaction
-		tracking.trackFieldInteraction(fieldName, 'change', value);
-		
-		// Validate field if requested
-		if (validate) {
-			validateField(fieldName, value);
-		}
-		
-		// Notify parent
-		if (onCredentialsChange) {
-			onCredentialsChange({ ...credentials, [fieldName]: value });
-		}
-	}, [tracking, credentials, onCredentialsChange]);
+	const handleFieldChange = useCallback(
+		(fieldName: string, value: string, validate = false) => {
+			setCredentials((prev) => ({ ...prev, [fieldName]: value }));
+
+			// Track field interaction
+			tracking.trackFieldInteraction(fieldName, 'change', value);
+
+			// Validate field if requested
+			if (validate) {
+				validateField(fieldName, value);
+			}
+
+			// Notify parent
+			if (onCredentialsChange) {
+				onCredentialsChange({ ...credentials, [fieldName]: value });
+			}
+		},
+		[tracking, credentials, onCredentialsChange]
+	);
 
 	// Field focus/blur handlers
-	const handleFieldFocus = useCallback((fieldName: string) => {
-		tracking.trackFieldInteraction(fieldName, 'focus');
-	}, [tracking]);
+	const handleFieldFocus = useCallback(
+		(fieldName: string) => {
+			tracking.trackFieldInteraction(fieldName, 'focus');
+		},
+		[tracking]
+	);
 
-	const handleFieldBlur = useCallback((fieldName: string, value: string) => {
-		tracking.trackFieldInteraction(fieldName, 'blur', value);
-		validateField(fieldName, value);
-	}, [tracking]);
+	const handleFieldBlur = useCallback(
+		(fieldName: string, value: string) => {
+			tracking.trackFieldInteraction(fieldName, 'blur', value);
+			validateField(fieldName, value);
+		},
+		[tracking]
+	);
 
 	// Validation
-	const validateField = useCallback((fieldName: string, value: string) => {
-		const errors: Record<string, string> = {};
+	const validateField = useCallback(
+		(fieldName: string, value: string) => {
+			const errors: Record<string, string> = {};
 
-		switch (fieldName) {
-			case 'clientId':
-				if (!value.trim()) {
-					errors.clientId = 'Client ID is required';
-				} else if (!/^[a-zA-Z0-9_-]+$/.test(value)) {
-					errors.clientId = 'Client ID contains invalid characters';
-				}
-				break;
-			case 'issuerUrl':
-				if (value && !value.startsWith('https://')) {
-					errors.issuerUrl = 'Issuer URL must start with https://';
-				}
-				break;
-			case 'redirectUri':
-				if (value && !value.startsWith('https://') && !value.startsWith('http://localhost')) {
-					errors.redirectUri = 'Redirect URI must be HTTPS or localhost';
-				}
-				break;
-		}
-
-		// Update validation errors
-		setValidationErrors(prev => {
-			const newErrors = { ...prev };
-			if (errors[fieldName]) {
-				newErrors[fieldName] = errors[fieldName];
-				tracking.trackValidation(fieldName, false, errors[fieldName]);
-			} else {
-				delete newErrors[fieldName];
-				tracking.trackValidation(fieldName, true);
+			switch (fieldName) {
+				case 'clientId':
+					if (!value.trim()) {
+						errors.clientId = 'Client ID is required';
+					} else if (!/^[a-zA-Z0-9_-]+$/.test(value)) {
+						errors.clientId = 'Client ID contains invalid characters';
+					}
+					break;
+				case 'issuerUrl':
+					if (value && !value.startsWith('https://')) {
+						errors.issuerUrl = 'Issuer URL must start with https://';
+					}
+					break;
+				case 'redirectUri':
+					if (value && !value.startsWith('https://') && !value.startsWith('http://localhost')) {
+						errors.redirectUri = 'Redirect URI must be HTTPS or localhost';
+					}
+					break;
 			}
-			return newErrors;
-		});
-	}, [tracking]);
+
+			// Update validation errors
+			setValidationErrors((prev) => {
+				const newErrors = { ...prev };
+				if (errors[fieldName]) {
+					newErrors[fieldName] = errors[fieldName];
+					tracking.trackValidation(fieldName, false, errors[fieldName]);
+				} else {
+					delete newErrors[fieldName];
+					tracking.trackValidation(fieldName, true);
+				}
+				return newErrors;
+			});
+		},
+		[tracking]
+	);
 
 	// Dropdown selection tracking
-	const handleDropdownChange = useCallback((
-		dropdownId: string,
-		value: string,
-		text: string
-	) => {
-		tracking.trackDropdownSelection(dropdownId, value, text);
-	}, [tracking]);
+	const handleDropdownChange = useCallback(
+		(dropdownId: string, value: string, text: string) => {
+			tracking.trackDropdownSelection(dropdownId, value, text);
+		},
+		[tracking]
+	);
 
 	// Save credentials
 	const handleSave = useCallback(async () => {
@@ -455,7 +484,7 @@ export const EnhancedCredentialsFormV8: React.FC<EnhancedCredentialsFormV8Props>
 
 		try {
 			const result = await tracking.saveCredentials(credentials);
-			
+
 			if (result.success) {
 				setSaveStatus('saved');
 				setTimeout(() => setSaveStatus('idle'), 3000);
@@ -480,7 +509,7 @@ export const EnhancedCredentialsFormV8: React.FC<EnhancedCredentialsFormV8Props>
 					redirectUri: loaded.redirectUri || '',
 					scopes: loaded.scopes || 'openid profile email',
 					clientAuthMethod: loaded.clientAuthMethod || 'client_secret_post',
-					responseType: loaded.responseType || 'code'
+					responseType: loaded.responseType || 'code',
 				});
 			}
 		} catch (error) {
@@ -499,7 +528,7 @@ export const EnhancedCredentialsFormV8: React.FC<EnhancedCredentialsFormV8Props>
 				redirectUri: '',
 				scopes: 'openid profile email',
 				clientAuthMethod: 'client_secret_post',
-				responseType: 'code'
+				responseType: 'code',
 			});
 			tracking.resetSession();
 		} catch (error) {
@@ -520,7 +549,7 @@ export const EnhancedCredentialsFormV8: React.FC<EnhancedCredentialsFormV8Props>
 
 			{/* Storage Backend Status */}
 			<StorageStatus>
-				{storageBackends.map(backend => (
+				{storageBackends.map((backend) => (
 					<StorageBackend
 						key={backend.name}
 						status={backend.available ? 'available' : 'unavailable'}
@@ -561,9 +590,7 @@ export const EnhancedCredentialsFormV8: React.FC<EnhancedCredentialsFormV8Props>
 					placeholder="Enter your client ID"
 					required
 				/>
-				{validationErrors.clientId && (
-					<ErrorMessage>{validationErrors.clientId}</ErrorMessage>
-				)}
+				{validationErrors.clientId && <ErrorMessage>{validationErrors.clientId}</ErrorMessage>}
 			</FormGroup>
 
 			<FormGroup>
@@ -590,9 +617,7 @@ export const EnhancedCredentialsFormV8: React.FC<EnhancedCredentialsFormV8Props>
 					onBlur={(e) => handleFieldBlur('issuerUrl', e.target.value)}
 					placeholder="https://auth.pingone.com/"
 				/>
-				{validationErrors.issuerUrl && (
-					<ErrorMessage>{validationErrors.issuerUrl}</ErrorMessage>
-				)}
+				{validationErrors.issuerUrl && <ErrorMessage>{validationErrors.issuerUrl}</ErrorMessage>}
 			</FormGroup>
 
 			<FormGroup>
@@ -630,7 +655,11 @@ export const EnhancedCredentialsFormV8: React.FC<EnhancedCredentialsFormV8Props>
 					value={credentials.clientAuthMethod}
 					onChange={(e) => {
 						handleFieldChange('clientAuthMethod', e.target.value);
-						handleDropdownChange('clientAuthMethod', e.target.value, e.target.options[e.target.selectedIndex].text);
+						handleDropdownChange(
+							'clientAuthMethod',
+							e.target.value,
+							e.target.options[e.target.selectedIndex].text
+						);
 					}}
 					onFocus={() => handleFieldFocus('clientAuthMethod')}
 					onBlur={(e) => handleFieldBlur('clientAuthMethod', e.target.value)}
@@ -650,7 +679,11 @@ export const EnhancedCredentialsFormV8: React.FC<EnhancedCredentialsFormV8Props>
 					value={credentials.responseType}
 					onChange={(e) => {
 						handleFieldChange('responseType', e.target.value);
-						handleDropdownChange('responseType', e.target.value, e.target.options[e.target.selectedIndex].text);
+						handleDropdownChange(
+							'responseType',
+							e.target.value,
+							e.target.options[e.target.selectedIndex].text
+						);
 					}}
 					onFocus={() => handleFieldFocus('responseType')}
 					onBlur={(e) => handleFieldBlur('responseType', e.target.value)}
@@ -673,19 +706,11 @@ export const EnhancedCredentialsFormV8: React.FC<EnhancedCredentialsFormV8Props>
 					<FiSave />
 					{tracking.isLoading ? 'Saving...' : 'Save Credentials'}
 				</Button>
-				<Button
-					variant="secondary"
-					onClick={handleLoad}
-					disabled={tracking.isLoading}
-				>
+				<Button variant="secondary" onClick={handleLoad} disabled={tracking.isLoading}>
 					<FiDatabase />
 					Load Credentials
 				</Button>
-				<Button
-					variant="danger"
-					onClick={handleClear}
-					disabled={tracking.isLoading}
-				>
+				<Button variant="danger" onClick={handleClear} disabled={tracking.isLoading}>
 					<FiAlertTriangle />
 					Clear Credentials
 				</Button>

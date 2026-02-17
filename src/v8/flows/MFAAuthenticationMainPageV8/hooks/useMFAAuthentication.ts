@@ -178,173 +178,175 @@ export const useMFAAuthentication = (
 			}
 
 			return await authInitSpinner.withSpinner(async () => {
-			// Reset auth state to clear any previous authentication session
-			setAuthState({
-				isLoading: false,
-				authenticationId: null,
-				status: null,
-				nextStep: null,
-				devices: [],
-				showDeviceSelection: false,
-				selectedDeviceId: '',
-				userId: null,
-				challengeId: null,
-				publicKeyCredentialRequestOptions: undefined,
-				_links: null,
-				completionResult: null,
-			});
-
-			try {
-				// 1. Lookup user
-				const user = await MFAServiceV8.lookupUserByUsername(credentials.environmentId, username);
-
-				// 2. Initialize MFA Authentication
-				const response = await MfaAuthenticationServiceV8.initializeDeviceAuthentication({
-					environmentId: credentials.environmentId,
-					username: username,
-					deviceAuthenticationPolicyId: credentials.deviceAuthenticationPolicyId,
-					region: credentials.region,
-					customDomain: credentials.customDomain,
-				});
-
-				// Extract _links for flow coordination
-				const links = (response._links as Record<string, { href: string }>) || {};
-
-				// Parse response
-				const status = response.status || '';
-				const nextStep = response.nextStep || '';
-
-				// Use devices from authentication response
-				const rawDevices = response.devices || [];
-
-				// Filter devices to ensure they belong to the correct user
-				const userDevices = rawDevices.filter((d: Record<string, unknown>) => {
-					const deviceUserId = d.user?.id || d.userId;
-					const matches = !deviceUserId || deviceUserId === user.id;
-					if (!matches) {
-						console.warn(`${MODULE_TAG} ⚠️ Device belongs to different user, filtering out:`, {
-							deviceId: d.id,
-							deviceType: d.type,
-							deviceUserId,
-							expectedUserId: user.id,
-							expectedUsername: username,
-						});
-					}
-					return matches;
-				});
-
-				let authDevices: Device[] = userDevices.map((d: Record<string, unknown>) => {
-					const device: Device = {
-						id: (d.id as string) || '',
-						type: (d.type as string) || '',
-						nickname: (d.nickname as string) || (d.name as string) || (d.type as string),
-					};
-					if (d.phone) device.phone = d.phone as string;
-					if (d.email) device.email = d.email as string;
-					if (d.status) device.status = d.status as string;
-					return device;
-				});
-
-				// Check for session cookies and prefer FIDO2 platform devices if present
-				const { shouldPreferFIDO2PlatformDevice } = await import(
-					'@/v8/services/fido2SessionCookieServiceV8'
-				);
-				const platformPreference = shouldPreferFIDO2PlatformDevice();
-
-				if (platformPreference.prefer && authDevices.length > 0) {
-					// Reorder devices to prioritize FIDO2 devices when session cookie exists
-					const fido2Devices = authDevices.filter((d) => d.type === 'FIDO2');
-					const otherDevices = authDevices.filter((d) => d.type !== 'FIDO2');
-
-					if (fido2Devices.length > 0) {
-						authDevices = [...fido2Devices, ...otherDevices];
-					}
-				}
-
-				// Get the selected policy to check device selection behavior
-				const selectedPolicy = deviceAuthPolicies.find(
-					(p) => p.id === credentials.deviceAuthenticationPolicyId
-				);
-				const deviceSelectionBehavior = selectedPolicy?.authentication?.deviceSelection as
-					| string
-					| undefined;
-
-				// Determine next action based on status/nextStep
-				const needsDeviceSelection =
-					status === 'DEVICE_SELECTION_REQUIRED' ||
-					nextStep === 'DEVICE_SELECTION_REQUIRED' ||
-					nextStep === 'SELECTION_REQUIRED' ||
-					// For ALWAYS_DISPLAY_DEVICES policy, always show device selection if devices are available
-					(authDevices.length > 0 && deviceSelectionBehavior === 'ALWAYS_DISPLAY_DEVICES');
-
-				const needsOTP = status === 'OTP_REQUIRED' || nextStep === 'OTP_REQUIRED';
-				const needsAssertion = status === 'ASSERTION_REQUIRED' || nextStep === 'ASSERTION_REQUIRED';
-				const needsPush =
-					status === 'PUSH_CONFIRMATION_REQUIRED' || nextStep === 'PUSH_CONFIRMATION_REQUIRED';
-
-				// Validate that we got an authenticationId from the response
-				if (!response.id) {
-					console.error(
-						`${MODULE_TAG} Authentication initialized but no ID in response:`,
-						response
-					);
-					toastV8.error(
-						'Failed to initialize authentication: No authentication ID received from PingOne'
-					);
-					setAuthState((prev) => ({ ...prev, isLoading: false }));
-					setLoadingMessage('');
-					return;
-				}
-
+				// Reset auth state to clear any previous authentication session
 				setAuthState({
 					isLoading: false,
-					authenticationId: response.id,
-					status,
-					nextStep,
-					devices: authDevices,
-					showDeviceSelection: needsDeviceSelection,
+					authenticationId: null,
+					status: null,
+					nextStep: null,
+					devices: [],
+					showDeviceSelection: false,
 					selectedDeviceId: '',
-					userId: String(user.id || ''),
-					challengeId: (response.challengeId as string) || null,
-					publicKeyCredentialRequestOptions: (
-						response as { publicKeyCredentialRequestOptions?: unknown }
-					).publicKeyCredentialRequestOptions,
-					_links: links,
+					userId: null,
+					challengeId: null,
+					publicKeyCredentialRequestOptions: undefined,
+					_links: null,
 					completionResult: null,
 				});
-				setLoadingMessage('');
 
-				// Show appropriate modal
-				if (needsOTP) {
-					setShowOTPModal(true);
-				} else if (needsPush) {
-					setShowPushModal(true);
-					toastV8.success('Please approve the sign-in on your phone.');
-				} else if (needsAssertion) {
-					setShowFIDO2Modal(true);
-				} else if (status === 'COMPLETED') {
-					toastV8.success('Authentication completed successfully!');
-				} else {
-					toastV8.success('Authentication started successfully');
-				}
-			} catch (error) {
-				console.error(`${MODULE_TAG} Failed to start authentication:`, error);
+				try {
+					// 1. Lookup user
+					const user = await MFAServiceV8.lookupUserByUsername(credentials.environmentId, username);
 
-				// Check for NO_USABLE_DEVICES error
-				if (onDeviceFailureError?.(error)) {
-					// Error was handled by callback, just update loading state
+					// 2. Initialize MFA Authentication
+					const response = await MfaAuthenticationServiceV8.initializeDeviceAuthentication({
+						environmentId: credentials.environmentId,
+						username: username,
+						deviceAuthenticationPolicyId: credentials.deviceAuthenticationPolicyId,
+						region: credentials.region,
+						customDomain: credentials.customDomain,
+					});
+
+					// Extract _links for flow coordination
+					const links = (response._links as Record<string, { href: string }>) || {};
+
+					// Parse response
+					const status = response.status || '';
+					const nextStep = response.nextStep || '';
+
+					// Use devices from authentication response
+					const rawDevices = response.devices || [];
+
+					// Filter devices to ensure they belong to the correct user
+					const userDevices = rawDevices.filter((d: Record<string, unknown>) => {
+						const deviceUserId = d.user?.id || d.userId;
+						const matches = !deviceUserId || deviceUserId === user.id;
+						if (!matches) {
+							console.warn(`${MODULE_TAG} ⚠️ Device belongs to different user, filtering out:`, {
+								deviceId: d.id,
+								deviceType: d.type,
+								deviceUserId,
+								expectedUserId: user.id,
+								expectedUsername: username,
+							});
+						}
+						return matches;
+					});
+
+					let authDevices: Device[] = userDevices.map((d: Record<string, unknown>) => {
+						const device: Device = {
+							id: (d.id as string) || '',
+							type: (d.type as string) || '',
+							nickname: (d.nickname as string) || (d.name as string) || (d.type as string),
+						};
+						if (d.phone) device.phone = d.phone as string;
+						if (d.email) device.email = d.email as string;
+						if (d.status) device.status = d.status as string;
+						return device;
+					});
+
+					// Check for session cookies and prefer FIDO2 platform devices if present
+					const { shouldPreferFIDO2PlatformDevice } = await import(
+						'@/v8/services/fido2SessionCookieServiceV8'
+					);
+					const platformPreference = shouldPreferFIDO2PlatformDevice();
+
+					if (platformPreference.prefer && authDevices.length > 0) {
+						// Reorder devices to prioritize FIDO2 devices when session cookie exists
+						const fido2Devices = authDevices.filter((d) => d.type === 'FIDO2');
+						const otherDevices = authDevices.filter((d) => d.type !== 'FIDO2');
+
+						if (fido2Devices.length > 0) {
+							authDevices = [...fido2Devices, ...otherDevices];
+						}
+					}
+
+					// Get the selected policy to check device selection behavior
+					const selectedPolicy = deviceAuthPolicies.find(
+						(p) => p.id === credentials.deviceAuthenticationPolicyId
+					);
+					const deviceSelectionBehavior = selectedPolicy?.authentication?.deviceSelection as
+						| string
+						| undefined;
+
+					// Determine next action based on status/nextStep
+					const needsDeviceSelection =
+						status === 'DEVICE_SELECTION_REQUIRED' ||
+						nextStep === 'DEVICE_SELECTION_REQUIRED' ||
+						nextStep === 'SELECTION_REQUIRED' ||
+						// For ALWAYS_DISPLAY_DEVICES policy, always show device selection if devices are available
+						(authDevices.length > 0 && deviceSelectionBehavior === 'ALWAYS_DISPLAY_DEVICES');
+
+					const needsOTP = status === 'OTP_REQUIRED' || nextStep === 'OTP_REQUIRED';
+					const needsAssertion =
+						status === 'ASSERTION_REQUIRED' || nextStep === 'ASSERTION_REQUIRED';
+					const needsPush =
+						status === 'PUSH_CONFIRMATION_REQUIRED' || nextStep === 'PUSH_CONFIRMATION_REQUIRED';
+
+					// Validate that we got an authenticationId from the response
+					if (!response.id) {
+						console.error(
+							`${MODULE_TAG} Authentication initialized but no ID in response:`,
+							response
+						);
+						toastV8.error(
+							'Failed to initialize authentication: No authentication ID received from PingOne'
+						);
+						setAuthState((prev) => ({ ...prev, isLoading: false }));
+						setLoadingMessage('');
+						return;
+					}
+
+					setAuthState({
+						isLoading: false,
+						authenticationId: response.id,
+						status,
+						nextStep,
+						devices: authDevices,
+						showDeviceSelection: needsDeviceSelection,
+						selectedDeviceId: '',
+						userId: String(user.id || ''),
+						challengeId: (response.challengeId as string) || null,
+						publicKeyCredentialRequestOptions: (
+							response as { publicKeyCredentialRequestOptions?: unknown }
+						).publicKeyCredentialRequestOptions,
+						_links: links,
+						completionResult: null,
+					});
+					setLoadingMessage('');
+
+					// Show appropriate modal
+					if (needsOTP) {
+						setShowOTPModal(true);
+					} else if (needsPush) {
+						setShowPushModal(true);
+						toastV8.success('Please approve the sign-in on your phone.');
+					} else if (needsAssertion) {
+						setShowFIDO2Modal(true);
+					} else if (status === 'COMPLETED') {
+						toastV8.success('Authentication completed successfully!');
+					} else {
+						toastV8.success('Authentication started successfully');
+					}
+				} catch (error) {
+					console.error(`${MODULE_TAG} Failed to start authentication:`, error);
+
+					// Check for NO_USABLE_DEVICES error
+					if (onDeviceFailureError?.(error)) {
+						// Error was handled by callback, just update loading state
+						setAuthState((prev) => ({ ...prev, isLoading: false }));
+						setLoadingMessage('');
+						return;
+					}
+
+					toastV8.error(error instanceof Error ? error.message : 'Failed to start authentication');
 					setAuthState((prev) => ({ ...prev, isLoading: false }));
 					setLoadingMessage('');
-					return;
+					throw error; // Re-throw to let spinner handle it
 				}
-
-				toastV8.error(error instanceof Error ? error.message : 'Failed to start authentication');
-				setAuthState((prev) => ({ ...prev, isLoading: false }));
-				setLoadingMessage('');
-				throw error; // Re-throw to let spinner handle it
-			}
-		}, 'Starting MFA Authentication...');
-	}, [authInitSpinner, onDeviceFailureError]
+			}, 'Starting MFA Authentication...');
+		},
+		[authInitSpinner, onDeviceFailureError]
 	);
 
 	return {

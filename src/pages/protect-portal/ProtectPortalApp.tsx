@@ -745,7 +745,7 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 			<PortalContainer>
 				{/* Global company header for non-home steps or PingIdentity default home */}
 				{showGlobalHeader && <CompanyHeader showBrandSelector={true} />}
-				
+
 				<PortalCard>
 					{isPortalHome && activeTheme.name === 'american-airlines' && (
 						<AmericanAirlinesHero
@@ -819,18 +819,26 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 							_redirectUri={redirectUri}
 						/>
 					)}
-					{isPortalHome && !['american-airlines', 'southwest-airlines', 'fedex', 'bank-of-america', 'united-airlines', 'pingidentity'].includes(activeTheme.name) && (
-						<CorporatePortalHero
-							currentStep={portalState.currentStep}
-							onLoginStart={handleLoginStart}
-							_onLoginSuccess={handleLoginSuccess}
-							_onError={handleError}
-							_environmentId={environmentId}
-							_clientId={clientId}
-							_clientSecret={clientSecret}
-							_redirectUri={redirectUri}
-						/>
-					)}
+					{isPortalHome &&
+						![
+							'american-airlines',
+							'southwest-airlines',
+							'fedex',
+							'bank-of-america',
+							'united-airlines',
+							'pingidentity',
+						].includes(activeTheme.name) && (
+							<CorporatePortalHero
+								currentStep={portalState.currentStep}
+								onLoginStart={handleLoginStart}
+								_onLoginSuccess={handleLoginSuccess}
+								_onError={handleError}
+								_environmentId={environmentId}
+								_clientId={clientId}
+								_clientSecret={clientSecret}
+								_redirectUri={redirectUri}
+							/>
+						)}
 					<PortalContent>{renderStep()}</PortalContent>
 				</PortalCard>
 

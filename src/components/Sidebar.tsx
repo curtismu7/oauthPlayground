@@ -242,27 +242,33 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 			</div>
 
 			<SidebarFooter>
-				<div style={{ 
-					display: 'flex', 
-					flexDirection: 'column', 
-					gap: '0.5rem',
-					padding: '0.5rem 0'
-				}}>
-					<div style={{ 
-						display: 'flex', 
-						flexWrap: 'wrap', 
+				<div
+					style={{
+						display: 'flex',
+						flexDirection: 'column',
 						gap: '0.5rem',
-						justifyContent: 'center'
-					}}>
+						padding: '0.5rem 0',
+					}}
+				>
+					<div
+						style={{
+							display: 'flex',
+							flexWrap: 'wrap',
+							gap: '0.5rem',
+							justifyContent: 'center',
+						}}
+					>
 						<AppVersionBadge type="app" />
 						<AppVersionBadge type="mfa" />
 					</div>
-					<div style={{ 
-						display: 'flex', 
-						flexWrap: 'wrap', 
-						gap: '0.5rem',
-						justifyContent: 'center'
-					}}>
+					<div
+						style={{
+							display: 'flex',
+							flexWrap: 'wrap',
+							gap: '0.5rem',
+							justifyContent: 'center',
+						}}
+					>
 						<AppVersionBadge type="unified" />
 						<AppVersionBadge type="protect" />
 					</div>

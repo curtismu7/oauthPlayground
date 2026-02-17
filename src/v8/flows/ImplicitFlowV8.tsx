@@ -110,7 +110,7 @@ export const ImplicitFlowV8: React.FC = () => {
 	// Standardized spinner hooks for implicit flow operations
 	const authUrlSpinner = useStandardSpinner(3000); // Generate auth URL - 3 seconds
 	const redirectlessSpinner = useStandardSpinner(7000); // Redirectless flow - 7 seconds
-	const tokenSpinner = useStandardSpinner(4000);     // Token processing - 4 seconds
+	const tokenSpinner = useStandardSpinner(4000); // Token processing - 4 seconds
 
 	// Action button hooks for button state management
 	const { config: appConfig } = usePingOneAppConfig();
@@ -243,13 +243,13 @@ export const ImplicitFlowV8: React.FC = () => {
 				loading={redirectlessSpinner.isLoading || authUrlSpinner.isLoading}
 				onClick={async () => {
 					const spinner = useRedirectless ? redirectlessSpinner : authUrlSpinner;
-					
+
 					await spinner.executeWithSpinner(
 						async () => {
 							console.log(
 								`${MODULE_TAG} ${useRedirectless ? 'Starting redirectless flow' : 'Generating authorization URL'}`
 							);
-							
+
 							if (!credentials.redirectUri) {
 								nav.setValidationErrors(['Redirect URI is required']);
 								throw new Error('Redirect URI is required');
@@ -261,7 +261,9 @@ export const ImplicitFlowV8: React.FC = () => {
 									nav.setValidationErrors([
 										'Username and password are required for redirectless authentication',
 									]);
-									throw new Error('Username and password are required for redirectless authentication');
+									throw new Error(
+										'Username and password are required for redirectless authentication'
+									);
 								}
 
 								// Start redirectless flow for implicit
@@ -327,7 +329,7 @@ export const ImplicitFlowV8: React.FC = () => {
 								nav.setValidationErrors([
 									`Failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
 								]);
-							}
+							},
 						}
 					);
 				}}
@@ -577,98 +579,101 @@ export const ImplicitFlowV8: React.FC = () => {
 				message="Processing tokens..."
 				theme="green"
 			/>
-			
+
 			<div className="implicit-flow-v8">
 				<div className="flow-header">
 					<div className="header-content">
-					<div className="header-left">
-						<span className="version-tag">V8</span>
-						<div className="header-text">
-							<h1>OAuth 2.0 Implicit Flow</h1>
-							<p>Complete OAuth 2.0 Implicit Flow with OIDC support</p>
+						<div className="header-left">
+							<span className="version-tag">V8</span>
+							<div className="header-text">
+								<h1>OAuth 2.0 Implicit Flow</h1>
+								<p>Complete OAuth 2.0 Implicit Flow with OIDC support</p>
+							</div>
 						</div>
-					</div>
-					<div className="header-right">
-						<div className="step-badge">
-							<span className="step-number">{nav.currentStep + 1}</span>
-							<span className="step-divider">of</span>
-							<span className="step-total">4</span>
+						<div className="header-right">
+							<div className="step-badge">
+								<span className="step-number">{nav.currentStep + 1}</span>
+								<span className="step-divider">of</span>
+								<span className="step-total">4</span>
+							</div>
 						</div>
 					</div>
 				</div>
-			</div>
 
-			<div className="flow-container">
-				<div className="step-breadcrumb">
-					{['Configure', 'Auth URL', 'Callback', 'Tokens'].map((label, idx) => (
-						<div key={idx} className="breadcrumb-item">
-							<span
-								className={`breadcrumb-text ${idx === nav.currentStep ? 'active' : ''} ${nav.completedSteps.includes(idx) ? 'completed' : ''}`}
-							>
-								{label}
-							</span>
-							{idx < 3 && <span className="breadcrumb-arrow">→</span>}
-						</div>
-					))}
+				<div className="flow-container">
+					<div className="step-breadcrumb">
+						{['Configure', 'Auth URL', 'Callback', 'Tokens'].map((label, idx) => (
+							<div key={idx} className="breadcrumb-item">
+								<span
+									className={`breadcrumb-text ${idx === nav.currentStep ? 'active' : ''} ${nav.completedSteps.includes(idx) ? 'completed' : ''}`}
+								>
+									{label}
+								</span>
+								{idx < 3 && <span className="breadcrumb-arrow">→</span>}
+							</div>
+						))}
+					</div>
+
+					<div className="step-content-wrapper">{renderStepContent()}</div>
+
+					<StepValidationFeedbackV8
+						errors={nav.validationErrors}
+						warnings={nav.validationWarnings}
+					/>
+
+					<StepActionButtonsV8
+						currentStep={nav.currentStep}
+						totalSteps={4}
+						isNextDisabled={!nav.canGoNext}
+						nextDisabledReason={nav.getErrorMessage()}
+						onPrevious={nav.goToPrevious}
+						onNext={nav.goToNext}
+						onFinal={() => {
+							console.log(`${MODULE_TAG} Starting new flow`);
+							nav.reset();
+							setCredentials(CredentialsServiceV8.getSmartDefaults('implicit-flow-v8'));
+							setFlowState({
+								authorizationUrl: '',
+								state: '',
+								nonce: '',
+								accessToken: '',
+								idToken: '',
+								tokenType: 'Bearer',
+								expiresIn: 3600,
+								scope: '',
+							});
+						}}
+					/>
+
+					<ButtonSpinner
+						loading={false}
+						onClick={() => {
+							console.log(`${MODULE_TAG} Resetting flow`);
+							FlowResetServiceV8.resetFlow('implicit-flow-v8');
+							// Reload credentials from storage (preserves credentials)
+							const reloaded = CredentialsServiceV8.loadCredentials('implicit-flow-v8', {
+								flowKey: 'implicit-flow-v8',
+								flowType: 'oidc',
+								includeClientSecret: false,
+								includeRedirectUri: true,
+								includeLogoutUri: false,
+								includeScopes: true,
+								defaultScopes: 'openid profile email',
+								defaultRedirectUri: 'http://localhost:3000/implicit-callback',
+							});
+							setCredentials(reloaded);
+							nav.reset();
+						}}
+						spinnerSize={12}
+						spinnerPosition="left"
+						loadingText="Resetting..."
+						className="btn btn-reset"
+					>
+						Reset Flow
+					</ButtonSpinner>
 				</div>
 
-				<div className="step-content-wrapper">{renderStepContent()}</div>
-
-				<StepValidationFeedbackV8 errors={nav.validationErrors} warnings={nav.validationWarnings} />
-
-				<StepActionButtonsV8
-					currentStep={nav.currentStep}
-					totalSteps={4}
-					isNextDisabled={!nav.canGoNext}
-					nextDisabledReason={nav.getErrorMessage()}
-					onPrevious={nav.goToPrevious}
-					onNext={nav.goToNext}
-					onFinal={() => {
-						console.log(`${MODULE_TAG} Starting new flow`);
-						nav.reset();
-						setCredentials(CredentialsServiceV8.getSmartDefaults('implicit-flow-v8'));
-						setFlowState({
-							authorizationUrl: '',
-							state: '',
-							nonce: '',
-							accessToken: '',
-							idToken: '',
-							tokenType: 'Bearer',
-							expiresIn: 3600,
-							scope: '',
-						});
-					}}
-				/>
-
-				<ButtonSpinner
-					loading={false}
-					onClick={() => {
-						console.log(`${MODULE_TAG} Resetting flow`);
-						FlowResetServiceV8.resetFlow('implicit-flow-v8');
-						// Reload credentials from storage (preserves credentials)
-						const reloaded = CredentialsServiceV8.loadCredentials('implicit-flow-v8', {
-							flowKey: 'implicit-flow-v8',
-							flowType: 'oidc',
-							includeClientSecret: false,
-							includeRedirectUri: true,
-							includeLogoutUri: false,
-							includeScopes: true,
-							defaultScopes: 'openid profile email',
-							defaultRedirectUri: 'http://localhost:3000/implicit-callback',
-						});
-						setCredentials(reloaded);
-						nav.reset();
-					}}
-					spinnerSize={12}
-					spinnerPosition="left"
-					loadingText="Resetting..."
-					className="btn btn-reset"
-				>
-					Reset Flow
-				</ButtonSpinner>
-			</div>
-
-			<style>{`
+				<style>{`
 				.implicit-flow-v8 {
 					max-width: 1000px;
 					margin: 0 auto;
@@ -1075,7 +1080,7 @@ export const ImplicitFlowV8: React.FC = () => {
 					}
 				}
 			`}</style>
-		</div>
+			</div>
 		</>
 	);
 };

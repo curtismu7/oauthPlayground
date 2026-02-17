@@ -329,13 +329,13 @@ const DavinciTodoApp: React.FC = () => {
 		if (!newTodoTitle.trim()) return;
 
 		setIsCreating(true);
-		
+
 		addAPILog({
 			method: 'POST',
 			url: '/api/davinci-todos',
 			requestHeaders: {
 				'Content-Type': 'application/json',
-				'Authorization': 'Bearer ...',
+				Authorization: 'Bearer ...',
 			},
 			requestBody: {
 				title: newTodoTitle,
@@ -346,7 +346,7 @@ const DavinciTodoApp: React.FC = () => {
 		try {
 			await createTodo(newTodoTitle);
 			setNewTodoTitle('');
-			
+
 			addAPILog({
 				method: 'POST',
 				url: '/api/davinci-todos',
@@ -373,13 +373,13 @@ const DavinciTodoApp: React.FC = () => {
 	const handleToggle = async (id: string) => {
 		const todo = todos.find((t) => t.id === id);
 		if (!todo) return;
-		
+
 		addAPILog({
 			method: 'PATCH',
 			url: `/api/davinci-todos/${id}`,
 			requestHeaders: {
 				'Content-Type': 'application/json',
-				'Authorization': 'Bearer ...',
+				Authorization: 'Bearer ...',
 			},
 			requestBody: {
 				completed: !todo.completed,
@@ -388,7 +388,7 @@ const DavinciTodoApp: React.FC = () => {
 
 		try {
 			await toggleTodo(id);
-			
+
 			addAPILog({
 				method: 'PATCH',
 				url: `/api/davinci-todos/${id}`,
@@ -414,13 +414,13 @@ const DavinciTodoApp: React.FC = () => {
 			method: 'DELETE',
 			url: `/api/davinci-todos/${id}`,
 			requestHeaders: {
-				'Authorization': 'Bearer ...',
+				Authorization: 'Bearer ...',
 			},
 		});
 
 		try {
 			await deleteTodoService(id);
-			
+
 			addAPILog({
 				method: 'DELETE',
 				url: `/api/davinci-todos/${id}`,
@@ -475,10 +475,17 @@ const DavinciTodoApp: React.FC = () => {
 								<APILogTitle>
 									{log.method} {log.url}
 									{log.responseStatus && (
-										<span style={{
-											color: log.responseStatus < 400 ? '#28a745' : log.responseStatus < 500 ? '#ffc107' : '#dc3545',
-											marginLeft: '0.5rem',
-										}}>
+										<span
+											style={{
+												color:
+													log.responseStatus < 400
+														? '#28a745'
+														: log.responseStatus < 500
+															? '#ffc107'
+															: '#dc3545',
+												marginLeft: '0.5rem',
+											}}
+										>
 											[{log.responseStatus}]
 										</span>
 									)}

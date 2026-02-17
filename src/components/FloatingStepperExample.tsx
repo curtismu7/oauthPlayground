@@ -7,7 +7,11 @@
  */
 
 import React, { useState } from 'react';
-import { FloatingStepper, FloatingStepperService, type FloatingStepperStep } from '../services/FloatingStepperService';
+import {
+	FloatingStepper,
+	FloatingStepperService,
+	type FloatingStepperStep,
+} from '../services/FloatingStepperService';
 
 const FloatingStepperExample: React.FC = () => {
 	const [currentStep, setCurrentStep] = useState(0);
@@ -87,11 +91,13 @@ const FloatingStepperExample: React.FC = () => {
 		<div style={{ padding: '2rem', minHeight: '100vh', background: '#f9fafb' }}>
 			<h1>Floating Stepper Example</h1>
 			<p>This demonstrates the reusable FloatingStepper component.</p>
-			
+
 			<div style={{ marginTop: '2rem', padding: '2rem', background: 'white', borderRadius: '8px' }}>
 				<h2>Current Step: {oauthSteps[currentStep]?.title}</h2>
 				<p>{oauthSteps[currentStep]?.description}</p>
-				<p>Progress: {currentStep + 1} of {oauthSteps.length}</p>
+				<p>
+					Progress: {currentStep + 1} of {oauthSteps.length}
+				</p>
 			</div>
 
 			<FloatingStepper

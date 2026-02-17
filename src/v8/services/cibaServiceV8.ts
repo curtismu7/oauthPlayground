@@ -92,11 +92,11 @@ export const CibaServiceV8 = {
 			formData.append('client_secret', credentials.clientSecret);
 			formData.append('scope', credentials.scope);
 			formData.append('login_hint', credentials.loginHint);
-			
+
 			if (credentials.bindingMessage) {
 				formData.append('binding_message', credentials.bindingMessage);
 			}
-			
+
 			if (credentials.requestContext) {
 				formData.append('request_context', credentials.requestContext);
 			}
@@ -116,7 +116,8 @@ export const CibaServiceV8 = {
 			if (!response.ok) {
 				const errorData = await response.json().catch(() => ({}));
 				throw new Error(
-					errorData.error_description || `CIBA request failed: ${response.status} ${response.statusText}`
+					errorData.error_description ||
+						`CIBA request failed: ${response.status} ${response.statusText}`
 				);
 			}
 
@@ -129,10 +130,11 @@ export const CibaServiceV8 = {
 
 			toastV8.success('CIBA authentication request initiated successfully');
 			return authRequest;
-
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to initiate CIBA authentication:`, error);
-			toastV8.error(`Failed to initiate CIBA authentication: ${error instanceof Error ? error.message : 'Unknown error'}`);
+			toastV8.error(
+				`Failed to initiate CIBA authentication: ${error instanceof Error ? error.message : 'Unknown error'}`
+			);
 			throw error;
 		}
 	},
@@ -216,7 +218,8 @@ export const CibaServiceV8 = {
 				return {
 					status: 'error',
 					error: errorCode || 'unknown_error',
-					error_description: data.error_description || 'Unknown error occurred during token polling',
+					error_description:
+						data.error_description || 'Unknown error occurred during token polling',
 				};
 			}
 
@@ -228,7 +231,6 @@ export const CibaServiceV8 = {
 				status: 'approved',
 				tokens: data as CibaTokens,
 			};
-
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to poll for CIBA tokens:`, error);
 			return {
@@ -317,23 +319,22 @@ export const CibaServiceV8 = {
 		try {
 			// Try to fetch OIDC discovery to check for CIBA support
 			const discoveryUrl = `https://auth.pingone.com/${environmentId}/as/.well-known/openid_configuration`;
-			
+
 			const response = await fetch(discoveryUrl);
 			if (!response.ok) {
 				return false;
 			}
 
 			const discovery = await response.json();
-			
+
 			// Check for CIBA grant type support
 			const grantTypesSupported = discovery.grant_types_supported || [];
 			return grantTypesSupported.includes('urn:openid:params:grant-type:ciba');
-
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to check CIBA support:`, error);
 			return false;
 		}
-	}
-}
+	},
+};
 
 export default CibaServiceV8;

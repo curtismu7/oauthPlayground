@@ -14,7 +14,10 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { EnhancedCredentialsServiceV8, type UserInteractionData } from '../services/enhancedCredentialsServiceV8';
+import {
+	EnhancedCredentialsServiceV8,
+	type UserInteractionData,
+} from '../services/enhancedCredentialsServiceV8';
 
 const MODULE_TAG = '[📊 CREDENTIALS-TRACKING]';
 
@@ -102,7 +105,7 @@ export function useEnhancedCredentialsTracking(options: UseEnhancedCredentialsTr
 		clientId,
 		autoSave = true,
 		autoSaveDelay = 1000,
-		trackPerformance = true
+		trackPerformance = true,
 	} = options;
 
 	// State management
@@ -119,8 +122,8 @@ export function useEnhancedCredentialsTracking(options: UseEnhancedCredentialsTr
 			fieldTimes: {},
 			validationTimes: {},
 			saveTimes: [],
-			loadTimes: []
-		}
+			loadTimes: [],
+		},
 	}));
 
 	const [isLoading, setIsLoading] = useState(false);
@@ -135,118 +138,125 @@ export function useEnhancedCredentialsTracking(options: UseEnhancedCredentialsTr
 	/**
 	 * Track field interaction
 	 */
-	const trackFieldInteraction = useCallback((
-		fieldName: string,
-		interactionType: FieldInteraction['type'],
-		value?: string,
-		validationResult?: FieldInteraction['validationResult']
-	) => {
-		const timestamp = Date.now();
-		
-		// Record performance timing
-		if (trackPerformance) {
-			if (interactionType === 'focus') {
-				fieldStartTimesRef.current[fieldName] = timestamp;
-			} else if (interactionType === 'blur' && fieldStartTimesRef.current[fieldName]) {
-				const fieldTime = timestamp - fieldStartTimesRef.current[fieldName];
-				session.performance.fieldTimes[fieldName] = 
-					(session.performance.fieldTimes[fieldName] || 0) + fieldTime;
-				delete fieldStartTimesRef.current[fieldName];
-			}
-		}
+	const trackFieldInteraction = useCallback(
+		(
+			fieldName: string,
+			interactionType: FieldInteraction['type'],
+			value?: string,
+			validationResult?: FieldInteraction['validationResult']
+		) => {
+			const timestamp = Date.now();
 
-		// Create interaction record
-		const interaction: FieldInteraction = {
-			field: fieldName,
-			timestamp,
-			type: interactionType,
-			value,
-			validationResult
-		};
-
-		// Update session state
-		setSession(prev => {
-			const newSession = { ...prev };
-			
-			// Add interaction
-			newSession.fieldInteractions.push(interaction);
-			
-			// Update field tracking sets
-			if (interactionType === 'change') {
-				newSession.modifiedFields.add(fieldName);
-			}
-			if (interactionType === 'validate') {
-				if (validationResult === 'valid') {
-					newSession.validatedFields.add(fieldName);
-					newSession.errorFields.delete(fieldName);
-				} else if (validationResult === 'invalid') {
-					newSession.errorFields.add(fieldName);
-					newSession.validatedFields.delete(fieldName);
+			// Record performance timing
+			if (trackPerformance) {
+				if (interactionType === 'focus') {
+					fieldStartTimesRef.current[fieldName] = timestamp;
+				} else if (interactionType === 'blur' && fieldStartTimesRef.current[fieldName]) {
+					const fieldTime = timestamp - fieldStartTimesRef.current[fieldName];
+					session.performance.fieldTimes[fieldName] =
+						(session.performance.fieldTimes[fieldName] || 0) + fieldTime;
+					delete fieldStartTimesRef.current[fieldName];
 				}
 			}
-			if (interactionType === 'error') {
-				newSession.errorFields.add(fieldName);
-			}
-			
-			return newSession;
-		});
 
-		console.log(`${MODULE_TAG} Field interaction tracked:`, { fieldName, interactionType, value });
-	}, [trackPerformance]);
+			// Create interaction record
+			const interaction: FieldInteraction = {
+				field: fieldName,
+				timestamp,
+				type: interactionType,
+				value,
+				validationResult,
+			};
+
+			// Update session state
+			setSession((prev) => {
+				const newSession = { ...prev };
+
+				// Add interaction
+				newSession.fieldInteractions.push(interaction);
+
+				// Update field tracking sets
+				if (interactionType === 'change') {
+					newSession.modifiedFields.add(fieldName);
+				}
+				if (interactionType === 'validate') {
+					if (validationResult === 'valid') {
+						newSession.validatedFields.add(fieldName);
+						newSession.errorFields.delete(fieldName);
+					} else if (validationResult === 'invalid') {
+						newSession.errorFields.add(fieldName);
+						newSession.validatedFields.delete(fieldName);
+					}
+				}
+				if (interactionType === 'error') {
+					newSession.errorFields.add(fieldName);
+				}
+
+				return newSession;
+			});
+
+			console.log(`${MODULE_TAG} Field interaction tracked:`, {
+				fieldName,
+				interactionType,
+				value,
+			});
+		},
+		[trackPerformance]
+	);
 
 	/**
 	 * Track dropdown selection
 	 */
-	const trackDropdownSelection = useCallback((
-		dropdownId: string,
-		value: string,
-		text: string,
-		context?: Record<string, string>
-	) => {
-		const selection: DropdownSelection = {
-			dropdownId,
-			value,
-			text,
-			timestamp: Date.now(),
-			context
-		};
+	const trackDropdownSelection = useCallback(
+		(dropdownId: string, value: string, text: string, context?: Record<string, string>) => {
+			const selection: DropdownSelection = {
+				dropdownId,
+				value,
+				text,
+				timestamp: Date.now(),
+				context,
+			};
 
-		setSession(prev => ({
-			...prev,
-			selections: [...prev.selections, selection]
-		}));
+			setSession((prev) => ({
+				...prev,
+				selections: [...prev.selections, selection],
+			}));
 
-		console.log(`${MODULE_TAG} Dropdown selection tracked:`, { dropdownId, value, text });
-	}, []);
+			console.log(`${MODULE_TAG} Dropdown selection tracked:`, { dropdownId, value, text });
+		},
+		[]
+	);
 
 	/**
 	 * Track form validation
 	 */
-	const trackValidation = useCallback((
-		fieldName: string,
-		isValid: boolean,
-		errorMessage?: string
-	) => {
-		const validationResult: FieldInteraction['validationResult'] = isValid ? 'valid' : 'invalid';
-		trackFieldInteraction(fieldName, 'validate', undefined, validationResult);
+	const trackValidation = useCallback(
+		(fieldName: string, isValid: boolean, errorMessage?: string) => {
+			const validationResult: FieldInteraction['validationResult'] = isValid ? 'valid' : 'invalid';
+			trackFieldInteraction(fieldName, 'validate', undefined, validationResult);
 
-		if (!isValid && errorMessage) {
-			console.warn(`${MODULE_TAG} Validation error:`, { fieldName, errorMessage });
-		}
-	}, [trackFieldInteraction]);
+			if (!isValid && errorMessage) {
+				console.warn(`${MODULE_TAG} Validation error:`, { fieldName, errorMessage });
+			}
+		},
+		[trackFieldInteraction]
+	);
 
 	/**
 	 * Track step change
 	 */
-	const trackStepChange = useCallback((newStep: string) => {
-		setSession(prev => ({
-			...prev,
-			currentStep: newStep,
-			totalTime: Date.now() - prev.startTime
-		}));
+	const trackStepChange = useCallback(
+		(newStep: string) => {
+			setSession((prev) => ({
+				...prev,
+				currentStep: newStep,
+				totalTime: Date.now() - prev.startTime,
+			}));
 
-		console.log(`${MODULE_TAG} Step changed:`, { from: session.currentStep, to: newStep });
-	}, [session.currentStep]);
+			console.log(`${MODULE_TAG} Step changed:`, { from: session.currentStep, to: newStep });
+		},
+		[session.currentStep]
+	);
 
 	/**
 	 * Get current interaction data for saving
@@ -268,7 +278,7 @@ export function useEnhancedCredentialsTracking(options: UseEnhancedCredentialsTr
 
 		// Prepare selections object
 		const selections: Record<string, string> = {};
-		session.selections.forEach(selection => {
+		session.selections.forEach((selection) => {
 			selections[selection.dropdownId] = selection.value;
 		});
 
@@ -282,82 +292,86 @@ export function useEnhancedCredentialsTracking(options: UseEnhancedCredentialsTr
 				app: appName,
 				flow: flowType,
 				environment: environmentId,
-				...selections
+				...selections,
 			},
 			fieldInteractions: {
 				modifiedFields,
 				validatedFields,
 				errorFields,
-				fieldTimeSpent
+				fieldTimeSpent,
 			},
 			sessionInfo: {
 				sessionStart: new Date(sessionStartTimeRef.current).toISOString(),
 				currentStep: session.currentStep,
 				sessionDuration,
 				userAgent: navigator.userAgent,
-				pageUrl: window.location.href
+				pageUrl: window.location.href,
 			},
 			performance: {
-				loadTime: session.performance.loadTimes.reduce((a, b) => a + b, 0) / Math.max(session.performance.loadTimes.length, 1),
-				saveTime: session.performance.saveTimes.reduce((a, b) => a + b, 0) / Math.max(session.performance.saveTimes.length, 1),
+				loadTime:
+					session.performance.loadTimes.reduce((a, b) => a + b, 0) /
+					Math.max(session.performance.loadTimes.length, 1),
+				saveTime:
+					session.performance.saveTimes.reduce((a, b) => a + b, 0) /
+					Math.max(session.performance.saveTimes.length, 1),
 				storageBackend: 'indexeddb' as const, // Will be updated by the service
-				cacheHit: false
-			}
+				cacheHit: false,
+			},
 		};
 	}, [appName, flowType, environmentId, clientId, session]);
 
 	/**
 	 * Save credentials with interaction tracking
 	 */
-	const saveCredentials = useCallback(async (
-		credentials: Record<string, any>,
-		interactionData?: Partial<UserInteractionData>
-	) => {
-		setIsLoading(true);
-		setSaveError(null);
+	const saveCredentials = useCallback(
+		async (credentials: Record<string, any>, interactionData?: Partial<UserInteractionData>) => {
+			setIsLoading(true);
+			setSaveError(null);
 
-		const startTime = performance.now();
+			const startTime = performance.now();
 
-		try {
-			const finalInteractionData = interactionData || getCurrentInteractionData();
-			
-			const result = await EnhancedCredentialsServiceV8.save(
-				environmentId,
-				credentials,
-				finalInteractionData
-			);
+			try {
+				const finalInteractionData = interactionData || getCurrentInteractionData();
 
-			if (result.success) {
-				setLastSaveTime(Date.now());
-				
-				// Update performance metrics
-				if (trackPerformance) {
-					const saveTime = performance.now() - startTime;
-					setSession(prev => ({
-						...prev,
-						performance: {
-							...prev.performance,
-							saveTimes: [...prev.performance.saveTimes, saveTime]
-						}
-					}));
+				const result = await EnhancedCredentialsServiceV8.save(
+					environmentId,
+					credentials,
+					finalInteractionData
+				);
+
+				if (result.success) {
+					setLastSaveTime(Date.now());
+
+					// Update performance metrics
+					if (trackPerformance) {
+						const saveTime = performance.now() - startTime;
+						setSession((prev) => ({
+							...prev,
+							performance: {
+								...prev.performance,
+								saveTimes: [...prev.performance.saveTimes, saveTime],
+							},
+						}));
+					}
+
+					console.log(`${MODULE_TAG} Credentials saved successfully:`, result.backend);
+				} else {
+					setSaveError(result.error || 'Unknown error');
+					console.error(`${MODULE_TAG} Save failed:`, result.error);
 				}
 
-				console.log(`${MODULE_TAG} Credentials saved successfully:`, result.backend);
-			} else {
-				setSaveError(result.error || 'Unknown error');
-				console.error(`${MODULE_TAG} Save failed:`, result.error);
+				return result;
+			} catch (error) {
+				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+				setSaveError(errorMessage);
+				console.error(`${MODULE_TAG} Save error:`, error);
+				return { success: false, backend: 'none', error: errorMessage };
+			} finally {
+				setIsLoading(false);
 			}
-
-			return result;
-		} catch (error) {
-			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			setSaveError(errorMessage);
-			console.error(`${MODULE_TAG} Save error:`, error);
-			return { success: false, backend: 'none', error: errorMessage };
-		} finally {
-			setIsLoading(false);
-		}
-	}, [environmentId, getCurrentInteractionData, trackPerformance]);
+		},
+		[environmentId, getCurrentInteractionData, trackPerformance]
+	);
 
 	/**
 	 * Load credentials with performance tracking
@@ -373,12 +387,12 @@ export function useEnhancedCredentialsTracking(options: UseEnhancedCredentialsTr
 			// Update performance metrics
 			if (trackPerformance && credentials) {
 				const loadTime = performance.now() - startTime;
-				setSession(prev => ({
+				setSession((prev) => ({
 					...prev,
 					performance: {
 						...prev.performance,
-						loadTimes: [...prev.performance.loadTimes, loadTime]
-					}
+						loadTimes: [...prev.performance.loadTimes, loadTime],
+					},
 				}));
 			}
 
@@ -424,13 +438,16 @@ export function useEnhancedCredentialsTracking(options: UseEnhancedCredentialsTr
 			modifiedFields: session.modifiedFields.size,
 			validatedFields: session.validatedFields.size,
 			errorFields: session.errorFields.size,
-			averageFieldTime: Object.values(session.performance.fieldTimes).reduce((a, b) => a + b, 0) / 
+			averageFieldTime:
+				Object.values(session.performance.fieldTimes).reduce((a, b) => a + b, 0) /
 				Math.max(Object.keys(session.performance.fieldTimes).length, 1),
-			averageSaveTime: session.performance.saveTimes.reduce((a, b) => a + b, 0) / 
+			averageSaveTime:
+				session.performance.saveTimes.reduce((a, b) => a + b, 0) /
 				Math.max(session.performance.saveTimes.length, 1),
-			averageLoadTime: session.performance.loadTimes.reduce((a, b) => a + b, 0) / 
+			averageLoadTime:
+				session.performance.loadTimes.reduce((a, b) => a + b, 0) /
 				Math.max(session.performance.loadTimes.length, 1),
-			lastSaveTime
+			lastSaveTime,
 		};
 	}, [session, lastSaveTime]);
 
@@ -440,7 +457,7 @@ export function useEnhancedCredentialsTracking(options: UseEnhancedCredentialsTr
 	const resetSession = useCallback(() => {
 		sessionStartTimeRef.current = Date.now();
 		fieldStartTimesRef.current = {};
-		
+
 		setSession({
 			startTime: Date.now(),
 			currentStep: 'initialization',
@@ -454,8 +471,8 @@ export function useEnhancedCredentialsTracking(options: UseEnhancedCredentialsTr
 				fieldTimes: {},
 				validationTimes: {},
 				saveTimes: [],
-				loadTimes: []
-			}
+				loadTimes: [],
+			},
 		});
 
 		setLastSaveTime(null);
@@ -486,23 +503,23 @@ export function useEnhancedCredentialsTracking(options: UseEnhancedCredentialsTr
 		saveError,
 		lastSaveTime,
 		sessionStats: getSessionStats(),
-		
+
 		// Tracking methods
 		trackFieldInteraction,
 		trackDropdownSelection,
 		trackValidation,
 		trackStepChange,
-		
+
 		// Credentials operations
 		saveCredentials,
 		loadCredentials,
-		
+
 		// Session management
 		resetSession,
 		triggerAutoSave,
-		
+
 		// Raw session data for advanced usage
-		session
+		session,
 	};
 }
 

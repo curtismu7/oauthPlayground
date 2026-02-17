@@ -34,20 +34,20 @@ export interface HybridFlowState {
 	// Flow configuration
 	variant: 'code id_token' | 'code token' | 'code token id_token';
 	credentials: HybridFlowCredentials | null;
-	
+
 	// Authorization state
 	authorizationUrl: string | null;
 	authParams: HybridAuthorizationUrlParams | null;
-	
+
 	// Token state
 	tokens: TokenResponse | null;
 	implicitTokens: Record<string, string> | null;
-	
+
 	// Flow state
 	isLoading: boolean;
 	error: string | null;
 	currentStep: number;
-	
+
 	// PKCE state
 	pkceCodes: {
 		codeVerifier: string;
@@ -67,7 +67,7 @@ const DEFAULT_VARIANT: HybridFlowState['variant'] = 'code id_token';
 
 export const useHybridFlowV8 = (options: UseHybridFlowV8Options = {}) => {
 	const spinner = useProductionSpinner('hybrid-flow-v8');
-	
+
 	// State management
 	const [state, setState] = useState<HybridFlowState>({
 		variant: options.defaultVariant || DEFAULT_VARIANT,
@@ -96,7 +96,7 @@ export const useHybridFlowV8 = (options: UseHybridFlowV8Options = {}) => {
 				defaultRedirectUri: `${window.location.origin}/flows/hybrid-v8/callback`,
 			});
 
-			setState(prev => ({ ...prev, credentials: credentials as HybridFlowCredentials }));
+			setState((prev) => ({ ...prev, credentials: credentials as HybridFlowCredentials }));
 		} catch (error) {
 			console.error('[HybridFlowV8] Failed to load credentials:', error);
 			toastV8.error('Failed to load credentials');
@@ -107,7 +107,7 @@ export const useHybridFlowV8 = (options: UseHybridFlowV8Options = {}) => {
 	const saveCredentials = useCallback((credentials: HybridFlowCredentials) => {
 		try {
 			CredentialsServiceV8.saveCredentials(FLOW_KEY, credentials);
-			setState(prev => ({ ...prev, credentials }));
+			setState((prev) => ({ ...prev, credentials }));
 		} catch (error) {
 			console.error('[HybridFlowV8] Failed to save credentials:', error);
 			toastV8.error('Failed to save credentials');
@@ -126,14 +126,14 @@ export const useHybridFlowV8 = (options: UseHybridFlowV8Options = {}) => {
 				.replace(/\+/g, '-')
 				.replace(/\//g, '_')
 				.replace(/=/g, '');
-			
+
 			const pkceCodes = {
 				codeVerifier,
 				codeChallenge: base64Url,
 				codeChallengeMethod: 'S256' as const,
 			};
-			
-			setState(prev => ({ ...prev, pkceCodes }));
+
+			setState((prev) => ({ ...prev, pkceCodes }));
 			return pkceCodes;
 		} catch (error) {
 			console.error('[HybridFlowV8] Failed to generate PKCE:', error);
@@ -143,80 +143,91 @@ export const useHybridFlowV8 = (options: UseHybridFlowV8Options = {}) => {
 	}, []);
 
 	// Generate authorization URL
-	const generateAuthorizationUrl = useCallback(async (credentials?: HybridFlowCredentials) => {
-		const creds = credentials || state.credentials;
-		if (!creds) {
-			toastV8.error('Credentials required to generate authorization URL');
-			return null;
-		}
-
-		try {
-			setState(prev => ({ ...prev, isLoading: true, error: null }));
-			
-			// Generate PKCE if not already present
-			let pkceCodes = state.pkceCodes;
-			if (!pkceCodes) {
-				pkceCodes = await generatePKCE();
+	const generateAuthorizationUrl = useCallback(
+		async (credentials?: HybridFlowCredentials) => {
+			const creds = credentials || state.credentials;
+			if (!creds) {
+				toastV8.error('Credentials required to generate authorization URL');
+				return null;
 			}
 
-			// Generate authorization URL
-			const authParams = await HybridFlowIntegrationServiceV8.generateAuthorizationUrl({
-				...creds,
-				responseType: state.variant,
-			}, pkceCodes);
+			try {
+				setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
-			setState(prev => ({
-				...prev,
-				authorizationUrl: authParams.authorizationUrl,
-				authParams,
-				isLoading: false,
-				currentStep: 1,
-			}));
+				// Generate PKCE if not already present
+				let pkceCodes = state.pkceCodes;
+				if (!pkceCodes) {
+					pkceCodes = await generatePKCE();
+				}
 
-			toastV8.success('Authorization URL generated successfully');
-			return authParams;
-		} catch (error) {
-			console.error('[HybridFlowV8] Failed to generate authorization URL:', error);
-			const errorMessage = error instanceof Error ? error.message : 'Failed to generate authorization URL';
-			setState(prev => ({ ...prev, error: errorMessage, isLoading: false }));
-			toastV8.error(errorMessage);
-			throw error;
-		}
-	}, [state.credentials, state.variant, state.pkceCodes, generatePKCE]);
+				// Generate authorization URL
+				const authParams = await HybridFlowIntegrationServiceV8.generateAuthorizationUrl(
+					{
+						...creds,
+						responseType: state.variant,
+					},
+					pkceCodes
+				);
+
+				setState((prev) => ({
+					...prev,
+					authorizationUrl: authParams.authorizationUrl,
+					authParams,
+					isLoading: false,
+					currentStep: 1,
+				}));
+
+				toastV8.success('Authorization URL generated successfully');
+				return authParams;
+			} catch (error) {
+				console.error('[HybridFlowV8] Failed to generate authorization URL:', error);
+				const errorMessage =
+					error instanceof Error ? error.message : 'Failed to generate authorization URL';
+				setState((prev) => ({ ...prev, error: errorMessage, isLoading: false }));
+				toastV8.error(errorMessage);
+				throw error;
+			}
+		},
+		[state.credentials, state.variant, state.pkceCodes, generatePKCE]
+	);
 
 	// Exchange authorization code for tokens
-	const exchangeCodeForTokens = useCallback(async (code: string) => {
-		if (!state.credentials || !state.pkceCodes) {
-			toastV8.error('Credentials and PKCE codes required for token exchange');
-			return null;
-		}
+	const exchangeCodeForTokens = useCallback(
+		async (code: string) => {
+			if (!state.credentials || !state.pkceCodes) {
+				toastV8.error('Credentials and PKCE codes required for token exchange');
+				return null;
+			}
 
-		try {
-			setState(prev => ({ ...prev, isLoading: true, error: null }));
+			try {
+				setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
-			const tokens = await HybridFlowIntegrationServiceV8.exchangeCodeForTokens(
-				state.credentials,
-				code,
-				state.pkceCodes.codeVerifier
-			);
+				const tokens = await HybridFlowIntegrationServiceV8.exchangeCodeForTokens(
+					state.credentials,
+					code,
+					state.pkceCodes.codeVerifier
+				);
 
-			setState(prev => ({
-				...prev,
-				tokens,
-				isLoading: false,
-				currentStep: 2,
-			}));
+				setState((prev) => ({
+					...prev,
+					tokens,
+					isLoading: false,
+					currentStep: 2,
+				}));
 
-			toastV8.success('Authorization code exchanged successfully');
-			return tokens;
-		} catch (error) {
-			console.error('[HybridFlowV8] Failed to exchange code:', error);
-			const errorMessage = error instanceof Error ? error.message : 'Failed to exchange authorization code';
-			setState(prev => ({ ...prev, error: errorMessage, isLoading: false }));
-			toastV8.error(errorMessage);
-			throw error;
-		}
-	}, [state.credentials, state.pkceCodes]);
+				toastV8.success('Authorization code exchanged successfully');
+				return tokens;
+			} catch (error) {
+				console.error('[HybridFlowV8] Failed to exchange code:', error);
+				const errorMessage =
+					error instanceof Error ? error.message : 'Failed to exchange authorization code';
+				setState((prev) => ({ ...prev, error: errorMessage, isLoading: false }));
+				toastV8.error(errorMessage);
+				throw error;
+			}
+		},
+		[state.credentials, state.pkceCodes]
+	);
 
 	// Process URL fragment for implicit tokens
 	const processUrlFragment = useCallback(() => {
@@ -227,15 +238,19 @@ export const useHybridFlowV8 = (options: UseHybridFlowV8Options = {}) => {
 			// Parse fragment manually since service doesn't have this method
 			const params = new URLSearchParams(fragment);
 			const implicitTokens: Record<string, string> = {};
-			
+
 			for (const [key, value] of params) {
-				if (key.startsWith('access_token') || key.startsWith('id_token') || key.startsWith('token')) {
+				if (
+					key.startsWith('access_token') ||
+					key.startsWith('id_token') ||
+					key.startsWith('token')
+				) {
 					implicitTokens[key] = value;
 				}
 			}
-			
+
 			if (Object.keys(implicitTokens).length > 0) {
-				setState(prev => ({
+				setState((prev) => ({
 					...prev,
 					implicitTokens,
 					currentStep: 2,
@@ -251,16 +266,19 @@ export const useHybridFlowV8 = (options: UseHybridFlowV8Options = {}) => {
 
 	// Set flow variant
 	const setVariant = useCallback((variant: HybridFlowState['variant']) => {
-		setState(prev => ({ ...prev, variant }));
+		setState((prev) => ({ ...prev, variant }));
 	}, []);
 
 	// Update credentials
-	const updateCredentials = useCallback((updates: Partial<HybridFlowCredentials>) => {
-		if (!state.credentials) return;
+	const updateCredentials = useCallback(
+		(updates: Partial<HybridFlowCredentials>) => {
+			if (!state.credentials) return;
 
-		const updatedCredentials = { ...state.credentials, ...updates };
-		saveCredentials(updatedCredentials);
-	}, [state.credentials, saveCredentials]);
+			const updatedCredentials = { ...state.credentials, ...updates };
+			saveCredentials(updatedCredentials);
+		},
+		[state.credentials, saveCredentials]
+	);
 
 	// Reset flow
 	const reset = useCallback(() => {
@@ -297,7 +315,7 @@ export const useHybridFlowV8 = (options: UseHybridFlowV8Options = {}) => {
 		if (!state.tokens && !state.implicitTokens) return null;
 
 		const combined: Record<string, string> = {};
-		
+
 		// Add explicit tokens
 		if (state.tokens) {
 			combined.access_token = state.tokens.access_token;
@@ -314,18 +332,21 @@ export const useHybridFlowV8 = (options: UseHybridFlowV8Options = {}) => {
 	}, [state.tokens, state.implicitTokens]);
 
 	// Validate current step
-	const isStepValid = useCallback((step: number) => {
-		switch (step) {
-			case 0:
-				return !!state.credentials?.environmentId && !!state.credentials?.clientId;
-			case 1:
-				return !!state.authorizationUrl;
-			case 2:
-				return !!state.tokens || !!state.implicitTokens;
-			default:
-				return false;
-		}
-	}, [state]);
+	const isStepValid = useCallback(
+		(step: number) => {
+			switch (step) {
+				case 0:
+					return !!state.credentials?.environmentId && !!state.credentials?.clientId;
+				case 1:
+					return !!state.authorizationUrl;
+				case 2:
+					return !!state.tokens || !!state.implicitTokens;
+				default:
+					return false;
+			}
+		},
+		[state]
+	);
 
 	// Initialize on mount
 	useEffect(() => {
@@ -336,7 +357,7 @@ export const useHybridFlowV8 = (options: UseHybridFlowV8Options = {}) => {
 	return {
 		// State
 		...state,
-		
+
 		// Actions
 		loadCredentials,
 		saveCredentials,
@@ -348,11 +369,11 @@ export const useHybridFlowV8 = (options: UseHybridFlowV8Options = {}) => {
 		updateCredentials,
 		reset,
 		redirectToAuthorization,
-		
+
 		// Utilities
 		getAllTokens,
 		isStepValid,
-		
+
 		// Computed states
 		hasTokens: !!state.tokens || !!state.implicitTokens,
 		isComplete: state.currentStep >= 2,

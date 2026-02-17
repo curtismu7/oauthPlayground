@@ -211,7 +211,7 @@ export const usePAROperations = () => {
 								errorData.error_description ||
 								errorData.error ||
 								`UserInfo request failed: ${response.status}`
-					);
+						);
 					}
 
 					const userInfo = await response.json();

@@ -236,11 +236,7 @@ const CodeBlock = styled.pre`
 
 const MFAFlowsApiTest: React.FC = () => {
 	const { apps, selectedAppId, selectApp, getActiveAppConfig } = useCredentialStoreV8();
-	const {
-		tokenStatus,
-		showWorkerTokenModal,
-		setShowWorkerTokenModal,
-	} = useWorkerToken();
+	const { tokenStatus, showWorkerTokenModal, setShowWorkerTokenModal } = useWorkerToken();
 
 	const hasWorkerToken = tokenStatus.isValid;
 

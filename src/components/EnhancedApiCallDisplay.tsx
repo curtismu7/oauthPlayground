@@ -472,16 +472,10 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 				</Title>
 				<div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
 					{apiCall.duration && (
-						<span style={{ fontSize: '0.875rem', color: '#6b7280' }}>
-							{apiCall.duration}ms
-						</span>
+						<span style={{ fontSize: '0.875rem', color: '#6b7280' }}>{apiCall.duration}ms</span>
 					)}
 					<div style={{ position: 'relative' }}>
-						<StatusBadge
-							$status={getStatus()}
-						>
-							{getStatus().toUpperCase()}
-						</StatusBadge>
+						<StatusBadge $status={getStatus()}>{getStatus().toUpperCase()}</StatusBadge>
 					</div>
 				</div>
 			</Header>
@@ -633,8 +627,8 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 										apiCall.response.status >= 200 && apiCall.response.status < 300
 											? 'success'
 											: apiCall.response.status >= 400
-											? 'error'
-											: 'pending'
+												? 'error'
+												: 'pending'
 									}
 								>
 									{apiCall.response.status} {apiCall.response.statusText}
