@@ -168,9 +168,9 @@ export const PingOneProtectFlowV8: React.FC = () => {
 	// Standardized spinner hooks for PingOne Protect operations
 	const riskPoliciesSpinner = useStandardSpinner(3000); // Fetch risk policies - 3 seconds
 	const riskEvaluationSpinner = useStandardSpinner(5000); // Create risk evaluation - 5 seconds
-	const riskUpdateSpinner = useStandardSpinner(3000);   // Update risk evaluation - 3 seconds
-	const feedbackSpinner = useStandardSpinner(2000);      // Provide feedback - 2 seconds
-	const workerTokenSpinner = useStandardSpinner(4000);  // Worker token modal - 4 seconds
+	const riskUpdateSpinner = useStandardSpinner(3000); // Update risk evaluation - 3 seconds
+	const feedbackSpinner = useStandardSpinner(2000); // Provide feedback - 2 seconds
+	const workerTokenSpinner = useStandardSpinner(4000); // Worker token modal - 4 seconds
 
 	// Listen for config updates
 	useEffect(() => {
@@ -269,13 +269,10 @@ export const PingOneProtectFlowV8: React.FC = () => {
 	// Save credentials when they change
 	useEffect(() => {
 		const saveTimeout = setTimeout(() => {
-			CredentialsServiceV8.saveCredentials(
-				FLOW_KEY,
-				{
-					environmentId: credentials.environmentId,
-					clientId: 'protect-flow-client', // Required field
-				} as Credentials
-			);
+			CredentialsServiceV8.saveCredentials(FLOW_KEY, {
+				environmentId: credentials.environmentId,
+				clientId: 'protect-flow-client', // Required field
+			} as Credentials);
 		}, 300);
 		return () => clearTimeout(saveTimeout);
 	}, [credentials]);
@@ -380,7 +377,8 @@ export const PingOneProtectFlowV8: React.FC = () => {
 			async () => {
 				const data = await makeApiCall('GET', '/risk-policies', undefined, 'Fetch Risk Policies');
 				const policies =
-					(data as { _embedded?: { riskPolicySets: RiskPolicy[] } })._embedded?.riskPolicySets || [];
+					(data as { _embedded?: { riskPolicySets: RiskPolicy[] } })._embedded?.riskPolicySets ||
+					[];
 				setRiskPolicies(policies);
 				uiNotificationServiceV8.showSuccess('Risk policies fetched successfully');
 			},
@@ -391,7 +389,7 @@ export const PingOneProtectFlowV8: React.FC = () => {
 				onError: (error) => {
 					console.error('[PINGONE-PROTECT-FLOW-V8] Error fetching risk policies:', error);
 					uiNotificationServiceV8.showError('Failed to fetch risk policies');
-				}
+				},
 			}
 		);
 	}, [makeApiCall, riskPoliciesSpinner]);
@@ -424,7 +422,7 @@ export const PingOneProtectFlowV8: React.FC = () => {
 				onError: (error) => {
 					console.error(`${MODULE_TAG} Failed to create risk evaluation:`, error);
 					uiNotificationServiceV8.showError('Failed to create risk evaluation');
-				}
+				},
 			}
 		);
 	}, [makeApiCall, evaluationEvent, riskEvaluationSpinner]);
@@ -516,7 +514,10 @@ export const PingOneProtectFlowV8: React.FC = () => {
 
 			<div style={{ display: 'grid', gap: '20px', maxWidth: '600px' }}>
 				<div>
-					<label htmlFor="protect-environment-id" style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>
+					<label
+						htmlFor="protect-environment-id"
+						style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}
+					>
 						Environment ID
 					</label>
 					<input
@@ -536,7 +537,12 @@ export const PingOneProtectFlowV8: React.FC = () => {
 				</div>
 
 				<div>
-					<label htmlFor="protect-region" style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>Region</label>
+					<label
+						htmlFor="protect-region"
+						style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}
+					>
+						Region
+					</label>
 					<select
 						id="protect-region"
 						value={credentials.region}
@@ -836,7 +842,10 @@ export const PingOneProtectFlowV8: React.FC = () => {
 					<div style={{ display: 'grid', gap: '16px' }}>
 						<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
 							<div>
-								<label htmlFor="protect-ip-address" style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>
+								<label
+									htmlFor="protect-ip-address"
+									style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}
+								>
 									IP Address *
 								</label>
 								<input
@@ -860,7 +869,10 @@ export const PingOneProtectFlowV8: React.FC = () => {
 								/>
 							</div>
 							<div>
-								<label htmlFor="protect-user-id" style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>
+								<label
+									htmlFor="protect-user-id"
+									style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}
+								>
 									User ID *
 								</label>
 								<input
@@ -887,7 +899,10 @@ export const PingOneProtectFlowV8: React.FC = () => {
 
 						<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
 							<div>
-								<label htmlFor="protect-user-name" style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>
+								<label
+									htmlFor="protect-user-name"
+									style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}
+								>
 									User Name
 								</label>
 								<input
@@ -911,7 +926,10 @@ export const PingOneProtectFlowV8: React.FC = () => {
 								/>
 							</div>
 							<div>
-								<label htmlFor="protect-user-type" style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>
+								<label
+									htmlFor="protect-user-type"
+									style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}
+								>
 									User Type
 								</label>
 								<select
@@ -939,7 +957,10 @@ export const PingOneProtectFlowV8: React.FC = () => {
 
 						<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
 							<div>
-								<label htmlFor="protect-flow-type" style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>
+								<label
+									htmlFor="protect-flow-type"
+									style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}
+								>
 									Flow Type
 								</label>
 								<select
@@ -970,7 +991,10 @@ export const PingOneProtectFlowV8: React.FC = () => {
 								</select>
 							</div>
 							<div>
-								<label htmlFor="protect-target-resource" style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>
+								<label
+									htmlFor="protect-target-resource"
+									style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}
+								>
 									Target Resource
 								</label>
 								<input
@@ -996,7 +1020,10 @@ export const PingOneProtectFlowV8: React.FC = () => {
 						</div>
 
 						<div>
-							<label htmlFor="protect-browser-ua" style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>
+							<label
+								htmlFor="protect-browser-ua"
+								style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}
+							>
 								Browser User Agent
 							</label>
 							<textarea
@@ -1362,171 +1389,173 @@ await updateRiskEvaluation(registrationRisk.id, 'SUCCESS');`}
 				message="Loading worker token..."
 				theme="blue"
 			/>
-			
+
 			<div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
 				{/* Header */}
 				<div style={{ marginBottom: '32px' }}>
-				<h1 style={{ fontSize: '28px', fontWeight: '700', color: '#1f2937', marginBottom: '8px' }}>
-					PingOne Protect API Integration
-				</h1>
-				<p style={{ color: '#6b7280', fontSize: '16px', margin: 0 }}>
-					Learn how to integrate PingOne Protect risk evaluation APIs into your application
-				</p>
-			</div>
-
-			{/* Progress Bar */}
-			<div style={{ marginBottom: '32px' }}>
-				<div
-					style={{
-						display: 'flex',
-						justifyContent: 'space-between',
-						alignItems: 'center',
-						marginBottom: '16px',
-					}}
-				>
-					{['Configuration', 'Risk Policies', 'Risk Evaluation', 'Integration'].map(
-						(label, index) => (
-							<div key={label} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-								<div
-									style={{
-										width: '32px',
-										height: '32px',
-										borderRadius: '50%',
-										background: index <= currentStep ? '#3b82f6' : '#e5e7eb',
-										color: index <= currentStep ? 'white' : '#6b7280',
-										display: 'flex',
-										alignItems: 'center',
-										justifyContent: 'center',
-										fontSize: '14px',
-										fontWeight: '600',
-									}}
-								>
-									{index + 1}
-								</div>
-								<span
-									style={{
-										fontSize: '14px',
-										fontWeight: index === currentStep ? '600' : '400',
-										color: index <= currentStep ? '#1f2937' : '#6b7280',
-									}}
-								>
-									{label}
-								</span>
-							</div>
-						)
-					)}
+					<h1
+						style={{ fontSize: '28px', fontWeight: '700', color: '#1f2937', marginBottom: '8px' }}
+					>
+						PingOne Protect API Integration
+					</h1>
+					<p style={{ color: '#6b7280', fontSize: '16px', margin: 0 }}>
+						Learn how to integrate PingOne Protect risk evaluation APIs into your application
+					</p>
 				</div>
-				<div style={{ height: '4px', background: '#e5e7eb', borderRadius: '2px' }}>
+
+				{/* Progress Bar */}
+				<div style={{ marginBottom: '32px' }}>
 					<div
 						style={{
-							height: '100%',
-							background: '#3b82f6',
-							borderRadius: '2px',
-							width: `${((currentStep + 1) / 4) * 100}%`,
-							transition: 'width 0.3s ease',
+							display: 'flex',
+							justifyContent: 'space-between',
+							alignItems: 'center',
+							marginBottom: '16px',
 						}}
-					/>
+					>
+						{['Configuration', 'Risk Policies', 'Risk Evaluation', 'Integration'].map(
+							(label, index) => (
+								<div key={label} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+									<div
+										style={{
+											width: '32px',
+											height: '32px',
+											borderRadius: '50%',
+											background: index <= currentStep ? '#3b82f6' : '#e5e7eb',
+											color: index <= currentStep ? 'white' : '#6b7280',
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'center',
+											fontSize: '14px',
+											fontWeight: '600',
+										}}
+									>
+										{index + 1}
+									</div>
+									<span
+										style={{
+											fontSize: '14px',
+											fontWeight: index === currentStep ? '600' : '400',
+											color: index <= currentStep ? '#1f2937' : '#6b7280',
+										}}
+									>
+										{label}
+									</span>
+								</div>
+							)
+						)}
+					</div>
+					<div style={{ height: '4px', background: '#e5e7eb', borderRadius: '2px' }}>
+						<div
+							style={{
+								height: '100%',
+								background: '#3b82f6',
+								borderRadius: '2px',
+								width: `${((currentStep + 1) / 4) * 100}%`,
+								transition: 'width 0.3s ease',
+							}}
+						/>
+					</div>
 				</div>
-			</div>
 
-			{/* Main Content */}
-			<div
-				style={{
-					background: 'white',
-					border: '1px solid #e5e7eb',
-					borderRadius: '12px',
-					marginBottom: '24px',
-				}}
-			>
-				{renderCurrentStep()}
-			</div>
-
-			{/* Navigation */}
-			<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-				<ButtonSpinner
-					loading={false}
-					onClick={handlePrevious}
-					disabled={currentStep === 0}
-					spinnerSize={14}
-					spinnerPosition="left"
+				{/* Main Content */}
+				<div
 					style={{
-						padding: '12px 24px',
-						background: currentStep === 0 ? '#f3f4f6' : '#3b82f6',
-						color: currentStep === 0 ? '#9ca3af' : 'white',
-						border: 'none',
-						borderRadius: '6px',
-						cursor: currentStep === 0 ? 'not-allowed' : 'pointer',
-						fontSize: '14px',
-						fontWeight: '600',
+						background: 'white',
+						border: '1px solid #e5e7eb',
+						borderRadius: '12px',
+						marginBottom: '24px',
 					}}
 				>
-					Previous
-				</ButtonSpinner>
-
-				<ButtonSpinner
-					loading={false}
-					onClick={handleNext}
-					disabled={currentStep === 3}
-					spinnerSize={14}
-					spinnerPosition="left"
-					style={{
-						padding: '12px 24px',
-						background: currentStep === 3 ? '#f3f4f6' : '#3b82f6',
-						color: currentStep === 3 ? '#9ca3af' : 'white',
-						border: 'none',
-						borderRadius: '6px',
-						cursor: currentStep === 3 ? 'not-allowed' : 'pointer',
-						fontSize: '14px',
-						fontWeight: '600',
-					}}
-				>
-					{currentStep === 3 ? 'Complete' : 'Next'}
-				</ButtonSpinner>
-			</div>
-
-			{/* API Response Display */}
-			{apiResponses.length > 0 && (
-				<div style={{ marginTop: '32px' }}>
-					<h3 style={{ marginBottom: '16px' }}>API Responses</h3>
-					<SuperSimpleApiDisplayV8 />
+					{renderCurrentStep()}
 				</div>
-			)}
 
-			{/* Worker Token Modal */}
-			{showWorkerTokenModal &&
-				(() => {
-					// Check if we should show token only (matches MFA pattern)
-					try {
-						const config = MFAConfigurationServiceV8.loadConfiguration();
-						const currentTokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
+				{/* Navigation */}
+				<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+					<ButtonSpinner
+						loading={false}
+						onClick={handlePrevious}
+						disabled={currentStep === 0}
+						spinnerSize={14}
+						spinnerPosition="left"
+						style={{
+							padding: '12px 24px',
+							background: currentStep === 0 ? '#f3f4f6' : '#3b82f6',
+							color: currentStep === 0 ? '#9ca3af' : 'white',
+							border: 'none',
+							borderRadius: '6px',
+							cursor: currentStep === 0 ? 'not-allowed' : 'pointer',
+							fontSize: '14px',
+							fontWeight: '600',
+						}}
+					>
+						Previous
+					</ButtonSpinner>
 
-						// Show token-only if showTokenAtEnd is ON and token is valid
-						const showTokenOnly = config.workerToken.showTokenAtEnd && currentTokenStatus.isValid;
+					<ButtonSpinner
+						loading={false}
+						onClick={handleNext}
+						disabled={currentStep === 3}
+						spinnerSize={14}
+						spinnerPosition="left"
+						style={{
+							padding: '12px 24px',
+							background: currentStep === 3 ? '#f3f4f6' : '#3b82f6',
+							color: currentStep === 3 ? '#9ca3af' : 'white',
+							border: 'none',
+							borderRadius: '6px',
+							cursor: currentStep === 3 ? 'not-allowed' : 'pointer',
+							fontSize: '14px',
+							fontWeight: '600',
+						}}
+					>
+						{currentStep === 3 ? 'Complete' : 'Next'}
+					</ButtonSpinner>
+				</div>
 
-						return (
-							<WorkerTokenModalV8
-								isOpen={showWorkerTokenModal}
-								onClose={() => {
-									setShowWorkerTokenModal(false);
-									// Refresh token status when modal closes (matches MFA pattern)
-									setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync());
-								}}
-								showTokenOnly={showTokenOnly}
-							/>
-						);
-					} catch {
-						return (
-							<WorkerTokenModalV8
-								isOpen={showWorkerTokenModal}
-								onClose={() => {
-									setShowWorkerTokenModal(false);
-									setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync());
-								}}
-							/>
-						);
-					}
-				})()}
-		</div>
+				{/* API Response Display */}
+				{apiResponses.length > 0 && (
+					<div style={{ marginTop: '32px' }}>
+						<h3 style={{ marginBottom: '16px' }}>API Responses</h3>
+						<SuperSimpleApiDisplayV8 />
+					</div>
+				)}
+
+				{/* Worker Token Modal */}
+				{showWorkerTokenModal &&
+					(() => {
+						// Check if we should show token only (matches MFA pattern)
+						try {
+							const config = MFAConfigurationServiceV8.loadConfiguration();
+							const currentTokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
+
+							// Show token-only if showTokenAtEnd is ON and token is valid
+							const showTokenOnly = config.workerToken.showTokenAtEnd && currentTokenStatus.isValid;
+
+							return (
+								<WorkerTokenModalV8
+									isOpen={showWorkerTokenModal}
+									onClose={() => {
+										setShowWorkerTokenModal(false);
+										// Refresh token status when modal closes (matches MFA pattern)
+										setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync());
+									}}
+									showTokenOnly={showTokenOnly}
+								/>
+							);
+						} catch {
+							return (
+								<WorkerTokenModalV8
+									isOpen={showWorkerTokenModal}
+									onClose={() => {
+										setShowWorkerTokenModal(false);
+										setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync());
+									}}
+								/>
+							);
+						}
+					})()}
+			</div>
 		</>
 	);
 };

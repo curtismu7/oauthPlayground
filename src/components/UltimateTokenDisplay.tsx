@@ -13,7 +13,7 @@ import {
 	FiShield,
 	FiTag,
 	FiUnlock,
-FiZap,
+	FiZap,
 } from 'react-icons/fi';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 import { useNavigate } from 'react-router-dom';

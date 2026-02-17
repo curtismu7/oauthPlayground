@@ -112,7 +112,7 @@ const Input = styled.input<{ $brandColor?: string }>`
   &:focus {
     outline: none;
     border-color: ${({ $brandColor }) => $brandColor || '#0066CC'};
-    box-shadow: 0 0 0 3px ${({ $brandColor }) => ($brandColor || '#0066CC')}20;
+    box-shadow: 0 0 0 3px ${({ $brandColor }) => $brandColor || '#0066CC'}20;
   }
   
   &::placeholder {
@@ -202,14 +202,14 @@ const LoginButton = styled.button<{ $brandColor: string }>`
   
   &:hover {
     background: ${({ $brandColor }) => {
-      // Darken the brand color for hover
-      const color = $brandColor;
-      if (color === '#012169') return '#011a58'; // Bank of America blue
-      if (color === '#0033A0') return '#002880'; // United blue
-      if (color === '#0b4aa2') return '#073a80'; // American blue
-      if (color === '#304CB2') return '#253a8a'; // Southwest blue
-      return color;
-    }};
+			// Darken the brand color for hover
+			const color = $brandColor;
+			if (color === '#012169') return '#011a58'; // Bank of America blue
+			if (color === '#0033A0') return '#002880'; // United blue
+			if (color === '#0b4aa2') return '#073a80'; // American blue
+			if (color === '#304CB2') return '#253a8a'; // Southwest blue
+			return color;
+		}};
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
@@ -294,137 +294,137 @@ const HelpLink = styled.a<{ $brandColor: string }>`
 // ============================================================================
 
 const EmbeddedLogin: React.FC<{
-  onSubmit: (credentials: { username: string; password: string }) => void;
-  config: CorporatePortalConfig;
+	onSubmit: (credentials: { username: string; password: string }) => void;
+	config: CorporatePortalConfig;
 }> = ({ onSubmit, config }) => {
-  const [formData, setFormData] = useState({
-    username: '',
-    password: '',
-    rememberMe: false,
-  });
-  const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+	const [formData, setFormData] = useState({
+		username: '',
+		password: '',
+		rememberMe: false,
+	});
+	const [showPassword, setShowPassword] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
 
-  const brandColor = config.branding.colors.primary;
+	const brandColor = config.branding.colors.primary;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    
-    // Simulate authentication delay
-    setTimeout(() => {
-      onSubmit(formData);
-      setIsLoading(false);
-    }, 1000);
-  };
+	const handleSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
+		setIsLoading(true);
 
-  const handleInputChange = (field: string, value: string | boolean) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
+		// Simulate authentication delay
+		setTimeout(() => {
+			onSubmit(formData);
+			setIsLoading(false);
+		}, 1000);
+	};
 
-  return (
-    <LoginContainer $brandColor={brandColor}>
-      <SecurityBanner $brandColor={brandColor}>
-        <SecurityIcon $brandColor={brandColor}>
-          <FiShield size={20} />
-        </SecurityIcon>
-        <SecurityText>
-          <SecurityTitle>Secure Sign-In</SecurityTitle>
-          <SecurityMessage>
-            Your information is protected with industry-standard encryption
-          </SecurityMessage>
-        </SecurityText>
-      </SecurityBanner>
+	const handleInputChange = (field: string, value: string | boolean) => {
+		setFormData((prev) => ({ ...prev, [field]: value }));
+	};
 
-      <LoginForm onSubmit={handleSubmit}>
-        <InputGroup>
-          <InputLabel htmlFor="username">Online ID</InputLabel>
-          <InputWrapper>
-            <InputIcon>
-              <FiUser size={16} />
-            </InputIcon>
-            <Input
-              id="username"
-              type="text"
-              placeholder="Enter your Online ID"
-              value={formData.username}
-              onChange={(e) => handleInputChange('username', e.target.value)}
-              required
-            />
-          </InputWrapper>
-        </InputGroup>
+	return (
+		<LoginContainer $brandColor={brandColor}>
+			<SecurityBanner $brandColor={brandColor}>
+				<SecurityIcon $brandColor={brandColor}>
+					<FiShield size={20} />
+				</SecurityIcon>
+				<SecurityText>
+					<SecurityTitle>Secure Sign-In</SecurityTitle>
+					<SecurityMessage>
+						Your information is protected with industry-standard encryption
+					</SecurityMessage>
+				</SecurityText>
+			</SecurityBanner>
 
-        <InputGroup>
-          <InputLabel htmlFor="password">Passcode</InputLabel>
-          <InputWrapper>
-            <InputIcon>
-              <FiKey size={16} />
-            </InputIcon>
-            <Input
-              id="password"
-              type={showPassword ? 'text' : 'password'}
-              placeholder="Enter your Passcode"
-              value={formData.password}
-              onChange={(e) => handleInputChange('password', e.target.value)}
-              required
-            />
-            <TogglePassword
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
-            >
-              {showPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
-            </TogglePassword>
-          </InputWrapper>
-        </InputGroup>
+			<LoginForm onSubmit={handleSubmit}>
+				<InputGroup>
+					<InputLabel htmlFor="username">Online ID</InputLabel>
+					<InputWrapper>
+						<InputIcon>
+							<FiUser size={16} />
+						</InputIcon>
+						<Input
+							id="username"
+							type="text"
+							placeholder="Enter your Online ID"
+							value={formData.username}
+							onChange={(e) => handleInputChange('username', e.target.value)}
+							required
+						/>
+					</InputWrapper>
+				</InputGroup>
 
-        <RememberMeGroup>
-          <CheckboxGroup>
-            <Checkbox
-              type="checkbox"
-              id="remember"
-              checked={formData.rememberMe}
-              onChange={(e) => handleInputChange('rememberMe', e.target.checked)}
-              $brandColor={brandColor}
-            />
-            <label htmlFor="remember">Save Online ID</label>
-          </CheckboxGroup>
-          <ForgotPassword href="#" $brandColor={brandColor}>
-            Forgot Passcode?
-          </ForgotPassword>
-        </RememberMeGroup>
+				<InputGroup>
+					<InputLabel htmlFor="password">Passcode</InputLabel>
+					<InputWrapper>
+						<InputIcon>
+							<FiKey size={16} />
+						</InputIcon>
+						<Input
+							id="password"
+							type={showPassword ? 'text' : 'password'}
+							placeholder="Enter your Passcode"
+							value={formData.password}
+							onChange={(e) => handleInputChange('password', e.target.value)}
+							required
+						/>
+						<TogglePassword
+							type="button"
+							onClick={() => setShowPassword(!showPassword)}
+							aria-label={showPassword ? 'Hide password' : 'Show password'}
+						>
+							{showPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+						</TogglePassword>
+					</InputWrapper>
+				</InputGroup>
 
-        <LoginButton type="submit" $brandColor={brandColor} disabled={isLoading}>
-          <FiLock />
-          {isLoading ? 'Signing In...' : 'Sign In'}
-        </LoginButton>
-      </LoginForm>
+				<RememberMeGroup>
+					<CheckboxGroup>
+						<Checkbox
+							type="checkbox"
+							id="remember"
+							checked={formData.rememberMe}
+							onChange={(e) => handleInputChange('rememberMe', e.target.checked)}
+							$brandColor={brandColor}
+						/>
+						<label htmlFor="remember">Save Online ID</label>
+					</CheckboxGroup>
+					<ForgotPassword href="#" $brandColor={brandColor}>
+						Forgot Passcode?
+					</ForgotPassword>
+				</RememberMeGroup>
 
-      <Divider>
-        <DividerLine />
-        <DividerText>OR</DividerText>
-        <DividerLine />
-      </Divider>
+				<LoginButton type="submit" $brandColor={brandColor} disabled={isLoading}>
+					<FiLock />
+					{isLoading ? 'Signing In...' : 'Sign In'}
+				</LoginButton>
+			</LoginForm>
 
-      <AlternativeOptions>
-        <AlternativeButton type="button" $brandColor={brandColor}>
-          <FiShield size={16} />
-          Sign In with Face ID
-        </AlternativeButton>
-        <AlternativeButton type="button" $brandColor={brandColor}>
-          <FiShield size={16} />
-          Sign In with Touch ID
-        </AlternativeButton>
-      </AlternativeOptions>
+			<Divider>
+				<DividerLine />
+				<DividerText>OR</DividerText>
+				<DividerLine />
+			</Divider>
 
-      <HelpText>
-        New to {config.company.displayName}?{' '}
-        <HelpLink href="#" $brandColor={brandColor}>
-          Enroll in Online Banking
-        </HelpLink>
-      </HelpText>
-    </LoginContainer>
-  );
+			<AlternativeOptions>
+				<AlternativeButton type="button" $brandColor={brandColor}>
+					<FiShield size={16} />
+					Sign In with Face ID
+				</AlternativeButton>
+				<AlternativeButton type="button" $brandColor={brandColor}>
+					<FiShield size={16} />
+					Sign In with Touch ID
+				</AlternativeButton>
+			</AlternativeOptions>
+
+			<HelpText>
+				New to {config.company.displayName}?{' '}
+				<HelpLink href="#" $brandColor={brandColor}>
+					Enroll in Online Banking
+				</HelpLink>
+			</HelpText>
+		</LoginContainer>
+	);
 };
 
 export default EmbeddedLogin;

@@ -74,9 +74,7 @@ export const AsyncButtonWrapper: React.FC<AsyncButtonWrapperProps> = ({
 /**
  * Higher-order component to wrap existing button implementations
  */
-export const withAsyncButton = <P extends object>(
-	ButtonComponent: React.ComponentType<P>
-) => {
+export const withAsyncButton = <P extends object>(ButtonComponent: React.ComponentType<P>) => {
 	const WrappedComponent = ({
 		isLoading,
 		loadingText,

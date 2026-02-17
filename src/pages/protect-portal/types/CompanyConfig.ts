@@ -73,7 +73,7 @@ export const INDUSTRIES = [
 	'other',
 ] as const;
 
-export type Industry = typeof INDUSTRIES[number];
+export type Industry = (typeof INDUSTRIES)[number];
 
 export const DEFAULT_COMPANY_COLORS: CompanyColors = {
 	button: '#3b82f6',

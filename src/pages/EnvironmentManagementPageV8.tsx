@@ -534,7 +534,10 @@ const EnvironmentManagementPageV8: React.FC = () => {
 				setWorkerToken(token);
 				// Note: workerTokenExpiresAt is managed by WorkerTokenDetectedBanner component
 			} catch (error) {
-				console.error('[EnvironmentManagementPageV8] Failed to get token from unifiedWorkerTokenService:', error);
+				console.error(
+					'[EnvironmentManagementPageV8] Failed to get token from unifiedWorkerTokenService:',
+					error
+				);
 				setWorkerToken('');
 			}
 		};
@@ -558,15 +561,16 @@ const EnvironmentManagementPageV8: React.FC = () => {
 	const [newEnvironment, setNewEnvironment] = useState({
 		name: '',
 		description: '',
-		type: 'SANDBOX'
+		type: 'SANDBOX',
 	});
 	const [searchTerm, setSearchTerm] = useState('');
 
 	// Filter environments based on search term
-	const filteredEnvironments = (environments ?? []).filter(env => 
-		env.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-		env.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-		env.id.toLowerCase().includes(searchTerm.toLowerCase())
+	const filteredEnvironments = (environments ?? []).filter(
+		(env) =>
+			env.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+			env.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+			env.id.toLowerCase().includes(searchTerm.toLowerCase())
 	);
 
 	// Load settings from IndexedDB backup on component mount
@@ -628,7 +632,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 				console.error('[TEST] No token available');
 				return;
 			}
-			
+
 			const response = await fetch(`/api/test-environments?accessToken=${token}&region=na`);
 			const data = await response.json();
 			console.log('[TEST] Response:', data);
@@ -965,7 +969,9 @@ const EnvironmentManagementPageV8: React.FC = () => {
 						tokenExpiryKey="worker_token_expires_at"
 					/>
 
-					<div style={{ marginTop: '1rem', display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+					<div
+						style={{ marginTop: '1rem', display: 'flex', gap: '1rem', justifyContent: 'center' }}
+					>
 						<button
 							type="button"
 							onClick={testEnvironmentFetch}
@@ -1256,8 +1262,13 @@ const EnvironmentManagementPageV8: React.FC = () => {
 				<div style={{ display: 'flex', alignItems: 'center' }}>
 					<input
 						type="checkbox"
-						checked={selectedEnvironments.length === environments?.length && environments?.length > 0}
-						{...(selectedEnvironments.length > 0 && selectedEnvironments.length < (environments?.length || 0) ? { indeterminate: true } : {})}
+						checked={
+							selectedEnvironments.length === environments?.length && environments?.length > 0
+						}
+						{...(selectedEnvironments.length > 0 &&
+						selectedEnvironments.length < (environments?.length || 0)
+							? { indeterminate: true }
+							: {})}
 						onChange={handleSelectAll}
 						style={{ marginRight: '0.5rem' }}
 						id="select-all-checkbox"
@@ -1409,9 +1420,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 						<FiCode />
 						API Call History
 					</ApiDisplayTitle>
-					<CloseButton onClick={() => setShowApiDisplay(false)}>
-						×
-					</CloseButton>
+					<CloseButton onClick={() => setShowApiDisplay(false)}>×</CloseButton>
 				</ApiDisplayHeader>
 				<ApiDisplayContent>
 					<ApiCallList />

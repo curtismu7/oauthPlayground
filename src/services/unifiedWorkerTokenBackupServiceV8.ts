@@ -40,16 +40,23 @@ export class UnifiedWorkerTokenBackupServiceV8 {
 			backupExpiry?: number;
 		}
 	): Promise<void> {
-		const { environmentId, enableBackup = true, backupExpiry = UnifiedWorkerTokenBackupServiceV8.DEFAULT_EXPIRY } = options || {};
+		const {
+			environmentId,
+			enableBackup = true,
+			backupExpiry = UnifiedWorkerTokenBackupServiceV8.DEFAULT_EXPIRY,
+		} = options || {};
 
 		try {
 			// Save to localStorage (primary)
 			const localStorageKey = 'unified_worker_token_v8';
-			localStorage.setItem(localStorageKey, JSON.stringify({
-				credentials,
-				timestamp: Date.now(),
-				environmentId,
-			}));
+			localStorage.setItem(
+				localStorageKey,
+				JSON.stringify({
+					credentials,
+					timestamp: Date.now(),
+					environmentId,
+				})
+			);
 
 			// Save to IndexedDB (secondary)
 			try {
@@ -143,17 +150,20 @@ export class UnifiedWorkerTokenBackupServiceV8 {
 			// Try SQLite backup (server-side)
 			if (enableBackup && environmentId) {
 				try {
-					const response = await fetch(`${UnifiedWorkerTokenBackupServiceV8.BACKUP_API_BASE}/load`, {
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json',
-						},
-						body: JSON.stringify({
-							key: `worker_token_${environmentId}`,
-							environmentId,
-							dataType: 'worker_token',
-						}),
-					});
+					const response = await fetch(
+						`${UnifiedWorkerTokenBackupServiceV8.BACKUP_API_BASE}/load`,
+						{
+							method: 'POST',
+							headers: {
+								'Content-Type': 'application/json',
+							},
+							body: JSON.stringify({
+								key: `worker_token_${environmentId}`,
+								environmentId,
+								dataType: 'worker_token',
+							}),
+						}
+					);
 
 					if (!response.ok) {
 						if (response.status === 404) {
@@ -166,23 +176,26 @@ export class UnifiedWorkerTokenBackupServiceV8 {
 					const result = await response.json();
 					if (result.success && result.data) {
 						const backupData = result.data as WorkerTokenBackupData;
-						
+
 						// Validate backup data
 						if (backupData.dataType === 'worker_token' && backupData.credentials) {
 							// Restore to localStorage for faster future access
 							try {
-								localStorage.setItem(localStorageKey, JSON.stringify({
-									credentials: backupData.credentials,
-									timestamp: backupData.timestamp,
-									environmentId: backupData.environmentId,
-								}));
+								localStorage.setItem(
+									localStorageKey,
+									JSON.stringify({
+										credentials: backupData.credentials,
+										timestamp: backupData.timestamp,
+										environmentId: backupData.environmentId,
+									})
+								);
 							} catch (restoreError) {
 								logger.warn(`${MODULE_TAG} Failed to restore to localStorage`, restoreError);
 							}
 
-							logger.info(`${MODULE_TAG} ✅ Loaded from SQLite backup`, { 
+							logger.info(`${MODULE_TAG} ✅ Loaded from SQLite backup`, {
 								environmentId,
-								timestamp: backupData.timestamp 
+								timestamp: backupData.timestamp,
 							});
 							return backupData.credentials;
 						}
@@ -224,17 +237,20 @@ export class UnifiedWorkerTokenBackupServiceV8 {
 
 			// Delete from SQLite backup
 			if (enableBackup && environmentId) {
-				const response = await fetch(`${UnifiedWorkerTokenBackupServiceV8.BACKUP_API_BASE}/delete`, {
-					method: 'DELETE',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify({
-						key: `worker_token_${environmentId}`,
-						environmentId,
-						dataType: 'worker_token',
-					}),
-				});
+				const response = await fetch(
+					`${UnifiedWorkerTokenBackupServiceV8.BACKUP_API_BASE}/delete`,
+					{
+						method: 'DELETE',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({
+							key: `worker_token_${environmentId}`,
+							environmentId,
+							dataType: 'worker_token',
+						}),
+					}
+				);
 
 				if (!response.ok) {
 					throw new Error(`Backup API error: ${response.status} ${response.statusText}`);
@@ -267,7 +283,7 @@ export class UnifiedWorkerTokenBackupServiceV8 {
 				// Update the main service
 				const { unifiedWorkerTokenService } = await import('./unifiedWorkerTokenService');
 				await unifiedWorkerTokenService.saveCredentials(credentials);
-				
+
 				logger.info(`${MODULE_TAG} ✅ Refreshed from SQLite backup`, { environmentId });
 			}
 		} catch (error) {

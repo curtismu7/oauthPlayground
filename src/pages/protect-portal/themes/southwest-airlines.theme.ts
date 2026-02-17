@@ -12,96 +12,96 @@ import type { BrandTheme } from './brand-theme.interface';
 import type { CorporatePortalConfig } from '../types/CorporatePortalConfig';
 
 export const southwestAirlinesConfig: CorporatePortalConfig = {
-  company: {
-    name: 'southwest-airlines',
-    displayName: 'Southwest Airlines',
-    industry: 'aviation',
-    logo: {
-      url: '',
-      alt: 'Southwest Airlines Logo',
-      width: '120px',
-      height: '40px',
-      text: 'SOUTHWEST',
-      colors: {
-        primary: '#304CB2',
-        accent: '#EE3124',
-      },
-    },
-  },
-  login: {
-    pattern: 'dropdown',
-    position: 'header',
-    animation: { type: 'slideDown', duration: '0.3s' },
-  },
-  navigation: {
-    style: 'friendly',
-    showBrandSelector: true,
-    stickyHeader: true,
-  },
-  content: {
-    customerTerminology: true,
-    tone: 'friendly',
-    heroTitle: 'Welcome Aboard',
-    heroSubtitle: 'Book flights, check in, and manage your Rapid Rewards account',
-    features: [
-      {
-        title: 'Book a Flight',
-        description: 'Find low fares, choose your seat, and book your next adventure',
-        icon: 'plane',
-      },
-      {
-        title: 'My Trips',
-        description: 'Check in online, change flights, and view your travel details',
-        icon: 'trips',
-      },
-      {
-        title: 'Rapid Rewards®',
-        description: 'Earn points, manage your account, and enjoy member benefits',
-        icon: 'star',
-      },
-      {
-        title: 'Low Fares Calendar',
-        description: 'Explore our competitive prices and special flight deals',
-        icon: 'calendar',
-      },
-    ],
-  },
-  branding: {
-    colors: {
-      primary: '#304CB2', // Southwest blue
-      primaryDark: '#253a8a',
-      secondary: '#FFFFFF',
-      accent: '#EE3124', // Southwest heart red
-      background: '#FFFFFF',
-      surface: '#FFFFFF',
-      muted: '#6b7280',
-      border: '#d1d5db',
-      text: '#1F2937',
-      textSecondary: '#6B7280',
-      error: '#EE3124',
-      success: '#059669',
-      warning: '#f4c542', // Southwest gold
-      info: '#304CB2',
-      primaryLight: '#5B7DD8',
-      secondaryLight: '#F8F9FA',
-      secondaryDark: '#E9ECEF',
-      errorLight: '#FEE2E2',
-      warningLight: '#FEF3C7',
-      successLight: '#D1FAE5',
-    },
-    typography: {
-      heading: 'Lato, Arial, sans-serif',
-      body: 'Lato, Arial, sans-serif',
-    },
-    spacing: {
-      xs: '0.25rem',
-      sm: '0.5rem',
-      md: '1rem',
-      lg: '1.5rem',
-      xl: '2rem',
-      xxl: '3rem',
-    },
-  },
+	company: {
+		name: 'southwest-airlines',
+		displayName: 'Southwest Airlines',
+		industry: 'aviation',
+		logo: {
+			url: '',
+			alt: 'Southwest Airlines Logo',
+			width: '120px',
+			height: '40px',
+			text: 'SOUTHWEST',
+			colors: {
+				primary: '#304CB2',
+				accent: '#EE3124',
+			},
+		},
+	},
+	login: {
+		pattern: 'dropdown',
+		position: 'header',
+		animation: { type: 'slideDown', duration: '0.3s' },
+	},
+	navigation: {
+		style: 'friendly',
+		showBrandSelector: true,
+		stickyHeader: true,
+	},
+	content: {
+		customerTerminology: true,
+		tone: 'friendly',
+		heroTitle: 'Welcome Aboard',
+		heroSubtitle: 'Book flights, check in, and manage your Rapid Rewards account',
+		features: [
+			{
+				title: 'Book a Flight',
+				description: 'Find low fares, choose your seat, and book your next adventure',
+				icon: 'plane',
+			},
+			{
+				title: 'My Trips',
+				description: 'Check in online, change flights, and view your travel details',
+				icon: 'trips',
+			},
+			{
+				title: 'Rapid Rewards®',
+				description: 'Earn points, manage your account, and enjoy member benefits',
+				icon: 'star',
+			},
+			{
+				title: 'Low Fares Calendar',
+				description: 'Explore our competitive prices and special flight deals',
+				icon: 'calendar',
+			},
+		],
+	},
+	branding: {
+		colors: {
+			primary: '#304CB2', // Southwest blue
+			primaryDark: '#253a8a',
+			secondary: '#FFFFFF',
+			accent: '#EE3124', // Southwest heart red
+			background: '#FFFFFF',
+			surface: '#FFFFFF',
+			muted: '#6b7280',
+			border: '#d1d5db',
+			text: '#1F2937',
+			textSecondary: '#6B7280',
+			error: '#EE3124',
+			success: '#059669',
+			warning: '#f4c542', // Southwest gold
+			info: '#304CB2',
+			primaryLight: '#5B7DD8',
+			secondaryLight: '#F8F9FA',
+			secondaryDark: '#E9ECEF',
+			errorLight: '#FEE2E2',
+			warningLight: '#FEF3C7',
+			successLight: '#D1FAE5',
+		},
+		typography: {
+			heading: 'Lato, Arial, sans-serif',
+			body: 'Lato, Arial, sans-serif',
+		},
+		spacing: {
+			xs: '0.25rem',
+			sm: '0.5rem',
+			md: '1rem',
+			lg: '1.5rem',
+			xl: '2rem',
+			xxl: '3rem',
+		},
+	},
 };
 
 export const southwestAirlinesTheme: BrandTheme = {

@@ -12,7 +12,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { FiBook, FiMinimize2, FiEyeOff, FiChevronDown } from 'react-icons/fi';
 import styled from 'styled-components';
-import { EducationPreferenceService, type EducationMode } from '../../services/educationPreferenceService';
+import {
+	EducationPreferenceService,
+	type EducationMode,
+} from '../../services/educationPreferenceService';
 
 const ToggleContainer = styled.div`
 	position: sticky;
@@ -54,8 +57,8 @@ const ToggleButton = styled.button<{ $active: boolean }>`
 	padding: 8px 12px;
 	border: none;
 	border-radius: 4px;
-	background: ${props => props.$active ? '#ffffff' : 'transparent'};
-	color: ${props => props.$active ? '#1f2937' : '#6b7280'};
+	background: ${(props) => (props.$active ? '#ffffff' : 'transparent')};
+	color: ${(props) => (props.$active ? '#1f2937' : '#6b7280')};
 	font-size: 13px;
 	font-weight: 500;
 	cursor: pointer;
@@ -63,10 +66,10 @@ const ToggleButton = styled.button<{ $active: boolean }>`
 	align-items: center;
 	gap: 6px;
 	transition: all 0.2s ease;
-	box-shadow: ${props => props.$active ? '0 1px 3px rgba(0, 0, 0, 0.1)' : 'none'};
+	box-shadow: ${(props) => (props.$active ? '0 1px 3px rgba(0, 0, 0, 0.1)' : 'none')};
 
 	&:hover {
-		background: ${props => props.$active ? '#ffffff' : '#e5e7eb'};
+		background: ${(props) => (props.$active ? '#ffffff' : '#e5e7eb')};
 	}
 
 	&:focus {
@@ -125,9 +128,9 @@ const DropdownMenu = styled.div<{ $isOpen: boolean }>`
 	border-radius: 6px;
 	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 	z-index: 1000;
-	opacity: ${props => props.$isOpen ? 1 : 0};
-	visibility: ${props => props.$isOpen ? 'visible' : 'hidden'};
-	transform: ${props => props.$isOpen ? 'translateY(0)' : 'translateY(-10px)'};
+	opacity: ${(props) => (props.$isOpen ? 1 : 0)};
+	visibility: ${(props) => (props.$isOpen ? 'visible' : 'hidden')};
+	transform: ${(props) => (props.$isOpen ? 'translateY(0)' : 'translateY(-10px)')};
 	transition: all 0.2s ease;
 	min-width: 200px;
 `;
@@ -173,7 +176,7 @@ interface EducationModeToggleProps {
 
 /**
  * EducationModeToggle Component
- * 
+ *
  * Provides a toggle interface for switching between education display modes.
  * Can be displayed as buttons or dropdown.
  */
@@ -286,14 +289,17 @@ export const EducationModeToggle: React.FC<EducationModeToggleProps> = ({
 					<DropdownButton onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
 						<ModeIcon>{getModeIcon(currentMode)}</ModeIcon>
 						{getModeLabel(currentMode)}
-						<FiChevronDown size={14} style={{ transform: isDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }} />
+						<FiChevronDown
+							size={14}
+							style={{
+								transform: isDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+								transition: 'transform 0.2s ease',
+							}}
+						/>
 					</DropdownButton>
 					<DropdownMenu $isOpen={isDropdownOpen}>
 						{modes.map((mode) => (
-							<DropdownItem
-								key={mode}
-								onClick={() => handleModeChange(mode)}
-							>
+							<DropdownItem key={mode} onClick={() => handleModeChange(mode)}>
 								<ModeIcon>{getModeIcon(mode)}</ModeIcon>
 								{getModeLabel(mode)}
 							</DropdownItem>
