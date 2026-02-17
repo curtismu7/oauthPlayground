@@ -265,7 +265,7 @@ const OIDCHybridFlowV7: React.FC = () => {
 
 	// V7 compliance state
 	const [_complianceStatus, _setComplianceStatus] = useState(v7FlowConfig.compliance);
-	const [_validationResults, setValidationResults] = useState<any>(null);
+	const [_validationResults, setValidationResults] = useState<{ isValid: boolean; errors: string[] } | null>(null);
 	const [_errorStats, _setErrorStats] = useState(
 		V7SharedService.ErrorHandling.getErrorStatistics()
 	);
@@ -276,7 +276,7 @@ const OIDCHybridFlowV7: React.FC = () => {
 	);
 
 	// V7 compliance functions
-	const _validateHybridParameters = useCallback((parameters: Record<string, any>) => {
+	const _validateHybridParameters = useCallback((parameters: Record<string, unknown>) => {
 		const validation = V7SharedService.ParameterValidation.validateFlowParameters(
 			flowName,
 			parameters
