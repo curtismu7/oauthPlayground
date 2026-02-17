@@ -26,6 +26,7 @@ import {
 } from '@/v8/services/workerTokenStatusServiceV8';
 import UserTokenStatusDisplayV8U from '@/v8u/components/UserTokenStatusDisplayV8U';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
+import { useStandardSpinner, StandardModalSpinner } from '../../components/ui/StandardSpinner';
 
 // Token monitoring interfaces
 
@@ -132,6 +133,11 @@ const TokenStatusPageV8U: React.FC = () => {
 
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 
+	// Standardized spinner hooks for token status operations
+	const statusSpinner = useStandardSpinner(2000); // Token status check - 2 seconds
+	const modalSpinner = useStandardSpinner(4000);  // Worker token modal - 4 seconds
+	const configSpinner = useStandardSpinner(1500); // Config update - 1.5 seconds
+
 	// Update token status on mount and set up interval
 	useEffect(() => {
 		const updateTokenStatus = async () => {
@@ -211,6 +217,23 @@ const TokenStatusPageV8U: React.FC = () => {
 
 	return (
 		<PageContainer>
+			{/* Modal Spinners for Token Status Operations */}
+			<StandardModalSpinner
+				show={statusSpinner.isLoading}
+				message="Checking token status..."
+				theme="blue"
+			/>
+			<StandardModalSpinner
+				show={modalSpinner.isLoading}
+				message="Loading worker token..."
+				theme="green"
+			/>
+			<StandardModalSpinner
+				show={configSpinner.isLoading}
+				message="Updating configuration..."
+				theme="orange"
+			/>
+			
 			<PageHeader>
 				<PageTitle>Token Status Monitoring</PageTitle>
 				<PageDescription>
