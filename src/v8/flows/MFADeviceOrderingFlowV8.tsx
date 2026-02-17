@@ -496,9 +496,11 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 							<div
 								style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}
 							>
-								<button
-									type="button"
+								<ButtonSpinner
+									loading={false}
 									onClick={handleManageWorkerToken}
+									spinnerSize={14}
+									spinnerPosition="left"
 									style={{
 										padding: '10px 16px',
 										background: tokenStatus.isValid ? '#10b981' : '#ef4444',
@@ -514,8 +516,8 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 									}}
 								>
 									<span>🔑</span>
-									<span>Get worker token</span>
-								</button>
+									Get worker token
+								</ButtonSpinner>
 								<div
 									style={{
 										flex: 1,
@@ -707,15 +709,27 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 						</div>
 					</div>
 
-					<button
-						type="button"
-						className="btn btn-primary"
+					<ButtonSpinner
+						loading={isLoadingDevices}
 						onClick={handleLoadDevices}
 						disabled={!canLoad || isLoadingDevices}
-						style={{ marginTop: '20px' }}
+						spinnerSize={16}
+						spinnerPosition="left"
+						loadingText="Loading devices..."
+						style={{
+							marginTop: '20px',
+							background: '#3b82f6',
+							color: 'white',
+							border: 'none',
+							padding: '0.75rem 1.5rem',
+							borderRadius: '0.5rem',
+							fontWeight: '600',
+							cursor: !canLoad || isLoadingDevices ? 'not-allowed' : 'pointer',
+							transition: 'all 0.2s ease',
+						}}
 					>
-						{isLoadingDevices ? 'Loading devices...' : 'Load Devices'}
-					</button>
+						{isLoadingDevices ? '' : 'Load Devices'}
+					</ButtonSpinner>
 
 					{loadError && (
 						<div className="info-box" style={{ marginTop: '16px' }}>
