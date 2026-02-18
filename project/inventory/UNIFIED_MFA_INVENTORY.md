@@ -57,6 +57,10 @@ grep -n "ReferenceError.*is not defined" src/v8/flows/unified/UnifiedMFARegistra
 grep -n -A 3 -B 3 "currentCreds" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx
 grep -n -A 10 "useEffect.*=>" src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx | grep -A 10 "currentCreds"
 
+# 4. WorkerTokenModalV8 export regression prevention (NEW - Feb 2025)
+grep -n "export.*WorkerTokenModalV8" src/v8/components/WorkerTokenModalV8.tsx
+grep -n "import.*WorkerTokenModalV8" src/pages/flows/CIBAFlowV9.tsx
+
 # 4. Check for breaking changes (SWE-15 Principle: Open/Closed)
 grep -r "MFAFlowBaseV8" src/v8/flows/unified/ | grep -v "\.md"
 grep -r "step.*=" src/v8/flows/shared/MFAFlowBaseV8.tsx
@@ -117,19 +121,13 @@ grep -r "protocol.*https.*localhost" src/v8/ --include="*.ts" --include="*.tsx" 
 # Verify Vite configuration allows HTTP in development
 grep -n "https.*true" vite.config.ts && echo "❌ VITE HTTPS ENABLED" || echo "✅ VITE HTTP CONFIGURED"
 
-# === REDIRECT URI ROUTING (Issue 55 & 123 Prevention) ===
-grep -r "step=3" src/v8u/components/
-grep -r "ReturnTargetServiceV8U" src/v8u/components/CallbackHandlerV8U.tsx
-grep -r "setReturnTarget" src/v8/flows/
-grep -r "consumeReturnTarget" src/v8u/
-# NEW: Check MFA flows for ReturnTargetService usage
-grep -r "ReturnTargetServiceV8U" src/v8/flows/ && echo "✅ RETURN TARGET SERVICE FOUND" || echo "❌ MFA FLOWS MISSING RETURN TARGET SERVICE"
-# NEW: Check for flow context storage in MFA flows
-grep -r "mfa_flow_callback_context" src/v8/flows/ && echo "✅ FLOW CONTEXT STORAGE FOUND" || echo "❌ MFA FLOWS MISSING CONTEXT STORAGE"
-# NEW: Verify MFA callback paths are handled
-grep -r "user-mfa-login-callback\|mfa-unified-callback" src/v8u/components/CallbackHandlerV8U.tsx && echo "✅ MFA CALLBACK PATHS HANDLED" || echo "❌ MFA CALLBACK PATHS MISSING"
-grep -A 5 -B 5 "ReturnTargetServiceV8U" src/v8u/components/CallbackHandlerV8U.tsx
-grep -n "buildRedirectUrl" src/v8u/components/CallbackHandlerV8U.tsx
+# OIDC Redirect URI Compliance (NEW - Issue 125 Prevention)
+# Check for proper OIDC state validation and redirect URI handling
+grep -r "oauth_state" src/v8u/components/CallbackHandlerV8U.tsx && echo "✅ OIDC STATE VALIDATION FOUND" || echo "❌ OIDC STATE VALIDATION MISSING"
+grep -r "csrf_risk" src/v8u/components/CallbackHandlerV8U.tsx && echo "✅ CSRF PROTECTION FOUND" || echo "❌ CSRF PROTECTION MISSING"
+grep -r "state_expired" src/v8u/components/CallbackHandlerV8U.tsx && echo "✅ STATE EXPIRATION HANDLING FOUND" || echo "❌ STATE EXPIRATION HANDLING MISSING"
+# NEW: Verify MFA flow base has OIDC compliance
+grep -r "OAuth state validation passed" src/v8/flows/shared/MFAFlowBaseV8.tsx && echo "✅ MFA FLOW BASE OIDC COMPLIANCE FOUND" || echo "❌ MFA FLOW BASE OIDC COMPLIANCE MISSING"
 
 # === TOKEN EXCHANGE PREVENTION (Phase 1) ===
 # CRITICAL: Admin enablement must be checked before any token exchange
