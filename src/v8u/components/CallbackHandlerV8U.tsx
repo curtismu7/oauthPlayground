@@ -486,6 +486,86 @@ export const CallbackHandlerV8U: React.FC = () => {
 		const errorDescription =
 			fragmentParams?.get('error_description') || searchParams.get('error_description');
 
+		// OIDC COMPLIANCE: Validate state parameter for CSRF protection
+		if (code && state) {
+			const storedState = sessionStorage.getItem('oauth_state');
+			const storedStateTimestamp = sessionStorage.getItem('oauth_state_timestamp');
+
+			// Validate state exists and matches
+			if (!storedState) {
+				console.error(`${MODULE_TAG} ❌ No stored state found - possible CSRF attack`);
+				logRedirectEvent('csrf_risk_no_stored_state', {
+					hasCode: !!code,
+					hasState: !!state,
+					receivedState: state,
+				});
+				// Redirect to error page instead of proceeding
+				window.location.replace('/dashboard?error=csrf_risk');
+				return;
+			}
+
+			if (state !== storedState) {
+				console.error(`${MODULE_TAG} ❌ State mismatch - possible CSRF attack`);
+				logRedirectEvent('csrf_risk_state_mismatch', {
+					hasCode: !!code,
+					hasState: !!state,
+					receivedState: state,
+					storedState,
+				});
+				// Redirect to error page instead of proceeding
+				window.location.replace('/dashboard?error=csrf_risk');
+				return;
+			}
+
+			// Validate state age (should be recent, within 10 minutes)
+			if (storedStateTimestamp) {
+				const stateAge = Date.now() - parseInt(storedStateTimestamp, 10);
+				const maxAge = 10 * 60 * 1000; // 10 minutes
+
+				if (stateAge > maxAge) {
+					console.warn(`${MODULE_TAG} ⚠️ State is too old (${Math.round(stateAge / 1000)}s)`);
+					logRedirectEvent('state_expired', {
+						hasCode: !!code,
+						hasState: !!state,
+						stateAgeMs: stateAge,
+					});
+					// Clear expired state and redirect to error
+					sessionStorage.removeItem('oauth_state');
+					sessionStorage.removeItem('oauth_state_timestamp');
+					window.location.replace('/dashboard?error=state_expired');
+					return;
+				}
+			}
+
+			// Clear state after successful validation
+			sessionStorage.removeItem('oauth_state');
+			sessionStorage.removeItem('oauth_state_timestamp');
+
+			console.log(`${MODULE_TAG} ✅ OIDC state validation passed`);
+		}
+
+		// OIDC COMPLIANCE: Validate redirect URI if we have client credentials
+		const clientId = sessionStorage.getItem('oauth_client_id');
+		const environmentId = sessionStorage.getItem('oauth_environment_id');
+		const currentRedirectUri = `${window.location.origin}${window.location.pathname}`;
+
+		if (clientId && environmentId && code) {
+			// Note: This would require admin access token to validate
+			// For now, we'll log the validation attempt
+			console.log(`${MODULE_TAG} 🔍 OIDC redirect URI validation:`, {
+				redirectUri: currentRedirectUri,
+				clientId: `${clientId.substring(0, 8)}...`,
+				environmentId,
+			});
+
+			logRedirectEvent('redirect_uri_validation', {
+				redirectUri: currentRedirectUri,
+				clientId: `${clientId.substring(0, 8)}...`,
+				environmentId,
+				hasCode: !!code,
+			});
+		}
+
 		console.log(`${MODULE_TAG} Callback received`, {
 			url: window.location.href,
 			hasCode: searchParams.has('code'),

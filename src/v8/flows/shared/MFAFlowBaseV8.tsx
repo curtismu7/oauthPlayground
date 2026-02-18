@@ -559,6 +559,22 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 
 		// If we have a code and user login state, this is a callback from user login
 		if (code && hasUserLoginState && !showUserLoginModal) {
+			// OIDC COMPLIANCE: Validate state parameter before processing callback
+			const receivedState = searchParams.get('state');
+			const storedState = sessionStorage.getItem('oauth_state');
+
+			if (receivedState !== storedState) {
+				console.error(`${MODULE_TAG} ❌ OAuth state mismatch - possible CSRF attack`);
+				toastV8.error('Security error: Invalid OAuth state. Please try again.');
+				// Clear invalid state and redirect to dashboard
+				sessionStorage.removeItem('oauth_state');
+				sessionStorage.removeItem('oauth_state_timestamp');
+				window.location.replace('/dashboard?error=csrf_risk');
+				return;
+			}
+
+			console.log(`${MODULE_TAG} ✅ OAuth state validation passed`);
+
 			// #region agent log
 			sendAnalyticsLog({
 				location: 'MFAFlowBaseV8.tsx:324',
