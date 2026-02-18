@@ -155,6 +155,7 @@ import OAuthOIDCTraining from './pages/OAuthOIDCTraining';
 import OIDC from './pages/OIDC';
 import OIDCSessionManagement from './pages/OIDCSessionManagement';
 import OrganizationLicensing from './pages/OrganizationLicensing';
+import PingOneSessionsAPI from './pages/PingOneSessionsAPI';
 import { P1MFASamples } from './pages/P1MFASamples';
 import PARvsRAR from './pages/PARvsRAR';
 import PingAIResources from './pages/PingAIResources';
@@ -164,7 +165,6 @@ import PingOneAuthenticationCallback from './pages/PingOneAuthenticationCallback
 import PingOneAuthenticationResult from './pages/PingOneAuthenticationResult';
 import PingOneIdentityMetrics from './pages/PingOneIdentityMetrics';
 import PingOneMockFeatures from './pages/PingOneMockFeatures';
-import PingOneSessionsAPI from './pages/PingOneSessionsAPI';
 import PingOneUserProfile from './pages/PingOneUserProfile';
 import PingOneWebhookViewer from './pages/PingOneWebhookViewer';
 import { PostmanCollectionGenerator } from './pages/PostmanCollectionGenerator';
