@@ -72,20 +72,33 @@ export const useWorkerTokenConfigV8 = () => {
 		loadConfig();
 
 		// Listen for configuration updates from other components
-		const handleConfigUpdate = () => {
-			console.log(`${MODULE_TAG} Configuration update detected, reloading...`);
+		const handleConfigUpdate = (event?: Event) => {
+			console.log(`${MODULE_TAG} Configuration update detected, reloading...`, {
+				eventType: event?.type,
+				timestamp: Date.now()
+			});
 			loadConfig();
 		};
 
-		// Listen for MFA configuration updates
+		// Listen for MFA configuration updates (legacy support)
 		window.addEventListener('mfaConfigurationUpdated', handleConfigUpdate);
 
-		// Listen for worker token config updates
+		// Listen for worker token config updates (primary)
 		window.addEventListener('workerTokenConfigUpdated', handleConfigUpdate);
+
+		// Add debugging for event registration
+		console.log(`${MODULE_TAG} 📡 Event listeners registered`, {
+			mfaConfigListener: true,
+			workerTokenConfigListener: true,
+			timestamp: Date.now()
+		});
 
 		return () => {
 			window.removeEventListener('mfaConfigurationUpdated', handleConfigUpdate);
 			window.removeEventListener('workerTokenConfigUpdated', handleConfigUpdate);
+			console.log(`${MODULE_TAG} 📡 Event listeners cleaned up`, {
+				timestamp: Date.now()
+			});
 		};
 	}, []);
 

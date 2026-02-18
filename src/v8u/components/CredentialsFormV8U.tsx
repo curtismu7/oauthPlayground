@@ -27,6 +27,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FiChevronDown, FiChevronUp, FiEye, FiEyeOff, FiInfo } from 'react-icons/fi';
 import { DraggableModal } from '@/components/DraggableModal';
 import { JWTConfigV8 } from '@/components/JWTConfigV8';
+import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import type { ResponseMode } from '@/services/responseModeService';
 import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
 import { ClientTypeRadioV8 } from '@/v8/components/ClientTypeRadioV8';
@@ -49,6 +50,7 @@ import { ResponseTypeDropdownV8 } from '@/v8/components/ResponseTypeDropdownV8';
 import { TokenEndpointAuthMethodDropdownV8 } from '@/v8/components/TokenEndpointAuthMethodDropdownV8';
 import { TooltipV8 } from '@/v8/components/TooltipV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { useWorkerTokenConfigV8 } from '@/v8/hooks/useSilentApiConfigV8';
 import { WorkerTokenVsClientCredentialsEducationModalV8 } from '@/v8/components/WorkerTokenVsClientCredentialsEducationModalV8';
 import { AppDiscoveryServiceV8 } from '@/v8/services/appDiscoveryServiceV8';
 import { ConfigCheckerServiceV8 } from '@/v8/services/configCheckerServiceV8';
@@ -68,8 +70,6 @@ import {
 import { TokenEndpointAuthMethodServiceV8 } from '@/v8/services/tokenEndpointAuthMethodServiceV8';
 import { TooltipContentServiceV8 } from '@/v8/services/tooltipContentServiceV8';
 import { UnifiedFlowOptionsServiceV8 } from '@/v8/services/unifiedFlowOptionsServiceV8';
-import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
-import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { analytics } from '@/v8/utils/analyticsV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { AppDiscoveryModalV8U } from './AppDiscoveryModalV8U';
@@ -160,6 +160,11 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	onDiscoveryComplete,
 	onAppTypeChange,
 }) => {
+	// Use unified global worker token hook for token management
+	const globalTokenStatus = useGlobalWorkerToken();
+	const workerToken = globalTokenStatus.token || '';
+	const hasWorkerToken = globalTokenStatus.isValid;
+
 	// UI state - controls section visibility
 	const [isExpanded, setIsExpanded] = useState(true);
 	const [showAdvancedSection, setShowAdvancedSection] = useState(true);
@@ -518,23 +523,11 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync()
 	);
 
-	// Worker Token Settings
-	const [silentApiRetrieval, setSilentApiRetrieval] = useState(() => {
-		try {
-			const config = MFAConfigurationServiceV8.loadConfiguration();
-			return config.workerToken.silentApiRetrieval;
-		} catch {
-			return false;
-		}
-	});
-	const [showTokenAtEnd, setShowTokenAtEnd] = useState(() => {
-		try {
-			const config = MFAConfigurationServiceV8.loadConfiguration();
-			return config.workerToken.showTokenAtEnd;
-		} catch {
-			return false;
-		}
-	});
+	// Worker Token Settings - Use centralized hook for consistency
+	const { 
+		silentApiRetrieval, 
+		showTokenAtEnd
+	} = useWorkerTokenConfigV8();
 
 	// Helper function to determine if a required field should have red outline
 	const shouldHighlightField = useCallback(
@@ -1153,9 +1146,8 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 
 			setIsLoadingScopes(true);
 			try {
-				// Get worker token directly from global service
-				const workerTokenValue = await workerTokenServiceV8.getToken();
-				if (!workerTokenValue) {
+				// Worker token is now managed by unified service
+				if (!hasWorkerToken) {
 					console.log(`${MODULE_TAG} No worker token available to fetch allowed scopes`);
 					setIsLoadingScopes(false);
 					setAllowedScopes([]);
@@ -1165,7 +1157,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 				const appConfig = await ConfigCheckerServiceV8.fetchAppConfig(
 					credentials.environmentId,
 					credentials.clientId,
-					workerTokenValue
+					workerToken
 				);
 
 				if (appConfig?.allowedScopes) {

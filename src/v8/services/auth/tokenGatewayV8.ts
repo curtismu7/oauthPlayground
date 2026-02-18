@@ -42,13 +42,17 @@ export interface TokenAcquisitionOptions {
 	maxRetries?: number;
 	/** Enable debug logging */
 	debug?: boolean;
+	/** Request context to differentiate between user and automatic requests */
+	context?: 'user' | 'automatic';
+	/** Priority for request handling (higher = more important) */
+	priority?: number;
 }
 
 export interface TokenAcquisitionResult {
 	success: boolean;
 	token?: string;
-	expiresAt?: number;
-	error?: TokenAcquisitionError;
+	expiresAt?: number | undefined;
+	error?: TokenAcquisitionError | undefined;
 	/** Whether interactive auth is needed (silent failed, user action required) */
 	needsInteraction?: boolean;
 }
@@ -81,6 +85,8 @@ const DEFAULT_OPTIONS: Required<Omit<TokenAcquisitionOptions, 'mode'>> = {
 	timeout: 10000,
 	maxRetries: 2,
 	debug: false,
+	context: 'automatic',
+	priority: 1,
 };
 
 const RETRY_DELAYS = [1000, 2000, 4000]; // Exponential backoff
@@ -163,7 +169,7 @@ class TokenGatewayV8 {
 				return {
 					success: true,
 					token: currentStatus.token,
-					expiresAt: currentStatus.expiresAt,
+					expiresAt: currentStatus.expiresAt || undefined,
 				};
 			}
 		}
@@ -389,7 +395,11 @@ class TokenGatewayV8 {
 
 		return {
 			success: false,
-			error: lastError,
+			error: lastError || {
+				code: 'UNKNOWN',
+				message: 'Unknown error occurred',
+				retryable: false,
+			},
 			needsInteraction: opts.mode === 'silent',
 		};
 	}
@@ -601,7 +611,7 @@ class TokenGatewayV8 {
 	private log(message: string, data?: Record<string, unknown>): void {
 		if (
 			this.debugEnabled ||
-			(typeof window !== 'undefined' && (window as any).TOKEN_GATEWAY_DEBUG)
+			(typeof window !== 'undefined' && (window as { TOKEN_GATEWAY_DEBUG?: boolean }).TOKEN_GATEWAY_DEBUG)
 		) {
 			if (data) {
 				console.log(`${MODULE_TAG} ${message}`, data);
@@ -624,8 +634,8 @@ export { TokenGatewayV8 };
 
 // Make available globally for debugging
 if (typeof window !== 'undefined') {
-	(window as any).tokenGatewayV8 = tokenGatewayV8;
-	(window as any).TOKEN_GATEWAY_DEBUG = false; // Set to true to enable debug logging
+	(window as { tokenGatewayV8?: typeof tokenGatewayV8; TOKEN_GATEWAY_DEBUG?: boolean }).tokenGatewayV8 = tokenGatewayV8;
+	(window as { tokenGatewayV8?: typeof tokenGatewayV8; TOKEN_GATEWAY_DEBUG?: boolean }).TOKEN_GATEWAY_DEBUG = false; // Set to true to enable debug logging
 }
 
 export default tokenGatewayV8;
