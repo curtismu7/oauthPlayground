@@ -43,6 +43,7 @@ export type FlowId =
 	| 'rar-v6'
 	| 'redirectless-v6'
 	| 'redirectless-v7'
+	| 'redirectless-v9'
 	| 'oauth-hybrid-v6'
 	| 'oidc-hybrid-v6';
 
@@ -135,6 +136,10 @@ export interface AdvancedParametersData {
 	loginHint?: string;
 	acrValues?: string[];
 	maxAge?: number;
+	// Flow state properties
+	currentStep?: number;
+	hasTokens?: boolean;
+	flowType?: string;
 }
 
 // ============================================
