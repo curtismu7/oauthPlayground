@@ -111,7 +111,6 @@ import PingViewOnAI from './pages/docs/PingViewOnAI.tsx';
 import SpiffeSpirePingOne from './pages/docs/SpiffeSpirePingOne.tsx';
 import EnvironmentIdInputDemo from './pages/EnvironmentIdInputDemo';
 import AdvancedOAuthParametersDemoFlow from './pages/flows/AdvancedOAuthParametersDemoFlow';
-import CIBAFlowV7 from './pages/flows/CIBAFlowV7';
 import CIBAFlowV9 from './pages/flows/CIBAFlowV9';
 import ClientCredentialsFlowV7 from './pages/flows/ClientCredentialsFlowV7';
 import DeviceAuthorizationFlowV7 from './pages/flows/DeviceAuthorizationFlowV7';
@@ -137,7 +136,7 @@ import PingOneLogoutFlow from './pages/flows/PingOneLogoutFlow';
 import PingOneMFAWorkflowLibraryV7 from './pages/flows/PingOneMFAWorkflowLibraryV7';
 import PingOnePARFlowV7 from './pages/flows/PingOnePARFlowV7';
 import RARFlowV7 from './pages/flows/RARFlowV7';
-import RedirectlessFlowV7Real from './pages/flows/RedirectlessFlowV7_Real';
+import RedirectlessFlowV9_Real from './pages/flows/RedirectlessFlowV9_Real';
 import SAMLBearerAssertionFlowV7 from './pages/flows/SAMLBearerAssertionFlowV7';
 import SAMLServiceProviderFlowV1 from './pages/flows/SAMLServiceProviderFlowV1';
 import TokenIntrospectionFlow from './pages/flows/TokenIntrospectionFlow';
@@ -165,6 +164,7 @@ import PingOneAuthenticationCallback from './pages/PingOneAuthenticationCallback
 import PingOneAuthenticationResult from './pages/PingOneAuthenticationResult';
 import PingOneIdentityMetrics from './pages/PingOneIdentityMetrics';
 import PingOneMockFeatures from './pages/PingOneMockFeatures';
+import PingOneSessionsAPI from './pages/PingOneSessionsAPI';
 import PingOneUserProfile from './pages/PingOneUserProfile';
 import PingOneWebhookViewer from './pages/PingOneWebhookViewer';
 import { PostmanCollectionGenerator } from './pages/PostmanCollectionGenerator';
@@ -1114,14 +1114,13 @@ const AppRoutes: React.FC = () => {
 									path="/flows/oidc-hybrid-v6"
 									element={<Navigate to="/flows/oidc-hybrid-v7" replace />}
 								/>
-								{/* V7 CIBA Flow */}
-								<Route path="/flows/ciba-v7" element={<CIBAFlowV7 />} />
 								{/* V8 CIBA Flow */}
 								<Route path="/flows/ciba-v8" element={<CIBAFlowV8 />} />
 								{/* V9 CIBA Flow */}
 								<Route path="/flows/ciba-v9" element={<CIBAFlowV9 />} />
-								{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
-								<Route path="/flows/ciba-v6" element={<Navigate to="/flows/ciba-v7" replace />} />
+								{/* Legacy V6/V7 routes - redirect to V9 for backward compatibility */}
+								<Route path="/flows/ciba-v6" element={<Navigate to="/flows/ciba-v9" replace />} />
+								<Route path="/flows/ciba-v7" element={<Navigate to="/flows/ciba-v9" replace />} />
 								{/* Legacy Advanced Parameters V6 route - redirect to dashboard */}
 								<Route
 									path="/flows/advanced-parameters-v6/:flowType"
@@ -1132,16 +1131,16 @@ const AppRoutes: React.FC = () => {
 									path="/flows/advanced-oauth-params-demo"
 									element={<AdvancedOAuthParametersDemoFlow />}
 								/>
-								{/* V7 Redirectless Flow */}
-								<Route path="/flows/redirectless-v7-real" element={<RedirectlessFlowV7Real />} />
-								{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
+								{/* V9 Redirectless Flow */}
+								<Route path="/flows/redirectless-v9-real" element={<RedirectlessFlowV9_Real />} />
+								{/* Legacy V6 routes - redirect to V9 equivalents for backward compatibility */}
 								<Route
 									path="/flows/redirectless-v6"
-									element={<Navigate to="/flows/redirectless-v7-real" replace />}
+									element={<Navigate to="/flows/redirectless-v9-real" replace />}
 								/>
 								<Route
 									path="/flows/redirectless-v6-real"
-									element={<Navigate to="/flows/redirectless-v7-real" replace />}
+									element={<Navigate to="/flows/redirectless-v9-real" replace />}
 								/>
 								<Route path="/flows/par" element={<PARFlow />} />
 								<Route path="/flows-old/jwt-bearer" element={<JWTBearerFlow />} />
@@ -1248,6 +1247,7 @@ const AppRoutes: React.FC = () => {
 								<Route path="/samples/p1mfa/sms" element={<SMSSampleApp />} />
 								<Route path="/oauth-2-1" element={<OAuth21 />} />
 								<Route path="/oidc-session-management" element={<OIDCSessionManagement />} />
+								<Route path="/pingone-sessions-api" element={<PingOneSessionsAPI />} />
 								<Route path="/par-vs-rar" element={<PARvsRAR />} />
 								<Route path="/ciba-vs-device-authz" element={<CIBAvsDeviceAuthz />} />
 								<Route path="/jwks-troubleshooting" element={<JWKSTroubleshooting />} />
