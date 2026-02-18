@@ -3,20 +3,25 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 import App from './App';
+import { EducationPreferenceService } from './services/educationPreferenceService';
 import { GlobalStyle, theme } from './styles/global';
 
 // Make React available globally for vendor bundles and any scripts that might need it
 // This must happen before any other code that might use React
 if (typeof window !== 'undefined') {
 	// Set React on window object
-	(window as any).React = React;
-	(window as any).ReactDOM = ReactDOM;
+	(window as unknown as Record<string, unknown>).React = React;
+	(window as unknown as Record<string, unknown>).ReactDOM = ReactDOM;
+
+	// Expose EducationPreferenceService for testing
+	(window as unknown as Record<string, unknown>).EducationPreferenceService =
+		EducationPreferenceService;
 
 	// Also make it available on globalThis for broader compatibility
 	// Ensure globalThis exists before using it
 	if (typeof globalThis !== 'undefined') {
-		(globalThis as any).React = React;
-		(globalThis as any).ReactDOM = ReactDOM;
+		(globalThis as unknown as Record<string, unknown>).React = React;
+		(globalThis as unknown as Record<string, unknown>).ReactDOM = ReactDOM;
 	}
 
 	// Ensure React.Children and React.Component are available
@@ -24,15 +29,15 @@ if (typeof window !== 'undefined') {
 	if (React && typeof React === 'object') {
 		// Only set if the properties exist
 		if (React.Children) {
-			(window as any).ReactChildren = React.Children;
+			(window as unknown as Record<string, unknown>).ReactChildren = React.Children;
 			if (typeof globalThis !== 'undefined') {
-				(globalThis as any).ReactChildren = React.Children;
+				(globalThis as unknown as Record<string, unknown>).ReactChildren = React.Children;
 			}
 		}
 		if (React.Component) {
-			(window as any).ReactComponent = React.Component;
+			(window as unknown as Record<string, unknown>).ReactComponent = React.Component;
 			if (typeof globalThis !== 'undefined') {
-				(globalThis as any).ReactComponent = React.Component;
+				(globalThis as unknown as Record<string, unknown>).ReactComponent = React.Component;
 			}
 		}
 	}
