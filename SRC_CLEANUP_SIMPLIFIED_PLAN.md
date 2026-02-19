@@ -21,7 +21,7 @@ src/
     oauth/                   # OAuth flows app
       pages/                 # OAuth pages
       components/            # OAuth components
-      services/              # OAuth services
+      services/              # OAuth-specific services only
       flows/                 # OAuth flows
       hooks/                 # OAuth-specific hooks
       contexts/              # OAuth contexts
@@ -32,7 +32,7 @@ src/
     mfa/                     # MFA flows app
       pages/                 # MFA pages
       components/            # MFA components
-      services/              # MFA services
+      services/              # MFA-specific services only
       flows/                 # MFA flows
       hooks/                 # MFA-specific hooks
       contexts/              # MFA contexts
@@ -43,7 +43,7 @@ src/
     protect/                 # Protect portal app
       pages/                 # Protect pages
       components/            # Protect components
-      services/              # Protect services
+      services/              # Protect-specific services only
       themes/                # Protect themes
       types/                 # Protect types
       contexts/              # Protect contexts
@@ -56,7 +56,7 @@ src/
     user-management/         # User management app
       pages/                 # User management pages
       components/            # User management components
-      services/              # User management services
+      services/              # User management-specific services only
       contexts/              # User management contexts
       hooks/                 # User management hooks
       types/                 # User management types
@@ -64,7 +64,7 @@ src/
     admin/                   # Admin utilities app
       pages/                 # Admin pages
       components/            # Admin components
-      services/              # Admin services
+      services/              # Admin-specific services only
       hooks/                 # Admin hooks
       types/                 # Admin types
       utils/                 # Admin utilities
@@ -72,7 +72,7 @@ src/
     navigation/              # Side menu/navigation app
       components/            # Navigation components
       hooks/                 # Navigation hooks
-      services/              # Navigation services
+      services/              # Navigation-specific services only
       types/                 # Navigation types
       utils/                 # Navigation utilities
       contexts/              # Navigation contexts
@@ -80,7 +80,7 @@ src/
     
   shared/                   # Truly shared code across all apps
     components/              # Reusable UI components
-    services/                # Shared service clients/adapters
+    services/                # Shared services (auth, storage, API clients, etc.)
     hooks/                   # Shared hooks
     utils/                   # Shared utilities
     types/                   # Shared types
@@ -93,6 +93,26 @@ src/
   config/                   # Global configuration
   tests/                    # Tests
 ```
+
+### **Service Organization Strategy**
+
+#### **Shared Services** (in `src/shared/services/`)
+- **Authentication services** - Used by multiple apps
+- **Storage services** - Local storage, session management
+- **API client services** - HTTP clients, API utilities
+- **Environment services** - Environment configuration
+- **Token services** - Token management, validation
+- **Error handling services** - Global error handling
+- **Logging services** - Application logging
+- **Configuration services** - Global app configuration
+
+#### **App-Specific Services** (in each `src/apps/{app}/services/`)
+- **OAuth App**: OAuth flow services, PAR services, device auth services
+- **MFA App**: MFA device services, MFA configuration services
+- **Protect App**: Protect-specific business logic, risk evaluation
+- **User Management App**: User management business logic
+- **Admin App**: Admin utilities, reporting services
+- **Navigation App**: Navigation state management
 
 ### **Key Changes from Current Plan**
 ❌ **Remove**: `src/apps/v8/` and `src/apps/v8u/` separation  
@@ -162,18 +182,78 @@ git mv src/components/SidebarSearch.tsx src/apps/navigation/components/
 git mv src/components/VersionBadge.tsx src/apps/navigation/components/
 ```
 
-### **Phase 2: Consolidate by App** (Day 2-3)
+### **Phase 2: Consolidate by App with Testing** (Day 2-3)
 
-#### **OAuth App Consolidation**
+#### **Step 1: Identify and Categorize Services**
 ```bash
+# First, analyze all services to determine shared vs app-specific
+# Create a service categorization document
+echo "Analyzing services for shared vs app-specific categorization..."
+
+# Services that should go to shared/ (used by multiple apps)
+SHARED_SERVICES=(
+  "globalEnvironmentService"
+  "storageServiceV8"
+  "errorHandlerV8"
+  "validationServiceV8"
+  "tokenOperationsServiceV8"
+  "workerTokenServiceV8"
+  "pingOneAuthenticationServiceV8"
+  "environmentServiceV8"
+  "apiDisplayServiceV8"
+  # Add more as identified
+)
+
+# Services that should stay app-specific
+OAUTH_SPECIFIC=(
+  "oauthIntegrationServiceV8"
+  "authorizationUrlBuilderServiceV8U"
+  "parRarIntegrationServiceV8U"
+  "deviceAuthorizationSecurityService"
+  "pkceStorageServiceV8U"
+)
+
+MFA_SPECIFIC=(
+  "mfaServiceV8"
+  "mfaConfigurationServiceV8"
+  "mfaAuthenticationServiceV8"
+  "mfaReportingServiceV8"
+  "fido2SessionCookieServiceV8"
+  "webAuthnAuthenticationServiceV8"
+)
+```
+
+#### **Step 2: Move Shared Services First**
+```bash
+# Move shared services to src/shared/services/
+for service in "${SHARED_SERVICES[@]}"; do
+  if [ -f "src/v8/services/$service.ts" ]; then
+    git mv "src/v8/services/$service.ts" "src/shared/services/"
+    echo "✅ Moved shared service: $service"
+  fi
+done
+
+# Test after shared services move
+echo "🧪 Testing after shared services move..."
+npm run build
+./scripts/check-all-app-features.sh
+if [ $? -eq 0 ]; then
+  echo "✅ Shared services move successful"
+else
+  echo "❌ Shared services move failed - rollback needed"
+  exit 1
+fi
+```
+
+#### **Step 3: OAuth App Consolidation**
+```bash
+echo "🚀 Starting OAuth App consolidation..."
+
 # OAuth pages (from v8u)
 git mv src/v8u/pages/* src/apps/oauth/pages/
 
 # OAuth components
 git mv src/v8u/components/* src/apps/oauth/components/
-
-# OAuth services
-git mv src/v8u/services/* src/apps/oauth/services/
 
 # OAuth flows
 git mv src/v8u/flows/* src/apps/oauth/flows/
@@ -184,23 +264,44 @@ git mv src/v8u/hooks/* src/apps/oauth/hooks/
 # OAuth contexts
 git mv src/v8u/contexts/* src/apps/oauth/contexts/
 
-# OAuth types, utils, config, constants
+# OAuth types, utils, config
 git mv src/v8u/types/* src/apps/oauth/types/
 git mv src/v8u/utils/* src/apps/oauth/utils/
 git mv src/v8u/config/* src/apps/oauth/config/
-# (constants would need to be created or moved from shared)
+
+# OAuth-specific services only
+for service in "${OAUTH_SPECIFIC[@]}"; do
+  if [ -f "src/v8u/services/$service.ts" ]; then
+    git mv "src/v8u/services/$service.ts" "src/apps/oauth/services/"
+    echo "✅ Moved OAuth-specific service: $service"
+  fi
+  if [ -f "src/v8/services/$service.ts" ]; then
+    git mv "src/v8/services/$service.ts" "src/apps/oauth/services/"
+    echo "✅ Moved OAuth-specific service: $service"
+  fi
+done
+
+# Test after OAuth app consolidation
+echo "🧪 Testing OAuth app consolidation..."
+npm run build
+./scripts/check-oauth-features.sh
+if [ $? -eq 0 ]; then
+  echo "✅ OAuth app consolidation successful"
+else
+  echo "❌ OAuth app consolidation failed - rollback needed"
+  exit 1
+fi
 ```
 
-#### **MFA App Consolidation**
+#### **Step 4: MFA App Consolidation**
 ```bash
+echo "🚀 Starting MFA App consolidation..."
+
 # MFA pages (from v8)
 git mv src/v8/pages/* src/apps/mfa/pages/
 
 # MFA components
 git mv src/v8/components/* src/apps/mfa/components/
-
-# MFA services
-git mv src/v8/services/* src/apps/mfa/services/
 
 # MFA flows
 git mv src/v8/flows/* src/apps/mfa/flows/
@@ -216,18 +317,62 @@ git mv src/v8/types/* src/apps/mfa/types/
 git mv src/v8/utils/* src/apps/mfa/utils/
 git mv src/v8/config/* src/apps/mfa/config/
 git mv src/v8/constants/* src/apps/mfa/constants/
+
+# MFA-specific services only
+for service in "${MFA_SPECIFIC[@]}"; do
+  if [ -f "src/v8/services/$service.ts" ]; then
+    git mv "src/v8/services/$service.ts" "src/apps/mfa/services/"
+    echo "✅ Moved MFA-specific service: $service"
+  fi
+done
+
+# Test after MFA app consolidation
+echo "🧪 Testing MFA app consolidation..."
+npm run build
+./scripts/check-mfa-features.sh
+if [ $? -eq 0 ]; then
+  echo "✅ MFA app consolidation successful"
+else
+  echo "❌ MFA app consolidation failed - rollback needed"
+  exit 1
+fi
 ```
 
-#### **Admin App Consolidation**
+#### **Step 5: Admin App Consolidation**
 ```bash
-# Admin utilities (from various locations)
+echo "🚀 Starting Admin App consolidation..."
+
+# Admin utilities (from v8)
 git mv src/v8/pages/DeleteAllDevicesUtilityV8.tsx src/apps/admin/pages/
 git mv src/v8/pages/MFAFeatureFlagsAdminV8.tsx src/apps/admin/pages/
 git mv src/v8/pages/MFADeviceManagementFlowV8.tsx src/apps/admin/pages/
 git mv src/v8/pages/MFAReportingFlowV8.tsx src/apps/admin/pages/
 
-# Admin components, services, hooks, types, utils
-# (These would be identified and moved from v8 as needed)
+# Identify and move admin-specific services
+ADMIN_SERVICES=(
+  "mfaReportingServiceV8"
+  "mfaFeatureFlagsV8"
+  "sqliteStatsServiceV8"
+  # Add more as identified
+)
+
+for service in "${ADMIN_SERVICES[@]}"; do
+  if [ -f "src/v8/services/$service.ts" ]; then
+    git mv "src/v8/services/$service.ts" "src/apps/admin/services/"
+    echo "✅ Moved Admin-specific service: $service"
+  fi
+done
+
+# Test after Admin app consolidation
+echo "🧪 Testing Admin app consolidation..."
+npm run build
+./scripts/check-admin-features.sh
+if [ $? -eq 0 ]; then
+  echo "✅ Admin app consolidation successful"
+else
+  echo "❌ Admin app consolidation failed - rollback needed"
+  exit 1
+fi
 ```
 
 ### **Phase 3: Update Imports** (Day 4)
