@@ -298,7 +298,7 @@ class UnifiedWorkerTokenService {
 		try {
 			// Get current worker token data to backup
 			const currentData = this.getTokenDataSync();
-			if (currentData && currentData.token) {
+			if (currentData?.token) {
 				// Store worker token in unified storage
 				await unifiedTokenStorage.storeToken({
 					type: 'worker_token',

@@ -6,7 +6,7 @@
 import axios from 'axios';
 
 // Test configuration
-const BASE_URL = 'http://localhost:3001';
+const BASE_URL = 'https://localhost:3001';
 const TEST_CONFIG = {
 	environmentId: 'env-123456',
 	userId: 'user-789012',

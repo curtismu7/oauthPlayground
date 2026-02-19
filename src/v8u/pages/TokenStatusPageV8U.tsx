@@ -17,6 +17,10 @@
 import React, { useEffect, useState } from 'react';
 import { FiCode, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
+import {
+	ApiDisplayCheckbox,
+	SuperSimpleApiDisplayV8,
+} from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
@@ -216,216 +220,228 @@ const TokenStatusPageV8U: React.FC = () => {
 	};
 
 	return (
-		<PageContainer>
-			{/* Modal Spinners for Token Status Operations */}
-			<StandardModalSpinner
-				show={statusSpinner.isLoading}
-				message="Checking token status..."
-				theme="blue"
-			/>
-			<StandardModalSpinner
-				show={modalSpinner.isLoading}
-				message="Loading worker token..."
-				theme="green"
-			/>
-			<StandardModalSpinner
-				show={configSpinner.isLoading}
-				message="Updating configuration..."
-				theme="orange"
-			/>
-
-			<PageHeader>
-				<PageTitle>Token Status Monitoring</PageTitle>
-				<PageDescription>
-					Comprehensive token status monitoring for OAuth flows and API authentication. Track worker
-					tokens, user tokens, and manage OAuth configuration settings in real-time.
-				</PageDescription>
-			</PageHeader>
-
-			{/* Worker Token Status Section */}
-			<TokenStatusCard>
-				<TokenStatusHeader>
-					<TokenStatusTitle>
-						<FiShield />
-						Worker Token Status
-					</TokenStatusTitle>
-				</TokenStatusHeader>
-				<TokenStatusDescription>
-					Monitor the worker token used for API authentication and management operations. Check
-					token validity, expiration, and refresh status.
-				</TokenStatusDescription>
-
-				<div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-					<div style={{ display: 'flex', gap: '8px' }}>
-						<ActionButton onClick={handleShowWorkerTokenModal}>
-							<FiShield />
-							Get Worker Token
-						</ActionButton>
-					</div>
-
-					{/* Detailed Worker Token Settings Checkboxes - Same as Main Page */}
-					<div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-						<label
-							style={{
-								display: 'flex',
-								alignItems: 'center',
-								gap: '12px',
-								cursor: 'pointer',
-								userSelect: 'none',
-								padding: '8px',
-								borderRadius: '6px',
-								transition: 'background-color 0.2s ease',
-							}}
-							onMouseEnter={(e) => {
-								e.currentTarget.style.backgroundColor = '#f3f4f6';
-							}}
-							onMouseLeave={(e) => {
-								e.currentTarget.style.backgroundColor = 'transparent';
-							}}
-						>
-							<input
-								type="checkbox"
-								checked={silentApiRetrieval}
-								onChange={async (e) => {
-									const newValue = e.target.checked;
-									setSilentApiRetrieval(newValue);
-									// Update config service immediately (no cache)
-									const config = MFAConfigurationServiceV8.loadConfiguration();
-									config.workerToken.silentApiRetrieval = newValue;
-									MFAConfigurationServiceV8.saveConfiguration(config);
-									// Dispatch event to notify other components
-									window.dispatchEvent(
-										new CustomEvent('mfaConfigurationUpdated', {
-											detail: { workerToken: config.workerToken },
-										})
-									);
-
-									// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
-									if (newValue) {
-										try {
-											const currentStatus =
-												await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-											if (!currentStatus.isValid) {
-												logger.debug(
-													'[TOKEN-STATUS-V8U] Silent API retrieval enabled, attempting to fetch token now...'
-												);
-												const { handleShowWorkerTokenModal } = await import(
-													'@/v8/utils/workerTokenModalHelperV8'
-												);
-												await handleShowWorkerTokenModal(
-													setShowWorkerTokenModal,
-													setTokenStatus,
-													newValue, // Use new value
-													showTokenAtEnd,
-													false // Not forced - respect silent setting
-												);
-											}
-										} catch (error) {
-											logger.error('[TOKEN-STATUS-V8U] Error in silent retrieval:', error);
-										}
-									}
-								}}
-								style={{
-									width: '20px',
-									height: '20px',
-									cursor: 'pointer',
-									accentColor: '#6366f1',
-									flexShrink: 0,
-								}}
-							/>
-							<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-								<span style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>
-									Silent API Token Retrieval
-								</span>
-								<span style={{ fontSize: '12px', color: '#6b7280' }}>
-									Automatically fetch worker token in the background without showing modals
-								</span>
-							</div>
-						</label>
-
-						<label
-							style={{
-								display: 'flex',
-								alignItems: 'center',
-								gap: '12px',
-								cursor: 'pointer',
-								userSelect: 'none',
-								padding: '8px',
-								borderRadius: '6px',
-								transition: 'background-color 0.2s ease',
-							}}
-							onMouseEnter={(e) => {
-								e.currentTarget.style.backgroundColor = '#f3f4f6';
-							}}
-							onMouseLeave={(e) => {
-								e.currentTarget.style.backgroundColor = 'transparent';
-							}}
-						>
-							<input
-								type="checkbox"
-								checked={showTokenAtEnd}
-								onChange={(e) => {
-									const newValue = e.target.checked;
-									setShowTokenAtEnd(newValue);
-									// Update config service immediately (no cache)
-									const config = MFAConfigurationServiceV8.loadConfiguration();
-									config.workerToken.showTokenAtEnd = newValue;
-									MFAConfigurationServiceV8.saveConfiguration(config);
-									// Dispatch event to notify other components
-									window.dispatchEvent(
-										new CustomEvent('mfaConfigurationUpdated', {
-											detail: { workerToken: config.workerToken },
-										})
-									);
-								}}
-								style={{
-									width: '20px',
-									height: '20px',
-									cursor: 'pointer',
-									accentColor: '#6366f1',
-									flexShrink: 0,
-								}}
-							/>
-							<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-								<span style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>
-									Show Token After Generation
-								</span>
-								<span style={{ fontSize: '12px', color: '#6b7280' }}>
-									Display the generated worker token in a modal after successful retrieval
-								</span>
-							</div>
-						</label>
-					</div>
-
-					{/* Worker Token Status Display - Moved below buttons */}
-					<WorkerTokenStatusDisplayV8 mode="compact" showRefresh={true} />
-				</div>
-			</TokenStatusCard>
-
-			{/* User Token Status Section */}
-			<TokenStatusCard>
-				<TokenStatusHeader>
-					<TokenStatusTitle>
-						<FiCode />
-						User Token Status
-					</TokenStatusTitle>
-				</TokenStatusHeader>
-				<TokenStatusDescription>
-					Monitor user authentication tokens (Access, ID, and Refresh tokens) from OAuth flows and
-					unified authentication.
-				</TokenStatusDescription>
-
-				<UserTokenStatusDisplayV8U showRefresh={true} refreshInterval={10} />
-			</TokenStatusCard>
-
-			{/* Worker Token Modal */}
-			{showWorkerTokenModal && (
-				<WorkerTokenModalV8
-					isOpen={showWorkerTokenModal}
-					onClose={() => setShowWorkerTokenModal(false)}
+		<>
+			<PageContainer>
+				{/* Modal Spinners for Token Status Operations */}
+				<StandardModalSpinner
+					show={statusSpinner.isLoading}
+					message="Checking token status..."
+					theme="blue"
 				/>
-			)}
-		</PageContainer>
+				<StandardModalSpinner
+					show={modalSpinner.isLoading}
+					message="Loading worker token..."
+					theme="green"
+				/>
+				<StandardModalSpinner
+					show={configSpinner.isLoading}
+					message="Updating configuration..."
+					theme="orange"
+				/>
+
+				<PageHeader>
+					<PageTitle>Token Status Monitoring</PageTitle>
+					<PageDescription>
+						Comprehensive token status monitoring for OAuth flows and API authentication. Track
+						worker tokens, user tokens, and manage OAuth configuration settings in real-time.
+					</PageDescription>
+				</PageHeader>
+
+				{/* API Display Toggle */}
+				<div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px' }}>
+					<ApiDisplayCheckbox />
+				</div>
+
+				{/* Worker Token Status Section */}
+				<TokenStatusCard>
+					<TokenStatusHeader>
+						<TokenStatusTitle>
+							<FiShield />
+							Worker Token Status
+						</TokenStatusTitle>
+					</TokenStatusHeader>
+					<TokenStatusDescription>
+						Monitor the worker token used for API authentication and management operations. Check
+						token validity, expiration, and refresh status.
+					</TokenStatusDescription>
+
+					<div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+						<div style={{ display: 'flex', gap: '8px' }}>
+							<ActionButton onClick={handleShowWorkerTokenModal}>
+								<FiShield />
+								Get Worker Token
+							</ActionButton>
+						</div>
+
+						{/* Detailed Worker Token Settings Checkboxes - Same as Main Page */}
+						<div
+							style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}
+						>
+							<label
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: '12px',
+									cursor: 'pointer',
+									userSelect: 'none',
+									padding: '8px',
+									borderRadius: '6px',
+									transition: 'background-color 0.2s ease',
+								}}
+								onMouseEnter={(e) => {
+									e.currentTarget.style.backgroundColor = '#f3f4f6';
+								}}
+								onMouseLeave={(e) => {
+									e.currentTarget.style.backgroundColor = 'transparent';
+								}}
+							>
+								<input
+									type="checkbox"
+									checked={silentApiRetrieval}
+									onChange={async (e) => {
+										const newValue = e.target.checked;
+										setSilentApiRetrieval(newValue);
+										// Update config service immediately (no cache)
+										const config = MFAConfigurationServiceV8.loadConfiguration();
+										config.workerToken.silentApiRetrieval = newValue;
+										MFAConfigurationServiceV8.saveConfiguration(config);
+										// Dispatch event to notify other components
+										window.dispatchEvent(
+											new CustomEvent('mfaConfigurationUpdated', {
+												detail: { workerToken: config.workerToken },
+											})
+										);
+
+										// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
+										if (newValue) {
+											try {
+												const currentStatus =
+													await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+												if (!currentStatus.isValid) {
+													logger.debug(
+														'[TOKEN-STATUS-V8U] Silent API retrieval enabled, attempting to fetch token now...'
+													);
+													const { handleShowWorkerTokenModal } = await import(
+														'@/v8/utils/workerTokenModalHelperV8'
+													);
+													await handleShowWorkerTokenModal(
+														setShowWorkerTokenModal,
+														setTokenStatus,
+														newValue, // Use new value
+														showTokenAtEnd,
+														false // Not forced - respect silent setting
+													);
+												}
+											} catch (error) {
+												logger.error('[TOKEN-STATUS-V8U] Error in silent retrieval:', error);
+											}
+										}
+									}}
+									style={{
+										width: '20px',
+										height: '20px',
+										cursor: 'pointer',
+										accentColor: '#6366f1',
+										flexShrink: 0,
+									}}
+								/>
+								<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+									<span style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>
+										Silent API Token Retrieval
+									</span>
+									<span style={{ fontSize: '12px', color: '#6b7280' }}>
+										Automatically fetch worker token in the background without showing modals
+									</span>
+								</div>
+							</label>
+
+							<label
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: '12px',
+									cursor: 'pointer',
+									userSelect: 'none',
+									padding: '8px',
+									borderRadius: '6px',
+									transition: 'background-color 0.2s ease',
+								}}
+								onMouseEnter={(e) => {
+									e.currentTarget.style.backgroundColor = '#f3f4f6';
+								}}
+								onMouseLeave={(e) => {
+									e.currentTarget.style.backgroundColor = 'transparent';
+								}}
+							>
+								<input
+									type="checkbox"
+									checked={showTokenAtEnd}
+									onChange={(e) => {
+										const newValue = e.target.checked;
+										setShowTokenAtEnd(newValue);
+										// Update config service immediately (no cache)
+										const config = MFAConfigurationServiceV8.loadConfiguration();
+										config.workerToken.showTokenAtEnd = newValue;
+										MFAConfigurationServiceV8.saveConfiguration(config);
+										// Dispatch event to notify other components
+										window.dispatchEvent(
+											new CustomEvent('mfaConfigurationUpdated', {
+												detail: { workerToken: config.workerToken },
+											})
+										);
+									}}
+									style={{
+										width: '20px',
+										height: '20px',
+										cursor: 'pointer',
+										accentColor: '#6366f1',
+										flexShrink: 0,
+									}}
+								/>
+								<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+									<span style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>
+										Show Token After Generation
+									</span>
+									<span style={{ fontSize: '12px', color: '#6b7280' }}>
+										Display the generated worker token in a modal after successful retrieval
+									</span>
+								</div>
+							</label>
+						</div>
+
+						{/* Worker Token Status Display - Moved below buttons */}
+						<WorkerTokenStatusDisplayV8 mode="compact" showRefresh={true} />
+					</div>
+				</TokenStatusCard>
+
+				{/* User Token Status Section */}
+				<TokenStatusCard>
+					<TokenStatusHeader>
+						<TokenStatusTitle>
+							<FiCode />
+							User Token Status
+						</TokenStatusTitle>
+					</TokenStatusHeader>
+					<TokenStatusDescription>
+						Monitor user authentication tokens (Access, ID, and Refresh tokens) from OAuth flows and
+						unified authentication.
+					</TokenStatusDescription>
+
+					<UserTokenStatusDisplayV8U showRefresh={true} refreshInterval={10} />
+				</TokenStatusCard>
+
+				{/* Worker Token Modal */}
+				{showWorkerTokenModal && (
+					<WorkerTokenModalV8
+						isOpen={showWorkerTokenModal}
+						onClose={() => setShowWorkerTokenModal(false)}
+					/>
+				)}
+			</PageContainer>
+
+			{/* API Display - Full Width at Bottom */}
+			<SuperSimpleApiDisplayV8 flowFilter="all" reserveSpace={true} />
+		</>
 	);
 };
 

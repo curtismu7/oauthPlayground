@@ -127,7 +127,6 @@ async function attemptSilentTokenRetrieval(
 	}
 }
 
-
 /**
  * Handles showing worker token modal with silent API retrieval support
  * Checks if silentApiRetrieval is enabled and attempts to fetch token silently first
@@ -171,15 +170,26 @@ export async function handleShowWorkerTokenModal(
 		// Priority 2: Centralized service (recommended)
 		try {
 			silentApiRetrieval = WorkerTokenConfigServiceV8.getSilentApiRetrieval();
-			console.log(`${MODULE_TAG} ✅ Using WorkerTokenConfigServiceV8 silentApiRetrieval:`, silentApiRetrieval);
+			console.log(
+				`${MODULE_TAG} ✅ Using WorkerTokenConfigServiceV8 silentApiRetrieval:`,
+				silentApiRetrieval
+			);
 		} catch (serviceError) {
-			console.warn(`${MODULE_TAG} ⚠️ WorkerTokenConfigServiceV8 failed, using fallback:`, serviceError);
+			console.warn(
+				`${MODULE_TAG} ⚠️ WorkerTokenConfigServiceV8 failed, using fallback:`,
+				serviceError
+			);
 			// Priority 3: Direct MFA service (fallback)
 			try {
-				const { MFAConfigurationServiceV8 } = await import('@/v8/services/mfaConfigurationServiceV8');
+				const { MFAConfigurationServiceV8 } = await import(
+					'@/v8/services/mfaConfigurationServiceV8'
+				);
 				const mfaConfig = MFAConfigurationServiceV8.loadConfiguration();
 				silentApiRetrieval = mfaConfig.workerToken?.silentApiRetrieval ?? false;
-				console.log(`${MODULE_TAG} 🔄 Using MFAConfigurationServiceV8 fallback silentApiRetrieval:`, silentApiRetrieval);
+				console.log(
+					`${MODULE_TAG} 🔄 Using MFAConfigurationServiceV8 fallback silentApiRetrieval:`,
+					silentApiRetrieval
+				);
 			} catch (fallbackError) {
 				console.error(`${MODULE_TAG} ❌ All silentApiRetrieval sources failed:`, fallbackError);
 				silentApiRetrieval = false;
@@ -195,15 +205,26 @@ export async function handleShowWorkerTokenModal(
 		// Priority 2: Centralized service (recommended)
 		try {
 			showTokenAtEnd = WorkerTokenConfigServiceV8.getShowTokenAtEnd();
-			console.log(`${MODULE_TAG} ✅ Using WorkerTokenConfigServiceV8 showTokenAtEnd:`, showTokenAtEnd);
+			console.log(
+				`${MODULE_TAG} ✅ Using WorkerTokenConfigServiceV8 showTokenAtEnd:`,
+				showTokenAtEnd
+			);
 		} catch (serviceError) {
-			console.warn(`${MODULE_TAG} ⚠️ WorkerTokenConfigServiceV8 failed, using fallback:`, serviceError);
+			console.warn(
+				`${MODULE_TAG} ⚠️ WorkerTokenConfigServiceV8 failed, using fallback:`,
+				serviceError
+			);
 			// Priority 3: Direct MFA service (fallback)
 			try {
-				const { MFAConfigurationServiceV8 } = await import('@/v8/services/mfaConfigurationServiceV8');
+				const { MFAConfigurationServiceV8 } = await import(
+					'@/v8/services/mfaConfigurationServiceV8'
+				);
 				const mfaConfig = MFAConfigurationServiceV8.loadConfiguration();
 				showTokenAtEnd = mfaConfig.workerToken?.showTokenAtEnd ?? false;
-				console.log(`${MODULE_TAG} 🔄 Using MFAConfigurationServiceV8 fallback showTokenAtEnd:`, showTokenAtEnd);
+				console.log(
+					`${MODULE_TAG} 🔄 Using MFAConfigurationServiceV8 fallback showTokenAtEnd:`,
+					showTokenAtEnd
+				);
 			} catch (fallbackError) {
 				console.error(`${MODULE_TAG} ❌ All showTokenAtEnd sources failed:`, fallbackError);
 				showTokenAtEnd = false;
@@ -216,7 +237,7 @@ export async function handleShowWorkerTokenModal(
 		silentApiRetrieval,
 		showTokenAtEnd,
 		forceShowModal,
-		source: overrideSilentApiRetrieval !== undefined ? 'override' : 'service'
+		source: overrideSilentApiRetrieval !== undefined ? 'override' : 'service',
 	});
 
 	// Check current token status

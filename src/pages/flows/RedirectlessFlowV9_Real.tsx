@@ -495,7 +495,10 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 								const passwordChangeError = Object.assign(new Error('MUST_CHANGE_PASSWORD'), {
 									code: 'MUST_CHANGE_PASSWORD' as const,
 									requiresPasswordChange: true,
-									userId: payload.sub || payload.user_id ? String(payload.sub || payload.user_id) : undefined,
+									userId:
+										payload.sub || payload.user_id
+											? String(payload.sub || payload.user_id)
+											: undefined,
 									accessToken: tokenData.access_token ? String(tokenData.access_token) : undefined,
 									tokens: tokenData,
 								});
@@ -640,11 +643,11 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 						tokens?: Record<string, unknown>;
 						environmentId: string;
 					};
-					
+
 					if (errorData.userId) passwordChangeState.userId = errorData.userId;
 					if (errorData.accessToken) passwordChangeState.accessToken = errorData.accessToken;
 					if (errorData.tokens) passwordChangeState.tokens = errorData.tokens;
-					
+
 					setPasswordChangeRequired(passwordChangeState);
 					setIsAuthenticating(false);
 					setIsLoading(false);
@@ -1455,18 +1458,17 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 									border: '1px solid #d1d5db',
 									borderRadius: '0.5rem',
 									fontSize: '1rem',
-									backgroundColor: (controller.authUrl || !checkHasPkceCodes()) ? '#f3f4f6' : '#3b82f6',
-									color: (controller.authUrl || !checkHasPkceCodes()) ? '#6b7280' : 'white',
-									cursor: (controller.authUrl || !checkHasPkceCodes()) ? 'not-allowed' : 'pointer',
+									backgroundColor:
+										controller.authUrl || !checkHasPkceCodes() ? '#f3f4f6' : '#3b82f6',
+									color: controller.authUrl || !checkHasPkceCodes() ? '#6b7280' : 'white',
+									cursor: controller.authUrl || !checkHasPkceCodes() ? 'not-allowed' : 'pointer',
 									display: 'flex',
 									alignItems: 'center',
 									gap: '0.5rem',
 								}}
 							>
 								{controller.authUrl ? <FiCheckCircle /> : <FiCode />}{' '}
-								{controller.authUrl
-									? 'Authorization URL Generated'
-									: 'Generate Authorization URL'}
+								{controller.authUrl ? 'Authorization URL Generated' : 'Generate Authorization URL'}
 								<HighlightBadge>2</HighlightBadge>
 							</button>
 
@@ -1575,7 +1577,6 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 							</div>
 						</div>
 
-						<>
 						{controller.tokens?.accessToken && (
 							<div
 								style={{
@@ -1593,9 +1594,9 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 						)}
 
 						{controller.tokens?.accessToken ? (
-							<>
-								<div style={{ marginTop: '1rem' }}>
-									{UnifiedTokenDisplayService.showTokens(
+							<div style={{ marginTop: '1rem' }}>
+								{
+									UnifiedTokenDisplayService.showTokens(
 										controller.tokens,
 										'oidc',
 										'redirectless-v9-tokens',
@@ -1603,16 +1604,15 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 											showCopyButtons: true,
 											showDecodeButtons: true,
 										}
-									) as React.ReactNode}
-								</div>
-							</>
+									) as React.ReactNode
+								}
+							</div>
 						) : (
 							<div style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>
 								<FiInfo style={{ marginBottom: '0.5rem' }} />
 								<p>Complete the token exchange step to receive tokens</p>
 							</div>
 						)}
-						</>
 					</CollapsibleHeader>
 				);
 

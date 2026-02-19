@@ -176,6 +176,26 @@ export const useHybridFlowController = (
 					});
 
 				if (loadedCreds) {
+					// CRITICAL FIX: Add fallback to global environment ID service
+					// This prevents "Environment ID is required" errors in V7 flows
+					if (!loadedCreds.environmentId) {
+						try {
+							// Import dynamically to avoid circular dependencies
+							const { EnvironmentIdServiceV8 } = await import(
+								'../v8/services/environmentIdServiceV8'
+							);
+							const globalEnvId = EnvironmentIdServiceV8.getEnvironmentId();
+							if (globalEnvId) {
+								loadedCreds.environmentId = globalEnvId;
+								log.info('🔧 Applied global environment ID fallback', {
+									globalEnvId: `${globalEnvId.substring(0, 8)}...`,
+								});
+							}
+						} catch (importError) {
+							log.warn('Failed to import EnvironmentIdServiceV8 for fallback', importError);
+						}
+					}
+
 					setCredentialsState(loadedCreds);
 					setHasValidCredentials(true);
 					log.info('Loaded saved credentials from FlowCredentialService', {
@@ -183,6 +203,7 @@ export const useHybridFlowController = (
 						environmentId: loadedCreds.environmentId,
 						clientId: `${loadedCreds.clientId?.substring(0, 8)}...`,
 						responseType: loadedCreds.responseType,
+						hasEnvironmentId: !!loadedCreds.environmentId,
 					});
 				}
 			} catch (error) {

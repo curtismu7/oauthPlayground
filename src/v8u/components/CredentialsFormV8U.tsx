@@ -50,8 +50,8 @@ import { ResponseTypeDropdownV8 } from '@/v8/components/ResponseTypeDropdownV8';
 import { TokenEndpointAuthMethodDropdownV8 } from '@/v8/components/TokenEndpointAuthMethodDropdownV8';
 import { TooltipV8 } from '@/v8/components/TooltipV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
-import { useWorkerTokenConfigV8 } from '@/v8/hooks/useSilentApiConfigV8';
 import { WorkerTokenVsClientCredentialsEducationModalV8 } from '@/v8/components/WorkerTokenVsClientCredentialsEducationModalV8';
+import { useWorkerTokenConfigV8 } from '@/v8/hooks/useSilentApiConfigV8';
 import { AppDiscoveryServiceV8 } from '@/v8/services/appDiscoveryServiceV8';
 import { ConfigCheckerServiceV8 } from '@/v8/services/configCheckerServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
@@ -70,6 +70,7 @@ import {
 import { TokenEndpointAuthMethodServiceV8 } from '@/v8/services/tokenEndpointAuthMethodServiceV8';
 import { TooltipContentServiceV8 } from '@/v8/services/tooltipContentServiceV8';
 import { UnifiedFlowOptionsServiceV8 } from '@/v8/services/unifiedFlowOptionsServiceV8';
+import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { analytics } from '@/v8/utils/analyticsV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { AppDiscoveryModalV8U } from './AppDiscoveryModalV8U';
@@ -524,10 +525,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	);
 
 	// Worker Token Settings - Use centralized hook for consistency
-	const { 
-		silentApiRetrieval, 
-		showTokenAtEnd
-	} = useWorkerTokenConfigV8();
+	const { silentApiRetrieval, showTokenAtEnd } = useWorkerTokenConfigV8();
 
 	// Helper function to determine if a required field should have red outline
 	const shouldHighlightField = useCallback(
@@ -1212,6 +1210,8 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		tokenStatus.isValid,
 		credentials.clientAuthMethod,
 		handleChange,
+		hasWorkerToken,
+		workerToken,
 	]);
 
 	// Determine effective flow key based on PKCE toggle - use V8U suffix for V8U flows

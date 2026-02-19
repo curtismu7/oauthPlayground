@@ -413,7 +413,7 @@ export const ImplicitFlowV8: React.FC = () => {
 						const tokenType = params.get('token_type') || 'Bearer';
 						const expiresIn = params.get('expires_in');
 						const scope = params.get('scope');
-						const state = params.get('state');
+						const _state = params.get('state');
 
 						if (!accessToken) {
 							throw new Error('Access token not found in URL');
@@ -424,7 +424,7 @@ export const ImplicitFlowV8: React.FC = () => {
 							accessToken,
 							idToken: idToken || undefined,
 							tokenType,
-							expiresIn: expiresIn ? parseInt(expiresIn) : 3600,
+							expiresIn: expiresIn ? parseInt(expiresIn, 10) : 3600,
 							scope: scope || undefined,
 							state: params.get('state') || '',
 						});

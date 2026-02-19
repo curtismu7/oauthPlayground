@@ -22,7 +22,6 @@ import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import { StandardModalSpinner, useStandardSpinner } from '../../components/ui/StandardSpinner';
 import { stateUtils, useUnifiedFlowState } from '../services/enhancedStateManagement';
 import { TokenMonitoringService } from '../services/tokenMonitoringService';
-import { UnifiedOAuthCredentialsServiceV8U } from '../services/unifiedOAuthCredentialsServiceV8U';
 
 const PageContainer = styled.div`
   padding: 2rem;
@@ -373,8 +372,8 @@ export const EnhancedStateManagementPage: React.FC = () => {
 	const { state, actions } = useUnifiedFlowState();
 	const [message, setMessage] = useState('');
 	const [messageType, setMessageType] = useState<'success' | 'error' | 'info'>('info');
-	const [isExporting, setIsExporting] = useState(false);
-	const [isImporting, setIsImporting] = useState(false);
+	const [isExporting, _setIsExporting] = useState(false);
+	const [isImporting, _setIsImporting] = useState(false);
 
 	// Standardized spinner hooks for state management operations
 	const exportSpinner = useStandardSpinner(4000); // Export state - 4 seconds

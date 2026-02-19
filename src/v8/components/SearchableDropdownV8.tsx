@@ -57,6 +57,17 @@ export const SearchableDropdownV8: React.FC<SearchableDropdownV8Props> = ({
 	maxHeight = 300,
 	onSearchChange,
 }) => {
+	// Debug: Log props to understand the issue
+	console.log(`${MODULE_TAG} Component props:`, {
+		id,
+		value,
+		optionsLength: options?.length,
+		options: options?.slice(0, 3), // Log first 3 options
+		disabled,
+		isLoading,
+		placeholder,
+	});
+
 	const [isOpen, setIsOpen] = useState(false);
 	const [searchTerm, setSearchTerm] = useState('');
 	const [highlightedIndex, setHighlightedIndex] = useState(-1);

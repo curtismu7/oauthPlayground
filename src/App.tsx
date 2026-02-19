@@ -155,7 +155,6 @@ import OAuthOIDCTraining from './pages/OAuthOIDCTraining';
 import OIDC from './pages/OIDC';
 import OIDCSessionManagement from './pages/OIDCSessionManagement';
 import OrganizationLicensing from './pages/OrganizationLicensing';
-import PingOneSessionsAPI from './pages/PingOneSessionsAPI';
 import { P1MFASamples } from './pages/P1MFASamples';
 import PARvsRAR from './pages/PARvsRAR';
 import PingAIResources from './pages/PingAIResources';
@@ -165,6 +164,7 @@ import PingOneAuthenticationCallback from './pages/PingOneAuthenticationCallback
 import PingOneAuthenticationResult from './pages/PingOneAuthenticationResult';
 import PingOneIdentityMetrics from './pages/PingOneIdentityMetrics';
 import PingOneMockFeatures from './pages/PingOneMockFeatures';
+import PingOneSessionsAPI from './pages/PingOneSessionsAPI';
 import PingOneUserProfile from './pages/PingOneUserProfile';
 import PingOneWebhookViewer from './pages/PingOneWebhookViewer';
 import { PostmanCollectionGenerator } from './pages/PostmanCollectionGenerator';
@@ -183,11 +183,9 @@ import WorkerTokenTester from './pages/WorkerTokenTester';
 import { FIDO2SampleApp } from './samples/p1mfa/fido2/FIDO2SampleApp';
 import { IntegratedMFASample } from './samples/p1mfa/IntegratedMFASample';
 import { SMSSampleApp } from './samples/p1mfa/sms/SMSSampleApp';
-import { MFAAuthenticationSuccessPage } from './v8/components/MFAAuthenticationSuccessPage';
 import CIBAFlowV8 from './v8/flows/CIBAFlowV8';
 import { EmailMFASignOnFlowV8 } from './v8/flows/EmailMFASignOnFlowV8';
 import { ImplicitFlowV8 } from './v8/flows/ImplicitFlowV8';
-import { MFAAuthenticationMainPageV8 } from './v8/flows/MFAAuthenticationMainPageV8';
 import { MFAConfigurationPageV8 } from './v8/flows/MFAConfigurationPageV8';
 import MFADeviceManagementFlowV8 from './v8/flows/MFADeviceManagementFlowV8';
 import { MFADeviceOrderingFlowV8 } from './v8/flows/MFADeviceOrderingFlowV8';
@@ -197,20 +195,16 @@ import OAuthAuthorizationCodeFlowV8 from './v8/flows/OAuthAuthorizationCodeFlowV
 import OIDCHybridFlowV8 from './v8/flows/OIDCHybridFlowV8';
 import PingOneProtectFlowV8 from './v8/flows/PingOneProtectFlowV8';
 import ResourcesAPIFlowV8 from './v8/flows/ResourcesAPIFlowV8';
-import { TokenExchangeFlowV8 } from './v8/flows/TokenExchangeFlowV8';
-import { EmailOTPConfigurationPageV8 } from './v8/flows/types/EmailOTPConfigurationPageV8';
 import { FIDO2ConfigurationPageV8 } from './v8/flows/types/FIDO2ConfigurationPageV8';
 import { MobileOTPConfigurationPageV8 } from './v8/flows/types/MobileOTPConfigurationPageV8';
-import { SMSOTPConfigurationPageV8 } from './v8/flows/types/SMSOTPConfigurationPageV8';
-import { TOTPConfigurationPageV8 } from './v8/flows/types/TOTPConfigurationPageV8';
-import { WhatsAppOTPConfigurationPageV8 } from './v8/flows/types/WhatsAppOTPConfigurationPageV8';
 
 // Lazy load unified MFA flow for code splitting
-// Temporarily commented out due to import issue
-// const UnifiedMFARegistrationFlowV8_Legacy = React.lazy(
-// 	() => import('./v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy').then((module) => ({ default: module.UnifiedMFARegistrationFlowV8 }))
-// );
-const EmailFlowV8 = React.lazy(() =>
+const UnifiedMFARegistrationFlowV8_Legacy = React.lazy(() =>
+	import('./v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy').then((module) => ({
+		default: module.UnifiedMFARegistrationFlowV8,
+	}))
+);
+const _EmailFlowV8 = React.lazy(() =>
 	import('./v8/flows/types/EmailFlowV8').then((module) => ({ default: module.EmailFlowV8 }))
 );
 const FIDO2FlowV8 = React.lazy(() =>
@@ -222,7 +216,7 @@ const MobileFlowV8 = React.lazy(() =>
 const _SMSFlowV8 = React.lazy(() =>
 	import('./v8/flows/types/SMSFlowV8').then((module) => ({ default: module.SMSFlowV8 }))
 );
-const WhatsAppFlowV8 = React.lazy(() =>
+const _WhatsAppFlowV8 = React.lazy(() =>
 	import('./v8/flows/types/WhatsAppFlowV8').then((module) => ({ default: module.WhatsAppFlowV8 }))
 );
 
@@ -235,14 +229,11 @@ import { DebugLogViewerPopoutV8 } from './v8/pages/DebugLogViewerPopoutV8';
 import DebugLogViewerV8 from './v8/pages/DebugLogViewerV8';
 import DeleteAllDevicesUtilityV8 from './v8/pages/DeleteAllDevicesUtilityV8';
 import DeviceAuthenticationDetailsV8 from './v8/pages/DeviceAuthenticationDetailsV8';
-import { EmailRegistrationDocsPageV8 } from './v8/pages/EmailRegistrationDocsPageV8';
 import { FIDO2RegistrationDocsPageV8 } from './v8/pages/FIDO2RegistrationDocsPageV8';
 import MFADeviceCreateDemoV8 from './v8/pages/MFADeviceCreateDemoV8';
 import { MFAFeatureFlagsAdminV8 } from './v8/pages/MFAFeatureFlagsAdminV8';
 import { MobileRegistrationDocsPageV8 } from './v8/pages/MobileRegistrationDocsPageV8';
-import { SMSRegistrationDocsPageV8 } from './v8/pages/SMSRegistrationDocsPageV8';
 import UnifiedCredentialsMockupV8 from './v8/pages/UnifiedCredentialsMockupV8';
-import { WhatsAppRegistrationDocsPageV8 } from './v8/pages/WhatsAppRegistrationDocsPageV8';
 import { isPopoutWindow } from './v8/utils/debugLogViewerPopoutHelperV8';
 import V8MTokenExchange from './v8m/pages/V8MTokenExchange';
 import CallbackHandlerV8U from './v8u/components/CallbackHandlerV8U';
@@ -648,8 +639,7 @@ const AppRoutes: React.FC = () => {
 									path="/v8/unified-mfa"
 									element={
 										<React.Suspense fallback={<div>Loading...</div>}>
-											{/* Temporarily commented out due to import issue */}
-											{/* <UnifiedMFARegistrationFlowV8_Legacy registrationFlowType="admin-active" /> */}
+											<UnifiedMFARegistrationFlowV8_Legacy registrationFlowType="admin" />
 										</React.Suspense>
 									}
 								/>

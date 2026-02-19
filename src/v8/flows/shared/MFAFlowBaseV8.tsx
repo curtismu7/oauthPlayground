@@ -214,6 +214,35 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 			}
 		}
 
+		// CRITICAL FIX: Add fallback to global environment ID service
+		// This prevents "Environment ID is required" errors in MFA flows
+		if (!stored.environmentId) {
+			try {
+				// Access localStorage directly to avoid async issues in useState initializer
+				const globalEnvId = localStorage.getItem('v8:global_environment_id');
+				console.log(`${MODULE_TAG} 🔍 DEBUG: Checking global environment ID fallback`, {
+					storedEnvId: stored.environmentId,
+					globalEnvId: globalEnvId ? `${globalEnvId.substring(0, 8)}...` : 'MISSING',
+					willApplyFallback: !!globalEnvId,
+				});
+				if (globalEnvId) {
+					stored.environmentId = globalEnvId;
+					console.log(`${MODULE_TAG} 🔧 Applied global environment ID fallback for MFA flow`, {
+						globalEnvId: `${globalEnvId.substring(0, 8)}...`,
+					});
+				}
+			} catch (importError) {
+				console.warn(
+					`${MODULE_TAG} Failed to access global environment ID for fallback`,
+					importError
+				);
+			}
+		} else {
+			console.log(`${MODULE_TAG} 🔍 DEBUG: Environment ID already exists in storage`, {
+				storedEnvId: `${stored.environmentId.substring(0, 8)}...`,
+			});
+		}
+
 		return {
 			environmentId: stored.environmentId || '',
 			clientId: stored.clientId || '',
@@ -230,6 +259,18 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 			region: (stored.region as 'us' | 'eu' | 'ap' | 'ca' | 'na') || 'us',
 			customDomain: stored.customDomain || undefined,
 		};
+	});
+
+	// Debug: Log what credentials were loaded
+	console.log(`${MODULE_TAG} 📋 Initial credentials loaded:`, {
+		environmentId: credentials.environmentId
+			? `${credentials.environmentId.substring(0, 8)}...`
+			: '❌ EMPTY',
+		username: credentials.username || '❌ EMPTY',
+		deviceType: credentials.deviceType,
+		hasEnvironmentId: !!credentials.environmentId,
+		hasUsername: !!credentials.username,
+		flowKey: FLOW_KEY,
 	});
 
 	const [mfaState, setMfaState] = useState<MFAState>({

@@ -3763,7 +3763,8 @@ app.get('/api/device-userinfo', async (req, res) =>
 )
 
 // PAR (Pushed Authorization Request) Endpoint (proxy to PingOne)
-app.post('/api/par', async (req, res) => {
+app.post('/api/par', async (req, res) =>
+{
 	try {
 		const { environment_id, client_id, client_secret, ...parParams } = req.body;
 
@@ -3844,14 +3845,16 @@ app.post('/api/par', async (req, res) => {
 			error_description: 'Internal server error during PAR request',
 		});
 	}
-});
+}
+)
 
 // ============================================
 // PINGONE PASSWORD RESET ENDPOINTS
 // ============================================
 
 // Send Recovery Code
-app.post('/api/pingone/password/send-recovery-code', async (req, res) => {
+app.post('/api/pingone/password/send-recovery-code', async (req, res) =>
+{
 	try {
 		const { environmentId, userId, workerToken } = req.body;
 
@@ -3914,10 +3917,12 @@ app.post('/api/pingone/password/send-recovery-code', async (req, res) => {
 			details: error.message,
 		});
 	}
-});
+}
+)
 
 // Recover Password
-app.post('/api/pingone/password/recover', async (req, res) => {
+app.post('/api/pingone/password/recover', async (req, res) =>
+{
 	try {
 		const { environmentId, userId, workerToken, recoveryCode, newPassword } = req.body;
 
@@ -3974,10 +3979,12 @@ app.post('/api/pingone/password/recover', async (req, res) => {
 			details: error.message,
 		});
 	}
-});
+}
+)
 
 // Force Password Change
-app.post('/api/pingone/password/force-change', async (req, res) => {
+app.post('/api/pingone/password/force-change', async (req, res) =>
+{
 	try {
 		const { environmentId, userId, workerToken } = req.body;
 
@@ -4032,10 +4039,12 @@ app.post('/api/pingone/password/force-change', async (req, res) => {
 			details: error.message,
 		});
 	}
-});
+}
+)
 
 // Change Password
-app.post('/api/pingone/password/change', async (req, res) => {
+app.post('/api/pingone/password/change', async (req, res) =>
+{
 	try {
 		const { environmentId, userId, accessToken, oldPassword, newPassword } = req.body;
 
@@ -4092,10 +4101,12 @@ app.post('/api/pingone/password/change', async (req, res) => {
 			details: error.message,
 		});
 	}
-});
+}
+)
 
 // Password Check
-app.post('/api/pingone/password/check', async (req, res) => {
+app.post('/api/pingone/password/check', async (req, res) =>
+{
 	try {
 		const { environmentId, userId, workerToken, password } = req.body;
 
@@ -4151,10 +4162,12 @@ app.post('/api/pingone/password/check', async (req, res) => {
 			details: error.message,
 		});
 	}
-});
+}
+)
 
 // Update Password (Set)
-app.put('/api/pingone/password/set', async (req, res) => {
+app.put('/api/pingone/password/set', async (req, res) =>
+{
 	try {
 		const { environmentId, userId, workerToken, newPassword, forceChange, bypassPasswordPolicy } =
 			req.body;
@@ -4225,10 +4238,12 @@ app.put('/api/pingone/password/set', async (req, res) => {
 			details: error.message,
 		});
 	}
-});
+}
+)
 
 // Update Password (Set Value)
-app.put('/api/pingone/password/set-value', async (req, res) => {
+app.put('/api/pingone/password/set-value', async (req, res) =>
+{
 	try {
 		const { environmentId, userId, workerToken, passwordValue, forceChange, bypassPasswordPolicy } =
 			req.body;
@@ -4297,10 +4312,12 @@ app.put('/api/pingone/password/set-value', async (req, res) => {
 			details: error.message,
 		});
 	}
-});
+}
+)
 
 // Update Password (LDAP Gateway)
-app.put('/api/pingone/password/ldap-gateway', async (req, res) => {
+app.put('/api/pingone/password/ldap-gateway', async (req, res) =>
+{
 	try {
 		const {
 			environmentId,
@@ -4381,10 +4398,12 @@ app.put('/api/pingone/password/ldap-gateway', async (req, res) => {
 			details: error.message,
 		});
 	}
-});
+}
+)
 
 // PingOne MFA Challenge Initiation Endpoint (simplified for frontend)
-app.post('/api/mfa/challenge/initiate', async (req, res) => {
+app.post('/api/mfa/challenge/initiate', async (req, res) =>
+{
 	try {
 		const { environmentId, userId, deviceId, deviceType, challengeType } = req.body;
 
@@ -4462,7 +4481,8 @@ app.post('/api/mfa/challenge/initiate', async (req, res) => {
 			details: error.message,
 		});
 	}
-});
+}
+)
 
 // JWKS Endpoint (proxy to PingOne)
 app.get('/api/jwks', async (req, res) => {
@@ -10453,7 +10473,8 @@ app.post('/api/pingone/mfa/block-device', async (req, res) =>
 )
 
 // Unlock MFA Device
-app.post('/api/pingone/mfa/unlock-device', async (req, res) => {
+app.post('/api/pingone/mfa/unlock-device', async (req, res) =>
+{
 	try {
 		const { environmentId, userId, deviceId, workerToken } = req.body;
 
@@ -10565,10 +10586,12 @@ app.post('/api/pingone/mfa/unlock-device', async (req, res) => {
 			message: error.message || 'Failed to unlock device',
 		});
 	}
-});
+}
+)
 
 // Unblock MFA Device
-app.post('/api/pingone/mfa/unblock-device', async (req, res) => {
+app.post('/api/pingone/mfa/unblock-device', async (req, res) =>
+{
 	try {
 		const { environmentId, userId, deviceId, workerToken } = req.body;
 
@@ -10680,10 +10703,12 @@ app.post('/api/pingone/mfa/unblock-device', async (req, res) => {
 			message: error.message || 'Failed to unblock device',
 		});
 	}
-});
+}
+)
 
 // Delete MFA Device
-app.post('/api/pingone/mfa/delete-device', async (req, res) => {
+app.post('/api/pingone/mfa/delete-device', async (req, res) =>
+{
 	try {
 		const { environmentId, userId, deviceId, workerToken } = req.body;
 
@@ -10795,10 +10820,12 @@ app.post('/api/pingone/mfa/delete-device', async (req, res) => {
 			message: error.message || 'Failed to delete device',
 		});
 	}
-});
+}
+)
 
 // Update Device Nickname
-app.post('/api/pingone/mfa/update-device-nickname', async (req, res) => {
+app.post('/api/pingone/mfa/update-device-nickname', async (req, res) =>
+{
 	try {
 		const { environmentId, userId, deviceId, nickname, workerToken } = req.body;
 
@@ -10921,10 +10948,12 @@ app.post('/api/pingone/mfa/update-device-nickname', async (req, res) => {
 			message: error.message || 'Failed to update device nickname',
 		});
 	}
-});
+}
+)
 
 // Allow MFA Bypass for User
-app.post('/api/pingone/mfa/allow-bypass', async (req, res) => {
+app.post('/api/pingone/mfa/allow-bypass', async (req, res) =>
+{
 	try {
 		const { environmentId, userId, workerToken } = req.body;
 
@@ -11039,10 +11068,12 @@ app.post('/api/pingone/mfa/allow-bypass', async (req, res) => {
 			message: error.message || 'Failed to allow MFA bypass',
 		});
 	}
-});
+}
+)
 
 // Check MFA Bypass Status for User
-app.post('/api/pingone/mfa/check-bypass', async (req, res) => {
+app.post('/api/pingone/mfa/check-bypass', async (req, res) =>
+{
 	try {
 		const { environmentId, userId, workerToken } = req.body;
 
@@ -11150,10 +11181,12 @@ app.post('/api/pingone/mfa/check-bypass', async (req, res) => {
 			message: error.message || 'Failed to check MFA bypass status',
 		});
 	}
-});
+}
+)
 
 // Set Device Order
-app.post('/api/pingone/mfa/set-device-order', async (req, res) => {
+app.post('/api/pingone/mfa/set-device-order', async (req, res) =>
+{
 	try {
 		console.log('[MFA Set Device Order] Request received:', {
 			method: req.method,
@@ -11301,12 +11334,14 @@ app.post('/api/pingone/mfa/set-device-order', async (req, res) => {
 			message: error.message || 'Failed to set device order',
 		});
 	}
-});
+}
+)
 
 // Remove Device Order
 // Note: Frontend sends Content-Type: application/json with body (environmentId, userId, workerToken)
 // Backend forwards to PingOne with Content-Type: application/vnd.pingidentity.devices.order.remove+json (no body)
-app.post('/api/pingone/mfa/remove-device-order', async (req, res) => {
+app.post('/api/pingone/mfa/remove-device-order', async (req, res) =>
+{
 	try {
 		console.log('[MFA Remove Device Order] Received request:', {
 			method: req.method,
@@ -11432,9 +11467,11 @@ app.post('/api/pingone/mfa/remove-device-order', async (req, res) => {
 			message: error.message || 'Failed to remove device order',
 		});
 	}
-});
+}
+)
 
-app.post('/api/pingone/mfa/send-otp', async (req, res) => {
+app.post('/api/pingone/mfa/send-otp', async (req, res) =>
+{
 	try {
 		const { environmentId, userId, deviceId, workerToken } = req.body;
 
@@ -11504,12 +11541,14 @@ app.post('/api/pingone/mfa/send-otp', async (req, res) => {
 		console.error('[MFA Send OTP] Error:', error);
 		res.status(500).json({ error: 'Failed to send OTP', message: error.message });
 	}
-});
+}
+)
 
 // Resend Pairing Code
 // POST /environments/{environmentId}/users/{userId}/devices/{deviceId}
 // API Reference: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-resend-pairing-code
-app.post('/api/pingone/mfa/resend-pairing-code', async (req, res) => {
+app.post('/api/pingone/mfa/resend-pairing-code', async (req, res) =>
+{
 	try {
 		// Log incoming request for debugging
 		console.log('[MFA Resend Pairing Code] Incoming request:', {
@@ -11711,7 +11750,8 @@ app.post('/api/pingone/mfa/resend-pairing-code', async (req, res) => {
 		console.error('[MFA Resend Pairing Code] Error:', error);
 		res.status(500).json({ error: 'Failed to resend pairing code', message: error.message });
 	}
-});
+}
+)
 
 // Validate OTP
 // DEPRECATED: This endpoint uses the wrong API (device activation endpoint instead of device authentication endpoint)

@@ -1,7 +1,9 @@
 // src/pages/PingOneIdentityMetrics.tsx
 // Visual explorer for PingOne Identity Counts API (totalIdentities & activeIdentityCounts)
+// Updated with unified worker token management
+// Cache bust: 2025-02-17-11:32
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiBarChart2,
@@ -18,10 +20,12 @@ import {
 import styled from 'styled-components';
 import JSONHighlighter, { type JSONData } from '../components/JSONHighlighter';
 import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
-import { WorkerTokenModal } from '../components/WorkerTokenModal';
+import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { apiRequestModalService } from '../services/apiRequestModalService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
-import { getAnyWorkerToken } from '../utils/workerTokenDetection';
+import { ShowTokenConfigCheckboxV8 } from '../v8/components/ShowTokenConfigCheckboxV8';
+import { SilentApiConfigCheckboxV8 } from '../v8/components/SilentApiConfigCheckboxV8';
+import { WorkerTokenModalV8 } from '../v8/components/WorkerTokenModalV8';
 
 const PageContainer = styled.div`
 	max-width: 90rem;
@@ -429,78 +433,42 @@ const PingOneIdentityMetrics: React.FC = () => {
 	const [error, setError] = useState<string | null>(null);
 	const [metrics, setMetrics] = useState<IdentityCountResponse | null>(null);
 	const [lastUpdated, setLastUpdated] = useState<string | null>(null);
-	const [workerToken, setWorkerToken] = useState<string>(() => getAnyWorkerToken() || '');
-	const hasWorkerToken = !!workerToken;
-	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [showPermissionsErrorModal, setShowPermissionsErrorModal] = useState(false);
 
-	// Listen for worker token updates (using global worker token)
-	useEffect(() => {
-		const checkWorkerToken = () => {
-			const token = getAnyWorkerToken() || '';
-			setWorkerToken(token);
-		};
-
-		// Check on mount
-		checkWorkerToken();
-
-		// Listen for storage events (token updated in another tab/window)
-		const handleStorageChange = (e: StorageEvent) => {
-			// Check if any worker token key changed
-			if (e.key?.startsWith('worker_token') || e.key?.startsWith('pingone_worker_token')) {
-				checkWorkerToken();
-			}
-		};
-
-		// Listen for custom events (token updated in same tab)
-		const handleWorkerTokenUpdate = () => {
-			checkWorkerToken();
-		};
-
-		window.addEventListener('storage', handleStorageChange);
-		window.addEventListener('workerTokenUpdated', handleWorkerTokenUpdate);
-		window.addEventListener('workerTokenMetricsUpdated', handleWorkerTokenUpdate);
-
-		return () => {
-			window.removeEventListener('storage', handleStorageChange);
-			window.removeEventListener('workerTokenUpdated', handleWorkerTokenUpdate);
-			window.removeEventListener('workerTokenMetricsUpdated', handleWorkerTokenUpdate);
-		};
-	}, []);
+	// Use global worker token hook for unified token management
+	const globalTokenStatus = useGlobalWorkerToken();
+	const workerToken = globalTokenStatus.token || '';
+	const hasWorkerToken = globalTokenStatus.isValid;
+	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 
 	const resetDates = () => setDateRange(defaultDateRange());
 
 	// Get worker token using credentials on the page
 	const handleGetWorkerToken = useCallback(() => {
-		if (getAnyWorkerToken()) {
+		if (hasWorkerToken) {
 			v4ToastManager.showInfo(
 				'Worker token already available. Opening modal in case you want to refresh it.'
 			);
 		}
 		setError(null);
 		setShowWorkerTokenModal(true);
-	}, []);
+	}, [hasWorkerToken]);
 
-	// Clear the worker token (clears all worker token keys)
+	// Clear the worker token (clears unified worker token)
 	const handleClearWorkerToken = useCallback(() => {
-		// Clear common worker token keys
-		localStorage.removeItem('worker_token');
-		localStorage.removeItem('worker_token_expires_at');
-		localStorage.removeItem('pingone_worker_token');
-		localStorage.removeItem('pingone_worker_token_worker-token-v7');
-		// Clear page-specific keys for backward compatibility
-		localStorage.removeItem('worker_token_metrics');
-		localStorage.removeItem('worker_token_metrics_expires_at');
-		setWorkerToken('');
+		// Clear unified worker token
+		localStorage.removeItem('unified_worker_token');
 		v4ToastManager.showSuccess('Worker token cleared successfully.');
+		// Trigger page reload to reset state
+		window.location.reload();
 	}, []);
 
 	// Execute the actual API call (called after user confirms in modal)
 	const executeApiCall = useCallback(async () => {
-		// Load credentials from unified worker token service
+		// Load credentials from unified worker token service with global fallback
 		let environmentId = '';
 		let region = 'us';
-		const effectiveWorkerToken = getAnyWorkerToken() || '';
+		const effectiveWorkerToken = workerToken || '';
 
 		try {
 			const stored = localStorage.getItem('unified_worker_token');
@@ -508,6 +476,18 @@ const PingOneIdentityMetrics: React.FC = () => {
 				const data = JSON.parse(stored);
 				environmentId = data.credentials?.environmentId || '';
 				region = data.credentials?.region || 'us';
+			}
+
+			// CRITICAL FIX: Fallback to global environment ID service
+			// This prevents "Environment ID is required" errors in standalone pages
+			if (!environmentId) {
+				const globalEnvId = localStorage.getItem('v8:global_environment_id');
+				if (globalEnvId) {
+					environmentId = globalEnvId;
+					console.log(
+						'🔧 Applied global environment ID fallback for PingOneIdentityMetrics executeApiCall'
+					);
+				}
 			}
 		} catch (error) {
 			console.log('Failed to load credentials from unified worker token:', error);
@@ -571,11 +551,11 @@ const PingOneIdentityMetrics: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	}, [start, samplingPeriod, endpointType, licenseId]);
+	}, [start, samplingPeriod, endpointType, licenseId, workerToken]);
 
 	// Show educational modal before making the API call
 	const handleFetch = useCallback(async () => {
-		// Load credentials from unified worker token service
+		// Load credentials from unified worker token service with global fallback
 		let environmentId = '';
 		let region = 'us';
 
@@ -586,6 +566,18 @@ const PingOneIdentityMetrics: React.FC = () => {
 				environmentId = data.credentials?.environmentId || '';
 				region = data.credentials?.region || 'us';
 			}
+
+			// CRITICAL FIX: Fallback to global environment ID service
+			// This prevents "Environment ID is required" errors in standalone pages
+			if (!environmentId) {
+				const globalEnvId = localStorage.getItem('v8:global_environment_id');
+				if (globalEnvId) {
+					environmentId = globalEnvId;
+					console.log(
+						'🔧 Applied global environment ID fallback for PingOneIdentityMetrics handleFetch'
+					);
+				}
+			}
 		} catch (error) {
 			console.log('Failed to load credentials from unified worker token:', error);
 		}
@@ -595,7 +587,7 @@ const PingOneIdentityMetrics: React.FC = () => {
 			return;
 		}
 
-		const effectiveWorkerToken = localStorage.getItem('worker_token_metrics') || undefined;
+		const effectiveWorkerToken = workerToken || '';
 
 		console.log('[Identity Metrics] 🔍 Using token for API call:', {
 			hasToken: !!effectiveWorkerToken,
@@ -686,7 +678,7 @@ const PingOneIdentityMetrics: React.FC = () => {
 			educationalNotes,
 			onProceed: executeApiCall,
 		});
-	}, [start, samplingPeriod, endpointType, licenseId, executeApiCall]);
+	}, [start, samplingPeriod, endpointType, licenseId, executeApiCall, workerToken]);
 
 	// Extract active identity counts from response
 	const activeIdentityCounts = metrics?._embedded?.activeIdentityCounts || [];
@@ -756,10 +748,7 @@ const PingOneIdentityMetrics: React.FC = () => {
 					</SectionTitle>
 
 					{hasWorkerToken ? (
-						<WorkerTokenDetectedBanner
-							token={workerToken}
-							tokenExpiryKey="worker_token_metrics_expires_at"
-						/>
+						<WorkerTokenDetectedBanner token={workerToken} tokenExpiryKey="unified_worker_token" />
 					) : (
 						<WarningBanner style={{ marginBottom: '1rem' }}>
 							<div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
@@ -774,6 +763,19 @@ const PingOneIdentityMetrics: React.FC = () => {
 							</div>
 						</WarningBanner>
 					)}
+
+					{/* Configuration Checkboxes */}
+					<div
+						style={{
+							marginBottom: '1rem',
+							display: 'flex',
+							flexDirection: 'column',
+							gap: '0.75rem',
+						}}
+					>
+						<SilentApiConfigCheckboxV8 />
+						<ShowTokenConfigCheckboxV8 />
+					</div>
 
 					<ButtonRow>
 						<PrimaryButton
@@ -1086,22 +1088,16 @@ const PingOneIdentityMetrics: React.FC = () => {
 					</ResultContainer>
 				</Card>
 			</LayoutGrid>
-			<WorkerTokenModal
+			<WorkerTokenModalV8
 				isOpen={showWorkerTokenModal}
 				onClose={() => setShowWorkerTokenModal(false)}
-				onContinue={() => {
-					const token = localStorage.getItem('worker_token_metrics') || '';
-					setWorkerToken(token);
+				onTokenGenerated={() => {
+					// Token generated, the global hook will automatically update
 					setShowWorkerTokenModal(false);
-					if (token) {
-						v4ToastManager.showSuccess(
-							'Worker token generated successfully. Ready to query metrics.'
-						);
-					} else {
-						v4ToastManager.showError('Worker token was not detected. Please try generating again.');
-					}
+					v4ToastManager.showSuccess(
+						'Worker token generated successfully. Ready to query metrics.'
+					);
 				}}
-				flowType="pingone-identity-metrics"
 				environmentId={(() => {
 					try {
 						const stored = localStorage.getItem('unified_worker_token');
@@ -1114,27 +1110,6 @@ const PingOneIdentityMetrics: React.FC = () => {
 					}
 					return '';
 				})()}
-				skipCredentialsStep={true}
-				prefillCredentials={(() => {
-					try {
-						const stored = localStorage.getItem('unified_worker_token');
-						if (stored) {
-							const data = JSON.parse(stored);
-							return {
-								environmentId: data.credentials?.environmentId || '',
-								clientId: data.credentials?.clientId || '',
-								clientSecret: data.credentials?.clientSecret || '',
-								region: data.credentials?.region || 'us',
-								scopes: 'p1:read:users', // Metrics API uses roles (Environment Admin/Identity Data Admin), not scopes
-							};
-						}
-					} catch (error) {
-						console.log('Failed to load credentials from unified worker token:', error);
-					}
-					return {};
-				})()}
-				tokenStorageKey="worker_token_metrics"
-				tokenExpiryKey="worker_token_metrics_expires_at"
 			/>
 
 			{/* Permissions Error Modal */}

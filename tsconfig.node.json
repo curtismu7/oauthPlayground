@@ -6,5 +6,5 @@
 		"moduleResolution": "bundler",
 		"allowSyntheticDefaultImports": true
 	},
-	"include": ["vite.config.ts", "start-dev.sh", "test-startup.sh"]
+	"include": ["vite.config.ts", "package.json", "start-dev.sh", "test-startup.sh"]
 }

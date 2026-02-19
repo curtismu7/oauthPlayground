@@ -23,7 +23,7 @@ const mockUnifiedStorage = {
 		return true;
 	},
 
-	async saveFlowStorageData(storageType, flowId, dataType, data) {
+	async saveFlowStorageData(storageType, flowId, dataType, _data) {
 		console.log(`💾 Saving flow data: ${storageType}:${flowId}:${dataType}`);
 		return true;
 	},
@@ -33,7 +33,7 @@ const mockUnifiedStorage = {
 		return { code: 'test-code', timestamp: Date.now() };
 	},
 
-	async saveFlowCredentials(flowKey, credentials) {
+	async saveFlowCredentials(flowKey, _credentials) {
 		console.log(`💾 Saving credentials: ${flowKey}`);
 		return { success: true, source: 'unified' };
 	},
@@ -47,7 +47,7 @@ const mockUnifiedStorage = {
 		};
 	},
 
-	async savePKCECodes(flowKey, pkceCodes) {
+	async savePKCECodes(flowKey, _pkceCodes) {
 		console.log(`💾 Saving PKCE codes: ${flowKey}`);
 		return true;
 	},
@@ -192,7 +192,7 @@ class SimpleTestRunner {
 		// Migration simulation tests
 		await this.runTest('Migration Simulation', async () => {
 			// Simulate localStorage data
-			const testData = { code: 'migrated-code', timestamp: Date.now() };
+			const _testData = { code: 'migrated-code', timestamp: Date.now() };
 
 			// Test migration simulation
 			const migrated = await mockUnifiedStorage.loadFlowStorageData(
@@ -225,7 +225,7 @@ class SimpleTestRunner {
 				await mockUnifiedStorage.storeToken(token);
 			}
 
-			const allTokens = await mockUnifiedStorage.getTokens({});
+			const _allTokens = await mockUnifiedStorage.getTokens({});
 
 			for (const token of tokens) {
 				await mockUnifiedStorage.deleteToken(token.id);
@@ -241,7 +241,7 @@ class SimpleTestRunner {
 		});
 
 		// Print summary
-		console.log('\n' + '='.repeat(50));
+		console.log(`\n${'='.repeat(50)}`);
 		console.log('📊 Test Results Summary');
 		console.log('='.repeat(50));
 		console.log(`✅ Passed: ${this.passed}`);

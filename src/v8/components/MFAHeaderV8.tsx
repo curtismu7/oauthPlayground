@@ -31,6 +31,8 @@ export interface MFAHeaderV8Props {
 	onRestartFlow?: () => void;
 	/** Show back to main button */
 	showBackToMain?: boolean;
+	/** Show navigation bar */
+	showNavigation?: boolean;
 	/** Header background color gradient (default: green) */
 	headerColor?: 'green' | 'blue' | 'pingRed' | 'pingBlue' | 'orange';
 	/** Optional step badge (e.g., "1/4") */
@@ -60,6 +62,7 @@ export const MFAHeaderV8: React.FC<MFAHeaderV8Props> = ({
 	showRestartFlow = false,
 	onRestartFlow,
 	showBackToMain = true,
+	showNavigation = true,
 	headerColor = 'green',
 	stepBadge,
 }) => {
@@ -106,12 +109,14 @@ export const MFAHeaderV8: React.FC<MFAHeaderV8Props> = ({
 				</div>
 
 				{/* Navigation */}
-				<MFANavigationV8
-					currentPage={currentPage}
-					showRestartFlow={showRestartFlow}
-					onRestartFlow={onRestartFlow}
-					showBackToMain={showBackToMain}
-				/>
+				{showNavigation && (
+					<MFANavigationV8
+						currentPage={currentPage}
+						showRestartFlow={showRestartFlow}
+						onRestartFlow={onRestartFlow}
+						showBackToMain={showBackToMain}
+					/>
+				)}
 			</div>
 
 			<style>{`

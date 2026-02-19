@@ -238,7 +238,7 @@ export async function hasProductionAppCredentials(
 	try {
 		const credentials = await loadProductionAppCredentials(appId);
 		return credentials !== null && Object.keys(credentials).length > 0;
-	} catch (error) {
+	} catch (_error) {
 		return false;
 	}
 }

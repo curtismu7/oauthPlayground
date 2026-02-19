@@ -268,28 +268,6 @@ export class UnifiedWorkerTokenBackupServiceV8 {
 			throw error;
 		}
 	}
-
-	/**
-	 * Refresh credentials from SQLite backup (background operation)
-	 */
-	private static async refreshFromBackup(environmentId: string): Promise<void> {
-		try {
-			const credentials = await UnifiedWorkerTokenBackupServiceV8.loadWorkerTokenBackup({
-				environmentId,
-				enableBackup: true,
-			});
-
-			if (credentials) {
-				// Update the main service
-				const { unifiedWorkerTokenService } = await import('./unifiedWorkerTokenService');
-				await unifiedWorkerTokenService.saveCredentials(credentials);
-
-				logger.info(`${MODULE_TAG} ✅ Refreshed from SQLite backup`, { environmentId });
-			}
-		} catch (error) {
-			logger.warn(`${MODULE_TAG} Background refresh failed`, error);
-		}
-	}
 }
 
 export default UnifiedWorkerTokenBackupServiceV8;

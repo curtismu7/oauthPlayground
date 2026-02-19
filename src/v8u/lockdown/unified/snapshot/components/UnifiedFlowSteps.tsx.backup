@@ -3959,7 +3959,7 @@ passed: boolean;
 				console.log(`${MODULE_TAG} 🔌 Exchanging authorization code for tokens`);
 
 				// Use relative URL to go through Vite proxy (avoids certificate issues)
-				// In development: Vite proxy routes /api/* to http://localhost:3001
+				// In development: Vite proxy routes /api/* to https://localhost:3002
 				// In production: Vite proxy routes /api/* to the production backend
 				const tokenEndpoint = '/api/token-exchange';
 

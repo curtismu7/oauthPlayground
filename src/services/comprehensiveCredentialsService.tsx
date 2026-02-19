@@ -360,7 +360,7 @@ export interface ComprehensiveCredentialsProps {
 	// Service configuration
 	title?: string | React.ReactNode;
 	subtitle?: string;
-	// showAdvancedConfig?: boolean;
+	showAdvancedConfig?: boolean;
 	defaultCollapsed?: boolean;
 
 	// Config Checker props

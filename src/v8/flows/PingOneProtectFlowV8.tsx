@@ -177,7 +177,7 @@ export const PingOneProtectFlowV8: React.FC = () => {
 		const handleConfigUpdate = (event: CustomEvent) => {
 			if (event.detail?.workerToken) {
 				setSilentApiRetrieval(event.detail.workerToken.silentApiRetrieval || false);
-				setShowTokenAtEnd(event.detail.workerToken.showTokenAtEnd !== false ? true : false);
+				setShowTokenAtEnd(event.detail.workerToken.showTokenAtEnd !== false);
 			}
 		};
 		window.addEventListener('mfaConfigurationUpdated', handleConfigUpdate as EventListener);
@@ -722,7 +722,7 @@ export const PingOneProtectFlowV8: React.FC = () => {
 							checked={showTokenAtEnd}
 							onChange={async (e) => {
 								const newValue = e.target.checked;
-								setShowTokenAtEnd(newValue ? true : false);
+								setShowTokenAtEnd(!!newValue);
 								// Update config service immediately (no cache)
 								const config = MFAConfigurationServiceV8.loadConfiguration();
 								config.workerToken.showTokenAtEnd = newValue;

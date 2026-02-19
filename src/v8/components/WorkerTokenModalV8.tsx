@@ -17,7 +17,7 @@ import {
 } from '@/services/credentialExportImportService';
 import { environmentService } from '@/services/environmentService';
 import { UnifiedTokenDisplayService } from '@/services/unifiedTokenDisplayService';
-import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
+import { unifiedWorkerTokenService, type UnifiedWorkerTokenCredentials } from '@/services/unifiedWorkerTokenService';
 import pingOneFetch from '@/utils/pingOneFetch';
 import { PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
 import { AuthMethodServiceV8, type AuthMethodV8 } from '@/v8/services/authMethodServiceV8';
@@ -38,7 +38,11 @@ interface WorkerTokenModalV8Props {
 	showTokenOnly?: boolean; // If true, show only token display, skip credential form
 }
 
-export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
+// src/v8/components/WorkerTokenModalV8.tsx
+// Enhanced Worker Token Modal with silent API and show token options
+// Cache bust: 2025-02-17-11:42-fixed-duplicate-scopes
+
+const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 	isOpen,
 	onClose,
 	onTokenGenerated,
@@ -54,7 +58,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 	const [authMethod, setAuthMethod] = useState<AuthMethodV8>('client_secret_basic');
 	const [showSecret, setShowSecret] = useState(false);
 	const [isGenerating, setIsGenerating] = useState(false);
-	const [loadingMessage, setLoadingMessage] = useState('');
+	const [loadingMessage, _setLoadingMessage] = useState('');
 	const [showRequestModal, setShowRequestModal] = useState(false);
 	const [requestDetails, setRequestDetails] = useState<{
 		tokenEndpoint: string;
@@ -151,18 +155,11 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 	// Load saved credentials on mount
 	React.useEffect(() => {
 		if (isOpen) {
-			// Load from unifiedWorkerTokenService (the correct storage location)
+			// Load from unifiedWorkerTokenService (IndexedDB + SQLite backup)
 			unifiedWorkerTokenService
 				.loadCredentials()
 				.then(
-					(
-						creds: {
-							environmentId?: string;
-							clientId?: string;
-							clientSecret?: string;
-							scopes?: string[];
-						} | null
-					) => {
+					(creds: UnifiedWorkerTokenCredentials | null) => {
 						if (creds) {
 							setEnvironmentId(creds.environmentId || propEnvironmentId);
 							setClientId(creds.clientId || '');
@@ -175,27 +172,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 							setAuthMethod(creds.tokenEndpointAuthMethod || 'client_secret_basic');
 							console.log(`${MODULE_TAG} Loaded credentials from unifiedWorkerTokenService`);
 						} else {
-							// Fallback to old storage location for backwards compatibility
-							const saved = localStorage.getItem('worker_credentials_v8');
-							if (saved) {
-								try {
-									const parsed = JSON.parse(saved);
-									setEnvironmentId(parsed.environmentId || propEnvironmentId);
-									setClientId(parsed.clientId || '');
-									setClientSecret(parsed.clientSecret || '');
-									setScopeInput(
-										Array.isArray(parsed.scopes) && parsed.scopes.length
-											? parsed.scopes.join(' ')
-											: ''
-									);
-									setRegion('us'); // Always default to 'us' (.com)
-									setCustomDomain(parsed.customDomain || '');
-									setAuthMethod(parsed.authMethod || 'client_secret_basic');
-									console.log(`${MODULE_TAG} Loaded credentials from legacy storage location`);
-								} catch (e) {
-									console.error(`${MODULE_TAG} Failed to load saved credentials`, e);
-								}
-							}
+							console.log(`${MODULE_TAG} No credentials found in unified storage`);
 						}
 					}
 				)
@@ -235,16 +212,14 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 				setScopeInput(normalizedScopes.join(' '));
 
 				// Save credentials to unifiedWorkerTokenService
-				const credentials = {
+				const credentials: UnifiedWorkerTokenCredentials = {
 					environmentId: environmentId.trim(),
 					clientId: clientId.trim(),
 					clientSecret: clientSecret.trim(),
-					scopes: normalizedScopes,
-					redirectUri: '', // Not needed for worker tokens
-					postLogoutRedirectUri: '', // Not needed for worker tokens
-					scopes: normalizedScopes.join(' '), // Convert array to string
-					responseType: '', // Not needed for worker tokens
-					clientAuthMethod: authMethod,
+					scopes: normalizedScopes, // Already an array
+					region: region,
+					tokenEndpointAuthMethod: authMethod,
+					...(customDomain && { customDomain }),
 				};
 
 				await unifiedWorkerTokenService.saveCredentials(credentials);
@@ -261,14 +236,14 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 				);
 
 				// If we have a valid token, use it for validation
-				if (tokenValidation && tokenValidation.isValid) {
+				if (tokenValidation?.isValid) {
 					console.log(`${MODULE_TAG} 🔑 Using existing token for validation`);
 				} else {
 					console.log(`${MODULE_TAG} 🔑 No valid token found, proceeding with validation`);
 				}
 
 				// Validate OAuth configuration
-				if (tokenValidation && tokenValidation.isValid) {
+				if (tokenValidation?.isValid) {
 					// Use existing token for validation
 					const oauthConfigResult = await PreFlightValidationServiceV8.validateOAuthConfig({
 						specVersion: 'oauth2.0' as const, // Worker tokens use OAuth 2.0
@@ -336,11 +311,18 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 					'Content-Type': 'application/x-www-form-urlencoded',
 				};
 
+				console.log(`${MODULE_TAG} 🔍 Debug - Auth method:`, authMethod);
+				console.log(`${MODULE_TAG} 🔍 Debug - Client ID:`, clientId.trim());
+
 				if (authMethod === 'client_secret_post') {
 					params.set('client_secret', clientSecret.trim());
+					console.log(`${MODULE_TAG} 🔍 Using client_secret_post method`);
 				} else if (authMethod === 'client_secret_basic') {
 					const basicAuth = btoa(`${clientId.trim()}:${clientSecret.trim()}`);
 					headers.Authorization = `Basic ${basicAuth}`;
+					console.log(`${MODULE_TAG} 🔍 Using client_secret_basic method`);
+				} else {
+					console.warn(`${MODULE_TAG} ⚠️ Unknown auth method:`, authMethod);
 				}
 
 				const details = {
@@ -369,7 +351,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 
 					// Enhanced error handling for token-related issues
 					let errorMessage = 'Pre-flight validation failed';
-					let showWorkerTokenButton = false;
+					let _showWorkerTokenButton = false;
 
 					if (error instanceof Error) {
 						const errorStr = error.message.toLowerCase();
@@ -385,7 +367,11 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 						) {
 							errorMessage =
 								'Worker token is invalid or expired. Please generate a new worker token.';
-							showWorkerTokenButton = true;
+							_showWorkerTokenButton = true;
+						} else if (errorStr.includes('unsupported authentication method')) {
+							errorMessage =
+								'Your PingOne Worker application authentication method doesn\'t match. Please check your Worker app settings in PingOne and ensure the "Token Endpoint Authentication Method" matches the selected method.';
+							_showWorkerTokenButton = true;
 						} else {
 							errorMessage = error.message;
 						}
@@ -488,6 +474,9 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 						'. Verify the client secret and make sure the token endpoint authentication method matches your PingOne app (try switching between Client Secret Post and Client Secret Basic).';
 				} else if (/unsupported_grant_type/i.test(errorMessage)) {
 					errorMessage += '. Double-check that the Worker app allows the client_credentials grant.';
+				} else if (/unsupported authentication method/i.test(errorMessage)) {
+					errorMessage +=
+						'. Your PingOne Worker application is configured with a different authentication method. Please go to your PingOne Worker app settings and ensure the "Token Endpoint Authentication Method" matches the selected method (Client Secret Basic or Client Secret Post).';
 				}
 
 				throw new Error(errorMessage);
@@ -702,11 +691,6 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 				>
 					<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
 						<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-							<img
-								src="https://assets.pingone.com/ux/ui-library/5.0.2/images/logo-pingidentity.png"
-								alt="PingIdentity"
-								style={{ height: '32px', width: 'auto' }}
-							/>
 							<div>
 								<h2
 									style={{
@@ -1507,6 +1491,21 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 																) {
 																	setAuthMethod(wt.authMethod);
 																}
+																// Also set tokenEndpointAuthMethod for consistency
+																if (wt.authMethod) {
+																	// Update the credentials object to include tokenEndpointAuthMethod
+																	const updatedCreds = {
+																		environmentId: wt.environmentId || '',
+																		clientId: wt.clientId || '',
+																		clientSecret: wt.clientSecret || '',
+																		scopes: wt.scopes || [],
+																		region: wt.region || 'us',
+																		customDomain: wt.customDomain || '',
+																		tokenEndpointAuthMethod: wt.authMethod,
+																	};
+																	// Save with correct field name
+																	await unifiedWorkerTokenService.saveCredentials(updatedCreds);
+																}
 
 																toastV8.success('Worker token credentials imported successfully!');
 															} else {
@@ -1638,4 +1637,5 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 	);
 };
 
+export { WorkerTokenModalV8 };
 export default WorkerTokenModalV8;

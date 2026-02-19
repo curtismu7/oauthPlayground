@@ -2017,7 +2017,7 @@ const PingOneAuthentication: React.FC = () => {
 
 				// Navigate to MFA device selection instead of result page
 				navigate(
-					'/v8/mfa-registration?flow=authentication&username=' + encodeURIComponent(creds.username)
+					`/v8/mfa-registration?flow=authentication&username=${encodeURIComponent(creds.username)}`
 				);
 			} catch (error) {
 				console.error('[PingOneAuthentication] Redirectless login error:', error);

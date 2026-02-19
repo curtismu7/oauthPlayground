@@ -12,6 +12,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { FiAlertTriangle, FiCheckCircle, FiLoader, FiShield, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
+import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
+import { WorkerTokenStatusDisplayV8 } from '@/v8/components/WorkerTokenStatusDisplayV8';
 import AmericanAirlinesHero from './components/AmericanAirlinesHero';
 import BankOfAmericaHero from './components/BankOfAmericaHero';
 import CompanyHeader from './components/CompanyHeader';
@@ -109,6 +111,57 @@ const ErrorActions = styled.div`
   gap: 1rem;
   justify-content: center;
   flex-wrap: wrap;
+`;
+
+const ResourceSection = styled.div`
+  background: var(--brand-surface, #f9fafb);
+  border-top: 1px solid var(--brand-border, #e5e7eb);
+  padding: 2rem 1.5rem;
+  text-align: center;
+`;
+
+const ResourceTitle = styled.h3`
+  color: var(--brand-text, #1f2937);
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+`;
+
+const ResourceDescription = styled.p`
+  color: var(--brand-text-secondary, #6b7280);
+  font-size: 1rem;
+  margin: 0 0 1.5rem 0;
+  line-height: 1.5;
+`;
+
+const DownloadButton = styled.a`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.75rem;
+  background: var(--brand-primary, #0066cc);
+  color: white !important;
+  border-radius: var(--brand-radius-md, 0.5rem);
+  font-weight: 600;
+  font-size: 1rem;
+  text-decoration: none;
+  transition: var(--brand-transition, all 0.2s ease);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--brand-accent, #0052a3);
+    color: white !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
 `;
 
 const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
@@ -224,6 +277,12 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 	redirectUri,
 	protectCredentials,
 }) => {
+	// ============================================================================
+	// GLOBAL WORKER TOKEN INTEGRATION
+	// ============================================================================
+	
+	const globalTokenStatus = useGlobalWorkerToken();
+
 	// ============================================================================
 	// STATE MANAGEMENT
 	// ============================================================================
@@ -841,6 +900,29 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 						)}
 					<PortalContent>{renderStep()}</PortalContent>
 				</PortalCard>
+
+				<ResourceSection>
+					<ResourceTitle>
+						<FiShield size={24} />
+						PingOne Protect Best Practices
+					</ResourceTitle>
+					<ResourceDescription>
+						Download our comprehensive guide for debugging PingOne payloads and implementing best
+						practices for risk-based authentication.
+					</ResourceDescription>
+					<DownloadButton
+						href="/Debugging-PingOne-Payload.pdf"
+						download="Debugging-PingOne-Payload.pdf"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						<FiCheckCircle size={20} />
+						Download PDF Guide
+					</DownloadButton>
+				</ResourceSection>
+
+				{/* Worker Token Status Display */}
+				<WorkerTokenStatusDisplayV8 />
 
 				<CorporateFooter config={footerConfig} />
 			</PortalContainer>

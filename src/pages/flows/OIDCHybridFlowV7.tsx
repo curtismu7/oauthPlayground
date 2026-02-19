@@ -260,7 +260,7 @@ const OIDCHybridFlowV7: React.FC = () => {
 	const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>(
 		HybridFlowCollapsibleSectionsManager.getDefaultState()
 	);
-	const [isExchanging, setIsExchanging] = useState(false);
+	const [_isExchanging, setIsExchanging] = useState(false);
 	const [workerToken, setWorkerToken] = useState<string>('');
 
 	// V7 compliance state

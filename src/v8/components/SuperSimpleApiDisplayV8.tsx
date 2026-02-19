@@ -951,8 +951,8 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 
 		const handleMouseMove = (e: MouseEvent) => {
 			const newHeight = window.innerHeight - e.clientY;
-			// Min height 150px, max height 50% of window (so it doesn't cover form)
-			const maxHeight = Math.min(window.innerHeight * 0.5, 500);
+			// Min height 150px, max height 90% of window (allow pulling up almost to top)
+			const maxHeight = window.innerHeight * 0.9;
 			const clampedHeight = Math.max(150, Math.min(newHeight, maxHeight));
 			setHeight(clampedHeight);
 		};

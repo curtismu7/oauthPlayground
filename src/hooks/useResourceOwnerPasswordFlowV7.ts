@@ -183,7 +183,7 @@ export const useResourceOwnerPasswordFlowV7 = ({
 				console.log('🔐 [ResourceOwnerPasswordV7] Starting authentication...');
 			}
 
-			const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+			const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://localhost:3001';
 
 			// Prepare request body for Resource Owner Password flow
 			const requestBody = {
@@ -278,7 +278,7 @@ export const useResourceOwnerPasswordFlowV7 = ({
 				console.log('👤 [ResourceOwnerPasswordV7] Fetching user info...');
 			}
 
-			const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+			const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://localhost:3001';
 
 			const response = await fetch(`${backendUrl}/api/userinfo`, {
 				method: 'POST',
@@ -340,7 +340,7 @@ export const useResourceOwnerPasswordFlowV7 = ({
 				console.log('🔄 [ResourceOwnerPasswordV7] Refreshing tokens...');
 			}
 
-			const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+			const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://localhost:3001';
 
 			const requestBody = {
 				grant_type: 'refresh_token',

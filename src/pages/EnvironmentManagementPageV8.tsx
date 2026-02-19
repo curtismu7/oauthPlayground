@@ -1,7 +1,7 @@
 // src/pages/EnvironmentManagementPageV8.tsx
 // V8 Environment Management Page - Main dashboard for PingOne environment management
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
 	FiBook,
 	FiCode,
@@ -22,6 +22,7 @@ import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import EnvironmentServiceV8, { PingOneEnvironment } from '../services/environmentServiceV8';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { WorkerTokenModalV8 } from '../v8/components/WorkerTokenModalV8';
+import { WorkerTokenStatusDisplayV8 } from '../v8/components/WorkerTokenStatusDisplayV8';
 
 const Container = styled.div`
   padding: 2rem;
@@ -457,7 +458,7 @@ const Pagination = styled.div`
   margin-top: 2rem;
 `;
 
-const DisplayAllButton = styled.button`
+const _DisplayAllButton = styled.button`
   padding: 0.5rem 1rem;
   border: 1px solid #28a745;
   background: white;
@@ -556,22 +557,54 @@ const EnvironmentManagementPageV8: React.FC = () => {
 
 	const pageSize = 12;
 	const STORAGE_KEY = 'environment-management-settings';
-	const [displayAll, setDisplayAll] = useState(false);
-	const [showCreateModal, setShowCreateModal] = useState(false);
-	const [newEnvironment, setNewEnvironment] = useState({
+	const [displayAll, _setDisplayAll] = useState(false);
+	const [_showCreateModal, _setShowCreateModal] = useState(false);
+	const [showEditModal, setShowEditModal] = useState(false);
+	const [editingEnvironment, setEditingEnvironment] = useState<PingOneEnvironment | null>(null);
+	const [editName, setEditName] = useState('');
+	const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+	const [_newEnvironment, _setNewEnvironment] = useState({
 		name: '',
 		description: '',
 		type: 'SANDBOX',
 	});
 	const [searchTerm, setSearchTerm] = useState('');
 
-	// Filter environments based on search term
-	const filteredEnvironments = (environments ?? []).filter(
-		(env) =>
-			env.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			env.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			env.id.toLowerCase().includes(searchTerm.toLowerCase())
-	);
+	// Filter environments based on all criteria
+	const filteredEnvironments = useMemo(() => {
+		if (!environments || environments.length === 0) return [];
+
+		let filtered = [...environments];
+
+		// If a specific environment is selected from dropdown, show only that one
+		if (selectedEnvironmentId) {
+			filtered = filtered.filter((env) => env.id === selectedEnvironmentId);
+		} else {
+			// Apply other filters only when no specific environment is selected
+			if (searchTerm) {
+				filtered = filtered.filter(
+					(env) =>
+						env.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+						env.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+						env.description?.toLowerCase().includes(searchTerm.toLowerCase())
+				);
+			}
+
+			if (typeFilter !== 'all') {
+				filtered = filtered.filter((env) => env.type === typeFilter);
+			}
+
+			if (statusFilter !== 'all') {
+				filtered = filtered.filter((env) => env.status === statusFilter);
+			}
+
+			if (regionFilter !== 'all') {
+				filtered = filtered.filter((env) => env.region === regionFilter);
+			}
+		}
+
+		return filtered;
+	}, [environments, searchTerm, typeFilter, statusFilter, regionFilter, selectedEnvironmentId]);
 
 	// Load settings from IndexedDB backup on component mount
 	useEffect(() => {
@@ -799,6 +832,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 		globalTokenStatus.isLoading,
 		globalTokenStatus.error,
 		globalTokenStatus.message,
+		displayAll,
 	]);
 
 	useEffect(() => {
@@ -833,8 +867,19 @@ const EnvironmentManagementPageV8: React.FC = () => {
 	};
 
 	const handleCreateEnvironment = () => {
-		// TODO: Implement create environment modal
-		console.log('Create environment');
+		// eslint-disable-next-line no-alert
+		const name = window.prompt('Enter environment name:', '');
+
+		if (name?.trim()) {
+			// Simple environment creation - in a real app this would call an API
+			console.log('Create environment:', name.trim());
+
+			// For demo purposes, we'll just log it
+			// In production: await EnvironmentServiceV8.createEnvironment({ name: name.trim() });
+
+			setEnvError('Environment created (demo mode - no API call made)');
+			// In production: fetchEnvironments();
+		}
 	};
 
 	const handleExportEnvironments = () => {
@@ -862,13 +907,73 @@ const EnvironmentManagementPageV8: React.FC = () => {
 	};
 
 	const handleEditEnvironment = (id: string) => {
-		// TODO: Implement edit environment modal
-		console.log('Edit environment:', id);
+		const environment = environments.find((env) => env.id === id);
+		if (!environment) return;
+
+		// Open custom edit modal
+		setEditingEnvironment(environment);
+		setEditName(environment.name);
+		setHasUnsavedChanges(false);
+		setShowEditModal(true);
 	};
 
-	const handleDeleteEnvironment = (id: string) => {
-		// TODO: Implement delete confirmation modal
-		console.log('Delete environment:', id);
+	const handleSaveEdit = () => {
+		if (!editingEnvironment || !editName.trim()) return;
+
+		if (editName.trim() !== editingEnvironment.name) {
+			// Simple name update - in a real app this would call an API
+			console.log('Update environment name:', editingEnvironment.id, editName.trim());
+
+			// For demo purposes, we'll just log it
+			// In production: await EnvironmentServiceV8.updateEnvironmentName(editingEnvironment.id, editName.trim());
+
+			setEnvError('Environment name updated (demo mode - no API call made)');
+			setHasUnsavedChanges(false);
+			// In production: fetchEnvironments();
+		}
+
+		// Close modal
+		setShowEditModal(false);
+		setEditingEnvironment(null);
+		setEditName('');
+	};
+
+	const handleCancelEdit = () => {
+		setShowEditModal(false);
+		setEditingEnvironment(null);
+		setEditName('');
+		setHasUnsavedChanges(false);
+	};
+
+	const handleNameChange = (value: string) => {
+		setEditName(value);
+		if (editingEnvironment && value.trim() !== editingEnvironment.name) {
+			setHasUnsavedChanges(true);
+		} else {
+			setHasUnsavedChanges(false);
+		}
+	};
+
+	const handleDeleteEnvironment = async (id: string) => {
+		try {
+			const environment = environments.find((env) => env.id === id);
+			if (!environment) return;
+
+			// Show confirmation dialog
+			// eslint-disable-next-line no-alert
+			const confirmed = window.confirm(
+				`Are you sure you want to delete the environment "${environment.name}"?\n\nThis action cannot be undone and will permanently remove the environment and all associated data.`
+			);
+
+			if (!confirmed) return;
+
+			setEnvError(null);
+
+			await EnvironmentServiceV8.deleteEnvironment(id);
+			fetchEnvironments();
+		} catch (err) {
+			setEnvError(err instanceof Error ? err.message : 'Failed to delete environment');
+		}
 	};
 
 	const handleToggleEnvironmentStatus = async (id: string) => {
@@ -1025,6 +1130,9 @@ const EnvironmentManagementPageV8: React.FC = () => {
 						}}
 						environmentId={selectedEnvironmentId}
 					/>
+
+					{/* Worker Token Status Display */}
+					<WorkerTokenStatusDisplayV8 />
 				</div>
 			</Container>
 		);
@@ -1267,7 +1375,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 						}
 						{...(selectedEnvironments.length > 0 &&
 						selectedEnvironments.length < (environments?.length || 0)
-							? { indeterminate: true }
+							? { indeterminate: 'true' }
 							: {})}
 						onChange={handleSelectAll}
 						style={{ marginRight: '0.5rem' }}
@@ -1411,6 +1519,141 @@ const EnvironmentManagementPageV8: React.FC = () => {
 					</PaginationButton>
 				</Pagination>
 			)}
+
+			{/* Edit Environment Modal */}
+			<ApiDisplayOverlay $isOpen={showEditModal} onClick={handleCancelEdit} />
+			<ApiDisplayModal $isOpen={showEditModal}>
+				<ApiDisplayHeader>
+					<ApiDisplayTitle>
+						<FiEdit2 />
+						Edit Environment
+					</ApiDisplayTitle>
+					<CloseButton onClick={handleCancelEdit}>×</CloseButton>
+				</ApiDisplayHeader>
+				<ApiDisplayContent>
+					<div style={{ padding: '1rem' }}>
+						{editingEnvironment && (
+							<div>
+								<div style={{ marginBottom: '1rem' }}>
+									<label
+										htmlFor="env-id"
+										style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}
+									>
+										Environment ID
+									</label>
+									<input
+										id="env-id"
+										type="text"
+										value={editingEnvironment.id}
+										disabled
+										style={{
+											width: '100%',
+											padding: '0.5rem',
+											border: '1px solid #ddd',
+											borderRadius: '4px',
+											background: '#f5f5f5',
+										}}
+									/>
+								</div>
+								<div style={{ marginBottom: '1rem' }}>
+									<label
+										htmlFor="env-name"
+										style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}
+									>
+										Environment Name
+									</label>
+									<input
+										id="env-name"
+										type="text"
+										value={editName}
+										onChange={(e) => handleNameChange(e.target.value)}
+										placeholder="Enter environment name"
+										style={{
+											width: '100%',
+											padding: '0.5rem',
+											border: '1px solid #ddd',
+											borderRadius: '4px',
+											fontSize: '1rem',
+										}}
+									/>
+								</div>
+								<div style={{ marginBottom: '1rem' }}>
+									<label
+										htmlFor="env-type"
+										style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}
+									>
+										Type
+									</label>
+									<input
+										id="env-type"
+										type="text"
+										value={editingEnvironment.type}
+										disabled
+										style={{
+											width: '100%',
+											padding: '0.5rem',
+											border: '1px solid #ddd',
+											borderRadius: '4px',
+											background: '#f5f5f5',
+										}}
+									/>
+								</div>
+								<div style={{ marginBottom: '1rem' }}>
+									<label
+										htmlFor="env-region"
+										style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}
+									>
+										Region
+									</label>
+									<input
+										id="env-region"
+										type="text"
+										value={editingEnvironment.region || 'N/A'}
+										disabled
+										style={{
+											width: '100%',
+											padding: '0.5rem',
+											border: '1px solid #ddd',
+											borderRadius: '4px',
+											background: '#f5f5f5',
+										}}
+									/>
+								</div>
+							</div>
+						)}
+					</div>
+				</ApiDisplayContent>
+				<div
+					style={{
+						padding: '1rem',
+						borderTop: '1px solid #eee',
+						display: 'flex',
+						gap: '0.5rem',
+						justifyContent: 'flex-end',
+					}}
+				>
+					<Button variant="secondary" onClick={handleCancelEdit}>
+						Cancel
+					</Button>
+					<Button
+						onClick={handleSaveEdit}
+						disabled={!editName.trim()}
+						style={{
+							backgroundColor: hasUnsavedChanges
+								? '#dc3545'
+								: editName.trim()
+									? '#28a745'
+									: '#6c757d',
+							borderColor: hasUnsavedChanges ? '#dc3545' : editName.trim() ? '#28a745' : '#6c757d',
+							color: '#fff',
+							opacity: editName.trim() ? 1 : 0.6,
+							cursor: editName.trim() ? 'pointer' : 'not-allowed',
+						}}
+					>
+						{hasUnsavedChanges ? 'Save Changes*' : editName.trim() ? 'Saved' : 'Save Changes'}
+					</Button>
+				</div>
+			</ApiDisplayModal>
 
 			{/* API Display Modal */}
 			<ApiDisplayOverlay $isOpen={showApiDisplay} onClick={() => setShowApiDisplay(false)} />

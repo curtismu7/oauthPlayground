@@ -75,7 +75,7 @@ export const useFIDO2Authentication = (): FIDO2AuthenticationHookResult => {
 
 	// Spinner hooks for async operations
 	const fido2AuthSpinner = useProductionSpinner('fido2-auth');
-	const passkeyRegistrationSpinner = useProductionSpinner('passkey-registration');
+	const _passkeyRegistrationSpinner = useProductionSpinner('passkey-registration');
 
 	/**
 	 * Handle Usernameless FIDO2 Authentication

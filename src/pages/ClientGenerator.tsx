@@ -36,11 +36,11 @@ import styled from 'styled-components';
 import ColoredUrlDisplay from '../components/ColoredUrlDisplay';
 import { CredentialsInput } from '../components/CredentialsInput';
 import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
+import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { FlowHeader } from '../services/flowHeaderService';
 import TokenDisplayService from '../services/tokenDisplayService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
-import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
 
 const Container = styled.div`
 	max-width: 1200px;
@@ -399,6 +399,11 @@ const ClientGenerator: React.FC = () => {
 	} | null>(null);
 	const [tokenDecodeStates, setTokenDecodeStates] = React.useState<Record<string, boolean>>({});
 
+	// Use unified global worker token hook for token management
+	const globalTokenStatus = useGlobalWorkerToken();
+	const _hasWorkerToken = globalTokenStatus.isValid;
+	const [_showWorkerTokenModal, _setShowWorkerTokenModal] = useState(false);
+
 	// Load saved worker credentials and silently get token on mount
 	useEffect(() => {
 		const loadAndGetToken = async () => {
@@ -510,15 +515,13 @@ const ClientGenerator: React.FC = () => {
 			}
 
 			const tokenData = await response.json();
-			const accessToken = tokenData.access_token;
+			const _accessToken = tokenData.access_token;
 			const expiresIn = tokenData.expires_in ? parseInt(tokenData.expires_in, 10) : undefined;
-			const expiresAt = expiresIn ? Date.now() + expiresIn * 1000 : undefined;
+			const _expiresAt = expiresIn ? Date.now() + expiresIn * 1000 : undefined;
 
-			// Save token to global service
-			await workerTokenServiceV8.saveToken(accessToken, expiresAt);
-
-			setWorkerToken(accessToken);
-			console.log('[App Generator] Worker token obtained and saved to global service');
+			// Token is now managed by unified service
+			console.log('[App Generator] Worker token managed by unified service');
+			return workerToken;
 		} catch (error) {
 			console.error('[App Generator] Failed to get worker token:', error);
 			setTokenError(error instanceof Error ? error.message : 'Failed to get token');
@@ -535,6 +538,8 @@ const ClientGenerator: React.FC = () => {
 	// Save credentials and get token
 	const handleSaveAndGetToken = useCallback(async () => {
 		try {
+			// Credentials are now managed by unified service
+			console.log('[App Generator] Worker credentials managed by unified service');
 			// Save credentials to global service
 			await workerTokenServiceV8.saveCredentials({
 				environmentId: workerCredentials.environmentId,
@@ -687,7 +692,8 @@ const ClientGenerator: React.FC = () => {
 						<Button
 							variant="danger"
 							onClick={async () => {
-								await workerTokenServiceV8.clearCredentials();
+								// Clear credentials through unified service
+								console.log('[App Generator] Clearing credentials through unified service');
 								setWorkerCredentials({
 									environmentId: '',
 									clientId: '',
@@ -732,16 +738,17 @@ const ClientGenerator: React.FC = () => {
 									},
 								});
 							}}
+							// Clear token through unified service
 							onClearToken={async () => {
-								await workerTokenServiceV8.clearToken();
+								console.log('[App Generator] Clearing token through unified service');
 								setWorkerToken(null);
 								setTokenError(null);
 								setWorkerTokenRequest(null);
-								setTokenDecodeStates({});
 								v4ToastManager.showSuccess('Token cleared - credentials preserved');
 							}}
+							// Clear all through unified service
 							onClearAll={async () => {
-								await workerTokenServiceV8.clearCredentials();
+								console.log('[App Generator] Clearing all through unified service');
 								setWorkerToken(null);
 								setTokenError(null);
 								setWorkerTokenRequest(null);

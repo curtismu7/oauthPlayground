@@ -49,11 +49,17 @@ export class PingOneLoginService {
 				redirectUri: redirectUri,
 				response_type: 'code',
 				response_mode: 'pi.flow',
-				scope: scopes.join(' '),
-				code_challenge: codeChallenge,
-				code_challenge_method: 'S256',
+				scopes: scopes.join(' '),
+				codeChallenge: codeChallenge,
+				codeChallengeMethod: 'S256',
 				state: state,
 			};
+
+			console.log(`${MODULE_TAG} Request body:`, {
+				...requestBody,
+				codeChallenge: `${codeChallenge.substring(0, 20)}...`,
+				clientId: `${clientId.substring(0, 8)}...`,
+			});
 
 			// Call proxy endpoint
 			const response = await fetch(`${PingOneLoginService.PROXY_BASE_URL}/redirectless/authorize`, {
@@ -65,7 +71,24 @@ export class PingOneLoginService {
 			});
 
 			if (!response.ok) {
-				throw new Error(`Proxy API error: ${response.status} ${response.statusText}`);
+				// Try to get error details from response
+				let errorDetails = '';
+				try {
+					const errorData = await response.json();
+					errorDetails =
+						errorData.error_description || errorData.message || JSON.stringify(errorData);
+					console.error(`${MODULE_TAG} Server error details:`, errorData);
+				} catch (_e) {
+					// If response is not JSON, try to get text
+					try {
+						errorDetails = await response.text();
+					} catch (_e2) {
+						errorDetails = 'Unable to read error details';
+					}
+				}
+				throw new Error(
+					`Proxy API error: ${response.status} ${response.statusText} - ${errorDetails}`
+				);
 			}
 
 			const result = await response.json();

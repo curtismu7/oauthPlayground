@@ -5,7 +5,7 @@
  * @version 9.9.6
  */
 
-const POPUP_WIDTH = 1400;
+const POPUP_WIDTH = 1800;
 const POPUP_HEIGHT = 900;
 
 /**

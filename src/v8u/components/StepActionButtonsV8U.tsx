@@ -149,13 +149,13 @@ const _handleFinalClick = () => {
 					display: flex;
 	gap:
 	12px
-	justify - content;
+	justify - content
 	: space-between
-	align - items;
+	align - items
 	: center
 	padding:
 	16px 0
-	margin - top;
+	margin - top
 	: 24px
 };
 
@@ -168,24 +168,24 @@ const _handleFinalClick = () => {
 	8px
 	padding:
 	10px 20px
-	border: none;
-	border - radius;
+	border: none
+	border - radius
 	: 6px
-	font - size;
+	font - size
 	: 14px
-	font - weight;
+	font - weight
 	: 500
-	cursor: pointer;
-	transition: all;
+	cursor: pointer
+	transition: all
 	0.2s ease
-	outline: none;
+	outline: none
 }
 
 .btn:focus-visible
 {
 	outline:
 	2px solid #2196f3
-	outline - offset;
+	outline - offset
 	: 2px
 }
 
@@ -234,9 +234,9 @@ const _handleFinalClick = () => {
 	width: 100%;
 	background: #
 	10b981
-	color: #ffffff;
-	border: none;
-	font - weight;
+	color: #ffffff
+	border: none
+	font - weight
 	: 600
 }
 
@@ -246,7 +246,7 @@ const _handleFinalClick = () => {
 	059669;
 	box - shadow;
 	: 0 4px 12px rgba(16, 185, 129, 0.3)
-	transform: translateY(-1px);
+	transform: translateY(-1px)
 }
 
 .btn-next:active:not(.disabled)
@@ -258,9 +258,9 @@ const _handleFinalClick = () => {
 {
 	background: #
 	9ca3af
-	color: #ffffff;
-	cursor: not - allowed;
-	opacity: 0.6;
+	color: #ffffff
+	cursor: not - allowed
+	opacity: 0.6
 }
 
 /* Final Button */
@@ -268,18 +268,18 @@ const _handleFinalClick = () => {
 {
 	background: #
 	4caf50
-	color: white;
-	border: none;
+	color: white
+	border: none
 	padding:
 	12px 20px
-	font - size;
+	font - size
 	: 14px
-	font - weight;
+	font - weight
 	: 600
-	border - radius;
+	border - radius
 	: 6px
-	cursor: pointer;
-	transition: all;
+	cursor: pointer
+	transition: all
 	0.2s ease
 }
 
@@ -287,9 +287,9 @@ const _handleFinalClick = () => {
 {
 	background: #
 	45a049
-	box - shadow;
+	box - shadow
 	: 0 2px 8px rgba(76, 175, 80, 0.3)
-	transform: translateY(-1px);
+	transform: translateY(-1px)
 }
 
 .btn-final:active
@@ -309,19 +309,19 @@ const _handleFinalClick = () => {
 	padding:
 	8px 12px
 	background: #
-	333;
-	color: white;
-	font - size;
+	333
+	color: white
+	font - size
 	: 12px
-	border - radius;
+	border - radius
 	: 4px
-	white - space;
+	white - space
 	: nowrap
-	z - index;
+	z - index
 	: 1000
-	pointer - events;
+	pointer - events
 	: none
-	animation: slideUp;
+	animation: slideUp
 	0.2s ease
 }
 
@@ -334,7 +334,7 @@ const _handleFinalClick = () => {
 	transform: translateX(-50%);
 	border:
 	4px solid transparent
-	border - top - color;
+	border - top - color
 	: #333
 }
 
@@ -373,19 +373,19 @@ slideUp;
 
 	.btn 
 						width: 100%
-	justify - content;
+	justify - content
 	: center
 	padding:
 	12px 16px
 
 	.next-button-wrapper 
 						width: 100%
-	max - width;
+	max - width
 	: none
 
 	.tooltip 
 						white-space: normal
-	max - width;
+	max - width
 	: 200px
 }
 `}</style>

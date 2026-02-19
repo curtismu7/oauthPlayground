@@ -46,15 +46,15 @@ class WorkerTokenConfigService {
 			const mfaConfig = MFAConfigurationServiceV8.loadConfiguration();
 			const mfaSilentApi = mfaConfig.workerToken?.silentApiRetrieval ?? false;
 			const mfaShowToken = mfaConfig.workerToken?.showTokenAtEnd ?? false;
-			
+
 			this.config = {
 				silentApiRetrieval: mfaSilentApi,
 				showTokenAtEnd: mfaShowToken,
 			};
-			
+
 			// Validate configuration consistency
 			this.validateConfigurationConsistency(mfaConfig);
-			
+
 			console.log(`${MODULE_TAG} Initialized with MFA config:`, this.config);
 			this.isInitialized = true;
 		} catch (error) {
@@ -64,7 +64,7 @@ class WorkerTokenConfigService {
 				showTokenAtEnd: true, // Match MFAConfigurationServiceV8 default
 			};
 			this.isInitialized = true;
-			
+
 			// Log configuration source for debugging
 			console.log(`${MODULE_TAG} Initialized with fallback defaults:`, this.config);
 		}
@@ -73,36 +73,38 @@ class WorkerTokenConfigService {
 	/**
 	 * Validate configuration consistency and log any discrepancies
 	 */
-	private validateConfigurationConsistency(mfaConfig: { workerToken?: { silentApiRetrieval?: boolean; showTokenAtEnd?: boolean } }): void {
+	private validateConfigurationConsistency(mfaConfig: {
+		workerToken?: { silentApiRetrieval?: boolean; showTokenAtEnd?: boolean };
+	}): void {
 		const mfaSilentApi = mfaConfig.workerToken?.silentApiRetrieval ?? false;
 		const mfaShowToken = mfaConfig.workerToken?.showTokenAtEnd ?? false;
-		
+
 		// Check if MFA config has different values than our defaults
 		const defaultSilentApi = true;
 		const defaultShowToken = true;
-		
+
 		if (mfaSilentApi !== defaultSilentApi) {
 			console.log(`${MODULE_TAG} ⚠️ MFA silentApiRetrieval differs from default:`, {
 				mfaValue: mfaSilentApi,
 				defaultValue: defaultSilentApi,
-				source: 'MFAConfigurationServiceV8'
+				source: 'MFAConfigurationServiceV8',
 			});
 		}
-		
+
 		if (mfaShowToken !== defaultShowToken) {
 			console.log(`${MODULE_TAG} ⚠️ MFA showTokenAtEnd differs from default:`, {
 				mfaValue: mfaShowToken,
 				defaultValue: defaultShowToken,
-				source: 'MFAConfigurationServiceV8'
+				source: 'MFAConfigurationServiceV8',
 			});
 		}
-		
+
 		// Log final configuration source
 		if (this.config) {
 			console.log(`${MODULE_TAG} ✅ Configuration validated:`, {
 				silentApiRetrieval: this.config.silentApiRetrieval,
 				showTokenAtEnd: this.config.showTokenAtEnd,
-				source: 'MFAConfigurationServiceV8'
+				source: 'MFAConfigurationServiceV8',
 			});
 		}
 	}
@@ -124,16 +126,22 @@ class WorkerTokenConfigService {
 			}
 
 			if (this.config) {
-				const silentApiChanged = customEvent.detail.workerToken.silentApiRetrieval !== undefined && 
+				const silentApiChanged =
+					customEvent.detail.workerToken.silentApiRetrieval !== undefined &&
 					customEvent.detail.workerToken.silentApiRetrieval !== this.config.silentApiRetrieval;
-				const showTokenChanged = customEvent.detail.workerToken.showTokenAtEnd !== undefined && 
+				const showTokenChanged =
+					customEvent.detail.workerToken.showTokenAtEnd !== undefined &&
 					customEvent.detail.workerToken.showTokenAtEnd !== this.config.showTokenAtEnd;
 
 				if (silentApiChanged) {
-					this.config.silentApiRetrieval = customEvent.detail.workerToken.silentApiRetrieval ?? false;
-					console.log(`${MODULE_TAG} 🔄 Silent API retrieval updated:`, this.config.silentApiRetrieval);
+					this.config.silentApiRetrieval =
+						customEvent.detail.workerToken.silentApiRetrieval ?? false;
+					console.log(
+						`${MODULE_TAG} 🔄 Silent API retrieval updated:`,
+						this.config.silentApiRetrieval
+					);
 				}
-				
+
 				if (showTokenChanged) {
 					this.config.showTokenAtEnd = customEvent.detail.workerToken.showTokenAtEnd ?? false;
 					console.log(`${MODULE_TAG} 🔄 Show token at end updated:`, this.config.showTokenAtEnd);
@@ -156,21 +164,21 @@ class WorkerTokenConfigService {
 	private syncBackToMFAService(): void {
 		try {
 			if (!this.config) return;
-			
+
 			const mfaConfig = MFAConfigurationServiceV8.loadConfiguration();
-			
+
 			// Update MFA config with our values to ensure consistency
-			const needsUpdate = 
+			const needsUpdate =
 				mfaConfig.workerToken?.silentApiRetrieval !== this.config.silentApiRetrieval ||
 				mfaConfig.workerToken?.showTokenAtEnd !== this.config.showTokenAtEnd;
-			
+
 			if (needsUpdate) {
 				mfaConfig.workerToken = {
 					...mfaConfig.workerToken,
 					silentApiRetrieval: this.config.silentApiRetrieval,
 					showTokenAtEnd: this.config.showTokenAtEnd,
 				};
-				
+
 				MFAConfigurationServiceV8.saveConfiguration(mfaConfig);
 				console.log(`${MODULE_TAG} 🔄 Synced back to MFA service:`, this.config);
 			}

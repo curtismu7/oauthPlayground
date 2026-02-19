@@ -387,6 +387,7 @@ interface EnhancedApiCallDisplayProps {
 	apiCall: EnhancedApiCallData;
 	options?: ApiCallDisplayOptions;
 	onExecute?: () => Promise<void>;
+	onCopy?: () => void;
 	showExecuteButton?: boolean;
 	className?: string;
 	initiallyCollapsed?: boolean;
@@ -637,30 +638,32 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 						)}
 
 						{/* Response Headers */}
-						{apiCall.response.headers && Object.keys(apiCall.response.headers).length > 0 && (
-							<div style={{ marginBottom: '1rem' }}>
-								<h5
-									style={{
-										margin: '0 0 0.5rem 0',
-										fontSize: '0.875rem',
-										fontWeight: 600,
-										color: '#374151',
-									}}
-								>
-									Response Headers
-								</h5>
-								<ParameterList>
-									{Object.entries(apiCall.response.headers).map(([key, value]) => (
-										<ParameterItem key={key}>
-											<span>
-												<strong>{key}:</strong>
-											</span>
-											<ParameterValue>{value}</ParameterValue>
-										</ParameterItem>
-									))}
-								</ParameterList>
-							</div>
-						)}
+						{apiCall.response.headers &&
+							(apiCall.response.headers as Record<string, string>) &&
+							Object.keys(apiCall.response.headers as Record<string, string>).length > 0 && (
+								<div style={{ marginBottom: '1rem' }}>
+									<h5
+										style={{
+											margin: '0 0 0.5rem 0',
+											fontSize: '0.875rem',
+											fontWeight: 600,
+											color: '#374151',
+										}}
+									>
+										Response Headers
+									</h5>
+									<ParameterList>
+										{Object.entries(apiCall.response.headers).map(([key, value]) => (
+											<ParameterItem key={key}>
+												<span>
+													<strong>{key}:</strong>
+												</span>
+												<ParameterValue>{value}</ParameterValue>
+											</ParameterItem>
+										))}
+									</ParameterList>
+								</div>
+							)}
 
 						{/* Response Body */}
 						{apiCall.response.data && (
