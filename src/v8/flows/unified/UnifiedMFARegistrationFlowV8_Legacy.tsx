@@ -22,55 +22,44 @@
  * />
  */
 
-import * as React from 'react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
-import { useLocation } from 'react-router-dom';
-import { EducationModeToggle } from '@/components/education/EducationModeToggle';
-import { MasterEducationSection } from '@/components/education/MasterEducationSection';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
+import { MFADocumentationPageV8 } from '@/v8/components/MFADocumentationPageV8';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import type { SearchableDropdownOption } from '@/v8/components/SearchableDropdownV8';
 import { SearchableDropdownV8 } from '@/v8/components/SearchableDropdownV8';
+import { ShowTokenConfigCheckboxV8 } from '@/v8/components/ShowTokenConfigCheckboxV8';
+import { SilentApiConfigCheckboxV8 } from '@/v8/components/SilentApiConfigCheckboxV8';
 import { SQLiteStatsDisplayV8 } from '@/v8/components/SQLiteStatsDisplayV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { UserLoginModalV8 } from '@/v8/components/UserLoginModalV8';
+import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { WorkerTokenStatusDisplayV8 } from '@/v8/components/WorkerTokenStatusDisplayV8';
 import { getDeviceConfig } from '@/v8/config/deviceFlowConfigs';
 import type { DeviceConfigKey, DeviceRegistrationResult } from '@/v8/config/deviceFlowConfigTypes';
-import { PING_IDENTITY_COLORS } from '@/v8/constants/pingIdentityColors';
 import { GlobalMFAProvider } from '@/v8/contexts/GlobalMFAContext';
 import { MFACredentialProvider } from '@/v8/contexts/MFACredentialContext';
-import { APIDocsStepV8 } from '@/v8/flows/shared/APIDocsStepV8';
-import { SuccessStepV8 } from '@/v8/flows/shared/SuccessStepV8';
-import { UserLoginStepV8 } from '@/v8/flows/shared/UserLoginStepV8';
 import { useMFAPolicies } from '@/v8/hooks/useMFAPolicies';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
-import { useUserSearch } from '@/v8/hooks/useUserSearch';
-import { useWorkerToken } from '@/v8/hooks/useWorkerToken';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { globalEnvironmentService } from '@/v8/services/globalEnvironmentService';
 import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServiceV8';
-import { type MFAFeatureFlag, MFAFeatureFlagsV8 } from '@/v8/services/mfaFeatureFlagsV8';
-import MFAServiceV8_Legacy, { type RegisterDeviceParams } from '@/v8/services/mfaServiceV8_Legacy';
-import {
-	checkPingOneAuthentication,
-	shouldRedirectToPingOne,
-} from '@/v8/services/pingOneAuthenticationServiceV8';
-import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
-import {
-	type TokenStatusInfo,
-	WorkerTokenStatusServiceV8,
-} from '@/v8/services/workerTokenStatusServiceV8';
-import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8';
+import type { MFAFeatureFlag } from '@/v8/services/mfaFeatureFlagsV8';
+import { MFAFeatureFlagsV8 } from '@/v8/services/mfaFeatureFlagsV8';
+import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { UnifiedOAuthCredentialsServiceV8U } from '@/v8u/services/unifiedOAuthCredentialsServiceV8U';
-import { StandardModalSpinner, useStandardSpinner } from '../../../components/ui/StandardSpinner';
 import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBaseV8';
-import type { DeviceAuthenticationPolicy, MFACredentials, MFAState } from '../shared/MFATypes';
+import type { MFACredentials, MFAState } from '../shared/MFATypes';
 import { UnifiedActivationStep } from './components/UnifiedActivationStep';
+import { UnifiedDeviceRegistrationForm } from './components/UnifiedDeviceRegistrationForm';
 import { UnifiedDeviceSelectionModal } from './components/UnifiedDeviceSelectionModal';
+import { UnifiedSuccessStep } from './components/UnifiedSuccessStep';
 import './UnifiedMFAFlow.css';
 
 const MODULE_TAG = '[🔄 UNIFIED-MFA-FLOW-V8]';
+const FLOW_KEY = 'mfa-flow-v8';
 
 // ============================================================================
 // PROPS INTERFACE
@@ -96,7 +85,7 @@ export interface UnifiedMFARegistrationFlowV8Props {
 	skipConfiguration?: boolean;
 
 	/** Optional: Force specific registration flow type */
-	registrationFlowType?: 'admin-active' | 'admin-activation' | 'user';
+	registrationFlowType?: 'admin' | 'user';
 }
 
 // ============================================================================
@@ -146,165 +135,50 @@ const isDeviceEnabled = (deviceKey: DeviceConfigKey): boolean => {
 };
 
 interface DeviceTypeSelectionScreenProps {
-	onSelectDeviceType: (deviceType: DeviceConfigKey) => void;
+	onSelectDeviceType: (
+		deviceType: DeviceConfigKey,
+		environmentId: string,
+		username: string
+	) => void;
 	userToken?: string | null;
-	setUserToken: (token: string | null) => void;
-	registrationFlowType?: 'admin-active' | 'admin-activation' | 'user' | undefined;
-	username?: string;
-	environmentId?: string;
-	flowMode?: 'registration' | 'authentication' | null;
-	setFlowMode?: (mode: 'registration' | 'authentication' | null) => void;
 }
 
 const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 	onSelectDeviceType,
 	userToken,
-	setUserToken,
-	registrationFlowType,
-	username: propUsername = '',
-	environmentId: propEnvironmentId = '',
-	flowMode: propFlowMode = null,
-	setFlowMode: propSetFlowMode,
 }) => {
-	const [flowMode, setFlowMode] = useState<FlowMode | null>(propFlowMode);
-	const [environmentId, setEnvironmentId] = useState(propEnvironmentId);
-	const [username, setUsername] = useState(propUsername);
+	const _navigate = useNavigate();
+	const [flowMode, setFlowMode] = useState<FlowMode | null>(null);
+	const [environmentId, setEnvironmentId] = useState('');
+	const [username, setUsername] = useState('');
 	const [showDeviceSelectionModal, setShowDeviceSelectionModal] = useState(false);
 	const [showOTPModal, setShowOTPModal] = useState(false);
 	const [otpCode, setOtpCode] = useState('');
 	const [authenticationId, setAuthenticationId] = useState<string | null>(null);
-
-	// State for flow type selection (Admin vs User)
-	const [selectedFlowType, setSelectedFlowType] = useState<
-		'admin-active' | 'admin-activation' | 'user'
-	>(
-		registrationFlowType || 'admin-active' // Default to Admin Flow (Direct Registration)
-	);
-
-	// Standardized spinner hooks for MFA registration operations
-	const registerSpinner = useStandardSpinner(8000); // Register device - 8 seconds
-	const authSpinner = useStandardSpinner(6000); // Authentication - 6 seconds
-	const otpSpinner = useStandardSpinner(4000); // OTP verification - 4 seconds
-	const deviceSpinner = useStandardSpinner(5000); // Device selection - 5 seconds
-	const resendSpinner = useStandardSpinner(3000); // Resend code - 3 seconds
-
-	// Sync local state with props when they change
-	useEffect(() => {
-		if (propFlowMode !== undefined) {
-			setFlowMode(propFlowMode);
-		}
-	}, [propFlowMode]);
-
-	useEffect(() => {
-		if (propEnvironmentId !== environmentId) {
-			setEnvironmentId(propEnvironmentId);
-		}
-		if (propUsername !== username) {
-			setUsername(propUsername);
-		}
-	}, [propEnvironmentId, propUsername, environmentId, username]);
-
 	const [selectedAuthDevice, setSelectedAuthDevice] = useState<{
 		id: string;
 		type: string;
 		nickname?: string;
 	} | null>(null);
-	const [customLogoUrl, setCustomLogoUrl] = useState<string>('');
-	const [uploadedFileInfo, setUploadedFileInfo] = useState<{
-		name: string;
-		size: number;
-		type: string;
-		timestamp: number;
-		base64Url?: string;
-	} | null>(null);
-	const [showAuthLoginModal, setShowAuthLoginModal] = useState(false);
-	const [confirmRestartMode, setConfirmRestartMode] = useState(false);
-	const authEnvIdForModal = useMemo(() => globalEnvironmentService.getEnvironmentId() || '', []);
+	
+	// Use unified global worker token hook for token management
+	const globalTokenStatus = useGlobalWorkerToken();
+	const _workerToken = globalTokenStatus.token || '';
+	const hasWorkerToken = globalTokenStatus.isValid;
+	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 
-	// Load uploaded logo from localStorage on mount
+		const _tokenStatus = globalTokenStatus;
+
+	
+	// Debug: Log environment and token status
 	useEffect(() => {
-		try {
-			const savedUpload = localStorage.getItem('custom-logo-upload');
-			if (savedUpload) {
-				const uploadData = JSON.parse(savedUpload);
-				// Handle both old format (objectUrl) and new format (base64Url)
-				if (uploadData.base64Url) {
-					setUploadedFileInfo({
-						name: uploadData.name,
-						size: uploadData.size,
-						type: uploadData.type,
-						timestamp: uploadData.timestamp,
-						base64Url: uploadData.base64Url,
-					});
-				} else if (uploadData.objectUrl) {
-					// Old format - try to convert if possible, otherwise clear it
-					console.warn('Old logo format detected - please re-upload your logo');
-					localStorage.removeItem('custom-logo-upload');
-				}
-			}
-		} catch (error) {
-			console.error('Failed to load uploaded logo from localStorage:', error);
-			// Clear corrupted data
-			localStorage.removeItem('custom-logo-upload');
-		}
-	}, []);
-
-	// Use worker token hook for token management
-	const workerToken = useWorkerToken({
-		refreshInterval: 5000,
-		enableAutoRefresh: true,
-	});
-
-	// Extract environment ID from worker token when available
-	useEffect(() => {
-		const extractEnvironmentId = async () => {
-			try {
-				const token = await workerTokenServiceV8.getToken();
-				if (token && !environmentId) {
-					const parts = token.split('.');
-					if (parts.length === 3) {
-						const payload = JSON.parse(atob(parts[1]));
-						if (payload.environmentId) {
-							setEnvironmentId(payload.environmentId);
-							console.log(
-								`${MODULE_TAG} Environment ID extracted from worker token:`,
-								payload.environmentId
-							);
-						}
-					}
-				}
-			} catch (error) {
-				console.warn(`${MODULE_TAG} Failed to extract environment ID from worker token:`, error);
-			}
-		};
-
-		extractEnvironmentId();
-	}, [environmentId]);
-
-	const hasWorkerToken = workerToken.tokenStatus.isValid;
-
-	// Use user search hook for user fetching and search
-	const {
-		users,
-		isLoading: isLoadingUsers,
-		setSearchQuery,
-	} = useUserSearch({
-		environmentId,
-		tokenValid: workerToken.tokenStatus.isValid || environmentId.trim() !== '', // Allow search when env ID exists
-		maxPages: 100,
-		useCache: true,
-	});
-	const tokenStatus = workerToken.tokenStatus;
-
-	// Debug: Log users type to understand the issue
-	useEffect(() => {
-		console.log(`${MODULE_TAG} users type check:`, {
-			users,
-			isArray: Array.isArray(users),
-			type: typeof users,
-			constructor: users?.constructor?.name,
+		console.log(`${MODULE_TAG} environment and token status:`, {
+			environmentId,
+			tokenStatus: globalTokenStatus,
+			isValid: globalTokenStatus.isValid,
+			shouldShowDropdown: !!(environmentId && globalTokenStatus.isValid),
 		});
-	}, [users]);
+	}, [environmentId, globalTokenStatus]);
 
 	// Load Environment ID and username from global services on mount
 	useEffect(() => {
@@ -320,21 +194,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 		if (savedUsername) {
 			setUsername(savedUsername);
 		}
-
-		// Check if we're coming from Ping Identity authentication
-		const urlParams = new URLSearchParams(window.location.search);
-		const flowType = urlParams.get('flow');
-		const pingoneUserToken = localStorage.getItem('mfa_pingone_user_token');
-
-		if (flowType === 'authentication' && pingoneUserToken && savedUsername) {
-			console.log(
-				'[UNIFIED-FLOW] Detected Ping Identity authentication, setting flow mode to authentication'
-			);
-			setFlowMode('authentication');
-			// Store the user token for device authentication
-			setUserToken(pingoneUserToken);
-		}
-	}, [setUserToken]);
+	}, []);
 
 	// Use MFA policies hook
 	const {
@@ -346,62 +206,10 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 		defaultPolicy,
 	} = useMFAPolicies({
 		environmentId,
-		tokenIsValid: tokenStatus.isValid,
+		tokenIsValid: _tokenStatus.isValid,
 		autoLoad: true,
 		autoSelectSingle: true,
 	});
-
-	const selectedPolicyRef = useRef<DeviceAuthenticationPolicy | null>(null);
-	useEffect(() => {
-		selectedPolicyRef.current = selectedPolicy ?? null;
-	}, [selectedPolicy]);
-
-	const isPolicyDeviceEnabled = useCallback(
-		(policy: DeviceAuthenticationPolicy | null, key: string) => {
-			const deviceConfig = policy?.[key] as { enabled?: boolean } | undefined;
-			return !!deviceConfig?.enabled;
-		},
-		[]
-	);
-
-	const policyOptions: SearchableDropdownOption[] = useMemo(
-		() =>
-			policies.map((policy) => ({
-				value: policy.id,
-				label: policy.name,
-				...(policy.default ? { secondaryLabel: '(Default)' } : {}),
-			})),
-		[policies]
-	);
-
-	const userOptions: SearchableDropdownOption[] = useMemo(() => {
-		const baseOptions = Array.from(
-			new Map(
-				(Array.isArray(users) ? users : []).map((user) => [
-					user.username,
-					{
-						value: user.username,
-						label: user.username,
-						...(user.email ? { secondaryLabel: user.email } : {}),
-					} as SearchableDropdownOption,
-				])
-			).values()
-		);
-
-		// Add current username as a custom option if it doesn't exist in the users list
-		if (username?.trim() && !baseOptions.some((option) => option.value === username)) {
-			return [
-				{
-					value: username,
-					label: username,
-					secondaryLabel: 'Custom entry',
-				} as SearchableDropdownOption,
-				...baseOptions,
-			];
-		}
-
-		return baseOptions;
-	}, [users, username]);
 
 	// Auto-select default policy when policies load
 	useEffect(() => {
@@ -410,107 +218,48 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 		}
 	}, [defaultPolicy, selectedPolicy, selectPolicy]);
 
-	// Sync environment ID to global service and enhanced storage when it changes
+	// Sync environment ID to global service and CredentialsServiceV8 when it changes
 	useEffect(() => {
 		if (environmentId) {
 			globalEnvironmentService.setEnvironmentId(environmentId);
 			localStorage.setItem('mfa_environmentId', environmentId);
-
-			// Save to enhanced storage with IndexedDB + SQLite backup
-			const saveEnhancedStorage = async () => {
-				let currentCreds = null;
-
-				try {
-					await UnifiedOAuthCredentialsServiceV8U.saveSharedCredentials(
-						{
-							environmentId,
-						},
-						{
-							environmentId,
-							enableBackup: !!environmentId,
-							backupExpiry: 7 * 24 * 60 * 60 * 1000, // 7 days
-						}
-					);
-					console.log('[UNIFIED-MFA] Environment ID saved to enhanced storage');
-				} catch (error) {
-					console.warn('[UNIFIED-MFA] Enhanced storage failed, using fallback', error);
-					// Fallback to CredentialsServiceV8
-					currentCreds = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
-						flowKey: 'mfa-flow-v8',
-						flowType: 'oidc',
-						includeClientSecret: false,
-						includeRedirectUri: false,
-						includeLogoutUri: false,
-						includeScopes: false,
-					});
-					CredentialsServiceV8.saveCredentials('mfa-flow-v8', {
-						...currentCreds,
-						environmentId,
-					});
-				}
-
-				// Dispatch credential update event for other components (like device management)
-				window.dispatchEvent(
-					new CustomEvent('mfaCredentialsUpdated', {
-						detail: { environmentId, username: currentCreds?.username || username },
-					})
-				);
-			};
-
-			saveEnhancedStorage();
+			// Also save to CredentialsServiceV8 for MFAFlowBase to read
+			const currentCreds = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
+				flowKey: 'mfa-flow-v8',
+				flowType: 'oidc',
+				includeClientSecret: false,
+				includeRedirectUri: false,
+				includeLogoutUri: false,
+				includeScopes: false,
+			});
+			CredentialsServiceV8.saveCredentials('mfa-flow-v8', {
+				...currentCreds,
+				environmentId,
+			});
 		}
-	}, [environmentId, username]);
+	}, [environmentId]);
 
-	// Save username to enhanced storage when it changes
-	// This ensures MFAFlowBase can read the username from enhanced storage
+	// Save username to localStorage and CredentialsServiceV8 when it changes
+	// This ensures MFAFlowBase can read the username from its expected storage location
 	useEffect(() => {
 		if (username) {
 			localStorage.setItem('mfa_unified_username', username);
 			localStorage.setItem('mfa_username', username);
-
-			// Save to enhanced storage with IndexedDB + SQLite backup
-			const saveEnhancedStorage = async () => {
-				let currentCreds = null;
-
-				try {
-					await UnifiedOAuthCredentialsServiceV8U.saveSharedCredentials(
-						{
-							environmentId,
-						},
-						{
-							environmentId,
-							enableBackup: !!environmentId,
-							backupExpiry: 7 * 24 * 60 * 60 * 1000, // 7 days
-						}
-					);
-					console.log('[UNIFIED-MFA] Username saved to enhanced storage');
-				} catch (error) {
-					console.warn('[UNIFIED-MFA] Enhanced storage failed, using fallback', error);
-					// Fallback to CredentialsServiceV8
-					currentCreds = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
-						flowKey: 'mfa-flow-v8',
-						flowType: 'oidc',
-						includeClientSecret: false,
-						includeRedirectUri: false,
-						includeLogoutUri: false,
-						includeScopes: false,
-					});
-					CredentialsServiceV8.saveCredentials('mfa-flow-v8', {
-						...currentCreds,
-					});
-				}
-
-				// Dispatch credential update event for other components (like device management)
-				window.dispatchEvent(
-					new CustomEvent('mfaCredentialsUpdated', {
-						detail: { environmentId: currentCreds?.environmentId || environmentId },
-					})
-				);
-			};
-
-			saveEnhancedStorage();
+			// Also save to CredentialsServiceV8 for MFAFlowBase to read
+			const currentCreds = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
+				flowKey: 'mfa-flow-v8',
+				flowType: 'oidc',
+				includeClientSecret: false,
+				includeRedirectUri: false,
+				includeLogoutUri: false,
+				includeScopes: false,
+			});
+			CredentialsServiceV8.saveCredentials('mfa-flow-v8', {
+				...currentCreds,
+				username,
+			});
 		}
-	}, [username, environmentId]);
+	}, [username]);
 
 	// Handle device selection for authentication
 	const handleDeviceSelectForAuthentication = async (device: {
@@ -525,67 +274,18 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 
 		const policyId = selectedPolicy?.id;
 		if (!policyId) {
-			console.error(`${MODULE_TAG} No policy selected - selectedPolicy:`, selectedPolicy);
 			toastV8.error('Please select an MFA Policy first');
 			return;
 		}
 
-		// Determine flow type and token
-		// Use selectedFlowType from the UI selection
-		let flowType: 'admin' | 'user';
-
-		if (selectedFlowType) {
-			// Use user-selected flow type
-			flowType = selectedFlowType.startsWith('admin') ? 'admin' : 'user';
-		} else {
-			// Default to admin flow unless explicitly set to user
-			flowType = 'admin';
-		}
-
-		const effectiveUserToken = flowType === 'user' ? userToken : undefined;
-
-		// For admin flow, check if we have a valid worker token before proceeding
-		if (flowType === 'admin' && !hasWorkerToken) {
-			toastV8.error(
-				'Admin flow requires a valid worker token. Please generate a worker token first.'
-			);
-			return;
-		}
-
-		// Validate required fields before API call
-		if (!environmentId?.trim()) {
-			console.error(`${MODULE_TAG} Missing environment ID`);
-			toastV8.error('Environment ID is required for authentication');
-			return;
-		}
-
-		if (!username?.trim()) {
-			console.error(`${MODULE_TAG} Missing username`);
-			toastV8.error('Username is required for authentication');
-			return;
-		}
-
 		try {
-			// Debug: Log the values being sent to API
-			console.log(`${MODULE_TAG} About to call initializeDeviceAuthentication with:`, {
-				environmentId: environmentId || 'MISSING',
-				username: username.trim() || 'MISSING',
-				deviceAuthenticationPolicyId: policyId || 'MISSING',
-				deviceId: device.id || 'MISSING',
-				region: 'na',
-				flowType,
-				hasWorkerToken,
-				effectiveUserToken: effectiveUserToken ? 'PRESENT' : 'MISSING',
-			});
-
-			// Initialize authentication with appropriate token
+			// Initialize authentication
 			const response = await MfaAuthenticationServiceV8.initializeDeviceAuthentication({
 				environmentId,
 				username: username.trim(),
 				deviceAuthenticationPolicyId: policyId,
 				deviceId: device.id,
 				region: 'na',
-				...(effectiveUserToken && { userToken: effectiveUserToken }),
 			});
 
 			console.log(`${MODULE_TAG} Auth initialized - full response:`, response);
@@ -614,7 +314,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 			} else if (status === 'ASSERTION_REQUIRED' || nextStep === 'ASSERTION_REQUIRED') {
 				console.log(`${MODULE_TAG} FIDO2 assertion required`);
 				toastV8.info(
-					'FIDO2 authentication required. Please use /v8/mfa-config for FIDO2 authentication.'
+					'FIDO2 authentication required. Please use /v8/mfa-hub for FIDO2 authentication.'
 				);
 				setFlowMode(null);
 			} else if (
@@ -623,7 +323,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 			) {
 				console.log(`${MODULE_TAG} Push confirmation required`);
 				toastV8.success('Push notification sent! Please approve on your mobile device.');
-				toastV8.info('Complete authentication at /v8/mfa-config for push polling.');
+				toastV8.info('Complete authentication at /v8/mfa-hub for push polling.');
 				setFlowMode(null);
 			} else if (status === 'COMPLETED') {
 				toastV8.success('Authentication completed successfully!');
@@ -696,27 +396,12 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 			return;
 		}
 
-		// Get worker token for API call
-		const workerTokenForOTP = await workerTokenServiceV8.getToken();
-
-		console.log(`${MODULE_TAG} OTP verification debug:`, {
-			environmentId,
-			username: username.trim(),
-			authenticationId,
-			otpCode,
-			hasEnvironmentId: !!environmentId,
-			envIdLength: environmentId?.length,
-			hasWorkerToken: !!workerTokenForOTP,
-			workerTokenLength: workerTokenForOTP?.length,
-		});
-
 		try {
 			// Use backend proxy to avoid CORS issues
 			const response = await fetch('/api/pingone/mfa/validate-otp-for-device', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					Authorization: `Bearer ${workerTokenForOTP}`,
 				},
 				body: JSON.stringify({
 					environmentId,
@@ -724,7 +409,6 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 					deviceAuthId: authenticationId,
 					otp: otpCode,
 					region: 'na',
-					workerToken: workerTokenForOTP,
 				}),
 			});
 
@@ -754,1065 +438,439 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 	// Step 1: Choose Registration or Authentication
 	if (!flowMode) {
 		return (
-			<>
-				<div style={{ maxWidth: '1200px', margin: '0 auto', padding: '12px' }}>
-					{/* Header */}
-					<div
+			<div style={{ maxWidth: '900px', margin: '0 auto', padding: '24px' }}>
+				{/* Header */}
+				<div
+					style={{
+						background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+						borderRadius: '12px',
+						padding: '28px 32px',
+						marginBottom: '28px',
+						boxShadow: '0 4px 12px rgba(139, 92, 246, 0.2)',
+					}}
+				>
+					<h1
+						style={{ margin: '0 0 8px 0', fontSize: '26px', fontWeight: '700', color: '#ffffff' }}
+					>
+						🔐 MFA Unified Flow
+					</h1>
+					<p
 						style={{
-							background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-							borderRadius: '12px',
-							padding: '16px 20px',
-							marginBottom: '16px',
-							boxShadow: '0 4px 12px rgba(239, 68, 68, 0.2)',
+							margin: 0,
+							fontSize: '15px',
+							color: 'rgba(255, 255, 255, 0.9)',
+							lineHeight: '1.5',
 						}}
 					>
-						<h1
-							style={{ margin: '0 0 8px 0', fontSize: '26px', fontWeight: '700', color: '#ffffff' }}
-						>
-							🔐 MFA Unified Flow
-						</h1>
-						<p
+						Choose what you want to do with MFA devices.
+					</p>
+				</div>
+
+				{/* Configuration Section */}
+				<div
+					style={{
+						background: '#ffffff',
+						borderRadius: '12px',
+						padding: '24px',
+						marginBottom: '28px',
+						border: '1px solid #e5e7eb',
+						overflow: 'hidden',
+					}}
+				>
+					<h2
+						style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '600', color: '#111827' }}
+					>
+						Configuration
+					</h2>
+
+					{/* Environment ID */}
+					<div style={{ marginBottom: '20px' }}>
+						<label
+							htmlFor="env-id"
 							style={{
-								margin: 0,
-								fontSize: '15px',
-								color: 'rgba(255, 255, 255, 0.9)',
-								lineHeight: '1.5',
+								display: 'block',
+								fontSize: '14px',
+								fontWeight: '600',
+								color: '#374151',
+								marginBottom: '8px',
 							}}
 						>
-							Choose what you want to do with MFA devices.
-						</p>
+							Environment ID
+						</label>
+						<input
+							id="env-id"
+							type="text"
+							value={environmentId}
+							onChange={(e) => setEnvironmentId(e.target.value)}
+							placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+							style={{
+								width: '100%',
+								padding: '10px 12px',
+								border: '1px solid #d1d5db',
+								borderRadius: '6px',
+								fontSize: '14px',
+								boxSizing: 'border-box',
+							}}
+						/>
 					</div>
 
-					{/* Configuration Section */}
+					{/* SQLite Database Stats */}
+					{environmentId && (
+						<div style={{ marginBottom: '20px' }}>
+							<SQLiteStatsDisplayV8
+								environmentId={environmentId}
+								compact={false}
+								refreshInterval={30}
+								showRefreshButton={true}
+							/>
+						</div>
+					)}
+
+					
+					{/* MFA Policy Dropdown */}
+					<div style={{ marginBottom: '20px' }}>
+						<label
+							htmlFor="mfa-policy"
+							style={{
+								display: 'block',
+								fontSize: '14px',
+								fontWeight: '600',
+								color: '#374151',
+								marginBottom: '8px',
+							}}
+						>
+							MFA Policy
+						</label>
+						{isPoliciesLoading ? (
+							<div style={{ padding: '10px', color: '#6b7280', fontSize: '14px' }}>
+								Loading policies...
+							</div>
+						) : policiesError ? (
+							<div style={{ padding: '10px', color: '#ef4444', fontSize: '14px' }}>
+								Error loading policies: {policiesError}
+							</div>
+						) : policies.length === 0 ? (
+							<div style={{ padding: '10px', color: '#6b7280', fontSize: '14px' }}>
+								No MFA policies found. Please check your environment ID and worker token.
+							</div>
+						) : (
+							<SearchableDropdownV8
+								id="mfa-policy"
+								value={selectedPolicy?.id || ''}
+								options={policies.map((policy) => {
+									const policyOption: SearchableDropdownOption = {
+										value: policy.id,
+										label: policy.name,
+									};
+									if (policy.default) {
+										policyOption.secondaryLabel = '(Default)';
+									}
+									return policyOption;
+								})}
+								onChange={selectPolicy}
+								placeholder="Select an MFA policy..."
+								isLoading={isPoliciesLoading}
+							/>
+						)}
+						<span
+							style={{
+								display: 'block',
+								marginTop: '6px',
+								fontSize: '12px',
+								color: '#6b7280',
+							}}
+						>
+							Select the MFA policy to use for device registration
+						</span>
+
+						{/* Policy Summary - Collapsible */}
+						{selectedPolicy && (
+							<details
+								style={{
+									marginTop: '12px',
+									padding: '12px',
+									background: '#f9fafb',
+									border: '1px solid #e5e7eb',
+									borderRadius: '6px',
+								}}
+							>
+								<summary
+									style={{
+										cursor: 'pointer',
+										fontWeight: '600',
+										fontSize: '13px',
+										color: '#374151',
+										userSelect: 'none',
+									}}
+								>
+									📋 Policy Details
+								</summary>
+								<div style={{ marginTop: '12px', fontSize: '13px', color: '#4b5563' }}>
+									<div style={{ marginBottom: '8px' }}>
+										<strong>Policy Name:</strong> {selectedPolicy.name}
+									</div>
+									{selectedPolicy.default && (
+										<div style={{ marginBottom: '8px', color: '#059669' }}>
+											<strong>✓ Default Policy</strong>
+										</div>
+									)}
+									<div style={{ marginBottom: '8px' }}>
+										<strong>Enabled Devices:</strong>
+									</div>
+									<div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '6px' }}>
+										{selectedPolicy.sms?.enabled && (
+											<span
+												style={{
+													padding: '4px 8px',
+													background: '#dbeafe',
+													color: '#1e40af',
+													borderRadius: '4px',
+													fontSize: '12px',
+												}}
+											>
+												📱 SMS
+											</span>
+										)}
+										{selectedPolicy.email?.enabled && (
+											<span
+												style={{
+													padding: '4px 8px',
+													background: '#dbeafe',
+													color: '#1e40af',
+													borderRadius: '4px',
+													fontSize: '12px',
+												}}
+											>
+												✉️ Email
+											</span>
+										)}
+										{selectedPolicy.totp?.enabled && (
+											<span
+												style={{
+													padding: '4px 8px',
+													background: '#dbeafe',
+													color: '#1e40af',
+													borderRadius: '4px',
+													fontSize: '12px',
+												}}
+											>
+												🔐 TOTP
+											</span>
+										)}
+										{selectedPolicy.fido2?.enabled && (
+											<span
+												style={{
+													padding: '4px 8px',
+													background: '#dbeafe',
+													color: '#1e40af',
+													borderRadius: '4px',
+													fontSize: '12px',
+												}}
+											>
+												🔑 FIDO2
+											</span>
+										)}
+										{selectedPolicy.mobile?.enabled && (
+											<span
+												style={{
+													padding: '4px 8px',
+													background: '#dbeafe',
+													color: '#1e40af',
+													borderRadius: '4px',
+													fontSize: '12px',
+												}}
+											>
+												📲 Mobile
+											</span>
+										)}
+										{selectedPolicy.voice?.enabled && (
+											<span
+												style={{
+													padding: '4px 8px',
+													background: '#dbeafe',
+													color: '#1e40af',
+													borderRadius: '4px',
+													fontSize: '12px',
+												}}
+											>
+												📞 Voice
+											</span>
+										)}
+									</div>
+								</div>
+							</details>
+						)}
+					</div>
+
+					{/* Worker Token Status */}
 					<div
 						style={{
-							background: '#ffffff',
-							borderRadius: '12px',
-							padding: '16px',
-							marginBottom: '16px',
-							border: '1px solid #e5e7eb',
+							marginTop: '24px',
+							marginBottom: '60px',
+							paddingRight: '24px',
 							overflow: 'hidden',
 						}}
 					>
-						<h2
-							style={{
-								margin: '0 0 12px 0',
-								fontSize: '18px',
-								fontWeight: '600',
-								color: '#111827',
+						<SilentApiConfigCheckboxV8 />
+						<ShowTokenConfigCheckboxV8 />
+						{!hasWorkerToken && (
+							<button
+								type="button"
+								onClick={() => setShowWorkerTokenModal(true)}
+								style={{
+									marginBottom: '16px',
+									padding: '8px 16px',
+									backgroundColor: '#007bff',
+									color: 'white',
+									border: 'none',
+									borderRadius: '4px',
+									cursor: 'pointer',
+								}}
+							>
+								Get Worker Token
+							</button>
+						)}
+						<WorkerTokenModalV8
+							isOpen={showWorkerTokenModal}
+							onClose={() => setShowWorkerTokenModal(false)}
+							onTokenGenerated={() => {
+								// Token generated, can refresh data if needed
+								console.log('Worker token generated');
 							}}
-						>
-							Configuration
-						</h2>
+						/>
 
-						{/* Custom Logo URL */}
-						<div style={{ marginBottom: '12px' }}>
-							<label
-								htmlFor="custom-logo-url"
+						{/* Worker Token Status Display */}
+						<WorkerTokenStatusDisplayV8 />
+
+						{/* User Token Status */}
+						{userToken && (
+							<div
 								style={{
-									display: 'block',
-									fontSize: '14px',
-									fontWeight: '600',
-									color: PING_IDENTITY_COLORS.neutral[800],
-									marginBottom: '8px',
+									marginTop: '16px',
+									padding: '16px',
+									background:
+										'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(34, 197, 94, 0.05))',
+									border: '2px solid #10b981',
+									borderRadius: '8px',
 								}}
 							>
-								🎨 Custom Logo URL (Optional)
-							</label>
-							<p
-								style={{
-									margin: '0 0 8px 0',
-									fontSize: '13px',
-									color: PING_IDENTITY_COLORS.neutral[600],
-								}}
-							>
-								Display a custom logo in the OTP verification modal
-							</p>
-
-							{/* URL Input */}
-							<input
-								id="custom-logo-url"
-								type="url"
-								value={customLogoUrl}
-								onChange={(e) => setCustomLogoUrl(e.target.value)}
-								placeholder="https://example.com/logo.png"
-								style={{
-									width: '100%',
-									padding: '10px 14px',
-									fontSize: '14px',
-									border: `1px solid ${PING_IDENTITY_COLORS.neutral[300]}`,
-									borderRadius: '6px',
-									outline: 'none',
-									transition: 'all 0.2s ease',
-									boxSizing: 'border-box',
-									marginBottom: '12px',
-									background: '#ffffff',
-									color: PING_IDENTITY_COLORS.neutral[900],
-								}}
-								onFocus={(e) => {
-									e.currentTarget.style.borderColor = PING_IDENTITY_COLORS.primary[500];
-									e.currentTarget.style.boxShadow = `0 0 0 3px ${PING_IDENTITY_COLORS.primary[200]}`;
-								}}
-								onBlur={(e) => {
-									e.currentTarget.style.borderColor = PING_IDENTITY_COLORS.neutral[300];
-									e.currentTarget.style.boxShadow = 'none';
-								}}
-							/>
-
-							{/* File Upload Section */}
-							<div style={{ marginBottom: '12px' }}>
 								<div
 									style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}
 								>
-									<span style={{ fontSize: '13px', color: PING_IDENTITY_COLORS.neutral[500] }}>
-										OR
-									</span>
+									<span style={{ fontSize: '20px' }}>👤</span>
+									<strong style={{ color: '#047857', fontSize: '16px' }}>User Token Active</strong>
 								</div>
-								<input
-									type="file"
-									id="custom-logo-upload"
-									accept="image/*"
-									onChange={(e) => {
-										const file = e.target.files?.[0];
-										if (!file) return;
-
-										// Validate file type (images only)
-										if (!file.type.startsWith('image/')) {
-											toastV8.error('Please select a logo file (JPG, PNG, etc.)');
-											return;
-										}
-
-										// Validate file size (max 5MB)
-										if (file.size > 5 * 1024 * 1024) {
-											toastV8.error('File size must be less than 5MB');
-											return;
-										}
-
-										// Convert file to base64 for persistence
-										const reader = new FileReader();
-										reader.onload = (event) => {
-											const base64Url = event.target?.result as string;
-
-											// Store file info in state
-											const fileInfo = {
-												name: file.name,
-												size: file.size,
-												type: file.type,
-												timestamp: Date.now(),
-												base64Url: base64Url,
-											};
-
-											console.log('🔍 [FILE-UPLOAD-DEBUG] File info created:', {
-												name: fileInfo.name,
-												size: fileInfo.size,
-												type: fileInfo.type,
-												hasBase64Url: !!fileInfo.base64Url,
-												base64UrlLength: fileInfo.base64Url?.length,
-											});
-
-											setUploadedFileInfo(fileInfo);
-
-											// Save to localStorage for persistence
-											localStorage.setItem('custom-logo-upload', JSON.stringify(fileInfo));
-
-											toastV8.success(`Logo uploaded: ${file.name}`);
-										};
-										reader.onerror = () => {
-											toastV8.error('Failed to read uploaded file');
-										};
-										reader.readAsDataURL(file);
-									}}
-									style={{ display: 'none' }}
-								/>
-								<label
-									htmlFor="custom-logo-upload"
-									style={{
-										display: 'inline-flex',
-										alignItems: 'center',
-										gap: '8px',
-										padding: '8px 16px',
-										background: PING_IDENTITY_COLORS.primary[500],
-										color: 'white',
-										border: `1px solid ${PING_IDENTITY_COLORS.primary[600]}`,
-										borderRadius: '6px',
-										cursor: 'pointer',
-										fontSize: '13px',
-										fontWeight: '500',
-										transition: 'all 0.2s ease',
-									}}
-									onMouseEnter={(e) => {
-										e.currentTarget.style.background = PING_IDENTITY_COLORS.primary[600];
-										e.currentTarget.style.borderColor = PING_IDENTITY_COLORS.primary[700];
-									}}
-									onMouseLeave={(e) => {
-										e.currentTarget.style.background = PING_IDENTITY_COLORS.primary[500];
-										e.currentTarget.style.borderColor = PING_IDENTITY_COLORS.primary[600];
-									}}
-								>
-									📁 Upload Logo File
-								</label>
-								<span
-									style={{
-										fontSize: '12px',
-										color: PING_IDENTITY_COLORS.neutral[500],
-										marginLeft: '8px',
-									}}
-								>
-									JPG, PNG, GIF (max 5MB)
-								</span>
-							</div>
-
-							{(uploadedFileInfo || customLogoUrl) && (
-								<div
-									style={{
-										marginTop: '12px',
-										textAlign: 'center',
-										padding: '12px',
-										background: PING_IDENTITY_COLORS.neutral[50],
-										border: `1px solid ${PING_IDENTITY_COLORS.neutral[200]}`,
-										borderRadius: '6px',
-									}}
-								>
-									<p
-										style={{
-											margin: '0 0 8px 0',
-											fontSize: '12px',
-											color: PING_IDENTITY_COLORS.neutral[600],
-											fontWeight: '600',
-										}}
-									>
-										Logo Preview:
-									</p>
-									{uploadedFileInfo ? (
-										<>
-											{(() => {
-												console.log(
-													'🔍 [RENDER-DEBUG] Rendering uploadedFileInfo:',
-													uploadedFileInfo
-												);
-												return null;
-											})() || ''}
-											<img
-												src={uploadedFileInfo.base64Url || ''}
-												alt="Custom logo"
-												style={{
-													maxWidth: '80px',
-													maxHeight: '80px',
-													objectFit: 'contain',
-													border: `1px solid ${PING_IDENTITY_COLORS.neutral[200]}`,
-													borderRadius: '4px',
-													background: 'white',
-													padding: '4px',
-												}}
-												onError={() => {
-													console.error('Failed to load uploaded logo');
-												}}
-											/>
-											<div style={{ marginTop: '8px' }}>
-												<p
-													style={{
-														margin: '0 0 8px 0',
-														fontSize: '11px',
-														color: PING_IDENTITY_COLORS.neutral[500],
-														fontWeight: '500',
-													}}
-												>
-													File: {uploadedFileInfo?.name || 'Unknown file'}
-												</p>
-												<p
-													style={{
-														margin: '0 0 8px 0',
-														fontSize: '10px',
-														color: PING_IDENTITY_COLORS.neutral[400],
-													}}
-												>
-													Size:{' '}
-													{uploadedFileInfo?.size
-														? `${(uploadedFileInfo.size / 1024).toFixed(1)} KB`
-														: 'Unknown size'}
-												</p>
-											</div>
-										</>
-									) : (
-										<>
-											{(() => {
-												console.log(
-													'🔍 [RENDER-DEBUG] Rendering URL case, customLogoUrl:',
-													customLogoUrl
-												);
-												return null;
-											})() || ''}
-											<img
-												src={customLogoUrl}
-												alt="Custom logo"
-												style={{
-													maxWidth: '80px',
-													maxHeight: '80px',
-													objectFit: 'contain',
-													border: `1px solid ${PING_IDENTITY_COLORS.neutral[200]}`,
-													borderRadius: '4px',
-													background: 'white',
-													padding: '4px',
-												}}
-												onError={() => {
-													console.error('Failed to load custom logo URL');
-												}}
-											/>
-											<div style={{ marginTop: '8px' }}>
-												<p
-													style={{
-														margin: '0 0 8px 0',
-														fontSize: '11px',
-														color: PING_IDENTITY_COLORS.neutral[500],
-														fontWeight: '500',
-													}}
-												>
-													URL: {customLogoUrl}
-												</p>
-											</div>
-										</>
-									)}
-									<div style={{ marginTop: '8px' }}>
-										<button
-											type="button"
-											onClick={() => {
-												setCustomLogoUrl('');
-												setUploadedFileInfo(null);
-												// Clear uploaded file from localStorage
-												localStorage.removeItem('custom-logo-upload');
-											}}
-											style={{
-												padding: '4px 8px',
-												fontSize: '11px',
-												background: PING_IDENTITY_COLORS.accent.pingRed[500],
-												color: 'white',
-												border: `1px solid ${PING_IDENTITY_COLORS.accent.pingRed[600]}`,
-												borderRadius: '4px',
-												cursor: 'pointer',
-												transition: 'all 0.2s ease',
-											}}
-											onMouseEnter={(e) => {
-												e.currentTarget.style.background = PING_IDENTITY_COLORS.accent.pingRed[600];
-											}}
-											onMouseLeave={(e) => {
-												e.currentTarget.style.background = PING_IDENTITY_COLORS.accent.pingRed[500];
-											}}
-										>
-											Remove Logo
-										</button>
-									</div>
+								<div style={{ fontSize: '14px', color: '#059669', lineHeight: '1.5' }}>
+									✓ User authentication token available
+									<br />✓ Ready for User Flow device registration
 								</div>
-							)}
-						</div>
-
-						{/* Flow Type Selection */}
-						<div style={{ marginBottom: '16px' }}>
-							<div
-								style={{
-									display: 'block',
-									fontSize: '14px',
-									fontWeight: '600',
-									color: '#374151',
-									marginBottom: '8px',
-								}}
-							>
-								Registration Flow Type
-							</div>
-							<div
-								style={{
-									display: 'flex',
-									gap: '12px',
-									flexWrap: 'wrap',
-								}}
-							>
-								{/* Admin Flow (Direct Registration) */}
-								<button
-									type="button"
-									onClick={() => setSelectedFlowType('admin-active')}
-									style={{
-										padding: '8px 16px',
-										border: `2px solid ${
-											selectedFlowType === 'admin-active'
-												? PING_IDENTITY_COLORS.accent.pingRed[500]
-												: PING_IDENTITY_COLORS.neutral[300]
-										}`,
-										borderRadius: '6px',
-										background:
-											selectedFlowType === 'admin-active'
-												? PING_IDENTITY_COLORS.accent.pingRed[50]
-												: 'white',
-										color:
-											selectedFlowType === 'admin-active'
-												? PING_IDENTITY_COLORS.accent.pingRed[700]
-												: PING_IDENTITY_COLORS.neutral[700],
-										fontWeight: '600',
-										cursor: 'pointer',
-										transition: 'all 0.2s ease',
-									}}
-									onMouseEnter={(e) => {
-										if (selectedFlowType !== 'admin-active') {
-											e.currentTarget.style.borderColor = PING_IDENTITY_COLORS.accent.pingRed[400];
-											e.currentTarget.style.background = PING_IDENTITY_COLORS.accent.pingRed[50];
-										}
-									}}
-									onMouseLeave={(e) => {
-										if (selectedFlowType !== 'admin-active') {
-											e.currentTarget.style.borderColor = PING_IDENTITY_COLORS.neutral[300];
-											e.currentTarget.style.background = 'white';
-										}
-									}}
-								>
-									🔐 Admin Flow
-									<div
-										style={{
-											fontSize: '11px',
-											fontWeight: '400',
-											marginTop: '2px',
-											color:
-												selectedFlowType === 'admin-active'
-													? PING_IDENTITY_COLORS.accent.pingRed[600]
-													: PING_IDENTITY_COLORS.neutral[500],
-										}}
-									>
-										Direct Registration
-									</div>
-								</button>
-
-								{/* Admin Flow (Activation Required) */}
-								<button
-									type="button"
-									onClick={() => setSelectedFlowType('admin-activation')}
-									style={{
-										padding: '8px 16px',
-										border: `2px solid ${
-											selectedFlowType === 'admin-activation'
-												? PING_IDENTITY_COLORS.accent.pingRed[500]
-												: PING_IDENTITY_COLORS.neutral[300]
-										}`,
-										borderRadius: '6px',
-										background:
-											selectedFlowType === 'admin-activation'
-												? PING_IDENTITY_COLORS.accent.pingRed[50]
-												: 'white',
-										color:
-											selectedFlowType === 'admin-activation'
-												? PING_IDENTITY_COLORS.accent.pingRed[700]
-												: PING_IDENTITY_COLORS.neutral[700],
-										fontWeight: '600',
-										cursor: 'pointer',
-										transition: 'all 0.2s ease',
-									}}
-									onMouseEnter={(e) => {
-										if (selectedFlowType !== 'admin-activation') {
-											e.currentTarget.style.borderColor = PING_IDENTITY_COLORS.accent.pingRed[400];
-											e.currentTarget.style.background = PING_IDENTITY_COLORS.accent.pingRed[50];
-										}
-									}}
-									onMouseLeave={(e) => {
-										if (selectedFlowType !== 'admin-activation') {
-											e.currentTarget.style.borderColor = PING_IDENTITY_COLORS.neutral[300];
-											e.currentTarget.style.background = 'white';
-										}
-									}}
-								>
-									🔐 Admin Flow
-									<div
-										style={{
-											fontSize: '11px',
-											fontWeight: '400',
-											marginTop: '2px',
-											color:
-												selectedFlowType === 'admin-activation'
-													? PING_IDENTITY_COLORS.accent.pingRed[600]
-													: PING_IDENTITY_COLORS.neutral[500],
-										}}
-									>
-										Activation Required
-									</div>
-								</button>
-
-								{/* User Flow */}
-								<button
-									type="button"
-									onClick={() => setSelectedFlowType('user')}
-									style={{
-										padding: '8px 16px',
-										border: `2px solid ${
-											selectedFlowType === 'user'
-												? PING_IDENTITY_COLORS.primary[500]
-												: PING_IDENTITY_COLORS.neutral[300]
-										}`,
-										borderRadius: '6px',
-										background:
-											selectedFlowType === 'user' ? PING_IDENTITY_COLORS.primary[50] : 'white',
-										color:
-											selectedFlowType === 'user'
-												? PING_IDENTITY_COLORS.primary[700]
-												: PING_IDENTITY_COLORS.neutral[700],
-										fontWeight: '600',
-										cursor: 'pointer',
-										transition: 'all 0.2s ease',
-									}}
-									onMouseEnter={(e) => {
-										if (selectedFlowType !== 'user') {
-											e.currentTarget.style.borderColor = PING_IDENTITY_COLORS.primary[400];
-											e.currentTarget.style.background = PING_IDENTITY_COLORS.primary[50];
-										}
-									}}
-									onMouseLeave={(e) => {
-										if (selectedFlowType !== 'user') {
-											e.currentTarget.style.borderColor = PING_IDENTITY_COLORS.neutral[300];
-											e.currentTarget.style.background = 'white';
-										}
-									}}
-								>
-									👤 User Flow
-									<div
-										style={{
-											fontSize: '11px',
-											fontWeight: '400',
-											marginTop: '2px',
-											color:
-												selectedFlowType === 'user'
-													? PING_IDENTITY_COLORS.primary[600]
-													: PING_IDENTITY_COLORS.neutral[500],
-										}}
-									>
-										Self-Service Registration
-									</div>
-								</button>
-							</div>
-							<div
-								style={{
-									marginTop: '8px',
-									fontSize: '12px',
-									color: PING_IDENTITY_COLORS.neutral[600],
-									lineHeight: '1.4',
-								}}
-							>
-								{selectedFlowType === 'admin-active' && (
-									<>
-										<strong>Admin Flow (Direct Registration):</strong> Register devices directly
-										using worker tokens. Devices become active immediately without requiring OTP
-										activation.
-									</>
-								)}
-								{selectedFlowType === 'admin-activation' && (
-									<>
-										<strong>Admin Flow (Activation Required):</strong> Register devices using worker
-										tokens, but require OTP activation for security.
-									</>
-								)}
-								{selectedFlowType === 'user' && (
-									<>
-										<strong>User Flow:</strong> Users register their own devices after OAuth
-										authentication. Requires user login and OTP activation.
-									</>
-								)}
-							</div>
-						</div>
-
-						{/* Environment ID - Hide when worker token is available */}
-						{!hasWorkerToken && (
-							<div style={{ marginBottom: '12px' }}>
-								<label
-									htmlFor="env-id"
-									style={{
-										display: 'block',
-										fontSize: '14px',
-										fontWeight: '600',
-										color: '#374151',
-										marginBottom: '8px',
-									}}
-								>
-									Environment ID
-								</label>
-								<input
-									id="env-id"
-									type="text"
-									value={environmentId}
-									onChange={(e) => setEnvironmentId(e.target.value)}
-									placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-									style={{
-										width: '100%',
-										padding: '10px 12px',
-										border: '1px solid #d1d5db',
-										borderRadius: '6px',
-										fontSize: '14px',
-										boxSizing: 'border-box',
-									}}
-								/>
 							</div>
 						)}
-
-						{/* SQLite Database Stats */}
-						{environmentId && (
-							<div style={{ marginBottom: '12px' }}>
-								<SQLiteStatsDisplayV8
-									environmentId={environmentId}
-									compact={false}
-									refreshInterval={30}
-									showRefreshButton={true}
-								/>
-							</div>
-						)}
-
-						{/* Username */}
-						<div style={{ marginBottom: '12px' }}>
-							<label
-								htmlFor="username"
-								style={{
-									display: 'block',
-									fontSize: '14px',
-									fontWeight: '600',
-									color: '#374151',
-									marginBottom: '8px',
-								}}
-							>
-								Username
-							</label>
-							<SearchableDropdownV8
-								id="username"
-								value={username}
-								options={userOptions}
-								onChange={setUsername}
-								placeholder={
-									environmentId && tokenStatus.isValid
-										? 'Type to search across 16,000+ users...'
-										: environmentId
-											? 'Enter username or configure worker token for search...'
-											: 'Enter username (configure environment ID for search)'
-								}
-								isLoading={isLoadingUsers}
-								onSearchChange={(search) => {
-									setSearchQuery(search);
-									// Update username as user types to allow custom entry
-									setUsername(search);
-								}}
-								disabled={!!environmentId && !tokenStatus.isValid}
-								style={{
-									opacity: environmentId && tokenStatus.isValid ? 1 : environmentId ? 0.6 : 1,
-									borderColor:
-										environmentId && tokenStatus.isValid
-											? '#d1d5db'
-											: environmentId
-												? '#fbbf24'
-												: '#d1d5db',
-								}}
-							/>
-						</div>
-
-						{/* MFA Policy Dropdown */}
-						<div style={{ marginBottom: '12px' }}>
-							<label
-								htmlFor="mfa-policy"
-								style={{
-									display: 'block',
-									fontSize: '14px',
-									fontWeight: '600',
-									color: '#374151',
-									marginBottom: '8px',
-								}}
-							>
-								MFA Policy
-							</label>
-							{isPoliciesLoading ? (
-								<div style={{ padding: '10px', color: '#6b7280', fontSize: '14px' }}>
-									Loading policies...
-								</div>
-							) : policiesError ? (
-								<div style={{ padding: '10px', color: '#ef4444', fontSize: '14px' }}>
-									Error loading policies: {policiesError}
-								</div>
-							) : policies.length === 0 ? (
-								<div style={{ padding: '10px', color: '#6b7280', fontSize: '14px' }}>
-									No MFA policies found. Please check your environment ID and worker token.
-								</div>
-							) : (
-								<SearchableDropdownV8
-									id="mfa-policy"
-									value={selectedPolicy?.id || ''}
-									options={policyOptions}
-									onChange={selectPolicy}
-									placeholder="Select an MFA policy..."
-									isLoading={isPoliciesLoading}
-								/>
-							)}
-							<span
-								style={{
-									display: 'block',
-									marginTop: '6px',
-									fontSize: '12px',
-									color: '#6b7280',
-								}}
-							>
-								Select the MFA policy to use for device registration
-							</span>
-
-							{/* Policy Summary - Collapsible */}
-							{selectedPolicy && (
-								<details
-									style={{
-										marginTop: '12px',
-										padding: '12px',
-										background: '#f9fafb',
-										border: '1px solid #e5e7eb',
-										borderRadius: '6px',
-									}}
-								>
-									<summary
-										style={{
-											cursor: 'pointer',
-											fontWeight: '600',
-											fontSize: '13px',
-											color: '#374151',
-											userSelect: 'none',
-										}}
-									>
-										📋 Policy Details
-									</summary>
-									<div style={{ marginTop: '12px', fontSize: '13px', color: '#4b5563' }}>
-										<div style={{ marginBottom: '8px' }}>
-											<strong>Policy Name:</strong> {selectedPolicy.name}
-										</div>
-										{(selectedPolicy as DeviceAuthenticationPolicy & { default?: boolean })
-											?.default && (
-											<div style={{ marginBottom: '8px', color: '#059669' }}>
-												<strong>✓ Default Policy</strong>
-											</div>
-										)}
-										<div style={{ marginBottom: '8px' }}>
-											<strong>Enabled Devices:</strong>
-										</div>
-										<div
-											style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '6px' }}
-										>
-											{isPolicyDeviceEnabled(selectedPolicy, 'sms') && (
-												<span
-													style={{
-														padding: '4px 8px',
-														background: '#dbeafe',
-														color: '#1e40af',
-														borderRadius: '4px',
-														fontSize: '12px',
-													}}
-												>
-													📱 SMS
-												</span>
-											)}
-											{isPolicyDeviceEnabled(selectedPolicy, 'email') && (
-												<span
-													style={{
-														padding: '4px 8px',
-														background: '#dbeafe',
-														color: '#1e40af',
-														borderRadius: '4px',
-														fontSize: '12px',
-													}}
-												>
-													✉️ Email
-												</span>
-											)}
-											{isPolicyDeviceEnabled(selectedPolicy, 'totp') && (
-												<span
-													style={{
-														padding: '4px 8px',
-														background: '#dbeafe',
-														color: '#1e40af',
-														borderRadius: '4px',
-														fontSize: '12px',
-													}}
-												>
-													🔐 TOTP
-												</span>
-											)}
-											{isPolicyDeviceEnabled(selectedPolicy, 'fido2') && (
-												<span
-													style={{
-														padding: '4px 8px',
-														background: '#dbeafe',
-														color: '#1e40af',
-														borderRadius: '4px',
-														fontSize: '12px',
-													}}
-												>
-													🔑 FIDO2
-												</span>
-											)}
-											{isPolicyDeviceEnabled(selectedPolicy, 'mobile') && (
-												<span
-													style={{
-														padding: '4px 8px',
-														background: '#dbeafe',
-														color: '#1e40af',
-														borderRadius: '4px',
-														fontSize: '12px',
-													}}
-												>
-													📲 Mobile
-												</span>
-											)}
-											{isPolicyDeviceEnabled(selectedPolicy, 'voice') && (
-												<span
-													style={{
-														padding: '4px 8px',
-														background: '#dbeafe',
-														color: '#1e40af',
-														borderRadius: '4px',
-														fontSize: '12px',
-													}}
-												>
-													📞 Voice
-												</span>
-											)}
-										</div>
-									</div>
-								</details>
-							)}
-						</div>
-
-						{/* Worker Token Status */}
-						<div
-							style={{
-								marginTop: '16px',
-								marginBottom: '24px',
-								paddingRight: '16px',
-								overflow: 'hidden',
-							}}
-						>
-							<WorkerTokenUIServiceV8
-								mode="detailed"
-								showRefresh={true}
-								showStatusDisplay={true}
-								statusSize="large"
-								context="mfa"
-								environmentId={environmentId}
-								onEnvironmentIdUpdate={setEnvironmentId}
-							/>
-
-							{/* Worker Token Required Message */}
-							{!hasWorkerToken && (
-								<div
-									style={{
-										marginTop: '16px',
-										padding: '16px',
-										background:
-											'linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(248, 113, 113, 0.05))',
-										border: '2px solid #ef4444',
-										borderRadius: '8px',
-									}}
-								>
-									<div
-										style={{
-											display: 'flex',
-											alignItems: 'center',
-											gap: '8px',
-											marginBottom: '8px',
-										}}
-									>
-										<span style={{ fontSize: '20px' }}>⚠️</span>
-										<strong style={{ color: '#dc2626', fontSize: '16px' }}>
-											Worker Token Required
-										</strong>
-									</div>
-									<div style={{ fontSize: '14px', color: '#b91c1c', lineHeight: '1.5' }}>
-										❌ No valid worker token found
-										<br />❌ User authentication will fail
-										<br />❌ Username extraction will not work
-										<br />
-										<br />
-										<strong>Please generate a worker token above to continue.</strong>
-									</div>
-								</div>
-							)}
-
-							{/* User Token Status */}
-							{userToken && (
-								<div
-									style={{
-										marginTop: '16px',
-										padding: '16px',
-										background:
-											'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(34, 197, 94, 0.05))',
-										border: '2px solid #10b981',
-										borderRadius: '8px',
-									}}
-								>
-									<div
-										style={{
-											display: 'flex',
-											alignItems: 'center',
-											gap: '8px',
-											marginBottom: '8px',
-										}}
-									>
-										<span style={{ fontSize: '20px' }}>👤</span>
-										<strong style={{ color: '#047857', fontSize: '16px' }}>
-											User Token Active
-										</strong>
-									</div>
-									<div style={{ fontSize: '14px', color: '#059669', lineHeight: '1.5' }}>
-										✓ User authentication token available
-										<br />✓ Ready for User Flow device registration
-									</div>
-								</div>
-							)}
-						</div>
-					</div>
-
-					{/* Flow Mode Selection */}
-					<div
-						style={{
-							display: 'grid',
-							gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-							gap: '16px',
-						}}
-					>
-						{/* Registration Option */}
-						<button
-							type="button"
-							onClick={() => setFlowMode('registration')}
-							style={{
-								padding: '20px 16px',
-							}}
-							onMouseLeave={(e) => {
-								e.currentTarget.style.borderColor = '#e5e7eb';
-								e.currentTarget.style.background = '#ffffff';
-								e.currentTarget.style.transform = 'translateY(0)';
-								e.currentTarget.style.boxShadow = 'none';
-							}}
-						>
-							<div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
-								<span style={{ fontSize: '48px', lineHeight: 1 }}>➕</span>
-								<div>
-									<h2
-										style={{
-											margin: '0 0 8px 0',
-											fontSize: '20px',
-											fontWeight: '700',
-											color: '#047857',
-										}}
-									>
-										Device Registration
-									</h2>
-									<p style={{ margin: 0, fontSize: '14px', color: '#6b7280', lineHeight: '1.6' }}>
-										Register a new MFA device for a user. Create SMS, Email, TOTP, Mobile Push,
-										WhatsApp, or FIDO2 devices.
-									</p>
-								</div>
-							</div>
-						</button>
-
-						{/* Authentication Option */}
-						<button
-							type="button"
-							onClick={() => {
-								// CRITICAL FIX: Admin flows CAN authenticate devices without user login
-								// Worker tokens are for API calls, NOT for authentication
-								// Admin flow: Use worker token for API calls, no user auth needed for device authentication
-								// User flow: Requires user token for both registration AND authentication
-
-								if (selectedFlowType?.startsWith('admin')) {
-									// Admin flow: Can authenticate devices directly with worker token
-									setFlowMode('authentication');
-									setShowDeviceSelectionModal(true);
-									toastV8.info(
-										'🔐 Admin Flow: Authenticating device using worker token for API calls.',
-										{
-											duration: 4000,
-										}
-									);
-									return;
-								}
-
-								// User flow: Requires user token for authentication
-								if (!userToken) {
-									setShowAuthLoginModal(true);
-									toastV8.info(
-										'🔐 User Flow: Please complete user login before device authentication.',
-										{
-											duration: 5000,
-										}
-									);
-									return;
-								}
-								setFlowMode('authentication');
-								setShowDeviceSelectionModal(true);
-							}}
-							style={{
-								padding: '20px 16px',
-								background: '#ffffff',
-								border: '2px solid #e5e7eb',
-								borderRadius: '16px',
-								cursor: 'pointer',
-								textAlign: 'left',
-								transition: 'all 0.2s ease',
-							}}
-							onMouseEnter={(e) => {
-								e.currentTarget.style.borderColor = '#3b82f6';
-								e.currentTarget.style.background = '#eff6ff';
-								e.currentTarget.style.transform = 'translateY(-4px)';
-								e.currentTarget.style.boxShadow = '0 8px 24px rgba(59, 130, 246, 0.2)';
-							}}
-							onMouseLeave={(e) => {
-								e.currentTarget.style.borderColor = '#e5e7eb';
-								e.currentTarget.style.background = '#ffffff';
-								e.currentTarget.style.transform = 'translateY(0)';
-								e.currentTarget.style.boxShadow = 'none';
-							}}
-						>
-							<div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
-								<span style={{ fontSize: '48px', lineHeight: 1 }}>🔓</span>
-								<div>
-									<h2
-										style={{
-											margin: '0 0 8px 0',
-											fontSize: '20px',
-											fontWeight: '700',
-											color: '#1d4ed8',
-										}}
-									>
-										Device Authentication
-									</h2>
-									<p style={{ margin: 0, fontSize: '14px', color: '#6b7280', lineHeight: '1.6' }}>
-										Authenticate using an existing MFA device. Verify user identity with OTP, push
-										notification, or security key.
-									</p>
-								</div>
-							</div>
-						</button>
 					</div>
 				</div>
-				{showAuthLoginModal && (
-					<UserLoginModalV8
-						isOpen={showAuthLoginModal}
-						onClose={() => setShowAuthLoginModal(false)}
-						onTokenReceived={(token) => {
-							// FIXED: Respect selectedFlowType - admin flows should not use user login
-							if (selectedFlowType?.startsWith('admin')) {
-								toastV8.error('🔐 Admin flow selected. User login not allowed in admin flow.', {
-									duration: 5000,
-								});
-								setShowAuthLoginModal(false);
-								return;
-							}
 
-							setUserToken(token);
-							setShowAuthLoginModal(false);
+				{/* Flow Mode Selection */}
+				<div
+					style={{
+						display: 'grid',
+						gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+						gap: '20px',
+					}}
+				>
+					{/* Registration Option */}
+					<button
+						type="button"
+						onClick={() => setFlowMode('registration')}
+						style={{
+							padding: '32px 24px',
+						}}
+						onMouseLeave={(e) => {
+							e.currentTarget.style.borderColor = '#e5e7eb';
+							e.currentTarget.style.background = '#ffffff';
+							e.currentTarget.style.transform = 'translateY(0)';
+							e.currentTarget.style.boxShadow = 'none';
+						}}
+					>
+						<div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
+							<span style={{ fontSize: '48px', lineHeight: 1 }}>➕</span>
+							<div>
+								<h2
+									style={{
+										margin: '0 0 8px 0',
+										fontSize: '20px',
+										fontWeight: '700',
+										color: '#047857',
+									}}
+								>
+									Device Registration
+								</h2>
+								<p style={{ margin: 0, fontSize: '14px', color: '#6b7280', lineHeight: '1.6' }}>
+									Register a new MFA device for a user. Create SMS, Email, TOTP, Mobile Push,
+									WhatsApp, or FIDO2 devices.
+								</p>
+							</div>
+						</div>
+					</button>
+
+					{/* Authentication Option */}
+					<button
+						type="button"
+						onClick={() => {
+							// Show device selection modal for authentication on this page
 							setFlowMode('authentication');
 							setShowDeviceSelectionModal(true);
 						}}
-						environmentId={authEnvIdForModal}
-					/>
-				)}
-			</>
+						style={{
+							padding: '32px 24px',
+							background: '#ffffff',
+							border: '2px solid #e5e7eb',
+							borderRadius: '16px',
+							cursor: 'pointer',
+							textAlign: 'left',
+							transition: 'all 0.2s ease',
+						}}
+						onMouseEnter={(e) => {
+							e.currentTarget.style.borderColor = '#3b82f6';
+							e.currentTarget.style.background = '#eff6ff';
+							e.currentTarget.style.transform = 'translateY(-4px)';
+							e.currentTarget.style.boxShadow = '0 8px 24px rgba(59, 130, 246, 0.2)';
+						}}
+						onMouseLeave={(e) => {
+							e.currentTarget.style.borderColor = '#e5e7eb';
+							e.currentTarget.style.background = '#ffffff';
+							e.currentTarget.style.transform = 'translateY(0)';
+							e.currentTarget.style.boxShadow = 'none';
+						}}
+					>
+						<div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
+							<span style={{ fontSize: '48px', lineHeight: 1 }}>🔓</span>
+							<div>
+								<h2
+									style={{
+										margin: '0 0 8px 0',
+										fontSize: '20px',
+										fontWeight: '700',
+										color: '#1d4ed8',
+									}}
+								>
+									Device Authentication
+								</h2>
+								<p style={{ margin: 0, fontSize: '14px', color: '#6b7280', lineHeight: '1.6' }}>
+									Authenticate using an existing MFA device. Verify user identity with OTP, push
+									notification, or security key.
+								</p>
+							</div>
+						</div>
+					</button>
+				</div>
+			</div>
 		);
 	}
 
 	// Authentication flow - dedicated view (device selection + OTP modals only; no registration grid)
 	if (flowMode === 'authentication') {
 		return (
-			<div style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px' }}>
+			<div style={{ maxWidth: '900px', margin: '0 auto', padding: '24px' }}>
 				<div
 					style={{
 						background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
@@ -1879,58 +937,6 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 						// Keep flowMode so user stays in auth flow; only clear if they click Back
 					}}
 					onDeviceSelect={handleDeviceSelectForAuthentication}
-					onRegisterDevice={async () => {
-						console.log(
-							'[UNIFIED-FLOW] No devices found, auto-registering Email and SMS devices for user'
-						);
-						setShowDeviceSelectionModal(false);
-
-						try {
-							// Import MFA service for device registration
-							const { MFAServiceV8 } = await import('@/v8/services/mfaServiceV8');
-
-							// Auto-register Email device using admin flow (worker token)
-							console.log('[UNIFIED-FLOW] Registering Email device for user:', username);
-							await MFAServiceV8.registerDevice({
-								environmentId,
-								username: username || 'steven73125', // Default to test user if not provided
-								type: 'EMAIL',
-								email: 'steven73125@example.com', // Default test email
-								workerToken,
-							});
-
-							// Auto-register SMS device using admin flow (worker token)
-							console.log('[UNIFIED-FLOW] Registering SMS device for user:', username);
-							await MFAServiceV8.registerDevice({
-								environmentId,
-								username: username || 'steven73125', // Default to test user if not provided
-								type: 'SMS',
-								phone: '+12025551234', // Default test phone
-								workerToken,
-							});
-
-							toastV8.success('✅ Auto-registered Email and SMS devices for user', {
-								duration: 3000,
-							});
-
-							// Wait a moment for devices to be registered, then show device selection again
-							setTimeout(() => {
-								console.log(
-									'[UNIFIED-FLOW] Devices registered, showing device selection for authentication'
-								);
-								setFlowMode('authentication');
-								setShowDeviceSelectionModal(true);
-							}, 2000);
-						} catch (error) {
-							console.error('[UNIFIED-FLOW] Failed to auto-register devices:', error);
-							toastV8.error('❌ Failed to auto-register devices. Please register manually.', {
-								duration: 5000,
-							});
-							// Fallback to manual registration
-							setFlowMode('registration');
-							onSelectDeviceType('EMAIL');
-						}
-					}}
 					username={username}
 					environmentId={environmentId}
 				/>
@@ -1987,85 +993,39 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 						>
 							{/* Logo Area */}
 							<div style={{ textAlign: 'center', marginBottom: '32px' }}>
-								{uploadedFileInfo || customLogoUrl ? (
-									<div style={{ marginBottom: '20px' }}>
-										<img
-											src={uploadedFileInfo?.base64Url || customLogoUrl}
-											alt="Organization logo"
-											style={{
-												maxWidth: '120px',
-												maxHeight: '80px',
-												margin: '0 auto',
-												display: 'block',
-												borderRadius: '12px',
-												objectFit: 'contain',
-											}}
-											onError={(e) => {
-												// Fallback to default icon if image fails to load
-												e.currentTarget.style.display = 'none';
-												const fallback = document.createElement('div');
-												fallback.style.cssText = `
-												width: 80px;
-												height: 80px;
-												margin: 0 auto 20px;
-												background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-												borderRadius: 20px;
-												display: flex;
-												alignItems: center;
-												justifyContent: center;
-												fontSize: 36px;
-												boxShadow: 0 10px 25px rgba(102, 126, 234, 0.3);
-											`;
-												fallback.textContent = '🔐';
-												e.currentTarget.parentElement!.appendChild(fallback);
-											}}
-										/>
-										{uploadedFileInfo && (
-											<p
-												style={{
-													margin: '8px 0 0 0',
-													fontSize: '11px',
-													color: PING_IDENTITY_COLORS.neutral[500],
-													fontWeight: '500',
-												}}
-											>
-												{uploadedFileInfo.name}
-											</p>
-										)}
-									</div>
-								) : (
-									<div
-										style={{
-											width: '80px',
-											height: '80px',
-											margin: '0 auto 20px',
-											background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-											borderRadius: '20px',
-											display: 'flex',
-											alignItems: 'center',
-											justifyContent: 'center',
-											fontSize: '36px',
-											boxShadow: '0 10px 25px rgba(102, 126, 234, 0.3)',
-										}}
-									>
-										🔐
-									</div>
-								)}
-								<h2
+								<div
 									style={{
-										margin: '0 0 8px 0',
-										fontSize: '24px',
-										fontWeight: '700',
-										color: '#111827',
+										width: '80px',
+										height: '80px',
+										margin: '0 auto 20px',
+										background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+										borderRadius: '20px',
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'center',
+										fontSize: '36px',
+										boxShadow: '0 10px 25px rgba(102, 126, 234, 0.3)',
 									}}
 								>
-									Verification Code
-								</h2>
-								<p style={{ margin: 0, fontSize: '15px', color: '#6b7280', lineHeight: '1.5' }}>
-									Enter the 6-digit code sent to your <strong>{selectedAuthDevice?.type}</strong>{' '}
-									device
-								</p>
+									🔐
+								</div>
 							</div>
+
+							<h2
+								style={{
+									margin: '0 0 16px 0',
+									fontSize: '24px',
+									fontWeight: '700',
+									color: '#111827',
+									textAlign: 'center',
+								}}
+							>
+								Verification Code
+							</h2>
+							<p style={{ margin: 0, fontSize: '15px', color: '#6b7280', lineHeight: '1.5' }}>
+								Enter the 6-digit code sent to your <strong>{selectedAuthDevice?.type}</strong>{' '}
+								device
+							</p>
 
 							{/* OTP Input */}
 							<div style={{ marginBottom: '24px' }}>
@@ -2258,7 +1218,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 
 	// Registration flow - show device type selection cards
 	return (
-		<div style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px' }}>
+		<div style={{ maxWidth: '900px', margin: '0 auto', padding: '24px' }}>
 			{/* Header */}
 			<div
 				style={{
@@ -2292,62 +1252,6 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 				</p>
 			</div>
 
-			{/* Restart Flow Button - Centered */}
-			<div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
-				<button
-					type="button"
-					onClick={() => {
-						if (!confirmRestartMode) {
-							// Show confirmation message and set confirm mode
-							console.log('To restart the flow, click this button again within 3 seconds...');
-							setConfirmRestartMode(true);
-
-							// Reset confirm mode after 3 seconds
-							setTimeout(() => {
-								setConfirmRestartMode(false);
-							}, 3000);
-						} else {
-							// Clear all storage
-							sessionStorage.removeItem('mfa-flow-v8');
-							sessionStorage.removeItem('mfa_oauth_callback_step');
-							sessionStorage.removeItem('mfa_oauth_callback_timestamp');
-							sessionStorage.removeItem('mfa_target_step_after_callback');
-							localStorage.removeItem('mfa-flow-v8');
-
-							// Reload the page to ensure complete reset
-							window.location.reload();
-						}
-					}}
-					style={{
-						background: confirmRestartMode ? '#dc2626' : 'rgba(16, 185, 129, 0.1)',
-						border: confirmRestartMode ? '1px solid #dc2626' : '1px solid #10b981',
-						color: confirmRestartMode ? '#ffffff' : '#047857',
-						padding: '10px 20px',
-						borderRadius: '8px',
-						cursor: 'pointer',
-						fontSize: '14px',
-						fontWeight: '500',
-						display: 'flex',
-						alignItems: 'center',
-						gap: '8px',
-						transition: 'all 0.2s ease',
-					}}
-					onMouseEnter={(e) => {
-						e.currentTarget.style.background = 'rgba(16, 185, 129, 0.2)';
-						e.currentTarget.style.borderColor = '#047857';
-						e.currentTarget.style.transform = 'translateY(-1px)';
-					}}
-					onMouseLeave={(e) => {
-						e.currentTarget.style.background = 'rgba(16, 185, 129, 0.1)';
-						e.currentTarget.style.borderColor = '#10b981';
-						e.currentTarget.style.transform = 'translateY(0)';
-					}}
-					title="Restart the flow from the beginning"
-				>
-					{confirmRestartMode ? '⚠️ Click again to confirm restart' : '🔄 Restart Flow'}
-				</button>
-			</div>
-
 			{/* Device Type Cards */}
 			<div
 				style={{
@@ -2362,7 +1266,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 						<button
 							key={device.key}
 							type="button"
-							onClick={() => enabled && onSelectDeviceType(device.key)}
+							onClick={() => enabled && onSelectDeviceType(device.key, environmentId, username)}
 							disabled={!enabled}
 							style={{
 								padding: '24px',
@@ -2416,13 +1320,6 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 					setFlowMode(null);
 				}}
 				onDeviceSelect={handleDeviceSelectForAuthentication}
-				onRegisterDevice={() => {
-					console.log('[UNIFIED-FLOW] No devices found, switching to registration mode');
-					setFlowMode('registration');
-					setShowDeviceSelectionModal(false);
-					// Navigate to registration by selecting device type and letting parent handle navigation
-					onSelectDeviceType('FIDO2');
-				}}
 				username={username}
 				environmentId={environmentId}
 			/>
@@ -2535,131 +1432,56 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
  *
  * Wraps the content with MFACredentialProvider to provide global credential state
  */
-const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8Props> = (props) => {
+export const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8Props> = (
+	props
+) => {
 	const location = useLocation();
 
 	// Get device type from props or location state (can be undefined)
 	const initialDeviceType =
 		props.deviceType || (location.state as { deviceType?: DeviceConfigKey })?.deviceType;
 
-	// Get registration flow type from props, location state, or saved preference
-	const getInitialRegistrationFlowType = ():
-		| 'admin-active'
-		| 'admin-activation'
-		| 'user'
-		| undefined => {
-		// Priority 1: Explicit prop
-		if (props.registrationFlowType) {
-			return props.registrationFlowType;
-		}
-
-		// Priority 2: Location state (for navigation)
-		const locationState = location.state as {
-			registrationFlowType?: 'admin-active' | 'admin-activation' | 'user';
-		};
-		if (locationState?.registrationFlowType) {
-			return locationState.registrationFlowType;
-		}
-
-		// Priority 3: Saved preference (for restart/reload)
-		try {
-			const saved = localStorage.getItem('unified_mfa_selected_flow_type');
-			if (saved) {
-				const parsed = JSON.parse(saved);
-				if (['admin-active', 'admin-activation', 'user'].includes(parsed)) {
-					return parsed as 'admin-active' | 'admin-activation' | 'user';
-				}
-			}
-		} catch (error) {
-			console.warn('[UNIFIED-FLOW] Failed to load saved selected flow type:', error);
-		}
-
-		// Priority 4: Fallback to registration flow type
-		try {
-			const saved = localStorage.getItem('unified_mfa_registration_flow_type');
-			if (saved) {
-				const parsed = JSON.parse(saved);
-				if (['admin-active', 'admin-activation', 'user'].includes(parsed)) {
-					return parsed as 'admin-active' | 'admin-activation' | 'user';
-				}
-			}
-		} catch (error) {
-			console.warn('[UNIFIED-FLOW] Failed to load saved registration flow type:', error);
-		}
-
-		// Priority 5: Default to undefined (will use admin flow by default)
-		return undefined;
-	};
-
 	// State for selected device type (allows user to select if not provided)
 	const [selectedDeviceType, setSelectedDeviceType] = useState<DeviceConfigKey | undefined>(
 		initialDeviceType
 	);
 
-	// State for flow type selection (Admin vs User)
-	const [selectedFlowType, setSelectedFlowType] = useState<
-		'admin-active' | 'admin-activation' | 'user'
-	>(
-		getInitialRegistrationFlowType() || 'admin-active' // Default to Admin Flow (Direct Registration)
+	// State for environment ID and username from device selection
+	const [selectedEnvironmentId, setSelectedEnvironmentId] = useState<string>('');
+	const [selectedUsername, setSelectedUsername] = useState<string>('');
+
+	// Handler for device type selection that captures environment ID and username
+	const handleDeviceTypeSelection = useCallback(
+		(deviceType: DeviceConfigKey, environmentId: string, username: string) => {
+			console.log(`${MODULE_TAG} Device type selected:`, { deviceType, environmentId, username });
+
+			// IMPORTANT: Save credentials to storage IMMEDIATELY before state update
+			// This prevents race condition where MFAFlowBaseV8 loads before credentials are saved
+			console.log(`${MODULE_TAG} Saving credentials to storage IMMEDIATELY:`, {
+				environmentId,
+				username,
+				deviceType,
+			});
+			CredentialsServiceV8.saveCredentials(FLOW_KEY, {
+				flowKey: FLOW_KEY,
+				flowType: 'registration',
+				environmentId,
+				username,
+				deviceType,
+				clientId: '',
+				includeClientSecret: false,
+				includeRedirectUri: false,
+				includeLogoutUri: false,
+				includeScopes: false,
+			});
+
+			// Then update state
+			setSelectedDeviceType(deviceType);
+			setSelectedEnvironmentId(environmentId);
+			setSelectedUsername(username);
+		},
+		[]
 	);
-
-	// State for registration flow type with persistence
-	const [registrationFlowType] = useState<'admin-active' | 'admin-activation' | 'user' | undefined>(
-		getInitialRegistrationFlowType()
-	);
-
-	// Save selected flow type when it changes
-	useEffect(() => {
-		if (selectedFlowType) {
-			try {
-				localStorage.setItem('unified_mfa_selected_flow_type', JSON.stringify(selectedFlowType));
-				console.log('[UNIFIED-FLOW] Saved selected flow type:', selectedFlowType);
-			} catch (error) {
-				console.warn('[UNIFIED-FLOW] Failed to save selected flow type:', error);
-			}
-		}
-	}, [selectedFlowType]);
-
-	// Save registration flow type when it changes
-	useEffect(() => {
-		if (registrationFlowType) {
-			try {
-				localStorage.setItem(
-					'unified_mfa_registration_flow_type',
-					JSON.stringify(registrationFlowType)
-				);
-				console.log('[UNIFIED-FLOW] Saved registration flow type:', registrationFlowType);
-			} catch (error) {
-				console.warn('[UNIFIED-FLOW] Failed to save registration flow type:', error);
-			}
-		}
-	}, [registrationFlowType]);
-
-	// Flow mode state (registration vs authentication)
-	const [flowMode, _setFlowMode] = useState<FlowMode | null>(null);
-
-	// Device selection modal state
-	const [showDeviceSelectionModal, setShowDeviceSelectionModal] = useState(false);
-
-	// Username and environment ID state
-	const [username, setUsername] = useState('');
-	const [environmentId, setEnvironmentId] = useState('');
-
-	// Initialize username and environment ID from localStorage/global service
-	useEffect(() => {
-		// Initialize the service first to load from localStorage
-		globalEnvironmentService.initialize();
-		const savedEnvId = globalEnvironmentService.getEnvironmentId();
-		if (savedEnvId) {
-			setEnvironmentId(savedEnvId);
-		}
-
-		// Load username from localStorage
-		const savedUsername = localStorage.getItem('mfa_unified_username');
-		if (savedUsername) {
-			setUsername(savedUsername);
-		}
-	}, []);
 
 	// User token state for OAuth authentication (User Flow)
 	const [userToken, setUserToken] = useState<string | null>(() => {
@@ -2685,25 +1507,19 @@ const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8Props> 
 					versionTag="V8"
 					currentPage="registration"
 					showBackToMain={true}
-					headerColor="pingRed"
+					headerColor="blue"
 				/>
 				<GlobalMFAProvider>
 					<MFACredentialProvider>
 						<DeviceTypeSelectionScreen
-							onSelectDeviceType={setSelectedDeviceType}
+							onSelectDeviceType={handleDeviceTypeSelection}
 							userToken={userToken}
-							setUserToken={setUserToken}
-							registrationFlowType={registrationFlowType}
-							username={username}
-							environmentId={environmentId}
-							flowMode={flowMode}
-							setFlowMode={_setFlowMode}
 						/>
 					</MFACredentialProvider>
 				</GlobalMFAProvider>
 				{/* API display (bottom of page) */}
 				<div style={{ marginTop: '24px' }}>
-					<SuperSimpleApiDisplayV8 flowFilter="mfa" reserveSpace />
+					<SuperSimpleApiDisplayV8 flowFilter="mfa" />
 				</div>
 			</>
 		);
@@ -2713,18 +1529,12 @@ const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8Props> 
 		<GlobalMFAProvider>
 			<MFACredentialProvider>
 				<UnifiedMFARegistrationFlowContent
+					{...props}
 					deviceType={selectedDeviceType}
+					environmentId={selectedEnvironmentId}
+					username={selectedUsername}
 					userToken={userToken}
 					setUserToken={setUserToken}
-					onCancel={props.onCancel}
-					flowMode={flowMode}
-					showDeviceSelectionModal={showDeviceSelectionModal}
-					setShowDeviceSelectionModal={setShowDeviceSelectionModal}
-					username={username}
-					environmentId={environmentId}
-					selectedFlowType={selectedFlowType}
-					selectedDeviceType={selectedDeviceType}
-					setSelectedDeviceType={setSelectedDeviceType}
 				/>
 			</MFACredentialProvider>
 		</GlobalMFAProvider>
@@ -2736,24 +1546,6 @@ const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8Props> 
 // ============================================================================
 
 /**
- * Props for the content component (internal use only)
- */
-interface UnifiedMFARegistrationFlowContentProps {
-	deviceType: DeviceConfigKey;
-	onCancel?: (() => void) | undefined;
-	userToken: string | null;
-	setUserToken: (token: string | null) => void;
-	flowMode: 'registration' | 'authentication' | null;
-	showDeviceSelectionModal: boolean;
-	setShowDeviceSelectionModal: (show: boolean) => void;
-	username: string;
-	environmentId: string;
-	selectedFlowType: 'admin-active' | 'admin-activation' | 'user';
-	selectedDeviceType?: DeviceConfigKey | undefined;
-	setSelectedDeviceType: (deviceType: DeviceConfigKey | undefined) => void;
-}
-
-/**
  * Unified MFA Registration Flow - Content Component
  *
  * Contains the actual flow logic and integrates with:
@@ -2762,23 +1554,33 @@ interface UnifiedMFARegistrationFlowContentProps {
  * - deviceFlowConfigs (device-specific configuration)
  * - MFAFlowBaseV8 (5-step framework)
  */
-const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowContentProps> = ({
+const UnifiedMFARegistrationFlowContent: React.FC<
+	Required<Pick<UnifiedMFARegistrationFlowV8Props, 'deviceType'>> &
+		Omit<UnifiedMFARegistrationFlowV8Props, 'deviceType'> & {
+			userToken: string | null;
+			setUserToken: (token: string | null) => void;
+			environmentId: string;
+			username: string;
+		}
+> = ({
 	deviceType,
-	onCancel: _onCancel,
+	environmentId,
+	username,
+	initialCredentials: _initialCredentials,
+	onSuccess: _onSuccess,
+	onCancel,
+	initialStep: _initialStep = 0,
+	skipConfiguration: _skipConfiguration = false,
+	registrationFlowType: _registrationFlowType,
 	userToken,
 	setUserToken,
-	flowMode,
-	showDeviceSelectionModal,
-	setShowDeviceSelectionModal,
-	username,
-	environmentId,
-	selectedFlowType,
-	selectedDeviceType: _selectedDeviceType,
-	setSelectedDeviceType,
 }) => {
 	// ========================================================================
 	// CONFIGURATION
 	// ========================================================================
+
+	// React Router navigation
+	const navigate = useNavigate();
 
 	// Load device-specific configuration
 	const config = useMemo(() => {
@@ -2795,8 +1597,8 @@ const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowCont
 	const [userTokenForDisplay, setUserTokenForDisplay] = useState<string>('');
 	const [usernameFromToken, setUsernameFromToken] = useState<string>('');
 	const [showUsernameDropdown, setShowUsernameDropdown] = useState(false);
-	const [shouldNavigateToRegistration, setShouldNavigateToRegistration] = useState(false);
-	const envIdForModal = useMemo(() => globalEnvironmentService.getEnvironmentId() || '', []);
+	const [registrationError, setRegistrationError] = useState<string | null>(null);
+	// userToken and setUserToken are passed as props from parent component
 
 	// Pending registration data while waiting for OAuth (use ref to avoid stale closure)
 	const pendingRegistrationRef = useRef<{
@@ -2806,45 +1608,49 @@ const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowCont
 		props: MFAFlowBaseRenderProps;
 	} | null>(null);
 
-	// Worker token state for validation in registration flow
-	const _workerToken = useWorkerToken({
-		refreshInterval: 5000,
-		enableAutoRefresh: true,
-	});
+	// Get environment ID for UserLoginModal
+	const envIdForModal = useMemo(() => {
+		return globalEnvironmentService.getEnvironmentId() || '';
+	}, []);
 
 	// Detect OAuth callback and re-open modal if needed
 	useEffect(() => {
 		const urlParams = new URLSearchParams(window.location.search);
 		const code = urlParams.get('code');
 		const hasStoredState = sessionStorage.getItem('user_login_state_v8');
-		const stepParam = urlParams.get('step');
-		const callbackStep = sessionStorage.getItem('mfa_oauth_callback_step');
-		const callbackReturn = sessionStorage.getItem('mfa_oauth_callback_return');
-
-		// FOOLPROOF: Handle callback step advancement after OAuth login
-		if (callbackReturn === 'true' && (stepParam || callbackStep)) {
-			const targetStep = parseInt(stepParam || callbackStep || '0', 10);
-			console.log(`[UNIFIED-FLOW] 🔄 OAuth callback detected with step advancement: ${targetStep}`);
-
-			// Clear callback markers
-			sessionStorage.removeItem('mfa_oauth_callback_return');
-			sessionStorage.removeItem('mfa_oauth_callback_step');
-			sessionStorage.removeItem('mfa_oauth_callback_timestamp');
-
-			// Store the target step for the MFAFlowBaseV8 to handle
-			sessionStorage.setItem('mfa_target_step_after_callback', targetStep.toString());
-
-			// Force a re-render to trigger step advancement
-			window.location.hash = `#step=${targetStep}`;
-		}
 
 		// If we have OAuth callback params and stored state, re-open the modal to process callback
-		// But only if we don't already have a user token (to prevent reopening after silent auth)
-		if (code && hasStoredState && !userToken) {
-			console.log('[UNIFIED-FLOW] 🔄 OAuth callback detected, reopening modal...');
+		if (code && hasStoredState && !showUserLoginModal) {
+			console.log('[UNIFIED-FLOW] OAuth callback detected - re-opening modal to process');
 			setShowUserLoginModal(true);
 		}
-	}, [userToken]);
+	}, [showUserLoginModal]);
+
+	// ========================================================================
+	// TOKEN MANAGEMENT
+	// ========================================================================
+
+	// Use unified global worker token hook for token management
+	const globalTokenStatus = useGlobalWorkerToken();
+	const _workerToken = globalTokenStatus.token || '';
+
+	// Extract token status for backward compatibility
+	const _tokenStatus = globalTokenStatus;
+
+	// ========================================================================
+	// STATE MANAGEMENT
+	// ========================================================================
+
+	// MFA state (device-specific data)
+	const [_mfaState, _setMfaState] = useState<MFAState>({
+		deviceId: '',
+		otpCode: '',
+		deviceStatus: '',
+		verificationResult: null,
+	});
+
+	// Loading state
+	const [_isLoading, _setIsLoading] = useState(false);
 
 	// ========================================================================
 	// STEP VALIDATION
@@ -2866,8 +1672,8 @@ const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowCont
 			}
 
 			// Check required configuration
-			if (!credentials.environmentId || !credentials.username) {
-				navigation.setValidationErrors(['Environment ID and Username are required']);
+			if (!credentials.environmentId) {
+				navigation.setValidationErrors(['Environment ID is required']);
 				return false;
 			}
 
@@ -2908,11 +1714,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowCont
 					deviceType: selectedDeviceType,
 					flowType, // Store flowType so activation step knows if OTP is required
 					...fields,
-					...(flowType === 'user' && token
-						? { userToken: token, tokenType: 'user' }
-						: flowType !== 'user'
-							? { tokenType: 'worker' }
-							: {}),
+					...(flowType === 'user' && token ? { userToken: token, tokenType: 'user' } : {}),
 				}));
 
 				// Register the device using proper API call
@@ -2953,33 +1755,20 @@ const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowCont
 				});
 
 				// Use same parameter construction as working MFA flows
-				type RegisterDeviceParamsWithToken = RegisterDeviceParams & {
-					tokenType?: 'worker' | 'user';
-					userToken?: string | undefined;
-				};
-				console.log('[UNIFIED-FLOW] Using direct props - Environment ID:', props.environmentId);
-				console.log('[UNIFIED-FLOW] Using direct props - Username:', props.username);
-
-				// Validate credentials before proceeding
-				if (!props.environmentId || !props.environmentId.trim()) {
-					throw new Error('Environment ID is required for device registration');
-				}
-				if (!props.username || !props.username.trim()) {
-					throw new Error('Username is required for device registration');
-				}
-
-				let baseParams: RegisterDeviceParamsWithToken = {
-					environmentId: props.environmentId.trim(),
-					username: props.username.trim(),
+				const baseParams: Record<string, unknown> = {
+					environmentId: environmentId,
+					username: props.credentials.username,
 					type: selectedDeviceType,
+					// Per rightTOTP.md: Pass token type and user token if available
+					tokenType: flowType === 'user' ? 'user' : 'worker',
+					userToken: flowType === 'user' ? token : undefined,
 				};
-				// Per rightTOTP.md: Pass token type and user token if available
-				if (flowType === 'user' && token) {
-					baseParams = {
-						...baseParams,
-						tokenType: 'user',
-						userToken: token,
-					};
+
+				// Always include status for all device types
+				// FIDO2: Set to ACTIVE since WebAuthn verification proves device works
+				// Other devices: Set based on flow type (admin-active = ACTIVE, others = ACTIVATION_REQUIRED)
+				if (deviceStatus !== undefined) {
+					baseParams.status = deviceStatus;
 				}
 
 				console.log('[UNIFIED-FLOW] Registration base params:', {
@@ -3013,14 +1802,14 @@ const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowCont
 				}
 
 				// Include device-specific fields (phone, email, etc.)
-				const deviceParams: RegisterDeviceParamsWithToken = {
+				const deviceParams = {
 					...baseParams,
 					...mappedFields,
 				};
 
 				console.log('[UNIFIED-FLOW] Registering device with params:', deviceParams);
 
-				const result = await MFAServiceV8_Legacy.registerDevice(deviceParams);
+				const result = await MFAServiceV8.registerDevice(deviceParams);
 				console.log('[UNIFIED-FLOW] Device registered:', result);
 
 				// Update MFA state with device info
@@ -3048,31 +1837,37 @@ const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowCont
 				props.setMfaState((prev) => {
 					// TOTP: QR code will be rendered by QRCodeSVG component in UnifiedActivationStep
 					// No need to generate QR code data URL here - just pass the keyUri
-					const newState: MFAState = {
+
+					const newState = {
 						...prev,
 						deviceId: result.deviceId,
 						deviceStatus: result.status,
+						// Store device.activate URI for activation if present
 						...(registrationResult.deviceActivateUri
 							? { deviceActivateUri: String(registrationResult.deviceActivateUri) }
 							: {}),
-						...(selectedDeviceType === 'TOTP'
-							? {
-									totpSecret: String(registrationResult.secret || ''),
-									keyUri: String(registrationResult.keyUri || ''),
-									qrCodeUrl: String(registrationResult.keyUri || ''),
-									showQr: !!(registrationResult.secret || registrationResult.keyUri),
-								}
-							: {}),
+						// TOTP-specific: Store QR code and secret
+						...(selectedDeviceType === 'TOTP' && {
+							// Map API response fields to expected mfaState fields:
+							// API returns: { secret, keyUri }
+							// mfaState expects: { totpSecret, qrCodeUrl }
+							totpSecret: String(registrationResult.secret || ''),
+							keyUri: String(registrationResult.keyUri || ''),
+							// Store keyUri as qrCodeUrl - activation component will render it as QR
+							qrCodeUrl: String(registrationResult.keyUri || ''),
+							showQr: !!(registrationResult.secret || registrationResult.keyUri),
+						}),
+						// FIDO2-specific: Store credential creation options
 						...(selectedDeviceType === 'FIDO2' &&
-						registrationResult.publicKeyCredentialCreationOptions
-							? {
-									publicKeyCredentialCreationOptions:
-										registrationResult.publicKeyCredentialCreationOptions,
-								}
-							: {}),
-						...(selectedDeviceType === 'MOBILE' && registrationResult.pairingKey
-							? { pairingKey: String(registrationResult.pairingKey) }
-							: {}),
+							registrationResult.publicKeyCredentialCreationOptions && {
+								publicKeyCredentialCreationOptions:
+									registrationResult.publicKeyCredentialCreationOptions,
+							}),
+						// Mobile-specific: Store pairing key
+						...(selectedDeviceType === 'MOBILE' &&
+							registrationResult.pairingKey && {
+								pairingKey: String(registrationResult.pairingKey),
+							}),
 					};
 
 					// ========== DEBUG: TOTP MFA STATE UPDATE ==========
@@ -3090,52 +1885,100 @@ const UnifiedMFARegistrationFlowContent: React.FC<UnifiedMFARegistrationFlowCont
 					return newState;
 				});
 
-				// Auto-advance to appropriate step based on device type and status
+				// FIDO2: Check if we already have credential data (from WebAuthn modal)
+				// If credentialId and publicKey are present, registration is complete
 				if (selectedDeviceType === 'FIDO2') {
-					// FIDO2 devices need activation - go to Step 3
-					setTimeout(() => {
-						props.nav.goToStep(3); // FIDO2 Activation step
-					}, 1000);
-				} else if (selectedDeviceType === 'TOTP') {
-					// TOTP shows QR code - go to Step 4 for activation
-					setTimeout(() => {
-						props.nav.goToStep(4); // OTP Activation step (shows QR code)
-					}, 1000);
-				} else {
-					// Other devices (SMS, Email, etc.) - go to Step 4 for OTP or Step 5 for docs
-					setTimeout(() => {
-						if (result.status === 'ACTIVE') {
-							// Device is already active - go to API docs
-							props.nav.goToStep(5); // API Documentation
+					if (fields.credentialId && fields.publicKey) {
+						// WebAuthn already completed via modal - device fully registered
+						console.log(
+							'[UNIFIED-FLOW] FIDO2 device fully registered with credentials - proceeding to next step'
+						);
+						toastV8.success(`${config.displayName} device registered successfully!`);
+
+						// For Admin Flow, skip User Login step and go to Device Selection (Step 2)
+						// For User Flow, go to User Login step (Step 1)
+						if (flowType === 'admin-active' || flowType === 'admin-activation') {
+							props.nav.goToStep(2); // Skip to Device Selection for Admin Flow
 						} else {
-							// Device needs activation - go to OTP step
-							props.nav.goToStep(4); // OTP Activation step
+							props.nav.goToNext(); // User Flow - go to User Login
 						}
-					}, 1000);
+					} else {
+						// Device created, but user needs to complete WebAuthn biometric/security key interaction
+						console.log(
+							'[UNIFIED-FLOW] FIDO2 device created - user must complete biometric authentication'
+						);
+						toastV8.info(
+							'Device created. Please complete the biometric authentication prompt below.'
+						);
+						// DO NOT call nav.goToNext() - let user interact with WebAuthn on registration step
+						return;
+					}
 				}
-			},
-				onSuccess: () => ,
-				onError: (error) => 
-		);
-	},
-	[registerSpinner]
+
+				// Admin Flow: Show QR but skip OTP validation - device ready immediately
+				// Admin ACTIVATION_REQUIRED & User Flow: Show QR and require OTP validation
+				if (
+					flowType === 'admin-active' ||
+					flowType === 'admin-activation' ||
+					result.status === 'ACTIVE'
+				) {
+					console.log(
+						'[UNIFIED-FLOW] Admin flow or ACTIVE status - proceeding to show QR without OTP requirement'
+					);
+					toastV8.success(
+						`${config.displayName} device registered successfully!${flowType === 'admin-active' || flowType === 'admin-activation' ? ' Device is ready to use.' : ''}`
+					);
+					// For Admin Flow, skip User Login step and go to Device Selection (Step 2)
+					// For User Flow, go to User Login step (Step 1)
+					if (flowType === 'admin-active' || flowType === 'admin-activation') {
+						props.nav.goToStep(2); // Skip to Device Selection for Admin Flow
+					} else {
+						props.nav.goToNext(); // User Flow - go to User Login
+					}
+				} else if (result.status === 'ACTIVATION_REQUIRED') {
+					// Device requires activation - PingOne automatically sends OTP
+					// This applies to both admin_activation_required and user flow
+					toastV8.success(
+						`${config.displayName} device registered! OTP has been sent automatically.`
+					);
+					// For Admin Flow, skip User Login step and go to Device Selection (Step 2)
+					// For User Flow, go to User Login step (Step 1)
+					if (flowType === 'admin-activation') {
+						props.nav.goToStep(2); // Skip to Device Selection for Admin Flow
+					} else {
+						props.nav.goToNext(); // User Flow - go to User Login
+					}
+				} else {
+					// Unknown status, proceed with flow-specific navigation
+					if (flowType === 'admin-active' || flowType === 'admin-activation') {
+						props.nav.goToStep(2); // Skip to Device Selection for Admin Flow
+					} else {
+						props.nav.goToNext(); // User Flow - go to User Login
+					}
+				}
+			} catch (error) {
+				console.error('[UNIFIED-FLOW] Registration failed:', error);
+				const errorMessage = error instanceof Error ? error.message : 'Device registration failed';
+
+				// Check if error is due to too many devices
+				if (errorMessage.includes('Too many devices')) {
+					toastV8.error(
+						`${errorMessage}\n\nℹ️ You can manage your devices at:\nhttps://localhost:3000/v8/delete-all-devices`,
+						{ duration: 8000 }
+					);
+				} else {
+					toastV8.error(errorMessage);
+				}
+			} finally {
+				props.setIsLoading(false);
+			}
+		},
+		[config.displayName]
 	);
 
-/**
- * Handle continue from user token success page
- */
-const handleContinueAfterUserLogin = useCallback(() => {
-  console.log(
-    '[UNIFIED-FLOW] User clicked continue after login, proceeding with registration...'
-  );
-
-  const pending = pendingRegistrationRef.current;
-  if (pending && userToken) {
-    const { deviceType: pendingDeviceType, fields, flowType, props } = pending;
-    pendingRegistrationRef.current = null;
-
-    // Hide success page
-    setShowUserTokenSuccess(false);
+	/**
+	 * Handle user token received from OAuth flow
+	 */
 	const handleUserTokenReceived = useCallback(
 		(token: string) => {
 			console.log('[UNIFIED-FLOW] ===== USER TOKEN RECEIVED =====');
@@ -3218,7 +2061,7 @@ const handleContinueAfterUserLogin = useCallback(() => {
 	 * Perform device registration API call
 	 * Checks if User Flow needs OAuth first, otherwise proceeds with registration
 	 */
-	const _performRegistration = useCallback(
+	const performRegistration = useCallback(
 		async (
 			props: MFAFlowBaseRenderProps,
 			selectedDeviceType: DeviceConfigKey,
@@ -3231,74 +2074,28 @@ const handleContinueAfterUserLogin = useCallback(() => {
 			console.log('[UNIFIED-FLOW] Current userToken:', userToken ? 'Present' : 'Missing');
 			console.log('[UNIFIED-FLOW] Fields:', fields);
 
-			// CRITICAL: Validate worker token before allowing any registration
-			// FIXED: Do a FRESH check - React state (workerToken.tokenStatus) can be stale
-			const freshTokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
-			if (!freshTokenStatus.isValid) {
-				console.error('[UNIFIED-FLOW] Cannot proceed - no valid worker token (fresh check)');
-				toastV8.error(
-					'Worker token required for device registration. Please configure worker token credentials first.',
-					{
-						duration: 5000,
-					}
+			// For User Flow, check if we need OAuth authentication first
+			if (flowType === 'user' && !userToken) {
+				console.log('[UNIFIED-FLOW] User flow selected but no token - showing OAuth modal');
+				console.log('[UNIFIED-FLOW] Storing pending registration...');
+
+				// Store pending registration data
+				pendingRegistrationRef.current = {
+					deviceType: selectedDeviceType,
+					fields,
+					flowType,
+					props,
+				};
+
+				console.log('[UNIFIED-FLOW] Pending registration stored:', pendingRegistrationRef.current);
+
+				// Show the user login modal
+				setShowUserLoginModal(true);
+				toastV8.info(
+					'🔐 User Flow requires PingOne authentication. Please complete the login to continue with device registration.',
+					{ duration: 6000 }
 				);
 				return;
-			}
-
-			// For User Flow, always check PingOne authentication and redirect if needed
-			if (flowType === 'user') {
-				// Check current PingOne authentication status
-				const authResult = checkPingOneAuthentication();
-				console.log('[UNIFIED-FLOW] PingOne authentication result:', authResult);
-
-				// Check if we should redirect to PingOne
-				if (shouldRedirectToPingOne()) {
-					console.log('[UNIFIED-FLOW] User flow requires PingOne authentication - redirecting...');
-					console.log('[UNIFIED-FLOW] Storing pending registration...');
-
-					// Store pending registration data
-					pendingRegistrationRef.current = {
-						deviceType: selectedDeviceType,
-						fields,
-						flowType: selectedFlowType, // Use the selected flow type from UI
-						props,
-					};
-
-					console.log(
-						'[UNIFIED-FLOW] Pending registration stored:',
-						pendingRegistrationRef.current
-					);
-
-					// Store flow context for callback handler (Unified OAuth pattern)
-					const flowContext = {
-						returnPath: '/v8/unified-mfa',
-						returnStep: 2, // Step 2: Device Selection
-						flowType: 'registration' as const,
-						timestamp: Date.now(),
-					};
-					sessionStorage.setItem('mfa_flow_callback_context', JSON.stringify(flowContext));
-					console.log(`${MODULE_TAG} 🎯 Stored flow context for registration:`, {
-						path: '/v8/unified-mfa',
-						step: 2,
-					});
-
-					// Show the user login modal
-					setShowUserLoginModal(true);
-					toastV8.info(
-						'🔐 User Flow requires PingOne authentication. Please complete the login to continue with device registration.',
-						{ duration: 6000 }
-					);
-					return;
-				} else {
-					// User is already authenticated, show success message and proceed
-					console.log(
-						'[UNIFIED-FLOW] User already authenticated with PingOne, proceeding with registration'
-					);
-					toastV8.success(
-						'✅ PingOne authentication detected! Proceeding with device registration.',
-						{ duration: 4000 }
-					);
-				}
 			}
 
 			console.log(
@@ -3313,281 +2110,152 @@ const handleContinueAfterUserLogin = useCallback(() => {
 				userToken || undefined
 			);
 		},
-		[userToken, performRegistrationWithToken, selectedFlowType]
+		[userToken, performRegistrationWithToken]
 	);
 
 	/**
-	 * Render Step 0: Configuration (environment, user, policy, flow type selection)
+	 * Render Step 0: Registration form for SMS
 	 */
-	const renderStep0 = useCallback(() => {
-		return (
-			<DeviceTypeSelectionScreen
-				onSelectDeviceType={setSelectedDeviceType}
-				userToken={userToken}
-				setUserToken={setUserToken}
-				registrationFlowType={selectedFlowType}
-				username={username}
-				environmentId={environmentId}
-				flowMode={flowMode}
-				setFlowMode={setFlowMode}
-			/>
-		);
-	}, [userToken, setUserToken, selectedFlowType, username, environmentId, setSelectedDeviceType, flowMode, setFlowMode]);
+	const renderStep0 = useCallback(
+		(props: MFAFlowBaseRenderProps) => {
+			return (
+				<UnifiedDeviceRegistrationForm
+					initialDeviceType={deviceType}
+					onSubmit={async (selectedDeviceType, fields, flowType) => {
+						await performRegistration(props, selectedDeviceType, fields, flowType);
+					}}
+					onCancel={() => {
+						console.log('[UNIFIED-FLOW] Registration cancelled - navigating to unified main page');
+						if (onCancel) {
+							onCancel();
+						} else {
+							// Default: navigate to unified MFA main page
+							navigate('/v8/mfa-unified');
+						}
+					}}
+					isLoading={props.isLoading}
+					tokenStatus={_tokenStatus}
+					registrationError={registrationError}
+					onClearError={() => setRegistrationError(null)}
+					username={props.credentials?.username}
+				/>
+			);
+		},
+		[deviceType, performRegistration, _tokenStatus, registrationError, onCancel, navigate]
+	);
 
 	/**
-	 * Render Step 1: User Login using Authorization Code Flow with PKCE
+	 * Render Step 1: Activation
 	 */
-	const renderStep1 = useCallback((props: MFAFlowBaseRenderProps) => {
-		return <UserLoginStepV8 renderProps={props} />;
-	}, []);
+	const renderStep1 = useCallback(
+		(props: MFAFlowBaseRenderProps) => {
+			return <UnifiedActivationStep {...props} config={config} />;
+		},
+		[config]
+	);
 
 	/**
-	 * Render Step 2: Device Selection (option to call registration if want new device, or have no devices)
+	 * Render Step 2: API Documentation
 	 */
 	const renderStep2 = useCallback(
 		(props: MFAFlowBaseRenderProps) => {
-			return <UnifiedActivationStep {...props} config={config} />;
+			return (
+				<MFADocumentationPageV8
+					deviceType={deviceType}
+					flowType="registration"
+					credentials={{
+						...(props.credentials.environmentId && {
+							environmentId: props.credentials.environmentId,
+						}),
+						...(props.credentials.username && { username: props.credentials.username }),
+						...(props.credentials.deviceAuthenticationPolicyId && {
+							deviceAuthenticationPolicyId: props.credentials.deviceAuthenticationPolicyId,
+						}),
+					}}
+					currentStep={2}
+					totalSteps={4}
+					registrationFlowType={props.credentials.tokenType === 'user' ? 'user' : 'admin'}
+					tokenType={props.credentials.tokenType === 'user' ? 'user' : 'worker'}
+					flowSpecificData={{
+						...(props.credentials.environmentId && {
+							environmentId: props.credentials.environmentId,
+						}),
+						...(props.credentials.username && { username: props.credentials.username }),
+						...(props.mfaState.deviceId && { deviceId: props.mfaState.deviceId }),
+						...(props.credentials.deviceAuthenticationPolicyId && {
+							policyId: props.credentials.deviceAuthenticationPolicyId,
+						}),
+						...(props.mfaState.deviceStatus && { deviceStatus: props.mfaState.deviceStatus }),
+						...(props.credentials.clientId && { clientId: props.credentials.clientId }),
+					}}
+				/>
+			);
 		},
-		[config]
+		[deviceType]
 	);
 
 	/**
-	 * Render Step 3: Device-Specific Actions (OTP/QR Generation, FIDO, Mobile Push)
+	 * Render Step 3: Success
 	 */
 	const renderStep3 = useCallback(
 		(props: MFAFlowBaseRenderProps) => {
-			// This will be device-specific based on the device type
-			// For now, return the activation step which handles device-specific logic
-			return <UnifiedActivationStep {...props} config={config} />;
+			return <UnifiedSuccessStep {...props} config={config} />;
 		},
 		[config]
 	);
 
 	/**
-	 * Render Step 4: OTP Validation / Confirmation
+	 * Render Step 4: Not used
 	 */
-	const renderStep4 = useCallback(
-		(props: MFAFlowBaseRenderProps) => {
-			// This will be device-specific validation
-			return <UnifiedActivationStep {...props} config={config} />;
-		},
+	const renderStep4 = useCallback((_props: MFAFlowBaseRenderProps) => {
+		return null;
+	}, []);
+
+	// ========================================================================
+	// STEP LABELS
+	// ========================================================================
+
+	const stepLabels = useMemo(
+		() => [
+			`Register ${config.displayName}`,
+			config.requiresOTP ? 'Activate (OTP)' : 'Activate',
+			'API Documentation',
+			'Success',
+		],
 		[config]
 	);
 
-	/**
-	 * Render Step 5: Success screen with all user data and other valuable options
-	 */
-	const renderStep5 = useCallback((props: MFAFlowBaseRenderProps) => {
-		return <SuccessStepV8 renderProps={props} />;
-	}, []);
+	// ========================================================================
+	// CREDENTIAL VALIDATION
+	// ========================================================================
 
 	/**
-	 * Render Step 6: API Documentation
+	 * Hide Next button on step 0 (registration) since UnifiedRegistrationStep has its own buttons
 	 */
-	const renderStep6 = useCallback((props: MFAFlowBaseRenderProps) => {
-		return <APIDocsStepV8 renderProps={props} />;
-	}, []);
-
-	// Step labels for device authentication flow
-	const stepLabels = useMemo(() => {
-		if (deviceType === 'FIDO2') {
-			return [
-				'Configure',
-				'User Login',
-				'Device Selection',
-				'Start FIDO in Browser',
-				'Passkey confirmation',
-				'Success',
-				'API Docs',
-			];
-		} else if (deviceType === 'MOBILE') {
-			return [
-				'Configure',
-				'User Login',
-				'Device Selection',
-				'Push to Mobile App',
-				'User Confirms on Mobile',
-				'Success',
-				'API Docs',
-			];
-		} else {
-			// SMS, Email, TOTP, WhatsApp
-			return [
-				'Configure',
-				'User Login',
-				'Device Selection',
-				'Generate OTP/QR',
-				'Validate OTP',
-				'Success',
-				'API Docs',
-			];
-		}
-	}, [deviceType]);
-
 	const shouldHideNextButton = useCallback((props: MFAFlowBaseRenderProps) => {
+		// Hide Next button on Step 0 (registration) since UnifiedRegistrationStep component
+		// has its own custom buttons that handle both registration and navigation
 		if (props.nav.currentStep === 0) {
-			return true; // Hide Next button on configuration step, use form submit
+			return true;
 		}
-		if (props.nav.currentStep === 1) {
-			return true; // Hide Next button on user login step, use authentication button
-		}
-		if (props.nav.currentStep === 2) {
-			// FIXED: Prevent advancement to step 3 without valid worker token
-			const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
-			// Default to worker token type since credentials object is not available
-			const tokenType = 'worker';
-
-			// For worker token flows: require valid token
-			// For user token flows: require valid user token
-			if (tokenType === 'worker' && !tokenStatus.isValid) {
-				return true; // Hide Next button - worker token invalid
-			}
-			if (tokenType === 'user' && !props.userToken?.trim()) {
-				return true; // Hide Next button - user token missing
-			}
-		}
+		// Show Next button on all other steps
 		return false;
 	}, []);
 
-	// Handle navigation to registration when triggered from device selection modal
-	useEffect(() => {
-		if (shouldNavigateToRegistration) {
-			console.log('[UNIFIED-FLOW] Navigating to registration step');
-			setShouldNavigateToRegistration(false);
-			// Use sessionStorage to trigger navigation in MFAFlowBaseV8
-			sessionStorage.setItem('mfa_target_step_after_callback', '0');
-			window.location.hash = '#step=0';
-		}
-	}, [shouldNavigateToRegistration]);
-
-	// Auto-show device selection when component loads in authentication mode
-	useEffect(() => {
-		if (flowMode === 'authentication' && !showDeviceSelectionModal && username && environmentId) {
-			console.log('[UNIFIED-FLOW] Auto-showing device selection for Ping Identity authentication');
-			// Small delay to ensure component is fully mounted
-			setTimeout(() => {
-				setShowDeviceSelectionModal(true);
-			}, 500);
-		}
-	}, [flowMode, showDeviceSelectionModal, username, environmentId, setShowDeviceSelectionModal]);
+	// ========================================================================
+	// RENDER
+	// ========================================================================
 
 	return (
 		<>
-			{/* Modal Spinners for MFA Registration Operations */}
-			<StandardModalSpinner
-				show={registerSpinner.isLoading}
-				message="Registering device..."
-				theme="blue"
+			<MFAHeaderV8
+				title={`${config.displayName} Registration`}
+				description={`Register a ${config.displayName} device for multi-factor authentication`}
+				versionTag="V8"
+				currentPage="registration"
+				showBackToMain={true}
+				headerColor="blue"
 			/>
-			<StandardModalSpinner
-				show={authSpinner.isLoading}
-				message="Authenticating device..."
-				theme="purple"
-			/>
-			<StandardModalSpinner
-				show={otpSpinner.isLoading}
-				message="Verifying OTP..."
-				theme="green"
-			/>
-			<StandardModalSpinner
-				show={deviceSpinner.isLoading}
-				message="Loading devices..."
-				theme="orange"
-			/>
-			<StandardModalSpinner
-				show={resendSpinner.isLoading}
-				message="Resending verification code..."
-				theme="blue"
-			/>
-			
-			{/* Education Mode Toggle */}
-			<EducationModeToggle variant="buttons" />
-
-			{/* Master Education Section */}
-			<MasterEducationSection
-				flowType="unified_mfa"
-				title="📚 Unified MFA Education"
-				sections={[
-					{
-						id: 'unified-mfa-overview',
-						title: 'Unified MFA Flow Overview',
-						icon: <FiChevronDown />,
-						summary:
-							'Single interface for all 6 MFA device types - SMS, Email, Mobile, WhatsApp, TOTP, FIDO2',
-						content: (
-							<div>
-								<p>
-									<strong>The Unified MFA Flow</strong> consolidates all MFA device registration and
-									authentication into one interface:
-								</p>
-								<ul>
-									<li>
-										<strong>6 Device Types</strong> - SMS, Email, Mobile, WhatsApp, TOTP, FIDO2
-									</li>
-									<li>
-										<strong>Configuration-Driven</strong> - Uses deviceFlowConfigs for
-										device-specific behavior
-									</li>
-									<li>
-										<strong>Admin & User Flows</strong> - Supports both admin-initiated and user
-										self-service
-									</li>
-									<li>
-										<strong>Feature Flags</strong> - Gradual rollout with per-device feature flags
-									</li>
-									<li>
-										<strong>Real PingOne APIs</strong> - Direct integration with PingOne MFA
-										services
-									</li>
-								</ul>
-								<p>
-									This unified approach replaces 6 separate device-specific components with a single
-									configurable flow.
-								</p>
-							</div>
-						),
-					},
-					{
-						id: 'mfa-device-types',
-						title: 'MFA Device Types',
-						icon: <FiChevronUp />,
-						summary:
-							'Choose from SMS, Email, Mobile Push, WhatsApp, TOTP Authenticator, or FIDO2 Security Key',
-						content: (
-							<div>
-								<p>
-									<strong>Supported Device Types:</strong>
-								</p>
-								<ul>
-									<li>
-										<strong>SMS</strong> - One-time passcodes via text message
-									</li>
-									<li>
-										<strong>Email</strong> - One-time passcodes via email
-									</li>
-									<li>
-										<strong>Mobile</strong> - Push notifications to PingOne mobile app
-									</li>
-									<li>
-										<strong>WhatsApp</strong> - One-time passcodes via WhatsApp
-									</li>
-									<li>
-										<strong>TOTP</strong> - Time-based codes from authenticator apps
-									</li>
-									<li>
-										<strong>FIDO2</strong> - Hardware security keys and biometrics
-									</li>
-								</ul>
-								<p>
-									Each device type has unique registration and authentication flows optimized for
-									security and user experience.
-								</p>
-							</div>
-						),
-					},
-				]}
-			/>
-
 			<MFAFlowBaseV8
 				deviceType={deviceType}
 				renderStep0={renderStep0}
@@ -3595,15 +2263,11 @@ const handleContinueAfterUserLogin = useCallback(() => {
 				renderStep2={renderStep2}
 				renderStep3={renderStep3}
 				renderStep4={renderStep4}
-				renderStep5={renderStep5}
-				renderStep6={renderStep6}
 				validateStep0={validateStep0}
 				stepLabels={stepLabels}
 				shouldHideNextButton={shouldHideNextButton}
-				flowType="registration"
 			/>
-			<div style={{ height: '300px' }} />
-			<SuperSimpleApiDisplayV8 flowFilter="mfa" reserveSpace />
+			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
 
 			{/* User Login Modal for User Flow OAuth */}
 			<UserLoginModalV8
@@ -3669,9 +2333,7 @@ const handleContinueAfterUserLogin = useCallback(() => {
 						</div>
 
 						{/* Username Dropdown */}
-						{usernameFromToken &&
-						usernameFromToken.trim() !== '' &&
-						usernameFromToken !== 'Unknown User' ? (
+						{usernameFromToken && (
 							<div
 								style={{
 									background: '#f9fafb',
@@ -3740,32 +2402,6 @@ const handleContinueAfterUserLogin = useCallback(() => {
 										</button>
 									</>
 								)}
-							</div>
-						) : (
-							// Show message when no username available
-							<div
-								style={{
-									background:
-										'linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(248, 113, 113, 0.05))',
-									border: '2px solid #ef4444',
-									borderRadius: '8px',
-									padding: '16px',
-									marginBottom: '16px',
-								}}
-							>
-								<div
-									style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}
-								>
-									<span style={{ fontSize: '20px' }}>👤</span>
-									<strong style={{ color: '#dc2626', fontSize: '16px' }}>
-										Username Not Available
-									</strong>
-								</div>
-								<div style={{ fontSize: '14px', color: '#b91c1c', lineHeight: '1.5' }}>
-									{!_workerToken.tokenStatus.isValid
-										? '❌ No worker token available for user authentication'
-										: '❌ User authentication not completed or failed'}
-								</div>
 							</div>
 						)}
 

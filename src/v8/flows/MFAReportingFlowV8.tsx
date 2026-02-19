@@ -34,6 +34,7 @@ import {
 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { CommonSpinner } from '../../components/common/CommonSpinner';
+import { ButtonSpinner } from '../../components/ui/ButtonSpinner';
 import { useProductionSpinner } from '../../hooks/useProductionSpinner';
 
 const MODULE_TAG = '[📊 MFA-REPORTING-FLOW-V8]';
@@ -41,6 +42,8 @@ const FLOW_KEY = 'mfa-reporting-v8';
 
 interface Credentials {
 	environmentId: string;
+	clientId: string;
+	clientSecret?: string;
 	username: string;
 	[key: string]: unknown;
 }
@@ -263,31 +266,47 @@ export const MFAReportingFlowV8: React.FC = () => {
 	// Scroll to top on page load
 	usePageScroll({ pageName: 'MFA Reporting V8', force: true });
 
-	const [credentials, setCredentials] = useState<Credentials>(() => {
-		const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
-			flowKey: FLOW_KEY,
-			flowType: 'oidc',
-			includeClientSecret: false,
-			includeRedirectUri: false,
-			includeLogoutUri: false,
-			includeScopes: false,
-		});
-
-		// Get global environment ID if not in flow-specific storage
-		const globalEnvId = EnvironmentIdServiceV8.getEnvironmentId();
-		const environmentId = stored.environmentId || globalEnvId || '';
-
-		console.log(`${MODULE_TAG} Loading credentials`, {
-			flowSpecificEnvId: stored.environmentId,
-			globalEnvId,
-			usingEnvId: environmentId,
-		});
-
-		return {
-			environmentId,
-			username: stored.username || '',
-		};
+	const [credentials, setCredentials] = useState<Credentials>({
+		environmentId: '',
+		clientId: '',
+		username: '',
 	});
+
+	// Load credentials on mount
+	useEffect(() => {
+		const loadCredentials = async () => {
+			try {
+				const stored = await CredentialsServiceV8.loadCredentials(FLOW_KEY, {
+					flowKey: FLOW_KEY,
+					flowType: 'oidc',
+					includeClientSecret: false,
+					includeRedirectUri: false,
+					includeLogoutUri: false,
+					includeScopes: false,
+				});
+
+				// Get global environment ID if not in flow-specific storage
+				const globalEnvId = EnvironmentIdServiceV8.getEnvironmentId();
+				const environmentId = stored.environmentId || globalEnvId || '';
+
+				console.log(`${MODULE_TAG} Loading credentials`, {
+					flowSpecificEnvId: stored.environmentId,
+					globalEnvId,
+					usingEnvId: environmentId,
+				});
+
+				setCredentials({
+					...credentials,
+					environmentId,
+					username: stored.username || '',
+				});
+			} catch (error) {
+				console.error(`${MODULE_TAG} Failed to load credentials`, error);
+			}
+		};
+
+		loadCredentials();
+	}, [credentials]);
 
 	// Save environment ID globally when it changes
 	useEffect(() => {
@@ -364,14 +383,7 @@ export const MFAReportingFlowV8: React.FC = () => {
 
 	// Save credentials when they change
 	useEffect(() => {
-		CredentialsServiceV8.saveCredentials(FLOW_KEY, credentials, {
-			flowKey: FLOW_KEY,
-			flowType: 'oidc',
-			includeClientSecret: false,
-			includeRedirectUri: false,
-			includeLogoutUri: false,
-			includeScopes: false,
-		});
+		CredentialsServiceV8.saveCredentials(FLOW_KEY, credentials);
 	}, [credentials]);
 
 	const handleManageWorkerToken = async () => {
@@ -545,7 +557,6 @@ export const MFAReportingFlowV8: React.FC = () => {
 				<MFAHeaderV8
 					title="MFA Reporting"
 					description="Generate and view MFA usage reports and analytics"
-					icon={<FiPackage />}
 				/>
 
 				{/* Credentials Section */}
@@ -607,10 +618,12 @@ export const MFAReportingFlowV8: React.FC = () => {
 										color: '#374151',
 										marginBottom: '6px',
 									}}
+									htmlFor="username"
 								>
 									Username <span style={{ color: '#dc2626' }}>*</span>
 								</label>
 								<input
+									id="username"
 									type="text"
 									value={username}
 									onChange={(e) => setUsername(e.target.value.trim())}
@@ -635,10 +648,12 @@ export const MFAReportingFlowV8: React.FC = () => {
 									color: '#374151',
 									marginBottom: '6px',
 								}}
+								htmlFor="region"
 							>
 								Region
 							</label>
 							<select
+								id="region"
 								value={region}
 								onChange={(e) => setRegion(e.target.value as typeof region)}
 								style={{
@@ -667,10 +682,12 @@ export const MFAReportingFlowV8: React.FC = () => {
 									color: '#374151',
 									marginBottom: '6px',
 								}}
+								htmlFor="custom-domain"
 							>
 								Custom Domain (Optional)
 							</label>
 							<input
+								id="custom-domain"
 								type="text"
 								value={customDomain}
 								onChange={(e) => setCustomDomain(e.target.value.trim())}
@@ -765,10 +782,12 @@ export const MFAReportingFlowV8: React.FC = () => {
 									color: '#374151',
 									marginBottom: '6px',
 								}}
+								htmlFor="report-type"
 							>
 								Report Type
 							</label>
 							<select
+								id="report-type"
 								value={selectedReport}
 								onChange={(e) => setSelectedReport(e.target.value as ReportType)}
 								style={{

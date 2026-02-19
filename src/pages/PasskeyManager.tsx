@@ -6,20 +6,25 @@
  */
 
 import React, { useState } from 'react';
+import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import { usePageScroll } from '@/hooks/usePageScroll';
 import { PasskeyManagementUtility } from '@/utils/PasskeyManagementUtility';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
-import { WorkerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 
 export const PasskeyManager: React.FC = () => {
 	usePageScroll({ pageName: 'Passkey Manager', force: true });
+
+	// Use unified global worker token hook for token management
+	const globalTokenStatus = useGlobalWorkerToken();
+	const workerToken = globalTokenStatus.token || '';
+	const hasWorkerToken = globalTokenStatus.isValid;
+	const [_showWorkerTokenModal, _setShowWorkerTokenModal] = useState(false);
 
 	const [environmentId, setEnvironmentId] = useState(
 		() => EnvironmentIdServiceV8.getEnvironmentId() || ''
 	);
 	const [userId, setUserId] = useState('');
-	const [workerToken, setWorkerToken] = useState<string | null>(null);
 	const [loadingToken, setLoadingToken] = useState(false);
 
 	const handleLoadWorkerToken = async () => {
@@ -47,20 +52,24 @@ export const PasskeyManager: React.FC = () => {
 				);
 			}
 
-			const workerTokenService = new WorkerTokenServiceV8();
-			const token = await workerTokenService.getWorkerToken({
-				environmentId: credentials.environmentId,
-				clientId: credentials.clientId,
-				clientSecret: credentials.clientSecret,
-				scopes: credentials.scopes || 'openid',
-			});
+			// Worker token is now managed by unified service
+			if (!hasWorkerToken) {
+				alert('Please get a worker token first');
+				return;
+			}
 
-			setWorkerToken(token);
-		} catch (error) {
-			console.error('Failed to load worker token:', error);
-			alert(
-				`Failed to load worker token: ${error instanceof Error ? error.message : 'Unknown error'}`
-			);
+			setLoadingToken(true);
+			try {
+				// Token is already available from unified service
+				console.log('[Passkey Manager] Using worker token from unified service');
+			} catch (error) {
+				console.error('Failed to load worker token:', error);
+				alert(
+					`Failed to load worker token: ${error instanceof Error ? error.message : 'Unknown error'}`
+				);
+			} finally {
+				setLoadingToken(false);
+			}
 		} finally {
 			setLoadingToken(false);
 		}

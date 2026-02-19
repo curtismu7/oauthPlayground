@@ -237,7 +237,6 @@ const BrandDropdownSelector: React.FC<BrandDropdownSelectorProps> = ({
 				return context === 'closed'
 					? { width: '66px', height: '22px' }
 					: { width: '70px', height: '24px' };
-			case 'united-airlines':
 			default:
 				return context === 'closed'
 					? { width: '68px', height: '22px' }

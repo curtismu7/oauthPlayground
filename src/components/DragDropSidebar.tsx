@@ -762,21 +762,6 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						),
 					},
 					{
-						id: 'ciba-v7',
-						path: '/flows/ciba-v7',
-						label: 'CIBA Flow (V7)',
-						icon: (
-							<ColoredIcon $color="#8b5cf6">
-								<FiShield />
-							</ColoredIcon>
-						),
-						badge: (
-							<MigrationBadge title="V7: CIBA (RFC 9436) Client Initiated Backchannel Authentication - Real PingOne API">
-								<FiCheckCircle />
-							</MigrationBadge>
-						),
-					},
-					{
 						id: 'ciba-v9',
 						path: '/flows/ciba-v9',
 						label: 'CIBA Flow (V9)',
@@ -786,7 +771,10 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge title="V9: OpenID Connect Core 1.0 Compliant CIBA with Enhanced Features" style={{ background: '#10b981', color: 'white' }}>
+							<MigrationBadge
+								title="V9: OpenID Connect Core 1.0 Compliant CIBA with Enhanced Features"
+								style={{ background: '#10b981', color: 'white' }}
+							>
 								NEW
 							</MigrationBadge>
 						),
@@ -1735,6 +1723,21 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						),
 						badge: (
 							<MigrationBadge title="OIDC Session Management">
+								<FiCheckCircle />
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'pingone-sessions-api',
+						path: '/pingone-sessions-api',
+						label: 'PingOne Sessions API',
+						icon: (
+							<ColoredIcon $color="#3b82f6">
+								<FiDatabase />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="PingOne Sessions API">
 								<FiCheckCircle />
 							</MigrationBadge>
 						),

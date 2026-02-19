@@ -11,16 +11,6 @@
  */
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import {
-	FiArrowLeft,
-	FiArrowRight,
-	FiCheckCircle,
-	FiMaximize2,
-	FiMinimize2,
-	FiMove,
-	FiSkipBack,
-	FiTrash2,
-} from 'react-icons/fi';
 import styled from 'styled-components';
 
 export interface FloatingStepperStep {
@@ -54,7 +44,7 @@ export interface FloatingStepperProps extends FloatingStepperConfig {
 }
 
 // Styled Components
-const FloatingStepperContainer = styled.div<{
+const _FloatingStepperContainer = styled.div<{
 	$position: { x: number; y: number };
 	$isDragging?: boolean;
 	$compact?: boolean;
@@ -91,7 +81,7 @@ const FloatingStepperContainer = styled.div<{
 	}
 `;
 
-const StepIndicator = styled.div<{ $compact?: boolean }>`
+const _StepIndicator = styled.div<{ $compact?: boolean }>`
 	display: ${({ $compact }) => ($compact ? 'none' : 'flex')};
 	align-items: center;
 	gap: 0.75rem;
@@ -103,7 +93,7 @@ const StepIndicator = styled.div<{ $compact?: boolean }>`
 	}
 `;
 
-const StepDot = styled.div<{ $active: boolean; $completed: boolean }>`
+const _StepDot = styled.div<{ $active: boolean; $completed: boolean }>`
 	width: 12px;
 	height: 12px;
 	border-radius: 50%;
@@ -115,24 +105,24 @@ const StepDot = styled.div<{ $active: boolean; $completed: boolean }>`
 	transition: all 0.2s ease;
 `;
 
-const StepInfo = styled.div<{ $compact?: boolean }>`
+const _StepInfo = styled.div<{ $compact?: boolean }>`
 	display: ${({ $compact }) => ($compact ? 'none' : 'flex')};
 	flex-direction: column;
 	gap: 0.25rem;
 `;
 
-const StepTitle = styled.div`
+const _StepTitle = styled.div`
 	font-size: 0.875rem;
 	font-weight: 600;
 	color: #374151;
 `;
 
-const StepDescription = styled.div`
+const _StepDescription = styled.div`
 	font-size: 0.75rem;
 	color: #6b7280;
 `;
 
-const DragHandle = styled.div`
+const _DragHandle = styled.div`
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -152,13 +142,13 @@ const DragHandle = styled.div`
 	}
 `;
 
-const NavigationButtons = styled.div`
+const _NavigationButtons = styled.div`
 	display: flex;
 	gap: 0.75rem;
 	margin-left: auto;
 `;
 
-const NavButton = styled.button<{
+const _NavButton = styled.button<{
 	$variant?: 'primary' | 'secondary' | 'danger';
 	$disabled?: boolean;
 }>`
@@ -213,7 +203,7 @@ const NavButton = styled.button<{
 	}}
 `;
 
-const CompactToggle = styled.button`
+const _CompactToggle = styled.button`
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -320,7 +310,7 @@ export const FloatingStepper: React.FC<FloatingStepperProps> = ({
 		}
 	}, [isDragging, handleMouseMove, handleMouseUp]);
 
-	const handleStepClick = useCallback(
+	const _handleStepClick = useCallback(
 		(stepIndex: number) => {
 			if (onStepChange) {
 				onStepChange(stepIndex);
@@ -329,13 +319,13 @@ export const FloatingStepper: React.FC<FloatingStepperProps> = ({
 		[onStepChange]
 	);
 
-	const handlePrevious = useCallback(() => {
+	const _handlePrevious = useCallback(() => {
 		if (onPrevious && !isFirstStep) {
 			onPrevious();
 		}
 	}, [onPrevious, isFirstStep]);
 
-	const handleNext = useCallback(() => {
+	const _handleNext = useCallback(() => {
 		if (onNext && canNavigateNext) {
 			onNext();
 		} else if (onComplete && isLastStep) {
@@ -343,13 +333,13 @@ export const FloatingStepper: React.FC<FloatingStepperProps> = ({
 		}
 	}, [onNext, onComplete, canNavigateNext, isLastStep]);
 
-	const handleReset = useCallback(() => {
+	const _handleReset = useCallback(() => {
 		if (onReset) {
 			onReset();
 		}
 	}, [onReset]);
 
-	const toggleCompact = useCallback(() => {
+	const _toggleCompact = useCallback(() => {
 		setIsCompact((prev) => !prev);
 	}, []);
 
@@ -366,9 +356,9 @@ export const FloatingStepper: React.FC<FloatingStepperProps> = ({
 	style={style}
 		>
 			{draggable && (
-				<DragHandle>
-					<FiMove size={16} />
-				</DragHandle>
+				<_DragHandle>
+					<_FiMove _size={16} />
+				</_DragHandle>
 	)
 };
 
@@ -376,10 +366,10 @@ export const FloatingStepper: React.FC<FloatingStepperProps> = ({
 	showStepIndicator && !isCompact && (
 				<StepIndicator>
 					{steps.slice(0, 3).map((step, index) => (
-						<StepDot
-							key={step.id}
-							$active={index === currentStep}
-							$completed={step.completed || index < currentStep}
+						<_StepDot
+							_key={step.id}
+							_$active={index === currentStep}
+							_$completed={step.completed || index < currentStep}
 						/>
 					)
 	)

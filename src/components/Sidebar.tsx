@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { FiMove, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
-import AppVersionBadge from './AppVersionBadge';
 import DragDropSidebar from './DragDropSidebar';
 import SidebarSearch from './SidebarSearch';
 import { VersionBadge } from './VersionBadge';
@@ -241,39 +240,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 				/>
 			</div>
 
-			<SidebarFooter>
-				<div
-					style={{
-						display: 'flex',
-						flexDirection: 'column',
-						gap: '0.5rem',
-						padding: '0.5rem 0',
-					}}
-				>
-					<div
-						style={{
-							display: 'flex',
-							flexWrap: 'wrap',
-							gap: '0.5rem',
-							justifyContent: 'center',
-						}}
-					>
-						<AppVersionBadge type="app" />
-						<AppVersionBadge type="mfa" />
-					</div>
-					<div
-						style={{
-							display: 'flex',
-							flexWrap: 'wrap',
-							gap: '0.5rem',
-							justifyContent: 'center',
-						}}
-					>
-						<AppVersionBadge type="unified" />
-						<AppVersionBadge type="protect" />
-					</div>
-				</div>
-			</SidebarFooter>
+			<SidebarFooter></SidebarFooter>
 		</SidebarContainer>
 	);
 };

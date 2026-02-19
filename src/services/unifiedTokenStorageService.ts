@@ -447,7 +447,10 @@ export class UnifiedTokenStorageService {
 				headers: {
 					'Content-Type': 'application/json',
 				},
-				body: JSON.stringify(token),
+				body: JSON.stringify({
+					flowKey: `${token.flowType || 'unknown'}_${token.flowName || 'unknown'}_${token.environmentId || 'unknown'}`,
+					data: token,
+				}),
 			});
 
 			if (!response.ok) {
@@ -713,6 +716,41 @@ export class UnifiedTokenStorageService {
 			};
 		} catch (error) {
 			logger.error(MODULE_TAG, 'Failed to delete token', { tokenId }, error);
+			return {
+				success: false,
+				error: error instanceof Error ? error.message : String(error),
+				source: 'none',
+			};
+		}
+	}
+
+	/**
+	 * Delete multiple tokens based on query
+	 */
+	public async deleteTokens(query: TokenQuery): Promise<TokenStorageResult<void>> {
+		try {
+			const tokensResult = await this.getTokens(query);
+			
+			if (!tokensResult.success || !tokensResult.data) {
+				throw new Error('Failed to get tokens for deletion');
+			}
+
+			// Delete each token
+			for (const token of tokensResult.data) {
+				await this.deleteToken(token.id);
+			}
+
+			logger.info(MODULE_TAG, 'Tokens deleted successfully', { 
+				count: tokensResult.data.length,
+				query 
+			});
+
+			return {
+				success: true,
+				source: 'indexeddb',
+			};
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to delete tokens', { query }, error);
 			return {
 				success: false,
 				error: error instanceof Error ? error.message : String(error),
@@ -1033,7 +1071,7 @@ export class UnifiedTokenStorageService {
 	/**
 	 * Get UI preferences
 	 */
-	async getUIPreferences(userId?: string): Promise<Record<string, unknown> | null> {
+	async getUIPreferences(_userId?: string): Promise<Record<string, unknown> | null> {
 		const result = await this.getTokens({
 			type: 'ui_preferences',
 		});
@@ -1480,7 +1518,7 @@ export class UnifiedTokenStorageService {
 					const storageData: StorageData = JSON.parse(token.value);
 					const key = token.metadata?.key || token.id;
 					data[key] = storageData;
-				} catch (error) {
+				} catch (_error) {
 					logger.warn(MODULE_TAG, 'Failed to parse V8 data for export', { key: token.id });
 				}
 			});
@@ -1853,7 +1891,7 @@ export class UnifiedTokenStorageService {
 					const credentials: V8Credentials = JSON.parse(token.value);
 					const flowKey = token.metadata?.flowKey || token.id.replace('v8_credentials_', '');
 					data[flowKey] = credentials;
-				} catch (error) {
+				} catch (_error) {
 					logger.warn(MODULE_TAG, 'Failed to parse V8 credentials for export', { id: token.id });
 				}
 			});
@@ -2107,7 +2145,7 @@ export class UnifiedTokenStorageService {
 					const pkceCodes: V8UPKCECodes = JSON.parse(token.value);
 					const flowKey = token.metadata?.flowKey || token.id.replace('v8u_pkce_', '');
 					data[flowKey] = pkceCodes;
-				} catch (error) {
+				} catch (_error) {
 					logger.warn(MODULE_TAG, 'Failed to parse V8U PKCE codes for export', { id: token.id });
 				}
 			});
@@ -2429,7 +2467,7 @@ export class UnifiedTokenStorageService {
 					const storageData = JSON.parse(token.value);
 					const key = token.metadata?.originalKey || token.id.replace('flow_storage_', '');
 					data[key] = storageData.data;
-				} catch (error) {
+				} catch (_error) {
 					logger.warn(MODULE_TAG, 'Failed to parse flow storage data for export', { id: token.id });
 				}
 			});

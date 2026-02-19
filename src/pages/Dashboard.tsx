@@ -11,6 +11,7 @@ import {
 	FiZap,
 } from 'react-icons/fi';
 import styled from 'styled-components';
+import AppVersionBadge from '../components/AppVersionBadge';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { type ActivityItem, getRecentActivity } from '../utils/activityTracker';
 import { checkSavedCredentials } from '../utils/configurationStatus';
@@ -569,6 +570,41 @@ const Dashboard = () => {
 				>
 					Monitor system status, explore OAuth flows, and track recent activity
 				</p>
+
+				{/* Version Badges */}
+				<div
+					style={{
+						display: 'flex',
+						flexDirection: 'column',
+						gap: '0.5rem',
+						padding: '0.5rem 0px',
+						position: 'relative',
+						zIndex: 1,
+					}}
+				>
+					<div
+						style={{
+							display: 'flex',
+							flexWrap: 'wrap',
+							gap: '0.5rem',
+							justifyContent: 'center',
+						}}
+					>
+						<AppVersionBadge type="app" />
+						<AppVersionBadge type="mfa" />
+					</div>
+					<div
+						style={{
+							display: 'flex',
+							flexWrap: 'wrap',
+							gap: '0.5rem',
+							justifyContent: 'center',
+						}}
+					>
+						<AppVersionBadge type="unified" />
+						<AppVersionBadge type="protect" />
+					</div>
+				</div>
 			</div>
 
 			{/* System Status */}

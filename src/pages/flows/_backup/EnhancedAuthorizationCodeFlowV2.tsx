@@ -2393,7 +2393,7 @@ const EnhancedAuthorizationCodeFlowV2: React.FC = () => {
 			const backendUrl =
 				process.env.NODE_ENV === 'production'
 					? 'https://oauth-playground.vercel.app'
-					: 'https://localhost:3001';
+					: 'https://localhost:3002';
 
 			console.log(' [EnhancedAuthCodeFlowV2] Token exchange via backend proxy:', {
 				backendUrl,

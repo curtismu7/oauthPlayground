@@ -24,31 +24,22 @@
  * <CIBAFlowV9 />
  */
 
-import React, { useEffect, useState } from 'react';
-import {
-	FiActivity,
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiClock,
-	FiCopy,
-	FiInfo,
-	FiShield,
-	FiSmartphone,
-	FiX,
-	FiZap,
-} from 'react-icons/fi';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { FiAlertTriangle, FiCheckCircle, FiClock, FiCopy, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
 
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
-import { useProductionSpinner } from '@/hooks/useProductionSpinner';
-import { useCibaFlowV8Enhanced } from '@/v8/hooks/useCibaFlowV8Enhanced';
+import { Button } from '@/components/ui/button';
+import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
+import { v4ToastManager } from '@/utils/v4ToastManager';
+import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
+import { WorkerTokenStatusDisplayV8 } from '@/v8/components/WorkerTokenStatusDisplayV8';
 import {
 	type CibaCredentials,
 	type CibaDiscoveryMetadata,
 	CibaServiceV8Enhanced,
 } from '@/v8/services/cibaServiceV8Enhanced';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
-import { toastV9 } from '@/v9/utils/toastNotificationsV9';
 
 const MODULE_TAG = '[🔐 CIBA-FLOW-V9]';
 const FLOW_KEY = 'ciba-v9';
@@ -266,6 +257,7 @@ const CopyButton = styled.button`
 
 const CIBAFlowV9: React.FC = () => {
 	const cibaFlow = useCibaFlowV8Enhanced();
+	const { globalTokenStatus, getWorkerToken } = useGlobalWorkerToken();
 
 	// Form state
 	const [credentials, setCredentials] = useState<CibaCredentials>({
@@ -285,6 +277,12 @@ const CIBAFlowV9: React.FC = () => {
 	// UI state
 	const [showAdvanced, setShowAdvanced] = useState(false);
 	const [copiedToken, setCopiedToken] = useState(false);
+	const [discoveryRetryCount, setDiscoveryRetryCount] = useState(0);
+	const [lastDiscoveryAttempt, setLastDiscoveryAttempt] = useState(0);
+	const [discoveryCache, setDiscoveryCache] = useState<
+		Map<string, { metadata: CibaDiscoveryMetadata; timestamp: number }>
+	>(new Map());
+	const discoveryRetryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
 	// Load saved credentials on mount
 	useEffect(() => {
@@ -308,12 +306,81 @@ const CIBAFlowV9: React.FC = () => {
 		}
 	}, []);
 
-	// Load discovery metadata when environment changes
+	// Load discovery metadata when environment changes (with rate limiting and caching)
+	const loadDiscoveryMetadataWithRetry = useCallback(
+		async (envId: string) => {
+			if (!envId) return;
+
+			// Check cache first (cache for 5 minutes)
+			const cached = discoveryCache.get(envId);
+			if (cached && Date.now() - cached.timestamp < 300000) {
+				console.log(`${MODULE_TAG} Using cached discovery metadata for ${envId}`);
+				return;
+			}
+
+			const now = Date.now();
+			const timeSinceLastAttempt = now - lastDiscoveryAttempt;
+
+			// Rate limiting: wait at least 5 seconds between attempts
+			if (timeSinceLastAttempt < 5000) {
+				console.warn(`${MODULE_TAG} Rate limiting discovery metadata attempts`);
+				return;
+			}
+
+			// Don't attempt if we recently got a 429
+			if (discoveryRetryCount >= 3 && timeSinceLastAttempt < 30000) {
+				console.warn(`${MODULE_TAG} Too many failed attempts, waiting`);
+				return;
+			}
+
+			setLastDiscoveryAttempt(now);
+
+			try {
+				await cibaFlow.loadDiscoveryMetadata(envId);
+				setDiscoveryRetryCount(0); // Reset on success
+
+				// Cache successful result
+				setDiscoveryCache(
+					(prev) =>
+						new Map(
+							prev.set(envId, {
+								metadata: cibaFlow.discoveryMetadata,
+								timestamp: Date.now(),
+							})
+						)
+				);
+			} catch (error) {
+				setDiscoveryRetryCount((prev) => prev + 1);
+				// Don't show toast for 429 errors, just log
+				if (error instanceof Error && error.message?.includes('429')) {
+					console.warn(`${MODULE_TAG} Got 429 error, will retry later`);
+				} else if (
+					error instanceof Error &&
+					error.message?.includes('ERR_INSUFFICIENT_RESOURCES')
+				) {
+					console.warn(`${MODULE_TAG} Browser resource exhaustion detected, waiting before retry`);
+					// Wait longer for resource exhaustion errors - use ref to manage timeout
+					discoveryRetryTimeoutRef.current = setTimeout(() => {
+						setDiscoveryRetryCount(0); // Reset retry count after waiting
+						discoveryRetryTimeoutRef.current = null;
+					}, 60000);
+				} else {
+					// Show toast for other errors
+					console.error(`${MODULE_TAG} Failed to load discovery metadata:`, error);
+				}
+			}
+		},
+		[cibaFlow, lastDiscoveryAttempt, discoveryRetryCount, discoveryCache]
+	);
+
 	useEffect(() => {
-		if (credentials.environmentId) {
-			cibaFlow.loadDiscoveryMetadata(credentials.environmentId);
-		}
-	}, [credentials.environmentId, cibaFlow]);
+		return () => {
+			if (discoveryRetryTimeoutRef.current) {
+				clearTimeout(discoveryRetryTimeoutRef.current);
+				discoveryRetryTimeoutRef.current = null;
+			}
+		};
+	}, []);
 
 	// Save credentials when they change
 	useEffect(() => {
@@ -327,9 +394,50 @@ const CIBAFlowV9: React.FC = () => {
 		});
 	}, [credentials]);
 
+	useEffect(() => {
+		if (credentials.environmentId) {
+			loadDiscoveryMetadataWithRetry(credentials.environmentId);
+		}
+	}, [credentials.environmentId, loadDiscoveryMetadataWithRetry]);
+
 	// Handle form changes
 	const handleInputChange = (field: keyof CibaCredentials, value: string) => {
 		setCredentials((prev) => ({ ...prev, [field]: value }));
+	};
+
+	// Generate login hint token
+	const generateLoginHintToken = async () => {
+		try {
+			const response = await fetch('/api/generate-login-hint-token', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					clientId: credentials.clientId,
+					environmentId: credentials.environmentId,
+					loginHint: credentials.loginHint,
+				}),
+			});
+
+			if (!response.ok) {
+				const error: { error_description?: string } = await response.json();
+				throw new Error(error.error_description || 'Failed to generate login hint token');
+			}
+
+			const data = await response.json();
+			setCredentials((prev) => ({
+				...prev,
+				loginHintToken: data.login_hint_token,
+			}));
+
+			console.log(`${MODULE_TAG} Generated login hint token successfully`);
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to generate login hint token:`, error);
+			// Show error to user
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+			v4ToastManager.showError(`Failed to generate login hint token: ${errorMessage}`);
+		}
 	};
 
 	// Handle authentication initiation
@@ -338,7 +446,7 @@ const CIBAFlowV9: React.FC = () => {
 			// Validate credentials
 			const validation = CibaServiceV8Enhanced.validateCredentials(credentials);
 			if (!validation.valid) {
-				toastV9.error(`Invalid credentials: ${validation.errors.join(', ')}`);
+				v4ToastManager.showError(`Invalid credentials: ${validation.errors.join(', ')}`);
 				return;
 			}
 
@@ -359,7 +467,7 @@ const CIBAFlowV9: React.FC = () => {
 			);
 
 			if (result.status === 'approved' && result.tokens) {
-				toastV9.success('CIBA authentication completed successfully!');
+				v4ToastManager.showSuccess('CIBA authentication completed successfully!');
 			}
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to poll for tokens:`, error);
@@ -371,10 +479,10 @@ const CIBAFlowV9: React.FC = () => {
 		try {
 			await navigator.clipboard.writeText(token);
 			setCopiedToken(true);
-			toastV9.success('Token copied to clipboard');
+			v4ToastManager.showSuccess('Token copied to clipboard');
 			setTimeout(() => setCopiedToken(false), 2000);
-		} catch (error) {
-			toastV9.error('Failed to copy token');
+		} catch {
+			v4ToastManager.showError('Failed to copy token');
 		}
 	};
 
@@ -396,6 +504,17 @@ const CIBAFlowV9: React.FC = () => {
 		});
 	};
 
+	// V8 Handler functions
+	const handleGetWorkerToken = async () => {
+		try {
+			await getWorkerToken();
+			v4ToastManager.showSuccess('Worker token retrieved successfully');
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to get worker token:`, error);
+			v4ToastManager.showError('Failed to retrieve worker token');
+		}
+	};
+
 	return (
 		<Container>
 			<Header>
@@ -407,6 +526,13 @@ const CIBAFlowV9: React.FC = () => {
 					Client-Initiated Backchannel Authentication - OpenID Connect Core 1.0 Compliant
 				</Subtitle>
 			</Header>
+
+			{/* V8 Header and Worker Token Section */}
+			<MFAHeaderV8 />
+			<WorkerTokenStatusDisplayV8
+				workerTokenStatus={globalTokenStatus}
+				onGetWorkerToken={handleGetWorkerToken}
+			/>
 
 			{/* Configuration Card */}
 			<Card>
@@ -468,12 +594,14 @@ const CIBAFlowV9: React.FC = () => {
 										: ''
 						}
 						onChange={(e) => {
-							// Clear all login hints first
+							const selectedType = e.target.value;
+							// Clear all login hints first, then set the selected one
 							setCredentials((prev) => ({
 								...prev,
-								loginHint: '',
-								idTokenHint: '',
-								loginHintToken: '',
+								loginHint: selectedType === 'login_hint' ? prev.loginHint || '' : '',
+								idTokenHint: selectedType === 'id_token_hint' ? prev.idTokenHint || '' : '',
+								loginHintToken:
+									selectedType === 'login_hint_token' ? prev.loginHintToken || '' : '',
 							}));
 						}}
 					>
@@ -493,6 +621,73 @@ const CIBAFlowV9: React.FC = () => {
 							onChange={(e) => handleInputChange('loginHint', e.target.value)}
 							placeholder="user@example.com or +1234567890"
 						/>
+					</FormGroup>
+				)}
+
+				{credentials.idTokenHint !== '' && (
+					<FormGroup>
+						<Label htmlFor="idTokenHint">ID Token Hint *</Label>
+						<TextArea
+							id="idTokenHint"
+							value={credentials.idTokenHint}
+							onChange={(e) => handleInputChange('idTokenHint', e.target.value)}
+							placeholder="Paste your ID token here..."
+							rows={4}
+						/>
+					</FormGroup>
+				)}
+
+				{credentials.loginHintToken !== '' && (
+					<FormGroup>
+						<Label htmlFor="loginHintToken">Login Hint Token (JWT) *</Label>
+						<div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
+							<TextArea
+								id="loginHintToken"
+								value={credentials.loginHintToken}
+								onChange={(e) => handleInputChange('loginHintToken', e.target.value)}
+								placeholder="Paste or generate JWT login hint token..."
+								rows={4}
+								style={{ flex: 1 }}
+							/>
+							<Button
+								type="button"
+								onClick={generateLoginHintToken}
+								disabled={
+									!credentials.clientId || !credentials.environmentId || !credentials.loginHint
+								}
+								title="Generate Login Hint Token"
+								style={{
+									padding: '0.5rem',
+									minWidth: '120px',
+									whiteSpace: 'nowrap',
+								}}
+							>
+								Generate
+							</Button>
+						</div>
+						{!credentials.clientId || !credentials.environmentId || !credentials.loginHint ? (
+							<small
+								style={{
+									color: '#6b7280',
+									fontSize: '0.875rem',
+									marginTop: '0.25rem',
+									display: 'block',
+								}}
+							>
+								⚠️ Requires Client ID, Environment ID, and Login Hint to generate token
+							</small>
+						) : (
+							<small
+								style={{
+									color: '#6b7280',
+									fontSize: '0.875rem',
+									marginTop: '0.25rem',
+									display: 'block',
+								}}
+							>
+								💡 Generate a signed JWT token for the login hint
+							</small>
+						)}
 					</FormGroup>
 				)}
 
@@ -548,7 +743,15 @@ const CIBAFlowV9: React.FC = () => {
 								<Select
 									id="clientAuthMethod"
 									value={credentials.clientAuthMethod}
-									onChange={(e) => handleInputChange('clientAuthMethod', e.target.value as any)}
+									onChange={(e) =>
+										handleInputChange(
+											'clientAuthMethod',
+											e.target.value as
+												| 'client_secret_basic'
+												| 'client_secret_post'
+												| 'private_key_jwt'
+										)
+									}
 								>
 									<option value="client_secret_basic">Client Secret Basic</option>
 									<option value="client_secret_post">Client Secret Post</option>
@@ -617,6 +820,7 @@ const CIBAFlowV9: React.FC = () => {
 					</ButtonSpinner>
 
 					<button
+						type="button"
 						onClick={handleReset}
 						style={{
 							background: '#6b7280',

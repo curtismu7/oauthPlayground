@@ -689,218 +689,221 @@ const DpopAuthorizationCodeFlowV8: React.FC = () => {
 				</Button>
 			</Section>
 
-			{currentStep === 0 && (
-				<Section>
-					<SectionTitle>
-						<FiKey />
-						Step 1: Generate Key Pair
-					</SectionTitle>
+			<Section>
+				<SectionTitle>
+					<FiKey />
+					Step 1: Generate Key Pair
+				</SectionTitle>
+				<InfoBox>
+					<strong>What is a Key Pair?</strong>
+					<br />A DPoP key pair consists of a public key and a private key. The private key is used
+					to sign DPoP proofs, while the public key is shared with the authorization server to
+					verify those signatures. This ensures that only the legitimate key holder can use the
+					access token.
+					<br />
+					<br />
+					<strong>Why is this needed?</strong>
+					<br />
+					DPoP binds access tokens to a specific key pair, preventing token theft and replay
+					attacks. Even if someone steals your access token, they can't use it without your private
+					key.
+				</InfoBox>
+
+				<Button onClick={generateKeyPair} $variant="primary">
+					Generate Key Pair
+				</Button>
+
+				{keyPair && (
+					<div>
+						<h4>Generated Key Pair:</h4>
+						<TokenDisplay>
+							<strong>Public Key:</strong>
+							<br />
+							{keyPair.publicKey}
+							<br />
+							<br />
+							<strong>Private Key:</strong>
+							<br />
+							{keyPair.privateKey}
+						</TokenDisplay>
+						<InfoBox>
+							<strong>🔐 Security Note:</strong> In a real application, the private key should be
+							stored securely and never exposed. This educational demo shows both keys for learning
+							purposes.
+						</InfoBox>
+					</div>
+				)}
+			</Section>
+
+			<Section>
+				<SectionTitle>
+					<FiShield />
+					Step 2: Create DPoP Proof
+				</SectionTitle>
+				<InfoBox>
+					Create a DPoP proof JWT that demonstrates possession of the private key. The proof
+					includes HTTP method, timestamp, nonce, and is signed with the private key.
+				</InfoBox>
+
+				<Button onClick={createDpopProof} $variant="primary">
+					Create DPoP Proof
+				</Button>
+
+				<div>
+					<h4>DPoP Proof JWT:</h4>
+					<ProofDisplay>
+						{dpopProof ? JSON.stringify(dpopProof, null, 2) : 'No DPoP proof generated yet'}
+					</ProofDisplay>
+
+					<Grid>
+						<Column>
+							<strong>Header:</strong>
+							<br />
+							{dpopProof?.htm}
+						</Column>
+						<Column>
+							<strong>Type:</strong>
+							<br />
+							{dpopProof?.typ}
+						</Column>
+						<Column>
+							<strong>Algorithm:</strong>
+							<br />
+							{dpopProof?.alg}
+						</Column>
+						<Column>
+							<strong>Expires:</strong>
+							<br />
+							{dpopProof?.exp ? new Date(dpopProof.exp * 1000).toLocaleString() : 'N/A'}
+						</Column>
+						<Column>
+							<strong>Nonce:</strong>
+							<br />
+							{dpopProof?.nonce || 'None'}
+						</Column>
+					</Grid>
 					<InfoBox>
-						First, generate a public/private key pair that will be used to create DPoP proofs. In a
-						real implementation, this would use proper cryptographic libraries.
+						<strong>📝 How it works:</strong> The server verifies this proof by checking the
+						signature against your public key, ensuring you possess the private key.
 					</InfoBox>
+				</div>
+			</Section>
 
-					<Button onClick={generateKeyPair} $variant="primary">
-						Generate Key Pair
-					</Button>
+			<Section>
+				<SectionTitle>
+					<FiRefreshCw />
+					Step 3: Get Authorization Code
+				</SectionTitle>
+				<InfoBox>
+					Request an authorization code from the mock DPoP server. In a real implementation, this
+					would redirect the user to the authorization server.
+				</InfoBox>
 
-					{keyPair && (
-						<div>
-							<h4>Generated Key Pair:</h4>
-							<TokenDisplay>
-								<strong>Public Key:</strong>
+				<Button onClick={getAuthorizationCode} $variant="primary">
+					Get Authorization Code
+				</Button>
+
+				{authorizationCode && (
+					<div>
+						<h4>Authorization Code:</h4>
+						<TokenDisplay>{authorizationCode}</TokenDisplay>
+
+						<InfoBox>
+							This code would normally be exchanged for an access token at the token endpoint. In
+							this demo, you'll exchange it in the next step.
+						</InfoBox>
+					</div>
+				)}
+			</Section>
+
+			<Section>
+				<SectionTitle>
+					<FiUnlock />
+					Step 4: Exchange Code for Token
+				</SectionTitle>
+				<InfoBox>
+					Exchange the authorization code for a DPoP-bound access token. The token will be bound to
+					your public key via the DPoP proof.
+				</InfoBox>
+
+				<Button onClick={exchangeCodeForToken} $variant="primary" disabled={isLoading}>
+					{isLoading ? 'Exchanging...' : 'Exchange Code for Token'}
+				</Button>
+
+				{accessToken && (
+					<div>
+						<h4>Access Token:</h4>
+						<TokenDisplay>{accessToken}</TokenDisplay>
+
+						<Grid>
+							<Column>
+								<strong>Type:</strong>
 								<br />
-								{keyPair.publicKey}
+								{
+									mockServer.getState().issuedTokens[mockServer.getState().issuedTokens.length - 1]
+										?.token_type
+								}
+							</Column>
+							<Column>
+								<strong>Scope:</strong>
 								<br />
+								{
+									mockServer.getState().issuedTokens[mockServer.getState().issuedTokens.length - 1]
+										?.scope
+								}
+							</Column>
+							<Column>
+								<strong>DPoP JKT:</strong>
 								<br />
-								<strong>Private Key:</strong>
-								<br />
-								{keyPair.privateKey}
-							</TokenDisplay>
-						</div>
-					)}
-				</Section>
-			)}
+								{
+									mockServer.getState().issuedTokens[mockServer.getState().issuedTokens.length - 1]
+										?.dpop_jkt
+								}
+							</Column>
+						</Grid>
 
-			{currentStep === 1 && (
-				<Section>
-					<SectionTitle>
-						<FiShield />
-						Step 2: Create DPoP Proof
-					</SectionTitle>
-					<InfoBox>
-						Create a DPoP proof JWT that demonstrates possession of the private key. The proof
-						includes HTTP method, timestamp, nonce, and is signed with the private key.
-					</InfoBox>
+						<SuccessBox>
+							✅ Token successfully bound to your public key! The token can only be used by someone
+							who possesses the corresponding private key.
+						</SuccessBox>
+					</div>
+				)}
+			</Section>
 
-					<Button onClick={createDpopProof} $variant="primary">
-						Create DPoP Proof
-					</Button>
+			<Section>
+				<SectionTitle>
+					<FiCheckCircle />
+					Step 5: Use Token with DPoP
+				</SectionTitle>
+				<InfoBox>
+					Access a protected resource using the DPoP-bound token. Each request must include a fresh
+					DPoP proof to demonstrate possession of the private key.
+				</InfoBox>
 
-					{dpopProof && (
-						<div>
-							<h4>DPoP Proof JWT:</h4>
-							<ProofDisplay>{JSON.stringify(dpopProof, null, 2)}</ProofDisplay>
+				<Button onClick={useTokenWithProof} $variant="primary" disabled={isLoading}>
+					{isLoading ? 'Accessing Resource...' : 'Access Protected Resource'}
+				</Button>
 
-							<Grid>
-								<Column>
-									<strong>Header:</strong>
-									<br />
-									{dpopProof.htm}
-								</Column>
-								<Column>
-									<strong>Type:</strong>
-									<br />
-									{dpopProof.typ}
-								</Column>
-								<Column>
-									<strong>Algorithm:</strong>
-									<br />
-									{dpopProof.alg}
-								</Column>
-								<Column>
-									<strong>Expires:</strong>
-									<br />
-									{new Date(dpopProof.exp * 1000).toLocaleString()}
-								</Column>
-								<Column>
-									<strong>Nonce:</strong>
-									<br />
-									{dpopProof.nonce || 'None'}
-								</Column>
-							</Grid>
-						</div>
-					)}
-				</Section>
-			)}
-
-			{currentStep === 2 && (
-				<Section>
-					<SectionTitle>
-						<FiRefreshCw />
-						Step 3: Get Authorization Code
-					</SectionTitle>
-					<InfoBox>
-						Request an authorization code from the mock DPoP server. In a real implementation, this
-						would redirect the user to the authorization server.
-					</InfoBox>
-
-					<Button onClick={getAuthorizationCode} $variant="primary">
-						Get Authorization Code
-					</Button>
-
-					{authorizationCode && (
-						<div>
-							<h4>Authorization Code:</h4>
-							<TokenDisplay>{authorizationCode}</TokenDisplay>
-
-							<InfoBox>
-								This code would normally be exchanged for an access token at the token endpoint. In
-								this demo, you'll exchange it in the next step.
-							</InfoBox>
-						</div>
-					)}
-				</Section>
-			)}
-
-			{currentStep === 3 && (
-				<Section>
-					<SectionTitle>
-						<FiUnlock />
-						Step 4: Exchange Code for Token
-					</SectionTitle>
-					<InfoBox>
-						Exchange the authorization code for a DPoP-bound access token. The token will be bound
-						to your public key via the DPoP proof.
-					</InfoBox>
-
-					<Button onClick={exchangeCodeForToken} $variant="primary" disabled={isLoading}>
-						{isLoading ? 'Exchanging...' : 'Exchange Code for Token'}
-					</Button>
-
-					{accessToken && (
-						<div>
-							<h4>Access Token:</h4>
-							<TokenDisplay>{accessToken}</TokenDisplay>
-
-							<Grid>
-								<Column>
-									<strong>Type:</strong>
-									<br />
-									{
-										mockServer.getState().issuedTokens[
-											mockServer.getState().issuedTokens.length - 1
-										]?.token_type
-									}
-								</Column>
-								<Column>
-									<strong>Scope:</strong>
-									<br />
-									{
-										mockServer.getState().issuedTokens[
-											mockServer.getState().issuedTokens.length - 1
-										]?.scope
-									}
-								</Column>
-								<Column>
-									<strong>DPoP JKT:</strong>
-									<br />
-									{
-										mockServer.getState().issuedTokens[
-											mockServer.getState().issuedTokens.length - 1
-										]?.dpop_jkt
-									}
-								</Column>
-							</Grid>
-
-							<SuccessBox>
-								✅ Token successfully bound to your public key! The token can only be used by
-								someone who possesses the corresponding private key.
-							</SuccessBox>
-						</div>
-					)}
-				</Section>
-			)}
-
-			{currentStep === 4 && (
-				<Section>
-					<SectionTitle>
-						<FiCheckCircle />
-						Step 5: Use Token with DPoP
-					</SectionTitle>
-					<InfoBox>
-						Access a protected resource using the DPoP-bound token. Each request must include a
-						fresh DPoP proof to demonstrate possession of the private key.
-					</InfoBox>
-
-					<Button onClick={useTokenWithProof} $variant="primary" disabled={isLoading}>
-						{isLoading ? 'Accessing Resource...' : 'Access Protected Resource'}
-					</Button>
-
-					{currentStep >= 5 && (
-						<div>
-							<h4>Resource Access Successful!</h4>
-							<SuccessBox>
-								✅ You successfully demonstrated the complete DPoP flow:
-								<br />
-								1. Generated key pair
-								<br />
-								2. Created DPoP proof
-								<br />
-								3. Obtained authorization code
-								<br />
-								4. Exchanged for DPoP-bound token
-								<br />
-								5. Accessed resource with DPoP proof
-							</SuccessBox>
-
-							<Button onClick={resetFlow} $variant="secondary">
-								Start Over
-							</Button>
-						</div>
-					)}
-				</Section>
-			)}
+				<div>
+					<h4>Resource Access Successful!</h4>
+					<SuccessBox>
+						✅ You successfully demonstrated the complete DPoP flow:
+						<br />
+						1. Generated key pair
+						<br />
+						2. Created DPoP proof
+						<br />
+						3. Obtained authorization code
+						<br />
+						4. Exchanged for DPoP-bound token
+						<br />
+						5. Used token with DPoP proof
+					</SuccessBox>
+				</div>
+				<Button onClick={resetFlow} $variant="secondary">
+					Start Over
+				</Button>
+			</Section>
 
 			{error && (
 				<Section>
@@ -964,20 +967,20 @@ const DpopAuthorizationCodeFlowV8: React.FC = () => {
 
 				<InfoBox>
 					<strong>Key Concepts:</strong>
-					<br />• <strong>DPoP Proof JWT:</strong> Signed JWT demonstrating key possession
-					<br />• <strong>Token Binding:</strong> Access tokens bound to public keys
-					<br />• <strong>Nonce:</strong> Server-provided value to prevent pre-computed proofs
+					<br />- <strong>DPoP Proof JWT:</strong> Signed JWT demonstrating key possession
+					<br />- <strong>Token Binding:</strong> Access tokens bound to public keys
+					<br />- <strong>Nonce:</strong> Server-provided value to prevent pre-computed proofs
 					<br />
 					<strong>HTM:</strong> HTTP method and target URI
-					<br />• <strong>JKT:</strong> JSON Web Key Thumbprint for key identification
+					<br />- <strong>JKT:</strong> JSON Web Key Thumbprint for key identification
 				</InfoBox>
 
 				<InfoBox>
 					<strong>Implementation Notes:</strong>
-					<br />• This demo uses mock cryptography for educational purposes
-					<br />• Real implementations should use proper crypto libraries
-					<br />• DPoP complements but does not replace TLS security
-					<br />• PingOne does not currently support DPoP natively
+					<br />- This demo uses mock cryptography for educational purposes
+					<br />- Real implementations should use proper crypto libraries
+					<br />- DPoP complements but does not replace TLS security
+					<br />- PingOne does not currently support DPoP natively
 				</InfoBox>
 			</Section>
 		</Container>

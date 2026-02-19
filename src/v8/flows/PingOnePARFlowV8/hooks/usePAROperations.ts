@@ -13,7 +13,7 @@ import type {
 } from '../types/parFlowTypes';
 
 export const usePAROperations = () => {
-	const [isLoading, setIsLoading] = useState(false);
+	const [isLoading, _setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
 	// Spinner hooks for async operations

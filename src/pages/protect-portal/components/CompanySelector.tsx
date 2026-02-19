@@ -255,7 +255,7 @@ const CompanySelector: React.FC<CompanySelectorProps> = ({ onCompanyChange, sele
 			createdCompanyNames: createdCompanies.map((c) => c.name),
 			defaultCompanyNames: defaultCompanies.map((c) => c.name),
 		});
-	}, []);
+	}, [companyService.getRegistry]);
 
 	// Use activeTheme to determine current company, fallback to selectedCompany prop
 	const currentCompany =

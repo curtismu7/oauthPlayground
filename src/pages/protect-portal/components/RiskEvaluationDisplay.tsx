@@ -20,6 +20,8 @@ import {
 	FiXCircle,
 } from 'react-icons/fi';
 import styled from 'styled-components';
+import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
+import { workerTokenManager } from '@/services/workerTokenManager';
 import RiskEvaluationService from '../services/riskEvaluationService';
 import type {
 	EducationalContent,
@@ -507,6 +509,12 @@ const RiskEvaluationDisplay: React.FC<RiskEvaluationDisplayProps> = ({
 	educationalContent,
 }) => {
 	// ============================================================================
+	// GLOBAL WORKER TOKEN INTEGRATION
+	// ============================================================================
+	
+	const { globalTokenStatus } = useGlobalWorkerToken();
+
+	// ============================================================================
 	// STATE MANAGEMENT
 	// ============================================================================
 
@@ -582,11 +590,26 @@ const RiskEvaluationDisplay: React.FC<RiskEvaluationDisplayProps> = ({
 			setCurrentStep(3);
 			updateStep(3, 'active');
 
-			// Use real PingOne Protect API
+			// Ensure we have a valid worker token
+			if (!globalTokenStatus.token || !globalTokenStatus.isValid) {
+				try {
+					await workerTokenManager.refreshToken();
+				} catch (tokenError) {
+					throw new Error('Failed to obtain worker token for risk evaluation');
+				}
+			}
+
+			// Use global worker token for risk evaluation
+			const evaluationCredentials = {
+				environmentId: protectCredentials?.environmentId || 'default',
+				workerToken: globalTokenStatus.token || '',
+				region: protectCredentials?.region || 'us',
+			};
+
 			const evaluationResponse = await RiskEvaluationService.evaluateRisk(
 				userContext,
 				loginContext,
-				protectCredentials
+				evaluationCredentials
 			);
 
 			if (!evaluationResponse.success || !evaluationResponse.data) {

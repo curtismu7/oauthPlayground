@@ -809,27 +809,30 @@ const TokenExchangeFlowV7Enhanced: React.FC = () => {
 			claims: scenarios[selectedScenario].defaultClaims,
 			authorizationDetails: scenarios[selectedScenario].defaultAuthDetails,
 		}));
-	}, [selectedScenario]);
+	}, [selectedScenario, scenarios]);
 
-	const handleScenarioChange = useCallback((scenario: TokenExchangeScenario) => {
-		setSelectedScenario(scenario);
-		setCurrentStep(0);
-		setSubjectToken('');
-		setExchangedToken('');
-		setAuthCode('');
-		setInitialAccessToken('');
-		// Initialize with default scopes for the scenario
-		const defaultScopes = scenarios[scenario].scope.split(' ');
-		setSelectedScopes(defaultScopes);
-		// Set scenario-specific defaults
-		setExchangeParams((prev) => ({
-			...prev,
-			audience: scenarios[scenario].audience,
-			claims: scenarios[scenario].defaultClaims,
-			authorizationDetails: scenarios[scenario].defaultAuthDetails,
-		}));
-		v4ToastManager.showSuccess(`Selected ${scenarios[scenario].title} scenario`);
-	}, []);
+	const handleScenarioChange = useCallback(
+		(scenario: TokenExchangeScenario) => {
+			setSelectedScenario(scenario);
+			setCurrentStep(0);
+			setSubjectToken('');
+			setExchangedToken('');
+			setAuthCode('');
+			setInitialAccessToken('');
+			// Initialize with default scopes for the scenario
+			const defaultScopes = scenarios[scenario].scope.split(' ');
+			setSelectedScopes(defaultScopes);
+			// Set scenario-specific defaults
+			setExchangeParams((prev) => ({
+				...prev,
+				audience: scenarios[scenario].audience,
+				claims: scenarios[scenario].defaultClaims,
+				authorizationDetails: scenarios[scenario].defaultAuthDetails,
+			}));
+			v4ToastManager.showSuccess(`Selected ${scenarios[scenario].title} scenario`);
+		},
+		[scenarios]
+	);
 
 	const handleScopeToggle = useCallback((scopeName: string) => {
 		setSelectedScopes((prev) => {
@@ -954,7 +957,7 @@ const TokenExchangeFlowV7Enhanced: React.FC = () => {
 		v4ToastManager.showSuccess(
 			`Token exchange completed! Reduced scope by ${mockExchangedToken.exchange_metadata.scope_reduction.reduction_percentage}%`
 		);
-	}, [selectedScenario, selectedScopes, exchangeParams]);
+	}, [selectedScenario, selectedScopes, exchangeParams, scenarios]);
 
 	const currentScenario = scenarios[selectedScenario];
 
@@ -1459,7 +1462,7 @@ ${
 							<FiServer size={20} /> Actual Backend Implementation (server.js)
 						</h4>
 						<CodeBlock>{`// OAuth Playground Backend - Token Exchange Endpoint
-// This is the actual implementation running at http://localhost:3001/api/token-exchange
+// This is the actual implementation running at https://localhost:3002/api/token-exchange
 
 app.post('/api/token-exchange', async (req, res) => {
   console.log('🚀 [Server] Token exchange request received');
@@ -1782,12 +1785,12 @@ function TokenExchangeComponent() {
 								<InfoTitle>What You'll See When Testing</InfoTitle>
 								<InfoText>
 									When you click "Simulate Token Exchange" above, this frontend makes a real call to
-									our backend at <code>http://localhost:3001/api/token-exchange</code>. Here's what
+									our backend at <code>https://localhost:3002/api/token-exchange</code>. Here's what
 									the actual response looks like:
 								</InfoText>
 							</div>
 						</EducationalBox>
-						<CodeBlock>{`// Successful Response from http://localhost:3001/api/token-exchange
+						<CodeBlock>{`// Successful Response from https://localhost:3002/api/token-exchange
 {
   "access_token": "exchanged_1729635847123_k8j2h9f3x",
   "token_type": "Bearer",

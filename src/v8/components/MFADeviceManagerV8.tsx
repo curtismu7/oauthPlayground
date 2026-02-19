@@ -64,7 +64,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 	onUsernameChange,
 }) => {
 	const [devices, setDevices] = useState<Device[]>([]);
-	const [isLoading, setIsLoading] = useState(false);
+	const [isLoading, _setIsLoading] = useState(false);
 	const [editingDeviceId, setEditingDeviceId] = useState<string | null>(null);
 	const [newName, setNewName] = useState('');
 	const [showInfo, setShowInfo] = useState(false);

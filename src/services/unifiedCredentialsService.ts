@@ -317,7 +317,7 @@ export class UnifiedCredentialsService {
 
 		for (let i = 0; i < localStorage.length; i++) {
 			const key = localStorage.key(i);
-			if (key && key.startsWith(prefix)) {
+			if (key?.startsWith(prefix)) {
 				const item = this.getItem(key);
 				if (item && !this.isExpired(item)) {
 					items.push(item);
