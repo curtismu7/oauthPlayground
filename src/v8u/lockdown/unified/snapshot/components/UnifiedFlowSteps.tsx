@@ -3907,7 +3907,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				console.log(`${MODULE_TAG} 🔌 Exchanging authorization code for tokens`);
 
 				// Use relative URL to go through Vite proxy (avoids certificate issues)
-				// In development: Vite proxy routes /api/* to http://localhost:3001
+				// In development: Vite proxy routes /api/* to https://localhost:3002
 				// In production: Vite proxy routes /api/* to the production backend
 				const tokenEndpoint = '/api/token-exchange';
 
@@ -7245,7 +7245,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							const _backendUrl =
 								process.env.NODE_ENV === 'production'
 									? 'https://oauth-playground.vercel.app'
-									: 'https://localhost:3001';
+									: 'https://localhost:3002';
 							// Use PingOne auth proxy to avoid CORS issues
 							const deviceAuthEndpoint = `${window.location.origin}/pingone-auth/${credentials.environmentId}/as/device_authorization`;
 							const authMethod =

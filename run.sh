@@ -1,25 +1,48 @@
 #!/bin/bash
 
 ###############################################################################
-# ⚠️ CRITICAL FILE - DO NOT DELETE OR MOVE ⚠️
+# ⚠️  DEPRECATED SCRIPT - DO NOT USE ⚠️
 # 
-# This file is the primary entry point for starting the PingOne MasterFlow API application.
-# It contains comprehensive startup logic including lockdown verification, health checks,
-# status reports, and log tailing.
-#
-# PROTECTION:
-# - This file MUST exist in the root directory
-# - It is referenced in documentation and user workflows
-# - Moving or deleting this file will break the startup process
-# - Updates should be made to this file (it can be edited)
-#
+# This script is DEPRECATED and should NOT be used.
+# It contains outdated dual HTTP/HTTPS backend configuration.
+# 
+# ✅ USE INSTEAD:
+#   - npm start (recommended)
+#   - ./scripts/dev/start-full-stack.sh
+#   - ./scripts/development/run.sh
+#   - ./scripts/development/stop.sh
+# 
+# These scripts use the correct single HTTPS backend configuration (port 3001 only).
 ###############################################################################
 
-# PingOne MasterFlow API - Server Restart Script
-# Kills all servers, restarts them, checks for errors, and reports status
-# Version: 1.0.0
+echo ""
+echo "🚨 🚨 🚨 DEPRECATED SCRIPT 🚨 🚨 🚨"
+echo ""
+echo "This script (run.sh) is DEPRECATED and should NOT be used."
+echo ""
+echo "❌ PROBLEMS WITH THIS SCRIPT:"
+echo "   - Uses outdated dual HTTP/HTTPS backend (ports 3001 & 3002)"
+echo "   - Backend should only run on HTTPS port 3001"
+echo "   - Will cause startup issues and errors"
+echo ""
+echo "✅ USE THESE INSTEAD:"
+echo "   • npm start                    (Recommended)"
+echo "   • ./scripts/dev/start-full-stack.sh"
+echo "   • ./scripts/development/run.sh"
+echo "   • ./scripts/development/stop.sh"
+echo "   • ./run-correct.sh              (Symlink to correct script)"
+echo ""
+echo "📝 Start Server with ./run.sh from the main Master Flow API Directory"
+echo ""
+echo "🔧 These scripts use the correct configuration:"
+echo "   • Frontend: https://localhost:3000"
+echo "   • Backend:  https://localhost:3001 (HTTPS only)"
+echo ""
+echo "📚 For help, see: docs/root-notes/SERVER_RESTART_GUIDE.md"
+echo ""
 
-set -e  # Exit on any error
+# Exit with error code to prevent accidental use
+exit 1
 
 # Colors for output
 RED='\033[0;31m'

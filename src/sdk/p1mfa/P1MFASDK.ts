@@ -20,7 +20,7 @@
  *   phone: '+1234567890'
  * });
  */
-import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
+import { WorkerTokenManager } from '@/services/workerTokenManager';
 import { ConfigurationError, P1MFAError } from './errors';
 import type {
 	AuthenticationCompleteParams,
@@ -63,8 +63,8 @@ export class P1MFASDK {
 
 		this.config = config;
 
-		// Save credentials for worker token service
-		await workerTokenServiceV8.saveCredentials({
+		// Save credentials for unified worker token service
+		await WorkerTokenManager.getInstance().saveCredentials({
 			environmentId: config.environmentId,
 			clientId: config.clientId,
 			clientSecret: config.clientSecret,
@@ -90,8 +90,8 @@ export class P1MFASDK {
 			throw new ConfigurationError('SDK not initialized. Call initialize() first.');
 		}
 
-		const tokenData = await workerTokenServiceV8.getToken(this.config.environmentId);
-		this.workerToken = tokenData.token;
+		const tokenData = await WorkerTokenManager.getInstance().getWorkerToken();
+		this.workerToken = tokenData;
 		return this.workerToken;
 	}
 

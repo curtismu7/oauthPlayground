@@ -13,7 +13,7 @@
  * All company-specific forms should use this component, not duplicate the fields.
  */
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { FiAlertTriangle, FiEye, FiEyeOff, FiLock as FiLockIcon, FiUser } from 'react-icons/fi';
 import styled from 'styled-components';
 import { ButtonSpinner } from '../../../components/ui/ButtonSpinner';
@@ -128,6 +128,34 @@ const ErrorMessage = styled.div`
   font-family: var(--brand-body-font);
 `;
 
+const CheckboxGroup = styled.div`
+  display: flex;
+  align-items: center;
+  margin: -0.5rem 0 0.5rem 0;
+`;
+
+const CheckboxLabel = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--brand-text);
+  cursor: pointer;
+  user-select: none;
+  font-family: var(--brand-body-font);
+
+  input[type='checkbox'] {
+    width: 1.125rem;
+    height: 1.125rem;
+    cursor: pointer;
+    accent-color: var(--brand-primary);
+  }
+
+  &:hover {
+    color: var(--brand-primary);
+  }
+`;
+
 // ============================================================================
 // PROPS INTERFACE
 // ============================================================================
@@ -169,6 +197,22 @@ export const BaseLoginForm: React.FC<BaseLoginFormProps> = ({
 	const [showPassword, setShowPassword] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const [rememberUsername, setRememberUsername] = useState(false);
+
+	// ============================================================================
+	// LOAD SAVED USERNAME ON MOUNT
+	// ============================================================================
+
+	useEffect(() => {
+		const rememberFlag = localStorage.getItem('protect-portal-remember-username');
+		if (rememberFlag === 'true') {
+			const savedUsername = localStorage.getItem('protect-portal-username');
+			if (savedUsername) {
+				setFormData((prev) => ({ ...prev, username: savedUsername }));
+				setRememberUsername(true);
+			}
+		}
+	}, []);
 
 	// ============================================================================
 	// EVENT HANDLERS
@@ -216,6 +260,15 @@ export const BaseLoginForm: React.FC<BaseLoginFormProps> = ({
 
 			setIsLoading(true);
 			setError(null);
+
+			// Save or clear username based on checkbox
+			if (rememberUsername) {
+				localStorage.setItem('protect-portal-username', formData.username);
+				localStorage.setItem('protect-portal-remember-username', 'true');
+			} else {
+				localStorage.removeItem('protect-portal-username');
+				localStorage.removeItem('protect-portal-remember-username');
+			}
 
 			try {
 				console.log('[🔐 BASE-LOGIN] Starting PingOne authentication');
@@ -300,7 +353,7 @@ export const BaseLoginForm: React.FC<BaseLoginFormProps> = ({
 				setIsLoading(false);
 			}
 		},
-		[formData, environmentId, clientId, redirectUri, onLoginSuccess, onError]
+		[formData, environmentId, clientId, redirectUri, onLoginSuccess, onError, rememberUsername]
 	);
 
 	// ============================================================================
@@ -374,6 +427,19 @@ export const BaseLoginForm: React.FC<BaseLoginFormProps> = ({
 						</PasswordToggle>
 					</InputWrapper>
 				</InputGroup>
+
+				{/* Remember Username Checkbox */}
+				<CheckboxGroup>
+					<CheckboxLabel>
+						<input
+							type="checkbox"
+							checked={rememberUsername}
+							onChange={(e) => setRememberUsername(e.target.checked)}
+							disabled={isLoading}
+						/>
+						<span>Remember my username</span>
+					</CheckboxLabel>
+				</CheckboxGroup>
 
 				{/* Submit Button */}
 				<ButtonSpinner

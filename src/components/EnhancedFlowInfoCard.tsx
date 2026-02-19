@@ -254,6 +254,9 @@ const DocumentationLink = styled.a`
 
 interface EnhancedFlowInfoCardProps {
 	flowType: string;
+	title?: string;
+	description?: string;
+	features?: string[];
 	showAdditionalInfo?: boolean;
 	showDocumentation?: boolean;
 	showCommonIssues?: boolean;

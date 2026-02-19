@@ -75,7 +75,7 @@ export const useWorkerTokenConfigV8 = () => {
 		const handleConfigUpdate = (event?: Event) => {
 			console.log(`${MODULE_TAG} Configuration update detected, reloading...`, {
 				eventType: event?.type,
-				timestamp: Date.now()
+				timestamp: Date.now(),
 			});
 			loadConfig();
 		};
@@ -90,14 +90,14 @@ export const useWorkerTokenConfigV8 = () => {
 		console.log(`${MODULE_TAG} 📡 Event listeners registered`, {
 			mfaConfigListener: true,
 			workerTokenConfigListener: true,
-			timestamp: Date.now()
+			timestamp: Date.now(),
 		});
 
 		return () => {
 			window.removeEventListener('mfaConfigurationUpdated', handleConfigUpdate);
 			window.removeEventListener('workerTokenConfigUpdated', handleConfigUpdate);
 			console.log(`${MODULE_TAG} 📡 Event listeners cleaned up`, {
-				timestamp: Date.now()
+				timestamp: Date.now(),
 			});
 		};
 	}, []);

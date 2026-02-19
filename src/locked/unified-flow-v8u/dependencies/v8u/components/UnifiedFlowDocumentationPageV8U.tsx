@@ -333,7 +333,7 @@ versionSpecs.related.forEach((spec) => {
 });
 
 // Add PingOne API documentation with flow-specific anchor
-const apiDocsUrl = getApiDocsUrlForFlow(flowType);
+const _apiDocsUrl = getApiDocsUrlForFlow(flowType);
 
 // #region agent log
 method: 'POST', headers;
@@ -359,7 +359,16 @@ method: 'POST', headers;
 )
 // #endregion
 
-md += `- [PingOne API Documentation - ${flowTypeLabels[flowType]} Flow](${apiDocsUrl})\n`;
+md += `- [PingOne API Documentation - $
+{
+	flowTypeLabels[flowType];
+}
+Flow;
+]($
+{
+	_apiDocsUrl;
+}
+)\n`
 
 return md;
 }

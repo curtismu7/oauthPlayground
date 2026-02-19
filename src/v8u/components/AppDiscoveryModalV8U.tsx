@@ -7,13 +7,12 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
+import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
 import {
 	AppDiscoveryServiceV8,
 	type DiscoveredApplication,
 } from '@/v8/services/appDiscoveryServiceV8';
-import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
-import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const MODULE_TAG = '[🔍 APP-DISCOVERY-MODAL-V8U]';
@@ -35,13 +34,15 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 	flowType,
 	specVersion,
 }) => {
+	// Use unified global worker token hook for token management
+	const globalTokenStatus = useGlobalWorkerToken();
+	const workerToken = globalTokenStatus.token || '';
+	const hasWorkerToken = globalTokenStatus.isValid;
+
 	const [isLoading, setIsLoading] = useState(false);
 	const [apps, setApps] = useState<(DiscoveredApp & { fullApp?: DiscoveredApplication })[]>([]);
 	const [selectedAppId, setSelectedAppId] = useState<string | null>(null);
 	const [searchQuery, setSearchQuery] = useState('');
-	const [tokenStatus, setTokenStatus] = useState(() =>
-		WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync()
-	);
 
 	// Lock body scroll when modal is open
 	useEffect(() => {
@@ -58,22 +59,14 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 		}
 	}, [isOpen]);
 
-	// Check token status
+	// Check token status when modal opens
 	useEffect(() => {
-		if (!isOpen) return;
-
-		const checkStatus = () => {
-			const status = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
-			setTokenStatus(status);
-		};
-
-		checkStatus();
-		window.addEventListener('workerTokenUpdated', checkStatus);
-
-		return () => {
-			window.removeEventListener('workerTokenUpdated', checkStatus);
-		};
-	}, [isOpen]);
+		if (isOpen) {
+			// Token status is now managed by unified service
+			console.log('[AppDiscoveryModalV8U] Token status managed by unified service');
+			window.removeEventListener('workerTokenUpdated', globalTokenStatus);
+		}
+	}, [isOpen, globalTokenStatus]);
 
 	// Memoized handleDiscover to prevent infinite loops
 	const handleDiscover = useCallback(async () => {
@@ -82,19 +75,22 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 			return;
 		}
 
-		if (!tokenStatus.isValid) {
-			toastV8.error(tokenStatus.message);
+		if (!globalTokenStatus.isValid) {
+			toastV8.error(globalTokenStatus.message);
 			return;
 		}
 
 		setIsLoading(true);
 		setApps([]);
 		try {
-			// Get worker token directly from global service
-			const workerToken = await workerTokenServiceV8.getToken();
+			// Worker token is now managed by unified service
+			if (!hasWorkerToken) {
+				toastV8.error('Worker token required - please generate one first');
+				return;
+			}
 
-			// Debug logging
-			console.log(`${MODULE_TAG} Worker token retrieved from global service:`, {
+			// Use worker token from unified service
+			console.log(`${MODULE_TAG} Worker token retrieved from unified service:`, {
 				token: workerToken ? `${workerToken.substring(0, 20)}...` : 'null',
 				type: typeof workerToken,
 				hasValue: !!workerToken,
@@ -138,14 +134,14 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 		} finally {
 			setIsLoading(false);
 		}
-	}, [environmentId, tokenStatus]);
+	}, [environmentId, globalTokenStatus, hasWorkerToken, workerToken]);
 
 	// Auto-discover on open if token is valid
 	useEffect(() => {
-		if (isOpen && environmentId.trim() && tokenStatus.isValid && apps.length === 0) {
+		if (isOpen && environmentId.trim() && globalTokenStatus.isValid && apps.length === 0) {
 			handleDiscover();
 		}
-	}, [isOpen, environmentId, tokenStatus.isValid, apps.length, handleDiscover]);
+	}, [isOpen, environmentId, globalTokenStatus.isValid, apps.length, handleDiscover]);
 
 	const handleSelectApp = (app: DiscoveredApp) => {
 		setSelectedAppId(app.id);
@@ -220,6 +216,12 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 			{/* Backdrop */}
 			<div
 				onClick={onClose}
+				onKeyDown={(e) => {
+					if (e.key === 'Escape') {
+						onClose();
+					}
+				}}
+				tabIndex={-1}
 				style={{
 					position: 'fixed',
 					top: 0,
@@ -269,6 +271,7 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 						</h2>
 						<button
 							onClick={onClose}
+							type="button"
 							style={{
 								background: 'none',
 								border: 'none',
@@ -335,18 +338,18 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 								padding: '12px 16px',
 								marginBottom: '20px',
 								background:
-									tokenStatus.status === 'valid'
+									globalTokenStatus.status === 'valid'
 										? '#d1fae5'
-										: tokenStatus.status === 'expiring-soon'
+										: globalTokenStatus.status === 'expiring-soon'
 											? '#fef3c7'
 											: '#fee2e2',
-								border: `1px solid ${WorkerTokenStatusServiceV8.getStatusColor(tokenStatus.status)}`,
+								border: `1px solid ${globalTokenStatus.getStatusColor(globalTokenStatus.status)}`,
 								borderRadius: '8px',
 								fontSize: '14px',
 								color:
-									tokenStatus.status === 'valid'
+									globalTokenStatus.status === 'valid'
 										? '#065f46'
-										: tokenStatus.status === 'expiring-soon'
+										: globalTokenStatus.status === 'expiring-soon'
 											? '#92400e'
 											: '#991b1b',
 								display: 'flex',
@@ -354,13 +357,14 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 								gap: '8px',
 							}}
 						>
-							<span>{WorkerTokenStatusServiceV8.getStatusIcon(tokenStatus.status)}</span>
-							<span>{tokenStatus.message}</span>
+							<span>{globalTokenStatus.getStatusIcon(globalTokenStatus.status)}</span>
+							<span>{globalTokenStatus.message}</span>
 						</div>
 
 						{/* Environment ID */}
 						<div style={{ marginBottom: '20px' }}>
 							<label
+								htmlFor="environment-id-input"
 								style={{
 									display: 'block',
 									fontSize: '14px',
@@ -372,6 +376,7 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 								Environment ID <span style={{ color: '#ef4444' }}>*</span>
 							</label>
 							<input
+								id="environment-id-input"
 								type="text"
 								value={environmentId}
 								readOnly
@@ -391,13 +396,13 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 						<button
 							type="button"
 							onClick={handleDiscover}
-							disabled={isLoading || !environmentId.trim() || !tokenStatus.isValid}
+							disabled={isLoading || !environmentId.trim() || !globalTokenStatus.isValid}
 							style={{
 								width: '100%',
 								padding: '12px 16px',
 								marginBottom: '20px',
 								background:
-									isLoading || !environmentId.trim() || !tokenStatus.isValid
+									isLoading || !environmentId.trim() || !globalTokenStatus.isValid
 										? '#9ca3af'
 										: '#3b82f6',
 								color: 'white',
@@ -406,7 +411,7 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 								fontSize: '14px',
 								fontWeight: '600',
 								cursor:
-									isLoading || !environmentId.trim() || !tokenStatus.isValid
+									isLoading || !environmentId.trim() || !globalTokenStatus.isValid
 										? 'not-allowed'
 										: 'pointer',
 								transition: 'background 0.2s ease',
@@ -419,6 +424,7 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 						{apps.length > 0 && (
 							<div style={{ marginBottom: '16px' }}>
 								<label
+									htmlFor="search-apps-input"
 									style={{
 										display: 'block',
 										fontSize: '14px',
@@ -430,6 +436,7 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 									🔍 Search Applications
 								</label>
 								<input
+									id="search-apps-input"
 									type="text"
 									value={searchQuery}
 									onChange={(e) => setSearchQuery(e.target.value)}
@@ -627,18 +634,21 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 							</>
 						)}
 
-						{!isLoading && apps.length === 0 && environmentId.trim() && tokenStatus.isValid && (
-							<div
-								style={{
-									padding: '40px',
-									textAlign: 'center',
-									color: '#6b7280',
-									fontSize: '14px',
-								}}
-							>
-								No applications found. Make sure you have a valid Environment ID and worker token.
-							</div>
-						)}
+						{!isLoading &&
+							apps.length === 0 &&
+							environmentId.trim() &&
+							globalTokenStatus.isValid && (
+								<div
+									style={{
+										padding: '40px',
+										textAlign: 'center',
+										color: '#6b7280',
+										fontSize: '14px',
+									}}
+								>
+									No applications found. Make sure you have a valid Environment ID and worker token.
+								</div>
+							)}
 					</div>
 				</div>
 			</div>
