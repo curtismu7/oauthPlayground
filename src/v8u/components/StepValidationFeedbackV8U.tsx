@@ -24,8 +24,6 @@ import React, { useId, useState } from 'react';
 import { StepValidationFeedbackProps } from '@/v8/types/stepNavigation';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 
-const _MODULE_TAG = '[⚠️ VALIDATION-FEEDBACK-V8]';
-
 /**
  * StepValidationFeedbackV8U Component
  *
@@ -42,8 +40,8 @@ export const StepValidationFeedbackV8U: React.FC<StepValidationFeedbackProps> = 
 	showWarnings = true,
 	className = '',
 }) => {
-	const [_expandedErrors, _setExpandedErrors] = useState(true);
-	const [_expandedWarnings, _setExpandedWarnings] = useState(true);
+	const [expandedErrors, setExpandedErrors] = useState(true);
+	const [expandedWarnings, setExpandedWarnings] = useState(true);
 	const errorsId = useId();
 	const warningsId = useId();
 
@@ -54,7 +52,7 @@ export const StepValidationFeedbackV8U: React.FC<StepValidationFeedbackProps> = 
 		return null;
 	}
 
-	logger.debug(Rendering feedback`, {
+	logger.debug(`Rendering feedback`, {
 		errorCount: errors.length,
 		warningCount: warnings.length,
 	});
@@ -76,13 +74,16 @@ export const StepValidationFeedbackV8U: React.FC<StepValidationFeedbackProps> = 
 							{errors.length} {errors.length === 1 ? 'Error' : 'Errors'}
 						</span>
 						<span className="section-toggle">
-							<FiChevronDown
+							<span
 								style={{
 									transform: expandedErrors ? 'rotate(0deg)' : 'rotate(-90deg)',
 									transition: 'transform 0.3s ease',
 									fontSize: '16px',
+									display: 'inline-block',
 								}}
-							/>
+							>
+								▼
+							</span>
 						</span>
 					</button>
 
@@ -116,13 +117,16 @@ export const StepValidationFeedbackV8U: React.FC<StepValidationFeedbackProps> = 
 							{warnings.length} {warnings.length === 1 ? 'Warning' : 'Warnings'}
 						</span>
 						<span className="section-toggle">
-							<FiChevronDown
+							<span
 								style={{
 									transform: expandedWarnings ? 'rotate(0deg)' : 'rotate(-90deg)',
 									transition: 'transform 0.3s ease',
 									fontSize: '16px',
+									display: 'inline-block',
 								}}
-							/>
+							>
+								▼
+							</span>
 						</span>
 					</button>
 
@@ -144,225 +148,176 @@ export const StepValidationFeedbackV8U: React.FC<StepValidationFeedbackProps> = 
 			<style>{`
 				.step-validation-feedback-v8 {
 					display: flex;
-	flex - direction;
-	: column
-	gap:
-	12px
-	margin - bottom;
-	: 16px
-};
+					flex-direction: column;
+					gap: 12px;
+					margin-bottom: 16px;
+				}
 
-.feedback-section
-{
-	border - radius;
-	: 6px
-	overflow: hidden;
-	border:
-	1px solid #ddd
-}
+				.feedback-section {
+					border-radius: 6px;
+					overflow: hidden;
+					border: 1px solid #ddd;
+				}
 
-.errors-section
-{
-	background: #ffebee;
-	border - color;
-	: #ef5350
-}
+				.errors-section {
+					background: #ffebee;
+					border-color: #ef5350;
+				}
 
-.warnings-section
-{
-	background: #fff3e0;
-	border - color;
-	: #ffa726
-}
+				.warnings-section {
+					background: #fff3e0;
+					border-color: #ffa726;
+				}
 
-.section-header
-{
-	display: flex;
-	align - items;
-	: center
-	gap:
-	12px
-	width: 100%;
-	padding:
-	12px 16px
-	background: transparent;
-	border: none;
-	cursor: pointer;
-	font - size;
-	: 14px
-	font - weight;
-	: 600
-	text - align;
-	: left
-	transition: background;
-	0.2s ease
-}
+				.section-header {
+					display: flex;
+					align-items: center;
+					gap: 12px;
+					width: 100%;
+					padding: 12px 16px;
+					background: transparent;
+					border: none;
+					cursor: pointer;
+					font-size: 14px;
+					font-weight: 600;
+					text-align: left;
+					transition: background 0.2s ease;
+				}
 
-.errors-section .section-header
-{
-	color: #c62828;
-}
+				.errors-section .section-header {
+					color: #c62828;
+				}
 
-.errors-section .section-header:hover
-{
-	background: rgba(239, 83, 80, 0.1);
-}
+				.errors-section .section-header:hover {
+					background: #ffcdd2;
+				}
 
-.warnings-section .section-header
-{
-	color: #e65100;
-}
+				.warnings-section .section-header {
+					color: #ef6c00;
+				}
 
-.warnings-section .section-header:hover
-{
-	background: rgba(255, 167, 38, 0.1);
-}
+				.warnings-section .section-header:hover {
+					background: #ffe0b2;
+				}
 
-.section-header:focus-visible
-{
-	outline:
-	2px solid #2196f3
-	outline - offset;
-	: -2px
-}
+				.section-header:focus-visible {
+					outline: 2px solid #1976d2;
+					outline-offset: 2px;
+				}
 
-.section-icon
-{
-	display: inline - block;
-	font - size;
-	: 16px
-}
+				.section-icon {
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					width: 20px;
+					height: 20px;
+					flex-shrink: 0;
+					font-size: 12px;
+					font-weight: bold;
+				}
 
-.section-title
-{
-	flex: 1;
-}
+				.error-icon {
+					color: #c62828;
+					background: #ef5350;
+					border-radius: 50%;
+				}
 
-.section-toggle
-{
-	display: inline - block;
-	font - size;
-	: 12px
-	transition: transform;
-	0.2s ease
-}
+				.warning-icon {
+					color: #ef6c00;
+					background: #ffa726;
+					border-radius: 50%;
+				}
 
-.section-content
-{
-	padding:
-	12px 16px
-	border - top;
-	: 1px solid
-}
+				.error-text,
+				.warning-text {
+					flex: 1;
+				}
 
-.errors-section .section-content
-{
-	border - top - color;
-	: #ef5350
-}
+				.section-content {
+					padding: 12px;
+				}
 
-.warnings-section .section-content
-{
-	border - top - color;
-	: #ffa726
-}
+				.errors-section .section-content {
+					background: #ef5350;
+				}
 
-.error-list,
-				.warning-list
-{
-	list - style;
-	: none
-	margin: 0;
-	padding: 0;
-	display: flex;
-	flex - direction;
-	: column
-	gap:
-	8px
-}
+				.warnings-section .section-content {
+					background: #ffa726;
+				}
 
-.error-list li,
-				.warning-list li
-{
-	display: flex;
-	align - items;
-	: flex-start
-	gap:
-	8px
-	font - size;
-	: 13px
-	line - height;
-	: 1.4
-}
+				.error-list,
+				.warning-list {
+					list-style: none;
+					margin: 0;
+					padding: 0;
+					display: flex;
+					flex-direction: column;
+					gap: 8px;
+				}
 
-.errors-section li
-{
-	color: #c62828;
-}
+				.error-list li,
+				.warning-list li {
+					display: flex;
+					align-items: flex-start;
+					gap: 8px;
+					font-size: 13px;
+					line-height: 1.4;
+				}
 
-.warnings-section li
-{
-	color: #e65100;
-}
+				.errors-section li {
+					color: #c62828;
+				}
 
-.error-icon,
-				.warning-icon
-{
-	display: inline - flex;
-	align - items;
-	: center
-	justify - content;
-	: center
-	width:
-	20px
-	height:
-	20px
-	flex - shrink;
-	: 0
-	font - size;
-	: 12px
-	font - weight;
-	: bold
-}
+				.warnings-section li {
+					color: #ef6c00;
+				}
 
-.error-icon
-{
-	background: #ef5350;
-	color: white;
-	border - radius;
-	: 50%
-}
+				.error-icon,
+				.warning-icon {
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					width: 20px;
+					height: 20px;
+					flex-shrink: 0;
+					font-size: 12px;
+					font-weight: bold;
+				}
 
-.warning-icon
-{
-	background: #ffa726;
-	color: white;
-	border - radius;
-	: 50%
-}
+				.error-icon {
+					color: #c62828;
+					background: #ef5350;
+					border-radius: 50%;
+				}
 
-.error-text,
-				.warning-text
-{
-	flex: 1;
-}
+				.warning-icon {
+					color: #ef6c00;
+					background: #ffa726;
+					border-radius: 50%;
+				}
 
-/* Mobile responsive */
-@media (max-width: 600px)
-{
-	.section-header 
-						padding: 10px 12px
-	font - size;
-	: 13px
+				.error-text,
+				.warning-text {
+					flex: 1;
+				}
 
-	.section-content 
-						padding: 10px 12px
+				/* Mobile responsive */
+				@media (max-width: 600px) {
+					.section-header {
+						padding: 10px 12px;
+						font-size: 13px;
+					}
 
-	.error-list li,
-					.warning-list li 
-						font-size: 12px
-}
-`}</style>
+					.section-content {
+						padding: 10px 12px;
+					}
+
+					.error-list li,
+					.warning-list li {
+						font-size: 12px;
+					}
+				}
+			`}</style>
 		</div>
 	);
 };

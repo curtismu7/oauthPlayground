@@ -426,7 +426,7 @@ try {
 } catch (error) {
 	console.warn('[Server] Unable to read package.json for version metadata:', error);
 }
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.BACKEND_PORT || 3001;
 const serverStartTime = new Date();
 
 /**
@@ -994,6 +994,7 @@ app.get('/api/logs/tail', (req, res) => {
 		
 		// Send initial connection message
 		res.write('data: {"type":"connected"}\n\n');
+		res.flush(); // Ensure initial message is sent immediately
 		
 		let lastSize = fs.statSync(filePath).size;
 		
@@ -1021,6 +1022,7 @@ app.get('/api/logs/tail', (req, res) => {
 							const lines = newContent.split('\n').filter(line => line.trim());
 							if (lines.length > 0) {
 								res.write(`data: ${JSON.stringify({ type: 'update', lines })}\n\n`);
+								res.flush(); // Ensure update is sent immediately
 							}
 						}
 						lastSize = currentSize;
@@ -1042,7 +1044,14 @@ app.get('/api/logs/tail', (req, res) => {
 		
 	} catch (error) {
 		console.error('[Log Viewer] Failed to setup tail:', error);
-		res.status(500).json({ error: 'Failed to setup tail', message: error.message });
+		// Don't send JSON response if headers might already be set
+		if (!res.headersSent) {
+			res.status(500).json({ error: 'Failed to setup tail', message: error.message });
+		} else {
+			// If headers already sent, send error via SSE
+			res.write(`data: ${JSON.stringify({ type: 'error', message: 'Failed to setup tail: ' + error.message })}\n\n`);
+			res.end();
+		}
 	}
 });
 
@@ -16881,6 +16890,38 @@ app.get('/api/tokens/query', async (req, res) => {
 	}
 });
 
+/**
+ * Store tokens in unified storage
+ * POST /api/tokens/store
+ */
+app.post('/api/tokens/store', async (req, res) => {
+	try {
+		const { flowKey, data } = req.body;
+
+		if (!flowKey || !data) {
+			return res.status(400).json({ 
+				error: 'Missing required fields: flowKey, data' 
+			});
+		}
+
+		console.log('[Token Store] Storing token:', { flowKey, dataType: typeof data });
+
+		// For now, return success since we're using IndexedDB as primary storage
+		// SQLite is backup/fallback only
+		res.status(200).json({
+			success: true,
+			message: 'Token storage acknowledged (using IndexedDB as primary)',
+			flowKey,
+		});
+	} catch (error) {
+		console.error('[Token Store] Failed to store token:', error);
+		res.status(500).json({ 
+			error: 'Failed to store token', 
+			message: error.message 
+		});
+	}
+});
+
 // ============================================================================
 // OATH TOKEN MANAGEMENT ENDPOINTS
 // ============================================================================
@@ -19805,29 +19846,14 @@ app.use((req, res, next) => {
 // SERVER STARTUP
 // ============================================================================
 
-// Start both HTTP and HTTPS servers
+// Load or generate self-signed certificates for HTTPS
 const certs = generateSelfSignedCert();
+
+// Server variable declarations
 let httpsServer;
 let httpServer;
 
-// Initialize settings database
-await settingsDB.init();
-
-// Start HTTP server for proxy
-httpServer = app.listen(PORT, '0.0.0.0', () => {
-	console.log(`🚀 OAuth Playground Backend Server running on port ${PORT} (HTTP)`);
-	console.log(
-		`🏷️  Versions: app=${APP_VERSION} mfaV8=${MFA_V8_VERSION} unifiedV8u=${UNIFIED_V8U_VERSION}`
-	);
-	console.log(`📡 Health check: http://localhost:${PORT}/api/health`);
-	console.log(`🏷️  Version metadata: http://localhost:${PORT}/api/version`);
-	console.log(`🔐 Token exchange: http://localhost:${PORT}/api/token-exchange`);
-	console.log(`👤 UserInfo: http://localhost:${PORT}/api/userinfo`);
-	console.log(`🔌 Device UserInfo: http://localhost:${PORT}/api/device-userinfo`);
-	console.log(`✅ Token validation: http://localhost:${PORT}/api/validate-token`);
-});
-
-// Start HTTPS server if certificates are available
+// Start HTTPS server on PORT if certificates are available
 if (certs) {
 	try {
 		const options = {
@@ -19835,29 +19861,58 @@ if (certs) {
 			cert: fs.readFileSync(certs.certPath),
 		};
 
-		httpsServer = https.createServer(options, app).listen(PORT + 1, '0.0.0.0', () => {
-			console.log(`🔐 OAuth Playground Backend Server running on port ${PORT + 1} (HTTPS)`);
-			console.log(`📡 Health check: https://localhost:${PORT + 1}/api/health`);
-			console.log(`🔐 Token exchange: https://localhost:${PORT + 1}/api/token-exchange`);
-			console.log(`👤 UserInfo: https://localhost:${PORT + 1}/api/userinfo`);
-			console.log(`🔌 Device UserInfo: https://localhost:${PORT + 1}/api/device-userinfo`);
-			console.log(`✅ Token validation: https://localhost:${PORT + 1}/api/validate-token`);
+		httpsServer = https.createServer(options, app).listen(PORT, '0.0.0.0', () => {
+			console.log(`🔐 OAuth Playground Backend Server running on port ${PORT} (HTTPS)`);
+			console.log(`📡 Health check: https://localhost:${PORT}/api/health`);
+			console.log(`🔐 Token exchange: https://localhost:${PORT}/api/token-exchange`);
+			console.log(`👤 UserInfo: https://localhost:${PORT}/api/userinfo`);
+			console.log(`🔌 Device UserInfo: https://localhost:${PORT}/api/device-userinfo`);
+			console.log(`✅ Token validation: https://localhost:${PORT}/api/validate-token`);
 		});
 	} catch (error) {
 		console.error('❌ Failed to start HTTPS server:', error.message);
-		console.log('🔄 Continuing with HTTP server only...');
+		console.log('🔄 Starting HTTP server instead...');
+		// Start HTTP server as fallback
+		httpServer = app.listen(PORT, '0.0.0.0', () => {
+			console.log(`🚀 OAuth Playground Backend Server running on port ${PORT} (HTTP)`);
+			console.log(
+				`🏷️  Versions: app=${APP_VERSION} mfaV8=${MFA_V8_VERSION} unifiedV8u=${UNIFIED_V8U_VERSION}`
+			);
+			console.log(`📡 Health check: http://localhost:${PORT}/api/health`);
+			console.log(`🏷️  Version metadata: http://localhost:${PORT}/api/version`);
+			console.log(`🔐 Token exchange: http://localhost:${PORT}/api/token-exchange`);
+			console.log(`👤 UserInfo: http://localhost:${PORT}/api/userinfo`);
+			console.log(`🔌 Device UserInfo: http://localhost:${PORT}/api/device-userinfo`);
+			console.log(`✅ Token validation: http://localhost:${PORT}/api/validate-token`);
+		});
 	}
+} else {
+	// No certificates available, start HTTP server
+	httpServer = app.listen(PORT, '0.0.0.0', () => {
+		console.log(`🚀 OAuth Playground Backend Server running on port ${PORT} (HTTP)`);
+		console.log(
+			`🏷️  Versions: app=${APP_VERSION} mfaV8=${MFA_V8_VERSION} unifiedV8u=${UNIFIED_V8U_VERSION}`
+		);
+		console.log(`📡 Health check: http://localhost:${PORT}/api/health`);
+		console.log(`🏷️  Version metadata: http://localhost:${PORT}/api/version`);
+		console.log(`🔐 Token exchange: http://localhost:${PORT}/api/token-exchange`);
+		console.log(`👤 UserInfo: http://localhost:${PORT}/api/userinfo`);
+		console.log(`🔌 Device UserInfo: http://localhost:${PORT}/api/device-userinfo`);
+		console.log(`✅ Token validation: http://localhost:${PORT}/api/validate-token`);
+	});
 }
 
 // Add error handling for both servers
-httpServer.on('error', (err) => {
-	console.error('❌ HTTP Server error:', err);
-});
+if (httpServer) {
+	httpServer.on('error', (err) => {
+		console.error('❌ HTTP Server error:', err);
+	});
 
-httpServer.on('listening', () => {
-	const addr = httpServer.address();
-	console.log(`🌐 HTTP Server listening on:`, addr);
-});
+	httpServer.on('listening', () => {
+		const addr = httpServer.address();
+		console.log(`🌐 HTTP Server listening on:`, addr);
+	});
+}
 
 if (httpsServer) {
 	httpsServer.on('error', (err) => {

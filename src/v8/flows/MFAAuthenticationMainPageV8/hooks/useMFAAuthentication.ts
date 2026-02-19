@@ -136,7 +136,7 @@ export const useMFAAuthentication = (
 
 	// Spinner hooks for async operations
 	const authInitSpinner = useProductionSpinner('mfa-auth-init');
-	const deviceChallengeSpinner = useProductionSpinner('mfa-device-challenge');
+	const _deviceChallengeSpinner = useProductionSpinner('mfa-device-challenge');
 
 	// Modals
 	const [showOTPModal, setShowOTPModal] = useState(false);

@@ -236,10 +236,7 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 			newErrors.environmentId = 'Environment ID is required';
 		}
 
-		// Validate username
-		if (!username.trim()) {
-			newErrors.username = 'Username is required';
-		}
+		// Username validation removed - now handled by OAuth token
 
 		// Validate token based on token type
 		if (tokenType === 'worker') {

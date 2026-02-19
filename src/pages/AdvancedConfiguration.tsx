@@ -401,7 +401,7 @@ const AdvancedConfiguration = () => {
 				version: '1.0.0',
 			},
 		};
-	}, [selectedScopes, customScopes, customClaims]);
+	}, [selectedScopes, customScopes, customClaims, standardClaims]);
 
 	// Define scope colors for the JSON editor
 	const scopeColors = {

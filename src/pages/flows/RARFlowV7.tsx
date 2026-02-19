@@ -300,14 +300,17 @@ const RARFlowV7: React.FC = () => {
 	}, []);
 
 	// Apply RAR example
-	const applyRarExample = useCallback((exampleKey: string) => {
-		const example = rarExamples[exampleKey];
-		if (example) {
-			setRarDetails(example.details);
-			setSelectedExample(exampleKey);
-			v4ToastManager.showSuccess(`Applied ${example.name} RAR example`);
-		}
-	}, []);
+	const applyRarExample = useCallback(
+		(exampleKey: string) => {
+			const example = rarExamples[exampleKey];
+			if (example) {
+				setRarDetails(example.details);
+				setSelectedExample(exampleKey);
+				v4ToastManager.showSuccess(`Applied ${example.name} RAR example`);
+			}
+		},
+		[rarExamples]
+	);
 
 	// Load credentials on mount
 	useEffect(() => {
@@ -1493,9 +1496,10 @@ const RARFlowV7: React.FC = () => {
 		isLoading,
 		generateRARAuthUrl,
 		exchangeCodeForTokens,
-		applyRarExample, // Auto-save credentials when changed
+		applyRarExample,
 		saveCredentials,
 		selectedExample,
+		rarExamples,
 	]);
 
 	// Main render

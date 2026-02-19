@@ -28,7 +28,7 @@ import styled from 'styled-components';
 import { useEnhancedCredentialsTracking } from '../hooks/useEnhancedCredentialsTracking';
 import { EnhancedCredentialsServiceV8 } from '../services/enhancedCredentialsServiceV8';
 
-const MODULE_TAG = '[📋 ENHANCED-CREDENTIALS-FORM-V8]';
+const _MODULE_TAG = '[📋 ENHANCED-CREDENTIALS-FORM-V8]';
 
 // ============================================================================
 // STYLED COMPONENTS
@@ -410,7 +410,7 @@ export const EnhancedCredentialsFormV8: React.FC<EnhancedCredentialsFormV8Props>
 				onCredentialsChange({ ...credentials, [fieldName]: value });
 			}
 		},
-		[tracking, credentials, onCredentialsChange]
+		[tracking, credentials, onCredentialsChange, validateField]
 	);
 
 	// Field focus/blur handlers
@@ -426,7 +426,7 @@ export const EnhancedCredentialsFormV8: React.FC<EnhancedCredentialsFormV8Props>
 			tracking.trackFieldInteraction(fieldName, 'blur', value);
 			validateField(fieldName, value);
 		},
-		[tracking]
+		[tracking, validateField]
 	);
 
 	// Validation

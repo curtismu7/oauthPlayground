@@ -129,7 +129,7 @@ export const useStandardSpinner = (estimatedDuration?: number) => {
 			}
 		): Promise<T> => {
 			const duration = options?.estimatedDuration || estimatedDuration;
-			const type = duration ? getSpinnerType(duration) : spinnerType;
+			const _type = duration ? getSpinnerType(duration) : spinnerType;
 
 			startLoading();
 

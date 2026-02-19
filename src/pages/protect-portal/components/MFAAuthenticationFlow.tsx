@@ -104,7 +104,7 @@ const DeviceSelectionContainer = styled.div`
   margin-bottom: 2rem;
 `;
 
-const DeviceSelectionTitle = styled.h3`
+const _DeviceSelectionTitle = styled.h3`
   font-size: 1.25rem;
   font-weight: 600;
   color: var(--brand-text);
@@ -112,7 +112,7 @@ const DeviceSelectionTitle = styled.h3`
   font-family: var(--brand-heading-font);
 `;
 
-const DeviceGrid = styled.div`
+const _DeviceGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
@@ -162,13 +162,13 @@ const DeviceName = styled.div`
   font-family: var(--brand-heading-font);
 `;
 
-const DeviceStatus = styled.div`
+const _DeviceStatus = styled.div`
   font-size: 0.75rem;
   color: var(--brand-text-secondary);
   font-family: var(--brand-body-font);
 `;
 
-const NoDevicesMessage = styled.div`
+const _NoDevicesMessage = styled.div`
   text-align: center;
   padding: 2rem;
   color: var(--brand-text-secondary);
@@ -183,7 +183,7 @@ const LoadingContainer = styled.div`
   padding: 2rem;
 `;
 
-const LoadingSpinner = styled(FiLoader)`
+const _LoadingSpinner = styled(FiLoader)`
   animation: spin 1s linear infinite;
   font-size: 2rem;
   color: var(--brand-primary);
@@ -315,6 +315,13 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 		'loading' | 'device-selection' | 'authenticating' | 'complete'
 	>('loading');
 
+	const [challengeData, setChallengeData] = useState<{
+		type: string;
+		message: string;
+		timeout?: number;
+	} | null>(null);
+	const [otpValue, setOtpValue] = useState('');
+
 	// ============================================================================
 	// EVENT HANDLERS
 	// ============================================================================
@@ -337,7 +344,14 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 			}
 
 			setAvailableDevices(devicesResponse.data.devices);
-			console.log('[🔐 MFA-AUTHENTICATION] Loaded devices:', devicesResponse.data.devices.length);
+
+			// If no devices found, show registration option
+			if (devicesResponse.data.devices.length === 0) {
+				console.log('[🔐 MFA-AUTHENTICATION] No MFA devices found - user needs to register device');
+				setError('No MFA devices registered. Please register an MFA device first.');
+			} else {
+				console.log('[🔐 MFA-AUTHENTICATION] Loaded devices:', devicesResponse.data.devices.length);
+			}
 		} catch (err) {
 			console.error('[🔐 MFA-AUTHENTICATION] Failed to load devices:', err);
 
@@ -362,6 +376,52 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 		setError(null);
 	}, []);
 
+	const handleOtpSubmit = useCallback(async () => {
+		if (!otpValue.trim()) {
+			setError('Please enter the OTP code');
+			return;
+		}
+
+		if (!selectedDevice) {
+			setError('No device selected');
+			return;
+		}
+
+		setIsLoading(true);
+		setError(null);
+
+		try {
+			console.log('[🔐 MFA-AUTHENTICATION] Submitting OTP code for device:', selectedDevice.id);
+
+			const completeResponse = await MFAAuthenticationService.completeAuthentication(
+				userContext,
+				selectedDevice,
+				otpValue.trim(),
+				mfaCredentials
+			);
+
+			if (!completeResponse.success || !completeResponse.data) {
+				throw new Error(completeResponse.error?.message || 'MFA completion failed');
+			}
+
+			setCurrentStep('complete');
+			onComplete(completeResponse.data);
+		} catch (err) {
+			const errorMessage = err instanceof Error ? err.message : 'OTP verification failed';
+			setError(errorMessage);
+
+			const portalError: PortalError = {
+				code: 'OTP_VERIFICATION_FAILED',
+				message: errorMessage,
+				recoverable: true,
+				suggestedAction: 'Please check your OTP code and try again',
+			};
+			onError(portalError);
+		} finally {
+			setIsLoading(false);
+		}
+	}, [otpValue, selectedDevice, userContext, mfaCredentials, onComplete, onError]);
+
 	const handleAuthenticate = useCallback(async () => {
 		if (!selectedDevice) {
 			setError('Please select a device');
@@ -383,7 +443,11 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 				userContext,
 				selectedDevice,
 				mfaCredentials,
-				loginContext
+				{
+					flowSubtype: 'MFA_AUTHENTICATION',
+					origin: window.location.origin,
+					timestamp: new Date().toISOString(),
+				}
 			);
 
 			if (!authResponse.success || !authResponse.data) {
@@ -396,49 +460,15 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 				// Handle challenge-based authentication (OTP, Push, Biometric)
 				console.log('[🔐 MFA-AUTHENTICATION] Challenge required:', authData.challengeData.type);
 
-				// TODO: Implement proper challenge UI based on challenge type
-				// For now, we'll show a message indicating challenge is required
-				setError(`Challenge required: ${authData.challengeData.message}`);
+				// Set challenge data to show OTP input UI
+				setChallengeData({
+					type: authData.challengeData.type,
+					message: authData.challengeData.message || 'Please enter the code sent to your device',
+					timeout: authData.challengeData.timeout || undefined,
+				});
 
-				// In a real implementation, you would:
-				// 1. Show appropriate challenge UI (OTP input, push notification waiting, biometric prompt)
-				// 2. Collect user response
-				// 3. Call completeAuthentication with the actual response
-
-				// For demo purposes, we'll simulate successful challenge completion
-				setTimeout(async () => {
-					try {
-						const completeResponse = await MFAAuthenticationService.completeAuthentication(
-							userContext,
-							selectedDevice,
-							'challenge-completed', // This would come from user input
-							mfaCredentials
-						);
-
-						if (!completeResponse.success || !completeResponse.data) {
-							throw new Error(completeResponse.error?.message || 'MFA completion failed');
-						}
-
-						setCurrentStep('complete');
-						onComplete(completeResponse.data);
-					} catch (completeErr) {
-						const errorMessage =
-							completeErr instanceof Error ? completeErr.message : 'MFA completion failed';
-						setError(errorMessage);
-
-						const portalError: PortalError = {
-							code: 'MFA_COMPLETION_FAILED',
-							message: errorMessage,
-							recoverable: true,
-							suggestedAction: 'Please try again',
-						};
-						onError(portalError);
-					}
-				}, 3000);
-			} else if (authData.tokens) {
-				// Direct authentication without challenge
-				setCurrentStep('complete');
-				onComplete(authData.tokens);
+				// Set step to authenticating to show OTP input
+				setCurrentStep('authenticating');
 			} else {
 				throw new Error('Authentication completed but no tokens received');
 			}
@@ -459,7 +489,15 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 		} finally {
 			setIsLoading(false);
 		}
-	}, [selectedDevice, userContext, mfaCredentials, loginContext, onComplete, onError]);
+	}, [selectedDevice, userContext, mfaCredentials, onError]);
+
+	const handleStartRegistration = useCallback(() => {
+		// Redirect to MFA registration or show registration modal
+		// For now, we'll show an alert with instructions
+		alert(
+			'MFA Registration: Please visit the MFA registration page to set up your authentication devices.'
+		);
+	}, []);
 
 	const getDeviceIcon = (deviceType: string) => {
 		switch (deviceType) {
@@ -497,149 +535,261 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 	return (
 		<>
 			<CompanyLogoHeader size="small" />
+
 			<MFAContainer>
 				<MFATitle>Multi-Factor Authentication</MFATitle>
-				<MFADescription>Additional verification is required to protect your account</MFADescription>
+				<MFADescription>
+					For your security, we need to verify your identity using an additional authentication
+					method.
+				</MFADescription>
 
 				{/* Risk Warning */}
-				<RiskWarning>
-					<WarningIcon>
-						<FiAlertTriangle />
-					</WarningIcon>
-					<WarningContent>
-						<WarningTitle>Medium Risk Detected</WarningTitle>
-						<WarningText>
-							Your login attempt shows some unusual patterns. For your security, we require
-							additional verification before proceeding.
-						</WarningText>
-					</WarningContent>
-				</RiskWarning>
+				{!challengeData && (
+					<RiskWarning>
+						<WarningIcon>
+							<FiAlertTriangle />
+						</WarningIcon>
+						<WarningContent>
+							<WarningTitle>Medium Risk Detected</WarningTitle>
+							<WarningText>
+								Your login attempt shows some unusual patterns. For your security, we require
+								additional verification before proceeding.
+							</WarningText>
+						</WarningContent>
+					</RiskWarning>
+				)}
 
-				{error && (
-					<ErrorMessage>
-						<FiAlertTriangle />
-						{error}
-					</ErrorMessage>
+				{/* Challenge Warning */}
+				{challengeData && (
+					<RiskWarning>
+						<WarningIcon>
+							<FiAlertTriangle />
+						</WarningIcon>
+						<WarningContent>
+							<WarningTitle>Verification Required</WarningTitle>
+							<WarningText>{challengeData.message}</WarningText>
+						</WarningContent>
+					</RiskWarning>
+				)}
+
+				{/* OTP Input Form */}
+				{challengeData && (
+					<div style={{ marginTop: '2rem' }}>
+						<InputLabel htmlFor="otp-input">Enter OTP Code</InputLabel>
+						<InputGroup>
+							<StyledInput
+								id="otp-input"
+								type="text"
+								value={otpValue}
+								onChange={(e) => setOtpValue(e.target.value)}
+								placeholder="Enter the code from your device"
+								maxLength={10}
+								autoFocus
+								required
+								disabled={isLoading}
+							/>
+						</InputGroup>
+
+						<ActionButton
+							onClick={handleOtpSubmit}
+							disabled={isLoading || !otpValue.trim()}
+							style={{ marginTop: '1rem', width: '100%' }}
+						>
+							{isLoading ? (
+								<>
+									<FiLoader style={{ animation: 'spin 1s linear infinite' }} />
+									Verifying...
+								</>
+							) : (
+								<>
+									<FiCheckCircle />
+									Verify Code
+								</>
+							)}
+						</ActionButton>
+					</div>
+				)}
+
+				{/* Device Selection */}
+				{currentStep === 'device-selection' && availableDevices.length > 0 && !challengeData && (
+					<>
+						<MFATitle style={{ fontSize: '1.5rem', marginTop: '2rem' }}>
+							Select Authentication Method
+						</MFATitle>
+
+						<DeviceSelectionContainer>
+							{availableDevices.map((device) => (
+								<DeviceCard
+									key={device.id}
+									onClick={() => handleDeviceSelect(device)}
+									$isSelected={selectedDevice?.id === device.id}
+								>
+									<DeviceIcon>{getDeviceIcon(device.type)}</DeviceIcon>
+									<DeviceInfo>
+										<DeviceName>{device.name || `${device.type} Device`}</DeviceName>
+										<DeviceType>
+											{device.type} • {device.status}
+										</DeviceType>
+									</DeviceInfo>
+									{selectedDevice?.id === device.id && (
+										<FiCheckCircle
+											style={{
+												color: 'var(--brand-primary)',
+												fontSize: '1.25rem',
+												marginLeft: 'auto',
+											}}
+										/>
+									)}
+								</DeviceCard>
+							))}
+						</DeviceSelectionContainer>
+
+						{selectedDevice && (
+							<ActionButton
+								onClick={handleAuthenticate}
+								disabled={isLoading}
+								style={{ marginTop: '2rem', width: '100%' }}
+							>
+								{isLoading ? (
+									<>
+										<FiLoader style={{ animation: 'spin 1s linear infinite' }} />
+										Authenticating...
+									</>
+								) : (
+									<>
+										<FiLock />
+										Authenticate
+									</>
+								)}
+							</ActionButton>
+						)}
+					</>
+				)}
+
+				{/* No Devices Found - Registration Required */}
+				{currentStep === 'device-selection' && availableDevices.length === 0 && !challengeData && (
+					<div
+						style={{
+							textAlign: 'center',
+							padding: '2rem',
+							background: 'var(--brand-surface)',
+							borderRadius: 'var(--brand-radius-lg)',
+							border: '1px solid var(--brand-primary)',
+							marginTop: '2rem',
+						}}
+					>
+						<FiAlertTriangle
+							style={{
+								fontSize: '3rem',
+								color: 'var(--brand-warning)',
+								marginBottom: '1rem',
+							}}
+						/>
+						<h3 style={{ color: 'var(--brand-text)', marginBottom: '1rem' }}>
+							No MFA Devices Registered
+						</h3>
+						<p style={{ color: 'var(--brand-text-secondary)', marginBottom: '2rem' }}>
+							You need to register an MFA device before you can authenticate. Please visit the MFA
+							registration page to set up your authentication method.
+						</p>
+						<ActionButton onClick={handleStartRegistration}>
+							<FiShield />
+							Register MFA Device
+						</ActionButton>
+					</div>
 				)}
 
 				{/* Loading State */}
 				{currentStep === 'loading' && (
 					<LoadingContainer>
-						<LoadingSpinner />
-						<LoadingText>Loading your authentication devices...</LoadingText>
+						<FiLoader
+							style={{
+								fontSize: '2rem',
+								color: 'var(--brand-primary)',
+								animation: 'spin 1s linear infinite',
+							}}
+						/>
+						<LoadingText>Loading MFA devices...</LoadingText>
 					</LoadingContainer>
-				)}
-
-				{/* Device Selection */}
-				{currentStep === 'device-selection' && (
-					<DeviceSelectionContainer>
-						<DeviceSelectionTitle>Select Authentication Method</DeviceSelectionTitle>
-
-						{availableDevices.length > 0 ? (
-							<>
-								<DeviceGrid>
-									{availableDevices.map((device) => (
-										<DeviceCard
-											key={device.id}
-											selected={selectedDevice?.id === device.id}
-											onClick={() => handleDeviceSelect(device)}
-											disabled={isLoading}
-										>
-											<DeviceIcon deviceType={device.type}>{getDeviceIcon(device.type)}</DeviceIcon>
-											<DeviceName>{device.name}</DeviceName>
-											<DeviceStatus>
-												{device.type} • {device.status.toLowerCase()}
-											</DeviceStatus>
-										</DeviceCard>
-									))}
-								</DeviceGrid>
-
-								<button
-									type="button"
-									onClick={handleAuthenticate}
-									onKeyDown={(e) => {
-										if (e.key === 'Enter' || e.key === ' ') {
-											e.preventDefault();
-											handleAuthenticate();
-										}
-									}}
-									disabled={!selectedDevice || isLoading}
-									style={{
-										width: '100%',
-										maxWidth: '300px',
-										padding: '1rem 2rem',
-										background: isLoading
-											? '#9ca3af'
-											: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-										color: 'white',
-										border: 'none',
-										borderRadius: '0.5rem',
-										fontSize: '1.125rem',
-										fontWeight: '600',
-										cursor: isLoading || !selectedDevice ? 'not-allowed' : 'pointer',
-										transition: 'all 0.2s ease',
-										display: 'flex',
-										alignItems: 'center',
-										justifyContent: 'center',
-										gap: '0.5rem',
-										margin: '0 auto',
-									}}
-								>
-									{isLoading ? (
-										<>
-											<LoadingSpinner />
-											Authenticating...
-										</>
-									) : (
-										<>
-											<FiShield />
-											Authenticate with {selectedDevice?.name || 'Selected Device'}
-										</>
-									)}
-								</button>
-							</>
-						) : (
-							<NoDevicesMessage>
-								<FiShield style={{ fontSize: '2rem', marginBottom: '1rem', color: '#9ca3af' }} />
-								<p>No authentication devices found</p>
-								<p style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}>
-									Please register an MFA device first
-								</p>
-							</NoDevicesMessage>
-						)}
-					</DeviceSelectionContainer>
 				)}
 
 				{/* Authenticating State */}
-				{currentStep === 'authenticating' && (
+				{currentStep === 'authenticating' && !challengeData && (
 					<LoadingContainer>
-						<LoadingSpinner />
-						<LoadingText>Authenticating with {selectedDevice?.name}...</LoadingText>
-						<p style={{ fontSize: '0.875rem', color: '#9ca3af', marginTop: '0.5rem' }}>
-							Please follow the instructions on your device
-						</p>
+						<FiLoader
+							style={{
+								fontSize: '2rem',
+								color: 'var(--brand-primary)',
+								animation: 'spin 1s linear infinite',
+							}}
+						/>
+						<LoadingText>Authenticating...</LoadingText>
 					</LoadingContainer>
 				)}
 
-				{/* Educational Section */}
-				<EducationalSection>
-					<EducationalHeader>
-						<FiShield style={{ color: '#3b82f6' }} />
-						<EducationalTitle>{educationalContent.title}</EducationalTitle>
-					</EducationalHeader>
+				{/* Complete State */}
+				{currentStep === 'complete' && (
+					<SuccessContainer>
+						<FiCheckCircle
+							style={{
+								fontSize: '3rem',
+								color: 'var(--brand-success)',
+								marginBottom: '1rem',
+							}}
+						/>
+						<SuccessTitle>Authentication Successful</SuccessTitle>
+						<SuccessText>
+							You have been successfully authenticated. Proceeding to the secure portal.
+						</SuccessText>
+					</SuccessContainer>
+				)}
 
-					<EducationalDescription>{educationalContent.description}</EducationalDescription>
-
-					<KeyPoints>
-						{educationalContent.keyPoints.map((point, index) => (
-							<KeyPoint key={index}>
-								<KeyPointIcon />
-								{point}
-							</KeyPoint>
-						))}
-					</KeyPoints>
-				</EducationalSection>
+				{error && !challengeData && (
+					<ErrorMessage>
+						<FiAlertTriangle />
+						{error}
+					</ErrorMessage>
+				)}
 			</MFAContainer>
+
+			{/* Educational Content */}
+			<EducationalSection>
+				<EducationalHeader>
+					<EducationalTitle>
+						<FiBook />
+						Multi-Factor Authentication
+					</EducationalTitle>
+				</EducationalHeader>
+
+				<EducationalDescription>
+					MFA adds an extra layer of security by requiring additional verification beyond just your
+					password. This helps protect against unauthorized access even if your password is
+					compromised.
+				</EducationalDescription>
+
+				<KeyPoints>
+					<KeyPoint>
+						<KeyPointIcon />
+						<span>
+							<strong>Enhanced Security:</strong> MFA significantly reduces the risk of unauthorized
+							access
+						</span>
+					</KeyPoint>
+					<KeyPoint>
+						<KeyPointIcon />
+						<span>
+							<strong>Multiple Methods:</strong> Choose from SMS, email, authenticator apps, or
+							hardware keys
+						</span>
+					</KeyPoint>
+					<KeyPoint>
+						<KeyPointIcon />
+						<span>
+							<strong>Convenient:</strong> Modern MFA methods are quick and easy to use
+						</span>
+					</KeyPoint>
+				</KeyPoints>
+			</EducationalSection>
 		</>
 	);
 };
