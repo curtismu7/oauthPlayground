@@ -7,9 +7,9 @@ import { introspectToken } from '../../services/v7m/V7MIntrospectionService';
 import { tokenExchangeAuthorizationCode } from '../../services/v7m/V7MTokenService';
 import { getUserInfoFromAccessToken } from '../../services/v7m/V7MUserInfoService';
 import { PKCEStorageServiceV8U } from '../../v8u/services/pkceStorageServiceV8U';
-import { V7MHelpModal } from '../ui/V7MHelpModal';
-import { V7MInfoIcon } from '../ui/V7MInfoIcon';
-import { V7MJwtInspectorModal } from '../ui/V7MJwtInspectorModal';
+import { V7MHelpModal } from '../components/V7MHelpModal';
+import { V7MInfoIcon } from '../components/V7MInfoIcon';
+import { V7MJwtInspectorModal } from '../components/V7MJwtInspectorModal';
 
 type Props = {
 	oidc?: boolean;
