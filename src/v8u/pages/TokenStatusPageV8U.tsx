@@ -28,7 +28,7 @@ import {
 	type TokenStatusInfo,
 	WorkerTokenStatusServiceV8,
 } from '@/v8/services/workerTokenStatusServiceV8';
-import UserTokenStatusDisplayV8U from '@/v8u/components/UserTokenStatusDisplayV8U';
+import UserTokenStatusDisplayV8U from '@/apps/user-management/components/UserTokenStatusDisplayV8U';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import { StandardModalSpinner, useStandardSpinner } from '../../components/ui/StandardSpinner';
 
