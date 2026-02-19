@@ -14,13 +14,13 @@ import {
 } from 'react-icons/fi';
 import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { useAuth } from '../contexts/NewAuthContext';
-import { useAccessibility } from '../hooks/useAccessibility';
+import { useAuth } from '@/contexts/NewAuthContext';
+import { useAccessibility } from '@/hooks/useAccessibility';
 import {
 	exportAllUseCasesAsMarkdown,
 	exportAllUseCasesAsPDF,
-} from '../v8u/services/unifiedFlowDocumentationServiceV8U';
-import { APP_VERSION } from '../version';
+} from '@/v8u/services/unifiedFlowDocumentationServiceV8U';
+import { APP_VERSION } from '@/version';
 
 const NavbarContainer = styled.nav<{ $sidebarOpen?: boolean; $sidebarWidth?: number }>`
   position: fixed;

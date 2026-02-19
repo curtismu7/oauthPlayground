@@ -54,7 +54,7 @@ import {
 } from 'react-icons/fi';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { v4ToastManager } from '@/utils/v4ToastMessages';
 
 const ColoredIcon = styled.div<{ $color: string }>`
 	color: ${(props) => props.$color};
