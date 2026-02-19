@@ -180,6 +180,33 @@ git mv src/components/Navbar.tsx src/apps/navigation/components/
 git mv src/components/DragDropSidebar.tsx src/apps/navigation/components/
 git mv src/components/SidebarSearch.tsx src/apps/navigation/components/
 git mv src/components/VersionBadge.tsx src/apps/navigation/components/
+
+# COMPREHENSIVE TESTING AFTER PHASE 1
+echo "🧪 Running comprehensive tests after Phase 1..."
+./scripts/comprehensive-test.sh "Phase 1"
+if [ $? -eq 0 ]; then
+    echo "✅ Phase 1 comprehensive testing passed"
+    
+    # Additional smoke testing
+    echo "🔥 Running smoke tests..."
+    ./scripts/smoke-test.sh "Phase 1"
+    if [ $? -eq 0 ]; then
+        echo "✅ Phase 1 smoke testing passed"
+        
+        # Create regression baseline
+        echo "📸 Creating regression baseline..."
+        ./scripts/regression-test.sh "baseline" "Phase 1"
+        
+        echo "✅ Phase 1 testing complete - safe to proceed"
+        git commit -m "Phase 1: Create granular app-based structure - 6 apps with detailed subfolders"
+    else
+        echo "❌ Phase 1 smoke testing failed - fix issues before proceeding"
+        exit 1
+    fi
+else
+    echo "❌ Phase 1 comprehensive testing failed - fix issues before proceeding"
+    exit 1
+fi
 ```
 
 ### **Phase 2: Consolidate by App with Testing** (Day 2-3)
@@ -233,15 +260,39 @@ for service in "${SHARED_SERVICES[@]}"; do
   fi
 done
 
-# Test after shared services move
-echo "🧪 Testing after shared services move..."
-npm run build
-./scripts/check-all-app-features.sh
+# COMPREHENSIVE TESTING AFTER SHARED SERVICES MOVE
+echo "🧪 Running comprehensive tests after shared services move..."
+./scripts/comprehensive-test.sh "Phase 2 - Shared Services"
 if [ $? -eq 0 ]; then
-  echo "✅ Shared services move successful"
+    echo "✅ Shared services comprehensive testing passed"
+    
+    # Integration testing
+    echo "🔗 Running integration tests..."
+    ./scripts/integration-test.sh "Phase 2 - Shared Services"
+    if [ $? -eq 0 ]; then
+        echo "✅ Shared services integration testing passed"
+        
+        # Regression testing
+        echo "🔍 Running regression tests..."
+        ./scripts/regression-test.sh "compare" "Phase 1"
+        if [ $? -eq 0 ]; then
+            echo "✅ Shared services regression testing passed"
+            echo "✅ Shared services move successful"
+            git commit -m "Phase 2a: Move shared services to src/shared/services/"
+        else
+            echo "❌ Shared services regression testing failed"
+            git reset --hard HEAD~1
+            exit 1
+        fi
+    else
+        echo "❌ Shared services integration testing failed"
+        git reset --hard HEAD~1
+        exit 1
+    fi
 else
-  echo "❌ Shared services move failed - rollback needed"
-  exit 1
+    echo "❌ Shared services comprehensive testing failed - rollback needed"
+    git reset --hard HEAD~1
+    exit 1
 fi
 ```
 
@@ -281,15 +332,16 @@ for service in "${OAUTH_SPECIFIC[@]}"; do
   fi
 done
 
-# Test after OAuth app consolidation
-echo "🧪 Testing OAuth app consolidation..."
-npm run build
-./scripts/check-oauth-features.sh
+# COMPREHENSIVE TESTING AFTER OAUTH APP CONSOLIDATION
+echo "🧪 Running comprehensive tests after OAuth app consolidation..."
+./scripts/comprehensive-test.sh "Phase 2 - OAuth App"
 if [ $? -eq 0 ]; then
-  echo "✅ OAuth app consolidation successful"
+    echo "✅ OAuth app consolidation successful"
+    git commit -m "Phase 2b: Consolidate OAuth app content with granular structure"
 else
-  echo "❌ OAuth app consolidation failed - rollback needed"
-  exit 1
+    echo "❌ OAuth app consolidation failed - rollback needed"
+    git reset --hard HEAD~1
+    exit 1
 fi
 ```
 
@@ -326,15 +378,16 @@ for service in "${MFA_SPECIFIC[@]}"; do
   fi
 done
 
-# Test after MFA app consolidation
-echo "🧪 Testing MFA app consolidation..."
-npm run build
-./scripts/check-mfa-features.sh
+# COMPREHENSIVE TESTING AFTER MFA APP CONSOLIDATION
+echo "🧪 Running comprehensive tests after MFA app consolidation..."
+./scripts/comprehensive-test.sh "Phase 2 - MFA App"
 if [ $? -eq 0 ]; then
-  echo "✅ MFA app consolidation successful"
+    echo "✅ MFA app consolidation successful"
+    git commit -m "Phase 2c: Consolidate MFA app content with granular structure"
 else
-  echo "❌ MFA app consolidation failed - rollback needed"
-  exit 1
+    echo "❌ MFA app consolidation failed - rollback needed"
+    git reset --hard HEAD~1
+    exit 1
 fi
 ```
 
@@ -363,15 +416,16 @@ for service in "${ADMIN_SERVICES[@]}"; do
   fi
 done
 
-# Test after Admin app consolidation
-echo "🧪 Testing Admin app consolidation..."
-npm run build
-./scripts/check-admin-features.sh
+# COMPREHENSIVE TESTING AFTER ADMIN APP CONSOLIDATION
+echo "🧪 Running comprehensive tests after Admin app consolidation..."
+./scripts/comprehensive-test.sh "Phase 2 - Admin App"
 if [ $? -eq 0 ]; then
-  echo "✅ Admin app consolidation successful"
+    echo "✅ Admin app consolidation successful"
+    git commit -m "Phase 2d: Consolidate Admin app content with granular structure"
 else
-  echo "❌ Admin app consolidation failed - rollback needed"
-  exit 1
+    echo "❌ Admin app consolidation failed - rollback needed"
+    git reset --hard HEAD~1
+    exit 1
 fi
 ```
 
@@ -383,17 +437,20 @@ find src -name "*.ts" -o -name "*.tsx" | xargs sed -i 's|from.*v8u/|from ../apps
 find src -name "*.ts" -o -name "*.tsx" | xargs sed -i 's|from.*protect-portal/|from ../apps/protect/|g'
 find src -name "*.ts" -o -name "*.tsx" | xargs sed -i 's|from.*protect-app/|from ../apps/protect/|g'
 
-# Update App.tsx imports
-# OAuth imports: from ./v8u/... → ./apps/oauth/...
-# MFA imports: from ./v8/... → ./apps/mfa/...
-# Protect imports: from ./pages/protect-portal/... → ./apps/protect/...
-# User Management imports: from ./v8u/... → ./apps/user-management/...
-# Navigation imports: from ./components/Sidebar... → ./apps/navigation/components/...
+# Update shared imports
+find src -name "*.ts" -o -name "*.tsx" | xargs sed -i 's|from.*shared/|from ../shared/|g'
 
-# Test after updates
-npm run build
-npm test
-./scripts/check-*.sh
+# COMPREHENSIVE TESTING AFTER IMPORT UPDATES
+echo "🧪 Running comprehensive tests after import updates..."
+./scripts/comprehensive-test.sh "Phase 3 - Import Updates"
+if [ $? -eq 0 ]; then
+    echo "✅ Import updates successful"
+    git commit -m "Phase 3: Update all imports to new app-based paths"
+else
+    echo "❌ Import updates failed - rollback needed"
+    git reset --hard HEAD~1
+    exit 1
+fi
 ```
 
 ### **Phase 4: Remove Old Structure** (Day 5)
@@ -405,13 +462,200 @@ rmdir src/v8 src/v8u src/v7m src/protect-app
 rmdir src/pages src/components src/services
 
 # Clean up any remaining old structure
+find src -name "*.backup" -delete
+find src -name "*.bak" -delete
+
+# COMPREHENSIVE TESTING AFTER OLD STRUCTURE REMOVAL
+echo "🧪 Running comprehensive tests after old structure removal..."
+./scripts/comprehensive-test.sh "Phase 4 - Old Structure Removal"
+if [ $? -eq 0 ]; then
+    echo "✅ Old structure removal successful"
+    git commit -m "Phase 4: Remove old V8/V8U folder structure"
+else
+    echo "❌ Old structure removal failed - rollback needed"
+    git reset --hard HEAD~1
+    exit 1
+fi
+```
+
+### **Phase 5: Final Cleanup and Testing** (Day 6)
+```bash
+# Final cleanup
+find src -name "*.DS_Store" -delete
+find src -name "Thumbs.db" -delete
+
+# Update any remaining documentation
+echo "📝 Updating documentation..."
+# Update README.md, etc.
+
+# FINAL COMPREHENSIVE TESTING
+echo "🧪 Running FINAL comprehensive tests..."
+./scripts/comprehensive-test.sh "Phase 5 - Final"
+if [ $? -eq 0 ]; then
+    echo "✅ Final testing successful"
+    echo "🎉 SRC CLEANUP COMPLETE!"
+    git commit -m "Phase 5: Final cleanup and testing - SRC cleanup complete"
+else
+    echo "❌ Final testing failed - fix issues before completion"
+    exit 1
+fi
+
+# Create completion report
+echo "📊 Creating completion report..."
+echo "# SRC Cleanup Completion Report" > cleanup-completion-report.md
+echo "Completed on: $(date)" >> cleanup-completion-report.md
+echo "" >> cleanup-completion-report.md
+echo "## Structure Created" >> cleanup-completion-report.md
+echo "- ✅ 6 distinct apps with granular subfolders" >> cleanup-completion-report.md
+echo "- ✅ V7 kept separate for V9 upgrade" >> cleanup-completion-report.md
+echo "- ✅ Shared code properly organized" >> cleanup-completion-report.md
+echo "- ✅ All imports updated" >> cleanup-completion-report.md
+echo "- ✅ Old structure removed" >> cleanup-completion-report.md
+echo "" >> cleanup-completion-report.md
+echo "## Testing Results" >> cleanup-completion-report.md
+echo "- ✅ Build passes" >> cleanup-completion-report.md
+echo "- ✅ All feature checks pass" >> cleanup-completion-report.md
+echo "- ✅ Lint passes" >> cleanup-completion-report.md
+echo "- ✅ Type check passes" >> cleanup-completion-report.md
+echo "- ✅ Unit tests pass" >> cleanup-completion-report.md
 ```
 
 ---
 
-## **Import Boundary Rules (App-Based)**
+## **Comprehensive Testing Strategy**
 
-### **Allowed**
+### **Testing Layers**
+
+#### **1. Comprehensive Testing** (`scripts/comprehensive-test.sh`)
+- **Build Testing**: Ensure project builds successfully
+- **Critical Files**: Verify essential files exist
+- **App Structure**: Check directory structure integrity
+- **Import Analysis**: Detect broken imports
+- **Feature Checks**: Run all app feature checks
+- **Lint Testing**: Code quality checks
+- **Type Checking**: TypeScript validation
+- **Unit Tests**: Test suite execution
+
+#### **2. Smoke Testing** (`scripts/smoke-test.sh`)
+- **App Startup**: Verify application starts
+- **Basic Endpoints**: Test critical pages load
+- **Critical Flows**: Test OAuth, MFA, Protect flows
+- **Navigation**: Verify navigation works
+- **API Endpoints**: Test API responsiveness
+- **User Interface**: Basic UI functionality
+
+#### **3. Integration Testing** (`scripts/integration-test.sh`)
+- **App Communication**: Test app-to-app interactions
+- **Shared Components**: Verify shared component usage
+- **Shared Services**: Test service integration
+- **Data Flow**: Verify cross-app data sharing
+- **Routing Integration**: Test routing configuration
+- **Theme Integration**: Verify styling consistency
+
+#### **4. Regression Testing** (`scripts/regression-test.sh`)
+- **Baseline Creation**: Snapshot current state
+- **Structure Comparison**: Detect structural changes
+- **Import Comparison**: Track import changes
+- **Route Comparison**: Verify route integrity
+- **Component Comparison**: Track component changes
+- **Service Comparison**: Verify service consistency
+- **Performance Testing**: Build time and bundle size
+- **Critical Functionality**: Ensure no features lost
+
+### **Testing After Each Phase**
+
+#### **Phase 1 Testing**
+```bash
+./scripts/comprehensive-test.sh "Phase 1"
+./scripts/smoke-test.sh "Phase 1"
+./scripts/regression-test.sh "baseline" "Phase 1"
+```
+
+#### **Phase 2 Testing** (After Each Step)
+```bash
+./scripts/comprehensive-test.sh "Phase 2 - [Step]"
+./scripts/integration-test.sh "Phase 2 - [Step]"
+./scripts/regression-test.sh "compare" "Phase 1"
+./scripts/smoke-test.sh "Phase 2 - [Step]"
+```
+
+#### **Phase 3 Testing**
+```bash
+./scripts/comprehensive-test.sh "Phase 3 - Import Updates"
+./scripts/integration-test.sh "Phase 3 - Import Updates"
+./scripts/regression-test.sh "compare" "Phase 2"
+./scripts/smoke-test.sh "Phase 3 - Import Updates"
+```
+
+#### **Phase 4 Testing**
+```bash
+./scripts/comprehensive-test.sh "Phase 4 - Old Structure Removal"
+./scripts/regression-test.sh "compare" "Phase 3"
+./scripts/smoke-test.sh "Phase 4 - Old Structure Removal"
+```
+
+#### **Phase 5 Testing**
+```bash
+./scripts/comprehensive-test.sh "Phase 5 - Final"
+./scripts/integration-test.sh "Phase 5 - Final"
+./scripts/regression-test.sh "compare" "Phase 4"
+./scripts/smoke-test.sh "Phase 5 - Final"
+```
+
+### **Testing Rollback Strategy**
+
+#### **Automatic Rollback on Failure**
+```bash
+if [ $? -ne 0 ]; then
+    echo "❌ Testing failed - rolling back..."
+    git reset --hard HEAD~1
+    exit 1
+fi
+```
+
+#### **Manual Rollback Commands**
+```bash
+# Rollback to specific commit
+git reset --hard <commit-hash>
+
+# Rollback to previous phase
+git reset --hard HEAD~1
+
+# Check rollback status
+git log --oneline -5
+./scripts/comprehensive-test.sh "Rollback Test"
+```
+
+### **Testing Success Criteria**
+
+#### **Must Pass for Each Phase**
+- ✅ Build succeeds without errors
+- ✅ All critical files exist
+- ✅ App structure is correct
+- ✅ No broken imports
+- ✅ All feature checks pass
+- ✅ App starts successfully
+- ✅ Critical flows work
+- ✅ No regressions detected
+
+#### **Warning Indicators**
+- ⚠️ Build time increased significantly
+- ⚠️ Bundle size increased significantly
+- ⚠️ Import structure changed unexpectedly
+- ⚠️ Components/services missing
+- ⚠️ Navigation issues
+
+#### **Failure Indicators**
+- ❌ Build fails
+- ❌ Critical files missing
+- ❌ App won't start
+- ❌ Critical flows broken
+- ❌ Regressions detected
+- ❌ Integration issues
+
+---
+
+## **Import Boundary Rules (App-Based)**
 - `src/apps/**` → may import from `src/shared/**`
 - `src/apps/oauth/**` → may import from `src/apps/oauth/**`
 - `src/apps/mfa/**` → may import from `src/apps/mfa/**`
