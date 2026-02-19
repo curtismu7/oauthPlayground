@@ -1,4 +1,6 @@
 // src/pages/PingOneUserProfile.tsx
+// PingOne User Profile viewer with worker token management
+// Cache bust: 2025-02-17-11:32
 // PingOne User Profile Page - Display detailed user information using real PingOne APIs
 
 import React, { useCallback, useEffect, useState } from 'react';
@@ -17,12 +19,14 @@ import {
 import { useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
-import { WorkerTokenModal } from '../components/WorkerTokenModal';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { lookupPingOneUser } from '../services/pingOneUserProfileService';
 import { credentialManager } from '../utils/credentialManager';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+import { ShowTokenConfigCheckboxV8 } from '../v8/components/ShowTokenConfigCheckboxV8';
+import { SilentApiConfigCheckboxV8 } from '../v8/components/SilentApiConfigCheckboxV8';
+import { WorkerTokenModalV8 } from '../v8/components/WorkerTokenModalV8';
 
 interface WorkerTokenMeta {
 	hasToken: boolean;
@@ -204,16 +208,27 @@ const isAffirmativeStatus = (status: string): boolean => {
 
 /**
  * Reads worker token status from localStorage so UI can guide the user.
- * Note: This function is kept for backward compatibility but should eventually be removed
- * in favor of using globalTokenStatus directly throughout the component.
+ * Uses unified_worker_token to match the rest of the application.
  */
 const getWorkerTokenMeta = (): WorkerTokenMeta => {
 	try {
-		const token = localStorage.getItem('worker_token') || '';
-		const expiresRaw = localStorage.getItem('worker_token_expires_at');
-		const expiresAtParsed = expiresRaw ? Number(expiresRaw) : null;
+		const stored = localStorage.getItem('unified_worker_token');
+		if (!stored) {
+			return {
+				hasToken: false,
+				expiresAt: null,
+				isExpired: false,
+				relativeDescription: 'No worker token found. Generate one to continue.',
+				absoluteDescription: 'Unknown expiration',
+			};
+		}
+
+		const data = JSON.parse(stored);
+		const token = data.token || '';
+		const expiresAtParsed = data.expiresAt ? Number(data.expiresAt) : null;
 		const hasToken = Boolean(token);
 		const hasExpiration = typeof expiresAtParsed === 'number' && Number.isFinite(expiresAtParsed);
+
 		const isExpired = hasExpiration && expiresAtParsed < Date.now();
 		const { relative, absolute } = describeExpiry(expiresAtParsed);
 
@@ -825,7 +840,7 @@ const PingOneUserProfile: React.FC = () => {
 
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [showServerErrorModal, setShowServerErrorModal] = useState(false);
-	const [savedWorkerCredentials, setSavedWorkerCredentials] = useState(() =>
+	const [_savedWorkerCredentials, setSavedWorkerCredentials] = useState(() =>
 		credentialManager.getAllCredentials()
 	);
 	const [identifierError, setIdentifierError] = useState<string | null>(null);
@@ -846,7 +861,7 @@ const PingOneUserProfile: React.FC = () => {
 	const fetchUserBundle = useCallback(
 		async (targetUserId: string): Promise<UserDataBundle> => {
 			const profileResponse = await fetch(
-				`http://localhost:3001/api/pingone/user/${encodeURIComponent(targetUserId)}?environmentId=${encodeURIComponent(environmentId)}&accessToken=${encodeURIComponent(accessToken)}`
+				`https://localhost:3001/api/pingone/user/${encodeURIComponent(targetUserId)}?environmentId=${encodeURIComponent(environmentId)}&accessToken=${encodeURIComponent(accessToken)}`
 			);
 
 			if (!profileResponse.ok) {
@@ -897,7 +912,7 @@ const PingOneUserProfile: React.FC = () => {
 			try {
 				const [groupsPayload, rolesPayload, mfaPayload, consentsPayload] = await Promise.all([
 					fetch(
-						`http://localhost:3001/api/pingone/user/${encodeURIComponent(resolvedId)}/groups?environmentId=${encodeURIComponent(environmentId)}&accessToken=${encodeURIComponent(accessToken)}`
+						`https://localhost:3001/api/pingone/user/${encodeURIComponent(resolvedId)}/groups?environmentId=${encodeURIComponent(environmentId)}&accessToken=${encodeURIComponent(accessToken)}`
 					)
 						.then((r) => {
 							console.log('[fetchUserBundle] Groups fetch response status:', r.status, r.ok);
@@ -917,15 +932,15 @@ const PingOneUserProfile: React.FC = () => {
 						};
 					}>,
 					fetch(
-						`http://localhost:3001/api/pingone/user/${encodeURIComponent(resolvedId)}/roles?environmentId=${encodeURIComponent(environmentId)}&accessToken=${encodeURIComponent(accessToken)}`
+						`https://localhost:3001/api/pingone/user/${encodeURIComponent(resolvedId)}/roles?environmentId=${encodeURIComponent(environmentId)}&accessToken=${encodeURIComponent(accessToken)}`
 					).then((r) => (r.ok ? r.json() : { _embedded: { roles: [] } })) as Promise<{
 						_embedded?: { roles?: PingOneUserRole[]; items?: PingOneUserRole[] };
 					}>,
 					fetch(
-						`http://localhost:3001/api/pingone/user/${encodeURIComponent(resolvedId)}/mfa?environmentId=${encodeURIComponent(environmentId)}&accessToken=${encodeURIComponent(accessToken)}`
+						`https://localhost:3001/api/pingone/user/${encodeURIComponent(resolvedId)}/mfa?environmentId=${encodeURIComponent(environmentId)}&accessToken=${encodeURIComponent(accessToken)}`
 					).then((r) => (r.ok ? r.json() : null)) as Promise<PingOneMfaStatus>,
 					fetch(
-						`http://localhost:3001/api/pingone/user/${encodeURIComponent(resolvedId)}/consents?environmentId=${encodeURIComponent(environmentId)}&accessToken=${encodeURIComponent(accessToken)}`
+						`https://localhost:3001/api/pingone/user/${encodeURIComponent(resolvedId)}/consents?environmentId=${encodeURIComponent(environmentId)}&accessToken=${encodeURIComponent(accessToken)}`
 					).then((r) => (r.ok ? r.json() : { _embedded: { consents: [] } })) as Promise<{
 						_embedded?: { consents?: PingOneConsentRecord[]; items?: PingOneConsentRecord[] };
 					}>,
@@ -1248,8 +1263,7 @@ const PingOneUserProfile: React.FC = () => {
 					v4ToastManager.showError(
 						'Worker token expired or missing permissions. Please generate a new worker token.'
 					);
-					localStorage.removeItem('worker_token');
-					localStorage.removeItem('worker_token_expires_at');
+					// Token is managed by workerTokenManager via unified_worker_token
 					setShowUserSelector(true);
 					return;
 				}
@@ -1300,7 +1314,7 @@ const PingOneUserProfile: React.FC = () => {
 
 		// Fetch population details
 		fetch(
-			`http://localhost:3001/api/pingone/population/${encodeURIComponent(populationId)}?environmentId=${encodeURIComponent(environmentId)}&accessToken=${encodeURIComponent(accessToken)}`
+			`https://localhost:3001/api/pingone/population/${encodeURIComponent(populationId)}?environmentId=${encodeURIComponent(environmentId)}&accessToken=${encodeURIComponent(accessToken)}`
 		)
 			.then((r) => (r.ok ? r.json() : null))
 			.then((data) => {
@@ -1362,7 +1376,7 @@ const PingOneUserProfile: React.FC = () => {
 
 		// Fetch population details
 		fetch(
-			`http://localhost:3001/api/pingone/population/${encodeURIComponent(populationId)}?environmentId=${encodeURIComponent(environmentId)}&accessToken=${encodeURIComponent(accessToken)}`
+			`https://localhost:3001/api/pingone/population/${encodeURIComponent(populationId)}?environmentId=${encodeURIComponent(environmentId)}&accessToken=${encodeURIComponent(accessToken)}`
 		)
 			.then((r) => (r.ok ? r.json() : null))
 			.then((data) => {
@@ -1445,7 +1459,7 @@ const PingOneUserProfile: React.FC = () => {
 			}
 			try {
 				localStorage.setItem('worker_environment_id', trimmedEnvironment);
-				localStorage.setItem('worker_token', accessToken);
+				// Token is managed by workerTokenManager via unified_worker_token
 				if (finalIdentifier) {
 					localStorage.setItem(USER_IDENTIFIER_STORAGE_KEY, finalIdentifier);
 				}
@@ -1754,10 +1768,24 @@ const PingOneUserProfile: React.FC = () => {
 					{hasValidWorkerToken && accessToken && (
 						<WorkerTokenDetectedBanner
 							token={accessToken}
-							tokenExpiryKey="worker_token_expires_at"
+							tokenExpiryKey="unified_worker_token"
 							message={`Worker token is active and will expire ${workerTokenMeta.relativeDescription}. Use it for API calls or generate a new one if needed.`}
 						/>
 					)}
+
+					{/* Configuration Checkboxes */}
+					<div
+						style={{
+							marginBottom: '1rem',
+							display: 'flex',
+							flexDirection: 'column',
+							gap: '0.75rem',
+						}}
+					>
+						<SilentApiConfigCheckboxV8 />
+						<ShowTokenConfigCheckboxV8 />
+					</div>
+
 					<div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
 						<button
 							type="button"
@@ -1804,12 +1832,15 @@ const PingOneUserProfile: React.FC = () => {
 							<button
 								type="button"
 								onClick={() => {
-									localStorage.removeItem('worker_token');
-									localStorage.removeItem('worker_token_expires_at');
+									// Token is managed by workerTokenManager via unified_worker_token
+									// Clear it through the manager
+									localStorage.removeItem('unified_worker_token');
 									setWorkerTokenMeta(getWorkerTokenMeta());
 									v4ToastManager.showSuccess(
 										'Worker token cleared. Generate a new token to continue.'
 									);
+									// Trigger a page reload to reset state
+									window.location.reload();
 								}}
 								style={{
 									flex: '0 0 auto',
@@ -1905,24 +1936,27 @@ const PingOneUserProfile: React.FC = () => {
 						{isResolvingUser ? 'Resolving user…' : 'Load User Profile'}
 					</button>
 				</UserSelectorCard>
-				<WorkerTokenModal
+				<WorkerTokenModalV8
 					isOpen={showWorkerTokenModal}
 					onClose={() => setShowWorkerTokenModal(false)}
-					onContinue={() => {
+					onTokenGenerated={() => {
 						// Global token status will automatically update
 						setWorkerTokenMeta(getWorkerTokenMeta());
 						setShowWorkerTokenModal(false);
 						setSavedWorkerCredentials(credentialManager.getAllCredentials());
 					}}
-					flowType="pingone-user-profile"
-					environmentId={environmentId}
-					skipCredentialsStep={true}
-					prefillCredentials={{
-						environmentId: environmentId,
-						clientId: savedWorkerCredentials?.clientId,
-						clientSecret: savedWorkerCredentials?.clientSecret,
-						scopes: savedWorkerCredentials?.scopes?.join(' ') || 'p1:read:user',
-					}}
+					environmentId={(() => {
+						try {
+							const stored = localStorage.getItem('unified_worker_token');
+							if (stored) {
+								const data = JSON.parse(stored);
+								return data.credentials?.environmentId || '';
+							}
+						} catch (error) {
+							console.log('Failed to load environment ID from unified worker token:', error);
+						}
+						return '';
+					})()}
 				/>
 			</PageContainer>
 		);
@@ -2942,24 +2976,16 @@ const PingOneUserProfile: React.FC = () => {
 					)}
 				</>
 			)}
-			<WorkerTokenModal
+			<WorkerTokenModalV8
 				isOpen={showWorkerTokenModal}
 				onClose={() => setShowWorkerTokenModal(false)}
-				onContinue={() => {
+				onTokenGenerated={() => {
 					// Global token status will automatically update
 					setWorkerTokenMeta(getWorkerTokenMeta());
 					setShowWorkerTokenModal(false);
 					setSavedWorkerCredentials(credentialManager.getAllCredentials());
 				}}
-				flowType="pingone-user-profile"
 				environmentId={environmentId}
-				skipCredentialsStep={true}
-				prefillCredentials={{
-					environmentId: environmentId,
-					clientId: savedWorkerCredentials?.clientId,
-					clientSecret: savedWorkerCredentials?.clientSecret,
-					scopes: savedWorkerCredentials?.scopes?.join(' ') || 'p1:read:user',
-				}}
 			/>
 
 			{/* Server Error Modal */}

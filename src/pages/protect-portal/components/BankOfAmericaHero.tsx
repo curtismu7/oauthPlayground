@@ -10,7 +10,7 @@
  */
 
 import React from 'react';
-import { FiCheckCircle, FiDollarSign, FiLock, FiShield, FiUser } from 'react-icons/fi';
+import { FiDollarSign, FiLock, FiShield, FiUser } from 'react-icons/fi';
 import styled from 'styled-components';
 import { useBrandTheme } from '../themes/theme-provider';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';

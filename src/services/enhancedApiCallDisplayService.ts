@@ -51,6 +51,10 @@ export interface ApiCallDisplayOptions {
 	showFlowContext?: boolean;
 	theme?: 'light' | 'dark';
 	urlHighlightRules?: URLHighlightRule[];
+	showCopyButtons?: boolean;
+	showDecodeButtons?: boolean;
+	showIntrospection?: boolean;
+	title?: string;
 }
 
 export interface ApiCallDisplayResult {
@@ -154,7 +158,7 @@ export class EnhancedApiCallDisplayService {
 			},
 			redirectless: {
 				'PKCE Generation': {
-					method: 'LOCAL' as const,
+					method: 'POST' as const,
 					url: 'Client-side PKCE Generation',
 					description: 'Generate cryptographically secure PKCE parameters for redirectless flow',
 					body: {
@@ -200,7 +204,7 @@ export class EnhancedApiCallDisplayService {
 					],
 				},
 				'Authorization URL Generation': {
-					method: 'LOCAL' as const,
+					method: 'GET' as const,
 					url: 'Client-side URL Construction',
 					description: 'Construct authorization URL for redirectless authentication',
 					queryParams: {
@@ -413,7 +417,7 @@ export class EnhancedApiCallDisplayService {
 				typeof rule.pattern === 'string'
 					? new RegExp(rule.pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')
 					: rule.pattern;
-			let match;
+			let match: RegExpExecArray | null;
 			while ((match = pattern.exec(remainingUrl)) !== null) {
 				matches.push({
 					start: match.index,

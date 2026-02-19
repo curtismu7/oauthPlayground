@@ -1673,37 +1673,6 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				>
 					<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
 						<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-							{/* Ping Identity Logo */}
-							<div
-								style={{
-									display: 'inline-flex',
-									alignItems: 'center',
-									justifyContent: 'center',
-									width: 40,
-									height: 40,
-									borderRadius: '8px',
-									background: '#ffffff',
-									boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-								}}
-							>
-								<svg
-									width={30}
-									height={30}
-									viewBox="0 0 24 24"
-									fill="none"
-									xmlns="http://www.w3.org/2000/svg"
-									aria-hidden="true"
-								>
-									<path
-										d="M12 2l7 3v5c0 5.25-3.5 9.75-7 11-3.5-1.25-7-5.75-7-11V5l7-3z"
-										fill="#E31837"
-									/>
-									<path
-										d="M12 5l4 1.7V10.5c0 3.2-2.1 6.1-4 7-1.9-.9-4-3.8-4-7V6.7L12 5z"
-										fill="#ffffff"
-									/>
-								</svg>
-							</div>
 							<div>
 								<h2
 									id="modal-title"

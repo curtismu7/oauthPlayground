@@ -14,11 +14,10 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import type { BrandTheme } from '../themes/brand-theme.interface';
 import { useBrandTheme } from '../themes/theme-provider';
-import type { CorporatePortalConfig, LoginPattern } from '../types/CorporatePortalConfig';
+import type { CorporatePortalConfig } from '../types/CorporatePortalConfig';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
 import DropdownLogin from './LoginPatterns/DropdownLogin';
 import EmbeddedLogin from './LoginPatterns/EmbeddedLogin';
-import NewPageLogin from './LoginPatterns/NewPageLogin';
 // Import login pattern components
 import RightPopoutLogin from './LoginPatterns/RightPopoutLogin';
 import TwoStepOTPLogin from './LoginPatterns/TwoStepOTPLogin';
@@ -141,7 +140,7 @@ const CorporatePortalHero: React.FC<CorporatePortalHeroProps> = ({
 
 	// Handle login form submission
 	const handleLoginSubmit = useCallback(
-		(credentials: any) => {
+		(_credentials: any) => {
 			onLoginStart?.();
 			setLoginState((prev) => ({ ...prev, isOpen: false }));
 		},

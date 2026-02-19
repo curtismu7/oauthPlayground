@@ -829,21 +829,6 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						),
 					},
 					{
-						id: 'ciba-v7',
-						path: '/flows/ciba-v7',
-						label: 'CIBA Flow (V7)',
-						icon: (
-							<ColoredIcon $color="#8b5cf6">
-								<FiShield />
-							</ColoredIcon>
-						),
-						badge: (
-							<MigrationBadge title="V7: CIBA (RFC 9436) Client Initiated Backchannel Authentication - Real PingOne API">
-								<FiCheckCircle />
-							</MigrationBadge>
-						),
-					},
-					{
 						id: 'ciba-v8',
 						path: '/flows/ciba-v8',
 						label: 'CIBA Flow (V8)',

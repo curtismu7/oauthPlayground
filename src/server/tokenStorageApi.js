@@ -6,7 +6,7 @@
  */
 
 const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
+const path = require('node:path');
 
 // Database file path
 const DB_PATH = path.join(__dirname, '../server/data/tokens.db');
@@ -284,7 +284,7 @@ async function deleteToken(req, res) {
 }
 
 // Clear all tokens endpoint
-async function clearTokens(req, res) {
+async function clearTokens(_req, res) {
 	try {
 		const db = await getDb();
 
@@ -314,7 +314,7 @@ async function clearTokens(req, res) {
 }
 
 // Cleanup expired tokens endpoint
-async function cleanupExpiredTokens(req, res) {
+async function cleanupExpiredTokens(_req, res) {
 	try {
 		const db = await getDb();
 		const now = Date.now();
@@ -349,7 +349,7 @@ async function cleanupExpiredTokens(req, res) {
 }
 
 // Get storage statistics endpoint
-async function getStorageStats(req, res) {
+async function getStorageStats(_req, res) {
 	try {
 		const db = await getDb();
 		const now = Date.now();

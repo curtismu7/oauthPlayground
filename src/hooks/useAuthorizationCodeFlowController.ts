@@ -696,6 +696,7 @@ export const useAuthorizationCodeFlowController = (
 		credentials.clientSecret,
 		credentials.scopes,
 		credentials.redirectUri,
+		credentials,
 	]);
 
 	/**

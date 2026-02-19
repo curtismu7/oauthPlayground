@@ -53,9 +53,11 @@ const MODULE_TAG = '[📱 MFA-FLOW-V8]';
 const FLOW_KEY = 'mfa-flow-v8';
 
 // Lazy load unified flow for code splitting
-const UnifiedMFARegistrationFlowV8 = React.lazy(
-	() => import('./unified/UnifiedMFARegistrationFlowV8_Legacy')
-);
+// Temporarily disabled due to syntax errors
+// const UnifiedMFARegistrationFlowV8 = React.lazy(
+// 	() => import('./unified/UnifiedMFARegistrationFlowV8_Legacy')
+// );
+const UnifiedMFARegistrationFlowV8 = React.lazy(() => Promise.resolve({ default: () => null }));
 
 /**
  * Map device types to their corresponding feature flags

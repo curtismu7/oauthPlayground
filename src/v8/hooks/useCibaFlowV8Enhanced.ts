@@ -144,7 +144,7 @@ export const useCibaFlowV8Enhanced = (): UseCibaFlowV8EnhancedState &
 			setDiscoveryError(null);
 
 			try {
-				const metadata = await discoverySpinner.executeWithSpinner(
+				const metadata = await discoverySpinner.withSpinner(
 					async () => CibaServiceV8Enhanced.getDiscoveryMetadata(environmentId),
 					'Loading CIBA discovery metadata...'
 				);
@@ -204,7 +204,7 @@ export const useCibaFlowV8Enhanced = (): UseCibaFlowV8EnhancedState &
 						credentials.clientNotificationEndpoint || clientNotificationEndpoint || undefined,
 				};
 
-				const authReq = await authSpinner.executeWithSpinner(
+				const authReq = await authSpinner.withSpinner(
 					async () => CibaServiceV8Enhanced.initiateAuthentication(enhancedCredentials),
 					'Initiating CIBA authentication...'
 				);
@@ -219,7 +219,7 @@ export const useCibaFlowV8Enhanced = (): UseCibaFlowV8EnhancedState &
 
 				toastV8.success('CIBA authentication request initiated');
 				console.log(`${MODULE_TAG} Authentication initiated:`, {
-					authReqId: authReq.auth_req_id.substring(0, 20) + '...',
+					authReqId: `${authReq.auth_req_id.substring(0, 20)}...`,
 					expiresIn: authReq.expires_in,
 					interval: authReq.interval,
 					tokenDeliveryMode: enhancedCredentials.tokenDeliveryMode,
@@ -319,7 +319,7 @@ export const useCibaFlowV8Enhanced = (): UseCibaFlowV8EnhancedState &
 
 					console.log(`${MODULE_TAG} Polling attempt ${attempt}/${maxRetries}`);
 
-					const result = await pollingSpinner.executeWithSpinner(
+					const result = await pollingSpinner.withSpinner(
 						() => pollForTokens(authReqId, credentials),
 						`Polling for tokens... (Attempt ${attempt}/${maxRetries})`
 					);
