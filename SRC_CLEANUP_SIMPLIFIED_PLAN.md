@@ -17,46 +17,80 @@ src/
     services/
     flows/
     
-  apps/                     # All distinct apps
+  apps/                     # All distinct apps with granular organization
     oauth/                   # OAuth flows app
-      pages/
-      components/
-      services/
+      pages/                 # OAuth pages
+      components/            # OAuth components
+      services/              # OAuth services
+      flows/                 # OAuth flows
+      hooks/                 # OAuth-specific hooks
+      contexts/              # OAuth contexts
+      types/                 # OAuth types
+      utils/                 # OAuth utilities
+      config/                # OAuth configuration
+      constants/             # OAuth constants
     mfa/                     # MFA flows app
-      pages/
-      components/
-      services/
+      pages/                 # MFA pages
+      components/            # MFA components
+      services/              # MFA services
+      flows/                 # MFA flows
+      hooks/                 # MFA-specific hooks
+      contexts/              # MFA contexts
+      types/                 # MFA types
+      utils/                 # MFA utilities
+      config/                # MFA configuration
+      constants/             # MFA constants
     protect/                 # Protect portal app
-      pages/
-      components/
-      services/
-      themes/
-      types/
+      pages/                 # Protect pages
+      components/            # Protect components
+      services/              # Protect services
+      themes/                # Protect themes
+      types/                 # Protect types
+      contexts/              # Protect contexts
+      hooks/                 # Protect-specific hooks
+      utils/                 # Protect utilities
+      config/                # Protect configuration
+      assets/                # Protect assets (logos, images)
+      layouts/               # Protect layouts
+      styles/                # Protect styles
     user-management/         # User management app
-      pages/
-      components/
-      services/
-      contexts/
+      pages/                 # User management pages
+      components/            # User management components
+      services/              # User management services
+      contexts/              # User management contexts
+      hooks/                 # User management hooks
+      types/                 # User management types
+      utils/                 # User management utilities
     admin/                   # Admin utilities app
-      pages/
-      components/
-      services/
+      pages/                 # Admin pages
+      components/            # Admin components
+      services/              # Admin services
+      hooks/                 # Admin hooks
+      types/                 # Admin types
+      utils/                 # Admin utilities
+      config/                # Admin configuration
     navigation/              # Side menu/navigation app
-      components/
-      hooks/
-      services/
+      components/            # Navigation components
+      hooks/                 # Navigation hooks
+      services/              # Navigation services
+      types/                 # Navigation types
+      utils/                 # Navigation utilities
+      contexts/              # Navigation contexts
+      styles/                # Navigation styles
     
   shared/                   # Truly shared code across all apps
     components/              # Reusable UI components
     services/                # Shared service clients/adapters
-    hooks/
-    utils/
-    types/
-    contexts/
-    styles/
+    hooks/                   # Shared hooks
+    utils/                   # Shared utilities
+    types/                   # Shared types
+    contexts/                # Shared contexts
+    styles/                  # Shared styles
+    constants/               # Shared constants
+    config/                  # Shared configuration
     
   server/                   # Backend API
-  config/                   # Configuration
+  config/                   # Global configuration
   tests/                    # Tests
 ```
 
@@ -65,6 +99,7 @@ src/
 ✅ **Keep**: `src/v7/` separate (for V9 upgrade later)
 ✅ **Create**: `src/apps/` structure for distinct applications
 ✅ **Organize**: 6 distinct apps (OAuth, MFA, Protect, User Management, Admin, Navigation)
+✅ **Granular**: Each app has detailed subfolders (pages, components, services, flows, hooks, contexts, types, utils, config, constants)
 ✅ **Consolidate**: Shared code under `src/shared/`
 
 ---
@@ -76,22 +111,34 @@ src/
 - Feature gates working
 - Baseline tests pass
 
-### **Phase 1: Create App-Based Structure** (Day 1)
+### **Phase 1: Create Granular App-Based Structure** (Day 1)
 ```bash
 # Create V7 separate (for V9 upgrade later)
 mkdir -p src/v7/{pages,components,services,flows}
 
-# Create apps structure for distinct applications
+# Create apps structure with granular subfolders for distinct applications
 mkdir -p src/apps/{oauth,mfa,protect,user-management,admin,navigation}
-mkdir -p src/apps/oauth/{pages,components,services}
-mkdir -p src/apps/mfa/{pages,components,services}
-mkdir -p src/apps/protect/{pages,components,services,themes,types}
-mkdir -p src/apps/user-management/{pages,components,services,contexts}
-mkdir -p src/apps/admin/{pages,components,services}
-mkdir -p src/apps/navigation/{components,hooks,services}
+
+# OAuth app granular structure
+mkdir -p src/apps/oauth/{pages,components,services,flows,hooks,contexts,types,utils,config,constants}
+
+# MFA app granular structure
+mkdir -p src/apps/mfa/{pages,components,services,flows,hooks,contexts,types,utils,config,constants}
+
+# Protect app granular structure (already exists, verify structure)
+mkdir -p src/apps/protect/{pages,components,services,themes,types,contexts,hooks,utils,config,assets,layouts,styles}
+
+# User Management app granular structure
+mkdir -p src/apps/user-management/{pages,components,services,contexts,hooks,types,utils}
+
+# Admin app granular structure
+mkdir -p src/apps/admin/{pages,components,services,hooks,types,utils,config}
+
+# Navigation app granular structure
+mkdir -p src/apps/navigation/{components,hooks,services,types,utils,contexts,styles}
 
 # Create shared code structure
-mkdir -p src/shared/{components,services,hooks,utils,types,contexts,styles}
+mkdir -p src/shared/{components,services,hooks,utils,types,contexts,styles,constants,config}
 mkdir -p src/{server,config,tests}
 
 # Move V7 to its dedicated location
@@ -112,6 +159,7 @@ git mv src/components/Sidebar.tsx src/apps/navigation/components/
 git mv src/components/Navbar.tsx src/apps/navigation/components/
 git mv src/components/DragDropSidebar.tsx src/apps/navigation/components/
 git mv src/components/SidebarSearch.tsx src/apps/navigation/components/
+git mv src/components/VersionBadge.tsx src/apps/navigation/components/
 ```
 
 ### **Phase 2: Consolidate by App** (Day 2-3)
@@ -128,7 +176,19 @@ git mv src/v8u/components/* src/apps/oauth/components/
 git mv src/v8u/services/* src/apps/oauth/services/
 
 # OAuth flows
-git mv src/v8u/flows/* src/apps/oauth/pages/
+git mv src/v8u/flows/* src/apps/oauth/flows/
+
+# OAuth hooks
+git mv src/v8u/hooks/* src/apps/oauth/hooks/
+
+# OAuth contexts
+git mv src/v8u/contexts/* src/apps/oauth/contexts/
+
+# OAuth types, utils, config, constants
+git mv src/v8u/types/* src/apps/oauth/types/
+git mv src/v8u/utils/* src/apps/oauth/utils/
+git mv src/v8u/config/* src/apps/oauth/config/
+# (constants would need to be created or moved from shared)
 ```
 
 #### **MFA App Consolidation**
@@ -143,7 +203,19 @@ git mv src/v8/components/* src/apps/mfa/components/
 git mv src/v8/services/* src/apps/mfa/services/
 
 # MFA flows
-git mv src/v8/flows/* src/apps/mfa/pages/
+git mv src/v8/flows/* src/apps/mfa/flows/
+
+# MFA hooks
+git mv src/v8/hooks/* src/apps/mfa/hooks/
+
+# MFA contexts
+git mv src/v8/contexts/* src/apps/mfa/contexts/
+
+# MFA types, utils, config, constants
+git mv src/v8/types/* src/apps/mfa/types/
+git mv src/v8/utils/* src/apps/mfa/utils/
+git mv src/v8/config/* src/apps/mfa/config/
+git mv src/v8/constants/* src/apps/mfa/constants/
 ```
 
 #### **Admin App Consolidation**
@@ -153,7 +225,9 @@ git mv src/v8/pages/DeleteAllDevicesUtilityV8.tsx src/apps/admin/pages/
 git mv src/v8/pages/MFAFeatureFlagsAdminV8.tsx src/apps/admin/pages/
 git mv src/v8/pages/MFADeviceManagementFlowV8.tsx src/apps/admin/pages/
 git mv src/v8/pages/MFAReportingFlowV8.tsx src/apps/admin/pages/
-# Add other admin utilities as found
+
+# Admin components, services, hooks, types, utils
+# (These would be identified and moved from v8 as needed)
 ```
 
 ### **Phase 3: Update Imports** (Day 4)
