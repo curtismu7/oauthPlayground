@@ -15,9 +15,9 @@ import {
 	getUserInfoFromAccessToken,
 	type V7MUserInfo,
 } from '../../services/v7m/V7MUserInfoService';
-import { V7MHelpModal } from '../ui/V7MHelpModal';
-import { V7MInfoIcon } from '../ui/V7MInfoIcon';
-import { V7MJwtInspectorModal } from '../ui/V7MJwtInspectorModal';
+import { V7MHelpModal } from '../components/V7MHelpModal';
+import { V7MInfoIcon } from '../components/V7MInfoIcon';
+import { V7MJwtInspectorModal } from '../components/V7MJwtInspectorModal';
 
 export const V7MDeviceAuthorization: React.FC = () => {
 	const [clientId, setClientId] = useState('v7m-device-client');
