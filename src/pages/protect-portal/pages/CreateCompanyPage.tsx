@@ -349,7 +349,7 @@ export const CreateCompanyPage: React.FC = () => {
 	useEffect(() => {
 		const validation = companyService.validateConfig(state.config);
 		setState((prev) => ({ ...prev, validation }));
-	}, [state.config]); // Remove companyService.validateConfig from dependencies
+	}, [state.config, companyService.validateConfig]); // Remove companyService.validateConfig from dependencies
 
 	// Apply theme variables to preview
 	useEffect(() => {
@@ -448,7 +448,7 @@ export const CreateCompanyPage: React.FC = () => {
 	);
 
 	const handleFileUploadClick = useCallback(
-		(e: React.MouseEvent, assetField: keyof CompanyConfigDraft['assets']) => {
+		(_e: React.MouseEvent, assetField: keyof CompanyConfigDraft['assets']) => {
 			// Create a temporary file input and trigger click
 			const input = document.createElement('input');
 			input.type = 'file';
@@ -528,7 +528,7 @@ export const CreateCompanyPage: React.FC = () => {
 		} finally {
 			setState((prev) => ({ ...prev, isCreating: false }));
 		}
-	}, [state.config, state.validation.isValid, companyService]);
+	}, [state.config, state.validation.isValid, companyService, navigate]);
 
 	const renderError = (field: string) => {
 		const error = state.validation.errors[field as keyof typeof state.validation.errors];

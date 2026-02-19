@@ -26,7 +26,7 @@ const MODULE_TAG = '[💾 STORAGE-V8-MIGRATED]';
 // ============================================================================
 
 import { StorageServiceV8Migration } from '../../services/storageServiceV8Migration';
-import type { ExportData, Migration, StorageData } from '../../services/unifiedTokenStorageService';
+import type { Migration, StorageData } from '../../services/unifiedTokenStorageService';
 import { unifiedTokenStorage } from '../../services/unifiedTokenStorageService';
 
 // ============================================================================

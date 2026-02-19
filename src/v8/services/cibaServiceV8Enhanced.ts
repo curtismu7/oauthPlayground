@@ -121,21 +121,34 @@ export const CibaServiceV8Enhanced = {
 	 * @returns Promise<CibaDiscoveryMetadata>
 	 */
 	async getDiscoveryMetadata(environmentId: string): Promise<CibaDiscoveryMetadata> {
-		console.log(`${MODULE_TAG} Fetching CIBA discovery metadata`);
+		console.log(`${MODULE_TAG} Fetching CIBA discovery metadata for environment: ${environmentId}`);
 
 		try {
-			const response = await pingOneFetch('/.well-known/openid-configuration', {
+			// Construct the full PingOne OIDC discovery URL
+			const region = 'com'; // Default to North America, can be made configurable
+			const discoveryUrl = `https://auth.pingone.${region}/${environmentId}/as/.well-known/openid-configuration`;
+
+			console.log(`${MODULE_TAG} Discovery URL: ${discoveryUrl}`);
+
+			const response = await fetch(discoveryUrl, {
 				method: 'GET',
 				headers: {
-					'Environment-ID': environmentId,
+					Accept: 'application/json',
 				},
 			});
 
 			if (!response.ok) {
-				throw new Error(`Failed to fetch discovery metadata: ${response.status}`);
+				throw new Error(
+					`Failed to fetch discovery metadata: ${response.status} ${response.statusText}`
+				);
 			}
 
 			const metadata = await response.json();
+
+			console.log(`${MODULE_TAG} Discovery metadata received:`, {
+				hasBackchannelEndpoint: !!metadata.backchannel_authentication_endpoint,
+				deliveryModes: metadata.backchannel_token_delivery_modes_supported,
+			});
 
 			return {
 				backchannel_authentication_endpoint: metadata.backchannel_authentication_endpoint,
@@ -244,67 +257,66 @@ export const CibaServiceV8Enhanced = {
 		}
 
 		try {
-			const formData = new URLSearchParams();
-
-			// Required parameters per spec
-			formData.append('grant_type', 'urn:openid:params:grant-type:ciba');
-			formData.append('client_id', credentials.clientId);
-			formData.append('scope', credentials.scope);
+			// Build request body with underscore parameter names expected by backend
+			const requestBody: Record<string, string> = {
+				environment_id: credentials.environmentId,
+				client_id: credentials.clientId,
+				client_secret: credentials.clientSecret || '',
+				scope: credentials.scope,
+				auth_method: credentials.clientAuthMethod || 'client_secret_post',
+			};
 
 			// Exactly one login hint is required
 			if (credentials.loginHint) {
-				formData.append('login_hint', credentials.loginHint);
+				requestBody.login_hint = credentials.loginHint;
 			} else if (credentials.idTokenHint) {
-				formData.append('id_token_hint', credentials.idTokenHint);
+				requestBody.id_token_hint = credentials.idTokenHint;
 			} else if (credentials.loginHintToken) {
-				formData.append('login_hint_token', credentials.loginHintToken);
+				requestBody.login_hint_token = credentials.loginHintToken;
 			}
 
 			// Optional parameters
 			if (credentials.bindingMessage) {
-				formData.append('binding_message', credentials.bindingMessage);
+				requestBody.binding_message = credentials.bindingMessage;
 			}
 
 			if (credentials.userCode) {
-				formData.append('user_code', credentials.userCode);
+				requestBody.user_code = credentials.userCode;
 			}
 
 			if (credentials.requestContext) {
-				formData.append('request_context', credentials.requestContext);
+				requestBody.requested_context = credentials.requestContext;
 			}
 
 			// Token delivery mode
-			formData.append('backchannel_token_delivery_mode', credentials.tokenDeliveryMode);
+			if (credentials.tokenDeliveryMode) {
+				requestBody.backchannel_token_delivery_mode = credentials.tokenDeliveryMode;
+			}
 
 			// Client notification endpoint for ping/push modes
 			if (credentials.clientNotificationEndpoint) {
-				formData.append('client_notification_endpoint', credentials.clientNotificationEndpoint);
+				requestBody.client_notification_endpoint = credentials.clientNotificationEndpoint;
 			}
 
 			// Request signing configuration
 			if (credentials.signingAlg) {
-				formData.append('backchannel_authentication_request_signing_alg', credentials.signingAlg);
+				requestBody.backchannel_authentication_request_signing_alg = credentials.signingAlg;
 			}
 
-			// Build headers based on authentication method
-			const headers: Record<string, string> = {
-				'Content-Type': 'application/x-www-form-urlencoded',
-				'Environment-ID': credentials.environmentId,
-			};
+			console.log(`${MODULE_TAG} Sending CIBA request with parameters:`, {
+				environment_id: requestBody.environment_id,
+				client_id: requestBody.client_id,
+				scope: requestBody.scope,
+				login_hint: requestBody.login_hint || 'N/A',
+				auth_method: requestBody.auth_method,
+			});
 
-			// Apply client authentication
-			if (credentials.clientAuthMethod === 'client_secret_basic') {
-				const basicAuth = btoa(`${credentials.clientId}:${credentials.clientSecret}`);
-				headers['Authorization'] = `Basic ${basicAuth}`;
-			} else if (credentials.clientAuthMethod === 'client_secret_post') {
-				formData.append('client_secret', credentials.clientSecret!);
-			}
-			// Note: private_key_jwt would require JWT assertion generation
-
-			const response = await pingOneFetch('/api/ciba-backchannel', {
+			const response = await fetch('/api/ciba-backchannel', {
 				method: 'POST',
-				body: formData,
-				headers,
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(requestBody),
 			});
 
 			if (!response.ok) {

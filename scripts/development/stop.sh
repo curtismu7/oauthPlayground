@@ -31,11 +31,9 @@ NC='\033[0m' # No Color
 # These ports are hardcoded to ensure consistency with OAuth redirect URIs
 # and API endpoint configurations. Do not change these values.
 FRONTEND_PORT=3000  # Vite dev server (HTTPS)
-BACKEND_HTTP_PORT=3001   # Express API server (HTTP)
-BACKEND_HTTPS_PORT=3002  # Express API server (HTTPS)
+BACKEND_PORT=3001   # Express API server (HTTPS only)
 FRONTEND_URL="https://localhost:${FRONTEND_PORT}"
-BACKEND_HTTP_URL="http://localhost:${BACKEND_HTTP_PORT}"
-BACKEND_HTTPS_URL="https://localhost:${BACKEND_HTTPS_PORT}"
+BACKEND_URL="https://localhost:${BACKEND_PORT}"
 
 # PID files for process management
 FRONTEND_PID_FILE=".frontend.pid"
@@ -70,13 +68,12 @@ show_banner() {
     echo "║                    🛑 OAuth Playground Server Stop 🛑                        ║"
     echo "║                                                                              ║"
     echo "║  Frontend: https://localhost:3000 (Vite Dev Server)                        ║"
-    echo "║  Backend:  http://localhost:3001 (Express API Server - HTTP)                 ║"
-    echo "║  Backend:  https://localhost:3002 (Express API Server - HTTPS)               ║"
+    echo "║  Backend:  https://localhost:3001 (Express API Server - HTTPS)              ║"
     echo "║                                                                              ║"
     echo "║  This script will:                                                          ║"
     echo "║  1. Kill all running servers (frontend and backend)                        ║"
     echo "║  2. Clean up PID files                                                     ║"
-    echo "║  3. Free ports 3000, 3001, and 3002                                       ║"
+    echo "║  3. Free ports 3000 and 3001                                              ║"
     echo "║                                                                              ║"
     echo "╚══════════════════════════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
@@ -131,22 +128,16 @@ kill_all_servers() {
     
     # Kill processes by port
     local frontend_pid=$(get_port_process $FRONTEND_PORT)
-    local backend_http_pid=$(get_port_process $BACKEND_HTTP_PORT)
-    local backend_https_pid=$(get_port_process $BACKEND_HTTPS_PORT)
+    local backend_pid=$(get_port_process $BACKEND_PORT)
     
     if [ -n "$frontend_pid" ]; then
         print_info "Killing process on port $FRONTEND_PORT (PID: $frontend_pid)"
         kill -9 "$frontend_pid" 2>/dev/null || true
     fi
     
-    if [ -n "$backend_http_pid" ]; then
-        print_info "Killing process on port $BACKEND_HTTP_PORT (PID: $backend_http_pid)"
-        kill -9 "$backend_http_pid" 2>/dev/null || true
-    fi
-    
-    if [ -n "$backend_https_pid" ]; then
-        print_info "Killing process on port $BACKEND_HTTPS_PORT (PID: $backend_https_pid)"
-        kill -9 "$backend_https_pid" 2>/dev/null || true
+    if [ -n "$backend_pid" ]; then
+        print_info "Killing process on port $BACKEND_PORT (PID: $backend_pid)"
+        kill -9 "$backend_pid" 2>/dev/null || true
     fi
     
     # Kill any node processes that might be related to our project
@@ -165,15 +156,9 @@ kill_all_servers() {
         sleep 2
     fi
     
-    if check_port $BACKEND_HTTP_PORT; then
-        print_warning "Port $BACKEND_HTTP_PORT still in use, force killing..."
-        lsof -ti:$BACKEND_HTTP_PORT | xargs kill -9 2>/dev/null || true
-        sleep 2
-    fi
-    
-    if check_port $BACKEND_HTTPS_PORT; then
-        print_warning "Port $BACKEND_HTTPS_PORT still in use, force killing..."
-        lsof -ti:$BACKEND_HTTPS_PORT | xargs kill -9 2>/dev/null || true
+    if check_port $BACKEND_PORT; then
+        print_warning "Port $BACKEND_PORT still in use, force killing..."
+        lsof -ti:$BACKEND_PORT | xargs kill -9 2>/dev/null || true
         sleep 2
     fi
     
@@ -187,13 +172,12 @@ while [ $# -gt 0 ]; do
             echo "Usage: $0 [OPTIONS]"
             echo ""
             echo "Purpose:"
-            echo "  Stop all OAuth Playground dev servers (frontend + backend HTTP/HTTPS),"
-            echo "  clean up PID files, and free ports 3000, 3001, and 3002."
+            echo "  Stop all OAuth Playground dev servers (frontend + backend HTTPS),"
+            echo "  clean up PID files, and free ports 3000 and 3001."
             echo ""
             echo "Servers and ports:"
             echo "  Frontend: https://localhost:${FRONTEND_PORT}    (Vite dev server)"
-            echo "  Backend:  http://localhost:${BACKEND_HTTP_PORT}   (Express API - HTTP)"
-            echo "  Backend:  https://localhost:${BACKEND_HTTPS_PORT}  (Express API - HTTPS)"
+            echo "  Backend:  https://localhost:${BACKEND_PORT}  (Express API - HTTPS)"
             echo ""
             echo "Options:"
             echo "  --help, -h"
@@ -201,7 +185,7 @@ while [ $# -gt 0 ]; do
             echo ""
             echo "What this script does:"
             echo "  1) Kill processes by PID files (.frontend.pid, .backend.pid)"
-            echo "  2) Kill processes using ports ${FRONTEND_PORT}, ${BACKEND_HTTP_PORT}, and ${BACKEND_HTTPS_PORT}"
+            echo "  2) Kill processes using ports ${FRONTEND_PORT} and ${BACKEND_PORT}"
             echo "  3) Kill any related Node.js processes (vite, server.js, oauth-playground)"
             echo "  4) Clean up PID files"
             echo "  5) Verify all ports are free"
@@ -251,13 +235,8 @@ main() {
         all_free=false
     fi
     
-    if check_port $BACKEND_HTTP_PORT; then
-        print_error "Port $BACKEND_HTTP_PORT is still in use"
-        all_free=false
-    fi
-    
-    if check_port $BACKEND_HTTPS_PORT; then
-        print_error "Port $BACKEND_HTTPS_PORT is still in use"
+    if check_port $BACKEND_PORT; then
+        print_error "Port $BACKEND_PORT is still in use"
         all_free=false
     fi
     

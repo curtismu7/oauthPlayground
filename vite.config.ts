@@ -116,7 +116,7 @@ export default defineConfig(({ mode }) => {
 		server: {
 			port: 3000,
 			open: true,
-			https: true, // Enable HTTPS in development to match PingOne redirect URI
+			// https: true, // Remove this - basicSsl plugin handles HTTPS
 			// In production, Vercel will handle HTTPS
 			hmr: {
 				port: 3000,
@@ -128,7 +128,7 @@ export default defineConfig(({ mode }) => {
 			// Disable certificate verification for localhost development
 			proxy: {
 				'/api': {
-					target: 'http://localhost:3001', // Backend server (HTTP)
+					target: 'https://localhost:3001', // Backend server (HTTPS)
 					changeOrigin: true,
 					secure: false, // Allow self-signed certificates and HTTPS->HTTPS proxy
 					timeout: 10000, // Increased timeout for health checks

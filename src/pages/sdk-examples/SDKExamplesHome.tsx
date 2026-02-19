@@ -1,9 +1,18 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { FiEye, FiEyeOff, FiSettings } from 'react-icons/fi';
+// src/pages/sdk-examples/SDKExamplesHome.tsx
+// SDK Examples Home Page - Main landing page for SDK examples
+// Cache bust: 2025-02-17-12:45 - Fixed API Display with SuperSimpleApiDisplayV8
+
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import ApiCallList from '../../components/ApiCallList';
-import { apiCallTrackerService } from '../../services/apiCallTrackerService';
+import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
+import { ShowTokenConfigCheckboxV8 } from '@/v8/components/ShowTokenConfigCheckboxV8';
+import { SilentApiConfigCheckboxV8 } from '@/v8/components/SilentApiConfigCheckboxV8';
+import {
+	ApiDisplayCheckbox,
+	SuperSimpleApiDisplayV8,
+} from '@/v8/components/SuperSimpleApiDisplayV8';
+import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 
 const Container = styled.div`
   padding: 2rem;
@@ -111,7 +120,7 @@ const DocumentationSection = styled.div`
   margin-top: 3rem;
 `;
 
-const APIDisplayToggle = styled.div`
+const _APIDisplayToggle = styled.div`
   position: fixed;
   top: 20px;
   right: 20px;
@@ -126,7 +135,7 @@ const APIDisplayToggle = styled.div`
   gap: 0.75rem;
 `;
 
-const ToggleButton = styled.button`
+const _ToggleButton = styled.button`
   background: none;
   border: none;
   cursor: pointer;
@@ -145,12 +154,12 @@ const ToggleButton = styled.button`
   }
 `;
 
-const APIDisplayContainer = styled.div<{ isVisible: boolean }>`
+const _APIDisplayContainer = styled.div<{ isVisible: boolean }>`
   margin-top: 2rem;
   display: ${(props) => (props.isVisible ? 'block' : 'none')};
 `;
 
-const EnvironmentsSection = styled.div`
+const _EnvironmentsSection = styled.div`
   background: #ffffff;
   border-radius: 8px;
   padding: 2rem;
@@ -159,20 +168,20 @@ const EnvironmentsSection = styled.div`
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 `;
 
-const EnvironmentsHeader = styled.div`
+const _EnvironmentsHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
 `;
 
-const EnvironmentsTitle = styled.h3`
+const _EnvironmentsTitle = styled.h3`
   color: #333;
   font-size: 1.5rem;
   margin: 0;
 `;
 
-const RefreshButton = styled.button`
+const _RefreshButton = styled.button`
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -199,12 +208,12 @@ const RefreshButton = styled.button`
   }
 `;
 
-const EnvironmentList = styled.div`
+const _EnvironmentList = styled.div`
   display: grid;
   gap: 1rem;
 `;
 
-const EnvironmentItem = styled.div`
+const _EnvironmentItem = styled.div`
   padding: 1rem;
   background: #f8f9fa;
   border-radius: 6px;
@@ -214,18 +223,18 @@ const EnvironmentItem = styled.div`
   align-items: center;
 `;
 
-const EnvironmentName = styled.div`
+const _EnvironmentName = styled.div`
   font-weight: 500;
   color: #333;
 `;
 
-const EnvironmentId = styled.div`
+const _EnvironmentId = styled.div`
   font-size: 0.875rem;
   color: #666;
   font-family: monospace;
 `;
 
-const LoadingMessage = styled.div`
+const _LoadingMessage = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -235,7 +244,7 @@ const LoadingMessage = styled.div`
   padding: 2rem;
 `;
 
-const ErrorMessage = styled.div`
+const _ErrorMessage = styled.div`
   background: #f8d7da;
   color: #721c24;
   padding: 1rem;
@@ -276,66 +285,14 @@ interface Environment {
 }
 
 const SDKExamplesHome: React.FC = () => {
-	const [showAPIDisplay, setShowAPIDisplay] = useState(false);
-	const [environments, setEnvironments] = useState<Environment[]>([]);
-	const [isLoadingEnvs, setIsLoadingEnvs] = useState(false);
-	const [envError, setEnvError] = useState<string | null>(null);
-
-	const loadEnvironments = useCallback(async () => {
-		setIsLoadingEnvs(true);
-		setEnvError(null);
-
-		try {
-			// Track the API call
-			const callId = apiCallTrackerService.trackApiCall({
-				method: 'GET',
-				url: '/api/environments',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-			});
-
-			const response = await fetch('/api/environments');
-			const data = await response.json();
-
-			// Update the API call with response
-			apiCallTrackerService.updateApiCallResponse(callId, {
-				status: response.status,
-				statusText: response.statusText,
-				data: data,
-			});
-
-			if (response.ok) {
-				setEnvironments(data.environments || []);
-			} else {
-				throw new Error(data.error || 'Failed to load environments');
-			}
-		} catch (error) {
-			console.error('Failed to load environments:', error);
-			setEnvError(error instanceof Error ? error.message : 'Unknown error');
-			// Set empty array to prevent crashes
-			setEnvironments([]);
-		} finally {
-			setIsLoadingEnvs(false);
-		}
-	}, []);
-
-	// Load environments on component mount
-	useEffect(() => {
-		loadEnvironments();
-	}, [loadEnvironments]);
+	// Worker token management
+	const globalTokenStatus = useGlobalWorkerToken();
+	const _workerToken = globalTokenStatus.token || '';
+	const hasValidToken = globalTokenStatus.isValid;
+	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 
 	return (
 		<Container>
-			<APIDisplayToggle>
-				<FiSettings size={18} />
-				<span>API Display</span>
-				<ToggleButton onClick={() => setShowAPIDisplay(!showAPIDisplay)}>
-					{showAPIDisplay ? <FiEyeOff size={16} /> : <FiEye size={16} />}
-					{showAPIDisplay ? 'Hide' : 'Show'}
-				</ToggleButton>
-			</APIDisplayToggle>
-
 			<Header>SDK Examples</Header>
 			<Description>
 				Explore comprehensive SDK examples demonstrating PingOne integration patterns, including
@@ -343,37 +300,56 @@ const SDKExamplesHome: React.FC = () => {
 				practices and includes detailed documentation.
 			</Description>
 
-			<EnvironmentsSection>
-				<EnvironmentsHeader>
-					<EnvironmentsTitle>PingOne Environments</EnvironmentsTitle>
-					<RefreshButton onClick={loadEnvironments} disabled={isLoadingEnvs}>
-						{isLoadingEnvs ? 'Loading...' : 'Refresh'}
-					</RefreshButton>
-				</EnvironmentsHeader>
-
-				{envError && <ErrorMessage>Error: {envError}</ErrorMessage>}
-
-				{isLoadingEnvs ? (
-					<LoadingMessage>Loading environments...</LoadingMessage>
-				) : environments.length === 0 ? (
-					<LoadingMessage>
-						No environments found. Please configure your PingOne environments.
-					</LoadingMessage>
-				) : (
-					<EnvironmentList>
-						{environments.map((env) => (
-							<EnvironmentItem key={env.id}>
-								<div>
-									<EnvironmentName>{env.name}</EnvironmentName>
-									<EnvironmentId>ID: {env.id}</EnvironmentId>
-								</div>
-							</EnvironmentItem>
-						))}
-					</EnvironmentList>
+			{/* Worker Token Management */}
+			<div style={{ marginBottom: '2rem' }}>
+				<SilentApiConfigCheckboxV8 />
+				<ShowTokenConfigCheckboxV8 />
+				<ApiDisplayCheckbox />
+				{!hasValidToken && (
+					<button
+						onClick={() => setShowWorkerTokenModal(true)}
+						style={{
+							background: '#3b82f6',
+							color: 'white',
+							border: 'none',
+							padding: '0.75rem 1.5rem',
+							borderRadius: '0.5rem',
+							cursor: 'pointer',
+							fontSize: '1rem',
+							marginTop: '1rem',
+							marginRight: '1rem',
+						}}
+					>
+						Get Worker Token
+					</button>
 				)}
-			</EnvironmentsSection>
+				{hasValidToken && (
+					<div
+						style={{
+							background: '#10b981',
+							color: 'white',
+							padding: '0.75rem 1rem',
+							borderRadius: '0.5rem',
+							marginTop: '1rem',
+							display: 'inline-block',
+						}}
+					>
+						✅ Worker Token Active
+					</div>
+				)}
+			</div>
 
 			<ExamplesGrid>
+				<ExampleCard>
+					<StatusBadge status="implemented">Implemented</StatusBadge>
+					<ExampleTitle>DaVinci Todo App</ExampleTitle>
+					<ExampleDescription>
+						Complete DaVinci flow implementation demonstrating user registration, login, MFA, and
+						application management with the PingOne DaVinci SDK.
+					</ExampleDescription>
+					<ExampleLink to="/sdk-examples/davinci-todo-app">Explore Todo App</ExampleLink>
+				</ExampleCard>
+
 				<ExampleCard>
 					<StatusBadge status="implemented">Implemented</StatusBadge>
 					<ExampleTitle>JWT Authentication</ExampleTitle>
@@ -396,16 +372,6 @@ const SDKExamplesHome: React.FC = () => {
 
 				<ExampleCard>
 					<StatusBadge status="implemented">Implemented</StatusBadge>
-					<ExampleTitle>DaVinci Todo App</ExampleTitle>
-					<ExampleDescription>
-						Complete todo application showcasing DaVinci dynamic form rendering, flow management,
-						and integration with PingOne DaVinci services.
-					</ExampleDescription>
-					<ExampleLink to="/sdk-examples/davinci-todo-app">Explore Todo App</ExampleLink>
-				</ExampleCard>
-
-				<ExampleCard>
-					<StatusBadge status="implemented">Implemented</StatusBadge>
 					<ExampleTitle>SDK Documentation</ExampleTitle>
 					<ExampleDescription>
 						Comprehensive documentation, usage guides, and best practices for implementing PingOne
@@ -415,28 +381,12 @@ const SDKExamplesHome: React.FC = () => {
 				</ExampleCard>
 			</ExamplesGrid>
 
-			<APIDisplayContainer isVisible={showAPIDisplay}>
-				<ApiCallList />
-			</APIDisplayContainer>
+			{/* API Display - Using the unified service */}
+			<SuperSimpleApiDisplayV8 flowFilter="all" reserveSpace={true} />
 
 			<DocumentationSection>
 				<DocumentationTitle>SDK Documentation</DocumentationTitle>
 				<DocumentationList>
-					<DocumentationItem>
-						<a href="/SDK_EXAMPLES_INVENTORY.md" target="_blank" rel="noopener noreferrer">
-							SDK Examples Inventory - Complete tracking of all SDK implementations
-						</a>
-					</DocumentationItem>
-					<DocumentationItem>
-						<a href="/SDK_EXAMPLES_GUIDE.md" target="_blank" rel="noopener noreferrer">
-							SDK Usage Guide - Comprehensive usage examples and best practices
-						</a>
-					</DocumentationItem>
-					<DocumentationItem>
-						<a href="/SWE-15_UNIFIED_MFA_GUIDE.md" target="_blank" rel="noopener noreferrer">
-							SWE-15 Development Guide - Software engineering best practices
-						</a>
-					</DocumentationItem>
 					<DocumentationItem>
 						<a
 							href="https://docs.pingidentity.com/sdks/latest/"
@@ -448,6 +398,14 @@ const SDKExamplesHome: React.FC = () => {
 					</DocumentationItem>
 				</DocumentationList>
 			</DocumentationSection>
+
+			{/* Worker Token Modal */}
+			{showWorkerTokenModal && (
+				<WorkerTokenModalV8
+					isOpen={showWorkerTokenModal}
+					onClose={() => setShowWorkerTokenModal(false)}
+				/>
+			)}
 		</Container>
 	);
 };

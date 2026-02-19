@@ -23,19 +23,32 @@ export type PKCECodes = V8UPKCECodes;
 // ============================================================================
 
 let migrationCompleted = false;
+let migrationPromise: Promise<void> | null = null;
 
 /**
  * Ensure migration is completed before any PKCE operation
  */
 const ensureMigration = async (): Promise<void> => {
-	if (!migrationCompleted) {
-		if (PKCEStorageServiceV8UMigration.needsMigration()) {
-			console.log(`${MODULE_TAG} Starting automatic PKCE migration...`);
-			const result = await PKCEStorageServiceV8UMigration.migrateAll();
-			console.log(`${MODULE_TAG} PKCE migration completed`, result);
-		}
-		migrationCompleted = true;
+	if (migrationCompleted) {
+		return;
 	}
+
+	if (!migrationPromise) {
+		migrationPromise = (async () => {
+			try {
+				if (PKCEStorageServiceV8UMigration.needsMigration()) {
+					console.log(`${MODULE_TAG} Starting automatic PKCE migration...`);
+					const result = await PKCEStorageServiceV8UMigration.migrateAll();
+					console.log(`${MODULE_TAG} PKCE migration completed`, result);
+				}
+				migrationCompleted = true;
+			} finally {
+				migrationPromise = null;
+			}
+		})();
+	}
+
+	return migrationPromise;
 };
 
 // ============================================================================

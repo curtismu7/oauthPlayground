@@ -4,7 +4,7 @@
 import { unifiedTokenStorage } from '../services/unifiedTokenStorageService';
 
 // Test configuration
-const TEST_CONFIG = {
+const _TEST_CONFIG = {
 	timeout: 5000,
 	retries: 3,
 };
@@ -39,7 +39,7 @@ const mockPKCECodes = {
 };
 
 // Test utilities
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+const _delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const cleanup = async () => {
 	try {
@@ -266,7 +266,7 @@ export class UnifiedStorageServiceTests {
 				const invalidToken = { ...mockToken, id: '' }; // Empty ID
 				await unifiedTokenStorage.storeToken(invalidToken);
 				// Should not throw, but handle gracefully
-			} catch (error) {
+			} catch (_error) {
 				// Expected to handle gracefully
 			}
 
@@ -607,7 +607,7 @@ export class UnifiedStorageServiceTests {
 
 			// Test bulk query performance
 			const queryStart = Date.now();
-			const allTokens = await unifiedTokenStorage.getTokens({});
+			const _allTokens = await unifiedTokenStorage.getTokens({});
 			const queryTime = Date.now() - queryStart;
 
 			// Test bulk delete performance
@@ -677,7 +677,7 @@ export class UnifiedStorageServiceTests {
 			}
 		});
 
-		console.log('\n' + '='.repeat(60));
+		console.log(`\n${'='.repeat(60)}`);
 		console.log(`🎯 Overall Result: ${failed === 0 ? 'SUCCESS' : 'PARTIAL SUCCESS'}`);
 		console.log('='.repeat(60));
 	}

@@ -19,7 +19,7 @@ NC='\033[0m' # No Color
 FRONTEND_PORT=${FRONTEND_PORT:-3000}
 BACKEND_PORT=${BACKEND_PORT:-3001}
 FRONTEND_URL="http://localhost:${FRONTEND_PORT}"
-BACKEND_URL="http://localhost:${BACKEND_PORT}"
+BACKEND_URL="https://localhost:${BACKEND_PORT}"
 
 # PID files for process management
 FRONTEND_PID_FILE=".frontend.pid"
@@ -146,7 +146,7 @@ start_backend() {
     local attempt=0
     
     while [ $attempt -lt $max_attempts ]; do
-        if curl -s "$BACKEND_URL/api/health" >/dev/null 2>&1; then
+        if curl -s -k "$BACKEND_URL/api/health" >/dev/null 2>&1; then
             print_success "Backend server started successfully on $BACKEND_URL"
             return 0
         fi

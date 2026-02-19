@@ -71,6 +71,7 @@ const ExampleV7Flow: React.FC = () => {
 			renderCredentialsStep,
 			renderTokenExchangeStep,
 			renderTokenManagementStep,
+			renderCompletionStep,
 		]
 	);
 

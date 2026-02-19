@@ -89,13 +89,13 @@ export const StepNavigationV8U: React.FC<StepNavigationV8Props> = ({
 {
 	font - size;
 	: 12px
-	font - weight;
+	font - weight
 	: 600
 	color: #
-	666;
-	text - transform;
+	666
+	text - transform
 	: uppercase
-	letter - spacing;
+	letter - spacing
 	: 0.5px
 }
 
@@ -103,10 +103,10 @@ export const StepNavigationV8U: React.FC<StepNavigationV8Props> = ({
 {
 	font - size;
 	: 18px
-	font - weight;
+	font - weight
 	: 600
 	color: #
-	333;
+	333
 }
 
 /* Mobile responsive */

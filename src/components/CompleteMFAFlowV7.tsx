@@ -1666,7 +1666,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 						);
 
 						try {
-							const resumeResponse = await fetch('http://localhost:3001/api/pingone/resume', {
+							const resumeResponse = await fetch('https://localhost:3001/api/pingone/resume', {
 								method: 'POST',
 								headers: {
 									'Content-Type': 'application/json',
@@ -2008,7 +2008,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 		console.log('🔄 [MFA Flow V7] Flow retried');
 	}, []);
 
-	const handleRestart = useCallback(() => {
+	const _handleRestart = useCallback(() => {
 		handleResetFlow();
 	}, [handleResetFlow]);
 
@@ -2115,7 +2115,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 			// Make API call through backend proxy to avoid CORS issues
 			// Temporarily use direct backend URL to test
-			const deviceRegistrationUrl = `http://localhost:3001/api/device/register`;
+			const deviceRegistrationUrl = `https://localhost:3001/api/device/register`;
 			const requestBody = {
 				environmentId: authCodeCredentials.environmentId,
 				userId: effectiveUserId,

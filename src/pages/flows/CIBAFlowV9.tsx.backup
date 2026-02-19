@@ -1,0 +1,1069 @@
+/**
+ * @file CIBAFlowV9.tsx
+ * @module pages/flows
+ * @description CIBA (Client Initiated Backchannel Authentication) Flow V9 - OpenID Connect Core 1.0 Compliant
+ * @version 9.0.0
+ * @since 2026-02-17
+ *
+ * V9 CIBA flow implementation with full OpenID Connect Core 1.0 compliance:
+ * - Enhanced CIBA service with proper grant type and parameters
+ * - Complete login hint support (login_hint, id_token_hint, login_hint_token)
+ * - Token delivery modes (poll, ping, push) with discovery metadata
+ * - Signed authentication requests (JWS) support
+ * - Comprehensive error handling per specification
+ * - Modern V9 UI with enhanced user experience
+ *
+ * Features:
+ * - Real-time polling with intelligent retry
+ * - Discovery metadata integration
+ * - Multiple authentication methods
+ * - Educational content and examples
+ * - Professional UI with V9 styling
+ *
+ * @example
+ * <CIBAFlowV9 />
+ */
+
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+	FiActivity,
+	FiAlertTriangle,
+	FiCheckCircle,
+	FiClock,
+	FiCopy,
+	FiInfo,
+	FiKey,
+	FiRefreshCw,
+	FiShield,
+	FiSmartphone,
+	FiX,
+	FiZap,
+} from 'react-icons/fi';
+import styled from 'styled-components';
+
+import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
+import { useProductionSpinner } from '@/hooks/useProductionSpinner';
+import { useCibaFlowV8Enhanced } from '@/v8/hooks/useCibaFlowV8Enhanced';
+import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
+import { ShowTokenConfigCheckboxV8 } from '@/v8/components/ShowTokenConfigCheckboxV8';
+import { SilentApiConfigCheckboxV8 } from '@/v8/components/SilentApiConfigCheckboxV8';
+import {
+	ApiDisplayCheckbox,
+	SuperSimpleApiDisplayV8,
+} from '@/v8/components/SuperSimpleApiDisplayV8';
+import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { WorkerTokenStatusDisplayV8 } from '@/v8/components/WorkerTokenStatusDisplayV8';
+import { AppDiscoveryServiceV8 } from '@/v8/services/appDiscoveryServiceV8';
+import {
+	type CibaCredentials,
+	type CibaDiscoveryMetadata,
+	CibaServiceV8Enhanced,
+} from '@/v8/services/cibaServiceV8Enhanced';
+import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
+import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+
+const MODULE_TAG = '[🔐 CIBA-FLOW-V9]';
+const FLOW_KEY = 'ciba-v9';
+
+// ============================================================================
+// STYLED COMPONENTS
+// ============================================================================
+
+const Container = styled.div`
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 2rem;
+`;
+
+const Header = styled.div`
+	text-align: center;
+	margin-bottom: 2rem;
+`;
+
+const Title = styled.h1`
+	font-size: 2.5rem;
+	font-weight: 700;
+	color: #1f2937;
+	margin-bottom: 0.5rem;
+`;
+
+const Subtitle = styled.p`
+	color: #6b7280;
+	font-size: 1.125rem;
+	margin-bottom: 1rem;
+`;
+
+const VersionBadge = styled.span`
+	background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+	color: white;
+	padding: 0.25rem 0.75rem;
+	border-radius: 9999px;
+	font-size: 0.875rem;
+	font-weight: 600;
+	margin-left: 0.5rem;
+`;
+
+const Card = styled.div`
+	background: white;
+	border: 1px solid #e5e7eb;
+	border-radius: 12px;
+	padding: 2rem;
+	margin-bottom: 2rem;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+`;
+
+const CardTitle = styled.h3`
+	font-size: 1.25rem;
+	font-weight: 600;
+	color: #1f2937;
+	margin-bottom: 1rem;
+`;
+
+const FormGroup = styled.div`
+	margin-bottom: 1.5rem;
+`;
+
+const Label = styled.label`
+	display: block;
+	margin-bottom: 0.5rem;
+	font-weight: 500;
+	color: #374151;
+`;
+
+const Input = styled.input`
+	width: 100%;
+	padding: 0.75rem;
+	border: 1px solid #d1d5db;
+	border-radius: 6px;
+	font-size: 1rem;
+	transition: border-color 0.2s;
+
+	&:focus {
+		outline: none;
+		border-color: #3b82f6;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
+`;
+
+const Select = styled.select`
+	width: 100%;
+	padding: 0.75rem;
+	border: 1px solid #d1d5db;
+	border-radius: 6px;
+	font-size: 1rem;
+	background: white;
+	transition: border-color 0.2s;
+
+	&:focus {
+		outline: none;
+		border-color: #3b82f6;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
+`;
+
+const TextArea = styled.textarea`
+	width: 100%;
+	padding: 0.75rem;
+	border: 1px solid #d1d5db;
+	border-radius: 6px;
+	font-size: 1rem;
+	font-family: monospace;
+	resize: vertical;
+	min-height: 100px;
+	transition: border-color 0.2s;
+
+	&:focus {
+		outline: none;
+		border-color: #3b82f6;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
+`;
+
+const ButtonGroup = styled.div`
+	display: flex;
+	gap: 1rem;
+	margin-top: 2rem;
+`;
+
+const StatusCard = styled.div<{ status: string }>`
+	background: ${(props) => {
+		switch (props.status) {
+			case 'pending':
+				return '#fef3c7';
+			case 'approved':
+				return '#d1fae5';
+			case 'denied':
+				return '#fee2e2';
+			case 'expired':
+				return '#f3f4f6';
+			case 'error':
+				return '#fee2e2';
+			default:
+				return '#f9fafb';
+		}
+	}};
+	border: 1px solid ${(props) => {
+		switch (props.status) {
+			case 'pending':
+				return '#f59e0b';
+			case 'approved':
+				return '#10b981';
+			case 'denied':
+				return '#ef4444';
+			case 'expired':
+				return '#d1d5db';
+			case 'error':
+				return '#ef4444';
+			default:
+				return '#e5e7eb';
+		}
+	}};
+	border-radius: 8px;
+	padding: 1rem;
+	margin-bottom: 1rem;
+`;
+
+const StatusTitle = styled.h4`
+	font-weight: 600;
+	margin-bottom: 0.5rem;
+	color: #1f2937;
+`;
+
+const StatusText = styled.p`
+	color: #6b7280;
+	font-size: 0.875rem;
+`;
+
+const TokenDisplay = styled.div`
+	background: #f8fafc;
+	border: 1px solid #e2e8f0;
+	border-radius: 6px;
+	padding: 1rem;
+	margin-top: 1rem;
+`;
+
+const TokenTitle = styled.h5`
+	font-weight: 600;
+	margin-bottom: 0.5rem;
+	color: #1f2937;
+`;
+
+const TokenContent = styled.pre`
+	background: #1e293b;
+	color: #e2e8f0;
+	padding: 1rem;
+	border-radius: 4px;
+	overflow-x: auto;
+	font-size: 0.875rem;
+`;
+
+const CopyButton = styled.button`
+	background: #3b82f6;
+	color: white;
+	border: none;
+	padding: 0.5rem 1rem;
+	border-radius: 4px;
+	font-size: 0.875rem;
+	cursor: pointer;
+	transition: background-color 0.2s;
+
+	&:hover {
+		background: #2563eb;
+	}
+`;
+
+// ============================================================================
+// MAIN COMPONENT
+// ============================================================================
+
+const CIBAFlowV9: React.FC = () => {
+	const cibaFlow = useCibaFlowV8Enhanced();
+
+	// Form state
+	const [credentials, setCredentials] = useState<CibaCredentials>({
+		environmentId: '',
+		clientId: '',
+		clientSecret: '',
+		scope: 'openid profile email',
+		loginHint: '',
+		idTokenHint: '',
+		loginHintToken: '',
+		tokenDeliveryMode: 'poll',
+		clientAuthMethod: 'client_secret_basic',
+		bindingMessage: '',
+		userCode: '',
+		requestContext: '',
+		clientNotificationEndpoint: '',
+	});
+
+	// Worker token state
+	const [workerToken, setWorkerToken] = useState('');
+	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
+
+	// Apps state
+	const [apps, setApps] = useState<Array<{ id: string; name: string; description: string }>>([]);
+	const [selectedApp, setSelectedApp] = useState('');
+
+	// UI state
+	const [showAdvanced, setShowAdvanced] = useState(false);
+	const [copiedToken, setCopiedToken] = useState(false);
+
+	// Load saved credentials on mount
+	useEffect(() => {
+		const saved = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
+			flowKey: FLOW_KEY,
+			flowType: 'oidc',
+			includeClientSecret: true,
+			includeRedirectUri: false,
+			includeLogoutUri: false,
+			includeScopes: true,
+		});
+
+		if (saved) {
+			setCredentials((prev) => ({
+				...prev,
+				environmentId: saved.environmentId || '',
+				clientId: saved.clientId || '',
+				clientSecret: saved.clientSecret || '',
+				scope: saved.scope || 'openid profile email',
+			}));
+		}
+	}, []);
+
+	// Load discovery metadata when environment changes
+	useEffect(() => {
+		if (credentials.environmentId) {
+			cibaFlow.loadDiscoveryMetadata(credentials.environmentId);
+		}
+	}, [credentials.environmentId, cibaFlow]);
+
+	// Save credentials when they change
+	useEffect(() => {
+		CredentialsServiceV8.saveCredentials(FLOW_KEY, credentials, {
+			flowKey: FLOW_KEY,
+			flowType: 'oidc',
+			includeClientSecret: true,
+			includeRedirectUri: false,
+			includeLogoutUri: false,
+			includeScopes: true,
+		});
+	}, [credentials]);
+
+	// Handle form changes
+	const handleInputChange = (field: keyof CibaCredentials, value: string) => {
+		setCredentials((prev) => ({ ...prev, [field]: value }));
+	};
+
+	// Handle authentication initiation
+	const handleInitiateAuth = async () => {
+		try {
+			// Validate credentials
+			const validation = CibaServiceV8Enhanced.validateCredentials(credentials);
+			if (!validation.valid) {
+				toastV8.error(`Invalid credentials: ${validation.errors.join(', ')}`);
+				return;
+			}
+
+			await cibaFlow.initiateAuthentication(credentials);
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to initiate authentication:`, error);
+		}
+	};
+
+	// Handle token polling
+	const handlePollForTokens = async () => {
+		if (!cibaFlow.authRequest) return;
+
+		try {
+			const result = await cibaFlow.pollForTokensWithRetry(
+				cibaFlow.authRequest.auth_req_id,
+				credentials
+			);
+
+			if (result.status === 'approved' && result.tokens) {
+				toastV8.success('CIBA authentication completed successfully!');
+			}
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to poll for tokens:`, error);
+		}
+	};
+
+	// Copy token to clipboard
+	const copyToken = async (token: string) => {
+		try {
+			await navigator.clipboard.writeText(token);
+			setCopiedToken(true);
+			toastV8.success('Token copied to clipboard');
+			setTimeout(() => setCopiedToken(false), 2000);
+		} catch (error) {
+			toastV8.error('Failed to copy token');
+		}
+	};
+
+	// Get worker token
+	const handleGetWorkerToken = useCallback(async () => {
+		try {
+			const token = await unifiedWorkerTokenService.getToken();
+			if (token) {
+				setWorkerToken(token);
+				toastV8.success('Worker token retrieved successfully');
+			} else {
+				toastV8.error('No valid worker token found');
+			}
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to get worker token:`, error);
+			toastV8.error('Failed to get worker token');
+		}
+	}, []);
+
+	// Get apps
+	const handleGetApps = useCallback(async () => {
+		try {
+			const discoveredApps = await AppDiscoveryServiceV8.discoverApps(credentials.environmentId);
+			const formattedApps = discoveredApps.map(app => ({
+				id: app.id,
+				name: app.name,
+				description: app.description || 'No description available'
+			}));
+			setApps(formattedApps);
+			toastV8.success(`Found ${formattedApps.length} apps`);
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to get apps:`, error);
+			toastV8.error('Failed to get apps');
+		}
+	}, [credentials.environmentId]);
+
+	// Reset flow
+	const handleReset = () => {
+		cibaFlow.reset();
+		setCredentials({
+			environmentId: '',
+			clientId: '',
+			clientSecret: '',
+			scope: 'openid profile email',
+			loginHint: '',
+			idTokenHint: '',
+			loginHintToken: '',
+			tokenDeliveryMode: 'poll',
+			clientAuthMethod: 'client_secret_basic',
+			bindingMessage: '',
+			userCode: '',
+			requestContext: '',
+			clientNotificationEndpoint: '',
+		});
+	};
+
+	return (
+		<div style={{ padding: '40px', maxWidth: '1000px', margin: '0 auto' }}>
+			{/* Header */}
+			<MFAHeaderV8
+				title="🔐 CIBA Flow V9"
+				description="Client-Initiated Backchannel Authentication - OpenID Connect Core 1.0 Compliant"
+				versionTag="V9"
+				currentPage="registration"
+				headerColor="blue"
+			/>
+
+			{/* Worker Token Status */}
+			<WorkerTokenStatusDisplayV8 />
+
+			{/* Configuration Section */}
+			<div style={{ marginBottom: '24px' }}>
+				<div style={{ marginBottom: '16px' }}>
+					<ShowTokenConfigCheckboxV8 />
+					<SilentApiConfigCheckboxV8 />
+				</div>
+			</div>
+
+			{/* API Display Toggle */}
+			<div style={{ marginBottom: '24px' }}>
+				<div
+					style={{
+						background: '#f8fafc',
+						border: '1px solid #e2e8f0',
+						borderRadius: '8px',
+						padding: '16px',
+					}}
+				>
+					<div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '8px' }}>
+						🔍 API Display
+					</div>
+					<div style={{ fontSize: '12px', color: '#64748b' }}>
+						Shows the live PingOne API requests executed by this page.
+					</div>
+				</div>
+				<ApiDisplayCheckbox />
+			</div>
+
+			<SuperSimpleApiDisplayV8 flowFilter="all" reserveSpace={true} />
+
+			{/* Worker Token Modal */}
+			{showWorkerTokenModal && (
+				<WorkerTokenModalV8 
+					isOpen={showWorkerTokenModal} 
+					onClose={() => setShowWorkerTokenModal(false)} 
+				/>
+			)}
+
+			{/* Main Content */}
+			<div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px' }}>
+				<div style={{ marginBottom: '32px' }}>
+					<h2 style={{ margin: '0 0 8px 0', fontSize: '20px', fontWeight: '600', color: '#1f2937' }}>
+						CIBA Configuration
+					</h2>
+					<p style={{ margin: '0 0 24px 0', color: '#6b7280', fontSize: '14px' }}>
+						Configure CIBA authentication parameters and initiate backchannel authentication
+					</p>
+
+					{/* Service Actions */}
+					<div style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
+						<button
+							type="button"
+							onClick={handleGetWorkerToken}
+							style={{
+								padding: '8px 16px',
+								background: '#3b82f6',
+								color: 'white',
+								border: 'none',
+								borderRadius: '6px',
+								fontSize: '14px',
+								cursor: 'pointer',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '6px',
+							}}
+						>
+							<FiKey size={14} />
+							Get Worker Token
+						</button>
+						<button
+							type="button"
+							onClick={handleGetApps}
+							style={{
+								padding: '8px 16px',
+								background: '#10b981',
+								color: 'white',
+								border: 'none',
+								borderRadius: '6px',
+								fontSize: '14px',
+								cursor: 'pointer',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '6px',
+							}}
+						>
+							<FiRefreshCw size={14} />
+							Get Apps
+						</button>
+					</div>
+
+					{/* Worker Token Display */}
+					{workerToken && (
+						<div style={{ marginBottom: '24px' }}>
+							<h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '8px', color: '#1f2937' }}>
+								Worker Token
+							</h3>
+							<div style={{ 
+								background: '#f8fafc', 
+								border: '1px solid #e2e8f0', 
+								borderRadius: '6px', 
+								padding: '12px',
+								fontFamily: 'monospace',
+								fontSize: '12px',
+								wordBreak: 'break-all'
+							}}>
+								{workerToken}
+							</div>
+						</div>
+					)}
+
+					{/* Apps Display */}
+					{apps.length > 0 && (
+						<div style={{ marginBottom: '24px' }}>
+							<h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '8px', color: '#1f2937' }}>
+								Available Apps ({apps.length})
+							</h3>
+							<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+								{apps.map((app) => (
+									<div
+										key={app.id}
+										style={{
+											background: '#f8fafc',
+											border: '1px solid #e2e8f0',
+											borderRadius: '6px',
+											padding: '12px',
+											cursor: 'pointer',
+											transition: 'background-color 0.2s',
+										}}
+										onClick={() => setSelectedApp(app.id)}
+										onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f1f5f9')}
+										onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#f8fafc')}
+									>
+										<div style={{ fontWeight: '600', color: '#1f2937' }}>{app.name}</div>
+										<div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
+											{app.description}
+										</div>
+									</div>
+								))}
+							</div>
+						</div>
+					)}
+
+			{/* CIBA Configuration Form */}
+			<div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px', marginBottom: '24px' }}>
+				<h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1f2937', marginBottom: '16px' }}>
+					🔐 CIBA Configuration
+				</h3>
+
+				<div style={{ display: 'grid', gap: '16px', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
+					<div>
+						<label htmlFor="environmentId" style={{ display: 'block', marginBottom: '4px', fontWeight: '500', color: '#374151' }}>
+							Environment ID *
+						</label>
+						<input
+							id="environmentId"
+							type="text"
+							value={credentials.environmentId}
+							onChange={(e) => handleInputChange('environmentId', e.target.value)}
+							placeholder="PingOne Environment ID"
+							style={{
+								width: '100%',
+								padding: '8px',
+								border: '1px solid #d1d5db',
+								borderRadius: '6px',
+								fontSize: '14px',
+							}}
+						/>
+					</div>
+
+					<div>
+						<label htmlFor="clientId" style={{ display: 'block', marginBottom: '4px', fontWeight: '500', color: '#374151' }}>
+							Client ID *
+						</label>
+						<input
+							id="clientId"
+							type="text"
+							value={credentials.clientId}
+							onChange={(e) => handleInputChange('clientId', e.target.value)}
+							placeholder="OAuth Client ID"
+							style={{
+								width: '100%',
+								padding: '8px',
+								border: '1px solid #d1d5db',
+								borderRadius: '6px',
+								fontSize: '14px',
+							}}
+						/>
+					</div>
+
+					<div>
+						<label htmlFor="clientSecret" style={{ display: 'block', marginBottom: '4px', fontWeight: '500', color: '#374151' }}>
+							Client Secret *
+						</label>
+						<input
+							id="clientSecret"
+							type="password"
+							value={credentials.clientSecret}
+							onChange={(e) => handleInputChange('clientSecret', e.target.value)}
+							placeholder="OAuth Client Secret"
+							style={{
+								width: '100%',
+								padding: '8px',
+								border: '1px solid #d1d5db',
+								borderRadius: '6px',
+								fontSize: '14px',
+							}}
+						/>
+					</div>
+
+					<div>
+						<label htmlFor="scope" style={{ display: 'block', marginBottom: '4px', fontWeight: '500', color: '#374151' }}>
+							Scope *
+						</label>
+						<input
+							id="scope"
+							type="text"
+							value={credentials.scope}
+							onChange={(e) => handleInputChange('scope', e.target.value)}
+							placeholder="openid profile email"
+							style={{
+								width: '100%',
+								padding: '8px',
+								border: '1px solid #d1d5db',
+								borderRadius: '6px',
+								fontSize: '14px',
+							}}
+						/>
+					</div>
+				</div>
+
+				<div style={{ marginTop: '24px' }}>
+					<label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#374151' }}>
+						Login Hint (Exactly one required) *
+					</label>
+					<select
+						value={
+							credentials.loginHint
+								? 'login_hint'
+								: credentials.idTokenHint
+									? 'id_token_hint'
+									: credentials.loginHintToken
+										? 'login_hint_token'
+										: ''
+						}
+						onChange={(e) => {
+							const value = e.target.value;
+							setCredentials((prev) => ({
+								...prev,
+								loginHint: value === 'login_hint' ? prev.loginHint : '',
+								idTokenHint: value === 'id_token_hint' ? prev.idTokenHint : '',
+								loginHintToken: value === 'login_hint_token' ? prev.loginHintToken : '',
+							}));
+						}}
+						style={{
+							width: '100%',
+							padding: '8px',
+							border: '1px solid #d1d5db',
+							borderRadius: '6px',
+							fontSize: '14px',
+							marginBottom: '16px',
+						}}
+					>
+						<option value="">Select login hint type...</option>
+						<option value="login_hint">Login Hint (email/phone/username)</option>
+						<option value="id_token_hint">ID Token Hint</option>
+						<option value="login_hint_token">Login Hint Token (JWT)</option>
+					</select>
+
+					{credentials.loginHint && (
+						<input
+							type="text"
+							value={credentials.loginHint}
+							onChange={(e) => handleInputChange('loginHint', e.target.value)}
+							placeholder="user@example.com or +1234567890"
+							style={{
+								width: '100%',
+								padding: '8px',
+								border: '1px solid #d1d5db',
+								borderRadius: '6px',
+								fontSize: '14px',
+							}}
+						/>
+					)}
+
+					{credentials.idTokenHint && (
+						<input
+							type="text"
+							value={credentials.idTokenHint}
+							onChange={(e) => handleInputChange('idTokenHint', e.target.value)}
+							placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+							style={{
+								width: '100%',
+								padding: '8px',
+								border: '1px solid #d1d5db',
+								borderRadius: '6px',
+								fontSize: '14px',
+							}}
+						/>
+					)}
+
+					{credentials.loginHintToken && (
+						<input
+							type="text"
+							value={credentials.loginHintToken}
+							onChange={(e) => handleInputChange('loginHintToken', e.target.value)}
+							placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+							style={{
+								width: '100%',
+								padding: '8px',
+								border: '1px solid #d1d5db',
+								borderRadius: '6px',
+								fontSize: '14px',
+							}}
+						/>
+					)}
+				</div>
+
+				<div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+					<button
+						type="button"
+						onClick={handleInitiateAuth}
+						disabled={
+							!credentials.environmentId ||
+							!credentials.clientId ||
+							!credentials.clientSecret ||
+							!credentials.scope ||
+							(!credentials.loginHint && !credentials.idTokenHint && !credentials.loginHintToken)
+						}
+						style={{
+							background: '#3b82f6',
+							color: 'white',
+							border: 'none',
+							padding: '12px 24px',
+							borderRadius: '6px',
+							fontSize: '14px',
+							fontWeight: '500',
+							cursor: 'pointer',
+							display: 'flex',
+							alignItems: 'center',
+							gap: '8px',
+						}}
+					>
+						🔐 Initiate CIBA Authentication
+					</button>
+
+					<button
+						type="button"
+						onClick={handleReset}
+						style={{
+							background: '#6b7280',
+							color: 'white',
+							border: 'none',
+							padding: '12px 24px',
+							borderRadius: '6px',
+							fontSize: '14px',
+							fontWeight: '500',
+							cursor: 'pointer',
+						}}
+					>
+						🔄 Reset
+					</button>
+				</div>
+			</div>
+
+			{/* Discovery Metadata */}
+			{cibaFlow.discoveryMetadata && (
+				<Card>
+					<CardTitle>🔍 Discovery Metadata</CardTitle>
+					<div style={{ display: 'grid', gap: '1rem', fontSize: '0.875rem' }}>
+						<div>
+							<strong>Authentication Endpoint:</strong>{' '}
+							{cibaFlow.discoveryMetadata.backchannel_authentication_endpoint}
+						</div>
+						<div>
+							<strong>Supported Delivery Modes:</strong>{' '}
+							{cibaFlow.discoveryMetadata.backchannel_token_delivery_modes_supported.join(', ')}
+						</div>
+						<div>
+							<strong>User Code Support:</strong>{' '}
+							{cibaFlow.discoveryMetadata.backchannel_user_code_parameter_supported ? 'Yes' : 'No'}
+						</div>
+						{cibaFlow.discoveryMetadata
+							.backchannel_authentication_request_signing_alg_values_supported && (
+							<div>
+								<strong>Supported Signing Algorithms:</strong>{' '}
+								{cibaFlow.discoveryMetadata.backchannel_authentication_request_signing_alg_values_supported.join(
+									', '
+								)}
+							</div>
+						)}
+					</div>
+				</div>
+			)}
+
+			{/* Status Display */}
+			{cibaFlow.authRequest && (
+				<div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px', marginBottom: '24px' }}>
+					<h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1f2937', marginBottom: '16px' }}>
+						📊 Authentication Status
+					</h3>
+					
+					<div style={{
+						background: cibaFlow.status === 'pending' ? '#fef3c7' : 
+								cibaFlow.status === 'approved' ? '#d1fae5' :
+								cibaFlow.status === 'denied' ? '#fee2e2' :
+								cibaFlow.status === 'expired' ? '#f3f4f6' : '#fee2e2',
+						border: `1px solid ${cibaFlow.status === 'pending' ? '#f59e0b' : 
+										cibaFlow.status === 'approved' ? '#10b981' :
+										cibaFlow.status === 'denied' ? '#ef4444' :
+										cibaFlow.status === 'expired' ? '#d1d5db' : '#ef4444'}`,
+						borderRadius: '8px',
+						padding: '16px',
+						marginBottom: '16px'
+					}}>
+						<h4 style={{ fontWeight: '600', marginBottom: '8px', color: '#1f2937' }}>
+							{cibaFlow.status === 'pending' && '⏳ Authentication Pending'}
+							{cibaFlow.status === 'approved' && '✅ Authentication Approved'}
+							{cibaFlow.status === 'denied' && '❌ Authentication Denied'}
+							{cibaFlow.status === 'expired' && '⏰ Authentication Expired'}
+							{cibaFlow.status === 'error' && '🚨 Authentication Error'}
+						</h4>
+						<p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>
+							{cibaFlow.status === 'pending' && 'Waiting for user authentication...'}
+							{cibaFlow.status === 'approved' && 'Authentication completed successfully!'}
+							{cibaFlow.status === 'denied' && 'User denied the authentication request.'}
+							{cibaFlow.status === 'expired' && 'Authentication request has expired.'}
+							{cibaFlow.status === 'error' && 'An error occurred during authentication.'}
+						</p>
+					</div>
+
+					{cibaFlow.status === 'pending' && (
+						<button
+							type="button"
+							onClick={handlePollForTokens}
+							style={{
+								background: '#10b981',
+								color: 'white',
+								border: 'none',
+								padding: '12px 24px',
+								borderRadius: '6px',
+								fontSize: '14px',
+								fontWeight: '500',
+								cursor: 'pointer',
+							}}
+						>
+							🔄 Poll for Tokens
+						</button>
+					)}
+				</div>
+			)}
+
+			{/* Tokens Display */}
+			{cibaFlow.tokens && (
+				<div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px', marginBottom: '24px' }}>
+					<h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1f2937', marginBottom: '16px' }}>
+						🎉 Authentication Tokens
+					</h3>
+
+					<div style={{ marginBottom: '24px' }}>
+						<h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '8px', color: '#1f2937' }}>
+							Access Token
+						</h4>
+						<div style={{ 
+							background: '#f8fafc', 
+							border: '1px solid #e2e8f0', 
+							borderRadius: '6px', 
+							padding: '12px',
+							fontFamily: 'monospace',
+							fontSize: '12px',
+							wordBreak: 'break-all',
+							marginBottom: '12px'
+						}}>
+							{cibaFlow.tokens.access_token}
+						</div>
+						<button
+							type="button"
+							onClick={() => copyToken(cibaFlow.tokens.access_token)}
+							style={{
+								background: copiedToken ? '#10b981' : '#6b7280',
+								color: 'white',
+								border: 'none',
+								padding: '8px 16px',
+								borderRadius: '4px',
+								fontSize: '12px',
+								cursor: 'pointer',
+							}}
+						>
+							{copiedToken ? '✓ Copied!' : '📋 Copy'}
+						</button>
+					</div>
+
+					{cibaFlow.tokens.id_token && (
+						<TokenDisplay>
+							<TokenTitle>ID Token</TokenTitle>
+							<div
+								style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+							>
+								<TokenContent>{cibaFlow.tokens.id_token}</TokenContent>
+								<CopyButton onClick={() => copyToken(cibaFlow.tokens.id_token)}>
+									<FiCopy />
+								</CopyButton>
+							</div>
+						</TokenDisplay>
+					)}
+
+					{/* Token Metadata */}
+					<div
+						style={{
+							background: '#f8fafc',
+							padding: '1rem',
+							borderRadius: '6px',
+							marginTop: '1rem',
+						}}
+					>
+						<h5 style={{ fontWeight: '600', marginBottom: '0.5rem' }}>Token Information</h5>
+						<div style={{ fontSize: '0.875rem', lineHeight: '1.5' }}>
+							<div>
+								<strong>Token Type:</strong> {cibaFlow.tokens.token_type}
+							</div>
+							{cibaFlow.tokens.expires_in && (
+								<div>
+									<strong>Expires In:</strong> {cibaFlow.tokens.expires_in} seconds
+								</div>
+							)}
+							{cibaFlow.tokens.scope && (
+								<div>
+									<strong>Scope:</strong> {cibaFlow.tokens.scope}
+								</div>
+							)}
+							{cibaFlow.tokens.sub && (
+								<div>
+									<strong>Subject:</strong> {cibaFlow.tokens.sub}
+								</div>
+							)}
+							{cibaFlow.tokens.iss && (
+								<div>
+									<strong>Issuer:</strong> {cibaFlow.tokens.iss}
+								</div>
+							)}
+							{cibaFlow.tokens.aud && (
+								<div>
+									<strong>Audience:</strong>{' '}
+									{Array.isArray(cibaFlow.tokens.aud)
+										? cibaFlow.tokens.aud.join(', ')
+										: cibaFlow.tokens.aud}
+								</div>
+							)}
+						</div>
+					</div>
+				</Card>
+			)}
+
+			{/* Educational Content */}
+			<Card>
+				<CardTitle>📚 About CIBA (Client-Initiated Backchannel Authentication)</CardTitle>
+				<div style={{ lineHeight: '1.6', color: '#4b5563' }}>
+					<p>
+						<strong>CIBA</strong> is an OpenID Connect extension that enables authentication without
+						direct user interaction with the client application. This is particularly useful for
+						scenarios like:
+					</p>
+					<ul style={{ marginLeft: '1.5rem', marginTop: '0.5rem' }}>
+						<li>AI agents requiring human-in-the-loop approvals</li>
+						<li>Call center agents accessing customer information</li>
+						<li>Kiosk or limited-input device authentication</li>
+						<li>Secure transaction approval on mobile devices</li>
+					</ul>
+
+					<h4 style={{ marginTop: '1.5rem', marginBottom: '0.5rem', color: '#1f2937' }}>
+						How it works:
+					</h4>
+					<ol style={{ marginLeft: '1.5rem', marginTop: '0.5rem' }}>
+						<li>Client initiates authentication request to OpenID Provider</li>
+						<li>Provider sends notification to user's authentication device</li>
+						<li>User reviews and approves/denies the request</li>
+						<li>Client polls token endpoint to retrieve results</li>
+					</ol>
+
+					<h4 style={{ marginTop: '1.5rem', marginBottom: '0.5rem', color: '#1f2937' }}>
+						Token Delivery Modes:
+					</h4>
+					<ul style={{ marginLeft: '1.5rem', marginTop: '0.5rem' }}>
+						<li>
+							<strong>Poll:</strong> Client continuously polls token endpoint (default)
+						</li>
+						<li>
+							<strong>Ping:</strong> Provider notifies client when ready, then client polls
+						</li>
+						<li>
+							<strong>Push:</strong> Provider pushes tokens directly to client endpoint
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	);
+};
+
+export default CIBAFlowV9;

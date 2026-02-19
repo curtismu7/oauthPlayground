@@ -8,9 +8,9 @@
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { FiSearch, FiX } from 'react-icons/fi';
+import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
 import { AppDiscoveryServiceV8 } from '@/v8/services/appDiscoveryServiceV8';
-import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
@@ -26,15 +26,19 @@ export const CompactAppPickerV8U: React.FC<CompactAppPickerV8UProps> = ({
 	environmentId,
 	onAppSelected,
 }) => {
+	// Use unified global worker token hook for token management
+	const globalTokenStatus = useGlobalWorkerToken();
+	const workerToken = globalTokenStatus.token || '';
+	const hasWorkerToken = globalTokenStatus.isValid;
+	const [_showWorkerTokenModal, _setShowWorkerTokenModal] = useState(false);
+
 	const [isLoading, setIsLoading] = useState(false);
 	const [apps, setApps] = useState<DiscoveredApp[]>([]);
 	const [showDropdown, setShowDropdown] = useState(false);
 	const [showSearch, setShowSearch] = useState(false);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [hasDiscovered, setHasDiscovered] = useState(false);
-	const [tokenStatus, setTokenStatus] = useState(() =>
-		WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync()
-	);
+	const [tokenStatus, setTokenStatus] = useState({ isValid: false, message: 'Checking...' });
 	const dropdownRef = useRef<HTMLDivElement>(null);
 	const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -83,34 +87,29 @@ export const CompactAppPickerV8U: React.FC<CompactAppPickerV8UProps> = ({
 
 	// Filter apps based on search query
 	const filteredApps = useMemo(() => {
-		if (!searchQuery.trim()) {
-			return apps;
-		}
-		const query = searchQuery.toLowerCase();
+		if (!searchQuery) return apps;
 		return apps.filter(
 			(app) =>
-				app.name.toLowerCase().includes(query) ||
-				app.id.toLowerCase().includes(query) ||
-				app.description?.toLowerCase().includes(query)
+				app.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+				app.clientId.toLowerCase().includes(searchQuery.toLowerCase())
 		);
 	}, [apps, searchQuery]);
 
 	const handleDiscover = async () => {
-		if (!environmentId.trim()) {
-			toastV8.error('Please enter an Environment ID first');
+		if (!environmentId) {
+			toastV8.error('Environment ID is required');
 			return;
 		}
 
-		if (!tokenStatus.isValid) {
-			toastV8.error(tokenStatus.message);
+		if (!hasWorkerToken) {
+			toastV8.error('Worker token required - please generate one first');
 			return;
 		}
 
 		setIsLoading(true);
 		try {
-			// Get worker token directly from global service
-			const workerToken = await workerTokenServiceV8.getToken();
-			if (!workerToken) {
+			// Worker token is now managed by unified service
+			if (!hasWorkerToken) {
 				toastV8.error('Worker token required - please generate one first');
 				setIsLoading(false);
 				return;

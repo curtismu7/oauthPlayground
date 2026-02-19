@@ -26,12 +26,59 @@ import {
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
-import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
+import { type EnhancedApiCallData } from '@/services/enhancedApiCallDisplayService';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
 
 const MODULE_TAG = '[🔐 SPIFFE-SPIRE-FLOW-V8U]';
+
+// Types
+interface WorkloadConfig {
+	trustDomain: string;
+	workloadPath: string;
+	workloadType: 'kubernetes' | 'vm' | 'container';
+	namespace?: string;
+	serviceAccount?: string;
+}
+
+interface SVID {
+	spiffeId: string;
+	x509Certificate: string;
+	privateKey: string;
+	expiresAt: string;
+	trustBundle: string;
+}
+
+interface PingOneToken {
+	accessToken: string;
+	tokenType: string;
+	expiresIn: number;
+	scope: string;
+	idToken?: string;
+}
+
+// SPIFFE/SPIRE lab types
+type SpiffeTrustDomain = string;
+
+type WorkloadSelector = {
+	type: string; // e.g. "k8s"
+	value: string; // e.g. "sa:orders-sa"
+};
+
+type Workload = {
+	id: string;
+	name: string;
+	namespace?: string;
+	selectors: WorkloadSelector[];
+};
+
+type SpireRegistrationEntry = {
+	spiffeId: string;
+	parentId: string;
+	selectors: WorkloadSelector[];
+	ttlSeconds: number;
+};
 
 // Styled Components
 const PageContainer = styled.div`
@@ -568,75 +615,84 @@ const ToggleButton = styled.button`
 	}
 `;
 
-const ConceptBox = styled.div`
-	background: #ffffff; // White background
+const CollapsibleSection = styled.div`
+	background: #ffffff;
 	border: 2px solid #e5e7eb;
 	border-radius: 0.5rem;
-	padding: 1rem;
-	margin: 0.75rem 0;
+	padding: 1.5rem;
+	margin-bottom: 1rem;
+
+	&:last-child {
+		margin-bottom: 0;
+	}
 `;
 
-const ConceptTitle = styled.div`
-	font-weight: 600;
-	color: #1f2937; // Dark text
-	margin-bottom: 0.5rem;
+const SectionHeader = styled.div`
 	display: flex;
+	justify-content: space-between;
 	align-items: center;
-	gap: 0.5rem;
+	margin-bottom: 1rem;
+	cursor: pointer;
+	user-select: none;
+
+	h3 {
+		margin: 0;
+		color: #374151;
+		font-size: 1.125rem;
+		font-weight: 600;
+	}
+
+	&:hover h3 {
+		color: #1f2937;
+	}
+`;
+
+const SectionToggle = styled.button`
+	background: transparent;
+	border: none;
+	color: #6b7280;
+	font-size: 0.875rem;
+	cursor: pointer;
+	padding: 0.25rem 0.5rem;
+	border-radius: 0.25rem;
+	transition: all 0.2s ease;
+
+	&:hover {
+		background: #f3f4f6;
+		color: #374151;
+	}
 `;
 
 const ConceptText = styled.div`
-	color: #4b5563; // Secondary dark text
-	font-size: 0.875rem;
+	color: #92400e; // Dark brown text on light yellow
 	line-height: 1.6;
+	font-size: 0.875rem;
+
+	code {
+		background: #fef3c7;
+		padding: 0.125rem 0.25rem;
+		border-radius: 0.25rem;
+		font-family: 'Courier New', monospace;
+		font-size: 0.8em;
+	}
+
+	ul, ol {
+		margin: 0.5rem 0;
+		padding-left: 1.5rem;
+	}
+
+	li {
+		margin: 0.25rem 0;
+	}
+
+	p {
+		margin: 0.75rem 0;
+	}
+
+	strong {
+		color: #78350f;
+	}
 `;
-
-// Types
-interface WorkloadConfig {
-	trustDomain: string;
-	workloadPath: string;
-	workloadType: 'kubernetes' | 'vm' | 'container';
-	namespace?: string;
-	serviceAccount?: string;
-}
-
-interface SVID {
-	spiffeId: string;
-	x509Certificate: string;
-	privateKey: string;
-	expiresAt: string;
-	trustBundle: string;
-}
-
-interface PingOneToken {
-	accessToken: string;
-	tokenType: string;
-	expiresIn: number;
-	scope: string;
-	idToken?: string;
-}
-
-// SPIFFE/SPIRE lab types
-type SpiffeTrustDomain = string;
-
-type WorkloadSelector = {
-	type: string; // e.g. "k8s"
-	value: string; // e.g. "sa:orders-sa"
-};
-
-type Workload = {
-	id: string;
-	name: string;
-	namespace?: string;
-	selectors: WorkloadSelector[];
-};
-
-type SpireRegistrationEntry = {
-	spiffeId: string;
-	parentId: string;
-	selectors: WorkloadSelector[];
-	ttlSeconds: number;
-};
 
 // Helper builders for SPIFFE IDs and registration entries
 const buildSpiffeId = (trustDomain: SpiffeTrustDomain, workload: Workload): string => {
@@ -744,6 +800,12 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 	const [showRegistrationInfo, setShowRegistrationInfo] = useState(false);
 	const [showPhaseTransition, setShowPhaseTransition] = useState(false);
 	const [transitionMessage, setTransitionMessage] = useState('');
+
+	// Collapsible section states
+	const [showWhySpiffe, setShowWhySpiffe] = useState(true);
+	const [showCoreConcepts, setShowCoreConcepts] = useState(true);
+	const [showSpireArchitecture, setShowSpireArchitecture] = useState(true);
+	const [showPingOneIntegration, setShowPingOneIntegration] = useState(true);
 
 	// Load environment ID from global storage on mount
 	useEffect(() => {
@@ -1094,9 +1156,6 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 				<p>Demonstrate workload identity (SVID) generation and exchange for PingOne SSO tokens</p>
 			</Header>
 
-			{/* Navigation */}
-			<MFANavigationV8 currentPage="hub" showRestartFlow={false} showBackToMain={true} />
-
 			<Alert $type="info">
 				<FiExternalLink />
 				<div>
@@ -1133,131 +1192,149 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 								production-ready implementation that issues and manages identities for workloads.
 							</p>
 
-							<ConceptBox>
-								<ConceptTitle>
-									<FiKey />
-									Why SPIFFE/SPIRE?
-								</ConceptTitle>
-								<ConceptText>
-									Modern infrastructure is dynamic - services scale up/down, move between hosts, and
-									run in containers. Traditional authentication using static secrets (passwords, API
-									keys, tokens) doesn't work well because:
-									<ul>
-										<li>Secrets must be distributed and rotated manually</li>
-										<li>Secrets can be stolen, leaked, or compromised</li>
-										<li>Hard to track which service is making requests</li>
-									</ul>
-									SPIFFE/SPIRE solves this by automatically issuing{' '}
-									<strong>cryptographic identities</strong> based on platform attestation (verifying
-									what the workload is, not what it knows).
-								</ConceptText>
-							</ConceptBox>
+							<CollapsibleSection>
+								<SectionHeader onClick={() => setShowWhySpiffe(!showWhySpiffe)}>
+									<h3>
+										<FiKey /> Why SPIFFE/SPIRE?
+									</h3>
+									<SectionToggle>{showWhySpiffe ? 'Hide ▲' : 'Show ▼'}</SectionToggle>
+								</SectionHeader>
+								{showWhySpiffe && (
+									<ConceptText>
+										Modern infrastructure is dynamic - services scale up/down, move between hosts,
+										and run in containers. Traditional authentication using static secrets
+										(passwords, API keys, tokens) doesn't work well because:
+										<ul>
+											<li>Secrets must be distributed and rotated manually</li>
+											<li>Secrets can be stolen, leaked, or compromised</li>
+											<li>Hard to track which service is making requests</li>
+										</ul>
+										SPIFFE/SPIRE solves this by automatically issuing{' '}
+										<strong>cryptographic identities</strong> based on platform attestation
+										(verifying what the workload is, not what it knows).
+									</ConceptText>
+								)}
+							</CollapsibleSection>
 
-							<ConceptBox>
-								<ConceptTitle>
-									<FiShield />
-									Core SPIFFE Concepts
-								</ConceptTitle>
-								<ConceptText>
-									<ul>
-										<li>
-											<strong>SPIFFE ID:</strong> A structured URI that uniquely identifies a
-											workload. Format: <code>spiffe://trust-domain/workload-identifier</code>
-											<br />
-											Example: <code>spiffe://example.org/frontend/api</code>
-										</li>
-										<li>
-											<strong>SVID (SPIFFE Verifiable Identity Document):</strong> A cryptographic
-											document that proves a workload's identity. Can be an X.509 certificate or JWT
-											token. Contains the SPIFFE ID and is signed by the trust domain's authority.
-										</li>
-										<li>
-											<strong>Trust Domain:</strong> The root of a SPIFFE identity namespace.
-											Represents a system's trust boundary (e.g., your organization, environment, or
-											cluster). All workloads in a trust domain share the same root of trust.
-										</li>
-										<li>
-											<strong>Workload:</strong> A single piece of software deployed with a
-											particular configuration. Examples: web server, database, microservice,
-											container, process.
-										</li>
-										<li>
-											<strong>Workload API:</strong> An API exposed by SPIRE Agent that workloads
-											call to retrieve their SVIDs. Typically accessed via Unix domain socket for
-											security.
-										</li>
-									</ul>
-								</ConceptText>
-							</ConceptBox>
+							<CollapsibleSection>
+								<SectionHeader onClick={() => setShowCoreConcepts(!showCoreConcepts)}>
+									<h3>
+										<FiShield /> Core SPIFFE Concepts
+									</h3>
+									<SectionToggle>{showCoreConcepts ? 'Hide ▲' : 'Show ▼'}</SectionToggle>
+								</SectionHeader>
+								{showCoreConcepts && (
+									<ConceptText>
+										<ul>
+											<li>
+												<strong>SPIFFE ID:</strong> A structured URI that uniquely identifies a
+												workload. Format: <code>spiffe://trust-domain/workload-identifier</code>
+												<br />
+												Example: <code>spiffe://example.org/frontend/api</code>
+											</li>
+											<li>
+												<strong>SVID (SPIFFE Verifiable Identity Document):</strong> A cryptographic
+												document that proves a workload's identity. Can be an X.509 certificate or
+												JWT token. Contains the SPIFFE ID and is signed by the trust domain's
+												authority.
+											</li>
+											<li>
+												<strong>Trust Domain:</strong> The root of a SPIFFE identity namespace.
+												Represents a system's trust boundary (e.g., your organization, environment,
+												or cluster). All workloads in a trust domain share the same root of trust.
+											</li>
+											<li>
+												<strong>Workload:</strong> A single piece of software deployed with a
+												particular configuration. Examples: web server, database, microservice,
+												container, process.
+											</li>
+											<li>
+												<strong>Workload API:</strong> An API exposed by SPIRE Agent that workloads
+												call to retrieve their SVIDs. Typically accessed via Unix domain socket for
+												security.
+											</li>
+										</ul>
+									</ConceptText>
+								)}
+							</CollapsibleSection>
 
-							<ConceptBox>
-								<ConceptTitle>
-									<FiServer />
-									SPIRE Architecture
-								</ConceptTitle>
-								<ConceptText>
-									<ul>
-										<li>
-											<strong>SPIRE Server:</strong> Central component that manages identities,
-											validates attestation, and signs SVIDs. Maintains registration entries that
-											define which workloads get which SPIFFE IDs.
-										</li>
-										<li>
-											<strong>SPIRE Agent:</strong> Runs on each node/host. Performs workload
-											attestation (verifies workload identity using platform-specific mechanisms
-											like Kubernetes service accounts, AWS instance metadata, etc.) and provides
-											the Workload API for workloads to fetch their SVIDs.
-										</li>
-										<li>
-											<strong>Attestation:</strong> The process of verifying a workload's identity
-											using platform-specific properties (e.g., Kubernetes pod UID, AWS instance ID,
-											Unix process attributes). This is how SPIRE knows which SPIFFE ID to give.
-										</li>
-									</ul>
-								</ConceptText>
-							</ConceptBox>
+							<CollapsibleSection>
+								<SectionHeader onClick={() => setShowSpireArchitecture(!showSpireArchitecture)}>
+									<h3>
+										<FiServer /> SPIRE Architecture
+									</h3>
+									<SectionToggle>{showSpireArchitecture ? 'Hide ▲' : 'Show ▼'}</SectionToggle>
+								</SectionHeader>
+								{showSpireArchitecture && (
+									<ConceptText>
+										<ul>
+											<li>
+												<strong>SPIRE Server:</strong> Central component that manages identities,
+												validates attestation, and signs SVIDs. Maintains registration entries that
+												define which workloads get which SPIFFE IDs.
+											</li>
+											<li>
+												<strong>SPIRE Agent:</strong> Runs on each node/host. Performs workload
+												attestation (verifying workload identity using platform-specific mechanisms
+												like Kubernetes service accounts, AWS instance metadata, etc.) and provides
+												the Workload API for workloads to fetch their SVIDs.
+											</li>
+											<li>
+												<strong>Attestation:</strong> The process of verifying a workload's identity
+												using platform-specific properties (e.g., Kubernetes pod UID, AWS instance
+												ID, Unix process attributes). This is how SPIRE knows which SPIFFE ID to
+												give.
+											</li>
+										</ul>
+									</ConceptText>
+								)}
+							</CollapsibleSection>
 
-							<ConceptBox>
-								<ConceptTitle>
-									<FiServer />
-									Integration with PingOne
-								</ConceptTitle>
-								<ConceptText>
-									<p>
-										This mock demonstrates a <strong>token exchange pattern</strong> where:
-									</p>
-									<ol>
-										<li>
-											<strong>SPIRE Agent</strong> attests your workload and issues an SVID (X.509
-											certificate)
-										</li>
-										<li>
-											Your workload presents the SVID to a <strong>Token Exchange Service</strong>
-										</li>
-										<li>The service validates the SVID against the SPIRE trust bundle</li>
-										<li>The service maps the SPIFFE ID to a PingOne service account</li>
-										<li>
-											<strong>PingOne</strong> issues OAuth/OIDC tokens for accessing protected
-											resources
-										</li>
-									</ol>
-									<p style={{ marginTop: '0.75rem' }}>
-										This combines <strong>workload identity</strong> (SPIFFE/SPIRE) with{' '}
-										<strong>OAuth/OIDC authentication</strong> (PingOne), enabling workloads to
-										securely access APIs without storing static credentials.
-									</p>
-									<p style={{ marginTop: '0.5rem', fontSize: '0.8125rem' }}>
-										📚{' '}
-										<Link
-											href="https://spiffe.io/docs/latest/spiffe-about/spiffe-concepts/"
-											target="_blank"
-											rel="noopener noreferrer"
-										>
-											Learn more: Official SPIFFE Concepts
-										</Link>
-									</p>
-								</ConceptText>
-							</ConceptBox>
+							<CollapsibleSection>
+								<SectionHeader onClick={() => setShowPingOneIntegration(!showPingOneIntegration)}>
+									<h3>
+										<FiServer /> Integration with PingOne
+									</h3>
+									<SectionToggle>{showPingOneIntegration ? 'Hide ▲' : 'Show ▼'}</SectionToggle>
+								</SectionHeader>
+								{showPingOneIntegration && (
+									<ConceptText>
+										<p>
+											This mock demonstrates a <strong>token exchange pattern</strong> where:
+										</p>
+										<ol>
+											<li>
+												<strong>SPIRE Agent</strong> attests your workload and issues an SVID (X.509
+												certificate)
+											</li>
+											<li>
+												Your workload presents the SVID to a <strong>Token Exchange Service</strong>
+											</li>
+											<li>The service validates the SVID against the SPIRE trust bundle</li>
+											<li>The service maps the SPIFFE ID to a PingOne service account</li>
+											<li>
+												<strong>PingOne</strong> issues OAuth/OIDC tokens for accessing protected
+												resources
+											</li>
+										</ol>
+										<p style={{ marginTop: '0.75rem' }}>
+											This combines <strong>workload identity</strong> (SPIFFE/SPIRE) with{' '}
+											<strong>OAuth/OIDC authentication</strong> (PingOne), enabling workloads to
+											securely access APIs without storing static credentials.
+										</p>
+										<p style={{ marginTop: '0.5rem', fontSize: '0.8125rem' }}>
+											📚{' '}
+											<Link
+												href="https://spiffe.io/docs/latest/spiffe-about/spiffe-concepts/"
+												target="_blank"
+												rel="noopener noreferrer"
+											>
+												Learn more: Official SPIFFE Concepts
+											</Link>
+										</p>
+									</ConceptText>
+								)}
+							</CollapsibleSection>
 						</EducationContent>
 						<ToggleButton onClick={() => setShowEducation(false)}>Hide Education ▲</ToggleButton>
 					</>

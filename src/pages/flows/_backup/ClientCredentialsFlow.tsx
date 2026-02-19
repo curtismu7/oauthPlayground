@@ -428,7 +428,7 @@ grant_type=client_credentials&scope=api:read`,
 					const backendUrl =
 						process.env.NODE_ENV === 'production'
 							? 'https://oauth-playground.vercel.app'
-							: 'https://localhost:3001';
+							: 'https://localhost:3002';
 
 					const response = await fetch(`${backendUrl}/api/token-exchange`, {
 						method: 'POST',
@@ -535,7 +535,7 @@ const accessToken = generateAccessToken(clientId, scope);`,
 					const backendUrl =
 						process.env.NODE_ENV === 'production'
 							? 'https://oauth-playground.vercel.app'
-							: 'https://localhost:3001';
+							: 'https://localhost:3002';
 
 					const response = await fetch(`${backendUrl}/api/token-exchange`, {
 						method: 'POST',

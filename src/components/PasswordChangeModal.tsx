@@ -196,8 +196,8 @@ interface PasswordChangeModalProps {
 	isOpen: boolean;
 	onClose: () => void;
 	onPasswordChange: (oldPassword: string, newPassword: string) => Promise<void>;
-	userId?: string;
-	environmentId?: string;
+	userId?: string | undefined;
+	environmentId?: string | undefined;
 	message?: string;
 }
 

@@ -24,7 +24,6 @@ import {
 	FiCheckCircle,
 	FiChevronDown,
 	FiCopy,
-	FiGlobe,
 	FiInfo,
 	FiKey,
 	FiShield,
@@ -39,6 +38,7 @@ import FlowConfigurationRequirements from '@/components/FlowConfigurationRequire
 import FlowSequenceDisplay from '@/components/FlowSequenceDisplay';
 import { PasswordChangeModal } from '@/components/PasswordChangeModal';
 import RedirectlessLoginModal from '@/components/RedirectlessLoginModal';
+import { EducationPreferenceService } from '@/services/educationPreferenceService';
 import { type PKCECodes, PKCEService } from '@/services/pkceService';
 import { createModuleLogger } from '@/utils/consoleMigrationHelper';
 import { WorkerTokenVsClientCredentialsEducationModalV8 } from '@/v8/components/WorkerTokenVsClientCredentialsEducationModalV8';
@@ -483,6 +483,20 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	const [implicitOverviewCollapsed, setImplicitOverviewCollapsed] = useState(false);
 	const [implicitDetailsCollapsed, setImplicitDetailsCollapsed] = useState(false);
 	const [preflightValidationCollapsed, setPreflightValidationCollapsed] = useState(false);
+
+	// Education mode state management for collapsible sections
+	const [educationMode, setEducationMode] = useState(() =>
+		EducationPreferenceService.getEducationMode()
+	);
+
+	// Poll for education mode changes (since we can't use context here)
+	useEffect(() => {
+		const interval = setInterval(() => {
+			const currentMode = EducationPreferenceService.getEducationMode();
+			setEducationMode(currentMode);
+		}, 100);
+		return () => clearInterval(interval);
+	}, []);
 
 	// Worker token validation state
 	const [hasValidWorkerToken, setHasValidWorkerToken] = useState(false);
@@ -1332,6 +1346,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		if (onStepChange) {
 			onStepChange(currentStep);
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [currentStep, onStepChange]);
 
 	// Notify parent of completed steps changes
@@ -1339,6 +1354,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		if (onCompletedStepsChange) {
 			onCompletedStepsChange(completedSteps);
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [completedSteps, onCompletedStepsChange]);
 
 	// Note: nav object is already created above using useMemo - duplicate removed
@@ -2713,170 +2729,172 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		return (
 			<div className="step-content">
 				{/* Quick Start & Overview - Educational Section */}
-				<CollapsibleSection>
-					<CollapsibleHeaderButton
-						onClick={() => setIsQuickStartCollapsed(!isQuickStartCollapsed)}
-						aria-expanded={!isQuickStartCollapsed}
-					>
-						<CollapsibleTitle>
-							<FiBook />
-							<span>
-								Quick Start & Overview -{' '}
-								{flowType === 'oauth-authz'
-									? isOIDCMode
-										? 'OIDC Core 1.0'
-										: 'OAuth 2.0'
-									: flowType === 'implicit'
-										? 'OAuth 2.0 Implicit'
-										: flowType === 'client-credentials'
-											? 'OAuth 2.0 Client Credentials'
-											: flowType === 'device-code'
-												? 'OAuth 2.0 Device Code'
-												: flowType === 'hybrid'
-													? 'OIDC Core 1.0 Hybrid'
-													: 'OAuth 2.0'}{' '}
-								{flowType === 'oauth-authz' ? 'Authorization Code' : ''}
-							</span>
-						</CollapsibleTitle>
-						<CollapsibleToggleIcon $collapsed={isQuickStartCollapsed}>
-							<FiChevronDown />
-						</CollapsibleToggleIcon>
-					</CollapsibleHeaderButton>
-					{!isQuickStartCollapsed && (
-						<CollapsibleContent>
-							{/* Compact Overview - InfoBox Grid */}
-							<div
-								style={{
-									display: 'grid',
-									gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-									gap: '1rem',
-									marginBottom: '1.5rem',
-								}}
-							>
-								<InfoBox $variant="info">
-									<FiInfo size={20} />
-									<div>
-										<InfoTitle>What You'll Get</InfoTitle>
-										<InfoText>{getWhatYoullGet()}</InfoText>
-									</div>
-								</InfoBox>
-								<InfoBox $variant="success">
-									<FiCheckCircle size={20} />
-									<div>
-										<InfoTitle>Perfect For</InfoTitle>
-										<InfoText>
-											{getPerfectFor().map((item, idx) => (
-												<React.Fragment key={idx}>
-													{idx > 0 && <br />}• {item}
-												</React.Fragment>
-											))}
-										</InfoText>
-									</div>
-								</InfoBox>
-								<InfoBox $variant="warning" style={{ marginBottom: 0 }}>
-									<FiAlertCircle size={20} />
-									<div>
-										<InfoTitle>Required for Full Functionality</InfoTitle>
-										<InfoText>
-											{flowType === 'client-credentials' ? (
-												<>
-													<strong>Client Secret:</strong> Required for token request
-													<br />
-													<strong>Scopes:</strong> Resource server scopes (e.g., api:read,
-													ClaimScope, custom:read)
-													<br />
-													<strong>Environment ID:</strong> Must match your PingOne environment
-												</>
-											) : flowType === 'device-code' ? (
-												<>
-													<strong>Client ID:</strong> Required for device authorization request
-													<br />
-													<strong>Scopes:</strong> Include "openid" for OIDC Core 1.0 flows
-													<br />
-													<strong>Environment ID:</strong> Must match your PingOne environment
-												</>
-											) : (
-												<>
-													<strong>Client Secret:</strong> Required for token introspection and
-													refresh
-													<br />
-													<strong>Scopes:</strong> Include "openid profile email" for OIDC flows
-													<br />
-													<strong>Environment ID:</strong> Must match your PingOne environment
-												</>
-											)}
-										</InfoText>
-									</div>
-								</InfoBox>
-							</div>
+				{educationMode !== 'hidden' && (
+					<CollapsibleSection>
+						<CollapsibleHeaderButton
+							onClick={() => setIsQuickStartCollapsed(!isQuickStartCollapsed)}
+							aria-expanded={!isQuickStartCollapsed}
+						>
+							<CollapsibleTitle>
+								<FiBook />
+								<span>
+									Quick Start & Overview -{' '}
+									{flowType === 'oauth-authz'
+										? isOIDCMode
+											? 'OIDC Core 1.0'
+											: 'OAuth 2.0'
+										: flowType === 'implicit'
+											? 'OAuth 2.0 Implicit'
+											: flowType === 'client-credentials'
+												? 'OAuth 2.0 Client Credentials'
+												: flowType === 'device-code'
+													? 'OAuth 2.0 Device Code'
+													: flowType === 'hybrid'
+														? 'OIDC Core 1.0 Hybrid'
+														: 'OAuth 2.0'}{' '}
+									{flowType === 'oauth-authz' ? 'Authorization Code' : ''}
+								</span>
+							</CollapsibleTitle>
+							<CollapsibleToggleIcon $collapsed={isQuickStartCollapsed}>
+								<FiChevronDown />
+							</CollapsibleToggleIcon>
+						</CollapsibleHeaderButton>
+						{!isQuickStartCollapsed && (
+							<CollapsibleContent>
+								{/* Compact Overview - InfoBox Grid */}
+								<div
+									style={{
+										display: 'grid',
+										gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+										gap: '1rem',
+										marginBottom: '1.5rem',
+									}}
+								>
+									<InfoBox $variant="info">
+										<FiInfo size={20} />
+										<div>
+											<InfoTitle>What You'll Get</InfoTitle>
+											<InfoText>{getWhatYoullGet()}</InfoText>
+										</div>
+									</InfoBox>
+									<InfoBox $variant="success">
+										<FiCheckCircle size={20} />
+										<div>
+											<InfoTitle>Perfect For</InfoTitle>
+											<InfoText>
+												{getPerfectFor().map((item, idx) => (
+													<React.Fragment key={idx}>
+														{idx > 0 && <br />}• {item}
+													</React.Fragment>
+												))}
+											</InfoText>
+										</div>
+									</InfoBox>
+									<InfoBox $variant="warning" style={{ marginBottom: 0 }}>
+										<FiAlertCircle size={20} />
+										<div>
+											<InfoTitle>Required for Full Functionality</InfoTitle>
+											<InfoText>
+												{flowType === 'client-credentials' ? (
+													<>
+														<strong>Client Secret:</strong> Required for token request
+														<br />
+														<strong>Scopes:</strong> Resource server scopes (e.g., api:read,
+														ClaimScope, custom:read)
+														<br />
+														<strong>Environment ID:</strong> Must match your PingOne environment
+													</>
+												) : flowType === 'device-code' ? (
+													<>
+														<strong>Client ID:</strong> Required for device authorization request
+														<br />
+														<strong>Scopes:</strong> Include "openid" for OIDC Core 1.0 flows
+														<br />
+														<strong>Environment ID:</strong> Must match your PingOne environment
+													</>
+												) : (
+													<>
+														<strong>Client Secret:</strong> Required for token introspection and
+														refresh
+														<br />
+														<strong>Scopes:</strong> Include "openid profile email" for OIDC flows
+														<br />
+														<strong>Environment ID:</strong> Must match your PingOne environment
+													</>
+												)}
+											</InfoText>
+										</div>
+									</InfoBox>
+								</div>
 
-							{/* OAuth vs OIDC Comparison (for flows that support both) */}
-							{supportsOAuthAndOIDC && (
-								<GeneratedContentBox>
-									<GeneratedLabel>OAuth vs OIDC - Key Differences</GeneratedLabel>
-									<div
-										style={{
-											display: 'grid',
-											gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-											gap: '1rem',
-										}}
-									>
+								{/* OAuth vs OIDC Comparison (for flows that support both) */}
+								{supportsOAuthAndOIDC && (
+									<GeneratedContentBox>
+										<GeneratedLabel>OAuth vs OIDC - Key Differences</GeneratedLabel>
 										<div
 											style={{
-												padding: '1rem',
-												border: `2px solid ${!isOIDCMode ? '#3b82f6' : '#e2e8f0'}`,
-												borderRadius: '0.5rem',
-												background: !isOIDCMode ? '#eff6ff' : 'white',
+												display: 'grid',
+												gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+												gap: '1rem',
 											}}
 										>
-											<h4>OAuth 2.0 Mode</h4>
-											<p>
-												<strong>Tokens:</strong> Access + Refresh
-											</p>
-											<p>
-												<strong>Purpose:</strong> API access only
-											</p>
-											<p>
-												<strong>PingOne:</strong> Requires openid scope
-											</p>
+											<div
+												style={{
+													padding: '1rem',
+													border: `2px solid ${!isOIDCMode ? '#3b82f6' : '#e2e8f0'}`,
+													borderRadius: '0.5rem',
+													background: !isOIDCMode ? '#eff6ff' : 'white',
+												}}
+											>
+												<h4>OAuth 2.0 Mode</h4>
+												<p>
+													<strong>Tokens:</strong> Access + Refresh
+												</p>
+												<p>
+													<strong>Purpose:</strong> API access only
+												</p>
+												<p>
+													<strong>PingOne:</strong> Requires openid scope
+												</p>
+											</div>
+											<div
+												style={{
+													padding: '1rem',
+													border: `2px solid ${isOIDCMode ? '#3b82f6' : '#e2e8f0'}`,
+													borderRadius: '0.5rem',
+													background: isOIDCMode ? '#eff6ff' : 'white',
+												}}
+											>
+												<h4>OIDC Core 1.0 Mode</h4>
+												<p>
+													<strong>Tokens:</strong> Access + ID + Refresh
+												</p>
+												<p>
+													<strong>Purpose:</strong> Authentication + API access
+												</p>
+												<p>
+													<strong>Standard:</strong> Requires openid scope
+												</p>
+											</div>
 										</div>
-										<div
-											style={{
-												padding: '1rem',
-												border: `2px solid ${isOIDCMode ? '#3b82f6' : '#e2e8f0'}`,
-												borderRadius: '0.5rem',
-												background: isOIDCMode ? '#eff6ff' : 'white',
-											}}
-										>
-											<h4>OIDC Core 1.0 Mode</h4>
-											<p>
-												<strong>Tokens:</strong> Access + ID + Refresh
-											</p>
-											<p>
-												<strong>Purpose:</strong> Authentication + API access
-											</p>
-											<p>
-												<strong>Standard:</strong> Requires openid scope
-											</p>
-										</div>
-									</div>
-								</GeneratedContentBox>
-							)}
+									</GeneratedContentBox>
+								)}
 
-							{/* Enhanced Flow Info Card */}
-							<EnhancedFlowInfoCard flowType={getFlowInfoCardType()} />
+								{/* Enhanced Flow Info Card */}
+								<EnhancedFlowInfoCard flowType={getFlowInfoCardType()} />
 
-							{/* Flow Configuration Requirements */}
-							<FlowConfigurationRequirements
-								flowType={getFlowConfigReqType()}
-								variant={isOIDCMode ? 'oidc' : 'oauth'}
-							/>
+								{/* Flow Configuration Requirements */}
+								<FlowConfigurationRequirements
+									flowType={getFlowConfigReqType()}
+									variant={isOIDCMode ? 'oidc' : 'oauth'}
+								/>
 
-							{/* Flow Sequence Display */}
-							<FlowSequenceDisplay flowType={getFlowConfigReqType()} />
-						</CollapsibleContent>
-					)}
-				</CollapsibleSection>
+								{/* Flow Sequence Display */}
+								<FlowSequenceDisplay flowType={getFlowConfigReqType()} />
+							</CollapsibleContent>
+						)}
+					</CollapsibleSection>
+				)}
 
 				{/* Credentials form is rendered by parent */}
 				<div
@@ -2970,7 +2988,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				</div>
 
 				{/* Pre-flight Validation Results Section - Collapsible and positioned after errors */}
-				{preFlightValidationResult && (
+				{preFlightValidationResult && educationMode !== 'hidden' && (
 					<CollapsibleSection>
 						<CollapsibleHeaderButton
 							onClick={() => setPreflightValidationCollapsed(!preflightValidationCollapsed)}
@@ -3506,127 +3524,131 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				</p>
 
 				{/* PKCE Educational Sections */}
-				<CollapsibleSection>
-					<CollapsibleHeaderButton
-						onClick={() => setPkceOverviewCollapsed(!pkceOverviewCollapsed)}
-						aria-expanded={!pkceOverviewCollapsed}
-					>
-						<CollapsibleTitle>
-							<FiBook /> What is PKCE?
-						</CollapsibleTitle>
-						<CollapsibleToggleIcon $collapsed={pkceOverviewCollapsed}>
-							<FiChevronDown />
-						</CollapsibleToggleIcon>
-					</CollapsibleHeaderButton>
-					{!pkceOverviewCollapsed && (
-						<CollapsibleContent>
-							<InfoBox $variant="info">
-								<FiShield size={20} />
-								<div>
-									<InfoTitle>PKCE (Proof Key for Code Exchange)</InfoTitle>
-									<InfoText>
-										PKCE is a security extension for OAuth 2.0 that prevents authorization code
-										interception attacks. It's required for public clients (like mobile apps) and
-										highly recommended for all OAuth flows.
-									</InfoText>
-								</div>
-							</InfoBox>
-
-							<InfoBox $variant="warning">
-								<FiAlertCircle size={20} />
-								<div>
-									<InfoTitle>The Security Problem PKCE Solves</InfoTitle>
-									<InfoText>
-										Without PKCE, if an attacker intercepts your authorization code (through app
-										redirects, network sniffing, or malicious apps), they could exchange it for
-										tokens. PKCE prevents this by requiring proof that the same client that started
-										the flow is finishing it.
-									</InfoText>
-								</div>
-							</InfoBox>
-						</CollapsibleContent>
-					)}
-				</CollapsibleSection>
-
-				<CollapsibleSection>
-					<CollapsibleHeaderButton
-						onClick={() => setPkceDetailsCollapsed(!pkceDetailsCollapsed)}
-						aria-expanded={!pkceDetailsCollapsed}
-					>
-						<CollapsibleTitle>
-							<FiBook /> Understanding Code Verifier & Code Challenge
-						</CollapsibleTitle>
-						<CollapsibleToggleIcon $collapsed={pkceDetailsCollapsed}>
-							<FiChevronDown />
-						</CollapsibleToggleIcon>
-					</CollapsibleHeaderButton>
-					{!pkceDetailsCollapsed && (
-						<CollapsibleContent>
-							<ParameterGrid>
-								<InfoBox $variant="success">
-									<FiKey size={20} />
-									<div>
-										<InfoTitle>Code Verifier</InfoTitle>
-										<InfoText>
-											A high-entropy cryptographic random string (43-128 chars) that stays secret in
-											your app. Think of it as a temporary password that proves you're the same
-											client that started the OAuth flow.
-										</InfoText>
-										<InfoList>
-											<li>Generated fresh for each OAuth request</li>
-											<li>Uses characters: A-Z, a-z, 0-9, -, ., _, ~</li>
-											<li>Never sent in the authorization request</li>
-											<li>Only revealed during token exchange</li>
-										</InfoList>
-									</div>
-								</InfoBox>
-
+				{educationMode !== 'hidden' && (
+					<CollapsibleSection>
+						<CollapsibleHeaderButton
+							onClick={() => setPkceOverviewCollapsed(!pkceOverviewCollapsed)}
+							aria-expanded={!pkceOverviewCollapsed}
+						>
+							<CollapsibleTitle>
+								<FiBook /> What is PKCE?
+							</CollapsibleTitle>
+							<CollapsibleToggleIcon $collapsed={pkceOverviewCollapsed}>
+								<FiChevronDown />
+							</CollapsibleToggleIcon>
+						</CollapsibleHeaderButton>
+						{!pkceOverviewCollapsed && (
+							<CollapsibleContent>
 								<InfoBox $variant="info">
 									<FiShield size={20} />
 									<div>
-										<InfoTitle>Code Challenge</InfoTitle>
+										<InfoTitle>PKCE (Proof Key for Code Exchange)</InfoTitle>
 										<InfoText>
-											A SHA256 hash of the code verifier, encoded in base64url format. This is sent
-											publicly in the authorization URL but can't be reversed to get the original
-											verifier.
+											PKCE is a security extension for OAuth 2.0 that prevents authorization code
+											interception attacks. It's required for public clients (like mobile apps) and
+											highly recommended for all OAuth flows.
 										</InfoText>
+									</div>
+								</InfoBox>
+
+								<InfoBox $variant="warning">
+									<FiAlertCircle size={20} />
+									<div>
+										<InfoTitle>The Security Problem PKCE Solves</InfoTitle>
+										<InfoText>
+											Without PKCE, if an attacker intercepts your authorization code (through app
+											redirects, network sniffing, or malicious apps), they could exchange it for
+											tokens. PKCE prevents this by requiring proof that the same client that
+											started the flow is finishing it.
+										</InfoText>
+									</div>
+								</InfoBox>
+							</CollapsibleContent>
+						)}
+					</CollapsibleSection>
+				)}
+
+				{educationMode !== 'hidden' && (
+					<CollapsibleSection>
+						<CollapsibleHeaderButton
+							onClick={() => setPkceDetailsCollapsed(!pkceDetailsCollapsed)}
+							aria-expanded={!pkceDetailsCollapsed}
+						>
+							<CollapsibleTitle>
+								<FiBook /> Understanding Code Verifier & Code Challenge
+							</CollapsibleTitle>
+							<CollapsibleToggleIcon $collapsed={pkceDetailsCollapsed}>
+								<FiChevronDown />
+							</CollapsibleToggleIcon>
+						</CollapsibleHeaderButton>
+						{!pkceDetailsCollapsed && (
+							<CollapsibleContent>
+								<ParameterGrid>
+									<InfoBox $variant="success">
+										<FiKey size={20} />
+										<div>
+											<InfoTitle>Code Verifier</InfoTitle>
+											<InfoText>
+												A high-entropy cryptographic random string (43-128 chars) that stays secret
+												in your app. Think of it as a temporary password that proves you're the same
+												client that started the OAuth flow.
+											</InfoText>
+											<InfoList>
+												<li>Generated fresh for each OAuth request</li>
+												<li>Uses characters: A-Z, a-z, 0-9, -, ., _, ~</li>
+												<li>Never sent in the authorization request</li>
+												<li>Only revealed during token exchange</li>
+											</InfoList>
+										</div>
+									</InfoBox>
+
+									<InfoBox $variant="info">
+										<FiShield size={20} />
+										<div>
+											<InfoTitle>Code Challenge</InfoTitle>
+											<InfoText>
+												A SHA256 hash of the code verifier, encoded in base64url format. This is
+												sent publicly in the authorization URL but can't be reversed to get the
+												original verifier.
+											</InfoText>
+											<InfoList>
+												<li>Derived from: SHA256(code_verifier)</li>
+												<li>Encoded in base64url (URL-safe)</li>
+												<li>Safe to include in authorization URLs</li>
+												<li>Used by PingOne to verify the verifier later</li>
+											</InfoList>
+										</div>
+									</InfoBox>
+								</ParameterGrid>
+
+								<InfoBox $variant="warning">
+									<FiAlertCircle size={20} />
+									<div>
+										<InfoTitle>Security Best Practices</InfoTitle>
 										<InfoList>
-											<li>Derived from: SHA256(code_verifier)</li>
-											<li>Encoded in base64url (URL-safe)</li>
-											<li>Safe to include in authorization URLs</li>
-											<li>Used by PingOne to verify the verifier later</li>
+											<li>
+												<strong>Generate Fresh Values:</strong> Create new PKCE parameters for every
+												authorization request
+											</li>
+											<li>
+												<strong>Secure Storage:</strong> Keep the code verifier in memory or secure
+												storage, never log it
+											</li>
+											<li>
+												<strong>Use S256 Method:</strong> Always use SHA256 hashing
+												(code_challenge_method=S256)
+											</li>
+											<li>
+												<strong>Sufficient Entropy:</strong> Use at least 43 characters of
+												high-entropy randomness
+											</li>
 										</InfoList>
 									</div>
 								</InfoBox>
-							</ParameterGrid>
-
-							<InfoBox $variant="warning">
-								<FiAlertCircle size={20} />
-								<div>
-									<InfoTitle>Security Best Practices</InfoTitle>
-									<InfoList>
-										<li>
-											<strong>Generate Fresh Values:</strong> Create new PKCE parameters for every
-											authorization request
-										</li>
-										<li>
-											<strong>Secure Storage:</strong> Keep the code verifier in memory or secure
-											storage, never log it
-										</li>
-										<li>
-											<strong>Use S256 Method:</strong> Always use SHA256 hashing
-											(code_challenge_method=S256)
-										</li>
-										<li>
-											<strong>Sufficient Entropy:</strong> Use at least 43 characters of
-											high-entropy randomness
-										</li>
-									</InfoList>
-								</div>
-							</InfoBox>
-						</CollapsibleContent>
-					)}
-				</CollapsibleSection>
+							</CollapsibleContent>
+						)}
+					</CollapsibleSection>
+				)}
 
 				<PKCEService
 					value={pkceCodes}
@@ -3912,7 +3934,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				console.log(`${MODULE_TAG} 🔌 Exchanging authorization code for tokens`);
 
 				// Use relative URL to go through Vite proxy (avoids certificate issues)
-				// In development: Vite proxy routes /api/* to http://localhost:3001
+				// In development: Vite proxy routes /api/* to https://localhost:3002
 				// In production: Vite proxy routes /api/* to the production backend
 				const tokenEndpoint = '/api/token-exchange';
 
@@ -5730,7 +5752,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				)}
 
 				{/* Implicit Flow Educational Sections (only for implicit flow) */}
-				{flowType === 'implicit' && (
+				{flowType === 'implicit' && educationMode !== 'hidden' && (
 					<>
 						<CollapsibleSection>
 							<CollapsibleHeaderButton
@@ -5923,7 +5945,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				)}
 
 				{/* Authorization Code Flow Educational Sections (only for authorization code flow) */}
-				{flowType === 'oauth-authz' && (
+				{flowType === 'oauth-authz' && educationMode !== 'hidden' && (
 					<>
 						<CollapsibleSection>
 							<CollapsibleHeaderButton
@@ -6056,7 +6078,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				)}
 
 				{/* Hybrid Flow Educational Sections (only for hybrid flow) */}
-				{flowType === 'hybrid' && (
+				{flowType === 'hybrid' && educationMode !== 'hidden' && (
 					<>
 						<CollapsibleSection>
 							<CollapsibleHeaderButton
@@ -6217,160 +6239,189 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				)}
 
 				{/* Authorization URL Educational Sections (for authz, hybrid, and implicit flows) */}
-				<CollapsibleSection>
-					<CollapsibleHeaderButton
-						onClick={() => setAuthRequestOverviewCollapsed(!authRequestOverviewCollapsed)}
-						aria-expanded={!authRequestOverviewCollapsed}
-					>
-						<CollapsibleTitle>
-							<FiBook /> Understanding Authorization Requests
-						</CollapsibleTitle>
-						<CollapsibleToggleIcon $collapsed={authRequestOverviewCollapsed}>
-							<FiChevronDown />
-						</CollapsibleToggleIcon>
-					</CollapsibleHeaderButton>
-					{!authRequestOverviewCollapsed && (
-						<CollapsibleContent>
-							<InfoBox $variant="info">
-								<FiGlobe size={20} />
-								<div>
-									<InfoTitle>What is an Authorization Request?</InfoTitle>
-									<InfoText>
-										An authorization request redirects users to PingOne's authorization server where
-										they authenticate and consent to sharing their information with your
-										application. This is the first step in obtaining an authorization code.
-									</InfoText>
-								</div>
-							</InfoBox>
-
-							<InfoBox $variant="warning">
-								<FiAlertCircle size={20} />
-								<div>
-									<InfoTitle>Critical Security Considerations</InfoTitle>
-									<InfoList>
-										<li>
-											<strong>State Parameter:</strong> Always include a unique state parameter to
-											prevent CSRF attacks
-										</li>
-										<li>
-											<strong>HTTPS Only:</strong> Authorization requests must use HTTPS in
-											production
-										</li>
-										<li>
-											<strong>Validate Redirect URI:</strong> Ensure redirect_uri exactly matches
-											what's registered in PingOne
-										</li>
-										<li>
-											<strong>Scope Limitation:</strong> Only request the minimum scopes your
-											application needs
-										</li>
-									</InfoList>
-								</div>
-							</InfoBox>
-						</CollapsibleContent>
-					)}
-				</CollapsibleSection>
-
-				<CollapsibleSection>
-					<CollapsibleHeaderButton
-						onClick={() => setAuthRequestDetailsCollapsed(!authRequestDetailsCollapsed)}
-						aria-expanded={!authRequestDetailsCollapsed}
-					>
-						<CollapsibleTitle>
-							<FiBook /> Authorization URL Parameters Deep Dive
-						</CollapsibleTitle>
-						<CollapsibleToggleIcon $collapsed={authRequestDetailsCollapsed}>
-							<FiChevronDown />
-						</CollapsibleToggleIcon>
-					</CollapsibleHeaderButton>
-					{!authRequestDetailsCollapsed && (
-						<CollapsibleContent>
-							<ParameterGrid>
+				{educationMode !== 'hidden' && (
+					<CollapsibleSection>
+						<CollapsibleHeaderButton
+							onClick={() => setAuthRequestOverviewCollapsed(!authRequestOverviewCollapsed)}
+							aria-expanded={!authRequestOverviewCollapsed}
+						>
+							<CollapsibleTitle>
+								<FiBook /> Understanding Authorization Requests
+							</CollapsibleTitle>
+							<CollapsibleToggleIcon $collapsed={authRequestOverviewCollapsed}>
+								<FiChevronDown />
+							</CollapsibleToggleIcon>
+						</CollapsibleHeaderButton>
+						{!authRequestOverviewCollapsed && (
+							<CollapsibleContent>
 								<InfoBox $variant="info">
-									<FiKey size={20} />
+									<FiInfo size={20} />
 									<div>
-										<InfoTitle>Required Parameters</InfoTitle>
-										<InfoList>
-											<li>
-												<strong>response_type:</strong>{' '}
-												{flowType === 'implicit'
-													? 'Must be "token" for implicit flow (tokens returned in fragment)'
-													: flowType === 'hybrid'
-														? 'Must be "code id_token" for hybrid flow (code + ID token)'
-														: 'Must be "code" for authorization code flow'}
-											</li>
-											<li>
-												<strong>client_id:</strong> Your application's unique identifier in PingOne
-											</li>
-											<li>
-												<strong>redirect_uri:</strong> Exact URL where PingOne sends the user back
-												after authorization
-											</li>
-											<li>
-												<strong>scope:</strong> Permissions you're requesting (openid, profile,
-												email, etc.)
-											</li>
-										</InfoList>
+										<InfoTitle>What Makes a Valid Authorization Request?</InfoTitle>
+										<InfoText>
+											An OAuth 2.0 authorization request contains specific parameters that tell the
+											authorization server how to authenticate the user and what permissions are
+											being requested.
+										</InfoText>
 									</div>
 								</InfoBox>
 
-								<InfoBox $variant="success">
-									<FiShield size={20} />
-									<div>
-										<InfoTitle>Security Parameters</InfoTitle>
-										<InfoList>
-											<li>
-												<strong>state:</strong> Random value to prevent CSRF attacks and maintain
-												session state
-											</li>
-											{(flowType === 'oauth-authz' || flowType === 'hybrid') && (
-												<>
-													<li>
-														<strong>code_challenge:</strong> PKCE parameter for secure code exchange
-													</li>
-													<li>
-														<strong>code_challenge_method:</strong> Always "S256" for SHA256 hashing
-													</li>
-												</>
-											)}
-											{(flowType === 'hybrid' ||
-												(flowType === 'oauth-authz' && specVersion === 'oidc')) && (
+								<ParameterGrid>
+									<ParameterCard>
+										<ParameterName>response_type</ParameterName>
+										<ParameterDesc>Determines the OAuth flow type</ParameterDesc>
+										<ParameterValues>
+											<strong>code:</strong> Authorization Code Flow
+											<br />
+											<strong>id_token:</strong> Implicit Flow (OIDC)
+											<br />
+											<strong>code id_token:</strong> Hybrid Flow
+											<br />
+											<strong>token:</strong> Deprecated Implicit Flow
+										</ParameterValues>
+									</ParameterCard>
+
+									<ParameterCard>
+										<ParameterName>client_id</ParameterName>
+										<ParameterDesc>Your application's unique identifier</ParameterDesc>
+										<ParameterValues>
+											Must match the client ID registered with the authorization server
+										</ParameterValues>
+									</ParameterCard>
+
+									<ParameterCard>
+										<ParameterName>redirect_uri</ParameterName>
+										<ParameterDesc>Where the authorization server sends the response</ParameterDesc>
+										<ParameterValues>
+											Must exactly match one of the registered redirect URIs for your client
+										</ParameterValues>
+									</ParameterCard>
+
+									<ParameterCard>
+										<ParameterName>scope</ParameterName>
+										<ParameterDesc>Requested permissions and access levels</ParameterDesc>
+										<ParameterValues>
+											<strong>openid:</strong> Required for OIDC
+											<br />
+											<strong>profile:</strong> User profile information
+											<br />
+											<strong>email:</strong> User email address
+											<br />
+											<strong>Custom scopes:</strong> API-specific permissions
+										</ParameterValues>
+									</ParameterCard>
+								</ParameterGrid>
+							</CollapsibleContent>
+						)}
+					</CollapsibleSection>
+				)}
+
+				{educationMode !== 'hidden' && (
+					<CollapsibleSection>
+						<CollapsibleHeaderButton
+							onClick={() => setAuthRequestDetailsCollapsed(!authRequestDetailsCollapsed)}
+							aria-expanded={!authRequestDetailsCollapsed}
+						>
+							<CollapsibleTitle>
+								<FiBook /> Authorization URL Parameters Deep Dive
+							</CollapsibleTitle>
+							<CollapsibleToggleIcon $collapsed={authRequestDetailsCollapsed}>
+								<FiChevronDown />
+							</CollapsibleToggleIcon>
+						</CollapsibleHeaderButton>
+						{!authRequestDetailsCollapsed && (
+							<CollapsibleContent>
+								<ParameterGrid>
+									<InfoBox $variant="info">
+										<FiKey size={20} />
+										<div>
+											<InfoTitle>Required Parameters</InfoTitle>
+											<InfoList>
 												<li>
-													<strong>nonce:</strong> Random value to prevent replay attacks on ID
-													tokens
+													<strong>response_type:</strong>{' '}
+													{flowType === 'implicit'
+														? 'Must be "token" for implicit flow (tokens returned in fragment)'
+														: flowType === 'hybrid'
+															? 'Must be "code id_token" for hybrid flow (code + ID token)'
+															: 'Must be "code" for authorization code flow'}
 												</li>
-											)}
+												<li>
+													<strong>client_id:</strong> Your application's unique identifier in
+													PingOne
+												</li>
+												<li>
+													<strong>redirect_uri:</strong> Exact URL where PingOne sends the user back
+													after authorization
+												</li>
+												<li>
+													<strong>scope:</strong> Permissions you're requesting (openid, profile,
+													email, etc.)
+												</li>
+											</InfoList>
+										</div>
+									</InfoBox>
+
+									<InfoBox $variant="success">
+										<FiShield size={20} />
+										<div>
+											<InfoTitle>Security Parameters</InfoTitle>
+											<InfoList>
+												<li>
+													<strong>state:</strong> Random value to prevent CSRF attacks and maintain
+													session state
+												</li>
+												{(flowType === 'oauth-authz' || flowType === 'hybrid') && (
+													<>
+														<li>
+															<strong>code_challenge:</strong> PKCE parameter for secure code
+															exchange
+														</li>
+														<li>
+															<strong>code_challenge_method:</strong> Always "S256" for SHA256
+															hashing
+														</li>
+													</>
+												)}
+												{(flowType === 'hybrid' ||
+													(flowType === 'oauth-authz' && specVersion === 'oidc')) && (
+													<li>
+														<strong>nonce:</strong> Random value to prevent replay attacks on ID
+														tokens
+													</li>
+												)}
+											</InfoList>
+										</div>
+									</InfoBox>
+								</ParameterGrid>
+
+								<InfoBox $variant="warning">
+									<FiAlertCircle size={20} />
+									<div>
+										<InfoTitle>Optional But Recommended Parameters</InfoTitle>
+										<InfoList>
+											<li>
+												<strong>prompt:</strong> Controls authentication behavior (none, login,
+												consent, select_account)
+											</li>
+											<li>
+												<strong>max_age:</strong> Maximum age of authentication session before
+												re-auth required
+											</li>
+											<li>
+												<strong>acr_values:</strong> Requested Authentication Context Class
+												Reference values
+											</li>
+											<li>
+												<strong>login_hint:</strong> Hint about the user identifier (email,
+												username)
+											</li>
 										</InfoList>
 									</div>
 								</InfoBox>
-							</ParameterGrid>
-
-							<InfoBox $variant="warning">
-								<FiAlertCircle size={20} />
-								<div>
-									<InfoTitle>Optional But Recommended Parameters</InfoTitle>
-									<InfoList>
-										<li>
-											<strong>prompt:</strong> Controls authentication behavior (none, login,
-											consent, select_account)
-										</li>
-										<li>
-											<strong>max_age:</strong> Maximum age of authentication session before re-auth
-											required
-										</li>
-										<li>
-											<strong>acr_values:</strong> Requested Authentication Context Class Reference
-											values
-										</li>
-										<li>
-											<strong>login_hint:</strong> Hint about the user identifier (email, username)
-										</li>
-									</InfoList>
-								</div>
-							</InfoBox>
-						</CollapsibleContent>
-					)}
-				</CollapsibleSection>
+							</CollapsibleContent>
+						)}
+					</CollapsibleSection>
+				)}
 
 				{(flowType === 'oauth-authz' || flowType === 'hybrid') &&
 					flowState.codeVerifier &&
@@ -7034,123 +7085,128 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				<p>Request device authorization to get a device code and user code.</p>
 
 				{/* Device Code Flow Educational Sections */}
-				<CollapsibleSection>
-					<CollapsibleHeaderButton
-						onClick={() => setDeviceCodeOverviewCollapsed(!deviceCodeOverviewCollapsed)}
-						aria-expanded={!deviceCodeOverviewCollapsed}
-					>
-						<CollapsibleTitle>
-							<FiBook /> What is Device Authorization Flow?
-						</CollapsibleTitle>
-						<CollapsibleToggleIcon $collapsed={deviceCodeOverviewCollapsed}>
-							<FiChevronDown />
-						</CollapsibleToggleIcon>
-					</CollapsibleHeaderButton>
-					{!deviceCodeOverviewCollapsed && (
-						<CollapsibleContent>
-							<InfoBox $variant="info">
-								<FiInfo size={20} />
-								<div>
-									<InfoTitle>Device Authorization Flow (RFC 8628)</InfoTitle>
-									<InfoText>
-										The Device Authorization Flow is designed for devices with limited input
-										capabilities, such as smart TVs, IoT devices, printers, and CLI tools. It allows
-										users to authorize devices using a separate device (like a smartphone or
-										computer) while the limited device polls for the authorization result.
-									</InfoText>
-								</div>
-							</InfoBox>
-
-							<InfoBox $variant="success">
-								<FiCheckCircle size={20} />
-								<div>
-									<InfoTitle>How Device Code Flow Works</InfoTitle>
-									<InfoList>
-										<li>
-											<strong>Step 1 (this step):</strong> Device requests authorization and
-											receives a device code and user code
-										</li>
-										<li>
-											<strong>Step 2:</strong> User enters the user code on a separate
-											device/browser to authorize
-										</li>
-										<li>
-											<strong>Step 3:</strong> Device polls the token endpoint until authorization
-											completes
-										</li>
-									</InfoList>
-								</div>
-							</InfoBox>
-						</CollapsibleContent>
-					)}
-				</CollapsibleSection>
-
-				<CollapsibleSection>
-					<CollapsibleHeaderButton
-						onClick={() => setDeviceCodeDetailsCollapsed(!deviceCodeDetailsCollapsed)}
-						aria-expanded={!deviceCodeDetailsCollapsed}
-					>
-						<CollapsibleTitle>
-							<FiBook /> Device Code vs Authorization Code & Use Cases
-						</CollapsibleTitle>
-						<CollapsibleToggleIcon $collapsed={deviceCodeDetailsCollapsed}>
-							<FiChevronDown />
-						</CollapsibleToggleIcon>
-					</CollapsibleHeaderButton>
-					{!deviceCodeDetailsCollapsed && (
-						<CollapsibleContent>
-							<ParameterGrid>
+				{educationMode !== 'hidden' && (
+					<CollapsibleSection>
+						<CollapsibleHeaderButton
+							onClick={() => setDeviceCodeOverviewCollapsed(!deviceCodeOverviewCollapsed)}
+							aria-expanded={!deviceCodeOverviewCollapsed}
+						>
+							<CollapsibleTitle>
+								<FiBook /> What is Device Authorization Flow?
+							</CollapsibleTitle>
+							<CollapsibleToggleIcon $collapsed={deviceCodeOverviewCollapsed}>
+								<FiChevronDown />
+							</CollapsibleToggleIcon>
+						</CollapsibleHeaderButton>
+						{!deviceCodeOverviewCollapsed && (
+							<CollapsibleContent>
 								<InfoBox $variant="info">
 									<FiInfo size={20} />
 									<div>
-										<InfoTitle>Device Code Flow</InfoTitle>
-										<InfoList>
-											<li>No browser redirect required</li>
-											<li>User authorizes on separate device</li>
-											<li>Device polls for tokens</li>
-											<li>Perfect for limited-input devices</li>
-										</InfoList>
+										<InfoTitle>Device Authorization Flow (RFC 8628)</InfoTitle>
+										<InfoText>
+											The Device Authorization Flow is designed for devices with limited input
+											capabilities, such as smart TVs, IoT devices, printers, and CLI tools. It
+											allows users to authorize devices using a separate device (like a smartphone
+											or computer) while the limited device polls for the authorization result.
+										</InfoText>
 									</div>
 								</InfoBox>
 
 								<InfoBox $variant="success">
 									<FiCheckCircle size={20} />
 									<div>
-										<InfoTitle>Authorization Code Flow</InfoTitle>
+										<InfoTitle>How Device Code Flow Works</InfoTitle>
 										<InfoList>
-											<li>Requires browser redirect</li>
-											<li>User authorizes in same browser</li>
-											<li>Code exchanged for tokens immediately</li>
-											<li>Perfect for web and mobile apps</li>
+											<li>
+												<strong>Step 1 (this step):</strong> Device requests authorization and
+												receives a device code and user code
+											</li>
+											<li>
+												<strong>Step 2:</strong> User enters the user code on a separate
+												device/browser to authorize
+											</li>
+											<li>
+												<strong>Step 3:</strong> Device polls the token endpoint until authorization
+												completes
+											</li>
 										</InfoList>
 									</div>
 								</InfoBox>
-							</ParameterGrid>
+							</CollapsibleContent>
+						)}
+					</CollapsibleSection>
+				)}
 
-							<InfoBox $variant="warning">
-								<FiAlertCircle size={20} />
-								<div>
-									<InfoTitle>Use Cases for Device Code Flow</InfoTitle>
-									<InfoList>
-										<li>
-											<strong>Smart TVs:</strong> Users authorize on their phone, TV gets access
-										</li>
-										<li>
-											<strong>IoT Devices:</strong> Sensors, cameras, and other devices without
-											keyboards
-										</li>
-										<li>
-											<strong>CLI Tools:</strong> Command-line applications that can't open browsers
-										</li>
-										<li>
-											<strong>Printers & Scanners:</strong> Office equipment needing cloud access
-										</li>
-									</InfoList>
-								</div>
-							</InfoBox>
-						</CollapsibleContent>
-					)}
-				</CollapsibleSection>
+				{educationMode !== 'hidden' && (
+					<CollapsibleSection>
+						<CollapsibleHeaderButton
+							onClick={() => setDeviceCodeDetailsCollapsed(!deviceCodeDetailsCollapsed)}
+							aria-expanded={!deviceCodeDetailsCollapsed}
+						>
+							<CollapsibleTitle>
+								<FiBook /> Device Code vs Authorization Code & Use Cases
+							</CollapsibleTitle>
+							<CollapsibleToggleIcon $collapsed={deviceCodeDetailsCollapsed}>
+								<FiChevronDown />
+							</CollapsibleToggleIcon>
+						</CollapsibleHeaderButton>
+						{!deviceCodeDetailsCollapsed && (
+							<CollapsibleContent>
+								<ParameterGrid>
+									<InfoBox $variant="info">
+										<FiInfo size={20} />
+										<div>
+											<InfoTitle>Device Code Flow</InfoTitle>
+											<InfoList>
+												<li>No browser redirect required</li>
+												<li>User authorizes on separate device</li>
+												<li>Device polls for tokens</li>
+												<li>Perfect for limited-input devices</li>
+											</InfoList>
+										</div>
+									</InfoBox>
+
+									<InfoBox $variant="success">
+										<FiCheckCircle size={20} />
+										<div>
+											<InfoTitle>Authorization Code Flow</InfoTitle>
+											<InfoList>
+												<li>Requires browser redirect</li>
+												<li>User authorizes in same browser</li>
+												<li>Code exchanged for tokens immediately</li>
+												<li>Perfect for web and mobile apps</li>
+											</InfoList>
+										</div>
+									</InfoBox>
+								</ParameterGrid>
+
+								<InfoBox $variant="warning">
+									<FiAlertCircle size={20} />
+									<div>
+										<InfoTitle>Use Cases for Device Code Flow</InfoTitle>
+										<InfoList>
+											<li>
+												<strong>Smart TVs:</strong> Users authorize on their phone, TV gets access
+											</li>
+											<li>
+												<strong>IoT Devices:</strong> Sensors, cameras, and other devices without
+												keyboards
+											</li>
+											<li>
+												<strong>CLI Tools:</strong> Command-line applications that can't open
+												browsers
+											</li>
+											<li>
+												<strong>Printers & Scanners:</strong> Office equipment needing cloud access
+											</li>
+										</InfoList>
+									</div>
+								</InfoBox>
+							</CollapsibleContent>
+						)}
+					</CollapsibleSection>
+				)}
 
 				{/* Show success if device code was received */}
 				{isComplete && (
@@ -7250,7 +7306,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							const _backendUrl =
 								process.env.NODE_ENV === 'production'
 									? 'https://oauth-playground.vercel.app'
-									: 'https://localhost:3001';
+									: 'https://localhost:3002';
 							// Use PingOne auth proxy to avoid CORS issues
 							const deviceAuthEndpoint = `${window.location.origin}/pingone-auth/${credentials.environmentId}/as/device_authorization`;
 							const authMethod =
@@ -10687,7 +10743,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				<p>Request an access token using client credentials.</p>
 
 				{/* Client Credentials Flow Educational Sections */}
-				{flowType === 'client-credentials' && (
+				{flowType === 'client-credentials' && educationMode !== 'hidden' && (
 					<>
 						<CollapsibleSection>
 							<CollapsibleHeaderButton
