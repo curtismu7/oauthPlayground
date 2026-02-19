@@ -257,13 +257,13 @@ const TestCallback = lazy(() => import('./pages/test/TestCallback'));
 const TokenStatusPageV8U = lazy(() => import('./v8u/pages/TokenStatusPageV8U'));
 const ApiStatusPage = lazy(() => import('./pages/ApiStatusPage'));
 
-// Import V7M pages
-const V7MOAuthAuthCode = lazy(() => import('./v7m/pages/V7MOAuthAuthCode'));
-const V7MDeviceAuthorization = lazy(() => import('./v7m/pages/V7MDeviceAuthorization'));
-const V7MClientCredentials = lazy(() => import('./v7m/pages/V7MClientCredentials'));
-const V7MImplicitFlow = lazy(() => import('./v7m/pages/V7MImplicitFlow'));
-const V7MROPC = lazy(() => import('./v7m/pages/V7MROPC'));
-const V7MSettings = lazy(() => import('./v7m/pages/V7MSettings'));
+// Import V7 pages
+const V7MOAuthAuthCode = lazy(() => import('./v7/pages/V7MOAuthAuthCode'));
+const V7MDeviceAuthorization = lazy(() => import('./v7/pages/V7MDeviceAuthorization'));
+const V7MClientCredentials = lazy(() => import('./v7/pages/V7MClientCredentials'));
+const V7MImplicitFlow = lazy(() => import('./v7/pages/V7MImplicitFlow'));
+const V7MROPC = lazy(() => import('./v7/pages/V7MROPC'));
+const V7MSettings = lazy(() => import('./v7/pages/V7MSettings'));
 
 const AppContainer = styled.div`
   display: flex;
@@ -740,9 +740,9 @@ const AppRoutes: React.FC = () => {
 								{/* Token Management Flows */}
 								<Route path="/flows/token-revocation" element={<TokenRevocationFlow />} />
 								<Route path="/flows/token-introspection" element={<TokenIntrospectionFlow />} />
-								{/* V7M Mock Educational Flow Routes */}
+								{/* V7 Mock Educational Flow Routes */}
 								<Route
-									path="/v7m/oauth/authorization-code"
+									path="/v7/oauth/authorization-code"
 									element={
 										<Suspense fallback={<div>Loading...</div>}>
 											<V7MOAuthAuthCode oidc={false} title="V7M OAuth Authorization Code" />
@@ -750,7 +750,7 @@ const AppRoutes: React.FC = () => {
 									}
 								/>
 								<Route
-									path="/v7m/oidc/authorization-code"
+									path="/v7/oidc/authorization-code"
 									element={
 										<Suspense fallback={<div>Loading...</div>}>
 											<V7MOAuthAuthCode oidc={true} title="V7M OIDC Authorization Code" />
@@ -758,7 +758,7 @@ const AppRoutes: React.FC = () => {
 									}
 								/>
 								<Route
-									path="/v7m/oauth/device-authorization"
+									path="/v7/oauth/device-authorization"
 									element={
 										<Suspense fallback={<div>Loading...</div>}>
 											<V7MDeviceAuthorization />
@@ -766,7 +766,7 @@ const AppRoutes: React.FC = () => {
 									}
 								/>
 								<Route
-									path="/v7m/oauth/client-credentials"
+									path="/v7/oauth/client-credentials"
 									element={
 										<Suspense fallback={<div>Loading...</div>}>
 											<V7MClientCredentials />
@@ -774,7 +774,7 @@ const AppRoutes: React.FC = () => {
 									}
 								/>
 								<Route
-									path="/v7m/oauth/implicit"
+									path="/v7/oauth/implicit"
 									element={
 										<Suspense fallback={<div>Loading...</div>}>
 											<V7MImplicitFlow oidc={false} title="V7M OAuth Implicit Flow" />
@@ -782,7 +782,7 @@ const AppRoutes: React.FC = () => {
 									}
 								/>
 								<Route
-									path="/v7m/oidc/implicit"
+									path="/v7/oidc/implicit"
 									element={
 										<Suspense fallback={<div>Loading...</div>}>
 											<V7MImplicitFlow oidc={true} title="V7M OIDC Implicit Flow" />
@@ -790,7 +790,7 @@ const AppRoutes: React.FC = () => {
 									}
 								/>
 								<Route
-									path="/v7m/oauth/ropc"
+									path="/v7/oauth/ropc"
 									element={
 										<Suspense fallback={<div>Loading...</div>}>
 											<V7MROPC oidc={false} title="V7M Resource Owner Password Credentials" />
@@ -798,7 +798,7 @@ const AppRoutes: React.FC = () => {
 									}
 								/>
 								<Route
-									path="/v7m/oidc/ropc"
+									path="/v7/oidc/ropc"
 									element={
 										<Suspense fallback={<div>Loading...</div>}>
 											<V7MROPC oidc={true} title="V7M OIDC Resource Owner Password Credentials" />
@@ -806,7 +806,7 @@ const AppRoutes: React.FC = () => {
 									}
 								/>
 								<Route
-									path="/v7m/settings"
+									path="/v7/settings"
 									element={
 										<Suspense fallback={<div>Loading...</div>}>
 											<V7MSettings />
