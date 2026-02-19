@@ -461,7 +461,7 @@ const UnitedAirlinesHero: React.FC<UnitedAirlinesHeroProps> = ({
 		return () => document.removeEventListener('mousedown', handleClickOutside);
 	}, []);
 
-	const handleLoginClick = () => {
+	const _handleLoginClick = () => {
 		setIsDropdownOpen(true);
 	};
 

@@ -3,6 +3,8 @@
 ## Overview
 The `run.sh` script provides a comprehensive solution for restarting your OAuth Playground servers with full error checking and status reporting.
 
+**📝 Start Server with ./run.sh from the main Master Flow API Directory**
+
 **Fixed Ports:**
 - Frontend (Vite): **Port 3000** (https://localhost:3000)
 - Backend (Express): **Port 3001** (https://localhost:3001)
@@ -12,6 +14,16 @@ The `run.sh` script provides a comprehensive solution for restarting your OAuth 
 ### Basic Usage
 ```bash
 ./run.sh
+```
+
+### Alternative Scripts
+```bash
+# Recommended alternatives
+npm start                              # Uses start-full-stack.sh
+./scripts/dev/start-full-stack.sh     # Direct script usage
+./scripts/development/run.sh          # Enhanced script with options
+./scripts/development/stop.sh          # Stop servers
+./run-correct.sh                      # Symlink to correct script
 ```
 
 ### What the Script Does

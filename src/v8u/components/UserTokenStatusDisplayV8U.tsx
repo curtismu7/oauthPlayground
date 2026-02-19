@@ -419,11 +419,30 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 
 	const checkAccessToken = useCallback(async (): Promise<UserTokenInfo | null> => {
 		try {
-			// Check localStorage for access token
-			const accessToken = localStorage.getItem('access_token');
+			// Check multiple storage locations for access tokens
+
+			// 1. Check sessionStorage for v8u unified flow tokens
+			let accessToken = sessionStorage.getItem('v8u_access_token');
+			if (!accessToken) {
+				// 2. Check localStorage for legacy tokens
+				accessToken = localStorage.getItem('access_token');
+			}
+			if (!accessToken) {
+				// 3. Check for tokens in callback data
+				const callbackData = sessionStorage.getItem('v8u_callback_data');
+				if (callbackData) {
+					try {
+						const parsed = JSON.parse(callbackData);
+						accessToken = parsed.access_token || parsed.token;
+					} catch (_e) {
+						// Ignore parsing errors
+					}
+				}
+			}
+
 			if (!accessToken) return null;
 
-			// Parse JWT to get expiration
+			// Parse JWT to get expiration and metadata
 			const payload = parseJWT(accessToken);
 			const now = Date.now();
 			const expiresAt = payload.exp * 1000;
@@ -451,8 +470,27 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 
 	const checkIdToken = useCallback(async (): Promise<UserTokenInfo | null> => {
 		try {
-			// Check localStorage for ID token
-			const idToken = localStorage.getItem('id_token');
+			// Check multiple storage locations for ID tokens
+
+			// 1. Check sessionStorage for v8u unified flow tokens
+			let idToken = sessionStorage.getItem('v8u_id_token');
+			if (!idToken) {
+				// 2. Check localStorage for legacy tokens
+				idToken = localStorage.getItem('id_token');
+			}
+			if (!idToken) {
+				// 3. Check for tokens in callback data
+				const callbackData = sessionStorage.getItem('v8u_callback_data');
+				if (callbackData) {
+					try {
+						const parsed = JSON.parse(callbackData);
+						idToken = parsed.id_token;
+					} catch (_e) {
+						// Ignore parsing errors
+					}
+				}
+			}
+
 			if (!idToken) return null;
 
 			// Parse JWT to get expiration
@@ -483,8 +521,27 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 
 	const checkRefreshToken = useCallback(async (): Promise<UserTokenInfo | null> => {
 		try {
-			// Check localStorage for refresh token
-			const refreshToken = localStorage.getItem('refresh_token');
+			// Check multiple storage locations for refresh tokens
+
+			// 1. Check sessionStorage for v8u unified flow tokens
+			let refreshToken = sessionStorage.getItem('v8u_refresh_token');
+			if (!refreshToken) {
+				// 2. Check localStorage for legacy tokens
+				refreshToken = localStorage.getItem('refresh_token');
+			}
+			if (!refreshToken) {
+				// 3. Check for tokens in callback data
+				const callbackData = sessionStorage.getItem('v8u_callback_data');
+				if (callbackData) {
+					try {
+						const parsed = JSON.parse(callbackData);
+						refreshToken = parsed.refresh_token;
+					} catch (_e) {
+						// Ignore parsing errors
+					}
+				}
+			}
+
 			if (!refreshToken) return null;
 
 			// Refresh tokens typically don't expire, but we can check if they exist
@@ -542,17 +599,64 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 
 	const clearToken = async (type: string) => {
 		try {
-			const storageKey =
-				type === 'access_token'
-					? 'access_token'
-					: type === 'id_token'
-						? 'id_token'
-						: 'refresh_token';
-			localStorage.removeItem(storageKey);
+			// Clear from multiple storage locations
+
+			if (type === 'access_token') {
+				// Clear from sessionStorage
+				sessionStorage.removeItem('v8u_access_token');
+				// Clear from localStorage (legacy)
+				localStorage.removeItem('access_token');
+				// Clear from callback data
+				const callbackData = sessionStorage.getItem('v8u_callback_data');
+				if (callbackData) {
+					try {
+						const parsed = JSON.parse(callbackData);
+						delete parsed.access_token;
+						delete parsed.token;
+						sessionStorage.setItem('v8u_callback_data', JSON.stringify(parsed));
+					} catch (_e) {
+						// Ignore parsing errors
+					}
+				}
+			} else if (type === 'id_token') {
+				// Clear from sessionStorage
+				sessionStorage.removeItem('v8u_id_token');
+				// Clear from localStorage (legacy)
+				localStorage.removeItem('id_token');
+				// Clear from callback data
+				const callbackData = sessionStorage.getItem('v8u_callback_data');
+				if (callbackData) {
+					try {
+						const parsed = JSON.parse(callbackData);
+						delete parsed.id_token;
+						sessionStorage.setItem('v8u_callback_data', JSON.stringify(parsed));
+					} catch (_e) {
+						// Ignore parsing errors
+					}
+				}
+			} else if (type === 'refresh_token') {
+				// Clear from sessionStorage
+				sessionStorage.removeItem('v8u_refresh_token');
+				// Clear from localStorage (legacy)
+				localStorage.removeItem('refresh_token');
+				// Clear from callback data
+				const callbackData = sessionStorage.getItem('v8u_callback_data');
+				if (callbackData) {
+					try {
+						const parsed = JSON.parse(callbackData);
+						delete parsed.refresh_token;
+						sessionStorage.setItem('v8u_callback_data', JSON.stringify(parsed));
+					} catch (_e) {
+						// Ignore parsing errors
+					}
+				}
+			}
+
+			toastV8.success(`${type.replace('_', ' ')} cleared successfully`);
+			// Refresh the display
 			await updateTokenStatus();
-			toastV8.success(`${type} cleared`);
 		} catch (_error) {
-			toastV8.error('Failed to clear token');
+			toastV8.error(`Failed to clear ${type}`);
 		}
 	};
 

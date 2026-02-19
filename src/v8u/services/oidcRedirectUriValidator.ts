@@ -18,9 +18,9 @@ export const OIDCRedirectUriValidator = {
 				`https://auth.pingone.com/${environmentId}/as/clients/${clientId}`,
 				{
 					headers: {
-						'Authorization': `Bearer ${await OIDCRedirectUriValidator.getAccessToken()}`,
-						'Content-Type': 'application/json'
-					}
+						Authorization: `Bearer ${await OIDCRedirectUriValidator.getAccessToken()}`,
+						'Content-Type': 'application/json',
+					},
 				}
 			);
 
@@ -43,5 +43,5 @@ export const OIDCRedirectUriValidator = {
 		// Implementation for getting admin access token
 		// This would use the worker token or admin credentials
 		return '';
-	}
+	},
 };
