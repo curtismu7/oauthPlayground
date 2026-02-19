@@ -373,7 +373,7 @@ const CorporateNavigation: React.FC<CorporateNavigationProps> = ({ config, onLog
 		setActiveDropdown(activeDropdown === linkText ? null : linkText);
 	};
 
-	const handleDropdownClose = () => {
+	const _handleDropdownClose = () => {
 		setActiveDropdown(null);
 	};
 

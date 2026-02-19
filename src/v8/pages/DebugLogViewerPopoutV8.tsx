@@ -16,11 +16,7 @@ import {
 	FiTrash2,
 } from 'react-icons/fi';
 import { type LogFile, LogFileService } from '@/services/logFileService';
-import {
-	PageHeaderGradients,
-	PageHeaderTextColors,
-	PageHeaderV8,
-} from '@/v8/components/shared/PageHeaderV8';
+// PageHeaderV8 removed - using compact inline header for space efficiency
 import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
 
 // Maximum string length to avoid browser crashes (approximately 50MB)
@@ -1039,109 +1035,65 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 				flexDirection: 'column',
 			}}
 		>
-			<PageHeaderV8
-				title="Debug Log Viewer (Popout)"
-				subtitle="View persistent debug logs and server log files with live tail - Free floating window!"
-				gradient={PageHeaderGradients.unifiedOAuth}
-				textColor={PageHeaderTextColors.darkBlue}
-			/>
-
-			{/* Keyboard Shortcuts Help */}
 			<div
 				style={{
-					background: '#f0f9ff',
-					border: '1px solid #bae6fd',
-					borderRadius: '8px',
-					padding: '16px',
-					marginBottom: '20px',
-					boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+					background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+					padding: '8px 16px',
+					borderRadius: '6px',
+					marginBottom: '12px',
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'space-between',
 				}}
 			>
-				<div style={{ fontSize: '14px', fontWeight: '600', color: '#0369a1', marginBottom: '8px' }}>
-					⌨️ Keyboard Shortcuts:
+				<div>
+					<h1 style={{ margin: 0, fontSize: '16px', fontWeight: '600', color: 'white' }}>
+						Debug Log Viewer
+					</h1>
+					<p style={{ margin: 0, fontSize: '11px', color: 'rgba(255,255,255,0.8)' }}>
+						Live tail • Popout window
+					</p>
 				</div>
-				<div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', fontSize: '13px' }}>
-					<div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-						<kbd
-							style={{
-								background: '#e2e8f0',
-								border: '1px solid #cbd5e1',
-								borderRadius: '4px',
-								padding: '2px 6px',
-								fontSize: '11px',
-								fontWeight: '600',
-							}}
-						>
-							↑ Arrow
-						</kbd>
-						<span style={{ color: '#64748b' }}>Scroll to top</span>
-					</div>
-					<div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-						<kbd
-							style={{
-								background: '#e2e8f0',
-								border: '1px solid #cbd5e1',
-								borderRadius: '4px',
-								padding: '2px 6px',
-								fontSize: '11px',
-								fontWeight: '600',
-							}}
-						>
-							↓ Arrow
-						</kbd>
-						<span style={{ color: '#64748b' }}>Scroll to bottom</span>
-					</div>
-					<div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-						<kbd
-							style={{
-								background: '#e2e8f0',
-								border: '1px solid #cbd5e1',
-								borderRadius: '4px',
-								padding: '2px 6px',
-								fontSize: '11px',
-								fontWeight: '600',
-							}}
-						>
-							R
-						</kbd>
-						<span style={{ color: '#64748b' }}>Refresh logs</span>
-					</div>
-					<div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-						<kbd
-							style={{
-								background: '#e2e8f0',
-								border: '1px solid #cbd5e1',
-								borderRadius: '4px',
-								padding: '2px 6px',
-								fontSize: '11px',
-								fontWeight: '600',
-							}}
-						>
-							Delete
-						</kbd>
-						<span style={{ color: '#64748b' }}>Clear logs</span>
-					</div>
-				</div>
-				<div style={{ fontSize: '12px', color: '#64748b', marginTop: '8px', fontStyle: 'italic' }}>
-					Note: Arrow keys work directly. R and Delete require Ctrl/Cmd modifier.
-				</div>
+			</div>
+
+			{/* Compact Keyboard Shortcuts */}
+			<div
+				style={{
+					background: '#f8fafc',
+					border: '1px solid #e2e8f0',
+					borderRadius: '4px',
+					padding: '6px 12px',
+					marginBottom: '10px',
+					display: 'flex',
+					alignItems: 'center',
+					gap: '12px',
+					fontSize: '11px',
+					color: '#64748b',
+				}}
+			>
+				<span style={{ fontWeight: '600', color: '#475569' }}>⌨️</span>
+				<span>↑↓: Scroll</span>
+				<span>•</span>
+				<span>R: Refresh</span>
+				<span>•</span>
+				<span>Del: Clear</span>
 			</div>
 
 			{/* Source Selection */}
 			<div
 				style={{
 					background: 'white',
-					borderRadius: '8px',
-					padding: '20px',
-					marginBottom: '20px',
-					boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+					borderRadius: '6px',
+					padding: '10px 12px',
+					marginBottom: '10px',
+					border: '1px solid #e2e8f0',
 				}}
 			>
-				<div style={{ marginBottom: '15px' }}>
+				<div style={{ marginBottom: '8px' }}>
 					<span
-						style={{ fontSize: '14px', fontWeight: '600', color: '#374151', marginRight: '12px' }}
+						style={{ fontSize: '12px', fontWeight: '600', color: '#374151', marginRight: '10px' }}
 					>
-						Log Source:
+						Source:
 					</span>
 					{sourceOptions.map((option, index) => (
 						<button
@@ -1149,22 +1101,22 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 							type="button"
 							onClick={() => setLogSource(option.value)}
 							style={{
-								padding: '8px 14px',
+								padding: '4px 10px',
 								background: logSource === option.value ? '#3b82f6' : '#f3f4f6',
 								color: logSource === option.value ? 'white' : '#374151',
 								border: 'none',
 								borderRadius:
 									index === 0
-										? '6px 0 0 6px'
+										? '4px 0 0 4px'
 										: index === sourceOptions.length - 1
-											? '0 6px 6px 0'
+											? '0 4px 4px 0'
 											: '0',
-								fontSize: '14px',
+								fontSize: '11px',
 								fontWeight: '600',
 								cursor: 'pointer',
 								display: 'inline-flex',
 								alignItems: 'center',
-								gap: '6px',
+								gap: '4px',
 							}}
 						>
 							{option.icon}
@@ -1174,18 +1126,18 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 				</div>
 
 				{logSource === 'localStorage' && (
-					<div style={{ marginBottom: '15px' }}>
+					<div style={{ marginBottom: '8px' }}>
 						<label
 							style={{
 								display: 'block',
-								fontSize: '14px',
+								fontSize: '11px',
 								fontWeight: '600',
 								color: '#374151',
-								marginBottom: '8px',
+								marginBottom: '4px',
 							}}
 							htmlFor="localstorage-log-select"
 						>
-							Select localStorage log key:
+							LocalStorage Key:
 						</label>
 						<select
 							id="localstorage-log-select"
@@ -1193,10 +1145,10 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 							onChange={(e) => setSelectedLocalStorageLog(e.target.value)}
 							style={{
 								width: '100%',
-								padding: '10px',
-								fontSize: '14px',
+								padding: '6px 8px',
+								fontSize: '12px',
 								border: '1px solid #d1d5db',
-								borderRadius: '6px',
+								borderRadius: '4px',
 								background: 'white',
 							}}
 						>
@@ -1210,18 +1162,18 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 				)}
 
 				{logSource === 'indexedDB' && (
-					<div style={{ marginBottom: '15px' }}>
+					<div style={{ marginBottom: '8px' }}>
 						<label
 							style={{
 								display: 'block',
-								fontSize: '14px',
+								fontSize: '11px',
 								fontWeight: '600',
 								color: '#374151',
-								marginBottom: '8px',
+								marginBottom: '4px',
 							}}
 							htmlFor="indexeddb-target-select"
 						>
-							Select IndexedDB target:
+							IndexedDB Target:
 						</label>
 						<select
 							id="indexeddb-target-select"
@@ -1229,10 +1181,10 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 							onChange={(e) => setSelectedIndexedDBTarget(e.target.value)}
 							style={{
 								width: '100%',
-								padding: '10px',
-								fontSize: '14px',
+								padding: '6px 8px',
+								fontSize: '12px',
 								border: '1px solid #d1d5db',
-								borderRadius: '6px',
+								borderRadius: '4px',
 								background: 'white',
 							}}
 						>
@@ -1249,18 +1201,18 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 				)}
 
 				{logSource === 'sqlite' && (
-					<div style={{ marginBottom: '15px' }}>
+					<div style={{ marginBottom: '8px' }}>
 						<label
 							style={{
 								display: 'block',
-								fontSize: '14px',
+								fontSize: '11px',
 								fontWeight: '600',
 								color: '#374151',
-								marginBottom: '8px',
+								marginBottom: '4px',
 							}}
 							htmlFor="sqlite-target-select"
 						>
-							Select SQLite endpoint:
+							SQLite Endpoint:
 						</label>
 						<select
 							id="sqlite-target-select"
@@ -1268,10 +1220,10 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 							onChange={(e) => setSelectedSQLiteTarget(e.target.value)}
 							style={{
 								width: '100%',
-								padding: '10px',
-								fontSize: '14px',
+								padding: '6px 8px',
+								fontSize: '12px',
 								border: '1px solid #d1d5db',
-								borderRadius: '6px',
+								borderRadius: '4px',
 								background: 'white',
 							}}
 						>

@@ -426,3 +426,80 @@
         - Fix summary (what changed)
         - Verification evidence
         - Inventory diffs (what you added/where)
+
+
+   Unified CIBA – NO-REGRESSION Fix Workflow (Windsurf)
+
+Repo: .
+Must follow:
+- SWE-15: SWE-15_UNIFIED_CIBA_GUIDE.md
+- Inventory: project/inventory/UNIFIED_CIBA_INVENTORY.md
+
+🛑 STOP-SHIP / NO REGRESSIONS (NON-NEGOTIABLE)
+REGRESSION = FAILURE. If anything breaks, is uncertain, or expands blast radius, STOP and change approach.
+
+You MUST NOT:
+- ship a fix without proof (tests + gate passing)
+- introduce any new failing checks
+- widen behavior changes beyond the targeted path
+- add “defaults/fallbacks” that can reset flows/state unexpectedly
+- change polling/interval/timeouts globally unless the change is explicitly scoped and proven safe (CIBA is timing-sensitive)
+
+You MUST:
+- choose the smallest safest fix
+- treat shared flows/services/components as HIGH RISK
+- ensure the regression gate catches this bug class going forward (fail non-zero)
+- update the inventory so this regression cannot reappear unnoticed
+- preserve protocol invariants (auth_req_id lifecycle, polling rules, error semantics, token binding if applicable)
+
+If you cannot meet the above, do not proceed—explain what’s blocking (missing tests, missing gate, unclear state source) and propose a safer plan.
+
+1) Baseline + Scope (before any code)
+- Reproduce the bug and describe scope (apps/services/flows impacted).
+- Identify which CIBA mode(s) are affected (poll, ping, push if supported).
+- Find the matching “issue hotspot” in project/inventory/UNIFIED_CIBA_INVENTORY.md.
+- Propose the smallest safe fix. Call out any risky/broad changes explicitly (shared OAuth client, token service, retry/backoff utilities).
+
+2) Clean Restart Policy (required for flow/server-impacting work)
+- From repo root run: ./run.sh -quick
+  (Fallback only if missing: ./restart.sh -quick)
+- Run restart BEFORE repro (clean baseline) and AFTER fix (before final verification).
+- Confirm services healthy per the guide.
+
+3) Implement (minimal diff, controlled blast radius)
+- Make the smallest change that fixes the bug.
+- Do not alter behavior outside the target path.
+- If you touch shared OAuth flows/services/components, assume cross-app blast radius and treat as HIGH RISK.
+- Preserve CIBA timing/error semantics:
+  - polling interval/backoff behavior
+  - `authorization_pending` / `slow_down` / `expired_token` (or your platform equivalents)
+  - auth_req_id issuance + storage + invalidation rules
+
+4) Verify (provide proof)
+- Run SWE-15 test/build steps.
+- Run the regression gate: ./comprehensive-inventory-check.sh (or CIBA equivalent).
+  - If a check for this bug class doesn’t exist, add it and ensure it FAILS non-zero on regressions.
+- Verification must include at least:
+  - happy path (initiate backchannel auth → user completes → token issued)
+  - pending path (poll before user completes → pending response behaves correctly)
+  - timeout/expiry path (auth_req_id expires → correct error + no token issuance)
+  - slow-down/backoff path (if supported) behaves as specified
+- In your response include:
+  - commands run (copy/paste)
+  - pass/fail summary
+  - files changed + why
+
+5) Inventory Update (so it can’t happen again)
+Update project/inventory/UNIFIED_CIBA_INVENTORY.md with:
+- Where it arises (paths/modules)
+- Prevention commands (grep/tests) that detect this regression
+- Gate notes (CI-friendly, fail non-zero)
+- A short “how to verify” snippet (including at least one pending/expiry case)
+
+PRODUCTION NOTE
+- For production-only changes, use project/inventory/PRODUCTION_INVENTORY.md as the source of truth.
+
+Docs (reference only)
+- PingOne: https://developer.pingidentity.com/pingone-api/getting-started/introduction.html
+- PingOne MFA: https://developer.pingidentity.com/pingone-api/mfa/introduction.html
+- PingOne Protect: https://developer.pingidentity.com/pingone-api/protect/introduction.html

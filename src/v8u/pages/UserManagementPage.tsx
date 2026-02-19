@@ -7,10 +7,9 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { FiAlertTriangle, FiEdit2, FiPlus, FiTrash2, FiUser, FiX } from 'react-icons/fi';
+import { FiEdit2, FiPlus, FiTrash2, FiUser } from 'react-icons/fi';
 import styled from 'styled-components';
 import { UserSearchDropdown } from '../../protect-app/components/UserSearchDropdown';
-import { userService } from '../../protect-app/services/UserService';
 import { useTheme } from '../contexts/ThemeContext';
 
 // ============================================================================
@@ -309,10 +308,10 @@ const UserManagementPage: React.FC = () => {
 	const [loading, setLoading] = useState(true);
 	const [searchTerm, setSearchTerm] = useState('');
 	const [statusFilter, setStatusFilter] = useState<string>('all');
-	const [showCreateModal, setShowCreateModal] = useState(false);
-	const [showEditModal, setShowEditModal] = useState(false);
-	const [showDeleteModal, setShowDeleteModal] = useState(false);
-	const [selectedUser, setSelectedUser] = useState<User | null>(null);
+	const [_showCreateModal, setShowCreateModal] = useState(false);
+	const [_showEditModal, setShowEditModal] = useState(false);
+	const [_showDeleteModal, setShowDeleteModal] = useState(false);
+	const [_selectedUser, setSelectedUser] = useState<User | null>(null);
 
 	// Load users
 	const loadUsers = async () => {
@@ -342,7 +341,7 @@ const UserManagementPage: React.FC = () => {
 		loadUsers();
 		loadRoles();
 		loadStatuses();
-	}, []);
+	}, [loadRoles, loadStatuses, loadUsers]);
 
 	// Filter users
 	const filteredUsers = users.filter((user) => {

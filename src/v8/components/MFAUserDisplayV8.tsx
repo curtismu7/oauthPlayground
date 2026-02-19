@@ -24,12 +24,12 @@ const Container = styled.div`
 
 const UsernameLabel = styled.span`
 	font-size: 14px;
-	color: #6b7280;
+	color: rgba(255, 255, 255, 0.9);
 	margin: 0;
 `;
 
 const UsernameValue = styled.strong`
-	color: #374151;
+	color: white;
 	font-size: 14px;
 `;
 

@@ -611,7 +611,8 @@ class TokenGatewayV8 {
 	private log(message: string, data?: Record<string, unknown>): void {
 		if (
 			this.debugEnabled ||
-			(typeof window !== 'undefined' && (window as { TOKEN_GATEWAY_DEBUG?: boolean }).TOKEN_GATEWAY_DEBUG)
+			(typeof window !== 'undefined' &&
+				(window as { TOKEN_GATEWAY_DEBUG?: boolean }).TOKEN_GATEWAY_DEBUG)
 		) {
 			if (data) {
 				console.log(`${MODULE_TAG} ${message}`, data);
@@ -634,8 +635,12 @@ export { TokenGatewayV8 };
 
 // Make available globally for debugging
 if (typeof window !== 'undefined') {
-	(window as { tokenGatewayV8?: typeof tokenGatewayV8; TOKEN_GATEWAY_DEBUG?: boolean }).tokenGatewayV8 = tokenGatewayV8;
-	(window as { tokenGatewayV8?: typeof tokenGatewayV8; TOKEN_GATEWAY_DEBUG?: boolean }).TOKEN_GATEWAY_DEBUG = false; // Set to true to enable debug logging
+	(
+		window as { tokenGatewayV8?: typeof tokenGatewayV8; TOKEN_GATEWAY_DEBUG?: boolean }
+	).tokenGatewayV8 = tokenGatewayV8;
+	(
+		window as { tokenGatewayV8?: typeof tokenGatewayV8; TOKEN_GATEWAY_DEBUG?: boolean }
+	).TOKEN_GATEWAY_DEBUG = false; // Set to true to enable debug logging
 }
 
 export default tokenGatewayV8;

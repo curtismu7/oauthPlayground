@@ -201,7 +201,7 @@ export function useEnhancedCredentialsTracking(options: UseEnhancedCredentialsTr
 				value,
 			});
 		},
-		[trackPerformance]
+		[trackPerformance, session.performance.fieldTimes]
 	);
 
 	/**

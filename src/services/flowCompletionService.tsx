@@ -23,8 +23,9 @@ export interface FlowCompletionConfig {
 	onStartNewFlow: () => void;
 	showUserInfo?: boolean;
 	showIntrospection?: boolean;
-	userInfo?: unknown;
-	introspectionResult?: unknown;
+	userInfo?: Record<string, unknown>;
+	introspectionResult?: Record<string, unknown>;
+	flowType?: string;
 }
 
 // Styled Components

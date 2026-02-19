@@ -681,7 +681,7 @@ class UserDatabaseService {
 		}
 
 		// Call the server's internal API endpoint
-		const response = await fetch('http://localhost:3001/api/pingone/mfa/list-users', {
+		const response = await fetch('https://localhost:3001/api/pingone/mfa/list-users', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
