@@ -141,6 +141,7 @@ import RedirectlessFlowV9_Real from './pages/flows/RedirectlessFlowV9_Real';
 import SAMLBearerAssertionFlowV7 from './pages/flows/SAMLBearerAssertionFlowV7';
 import SAMLServiceProviderFlowV1 from './pages/flows/SAMLServiceProviderFlowV1';
 import TokenIntrospectionFlow from './pages/flows/TokenIntrospectionFlow';
+import TokenIntrospectionFlowPingUI from './pages/flows/TokenIntrospectionFlow.PingUI';
 import TokenRevocationFlow from './pages/flows/TokenRevocationFlow';
 import UserInfoFlow from './pages/flows/UserInfoFlow';
 import UserInfoPostFlow from './pages/flows/UserInfoPostFlow';
@@ -230,6 +231,7 @@ const MobileFlowV8 = React.lazy(() =>
 import EnvironmentManagementPageV8 from './pages/EnvironmentManagementPageV8';
 import EnvironmentManagementPageV8PingUI from './pages/EnvironmentManagementPageV8.PingUI';
 import TokenExchangeFlowV9 from './pages/flows/TokenExchangeFlowV9';
+import TokenExchangeFlowV9PingUI from './pages/flows/TokenExchangeFlowV9.PingUI';
 // Import Protect Portal
 import ProtectPortalWrapper from './pages/protect-portal/ProtectPortalWrapper';
 import { CreateCompanyPage } from './pages/protect-portal/pages/CreateCompanyPage';
@@ -843,7 +845,10 @@ const AppRoutes: React.FC = () => {
 								/>
 								{/* Token Management Flows */}
 								<Route path="/flows/token-revocation" element={<TokenRevocationFlow />} />
-								<Route path="/flows/token-introspection" element={<TokenIntrospectionFlow />} />
+								<Route
+									path="/flows/token-introspection"
+									element={<TokenIntrospectionFlowPingUI />}
+								/>
 								{/* V7 Mock Educational Flow Routes */}
 								<Route
 									path="/v7/oauth/authorization-code"
@@ -1165,7 +1170,7 @@ const AppRoutes: React.FC = () => {
 								{/* V7 JWT Bearer Token Flow */}
 								<Route path="/flows/jwt-bearer-token-v7" element={<JWTBearerTokenFlowV7 />} />
 								{/* V9 Token Exchange Flow - Production */}
-								<Route path="/flows/token-exchange" element={<TokenExchangeFlowV9 />} />
+								<Route path="/flows/token-exchange-v9" element={<TokenExchangeFlowV9PingUI />} />
 								{/* V8M Token Exchange Flow */}
 								<Route path="/flows/token-exchange-v7" element={<V8MTokenExchangePingUI />} />
 								{/* Legacy V7 Token Exchange Flow */}
