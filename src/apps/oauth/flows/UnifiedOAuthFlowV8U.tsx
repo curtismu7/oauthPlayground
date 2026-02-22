@@ -50,8 +50,8 @@ import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { reloadCredentialsAfterReset } from '@/v8u/services/credentialReloadServiceV8U';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import { AdvancedOAuthFeatures } from '../components/AdvancedOAuthFeatures';
-import CredentialsFormV8U from '../components/CredentialsFormV8U';
-import { FlowGuidanceSystem } from '../components/FlowGuidanceSystem';
+import CredentialsFormV8U from '@/v8u/components/CredentialsFormV8U';
+import { FlowGuidanceSystem } from '@/apps/flows/components/FlowGuidanceSystem';
 // FlowNotAvailableModal removed - dropdown already filters flows by spec version
 import { FlowTypeSelector } from '../components/FlowTypeSelector';
 import { MobileResponsiveWrapper } from '../components/MobileResponsiveWrapper';

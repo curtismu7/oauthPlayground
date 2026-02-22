@@ -39,7 +39,7 @@ import {
 } from '@/v8/services/specVersionServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { AdvancedOAuthFeatures } from '../../unified/components/AdvancedOAuthFeatures';
-import CredentialsFormV8U from '../components/CredentialsFormV8U';
+import CredentialsFormV8U from '@/v8u/components/CredentialsFormV8U';
 import { FlowGuidanceSystem } from '../components/FlowGuidanceSystem';
 import { MobileResponsiveWrapper } from '../components/MobileResponsiveWrapper';
 import { SecurityScorecard } from '../components/SecurityScorecard';

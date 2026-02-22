@@ -21,13 +21,13 @@
  * - PingOne UI styling and components
  */
 
-import React, { useCallback, useEffect, useState, useMemo } from 'react';
-import { toastV8 } from '../v8/utils/toastNotificationsV8';
-import { EnvironmentIdServiceV8 } from '../v8/services/environmentIdServiceV8';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { MFAServiceV8 } from '../apps/mfa/services/mfaServiceV8';
 import { DeviceManagementService } from '../services/deviceManagementService';
-import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
+import { EnvironmentIdServiceV8 } from '../v8/services/environmentIdServiceV8';
 import { StorageServiceV8 } from '../v8/services/storageServiceV8';
+import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
+import { toastV8 } from '../v8/utils/toastNotificationsV8';
 
 // MDI Icon Mapping for React Icons → MDI CSS
 const getMDIIconClass = (fiIcon: string): string => {
@@ -106,7 +106,7 @@ const DeviceManagementV8PingUI: React.FC = () => {
 		const loadInitialData = async () => {
 			try {
 				setLoading(true);
-				
+
 				// Load environment ID
 				const envId = EnvironmentIdServiceV8.getEnvironmentId();
 				if (envId) {
@@ -138,34 +138,40 @@ const DeviceManagementV8PingUI: React.FC = () => {
 		};
 
 		loadInitialData();
-	}, []);
+	}, [loadDevices]);
 
 	// Load devices from API
-	const loadDevices = useCallback(async (token: string, user: string) => {
-		try {
-			const deviceList = await MFAServiceV8.getRegisteredDevices({
-				environmentId,
-				workerToken: token,
-				username: user,
-			});
-			
-			// Transform devices to our interface
-			const transformedDevices: Device[] = deviceList.map((device: any) => ({
-				id: device.id,
-				type: device.type,
-				status: device.status,
-				name: device.name || device.displayName || `${device.type} Device`,
-				createdAt: device.createdAt || new Date().toISOString(),
-				lastUsed: device.lastUsed,
-			}));
-			
-			setDevices(transformedDevices);
-		} catch (error) {
-			console.error('Failed to load devices:', error);
-			toastV8.error('Failed to load devices');
-			setDevices([]);
-		}
-	}, [environmentId]);
+	const loadDevices = useCallback(
+		async (token: string, user: string) => {
+			try {
+				const deviceList = await MFAServiceV8.getRegisteredDevices({
+					environmentId,
+					workerToken: token,
+					username: user,
+				});
+
+				// Transform devices to our interface
+				const transformedDevices: Device[] = deviceList.map((device: unknown) => {
+					const deviceObj = device as Record<string, unknown>;
+					return {
+						id: deviceObj.id as string,
+						type: deviceObj.type as string,
+						status: deviceObj.status as string,
+						name: (deviceObj.name as string) || (deviceObj.displayName as string) || `${deviceObj.type} Device`,
+						createdAt: (deviceObj.createdAt as string) || new Date().toISOString(),
+						lastUsed: deviceObj.lastUsed as string,
+					};
+				});
+
+				setDevices(transformedDevices);
+			} catch (error) {
+				console.error('Failed to load devices:', error);
+				toastV8.error('Failed to load devices');
+				setDevices([]);
+			}
+		},
+		[environmentId]
+	);
 
 	// Handle device selection
 	const handleDeviceSelection = useCallback((deviceId: string, selected: boolean) => {
@@ -190,37 +196,40 @@ const DeviceManagementV8PingUI: React.FC = () => {
 	}, [devices, selectedDevices.size]);
 
 	// Handle individual device deletion
-	const handleDeleteDevice = useCallback(async (deviceId: string) => {
-		if (!workerToken || !username) {
-			toastV8.error('Worker token and username are required');
-			return;
-		}
-
-		try {
-			setLoading(true);
-			
-			const result = await DeviceManagementService.deleteDevice(
-				{
-					environmentId,
-					workerToken,
-					username,
-				},
-				deviceId
-			);
-
-			if (result.success) {
-				toastV8.success('Device deleted successfully');
-				await loadDevices(workerToken, username);
-			} else {
-				toastV8.error(result.error || 'Failed to delete device');
+	const handleDeleteDevice = useCallback(
+		async (deviceId: string) => {
+			if (!workerToken || !username) {
+				toastV8.error('Worker token and username are required');
+				return;
 			}
-		} catch (error) {
-			console.error('Failed to delete device:', error);
-			toastV8.error('Failed to delete device');
-		} finally {
-			setLoading(false);
-		}
-	}, [workerToken, username, environmentId, loadDevices]);
+
+			try {
+				setLoading(true);
+
+				const result = await DeviceManagementService.deleteDevice(
+					{
+						environmentId,
+						workerToken,
+						username,
+					},
+					deviceId
+				);
+
+				if (result.success) {
+					toastV8.success('Device deleted successfully');
+					await loadDevices(workerToken, username);
+				} else {
+					toastV8.error(result.error || 'Failed to delete device');
+				}
+			} catch (error) {
+				console.error('Failed to delete device:', error);
+				toastV8.error('Failed to delete device');
+			} finally {
+				setLoading(false);
+			}
+		},
+		[workerToken, username, environmentId, loadDevices]
+	);
 
 	// Handle delete all devices
 	const handleDeleteAllDevices = useCallback(async () => {
@@ -231,7 +240,7 @@ const DeviceManagementV8PingUI: React.FC = () => {
 
 		try {
 			setIsDeleting(true);
-			
+
 			const result = await DeviceManagementService.deleteAllDevices(
 				{
 					environmentId,
@@ -239,7 +248,8 @@ const DeviceManagementV8PingUI: React.FC = () => {
 					username,
 				},
 				{
-					deviceType: deleteAllOptions.deviceType === 'ALL' ? undefined : deleteAllOptions.deviceType,
+					deviceType:
+						deleteAllOptions.deviceType === 'ALL' ? undefined : deleteAllOptions.deviceType,
 					status: deleteAllOptions.status === 'ALL' ? undefined : deleteAllOptions.status,
 					confirmBeforeDelete: false, // Already confirmed via modal
 				}
@@ -264,14 +274,20 @@ const DeviceManagementV8PingUI: React.FC = () => {
 	// Get device statistics
 	const deviceStats = useMemo(() => {
 		const total = devices.length;
-		const byType = devices.reduce((acc, device) => {
-			acc[device.type] = (acc[device.type] || 0) + 1;
-			return acc;
-		}, {} as Record<string, number>);
-		const byStatus = devices.reduce((acc, device) => {
-			acc[device.status] = (acc[device.status] || 0) + 1;
-			return acc;
-		}, {} as Record<string, number>);
+		const byType = devices.reduce(
+			(acc, device) => {
+				acc[device.type] = (acc[device.type] || 0) + 1;
+				return acc;
+			},
+			{} as Record<string, number>
+		);
+		const byStatus = devices.reduce(
+			(acc, device) => {
+				acc[device.status] = (acc[device.status] || 0) + 1;
+				return acc;
+			},
+			{} as Record<string, number>
+		);
 
 		return { total, byType, byStatus };
 	}, [devices]);
@@ -279,15 +295,15 @@ const DeviceManagementV8PingUI: React.FC = () => {
 	// Get filtered devices for delete all operation
 	const getFilteredDevicesForDeletion = useCallback(() => {
 		let filtered = devices;
-		
+
 		if (deleteAllOptions.deviceType !== 'ALL') {
 			filtered = filtered.filter((d) => d.type === deleteAllOptions.deviceType);
 		}
-		
+
 		if (deleteAllOptions.status !== 'ALL') {
 			filtered = filtered.filter((d) => d.status === deleteAllOptions.status);
 		}
-		
+
 		return filtered;
 	}, [devices, deleteAllOptions]);
 
@@ -312,7 +328,9 @@ const DeviceManagementV8PingUI: React.FC = () => {
 	};
 
 	// Get button style
-	const getButtonStyle = (variant: 'primary' | 'danger' | 'secondary' = 'primary'): React.CSSProperties => {
+	const getButtonStyle = (
+		variant: 'primary' | 'danger' | 'secondary' = 'primary'
+	): React.CSSProperties => {
 		const baseStyle: React.CSSProperties = {
 			display: 'inline-flex',
 			alignItems: 'center',
@@ -741,8 +759,8 @@ const DeviceManagementV8PingUI: React.FC = () => {
 											onChange={handleSelectAll}
 											style={{
 												marginRight: 'var(--ping-spacing-xs, 0.25rem)',
-											transform: 'scale(1.2)',
-											cursor: 'pointer',
+												transform: 'scale(1.2)',
+												cursor: 'pointer',
 											}}
 										/>
 									</th>
@@ -772,9 +790,7 @@ const DeviceManagementV8PingUI: React.FC = () => {
 										<td style={getCellStyle()}>{device.type}</td>
 										<td style={getCellStyle()}>{device.name}</td>
 										<td style={getCellStyle()}>
-											<span style={getStatusBadgeStyle(device.status)}>
-												{device.status}
-											</span>
+											<span style={getStatusBadgeStyle(device.status)}>{device.status}</span>
 										</td>
 										<td style={getCellStyle()}>
 											{new Date(device.createdAt).toLocaleDateString()}
@@ -811,6 +827,10 @@ const DeviceManagementV8PingUI: React.FC = () => {
 				{/* Delete All Devices Modal */}
 				{showDeleteAllModal && (
 					<div
+						role="dialog"
+						aria-modal="true"
+						aria-labelledby="delete-all-modal-title"
+						tabIndex={-1}
 						style={{
 							position: 'fixed',
 							top: 0,
@@ -822,6 +842,11 @@ const DeviceManagementV8PingUI: React.FC = () => {
 							alignItems: 'center',
 							justifyContent: 'center',
 							zIndex: 10000,
+						}}
+						onKeyDown={(e) => {
+							if (e.key === 'Escape') {
+								setShowDeleteAllModal(false);
+							}
 						}}
 						onClick={() => setShowDeleteAllModal(false)}
 					>
@@ -839,6 +864,7 @@ const DeviceManagementV8PingUI: React.FC = () => {
 							onClick={(e) => e.stopPropagation()}
 						>
 							<h2
+								id="delete-all-modal-title"
 								style={{
 									fontSize: '24px',
 									fontWeight: '600',
@@ -863,11 +889,13 @@ const DeviceManagementV8PingUI: React.FC = () => {
 									lineHeight: '1.6',
 								}}
 							>
-								This will permanently delete {getFilteredDevicesForDeletion().length} devices. This action cannot be undone.
+								This will permanently delete {getFilteredDevicesForDeletion().length} devices. This
+								action cannot be undone.
 							</p>
 
 							<div style={{ marginBottom: 'var(--ping-spacing-lg, 1.5rem)' }}>
 								<label
+									htmlFor="device-type-filter"
 									style={{
 										display: 'block',
 										marginBottom: 'var(--ping-spacing-sm, 0.5rem)',
@@ -878,6 +906,7 @@ const DeviceManagementV8PingUI: React.FC = () => {
 									Device Type Filter
 								</label>
 								<select
+									id="device-type-filter"
 									style={{
 										width: '100%',
 										padding: 'var(--ping-spacing-sm, 0.5rem)',
@@ -886,7 +915,9 @@ const DeviceManagementV8PingUI: React.FC = () => {
 										background: 'white',
 									}}
 									value={deleteAllOptions.deviceType}
-									onChange={(e) => setDeleteAllOptions({ ...deleteAllOptions, deviceType: e.target.value })}
+									onChange={(e) =>
+										setDeleteAllOptions({ ...deleteAllOptions, deviceType: e.target.value })
+									}
 								>
 									<option value="ALL">All Types</option>
 									<option value="SMS">SMS</option>
@@ -898,6 +929,7 @@ const DeviceManagementV8PingUI: React.FC = () => {
 
 							<div style={{ marginBottom: 'var(--ping-spacing-lg, 1.5rem)' }}>
 								<label
+									htmlFor="status-filter"
 									style={{
 										display: 'block',
 										marginBottom: 'var(--ping-spacing-sm, 0.5rem)',
@@ -908,6 +940,7 @@ const DeviceManagementV8PingUI: React.FC = () => {
 									Status Filter
 								</label>
 								<select
+									id="status-filter"
 									style={{
 										width: '100%',
 										padding: 'var(--ping-spacing-sm, 0.5rem)',
@@ -916,7 +949,9 @@ const DeviceManagementV8PingUI: React.FC = () => {
 										background: 'white',
 									}}
 									value={deleteAllOptions.status}
-									onChange={(e) => setDeleteAllOptions({ ...deleteAllOptions, status: e.target.value })}
+									onChange={(e) =>
+										setDeleteAllOptions({ ...deleteAllOptions, status: e.target.value })
+									}
 								>
 									<option value="ALL">All Statuses</option>
 									<option value="ACTIVE">Active</option>
