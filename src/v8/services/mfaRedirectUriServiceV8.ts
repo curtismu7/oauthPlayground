@@ -8,6 +8,7 @@
  * Each flow has its own unique redirect URI to return to the correct place in the app.
  */
 
+import { unifiedTokenStorage } from '@/services/unifiedTokenStorageService';
 import {
 	generateRedirectUriForFlow,
 	getAllFlowRedirectUriConfigs,
@@ -46,23 +47,33 @@ const PersistentLogger = {
 			url: window.location.href,
 		};
 
-		// Get existing logs
-		const existingLogs = PersistentLogger.getLogs();
+		// Get existing logs asynchronously and update
+		(async () => {
+			try {
+				const result = await unifiedTokenStorage.getMFADebugLogs(PERSISTENT_LOG_KEY);
+				const existingLogs: Array<{
+					timestamp: string;
+					level: 'INFO' | 'WARN' | 'ERROR';
+					category: string;
+					message: string;
+					data?: Record<string, unknown>;
+					url: string;
+				}> = result.success && result.data && result.data.length > 0 ? result.data[0] : [];
 
-		// Add new entry
-		existingLogs.push(entry);
+				// Add new entry
+				existingLogs.push(entry);
 
-		// Keep only the latest entries
-		if (existingLogs.length > MAX_LOG_ENTRIES) {
-			existingLogs.splice(0, existingLogs.length - MAX_LOG_ENTRIES);
-		}
+				// Keep only the latest entries
+				if (existingLogs.length > MAX_LOG_ENTRIES) {
+					existingLogs.splice(0, existingLogs.length - MAX_LOG_ENTRIES);
+				}
 
-		// Save to localStorage
-		try {
-			localStorage.setItem(PERSISTENT_LOG_KEY, JSON.stringify(existingLogs));
-		} catch (error) {
-			console.warn('Failed to save debug log to localStorage:', error);
-		}
+				// Save to unified storage
+				await unifiedTokenStorage.storeMFADebugLogs(PERSISTENT_LOG_KEY, existingLogs);
+			} catch (error) {
+				console.warn('Failed to save debug log to unified storage:', error);
+			}
+		})();
 
 		// Also log to console for immediate visibility
 		const consoleMethod =
@@ -73,19 +84,31 @@ const PersistentLogger = {
 	/**
 	 * Get all stored logs
 	 */
-	getLogs(): Array<{
-		timestamp: string;
-		level: 'INFO' | 'WARN' | 'ERROR';
-		category: string;
-		message: string;
-		data?: Record<string, unknown>;
-		url: string;
-	}> {
+	async getLogs(): Promise<
+		Array<{
+			timestamp: string;
+			level: 'INFO' | 'WARN' | 'ERROR';
+			category: string;
+			message: string;
+			data?: Record<string, unknown>;
+			url: string;
+		}>
+	> {
 		try {
-			const stored = localStorage.getItem(PERSISTENT_LOG_KEY);
-			return stored ? JSON.parse(stored) : [];
+			const result = await unifiedTokenStorage.getMFADebugLogs(PERSISTENT_LOG_KEY);
+			if (result.success && result.data && result.data.length > 0) {
+				return result.data[0] as Array<{
+					timestamp: string;
+					level: 'INFO' | 'WARN' | 'ERROR';
+					category: string;
+					message: string;
+					data?: Record<string, unknown>;
+					url: string;
+				}>;
+			}
+			return [];
 		} catch (error) {
-			console.warn('Failed to parse debug logs from localStorage:', error);
+			console.warn('Failed to get debug logs from unified storage:', error);
 			return [];
 		}
 	},
@@ -93,15 +116,19 @@ const PersistentLogger = {
 	/**
 	 * Clear all stored logs
 	 */
-	clearLogs(): void {
-		localStorage.removeItem(PERSISTENT_LOG_KEY);
+	async clearLogs(): Promise<void> {
+		try {
+			await unifiedTokenStorage.clearMFADebugLogs(PERSISTENT_LOG_KEY);
+		} catch (error) {
+			console.warn('Failed to clear debug logs from unified storage:', error);
+		}
 	},
 
 	/**
 	 * Get logs as formatted string for display
 	 */
-	getFormattedLogs(): string {
-		const logs = PersistentLogger.getLogs();
+	async getFormattedLogs(): Promise<string> {
+		const logs = await PersistentLogger.getLogs();
 		if (logs.length === 0) {
 			return 'No debug logs found';
 		}
@@ -455,22 +482,22 @@ export const MFARedirectUriServiceV8 = {
 	/**
 	 * Get all persistent debug logs
 	 */
-	getDebugLogs(): string {
-		return PersistentLogger.getFormattedLogs();
+	async getDebugLogs(): Promise<string> {
+		return await PersistentLogger.getFormattedLogs();
 	},
 
 	/**
 	 * Clear all persistent debug logs
 	 */
-	clearDebugLogs(): void {
-		PersistentLogger.clearLogs();
+	async clearDebugLogs(): Promise<void> {
+		await PersistentLogger.clearLogs();
 	},
 
 	/**
 	 * Export debug logs for analysis
 	 */
-	exportDebugLogs(): void {
-		const logs = PersistentLogger.getFormattedLogs();
+	async exportDebugLogs(): Promise<void> {
+		const logs = await PersistentLogger.getFormattedLogs();
 		const blob = new Blob([logs], { type: 'text/plain' });
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement('a');

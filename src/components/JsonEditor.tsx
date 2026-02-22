@@ -197,6 +197,7 @@ const JsonEditor: React.FC<JsonEditorProps> = ({
 					<EditorTitle>Edit JSON Configuration</EditorTitle>
 					<div style={{ display: 'flex', gap: '0.5rem' }}>
 						<button
+							type="button"
 							onClick={handleSave}
 							style={{
 								padding: '0.5rem 0.75rem',
@@ -211,6 +212,7 @@ const JsonEditor: React.FC<JsonEditorProps> = ({
 							Save
 						</button>
 						<button
+							type="button"
 							onClick={handleCancel}
 							style={{
 								padding: '0.5rem 0.75rem',
@@ -255,6 +257,7 @@ const JsonEditor: React.FC<JsonEditorProps> = ({
 				<div style={{ display: 'flex', gap: '0.5rem' }}>
 					{!readOnly && (
 						<button
+							type="button"
 							onClick={handleEdit}
 							style={{
 								padding: '0.5rem 0.75rem',

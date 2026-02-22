@@ -3,7 +3,7 @@
 ###############################################################################
 # ⚠️ CRITICAL FILE - DO NOT DELETE OR MOVE ⚠️
 # 
-# This file is the primary entry point for starting the OAuth Playground application.
+# This file is the primary entry point for starting the MasterFlow API application.
 # It contains comprehensive startup logic including lockdown verification, health checks,
 # status reports, and log tailing.
 #
@@ -15,7 +15,7 @@
 #
 ###############################################################################
 
-# OAuth Playground - Server Restart Script
+# MasterFlow API - Server Restart Script
 # Kills all servers, restarts them, checks for errors, and reports status
 # Version: 1.0.0
 
@@ -30,13 +30,758 @@ PURPLE='\033[0;35m'
 CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
-# Configuration - Fixed ports for OAuth Playground
+# Function to print colored output
+print_status() {
+    echo -e "${BLUE}[$(date +'%H:%M:%S')]${NC} $1"
+}
+
+print_success() {
+    echo -e "${GREEN}[$(date +'%H:%M:%S')] ✅${NC} $1"
+}
+
+print_warning() {
+    echo -e "${YELLOW}[$(date +'%H:%M:%S')] ⚠️${NC} $1"
+}
+
+print_error() {
+    echo -e "${RED}[$(date +'%H:%M:%S')] ❌${NC} $1"
+}
+
+print_info() {
+    echo -e "${CYAN}[$(date +'%H:%M:%S')] ℹ️${NC} $1"
+}
+
+# Configuration - Fixed ports for MasterFlow API
 # These ports are hardcoded to ensure consistency with OAuth redirect URIs
 # and API endpoint configurations. Do not change these values.
 FRONTEND_PORT=3000  # Vite dev server (HTTPS)
 BACKEND_PORT=3001   # Express API server (HTTPS only)
-FRONTEND_URL="https://localhost:${FRONTEND_PORT}"
-BACKEND_URL="https://localhost:${BACKEND_PORT}"
+
+# Function to read custom domain from .env.local
+read_custom_domain() {
+    local env_file=".env.local"
+    local default_domain="https://api.pingdemo.com"
+    
+    if [ -f "$env_file" ]; then
+        # Read VITE_APP_DOMAIN from .env.local
+        local custom_domain=$(grep "^VITE_APP_DOMAIN=" "$env_file" 2>/dev/null | cut -d'=' -f2- | tr -d '"' | tr -d "'" | sed 's/\r$//')
+        
+        if [ -n "$custom_domain" ] && [ "$custom_domain" != "https://localhost:3000" ]; then
+            # Extract domain without port for display
+            local domain_host=$(echo "$custom_domain" | sed 's|^https\?://||' | cut -d':' -f1)
+            
+            # Update URLs to use custom domain
+            FRONTEND_URL="${custom_domain}:${FRONTEND_PORT}"
+            BACKEND_URL="${custom_domain}:${BACKEND_PORT}"
+            
+            # Set flag for custom domain mode
+            USE_CUSTOM_DOMAIN=true
+            CUSTOM_DOMAIN_HOST="$domain_host"
+            
+            print_info "Custom domain detected: $custom_domain"
+            return 0
+        fi
+    fi
+    
+    # Check if we should auto-configure default domain
+    if [ ! -f "$env_file" ] || ! grep -q "VITE_APP_DOMAIN" "$env_file" 2>/dev/null; then
+        # Auto-configure default domain
+        print_info "No custom domain configured, using default: $default_domain"
+        
+        # Update URLs to use default domain
+        FRONTEND_URL="${default_domain}:${FRONTEND_PORT}"
+        BACKEND_URL="${default_domain}:${BACKEND_PORT}"
+        
+        # Set flag for custom domain mode
+        USE_CUSTOM_DOMAIN=true
+        CUSTOM_DOMAIN_HOST="api.pingdemo.com"
+        
+        # Create .env.local with default domain
+        create_default_env_file "$default_domain"
+        
+        return 0
+    fi
+    
+    # Default to localhost
+    FRONTEND_URL="https://localhost:${FRONTEND_PORT}"
+    BACKEND_URL="https://localhost:${BACKEND_PORT}"
+    USE_CUSTOM_DOMAIN=false
+    CUSTOM_DOMAIN_HOST="localhost"
+    
+    return 1
+}
+
+# Function to create default .env.local file
+create_default_env_file() {
+    local domain="$1"
+    local clean_domain=$(echo "$domain" | sed 's|^https\?://||')
+    
+    cat > .env.local << EOF
+# Custom Domain Configuration
+# Generated automatically by MasterFlow API startup script
+# Date: $(date -Iseconds)
+
+# Frontend Configuration
+VITE_APP_DOMAIN=$domain
+PINGONE_APP_DOMAIN=$domain
+
+# Dev Server Configuration
+PINGONE_DEV_SERVER_PORT=3000
+PINGONE_DEV_SERVER_HTTPS=true
+
+# Backend Configuration
+FRONTEND_URL=$domain:3000
+BACKEND_URL=$domain:3001
+
+# CORS Configuration
+FRONTEND_DOMAIN=$domain:3000
+
+# API Configuration
+PINGONE_API_URL=https://api.pingone.com
+
+# Custom Domain Mode
+USE_CUSTOM_DOMAIN=true
+EOF
+    
+    print_info "Created .env.local with default domain: $domain"
+}
+
+# Initialize configuration
+read_custom_domain
+
+# Custom Domain Setup Functions
+clear_domain_setup() {
+    print_status "🧹 Clearing Existing Domain Setup"
+    
+    local cleared=false
+    
+    # Clear .env.local file
+    if [ -f ".env.local" ]; then
+        print_info "Removing .env.local file..."
+        rm .env.local
+        cleared=true
+    fi
+    
+    # Get current domain from .env.local if it exists (before removal)
+    local current_domain=""
+    if [ -f ".env.local" ] 2>/dev/null; then
+        current_domain=$(grep "^VITE_APP_DOMAIN=" ".env.local" 2>/dev/null | cut -d'=' -f2- | tr -d '"' | tr -d "'" | sed 's|^https\?://||')
+    fi
+    
+    # Clear SSL certificates for current domain
+    if [ -n "$current_domain" ]; then
+        local key_file="${current_domain}.key"
+        local cert_file="${current_domain}.crt"
+        
+        if [ -f "$key_file" ]; then
+            print_info "Removing SSL key file: $key_file"
+            rm "$key_file"
+            cleared=true
+        fi
+        
+        if [ -f "$cert_file" ]; then
+            print_info "Removing SSL certificate file: $cert_file"
+            rm "$cert_file"
+            cleared=true
+        fi
+        
+        # Remove backup files
+        if [ -f "${key_file}.backup" ]; then
+            print_info "Removing SSL key backup: ${key_file}.backup"
+            rm "${key_file}.backup"
+            cleared=true
+        fi
+        
+        if [ -f "${cert_file}.backup" ]; then
+            print_info "Removing SSL certificate backup: ${cert_file}.backup"
+            rm "${cert_file}.backup"
+            cleared=true
+        fi
+    fi
+    
+    # Clear any other certificate files (common names)
+    for cert_file in *.crt; do
+        if [ -f "$cert_file" ]; then
+            print_info "Removing certificate file: $cert_file"
+            rm "$cert_file"
+            cleared=true
+        fi
+    done
+    
+    for key_file in *.key; do
+        if [ -f "$key_file" ]; then
+            print_info "Removing key file: $key_file"
+            rm "$key_file"
+            cleared=true
+        fi
+    done
+    
+    if [ "$cleared" = true ]; then
+        print_success "Domain setup cleared successfully"
+    else
+        print_info "No existing domain setup found to clear"
+    fi
+}
+
+setup_custom_domain() {
+    show_setup_banner
+    
+    if [ "$SKIP_SETUP" = true ]; then
+        print_info "📋 Skipping custom domain setup (already configured)"
+        return 0  # This should continue to server startup, not exit
+    fi
+    
+    print_status "🌐 Custom Domain Setup"
+    print_info "This will configure your custom domain for MasterFlow API"
+    
+    # Check if existing domain setup exists
+    local existing_setup=false
+    if [ -f ".env.local" ] || [ -f "*.crt" ] || [ -f "*.key" ]; then
+        existing_setup=true
+    fi
+    
+    # If existing setup found, ask if user wants to clear it
+    if [ "$existing_setup" = true ] && [ "$QUICK_MODE" = false ]; then
+        print_warning "Existing domain setup detected"
+        print_info "Found: .env.local file and/or SSL certificates"
+        
+        local clear_setup=$(prompt "Clear existing domain setup before configuring new domain? (y/N)")
+        
+        if [[ "$clear_setup" =~ ^[Yy]$ ]]; then
+            clear_domain_setup
+        else
+            print_info "Keeping existing domain setup"
+            print_warning "Note: This may cause conflicts if changing domains"
+        fi
+    fi
+    
+    # Get domain from user
+    local domain_input
+    local default_domain="api.pingdemo.com"
+    
+    if [ "$QUICK_MODE" = false ]; then
+        while true; do
+            domain_input=$(prompt "Enter your custom domain (default: $default_domain)")
+            
+            # Use default if user just presses Enter
+            if [ -z "$domain_input" ]; then
+                domain_input="$default_domain"
+                print_info "Using default domain: $domain_input"
+            fi
+            
+            # Validate domain
+            if validate_domain "$domain_input"; then
+                break
+            else
+                print_error "Invalid domain format. Domain must be in format: xxx.xxxxxx.xxx"
+                print_error "Examples: auth.pingdemo.com, api.myapp.com, app.example.org"
+                print_error "Requirements: 2+ characters for subdomain and domain, 2-10 letters for TLD"
+            fi
+        done
+    else
+        domain_input="$default_domain"
+        print_info "Quick mode: Using default domain: $domain_input"
+    fi
+    
+    local domain=$(echo "$domain_input" | sed 's|^https\?://||')
+    local clean_domain_for_files="$domain"
+    
+    print_success "Domain validated: $domain"
+    
+    # Configure hosts file automatically
+    if ! configure_hosts_file "$domain"; then
+        print_error "Hosts file configuration failed"
+        print_info "Please configure your hosts file manually and try again"
+        return 1
+    fi
+    
+    # Generate SSL certificates automatically
+    if ! generate_ssl_certificates "$clean_domain_for_files"; then
+        print_error "SSL certificate generation failed"
+        print_info "Please ensure OpenSSL is installed and try again"
+        return 1
+    fi
+    
+    # Verify SSL certificates
+    if ! verify_ssl_certificates "$clean_domain_for_files"; then
+        print_warning "SSL certificate verification failed"
+        print_info "You may encounter SSL certificate errors"
+    fi
+    
+    # Configure browser trust (macOS only)
+    configure_browser_trust "$clean_domain_for_files" || true
+    
+    # Create .env.local if it doesn't exist
+    if [ ! -f ".env.local" ]; then
+        create_default_env_file "$domain"
+    fi
+    
+    print_success "Custom domain setup completed successfully!"
+    return 0
+}
+
+show_setup_banner() {
+    echo -e "${PURPLE}"
+    echo "╔══════════════════════════════════════════════════════════════════════════════╗"
+    echo "║                                                                              ║"
+    echo "║                    🌐 Custom Domain Setup Utility 🌐                        ║"
+    echo "║                    Interactive Configuration Tool                           ║"
+    echo "║                                                                              ║"
+    echo "║  This script will:                                                          ║"
+    echo "║  1. Prompt for your custom domain (default: auth.pingdemo.com)             ║"
+    echo "║  2. Validate domain format and accessibility                               ║"
+    echo "║  3. Generate .env.local with all environment variables                      ║"
+    echo "║  4. Configure hosts file automatically                                      ║"
+    echo "║  5. Generate SSL certificates automatically                                 ║"
+    echo "║  6. Configure browser trust (macOS)                                         ║"
+    echo "║  7. Provide step-by-step setup instructions                                 ║"
+    echo "║  8. Show verification commands and troubleshooting tips                     ║"
+    echo "║                                                                              ║"
+    echo "║  🔧 OpenSSL Commands That Will Be Run:                                     ║"
+    echo "║  • openssl req -x509 -nodes -days 365 -newkey rsa:2048                     ║"
+    echo "║    -keyout DOMAIN.key -out DOMAIN.crt                                     ║"
+    echo "║    -subj \"/C=US/ST=State/L/City/O=Development/CN=DOMAIN\"                ║"
+    echo "║  • openssl x509 -in DOMAIN.crt -noout -subject -dates                       ║"
+    echo "║  • security add-trusted-cert (macOS browser trust)                          ║"
+    echo "║                                                                              ║"
+    echo "║  🖥️  Hosts File Commands That Will Be Run:                                 ║"
+    echo "║  • sudo sh -c 'echo \"127.0.0.1 DOMAIN\" >> /etc/hosts'                    ║"
+    echo "║  • sudo sh -c 'echo \"::1 DOMAIN\" >> /etc/hosts'                          ║"
+    echo "║  (Windows: Manual edit of C:\\Windows\\System32\\drivers\\etc\\hosts)      ║"
+    echo "║                                                                              ║"
+    echo "╚══════════════════════════════════════════════════════════════════════════════╝"
+    echo -e "${NC}"
+}
+
+validate_domain() {
+    local domain="$1"
+    
+    # Remove protocol if present
+    local clean_domain=$(echo "$domain" | sed 's|^https\?://||')
+    
+    # Count the number of parts (dots)
+    local dot_count=$(echo "$clean_domain" | tr -cd '.' | wc -c)
+    
+    # Must have exactly 2 dots (3 parts: subdomain.domain.tld)
+    if [ "$dot_count" -ne 2 ]; then
+        return 1
+    fi
+    
+    # Extract parts
+    local subdomain=$(echo "$clean_domain" | cut -d. -f1)
+    local domain_part=$(echo "$clean_domain" | cut -d. -f2)
+    local tld=$(echo "$clean_domain" | cut -d. -f3)
+    
+    # Validate each part
+    # Subdomain: 2+ chars, alphanumeric and hyphens, starts and ends with alphanumeric
+    if ! echo "$subdomain" | grep -qE '^[a-zA-Z0-9][a-zA-Z0-9-]{1,}[a-zA-Z0-9]$'; then
+        return 1
+    fi
+    
+    # Domain: 2+ chars, alphanumeric and hyphens, starts and ends with alphanumeric
+    if ! echo "$domain_part" | grep -qE '^[a-zA-Z0-9][a-zA-Z0-9-]{1,}[a-zA-Z0-9]$'; then
+        return 1
+    fi
+    
+    # TLD: 2-10 chars, letters only
+    if ! echo "$tld" | grep -qE '^[a-zA-Z]{2,10}$'; then
+        return 1
+    fi
+    
+    return 0
+}
+
+prompt() {
+    local question="$1"
+    local default="$2"
+    local response
+    
+    if [ -n "$default" ]; then
+        echo -e "${CYAN}${question} [${default}]${NC}" >&2
+        read -r response
+        echo "${response:-$default}"
+    else
+        echo -e "${CYAN}${question}${NC}" >&2
+        read -r response
+        echo "$response"
+    fi
+}
+
+detect_os() {
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        echo "macos"
+    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        echo "linux"
+    elif [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]]; then
+        echo "windows"
+    else
+        echo "unknown"
+    fi
+}
+
+configure_hosts_file() {
+    local domain="$1"
+    local clean_domain=$(echo "$domain" | sed 's|^https\?://||')
+    local os=$(detect_os)
+    
+    print_status "🔧 Configuring Hosts File"
+    print_info "Detected OS: $os"
+    print_info "Domain: $clean_domain"
+    
+    case "$os" in
+        "macos"|"linux")
+            print_info "Configuring hosts file for Unix-based system..."
+            
+            # Check if entry already exists
+            if grep -q "$clean_domain" /etc/hosts 2>/dev/null; then
+                print_warning "Domain $clean_domain already exists in /etc/hosts"
+                if [ "$QUICK_MODE" = false ]; then
+                    local update=$(prompt "Update existing entry? (y/N)")
+                    
+                    if [[ "$update" =~ ^[Yy]$ ]]; then
+                        # Remove existing entries
+                        sudo sed -i.bak "/$clean_domain/d" /etc/hosts
+                        print_success "Removed existing entries for $clean_domain"
+                    else
+                        print_info "Skipping hosts file configuration"
+                        return 0
+                    fi
+                else
+                    print_info "Quick mode: Skipping hosts file configuration (entry exists)"
+                    return 0
+                fi
+            fi
+            
+            # Add new entries
+            print_info "Adding domain entries to /etc/hosts..."
+            if sudo sh -c "echo '127.0.0.1 $clean_domain' >> /etc/hosts" && \
+               sudo sh -c "echo '::1 $clean_domain' >> /etc/hosts"; then
+                print_success "Hosts file configured successfully"
+                print_info "Added entries:"
+                print_info "  127.0.0.1 $clean_domain"
+                print_info "  ::1 $clean_domain"
+            else
+                print_error "Failed to configure hosts file"
+                print_info "You may need to run these commands manually:"
+                print_info "  sudo sh -c 'echo \"127.0.0.1 $clean_domain\" >> /etc/hosts'"
+                print_info "  sudo sh -c 'echo \"::1 $clean_domain\" >> /etc/hosts'"
+                return 1
+            fi
+            ;;
+            
+        "windows")
+            print_warning "Windows detected - automatic hosts file configuration not supported"
+            print_info "Please manually add these entries to C:\\Windows\\System32\\drivers\\etc\\hosts (as Administrator):"
+            print_info "  127.0.0.1 $clean_domain"
+            print_info "  ::1 $clean_domain"
+            
+            if [ "$QUICK_MODE" = false ]; then
+                local manual=$(prompt "Have you manually added these entries? (y/N)")
+                if [[ ! "$manual" =~ ^[Yy]$ ]]; then
+                    print_warning "Please add the hosts file entries before continuing"
+                    return 1
+                fi
+            else
+                print_warning "Quick mode: Assuming hosts file is configured"
+            fi
+            ;;
+            
+        "unknown")
+            print_warning "Unknown OS detected - manual configuration required"
+            print_info "Please add these entries to your hosts file:"
+            print_info "  127.0.0.1 $clean_domain"
+            print_info "  ::1 $clean_domain"
+            
+            if [ "$QUICK_MODE" = false ]; then
+                local manual=$(prompt "Have you added these entries? (y/N)")
+                if [[ ! "$manual" =~ ^[Yy]$ ]]; then
+                    print_warning "Please add the hosts file entries before continuing"
+                    return 1
+                fi
+            else
+                print_warning "Quick mode: Assuming hosts file is configured"
+            fi
+            ;;
+    esac
+    
+    return 0
+}
+
+check_openssl() {
+    if command -v openssl &> /dev/null; then
+        local openssl_version
+        if openssl_version=$(openssl version 2>/dev/null); then
+            print_success "OpenSSL is available: $openssl_version"
+            return 0
+        else
+            print_warning "OpenSSL command found but version check failed"
+            return 1
+        fi
+    else
+        print_warning "OpenSSL is not installed or not in PATH"
+        return 1
+    fi
+}
+
+ensure_openssl() {
+    if check_openssl; then
+        return 0
+    else
+        print_warning "OpenSSL is not installed"
+        
+        if [ "$QUICK_MODE" = false ]; then
+            local install=$(prompt "Install OpenSSL automatically? (y/N)")
+            
+            if [[ "$install" =~ ^[Yy]$ ]]; then
+                if install_openssl; then
+                    print_success "OpenSSL installation completed"
+                    return 0
+                else
+                    print_error "OpenSSL installation failed"
+                    print_info "Please install OpenSSL manually and try again"
+                    return 1
+                fi
+            else
+                print_info "Skipping OpenSSL installation"
+                print_info "Please install OpenSSL manually and try again"
+                return 1
+            fi
+        else
+            print_warning "Quick mode: Please install OpenSSL manually before continuing"
+            return 1
+        fi
+    fi
+}
+
+install_openssl() {
+    local os=$(detect_os)
+    
+    print_status "🔧 Installing OpenSSL"
+    print_info "Detected OS: $os"
+    
+    case "$os" in
+        "macos")
+            print_info "Installing OpenSSL on macOS using Homebrew..."
+            
+            if command -v brew &> /dev/null; then
+                print_info "Homebrew found, installing OpenSSL..."
+                if brew install openssl; then
+                    print_success "OpenSSL installed successfully via Homebrew"
+                    return 0
+                else
+                    print_error "Failed to install OpenSSL via Homebrew"
+                    return 1
+                fi
+            else
+                print_warning "Homebrew not found"
+                print_info "Please install Homebrew first:"
+                print_info "  /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
+                print_info ""
+                print_info "Then install OpenSSL:"
+                print_info "  brew install openssl"
+                return 1
+            fi
+            ;;
+            
+        "linux")
+            print_info "Installing OpenSSL on Linux..."
+            
+            if command -v apt-get &> /dev/null; then
+                print_info "Using apt-get to install OpenSSL..."
+                if sudo apt-get update && sudo apt-get install -y openssl; then
+                    print_success "OpenSSL installed successfully via apt-get"
+                    return 0
+                else
+                    print_error "Failed to install OpenSSL via apt-get"
+                    return 1
+                fi
+            elif command -v yum &> /dev/null; then
+                print_info "Using yum to install OpenSSL..."
+                if sudo yum install -y openssl; then
+                    print_success "OpenSSL installed successfully via yum"
+                    return 0
+                else
+                    print_error "Failed to install OpenSSL via yum"
+                    return 1
+                fi
+            elif command -v dnf &> /dev/null; then
+                print_info "Using dnf to install OpenSSL..."
+                if sudo dnf install -y openssl; then
+                    print_success "OpenSSL installed successfully via dnf"
+                    return 0
+                else
+                    print_error "Failed to install OpenSSL via dnf"
+                    return 1
+                fi
+            else
+                print_warning "No supported package manager found"
+                print_info "Please install OpenSSL manually:"
+                print_info "  Ubuntu/Debian: sudo apt-get install openssl"
+                print_info "  CentOS/RHEL: sudo yum install openssl"
+                print_info "  Fedora: sudo dnf install openssl"
+                return 1
+            fi
+            ;;
+            
+        "windows")
+            print_warning "Windows detected - automatic OpenSSL installation not supported"
+            print_info "Please install OpenSSL manually:"
+            print_info "  1. Download from: https://slproweb.com/products/Win32OpenSSL.html"
+            print_info "  2. Or use Chocolatey: choco install openssl"
+            print_info "  3. Or use Scoop: scoop install openssl"
+            return 1
+            ;;
+            
+        "unknown")
+            print_warning "Unknown OS detected - manual installation required"
+            print_info "Please install OpenSSL manually for your operating system"
+            return 1
+            ;;
+    esac
+}
+
+generate_ssl_certificates() {
+    local clean_domain="$1"
+    local key_file="${clean_domain}.key"
+    local cert_file="${clean_domain}.crt"
+    
+    print_status "🔐 Generating SSL Certificates"
+    print_info "Domain: $clean_domain"
+    print_info "Key file: $key_file"
+    print_info "Cert file: $cert_file"
+    
+    # Ensure OpenSSL is available
+    if ! ensure_openssl; then
+        print_error "OpenSSL is required for SSL certificate generation"
+        print_info "Please install OpenSSL manually and run the setup again"
+        return 1
+    fi
+    
+    # Check if certificates already exist
+    if [ -f "$key_file" ] && [ -f "$cert_file" ]; then
+        print_warning "SSL certificates already exist for $clean_domain"
+        if [ "$QUICK_MODE" = false ]; then
+            local regenerate=$(prompt "Regenerate certificates? (y/N)")
+            
+            if [[ ! "$regenerate" =~ ^[Yy]$ ]]; then
+                print_info "Using existing certificates"
+                return 0
+            fi
+        else
+            print_info "Quick mode: Using existing certificates"
+            return 0
+        fi
+        
+        # Backup existing certificates
+        cp "$key_file" "${key_file}.backup"
+        cp "$cert_file" "${cert_file}.backup"
+        print_success "Backed up existing certificates"
+    fi
+    
+    # Generate new certificates
+    print_info "Generating self-signed SSL certificates..."
+    
+    # Show the OpenSSL command for debugging
+    print_info "Running: openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout $key_file -out $cert_file -subj \"/C=US/ST=State/L/City/O=Development/CN=${clean_domain}\""
+    
+    # Try to generate certificates with better error handling
+    local openssl_output
+    if openssl_output=$(openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+        -keyout "$key_file" \
+        -out "$cert_file" \
+        -subj "/C=US/ST=State/L/City/O=Development/CN=${clean_domain}" 2>&1); then
+        
+        print_success "SSL certificates generated successfully"
+        print_info "Generated files:"
+        print_info "  Private key: $key_file"
+        print_info "  Certificate: $cert_file"
+        
+        # Verify the files were created
+        if [ -f "$key_file" ] && [ -f "$cert_file" ]; then
+            # Set appropriate permissions
+            chmod 600 "$key_file"
+            chmod 644 "$cert_file"
+            
+            # Show certificate details
+            print_info "Certificate details:"
+            openssl x509 -in "$cert_file" -noout -subject -dates 2>/dev/null || print_warning "Could not read certificate details"
+            
+            return 0
+        else
+            print_error "Certificate files were not created properly"
+            print_info "Expected files: $key_file, $cert_file"
+            return 1
+        fi
+    else
+        print_error "Failed to generate SSL certificates"
+        print_error "OpenSSL error output:"
+        print_error "$openssl_output"
+        
+        # Provide troubleshooting help
+        print_info "Troubleshooting steps:"
+        print_info "1. Verify OpenSSL is installed: openssl version"
+        print_info "2. Check directory permissions: ls -la"
+        print_info "3. Try manual command:"
+        print_info "   openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout $key_file -out $cert_file -subj \"/C=US/ST=State/L/City/O=Development/CN=${clean_domain}\""
+        
+        return 1
+    fi
+}
+
+verify_ssl_certificates() {
+    local clean_domain="$1"
+    local key_file="${clean_domain}.key"
+    local cert_file="${clean_domain}.crt"
+    
+    print_status "🔍 Verifying SSL Certificates"
+    
+    if [ ! -f "$key_file" ] || [ ! -f "$cert_file" ]; then
+        print_error "SSL certificate files not found"
+        print_info "Expected files:"
+        print_info "  $key_file"
+        print_info "  $cert_file"
+        return 1
+    fi
+    
+    # Verify certificate matches domain
+    local cert_domain=$(openssl x509 -in "$cert_file" -noout -subject | grep -o 'CN=[^,]*' | cut -d'=' -f2)
+    
+    if [ "$cert_domain" = "$clean_domain" ]; then
+        print_success "SSL certificates verified successfully"
+        print_info "Certificate domain: $cert_domain"
+        return 0
+    else
+        print_warning "Certificate domain mismatch"
+        print_info "Expected: $clean_domain"
+        print_info "Found: $cert_domain"
+        return 1
+    fi
+}
+
+configure_browser_trust() {
+    local clean_domain="$1"
+    local cert_file="${clean_domain}.crt"
+    local os=$(detect_os)
+    
+    if [ "$os" = "macos" ] && [ -f "$cert_file" ]; then
+        print_status "🌐 Configuring Browser Trust (macOS)"
+        
+        print_info "Attempting to add certificate to macOS Keychain..."
+        
+        # Try to add certificate to System keychain
+        if security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain "$cert_file" 2>/dev/null; then
+            print_success "Certificate added to System Keychain"
+            print_info "Browser should now trust the certificate"
+            return 0
+        else
+            print_warning "Could not automatically add certificate to System Keychain"
+            print_info "You may need to manually trust the certificate in your browser"
+            return 1
+        fi
+    fi
+    
+    return 0
+}
 
 # PID files for process management
 FRONTEND_PID_FILE=".frontend.pid"
@@ -47,7 +792,7 @@ FRONTEND_STATUS="unknown"
 BACKEND_STATUS="unknown"
 OVERALL_STATUS="unknown"
 
-# Function to find and change to the OAuth Playground directory
+# Function to find and change to the MasterFlow API directory
 find_project_directory() {
     # If in quick mode, assume current directory is correct
     if [ "$QUICK_MODE" = true ]; then
@@ -55,16 +800,16 @@ find_project_directory() {
             print_success "Quick mode: Using current directory: $(pwd)"
             return 0
         else
-            print_error "Quick mode: Not in OAuth Playground directory (missing package.json or server.js)"
+            print_error "Quick mode: Not in MasterFlow API directory (missing package.json or server.js)"
             exit 1
         fi
     fi
     
-    print_status "🔍 Locating OAuth Playground project directory..."
+    print_status "🔍 Locating MasterFlow API project directory..."
     
     # Check if we're already in the right directory
     if [ -f "package.json" ] && [ -f "server.js" ] && (grep -q "masterflow-api" package.json 2>/dev/null || grep -q "oauth-playground" package.json 2>/dev/null); then
-        print_success "Already in OAuth Playground directory: $(pwd)"
+        print_success "Already in MasterFlow API directory: $(pwd)"
         return 0
     fi
     
@@ -81,7 +826,7 @@ find_project_directory() {
         "~/Documents/oauth-playground"
     )
     
-    print_info "Searching common locations for OAuth Playground..."
+    print_info "Searching common locations for MasterFlow API..."
     
     for path in "${common_paths[@]}"; do
         # Expand tilde
@@ -91,7 +836,7 @@ find_project_directory() {
             cd "$expanded_path" 2>/dev/null || continue
             
             if [ -f "package.json" ] && [ -f "server.js" ] && (grep -q "masterflow-api" package.json 2>/dev/null || grep -q "oauth-playground" package.json 2>/dev/null); then
-                print_success "Found OAuth Playground at: $(pwd)"
+                print_success "Found MasterFlow API at: $(pwd)"
                 return 0
             fi
         fi
@@ -99,9 +844,9 @@ find_project_directory() {
     
     # If not found and not in quick mode, ask user for path
     if [ "$QUICK_MODE" != true ]; then
-        print_warning "OAuth Playground directory not found in common locations."
+        print_warning "MasterFlow API directory not found in common locations."
         echo ""
-        echo -e "${YELLOW}Please provide the path to your OAuth Playground directory:${NC}"
+        echo -e "${YELLOW}Please provide the path to your MasterFlow API directory:${NC}"
         echo -e "${CYAN}(The directory should contain package.json and server.js files)${NC}"
         echo ""
         
@@ -141,13 +886,13 @@ find_project_directory() {
             
             if [ ! -f "package.json" ]; then
                 print_error "package.json not found in: $expanded_path"
-                print_info "This doesn't appear to be the OAuth Playground directory"
+                print_info "This doesn't appear to be the MasterFlow API directory"
                 continue
             fi
             
             if [ ! -f "server.js" ]; then
                 print_error "server.js not found in: $expanded_path"
-                print_info "This doesn't appear to be the OAuth Playground directory"
+                print_info "This doesn't appear to be the MasterFlow API directory"
                 continue
             fi
             
@@ -170,30 +915,9 @@ find_project_directory() {
             return 0
         done
     else
-        print_error "Quick mode: OAuth Playground directory not found"
+        print_error "Quick mode: MasterFlow API directory not found"
         exit 1
     fi
-}
-
-# Function to print colored output
-print_status() {
-    echo -e "${BLUE}[$(date +'%H:%M:%S')]${NC} $1"
-}
-
-print_success() {
-    echo -e "${GREEN}[$(date +'%H:%M:%S')] ✅${NC} $1"
-}
-
-print_warning() {
-    echo -e "${YELLOW}[$(date +'%H:%M:%S')] ⚠️${NC} $1"
-}
-
-print_error() {
-    echo -e "${RED}[$(date +'%H:%M:%S')] ❌${NC} $1"
-}
-
-print_info() {
-    echo -e "${CYAN}[$(date +'%H:%M:%S')] ℹ️${NC} $1"
 }
 
 # Function to display banner
@@ -201,18 +925,21 @@ show_banner() {
     echo -e "${PURPLE}"
     echo "╔══════════════════════════════════════════════════════════════════════════════╗"
     echo "║                                                                              ║"
-    echo "║                    🔄 OAuth Playground Server Restart 🔄                    ║"
+    echo "║                    🔄 MasterFlow API Server Restart 🔄                       ║"
     echo "║                                                                              ║"
-    echo "║  Frontend: https://localhost:3000 (Vite Dev Server)                        ║"
-    echo "║  Backend:  http://localhost:3001 (Express API Server - HTTP)               ║"
-    echo "║  Backend:  https://localhost:3002 (Express API Server - HTTPS)             ║"
+    echo "║  Frontend: $FRONTEND_URL"
+    echo "║  Backend:  $BACKEND_URL"
+    echo "║                                                                              ║"
+    echo "║  🌐 Custom Domain Support Available:                                         ║"
+    echo "║     • Setup: ./setup-custom-domain.sh                                        ║"
+    echo "║     • Run:   ./run-custom-domain.sh                                          ║"
     echo "║                                                                              ║"
     echo "║  This script will:                                                          ║"
-    echo "║  1. Find and change to OAuth Playground directory                          ║"
+    echo "║  1. Find and change to MasterFlow API directory                           ║"
     echo "║  2. Kill all existing servers                                               ║"
-    echo "║  3. Clean up processes and ports 3000, 3001 & 3002                         ║"
+    echo "║  3. Clean up processes and ports 3000 & 3001                              ║"
     echo "║  4. Clear Vite cache and build artifacts                                    ║"
-    echo "║  5. Restart all three servers                                               ║"
+    echo "║  5. Restart both servers                                                   ║"
     echo "║  6. Check for errors and report status                                      ║"
     echo "║                                                                              ║"
     echo "╚══════════════════════════════════════════════════════════════════════════════╝"
@@ -235,7 +962,7 @@ get_port_process() {
     lsof -Pi :$port -sTCP:LISTEN -t 2>/dev/null || echo ""
 }
 
-# Function to kill all OAuth playground related processes
+# Function to kill all MasterFlow API related processes
 kill_all_servers() {
     print_status "🛑 Killing all existing servers..."
     
@@ -463,7 +1190,7 @@ verify_lockdown_generic() {
     local snapshot_dir="$5"
 
     if [ ! -f "$manifest_path" ]; then
-        print_warning "${name} lockdown manifest not found. Skipping ${name} lockdown check."
+        # Silent skip - no lockdown manifest found
         return 0
     fi
 
@@ -787,31 +1514,15 @@ show_final_status() {
     echo -e "${CYAN}║                              📊 FINAL STATUS REPORT                          ║${NC}"
     echo -e "${CYAN}╠══════════════════════════════════════════════════════════════════════════════╣${NC}"
     
-    # Backend HTTP status
-    echo -e "${CYAN}║${NC} Backend HTTP Server:"
-    if [ "$BACKEND_HTTP_STATUS" = "running" ]; then
+    # Backend status
+    echo -e "${CYAN}║${NC} Backend Server:"
+    if [ "$BACKEND_STATUS" = "running" ]; then
         echo -e "${CYAN}║${NC}   Status: ${GREEN}✅ RUNNING${NC}"
-        echo -e "${CYAN}║${NC}   URL:    ${BLUE}$BACKEND_HTTP_URL${NC}"
+        echo -e "${CYAN}║${NC}   URL:    ${BLUE}$BACKEND_URL${NC}"
         echo -e "${CYAN}║${NC}   Health: ${GREEN}✅ HEALTHY${NC}"
-    elif [ "$BACKEND_HTTP_STATUS" = "failed" ]; then
+    elif [ "$BACKEND_STATUS" = "failed" ]; then
         echo -e "${CYAN}║${NC}   Status: ${RED}❌ FAILED${NC}"
-        echo -e "${CYAN}║${NC}   URL:    ${RED}$BACKEND_HTTP_URL (not accessible)${NC}"
-        echo -e "${CYAN}║${NC}   Health: ${RED}❌ UNHEALTHY${NC}"
-    else
-        echo -e "${CYAN}║${NC}   Status: ${YELLOW}⚠️  UNKNOWN${NC}"
-    fi
-    
-    echo -e "${CYAN}║${NC}"
-    
-    # Backend HTTPS status
-    echo -e "${CYAN}║${NC} Backend HTTPS Server:"
-    if [ "$BACKEND_HTTPS_STATUS" = "running" ]; then
-        echo -e "${CYAN}║${NC}   Status: ${GREEN}✅ RUNNING${NC}"
-        echo -e "${CYAN}║${NC}   URL:    ${BLUE}$BACKEND_HTTPS_URL${NC}"
-        echo -e "${CYAN}║${NC}   Health: ${GREEN}✅ HEALTHY${NC}"
-    elif [ "$BACKEND_HTTPS_STATUS" = "failed" ]; then
-        echo -e "${CYAN}║${NC}   Status: ${RED}❌ FAILED${NC}"
-        echo -e "${CYAN}║${NC}   URL:    ${RED}$BACKEND_HTTPS_URL (not accessible)${NC}"
+        echo -e "${CYAN}║${NC}   URL:    ${RED}$BACKEND_URL (not accessible)${NC}"
         echo -e "${CYAN}║${NC}   Health: ${RED}❌ UNHEALTHY${NC}"
     else
         echo -e "${CYAN}║${NC}   Status: ${YELLOW}⚠️  UNKNOWN${NC}"
@@ -836,25 +1547,20 @@ show_final_status() {
     echo -e "${CYAN}║${NC}"
     
     # Overall status
-    if [ "$BACKEND_HTTP_STATUS" = "running" ] && [ "$BACKEND_HTTPS_STATUS" = "running" ] && [ "$FRONTEND_STATUS" = "running" ]; then
+    if [ "$BACKEND_STATUS" = "running" ] && [ "$FRONTEND_STATUS" = "running" ]; then
         OVERALL_STATUS="success"
         echo -e "${CYAN}║${NC} Overall Status: ${GREEN}🎉 ALL SERVERS RUNNING SUCCESSFULLY${NC}"
         echo -e "${CYAN}║${NC}"
-        echo -e "${CYAN}║${NC} ${GREEN}✅ OAuth Playground is ready to use!${NC}"
+        echo -e "${CYAN}║${NC} ${GREEN}✅ MasterFlow API is ready to use!${NC}"
         echo -e "${CYAN}║${NC} ${GREEN}✅ Open your browser and navigate to: $FRONTEND_URL${NC}"
-    elif [ "$BACKEND_HTTP_STATUS" = "running" ] || [ "$BACKEND_HTTPS_STATUS" = "running" ] || [ "$FRONTEND_STATUS" = "running" ]; then
+    elif [ "$BACKEND_STATUS" = "running" ] || [ "$FRONTEND_STATUS" = "running" ]; then
         OVERALL_STATUS="partial"
         echo -e "${CYAN}║${NC} Overall Status: ${YELLOW}⚠️  PARTIAL SUCCESS${NC}"
         echo -e "${CYAN}║${NC}"
-        if [ "$BACKEND_HTTP_STATUS" = "running" ]; then
-            echo -e "${CYAN}║${NC} ${GREEN}✅ Backend HTTP is running${NC}"
+        if [ "$BACKEND_STATUS" = "running" ]; then
+            echo -e "${CYAN}║${NC} ${GREEN}✅ Backend is running${NC}"
         else
-            echo -e "${CYAN}║${NC} ${RED}❌ Backend HTTP failed to start${NC}"
-        fi
-        if [ "$BACKEND_HTTPS_STATUS" = "running" ]; then
-            echo -e "${CYAN}║${NC} ${GREEN}✅ Backend HTTPS is running${NC}"
-        else
-            echo -e "${CYAN}║${NC} ${RED}❌ Backend HTTPS failed to start${NC}"
+            echo -e "${CYAN}║${NC} ${RED}❌ Backend failed to start${NC}"
         fi
         if [ "$FRONTEND_STATUS" = "running" ]; then
             echo -e "${CYAN}║${NC} ${GREEN}✅ Frontend is running${NC}"
@@ -865,7 +1571,7 @@ show_final_status() {
         OVERALL_STATUS="failure"
         echo -e "${CYAN}║${NC} Overall Status: ${RED}❌ ALL SERVERS FAILED${NC}"
         echo -e "${CYAN}║${NC}"
-        echo -e "${CYAN}║${NC} ${RED}❌ OAuth Playground is not accessible${NC}"
+        echo -e "${CYAN}║${NC} ${RED}❌ MasterFlow API is not accessible${NC}"
         echo -e "${CYAN}║${NC} ${RED}❌ Check the logs above for error details${NC}"
     fi
     
@@ -930,7 +1636,7 @@ show_final_summary() {
     # Show the status banner
     echo -e "${banner_color}╔══════════════════════════════════════════════════════════════════════════════╗${NC}"
     echo -e "${banner_color}║                                                                              ║${NC}"
-    echo -e "${banner_color}║                    ${status_icon} OAUTH PLAYGROUND STATUS ${status_icon}                    ║${NC}"
+    echo -e "${banner_color}║                    ${status_icon} MASTERFLOW API STATUS ${status_icon}                    ║${NC}"
     echo -e "${banner_color}║                                                                              ║${NC}"
     echo -e "${banner_color}║                          ${status_text}                          ║${NC}"
     echo -e "${banner_color}║                                                                              ║${NC}"
@@ -964,7 +1670,7 @@ show_final_summary() {
     # Final message based on overall status
     case "$OVERALL_STATUS" in
         "success")
-            echo -e "${banner_color}║${NC} ${GREEN}🎉 SUCCESS: OAuth Playground is fully operational!${NC}"
+            echo -e "${banner_color}║${NC} ${GREEN}🎉 SUCCESS: MasterFlow API is fully operational!${NC}"
             echo -e "${banner_color}║${NC} ${GREEN}🌐 Ready to use at: $FRONTEND_URL${NC}"
             echo -e "${banner_color}║${NC} ${GREEN}🔧 Backend API available at: $BACKEND_URL${NC}"
             ;;
@@ -1005,12 +1711,12 @@ while [ $# -gt 0 ]; do
     case "$1" in
         --help|-h|-help)
             echo "╔══════════════════════════════════════════════════════════════════════════════╗"
-            echo "║                    🔄 OAuth Playground Server Restart 🔄                    ║"
+            echo "║                    🔄 MasterFlow API Server Restart 🔄                       ║"
             echo "║                      Comprehensive Development Server Manager                    ║"
             echo "╚══════════════════════════════════════════════════════════════════════════════╝"
             echo ""
             echo "📋 OVERVIEW:"
-            echo "  This is the primary server management script for the OAuth Playground application."
+            echo "  This is the primary server management script for the MasterFlow API application."
             echo "  It handles the complete lifecycle of development servers including startup, health"
             echo "  monitoring, and log management. The script ensures all services are properly"
             echo "  configured and running before allowing the development environment to be used."
@@ -1037,7 +1743,7 @@ while [ $# -gt 0 ]; do
             echo "  🚀 QUICK MODES:"
             echo "    -quick, -quick-quick"
             echo "        Quick mode: Skip ALL interactive prompts"
-            echo "        • Assumes current directory is the OAuth Playground"
+            echo "        • Assumes current directory is the MasterFlow API"
             echo "        • Skips directory selection prompts"
             echo "        • Skips confirmation prompts"
             echo "        • Skips log tail prompts"
@@ -1047,16 +1753,18 @@ while [ $# -gt 0 ]; do
             echo "    -default"
             echo "        Default mode: Use defaults without prompting"
             echo "        • Runs all normal startup steps including checks"
+            echo "        • Skips custom domain setup (assumes already configured)"
             echo "        • Auto-accepts directory selection (uses current)"
             echo "        • Auto-accepts confirmation prompts"
             echo "        • Auto-accepts database recreation prompts"
             echo "        • Auto-chooses lockdown restore option 1"
             echo "        • Automatically tails pingone-api.log (default log)"
             echo "        • No user interaction required"
+            echo "        • Ideal for daily development after initial setup"
             echo ""
             echo "🔧 DEFAULT BEHAVIOR (no flags):"
             echo "  1️⃣  DIRECTORY DISCOVERY:"
-            echo "      • Searches common OAuth Playground locations"
+            echo "      • Searches common MasterFlow API locations"
             echo "      • Falls back to interactive prompt if not found"
             echo "      • Validates directory contains required files"
             echo ""
@@ -1065,31 +1773,42 @@ while [ $# -gt 0 ]; do
             echo "      • Validates package.json and server.js exist"
             echo "      • Verifies SQLite3 is available"
             echo ""
-            echo "  3️⃣  LOCKDOWN INTEGRITY CHECKS:"
+            echo "  3️⃣  CUSTOM DOMAIN SETUP:"
+            echo "      • Prompts for custom domain (default: auth.pingdemo.com)"
+            echo "      • Validates domain format (xxx.xxxxxx.xxx)"
+            echo "      • Detects existing domain setup and offers to clear it"
+            echo "      • Configures hosts file automatically"
+            echo "      • Generates SSL certificates for HTTPS"
+            echo "      • Configures browser trust (macOS)"
+            echo "      • Creates .env.local with domain configuration"
+            echo "      • Skipped when using -default flag"
+            echo "      • Clear option removes .env.local, SSL certs, and backup files"
+            echo ""
+            echo "  4️⃣  LOCKDOWN INTEGRITY CHECKS:"
             echo "      • SMS lockdown verification (verify:sms-lockdown)"
             echo "      • Email lockdown verification (verify:email-lockdown)"
             echo "      • WhatsApp lockdown verification (verify:whatsapp-lockdown)"
             echo "      • Prompts for action if drift is detected"
             echo ""
-            echo "  4️⃣  SERVER MANAGEMENT:"
+            echo "  5️⃣  SERVER MANAGEMENT:"
             echo "      • Gracefully kills existing servers"
             echo "      • Cleans up processes and frees ports"
             echo "      • Clears Vite cache and build artifacts"
-            echo "      • Starts backend HTTP and HTTPS servers"
+            echo "      • Starts backend HTTPS server"
             echo "      • Starts frontend Vite development server"
             echo ""
-            echo "  5️⃣  HEALTH VERIFICATION:"
+            echo "  6️⃣  HEALTH VERIFICATION:"
             echo "      • Checks server accessibility"
             echo "      • Validates API endpoints are responding"
             echo "      • Verifies SSL certificate functionality"
             echo ""
-            echo "  6️⃣  STATUS REPORTING:"
+            echo "  7️⃣  STATUS REPORTING:"
             echo "      • Prints comprehensive status report"
             echo "      • Shows server URLs and health status"
             echo "      • Displays log file locations"
             echo "      • Provides quick tail command examples"
             echo ""
-            echo "  7️⃣  LOG MANAGEMENT (interactive):"
+            echo "  8️⃣  LOG MANAGEMENT (interactive):"
             echo "      • Prompts to tail a log file"
             echo "      • Offers 11 different log file options"
             echo "      • Includes PingOne API logs, flow logs, server logs"
@@ -1110,11 +1829,19 @@ while [ $# -gt 0 ]; do
             echo "     11) startup.log         - Script startup logs"
             echo ""
             echo "🎯 USE CASE EXAMPLES:"
-            echo "  • Development:           ./run.sh"
+            echo "  • Initial setup:         ./run.sh (includes custom domain setup)"
+            echo "  • Daily development:     ./run.sh -default (skips setup, uses defaults)"
+            echo "  • Change domain:          rm .env.local && ./run.sh"
             echo "  • Help information:      ./run.sh --help, -h, or -help"
             echo "  • Automated scripts:     ./run.sh -quick"
             echo "  • CI/CD pipelines:       ./run.sh -default"
             echo "  • Background monitoring: ./run.sh -default &"
+            echo ""
+            echo "🌐 DOMAIN MANAGEMENT:"
+            echo "  • Clear existing setup:   rm .env.local *.crt *.key"
+            echo "  • Change domain:          rm .env.local && ./run.sh"
+            echo "  • Keep existing setup:    ./run.sh (answer 'N' to clear prompt)"
+            echo "  • Quick domain change:    ./run.sh -quick (uses default domain)"
             echo ""
             echo "🚨 EXIT CODES:"
             echo "  0   ✅ Success (all servers running and healthy)"
@@ -1124,7 +1851,7 @@ while [ $# -gt 0 ]; do
             echo "  130 ⛔ Interrupted (Ctrl+C)"
             echo ""
             echo "🔧 TROUBLESHOOTING:"
-            echo "  • If servers don't start: Check port conflicts with 'lsof -i :3000-3002'"
+            echo "  • If servers don't start: Check port conflicts with 'lsof -i :3000-3001'"
             echo "  • If lockdown fails: Run 'git status' to check for uncommitted changes"
             echo "  • If health checks fail: Check logs/server.log for detailed errors"
             echo "  • For permission issues: Ensure script has execute permissions (chmod +x run.sh)"
@@ -1133,10 +1860,10 @@ while [ $# -gt 0 ]; do
             echo "  • Project README: ./README.md"
             echo "  • API Documentation: Available at https://localhost:${BACKEND_PORT}/docs"
             echo "  • Protect Portal: http://localhost:${FRONTEND_PORT}/protect-portal"
-            echo "  • OAuth Playground: http://localhost:${FRONTEND_PORT}"
+            echo "  • MasterFlow API: http://localhost:${FRONTEND_PORT}"
             echo ""
             echo "🎮 QUICK START:"
-            echo "  1. Ensure you're in the OAuth Playground directory"
+            echo "  1. Ensure you're in the MasterFlow API directory"
             echo "  2. For help: ./run.sh -help"
             echo "  3. Run: ./run.sh"
             echo "  4. Wait for servers to start (watch the status report)"
@@ -1144,12 +1871,18 @@ while [ $# -gt 0 ]; do
             echo "  6. Start developing!"
             echo ""
             echo "╔══════════════════════════════════════════════════════════════════════════════╗"
-            echo "║                    Happy coding with OAuth Playground! 🚀                    ║"
+            echo "║                    Happy coding with MasterFlow API! 🚀                    ║"
             echo "╚══════════════════════════════════════════════════════════════════════════════╝"
             exit 0
             ;;
+        -quick|-quick-quick)
+            export QUICK_MODE=true
+            export SKIP_SETUP=true
+            shift
+            ;;
         -default)
             export DEFAULT_MODE=true
+            export SKIP_SETUP=true
             # Pass through to main function
             shift
             ;;
@@ -1166,18 +1899,23 @@ main() {
     # Check for -quick flag
     QUICK_MODE=false
     DEFAULT_MODE=${DEFAULT_MODE:-false}
+    SKIP_SETUP=${SKIP_SETUP:-false}
     while [ $# -gt 0 ]; do
         case "$1" in
             -quick|-quick-quick)
                 QUICK_MODE=true
+                SKIP_SETUP=true
                 export QUICK_MODE
+                export SKIP_SETUP
                 print_info "🚀 Quick mode enabled - skipping all prompts"
                 shift
                 ;;
             -default)
                 DEFAULT_MODE=true
+                SKIP_SETUP=true
                 export DEFAULT_MODE
-                print_info "📋 Default mode enabled - using default logging without prompting"
+                export SKIP_SETUP
+                print_info "📋 Default mode enabled - using defaults and skipping setup"
                 shift
                 ;;
             *)
@@ -1193,7 +1931,10 @@ main() {
     
     # Step 1: Check requirements
     check_requirements
-
+    
+    # Step 1a: Setup custom domain (if needed)
+    setup_custom_domain
+    
     # Step 1b: Verify lock-down integrity (blocks restart on drift)
     verify_sms_lockdown
     verify_email_lockdown
@@ -1202,7 +1943,7 @@ main() {
     # Step 2: Kill all existing servers
     kill_all_servers
     
-    # Step 3: Start backend (starts both HTTP and HTTPS servers)
+    # Step 3: Start backend (HTTPS server only)
     print_status "🔧 Starting servers..."
     start_backend
     
@@ -1269,22 +2010,22 @@ main() {
             echo ""
             print_info "📋 Which log file would you like to tail?"
             echo ""
-            echo -e "${CYAN}Available log files:${NC}"
-            echo "  1) ${GREEN}pingone-api.log${NC} - All PingOne API calls (proxy and direct)"
-            echo "  2) ${GREEN}real-api.log${NC} - Direct PingOne API calls only (no proxy)"
-            echo "  3) ${GREEN}server.log${NC} - Server logs"
+            echo "Available log files:"
+            echo "  1) pingone-api.log - All PingOne API calls (proxy and direct)"
+            echo "  2) real-api.log - Direct PingOne API calls only (no proxy)"
+            echo "  3) server.log - Server logs"
             echo ""
-            echo -e "${CYAN}Flow logs:${NC}"
-            echo "  4) ${GREEN}sms.log${NC} - SMS flow"
-            echo "  5) ${GREEN}email.log${NC} - Email flow"
-            echo "  6) ${GREEN}whatsapp.log${NC} - WhatsApp flow"
-            echo "  7) ${GREEN}voice.log${NC} - Voice flow"
-            echo "  8) ${GREEN}fido.log${NC} - FIDO2 flow"
+            echo "Flow logs:"
+            echo "  4) sms.log - SMS flow"
+            echo "  5) email.log - Email flow"
+            echo "  6) whatsapp.log - WhatsApp flow"
+            echo "  7) voice.log - Voice flow"
+            echo "  8) fido.log - FIDO2 flow"
             echo ""
-            echo -e "${CYAN}App logs:${NC}"
-            echo "  9) ${GREEN}backend.log${NC} - Backend log"
-            echo "  10) ${GREEN}frontend.log${NC} - Frontend log"
-            echo "  11) ${GREEN}startup.log${NC} - Startup log"
+            echo "App logs:"
+            echo "  9) backend.log - Backend log"
+            echo "  10) frontend.log - Frontend log"
+            echo "  11) startup.log - Startup log"
             echo ""
             echo -n "Enter your choice (1-11, or press Enter for default): "
             read -r log_choice

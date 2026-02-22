@@ -1187,6 +1187,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 											fontWeight: '600',
 											color: '#374151',
 										}}
+										htmlFor="usernameoremail"
 									>
 										Username or Email
 									</label>
@@ -1215,6 +1216,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 												fontWeight: '600',
 												color: '#374151',
 											}}
+											htmlFor="password"
 										>
 											Password
 										</label>

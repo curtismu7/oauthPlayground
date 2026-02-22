@@ -4,7 +4,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { formatTimeRemaining } from '../services/tokenExpirationService';
-import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
+import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 
 type StatusVariant = 'success' | 'warning' | 'danger';
 
@@ -58,9 +58,9 @@ export const WorkerTokenStatusLabel: React.FC<WorkerTokenStatusLabelProps> = ({
 
 			// Otherwise, load from global service
 			try {
-				const tokenValue = await workerTokenServiceV8.getToken();
+				const tokenValue = await unifiedWorkerTokenService.getToken();
 				// Get expiration from service - need to check stored data
-				const credentials = await workerTokenServiceV8.loadCredentials();
+				const credentials = await unifiedWorkerTokenService.loadCredentials();
 				if (credentials && tokenValue) {
 					// Try to get expiration from browser storage (unified service stores it there)
 					try {

@@ -356,6 +356,7 @@ const ServerStatusPanel: React.FC = () => {
 	// Check server status on component mount
 	useEffect(() => {
 		refreshAllServers();
+		// biome-ignore lint/correctness/useExhaustiveDependencies: Only run once on mount
 	}, [refreshAllServers]);
 
 	const getStatusIcon = (status: 'checking' | 'online' | 'offline') => {

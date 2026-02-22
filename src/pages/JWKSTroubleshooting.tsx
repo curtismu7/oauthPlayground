@@ -551,6 +551,7 @@ const JWKSTroubleshooting: React.FC = () => {
 							fontWeight: '500',
 							color: '#2d3748',
 						}}
+						htmlFor="environmentid"
 					>
 						Environment ID:
 					</label>

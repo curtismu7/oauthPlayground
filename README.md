@@ -1,14 +1,14 @@
-# PingOne OAuth 2.0 & OpenID Connect Playground
+# MasterFlow API - PingOne Integration Platform
 
 [![OAuth 2.0](https://img.shields.io/badge/OAuth-2.0-blue.svg)](https://tools.ietf.org/html/rfc6749)
 [![OpenID Connect](https://img.shields.io/badge/OpenID-Connect-green.svg)](https://openid.net/connect/)
 [![PingOne](https://img.shields.io/badge/PingOne-Identity-orange.svg)](https://www.pingidentity.com/)
 
-An interactive web application for learning, testing, and mastering OAuth 2.0 and OpenID Connect flows using PingOne as the identity provider.
+An interactive web application for learning, testing, and mastering OAuth 2.0 and OpenID Connect flows using PingOne as the identity provider. MasterFlow API provides comprehensive integration testing and development capabilities for modern authentication workflows.
 
 ## 🚀 Quick Start
 
-The fastest way to get the OAuth Playground running:
+The fastest way to get MasterFlow API running:
 
 ```bash
 # Clone the repository
@@ -18,13 +18,15 @@ cd oauthPlayground
 # Install dependencies
 npm install
 
-# Start the full stack (frontend + backend)
-npm start
+# Start the full stack (includes custom domain setup)
+./scripts/development/run.sh
 ```
 
-That's it! The app will be available at https://localhost:3000
+That's it! The MasterFlow API will guide you through custom domain setup and be available at your custom domain (default: https://auth.pingdemo.com:3000)
 
-*Note: Your project already has a pre-configured `.env` file, so no additional configuration is needed.*
+*For detailed startup instructions, domain management, and troubleshooting, see [STARTUP-GUIDE.md](./STARTUP-GUIDE.md)*
+
+*Note: The first run includes automatic custom domain setup. Subsequent runs can use `./scripts/development/run.sh -default` for quick startup.*
 
 ## 📋 Prerequisites
 
@@ -82,7 +84,7 @@ VITE_PINGONE_LOGOUT_REDIRECT_URI=https://localhost:3000
 VITE_PINGONE_API_URL=https://auth.pingone.com
 
 # Application Configuration
-VITE_APP_TITLE="PingOne OAuth/OIDC Playground"
+VITE_APP_TITLE="MasterFlow API - PingOne Integration"
 VITE_APP_VERSION=5.8.5
 VITE_APP_DEFAULT_THEME=light
 VITE_DEV_SERVER_PORT=3000
@@ -196,7 +198,7 @@ Press `Ctrl+C` in the terminal where the script is running.
 
 ### Force Stop
 ```bash
-# Kill all OAuth Playground processes
+# Kill all MasterFlow API processes
 ./kill-servers.sh
 
 # Or manually kill by ports
@@ -258,7 +260,7 @@ The app uses HTTPS in development. If you see certificate warnings:
 ## 📁 Project Structure
 
 ```
-oauth-playground/
+masterflow-api/
 ├── src/
 │   ├── components/     # React components
 │   ├── contexts/       # React contexts
@@ -307,7 +309,7 @@ oauth-playground/
 
 ## 🎯 What You Can Do
 
-The OAuth Playground provides interactive learning and testing for:
+The MasterFlow API provides interactive learning and testing for:
 
 ### OAuth 2.0 Flows
 - **Authorization Code Flow** - Complete flow with PKCE
@@ -360,5 +362,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 **Built with ❤️ using React, TypeScript, Vite, and PingOne**
+
+MasterFlow API - Your comprehensive PingOne integration and testing platform.
 
 For additional help, check the [Complete Documentation](https://localhost:3000/about) or create an issue in the repository.

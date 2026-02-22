@@ -136,6 +136,7 @@ export const ResponseModeDropdownV8: React.FC<ResponseModeDropdownV8Props> = ({
 						fontWeight: '600',
 						color: '#1f2937', // Dark text on light background
 					}}
+					htmlFor="responsemode"
 				>
 					Response Mode
 				</label>

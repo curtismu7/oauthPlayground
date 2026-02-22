@@ -158,6 +158,7 @@ export const StandardMessage: React.FC<StandardMessageProps> = ({
 			</div>
 			{onDismiss && (
 				<button
+					type="button"
 					className="dismiss-button"
 					onClick={onDismiss}
 					aria-label="Dismiss message"

@@ -421,7 +421,9 @@ const JWTAuthConfig: React.FC<JWTAuthConfigProps> = ({ onConfigChange, initialCo
 			</AuthMethodSelector>
 
 			<FormGroup>
-				<label htmlFor="clientId">Client ID *</label>
+				<label htmlFor="clientId" htmlFor="clientid">
+					Client ID *
+				</label>
 				<input
 					id="clientId"
 					type="text"
@@ -438,7 +440,9 @@ const JWTAuthConfig: React.FC<JWTAuthConfigProps> = ({ onConfigChange, initialCo
 			</FormGroup>
 
 			<FormGroup>
-				<label htmlFor="issuer">Issuer *</label>
+				<label htmlFor="issuer" htmlFor="issuer">
+					Issuer *
+				</label>
 				<input
 					id="issuer"
 					type="text"
@@ -456,7 +460,9 @@ const JWTAuthConfig: React.FC<JWTAuthConfigProps> = ({ onConfigChange, initialCo
 			</FormGroup>
 
 			<FormGroup>
-				<label htmlFor="audience">Audience *</label>
+				<label htmlFor="audience" htmlFor="audience">
+					Audience *
+				</label>
 				<input
 					id="audience"
 					type="text"
@@ -476,7 +482,9 @@ const JWTAuthConfig: React.FC<JWTAuthConfigProps> = ({ onConfigChange, initialCo
 			</FormGroup>
 
 			<FormGroup>
-				<label htmlFor="tokenEndpoint">Token Endpoint *</label>
+				<label htmlFor="tokenEndpoint" htmlFor="tokenendpoint">
+					Token Endpoint *
+				</label>
 				<input
 					id="tokenEndpoint"
 					type="text"
@@ -495,7 +503,9 @@ const JWTAuthConfig: React.FC<JWTAuthConfigProps> = ({ onConfigChange, initialCo
 
 			{authMethod === 'CLIENT_SECRET_JWT' && (
 				<FormGroup>
-					<label htmlFor="clientSecret">Client Secret *</label>
+					<label htmlFor="clientSecret" htmlFor="clientsecret">
+						Client Secret *
+					</label>
 					<div style={{ position: 'relative' }}>
 						<input
 							id="clientSecret"
@@ -535,7 +545,9 @@ const JWTAuthConfig: React.FC<JWTAuthConfigProps> = ({ onConfigChange, initialCo
 			{authMethod === 'PRIVATE_KEY_JWT' && (
 				<>
 					<FormGroup>
-						<label htmlFor="privateKey">Private Key *</label>
+						<label htmlFor="privateKey" htmlFor="privatekey">
+							Private Key *
+						</label>
 						<div style={{ position: 'relative' }}>
 							<textarea
 								id="privateKey"
@@ -572,7 +584,9 @@ const JWTAuthConfig: React.FC<JWTAuthConfigProps> = ({ onConfigChange, initialCo
 					</FormGroup>
 
 					<FormGroup>
-						<label htmlFor="keyId">Key ID (Optional)</label>
+						<label htmlFor="keyId" htmlFor="keyidoptional">
+							Key ID (Optional)
+						</label>
 						<input
 							id="keyId"
 							type="text"

@@ -2612,6 +2612,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 															color: '#374151',
 															marginBottom: '0.5rem',
 														}}
+														htmlFor="manualauthorizationcode"
 													>
 														Manual Authorization Code
 													</label>

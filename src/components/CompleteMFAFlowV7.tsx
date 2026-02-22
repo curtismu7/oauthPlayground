@@ -3121,6 +3121,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 													color: '#374151',
 													marginBottom: '0.25rem',
 												}}
+												htmlFor="username"
 											>
 												Username
 											</label>
@@ -3152,6 +3153,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 													color: '#374151',
 													marginBottom: '0.25rem',
 												}}
+												htmlFor="password"
 											>
 												Password
 											</label>
@@ -3764,6 +3766,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 												fontWeight: 500,
 												color: '#374151',
 											}}
+											htmlFor="emailaddress"
 										>
 											Email Address *
 										</label>
@@ -3854,6 +3857,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 													fontWeight: 500,
 													color: '#374151',
 												}}
+												htmlFor="verificationcode"
 											>
 												Verification Code *
 											</label>
@@ -4206,6 +4210,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 												fontWeight: '500',
 												color: '#374151',
 											}}
+											htmlFor="verificationcode"
 										>
 											Verification Code
 										</label>

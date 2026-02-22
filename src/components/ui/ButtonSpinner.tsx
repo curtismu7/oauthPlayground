@@ -52,6 +52,7 @@ export const ButtonSpinner: React.FC<ButtonSpinnerProps> = ({
 
 	return (
 		<button
+			type="button"
 			className={className}
 			style={style}
 			disabled={disabled || loading}

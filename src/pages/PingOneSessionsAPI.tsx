@@ -387,6 +387,7 @@ const PingOneSessionsAPI: React.FC = () => {
 					{title}
 				</h4>
 				<button
+					type="button"
 					onClick={() => copyToClipboard(code, id)}
 					style={{
 						background: 'none',

@@ -100,6 +100,7 @@ export const PasskeyManager: React.FC = () => {
 								fontWeight: '500',
 								color: '#374151',
 							}}
+							htmlFor="environmentid"
 						>
 							Environment ID *
 						</label>
@@ -127,6 +128,7 @@ export const PasskeyManager: React.FC = () => {
 								fontWeight: '500',
 								color: '#374151',
 							}}
+							htmlFor="userid"
 						>
 							User ID *
 						</label>
@@ -154,6 +156,7 @@ export const PasskeyManager: React.FC = () => {
 								fontWeight: '500',
 								color: '#374151',
 							}}
+							htmlFor="workertoken"
 						>
 							Worker Token
 						</label>
@@ -173,6 +176,7 @@ export const PasskeyManager: React.FC = () => {
 								}}
 							/>
 							<button
+								type="button"
 								onClick={handleLoadWorkerToken}
 								disabled={loadingToken || !environmentId}
 								style={{

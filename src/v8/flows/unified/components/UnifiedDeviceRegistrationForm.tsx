@@ -435,6 +435,7 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 							color: colors.gray[700],
 							marginBottom: spacing[2],
 						}}
+						htmlFor="username"
 					>
 						Username
 					</label>

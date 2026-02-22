@@ -354,7 +354,9 @@ const AuthorizationRequestModal: React.FC<AuthorizationRequestModalProps> = ({
 							checked={dontShowAgain}
 							onChange={(e) => setDontShowAgain(e.target.checked)}
 						/>
-						<label htmlFor={checkboxId}>Do not show this modal again</label>
+						<label htmlFor={checkboxId} htmlFor="donotshowthismodalagain">
+							Do not show this modal again
+						</label>
 					</CheckboxContainer>
 
 					<ActionButtons>

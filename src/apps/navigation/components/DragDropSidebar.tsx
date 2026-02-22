@@ -411,8 +411,8 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 					},
 					{
 						id: 'api-status-page',
-						path: '/api-status',
-						label: '🔍 API Status',
+						path: '/system-status',
+						label: '🔍 PingOne API Status',
 						icon: (
 							<ColoredIcon $color="#3b82f6">
 								<FiActivity />

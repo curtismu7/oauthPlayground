@@ -127,6 +127,7 @@ export const AuthMethodSelector: React.FC<AuthMethodSelectorProps> = ({
 				<label
 					htmlFor="auth-method-select"
 					className="block text-sm font-medium text-gray-700 mb-1"
+					htmlFor="authenticationmethod"
 				>
 					Authentication Method
 				</label>

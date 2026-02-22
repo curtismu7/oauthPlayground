@@ -143,6 +143,7 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
 			<div>
 				<StatusDisplay status={status} message={message} request={request} response={response} />
 				<button
+					type="button"
 					onClick={() => {
 						setStep('input');
 						setStatus('idle');
@@ -174,7 +175,11 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
 			{step === 'input' && (
 				<div>
 					<div style={{ marginBottom: '1rem' }}>
-						<label htmlFor="phone" style={{ display: 'block', marginBottom: '0.5rem' }}>
+						<label
+							htmlFor="phone"
+							style={{ display: 'block', marginBottom: '0.5rem' }}
+							htmlFor="phonenumbereg1234567890"
+						>
 							Phone Number * (e.g., +1234567890)
 						</label>
 						<input
@@ -193,6 +198,7 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
 						/>
 					</div>
 					<button
+						type="button"
 						onClick={handleRegister}
 						disabled={!userId || !phone}
 						style={{
@@ -222,6 +228,7 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
 					{status === 'success' && (
 						<div style={{ marginTop: '1rem' }}>
 							<button
+								type="button"
 								onClick={handleSendOTP}
 								style={{
 									marginBottom: '1rem',
@@ -236,7 +243,11 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
 								Send OTP
 							</button>
 							<div style={{ marginTop: '1rem' }}>
-								<label htmlFor="otp" style={{ display: 'block', marginBottom: '0.5rem' }}>
+								<label
+									htmlFor="otp"
+									style={{ display: 'block', marginBottom: '0.5rem' }}
+									htmlFor="enterotpcode"
+								>
 									Enter OTP Code *
 								</label>
 								<input
@@ -258,6 +269,7 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
 									}}
 								/>
 								<button
+									type="button"
 									onClick={handleActivate}
 									disabled={!otp || otp.length < 6}
 									style={{

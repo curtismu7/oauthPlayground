@@ -207,6 +207,7 @@ const ClientCredentialsFlowV7Simple: React.FC = () => {
 						<p>Choose how to authenticate with the authorization server.</p>
 						<div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
 							<button
+								type="button"
 								onClick={() => setSelectedAuthMethod('client_secret_post')}
 								style={{
 									padding: '0.5rem 1rem',
@@ -220,6 +221,7 @@ const ClientCredentialsFlowV7Simple: React.FC = () => {
 								Client Secret POST
 							</button>
 							<button
+								type="button"
 								onClick={() => setSelectedAuthMethod('client_secret_basic')}
 								style={{
 									padding: '0.5rem 1rem',
@@ -241,6 +243,7 @@ const ClientCredentialsFlowV7Simple: React.FC = () => {
 						<h3>Token Request</h3>
 						<p>Generate and send the token request.</p>
 						<button
+							type="button"
 							onClick={controller.requestToken}
 							disabled={controller.isLoading}
 							style={{
@@ -330,6 +333,7 @@ const ClientCredentialsFlowV7Simple: React.FC = () => {
 						<h3>Token Introspection</h3>
 						<p>Validate the access token.</p>
 						<button
+							type="button"
 							onClick={controller.introspectToken}
 							disabled={controller.isLoading}
 							style={{

@@ -2508,6 +2508,8 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 			content: (
 				<div>
 					<div
+						role="button"
+						tabIndex={0}
 						style={{
 							display: 'flex',
 							alignItems: 'center',
@@ -2768,6 +2770,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 								>
 									{/* Clear Credentials Button */}
 									<button
+										type="button"
 										onClick={() => setShowClearCredentialsModal(true)}
 										style={{
 											padding: '0.75rem 1.25rem',
@@ -2793,6 +2796,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 
 									{/* Reset Flow Button */}
 									<button
+										type="button"
 										onClick={() => setShowResetModal(true)}
 										style={{
 											padding: '0.75rem 1.25rem',
@@ -3101,6 +3105,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 							Need to Start Over?
 						</h4>
 						<button
+							type="button"
 							onClick={() => setShowResetModal(true)}
 							style={{
 								padding: '0.75rem 1.25rem',
@@ -3244,6 +3249,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 									<ColorCodedURL url={authUrl} showInfoButton={false} />
 								</div>
 								<button
+									type="button"
 									onClick={() => copyToClipboard(authUrl)}
 									style={{
 										background: 'none',
@@ -3378,6 +3384,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 							Need to Start Over?
 						</h4>
 						<button
+							type="button"
 							onClick={() => setShowResetModal(true)}
 							style={{
 								padding: '0.75rem 1.25rem',
@@ -3539,6 +3546,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 							Need to Start Over?
 						</h4>
 						<button
+							type="button"
 							onClick={() => setShowResetModal(true)}
 							style={{
 								padding: '0.75rem 1.25rem',
@@ -3834,6 +3842,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 							</h4>
 							<p style={{ color: '#dc2626' }}>{callbackError}</p>
 							<button
+								type="button"
 								onClick={() => {
 									// Clear all OAuth state and start fresh
 									sessionStorage.removeItem('oauth_auth_code');
@@ -3919,6 +3928,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 							Clear all data and reset the entire flow
 						</p>
 						<button
+							type="button"
 							onClick={() => setShowResetModal(true)}
 							style={{
 								padding: '0.5rem 1rem',
@@ -4164,6 +4174,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 							Need to Start Over?
 						</h4>
 						<button
+							type="button"
 							onClick={() => setShowResetModal(true)}
 							style={{
 								padding: '0.75rem 1.25rem',
@@ -4707,6 +4718,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 
 							<div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
 								<button
+									type="button"
 									onClick={() => {
 										if (tokens.access_token) {
 											// Store the access token in localStorage for the token management page
@@ -4767,6 +4779,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 								</button>
 
 								<button
+									type="button"
 									onClick={() => {
 										if (tokens.id_token) {
 											// Store the ID token in localStorage for the token management page
@@ -4873,6 +4886,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 							Need to Start Over?
 						</h4>
 						<button
+							type="button"
 							onClick={() => setShowResetModal(true)}
 							style={{
 								padding: '0.75rem 1.25rem',

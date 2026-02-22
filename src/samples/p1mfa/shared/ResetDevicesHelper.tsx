@@ -105,6 +105,7 @@ export const ResetDevicesHelper: React.FC<ResetDevicesHelperProps> = ({
 				Delete all MFA devices for this user. Use with caution - this action cannot be undone.
 			</p>
 			<button
+				type="button"
 				onClick={handleReset}
 				disabled={loading}
 				style={{

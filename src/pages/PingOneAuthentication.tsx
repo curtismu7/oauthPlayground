@@ -2372,6 +2372,7 @@ const PingOneAuthentication: React.FC = () => {
 							</div>
 
 							<button
+								type="button"
 								onClick={handleGetWorkerToken}
 								disabled={gettingWorkerToken}
 								style={{
@@ -2420,6 +2421,7 @@ const PingOneAuthentication: React.FC = () => {
 									Worker token obtained! You can now select applications below.
 								</div>
 								<button
+									type="button"
 									onClick={() => setWorkerToken(null)}
 									style={{
 										background: '#dc3545',

@@ -121,7 +121,7 @@ export const LoginButton: React.FC = () => {
   const { isAuthenticated, login, logout } = useAuth();
 
   return (
-    <button onClick={isAuthenticated ? logout : login}>
+    <button type="button" onClick={isAuthenticated ? logout : login}>
       {isAuthenticated ? 'Logout' : 'Login with PingOne'}
     </button>
   );
@@ -370,8 +370,7 @@ export const MFAChallenge: React.FC<MFAChallengeProps> = ({
       <h3>MFA Challenge</h3>
       
       {!challengeSent ? (
-        <button
-          onClick={sendChallenge}
+        <button type="button" onClick={sendChallenge}
           disabled={loading}
           className="send-challenge-btn"
         >
@@ -566,7 +565,7 @@ export const DeviceRegistration: React.FC<DeviceRegistrationProps> = ({
       
       <form onSubmit={registerDevice}>
         <div className="form-group">
-          <label>Device Type</label>
+          <label htmlFor="devicetype">Device Type</label>
           <select
             value={deviceType}
             onChange={(e) => setDeviceType(e.target.value as DeviceType)}
@@ -578,7 +577,7 @@ export const DeviceRegistration: React.FC<DeviceRegistrationProps> = ({
         </div>
 
         <div className="form-group">
-          <label>Device Name</label>
+          <label htmlFor="devicename">Device Name</label>
           <input
             type="text"
             value={name}
@@ -589,7 +588,7 @@ export const DeviceRegistration: React.FC<DeviceRegistrationProps> = ({
 
         {deviceType === 'SMS' && (
           <div className="form-group">
-            <label>Phone Number</label>
+            <label htmlFor="phonenumber">Phone Number</label>
             <input
               type="tel"
               value={phone}
@@ -602,7 +601,7 @@ export const DeviceRegistration: React.FC<DeviceRegistrationProps> = ({
 
         {deviceType === 'EMAIL' && (
           <div className="form-group">
-            <label>Email Address</label>
+            <label htmlFor="emailaddress">Email Address</label>
             <input
               type="email"
               value={email}

@@ -1260,6 +1260,7 @@ const PingOneWebhookViewer: React.FC = () => {
 									display: 'block',
 									marginBottom: '0.5rem',
 								}}
+								htmlFor="environmentid"
 							>
 								Environment ID
 							</label>
@@ -1573,6 +1574,7 @@ const PingOneWebhookViewer: React.FC = () => {
 									{window.location.origin}/api/webhooks/pingone
 								</div>
 								<button
+									type="button"
 									onClick={() => {
 										navigator.clipboard.writeText(`${window.location.origin}/api/webhooks/pingone`);
 										v4ToastManager.showSuccess('Webhook URL copied to clipboard');

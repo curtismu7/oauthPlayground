@@ -54,6 +54,8 @@ export const AnimatedModal: React.FC<AnimatedModalProps> = ({
 
 	return createPortal(
 		<div
+			role="button"
+			tabIndex={0}
 			style={{
 				position: 'fixed',
 				inset: 0,

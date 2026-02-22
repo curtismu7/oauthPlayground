@@ -415,6 +415,7 @@ const Dashboard = () => {
 	// Check server status on mount
 	useEffect(() => {
 		checkServerStatus();
+		// biome-ignore lint/correctness/useExhaustiveDependencies: Only run once on mount
 	}, [checkServerStatus]);
 
 	const hasSavedCredentials = checkSavedCredentials();

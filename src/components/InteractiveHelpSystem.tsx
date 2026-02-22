@@ -478,7 +478,10 @@ const InteractiveHelpSystem: React.FC = () => {
 	const renderTutorials = () => (
 		<div>
 			<div style={{ marginBottom: '1rem' }}>
-				<label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+				<label
+					style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}
+					htmlFor="selecttutorial"
+				>
 					Select Tutorial:
 				</label>
 				<select

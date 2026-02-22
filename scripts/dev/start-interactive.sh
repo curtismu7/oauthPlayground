@@ -34,7 +34,12 @@ log() {
 show_header() {
     echo ""
     echo "╔══════════════════════════════════════════════════════════════════════════════╗"
-    echo "║                           🔐 OAUTH PLAYGROUND 🔐                           ║"
+    echo "║                           🔐 MASTERFLOW API 🔐                               ║"
+    echo "║                                                                              ║"
+    echo "║  🌐 Custom Domain Support Available:                                         ║"
+    echo "║     • Setup: ./setup-custom-domain.sh                                        ║"
+    echo "║     • Run:   ./run-custom-domain.sh                                          ║"
+    echo "║                                                                              ║"
     echo "╚══════════════════════════════════════════════════════════════════════════════╝"
     echo ""
 }

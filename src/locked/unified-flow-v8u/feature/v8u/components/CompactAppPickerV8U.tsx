@@ -304,6 +304,8 @@ export const CompactAppPickerV8U: React.FC<CompactAppPickerV8UProps> = ({
 						{filteredApps.length > 0 ? (
 							filteredApps.map((app) => (
 								<div
+									role="button"
+									tabIndex={0}
 									key={app.id}
 									onClick={() => handleSelectApp(app)}
 									style={{

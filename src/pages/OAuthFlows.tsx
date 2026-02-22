@@ -780,7 +780,7 @@ const OAuthFlows = () => {
 
 			<FlowsGrid>
 				{flows.map((flow: OAuthFlow) => (
-					<div key={flow.id} onClick={() => handleFlowSelect(flow)}>
+					<div role="button" tabIndex={0} key={flow.id} onClick={() => handleFlowSelect(flow)}>
 						<FlowCard className={selectedFlow?.id === flow.id ? 'active' : ''}>
 							<CardBody>
 								<FlowIcon>{flow.icon}</FlowIcon>

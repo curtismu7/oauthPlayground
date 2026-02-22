@@ -7,9 +7,10 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { FiEdit2, FiPlus, FiTrash2, FiUser } from 'react-icons/fi';
+import { FiEdit2, FiPlus, FiTrash, FiTrash2, FiUser } from 'react-icons/fi';
 import styled from 'styled-components';
 import { UserSearchDropdown } from '../../protect-app/components/UserSearchDropdown';
+import { DeleteAllUsersFlow } from '../components/DeleteAllUsersFlow';
 import { useTheme } from '../contexts/ThemeContext';
 
 // ============================================================================
@@ -312,6 +313,10 @@ const UserManagementPage: React.FC = () => {
 	const [_showEditModal, setShowEditModal] = useState(false);
 	const [_showDeleteModal, setShowDeleteModal] = useState(false);
 	const [_selectedUser, setSelectedUser] = useState<User | null>(null);
+	const [showBulkDeleteFlow, setShowBulkDeleteFlow] = useState(false);
+
+	// Mock environment ID - in real app this would come from context or config
+	const environmentId = 'dev-pingone';
 
 	// Load users
 	const loadUsers = async () => {
@@ -367,6 +372,21 @@ const UserManagementPage: React.FC = () => {
 		setShowDeleteModal(true);
 	};
 
+	const handleBulkDelete = () => {
+		setShowBulkDeleteFlow(true);
+	};
+
+	const handleBulkDeleteComplete = (result: any) => {
+		console.log('Bulk delete completed:', result);
+		setShowBulkDeleteFlow(false);
+		// Reload users to reflect changes
+		loadUsers();
+	};
+
+	const handleBulkDeleteCancel = () => {
+		setShowBulkDeleteFlow(false);
+	};
+
 	return (
 		<PageContainer>
 			<PageHeader>
@@ -376,10 +396,16 @@ const UserManagementPage: React.FC = () => {
 						Manage user accounts, permissions, and access controls
 					</PageDescription>
 				</div>
-				<ActionButton variant="primary" onClick={handleCreateUser}>
-					<FiPlus />
-					Add User
-				</ActionButton>
+				<div style={{ display: 'flex', gap: '1rem' }}>
+					<ActionButton variant="danger" onClick={handleBulkDelete}>
+						<FiTrash />
+						Delete All Users
+					</ActionButton>
+					<ActionButton variant="primary" onClick={handleCreateUser}>
+						<FiPlus />
+						Add User
+					</ActionButton>
+				</div>
 			</PageHeader>
 
 			<SearchSection>
@@ -462,6 +488,15 @@ const UserManagementPage: React.FC = () => {
 			</UserTable>
 
 			{/* TODO: Add Create/Edit/Delete Modals */}
+
+			{/* Bulk Delete Flow */}
+			{showBulkDeleteFlow && (
+				<DeleteAllUsersFlow
+					environmentId={environmentId}
+					onComplete={handleBulkDeleteComplete}
+					onCancel={handleBulkDeleteCancel}
+				/>
+			)}
 		</PageContainer>
 	);
 };

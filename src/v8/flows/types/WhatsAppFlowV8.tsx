@@ -1437,6 +1437,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 								fontSize: '14px',
 								fontWeight: '500',
 							}}
+							htmlFor="devicenicknameoptional"
 						>
 							Device Nickname (optional)
 						</label>
@@ -2088,6 +2089,8 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 
 			return (
 				<div
+					role="button"
+					tabIndex={0}
 					style={{
 						position: 'fixed',
 						top: 0,
@@ -2112,6 +2115,8 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 					}}
 				>
 					<div
+						role="button"
+						tabIndex={0}
 						ref={step4ModalDrag.modalRef}
 						style={{
 							background: 'white',

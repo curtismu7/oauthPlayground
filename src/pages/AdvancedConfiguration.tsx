@@ -605,6 +605,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 									marginBottom: '0.5rem',
 									color: '#1f2937',
 								}}
+								htmlFor="environmentid"
 							>
 								Environment ID
 							</label>
@@ -636,6 +637,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 									marginBottom: '0.5rem',
 									color: '#1f2937',
 								}}
+								htmlFor="defaultredirecturi"
 							>
 								Default Redirect URI
 							</label>
@@ -661,6 +663,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 						{/* Save Button */}
 						<div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
 							<button
+								type="button"
 								onClick={() => {
 									// Save defaults
 									const scopes = Array.from(selectedScopes)
@@ -959,6 +962,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 										{saved ? 'Configuration Saved!' : 'Save Configuration'}
 									</SaveButton>
 									<button
+										type="button"
 										onClick={resetToDefaults}
 										style={{
 											display: 'flex',

@@ -643,7 +643,9 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 							</h4>
 							<ConfigGrid>
 								<ConfigField>
-									<label htmlFor={responseTypeId}>Response Type</label>
+									<label htmlFor={responseTypeId} htmlFor="responsetype">
+										Response Type
+									</label>
 									<select
 										id={responseTypeId}
 										value={normalizedConfig.responseType}
@@ -662,7 +664,9 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 								</ConfigField>
 
 								<ConfigField>
-									<label htmlFor={grantTypeId}>Grant Type</label>
+									<label htmlFor={grantTypeId} htmlFor="granttype">
+										Grant Type
+									</label>
 									<select
 										id={grantTypeId}
 										value={normalizedConfig.grantType}
@@ -743,6 +747,8 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 								<ConfigGrid>
 									<ToggleContainer>
 										<div
+											role="button"
+											tabIndex={0}
 											role="switch"
 											aria-checked={normalizedConfig.enablePKCE}
 											className={`toggle-switch ${normalizedConfig.enablePKCE ? 'active' : ''}`}
@@ -764,7 +770,9 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 
 									{normalizedConfig.enablePKCE && (
 										<ConfigField>
-											<label htmlFor={codeChallengeId}>Code Challenge Method</label>
+											<label htmlFor={codeChallengeId} htmlFor="codechallengemethod">
+												Code Challenge Method
+											</label>
 											<select
 												id={codeChallengeId}
 												value={normalizedConfig.codeChallengeMethod}
@@ -789,7 +797,9 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 								<h4>OpenID Connect Settings</h4>
 								<ConfigGrid>
 									<ConfigField>
-										<label htmlFor={nonceId}>Nonce</label>
+										<label htmlFor={nonceId} htmlFor="nonce">
+											Nonce
+										</label>
 										<div style={{ display: 'flex', gap: '0.5rem' }}>
 											<input
 												type="text"
@@ -798,12 +808,16 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 												onChange={(e) => updateConfig({ nonce: e.target.value })}
 												placeholder="Random string for replay protection"
 											/>
-											<button onClick={generateNonce}>Generate</button>
+											<button type="button" onClick={generateNonce}>
+												Generate
+											</button>
 										</div>
 									</ConfigField>
 
 									<ConfigField>
-										<label htmlFor={stateId}>State</label>
+										<label htmlFor={stateId} htmlFor="state">
+											State
+										</label>
 										<div style={{ display: 'flex', gap: '0.5rem' }}>
 											<input
 												type="text"
@@ -812,12 +826,16 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 												onChange={(e) => updateConfig({ state: e.target.value })}
 												placeholder="Random string for CSRF protection"
 											/>
-											<button onClick={generateState}>Generate</button>
+											<button type="button" onClick={generateState}>
+												Generate
+											</button>
 										</div>
 									</ConfigField>
 
 									<ConfigField>
-										<label htmlFor={maxAgeId}>Max Age (seconds)</label>
+										<label htmlFor={maxAgeId} htmlFor="maxageseconds">
+											Max Age (seconds)
+										</label>
 										<input
 											type="number"
 											id={maxAgeId}
@@ -828,7 +846,9 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 									</ConfigField>
 
 									<ConfigField>
-										<label htmlFor={promptId}>Prompt</label>
+										<label htmlFor={promptId} htmlFor="prompt">
+											Prompt
+										</label>
 										<select
 											id={promptId}
 											value={normalizedConfig.prompt}
@@ -842,7 +862,9 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 									</ConfigField>
 
 									<ConfigField>
-										<label htmlFor={loginHintId}>Login Hint</label>
+										<label htmlFor={loginHintId} htmlFor="loginhint">
+											Login Hint
+										</label>
 										<input
 											type="text"
 											id={loginHintId}
@@ -853,7 +875,9 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 									</ConfigField>
 
 									<ConfigField>
-										<label htmlFor={acrId}>ACR Values</label>
+										<label htmlFor={acrId} htmlFor="acrvalues">
+											ACR Values
+										</label>
 										<select
 											multiple
 											id={acrId}
@@ -897,7 +921,9 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 								exchange.
 							</p>
 							<ConfigField>
-								<label htmlFor={clientAuthId}>Authentication Method</label>
+								<label htmlFor={clientAuthId} htmlFor="authenticationmethod">
+									Authentication Method
+								</label>
 								<select
 									id={clientAuthId}
 									value={normalizedConfig.clientAuthMethod}
@@ -956,7 +982,9 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 											value={value}
 											onChange={(e) => updateCustomParam(key, key, e.target.value)}
 										/>
-										<button onClick={() => removeCustomParam(key)}>Remove</button>
+										<button type="button" onClick={() => removeCustomParam(key)}>
+											Remove
+										</button>
 									</ClaimRow>
 								))}
 								<AddButton onClick={addCustomParam}>+ Add Custom Parameter</AddButton>
@@ -982,7 +1010,9 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 												value={String(value)}
 												onChange={(e) => updateCustomClaim(key, key, e.target.value)}
 											/>
-											<button onClick={() => removeCustomClaim(key)}>Remove</button>
+											<button type="button" onClick={() => removeCustomClaim(key)}>
+												Remove
+											</button>
 										</ClaimRow>
 									))}
 									<AddButton onClick={addCustomClaim}>+ Add Custom Claim</AddButton>

@@ -2,15 +2,15 @@
  * @file SilentApiConfigCheckboxV8.tsx
  * @module v8/components
  * @description Centralized Silent API configuration checkbox component
- * @version 8.1.0
- * @since 2026-02-08
+ * @version 9.0.0
+ * @since 2026-02-20
  *
  * Purpose: Provide a single, consistent Silent API checkbox component
- * Ensures foolproof behavior across all pages and flows
+ * Now uses the UniversalSilentApiService for cross-app consistency
  */
 
 import React from 'react';
-import { useSilentApiConfigV8 } from '@/v8/hooks/useSilentApiConfigV8';
+import { useV8SilentApi } from '@/hooks/useUniversalSilentApi';
 
 const _MODULE_TAG = '[🔕 SILENT-API-CONFIG-V8]';
 
@@ -33,7 +33,7 @@ export interface SilentApiConfigCheckboxV8Props {
 
 /**
  * Centralized Silent API configuration checkbox component
- * Uses the useSilentApiConfigV8 hook for consistent state management
+ * Uses the useV8SilentApi hook for consistent state management across apps
  */
 export const SilentApiConfigCheckboxV8: React.FC<SilentApiConfigCheckboxV8Props> = ({
 	className = '',
@@ -44,7 +44,7 @@ export const SilentApiConfigCheckboxV8: React.FC<SilentApiConfigCheckboxV8Props>
 	loading = false,
 	onChange,
 }) => {
-	const { silentApiRetrieval, updateSilentApiRetrieval, isReady } = useSilentApiConfigV8();
+	const { config, toggleSilentApi, isLoading: hookLoading, error } = useV8SilentApi();
 
 	const handleChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
 		const newValue = event.target.checked;
@@ -54,16 +54,28 @@ export const SilentApiConfigCheckboxV8: React.FC<SilentApiConfigCheckboxV8Props>
 			onChange(newValue);
 		}
 
-		// Update centralized configuration
-		await updateSilentApiRetrieval(newValue);
+		// Only update if the new value matches what we want (handle mutual exclusivity)
+		if (newValue !== config.silentApiRetrieval) {
+			toggleSilentApi();
+		}
 	};
 
 	// Show loading state while hook is initializing
-	if (!isReady) {
+	if (hookLoading) {
 		return (
 			<div style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: 0.6 }}>
 				<input type="checkbox" checked={false} disabled={true} style={{ cursor: 'not-allowed' }} />
 				<span style={{ fontSize: '13px', color: '#6b7280' }}>Loading configuration...</span>
+			</div>
+		);
+	}
+
+	// Show error state if there's an error
+	if (error) {
+		return (
+			<div style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: 0.6 }}>
+				<input type="checkbox" checked={false} disabled={true} style={{ cursor: 'not-allowed' }} />
+				<span style={{ fontSize: '13px', color: '#ef4444' }}>Error: {error}</span>
 			</div>
 		);
 	}
@@ -80,12 +92,12 @@ export const SilentApiConfigCheckboxV8: React.FC<SilentApiConfigCheckboxV8Props>
 		>
 			<input
 				type="checkbox"
-				checked={silentApiRetrieval === true}
+				checked={config.silentApiRetrieval === true}
 				onChange={handleChange}
-				disabled={disabled || loading}
+				disabled={disabled || loading || hookLoading}
 				style={{
 					marginTop: '2px',
-					cursor: disabled || loading ? 'not-allowed' : 'pointer',
+					cursor: disabled || loading || hookLoading ? 'not-allowed' : 'pointer',
 				}}
 			/>
 			<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
@@ -94,17 +106,17 @@ export const SilentApiConfigCheckboxV8: React.FC<SilentApiConfigCheckboxV8Props>
 						fontSize: '13px',
 						color: disabled ? '#9ca3af' : '#374151',
 						fontWeight: '500',
-						opacity: loading ? 0.6 : 1,
+						opacity: loading || hookLoading ? 0.6 : 1,
 					}}
 				>
 					{label}
-					{loading && ' (updating...)'}
+					{(loading || hookLoading) && ' (updating...)'}
 				</span>
 				<span
 					style={{
 						fontSize: '11px',
 						color: disabled ? '#d1d5db' : '#6b7280',
-						opacity: loading ? 0.6 : 1,
+						opacity: loading || hookLoading ? 0.6 : 1,
 					}}
 				>
 					{description}

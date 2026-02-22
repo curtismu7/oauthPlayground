@@ -14,6 +14,16 @@
 
 import { logger } from '../utils/logger';
 
+// Debug log entry interface (matching DebugLogViewer)
+interface LogEntry {
+	timestamp: string;
+	level: 'INFO' | 'WARN' | 'ERROR';
+	category: string;
+	message: string;
+	data?: Record<string, unknown>;
+	url: string;
+}
+
 const MODULE_TAG = '[🔑 UNIFIED-TOKEN-STORAGE]';
 const INDEXEDDB_NAME = 'OAuthPlaygroundTokenStorage';
 const INDEXEDDB_VERSION = 1;
@@ -32,7 +42,20 @@ export interface UnifiedStorageItem {
 		| 'environment_settings'
 		| 'ui_preferences'
 		| 'pkce_state'
-		| 'flow_state';
+		| 'flow_state'
+		| 'debug_logs'
+		| 'mfa_debug_logs'
+		| 'permanent_credentials'
+		| 'session_credentials'
+		| 'config_credentials'
+		| 'authz_flow_credentials'
+		| 'implicit_flow_credentials'
+		| 'implicit_oauth_credentials'
+		| 'implicit_oidc_credentials'
+		| 'hybrid_flow_credentials'
+		| 'worker_flow_credentials'
+		| 'device_flow_credentials'
+		| 'discovery_preferences';
 	value: string;
 	expiresAt: number | null;
 	issuedAt: number;
@@ -730,7 +753,7 @@ export class UnifiedTokenStorageService {
 	public async deleteTokens(query: TokenQuery): Promise<TokenStorageResult<void>> {
 		try {
 			const tokensResult = await this.getTokens(query);
-			
+
 			if (!tokensResult.success || !tokensResult.data) {
 				throw new Error('Failed to get tokens for deletion');
 			}
@@ -740,9 +763,9 @@ export class UnifiedTokenStorageService {
 				await this.deleteToken(token.id);
 			}
 
-			logger.info(MODULE_TAG, 'Tokens deleted successfully', { 
+			logger.info(MODULE_TAG, 'Tokens deleted successfully', {
 				count: tokensResult.data.length,
-				query 
+				query,
 			});
 
 			return {
@@ -1387,6 +1410,22 @@ export class UnifiedTokenStorageService {
 			}
 
 			const token = tokens[0];
+			if (!token || !token.value) {
+				logger.warn(MODULE_TAG, 'Invalid token found, clearing it', { key, token });
+				// Clear the invalid token
+				try {
+					await this.removeToken(token.id);
+					logger.info(MODULE_TAG, 'Cleared invalid token', { key, tokenId: token.id });
+				} catch (clearError) {
+					logger.error(MODULE_TAG, 'Failed to clear invalid token', {
+						key,
+						tokenId: token.id,
+						error: clearError,
+					});
+				}
+				return null;
+			}
+
 			let storageData: StorageData<T> = JSON.parse(token.value);
 
 			// Apply migrations if needed
@@ -3068,6 +3107,810 @@ export class UnifiedTokenStorageService {
 			logger.info(MODULE_TAG, 'Worker token cleared');
 		} catch (error) {
 			logger.error(MODULE_TAG, 'Failed to clear worker token', { error });
+		}
+	}
+
+	/**
+	 * Store debug logs in unified storage
+	 */
+	async storeDebugLogs(
+		logKey: string,
+		logs: LogEntry[],
+		options?: { environmentId?: string; clientId?: string }
+	): Promise<TokenStorageResult<string>> {
+		try {
+			await this.initializeIndexedDB();
+
+			const debugLogItem: UnifiedStorageItem = {
+				id: `debug_logs_${logKey}`,
+				type: 'debug_logs',
+				value: JSON.stringify(logs),
+				expiresAt: null, // Debug logs don't expire
+				issuedAt: Date.now(),
+				source: 'system',
+				flowType: 'debug',
+				flowName: 'debug_logs',
+				environmentId: options?.environmentId,
+				clientId: options?.clientId,
+				metadata: {
+					logKey,
+					count: logs.length,
+					lastUpdated: Date.now(),
+				},
+				createdAt: Date.now(),
+				updatedAt: Date.now(),
+			};
+
+			// Store in IndexedDB
+			await this.storeInIndexedDB(debugLogItem as any);
+
+			// Store in cache
+			this.cache.set(debugLogItem.id, debugLogItem as any);
+			this.saveCache();
+
+			// Store in SQLite via backend (async, don't wait)
+			this.storeInSQLite(debugLogItem as any).catch((error) => {
+				logger.warn(MODULE_TAG, 'Failed to store debug logs in SQLite', undefined, error);
+			});
+
+			logger.info(MODULE_TAG, 'Debug logs stored successfully', {
+				logKey,
+				count: logs.length,
+			});
+
+			return {
+				success: true,
+				data: debugLogItem.id,
+				source: 'indexeddb',
+			};
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to store debug logs', { logKey }, error as Error);
+			return {
+				success: false,
+				error: error instanceof Error ? error.message : 'Failed to store debug logs',
+				source: 'none',
+			};
+		}
+	}
+
+	/**
+	 * Retrieve debug logs from unified storage
+	 */
+	async getDebugLogs(logKey: string): Promise<TokenStorageResult<LogEntry[]>> {
+		try {
+			await this.initializeIndexedDB();
+
+			const debugLogId = `debug_logs_${logKey}`;
+
+			// First try cache
+			const cached = this.cache.get(debugLogId);
+			if (cached) {
+				try {
+					const logs = JSON.parse(cached.value) as LogEntry[];
+					return {
+						success: true,
+						data: logs,
+						source: 'cache',
+					};
+				} catch {
+					// Cache corrupted, continue to other sources
+				}
+			}
+
+			// Then try IndexedDB
+			const indexedDbResult = await this.getFromIndexedDB(debugLogId);
+			if (indexedDbResult) {
+				try {
+					const logs = JSON.parse(indexedDbResult.value) as LogEntry[];
+					// Update cache
+					this.cache.set(debugLogId, indexedDbResult);
+					this.saveCache();
+
+					return {
+						success: true,
+						data: logs,
+						source: 'indexeddb',
+					};
+				} catch {
+					// Data corrupted, continue to SQLite
+				}
+			}
+
+			// Finally try SQLite as fallback
+			const sqliteResult = await this.getFromSQLite(debugLogId);
+			if (sqliteResult) {
+				try {
+					const logs = JSON.parse(sqliteResult.value) as LogEntry[];
+					// Update cache and IndexedDB
+					this.cache.set(debugLogId, sqliteResult);
+					await this.storeInIndexedDB(sqliteResult);
+					this.saveCache();
+
+					return {
+						success: true,
+						data: logs,
+						source: 'sqlite',
+					};
+				} catch {
+					// Data corrupted in all sources
+				}
+			}
+
+			return {
+				success: false,
+				error: 'Debug logs not found',
+				source: 'none',
+			};
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to retrieve debug logs', { logKey }, error as Error);
+			return {
+				success: false,
+				error: error instanceof Error ? error.message : 'Failed to retrieve debug logs',
+				source: 'none',
+			};
+		}
+	}
+
+	/**
+	 * Get all available debug log keys
+	 */
+	async getDebugLogKeys(): Promise<TokenStorageResult<string[]>> {
+		try {
+			await this.initializeIndexedDB();
+
+			const debugLogs = await this.queryIndexedDB({
+				type: 'debug_logs' as any,
+			});
+
+			const logKeys = debugLogs
+				.map((log: any) => log.metadata?.logKey)
+				.filter((key: unknown): key is string => typeof key === 'string');
+
+			return {
+				success: true,
+				data: logKeys,
+				source: 'indexeddb',
+			};
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to get debug log keys', undefined, error as Error);
+			return {
+				success: false,
+				error: error instanceof Error ? error.message : 'Failed to get debug log keys',
+				source: 'none',
+			};
+		}
+	}
+
+	/**
+	 * Clear debug logs
+	 */
+	async clearDebugLogs(logKey?: string): Promise<TokenStorageResult<void>> {
+		try {
+			await this.initializeIndexedDB();
+
+			if (logKey) {
+				// Clear specific debug log
+				const debugLogId = `debug_logs_${logKey}`;
+				await this.deleteTokens({
+					type: 'debug_logs' as any,
+					id: debugLogId,
+				});
+
+				// Remove from cache
+				this.cache.delete(debugLogId);
+				this.saveCache();
+
+				logger.info(MODULE_TAG, 'Debug logs cleared', { logKey });
+			} else {
+				// Clear all debug logs
+				const debugLogs = await this.queryIndexedDB({
+					type: 'debug_logs' as any,
+				});
+
+				for (const log of debugLogs) {
+					await this.deleteTokens({
+						type: 'debug_logs' as any,
+						id: log.id,
+					});
+					// Remove from cache
+					this.cache.delete(log.id);
+				}
+				this.saveCache();
+
+				logger.info(MODULE_TAG, 'All debug logs cleared', { count: debugLogs.length });
+			}
+
+			return {
+				success: true,
+				source: 'indexeddb',
+			};
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to clear debug logs', { logKey }, error as Error);
+			return {
+				success: false,
+				error: error instanceof Error ? error.message : 'Failed to clear debug logs',
+				source: 'none',
+			};
+		}
+	}
+
+	// ============================================================================
+	// MFA DEBUG LOG STORAGE METHODS
+	// ============================================================================
+
+	/**
+	 * Store MFA redirect debug logs in unified storage
+	 */
+	async storeMFADebugLogs(
+		logKey: string = 'mfa_redirect_debug_log',
+		logs: LogEntry[],
+		options?: { environmentId?: string; clientId?: string }
+	): Promise<TokenStorageResult<string>> {
+		try {
+			await this.initializeIndexedDB();
+
+			const mfaDebugLogItem: UnifiedStorageItem = {
+				id: `mfa_debug_logs_${logKey}`,
+				type: 'mfa_debug_logs',
+				value: JSON.stringify(logs),
+				expiresAt: null, // MFA debug logs don't expire
+				issuedAt: Date.now(),
+				source: 'system',
+				flowType: 'mfa',
+				flowName: 'mfa_redirect_debug',
+				environmentId: options?.environmentId,
+				clientId: options?.clientId,
+				metadata: {
+					logKey,
+					count: logs.length,
+					lastUpdated: Date.now(),
+				},
+				createdAt: Date.now(),
+				updatedAt: Date.now(),
+			};
+
+			// Store in IndexedDB
+			await this.storeInIndexedDB(mfaDebugLogItem as any);
+
+			// Store in cache
+			this.cache.set(mfaDebugLogItem.id, mfaDebugLogItem as any);
+			this.saveCache();
+
+			// Store in SQLite via backend (async, don't wait)
+			this.storeInSQLite(mfaDebugLogItem as any).catch((error) => {
+				logger.warn(MODULE_TAG, 'Failed to store MFA debug logs in SQLite', undefined, error);
+			});
+
+			logger.info(MODULE_TAG, 'MFA debug logs stored successfully', {
+				logKey,
+				count: logs.length,
+			});
+
+			return {
+				success: true,
+				data: mfaDebugLogItem.id,
+				source: 'indexeddb',
+			};
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to store MFA debug logs', { logKey }, error as Error);
+			return {
+				success: false,
+				error: error instanceof Error ? error.message : 'Failed to store MFA debug logs',
+				source: 'none',
+			};
+		}
+	}
+
+	/**
+	 * Retrieve MFA redirect debug logs from unified storage
+	 */
+	async getMFADebugLogs(
+		logKey: string = 'mfa_redirect_debug_log'
+	): Promise<TokenStorageResult<LogEntry[]>> {
+		try {
+			await this.initializeIndexedDB();
+
+			const mfaDebugLogId = `mfa_debug_logs_${logKey}`;
+
+			// First try cache
+			const cached = this.cache.get(mfaDebugLogId);
+			if (cached) {
+				try {
+					const logs = JSON.parse(cached.value) as LogEntry[];
+					return {
+						success: true,
+						data: logs,
+						source: 'cache',
+					};
+				} catch {
+					// Cache corrupted, continue to other sources
+				}
+			}
+
+			// Then try IndexedDB
+			const indexedDbResult = await this.getFromIndexedDB(mfaDebugLogId);
+			if (indexedDbResult) {
+				try {
+					const logs = JSON.parse(indexedDbResult.value) as LogEntry[];
+					// Update cache
+					this.cache.set(mfaDebugLogId, indexedDbResult);
+					this.saveCache();
+
+					return {
+						success: true,
+						data: logs,
+						source: 'indexeddb',
+					};
+				} catch {
+					// Data corrupted, continue to SQLite
+				}
+			}
+
+			// Finally try SQLite as fallback
+			const sqliteResult = await this.getFromSQLite(mfaDebugLogId);
+			if (sqliteResult) {
+				try {
+					const logs = JSON.parse(sqliteResult.value) as LogEntry[];
+					// Update cache and IndexedDB
+					this.cache.set(mfaDebugLogId, sqliteResult);
+					await this.storeInIndexedDB(sqliteResult);
+					this.saveCache();
+
+					return {
+						success: true,
+						data: logs,
+						source: 'sqlite',
+					};
+				} catch {
+					// Data corrupted in all sources
+				}
+			}
+
+			return {
+				success: false,
+				error: 'MFA debug logs not found',
+				source: 'none',
+			};
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to retrieve MFA debug logs', { logKey }, error as Error);
+			return {
+				success: false,
+				error: error instanceof Error ? error.message : 'Failed to retrieve MFA debug logs',
+				source: 'none',
+			};
+		}
+	}
+
+	/**
+	 * Clear MFA redirect debug logs
+	 */
+	async clearMFADebugLogs(
+		logKey: string = 'mfa_redirect_debug_log'
+	): Promise<TokenStorageResult<void>> {
+		try {
+			await this.initializeIndexedDB();
+
+			// Clear specific MFA debug log
+			const mfaDebugLogId = `mfa_debug_logs_${logKey}`;
+			await this.deleteTokens({
+				type: 'mfa_debug_logs' as any,
+				id: mfaDebugLogId,
+			});
+
+			// Remove from cache
+			this.cache.delete(mfaDebugLogId);
+			this.saveCache();
+
+			logger.info(MODULE_TAG, 'MFA debug logs cleared', { logKey });
+
+			return {
+				success: true,
+				source: 'indexeddb',
+			};
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to clear MFA debug logs', { logKey }, error as Error);
+			return {
+				success: false,
+				error: error instanceof Error ? error.message : 'Failed to clear MFA debug logs',
+				source: 'none',
+			};
+		}
+	}
+
+	// ============================================================================
+	// CREDENTIAL STORAGE METHODS
+	// ============================================================================
+
+	/**
+	 * Store credentials in unified storage
+	 */
+	async storeCredentials(
+		credentialType:
+			| 'permanent'
+			| 'session'
+			| 'config'
+			| 'authz_flow'
+			| 'implicit_flow'
+			| 'implicit_oauth'
+			| 'implicit_oidc'
+			| 'hybrid_flow'
+			| 'worker_flow'
+			| 'device_flow',
+		credentials: unknown,
+		options?: { environmentId?: string; clientId?: string }
+	): Promise<TokenStorageResult<string>> {
+		try {
+			await this.initializeIndexedDB();
+
+			const credentialItem: UnifiedStorageItem = {
+				id: `credentials_${credentialType}`,
+				type: `${credentialType}_credentials` as any,
+				value: JSON.stringify(credentials),
+				expiresAt: null, // Credentials don't expire by default
+				issuedAt: Date.now(),
+				source: 'manual',
+				flowType: 'credentials',
+				flowName: credentialType,
+				environmentId: options?.environmentId,
+				clientId: options?.clientId,
+				metadata: {
+					credentialType,
+					lastUpdated: Date.now(),
+				},
+				createdAt: Date.now(),
+				updatedAt: Date.now(),
+			};
+
+			// Store in IndexedDB
+			await this.storeInIndexedDB(credentialItem as any);
+
+			// Store in cache
+			this.cache.set(credentialItem.id, credentialItem as any);
+			this.saveCache();
+
+			// Store in SQLite via backend (async, don't wait)
+			this.storeInSQLite(credentialItem as any).catch((error) => {
+				logger.warn(MODULE_TAG, 'Failed to store credentials in SQLite', undefined, error);
+			});
+
+			logger.info(MODULE_TAG, 'Credentials stored successfully', {
+				credentialType,
+			});
+
+			return {
+				success: true,
+				data: credentialItem.id,
+				source: 'indexeddb',
+			};
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to store credentials', { credentialType }, error as Error);
+			return {
+				success: false,
+				error: error instanceof Error ? error.message : 'Failed to store credentials',
+				source: 'none',
+			};
+		}
+	}
+
+	/**
+	 * Retrieve credentials from unified storage
+	 */
+	async getCredentials(
+		credentialType:
+			| 'permanent'
+			| 'session'
+			| 'config'
+			| 'authz_flow'
+			| 'implicit_flow'
+			| 'implicit_oauth'
+			| 'implicit_oidc'
+			| 'hybrid_flow'
+			| 'worker_flow'
+			| 'device_flow'
+	): Promise<TokenStorageResult<unknown>> {
+		try {
+			await this.initializeIndexedDB();
+
+			const credentialId = `credentials_${credentialType}`;
+
+			// First try cache
+			const cached = this.cache.get(credentialId);
+			if (cached) {
+				try {
+					const credentials = JSON.parse(cached.value);
+					return {
+						success: true,
+						data: credentials,
+						source: 'cache',
+					};
+				} catch {
+					// Cache corrupted, continue to other sources
+				}
+			}
+
+			// Then try IndexedDB
+			const indexedDbResult = await this.getFromIndexedDB(credentialId);
+			if (indexedDbResult) {
+				try {
+					const credentials = JSON.parse(indexedDbResult.value);
+					// Update cache
+					this.cache.set(credentialId, indexedDbResult);
+					this.saveCache();
+
+					return {
+						success: true,
+						data: credentials,
+						source: 'indexeddb',
+					};
+				} catch {
+					// Data corrupted, continue to SQLite
+				}
+			}
+
+			// Finally try SQLite as fallback
+			const sqliteResult = await this.getFromSQLite(credentialId);
+			if (sqliteResult) {
+				try {
+					const credentials = JSON.parse(sqliteResult.value);
+					// Update cache and IndexedDB
+					this.cache.set(credentialId, sqliteResult);
+					await this.storeInIndexedDB(sqliteResult);
+					this.saveCache();
+
+					return {
+						success: true,
+						data: credentials,
+						source: 'sqlite',
+					};
+				} catch {
+					// Data corrupted in all sources
+				}
+			}
+
+			return {
+				success: false,
+				error: 'Credentials not found',
+				source: 'none',
+			};
+		} catch (error) {
+			logger.error(
+				MODULE_TAG,
+				'Failed to retrieve credentials',
+				{ credentialType },
+				error as Error
+			);
+			return {
+				success: false,
+				error: error instanceof Error ? error.message : 'Failed to retrieve credentials',
+				source: 'none',
+			};
+		}
+	}
+
+	/**
+	 * Clear credentials from unified storage
+	 */
+	async clearCredentials(
+		credentialType:
+			| 'permanent'
+			| 'session'
+			| 'config'
+			| 'authz_flow'
+			| 'implicit_flow'
+			| 'implicit_oauth'
+			| 'implicit_oidc'
+			| 'hybrid_flow'
+			| 'worker_flow'
+			| 'device_flow'
+	): Promise<TokenStorageResult<void>> {
+		try {
+			await this.initializeIndexedDB();
+
+			// Clear specific credentials
+			const credentialId = `credentials_${credentialType}`;
+			await this.deleteTokens({
+				type: `${credentialType}_credentials` as any,
+				id: credentialId,
+			});
+
+			// Remove from cache
+			this.cache.delete(credentialId);
+			this.saveCache();
+
+			logger.info(MODULE_TAG, 'Credentials cleared', { credentialType });
+
+			return {
+				success: true,
+				source: 'indexeddb',
+			};
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to clear credentials', { credentialType }, error as Error);
+			return {
+				success: false,
+				error: error instanceof Error ? error.message : 'Failed to clear credentials',
+				source: 'none',
+			};
+		}
+	}
+
+	/**
+	 * Store discovery preferences in unified storage
+	 */
+	async storeDiscoveryPreferences(
+		preferences: { environmentId: string; region: string; lastUpdated: number },
+		options?: { environmentId?: string; clientId?: string }
+	): Promise<TokenStorageResult<string>> {
+		try {
+			await this.initializeIndexedDB();
+
+			const preferenceItem: UnifiedStorageItem = {
+				id: 'discovery_preferences',
+				type: 'discovery_preferences' as any,
+				value: JSON.stringify(preferences),
+				expiresAt: null,
+				issuedAt: Date.now(),
+				source: 'manual',
+				flowType: 'preferences',
+				flowName: 'discovery',
+				environmentId: options?.environmentId,
+				clientId: options?.clientId,
+				metadata: {
+					lastUpdated: preferences.lastUpdated,
+				},
+				createdAt: Date.now(),
+				updatedAt: Date.now(),
+			};
+
+			// Store in IndexedDB
+			await this.storeInIndexedDB(preferenceItem as any);
+
+			// Store in cache
+			this.cache.set(preferenceItem.id, preferenceItem as any);
+			this.saveCache();
+
+			// Store in SQLite via backend (async, don't wait)
+			this.storeInSQLite(preferenceItem as any).catch((error) => {
+				logger.warn(
+					MODULE_TAG,
+					'Failed to store discovery preferences in SQLite',
+					undefined,
+					error
+				);
+			});
+
+			logger.info(MODULE_TAG, 'Discovery preferences stored successfully');
+
+			return {
+				success: true,
+				data: preferenceItem.id,
+				source: 'indexeddb',
+			};
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to store discovery preferences', undefined, error as Error);
+			return {
+				success: false,
+				error: error instanceof Error ? error.message : 'Failed to store discovery preferences',
+				source: 'none',
+			};
+		}
+	}
+
+	/**
+	 * Retrieve discovery preferences from unified storage
+	 */
+	async getDiscoveryPreferences(): Promise<
+		TokenStorageResult<{ environmentId: string; region: string; lastUpdated: number }>
+	> {
+		try {
+			await this.initializeIndexedDB();
+
+			const preferenceId = 'discovery_preferences';
+
+			// First try cache
+			const cached = this.cache.get(preferenceId);
+			if (cached) {
+				try {
+					const preferences = JSON.parse(cached.value);
+					return {
+						success: true,
+						data: preferences,
+						source: 'cache',
+					};
+				} catch {
+					// Cache corrupted, continue to other sources
+				}
+			}
+
+			// Then try IndexedDB
+			const indexedDbResult = await this.getFromIndexedDB(preferenceId);
+			if (indexedDbResult) {
+				try {
+					const preferences = JSON.parse(indexedDbResult.value);
+					// Update cache
+					this.cache.set(preferenceId, indexedDbResult);
+					this.saveCache();
+
+					return {
+						success: true,
+						data: preferences,
+						source: 'indexeddb',
+					};
+				} catch {
+					// Data corrupted, continue to SQLite
+				}
+			}
+
+			// Finally try SQLite as fallback
+			const sqliteResult = await this.getFromSQLite(preferenceId);
+			if (sqliteResult) {
+				try {
+					const preferences = JSON.parse(sqliteResult.value);
+					// Update cache and IndexedDB
+					this.cache.set(preferenceId, sqliteResult);
+					await this.storeInIndexedDB(sqliteResult);
+					this.saveCache();
+
+					return {
+						success: true,
+						data: preferences,
+						source: 'sqlite',
+					};
+				} catch {
+					// Data corrupted in all sources
+				}
+			}
+
+			return {
+				success: false,
+				error: 'Discovery preferences not found',
+				source: 'none',
+			};
+		} catch (error) {
+			logger.error(
+				MODULE_TAG,
+				'Failed to retrieve discovery preferences',
+				undefined,
+				error as Error
+			);
+			return {
+				success: false,
+				error: error instanceof Error ? error.message : 'Failed to retrieve discovery preferences',
+				source: 'none',
+			};
+		}
+	}
+
+	/**
+	 * Clear discovery preferences from unified storage
+	 */
+	async clearDiscoveryPreferences(): Promise<TokenStorageResult<void>> {
+		try {
+			await this.initializeIndexedDB();
+
+			// Clear discovery preferences
+			const preferenceId = 'discovery_preferences';
+			await this.deleteTokens({
+				type: 'discovery_preferences' as any,
+				id: preferenceId,
+			});
+
+			// Remove from cache
+			this.cache.delete(preferenceId);
+			this.saveCache();
+
+			logger.info(MODULE_TAG, 'Discovery preferences cleared');
+
+			return {
+				success: true,
+				source: 'indexeddb',
+			};
+		} catch (error) {
+			logger.error(MODULE_TAG, 'Failed to clear discovery preferences', undefined, error as Error);
+			return {
+				success: false,
+				error: error instanceof Error ? error.message : 'Failed to clear discovery preferences',
+				source: 'none',
+			};
 		}
 	}
 }

@@ -74,6 +74,8 @@ export const FlowProgressTrackerV8: React.FC<FlowProgressTrackerV8Props> = ({
 
 		return (
 			<div
+				role="button"
+				tabIndex={0}
 				key={step.id}
 				className={`flow-step ${isActive ? 'active' : ''} ${isClickable ? 'clickable' : ''}`}
 				onClick={() => handleStepClick(step.id)}
@@ -101,6 +103,8 @@ export const FlowProgressTrackerV8: React.FC<FlowProgressTrackerV8Props> = ({
 
 		return (
 			<div
+				role="button"
+				tabIndex={0}
 				key={step.id}
 				className={`flow-step vertical ${isActive ? 'active' : ''} ${isClickable ? 'clickable' : ''}`}
 				onClick={() => handleStepClick(step.id)}
@@ -130,6 +134,8 @@ export const FlowProgressTrackerV8: React.FC<FlowProgressTrackerV8Props> = ({
 
 		return (
 			<div
+				role="button"
+				tabIndex={0}
 				key={step.id}
 				className={`flow-step compact ${isActive ? 'active' : ''} ${isClickable ? 'clickable' : ''}`}
 				onClick={() => handleStepClick(step.id)}

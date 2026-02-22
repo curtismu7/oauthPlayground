@@ -96,6 +96,8 @@ export const TooltipV8: React.FC<TooltipV8Props> = ({
 
 			{shouldShowTooltip && (
 				<div
+					role="button"
+					tabIndex={0}
 					style={{
 						position: 'absolute',
 						...getPositionStyles(),

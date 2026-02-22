@@ -1096,6 +1096,7 @@ const AuthzV4NewWindsurfFlow: React.FC = () => {
 														color: '#374151',
 														marginBottom: '0.5rem',
 													}}
+													htmlFor="codeverifierkeepthissecret"
 												>
 													Code Verifier (keep this secret!)
 												</label>
@@ -1133,6 +1134,7 @@ const AuthzV4NewWindsurfFlow: React.FC = () => {
 														color: '#374151',
 														marginBottom: '0.5rem',
 													}}
+													htmlFor="codechallengesentinauthorizationrequest"
 												>
 													Code Challenge (sent in authorization request)
 												</label>
@@ -1374,6 +1376,7 @@ const AuthzV4NewWindsurfFlow: React.FC = () => {
 													color: '#374151',
 													marginBottom: '0.5rem',
 												}}
+												htmlFor="completeauthorizationurl"
 											>
 												Complete Authorization URL
 											</label>

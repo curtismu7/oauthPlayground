@@ -253,7 +253,13 @@ export const UnifiedOTPModal: React.FC<UnifiedOTPModalProps> = ({
 	return (
 		<>
 			{/* Modal Backdrop */}
-			<div className="modal-backdrop" onClick={onClose} role="presentation" aria-hidden="true" />
+			<div
+				role="button"
+				tabIndex={0}
+				className="modal-backdrop"
+				onClick={onClose}
+				role="presentation"
+			/>
 
 			{/* Modal Container */}
 			<div
@@ -286,7 +292,7 @@ export const UnifiedOTPModal: React.FC<UnifiedOTPModalProps> = ({
 
 					{/* OTP Input */}
 					<div className="otp-input-container">
-						<label htmlFor="otp-input" className="otp-label">
+						<label htmlFor="otp-input" className="otp-label" htmlFor="onetimepassword">
 							One-Time Password
 						</label>
 						<input

@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { FiRefreshCw, FiServer } from 'react-icons/fi';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 interface HealthData {
@@ -184,15 +183,6 @@ const RefreshButton = styled.button`
 	}
 `;
 
-const _ErrorMessage = styled.div`
-	background: #fef2f2;
-	border: 1px solid #fecaca;
-	border-radius: 0.5rem;
-	padding: 1rem;
-	color: #991b1b;
-	margin-bottom: 1.5rem;
-`;
-
 const formatBytes = (bytes: number): string => {
 	if (bytes === 0) return '0 Bytes';
 	const k = 1024;
@@ -336,7 +326,7 @@ const ApiStatusPage: React.FC = () => {
 		}
 	};
 
-	const fetchHealthData = async () => {
+	const fetchHealthData = useCallback(async () => {
 		try {
 			setLoading(true);
 
@@ -351,10 +341,11 @@ const ApiStatusPage: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	};
+	}, [servers, checkServerHealth]);
 
 	useEffect(() => {
 		fetchHealthData();
+		// Only run once on mount
 		// biome-ignore lint/correctness/useExhaustiveDependencies: Only run once on mount
 	}, [fetchHealthData]);
 
@@ -363,7 +354,7 @@ const ApiStatusPage: React.FC = () => {
 			<PageContainer>
 				<PageHeader>
 					<PageTitle>
-						<FiServer />
+						<span className="mdi mdi-server" style={{ fontSize: '28px' }}></span>
 						API Status
 					</PageTitle>
 					<PageDescription>Loading server health information...</PageDescription>
@@ -373,142 +364,147 @@ const ApiStatusPage: React.FC = () => {
 	}
 
 	return (
-		<PageContainer>
-			<PageHeader>
-				<PageTitle>
-					<FiServer />
-					API Status
-				</PageTitle>
-				<PageDescription>
-					Server health monitoring and status information
-					{lastRefresh && (
-						<span style={{ marginLeft: '1rem', color: '#9ca3af', fontSize: '0.875rem' }}>
-							Last updated: {lastRefresh.toLocaleTimeString()}
-						</span>
-					)}
-				</PageDescription>
-				<RefreshButton onClick={fetchHealthData}>
-					<FiRefreshCw style={{ animation: loading ? 'spin 1s linear infinite' : 'none' }} />
-					{loading ? 'Refreshing...' : 'Refresh'}
-				</RefreshButton>
-			</PageHeader>
+		<div className="end-user-nano">
+			<PageContainer>
+				<PageHeader>
+					<PageTitle>
+						<span className="mdi mdi-server" style={{ fontSize: '28px' }}></span>
+						API Status
+					</PageTitle>
+					<PageDescription>
+						Server health monitoring and status information
+						{lastRefresh && (
+							<span style={{ marginLeft: '1rem', color: '#9ca3af', fontSize: '0.875rem' }}>
+								Last updated: {lastRefresh.toLocaleTimeString()}
+							</span>
+						)}
+					</PageDescription>
+					<RefreshButton onClick={fetchHealthData}>
+						<span
+							className="mdi mdi-refresh"
+							style={{ animation: loading ? 'spin 1s linear infinite' : 'none', fontSize: '16px' }}
+						></span>
+						{loading ? 'Refreshing...' : 'Refresh'}
+					</RefreshButton>
+				</PageHeader>
 
-			<StatusGrid>
-				{servers.map((server) => (
-					<StatusCard key={server.name}>
-						<CardHeader>
-							<CardIcon
-								color={
-									server.status === 'online'
-										? '#10b981'
+				<StatusGrid>
+					{servers.map((server) => (
+						<StatusCard key={server.name}>
+							<CardHeader>
+								<CardIcon
+									color={
+										server.status === 'online'
+											? '#10b981'
+											: server.status === 'offline'
+												? '#ef4444'
+												: '#f59e0b'
+									}
+								>
+									<span className="mdi mdi-server" style={{ fontSize: '20px' }}></span>
+								</CardIcon>
+								<CardTitle>{server.name}</CardTitle>
+								<StatusBadge status={server.status}>
+									{server.status === 'online'
+										? 'Online'
 										: server.status === 'offline'
-											? '#ef4444'
-											: '#f59e0b'
-								}
-							>
-								<FiServer />
-							</CardIcon>
-							<CardTitle>{server.name}</CardTitle>
-							<StatusBadge status={server.status}>
-								{server.status === 'online'
-									? 'Online'
-									: server.status === 'offline'
-										? 'Offline'
-										: 'Checking'}
-							</StatusBadge>
-						</CardHeader>
+											? 'Offline'
+											: 'Checking'}
+								</StatusBadge>
+							</CardHeader>
 
-						{server.error && (
-							<div
-								style={{
-									marginBottom: '1rem',
-									padding: '0.5rem',
-									backgroundColor: '#fef2f2',
-									border: '1px solid #fecaca',
-									borderRadius: '0.25rem',
-									color: '#991b1b',
-									fontSize: '0.875rem',
-								}}
-							>
-								{server.error}
-							</div>
-						)}
+							{server.error && (
+								<div
+									style={{
+										marginBottom: '1rem',
+										padding: '0.5rem',
+										backgroundColor: '#fef2f2',
+										border: '1px solid #fecaca',
+										borderRadius: '0.25rem',
+										color: '#991b1b',
+										fontSize: '0.875rem',
+									}}
+								>
+									{server.error}
+								</div>
+							)}
 
-						{server.healthData && (
-							<>
-								<StatRow>
-									<StatLabel>Port</StatLabel>
-									<StatValue>
-										{server.port} ({server.protocol})
-									</StatValue>
-								</StatRow>
-								<StatRow>
-									<StatLabel>Status</StatLabel>
-									<StatValue>{server.healthData.status}</StatValue>
-								</StatRow>
-								<StatRow>
-									<StatLabel>Version</StatLabel>
-									<StatValue>{server.healthData.version}</StatValue>
-								</StatRow>
-								<StatRow>
-									<StatLabel>Environment</StatLabel>
-									<StatValue>{server.healthData.environment}</StatValue>
-								</StatRow>
-								{server.healthData.pid > 0 && (
+							{server.healthData && (
+								<>
 									<StatRow>
-										<StatLabel>Process ID</StatLabel>
-										<StatValue>{server.healthData.pid}</StatValue>
+										<StatLabel>Port</StatLabel>
+										<StatValue>
+											{server.port} ({server.protocol})
+										</StatValue>
 									</StatRow>
-								)}
-								{server.healthData.uptimeSeconds > 0 && (
 									<StatRow>
-										<StatLabel>Uptime</StatLabel>
-										<StatValue>{formatUptime(server.healthData.uptimeSeconds)}</StatValue>
+										<StatLabel>Status</StatLabel>
+										<StatValue>{server.healthData.status}</StatValue>
 									</StatRow>
-								)}
-								{server.lastChecked && (
 									<StatRow>
-										<StatLabel>Last Checked</StatLabel>
-										<StatValue>{server.lastChecked.toLocaleTimeString()}</StatValue>
+										<StatLabel>Version</StatLabel>
+										<StatValue>{server.healthData.version}</StatValue>
 									</StatRow>
-								)}
+									<StatRow>
+										<StatLabel>Environment</StatLabel>
+										<StatValue>{server.healthData.environment}</StatValue>
+									</StatRow>
+									{server.healthData.pid > 0 && (
+										<StatRow>
+											<StatLabel>Process ID</StatLabel>
+											<StatValue>{server.healthData.pid}</StatValue>
+										</StatRow>
+									)}
+									{server.healthData.uptimeSeconds > 0 && (
+										<StatRow>
+											<StatLabel>Uptime</StatLabel>
+											<StatValue>{formatUptime(server.healthData.uptimeSeconds)}</StatValue>
+										</StatRow>
+									)}
+									{server.lastChecked && (
+										<StatRow>
+											<StatLabel>Last Checked</StatLabel>
+											<StatValue>{server.lastChecked.toLocaleTimeString()}</StatValue>
+										</StatRow>
+									)}
 
-								{/* Show additional details for backend servers */}
-								{server.port !== 3000 && (
-									<>
-										<StatRow>
-											<StatLabel>Node Version</StatLabel>
-											<StatValue>{server.healthData.node.version}</StatValue>
-										</StatRow>
-										<StatRow>
-											<StatLabel>Memory Usage</StatLabel>
-											<StatValue>
-												{formatBytes(server.healthData.memory.heapUsed)} /{' '}
-												{formatBytes(server.healthData.memory.heapTotal)}
-											</StatValue>
-										</StatRow>
-										<StatRow>
-											<StatLabel>CPU Usage</StatLabel>
-											<StatValue>{server.healthData.cpuUsage.avg1mPercent.toFixed(1)}%</StatValue>
-										</StatRow>
-										<StatRow>
-											<StatLabel>Requests</StatLabel>
-											<StatValue>
-												{server.healthData.requestStats.totalRequests} (
-												{server.healthData.requestStats.errorRate > 0
-													? `${(server.healthData.requestStats.errorRate * 100).toFixed(1)}% errors`
-													: 'no errors'}
-												)
-											</StatValue>
-										</StatRow>
-									</>
-								)}
-							</>
-						)}
-					</StatusCard>
-				))}
-			</StatusGrid>
-		</PageContainer>
+									{/* Show additional details for backend servers */}
+									{server.port !== 3000 && (
+										<>
+											<StatRow>
+												<StatLabel>Node Version</StatLabel>
+												<StatValue>{server.healthData.node.version}</StatValue>
+											</StatRow>
+											<StatRow>
+												<StatLabel>Memory Usage</StatLabel>
+												<StatValue>
+													{formatBytes(server.healthData.memory.heapUsed)} /{' '}
+													{formatBytes(server.healthData.memory.heapTotal)}
+												</StatValue>
+											</StatRow>
+											<StatRow>
+												<StatLabel>CPU Usage</StatLabel>
+												<StatValue>{server.healthData.cpuUsage.avg1mPercent.toFixed(1)}%</StatValue>
+											</StatRow>
+											<StatRow>
+												<StatLabel>Requests</StatLabel>
+												<StatValue>
+													{server.healthData.requestStats.totalRequests} (
+													{server.healthData.requestStats.errorRate > 0
+														? `${(server.healthData.requestStats.errorRate * 100).toFixed(1)}% errors`
+														: 'no errors'}
+													)
+												</StatValue>
+											</StatRow>
+										</>
+									)}
+								</>
+							)}
+						</StatusCard>
+					))}
+				</StatusGrid>
+			</PageContainer>
+		</div>
 	);
 };
 

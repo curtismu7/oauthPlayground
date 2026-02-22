@@ -13,6 +13,12 @@ import {
 	AppDiscoveryServiceV8,
 	type DiscoveredApplication,
 } from '@/v8/services/appDiscoveryServiceV8';
+import {
+	checkWorkerTokenStatus,
+	getStatusColor,
+	getStatusIcon,
+	type TokenStatusInfo,
+} from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const MODULE_TAG = '[🔍 APP-DISCOVERY-MODAL-V8U]';
@@ -43,6 +49,12 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 	const [apps, setApps] = useState<(DiscoveredApp & { fullApp?: DiscoveredApplication })[]>([]);
 	const [selectedAppId, setSelectedAppId] = useState<string | null>(null);
 	const [searchQuery, setSearchQuery] = useState('');
+	const [tokenStatusInfo, setTokenStatusInfo] = useState<TokenStatusInfo | null>(null);
+
+	// Update token status when component mounts or token changes
+	useEffect(() => {
+		checkWorkerTokenStatus().then(setTokenStatusInfo);
+	}, []);
 
 	// Lock body scroll when modal is open
 	useEffect(() => {
@@ -215,6 +227,8 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 		<>
 			{/* Backdrop */}
 			<div
+				role="button"
+				tabIndex={0}
 				onClick={onClose}
 				onKeyDown={(e) => {
 					if (e.key === 'Escape') {
@@ -237,6 +251,8 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 			>
 				{/* Modal */}
 				<div
+					role="button"
+					tabIndex={0}
 					onClick={(e) => e.stopPropagation()}
 					style={{
 						background: 'white',
@@ -270,6 +286,7 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 							📱 Discover Applications
 						</h2>
 						<button
+							type="button"
 							onClick={onClose}
 							type="button"
 							style={{
@@ -338,27 +355,22 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 								padding: '12px 16px',
 								marginBottom: '20px',
 								background:
-									globalTokenStatus.status === 'valid'
+									tokenStatusInfo?.status === 'valid'
 										? '#d1fae5'
-										: globalTokenStatus.status === 'expiring-soon'
+										: tokenStatusInfo?.status === 'expiring-soon'
 											? '#fef3c7'
 											: '#fee2e2',
-								border: `1px solid ${globalTokenStatus.getStatusColor(globalTokenStatus.status)}`,
+								border: `1px solid ${tokenStatusInfo ? getStatusColor(tokenStatusInfo.status) : '#ef4444'}`,
 								borderRadius: '8px',
 								fontSize: '14px',
-								color:
-									globalTokenStatus.status === 'valid'
-										? '#065f46'
-										: globalTokenStatus.status === 'expiring-soon'
-											? '#92400e'
-											: '#991b1b',
+								color: tokenStatusInfo ? getStatusColor(tokenStatusInfo.status) : '#ef4444',
 								display: 'flex',
 								alignItems: 'center',
 								gap: '8px',
 							}}
 						>
-							<span>{globalTokenStatus.getStatusIcon(globalTokenStatus.status)}</span>
-							<span>{globalTokenStatus.message}</span>
+							<span>{tokenStatusInfo ? getStatusIcon(tokenStatusInfo.status) : '⚠️'}</span>
+							<span>{tokenStatusInfo ? tokenStatusInfo.message : 'Checking token status...'}</span>
 						</div>
 
 						{/* Environment ID */}
@@ -432,6 +444,7 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 										color: '#1f2937',
 										marginBottom: '8px',
 									}}
+									htmlFor="searchapplications"
 								>
 									🔍 Search Applications
 								</label>
@@ -501,6 +514,8 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 									>
 										{filteredApps.map((app) => (
 											<div
+												role="button"
+												tabIndex={0}
 												key={app.id}
 												onClick={() => handleSelectApp(app)}
 												style={{

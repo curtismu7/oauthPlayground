@@ -69,7 +69,11 @@ export const CredentialsForm: React.FC<CredentialsFormProps> = ({
 	return (
 		<form onSubmit={handleSubmit} style={{ maxWidth: '600px', margin: '0 auto' }}>
 			<div style={{ marginBottom: '1rem' }}>
-				<label htmlFor="environmentId" style={{ display: 'block', marginBottom: '0.5rem' }}>
+				<label
+					htmlFor="environmentId"
+					style={{ display: 'block', marginBottom: '0.5rem' }}
+					htmlFor="environmentid"
+				>
 					Environment ID *
 				</label>
 				<input
@@ -90,7 +94,11 @@ export const CredentialsForm: React.FC<CredentialsFormProps> = ({
 			</div>
 
 			<div style={{ marginBottom: '1rem' }}>
-				<label htmlFor="clientId" style={{ display: 'block', marginBottom: '0.5rem' }}>
+				<label
+					htmlFor="clientId"
+					style={{ display: 'block', marginBottom: '0.5rem' }}
+					htmlFor="clientid"
+				>
 					Client ID *
 				</label>
 				<input
@@ -111,7 +119,11 @@ export const CredentialsForm: React.FC<CredentialsFormProps> = ({
 			</div>
 
 			<div style={{ marginBottom: '1rem' }}>
-				<label htmlFor="clientSecret" style={{ display: 'block', marginBottom: '0.5rem' }}>
+				<label
+					htmlFor="clientSecret"
+					style={{ display: 'block', marginBottom: '0.5rem' }}
+					htmlFor="clientsecret"
+				>
 					Client Secret *
 				</label>
 				<input
@@ -132,7 +144,11 @@ export const CredentialsForm: React.FC<CredentialsFormProps> = ({
 			</div>
 
 			<div style={{ marginBottom: '1rem' }}>
-				<label htmlFor="region" style={{ display: 'block', marginBottom: '0.5rem' }}>
+				<label
+					htmlFor="region"
+					style={{ display: 'block', marginBottom: '0.5rem' }}
+					htmlFor="region"
+				>
 					Region
 				</label>
 				<select

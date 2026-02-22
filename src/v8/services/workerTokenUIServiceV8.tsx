@@ -16,7 +16,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { FiLoader, FiTrash2 } from 'react-icons/fi';
 import styled from 'styled-components';
-import { useWorkerTokenConfigV8 } from '@/v8/hooks/useSilentApiConfigV8';
+import { useV8SilentApi } from '@/hooks/useUniversalSilentApi';
 import { AppDiscoveryModalV8U } from '../../v8u/components/AppDiscoveryModalV8U';
 import type { DiscoveredApp } from '../components/AppPickerV8';
 import { WorkerTokenModalV8 } from '../components/WorkerTokenModalV8';
@@ -223,14 +223,14 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 	const [tokenWasGenerated, setTokenWasGenerated] = useState(false);
 	const [effectiveEnvironmentId, setEffectiveEnvironmentId] = useState(environmentId);
 
-	// Use centralized worker token configuration hook
+	// Use universal Silent API service for V8
 	const {
 		config,
-		silentApiRetrieval,
-		showTokenAtEnd,
-		updateSilentApiRetrieval,
-		updateShowTokenAtEnd,
-	} = useWorkerTokenConfigV8();
+		toggleSilentApi,
+		toggleShowTokenAtEnd,
+		isLoading: hookLoading,
+	} = useV8SilentApi();
+	const { silentApiRetrieval, showTokenAtEnd } = config;
 
 	// Initialize token status
 	useEffect(() => {
@@ -373,43 +373,39 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 		}
 	}, []);
 
-	// Handle Silent API Retrieval checkbox change
-	const handleSilentRetrievalChange = useCallback(
-		async (e: React.ChangeEvent<HTMLInputElement>) => {
+	// Handle Silent API checkbox change
+	const handleSilentApiRetrievalChange = useCallback(
+		(e: React.ChangeEvent<HTMLInputElement>) => {
 			const newValue = e.target.checked;
 
-			// Use centralized hook to update configuration
-			updateSilentApiRetrieval(newValue);
+			// Use universal service toggle (handles mutual exclusivity automatically)
+			toggleSilentApi();
 
 			toastV8.info(`Silent API Token Retrieval set to: ${newValue}`);
 
 			// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
-			if (newValue) {
-				try {
-					const { handleShowWorkerTokenModal } = await import('../utils/workerTokenModalHelperV8');
-					await handleShowWorkerTokenModal(
-						() => {}, // Don't show modal in silent mode
-						() => {}, // Don't update status in silent mode
-						true, // Override: enable silent retrieval
-						undefined, // No override for showTokenAtEnd
-						false, // Not forced - respect silent setting
-						undefined // No loading state setter needed
-					);
-				} catch (error) {
-					console.error('[WorkerTokenUIServiceV8] Error in silent retrieval:', error);
-				}
+			if (newValue && tokenStatus && !tokenStatus.isValid) {
+				console.log(
+					'[WorkerTokenUIServiceV8] Silent API retrieval enabled, attempting to fetch token now...'
+				);
+				// Auto-retrieve token when enabled
+				setTimeout(() => {
+					handleGetWorkerToken();
+				}, 500);
 			}
 		},
-		[updateSilentApiRetrieval]
+		[toggleSilentApi, tokenStatus, handleGetWorkerToken]
 	);
 
 	// Handle Show Token After Generation checkbox change
 	const handleShowTokenAtEndChange = useCallback(
 		(e: React.ChangeEvent<HTMLInputElement>) => {
-			const newValue = e.target.checked;
-			updateShowTokenAtEnd(newValue);
+			const _newValue = e.target.checked;
+
+			// Use universal service toggle (handles mutual exclusivity automatically)
+			toggleShowTokenAtEnd();
 		},
-		[updateShowTokenAtEnd]
+		[toggleShowTokenAtEnd]
 	);
 
 	// Handle Get Apps Config button click
@@ -601,7 +597,7 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 					<SettingCheckbox
 						type="checkbox"
 						checked={silentApiRetrieval}
-						onChange={handleSilentRetrievalChange}
+						onChange={handleSilentApiRetrievalChange}
 					/>
 					<SettingContent>
 						<SettingTitle>Silent API Token Retrieval</SettingTitle>

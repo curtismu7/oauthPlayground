@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Domain Configuration Debug</title>
+    <style>
+        body {
+            font-family: monospace;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .section {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        .error { color: #d32f2f; }
+        .success { color: #388e3c; }
+        .info { color: #1976d2; }
+        button {
+            background: #1976d2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #1565c0; }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Domain Configuration Debug</h1>
+    
+    <div class="section">
+        <h2>Current Status</h2>
+        <div id="current-status">Loading...</div>
+    </div>
+
+    <div class="section">
+        <h2>Manual Test</h2>
+        <input type="text" id="domain-input" placeholder="https://auth.curtis.com" style="width: 300px; padding: 5px;">
+        <button onclick="testSaveDomain()">Test Save</button>
+        <button onclick="testReset()">Reset</button>
+        <button onclick="testValidate()">Validate</button>
+        <div id="test-results"></div>
+    </div>
+
+    <div class="section">
+        <h2>localStorage Contents</h2>
+        <button onclick="showLocalStorage()">Show Storage</button>
+        <button onclick="clearStorage()">Clear Storage</button>
+        <pre id="storage-content"></pre>
+    </div>
+
+    <div class="section">
+        <h2>Console Logs</h2>
+        <button onclick="clearLogs()">Clear Logs</button>
+        <pre id="console-logs"></pre>
+    </div>
+
+    <script>
+        // Mock the domain configuration service for testing
+        const DOMAIN_CONFIG_KEY = 'oauth-playground-domain-config';
+        const MODULE_TAG = '[🌐 DOMAIN-DEBUG]';
+        
+        // Capture console logs
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        const logs = [];
+        
+        function captureLog(type, ...args) {
+            const message = args.map(arg => 
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+            ).join(' ');
+            logs.push(`[${type.toUpperCase()}] ${new Date().toISOString()} ${message}`);
+            updateConsoleDisplay();
+        }
+        
+        console.log = (...args) => {
+            originalLog(...args);
+            captureLog('log', ...args);
+        };
+        
+        console.error = (...args) => {
+            originalError(...args);
+            captureLog('error', ...args);
+        };
+        
+        console.warn = (...args) => {
+            originalWarn(...args);
+            captureLog('warn', ...args);
+        };
+        
+        function updateConsoleDisplay() {
+            document.getElementById('console-logs').textContent = logs.slice(-50).join('\n');
+        }
+        
+        function clearLogs() {
+            logs.length = 0;
+            updateConsoleDisplay();
+        }
+        
+        // Domain configuration functions
+        function loadConfig() {
+            try {
+                const stored = localStorage.getItem(DOMAIN_CONFIG_KEY);
+                if (stored) {
+                    return JSON.parse(stored);
+                }
+            } catch (error) {
+                console.error('Failed to load config:', error);
+            }
+            return {
+                customDomain: undefined,
+                useCustomDomain: false,
+                enforceHttps: true
+            };
+        }
+        
+        function saveConfig(updates) {
+            try {
+                const current = loadConfig();
+                const newConfig = { ...current, ...updates };
+                localStorage.setItem(DOMAIN_CONFIG_KEY, JSON.stringify(newConfig));
+                console.log('Config saved:', newConfig);
+                return newConfig;
+            } catch (error) {
+                console.error('Failed to save config:', error);
+                throw error;
+            }
+        }
+        
+        async function validateDomain(domain) {
+            try {
+                const url = new URL(domain);
+                
+                // Enforce HTTPS for non-localhost domains
+                if (!url.hostname.includes('localhost') && url.protocol !== 'https:') {
+                    return {
+                        isValid: false,
+                        error: 'HTTPS is required for non-localhost domains'
+                    };
+                }
+                
+                // Skip reachability test for now
+                console.log('Domain format validated:', domain);
+                return { isValid: true };
+                
+            } catch (error) {
+                return {
+                    isValid: false,
+                    error: 'Invalid URL format'
+                };
+            }
+        }
+        
+        async function setCustomDomain(domain) {
+            const validation = await validateDomain(domain);
+            if (!validation.isValid) {
+                return { success: false, error: validation.error };
+            }
+            
+            try {
+                saveConfig({
+                    customDomain: domain,
+                    useCustomDomain: true,
+                    lastValidated: new Date().toISOString()
+                });
+                return { success: true };
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
+        }
+        
+        function getEffectiveDomain() {
+            const config = loadConfig();
+            if (config.useCustomDomain && config.customDomain) {
+                return config.customDomain;
+            }
+            return window.location.origin;
+        }
+        
+        // UI Functions
+        function updateStatus() {
+            const config = loadConfig();
+            const effective = getEffectiveDomain();
+            
+            document.getElementById('current-status').innerHTML = `
+                <p><strong>Custom Domain:</strong> ${config.customDomain || 'None'}</p>
+                <p><strong>Use Custom Domain:</strong> ${config.useCustomDomain}</p>
+                <p><strong>Effective Domain:</strong> <span class="info">${effective}</span></p>
+                <p><strong>Last Validated:</strong> ${config.lastValidated || 'Never'}</p>
+                <p><strong>Enforce HTTPS:</strong> ${config.enforceHttps}</p>
+            `;
+        }
+        
+        async function testSaveDomain() {
+            const domain = document.getElementById('domain-input').value.trim();
+            if (!domain) {
+                showResult('Please enter a domain', 'error');
+                return;
+            }
+            
+            console.log(`Testing save domain: ${domain}`);
+            showResult('Testing...', 'info');
+            
+            try {
+                const result = await setCustomDomain(domain);
+                if (result.success) {
+                    showResult(`✅ Domain saved successfully: ${domain}`, 'success');
+                    updateStatus();
+                } else {
+                    showResult(`❌ Failed to save: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+        
+        function testReset() {
+            saveConfig({
+                customDomain: undefined,
+                useCustomDomain: false,
+                enforceHttps: true
+            });
+            showResult('✅ Reset to default', 'success');
+            updateStatus();
+        }
+        
+        async function testValidate() {
+            const domain = document.getElementById('domain-input').value.trim();
+            if (!domain) {
+                showResult('Please enter a domain', 'error');
+                return;
+            }
+            
+            console.log(`Testing validation: ${domain}`);
+            const result = await validateDomain(domain);
+            
+            if (result.isValid) {
+                showResult(`✅ Domain is valid: ${domain}`, 'success');
+            } else {
+                showResult(`❌ Domain invalid: ${result.error}`, 'error');
+            }
+        }
+        
+        function showResult(message, type) {
+            const div = document.getElementById('test-results');
+            div.innerHTML = `<p class="${type}">${message}</p>`;
+        }
+        
+        function showLocalStorage() {
+            const storage = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.includes('domain') || key.includes('oauth')) {
+                    storage[key] = localStorage.getItem(key);
+                }
+            }
+            document.getElementById('storage-content').textContent = JSON.stringify(storage, null, 2);
+        }
+        
+        function clearStorage() {
+            localStorage.removeItem(DOMAIN_CONFIG_KEY);
+            localStorage.removeItem('oauth-playground-previous-domain');
+            showResult('✅ Storage cleared', 'success');
+            updateStatus();
+            showLocalStorage();
+        }
+        
+        // Initialize
+        updateStatus();
+        showLocalStorage();
+        
+        // Set default test domain
+        document.getElementById('domain-input').value = 'https://auth.curtis.com';
+        
+        console.log('Domain debug page loaded');
+    </script>
+</body>
+</html>

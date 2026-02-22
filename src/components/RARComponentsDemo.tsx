@@ -236,6 +236,7 @@ export const RARComponentsDemo: React.FC = () => {
 										display: 'block',
 										marginBottom: '0.5rem',
 									}}
+									htmlFor="grantedscopes"
 								>
 									Granted Scopes:
 								</label>

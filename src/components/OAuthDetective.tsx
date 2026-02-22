@@ -601,6 +601,7 @@ const OAuthDetective: React.FC = () => {
 								<ParameterValue>
 									{param.value}
 									<button
+										type="button"
 										onClick={() => copyParameter(param.name, param.value)}
 										style={{
 											float: 'right',

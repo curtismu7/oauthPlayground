@@ -111,7 +111,7 @@ console.warn = (...args) => {
 	});
 };
 
-console.log('🚀 Starting OAuth Playground Backend Server...'); // OAuth Playground Backend Server
+console.log('🚀 Starting MasterFlow API Backend Server...'); // MasterFlow API Backend Server
 console.log(`📝 Server logs: ${logFile}`);
 console.log(`📝 PingOne API logs: ${pingOneApiLogFile}`);
 console.log(`📝 Authz redirect logs: ${authzRedirectLogFile}`);
@@ -427,6 +427,7 @@ try {
 	console.warn('[Server] Unable to read package.json for version metadata:', error);
 }
 const PORT = process.env.BACKEND_PORT || 3001;
+const HOST = process.env.BACKEND_HOST || 'api.pingdemo.com';
 const serverStartTime = new Date();
 
 /**
@@ -966,6 +967,7 @@ app.get('/api/logs/read', (req, res) => {
  */
 app.get('/api/logs/tail', (req, res) => {
 	try {
+		console.log('[Log Tail] Setting up tail for request:', req.query);
 		const { file } = req.query;
 		
 		if (!file) {
@@ -994,7 +996,14 @@ app.get('/api/logs/tail', (req, res) => {
 		
 		// Send initial connection message
 		res.write('data: {"type":"connected"}\n\n');
-		res.flush(); // Ensure initial message is sent immediately
+		console.log('[Log Tail] About to call res.flush(), typeof res.flush:', typeof res.flush);
+		if (typeof res.flush === 'function') {
+			console.log('[Log Tail] Calling res.flush()');
+			res.flush(); // Ensure initial message is sent immediately
+			console.log('[Log Tail] res.flush() completed successfully');
+		} else {
+			console.log('[Log Tail] res.flush is not a function, skipping');
+		}
 		
 		let lastSize = fs.statSync(filePath).size;
 		
@@ -1022,7 +1031,14 @@ app.get('/api/logs/tail', (req, res) => {
 							const lines = newContent.split('\n').filter(line => line.trim());
 							if (lines.length > 0) {
 								res.write(`data: ${JSON.stringify({ type: 'update', lines })}\n\n`);
-								res.flush(); // Ensure update is sent immediately
+								console.log('[Log Tail] About to call res.flush() for update, typeof res.flush:', typeof res.flush);
+								if (typeof res.flush === 'function') {
+									console.log('[Log Tail] Calling res.flush() for update');
+									res.flush(); // Ensure update is sent immediately
+									console.log('[Log Tail] res.flush() for update completed successfully');
+								} else {
+									console.log('[Log Tail] res.flush is not a function for update, skipping');
+								}
 							}
 						}
 						lastSize = currentSize;
@@ -19862,28 +19878,28 @@ if (certs) {
 		};
 
 		httpsServer = https.createServer(options, app).listen(PORT, '0.0.0.0', () => {
-			console.log(`🔐 OAuth Playground Backend Server running on port ${PORT} (HTTPS)`);
-			console.log(`📡 Health check: https://localhost:${PORT}/api/health`);
-			console.log(`🔐 Token exchange: https://localhost:${PORT}/api/token-exchange`);
-			console.log(`👤 UserInfo: https://localhost:${PORT}/api/userinfo`);
-			console.log(`🔌 Device UserInfo: https://localhost:${PORT}/api/device-userinfo`);
-			console.log(`✅ Token validation: https://localhost:${PORT}/api/validate-token`);
+			console.log(`🔐 MasterFlow API Backend Server running on port ${PORT} (HTTPS)`);
+			console.log(`📡 Health check: https://${HOST}:${PORT}/api/health`);
+			console.log(`🔐 Token exchange: https://${HOST}:${PORT}/api/token-exchange`);
+			console.log(`👤 UserInfo: https://${HOST}:${PORT}/api/userinfo`);
+			console.log(`🔌 Device UserInfo: https://${HOST}:${PORT}/api/device-userinfo`);
+			console.log(`✅ Token validation: https://${HOST}:${PORT}/api/validate-token`);
 		});
 	} catch (error) {
 		console.error('❌ Failed to start HTTPS server:', error.message);
 		console.log('🔄 Starting HTTP server instead...');
 		// Start HTTP server as fallback
 		httpServer = app.listen(PORT, '0.0.0.0', () => {
-			console.log(`🚀 OAuth Playground Backend Server running on port ${PORT} (HTTP)`);
+			console.log(`🚀 MasterFlow API Backend Server running on port ${PORT} (HTTP)`);
 			console.log(
-				`🏷️  Versions: app=${APP_VERSION} mfaV8=${MFA_V8_VERSION} unifiedV8u=${UNIFIED_V8U_VERSION}`
+				`🏷️  Versions: app=${APP_VERSION} mfaV8=${MFA_V8_VERSION} unifiedV8uVersion=${UNIFIED_V8U_VERSION}`
 			);
-			console.log(`📡 Health check: http://localhost:${PORT}/api/health`);
-			console.log(`🏷️  Version metadata: http://localhost:${PORT}/api/version`);
-			console.log(`🔐 Token exchange: http://localhost:${PORT}/api/token-exchange`);
-			console.log(`👤 UserInfo: http://localhost:${PORT}/api/userinfo`);
-			console.log(`🔌 Device UserInfo: http://localhost:${PORT}/api/device-userinfo`);
-			console.log(`✅ Token validation: http://localhost:${PORT}/api/validate-token`);
+			console.log(`📡 Health check: http://${HOST}:${PORT}/api/health`);
+			console.log(`🏷️  Version metadata: http://${HOST}:${PORT}/api/version`);
+			console.log(`🔐 Token exchange: http://${HOST}:${PORT}/api/token-exchange`);
+			console.log(`👤 UserInfo: http://${HOST}:${PORT}/api/userinfo`);
+			console.log(`🔌 Device UserInfo: http://${HOST}:${PORT}/api/device-userinfo`);
+			console.log(`✅ Token validation: http://${HOST}:${PORT}/api/validate-token`);
 		});
 	}
 } else {
@@ -19893,12 +19909,12 @@ if (certs) {
 		console.log(
 			`🏷️  Versions: app=${APP_VERSION} mfaV8=${MFA_V8_VERSION} unifiedV8u=${UNIFIED_V8U_VERSION}`
 		);
-		console.log(`📡 Health check: http://localhost:${PORT}/api/health`);
-		console.log(`🏷️  Version metadata: http://localhost:${PORT}/api/version`);
-		console.log(`🔐 Token exchange: http://localhost:${PORT}/api/token-exchange`);
-		console.log(`👤 UserInfo: http://localhost:${PORT}/api/userinfo`);
-		console.log(`🔌 Device UserInfo: http://localhost:${PORT}/api/device-userinfo`);
-		console.log(`✅ Token validation: http://localhost:${PORT}/api/validate-token`);
+		console.log(`📡 Health check: http://${HOST}:${PORT}/api/health`);
+		console.log(`🏷️  Version metadata: http://${HOST}:${PORT}/api/version`);
+		console.log(`🔐 Token exchange: http://${HOST}:${PORT}/api/token-exchange`);
+		console.log(`👤 UserInfo: http://${HOST}:${PORT}/api/userinfo`);
+		console.log(`🔌 Device UserInfo: http://${HOST}:${PORT}/api/device-userinfo`);
+		console.log(`✅ Token validation: http://${HOST}:${PORT}/api/validate-token`);
 	});
 }
 

@@ -14,7 +14,6 @@ import {
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../../components/Card';
 import PageTitle from '../../components/PageTitle';
-import { SpecCard } from '../../components/SpecCard';
 import { TokenSurface } from '../../components/TokenSurface';
 import { type PingOneConfig, pingOneConfigService } from '../../services/pingoneConfigService';
 import { logger } from '../../utils/logger';
@@ -452,6 +451,15 @@ const _PingOnePARFlow: React.FC = () => {
 										</StepNumber>
 										<StepTitle>{step.title}</StepTitle>
 									</StepHeader>
+									<StepContent>
+										{step.content}
+									</StepContent>
+								</CardBody>
+												index + 1
+											)}
+										</StepNumber>
+										<StepTitle>{step.title}</StepTitle>
+									</StepHeader>
 									<StepContent>{step.description}</StepContent>
 
 									{step.id === 'config' && currentStep === 0 && (
@@ -770,23 +778,25 @@ ${parRequest.prompt ? `,  "prompt": "${parRequest.prompt}"` : ''}
 						))}
 					</StepContainer>
 				</CardBody>
-			</FlowSection>
+	</FlowSection>
 
 			<SpecCard
 				title="RFC 9126 - OAuth 2.0 Pushed Authorization Requests"
 				description="PAR enhances security by pushing authorization request parameters to the authorization server before redirecting the user, preventing parameter tampering and improving error handling."
 				specUrl="https://datatracker.ietf.org/doc/html/rfc9126"
-				features={[
-					'Enhanced security through parameter protection',
-					'Prevents parameter tampering attacks',
-					'Centralized request validation',
-					'Better error handling before redirect',
-					'Improved user experience',
-					'PingOne native support',
-				]}
-			/>
-		</Container>
-	);
+				features=
+	[
+		'Enhanced security through parameter protection',
+		'Prevents parameter tampering attacks',
+		'Centralized request validation',
+		'Better error handling before redirect',
+		'Improved user experience',
+		'PingOne native support',
+	]
+	/
+	>
+	</Container>
+	)
 };
 
 export default PingOnePARFlow;

@@ -7,10 +7,14 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { MFAInfoButtonV8 } from '@/apps/mfa/components/MFAInfoButtonV8';
+import {
+	type DeviceType,
+	type MFACredentials,
+	type MFAState,
+} from '@/apps/mfa/flows/shared/MFATypes';
+import { type DeviceRegistrationResult, MFAServiceV8 } from '@/apps/mfa/services/mfaServiceV8';
 import { CountryCodePickerV8 } from '@/v8/components/CountryCodePickerV8';
-import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
-import { type DeviceType, type MFACredentials, type MFAState } from '@/v8/flows/shared/MFATypes';
-import { type DeviceRegistrationResult, MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { validateAndNormalizePhone } from '@/v8/utils/phoneValidationV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 

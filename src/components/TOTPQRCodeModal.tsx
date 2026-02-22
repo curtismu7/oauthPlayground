@@ -176,6 +176,7 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 						</div>
 					</div>
 					<button
+						type="button"
 						onClick={onClose}
 						style={{
 							background: 'none',
@@ -329,6 +330,7 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 									Manual Entry (Alternative)
 								</h4>
 								<button
+									type="button"
 									onClick={() => setShowSecret(!showSecret)}
 									style={{
 										background: 'none',
@@ -372,6 +374,7 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 									{showSecret ? manualEntryKey : '•••• •••• •••• •••• •••• •••• •••• ••••'}
 								</code>
 								<button
+									type="button"
 									onClick={handleCopySecret}
 									style={{
 										background: copied ? '#10b981' : '#f3f4f6',
@@ -460,6 +463,7 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 					}}
 				>
 					<button
+						type="button"
 						onClick={onClose}
 						style={{
 							padding: '0.75rem 1.5rem',
@@ -476,6 +480,7 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 						Cancel
 					</button>
 					<button
+						type="button"
 						onClick={handleContinue}
 						disabled={isGenerating}
 						style={{

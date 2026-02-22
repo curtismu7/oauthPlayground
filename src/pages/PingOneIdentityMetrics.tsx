@@ -8,24 +8,22 @@ import {
 	FiAlertCircle,
 	FiBarChart2,
 	FiCalendar,
-	FiCheckCircle,
 	FiClock,
 	FiDatabase,
 	FiInfo,
-	FiKey,
 	FiRefreshCw,
 	FiShield,
 	FiX,
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import JSONHighlighter, { type JSONData } from '../components/JSONHighlighter';
+import { WorkerTokenButton } from '../components/WorkerTokenButton';
 import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { apiRequestModalService } from '../services/apiRequestModalService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { ShowTokenConfigCheckboxV8 } from '../v8/components/ShowTokenConfigCheckboxV8';
 import { SilentApiConfigCheckboxV8 } from '../v8/components/SilentApiConfigCheckboxV8';
-import { WorkerTokenModalV8 } from '../v8/components/WorkerTokenModalV8';
 
 const PageContainer = styled.div`
 	max-width: 90rem;
@@ -439,20 +437,8 @@ const PingOneIdentityMetrics: React.FC = () => {
 	const globalTokenStatus = useGlobalWorkerToken();
 	const workerToken = globalTokenStatus.token || '';
 	const hasWorkerToken = globalTokenStatus.isValid;
-	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 
 	const resetDates = () => setDateRange(defaultDateRange());
-
-	// Get worker token using credentials on the page
-	const handleGetWorkerToken = useCallback(() => {
-		if (hasWorkerToken) {
-			v4ToastManager.showInfo(
-				'Worker token already available. Opening modal in case you want to refresh it.'
-			);
-		}
-		setError(null);
-		setShowWorkerTokenModal(true);
-	}, [hasWorkerToken]);
 
 	// Clear the worker token (clears unified worker token)
 	const handleClearWorkerToken = useCallback(() => {
@@ -778,25 +764,33 @@ const PingOneIdentityMetrics: React.FC = () => {
 					</div>
 
 					<ButtonRow>
-						<PrimaryButton
-							onClick={handleGetWorkerToken}
-							type="button"
-							style={{
-								background: hasWorkerToken ? '#9ca3af' : undefined,
-								cursor: 'pointer',
-								color: 'white',
+						{/* Standardized Worker Token Button - matching MFA flow */}
+						<WorkerTokenButton
+							onTokenObtained={(token) => {
+								console.log('Identity Metrics: Worker token obtained:', token);
+								v4ToastManager.showSuccess(
+									'Worker token generated successfully. Ready to query metrics.'
+								);
 							}}
-						>
-							{hasWorkerToken ? (
-								<>
-									<FiCheckCircle /> Worker Token Ready
-								</>
-							) : (
-								<>
-									<FiKey /> Get Worker Token
-								</>
-							)}
-						</PrimaryButton>
+							onModalClose={() => {
+								console.log('Identity Metrics: Worker token modal closed');
+							}}
+							environmentId={(() => {
+								try {
+									const stored = localStorage.getItem('unified_worker_token');
+									if (stored) {
+										const data = JSON.parse(stored);
+										return data.credentials?.environmentId || '';
+									}
+								} catch (error) {
+									console.log('Failed to load environment ID from unified worker token:', error);
+								}
+								return '';
+							})()}
+							buttonText={hasWorkerToken ? 'Worker Token Ready' : 'Get Worker Token'}
+							loadingText="Getting Token..."
+						/>
+
 						{hasWorkerToken && (
 							<DangerButton onClick={handleClearWorkerToken} type="button">
 								<FiX /> Clear Token
@@ -1088,29 +1082,6 @@ const PingOneIdentityMetrics: React.FC = () => {
 					</ResultContainer>
 				</Card>
 			</LayoutGrid>
-			<WorkerTokenModalV8
-				isOpen={showWorkerTokenModal}
-				onClose={() => setShowWorkerTokenModal(false)}
-				onTokenGenerated={() => {
-					// Token generated, the global hook will automatically update
-					setShowWorkerTokenModal(false);
-					v4ToastManager.showSuccess(
-						'Worker token generated successfully. Ready to query metrics.'
-					);
-				}}
-				environmentId={(() => {
-					try {
-						const stored = localStorage.getItem('unified_worker_token');
-						if (stored) {
-							const data = JSON.parse(stored);
-							return data.credentials?.environmentId || '';
-						}
-					} catch (error) {
-						console.log('Failed to load environment ID from unified worker token:', error);
-					}
-					return '';
-				})()}
-			/>
 
 			{/* Permissions Error Modal */}
 			{showPermissionsErrorModal && (

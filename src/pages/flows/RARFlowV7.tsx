@@ -1435,6 +1435,7 @@ const RARFlowV7: React.FC = () => {
 										Banking, Healthcare, Enterprise use cases
 									</p>
 									<button
+										type="button"
 										onClick={() => setCurrentStep(0)}
 										style={{
 											background: 'none',

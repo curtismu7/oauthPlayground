@@ -134,6 +134,8 @@ export const CollapsibleSectionV8: React.FC<CollapsibleSectionProps> = ({
 			<div
 				role="button"
 				tabIndex={0}
+				role="button"
+				tabIndex={0}
 				onClick={toggleExpanded}
 				onKeyDown={handleKeyDown}
 				style={{

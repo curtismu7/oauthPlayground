@@ -1,33 +1,32 @@
 import React, { useEffect, useRef } from 'react';
-import { FiSearch, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
 
 const SearchContainer = styled.div`
-	padding: 0.75rem 1rem;
-	border-bottom: 1px solid #e5e7eb;
-	background: #f8fafc;
+	padding: var(--ping-spacing-sm) var(--ping-spacing-md);
+	border-bottom: 1px solid var(--ping-border-color);
+	background: var(--ping-secondary-color);
 	display: flex;
 	flex-direction: column;
-	gap: 0.5rem;
+	gap: var(--ping-spacing-xs);
 `;
 
 const AdvancedOptions = styled.div`
 	display: flex;
 	align-items: center;
-	gap: 0.5rem;
+	gap: var(--ping-spacing-xs);
 	font-size: 0.75rem;
-	color: #6b7280;
+	color: var(--ping-gray);
 `;
 
 const CheckboxLabel = styled.label`
 	display: flex;
 	align-items: center;
-	gap: 0.35rem;
+	gap: calc(var(--ping-spacing-xs) * 0.7);
 	cursor: pointer;
 	user-select: none;
 	
 	&:hover {
-		color: #374151;
+		color: var(--ping-text-color);
 	}
 `;
 
@@ -44,28 +43,28 @@ const SearchInputWrapper = styled.div`
 
 const SearchInput = styled.input`
 	width: 100%;
-	padding: 0.5rem 2.5rem 0.5rem 2rem;
-	border: 1px solid #d1d5db;
-	border-radius: 0.375rem;
+	padding: var(--ping-spacing-xs) 2.5rem var(--ping-spacing-xs) 2rem;
+	border: 1px solid var(--ping-border-color);
+	border-radius: var(--ping-border-radius-md);
 	font-size: 0.875rem;
 	background: white;
-	transition: all 0.2s ease;
+	transition: var(--ping-transition-normal);
 
 	&:focus {
 		outline: none;
-		border-color: #3b82f6;
-		box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+		border-color: var(--ping-primary-color);
+		box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1);
 	}
 
 	&::placeholder {
-		color: #9ca3af;
+		color: var(--ping-gray);
 	}
 `;
 
 const SearchIcon = styled.div`
 	position: absolute;
-	left: 0.5rem;
-	color: #6b7280;
+	left: var(--ping-spacing-xs);
+	color: var(--ping-gray);
 	display: flex;
 	align-items: center;
 	pointer-events: none;
@@ -73,16 +72,16 @@ const SearchIcon = styled.div`
 
 const SearchButton = styled.button`
 	position: absolute;
-	right: 0.5rem;
-	background: #3b82f6;
+	right: var(--ping-spacing-xs);
+	background: var(--ping-primary-color);
 	border: none;
 	color: white;
 	cursor: pointer;
-	padding: 0.375rem 0.5rem;
-	border-radius: 0.25rem;
+	padding: calc(var(--ping-spacing-xs) * 1.5) var(--ping-spacing-xs);
+	border-radius: var(--ping-border-radius-sm);
 	display: flex;
 	align-items: center;
-	transition: all 0.2s ease;
+	transition: var(--ping-transition-normal);
 
 	&:hover {
 		background: #2563eb;
@@ -188,49 +187,51 @@ const SidebarSearch: React.FC<SidebarSearchProps> = ({
 	};
 
 	return (
-		<SearchContainer data-search-container>
-			<SearchInputWrapper>
-				<SearchIcon>
-					<FiSearch size={14} />
-				</SearchIcon>
-				<SearchInput
-					ref={inputRef}
-					type="text"
-					placeholder={`${placeholder} (⌘K, Enter to search)`}
-					value={displayQuery}
-					onChange={(e) => setDisplayQuery(e.target.value)}
-					onKeyDown={handleKeyDown}
-					onBlur={handleBlur}
-				/>
-				{displayQuery && displayQuery !== activeQuery ? (
-					<SearchButton onClick={triggerSearch} title="Search (Enter)">
-						<FiSearch size={14} />
-					</SearchButton>
-				) : displayQuery || activeQuery ? (
-					<ClearButton onClick={clearSearch} title="Clear search">
-						<FiX size={14} />
-					</ClearButton>
-				) : null}
-			</SearchInputWrapper>
-			{onMatchAnywhereChange && (
-				<AdvancedOptions>
-					<CheckboxLabel>
-						<Checkbox
-							type="checkbox"
-							checked={matchAnywhere}
-							onChange={(e) => {
-								onMatchAnywhereChange(e.target.checked);
-								// Re-trigger search with new setting
-								if (activeQuery) {
-									onSearch(activeQuery);
-								}
-							}}
-						/>
-						<span>Match anywhere (substring)</span>
-					</CheckboxLabel>
-				</AdvancedOptions>
-			)}
-		</SearchContainer>
+		<div className="end-user-nano">
+			<SearchContainer data-search-container>
+				<SearchInputWrapper>
+					<SearchIcon>
+						<span className="mdi mdi-magnify" style={{ fontSize: '14px' }}></span>
+					</SearchIcon>
+					<SearchInput
+						ref={inputRef}
+						type="text"
+						placeholder={`${placeholder} (⌘K, Enter to search)`}
+						value={displayQuery}
+						onChange={(e) => setDisplayQuery(e.target.value)}
+						onKeyDown={handleKeyDown}
+						onBlur={handleBlur}
+					/>
+					{displayQuery && displayQuery !== activeQuery ? (
+						<SearchButton onClick={triggerSearch} title="Search (Enter)">
+							<span className="mdi mdi-magnify" style={{ fontSize: '14px' }}></span>
+						</SearchButton>
+					) : displayQuery || activeQuery ? (
+						<ClearButton onClick={clearSearch} title="Clear search">
+							<span className="mdi mdi-close" style={{ fontSize: '14px' }}></span>
+						</ClearButton>
+					) : null}
+				</SearchInputWrapper>
+				{onMatchAnywhereChange && (
+					<AdvancedOptions>
+						<CheckboxLabel>
+							<Checkbox
+								type="checkbox"
+								checked={matchAnywhere}
+								onChange={(e) => {
+									onMatchAnywhereChange(e.target.checked);
+									// Re-trigger search with new setting
+									if (activeQuery) {
+										onSearch(activeQuery);
+									}
+								}}
+							/>
+							<span>Match anywhere (substring)</span>
+						</CheckboxLabel>
+					</AdvancedOptions>
+				)}
+			</SearchContainer>
+		</div>
 	);
 };
 

@@ -304,6 +304,8 @@ export const UnifiedDeviceSelectionStep: React.FC<UnifiedDeviceSelectionStepProp
 							<div className="device-list">
 								{existingDevices.map((device) => (
 									<div
+										role="button"
+										tabIndex={0}
 										key={device.id}
 										className={`device-card ${selectedDeviceId === device.id ? 'selected' : ''}`}
 										onClick={() => handleSelectDevice(device.id)}

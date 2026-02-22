@@ -387,7 +387,9 @@ const EmbeddedLogin: React.FC<{
 							onChange={(e) => handleInputChange('rememberMe', e.target.checked)}
 							$brandColor={brandColor}
 						/>
-						<label htmlFor="remember">Save Online ID</label>
+						<label htmlFor="remember" htmlFor="saveonlineid">
+							Save Online ID
+						</label>
 					</CheckboxGroup>
 					<ForgotPassword href="#" $brandColor={brandColor}>
 						Forgot Passcode?

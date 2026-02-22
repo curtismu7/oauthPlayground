@@ -1,8 +1,8 @@
 /**
  * @file constants.ts
  * @module v8/config
- * @description Centralized constants for all V8 flows
- * @version 8.0.0
+ * @description Centralized constants for all V8 flows with domain configuration support
+ * @version 9.0.0
  * @since 2024-11-16
  *
  * This file contains all magic strings, numbers, and configuration values
@@ -10,10 +10,12 @@
  * the code more maintainable and reduces the risk of typos.
  *
  * @example
- * import { FLOW_KEYS, DEFAULT_SCOPES } from '@/v8/config/constants';
+ * import { FLOW_KEYS, getRedirectUriForFlow } from '@/v8/config/constants';
  * const flowKey = FLOW_KEYS.OAUTH_AUTHZ;
- * const scopes = DEFAULT_SCOPES[flowKey];
+ * const redirectUri = getRedirectUriForFlow(flowKey);
  */
+
+import { domainConfigurationService } from '@/services/domainConfigurationService';
 
 /**
  * Required PingOne worker scopes for MFA operations.
@@ -43,8 +45,9 @@ export const FLOW_KEYS = {
 export type FlowKey = (typeof FLOW_KEYS)[keyof typeof FLOW_KEYS];
 
 /**
- * Default redirect URIs for each flow
- * These are used as smart defaults to minimize user input
+ * Legacy default redirect URIs for backward compatibility
+ * These are used as fallbacks when domain configuration is not available
+ * @deprecated Use getRedirectUriForFlow() instead for dynamic domain support
  */
 export const DEFAULT_REDIRECT_URIS: Record<FlowKey, string> = {
 	[FLOW_KEYS.OAUTH_AUTHZ]: 'https://localhost:3000/callback',
@@ -55,6 +58,50 @@ export const DEFAULT_REDIRECT_URIS: Record<FlowKey, string> = {
 	[FLOW_KEYS.HYBRID]: 'https://localhost:3000/callback',
 	[FLOW_KEYS.PKCE]: 'https://localhost:3000/callback',
 } as const;
+
+/**
+ * Flow-specific callback paths
+ * These paths are appended to the effective domain
+ */
+export const FLOW_CALLBACK_PATHS: Record<FlowKey, string> = {
+	[FLOW_KEYS.OAUTH_AUTHZ]: '/callback',
+	[FLOW_KEYS.IMPLICIT]: '/implicit-callback',
+	[FLOW_KEYS.CLIENT_CREDENTIALS]: '',
+	[FLOW_KEYS.DEVICE_CODE]: '',
+	[FLOW_KEYS.ROPC]: '',
+	[FLOW_KEYS.HYBRID]: '/callback',
+	[FLOW_KEYS.PKCE]: '/callback',
+} as const;
+
+/**
+ * Get redirect URI for a specific flow using domain configuration
+ * This replaces the hardcoded DEFAULT_REDIRECT_URIS with dynamic domain support
+ *
+ * @param flowKey - The flow identifier
+ * @param customPath - Optional custom path override
+ * @returns The complete redirect URI with configured domain
+ */
+export const getRedirectUriForFlow = (flowKey: FlowKey, customPath?: string): string => {
+	const path = customPath || FLOW_CALLBACK_PATHS[flowKey];
+
+	// For flows that don't use redirect URIs, return empty string
+	if (!path) {
+		return '';
+	}
+
+	// Use domain configuration service to get the effective domain
+	return domainConfigurationService.getRedirectUri(path);
+};
+
+/**
+ * Get effective domain for the application
+ * This provides a centralized way to get the current domain
+ *
+ * @returns The effective domain (custom domain or fallback)
+ */
+export const getEffectiveDomain = (): string => {
+	return domainConfigurationService.getEffectiveDomain();
+};
 
 /**
  * Default logout URIs for each flow

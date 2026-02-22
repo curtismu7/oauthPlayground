@@ -30,13 +30,103 @@ PURPLE='\033[0;35m'
 CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
-# Configuration - Fixed ports for OAuth Playground
+# Configuration - Fixed ports for MasterFlow API
 # These ports are hardcoded to ensure consistency with OAuth redirect URIs
 # and API endpoint configurations. Do not change these values.
 FRONTEND_PORT=3000  # Vite dev server (HTTPS)
 BACKEND_PORT=3001   # Express API server (HTTPS only)
-FRONTEND_URL="https://localhost:${FRONTEND_PORT}"
-BACKEND_URL="https://localhost:${BACKEND_PORT}"
+
+# Function to read custom domain from .env.local
+read_custom_domain() {
+    local env_file=".env.local"
+    local default_domain="https://auth.pingdemo.com"
+    
+    if [ -f "$env_file" ]; then
+        # Read VITE_APP_DOMAIN from .env.local
+        local custom_domain=$(grep "^VITE_APP_DOMAIN=" "$env_file" 2>/dev/null | cut -d'=' -f2- | tr -d '"' | tr -d "'" | sed 's/\r$//')
+        
+        if [ -n "$custom_domain" ] && [ "$custom_domain" != "https://localhost:3000" ]; then
+            # Extract domain without port for display
+            local domain_host=$(echo "$custom_domain" | sed 's|^https\?://||' | cut -d':' -f1)
+            
+            # Update URLs to use custom domain
+            FRONTEND_URL="${custom_domain}:${FRONTEND_PORT}"
+            BACKEND_URL="${custom_domain}:${BACKEND_PORT}"
+            
+            # Set flag for custom domain mode
+            USE_CUSTOM_DOMAIN=true
+            CUSTOM_DOMAIN_HOST="$domain_host"
+            
+            print_info "Custom domain detected: $custom_domain"
+            return 0
+        fi
+    fi
+    
+    # Check if we should auto-configure default domain
+    if [ ! -f "$env_file" ] || ! grep -q "VITE_APP_DOMAIN" "$env_file" 2>/dev/null; then
+        # Auto-configure default domain
+        print_info "No custom domain configured, using default: $default_domain"
+        
+        # Update URLs to use default domain
+        FRONTEND_URL="${default_domain}:${FRONTEND_PORT}"
+        BACKEND_URL="${default_domain}:${BACKEND_PORT}"
+        
+        # Set flag for custom domain mode
+        USE_CUSTOM_DOMAIN=true
+        CUSTOM_DOMAIN_HOST="auth.pingdemo.com"
+        
+        # Create .env.local with default domain
+        create_default_env_file "$default_domain"
+        
+        return 0
+    fi
+    
+    # Default to localhost
+    FRONTEND_URL="https://localhost:${FRONTEND_PORT}"
+    BACKEND_URL="https://localhost:${BACKEND_PORT}"
+    USE_CUSTOM_DOMAIN=false
+    CUSTOM_DOMAIN_HOST="localhost"
+    
+    return 1
+}
+
+# Function to create default .env.local file
+create_default_env_file() {
+    local domain="$1"
+    local clean_domain=$(echo "$domain" | sed 's|^https\?://||')
+    
+    cat > .env.local << EOF
+# Custom Domain Configuration
+# Generated automatically by MasterFlow API startup script
+# Date: $(date -Iseconds)
+
+# Frontend Configuration
+VITE_APP_DOMAIN=$domain
+PINGONE_APP_DOMAIN=$domain
+
+# Dev Server Configuration
+PINGONE_DEV_SERVER_PORT=3000
+PINGONE_DEV_SERVER_HTTPS=true
+
+# Backend Configuration
+FRONTEND_URL=$domain:3000
+BACKEND_URL=$domain:3001
+
+# CORS Configuration
+FRONTEND_DOMAIN=$domain:3000
+
+# API Configuration
+PINGONE_API_URL=https://api.pingone.com
+
+# Custom Domain Mode
+USE_CUSTOM_DOMAIN=true
+EOF
+    
+    print_info "Created .env.local with default domain: $domain"
+}
+
+# Initialize configuration
+read_custom_domain
 
 # PID files for process management
 FRONTEND_PID_FILE=".frontend.pid"
@@ -173,14 +263,17 @@ show_banner() {
     echo -e "${PURPLE}"
     echo "╔══════════════════════════════════════════════════════════════════════════════╗"
     echo "║                                                                              ║"
-    echo "║                    🔄 OAuth Playground Server Restart 🔄                    ║"
+    echo "║                    🔄 MasterFlow API Server Restart 🔄                       ║"
     echo "║                                                                              ║"
-    echo "║  Frontend: https://localhost:3000 (Vite Dev Server)                        ║"
-    echo "║  Backend:  http://localhost:3001 (Express API Server - HTTP)               ║"
-    echo "║  Backend:  https://localhost:3002 (Express API Server - HTTPS)             ║"
+    echo "║  Frontend: $FRONTEND_URL"
+    echo "║  Backend:  $BACKEND_URL"
+    echo "║                                                                              ║"
+    echo "║  🌐 Custom Domain Support Available:                                         ║"
+    echo "║     • Setup: ./setup-custom-domain.sh                                        ║"
+    echo "║     • Run:   ./run-custom-domain.sh                                          ║"
     echo "║                                                                              ║"
     echo "║  This script will:                                                          ║"
-    echo "║  1. Find and change to OAuth Playground directory                          ║"
+    echo "║  1. Find and change to MasterFlow API directory                           ║"
     echo "║  2. Kill all existing servers                                               ║"
     echo "║  3. Clean up processes and ports 3000, 3001 & 3002                         ║"
     echo "║  4. Restart all three servers                                               ║"

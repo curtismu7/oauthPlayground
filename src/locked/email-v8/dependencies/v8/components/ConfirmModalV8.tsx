@@ -68,6 +68,8 @@ export const ConfirmModalV8: React.FC<ConfirmModalV8Props> = ({
 		<>
 			{/* Backdrop */}
 			<div
+				role="button"
+				tabIndex={0}
 				style={{
 					position: 'fixed',
 					top: 0,
@@ -85,6 +87,8 @@ export const ConfirmModalV8: React.FC<ConfirmModalV8Props> = ({
 
 			{/* Modal */}
 			<div
+				role="button"
+				tabIndex={0}
 				style={{
 					position: 'fixed',
 					top: '50%',
@@ -140,6 +144,7 @@ export const ConfirmModalV8: React.FC<ConfirmModalV8Props> = ({
 					}}
 				>
 					<button
+						type="button"
 						onClick={onCancel}
 						style={{
 							padding: '8px 16px',
@@ -155,6 +160,7 @@ export const ConfirmModalV8: React.FC<ConfirmModalV8Props> = ({
 						{cancelText}
 					</button>
 					<button
+						type="button"
 						onClick={onConfirm}
 						style={{
 							padding: '8px 16px',

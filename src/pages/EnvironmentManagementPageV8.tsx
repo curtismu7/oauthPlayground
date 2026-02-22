@@ -16,13 +16,12 @@ import {
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import ApiCallList from '../components/ApiCallList';
+import { WorkerTokenButton } from '../components/WorkerTokenButton';
 import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import EnvironmentServiceV8, { PingOneEnvironment } from '../services/environmentServiceV8';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
-import { WorkerTokenModalV8 } from '../v8/components/WorkerTokenModalV8';
-import { WorkerTokenStatusDisplayV8 } from '../v8/components/WorkerTokenStatusDisplayV8';
 
 const Container = styled.div`
   padding: 2rem;
@@ -523,7 +522,6 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			return '';
 		}
 	});
-	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 
 	// Listen for token updates
 	useEffect(() => {
@@ -1097,42 +1095,21 @@ const EnvironmentManagementPageV8: React.FC = () => {
 							🔍 Test Environment Fetch
 						</button>
 
-						<button
-							type="button"
-							onClick={() => setShowWorkerTokenModal(true)}
-							style={{
-								padding: '0.75rem 1.5rem',
-								backgroundColor: '#3b82f6',
-								color: 'white',
-								border: 'none',
-								borderRadius: '0.5rem',
-								fontSize: '0.875rem',
-								fontWeight: '600',
-								cursor: 'pointer',
-								display: 'flex',
-								alignItems: 'center',
-								gap: '0.5rem',
-								margin: '0 auto',
+						{/* Standardized Worker Token Button - matching MFA flow */}
+						<WorkerTokenButton
+							onTokenObtained={(token) => {
+								console.log('Environment Management: Worker token obtained:', token);
+								// Reload page to show environments after token is obtained
+								window.location.reload();
 							}}
-						>
-							<FiRefreshCw size={16} />
-							Get Worker Token for Environments
-						</button>
+							onModalClose={() => {
+								console.log('Environment Management: Worker token modal closed');
+							}}
+							environmentId={selectedEnvironmentId}
+							buttonText="Get Worker Token for Environments"
+							loadingText="Getting Token..."
+						/>
 					</div>
-
-					{/* Worker Token Modal */}
-					<WorkerTokenModalV8
-						isOpen={showWorkerTokenModal}
-						onClose={() => setShowWorkerTokenModal(false)}
-						onTokenGenerated={() => {
-							// Token generated, reload the page to show environments
-							window.location.reload();
-						}}
-						environmentId={selectedEnvironmentId}
-					/>
-
-					{/* Worker Token Status Display */}
-					<WorkerTokenStatusDisplayV8 />
 				</div>
 			</Container>
 		);
@@ -1246,10 +1223,20 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			<Header>
 				<Title>PingOne Environment Management</Title>
 				<Actions>
-					<Button onClick={() => setShowWorkerTokenModal(true)} variant="secondary">
-						<FiRefreshCw />
-						Worker Token
-					</Button>
+					{/* Standardized Worker Token Button - matching MFA flow */}
+					<WorkerTokenButton
+						onTokenObtained={(token) => {
+							console.log('Environment Management Header: Worker token obtained:', token);
+							// Reload page to show environments after token is obtained
+							window.location.reload();
+						}}
+						onModalClose={() => {
+							console.log('Environment Management Header: Worker token modal closed');
+						}}
+						environmentId={selectedEnvironmentId}
+						buttonText="Worker Token"
+						loadingText="Getting Token..."
+					/>
 					<Button onClick={handleRefresh}>
 						<FiRefreshCw />
 						Refresh
@@ -1381,7 +1368,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 						style={{ marginRight: '0.5rem' }}
 						id="select-all-checkbox"
 					/>
-					<label htmlFor="select-all-checkbox">
+					<label htmlFor="select-all-checkbox" htmlFor="selectallenvironmentslength0environments">
 						Select All ({environments?.length || 0} environments)
 					</label>
 				</div>
@@ -1538,6 +1525,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 									<label
 										htmlFor="env-id"
 										style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}
+										htmlFor="environmentid"
 									>
 										Environment ID
 									</label>
@@ -1559,6 +1547,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 									<label
 										htmlFor="env-name"
 										style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}
+										htmlFor="environmentname"
 									>
 										Environment Name
 									</label>
@@ -1581,6 +1570,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 									<label
 										htmlFor="env-type"
 										style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}
+										htmlFor="type"
 									>
 										Type
 									</label>
@@ -1602,6 +1592,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 									<label
 										htmlFor="env-region"
 										style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}
+										htmlFor="region"
 									>
 										Region
 									</label>
@@ -1669,17 +1660,6 @@ const EnvironmentManagementPageV8: React.FC = () => {
 					<ApiCallList />
 				</ApiDisplayContent>
 			</ApiDisplayModal>
-
-			{/* Worker Token Modal - Always available */}
-			<WorkerTokenModalV8
-				isOpen={showWorkerTokenModal}
-				onClose={() => setShowWorkerTokenModal(false)}
-				onTokenGenerated={() => {
-					// Token generated, reload the page to show environments
-					window.location.reload();
-				}}
-				environmentId={selectedEnvironmentId}
-			/>
 		</Container>
 	);
 };

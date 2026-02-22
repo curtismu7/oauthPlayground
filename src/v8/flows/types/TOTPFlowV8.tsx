@@ -206,6 +206,7 @@ const TOTPConfigureStep: React.FC<TOTPConfigureStepProps> = (props) => {
 										fontWeight: '500',
 										color: '#374151',
 									}}
+									htmlFor="devicestatus"
 								>
 									Device Status:
 								</label>
@@ -1653,6 +1654,8 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 					{/* biome-ignore lint/a11y/noStaticElementInteractions: Modal overlay needs click handler */}
 					{/* biome-ignore lint/a11y/useKeyWithClickEvents: Modal overlay click handled by modal content */}
 					<div
+						role="button"
+						tabIndex={0}
 						style={{
 							position: 'fixed',
 							top: 0,
@@ -1679,6 +1682,8 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 						{/* biome-ignore lint/a11y/noStaticElementInteractions: Modal content needs click handler */}
 						{/* biome-ignore lint/a11y/useKeyWithClickEvents: Modal content click handled by buttons */}
 						<div
+							role="button"
+							tabIndex={0}
 							ref={step2ModalDrag.modalRef}
 							style={{
 								background: 'white',
@@ -1902,6 +1907,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 														fontSize: '14px',
 														fontWeight: '500',
 													}}
+													htmlFor="devicenicknameoptional"
 												>
 													Device Nickname (optional)
 												</label>
@@ -2257,6 +2263,8 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 					{/* biome-ignore lint/a11y/noStaticElementInteractions: Modal overlay needs click handler */}
 					{/* biome-ignore lint/a11y/useKeyWithClickEvents: Modal overlay click handled by modal content */}
 					<div
+						role="button"
+						tabIndex={0}
 						style={{
 							position: 'fixed',
 							top: 0,
@@ -2279,6 +2287,8 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 						{/* biome-ignore lint/a11y/noStaticElementInteractions: Modal content needs click handler */}
 						{/* biome-ignore lint/a11y/useKeyWithClickEvents: Modal content click handled by buttons */}
 						<div
+							role="button"
+							tabIndex={0}
 							ref={step3ModalDrag.modalRef}
 							style={{
 								background: 'white',
@@ -3126,6 +3136,8 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 
 			return (
 				<div
+					role="button"
+					tabIndex={0}
 					style={{
 						position: 'fixed',
 						top: 0,
@@ -3145,6 +3157,8 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 					{/* biome-ignore lint/a11y/noStaticElementInteractions: Modal content needs click handler */}
 					{/* biome-ignore lint/a11y/useKeyWithClickEvents: Modal content click handled by buttons */}
 					<div
+						role="button"
+						tabIndex={0}
 						ref={step4ModalDrag.modalRef}
 						style={{
 							background: 'white',
@@ -3718,6 +3732,8 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 			{/* Guidance Modal for Configured Flow */}
 			{showGuidanceModal && (
 				<div
+					role="button"
+					tabIndex={0}
 					style={{
 						position: 'fixed',
 						top: 0,
@@ -3733,6 +3749,8 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 					onClick={() => setShowGuidanceModal(false)}
 				>
 					<div
+						role="button"
+						tabIndex={0}
 						style={{
 							background: 'white',
 							borderRadius: '12px',
@@ -3841,6 +3859,8 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 			{/* Limit Exceeded Error Modal */}
 			{limitExceededError && (
 				<div
+					role="button"
+					tabIndex={0}
 					style={{
 						position: 'fixed',
 						top: 0,
@@ -3856,6 +3876,8 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 					onClick={() => setLimitExceededError(null)}
 				>
 					<div
+						role="button"
+						tabIndex={0}
 						style={{
 							backgroundColor: 'white',
 							borderRadius: '12px',
@@ -3979,6 +4001,8 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 			{showActivationModal &&
 				activationPropsRef.current?.mfaState.deviceStatus === 'ACTIVATION_REQUIRED' && (
 					<div
+						role="button"
+						tabIndex={0}
 						style={{
 							position: 'fixed',
 							top: 0,
@@ -3997,6 +4021,8 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 						}}
 					>
 						<div
+							role="button"
+							tabIndex={0}
 							style={{
 								background: 'white',
 								borderRadius: '16px',

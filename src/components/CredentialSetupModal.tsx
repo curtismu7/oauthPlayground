@@ -820,7 +820,9 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 
 					<form onSubmit={handleSubmit}>
 						<FormGroup>
-							<label htmlFor="environmentId">Environment ID *</label>
+							<label htmlFor="environmentId" htmlFor="environmentid">
+								Environment ID *
+							</label>
 							<input
 								type="text"
 								id="environmentId"
@@ -838,7 +840,9 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 						</FormGroup>
 
 						<FormGroup>
-							<label htmlFor="clientId">Client ID *</label>
+							<label htmlFor="clientId" htmlFor="clientid">
+								Client ID *
+							</label>
 							<input
 								type="text"
 								id="clientId"
@@ -854,7 +858,9 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 						</FormGroup>
 
 						<FormGroup>
-							<label htmlFor="clientSecret">Client Secret</label>
+							<label htmlFor="clientSecret" htmlFor="clientsecret">
+								Client Secret
+							</label>
 							<SecretInputContainer>
 								<input
 									type={showSecret ? 'text' : 'password'}
@@ -880,7 +886,9 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 						</FormGroup>
 
 						<FormGroup>
-							<label htmlFor="redirectUri">Callback URL *</label>
+							<label htmlFor="redirectUri" htmlFor="callbackurl">
+								Callback URL *
+							</label>
 							<input
 								type="url"
 								id="redirectUri"
@@ -898,7 +906,9 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 						</FormGroup>
 
 						<FormGroup>
-							<label htmlFor="region">Region</label>
+							<label htmlFor="region" htmlFor="region">
+								Region
+							</label>
 							<select
 								id="region"
 								name="region"
@@ -922,7 +932,9 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 						</FormGroup>
 
 						<FormGroup>
-							<label htmlFor="customDomain">Custom Domain (Optional)</label>
+							<label htmlFor="customDomain" htmlFor="customdomainoptional">
+								Custom Domain (Optional)
+							</label>
 							<input
 								type="text"
 								id="customDomain"
@@ -946,7 +958,9 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 						</FormGroup>
 
 						<FormGroup>
-							<label htmlFor="authEndpoint">Authorization Endpoint</label>
+							<label htmlFor="authEndpoint" htmlFor="authorizationendpoint">
+								Authorization Endpoint
+							</label>
 							<input
 								type="url"
 								id="authEndpoint"
@@ -977,7 +991,9 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 						</FormGroup>
 
 						<FormGroup>
-							<label htmlFor="scopes">Scopes</label>
+							<label htmlFor="scopes" htmlFor="scopes">
+								Scopes
+							</label>
 							<input
 								type="text"
 								id="scopes"
@@ -991,7 +1007,9 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 						</FormGroup>
 
 						<FormGroup>
-							<label htmlFor="responseType">Response Type</label>
+							<label htmlFor="responseType" htmlFor="responsetype">
+								Response Type
+							</label>
 							<select
 								id="responseType"
 								name="responseType"

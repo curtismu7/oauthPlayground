@@ -34,6 +34,13 @@ import {
 	FiX,
 } from 'react-icons/fi';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { MFAInfoButtonV8 } from '@/apps/mfa/components/MFAInfoButtonV8';
+import { MFANavigationV8 } from '@/apps/mfa/components/MFANavigationV8';
+import { SuperSimpleApiDisplayV8 } from '@/apps/mfa/components/SuperSimpleApiDisplayV8';
+import type { DeviceAuthenticationPolicy, DeviceType } from '@/apps/mfa/flows/shared/MFATypes';
+import { MfaAuthenticationServiceV8 } from '@/apps/mfa/services/mfaAuthenticationServiceV8';
+import { MFAConfigurationServiceV8 } from '@/apps/mfa/services/mfaConfigurationServiceV8';
+import { MFAServiceV8 } from '@/apps/mfa/services/mfaServiceV8';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { usePageScroll } from '@/hooks/usePageScroll';
 import { pingOneLogoutService } from '@/services/pingOneLogoutService';
@@ -45,9 +52,6 @@ import {
 import { oauthStorage } from '@/utils/storage';
 import { ConfirmModalV8 } from '@/v8/components/ConfirmModalV8';
 import { UnavailableDevice } from '@/v8/components/DeviceFailureModalV8';
-import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
-import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
-import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import {
 	PageHeaderGradients,
 	PageHeaderTextColors,
@@ -55,13 +59,9 @@ import {
 } from '@/v8/components/shared/PageHeaderV8';
 import { UserSearchDropdownV8 } from '@/v8/components/UserSearchDropdownV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
-import type { DeviceAuthenticationPolicy, DeviceType } from '@/v8/flows/shared/MFATypes';
 import { useActionButton } from '@/v8/hooks/useActionButton';
 import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
-import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServiceV8';
-import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
-import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { WebAuthnAuthenticationServiceV8 } from '@/v8/services/webAuthnAuthenticationServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
@@ -1767,6 +1767,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							fontWeight: '500',
 							color: '#374151',
 						}}
+						htmlFor="workertoken"
 					>
 						Worker Token
 					</label>
@@ -1988,6 +1989,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 								fontWeight: '500',
 								color: '#374151',
 							}}
+							htmlFor="environmentid"
 						>
 							Environment ID
 						</label>
@@ -2032,6 +2034,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 								fontWeight: '500',
 								color: '#374151',
 							}}
+							htmlFor="username"
 						>
 							Username
 						</label>
@@ -2084,6 +2087,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							fontWeight: '500',
 							color: '#374151',
 						}}
+						htmlFor="deviceauthenticationpolicy"
 					>
 						Device Authentication Policy
 					</label>
@@ -3607,6 +3611,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			{/* Username Decision Modal */}
 			{showUsernameDecisionModal && (
 				<div
+					role="button"
+					tabIndex={0}
 					style={{
 						position: 'fixed',
 						top: 0,
@@ -3625,6 +3631,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					}}
 				>
 					<div
+						role="button"
+						tabIndex={0}
 						style={{
 							background: 'white',
 							borderRadius: '16px',
@@ -3697,6 +3705,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											fontSize: '14px',
 											fontWeight: '500',
 										}}
+										htmlFor="selectusername"
 									>
 										Select username
 									</label>
@@ -3839,6 +3848,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			{/* Device Selection Modal */}
 			{showDeviceSelectionModal && (
 				<div
+					role="button"
+					tabIndex={0}
 					style={{
 						position: 'fixed',
 						top: 0,
@@ -3854,6 +3865,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					onClick={() => setShowDeviceSelectionModal(false)}
 				>
 					<div
+						role="button"
+						tabIndex={0}
 						style={{
 							background: 'white',
 							borderRadius: '16px',
@@ -4657,6 +4670,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			{/* Device Registration Modal */}
 			{showRegistrationModal && (
 				<div
+					role="button"
+					tabIndex={0}
 					style={{
 						position: 'fixed',
 						top: 0,
@@ -4673,6 +4688,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					onClick={() => setShowRegistrationModal(false)}
 				>
 					<div
+						role="button"
+						tabIndex={0}
 						style={{
 							background: 'white',
 							borderRadius: '16px',

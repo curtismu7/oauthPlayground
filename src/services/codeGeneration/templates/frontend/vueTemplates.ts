@@ -551,7 +551,7 @@ const registerDevice = async () => {
     
     <form @submit.prevent="registerDevice">
       <div class="form-group">
-        <label>Device Type</label>
+        <label htmlFor="devicetype">Device Type</label>
         <select v-model="deviceType">
           <option value="SMS">SMS</option>
           <option value="EMAIL">Email</option>
@@ -560,7 +560,7 @@ const registerDevice = async () => {
       </div>
 
       <div class="form-group">
-        <label>Device Name</label>
+        <label htmlFor="devicename">Device Name</label>
         <input
           v-model="name"
           type="text"
@@ -569,7 +569,7 @@ const registerDevice = async () => {
       </div>
 
       <div v-if="deviceType === 'SMS'" class="form-group">
-        <label>Phone Number</label>
+        <label htmlFor="phonenumber">Phone Number</label>
         <input
           v-model="phone"
           type="tel"
@@ -579,7 +579,7 @@ const registerDevice = async () => {
       </div>
 
       <div v-if="deviceType === 'EMAIL'" class="form-group">
-        <label>Email Address</label>
+        <label htmlFor="emailaddress">Email Address</label>
         <input
           v-model="email"
           type="email"

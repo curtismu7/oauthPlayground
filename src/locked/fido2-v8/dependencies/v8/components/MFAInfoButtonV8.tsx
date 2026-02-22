@@ -354,6 +354,8 @@ export const MFAInfoButtonV8: React.FC<MFAInfoButtonV8Props> = ({
 			{/* Modal (click mode) */}
 			{displayMode === 'modal' && isOpen && (
 				<div
+					role="button"
+					tabIndex={0}
 					style={{
 						position: 'fixed',
 						top: 0,
@@ -370,6 +372,8 @@ export const MFAInfoButtonV8: React.FC<MFAInfoButtonV8Props> = ({
 					onClick={handleClose}
 				>
 					<div
+						role="button"
+						tabIndex={0}
 						style={{
 							background: '#ffffff' /* Light background */,
 							borderRadius: '12px',

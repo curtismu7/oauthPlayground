@@ -11,28 +11,16 @@
 
 import React from 'react';
 import { getPortalAppConfig } from './config/protectPortalAppConfig';
-import ProtectPortalApp from './ProtectPortalApp';
+import ProtectPortalAppPingUI from './ProtectPortalApp.PingUI';
 
 // ============================================================================
 // PROTECT PORTAL WRAPPER
 // ============================================================================
 
 const ProtectPortalWrapper: React.FC = () => {
-	const config = getPortalAppConfig();
+	const _config = getPortalAppConfig();
 
-	return (
-		<ProtectPortalApp
-			environmentId={config.pingone.environmentId}
-			clientId={config.pingone.clientId}
-			clientSecret={config.pingone.clientSecret}
-			redirectUri={config.pingone.redirectUri}
-			protectCredentials={{
-				environmentId: config.protect.environmentId,
-				workerToken: config.protect.workerToken,
-				region: config.protect.region,
-			}}
-		/>
-	);
+	return <ProtectPortalAppPingUI />;
 };
 
 export default ProtectPortalWrapper;

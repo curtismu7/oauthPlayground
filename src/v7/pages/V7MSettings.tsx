@@ -35,7 +35,7 @@ const V7MSettings: React.FC = () => {
 				<span style={{ color: enabled ? '#16a34a' : '#ef4444' }}>
 					{enabled ? 'Enabled' : 'Disabled'}
 				</span>
-				<button onClick={handleToggle} style={btnStyle}>
+				<button type="button" onClick={handleToggle} style={btnStyle}>
 					{enabled ? 'Disable' : 'Enable'} V7M
 				</button>
 			</div>

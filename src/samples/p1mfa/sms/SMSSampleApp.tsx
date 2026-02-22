@@ -75,6 +75,7 @@ export const SMSSampleApp: React.FC = () => {
 				}}
 			>
 				<button
+					type="button"
 					onClick={() => setActiveTab('credentials')}
 					style={{
 						padding: '0.75rem 1.5rem',
@@ -88,6 +89,7 @@ export const SMSSampleApp: React.FC = () => {
 					Credentials
 				</button>
 				<button
+					type="button"
 					onClick={() => setActiveTab('registration')}
 					disabled={!sdk}
 					style={{
@@ -103,6 +105,7 @@ export const SMSSampleApp: React.FC = () => {
 					Registration
 				</button>
 				<button
+					type="button"
 					onClick={() => setActiveTab('authentication')}
 					disabled={!sdk}
 					style={{
@@ -118,6 +121,7 @@ export const SMSSampleApp: React.FC = () => {
 					Authentication
 				</button>
 				<button
+					type="button"
 					onClick={() => {
 						setActiveTab('devices');
 						if (sdk && userId) {
@@ -153,7 +157,11 @@ export const SMSSampleApp: React.FC = () => {
 			{activeTab === 'registration' && sdk && (
 				<div>
 					<div style={{ marginBottom: '1rem' }}>
-						<label htmlFor="userId" style={{ display: 'block', marginBottom: '0.5rem' }}>
+						<label
+							htmlFor="userId"
+							style={{ display: 'block', marginBottom: '0.5rem' }}
+							htmlFor="userid"
+						>
 							User ID *
 						</label>
 						<input
@@ -178,7 +186,11 @@ export const SMSSampleApp: React.FC = () => {
 			{activeTab === 'authentication' && sdk && (
 				<div>
 					<div style={{ marginBottom: '1rem' }}>
-						<label htmlFor="authUserId" style={{ display: 'block', marginBottom: '0.5rem' }}>
+						<label
+							htmlFor="authUserId"
+							style={{ display: 'block', marginBottom: '0.5rem' }}
+							htmlFor="userid"
+						>
 							User ID *
 						</label>
 						<input
@@ -203,7 +215,11 @@ export const SMSSampleApp: React.FC = () => {
 			{activeTab === 'devices' && sdk && (
 				<div>
 					<div style={{ marginBottom: '1rem' }}>
-						<label htmlFor="devicesUserId" style={{ display: 'block', marginBottom: '0.5rem' }}>
+						<label
+							htmlFor="devicesUserId"
+							style={{ display: 'block', marginBottom: '0.5rem' }}
+							htmlFor="userid"
+						>
 							User ID *
 						</label>
 						<div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
@@ -222,6 +238,7 @@ export const SMSSampleApp: React.FC = () => {
 								}}
 							/>
 							<button
+								type="button"
 								onClick={handleLoadDevices}
 								disabled={!userId || loadingDevices}
 								style={{
