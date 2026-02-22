@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Button, Card, Form, Modal, Spinner } from 'react-bootstrap';
 import {
 	EnhancedPingOneMfaService,
@@ -34,12 +34,8 @@ export const MFADeviceManager: React.FC<MFADeviceManagerProps> = ({
 	const [showRemoveModal, setShowRemoveModal] = useState(false);
 	const [deviceToRemove, setDeviceToRemove] = useState<string | null>(null);
 
-	// Load devices on mount
-	useEffect(() => {
-		loadDevices();
-	}, [loadDevices]);
-
-	const loadDevices = async () => {
+	// Load devices function
+	const loadDevices = useCallback(async () => {
 		try {
 			setIsLoading(true);
 			const deviceList = await EnhancedPingOneMfaService.getDevices(credentials);
@@ -50,7 +46,12 @@ export const MFADeviceManager: React.FC<MFADeviceManagerProps> = ({
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, [credentials]);
+
+	// Load devices on mount
+	useEffect(() => {
+		loadDevices();
+	}, [loadDevices]);
 
 	const handleAddDevice = async () => {
 		try {
