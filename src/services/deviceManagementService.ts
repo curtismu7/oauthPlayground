@@ -17,7 +17,7 @@ export interface DeviceUpdateRequest {
 	deviceId: string;
 	nickname?: string;
 	isActive?: boolean;
-	metadata?: Record<string, any>;
+	metadata?: Record<string, unknown>;
 }
 
 export interface DeviceRegistrationRequest {
@@ -27,7 +27,7 @@ export interface DeviceRegistrationRequest {
 		phoneNumber?: string;
 		emailAddress?: string;
 	};
-	metadata?: Record<string, any>;
+	metadata?: Record<string, unknown>;
 }
 
 export interface DeviceManagementResult {
@@ -35,7 +35,7 @@ export interface DeviceManagementResult {
 	device?: MfaDevice;
 	error?: string;
 	requiresVerification?: boolean;
-	verificationChallenge?: any;
+	verificationChallenge?: unknown;
 }
 
 export interface DeviceUsageStats {
@@ -481,7 +481,7 @@ class DeviceManagementService {
 		title: string;
 		description: string;
 		deviceId?: string;
-		suggestedAction?: any;
+		suggestedAction?: unknown;
 	}> {
 		const recommendations: Array<{
 			type: 'add_device' | 'remove_device' | 'activate_device' | 'update_device';
@@ -489,7 +489,7 @@ class DeviceManagementService {
 			title: string;
 			description: string;
 			deviceId?: string;
-			suggestedAction?: any;
+			suggestedAction?: unknown;
 		}> = [];
 
 		const activeDevices = devices.filter((d) => d.status === 'ACTIVE');
