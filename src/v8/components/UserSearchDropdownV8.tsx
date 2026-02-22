@@ -7,7 +7,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { FiChevronDown, FiSearch, FiX } from 'react-icons/fi';
-import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
+import { MFAServiceV8 } from '@/apps/mfa/services/mfaServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const _MODULE_TAG = '[👤 USER-SEARCH-DROPDOWN-V8]';

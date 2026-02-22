@@ -8,8 +8,8 @@
 import React, { useEffect, useId, useState } from 'react';
 import { FiAlertCircle, FiArrowLeft, FiInfo, FiTrash2, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
+import { MFAServiceV8 } from '@/apps/mfa/services/mfaServiceV8';
 import { useDraggableModal } from '@/v8/hooks/useDraggableModal';
-import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 interface FIDODeviceExistsModalV8Props {

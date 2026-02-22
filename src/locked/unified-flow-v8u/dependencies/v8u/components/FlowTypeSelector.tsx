@@ -74,6 +74,7 @@ export const FlowTypeSelector: React.FC<FlowTypeSelectorProps> = ({
 					marginBottom: '6px',
 					letterSpacing: '0.01em',
 				}}
+				htmlFor="flowtypegranttype"
 			>
 				Flow Type (Grant type)
 			</label>

@@ -33,12 +33,12 @@ import { RouteRestorer } from './components/RouteRestorer';
 import { useAuth } from './contexts/NewAuthContext';
 import { NotificationContainer, NotificationProvider } from './hooks/useNotifications';
 import AIIdentityArchitectures from './pages/AIIdentityArchitectures';
-import ApplicationGenerator from './pages/ApplicationGenerator';
-import Callback from './pages/Callback';
+import ApplicationGeneratorPingUI from './pages/ApplicationGenerator.PingUI';
+import AnalyticsPingUI from './pages/Analytics.PingUI';
 import ClientGenerator from './pages/ClientGenerator';
-import Configuration from './pages/Configuration';
-import Documentation from './pages/Documentation';
-import Login from './pages/Login';
+import ConfigurationPingUI from './pages/Configuration.PingUI';
+import DocumentationPingUI from './pages/Documentation.PingUI';
+import LoginPingUI from './pages/Login.PingUI';
 import OAuthCodeGeneratorHub from './pages/OAuthCodeGeneratorHub';
 import OAuthFlowsNew from './pages/OAuthFlows.PingUI';
 import { ApiRequestModalProvider } from './services/apiRequestModalService';
@@ -84,13 +84,12 @@ import GlobalErrorDisplay from './components/GlobalErrorDisplay';
 import LogoutCallback from './components/LogoutCallback';
 import ServerStatusProvider from './components/ServerStatusProvider';
 import { StartupWrapper } from './components/StartupWrapper';
-import About from './pages/About';
+import AboutPingUI from './pages/About.PingUI';
 import AdvancedConfiguration from './pages/AdvancedConfiguration';
 import AdvancedSecuritySettingsComparison from './pages/AdvancedSecuritySettingsComparison';
 import AdvancedSecuritySettingsDemo from './pages/AdvancedSecuritySettingsDemo';
 import AIAgentOverview from './pages/AIAgentOverview';
 import AIGlossary from './pages/AIGlossary';
-import AutoDiscover from './pages/AutoDiscover';
 import AutoDiscoverPingUI from './pages/AutoDiscover.PingUI';
 import CIBAvsDeviceAuthz from './pages/CIBAvsDeviceAuthz';
 import CompetitiveAnalysis from './pages/CompetitiveAnalysis';
@@ -141,7 +140,6 @@ import RARFlowV7 from './pages/flows/RARFlowV7';
 import RedirectlessFlowV9_Real from './pages/flows/RedirectlessFlowV9_Real';
 import SAMLBearerAssertionFlowV7 from './pages/flows/SAMLBearerAssertionFlowV7';
 import SAMLServiceProviderFlowV1 from './pages/flows/SAMLServiceProviderFlowV1';
-import TokenIntrospectionFlow from './pages/flows/TokenIntrospectionFlow';
 import TokenIntrospectionFlowPingUI from './pages/flows/TokenIntrospectionFlow.PingUI';
 import TokenRevocationFlow from './pages/flows/TokenRevocationFlow';
 import UserInfoFlow from './pages/flows/UserInfoFlow';
@@ -160,36 +158,28 @@ import OIDCSessionManagement from './pages/OIDCSessionManagement';
 import OrganizationLicensing from './pages/OrganizationLicensing';
 import { P1MFASamples } from './pages/P1MFASamples';
 import PARvsRAR from './pages/PARvsRAR';
-import PingAIResources from './pages/PingAIResources';
 import PingAIResourcesPingUI from './pages/PingAIResources.PingUI';
 import PingOneAuditActivities from './pages/PingOneAuditActivities';
 import PingOneAuthentication from './pages/PingOneAuthentication';
 import PingOneAuthenticationCallback from './pages/PingOneAuthenticationCallback';
 import PingOneAuthenticationResult from './pages/PingOneAuthenticationResult';
-import PingOneIdentityMetrics from './pages/PingOneIdentityMetrics';
 import PingOneIdentityMetricsPingUI from './pages/PingOneIdentityMetrics.PingUI';
 import PingOneMockFeatures from './pages/PingOneMockFeatures';
 import PingOneSessionsAPI from './pages/PingOneSessionsAPI';
-import PingOneUserProfile from './pages/PingOneUserProfile';
 import PingOneUserProfilePingUI from './pages/PingOneUserProfile.PingUI';
 import PingOneWebhookViewer from './pages/PingOneWebhookViewer';
-import { PostmanCollectionGenerator } from './pages/PostmanCollectionGenerator';
 import PostmanCollectionGeneratorPingUI from './pages/PostmanCollectionGenerator.PingUI';
 import SDKSampleApp from './pages/SDKSampleApp';
 import ServiceTestRunner from './pages/ServiceTestRunner';
 import JWTExamples from './pages/sdk-examples/JWTExamples';
 import OIDCExamples from './pages/sdk-examples/OIDCExamples';
 import SDKDocumentation from './pages/sdk-examples/SDKDocumentation';
-import SDKExamplesHome from './pages/sdk-examples/SDKExamplesHome';
 import SDKExamplesHomePingUI from './pages/sdk-examples/SDKExamplesHome.PingUI';
-import HelioMartPasswordReset from './pages/security/HelioMartPasswordReset';
 import HelioMartPasswordResetPingUI from './pages/security/HelioMartPasswordReset.PingUI';
 import TestDemo from './pages/TestDemo';
 import TokenManagement from './pages/TokenManagement';
-import UltimateTokenDisplayDemo from './pages/UltimateTokenDisplayDemo';
 import UltimateTokenDisplayDemoPingUI from './pages/UltimateTokenDisplayDemo.PingUI';
 import URLDecoder from './pages/URLDecoder';
-import WorkerTokenTester from './pages/WorkerTokenTester';
 import WorkerTokenTesterPingUI from './pages/WorkerTokenTester.PingUI';
 import { FIDO2SampleApp } from './samples/p1mfa/fido2/FIDO2SampleApp';
 import { IntegratedMFASample } from './samples/p1mfa/IntegratedMFASample';
@@ -232,16 +222,13 @@ const MobileFlowV8 = React.lazy(() =>
 //	import('./v8/flows/types/WhatsAppFlowV8').then((module) => ({ default: module.WhatsAppFlowV8 }))
 // );
 
-import EnvironmentManagementPageV8 from './pages/EnvironmentManagementPageV8';
 import EnvironmentManagementPageV8PingUI from './pages/EnvironmentManagementPageV8.PingUI';
-import TokenExchangeFlowV9 from './pages/flows/TokenExchangeFlowV9';
 import TokenExchangeFlowV9PingUI from './pages/flows/TokenExchangeFlowV9.PingUI';
 // Import Protect Portal
 import ProtectPortalWrapper from './pages/protect-portal/ProtectPortalWrapper';
 import { CreateCompanyPage } from './pages/protect-portal/pages/CreateCompanyPage';
 import DavinciTodoApp from './sdk-examples/davinci-todo-app/DavinciTodoApp';
 import { DebugLogViewerPopoutV8 } from './v8/pages/DebugLogViewerPopoutV8';
-import DebugLogViewerV8 from './v8/pages/DebugLogViewerV8';
 import DebugLogViewerV8PingUI from './v8/pages/DebugLogViewerV8.PingUI';
 import DeleteAllDevicesUtilityV8 from './v8/pages/DeleteAllDevicesUtilityV8';
 import DeviceAuthenticationDetailsV8 from './v8/pages/DeviceAuthenticationDetailsV8';
@@ -663,7 +650,7 @@ const AppRoutes: React.FC = () => {
 					<ContentColumn>
 						<MainContent $sidebarWidth={sidebarWidth} className="end-user-nano">
 							<Routes>
-								<Route path="/login" element={<Login />} />
+								<Route path="/login" element={<LoginPingUI />} />
 								<Route path="/callback" element={<Callback />} />
 								{/* Per-flow callback routes */}
 								{/* V8U Unified Callback Handler - handles all V8U flows */}
@@ -1324,15 +1311,16 @@ const AppRoutes: React.FC = () => {
 								{/* Backward-compatible redirect for older links */}
 								<Route path="/oidc/tokens" element={<Navigate to="/oidc/id-tokens" replace />} />
 								<Route path="/client-generator" element={<ClientGenerator />} />{' '}
-								<Route path="/application-generator" element={<ApplicationGenerator />} />
+								<Route path="/application-generator" element={<ApplicationGeneratorPingUI />} />
 								<Route path="/oauth-code-generator-hub" element={<OAuthCodeGeneratorHub />} />
-								<Route path="/configuration" element={<Configuration />} />
-								<Route path="/documentation" element={<Documentation />} />
+								<Route path="/configuration" element={<ConfigurationPingUI />} />
+								<Route path="/analytics" element={<AnalyticsPingUI />} />
+								<Route path="/documentation" element={<DocumentationPingUI />} />
 								<Route path="/ping-ai-resources" element={<PingAIResourcesPingUI />} />
 								<Route path="/pingone-user-profile" element={<PingOneUserProfilePingUI />} />
 								<Route path="/worker-token-tester" element={<WorkerTokenTesterPingUI />} />
 								<Route path="/ai-identity-architectures" element={<AIIdentityArchitectures />} />
-								<Route path="/about" element={<About />} />
+								<Route path="/about" element={<AboutPingUI />} />
 								<Route path="/flow-header-demo" element={<FlowHeaderDemo />} />
 								<Route path="/test-demo" element={<TestDemo />} />
 								<Route path="/environment-id-demo" element={<EnvironmentIdInputDemo />} />

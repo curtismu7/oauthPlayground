@@ -17,26 +17,27 @@ export interface EducationPreference {
 }
 
 const STORAGE_KEY = 'oauth_education_preference';
-const DEFAULT_MODE: EducationMode = 'full';
+const DEFAULT_MODE: EducationMode = 'hidden';
 
 /**
  * Education Preference Service
  *
  * Manages user preferences for educational content display modes:
- * - full: Show all educational content (default)
+ * - hidden: Hide all educational content (default)
  * - compact: Show one-liner summaries that can be expanded
- * - hidden: Show minimal content with expand options
+ * - full: Show all educational content
  */
 export class EducationPreferenceService {
 	/**
 	 * Get the current education mode preference
-	 * @returns {EducationMode} Current education mode
+	 * @returns {EducationMode} The current education mode
 	 */
 	static getEducationMode(): EducationMode {
 		try {
 			const stored = localStorage.getItem(STORAGE_KEY);
 			if (stored) {
 				const preference: EducationPreference = JSON.parse(stored);
+
 				// Validate the stored mode
 				if (['full', 'compact', 'hidden'].includes(preference.mode)) {
 					return preference.mode;
@@ -81,6 +82,13 @@ export class EducationPreferenceService {
 					key: STORAGE_KEY,
 					newValue: JSON.stringify(preference),
 					url: window.location.href,
+				})
+			);
+
+			// Also dispatch custom event for immediate same-page updates
+			window.dispatchEvent(
+				new CustomEvent('educationModeChanged', {
+					detail: { mode, preference },
 				})
 			);
 		} catch (error) {

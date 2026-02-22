@@ -1338,7 +1338,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 						</ModalHeader>
 
 						<FormGroup>
-							<label>Username</label>
+							<label htmlFor="username">Username</label>
 							<input
 								type="text"
 								value={username}
@@ -1348,7 +1348,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 						</FormGroup>
 
 						<FormGroup>
-							<label>Password</label>
+							<label htmlFor="password">Password</label>
 							<input
 								type="password"
 								value={password}
@@ -1389,6 +1389,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 								}}
 							>
 								<button
+									type="button"
 									onClick={() => {
 										setShowAuthzConfigModal(true);
 									}}
@@ -1405,6 +1406,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 									Configure Authorization Code Credentials
 								</button>
 								<button
+									type="button"
 									onClick={() => {
 										const FLOW_TYPE = 'kroger-grocery-store-mfa';
 										const tokenStorageKey = `pingone_worker_token_${FLOW_TYPE}`;
@@ -1494,6 +1496,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 						<ModalHeader>
 							<h2>Configuration Required</h2>
 							<button
+								type="button"
 								onClick={() => setShowSetupModal(false)}
 								style={{
 									background: 'none',
@@ -1538,6 +1541,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 
 						<div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
 							<button
+								type="button"
 								onClick={() => setShowSetupModal(false)}
 								style={{
 									padding: '0.75rem 1.5rem',
@@ -1562,6 +1566,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 								Cancel
 							</button>
 							<button
+								type="button"
 								onClick={() => {
 									setShowSetupModal(false);
 									setShowAuthzConfigModal(true);
@@ -1757,6 +1762,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 							</p>
 						</div>
 						<button
+							type="button"
 							onClick={() => {
 								setIsAuthenticated(false);
 								setTokens(null);

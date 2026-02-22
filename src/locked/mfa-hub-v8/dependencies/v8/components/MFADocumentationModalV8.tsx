@@ -185,6 +185,8 @@ export const MFADocumentationModalV8: React.FC<MFADocumentationModalV8Props> = (
 
 	return (
 		<div
+			role="button"
+			tabIndex={0}
 			role="dialog"
 			aria-modal="true"
 			aria-labelledby="mfa-doc-modal-title"
@@ -208,6 +210,8 @@ export const MFADocumentationModalV8: React.FC<MFADocumentationModalV8Props> = (
 			}}
 		>
 			<div
+				role="button"
+				tabIndex={0}
 				style={{
 					background: 'white',
 					borderRadius: '12px',
@@ -262,6 +266,7 @@ export const MFADocumentationModalV8: React.FC<MFADocumentationModalV8Props> = (
 							color: '#374151',
 							marginBottom: '12px',
 						}}
+						htmlFor="selectcategory"
 					>
 						Select Category
 					</label>
@@ -305,6 +310,7 @@ export const MFADocumentationModalV8: React.FC<MFADocumentationModalV8Props> = (
 								color: '#374151',
 								marginBottom: '12px',
 							}}
+							htmlFor="selectusecasesselectedusecasessizeselected"
 						>
 							Select Use Cases ({selectedUseCases.size} selected)
 						</label>
@@ -389,6 +395,7 @@ export const MFADocumentationModalV8: React.FC<MFADocumentationModalV8Props> = (
 							color: '#374151',
 							marginBottom: '12px',
 						}}
+						htmlFor="downloadformat"
 					>
 						Download Format
 					</label>

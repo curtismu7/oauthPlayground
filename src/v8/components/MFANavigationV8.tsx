@@ -15,10 +15,10 @@
 
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { MFADocumentationModalV8 } from '@/apps/mfa/components/MFADocumentationModalV8';
+import { ApiDisplayCheckbox } from '@/apps/mfa/components/SuperSimpleApiDisplayV8';
+import { navigateToMfaHubWithCleanup } from '@/apps/mfa/utils/mfaFlowCleanupV8';
 import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
-import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
-import { MFADocumentationModalV8 } from './MFADocumentationModalV8';
-import { ApiDisplayCheckbox } from './SuperSimpleApiDisplayV8';
 
 interface MFANavigationV8Props {
 	/** Current page identifier for highlighting */

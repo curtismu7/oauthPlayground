@@ -5,13 +5,11 @@
  * @version 8.1.0
  * @since 2025-01-XX
  *
- * IMPORTANT: This file delegates to tokenGatewayV8 for all token acquisition.
- * Do NOT add direct token fetch logic here - use tokenGatewayV8 instead.
+ * IMPORTANT: This file delegates to UniversalSilentApiService for all token acquisition.
+ * Do NOT add direct token fetch logic here - use the universal service instead.
  */
 
-import { tokenGatewayV8 } from '@/v8/services/auth/tokenGatewayV8';
-import { WorkerTokenConfigServiceV8 } from '@/v8/services/workerTokenConfigServiceV8';
-import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
+import { UniversalSilentApiService } from '@/services/universalSilentApiService';
 import {
 	type TokenStatusInfo,
 	WorkerTokenStatusServiceV8,
@@ -19,113 +17,6 @@ import {
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const MODULE_TAG = '[🔑 WORKER-TOKEN-MODAL-HELPER-V8]';
-
-/**
- * Attempts to silently retrieve worker token if silentApiRetrieval is enabled
- * Returns true if token was successfully retrieved, false otherwise
- *
- * IMPORTANT: This function delegates to tokenGatewayV8 for actual token acquisition.
- * All token fetch logic is centralized in tokenGatewayV8 to prevent regressions.
- *
- * @param silentApiRetrievalOverride - Override for silent retrieval setting (if not provided, uses centralized service)
- * @param forceRefresh - If true, force token refresh even if valid token exists
- */
-async function attemptSilentTokenRetrieval(
-	silentApiRetrievalOverride?: boolean,
-	forceRefresh: boolean = false
-): Promise<boolean> {
-	try {
-		// FOOLPROOF: Use multiple sources to ensure we get the correct configuration
-		let silentApiRetrieval = false;
-
-		if (silentApiRetrievalOverride !== undefined) {
-			// Use explicit override if provided
-			silentApiRetrieval = silentApiRetrievalOverride;
-			console.log(`${MODULE_TAG} Using override silentApiRetrieval:`, silentApiRetrieval);
-		} else {
-			// Try multiple sources for configuration
-			try {
-				// First try centralized service
-				silentApiRetrieval = WorkerTokenConfigServiceV8.getSilentApiRetrieval();
-				console.log(
-					`${MODULE_TAG} Using WorkerTokenConfigServiceV8 silentApiRetrieval:`,
-					silentApiRetrieval
-				);
-			} catch (serviceError) {
-				console.warn(
-					`${MODULE_TAG} Failed to get config from WorkerTokenConfigServiceV8:`,
-					serviceError
-				);
-
-				// Fallback to MFA configuration service
-				try {
-					const { MFAConfigurationServiceV8 } = await import(
-						'@/v8/services/mfaConfigurationServiceV8'
-					);
-					const mfaConfig = MFAConfigurationServiceV8.loadConfiguration();
-					silentApiRetrieval = mfaConfig.workerToken?.silentApiRetrieval ?? false;
-					console.log(
-						`${MODULE_TAG} Using MFAConfigurationServiceV8 fallback silentApiRetrieval:`,
-						silentApiRetrieval
-					);
-				} catch (fallbackError) {
-					console.error(`${MODULE_TAG} All configuration sources failed:`, fallbackError);
-					silentApiRetrieval = false;
-				}
-			}
-		}
-
-		if (!silentApiRetrieval) {
-			console.log(`${MODULE_TAG} Silent retrieval disabled`);
-			return false;
-		}
-
-		console.log(
-			`${MODULE_TAG} Attempting silent token retrieval via tokenGatewayV8...`,
-			forceRefresh ? '(force refresh)' : ''
-		);
-
-		// Delegate to canonical token gateway
-		const result = await tokenGatewayV8.getWorkerToken({
-			mode: 'silent',
-			forceRefresh: forceRefresh,
-			timeout: 10000,
-			maxRetries: 2,
-			debug: true,
-		});
-
-		if (result.success) {
-			console.log(`${MODULE_TAG} Token automatically fetched via tokenGatewayV8`);
-			toastV8.success('Worker token automatically retrieved!');
-			return true;
-		}
-
-		// Handle specific error cases
-		if (result.error) {
-			console.log(
-				`${MODULE_TAG} Silent retrieval failed:`,
-				result.error.code,
-				result.error.message
-			);
-
-			if (result.error.code === 'NO_CREDENTIALS') {
-				toastV8.warning(
-					'Silent API retrieval requires saved credentials. Click "Get Worker Token" to configure.'
-				);
-			} else if (result.error.code === 'TIMEOUT') {
-				toastV8.warning('Token retrieval timed out. Please try again.');
-			} else if (result.error.code === 'NETWORK_ERROR') {
-				toastV8.warning('Network error during token retrieval. Check your connection.');
-			}
-			// Other errors are handled silently - user can click button to get details
-		}
-
-		return false;
-	} catch (error) {
-		console.error(`${MODULE_TAG} Unexpected error in silent retrieval:`, error);
-		return false;
-	}
-}
 
 /**
  * Handles showing worker token modal with silent API retrieval support
@@ -136,7 +27,7 @@ async function attemptSilentTokenRetrieval(
  * IMPORTANT: When user explicitly clicks "Get Worker Token" button, always show modal
  * to allow credential configuration, even if silentApiRetrieval is ON.
  *
- * Now uses WorkerTokenConfigServiceV8 as the default source for configuration.
+ * Now uses UniversalSilentApiService as the default source for configuration.
  * Override parameters are still supported for backward compatibility.
  *
  * @param setShowModal - Function to set modal visibility
@@ -155,9 +46,6 @@ export async function handleShowWorkerTokenModal(
 	forceShowModal: boolean = false, // Default to false for automatic calls
 	setSilentLoading?: (loading: boolean) => void // New parameter for loading state
 ): Promise<void> {
-	// #region agent log
-	// #endregion
-
 	// SIMPLIFIED: Use centralized service with clear priority
 	let silentApiRetrieval = false;
 	let showTokenAtEnd = false;
@@ -167,16 +55,22 @@ export async function handleShowWorkerTokenModal(
 		silentApiRetrieval = overrideSilentApiRetrieval;
 		console.log(`${MODULE_TAG} 🎯 Using override silentApiRetrieval:`, silentApiRetrieval);
 	} else {
-		// Priority 2: Centralized service (recommended)
+		// Priority 2: Universal service (recommended)
 		try {
-			silentApiRetrieval = WorkerTokenConfigServiceV8.getSilentApiRetrieval();
+			const universalService = new UniversalSilentApiService({
+				appId: 'v8',
+				appName: 'V8 App',
+				appVersion: '8.0.0',
+				storageKey: 'v8-silent-api-config',
+			});
+			silentApiRetrieval = universalService.getConfig().silentApiRetrieval;
 			console.log(
-				`${MODULE_TAG} ✅ Using WorkerTokenConfigServiceV8 silentApiRetrieval:`,
+				`${MODULE_TAG} ✅ Using UniversalSilentApiService silentApiRetrieval:`,
 				silentApiRetrieval
 			);
 		} catch (serviceError) {
 			console.warn(
-				`${MODULE_TAG} ⚠️ WorkerTokenConfigServiceV8 failed, using fallback:`,
+				`${MODULE_TAG} ⚠️ UniversalSilentApiService failed, using fallback:`,
 				serviceError
 			);
 			// Priority 3: Direct MFA service (fallback)
@@ -190,8 +84,8 @@ export async function handleShowWorkerTokenModal(
 					`${MODULE_TAG} 🔄 Using MFAConfigurationServiceV8 fallback silentApiRetrieval:`,
 					silentApiRetrieval
 				);
-			} catch (fallbackError) {
-				console.error(`${MODULE_TAG} ❌ All silentApiRetrieval sources failed:`, fallbackError);
+			} catch (mfaError) {
+				console.warn(`${MODULE_TAG} ❌ All services failed, defaulting to false:`, mfaError);
 				silentApiRetrieval = false;
 			}
 		}
@@ -202,16 +96,22 @@ export async function handleShowWorkerTokenModal(
 		showTokenAtEnd = overrideShowTokenAtEnd;
 		console.log(`${MODULE_TAG} 🎯 Using override showTokenAtEnd:`, showTokenAtEnd);
 	} else {
-		// Priority 2: Centralized service (recommended)
+		// Priority 2: Universal service (recommended)
 		try {
-			showTokenAtEnd = WorkerTokenConfigServiceV8.getShowTokenAtEnd();
+			const universalService = new UniversalSilentApiService({
+				appId: 'v8',
+				appName: 'V8 App',
+				appVersion: '8.0.0',
+				storageKey: 'v8-silent-api-config',
+			});
+			showTokenAtEnd = universalService.getConfig().showTokenAtEnd;
 			console.log(
-				`${MODULE_TAG} ✅ Using WorkerTokenConfigServiceV8 showTokenAtEnd:`,
+				`${MODULE_TAG} ✅ Using UniversalSilentApiService showTokenAtEnd:`,
 				showTokenAtEnd
 			);
 		} catch (serviceError) {
 			console.warn(
-				`${MODULE_TAG} ⚠️ WorkerTokenConfigServiceV8 failed, using fallback:`,
+				`${MODULE_TAG} ⚠️ UniversalSilentApiService failed, using fallback:`,
 				serviceError
 			);
 			// Priority 3: Direct MFA service (fallback)
@@ -225,8 +125,8 @@ export async function handleShowWorkerTokenModal(
 					`${MODULE_TAG} 🔄 Using MFAConfigurationServiceV8 fallback showTokenAtEnd:`,
 					showTokenAtEnd
 				);
-			} catch (fallbackError) {
-				console.error(`${MODULE_TAG} ❌ All showTokenAtEnd sources failed:`, fallbackError);
+			} catch (mfaError) {
+				console.warn(`${MODULE_TAG} ❌ All services failed, defaulting to false:`, mfaError);
 				showTokenAtEnd = false;
 			}
 		}
@@ -263,63 +163,58 @@ export async function handleShowWorkerTokenModal(
 			setSilentLoading(true);
 		}
 
-		// #region agent log
-		// #endregion
-		const silentRetrievalSucceeded = await attemptSilentTokenRetrieval(
-			silentApiRetrieval,
-			forceShowModal // Force refresh if user explicitly clicked button
-		);
+		try {
+			const universalService = new UniversalSilentApiService({
+				appId: 'v8',
+				appName: 'V8 App',
+				appVersion: '8.0.0',
+				storageKey: 'v8-silent-api-config',
+			});
+
+			const result = await universalService.executeSilentApi();
+
+			// Hide loading state
+			if (setSilentLoading) {
+				setSilentLoading(false);
+			}
+
+			if (result.success && result.token) {
+				console.log(`${MODULE_TAG} ✅ Silent retrieval successful via UniversalSilentApiService`);
+
+				// Update token status if callback provided
+				if (setTokenStatus && result.status) {
+					await setTokenStatus(result.status);
+				}
+
+				// Show token at end if configured
+				if (showTokenAtEnd) {
+					setShowModal(true);
+				}
+				return;
+			} else {
+				console.log(`${MODULE_TAG} ⚠️ Silent retrieval failed, showing modal:`, result.error);
+
+				// Check if it's a credentials issue
+				if (result.error?.includes('No credentials configured')) {
+					toastV8.warning('No credentials configured. Please set up worker token credentials.');
+				}
+			}
+		} catch (error) {
+			console.error(`${MODULE_TAG} ❌ UniversalSilentApiService error:`, error);
+		}
 
 		// Hide loading state
 		if (setSilentLoading) {
 			setSilentLoading(false);
 		}
-		// #region agent log
-		// #endregion
 
-		if (silentRetrievalSucceeded) {
-			// Token was successfully retrieved silently
-			if (setTokenStatus) {
-				const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
-				await setTokenStatus(newStatus);
-			}
-
-			// For silent API retrieval, only show modal if user explicitly clicked button
-			// If silent retrieval succeeded automatically, user should return to step 0 without modal
-			if (forceShowModal) {
-				// User explicitly clicked "Get Worker Token" - show modal even in silent mode
-				setShowModal(true);
-			}
-			// If this was automatic silent retrieval (not user-clicked), don't show modal
-			// User should continue to step 0 as expected
-			return;
-		}
-
-		// Silent retrieval failed
-		// If user explicitly clicked button (forceShowModal), show modal to allow credential configuration
-		// If credentials are missing, show modal to allow configuration (even in silent mode)
-		// Otherwise, respect silentApiRetrieval setting and don't show modal
-		if (forceShowModal) {
-			setShowModal(true);
-			return;
-		}
-
-		// Check if failure was due to missing credentials
-		const credentialsCheck = await workerTokenServiceV8.loadCredentials();
-		if (!credentialsCheck) {
-			// ALWAYS show modal when credentials are missing, even in silent mode
-			// User needs to configure credentials to continue
-			console.warn(`${MODULE_TAG} No credentials configured. Showing modal for credential setup.`);
-			setShowModal(true);
-			return;
-		}
-
+		// Silent retrieval failed - show modal for user interaction
+		setShowModal(true);
 		return;
 	}
 
 	// silentApiRetrieval is OFF - show modal if showTokenAtEnd is ON OR if user explicitly clicked button
 	if (forceShowModal || showTokenAtEnd) {
 		setShowModal(true);
-	} else {
 	}
 }

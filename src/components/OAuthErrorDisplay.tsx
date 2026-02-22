@@ -196,6 +196,7 @@ const OAuthErrorDisplay: React.FC<OAuthErrorDisplayProps> = ({
 			{/* Action Buttons */}
 			<div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
 				<button
+					type="button"
 					onClick={onDismiss}
 					style={{
 						padding: '0.5rem 1rem',
@@ -225,6 +226,7 @@ const OAuthErrorDisplay: React.FC<OAuthErrorDisplayProps> = ({
 
 				{onRetry && (
 					<button
+						type="button"
 						onClick={onRetry}
 						style={{
 							padding: '0.5rem 1rem',
@@ -253,6 +255,7 @@ const OAuthErrorDisplay: React.FC<OAuthErrorDisplayProps> = ({
 
 				{onClearAndRetry && (
 					<button
+						type="button"
 						onClick={onClearAndRetry}
 						style={{
 							padding: '0.5rem 1rem',
@@ -281,6 +284,7 @@ const OAuthErrorDisplay: React.FC<OAuthErrorDisplayProps> = ({
 
 				{/* Documentation Link */}
 				<button
+					type="button"
 					onClick={() =>
 						window.open(
 							'https://docs.pingidentity.com/bundle/pingone-for-customers/page/authentication.html',

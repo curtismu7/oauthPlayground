@@ -257,7 +257,12 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 
 	return (
 		<div className="credentials-form-v8">
-			<div className="collapsible-header" onClick={() => setIsExpanded(!isExpanded)}>
+			<div
+				role="button"
+				tabIndex={0}
+				className="collapsible-header"
+				onClick={() => setIsExpanded(!isExpanded)}
+			>
 				<div className="header-content">
 					<h2>{defaultTitle}</h2>
 					<span className={`chevron ${isExpanded ? 'open' : ''}`}>›</span>
@@ -291,6 +296,7 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 								<div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
 									<label
 										style={{ fontWeight: '600', fontSize: '13px', color: '#1f2937', margin: 0 }}
+										htmlFor="clienttype"
 									>
 										Client Type
 									</label>
@@ -344,6 +350,7 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 								<div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
 									<label
 										style={{ fontWeight: '600', fontSize: '13px', color: '#1f2937', margin: 0 }}
+										htmlFor="applicationtype"
 									>
 										Application Type
 									</label>
@@ -437,7 +444,10 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 						<div className="section-content">
 							{/* Spec Version Radio Buttons */}
 							<div className="form-group" style={{ marginBottom: '16px' }}>
-								<label style={{ fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+								<label
+									style={{ fontWeight: '600', marginBottom: '8px', display: 'block' }}
+									htmlFor="specificationversion"
+								>
 									Specification Version
 								</label>
 								<div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
@@ -477,7 +487,10 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 
 							{/* Flow Type Dropdown */}
 							<div className="form-group">
-								<label style={{ fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+								<label
+									style={{ fontWeight: '600', marginBottom: '8px', display: 'block' }}
+									htmlFor="flowtype"
+								>
 									Flow Type
 								</label>
 								<select
@@ -540,7 +553,7 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 						</div>
 						<div className="section-content">
 							<div className="form-group">
-								<label>Issuer URL or Environment ID</label>
+								<label htmlFor="issuerurlorenvironmentid">Issuer URL or Environment ID</label>
 								<div style={{ display: 'flex', gap: '8px' }}>
 									<input
 										type="text"
@@ -755,6 +768,8 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 					{/* Advanced Configuration Section */}
 					<div className="form-section" data-section="advanced">
 						<div
+							role="button"
+							tabIndex={0}
 							className="section-header"
 							onClick={() => setShowAdvancedSection(!showAdvancedSection)}
 							style={{ cursor: 'pointer' }}
@@ -842,7 +857,7 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 								{/* Response Type - Only show if flow supports it */}
 								{flowOptions.responseTypes.length > 0 && (
 									<div className="form-group">
-										<label>Response Type</label>
+										<label htmlFor="responsetype">Response Type</label>
 										<select
 											value={credentials.responseType || flowOptions.defaultResponseType}
 											onChange={(e) => handleChange('responseType', e.target.value)}
@@ -861,7 +876,9 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 								{/* Token Endpoint Authentication Method - Smart filtering */}
 								{showClientAuthMethod && (
 									<div className="form-group">
-										<label>Token Endpoint Authentication Method</label>
+										<label htmlFor="tokenendpointauthenticationmethod">
+											Token Endpoint Authentication Method
+										</label>
 										<select
 											value={credentials.clientAuthMethod || flowOptions.defaultAuthMethod}
 											onChange={(e) => handleChange('clientAuthMethod', e.target.value)}
@@ -884,7 +901,7 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 								{/* PKCE Enforcement Info */}
 								{flowOptions.responseTypes.length > 0 && (
 									<div className="form-group">
-										<label>PKCE Enforcement</label>
+										<label htmlFor="pkceenforcement">PKCE Enforcement</label>
 										<div
 											style={{
 												padding: '8px 12px',

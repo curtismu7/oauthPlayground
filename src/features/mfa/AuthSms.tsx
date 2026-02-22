@@ -158,6 +158,7 @@ export const AuthSms: React.FC<AuthSmsProps> = ({ sdk, userId, policyId, deviceI
 			{step === 'input' && (
 				<div>
 					<button
+						type="button"
 						onClick={handleInitialize}
 						disabled={!userId || !policyId}
 						style={{
@@ -219,7 +220,11 @@ export const AuthSms: React.FC<AuthSmsProps> = ({ sdk, userId, policyId, deviceI
 						}}
 					/>
 					<div style={{ marginTop: '1rem' }}>
-						<label htmlFor="authOtp" style={{ display: 'block', marginBottom: '0.5rem' }}>
+						<label
+							htmlFor="authOtp"
+							style={{ display: 'block', marginBottom: '0.5rem' }}
+							htmlFor="otpcode"
+						>
 							OTP Code *
 						</label>
 						<input
@@ -242,6 +247,7 @@ export const AuthSms: React.FC<AuthSmsProps> = ({ sdk, userId, policyId, deviceI
 						/>
 					</div>
 					<button
+						type="button"
 						onClick={handleComplete}
 						disabled={!otp || otp.length < 6}
 						style={{

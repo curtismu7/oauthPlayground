@@ -1111,6 +1111,8 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 									</h4>
 									<div style={{ display: 'grid', gap: '0.75rem' }}>
 										<div
+											role="button"
+											tabIndex={0}
 											onClick={() => setTokenEndpoint('https://oauth2.googleapis.com/token')}
 											style={{
 												padding: '0.75rem',
@@ -1146,6 +1148,8 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 										</div>
 
 										<div
+											role="button"
+											tabIndex={0}
 											onClick={() =>
 												setTokenEndpoint(
 													'https://login.microsoftonline.com/{tenant-id}/oauth2/v2.0/token'
@@ -1181,6 +1185,8 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 										</div>
 
 										<div
+											role="button"
+											tabIndex={0}
 											onClick={() => setTokenEndpoint('https://{pingfederate-host}:9031/as/token')}
 											style={{
 												padding: '0.75rem',
@@ -1212,6 +1218,8 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 										</div>
 
 										<div
+											role="button"
+											tabIndex={0}
 											onClick={() => setTokenEndpoint('https://{pingone-ais-host}/oauth/token')}
 											style={{
 												padding: '0.75rem',

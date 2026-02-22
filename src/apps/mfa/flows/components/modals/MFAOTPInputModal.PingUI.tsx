@@ -1,0 +1,313 @@
+import React from 'react';
+import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
+import { PingIdentityLogo } from '@/v8/components/shared/PingIdentityLogo';
+import { MFAOTPInput } from '@/v8/flows/components/MFAOTPInput';
+
+// MDI Icon component
+const MDIIcon: React.FC<{
+	icon: string;
+	size?: number;
+	className?: string;
+	'aria-label'?: string;
+	'aria-hidden'?: boolean;
+}> = ({ icon, size = 24, className = '', 'aria-label': ariaLabel, 'aria-hidden': ariaHidden }) => {
+	const style: React.CSSProperties = {
+		width: size,
+		height: size,
+		fontSize: size,
+		lineHeight: 1,
+	};
+
+	return (
+		<span
+			role="img"
+			aria-label={ariaLabel}
+			aria-hidden={ariaHidden}
+			className={`mdi mdi-${icon} ${className}`}
+			style={style}
+		/>
+	);
+};
+
+export interface MFAOTPInputModalProps {
+	show: boolean;
+	onClose: () => void;
+	otpCode: string;
+	setOtpCode: (code: string) => void;
+	otpError: string | null;
+	setOtpError: (error: string | null) => void;
+	isValidatingOTP: boolean;
+	onVerifyCode: () => Promise<void>;
+	onResendCode: () => Promise<void>;
+	selectedDeviceInfo?: {
+		phone?: string;
+		email?: string;
+	} | null;
+}
+
+export const MFAOTPInputModal: React.FC<MFAOTPInputModalProps> = ({
+	show,
+	onClose,
+	otpCode,
+	setOtpCode,
+	otpError,
+	setOtpError,
+	isValidatingOTP,
+	onVerifyCode,
+	onResendCode,
+	selectedDeviceInfo,
+}) => {
+	if (!show) return null;
+
+	const handleClose = () => {
+		onClose();
+		setOtpCode('');
+		setOtpError(null);
+	};
+
+	return (
+		<div
+			role="button"
+			tabIndex={0}
+			className="end-user-nano"
+			style={{
+				position: 'fixed',
+				top: 0,
+				left: 0,
+				right: 0,
+				bottom: 0,
+				background: 'rgba(0, 0, 0, 0.5)',
+				display: 'flex',
+				alignItems: 'center',
+				justifyContent: 'center',
+				zIndex: 1000,
+			}}
+			onClick={handleClose}
+		>
+			<div
+				role="button"
+				tabIndex={0}
+				style={{
+					background: 'white',
+					borderRadius: '16px',
+					padding: '0',
+					maxWidth: '450px',
+					width: '90%',
+					boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+					overflow: 'hidden',
+				}}
+				onClick={(e) => e.stopPropagation()}
+			>
+				{/* Header with Logo */}
+				<div
+					style={{
+						background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+						padding: '32px 32px 24px 32px',
+						textAlign: 'center',
+						position: 'relative',
+					}}
+				>
+					<div
+						onClick={handleClose}
+						style={{
+							position: 'absolute',
+							top: '16px',
+							right: '16px',
+							background: 'rgba(255, 255, 255, 0.2)',
+							border: 'none',
+							borderRadius: '50%',
+							width: '32px',
+							height: '32px',
+							display: 'flex',
+							alignItems: 'center',
+							justifyContent: 'center',
+							cursor: 'pointer',
+							color: 'white',
+							padding: 0,
+							transition: 'background-color 0.15s ease-in-out',
+						}}
+						onMouseOver={(e: React.MouseEvent<HTMLDivElement>) => {
+							e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+						}}
+						onMouseOut={(e: React.MouseEvent<HTMLDivElement>) => {
+							e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+						}}
+					>
+						<MDIIcon icon="close" size={18} aria-label="Close" />
+					</div>
+					<PingIdentityLogo size={48} />
+					<h3
+						style={{
+							margin: '0',
+							fontSize: '22px',
+							fontWeight: '600',
+							color: 'white',
+							textAlign: 'center',
+						}}
+					>
+						Enter verification code
+					</h3>
+				</div>
+				<div style={{ padding: '32px', textAlign: 'center' }}>
+					<p
+						style={{
+							margin: '0 0 8px 0',
+							color: '#6b7280',
+							fontSize: '15px',
+							lineHeight: '1.5',
+						}}
+					>
+						Enter the verification code sent to your device.
+					</p>
+					{selectedDeviceInfo && (selectedDeviceInfo.phone || selectedDeviceInfo.email) && (
+						<p
+							style={{
+								margin: '0 0 16px 0',
+								color: '#374151',
+								fontSize: '14px',
+								fontWeight: '500',
+								lineHeight: '1.5',
+							}}
+						>
+							{selectedDeviceInfo.phone
+								? `📱 Phone: ${selectedDeviceInfo.phone}`
+								: `📧 Email: ${selectedDeviceInfo.email}`}
+						</p>
+					)}
+
+					{otpError && (
+						<div
+							style={{
+								padding: '12px',
+								background: '#fef2f2',
+								border: '1px solid #fecaca',
+								borderRadius: '6px',
+								color: '#991b1b',
+								fontSize: '14px',
+								marginBottom: '16px',
+								textAlign: 'center',
+							}}
+						>
+							{otpError}
+						</div>
+					)}
+
+					<div
+						style={{
+							marginBottom: '24px',
+							display: 'flex',
+							flexDirection: 'column',
+							alignItems: 'center',
+							gap: '16px',
+						}}
+					>
+						<MFAOTPInput
+							value={otpCode}
+							onChange={(value: string) => {
+								setOtpCode(value);
+								setOtpError(null);
+							}}
+							disabled={isValidatingOTP}
+							placeholder="123456"
+							maxLength={6}
+						/>
+						{selectedDeviceInfo && (selectedDeviceInfo.phone || selectedDeviceInfo.email) && (
+							<p
+								style={{
+									margin: '0',
+									color: '#6b7280',
+									fontSize: '14px',
+									lineHeight: '1.5',
+									textAlign: 'center',
+									width: '100%',
+								}}
+							>
+								Enter the 6-digit code from {selectedDeviceInfo.phone ? `your phone` : `your email`}
+							</p>
+						)}
+					</div>
+
+					<div style={{ display: 'flex', gap: '12px' }}>
+						<ButtonSpinner
+							loading={isValidatingOTP}
+							onClick={onVerifyCode}
+							disabled={isValidatingOTP || otpCode.length !== 6}
+							spinnerSize={16}
+							spinnerPosition="left"
+							loadingText="Validating..."
+							style={{
+								flex: 1,
+								padding: '10px 24px',
+								border: 'none',
+								borderRadius: '6px',
+								background: isValidatingOTP || otpCode.length !== 6 ? '#9ca3af' : '#3b82f6',
+								color: 'white',
+								fontSize: '16px',
+								fontWeight: '600',
+								cursor: isValidatingOTP || otpCode.length !== 6 ? 'not-allowed' : 'pointer',
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+								gap: '8px',
+								transition: 'background-color 0.15s ease-in-out',
+							}}
+						>
+							{isValidatingOTP ? 'Validating...' : 'Verify Code'}
+						</ButtonSpinner>
+						<ButtonSpinner
+							loading={isValidatingOTP}
+							onClick={onResendCode}
+							disabled={isValidatingOTP}
+							spinnerSize={12}
+							spinnerPosition="left"
+							loadingText="Sending..."
+							style={{
+								padding: '10px 24px',
+								border: '1px solid #d1d5db',
+								borderRadius: '6px',
+								background: isValidatingOTP ? '#f3f4f6' : 'white',
+								color: isValidatingOTP ? '#9ca3af' : '#374151',
+								fontSize: '16px',
+								fontWeight: '500',
+								cursor: isValidatingOTP ? 'not-allowed' : 'pointer',
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+								gap: '8px',
+								transition: 'all 0.15s ease-in-out',
+							}}
+						>
+							{isValidatingOTP ? (
+								'Sending...'
+							) : (
+								<>
+									<MDIIcon icon="refresh" size={16} aria-hidden={true} /> Resend Code
+								</>
+							)}
+						</ButtonSpinner>
+						<ButtonSpinner
+							loading={false}
+							onClick={handleClose}
+							spinnerSize={12}
+							spinnerPosition="left"
+							loadingText="Canceling..."
+							style={{
+								padding: '10px 24px',
+								border: '1px solid #d1d5db',
+								borderRadius: '6px',
+								background: 'white',
+								color: '#6b7280',
+								fontSize: '16px',
+								fontWeight: '500',
+								cursor: 'pointer',
+								transition: 'all 0.15s ease-in-out',
+							}}
+						>
+							Cancel
+						</ButtonSpinner>
+					</div>
+				</div>
+			</div>
+		</div>
+	);
+};

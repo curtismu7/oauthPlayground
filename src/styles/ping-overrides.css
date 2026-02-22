@@ -1,0 +1,354 @@
+/* Ping Authentic UI Overrides - Scoped under .end-user-nano */
+/* This file contains minimal custom styles to complement Ping's official CSS framework */
+
+/* Global width settings for all Ping UI pages */
+.end-user-nano .ping-container {
+	max-width: 1400px;
+	margin: 0 auto;
+	padding: 40px;
+}
+
+/* Company Logo - Ping expects this class */
+.end-user-nano .companyLogo {
+	/* Replace with our app/company logo if needed */
+	content: url("https://assets.pingone.com/ux/ui-library/5.0.2/images/logo-pingidentity.png");
+	width: 65px;
+	height: 65px;
+}
+
+/* Device Selection Cards - Custom hover and selection states */
+.end-user-nano .device-card {
+	cursor: pointer;
+	transition: all 0.2s ease-in-out;
+	border: 2px solid transparent;
+}
+
+.end-user-nano .device-card:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.end-user-nano .device-card.selected {
+	border-color: #0d6efd;
+	background-color: #f8f9fa;
+}
+
+/* Custom animations for selected devices */
+@keyframes pulse {
+	0% {
+		transform: scale(1);
+	}
+	50% {
+		transform: scale(1.05);
+	}
+	100% {
+		transform: scale(1);
+	}
+}
+
+.end-user-nano .device-card.selected .device-icon-large {
+	animation: pulse 2s infinite;
+}
+
+/* Ping Brand Colors - Custom CSS variables for consistency */
+:root {
+	--ping-blue: #0d6efd;
+	--ping-blue-light: #e7f1ff;
+	--ping-green: #198754;
+	--ping-orange: #fd7e14;
+	--ping-gray: #6c757d;
+}
+
+/* Enhanced navbar styling */
+.end-user-nano .navbar-brand {
+	font-weight: 600;
+	color: #495057;
+}
+
+/* Enhanced list group styling */
+.end-user-nano .list-group-item.active {
+	background-color: #e7f1ff;
+	border-color: #0d6efd;
+	color: #0d6efd;
+}
+
+/* Enhanced card header styling */
+.end-user-nano .card-header {
+	background-color: #f8f9fa;
+	border-bottom: 1px solid #dee2e6;
+}
+
+/* Custom status indicators */
+.end-user-nano .status-badge {
+	font-size: 0.75rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+
+/* Custom flow details styling */
+.end-user-nano .flow-details {
+	background-color: #f8f9fa;
+	border: 1px solid #dee2e6;
+	border-radius: 0.375rem;
+	padding: 1rem;
+	margin-top: 1rem;
+}
+
+/* Custom tab styling */
+.end-user-nano .custom-tabs {
+	border-bottom: 1px solid #dee2e6;
+	margin-bottom: 1rem;
+}
+
+.end-user-nano .custom-tabs .nav-link {
+	border: none;
+	border-bottom: 2px solid transparent;
+	color: #6c757d;
+	font-weight: 500;
+	padding: 1rem 1.5rem;
+}
+
+.end-user-nano .custom-tabs .nav-link:hover {
+	color: #495057;
+	border-bottom-color: #adb5bd;
+}
+
+.end-user-nano .custom-tabs .nav-link.active {
+	color: #0d6efd;
+	border-bottom-color: #0d6efd;
+	background-color: transparent;
+}
+
+/* Fade-in animation for tab content */
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.end-user-nano .tab-content.active {
+	animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Custom flow item hover effects */
+.end-user-nano .flow-item {
+	transition: all 0.2s ease;
+}
+
+.end-user-nano .flow-item:hover {
+	background-color: #f8f9fa;
+	transform: translateX(5px);
+}
+
+/* Custom detail grid styling */
+.end-user-nano .detail-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 1rem;
+}
+
+.end-user-nano .detail-item {
+	display: flex;
+	justify-content: space-between;
+	padding: 0.5rem 0;
+	border-bottom: 1px solid #e9ecef;
+}
+
+.end-user-nano .detail-label {
+	font-weight: 600;
+	color: #495057;
+}
+
+.end-user-nano .detail-value {
+	color: #6c757d;
+	font-family: "Monaco", "Menlo", monospace;
+	font-size: 0.875rem;
+}
+
+/* Custom Ping header styling */
+.end-user-nano .ping-header {
+	background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+	color: white;
+	padding: 2rem 0;
+	margin-bottom: 2rem;
+}
+
+.end-user-nano .ping-header h1 {
+	margin: 0;
+	font-weight: 600;
+}
+
+.end-user-nano .ping-header p {
+	margin: 0.5rem 0 0 0;
+	opacity: 0.9;
+}
+
+/* Custom device icon sizing */
+.end-user-nano .device-icon-large {
+	font-size: 3rem;
+	color: #0d6efd;
+}
+
+.end-user-nano .device-icon-large.text-success {
+	color: #198754;
+}
+
+.end-user-nano .device-icon-large.text-info {
+	color: #0dcaf0;
+}
+
+.end-user-nano .device-icon-large.text-warning {
+	color: #fd7e14;
+}
+
+/* Custom step indicators */
+.end-user-nano .step-indicator {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.5rem;
+	height: 2.5rem;
+	border-radius: 50%;
+	background-color: #e9ecef;
+	color: #6c757d;
+	font-weight: 600;
+	margin: 0 auto 0.5rem;
+}
+
+.end-user-nano .step-indicator.active {
+	background-color: #0d6efd;
+	color: white;
+}
+
+.end-user-nano .step-indicator.completed {
+	background-color: #198754;
+	color: white;
+}
+
+/* Custom sidebar styling */
+.end-user-nano .flow-sidebar {
+	background-color: #f8f9fa;
+	border-radius: 0.375rem;
+	padding: 1rem;
+}
+
+/* Custom status card styling */
+.end-user-nano .status-card {
+	background: linear-gradient(135deg, #e7f1ff 0%, #f8f9fa 100%);
+	border: 1px solid #0d6efd;
+	border-radius: 0.375rem;
+	padding: 1rem;
+}
+
+/* Ping MDI Icon Animations */
+.end-user-nano .mdi-spin {
+	animation: mdi-spin 1s linear infinite;
+}
+
+@keyframes mdi-spin {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+/* Light button color variations */
+.end-user-nano .btn-light-green {
+	background-color: #d4edda;
+	border-color: #c3e6cb;
+	color: #155724;
+	transition: all 0.15s ease-in-out;
+}
+
+.end-user-nano .btn-light-green:hover {
+	background-color: #c3e6cb;
+	border-color: #b1dfbb;
+	color: #155724;
+}
+
+.end-user-nano .btn-light-green:active {
+	background-color: #b1dfbb;
+	border-color: #b1dfbb;
+	color: #155724;
+	transform: translateY(1px);
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.end-user-nano .btn-light-green:focus {
+	box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+.end-user-nano .btn-light-red {
+	background-color: #f8d7da;
+	border-color: #f5c2c7;
+	color: #721c24;
+	transition: all 0.15s ease-in-out;
+}
+
+.end-user-nano .btn-light-red:hover {
+	background-color: #f5c2c7;
+	border-color: #f1b0b7;
+	color: #721c24;
+}
+
+.end-user-nano .btn-light-red:active {
+	background-color: #f1b0b7;
+	border-color: #f1b0b7;
+	color: #721c24;
+	transform: translateY(1px);
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.end-user-nano .btn-light-red:focus {
+	box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+.end-user-nano .btn-light-grey {
+	background-color: #f8f9fa;
+	border-color: #dee2e6;
+	color: #495057;
+	transition: all 0.15s ease-in-out;
+}
+
+.end-user-nano .btn-light-grey:hover {
+	background-color: #e9ecef;
+	border-color: #ced4da;
+	color: #495057;
+}
+
+.end-user-nano .btn-light-grey:active {
+	background-color: #dee2e6;
+	border-color: #ced4da;
+	color: #495057;
+	transform: translateY(1px);
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.end-user-nano .btn-light-grey:focus {
+	box-shadow: 0 0 0 0.2rem rgba(108, 117, 125, 0.25);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+	.end-user-nano .detail-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.end-user-nano .device-icon-large {
+		font-size: 2rem;
+	}
+
+	.end-user-nano .step-indicator {
+		width: 2rem;
+		height: 2rem;
+		font-size: 0.875rem;
+	}
+}

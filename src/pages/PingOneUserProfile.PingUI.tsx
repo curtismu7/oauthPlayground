@@ -212,7 +212,7 @@ const getEmptyStateStyle = () => ({
 });
 
 const PingOneUserProfilePingUI: React.FC = () => {
-	const [searchParams] = useSearchParams();
+	const [_searchParams] = useSearchParams();
 	const [userData, setUserData] = useState<UserDataBundle | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState('');
@@ -253,7 +253,7 @@ const PingOneUserProfilePingUI: React.FC = () => {
 		try {
 			await navigator.clipboard.writeText(text);
 			v4ToastManager.showSuccess(`${label} copied to clipboard`);
-		} catch (err) {
+		} catch (_err) {
 			v4ToastManager.showError('Failed to copy to clipboard');
 		}
 	}, []);

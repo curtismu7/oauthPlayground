@@ -544,6 +544,7 @@ export const MFAConfigurationStepV8V2: React.FC<MFAConfigurationStepV8Props> = (
 								color: '#374151',
 								marginBottom: '8px',
 							}}
+							htmlFor="region"
 						>
 							Region
 						</label>
@@ -597,6 +598,7 @@ export const MFAConfigurationStepV8V2: React.FC<MFAConfigurationStepV8Props> = (
 								color: '#374151',
 								marginBottom: '8px',
 							}}
+							htmlFor="customdomainoptional"
 						>
 							Custom Domain (Optional)
 						</label>

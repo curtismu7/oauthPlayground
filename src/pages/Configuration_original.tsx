@@ -1732,7 +1732,9 @@ const Configuration = () => {
 					onKeyDown={(e) => console.log(' [Configuration] Form keydown:', e.key)}
 				>
 					<FormGroup>
-						<label htmlFor={formIds.environmentId}>Environment ID</label>
+						<label htmlFor={formIds.environmentId} htmlFor="environmentid">
+							Environment ID
+						</label>
 						<input
 							type="text"
 							id={formIds.environmentId}
@@ -1749,7 +1751,9 @@ const Configuration = () => {
 					</FormGroup>
 
 					<FormGroup>
-						<label htmlFor={formIds.clientId}>Client ID</label>
+						<label htmlFor={formIds.clientId} htmlFor="clientid">
+							Client ID
+						</label>
 						<input
 							type="text"
 							id={formIds.clientId}
@@ -1765,7 +1769,9 @@ const Configuration = () => {
 					</FormGroup>
 
 					<FormGroup>
-						<label htmlFor={formIds.clientSecret}>Client Secret (Optional)</label>
+						<label htmlFor={formIds.clientSecret} htmlFor="clientsecretoptional">
+							Client Secret (Optional)
+						</label>
 						<div style={{ position: 'relative' }}>
 							<input
 								type={showClientSecret ? 'text' : 'password'}
@@ -1816,7 +1822,9 @@ const Configuration = () => {
 					</FormGroup>
 
 					<FormGroup>
-						<label htmlFor={formIds.redirectUri}>Redirect URI</label>
+						<label htmlFor={formIds.redirectUri} htmlFor="redirecturi">
+							Redirect URI
+						</label>
 						<input
 							type="url"
 							id={formIds.redirectUri}
@@ -1832,7 +1840,9 @@ const Configuration = () => {
 					</FormGroup>
 
 					<FormGroup>
-						<label htmlFor={formIds.scopes}>Scopes</label>
+						<label htmlFor={formIds.scopes} htmlFor="scopes">
+							Scopes
+						</label>
 						<input
 							type="text"
 							id={formIds.scopes}
@@ -1861,7 +1871,9 @@ const Configuration = () => {
 					</h3>
 
 					<FormGroup>
-						<label htmlFor={formIds.responseType}>Response Type</label>
+						<label htmlFor={formIds.responseType} htmlFor="responsetype">
+							Response Type
+						</label>
 						<select
 							id={formIds.responseType}
 							name="responseType"
@@ -1901,7 +1913,9 @@ const Configuration = () => {
 									);
 								}}
 							/>
-							<label htmlFor={formIds.enablePkce}>Enable PKCE (Proof Key for Code Exchange)</label>
+							<label htmlFor={formIds.enablePkce} htmlFor="enablepkceproofkeyforcodeexchange">
+								Enable PKCE (Proof Key for Code Exchange)
+							</label>
 						</div>
 						<div className="form-text">
 							PKCE adds security by preventing authorization code interception attacks. Recommended
@@ -1911,7 +1925,9 @@ const Configuration = () => {
 
 					{formData.enablePKCE && (
 						<FormGroup>
-							<label htmlFor={formIds.codeChallengeMethod}>Code Challenge Method</label>
+							<label htmlFor={formIds.codeChallengeMethod} htmlFor="codechallengemethod">
+								Code Challenge Method
+							</label>
 							<select
 								id={formIds.codeChallengeMethod}
 								name="codeChallengeMethod"
@@ -1945,7 +1961,9 @@ const Configuration = () => {
 									);
 								}}
 							/>
-							<label htmlFor={formIds.enableOidc}>Enable OpenID Connect (OIDC)</label>
+							<label htmlFor={formIds.enableOidc} htmlFor="enableopenidconnectoidc">
+								Enable OpenID Connect (OIDC)
+							</label>
 						</div>
 						<div className="form-text">
 							Enable OpenID Connect features like ID tokens and user information endpoints.
@@ -1973,7 +1991,9 @@ const Configuration = () => {
 									);
 								}}
 							/>
-							<label htmlFor={formIds.useGlobalConfig}>Use global config for credentials</label>
+							<label htmlFor={formIds.useGlobalConfig} htmlFor="useglobalconfigforcredentials">
+								Use global config for credentials
+							</label>
 						</div>
 						<div className="form-text">
 							When enabled, all OAuth flows will use these Dashboard credentials instead of their
@@ -1996,7 +2016,9 @@ const Configuration = () => {
 					</h3>
 
 					<FormGroup>
-						<label htmlFor={formIds.authEndpoint}>Authorization Endpoint</label>
+						<label htmlFor={formIds.authEndpoint} htmlFor="authorizationendpoint">
+							Authorization Endpoint
+						</label>
 						<input
 							type="url"
 							id={formIds.authEndpoint}
@@ -2011,7 +2033,9 @@ const Configuration = () => {
 					</FormGroup>
 
 					<FormGroup>
-						<label htmlFor={formIds.tokenEndpoint}>Token Endpoint</label>
+						<label htmlFor={formIds.tokenEndpoint} htmlFor="tokenendpoint">
+							Token Endpoint
+						</label>
 						<input
 							type="url"
 							id={formIds.tokenEndpoint}
@@ -2025,7 +2049,9 @@ const Configuration = () => {
 					</FormGroup>
 
 					<FormGroup>
-						<label htmlFor={formIds.userInfoEndpoint}>UserInfo Endpoint</label>
+						<label htmlFor={formIds.userInfoEndpoint} htmlFor="userinfoendpoint">
+							UserInfo Endpoint
+						</label>
 						<input
 							type="url"
 							id={formIds.userInfoEndpoint}
@@ -2294,7 +2320,9 @@ const Configuration = () => {
 				</FormGroup>
 
 				<FormGroup>
-					<label htmlFor={formIds.fontSize}>Font Size Preference</label>
+					<label htmlFor={formIds.fontSize} htmlFor="fontsizepreference">
+						Font Size Preference
+					</label>
 					<select
 						id={formIds.fontSize}
 						name="fontSize"
@@ -2314,7 +2342,9 @@ const Configuration = () => {
 				</FormGroup>
 
 				<FormGroup>
-					<label htmlFor={formIds.colorScheme}>Color Scheme</label>
+					<label htmlFor={formIds.colorScheme} htmlFor="colorscheme">
+						Color Scheme
+					</label>
 					<select
 						id={formIds.colorScheme}
 						name="colorScheme"
@@ -2370,7 +2400,10 @@ const Configuration = () => {
 				</FormGroup>
 
 				<FormGroup>
-					<label htmlFor={formIds.collapsibleDefaultState}>
+					<label
+						htmlFor={formIds.collapsibleDefaultState}
+						htmlFor="collapsiblesectionsdefaultstate"
+					>
 						Collapsible Sections Default State
 					</label>
 					<select
@@ -2431,7 +2464,9 @@ const Configuration = () => {
 				</FormGroup>
 
 				<FormGroup>
-					<label htmlFor={formIds.copyButtonBehavior}>Copy Button Behavior</label>
+					<label htmlFor={formIds.copyButtonBehavior} htmlFor="copybuttonbehavior">
+						Copy Button Behavior
+					</label>
 					<select
 						id={formIds.copyButtonBehavior}
 						name="copyButtonBehavior"
@@ -2448,7 +2483,9 @@ const Configuration = () => {
 				</FormGroup>
 
 				<FormGroup>
-					<label htmlFor={formIds.errorDetailLevel}>Error Detail Level</label>
+					<label htmlFor={formIds.errorDetailLevel} htmlFor="errordetaillevel">
+						Error Detail Level
+					</label>
 					<select
 						id={formIds.errorDetailLevel}
 						name="errorDetailLevel"
@@ -2465,7 +2502,9 @@ const Configuration = () => {
 				</FormGroup>
 
 				<FormGroup>
-					<label htmlFor={formIds.consoleLoggingLevel}>Console Logging Level</label>
+					<label htmlFor={formIds.consoleLoggingLevel} htmlFor="consolelogginglevel">
+						Console Logging Level
+					</label>
 					<select
 						id={formIds.consoleLoggingLevel}
 						name="consoleLoggingLevel"
@@ -2497,7 +2536,9 @@ const Configuration = () => {
 				</h4>
 
 				<FormGroup>
-					<label htmlFor={formIds.defaultPageOnLoad}>Default Page on Load</label>
+					<label htmlFor={formIds.defaultPageOnLoad} htmlFor="defaultpageonload">
+						Default Page on Load
+					</label>
 					<select
 						id={formIds.defaultPageOnLoad}
 						name="defaultPageOnLoad"

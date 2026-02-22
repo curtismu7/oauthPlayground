@@ -1934,14 +1934,12 @@ const ImplicitFlowV7: React.FC = () => {
 
 				{/* Master Education Section */}
 				<MasterEducationSection
-					flowType="implicit"
-					title="📚 Implicit Flow Education"
 					sections={[
 						{
 							id: 'implicit-overview',
 							title: 'Implicit Flow Overview',
 							icon: <FiInfo />,
-							summary:
+							oneLiner:
 								'Legacy OAuth flow - tokens returned directly in URL fragment (not recommended for new applications)',
 							content: (
 								<div>
@@ -1975,7 +1973,7 @@ const ImplicitFlowV7: React.FC = () => {
 							id: 'oauth-vs-oidc',
 							title: 'OAuth vs OIDC Variants',
 							icon: <FiShield />,
-							summary: 'OAuth returns access tokens, OIDC adds ID tokens for authentication',
+							oneLiner: 'OAuth returns access tokens, OIDC adds ID tokens for authentication',
 							content: (
 								<div>
 									<p>

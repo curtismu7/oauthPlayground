@@ -158,7 +158,7 @@ export const useStepNavigationV8U = (
 			logger.debug(`Marking step as complete`, { step: currentStep });
 			setCompletedSteps((prev) => [...prev, currentStep]);
 		}
-	}, [step]);
+	}, [completedSteps.includes, currentStep]);
 
 	// Set validation errors
 	const setValidationErrors = useCallback(
@@ -203,7 +203,7 @@ export const useStepNavigationV8U = (
 		}
 
 		return `Missing required fields:\n${validationErrors.map((e) => `• ${e}`).join('\n')}`;
-	}, []);
+	}, [validationErrors.length, validationErrors.map, validationErrors[0]]);
 
 	return {
 		currentStep,

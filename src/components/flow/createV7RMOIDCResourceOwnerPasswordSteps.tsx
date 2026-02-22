@@ -55,7 +55,10 @@ const createV7RMOIDCResourceOwnerPasswordSteps = ({
 
 					<div style={{ display: 'grid', gap: '1rem' }}>
 						<div>
-							<label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>
+							<label
+								style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}
+								htmlFor="mockenvironmentid"
+							>
 								Mock Environment ID
 							</label>
 							<input
@@ -74,7 +77,10 @@ const createV7RMOIDCResourceOwnerPasswordSteps = ({
 						</div>
 
 						<div>
-							<label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>
+							<label
+								style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}
+								htmlFor="mockclientid"
+							>
 								Mock Client ID
 							</label>
 							<input
@@ -93,7 +99,10 @@ const createV7RMOIDCResourceOwnerPasswordSteps = ({
 						</div>
 
 						<div>
-							<label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>
+							<label
+								style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}
+								htmlFor="mockclientsecret"
+							>
 								Mock Client Secret
 							</label>
 							<input
@@ -112,7 +121,10 @@ const createV7RMOIDCResourceOwnerPasswordSteps = ({
 						</div>
 
 						<div>
-							<label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>
+							<label
+								style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}
+								htmlFor="mockusername"
+							>
 								Mock Username
 							</label>
 							<input
@@ -131,7 +143,10 @@ const createV7RMOIDCResourceOwnerPasswordSteps = ({
 						</div>
 
 						<div>
-							<label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>
+							<label
+								style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}
+								htmlFor="mockpassword"
+							>
 								Mock Password
 							</label>
 							<input
@@ -544,6 +559,7 @@ grant_type=refresh_token
 					</div>
 
 					<button
+						type="button"
 						onClick={resetFlow}
 						style={{
 							padding: '0.75rem 1.5rem',

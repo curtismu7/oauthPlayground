@@ -107,6 +107,7 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 						fontWeight: '600',
 						color: '#374151',
 					}}
+					htmlFor="specificationversion"
 				>
 					Specification Version
 				</label>

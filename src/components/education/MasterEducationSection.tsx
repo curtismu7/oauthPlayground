@@ -9,13 +9,10 @@
  * with support for different display modes (full, compact, hidden).
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { FiBook, FiChevronRight, FiInfo, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
-import {
-	type EducationMode,
-	EducationPreferenceService,
-} from '../../services/educationPreferenceService';
+import { useGlobalEducationMode } from '../../hooks/useGlobalEducationMode';
 
 const MasterSectionContainer = styled.div`
 	margin-bottom: 24px;
@@ -23,9 +20,20 @@ const MasterSectionContainer = styled.div`
 	border-radius: 8px;
 	background: #ffffff;
 	overflow: hidden;
+
+	@keyframes slideDown {
+		from {
+			opacity: 0;
+			transform: translateY(-10px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
 `;
 
-const SectionHeader = styled.button`
+const _SectionHeader = styled.button`
 	width: 100%;
 	padding: 16px 20px;
 	background: #f9fafb;
@@ -50,49 +58,78 @@ const SectionHeader = styled.button`
 	}
 `;
 
-const HeaderContent = styled.div`
+const _HeaderContent = styled.div`
 	display: flex;
 	align-items: center;
 	gap: 12px;
 `;
 
-const ToggleIcon = styled.div<{ $isExpanded: boolean }>`
+const _ToggleIcon = styled.div<{ $isExpanded: boolean }>`
 	display: flex;
 	align-items: center;
 	transition: transform 0.2s ease;
 	transform: ${(props) => (props.$isExpanded ? 'rotate(90deg)' : 'rotate(0deg)')};
 `;
 
-const CollapsibleContent = styled.div<{ $isExpanded: boolean }>`
+const _CollapsibleContent = styled.div<{ $isExpanded: boolean }>`
 	max-height: ${(props) => (props.$isExpanded ? '2000px' : '0')};
 	overflow: hidden;
 	transition: max-height 0.3s ease-in-out;
 `;
 
-const ContentInner = styled.div`
+const _ContentInner = styled.div`
 	padding: 20px;
 `;
 
-const EducationSection = styled.div`
-	margin-bottom: 24px;
-	padding: 16px;
+const CompactSection = styled.div<{ $isExpanded?: boolean }>`
+	padding: 12px 16px;
 	background: #f8fafc;
 	border-radius: 6px;
 	border-left: 4px solid #3b82f6;
+	margin-bottom: 8px;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	border: 1px solid #e2e8f0;
+
+	&:hover {
+		background: #e2e8f0;
+		border-color: #3b82f6;
+	}
 
 	&:last-child {
 		margin-bottom: 0;
 	}
+
+	${(props) =>
+		props.$isExpanded &&
+		`
+		background: #ffffff;
+		border-color: #3b82f6;
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+	`}
 `;
 
-const SectionTitle = styled.h3`
-	margin: 0 0 12px 0;
-	font-size: 16px;
+const CompactTitle = styled.div`
 	font-weight: 600;
 	color: #1e40af;
+	margin-bottom: 4px;
 	display: flex;
 	align-items: center;
 	gap: 8px;
+	justify-content: space-between;
+`;
+
+const ExpandIcon = styled.div<{ $isExpanded: boolean }>`
+	display: flex;
+	align-items: center;
+	transition: transform 0.2s ease;
+	transform: ${(props) => (props.$isExpanded ? 'rotate(90deg)' : 'rotate(0deg)')};
+	color: #6b7280;
+`;
+
+const CompactContent = styled.div`
+	font-size: 14px;
+	color: #374151;
 `;
 
 const EducationContent = styled.div`
@@ -106,58 +143,9 @@ const EducationContent = styled.div`
 		}
 	}
 
-	ul, ol {
-		margin: 8px 0;
-		padding-left: 20px;
-	}
-
-	li {
-		margin-bottom: 4px;
-	}
-
-	code {
-		background: #e5e7eb;
-		padding: 2px 6px;
-		border-radius: 3px;
-		font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-		font-size: 14px;
-	}
-
 	strong {
 		color: #111827;
 	}
-`;
-
-const CompactSection = styled.div`
-	padding: 12px 16px;
-	background: #f8fafc;
-	border-radius: 6px;
-	border-left: 4px solid #3b82f6;
-	margin-bottom: 8px;
-	cursor: pointer;
-	transition: background-color 0.2s ease;
-
-	&:hover {
-		background: #e2e8f0;
-	}
-
-	&:last-child {
-		margin-bottom: 0;
-	}
-`;
-
-const CompactTitle = styled.div`
-	font-weight: 600;
-	color: #1e40af;
-	margin-bottom: 4px;
-	display: flex;
-	align-items: center;
-	gap: 8px;
-`;
-
-const CompactContent = styled.div`
-	font-size: 14px;
-	color: #374151;
 `;
 
 export interface EducationSectionData {
@@ -170,7 +158,6 @@ export interface EducationSectionData {
 
 interface MasterEducationSectionProps {
 	sections: EducationSectionData[];
-	mode?: EducationMode;
 	className?: string;
 }
 
@@ -182,44 +169,10 @@ interface MasterEducationSectionProps {
  */
 export const MasterEducationSection: React.FC<MasterEducationSectionProps> = ({
 	sections,
-	mode,
 	className,
 }) => {
-	const [isExpanded, setIsExpanded] = useState(false);
+	const { currentMode } = useGlobalEducationMode();
 	const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
-	const [currentMode, setCurrentMode] = useState<EducationMode>(
-		mode || EducationPreferenceService.getEducationMode()
-	);
-
-	// Listen for preference changes via storage events and custom events
-	useEffect(() => {
-		const handleModeChange = () => {
-			const newMode = mode || EducationPreferenceService.getEducationMode();
-			console.log('[MasterEducationSection] Mode changed to:', newMode);
-			setCurrentMode(newMode);
-		};
-
-		// Listen for storage events (from other tabs/windows)
-		window.addEventListener('storage', handleModeChange);
-
-		// Also poll for changes (fallback for same-window updates)
-		const pollInterval = setInterval(() => {
-			const latestMode = mode || EducationPreferenceService.getEducationMode();
-			if (latestMode !== currentMode) {
-				console.log('[MasterEducationSection] Mode changed via polling:', latestMode);
-				setCurrentMode(latestMode);
-			}
-		}, 100); // Poll every 100ms
-
-		return () => {
-			window.removeEventListener('storage', handleModeChange);
-			clearInterval(pollInterval);
-		};
-	}, [mode, currentMode]);
-
-	const toggleSection = useCallback(() => {
-		setIsExpanded((prev) => !prev);
-	}, []);
 
 	const toggleCompactSection = useCallback((sectionId: string) => {
 		setExpandedSections((prev) => {
@@ -261,53 +214,83 @@ export const MasterEducationSection: React.FC<MasterEducationSectionProps> = ({
 	if (currentMode === 'compact') {
 		return (
 			<MasterSectionContainer className={className}>
-				{sections.map((section) => (
-					<CompactSection key={section.id} onClick={() => toggleCompactSection(section.id)}>
+				{sections.map((section) => {
+					const isExpanded = expandedSections.has(section.id);
+					return (
+						<CompactSection
+							key={section.id}
+							onClick={() => toggleCompactSection(section.id)}
+							$isExpanded={isExpanded}
+						>
+							<CompactTitle>
+								<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+									{getIconForSection(section)}
+									{section.title}
+								</div>
+								<ExpandIcon $isExpanded={isExpanded}>
+									<FiChevronRight size={16} />
+								</ExpandIcon>
+							</CompactTitle>
+							<CompactContent>
+								{section.oneLiner || 'Click to expand for more information'}
+							</CompactContent>
+							{isExpanded && (
+								<div
+									style={{
+										marginTop: '12px',
+										paddingTop: '12px',
+										borderTop: '1px solid #e2e8f0',
+										animation: 'slideDown 0.3s ease-out',
+									}}
+								>
+									<EducationContent>{section.content}</EducationContent>
+								</div>
+							)}
+						</CompactSection>
+					);
+				})}
+			</MasterSectionContainer>
+		);
+	}
+
+	// Full mode - show all content in individually collapsible sections
+	return (
+		<MasterSectionContainer className={className}>
+			{sections.map((section) => {
+				const isExpanded = expandedSections.has(section.id);
+				return (
+					<CompactSection
+						key={section.id}
+						onClick={() => toggleCompactSection(section.id)}
+						$isExpanded={isExpanded}
+					>
 						<CompactTitle>
-							{getIconForSection(section)}
-							{section.title}
+							<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+								{getIconForSection(section)}
+								{section.title}
+							</div>
+							<ExpandIcon $isExpanded={isExpanded}>
+								<FiChevronRight size={16} />
+							</ExpandIcon>
 						</CompactTitle>
 						<CompactContent>
 							{section.oneLiner || 'Click to expand for more information'}
 						</CompactContent>
-						{expandedSections.has(section.id) && (
+						{isExpanded && (
 							<div
-								style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #e2e8f0' }}
+								style={{
+									marginTop: '12px',
+									paddingTop: '12px',
+									borderTop: '1px solid #e2e8f0',
+									animation: 'slideDown 0.3s ease-out',
+								}}
 							>
 								<EducationContent>{section.content}</EducationContent>
 							</div>
 						)}
 					</CompactSection>
-				))}
-			</MasterSectionContainer>
-		);
-	}
-
-	// Full mode - show all content in collapsible sections
-	return (
-		<MasterSectionContainer className={className}>
-			<SectionHeader onClick={toggleSection}>
-				<HeaderContent>
-					<FiBook size={20} />
-					<span>Educational Content</span>
-				</HeaderContent>
-				<ToggleIcon $isExpanded={isExpanded}>
-					<FiChevronRight size={20} />
-				</ToggleIcon>
-			</SectionHeader>
-			<CollapsibleContent $isExpanded={isExpanded}>
-				<ContentInner>
-					{sections.map((section) => (
-						<EducationSection key={section.id}>
-							<SectionTitle>
-								{getIconForSection(section)}
-								{section.title}
-							</SectionTitle>
-							<EducationContent>{section.content}</EducationContent>
-						</EducationSection>
-					))}
-				</ContentInner>
-			</CollapsibleContent>
+				);
+			})}
 		</MasterSectionContainer>
 	);
 };

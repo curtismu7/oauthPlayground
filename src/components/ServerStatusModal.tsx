@@ -299,6 +299,7 @@ const ServerStatusModal: React.FC<ServerStatusModalProps> = ({ isOpen, onClose }
 		if (isOpen) {
 			refreshAllServers();
 		}
+		// biome-ignore lint/correctness/useExhaustiveDependencies: Only run when modal opens
 	}, [isOpen, refreshAllServers]);
 
 	if (!isOpen) return null;

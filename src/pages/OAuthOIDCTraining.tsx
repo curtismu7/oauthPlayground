@@ -524,6 +524,7 @@ const OAuthOIDCTraining: React.FC = () => {
 						/>
 						{searchTerm && (
 							<button
+								type="button"
 								onClick={() => setSearchTerm('')}
 								className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
 							>
@@ -661,6 +662,7 @@ const OAuthOIDCTraining: React.FC = () => {
 										return (
 											<div key={actualIdx} className="border rounded-lg overflow-hidden">
 												<button
+													type="button"
 													onClick={() =>
 														setExpandedFlow(
 															expandedFlow === actualIdx.toString() ? null : actualIdx.toString()

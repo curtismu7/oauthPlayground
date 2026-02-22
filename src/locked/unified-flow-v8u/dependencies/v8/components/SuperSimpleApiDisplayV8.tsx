@@ -2363,6 +2363,8 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 			{/* Clear Confirmation Modal */}
 			{showClearConfirm && (
 				<div
+					role="button"
+					tabIndex={0}
 					style={{
 						position: 'fixed',
 						top: 0,
@@ -2378,6 +2380,8 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 					onClick={() => setShowClearConfirm(false)}
 				>
 					<div
+						role="button"
+						tabIndex={0}
 						style={{
 							background: 'white',
 							borderRadius: '8px',

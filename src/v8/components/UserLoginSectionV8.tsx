@@ -158,6 +158,7 @@ export const UserLoginSectionV8: React.FC<UserLoginSectionV8Props> = ({
 						</div>
 						{isAuthenticated && (
 							<button
+								type="button"
 								onClick={handleRefreshToken}
 								disabled={isRefreshing}
 								type="button"
@@ -189,6 +190,7 @@ export const UserLoginSectionV8: React.FC<UserLoginSectionV8Props> = ({
 				<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
 					{!isAuthenticated ? (
 						<button
+							type="button"
 							onClick={handleLogin}
 							type="button"
 							style={{
@@ -220,6 +222,7 @@ export const UserLoginSectionV8: React.FC<UserLoginSectionV8Props> = ({
 					) : (
 						<>
 							<button
+								type="button"
 								onClick={handleLogin}
 								type="button"
 								style={{
@@ -249,6 +252,7 @@ export const UserLoginSectionV8: React.FC<UserLoginSectionV8Props> = ({
 								Update Token
 							</button>
 							<button
+								type="button"
 								onClick={handleLogout}
 								type="button"
 								style={{

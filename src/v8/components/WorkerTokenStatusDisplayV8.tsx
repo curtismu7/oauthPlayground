@@ -35,13 +35,13 @@ import {
 	FiZap,
 } from 'react-icons/fi';
 import styled, { css, keyframes } from 'styled-components';
+import { MFAConfigurationServiceV8 } from '@/apps/mfa/services/mfaConfigurationServiceV8';
 import type {
 	UnifiedWorkerTokenCredentials,
 	UnifiedWorkerTokenData,
 	UnifiedWorkerTokenStatus,
 } from '@/services/unifiedWorkerTokenService';
 import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
-import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import {

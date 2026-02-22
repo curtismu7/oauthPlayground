@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MasterFlow API - MFA Device Registration</title>
+    
+    <!-- Ping's Official CSS Framework -->
+    <link rel="stylesheet" href="https://assets.pingone.com/ux/astro-nano/0.1.0-alpha.11/icons.css">
+    <link rel="stylesheet" href="https://assets.pingone.com/ux/end-user-nano/0.1.0-alpha.9/end-user-nano.css">
+    
+    <style>
+        /* MasterFlow API Custom Styles */
+        .end-user-nano .device-card {
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            border: 2px solid transparent;
+            height: 100%;
+        }
+        
+        .end-user-nano .device-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .end-user-nano .device-card.selected {
+            border-color: #0d6efd;
+            background-color: #f8f9fa;
+        }
+        
+        .end-user-nano .navbar-brand {
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .end-user-nano .list-group-item.active {
+            background-color: #e7f1ff;
+            border-color: #0d6efd;
+            color: #0d6efd;
+        }
+        
+        .end-user-nano .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .end-user-nano .step-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            background-color: #e9ecef;
+            color: #6c757d;
+            font-weight: 600;
+            margin: 0 auto 0.5rem;
+        }
+        
+        .end-user-nano .step-indicator.active {
+            background-color: #0d6efd;
+            color: white;
+        }
+        
+        .end-user-nano .step-indicator.completed {
+            background-color: #198754;
+            color: white;
+        }
+        
+        .end-user-nano .flow-sidebar {
+            background-color: #f8f9fa;
+            border-radius: 0.375rem;
+            padding: 1rem;
+        }
+        
+        .end-user-nano .status-card {
+            background: linear-gradient(135deg, #e7f1ff 0%, #f8f9fa 100%);
+            border: 1px solid #0d6efd;
+            border-radius: 0.375rem;
+            padding: 1rem;
+        }
+        
+        .end-user-nano .device-icon-large {
+            font-size: 3rem;
+            color: #0d6efd;
+        }
+        
+        .end-user-nano .device-icon-large.text-success {
+            color: #198754;
+        }
+        
+        .end-user-nano .device-icon-large.text-info {
+            color: #0dcaf0;
+        }
+        
+        .end-user-nano .device-icon-large.text-warning {
+            color: #fd7e14;
+        }
+        
+        .end-user-nano .ping-header {
+            background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        
+        .end-user-nano .ping-header h1 {
+            margin: 0;
+            font-weight: 600;
+        }
+        
+        .end-user-nano .ping-header p {
+            margin: 0.5rem 0 0 0;
+            opacity: 0.9;
+        }
+        
+        /* Custom animations */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .end-user-nano .device-card.selected .device-icon-large {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="end-user-nano">
+        <!-- Ping Navigation -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+            <div class="container">
+                <a class="navbar-brand" href="#">
+                    <i class="mdi-account-key-outline me-2"></i>
+                    PingOne Playground
+                </a>
+                <div class="navbar-nav ms-auto">
+                    <a class="nav-link active" href="#">MFA Hub</a>
+                    <a class="nav-link" href="#">OAuth Flows</a>
+                    <a class="nav-link" href="#">Admin</a>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- Ping Header -->
+        <div class="ping-header">
+            <div class="container">
+                <h1>MFA Device Registration</h1>
+                <p>Add a new device for multi-factor authentication with enterprise-grade security</p>
+            </div>
+        </div>
+        
+        <div class="container">
+            <!-- Progress Steps -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="d-flex justify-content-center align-items-center">
+                        <div class="text-center">
+                            <div class="step-indicator active">1</div>
+                            <small class="text-muted">Select Device</small>
+                        </div>
+                        <div class="flex-grow-1 mx-3">
+                            <div class="progress" style="height: 4px;">
+                                <div class="progress-bar" style="width: 33%"></div>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <div class="step-indicator">2</div>
+                            <small class="text-muted">Configure</small>
+                        </div>
+                        <div class="flex-grow-1 mx-3">
+                            <div class="progress" style="height: 4px;">
+                                <div class="progress-bar bg-light" style="width: 33%"></div>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <div class="step-indicator">3</div>
+                            <small class="text-muted">Verify</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <!-- Main Content -->
+                <div class="col-lg-8">
+                    <!-- Device Selection -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h4 class="card-title mb-0">
+                                <i class="mdi-fingerprint me-2"></i>
+                                Select Device Type
+                            </h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="card device-card selected" onclick="selectDevice(this, 'sms')">
+                                        <div class="card-body text-center">
+                                            <i class="mdi-cellphone device-icon-large text-success mb-3"></i>
+                                            <h5 class="card-title">SMS Authentication</h5>
+                                            <p class="card-text text-muted">Fast setup, widely supported</p>
+                                            <span class="badge bg-success mt-2">Popular</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card device-card" onclick="selectDevice(this, 'totp')">
+                                        <div class="card-body text-center">
+                                            <i class="mdi-puzzle-outline device-icon-large text-info mb-3"></i>
+                                            <h5 class="card-title">TOTP Authenticator</h5>
+                                            <p class="card-text text-muted">Time-based codes from app</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card device-card" onclick="selectDevice(this, 'fido2')">
+                                        <div class="card-body text-center">
+                                            <i class="mdi-fingerprint device-icon-large text-warning mb-3"></i>
+                                            <h5 class="card-title">FIDO2 Security Key</h5>
+                                            <p class="card-text text-muted">Hardware-based authentication</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card device-card" onclick="selectDevice(this, 'email')">
+                                        <div class="card-body text-center">
+                                            <i class="mdi-email-outline device-icon-large text-primary mb-3"></i>
+                                            <h5 class="card-title">Email Authentication</h5>
+                                            <p class="card-text text-muted">Receive codes via email</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Configuration Panel -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="card-title mb-0">
+                                <i class="mdi-cog me-2"></i>
+                                Device Configuration
+                            </h4>
+                        </div>
+                        <div class="card-body">
+                            <!-- SMS Configuration -->
+                            <div id="sms-config" class="config-section">
+                                <form class="row g-3">
+                                    <div class="col-md-12">
+                                        <label for="phoneNumber" class="form-label">Phone Number</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="mdi-phone-outline"></i>
+                                            </span>
+                                            <input type="tel" class="form-control" id="phoneNumber" placeholder="+1 (555) 000-0000">
+                                        </div>
+                                        <div class="form-text">We'll send a verification code to this number</div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="d-flex gap-2">
+                                            <button type="button" class="btn btn-outline-secondary" onclick="cancel()">Cancel</button>
+                                            <button type="button" class="btn btn-primary" onclick="registerDevice()">
+                                                <i class="mdi-send me-2"></i>
+                                                Send Verification Code
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            
+                            <!-- TOTP Configuration -->
+                            <div id="totp-config" class="config-section" style="display: none;">
+                                <form class="row g-3">
+                                    <div class="col-md-12">
+                                        <label for="deviceName" class="form-label">Device Name</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="mdi-smartphone"></i>
+                                            </span>
+                                            <input type="text" class="form-control" id="deviceName" placeholder="My Authenticator App">
+                                        </div>
+                                        <div class="form-text">Give your authenticator a recognizable name</div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="d-flex gap-2">
+                                            <button type="button" class="btn btn-outline-secondary" onclick="cancel()">Cancel</button>
+                                            <button type="button" class="btn btn-primary" onclick="registerDevice()">
+                                                <i class="mdi-qrcode me-2"></i>
+                                                Generate QR Code
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            
+                            <!-- FIDO2 Configuration -->
+                            <div id="fido2-config" class="config-section" style="display: none;">
+                                <form class="row g-3">
+                                    <div class="col-md-12">
+                                        <label for="keyName" class="form-label">Security Key Name</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="mdi-usb-flash-drive"></i>
+                                            </span>
+                                            <input type="text" class="form-control" id="keyName" placeholder="My YubiKey 5">
+                                        </div>
+                                        <div class="form-text">Name your hardware security key for easy identification</div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="d-flex gap-2">
+                                            <button type="button" class="btn btn-outline-secondary" onclick="cancel()">Cancel</button>
+                                            <button type="button" class="btn btn-primary" onclick="registerDevice()">
+                                                <i class="mdi-fingerprint me-2"></i>
+                                                Start FIDO2 Registration
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            
+                            <!-- Email Configuration -->
+                            <div id="email-config" class="config-section" style="display: none;">
+                                <form class="row g-3">
+                                    <div class="col-md-12">
+                                        <label for="emailAddress" class="form-label">Email Address</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="mdi-email-outline"></i>
+                                            </span>
+                                            <input type="email" class="form-control" id="emailAddress" placeholder="user@example.com">
+                                        </div>
+                                        <div class="form-text">Must be a verified email address</div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="d-flex gap-2">
+                                            <button type="button" class="btn btn-outline-secondary" onclick="cancel()">Cancel</button>
+                                            <button type="button" class="btn btn-primary" onclick="registerDevice()">
+                                                <i class="mdi-email-send me-2"></i>
+                                                Send Email Code
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sidebar -->
+                <div class="col-lg-4">
+                    <div class="flow-sidebar">
+                        <h6 class="mb-3">
+                            <i class="mdi-information me-2"></i>
+                            Device Information
+                        </h6>
+                        
+                        <div class="status-card mb-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="mdi-check-circle text-success me-2"></i>
+                                <strong>Ready to register</strong>
+                            </div>
+                            <small class="text-muted">SMS device selected and ready for configuration</small>
+                        </div>
+                        
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="card-title">Security Features</h6>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2">
+                                        <i class="mdi-shield-check text-success me-2"></i>
+                                        End-to-end encryption
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="mdi-shield-check text-success me-2"></i>
+                                        PKCE verification
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="mdi-shield-check text-success me-2"></i>
+                                        Rate limiting protection
+                                    </li>
+                                    <li>
+                                        <i class="mdi-shield-check text-success me-2"></i>
+                                        Audit logging
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-body">
+                                <h6 class="card-title">Quick Actions</h6>
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-outline-primary btn-sm" onclick="showHelp()">
+                                        <i class="mdi-help-circle me-2"></i>
+                                        Help & Documentation
+                                    </button>
+                                    <button class="btn btn-outline-secondary btn-sm" onclick="viewDevices()">
+                                        <i class="mdi-devices me-2"></i>
+                                        View My Devices
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedDeviceType = 'sms';
+        
+        function selectDevice(element, deviceType) {
+            // Remove selected class from all cards
+            document.querySelectorAll('.device-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked card
+            element.classList.add('selected');
+            
+            // Update selected device type
+            selectedDeviceType = deviceType;
+            
+            // Hide all config sections
+            document.querySelectorAll('.config-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // Show relevant config section
+            const configSection = document.getElementById(`${deviceType}-config`);
+            if (configSection) {
+                configSection.style.display = 'block';
+            }
+            
+            // Update progress to step 1
+            updateProgress(1);
+            
+            // Update status
+            updateStatus(`Ready to register ${deviceType.toUpperCase()} device`);
+        }
+        
+        function registerDevice() {
+            const configInput = document.querySelector(`#${selectedDeviceType}-config input`);
+            const value = configInput ? configInput.value : '';
+            
+            if (!value && selectedDeviceType !== 'fido2') {
+                alert('Please fill in the required field');
+                return;
+            }
+            
+            // Update progress to step 2
+            updateProgress(2);
+            updateStatus('Registering device...');
+            
+            // Simulate registration process
+            setTimeout(() => {
+                updateProgress(3);
+                updateStatus('Device registered successfully! Check your device for verification.');
+                
+                // Show success message
+                const successAlert = document.createElement('div');
+                successAlert.className = 'alert alert-success alert-dismissible fade show mt-3';
+                successAlert.innerHTML = `
+                    <i class="mdi-check-circle me-2"></i>
+                    <strong>Success!</strong> Your ${selectedDeviceType.toUpperCase()} device has been registered.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                
+                const configSection = document.querySelector(`#${selectedDeviceType}-config`);
+                configSection.appendChild(successAlert);
+                
+                // Reset after 3 seconds
+                setTimeout(() => {
+                    successAlert.remove();
+                    updateProgress(1);
+                    updateStatus(`Ready to register ${selectedDeviceType.toUpperCase()} device`);
+                    configInput.value = '';
+                }, 3000);
+            }, 2000);
+        }
+        
+        function cancel() {
+            // Reset selection
+            document.querySelectorAll('.device-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Reset to SMS
+            const smsCard = document.querySelector('.device-card');
+            smsCard.classList.add('selected');
+            selectedDeviceType = 'sms';
+            
+            // Hide all configs, show SMS
+            document.querySelectorAll('.config-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            document.getElementById('sms-config').style.display = 'block';
+            
+            // Clear inputs
+            document.querySelectorAll('input').forEach(input => {
+                input.value = '';
+            });
+            
+            // Reset progress and status
+            updateProgress(1);
+            updateStatus('Ready to register SMS device');
+        }
+        
+        function updateStatus(message) {
+            const statusCard = document.querySelector('.status-card');
+            statusCard.innerHTML = `
+                <div class="d-flex align-items-center mb-2">
+                    <i class="mdi-information text-primary me-2"></i>
+                    <strong>${message}</strong>
+                </div>
+                <small class="text-muted">Device registration status</small>
+            `;
+        }
+        
+        function updateProgress(step) {
+            // Update step indicators
+            document.querySelectorAll('.step-indicator').forEach((indicator, index) => {
+                indicator.classList.remove('active', 'completed');
+                if (index < step - 1) {
+                    indicator.classList.add('completed');
+                } else if (index === step - 1) {
+                    indicator.classList.add('active');
+                }
+            });
+            
+            // Update progress bar
+            const progressBar = document.querySelector('.progress-bar');
+            const progressWidth = (step / 3) * 100;
+            progressBar.style.width = `${progressWidth}%`;
+        }
+        
+        function showHelp() {
+            alert('MFA Device Registration Help:\n\n1. Select a device type from the available options\n2. Configure the device with your information\n3. Click "Register Device" to complete setup\n\nFor support, contact your administrator or visit the PingOne documentation.');
+        }
+        
+        function viewDevices() {
+            alert('Device Management:\n\nYou currently have 0 registered devices.\n\nAfter registration, you can:\n- View device status\n- Manage device settings\n- Remove unused devices\n\nThis would navigate to the Device Management page in the full application.');
+        }
+        
+        // Initialize with SMS selected
+        document.addEventListener('DOMContentLoaded', () => {
+            selectDevice(document.querySelector('.device-card'), 'sms');
+        });
+    </script>
+</body>
+</html>

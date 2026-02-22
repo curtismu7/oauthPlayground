@@ -386,7 +386,9 @@ export const ImplicitFlowV8: React.FC = () => {
 			<p>After authenticating, you'll be redirected back here with tokens in the URL fragment.</p>
 
 			<div className="form-group">
-				<label htmlFor="implicit-callback-url">Callback URL</label>
+				<label htmlFor="implicit-callback-url" htmlFor="callbackurl">
+					Callback URL
+				</label>
 				<input
 					id="implicit-callback-url"
 					type="text"

@@ -9,18 +9,18 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { FiArrowLeft, FiCheck, FiDownload, FiInfo, FiRefreshCw, FiUpload } from 'react-icons/fi';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { usePageScroll } from '@/hooks/usePageScroll';
-import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
-import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
-import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
-import { PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
-import type { DeviceAuthenticationPolicy } from '@/v8/flows/shared/MFATypes';
-import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
+import { MFAInfoButtonV8 } from '@/apps/mfa/components/MFAInfoButtonV8';
+import { MFANavigationV8 } from '@/apps/mfa/components/MFANavigationV8';
+import { SuperSimpleApiDisplayV8 } from '@/apps/mfa/components/SuperSimpleApiDisplayV8';
+import type { DeviceAuthenticationPolicy } from '@/apps/mfa/flows/shared/MFATypes';
 import {
 	type MFAConfiguration,
 	MFAConfigurationServiceV8,
-} from '@/v8/services/mfaConfigurationServiceV8';
-import { MFAServiceV8, type MFASettings } from '@/v8/services/mfaServiceV8';
+} from '@/apps/mfa/services/mfaConfigurationServiceV8';
+import { MFAServiceV8, type MFASettings } from '@/apps/mfa/services/mfaServiceV8';
+import { usePageScroll } from '@/hooks/usePageScroll';
+import { PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
+import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import WorkerTokenStatusServiceV8 from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
@@ -873,6 +873,7 @@ export const MFAConfigurationPageV8: React.FC = () => {
 											color: '#374151',
 											flex: 1,
 										}}
+										htmlFor="selectpolicy"
 									>
 										Select Policy
 									</label>
@@ -1065,6 +1066,7 @@ export const MFAConfigurationPageV8: React.FC = () => {
 														fontWeight: '500',
 														color: '#374151',
 													}}
+													htmlFor="cooldownduration"
 												>
 													Cooldown Duration
 												</label>
@@ -1131,6 +1133,7 @@ export const MFAConfigurationPageV8: React.FC = () => {
 														fontWeight: '500',
 														color: '#374151',
 													}}
+													htmlFor="timeunit"
 												>
 													Time Unit
 												</label>
@@ -1984,7 +1987,10 @@ const ToggleSetting: React.FC<ToggleSettingProps> = ({ label, description, value
 	return (
 		<div>
 			<div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '4px' }}>
-				<label style={{ fontSize: '14px', fontWeight: '500', color: '#374151', cursor: 'pointer' }}>
+				<label
+					style={{ fontSize: '14px', fontWeight: '500', color: '#374151', cursor: 'pointer' }}
+					htmlFor="label"
+				>
 					{label}
 				</label>
 				<button
@@ -2048,6 +2054,7 @@ const NumberSetting: React.FC<NumberSettingProps> = ({
 					color: '#374151',
 					marginBottom: '8px',
 				}}
+				htmlFor="label"
 			>
 				{label}
 			</label>
@@ -2102,6 +2109,7 @@ const SelectSetting: React.FC<SelectSettingProps> = ({
 					color: '#374151',
 					marginBottom: '8px',
 				}}
+				htmlFor="label"
 			>
 				{label}
 			</label>
@@ -2151,6 +2159,7 @@ const TextSetting: React.FC<TextSettingProps> = ({ label, description, value, on
 					color: '#374151',
 					marginBottom: '8px',
 				}}
+				htmlFor="label"
 			>
 				{label}
 			</label>

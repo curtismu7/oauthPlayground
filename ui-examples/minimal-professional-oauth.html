@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimal Professional - OAuth Authorization Code Flow</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #fafafa;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+
+        .oauth-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .oauth-header {
+            margin-bottom: 3rem;
+        }
+
+        .oauth-header h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #6b7280;
+            margin: 0;
+        }
+
+        .oauth-main {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 3rem;
+        }
+
+        .config-panel {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .config-section {
+            margin-bottom: 2rem;
+        }
+
+        .config-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .config-section h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: #1a1a1a;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .form-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-field label {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: #374151;
+        }
+
+        .form-field input {
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-field input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .help-text {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-top: 0.5rem;
+        }
+
+        .flow-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+        }
+
+        .btn-primary:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .flow-status {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            height: fit-content;
+        }
+
+        .flow-status h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: #1a1a1a;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+        }
+
+        .status-dot.warning {
+            background: #f59e0b;
+        }
+
+        .status-dot.error {
+            background: #ef4444;
+        }
+
+        .flow-details {
+            margin-bottom: 1.5rem;
+        }
+
+        .flow-details h4 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #6b7280;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .flow-details p {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin: 0;
+        }
+
+        .flow-info {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .flow-info code {
+            background: #f1f5f9;
+            padding: 0.125rem 0.25rem;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            color: #374151;
+        }
+
+        .advanced-options {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .advanced-toggle {
+            background: none;
+            border: none;
+            color: #3b82f6;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 0;
+            margin-bottom: 1rem;
+        }
+
+        .advanced-toggle:hover {
+            text-decoration: underline;
+        }
+
+        .advanced-content {
+            display: none;
+        }
+
+        .advanced-content.show {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .oauth-main {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .flow-actions {
+                flex-direction: column;
+            }
+
+            .btn-secondary,
+            .btn-primary {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="oauth-container">
+        <header class="oauth-header">
+            <h1>OAuth 2.0 Authorization Code Flow</h1>
+            <p class="subtitle">Configure and test OAuth authorization with PKCE</p>
+        </header>
+        
+        <main class="oauth-main">
+            <div class="config-panel">
+                <div class="config-section">
+                    <h2>Application Credentials</h2>
+                    <div class="form-grid">
+                        <div class="form-field">
+                            <label for="environment-id">Environment ID</label>
+                            <input type="text" id="environment-id" placeholder="ping-one-env-id" />
+                            <p class="help-text">Your PingOne environment identifier</p>
+                        </div>
+                        <div class="form-field">
+                            <label for="client-id">Client ID</label>
+                            <input type="text" id="client-id" placeholder="your-client-id" />
+                            <p class="help-text">OAuth application client ID</p>
+                        </div>
+                        <div class="form-field">
+                            <label for="client-secret">Client Secret</label>
+                            <input type="password" id="client-secret" placeholder="••••••••" />
+                            <p class="help-text">OAuth application client secret</p>
+                        </div>
+                        <div class="form-field">
+                            <label for="redirect-uri">Redirect URI</label>
+                            <input type="url" id="redirect-uri" placeholder="https://your-app.com/callback" />
+                            <p class="help-text">Must match registered callback URL</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="advanced-options">
+                    <button class="advanced-toggle" onclick="toggleAdvanced()">Show Advanced Options</button>
+                    <div class="advanced-content" id="advanced-content">
+                        <div class="form-grid">
+                            <div class="form-field">
+                                <label for="scopes">Scopes</label>
+                                <input type="text" id="scopes" placeholder="openid profile email" value="openid profile email" />
+                                <p class="help-text">Space-separated scope list</p>
+                            </div>
+                            <div class="form-field">
+                                <label for="auth-method">Client Authentication Method</label>
+                                <select id="auth-method" style="padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem;">
+                                    <option value="client_secret_basic">client_secret_basic</option>
+                                    <option value="client_secret_post">client_secret_post</option>
+                                    <option value="none">none (public client)</option>
+                                </select>
+                                <p class="help-text">How to authenticate with the token endpoint</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flow-actions">
+                    <button class="btn-secondary" onclick="validateConfig()">Validate Configuration</button>
+                    <button class="btn-primary" onclick="startFlow()" id="start-flow-btn">Start Authorization Flow</button>
+                </div>
+            </div>
+            
+            <div class="flow-status">
+                <h3>Flow Status</h3>
+                
+                <div class="status-indicator">
+                    <div class="status-dot" id="status-dot"></div>
+                    <span id="status-text">Ready to configure</span>
+                </div>
+                
+                <div class="flow-details">
+                    <h4>PKCE Configuration</h4>
+                    <p id="pkce-status">PKCE will be automatically generated for security</p>
+                </div>
+                
+                <div class="flow-details">
+                    <h4>Flow Information</h4>
+                    <div class="flow-info">
+                        <p><strong>Flow Type:</strong> Authorization Code with PKCE</p>
+                        <p><strong>Security:</strong> <code>SHA-256</code> for code challenge</p>
+                        <p><strong>State:</strong> <code>auto-generated</code></p>
+                    </div>
+                </div>
+                
+                <div class="flow-details" id="token-info" style="display: none;">
+                    <h4>Token Information</h4>
+                    <div class="flow-info">
+                        <p><strong>Access Token:</strong> <code id="access-token">••••••••</code></p>
+                        <p><strong>Expires In:</strong> <code id="expires-in">3600s</code></p>
+                        <p><strong>Token Type:</strong> <code>Bearer</code></p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let pkceVerifier = '';
+        let pkceChallenge = '';
+        let state = '';
+
+        function generatePKCE() {
+            // Generate code verifier
+            const array = new Uint8Array(32);
+            crypto.getRandomValues(array);
+            pkceVerifier = btoa(String.fromCharCode.apply(null, array))
+                .replace(/\+/g, '-')
+                .replace(/\//g, '_')
+                .replace(/=/g, '');
+
+            // Generate code challenge
+            const encoder = new TextEncoder();
+            const data = encoder.encode(pkceVerifier);
+            crypto.subtle.digest('SHA-256', data).then(digest => {
+                const hashArray = Array.from(new Uint8Array(digest));
+                pkceChallenge = btoa(String.fromCharCode.apply(null, hashArray))
+                    .replace(/\+/g, '-')
+                    .replace(/\//g, '_')
+                    .replace(/=/g, '');
+
+                updatePKCEStatus();
+            });
+
+            // Generate state
+            state = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        }
+
+        function updatePKCEStatus() {
+            const pkceStatus = document.getElementById('pkce-status');
+            pkceStatus.textContent = `PKCE generated (verifier: ${pkceVerifier.substring(0, 8)}...)`;
+        }
+
+        function validateConfig() {
+            const envId = document.getElementById('environment-id').value;
+            const clientId = document.getElementById('client-id').value;
+            const redirectUri = document.getElementById('redirect-uri').value;
+
+            if (!envId || !clientId || !redirectUri) {
+                updateStatus('error', 'Please fill in all required fields');
+                return;
+            }
+
+            // Simple validation
+            if (!redirectUri.startsWith('http://') && !redirectUri.startsWith('https://')) {
+                updateStatus('error', 'Redirect URI must be a valid URL');
+                return;
+            }
+
+            updateStatus('success', 'Configuration is valid');
+        }
+
+        function startFlow() {
+            const envId = document.getElementById('environment-id').value;
+            const clientId = document.getElementById('client-id').value;
+            const redirectUri = document.getElementById('redirect-uri').value;
+
+            if (!envId || !clientId || !redirectUri) {
+                updateStatus('error', 'Please configure all required fields first');
+                return;
+            }
+
+            // Disable button during flow
+            const startBtn = document.getElementById('start-flow-btn');
+            startBtn.disabled = true;
+            startBtn.textContent = 'Authorizing...';
+
+            updateStatus('warning', 'Initiating OAuth flow...');
+
+            // Simulate OAuth flow
+            setTimeout(() => {
+                // Simulate authorization URL
+                const authUrl = `https://auth.pingone.com/${envId}/as/authorize?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=openid profile email&state=${state}&code_challenge=${pkceChallenge}&code_challenge_method=S256`;
+                
+                console.log('Authorization URL:', authUrl);
+                
+                updateStatus('warning', 'Waiting for authorization callback...');
+                
+                // Simulate callback after 2 seconds
+                setTimeout(() => {
+                    // Simulate successful authorization
+                    updateStatus('success', 'Authorization successful! Exchanging code for tokens...');
+                    
+                    setTimeout(() => {
+                        // Simulate token exchange
+                        const accessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
+                        document.getElementById('access-token').textContent = accessToken.substring(0, 20) + '...';
+                        document.getElementById('token-info').style.display = 'block';
+                        
+                        updateStatus('success', 'Flow completed successfully!');
+                        startBtn.disabled = false;
+                        startBtn.textContent = 'Start New Flow';
+                    }, 1500);
+                }, 2000);
+            }, 1000);
+        }
+
+        function updateStatus(type, message) {
+            const statusDot = document.getElementById('status-dot');
+            const statusText = document.getElementById('status-text');
+            
+            // Remove all status classes
+            statusDot.classList.remove('warning', 'error');
+            
+            // Add appropriate class
+            if (type === 'warning') {
+                statusDot.classList.add('warning');
+            } else if (type === 'error') {
+                statusDot.classList.add('error');
+            }
+            
+            statusText.textContent = message;
+        }
+
+        function toggleAdvanced() {
+            const advancedContent = document.getElementById('advanced-content');
+            const toggle = document.querySelector('.advanced-toggle');
+            
+            if (advancedContent.classList.contains('show')) {
+                advancedContent.classList.remove('show');
+                toggle.textContent = 'Show Advanced Options';
+            } else {
+                advancedContent.classList.add('show');
+                toggle.textContent = 'Hide Advanced Options';
+            }
+        }
+
+        // Initialize PKCE on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            generatePKCE();
+        });
+    </script>
+</body>
+</html>

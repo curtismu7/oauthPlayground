@@ -254,7 +254,17 @@ class UnifiedWorkerTokenService {
 		const isFirstSave = !(window as any).__workerTokenSaved;
 		if (isFirstSave) {
 			console.log(`${MODULE_TAG} Saving worker token credentials`);
+			console.log(
+				`${MODULE_TAG} 📋 Token Endpoint Authentication: ${credentials.tokenEndpointAuthMethod}`
+			);
+			console.log(`${MODULE_TAG} 📋 Environment ID: ${credentials.environmentId}`);
+			console.log(`${MODULE_TAG} 📋 Client ID: ${credentials.clientId}`);
 			(window as any).__workerTokenSaved = true;
+		} else {
+			// Debug log for subsequent saves
+			console.log(
+				`${MODULE_TAG} 💾 Updating credentials (Token Endpoint Authentication: ${credentials.tokenEndpointAuthMethod})`
+			);
 		}
 
 		const data: UnifiedWorkerTokenData = {
@@ -391,6 +401,11 @@ class UnifiedWorkerTokenService {
 				this.memoryCache = data;
 				this.credentialsCache = data.credentials;
 				this.credentialsCacheTime = Date.now();
+				console.log(`${MODULE_TAG} 📋 Loaded credentials from localStorage`);
+				console.log(
+					`${MODULE_TAG} 📋 Token Endpoint Authentication: ${data.credentials.tokenEndpointAuthMethod}`
+				);
+				console.log(`${MODULE_TAG} 📋 Environment ID: ${data.credentials.environmentId}`);
 				return data.credentials;
 			}
 		} catch (error) {
@@ -969,12 +984,29 @@ class UnifiedWorkerTokenService {
 		}
 
 		try {
-			// Import PingOneAPI dynamically to avoid circular dependencies
-			const { default: PingOneAPI } = await import('../api/pingone');
+			// Import PingOneAPI and domain configuration service dynamically
+			const { PingOneAPI } = await import('../api/pingone');
+			const { DomainConfigurationService } = await import('./domainConfigurationService');
+
+			// Get domain configuration
+			const domainService = DomainConfigurationService.getInstance();
+			const domainConfig = domainService.getConfig();
+
+			// Configure PingOneAPI with custom domain if needed
+			let authUrl = 'https://auth.pingone.com';
+			if (domainConfig.useCustomDomain && domainConfig.customDomain) {
+				// Extract auth domain from custom domain
+				const customDomain = new URL(domainConfig.customDomain);
+				authUrl = customDomain.origin;
+				console.log(`${MODULE_TAG} Using custom auth domain: ${authUrl}`);
+			}
+
+			// Create PingOneAPI instance with correct domain
+			const pingOneAPI = new PingOneAPI({ authUrl });
 
 			// Authenticate if needed
-			if (PingOneAPI.isTokenExpired()) {
-				await PingOneAPI.authenticate(
+			if (pingOneAPI.isTokenExpired()) {
+				await pingOneAPI.authenticate(
 					credentials.clientId,
 					credentials.clientSecret,
 					credentials.environmentId
@@ -982,7 +1014,7 @@ class UnifiedWorkerTokenService {
 			}
 
 			// Get application details including KRP status
-			const response = await PingOneAPI.request(
+			const response = await pingOneAPI.request(
 				`/v1/environments/${credentials.environmentId}/applications/${credentials.clientId}`
 			);
 
@@ -1035,12 +1067,27 @@ class UnifiedWorkerTokenService {
 		}
 
 		try {
-			// Import PingOneAPI dynamically
-			const { default: PingOneAPI } = await import('../api/pingone');
+			// Import PingOneAPI and domain configuration service dynamically
+			const { PingOneAPI } = await import('../api/pingone');
+			const { DomainConfigurationService } = await import('./domainConfigurationService');
+
+			// Get domain configuration
+			const domainService = DomainConfigurationService.getInstance();
+			const domainConfig = domainService.getConfig();
+
+			// Configure PingOneAPI with custom domain if needed
+			let authUrl = 'https://auth.pingone.com';
+			if (domainConfig.useCustomDomain && domainConfig.customDomain) {
+				const customDomain = new URL(domainConfig.customDomain);
+				authUrl = customDomain.origin;
+			}
+
+			// Create PingOneAPI instance with correct domain
+			const pingOneAPI = new PingOneAPI({ authUrl });
 
 			// Authenticate if needed
-			if (PingOneAPI.isTokenExpired()) {
-				await PingOneAPI.authenticate(
+			if (pingOneAPI.isTokenExpired()) {
+				await pingOneAPI.authenticate(
 					credentials.clientId,
 					credentials.clientSecret,
 					credentials.environmentId
@@ -1048,7 +1095,7 @@ class UnifiedWorkerTokenService {
 			}
 
 			// Get all key rotation policies
-			const response = await PingOneAPI.request(
+			const response = await pingOneAPI.request(
 				`/v1/environments/${credentials.environmentId}/keyRotationPolicies`
 			);
 
@@ -1069,12 +1116,27 @@ class UnifiedWorkerTokenService {
 		}
 
 		try {
-			// Import PingOneAPI dynamically
-			const { default: PingOneAPI } = await import('../api/pingone');
+			// Import PingOneAPI and domain configuration service dynamically
+			const { PingOneAPI } = await import('../api/pingone');
+			const { DomainConfigurationService } = await import('./domainConfigurationService');
+
+			// Get domain configuration
+			const domainService = DomainConfigurationService.getInstance();
+			const domainConfig = domainService.getConfig();
+
+			// Configure PingOneAPI with custom domain if needed
+			let authUrl = 'https://auth.pingone.com';
+			if (domainConfig.useCustomDomain && domainConfig.customDomain) {
+				const customDomain = new URL(domainConfig.customDomain);
+				authUrl = customDomain.origin;
+			}
+
+			// Create PingOneAPI instance with correct domain
+			const pingOneAPI = new PingOneAPI({ authUrl });
 
 			// Authenticate if needed
-			if (PingOneAPI.isTokenExpired()) {
-				await PingOneAPI.authenticate(
+			if (pingOneAPI.isTokenExpired()) {
+				await pingOneAPI.authenticate(
 					credentials.clientId,
 					credentials.clientSecret,
 					credentials.environmentId
@@ -1082,7 +1144,7 @@ class UnifiedWorkerTokenService {
 			}
 
 			// Update application with KRP
-			await PingOneAPI.request(
+			await pingOneAPI.request(
 				`/v1/environments/${credentials.environmentId}/applications/${credentials.clientId}`,
 				{
 					method: 'PATCH',

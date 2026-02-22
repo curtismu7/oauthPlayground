@@ -47,6 +47,8 @@ export const DeviceLimitErrorModalV8: React.FC<DeviceLimitErrorModalV8Props> = (
 
 	return (
 		<div
+			role="button"
+			tabIndex={0}
 			role="dialog"
 			aria-modal="true"
 			aria-labelledby="modal-title"
@@ -70,6 +72,8 @@ export const DeviceLimitErrorModalV8: React.FC<DeviceLimitErrorModalV8Props> = (
 			}}
 		>
 			<div
+				role="button"
+				tabIndex={0}
 				role="document"
 				style={{
 					backgroundColor: 'white',

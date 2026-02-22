@@ -102,6 +102,7 @@ export const AuthenticationFlow: React.FC<AuthenticationFlowProps> = ({ sdk, use
 			<div>
 				<StatusDisplay status={status} message={message} request={request} response={response} />
 				<button
+					type="button"
 					onClick={() => {
 						setStep('input');
 						setStatus('idle');
@@ -131,7 +132,11 @@ export const AuthenticationFlow: React.FC<AuthenticationFlowProps> = ({ sdk, use
 			{step === 'input' && (
 				<div>
 					<div style={{ marginBottom: '1rem' }}>
-						<label htmlFor="authPolicyId" style={{ display: 'block', marginBottom: '0.5rem' }}>
+						<label
+							htmlFor="authPolicyId"
+							style={{ display: 'block', marginBottom: '0.5rem' }}
+							htmlFor="deviceauthenticationpolicyid"
+						>
 							Device Authentication Policy ID *
 						</label>
 						<input
@@ -150,7 +155,11 @@ export const AuthenticationFlow: React.FC<AuthenticationFlowProps> = ({ sdk, use
 						/>
 					</div>
 					<div style={{ marginBottom: '1rem' }}>
-						<label htmlFor="authDeviceId" style={{ display: 'block', marginBottom: '0.5rem' }}>
+						<label
+							htmlFor="authDeviceId"
+							style={{ display: 'block', marginBottom: '0.5rem' }}
+							htmlFor="deviceidoptional"
+						>
 							Device ID (Optional)
 						</label>
 						<input
@@ -169,6 +178,7 @@ export const AuthenticationFlow: React.FC<AuthenticationFlowProps> = ({ sdk, use
 						/>
 					</div>
 					<button
+						type="button"
 						onClick={handleInitialize}
 						disabled={!userId || !policyId}
 						style={{
@@ -191,7 +201,11 @@ export const AuthenticationFlow: React.FC<AuthenticationFlowProps> = ({ sdk, use
 					<StatusDisplay status={status} message={message} request={request} response={response} />
 					{step === 'sending' && status === 'success' && (
 						<div style={{ marginTop: '1rem' }}>
-							<label htmlFor="authOtp" style={{ display: 'block', marginBottom: '0.5rem' }}>
+							<label
+								htmlFor="authOtp"
+								style={{ display: 'block', marginBottom: '0.5rem' }}
+								htmlFor="enterotpcode"
+							>
 								Enter OTP Code *
 							</label>
 							<input
@@ -213,6 +227,7 @@ export const AuthenticationFlow: React.FC<AuthenticationFlowProps> = ({ sdk, use
 								}}
 							/>
 							<button
+								type="button"
 								onClick={handleComplete}
 								disabled={!otp || otp.length < 6}
 								style={{

@@ -21,7 +21,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { FiInfo } from 'react-icons/fi';
-import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
+import { MFAServiceV8 } from '@/apps/mfa/services/mfaServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { ButtonSpinner } from '../../components/ui';
 import { StandardModalSpinner, useStandardSpinner } from '../../components/ui/StandardSpinner';

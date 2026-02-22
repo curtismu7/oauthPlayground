@@ -1025,6 +1025,8 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 			{/* Modal */}
 			<div
+				role="button"
+				tabIndex={0}
 				className="user-login-modal-v8"
 				style={{
 					position: 'fixed',
@@ -1340,6 +1342,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 									color: '#374151',
 									marginBottom: '6px',
 								}}
+								htmlFor="tokenendpointauthenticationmethod"
 							>
 								Token Endpoint Authentication Method
 							</label>

@@ -5,13 +5,13 @@
  * @version 8.2.0
  */
 
+import type { MFACredentials } from '@/apps/mfa/flows/shared/MFATypes';
+import type { RegisterDeviceParams } from '@/apps/mfa/services/mfaServiceV8';
+import { MFAServiceV8 } from '@/apps/mfa/services/mfaServiceV8';
 import type { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
-import type { RegisterDeviceParams } from '@/v8/services/mfaServiceV8';
-import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 // Note: FIDO2Service is not used here - we use PingOne's publicKeyCredentialCreationOptions instead
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import type { MFACredentials } from '../shared/MFATypes';
 import { type FlowControllerCallbacks, MFAFlowController } from './MFAFlowController';
 
 const MODULE_TAG = '[🔑 FIDO2-CONTROLLER]';

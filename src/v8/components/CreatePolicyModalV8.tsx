@@ -72,6 +72,8 @@ export const CreatePolicyModalV8: React.FC<CreatePolicyModalV8Props> = ({
 		<>
 			{/* Backdrop */}
 			<div
+				role="button"
+				tabIndex={0}
 				style={{
 					position: 'fixed',
 					top: 0,
@@ -92,6 +94,8 @@ export const CreatePolicyModalV8: React.FC<CreatePolicyModalV8Props> = ({
 			>
 				{/* Modal */}
 				<div
+					role="button"
+					tabIndex={0}
 					style={{
 						background: 'white',
 						borderRadius: '12px',
@@ -224,6 +228,7 @@ export const CreatePolicyModalV8: React.FC<CreatePolicyModalV8Props> = ({
 										fontWeight: '600',
 										color: '#374151',
 									}}
+									htmlFor="descriptionoptional"
 								>
 									Description (Optional)
 								</label>

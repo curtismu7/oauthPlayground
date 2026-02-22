@@ -2302,6 +2302,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 												<label
 													htmlFor="response-type-select"
 													style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}
+													htmlFor="chooseresponsetype"
 												>
 													Choose Response Type:
 												</label>
@@ -2625,6 +2626,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 															color: '#374151',
 															marginBottom: '0.5rem',
 														}}
+														htmlFor="manualauthorizationcode"
 													>
 														Manual Authorization Code
 													</label>

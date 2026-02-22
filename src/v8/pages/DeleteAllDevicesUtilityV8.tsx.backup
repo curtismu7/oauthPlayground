@@ -1,0 +1,1480 @@
+/**
+ * @file DeleteAllDevicesUtilityV8.tsx
+ * @module v8/pages
+ * @description Utility to delete all MFA devices for a user, with optional device type filtering
+ * @version 8.0.0
+ * @since 2025-01-07
+ *
+ * Features:
+ * - Delete all devices for a user
+ * - Filter by device type (SMS, EMAIL, FIDO2, TOTP, WHATSAPP, etc.)
+ * - Worker token and username input
+ * - Clear success/error messages
+ * - Shows device count before deletion
+ */
+
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FiAlertCircle, FiKey, FiLoader, FiTrash2, FiX } from 'react-icons/fi';
+import { useLocation } from 'react-router-dom';
+import { useProductionSpinner } from '@/hooks/useProductionSpinner';
+import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
+import type { SearchableDropdownOption } from '@/v8/components/SearchableDropdownV8';
+import { SearchableDropdownV8 } from '@/v8/components/SearchableDropdownV8';
+import { ShowTokenConfigCheckboxV8 } from '@/v8/components/ShowTokenConfigCheckboxV8';
+import { SilentApiConfigCheckboxV8 } from '@/v8/components/SilentApiConfigCheckboxV8';
+import {
+	ApiDisplayCheckbox,
+	SuperSimpleApiDisplayV8,
+} from '@/v8/components/SuperSimpleApiDisplayV8';
+import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { WorkerTokenStatusDisplayV8 } from '@/v8/components/WorkerTokenStatusDisplayV8';
+import type { DeviceAuthenticationPolicy } from '@/v8/flows/shared/MFATypes';
+import { useUserSearch } from '@/v8/hooks/useUserSearch';
+import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
+import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
+import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
+import { StorageServiceV8 } from '@/v8/services/storageServiceV8';
+import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
+import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+
+const MODULE_TAG = '[🗑️ DELETE-DEVICES-V8]';
+
+type DeviceType = 'ALL' | 'SMS' | 'EMAIL' | 'FIDO2' | 'TOTP' | 'WHATSAPP' | 'VOICE' | 'OATH';
+type DeviceStatus =
+	| 'ALL'
+	| 'ACTIVE'
+	| 'ACTIVATION_REQUIRED'
+	| 'BLOCKED'
+	| 'LOCKED'
+	| 'PENDING'
+	| 'SUSPENDED'
+	| 'EXPIRED';
+
+const DEVICE_TYPES: Array<{ value: DeviceType; label: string }> = [
+	{ value: 'ALL', label: 'All Device Types' },
+	{ value: 'SMS', label: 'SMS' },
+	{ value: 'EMAIL', label: 'Email' },
+	{ value: 'FIDO2', label: 'FIDO2 / Passkey' },
+	{ value: 'TOTP', label: 'TOTP' },
+	{ value: 'WHATSAPP', label: 'WhatsApp' },
+	{ value: 'VOICE', label: 'Voice' },
+	{ value: 'OATH', label: 'OATH Token' },
+];
+
+const DEVICE_STATUSES: Array<{ value: DeviceStatus; label: string }> = [
+	{ value: 'ALL', label: 'All Statuses' },
+	{ value: 'ACTIVE', label: 'Active' },
+	{ value: 'ACTIVATION_REQUIRED', label: 'Activation Required' },
+	{ value: 'BLOCKED', label: 'Blocked' },
+	{ value: 'LOCKED', label: 'Locked' },
+	{ value: 'PENDING', label: 'Pending' },
+	{ value: 'SUSPENDED', label: 'Suspended' },
+	{ value: 'EXPIRED', label: 'Expired' },
+];
+
+const PAGE_STORAGE_KEY = 'v8:delete-all-devices';
+const PAGE_STORAGE_VERSION = 1;
+
+interface DeleteAllDevicesPageState {
+	environmentId: string;
+	username: string;
+	selectedDeviceType: DeviceType;
+	selectedDeviceStatus: DeviceStatus;
+}
+
+export const DeleteAllDevicesUtilityV8: React.FC = () => {
+	const location = useLocation();
+	const locationState = location.state as {
+		environmentId?: string;
+		username?: string;
+		deviceType?: DeviceType;
+		deviceStatus?: DeviceStatus;
+	} | null;
+
+	const [environmentId, setEnvironmentId] = useState(() => {
+		// Check location.state first (passed from TOTP flow)
+		if (locationState?.environmentId) {
+			return locationState.environmentId;
+		}
+		try {
+			const stored = StorageServiceV8.load<DeleteAllDevicesPageState>(PAGE_STORAGE_KEY);
+			if (stored?.environmentId) {
+				return stored.environmentId;
+			}
+			const globalEnvId = EnvironmentIdServiceV8.getEnvironmentId();
+			if (globalEnvId) {
+				return globalEnvId;
+			}
+			// Try synchronous check from localStorage for worker token credentials
+			try {
+				const stored = localStorage.getItem('unified_worker_token');
+				if (stored) {
+					const data = JSON.parse(stored);
+					if (data.credentials?.environmentId) {
+						return data.credentials.environmentId;
+					}
+				}
+			} catch (syncError) {
+				console.log(`${MODULE_TAG} Sync worker token check failed:`, syncError);
+			}
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to load saved environment ID`, error);
+		}
+		return '';
+	});
+	const [username, setUsername] = useState(() => {
+		// Check location.state first (passed from TOTP flow)
+		if (locationState?.username) {
+			return locationState.username;
+		}
+		try {
+			const stored = StorageServiceV8.load<DeleteAllDevicesPageState>(PAGE_STORAGE_KEY);
+			if (stored?.username) {
+				return stored.username;
+			}
+			// Note: Username is user-specific, not stored in worker token credentials
+			// So we don't auto-populate it from worker token
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to load saved username`, error);
+		}
+		return '';
+	});
+	const [selectedDeviceType, setSelectedDeviceType] = useState<DeviceType>(() => {
+		// Check location.state first (passed from TOTP flow)
+		if (locationState?.deviceType && locationState.deviceType !== 'ALL') {
+			return locationState.deviceType;
+		}
+		try {
+			const stored = StorageServiceV8.load<DeleteAllDevicesPageState>(PAGE_STORAGE_KEY);
+			if (stored?.selectedDeviceType) {
+				return stored.selectedDeviceType;
+			}
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to load saved device type filter`, error);
+		}
+		return 'ALL';
+	});
+	const [selectedDeviceStatus, setSelectedDeviceStatus] = useState<DeviceStatus>(() => {
+		// Check location.state first (passed from TOTP flow)
+		if (locationState?.deviceStatus && locationState.deviceStatus !== 'ALL') {
+			return locationState.deviceStatus;
+		}
+		try {
+			const stored = StorageServiceV8.load<DeleteAllDevicesPageState>(PAGE_STORAGE_KEY);
+			if (stored?.selectedDeviceStatus) {
+				return stored.selectedDeviceStatus;
+			}
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to load saved device status filter`, error);
+		}
+		return 'ALL';
+	});
+	const [policy, setPolicy] = useState<DeviceAuthenticationPolicy | null>(null);
+	const [mfaSettings, setMfaSettings] = useState<{
+		maxAllowedDevices: number;
+		loading: boolean;
+		error: string | null;
+	}>({
+		maxAllowedDevices: 20, // Default fallback value
+		loading: false,
+		error: null,
+	});
+
+	const loadingSpinnerConfig = useMemo(
+		() => ({
+			message: 'Loading devices...',
+		}),
+		[]
+	);
+
+	const deletingSpinnerConfig = useMemo(
+		() => ({
+			message: 'Deleting devices...',
+		}),
+		[]
+	);
+
+	// Use CommonSpinnerService for loading states (Production menu group standard)
+	const loadingSpinner = useProductionSpinner('delete-all-devices-loading', loadingSpinnerConfig);
+	const deletingSpinner = useProductionSpinner(
+		'delete-all-devices-deleting',
+		deletingSpinnerConfig
+	);
+	const [devices, setDevices] = useState<Array<Record<string, unknown>>>([]);
+	const [selectedDeviceIds, setSelectedDeviceIds] = useState<Set<string>>(new Set());
+	const [error, setError] = useState<string | null>(null);
+	const [deletionResults, setDeletionResults] = useState<{
+		successful: number;
+		failed: number;
+		results: Array<{ deviceId: string; success: boolean; error?: string }>;
+	} | null>(null);
+
+	// Track if devices have been loaded at least once to prevent infinite loops
+	const hasLoadedDevicesRef = useRef(false);
+	const lastAutoReloadKeyRef = useRef<string>('');
+
+	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
+
+	// Worker Token Settings State
+	const [silentApiRetrieval, setSilentApiRetrieval] = useState(() => {
+		try {
+			const config = MFAConfigurationServiceV8.loadConfiguration();
+			return config.workerToken.silentApiRetrieval;
+		} catch {
+			return false;
+		}
+	});
+	const [showTokenAtEnd, setShowTokenAtEnd] = useState(() => {
+		try {
+			const config = MFAConfigurationServiceV8.loadConfiguration();
+			return config.workerToken.showTokenAtEnd;
+		} catch {
+			return false;
+		}
+	});
+
+	// Get worker token status
+	const [tokenStatus, setTokenStatus] = useState<{
+		isValid: boolean;
+		minutesRemaining: number;
+	}>({
+		isValid: false,
+		minutesRemaining: 0,
+	});
+
+	// User search functionality for username dropdown
+	const {
+		users,
+		isLoading: isLoadingUsers,
+		setSearchQuery,
+	} = useUserSearch({
+		environmentId: environmentId || '',
+		tokenValid: tokenStatus.isValid,
+		maxPages: 100,
+	});
+
+	// Format users for dropdown
+	const userOptions: SearchableDropdownOption[] = useMemo(
+		() =>
+			Array.from(
+				new Map(
+					(Array.isArray(users) ? users : []).map((user) => [
+						user.username,
+						{
+							value: user.username,
+							label: user.username,
+							...(user.email ? { secondaryLabel: user.email } : {}),
+						} as SearchableDropdownOption,
+					])
+				).values()
+			),
+		[users]
+	);
+
+	// Update token status periodically
+	useEffect(() => {
+		const updateTokenStatus = async () => {
+			try {
+				const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+				setTokenStatus(status);
+			} catch (error) {
+				console.error(`${MODULE_TAG} Failed to check token status`, error);
+				setTokenStatus({ isValid: false, minutesRemaining: 0 });
+			}
+		};
+
+		// Listen for configuration updates
+		const handleConfigUpdate = (event: Event) => {
+			const customEvent = event as CustomEvent<{
+				workerToken?: { silentApiRetrieval?: boolean; showTokenAtEnd?: boolean };
+			}>;
+			if (customEvent.detail?.workerToken) {
+				if (customEvent.detail.workerToken.silentApiRetrieval !== undefined) {
+					setSilentApiRetrieval(customEvent.detail.workerToken.silentApiRetrieval);
+				}
+				if (customEvent.detail.workerToken.showTokenAtEnd !== undefined) {
+					setShowTokenAtEnd(customEvent.detail.workerToken.showTokenAtEnd);
+				}
+			}
+		};
+
+		// Listen for token updates
+		const handleTokenUpdate = async () => {
+			try {
+				const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+				setTokenStatus(status);
+			} catch (error) {
+				console.error(`${MODULE_TAG} Failed to check token status in event handler:`, error);
+			}
+		};
+
+		updateTokenStatus();
+		const interval = setInterval(updateTokenStatus, 30000); // Update every 30 seconds
+
+		window.addEventListener('mfaConfigurationUpdated', handleConfigUpdate as EventListener);
+		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
+
+		return () => {
+			clearInterval(interval);
+			window.removeEventListener('mfaConfigurationUpdated', handleConfigUpdate as EventListener);
+			window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
+		};
+	}, []);
+
+	// Auto-populate environment ID when worker token is updated
+	useEffect(() => {
+		const handleTokenUpdate = async () => {
+			try {
+				// If environment ID is empty, try to populate from worker token credentials
+				if (!environmentId.trim()) {
+					const credentials = await unifiedWorkerTokenService.loadCredentials();
+					if (credentials?.environmentId) {
+						setEnvironmentId(credentials.environmentId);
+						console.log(
+							`${MODULE_TAG} Auto-populated environment ID from worker token: ${credentials.environmentId}`
+						);
+					}
+				}
+			} catch (error) {
+				console.error(`${MODULE_TAG} Failed to auto-populate environment ID:`, error);
+			}
+		};
+
+		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
+		return () => {
+			window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
+		};
+	}, [environmentId]);
+
+	const selectedCount = devices.filter((device) =>
+		selectedDeviceIds.has(device.id as string)
+	).length;
+
+	// Helper functions for device display
+	const getStatusColor = (status: string): string => {
+		switch (status?.toUpperCase()) {
+			case 'ACTIVE':
+				return 'success';
+			case 'ACTIVATION_REQUIRED':
+				return 'warning';
+			case 'BLOCKED':
+				return 'danger';
+			case 'LOCKED':
+				return 'danger';
+			case 'PENDING':
+				return 'info';
+			case 'SUSPENDED':
+				return 'secondary';
+			case 'EXPIRED':
+				return 'dark';
+			default:
+				return 'secondary';
+		}
+	};
+
+	const getDeviceIcon = (type: string): string => {
+		switch (type?.toUpperCase()) {
+			case 'SMS':
+				return 'cellphone-message';
+			case 'EMAIL':
+				return 'email';
+			case 'FIDO2':
+				return 'fingerprint';
+			case 'TOTP':
+				return 'timer';
+			case 'WHATSAPP':
+				return 'whatsapp';
+			case 'VOICE':
+				return 'phone';
+			case 'OATH':
+				return 'key';
+			default:
+				return 'device-hub';
+		}
+	};
+
+	// Load devices for the user
+	const handleLoadDevices = useCallback(async () => {
+		if (!environmentId.trim() || !username.trim() || !tokenStatus.isValid) {
+			setError('Please provide environment ID, username, and a valid worker token');
+			return;
+		}
+
+		loadingSpinner.showSpinner();
+		setError(null);
+		setDevices([]);
+		setDeletionResults(null);
+
+		try {
+			const allDevices = await MFAServiceV8.getAllDevices({
+				environmentId: environmentId.trim(),
+				username: username.trim(),
+			});
+
+			// Filter by device type if not 'ALL'
+			let filteredDevices = allDevices;
+			if (selectedDeviceType !== 'ALL') {
+				filteredDevices = filteredDevices.filter(
+					(d) => (d.type as string)?.toUpperCase() === selectedDeviceType
+				);
+			}
+
+			// Filter by device status if not 'ALL'
+			if (selectedDeviceStatus !== 'ALL') {
+				filteredDevices = filteredDevices.filter((d) => {
+					const deviceStatus = (d.status as string)?.toUpperCase();
+					return deviceStatus === selectedDeviceStatus.toUpperCase();
+				});
+			}
+
+			setDevices(filteredDevices);
+			setSelectedDeviceIds(new Set(filteredDevices.map((d) => d.id as string)));
+			hasLoadedDevicesRef.current = true; // Mark that devices have been loaded
+			lastAutoReloadKeyRef.current = `${environmentId.trim()}|${username.trim()}|${selectedDeviceType}|${selectedDeviceStatus}|${String(tokenStatus.isValid)}`;
+			console.log(`${MODULE_TAG} ✅ Loaded ${filteredDevices.length} devices`);
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to load devices:`, error);
+			setError(error instanceof Error ? error.message : 'Failed to load devices');
+		} finally {
+			loadingSpinner.hideSpinner();
+		}
+	}, [
+		environmentId,
+		username,
+		tokenStatus.isValid,
+		selectedDeviceType,
+		selectedDeviceStatus,
+		loadingSpinner.hideSpinner,
+		loadingSpinner.showSpinner,
+	]); // Use tokenStatus.isValid instead of entire object
+
+	// Persist form state when it changes
+	useEffect(() => {
+		try {
+			const state: DeleteAllDevicesPageState = {
+				environmentId: environmentId.trim(),
+				username: username.trim(),
+				selectedDeviceType,
+				selectedDeviceStatus,
+			};
+
+			StorageServiceV8.save(PAGE_STORAGE_KEY, state, PAGE_STORAGE_VERSION);
+
+			if (state.environmentId) {
+				EnvironmentIdServiceV8.saveEnvironmentId(state.environmentId);
+			}
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to save delete-all-devices state`, error);
+		}
+	}, [environmentId, username, selectedDeviceType, selectedDeviceStatus]);
+
+	// Auto-reload devices when filters change (if we already have devices loaded)
+	useEffect(() => {
+		// Only auto-reload if we have already loaded devices at least once
+		// This prevents auto-loading on initial page load
+		const hasLoadedDevices = hasLoadedDevicesRef.current;
+		const hasRequiredFields = environmentId.trim() && username.trim() && tokenStatus.isValid;
+		const currentAutoReloadKey = `${environmentId.trim()}|${username.trim()}|${selectedDeviceType}|${selectedDeviceStatus}|${String(tokenStatus.isValid)}`;
+
+		if (
+			hasLoadedDevices &&
+			hasRequiredFields &&
+			lastAutoReloadKeyRef.current !== currentAutoReloadKey
+		) {
+			lastAutoReloadKeyRef.current = currentAutoReloadKey;
+			handleLoadDevices();
+		}
+	}, [
+		environmentId,
+		username,
+		tokenStatus.isValid,
+		selectedDeviceType,
+		selectedDeviceStatus,
+		handleLoadDevices,
+	]);
+
+	// Fetch policy information when devices are loaded
+	useEffect(() => {
+		const fetchPolicyInfo = async () => {
+			if (!environmentId || !username || !tokenStatus.isValid || devices.length === 0) return;
+
+			// Policy loading - no spinner needed for this quick operation
+			try {
+				// For now, we'll try to get a default policy. In a real implementation,
+				// you might need to determine which policy applies to this user
+				const config = MFAConfigurationServiceV8.loadConfiguration();
+
+				if (config.defaultMfaPolicyId) {
+					const policyData = await MFAServiceV8.readDeviceAuthenticationPolicy(
+						environmentId,
+						config.defaultMfaPolicyId
+					);
+					setPolicy(policyData);
+					console.log(`${MODULE_TAG} ✅ Policy loaded:`, policyData.name);
+				} else {
+					console.log(`${MODULE_TAG} ℹ️ No default policy configured`);
+				}
+			} catch (error) {
+				console.warn(`${MODULE_TAG} Failed to fetch policy information:`, error);
+			} finally {
+				// Policy loading complete
+			}
+		};
+
+		fetchPolicyInfo();
+	}, [environmentId, username, tokenStatus.isValid, devices.length]);
+
+	// Fetch MFA Settings when environment ID changes
+	useEffect(() => {
+		const fetchMfaSettings = async () => {
+			if (!environmentId || !tokenStatus.isValid) return;
+
+			setMfaSettings((prev) => ({ ...prev, loading: true, error: null }));
+
+			try {
+				console.log(`${MODULE_TAG} Loading MFA settings for environment: ${environmentId}`);
+				const settings = await MFAServiceV8.getMFASettings(environmentId);
+
+				const maxDevices = settings.pairing?.maxAllowedDevices || 20; // Default fallback
+				setMfaSettings({
+					maxAllowedDevices: maxDevices,
+					loading: false,
+					error: null,
+				});
+
+				console.log(`${MODULE_TAG} ✅ MFA Settings loaded:`, {
+					maxAllowedDevices: maxDevices,
+					pairingKeyFormat: settings.pairing?.pairingKeyFormat,
+				});
+			} catch (error) {
+				console.warn(`${MODULE_TAG} Failed to fetch MFA settings:`, error);
+				setMfaSettings((prev) => ({
+					...prev,
+					loading: false,
+					error: error instanceof Error ? error.message : 'Failed to load MFA settings',
+				}));
+			}
+		};
+
+		fetchMfaSettings();
+	}, [environmentId, tokenStatus.isValid]);
+
+	const handleToggleDeviceSelection = useCallback((deviceId: string) => {
+		setSelectedDeviceIds((prev) => {
+			const next = new Set(prev);
+			if (next.has(deviceId)) {
+				next.delete(deviceId);
+			} else {
+				next.add(deviceId);
+			}
+			return next;
+		});
+	}, []);
+
+	const handleSelectAll = useCallback(() => {
+		setSelectedDeviceIds(new Set(devices.map((d) => d.id as string)));
+	}, [devices]);
+
+	const handleClearSelection = useCallback(() => {
+		setSelectedDeviceIds(new Set());
+	}, []);
+
+	// Handle worker token modal
+	const handleShowWorkerTokenModal = async () => {
+		const { handleShowWorkerTokenModal: showModal } = await import(
+			'@/v8/utils/workerTokenModalHelperV8'
+		);
+		await showModal(
+			setShowWorkerTokenModal,
+			setTokenStatus,
+			silentApiRetrieval,
+			showTokenAtEnd,
+			true // Force show modal - user clicked button
+		);
+	};
+
+	// Delete all devices
+	const handleDeleteAll = useCallback(async () => {
+		if (devices.length === 0) {
+			toastV8.warning('No devices to delete');
+			return;
+		}
+
+		const devicesToDelete = devices.filter((device) => selectedDeviceIds.has(device.id as string));
+
+		if (devicesToDelete.length === 0) {
+			toastV8.warning('No devices selected for deletion');
+			return;
+		}
+
+		if (!environmentId.trim() || !username.trim() || !tokenStatus.isValid) {
+			setError('Please provide environment ID, username, and a valid worker token');
+			return;
+		}
+
+		// Confirm deletion using custom modal
+		const confirmed = await uiNotificationServiceV8.confirm({
+			message: `Are you sure you want to delete ${devicesToDelete.length} selected device(s)? This action cannot be undone.`,
+			title: 'Confirm Device Deletion',
+			severity: 'danger',
+			confirmText: 'Delete',
+			cancelText: 'Cancel',
+		});
+		if (!confirmed) {
+			return;
+		}
+
+		deletingSpinner.showSpinner();
+		setError(null);
+		setDeletionResults(null);
+
+		const results = {
+			success: 0,
+			failed: 0,
+			errors: [] as Array<{ deviceId: string; error: string }>,
+		};
+
+		try {
+			// Delete devices one by one
+			for (const device of devicesToDelete) {
+				const deviceId = device.id as string;
+				const deviceType = device.type as string;
+				const deviceNickname = (device.nickname || device.name || deviceType) as string;
+
+				try {
+					await MFAServiceV8.deleteDevice({
+						environmentId: environmentId.trim(),
+						username: username.trim(),
+						deviceId,
+					});
+					results.success++;
+					console.log(`${MODULE_TAG} ✅ Deleted device: ${deviceNickname} (${deviceType})`);
+				} catch (deleteError) {
+					results.failed++;
+					const errorMessage = deleteError instanceof Error ? deleteError.message : 'Unknown error';
+					results.errors.push({ deviceId, error: errorMessage });
+					console.error(`${MODULE_TAG} ❌ Failed to delete device ${deviceNickname}:`, deleteError);
+				}
+			}
+
+			setDeletionResults(results);
+
+			// Show summary toast
+			if (results.failed === 0) {
+				toastV8.success(`Successfully deleted ${results.success} device(s)`);
+			} else {
+				toastV8.warning(
+					`Deleted ${results.success} device(s), but ${results.failed} failed. Check details below.`
+				);
+			}
+
+			// Reload devices to show updated list
+			await handleLoadDevices();
+		} catch (err) {
+			const errorMessage = err instanceof Error ? err.message : 'Failed to delete devices';
+			setError(errorMessage);
+			toastV8.error(`Failed to delete devices: ${errorMessage}`);
+		} finally {
+			deletingSpinner.hideSpinner();
+		}
+	}, [
+		devices,
+		selectedDeviceIds,
+		environmentId,
+		username,
+		tokenStatus.isValid,
+		handleLoadDevices,
+		deletingSpinner.hideSpinner,
+		deletingSpinner.showSpinner,
+	]);
+
+	return (
+		<div className="end-user-nano">
+			<div style={{ padding: '40px', maxWidth: '1000px', margin: '0 auto' }}>
+			{/* Header */}
+			<div className="ping-header">
+				<div className="container">
+					<h1>
+						<i className="mdi-delete me-2"></i>
+						Delete All Devices Utility
+					</h1>
+					<p>Delete all MFA devices for a user, with optional filtering by device type and status</p>
+				</div>
+			</div>
+
+			<div className="container mt-4">
+
+			{/* MFA Settings Information */}
+			{environmentId && (
+				<div className="card mb-4">
+					<div className="card-header">
+						<h5 className="card-title mb-0">
+							<i className="mdi-cog me-2"></i>
+							MFA Settings for Environment
+							<span className="badge bg-secondary ms-2">{environmentId}</span>
+						</h5>
+					</div>
+					<div className="card-body">
+						{mfaSettings.loading ? (
+							<div className="d-flex align-items-center gap-2">
+								<div className="spinner-border spinner-border-sm text-primary" role="status">
+									<span className="visually-hidden">Loading...</span>
+								</div>
+								<span className="text-muted">Loading MFA settings...</span>
+							</div>
+						) : mfaSettings.error ? (
+							<div className="alert alert-warning">
+								<i className="mdi-alert me-2"></i>
+								Failed to load MFA settings: {mfaSettings.error}
+							</div>
+						) : (
+							<div className="d-flex align-items-center gap-3">
+								<span className="fw-semibold">Max Allowed Devices:</span>
+								<span className="badge bg-success fs-6">{mfaSettings.maxAllowedDevices}</span>
+							</div>
+						)}
+						<div className="text-muted small mt-2">
+							Source: PingOne MFA Settings API (GET /environments/{environmentId}/mfaSettings)
+						</div>
+					</div>
+				</div>
+			)}
+
+			{/* Device Policy Information */}
+			{devices.length > 0 && (
+				<div className="card mb-4">
+					<div className="card-header">
+						<h5 className="card-title mb-0">
+							<i className="mdi-devices me-2"></i>
+							Device Usage Information
+						</h5>
+					</div>
+					<div className="card-body">
+						{/* Device Count and Limits */}
+						<div className="row align-items-center mb-3">
+							<div className="col-md-4">
+								<span className="text-muted">Current Devices:</span>
+								<span className="ms-2 fs-5 fw-bold">{devices.length}</span>
+							</div>
+							<div className="col-md-4">
+								<span className="text-muted">Max Allowed per MFA settings:</span>
+								{mfaSettings.loading ? (
+									<span className="ms-2 text-secondary">Loading...</span>
+								) : mfaSettings.error ? (
+									<span className="ms-2 text-danger">Error</span>
+								) : (
+									<span className="ms-2 text-success fw-semibold">{mfaSettings.maxAllowedDevices} devices</span>
+								)}
+							</div>
+							{policy && (
+								<div className="col-md-4">
+									<span className="text-muted">Policy:</span>
+									<span className="ms-2 text-success fw-semibold">{policy.name}</span>
+								</div>
+							)}
+						</div>
+
+						{/* Device Usage Progress Bar */}
+						<div className="mb-3">
+							<div className="d-flex justify-content-between align-items-center mb-1">
+								<span className="small text-muted">Device Usage</span>
+								<span className="small text-muted">{Math.round((devices.length / 50) * 100)}% (50 device limit)</span>
+							</div>
+							<div className="progress" style={{ height: '8px' }}>
+								<div 
+									className={`progress-bar ${devices.length > 40 ? 'bg-danger' : devices.length > 25 ? 'bg-warning' : 'bg-success'}`}
+									style={{ width: `${Math.min((devices.length / 50) * 100, 100)}%` }}
+								></div>
+							</div>
+							<div className="mt-1">
+								{devices.length > 40 ? (
+									<span className="text-danger small">
+										<i className="mdi-alert me-1"></i>
+										Approaching device limit
+									</span>
+								) : devices.length > 25 ? (
+									<span className="text-warning small">
+										<i className="mdi-flash me-1"></i>
+										Moderate device usage
+									</span>
+								) : (
+									<span className="text-success small">
+										<i className="mdi-check-circle me-1"></i>
+										Healthy device usage
+									</span>
+								)}
+							</div>
+						</div>
+
+						{/* Policy Information */}
+						{policy && (
+							<div className="text-muted small">
+								{policy.pairingDisabled ? (
+									<span className="text-danger">
+										<i className="mdi-alert me-1"></i>
+										Device pairing is disabled in this policy
+									</span>
+								) : (
+									<span className="text-success">
+										<i className="mdi-check-circle me-1"></i>
+										Device pairing is enabled
+									</span>
+								)}
+								{policy.promptForNicknameOnPairing && (
+									<span className="ms-3">• Users will be prompted for device nicknames</span>
+								)}
+								<span className="ms-3">• Max 20 valid pairing keys per user</span>
+								<span className="ms-3">• Devices in ACTIVATION_REQUIRED expire after 24 hours</span>
+							</div>
+						)}
+
+						{!policy && (
+							<div className="text-muted small">
+								<span className="text-success">
+									<i className="mdi-check-circle me-1"></i>
+									Using PingOne standard device limits
+								</span>
+								<span className="ms-3">• Max 20 devices per user (configurable in MFA Settings)</span>
+								<span className="ms-3">• Max 20 valid pairing keys per user</span>
+								<span className="ms-3">• ACTIVATION_REQUIRED devices expire after 24 hours</span>
+							</div>
+						)}
+					</div>
+				</div>
+			)}
+
+			{/* Configuration Section */}
+			<div className="card mb-4">
+				<div className="card-header">
+					<h4 className="card-title mb-0">
+						<i className="mdi-cog me-2"></i>
+						Configuration
+					</h4>
+				</div>
+				<div className="card-body">
+					<form className="row g-3">
+						{/* Environment ID */}
+						<div className="col-md-12">
+							<label htmlFor="delete-devices-env-id" className="form-label">
+								Environment ID *
+							</label>
+							<input
+								id="delete-devices-env-id"
+								type="text"
+								className="form-control"
+								value={environmentId}
+								onChange={(e) => setEnvironmentId(e.target.value)}
+								placeholder="Enter environment ID"
+								style={{ fontFamily: 'monospace' }}
+							/>
+						</div>
+
+						{/* Username */}
+						<div className="col-md-12">
+							<label htmlFor="delete-devices-username" className="form-label">
+								Username *
+							</label>
+							{environmentId && tokenStatus.isValid ? (
+								<SearchableDropdownV8
+									id="username"
+									value={username || ''}
+									options={userOptions}
+									onChange={setUsername}
+									onSearchChange={setSearchQuery}
+									placeholder="Search for username..."
+									isLoading={isLoadingUsers}
+								/>
+							) : (
+								<input
+									id="delete-devices-username"
+									type="text"
+									className="form-control"
+									value={username}
+									onChange={(e) => setUsername(e.target.value)}
+									placeholder="Enter username (requires valid worker token for search)"
+									disabled
+									style={{ backgroundColor: '#f9fafb' }}
+								/>
+							)}
+							{!username.trim() && (
+								<div className="form-text text-danger">Username is required</div>
+							)}
+						</div>
+
+						{/* Device Type Filter */}
+						<div className="col-md-6">
+							<label htmlFor="delete-devices-type-filter" className="form-label">
+								Device Type Filter
+							</label>
+							<select
+								id="delete-devices-type-filter"
+								className="form-select"
+								value={selectedDeviceType}
+								onChange={(e) => setSelectedDeviceType(e.target.value as DeviceType)}
+							>
+								{DEVICE_TYPES.map((type) => (
+									<option key={type.value} value={type.value}>
+										{type.label}
+									</option>
+								))}
+							</select>
+						</div>
+
+						{/* Device Status Filter */}
+						<div className="col-md-6">
+							<label htmlFor="delete-devices-status-filter" className="form-label">
+								Device Status Filter
+							</label>
+							<select
+								id="delete-devices-status-filter"
+								className="form-select"
+								value={selectedDeviceStatus}
+								onChange={(e) => setSelectedDeviceStatus(e.target.value as DeviceStatus)}
+							>
+								{DEVICE_STATUSES.map((status) => (
+									<option key={status.value} value={status.value}>
+										{status.label}
+									</option>
+								))}
+							</select>
+						</div>
+
+						{/* Action Buttons */}
+						<div className="col-12">
+							<div className="d-flex gap-2">
+								<button
+									type="button"
+									className="btn btn-outline-primary"
+									onClick={handleLoadDevices}
+									disabled={loadingSpinner.isLoading || !environmentId.trim() || !username.trim() || !tokenStatus.isValid}
+								>
+									{loadingSpinner.isLoading ? (
+										<>
+											<span className="spinner-border spinner-border-sm me-2" role="status">
+												<span className="visually-hidden">Loading...</span>
+											</span>
+											Loading Devices...
+										</>
+									) : (
+										<>
+											<i className="mdi-refresh me-2"></i>
+											Load Devices
+										</>
+									)}
+								</button>
+								<button
+									type="button"
+									className="btn btn-outline-secondary"
+									onClick={handleShowWorkerTokenModal}
+								>
+									<i className="mdi-key me-2"></i>
+									Configure Worker Token
+								</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+
+			{/* Error Display */}
+			{error && (
+				<div className="alert alert-danger mb-4">
+					<i className="mdi-alert me-2"></i>
+					{error}
+				</div>
+			)}
+
+			{/* Worker Token Status */}
+			<div className="card mb-4">
+				<div className="card-header">
+					<h5 className="card-title mb-0">
+						<i className="mdi-key me-2"></i>
+						Worker Token Status
+					</h5>
+				</div>
+				<div className="card-body">
+					{tokenStatus.isValid ? (
+						<div className="alert alert-success">
+							<i className="mdi-check-circle me-2"></i>
+							Worker token is valid ({tokenStatus.minutesRemaining} minutes remaining)
+						</div>
+					) : (
+						<div className="alert alert-warning">
+							<i className="mdi-alert me-2"></i>
+							Worker token is invalid or expired. Please configure a new token.
+						</div>
+					)}
+				</div>
+			</div>
+
+			{/* Devices List */}
+			{devices.length > 0 && (
+				<div className="card mb-4">
+					<div className="card-header">
+						<div className="d-flex justify-content-between align-items-center">
+							<h5 className="card-title mb-0">
+								<i className="mdi-devices me-2"></i>
+								Devices ({devices.length})
+							</h5>
+							<div className="d-flex gap-2">
+								<button
+									type="button"
+									className="btn btn-outline-primary btn-sm"
+									onClick={handleSelectAll}
+								>
+									<i className="mdi-check-all me-1"></i>
+									Select All
+								</button>
+								<button
+									type="button"
+									className="btn btn-outline-secondary btn-sm"
+									onClick={handleClearSelection}
+								>
+									<i className="mdi-close me-1"></i>
+									Clear Selection
+								</button>
+							</div>
+						</div>
+					</div>
+					<div className="card-body">
+						<div className="list-group">
+							{devices.map((device) => (
+								<div
+									key={device.id as string}
+									className={`list-group-item ${selectedDeviceIds.has(device.id as string) ? 'active' : ''}`}
+									style={{ cursor: 'pointer' }}
+									onClick={() => handleToggleDeviceSelection(device.id as string)}
+								>
+									<div className="d-flex align-items-center justify-content-between">
+										<div className="d-flex align-items-center gap-3">
+											<div className="form-check">
+												<input
+													className="form-check-input"
+													type="checkbox"
+													checked={selectedDeviceIds.has(device.id as string)}
+													onChange={() => handleToggleDeviceSelection(device.id as string)}
+												/>
+											</div>
+											<div>
+												<div className="fw-semibold">
+													{device.nickname || device.name || device.type}
+												</div>
+												<div className="text-muted small">
+													Type: {device.type} • Status: {device.status}
+												</div>
+											</div>
+										</div>
+										<div className="d-flex align-items-center gap-2">
+											<span className={`badge bg-${getStatusColor(device.status as string)}`}>
+												{device.status}
+											</span>
+											<i className={`mdi-${getDeviceIcon(device.type as string)} text-primary`}></i>
+										</div>
+									</div>
+								</div>
+							))}
+						</div>
+					</div>
+				</div>
+			)}
+
+			{/* Delete Button Section */}
+			{devices.length > 0 && selectedCount > 0 && (
+				<div className="card mb-4">
+					<div className="card-body">
+						<div className="d-flex justify-content-between align-items-center">
+							<div>
+								<h5 className="card-title mb-1">
+									<i className="mdi-delete me-2"></i>
+									Delete Selected Devices
+								</h5>
+								<p className="text-muted mb-0">
+									{selectedCount} of {devices.length} devices selected
+								</p>
+							</div>
+							<button
+								type="button"
+								className="btn btn-danger"
+								onClick={handleDeleteAll}
+								disabled={deletingSpinner.isLoading}
+							>
+								{deletingSpinner.isLoading ? (
+									<>
+										<span className="spinner-border spinner-border-sm me-2" role="status">
+											<span className="visually-hidden">Deleting...</span>
+										</span>
+										Deleting...
+									</>
+								) : (
+									<>
+										<i className="mdi-delete me-2"></i>
+										Delete {selectedCount} Device{selectedCount > 1 ? 's' : ''}
+									</>
+								)}
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
+
+			{/* Deletion Results */}
+			{deletionResults && (
+				<div className="card mb-4">
+					<div className="card-header">
+						<h5 className="card-title mb-0">
+							<i className="mdi-clipboard-check me-2"></i>
+							Deletion Results
+						</h5>
+					</div>
+					<div className="card-body">
+						<div className="row mb-3">
+							<div className="col-md-6">
+								<div className="text-center p-3 bg-success bg-opacity-10 border border-success rounded">
+									<div className="display-6 text-success fw-bold">
+										{deletionResults.successful}
+									</div>
+									<div className="text-success">Successfully Deleted</div>
+								</div>
+							</div>
+							{deletionResults.failed > 0 && (
+								<div className="col-md-6">
+									<div className="text-center p-3 bg-danger bg-opacity-10 border border-danger rounded">
+										<div className="display-6 text-danger fw-bold">
+											{deletionResults.failed}
+										</div>
+										<div className="text-danger">Failed</div>
+									</div>
+								</div>
+							)}
+						</div>
+
+						{deletionResults.results?.length > 0 && (
+							<div>
+								<h6 className="fw-semibold mb-3">Detailed Results:</h6>
+								<div className="list-group">
+									{deletionResults.results.map((result, index) => (
+										<div
+											key={index}
+											className={`list-group-item ${result.success ? 'list-group-item-success' : 'list-group-item-danger'}`}
+										>
+											<div className="d-flex justify-content-between align-items-center">
+												<span>
+													Device {result.deviceId}
+												</span>
+												<span className={`badge ${result.success ? 'bg-success' : 'bg-danger'}`}>
+													{result.success ? 'Success' : 'Failed'}
+												</span>
+											</div>
+											{result.error && (
+												<div className="text-danger small mt-1">
+													{result.error}
+												</div>
+											)}
+										</div>
+									))}
+								</div>
+							</div>
+						)}
+					</div>
+				</div>
+			)}
+
+			{/* No Devices Message */}
+			{devices.length === 0 && hasLoadedDevicesRef.current && !loadingSpinner.isLoading && (
+				<div className="card">
+					<div className="card-body text-center py-5">
+						<div className="mb-4">
+							<i className="mdi-delete mdi-48px text-muted"></i>
+						</div>
+						<h4 className="text-secondary mb-2">No Devices Found</h4>
+						<p className="text-muted">
+							{selectedDeviceType === 'ALL' && selectedDeviceStatus === 'ALL'
+								? `There are no MFA devices registered for user "${username}" in this environment.`
+								: `No devices found matching the selected filters: ${selectedDeviceType === 'ALL' ? 'all device types' : selectedDeviceType} and ${selectedDeviceStatus === 'ALL' ? 'all statuses' : selectedDeviceStatus}.`}
+						</p>
+						<div className="d-flex gap-2 justify-content-center">
+							<button
+								type="button"
+								className="btn btn-outline-secondary"
+								onClick={() => {
+									setSelectedDeviceType('ALL');
+									setSelectedDeviceStatus('ALL');
+								}}
+							>
+								Clear all filters
+							</button>
+							<button
+								type="button"
+								className="btn btn-primary"
+								onClick={handleLoadDevices}
+								disabled={loadingSpinner.isLoading}
+							>
+								{loadingSpinner.isLoading ? 'Refreshing...' : 'Refresh'}
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
+
+			{/* Info Box */}
+			<div className="alert alert-info">
+				<i className="mdi-information me-2"></i>
+				<strong>Note:</strong> This utility uses the PingOne MFA API to delete devices. Make sure
+				you have the appropriate permissions and that the worker token has the necessary scopes.
+				Deleted devices cannot be recovered.
+			</div>
+
+			{/* PingOne API Call Display */}
+			<div className="card">
+				<div className="card-header">
+					<div className="d-flex justify-content-between align-items-center">
+						<div>
+							<strong>PingOne API Calls</strong>
+							<div className="text-muted small">
+								Shows the live PingOne MFA API requests executed by this page.
+							</div>
+						</div>
+						<ApiDisplayCheckbox />
+					</div>
+				</div>
+			</div>
+
+			<SuperSimpleApiDisplayV8 flowFilter="mfa" reserveSpace={true} />
+
+			{/* Worker Token Modal */}
+			{showWorkerTokenModal && (
+				<WorkerTokenModalV8
+					isOpen={showWorkerTokenModal}
+					onClose={async () => {
+						setShowWorkerTokenModal(false);
+						// Update token status after modal closes
+						try {
+							const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+							setTokenStatus(status);
+						} catch (error) {
+							console.error(`${MODULE_TAG} Failed to check token status after modal`, error);
+							setTokenStatus({ isValid: false, minutesRemaining: 0 });
+						}
+					}}
+					showTokenOnly={(() => {
+						if (!showWorkerTokenModal) return false;
+						try {
+							const config = MFAConfigurationServiceV8.loadConfiguration();
+							// For showTokenOnly, we need to check synchronously for the modal display logic
+							// Use a simple status check that doesn't require async
+							const currentStatus = {
+								isValid: false,
+								status: 'missing' as const,
+								message: 'Checking...',
+								expiresAt: null as number | null,
+								minutesRemaining: 0,
+							};
+							return config.workerToken.showTokenAtEnd && currentStatus.isValid;
+						} catch {
+							return false;
+						}
+					})()}
+				/>
+			)}
+			</div>
+			</div>
+		);
+};
+
+export default DeleteAllDevicesUtilityV8;
+								}}
+							>
+								<div
+									style={{
+										fontSize: '24px',
+										fontWeight: '700',
+										color: '#dc2626',
+										marginBottom: '4px',
+									}}
+								>
+									{deletionResults.failed}
+								</div>
+								<div style={{ fontSize: '14px', color: '#991b1b' }}>Failed</div>
+							</div>
+						)}
+					</div>
+
+					{deletionResults.errors.length > 0 && (
+						<div>
+							<h3
+								style={{
+									margin: '0 0 12px 0',
+									fontSize: '16px',
+									fontWeight: '600',
+									color: '#1f2937',
+								}}
+							>
+								Errors:
+							</h3>
+							<div style={{ display: 'grid', gap: '8px' }}>
+								{deletionResults.errors.map((err, index) => (
+									<div
+										key={index}
+										style={{
+											padding: '12px',
+											background: '#fef2f2',
+											border: '1px solid #fecaca',
+											borderRadius: '6px',
+											fontSize: '13px',
+										}}
+									>
+										<strong style={{ color: '#991b1b' }}>Device {err.deviceId}:</strong>{' '}
+										<span style={{ color: '#991b1b' }}>{err.error}</span>
+									</div>
+								))}
+							</div>
+						</div>
+					)}
+				</div>
+			)}
+
+			{/* No Devices Message */}
+			{devices.length === 0 && hasLoadedDevicesRef.current && !loadingSpinner.isLoading && (
+				<div
+					style={{
+						background: 'white',
+						border: '1px solid #e5e7eb',
+						borderRadius: '12px',
+						padding: '32px 24px',
+						marginBottom: '24px',
+						boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+						textAlign: 'center',
+					}}
+				>
+					<div style={{ marginBottom: '16px' }}>
+						<FiTrash2 style={{ fontSize: '48px', color: '#9ca3af', margin: '0 auto' }} />
+					</div>
+					<h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: '600', color: '#374151' }}>
+						No Devices Found
+					</h3>
+					<p style={{ margin: '0 0 16px 0', fontSize: '14px', color: '#6b7280', lineHeight: '1.5' }}>
+						{selectedDeviceType === 'ALL' && selectedDeviceStatus === 'ALL'
+							? `There are no MFA devices registered for user "${username}" in this environment.`
+							: `No devices found matching the selected filters: ${selectedDeviceType === 'ALL' ? 'all device types' : selectedDeviceType} and ${selectedDeviceStatus === 'ALL' ? 'all statuses' : selectedDeviceStatus}.`}
+					</p>
+					<div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
+						<button
+							type="button"
+							onClick={() => {
+								setSelectedDeviceType('ALL');
+								setSelectedDeviceStatus('ALL');
+							}}
+							style={{
+								padding: '8px 16px',
+								border: '1px solid #d1d5db',
+								borderRadius: '6px',
+								background: '#f9fafb',
+								fontSize: '13px',
+								cursor: 'pointer',
+								color: '#374151',
+							}}
+						>
+							Clear all filters
+						</button>
+						<button
+							type="button"
+							onClick={handleLoadDevices}
+							disabled={loadingSpinner.isLoading}
+							style={{
+								padding: '8px 16px',
+								border: '1px solid #3b82f6',
+								borderRadius: '6px',
+								background: '#3b82f6',
+								fontSize: '13px',
+								cursor: loadingSpinner.isLoading ? 'not-allowed' : 'pointer',
+								color: 'white',
+							}}
+						>
+							{loadingSpinner.isLoading ? 'Refreshing...' : 'Refresh'}
+						</button>
+					</div>
+				</div>
+			)}
+
+			{/* Info Box */}
+			<div
+				style={{
+					marginTop: '32px',
+					padding: '16px',
+					background: '#eff6ff',
+					border: '1px solid #bfdbfe',
+					borderRadius: '8px',
+					fontSize: '14px',
+					color: '#1e40af',
+				}}
+			>
+				<strong>💡 Note:</strong> This utility uses the PingOne MFA API to delete devices. Make sure
+				you have the appropriate permissions and that the worker token has the necessary scopes.
+				Deleted devices cannot be recovered.
+			</div>
+
+			{/* PingOne API Call Display */}
+			<div
+				style={{
+					marginTop: '24px',
+					padding: '16px',
+					background: '#f8fafc',
+					border: '1px solid #e2e8f0',
+					borderRadius: '8px',
+				}}
+			>
+				<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+					<div>
+						<strong style={{ color: '#1f2937' }}>PingOne API Calls</strong>
+						<div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>
+							Shows the live PingOne MFA API requests executed by this page.
+						</div>
+					</div>
+					<ApiDisplayCheckbox />
+				</div>
+			</div>
+
+			<SuperSimpleApiDisplayV8 flowFilter="mfa" reserveSpace={true} />
+
+			{/* Worker Token Modal */}
+			{showWorkerTokenModal && (
+				<WorkerTokenModalV8
+					isOpen={showWorkerTokenModal}
+					onClose={async () => {
+						setShowWorkerTokenModal(false);
+						// Update token status after modal closes
+						try {
+							const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+							setTokenStatus(status);
+						} catch (error) {
+							console.error(`${MODULE_TAG} Failed to check token status after modal`, error);
+							setTokenStatus({ isValid: false, minutesRemaining: 0 });
+						}
+					}}
+					showTokenOnly={(() => {
+						if (!showWorkerTokenModal) return false;
+						try {
+							const config = MFAConfigurationServiceV8.loadConfiguration();
+							// For showTokenOnly, we need to check synchronously for the modal display logic
+							// Use a simple status check that doesn't require async
+							const currentStatus = {
+								isValid: false,
+								status: 'missing' as const,
+								message: 'Checking...',
+								expiresAt: null as number | null,
+								minutesRemaining: 0,
+							};
+							return config.workerToken.showTokenAtEnd && currentStatus.isValid;
+						} catch {
+							return false;
+						}
+					})()}
+				/>
+			)}
+			</div>
+			</div>
+		);
+};
+
+export default DeleteAllDevicesUtilityV8;

@@ -149,6 +149,7 @@ export const LoginPage: React.FC = () => {
 								style={{
 									color: currentTheme.colors.text,
 								}}
+								htmlFor="username"
 							>
 								Username
 							</label>
@@ -198,6 +199,7 @@ export const LoginPage: React.FC = () => {
 								style={{
 									color: currentTheme.colors.text,
 								}}
+								htmlFor="password"
 							>
 								Password
 							</label>

@@ -1427,6 +1427,8 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 
 			return (
 				<div
+					role="button"
+					tabIndex={0}
 					style={{
 						position: 'fixed',
 						top: 0,
@@ -1454,6 +1456,8 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 					}}
 				>
 					<div
+						role="button"
+						tabIndex={0}
 						ref={step2ModalDrag.modalRef}
 						style={{
 							background: 'white',
@@ -2346,6 +2350,8 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 
 			return (
 				<div
+					role="button"
+					tabIndex={0}
 					style={{
 						position: 'fixed',
 						top: 0,
@@ -2363,6 +2369,8 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 					}}
 				>
 					<div
+						role="button"
+						tabIndex={0}
 						ref={step4ModalDrag.modalRef}
 						style={{
 							background: 'white',

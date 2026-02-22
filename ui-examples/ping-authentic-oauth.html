@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MasterFlow API - OAuth Authorization Code Flow</title>
+    
+    <!-- Ping's Official CSS Framework -->
+    <link rel="stylesheet" href="https://assets.pingone.com/ux/astro-nano/0.1.0-alpha.11/icons.css">
+    <link rel="stylesheet" href="https://assets.pingone.com/ux/end-user-nano/0.1.0-alpha.9/end-user-nano.css">
+    
+    <style>
+        /* MasterFlow API Custom Styles */
+        .end-user-nano .flow-sidebar {
+            background-color: #f8f9fa;
+            border-radius: 0.375rem;
+            padding: 1rem;
+        }
+        
+        .end-user-nano .list-group-item.active {
+            background-color: #e7f1ff;
+            border-color: #0d6efd;
+            color: #0d6efd;
+        }
+        
+        .end-user-nano .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .end-user-nano .ping-header {
+            background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        
+        .end-user-nano .ping-header h1 {
+            margin: 0;
+            font-weight: 600;
+        }
+        
+        .end-user-nano .ping-header p {
+            margin: 0.5rem 0 0 0;
+            opacity: 0.9;
+        }
+        
+        .end-user-nano .status-badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .end-user-nano .flow-details {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .end-user-nano .tab-content {
+            display: none;
+        }
+        
+        .end-user-nano .tab-content.active {
+            display: block;
+        }
+        
+        .end-user-nano .custom-tabs {
+            border-bottom: 1px solid #dee2e6;
+            margin-bottom: 1rem;
+        }
+        
+        .end-user-nano .custom-tabs .nav-link {
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: #6c757d;
+            font-weight: 500;
+            padding: 1rem 1.5rem;
+        }
+        
+        .end-user-nano .custom-tabs .nav-link:hover {
+            color: #495057;
+            border-bottom-color: #adb5bd;
+        }
+        
+        .end-user-nano .custom-tabs .nav-link.active {
+            color: #0d6efd;
+            border-bottom-color: #0d6efd;
+            background-color: transparent;
+        }
+        
+        /* Custom animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .end-user-nano .tab-content.active {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        .end-user-nano .flow-item {
+            transition: all 0.2s ease;
+        }
+        
+        .end-user-nano .flow-item:hover {
+            background-color: #f8f9fa;
+            transform: translateX(5px);
+        }
+        
+        .end-user-nano .config-section {
+            margin-bottom: 2rem;
+        }
+        
+        .end-user-nano .config-section:last-child {
+            margin-bottom: 0;
+        }
+        
+        .end-user-nano .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .end-user-nano .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .end-user-nano .detail-label {
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .end-user-nano .detail-value {
+            color: #6c757d;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="end-user-nano">
+        <!-- Ping Navigation -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+            <div class="container">
+                <a class="navbar-brand" href="#">
+                    <i class="mdi-account-key-outline me-2"></i>
+                    PingOne Playground
+                </a>
+                <div class="navbar-nav ms-auto">
+                    <a class="nav-link" href="#">MFA Hub</a>
+                    <a class="nav-link active" href="#">OAuth Flows</a>
+                    <a class="nav-link" href="#">Admin</a>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- Ping Header -->
+        <div class="ping-header">
+            <div class="container">
+                <h1>OAuth 2.0 Authorization Code Flow</h1>
+                <p>Configure and test OAuth authorization with PKCE security</p>
+            </div>
+        </div>
+        
+        <div class="container">
+            <div class="row">
+                <!-- Sidebar -->
+                <div class="col-lg-3">
+                    <div class="flow-sidebar">
+                        <h6 class="mb-3">
+                            <i class="mdi-key me-2"></i>
+                            OAuth Flows
+                        </h6>
+                        
+                        <div class="list-group list-group-flush mb-4">
+                            <a href="#" class="list-group-item list-group-item-action active" onclick="selectFlow('authorization_code')">
+                                <i class="mdi-key me-2"></i>
+                                Authorization Code
+                                <small class="text-muted d-block">PKCE enabled</small>
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action" onclick="selectFlow('implicit')">
+                                <i class="mdi-flash me-2"></i>
+                                Implicit
+                                <small class="text-muted d-block">Deprecated</small>
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action" onclick="selectFlow('client_credentials')">
+                                <i class="mdi-robot me-2"></i>
+                                Client Credentials
+                                <small class="text-muted d-block">Machine-to-machine</small>
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action" onclick="selectFlow('hybrid')">
+                                <i class="mdi-swap-horizontal me-2"></i>
+                                Hybrid
+                                <small class="text-muted d-block">Code + Token</small>
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action" onclick="selectFlow('device_code')">
+                                <i class="mdi-cellphone me-2"></i>
+                                Device Code
+                                <small class="text-muted d-block">IoT devices</small>
+                            </a>
+                        </div>
+                        
+                        <h6 class="mb-3">
+                            <i class="mdi-cog me-2"></i>
+                            Quick Actions
+                        </h6>
+                        
+                        <div class="list-group list-group-flush">
+                            <a href="#" class="list-group-item list-group-item-action" onclick="clearConfig()">
+                                <i class="mdi-delete me-2"></i>
+                                Clear Configuration
+                                <small class="text-muted d-block">Reset all fields</small>
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action" onclick="exportConfig()">
+                                <i class="mdi-download me-2"></i>
+                                Export Config
+                                <small class="text-muted d-block">Download settings</small>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Main Content -->
+                <div class="col-lg-9">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h4 class="card-title mb-0" id="flow-title">
+                                <i class="mdi-key me-2"></i>
+                                Authorization Code Flow Configuration
+                            </h4>
+                            <div>
+                                <span class="badge bg-primary status-badge" id="status-badge">Ready</span>
+                            </div>
+                        </div>
+                        
+                        <div class="card-body">
+                            <!-- Custom Tabs -->
+                            <ul class="nav custom-tabs" id="flow-tabs">
+                                <li class="nav-item">
+                                    <a class="nav-link active" href="#" onclick="switchTab('basic')">Basic</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#" onclick="switchTab('advanced')">Advanced</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#" onclick="switchTab('security')">Security</a>
+                                </li>
+                            </ul>
+                            
+                            <!-- Basic Tab -->
+                            <div class="tab-content active" id="basic-tab">
+                                <div class="config-section">
+                                    <h5>
+                                        <i class="mdi-application me-2"></i>
+                                        Application Settings
+                                    </h5>
+                                    <form class="row g-3">
+                                        <div class="col-md-6">
+                                            <label for="env-id" class="form-label">Environment ID</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">
+                                                    <i class="mdi-domain"></i>
+                                                </span>
+                                                <input type="text" class="form-control" id="env-id" placeholder="ping-one-env-id">
+                                            </div>
+                                            <div class="form-text">Your PingOne environment identifier</div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="client-id" class="form-label">Client ID</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">
+                                                    <i class="mdi-key-variant"></i>
+                                                </span>
+                                                <input type="text" class="form-control" id="client-id" placeholder="your-client-id">
+                                            </div>
+                                            <div class="form-text">OAuth application client ID</div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="client-secret" class="form-label">Client Secret</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">
+                                                    <i class="mdi-lock"></i>
+                                                </span>
+                                                <input type="password" class="form-control" id="client-secret" placeholder="•••••••••">
+                                            </div>
+                                            <div class="form-text">OAuth application client secret</div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="redirect-uri" class="form-label">Redirect URI</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">
+                                                    <i class="mdi-link-variant"></i>
+                                                </span>
+                                                <input type="url" class="form-control" id="redirect-uri" placeholder="https://your-app.com/callback">
+                                            </div>
+                                            <div class="form-text">Must match registered callback URL</div>
+                                        </div>
+                                        <div class="col-12">
+                                            <label for="scopes" class="form-label">Scopes</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">
+                                                    <i class="mdi-shield-check"></i>
+                                                </span>
+                                                <input type="text" class="form-control" id="scopes" placeholder="openid profile email" value="openid profile email">
+                                            </div>
+                                            <div class="form-text">Space-separated scope list for requested permissions</div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            
+                            <!-- Advanced Tab -->
+                            <div class="tab-content" id="advanced-tab">
+                                <div class="config-section">
+                                    <h5>
+                                        <i class="mdi-cog me-2"></i>
+                                        Advanced Configuration
+                                    </h5>
+                                    <form class="row g-3">
+                                        <div class="col-md-6">
+                                            <label for="auth-method" class="form-label">Client Authentication Method</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">
+                                                    <i class="mdi-shield-key"></i>
+                                                </span>
+                                                <select class="form-select" id="auth-method">
+                                                    <option value="client_secret_basic">client_secret_basic</option>
+                                                    <option value="client_secret_post">client_secret_post</option>
+                                                    <option value="client_secret_jwt">client_secret_jwt</option>
+                                                    <option value="private_key_jwt">private_key_jwt</option>
+                                                    <option value="none">none (public client)</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-text">How to authenticate with the token endpoint</div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="response-mode" class="form-label">Response Mode</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">
+                                                    <i class="mdi-call-split"></i>
+                                                </span>
+                                                <select class="form-select" id="response-mode">
+                                                    <option value="query">query</option>
+                                                    <option value="fragment">fragment</option>
+                                                    <option value="form_post">form_post</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-text">How the authorization response is returned</div>
+                                        </div>
+                                        <div class="col-12">
+                                            <label for="state" class="form-label">State Parameter</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">
+                                                    <i class="mdi-shield-check"></i>
+                                                </span>
+                                                <input type="text" class="form-control" id="state" placeholder="auto-generated">
+                                            </div>
+                                            <div class="form-text">Leave empty for auto-generation, or provide custom state</div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            
+                            <!-- Security Tab -->
+                            <div class="tab-content" id="security-tab">
+                                <div class="config-section">
+                                    <h5>
+                                        <i class="mdi-shield me-2"></i>
+                                        Security Settings
+                                    </h5>
+                                    <form class="row g-3">
+                                        <div class="col-md-6">
+                                            <label for="pkce-method" class="form-label">PKCE Code Challenge Method</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">
+                                                    <i class="mdi-lock-reset"></i>
+                                                </span>
+                                                <select class="form-select" id="pkce-method">
+                                                    <option value="S256">S256 (SHA-256)</option>
+                                                    <option value="plain">plain (not recommended)</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-text">PKCE challenge method for security</div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="nonce" class="form-label">Nonce Parameter</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">
+                                                    <i class="mdi-key-variant</i>
+                                                </span>
+                                                <input type="text" class="form-control" id="nonce" placeholder="auto-generated">
+                                            </div>
+                                            <div class="form-text">Replay attack prevention for ID tokens</div>
+                                        </div>
+                                        <div class="col-12">
+                                            <label for="prompt" class="form-label">Prompt Parameter</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">
+                                                    <i class="mdi-account-question</i>
+                                                </span>
+                                                <select class="form-select" id="prompt">
+                                                    <option value="">none (default)</option>
+                                                    <option value="login">login</option>
+                                                    <option value="consent">consent</option>
+                                                    <option value="none">none</option>
+                                                    <option value="select_account">select_account</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-text">Controls user authentication and consent behavior</div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            
+                            <!-- Flow Information -->
+                            <div class="flow-details">
+                                <h6>
+                                    <i class="mdi-information me-2"></i>
+                                    Flow Information
+                                </h6>
+                                <div class="detail-grid">
+                                    <div class="detail-item">
+                                        <span class="detail-label">Flow Type:</span>
+                                        <span class="detail-value" id="detail-flow-type">Authorization Code</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">PKCE Method:</span>
+                                        <span class="detail-value" id="detail-pkce">S256</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">State:</span>
+                                        <span class="detail-value" id="detail-state">auto-generated</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Response Type:</span>
+                                        <span class="detail-value" id="detail-response-type">code</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Action Buttons -->
+                            <div class="d-flex gap-2 justify-content-end mt-4">
+                                <button type="button" class="btn btn-outline-primary" onclick="testConfiguration()">
+                                    <i class="mdi-check-circle me-2"></i>
+                                    Test Configuration
+                                </button>
+                                <button type="button" class="btn btn-primary" onclick="startFlow()" id="start-btn">
+                                    <i class="mdi-play me-2"></i>
+                                    Start Authorization Flow
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentFlow = 'authorization_code';
+        let pkceVerifier = '';
+        let pkceChallenge = '';
+        let state = '';
+
+        function selectFlow(flowType) {
+            // Update active flow
+            document.querySelectorAll('.list-group-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.closest('.list-group-item').classList.add('active');
+            
+            currentFlow = flowType;
+            updateFlowDetails(flowType);
+        }
+
+        function updateFlowDetails(flowType) {
+            const title = document.getElementById('flow-title');
+            const detailFlowType = document.getElementById('detail-flow-type');
+            const detailResponseType = document.getElementById('detail-response-type');
+            const statusBadge = document.getElementById('status-badge');
+            
+            const flowConfigs = {
+                'authorization_code': {
+                    title: 'Authorization Code Flow Configuration',
+                    flowType: 'Authorization Code',
+                    responseType: 'code',
+                    status: 'Ready'
+                },
+                'implicit': {
+                    title: 'Implicit Flow Configuration',
+                    flowType: 'Implicit',
+                    responseType: 'token',
+                    status: 'Deprecated'
+                },
+                'client_credentials': {
+                    title: 'Client Credentials Flow Configuration',
+                    flowType: 'Client Credentials',
+                    responseType: 'none',
+                    status: 'Ready'
+                },
+                'hybrid': {
+                    title: 'Hybrid Flow Configuration',
+                    flowType: 'Hybrid',
+                    responseType: 'code token',
+                    status: 'Ready'
+                },
+                'device_code': {
+                    title: 'Device Code Flow Configuration',
+                    flowType: 'Device Code',
+                    responseType: 'none',
+                    status: 'Ready'
+                }
+            };
+            
+            const config = flowConfigs[flowType];
+            title.innerHTML = `<i class="mdi-key me-2"></i>${config.title}`;
+            detailFlowType.textContent = config.flowType;
+            detailResponseType.textContent = config.responseType;
+            
+            // Update status badge
+            statusBadge.className = `badge ${config.status === 'Deprecated' ? 'bg-warning' : 'bg-primary'} status-badge`;
+            statusBadge.textContent = config.status;
+        }
+
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.nav-link').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+        }
+
+        function testConfiguration() {
+            const envId = document.getElementById('env-id').value;
+            const clientId = document.getElementById('client-id').value;
+            const redirectUri = document.getElementById('redirect-uri').value;
+            
+            if (!envId || !clientId || !redirectUri) {
+                updateStatus('warning', 'Missing required fields');
+                setTimeout(() => updateStatus('ready', 'Ready'), 2000);
+                return;
+            }
+            
+            updateStatus('info', 'Testing configuration...');
+            
+            // Simulate configuration test
+            setTimeout(() => {
+                updateStatus('success', 'Configuration valid');
+                setTimeout(() => updateStatus('ready', 'Ready'), 2000);
+            }, 1500);
+        }
+
+        function startFlow() {
+            const envId = document.getElementById('env-id').value;
+            const clientId = document.getElementById('client-id').value;
+            const redirectUri = document.getElementById('redirect-uri').value;
+            
+            if (!envId || !clientId || !redirectUri) {
+                updateStatus('warning', 'Please configure required fields');
+                setTimeout(() => updateStatus('ready', 'Ready'), 2000);
+                return;
+            }
+            
+            // Disable button during flow
+            const startBtn = document.getElementById('start-btn');
+            startBtn.disabled = true;
+            startBtn.innerHTML = '<i class="mdi-loading me-2"></i>Authorizing...';
+            
+            updateStatus('info', 'Initiating OAuth flow...');
+            
+            // Generate PKCE and state
+            generatePKCE();
+            
+            // Simulate OAuth flow
+            setTimeout(() => {
+                const authUrl = `https://auth.pingone.com/${envId}/as/authorize?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=openid profile email&state=${state}&code_challenge=${pkceChallenge}&code_challenge_method=S256`;
+                
+                console.log('Authorization URL:', authUrl);
+                updateStatus('info', 'Waiting for authorization callback...');
+                
+                setTimeout(() => {
+                    updateStatus('success', 'Authorization successful!');
+                    startBtn.disabled = false;
+                    startBtn.innerHTML = '<i class="mdi-refresh me-2"></i>Start New Flow';
+                    
+                    setTimeout(() => {
+                        startBtn.innerHTML = '<i class="mdi-play me-2"></i>Start Authorization Flow';
+                        updateStatus('ready', 'Ready');
+                    }, 3000);
+                }, 2000);
+            }, 1000);
+        }
+
+        function updateStatus(statusType, message) {
+            const statusBadge = document.getElementById('status-badge');
+            const badgeClasses = {
+                'ready': 'bg-primary',
+                'warning': 'bg-warning',
+                'info': 'bg-info',
+                'success': 'bg-success'
+            };
+            
+            statusBadge.className = `badge ${badgeClasses[statusType]} status-badge`;
+            statusBadge.textContent = message;
+        }
+
+        function generatePKCE() {
+            // Generate code verifier
+            const array = new Uint8Array(32);
+            crypto.getRandomValues(array);
+            pkceVerifier = btoa(String.fromCharCode.apply(null, array))
+                .replace(/\+/g, '-')
+                .replace(/\//g, '_')
+                .replace(/=/g, '');
+
+            // Generate code challenge
+            const encoder = new TextEncoder();
+            const data = encoder.encode(pkceVerifier);
+            crypto.subtle.digest('SHA-256', data).then(digest => {
+                const hashArray = Array.from(new Uint8Array(digest));
+                pkceChallenge = btoa(String.fromCharCode.apply(null, hashArray))
+                    .replace(/\+/g, '-')
+                    .replace(/\//g, '_')
+                    .replace(/=/g, '');
+
+                document.getElementById('detail-pkce').textContent = 'S256';
+            });
+
+            // Generate state
+            state = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+            document.getElementById('detail-state').textContent = state.substring(0, 8) + '...';
+        }
+
+        function clearConfig() {
+            if (confirm('Clear all configuration fields?')) {
+                document.querySelectorAll('.form-control, .form-select').forEach(input => {
+                    input.value = '';
+                });
+                // Reset default values
+                document.getElementById('scopes').value = 'openid profile email';
+                updateStatus('info', 'Configuration cleared');
+                setTimeout(() => updateStatus('ready', 'Ready'), 2000);
+            }
+        }
+
+        function exportConfig() {
+            const config = {
+                flowType: currentFlow,
+                environmentId: document.getElementById('env-id').value,
+                clientId: document.getElementById('client-id').value,
+                redirectUri: document.getElementById('redirect-uri').value,
+                scopes: document.getElementById('scopes').value,
+                authMethod: document.getElementById('auth-method').value,
+                pkceMethod: document.getElementById('pkce-method').value,
+                timestamp: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `oauth-config-${currentFlow}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            updateStatus('success', 'Configuration exported');
+            setTimeout(() => updateStatus('ready', 'Ready'), 2000);
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateFlowDetails('authorization_code');
+            generatePKCE();
+        });
+    </script>
+</body>
+</html>

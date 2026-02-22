@@ -812,3 +812,11 @@ grep -c "OAUTH-[0-9]" UNIFIED_OAUTH_INVENTORY.md
 - [ ] JSON reader includes copy-to-clipboard and search functionality
 
 ---
+
+## 🔗 Related Inventories
+
+- **[Startup Inventory](./STARTUP_INVENTORY.md)** - Startup scripts, domain management, and SSL configuration
+- **[Unified MFA Inventory](./UNIFIED_MFA_INVENTORY.md)** - MFA flows and device management
+- **[Protect Portal Inventory](./PROTECT_PORTAL_INVENTORY.md)** - Protect portal components
+
+---

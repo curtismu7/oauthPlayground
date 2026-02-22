@@ -870,6 +870,7 @@ const Dashboard = () => {
 										</div>
 										<div style={{ marginTop: '0.5rem', display: 'flex', gap: '0.5rem' }}>
 											<button
+												type="button"
 												onClick={refreshTokens}
 												disabled={isTokenRefreshing}
 												style={{
@@ -887,6 +888,7 @@ const Dashboard = () => {
 												Refresh Now
 											</button>
 											<button
+												type="button"
 												onClick={
 													refreshStatus.autoRefreshEnabled ? stopAutoRefresh : startAutoRefresh
 												}
@@ -903,6 +905,7 @@ const Dashboard = () => {
 												{refreshStatus.autoRefreshEnabled ? 'Stop Auto' : 'Start Auto'}
 											</button>
 											<button
+												type="button"
 												onClick={async () => {
 													try {
 														const result = await TokenDebugger.clearAllTokens();

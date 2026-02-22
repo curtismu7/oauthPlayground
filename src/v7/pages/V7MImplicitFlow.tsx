@@ -147,6 +147,7 @@ export const V7MImplicitFlow: React.FC<Props> = ({
 					instead. This flow is included for educational purposes to understand why it was
 					deprecated.
 					<button
+						type="button"
 						onClick={() => setShowDeprecationHelp(true)}
 						style={{
 							marginLeft: 8,
@@ -191,6 +192,7 @@ export const V7MImplicitFlow: React.FC<Props> = ({
 				}}
 			>
 				<button
+					type="button"
 					onClick={() => {
 						setVariant('oauth');
 						setScope('read write');
@@ -209,6 +211,7 @@ export const V7MImplicitFlow: React.FC<Props> = ({
 					OAuth 2.0
 				</button>
 				<button
+					type="button"
 					onClick={() => {
 						setVariant('oidc');
 						setScope('openid profile email');
@@ -336,7 +339,7 @@ export const V7MImplicitFlow: React.FC<Props> = ({
 							</small>
 						</label>
 					</div>
-					<button onClick={handleBuildAuthorize} style={buttonStyle}>
+					<button type="button" onClick={handleBuildAuthorize} style={buttonStyle}>
 						<FiSend /> Build Authorization URL
 					</button>
 					{authorizationUrl && (
@@ -349,6 +352,7 @@ export const V7MImplicitFlow: React.FC<Props> = ({
 									style={{ ...inputStyle, fontFamily: 'monospace', fontSize: 12 }}
 								/>
 								<button
+									type="button"
 									onClick={() => navigator.clipboard.writeText(authorizationUrl)}
 									style={smallButtonStyle}
 								>
@@ -401,7 +405,11 @@ export const V7MImplicitFlow: React.FC<Props> = ({
 								<label>
 									<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
 										<strong>Access Token:</strong>
-										<button onClick={() => setShowAccessModal(true)} style={smallButtonStyle}>
+										<button
+											type="button"
+											onClick={() => setShowAccessModal(true)}
+											style={smallButtonStyle}
+										>
 											Inspect JWT
 										</button>
 									</div>
@@ -411,6 +419,7 @@ export const V7MImplicitFlow: React.FC<Props> = ({
 										style={{ ...inputStyle, fontFamily: 'monospace', fontSize: 11, minHeight: 60 }}
 									/>
 									<button
+										type="button"
 										onClick={() => navigator.clipboard.writeText(accessToken)}
 										style={smallButtonStyle}
 									>
@@ -424,7 +433,11 @@ export const V7MImplicitFlow: React.FC<Props> = ({
 								<label>
 									<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
 										<strong>ID Token (OIDC):</strong>
-										<button onClick={() => setShowIdModal(true)} style={smallButtonStyle}>
+										<button
+											type="button"
+											onClick={() => setShowIdModal(true)}
+											style={smallButtonStyle}
+										>
 											Inspect JWT
 										</button>
 									</div>
@@ -434,6 +447,7 @@ export const V7MImplicitFlow: React.FC<Props> = ({
 										style={{ ...inputStyle, fontFamily: 'monospace', fontSize: 11, minHeight: 60 }}
 									/>
 									<button
+										type="button"
 										onClick={() => navigator.clipboard.writeText(idToken)}
 										style={smallButtonStyle}
 									>
@@ -476,7 +490,7 @@ export const V7MImplicitFlow: React.FC<Props> = ({
 					</header>
 					<div style={{ padding: 12 }}>
 						<div style={{ display: 'flex', gap: 8 }}>
-							<button onClick={handleUserInfo} style={buttonStyle}>
+							<button type="button" onClick={handleUserInfo} style={buttonStyle}>
 								Call UserInfo Endpoint
 								<V7MInfoIcon
 									label=""
@@ -484,7 +498,7 @@ export const V7MImplicitFlow: React.FC<Props> = ({
 									onClick={() => setShowUserInfoHelp(true)}
 								/>
 							</button>
-							<button onClick={handleIntrospect} style={buttonStyle}>
+							<button type="button" onClick={handleIntrospect} style={buttonStyle}>
 								Introspect Token
 								<V7MInfoIcon
 									label=""

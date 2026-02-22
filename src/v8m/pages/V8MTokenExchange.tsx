@@ -1,7 +1,7 @@
 // src/v8m/pages/V8MTokenExchange.tsx
 // V8M OAuth 2.0 Token Exchange Flow - RFC 8693 Implementation for A2A Security
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiArrowRight,
@@ -651,148 +651,159 @@ const V8MTokenExchange: React.FC = () => {
 		includeRefreshToken: false,
 	});
 
-	const scenarios = {
-		delegation: {
-			icon: <FiUsers />,
-			title: 'User Delegation',
-			description: 'Exchange user token for service-specific token with reduced scope',
-			useCase: 'User authorizes app to call downstream service on their behalf',
-			grantType: 'urn:ietf:params:oauth:grant-type:token-exchange',
-			subjectTokenType: 'urn:ietf:params:oauth:token-type:access_token',
-			requestedTokenType: 'urn:ietf:params:oauth:token-type:access_token',
-			audience: 'https://api.salesforce.com',
-			scope: 'read:profile read:contacts',
-			color: '#3b82f6',
-			originalToken:
-				'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyXzEyMyIsInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwgcmVhZDpjb250YWN0cyByZWFkOmNhbGVuZGFyIHdyaXRlOmRhdGEiLCJhdWQiOiJteS13ZWItYXBwIiwiaXNzIjoiaHR0cHM6Ly9hdXRoLnBpbmdvbmUuY29tIiwiZXhwIjoxNzI5NjM5NDQ3fQ...',
-			availableScopes: [
-				{ name: 'read:profile', description: 'Read user profile information', category: 'user' },
-				{ name: 'read:contacts', description: 'Read user contacts from CRM', category: 'user' },
-				{ name: 'write:contacts', description: 'Create/update contacts in CRM', category: 'user' },
-				{ name: 'read:calendar', description: 'Read user calendar events', category: 'user' },
-				{
-					name: 'read:opportunities',
-					description: 'Read sales opportunities',
-					category: 'business',
-				},
-				{
-					name: 'offline_access',
-					description: 'Access data when user is offline',
-					category: 'system',
-				},
-			],
-			defaultClaims: '{"id_token":{"email":{"essential":true},"name":{"essential":true}}}',
-			defaultAuthDetails:
-				'[{"type":"crm_access","actions":["read"],"resources":["contacts","opportunities"]}]',
-		},
-		impersonation: {
-			icon: <FiShield />,
-			title: 'Service Impersonation',
-			description: 'Service acts on behalf of user with limited permissions',
-			useCase: 'Backend service needs to call API as if it were the user',
-			grantType: 'urn:ietf:params:oauth:grant-type:token-exchange',
-			subjectTokenType: 'urn:ietf:params:oauth:token-type:access_token',
-			requestedTokenType: 'urn:ietf:params:oauth:token-type:access_token',
-			audience: 'https://api.internal.company.com',
-			scope: 'impersonate:user audit:read',
-			color: '#f59e0b',
-			originalToken:
-				'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbl91c2VyIiwic2NvcGUiOiJhZG1pbjpmdWxsIGltcGVyc29uYXRlOnVzZXIgYXVkaXQ6cmVhZCBhdWRpdDp3cml0ZSIsImF1ZCI6ImFkbWluLWRhc2hib2FyZCIsImlzcyI6Imh0dHBzOi8vYXV0aC5waW5nb25lLmNvbSIsImV4cCI6MTcyOTYzOTQ0N30...',
-			availableScopes: [
-				{
-					name: 'impersonate:user',
-					description: 'Act on behalf of the user',
-					category: 'delegation',
-				},
-				{
-					name: 'audit:read',
-					description: 'Read audit logs and compliance data',
-					category: 'compliance',
-				},
-				{ name: 'audit:write', description: 'Write audit entries', category: 'compliance' },
-				{ name: 'admin:limited', description: 'Limited administrative access', category: 'admin' },
-				{
-					name: 'reports:generate',
-					description: 'Generate compliance reports',
-					category: 'business',
-				},
-			],
-			defaultClaims: '{"userinfo":{"sub":{"essential":true},"roles":{"essential":true}}}',
-			defaultAuthDetails:
-				'[{"type":"impersonation","target_user":"user_123","permissions":["audit:read"]}]',
-		},
-		'scope-reduction': {
-			icon: <FiLock />,
-			title: 'Scope Reduction',
-			description: 'Reduce token scope for principle of least privilege',
-			useCase: 'Limit permissions when calling specific microservices',
-			grantType: 'urn:ietf:params:oauth:grant-type:token-exchange',
-			subjectTokenType: 'urn:ietf:params:oauth:token-type:access_token',
-			requestedTokenType: 'urn:ietf:params:oauth:token-type:access_token',
-			audience: 'https://api.reporting.service.com',
-			scope: 'read:reports',
-			color: '#22c55e',
-			originalToken:
-				'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJwb3dlcl91c2VyIiwic2NvcGUiOiJyZWFkOnJlcG9ydHMgd3JpdGU6cmVwb3J0cyBkZWxldGU6ZGF0YSBhZG1pbjphY2Nlc3MgcmVhZDpwcml2YXRlIHdyaXRlOnByaXZhdGUiLCJhdWQiOiJmdWxsLWFjY2Vzcy1hcHAiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20iLCJleHAiOjE3Mjk2Mzk0NDd9...',
-			availableScopes: [
-				{ name: 'read:reports', description: 'Read generated reports only', category: 'reports' },
-				{ name: 'read:public', description: 'Read public information', category: 'public' },
-				{ name: 'write:reports', description: 'Create and modify reports', category: 'reports' },
-				{ name: 'delete:reports', description: 'Delete reports', category: 'reports' },
-				{ name: 'admin:reports', description: 'Administrative report access', category: 'admin' },
-			],
-			defaultClaims: '{"id_token":{"department":{"essential":true}}}',
-			defaultAuthDetails: '[{"type":"data_access","classification":"public","actions":["read"]}]',
-		},
-		'audience-restriction': {
-			icon: <FiServer />,
-			title: 'CBA MCP/A2A Scenario',
-			description: 'Create audience-specific tokens for CBA MCP/A2A communication',
-			useCase: 'Generate tokens specifically for CBA MCP/A2A scenarios with scope reduction',
-			grantType: 'urn:ietf:params:oauth:grant-type:token-exchange',
-			subjectTokenType: 'urn:ietf:params:oauth:token-type:access_token',
-			requestedTokenType: 'urn:ietf:params:oauth:token-type:access_token',
-			audience: 'https://mcp.cba.com.au',
-			scope: 'mcp:read banking:transactions',
-			color: '#7c3aed',
-			originalToken:
-				'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiYW5raW5nX2FwcCIsInNjb3BlIjoibWNwOnJlYWQgbWNwOndyaXRlIGEyYTpjb21tdW5pY2F0ZSBiYW5raW5nOmZ1bGwgcGF5bWVudHM6d3JpdGUgYWNjb3VudHM6d3JpdGUgdHJhbnNhY3Rpb25zOnJlYWQiLCJhdWQiOiJiYW5raW5nLXBsYXRmb3JtIiwiaXNzIjoiaHR0cHM6Ly9hdXRoLnBpbmdvbmUuY29tIiwiZXhwIjoxNzI5NjM5NDQ3fQ...',
-			availableScopes: [
-				{ name: 'mcp:read', description: 'Read MCP data and configurations', category: 'mcp' },
-				{ name: 'mcp:write', description: 'Write MCP data and configurations', category: 'mcp' },
-				{
-					name: 'banking:transactions',
-					description: 'Access transaction data',
-					category: 'banking',
-				},
-				{
-					name: 'banking:accounts',
-					description: 'Access account information',
-					category: 'banking',
-				},
-				{
-					name: 'payments:initiate',
-					description: 'Initiate payment transactions',
-					category: 'payments',
-				},
-				{ name: 'payments:status', description: 'Check payment status', category: 'payments' },
-				{
-					name: 'a2a:communicate',
-					description: 'Application-to-application communication',
-					category: 'system',
-				},
-				{
-					name: 'compliance:audit',
-					description: 'Compliance and audit access',
-					category: 'compliance',
-				},
-			],
-			defaultClaims:
-				'{"id_token":{"institution_id":{"essential":true},"regulatory_scope":{"essential":true}}}',
-			defaultAuthDetails:
-				'[{"type":"banking_access","institution":"CBA","services":["MCP","transactions"],"compliance_level":"PCI_DSS"}]',
-		},
-	};
+	const scenarios = useMemo(
+		() => ({
+			delegation: {
+				icon: <FiUsers />,
+				title: 'User Delegation',
+				description: 'Exchange user token for service-specific token with reduced scope',
+				useCase: 'User authorizes app to call downstream service on their behalf',
+				grantType: 'urn:ietf:params:oauth:grant-type:token-exchange',
+				subjectTokenType: 'urn:ietf:params:oauth:token-type:access_token',
+				requestedTokenType: 'urn:ietf:params:oauth:token-type:access_token',
+				audience: 'https://api.salesforce.com',
+				scope: 'read:profile read:contacts',
+				color: '#3b82f6',
+				originalToken:
+					'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyXzEyMyIsInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwgcmVhZDpjb250YWN0cyByZWFkOmNhbGVuZGFyIHdyaXRlOmRhdGEiLCJhdWQiOiJteS13ZWItYXBwIiwiaXNzIjoiaHR0cHM6Ly9hdXRoLnBpbmdvbmUuY29tIiwiZXhwIjoxNzI5NjM5NDQ3fQ...',
+				availableScopes: [
+					{ name: 'read:profile', description: 'Read user profile information', category: 'user' },
+					{ name: 'read:contacts', description: 'Read user contacts from CRM', category: 'user' },
+					{
+						name: 'write:contacts',
+						description: 'Create/update contacts in CRM',
+						category: 'user',
+					},
+					{ name: 'read:calendar', description: 'Read user calendar events', category: 'user' },
+					{
+						name: 'read:opportunities',
+						description: 'Read sales opportunities',
+						category: 'business',
+					},
+					{
+						name: 'offline_access',
+						description: 'Maintain access when user is not actively using the app',
+						category: 'session',
+					},
+				],
+				defaultClaims: '{"userinfo":{"sub":{"essential":true},"email":{"essential":true}}}',
+				defaultAuthDetails:
+					'[{"type":"salesforce_access","permissions":["read:profile","read:contacts"]}]',
+			},
+			impersonation: {
+				icon: <FiShield />,
+				title: 'Admin Impersonation',
+				description: 'Admin exchanges token to impersonate user for support purposes',
+				useCase: 'Support team needs to access user account for troubleshooting',
+				grantType: 'urn:ietf:params:oauth:grant-type:token-exchange',
+				subjectTokenType: 'urn:ietf:params:oauth:token-type:access_token',
+				requestedTokenType: 'urn:ietf:params:oauth:token-type:access_token',
+				audience: 'https://admin-dashboard.example.com',
+				scope: 'impersonate:user audit:read admin:limited reports:generate',
+				color: '#dc2626',
+				originalToken:
+					'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbl91c2VyIiwic2NvcGUiOiJhZG1pbjpmdWxsIGltcGVyc29uYXRlOnVzZXIgYXVkaXQ6cmVhZCBhdWRpdDp3cml0ZSIsImF1ZCI6ImFkbWluLWRhc2hib2FyZCIsImlzcyI6Imh0dHBzOi8vYXV0aC5waW5nb25lLmNvbSIsImV4cCI6MTcyOTYzOTQ0N30...',
+				availableScopes: [
+					{
+						name: 'impersonate:user',
+						description: 'Act on behalf of the user',
+						category: 'delegation',
+					},
+					{
+						name: 'audit:read',
+						description: 'Read audit logs and compliance data',
+						category: 'compliance',
+					},
+					{ name: 'audit:write', description: 'Write audit entries', category: 'compliance' },
+					{
+						name: 'admin:limited',
+						description: 'Limited administrative access',
+						category: 'admin',
+					},
+					{
+						name: 'reports:generate',
+						description: 'Generate compliance reports',
+						category: 'business',
+					},
+				],
+				defaultClaims: '{"userinfo":{"sub":{"essential":true},"roles":{"essential":true}}}',
+				defaultAuthDetails:
+					'[{"type":"impersonation","target_user":"user_123","permissions":["audit:read"]}]',
+			},
+			'scope-reduction': {
+				icon: <FiLock />,
+				title: 'Scope Reduction',
+				description: 'Reduce token scope for principle of least privilege',
+				useCase: 'Limit permissions when calling specific microservices',
+				grantType: 'urn:ietf:params:oauth:grant-type:token-exchange',
+				subjectTokenType: 'urn:ietf:params:oauth:token-type:access_token',
+				requestedTokenType: 'urn:ietf:params:oauth:token-type:access_token',
+				audience: 'https://api.reporting.service.com',
+				scope: 'read:reports',
+				color: '#22c55e',
+				originalToken:
+					'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJwb3dlcl91c2VyIiwic2NvcGUiOiJyZWFkOnJlcG9ydHMgd3JpdGU6cmVwb3J0cyBkZWxldGU6ZGF0YSBhZG1pbjphY2Nlc3MgcmVhZDpwcml2YXRlIHdyaXRlOnByaXZhdGUiLCJhdWQiOiJmdWxsLWFjY2Vzcy1hcHAiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20iLCJleHAiOjE3Mjk2Mzk0NDd9...',
+				availableScopes: [
+					{ name: 'read:reports', description: 'Read generated reports only', category: 'reports' },
+					{ name: 'read:public', description: 'Read public information', category: 'public' },
+					{ name: 'write:reports', description: 'Create and modify reports', category: 'reports' },
+					{ name: 'delete:reports', description: 'Delete reports', category: 'reports' },
+					{ name: 'admin:reports', description: 'Administrative report access', category: 'admin' },
+				],
+				defaultClaims: '{"id_token":{"department":{"essential":true}}}',
+				defaultAuthDetails: '[{"type":"data_access","classification":"public","actions":["read"]}]',
+			},
+			'audience-restriction': {
+				icon: <FiServer />,
+				title: 'CBA MCP/A2A Scenario',
+				description: 'Machine-to-machine communication with audience restriction',
+				useCase: 'Banking app needs to access CBA MCP services with specific audience',
+				grantType: 'urn:ietf:params:oauth:grant-type:token-exchange',
+				subjectTokenType: 'urn:ietf:params:oauth:token-type:access_token',
+				requestedTokenType: 'urn:ietf:params:oauth:token-type:access_token',
+				audience: 'https://mcp.cba.com.au',
+				scope: 'mcp:read banking:transactions',
+				color: '#7c3aed',
+				originalToken:
+					'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiYW5raW5nX2FwcCIsInNjb3BlIjoibWNwOnJlYWQgbWNwOndyaXRlIGEyYTpjb21tdW5pY2F0ZSBiYW5raW5nOmZ1bGwgcGF5bWVudHM6d3JpdGUgYWNjb3VudHM6d3JpdGUgdHJhbnNhY3Rpb25zOnJlYWQiLCJhdWQiOiJiYW5raW5nLXBsYXRmb3JtIiwiaXNzIjoiaHR0cHM6Ly9hdXRoLnBpbmdvbmUuY29tIiwiZXhwIjoxNzI5NjM5NDQ3fQ...',
+				availableScopes: [
+					{ name: 'mcp:read', description: 'Read MCP data and configurations', category: 'mcp' },
+					{ name: 'mcp:write', description: 'Write MCP data and configurations', category: 'mcp' },
+					{
+						name: 'banking:transactions',
+						description: 'Access transaction data',
+						category: 'banking',
+					},
+					{
+						name: 'banking:accounts',
+						description: 'Access account information',
+						category: 'banking',
+					},
+					{
+						name: 'payments:initiate',
+						description: 'Initiate payment transactions',
+						category: 'payments',
+					},
+					{ name: 'payments:status', description: 'Check payment status', category: 'payments' },
+					{
+						name: 'a2a:communicate',
+						description: 'Application-to-application communication',
+						category: 'system',
+					},
+					{
+						name: 'compliance:audit',
+						description: 'Compliance and audit access',
+						category: 'compliance',
+					},
+				],
+				defaultClaims:
+					'{"id_token":{"institution_id":{"essential":true},"regulatory_scope":{"essential":true}}}',
+				defaultAuthDetails:
+					'[{"type":"banking_access","institution":"CBA","services":["MCP","transactions"],"compliance_level":"PCI_DSS"}]',
+			},
+		}),
+		[]
+	);
 
 	const toggleSection = useCallback((section: string) => {
 		setCollapsedSections((prev) => ({
@@ -1727,7 +1738,7 @@ function TokenExchangeComponent() {
       <h3>Token Exchange</h3>
       
       <div className="form-group">
-        <label>Subject Token:</label>
+        <label htmlFor="subjecttoken">Subject Token:</label>
         <input 
           type="text" 
           value={exchangeState.subjectToken}
@@ -1740,7 +1751,7 @@ function TokenExchangeComponent() {
       </div>
       
       <div className="form-group">
-        <label>Target Audience:</label>
+        <label htmlFor="targetaudience">Target Audience:</label>
         <input 
           type="text" 
           value={exchangeState.audience}
@@ -1751,8 +1762,7 @@ function TokenExchangeComponent() {
         />
       </div>
       
-      <button 
-        onClick={handleExchange} 
+      <button type="button" onClick={handleExchange} 
         disabled={loading || !exchangeState.subjectToken}
       >
         {loading ? "Exchanging..." : "Exchange Token"}

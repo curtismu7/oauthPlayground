@@ -1,17 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import {
-	FiActivity,
-	FiDownload,
-	FiFileText,
-	FiHelpCircle,
-	FiLogIn,
-	FiLogOut,
-	FiMenu,
-	FiSearch,
-	FiServer,
-	FiSettings,
-	FiX,
-} from 'react-icons/fi';
 import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useAuth } from '@/contexts/NewAuthContext';
@@ -28,14 +15,15 @@ const NavbarContainer = styled.nav<{ $sidebarOpen?: boolean; $sidebarWidth?: num
   left: 0;
   right: 0;
   height: 80px;
-  background-color: ${({ theme }) => theme.colors.primary};
+  background: linear-gradient(135deg, var(--ping-primary-color) 0%, #2563eb 100%);
   color: white;
   display: flex;
   align-items: center;
-  padding: 0 1.5rem;
+  padding: 0 var(--ping-spacing-lg);
   z-index: 999;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: left 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: var(--ping-transition-fast);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   
   /* On desktop (768px+), adjust for sidebar if it's open */
   @media (min-width: 768px) {
@@ -123,25 +111,25 @@ const NavItems = styled.div`
   
   button, a {
     background: white;
-    border: 1px solid #e2e8f0;
-    color: black;
+    border: 1px solid var(--ping-border-color);
+    color: var(--ping-text-color);
     font-size: 1.25rem;
     cursor: pointer;
-    padding: 0.5rem;
-    border-radius: 4px;
+    padding: var(--ping-spacing-xs);
+    border-radius: var(--ping-border-radius-sm);
     display: flex;
     align-items: center;
-    margin-left: 0.5rem;
-    transition: all 0.2s;
+    margin-left: var(--ping-spacing-xs);
+    transition: var(--ping-transition-normal);
     
     &:hover {
-      background-color: #f8fafc;
+      background-color: var(--ping-hover-color);
       transform: translateY(-1px);
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
     
     span {
-      margin-left: 0.5rem;
+      margin-left: var(--ping-spacing-xs);
       font-size: 0.875rem;
       display: none;
       
@@ -196,27 +184,27 @@ const ModalOverlay = styled.div<{ $isOpen: boolean }>`
   align-items: center;
   justify-content: center;
   z-index: 10000;
-  padding: 1rem;
+  padding: var(--ping-spacing-md);
 `;
 
 const ModalContent = styled.div`
   background: #ffffff;
-  border-radius: 12px;
+  border-radius: var(--ping-border-radius-lg);
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
   width: 100%;
   max-width: 500px;
   position: relative;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--ping-border-color);
 `;
 
 const ModalHeader = styled.div`
-  padding: 1.5rem 2rem;
-  border-bottom: 1px solid #e5e7eb;
+  padding: var(--ping-spacing-lg) var(--ping-spacing-xl);
+  border-bottom: 1px solid var(--ping-border-color);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  border-radius: 12px 12px 0 0;
+  background: linear-gradient(135deg, var(--ping-primary-color) 0%, #2563eb 100%);
+  border-radius: var(--ping-border-radius-lg) var(--ping-border-radius-lg) 0 0;
   color: white;
 `;
 
@@ -226,7 +214,7 @@ const ModalTitle = styled.h2`
   font-weight: 600;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: calc(var(--ping-spacing-xs) * 3);
 `;
 
 const CloseButton = styled.button`
@@ -234,12 +222,12 @@ const CloseButton = styled.button`
   border: none;
   color: white;
   cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 0.375rem;
+  padding: var(--ping-spacing-xs);
+  border-radius: var(--ping-border-radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.2s;
+  transition: var(--ping-transition-normal);
 
   &:hover {
     background-color: rgba(255, 255, 255, 0.1);
@@ -247,38 +235,38 @@ const CloseButton = styled.button`
 `;
 
 const ModalBody = styled.div`
-  padding: 2rem;
+  padding: var(--ping-spacing-xl);
 `;
 
 const ModalMessage = styled.p`
-  margin: 0 0 1.5rem 0;
-  color: #6b7280;
+  margin: 0 0 var(--ping-spacing-lg) 0;
+  color: var(--ping-gray);
   line-height: 1.6;
   font-size: 0.95rem;
 `;
 
 const ButtonGroup = styled.div`
   display: flex;
-  gap: 0.75rem;
+  gap: calc(var(--ping-spacing-xs) * 3);
   justify-content: flex-end;
 `;
 
 const ExportButton = styled.button<{ $variant: 'markdown' | 'pdf' }>`
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
+  padding: calc(var(--ping-spacing-xs) * 3) var(--ping-spacing-lg);
+  border-radius: var(--ping-border-radius-lg);
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: var(--ping-transition-normal);
   border: 1px solid;
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--ping-spacing-xs);
   
   ${({ $variant }) => {
 		if ($variant === 'markdown') {
 			return `
-        background-color: #3b82f6;
+        background-color: var(--ping-primary-color);
         color: #ffffff;
         border-color: #2563eb;
         
@@ -289,7 +277,7 @@ const ExportButton = styled.button<{ $variant: 'markdown' | 'pdf' }>`
       `;
 		} else {
 			return `
-        background-color: #dc2626;
+        background-color: var(--ping-error-color);
         color: #ffffff;
         border-color: #b91c1c;
         
@@ -388,7 +376,7 @@ const Navbar: React.FC<NavbarProps> = ({
 	};
 
 	return (
-		<>
+		<div className="end-user-nano">
 			<NavbarContainer
 				role="banner"
 				aria-label="Main navigation"
@@ -401,7 +389,7 @@ const Navbar: React.FC<NavbarProps> = ({
 					aria-expanded="false"
 					aria-controls="sidebar-menu"
 				>
-					<FiMenu size={24} aria-hidden="true" />
+					<i className="mdi-menu" aria-hidden="true" />
 				</MenuButton>
 
 				<Logo>
@@ -421,27 +409,27 @@ const Navbar: React.FC<NavbarProps> = ({
 
 				<NavItems role="navigation" aria-label="Main navigation">
 					<Link to="/documentation" title="View documentation and help">
-						<FiHelpCircle aria-hidden="true" />
+						<i className="mdi-help-circle" aria-hidden="true" />
 						<span>Docs</span>
 					</Link>
 					<Link to="/configuration" title="Configure OAuth settings">
-						<FiSettings aria-hidden="true" />
+						<i className="mdi-settings" aria-hidden="true" />
 						<span>Configuration</span>
 					</Link>
-					<Link to="/api-status" title="View API server status and health metrics">
-						<FiServer aria-hidden="true" />
-						<span>API Status</span>
+					<Link to="/system-status" title="View PingOne API server status and health metrics">
+						<i className="mdi-server" aria-hidden="true" />
+						<span>PingOne API Status</span>
 					</Link>
 					<Link to="/dashboard" title="View dashboard and system overview">
-						<FiActivity aria-hidden="true" />
+						<i className="mdi-activity" aria-hidden="true" />
 						<span>Dashboard</span>
 					</Link>
 					<Link to="/auto-discover" title="OIDC Discovery tool" aria-label="OIDC Discovery tool">
-						<FiSearch aria-hidden="true" />
+						<i className="mdi-magnify" aria-hidden="true" />
 						<span>OIDC Discovery</span>
 					</Link>
 					<Link to="/client-generator" title="Generate PingOne applications">
-						<FiSettings aria-hidden="true" />
+						<i className="mdi-settings" aria-hidden="true" />
 						<span>App Generator</span>
 					</Link>
 					<button
@@ -450,7 +438,7 @@ const Navbar: React.FC<NavbarProps> = ({
 						title="Export all Unified Flow use cases as PDF or Markdown"
 						aria-label="Export all Unified Flow use cases"
 					>
-						<FiDownload aria-hidden="true" />
+						<i className="mdi-download" aria-hidden="true" />
 						<span>Export All</span>
 					</button>
 					{isAuthenticated ? (
@@ -460,7 +448,7 @@ const Navbar: React.FC<NavbarProps> = ({
 							title="Logout from the application"
 							aria-label="Logout from the application"
 						>
-							<FiLogOut aria-hidden="true" />
+							<i className="mdi-logout" aria-hidden="true" />
 							<span>Logout</span>
 						</button>
 					) : (
@@ -469,7 +457,7 @@ const Navbar: React.FC<NavbarProps> = ({
 							title="Login to the application"
 							aria-label="Login to the application"
 						>
-							<FiLogIn aria-hidden="true" />
+							<i className="mdi-login" aria-hidden="true" />
 							<span>Login</span>
 						</Link>
 					)}
@@ -479,11 +467,11 @@ const Navbar: React.FC<NavbarProps> = ({
 				<ModalContent onClick={(e) => e.stopPropagation()}>
 					<ModalHeader>
 						<ModalTitle>
-							<FiDownload />
+							<i className="mdi-download" />
 							Export All Unified Flow Use Cases
 						</ModalTitle>
 						<CloseButton onClick={handleCloseExportModal} aria-label="Close modal">
-							<FiX size={20} />
+							<i className="mdi-close" aria-hidden="true" />
 						</CloseButton>
 					</ModalHeader>
 					<ModalBody>
@@ -493,18 +481,18 @@ const Navbar: React.FC<NavbarProps> = ({
 						</ModalMessage>
 						<ButtonGroup>
 							<ExportButton $variant="markdown" onClick={handleExportMarkdown}>
-								<FiFileText />
+								<i className="mdi-file-document"></i>
 								Export as Markdown
 							</ExportButton>
 							<ExportButton $variant="pdf" onClick={handleExportPDF}>
-								<FiDownload />
+								<i className="mdi-download"></i>
 								Export as PDF
 							</ExportButton>
 						</ButtonGroup>
 					</ModalBody>
 				</ModalContent>
 			</ModalOverlay>
-		</>
+		</div>
 	);
 };
 

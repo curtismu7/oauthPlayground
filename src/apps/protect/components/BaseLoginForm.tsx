@@ -14,7 +14,6 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiAlertTriangle, FiEye, FiEyeOff, FiLock as FiLockIcon, FiUser } from 'react-icons/fi';
 import styled from 'styled-components';
 import { ButtonSpinner } from '../../../components/ui/ButtonSpinner';
 import PingOneLoginService from '../services/pingOneLoginService';
@@ -361,10 +360,10 @@ export const BaseLoginForm: React.FC<BaseLoginFormProps> = ({
 	// ============================================================================
 
 	return (
-		<>
+		<div className="end-user-nano">
 			{error && (
 				<ErrorMessage>
-					<FiAlertTriangle />
+					<span className="mdi mdi-alert-triangle"></span>
 					{error}
 				</ErrorMessage>
 			)}
@@ -376,7 +375,7 @@ export const BaseLoginForm: React.FC<BaseLoginFormProps> = ({
 					<InputWrapper>
 						{showIcons && (
 							<InputIcon>
-								<FiUser />
+								<span className="mdi mdi-account"></span>
 							</InputIcon>
 						)}
 						<StyledInput
@@ -401,7 +400,7 @@ export const BaseLoginForm: React.FC<BaseLoginFormProps> = ({
 					<InputWrapper>
 						{showIcons && (
 							<InputIcon>
-								<FiLockIcon />
+								<span className="mdi mdi-lock"></span>
 							</InputIcon>
 						)}
 						<StyledInput
@@ -423,7 +422,11 @@ export const BaseLoginForm: React.FC<BaseLoginFormProps> = ({
 							disabled={isLoading}
 							aria-label={showPassword ? 'Hide password' : 'Show password'}
 						>
-							{showPassword ? <FiEyeOff /> : <FiEye />}
+							{showPassword ? (
+								<span className="mdi mdi-eye-off"></span>
+							) : (
+								<span className="mdi mdi-eye"></span>
+							)}
 						</PasswordToggle>
 					</InputWrapper>
 				</InputGroup>
@@ -476,7 +479,7 @@ export const BaseLoginForm: React.FC<BaseLoginFormProps> = ({
 					{!isLoading && buttonText}
 				</ButtonSpinner>
 			</LoginForm>
-		</>
+		</div>
 	);
 };
 

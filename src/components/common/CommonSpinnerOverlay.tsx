@@ -49,6 +49,8 @@ export const CommonSpinnerOverlay: React.FC<CommonSpinnerOverlayProps> = ({
 
 	return (
 		<div
+			role="button"
+			tabIndex={0}
 			style={{
 				position: 'fixed',
 				top: 0,

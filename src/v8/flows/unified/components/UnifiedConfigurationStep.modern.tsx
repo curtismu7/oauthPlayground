@@ -400,6 +400,7 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 								color: colors.neutral[700],
 								fontSize: typography.fontSize.sm,
 							}}
+							htmlFor="registrationflowtype"
 						>
 							Registration Flow Type
 						</label>

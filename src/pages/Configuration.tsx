@@ -12,7 +12,6 @@ import {
 	FiKey,
 	FiPackage,
 	FiPlay,
-	FiRefreshCw,
 	FiSave,
 	FiSettings,
 	FiTerminal,
@@ -20,13 +19,13 @@ import {
 import styled from 'styled-components';
 import packageJson from '../../package.json';
 import ConfigurationURIChecker from '../components/ConfigurationURIChecker';
+import { DomainConfiguration } from '../components/DomainConfiguration';
 import PingOneApplicationConfig, {
 	type PingOneApplicationState,
 } from '../components/PingOneApplicationConfig';
 import type { StepCredentials } from '../components/steps/CommonSteps';
+import { WorkerTokenButton } from '../components/WorkerTokenButton';
 import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
-import { WorkerTokenModal } from '../components/WorkerTokenModal';
-import { WorkerTokenStatusLabel } from '../components/WorkerTokenStatusLabel';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { callbackUriService } from '../services/callbackUriService';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
@@ -36,7 +35,10 @@ import { FlowHeader } from '../services/flowHeaderService';
 import { SaveButton } from '../services/saveButtonService';
 import { credentialManager } from '../utils/credentialManager';
 import { v4ToastManager } from '../utils/v4ToastMessages';
-import { WorkerTokenStatusServiceV8 } from '../v8/services/workerTokenStatusServiceV8';
+import {
+	type TokenStatusInfo,
+	WorkerTokenStatusServiceV8,
+} from '../v8/services/workerTokenStatusServiceV8';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -541,12 +543,10 @@ const Configuration: React.FC = () => {
 	});
 	const [pingOneConfigSaved, setPingOneConfigSaved] = useState(false);
 
-	const [workerTokenLoading, _setWorkerTokenLoading] = useState(false);
 	const [workerTokenError, _setWorkerTokenError] = useState<string | null>(null);
 	const [showWorkerToken, setShowWorkerToken] = useState(false);
-	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
-	const [tokenStatus, setTokenStatus] = useState(() =>
-		WorkerTokenStatusServiceV8.checkWorkerTokenStatus()
+	const [tokenStatus, setTokenStatus] = useState<TokenStatusInfo>(() =>
+		WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync()
 	);
 
 	// Load existing credentials on mount
@@ -687,6 +687,9 @@ const Configuration: React.FC = () => {
 				</p>
 			</Header>
 
+			{/* Domain Configuration Section */}
+			<DomainConfiguration />
+
 			{/* Worker Token Section - First Step */}
 			<CollapsibleHeader
 				title="Worker Token Credentials"
@@ -702,6 +705,24 @@ const Configuration: React.FC = () => {
 						</InfoBox>
 					)}
 
+					{/* Standardized Worker Token Button - matching MFA flow */}
+					<WorkerTokenButton
+						onTokenObtained={(token) => {
+							console.log('Configuration: Worker token obtained:', token);
+							// Update token status
+							const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
+							setTokenStatus(currentStatus);
+						}}
+						onModalClose={() => {
+							console.log('Configuration: Worker token modal closed');
+							// Refresh status when modal closes
+							const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
+							setTokenStatus(currentStatus);
+						}}
+						environmentId={credentials.environmentId || ''}
+						showRefresh={true}
+					/>
+
 					{tokenStatus.isValid && tokenStatus.token && (
 						<WorkerTokenDetectedBanner
 							token={tokenStatus.token}
@@ -713,69 +734,6 @@ const Configuration: React.FC = () => {
 							}
 						/>
 					)}
-
-					<div
-						style={{
-							marginBottom: '1rem',
-							display: 'flex',
-							flexDirection: 'column',
-							alignItems: 'flex-start',
-							gap: '0.35rem',
-						}}
-					>
-						<button
-							onClick={() => setShowWorkerTokenModal(true)}
-							disabled={workerTokenLoading}
-							style={{
-								background: tokenStatus.isValid ? '#10b981' : '#3b82f6',
-								color: 'white',
-								border: '1px solid #ffffff',
-								borderRadius: '0.5rem',
-								padding: '0.75rem 1.5rem',
-								fontSize: '0.875rem',
-								fontWeight: '600',
-								cursor: workerTokenLoading ? 'not-allowed' : 'pointer',
-								display: 'flex',
-								alignItems: 'center',
-								gap: '0.5rem',
-								transition: 'all 0.2s ease',
-								opacity: workerTokenLoading ? 0.6 : 1,
-							}}
-							onMouseEnter={(e) => {
-								if (!workerTokenLoading) {
-									e.currentTarget.style.backgroundColor = tokenStatus.isValid
-										? '#059669'
-										: '#2563eb';
-									e.currentTarget.style.borderColor = '#ffffff';
-								}
-							}}
-							onMouseLeave={(e) => {
-								if (!workerTokenLoading) {
-									e.currentTarget.style.backgroundColor = tokenStatus.isValid
-										? '#10b981'
-										: '#3b82f6';
-									e.currentTarget.style.borderColor = '#ffffff';
-								}
-							}}
-						>
-							{workerTokenLoading ? (
-								<FiRefreshCw size={16} className="animate-spin" />
-							) : (
-								<FiKey size={16} />
-							)}
-							{workerTokenLoading
-								? 'Getting Token...'
-								: tokenStatus.isValid
-									? 'Token Obtained'
-									: 'Get Worker Token'}
-						</button>
-						<WorkerTokenStatusLabel
-							token={tokenStatus.token || ''}
-							expiresAt={tokenStatus.expiresAt}
-							tokenStorageKey="worker_token"
-							tokenExpiryKey="worker_token_expires_at"
-						/>
-					</div>
 
 					{tokenStatus.isValid && tokenStatus.token && (
 						<div style={{ marginTop: '1rem' }}>
@@ -789,6 +747,7 @@ const Configuration: React.FC = () => {
 							>
 								<strong style={{ fontSize: '0.875rem' }}>Worker Token:</strong>
 								<button
+									type="button"
 									onClick={() => setShowWorkerToken(!showWorkerToken)}
 									style={{
 										background: 'none',
@@ -821,6 +780,7 @@ const Configuration: React.FC = () => {
 								}}
 							>
 								<button
+									type="button"
 									onClick={() => {
 										// TODO: Implement check config functionality
 										v4ToastManager.showInfo('Check Config functionality coming soon!');
@@ -860,6 +820,7 @@ const Configuration: React.FC = () => {
 								/>
 
 								<button
+									type="button"
 									onClick={() => {
 										// TODO: Implement create app functionality
 										v4ToastManager.showInfo('Create App functionality coming soon!');
@@ -1243,6 +1204,7 @@ cd oauthPlayground`}
 							}}
 						>
 							<button
+								type="button"
 								onClick={savePingOneConfig}
 								style={{
 									background: '#10b981',
@@ -1550,20 +1512,6 @@ cd oauthPlayground`}
 					</div>
 				</Card>
 			</CollapsibleHeader>
-			{showWorkerTokenModal && (
-				<WorkerTokenModal
-					isOpen={showWorkerTokenModal}
-					onClose={() => setShowWorkerTokenModal(false)}
-					onContinue={async () => {
-						// Re-check worker token status after modal closes
-						const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-						setTokenStatus(currentStatus);
-						setShowWorkerTokenModal(false);
-					}}
-					flowType="configuration"
-					environmentId={credentials.environmentId || ''}
-				/>
-			)}
 		</Container>
 	);
 };

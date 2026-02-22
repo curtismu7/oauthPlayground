@@ -764,6 +764,7 @@ const Login = () => {
 									>
 										PingOne OAuth/OIDC Playground v{packageJson.version}
 										<button
+											type="button"
 											onClick={() =>
 												copyToClipboard(
 													`PingOne OAuth/OIDC Playground v${packageJson.version}`,
@@ -851,6 +852,7 @@ const Login = () => {
 									>
 										{getCallbackUrlForFlow('dashboard')}
 										<button
+											type="button"
 											onClick={() =>
 												copyToClipboard(getCallbackUrlForFlow('dashboard'), 'setup-redirect-uri')
 											}
@@ -1188,6 +1190,7 @@ const Login = () => {
 											placeholder="Enter your application's Client Secret"
 										/>
 										<button
+											type="button"
 											onClick={toggleClientSecretVisibility}
 											type="button"
 											style={{

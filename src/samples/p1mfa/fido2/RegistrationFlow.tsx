@@ -218,6 +218,7 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
 					}}
 				/>
 				<button
+					type="button"
 					onClick={() => {
 						setStep('input');
 						setStatus('idle');
@@ -247,7 +248,11 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
 			{step === 'input' && (
 				<div>
 					<div style={{ marginBottom: '1rem' }}>
-						<label htmlFor="policyId" style={{ display: 'block', marginBottom: '0.5rem' }}>
+						<label
+							htmlFor="policyId"
+							style={{ display: 'block', marginBottom: '0.5rem' }}
+							htmlFor="deviceauthenticationpolicyid"
+						>
 							Device Authentication Policy ID *
 						</label>
 						<input
@@ -266,6 +271,7 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
 						/>
 					</div>
 					<button
+						type="button"
 						onClick={handleRegister}
 						disabled={!userId || !policyId}
 						style={{
@@ -325,6 +331,7 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
 						}}
 					/>
 					<button
+						type="button"
 						onClick={handleCreateCredential}
 						style={{
 							marginTop: '1rem',

@@ -1768,6 +1768,7 @@ const AuthorizationCodeFlow: React.FC = () => {
 						}}
 					>
 						<button
+							type="button"
 							onClick={() => {
 								setHasAttemptedAuthorization(true);
 
@@ -1804,6 +1805,7 @@ const AuthorizationCodeFlow: React.FC = () => {
 						</button>
 
 						<button
+							type="button"
 							onClick={() => copyToClipboard(authUrl)}
 							disabled={!authUrl}
 							style={{

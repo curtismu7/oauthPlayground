@@ -8424,6 +8424,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					<label
 						htmlFor={fragmentUrlInputId}
 						style={{ display: 'block', marginBottom: '4px', fontWeight: '600' }}
+						htmlFor="callbackurlwithfragment"
 					>
 						Callback URL (with fragment)
 					</label>
@@ -13109,6 +13110,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 		return (
 			<div
+				role="button"
+				tabIndex={0}
 				role="dialog"
 				aria-modal="true"
 				aria-labelledby="polling-timeout-title"
@@ -13133,6 +13136,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				}}
 			>
 				<div
+					role="button"
+					tabIndex={0}
 					style={{
 						backgroundColor: 'white',
 						borderRadius: '12px',
@@ -13293,6 +13298,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 		return (
 			<div
+				role="button"
+				tabIndex={0}
 				role="dialog"
 				aria-modal="true"
 				aria-labelledby="device-code-success-title"
@@ -13317,6 +13324,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				}}
 			>
 				<div
+					role="button"
+					tabIndex={0}
 					style={{
 						backgroundColor: 'white',
 						borderRadius: '12px',
@@ -13437,6 +13446,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 		return (
 			<div
+				role="button"
+				tabIndex={0}
 				role="dialog"
 				aria-modal="true"
 				aria-labelledby={callbackSuccessModalTitleId}
@@ -13460,6 +13471,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				}}
 			>
 				<div
+					role="button"
+					tabIndex={0}
 					style={{
 						backgroundColor: 'white',
 						borderRadius: '12px',
@@ -14427,6 +14440,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			{/* PingOne Request Details Modal */}
 			{showPingOneRequestModal && pendingPingOneRequest && (
 				<div
+					role="button"
+					tabIndex={0}
 					style={{
 						position: 'fixed',
 						top: 0,
@@ -14442,6 +14457,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					onClick={() => setShowPingOneRequestModal(false)}
 				>
 					<div
+						role="button"
+						tabIndex={0}
 						style={{
 							backgroundColor: 'white',
 							borderRadius: '8px',

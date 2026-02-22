@@ -24,7 +24,7 @@
  */
 
 import type React from 'react';
-import type { MFACredentials, MFAState } from '@/v8/flows/shared/MFATypes';
+import type { MFACredentials, MFAState } from '@/apps/mfa/flows/shared/MFATypes';
 
 /**
  * Device types supported by the unified flow

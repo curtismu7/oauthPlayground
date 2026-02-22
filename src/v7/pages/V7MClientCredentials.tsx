@@ -156,7 +156,7 @@ export const V7MClientCredentials: React.FC = () => {
 							/>
 						</label>
 					</div>
-					<button onClick={handleRequestToken} style={primaryBtn}>
+					<button type="button" onClick={handleRequestToken} style={primaryBtn}>
 						Request Access Token
 					</button>
 					{tokenResponse && (
@@ -167,13 +167,17 @@ export const V7MClientCredentials: React.FC = () => {
 							</div>
 							{accessToken && (
 								<div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-									<button onClick={() => setShowAccessModal(true)} style={secondaryBtn}>
+									<button
+										type="button"
+										onClick={() => setShowAccessModal(true)}
+										style={secondaryBtn}
+									>
 										Inspect Access Token
 									</button>
-									<button onClick={handleIntrospect} style={secondaryBtn}>
+									<button type="button" onClick={handleIntrospect} style={secondaryBtn}>
 										Introspect Token
 									</button>
-									<button onClick={handleUserInfo} style={secondaryBtn}>
+									<button type="button" onClick={handleUserInfo} style={secondaryBtn}>
 										Call UserInfo (Note: May not work for client_credentials tokens)
 									</button>
 								</div>

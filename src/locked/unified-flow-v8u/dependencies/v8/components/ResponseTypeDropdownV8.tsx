@@ -211,6 +211,7 @@ export const ResponseTypeDropdownV8: React.FC<ResponseTypeDropdownV8Props> = ({
 						fontWeight: '600',
 						color: '#1f2937', // Dark text on light background
 					}}
+					htmlFor="responsetype"
 				>
 					Response Type
 				</label>

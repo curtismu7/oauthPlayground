@@ -2,16 +2,6 @@
 // Modal for configuring worker token when not available
 
 import React, { useEffect, useState } from 'react';
-import {
-	FiAlertTriangle,
-	FiExternalLink,
-	FiEye,
-	FiEyeOff,
-	FiInfo,
-	FiKey,
-	FiRefreshCw,
-	FiSave,
-} from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { showTokenSuccessMessage } from '../services/tokenExpirationService';
@@ -36,16 +26,24 @@ type RequestDetails = {
 
 // Note: Worker tokens use roles, not scopes. Scopes are optional and not used for authorization.
 
-const InfoBox = styled.div<{ $variant: 'info' | 'warning' }>`
+const InfoBox = styled.div<{ $variant: 'info' | 'warning' | 'success' }>`
   display: flex;
   align-items: flex-start;
   gap: 0.5rem;
-  padding: 0.625rem;
-  border-radius: 0.375rem;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
   background: ${({ $variant }) =>
-		$variant === 'warning' ? 'rgba(251, 191, 36, 0.1)' : 'rgba(59, 130, 246, 0.1)'};
+		$variant === 'warning'
+			? 'rgba(245, 158, 11, 0.1)'
+			: $variant === 'success'
+				? 'rgba(16, 185, 129, 0.1)'
+				: 'rgba(59, 130, 246, 0.1)'};
   border: 1px solid ${({ $variant }) =>
-		$variant === 'warning' ? 'rgba(251, 191, 36, 0.3)' : 'rgba(59, 130, 246, 0.3)'};
+		$variant === 'warning'
+			? 'rgba(245, 158, 11, 0.3)'
+			: $variant === 'success'
+				? 'rgba(16, 185, 129, 0.3)'
+				: 'rgba(59, 130, 246, 0.3)'};
 `;
 
 const InfoContent = styled.div`
@@ -67,27 +65,36 @@ const InfoText = styled.div`
 const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'success' }>`
   display: inline-flex;
   align-items: center;
-  gap: 0.375rem;
-  padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
   border: none;
   background: ${({ $variant }) =>
-		$variant === 'secondary' ? '#e5e7eb' : $variant === 'success' ? '#10b981' : '#2563eb'};
+		$variant === 'secondary' ? '#f3f4f6' : $variant === 'success' ? '#10b981' : '#2563eb'};
   color: ${({ $variant }) => ($variant === 'secondary' ? '#1f2937' : '#ffffff')};
   font-weight: 600;
   cursor: pointer;
-  transition: background 120ms ease;
-  font-size: 0.8125rem;
+  transition: all 0.15s ease-in-out;
+  font-size: 0.875rem;
   text-decoration: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
   &:hover {
     background: ${({ $variant }) =>
-			$variant === 'secondary' ? '#d1d5db' : $variant === 'success' ? '#059669' : '#1e40af'};
+			$variant === 'secondary' ? '#e5e7eb' : $variant === 'success' ? '#059669' : '#1e40af'};
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
 
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+    transform: none;
   }
 `;
 
@@ -190,7 +197,7 @@ const PasswordToggle = styled.button`
   }
 `;
 
-const LoadingSpinner = styled.div`
+const _LoadingSpinner = styled.div`
   display: inline-block;
   width: 16px;
   height: 16px;
@@ -1374,245 +1381,252 @@ export const WorkerTokenModal: React.FC<Props> = ({
 				onClose={onClose}
 				title={skipCredentialsStep ? 'Get Worker Token' : 'Worker Token Required'}
 				maxHeight="calc(100vh - 4rem)"
-				width="min(900px, calc(100vw - 2rem))"
+				width="min(1200px, calc(100vw - 2rem))"
 			>
-				<div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-					{!skipCredentialsStep && (
-						<InfoBox $variant="warning">
-							<FiAlertTriangle
-								size={16}
-								style={{ flexShrink: 0, color: '#f59e0b', marginTop: '0.125rem' }}
-							/>
-							<InfoContent>
-								<InfoTitle style={{ fontSize: '0.875rem', marginBottom: '0.125rem' }}>
-									Worker Token Required
-								</InfoTitle>
-								<InfoText>
-									Generate a PingOne worker token to unlock Config Checker features.
-								</InfoText>
-							</InfoContent>
-						</InfoBox>
-					)}
-
-					{showTokenGenerated ? (
-						<>
-							<InfoBox $variant="info">
-								<FiInfo
-									size={16}
-									style={{ flexShrink: 0, color: '#10b981', marginTop: '0.125rem' }}
-								/>
-								<InfoContent>
-									<InfoTitle
-										style={{ fontSize: '0.875rem', marginBottom: '0.125rem', color: '#10b981' }}
-									>
-										✅ Worker Token Generated Successfully!
-									</InfoTitle>
-									<InfoText>
-										Your worker token has been generated and saved. You can continue with the
-										current flow or generate another token if needed.
-									</InfoText>
-								</InfoContent>
-							</InfoBox>
-
-							<ButtonGroup>
-								<ActionButton $variant="success" onClick={onContinue}>
-									✓ Continue with Current Token
-								</ActionButton>
-								<ActionButton onClick={() => setShowTokenGenerated(false)}>
-									<FiRefreshCw />
-									Generate Another Token
-								</ActionButton>
-								<ActionButton
-									$variant="secondary"
-									onClick={handleGetWorkerToken}
-									disabled={isNavigating}
-								>
-									<FiExternalLink />
-									Use Client Generator
-								</ActionButton>
-							</ButtonGroup>
-						</>
-					) : !showForm ? (
-						<>
-							<InfoBox $variant="info">
-								<FiInfo
-									size={16}
-									style={{ flexShrink: 0, color: '#3b82f6', marginTop: '0.125rem' }}
-								/>
+				{/* Ping UI Wrapper */}
+				<div className="end-user-nano">
+					<div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+						{!skipCredentialsStep && (
+							<InfoBox $variant="warning">
+								<span
+									className="mdi mdi-alert"
+									style={{
+										flexShrink: 0,
+										color: '#f59e0b',
+										fontSize: '16px',
+										marginTop: '0.125rem',
+									}}
+								></span>
 								<InfoContent>
 									<InfoTitle style={{ fontSize: '0.875rem', marginBottom: '0.125rem' }}>
-										Get Worker Token
+										Worker Token Required
 									</InfoTitle>
 									<InfoText>
-										Enter your PingOne worker app credentials, then generate a token. You can also
-										jump to Client Generator if you prefer.
+										Generate a PingOne worker token to unlock Config Checker features.
 									</InfoText>
 								</InfoContent>
 							</InfoBox>
+						)}
 
-							<ButtonGroup>
-								<ActionButton onClick={() => setShowForm(true)}>
-									<FiKey />
-									Generate Worker Token Here
-								</ActionButton>
-								<ActionButton onClick={handleGetWorkerToken} disabled={isNavigating}>
-									<FiExternalLink />
-									Use Client Generator
-								</ActionButton>
-								<ActionButton $variant="secondary" onClick={handleContinueWithoutToken}>
-									Continue Without Config Checker
-								</ActionButton>
-							</ButtonGroup>
-						</>
-					) : (
-						<>
-							{skipCredentialsStep && (
-								<InfoBox $variant="info">
-									<FiInfo
-										size={16}
-										style={{ flexShrink: 0, color: '#3b82f6', marginTop: '0.125rem' }}
-									/>
-									<InfoContent>
-										<InfoTitle style={{ fontSize: '0.875rem', marginBottom: '0.125rem' }}>
-											Enter Credentials
-										</InfoTitle>
-										<InfoText>Provide worker app credentials, then generate your token.</InfoText>
-									</InfoContent>
-								</InfoBox>
-							)}
-							{!skipCredentialsStep && (
-								<InfoBox $variant="info">
-									<FiInfo
-										size={16}
-										style={{ flexShrink: 0, color: '#3b82f6', marginTop: '0.125rem' }}
-									/>
-									<InfoContent>
-										<InfoTitle style={{ fontSize: '0.875rem', marginBottom: '0.125rem' }}>
-											Enter Credentials
-										</InfoTitle>
-										<InfoText>Provide worker app credentials, then generate your token.</InfoText>
-									</InfoContent>
-								</InfoBox>
-							)}
-
-							<FormSection>
-								<FormField>
-									<FormLabel>
-										Environment ID <span style={{ color: '#ef4444' }}>*</span>
-									</FormLabel>
-									<FormInput
-										type="text"
-										placeholder="e.g., b9817c16-9910-4415-b67e-4ac687da74d9"
-										value={workerCredentials.environmentId || ''}
-										onChange={(e) =>
-											setWorkerCredentials((prev) => ({
-												...prev,
-												environmentId: e.target.value.trim(),
-											}))
-										}
+						{showTokenGenerated ? (
+							<>
+								<InfoBox $variant="success">
+									<span
+										className="mdi mdi-information"
 										style={{
-											borderColor: !workerCredentials.environmentId ? '#ef4444' : undefined,
+											flexShrink: 0,
+											color: '#10b981',
+											fontSize: '16px',
+											marginTop: '0.125rem',
 										}}
-									/>
-									{!workerCredentials.environmentId && (
-										<div style={{ fontSize: '0.75rem', color: '#ef4444', marginTop: '0.25rem' }}>
-											Environment ID is required
-										</div>
-									)}
-								</FormField>
+									></span>
+									<InfoContent>
+										<InfoTitle
+											style={{ fontSize: '0.875rem', marginBottom: '0.125rem', color: '#10b981' }}
+										>
+											✅ Worker Token Generated Successfully!
+										</InfoTitle>
+										<InfoText>
+											Your worker token has been generated and saved. You can continue with the
+											current flow or generate another token if needed.
+										</InfoText>
+									</InfoContent>
+								</InfoBox>
 
-								<FormField>
-									<FormLabel>Region</FormLabel>
-									<FormInput
-										as="select"
-										value={workerCredentials.region}
-										onChange={(e) =>
-											setWorkerCredentials((prev) => ({ ...prev, region: e.target.value }))
-										}
-									>
-										<option value="us">US (auth.pingone.com)</option>
-										<option value="eu">Europe (auth.pingone.eu)</option>
-										<option value="ap">Asia Pacific (auth.pingone.asia)</option>
-										<option value="ca">Canada (auth.pingone.ca)</option>
-									</FormInput>
-								</FormField>
+								<ButtonGroup>
+									<ActionButton $variant="success" onClick={onContinue}>
+										✓ Continue with Current Token
+									</ActionButton>
+									<ActionButton onClick={() => setShowTokenGenerated(false)}>
+										<span className="mdi mdi-refresh"></span>
+										Generate Another Token
+									</ActionButton>
+									<ActionButton onClick={handleGetWorkerToken} disabled={isNavigating}>
+										<span className="mdi mdi-open-in-new"></span>
+										Use Client Generator
+									</ActionButton>
+								</ButtonGroup>
+							</>
+						) : !showForm ? (
+							<>
+								<InfoBox $variant="info">
+									<span
+										className="mdi mdi-information"
+										style={{
+											flexShrink: 0,
+											color: '#3b82f6',
+											fontSize: '16px',
+											marginTop: '0.125rem',
+										}}
+									></span>
+									<InfoContent>
+										<InfoTitle style={{ fontSize: '0.875rem', marginBottom: '0.125rem' }}>
+											Get Worker Token
+										</InfoTitle>
+										<InfoText>
+											Enter your PingOne worker app credentials, then generate a token. You can also
+											jump to Client Generator if you prefer.
+										</InfoText>
+									</InfoContent>
+								</InfoBox>
 
-								<FormField>
-									<FormLabel>Client ID *</FormLabel>
-									<FormInput
-										type="text"
-										placeholder="e.g., 5ac8ccd7-7ebc-4684-b0d9-233705e87a7c"
-										value={workerCredentials.clientId}
-										onChange={(e) =>
-											setWorkerCredentials((prev) => ({ ...prev, clientId: e.target.value }))
-										}
-									/>
-								</FormField>
+								<ButtonGroup>
+									<ActionButton onClick={() => setShowForm(true)}>
+										<span className="mdi mdi-key"></span>
+										Generate Worker Token Here
+									</ActionButton>
+									<ActionButton onClick={handleGetWorkerToken} disabled={isNavigating}>
+										<span className="mdi mdi-open-in-new"></span>
+										Use Client Generator
+									</ActionButton>
+									<ActionButton $variant="secondary" onClick={handleContinueWithoutToken}>
+										Continue Without Config Checker
+									</ActionButton>
+								</ButtonGroup>
+							</>
+						) : (
+							<>
+								{skipCredentialsStep && (
+									<InfoBox $variant="info">
+										<span
+											className="mdi mdi-information"
+											style={{
+												flexShrink: 0,
+												color: '#3b82f6',
+												fontSize: '16px',
+												marginTop: '0.125rem',
+											}}
+										></span>
+										<InfoContent>
+											<InfoTitle style={{ fontSize: '0.875rem', marginBottom: '0.125rem' }}>
+												Enter Credentials
+											</InfoTitle>
+											<InfoText>Provide worker app credentials, then generate your token.</InfoText>
+										</InfoContent>
+									</InfoBox>
+								)}
+								{!skipCredentialsStep && (
+									<InfoBox $variant="info">
+										<span
+											className="mdi mdi-information"
+											style={{
+												flexShrink: 0,
+												color: '#3b82f6',
+												fontSize: '16px',
+												marginTop: '0.125rem',
+											}}
+										></span>
+										<InfoContent>
+											<InfoTitle style={{ fontSize: '0.875rem', marginBottom: '0.125rem' }}>
+												Enter Credentials
+											</InfoTitle>
+											<InfoText>Provide worker app credentials, then generate your token.</InfoText>
+										</InfoContent>
+									</InfoBox>
+								)}
 
-								<FormField>
-									<FormLabel>Client Secret *</FormLabel>
-									<PasswordInput>
+								<FormSection>
+									<FormField>
+										<FormLabel>
+											Environment ID <span style={{ color: '#ef4444' }}>*</span>
+										</FormLabel>
 										<FormInput
-											type={showPassword ? 'text' : 'password'}
-											placeholder="Enter your client secret"
-											value={workerCredentials.clientSecret}
+											type="text"
+											placeholder="e.g., b9817c16-9910-4415-b67e-4ac687da74d9"
+											value={workerCredentials.environmentId || ''}
 											onChange={(e) =>
-												setWorkerCredentials((prev) => ({ ...prev, clientSecret: e.target.value }))
+												setWorkerCredentials((prev) => ({
+													...prev,
+													environmentId: e.target.value.trim(),
+												}))
+											}
+											style={{
+												borderColor: !workerCredentials.environmentId ? '#ef4444' : undefined,
+											}}
+										/>
+										{!workerCredentials.environmentId && (
+											<div style={{ fontSize: '0.75rem', color: '#ef4444', marginTop: '0.25rem' }}>
+												Environment ID is required
+											</div>
+										)}
+									</FormField>
+
+									<FormField>
+										<FormLabel>Region</FormLabel>
+										<FormInput
+											as="select"
+											value={workerCredentials.region}
+											onChange={(e) =>
+												setWorkerCredentials((prev) => ({ ...prev, region: e.target.value }))
+											}
+										>
+											<option value="us">US (auth.pingone.com)</option>
+											<option value="eu">Europe (auth.pingone.eu)</option>
+											<option value="ap">Asia Pacific (auth.pingone.asia)</option>
+											<option value="ca">Canada (auth.pingone.ca)</option>
+										</FormInput>
+									</FormField>
+
+									<FormField>
+										<FormLabel>Client ID *</FormLabel>
+										<FormInput
+											type="text"
+											placeholder="e.g., 5ac8ccd7-7ebc-4684-b0d9-233705e87a7c"
+											value={workerCredentials.clientId}
+											onChange={(e) =>
+												setWorkerCredentials((prev) => ({ ...prev, clientId: e.target.value }))
 											}
 										/>
-										<PasswordToggle onClick={() => setShowPassword(!showPassword)}>
-											{showPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
-										</PasswordToggle>
-									</PasswordInput>
-								</FormField>
+									</FormField>
 
-								<FormField>
-									<FormLabel>Token Endpoint Authentication Method</FormLabel>
-									<FormSelect
-										value={workerCredentials.authMethod}
-										onChange={(e) =>
-											setWorkerCredentials((prev) => ({
-												...prev,
-												authMethod: e.target.value as
-													| 'none'
-													| 'client_secret_basic'
-													| 'client_secret_post'
-													| 'client_secret_jwt'
-													| 'private_key_jwt',
-											}))
-										}
-									>
-										<option value="none" disabled>
-											None
-										</option>
-										<option value="client_secret_basic">Client Secret Basic</option>
-										<option value="client_secret_post">Client Secret Post</option>
-										<option value="client_secret_jwt">Client Secret JWT</option>
-										<option value="private_key_jwt">Private Key JWT</option>
-									</FormSelect>
-									<div
-										style={{
-											fontSize: '0.75rem',
-											color: '#6b7280',
-											marginTop: '0.125rem',
-											lineHeight: '1.3',
-										}}
-									>
-										💡 Use "Client Secret Post" for most PingOne applications.
-									</div>
-								</FormField>
+									<FormField>
+										<FormLabel>Client Secret *</FormLabel>
+										<PasswordInput>
+											<FormInput
+												type={showPassword ? 'text' : 'password'}
+												placeholder="Enter your client secret"
+												value={workerCredentials.clientSecret}
+												onChange={(e) =>
+													setWorkerCredentials((prev) => ({
+														...prev,
+														clientSecret: e.target.value,
+													}))
+												}
+											/>
+											<PasswordToggle onClick={() => setShowPassword(!showPassword)}>
+												{showPassword ? (
+													<span className="mdi mdi-eye-off" style={{ fontSize: '16px' }}></span>
+												) : (
+													<span className="mdi mdi-eye" style={{ fontSize: '16px' }}></span>
+												)}
+											</PasswordToggle>
+										</PasswordInput>
+									</FormField>
 
-								<FormField>
-									<FormLabel>Scopes</FormLabel>
-									<FormInput
-										type="text"
-										placeholder="Leave empty or enter scope (e.g., p1:read:users)"
-										value={workerCredentials.scopes || ''}
-										onChange={(e) =>
-											setWorkerCredentials((prev) => ({ ...prev, scopes: e.target.value }))
-										}
-									/>
-									{!educationalMode && (
+									<FormField>
+										<FormLabel>Token Endpoint Authentication Method</FormLabel>
+										<FormSelect
+											value={workerCredentials.authMethod}
+											onChange={(e) =>
+												setWorkerCredentials((prev) => ({
+													...prev,
+													authMethod: e.target.value as
+														| 'none'
+														| 'client_secret_basic'
+														| 'client_secret_post'
+														| 'client_secret_jwt'
+														| 'private_key_jwt',
+												}))
+											}
+										>
+											<option value="none" disabled>
+												None
+											</option>
+											<option value="client_secret_basic">Client Secret Basic</option>
+											<option value="client_secret_post">Client Secret Post</option>
+											<option value="client_secret_jwt">Client Secret JWT</option>
+											<option value="private_key_jwt">Private Key JWT</option>
+										</FormSelect>
 										<div
 											style={{
 												fontSize: '0.75rem',
@@ -1621,89 +1635,117 @@ export const WorkerTokenModal: React.FC<Props> = ({
 												lineHeight: '1.3',
 											}}
 										>
-											Scopes are optional and not used for authorization. Worker tokens use roles.
+											💡 Use "Client Secret Post" for most PingOne applications.
+										</div>
+									</FormField>
+
+									<FormField>
+										<FormLabel>Scopes</FormLabel>
+										<FormInput
+											type="text"
+											placeholder="Leave empty or enter scope (e.g., p1:read:users)"
+											value={workerCredentials.scopes || ''}
+											onChange={(e) =>
+												setWorkerCredentials((prev) => ({ ...prev, scopes: e.target.value }))
+											}
+										/>
+										{!educationalMode && (
+											<div
+												style={{
+													fontSize: '0.75rem',
+													color: '#6b7280',
+													marginTop: '0.125rem',
+													lineHeight: '1.3',
+												}}
+											>
+												Scopes are optional and not used for authorization. Worker tokens use roles.
+											</div>
+										)}
+									</FormField>
+								</FormSection>
+
+								<StickyFooter>
+									<ButtonGroup>
+										<ActionButton
+											onClick={handleGenerateWorkerToken}
+											disabled={
+												isGenerating ||
+												!workerCredentials.environmentId ||
+												!workerCredentials.clientId ||
+												!workerCredentials.clientSecret
+											}
+										>
+											{isGenerating ? (
+												<span className="mdi mdi-refresh"></span>
+											) : (
+												<span className="mdi mdi-refresh"></span>
+											)}
+											{isGenerating ? 'Generating...' : 'Generate Worker Token'}
+										</ActionButton>
+										<ActionButton
+											$variant="success"
+											onClick={handleSaveCredentials}
+											disabled={
+												isGenerating ||
+												!workerCredentials.environmentId ||
+												!workerCredentials.clientId ||
+												!workerCredentials.clientSecret
+											}
+										>
+											<span className="mdi mdi-content-save"></span>
+											Save Credentials
+										</ActionButton>
+										<ActionButton
+											$variant="secondary"
+											onClick={handleClearSavedCredentials}
+											disabled={isGenerating}
+										>
+											🗑️ Clear Saved Credentials
+										</ActionButton>
+										<ActionButton $variant="secondary" onClick={() => setShowForm(false)}>
+											Cancel
+										</ActionButton>
+									</ButtonGroup>
+
+									{/* Standardized Export/Import */}
+									{workerCredentials.clientId && workerCredentials.clientSecret && (
+										<div
+											style={{
+												marginTop: '1rem',
+												borderTop: '1px solid #e2e8f0',
+												paddingTop: '1rem',
+											}}
+										>
+											<StandardizedCredentialExportImport
+												appName="Worker Token"
+												appType="worker-token"
+												credentials={{
+													environmentId: workerCredentials.environmentId,
+													clientId: workerCredentials.clientId,
+													clientSecret: workerCredentials.clientSecret,
+													region: workerCredentials.region || 'us',
+													tokenEndpointAuthMethod:
+														workerCredentials.tokenEndpointAuthMethod || 'client_secret_basic',
+													scopes: workerCredentials.scopes || [],
+												}}
+												metadata={{
+													workflow: 'worker-token',
+													description: 'Worker Token credentials for PingOne API access',
+												}}
+												onExport={() => {
+													console.log('WorkerTokenModal: Credentials exported');
+												}}
+												onImport={(imported) => {
+													console.log('WorkerTokenModal: Credentials imported', imported);
+													window.location.reload();
+												}}
+											/>
 										</div>
 									)}
-								</FormField>
-							</FormSection>
-
-							<StickyFooter>
-								<ButtonGroup>
-									<ActionButton
-										onClick={handleGenerateWorkerToken}
-										disabled={
-											isGenerating ||
-											!workerCredentials.environmentId ||
-											!workerCredentials.clientId ||
-											!workerCredentials.clientSecret
-										}
-									>
-										{isGenerating ? <LoadingSpinner /> : <FiRefreshCw />}
-										{isGenerating ? 'Generating...' : 'Generate Worker Token'}
-									</ActionButton>
-									<ActionButton
-										$variant="success"
-										onClick={handleSaveCredentials}
-										disabled={
-											isGenerating ||
-											!workerCredentials.environmentId ||
-											!workerCredentials.clientId ||
-											!workerCredentials.clientSecret
-										}
-									>
-										<FiSave />
-										Save Credentials
-									</ActionButton>
-									<ActionButton
-										$variant="secondary"
-										onClick={handleClearSavedCredentials}
-										disabled={isGenerating}
-									>
-										🗑️ Clear Saved Credentials
-									</ActionButton>
-									<ActionButton $variant="secondary" onClick={() => setShowForm(false)}>
-										Cancel
-									</ActionButton>
-								</ButtonGroup>
-
-								{/* Standardized Export/Import */}
-								{workerCredentials.clientId && workerCredentials.clientSecret && (
-									<div
-										style={{
-											marginTop: '1rem',
-											borderTop: '1px solid #e2e8f0',
-											paddingTop: '1rem',
-										}}
-									>
-										<StandardizedCredentialExportImport
-											appName="Worker Token"
-											appType="worker-token"
-											credentials={{
-												environmentId: workerCredentials.environmentId,
-												clientId: workerCredentials.clientId,
-												clientSecret: workerCredentials.clientSecret,
-												region: workerCredentials.region || 'us',
-												tokenEndpointAuthMethod:
-													workerCredentials.tokenEndpointAuthMethod || 'client_secret_basic',
-												scopes: workerCredentials.scopes || [],
-											}}
-											metadata={{
-												workflow: 'worker-token',
-												description: 'Worker Token credentials for PingOne API access',
-											}}
-											onExport={() => {
-												console.log('WorkerTokenModal: Credentials exported');
-											}}
-											onImport={(imported) => {
-												console.log('WorkerTokenModal: Credentials imported', imported);
-												window.location.reload();
-											}}
-										/>
-									</div>
-								)}
-							</StickyFooter>
-						</>
-					)}
+								</StickyFooter>
+							</>
+						)}
+					</div>
 				</div>
 			</DraggableModal>
 

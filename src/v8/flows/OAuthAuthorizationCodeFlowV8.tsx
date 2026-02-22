@@ -415,7 +415,9 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 			<p>After authenticating, you'll be redirected back here with an authorization code.</p>
 
 			<div className="form-group">
-				<label htmlFor="oauth-callback-url">Callback URL</label>
+				<label htmlFor="oauth-callback-url" htmlFor="callbackurl">
+					Callback URL
+				</label>
 				<input
 					id="oauth-callback-url"
 					type="text"

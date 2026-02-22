@@ -6,8 +6,8 @@ import { FiCheckCircle, FiCopy, FiInfo, FiKey, FiRefreshCw, FiX } from 'react-ic
 import styled from 'styled-components';
 import { callbackUriService } from '../services/callbackUriService';
 import { fetchApplications } from '../services/pingOneApplicationService';
+import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
-import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
 import { WorkerTokenModal } from './WorkerTokenModal';
 
 export interface ConfigurationURICheckerProps {
@@ -224,7 +224,7 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 	useEffect(() => {
 		const checkWorkerToken = async () => {
 			try {
-				const token = await workerTokenServiceV8.getToken();
+				const token = await unifiedWorkerTokenService.getToken();
 				if (token) {
 					console.log('[Config URI Checker] ✅ Worker token valid from global service');
 					setRetrievedWorkerToken(token);

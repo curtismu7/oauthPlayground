@@ -121,7 +121,12 @@ export const ComponentTestSuiteV8: React.FC<ComponentTestSuiteV8Props> = ({
 			<div className="test-header">
 				<h3>Component Test Suite</h3>
 				<div className="test-controls">
-					<button className="run-tests-btn" onClick={runComponentTests} disabled={isRunning}>
+					<button
+						type="button"
+						className="run-tests-btn"
+						onClick={runComponentTests}
+						disabled={isRunning}
+					>
 						{isRunning ? 'Running Tests...' : 'Run All Tests'}
 					</button>
 					{autoRun && <span className="auto-run-indicator">Auto-run enabled</span>}

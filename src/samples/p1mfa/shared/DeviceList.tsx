@@ -59,6 +59,7 @@ export const DeviceList: React.FC<DeviceListProps> = ({ devices, onDelete, loadi
 						</div>
 						{onDelete && (
 							<button
+								type="button"
 								onClick={() => onDelete(device.id)}
 								style={{
 									padding: '0.5rem 1rem',

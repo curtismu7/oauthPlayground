@@ -12,7 +12,7 @@
  */
 
 import React from 'react';
-import { MFAEducationServiceV8 } from '@/v8/services/mfaEducationServiceV8';
+import { MFAEducationServiceV8 } from '@/apps/mfa/services/mfaEducationServiceV8';
 import { MFAInfoButtonV8 } from '../MFAInfoButtonV8';
 
 /**

@@ -4006,6 +4006,7 @@ export { changePassword, handleChangePassword };`;
 									Configuration Required
 								</h2>
 								<button
+									type="button"
 									onClick={() => setShowSetupModal(false)}
 									style={{
 										background: 'none',

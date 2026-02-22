@@ -186,6 +186,7 @@ const ServerHealthCheck: React.FC<ServerHealthCheckProps> = ({ onDismiss }) => {
 		}, 2000); // 2 second delay
 
 		return () => clearTimeout(timer);
+		// biome-ignore lint/correctness/useExhaustiveDependencies: Only run once on mount
 	}, [checkServerHealth]);
 
 	// Periodic checks every 30 seconds
@@ -197,6 +198,7 @@ const ServerHealthCheck: React.FC<ServerHealthCheckProps> = ({ onDismiss }) => {
 		}, 30000);
 
 		return () => clearInterval(interval);
+		// biome-ignore lint/correctness/useExhaustiveDependencies: Only run when status changes
 	}, [status, checkServerHealth]);
 
 	const handleRetry = () => {

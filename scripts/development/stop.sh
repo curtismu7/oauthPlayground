@@ -3,7 +3,7 @@
 ###############################################################################
 # ⚠️ CRITICAL FILE - DO NOT DELETE OR MOVE ⚠️
 # 
-# This file stops all OAuth Playground servers (frontend and backend).
+# This file stops all MasterFlow API servers (frontend and backend).
 # It kills processes, cleans up PID files, and frees ports.
 #
 # PROTECTION:
@@ -14,7 +14,7 @@
 #
 ###############################################################################
 
-# OAuth Playground - Server Stop Script
+# MasterFlow API - Server Stop Script
 # Kills all servers, cleans up PID files, and frees ports
 # Version: 1.0.0
 
@@ -27,7 +27,7 @@ PURPLE='\033[0;35m'
 CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
-# Configuration - Fixed ports for OAuth Playground
+# Configuration - Fixed ports for MasterFlow API
 # These ports are hardcoded to ensure consistency with OAuth redirect URIs
 # and API endpoint configurations. Do not change these values.
 FRONTEND_PORT=3000  # Vite dev server (HTTPS)
@@ -65,7 +65,7 @@ show_banner() {
     echo -e "${PURPLE}"
     echo "╔══════════════════════════════════════════════════════════════════════════════╗"
     echo "║                                                                              ║"
-    echo "║                    🛑 OAuth Playground Server Stop 🛑                        ║"
+    echo "║                    🛑 MasterFlow API Server Stop 🛑                        ║"
     echo "║                                                                              ║"
     echo "║  Frontend: https://localhost:3000 (Vite Dev Server)                        ║"
     echo "║  Backend:  https://localhost:3001 (Express API Server - HTTPS)              ║"
@@ -95,7 +95,7 @@ get_port_process() {
     lsof -Pi :$port -sTCP:LISTEN -t 2>/dev/null || echo ""
 }
 
-# Function to kill all OAuth playground related processes
+# Function to kill all MasterFlow API related processes
 kill_all_servers() {
     print_status "🛑 Killing all existing servers..."
     
@@ -172,7 +172,7 @@ while [ $# -gt 0 ]; do
             echo "Usage: $0 [OPTIONS]"
             echo ""
             echo "Purpose:"
-            echo "  Stop all OAuth Playground dev servers (frontend + backend HTTPS),"
+            echo "  Stop all MasterFlow API dev servers (frontend + backend HTTPS),"
             echo "  clean up PID files, and free ports 3000 and 3001."
             echo ""
             echo "Servers and ports:"
@@ -214,7 +214,7 @@ main() {
     
     # Check if we're in the right directory
     if [ ! -f "package.json" ] || [ ! -f "server.js" ]; then
-        print_warning "This doesn't appear to be the OAuth Playground directory"
+        print_warning "This doesn't appear to be the MasterFlow API directory"
         print_info "Current directory: $(pwd)"
         echo ""
         echo -n "Continue anyway? (y/N): "

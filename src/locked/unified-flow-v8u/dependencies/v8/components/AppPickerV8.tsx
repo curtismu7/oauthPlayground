@@ -286,6 +286,8 @@ export const AppPickerV8: React.FC<AppPickerV8Props> = ({ environmentId, onAppSe
 				>
 					{apps.map((app) => (
 						<div
+							role="button"
+							tabIndex={0}
 							key={app.id}
 							onClick={() => handleSelectApp(app)}
 							style={{

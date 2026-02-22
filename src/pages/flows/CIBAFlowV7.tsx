@@ -1110,6 +1110,8 @@ const CIBAFlowV7: React.FC = () => {
 							<FormGrid>
 								{/* Banking Transaction Approval */}
 								<div
+									role="button"
+									tabIndex={0}
 									style={{
 										padding: '1.5rem',
 										border: '2px solid #e2e8f0',
@@ -1211,6 +1213,8 @@ const CIBAFlowV7: React.FC = () => {
 
 								{/* Payment Authorization */}
 								<div
+									role="button"
+									tabIndex={0}
 									style={{
 										padding: '1.5rem',
 										border: '2px solid #e2e8f0',
@@ -1312,6 +1316,8 @@ const CIBAFlowV7: React.FC = () => {
 
 								{/* Account Recovery Approval */}
 								<div
+									role="button"
+									tabIndex={0}
 									style={{
 										padding: '1.5rem',
 										border: '2px solid #e2e8f0',
@@ -1667,6 +1673,8 @@ const CIBAFlowV7: React.FC = () => {
 												</strong>
 											</p>
 											<div
+												role="button"
+												tabIndex={0}
 												style={{
 													background: '#ffffff',
 													padding: '0.75rem',

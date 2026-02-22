@@ -14,14 +14,10 @@
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FiAlertCircle, FiKey, FiLoader, FiTrash2, FiX } from 'react-icons/fi';
 import { useLocation } from 'react-router-dom';
 import { useProductionSpinner } from '@/hooks/useProductionSpinner';
-import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import type { SearchableDropdownOption } from '@/v8/components/SearchableDropdownV8';
 import { SearchableDropdownV8 } from '@/v8/components/SearchableDropdownV8';
-import { ShowTokenConfigCheckboxV8 } from '@/v8/components/ShowTokenConfigCheckboxV8';
-import { SilentApiConfigCheckboxV8 } from '@/v8/components/SilentApiConfigCheckboxV8';
 import {
 	ApiDisplayCheckbox,
 	SuperSimpleApiDisplayV8,
@@ -35,6 +31,7 @@ import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationService
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { StorageServiceV8 } from '@/v8/services/storageServiceV8';
 import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
+import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
@@ -216,24 +213,6 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 
-	// Worker Token Settings State
-	const [silentApiRetrieval, setSilentApiRetrieval] = useState(() => {
-		try {
-			const config = MFAConfigurationServiceV8.loadConfiguration();
-			return config.workerToken.silentApiRetrieval;
-		} catch {
-			return false;
-		}
-	});
-	const [showTokenAtEnd, setShowTokenAtEnd] = useState(() => {
-		try {
-			const config = MFAConfigurationServiceV8.loadConfiguration();
-			return config.workerToken.showTokenAtEnd;
-		} catch {
-			return false;
-		}
-	});
-
 	// Get worker token status
 	const [tokenStatus, setTokenStatus] = useState<{
 		isValid: boolean;
@@ -272,12 +251,32 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 		[users]
 	);
 
+	// Handle domain changes to clear invalid tokens
+	useEffect(() => {
+		const handleDomainChange = async () => {
+			try {
+				const { DomainConfigurationService } = await import(
+					'@/services/domainConfigurationService'
+				);
+				const domainService = DomainConfigurationService.getInstance();
+				await domainService.handleDomainChange();
+			} catch (error) {
+				console.warn(`${MODULE_TAG} Failed to handle domain change:`, error);
+			}
+		};
+
+		handleDomainChange();
+	}, []);
+
 	// Update token status periodically
 	useEffect(() => {
 		const updateTokenStatus = async () => {
 			try {
 				const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-				setTokenStatus(status);
+				setTokenStatus({
+					isValid: status.isValid,
+					minutesRemaining: status.minutesRemaining || 0,
+				});
 			} catch (error) {
 				console.error(`${MODULE_TAG} Failed to check token status`, error);
 				setTokenStatus({ isValid: false, minutesRemaining: 0 });
@@ -303,7 +302,10 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 		const handleTokenUpdate = async () => {
 			try {
 				const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-				setTokenStatus(status);
+				setTokenStatus({
+					isValid: status.isValid,
+					minutesRemaining: status.minutesRemaining || 0,
+				});
 			} catch (error) {
 				console.error(`${MODULE_TAG} Failed to check token status in event handler:`, error);
 			}
@@ -328,7 +330,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 			try {
 				// If environment ID is empty, try to populate from worker token credentials
 				if (!environmentId.trim()) {
-					const credentials = await unifiedWorkerTokenService.loadCredentials();
+					const credentials = await workerTokenServiceV8.loadCredentials();
 					if (credentials?.environmentId) {
 						setEnvironmentId(credentials.environmentId);
 						console.log(
@@ -350,6 +352,49 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 	const selectedCount = devices.filter((device) =>
 		selectedDeviceIds.has(device.id as string)
 	).length;
+
+	// Helper functions for device display
+	const getStatusColor = (status: string): string => {
+		switch (status?.toUpperCase()) {
+			case 'ACTIVE':
+				return 'success';
+			case 'ACTIVATION_REQUIRED':
+				return 'warning';
+			case 'BLOCKED':
+				return 'danger';
+			case 'LOCKED':
+				return 'danger';
+			case 'PENDING':
+				return 'info';
+			case 'SUSPENDED':
+				return 'secondary';
+			case 'EXPIRED':
+				return 'dark';
+			default:
+				return 'secondary';
+		}
+	};
+
+	const getDeviceIcon = (type: string): string => {
+		switch (type?.toUpperCase()) {
+			case 'SMS':
+				return 'cellphone-message';
+			case 'EMAIL':
+				return 'email';
+			case 'FIDO2':
+				return 'fingerprint';
+			case 'TOTP':
+				return 'timer';
+			case 'WHATSAPP':
+				return 'whatsapp';
+			case 'VOICE':
+				return 'phone';
+			case 'OATH':
+				return 'key';
+			default:
+				return 'device-hub';
+		}
+	};
 
 	// Load devices for the user
 	const handleLoadDevices = useCallback(async () => {
@@ -539,16 +584,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 
 	// Handle worker token modal
 	const handleShowWorkerTokenModal = async () => {
-		const { handleShowWorkerTokenModal: showModal } = await import(
-			'@/v8/utils/workerTokenModalHelperV8'
-		);
-		await showModal(
-			setShowWorkerTokenModal,
-			setTokenStatus,
-			silentApiRetrieval,
-			showTokenAtEnd,
-			true // Force show modal - user clicked button
-		);
+		setShowWorkerTokenModal(true);
 	};
 
 	// Delete all devices
@@ -647,906 +683,611 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 	]);
 
 	return (
-		<div style={{ padding: '40px', maxWidth: '1000px', margin: '0 auto' }}>
-			{/* Header */}
-			<div style={{ marginBottom: '32px' }}>
-				<h1 style={{ margin: '0 0 8px 0', fontSize: '28px', fontWeight: '700', color: '#1f2937' }}>
-					🗑️ Delete All Devices Utility
-				</h1>
-				<p style={{ margin: 0, color: '#6b7280', fontSize: '16px' }}>
-					Delete all MFA devices for a user, with optional filtering by device type and status
-				</p>
-			</div>
-
-			{/* MFA Settings Information */}
-			{environmentId && (
-				<div
-					style={{
-						background: '#f0f9ff',
-						border: '1px solid #bae6fd',
-						borderRadius: '8px',
-						padding: '16px',
-						marginBottom: '24px',
-					}}
-				>
-					<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-						<span style={{ fontSize: '16px', fontWeight: '600', color: '#1e40af' }}>
-							📋 MFA Settings for Environment
-						</span>
-						<span style={{ fontSize: '14px', color: '#64748b', fontFamily: 'monospace' }}>
-							{environmentId}
-						</span>
+		<div className="end-user-nano">
+			<div className="ping-container">
+				{/* Header */}
+				<div className="ping-header">
+					<div className="container">
+						<h1>
+							<i className="mdi-delete me-2"></i>
+							Delete All Devices Utility
+						</h1>
+						<p>
+							Delete all MFA devices for a user, with optional filtering by device type and status
+						</p>
 					</div>
-
-					{mfaSettings.loading ? (
-						<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-							<div
-								style={{
-									width: '16px',
-									height: '16px',
-									border: '2px solid #3b82f6',
-									borderTop: '2px solid transparent',
-									borderRadius: '50%',
-									animation: 'spin 1s linear infinite',
-								}}
-							></div>
-							<span style={{ color: '#64748b', fontSize: '14px' }}>Loading MFA settings...</span>
-						</div>
-					) : mfaSettings.error ? (
-						<div style={{ color: '#dc2626', fontSize: '14px' }}>
-							⚠️ Failed to load MFA settings: {mfaSettings.error}
-						</div>
-					) : (
-						<div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-							<div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-								<span style={{ color: '#374151', fontSize: '14px' }}>
-									<strong>Max Allowed Devices:</strong>
-								</span>
-								<span style={{ fontSize: '16px', fontWeight: '600', color: '#059669' }}>
-									{mfaSettings.maxAllowedDevices}
-								</span>
-							</div>
-							<div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
-								Source: PingOne MFA Settings API (GET /environments/{environmentId}/mfaSettings)
-							</div>
-						</div>
-					)}
 				</div>
-			)}
 
-			{/* Device Policy Information */}
-			{devices.length > 0 && (
-				<div
-					style={{
-						background: '#f8fafc',
-						border: '1px solid #e2e8f0',
-						borderRadius: '8px',
-						padding: '16px',
-						marginBottom: '24px',
-					}}
-				>
-					<h3
-						style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '600', color: '#1f2937' }}
-					>
-						📊 Device Usage Information
-					</h3>
-
-					{/* Device Count and Limits */}
-					<div
-						style={{
-							display: 'flex',
-							gap: '24px',
-							alignItems: 'center',
-							flexWrap: 'wrap',
-							marginBottom: '12px',
-						}}
-					>
-						<div>
-							<span style={{ color: '#6b7280', fontSize: '14px' }}>Current Devices:</span>
-							<span
-								style={{ marginLeft: '8px', fontSize: '18px', fontWeight: '600', color: '#1f2937' }}
-							>
-								{devices.length}
-							</span>
-						</div>
-
-						{/* MFA Settings Limits */}
-						<div>
-							<span style={{ color: '#6b7280', fontSize: '14px' }}>
-								Max Allowed per MFA settings:
-							</span>
-							{mfaSettings.loading ? (
-								<span
-									style={{
-										marginLeft: '8px',
-										fontSize: '14px',
-										fontWeight: '500',
-										color: '#6b7280',
-									}}
-								>
-									Loading...
-								</span>
-							) : mfaSettings.error ? (
-								<span
-									style={{
-										marginLeft: '8px',
-										fontSize: '14px',
-										fontWeight: '500',
-										color: '#dc2626',
-									}}
-								>
-									Error
-								</span>
-							) : (
-								<span
-									style={{
-										marginLeft: '8px',
-										fontSize: '14px',
-										fontWeight: '500',
-										color: '#059669',
-									}}
-								>
-									{mfaSettings.maxAllowedDevices} devices
-								</span>
-							)}
-						</div>
-
-						{policy && (
-							<div>
-								<span style={{ color: '#6b7280', fontSize: '14px' }}>Policy:</span>
-								<span
-									style={{
-										marginLeft: '8px',
-										fontSize: '14px',
-										fontWeight: '500',
-										color: '#059669',
-									}}
-								>
-									{policy.name}
-								</span>
+				<div className="container mt-4">
+					{/* MFA Settings Information */}
+					{environmentId && (
+						<div className="card mb-4">
+							<div className="card-header">
+								<h5 className="card-title mb-0">
+									<i className="mdi-shield-account me-2"></i>
+									MFA Settings for Environment
+									<span className="badge bg-secondary ms-2">{environmentId}</span>
+								</h5>
 							</div>
-						)}
-					</div>
-
-					{/* Device Usage Progress Bar */}
-					<div style={{ marginBottom: '12px' }}>
-						<div
-							style={{
-								display: 'flex',
-								justifyContent: 'space-between',
-								alignItems: 'center',
-								marginBottom: '4px',
-							}}
-						>
-							<span style={{ fontSize: '12px', color: '#6b7280' }}>Device Usage</span>
-							<span style={{ fontSize: '12px', color: '#6b7280' }}>
-								{Math.round((devices.length / 50) * 100)}% (50 device limit)
-							</span>
-						</div>
-						<div
-							style={{
-								width: '100%',
-								height: '8px',
-								background: '#e5e7eb',
-								borderRadius: '4px',
-								overflow: 'hidden',
-							}}
-						>
-							<div
-								style={{
-									width: `${Math.min((devices.length / 50) * 100, 100)}%`,
-									height: '100%',
-									background:
-										devices.length > 40 ? '#ef4444' : devices.length > 25 ? '#f59e0b' : '#10b981',
-									transition: 'width 0.3s ease, background 0.3s ease',
-								}}
-							/>
-						</div>
-						<div style={{ marginTop: '4px', fontSize: '11px', color: '#6b7280' }}>
-							{devices.length > 40 ? (
-								<span style={{ color: '#dc2626' }}>⚠️ Approaching device limit</span>
-							) : devices.length > 25 ? (
-								<span style={{ color: '#d97706' }}>⚡ Moderate device usage</span>
-							) : (
-								<span style={{ color: '#059669' }}>✅ Healthy device usage</span>
-							)}
-						</div>
-					</div>
-
-					{/* Policy Information */}
-					{policy && (
-						<div style={{ marginTop: '12px', fontSize: '12px', color: '#6b7280' }}>
-							{policy.pairingDisabled ? (
-								<span style={{ color: '#dc2626' }}>
-									⚠️ Device pairing is disabled in this policy
-								</span>
-							) : (
-								<span style={{ color: '#059669' }}>✅ Device pairing is enabled</span>
-							)}
-							{policy.promptForNicknameOnPairing && (
-								<span style={{ marginLeft: '16px' }}>
-									• Users will be prompted for device nicknames
-								</span>
-							)}
-							<span style={{ marginLeft: '16px' }}>• Max 20 valid pairing keys per user</span>
-							<span style={{ marginLeft: '16px' }}>
-								• Devices in ACTIVATION_REQUIRED expire after 24 hours
-							</span>
-						</div>
-					)}
-
-					{!policy && (
-						<div style={{ marginTop: '8px', fontSize: '12px', color: '#6b7280' }}>
-							<span style={{ color: '#059669' }}>✅ Using PingOne standard device limits</span>
-							<span style={{ marginLeft: '16px' }}>
-								• Max 20 devices per user (configurable in MFA Settings)
-							</span>
-							<span style={{ marginLeft: '16px' }}>• Max 20 valid pairing keys per user</span>
-							<span style={{ marginLeft: '16px' }}>
-								• ACTIVATION_REQUIRED devices expire after 24 hours
-							</span>
-						</div>
-					)}
-				</div>
-			)}
-
-			{/* Configuration Section */}
-			<div
-				style={{
-					background: 'white',
-					border: '1px solid #e5e7eb',
-					borderRadius: '12px',
-					padding: '24px',
-					marginBottom: '24px',
-					boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-				}}
-			>
-				<h2 style={{ margin: '0 0 20px 0', fontSize: '20px', fontWeight: '600', color: '#1f2937' }}>
-					Configuration
-				</h2>
-
-				<div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-					{/* Environment ID */}
-					<div>
-						<label
-							htmlFor="delete-devices-env-id"
-							style={{
-								display: 'block',
-								marginBottom: '8px',
-								fontSize: '14px',
-								fontWeight: '600',
-								color: '#374151',
-							}}
-						>
-							Environment ID *
-						</label>
-						<input
-							id="delete-devices-env-id"
-							type="text"
-							value={environmentId}
-							onChange={(e) => setEnvironmentId(e.target.value)}
-							placeholder="Enter environment ID"
-							style={{
-								width: '100%',
-								padding: '10px 12px',
-								border: '1px solid #d1d5db',
-								borderRadius: '6px',
-								fontSize: '14px',
-								fontFamily: 'monospace',
-							}}
-						/>
-					</div>
-
-					{/* Username */}
-					<div>
-						<label
-							htmlFor="delete-devices-username"
-							style={{
-								display: 'block',
-								marginBottom: '8px',
-								fontSize: '14px',
-								fontWeight: '600',
-								color: '#374151',
-							}}
-						>
-							Username *
-						</label>
-						{environmentId && tokenStatus.isValid ? (
-							<SearchableDropdownV8
-								id="username"
-								value={username || ''}
-								options={userOptions}
-								onChange={setUsername}
-								onSearchChange={setSearchQuery}
-								placeholder="Search for username..."
-								isLoading={isLoadingUsers}
-								style={{
-									width: '100%',
-								}}
-							/>
-						) : (
-							<input
-								id="delete-devices-username"
-								type="text"
-								value={username}
-								onChange={(e) => setUsername(e.target.value)}
-								placeholder="Enter username (requires valid worker token for search)"
-								style={{
-									width: '100%',
-									padding: '10px 12px',
-									border: username.trim() ? '1px solid #d1d5db' : '2px solid #ef4444',
-									borderRadius: '6px',
-									fontSize: '14px',
-									background: '#f9fafb',
-								}}
-								disabled
-							/>
-						)}
-						{!username.trim() && (
-							<div style={{ marginTop: '4px', fontSize: '12px', color: '#ef4444' }}>
-								Username is required
-							</div>
-						)}
-					</div>
-
-					{/* Device Type Filter */}
-					<div>
-						<label
-							htmlFor="delete-devices-type-filter"
-							style={{
-								display: 'block',
-								marginBottom: '8px',
-								fontSize: '14px',
-								fontWeight: '600',
-								color: '#374151',
-							}}
-						>
-							Device Type Filter
-						</label>
-						<select
-							id="delete-devices-type-filter"
-							value={selectedDeviceType}
-							onChange={(e) => setSelectedDeviceType(e.target.value as DeviceType)}
-							style={{
-								width: '100%',
-								padding: '10px 12px',
-								border: '1px solid #d1d5db',
-								borderRadius: '6px',
-								fontSize: '14px',
-								background: 'white',
-							}}
-						>
-							{DEVICE_TYPES.map((type) => (
-								<option key={type.value} value={type.value}>
-									{type.label}
-								</option>
-							))}
-						</select>
-					</div>
-
-					{/* Device Status Filter */}
-					<div>
-						<label
-							htmlFor="delete-devices-status-filter"
-							style={{
-								display: 'block',
-								marginBottom: '8px',
-								fontSize: '14px',
-								fontWeight: '600',
-								color: '#374151',
-							}}
-						>
-							Device Status Filter
-						</label>
-						<select
-							id="delete-devices-status-filter"
-							value={selectedDeviceStatus}
-							onChange={(e) => setSelectedDeviceStatus(e.target.value as DeviceStatus)}
-							style={{
-								width: '100%',
-								padding: '10px 12px',
-								border: '1px solid #d1d5db',
-								borderRadius: '6px',
-								fontSize: '14px',
-								background: 'white',
-							}}
-						>
-							{DEVICE_STATUSES.map((status) => (
-								<option key={status.value} value={status.value}>
-									{status.label}
-								</option>
-							))}
-						</select>
-					</div>
-
-					{/* Cool 3D Worker Token Status Display */}
-					<WorkerTokenStatusDisplayV8 mode="detailed" showRefresh={true} />
-
-					{/* Get Worker Token Button */}
-					<button
-						type="button"
-						onClick={handleShowWorkerTokenModal}
-						style={{
-							padding: '12px 24px',
-							border: 'none',
-							borderRadius: '8px',
-							background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-							color: 'white',
-							fontSize: '14px',
-							fontWeight: '600',
-							cursor: 'pointer',
-							display: 'flex',
-							alignItems: 'center',
-							gap: '8px',
-							boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
-							transition: 'all 0.2s ease',
-							marginBottom: '12px',
-						}}
-						onMouseEnter={(e) => {
-							e.currentTarget.style.background = 'linear-gradient(135deg, #2563eb, #1d4ed8)';
-							e.currentTarget.style.boxShadow = '0 6px 16px rgba(59, 130, 246, 0.4)';
-						}}
-						onMouseLeave={(e) => {
-							e.currentTarget.style.background = 'linear-gradient(135deg, #3b82f6, #2563eb)';
-							e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)';
-						}}
-						title="Get Worker Token for API Authentication"
-					>
-						<FiKey style={{ fontSize: '16px' }} />
-						Get Worker Token
-					</button>
-
-					{/* Worker Token Configuration Checkboxes */}
-					<div
-						style={{
-							marginTop: '12px',
-							padding: '12px',
-							background: '#f8fafc',
-							borderRadius: '6px',
-							border: '1px solid #e2e8f0',
-						}}
-					>
-						{/* Silent API Retrieval Checkbox - Centralized Component */}
-						<SilentApiConfigCheckboxV8
-							onChange={async (newValue) => {
-								// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
-								if (newValue) {
-									try {
-										const currentStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-										if (!currentStatus.isValid) {
-											console.log(
-												'[DELETE-DEVICES-V8] Silent API retrieval enabled, attempting to fetch token now...'
-											);
-											const { handleShowWorkerTokenModal: showModal } = await import(
-												'@/v8/utils/workerTokenModalHelperV8'
-											);
-											await showModal(
-												setShowWorkerTokenModal,
-												setTokenStatus,
-												newValue,
-												showTokenAtEnd,
-												false // Not forced - respect silent setting
-											);
-										}
-									} catch (error) {
-										console.error('[DELETE-DEVICES-V8] Error checking token status:', error);
-									}
-								}
-							}}
-							style={{ marginBottom: '12px' }}
-						/>
-
-						{/* Show Token After Generation Checkbox - Centralized Component */}
-						<ShowTokenConfigCheckboxV8
-							onChange={async (newValue) => {
-								// Additional logic can be added here if needed
-								console.log(
-									'[DELETE-DEVICES-V8] Show Token After Generation changed to:',
-									newValue
-								);
-							}}
-						/>
-					</div>
-
-					{/* Load Devices Button */}
-					<button
-						type="button"
-						onClick={handleLoadDevices}
-						disabled={
-							loadingSpinner.isLoading ||
-							!environmentId.trim() ||
-							!username.trim() ||
-							!tokenStatus.isValid
-						}
-						style={{
-							padding: '12px 24px',
-							border: 'none',
-							borderRadius: '6px',
-							background:
-								loadingSpinner.isLoading ||
-								!environmentId.trim() ||
-								!username.trim() ||
-								!tokenStatus.isValid
-									? '#9ca3af'
-									: '#3b82f6',
-							color: 'white',
-							fontSize: '16px',
-							fontWeight: '600',
-							cursor:
-								loadingSpinner.isLoading ||
-								!environmentId.trim() ||
-								!username.trim() ||
-								!tokenStatus.isValid
-									? 'not-allowed'
-									: 'pointer',
-							display: 'flex',
-							alignItems: 'center',
-							justifyContent: 'center',
-							gap: '8px',
-						}}
-					>
-						{loadingSpinner.isLoading ? (
-							<>
-								<FiLoader style={{ animation: 'spin 1s linear infinite' }} />
-								Loading Devices...
-							</>
-						) : (
-							<>🔍 Get Devices</>
-						)}
-					</button>
-				</div>
-			</div>
-
-			{/* Error Display */}
-			{error && (
-				<div
-					style={{
-						padding: '16px',
-						background: '#fef2f2',
-						border: '1px solid #fecaca',
-						borderRadius: '8px',
-						marginBottom: '24px',
-						display: 'flex',
-						alignItems: 'center',
-						gap: '12px',
-					}}
-				>
-					<FiAlertCircle style={{ color: '#dc2626', fontSize: '20px', flexShrink: 0 }} />
-					<div style={{ flex: 1 }}>
-						<strong style={{ color: '#991b1b', display: 'block', marginBottom: '4px' }}>
-							Error
-						</strong>
-						<span style={{ color: '#991b1b' }}>{error}</span>
-					</div>
-					<button
-						type="button"
-						onClick={() => setError(null)}
-						style={{
-							background: 'none',
-							border: 'none',
-							cursor: 'pointer',
-							color: '#991b1b',
-							padding: '4px',
-						}}
-					>
-						<FiX />
-					</button>
-				</div>
-			)}
-
-			{/* Devices List */}
-			{devices.length > 0 && (
-				<div
-					style={{
-						background: 'white',
-						border: '1px solid #e5e7eb',
-						borderRadius: '12px',
-						padding: '24px',
-						marginBottom: '24px',
-						boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-					}}
-				>
-					<div
-						style={{
-							display: 'flex',
-							justifyContent: 'space-between',
-							alignItems: 'center',
-							marginBottom: '20px',
-							gap: '12px',
-							flexWrap: 'wrap',
-						}}
-					>
-						<h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600', color: '#1f2937' }}>
-							Devices to Delete ({devices.length} total, {selectedCount} selected)
-						</h2>
-						<div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-							<button
-								type="button"
-								onClick={handleSelectAll}
-								style={{
-									padding: '6px 10px',
-									border: '1px solid #d1d5db',
-									borderRadius: '6px',
-									background: '#f9fafb',
-									fontSize: '12px',
-									cursor: 'pointer',
-								}}
-							>
-								Select All
-							</button>
-							<button
-								type="button"
-								onClick={handleClearSelection}
-								style={{
-									padding: '6px 10px',
-									border: '1px solid #d1d5db',
-									borderRadius: '6px',
-									background: '#f9fafb',
-									fontSize: '12px',
-									cursor: 'pointer',
-								}}
-							>
-								Clear Selection
-							</button>
-							<button
-								type="button"
-								onClick={handleDeleteAll}
-								disabled={deletingSpinner.isLoading || devices.length === 0 || selectedCount === 0}
-								style={{
-									padding: '10px 20px',
-									border: 'none',
-									borderRadius: '6px',
-									background:
-										deletingSpinner.isLoading || devices.length === 0 || selectedCount === 0
-											? '#9ca3af'
-											: '#ef4444',
-									color: 'white',
-									fontSize: '16px',
-									fontWeight: '600',
-									cursor:
-										deletingSpinner.isLoading || devices.length === 0 || selectedCount === 0
-											? 'not-allowed'
-											: 'pointer',
-									display: 'flex',
-									alignItems: 'center',
-									gap: '8px',
-								}}
-							>
-								{deletingSpinner.isLoading ? (
-									<>
-										<FiLoader style={{ animation: 'spin 1s linear infinite' }} />
-										Deleting...
-									</>
+							<div className="card-body">
+								{mfaSettings.loading ? (
+									<div className="d-flex align-items-center gap-2">
+										<i
+											className="mdi-loading mdi-spin text-primary"
+											style={{ fontSize: '1rem' }}
+										></i>
+										<span className="text-muted">Loading MFA settings...</span>
+									</div>
+								) : mfaSettings.error ? (
+									<div className="alert alert-warning">
+										<i className="mdi-alert me-2"></i>
+										Failed to load MFA settings: {mfaSettings.error}
+									</div>
 								) : (
-									<>
-										<FiTrash2 />
-										Delete Selected ({selectedCount})
-									</>
+									<div className="d-flex align-items-center gap-3">
+										<span className="fw-semibold">Max Allowed Devices:</span>
+										<span className="badge bg-success fs-6">{mfaSettings.maxAllowedDevices}</span>
+									</div>
 								)}
-							</button>
+								<div className="text-muted small mt-2">
+									Source: PingOne MFA Settings API (GET /environments/{environmentId}/mfaSettings)
+								</div>
+							</div>
+						</div>
+					)}
+
+					{/* Device Policy Information */}
+					{devices.length > 0 && (
+						<div className="card mb-4">
+							<div className="card-header">
+								<h5 className="card-title mb-0">
+									<i className="mdi-devices me-2"></i>
+									Device Usage Information
+								</h5>
+							</div>
+							<div className="card-body">
+								{/* Device Count and Limits */}
+								<div className="row align-items-center mb-3">
+									<div className="col-md-4">
+										<span className="text-muted">Current Devices:</span>
+										<span className="ms-2 fs-5 fw-bold">{devices.length}</span>
+									</div>
+									<div className="col-md-4">
+										<span className="text-muted">Max Allowed per MFA settings:</span>
+										{mfaSettings.loading ? (
+											<span className="ms-2 text-secondary">Loading...</span>
+										) : mfaSettings.error ? (
+											<span className="ms-2 text-danger">Error</span>
+										) : (
+											<span className="ms-2 text-success fw-semibold">
+												{mfaSettings.maxAllowedDevices} devices
+											</span>
+										)}
+									</div>
+									{policy && (
+										<div className="col-md-4">
+											<span className="text-muted">Policy:</span>
+											<span className="ms-2 text-success fw-semibold">{policy.name}</span>
+										</div>
+									)}
+								</div>
+
+								{/* Device Usage Progress Bar */}
+								<div className="mb-3">
+									<div className="d-flex justify-content-between align-items-center mb-1">
+										<span className="small text-muted">Device Usage</span>
+										<span className="small text-muted">
+											{Math.round((devices.length / 50) * 100)}% (50 device limit)
+										</span>
+									</div>
+									<div className="progress" style={{ height: '8px' }}>
+										<div
+											className={`progress-bar ${devices.length > 40 ? 'bg-danger' : devices.length > 25 ? 'bg-warning' : 'bg-success'}`}
+											style={{ width: `${Math.min((devices.length / 50) * 100, 100)}%` }}
+										></div>
+									</div>
+									<div className="mt-1">
+										{devices.length > 40 ? (
+											<span className="text-danger small">
+												<i className="mdi-alert me-1"></i>
+												Approaching device limit
+											</span>
+										) : devices.length > 25 ? (
+											<span className="text-warning small">
+												<i className="mdi-flash me-1"></i>
+												Moderate device usage
+											</span>
+										) : (
+											<span className="text-success small">
+												<i className="mdi-check-circle me-1"></i>
+												Healthy device usage
+											</span>
+										)}
+									</div>
+								</div>
+
+								{/* Policy Information */}
+								{policy && (
+									<div className="text-muted small">
+										{policy.pairingDisabled ? (
+											<span className="text-danger">
+												<i className="mdi-alert me-1"></i>
+												Device pairing is disabled in this policy
+											</span>
+										) : (
+											<span className="text-success">
+												<i className="mdi-check-circle me-1"></i>
+												Device pairing is enabled
+											</span>
+										)}
+										{policy.promptForNicknameOnPairing && (
+											<span className="ms-3">• Users will be prompted for device nicknames</span>
+										)}
+										<span className="ms-3">• Max 20 valid pairing keys per user</span>
+										<span className="ms-3">
+											• Devices in ACTIVATION_REQUIRED expire after 24 hours
+										</span>
+									</div>
+								)}
+
+								{!policy && (
+									<div className="text-muted small">
+										<span className="text-success">
+											<i className="mdi-check-circle me-1"></i>
+											Using PingOne standard device limits
+										</span>
+										<span className="ms-3">
+											• Max 20 devices per user (configurable in MFA Settings)
+										</span>
+										<span className="ms-3">• Max 20 valid pairing keys per user</span>
+										<span className="ms-3">
+											• ACTIVATION_REQUIRED devices expire after 24 hours
+										</span>
+									</div>
+								)}
+							</div>
+						</div>
+					)}
+
+					{/* Configuration Section */}
+					<div className="card mb-4">
+						<div className="card-header">
+							<h4 className="card-title mb-0">
+								<i className="mdi-cog me-2"></i>
+								Configuration
+							</h4>
+						</div>
+						<div className="card-body">
+							<form className="row g-3">
+								{/* Environment ID */}
+								<div className="col-md-12">
+									<label htmlFor="delete-devices-env-id" className="form-label">
+										<i className="mdi-domain me-1"></i>
+										Environment ID *
+									</label>
+									<input
+										id="delete-devices-env-id"
+										type="text"
+										className="form-control"
+										value={environmentId}
+										onChange={(e) => setEnvironmentId(e.target.value)}
+										placeholder="Enter environment ID"
+										style={{ fontFamily: 'monospace' }}
+									/>
+								</div>
+
+								{/* Username */}
+								<div className="col-md-12">
+									<label htmlFor="delete-devices-username" className="form-label">
+										<i className="mdi-account me-1"></i>
+										Username *
+									</label>
+									{environmentId && tokenStatus.isValid ? (
+										<SearchableDropdownV8
+											id="username"
+											value={username || ''}
+											options={userOptions}
+											onChange={setUsername}
+											onSearchChange={setSearchQuery}
+											placeholder="Search for username..."
+											isLoading={isLoadingUsers}
+										/>
+									) : (
+										<input
+											id="delete-devices-username"
+											type="text"
+											className="form-control"
+											value={username}
+											onChange={(e) => setUsername(e.target.value)}
+											placeholder="Enter username (requires valid worker token for search)"
+											disabled
+											style={{ backgroundColor: '#f9fafb' }}
+										/>
+									)}
+									{!username.trim() && (
+										<div className="form-text text-danger">Username is required</div>
+									)}
+								</div>
+
+								{/* Device Type Filter */}
+								<div className="col-md-6">
+									<label htmlFor="delete-devices-type-filter" className="form-label">
+										<i className="mdi-filter me-1"></i>
+										Device Type Filter
+									</label>
+									<select
+										id="delete-devices-type-filter"
+										className="form-select"
+										value={selectedDeviceType}
+										onChange={(e) => setSelectedDeviceType(e.target.value as DeviceType)}
+									>
+										{DEVICE_TYPES.map((type) => (
+											<option key={type.value} value={type.value}>
+												{type.label}
+											</option>
+										))}
+									</select>
+								</div>
+
+								{/* Device Status Filter */}
+								<div className="col-md-6">
+									<label htmlFor="delete-devices-status-filter" className="form-label">
+										<i className="mdi-toggle-switch me-1"></i>
+										Device Status Filter
+									</label>
+									<select
+										id="delete-devices-status-filter"
+										className="form-select"
+										value={selectedDeviceStatus}
+										onChange={(e) => setSelectedDeviceStatus(e.target.value as DeviceStatus)}
+									>
+										{DEVICE_STATUSES.map((status) => (
+											<option key={status.value} value={status.value}>
+												{status.label}
+											</option>
+										))}
+									</select>
+								</div>
+
+								{/* Action Buttons */}
+								<div className="col-12">
+									<div className="d-flex gap-2">
+										<button
+											type="button"
+											className="btn btn-light-grey"
+											onClick={handleLoadDevices}
+											disabled={
+												loadingSpinner.isLoading ||
+												!environmentId.trim() ||
+												!username.trim() ||
+												!tokenStatus.isValid
+											}
+										>
+											{loadingSpinner.isLoading ? (
+												<>
+													<i className="mdi-loading mdi-spin me-2"></i>
+													Loading Devices...
+												</>
+											) : (
+												<>
+													<i className="mdi-refresh me-2"></i>
+													Load Devices
+												</>
+											)}
+										</button>
+										<button
+											type="button"
+											className={`btn ${tokenStatus.isValid ? 'btn-light-green' : 'btn-light-red'}`}
+											onClick={handleShowWorkerTokenModal}
+										>
+											<i className="mdi-key me-2"></i>
+											Configure Worker Token
+										</button>
+									</div>
+								</div>
+							</form>
 						</div>
 					</div>
 
-					<div style={{ display: 'grid', gap: '12px' }}>
-						{devices.map((device) => {
-							const deviceId = device.id as string;
-							const isSelected = selectedDeviceIds.has(deviceId);
-							const label = (device.nickname || device.name || deviceId) as string;
-							return (
-								<div
-									key={deviceId}
-									style={{
-										padding: '16px',
-										background: '#f9fafb',
-										border: '1px solid #e5e7eb',
-										borderRadius: '8px',
-										display: 'flex',
-										justifyContent: 'space-between',
-										alignItems: 'center',
-									}}
-								>
-									<div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-										<input
-											type="checkbox"
-											checked={isSelected}
-											onChange={() => handleToggleDeviceSelection(deviceId)}
-											aria-label={`Select device ${label}`}
-											style={{ marginTop: '2px' }}
-										/>
-										<div>
-											<div style={{ fontWeight: '600', color: '#1f2937', marginBottom: '4px' }}>
-												{device.type as string} - {label}
-											</div>
-											<div style={{ fontSize: '12px', color: '#6b7280' }}>
-												ID: <code style={{ fontSize: '11px' }}>{deviceId}</code>
-												{typeof device.status !== 'undefined' && (
-													<span style={{ marginLeft: '12px' }}>
-														Status: <strong>{device.status as string}</strong>
+					{/* Error Display */}
+					{error && (
+						<div className="alert alert-danger mb-4">
+							<i className="mdi-alert me-2"></i>
+							{error}
+						</div>
+					)}
+
+					{/* Worker Token Status */}
+					<WorkerTokenStatusDisplayV8
+						mode="detailed"
+						showRefresh={true}
+						showConfig={true}
+						refreshInterval={5}
+					/>
+
+					{/* Devices List */}
+					{devices.length > 0 && (
+						<div className="card mb-4">
+							<div className="card-header">
+								<div className="d-flex justify-content-between align-items-center">
+									<h5 className="card-title mb-0">
+										<i className="mdi-devices me-2"></i>
+										Devices ({devices.length})
+									</h5>
+									<div className="d-flex gap-2">
+										<button
+											type="button"
+											className="btn btn-light-grey btn-sm"
+											onClick={handleSelectAll}
+										>
+											<i className="mdi-check-all me-1"></i>
+											Select All
+										</button>
+										<button
+											type="button"
+											className="btn btn-light-red btn-sm"
+											onClick={handleClearSelection}
+										>
+											<i className="mdi-close me-1"></i>
+											Clear Selection
+										</button>
+									</div>
+								</div>
+							</div>
+							<div className="card-body">
+								<div className="list-group">
+									{devices.map((device) => (
+										<div
+											key={device.id as string}
+											className={`list-group-item ${selectedDeviceIds.has(device.id as string) ? 'active' : ''}`}
+											style={{ cursor: 'pointer' }}
+											onClick={() => handleToggleDeviceSelection(device.id as string)}
+										>
+											<div className="d-flex align-items-center justify-content-between">
+												<div className="d-flex align-items-center gap-3">
+													<div className="form-check">
+														<input
+															className="form-check-input"
+															type="checkbox"
+															checked={selectedDeviceIds.has(device.id as string)}
+															onChange={() => handleToggleDeviceSelection(device.id as string)}
+														/>
+													</div>
+													<div>
+														<div className="fw-semibold">
+															{device.nickname || device.name || device.type}
+														</div>
+														<div className="text-muted small">
+															Type: {device.type} • Status: {device.status}
+														</div>
+													</div>
+												</div>
+												<div className="d-flex align-items-center gap-2">
+													<span className={`badge bg-${getStatusColor(device.status as string)}`}>
+														{device.status}
 													</span>
-												)}
+													<i
+														className={`mdi-${getDeviceIcon(device.type as string)} text-primary`}
+													></i>
+												</div>
 											</div>
 										</div>
-									</div>
+									))}
 								</div>
-							);
-						})}
-					</div>
-				</div>
-			)}
-
-			{/* Deletion Results */}
-			{deletionResults && (
-				<div
-					style={{
-						background: 'white',
-						border: '1px solid #e5e7eb',
-						borderRadius: '12px',
-						padding: '24px',
-						boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-					}}
-				>
-					<h2
-						style={{ margin: '0 0 20px 0', fontSize: '20px', fontWeight: '600', color: '#1f2937' }}
-					>
-						Deletion Results
-					</h2>
-
-					<div style={{ display: 'flex', gap: '24px', marginBottom: '20px' }}>
-						<div
-							style={{
-								padding: '16px',
-								background: '#ecfccb',
-								border: '1px solid #bef264',
-								borderRadius: '8px',
-								flex: 1,
-							}}
-						>
-							<div
-								style={{
-									fontSize: '24px',
-									fontWeight: '700',
-									color: '#16a34a',
-									marginBottom: '4px',
-								}}
-							>
-								{deletionResults.success}
-							</div>
-							<div style={{ fontSize: '14px', color: '#365314' }}>Successfully Deleted</div>
-						</div>
-						{deletionResults.failed > 0 && (
-							<div
-								style={{
-									padding: '16px',
-									background: '#fef2f2',
-									border: '1px solid #fecaca',
-									borderRadius: '8px',
-									flex: 1,
-								}}
-							>
-								<div
-									style={{
-										fontSize: '24px',
-										fontWeight: '700',
-										color: '#dc2626',
-										marginBottom: '4px',
-									}}
-								>
-									{deletionResults.failed}
-								</div>
-								<div style={{ fontSize: '14px', color: '#991b1b' }}>Failed</div>
-							</div>
-						)}
-					</div>
-
-					{deletionResults.errors.length > 0 && (
-						<div>
-							<h3
-								style={{
-									margin: '0 0 12px 0',
-									fontSize: '16px',
-									fontWeight: '600',
-									color: '#1f2937',
-								}}
-							>
-								Errors:
-							</h3>
-							<div style={{ display: 'grid', gap: '8px' }}>
-								{deletionResults.errors.map((err, index) => (
-									<div
-										key={index}
-										style={{
-											padding: '12px',
-											background: '#fef2f2',
-											border: '1px solid #fecaca',
-											borderRadius: '6px',
-											fontSize: '13px',
-										}}
-									>
-										<strong style={{ color: '#991b1b' }}>Device {err.deviceId}:</strong>{' '}
-										<span style={{ color: '#991b1b' }}>{err.error}</span>
-									</div>
-								))}
 							</div>
 						</div>
 					)}
-				</div>
-			)}
 
-			{/* Info Box */}
-			<div
-				style={{
-					marginTop: '32px',
-					padding: '16px',
-					background: '#eff6ff',
-					border: '1px solid #bfdbfe',
-					borderRadius: '8px',
-					fontSize: '14px',
-					color: '#1e40af',
-				}}
-			>
-				<strong>💡 Note:</strong> This utility uses the PingOne MFA API to delete devices. Make sure
-				you have the appropriate permissions and that the worker token has the necessary scopes.
-				Deleted devices cannot be recovered.
-			</div>
+					{/* Delete Button Section */}
+					{devices.length > 0 && selectedCount > 0 && (
+						<div className="card mb-4">
+							<div className="card-body">
+								<div className="d-flex justify-content-between align-items-center">
+									<div>
+										<h5 className="card-title mb-1">
+											<i className="mdi-delete me-2"></i>
+											Delete Selected Devices
+										</h5>
+										<p className="text-muted mb-0">
+											{selectedCount} of {devices.length} devices selected
+										</p>
+									</div>
+									<button
+										type="button"
+										className="btn btn-danger"
+										onClick={handleDeleteAll}
+										disabled={deletingSpinner.isLoading}
+									>
+										{deletingSpinner.isLoading ? (
+											<>
+												<i className="mdi-loading mdi-spin me-2"></i>
+												Deleting...
+											</>
+										) : (
+											<>
+												<i className="mdi-delete me-2"></i>
+												Delete {selectedCount} Device{selectedCount > 1 ? 's' : ''}
+											</>
+										)}
+									</button>
+								</div>
+							</div>
+						</div>
+					)}
 
-			{/* PingOne API Call Display */}
-			<div
-				style={{
-					marginTop: '24px',
-					padding: '16px',
-					background: '#f8fafc',
-					border: '1px solid #e2e8f0',
-					borderRadius: '8px',
-				}}
-			>
-				<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-					<div>
-						<strong style={{ color: '#1f2937' }}>PingOne API Calls</strong>
-						<div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>
-							Shows the live PingOne MFA API requests executed by this page.
+					{/* Deletion Results */}
+					{deletionResults && (
+						<div className="card mb-4">
+							<div className="card-header">
+								<h5 className="card-title mb-0">
+									<i className="mdi-clipboard-check me-2"></i>
+									Deletion Results
+								</h5>
+							</div>
+							<div className="card-body">
+								<div className="row mb-3">
+									<div className="col-md-6">
+										<div className="text-center p-3 bg-success bg-opacity-10 border border-success rounded">
+											<div className="display-6 text-success fw-bold">
+												{deletionResults.successful}
+											</div>
+											<div className="text-success">Successfully Deleted</div>
+										</div>
+									</div>
+									{deletionResults.failed > 0 && (
+										<div className="col-md-6">
+											<div className="text-center p-3 bg-danger bg-opacity-10 border border-danger rounded">
+												<div className="display-6 text-danger fw-bold">
+													{deletionResults.failed}
+												</div>
+												<div className="text-danger">Failed</div>
+											</div>
+										</div>
+									)}
+								</div>
+
+								{deletionResults.results?.length > 0 && (
+									<div>
+										<h6 className="fw-semibold mb-3">Detailed Results:</h6>
+										<div className="list-group">
+											{deletionResults.results.map((result, index) => (
+												<div
+													key={index}
+													className={`list-group-item ${result.success ? 'list-group-item-success' : 'list-group-item-danger'}`}
+												>
+													<div className="d-flex justify-content-between align-items-center">
+														<span>Device {result.deviceId}</span>
+														<span
+															className={`badge ${result.success ? 'bg-success' : 'bg-danger'}`}
+														>
+															{result.success ? 'Success' : 'Failed'}
+														</span>
+													</div>
+													{result.error && (
+														<div className="text-danger small mt-1">{result.error}</div>
+													)}
+												</div>
+											))}
+										</div>
+									</div>
+								)}
+							</div>
+						</div>
+					)}
+
+					{/* No Devices Message */}
+					{devices.length === 0 && hasLoadedDevicesRef.current && !loadingSpinner.isLoading && (
+						<div className="card">
+							<div className="card-body text-center py-5">
+								<div className="mb-4">
+									<i className="mdi-delete mdi-48px text-muted"></i>
+								</div>
+								<h4 className="text-secondary mb-2">No Devices Found</h4>
+								<p className="text-muted">
+									{selectedDeviceType === 'ALL' && selectedDeviceStatus === 'ALL'
+										? `There are no MFA devices registered for user "${username}" in this environment.`
+										: `No devices found matching the selected filters: ${selectedDeviceType === 'ALL' ? 'all device types' : selectedDeviceType} and ${selectedDeviceStatus === 'ALL' ? 'all statuses' : selectedDeviceStatus}.`}
+								</p>
+								<div className="d-flex gap-2 justify-content-center">
+									<button
+										type="button"
+										className="btn btn-light-grey"
+										onClick={() => {
+											setSelectedDeviceType('ALL');
+											setSelectedDeviceStatus('ALL');
+										}}
+									>
+										<i className="mdi-filter-remove me-1"></i>
+										Clear all filters
+									</button>
+									<button
+										type="button"
+										className="btn btn-light-red"
+										onClick={handleLoadDevices}
+										disabled={loadingSpinner.isLoading}
+									>
+										{loadingSpinner.isLoading ? (
+											<>
+												<i className="mdi-loading mdi-spin me-1"></i>
+												Refreshing...
+											</>
+										) : (
+											<>
+												<i className="mdi-refresh me-1"></i>
+												Refresh
+											</>
+										)}
+									</button>
+								</div>
+							</div>
+						</div>
+					)}
+
+					{/* Info Box */}
+					<div className="alert alert-info">
+						<i className="mdi-information me-2"></i>
+						<strong>Note:</strong> This utility uses the PingOne MFA API to delete devices. Make
+						sure you have the appropriate permissions and that the worker token has the necessary
+						scopes. Deleted devices cannot be recovered.
+					</div>
+
+					{/* PingOne API Call Display */}
+					<div className="card">
+						<div className="card-header">
+							<div className="d-flex justify-content-between align-items-center">
+								<div>
+									<strong>PingOne API Calls</strong>
+									<div className="text-muted small">
+										Shows the live PingOne MFA API requests executed by this page.
+									</div>
+								</div>
+								<ApiDisplayCheckbox />
+							</div>
 						</div>
 					</div>
-					<ApiDisplayCheckbox />
+
+					<SuperSimpleApiDisplayV8 flowFilter="mfa" reserveSpace={true} />
+
+					{/* Worker Token Modal */}
+					{showWorkerTokenModal && (
+						<WorkerTokenModalV8
+							isOpen={showWorkerTokenModal}
+							onClose={async () => {
+								setShowWorkerTokenModal(false);
+								// Update token status after modal closes
+								try {
+									const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+									setTokenStatus({
+										isValid: status.isValid,
+										minutesRemaining: status.minutesRemaining || 0,
+									});
+								} catch (error) {
+									console.error(`${MODULE_TAG} Failed to check token status after modal`, error);
+									setTokenStatus({ isValid: false, minutesRemaining: 0 });
+								}
+							}}
+							showTokenOnly={(() => {
+								if (!showWorkerTokenModal) return false;
+								try {
+									const config = MFAConfigurationServiceV8.loadConfiguration();
+									// For showTokenOnly, we need to check synchronously for the modal display logic
+									// Use a simple status check that doesn't require async
+									const currentStatus = {
+										isValid: false,
+										status: 'missing' as const,
+										message: 'Checking...',
+										expiresAt: null as number | null,
+										minutesRemaining: 0,
+									};
+									return config.workerToken.showTokenAtEnd && currentStatus.isValid;
+								} catch {
+									return false;
+								}
+							})()}
+						/>
+					)}
 				</div>
 			</div>
-
-			<SuperSimpleApiDisplayV8 flowFilter="mfa" reserveSpace={true} />
-
-			{/* Worker Token Modal */}
-			{showWorkerTokenModal && (
-				<WorkerTokenModalV8
-					isOpen={showWorkerTokenModal}
-					onClose={async () => {
-						setShowWorkerTokenModal(false);
-						// Update token status after modal closes
-						try {
-							const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-							setTokenStatus(status);
-						} catch (error) {
-							console.error(`${MODULE_TAG} Failed to check token status after modal`, error);
-							setTokenStatus({ isValid: false, minutesRemaining: 0 });
-						}
-					}}
-					showTokenOnly={(() => {
-						if (!showWorkerTokenModal) return false;
-						try {
-							const config = MFAConfigurationServiceV8.loadConfiguration();
-							// For showTokenOnly, we need to check synchronously for the modal display logic
-							// Use a simple status check that doesn't require async
-							const currentStatus = {
-								isValid: false,
-								status: 'missing' as const,
-								message: 'Checking...',
-								expiresAt: null as number | null,
-								minutesRemaining: 0,
-							};
-							return config.workerToken.showTokenAtEnd && currentStatus.isValid;
-						} catch {
-							return false;
-						}
-					})()}
-				/>
-			)}
 		</div>
 	);
 };

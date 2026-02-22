@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 
-type LoginPageProps = {};
+type LoginPageProps = Record<string, never>;
 
 export const LoginPage: React.FC<LoginPageProps> = () => {
 	const { currentTheme } = useTheme();

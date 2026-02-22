@@ -53,11 +53,23 @@ export class StorageServiceV8Migration {
 		}
 
 		try {
-			// Parse the storage data
-			const storageData = JSON.parse(serialized);
+			let data: any;
+			let version = 1;
+			let flowKey: string | undefined;
 
-			// Extract version, data, timestamp, flowKey
-			const { version = 1, data, timestamp = Date.now(), flowKey } = storageData;
+			// Try to parse as JSON first
+			try {
+				const storageData = JSON.parse(serialized);
+				// Extract version, data, timestamp, flowKey if it's structured data
+				data = storageData.data !== undefined ? storageData.data : storageData;
+				version = storageData.version || 1;
+				flowKey = storageData.flowKey;
+			} catch (_parseError) {
+				// If JSON.parse fails, treat the entire value as plain string data
+				data = serialized;
+				version = 1;
+				flowKey = undefined;
+			}
 
 			// Save to unified storage
 			await unifiedTokenStorage.saveV8Versioned(key, data, version, flowKey);
@@ -65,7 +77,7 @@ export class StorageServiceV8Migration {
 			// Remove from localStorage after successful migration
 			localStorage.removeItem(key);
 
-			console.log(`${MODULE_TAG} Migrated key`, { key, version, flowKey });
+			console.log(`${MODULE_TAG} Migrated key`, { key, version, flowKey, dataType: typeof data });
 		} catch (error) {
 			throw new Error(`Failed to parse or migrate data for key ${key}: ${error}`);
 		}

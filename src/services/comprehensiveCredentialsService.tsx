@@ -1518,6 +1518,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 									color: '#374151',
 									marginBottom: '0.5rem',
 								}}
+								htmlFor="reqobjectpolicy"
 							>
 								Req Object Policy
 							</label>
@@ -1553,6 +1554,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 									color: '#374151',
 									marginBottom: '0.5rem',
 								}}
+								htmlFor="x5tjwthdr"
 							>
 								x5t (JWT hdr)
 							</label>
@@ -1615,6 +1617,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 									color: '#374151',
 									marginBottom: '0.5rem',
 								}}
+								htmlFor="resourcescopes"
 							>
 								Resource Scopes
 							</label>

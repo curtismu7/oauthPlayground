@@ -151,6 +151,7 @@ export const MessageBoxV8: React.FC<MessageBoxProps> = ({
 			{/* Dismiss button */}
 			{dismissible && (
 				<button
+					type="button"
 					onClick={handleDismiss}
 					style={{
 						background: 'none',

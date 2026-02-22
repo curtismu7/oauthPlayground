@@ -239,7 +239,9 @@ export const TOTPRegistrationComponent: React.FC<DeviceComponentProps> = ({
 
 					{showSecret && (
 						<div className="secret-display">
-							<label htmlFor="totp-secret">Secret Key:</label>
+							<label htmlFor="totp-secret" htmlFor="secretkey">
+								Secret Key:
+							</label>
 							<div className="secret-input-group">
 								<input
 									id="totp-secret"

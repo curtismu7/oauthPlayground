@@ -1,6 +1,7 @@
 // src/utils/credentialManager.ts
 
 import { type OIDCDiscoveryDocument, oidcDiscoveryService } from '../services/oidcDiscoveryService';
+import { unifiedTokenStorage } from '../services/unifiedTokenStorageService';
 import { getCallbackUrlForFlow } from './callbackUrls';
 import { logger } from './logger';
 
@@ -77,45 +78,51 @@ class CredentialManager {
 	 * Save configuration-specific credentials (from Configuration page)
 	 * These are separate from flow-specific credentials
 	 */
-	saveConfigCredentials(credentials: Partial<PermanentCredentials>): boolean {
+	async saveConfigCredentials(credentials: Partial<PermanentCredentials>): Promise<boolean> {
 		try {
-			const existing = this.loadConfigCredentials();
+			const existing = await this.loadConfigCredentials();
 			const updated = {
 				...existing,
 				...credentials,
 				lastUpdated: Date.now(),
 			};
 
-			console.log(' [CredentialManager] Saving config credentials to localStorage:', {
+			console.log(' [CredentialManager] Saving config credentials to unified storage:', {
 				key: this.CONFIG_CREDENTIALS_KEY,
 				data: updated,
 			});
 
-			localStorage.setItem(this.CONFIG_CREDENTIALS_KEY, JSON.stringify(updated));
+			const result = await unifiedTokenStorage.storeCredentials('config', updated, {
+				environmentId: updated.environmentId,
+				clientId: updated.clientId,
+			});
 
 			// Invalidate cache after saving
 			this.invalidateCache();
 
 			// Verify it was saved
-			const saved = localStorage.getItem(this.CONFIG_CREDENTIALS_KEY);
-			console.log(' [CredentialManager] Verified config credentials save:', saved);
-
-			logger.success('CredentialManager', 'Saved config credentials', {
-				hasEnvironmentId: !!updated.environmentId,
-				hasClientId: !!updated.clientId,
-				hasRedirectUri: !!updated.redirectUri,
-			});
-
-			// Dispatch event to notify other components
-			window.dispatchEvent(
-				new CustomEvent('config-credentials-changed', {
-					detail: { credentials: updated },
-				})
+			const saved = await unifiedTokenStorage.getCredentials('config');
+			console.log(
+				' [CredentialManager] Verified config credentials save:',
+				saved.success ? 'SUCCESS' : 'FAILED'
 			);
 
-			return true;
+			if (result.success) {
+				logger.success('CredentialManager', 'Saved config credentials', {
+					environmentId: updated.environmentId,
+					clientId: updated.clientId,
+				});
+			}
+
+			return result.success;
 		} catch (error) {
-			logger.error('CredentialManager', 'Failed to save config credentials', String(error));
+			console.error(' [CredentialManager] Error saving config credentials:', error);
+			logger.error(
+				'CredentialManager',
+				'Failed to save config credentials',
+				undefined,
+				error as Error
+			);
 			return false;
 		}
 	}

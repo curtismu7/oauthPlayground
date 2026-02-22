@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MasterFlow API - MFA Device Registration</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            color: #1a202c;
+            line-height: 1.6;
+        }
+
+        .enterprise-mfa {
+            min-height: 100vh;
+        }
+
+        .enterprise-nav {
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-brand h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .nav-items {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-item {
+            color: #4a5568;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item:hover {
+            color: #2d3748;
+            background: #f7fafc;
+        }
+
+        .nav-item.active {
+            color: #3182ce;
+            background: #ebf8ff;
+        }
+
+        .enterprise-content {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .flow-progress {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .progress-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .step-number {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            background: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: #4a5568;
+            transition: all 0.3s ease;
+        }
+
+        .progress-step.active .step-number {
+            background: #3182ce;
+            color: white;
+            box-shadow: 0 4px 12px rgba(49, 130, 206, 0.3);
+        }
+
+        .step-label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .progress-step.active .step-label {
+            color: #2d3748;
+        }
+
+        .progress-connector {
+            width: 3rem;
+            height: 2px;
+            background: #e2e8f0;
+            position: relative;
+        }
+
+        .progress-step.completed + .progress-connector {
+            background: #48bb78;
+        }
+
+        .enterprise-main {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+        }
+
+        .card-header h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .help-btn {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            background: #edf2f7;
+            border: 1px solid #e2e8f0;
+            color: #4a5568;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .help-btn:hover {
+            background: #e2e8f0;
+            color: #2d3748;
+        }
+
+        .card-content {
+            padding: 1.5rem;
+        }
+
+        .option-group {
+            margin-bottom: 2rem;
+        }
+
+        .option-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .option-group h4 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+        }
+
+        .option-card {
+            padding: 1.25rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: white;
+        }
+
+        .option-card:hover {
+            border-color: #3182ce;
+            box-shadow: 0 2px 8px rgba(49, 130, 206, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .option-card.selected {
+            border-color: #3182ce;
+            background: #ebf8ff;
+            box-shadow: 0 4px 12px rgba(49, 130, 206, 0.15);
+        }
+
+        .option-card.recommended {
+            border-color: #48bb78;
+            background: #f0fff4;
+        }
+
+        .option-card.recommended:hover {
+            border-color: #38a169;
+            box-shadow: 0 2px 8px rgba(72, 187, 120, 0.2);
+        }
+
+        .option-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .option-icon {
+            font-size: 1.5rem;
+            width: 2.5rem;
+            height: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f7fafc;
+            border-radius: 8px;
+        }
+
+        .option-info {
+            flex: 1;
+        }
+
+        .option-info h5 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 0.25rem;
+        }
+
+        .option-info p {
+            font-size: 0.875rem;
+            color: #718096;
+            margin: 0;
+        }
+
+        .option-badge {
+            padding: 0.25rem 0.75rem;
+            background: #48bb78;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .sidebar-panel {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+            overflow: hidden;
+            height: fit-content;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .sidebar-header h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .sidebar-content {
+            padding: 1.5rem;
+        }
+
+        .device-config {
+            margin-bottom: 1.5rem;
+        }
+
+        .device-config label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: #4a5568;
+            font-size: 0.875rem;
+        }
+
+        .device-config input {
+            width: 100%;
+            padding: 0.625rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .device-config input:focus {
+            outline: none;
+            border-color: #3182ce;
+            box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+        }
+
+        .help-text {
+            font-size: 0.75rem;
+            color: #718096;
+            margin-top: 0.25rem;
+        }
+
+        .config-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn-outline {
+            background: white;
+            color: #3182ce;
+            border: 1px solid #3182ce;
+            padding: 0.625rem 1.25rem;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-outline:hover {
+            background: #ebf8ff;
+        }
+
+        .btn-primary {
+            background: #3182ce;
+            color: white;
+            border: none;
+            padding: 0.625rem 1.25rem;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            background: #2c5282;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(49, 130, 206, 0.2);
+        }
+
+        .status-panel {
+            background: #f0fff4;
+            border: 1px solid #9ae6b4;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .status-panel h5 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #22543d;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-panel p {
+            font-size: 0.75rem;
+            color: #2f855a;
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            .enterprise-nav {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .flow-progress {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .progress-connector {
+                width: 2px;
+                height: 2rem;
+            }
+
+            .enterprise-main {
+                grid-template-columns: 1fr;
+            }
+
+            .config-actions {
+                flex-direction: column;
+            }
+
+            .btn-outline,
+            .btn-primary {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="enterprise-mfa">
+        <nav class="enterprise-nav">
+            <div class="nav-brand">
+                <h2>PingOne Playground</h2>
+            </div>
+            <div class="nav-items">
+                <a href="/mfa" class="nav-item active">MFA Hub</a>
+                <a href="/oauth" class="nav-item">OAuth Flows</a>
+                <a href="/admin" class="nav-item">Admin</a>
+            </div>
+        </nav>
+        
+        <div class="enterprise-content">
+            <div class="flow-progress">
+                <div class="progress-step active">
+                    <div class="step-number">1</div>
+                    <div class="step-label">Select Device</div>
+                </div>
+                <div class="progress-connector"></div>
+                <div class="progress-step">
+                    <div class="step-number">2</div>
+                    <div class="step-label">Configure</div>
+                </div>
+                <div class="progress-connector"></div>
+                <div class="progress-step">
+                    <div class="step-number">3</div>
+                    <div class="step-label">Verify</div>
+                </div>
+            </div>
+            
+            <div class="enterprise-main">
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3>Device Registration</h3>
+                        <div class="card-actions">
+                            <button class="help-btn" onclick="showHelp()">?</button>
+                        </div>
+                    </div>
+                    
+                    <div class="card-content">
+                        <div class="option-group">
+                            <h4>Recommended</h4>
+                            <div class="option-card recommended selected" onclick="selectDevice(this, 'sms')">
+                                <div class="option-header">
+                                    <div class="option-icon">📱</div>
+                                    <div class="option-info">
+                                        <h5>SMS Authentication</h5>
+                                        <p>Fast setup, widely supported</p>
+                                    </div>
+                                    <div class="option-badge">Popular</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="option-group">
+                            <h4>Advanced Options</h4>
+                            <div class="option-card" onclick="selectDevice(this, 'totp')">
+                                <div class="option-header">
+                                    <div class="option-icon">🔐</div>
+                                    <div class="option-info">
+                                        <h5>TOTP Authenticator</h5>
+                                        <p>Time-based codes from app</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="option-card" onclick="selectDevice(this, 'fido2')">
+                                <div class="option-header">
+                                    <div class="option-icon">👆</div>
+                                    <div class="option-info">
+                                        <h5>FIDO2 Security Key</h5>
+                                        <p>Hardware-based authentication</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="option-card" onclick="selectDevice(this, 'email')">
+                                <div class="option-header">
+                                    <div class="option-icon">📧</div>
+                                    <div class="option-info">
+                                        <h5>Email Authentication</h5>
+                                        <p>Receive codes via email</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="sidebar-panel">
+                    <div class="sidebar-header">
+                        <h4>Device Configuration</h4>
+                    </div>
+                    
+                    <div class="sidebar-content">
+                        <div id="sms-config" class="device-config">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" placeholder="+1 (555) 000-0000" />
+                            <p class="help-text">International format supported</p>
+                        </div>
+                        
+                        <div id="totp-config" class="device-config" style="display: none;">
+                            <label for="device-name">Device Name</label>
+                            <input type="text" id="device-name" placeholder="My Authenticator App" />
+                            <p class="help-text">Give your authenticator a recognizable name</p>
+                        </div>
+                        
+                        <div id="fido2-config" class="device-config" style="display: none;">
+                            <label for="key-name">Security Key Name</label>
+                            <input type="text" id="key-name" placeholder="My YubiKey 5" />
+                            <p class="help-text">Name your hardware security key</p>
+                        </div>
+                        
+                        <div id="email-config" class="device-config" style="display: none;">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" placeholder="user@example.com" />
+                            <p class="help-text">Must be a verified email address</p>
+                        </div>
+                        
+                        <div class="config-actions">
+                            <button class="btn-outline" onclick="cancel()">Cancel</button>
+                            <button class="btn-primary" onclick="registerDevice()">Register Device</button>
+                        </div>
+                        
+                        <div class="status-panel">
+                            <h5>Device Status</h5>
+                            <p id="device-status">Ready to register SMS device</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedDeviceType = 'sms';
+
+        function selectDevice(element, deviceType) {
+            // Remove selected class from all cards
+            document.querySelectorAll('.option-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked card
+            element.classList.add('selected');
+            
+            // Update selected device type
+            selectedDeviceType = deviceType;
+            
+            // Hide all config sections
+            document.querySelectorAll('.device-config').forEach(config => {
+                config.style.display = 'none';
+            });
+            
+            // Show relevant config section
+            const configSection = document.getElementById(`${deviceType}-config`);
+            if (configSection) {
+                configSection.style.display = 'block';
+            }
+            
+            // Update status
+            updateDeviceStatus(`Ready to register ${deviceType.toUpperCase()} device`);
+            
+            // Update progress
+            updateProgress(1);
+        }
+
+        function registerDevice() {
+            const configInput = document.querySelector(`#${selectedDeviceType}-config input`);
+            const value = configInput ? configInput.value : '';
+            
+            if (!value && selectedDeviceType !== 'fido2') {
+                updateDeviceStatus('Please fill in the required field');
+                return;
+            }
+            
+            // Update progress to step 2
+            updateProgress(2);
+            updateDeviceStatus('Registering device...');
+            
+            // Simulate registration process
+            setTimeout(() => {
+                updateProgress(3);
+                updateDeviceStatus('Device registered successfully! Check your device for verification.');
+                
+                // Reset after 3 seconds
+                setTimeout(() => {
+                    updateProgress(1);
+                    updateDeviceStatus(`Ready to register ${selectedDeviceType.toUpperCase()} device`);
+                    configInput.value = '';
+                }, 3000);
+            }, 2000);
+        }
+
+        function cancel() {
+            // Reset selection
+            document.querySelectorAll('.option-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Reset to SMS
+            const smsCard = document.querySelector('.option-card.recommended');
+            smsCard.classList.add('selected');
+            selectedDeviceType = 'sms';
+            
+            // Hide all configs, show SMS
+            document.querySelectorAll('.device-config').forEach(config => {
+                config.style.display = 'none';
+            });
+            document.getElementById('sms-config').style.display = 'block';
+            
+            // Clear inputs
+            document.querySelectorAll('input').forEach(input => {
+                input.value = '';
+            });
+            
+            // Reset progress and status
+            updateProgress(1);
+            updateDeviceStatus('Ready to register SMS device');
+        }
+
+        function updateDeviceStatus(message) {
+            const statusElement = document.getElementById('device-status');
+            statusElement.textContent = message;
+        }
+
+        function updateProgress(step) {
+            // Remove active class from all steps
+            document.querySelectorAll('.progress-step').forEach(stepEl => {
+                stepEl.classList.remove('active');
+            });
+            
+            // Add active class to current step
+            const currentStep = document.querySelectorAll('.progress-step')[step - 1];
+            if (currentStep) {
+                currentStep.classList.add('active');
+            }
+        }
+
+        function showHelp() {
+            alert('MFA Device Registration Help:\n\n1. Select a device type from the options\n2. Configure the device with your information\n3. Click "Register Device" to complete setup\n\nFor support, contact your administrator.');
+        }
+
+        // Initialize with SMS selected
+        document.addEventListener('DOMContentLoaded', () => {
+            selectDevice(document.querySelector('.option-card.recommended'), 'sms');
+        });
+    </script>
+</body>
+</html>

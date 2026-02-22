@@ -1000,6 +1000,7 @@ console.log('Welcome, ' + user.name + '!');`,
 							Configuration page before running this demo.
 							<br />
 							<button
+								type="button"
 								onClick={() => {
 									console.log(' [UserInfoFlow] Manual refresh button clicked');
 									window.location.reload();
@@ -1084,6 +1085,7 @@ console.log('Welcome, ' + user.name + '!');`,
 									<br />
 									<div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
 										<button
+											type="button"
 											onClick={() => (window.location.href = '/flows/authorization-code')}
 											style={{
 												padding: '8px 16px',
@@ -1098,6 +1100,7 @@ console.log('Welcome, ' + user.name + '!');`,
 											Go to Authorization Code Flow
 										</button>
 										<button
+											type="button"
 											onClick={() => (window.location.href = '/flows/implicit')}
 											style={{
 												padding: '8px 16px',
@@ -1112,6 +1115,7 @@ console.log('Welcome, ' + user.name + '!');`,
 											Go to Implicit Flow
 										</button>
 										<button
+											type="button"
 											onClick={() => {
 												console.log(' [UserInfoFlow] Debug info:');
 												console.log('Config:', config);
@@ -1137,6 +1141,7 @@ console.log('Welcome, ' + user.name + '!');`,
 											Debug Info
 										</button>
 										<button
+											type="button"
 											onClick={refreshTokens}
 											style={{
 												padding: '8px 16px',
@@ -1151,6 +1156,7 @@ console.log('Welcome, ' + user.name + '!');`,
 											Refresh Token Detection
 										</button>
 										<button
+											type="button"
 											onClick={() => {
 												// Force refresh the page to reload auth context
 												console.log(

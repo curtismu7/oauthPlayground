@@ -22,10 +22,44 @@
  */
 
 import React from 'react';
+import styled from 'styled-components';
 import { StepNavigationV8Props } from '@/v8/types/stepNavigation';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
+import { StepActionButtonsV8U } from './StepActionButtonsV8U';
+import { StepProgressBarV8U } from './StepProgressBarV8U';
 
 const _MODULE_TAG = '[🧭 STEP-NAVIGATION-V8U]';
+
+// Styled components
+const NavigationContainer = styled.div`
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	padding: 16px;
+	background: #ffffff;
+	border-radius: 8px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	margin-bottom: 24px;
+`;
+
+const StepInfo = styled.div`
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	
+	.step-title {
+		font-size: 18px;
+		font-weight: 600;
+		color: #333;
+		margin: 0;
+	}
+	
+	.step-description {
+		font-size: 14px;
+		color: #666;
+		margin: 0;
+	}
+`;
 
 /**
  * StepNavigationV8U Component
@@ -42,85 +76,46 @@ export const StepNavigationV8U: React.FC<StepNavigationV8Props> = ({
 	completedSteps,
 	className = '',
 }) => {
-	logger.debug(Rendering navigation`, {
+	logger.debug('Rendering navigation', {
 		currentStep,
 		totalSteps,
 		completedSteps: completedSteps.length,
 	});
 
-	const currentLabel = stepLabels[currentStep] || `Step ${currentStep + 1}`;
+	const currentStepLabel = stepLabels[currentStep] || `Step ${currentStep + 1}`;
 
 	return (
-		<div className={`step-navigation-v8 ${className}`}>
-			{/* Progress Bar */}
+		<NavigationContainer className={`step-navigation-v8 ${className}`}>
+			{/* Step Progress Bar */}
 			<StepProgressBarV8U
 				currentStep={currentStep}
 				totalSteps={totalSteps}
 				completedSteps={completedSteps}
 			/>
 
-			{/* Step Indicator */}
-			<div className="step-indicator">
-				<div className="step-number">
-					Step {currentStep + 1} of {totalSteps}
-				</div>
-				<div className="step-label">{currentLabel}</div>
-			</div>
+			{/* Current Step Information */}
+			<StepInfo>
+				<h3 className="step-title">{currentStepLabel}</h3>
+				<p className="step-description">
+					{completedSteps.includes(currentStep)
+						? 'This step is completed. You can proceed to the next step.'
+						: 'Complete this step to continue with the flow.'}
+				</p>
+			</StepInfo>
 
-			<style>{`
-				.step-navigation-v8 {
-					display: flex;
-	flex - direction;
-	: column
-	gap:
-	16px
-};
-
-.step-indicator
-{
-	display: flex;
-	flex - direction;
-	: column
-	gap:
-	4px
-}
-
-.step-number
-{
-	font - size;
-	: 12px
-	font - weight
-	: 600
-	color: #
-	666
-	text - transform
-	: uppercase
-	letter - spacing
-	: 0.5px
-}
-
-.step-label
-{
-	font - size;
-	: 18px
-	font - weight
-	: 600
-	color: #
-	333
-}
-
-/* Mobile responsive */
-@media (max-width: 600px)
-{
-	.step-number 
-						font-size: 11px
-
-	.step-label 
-						font-size: 16px
-}
-`}</style>
-		</div>
+			{/* Step Action Buttons */}
+			<StepActionButtonsV8U
+				currentStep={currentStep}
+				totalSteps={totalSteps}
+				isNextDisabled={false}
+				nextDisabledReason=""
+				onPrevious={() => {
+					logger.debug('Previous navigation requested', { currentStep });
+				}}
+				onNext={() => {
+					logger.debug('Next navigation requested', { currentStep });
+				}}
+			/>
+		</NavigationContainer>
 	);
 };
-
-export default StepNavigationV8U;

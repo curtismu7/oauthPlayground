@@ -1290,6 +1290,7 @@ const PingOnePARFlowV7: React.FC = () => {
 								<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
 									<strong style={{ fontSize: '0.875rem' }}>Worker Token:</strong>
 									<button
+										type="button"
 										onClick={() => setShowWorkerToken(!showWorkerToken)}
 										style={{
 											background: 'none',
@@ -1654,6 +1655,7 @@ code_challenge_method=S256
 							)}
 
 						<button
+							type="button"
 							onClick={async () => {
 								const maxRetries = 3;
 								const retryDelay = 1000; // 1 second
@@ -2123,7 +2125,10 @@ password=[your-password]`}
 
 								<div style={{ display: 'grid', gap: '1rem', marginBottom: '1rem' }}>
 									<div>
-										<label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+										<label
+											style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}
+											htmlFor="username"
+										>
 											Username
 										</label>
 										<input
@@ -2144,7 +2149,10 @@ password=[your-password]`}
 									</div>
 
 									<div>
-										<label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+										<label
+											style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}
+											htmlFor="password"
+										>
 											Password
 										</label>
 										<input
@@ -2166,6 +2174,7 @@ password=[your-password]`}
 								</div>
 
 								<button
+									type="button"
 									onClick={async () => {
 										if (!loginCredentials.username || !loginCredentials.password) {
 											v4ToastManager.showError('Please enter both username and password');
@@ -2417,6 +2426,7 @@ password=[your-password]`}
 
 						<div style={{ display: 'flex', justifyContent: 'center' }}>
 							<button
+								type="button"
 								onClick={async () => {
 									// Exchange authorization code for tokens
 									if (!controller.authCode) {
@@ -2492,6 +2502,7 @@ password=[your-password]`}
 						<p>Introspect and manage the received tokens.</p>
 
 						<button
+							type="button"
 							onClick={() => {
 								// For demo purposes, simulate token introspection
 								const mockIntrospection = {

@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MFA Architecture - UI Component Mockups</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* V8-style components to match existing UI */
+        .v8-card {
+            @apply bg-white rounded-lg shadow-lg border border-gray-200 p-6;
+        }
+        .v8-button {
+            @apply px-4 py-2 rounded-md font-medium transition-colors duration-200;
+        }
+        .v8-button-primary {
+            @apply bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+        }
+        .v8-button-secondary {
+            @apply bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2;
+        }
+        .v8-input {
+            @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+        }
+        .v8-step-indicator {
+            @apply flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium;
+        }
+        .v8-step-active {
+            @apply bg-blue-600 text-white;
+        }
+        .v8-step-completed {
+            @apply bg-green-600 text-white;
+        }
+        .v8-step-pending {
+            @apply bg-gray-300 text-gray-600;
+        }
+        .v8-progress-bar {
+            @apply w-full bg-gray-200 rounded-full h-2;
+        }
+        .v8-progress-fill {
+            @apply bg-blue-600 h-2 rounded-full transition-all duration-300;
+        }
+        .v8-alert {
+            @apply p-4 rounded-md border-l-4;
+        }
+        .v8-alert-info {
+            @apply bg-blue-50 border-blue-400 text-blue-700;
+        }
+        .v8-alert-success {
+            @apply bg-green-50 border-green-400 text-green-700;
+        }
+        .v8-alert-warning {
+            @apply bg-yellow-50 border-yellow-400 text-yellow-700;
+        }
+        .v8-alert-error {
+            @apply bg-red-50 border-red-400 text-red-700;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <i class="fas fa-shield-alt text-blue-600 text-2xl mr-3"></i>
+                    <h1 class="text-xl font-semibold text-gray-900">MFA Architecture Mockups</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-500">Environment: dev-pingone</span>
+                    <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">Connected</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            
+            <!-- Registration Flow Mockup -->
+            <div class="space-y-6">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4">
+                        <i class="fas fa-user-plus text-blue-600 mr-2"></i>
+                        Device Registration Flow
+                    </h2>
+                    
+                    <!-- Registration Progress -->
+                    <div class="mb-6">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-medium text-gray-700">Registration Progress</span>
+                            <span class="text-sm text-gray-500">Step 2 of 5</span>
+                        </div>
+                        <div class="v8-progress-bar">
+                            <div class="v8-progress-fill" style="width: 40%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Registration Steps -->
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center">
+                            <div class="v8-step-indicator v8-step-completed">
+                                <i class="fas fa-check text-xs"></i>
+                            </div>
+                            <span class="ml-2 text-sm text-gray-600">Device Type</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="v8-step-indicator v8-step-active">2</div>
+                            <span class="ml-2 text-sm font-medium text-gray-900">User Verification</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="v8-step-indicator v8-step-pending">3</div>
+                            <span class="ml-2 text-sm text-gray-600">Configuration</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="v8-step-indicator v8-step-pending">4</div>
+                            <span class="ml-2 text-sm text-gray-600">Validation</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="v8-step-indicator v8-step-pending">5</div>
+                            <span class="ml-2 text-sm text-gray-600">Complete</span>
+                        </div>
+                    </div>
+
+                    <!-- Registration Form -->
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Device Type</label>
+                            <div class="flex items-center space-x-4">
+                                <button class="v8-button v8-button-primary">
+                                    <i class="fas fa-mobile-alt mr-2"></i>SMS
+                                </button>
+                                <button class="v8-button v8-button-secondary">
+                                    <i class="fas fa-envelope mr-2"></i>Email
+                                </button>
+                                <button class="v8-button v8-button-secondary">
+                                    <i class="fas fa-fingerprint mr-2"></i>FIDO2
+                                </button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                            <input type="text" class="v8-input" value="john.doe@example.com" readonly>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                            <input type="tel" class="v8-input" placeholder="+1 (555) 123-4567">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Device Name (Optional)</label>
+                            <input type="text" class="v8-input" placeholder="My Phone">
+                        </div>
+
+                        <!-- Registration Status -->
+                        <div class="v8-alert v8-alert-info">
+                            <div class="flex">
+                                <i class="fas fa-info-circle mr-2"></i>
+                                <div>
+                                    <p class="text-sm">Registering SMS device for user verification</p>
+                                    <p class="text-xs mt-1">A verification code will be sent to the provided phone number</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex justify-between">
+                            <button class="v8-button v8-button-secondary">
+                                <i class="fas fa-arrow-left mr-2"></i>Back
+                            </button>
+                            <button class="v8-button v8-button-primary">
+                                <i class="fas fa-arrow-right mr-2"></i>Next Step
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Registration Callback Handler Mockup -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                        <i class="fas fa-sync text-blue-600 mr-2"></i>
+                        Registration Callback Handler
+                    </h3>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                            <div class="flex items-center">
+                                <div class="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                                <span class="text-sm text-gray-700">Callback Router Active</span>
+                            </div>
+                            <span class="text-xs text-green-600">Ready</span>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                            <div class="flex items-center">
+                                <div class="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
+                                <span class="text-sm text-gray-700">Registration State</span>
+                            </div>
+                            <span class="text-xs text-blue-600">Step 2</span>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                            <div class="flex items-center">
+                                <div class="w-2 h-2 bg-yellow-500 rounded-full mr-3"></div>
+                                <span class="text-sm text-gray-700">Callback Pending</span>
+                            </div>
+                            <span class="text-xs text-yellow-600">0 retries</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded">
+                        <p class="text-xs text-blue-700">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Registration callbacks will be automatically routed to the correct step in the registration flow
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Authentication Flow Mockup -->
+            <div class="space-y-6">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4">
+                        <i class="fas fa-lock text-green-600 mr-2"></i>
+                        Device Authentication Flow
+                    </h2>
+                    
+                    <!-- Authentication Progress -->
+                    <div class="mb-6">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-medium text-gray-700">Authentication Progress</span>
+                            <span class="text-sm text-gray-500">Step 1 of 4</span>
+                        </div>
+                        <div class="v8-progress-bar">
+                            <div class="v8-progress-fill" style="width: 25%; background-color: #10b981;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Authentication Steps -->
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center">
+                            <div class="v8-step-indicator v8-step-active" style="background-color: #10b981;">1</div>
+                            <span class="ml-2 text-sm font-medium text-gray-900">Device Selection</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="v8-step-indicator v8-step-pending">2</div>
+                            <span class="ml-2 text-sm text-gray-600">Challenge</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="v8-step-indicator v8-step-pending">3</div>
+                            <span class="ml-2 text-sm text-gray-600">Response</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="v8-step-indicator v8-step-pending">4</div>
+                            <span class="ml-2 text-sm text-gray-600">Complete</span>
+                        </div>
+                    </div>
+
+                    <!-- Authentication Form -->
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Select Authentication Device</label>
+                            <div class="space-y-2">
+                                <div class="p-3 border border-green-500 bg-green-50 rounded cursor-pointer">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-mobile-alt text-green-600 mr-3"></i>
+                                            <div>
+                                                <p class="text-sm font-medium text-gray-900">My Phone</p>
+                                                <p class="text-xs text-gray-500">SMS • +1 (555) 123-4567</p>
+                                            </div>
+                                        </div>
+                                        <div class="w-4 h-4 border-2 border-green-500 rounded-full bg-green-500">
+                                            <div class="w-full h-full rounded-full bg-white" style="width: 6px; height: 6px; margin: 1px;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="p-3 border border-gray-300 rounded cursor-pointer hover:bg-gray-50">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-envelope text-gray-600 mr-3"></i>
+                                            <div>
+                                                <p class="text-sm font-medium text-gray-900">Work Email</p>
+                                                <p class="text-xs text-gray-500">Email • john.doe@company.com</p>
+                                            </div>
+                                        </div>
+                                        <div class="w-4 h-4 border-2 border-gray-300 rounded-full"></div>
+                                    </div>
+                                </div>
+
+                                <div class="p-3 border border-gray-300 rounded cursor-pointer hover:bg-gray-50">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-fingerprint text-gray-600 mr-3"></i>
+                                            <div>
+                                                <p class="text-sm font-medium text-gray-900">Security Key</p>
+                                                <p class="text-xs text-gray-500">FIDO2 • YubiKey 5</p>
+                                            </div>
+                                        </div>
+                                        <div class="w-4 h-4 border-2 border-gray-300 rounded-full"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                            <input type="text" class="v8-input" value="john.doe@example.com" readonly>
+                        </div>
+
+                        <!-- Authentication Status -->
+                        <div class="v8-alert v8-alert-success">
+                            <div class="flex">
+                                <i class="fas fa-shield-alt mr-2"></i>
+                                <div>
+                                    <p class="text-sm">Secure authentication session active</p>
+                                    <p class="text-xs mt-1">Session expires in 14:30</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex justify-between">
+                            <button class="v8-button v8-button-secondary">
+                                <i class="fas fa-times mr-2"></i>Cancel
+                            </button>
+                            <button class="v8-button v8-button-primary" style="background-color: #10b981;">
+                                <i class="fas fa-arrow-right mr-2"></i>Send Challenge
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Authentication Callback Handler Mockup -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                        <i class="fas fa-sync text-green-600 mr-2"></i>
+                        Authentication Callback Handler
+                    </h3>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                            <div class="flex items-center">
+                                <div class="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                                <span class="text-sm text-gray-700">Callback Router Active</span>
+                            </div>
+                            <span class="text-xs text-green-600">Ready</span>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                            <div class="flex items-center">
+                                <div class="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                                <span class="text-sm text-gray-700">Authentication State</span>
+                            </div>
+                            <span class="text-xs text-green-600">Step 1</span>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                            <div class="flex items-center">
+                                <div class="w-2 h-2 bg-gray-400 rounded-full mr-3"></div>
+                                <span class="text-sm text-gray-700">Challenge Active</span>
+                            </div>
+                            <span class="text-xs text-gray-600">None</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 p-3 bg-green-50 border border-green-200 rounded">
+                        <p class="text-xs text-green-700">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Authentication callbacks will be automatically routed to the correct step in the authentication flow
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Security Metrics -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                        <i class="fas fa-chart-line text-orange-600 mr-2"></i>
+                        Security Metrics
+                    </h3>
+                    
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">State Age</span>
+                            <span class="text-sm font-medium text-gray-900">2m 15s</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">Challenge Age</span>
+                            <span class="text-sm font-medium text-gray-900">0s</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">Attempts Remaining</span>
+                            <span class="text-sm font-medium text-green-600">3</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">Risk Level</span>
+                            <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded">Low</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comparison Section -->
+        <div class="mt-8 bg-white rounded-lg shadow p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">
+                <i class="fas fa-exchange-alt text-purple-600 mr-2"></i>
+                Architecture Comparison
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                    </div>
+                    <h3 class="font-medium text-gray-900 mb-2">Before (Mixed)</h3>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>• Single service for both flows</li>
+                        <li>• Shared state management</li>
+                        <li>• Mixed callback handling</li>
+                        <li>• Confusing user experience</li>
+                    </ul>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-arrow-right text-yellow-600 text-xl"></i>
+                    </div>
+                    <h3 class="font-medium text-gray-900 mb-2">Migration</h3>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>• Extract registration logic</li>
+                        <li>• Extract authentication logic</li>
+                        <li>• Create smart callback router</li>
+                        <li>• Separate state management</li>
+                    </ul>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                    </div>
+                    <h3 class="font-medium text-gray-900 mb-2">After (Separated)</h3>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>• Pure registration service</li>
+                        <li>• Pure authentication service</li>
+                        <li>• Smart callback routing</li>
+                        <li>• Clear user experience</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- UI Consistency Notes -->
+        <div class="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
+            <h3 class="text-lg font-semibold text-blue-900 mb-3">
+                <i class="fas fa-palette text-blue-600 mr-2"></i>
+                UI Consistency Verification
+            </h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h4 class="font-medium text-blue-900 mb-2">✅ Preserved Elements</h4>
+                    <ul class="text-sm text-blue-800 space-y-1">
+                        <li>• V8 card styling and shadows</li>
+                        <li>• Button styles and interactions</li>
+                        <li>• Form input styling</li>
+                        <li>• Progress indicators</li>
+                        <li>• Alert/notification components</li>
+                        <li>• Color scheme and typography</li>
+                        <li>• Icon usage and placement</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-medium text-blue-900 mb-2">🔄 Enhanced Elements</h4>
+                    <ul class="text-sm text-blue-800 space-y-1">
+                        <li>• Clear flow separation (green vs blue)</li>
+                        <li>• Improved step indicators</li>
+                        <li>• Better state visualization</li>
+                        <li>• Enhanced security metrics</li>
+                        <li>• Callback status indicators</li>
+                        <li>• Device selection improvements</li>
+                        <li>• Progress tracking per flow</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="mt-4 p-3 bg-blue-100 rounded">
+                <p class="text-sm text-blue-700">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    <strong>UI Drift Assessment:</strong> MINIMAL - The new components maintain the existing V8 design language while improving clarity and flow separation. No breaking changes to user expectations.
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Interactive demo functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Simulate step progression
+            let regStep = 2;
+            let authStep = 1;
+            
+            // Registration flow simulation
+            const regNextBtn = document.querySelector('.v8-button-primary');
+            if (regNextBtn) {
+                regNextBtn.addEventListener('click', function() {
+                    regStep = Math.min(regStep + 1, 5);
+                    updateRegistrationProgress();
+                });
+            }
+            
+            // Authentication flow simulation
+            const authNextBtn = document.querySelector('.v8-button-primary[style*="background-color: #10b981"]');
+            if (authNextBtn) {
+                authNextBtn.addEventListener('click', function() {
+                    authStep = Math.min(authStep + 1, 4);
+                    updateAuthenticationProgress();
+                });
+            }
+            
+            function updateRegistrationProgress() {
+                const progress = (regStep / 5) * 100;
+                document.querySelector('.v8-progress-fill').style.width = progress + '%';
+                document.querySelector('.text-sm.text-gray-500').textContent = `Step ${regStep} of 5`;
+            }
+            
+            function updateAuthenticationProgress() {
+                const progress = (authStep / 4) * 100;
+                const authProgressFill = document.querySelectorAll('.v8-progress-fill')[1];
+                if (authProgressFill) {
+                    authProgressFill.style.width = progress + '%';
+                    authProgressFill.style.backgroundColor = '#10b981';
+                }
+            }
+            
+            // Device selection interaction
+            const deviceOptions = document.querySelectorAll('.cursor-pointer');
+            deviceOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // Remove selection from all options
+                    deviceOptions.forEach(opt => {
+                        opt.classList.remove('border-green-500', 'bg-green-50');
+                        opt.classList.add('border-gray-300');
+                        const radio = opt.querySelector('.rounded-full');
+                        if (radio) {
+                            radio.classList.remove('border-green-500', 'bg-green-500');
+                            radio.classList.add('border-gray-300');
+                            radio.innerHTML = '';
+                        }
+                    });
+                    
+                    // Add selection to clicked option
+                    this.classList.remove('border-gray-300');
+                    this.classList.add('border-green-500', 'bg-green-50');
+                    const radio = this.querySelector('.rounded-full');
+                    if (radio) {
+                        radio.classList.remove('border-gray-300');
+                        radio.classList.add('border-green-500', 'bg-green-500');
+                        radio.innerHTML = '<div class="w-full h-full rounded-full bg-white" style="width: 6px; height: 6px; margin: 1px;"></div>';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

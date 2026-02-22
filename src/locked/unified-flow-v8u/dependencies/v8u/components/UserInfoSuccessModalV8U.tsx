@@ -105,6 +105,8 @@ export const UserInfoSuccessModalV8U: React.FC<UserInfoSuccessModalV8UProps> = (
 		<>
 			{/* Backdrop */}
 			<div
+				role="button"
+				tabIndex={0}
 				onClick={onClose}
 				style={{
 					position: 'fixed',
@@ -122,6 +124,8 @@ export const UserInfoSuccessModalV8U: React.FC<UserInfoSuccessModalV8UProps> = (
 			>
 				{/* Modal */}
 				<div
+					role="button"
+					tabIndex={0}
 					onClick={(e) => e.stopPropagation()}
 					style={{
 						background: 'white',
@@ -184,6 +188,7 @@ export const UserInfoSuccessModalV8U: React.FC<UserInfoSuccessModalV8UProps> = (
 							</div>
 						</div>
 						<button
+							type="button"
 							onClick={onClose}
 							style={{
 								background: 'rgba(255, 255, 255, 0.2)',
@@ -418,6 +423,7 @@ export const UserInfoSuccessModalV8U: React.FC<UserInfoSuccessModalV8UProps> = (
 
 						{/* Close Button */}
 						<button
+							type="button"
 							onClick={onClose}
 							style={{
 								width: '100%',

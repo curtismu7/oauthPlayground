@@ -73,6 +73,8 @@ export const MFADeviceSelector: React.FC<MFADeviceSelectorProps> = ({
 							const borderColor = selectedDeviceId === device.id ? '#10b981' : '#e5e7eb';
 							return (
 								<div
+									role="button"
+									tabIndex={0}
 									key={device.id}
 									onClick={() => onSelectDevice(device.id)}
 									style={{
@@ -133,6 +135,8 @@ export const MFADeviceSelector: React.FC<MFADeviceSelectorProps> = ({
 
 			<div style={{ marginBottom: '10px' }}>
 				<div
+					role="button"
+					tabIndex={0}
 					onClick={onSelectNew}
 					style={{
 						padding: '8px 12px',

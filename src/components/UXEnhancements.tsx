@@ -371,6 +371,7 @@ export const StatusMessage: React.FC<StatusMessageProps> = ({
 			</StatusText>
 			{onDismiss && (
 				<button
+					type="button"
 					onClick={onDismiss}
 					aria-label="Dismiss message"
 					style={{

@@ -170,6 +170,7 @@ export const Phase5TestSuite: React.FC = () => {
 
 				<div style={{ marginBottom: '20px' }}>
 					<button
+						type="button"
 						onClick={testLazyLoading}
 						style={{
 							padding: '10px 20px',
@@ -185,6 +186,7 @@ export const Phase5TestSuite: React.FC = () => {
 					</button>
 
 					<button
+						type="button"
 						onClick={testPreloading}
 						style={{
 							padding: '10px 20px',
@@ -200,6 +202,7 @@ export const Phase5TestSuite: React.FC = () => {
 					</button>
 
 					<button
+						type="button"
 						onClick={() => setManualLazyLoaded(!manualLazyLoaded)}
 						style={{
 							padding: '10px 20px',

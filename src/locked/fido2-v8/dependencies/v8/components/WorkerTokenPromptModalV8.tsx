@@ -49,6 +49,8 @@ export const WorkerTokenPromptModalV8: React.FC<WorkerTokenPromptModalV8Props> =
 		<>
 			{/* Overlay */}
 			<div
+				role="button"
+				tabIndex={0}
 				style={{
 					position: 'fixed',
 					top: 0,
@@ -65,6 +67,8 @@ export const WorkerTokenPromptModalV8: React.FC<WorkerTokenPromptModalV8Props> =
 			>
 				{/* Modal */}
 				<div
+					role="button"
+					tabIndex={0}
 					role="dialog"
 					aria-modal="true"
 					aria-labelledby="worker-token-prompt-title"

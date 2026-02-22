@@ -613,7 +613,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
       <h3>Register MFA Device</h3>
       <form [formGroup]="registrationForm" (ngSubmit)="registerDevice()">
         <div class="form-group">
-          <label>Device Type</label>
+          <label htmlFor="devicetype">Device Type</label>
           <select formControlName="type" (change)="onTypeChange()">
             <option value="SMS">SMS</option>
             <option value="EMAIL">Email</option>
@@ -622,12 +622,12 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
         </div>
 
         <div class="form-group">
-          <label>Device Name</label>
+          <label htmlFor="devicename">Device Name</label>
           <input type="text" formControlName="name" placeholder="My Device" />
         </div>
 
         <div class="form-group" *ngIf="registrationForm.value.type === 'SMS'">
-          <label>Phone Number</label>
+          <label htmlFor="phonenumber">Phone Number</label>
           <input
             type="tel"
             formControlName="phone"
@@ -636,7 +636,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
         </div>
 
         <div class="form-group" *ngIf="registrationForm.value.type === 'EMAIL'">
-          <label>Email Address</label>
+          <label htmlFor="emailaddress">Email Address</label>
           <input
             type="email"
             formControlName="email"

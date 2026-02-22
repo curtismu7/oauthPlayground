@@ -787,6 +787,7 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 										<label
 											htmlFor="device-type-filter"
 											style={{ fontSize: '13px', fontWeight: 600, color: '#111827' }}
+											htmlFor="type"
 										>
 											Type
 										</label>
@@ -817,6 +818,7 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 										<label
 											htmlFor="device-status-filter"
 											style={{ fontSize: '13px', fontWeight: 600, color: '#111827' }}
+											htmlFor="status"
 										>
 											Status
 										</label>
@@ -949,6 +951,8 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 													<Draggable key={device.id} draggableId={String(device.id)} index={index}>
 														{(draggableProvided, snapshot) => (
 															<div
+																role="button"
+																tabIndex={0}
 																ref={draggableProvided.innerRef}
 																{...draggableProvided.draggableProps}
 																{...draggableProvided.dragHandleProps}

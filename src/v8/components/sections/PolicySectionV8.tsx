@@ -159,6 +159,8 @@ export const PolicySectionV8: React.FC<PolicySectionProps> = ({
 
 								return (
 									<div
+										role="button"
+										tabIndex={0}
 										key={policy.id}
 										onClick={() => {
 											if (onPolicySelect) {

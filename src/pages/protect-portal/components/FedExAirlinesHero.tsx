@@ -539,15 +539,21 @@ const FedExAirlinesHero: React.FC<FedExAirlinesHeroProps> = ({
 									<TrackingOptions>
 										<TrackingOption>
 											<input type="radio" name="trackType" id="track" defaultChecked />
-											<label htmlFor="track">Track by tracking number</label>
+											<label htmlFor="track" htmlFor="trackbytrackingnumber">
+												Track by tracking number
+											</label>
 										</TrackingOption>
 										<TrackingOption>
 											<input type="radio" name="trackType" id="reference" />
-											<label htmlFor="reference">Track by reference</label>
+											<label htmlFor="reference" htmlFor="trackbyreference">
+												Track by reference
+											</label>
 										</TrackingOption>
 										<TrackingOption>
 											<input type="radio" name="trackType" id="tnot" />
-											<label htmlFor="tnot">Track by Transport Order / TNOT number</label>
+											<label htmlFor="tnot" htmlFor="trackbytransportordertnotnumber">
+												Track by Transport Order / TNOT number
+											</label>
 										</TrackingOption>
 									</TrackingOptions>
 								</TrackingSection>

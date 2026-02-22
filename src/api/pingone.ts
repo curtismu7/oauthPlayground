@@ -7,7 +7,7 @@ const base64Encode = (str: string): string => {
  * PingOne API Client
  * Handles authentication and requests to the PingOne API
  */
-class PingOneAPI {
+export class PingOneAPI {
 	constructor(config = {}) {
 		this.config = {
 			baseUrl: 'https://api.pingone.com',
@@ -191,4 +191,6 @@ class PingOneAPI {
 	}
 }
 
-export default new PingOneAPI();
+// Create a default instance for backward compatibility
+const defaultPingOneAPI = new PingOneAPI();
+export default defaultPingOneAPI;

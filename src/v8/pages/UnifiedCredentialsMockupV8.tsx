@@ -142,7 +142,7 @@ export const UnifiedCredentialsMockupV8: React.FC = () => {
 					</div>
 					<div className="section-content">
 						<div className="form-group">
-							<label>Select Flow Type</label>
+							<label htmlFor="selectflowtype">Select Flow Type</label>
 							<select
 								value={effectiveFlowType}
 								onChange={(e) => handleFlowTypeChange(e.target.value as FlowType)}
@@ -311,7 +311,7 @@ export const UnifiedCredentialsMockupV8: React.FC = () => {
 					<div className="section-content">
 						{fieldVisibility.showResponseType && flowOptions.responseTypes.length > 0 && (
 							<div className="form-group">
-								<label>Response Type</label>
+								<label htmlFor="responsetype">Response Type</label>
 								<select className="flow-select">
 									{flowOptions.responseTypes.map((type) => (
 										<option key={type} value={type}>
@@ -325,7 +325,9 @@ export const UnifiedCredentialsMockupV8: React.FC = () => {
 
 						{fieldVisibility.showAuthMethod && (
 							<div className="form-group">
-								<label>Token Endpoint Authentication Method</label>
+								<label htmlFor="tokenendpointauthenticationmethod">
+									Token Endpoint Authentication Method
+								</label>
 								<select className="flow-select">
 									{flowOptions.authMethods.map((method) => (
 										<option key={method} value={method}>
@@ -386,7 +388,7 @@ export const UnifiedCredentialsMockupV8: React.FC = () => {
 						{/* OIDC-specific fields */}
 						{fieldVisibility.showIdToken && (
 							<div className="form-group">
-								<label>ID Token Display</label>
+								<label htmlFor="idtokendisplay">ID Token Display</label>
 								<div className="info-box">
 									OIDC flow - ID Token will be included in the response
 								</div>
@@ -395,7 +397,7 @@ export const UnifiedCredentialsMockupV8: React.FC = () => {
 
 						{fieldVisibility.showUserInfo && (
 							<div className="form-group">
-								<label>UserInfo Endpoint</label>
+								<label htmlFor="userinfoendpoint">UserInfo Endpoint</label>
 								<div className="info-box">
 									OIDC flow - UserInfo endpoint available for user profile information
 								</div>

@@ -30,6 +30,19 @@ import { getValidWorkerToken } from '../../services/tokenExpirationService';
 import { workerTokenCredentialsService } from '../../services/workerTokenCredentialsService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
+// Add CSS animation for spinner - inject into document head
+if (typeof document !== 'undefined' && !document.getElementById('worker-token-spinner-style')) {
+	const style = document.createElement('style');
+	style.id = 'worker-token-spinner-style';
+	style.textContent = `
+		@keyframes spin {
+			from { transform: rotate(0deg); }
+			to { transform: rotate(360deg); }
+		}
+	`;
+	document.head.appendChild(style);
+}
+
 interface MfaDevice {
 	id: string;
 	type: string;
@@ -218,6 +231,7 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 	const [deviceSelectionMode, setDeviceSelectionMode] = useState<'select' | 'register'>('select');
 	const [selectedExistingDeviceId, setSelectedExistingDeviceId] = useState('');
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
+	const [isGettingWorkerToken, setIsGettingWorkerToken] = useState(false);
 
 	// Load worker token from localStorage on mount and listen for updates
 	useEffect(() => {
@@ -234,12 +248,15 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 				setWorkerToken('');
 				console.log('[PingOneMFAWorkflowLibraryV7] ℹ️ No valid worker token found');
 			}
+			// Stop loading state when token is loaded
+			setIsGettingWorkerToken(false);
 		};
 
 		loadWorkerToken();
 
 		// Listen for worker token updates
 		const handleTokenUpdate = () => {
+			console.log('[PingOneMFAWorkflowLibraryV7] 🔄 Received workerTokenUpdated event');
 			loadWorkerToken();
 		};
 
@@ -822,7 +839,11 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 								<ParameterLabel>Worker Token:</ParameterLabel>
 								<ParameterValue>
 									<Button
-										onClick={() => setShowWorkerTokenModal(true)}
+										onClick={() => {
+											setIsGettingWorkerToken(true);
+											setShowWorkerTokenModal(true);
+										}}
+										disabled={isGettingWorkerToken}
 										style={{
 											width: '100%',
 											display: 'flex',
@@ -832,10 +853,21 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 											backgroundColor: workerToken ? '#16a34a' : '#dc2626',
 											color: '#ffffff',
 											border: `1px solid ${workerToken ? '#16a34a' : '#dc2626'}`,
+											opacity: isGettingWorkerToken ? 0.7 : 1,
 										}}
 									>
-										{workerToken ? <FiCheckCircle /> : <FiKey />}
-										{workerToken ? 'Refresh Worker Token' : 'Get Worker Token'}
+										{isGettingWorkerToken ? (
+											<FiRefreshCw style={{ animation: 'spin 1s linear infinite' }} />
+										) : workerToken ? (
+											<FiCheckCircle />
+										) : (
+											<FiKey />
+										)}
+										{isGettingWorkerToken
+											? 'Getting Worker Token...'
+											: workerToken
+												? 'Refresh Worker Token'
+												: 'Get Worker Token'}
 									</Button>
 								</ParameterValue>
 							</ParameterGrid>
@@ -859,6 +891,8 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 											<div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
 												{existingDevices.map((device) => (
 													<div
+														role="button"
+														tabIndex={0}
 														key={device.id}
 														onClick={() => handleSelectExistingDevice(device.id)}
 														style={{
@@ -1398,6 +1432,7 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 		selectedExistingDeviceId,
 		username,
 		workerToken,
+		isGettingWorkerToken,
 	]);
 
 	return (
@@ -1464,10 +1499,29 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 
 				<WorkerTokenModal
 					isOpen={showWorkerTokenModal}
-					onClose={() => setShowWorkerTokenModal(false)}
+					onClose={() => {
+						setShowWorkerTokenModal(false);
+						setIsGettingWorkerToken(false);
+					}}
 					onContinue={() => {
 						setShowWorkerTokenModal(false);
-						// Token will be loaded via the workerTokenUpdated event
+						// Give a brief moment for the token to be saved, then reload
+						setTimeout(() => {
+							const tokenResult = getValidWorkerToken('worker_token', 'worker_token_expires_at', {
+								clearExpired: true,
+								showToast: false,
+							});
+
+							if (tokenResult.isValid && tokenResult.token) {
+								setWorkerToken(tokenResult.token);
+								console.log('[PingOneMFAWorkflowLibraryV7] ✅ Worker token updated immediately');
+								v4ToastManager.showSuccess('Worker token obtained successfully!');
+							} else {
+								console.log('[PingOneMFAWorkflowLibraryV7] ⚠️ No valid token found after modal');
+								v4ToastManager.showError('Failed to obtain worker token');
+							}
+							setIsGettingWorkerToken(false);
+						}, 500); // Small delay to ensure token is saved
 					}}
 					flowType="pingone-mfa-workflow-library"
 					environmentId={credentials.environmentId || ''}

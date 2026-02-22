@@ -2,23 +2,38 @@
 // Config Checker component for comparing form data against live PingOne applications
 
 import React, { useMemo, useState } from 'react';
-import {
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiCopy,
-	FiDownload,
-	FiKey,
-	FiLoader,
-	FiMonitor,
-	FiSave,
-	FiX,
-} from 'react-icons/fi';
 import styled from 'styled-components';
 import { ConfigComparisonService, ConfigDiffResult } from '../services/configComparisonService';
 import { pingOneAppCreationService } from '../services/pingOneAppCreationService';
 import { logger } from '../utils/logger';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { DraggableModal } from './DraggableModal';
+
+// Icon mapping function for React Icons to MDI
+const getIcon = (iconName: string, size: number = 16, style: React.CSSProperties = {}) => {
+	const iconMap: Record<string, string> = {
+		FiAlertTriangle: 'mdi-alert-triangle',
+		FiCheckCircle: 'mdi-check-circle',
+		FiCopy: 'mdi-content-copy',
+		FiDownload: 'mdi-download',
+		FiKey: 'mdi-key',
+		FiLoader: 'mdi-loading',
+		FiMonitor: 'mdi-monitor',
+		FiSave: 'mdi-content-save',
+		FiX: 'mdi-close',
+	};
+
+	const mdiClass = iconMap[iconName] || 'mdi-help';
+	return (
+		<span
+			className={mdiClass}
+			style={{
+				fontSize: `${size}px`,
+				...style,
+			}}
+		/>
+	);
+};
 
 // Custom P1 Logo Component
 const P1Logo = ({ size = 14, style = {} }) => (
@@ -1273,10 +1288,10 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 	};
 
 	return (
-		<>
+		<div className="end-user-nano">
 			<ConfigCheckerHeader>
 				<ConfigCheckerTitle>
-					<FiAlertTriangle size={20} />
+					{getIcon('FiAlertTriangle', 20)}
 					PingOne Configuration Checker
 				</ConfigCheckerTitle>
 				<ConfigCheckerDescription>
@@ -1300,7 +1315,9 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 							fontWeight: '600',
 						}}
 					>
-						{loading === 'check' && <FiLoader className="spinner" />}
+						{loading === 'check' && (
+							<span className="mdi mdi-loading spinner" style={{ fontSize: '16px' }}></span>
+						)}
 						Check Config
 					</Button>
 
@@ -1335,7 +1352,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									margin: 0,
 								}}
 							>
-								<FiKey size={14} style={{ marginRight: '0.25rem' }} />
+								{getIcon('FiKey', 14, { marginRight: '0.25rem' })}
 								Refresh worker token (one-time)
 							</label>
 						</div>
@@ -1354,7 +1371,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								border: '1px solid #d1d5db',
 							}}
 						>
-							<FiCheckCircle size={14} color="#10b981" />
+							{getIcon('FiCheckCircle', 14, { color: '#10b981' })}
 							<span style={{ fontSize: '0.875rem', color: '#6b7280' }}>Worker token refreshed</span>
 						</div>
 					)}
@@ -1370,7 +1387,9 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 							}}
 							title={`Last checked: ${new Date(lastCheckTime).toLocaleTimeString()}`}
 						>
-							{loading === 'refresh' && <FiLoader className="spinner" />}
+							{loading === 'refresh' && (
+								<span className="mdi mdi-loading spinner" style={{ fontSize: '16px' }}></span>
+							)}
 							Refresh
 						</Button>
 					)}
@@ -1384,7 +1403,9 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 							fontWeight: '600',
 						}}
 					>
-						{loading === 'create' && <FiLoader className="spinner" />}
+						{loading === 'create' && (
+							<span className="mdi mdi-loading spinner" style={{ fontSize: '16px' }}></span>
+						)}
 						Create App
 					</Button>
 					<Button
@@ -1404,7 +1425,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 							fontWeight: '600',
 						}}
 					>
-						<FiKey />
+						{getIcon('FiKey')}
 						Get New Worker Token
 					</Button>
 				</div>
@@ -1417,7 +1438,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 				headerContent={
 					diffs && (
 						<Badge $tone={diffs.hasDiffs ? 'warning' : 'success'}>
-							{diffs.hasDiffs ? <FiAlertTriangle /> : <FiCheckCircle />}
+							{diffs.hasDiffs ? getIcon('FiAlertTriangle') : getIcon('FiCheckCircle')}
 							{diffs.hasDiffs ? 'Differences detected' : 'No differences'}
 						</Badge>
 					)
@@ -1451,7 +1472,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								height: '48px',
 							}}
 						>
-							<FiKey size={24} />
+							{getIcon('FiKey', 24)}
 						</div>
 						<div style={{ flex: 1, minWidth: 0 }}>
 							<div
@@ -1491,7 +1512,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								fontSize: '0.8125rem',
 							}}
 						>
-							<FiCopy size={14} />
+							{getIcon('FiCopy', 14)}
 							Copy
 						</Button>
 					</div>
@@ -1508,15 +1529,12 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 							marginBottom: '1.5rem',
 						}}
 					>
-						<FiCheckCircle
-							size={48}
-							style={{
-								color: '#16a34a',
-								marginBottom: '1rem',
-								display: 'block',
-								margin: '0 auto 1rem',
-							}}
-						/>
+						{getIcon('FiCheckCircle', 48, {
+							color: '#16a34a',
+							marginBottom: '1rem',
+							display: 'block',
+							margin: '0 auto 1rem',
+						})}
 						<h3
 							style={{
 								margin: '0 0 0.5rem 0',
@@ -1633,10 +1651,11 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 											)}
 											{diff.change === 'removed' && (
 												<div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}>
-													<FiMonitor
-														size={16}
-														style={{ flexShrink: 0, marginTop: '0.125rem', color: '#3b82f6' }}
-													/>
+													{getIcon('FiMonitor', 16, {
+														flexShrink: 0,
+														marginTop: '0.125rem',
+														color: '#3b82f6',
+													})}
 													<div style={{ flex: 1 }}>
 														<div
 															style={{
@@ -1688,10 +1707,11 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 															borderTop: '1px solid #e2e8f0',
 														}}
 													>
-														<FiMonitor
-															size={16}
-															style={{ flexShrink: 0, marginTop: '0.125rem', color: '#3b82f6' }}
-														/>
+														{getIcon('FiMonitor', 16, {
+															flexShrink: 0,
+															marginTop: '0.125rem',
+															color: '#3b82f6',
+														})}
 														<div style={{ flex: 1 }}>
 															<div
 																style={{
@@ -1800,7 +1820,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									fontWeight: '600',
 								}}
 							>
-								<FiCopy /> Copy JSON
+								{getIcon('FiCopy')} Copy JSON
 							</Button>
 							{onImportConfig && diffs && (
 								<Button
@@ -1813,7 +1833,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 										fontWeight: '600',
 									}}
 								>
-									<FiDownload /> Import Config
+									{getIcon('FiDownload')} Import Config
 								</Button>
 							)}
 							{diffs?.hasDiffs && (
@@ -1827,8 +1847,10 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 										fontWeight: '600',
 									}}
 								>
-									{isUpdating && <FiLoader className="spinner" />}
-									<FiDownload /> Export Config
+									{isUpdating && (
+										<span className="mdi mdi-loading spinner" style={{ fontSize: '16px' }}></span>
+									)}
+									{getIcon('FiDownload')} Export Config
 								</Button>
 							)}
 						</div>
@@ -1901,8 +1923,10 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 										fontWeight: '600',
 									}}
 								>
-									{isUpdating && <FiLoader className="spinner" />}
-									<FiMonitor /> Update Our App ({selectedDiffs.size} selected)
+									{isUpdating && (
+										<span className="mdi mdi-loading spinner" style={{ fontSize: '16px' }}></span>
+									)}
+									{getIcon('FiMonitor')} Update Our App ({selectedDiffs.size} selected)
 								</Button>
 								{/* Option 1: Limited Update PingOne (current implementation) */}
 								<Button
@@ -1915,8 +1939,11 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 										fontWeight: '600',
 									}}
 								>
-									{isUpdating && <FiLoader className="spinner" />}
-									<FiSave /> Update PingOne (Safe Fields Only) ({selectedDiffs.size} selected)
+									{isUpdating && (
+										<span className="mdi mdi-loading spinner" style={{ fontSize: '16px' }}></span>
+									)}
+									{getIcon('FiSave')} Update PingOne (Safe Fields Only) ({selectedDiffs.size}{' '}
+									selected)
 								</Button>
 
 								{/* Option 2: Completely remove Update PingOne button - uncomment to use this approach instead:
@@ -1976,6 +2003,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								fontWeight: '600',
 								color: '#374151',
 							}}
+							htmlFor="applicationname"
 						>
 							Application Name *
 						</label>
@@ -2006,6 +2034,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								fontWeight: '600',
 								color: '#374151',
 							}}
+							htmlFor="description"
 						>
 							Description
 						</label>
@@ -2040,6 +2069,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									fontWeight: '600',
 									color: '#374151',
 								}}
+								htmlFor="redirecturi"
 							>
 								Redirect URI *
 							</label>
@@ -2074,6 +2104,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									fontWeight: '600',
 									color: '#374151',
 								}}
+								htmlFor="tokenendpointauthenticationmethod"
 							>
 								Token Endpoint Authentication Method
 							</label>
@@ -2167,6 +2198,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									color: '#374151',
 									fontSize: '0.875rem',
 								}}
+								htmlFor="responsetype"
 							>
 								Response Type *
 							</label>
@@ -2441,7 +2473,12 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								</div>
 								<div>
 									<h3
-										style={{ margin: 0, fontSize: '1.125rem', fontWeight: '600', color: '#1f2937' }}
+										style={{
+											margin: 0,
+											fontSize: '1.125rem',
+											fontWeight: '600',
+											color: '#1f2937',
+										}}
 									>
 										Authentication Failed
 									</h3>
@@ -2451,6 +2488,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								</div>
 							</div>
 							<button
+								type="button"
 								onClick={() => setShowAuthErrorModal(false)}
 								style={{
 									background: 'none',
@@ -2461,7 +2499,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									color: '#6b7280',
 								}}
 							>
-								<FiX size={20} />
+								{getIcon('FiX', 20)}
 							</button>
 						</ModalHeader>
 
@@ -2513,6 +2551,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 							}}
 						>
 							<button
+								type="button"
 								onClick={() => setShowAuthErrorModal(false)}
 								style={{
 									padding: '0.75rem 1.5rem',
@@ -2527,6 +2566,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								Close
 							</button>
 							<button
+								type="button"
 								onClick={() => {
 									setShowAuthErrorModal(false);
 									if (onGenerateWorkerToken) {
@@ -2575,7 +2615,12 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								</div>
 								<div>
 									<h3
-										style={{ margin: 0, fontSize: '1.125rem', fontWeight: '600', color: '#1f2937' }}
+										style={{
+											margin: 0,
+											fontSize: '1.125rem',
+											fontWeight: '600',
+											color: '#1f2937',
+										}}
 									>
 										Application Created Successfully
 									</h3>
@@ -2585,6 +2630,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								</div>
 							</div>
 							<button
+								type="button"
 								onClick={() => setShowCreationResultModal(false)}
 								style={{
 									background: 'none',
@@ -2595,7 +2641,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									color: '#6b7280',
 								}}
 							>
-								<FiX size={20} />
+								{getIcon('FiX', 20)}
 							</button>
 						</ModalHeader>
 
@@ -2691,6 +2737,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 							}}
 						>
 							<button
+								type="button"
 								onClick={() => setShowCreationResultModal(false)}
 								style={{
 									padding: '0.75rem 1.5rem',
@@ -2705,6 +2752,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								Close
 							</button>
 							<button
+								type="button"
 								onClick={() => {
 									setShowCreationResultModal(false);
 									// Copy client ID to clipboard
@@ -2723,13 +2771,13 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 									fontWeight: '600',
 								}}
 							>
-								<FiCopy style={{ marginRight: '0.5rem' }} />
+								{getIcon('FiCopy', 16, { marginRight: '0.5rem' })}
 								Copy Client ID
 							</button>
 						</div>
 					</ModalContent>
 				</ModalBackdrop>
 			)}
-		</>
+		</div>
 	);
 };

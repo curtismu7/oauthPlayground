@@ -84,6 +84,8 @@ export const IDTokenValidationModalV8U: React.FC<IDTokenValidationModalV8UProps>
 
 	return (
 		<div
+			role="button"
+			tabIndex={0}
 			style={{
 				position: 'fixed',
 				top: 0,
@@ -100,6 +102,8 @@ export const IDTokenValidationModalV8U: React.FC<IDTokenValidationModalV8UProps>
 			onClick={onClose}
 		>
 			<div
+				role="button"
+				tabIndex={0}
 				style={{
 					background: '#ffffff',
 					borderRadius: '12px',
@@ -132,6 +136,7 @@ export const IDTokenValidationModalV8U: React.FC<IDTokenValidationModalV8UProps>
 						</p>
 					</div>
 					<button
+						type="button"
 						onClick={onClose}
 						style={{
 							background: 'rgba(255, 255, 255, 0.2)',
@@ -441,6 +446,7 @@ export const IDTokenValidationModalV8U: React.FC<IDTokenValidationModalV8UProps>
 						}}
 					>
 						<button
+							type="button"
 							onClick={handleValidate}
 							disabled={isValidating}
 							style={{
@@ -458,6 +464,7 @@ export const IDTokenValidationModalV8U: React.FC<IDTokenValidationModalV8UProps>
 							{isValidating ? 'Validating...' : 'Validate Again'}
 						</button>
 						<button
+							type="button"
 							onClick={onClose}
 							style={{
 								padding: '10px 20px',
