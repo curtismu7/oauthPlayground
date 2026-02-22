@@ -91,6 +91,7 @@ import AdvancedSecuritySettingsDemo from './pages/AdvancedSecuritySettingsDemo';
 import AIAgentOverview from './pages/AIAgentOverview';
 import AIGlossary from './pages/AIGlossary';
 import AutoDiscover from './pages/AutoDiscover';
+import AutoDiscoverPingUI from './pages/AutoDiscover.PingUI';
 import CIBAvsDeviceAuthz from './pages/CIBAvsDeviceAuthz';
 import CompetitiveAnalysis from './pages/CompetitiveAnalysis';
 import ComprehensiveOAuthEducation from './pages/ComprehensiveOAuthEducation';
@@ -1344,7 +1345,7 @@ const AppRoutes: React.FC = () => {
 									element={<OAuth2SecurityBestPractices />}
 								/>
 								<Route path="/docs/spiffe-spire-pingone" element={<SpiffeSpirePingOne />} />
-								<Route path="/auto-discover" element={<AutoDiscover />} />
+								<Route path="/auto-discover" element={<AutoDiscoverPingUI />} />
 								<Route path="/token-management" element={<TokenManagement />} />
 								<Route
 									path="/postman-collection-generator"
