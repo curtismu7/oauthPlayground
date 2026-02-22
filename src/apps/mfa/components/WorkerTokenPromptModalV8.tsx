@@ -64,11 +64,14 @@ export const WorkerTokenPromptModalV8: React.FC<WorkerTokenPromptModalV8Props> =
 					zIndex: 10000,
 				}}
 				onClick={handleCancel}
+				onKeyDown={(e) => {
+					if (e.key === 'Enter' || e.key === ' ') {
+						handleCancel();
+					}
+				}}
 			>
 				{/* Modal */}
 				<div
-					role="button"
-					tabIndex={0}
 					role="dialog"
 					aria-modal="true"
 					aria-labelledby="worker-token-prompt-title"
