@@ -26,11 +26,12 @@ const MDIIcon: React.FC<{
 	'aria-hidden'?: boolean;
 }> = ({ icon, size = 24, className = '', 'aria-label': ariaLabel, 'aria-hidden': ariaHidden }) => {
 	return (
-		<span
+		<div
 			className={`mdi mdi-${icon} ${className}`}
 			style={{ fontSize: size }}
 			aria-label={ariaLabel}
 			aria-hidden={ariaHidden}
+			title={ariaLabel}
 		/>
 	);
 };
@@ -389,16 +390,16 @@ const FedExAirlinesHero: React.FC<FedExAirlinesHeroProps> = ({
 											<div style={getLogoTextStyle()}>FedEx</div>
 										</div>
 										<div style={getNavLinksStyle()}>
-											<a href="#" style={getNavLinkStyle()}>
+											<a href="#ship" style={getNavLinkStyle()}>
 												Ship
 											</a>
-											<a href="#" style={getNavLinkStyle()}>
+											<a href="#ship" style={getNavLinkStyle()}>
 												Track
 											</a>
-											<a href="#" style={getNavLinkStyle()}>
+											<a href="#ship" style={getNavLinkStyle()}>
 												Manage
 											</a>
-											<a href="#" style={getNavLinkStyle()}>
+											<a href="#ship" style={getNavLinkStyle()}>
 												Support
 											</a>
 										</div>
@@ -488,6 +489,7 @@ const FedExAirlinesHero: React.FC<FedExAirlinesHeroProps> = ({
 											attempt in real-time to provide the appropriate level of security.
 										</p>
 										<button
+											type="button"
 											style={getLoginButtonStyle()}
 											onClick={onLoginStart}
 											aria-label="Begin secure login"
@@ -509,16 +511,16 @@ const FedExAirlinesHero: React.FC<FedExAirlinesHeroProps> = ({
 											<div style={getLogoTextStyle()}>FedEx</div>
 										</div>
 										<div style={getNavLinksStyle()}>
-											<a href="#" style={getNavLinkStyle()}>
+											<a href="#ship" style={getNavLinkStyle()}>
 												Ship
 											</a>
-											<a href="#" style={getNavLinkStyle()}>
+											<a href="#ship" style={getNavLinkStyle()}>
 												Track
 											</a>
-											<a href="#" style={getNavLinkStyle()}>
+											<a href="#ship" style={getNavLinkStyle()}>
 												Manage
 											</a>
-											<a href="#" style={getNavLinkStyle()}>
+											<a href="#ship" style={getNavLinkStyle()}>
 												Support
 											</a>
 										</div>
@@ -537,7 +539,7 @@ const FedExAirlinesHero: React.FC<FedExAirlinesHeroProps> = ({
 										</p>
 									</div>
 
-									<button style={getLoginButtonStyle()} onClick={onLoginStart}>
+									<button type="button" style={getLoginButtonStyle()} onClick={onLoginStart}>
 										Sign In to Employee Portal
 									</button>
 
@@ -572,13 +574,13 @@ const FedExAirlinesHero: React.FC<FedExAirlinesHeroProps> = ({
 									</div>
 
 									<div style={getQuickLinksStyle()}>
-										<a href="#" style={getQuickLinkStyle()}>
+										<a href="#ship" style={getQuickLinkStyle()}>
 											Forgot Username?
 										</a>
-										<a href="#" style={getQuickLinkStyle()}>
+										<a href="#ship" style={getQuickLinkStyle()}>
 											Forgot Password?
 										</a>
-										<a href="#" style={getQuickLinkStyle()}>
+										<a href="#ship" style={getQuickLinkStyle()}>
 											Need Help?
 										</a>
 									</div>
