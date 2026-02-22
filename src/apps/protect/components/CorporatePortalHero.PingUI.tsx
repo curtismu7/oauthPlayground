@@ -38,11 +38,12 @@ const _MDIIcon: React.FC<{
 	'aria-hidden'?: boolean;
 }> = ({ icon, size = 24, className = '', 'aria-label': ariaLabel, 'aria-hidden': ariaHidden }) => {
 	return (
-		<span
+		<div
 			className={`mdi mdi-${icon} ${className}`}
 			style={{ fontSize: size }}
 			aria-label={ariaLabel}
 			aria-hidden={ariaHidden}
+			title={ariaLabel}
 		/>
 	);
 };
@@ -117,22 +118,6 @@ const CorporatePortalHero: React.FC<CorporatePortalHeroProps> = ({
 	// Get portal configuration from theme
 	const portalConfig = theme.portalConfig as CorporatePortalConfig;
 
-	// Handle missing portal configuration gracefully
-	if (!portalConfig || !portalConfig.login) {
-		// Only log in development mode to reduce console noise in production
-		if (process.env.NODE_ENV === 'development') {
-			console.info('[CorporatePortalHero] No portal configuration found for theme:', theme.name);
-		}
-		return (
-			<div className="end-user-nano" style={getCorporateContainerStyle(theme)}>
-				<div style={{ padding: '2rem', textAlign: 'center' }}>
-					<h2>Portal Configuration Loading...</h2>
-					<p>Please wait while the portal configuration loads.</p>
-				</div>
-			</div>
-		);
-	}
-
 	// Handle login pattern navigation
 	const handleLoginNavigation = useCallback(() => {
 		const { pattern, route } = portalConfig.login;
@@ -160,12 +145,28 @@ const CorporatePortalHero: React.FC<CorporatePortalHeroProps> = ({
 
 	// Handle login form submission
 	const handleLoginSubmit = useCallback(
-		(_credentials: any) => {
+		(_credentials: unknown) => {
 			onLoginStart?.();
 			setLoginState((prev) => ({ ...prev, isOpen: false }));
 		},
 		[onLoginStart]
 	);
+
+	// Handle missing portal configuration gracefully
+	if (!portalConfig || !portalConfig.login) {
+		// Only log in development mode to reduce console noise in production
+		if (process.env.NODE_ENV === 'development') {
+			console.info('[CorporatePortalHero] No portal configuration found for theme:', theme.name);
+		}
+		return (
+			<div className="end-user-nano" style={getCorporateContainerStyle(theme)}>
+				<div style={{ padding: '2rem', textAlign: 'center' }}>
+					<h2>Portal Configuration Loading...</h2>
+					<p>Please wait while the portal configuration loads.</p>
+				</div>
+			</div>
+		);
+	}
 
 	// Render login pattern component
 	const renderLoginPattern = () => {
