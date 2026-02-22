@@ -12,8 +12,9 @@ export default defineConfig(({ mode }) => {
 	const appVersion =
 		env.PINGONE_APP_VERSION || env.VITE_APP_VERSION || packageJson.version || '0.0.0-dev';
 
-	// ALWAYS USE api.pingdemo.com - Override any localhost configuration
-	const forcedDomain = 'https://api.pingdemo.com';
+	// Default to api.pingdemo.com but allow environment variable override
+	const defaultDomain = 'https://api.pingdemo.com';
+	const appDomain = env.VITE_APP_DOMAIN || defaultDomain;
 
 	return {
 		define: {
@@ -25,9 +26,9 @@ export default defineConfig(({ mode }) => {
 			__PINGONE_ENVIRONMENT_ID__: JSON.stringify(env.PINGONE_ENVIRONMENT_ID),
 			__PINGONE_CLIENT_ID__: JSON.stringify(env.PINGONE_CLIENT_ID),
 			__PINGONE_CLIENT_SECRET__: JSON.stringify(env.PINGONE_CLIENT_SECRET),
-			__PINGONE_REDIRECT_URI__: JSON.stringify(`${forcedDomain}/authz-callback`),
-			__PINGONE_LOGOUT_REDIRECT_URI__: JSON.stringify(forcedDomain),
-			__PINGONE_API_URL__: JSON.stringify(env.PINGONE_API_URL || forcedDomain),
+			__PINGONE_REDIRECT_URI__: JSON.stringify(`${appDomain}/authz-callback`),
+			__PINGONE_LOGOUT_REDIRECT_URI__: JSON.stringify(appDomain),
+			__PINGONE_API_URL__: JSON.stringify(env.PINGONE_API_URL || appDomain),
 			__PINGONE_APP_TITLE__: JSON.stringify(env.PINGONE_APP_TITLE),
 			__PINGONE_APP_DESCRIPTION__: JSON.stringify(env.PINGONE_APP_DESCRIPTION),
 			__PINGONE_APP_VERSION__: JSON.stringify(appVersion),
@@ -40,9 +41,9 @@ export default defineConfig(({ mode }) => {
 			VITE_PINGONE_ENVIRONMENT_ID: JSON.stringify(env.PINGONE_ENVIRONMENT_ID),
 			VITE_PINGONE_CLIENT_ID: JSON.stringify(env.PINGONE_CLIENT_ID),
 			VITE_PINGONE_CLIENT_SECRET: JSON.stringify(env.PINGONE_CLIENT_SECRET),
-			VITE_PINGONE_REDIRECT_URI: JSON.stringify(`${forcedDomain}/protect-portal-callback`),
-			VITE_PINGONE_LOGOUT_REDIRECT_URI: JSON.stringify(forcedDomain),
-			VITE_PINGONE_API_URL: JSON.stringify(env.PINGONE_API_URL || forcedDomain),
+			VITE_PINGONE_REDIRECT_URI: JSON.stringify(`${appDomain}/protect-portal-callback`),
+			VITE_PINGONE_LOGOUT_REDIRECT_URI: JSON.stringify(appDomain),
+			VITE_PINGONE_API_URL: JSON.stringify(env.PINGONE_API_URL || appDomain),
 			VITE_PINGONE_APP_TITLE: JSON.stringify(env.PINGONE_APP_TITLE),
 			VITE_PINGONE_APP_DESCRIPTION: JSON.stringify(env.PINGONE_APP_DESCRIPTION),
 			VITE_PINGONE_APP_VERSION: JSON.stringify(appVersion),
@@ -51,11 +52,11 @@ export default defineConfig(({ mode }) => {
 			VITE_PINGONE_DEV_SERVER_HTTPS__: JSON.stringify(env.PINGONE_DEV_SERVER_HTTPS),
 			VITE_PINGONE_FEATURE_DEBUG_MODE: JSON.stringify(env.PINGONE_FEATURE_DEBUG_MODE),
 			VITE_PINGONE_FEATURE_ANALYTICS: JSON.stringify(env.PINGONE_FEATURE_ANALYTICS),
-			// Domain configuration - ALWAYS USE api.pingdemo.com
-			__PINGONE_APP_DOMAIN__: JSON.stringify(forcedDomain),
-			VITE_APP_DOMAIN: JSON.stringify(forcedDomain),
-			VITE_BACKEND_URL: JSON.stringify(`${forcedDomain}:3001`),
-			VITE_FRONTEND_URL: JSON.stringify(`${forcedDomain}:3000`),
+			// Domain configuration - Default to api.pingdemo.com but allow override
+			__PINGONE_APP_DOMAIN__: JSON.stringify(appDomain),
+			VITE_APP_DOMAIN: JSON.stringify(appDomain),
+			VITE_BACKEND_URL: JSON.stringify(`${appDomain}:3001`),
+			VITE_FRONTEND_URL: JSON.stringify(`${appDomain}:3000`),
 		},
 		resolve: {
 			alias: {
