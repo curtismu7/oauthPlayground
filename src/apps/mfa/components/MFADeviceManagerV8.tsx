@@ -434,7 +434,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 				throw new Error('Device not found');
 			}
 
-			let _activationResult;
+			let _activationResult: any;
 
 			// Use appropriate activation method based on device type
 			if (device.type === 'TOTP') {
