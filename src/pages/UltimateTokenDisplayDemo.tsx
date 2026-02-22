@@ -1,7 +1,7 @@
 // src/pages/UltimateTokenDisplayDemo.tsx
 // Demo page showcasing the UltimateTokenDisplay component
 import React, { useState } from 'react';
-import { FiRefreshCw, FiSettings, FiZap, FiSave, FiUpload } from 'react-icons/fi';
+import { FiRefreshCw, FiSave, FiSettings, FiUpload, FiZap } from 'react-icons/fi';
 import styled from 'styled-components';
 import UltimateTokenDisplay from '../components/UltimateTokenDisplay';
 import { v4ToastManager } from '../utils/v4ToastMessages';
@@ -236,7 +236,7 @@ const UltimateTokenDisplayDemo: React.FC = () => {
 			showMetadata,
 			defaultMasked,
 		};
-		
+
 		localStorage.setItem('ultimate-token-display-config', JSON.stringify(config));
 		v4ToastManager.showSuccess('Configuration saved successfully');
 	};
@@ -245,7 +245,7 @@ const UltimateTokenDisplayDemo: React.FC = () => {
 		const input = document.createElement('input');
 		input.type = 'file';
 		input.accept = '.json';
-		
+
 		input.onchange = (event) => {
 			const file = (event.target as HTMLInputElement).files?.[0];
 			if (file) {
@@ -253,7 +253,7 @@ const UltimateTokenDisplayDemo: React.FC = () => {
 				reader.onload = (e) => {
 					try {
 						const config = JSON.parse(e.target?.result as string);
-						
+
 						// Restore configuration
 						if (config.tokenEndpointAuth) {
 							setTokenEndpointAuth(config.tokenEndpointAuth);
@@ -285,7 +285,7 @@ const UltimateTokenDisplayDemo: React.FC = () => {
 						if (config.defaultMasked !== undefined) {
 							setDefaultMasked(config.defaultMasked);
 						}
-						
+
 						v4ToastManager.showSuccess('Configuration imported successfully');
 					} catch (error) {
 						console.error('Failed to import configuration:', error);
@@ -295,7 +295,7 @@ const UltimateTokenDisplayDemo: React.FC = () => {
 				reader.readAsText(file);
 			}
 		};
-		
+
 		input.click();
 	};
 
@@ -330,7 +330,12 @@ const UltimateTokenDisplayDemo: React.FC = () => {
 
 						<ControlGroup>
 							<ControlLabel>Display Mode</ControlLabel>
-							<Select value={displayMode} onChange={(e) => setDisplayMode(e.target.value as any)}>
+							<Select
+								value={displayMode}
+								onChange={(e) =>
+									setDisplayMode(e.target.value as 'compact' | 'detailed' | 'educational')
+								}
+							>
 								<option value="compact">Compact</option>
 								<option value="detailed">Detailed</option>
 								<option value="educational">Educational</option>
@@ -339,7 +344,10 @@ const UltimateTokenDisplayDemo: React.FC = () => {
 
 						<ControlGroup>
 							<ControlLabel>Flow Type</ControlLabel>
-							<Select value={flowType} onChange={(e) => setFlowType(e.target.value as any)}>
+							<Select
+								value={flowType}
+								onChange={(e) => setFlowType(e.target.value as 'oauth' | 'oidc' | 'token-exchange')}
+							>
 								<option value="oauth">OAuth 2.0</option>
 								<option value="oidc">OpenID Connect</option>
 								<option value="token-exchange">Token Exchange</option>
@@ -348,7 +356,10 @@ const UltimateTokenDisplayDemo: React.FC = () => {
 
 						<ControlGroup>
 							<ControlLabel>Token Endpoint Authentication</ControlLabel>
-							<Select value={tokenEndpointAuth} onChange={(e) => setTokenEndpointAuth(e.target.value)}>
+							<Select
+								value={tokenEndpointAuth}
+								onChange={(e) => setTokenEndpointAuth(e.target.value)}
+							>
 								<option value="client_secret_basic">Client Secret Basic</option>
 								<option value="client_secret_post">Client Secret Post</option>
 								<option value="client_secret_jwt">Client Secret JWT</option>
