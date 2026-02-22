@@ -12,6 +12,9 @@ export default defineConfig(({ mode }) => {
 	const appVersion =
 		env.PINGONE_APP_VERSION || env.VITE_APP_VERSION || packageJson.version || '0.0.0-dev';
 
+	// ALWAYS USE api.pingdemo.com - Override any localhost configuration
+	const forcedDomain = 'https://api.pingdemo.com';
+
 	return {
 		define: {
 			// Polyfill for global object in browser environment
@@ -22,9 +25,9 @@ export default defineConfig(({ mode }) => {
 			__PINGONE_ENVIRONMENT_ID__: JSON.stringify(env.PINGONE_ENVIRONMENT_ID),
 			__PINGONE_CLIENT_ID__: JSON.stringify(env.PINGONE_CLIENT_ID),
 			__PINGONE_CLIENT_SECRET__: JSON.stringify(env.PINGONE_CLIENT_SECRET),
-			__PINGONE_REDIRECT_URI__: JSON.stringify(env.PINGONE_REDIRECT_URI),
-			__PINGONE_LOGOUT_REDIRECT_URI__: JSON.stringify(env.PINGONE_LOGOUT_REDIRECT_URI),
-			__PINGONE_API_URL__: JSON.stringify(env.PINGONE_API_URL),
+			__PINGONE_REDIRECT_URI__: JSON.stringify(`${forcedDomain}/authz-callback`),
+			__PINGONE_LOGOUT_REDIRECT_URI__: JSON.stringify(forcedDomain),
+			__PINGONE_API_URL__: JSON.stringify(env.PINGONE_API_URL || forcedDomain),
 			__PINGONE_APP_TITLE__: JSON.stringify(env.PINGONE_APP_TITLE),
 			__PINGONE_APP_DESCRIPTION__: JSON.stringify(env.PINGONE_APP_DESCRIPTION),
 			__PINGONE_APP_VERSION__: JSON.stringify(appVersion),
@@ -33,6 +36,26 @@ export default defineConfig(({ mode }) => {
 			__PINGONE_DEV_SERVER_HTTPS__: JSON.stringify(env.PINGONE_DEV_SERVER_HTTPS),
 			__PINGONE_FEATURE_DEBUG_MODE__: JSON.stringify(env.PINGONE_FEATURE_DEBUG_MODE),
 			__PINGONE_FEATURE_ANALYTICS__: JSON.stringify(env.PINGONE_FEATURE_ANALYTICS),
+			// VITE-prefixed environment variables (standard Vite convention)
+			VITE_PINGONE_ENVIRONMENT_ID: JSON.stringify(env.PINGONE_ENVIRONMENT_ID),
+			VITE_PINGONE_CLIENT_ID: JSON.stringify(env.PINGONE_CLIENT_ID),
+			VITE_PINGONE_CLIENT_SECRET: JSON.stringify(env.PINGONE_CLIENT_SECRET),
+			VITE_PINGONE_REDIRECT_URI: JSON.stringify(`${forcedDomain}/protect-portal-callback`),
+			VITE_PINGONE_LOGOUT_REDIRECT_URI: JSON.stringify(forcedDomain),
+			VITE_PINGONE_API_URL: JSON.stringify(env.PINGONE_API_URL || forcedDomain),
+			VITE_PINGONE_APP_TITLE: JSON.stringify(env.PINGONE_APP_TITLE),
+			VITE_PINGONE_APP_DESCRIPTION: JSON.stringify(env.PINGONE_APP_DESCRIPTION),
+			VITE_PINGONE_APP_VERSION: JSON.stringify(appVersion),
+			VITE_PINGONE_APP_DEFAULT_THEME: JSON.stringify(env.PINGONE_APP_DEFAULT_THEME),
+			VITE_PINGONE_DEV_SERVER_PORT: JSON.stringify(env.PINGONE_DEV_SERVER_PORT),
+			VITE_PINGONE_DEV_SERVER_HTTPS__: JSON.stringify(env.PINGONE_DEV_SERVER_HTTPS),
+			VITE_PINGONE_FEATURE_DEBUG_MODE: JSON.stringify(env.PINGONE_FEATURE_DEBUG_MODE),
+			VITE_PINGONE_FEATURE_ANALYTICS: JSON.stringify(env.PINGONE_FEATURE_ANALYTICS),
+			// Domain configuration - ALWAYS USE api.pingdemo.com
+			__PINGONE_APP_DOMAIN__: JSON.stringify(forcedDomain),
+			VITE_APP_DOMAIN: JSON.stringify(forcedDomain),
+			VITE_BACKEND_URL: JSON.stringify(`${forcedDomain}:3001`),
+			VITE_FRONTEND_URL: JSON.stringify(`${forcedDomain}:3000`),
 		},
 		resolve: {
 			alias: {
@@ -48,7 +71,7 @@ export default defineConfig(({ mode }) => {
 		},
 		plugins: [
 			react(),
-			basicSsl(), // Re-enable HTTPS for development
+			basicSsl(), // HTTPS for development with custom domain
 			VitePWA({
 				registerType: 'autoUpdate',
 				devOptions: {
@@ -120,15 +143,16 @@ export default defineConfig(({ mode }) => {
 			// In production, Vercel will handle HTTPS
 			hmr: {
 				port: 3000,
-				host: 'localhost',
+				host: 'localhost', // Use localhost for HMR to avoid WebSocket issues
 				protocol: 'wss', // Use secure WebSocket for HTTPS
 				clientPort: 3000,
 			},
 			logLevel: 'warn', // Reduce Vite connection logs (suppresses "connecting..." and "connected" messages)
 			// Disable certificate verification for localhost development
+			host: '0.0.0.0', // Bind to all interfaces
 			proxy: {
 				'/api': {
-					target: 'https://localhost:3001', // Backend server (HTTPS)
+					target: 'https://api.pingdemo.com:3001', // Backend server (HTTPS)
 					changeOrigin: true,
 					secure: false, // Allow self-signed certificates and HTTPS->HTTPS proxy
 					timeout: 10000, // Increased timeout for health checks
@@ -140,7 +164,7 @@ export default defineConfig(({ mode }) => {
 						}
 						return path;
 					},
-					configure: (proxy, _options) => {
+					configure: (proxy) => {
 						// Add error handling
 						proxy.on('error', (err) => {
 							console.log('Proxy error:', err.message);
