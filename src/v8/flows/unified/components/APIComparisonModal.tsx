@@ -119,6 +119,8 @@ export const APIComparisonModal: React.FC<APIComparisonModalProps> = ({ isOpen, 
 
 	return (
 		<div
+			role="button"
+			tabIndex={0}
 			style={{
 				position: 'fixed',
 				top: 0,
@@ -134,6 +136,8 @@ export const APIComparisonModal: React.FC<APIComparisonModalProps> = ({ isOpen, 
 			onClick={onClose}
 		>
 			<div
+				role="button"
+				tabIndex={0}
 				style={{
 					background: 'white',
 					borderRadius: '12px',
@@ -164,6 +168,7 @@ export const APIComparisonModal: React.FC<APIComparisonModalProps> = ({ isOpen, 
 						</p>
 					</div>
 					<button
+						type="button"
 						onClick={onClose}
 						style={{
 							background: 'none',

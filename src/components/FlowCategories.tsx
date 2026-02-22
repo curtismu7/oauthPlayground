@@ -652,7 +652,12 @@ const FlowCategories: React.FC = () => {
 
 						<CardBody>
 							<FlowsList>
-								<div className="flows-header" onClick={() => toggleCategory(category.id)}>
+								<div
+									role="button"
+									tabIndex={0}
+									className="flows-header"
+									onClick={() => toggleCategory(category.id)}
+								>
 									<h3>Available Flows</h3>
 									<div className="flow-count">
 										{category.flows.length} flow{category.flows.length !== 1 ? 's' : ''}

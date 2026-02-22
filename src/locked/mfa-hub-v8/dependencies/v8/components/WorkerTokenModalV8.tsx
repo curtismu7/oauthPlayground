@@ -384,6 +384,8 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 		<>
 			{/* Backdrop */}
 			<div
+				role="button"
+				tabIndex={0}
 				style={{
 					position: 'fixed',
 					top: 0,
@@ -406,6 +408,8 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 
 			{/* Modal */}
 			<div
+				role="button"
+				tabIndex={0}
 				className="worker-token-modal-v8"
 				style={{
 					position: 'fixed',
@@ -980,6 +984,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 													color: '#374151',
 													marginBottom: '6px',
 												}}
+												htmlFor="region"
 											>
 												Region
 											</label>
@@ -1013,6 +1018,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 													color: '#374151',
 													marginBottom: '6px',
 												}}
+												htmlFor="customdomainoptional"
 											>
 												Custom Domain (Optional)
 											</label>
@@ -1055,6 +1061,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 													color: '#374151',
 													marginBottom: '6px',
 												}}
+												htmlFor="tokenendpointauthentication"
 											>
 												Token Endpoint Authentication
 											</label>

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# OAuth Playground - Kill Servers Script
-# Safely terminates all OAuth Playground servers
+# MasterFlow API - Kill Servers Script
+# Safely terminates all MasterFlow API servers
 # Version: 1.0.0
 
 # Colors for output
@@ -13,7 +13,7 @@ PURPLE='\033[0;35m'
 CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
-# Configuration - Fixed ports for OAuth Playground
+# Configuration - Fixed ports for MasterFlow API
 FRONTEND_PORT=3000
 BACKEND_PORT=3001
 
@@ -47,12 +47,12 @@ show_banner() {
     echo -e "${RED}"
     echo "╔══════════════════════════════════════════════════════════════════════════════╗"
     echo "║                                                                              ║"
-    echo "║                    🛑 OAuth Playground Server Killer 🛑                     ║"
+    echo "║                    🛑 MasterFlow API Server Killer 🛑                     ║"
     echo "║                                                                              ║"
     echo "║  Frontend: https://localhost:3000 (Vite Dev Server)                        ║"
     echo "║  Backend:  https://localhost:3001 (Express API Server)                     ║"
     echo "║                                                                              ║"
-    echo "║  This script will safely terminate all OAuth Playground servers            ║"
+    echo "║  This script will safely terminate all MasterFlow API servers            ║"
     echo "║                                                                              ║"
     echo "╚══════════════════════════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
@@ -157,9 +157,9 @@ kill_by_port() {
     return 0
 }
 
-# Function to kill all OAuth playground related processes
+# Function to kill all MasterFlow API related processes
 kill_all_servers() {
-    print_status "🛑 Killing OAuth Playground servers..."
+    print_status "🛑 Killing MasterFlow API servers..."
     
     local killed_any=false
     
@@ -267,7 +267,7 @@ show_final_status() {
     
     # Overall status
     if ! check_port $FRONTEND_PORT && ! check_port $BACKEND_PORT; then
-        echo -e "${GREEN}🎉 SUCCESS: All OAuth Playground servers stopped!${NC}"
+        echo -e "${GREEN}🎉 SUCCESS: All MasterFlow API servers stopped!${NC}"
         echo -e "${GREEN}✅ Both ports are now free${NC}"
         echo -e "${GREEN}✅ Ready for restart or other applications${NC}"
     elif check_port $FRONTEND_PORT || check_port $BACKEND_PORT; then

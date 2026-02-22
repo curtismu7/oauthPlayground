@@ -1,6 +1,5 @@
 // src/components/ConfigurationSummaryCard.tsx
 import React, { useState } from 'react';
-import { FiCheckCircle, FiChevronDown } from 'react-icons/fi';
 import styled from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';
 import { showGlobalError, showGlobalSuccess } from '../hooks/useNotifications';
@@ -305,222 +304,231 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 		return new TextDecoder().decode(decrypted);
 	};
 	return (
-		<Card>
-			<Section>
-				<SectionHeader
-					$primaryColor={computedPrimaryColor}
-					$isExpanded={isSummaryExpanded}
-					onClick={() => setIsSummaryExpanded(!isSummaryExpanded)}
-					style={{ display: isSummaryExpanded ? 'block' : 'none' }}
-				>
-					<SectionTitle>
-						<FiCheckCircle size={14} />
-						Saved Configuration Summary
-					</SectionTitle>
-					<ChevronIcon $collapsed={!isSummaryExpanded}>
-						<FiChevronDown size={16} />
-					</ChevronIcon>
-				</SectionHeader>
-				<SectionContent $isExpanded={isSummaryExpanded}>
-					{(hasConfiguration && configurationDetails) || configuration ? (
-						<div>
-							<div
-								style={{
-									display: 'grid',
-									gridTemplateColumns: 'auto 1fr',
-									gap: '0.4rem 0.75rem',
-									marginBottom: '0.5rem',
-									fontSize: '0.8rem',
-								}}
-							>
-								<div style={{ fontWeight: '600', color: '#374151' }}>Environment ID:</div>
+		<div className="end-user-nano">
+			<Card>
+				<Section>
+					<SectionHeader
+						$primaryColor={computedPrimaryColor}
+						$isExpanded={isSummaryExpanded}
+						onClick={() => setIsSummaryExpanded(!isSummaryExpanded)}
+						style={{ display: isSummaryExpanded ? 'block' : 'none' }}
+					>
+						<SectionTitle>
+							<span className="mdi mdi-check-circle" style={{ fontSize: '14px' }}></span>
+							Saved Configuration Summary
+						</SectionTitle>
+						<ChevronIcon $collapsed={!isSummaryExpanded}>
+							<span className="mdi mdi-chevron-down" style={{ fontSize: '16px' }}></span>
+						</ChevronIcon>
+					</SectionHeader>
+					<SectionContent $isExpanded={isSummaryExpanded}>
+						{(hasConfiguration && configurationDetails) || configuration ? (
+							<div>
 								<div
 									style={{
-										fontFamily: 'monospace',
-										background: '#f1f5f9',
-										padding: '0.2rem 0.4rem',
-										borderRadius: '3px',
-										fontSize: '0.75rem',
+										display: 'grid',
+										gridTemplateColumns: 'auto 1fr',
+										gap: '0.4rem 0.75rem',
+										marginBottom: '0.5rem',
+										fontSize: '0.8rem',
 									}}
 								>
-									{configuration?.environmentId || configurationDetails?.environmentId || 'Not set'}
+									<div style={{ fontWeight: '600', color: '#374151' }}>Environment ID:</div>
+									<div
+										style={{
+											fontFamily: 'monospace',
+											background: '#f1f5f9',
+											padding: '0.2rem 0.4rem',
+											borderRadius: '3px',
+											fontSize: '0.75rem',
+										}}
+									>
+										{configuration?.environmentId ||
+											configurationDetails?.environmentId ||
+											'Not set'}
+									</div>
+
+									<div style={{ fontWeight: '600', color: '#374151' }}>Client ID:</div>
+									<div
+										style={{
+											fontFamily: 'monospace',
+											background: '#f1f5f9',
+											padding: '0.2rem 0.4rem',
+											borderRadius: '3px',
+											fontSize: '0.75rem',
+										}}
+									>
+										{configuration?.clientId || configurationDetails?.clientId || 'Not set'}
+									</div>
+
+									{(configuration?.redirectUri || configurationDetails?.redirectUri) && (
+										<>
+											<div style={{ fontWeight: '600', color: '#374151' }}>Redirect URI:</div>
+											<div
+												style={{
+													fontFamily: 'monospace',
+													background: '#f1f5f9',
+													padding: '0.2rem 0.4rem',
+													borderRadius: '3px',
+													wordBreak: 'break-all',
+													fontSize: '0.75rem',
+												}}
+											>
+												{configuration?.redirectUri ||
+													configurationDetails?.redirectUri ||
+													'Not set'}
+											</div>
+										</>
+									)}
+
+									{((configuration?.scopes && typeof configuration.scopes === 'string') ||
+										(configurationDetails?.scopes &&
+											Array.isArray(configurationDetails.scopes) &&
+											configurationDetails.scopes.length > 0)) && (
+										<>
+											<div style={{ fontWeight: '600', color: '#374151' }}>Scopes:</div>
+											<div
+												style={{
+													fontFamily: 'monospace',
+													background: '#f1f5f9',
+													padding: '0.2rem 0.4rem',
+													borderRadius: '3px',
+													fontSize: '0.75rem',
+												}}
+											>
+												{configuration?.scopes ||
+													(configurationDetails?.scopes
+														? configurationDetails.scopes.join(' ')
+														: '')}
+											</div>
+										</>
+									)}
+
+									{(configuration?.loginHint || configurationDetails?.loginHint) && (
+										<>
+											<div style={{ fontWeight: '600', color: '#374151' }}>Login Hint:</div>
+											<div
+												style={{
+													fontFamily: 'monospace',
+													background: '#f1f5f9',
+													padding: '0.2rem 0.4rem',
+													borderRadius: '3px',
+													fontSize: '0.75rem',
+												}}
+											>
+												{configuration?.loginHint || configurationDetails?.loginHint}
+											</div>
+										</>
+									)}
+
+									{(configuration?.responseType || configurationDetails?.responseType) && (
+										<>
+											<div style={{ fontWeight: '600', color: '#374151' }}>Response Type:</div>
+											<div
+												style={{
+													fontFamily: 'monospace',
+													background: '#f1f5f9',
+													padding: '0.2rem 0.4rem',
+													borderRadius: '3px',
+													fontSize: '0.75rem',
+												}}
+											>
+												{configuration?.responseType || configurationDetails?.responseType}
+											</div>
+										</>
+									)}
+
+									{(configuration?.grantType || configurationDetails?.grantType) && (
+										<>
+											<div style={{ fontWeight: '600', color: '#374151' }}>Grant Type:</div>
+											<div
+												style={{
+													fontFamily: 'monospace',
+													background: '#f1f5f9',
+													padding: '0.2rem 0.4rem',
+													borderRadius: '3px',
+													fontSize: '0.75rem',
+												}}
+											>
+												{configuration?.grantType || configurationDetails?.grantType}
+											</div>
+										</>
+									)}
 								</div>
 
-								<div style={{ fontWeight: '600', color: '#374151' }}>Client ID:</div>
 								<div
-									style={{
-										fontFamily: 'monospace',
-										background: '#f1f5f9',
-										padding: '0.2rem 0.4rem',
-										borderRadius: '3px',
-										fontSize: '0.75rem',
-									}}
+									style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem', flexWrap: 'wrap' }}
 								>
-									{configuration?.clientId || configurationDetails?.clientId || 'Not set'}
+									<button
+										type="button"
+										onClick={handleSaveConfiguration}
+										style={{
+											background: '#10b981',
+											color: 'white',
+											border: 'none',
+											padding: '0.35rem 0.75rem',
+											borderRadius: '4px',
+											cursor: 'pointer',
+											fontWeight: '500',
+											fontSize: '0.75rem',
+										}}
+									>
+										Save Configuration
+									</button>
+									<button
+										type="button"
+										onClick={handleExportConfiguration}
+										style={{
+											background: '#3b82f6',
+											color: 'white',
+											border: 'none',
+											padding: '0.35rem 0.75rem',
+											borderRadius: '4px',
+											cursor: 'pointer',
+											fontWeight: '500',
+											fontSize: '0.75rem',
+										}}
+									>
+										Export Configuration
+									</button>
+									<button
+										type="button"
+										onClick={handleImportConfiguration}
+										style={{
+											background: '#8b5cf6',
+											color: 'white',
+											border: 'none',
+											padding: '0.35rem 0.75rem',
+											borderRadius: '4px',
+											cursor: 'pointer',
+											fontWeight: '500',
+											fontSize: '0.75rem',
+										}}
+									>
+										Import Configuration
+									</button>
 								</div>
-
-								{(configuration?.redirectUri || configurationDetails?.redirectUri) && (
-									<>
-										<div style={{ fontWeight: '600', color: '#374151' }}>Redirect URI:</div>
-										<div
-											style={{
-												fontFamily: 'monospace',
-												background: '#f1f5f9',
-												padding: '0.2rem 0.4rem',
-												borderRadius: '3px',
-												wordBreak: 'break-all',
-												fontSize: '0.75rem',
-											}}
-										>
-											{configuration?.redirectUri || configurationDetails?.redirectUri || 'Not set'}
-										</div>
-									</>
-								)}
-
-								{((configuration?.scopes && typeof configuration.scopes === 'string') ||
-									(configurationDetails?.scopes &&
-										Array.isArray(configurationDetails.scopes) &&
-										configurationDetails.scopes.length > 0)) && (
-									<>
-										<div style={{ fontWeight: '600', color: '#374151' }}>Scopes:</div>
-										<div
-											style={{
-												fontFamily: 'monospace',
-												background: '#f1f5f9',
-												padding: '0.2rem 0.4rem',
-												borderRadius: '3px',
-												fontSize: '0.75rem',
-											}}
-										>
-											{configuration?.scopes ||
-												(configurationDetails?.scopes ? configurationDetails.scopes.join(' ') : '')}
-										</div>
-									</>
-								)}
-
-								{(configuration?.loginHint || configurationDetails?.loginHint) && (
-									<>
-										<div style={{ fontWeight: '600', color: '#374151' }}>Login Hint:</div>
-										<div
-											style={{
-												fontFamily: 'monospace',
-												background: '#f1f5f9',
-												padding: '0.2rem 0.4rem',
-												borderRadius: '3px',
-												fontSize: '0.75rem',
-											}}
-										>
-											{configuration?.loginHint || configurationDetails?.loginHint}
-										</div>
-									</>
-								)}
-
-								{(configuration?.responseType || configurationDetails?.responseType) && (
-									<>
-										<div style={{ fontWeight: '600', color: '#374151' }}>Response Type:</div>
-										<div
-											style={{
-												fontFamily: 'monospace',
-												background: '#f1f5f9',
-												padding: '0.2rem 0.4rem',
-												borderRadius: '3px',
-												fontSize: '0.75rem',
-											}}
-										>
-											{configuration?.responseType || configurationDetails?.responseType}
-										</div>
-									</>
-								)}
-
-								{(configuration?.grantType || configurationDetails?.grantType) && (
-									<>
-										<div style={{ fontWeight: '600', color: '#374151' }}>Grant Type:</div>
-										<div
-											style={{
-												fontFamily: 'monospace',
-												background: '#f1f5f9',
-												padding: '0.2rem 0.4rem',
-												borderRadius: '3px',
-												fontSize: '0.75rem',
-											}}
-										>
-											{configuration?.grantType || configurationDetails?.grantType}
-										</div>
-									</>
-								)}
 							</div>
+						) : (
+							<EmptyState>
+								No configuration saved yet. Complete the flow and save your settings to see them
+								here.
+							</EmptyState>
+						)}
+					</SectionContent>
+				</Section>
 
-							<div
-								style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem', flexWrap: 'wrap' }}
-							>
-								<button
-									type="button"
-									onClick={handleSaveConfiguration}
-									style={{
-										background: '#10b981',
-										color: 'white',
-										border: 'none',
-										padding: '0.35rem 0.75rem',
-										borderRadius: '4px',
-										cursor: 'pointer',
-										fontWeight: '500',
-										fontSize: '0.75rem',
-									}}
-								>
-									Save Configuration
-								</button>
-								<button
-									type="button"
-									onClick={handleExportConfiguration}
-									style={{
-										background: '#3b82f6',
-										color: 'white',
-										border: 'none',
-										padding: '0.35rem 0.75rem',
-										borderRadius: '4px',
-										cursor: 'pointer',
-										fontWeight: '500',
-										fontSize: '0.75rem',
-									}}
-								>
-									Export Configuration
-								</button>
-								<button
-									type="button"
-									onClick={handleImportConfiguration}
-									style={{
-										background: '#8b5cf6',
-										color: 'white',
-										border: 'none',
-										padding: '0.35rem 0.75rem',
-										borderRadius: '4px',
-										cursor: 'pointer',
-										fontWeight: '500',
-										fontSize: '0.75rem',
-									}}
-								>
-									Import Configuration
-								</button>
-							</div>
-						</div>
-					) : (
-						<EmptyState>
-							No configuration saved yet. Complete the flow and save your settings to see them here.
-						</EmptyState>
-					)}
-				</SectionContent>
-			</Section>
-
-			<StatusSection>
-				<StatusTitle>
-					<FiCheckCircle size={14} />
-					Configuration Status
-				</StatusTitle>
-				<StatusText>
-					Save your PingOne credentials so they auto-populate in subsequent steps.
-				</StatusText>
-			</StatusSection>
-		</Card>
+				<StatusSection>
+					<StatusTitle>
+						<span className="mdi mdi-check-circle" style={{ fontSize: '14px' }}></span>
+						Configuration Status
+					</StatusTitle>
+					<StatusText>
+						Save your PingOne credentials so they auto-populate in subsequent steps.
+					</StatusText>
+				</StatusSection>
+			</Card>
+		</div>
 	);
 };
 

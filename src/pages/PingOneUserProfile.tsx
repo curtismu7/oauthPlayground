@@ -1756,7 +1756,9 @@ const PingOneUserProfile: React.FC = () => {
 						</AlertBanner>
 					)}
 					<InputField>
-						<label htmlFor="environmentId">Environment ID *</label>
+						<label htmlFor="environmentId" htmlFor="environmentid">
+							Environment ID *
+						</label>
 						<input
 							id="environmentId"
 							type="text"
@@ -1869,7 +1871,9 @@ const PingOneUserProfile: React.FC = () => {
 						{workerTokenMeta.relativeDescription}
 					</div>
 					<InputField>
-						<label htmlFor="userIdentifier">User Identifier *</label>
+						<label htmlFor="userIdentifier" htmlFor="useridentifier">
+							User Identifier *
+						</label>
 						<input
 							id="userIdentifier"
 							type="text"
@@ -2708,7 +2712,9 @@ const PingOneUserProfile: React.FC = () => {
 							</AlertBanner>
 						)}
 						<InputField>
-							<label htmlFor="compareIdentifier">Comparison User Identifier *</label>
+							<label htmlFor="compareIdentifier" htmlFor="comparisonuseridentifier">
+								Comparison User Identifier *
+							</label>
 							<input
 								id="compareIdentifier"
 								type="text"

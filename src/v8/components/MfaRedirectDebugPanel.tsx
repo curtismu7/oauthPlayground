@@ -6,7 +6,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
+import { MFARedirectUriServiceV8 } from '@/apps/mfa/services/mfaRedirectUriServiceV8';
 
 interface DebugPanelProps {
 	visible: boolean;
@@ -80,6 +80,7 @@ export const MfaRedirectDebugPanel: React.FC<DebugPanelProps> = ({ visible, onCl
 			>
 				<h3 style={{ margin: 0, fontSize: '18px' }}>🔗 MFA Redirect URI Debug Logs</h3>
 				<button
+					type="button"
 					onClick={onClose}
 					style={{
 						background: 'none',
@@ -104,6 +105,7 @@ export const MfaRedirectDebugPanel: React.FC<DebugPanelProps> = ({ visible, onCl
 				}}
 			>
 				<button
+					type="button"
 					onClick={refreshLogs}
 					style={{
 						padding: '6px 12px',
@@ -129,6 +131,7 @@ export const MfaRedirectDebugPanel: React.FC<DebugPanelProps> = ({ visible, onCl
 				</label>
 
 				<button
+					type="button"
 					onClick={clearLogs}
 					style={{
 						padding: '6px 12px',
@@ -144,6 +147,7 @@ export const MfaRedirectDebugPanel: React.FC<DebugPanelProps> = ({ visible, onCl
 				</button>
 
 				<button
+					type="button"
 					onClick={exportLogs}
 					style={{
 						padding: '6px 12px',

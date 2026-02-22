@@ -1403,7 +1403,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 {
 	true;
 }
-/ 28;;;;;;;;;;;<>LMSUVaaddegiilnnnoopr{};
+/ 28;;;;;;;;;;;;;;;;;;;;<>LMSUVaaddegiilnnnoopr{};
 show={authState.isLoading && !!loadingMessage}
 message = { loadingMessage };
 theme="blue"
@@ -1772,6 +1772,7 @@ theme="orange"
 				fontWeight: '500',
 				color: '#374151',
 			}}
+			htmlFor="workertoken"
 		>
 			Worker Token
 		</label>
@@ -1993,6 +1994,7 @@ theme="orange"
 					fontWeight: '500',
 					color: '#374151',
 				}}
+				htmlFor="environmentid"
 			>
 				Environment ID
 			</label>
@@ -2037,6 +2039,7 @@ theme="orange"
 					fontWeight: '500',
 					color: '#374151',
 				}}
+				htmlFor="username"
 			>
 				Username
 			</label>
@@ -2089,6 +2092,7 @@ theme="orange"
 				fontWeight: '500',
 				color: '#374151',
 			}}
+			htmlFor="deviceauthenticationpolicy"
 		>
 			Device Authentication Policy
 		</label>
@@ -3563,6 +3567,8 @@ theme="orange"
 			{/* Username Decision Modal */}
 			{showUsernameDecisionModal && (
 				<div
+					role="button"
+					tabIndex={0}
 					style={{
 						position: 'fixed',
 						top: 0,
@@ -3581,6 +3587,8 @@ theme="orange"
 					}}
 				>
 					<div
+						role="button"
+						tabIndex={0}
 						style={{
 							background: 'white',
 							borderRadius: '16px',
@@ -3653,6 +3661,7 @@ theme="orange"
 											fontSize: '14px',
 											fontWeight: '500',
 										}}
+										htmlFor="selectusername"
 									>
 										Select username
 									</label>
@@ -3795,6 +3804,8 @@ theme="orange"
 			{/* Device Selection Modal */}
 			{showDeviceSelectionModal && (
 				<div
+					role="button"
+					tabIndex={0}
 					style={{
 						position: 'fixed',
 						top: 0,
@@ -3810,6 +3821,8 @@ theme="orange"
 					onClick={() => setShowDeviceSelectionModal(false)}
 				>
 					<div
+						role="button"
+						tabIndex={0}
 						style={{
 							background: 'white',
 							borderRadius: '16px',
@@ -4613,6 +4626,8 @@ theme="orange"
 			{/* Device Registration Modal */}
 			{showRegistrationModal && (
 				<div
+					role="button"
+					tabIndex={0}
 					style={{
 						position: 'fixed',
 						top: 0,
@@ -4629,6 +4644,8 @@ theme="orange"
 					onClick={() => setShowRegistrationModal(false)}
 				>
 					<div
+						role="button"
+						tabIndex={0}
 						style={{
 							background: 'white',
 							borderRadius: '16px',

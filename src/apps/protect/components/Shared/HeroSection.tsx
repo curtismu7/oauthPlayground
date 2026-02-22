@@ -737,19 +737,27 @@ const HeroSection: React.FC<HeroSectionProps> = ({
 							<h2>Search Flights</h2>
 							<div className="search-form">
 								<div className="form-group">
-									<label htmlFor="from">From</label>
+									<label htmlFor="from" htmlFor="from">
+										From
+									</label>
 									<input id="from" type="text" placeholder="Departure city" />
 								</div>
 								<div className="form-group">
-									<label htmlFor="to">To</label>
+									<label htmlFor="to" htmlFor="to">
+										To
+									</label>
 									<input id="to" type="text" placeholder="Destination city" />
 								</div>
 								<div className="form-group">
-									<label htmlFor="departure">Departure</label>
+									<label htmlFor="departure" htmlFor="departure">
+										Departure
+									</label>
 									<input id="departure" type="date" />
 								</div>
 								<div className="form-group">
-									<label htmlFor="return">Return</label>
+									<label htmlFor="return" htmlFor="return">
+										Return
+									</label>
 									<input id="return" type="date" />
 								</div>
 								<button type="button" className="search-button">
@@ -789,7 +797,9 @@ const HeroSection: React.FC<HeroSectionProps> = ({
 							<h2>Track Your Package</h2>
 							<div className="tracking-form">
 								<div className="form-group">
-									<label htmlFor="tracking">Tracking Number</label>
+									<label htmlFor="tracking" htmlFor="trackingnumber">
+										Tracking Number
+									</label>
 									<input id="tracking" type="text" placeholder="Enter tracking number" />
 								</div>
 								<div className="buttons">

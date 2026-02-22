@@ -14,21 +14,21 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
-import { MFADeviceLimitModalV8 } from '@/v8/components/MFADeviceLimitModalV8';
-import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
-import { MFASettingsModalV8 } from '@/v8/components/MFASettingsModalV8';
-import { MFAUserDisplayV8 } from '@/v8/components/MFAUserDisplayV8';
-import StepActionButtonsV8 from '@/v8/components/StepActionButtonsV8';
-import StepValidationFeedbackV8 from '@/v8/components/StepValidationFeedbackV8';
-import { UserLoginModalV8 } from '@/v8/components/UserLoginModalV8';
-import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
-import { WorkerTokenPromptModalV8 } from '@/v8/components/WorkerTokenPromptModalV8';
+import { MFADeviceLimitModalV8 } from '@/apps/mfa/components/MFADeviceLimitModalV8';
+import { MFANavigationV8 } from '@/apps/mfa/components/MFANavigationV8';
+import { MFASettingsModalV8 } from '@/apps/mfa/components/MFASettingsModalV8';
+import { MFAUserDisplayV8 } from '@/apps/mfa/components/MFAUserDisplayV8';
+import { WorkerTokenPromptModalV8 } from '@/apps/mfa/components/WorkerTokenPromptModalV8';
 import type {
 	DeviceAuthenticationPolicy,
 	DeviceType,
 	MFACredentials,
 	MFAState,
-} from '@/v8/flows/shared/MFATypes';
+} from '@/apps/mfa/flows/shared/MFATypes';
+import StepActionButtonsV8 from '@/v8/components/StepActionButtonsV8';
+import StepValidationFeedbackV8 from '@/v8/components/StepValidationFeedbackV8';
+import { UserLoginModalV8 } from '@/v8/components/UserLoginModalV8';
+import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import {

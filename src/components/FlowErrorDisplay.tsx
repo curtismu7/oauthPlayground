@@ -7,8 +7,6 @@
  */
 
 import React from 'react';
-import * as Icons from 'react-icons/fi';
-import { FiHome, FiRefreshCw, FiSettings, FiXCircle } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import type { ErrorTemplate } from '../constants/errorMessages';
@@ -215,8 +213,50 @@ export const FlowErrorDisplay: React.FC<FlowErrorDisplayProps> = ({
 }) => {
 	const navigate = useNavigate();
 
-	// Get icon component
-	const IconComponent = (Icons as any)[errorTemplate.icon] || FiXCircle;
+	// Get MDI icon name from error template
+	const getIconName = (iconName: string) => {
+		const iconMap: Record<string, string> = {
+			FiXCircle: 'mdi-close-circle',
+			FiAlertTriangle: 'mdi-alert',
+			FiInfo: 'mdi-information',
+			FiWarning: 'mdi-alert',
+			FiError: 'mdi-alert-circle',
+			FiCheckCircle: 'mdi-check-circle',
+			FiShield: 'mdi-shield',
+			FiKey: 'mdi-key',
+			FiLock: 'mdi-lock',
+			FiUnlock: 'mdi-lock-open',
+			FiUser: 'mdi-account',
+			FiUsers: 'mdi-account-group',
+			FiSettings: 'mdi-cog',
+			FiHome: 'mdi-home',
+			FiRefreshCw: 'mdi-refresh',
+			FiDownload: 'mdi-download',
+			FiUpload: 'mdi-upload',
+			FiCopy: 'mdi-content-copy',
+			FiTrash: 'mdi-delete',
+			FiEdit: 'mdi-pencil',
+			FiSave: 'mdi-content-save',
+			FiSearch: 'mdi-magnify',
+			FiFilter: 'mdi-filter',
+			FiPlus: 'mdi-plus',
+			FiMinus: 'mdi-minus',
+			FiChevronDown: 'mdi-chevron-down',
+			FiChevronUp: 'mdi-chevron-up',
+			FiChevronLeft: 'mdi-chevron-left',
+			FiChevronRight: 'mdi-chevron-right',
+			FiArrowLeft: 'mdi-arrow-left',
+			FiArrowRight: 'mdi-arrow-right',
+			FiArrowUp: 'mdi-arrow-up',
+			FiArrowDown: 'mdi-arrow-down',
+			FiExternalLink: 'mdi-open-in-new',
+			FiEye: 'mdi-eye',
+			FiEyeOff: 'mdi-eye-off',
+		};
+		return iconMap[iconName] || 'mdi-alert-circle';
+	};
+
+	const iconClassName = getIconName(errorTemplate.icon);
 
 	// Default handlers
 	const handleStartOver = () => {
@@ -249,80 +289,84 @@ export const FlowErrorDisplay: React.FC<FlowErrorDisplayProps> = ({
 
 	return (
 		<PageContainer>
-			<StepperContainer>
-				<FlowSequenceDisplay flowType={flowType} />
-			</StepperContainer>
+			{/* Ping UI Wrapper */}
+			<div className="end-user-nano">
+				<StepperContainer>
+					<FlowSequenceDisplay flowType={flowType} />
+				</StepperContainer>
 
-			<ErrorContainer>
-				<ErrorCard>
-					<ErrorHeader>
-						<ErrorIconWrapper>
-							<IconComponent />
-						</ErrorIconWrapper>
-						<ErrorContent>
-							<ErrorTitle>{errorTemplate.title}</ErrorTitle>
-							<ErrorMessage>{errorTemplate.message}</ErrorMessage>
-						</ErrorContent>
-					</ErrorHeader>
+				<ErrorContainer>
+					<ErrorCard>
+						<ErrorHeader>
+							<ErrorIconWrapper>
+								<span className={iconClassName} style={{ fontSize: '2rem' }}></span>
+							</ErrorIconWrapper>
+							<ErrorContent>
+								<ErrorTitle>{errorTemplate.title}</ErrorTitle>
+								<ErrorMessage>{errorTemplate.message}</ErrorMessage>
+							</ErrorContent>
+						</ErrorHeader>
 
-					{(errorCode || errorDescription || correlationId) && (
-						<ErrorMetadata>
-							{errorCode && (
-								<MetadataRow>
-									<MetadataLabel>Error Code:</MetadataLabel>
-									<MetadataValue>{errorCode}</MetadataValue>
-								</MetadataRow>
-							)}
-							{errorDescription && (
-								<MetadataRow>
-									<MetadataLabel>Description:</MetadataLabel>
-									<MetadataValue>{errorDescription}</MetadataValue>
-								</MetadataRow>
-							)}
-							{correlationId && (
-								<MetadataRow>
-									<MetadataLabel>Correlation ID:</MetadataLabel>
-									<MetadataValue>{correlationId}</MetadataValue>
-								</MetadataRow>
-							)}
-							{metadata &&
-								Object.entries(metadata).map(([key, value]) => (
-									<MetadataRow key={key}>
-										<MetadataLabel>{key}:</MetadataLabel>
-										<MetadataValue>{String(value)}</MetadataValue>
+						{(errorCode || errorDescription || correlationId) && (
+							<ErrorMetadata>
+								{errorCode && (
+									<MetadataRow>
+										<MetadataLabel>Error Code:</MetadataLabel>
+										<MetadataValue>{errorCode}</MetadataValue>
 									</MetadataRow>
-								))}
-						</ErrorMetadata>
-					)}
-
-					<OAuthErrorHelper
-						error={errorCode || errorTemplate.title}
-						errorDescription={errorDescription || errorTemplate.message}
-						correlationId={correlationId || ''}
-						onRetry={handleRetry}
-						onGoToConfig={handleGoToConfig}
-					/>
-
-					<ActionButtons>
-						<ActionButton $variant="primary" onClick={handleStartOver}>
-							<FiHome size={18} />
-							Start Over
-						</ActionButton>
-
-						{onRetry && (
-							<ActionButton $variant="secondary" onClick={handleRetry}>
-								<FiRefreshCw size={18} />
-								Try Again
-							</ActionButton>
+								)}
+								{errorDescription && (
+									<MetadataRow>
+										<MetadataLabel>Description:</MetadataLabel>
+										<MetadataValue>{errorDescription}</MetadataValue>
+									</MetadataRow>
+								)}
+								{correlationId && (
+									<MetadataRow>
+										<MetadataLabel>Correlation ID:</MetadataLabel>
+										<MetadataValue>{correlationId}</MetadataValue>
+									</MetadataRow>
+								)}
+								{metadata &&
+									Object.entries(metadata).map(([key, value]) => (
+										<MetadataRow key={key}>
+											<MetadataLabel>{key}:</MetadataLabel>
+											<MetadataValue>{String(value)}</MetadataValue>
+										</MetadataRow>
+									))}
+							</ErrorMetadata>
 						)}
 
-						<ActionButton $variant="ghost" onClick={handleGoToConfig}>
-							<FiSettings size={18} />
-							Configuration
-						</ActionButton>
-					</ActionButtons>
-				</ErrorCard>
-			</ErrorContainer>
+						<OAuthErrorHelper
+							error={errorCode || errorTemplate.title}
+							errorDescription={errorDescription || errorTemplate.message}
+							correlationId={correlationId || ''}
+							onRetry={handleRetry}
+							onGoToConfig={handleGoToConfig}
+						/>
+
+						<ActionButtons>
+							<ActionButton $variant="primary" onClick={handleStartOver}>
+								<span className="mdi mdi-home" style={{ fontSize: '18px' }}></span>
+								Start Over
+							</ActionButton>
+
+							{onRetry && (
+								<ActionButton $variant="secondary" onClick={handleRetry}>
+									<span className="mdi mdi-refresh" style={{ fontSize: '18px' }}></span>
+									Try Again
+								</ActionButton>
+							)}
+
+							<ActionButton $variant="ghost" onClick={handleGoToConfig}>
+								<span className="mdi mdi-cog" style={{ fontSize: '18px' }}></span>
+								Configuration
+							</ActionButton>
+						</ActionButtons>
+					</ErrorCard>
+				</ErrorContainer>
+			</div>{' '}
+			{/* End Ping UI Wrapper */}
 		</PageContainer>
 	);
 };

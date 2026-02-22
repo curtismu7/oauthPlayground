@@ -411,7 +411,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 					},
 					{
 						id: 'api-status-page',
-						path: '/api-status',
+						path: '/system-status',
 						label: '🔍 API Status',
 						icon: (
 							<ColoredIcon $color="#3b82f6">
@@ -2809,6 +2809,8 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 									<div key={subGroup.id} style={{ marginBottom: '0.75rem' }}>
 										{/* SubGroup Header */}
 										<div
+											role="button"
+											tabIndex={0}
 											onClick={() => toggleMenuGroup(subGroup.id)}
 											style={{
 												display: 'flex',
@@ -3271,6 +3273,8 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 									>
 										{dragMode && <FiMove size={12} />}
 										<div
+											role="button"
+											tabIndex={0}
 											onClick={
 												!dragMode
 													? (e) => {

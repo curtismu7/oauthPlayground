@@ -427,6 +427,8 @@ export const SearchableDropdownV8: React.FC<SearchableDropdownV8Props> = ({
 					) : (
 						filteredOptions.map((option, index) => (
 							<div
+								role="button"
+								tabIndex={0}
 								key={option.value}
 								id={`${id}-option-${index}`}
 								role="option"

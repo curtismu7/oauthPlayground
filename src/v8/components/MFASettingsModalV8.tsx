@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { FiSettings, FiX } from 'react-icons/fi';
+import {
+	type MFASettings,
+	MfaAuthenticationServiceV8,
+} from '@/apps/mfa/services/mfaAuthenticationServiceV8';
 import { useDraggableModal } from '@/v8/hooks/useDraggableModal';
-import { MFAServiceV8, type MFASettings } from '@/v8/services/mfaServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 interface MFASettingsModalV8Props {
@@ -53,7 +56,7 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 	const fetchSettings = async () => {
 		setIsLoading(true);
 		try {
-			const data = await MFAServiceV8.getMFASettings(environmentId);
+			const data = await MfaAuthenticationServiceV8.getMFASettings(environmentId);
 			setSettings(data);
 		} catch (error) {
 			console.error('Failed to fetch MFA settings', error);
@@ -66,7 +69,7 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 	const handleSave = async () => {
 		setIsSaving(true);
 		try {
-			await MFAServiceV8.updateMFASettings(environmentId, settings);
+			await MfaAuthenticationServiceV8.updateMFASettings(environmentId, settings);
 			toastV8.success('MFA settings updated successfully');
 			onClose();
 		} catch (error) {
@@ -113,7 +116,7 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 							<div className="form-section">
 								<h4>Pairing</h4>
 								<div className="form-group">
-									<label>Max Allowed Devices</label>
+									<label htmlFor="maxalloweddevices">Max Allowed Devices</label>
 									<input
 										type="number"
 										value={settings.pairing?.maxAllowedDevices ?? ''}
@@ -129,7 +132,7 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 									/>
 								</div>
 								<div className="form-group">
-									<label>Pairing Key Format</label>
+									<label htmlFor="pairingkeyformat">Pairing Key Format</label>
 									<select
 										value={settings.pairing?.pairingKeyFormat || 'NUMERIC'}
 										onChange={(e) =>
@@ -152,7 +155,7 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 							<div className="form-section">
 								<h4>Lockout</h4>
 								<div className="form-group">
-									<label>Failure Count</label>
+									<label htmlFor="failurecount">Failure Count</label>
 									<input
 										type="number"
 										value={settings.lockout?.failureCount ?? ''}
@@ -168,7 +171,7 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 									/>
 								</div>
 								<div className="form-group">
-									<label>Duration (Seconds)</label>
+									<label htmlFor="durationseconds">Duration (Seconds)</label>
 									<input
 										type="number"
 										value={settings.lockout?.durationSeconds ?? ''}
@@ -189,10 +192,15 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 				</div>
 
 				<div className="modal-footer">
-					<button onClick={onClose} className="btn btn-secondary" disabled={isSaving}>
+					<button type="button" onClick={onClose} className="btn btn-secondary" disabled={isSaving}>
 						Close
 					</button>
-					<button onClick={handleSave} className="btn btn-primary" disabled={isSaving || isLoading}>
+					<button
+						type="button"
+						onClick={handleSave}
+						className="btn btn-primary"
+						disabled={isSaving || isLoading}
+					>
 						{isSaving ? 'Saving...' : 'Save Changes'}
 					</button>
 				</div>

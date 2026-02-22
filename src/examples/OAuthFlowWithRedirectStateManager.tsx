@@ -209,7 +209,9 @@ export const OAuthFlowWithRedirectStateManager: React.FC = () => {
 				<p>Set up OAuth credentials and prepare for authorization.</p>
 
 				<div style={{ marginBottom: '1rem' }}>
-					<label style={{ display: 'block', marginBottom: '0.5rem' }}>Environment ID:</label>
+					<label style={{ display: 'block', marginBottom: '0.5rem' }} htmlFor="environmentid">
+						Environment ID:
+					</label>
 					<input
 						value={credentials.environmentId}
 						onChange={(e) => setCredentials((prev) => ({ ...prev, environmentId: e.target.value }))}
@@ -223,7 +225,9 @@ export const OAuthFlowWithRedirectStateManager: React.FC = () => {
 				</div>
 
 				<div style={{ marginBottom: '1rem' }}>
-					<label style={{ display: 'block', marginBottom: '0.5rem' }}>Client ID:</label>
+					<label style={{ display: 'block', marginBottom: '0.5rem' }} htmlFor="clientid">
+						Client ID:
+					</label>
 					<input
 						value={credentials.clientId}
 						onChange={(e) => setCredentials((prev) => ({ ...prev, clientId: e.target.value }))}

@@ -264,7 +264,7 @@ const PingOneIdentityMetricsPingUI: React.FC = () => {
 		}
 
 		return cards;
-	}, [metrics]);
+	}, [metrics, getColorForMetric, getIconForMetric]);
 
 	const getIconForMetric = (key: string): string => {
 		const iconMap: Record<string, string> = {

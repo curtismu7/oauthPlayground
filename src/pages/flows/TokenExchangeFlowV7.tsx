@@ -1725,7 +1725,7 @@ function TokenExchangeComponent() {
       <h3>Token Exchange</h3>
       
       <div className="form-group">
-        <label>Subject Token:</label>
+        <label htmlFor="subjecttoken">Subject Token:</label>
         <input 
           type="text" 
           value={exchangeState.subjectToken}
@@ -1738,7 +1738,7 @@ function TokenExchangeComponent() {
       </div>
       
       <div className="form-group">
-        <label>Target Audience:</label>
+        <label htmlFor="targetaudience">Target Audience:</label>
         <input 
           type="text" 
           value={exchangeState.audience}
@@ -1749,8 +1749,7 @@ function TokenExchangeComponent() {
         />
       </div>
       
-      <button 
-        onClick={handleExchange} 
+      <button type="button" onClick={handleExchange} 
         disabled={loading || !exchangeState.subjectToken}
       >
         {loading ? "Exchanging..." : "Exchange Token"}

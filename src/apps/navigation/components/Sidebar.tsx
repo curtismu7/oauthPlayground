@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { FiMove, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
 import DragDropSidebar from './DragDropSidebar';
 import SidebarSearch from './SidebarSearch';
@@ -15,9 +14,9 @@ const SidebarContainer = styled.div<{ $width: number }>`
 	min-width: 300px;
 	max-width: 600px;
 	height: 100vh;
-	background: white;
+	background: #ffffff;
 	border-right: 1px solid #e5e7eb;
-	transition: width 0.2s ease;
+	transition: width 0.15s ease-in-out;
 	display: flex;
 	flex-direction: column;
 	overflow: hidden;
@@ -35,20 +34,25 @@ const ResizeHandle = styled.div`
 	z-index: 10;
 
 	&:hover {
-		background: #3b82f6;
+		background: rgba(59, 130, 246, 0.3);
+		transform: translateX(-1px);
+	}
+
+	&:active {
+		background: rgba(59, 130, 246, 0.5);
 	}
 `;
 
 // Header section
 const SidebarHeader = styled.div`
-	padding: 16px;
+	padding: 1rem;
 	border-bottom: 1px solid #e5e7eb;
 	background: #f9fafb;
 `;
 
 // Footer section
 const SidebarFooter = styled.div`
-	padding: 16px;
+	padding: 1rem;
 	border-top: 1px solid #e5e7eb;
 	background: #f9fafb;
 `;
@@ -204,7 +208,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					<div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
 						<VersionBadge version={APP_VERSION} variant="sidebar" />
 						<CloseButton onClick={onClose}>
-							<FiX size={20} />
+							<i className="mdi mdi-close" style={{ fontSize: 20 }}></i>
 						</CloseButton>
 					</div>
 				</div>
@@ -225,7 +229,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						title={isDragDropMode ? 'Switch to standard menu' : 'Enable drag & drop mode'}
 						$isActive={isDragDropMode}
 					>
-						<FiMove size={14} />
+						<i className="mdi-drag-horizontal-variant" style={{ fontSize: 14 }}></i>
 						{isDragDropMode ? 'Drag Mode' : 'Enable Drag'}
 					</DragModeToggle>
 				</div>

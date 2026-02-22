@@ -848,6 +848,7 @@ const ClientGenerator: React.FC = () => {
 											)}
 								</pre>
 								<button
+									type="button"
 									onClick={() => handleTokenDecode('worker-token-response')}
 									style={{
 										padding: '0.5rem',
@@ -905,6 +906,7 @@ const ClientGenerator: React.FC = () => {
 									{`Authorization: Bearer ${TokenDisplayService.maskToken(workerToken, 4)}`}
 								</pre>
 								<button
+									type="button"
 									onClick={() => handleTokenDecode('auth-header')}
 									style={{
 										padding: '0.5rem',

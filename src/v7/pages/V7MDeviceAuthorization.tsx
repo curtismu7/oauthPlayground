@@ -214,7 +214,7 @@ export const V7MDeviceAuthorization: React.FC = () => {
 							/>
 						</label>
 					</div>
-					<button onClick={handleRequestDeviceAuth} style={primaryBtn}>
+					<button type="button" onClick={handleRequestDeviceAuth} style={primaryBtn}>
 						Request Device Authorization
 					</button>
 					{deviceResponse && !('error' in deviceResponse) && (
@@ -234,7 +234,7 @@ export const V7MDeviceAuthorization: React.FC = () => {
 									<code style={{ background: '#fff', padding: '4px 8px', borderRadius: 4 }}>
 										{userCode}
 									</code>
-									<button onClick={() => copyToClipboard(userCode)} style={copyBtn}>
+									<button type="button" onClick={() => copyToClipboard(userCode)} style={copyBtn}>
 										<FiCopy /> Copy
 									</button>
 								</div>
@@ -243,7 +243,7 @@ export const V7MDeviceAuthorization: React.FC = () => {
 									<code style={{ background: '#fff', padding: '4px 8px', borderRadius: 4 }}>
 										{deviceCode}
 									</code>
-									<button onClick={() => copyToClipboard(deviceCode)} style={copyBtn}>
+									<button type="button" onClick={() => copyToClipboard(deviceCode)} style={copyBtn}>
 										<FiCopy /> Copy
 									</button>
 								</div>
@@ -252,7 +252,11 @@ export const V7MDeviceAuthorization: React.FC = () => {
 									<code style={{ background: '#fff', padding: '4px 8px', borderRadius: 4 }}>
 										{verificationUri}
 									</code>
-									<button onClick={() => copyToClipboard(verificationUri)} style={copyBtn}>
+									<button
+										type="button"
+										onClick={() => copyToClipboard(verificationUri)}
+										style={copyBtn}
+									>
 										<FiCopy /> Copy
 									</button>
 								</div>
@@ -288,6 +292,7 @@ export const V7MDeviceAuthorization: React.FC = () => {
 							approval.
 						</p>
 						<button
+							type="button"
 							onClick={handleApproveDevice}
 							disabled={isApproved}
 							style={isApproved ? { ...primaryBtn, opacity: 0.6 } : primaryBtn}
@@ -329,7 +334,7 @@ export const V7MDeviceAuthorization: React.FC = () => {
 							Once the device is approved, the client polls the token endpoint using the device code
 							to obtain tokens.
 						</p>
-						<button onClick={handlePollToken} style={primaryBtn}>
+						<button type="button" onClick={handlePollToken} style={primaryBtn}>
 							Poll for Tokens
 						</button>
 						{tokenResponse && (
@@ -340,13 +345,17 @@ export const V7MDeviceAuthorization: React.FC = () => {
 								</div>
 								{accessToken && (
 									<div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-										<button onClick={() => setShowAccessModal(true)} style={secondaryBtn}>
+										<button
+											type="button"
+											onClick={() => setShowAccessModal(true)}
+											style={secondaryBtn}
+										>
 											Inspect Access Token
 										</button>
-										<button onClick={handleUserInfo} style={secondaryBtn}>
+										<button type="button" onClick={handleUserInfo} style={secondaryBtn}>
 											Call UserInfo
 										</button>
-										<button onClick={handleIntrospect} style={secondaryBtn}>
+										<button type="button" onClick={handleIntrospect} style={secondaryBtn}>
 											Introspect Token
 										</button>
 									</div>

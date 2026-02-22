@@ -15,12 +15,7 @@ const Badge = styled.span<{ flow?: string; variant?: string }>`
 		}
 		return props.flow === 'Implicit' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(22, 163, 74, 0.2)';
 	}};
-  border: 1px solid ${(props) => {
-		if (props.variant === 'sidebar') {
-			return '#6366f1';
-		}
-		return props.flow === 'Implicit' ? '#60a5fa' : '#4ade80';
-	}};
+  border: 1px solid var(--ping-border-color);
   color: ${(props) => {
 		if (props.variant === 'sidebar') {
 			return '#4f46e5';
@@ -41,8 +36,10 @@ const Badge = styled.span<{ flow?: string; variant?: string }>`
 export const VersionBadge: React.FC<VersionBadgeProps> = ({ version, flow, variant = 'flow' }) => {
 	console.log('[VersionBadge] Rendering:', { version, flow, variant });
 	return (
-		<Badge flow={flow} variant={variant}>
-			{version}
-		</Badge>
+		<div className="end-user-nano">
+			<Badge flow={flow} variant={variant}>
+				{version}
+			</Badge>
+		</div>
 	);
 };

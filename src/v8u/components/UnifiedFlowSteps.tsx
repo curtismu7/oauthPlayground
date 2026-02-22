@@ -40,6 +40,7 @@ import { PasswordChangeModal } from '@/components/PasswordChangeModal';
 import RedirectlessLoginModal from '@/components/RedirectlessLoginModal';
 import { EducationPreferenceService } from '@/services/educationPreferenceService';
 import { type PKCECodes, PKCEService } from '@/services/pkceService';
+import { unifiedTokenService } from '@/shared/services/unifiedTokenService';
 import { createModuleLogger } from '@/utils/consoleMigrationHelper';
 import { WorkerTokenVsClientCredentialsEducationModalV8 } from '@/v8/components/WorkerTokenVsClientCredentialsEducationModalV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
@@ -47,12 +48,12 @@ import type { TokenResponse } from '@/v8/services/oauthIntegrationServiceV8';
 import { OidcDiscoveryServiceV8 } from '@/v8/services/oidcDiscoveryServiceV8';
 import { type FlowType, type SpecVersion } from '@/v8/services/specVersionServiceV8';
 import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
-import { TokenOperationsServiceV8 } from '@/v8/services/tokenOperationsServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 // Create module-specific logger
 const log = createModuleLogger('src/v8u/components/UnifiedFlowSteps.tsx');
 
+import { UserInfoSuccessModalV8U } from '@/apps/user-management/components/UserInfoSuccessModalV8U';
 import { ButtonSpinner } from '@/components/ui';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 // Enhanced state management for token synchronization
@@ -68,7 +69,6 @@ import { IDTokenValidationModalV8U } from './IDTokenValidationModalV8U';
 import { TokenDisplayV8U } from './TokenDisplayV8U';
 import { UnifiedFlowDocumentationPageV8U } from './UnifiedFlowDocumentationPageV8U';
 import { UnifiedFlowSuccessStepV8U } from './UnifiedFlowSuccessStepV8U';
-import { UserInfoSuccessModalV8U } from '@/apps/user-management/components/UserInfoSuccessModalV8U';
 
 // Note: Credentials form is rendered by parent component (UnifiedOAuthFlowV8U)
 
@@ -900,7 +900,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	// @ts-expect-error - Reserved for future use
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const _callbackUrlDisplayId = useId();
-	const fragmentUrlInputId = useId();
+	const _fragmentUrlInputId = useId();
 	const callbackSuccessModalTitleId = useId();
 
 	/**
@@ -1276,7 +1276,6 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		setIsPreFlightValidating(false);
 		setPreFlightStatus('');
 		// Only run on mount - empty dependency array is intentional
-		// biome-ignore lint/correctness/useExhaustiveDependencies: Only run on mount to clear errors
 	}, []);
 
 	// CRITICAL: Clear tokens and flow state when flow type changes
@@ -8483,13 +8482,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 				<div style={{ marginTop: '24px' }}>
 					<label
-						htmlFor={fragmentUrlInputId}
+						htmlFor="callbackurlwithfragment"
 						style={{ display: 'block', marginBottom: '4px', fontWeight: '600' }}
 					>
 						Callback URL (with fragment)
 					</label>
 					<input
-						id={fragmentUrlInputId}
+						id="callbackurlwithfragment"
 						type="text"
 						placeholder="https://localhost:3000/callback#access_token=...&id_token=..."
 						value={hasFragmentInUrl ? window.location.href : flowState.authorizationCode || ''}
@@ -11634,15 +11633,14 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		}
 
 		// Check if UserInfo is allowed for this flow
-		const canCallUserInfo = TokenOperationsServiceV8.isOperationAllowed(
+		const canCallUserInfo = unifiedTokenService.getOperationRules(
 			flowType,
-			credentials.scopes,
-			'userinfo'
-		);
+			credentials.scopes
+		).canCallUserInfo;
 
 		if (!canCallUserInfo) {
-			const rules = TokenOperationsServiceV8.getOperationRules(flowType, credentials.scopes);
-			const errorMsg = `UserInfo endpoint is not available. ${rules.userInfoReason}`;
+			const errorMsg =
+				'UserInfo endpoint is not available for this flow type. Please ensure you have the "openid" scope.';
 			console.warn(`${MODULE_TAG} ${errorMsg}`);
 			toastV8.error(errorMsg);
 			setUserInfoError(errorMsg);

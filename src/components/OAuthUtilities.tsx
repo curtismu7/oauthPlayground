@@ -314,7 +314,9 @@ const OAuthUtilities: React.FC = () => {
 						</p>
 
 						<InputGroup>
-							<label htmlFor="jwt-input">JWT Token</label>
+							<label htmlFor="jwt-input" htmlFor="jwttoken">
+								JWT Token
+							</label>
 							<TextArea
 								id="jwt-input"
 								placeholder="Paste your JWT token here..."
@@ -525,7 +527,9 @@ const OAuthUtilities: React.FC = () => {
 						</p>
 
 						<InputGroup>
-							<label htmlFor="string-length">String Length</label>
+							<label htmlFor="string-length" htmlFor="stringlength">
+								String Length
+							</label>
 							<Input
 								id="string-length"
 								type="number"
@@ -577,7 +581,9 @@ const OAuthUtilities: React.FC = () => {
 						</p>
 
 						<InputGroup>
-							<label htmlFor="url-input">OAuth Callback URL</label>
+							<label htmlFor="url-input" htmlFor="oauthcallbackurl">
+								OAuth Callback URL
+							</label>
 							<TextArea
 								id="url-input"
 								placeholder="Paste OAuth callback URL here..."

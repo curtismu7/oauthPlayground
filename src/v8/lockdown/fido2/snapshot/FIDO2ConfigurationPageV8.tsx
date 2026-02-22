@@ -1313,6 +1313,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 										fontSize: '14px',
 										fontWeight: '500',
 									}}
+									htmlFor="selectfido2policy"
 								>
 									Select FIDO2 Policy:
 								</label>
@@ -1399,6 +1400,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 										fontSize: '14px',
 										fontWeight: '500',
 									}}
+									htmlFor="selectdeviceauthenticationpolicy"
 								>
 									Select Device Authentication Policy:
 								</label>

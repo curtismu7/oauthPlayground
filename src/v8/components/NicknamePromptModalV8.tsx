@@ -311,6 +311,7 @@ export const NicknamePromptModalV8: React.FC<NicknamePromptModalV8Props> = ({
 							marginBottom: '0.5rem',
 							fontSize: '0.95rem',
 						}}
+						htmlFor="devicenickname"
 					>
 						Device Nickname
 					</label>

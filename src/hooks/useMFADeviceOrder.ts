@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { toast } from 'react-toastify';
-import { MFAServiceV8 } from '../v8/services/mfaServiceV8';
+import { MfaAuthenticationServiceV8 } from '../apps/mfa/services/mfaAuthenticationServiceV8';
 
 interface UseMFADeviceOrderProps {
 	environmentId: string;
@@ -20,7 +20,11 @@ export const useMFADeviceOrder = ({ environmentId, userId }: UseMFADeviceOrderPr
 			setIsUpdating(true);
 			setError(null);
 
-			const result = await MFAServiceV8.setUserMfaDeviceOrder(environmentId, userId, deviceIds);
+			const result = await MfaAuthenticationServiceV8.setUserMfaDeviceOrder(
+				environmentId,
+				userId,
+				deviceIds
+			);
 
 			toast.success('Device order updated successfully');
 			return result;

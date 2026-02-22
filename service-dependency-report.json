@@ -1,0 +1,309 @@
+{
+	"timestamp": "2026-02-20T21:48:16.960Z",
+	"totalServices": 53,
+	"totalApps": 4,
+	"services": {
+		"mfaRedirectUriServiceV8": {
+			"dependentApps": ["oauth", "mfa"],
+			"riskLevel": "MEDIUM"
+		},
+		"returnTargetServiceV8U": {
+			"dependentApps": ["oauth", "mfa"],
+			"riskLevel": "MEDIUM"
+		},
+		"unifiedWorkerTokenService": {
+			"dependentApps": ["oauth", "mfa"],
+			"riskLevel": "MEDIUM"
+		},
+		"configCheckerServiceV8": {
+			"dependentApps": ["oauth"],
+			"riskLevel": "MEDIUM"
+		},
+		"credentialsServiceV8": {
+			"dependentApps": ["oauth", "mfa"],
+			"riskLevel": "MEDIUM"
+		},
+		"environmentIdServiceV8": {
+			"dependentApps": ["oauth", "mfa"],
+			"riskLevel": "MEDIUM"
+		},
+		"sharedCredentialsServiceV8": {
+			"dependentApps": ["oauth"],
+			"riskLevel": "MEDIUM"
+		},
+		"specUrlServiceV8": {
+			"dependentApps": ["oauth", "flows"],
+			"riskLevel": "MEDIUM"
+		},
+		"uiNotificationServiceV8": {
+			"dependentApps": ["oauth", "mfa"],
+			"riskLevel": "MEDIUM"
+		},
+		"workerTokenStatusServiceV8": {
+			"dependentApps": ["oauth", "mfa"],
+			"riskLevel": "MEDIUM"
+		},
+		"credentialReloadServiceV8U": {
+			"dependentApps": ["oauth"],
+			"riskLevel": "MEDIUM"
+		},
+		"unifiedFlowLoggerServiceV8U": {
+			"dependentApps": ["oauth", "mfa", "flows", "unified"],
+			"riskLevel": "HIGH"
+		},
+		"flowSettingsServiceV8U": {
+			"dependentApps": ["oauth"],
+			"riskLevel": "MEDIUM"
+		},
+		"tokenDisplayService": {
+			"dependentApps": ["oauth"],
+			"riskLevel": "MEDIUM"
+		},
+		"enhancedStateManagement": {
+			"dependentApps": ["oauth"],
+			"riskLevel": "MEDIUM"
+		},
+		"responseModeService": {
+			"dependentApps": ["oauth"],
+			"riskLevel": "MEDIUM"
+		},
+		"redirectUriServiceV8": {
+			"dependentApps": ["oauth"],
+			"riskLevel": "MEDIUM"
+		},
+		"specVersionServiceV8": {
+			"dependentApps": ["oauth", "mfa", "flows"],
+			"riskLevel": "HIGH"
+		},
+		"unifiedFlowIntegrationV8U": {
+			"dependentApps": ["oauth", "flows"],
+			"riskLevel": "MEDIUM"
+		},
+		"apiCallTrackerService": {
+			"dependentApps": ["oauth", "mfa"],
+			"riskLevel": "MEDIUM"
+		},
+		"unifiedTokenStorageService": {
+			"dependentApps": ["oauth"],
+			"riskLevel": "MEDIUM"
+		},
+		"unifiedWorkerTokenTypes": {
+			"dependentApps": ["oauth"],
+			"riskLevel": "MEDIUM"
+		},
+		"implicitFlowIntegrationServiceV8": {
+			"dependentApps": ["oauth"],
+			"riskLevel": "MEDIUM"
+		},
+		"commonImportsService": {
+			"dependentApps": ["mfa"],
+			"riskLevel": "MEDIUM"
+		},
+		"mfaServiceV8": {
+			"dependentApps": ["mfa"],
+			"riskLevel": "MEDIUM"
+		},
+		"mfaEducationServiceV8": {
+			"dependentApps": ["mfa"],
+			"riskLevel": "MEDIUM"
+		},
+		"apiDisplayServiceV8": {
+			"dependentApps": ["mfa"],
+			"riskLevel": "MEDIUM"
+		},
+		"tokenOperationsServiceV8": {
+			"dependentApps": ["mfa"],
+			"riskLevel": "MEDIUM"
+		},
+		"tokenDisplayServiceV8": {
+			"dependentApps": ["mfa"],
+			"riskLevel": "MEDIUM"
+		},
+		"authentication": {
+			"dependentApps": ["mfa"],
+			"riskLevel": "MEDIUM"
+		},
+		"shared": {
+			"dependentApps": ["mfa"],
+			"riskLevel": "MEDIUM"
+		},
+		"registration": {
+			"dependentApps": ["mfa"],
+			"riskLevel": "MEDIUM"
+		},
+		"validationServiceV8": {
+			"dependentApps": ["mfa"],
+			"riskLevel": "MEDIUM"
+		},
+		"globalEnvironmentService": {
+			"dependentApps": ["mfa"],
+			"riskLevel": "MEDIUM"
+		},
+		"globalWorkerTokenService": {
+			"dependentApps": ["mfa"],
+			"riskLevel": "MEDIUM"
+		},
+		"mfaCredentialManagerV8": {
+			"dependentApps": ["mfa"],
+			"riskLevel": "MEDIUM"
+		},
+		"mfaConfigurationServiceV8": {
+			"dependentApps": ["mfa"],
+			"riskLevel": "MEDIUM"
+		},
+		"environmentService": {
+			"dependentApps": ["mfa"],
+			"riskLevel": "MEDIUM"
+		},
+		"pingOneLogoutService": {
+			"dependentApps": ["mfa"],
+			"riskLevel": "MEDIUM"
+		},
+		"mfaAuthenticationServiceV8": {
+			"dependentApps": ["mfa"],
+			"riskLevel": "MEDIUM"
+		},
+		"webAuthnAuthenticationServiceV8": {
+			"dependentApps": ["mfa"],
+			"riskLevel": "MEDIUM"
+		},
+		"workerTokenServiceV8": {
+			"dependentApps": ["mfa"],
+			"riskLevel": "MEDIUM"
+		},
+		"mfaReportingServiceV8": {
+			"dependentApps": ["mfa"],
+			"riskLevel": "MEDIUM"
+		},
+		"workerTokenUIServiceV8": {
+			"dependentApps": ["mfa"],
+			"riskLevel": "MEDIUM"
+		},
+		"unifiedFlowErrorHandlerV8U": {
+			"dependentApps": ["mfa"],
+			"riskLevel": "MEDIUM"
+		},
+		"fido2Service": {
+			"dependentApps": ["mfa"],
+			"riskLevel": "MEDIUM"
+		},
+		"oauthIntegrationServiceV8": {
+			"dependentApps": ["mfa"],
+			"riskLevel": "MEDIUM"
+		},
+		"phoneAutoPopulationServiceV8": {
+			"dependentApps": ["mfa"],
+			"riskLevel": "MEDIUM"
+		},
+		"mfaFeatureFlagsV8": {
+			"dependentApps": ["mfa"],
+			"riskLevel": "MEDIUM"
+		},
+		"deviceCreateDemoServiceV8": {
+			"dependentApps": ["mfa"],
+			"riskLevel": "MEDIUM"
+		},
+		"universalSilentApiService": {
+			"dependentApps": ["mfa"],
+			"riskLevel": "MEDIUM"
+		},
+		"pingOneClientServiceV8U": {
+			"dependentApps": ["unified"],
+			"riskLevel": "MEDIUM"
+		},
+		"UnifiedFlowStateManager": {
+			"dependentApps": ["unified"],
+			"riskLevel": "MEDIUM"
+		}
+	},
+	"apps": {
+		"oauth": {
+			"serviceDependencies": [
+				"mfaRedirectUriServiceV8",
+				"returnTargetServiceV8U",
+				"unifiedWorkerTokenService",
+				"configCheckerServiceV8",
+				"credentialsServiceV8",
+				"environmentIdServiceV8",
+				"sharedCredentialsServiceV8",
+				"specUrlServiceV8",
+				"uiNotificationServiceV8",
+				"workerTokenStatusServiceV8",
+				"credentialReloadServiceV8U",
+				"unifiedFlowLoggerServiceV8U",
+				"flowSettingsServiceV8U",
+				"tokenDisplayService",
+				"enhancedStateManagement",
+				"responseModeService",
+				"redirectUriServiceV8",
+				"specVersionServiceV8",
+				"unifiedFlowIntegrationV8U",
+				"apiCallTrackerService",
+				"unifiedTokenStorageService",
+				"unifiedWorkerTokenTypes",
+				"implicitFlowIntegrationServiceV8"
+			],
+			"dependencyCount": 23
+		},
+		"mfa": {
+			"serviceDependencies": [
+				"credentialsServiceV8",
+				"workerTokenStatusServiceV8",
+				"commonImportsService",
+				"mfaServiceV8",
+				"apiCallTrackerService",
+				"mfaEducationServiceV8",
+				"uiNotificationServiceV8",
+				"apiDisplayServiceV8",
+				"specVersionServiceV8",
+				"tokenOperationsServiceV8",
+				"tokenDisplayServiceV8",
+				"authentication",
+				"shared",
+				"registration",
+				"validationServiceV8",
+				"globalEnvironmentService",
+				"globalWorkerTokenService",
+				"mfaCredentialManagerV8",
+				"environmentIdServiceV8",
+				"mfaConfigurationServiceV8",
+				"environmentService",
+				"pingOneLogoutService",
+				"mfaAuthenticationServiceV8",
+				"mfaRedirectUriServiceV8",
+				"webAuthnAuthenticationServiceV8",
+				"returnTargetServiceV8U",
+				"workerTokenServiceV8",
+				"mfaReportingServiceV8",
+				"workerTokenUIServiceV8",
+				"unifiedFlowErrorHandlerV8U",
+				"unifiedFlowLoggerServiceV8U",
+				"fido2Service",
+				"oauthIntegrationServiceV8",
+				"phoneAutoPopulationServiceV8",
+				"mfaFeatureFlagsV8",
+				"deviceCreateDemoServiceV8",
+				"unifiedWorkerTokenService",
+				"universalSilentApiService"
+			],
+			"dependencyCount": 38
+		},
+		"flows": {
+			"serviceDependencies": [
+				"specVersionServiceV8",
+				"specUrlServiceV8",
+				"unifiedFlowIntegrationV8U",
+				"unifiedFlowLoggerServiceV8U"
+			],
+			"dependencyCount": 4
+		},
+		"unified": {
+			"serviceDependencies": [
+				"unifiedFlowLoggerServiceV8U",
+				"pingOneClientServiceV8U",
+				"UnifiedFlowStateManager"
+			],
+			"dependencyCount": 3
+		}
+	}
+}

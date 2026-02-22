@@ -1,298 +1,227 @@
 /**
  * @file FloatingStepperService.ts
  * @module services
- * @description Reusable floating stepper service for multi-step flows
+ * @description A reusable floating stepper service for multi-step flows
  * @version 1.0.0
  * @since 2026-02-16
- *
- * This service provides a reusable floating stepper component that can be used
- * across different applications and flows. It combines the best features from the
- * OAuth Authorization Code Flow stepper and makes them configurable.
  */
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
+// Types
 export interface FloatingStepperStep {
 	id: string;
 	title: string;
 	description?: string;
 	completed?: boolean;
-	current?: boolean;
 }
 
-export interface FloatingStepperConfig {
+export interface FloatingStepperProps {
 	steps: FloatingStepperStep[];
 	currentStep: number;
 	onStepChange?: (stepIndex: number) => void;
 	onPrevious?: () => void;
 	onNext?: () => void;
-	onReset?: () => void;
 	onComplete?: () => void;
-	showStepIndicator?: boolean;
-	showStepNumbers?: boolean;
-	compact?: boolean;
-	draggable?: boolean;
-	position?: { x: number; y: number };
-	variant?: 'default' | 'oauth' | 'oidc' | 'mfa';
+	onReset?: () => void;
+	variant?: 'oauth' | 'oidc' | 'mfa' | 'default';
 	theme?: 'light' | 'dark';
-}
-
-export interface FloatingStepperProps extends FloatingStepperConfig {
+	draggable?: boolean;
+	showStepNumbers?: boolean;
+	showStepIndicator?: boolean;
 	className?: string;
 	style?: React.CSSProperties;
+	position?: { x: number; y: number };
 }
 
 // Styled Components
 const _FloatingStepperContainer = styled.div<{
-	$position: { x: number; y: number };
-	$isDragging?: boolean;
-	$compact?: boolean;
-	$variant?: string;
-	$theme?: string;
+	position: { x: number; y: number };
+	isDragging: boolean;
+	compact: boolean;
+	variant: string;
+	theme: string;
 }>`
-	position: fixed !important;
-	left: ${({ $position }) => $position.x}px !important;
-	top: ${({ $position }) => $position.y}px !important;
-	background: ${({ $theme }) =>
-		$theme === 'dark' ? 'rgba(31, 41, 55, 0.98)' : 'rgba(255, 255, 255, 0.98)'} !important;
-	backdrop-filter: blur(10px) !important;
-	padding: ${({ $compact }) => ($compact ? '0.75rem 1rem' : '1.25rem 2rem')} !important;
-	border-radius: ${({ $compact }) => ($compact ? '0.75rem' : '1rem')} !important;
-	box-shadow: ${({ $isDragging }) =>
-		$isDragging ? '0 12px 40px rgba(0, 0, 0, 0.25)' : '0 8px 32px rgba(0, 0, 0, 0.12)'} !important;
-	border: 1px solid rgba(0, 0, 0, 0.08) !important;
-	z-index: 1000 !important;
-	display: flex !important;
-	align-items: center !important;
-	gap: ${({ $compact }) => ($compact ? '0.75rem' : '2rem')} !important;
-	max-width: 90vw !important;
-	visibility: visible !important;
-	opacity: 1 !important;
-	pointer-events: auto !important;
-	user-select: ${({ $isDragging }) => ($isDragging ? 'none' : 'auto')} !important;
-	cursor: ${({ $isDragging }) => ($isDragging ? 'grabbing' : 'move')} !important;
-	transition: ${({ $isDragging }) => ($isDragging ? 'none' : 'all 0.2s ease')} !important;
+	position: fixed;
+	top: ${({ position }) => position.y}px;
+	left: ${({ position }) => position.x}px;
+	z-index: 1000;
+	background: ${({ theme }) => (theme === 'dark' ? '#2d3748' : '#ffffff')};
+	border-radius: 12px;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+	backdrop-filter: blur(10px);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	padding: ${({ compact }) => (compact ? '12px' : '16px')};
+	min-width: ${({ compact }) => (compact ? '200px' : '300px')};
+	max-width: 400px;
+	cursor: ${({ isDragging }) => (isDragging ? 'grabbing' : 'grab')};
+	transition: transform 0.2s ease, box-shadow 0.2s ease;
 
-	@media (max-width: 768px) {
-		bottom: 1rem;
-		padding: 1rem 1.5rem;
-		gap: 1rem;
+	&:hover {
+		box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
 	}
-`;
 
-const _StepIndicator = styled.div<{ $compact?: boolean }>`
-	display: ${({ $compact }) => ($compact ? 'none' : 'flex')};
-	align-items: center;
-	gap: 0.75rem;
-	padding-right: 2rem;
-	border-right: 2px solid #e5e7eb;
-
-	@media (max-width: 768px) {
-		padding-right: 1rem;
-	}
-`;
-
-const _StepDot = styled.div<{ $active: boolean; $completed: boolean }>`
-	width: 12px;
-	height: 12px;
-	border-radius: 50%;
-	background: ${({ $active, $completed }) => {
-		if ($completed) return '#22c55e';
-		if ($active) return '#3b82f6';
-		return '#d1d5db';
-	}};
-	transition: all 0.2s ease;
-`;
-
-const _StepInfo = styled.div<{ $compact?: boolean }>`
-	display: ${({ $compact }) => ($compact ? 'none' : 'flex')};
-	flex-direction: column;
-	gap: 0.25rem;
-`;
-
-const _StepTitle = styled.div`
-	font-size: 0.875rem;
-	font-weight: 600;
-	color: #374151;
-`;
-
-const _StepDescription = styled.div`
-	font-size: 0.75rem;
-	color: #6b7280;
+	${({ variant }) => {
+		switch (variant) {
+			case 'oauth':
+				return css`
+					border-color: rgba(59, 130, 246, 0.3);
+					&::before {
+						content: '';
+						position: absolute;
+						top: 0;
+						left: 0;
+						right: 0;
+						height: 3px;
+						background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+						border-radius: 12px 12px 0 0;
+					}
+				`;
+			case 'oidc':
+				return css`
+					border-color: rgba(16, 185, 129, 0.3);
+					&::before {
+						content: '';
+						position: absolute;
+						top: 0;
+						left: 0;
+						right: 0;
+						height: 3px;
+						background: linear-gradient(90deg, #10b981, #059669);
+						border-radius: 12px 12px 0 0;
+					}
+				`;
+			case 'mfa':
+				return css`
+					border-color: rgba(245, 158, 11, 0.3);
+					&::before {
+						content: '';
+						position: absolute;
+						top: 0;
+						left: 0;
+						right: 0;
+						height: 3px;
+						background: linear-gradient(90deg, #f59e0b, #d97706);
+						border-radius: 12px 12px 0 0;
+					}
+				`;
+			default:
+				return css`
+					border-color: rgba(107, 114, 128, 0.3);
+				`;
+		}
+	}}
 `;
 
 const _DragHandle = styled.div`
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 24px;
-	height: 24px;
-	background: #f3f4f6;
-	border-radius: 4px;
-	margin-right: 1rem;
-	cursor: default;
-	color: #6b7280;
-	flex-shrink: 0;
-	transition: all 0.2s ease;
-	pointer-events: none;
+	padding: 8px;
+	margin: -8px;
+	color: ${({ theme }) => (theme === 'dark' ? '#a0aec0' : '#6b7280')};
+	cursor: grab;
 
 	&:hover {
-		background: #e5e7eb;
+		color: ${({ theme }) => (theme === 'dark' ? '#e2e8f0' : '#374151')};
 	}
 `;
 
-const _NavigationButtons = styled.div`
-	display: flex;
-	gap: 0.75rem;
-	margin-left: auto;
-`;
-
-const _NavButton = styled.button<{
-	$variant?: 'primary' | 'secondary' | 'danger';
-	$disabled?: boolean;
-}>`
+const _StepIndicator = styled.div`
 	display: flex;
 	align-items: center;
-	gap: 0.5rem;
-	padding: 0.75rem 1.25rem;
-	border: none;
-	border-radius: 0.5rem;
-	font-size: 0.875rem;
-	font-weight: 500;
-	cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'pointer')};
-	transition: all 0.2s ease;
-	pointer-events: ${({ $disabled }) => ($disabled ? 'none' : 'auto')};
-	opacity: ${({ $disabled }) => ($disabled ? 0.5 : 1)};
-
-	${({ $variant }) => {
-		switch ($variant) {
-			case 'primary':
-				return `
-					background: #3b82f6;
-					color: white;
-					&:hover:not(:disabled) {
-						background: #2563eb;
-					}
-				`;
-			case 'secondary':
-				return `
-					background: #f3f4f6;
-					color: #374151;
-					&:hover:not(:disabled) {
-						background: #e5e7eb;
-					}
-				`;
-			case 'danger':
-				return `
-					background: #ef4444;
-					color: white;
-					&:hover:not(:disabled) {
-						background: #dc2626;
-					}
-				`;
-			default:
-				return `
-					background: #f3f4f6;
-					color: #374151;
-					&:hover:not(:disabled) {
-						background: #e5e7eb;
-					}
-				`;
-		}
-	}}
+	justify-content: space-between;
+	margin-bottom: 12px;
 `;
 
-const _CompactToggle = styled.button`
+const _StepDot = styled.div<{ active: boolean; completed: boolean }>`
+	width: 12px;
+	height: 12px;
+	border-radius: 50%;
+	background: ${({ active, completed, theme }) => {
+		if (active) return theme === 'dark' ? '#3b82f6' : '#2563eb';
+		if (completed) return theme === 'dark' ? '#10b981' : '#059669';
+		return theme === 'dark' ? '#4b5563' : '#d1d5db';
+	}};
+	transition: all 0.3s ease;
+`;
+
+const _StepInfo = styled.div<{ compact: boolean }>`
 	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 32px;
-	height: 32px;
-	border: none;
-	border-radius: 0.375rem;
-	background: #f3f4f6;
-	color: #6b7280;
-	cursor: pointer;
-	transition: all 0.2s ease;
-
-	&:hover {
-		background: #e5e7eb;
-		color: #374151;
-	}
+	flex-direction: column;
+	gap: 4px;
+	flex: 1;
+	margin-left: 12px;
 `;
 
-/**
- * FloatingStepper Component
- *
- * A reusable floating stepper component that can be used across different applications.
- * Features draggable positioning, step indicators, and responsive design.
- */
+const _StepTitle = styled.div<{ theme: string }>`
+	font-size: 14px;
+	font-weight: 600;
+	color: ${({ theme }) => (theme === 'dark' ? '#f3f4f6' : '#1f2937')};
+`;
+
+const _StepDescription = styled.div<{ theme: string }>`
+	font-size: 12px;
+	color: ${({ theme }) => (theme === 'dark' ? '#9ca3af' : '#6b7280')};
+	line-height: 1.4;
+`;
+
+// Main Component
 export const FloatingStepper: React.FC<FloatingStepperProps> = ({
 	steps,
 	currentStep,
 	onStepChange,
 	onPrevious,
 	onNext,
-	onReset,
 	onComplete,
-	showStepIndicator = true,
-	showStepNumbers = false,
-	compact = false,
-	draggable = true,
-	position = { x: 20, y: 20 },
+	onReset,
 	variant = 'default',
 	theme = 'light',
-	className,
-	style,
+	draggable = true,
+	showStepNumbers = true,
+	showStepIndicator = true,
+	className = '',
+	style = {},
+	position = { x: 20, y: 20 },
 }) => {
-	const [isDragging, setIsDragging] = useState(false);
-	const [isCompact, setIsCompact] = useState(compact);
+	let [isDragging, setIsDragging] = useState(false);
 	const [currentPosition, setCurrentPosition] = useState(position);
+	const [isCompact, setIsCompact] = useState(false);
 	const dragRef = useRef<HTMLDivElement>(null);
-	const dragOffset = useRef({ x: 0, y: 0 });
+	const dragStartRef = useRef({ x: 0, y: 0 });
 
-	const totalSteps = steps.length;
 	const isFirstStep = currentStep === 0;
-	const isLastStep = currentStep === totalSteps - 1;
-	const canNavigateNext = currentStep < totalSteps - 1;
+	const isLastStep = currentStep === steps.length - 1;
+	const canNavigateNext = currentStep < steps.length - 1;
 
 	const handleMouseDown = useCallback(
 		(e: React.MouseEvent) => {
 			if (!draggable) return;
 
-			const rect = dragRef.current?.getBoundingClientRect();
-			if (!rect) return;
-
-			dragOffset.current = {
-				x: e.clientX - rect.left,
-				y: e.clientY - rect.top,
-			};
-
 			setIsDragging(true);
+			dragStartRef.current = {
+				x: e.clientX - currentPosition.x,
+				y: e.clientY - currentPosition.y,
+			};
 		},
-		[draggable]
+		[draggable, currentPosition]
 	);
 
 	const handleMouseMove = useCallback(
 		(e: MouseEvent) => {
-			if (!isDragging || !draggable) return;
+			if (!isDragging) return;
 
-			const newPosition = {
-				x: e.clientX - dragOffset.current.x,
-				y: e.clientY - dragOffset.current.y,
-			};
+			const newX = e.clientX - dragStartRef.current.x;
+			const newY = e.clientY - dragStartRef.current.y;
 
 			// Keep within viewport bounds
-			const maxX = window.innerWidth - 200; // Approximate width
-			const maxY = window.innerHeight - 100; // Approximate height
+			const boundedX = Math.max(0, Math.min(newX, window.innerWidth - 300));
+			const boundedY = Math.max(0, Math.min(newY, window.innerHeight - 150));
 
-			setCurrentPosition({
-				x: Math.max(0, Math.min(newPosition.x, maxX)),
-				y: Math.max(0, Math.min(newPosition.y, maxY)),
-			});
+			setCurrentPosition({ x: boundedX, y: boundedY });
 		},
-		[isDragging, draggable]
+		[isDragging]
 	);
 
 	const handleMouseUp = useCallback(() => {
@@ -346,17 +275,17 @@ export const FloatingStepper: React.FC<FloatingStepperProps> = ({
 	return (
 		<FloatingStepperContainer
 			ref={dragRef}
-	$position = { currentPosition };
-	$isDragging = { isDragging };
-	$compact = { isCompact };
-	$variant = { variant };
-	$theme = { theme };
+	position = { currentPosition };
+	isDragging = { isDragging };
+	compact = { isCompact };
+	variant = { variant };
+	theme = { theme };
 	onMouseDown = { handleMouseDown };
 	className = { className };
 	style={style}
 		>
 			{draggable && (
-				<_DragHandle>
+				<_DragHandle _theme={theme}>
 					<_FiMove _size={16} />
 				</_DragHandle>
 	)
@@ -368,159 +297,113 @@ export const FloatingStepper: React.FC<FloatingStepperProps> = ({
 					{steps.slice(0, 3).map((step, index) => (
 						<_StepDot
 							_key={step.id}
-							_$active={index === currentStep}
-							_$completed={step.completed || index < currentStep}
+							_active={index === currentStep}
+							_completed={step.completed || index < currentStep}
 						/>
 					)
 	)
 }
 {
-	totalSteps > 3 && <span>
+	steps.length > 3 && <span>
 	...</span>
 }
 <StepDot
-						$active={totalSteps - 1 === currentStep}
-$completed={steps[totalSteps - 1]?.completed || totalSteps - 1 < currentStep}
+						active={steps.length - 1 === currentStep}
+completed={steps[steps.length - 1]?.completed || steps.length - 1 < currentStep}
 					/>
-					<StepInfo $compact={isCompact}>
-						<StepTitle>
-							{showStepNumbers && `${currentStep + 1}/$
-{
-	totalSteps;
-}
-`}
-							{steps[currentStep]?.title}
-						</StepTitle>
-						{steps[currentStep]?.description && (
-							<StepDescription>{steps[currentStep].description}</StepDescription>
-						)}
-					</StepInfo>
 				</StepIndicator>
-			)}
+)}
 
-			<NavigationButtons>
-				{!isCompact && onReset && (
-					<NavButton
-						$variant="danger"
-						onClick={handleReset}
-						title="Reset flow"
-					>
-						<FiTrash2 size={16} />
-						Reset
-					</NavButton>
-				)}
-
-				<NavButton
-					$variant="secondary"
-					onClick={handlePrevious}
-					$disabled={isFirstStep}
-					title="Previous step"
-				>
-					<FiArrowLeft size={16} />
-					Previous
-				</NavButton>
-
-				<NavButton
-					$variant="primary"
-					onClick={handleNext}
-					$disabled={!canNavigateNext && !isLastStep}
-					title={isLastStep ? "Complete flow" : "Next step"}
-				>
-					{isLastStep ? <FiCheckCircle size={16} /> : <FiArrowRight size={16} />}
-					{isLastStep ? 'Complete' : 'Next'}
-				</NavButton>
-
-				{draggable && (
-					<CompactToggle
-						onClick={toggleCompact}
-						title={isCompact ? "Expand stepper" : "Compact stepper"}
-					>
-						{isCompact ? <FiMaximize2 size={16} /> : <FiMinimize2 size={16} />}
-					</CompactToggle>
-				)}
-			</NavigationButtons>
+			<StepInfo compact=
+{
+	isCompact;
+}
+>
+				<StepTitle theme=
+{
+	theme;
+}
+>
+{
+	showStepNumbers && `${currentStep + 1}/${steps.length} `;
+}
+{
+	steps[currentStep]?.title;
+}
+</StepTitle>
+{
+	steps[currentStep]?.description && !isCompact && (
+					<StepDescription theme={theme}>
+						{steps[currentStep].description}
+					</StepDescription>
+				)
+}
+</StepInfo>
 		</FloatingStepperContainer>
-	);
-};
+)
+}
 
-/**
- * FloatingStepperService
- * 
- * Service class for managing floating stepper instances and configurations.
- */
+// Service class for advanced usage
 export class FloatingStepperService {
-	/**
-	 * Default configuration for OAuth flows
-	 */
-	static getOAuthConfig(steps: FloatingStepperStep[]): Partial<FloatingStepperConfig> {
-		return {
-			steps,
-			variant: 'oauth',
-			theme: 'light',
-			showStepIndicator: true,
-			showStepNumbers: true,
-			draggable: true,
-			position: { x: 20, y: 20 },
-		};
+	private static instance: FloatingStepperService;
+	private steppers: Map<string, FloatingStepperProps> = new Map();
+
+	static getInstance(): FloatingStepperService {
+		if (!FloatingStepperService.instance) {
+			FloatingStepperService.instance = new FloatingStepperService();
+		}
+		return FloatingStepperService.instance;
 	}
 
-	/**
-	 * Default configuration for MFA flows
-	 */
-	static getMFAConfig(steps: FloatingStepperStep[]): Partial<FloatingStepperConfig> {
-		return {
-			steps,
-			variant: 'mfa',
-			theme: 'light',
-			showStepIndicator: true,
-			showStepNumbers: true,
-			draggable: true,
-			position: { x: 20, y: 20 },
-		};
+	registerStepper(id: string, props: FloatingStepperProps): void {
+		this.steppers.set(id, props);
 	}
 
-	/**
-	 * Default configuration for OIDC flows
-	 */
-	static getOIDCConfig(steps: FloatingStepperStep[]): Partial<FloatingStepperConfig> {
-		return {
-			steps,
-			variant: 'oidc',
-			theme: 'light',
-			showStepIndicator: true,
-			showStepNumbers: true,
-			draggable: true,
-			position: { x: 20, y: 20 },
-		};
+	unregisterStepper(id: string): void {
+		this.steppers.delete(id);
 	}
 
-	/**
-	 * Create a compact stepper configuration
-	 */
-	static getCompactConfig(steps: FloatingStepperStep[]): Partial<FloatingStepperConfig> {
-		return {
-			steps,
-			compact: true,
-			showStepIndicator: false,
-			showStepNumbers: true,
-			draggable: true,
-			position: { x: 20, y: 20 },
-		};
+	getStepper(id: string): FloatingStepperProps | undefined {
+		return this.steppers.get(id);
 	}
 
-	/**
-	 * Get default position based on screen size
-	 */
-	static getDefaultPosition(): { x: number; y: number } {
-		const screenWidth = window.innerWidth;
-		const screenHeight = window.innerHeight;
-		
-		// Position in bottom-right corner by default
-		return {
-			x: screenWidth - 300,
-			y: screenHeight - 150,
-		};
+	getAllSteppers(): Map<string, FloatingStepperProps> {
+		return new Map(this.steppers);
+	}
+
+	updateStepper(id: string, updates: Partial<FloatingStepperProps>): void {
+		const stepper = this.steppers.get(id);
+		if (stepper) {
+			this.steppers.set(id, { ...stepper, ...updates });
+		}
+	}
+
+	// Utility methods
+	static createOAuthSteps(): FloatingStepperStep[] {
+		return [
+			{ id: 'config', title: 'Configuration', description: 'Configure OAuth settings' },
+			{ id: 'auth', title: 'Authorization', description: 'Get authorization code' },
+			{ id: 'token', title: 'Token Exchange', description: 'Exchange code for tokens' },
+			{ id: 'introspect', title: 'Introspection', description: 'Validate tokens' },
+		];
+	}
+
+	static createMFASteps(): FloatingStepperStep[] {
+		return [
+			{ id: 'credentials', title: 'Credentials', description: 'Enter credentials' },
+			{ id: 'mfa', title: 'MFA Challenge', description: 'Complete MFA verification' },
+			{ id: 'success', title: 'Success', description: 'Authentication complete' },
+		];
+	}
+
+	static createOIDCSteps(): FloatingStepperStep[] {
+		return [
+			{ id: 'discover', title: 'Discovery', description: 'Discover OpenID configuration' },
+			{ id: 'auth', title: 'Authentication', description: 'Authenticate with OpenID' },
+			{ id: 'token', title: 'Token', description: 'Get ID and access tokens' },
+			{ id: 'userinfo', title: 'User Info', description: 'Retrieve user information' },
+		];
 	}
 }
 
-export default FloatingStepper;
+export default FloatingStepperService;

@@ -56,11 +56,14 @@ export const useGlobalWorkerToken = (): GlobalWorkerTokenStatus => {
 			const errorMessage =
 				error instanceof Error ? error.message : 'Failed to get global worker token';
 
-			console.error('[useGlobalWorkerToken] ❌ Failed to get token:', {
-				error: errorMessage,
-				errorType: error?.constructor?.name,
-				stack: error instanceof Error ? error.stack : undefined,
-			});
+			// Mute expected startup errors - only log if not the expected "credentials not configured" error
+			if (!errorMessage.includes('Worker Token credentials not configured')) {
+				console.error('[useGlobalWorkerToken] ❌ Failed to get token:', {
+					error: errorMessage,
+					errorType: error?.constructor?.name,
+					stack: error instanceof Error ? error.stack : undefined,
+				});
+			}
 
 			setStatus({
 				token: null,

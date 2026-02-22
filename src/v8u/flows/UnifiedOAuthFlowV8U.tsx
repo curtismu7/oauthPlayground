@@ -1901,14 +1901,12 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 			{/* Master Education Section */}
 			<MasterEducationSection
-				flowType="unified_oauth"
-				title="📚 OAuth & OIDC Education"
 				sections={[
 					{
 						id: 'unified-overview',
 						title: 'Unified Flow Overview',
 						icon: <FiBook />,
-						summary: 'Single UI for all OAuth 2.0, OAuth 2.1/OIDC 2.1, and OIDC Core 1.0 flows',
+						oneLiner: 'Single UI for all OAuth 2.0, OAuth 2.1/OIDC 2.1, and OIDC Core 1.0 flows',
 						content: (
 							<div>
 								<p>
@@ -1943,7 +1941,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						id: 'spec-versions',
 						title: 'Specification Versions',
 						icon: <FiPackage />,
-						summary: 'Support for OAuth 2.0, OAuth 2.1/OIDC 2.1, and OIDC Core 1.0 specifications',
+						oneLiner: 'Support for OAuth 2.0, OAuth 2.1/OIDC 2.1, and OIDC Core 1.0 specifications',
 						content: (
 							<div>
 								<p>

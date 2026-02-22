@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MasterFlow API - MFA Device Registration</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #fafafa;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+
+        .mfa-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .mfa-header {
+            margin-bottom: 3rem;
+        }
+
+        .breadcrumb {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 1rem;
+        }
+
+        .breadcrumb a {
+            color: #3b82f6;
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .mfa-header h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #6b7280;
+            margin: 0;
+        }
+
+        .mfa-main {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+        }
+
+        .device-selector h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: #1a1a1a;
+        }
+
+        .device-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .device-card {
+            padding: 1.5rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: white;
+        }
+
+        .device-card:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .device-card.selected {
+            border-color: #3b82f6;
+            background: #eff6ff;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+        }
+
+        .device-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .device-card h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #1a1a1a;
+        }
+
+        .device-card p {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin: 0;
+        }
+
+        .device-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .device-form h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: #1a1a1a;
+        }
+
+        .form-section {
+            margin-bottom: 2rem;
+        }
+
+        .form-section label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: #374151;
+        }
+
+        .form-section input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-section input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .help-text {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-top: 0.5rem;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+        }
+
+        @media (max-width: 768px) {
+            .mfa-main {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .btn-secondary,
+            .btn-primary {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="mfa-container">
+        <header class="mfa-header">
+            <div class="breadcrumb">
+                <a href="/mfa">MFA Hub</a> / <span>Device Registration</span>
+            </div>
+            <h1>Register MFA Device</h1>
+            <p class="subtitle">Add a new device for multi-factor authentication</p>
+        </header>
+        
+        <main class="mfa-main">
+            <div class="device-selector">
+                <h2>Select Device Type</h2>
+                <div class="device-grid">
+                    <div class="device-card selected" onclick="selectDevice(this, 'sms')">
+                        <div class="device-icon">📱</div>
+                        <h3>SMS</h3>
+                        <p>Receive codes via text message</p>
+                    </div>
+                    <div class="device-card" onclick="selectDevice(this, 'totp')">
+                        <div class="device-icon">🔐</div>
+                        <h3>TOTP</h3>
+                        <p>Use authenticator app</p>
+                    </div>
+                    <div class="device-card" onclick="selectDevice(this, 'fido2')">
+                        <div class="device-icon">👆</div>
+                        <h3>FIDO2</h3>
+                        <p>Hardware security key</p>
+                    </div>
+                    <div class="device-card" onclick="selectDevice(this, 'email')">
+                        <div class="device-icon">📧</div>
+                        <h3>Email</h3>
+                        <p>Receive codes via email</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="device-form">
+                <h2>Configure Device</h2>
+                <div id="sms-config" class="form-section">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" placeholder="+1 (555) 000-0000" />
+                    <p class="help-text">We'll send a verification code to this number</p>
+                </div>
+                
+                <div id="totp-config" class="form-section" style="display: none;">
+                    <label for="device-name">Device Name</label>
+                    <input type="text" id="device-name" placeholder="My Authenticator App" />
+                    <p class="help-text">Give your authenticator a recognizable name</p>
+                </div>
+                
+                <div id="fido2-config" class="form-section" style="display: none;">
+                    <label for="key-name">Security Key Name</label>
+                    <input type="text" id="key-name" placeholder="My YubiKey 5" />
+                    <p class="help-text">Name your hardware security key for easy identification</p>
+                </div>
+                
+                <div id="email-config" class="form-section" style="display: none;">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" placeholder="user@example.com" />
+                    <p class="help-text">We'll send verification codes to this email</p>
+                </div>
+                
+                <div class="form-actions">
+                    <button class="btn-secondary" onclick="cancel()">Cancel</button>
+                    <button class="btn-primary" onclick="sendCode()">Send Verification Code</button>
+                </div>
+                
+                <div class="status-indicator">
+                    <div class="status-dot"></div>
+                    <span>Ready to configure device</span>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function selectDevice(element, deviceType) {
+            // Remove selected class from all cards
+            document.querySelectorAll('.device-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked card
+            element.classList.add('selected');
+            
+            // Hide all config sections
+            document.querySelectorAll('.form-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // Show relevant config section
+            const configSection = document.getElementById(`${deviceType}-config`);
+            if (configSection) {
+                configSection.style.display = 'block';
+            }
+            
+            updateStatus(`Selected ${deviceType.toUpperCase()} device`);
+        }
+
+        function sendCode() {
+            const selectedCard = document.querySelector('.device-card.selected');
+            if (!selectedCard) {
+                alert('Please select a device type first');
+                return;
+            }
+            
+            updateStatus('Verification code sent successfully!');
+            
+            // Simulate sending code
+            setTimeout(() => {
+                alert('Verification code sent! (This is a demo - no actual code was sent)');
+            }, 500);
+        }
+
+        function cancel() {
+            updateStatus('Registration cancelled');
+            // Reset form
+            document.querySelectorAll('.device-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            document.querySelectorAll('.form-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            document.getElementById('sms-config').style.display = 'block';
+        }
+
+        function updateStatus(message) {
+            const statusIndicator = document.querySelector('.status-indicator span');
+            statusIndicator.textContent = message;
+        }
+
+        // Initialize with SMS selected
+        document.addEventListener('DOMContentLoaded', () => {
+            selectDevice(document.querySelector('.device-card'), 'sms');
+        });
+    </script>
+</body>
+</html>

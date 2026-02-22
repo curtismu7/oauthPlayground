@@ -224,6 +224,16 @@ export class UnifiedFlowLoggerService {
 	 * Log error message
 	 */
 	static error(message: string, context: LogContext = {}, error?: Error): void {
+		// Mute expected startup errors - only log if not the expected "credentials not configured" or "Cannot read properties of null" errors
+		const errorMessage = error?.message || '';
+		if (
+			errorMessage.includes('credentials not configured') ||
+			errorMessage.includes('Cannot read properties of null') ||
+			errorMessage.includes("reading 'environmentId'")
+		) {
+			return; // Silent skip for expected startup errors
+		}
+
 		const errorContext: LogContext = {
 			...context,
 			...(error && {

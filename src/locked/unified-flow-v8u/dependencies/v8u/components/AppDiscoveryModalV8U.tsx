@@ -215,6 +215,8 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 		<>
 			{/* Backdrop */}
 			<div
+				role="button"
+				tabIndex={0}
 				onClick={onClose}
 				style={{
 					position: 'fixed',
@@ -231,6 +233,8 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 			>
 				{/* Modal */}
 				<div
+					role="button"
+					tabIndex={0}
 					onClick={(e) => e.stopPropagation()}
 					style={{
 						background: 'white',
@@ -264,6 +268,7 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 							📱 Discover Applications
 						</h2>
 						<button
+							type="button"
 							onClick={onClose}
 							style={{
 								background: 'none',
@@ -378,6 +383,7 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 										color: '#1f2937',
 										marginBottom: '8px',
 									}}
+									htmlFor="searchapplications"
 								>
 									🔍 Search Applications
 								</label>
@@ -446,6 +452,8 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 									>
 										{filteredApps.map((app) => (
 											<div
+												role="button"
+												tabIndex={0}
 												key={app.id}
 												onClick={() => handleSelectApp(app)}
 												style={{

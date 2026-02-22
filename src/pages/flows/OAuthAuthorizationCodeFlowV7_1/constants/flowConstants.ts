@@ -1,6 +1,8 @@
 // src/pages/flows/OAuthAuthorizationCodeFlowV7_1/constants/flowConstants.ts
 // V7.1 Flow Constants - Extracted from OAuthAuthorizationCodeFlowV7_1.tsx
 
+import { domainConfigurationService } from '../../../../services/domainConfigurationService';
+
 export const FLOW_CONSTANTS = {
 	// Timing constants
 	ADVANCED_PARAMS_SAVE_DURATION: 3000,
@@ -14,10 +16,15 @@ export const FLOW_CONSTANTS = {
 	PKCE_CHALLENGE_METHOD: 'S256',
 
 	// Default values
-	DEFAULT_REDIRECT_URI: 'https://localhost:3000/authz-callback',
+	DEFAULT_REDIRECT_URI: 'https://localhost:3000/authz-callback', // Legacy fallback
 	DEFAULT_SCOPE: 'openid',
 	DEFAULT_RESPONSE_TYPE: 'code id_token',
 	DEFAULT_PROFILE_SCOPE: 'openid profile',
+
+	// Dynamic domain support
+	getRedirectUri: (path: string = '/authz-callback'): string => {
+		return domainConfigurationService.getRedirectUri(path);
+	},
 
 	// Storage keys
 	STORAGE_KEYS: {

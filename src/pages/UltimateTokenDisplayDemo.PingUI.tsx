@@ -274,7 +274,10 @@ const UltimateTokenDisplayDemoPingUI: React.FC = () => {
 									style={getInputStyle()}
 									value={tokenData.expiresIn}
 									onChange={(e) =>
-										setTokenData((prev) => ({ ...prev, expiresIn: parseInt(e.target.value) || 0 }))
+										setTokenData((prev) => ({
+											...prev,
+											expiresIn: parseInt(e.target.value, 10) || 0,
+										}))
 									}
 									placeholder="3600"
 								/>

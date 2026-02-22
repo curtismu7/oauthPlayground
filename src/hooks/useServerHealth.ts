@@ -73,7 +73,9 @@ export const useServerHealth = (checkInterval: number = 30000) => {
 
 			return () => clearTimeout(timer);
 		}
-	}, [checkHealth, checkInterval]);
+		return undefined;
+		// biome-ignore lint/correctness/useExhaustiveDependencies: Only run once on mount
+	}, [checkInterval, checkHealth]);
 
 	// Periodic checks
 	useEffect(() => {
@@ -88,7 +90,8 @@ export const useServerHealth = (checkInterval: number = 30000) => {
 		}
 
 		return undefined;
-	}, [checkHealth, checkInterval, health.isOnline]);
+		// biome-ignore lint/correctness/useExhaustiveDependencies: Only run when health status or interval changes
+	}, [checkInterval, health.isOnline, checkHealth]);
 
 	return {
 		...health,

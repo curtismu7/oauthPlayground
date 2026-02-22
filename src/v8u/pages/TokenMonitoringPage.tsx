@@ -422,7 +422,7 @@ export const TokenMonitoringPage: React.FC = () => {
 
 	useEffect(() => {
 		setTokenMetricsRef.current = enhancedStateActions.setTokenMetrics;
-	}, [enhancedStateActions]);
+	});
 
 	// Subscribe to token monitoring service
 	useEffect(() => {
@@ -617,6 +617,8 @@ export const TokenMonitoringPage: React.FC = () => {
 
 	const getFlowTypeLabel = (type: string) => {
 		switch (type) {
+			case 'all':
+				return 'ALL Flows';
 			case 'oauth_flow':
 				return 'OAuth Flow';
 			case 'worker_token':
@@ -714,6 +716,8 @@ export const TokenMonitoringPage: React.FC = () => {
 
 	const getTokenTypeLabel = (type: string) => {
 		switch (type) {
+			case 'all':
+				return 'ALL Token Types';
 			case 'access_token':
 				return 'Access Token';
 			case 'refresh_token':
@@ -825,7 +829,9 @@ export const TokenMonitoringPage: React.FC = () => {
 
 				<DropdownContainer>
 					<DropdownButton onClick={() => setIsFlowDropdownOpen(!isFlowDropdownOpen)}>
-						<span>{getFlowTypeLabel(selectedFlowType)}</span>
+						<span>
+							{selectedFlowType === 'all' ? 'ALL Flows' : getFlowTypeLabel(selectedFlowType)}
+						</span>
 						{isFlowDropdownOpen ? <FiChevronUp /> : <FiChevronDown />}
 					</DropdownButton>
 					<DropdownMenu $isOpen={isFlowDropdownOpen}>
@@ -1023,3 +1029,5 @@ export const TokenMonitoringPage: React.FC = () => {
 		</PageContainer>
 	);
 };
+
+export default TokenMonitoringPage;

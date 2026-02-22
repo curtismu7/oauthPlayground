@@ -21,13 +21,15 @@ export const V7MHelpModal: React.FC<Props> = ({
 	if (!open) return null;
 	return (
 		<div
+			role="button"
+			tabIndex={0}
 			role="dialog"
 			aria-modal="true"
 			aria-labelledby="v7m-help-title"
 			style={backdropStyle}
 			onClick={onClose}
 		>
-			<div style={modalStyle} onClick={(e) => e.stopPropagation()}>
+			<div role="button" tabIndex={0} style={modalStyle} onClick={(e) => e.stopPropagation()}>
 				<div style={{ ...headerStyle, backgroundColor: themeColor }}>
 					<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
 						{icon}
@@ -35,7 +37,7 @@ export const V7MHelpModal: React.FC<Props> = ({
 							{title}
 						</h2>
 					</div>
-					<button onClick={onClose} aria-label="Close" style={closeBtnStyle}>
+					<button type="button" onClick={onClose} aria-label="Close" style={closeBtnStyle}>
 						×
 					</button>
 				</div>

@@ -2,19 +2,6 @@
 // Educational modal showing worker token API request details
 
 import React, { useState } from 'react';
-import {
-	FiCheck,
-	FiCheckCircle,
-	FiCode,
-	FiCopy,
-	FiEye,
-	FiEyeOff,
-	FiInfo,
-	FiKey,
-	FiRefreshCw,
-	FiShield,
-	FiX,
-} from 'react-icons/fi';
 import styled from 'styled-components';
 import { ColoredUrlDisplay } from './ColoredUrlDisplay';
 
@@ -535,201 +522,218 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 	return (
 		<ModalOverlay $isOpen={isOpen}>
 			<ModalContainer>
-				<ModalHeader>
-					<HeaderContent>
-						<HeaderIcon>
-							<FiKey size={24} />
-						</HeaderIcon>
-						<HeaderText>
-							<ModalTitle>Worker Token API Request</ModalTitle>
-							<ModalSubtitle>Review the Client Credentials Grant request</ModalSubtitle>
-						</HeaderText>
-					</HeaderContent>
-					<CloseButton onClick={onClose} title="Close">
-						<FiX size={20} />
-					</CloseButton>
-				</ModalHeader>
+				{/* Ping UI Wrapper */}
+				<div className="end-user-nano">
+					<ModalHeader>
+						<HeaderContent>
+							<HeaderIcon>
+								<i className="mdi-key" style={{ fontSize: '24px' }}></i>
+							</HeaderIcon>
+							<HeaderText>
+								<ModalTitle>Worker Token API Request</ModalTitle>
+								<ModalSubtitle>Review the Client Credentials Grant request</ModalSubtitle>
+							</HeaderText>
+						</HeaderContent>
+						<CloseButton onClick={onClose} title="Close">
+							<i className="mdi-close" style={{ fontSize: '20px' }}></i>
+						</CloseButton>
+					</ModalHeader>
+					{/* Ping UI Wrapper */}
+					<div className="end-user-nano">
+						<ModalContent>
+							{isTokenStep ? (
+								<Section>
+									<SectionTitle>
+										<i className="mdi-key me-1"></i>
+										Generated Access Token
+									</SectionTitle>
+									<InfoBox>
+										<InfoIcon>
+											<i className="mdi-information" style={{ fontSize: '14px' }}></i>
+										</InfoIcon>
+										<InfoText>
+											<strong>Token Generated Successfully!</strong> This token will be used for API
+											calls.
+										</InfoText>
+									</InfoBox>
 
-				<ModalContent>
-					{isTokenStep ? (
-						<Section>
-							<SectionTitle>
-								<FiKey size={14} />
-								Generated Access Token
-							</SectionTitle>
-							<InfoBox>
-								<InfoIcon>
-									<FiInfo size={14} />
-								</InfoIcon>
-								<InfoText>
-									<strong>Token Generated Successfully!</strong> This token will be used for API
-									calls.
-								</InfoText>
-							</InfoBox>
+									<FormField>
+										<FormLabel>Access Token</FormLabel>
+										<div style={{ position: 'relative' }}>
+											<FormInput
+												type={showToken ? 'text' : 'password'}
+												value={generatedToken}
+												readOnly
+												style={{ paddingRight: '2.5rem' }}
+											/>
+											<PasswordToggle
+												onClick={() => setShowToken(!showToken)}
+												title={showToken ? 'Hide token' : 'Show token'}
+											>
+												{showToken ? (
+													<i className="mdi-eye-off" style={{ fontSize: '16px' }}></i>
+												) : (
+													<i className="mdi-eye" style={{ fontSize: '16px' }}></i>
+												)}
+											</PasswordToggle>
+										</div>
+									</FormField>
 
-							<FormField>
-								<FormLabel>Access Token</FormLabel>
-								<div style={{ position: 'relative' }}>
-									<FormInput
-										type={showToken ? 'text' : 'password'}
-										value={generatedToken}
-										readOnly
-										style={{ paddingRight: '2.5rem' }}
-									/>
-									<PasswordToggle
-										onClick={() => setShowToken(!showToken)}
-										title={showToken ? 'Hide token' : 'Show token'}
+									<Section>
+										<SectionTitle>
+											<i className="mdi-code-tags me-1"></i>
+											Token Details
+										</SectionTitle>
+										<CodeBlock>
+											<pre>{JSON.stringify(decodeJWT(generatedToken), null, 2)}</pre>
+										</CodeBlock>
+										<ButtonGroup>
+											<ActionButton $variant="secondary" onClick={handleCopyToken} size="small">
+												<i className="mdi-content-copy me-1" style={{ fontSize: '12px' }}></i>
+												Copy Token
+											</ActionButton>
+										</ButtonGroup>
+									</Section>
+								</Section>
+							) : (
+								<>
+									<InfoBox>
+										<InfoIcon>
+											<i className="mdi-information" style={{ fontSize: '14px' }}></i>
+										</InfoIcon>
+										<InfoText>
+											<strong>Client Credentials Grant:</strong> This machine-to-machine flow
+											exchanges worker credentials for an access token.
+										</InfoText>
+									</InfoBox>
+
+									<Section>
+										<SectionTitle>
+											<i className="mdi-shield-check" style={{ fontSize: '14px' }}></i>
+											Token Endpoint URL
+										</SectionTitle>
+										<ColoredUrlDisplay
+											url={tokenEndpoint}
+											label="PingOne Token Endpoint"
+											showInfoButton={false}
+											showCopyButton={true}
+											showOpenButton={false}
+										/>
+										<div style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: '#6b7280' }}>
+											<strong>Region:</strong> {getRegionDisplayName(region)}
+										</div>
+									</Section>
+
+									<Section>
+										<SectionTitle>
+											<i className="mdi-check-circle" style={{ fontSize: '14px' }}></i>
+											Request Parameters
+										</SectionTitle>
+										<ParameterGrid>
+											<ParameterLabel>Grant Type</ParameterLabel>
+											<ParameterValue>client_credentials</ParameterValue>
+
+											<ParameterLabel>Client ID</ParameterLabel>
+											<ParameterValue>{requestParams.client_id}</ParameterValue>
+
+											<ParameterLabel>Client Secret</ParameterLabel>
+											<ParameterValue>
+												<span style={{ flex: 1 }}>
+													{showSecret
+														? requestParams.client_secret
+														: '•'.repeat(Math.min(requestParams.client_secret.length, 40))}
+												</span>
+												<ToggleSecretButton
+													onClick={() => setShowSecret(!showSecret)}
+													title={showSecret ? 'Hide secret' : 'Show secret'}
+												>
+													{showSecret ? (
+														<i className="mdi mdi-eye-off" style={{ fontSize: '16px' }}></i>
+													) : (
+														<i className="mdi mdi-eye" style={{ fontSize: '16px' }}></i>
+													)}
+												</ToggleSecretButton>
+											</ParameterValue>
+
+											<ParameterLabel>Auth Method</ParameterLabel>
+											<ParameterValue>
+												{authMethod === 'client_secret_basic'
+													? 'Basic (Authorization header)'
+													: 'Post (Request body)'}
+											</ParameterValue>
+
+											{requestParams.scope && (
+												<>
+													<ParameterLabel>Scopes</ParameterLabel>
+													<ParameterValue>{requestParams.scope}</ParameterValue>
+												</>
+											)}
+										</ParameterGrid>
+									</Section>
+
+									<Section>
+										<SectionTitle>
+											<i className="mdi-key" style={{ fontSize: '14px' }}></i>
+											cURL Command
+										</SectionTitle>
+										<CodeBlock>{generateCurlCommand()}</CodeBlock>
+										<CopyButton $copied={copiedCurl} onClick={handleCopyCurl}>
+											{copiedCurl ? (
+												<i className="mdi-check" style={{ fontSize: '12px' }}></i>
+											) : (
+												<i className="mdi-content-copy" style={{ fontSize: '12px' }}></i>
+											)}
+											{copiedCurl ? 'Copied!' : 'Copy cURL'}
+										</CopyButton>
+									</Section>
+
+									<InfoBox
+										style={{
+											background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+											border: '1px solid #f59e0b',
+											marginBottom: 0,
+										}}
 									>
-										{showToken ? <FiEyeOff size={16} /> : <FiEye size={16} />}
-									</PasswordToggle>
-								</div>
-							</FormField>
-
-							<Section>
-								<SectionTitle>
-									<FiCode size={14} />
-									Token Details
-								</SectionTitle>
-								<CodeBlock>
-									<pre>{JSON.stringify(decodeJWT(generatedToken), null, 2)}</pre>
-								</CodeBlock>
-								<ButtonGroup>
-									<ActionButton $variant="secondary" onClick={handleCopyToken} size="small">
-										<FiCopy size={12} />
-										Copy Token
-									</ActionButton>
-								</ButtonGroup>
-							</Section>
-						</Section>
-					) : (
-						<>
-							<InfoBox>
-								<InfoIcon>
-									<FiInfo size={14} />
-								</InfoIcon>
-								<InfoText>
-									<strong>Client Credentials Grant:</strong> This machine-to-machine flow exchanges
-									worker credentials for an access token.
-								</InfoText>
-							</InfoBox>
-
-							<Section>
-								<SectionTitle>
-									<FiShield size={14} />
-									Token Endpoint URL
-								</SectionTitle>
-								<ColoredUrlDisplay
-									url={tokenEndpoint}
-									label="PingOne Token Endpoint"
-									showInfoButton={false}
-									showCopyButton={true}
-									showOpenButton={false}
-								/>
-								<div style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: '#6b7280' }}>
-									<strong>Region:</strong> {getRegionDisplayName(region)}
-								</div>
-							</Section>
-
-							<Section>
-								<SectionTitle>
-									<FiCheckCircle size={14} />
-									Request Parameters
-								</SectionTitle>
-								<ParameterGrid>
-									<ParameterLabel>Grant Type</ParameterLabel>
-									<ParameterValue>client_credentials</ParameterValue>
-
-									<ParameterLabel>Client ID</ParameterLabel>
-									<ParameterValue>{requestParams.client_id}</ParameterValue>
-
-									<ParameterLabel>Client Secret</ParameterLabel>
-									<ParameterValue>
-										<span style={{ flex: 1 }}>
-											{showSecret
-												? requestParams.client_secret
-												: '•'.repeat(Math.min(requestParams.client_secret.length, 40))}
-										</span>
-										<ToggleSecretButton
-											onClick={() => setShowSecret(!showSecret)}
-											title={showSecret ? 'Hide secret' : 'Show secret'}
-										>
-											{showSecret ? <FiEyeOff size={16} /> : <FiEye size={16} />}
-										</ToggleSecretButton>
-									</ParameterValue>
-
-									<ParameterLabel>Auth Method</ParameterLabel>
-									<ParameterValue>
-										{authMethod === 'client_secret_basic'
-											? 'Basic (Authorization header)'
-											: 'Post (Request body)'}
-									</ParameterValue>
-
-									{requestParams.scope && (
-										<>
-											<ParameterLabel>Scopes</ParameterLabel>
-											<ParameterValue>{requestParams.scope}</ParameterValue>
-										</>
-									)}
-								</ParameterGrid>
-							</Section>
-
-							<Section>
-								<SectionTitle>
-									<FiKey size={14} />
-									cURL Command
-								</SectionTitle>
-								<CodeBlock>{generateCurlCommand()}</CodeBlock>
-								<CopyButton $copied={copiedCurl} onClick={handleCopyCurl}>
-									{copiedCurl ? <FiCheck size={12} /> : <FiCopy size={12} />}
-									{copiedCurl ? 'Copied!' : 'Copy cURL'}
-								</CopyButton>
-							</Section>
-
-							<InfoBox
-								style={{
-									background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
-									border: '1px solid #f59e0b',
-									marginBottom: 0,
-								}}
-							>
-								<InfoIcon style={{ color: '#d97706' }}>
-									<FiInfo size={14} />
-								</InfoIcon>
-								<InfoText style={{ color: '#92400e' }}>
-									<strong>Security:</strong> Sent securely over HTTPS. Credentials never logged.
-								</InfoText>
-							</InfoBox>
-						</>
-					)}
-				</ModalContent>
-
-				<ModalActions>
-					<ActionButton $variant="secondary" onClick={onClose}>
-						Cancel
-					</ActionButton>
-					<ActionButton
-						$variant="primary"
-						onClick={isTokenStep ? handleUseToken : handleSendRequest}
-						disabled={isLoading}
-					>
-						{isLoading ? (
-							<>
-								<FiRefreshCw className="animate-spin" size={14} />
-								Generating...
-							</>
-						) : isTokenStep ? (
-							<>
-								<FiCheck size={14} />
-								Use Token
-							</>
-						) : (
-							<>
-								<FiKey size={14} />
-								Send Request
-							</>
-						)}
-					</ActionButton>
-				</ModalActions>
+										<InfoIcon style={{ color: '#d97706' }}>
+											<i className="mdi-information" style={{ fontSize: '14px' }}></i>
+										</InfoIcon>
+										<InfoText style={{ color: '#92400e' }}>
+											<strong>Security:</strong> Sent securely over HTTPS. Credentials never logged.
+										</InfoText>
+									</InfoBox>
+								</>
+							)}
+						</ModalContent>
+					</div>{' '}
+					{/* End Ping UI Wrapper */}
+					<ModalActions>
+						<ActionButton $variant="secondary" onClick={onClose}>
+							Cancel
+						</ActionButton>
+						<ActionButton
+							$variant="primary"
+							onClick={isTokenStep ? handleUseToken : handleSendRequest}
+							disabled={isLoading}
+						>
+							{isLoading ? (
+								<>
+									<i className="mdi-loading mdi-spin me-1" style={{ fontSize: '14px' }}></i>
+									Generating...
+								</>
+							) : isTokenStep ? (
+								<>
+									<i className="mdi-check me-1" style={{ fontSize: '14px' }}></i>
+									Use Token
+								</>
+							) : (
+								<>
+									<i className="mdi-key me-1" style={{ fontSize: '14px' }}></i>
+									Send Request
+								</>
+							)}
+						</ActionButton>
+					</ModalActions>
+				</div>
 			</ModalContainer>
 		</ModalOverlay>
 	);

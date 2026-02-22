@@ -328,7 +328,7 @@ export const ProtectPortalConfigModal: React.FC<ProtectPortalConfigModalProps> =
 
 				<div style={formSectionStyle}>
 					<div style={formFieldStyle}>
-						<label htmlFor="apiBaseUrl" style={formLabelStyle}>
+						<label htmlFor="apiBaseUrl" style={formLabelStyle} htmlFor="apibaseurl">
 							API Base URL
 						</label>
 						<input
@@ -349,7 +349,7 @@ export const ProtectPortalConfigModal: React.FC<ProtectPortalConfigModalProps> =
 					</div>
 
 					<div style={formFieldStyle}>
-						<label htmlFor="region" style={formLabelStyle}>
+						<label htmlFor="region" style={formLabelStyle} htmlFor="region">
 							Region
 						</label>
 						<select
@@ -394,7 +394,7 @@ export const ProtectPortalConfigModal: React.FC<ProtectPortalConfigModalProps> =
 					{showAdvanced && (
 						<>
 							<div style={formFieldStyle}>
-								<label htmlFor="clientId" style={formLabelStyle}>
+								<label htmlFor="clientId" style={formLabelStyle} htmlFor="clientid">
 									Client ID
 								</label>
 								<input
@@ -415,7 +415,7 @@ export const ProtectPortalConfigModal: React.FC<ProtectPortalConfigModalProps> =
 							</div>
 
 							<div style={formFieldStyle}>
-								<label htmlFor="clientSecret" style={formLabelStyle}>
+								<label htmlFor="clientSecret" style={formLabelStyle} htmlFor="clientsecret">
 									Client Secret
 								</label>
 								<input
@@ -436,7 +436,7 @@ export const ProtectPortalConfigModal: React.FC<ProtectPortalConfigModalProps> =
 							</div>
 
 							<div style={formFieldStyle}>
-								<label htmlFor="redirectUri" style={formLabelStyle}>
+								<label htmlFor="redirectUri" style={formLabelStyle} htmlFor="redirecturi">
 									Redirect URI
 								</label>
 								<input

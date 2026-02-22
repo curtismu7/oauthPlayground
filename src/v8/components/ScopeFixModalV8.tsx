@@ -76,6 +76,8 @@ export const ScopeFixModalV8: React.FC<ScopeFixModalV8Props> = ({
 
 	return (
 		<div
+			role="button"
+			tabIndex={0}
 			style={{
 				position: 'fixed',
 				top: 0,
@@ -99,6 +101,8 @@ export const ScopeFixModalV8: React.FC<ScopeFixModalV8Props> = ({
 			aria-labelledby="scope-fix-title"
 		>
 			<div
+				role="button"
+				tabIndex={0}
 				style={{
 					background: 'white',
 					borderRadius: '12px',

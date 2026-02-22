@@ -104,6 +104,8 @@ export const DeviceFailureModalV8: React.FC<DeviceFailureModalProps> = ({
 
 	return (
 		<div
+			role="button"
+			tabIndex={0}
 			style={{
 				position: 'fixed',
 				top: 0,
@@ -119,6 +121,8 @@ export const DeviceFailureModalV8: React.FC<DeviceFailureModalProps> = ({
 			onClick={onClose}
 		>
 			<div
+				role="button"
+				tabIndex={0}
 				style={{
 					background: 'white',
 					borderRadius: '16px',

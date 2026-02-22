@@ -98,6 +98,7 @@ export const PKCEEnforcementDropdownV8: React.FC<PKCEEnforcementDropdownV8Props>
 						fontWeight: '600',
 						color: '#1f2937', // Dark text on light background
 					}}
+					htmlFor="pkceenforcement"
 				>
 					🔐 PKCE Enforcement
 				</label>

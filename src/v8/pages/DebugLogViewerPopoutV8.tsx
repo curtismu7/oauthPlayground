@@ -14,8 +14,10 @@ import {
 	FiFile,
 	FiRefreshCw,
 	FiTrash2,
+	FiX,
 } from 'react-icons/fi';
 import { type LogFile, LogFileService } from '@/services/logFileService';
+import { unifiedTokenStorage } from '@/services/unifiedTokenStorageService';
 // PageHeaderV8 removed - using compact inline header for space efficiency
 import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
 
@@ -307,42 +309,43 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 		const testLogs: LogEntry[] = [
 			{
 				timestamp: new Date().toISOString(),
-				level: 'ERROR',
-				category: 'REDIRECT_URI',
-				message: 'Failed to validate redirect URI - invalid format',
-				url: 'https://localhost:3000/v8/unified-mfa-callback',
-				data: { error: 'Invalid URI format', expected: 'https://localhost:3000/*' },
-			},
-			{
-				timestamp: new Date(Date.now() - 60000).toISOString(),
-				level: 'WARN',
-				category: 'MIGRATION',
-				message: 'Deprecated configuration detected',
-				url: 'https://localhost:3000/v8/mfa',
-				data: { deprecatedField: 'oldConfig', replacement: 'newConfig' },
-			},
-			{
-				timestamp: new Date(Date.now() - 120000).toISOString(),
 				level: 'INFO',
+				category: 'REDIRECT_URI',
+				message: 'Test redirect URI log entry',
+				url: window.location.href,
+			},
+			{
+				timestamp: new Date().toISOString(),
+				level: 'WARN',
+				category: 'CALLBACK_DEBUG',
+				message: 'Test callback debug warning',
+				url: window.location.href,
+			},
+			{
+				timestamp: new Date().toISOString(),
+				level: 'ERROR',
 				category: 'VALIDATION',
-				message: 'Configuration validation completed successfully',
-				url: 'https://localhost:3000/v8/flows',
-				data: { validations: 5, passed: 5, failed: 0 },
+				message: 'Test validation error',
+				url: window.location.href,
+				data: { error: 'Test error details' },
 			},
 		];
 
-		localStorage.setItem('mfa_redirect_debug_log', JSON.stringify(testLogs));
-		setLogs(testLogs);
-		setFileContent('');
-	}, []);
+		// Store in unified storage instead of localStorage
+		unifiedTokenStorage.storeDebugLogs(selectedLocalStorageLog, testLogs).then((result) => {
+			if (result.success) {
+				setLogs(testLogs);
+				setFileContent('');
+			}
+		});
+	}, [selectedLocalStorageLog]);
 
 	// Load localStorage logs
-	const loadLocalStorageLogs = useCallback(() => {
+	const loadLocalStorageLogs = useCallback(async () => {
 		try {
-			const stored = localStorage.getItem(selectedLocalStorageLog);
-			if (stored) {
-				const parsed = JSON.parse(stored) as unknown;
-				setLogs(normalizeToLogEntries(parsed, 'REDIRECT_URI', window.location.href));
+			const result = await unifiedTokenStorage.getDebugLogs(selectedLocalStorageLog);
+			if (result.success && result.data) {
+				setLogs(normalizeToLogEntries(result.data, 'REDIRECT_URI', window.location.href));
 				setFileContent('');
 			} else {
 				// Generate test logs if none exist
@@ -576,14 +579,31 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 	}, []);
 
 	useEffect(() => {
-		const keys = Object.keys(localStorage).filter((k) => k.toLowerCase().includes('log'));
-		if (!keys.includes('mfa_redirect_debug_log')) {
-			keys.unshift('mfa_redirect_debug_log');
-		}
-		setAvailableLocalStorageLogs(keys);
-		if (keys.length > 0 && !keys.includes(selectedLocalStorageLog)) {
-			setSelectedLocalStorageLog(keys[0]);
-		}
+		// Get available debug log keys from unified storage
+		unifiedTokenStorage
+			.getDebugLogKeys()
+			.then((result) => {
+				if (result.success && result.data) {
+					const keys = result.data;
+					// Ensure default key is included
+					if (!keys.includes('mfa_redirect_debug_log')) {
+						keys.unshift('mfa_redirect_debug_log');
+					}
+					setAvailableLocalStorageLogs(keys);
+					if (keys.length > 0 && !keys.includes(selectedLocalStorageLog)) {
+						setSelectedLocalStorageLog(keys[0]);
+					}
+				} else {
+					// Fallback to default key
+					setAvailableLocalStorageLogs(['mfa_redirect_debug_log']);
+					setSelectedLocalStorageLog('mfa_redirect_debug_log');
+				}
+			})
+			.catch(() => {
+				// Fallback to default key on error
+				setAvailableLocalStorageLogs(['mfa_redirect_debug_log']);
+				setSelectedLocalStorageLog('mfa_redirect_debug_log');
+			});
 	}, [selectedLocalStorageLog]);
 
 	// Save selected file to localStorage and SQLite when it changes
@@ -665,9 +685,10 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 		return undefined;
 	}, [logSource, tailMode, selectedFile]);
 
-	const clearLogs = () => {
+	const clearLogs = async () => {
 		if (logSource === 'localStorage') {
-			MFARedirectUriServiceV8.clearDebugLogs();
+			// Clear logs from unified storage
+			await unifiedTokenStorage.clearDebugLogs(selectedLocalStorageLog);
 			setLogs([]);
 		} else if (logSource === 'file') {
 			setFileContent('');
@@ -1054,6 +1075,37 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 						Live tail • Popout window
 					</p>
 				</div>
+				<button
+					type="button"
+					onClick={() => window.close()}
+					style={{
+						display: 'flex',
+						alignItems: 'center',
+						gap: '6px',
+						padding: '6px 12px',
+						background: 'rgba(255, 255, 255, 0.2)',
+						color: 'white',
+						border: '1px solid rgba(255, 255, 255, 0.3)',
+						borderRadius: '4px',
+						fontSize: '12px',
+						fontWeight: '600',
+						cursor: 'pointer',
+						transition: 'all 0.2s ease',
+						backdropFilter: 'blur(10px)',
+					}}
+					onMouseEnter={(e) => {
+						e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)';
+						e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.5)';
+					}}
+					onMouseLeave={(e) => {
+						e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
+						e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+					}}
+					title="Close window (Ctrl+W or Cmd+W)"
+				>
+					<FiX size={14} />
+					Close
+				</button>
 			</div>
 
 			{/* Compact Keyboard Shortcuts */}
@@ -1136,6 +1188,7 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 								marginBottom: '4px',
 							}}
 							htmlFor="localstorage-log-select"
+							htmlFor="localstoragekey"
 						>
 							LocalStorage Key:
 						</label>
@@ -1172,6 +1225,7 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 								marginBottom: '4px',
 							}}
 							htmlFor="indexeddb-target-select"
+							htmlFor="indexeddbtarget"
 						>
 							IndexedDB Target:
 						</label>
@@ -1211,6 +1265,7 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 								marginBottom: '4px',
 							}}
 							htmlFor="sqlite-target-select"
+							htmlFor="sqliteendpoint"
 						>
 							SQLite Endpoint:
 						</label>
@@ -1248,6 +1303,7 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 								marginBottom: '8px',
 							}}
 							htmlFor="log-file-select"
+							htmlFor="selectlogfile"
 						>
 							Select Log File:
 						</label>
@@ -1291,6 +1347,7 @@ export const DebugLogViewerPopoutV8: React.FC = () => {
 								marginBottom: '8px',
 							}}
 							htmlFor="line-count-select"
+							htmlFor="linestoshow"
 						>
 							Lines to show:
 						</label>

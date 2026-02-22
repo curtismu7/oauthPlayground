@@ -153,6 +153,7 @@ export const TokenEndpointAuthMethodDropdownV8: React.FC<
 						fontWeight: '600',
 						color: '#1f2937', // Dark text on light background
 					}}
+					htmlFor="tokenendpointauthenticationmethod"
 				>
 					Token Endpoint Authentication Method
 				</label>

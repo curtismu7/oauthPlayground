@@ -112,6 +112,7 @@ export const PKCEInputV8: React.FC<PKCEInputV8Props> = ({
 						fontWeight: '600',
 						color: '#1f2937', // Dark text on light background
 					}}
+					htmlFor="pkceproofkeyforcodeexchange"
 				>
 					PKCE (Proof Key for Code Exchange)
 				</label>

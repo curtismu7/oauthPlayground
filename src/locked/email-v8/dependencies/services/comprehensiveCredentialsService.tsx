@@ -1379,6 +1379,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 									your PingOne environment to auto-fill all configuration fields.
 								</p>
 								<button
+									type="button"
 									onClick={() => setShowWorkerTokenModal(true)}
 									disabled={false}
 									style={{
@@ -1513,6 +1514,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 									color: '#374151',
 									marginBottom: '0.5rem',
 								}}
+								htmlFor="reqobjectpolicy"
 							>
 								Req Object Policy
 							</label>
@@ -1548,6 +1550,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 									color: '#374151',
 									marginBottom: '0.5rem',
 								}}
+								htmlFor="x5tjwthdr"
 							>
 								x5t (JWT hdr)
 							</label>
@@ -1610,6 +1613,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 									color: '#374151',
 									marginBottom: '0.5rem',
 								}}
+								htmlFor="resourcescopes"
 							>
 								Resource Scopes
 							</label>
@@ -2006,6 +2010,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 							Generate a worker token to use Config Checker and create PingOne applications.
 						</div>
 						<button
+							type="button"
 							onClick={() => setShowWorkerTokenModal(true)}
 							style={{
 								display: 'inline-flex',

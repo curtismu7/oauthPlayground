@@ -43,6 +43,8 @@ export const CommonSpinnerModal: React.FC<CommonSpinnerModalProps> = ({
 
 	return (
 		<div
+			role="button"
+			tabIndex={0}
 			role="dialog"
 			aria-modal="true"
 			aria-labelledby="spinner-message"

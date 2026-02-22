@@ -292,6 +292,7 @@ export const UnifiedOTPActivationTemplate: React.FC<UnifiedOTPActivationTemplate
 							color: colors.gray[700],
 							marginBottom: spacing[3],
 						}}
+						htmlFor="verificationcode"
 					>
 						Verification Code
 					</label>

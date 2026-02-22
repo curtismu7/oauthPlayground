@@ -1569,7 +1569,12 @@ Why it matters: Backend services communicate server-to-server without user conte
 
 	return (
 		<div className="credentials-form-v8">
-			<div className="collapsible-header" onClick={() => setIsExpanded(!isExpanded)}>
+			<div
+				role="button"
+				tabIndex={0}
+				className="collapsible-header"
+				onClick={() => setIsExpanded(!isExpanded)}
+			>
 				<div className="header-content">
 					<h2>{defaultTitle}</h2>
 					<span className={`chevron ${isExpanded ? 'open' : ''}`}>›</span>
@@ -1583,6 +1588,8 @@ Why it matters: Backend services communicate server-to-server without user conte
 						{/* GENERAL SECTION - Matches PingOne Console */}
 						<div className="form-section" data-section="general">
 							<div
+								role="button"
+								tabIndex={0}
 								className="section-header"
 								onClick={() => setShowGeneralSection(!showGeneralSection)}
 								style={{ cursor: 'pointer' }}
@@ -1750,7 +1757,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 
 									{/* Worker Token Status */}
 									<div className="form-group">
-										<label>Worker Token Status</label>
+										<label htmlFor="workertokenstatus">Worker Token Status</label>
 										<div
 											style={{
 												padding: '10px 14px',
@@ -2715,7 +2722,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 									</div>
 								)}
 								<div className="form-group">
-									<label>Issuer URL or Environment ID</label>
+									<label htmlFor="issuerurlorenvironmentid">Issuer URL or Environment ID</label>
 									<div style={{ display: 'flex', gap: '8px' }}>
 										<input
 											type="text"
@@ -2950,7 +2957,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 
 								{/* Grant Type (read-only, informational) */}
 								<div className="form-group">
-									<label>Grant Type</label>
+									<label htmlFor="granttype">Grant Type</label>
 									<div
 										style={{
 											padding: '10px 12px',
@@ -4070,6 +4077,8 @@ Why it matters: Backend services communicate server-to-server without user conte
 						{/* Advanced Options Section - Collapsible */}
 						<div className="form-section" data-section="advanced">
 							<div
+								role="button"
+								tabIndex={0}
 								className="section-header"
 								onClick={() => setShowAdvancedSection(!showAdvancedSection)}
 								style={{ cursor: 'pointer' }}
@@ -4559,6 +4568,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 							</div>
 
 							<button
+								type="button"
 								onClick={() => setShowPromptInfoModal(false)}
 								style={{
 									marginTop: '24px',
@@ -4922,6 +4932,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 							</div>
 
 							<button
+								type="button"
 								onClick={() => setShowPARInfoModal(false)}
 								style={{
 									marginTop: '24px',

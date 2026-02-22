@@ -101,6 +101,8 @@ export const PromptModalV8: React.FC = () => {
 		<>
 			{/* Overlay */}
 			<div
+				role="button"
+				tabIndex={0}
 				style={{
 					position: 'fixed',
 					top: 0,
@@ -117,6 +119,8 @@ export const PromptModalV8: React.FC = () => {
 			>
 				{/* Modal */}
 				<div
+					role="button"
+					tabIndex={0}
 					role="dialog"
 					aria-modal="true"
 					aria-labelledby="prompt-title"

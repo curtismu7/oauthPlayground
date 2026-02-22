@@ -2483,6 +2483,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											fontWeight: '500',
 											color: '#374151',
 										}}
+										htmlFor="environmentid"
 									>
 										Environment ID
 									</label>
@@ -2528,6 +2529,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											fontWeight: '500',
 											color: '#374151',
 										}}
+										htmlFor="username"
 									>
 										Username
 									</label>
@@ -2580,6 +2582,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 										fontWeight: '500',
 										color: '#374151',
 									}}
+									htmlFor="deviceauthenticationpolicy"
 								>
 									Device Authentication Policy
 								</label>
@@ -4379,6 +4382,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				{/* Username Decision Modal */}
 				{showUsernameDecisionModal && (
 					<div
+						role="button"
+						tabIndex={0}
 						style={{
 							position: 'fixed',
 							top: 0,
@@ -4397,6 +4402,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						}}
 					>
 						<div
+							role="button"
+							tabIndex={0}
 							style={{
 								background: 'white',
 								borderRadius: '16px',
@@ -4469,6 +4476,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 												fontSize: '14px',
 												fontWeight: '500',
 											}}
+											htmlFor="selectusername"
 										>
 											Select username
 										</label>
@@ -4612,6 +4620,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				{/* Device Registration Modal */}
 				{showRegistrationModal && (
 					<div
+						role="button"
+						tabIndex={0}
 						style={{
 							position: 'fixed',
 							top: 0,
@@ -4627,6 +4637,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						onClick={() => setShowRegistrationModal(false)}
 					>
 						<div
+							role="button"
+							tabIndex={0}
 							style={{
 								background: 'white',
 								borderRadius: '16px',
@@ -5436,6 +5448,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				{/* Device Registration Modal */}
 				{showRegistrationModal && (
 					<div
+						role="button"
+						tabIndex={0}
 						style={{
 							position: 'fixed',
 							top: 0,
@@ -5452,6 +5466,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						onClick={() => setShowRegistrationModal(false)}
 					>
 						<div
+							role="button"
+							tabIndex={0}
 							style={{
 								background: 'white',
 								borderRadius: '16px',

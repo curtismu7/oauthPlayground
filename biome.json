@@ -2,7 +2,17 @@
 	"$schema": "https://biomejs.dev/schemas/2.4.1/schema.json",
 	"files": {
 		"ignoreUnknown": false,
-		"includes": ["**/src/**/*", "*.md", "**/*.md", "**/*.json"]
+		"includes": ["**/src/**/*", "*.md", "**/*.md", "**/*.json"],
+		"experimentalScannerIgnores": [
+			"**/*_BACKUP*",
+			"**/*backup*",
+			"**/*archive*",
+			"**/locked/**",
+			"**/node_modules/**",
+			"**/dist/**",
+			"**/.git/**",
+			"**/coverage/**"
+		]
 	},
 	"formatter": {
 		"enabled": true,

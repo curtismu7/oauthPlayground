@@ -10,12 +10,10 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiBook, FiChevronDown, FiEyeOff, FiMinimize2 } from 'react-icons/fi';
+import { FiBook, FiEyeOff, FiMinimize2 } from 'react-icons/fi';
 import styled from 'styled-components';
-import {
-	type EducationMode,
-	EducationPreferenceService,
-} from '../../services/educationPreferenceService';
+import { useGlobalEducationMode } from '../../hooks/useGlobalEducationMode';
+import type { EducationMode } from '../../services/educationPreferenceService';
 
 const ToggleContainer = styled.div`
 	position: sticky;
@@ -183,22 +181,20 @@ interface EducationModeToggleProps {
 export const EducationModeToggle: React.FC<EducationModeToggleProps> = ({
 	className,
 	showDescription = true,
-	variant = 'buttons',
+	variant = 'dropdown',
 }) => {
-	const [currentMode, setCurrentMode] = useState<EducationMode>('full');
+	const { currentMode, setMode } = useGlobalEducationMode();
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-	// Load initial mode from preference service
-	useEffect(() => {
-		setCurrentMode(EducationPreferenceService.getEducationMode());
-	}, []);
-
 	// Handle mode change
-	const handleModeChange = useCallback((newMode: EducationMode) => {
-		EducationPreferenceService.setEducationMode(newMode);
-		setCurrentMode(newMode);
-		setIsDropdownOpen(false);
-	}, []);
+	const handleModeChange = useCallback(
+		(newMode: EducationMode) => {
+			console.log('[EducationModeToggle] Changing mode from', currentMode, 'to', newMode);
+			setMode(newMode);
+			setIsDropdownOpen(false);
+		},
+		[currentMode, setMode]
+	);
 
 	// Close dropdown when clicking outside
 	useEffect(() => {

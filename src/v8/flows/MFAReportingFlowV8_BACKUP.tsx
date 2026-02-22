@@ -1006,8 +1006,7 @@ export const MFAReportingFlowV8: React.FC = () => {
 								{reports[0]?.reportId ? (
 									<>
 										{reports[0]?.csvDownload && (
-											<button
-												onClick={() => downloadReportFile('csv')}
+											<button type="button" onClick={() => downloadReportFile('csv')}
 												style={{
 													padding: '10px 20px',
 													background: '#10b981',
@@ -1023,8 +1022,7 @@ export const MFAReportingFlowV8: React.FC = () => {
 											</button>
 										)}
 										{reports[0]?.jsonDownload && (
-											<button
-												onClick={() => downloadReportFile('json')}
+											<button type="button" onClick={() => downloadReportFile('json')}
 												style={{
 													padding: '10px 20px',
 													background: '#3b82f6',
@@ -1055,8 +1053,7 @@ export const MFAReportingFlowV8: React.FC = () => {
 										)}
 									</>
 								) : (
-									<button
-										onClick={exportToJSON}
+									<button type="button" onClick={exportToJSON}
 										style={{
 											padding: '10px 20px',
 											background: '#8b5cf6',

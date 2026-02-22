@@ -291,8 +291,12 @@ describe('Phase 3 Features', () => {
 
 				return (
 					<div>
-						<button onClick={() => announceToScreenReader('Test message')}>Announce</button>
-						<button onClick={() => setFocus('test-element')}>Set Focus</button>
+						<button type="button" onClick={() => announceToScreenReader('Test message')}>
+							Announce
+						</button>
+						<button type="button" onClick={() => setFocus('test-element')}>
+							Set Focus
+						</button>
 					</div>
 				);
 			};
@@ -317,7 +321,9 @@ describe('Phase 3 Features', () => {
 					<div>
 						<span>Supported: {isSupported.toString()}</span>
 						<span>Registered: {isRegistered.toString()}</span>
-						<button onClick={register}>Register</button>
+						<button type="button" onClick={register}>
+							Register
+						</button>
 					</div>
 				);
 			};
@@ -342,8 +348,12 @@ describe('Phase 3 Features', () => {
 				return (
 					<div>
 						<span>Flows: {selectedFlows.join(', ')}</span>
-						<button onClick={() => toggleFlow('authorization-code')}>Toggle Auth Code</button>
-						<button onClick={() => analyzeFlows(['authorization-code'])}>Analyze</button>
+						<button type="button" onClick={() => toggleFlow('authorization-code')}>
+							Toggle Auth Code
+						</button>
+						<button type="button" onClick={() => analyzeFlows(['authorization-code'])}>
+							Analyze
+						</button>
 					</div>
 				);
 			};

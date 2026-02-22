@@ -178,6 +178,8 @@ export const UnifiedDeviceSelectionModal: React.FC<UnifiedDeviceSelectionModalPr
 			}}
 		>
 			<div
+				role="button"
+				tabIndex={0}
 				role="dialog"
 				aria-modal="true"
 				style={{

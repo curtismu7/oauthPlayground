@@ -28,7 +28,14 @@ import { FiChevronDown, FiChevronUp, FiEye, FiEyeOff, FiInfo } from 'react-icons
 import { DraggableModal } from '@/components/DraggableModal';
 import { JWTConfigV8 } from '@/components/JWTConfigV8';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
+import { useV8USilentApi } from '@/hooks/useUniversalSilentApi';
 import type { ResponseMode } from '@/services/responseModeService';
+import { UnifiedAuthMethodDropdown } from '@/shared/components/UnifiedAuthMethodDropdown';
+import {
+	type FlowType,
+	type SpecVersion,
+	unifiedAuthenticationService,
+} from '@/shared/services/unifiedAuthenticationService';
 import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
 import { ClientTypeRadioV8 } from '@/v8/components/ClientTypeRadioV8';
 import { type DisplayMode, DisplayModeDropdownV8 } from '@/v8/components/DisplayModeDropdownV8';
@@ -47,27 +54,19 @@ import {
 } from '@/v8/components/RefreshTokenTypeDropdownV8';
 import { ResponseModeDropdownV8 } from '@/v8/components/ResponseModeDropdownV8';
 import { ResponseTypeDropdownV8 } from '@/v8/components/ResponseTypeDropdownV8';
-import { TokenEndpointAuthMethodDropdownV8 } from '@/v8/components/TokenEndpointAuthMethodDropdownV8';
 import { TooltipV8 } from '@/v8/components/TooltipV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { WorkerTokenVsClientCredentialsEducationModalV8 } from '@/v8/components/WorkerTokenVsClientCredentialsEducationModalV8';
-import { useWorkerTokenConfigV8 } from '@/v8/hooks/useSilentApiConfigV8';
 import { AppDiscoveryServiceV8 } from '@/v8/services/appDiscoveryServiceV8';
 import { ConfigCheckerServiceV8 } from '@/v8/services/configCheckerServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { FlowOptionsServiceV8 } from '@/v8/services/flowOptionsServiceV8';
-import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { OidcDiscoveryServiceV8 } from '@/v8/services/oidcDiscoveryServiceV8';
 import { RedirectUriServiceV8 } from '@/v8/services/redirectUriServiceV8';
 import { ResponseTypeServiceV8 } from '@/v8/services/responseTypeServiceV8';
 import { SharedCredentialsServiceV8 } from '@/v8/services/sharedCredentialsServiceV8';
-import {
-	type FlowType,
-	type SpecVersion,
-	SpecVersionServiceV8,
-} from '@/v8/services/specVersionServiceV8';
-import { TokenEndpointAuthMethodServiceV8 } from '@/v8/services/tokenEndpointAuthMethodServiceV8';
+import { SpecVersionServiceV8 } from '@/v8/services/specVersionServiceV8';
 import { TooltipContentServiceV8 } from '@/v8/services/tooltipContentServiceV8';
 import { UnifiedFlowOptionsServiceV8 } from '@/v8/services/unifiedFlowOptionsServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
@@ -524,8 +523,9 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync()
 	);
 
-	// Worker Token Settings - Use centralized hook for consistency
-	const { silentApiRetrieval, showTokenAtEnd } = useWorkerTokenConfigV8();
+	// Worker Token Settings - Use universal service for consistency
+	const { config: silentApiConfig, toggleSilentApi, toggleShowTokenAtEnd } = useV8USilentApi();
+	const { silentApiRetrieval, showTokenAtEnd } = silentApiConfig;
 
 	// Helper function to determine if a required field should have red outline
 	const shouldHighlightField = useCallback(
@@ -1066,29 +1066,6 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		};
 	}, []);
 
-	// Listen for configuration updates
-	useEffect(() => {
-		const handleConfigUpdate = (event: Event) => {
-			const customEvent = event as CustomEvent<{
-				workerToken?: { silentApiRetrieval?: boolean; showTokenAtEnd?: boolean };
-			}>;
-			if (customEvent.detail?.workerToken) {
-				if (customEvent.detail.workerToken.silentApiRetrieval !== undefined) {
-					setSilentApiRetrieval(customEvent.detail.workerToken.silentApiRetrieval);
-				}
-				if (customEvent.detail.workerToken.showTokenAtEnd !== undefined) {
-					setShowTokenAtEnd(customEvent.detail.workerToken.showTokenAtEnd);
-				}
-			}
-		};
-
-		window.addEventListener('mfaConfigurationUpdated', handleConfigUpdate);
-
-		return () => {
-			window.removeEventListener('mfaConfigurationUpdated', handleConfigUpdate);
-		};
-	}, []);
-
 	// ⚠️ CRITICAL: Sync refresh token checkbox with offline_access scope in scopes field
 	// This effect keeps the checkbox in sync when scopes are changed externally (e.g., from scope buttons)
 	// DO NOT MODIFY THIS WITHOUT UNDERSTANDING THE JITTER ISSUE:
@@ -1229,7 +1206,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	// Get all auth methods with enabled/disabled status
 	const allAuthMethodsWithStatus = useMemo(
 		() =>
-			TokenEndpointAuthMethodServiceV8.getAllAuthMethodsWithStatus(
+			unifiedAuthenticationService.getAllAuthMethodsWithStatus(
 				effectiveFlowType,
 				specVersion,
 				usePKCE
@@ -1242,10 +1219,10 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	);
 	const defaultAuthMethod = useMemo(
 		() =>
-			TokenEndpointAuthMethodServiceV8.getDefaultAuthMethod(
+			unifiedAuthenticationService.getDefaultAuthMethod(
 				effectiveFlowType,
 				specVersion,
-				usePKCE
+				usePKCE ? 'public' : 'confidential'
 			),
 		[effectiveFlowType, specVersion, usePKCE]
 	);
@@ -1932,7 +1909,12 @@ Why it matters: Backend services communicate server-to-server without user conte
 
 	return (
 		<div className="credentials-form-v8">
-			<div className="collapsible-header" onClick={() => setIsExpanded(!isExpanded)}>
+			<div
+				role="button"
+				tabIndex={0}
+				className="collapsible-header"
+				onClick={() => setIsExpanded(!isExpanded)}
+			>
 				<div className="header-content">
 					<h2>{defaultTitle}</h2>
 					<span className={`chevron ${isExpanded ? 'open' : ''}`}>›</span>
@@ -1946,6 +1928,8 @@ Why it matters: Backend services communicate server-to-server without user conte
 						{/* GENERAL SECTION - Matches PingOne Console */}
 						<div className="form-section" data-section="general">
 							<div
+								role="button"
+								tabIndex={0}
 								className="section-header"
 								onClick={() => setShowGeneralSection(!showGeneralSection)}
 								style={{ cursor: 'pointer' }}
@@ -2113,7 +2097,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 
 									{/* Worker Token Status */}
 									<div className="form-group">
-										<label>Worker Token Status</label>
+										<label htmlFor="workertokenstatus">Worker Token Status</label>
 										<div
 											style={{
 												padding: '10px 14px',
@@ -2231,17 +2215,8 @@ Why it matters: Backend services communicate server-to-server without user conte
 													checked={silentApiRetrieval}
 													onChange={async (e) => {
 														const newValue = e.target.checked;
-														setSilentApiRetrieval(newValue);
-														// Update config service immediately (no cache)
-														const config = MFAConfigurationServiceV8.loadConfiguration();
-														config.workerToken.silentApiRetrieval = newValue;
-														MFAConfigurationServiceV8.saveConfiguration(config);
-														// Dispatch event to notify other components
-														window.dispatchEvent(
-															new CustomEvent('mfaConfigurationUpdated', {
-																detail: { workerToken: config.workerToken },
-															})
-														);
+														// Use universal service toggle (handles mutual exclusivity automatically)
+														toggleSilentApi();
 														toastV8.info(`Silent API Token Retrieval set to: ${newValue}`);
 
 														// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
@@ -2307,17 +2282,8 @@ Why it matters: Backend services communicate server-to-server without user conte
 													checked={showTokenAtEnd}
 													onChange={(e) => {
 														const newValue = e.target.checked;
-														setShowTokenAtEnd(newValue);
-														// Update config service immediately (no cache)
-														const config = MFAConfigurationServiceV8.loadConfiguration();
-														config.workerToken.showTokenAtEnd = newValue;
-														MFAConfigurationServiceV8.saveConfiguration(config);
-														// Dispatch event to notify other components
-														window.dispatchEvent(
-															new CustomEvent('mfaConfigurationUpdated', {
-																detail: { workerToken: config.workerToken },
-															})
-														);
+														// Use universal service toggle (handles mutual exclusivity automatically)
+														toggleShowTokenAtEnd();
 														toastV8.info(`Show Token After Generation set to: ${newValue}`);
 													}}
 													style={{
@@ -3078,7 +3044,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 									</div>
 								)}
 								<div className="form-group">
-									<label>Issuer URL or Environment ID</label>
+									<label htmlFor="issuerurlorenvironmentid">Issuer URL or Environment ID</label>
 									<div style={{ display: 'flex', gap: '8px' }}>
 										<input
 											type="text"
@@ -3187,7 +3153,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 								{/* Token Endpoint Authentication Method - Moved from Advanced */}
 								{showClientAuthMethod && allAuthMethodsWithStatus.length > 0 && (
 									<div className="form-group">
-										<TokenEndpointAuthMethodDropdownV8
+										<UnifiedAuthMethodDropdown
 											value={
 												(credentials.clientAuthMethod || defaultAuthMethod) as
 													| 'none'
@@ -3197,9 +3163,11 @@ Why it matters: Backend services communicate server-to-server without user conte
 													| 'private_key_jwt'
 											}
 											onChange={(method) => handleChange('clientAuthMethod', method)}
-											flowType={(effectiveFlowType as FlowType) || 'oauth-authz'}
+											flowType={effectiveFlowType}
 											specVersion={specVersion}
 											usePKCE={usePKCE}
+											clientType={usePKCE ? 'public' : 'confidential'}
+											disabled={!credentials.environmentId.trim()}
 										/>
 
 										{/* JWT Configuration Button and Description */}
@@ -3313,7 +3281,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 
 								{/* Grant Type (read-only, informational) */}
 								<div className="form-group">
-									<label>Grant Type</label>
+									<label htmlFor="granttype">Grant Type</label>
 									<div
 										style={{
 											padding: '10px 12px',
@@ -4621,6 +4589,8 @@ Why it matters: Backend services communicate server-to-server without user conte
 						{/* Advanced Options Section - Collapsible */}
 						<div className="form-section" data-section="advanced">
 							<div
+								role="button"
+								tabIndex={0}
 								className="section-header"
 								onClick={() => setShowAdvancedSection(!showAdvancedSection)}
 								style={{ cursor: 'pointer' }}
@@ -5086,11 +5056,10 @@ Why it matters: Backend services communicate server-to-server without user conte
 						(() => {
 							// Check if we should show token only (matches MFA pattern)
 							try {
-								const config = MFAConfigurationServiceV8.loadConfiguration();
 								const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 
 								// Show token-only if showTokenAtEnd is ON and token is valid
-								const showTokenOnly = config.workerToken.showTokenAtEnd && tokenStatus.isValid;
+								const showTokenOnly = silentApiConfig.showTokenAtEnd && tokenStatus.isValid;
 
 								return (
 									<WorkerTokenModalV8
@@ -5237,6 +5206,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 							</div>
 
 							<button
+								type="button"
 								onClick={() => setShowPromptInfoModal(false)}
 								style={{
 									marginTop: '24px',
@@ -5600,6 +5570,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 							</div>
 
 							<button
+								type="button"
 								onClick={() => setShowPARInfoModal(false)}
 								style={{
 									marginTop: '24px',
@@ -6073,6 +6044,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 							</div>
 
 							<button
+								type="button"
 								onClick={() => setShowJARInfoModal(false)}
 								style={{
 									marginTop: '24px',

@@ -188,6 +188,7 @@ export const EnrollSms: React.FC<EnrollSmsProps> = ({ sdk, userId, onDeviceRegis
 					}}
 				/>
 				<button
+					type="button"
 					onClick={() => {
 						setStep('input');
 						setStatus('idle');
@@ -218,7 +219,11 @@ export const EnrollSms: React.FC<EnrollSmsProps> = ({ sdk, userId, onDeviceRegis
 			{step === 'input' && (
 				<div>
 					<div style={{ marginBottom: '1rem' }}>
-						<label htmlFor="phone" style={{ display: 'block', marginBottom: '0.5rem' }}>
+						<label
+							htmlFor="phone"
+							style={{ display: 'block', marginBottom: '0.5rem' }}
+							htmlFor="phonenumbereg1234567890"
+						>
 							Phone Number * (e.g., +1234567890)
 						</label>
 						<input
@@ -237,6 +242,7 @@ export const EnrollSms: React.FC<EnrollSmsProps> = ({ sdk, userId, onDeviceRegis
 						/>
 					</div>
 					<button
+						type="button"
 						onClick={handleRegister}
 						disabled={!userId || !phone}
 						style={{
@@ -272,6 +278,7 @@ export const EnrollSms: React.FC<EnrollSmsProps> = ({ sdk, userId, onDeviceRegis
 						copyableValues={deviceId ? { deviceId, userId } : { userId }}
 					/>
 					<button
+						type="button"
 						onClick={handleSendOTP}
 						style={{
 							marginTop: '1rem',
@@ -309,7 +316,11 @@ export const EnrollSms: React.FC<EnrollSmsProps> = ({ sdk, userId, onDeviceRegis
 						}}
 					/>
 					<div style={{ marginTop: '1rem' }}>
-						<label htmlFor="otp" style={{ display: 'block', marginBottom: '0.5rem' }}>
+						<label
+							htmlFor="otp"
+							style={{ display: 'block', marginBottom: '0.5rem' }}
+							htmlFor="otpcode"
+						>
 							OTP Code *
 						</label>
 						<input
@@ -332,6 +343,7 @@ export const EnrollSms: React.FC<EnrollSmsProps> = ({ sdk, userId, onDeviceRegis
 						/>
 					</div>
 					<button
+						type="button"
 						onClick={handleActivate}
 						disabled={!otp || otp.length < 6}
 						style={{

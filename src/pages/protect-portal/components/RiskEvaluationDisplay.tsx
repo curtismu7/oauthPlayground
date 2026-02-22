@@ -511,7 +511,7 @@ const RiskEvaluationDisplay: React.FC<RiskEvaluationDisplayProps> = ({
 	// ============================================================================
 	// GLOBAL WORKER TOKEN INTEGRATION
 	// ============================================================================
-	
+
 	const { globalTokenStatus } = useGlobalWorkerToken();
 
 	// ============================================================================
@@ -594,7 +594,7 @@ const RiskEvaluationDisplay: React.FC<RiskEvaluationDisplayProps> = ({
 			if (!globalTokenStatus.token || !globalTokenStatus.isValid) {
 				try {
 					await workerTokenManager.refreshToken();
-				} catch (tokenError) {
+				} catch (_tokenError) {
 					throw new Error('Failed to obtain worker token for risk evaluation');
 				}
 			}
@@ -644,7 +644,16 @@ const RiskEvaluationDisplay: React.FC<RiskEvaluationDisplayProps> = ({
 		} finally {
 			setIsEvaluating(false);
 		}
-	}, [userContext, loginContext, protectCredentials, onComplete, onError, currentStep]);
+	}, [
+		userContext,
+		loginContext,
+		protectCredentials,
+		onComplete,
+		onError,
+		currentStep,
+		globalTokenStatus.isValid,
+		globalTokenStatus.token,
+	]);
 
 	// ============================================================================
 	// EFFECTS

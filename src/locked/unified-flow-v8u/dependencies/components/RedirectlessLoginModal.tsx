@@ -363,7 +363,7 @@ const RedirectlessLoginModal: React.FC<RedirectlessLoginModalProps> = ({
 		<ModalOverlay $isOpen={isOpen} onKeyDown={handleKeyDown}>
 			<ModalContent onClick={(e) => e.stopPropagation()}>
 				<ModalHeader>
-					<button className="close-button" onClick={onClose} disabled={isLoading}>
+					<button type="button" className="close-button" onClick={onClose} disabled={isLoading}>
 						<FiX />
 					</button>
 					<IconBadge>

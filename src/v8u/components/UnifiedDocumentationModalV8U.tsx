@@ -356,6 +356,8 @@ export const UnifiedDocumentationModalV8U: React.FC<UnifiedDocumentationModalV8U
 
 	return (
 		<div
+			role="button"
+			tabIndex={0}
 			style={{
 				position: 'fixed',
 				top: 0,
@@ -371,6 +373,8 @@ export const UnifiedDocumentationModalV8U: React.FC<UnifiedDocumentationModalV8U
 			onClick={onClose}
 		>
 			<div
+				role="button"
+				tabIndex={0}
 				style={{
 					background: 'white',
 					borderRadius: '12px',
@@ -425,6 +429,7 @@ export const UnifiedDocumentationModalV8U: React.FC<UnifiedDocumentationModalV8U
 							color: '#374151',
 							marginBottom: '12px',
 						}}
+						htmlFor="selectcategory"
 					>
 						Select Category
 					</label>
@@ -469,6 +474,7 @@ export const UnifiedDocumentationModalV8U: React.FC<UnifiedDocumentationModalV8U
 								color: '#374151',
 								marginBottom: '12px',
 							}}
+							htmlFor="selectusecasesselectedusecasessizeselected"
 						>
 							Select Use Cases ({selectedUseCases.size} selected)
 						</label>
@@ -553,6 +559,7 @@ export const UnifiedDocumentationModalV8U: React.FC<UnifiedDocumentationModalV8U
 							color: '#374151',
 							marginBottom: '12px',
 						}}
+						htmlFor="downloadformat"
 					>
 						Download Format
 					</label>

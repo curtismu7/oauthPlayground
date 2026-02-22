@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { FlowConfig } from '../components/FlowConfiguration';
 import type { StepCredentials } from '../components/steps/CommonSteps';
+import { domainConfigurationService } from '../services/domainConfigurationService';
 import { FlowCredentialService } from '../services/flowCredentialService';
 import { scopeValidationService } from '../services/scopeValidationService';
 import { trackTokenOperation } from '../utils/activityTracker';
@@ -52,8 +53,8 @@ export interface WorkerTokenFlowController {
 const DEFAULT_FLOW_KEY = 'worker-token-v5';
 
 const getSafeOrigin = (): string => {
-	if (typeof window === 'undefined') return 'https://localhost:3000';
-	return window.location.origin;
+	// Use domain configuration service instead of hardcoded localhost
+	return domainConfigurationService.getEffectiveDomain();
 };
 
 const createEmptyCredentials = (): StepCredentials => ({

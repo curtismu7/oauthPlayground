@@ -4,14 +4,19 @@
  * @description Service to determine which token operations are allowed for each flow
  * @version 8.0.0
  * @since 2024-11-21
+ * @deprecated Use unifiedTokenService from '@/shared/services/unifiedTokenService' instead
  *
  * This service implements OAuth 2.0 and OIDC standards for:
  * - Token introspection (RFC 7662)
  * - UserInfo endpoint access (OIDC)
  *
  * @example
+ * // OLD (deprecated):
  * const rules = TokenOperationsServiceV8.getOperationRules('oauth-authz', 'openid profile');
- * // Returns: { canIntrospectAccessToken: true, canCallUserInfo: true, ... }
+ *
+ * // NEW (recommended):
+ * import { unifiedTokenService } from '@/shared/services/unifiedTokenService';
+ * const rules = unifiedTokenService.getOperationRules('oauth-authz', 'openid profile');
  */
 
 const MODULE_TAG = '[🔍 TOKEN-OPERATIONS-V8]';
@@ -42,6 +47,12 @@ export class TokenOperationsServiceV8 {
 	 * @returns Rules for what operations are allowed
 	 */
 	static getOperationRules(flowType: string, scopes?: string): TokenOperationRules {
+		// Deprecation warning
+		console.warn(
+			`${MODULE_TAG} ⚠️ DEPRECATED: TokenOperationsServiceV8.getOperationRules() is deprecated. ` +
+				`Please use unifiedTokenService.getOperationRules() from '@/shared/services/unifiedTokenService' instead.`
+		);
+
 		const normalizedFlow = flowType.toLowerCase().replace(/[-_]/g, '-');
 		const hasOpenIdScope = scopes?.toLowerCase().includes('openid') || false;
 

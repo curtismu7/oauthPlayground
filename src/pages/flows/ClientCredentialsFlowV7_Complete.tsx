@@ -1053,14 +1053,12 @@ const ClientCredentialsFlowV7Complete: React.FC = () => {
 
 				{/* Master Education Section */}
 				<MasterEducationSection
-					flowType="client_credentials"
-					title="📚 Client Credentials Flow Education"
 					sections={[
 						{
 							id: 'client-credentials-overview',
 							title: 'Client Credentials Flow Overview',
 							icon: <FiInfo />,
-							summary: 'Machine-to-machine authentication without user interaction',
+							oneLiner: 'Machine-to-machine authentication without user interaction',
 							content: (
 								<div>
 									<p>
@@ -1092,7 +1090,7 @@ const ClientCredentialsFlowV7Complete: React.FC = () => {
 							id: 'security-considerations',
 							title: 'Security Considerations',
 							icon: <FiShield />,
-							summary: 'Client secret must be kept secure - never expose in frontend code',
+							oneLiner: 'Client secret must be kept secure - never expose in frontend code',
 							content: (
 								<div>
 									<p>

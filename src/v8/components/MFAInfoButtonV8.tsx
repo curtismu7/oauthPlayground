@@ -15,7 +15,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { FiExternalLink, FiInfo, FiX } from 'react-icons/fi';
-import { MFAEducationServiceV8 } from '@/v8/services/mfaEducationServiceV8';
+import { MFAEducationServiceV8 } from '@/apps/mfa/services/mfaEducationServiceV8';
 
 const MODULE_TAG = '[ℹ️ MFA-INFO-BUTTON-V8]';
 
@@ -360,6 +360,8 @@ export const MFAInfoButtonV8: React.FC<MFAInfoButtonV8Props> = ({
 			{/* Modal (click mode) */}
 			{displayMode === 'modal' && isOpen && (
 				<div
+					role="button"
+					tabIndex={0}
 					style={{
 						position: 'fixed',
 						top: 0,
@@ -376,6 +378,8 @@ export const MFAInfoButtonV8: React.FC<MFAInfoButtonV8Props> = ({
 					onClick={handleClose}
 				>
 					<div
+						role="button"
+						tabIndex={0}
 						style={{
 							background: '#ffffff' /* Light background */,
 							borderRadius: '12px',

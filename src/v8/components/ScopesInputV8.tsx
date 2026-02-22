@@ -128,6 +128,7 @@ export const ScopesInputV8: React.FC<ScopesInputV8Props> = ({
 						fontWeight: '600',
 						color: '#1f2937', // Dark text on light background
 					}}
+					htmlFor="scopes"
 				>
 					Scopes
 				</label>

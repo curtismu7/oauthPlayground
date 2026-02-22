@@ -139,6 +139,7 @@ export const DebugPanel: React.FC<DebugPanelProps> = ({
 							{correlationId}
 						</code>
 						<button
+							type="button"
 							onClick={() => handleCopy('correlationId', correlationId)}
 							style={{
 								padding: '0.25rem 0.5rem',
@@ -185,6 +186,7 @@ export const DebugPanel: React.FC<DebugPanelProps> = ({
 									{value.length > 50 ? `${value.substring(0, 50)}...` : value}
 								</code>
 								<button
+									type="button"
 									onClick={() => handleCopy(key, value)}
 									style={{
 										padding: '0.25rem 0.5rem',

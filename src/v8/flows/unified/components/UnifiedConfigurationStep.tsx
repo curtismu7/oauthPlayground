@@ -258,7 +258,7 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 		}
 
 		return true;
-	}, [environmentId, username, tokenType, tokenStatus, credentials, nav]);
+	}, [environmentId, tokenType, tokenStatus, credentials, nav]);
 
 	/**
 	 * Handle continue button click

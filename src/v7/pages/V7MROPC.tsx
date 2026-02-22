@@ -191,6 +191,7 @@ export const V7MROPC: React.FC<Props> = ({
 					Authorization Code Flow with PKCE instead. This flow is included for educational purposes
 					to understand why it was deprecated.
 					<button
+						type="button"
 						onClick={() => setShowDeprecationHelp(true)}
 						style={{
 							marginLeft: 8,
@@ -235,6 +236,7 @@ export const V7MROPC: React.FC<Props> = ({
 				}}
 			>
 				<button
+					type="button"
 					onClick={() => {
 						setVariant('oauth');
 						setScope('read write');
@@ -253,6 +255,7 @@ export const V7MROPC: React.FC<Props> = ({
 					OAuth 2.0
 				</button>
 				<button
+					type="button"
 					onClick={() => {
 						setVariant('oidc');
 						setScope('openid profile email offline_access');
@@ -316,6 +319,7 @@ export const V7MROPC: React.FC<Props> = ({
 								placeholder="password"
 							/>
 							<button
+								type="button"
 								onClick={() => setShowPassword(!showPassword)}
 								style={{
 									position: 'absolute',
@@ -429,6 +433,7 @@ export const V7MROPC: React.FC<Props> = ({
 										POST Request Body (application/x-www-form-urlencoded)
 									</h4>
 									<button
+										type="button"
 										onClick={handleCopyRequestUrl}
 										style={{
 											display: 'flex',
@@ -487,7 +492,7 @@ export const V7MROPC: React.FC<Props> = ({
 						</div>
 					)}
 
-					<button onClick={handleRequestToken} style={primaryBtn}>
+					<button type="button" onClick={handleRequestToken} style={primaryBtn}>
 						Request Access Token
 					</button>
 					{tokenResponse && (
@@ -498,18 +503,22 @@ export const V7MROPC: React.FC<Props> = ({
 							</div>
 							{accessToken && (
 								<div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
-									<button onClick={() => setShowAccessModal(true)} style={secondaryBtn}>
+									<button
+										type="button"
+										onClick={() => setShowAccessModal(true)}
+										style={secondaryBtn}
+									>
 										Inspect Access Token
 									</button>
 									{idToken && (
-										<button onClick={() => setShowIdModal(true)} style={secondaryBtn}>
+										<button type="button" onClick={() => setShowIdModal(true)} style={secondaryBtn}>
 											Inspect ID Token
 										</button>
 									)}
-									<button onClick={handleIntrospect} style={secondaryBtn}>
+									<button type="button" onClick={handleIntrospect} style={secondaryBtn}>
 										Introspect Token
 									</button>
-									<button onClick={handleUserInfo} style={secondaryBtn}>
+									<button type="button" onClick={handleUserInfo} style={secondaryBtn}>
 										Call UserInfo
 										<V7MInfoIcon
 											label=""

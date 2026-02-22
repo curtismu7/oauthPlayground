@@ -402,7 +402,11 @@ export const IntegratedMFASample: React.FC = () => {
 					<div style={{ marginTop: '2rem' }}>
 						<h3>OIDC Application Configuration</h3>
 						<div style={{ marginBottom: '1rem' }}>
-							<label htmlFor="clientId" style={{ display: 'block', marginBottom: '0.5rem' }}>
+							<label
+								htmlFor="clientId"
+								style={{ display: 'block', marginBottom: '0.5rem' }}
+								htmlFor="clientid"
+							>
 								Client ID *
 							</label>
 							<input
@@ -420,7 +424,11 @@ export const IntegratedMFASample: React.FC = () => {
 							/>
 						</div>
 						<div style={{ marginBottom: '1rem' }}>
-							<label htmlFor="policyId" style={{ display: 'block', marginBottom: '0.5rem' }}>
+							<label
+								htmlFor="policyId"
+								style={{ display: 'block', marginBottom: '0.5rem' }}
+								htmlFor="deviceauthenticationpolicyid"
+							>
 								Device Authentication Policy ID *
 							</label>
 							<input
@@ -449,6 +457,7 @@ export const IntegratedMFASample: React.FC = () => {
 						with tokens.
 					</p>
 					<button
+						type="button"
 						onClick={handleOIDCSignIn}
 						disabled={!oidcConfig.clientId}
 						style={{
@@ -486,7 +495,11 @@ export const IntegratedMFASample: React.FC = () => {
 					{smsEnrollState.step === 'input' && (
 						<div>
 							<div style={{ marginBottom: '1rem' }}>
-								<label htmlFor="phone" style={{ display: 'block', marginBottom: '0.5rem' }}>
+								<label
+									htmlFor="phone"
+									style={{ display: 'block', marginBottom: '0.5rem' }}
+									htmlFor="phonenumbereg1234567890"
+								>
 									Phone Number * (e.g., +1234567890)
 								</label>
 								<input
@@ -506,6 +519,7 @@ export const IntegratedMFASample: React.FC = () => {
 								/>
 							</div>
 							<button
+								type="button"
 								onClick={handleEnrollSMS}
 								disabled={!smsEnrollState.phone}
 								style={{
@@ -528,7 +542,11 @@ export const IntegratedMFASample: React.FC = () => {
 								Device created! OTP sent. Please enter the code:
 							</p>
 							<div style={{ marginBottom: '1rem' }}>
-								<label htmlFor="otp" style={{ display: 'block', marginBottom: '0.5rem' }}>
+								<label
+									htmlFor="otp"
+									style={{ display: 'block', marginBottom: '0.5rem' }}
+									htmlFor="otpcode"
+								>
 									OTP Code *
 								</label>
 								<input
@@ -550,6 +568,7 @@ export const IntegratedMFASample: React.FC = () => {
 								/>
 							</div>
 							<button
+								type="button"
 								onClick={handleActivateSMS}
 								disabled={!smsEnrollState.otp || smsEnrollState.otp.length < 6}
 								style={{
@@ -585,6 +604,7 @@ export const IntegratedMFASample: React.FC = () => {
 					{fido2EnrollState.step === 'input' && (
 						<div>
 							<button
+								type="button"
 								onClick={handleEnrollFIDO2}
 								disabled={!oidcConfig.policyId}
 								style={{
@@ -607,6 +627,7 @@ export const IntegratedMFASample: React.FC = () => {
 								Device created! Click below to create WebAuthn credential:
 							</p>
 							<button
+								type="button"
 								onClick={handleWebAuthnRegistration}
 								style={{
 									padding: '0.75rem 1.5rem',
@@ -637,6 +658,7 @@ export const IntegratedMFASample: React.FC = () => {
 					{smsAuthState.step === 'input' && (
 						<div>
 							<button
+								type="button"
 								onClick={handleAuthSMS}
 								disabled={!oidcConfig.policyId}
 								style={{
@@ -657,7 +679,11 @@ export const IntegratedMFASample: React.FC = () => {
 						<div>
 							<p style={{ marginBottom: '1rem' }}>OTP sent! Please enter the code:</p>
 							<div style={{ marginBottom: '1rem' }}>
-								<label htmlFor="authOtp" style={{ display: 'block', marginBottom: '0.5rem' }}>
+								<label
+									htmlFor="authOtp"
+									style={{ display: 'block', marginBottom: '0.5rem' }}
+									htmlFor="otpcode"
+								>
 									OTP Code *
 								</label>
 								<input
@@ -679,6 +705,7 @@ export const IntegratedMFASample: React.FC = () => {
 								/>
 							</div>
 							<button
+								type="button"
 								onClick={handleCompleteSMSAuth}
 								disabled={!smsAuthState.otp || smsAuthState.otp.length < 6}
 								style={{
@@ -712,6 +739,7 @@ export const IntegratedMFASample: React.FC = () => {
 					{fido2AuthState.step === 'input' && (
 						<div>
 							<button
+								type="button"
 								onClick={handleAuthFIDO2}
 								disabled={!oidcConfig.policyId}
 								style={{
@@ -732,6 +760,7 @@ export const IntegratedMFASample: React.FC = () => {
 						<div>
 							<p style={{ marginBottom: '1rem' }}>Click below to get WebAuthn assertion:</p>
 							<button
+								type="button"
 								onClick={handleWebAuthnAssertion}
 								style={{
 									padding: '0.75rem 1.5rem',
@@ -760,7 +789,11 @@ export const IntegratedMFASample: React.FC = () => {
 				<div>
 					<h2>Registered Devices</h2>
 					<div style={{ marginBottom: '1rem' }}>
-						<label htmlFor="devicesUserId" style={{ display: 'block', marginBottom: '0.5rem' }}>
+						<label
+							htmlFor="devicesUserId"
+							style={{ display: 'block', marginBottom: '0.5rem' }}
+							htmlFor="userid"
+						>
 							User ID *
 						</label>
 						<div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
@@ -779,6 +812,7 @@ export const IntegratedMFASample: React.FC = () => {
 								}}
 							/>
 							<button
+								type="button"
 								onClick={loadDevices}
 								disabled={!userContext.userId || loadingDevices}
 								style={{

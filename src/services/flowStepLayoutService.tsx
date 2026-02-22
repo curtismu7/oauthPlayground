@@ -239,6 +239,7 @@ export const StepNavigation: React.FC<StepNavigationProps> = ({
 			<NavigationButtons>
 				{onReset && (
 					<button
+						type="button"
 						onClick={onReset}
 						style={{
 							padding: '0.5rem 1rem',
@@ -254,6 +255,7 @@ export const StepNavigation: React.FC<StepNavigationProps> = ({
 				)}
 				{onPrevious && (
 					<button
+						type="button"
 						onClick={onPrevious}
 						disabled={!canNavigatePrevious}
 						style={{
@@ -270,6 +272,7 @@ export const StepNavigation: React.FC<StepNavigationProps> = ({
 				)}
 				{onNext && (
 					<button
+						type="button"
 						onClick={onNext}
 						disabled={!canNavigateNext}
 						style={{

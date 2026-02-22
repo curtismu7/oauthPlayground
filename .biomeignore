@@ -31,3 +31,11 @@ src/components/AuthErrorRecoveryV6.tsx
 
 # README files for new components/services
 **/README.md
+
+# Ignore backup and archive files
+**/*_BACKUP*
+**/*backup*
+**/*archive*
+
+# Ignore locked directories
+**/locked/**

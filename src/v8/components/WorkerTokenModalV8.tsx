@@ -17,7 +17,10 @@ import {
 } from '@/services/credentialExportImportService';
 import { environmentService } from '@/services/environmentService';
 import { UnifiedTokenDisplayService } from '@/services/unifiedTokenDisplayService';
-import { unifiedWorkerTokenService, type UnifiedWorkerTokenCredentials } from '@/services/unifiedWorkerTokenService';
+import {
+	type UnifiedWorkerTokenCredentials,
+	unifiedWorkerTokenService,
+} from '@/services/unifiedWorkerTokenService';
 import pingOneFetch from '@/utils/pingOneFetch';
 import { PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
 import { AuthMethodServiceV8, type AuthMethodV8 } from '@/v8/services/authMethodServiceV8';
@@ -158,24 +161,22 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 			// Load from unifiedWorkerTokenService (IndexedDB + SQLite backup)
 			unifiedWorkerTokenService
 				.loadCredentials()
-				.then(
-					(creds: UnifiedWorkerTokenCredentials | null) => {
-						if (creds) {
-							setEnvironmentId(creds.environmentId || propEnvironmentId);
-							setClientId(creds.clientId || '');
-							setClientSecret(creds.clientSecret || '');
-							setScopeInput(
-								Array.isArray(creds.scopes) && creds.scopes.length ? creds.scopes.join(' ') : ''
-							);
-							setRegion(creds.region || 'us');
-							setCustomDomain(creds.customDomain || '');
-							setAuthMethod(creds.tokenEndpointAuthMethod || 'client_secret_basic');
-							console.log(`${MODULE_TAG} Loaded credentials from unifiedWorkerTokenService`);
-						} else {
-							console.log(`${MODULE_TAG} No credentials found in unified storage`);
-						}
+				.then((creds: UnifiedWorkerTokenCredentials | null) => {
+					if (creds) {
+						setEnvironmentId(creds.environmentId || propEnvironmentId);
+						setClientId(creds.clientId || '');
+						setClientSecret(creds.clientSecret || '');
+						setScopeInput(
+							Array.isArray(creds.scopes) && creds.scopes.length ? creds.scopes.join(' ') : ''
+						);
+						setRegion(creds.region || 'us');
+						setCustomDomain(creds.customDomain || '');
+						setAuthMethod(creds.tokenEndpointAuthMethod || 'client_secret_basic');
+						console.log(`${MODULE_TAG} Loaded credentials from unifiedWorkerTokenService`);
+					} else {
+						console.log(`${MODULE_TAG} No credentials found in unified storage`);
 					}
-				)
+				})
 				.catch((error) => {
 					console.error(
 						`${MODULE_TAG} Failed to load credentials from unifiedWorkerTokenService:`,
@@ -726,7 +727,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 				</div>
 
 				{/* Content */}
-				<div style={{ padding: '24px' }}>
+				<div className="end-user-nano" style={{ padding: '24px' }}>
 					{/* Token Only Mode - Show only token display, skip credential form */}
 					{showTokenOnly ? (
 						<div>
@@ -1567,40 +1568,27 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 
 										{/* Main action buttons */}
 										<div style={{ display: 'flex', gap: '8px' }}>
-											<button
-												type="button"
-												onClick={onClose}
-												style={{
-													flex: 1,
-													padding: '10px 16px',
-													background: '#e5e7eb',
-													color: '#1f2937',
-													border: 'none',
-													borderRadius: '4px',
-													fontSize: '14px',
-													fontWeight: '600',
-													cursor: 'pointer',
-												}}
-											>
+											<button type="button" className="btn btn-light-grey" onClick={onClose}>
+												<i className="mdi-close me-2"></i>
 												Cancel
 											</button>
 											<button
 												type="button"
+												className={`btn ${isGenerating ? 'btn-secondary' : 'btn-primary'}`}
 												onClick={handleGenerate}
 												disabled={isGenerating}
-												style={{
-													flex: 1,
-													padding: '10px 16px',
-													background: isGenerating ? '#9ca3af' : '#3b82f6',
-													color: 'white',
-													border: 'none',
-													borderRadius: '4px',
-													fontSize: '14px',
-													fontWeight: '600',
-													cursor: isGenerating ? 'not-allowed' : 'pointer',
-												}}
 											>
-												{isGenerating ? '🔄 Generating...' : '🔑 Generate Token'}
+												{isGenerating ? (
+													<>
+														<i className="mdi-loading mdi-spin me-2"></i>
+														Generating...
+													</>
+												) : (
+													<>
+														<i className="mdi-key me-2"></i>
+														Generate Token
+													</>
+												)}
 											</button>
 										</div>
 									</div>

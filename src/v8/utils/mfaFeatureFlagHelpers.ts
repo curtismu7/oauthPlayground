@@ -21,9 +21,9 @@
  * console.log(status); // { SMS: '10%', EMAIL: 'disabled', ... }
  */
 
-import type { DeviceType } from '@/v8/flows/shared/MFATypes';
-import type { MFAFeatureFlag, RolloutPercentage } from '@/v8/services/mfaFeatureFlagsV8';
-import { MFAFeatureFlagsV8 } from '@/v8/services/mfaFeatureFlagsV8';
+import type { DeviceType } from '@/apps/mfa/flows/shared/MFATypes';
+import type { MFAFeatureFlag, RolloutPercentage } from '@/apps/mfa/services/mfaFeatureFlagsV8';
+import { MFAFeatureFlagsV8 } from '@/apps/mfa/services/mfaFeatureFlagsV8';
 
 /**
  * Map device types to their corresponding feature flags

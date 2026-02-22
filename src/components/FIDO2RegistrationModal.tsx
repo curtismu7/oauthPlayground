@@ -187,6 +187,7 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 						</div>
 					</div>
 					<button
+						type="button"
 						onClick={onClose}
 						style={{
 							background: 'none',
@@ -313,6 +314,8 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 									{/* Platform Authenticator */}
 									{capabilities.platformAuthenticator && (
 										<div
+											role="button"
+											tabIndex={0}
 											onClick={() => setSelectedAuthenticatorType('platform')}
 											style={{
 												padding: '1rem',
@@ -361,6 +364,8 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 									{/* Cross-Platform Authenticator */}
 									{capabilities.crossPlatformAuthenticator && (
 										<div
+											role="button"
+											tabIndex={0}
 											onClick={() => setSelectedAuthenticatorType('cross-platform')}
 											style={{
 												padding: '1rem',
@@ -408,6 +413,8 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 
 									{/* Any Authenticator */}
 									<div
+										role="button"
+										tabIndex={0}
 										onClick={() => setSelectedAuthenticatorType('any')}
 										style={{
 											padding: '1rem',
@@ -547,6 +554,7 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 					}}
 				>
 					<button
+						type="button"
 						onClick={onClose}
 						disabled={isRegistering}
 						style={{
@@ -565,6 +573,7 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 						Cancel
 					</button>
 					<button
+						type="button"
 						onClick={handleRegisterCredential}
 						disabled={isRegistering || !capabilities?.webAuthnSupported || !!error}
 						style={{

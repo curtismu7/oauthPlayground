@@ -16,7 +16,6 @@ import {
 	FiFilter,
 	FiGlobe,
 	FiInfo,
-	FiKey,
 	FiRefreshCw,
 	FiServer,
 	FiShield,
@@ -26,6 +25,7 @@ import {
 import styled from 'styled-components';
 import ApiCallList from '../components/ApiCallList';
 import JSONHighlighter, { type JSONData } from '../components/JSONHighlighter';
+import { WorkerTokenButton } from '../components/WorkerTokenButton';
 import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
@@ -33,7 +33,6 @@ import { apiRequestModalService } from '../services/apiRequestModalService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { ShowTokenConfigCheckboxV8 } from '../v8/components/ShowTokenConfigCheckboxV8';
 import { SilentApiConfigCheckboxV8 } from '../v8/components/SilentApiConfigCheckboxV8';
-import { WorkerTokenModalV8 } from '../v8/components/WorkerTokenModalV8';
 
 const PageContainer = styled.div`
 	max-width: 90rem;
@@ -558,7 +557,6 @@ const PingOneAuditActivities: React.FC = () => {
 	const globalTokenStatus = useGlobalWorkerToken();
 	const workerToken = globalTokenStatus.token || '';
 	const hasWorkerToken = globalTokenStatus.isValid;
-	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 
 	// Environment ID state - load from unified worker token with global fallback
 	const [environmentId, setEnvironmentId] = useState<string>(() => {
@@ -608,10 +606,6 @@ const PingOneAuditActivities: React.FC = () => {
 		// Trigger page reload to reset state
 		window.location.reload();
 	};
-
-	const handleGetWorkerToken = useCallback(() => {
-		setShowWorkerTokenModal(true);
-	}, []);
 
 	// Update environment ID when worker token is updated
 	useEffect(() => {
@@ -1141,25 +1135,34 @@ const PingOneAuditActivities: React.FC = () => {
 					</div>
 
 					<ButtonRow>
-						<PrimaryButton
-							onClick={handleGetWorkerToken}
-							type="button"
-							style={{
-								background: hasWorkerToken ? '#10b981' : undefined,
-								cursor: 'pointer',
-								color: 'white',
+						{/* Standardized Worker Token Button - matching MFA flow */}
+						<WorkerTokenButton
+							onTokenObtained={(token) => {
+								console.log('Audit Activities: Worker token obtained:', token);
+								// Update environment ID from unified worker token credentials
+								try {
+									const stored = localStorage.getItem('unified_worker_token');
+									if (stored) {
+										const data = JSON.parse(stored);
+										if (data.credentials?.environmentId) {
+											setEnvironmentId(data.credentials.environmentId);
+										}
+									}
+								} catch (error) {
+									console.log('Failed to update environment ID from unified worker token:', error);
+								}
+								v4ToastManager.showSuccess(
+									'Worker token generated successfully. Ready to query audit activities.'
+								);
 							}}
-						>
-							{hasWorkerToken ? (
-								<>
-									<FiCheckCircle /> Worker Token Ready
-								</>
-							) : (
-								<>
-									<FiKey /> Get Worker Token
-								</>
-							)}
-						</PrimaryButton>
+							onModalClose={() => {
+								console.log('Audit Activities: Worker token modal closed');
+							}}
+							environmentId={environmentId}
+							buttonText={hasWorkerToken ? 'Worker Token Ready' : 'Get Worker Token'}
+							loadingText="Getting Token..."
+						/>
+
 						{hasWorkerToken && (
 							<DangerButton onClick={handleClearWorkerToken} type="button">
 								<FiX /> Clear Token
@@ -1670,42 +1673,6 @@ const PingOneAuditActivities: React.FC = () => {
 					</ResultContainer>
 				</Card>
 			</LayoutGrid>
-
-			<WorkerTokenModalV8
-				isOpen={showWorkerTokenModal}
-				onClose={() => setShowWorkerTokenModal(false)}
-				onTokenGenerated={() => {
-					// Token generated, the global hook will automatically update
-					// Update environment ID from unified worker token credentials
-					try {
-						const stored = localStorage.getItem('unified_worker_token');
-						if (stored) {
-							const data = JSON.parse(stored);
-							if (data.credentials?.environmentId) {
-								setEnvironmentId(data.credentials.environmentId);
-							}
-						}
-					} catch (error) {
-						console.log('Failed to update environment ID from unified worker token:', error);
-					}
-					setShowWorkerTokenModal(false);
-					v4ToastManager.showSuccess(
-						'Worker token generated successfully. Ready to query audit activities.'
-					);
-				}}
-				environmentId={(() => {
-					try {
-						const stored = localStorage.getItem('unified_worker_token');
-						if (stored) {
-							const data = JSON.parse(stored);
-							return data.credentials?.environmentId || '';
-						}
-					} catch (error) {
-						console.log('Failed to load environment ID from unified worker token:', error);
-					}
-					return '';
-				})()}
-			/>
 
 			{/* Activity Detail Modal */}
 			<DetailModalOverlay $isOpen={!!selectedActivity} onClick={handleCloseDetailModal}>

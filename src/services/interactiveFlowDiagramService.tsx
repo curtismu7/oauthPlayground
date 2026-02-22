@@ -573,6 +573,8 @@ export class InteractiveFlowDiagramService {
 							<h4 style={{ marginBottom: '1rem', color: '#1f2937' }}>Flow Steps:</h4>
 							{definition.steps.map((step, _index) => (
 								<div
+									role="button"
+									tabIndex={0}
 									key={step.id}
 									onClick={() => handleStepClick(step)}
 									style={{

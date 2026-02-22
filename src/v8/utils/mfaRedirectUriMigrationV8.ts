@@ -5,8 +5,8 @@
  * @version 8.0.0
  */
 
+import { MFARedirectUriServiceV8 } from '@/apps/mfa/services/mfaRedirectUriServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
-import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
 
 const MODULE_TAG = '[🔄 MFA-REDIRECT-URI-MIGRATION-V8]';
 

@@ -12,6 +12,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { FiDownload, FiEye, FiEyeOff, FiInfo, FiUpload } from 'react-icons/fi';
 import { useLocation, useSearchParams } from 'react-router-dom';
+import { MFAConfigurationServiceV8 } from '@/apps/mfa/services/mfaConfigurationServiceV8';
+import { MFARedirectUriServiceV8 } from '@/apps/mfa/services/mfaRedirectUriServiceV8';
 import { safeGetUserInfo } from '@/utils/authUtils';
 import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
 import { RedirectUriValidatorV8 } from '@/v8/components/RedirectUriValidatorV8';
@@ -23,8 +25,6 @@ import { AuthMethodServiceV8, type AuthMethodV8 } from '@/v8/services/authMethod
 import { ConfigCheckerServiceV8 } from '@/v8/services/configCheckerServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
-import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
-import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
 import {
 	type OAuthCredentials,
 	OAuthIntegrationServiceV8,
@@ -1616,6 +1616,8 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 			{/* Modal */}
 			<div
+				role="button"
+				tabIndex={0}
 				className="user-login-modal-v8"
 				style={{
 					position: 'fixed',
@@ -2011,6 +2013,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 									color: '#374151',
 									marginBottom: '6px',
 								}}
+								htmlFor="usernameforoidcloginhintoptional"
 							>
 								Username for OIDC login_hint (Optional)
 							</label>
@@ -2046,6 +2049,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 									color: '#374151',
 									marginBottom: '6px',
 								}}
+								htmlFor="tokenendpointauthenticationmethod"
 							>
 								Token Endpoint Authentication Method
 							</label>
