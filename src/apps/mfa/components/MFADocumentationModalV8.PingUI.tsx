@@ -50,7 +50,7 @@ const MDIIcon: React.FC<{
 		<i
 			className={combinedClassName}
 			style={{ fontSize: `${size}px` }}
-			aria-label={ariaLabel}
+			title={ariaLabel}
 			aria-hidden={ariaHidden}
 		></i>
 	);
@@ -261,6 +261,11 @@ export const MFADocumentationModalV8PingUI: React.FC<MFADocumentationModalV8Ping
 						width: '90%',
 					}}
 					onClick={(e) => e.stopPropagation()}
+					onKeyDown={(e) => {
+						if (e.key === 'Enter' || e.key === ' ') {
+							e.stopPropagation();
+						}
+					}}
 				>
 					{/* Header */}
 					<div
