@@ -10,6 +10,7 @@ import UnifiedFlowProvider from './v8u/services/enhancedStateManagement';
 import './styles/spec-cards.css';
 import './styles/ui-settings.css';
 import './styles/button-text-white-enforcement.css'; // CRITICAL: Ensures all buttons have white text
+import './components/PingUIWrapper.css'; // Ping UI CSS variables and styling
 import { lazy, Suspense } from 'react';
 import CodeExamplesDemo from './components/CodeExamplesDemo';
 import CredentialSetupModal from './components/CredentialSetupModal';
@@ -22,13 +23,13 @@ import { PromptModalV8 } from './v8/components/PromptModalV8';
 
 const CompactAppPickerDemo = lazy(() => import('./pages/CompactAppPickerDemo'));
 
+import Navbar from '@/apps/navigation/components/Navbar';
+import Sidebar from '@/apps/navigation/components/Sidebar';
 import DeviceMockFlow from './components/DeviceMockFlow';
 import FlowComparisonTool from './components/FlowComparisonTool';
 import FlowHeaderDemo from './components/FlowHeaderDemo';
 import InteractiveFlowDiagram from './components/InteractiveFlowDiagram';
-import Navbar from '@/apps/navigation/components/Navbar';
 import { RouteRestorer } from './components/RouteRestorer';
-import Sidebar from '@/apps/navigation/components/Sidebar';
 import { useAuth } from './contexts/NewAuthContext';
 import { NotificationContainer, NotificationProvider } from './hooks/useNotifications';
 import AIIdentityArchitectures from './pages/AIIdentityArchitectures';
@@ -39,7 +40,7 @@ import Configuration from './pages/Configuration';
 import Documentation from './pages/Documentation';
 import Login from './pages/Login';
 import OAuthCodeGeneratorHub from './pages/OAuthCodeGeneratorHub';
-import OAuthFlowsNew from './pages/OAuthFlowsNew';
+import OAuthFlowsNew from './pages/OAuthFlows.PingUI';
 import { ApiRequestModalProvider } from './services/apiRequestModalService';
 import {
 	AuthorizationUrlValidationModal,
@@ -93,7 +94,7 @@ import AutoDiscover from './pages/AutoDiscover';
 import CIBAvsDeviceAuthz from './pages/CIBAvsDeviceAuthz';
 import CompetitiveAnalysis from './pages/CompetitiveAnalysis';
 import ComprehensiveOAuthEducation from './pages/ComprehensiveOAuthEducation';
-import Dashboard from './pages/Dashboard';
+import Dashboard from './pages/Dashboard.PingUI';
 import DpopAuthorizationCodeFlowV8 from './pages/DpopAuthorizationCodeFlowV8';
 import OAuth2SecurityBestPractices from './pages/docs/OAuth2SecurityBestPractices.tsx';
 import OAuthForAI from './pages/docs/OAuthForAI.tsx';
@@ -158,6 +159,7 @@ import OrganizationLicensing from './pages/OrganizationLicensing';
 import { P1MFASamples } from './pages/P1MFASamples';
 import PARvsRAR from './pages/PARvsRAR';
 import PingAIResources from './pages/PingAIResources';
+import PingAIResourcesPingUI from './pages/PingAIResources.PingUI';
 import PingOneAuditActivities from './pages/PingOneAuditActivities';
 import PingOneAuthentication from './pages/PingOneAuthentication';
 import PingOneAuthenticationCallback from './pages/PingOneAuthenticationCallback';
@@ -168,18 +170,22 @@ import PingOneSessionsAPI from './pages/PingOneSessionsAPI';
 import PingOneUserProfile from './pages/PingOneUserProfile';
 import PingOneWebhookViewer from './pages/PingOneWebhookViewer';
 import { PostmanCollectionGenerator } from './pages/PostmanCollectionGenerator';
+import PostmanCollectionGeneratorPingUI from './pages/PostmanCollectionGenerator.PingUI';
 import SDKSampleApp from './pages/SDKSampleApp';
 import ServiceTestRunner from './pages/ServiceTestRunner';
 import JWTExamples from './pages/sdk-examples/JWTExamples';
 import OIDCExamples from './pages/sdk-examples/OIDCExamples';
 import SDKDocumentation from './pages/sdk-examples/SDKDocumentation';
 import SDKExamplesHome from './pages/sdk-examples/SDKExamplesHome';
+import SDKExamplesHomePingUI from './pages/sdk-examples/SDKExamplesHome.PingUI';
 import HelioMartPasswordReset from './pages/security/HelioMartPasswordReset';
 import TestDemo from './pages/TestDemo';
 import TokenManagement from './pages/TokenManagement';
 import UltimateTokenDisplayDemo from './pages/UltimateTokenDisplayDemo';
+import UltimateTokenDisplayDemoPingUI from './pages/UltimateTokenDisplayDemo.PingUI';
 import URLDecoder from './pages/URLDecoder';
 import WorkerTokenTester from './pages/WorkerTokenTester';
+import WorkerTokenTesterPingUI from './pages/WorkerTokenTester.PingUI';
 import { FIDO2SampleApp } from './samples/p1mfa/fido2/FIDO2SampleApp';
 import { IntegratedMFASample } from './samples/p1mfa/IntegratedMFASample';
 import { SMSSampleApp } from './samples/p1mfa/sms/SMSSampleApp';
@@ -204,29 +210,33 @@ const UnifiedMFARegistrationFlowV8_Legacy = React.lazy(() =>
 		default: module.UnifiedMFARegistrationFlowV8,
 	}))
 );
-const _EmailFlowV8 = React.lazy(() =>
-	import('./v8/flows/types/EmailFlowV8').then((module) => ({ default: module.EmailFlowV8 }))
-);
+// const _EmailFlowV8 = React.lazy(() =>
+//	import('./v8/flows/types/EmailFlowV8').then((module) => ({ default: module.EmailFlowV8 }))
+// );
 const FIDO2FlowV8 = React.lazy(() =>
 	import('./v8/flows/types/FIDO2FlowV8').then((module) => ({ default: module.FIDO2FlowV8 }))
 );
 const MobileFlowV8 = React.lazy(() =>
 	import('./v8/flows/types/MobileFlowV8').then((module) => ({ default: module.MobileFlowV8 }))
 );
-const _SMSFlowV8 = React.lazy(() =>
-	import('./v8/flows/types/SMSFlowV8').then((module) => ({ default: module.SMSFlowV8 }))
-);
-const _WhatsAppFlowV8 = React.lazy(() =>
-	import('./v8/flows/types/WhatsAppFlowV8').then((module) => ({ default: module.WhatsAppFlowV8 }))
-);
+
+// const _SMSFlowV8 = React.lazy(() =>
+//	import('./v8/flows/types/SMSFlowV8').then((module) => ({ default: module.SMSFlowV8 }))
+// );
+// const _WhatsAppFlowV8 = React.lazy(() =>
+//	import('./v8/flows/types/WhatsAppFlowV8').then((module) => ({ default: module.WhatsAppFlowV8 }))
+// );
 
 import EnvironmentManagementPageV8 from './pages/EnvironmentManagementPageV8';
+import EnvironmentManagementPageV8PingUI from './pages/EnvironmentManagementPageV8.PingUI';
+import TokenExchangeFlowV9 from './pages/flows/TokenExchangeFlowV9';
 // Import Protect Portal
 import ProtectPortalWrapper from './pages/protect-portal/ProtectPortalWrapper';
 import { CreateCompanyPage } from './pages/protect-portal/pages/CreateCompanyPage';
 import DavinciTodoApp from './sdk-examples/davinci-todo-app/DavinciTodoApp';
 import { DebugLogViewerPopoutV8 } from './v8/pages/DebugLogViewerPopoutV8';
 import DebugLogViewerV8 from './v8/pages/DebugLogViewerV8';
+import DebugLogViewerV8PingUI from './v8/pages/DebugLogViewerV8.PingUI';
 import DeleteAllDevicesUtilityV8 from './v8/pages/DeleteAllDevicesUtilityV8';
 import DeviceAuthenticationDetailsV8 from './v8/pages/DeviceAuthenticationDetailsV8';
 import { FIDO2RegistrationDocsPageV8 } from './v8/pages/FIDO2RegistrationDocsPageV8';
@@ -236,13 +246,14 @@ import { MobileRegistrationDocsPageV8 } from './v8/pages/MobileRegistrationDocsP
 import UnifiedCredentialsMockupV8 from './v8/pages/UnifiedCredentialsMockupV8';
 import { isPopoutWindow } from './v8/utils/debugLogViewerPopoutHelperV8';
 import V8MTokenExchange from './v8m/pages/V8MTokenExchange';
+import V8MTokenExchangePingUI from './v8m/pages/V8MTokenExchange.PingUI';
 import CallbackHandlerV8U from './v8u/components/CallbackHandlerV8U';
 import UnifiedFlowErrorBoundary from './v8u/components/UnifiedFlowErrorBoundary';
 
 // Lazy load heavy V8U components for better performance
 const UnifiedFlowHelperPageV8U = lazy(() => import('./v8u/components/UnifiedFlowHelperPageV8U'));
 const SpiffeSpireFlowV8U = lazy(() => import('./v8u/flows/SpiffeSpireFlowV8U'));
-const UnifiedOAuthFlowV8U = lazy(() => import('./v8u/flows/UnifiedOAuthFlowV8U'));
+const UnifiedOAuthFlowV8U = lazy(() => import('./apps/oauth/flows/UnifiedOAuthFlowV8U.PingUI'));
 const SpiffeSpireTokenDisplayV8U = lazy(() => import('./v8u/pages/SpiffeSpireTokenDisplayV8U'));
 const EnhancedStateManagementPage = lazy(() => import('./v8u/pages/EnhancedStateManagementPage'));
 const TokenApiDocumentationPage = lazy(() => import('./v8u/pages/TokenApiDocumentationPage'));
@@ -255,7 +266,7 @@ const MFAFlowsApiTest = lazy(() => import('./pages/test/MFAFlowsApiTest'));
 const PARTest = lazy(() => import('./pages/test/PARTest'));
 const TestCallback = lazy(() => import('./pages/test/TestCallback'));
 const TokenStatusPageV8U = lazy(() => import('./v8u/pages/TokenStatusPageV8U'));
-const ApiStatusPage = lazy(() => import('./pages/ApiStatusPage'));
+const ApiStatusPage = lazy(() => import('./pages/ApiStatusPage.PingUI'));
 
 // Import V7 pages
 const V7MOAuthAuthCode = lazy(() => import('./v7/pages/V7MOAuthAuthCode'));
@@ -296,6 +307,96 @@ const MainContent = styled.main<{ $sidebarWidth: number }>`
   background-color: ${({ theme }) => theme.colors.white};
   text-align: left;
   direction: ltr;
+  
+  /* Ping UI namespace - applies to all content within main content area */
+  &.end-user-nano,
+  .end-user-nano {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #1a1a1a;
+    line-height: 1.5;
+    
+    /* Ping UI CSS variables */
+    --ping-primary-color: #0066cc;
+    --ping-secondary-color: #f8f9fa;
+    --ping-border-color: #dee2e6;
+    --ping-text-color: #1a1a1a;
+    --ping-background-color: #ffffff;
+    --ping-hover-color: #f1f3f4;
+    --ping-active-color: #e3e6ea;
+    --ping-success-color: #28a745;
+    --ping-warning-color: #ffc107;
+    --ping-error-color: #dc3545;
+    
+    /* Ping UI spacing system */
+    --ping-spacing-xs: 0.25rem;
+    --ping-spacing-sm: 0.5rem;
+    --ping-spacing-md: 1rem;
+    --ping-spacing-lg: 1.5rem;
+    --ping-spacing-xl: 2rem;
+    --ping-spacing-xxl: 3rem;
+    
+    /* Ping UI border radius */
+    --ping-border-radius-sm: 0.25rem;
+    --ping-border-radius-md: 0.375rem;
+    --ping-border-radius-lg: 0.5rem;
+    
+    /* Ping UI transitions */
+    --ping-transition-fast: 0.15s ease-in-out;
+    --ping-transition-normal: 0.2s ease-in-out;
+    --ping-transition-slow: 0.3s ease-in-out;
+  }
+  
+  /* Apply Ping UI namespace to all direct children */
+  & > * {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    transition: all 0.15s ease-in-out;
+  }
+  
+  /* Ping UI button styles within main content */
+  & button,
+  & .btn,
+  & input[type="button"],
+  & input[type="submit"] {
+    transition: all 0.15s ease-in-out;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    &:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+  }
+  
+  /* Ping UI form styles */
+  & input,
+  & select,
+  & textarea {
+    transition: all 0.15s ease-in-out;
+    border-radius: 0.375rem;
+    
+    &:focus {
+      outline: none;
+      border-color: #0066cc;
+      box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.2);
+    }
+  }
+  
+  /* Ping UI card styles */
+  & .card,
+  & .panel,
+  & .container {
+    transition: all 0.15s ease-in-out;
+    
+    &:hover {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+  }
+  
   @keyframes fadeInPage {
     from {
       opacity: 0;
@@ -554,7 +655,7 @@ const AppRoutes: React.FC = () => {
 					<Navbar toggleSidebar={toggleSidebar} sidebarOpen={sidebarOpen} />
 					<Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 					<ContentColumn>
-						<MainContent $sidebarWidth={sidebarWidth}>
+						<MainContent $sidebarWidth={sidebarWidth} className="end-user-nano">
 							<Routes>
 								<Route path="/login" element={<Login />} />
 								<Route path="/callback" element={<Callback />} />
@@ -602,15 +703,18 @@ const AppRoutes: React.FC = () => {
 								</Route>
 								{/* Tools & Utilities Routes */}
 								<Route path="/sdk-sample-app" element={<SDKSampleApp />} />
-								<Route path="/ultimate-token-display-demo" element={<UltimateTokenDisplayDemo />} />
+								<Route
+									path="/ultimate-token-display-demo"
+									element={<UltimateTokenDisplayDemoPingUI />}
+								/>
 								{/* SDK Examples Routes */}
-								<Route path="/sdk-examples" element={<SDKExamplesHome />} />
+								<Route path="/sdk-examples" element={<SDKExamplesHomePingUI />} />
 								<Route path="/sdk-examples/jwt-authentication" element={<JWTExamples />} />
 								<Route path="/sdk-examples/oidc-centralized-login" element={<OIDCExamples />} />
 								<Route path="/sdk-examples/documentation" element={<SDKDocumentation />} />
 								<Route path="/sdk-examples/davinci-todo-app" element={<DavinciTodoApp />} />
 								{/* Environment Management */}
-								<Route path="/environments" element={<EnvironmentManagementPageV8 />} />
+								<Route path="/environments" element={<EnvironmentManagementPageV8PingUI />} />
 								{/* DaVinci Todo App */}
 								<Route path="/davinci-todo" element={<DavinciTodoApp />} />
 								{/* V7 OAuth/OIDC Flow Routes */}
@@ -969,7 +1073,7 @@ const AppRoutes: React.FC = () => {
 								/>
 								{/* V8 Utilities */}
 								<Route path="/v8/delete-all-devices" element={<DeleteAllDevicesUtilityV8 />} />
-								<Route path="/v8/debug-logs" element={<DebugLogViewerV8 />} />
+								<Route path="/v8/debug-logs" element={<DebugLogViewerV8PingUI />} />
 								<Route path="/v8/debug-logs-popout" element={<DebugLogViewerPopoutV8 />} />
 								{/* V8U SPIFFE/SPIRE Mock Flow and Token Viewer - multi-step lab */}
 								<Route
@@ -1060,8 +1164,12 @@ const AppRoutes: React.FC = () => {
 								/>
 								{/* V7 JWT Bearer Token Flow */}
 								<Route path="/flows/jwt-bearer-token-v7" element={<JWTBearerTokenFlowV7 />} />
+								{/* V9 Token Exchange Flow - Production */}
+								<Route path="/flows/token-exchange" element={<TokenExchangeFlowV9 />} />
 								{/* V8M Token Exchange Flow */}
-								<Route path="/flows/token-exchange-v7" element={<V8MTokenExchange />} />
+								<Route path="/flows/token-exchange-v7" element={<V8MTokenExchangePingUI />} />
+								{/* Legacy V7 Token Exchange Flow */}
+								<Route path="/flows/token-exchange-legacy" element={<V8MTokenExchange />} />
 								{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
 								<Route
 									path="/flows/jwt-bearer-token-v6"
@@ -1208,9 +1316,9 @@ const AppRoutes: React.FC = () => {
 								<Route path="/oauth-code-generator-hub" element={<OAuthCodeGeneratorHub />} />
 								<Route path="/configuration" element={<Configuration />} />
 								<Route path="/documentation" element={<Documentation />} />
-								<Route path="/ping-ai-resources" element={<PingAIResources />} />
+								<Route path="/ping-ai-resources" element={<PingAIResourcesPingUI />} />
 								<Route path="/pingone-user-profile" element={<PingOneUserProfile />} />
-								<Route path="/worker-token-tester" element={<WorkerTokenTester />} />
+								<Route path="/worker-token-tester" element={<WorkerTokenTesterPingUI />} />
 								<Route path="/ai-identity-architectures" element={<AIIdentityArchitectures />} />
 								<Route path="/about" element={<About />} />
 								<Route path="/flow-header-demo" element={<FlowHeaderDemo />} />
@@ -1229,7 +1337,7 @@ const AppRoutes: React.FC = () => {
 								<Route path="/token-management" element={<TokenManagement />} />
 								<Route
 									path="/postman-collection-generator"
-									element={<PostmanCollectionGenerator />}
+									element={<PostmanCollectionGeneratorPingUI />}
 								/>
 								<Route path="/samples/p1mfa" element={<P1MFASamples />} />
 								<Route path="/samples/p1mfa/integrated" element={<IntegratedMFASample />} />
@@ -1337,7 +1445,7 @@ const AppRoutes: React.FC = () => {
 									}
 								/>
 								<Route
-									path="/api-status"
+									path="/system-status"
 									element={
 										<Suspense fallback={<div>Loading...</div>}>
 											<ApiStatusPage />
