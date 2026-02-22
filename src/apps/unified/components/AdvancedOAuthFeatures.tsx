@@ -12,8 +12,8 @@ import {
 import styled from 'styled-components';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
-import { PingOneClientServiceV8U } from '../services/pingOneClientServiceV8U';
-import FeatureEnableConfirmationModal from './FeatureEnableConfirmationModal';
+import { PingOneClientServiceV8U } from '@/v8u/services/pingOneClientServiceV8U';
+import FeatureEnableConfirmationModal from '@/v8u/components/FeatureEnableConfirmationModal';
 
 // Collapsible components
 const CollapsibleSection = styled.div`
