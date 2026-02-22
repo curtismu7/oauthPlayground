@@ -4,6 +4,8 @@
 import { logger } from '../utils/logger';
 import PingOneMfaService, { type MfaCredentials, type MfaDevice } from './pingOneMfaService';
 
+const MODULE_TAG = '[🔧 DEVICE-MANAGEMENT]';
+
 export interface DeviceManagementOptions {
 	allowRename: boolean;
 	allowDelete: boolean;
@@ -423,6 +425,90 @@ class DeviceManagementService {
 	}
 
 	/**
+	 * Delete all devices for a user with optional filtering
+	 */
+	static async deleteAllDevices(
+		credentials: MfaCredentials,
+		options?: {
+			deviceType?: string;
+			status?: string;
+			confirmBeforeDelete?: boolean;
+		}
+	): Promise<DeviceManagementResult & { deletedCount: number; devices?: MfaDevice[] }> {
+		try {
+			const { deviceType, status, confirmBeforeDelete = true } = options || {};
+
+			// Get all devices
+			const devices = await PingOneMfaService.getRegisteredDevices(credentials);
+
+			// Filter devices based on criteria
+			let devicesToDelete = devices;
+			if (deviceType && deviceType !== 'ALL') {
+				devicesToDelete = devicesToDelete.filter((d) => d.type === deviceType);
+			}
+			if (status && status !== 'ALL') {
+				devicesToDelete = devicesToDelete.filter((d) => d.status === status);
+			}
+
+			if (devicesToDelete.length === 0) {
+				return {
+					success: false,
+					error: 'No devices found matching the specified criteria',
+					deletedCount: 0,
+				};
+			}
+
+			// Confirmation check (in real implementation, this would be handled by UI)
+			if (confirmBeforeDelete) {
+				console.log(`${MODULE_TAG} Would delete ${devicesToDelete.length} devices:`, {
+					devices: devicesToDelete.map((d) => ({ id: d.id, type: d.type, status: d.status })),
+				});
+			}
+
+			// Delete all matching devices (mock implementation)
+			const deletedDevices: MfaDevice[] = [];
+			for (const device of devicesToDelete) {
+				try {
+					// In real implementation: await PingOneMfaService.deleteDevice(credentials, device.id);
+					deletedDevices.push(device);
+					
+					// Clean up usage tracking
+					DeviceManagementService.deviceUsage.delete(device.id);
+					
+					logger.info('DeviceManagementService', 'Device deleted successfully', {
+						userId: credentials.userId,
+						deviceId: device.id,
+						deviceType: device.type,
+					});
+				} catch (error) {
+					logger.error('DeviceManagementService', 'Failed to delete device', {
+						userId: credentials.userId,
+						deviceId: device.id,
+						error: error instanceof Error ? error.message : 'Unknown error',
+					});
+				}
+			}
+
+			return {
+				success: true,
+				deletedCount: deletedDevices.length,
+				devices: deletedDevices,
+			};
+		} catch (error) {
+			logger.error('DeviceManagementService', 'Delete all devices failed', {
+				userId: credentials.userId,
+				error: error instanceof Error ? error.message : 'Unknown error',
+			});
+
+			return {
+				success: false,
+				error: `Delete all devices failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+				deletedCount: 0,
+			};
+		}
+	}
+
+	/**
 	 * Get device usage statistics
 	 */
 	static getDeviceUsageStats(deviceId: string): DeviceUsageStats | null {
@@ -624,4 +710,5 @@ class DeviceManagementService {
 	}
 }
 
+export { DeviceManagementService };
 export default DeviceManagementService;

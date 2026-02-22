@@ -528,17 +528,17 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 					},
 					// UTILITY Entries (sorted alphabetically)
 					{
-						id: 'delete-all-devices-utility-v8',
-						path: '/v8/delete-all-devices',
-						label: 'Delete All Devices',
+						id: 'device-management-v8',
+						path: '/v8/device-management',
+						label: 'Device Management',
 						icon: (
-							<ColoredIcon $color="#ef4444">
-								<FiTrash2 />
+							<ColoredIcon $color="#3b82f6">
+								<FiSmartphone />
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge title="Utility to delete all MFA devices for a user with device type filtering">
-								UTILITY
+							<MigrationBadge title="Comprehensive device management with individual and bulk operations">
+								MANAGEMENT
 							</MigrationBadge>
 						),
 					},
