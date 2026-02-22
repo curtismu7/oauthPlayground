@@ -166,9 +166,11 @@ import PingOneAuthentication from './pages/PingOneAuthentication';
 import PingOneAuthenticationCallback from './pages/PingOneAuthenticationCallback';
 import PingOneAuthenticationResult from './pages/PingOneAuthenticationResult';
 import PingOneIdentityMetrics from './pages/PingOneIdentityMetrics';
+import PingOneIdentityMetricsPingUI from './pages/PingOneIdentityMetrics.PingUI';
 import PingOneMockFeatures from './pages/PingOneMockFeatures';
 import PingOneSessionsAPI from './pages/PingOneSessionsAPI';
 import PingOneUserProfile from './pages/PingOneUserProfile';
+import PingOneUserProfilePingUI from './pages/PingOneUserProfile.PingUI';
 import PingOneWebhookViewer from './pages/PingOneWebhookViewer';
 import { PostmanCollectionGenerator } from './pages/PostmanCollectionGenerator';
 import PostmanCollectionGeneratorPingUI from './pages/PostmanCollectionGenerator.PingUI';
@@ -180,6 +182,7 @@ import SDKDocumentation from './pages/sdk-examples/SDKDocumentation';
 import SDKExamplesHome from './pages/sdk-examples/SDKExamplesHome';
 import SDKExamplesHomePingUI from './pages/sdk-examples/SDKExamplesHome.PingUI';
 import HelioMartPasswordReset from './pages/security/HelioMartPasswordReset';
+import HelioMartPasswordResetPingUI from './pages/security/HelioMartPasswordReset.PingUI';
 import TestDemo from './pages/TestDemo';
 import TokenManagement from './pages/TokenManagement';
 import UltimateTokenDisplayDemo from './pages/UltimateTokenDisplayDemo';
@@ -1285,7 +1288,10 @@ const AppRoutes: React.FC = () => {
 									element={<PingOneAuthenticationResult />}
 								/>
 								<Route path="/pingone-mock-features" element={<PingOneMockFeatures />} />
-								<Route path="/pingone-identity-metrics" element={<PingOneIdentityMetrics />} />
+								<Route
+									path="/pingone-identity-metrics"
+									element={<PingOneIdentityMetricsPingUI />}
+								/>
 								<Route path="/pingone-audit-activities" element={<PingOneAuditActivities />} />
 								<Route path="/pingone-webhook-viewer" element={<PingOneWebhookViewer />} />
 								<Route path="/organization-licensing" element={<OrganizationLicensing />} />
@@ -1322,7 +1328,7 @@ const AppRoutes: React.FC = () => {
 								<Route path="/configuration" element={<Configuration />} />
 								<Route path="/documentation" element={<Documentation />} />
 								<Route path="/ping-ai-resources" element={<PingAIResourcesPingUI />} />
-								<Route path="/pingone-user-profile" element={<PingOneUserProfile />} />
+								<Route path="/pingone-user-profile" element={<PingOneUserProfilePingUI />} />
 								<Route path="/worker-token-tester" element={<WorkerTokenTesterPingUI />} />
 								<Route path="/ai-identity-architectures" element={<AIIdentityArchitectures />} />
 								<Route path="/about" element={<About />} />
@@ -1394,7 +1400,10 @@ const AppRoutes: React.FC = () => {
 									path="/advanced-security-settings-comparison"
 									element={<AdvancedSecuritySettingsComparison />}
 								/>
-								<Route path="/security/password-reset" element={<HelioMartPasswordReset />} />
+								<Route
+									path="/helio-mart-password-reset"
+									element={<HelioMartPasswordResetPingUI />}
+								/>
 								{/* <Route path="/tutorials" element={<InteractiveTutorials />} /> */}{' '}
 								{/* Removed - unused tutorial feature */}
 								<Route path="/oauth-oidc-training" element={<OAuthOIDCTraining />} />
