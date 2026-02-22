@@ -40,7 +40,7 @@ const MDIIcon: React.FC<{
 		<i
 			className={combinedClassName}
 			style={{ fontSize: `${size}px`, ...style }}
-			aria-label={ariaLabel}
+			title={ariaLabel}
 			aria-hidden={ariaHidden}
 		></i>
 	);
