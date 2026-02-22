@@ -100,7 +100,7 @@ export const MFADocumentationModalV8: React.FC<MFADocumentationModalV8Props> = (
 
 	const handleDownload = async () => {
 		if (selectedUseCases.size === 0) {
-			alert('Please select at least one use case to download.');
+			console.warn('Please select at least one use case to download.');
 			return;
 		}
 
@@ -114,7 +114,7 @@ export const MFADocumentationModalV8: React.FC<MFADocumentationModalV8Props> = (
 			}
 		} catch (error) {
 			console.error('Failed to download documentation:', error);
-			alert('Failed to download documentation. Please try again.');
+			console.error('Failed to download documentation. Please try again.');
 		}
 	};
 
@@ -185,8 +185,6 @@ export const MFADocumentationModalV8: React.FC<MFADocumentationModalV8Props> = (
 
 	return (
 		<div
-			role="button"
-			tabIndex={0}
 			role="dialog"
 			aria-modal="true"
 			aria-labelledby="mfa-doc-modal-title"
@@ -223,6 +221,11 @@ export const MFADocumentationModalV8: React.FC<MFADocumentationModalV8Props> = (
 					width: '90%',
 				}}
 				onClick={(e) => e.stopPropagation()}
+				onKeyDown={(e) => {
+					if (e.key === 'Enter' || e.key === ' ') {
+						e.stopPropagation();
+					}
+				}}
 			>
 				{/* Header */}
 				<div
