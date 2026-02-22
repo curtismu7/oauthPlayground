@@ -233,7 +233,7 @@ import { DebugLogViewerPopoutV8 } from './v8/pages/DebugLogViewerPopoutV8';
 import DebugLogViewerV8PingUI from './v8/pages/DebugLogViewerV8.PingUI';
 import DeleteAllDevicesUtilityV8 from './v8/pages/DeleteAllDevicesUtilityV8';
 import DeviceAuthenticationDetailsV8 from './v8/pages/DeviceAuthenticationDetailsV8';
-import DeviceManagement from './pages/DeviceManagement.PingUI';
+import DeviceManagementV8PingUI from './pages/DeviceManagementV8.PingUI';
 import { FIDO2RegistrationDocsPageV8 } from './v8/pages/FIDO2RegistrationDocsPageV8';
 import MFADeviceCreateDemoV8 from './v8/pages/MFADeviceCreateDemoV8';
 import { MFAFeatureFlagsAdminV8 } from './v8/pages/MFAFeatureFlagsAdminV8';
@@ -1070,7 +1070,7 @@ const AppRoutes: React.FC = () => {
 									}
 								/>
 								{/* V8 Utilities */}
-								<Route path="/v8/device-management" element={<DeviceManagement />} />
+								<Route path="/v8/device-management" element={<DeviceManagementV8PingUI />} />
 								<Route path="/v8/delete-all-devices" element={<DeleteAllDevicesUtilityV8 />} />
 								<Route path="/v8/debug-logs" element={<DebugLogViewerV8PingUI />} />
 								<Route path="/v8/debug-logs-popout" element={<DebugLogViewerPopoutV8 />} />
