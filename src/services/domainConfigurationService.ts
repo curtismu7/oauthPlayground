@@ -53,18 +53,38 @@ export class DomainConfigurationService {
 
 	/**
 	 * Load configuration from localStorage with fallbacks
-	 * ALWAYS USE api.pingdemo.com - Override any localhost configuration
+	 * Default to api.pingdemo.com but allow user customization
 	 */
 	private loadConfig(): DomainConfig {
-		// ALWAYS USE api.pingdemo.com - Enforce production domain
-		const forcedConfig: DomainConfig = {
+		try {
+			// Try to load from localStorage first (user's custom configuration)
+			const stored = localStorage.getItem(DOMAIN_CONFIG_KEY);
+			if (stored) {
+				const parsed = JSON.parse(stored);
+				const validated = DomainConfigSchema.parse(parsed);
+				console.log(`${MODULE_TAG} Loaded user config from localStorage:`, validated);
+				return validated;
+			}
+		} catch (error) {
+			console.warn(`${MODULE_TAG} Failed to load from localStorage:`, error);
+		}
+
+		// Fallback to environment variables
+		const envConfig = this.getEnvironmentConfig();
+		if (envConfig) {
+			console.log(`${MODULE_TAG} Using environment config:`, envConfig);
+			return envConfig;
+		}
+
+		// Default to api.pingdemo.com (but allow user to change later)
+		const defaultConfig: DomainConfig = {
 			customDomain: 'https://api.pingdemo.com',
 			useCustomDomain: true,
 			enforceHttps: true,
 		};
 
-		console.log(`${MODULE_TAG} Using forced api.pingdemo.com config:`, forcedConfig);
-		return forcedConfig;
+		console.log(`${MODULE_TAG} Using default api.pingdemo.com config:`, defaultConfig);
+		return defaultConfig;
 	}
 
 	/**
