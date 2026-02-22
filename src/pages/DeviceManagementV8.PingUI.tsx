@@ -101,6 +101,42 @@ const DeviceManagementV8PingUI: React.FC = () => {
 	const [isDeleting, setIsDeleting] = useState(false);
 	const [environmentId, setEnvironmentId] = useState<string>('');
 
+	// Load devices from API
+	const loadDevices = useCallback(
+		async (token: string, user: string) => {
+			try {
+				const deviceList = await MFAServiceV8.getRegisteredDevices({
+					environmentId,
+					workerToken: token,
+					username: user,
+				});
+
+				// Transform devices to our interface
+				const transformedDevices: Device[] = deviceList.map((device: unknown) => {
+					const deviceObj = device as Record<string, unknown>;
+					return {
+						id: deviceObj.id as string,
+						type: deviceObj.type as string,
+						status: deviceObj.status as string,
+						name:
+							(deviceObj.name as string) ||
+							(deviceObj.displayName as string) ||
+							`${deviceObj.type} Device`,
+						createdAt: (deviceObj.createdAt as string) || new Date().toISOString(),
+						lastUsed: deviceObj.lastUsed as string,
+					};
+				});
+
+				setDevices(transformedDevices);
+			} catch (error) {
+				console.error('Failed to load devices:', error);
+				toastV8.error('Failed to load devices');
+				setDevices([]);
+			}
+		},
+		[environmentId]
+	);
+
 	// Load initial data
 	useEffect(() => {
 		const loadInitialData = async () => {
@@ -139,39 +175,6 @@ const DeviceManagementV8PingUI: React.FC = () => {
 
 		loadInitialData();
 	}, [loadDevices]);
-
-	// Load devices from API
-	const loadDevices = useCallback(
-		async (token: string, user: string) => {
-			try {
-				const deviceList = await MFAServiceV8.getRegisteredDevices({
-					environmentId,
-					workerToken: token,
-					username: user,
-				});
-
-				// Transform devices to our interface
-				const transformedDevices: Device[] = deviceList.map((device: unknown) => {
-					const deviceObj = device as Record<string, unknown>;
-					return {
-						id: deviceObj.id as string,
-						type: deviceObj.type as string,
-						status: deviceObj.status as string,
-						name: (deviceObj.name as string) || (deviceObj.displayName as string) || `${deviceObj.type} Device`,
-						createdAt: (deviceObj.createdAt as string) || new Date().toISOString(),
-						lastUsed: deviceObj.lastUsed as string,
-					};
-				});
-
-				setDevices(transformedDevices);
-			} catch (error) {
-				console.error('Failed to load devices:', error);
-				toastV8.error('Failed to load devices');
-				setDevices([]);
-			}
-		},
-		[environmentId]
-	);
 
 	// Handle device selection
 	const handleDeviceSelection = useCallback((deviceId: string, selected: boolean) => {
@@ -848,9 +851,16 @@ const DeviceManagementV8PingUI: React.FC = () => {
 								setShowDeleteAllModal(false);
 							}
 						}}
+						onKeyUp={(e) => {
+							if (e.key === 'Escape') {
+								setShowDeleteAllModal(false);
+							}
+						}}
 						onClick={() => setShowDeleteAllModal(false)}
 					>
 						<div
+							role="document"
+							aria-labelledby="delete-all-modal-title"
 							style={{
 								background: 'var(--ping-secondary-color, #f8f9fa)',
 								borderRadius: 'var(--ping-border-radius-lg, 0.5rem)',
@@ -860,6 +870,16 @@ const DeviceManagementV8PingUI: React.FC = () => {
 								maxHeight: '80vh',
 								overflow: 'auto',
 								boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)',
+							}}
+							onKeyDown={(e) => {
+								if (e.key === 'Escape') {
+									setShowDeleteAllModal(false);
+								}
+							}}
+							onKeyUp={(e) => {
+								if (e.key === 'Escape') {
+									setShowDeleteAllModal(false);
+								}
 							}}
 							onClick={(e) => e.stopPropagation()}
 						>
