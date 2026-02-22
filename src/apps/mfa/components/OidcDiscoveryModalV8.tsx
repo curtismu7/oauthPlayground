@@ -85,6 +85,11 @@ export const OidcDiscoveryModalV8: React.FC<OidcDiscoveryModalV8Props> = ({
 					justifyContent: 'center',
 				}}
 				onClick={onClose}
+				onKeyDown={(e) => {
+					if (e.key === 'Enter' || e.key === ' ') {
+						onClose();
+					}
+				}}
 			/>
 
 			{/* Modal */}
@@ -107,6 +112,11 @@ export const OidcDiscoveryModalV8: React.FC<OidcDiscoveryModalV8Props> = ({
 					padding: '24px',
 				}}
 				onClick={(e) => e.stopPropagation()}
+				onKeyDown={(e) => {
+					if (e.key === 'Enter' || e.key === ' ') {
+						e.stopPropagation();
+					}
+				}}
 			>
 				{/* Header */}
 				<div style={{ marginBottom: '16px' }}>

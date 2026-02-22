@@ -74,8 +74,11 @@ export const TokenOperationsEducationModalV8: React.FC<TokenOperationsEducationM
 					backdropFilter: 'blur(4px)',
 				}}
 				onClick={onClose}
-				role="button"
-				tabIndex={0}
+				onKeyDown={(e) => {
+					if (e.key === 'Enter' || e.key === ' ') {
+						onClose();
+					}
+				}}
 				aria-label="Close modal"
 			/>
 
