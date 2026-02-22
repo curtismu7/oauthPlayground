@@ -38,15 +38,15 @@ import {
 	SpecVersionServiceV8,
 } from '@/v8/services/specVersionServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { AdvancedOAuthFeatures } from '../../unified/components/AdvancedOAuthFeatures';
+import { AdvancedOAuthFeatures } from '@/apps/unified/components/AdvancedOAuthFeatures';
 import CredentialsFormV8U from '@/v8u/components/CredentialsFormV8U';
-import { FlowGuidanceSystem } from '../components/FlowGuidanceSystem';
-import { MobileResponsiveWrapper } from '../components/MobileResponsiveWrapper';
-import { SecurityScorecard } from '../components/SecurityScorecard';
-import { UnifiedFlowSteps } from '../components/UnifiedFlowSteps';
-import { UnifiedNavigationV8U } from '../components/UnifiedNavigationV8U';
-import { FlowSettingsServiceV8U } from '../services/flowSettingsServiceV8U';
-import { UnifiedFlowIntegrationV8U } from '../services/unifiedFlowIntegrationV8U';
+import { FlowGuidanceSystem } from '@/apps/flows/components/FlowGuidanceSystem';
+import { MobileResponsiveWrapper } from '@/apps/unified/components/MobileResponsiveWrapper';
+import { SecurityScorecard } from '@/v8u/components/SecurityScorecard';
+import { UnifiedFlowSteps } from '@/v8u/components/UnifiedFlowSteps';
+import { UnifiedNavigationV8U } from '@/v8u/components/UnifiedNavigationV8U';
+import { FlowSettingsServiceV8U } from '@/v8u/services/flowSettingsServiceV8U';
+import { UnifiedFlowIntegrationServiceV8U } from '@/v8u/services/unifiedFlowIntegrationV8U';
 import {
 	type SharedOAuthCredentials,
 	type UnifiedOAuthCredentials,
