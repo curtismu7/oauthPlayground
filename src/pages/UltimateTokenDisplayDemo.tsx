@@ -1,7 +1,7 @@
 // src/pages/UltimateTokenDisplayDemo.tsx
 // Demo page showcasing the UltimateTokenDisplay component
 import React, { useState } from 'react';
-import { FiRefreshCw, FiSettings, FiZap } from 'react-icons/fi';
+import { FiRefreshCw, FiSettings, FiZap, FiSave, FiUpload } from 'react-icons/fi';
 import styled from 'styled-components';
 import UltimateTokenDisplay from '../components/UltimateTokenDisplay';
 import { v4ToastManager } from '../utils/v4ToastMessages';
@@ -159,6 +159,7 @@ const UltimateTokenDisplayDemo: React.FC = () => {
 		'detailed'
 	);
 	const [flowType, setFlowType] = useState<'oauth' | 'oidc' | 'token-exchange'>('oauth');
+	const [tokenEndpointAuth, setTokenEndpointAuth] = useState<string>('client_secret_basic');
 
 	// Feature toggles
 	const [showCopyButtons, setShowCopyButtons] = useState(true);
@@ -170,6 +171,48 @@ const UltimateTokenDisplayDemo: React.FC = () => {
 	const [showSyntaxHighlighting, _setShowSyntaxHighlighting] = useState(false);
 	const [defaultMasked, setDefaultMasked] = useState(false);
 
+	// Load saved configuration on mount
+	React.useEffect(() => {
+		const savedConfig = localStorage.getItem('ultimate-token-display-config');
+		if (savedConfig) {
+			try {
+				const config = JSON.parse(savedConfig);
+				if (config.tokenEndpointAuth) {
+					setTokenEndpointAuth(config.tokenEndpointAuth);
+				}
+				if (config.selectedTokenSet) {
+					setSelectedTokenSet(config.selectedTokenSet);
+				}
+				if (config.displayMode) {
+					setDisplayMode(config.displayMode);
+				}
+				if (config.flowType) {
+					setFlowType(config.flowType);
+				}
+				if (config.showCopyButtons !== undefined) {
+					setShowCopyButtons(config.showCopyButtons);
+				}
+				if (config.showDecodeButtons !== undefined) {
+					setShowDecodeButtons(config.showDecodeButtons);
+				}
+				if (config.showMaskToggle !== undefined) {
+					setShowMaskToggle(config.showMaskToggle);
+				}
+				if (config.showTokenManagement !== undefined) {
+					setShowTokenManagement(config.showTokenManagement);
+				}
+				if (config.showMetadata !== undefined) {
+					setShowMetadata(config.showMetadata);
+				}
+				if (config.defaultMasked !== undefined) {
+					setDefaultMasked(config.defaultMasked);
+				}
+			} catch (error) {
+				console.error('Failed to load saved configuration:', error);
+			}
+		}
+	}, []);
+
 	const handleTokenAnalyze = (tokenType: string, _token: string) => {
 		v4ToastManager.showInfo(`Custom analysis requested for ${tokenType} token`);
 	};
@@ -178,6 +221,82 @@ const UltimateTokenDisplayDemo: React.FC = () => {
 		// Simulate generating new tokens with different timestamps
 		const _timestamp = Date.now();
 		v4ToastManager.showSuccess('Generated new mock tokens with fresh timestamps');
+	};
+
+	const saveConfiguration = () => {
+		const config = {
+			tokenEndpointAuth,
+			selectedTokenSet,
+			displayMode,
+			flowType,
+			showCopyButtons,
+			showDecodeButtons,
+			showMaskToggle,
+			showTokenManagement,
+			showMetadata,
+			defaultMasked,
+		};
+		
+		localStorage.setItem('ultimate-token-display-config', JSON.stringify(config));
+		v4ToastManager.showSuccess('Configuration saved successfully');
+	};
+
+	const importConfiguration = () => {
+		const input = document.createElement('input');
+		input.type = 'file';
+		input.accept = '.json';
+		
+		input.onchange = (event) => {
+			const file = (event.target as HTMLInputElement).files?.[0];
+			if (file) {
+				const reader = new FileReader();
+				reader.onload = (e) => {
+					try {
+						const config = JSON.parse(e.target?.result as string);
+						
+						// Restore configuration
+						if (config.tokenEndpointAuth) {
+							setTokenEndpointAuth(config.tokenEndpointAuth);
+						}
+						if (config.selectedTokenSet) {
+							setSelectedTokenSet(config.selectedTokenSet);
+						}
+						if (config.displayMode) {
+							setDisplayMode(config.displayMode);
+						}
+						if (config.flowType) {
+							setFlowType(config.flowType);
+						}
+						if (config.showCopyButtons !== undefined) {
+							setShowCopyButtons(config.showCopyButtons);
+						}
+						if (config.showDecodeButtons !== undefined) {
+							setShowDecodeButtons(config.showDecodeButtons);
+						}
+						if (config.showMaskToggle !== undefined) {
+							setShowMaskToggle(config.showMaskToggle);
+						}
+						if (config.showTokenManagement !== undefined) {
+							setShowTokenManagement(config.showTokenManagement);
+						}
+						if (config.showMetadata !== undefined) {
+							setShowMetadata(config.showMetadata);
+						}
+						if (config.defaultMasked !== undefined) {
+							setDefaultMasked(config.defaultMasked);
+						}
+						
+						v4ToastManager.showSuccess('Configuration imported successfully');
+					} catch (error) {
+						console.error('Failed to import configuration:', error);
+						v4ToastManager.showError('Failed to import configuration. Invalid file format.');
+					}
+				};
+				reader.readAsText(file);
+			}
+		};
+		
+		input.click();
 	};
 
 	return (
@@ -224,6 +343,17 @@ const UltimateTokenDisplayDemo: React.FC = () => {
 								<option value="oauth">OAuth 2.0</option>
 								<option value="oidc">OpenID Connect</option>
 								<option value="token-exchange">Token Exchange</option>
+							</Select>
+						</ControlGroup>
+
+						<ControlGroup>
+							<ControlLabel>Token Endpoint Authentication</ControlLabel>
+							<Select value={tokenEndpointAuth} onChange={(e) => setTokenEndpointAuth(e.target.value)}>
+								<option value="client_secret_basic">Client Secret Basic</option>
+								<option value="client_secret_post">Client Secret Post</option>
+								<option value="client_secret_jwt">Client Secret JWT</option>
+								<option value="private_key_jwt">Private Key JWT</option>
+								<option value="none">None (Public Client)</option>
 							</Select>
 						</ControlGroup>
 
@@ -294,10 +424,18 @@ const UltimateTokenDisplayDemo: React.FC = () => {
 						</ControlGroup>
 					</ControlGrid>
 
-					<div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem' }}>
+					<div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
 						<Button onClick={generateNewTokens}>
 							<FiRefreshCw size={16} />
 							Generate New Tokens
+						</Button>
+						<Button onClick={saveConfiguration}>
+							<FiSave size={16} />
+							Save Configuration
+						</Button>
+						<Button onClick={importConfiguration}>
+							<FiUpload size={16} />
+							Import Configuration
 						</Button>
 					</div>
 				</ControlPanel>
