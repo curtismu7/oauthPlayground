@@ -85,7 +85,7 @@ const MDIIcon: React.FC<{
 // Main Component
 const LoginPingUI: React.FC = () => {
 	const { login, isAuthenticated, user } = useAuth();
-	const { addNotification } = useNotifications();
+	const { showSuccess, showError } = useNotifications();
 	const { scrollToTopAfterAction } = usePageScroll();
 	const location = useLocation();
 
@@ -122,14 +122,14 @@ const LoginPingUI: React.FC = () => {
 
 	// Load saved credentials on mount
 	useEffect(() => {
-		const savedCredentials = SharedCredentialsServiceV8.getCredentials();
+		const savedCredentials = SharedCredentialsServiceV8.loadSharedCredentialsSync();
 		if (savedCredentials) {
 			setFormData({
 				clientId: savedCredentials.clientId || '',
 				clientSecret: savedCredentials.clientSecret || '',
 				environmentId: savedCredentials.environmentId || '',
-				redirectUri: savedCredentials.redirectUri || getCallbackUrlForFlow('authorization_code'),
-				scopes: savedCredentials.scopes || 'openid profile email',
+				redirectUri: getCallbackUrlForFlow('authorization_code'), // Use default since not in shared credentials
+				scopes: 'openid profile email', // Use default since not in shared credentials
 			});
 		}
 
@@ -165,16 +165,14 @@ const LoginPingUI: React.FC = () => {
 			}
 
 			// Save credentials
-			SharedCredentialsServiceV8.saveCredentials({
+			SharedCredentialsServiceV8.saveSharedCredentialsSync({
 				clientId: formData.clientId,
 				clientSecret: formData.clientSecret,
 				environmentId: formData.environmentId,
-				redirectUri: formData.redirectUri,
-				scopes: formData.scopes,
 			});
 
 			// Save environment ID
-			EnvironmentIdServiceV8.setEnvironmentId(formData.environmentId);
+			EnvironmentIdServiceV8.saveEnvironmentId(formData.environmentId);
 
 			// Attempt login
 			await login({
@@ -183,20 +181,12 @@ const LoginPingUI: React.FC = () => {
 				environmentId: formData.environmentId,
 			});
 
-			addNotification({
-				type: 'success',
-				message: 'Successfully logged in!',
-				duration: 3000,
-			});
+			showSuccess('Successfully logged in!');
 
 		} catch (err) {
 			const errorMessage = err instanceof Error ? err.message : 'Login failed';
 			setError(errorMessage);
-			addNotification({
-				type: 'error',
-				message: errorMessage,
-				duration: 5000,
-			});
+			showError(errorMessage);
 		} finally {
 			setIsLoading(false);
 		}
@@ -205,17 +195,9 @@ const LoginPingUI: React.FC = () => {
 	const copyToClipboard = async (text: string, label: string) => {
 		try {
 			await navigator.clipboard.writeText(text);
-			addNotification({
-				type: 'success',
-				message: `${label} copied to clipboard`,
-				duration: 2000,
-			});
+			showSuccess(`${label} copied to clipboard!`);
 		} catch (err) {
-			addNotification({
-				type: 'error',
-				message: 'Failed to copy to clipboard',
-				duration: 3000,
-			});
+			showError('Failed to copy to clipboard');
 		}
 	};
 
