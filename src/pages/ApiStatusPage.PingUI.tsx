@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 
 interface HealthData {
 	status: string;
@@ -104,6 +104,12 @@ const formatUptime = (seconds: number): string => {
 };
 
 const ApiStatusPage: React.FC = () => {
+	// Ref to prevent infinite loops - circuit breaker pattern
+	const isFetchingRef = useRef(false);
+	const lastFetchTimeRef = useRef<number>(0);
+	const consecutiveErrorsRef = useRef<number>(0);
+	const circuitBreakerRef = useRef<boolean>(false);
+	
 	const [servers, setServers] = useState<ServerStatus[]>([
 		{
 			name: 'Frontend Server',
@@ -126,6 +132,7 @@ const ApiStatusPage: React.FC = () => {
 	]);
 	const [loading, setLoading] = useState(true);
 	const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
+	const [errorCount, setErrorCount] = useState<number>(0);
 
 	const checkServerHealth = useCallback(async (server: ServerStatus): Promise<ServerStatus> => {
 		const updatedServer = { ...server, status: 'checking' as const };
@@ -216,8 +223,27 @@ const ApiStatusPage: React.FC = () => {
 	}, []);
 
 	const fetchHealthData = useCallback(async () => {
+		// Circuit breaker: prevent infinite loops and rate limiting
+		const now = Date.now();
+		
+		// Skip if circuit breaker is open (too many consecutive errors)
+		if (circuitBreakerRef.current) {
+			console.log('[ApiStatusPage] Circuit breaker OPEN - skipping fetch');
+			return;
+		}
+		
+		// Skip if already fetching or called too recently (rate limiting)
+		if (isFetchingRef.current || (now - lastFetchTimeRef.current) < 2000) {
+			console.log('[ApiStatusPage] Skipping fetch - already fetching or too soon');
+			return;
+		}
+
+		isFetchingRef.current = true;
+		lastFetchTimeRef.current = now;
+
 		try {
 			setLoading(true);
+			console.log('[ApiStatusPage] Starting health data fetch...');
 
 			// Check all servers in parallel
 			const serverPromises = servers.map((server) => checkServerHealth(server));
@@ -225,17 +251,65 @@ const ApiStatusPage: React.FC = () => {
 
 			setServers(updatedServers);
 			setLastRefresh(new Date());
+			
+			// Reset error counters on success
+			consecutiveErrorsRef.current = 0;
+			circuitBreakerRef.current = false;
+			setErrorCount(0);
+			
+			console.log('[ApiStatusPage] Health data fetch completed successfully');
 		} catch (err) {
-			console.error('Failed to fetch server health data:', err);
+			console.error('[ApiStatusPage] Failed to fetch server health data:', err);
+			
+			// Increment error counters
+			consecutiveErrorsRef.current += 1;
+			setErrorCount(prev => prev + 1);
+			
+			// Open circuit breaker after 3 consecutive errors
+			if (consecutiveErrorsRef.current >= 3) {
+				circuitBreakerRef.current = true;
+				console.warn('[ApiStatusPage] Circuit breaker OPEN due to consecutive errors');
+				
+				// Auto-reset circuit breaker after 30 seconds
+				setTimeout(() => {
+					circuitBreakerRef.current = false;
+					consecutiveErrorsRef.current = 0;
+					console.log('[ApiStatusPage] Circuit breaker RESET - retrying allowed');
+				}, 30000);
+			}
 		} finally {
 			setLoading(false);
+			isFetchingRef.current = false;
 		}
-	}, [servers, checkServerHealth]);
+	}, []); // Remove servers dependency to prevent infinite loop
 
 	useEffect(() => {
 		fetchHealthData();
 		// biome-ignore lint/correctness/useExhaustiveDependencies: Only run once on mount
-	}, [fetchHealthData]);
+	}, []);
+
+	// Auto-refresh every 30 seconds with loop prevention
+	useEffect(() => {
+		const interval = setInterval(() => {
+			// Only refresh if not currently loading and not recently fetched
+			if (!loading && !isFetchingRef.current) {
+				fetchHealthData();
+			}
+		}, 30000); // 30 seconds
+
+		return () => clearInterval(interval);
+	}, [loading, fetchHealthData]);
+
+	// Manual refresh function
+	const handleManualRefresh = () => {
+		console.log('[ApiStatusPage] Manual refresh triggered - resetting circuit breaker');
+		// Reset the circuit breaker and error counters for manual refresh
+		circuitBreakerRef.current = false;
+		consecutiveErrorsRef.current = 0;
+		lastFetchTimeRef.current = 0;
+		setErrorCount(0);
+		fetchHealthData();
+	};
 
 	// Style functions
 	const getPageContainerStyle = () => ({
@@ -414,7 +488,7 @@ const ApiStatusPage: React.FC = () => {
 					<button
 						type="button"
 						style={getRefreshButtonStyle()}
-						onClick={fetchHealthData}
+						onClick={handleManualRefresh}
 						disabled={loading}
 						onMouseEnter={(e) => {
 							if (!loading) {
