@@ -35,6 +35,7 @@ import { NotificationContainer, NotificationProvider } from './hooks/useNotifica
 import AIIdentityArchitectures from './pages/AIIdentityArchitectures';
 import ApplicationGeneratorPingUI from './pages/ApplicationGenerator.PingUI';
 import AnalyticsPingUI from './pages/Analytics.PingUI';
+import Callback from './pages/Callback';
 import ClientGenerator from './pages/ClientGenerator';
 import ConfigurationPingUI from './pages/Configuration.PingUI';
 import DocumentationPingUI from './pages/Documentation.PingUI';
