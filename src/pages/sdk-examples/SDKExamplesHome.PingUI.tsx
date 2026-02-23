@@ -164,10 +164,10 @@ const SDKExamplesHomePingUI: React.FC = () => {
 	const [showTokenConfig, setShowTokenConfig] = useState(false);
 	const [showSilentApiConfig, setShowSilentApiConfig] = useState(false);
 
-	const { globalTokenStatus } = useGlobalWorkerToken();
+	const globalTokenStatus = useGlobalWorkerToken();
 
 	// Check if worker token is available
-	const hasWorkerToken = globalTokenStatus.isAvailable;
+	const hasWorkerToken = globalTokenStatus?.isValid || false;
 
 	return (
 		<div className="end-user-nano">
