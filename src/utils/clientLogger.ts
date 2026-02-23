@@ -1,4 +1,15 @@
-export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
+/**
+ * Client-side logging utility using unified logging system
+ * 
+ * Provides centralized client-side logging with:
+ * - Consistent formatting with server logs
+ * - Structured context information
+ * - Disk logging via server endpoint
+ * - Console output with colors
+ * - Performance metrics
+ */
+
+import { createLogger, LogCategory, LogContext } from './unifiedLogger';
 
 // Configuration for logging behavior
 const LOG_CONFIG = {
@@ -7,13 +18,13 @@ const LOG_CONFIG = {
 	// Enable/disable disk logging via server endpoint
 	diskEnabled: true,
 	// Minimum level to log to disk (debug, info, warn, error)
-	diskMinLevel: 'info' as LogLevel,
+	diskMinLevel: 'info' as 'debug' | 'info' | 'warn' | 'error',
 	// Tags that should always be logged to disk regardless of level
 	forceDiskTags: ['[ERROR]', '[AuthModal]', '[FlowState]', '[FlowContextService]', '[QRCodeService]', '[CredentialBackup]'],
 };
 
 // Check if a message should be logged to disk based on level and tags
-function shouldLogToDisk(level: LogLevel, message: string): boolean {
+function shouldLogToDisk(level: 'debug' | 'info' | 'warn' | 'error', message: string): boolean {
 	if (!LOG_CONFIG.diskEnabled) return false;
 	
 	// Check minimum level
@@ -27,20 +38,39 @@ function shouldLogToDisk(level: LogLevel, message: string): boolean {
 	return LOG_CONFIG.forceDiskTags.some(tag => message.includes(tag));
 }
 
+// Create client logger instance
+const clientLogger = createLogger('CLIENT');
+
 export async function clientLog(
-	level: LogLevel,
+	level: 'debug' | 'info' | 'warn' | 'error',
 	message: string,
 	meta?: Record<string, unknown>
 ): Promise<void> {
 	try {
 		const prefix = `[client:${level}]`;
+		const fullMessage = `${prefix} ${message}`;
 		
-		// Console logging (always enabled for now, but can be disabled)
+		// Log to console using unified logger
 		if (LOG_CONFIG.consoleEnabled) {
-			if (level === 'debug') console.debug(prefix, message, meta || {});
-			else if (level === 'info') console.info(prefix, message, meta || {});
-			else if (level === 'warn') console.warn(prefix, message, meta || {});
-			else console.error(prefix, message, meta || {});
+			const context: LogContext = {
+				category: 'CLIENT',
+				...meta,
+			};
+			
+			switch (level) {
+				case 'debug':
+					clientLogger.debug(fullMessage, context);
+					break;
+				case 'info':
+					clientLogger.info(fullMessage, context);
+					break;
+				case 'warn':
+					clientLogger.warn(fullMessage, context);
+					break;
+				case 'error':
+					clientLogger.error(fullMessage, context);
+					break;
+			}
 		}
 
 		// Disk logging via server endpoint
@@ -48,7 +78,12 @@ export async function clientLog(
 			await fetch('/__client-log', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ level, message, meta, timestamp: new Date().toISOString() }),
+				body: JSON.stringify({ 
+					level, 
+					message: fullMessage, 
+					meta, 
+					timestamp: new Date().toISOString() 
+				}),
 				keepalive: true,
 			}).catch(() => {});
 		}
@@ -65,3 +100,5 @@ export const clientError = (message: string, meta?: Record<string, unknown>) => 
 export function updateLogConfig(config: Partial<typeof LOG_CONFIG>) {
 	Object.assign(LOG_CONFIG, config);
 }
+
+export default clientLogger;
