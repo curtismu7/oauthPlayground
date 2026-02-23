@@ -25,6 +25,9 @@
 
 import React, { useState } from 'react';
 import { StepActionButtonsProps } from '@/v8/types/stepNavigation';
+import BootstrapButton from '@/components/bootstrap/BootstrapButton';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import '../styles/bootstrap/pingone-bootstrap.css';
 
 const MODULE_TAG = '[🔘 STEP-BUTTONS-V8]';
 
@@ -90,44 +93,43 @@ export const StepActionButtonsV8: React.FC<
 
 	return (
 		<div
-			className={`step-action-buttons-v8 ${className}`}
+			className={`step-action-buttons-v8 d-flex justify-content-end align-items-center gap-3 p-2 mt-3 ${className}`}
 			onKeyDown={handleKeyDown}
 			role="group"
 			aria-label="Step navigation buttons"
 		>
 			{/* Previous Button */}
 			{!hidePreviousButton && (
-				<button
-					type="button"
-					className={`btn btn-previous ${!canGoPrevious ? 'disabled' : ''}`}
+				<BootstrapButton
+					variant="secondary"
 					onClick={handlePreviousClick}
 					disabled={!canGoPrevious}
 					aria-label="Go to previous step"
 					title={canGoPrevious ? 'Go to previous step (Arrow Left)' : 'Cannot go to previous step'}
+					className="me-auto"
 				>
-					<span className="btn-icon">◀</span>
-					<span className="btn-text">Previous</span>
-				</button>
+					<span>◀</span>
+					<span>Previous</span>
+				</BootstrapButton>
 			)}
 
 			{children}
 
 			{/* Next/Final Button */}
 			{hideNextButton ? null : isLastStep ? (
-				<button
-					type="button"
-					className="btn btn-final"
+				<BootstrapButton
+					variant="success"
 					onClick={handleFinalClick}
 					aria-label={finalLabel}
 					title={finalLabel}
+					whiteBorder={true}
 				>
-					<span className="btn-text">{finalLabel}</span>
-				</button>
+					<span>{finalLabel}</span>
+				</BootstrapButton>
 			) : (
-				<div className="next-button-wrapper">
-					<button
-						type="button"
-						className={`btn btn-next ${isNextDisabled ? 'disabled' : ''}`}
+				<div className="next-button-wrapper position-relative">
+					<BootstrapButton
+						variant="success"
 						onClick={handleNextClick}
 						disabled={isNextDisabled}
 						aria-label={nextLabel}
@@ -137,14 +139,15 @@ export const StepActionButtonsV8: React.FC<
 								? `${nextLabel} (disabled: ${nextDisabledReason || 'validation failed'})`
 								: `${nextLabel} (Arrow Right)`
 						}
+						whiteBorder={true}
 						onMouseEnter={() => isNextDisabled && setShowTooltip(true)}
 						onMouseLeave={() => setShowTooltip(false)}
 						onFocus={() => isNextDisabled && setShowTooltip(true)}
 						onBlur={() => setShowTooltip(false)}
 					>
-						<span className="btn-text">{nextLabel}</span>
-						<span className="btn-icon">▶</span>
-					</button>
+						<span>{nextLabel}</span>
+						<span>▶</span>
+					</BootstrapButton>
 
 					{/* Tooltip for disabled state */}
 					{isNextDisabled && showTooltip && nextDisabledReason && (
@@ -155,117 +158,9 @@ export const StepActionButtonsV8: React.FC<
 				</div>
 			)}
 
+			{/* Bootstrap tooltip styles */}
 			<style>{`
-				.step-action-buttons-v8 {
-					display: flex;
-					gap: 12px;
-					justify-content: flex-end;
-					align-items: center;
-					padding: 8px 0;
-					margin-top: 12px;
-				}
-
-				.btn {
-					display: flex;
-					align-items: center;
-					gap: 8px;
-					padding: 10px 20px;
-					border: none;
-					border-radius: 6px;
-					font-size: 14px;
-					font-weight: 500;
-					cursor: pointer;
-					transition: all 0.2s ease;
-					outline: none;
-				}
-
-				.btn:focus-visible {
-					outline: 2px solid #2196f3;
-					outline-offset: 2px;
-				}
-
-				/* Previous Button */
-				.btn-previous {
-					background: #f5f5f5;
-					color: #333;
-					border: 1px solid #ddd;
-					margin-right: auto;
-				}
-
-				.btn-previous:hover:not(.disabled) {
-					background: #e8e8e8;
-					border-color: #bbb;
-				}
-
-				.btn-previous:active:not(.disabled) {
-					transform: translateY(1px);
-				}
-
-				.btn-previous.disabled {
-					background: #f5f5f5;
-					color: #999;
-					cursor: not-allowed;
-					opacity: 0.5;
-				}
-
-				/* Next Button */
-				.next-button-wrapper {
-					position: relative;
-					display: flex;
-					justify-content: flex-end;
-					flex: 0 0 auto;
-					min-width: 200px;
-				}
-
-				.btn-next {
-					width: 100%;
-					background: #10b981;
-					color: white;
-					border: none;
-				}
-
-				.btn-next:hover:not(.disabled) {
-					background: #059669;
-					box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
-					transform: translateY(-1px);
-				}
-
-				.btn-next:active:not(.disabled) {
-					transform: translateY(0);
-				}
-
-				.btn-next.disabled {
-					background: #e0e0e0;
-					color: #9e9e9e;
-					cursor: not-allowed;
-					opacity: 0.6;
-				}
-
-				/* Final Button */
-				.btn-final {
-					background: #4caf50;
-					color: white;
-					border: none;
-					padding: 12px 20px;
-					font-size: 14px;
-					font-weight: 600;
-					border-radius: 6px;
-					cursor: pointer;
-					transition: all 0.2s ease;
-				}
-
-				.btn-final:hover {
-					background: #45a049;
-					box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
-					transform: translateY(-1px);
-				}
-
-				.btn-final:active {
-					transform: translateY(0);
-				}
-
-				/* Tooltip */
-				.tooltip {
+				.next-button-wrapper .tooltip {
 					position: absolute;
 					bottom: 100%;
 					left: 50%;
@@ -282,7 +177,7 @@ export const StepActionButtonsV8: React.FC<
 					animation: slideUp 0.2s ease;
 				}
 
-				.tooltip::after {
+				.next-button-wrapper .tooltip::after {
 					content: '';
 					position: absolute;
 					top: 100%;
@@ -301,15 +196,6 @@ export const StepActionButtonsV8: React.FC<
 						opacity: 1;
 						transform: translateX(-50%) translateY(0);
 					}
-				}
-
-				.btn-icon {
-					display: inline-block;
-					font-size: 12px;
-				}
-
-				.btn-text {
-					display: inline-block;
 				}
 
 				/* Mobile responsive */

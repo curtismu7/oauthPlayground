@@ -22,6 +22,9 @@ import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { MFADocumentationModalV8 } from './MFADocumentationModalV8';
 import { ApiDisplayCheckbox } from './SuperSimpleApiDisplayV8';
+import BootstrapButton from '@/components/bootstrap/BootstrapButton';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import '../../../styles/bootstrap/pingone-bootstrap.css';
 
 interface MFANavigationV8Props {
 	/** Current page identifier for highlighting */
@@ -87,138 +90,74 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 
 	return (
 		<>
-			<div
-				style={{
-					display: 'flex',
-					justifyContent: 'space-between',
-					alignItems: 'center',
-					marginBottom: '16px',
-					padding: '12px 16px',
-					background: 'white',
-					border: '1px solid #e5e7eb',
-					borderRadius: '8px',
-					boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-				}}
-			>
+			<div className="d-flex justify-content-between align-items-center mb-3 p-3 bg-white border rounded-2 shadow-sm">
 				<div
-					className="mfa-nav-links"
-					style={{
-						marginBottom: 0,
-						display: 'flex',
-						gap: '6px',
-						flex: 1,
-						alignItems: 'center',
-						width: '100%',
-					}}
+					className="mfa-nav-links mb-0 d-flex gap-2 flex-1 align-items-center w-100"
 				>
-					<button
-						type="button"
+					<BootstrapButton
+						variant={currentPage === 'hub' ? 'primary' : 'secondary'}
 						onClick={handleBackToMain}
-						className={`nav-link-btn nav-btn-hub ${currentPage === 'hub' ? 'active' : ''}`}
+						className={`flex-1 ${currentPage === 'hub' ? 'border-white' : ''}`}
 						title={isUnifiedFlow ? 'Restart Unified Flow' : 'Go to MFA Hub'}
-						style={{
-							fontWeight: currentPage === 'hub' ? '600' : '500',
-							flex: 1,
-							background: currentPage === 'hub' ? '#3b82f6' : '#f3f4f6',
-							color: currentPage === 'hub' ? 'white' : '#1f2937',
-							border: '2px solid #3b82f6',
-							boxShadow: currentPage === 'hub' ? '0 0 0 3px rgba(59, 130, 246, 0.3)' : 'none',
-						}}
+						whiteBorder={currentPage === 'hub'}
 					>
 						🏠 {isUnifiedFlow ? 'Restart Flow' : 'MFA Hub'}
-					</button>
-					<button
-						type="button"
+					</BootstrapButton>
+					<BootstrapButton
+						variant={currentPage === 'management' ? 'success' : 'secondary'}
 						onClick={() => navigate('/v8/mfa-device-management')}
-						className={`nav-link-btn nav-btn-management ${currentPage === 'management' ? 'active' : ''}`}
+						className={`flex-1 ${currentPage === 'management' ? 'border-white' : ''}`}
 						title="Manage MFA Devices"
-						style={{
-							fontWeight: currentPage === 'management' ? '600' : '500',
-							flex: 1,
-							background: currentPage === 'management' ? '#10b981' : '#f3f4f6',
-							color: currentPage === 'management' ? 'white' : '#1f2937',
-							border: '2px solid #10b981',
-							boxShadow:
-								currentPage === 'management' ? '0 0 0 3px rgba(16, 185, 129, 0.3)' : 'none',
-						}}
+						whiteBorder={currentPage === 'management'}
 					>
 						🔧 Device Management
-					</button>
-					<button
-						type="button"
+					</BootstrapButton>
+					<BootstrapButton
+						variant={currentPage === 'ordering' ? 'warning' : 'secondary'}
 						onClick={() => navigate('/v8/mfa-device-ordering')}
-						className={`nav-link-btn nav-btn-ordering ${currentPage === 'ordering' ? 'active' : ''}`}
+						className={`flex-1 ${currentPage === 'ordering' ? 'border-white' : ''}`}
 						title="Configure MFA device ordering"
-						style={{
-							fontWeight: currentPage === 'ordering' ? '600' : '500',
-							flex: 1,
-							background: currentPage === 'ordering' ? '#f59e0b' : '#f3f4f6',
-							color: currentPage === 'ordering' ? 'white' : '#1f2937',
-							border: '2px solid #f59e0b',
-							boxShadow: currentPage === 'ordering' ? '0 0 0 3px rgba(245, 158, 11, 0.3)' : 'none',
-						}}
+						whiteBorder={currentPage === 'ordering'}
 					>
 						📋 Device Ordering
-					</button>
-					<button
-						type="button"
+					</BootstrapButton>
+					<BootstrapButton
+						variant={currentPage === 'reporting' ? 'info' : 'secondary'}
 						onClick={() => navigate('/v8/mfa-reporting')}
-						className={`nav-link-btn nav-btn-reporting ${currentPage === 'reporting' ? 'active' : ''}`}
+						className={`flex-1 ${currentPage === 'reporting' ? 'border-white' : ''}`}
 						title="View MFA Reports"
-						style={{
-							fontWeight: currentPage === 'reporting' ? '600' : '500',
-							flex: 1,
-							background: currentPage === 'reporting' ? '#8b5cf6' : '#f3f4f6',
-							color: currentPage === 'reporting' ? 'white' : '#1f2937',
-							border: '2px solid #8b5cf6',
-							boxShadow: currentPage === 'reporting' ? '0 0 0 3px rgba(139, 92, 246, 0.3)' : 'none',
-						}}
+						whiteBorder={currentPage === 'reporting'}
 					>
 						📊 Reporting
-					</button>
-					<button
-						type="button"
+					</BootstrapButton>
+					<BootstrapButton
+						variant={currentPage === 'settings' ? 'primary' : 'secondary'}
 						onClick={() => navigate('/v8/mfa-config')}
-						className={`nav-link-btn ${currentPage === 'settings' ? 'active' : ''}`}
+						className={`flex-1 ${currentPage === 'settings' ? 'border-white' : ''}`}
 						title="MFA Configuration"
-						style={{
-							fontWeight: currentPage === 'settings' ? '600' : '500',
-							flex: 1,
-							background: currentPage === 'settings' ? '#06b6d4' : '#f3f4f6',
-							color: currentPage === 'settings' ? 'white' : '#1f2937',
-							border: '2px solid #06b6d4',
-							boxShadow: currentPage === 'settings' ? '0 0 0 3px rgba(6, 182, 212, 0.3)' : 'none',
-						}}
+						whiteBorder={currentPage === 'settings'}
 					>
 						⚙️ MFA Config
-					</button>
-					<button
-						type="button"
+					</BootstrapButton>
+					<BootstrapButton
+						variant="warning"
 						onClick={() => setShowDocsModal(true)}
-						className="nav-link-btn"
+						className="flex-1 border-white"
 						title="Download MFA Documentation"
-						style={{
-							fontWeight: '500',
-							flex: 1,
-							background: '#fbbf24',
-							color: 'white',
-						}}
+						whiteBorder={true}
 					>
-						📚 Docs
-					</button>
+						📚 Documentation
+					</BootstrapButton>
 					{showRestartFlow && (
-						<button
-							type="button"
+						<BootstrapButton
+							variant="danger"
 							onClick={handleRestartFlow}
-							className="nav-link-btn restart-btn"
+							className="flex-1"
 							title="Restart the flow from the beginning"
-							style={{
-								opacity: 0.8,
-								flex: 1,
-							}}
+							style={{ opacity: 0.8 }}
 						>
 							🔄 Restart Flow
-						</button>
+						</BootstrapButton>
 					)}
 					{showBackToMain && !isUnifiedFlow && (
 						<button
