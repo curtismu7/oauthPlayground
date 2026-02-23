@@ -12,6 +12,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import AppVersionBadge from '../components/AppVersionBadge';
 import StandardHeader from '../components/StandardHeader';
+import ViewModeControls from '../components/ViewModeControls';
+import { useViewMode } from '../hooks/useViewMode';
 import { type ActivityItem, getRecentActivity } from '../utils/activityTracker';
 import BootstrapButton from '../components/bootstrap/BootstrapButton';
 import { feedbackService } from '../services/feedback/feedbackService';
@@ -238,62 +240,29 @@ const getHiddenHeaderStyle = () => ({
 // ============================================================================
 
 const Dashboard: React.FC = () => {
-	const [collapsedSections, setCollapsedSections] = useState({
+	const initialSections = {
 		pingOneApiStatus: false,
 		quickAccess: false,
 		oauthFlows: false,
 		apiEndpoints: false,
 		recentActivity: false,
-	});
+	};
+	
+	const {
+		viewMode,
+		collapsedSections,
+		toggleSection,
+		expandAllSections,
+		collapseAllSections,
+	} = useViewMode(initialSections);
+	
 	const [serverStatus, setServerStatus] = useState({
 		backend: 'checking',
 		frontend: 'online',
 	});
 	const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([]);
 	const [isRefreshing, setIsRefreshing] = useState(false);
-	const [viewMode, setViewMode] = useState<'full' | 'hidden'>('full');
 	const [feedbackMessage, setFeedbackMessage] = useState<React.ReactElement | null>(null);
-
-	const toggleSection = useCallback((section: keyof typeof collapsedSections) => {
-		setCollapsedSections((prev) => ({
-			...prev,
-			[section]: !prev[section],
-		}));
-	}, []);
-
-	const collapseAllSections = useCallback(() => {
-		console.log('🔽 Dashboard: Collapsing all sections');
-		setCollapsedSections({
-			pingOneApiStatus: true,
-			quickAccess: true,
-			oauthFlows: true,
-			apiEndpoints: true,
-			recentActivity: true,
-		});
-		setViewMode('hidden');
-		
-		// Show feedback message
-		setFeedbackMessage(
-			feedbackService.showInfoSnackbar('All dashboard sections collapsed')
-		);
-	}, []);
-
-	const expandAllSections = useCallback(() => {
-		console.log('🔼 Dashboard: Expanding all sections');
-		setCollapsedSections({
-			pingOneApiStatus: false,
-			quickAccess: false,
-			oauthFlows: false,
-			apiEndpoints: false,
-			recentActivity: false,
-		});
-		setViewMode('full');
-		
-		// Show feedback message
-		setFeedbackMessage(
-			feedbackService.showSuccessSnackbar('All dashboard sections expanded')
-		);
-	}, []);
 
 	// Check server status
 	const checkServerStatus = useCallback(async () => {
@@ -463,41 +432,29 @@ const Dashboard: React.FC = () => {
 								marginBottom: '1.5rem',
 							}}
 						>
-							<div style={getViewModeContainerStyle()}>
+							<div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+								<AppVersionBadge />
+								<ViewModeControls
+									viewMode={viewMode}
+									onExpandAll={expandAllSections}
+									onCollapseAll={collapseAllSections}
+									disabled={isRefreshing}
+								/>
 								<BootstrapButton
-									variant={viewMode === 'full' ? 'primary' : 'secondary'}
-									greyBorder={viewMode === 'full'}
-									onClick={expandAllSections}
-									title="Full Show - Expand all sections"
+									onClick={refreshDashboard}
+									variant="secondary"
+									greyBorder={true}
+									disabled={isRefreshing}
+									whiteBorder={true}
 								>
-									<MDIIcon icon="view-fullscreen" size={14} />
-									Full Show
-								</BootstrapButton>
-								<BootstrapButton
-									variant={viewMode === 'hidden' ? 'primary' : 'secondary'}
-									greyBorder={viewMode === 'hidden'}
-									onClick={collapseAllSections}
-									title="Hidden - Collapse all sections"
-								>
-									<MDIIcon icon="eye-off" size={14} />
-									Hidden
+									<MDIIcon
+										icon={isRefreshing ? 'loading' : 'refresh'}
+										size={16}
+										className={isRefreshing ? 'mdi-spin' : ''}
+									/>
+									{isRefreshing ? 'Refreshing...' : 'Refresh'}
 								</BootstrapButton>
 							</div>
-
-							{/* Refresh Button */}
-							<BootstrapButton
-								variant="secondary"
-								onClick={refreshDashboard}
-								disabled={isRefreshing}
-								whiteBorder={true}
-							>
-								<MDIIcon
-									icon={isRefreshing ? 'loading' : 'refresh'}
-									size={16}
-									className={isRefreshing ? 'mdi-spin' : ''}
-								/>
-								{isRefreshing ? 'Refreshing...' : 'Refresh'}
-							</BootstrapButton>
 						</div>
 					</div>
 				</div>
