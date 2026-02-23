@@ -145,7 +145,7 @@ export default defineConfig(({ mode }) => {
 			hmr: {
 				port: 3000,
 				host: 'localhost', // Use localhost for HMR to avoid WebSocket issues
-				protocol: 'wss', // Use secure WebSocket for HTTPS
+				protocol: 'ws', // Use WebSocket for localhost development
 				clientPort: 3000,
 			},
 			logLevel: 'warn', // Reduce Vite connection logs (suppresses "connecting..." and "connected" messages)
