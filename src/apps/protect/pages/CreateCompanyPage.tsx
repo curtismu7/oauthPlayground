@@ -246,7 +246,7 @@ const ActionButtons = styled.div`
 	margin-top: 2rem;
 `;
 
-const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'success' }>`
+const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'success' }>`
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -257,8 +257,8 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'success' }>`
 	cursor: pointer;
 	transition: all 0.2s;
 
-	${({ variant = 'primary' }) => {
-		switch (variant) {
+	${({ $variant = 'primary' }) => {
+		switch ($variant) {
 			case 'secondary':
 				return `
 					background: #6b7280;
