@@ -64,16 +64,6 @@ interface UnifiedFlowDocumentationPageV8UPingUIProps {
 	totalSteps?: number;
 }
 
-interface DocumentationApiCall {
-	step: string;
-	method: string;
-	endpoint: string;
-	description: string;
-	requestBody: Record<string, unknown>;
-	responseBody: Record<string, unknown>;
-	notes?: string[];
-}
-
 const DocumentationContainer = styled.div`
   background: var(--ping-surface-primary, white);
   border-radius: var(--ping-border-radius-lg, 12px);

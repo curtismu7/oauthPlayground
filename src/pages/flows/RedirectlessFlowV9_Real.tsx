@@ -29,6 +29,7 @@ import { AuthorizationCodeSharedService } from '../../services/authorizationCode
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
 import { EducationalContentService } from '../../services/educationalContentService.tsx';
+import { UserSearchDropdownV8 } from '../../v8/components/UserSearchDropdownV8';
 import {
 	EnhancedApiCallData,
 	EnhancedApiCallDisplayService,
@@ -1179,31 +1180,58 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 								</div>
 
 								<div style={{ marginBottom: '1rem' }}>
-									<label
-										htmlFor="v9-username-input"
-										style={{
-											display: 'block',
-											marginBottom: '0.5rem',
-											fontWeight: '600',
-											color: '#374151',
-										}}
-										htmlFor="usernameoremail"
-									>
-										Username or Email
-									</label>
-									<input
-										id="v9-username-input"
-										type="text"
-										placeholder="Enter your username"
-										style={{
-											width: '100%',
-											padding: '0.75rem',
-											border: '1px solid #d1d5db',
-											borderRadius: '0.5rem',
-											fontSize: '1rem',
-										}}
-										disabled
-									/>
+									{controller.credentials.environmentId ? (
+										<>
+											<label
+												htmlFor="v9-username-input"
+												style={{
+													display: 'block',
+													marginBottom: '0.5rem',
+													fontWeight: '600',
+													color: '#374151',
+												}}
+											>
+												Username or Email
+											</label>
+											<UserSearchDropdownV8
+												id="v9-username-input"
+												environmentId={controller.credentials.environmentId}
+												value={loginCredentials.username}
+												onChange={(username) => setLoginCredentials(prev => ({ ...prev, username }))}
+												placeholder="Search for a user..."
+												disabled={isAuthenticating}
+											/>
+										</>
+									) : (
+										<>
+											<label
+												htmlFor="v9-username-input"
+												style={{
+													display: 'block',
+													marginBottom: '0.5rem',
+													fontWeight: '600',
+													color: '#374151',
+												}}
+											>
+												Username or Email
+											</label>
+											<input
+												id="v9-username-input"
+												type="text"
+												placeholder="Enter your username"
+												value={loginCredentials.username}
+												onChange={(e) => setLoginCredentials(prev => ({ ...prev, username: e.target.value }))}
+												style={{
+													width: '100%',
+													padding: '0.75rem',
+													border: '1px solid #d1d5db',
+													borderRadius: '0.5rem',
+													fontSize: '1rem',
+												}}
+												disabled={isAuthenticating}
+											/>
+										</>
+									)}
 								</div>
 
 								<form key="v9-password-form">
@@ -1216,7 +1244,6 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 												fontWeight: '600',
 												color: '#374151',
 											}}
-											htmlFor="password"
 										>
 											Password
 										</label>

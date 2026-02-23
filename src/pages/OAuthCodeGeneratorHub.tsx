@@ -9,11 +9,39 @@
  */
 
 import React from 'react';
-import { FiBook, FiCode, FiShield, FiZap } from 'react-icons/fi';
 import styled from 'styled-components';
 import LiveRFCExplorer from '../components/LiveRFCExplorer';
 import RealWorldScenarioBuilder from '../components/RealWorldScenarioBuilder';
 import SecurityThreatTheater from '../components/SecurityThreatTheater';
+
+// MDI Icon Helper Functions
+const getMDIIconClass = (iconName: string): string => {
+	const iconMap: Record<string, string> = {
+		FiBook: 'mdi-book-open-page-variant',
+		FiCode: 'mdi-code-tags',
+		FiShield: 'mdi-shield-check',
+		FiZap: 'mdi-flash',
+	};
+	return iconMap[iconName] || 'mdi-help-circle';
+};
+
+// MDI Icon Component
+const MDIIcon: React.FC<{ icon: string; size?: number; style?: React.CSSProperties; ariaLabel?: string }> = ({ 
+	icon, 
+	size = 16, 
+	style, 
+	ariaLabel 
+}) => (
+	<span
+		className={`mdi ${getMDIIconClass(icon)}`}
+		style={{ 
+			fontSize: `${size}px`, 
+			...style 
+		}}
+		aria-label={ariaLabel}
+		aria-hidden={!ariaLabel}
+	/>
+);
 
 const PageContainer = styled.div`
 	min-height: 100vh;
@@ -163,7 +191,7 @@ const OAuthCodeGeneratorHub: React.FC = () => {
 				<FeatureGrid>
 					<FeatureCard color="#10b981">
 						<FeatureIcon color="linear-gradient(135deg, #10b981 0%, #059669 100%)">
-							<FiZap />
+							<MDIIcon icon="FiZap" ariaLabel="Lightning" />
 						</FeatureIcon>
 						<FeatureTitle>Real-World Scenarios</FeatureTitle>
 						<FeatureDescription>
@@ -173,7 +201,7 @@ const OAuthCodeGeneratorHub: React.FC = () => {
 
 					<FeatureCard color="#2563eb">
 						<FeatureIcon color="linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)">
-							<FiBook />
+							<MDIIcon icon="FiBook" ariaLabel="Book" />
 						</FeatureIcon>
 						<FeatureTitle>Live RFC Explorer</FeatureTitle>
 						<FeatureDescription>
@@ -183,7 +211,7 @@ const OAuthCodeGeneratorHub: React.FC = () => {
 
 					<FeatureCard color="#ef4444">
 						<FeatureIcon color="linear-gradient(135deg, #ef4444 0%, #dc2626 100%)">
-							<FiShield />
+							<MDIIcon icon="FiShield" ariaLabel="Security" />
 						</FeatureIcon>
 						<FeatureTitle>Security Theater</FeatureTitle>
 						<FeatureDescription>
@@ -194,7 +222,7 @@ const OAuthCodeGeneratorHub: React.FC = () => {
 
 					<FeatureCard color="#3b82f6">
 						<FeatureIcon color="linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)">
-							<FiCode />
+							<MDIIcon icon="FiCode" ariaLabel="Code" />
 						</FeatureIcon>
 						<FeatureTitle>Multi-Language Code</FeatureTitle>
 						<FeatureDescription>
@@ -289,7 +317,7 @@ const OAuthCodeGeneratorHub: React.FC = () => {
 							onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
 							onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
 						>
-							<FiBook />
+							<MDIIcon icon="FiBook" ariaLabel="Book" />
 							PingOne Documentation
 						</a>
 						<a
@@ -310,7 +338,7 @@ const OAuthCodeGeneratorHub: React.FC = () => {
 							onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
 							onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
 						>
-							<FiCode />
+							<MDIIcon icon="FiCode" ariaLabel="Code" />
 							Try OAuth Playground
 						</a>
 					</div>

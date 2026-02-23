@@ -9,28 +9,27 @@ const WorkerActions: React.FC<{
 			onClick={onNext}
 			style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
 		>
-			<FiArrowRight /> Next: Create Applications
+			<MDIIcon icon="FiArrowRight" ariaLabel="Next" /> Next: Create Applications
 		</Button>
 		<Button
 			variant="danger"
 			onClick={onClearToken}
 			style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
 		>
-			<FiSettings /> Clear Token Only
+			<MDIIcon icon="FiSettings" ariaLabel="Settings" /> Clear Token Only
 		</Button>
 		<Button
 			variant="danger"
 			onClick={onClearAll}
 			style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
 		>
-			<FiX /> Clear All Credentials
+			<MDIIcon icon="FiX" ariaLabel="Clear" /> Clear All Credentials
 		</Button>
 	</div>
 );
 
 // src/pages/ClientGenerator.tsx
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiArrowRight, FiEye, FiEyeOff, FiKey, FiSettings, FiShield, FiX } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import ColoredUrlDisplay from '../components/ColoredUrlDisplay';
@@ -41,6 +40,38 @@ import { usePageScroll } from '../hooks/usePageScroll';
 import { FlowHeader } from '../services/flowHeaderService';
 import TokenDisplayService from '../services/tokenDisplayService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+
+// MDI Icon Helper Functions
+const getMDIIconClass = (iconName: string): string => {
+	const iconMap: Record<string, string> = {
+		FiArrowRight: 'mdi-arrow-right',
+		FiEye: 'mdi-eye',
+		FiEyeOff: 'mdi-eye-off',
+		FiKey: 'mdi-key',
+		FiSettings: 'mdi-cog',
+		FiShield: 'mdi-shield',
+		FiX: 'mdi-close',
+	};
+	return iconMap[iconName] || 'mdi-help-circle';
+};
+
+// MDI Icon Component
+const MDIIcon: React.FC<{ icon: string; size?: number; style?: React.CSSProperties; ariaLabel?: string }> = ({ 
+	icon, 
+	size = 16, 
+	style, 
+	ariaLabel 
+}) => (
+	<span
+		className={`mdi ${getMDIIconClass(icon)}`}
+		style={{ 
+			fontSize: `${size}px`, 
+			...style 
+		}}
+		aria-label={ariaLabel}
+		aria-hidden={!ariaLabel}
+	/>
+);
 
 const Container = styled.div`
 	max-width: 1200px;
@@ -582,7 +613,7 @@ const ClientGenerator: React.FC = () => {
 			{!workerToken && (
 				<FormContainer>
 					<FormTitle>
-						<FiKey style={{ marginRight: '0.5rem' }} />
+						<MDIIcon icon="FiKey" ariaLabel="Key" style={{ marginRight: '0.5rem' }} />
 						Worker Application Credentials
 					</FormTitle>
 					<p style={{ color: '#6b7280', marginBottom: '0.5rem' }}>
@@ -598,7 +629,7 @@ const ClientGenerator: React.FC = () => {
 							gap: '0.5rem',
 						}}
 					>
-						<FiSettings />
+						<MDIIcon icon="FiSettings" ariaLabel="Settings" />
 						<strong>Note:</strong> Environment ID should be a UUID format (e.g.,
 						"12345678-1234-1234-1234-123456789abc"), not a Client ID.
 					</p>
@@ -654,7 +685,7 @@ const ClientGenerator: React.FC = () => {
 								gap: '0.25rem',
 							}}
 						>
-							<FiSettings size={12} />
+							<MDIIcon icon="FiSettings" size={12} ariaLabel="Settings" />
 							<strong>Important:</strong> Check your worker app settings in PingOne to ensure this
 							matches.
 						</p>
@@ -684,7 +715,7 @@ const ClientGenerator: React.FC = () => {
 								</>
 							) : (
 								<>
-									<FiKey /> Save & Get Worker Token
+									<MDIIcon icon="FiKey" ariaLabel="Key" /> Save & Get Worker Token
 								</>
 							)}
 						</ActionButton>
@@ -707,7 +738,7 @@ const ClientGenerator: React.FC = () => {
 							}}
 							style={{ padding: '0.75rem 1.25rem' }}
 						>
-							<FiX /> Clear
+							<MDIIcon icon="FiX" ariaLabel="Clear" /> Clear
 						</Button>
 
 						{tokenError && (
@@ -788,7 +819,7 @@ const ClientGenerator: React.FC = () => {
 								fontWeight: 600,
 							}}
 						>
-							<FiKey size={20} />
+							<MDIIcon icon="FiKey" size={20} ariaLabel="Key" />
 							Worker Token Response (OAuth 2.0 Token)
 						</div>
 						<div style={{ fontSize: '0.875rem', color: '#166534', marginBottom: '1rem' }}>
@@ -865,9 +896,9 @@ const ClientGenerator: React.FC = () => {
 									}
 								>
 									{tokenDecodeStates['worker-token-response'] ? (
-										<FiEyeOff size={16} />
+										<MDIIcon icon="FiEyeOff" size={16} ariaLabel="Hide" />
 									) : (
-										<FiEye size={16} />
+										<MDIIcon icon="FiEye" size={16} ariaLabel="Show" />
 									)}
 								</button>
 							</div>
@@ -924,7 +955,7 @@ const ClientGenerator: React.FC = () => {
 											: 'Show full header (not recommended)'
 									}
 								>
-									{tokenDecodeStates['auth-header'] ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+									{tokenDecodeStates['auth-header'] ? <MDIIcon icon="FiEyeOff" size={16} ariaLabel="Hide" /> : <MDIIcon icon="FiEye" size={16} ariaLabel="Show" />}
 								</button>
 							</div>
 							{tokenDecodeStates['auth-header'] && (
@@ -990,7 +1021,7 @@ const ClientGenerator: React.FC = () => {
 									fontWeight: 600,
 								}}
 							>
-								<FiShield size={20} />
+								<MDIIcon icon="FiShield" size={20} ariaLabel="Security" />
 								Token Analysis (TokenDisplayService)
 							</div>
 							<div style={{ fontSize: '0.875rem', color: '#374151', marginBottom: '1rem' }}>
@@ -1206,7 +1237,7 @@ const ClientGenerator: React.FC = () => {
 								fontWeight: 600,
 							}}
 						>
-							<FiKey size={20} />
+							<MDIIcon icon="FiKey" size={20} ariaLabel="Key" />
 							Worker Token Request (OAuth 2.0 Client Credentials) - Client Secret Post
 						</div>
 						<div style={{ fontSize: '0.875rem', color: '#166534', marginBottom: '1rem' }}>

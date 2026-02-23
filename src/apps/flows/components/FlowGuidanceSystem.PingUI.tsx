@@ -225,6 +225,7 @@ const FlowGuidanceSystemPingUI: React.FC<FlowGuidanceSystemPingUIProps> = ({
 					}}
 				>
 					<button
+						type="button"
 						onClick={() => toggleSection('flow-type')}
 						style={{
 							display: 'flex',
@@ -302,6 +303,8 @@ const FlowGuidanceSystemPingUI: React.FC<FlowGuidanceSystemPingUIProps> = ({
 							{flowGuidance.steps.map((step, index) => (
 								<div
 									key={index}
+									role="button"
+									tabIndex={0}
 									style={{
 										display: 'flex',
 										alignItems: 'flex-start',
@@ -312,6 +315,7 @@ const FlowGuidanceSystemPingUI: React.FC<FlowGuidanceSystemPingUIProps> = ({
 										borderRadius: 'var(--ping-border-radius-md, 8px)',
 										border: '1px solid var(--ping-border-color, #e5e7eb)',
 										transition: 'all var(--ping-transition-fast, 0.15s) ease-in-out',
+										cursor: 'pointer',
 									}}
 									onMouseOver={(e) => {
 										e.currentTarget.style.borderColor = 'var(--ping-primary-color, #3b82f6)';
@@ -321,6 +325,21 @@ const FlowGuidanceSystemPingUI: React.FC<FlowGuidanceSystemPingUIProps> = ({
 									onMouseOut={(e) => {
 										e.currentTarget.style.borderColor = 'var(--ping-border-color, #e5e7eb)';
 										e.currentTarget.style.boxShadow = 'none';
+									}}
+									onFocus={(e) => {
+										e.currentTarget.style.borderColor = 'var(--ping-primary-color, #3b82f6)';
+										e.currentTarget.style.boxShadow =
+											'var(--ping-shadow-sm, 0 1px 2px 0 rgba(0, 0, 0, 0.05))';
+									}}
+									onBlur={(e) => {
+										e.currentTarget.style.borderColor = 'var(--ping-border-color, #e5e7eb)';
+										e.currentTarget.style.boxShadow = 'none';
+									}}
+									onKeyDown={(e) => {
+										if (e.key === 'Enter' || e.key === ' ') {
+											e.preventDefault();
+											// Handle step selection if needed
+										}
 									}}
 								>
 									<div
@@ -358,6 +377,7 @@ const FlowGuidanceSystemPingUI: React.FC<FlowGuidanceSystemPingUIProps> = ({
 				{/* Spec Version Guidance */}
 				<div>
 					<button
+						type="button"
 						onClick={() => toggleSection('spec-version')}
 						style={{
 							display: 'flex',

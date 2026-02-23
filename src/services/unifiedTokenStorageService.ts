@@ -1410,16 +1410,22 @@ export class UnifiedTokenStorageService {
 			}
 
 			const token = tokens[0];
-			if (!token || !token.value) {
+			if (!token || !token.value || !token.id) {
 				logger.warn(MODULE_TAG, 'Invalid token found, clearing it', { key, token });
 				// Clear the invalid token
 				try {
-					await this.removeToken(token.id);
-					logger.info(MODULE_TAG, 'Cleared invalid token', { key, tokenId: token.id });
+					if (token && token.id) {
+						await this.removeToken(token.id);
+						logger.info(MODULE_TAG, 'Cleared invalid token', { key, tokenId: token.id });
+					} else {
+						// If token is completely invalid, clear all tokens
+						await this.clearAllTokens();
+						logger.info(MODULE_TAG, 'Cleared all tokens due to invalid token', { key });
+					}
 				} catch (clearError) {
 					logger.error(MODULE_TAG, 'Failed to clear invalid token', {
 						key,
-						tokenId: token.id,
+						tokenId: token?.id,
 						error: clearError,
 					});
 				}

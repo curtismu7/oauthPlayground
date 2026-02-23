@@ -43,7 +43,7 @@ const authzRedirectLogFile = path.join(logsDir, 'authz-redirects.log');
 // Log width constant - wider for better readability, no truncation
 const LOG_WIDTH = 150;
 
-// Helper function to format log message with enhanced timestamp and structure
+// Enhanced log formatting with colors, icons, and banners
 const formatLogMessage = (level, ...args) => {
 	const now = new Date();
 	const timestamp = now.toISOString();
@@ -71,9 +71,49 @@ const formatLogMessage = (level, ...args) => {
 		})
 		.join(' ');
 
-	// Enhanced format with date/time and level indicator
-	const levelEmoji = level === 'ERROR' ? '❌' : level === 'WARN' ? '⚠️' : 'ℹ️';
-	return `[${timestamp}] [${localTime}] [${levelEmoji} ${level}] ${message}\n`;
+	// Enhanced format with colors, icons, and banners
+	const levelConfig = {
+		ERROR: { icon: '❌', emoji: '🔴', color: '\x1b[91m', bgColor: '\x1b[41m' },
+		WARN: { icon: '⚠️', emoji: '🟡', color: '\x1b[93m', bgColor: '\x1b[43m' },
+		LOG: { icon: 'ℹ️', emoji: '🔵', color: '\x1b[94m', bgColor: '\x1b[44m' },
+	};
+
+	const config = levelConfig[level] || levelConfig.LOG;
+	const width = 120;
+	const borderChar = '═';
+	const sideChar = '║';
+	const reset = '\x1b[0m';
+
+	let formatted = '\n';
+	
+	// Top banner
+	formatted += `${borderChar.repeat(width)}\n`;
+	
+	// Header line
+	const header = `${config.icon} SERVER ${level}`;
+	const padding = Math.max(0, width - header.length - 4);
+	formatted += `${sideChar} ${config.color}${header}${reset}${' '.repeat(padding)} ${sideChar}\n`;
+	
+	formatted += `${borderChar.repeat(width)}\n`;
+	
+	// Timestamp
+	formatted += `${sideChar} 📅 Timestamp: ${localTime} (${timestamp}) ${sideChar}\n`;
+	
+	// Message with proper wrapping
+	const messageLines = message.split('\n');
+	formatted += `${sideChar} 📝 Message: ${config.color}${messageLines[0]}${reset} ${sideChar}\n`;
+	
+	// Additional message lines if any
+	for (let i = 1; i < messageLines.length; i++) {
+		formatted += `${sideChar}           ${config.color}${messageLines[i]}${reset} ${sideChar}\n`;
+	}
+	
+	// Bottom banner
+	formatted += `${borderChar.repeat(width)}\n`;
+	formatted += `${sideChar} ${config.icon} END OF ${level} ENTRY ${sideChar}\n`;
+	formatted += `${borderChar.repeat(width)}\n\n`;
+
+	return formatted;
 };
 
 // Override console.log to write to both console and file (async, non-blocking)
@@ -762,6 +802,7 @@ app.use(
 			'https://localhost:3000',
 			'http://localhost:3001',
 			'https://localhost:3001',
+			'https://api.pingdemo.com:3000',
 		],
 		credentials: true,
 		methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -1096,28 +1137,79 @@ app.post('/__client-log', async (req, res) => {
 			hour12: false,
 		});
 
-		const levelEmoji =
-			level === 'error' ? '❌' : level === 'warn' ? '⚠️' : level === 'info' ? 'ℹ️' : '🔍';
-		const levelUpper = level.toUpperCase();
+		// Enhanced level configuration with colors
+		const levelConfig = {
+			error: { icon: '❌', emoji: '🔴', color: '\x1b[91m', bgColor: '\x1b[41m', name: 'ERROR' },
+			warn: { icon: '⚠️', emoji: '🟡', color: '\x1b[93m', bgColor: '\x1b[43m', name: 'WARN' },
+			info: { icon: 'ℹ️', emoji: '🔵', color: '\x1b[94m', bgColor: '\x1b[44m', name: 'INFO' },
+			debug: { icon: '🔍', emoji: '🟣', color: '\x1b[95m', bgColor: '\x1b[45m', name: 'DEBUG' },
+			success: { icon: '✅', emoji: '🟢', color: '\x1b[92m', bgColor: '\x1b[42m', name: 'SUCCESS' },
+			flow: { icon: '🔄', emoji: '🔄', color: '\x1b[96m', bgColor: '\x1b[46m', name: 'FLOW' },
+			security: { icon: '🔒', emoji: '🔐', color: '\x1b[91m', bgColor: '\x1b[41m', name: 'SECURITY' },
+			auth: { icon: '🔑', emoji: '🔑', color: '\x1b[93m', bgColor: '\x1b[43m', name: 'AUTH' },
+			config: { icon: '⚙️', emoji: '⚙️', color: '\x1b[94m', bgColor: '\x1b[44m', name: 'CONFIG' },
+			api: { icon: '🌐', emoji: '🌐', color: '\x1b[92m', bgColor: '\x1b[42m', name: 'API' },
+			storage: { icon: '💾', emoji: '💾', color: '\x1b[95m', bgColor: '\x1b[45m', name: 'STORAGE' },
+			ui: { icon: '🎨', emoji: '🎨', color: '\x1b[96m', bgColor: '\x1b[46m', name: 'UI' },
+			discovery: { icon: '🔍', emoji: '🔍', color: '\x1b[93m', bgColor: '\x1b[43m', name: 'DISCOVERY' },
+		};
 
-		// Format client log with enhanced structure - NO TRUNCATION, wider box
-		let logMessage = `\n${'*'.repeat(LOG_WIDTH)}\n`;
-		logMessage += `* ${levelEmoji} CLIENT LOG: ${levelUpper}\n`;
-		logMessage += `* 📅 Date/Time: ${localTime} (${timestamp})\n`;
-		logMessage += `* 📝 Message: ${message}\n`;
+		const config = levelConfig[level.toLowerCase()] || levelConfig.info;
+		const width = LOG_WIDTH;
+		const borderChar = '═';
+		const sideChar = '║';
+		const reset = '\x1b[0m';
 
-		if (meta && Object.keys(meta).length > 0) {
-			const metaJSON = JSON.stringify(meta, null, 2);
-			const metaLines = metaJSON.split('\n');
-			logMessage += `* 📊 Metadata:\n`;
-			metaLines.forEach((line) => {
-				logMessage += `*   ${line}\n`;
-			});
+		// Format client log with enhanced structure
+		let logMessage = '\n';
+		
+		// Top banner
+		logMessage += `${borderChar.repeat(width)}\n`;
+		
+		// Header line
+		const header = `${config.icon} CLIENT LOG: ${config.name}`;
+		const padding = Math.max(0, width - header.length - 4);
+		logMessage += `${sideChar} ${config.color}${header}${reset}${' '.repeat(padding)} ${sideChar}\n`;
+		
+		logMessage += `${borderChar.repeat(width)}\n`;
+		
+		// Timestamp
+		logMessage += `${sideChar} 📅 Date/Time: ${localTime} (${timestamp}) ${sideChar}\n`;
+		
+		// Message
+		logMessage += `${sideChar} 📝 Message: ${config.color}${message}${reset} ${sideChar}\n`;
+
+		// Module if available
+		if (meta && meta.module) {
+			logMessage += `${sideChar} 📦 Module: ${meta.module} ${sideChar}\n`;
 		}
 
-		logMessage += `* ${'─'.repeat(LOG_WIDTH - 4)} *\n`;
-		logMessage += `* END OF CLIENT LOG ENTRY\n`;
-		logMessage += `${'*'.repeat(LOG_WIDTH)}\n`;
+		// Duration if available
+		if (meta && meta.duration) {
+			const durationColor = meta.duration > 1000 ? '\x1b[93m' : '\x1b[92m';
+			logMessage += `${sideChar} ⏱️  Duration: ${durationColor}${meta.duration}ms${reset} ${sideChar}\n`;
+		}
+
+		// Metadata if available
+		if (meta && Object.keys(meta).length > 0) {
+			const metaCopy = { ...meta };
+			delete metaCopy.module;
+			delete metaCopy.duration;
+			
+			if (Object.keys(metaCopy).length > 0) {
+				const metaJSON = JSON.stringify(metaCopy, null, 2);
+				const metaLines = metaJSON.split('\n');
+				logMessage += `${sideChar} 📊 Metadata:${reset}\n`;
+				metaLines.forEach((line) => {
+					logMessage += `${sideChar}   ${line} ${sideChar}\n`;
+				});
+			}
+		}
+
+		// Bottom banner
+		logMessage += `${borderChar.repeat(width)}\n`;
+		logMessage += `${sideChar} ${config.icon} END OF CLIENT LOG ENTRY ${sideChar}\n`;
+		logMessage += `${borderChar.repeat(width)}\n\n`;
 
 		// Write to client.log file (async, non-blocking)
 		fs.appendFile(clientLogFile, logMessage, 'utf8', (err) => {
@@ -1130,13 +1222,10 @@ app.post('/__client-log', async (req, res) => {
 			}
 		});
 
-		// Also log to server.log for visibility
-		console.log(`[CLIENT:${levelUpper}] ${message}`, meta || {});
-
 		res.status(200).json({ success: true });
 	} catch (error) {
-		originalError('[Client Logging Error] Failed to process client log:', error);
-		res.status(500).json({ error: 'Failed to process client log', message: error.message });
+		console.error('[Client Logging Error] Failed to process client log:', error);
+		res.status(500).json({ error: 'Internal server error' });
 	}
 });
 
