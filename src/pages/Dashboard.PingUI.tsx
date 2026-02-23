@@ -15,6 +15,8 @@ import StandardHeader from '../components/StandardHeader';
 import { type ActivityItem, getRecentActivity } from '../utils/activityTracker';
 import BootstrapButton from '../components/bootstrap/BootstrapButton';
 import '../styles/button-color-system.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import '../styles/bootstrap/pingone-bootstrap.css';
 
 // ============================================================================
 // MDI ICON COMPONENT
