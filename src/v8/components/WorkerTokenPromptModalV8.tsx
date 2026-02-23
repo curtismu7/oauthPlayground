@@ -6,8 +6,36 @@
  */
 
 import React from 'react';
-import { FiAlertTriangle, FiX } from 'react-icons/fi';
 import { PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
+
+// MDI Icon Helper Functions
+interface MDIIconProps {
+	icon: string;
+	size?: number;
+	color?: string;
+	ariaLabel: string;
+}
+
+const getMDIIconClass = (iconName: string): string => {
+	const iconMap: Record<string, string> = {
+		FiAlertTriangle: 'mdi-alert-triangle',
+		FiX: 'mdi-close',
+	};
+	return iconMap[iconName] || 'mdi-help-circle';
+};
+
+const MDIIcon: React.FC<MDIIconProps> = ({ icon, size = 24, color, ariaLabel }) => {
+	const iconClass = getMDIIconClass(icon);
+	return (
+		<span
+			className={`mdi ${iconClass}`}
+			style={{ fontSize: size, color: color }}
+			role="img"
+			aria-label={ariaLabel}
+			aria-hidden={!ariaLabel}
+		></span>
+	);
+};
 
 interface WorkerTokenPromptModalV8Props {
 	isOpen: boolean;
@@ -46,9 +74,14 @@ export const WorkerTokenPromptModalV8: React.FC<WorkerTokenPromptModalV8Props> =
 	return (
 		<>
 			{/* Overlay */}
-			<div
-				role="button"
-				tabIndex={0}
+			<button
+				type="button"
+				onClick={handleCancel}
+				onKeyDown={(e) => {
+					if (e.key === 'Enter' || e.key === ' ') {
+						handleCancel();
+					}
+				}}
 				style={{
 					position: 'fixed',
 					top: 0,
@@ -60,13 +93,10 @@ export const WorkerTokenPromptModalV8: React.FC<WorkerTokenPromptModalV8Props> =
 					alignItems: 'center',
 					justifyContent: 'center',
 					zIndex: 10000,
+					border: 'none',
+					cursor: 'pointer',
 				}}
-				onClick={handleCancel}
-				onKeyDown={(e) => {
-					if (e.key === 'Enter' || e.key === ' ') {
-						handleCancel();
-					}
-				}}
+				aria-label="Close modal"
 			>
 				{/* Modal */}
 				<div
@@ -107,7 +137,7 @@ export const WorkerTokenPromptModalV8: React.FC<WorkerTokenPromptModalV8Props> =
 									justifyContent: 'center',
 								}}
 							>
-								<FiAlertTriangle size={24} />
+								<MDIIcon icon="FiAlertTriangle" size={24} ariaLabel="Warning" />
 							</div>
 							<h3
 								id="worker-token-prompt-title"
@@ -137,7 +167,7 @@ export const WorkerTokenPromptModalV8: React.FC<WorkerTokenPromptModalV8Props> =
 							}}
 							aria-label="Close modal"
 						>
-							<FiX size={20} />
+							<MDIIcon icon="FiX" size={20} ariaLabel="Close" />
 						</button>
 					</div>
 
@@ -227,7 +257,7 @@ export const WorkerTokenPromptModalV8: React.FC<WorkerTokenPromptModalV8Props> =
 						</button>
 					</div>
 				</div>
-			</div>
+			</button>
 		</>
 	);
 };
