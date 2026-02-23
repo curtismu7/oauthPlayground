@@ -208,8 +208,9 @@ export const MFADocumentationModalV8: React.FC<MFADocumentationModalV8Props> = (
 			}}
 		>
 			<div
-				role="button"
-				tabIndex={0}
+				role="dialog"
+				aria-modal="true"
+				aria-labelledby="mfa-documentation-title"
 				style={{
 					background: 'white',
 					borderRadius: '12px',
@@ -222,9 +223,8 @@ export const MFADocumentationModalV8: React.FC<MFADocumentationModalV8Props> = (
 				}}
 				onClick={(e) => e.stopPropagation()}
 				onKeyDown={(e) => {
-					if (e.key === 'Enter' || e.key === ' ') {
-						e.stopPropagation();
-					}
+					// Prevent keyboard events from bubbling to backdrop
+					e.stopPropagation();
 				}}
 			>
 				{/* Header */}

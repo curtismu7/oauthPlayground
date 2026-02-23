@@ -198,8 +198,8 @@ export const WorkerTokenPromptModalV8PingUI: React.FC<WorkerTokenPromptModalV8Pi
 	return (
 		<div className="end-user-nano">
 			{/* Overlay */}
-			<div 
-				style={getOverlayStyle(isOpen)} 
+			<div
+				style={getOverlayStyle(isOpen)}
 				onClick={onClose}
 				onKeyDown={(e) => {
 					if (e.key === 'Enter' || e.key === ' ') {
@@ -211,8 +211,8 @@ export const WorkerTokenPromptModalV8PingUI: React.FC<WorkerTokenPromptModalV8Pi
 				aria-labelledby="worker-token-modal-title"
 			>
 				{/* Modal */}
-				<main 
-					style={getModalStyle()} 
+				<main
+					style={getModalStyle()}
 					onClick={(e) => e.stopPropagation()}
 					role="document"
 					tabIndex={-1}
@@ -220,11 +220,7 @@ export const WorkerTokenPromptModalV8PingUI: React.FC<WorkerTokenPromptModalV8Pi
 					{/* Header */}
 					<div style={getModalHeaderStyle()}>
 						<h2 id="worker-token-modal-title" style={getModalTitleStyle()}>
-							<MDIIcon 
-								icon="alert" 
-								size={24} 
-								title="Warning icon"
-							/>
+							<MDIIcon icon="alert" size={24} title="Warning icon" />
 							Worker Token Required
 						</h2>
 						<button
@@ -234,11 +230,7 @@ export const WorkerTokenPromptModalV8PingUI: React.FC<WorkerTokenPromptModalV8Pi
 							aria-label="Close modal"
 							title="Close modal"
 						>
-							<MDIIcon 
-								icon="close" 
-								size={24} 
-								title="Close"
-							/>
+							<MDIIcon icon="close" size={24} title="Close" />
 						</button>
 					</div>
 
@@ -246,24 +238,19 @@ export const WorkerTokenPromptModalV8PingUI: React.FC<WorkerTokenPromptModalV8Pi
 					<div style={getModalContentStyle()}>
 						{/* Warning Message */}
 						<div style={getAlertBoxStyle()}>
-							<MDIIcon 
-								icon="alert" 
-								size={20} 
-								title="Warning icon"
-							/>
+							<MDIIcon icon="alert" size={20} title="Warning icon" />
 							<p style={getWarningTextStyle()}>
-								<strong>Worker Token Missing</strong><br />
-								This operation requires a worker token with the correct MFA scopes. 
-								Please generate a new worker token to continue.
+								<strong>Worker Token Missing</strong>
+								<br />
+								This operation requires a worker token with the correct MFA scopes. Please generate
+								a new worker token to continue.
 							</p>
 						</div>
 
 						{/* Required Scope */}
 						<div style={getScopeBoxStyle()}>
 							<h3 style={getScopeTitleStyle()}>Required Scope:</h3>
-							<div style={getScopeTextStyle()}>
-								{PINGONE_WORKER_MFA_SCOPE_STRING}
-							</div>
+							<div style={getScopeTextStyle()}>{PINGONE_WORKER_MFA_SCOPE_STRING}</div>
 						</div>
 
 						{/* Action Buttons */}

@@ -156,11 +156,16 @@ export const DeviceManagementSectionV8: React.FC<DeviceManagementSectionProps> =
 								const isSelected = mfaDevices.selectedDevice?.id === device.id;
 
 								return (
-									<div
-										role="button"
-										tabIndex={0}
+									<button
+										type="button"
 										key={(device.id as string) || index}
 										onClick={() => mfaDevices.selectDevice(device)}
+										onKeyDown={(e) => {
+											if (e.key === 'Enter' || e.key === ' ') {
+												e.preventDefault();
+												mfaDevices.selectDevice(device);
+											}
+										}}
 										style={{
 											padding: '16px',
 											border: isSelected ? '2px solid #3b82f6' : '1px solid #e5e7eb',
@@ -232,7 +237,7 @@ export const DeviceManagementSectionV8: React.FC<DeviceManagementSectionProps> =
 												</div>
 											)}
 										</div>
-									</div>
+									</button>
 								);
 							})}
 						</div>

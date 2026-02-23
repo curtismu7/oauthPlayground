@@ -331,10 +331,11 @@ const DocumentationPingUI: React.FC = () => {
 
 			<div className="documentation-pingui">
 				<CollapsibleHeader title="Documentation">Documentation</CollapsibleHeader>
-				
+
 				<h1>Documentation</h1>
 				<p className="subtitle">
-					Comprehensive guides, API references, and tutorials for OAuth 2.0, OpenID Connect, and PingOne integration
+					Comprehensive guides, API references, and tutorials for OAuth 2.0, OpenID Connect, and
+					PingOne integration
 				</p>
 
 				{docCategories.map((category, index) => (
@@ -349,7 +350,12 @@ const DocumentationPingUI: React.FC = () => {
 								<Link key={itemIndex} to={item.link} className="doc-card">
 									<h3>
 										{item.title}
-										<MDIIcon icon="FiExternalLink" size={16} className="external-link" ariaLabel="External link" />
+										<MDIIcon
+											icon="FiExternalLink"
+											size={16}
+											className="external-link"
+											ariaLabel="External link"
+										/>
 									</h3>
 									<p>{item.description}</p>
 								</Link>

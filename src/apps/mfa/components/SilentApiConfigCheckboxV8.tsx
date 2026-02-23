@@ -44,7 +44,7 @@ export const SilentApiConfigCheckboxV8: React.FC<SilentApiConfigCheckboxV8Props>
 	loading = false,
 	onChange,
 }) => {
-	const { config, toggleSilentApi, isLoading: hookLoading, error } = useV8SilentApi();
+	const { config, toggleSilentApi, isLoading: hookLoading, error: _error } = useV8SilentApi();
 	const { silentApiRetrieval } = config;
 
 	const handleChange = async (event: React.ChangeEvent<HTMLInputElement>) => {

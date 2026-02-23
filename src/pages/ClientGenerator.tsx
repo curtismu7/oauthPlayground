@@ -56,17 +56,17 @@ const getMDIIconClass = (iconName: string): string => {
 };
 
 // MDI Icon Component
-const MDIIcon: React.FC<{ icon: string; size?: number; style?: React.CSSProperties; ariaLabel?: string }> = ({ 
-	icon, 
-	size = 16, 
-	style, 
-	ariaLabel 
-}) => (
+const MDIIcon: React.FC<{
+	icon: string;
+	size?: number;
+	style?: React.CSSProperties;
+	ariaLabel?: string;
+}> = ({ icon, size = 16, style, ariaLabel }) => (
 	<span
 		className={`mdi ${getMDIIconClass(icon)}`}
-		style={{ 
-			fontSize: `${size}px`, 
-			...style 
+		style={{
+			fontSize: `${size}px`,
+			...style,
 		}}
 		aria-label={ariaLabel}
 		aria-hidden={!ariaLabel}
@@ -955,7 +955,11 @@ const ClientGenerator: React.FC = () => {
 											: 'Show full header (not recommended)'
 									}
 								>
-									{tokenDecodeStates['auth-header'] ? <MDIIcon icon="FiEyeOff" size={16} ariaLabel="Hide" /> : <MDIIcon icon="FiEye" size={16} ariaLabel="Show" />}
+									{tokenDecodeStates['auth-header'] ? (
+										<MDIIcon icon="FiEyeOff" size={16} ariaLabel="Hide" />
+									) : (
+										<MDIIcon icon="FiEye" size={16} ariaLabel="Show" />
+									)}
 								</button>
 							</div>
 							{tokenDecodeStates['auth-header'] && (

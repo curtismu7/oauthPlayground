@@ -44,7 +44,7 @@ export const ShowTokenConfigCheckboxV8: React.FC<ShowTokenConfigCheckboxV8Props>
 	loading = false,
 	onChange,
 }) => {
-	const { config, toggleShowTokenAtEnd, isLoading: hookLoading, error } = useV8SilentApi();
+	const { config, toggleShowTokenAtEnd, isLoading: hookLoading, error: _error } = useV8SilentApi();
 	const { showTokenAtEnd } = config;
 
 	const handleChange = async (event: React.ChangeEvent<HTMLInputElement>) => {

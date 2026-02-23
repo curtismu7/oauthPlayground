@@ -7,9 +7,10 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiArrowLeft, FiArrowRight, FiCheckCircle, FiLock, FiShieldAlt } from 'react-icons/fi';
+import { FiArrowLeft, FiArrowRight, FiCheckCircle, FiLock } from 'react-icons/fi';
 import { AuthenticationCallbackHandler } from '@/apps/mfa/services/authentication/authenticationCallbackHandler';
 import { AuthenticationStateManager } from '@/apps/mfa/services/authentication/authenticationStateManager';
+import type { AuthenticationResult } from '@/apps/mfa/services/authentication/deviceAuthenticationService';
 // Import new separated services
 import { DeviceAuthenticationService } from '@/apps/mfa/services/authentication/deviceAuthenticationService';
 import { MFACallbackRouter } from '@/apps/mfa/services/shared/mfaCallbackRouter';
@@ -17,18 +18,17 @@ import { MFACallbackRouter } from '@/apps/mfa/services/shared/mfaCallbackRouter'
 import type {
 	AuthenticationChallenge,
 	AuthenticationFlowState,
-	AuthenticationStep,
+	MFACallbackData,
 	MFADevice,
 } from '@/apps/mfa/types/mfaFlowTypes';
+import { AuthenticationStep } from '@/apps/mfa/types/mfaFlowTypes';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 import { MFAErrorBoundary } from '@/v8/components/MFAErrorBoundary';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 interface DeviceAuthenticationFlowProps {
-	initialStep?: AuthenticationStep;
-	onComplete?: (result: any) => void;
-	onCancel?: () => void;
+	onComplete?: (result: AuthenticationResult) => void;
 	environmentId: string;
 	username?: string;
 	userId?: string;
@@ -40,13 +40,11 @@ interface DeviceAuthenticationFlowProps {
  * Handles the complete device authentication process with separated concerns
  */
 export const DeviceAuthenticationFlow: React.FC<DeviceAuthenticationFlowProps> = ({
-	initialStep = AuthenticationStep.DEVICE_SELECTION,
-	onComplete,
-	onCancel,
 	environmentId,
 	username,
 	userId,
 	deviceAuthenticationPolicyId,
+	onComplete,
 }) => {
 	const [authenticationState, setAuthenticationState] = useState<AuthenticationFlowState | null>(
 		null
@@ -69,7 +67,121 @@ export const DeviceAuthenticationFlow: React.FC<DeviceAuthenticationFlowProps> =
 		AuthenticationStateManager.saveState(initialState);
 	}, [environmentId, username, userId]);
 
+	// Helper functions - moved before usage to fix hook dependencies
+	// Get step name for display
+	const getStepName = useCallback((step: AuthenticationStep): string => {
+		const stepNames = {
+			[AuthenticationStep.DEVICE_SELECTION]: 'Device Selection',
+			[AuthenticationStep.CHALLENGE_INITIATION]: 'Challenge Initiation',
+			[AuthenticationStep.CHALLENGE_RESPONSE]: 'Challenge Response',
+			[AuthenticationStep.AUTHENTICATION_COMPLETE]: 'Authentication Complete',
+		};
+		return stepNames[step] || 'Unknown Step';
+	}, []);
+
+	// Get next step
+	const getNextStep = useCallback((currentStep: AuthenticationStep): AuthenticationStep => {
+		const stepOrder = Object.values(AuthenticationStep);
+		const currentIndex = stepOrder.indexOf(currentStep);
+		return stepOrder[Math.min(currentIndex + 1, stepOrder.length - 1)];
+	}, []);
+
+	// Get previous step
+	const getPreviousStep = useCallback((currentStep: AuthenticationStep): AuthenticationStep => {
+		const stepOrder = Object.values(AuthenticationStep);
+		const currentIndex = stepOrder.indexOf(currentStep);
+		return stepOrder[Math.max(currentIndex - 1, 0)];
+	}, []);
+
+	// Handle authentication initiation
+	const handleInitiateAuthentication = useCallback(async () => {
+		if (!selectedDevice) {
+			toastV8.error('Please select a device');
+			return;
+		}
+
+		setIsLoading(true);
+		try {
+			const result = await DeviceAuthenticationService.initializeDeviceAuthentication({
+				environmentId,
+				username: username || '',
+				userId: userId || '',
+				deviceAuthenticationPolicyId,
+				deviceId: selectedDevice.id,
+			});
+
+			// Update challenge data
+			if (result.challenge) {
+				const challenge: AuthenticationChallenge = {
+					challengeId: result.challenge.id,
+					challengeType: result.challenge.type as 'OTP',
+					expiresAt: result.challenge.expiresAt || Date.now() + 15 * 60 * 1000,
+					attemptsRemaining: 3,
+					challengeData: result.challenge.data || {},
+				};
+
+				const updatedState = AuthenticationStateManager.updateChallengeData(
+					authenticationState!,
+					challenge
+				);
+				setAuthenticationState(updatedState);
+				setChallengeData(challenge);
+			}
+
+			toastV8.success('Authentication challenge initiated');
+		} catch (_error) {
+			toastV8.error('Failed to initiate authentication');
+		} finally {
+			setIsLoading(false);
+		}
+	}, [
+		selectedDevice,
+		authenticationState,
+		environmentId,
+		username,
+		userId,
+		deviceAuthenticationPolicyId,
+	]);
+
+	// Execute step-specific logic
+	const executeStepLogic = useCallback(
+		async (step: AuthenticationStep) => {
+			switch (step) {
+				case AuthenticationStep.CHALLENGE_INITIATION:
+					await handleInitiateAuthentication();
+					break;
+				case AuthenticationStep.CHALLENGE_RESPONSE:
+					// OTP validation handled separately
+					break;
+				case AuthenticationStep.AUTHENTICATION_COMPLETE:
+					// Completion logic
+					break;
+				default:
+					break;
+			}
+		},
+		[handleInitiateAuthentication]
+	);
+
 	// Load available devices
+	const loadAvailableDevices = useCallback(async () => {
+		setIsLoading(true);
+		try {
+			const devices = await DeviceAuthenticationService.getAvailableDevices({
+				environmentId,
+				username: username || '',
+				userId: userId || '',
+				deviceAuthenticationPolicyId,
+			});
+			setAvailableDevices(devices);
+		} catch (_error) {
+			toastV8.error('Failed to load available devices');
+		} finally {
+			setIsLoading(false);
+		}
+	}, [environmentId, username, userId, deviceAuthenticationPolicyId]);
+
+	// Load available devices when needed
 	useEffect(() => {
 		if (authenticationState?.currentStep === AuthenticationStep.DEVICE_SELECTION) {
 			loadAvailableDevices();
@@ -78,7 +190,7 @@ export const DeviceAuthenticationFlow: React.FC<DeviceAuthenticationFlowProps> =
 
 	// Handle callbacks specifically for authentication
 	useEffect(() => {
-		const handleCallback = async (callbackData: any) => {
+		const handleCallback = async (callbackData: MFACallbackData) => {
 			if (!authenticationState) return;
 
 			setIsLoading(true);
@@ -105,24 +217,6 @@ export const DeviceAuthenticationFlow: React.FC<DeviceAuthenticationFlowProps> =
 			MFACallbackRouter.unregisterCallbackHandler('authentication');
 		};
 	}, [authenticationState]);
-
-	// Load available devices
-	const loadAvailableDevices = useCallback(async () => {
-		setIsLoading(true);
-		try {
-			const devices = await DeviceAuthenticationService.getAvailableDevices({
-				environmentId,
-				username,
-				userId,
-				deviceAuthenticationPolicyId,
-			});
-			setAvailableDevices(devices);
-		} catch (_error) {
-			toastV8.error('Failed to load available devices');
-		} finally {
-			setIsLoading(false);
-		}
-	}, [environmentId, username, userId, deviceAuthenticationPolicyId]);
 
 	// Handle device selection
 	const handleDeviceSelect = useCallback(
@@ -170,56 +264,6 @@ export const DeviceAuthenticationFlow: React.FC<DeviceAuthenticationFlowProps> =
 		setAuthenticationState(updatedState);
 	}, [authenticationState, getPreviousStep]);
 
-	// Handle authentication initiation
-	const handleInitiateAuthentication = useCallback(async () => {
-		if (!selectedDevice) {
-			toastV8.error('Please select a device');
-			return;
-		}
-
-		setIsLoading(true);
-		try {
-			const result = await DeviceAuthenticationService.initializeDeviceAuthentication({
-				environmentId,
-				username,
-				userId,
-				deviceAuthenticationPolicyId,
-				deviceId: selectedDevice.id,
-			});
-
-			// Update challenge data
-			if (result.challenge) {
-				const challenge: AuthenticationChallenge = {
-					challengeId: result.challenge.id,
-					challengeType: result.challenge.type as any,
-					expiresAt: result.challenge.expiresAt || Date.now() + 15 * 60 * 1000,
-					attemptsRemaining: 3,
-					challengeData: result.challenge.data,
-				};
-
-				const updatedState = AuthenticationStateManager.updateChallengeData(
-					authenticationState!,
-					challenge
-				);
-				setAuthenticationState(updatedState);
-				setChallengeData(challenge);
-			}
-
-			toastV8.success('Authentication challenge initiated');
-		} catch (_error) {
-			toastV8.error('Failed to initiate authentication');
-		} finally {
-			setIsLoading(false);
-		}
-	}, [
-		selectedDevice,
-		authenticationState,
-		environmentId,
-		username,
-		userId,
-		deviceAuthenticationPolicyId,
-	]);
-
 	// Handle OTP validation
 	const handleValidateOTP = useCallback(async () => {
 		if (!otpCode || !challengeData) {
@@ -231,8 +275,8 @@ export const DeviceAuthenticationFlow: React.FC<DeviceAuthenticationFlowProps> =
 		try {
 			const result = await DeviceAuthenticationService.validateOTP({
 				environmentId,
-				username,
-				userId,
+				username: username || '',
+				userId: userId || '',
 				deviceAuthenticationId: challengeData.challengeId,
 				otp: otpCode,
 			});
@@ -254,48 +298,6 @@ export const DeviceAuthenticationFlow: React.FC<DeviceAuthenticationFlowProps> =
 			setIsLoading(false);
 		}
 	}, [otpCode, challengeData, authenticationState, environmentId, username, userId, onComplete]);
-
-	// Get step name for display
-	const getStepName = (step: AuthenticationStep): string => {
-		const stepNames = {
-			[AuthenticationStep.DEVICE_SELECTION]: 'Device Selection',
-			[AuthenticationStep.CHALLENGE_INITIATION]: 'Challenge Initiation',
-			[AuthenticationStep.CHALLENGE_RESPONSE]: 'Challenge Response',
-			[AuthenticationStep.AUTHENTICATION_COMPLETE]: 'Authentication Complete',
-		};
-		return stepNames[step] || 'Unknown Step';
-	};
-
-	// Get next step
-	const getNextStep = (currentStep: AuthenticationStep): AuthenticationStep => {
-		const stepOrder = Object.values(AuthenticationStep);
-		const currentIndex = stepOrder.indexOf(currentStep);
-		return stepOrder[Math.min(currentIndex + 1, stepOrder.length - 1)];
-	};
-
-	// Get previous step
-	const getPreviousStep = (currentStep: AuthenticationStep): AuthenticationStep => {
-		const stepOrder = Object.values(AuthenticationStep);
-		const currentIndex = stepOrder.indexOf(currentStep);
-		return stepOrder[Math.max(currentIndex - 1, 0)];
-	};
-
-	// Execute step-specific logic
-	const executeStepLogic = async (step: AuthenticationStep) => {
-		switch (step) {
-			case AuthenticationStep.CHALLENGE_INITIATION:
-				await handleInitiateAuthentication();
-				break;
-			case AuthenticationStep.CHALLENGE_RESPONSE:
-				// OTP validation handled separately
-				break;
-			case AuthenticationStep.AUTHENTICATION_COMPLETE:
-				// Completion logic
-				break;
-			default:
-				break;
-		}
-	};
 
 	// Calculate progress percentage
 	const getProgressPercentage = (): number => {
@@ -321,6 +323,7 @@ export const DeviceAuthenticationFlow: React.FC<DeviceAuthenticationFlowProps> =
 						<div className="space-y-2">
 							{availableDevices.map((device) => (
 								<button
+									type="button"
 									key={device.id}
 									onClick={() => handleDeviceSelect(device)}
 									className={`w-full p-3 border-2 rounded-lg text-left transition-colors ${

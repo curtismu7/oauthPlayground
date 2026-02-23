@@ -13804,7 +13804,8 @@ app.post('/api/pingone/mfa/lookup-user', async (req, res) =>
 )
 
 // List Users with Search and Pagination
-app.post('/api/pingone/mfa/list-users', async (req, res) => {
+app.post('/api/pingone/mfa/list-users', async (req, res) =>
+{
 	try {
 		const { environmentId, workerToken, search, limit, offset } = req.body;
 
@@ -13926,7 +13927,8 @@ app.post('/api/pingone/mfa/list-users', async (req, res) => {
 			message: error instanceof Error ? error.message : String(error),
 		});
 	}
-});
+}
+)
 
 // Read Single Device Authentication Policy (GET with policyId param)
 app.get('/api/pingone/mfa/device-authentication-policies/:policyId', async (req, res) => {

@@ -80,6 +80,7 @@ const HeroSubtitle = styled.p<{ $tone: string }>`
   font-size: ${({ $tone }) => ($tone === 'friendly' ? '1.125rem' : '1.25rem')};
   margin: 0 0 2rem 0;
   line-height: 1.6;
+  color: #000000;
   opacity: 0.9;
   
   @media (max-width: 768px) {
@@ -126,6 +127,7 @@ const Tagline = styled.div<{ $tone: string }>`
   font-weight: ${({ $tone }) => ($tone === 'friendly' ? '500' : '600')};
   margin: 0 0 3rem 0;
   line-height: 1.5;
+  color: #000000;
 `;
 
 // Industry-specific hero components
@@ -147,7 +149,7 @@ const BankingContent = styled.div`
   h1 {
     font-size: 2.5rem;
     font-weight: 700;
-    color: white;
+    color: #000000;
     margin: 0 0 1rem 0;
     line-height: 1.2;
     
@@ -158,7 +160,7 @@ const BankingContent = styled.div`
   
   p {
     font-size: 1.125rem;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(0, 0, 0, 0.9);
     margin: 0 0 2rem 0;
     line-height: 1.6;
   }
@@ -176,7 +178,7 @@ const BankingFeature = styled.div<{ $brandColor: string }>`
   align-items: center;
   gap: 0.75rem;
   padding: 1rem;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.05);
   border-radius: 8px;
   border-left: 4px solid ${({ $brandColor }) => $brandColor};
   
@@ -189,14 +191,14 @@ const BankingFeature = styled.div<{ $brandColor: string }>`
     flex: 1;
     
     h4 {
-      color: white;
+      color: #000000;
       font-size: 0.875rem;
       font-weight: 600;
       margin: 0 0 0.25rem 0;
     }
     
     p {
-      color: rgba(255, 255, 255, 0.8);
+      color: rgba(0, 0, 0, 0.8);
       font-size: 0.75rem;
       margin: 0;
     }
@@ -205,7 +207,7 @@ const BankingFeature = styled.div<{ $brandColor: string }>`
 
 const BankingVisual = styled.div<{ $brandColor: string }>`
   position: relative;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.05);
   border-radius: 16px;
   padding: 2rem;
   backdrop-filter: blur(10px);

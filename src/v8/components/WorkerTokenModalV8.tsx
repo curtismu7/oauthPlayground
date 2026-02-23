@@ -195,7 +195,9 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 	const handleSaveCredentials = async () => {
 		// Validate required fields
 		if (!environmentId.trim() || !clientId.trim() || !clientSecret.trim()) {
-			toastV8.error('Please fill in all required fields (Environment ID, Client ID, and Client Secret)');
+			toastV8.error(
+				'Please fill in all required fields (Environment ID, Client ID, and Client Secret)'
+			);
 			return;
 		}
 

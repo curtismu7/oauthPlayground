@@ -101,13 +101,16 @@ const getParameterGridStyles = (columns?: number) => ({
 	margin: '1rem 0',
 });
 
-const getButtonStyles = (variant?: 'primary' | 'secondary' | 'danger' | 'outline' | 'success', size?: 'small' | 'medium' | 'large') => {
+const getButtonStyles = (
+	variant?: 'primary' | 'secondary' | 'danger' | 'outline' | 'success',
+	size?: 'small' | 'medium' | 'large'
+) => {
 	const sizeStyles = {
 		small: '0.5rem 1rem',
 		medium: '0.625rem 1.25rem',
 		large: '0.875rem 2rem',
 	};
-	
+
 	const variantStyles = {
 		primary: {
 			background: '#3b82f6',
@@ -135,9 +138,9 @@ const getButtonStyles = (variant?: 'primary' | 'secondary' | 'danger' | 'outline
 			borderColor: '#059669',
 		},
 	};
-	
+
 	const style = variantStyles[variant || 'secondary'];
-	
+
 	return {
 		padding: sizeStyles[size || 'medium'],
 		border: `1px solid ${style.borderColor}`,
@@ -224,7 +227,7 @@ const getCardStyles = (variant?: 'default' | 'elevated' | 'outlined') => {
 		padding: '1.5rem',
 		marginBottom: '1.5rem',
 	};
-	
+
 	switch (variant) {
 		case 'elevated':
 			return {
@@ -306,17 +309,16 @@ export interface ActionRowProps {
 }
 
 export const ActionRowComponent: React.FC<ActionRowProps> = ({ children, justify = 'start' }) => {
-	const justifyContent = 
-		justify === 'start' ? 'flex-start' :
-		justify === 'center' ? 'center' :
-		justify === 'end' ? 'flex-end' :
-		'space-between';
-	
-	return (
-		<div style={{ ...getActionRowStyles(), justifyContent }}>
-			{children}
-		</div>
-	);
+	const justifyContent =
+		justify === 'start'
+			? 'flex-start'
+			: justify === 'center'
+				? 'center'
+				: justify === 'end'
+					? 'flex-end'
+					: 'space-between';
+
+	return <div style={{ ...getActionRowStyles(), justifyContent }}>{children}</div>;
 };
 
 export interface ButtonProps {
@@ -341,7 +343,7 @@ export const ButtonComponent: React.FC<ButtonProps> = ({
 	target,
 }) => {
 	const buttonStyles = getButtonStyles(variant, size);
-	
+
 	if (href) {
 		return (
 			<a
@@ -360,7 +362,10 @@ export const ButtonComponent: React.FC<ButtonProps> = ({
 			type={type}
 			onClick={onClick}
 			disabled={disabled}
-			style={{ ...buttonStyles, ...(disabled ? { opacity: 0.5, cursor: 'not-allowed', transform: 'none' } : {}) }}
+			style={{
+				...buttonStyles,
+				...(disabled ? { opacity: 0.5, cursor: 'not-allowed', transform: 'none' } : {}),
+			}}
 		>
 			{children}
 		</button>
@@ -403,21 +408,26 @@ export class FlowUIComponentsService {
 		return {
 			InfoBox: InfoBoxComponent,
 			ParameterGrid: ParameterGridComponent,
-			ParameterLabel: ({ children }: { children: React.ReactNode }) => 
-				<div style={getParameterLabelStyles()}>{children}</div>,
-			ParameterValue: ({ children }: { children: React.ReactNode }) => 
-				<div style={getParameterValueStyles()}>{children}</div>,
+			ParameterLabel: ({ children }: { children: React.ReactNode }) => (
+				<div style={getParameterLabelStyles()}>{children}</div>
+			),
+			ParameterValue: ({ children }: { children: React.ReactNode }) => (
+				<div style={getParameterValueStyles()}>{children}</div>
+			),
 			ActionRow: ActionRowComponent,
 			Button: ButtonComponent,
 			GeneratedContentBox: GeneratedContentBoxComponent,
 			Card: CardComponent,
 			SectionDivider: () => <div style={getSectionDividerStyles()} />,
-			InfoList: ({ children }: { children: React.ReactNode }) => 
-				<ul style={getInfoListStyles()}>{children}</ul>,
-			InfoText: ({ children }: { children: React.ReactNode }) => 
-				<p style={getInfoTextStyles()}>{children}</p>,
-			InfoTitle: ({ children }: { children: React.ReactNode }) => 
-				<h3 style={getInfoTitleStyles()}>{children}</h3>,
+			InfoList: ({ children }: { children: React.ReactNode }) => (
+				<ul style={getInfoListStyles()}>{children}</ul>
+			),
+			InfoText: ({ children }: { children: React.ReactNode }) => (
+				<p style={getInfoTextStyles()}>{children}</p>
+			),
+			InfoTitle: ({ children }: { children: React.ReactNode }) => (
+				<h3 style={getInfoTitleStyles()}>{children}</h3>
+			),
 
 			// Utility functions
 			copyToClipboard: async (text: string) => {

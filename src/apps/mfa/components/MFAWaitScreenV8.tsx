@@ -40,17 +40,22 @@ export const MFAWaitScreenV8: React.FC<MFAWaitScreenV8Props> = ({
 			}}
 		>
 			{/* Loading Spinner */}
-			<div
+			<output
 				className="spinner-border text-primary mb-3"
-				role="status"
 				style={{ width: '3rem', height: '3rem' }}
 			>
 				<span className="visually-hidden">Loading...</span>
-			</div>
+			</output>
 
 			{/* Loading Message */}
 			<div className="text-center">
-				<h5 className="text-muted mb-2">{message}</h5>
+				<output
+					className="text-muted mb-2"
+					style={{ fontSize: '1.25rem', fontWeight: '500' }}
+					aria-live="polite"
+				>
+					{message}
+				</output>
 				<p className="text-muted small mb-0">Please wait while we prepare the next step...</p>
 			</div>
 

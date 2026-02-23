@@ -248,8 +248,6 @@ export const MFADocumentationModalV8PingUI: React.FC<MFADocumentationModalV8Ping
 				}}
 			>
 				<div
-					role="button"
-					tabIndex={0}
 					style={{
 						background: 'var(--ping-secondary-color, #f8f9fa)',
 						borderRadius: 'var(--ping-border-radius-lg, 0.5rem)',
@@ -259,12 +257,6 @@ export const MFADocumentationModalV8PingUI: React.FC<MFADocumentationModalV8Ping
 						overflow: 'auto',
 						boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2)',
 						width: '90%',
-					}}
-					onClick={(e) => e.stopPropagation()}
-					onKeyDown={(e) => {
-						if (e.key === 'Enter' || e.key === ' ') {
-							e.stopPropagation();
-						}
 					}}
 				>
 					{/* Header */}
@@ -370,7 +362,7 @@ export const MFADocumentationModalV8PingUI: React.FC<MFADocumentationModalV8Ping
 					{/* Use Case Selection */}
 					{selectedCategory === 'specific' && (
 						<div style={{ marginBottom: 'var(--ping-spacing-xl, 2rem)' }}>
-							<label
+							<div
 								style={{
 									display: 'block',
 									fontSize: '14px',
@@ -378,10 +370,9 @@ export const MFADocumentationModalV8PingUI: React.FC<MFADocumentationModalV8Ping
 									color: 'var(--ping-text-color, #1a1a1a)',
 									marginBottom: 'var(--ping-spacing-sm, 0.5rem)',
 								}}
-								htmlFor="selectusecasesselectedusecasessizeselected"
 							>
 								Select Use Cases ({selectedUseCases.size} selected)
-							</label>
+							</div>
 							<div
 								style={{
 									maxHeight: '300px',

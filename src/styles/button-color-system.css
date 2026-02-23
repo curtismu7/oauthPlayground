@@ -1,0 +1,709 @@
+/**
+ * Button Color System - 4-Base Color Design with Shaded Variants
+ * 
+ * Design Philosophy:
+ * - Base Colors Only: Red, Black, Blue, White
+ * - Shaded Colors: All other colors created through shading/tinting
+ * - Semantic Meaning: Each color has specific usage guidelines
+ * - Accessibility: High contrast ratios for all variants
+ */
+
+/* ===== BASE COLOR PALETTE ===== */
+:root {
+  /* Pure Base Colors */
+  --color-red: #DC2626;      /* Pure Red */
+  --color-black: #000000;    /* Pure Black */
+  --color-blue: #2563EB;     /* Pure Blue */
+  --color-white: #FFFFFF;    /* Pure White */
+}
+
+/* ===== SHADED COLOR SYSTEM ===== */
+
+/* Success States (Green Shades) */
+:root {
+  /* Green - Created by shading Blue with Yellow tint */
+  --color-success-primary: #059669;      /* Deep Green (Blue + Yellow) */
+  --color-success-secondary: #10B981;    /* Medium Green */
+  --color-success-light: #34D399;       /* Light Green */
+  --color-success-bg: #ECFDF5;          /* Success Background */
+  --color-success-border: #10B981;      /* Success Border */
+}
+
+/* Warning States (Yellow/Orange Shades) */
+:root {
+  /* Yellow/Orange - Created by shading Red with Yellow tint */
+  --color-warning-primary: #D97706;      /* Deep Orange (Red + Yellow) */
+  --color-warning-secondary: #F59E0B;    /* Medium Orange */
+  --color-warning-light: #FCD34D;       /* Light Yellow */
+  --color-warning-bg: #FEF3C7;          /* Warning Background */
+  --color-warning-border: #F59E0B;      /* Warning Border */
+}
+
+/* Info States (Gray/Blue Shades) */
+:root {
+  /* Gray - Created by shading Black with White tint */
+  --color-info-primary: #6B7280;         /* Medium Gray (Black + White) */
+  --color-info-secondary: #9CA3AF;       /* Light Gray */
+  --color-info-light: #D1D5DB;          /* Very Light Gray */
+  --color-info-bg: #F9FAFB;             /* Info Background */
+  --color-info-border: #E5E7EB;         /* Info Border */
+}
+
+/* Danger/Error States (Red Shades) */
+:root {
+  /* Red Variants - Different shades of base Red */
+  --color-danger-primary: #DC2626;       /* Pure Red */
+  --color-danger-secondary: #EF4444;     /* Light Red */
+  --color-danger-light: #F87171;         /* Very Light Red */
+  --color-danger-bg: #FEE2E2;           /* Danger Background */
+  --color-danger-border: #EF4444;        /* Danger Border */
+}
+
+/* ===== BUTTON VARIANT SYSTEM ===== */
+
+/* 1. Primary Buttons */
+.btn-primary {
+  /* Blue Base with White Border */
+  background: var(--color-blue);
+  color: var(--color-white);
+  border: 1px solid var(--color-white);
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  
+  &:hover {
+    background: #1D4ED8; /* Darker Blue */
+    border-color: var(--color-white);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+  }
+  
+  &:active {
+    background: #1E40AF; /* Even Darker Blue */
+    border-color: var(--color-white);
+    transform: translateY(0);
+  }
+  
+  &:focus {
+    outline: 2px solid var(--color-blue);
+    outline-offset: 2px;
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    border-color: var(--color-white);
+  }
+}
+
+/* 2. Secondary Buttons */
+.btn-secondary {
+  /* White Base with Blue accent */
+  background: var(--color-white);
+  color: var(--color-blue);
+  border: 2px solid var(--color-blue);
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  
+  &:hover {
+    background: #EFF6FF; /* Light Blue tint */
+    border-color: #1D4ED8;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+  }
+  
+  &:active {
+    background: #DBEAFE; /* Even Lighter Blue */
+    transform: translateY(0);
+  }
+  
+  &:focus {
+    outline: 2px solid var(--color-blue);
+    outline-offset: 2px;
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+/* 3. Success Buttons */
+.btn-success {
+  /* Shaded Green with White Border */
+  background: var(--color-success-primary);
+  color: var(--color-white);
+  border: 1px solid var(--color-white);
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  
+  &:hover {
+    background: var(--color-success-secondary);
+    border-color: var(--color-white);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.15);
+  }
+  
+  &:active {
+    background: #047857;
+    border-color: var(--color-white);
+    transform: translateY(0);
+  }
+  
+  &:focus {
+    outline: 2px solid var(--color-success-primary);
+    outline-offset: 2px;
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    border-color: var(--color-white);
+  }
+}
+
+/* 4. Warning Buttons */
+.btn-warning {
+  /* Shaded Orange/Yellow with White Border */
+  background: var(--color-warning-primary);
+  color: var(--color-white);
+  border: 1px solid var(--color-white);
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  
+  &:hover {
+    background: var(--color-warning-secondary);
+    border-color: var(--color-white);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(217, 119, 6, 0.15);
+  }
+  
+  &:active {
+    background: #B45309;
+    border-color: var(--color-white);
+    transform: translateY(0);
+  }
+  
+  &:focus {
+    outline: 2px solid var(--color-warning-primary);
+    outline-offset: 2px;
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    border-color: var(--color-white);
+  }
+}
+
+/* 5. Danger Buttons */
+.btn-danger {
+  /* Pure Red with White Border */
+  background: var(--color-danger-primary);
+  color: var(--color-white);
+  border: 1px solid var(--color-white);
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  
+  &:hover {
+    background: var(--color-danger-secondary);
+    border-color: var(--color-white);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+  }
+  
+  &:active {
+    background: #DC2626;
+    border-color: var(--color-white);
+    transform: translateY(0);
+  }
+  
+  &:focus {
+    outline: 2px solid var(--color-danger-primary);
+    outline-offset: 2px;
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    border-color: var(--color-white);
+  }
+}
+
+/* 6. Info/Neutral Buttons */
+.btn-info {
+  /* Shaded Gray with White Border */
+  background: var(--color-info-primary);
+  color: var(--color-white);
+  border: 1px solid var(--color-white);
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  
+  &:hover {
+    background: var(--color-info-secondary);
+    border-color: var(--color-white);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(107, 114, 128, 0.15);
+  }
+  
+  &:active {
+    background: #4B5563;
+    border-color: var(--color-white);
+    transform: translateY(0);
+  }
+  
+  &:focus {
+    outline: 2px solid var(--color-info-primary);
+    outline-offset: 2px;
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    border-color: var(--color-white);
+  }
+}
+
+/* ===== WORKER TOKEN BUTTON STATE SYSTEM ===== */
+
+/* Green - Active Token */
+.btn-token-active {
+  background: var(--color-success-primary);
+  color: var(--color-white);
+  border: 1px solid var(--color-white);
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  
+  &::before {
+    content: '✓ Active';
+    color: var(--color-white);
+    font-weight: 600;
+  }
+  
+  &:hover {
+    background: var(--color-success-secondary);
+    border-color: var(--color-white);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.15);
+  }
+}
+
+/* Yellow - Expiring Soon */
+.btn-token-expiring {
+  background: var(--color-warning-primary);
+  color: var(--color-white);
+  border: 1px solid var(--color-white);
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  
+  &::before {
+    content: '⚠ Expiring Soon';
+    color: var(--color-white);
+    font-weight: 600;
+  }
+  
+  &:hover {
+    background: var(--color-warning-secondary);
+    border-color: var(--color-white);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(217, 119, 6, 0.15);
+  }
+}
+
+/* Red - No Token/Expired */
+.btn-token-inactive {
+  background: var(--color-danger-primary);
+  color: var(--color-white);
+  border: 1px solid var(--color-white);
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  
+  &::before {
+    content: '✗ No Token';
+    color: var(--color-white);
+    font-weight: 600;
+  }
+  
+  &:hover {
+    background: var(--color-danger-secondary);
+    border-color: var(--color-white);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+  }
+}
+
+/* Gray - Loading/Checking */
+.btn-token-loading {
+  background: var(--color-info-primary);
+  color: var(--color-white);
+  border: 1px solid var(--color-white);
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  
+  &::before {
+    content: '⏳ Checking...';
+    color: var(--color-white);
+    font-weight: 600;
+  }
+  
+  &:hover {
+    background: var(--color-info-secondary);
+    border-color: var(--color-white);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(107, 114, 128, 0.15);
+  }
+}
+
+/* ===== BOOTSTRAP CLASSES IMPLEMENTATION ===== */
+
+/* Override Bootstrap to add white borders for dark buttons */
+.btn-primary.border-white,
+.btn-success.border-white,
+.btn-warning.border-white,
+.btn-danger.border-white,
+.btn-info.border-white {
+  border-color: #FFFFFF !important;
+}
+
+.btn-primary.border-white:hover,
+.btn-success.border-white:hover,
+.btn-warning.border-white:hover,
+.btn-danger.border-white:hover,
+.btn-info.border-white:hover {
+  border-color: #FFFFFF !important;
+}
+
+/* Enhanced primary button with consistent white border */
+.btn-primary.border-white {
+  border-width: 1px !important;
+  border-style: solid !important;
+}
+
+/* Enhanced secondary button with thicker border */
+.btn-outline-primary.border-2 {
+  border-width: 2px !important;
+}
+
+/* Success variant with white border and text */
+.btn-success.border-white.text-white {
+  border-color: #FFFFFF !important;
+  color: #FFFFFF !important;
+}
+
+/* Warning variant with white border and text */
+.btn-warning.border-white.text-white {
+  border-color: #FFFFFF !important;
+  color: #FFFFFF !important;
+}
+
+/* Danger variant with white border and text */
+.btn-danger.border-white.text-white {
+  border-color: #FFFFFF !important;
+  color: #FFFFFF !important;
+}
+
+/* Info/Secondary variant with white border and text */
+.btn-secondary.border-white.text-white {
+  border-color: #FFFFFF !important;
+  color: #FFFFFF !important;
+  background-color: #6B7280 !important;
+}
+
+.btn-secondary.border-white.text-white:hover {
+  background-color: #9CA3AF !important;
+  border-color: #FFFFFF !important;
+}
+
+/* ===== BUTTON SIZES ===== */
+
+.btn-sm {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+  border-radius: 0.375rem;
+}
+
+.btn-lg {
+  padding: 0.875rem 1.75rem;
+  font-size: 1rem;
+  border-radius: 0.625rem;
+}
+
+.btn-xl {
+  padding: 1rem 2rem;
+  font-size: 1.125rem;
+  border-radius: 0.75rem;
+}
+
+/* ===== BUTTON GROUPS ===== */
+
+.btn-group {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  
+  .btn-group-vertical {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+}
+
+/* ===== OUTLINE BUTTONS ===== */
+
+.btn-outline-primary {
+  background: transparent;
+  color: var(--color-blue);
+  border: 2px solid var(--color-blue);
+  
+  &:hover {
+    background: var(--color-blue);
+    color: var(--color-white);
+  }
+}
+
+.btn-outline-success {
+  background: transparent;
+  color: var(--color-success-primary);
+  border: 2px solid var(--color-success-primary);
+  
+  &:hover {
+    background: var(--color-success-primary);
+    color: var(--color-white);
+  }
+}
+
+.btn-outline-warning {
+  background: transparent;
+  color: var(--color-warning-primary);
+  border: 2px solid var(--color-warning-primary);
+  
+  &:hover {
+    background: var(--color-warning-primary);
+    color: var(--color-white);
+  }
+}
+
+.btn-outline-danger {
+  background: transparent;
+  color: var(--color-danger-primary);
+  border: 2px solid var(--color-danger-primary);
+  
+  &:hover {
+    background: var(--color-danger-primary);
+    color: var(--color-white);
+  }
+}
+
+/* ===== GHOST BUTTONS ===== */
+
+.btn-ghost-primary {
+  background: transparent;
+  color: var(--color-blue);
+  border: 1px solid transparent;
+  
+  &:hover {
+    background: var(--color-blue);
+    color: var(--color-white);
+    border-color: var(--color-blue);
+  }
+}
+
+.btn-ghost-success {
+  background: transparent;
+  color: var(--color-success-primary);
+  border: 1px solid transparent;
+  
+  &:hover {
+    background: var(--color-success-primary);
+    color: var(--color-white);
+    border-color: var(--color-success-primary);
+  }
+}
+
+.btn-ghost-warning {
+  background: transparent;
+  color: var(--color-warning-primary);
+  border: 1px solid transparent;
+  
+  &:hover {
+    background: var(--color-warning-primary);
+    color: var(--color-white);
+    border-color: var(--color-warning-primary);
+  }
+}
+
+.btn-ghost-danger {
+  background: transparent;
+  color: var(--color-danger-primary);
+  border: 1px solid transparent;
+  
+  &:hover {
+    background: var(--color-danger-primary);
+    color: var(--color-white);
+    border-color: var(--color-danger-primary);
+  }
+}
+
+/* ===== LOADING STATES ===== */
+
+.btn-loading {
+  position: relative;
+  color: transparent !important;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 1rem;
+    height: 1rem;
+    margin: -0.5rem 0 0 -0.5rem;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 0.8s linear infinite;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ===== ACCESSIBILITY ===== */
+
+.btn:focus-visible {
+  outline: 2px solid var(--color-blue);
+  outline-offset: 2px;
+}
+
+.btn:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ===== UTILITY CLASSES ===== */
+
+.btn-block {
+  display: block;
+  width: 100%;
+}
+
+.btn-rounded-full {
+  border-radius: 9999px;
+}
+
+.btn-uppercase {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.btn-shadow {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.btn-shadow-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.btn-shadow-xl {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* ===== RESPONSIVE ===== */
+
+@media (max-width: 640px) {
+  .btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+  
+  .btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+  }
+  
+  .btn-lg {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+  }
+  
+  .btn-xl {
+    padding: 1rem 1.75rem;
+    font-size: 1.125rem;
+  }
+}

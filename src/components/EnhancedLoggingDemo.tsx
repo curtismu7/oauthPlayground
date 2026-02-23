@@ -39,16 +39,26 @@ const EnhancedLoggingDemo: React.FC = () => {
 				});
 				break;
 			case 'success':
-				enhancedLogger.success('EnhancedLoggingDemo', 'This is a success message', {
-					successCode: 'DEMO_005',
-					context: 'Testing enhanced logging',
-				}, 150);
+				enhancedLogger.success(
+					'EnhancedLoggingDemo',
+					'This is a success message',
+					{
+						successCode: 'DEMO_005',
+						context: 'Testing enhanced logging',
+					},
+					150
+				);
 				break;
 			case 'flow':
-				enhancedLogger.flow('EnhancedLoggingDemo', 'This is a flow message', {
-					flowCode: 'DEMO_006',
-					context: 'Testing enhanced logging',
-				}, 200);
+				enhancedLogger.flow(
+					'EnhancedLoggingDemo',
+					'This is a flow message',
+					{
+						flowCode: 'DEMO_006',
+						context: 'Testing enhanced logging',
+					},
+					200
+				);
 				break;
 			case 'security':
 				enhancedLogger.security('EnhancedLoggingDemo', 'This is a security message', {
@@ -69,10 +79,15 @@ const EnhancedLoggingDemo: React.FC = () => {
 				});
 				break;
 			case 'api':
-				enhancedLogger.api('EnhancedLoggingDemo', 'This is an API message', {
-					apiCode: 'DEMO_010',
-					context: 'Testing enhanced logging',
-				}, 300);
+				enhancedLogger.api(
+					'EnhancedLoggingDemo',
+					'This is an API message',
+					{
+						apiCode: 'DEMO_010',
+						context: 'Testing enhanced logging',
+					},
+					300
+				);
 				break;
 			case 'storage':
 				enhancedLogger.storage('EnhancedLoggingDemo', 'This is a storage message', {
@@ -96,7 +111,7 @@ const EnhancedLoggingDemo: React.FC = () => {
 
 		// Add to local display
 		const timestamp = new Date().toLocaleTimeString();
-		setLogs(prev => [...prev, `[${timestamp}] ${level.toUpperCase()} logged`]);
+		setLogs((prev) => [...prev, `[${timestamp}] ${level.toUpperCase()} logged`]);
 	};
 
 	const handleClearLogs = () => {
@@ -142,13 +157,19 @@ const EnhancedLoggingDemo: React.FC = () => {
 		<div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
 			<h2>🎨 Enhanced Logging Demo</h2>
 			<p>
-				This demo showcases the enhanced logging system with colors, icons, banners, and proper formatting.
-				Click the buttons below to generate different types of log entries.
+				This demo showcases the enhanced logging system with colors, icons, banners, and proper
+				formatting. Click the buttons below to generate different types of log entries.
 			</p>
 
 			<div style={{ marginBottom: '2rem' }}>
 				<h3>📝 Test Different Log Levels</h3>
-				<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '0.5rem' }}>
+				<div
+					style={{
+						display: 'grid',
+						gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
+						gap: '0.5rem',
+					}}
+				>
 					{logButtons.map(({ level, label, color }) => (
 						<button
 							key={level}
@@ -258,7 +279,14 @@ const EnhancedLoggingDemo: React.FC = () => {
 				</div>
 			</div>
 
-			<div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '0.5rem', padding: '1rem' }}>
+			<div
+				style={{
+					background: '#f0fdf4',
+					border: '1px solid #bbf7d0',
+					borderRadius: '0.5rem',
+					padding: '1rem',
+				}}
+			>
 				<h3>🌟 Features</h3>
 				<ul style={{ margin: '0', paddingLeft: '1.5rem', color: '#166534' }}>
 					<li>Color-coded log levels with ANSI escape codes</li>

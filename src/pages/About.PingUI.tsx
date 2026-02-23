@@ -393,17 +393,21 @@ export default function AboutPingUI() {
 						</div>
 						<div className="header-text">
 							<h1>PingOne MasterFlow API Documentation</h1>
-							<p>
-								Complete guide to what the PingOne MasterFlow API does and how to use it
-							</p>
+							<p>Complete guide to what the PingOne MasterFlow API does and how to use it</p>
 						</div>
 					</div>
 					<div className="version-badge">
 						<h3>Versions</h3>
 						<div className="version-info">
-							<div><strong>App:</strong> {APP_VERSION}</div>
-							<div><strong>MFA (v8):</strong> {MFA_V8_VERSION}</div>
-							<div><strong>Unified (v8u):</strong> {UNIFIED_V8U_VERSION}</div>
+							<div>
+								<strong>App:</strong> {APP_VERSION}
+							</div>
+							<div>
+								<strong>MFA (v8):</strong> {MFA_V8_VERSION}
+							</div>
+							<div>
+								<strong>Unified (v8u):</strong> {UNIFIED_V8U_VERSION}
+							</div>
 						</div>
 					</div>
 				</div>
@@ -421,9 +425,9 @@ export default function AboutPingUI() {
 							OpenID Connect (OIDC) flows using PingOne as the identity provider.
 						</p>
 						<p>
-							Built with modern web technologies and following PingOne UI design principles, this platform
-							provides an intuitive interface for exploring authentication flows, managing credentials,
-							and understanding the intricacies of identity and access management.
+							Built with modern web technologies and following PingOne UI design principles, this
+							platform provides an intuitive interface for exploring authentication flows, managing
+							credentials, and understanding the intricacies of identity and access management.
 						</p>
 					</div>
 				</div>
@@ -452,8 +456,8 @@ export default function AboutPingUI() {
 									MFA Integration
 								</h3>
 								<p>
-									Complete multi-factor authentication support including SMS, Email, TOTP,
-									and FIDO2 with PingOne MFA services.
+									Complete multi-factor authentication support including SMS, Email, TOTP, and FIDO2
+									with PingOne MFA services.
 								</p>
 							</div>
 							<div className="feature-card">
@@ -462,8 +466,8 @@ export default function AboutPingUI() {
 									Developer Tools
 								</h3>
 								<p>
-									Comprehensive debugging tools, token inspectors, and API call monitoring
-									for development and testing.
+									Comprehensive debugging tools, token inspectors, and API call monitoring for
+									development and testing.
 								</p>
 							</div>
 							<div className="feature-card">
@@ -472,8 +476,8 @@ export default function AboutPingUI() {
 									Educational Content
 								</h3>
 								<p>
-									In-depth documentation, tutorials, and best practices for OAuth 2.0,
-									OIDC, and PingOne integration.
+									In-depth documentation, tutorials, and best practices for OAuth 2.0, OIDC, and
+									PingOne integration.
 								</p>
 							</div>
 							<div className="feature-card">
@@ -492,8 +496,8 @@ export default function AboutPingUI() {
 									Flow Comparison
 								</h3>
 								<p>
-									Side-by-side comparison of different OAuth flows to understand their
-									differences and use cases.
+									Side-by-side comparison of different OAuth flows to understand their differences
+									and use cases.
 								</p>
 							</div>
 						</div>
@@ -535,9 +539,7 @@ export default function AboutPingUI() {
 						<h2>Getting Started</h2>
 					</div>
 					<div className="section-content">
-						<p>
-							Ready to explore the MasterFlow API? Here's how to get started:
-						</p>
+						<p>Ready to explore the MasterFlow API? Here's how to get started:</p>
 						<ol style={{ paddingLeft: '1.5rem', lineHeight: '1.8' }}>
 							<li>
 								<strong>Configure Your Environment:</strong> Set up your PingOne application
@@ -595,11 +597,10 @@ export default function AboutPingUI() {
 				{/* Footer */}
 				<div className="footer">
 					<p>
-						Made with <MDIIcon icon="heart" size={14} className="heart" /> for the PingOne developer community
+						Made with <MDIIcon icon="heart" size={14} className="heart" /> for the PingOne developer
+						community
 					</p>
-					<p>
-						© 2026 MasterFlow API. Built with PingOne UI design system.
-					</p>
+					<p>© 2026 MasterFlow API. Built with PingOne UI design system.</p>
 				</div>
 			</div>
 		</div>

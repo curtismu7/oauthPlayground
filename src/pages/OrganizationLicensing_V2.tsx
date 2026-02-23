@@ -97,7 +97,7 @@ const ErrorMessage = styled.div`
 const _LoadingMessage = styled.div`
 	text-align: center;
 	padding: 2rem;
-	color: #6b7280;
+	color: white;
 `;
 
 const LicenseGrid = styled.div`
@@ -128,11 +128,11 @@ const InfoRow = styled.div`
 
 const InfoLabel = styled.span`
 	font-weight: 600;
-	color: #6b7280;
+	color: white;
 `;
 
 const InfoValue = styled.span`
-	color: #111827;
+	color: white;
 `;
 
 const OrganizationLicensingV2: React.FC = () => {

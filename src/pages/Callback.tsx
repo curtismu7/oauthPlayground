@@ -51,7 +51,7 @@ const ErrorIcon = styled(FiAlertCircle)`
 const Title = styled.h1`
   font-size: 1.5rem;
   font-weight: 600;
-  color: ${({ theme }) => theme.colors.gray900};
+  color: white;
   margin-bottom: 1rem;
 `;
 

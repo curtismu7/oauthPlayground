@@ -3,6 +3,7 @@
 // PingOne UI Design System Implementation with View Mode Controls
 
 import React, { useCallback, useMemo, useState } from 'react';
+import '../../styles/button-color-system.css';
 
 // PingOne UI Icon Component
 const MDIIcon: React.FC<{
@@ -132,36 +133,57 @@ const getUseCaseStyle = (viewMode: ViewMode) => ({
 	marginBottom: viewMode === 'full' ? '1rem' : viewMode === 'compact' ? '0.75rem' : '0.5rem',
 });
 
-const getButtonStyle = (variant: 'primary' | 'secondary' = 'primary', viewMode: ViewMode) => ({
-	background:
-		variant === 'primary' ? 'var(--pingone-brand-primary)' : 'var(--pingone-surface-secondary)',
-	color: variant === 'primary' ? 'var(--pingone-text-inverse)' : 'var(--pingone-text-primary)',
-	border: variant === 'secondary' ? '1px solid var(--pingone-border-primary)' : 'none',
-	padding:
-		viewMode === 'full'
-			? '0.75rem 1.5rem'
-			: viewMode === 'compact'
-				? '0.5rem 1rem'
-				: '0.375rem 0.75rem',
-	borderRadius: '0.375rem',
-	fontWeight: '500',
-	fontSize: viewMode === 'full' ? '0.875rem' : viewMode === 'compact' ? '0.8rem' : '0.75rem',
-	cursor: 'pointer',
-	transition: 'all 0.15s ease-in-out',
-	display: 'inline-flex',
-	alignItems: 'center',
-	gap: '0.5rem',
-	'&:hover': {
-		background:
-			variant === 'primary'
-				? 'var(--pingone-brand-primary-dark)'
-				: 'var(--pingone-surface-tertiary)',
-	},
-	'&:disabled': {
-		opacity: '0.5',
-		cursor: 'not-allowed',
-	},
-});
+const getButtonStyle = (variant: 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info' = 'primary', viewMode: ViewMode) => {
+	const baseStyle = {
+		padding: viewMode === 'full' ? '0.75rem 1.5rem' : viewMode === 'compact' ? '0.5rem 1rem' : '0.375rem 0.75rem',
+		borderRadius: '0.5rem',
+		fontWeight: '500',
+		fontSize: viewMode === 'full' ? '0.875rem' : viewMode === 'compact' ? '0.75rem' : '0.625rem',
+		cursor: 'pointer',
+		transition: 'all 0.15s ease-in-out',
+		display: 'inline-flex',
+		alignItems: 'center',
+		gap: '0.5rem',
+	};
+	
+	switch (variant) {
+		case 'primary':
+			return {
+				...baseStyle,
+				className: 'btn-primary',
+			};
+		case 'secondary':
+			return {
+				...baseStyle,
+				className: 'btn-secondary',
+			};
+		case 'success':
+			return {
+				...baseStyle,
+				className: 'btn-success',
+			};
+		case 'warning':
+			return {
+				...baseStyle,
+				className: 'btn-warning',
+			};
+		case 'danger':
+			return {
+				...baseStyle,
+				className: 'btn-danger',
+			};
+		case 'info':
+			return {
+				...baseStyle,
+				className: 'btn-info',
+			};
+		default:
+			return {
+				...baseStyle,
+				className: 'btn-primary',
+			};
+	}
+};
 
 const getTokenDisplayStyle = () => ({
 	background: 'var(--pingone-surface-secondary)',

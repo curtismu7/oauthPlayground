@@ -392,8 +392,8 @@ export const MFAErrorDisplay: React.FC<{
 								</div>
 							)}
 						</div>
-					</details>
-				</div>
+					</div>
+				</details>
 			)}
 		</div>
 	);

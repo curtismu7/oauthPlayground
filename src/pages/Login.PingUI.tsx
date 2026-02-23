@@ -136,21 +136,21 @@ const LoginPingUI: React.FC = () => {
 		// Load environment ID from service
 		const envId = EnvironmentIdServiceV8.getEnvironmentId();
 		if (envId && !formData.environmentId) {
-			setFormData(prev => ({ ...prev, environmentId: envId }));
+			setFormData((prev) => ({ ...prev, environmentId: envId }));
 		}
 	}, []);
 
 	const handleInputChange = (field: keyof typeof formData, value: string) => {
-		setFormData(prev => ({ ...prev, [field]: value }));
+		setFormData((prev) => ({ ...prev, [field]: value }));
 		if (error) setError('');
 	};
 
 	const handleAdvancedSettingChange = (field: keyof AdvancedSettings, value: any) => {
-		setAdvancedSettings(prev => ({ ...prev, [field]: value }));
+		setAdvancedSettings((prev) => ({ ...prev, [field]: value }));
 	};
 
 	const handleClientAssertionChange = (field: keyof ClientAssertion, value: string) => {
-		setClientAssertion(prev => ({ ...prev, [field]: value }));
+		setClientAssertion((prev) => ({ ...prev, [field]: value }));
 	};
 
 	const handleSubmit = async (e: React.FormEvent) => {
@@ -182,7 +182,6 @@ const LoginPingUI: React.FC = () => {
 			});
 
 			showSuccess('Successfully logged in!');
-
 		} catch (err) {
 			const errorMessage = err instanceof Error ? err.message : 'Login failed';
 			setError(errorMessage);
@@ -277,7 +276,7 @@ const LoginPingUI: React.FC = () => {
 
 				<div className="login-success">
 					<CollapsibleHeader title="Login Success">Login Success</CollapsibleHeader>
-					
+
 					<div className="success-icon">
 						<MDIIcon icon="FiCheckCircle" size={64} ariaLabel="Success" />
 					</div>
@@ -287,15 +286,21 @@ const LoginPingUI: React.FC = () => {
 
 					<div className="user-info">
 						<h3>User Information</h3>
-						<p><strong>Client ID:</strong> {user.clientId}</p>
-						<p><strong>Environment:</strong> {user.environmentId}</p>
-						<p><strong>Version:</strong> {packageJson.version}</p>
+						<p>
+							<strong>Client ID:</strong> {user.clientId}
+						</p>
+						<p>
+							<strong>Environment:</strong> {user.environmentId}
+						</p>
+						<p>
+							<strong>Version:</strong> {packageJson.version}
+						</p>
 					</div>
 
 					<button
 						type="button"
 						className="logout-btn"
-						onClick={() => window.location.href = '/logout'}
+						onClick={() => (window.location.href = '/logout')}
 					>
 						<MDIIcon icon="FiLogIn" size={16} ariaLabel="Logout" />
 						Logout
@@ -461,7 +466,7 @@ const LoginPingUI: React.FC = () => {
 
 			<div className="login-pingui">
 				<CollapsibleHeader title="Login">Login</CollapsibleHeader>
-				
+
 				<div className="form-container">
 					<h1 className="form-title">MasterFlow API Login</h1>
 
@@ -555,7 +560,9 @@ const LoginPingUI: React.FC = () => {
 										<label>Request Object Policy</label>
 										<select
 											value={advancedSettings.requestObjectPolicy}
-											onChange={(e) => handleAdvancedSettingChange('requestObjectPolicy', e.target.value)}
+											onChange={(e) =>
+												handleAdvancedSettingChange('requestObjectPolicy', e.target.value)
+											}
 											style={{ width: '100%', padding: '0.5rem', borderRadius: '0.375rem' }}
 										>
 											<option value="default">Default</option>
@@ -569,7 +576,9 @@ const LoginPingUI: React.FC = () => {
 											<input
 												type="checkbox"
 												checked={advancedSettings.oidcSessionManagement}
-												onChange={(e) => handleAdvancedSettingChange('oidcSessionManagement', e.target.checked)}
+												onChange={(e) =>
+													handleAdvancedSettingChange('oidcSessionManagement', e.target.checked)
+												}
 												style={{ marginRight: '0.5rem' }}
 											/>
 											OIDC Session Management
@@ -582,7 +591,9 @@ const LoginPingUI: React.FC = () => {
 											id="resourceScopes"
 											type="text"
 											value={advancedSettings.resourceScopes}
-											onChange={(e) => handleAdvancedSettingChange('resourceScopes', e.target.value)}
+											onChange={(e) =>
+												handleAdvancedSettingChange('resourceScopes', e.target.value)
+											}
 											placeholder="api:read api:write"
 										/>
 									</div>
@@ -590,11 +601,7 @@ const LoginPingUI: React.FC = () => {
 							</div>
 						)}
 
-						<button
-							type="submit"
-							className="btn-primary"
-							disabled={isLoading}
-						>
+						<button type="submit" className="btn-primary" disabled={isLoading}>
 							{isLoading ? (
 								<>
 									<Spinner size={16} />
@@ -620,12 +627,7 @@ const LoginPingUI: React.FC = () => {
 						</button>
 					</div>
 
-					{debugMode && (
-						<DebugCredentials
-							credentials={formData}
-							onUpdate={setFormData}
-						/>
-					)}
+					{debugMode && <DebugCredentials credentials={formData} onUpdate={setFormData} />}
 				</div>
 
 				{showAuthModal && (

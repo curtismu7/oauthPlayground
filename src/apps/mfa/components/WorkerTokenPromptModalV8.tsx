@@ -22,16 +22,9 @@ export const WorkerTokenPromptModalV8: React.FC<WorkerTokenPromptModalV8Props> =
 	onClose,
 	onGetToken,
 }) => {
-	if (!isOpen) return null;
-
-	const handleGetToken = () => {
-		onGetToken();
+	const handleCancel = React.useCallback(() => {
 		onClose();
-	};
-
-	const handleCancel = () => {
-		onClose();
-	};
+	}, [onClose]);
 
 	// Handle ESC key
 	React.useEffect(() => {
@@ -45,12 +38,19 @@ export const WorkerTokenPromptModalV8: React.FC<WorkerTokenPromptModalV8Props> =
 		return () => window.removeEventListener('keydown', handleEscape);
 	}, [isOpen, handleCancel]);
 
+	if (!isOpen) return null;
+
+	const handleGetToken = () => {
+		onGetToken();
+		onClose();
+	};
+
 	return (
 		<>
 			{/* Overlay */}
-			<div
-				role="button"
-				tabIndex={0}
+			<button
+				type="button"
+				aria-label="Close modal"
 				style={{
 					position: 'fixed',
 					top: 0,
@@ -62,6 +62,10 @@ export const WorkerTokenPromptModalV8: React.FC<WorkerTokenPromptModalV8Props> =
 					alignItems: 'center',
 					justifyContent: 'center',
 					zIndex: 10000,
+					border: 'none',
+					padding: 0,
+					margin: 0,
+					cursor: 'pointer',
 				}}
 				onClick={handleCancel}
 				onKeyDown={(e) => {
@@ -76,6 +80,10 @@ export const WorkerTokenPromptModalV8: React.FC<WorkerTokenPromptModalV8Props> =
 					aria-modal="true"
 					aria-labelledby="worker-token-prompt-title"
 					onClick={(e) => e.stopPropagation()}
+					onKeyDown={(e) => {
+						// Prevent keyboard events from bubbling to overlay
+						e.stopPropagation();
+					}}
 					style={{
 						background: 'white',
 						borderRadius: '8px',
@@ -228,7 +236,7 @@ export const WorkerTokenPromptModalV8: React.FC<WorkerTokenPromptModalV8Props> =
 						</button>
 					</div>
 				</div>
-			</div>
+			</button>
 		</>
 	);
 };

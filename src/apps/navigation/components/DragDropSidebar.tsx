@@ -649,6 +649,21 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						),
 					},
 					{
+						id: 'delete-all-devices',
+						path: '/v8/delete-all-devices',
+						label: '🗑️ Delete All Devices',
+						icon: (
+							<ColoredIcon $color="#ef4444">
+								<FiTrash2 />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="Delete all MFA devices for a user with filtering options">
+								UTILITY
+							</MigrationBadge>
+						),
+					},
+					{
 						id: 'token-exchange-v7',
 						path: '/flows/token-exchange-v7',
 						label: 'Token Exchange (V8M)',

@@ -6,9 +6,9 @@ import { FiAlertCircle, FiCheckCircle, FiKey, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
 import { CompactApplicationPicker } from '../components/CompactApplicationPicker';
 import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
-import { WorkerTokenModalV8Streamlined } from '../v8/components/WorkerTokenModalV8.Streamlined';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { getAnyWorkerToken } from '../utils/workerTokenDetection';
+import { WorkerTokenModalV8Streamlined } from '../v8/components/WorkerTokenModalV8.Streamlined';
 
 const PageContainer = styled.div`
 	max-width: 90rem;

@@ -58,11 +58,12 @@ const getThStyles = () => ({
 	fontSize: '0.875rem',
 });
 
-const getTbodyStyles = () => ({
-	'& tr:nth-child(even)': {
-		background: '#f8fafc',
-	},
-} as React.CSSProperties);
+const getTbodyStyles = () =>
+	({
+		'& tr:nth-child(even)': {
+			background: '#f8fafc',
+		},
+	}) as React.CSSProperties;
 
 const getTdStyles = () => ({
 	padding: '1rem',
@@ -188,10 +189,20 @@ export const OAuthFlowComparisonService = {
 						<tr>
 							<th style={getThStyles()}>Feature</th>
 							<th style={getThStyles()}>Authorization Code</th>
-							<th style={{ ...getThStyles(), background: highlightFlow === 'jwt' ? '#8b5cf6' : undefined }}>
+							<th
+								style={{
+									...getThStyles(),
+									background: highlightFlow === 'jwt' ? '#8b5cf6' : undefined,
+								}}
+							>
 								JWT Bearer (RFC 7523)
 							</th>
-							<th style={{ ...getThStyles(), background: highlightFlow === 'saml' ? '#06b6d4' : undefined }}>
+							<th
+								style={{
+									...getThStyles(),
+									background: highlightFlow === 'saml' ? '#06b6d4' : undefined,
+								}}
+							>
 								SAML Bearer (RFC 7522)
 							</th>
 						</tr>
@@ -270,12 +281,14 @@ export const OAuthFlowComparisonService = {
 							<td style={getTdStyles()}>Optional (PKCE recommended)</td>
 							<td style={getTdStyles()}>
 								<span style={getBadgeStyles('warning')}>
-									<MDIIcon icon="FiAlertTriangle" size={16} ariaLabel="Warning" /> Required (JWT signing)
+									<MDIIcon icon="FiAlertTriangle" size={16} ariaLabel="Warning" /> Required (JWT
+									signing)
 								</span>
 							</td>
 							<td style={getTdStyles()}>
 								<span style={getBadgeStyles('warning')}>
-									<MDIIcon icon="FiAlertTriangle" size={16} ariaLabel="Warning" /> Required (SAML signing)
+									<MDIIcon icon="FiAlertTriangle" size={16} ariaLabel="Warning" /> Required (SAML
+									signing)
 								</span>
 							</td>
 						</tr>
@@ -404,7 +417,9 @@ export const OAuthFlowComparisonService = {
 										<li>Cross-domain authentication</li>
 									</ul>
 								</td>
-								<td style={getTdStyles()}>Enterprise SaaS, government systems, corporate portals</td>
+								<td style={getTdStyles()}>
+									Enterprise SaaS, government systems, corporate portals
+								</td>
 							</tr>
 						</tbody>
 					</table>
