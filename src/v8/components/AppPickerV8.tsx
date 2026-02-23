@@ -175,10 +175,10 @@ export const AppPickerV8: React.FC<AppPickerV8Props> = ({ environmentId, onAppSe
 	// Debug: Log button state
 	console.log(`${MODULE_TAG} Render - Button state:`, {
 		isLoading,
-		hasEnvironmentId: !!environmentId.trim(),
+		hasEnvironmentId: !!(environmentId && environmentId.trim()),
 		tokenStatus: tokenStatus.status,
 		tokenIsValid: tokenStatus.isValid,
-		buttonDisabled: isLoading || !environmentId.trim() || !tokenStatus.isValid,
+		buttonDisabled: isLoading || !(environmentId && environmentId.trim()) || !tokenStatus.isValid,
 	});
 
 	return (
