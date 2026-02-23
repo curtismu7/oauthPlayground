@@ -87,7 +87,7 @@ const StandardHeader: React.FC<StandardHeaderProps> = ({
 
             /* Header Dimensions */
             --header-height: 3.5rem;
-            --header-padding-x: 1.25rem;
+            --header-padding-x: 0.75rem;
             --header-padding-y: 0.875rem;
             --header-border-radius: 0.5rem;
             --header-margin-bottom: 1rem;
