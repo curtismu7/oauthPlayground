@@ -435,6 +435,7 @@ export const OAuthFlowComparisonService = {
 			</CollapsibleHeader>
 		);
 	},
-};
+} as const;
 
+// Re-export for compatibility
 export default OAuthFlowComparisonService;
