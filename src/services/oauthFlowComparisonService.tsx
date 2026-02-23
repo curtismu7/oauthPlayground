@@ -62,7 +62,7 @@ const getTbodyStyles = () => ({
 	'& tr:nth-child(even)': {
 		background: '#f8fafc',
 	},
-});
+} as React.CSSProperties);
 
 const getTdStyles = () => ({
 	padding: '1rem',
