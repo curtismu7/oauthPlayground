@@ -56,28 +56,24 @@ New: UnifiedEnvironmentServiceV8
 ---
 
 ### 3. **Flow & Educational Services Consolidation**
-**Current Services (6):**
+**Current Services (4):**
 - `FlowComparisonService` - Flow comparison and analysis
 - `OAuthFlowComparisonService` - OAuth flow comparison
-- `ResourcesAPIServiceV8` - Resources API tutorial
 - `EducationalContentService` - Educational content management
 - `SPIFFEService` - SPIFFE/SPIRE integration
-- `SDKExampleService` - SDK demonstration
 
 **🎯 Consolidation Strategy:**
 ```
 New: UnifiedEducationalServiceV8
 ├── Flow comparison & analysis (from FlowComparisonService + OAuthFlowComparisonService)
 ├── Educational content management (from EducationalContentService)
-├── Resources API tutorials (from ResourcesAPIServiceV8)
-├── SDK examples & demonstrations (from SDKExampleService)
 ├── SPIFFE/SPIRE integration (from SPIFFEService)
 └── Learning analytics & progress tracking
 ```
 
-**Impact:** Reduces 6 services → 1 service (83% reduction)
-**Apps Affected:** 4 educational apps
-**Risk:** Low (Educational functionality)
+**Impact:** Reduces 4 services → 1 service (75% reduction)
+**Apps Affected:** 24+ apps (including V7 flows)
+**Risk:** Medium-High (V7 flow dependencies)
 
 ---
 
@@ -110,7 +106,7 @@ New: UnifiedUtilityServiceV8
 ## 📈 **Proposed Service Architecture After Consolidation**
 
 ### **Phase 1: Safe Consolidations (Low Risk)**
-1. **Educational Services** (6 → 1) - 83% reduction
+1. **Educational Services** (4 → 1) - 75% reduction
 2. **Utility Services** (6 → 1) - 83% reduction
 
 ### **Phase 2: Medium Risk Consolidations**
@@ -130,9 +126,9 @@ New: UnifiedUtilityServiceV8
 4. **`UnifiedUtilityServiceV8`** - Monitoring, logging, state, & utilities
 
 ### **Service Reduction Summary:**
-- **Before:** 16 unique services
+- **Before:** 14 unique services
 - **After:** 4 unified services
-- **Reduction:** 75% fewer services
+- **Reduction:** 71% fewer services
 - **Maintenance Impact:** Significantly reduced complexity
 
 ---
@@ -165,7 +161,7 @@ New: UnifiedUtilityServiceV8
 ## 📊 **Benefits of Consolidation**
 
 ### **Development Benefits:**
-- **75% reduction** in service count
+- **71% reduction** in service count
 - **Simplified dependency management**
 - **Consistent APIs** across similar functionality
 - **Reduced bundle size** through code sharing
@@ -220,7 +216,7 @@ New: UnifiedUtilityServiceV8
 ---
 
 *Analysis Date: February 23, 2026*
-*Current Services: 16*
+*Current Services: 14*
 *Proposed Services: 4*
-*Reduction: 75%*
+*Reduction: 71%*
 *Estimated Implementation: 8 weeks*
