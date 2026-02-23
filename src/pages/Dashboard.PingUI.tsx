@@ -228,20 +228,8 @@ const getViewModeContainerStyle = () => ({
 	flexWrap: 'nowrap',
 });
 
-const getCompactHeaderStyle = () => ({
-	padding: '1rem 0',
-});
-
 const getHiddenHeaderStyle = () => ({
 	padding: '0.5rem 0',
-});
-
-const getCompactContentStyle = () => ({
-	padding: '1rem',
-});
-
-const getHiddenContentStyle = () => ({
-	padding: '0.5rem',
 });
 
 // ============================================================================
@@ -262,13 +250,35 @@ const Dashboard: React.FC = () => {
 	});
 	const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([]);
 	const [isRefreshing, setIsRefreshing] = useState(false);
-	const [viewMode, setViewMode] = useState<'full' | 'compact' | 'hidden'>('full');
+	const [viewMode, setViewMode] = useState<'full' | 'hidden'>('full');
 
 	const toggleSection = useCallback((section: keyof typeof collapsedSections) => {
 		setCollapsedSections((prev) => ({
 			...prev,
 			[section]: !prev[section],
 		}));
+	}, []);
+
+	const collapseAllSections = useCallback(() => {
+		setCollapsedSections({
+			pingOneApiStatus: true,
+			quickAccess: true,
+			oauthFlows: true,
+			apiEndpoints: true,
+			recentActivity: true,
+		});
+		setViewMode('hidden');
+	}, []);
+
+	const expandAllSections = useCallback(() => {
+		setCollapsedSections({
+			pingOneApiStatus: false,
+			quickAccess: false,
+			oauthFlows: false,
+			apiEndpoints: false,
+			recentActivity: false,
+		});
+		setViewMode('full');
 	}, []);
 
 	// Check server status
@@ -385,7 +395,6 @@ const Dashboard: React.FC = () => {
 				<div
 					style={{
 						...getHeaderStyle(),
-						...(viewMode === 'compact' && getCompactHeaderStyle()),
 						...(viewMode === 'hidden' && getHiddenHeaderStyle()),
 					}}
 				>
@@ -429,26 +438,17 @@ const Dashboard: React.FC = () => {
 								<BootstrapButton
 									variant={viewMode === 'full' ? 'primary' : 'secondary'}
 									greyBorder={viewMode === 'full'}
-									onClick={() => setViewMode('full')}
-									title="Full view - Show all sections"
+									onClick={expandAllSections}
+									title="Full Show - Expand all sections"
 								>
 									<MDIIcon icon="view-fullscreen" size={14} />
-									Full
-								</BootstrapButton>
-								<BootstrapButton
-									variant={viewMode === 'compact' ? 'primary' : 'secondary'}
-									greyBorder={viewMode === 'compact'}
-									onClick={() => setViewMode('compact')}
-									title="Compact view - Reduced spacing"
-								>
-									<MDIIcon icon="view-compact" size={14} />
-									Compact
+									Full Show
 								</BootstrapButton>
 								<BootstrapButton
 									variant={viewMode === 'hidden' ? 'primary' : 'secondary'}
 									greyBorder={viewMode === 'hidden'}
-									onClick={() => setViewMode('hidden')}
-									title="Hidden view - Minimal display"
+									onClick={collapseAllSections}
+									title="Hidden - Collapse all sections"
 								>
 									<MDIIcon icon="eye-off" size={14} />
 									Hidden
