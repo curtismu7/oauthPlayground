@@ -275,7 +275,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 	const handleGenerate = async () => {
 		await generateSpinner.executeWithSpinner(
 			async () => {
-				if (!environmentId.trim() || !clientId.trim() || !clientSecret.trim()) {
+				if (!environmentId?.trim() || !clientId?.trim() || !clientSecret?.trim()) {
 					toastV8.error('Please fill in all required fields');
 					throw new Error('Please fill in all required fields');
 				}
@@ -294,9 +294,9 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 
 				// Save credentials to unifiedWorkerTokenService
 				const credentials: UnifiedWorkerTokenCredentials = {
-					environmentId: environmentId.trim(),
-					clientId: clientId.trim(),
-					clientSecret: clientSecret.trim(),
+					environmentId: environmentId?.trim() || '',
+					clientId: clientId?.trim() || '',
+					clientSecret: clientSecret?.trim() || '',
 					scopes: normalizedScopes, // Already an array
 					region: region,
 					tokenEndpointAuthMethod: authMethod,

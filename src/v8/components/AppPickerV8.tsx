@@ -112,7 +112,7 @@ export const AppPickerV8: React.FC<AppPickerV8Props> = ({ environmentId, onAppSe
 			isValid: tokenStatus.isValid,
 		});
 
-		if (!environmentId.trim()) {
+		if (!environmentId?.trim()) {
 			toastV8.error('Please enter an Environment ID first');
 			return;
 		}
@@ -190,21 +190,21 @@ export const AppPickerV8: React.FC<AppPickerV8Props> = ({ environmentId, onAppSe
 					<button
 						type="button"
 						onClick={handleDiscover}
-						disabled={isLoading || !environmentId.trim() || !tokenStatus.isValid}
+						disabled={isLoading || !environmentId?.trim() || !tokenStatus.isValid}
 						className="discover-button"
 						style={{
 							flex: 1,
 							minWidth: '200px',
 							padding: '10px 16px',
 							background:
-								isLoading || !environmentId.trim() || !tokenStatus.isValid ? '#9ca3af' : '#3b82f6',
+								isLoading || !environmentId?.trim() || !tokenStatus.isValid ? '#9ca3af' : '#3b82f6',
 							color: 'white',
 							border: 'none',
 							borderRadius: '4px',
 							fontSize: '14px',
 							fontWeight: '600',
 							cursor:
-								isLoading || !environmentId.trim() || !tokenStatus.isValid
+								isLoading || !environmentId?.trim() || !tokenStatus.isValid
 									? 'not-allowed'
 									: 'pointer',
 							transition: 'background 0.2s ease',

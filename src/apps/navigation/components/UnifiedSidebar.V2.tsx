@@ -444,8 +444,106 @@ const menuData: MenuItem[] = [
 		],
 	},
 	{
+		id: 'unified-flows',
+		label: 'Unified Flows (V8U)',
+		icon: 'mdi-merge',
+		children: [
+			{
+				id: 'unified-oauth-flow',
+				label: 'Unified OAuth Flow',
+				icon: 'mdi-key',
+				path: '/v8u/unified/oauth-authz',
+				version: 'v8u',
+				description: 'Unified OAuth 2.0 Flow with enhanced features',
+				status: 'active',
+				badge: {
+					text: 'REAL',
+					variant: 'success'
+				}
+			},
+			{
+				id: 'unified-mfa-flow',
+				label: 'Unified MFA Flow',
+				icon: 'mdi-shield-check',
+				path: '/v8/unified-mfa',
+				version: 'v8',
+				description: 'Unified Multi-Factor Authentication Flow',
+				status: 'active',
+				badge: {
+					text: 'REAL',
+					variant: 'success'
+				}
+			},
+			{
+				id: 'enhanced-state-management',
+				label: 'Enhanced State Management',
+				icon: 'mdi-cog',
+				path: '/enhanced-state-management',
+				version: 'v8u',
+				description: 'Advanced state management and debugging',
+				status: 'active',
+				badge: {
+					text: 'MOCK',
+					variant: 'default'
+				}
+			},
+			{
+				id: 'flow-comparison',
+				label: 'Flow Comparison',
+				icon: 'mdi-compare',
+				path: '/flow-comparison',
+				version: 'v8u',
+				description: 'Compare different OAuth flows side by side',
+				status: 'active',
+				badge: {
+					text: 'MOCK',
+					variant: 'default'
+				}
+			},
+			{
+				id: 'token-api-documentation',
+				label: 'Token API Documentation',
+				icon: 'mdi-file-document',
+				path: '/token-api-documentation',
+				version: 'v8u',
+				description: 'Comprehensive token API documentation',
+				status: 'active',
+				badge: {
+					text: 'MOCK',
+					variant: 'default'
+				}
+			},
+			{
+				id: 'spiffe-spire-flow',
+				label: 'SPIFFE/SPIRE Flow',
+				icon: 'mdi-shield-check',
+				path: '/spiffe-spire-flow',
+				version: 'v8u',
+				description: 'SPIFFE/SPIRE identity flow',
+				status: 'experimental',
+				badge: {
+					text: 'MOCK',
+					variant: 'default'
+				}
+			},
+			{
+				id: 'spiffe-spire-token-display',
+				label: 'SPIFFE/SPIRE Token Display',
+				icon: 'mdi-shield-check',
+				path: '/spiffe-spire-token-display',
+				version: 'v8u',
+				description: 'SPIFFE/SPIRE token visualization',
+				status: 'experimental',
+				badge: {
+					text: 'MOCK',
+					variant: 'default'
+				}
+			},
+		],
+	},
+	{
 		id: 'oauth-flows',
-		label: 'OAuth Flows',
+		label: 'Real Flows',
 		icon: 'mdi-key',
 		children: [
 			{
@@ -456,10 +554,6 @@ const menuData: MenuItem[] = [
 				version: 'v8',
 				description: 'OAuth 2.0 Authorization Code Flow with PKCE',
 				status: 'active',
-				badge: {
-					text: 'REAL',
-					variant: 'success'
-				}
 			},
 			{
 				id: 'oauth-implicit',
@@ -680,104 +774,6 @@ const menuData: MenuItem[] = [
 				label: 'Security Monitoring',
 				icon: 'mdi-activity',
 				path: '/security-monitoring',
-			},
-		],
-	},
-	{
-		id: 'unified-flows',
-		label: 'Unified Flows (V8U)',
-		icon: 'mdi-merge',
-		children: [
-			{
-				id: 'unified-oauth-flow',
-				label: 'Unified OAuth Flow',
-				icon: 'mdi-key',
-				path: '/v8u/unified/oauth-authz',
-				version: 'v8u',
-				description: 'Unified OAuth 2.0 Flow with enhanced features',
-				status: 'active',
-				badge: {
-					text: 'REAL',
-					variant: 'success'
-				}
-			},
-			{
-				id: 'unified-mfa-flow',
-				label: 'Unified MFA Flow',
-				icon: 'mdi-shield-check',
-				path: '/v8/unified-mfa',
-				version: 'v8',
-				description: 'Unified Multi-Factor Authentication Flow',
-				status: 'active',
-				badge: {
-					text: 'REAL',
-					variant: 'success'
-				}
-			},
-			{
-				id: 'enhanced-state-management',
-				label: 'Enhanced State Management',
-				icon: 'mdi-cog',
-				path: '/enhanced-state-management',
-				version: 'v8u',
-				description: 'Advanced state management and debugging',
-				status: 'active',
-				badge: {
-					text: 'MOCK',
-					variant: 'default'
-				}
-			},
-			{
-				id: 'flow-comparison',
-				label: 'Flow Comparison',
-				icon: 'mdi-compare',
-				path: '/flow-comparison',
-				version: 'v8u',
-				description: 'Compare different OAuth flows side by side',
-				status: 'active',
-				badge: {
-					text: 'MOCK',
-					variant: 'default'
-				}
-			},
-			{
-				id: 'token-api-documentation',
-				label: 'Token API Documentation',
-				icon: 'mdi-file-document',
-				path: '/token-api-documentation',
-				version: 'v8u',
-				description: 'Comprehensive token API documentation',
-				status: 'active',
-				badge: {
-					text: 'MOCK',
-					variant: 'default'
-				}
-			},
-			{
-				id: 'spiffe-spire-flow',
-				label: 'SPIFFE/SPIRE Flow',
-				icon: 'mdi-shield-check',
-				path: '/spiffe-spire-flow',
-				version: 'v8u',
-				description: 'SPIFFE/SPIRE identity flow',
-				status: 'experimental',
-				badge: {
-					text: 'MOCK',
-					variant: 'default'
-				}
-			},
-			{
-				id: 'spiffe-spire-token-display',
-				label: 'SPIFFE/SPIRE Token Display',
-				icon: 'mdi-shield-check',
-				path: '/spiffe-spire-token-display',
-				version: 'v8u',
-				description: 'SPIFFE/SPIRE token visualization',
-				status: 'experimental',
-				badge: {
-					text: 'MOCK',
-					variant: 'default'
-				}
 			},
 		],
 	},

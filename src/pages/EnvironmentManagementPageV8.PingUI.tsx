@@ -287,6 +287,10 @@ const EnvironmentManagementPageV8PingUI: React.FC = () => {
 
 	// Memoized filtered environments
 	const _filteredEnvironments = useMemo(() => {
+		// Defensive check to prevent filter error when environments is undefined
+		if (!environments || !Array.isArray(environments)) {
+			return [];
+		}
 		return environments.filter((_env) => {
 			// Add any filtering logic here if needed
 			return true;
@@ -310,7 +314,7 @@ const EnvironmentManagementPageV8PingUI: React.FC = () => {
 		);
 	}
 
-	if (loading && environments.length === 0) {
+	if (loading && (!environments || environments.length === 0)) {
 		return <div style={getLoadingMessageStyle()}>Loading environments...</div>;
 	}
 
