@@ -9,8 +9,6 @@ import React from 'react';
 import { FiAlertTriangle, FiX } from 'react-icons/fi';
 import { PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
 
-const _MODULE_TAG = '[🔑 WORKER-TOKEN-PROMPT-MODAL-V8]';
-
 interface WorkerTokenPromptModalV8Props {
 	isOpen: boolean;
 	onClose: () => void;
@@ -22,8 +20,6 @@ export const WorkerTokenPromptModalV8: React.FC<WorkerTokenPromptModalV8Props> =
 	onClose,
 	onGetToken,
 }) => {
-	if (!isOpen) return null;
-
 	const handleGetToken = () => {
 		onGetToken();
 		onClose();
@@ -33,17 +29,19 @@ export const WorkerTokenPromptModalV8: React.FC<WorkerTokenPromptModalV8Props> =
 		onClose();
 	};
 
-	// Handle ESC key
+	// Handle ESC key - moved before conditional return
 	React.useEffect(() => {
 		const handleEscape = (e: KeyboardEvent) => {
 			if (e.key === 'Escape' && isOpen) {
-				handleCancel();
+				onClose();
 			}
 		};
 
 		window.addEventListener('keydown', handleEscape);
 		return () => window.removeEventListener('keydown', handleEscape);
-	}, [isOpen, handleCancel]);
+	}, [isOpen, onClose]);
+
+	if (!isOpen) return null;
 
 	return (
 		<>
@@ -64,15 +62,19 @@ export const WorkerTokenPromptModalV8: React.FC<WorkerTokenPromptModalV8Props> =
 					zIndex: 10000,
 				}}
 				onClick={handleCancel}
+				onKeyDown={(e) => {
+					if (e.key === 'Enter' || e.key === ' ') {
+						handleCancel();
+					}
+				}}
 			>
 				{/* Modal */}
 				<div
-					role="button"
-					tabIndex={0}
 					role="dialog"
 					aria-modal="true"
 					aria-labelledby="worker-token-prompt-title"
 					onClick={(e) => e.stopPropagation()}
+					onKeyDown={(e) => e.stopPropagation()}
 					style={{
 						background: 'white',
 						borderRadius: '8px',

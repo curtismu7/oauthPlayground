@@ -1,29 +1,52 @@
 import React from 'react';
-import {
-	FiActivity,
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiCloud,
-	FiCpu,
-	FiDatabase,
-	FiExternalLink,
-	FiEye,
-	FiGitBranch,
-	FiGlobe,
-	FiInfo,
-	FiKey,
-	FiLock,
-	FiSettings,
-	FiShield,
-	FiTarget,
-	FiTrendingUp,
-	FiUsers,
-	FiZap,
-} from 'react-icons/fi';
 import styled from 'styled-components';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { FlowHeader } from '../services/flowHeaderService';
+
+// MDI Icon Helper Functions
+const getMDIIconClass = (iconName: string): string => {
+	const iconMap: Record<string, string> = {
+		FiActivity: 'mdi-activity',
+		FiAlertTriangle: 'mdi-alert-triangle',
+		FiCheckCircle: 'mdi-check-circle',
+		FiCloud: 'mdi-cloud',
+		FiCpu: 'mdi-cpu-64-bit',
+		FiDatabase: 'mdi-database',
+		FiExternalLink: 'mdi-open-in-new',
+		FiEye: 'mdi-eye',
+		FiGitBranch: 'mdi-git',
+		FiGlobe: 'mdi-earth',
+		FiInfo: 'mdi-information',
+		FiKey: 'mdi-key',
+		FiLock: 'mdi-lock',
+		FiSettings: 'mdi-cog',
+		FiShield: 'mdi-shield-check',
+		FiTarget: 'mdi-target',
+		FiTrendingUp: 'mdi-trending-up',
+		FiUsers: 'mdi-account-group',
+		FiZap: 'mdi-flash',
+	};
+	return iconMap[iconName] || 'mdi-help-circle';
+};
+
+// MDI Icon Component
+const MDIIcon: React.FC<{ icon: string; size?: number; style?: React.CSSProperties; ariaLabel?: string }> = ({ 
+	icon, 
+	size = 16, 
+	style, 
+	ariaLabel 
+}) => (
+	<span
+		className={`mdi ${getMDIIconClass(icon)}`}
+		style={{ 
+			fontSize: `${size}px`, 
+			...style 
+		}}
+		aria-label={ariaLabel}
+		aria-hidden={!ariaLabel}
+	/>
+);
 
 const Container = styled.div`
 	max-width: 1400px;
@@ -282,7 +305,7 @@ const AIIdentityArchitectures: React.FC = () => {
 
 			<Header>
 				<h1>
-					<FiCpu />
+					<MDIIcon icon="FiCpu" ariaLabel="CPU" />
 					Identity for AI Architectures
 				</h1>
 				<p>
@@ -295,7 +318,7 @@ const AIIdentityArchitectures: React.FC = () => {
 			<CollapsibleHeader
 				title="Identity Layers for AI"
 				subtitle="Understanding the different layers of identity in AI architectures"
-				icon={<FiShield />}
+				icon={<MDIIcon icon="FiShield" ariaLabel="Security" />}
 				theme="blue"
 				defaultCollapsed={false}
 			>
@@ -303,7 +326,7 @@ const AIIdentityArchitectures: React.FC = () => {
 					<ArchitectureDiagram>
 						<Layer>
 							<LayerIcon color="#3b82f6">
-								<FiUsers />
+								<MDIIcon icon="FiUsers" ariaLabel="Users" />
 							</LayerIcon>
 							<LayerContent>
 								<h3>Users</h3>
@@ -313,7 +336,7 @@ const AIIdentityArchitectures: React.FC = () => {
 
 						<Layer>
 							<LayerIcon color="#8b5cf6">
-								<FiKey />
+								<MDIIcon icon="FiKey" ariaLabel="Key" />
 							</LayerIcon>
 							<LayerContent>
 								<h3>API Clients</h3>
@@ -323,7 +346,7 @@ const AIIdentityArchitectures: React.FC = () => {
 
 						<Layer>
 							<LayerIcon color="#06b6d4">
-								<FiCpu />
+								<MDIIcon icon="FiCpu" ariaLabel="CPU" />
 							</LayerIcon>
 							<LayerContent>
 								<h3>Workloads</h3>
@@ -333,7 +356,7 @@ const AIIdentityArchitectures: React.FC = () => {
 
 						<Layer>
 							<LayerIcon color="#10b981">
-								<FiDatabase />
+								<MDIIcon icon="FiDatabase" ariaLabel="Database" />
 							</LayerIcon>
 							<LayerContent>
 								<h3>Devices/Machines</h3>
@@ -343,7 +366,7 @@ const AIIdentityArchitectures: React.FC = () => {
 
 						<Layer>
 							<LayerIcon color="#f59e0b">
-								<FiZap />
+								<MDIIcon icon="FiZap" ariaLabel="Lightning" />
 							</LayerIcon>
 							<LayerContent>
 								<h3>AI Agents</h3>
@@ -358,7 +381,7 @@ const AIIdentityArchitectures: React.FC = () => {
 			<CollapsibleHeader
 				title="OAuth Client Types for AI Agents"
 				subtitle="Understanding different OAuth client types and their use cases for AI agents"
-				icon={<FiKey />}
+				icon={<MDIIcon icon="FiKey" ariaLabel="Key" />}
 				theme="green"
 				defaultCollapsed={false}
 			>
@@ -373,7 +396,7 @@ const AIIdentityArchitectures: React.FC = () => {
 								gap: '0.5rem',
 							}}
 						>
-							<FiUsers />
+							<MDIIcon icon="FiUsers" ariaLabel="Users" />
 							Personal Agents
 						</h3>
 						<p style={{ color: '#1e40af', marginBottom: '1rem' }}>
@@ -396,7 +419,7 @@ const AIIdentityArchitectures: React.FC = () => {
 								gap: '0.5rem',
 							}}
 						>
-							<FiSettings />
+							<MDIIcon icon="FiSettings" ariaLabel="Settings" />
 							Managed Agents
 						</h3>
 						<p style={{ color: '#065f46', marginBottom: '1rem' }}>
@@ -420,7 +443,7 @@ const AIIdentityArchitectures: React.FC = () => {
 								gap: '0.5rem',
 							}}
 						>
-							<FiCpu />
+							<MDIIcon icon="FiCpu" ariaLabel="CPU" />
 							Digital Workers
 						</h3>
 						<p style={{ color: '#92400e', marginBottom: '1rem' }}>
@@ -439,14 +462,14 @@ const AIIdentityArchitectures: React.FC = () => {
 			<CollapsibleHeader
 				title="Trust Boundaries in AI Architectures"
 				subtitle="Understanding security boundaries and trust models for AI agent interactions"
-				icon={<FiLock />}
+				icon={<MDIIcon icon="FiLock" ariaLabel="Lock" />}
 				theme="orange"
 				defaultCollapsed={false}
 			>
 				<Card>
 					<TrustBoundary>
 						<h3>
-							<FiShield />
+							<MDIIcon icon="FiShield" ariaLabel="Security" />
 							Trust Boundary
 						</h3>
 						<p>
@@ -456,7 +479,7 @@ const AIIdentityArchitectures: React.FC = () => {
 					</TrustBoundary>
 
 					<InfoBox $type="info">
-						<FiInfo />
+						<MDIIcon icon="FiInfo" ariaLabel="Info" />
 						<div>
 							<strong>Key Considerations:</strong>
 							<ul style={{ margin: '0.5rem 0 0 1.5rem' }}>
@@ -474,7 +497,7 @@ const AIIdentityArchitectures: React.FC = () => {
 			<CollapsibleHeader
 				title="Architecture Patterns"
 				subtitle="Different architectural patterns for AI agent identity management"
-				icon={<FiGitBranch />}
+				icon={<MDIIcon icon="FiGitBranch" ariaLabel="Git" />}
 				theme="highlight"
 				defaultCollapsed={false}
 			>
@@ -497,7 +520,7 @@ const AIIdentityArchitectures: React.FC = () => {
 									gap: '0.5rem',
 								}}
 							>
-								<FiGlobe />
+								<MDIIcon icon="FiGlobe" ariaLabel="Globe" />
 								Single Platform, Multi-Domain
 							</h4>
 							<p style={{ color: '#4b5563', margin: 0 }}>
@@ -522,7 +545,7 @@ const AIIdentityArchitectures: React.FC = () => {
 									gap: '0.5rem',
 								}}
 							>
-								<FiCloud />
+								<MDIIcon icon="FiCloud" ariaLabel="Cloud" />
 								Multi-Platform, Multi-Domain
 							</h4>
 							<p style={{ color: '#4b5563', margin: 0 }}>
@@ -547,7 +570,7 @@ const AIIdentityArchitectures: React.FC = () => {
 									gap: '0.5rem',
 								}}
 							>
-								<FiExternalLink />
+								<MDIIcon icon="FiExternalLink" ariaLabel="External Link" />
 								External Agent Integration
 							</h4>
 							<p style={{ color: '#4b5563', margin: 0 }}>
@@ -562,7 +585,7 @@ const AIIdentityArchitectures: React.FC = () => {
 			<CollapsibleHeader
 				title="CUAs vs Bots: The Paradigm Shift"
 				subtitle="Understanding the difference between Computer Using Agents and traditional bots"
-				icon={<FiTarget />}
+				icon={<MDIIcon icon="FiTarget" ariaLabel="Target" />}
 				theme="yellow"
 				defaultCollapsed={false}
 			>
@@ -592,7 +615,7 @@ const AIIdentityArchitectures: React.FC = () => {
 									gap: '0.5rem',
 								}}
 							>
-								<FiAlertTriangle />
+								<MDIIcon icon="FiAlertTriangle" ariaLabel="Alert" />
 								Before: Bots as Threats
 							</h4>
 							<ul style={{ color: '#991b1b', margin: 0, paddingLeft: '1.5rem' }}>
@@ -620,7 +643,7 @@ const AIIdentityArchitectures: React.FC = () => {
 									gap: '0.5rem',
 								}}
 							>
-								<FiCheckCircle />
+								<MDIIcon icon="FiCheckCircle" ariaLabel="Check" />
 								Now: CUAs as Verified Agents
 							</h4>
 							<ul style={{ color: '#065f46', margin: 0, paddingLeft: '1.5rem' }}>
@@ -633,7 +656,7 @@ const AIIdentityArchitectures: React.FC = () => {
 					</div>
 
 					<InfoBox $type="warning">
-						<FiAlertTriangle />
+						<MDIIcon icon="FiAlertTriangle" ariaLabel="Alert" />
 						<div>
 							<strong>Key Insight:</strong> The paradigm has shifted from treating all automated
 							entities as threats to recognizing and managing legitimate Computer Using Agents
@@ -647,14 +670,14 @@ const AIIdentityArchitectures: React.FC = () => {
 			<CollapsibleHeader
 				title="Identity for AI: Thematic Roadmap"
 				subtitle="Key areas of focus for identity management in AI architectures"
-				icon={<FiTrendingUp />}
+				icon={<MDIIcon icon="FiTrendingUp" ariaLabel="Trending Up" />}
 				theme="green"
 				defaultCollapsed={false}
 			>
 				<Card>
 					<RoadmapItem>
 						<RoadmapIcon color="#3b82f6">
-							<FiEye />
+							<MDIIcon icon="FiEye" ariaLabel="Eye" />
 						</RoadmapIcon>
 						<RoadmapContent>
 							<h4>Making Agents Visible Across The Estate</h4>
@@ -668,7 +691,7 @@ const AIIdentityArchitectures: React.FC = () => {
 
 					<RoadmapItem>
 						<RoadmapIcon color="#8b5cf6">
-							<FiUsers />
+							<MDIIcon icon="FiUsers" ariaLabel="Users" />
 						</RoadmapIcon>
 						<RoadmapContent>
 							<h4>Bringing Brand Experiences to Life on the Agentic Channel</h4>
@@ -681,7 +704,7 @@ const AIIdentityArchitectures: React.FC = () => {
 
 					<RoadmapItem>
 						<RoadmapIcon color="#06b6d4">
-							<FiKey />
+							<MDIIcon icon="FiKey" ariaLabel="Key" />
 						</RoadmapIcon>
 						<RoadmapContent>
 							<h4>Getting Token Issuance Right</h4>
@@ -694,7 +717,7 @@ const AIIdentityArchitectures: React.FC = () => {
 
 					<RoadmapItem>
 						<RoadmapIcon color="#10b981">
-							<FiShield />
+							<MDIIcon icon="FiShield" ariaLabel="Security" />
 						</RoadmapIcon>
 						<RoadmapContent>
 							<h4>Authentication & Authorization</h4>
@@ -708,7 +731,7 @@ const AIIdentityArchitectures: React.FC = () => {
 
 					<RoadmapItem>
 						<RoadmapIcon color="#f59e0b">
-							<FiActivity />
+							<MDIIcon icon="FiActivity" ariaLabel="Activity" />
 						</RoadmapIcon>
 						<RoadmapContent>
 							<h4>Enterprise Grade Service Layer for Agents</h4>
@@ -726,7 +749,7 @@ const AIIdentityArchitectures: React.FC = () => {
 			<CollapsibleHeader
 				title="What's Needed for AI Identity"
 				subtitle="Essential components and capabilities for comprehensive AI identity management"
-				icon={<FiSettings />}
+				icon={<MDIIcon icon="FiSettings" ariaLabel="Settings" />}
 				theme="blue"
 				defaultCollapsed={false}
 			>
@@ -755,7 +778,7 @@ const AIIdentityArchitectures: React.FC = () => {
 									gap: '0.5rem',
 								}}
 							>
-								<FiEye />
+								<MDIIcon icon="FiEye" ariaLabel="Eye" />
 								Agent Discovery
 							</h4>
 							<ul style={{ color: '#4b5563', margin: 0, paddingLeft: '1.5rem' }}>
@@ -782,7 +805,7 @@ const AIIdentityArchitectures: React.FC = () => {
 									gap: '0.5rem',
 								}}
 							>
-								<FiShield />
+								<MDIIcon icon="FiShield" ariaLabel="Security" />
 								Security & Governance
 							</h4>
 							<ul style={{ color: '#4b5563', margin: 0, paddingLeft: '1.5rem' }}>
@@ -809,7 +832,7 @@ const AIIdentityArchitectures: React.FC = () => {
 									gap: '0.5rem',
 								}}
 							>
-								<FiUsers />
+								<MDIIcon icon="FiUsers" ariaLabel="Users" />
 								Human-Agent Experience
 							</h4>
 							<ul style={{ color: '#4b5563', margin: 0, paddingLeft: '1.5rem' }}>
@@ -836,7 +859,7 @@ const AIIdentityArchitectures: React.FC = () => {
 									gap: '0.5rem',
 								}}
 							>
-								<FiActivity />
+								<MDIIcon icon="FiActivity" ariaLabel="Activity" />
 								Operations & Monitoring
 							</h4>
 							<ul style={{ color: '#4b5563', margin: 0, paddingLeft: '1.5rem' }}>
@@ -853,7 +876,7 @@ const AIIdentityArchitectures: React.FC = () => {
 			<CollapsibleHeader
 				title="Emerging Trends"
 				subtitle="Latest developments and trends in AI identity management"
-				icon={<FiTrendingUp />}
+				icon={<MDIIcon icon="FiTrendingUp" ariaLabel="Trending Up" />}
 				theme="highlight"
 				defaultCollapsed={false}
 			>
@@ -875,7 +898,7 @@ const AIIdentityArchitectures: React.FC = () => {
 								gap: '0.5rem',
 							}}
 						>
-							<FiZap />
+							<MDIIcon icon="FiZap" ariaLabel="Lightning" />
 							SSO for AI Agents
 						</h4>
 						<p style={{ color: '#0c4a6e', marginBottom: '1rem' }}>
@@ -890,7 +913,7 @@ const AIIdentityArchitectures: React.FC = () => {
 					</div>
 
 					<InfoBox $type="success">
-						<FiCheckCircle />
+						<MDIIcon icon="FiCheckCircle" ariaLabel="Check" />
 						<div>
 							<strong>Key Benefits:</strong> Simplified credential management, enhanced security,
 							and centralized policy enforcement for AI agents across enterprise systems.

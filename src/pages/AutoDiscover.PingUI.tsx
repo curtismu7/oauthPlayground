@@ -44,20 +44,20 @@ const getHeaderStyle = () => ({
 		margin: '0 0 var(--pingone-spacing-sm, 0.5rem) 0',
 		fontSize: 'var(--pingone-font-size-3xl, 2rem)',
 		fontWeight: 'var(--pingone-font-weight-semibold, 600)',
-		color: 'var(--pingone-text-primary)',
+		color: 'var(--pingone-text-primary, #1f2937)',
 	},
 
 	p: {
 		margin: '0',
-		color: 'var(--pingone-text-secondary)',
+		color: 'var(--pingone-text-secondary, #6b7280)',
 		fontSize: 'var(--pingone-font-size-lg, 1.1rem)',
 		lineHeight: 'var(--pingone-line-height-relaxed, 1.6)',
 	},
 });
 
 const getCardStyle = () => ({
-	background: 'var(--pingone-surface-secondary)',
-	border: '1px solid var(--pingone-border-primary)',
+	background: 'var(--pingone-surface-secondary, #f3f4f6)',
+	border: '1px solid var(--pingone-border-primary, #d1d5db)',
 	borderRadius: 'var(--pingone-border-radius-lg, 0.75rem)',
 	padding: 'var(--pingone-spacing-xl, 1.5rem)',
 	marginBottom: 'var(--pingone-spacing-xl, 2rem)',
@@ -71,13 +71,13 @@ const getSectionTitleStyle = () => ({
 	margin: '0 0 var(--pingone-spacing-md, 1rem) 0',
 	fontSize: 'var(--pingone-font-size-lg, 1.1rem)',
 	fontWeight: 'var(--pingone-font-weight-semibold, 600)',
-	color: 'var(--pingone-text-primary)',
+	color: 'var(--pingone-text-primary, #374151)',
 });
 
 const getListStyle = () => ({
 	margin: '0',
 	paddingLeft: 'var(--pingone-spacing-xl, 1.5rem)',
-	color: 'var(--pingone-text-secondary)',
+	color: 'var(--pingone-text-secondary, #4b5563)',
 	lineHeight: 'var(--pingone-line-height-relaxed, 1.6)',
 
 	li: {
@@ -91,9 +91,15 @@ const getButtonStyle = (variant: 'primary' | 'secondary' = 'primary') => ({
 	gap: 'var(--pingone-spacing-sm, 0.5rem)',
 	padding: 'var(--pingone-spacing-md, 0.75rem) var(--pingone-spacing-lg, 1.5rem)',
 	background:
-		variant === 'primary' ? 'var(--pingone-brand-primary)' : 'var(--pingone-surface-secondary)',
-	color: variant === 'primary' ? 'var(--pingone-text-inverse)' : 'var(--pingone-text-primary)',
-	border: variant === 'secondary' ? '1px solid var(--pingone-border-primary)' : 'none',
+		variant === 'primary' 
+			? 'var(--pingone-brand-primary, #3b82f6)' 
+			: 'var(--pingone-surface-secondary, #f3f4f6)',
+	color: variant === 'primary' 
+		? 'var(--pingone-text-inverse, white)' 
+		: 'var(--pingone-text-primary, #1f2937)',
+	border: variant === 'secondary' 
+		? '1px solid var(--pingone-border-primary, #d1d5db)' 
+		: 'none',
 	borderRadius: 'var(--pingone-border-radius-md, 0.5rem)',
 	fontSize: 'var(--pingone-font-size-base, 1rem)',
 	fontWeight: 'var(--pingone-font-weight-medium, 500)',
@@ -102,8 +108,8 @@ const getButtonStyle = (variant: 'primary' | 'secondary' = 'primary') => ({
 	'&:hover': {
 		background:
 			variant === 'primary'
-				? 'var(--pingone-brand-primary-dark)'
-				: 'var(--pingone-surface-tertiary)',
+				? 'var(--pingone-brand-primary-dark, #2563eb)'
+				: 'var(--pingone-surface-tertiary, #e5e7eb)',
 		transform: 'translateY(-1px)',
 		boxShadow: 'var(--pingone-shadow-md, 0 4px 6px rgba(0, 0, 0, 0.1))',
 	},
@@ -113,9 +119,9 @@ const getButtonStyle = (variant: 'primary' | 'secondary' = 'primary') => ({
 });
 
 const getSuccessStyle = () => ({
-	background: 'var(--pingone-surface-success)',
-	border: '1px solid var(--pingone-border-success)',
-	color: 'var(--pingone-text-success)',
+	background: 'var(--pingone-surface-success, #f0fdf4)',
+	border: '1px solid var(--pingone-border-success, #bbf7d0)',
+	color: 'var(--pingone-text-success, #166534)',
 	padding: 'var(--pingone-spacing-md, 1rem)',
 	borderRadius: 'var(--pingone-border-radius-md, 0.5rem)',
 	marginTop: 'var(--pingone-spacing-md, 1rem)',

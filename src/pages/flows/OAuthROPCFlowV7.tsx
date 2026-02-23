@@ -26,6 +26,7 @@ import { EducationalContentService } from '../../services/educationalContentServ
 import { FlowHeader } from '../../services/flowHeaderService';
 import FlowUIService from '../../services/flowUIService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
+import { UserSearchDropdownV8 } from '../../v8/components/UserSearchDropdownV8';
 
 // Get UI components from FlowUIService
 const Container = FlowUIService.getContainer();
@@ -521,13 +522,22 @@ const OAuthROPCFlowV7: React.FC = () => {
 											Username
 											<V7Badge>V7</V7Badge>
 										</FormLabel>
-										<FormInput
-											type="text"
-											value={controller.credentials.username}
-											onChange={(e) => handleCredentialChange('username', e.target.value)}
-											placeholder="Enter username (email)"
-											$isMock={true}
-										/>
+										{controller.credentials.environmentId ? (
+											<UserSearchDropdownV8
+												environmentId={controller.credentials.environmentId}
+												value={controller.credentials.username}
+												onChange={(username) => handleCredentialChange('username', username)}
+												placeholder="Search for a user..."
+											/>
+										) : (
+											<FormInput
+												type="text"
+												value={controller.credentials.username}
+												onChange={(e) => handleCredentialChange('username', e.target.value)}
+												placeholder="Enter username (email)"
+												$isMock={true}
+											/>
+										)}
 									</FormGroup>
 
 									<FormGroup>

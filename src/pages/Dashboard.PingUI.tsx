@@ -210,7 +210,8 @@ const getHiddenContentStyle = () => ({
 
 const Dashboard: React.FC = () => {
 	const [collapsedSections, setCollapsedSections] = useState({
-		systemStatus: false,
+		pingOneApiStatus: false,
+		quickAccess: false,
 		oauthFlows: false,
 		apiEndpoints: false,
 		recentActivity: false,
@@ -355,7 +356,7 @@ const Dashboard: React.FC = () => {
 							Dashboard
 						</h1>
 						<p style={getSubtitleStyle()}>
-							Monitor system status, explore OAuth flows, and track recent activity
+							Monitor PingOne API status, explore OAuth flows, and track recent activity
 						</p>
 
 						{/* Version Badges */}
@@ -445,17 +446,17 @@ const Dashboard: React.FC = () => {
 						...(viewMode === 'hidden' && getHiddenContentStyle()),
 					}}
 				>
-					{/* System Status */}
+					{/* PingOne API Status */}
 					<CollapsibleHeader
-						title="System Status"
-						collapsed={collapsedSections.systemStatus}
-						onToggle={() => toggleSection('systemStatus')}
-						icon={<MDIIcon icon="server" size={20} />}
+						title="PingOne API Status"
+						collapsed={collapsedSections.pingOneApiStatus}
+						onToggle={() => toggleSection('pingOneApiStatus')}
+						icon={<MDIIcon icon="api" size={20} />}
 					>
 						<div style={getGridStyle(2)}>
 							<div style={getCardStyle()}>
 								<div style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
-									<span style={getStatusIndicatorStyle(serverStatus.frontend)} />
+									<span style={getStatusIndicatorStyle(serverStatus.frontend as 'online' | 'offline' | 'checking')} />
 									<strong>Frontend</strong>
 								</div>
 								<p style={{ color: 'var(--pingone-text-secondary)', margin: '0' }}>
@@ -468,7 +469,7 @@ const Dashboard: React.FC = () => {
 							</div>
 							<div style={getCardStyle()}>
 								<div style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
-									<span style={getStatusIndicatorStyle(serverStatus.backend)} />
+									<span style={getStatusIndicatorStyle(serverStatus.backend as 'online' | 'offline' | 'checking')} />
 									<strong>Backend</strong>
 								</div>
 								<p style={{ color: 'var(--pingone-text-secondary)', margin: '0' }}>
@@ -478,6 +479,36 @@ const Dashboard: React.FC = () => {
 											? 'Offline'
 											: 'Checking...'}
 								</p>
+							</div>
+						</div>
+						
+						{/* PingOne API Configuration */}
+						<div style={getCardStyle()}>
+							<div style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem' }}>
+								<MDIIcon icon="api" size={20} style={{ marginRight: '0.5rem', color: 'var(--pingone-brand-primary)' }} />
+								<strong>PingOne API Configuration</strong>
+							</div>
+							<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+								<div>
+									<div style={{ fontSize: '0.875rem', color: 'var(--pingone-text-secondary)', marginBottom: '0.25rem' }}>API Domain</div>
+									<div style={{ fontWeight: '500' }}>api.pingdemo.com</div>
+								</div>
+								<div>
+									<div style={{ fontSize: '0.875rem', color: 'var(--pingone-text-secondary)', marginBottom: '0.25rem' }}>Environment ID</div>
+									<div style={{ fontWeight: '500', fontSize: '0.75rem' }}>b9817c16-9910-4415-b67e-4ac687da74d9</div>
+								</div>
+								<div>
+									<div style={{ fontSize: '0.875rem', color: 'var(--pingone-text-secondary)', marginBottom: '0.25rem' }}>API Version</div>
+									<div style={{ fontWeight: '500' }}>v1</div>
+								</div>
+								<div>
+									<div style={{ fontSize: '0.875rem', color: 'var(--pingone-text-secondary)', marginBottom: '0.25rem' }}>Region</div>
+									<div style={{ fontWeight: '500' }}>North America</div>
+								</div>
+								<div>
+									<div style={{ fontSize: '0.875rem', color: 'var(--pingone-text-secondary)', marginBottom: '0.25rem' }}>Authentication</div>
+									<div style={{ fontWeight: '500' }}>OAuth 2.0 & OIDC</div>
+								</div>
 							</div>
 						</div>
 					</CollapsibleHeader>

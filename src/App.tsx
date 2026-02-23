@@ -230,10 +230,9 @@ import ProtectPortalWrapper from './pages/protect-portal/ProtectPortalWrapper';
 import { CreateCompanyPage } from './pages/protect-portal/pages/CreateCompanyPage';
 import DavinciTodoApp from './sdk-examples/davinci-todo-app/DavinciTodoApp';
 import { DebugLogViewerPopoutV8 } from './v8/pages/DebugLogViewerPopoutV8';
-import DebugLogViewerV8PingUI from './v8/pages/DebugLogViewerV8.PingUI';
 import DeleteAllDevicesUtilityV8 from './v8/pages/DeleteAllDevicesUtilityV8';
 import DeviceAuthenticationDetailsV8 from './v8/pages/DeviceAuthenticationDetailsV8';
-import DeviceManagementV8PingUI from './pages/DeviceManagementV8.PingUI';
+import DeviceManagementV9PingUI from './pages/DeviceManagementV9.PingUI';
 import { FIDO2RegistrationDocsPageV8 } from './v8/pages/FIDO2RegistrationDocsPageV8';
 import MFADeviceCreateDemoV8 from './v8/pages/MFADeviceCreateDemoV8';
 import { MFAFeatureFlagsAdminV8 } from './v8/pages/MFAFeatureFlagsAdminV8';
@@ -261,7 +260,7 @@ const MFAFlowsApiTest = lazy(() => import('./pages/test/MFAFlowsApiTest'));
 const PARTest = lazy(() => import('./pages/test/PARTest'));
 const TestCallback = lazy(() => import('./pages/test/TestCallback'));
 const TokenStatusPageV8U = lazy(() => import('./v8u/pages/TokenStatusPageV8U'));
-const ApiStatusPage = lazy(() => import('./pages/ApiStatusPage.PingUI'));
+const ApiStatusPageV9 = lazy(() => import('./pages/ApiStatusPageV9.PingUI'));
 
 // Import V7 pages
 const V7MOAuthAuthCode = lazy(() => import('./v7/pages/V7MOAuthAuthCode'));
@@ -1070,9 +1069,9 @@ const AppRoutes: React.FC = () => {
 									}
 								/>
 								{/* V8 Utilities */}
-								<Route path="/v8/device-management" element={<DeviceManagementV8PingUI />} />
+								<Route path="/v8/device-management" element={<DeviceManagementV9PingUI />} />
 								<Route path="/v8/delete-all-devices" element={<DeleteAllDevicesUtilityV8 />} />
-								<Route path="/v8/debug-logs" element={<DebugLogViewerV8PingUI />} />
+								<Route path="/v8/debug-logs" element={<DebugLogViewerPopoutV8 />} />
 								<Route path="/v8/debug-logs-popout" element={<DebugLogViewerPopoutV8 />} />
 								{/* V8U SPIFFE/SPIRE Mock Flow and Token Viewer - multi-step lab */}
 								<Route
@@ -1454,7 +1453,7 @@ const AppRoutes: React.FC = () => {
 									path="/system-status"
 									element={
 										<Suspense fallback={<div>Loading...</div>}>
-											<ApiStatusPage />
+											<ApiStatusPageV9 />
 										</Suspense>
 									}
 								/>
