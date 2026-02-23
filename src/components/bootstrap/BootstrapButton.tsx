@@ -22,6 +22,12 @@ interface BootstrapButtonProps {
   id?: string;
   'aria-label'?: string;
   'aria-disabled'?: boolean;
+  title?: string;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
+  style?: React.CSSProperties;
 }
 
 const BootstrapButton: React.FC<BootstrapButtonProps> = ({
@@ -38,6 +44,12 @@ const BootstrapButton: React.FC<BootstrapButtonProps> = ({
   id,
   'aria-label': ariaLabel,
   'aria-disabled': ariaDisabled,
+  title,
+  onMouseEnter,
+  onMouseLeave,
+  onFocus,
+  onBlur,
+  style,
 }) => {
   const baseClasses = [
     'btn',
@@ -60,6 +72,12 @@ const BootstrapButton: React.FC<BootstrapButtonProps> = ({
       disabled={disabled || loading}
       aria-label={ariaLabel}
       aria-disabled={ariaDisabled || disabled || loading}
+      title={title}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      onFocus={onFocus}
+      onBlur={onBlur}
+      style={style}
     >
       {loading && (
         <>
