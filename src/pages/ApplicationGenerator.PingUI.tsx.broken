@@ -950,34 +950,33 @@ const ApplicationGeneratorPingUI: React.FC = () => {
 						<>
 							{/* Results Display */}
 							<div className="result-display card mb-4">
-							<div className="result-header card-header d-flex align-items-center">
-								<MDIIcon icon="success" size={24} className="result-icon text-success me-2" />
-								<div className="result-title h5 mb-0">Application Created Successfully!</div>
-							</div>
-							<div className="result-content card-body bg-light">
-								<div className="result-item d-flex justify-content-between py-2 border-bottom">
-									<span className="result-label text-muted">Application ID:</span>
-									<span className="result-value fw-bold">{generationResult.app?.id}</span>
+								<div className="result-header card-header d-flex align-items-center">
+									<MDIIcon icon="success" size={24} className="result-icon text-success me-2" />
+									<div className="result-title h5 mb-0">Application Created Successfully!</div>
 								</div>
-								<div className="result-item d-flex justify-content-between py-2 border-bottom">
-									<span className="result-label text-muted">Client ID:</span>
-									<span className="result-value fw-bold">{generationResult.app?.clientId}</span>
-								</div>
-								<div className="result-item d-flex justify-content-between py-2 border-bottom">
-									<span className="result-label text-muted">Environment ID:</span>
-									<span className="result-value fw-bold">{generationResult.app?.environment?.id}</span>
-								</div>
-								{formData.redirectUris && (
-									<div className="result-item d-flex justify-content-between py-2">
-										<span className="result-label text-muted">Redirect URIs:</span>
-										<span className="result-value fw-bold">{formData.redirectUris.join(', ')}</span>
+								<div className="result-content card-body bg-light">
+									<div className="result-item d-flex justify-content-between py-2 border-bottom">
+										<span className="result-label text-muted">Application ID:</span>
+										<span className="result-value fw-bold">{generationResult.app?.id}</span>
 									</div>
-								)}
+									<div className="result-item d-flex justify-content-between py-2 border-bottom">
+										<span className="result-label text-muted">Client ID:</span>
+										<span className="result-value fw-bold">{generationResult.app?.clientId}</span>
+									</div>
+									<div className="result-item d-flex justify-content-between py-2 border-bottom">
+										<span className="result-label text-muted">Environment ID:</span>
+										<span className="result-value fw-bold">{generationResult.app?.environment?.id}</span>
+									</div>
+									{formData.redirectUris && (
+										<div className="result-item d-flex justify-content-between py-2">
+											<span className="result-label text-muted">Redirect URIs:</span>
+											<span className="result-value fw-bold">{formData.redirectUris.join(', ')}</span>
+										</div>
+									)}
+								</div>
 							</div>
-						</div>
-					)}
 						</>
-				</div>
+					)}
 
 				{/* Navigation */}
 				<div className="navigation d-flex justify-content-between align-items-center mt-4 pt-3 border-top">

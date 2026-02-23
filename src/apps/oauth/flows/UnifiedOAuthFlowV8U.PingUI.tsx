@@ -46,7 +46,7 @@ import { SecurityScorecard } from '@/v8u/components/SecurityScorecard';
 import { UnifiedFlowSteps } from '@/v8u/components/UnifiedFlowSteps';
 import { UnifiedNavigationV8U } from '@/v8u/components/UnifiedNavigationV8U';
 import { FlowSettingsServiceV8U } from '@/v8u/services/flowSettingsServiceV8U';
-import { UnifiedFlowIntegrationServiceV8U } from '@/v8u/services/unifiedFlowIntegrationV8U';
+import { UnifiedFlowIntegrationV8U } from '@/v8u/services/unifiedFlowIntegrationV8U';
 import {
 	type SharedOAuthCredentials,
 	type UnifiedOAuthCredentials,
