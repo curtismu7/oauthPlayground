@@ -224,7 +224,7 @@ export const PingOneAppConfigForm: React.FC<PingOneAppConfigFormProps> = ({ conf
 					<Label htmlFor="oauth-version">Select OAuth Version</Label>
 					<Select
 						id="oauth-version"
-						value={config.oauthVersion}
+						value={config?.oauthVersion || '2.0'}
 						onChange={(e) => handleOAuthVersionChange(e.target.value as '2.0' | '2.1')}
 					>
 						<option value="2.0">OAuth 2.0</option>
@@ -232,7 +232,7 @@ export const PingOneAppConfigForm: React.FC<PingOneAppConfigFormProps> = ({ conf
 					</Select>
 				</FormGroup>
 
-				{config.oauthVersion === '2.1' && (
+				{config?.oauthVersion === '2.1' && (
 					<Alert $type="info">
 						<AlertIcon>
 							<FiInfo size={16} />
