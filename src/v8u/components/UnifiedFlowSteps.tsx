@@ -3153,8 +3153,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 													</div>
 													{preFlightValidationResult.fixableErrors &&
 														preFlightValidationResult.fixableErrors.length > 0 && (
-															<button
-																type="button"
+															<BootstrapButton
+																variant="danger"
+																greyBorder={true}
 																onClick={async () => {
 																	try {
 																		setIsLoading(true);
@@ -5537,8 +5538,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									<div
 										style={{ marginTop: '12px', display: 'flex', gap: '8px', alignItems: 'center' }}
 									>
-										<button
-											type="button"
+										<BootstrapButton
+											variant="warning"
+											greyBorder={true}
 											onClick={async () => {
 												try {
 													setIsLoading(true);
@@ -5653,42 +5655,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 												}
 											}}
 											disabled={isLoading}
-											style={{
-												padding: '8px 16px',
-												background: '#fb923c',
-												border: 'none',
-												borderRadius: '6px',
-												color: 'white',
-												fontSize: '14px',
-												fontWeight: '500',
-												cursor: isLoading ? 'not-allowed' : 'pointer',
-												opacity: isLoading ? 0.6 : 1,
-												display: 'inline-flex',
-												alignItems: 'center',
-												gap: '6px',
-											}}
+											loading={isSilentLoading}
 										>
-											{isSilentLoading ? (
-												<>
-													<div
-														style={{
-															width: '16px',
-															height: '16px',
-															border: '2px solid #e5e7eb',
-															borderTop: '2px solid #3b82f6',
-															borderRadius: '50%',
-															animation: 'spin 1s linear infinite',
-														}}
-													></div>
-													<span>Getting Token...</span>
-												</>
-											) : (
-												<>
-													<span>🔑</span>
-													<span>Get Worker Token</span>
-												</>
-											)}
-										</button>
+											{isSilentLoading ? 'Getting Token...' : '🔑 Get Worker Token'}
+										</BootstrapButton>
 									</div>
 								)}
 								<p
@@ -6499,8 +6469,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								)}
 								{preFlightValidationResult.fixableErrors &&
 									preFlightValidationResult.fixableErrors.length > 0 && (
-										<button
-											type="button"
+										<BootstrapButton
+											variant="danger"
+											greyBorder={true}
 											onClick={async () => {
 												try {
 													setIsLoading(true);
@@ -6615,25 +6586,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 												}
 											}}
 											disabled={isLoading}
-											style={{
-												marginTop: '16px',
-												padding: '12px 24px',
-												background: '#dc2626',
-												color: 'white',
-												border: 'none',
-												borderRadius: '6px',
-												fontSize: '14px',
-												fontWeight: '600',
-												cursor: isLoading ? 'not-allowed' : 'pointer',
-												opacity: isLoading ? 0.6 : 1,
-												display: 'flex',
-												alignItems: 'center',
-												gap: '8px',
-											}}
+											loading={isLoading}
 										>
-											<span>🔧</span>
-											<span>Fix All Errors Automatically</span>
-										</button>
+											🔧 Fix All Errors Automatically
+										</BootstrapButton>
 									)}
 								{preFlightValidationResult.errors.length === 0 &&
 									preFlightValidationResult.warnings.length === 0 && (
@@ -6890,20 +6846,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 										of redirecting and add response_mode=pi.flow to the Authorization URL.
 									</p>
 								</div>
-								<button
-									type="button"
-									className="btn btn-next"
+								<BootstrapButton
+									variant="primary"
+									greyBorder={true}
 									onClick={handleStartRedirectlessAuth}
 									disabled={isLoading}
-									style={{
-										fontSize: '16px',
-										padding: '12px 24px',
-										display: 'flex',
-										alignItems: 'center',
-										gap: '8px',
-										minWidth: '280px',
-										justifyContent: 'center',
-									}}
+									loading={isLoading}
 								>
 									{isLoading ? (
 										<>
@@ -6916,7 +6864,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 											<span>Start Redirectless Authentication</span>
 										</>
 									)}
-								</button>
+								</BootstrapButton>
 							</div>
 						) : (
 							// Standard mode: Show button to open URL in browser
@@ -6929,9 +6877,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									alignItems: 'center',
 								}}
 							>
-								<button
-									type="button"
-									className="btn btn-next"
+								<BootstrapButton
+									variant="primary"
+									greyBorder={true}
 									onClick={() => {
 										console.log(`${MODULE_TAG} Opening authorization URL for authentication`);
 										const urlToOpen = flowState.authorizationUrl || '';
@@ -6947,18 +6895,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 											}
 										}
 									}}
-									style={{
-										fontSize: '16px',
-										padding: '12px 24px',
-										display: 'flex',
-										alignItems: 'center',
-										gap: '8px',
-									}}
 								>
 									<span style={{ fontSize: '20px' }}>🔐</span>
 									<span>Authenticate on PingOne</span>
 									<span style={{ fontSize: '16px' }}>→</span>
-								</button>
+								</BootstrapButton>
 								{completedSteps.includes(currentStep) && (
 									<div
 										style={{
@@ -7541,9 +7482,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									<li>A login modal should appear for username/password input</li>
 									<li>If the modal doesn't appear, check the browser console for errors</li>
 								</ol>
-								<button
-									type="button"
-									className="btn btn-next"
+								<BootstrapButton
+									variant="secondary"
 									onClick={() => {
 										// Navigate back to authorization URL step
 										const authUrlStep = isPKCERequired ? 2 : 1;
@@ -7552,12 +7492,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 											'Navigate back to Authorization URL step and click "Generate Authorization URL" again'
 										);
 									}}
-									style={{
-										marginTop: '8px',
-									}}
 								>
 									Go Back to Authorization URL Step
-								</button>
+								</BootstrapButton>
 							</div>
 						</div>
 					</div>
