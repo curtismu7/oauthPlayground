@@ -1708,6 +1708,7 @@ show_final_summary() {
     echo -e "${banner_color}║${NC} ${CYAN}   tail -f backend.log${NC}"
     echo -e "${banner_color}║${NC} ${CYAN}   tail -f logs/pingone-api.log${NC}"
     echo -e "${banner_color}║${NC} ${CYAN}   tail -n 200 logs/pingone-api.log${NC}"
+    echo -e "${banner_color}║${NC} ${CYAN}   tail -n 200 logs/startup.log${NC}"
     echo -e "${banner_color}║${NC}"
     echo -e "${banner_color}║${NC} ${CYAN}📋 Usage:${NC}"
     echo -e "${banner_color}║${NC} ${CYAN}   ./run.sh - Restart servers (will prompt to tail logs)${NC}"
@@ -1908,6 +1909,15 @@ done
 
 # Main execution
 main() {
+    # Initialize startup logging
+    STARTUP_LOG="logs/startup.log"
+    mkdir -p logs
+    echo "=== MasterFlow API Startup - $(date) ===" >> "$STARTUP_LOG"
+    echo "Script: $0" >> "$STARTUP_LOG"
+    echo "Arguments: $*" >> "$STARTUP_LOG"
+    echo "Working Directory: $(pwd)" >> "$STARTUP_LOG"
+    echo "" >> "$STARTUP_LOG"
+    
     # Check for -quick flag
     QUICK_MODE=false
     DEFAULT_MODE=${DEFAULT_MODE:-false}
@@ -1938,32 +1948,43 @@ main() {
     
     show_banner
     
+    # Log startup banner
+    echo "[$(date +'%H:%M:%S')] 🚀 Starting MasterFlow API startup sequence" >> "$STARTUP_LOG"
+    
     # Step 0: Find and change to project directory
     find_project_directory
+    echo "[$(date +'%H:%M:%S')] 📁 Changed to project directory: $(pwd)" >> "$STARTUP_LOG"
     
     # Step 1: Check requirements
     check_requirements
+    echo "[$(date +'%H:%M:%S')] ✅ Requirements check completed" >> "$STARTUP_LOG"
     
     # Step 1a: Setup custom domain (if needed)
     setup_custom_domain
+    echo "[$(date +'%H:%M:%S')] 🌐 Custom domain setup completed" >> "$STARTUP_LOG"
     
     # Step 1b: Verify lock-down integrity (blocks restart on drift)
     verify_sms_lockdown
     verify_email_lockdown
     verify_whatsapp_lockdown
+    echo "[$(date +'%H:%M:%S')] 🔒 Lockdown verification completed" >> "$STARTUP_LOG"
     
     # Step 2: Kill all existing servers
     kill_all_servers
+    echo "[$(date +'%H:%M:%S')] 🧹 Existing servers terminated" >> "$STARTUP_LOG"
     
     # Step 3: Start backend (HTTPS server only)
     print_status "🔧 Starting servers..."
     start_backend
+    echo "[$(date +'%H:%M:%S')] 🔧 Backend server started" >> "$STARTUP_LOG"
     
     # Step 4: Start frontend
     start_frontend
+    echo "[$(date +'%H:%M:%S')] 🌐 Frontend server started" >> "$STARTUP_LOG"
     
     # Step 5: Run health checks
     run_health_checks
+    echo "[$(date +'%H:%M:%S')] ✅ Health checks completed" >> "$STARTUP_LOG"
     
     # Step 6: Show final status
     show_final_status
@@ -1973,6 +1994,12 @@ main() {
     
     # Step 8: Final success message and server status summary
     show_final_summary
+    
+    # Log final success
+    echo "[$(date +'%H:%M:%S')] 🎉 MasterFlow API startup completed successfully!" >> "$STARTUP_LOG"
+    echo "[$(date +'%H:%M:%S')] 📊 Overall Status: $OVERALL_STATUS" >> "$STARTUP_LOG"
+    echo "=== Startup Complete ===" >> "$STARTUP_LOG"
+    echo "" >> "$STARTUP_LOG"
     
     # Step 9: Ask user if they want to tail a log file (interactive)
     if [ "$OVERALL_STATUS" = "success" ] || [ "$OVERALL_STATUS" = "partial" ]; then

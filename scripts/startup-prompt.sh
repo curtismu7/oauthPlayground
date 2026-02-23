@@ -176,6 +176,7 @@ echo -e "${GREEN}  • API Testing: tail -f backend.log logs/pingone-api.log log
 echo -e "${GREEN}  • Flow Testing: tail -f backend.log logs/sms.log logs/email.log${NC}"
 echo -e "${GREEN}  • Complete View: tail -f backend.log vite.log logs/pingone-api.log logs/server.log${NC}"
 echo -e "${GREEN}  • All-in-One: tail -f backend.log vite.log logs/pingone-api.log logs/server.log logs/sms.log logs/email.log${NC}"
+echo -e "${GREEN}  • Quick History: tail -n 200 logs/startup.log && tail -n 200 logs/pingone-api.log${NC}"
 echo ""
 
 # Continue with normal startup
