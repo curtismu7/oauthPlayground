@@ -565,10 +565,10 @@ const menuData: MenuItem[] = [
 				icon: 'mdi-devices',
 				path: '/v8/mfa/register/mobile',
 				version: 'v8',
-				description: 'Multi-Factor Authentication Device Flow',
+				description: 'Multi-Factor Authentication Device Flow (Mobile)',
 				status: 'active',
 				badge: {
-					text: 'MOCK',
+					text: 'REAL',
 					variant: 'default'
 				}
 			},
@@ -578,10 +578,10 @@ const menuData: MenuItem[] = [
 				icon: 'mdi-cellphone',
 				path: '/v8/mfa/register/mobile/device',
 				version: 'v8',
-				description: 'Multi-Factor Authentication Push',
+				description: 'Multi-Factor Authentication Push (Mobile Device)',
 				status: 'active',
 				badge: {
-					text: 'MOCK',
+					text: 'REAL',
 					variant: 'default'
 				}
 			},
@@ -589,12 +589,12 @@ const menuData: MenuItem[] = [
 				id: 'mfa-sms',
 				label: 'MFA SMS',
 				icon: 'mdi-message',
-				path: '/v8/mfa/register/sms',
+				path: '/v8/mfa/register/mobile',
 				version: 'v8',
-				description: 'Multi-Factor Authentication SMS',
+				description: 'Multi-Factor Authentication SMS (Mobile Flow)',
 				status: 'active',
 				badge: {
-					text: 'MOCK',
+					text: 'REAL',
 					variant: 'default'
 				}
 			},
@@ -607,7 +607,7 @@ const menuData: MenuItem[] = [
 				description: 'Multi-Factor Authentication Email',
 				status: 'active',
 				badge: {
-					text: 'MOCK',
+					text: 'REAL',
 					variant: 'default'
 				}
 			},
@@ -615,12 +615,12 @@ const menuData: MenuItem[] = [
 				id: 'mfa-voice',
 				label: 'MFA Voice',
 				icon: 'mdi-phone',
-				path: '/v8/mfa/register/sms',
+				path: '/v8/mfa/register/mobile',
 				version: 'v8',
-				description: 'Multi-Factor Authentication Voice (redirects to SMS)',
+				description: 'Multi-Factor Authentication Voice (Mobile Flow)',
 				status: 'active',
 				badge: {
-					text: 'MOCK',
+					text: 'REAL',
 					variant: 'default'
 				}
 			},
@@ -628,12 +628,12 @@ const menuData: MenuItem[] = [
 				id: 'mfa-whatsapp',
 				label: 'MFA WhatsApp',
 				icon: 'mdi-whatsapp',
-				path: '/v8/mfa/register/sms',
+				path: '/v8/mfa/register/mobile',
 				version: 'v8',
-				description: 'Multi-Factor Authentication WhatsApp (redirects to SMS)',
+				description: 'Multi-Factor Authentication WhatsApp (Mobile Flow)',
 				status: 'active',
 				badge: {
-					text: 'MOCK',
+					text: 'REAL',
 					variant: 'default'
 				}
 			},
@@ -641,13 +641,13 @@ const menuData: MenuItem[] = [
 				id: 'mfa-fido',
 				label: 'MFA FIDO/WebAuthn',
 				icon: 'mdi-fingerprint',
-				path: '/mfa/fido',
+				path: '/v8/mfa/register/fido2',
 				version: 'v8',
 				description: 'Multi-Factor Authentication FIDO/WebAuthn',
 				status: 'active',
 				badge: {
-					text: 'MOCK',
-					variant: 'default'
+					text: 'REAL',
+					variant: 'success'
 				}
 			},
 		],
