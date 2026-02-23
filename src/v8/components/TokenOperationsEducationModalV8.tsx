@@ -21,8 +21,38 @@
  */
 
 import React from 'react';
-import { FiCheckCircle, FiInfo, FiX, FiXCircle } from 'react-icons/fi';
 import { TokenOperationsServiceV8 } from '@/v8/services/tokenOperationsServiceV8';
+
+// MDI Icon Helper Functions
+interface MDIIconProps {
+	icon: string;
+	size?: number;
+	color?: string;
+	ariaLabel: string;
+}
+
+const getMDIIconClass = (iconName: string): string => {
+	const iconMap: Record<string, string> = {
+		FiCheckCircle: 'mdi-check-circle',
+		FiInfo: 'mdi-information',
+		FiX: 'mdi-close',
+		FiXCircle: 'mdi-close-circle',
+	};
+	return iconMap[iconName] || 'mdi-help-circle';
+};
+
+const MDIIcon: React.FC<MDIIconProps> = ({ icon, size = 24, color, ariaLabel }) => {
+	const iconClass = getMDIIconClass(icon);
+	return (
+		<span
+			className={`mdi ${iconClass}`}
+			style={{ fontSize: size, color: color }}
+			role="img"
+			aria-label={ariaLabel}
+			aria-hidden={!ariaLabel}
+		></span>
+	);
+};
 
 interface TokenOperationsEducationModalV8Props {
 	isOpen: boolean;
@@ -60,9 +90,15 @@ export const TokenOperationsEducationModalV8: React.FC<TokenOperationsEducationM
 	return (
 		<>
 			{/* Backdrop */}
-			<div
-				role="button"
-				tabIndex={0}
+			<button
+				type="button"
+				onClick={onClose}
+				onKeyDown={(e) => {
+					if (e.key === 'Enter' || e.key === ' ') {
+						e.preventDefault();
+						onClose();
+					}
+				}}
 				style={{
 					position: 'fixed',
 					top: 0,
@@ -72,10 +108,9 @@ export const TokenOperationsEducationModalV8: React.FC<TokenOperationsEducationM
 					background: 'rgba(0, 0, 0, 0.5)',
 					zIndex: 9998,
 					backdropFilter: 'blur(4px)',
+					border: 'none',
+					cursor: 'pointer',
 				}}
-				onClick={onClose}
-				role="button"
-				tabIndex={0}
 				aria-label="Close modal"
 			/>
 
@@ -110,7 +145,7 @@ export const TokenOperationsEducationModalV8: React.FC<TokenOperationsEducationM
 					}}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-						<FiInfo size={24} style={{ color: '#ffffff' }} />
+						<MDIIcon icon="FiInfo" size={24} color="#ffffff" ariaLabel="Information" />
 						<h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600', color: '#ffffff' }}>
 							Token Operations Guide
 						</h2>
@@ -138,7 +173,7 @@ export const TokenOperationsEducationModalV8: React.FC<TokenOperationsEducationM
 						}}
 						aria-label="Close modal"
 					>
-						<FiX size={20} />
+						<MDIIcon icon="FiX" size={20} ariaLabel="Close" />
 					</button>
 				</div>
 
@@ -210,9 +245,9 @@ export const TokenOperationsEducationModalV8: React.FC<TokenOperationsEducationM
 								}}
 							>
 								{rules.canIntrospectAccessToken ? (
-									<FiCheckCircle size={18} style={{ color: '#16a34a', flexShrink: 0 }} />
+									<MDIIcon icon="FiCheckCircle" size={18} color="#16a34a" ariaLabel="Allowed" />
 								) : (
-									<FiXCircle size={18} style={{ color: '#dc2626', flexShrink: 0 }} />
+									<MDIIcon icon="FiXCircle" size={18} color="#dc2626" ariaLabel="Not allowed" />
 								)}
 								<div style={{ flex: 1, fontSize: '13px' }}>
 									<span style={{ fontWeight: '600', color: '#1f2937' }}>
@@ -239,9 +274,9 @@ export const TokenOperationsEducationModalV8: React.FC<TokenOperationsEducationM
 								}}
 							>
 								{rules.canIntrospectRefreshToken ? (
-									<FiCheckCircle size={18} style={{ color: '#16a34a', flexShrink: 0 }} />
+									<MDIIcon icon="FiCheckCircle" size={18} color="#16a34a" ariaLabel="Allowed" />
 								) : (
-									<FiXCircle size={18} style={{ color: '#dc2626', flexShrink: 0 }} />
+									<MDIIcon icon="FiXCircle" size={18} color="#dc2626" ariaLabel="Not allowed" />
 								)}
 								<div style={{ flex: 1, fontSize: '13px' }}>
 									<span style={{ fontWeight: '600', color: '#1f2937' }}>
@@ -266,9 +301,9 @@ export const TokenOperationsEducationModalV8: React.FC<TokenOperationsEducationM
 								}}
 							>
 								{rules.canCallUserInfo ? (
-									<FiCheckCircle size={18} style={{ color: '#16a34a', flexShrink: 0 }} />
+									<MDIIcon icon="FiCheckCircle" size={18} color="#16a34a" ariaLabel="Allowed" />
 								) : (
-									<FiXCircle size={18} style={{ color: '#dc2626', flexShrink: 0 }} />
+									<MDIIcon icon="FiXCircle" size={18} color="#dc2626" ariaLabel="Not allowed" />
 								)}
 								<div style={{ flex: 1, fontSize: '13px' }}>
 									<span style={{ fontWeight: '600', color: '#1f2937' }}>

@@ -248,6 +248,14 @@ const FlowGuidanceSystemPingUI: React.FC<FlowGuidanceSystemPingUIProps> = ({
 							e.currentTarget.style.borderColor = 'transparent';
 							e.currentTarget.style.transform = 'translateY(0)';
 						}}
+						onFocus={(e) => {
+							e.currentTarget.style.borderColor = 'var(--ping-success-color, #22c55e)';
+							e.currentTarget.style.transform = 'translateY(-1px)';
+						}}
+						onBlur={(e) => {
+							e.currentTarget.style.borderColor = 'transparent';
+							e.currentTarget.style.transform = 'translateY(0)';
+						}}
 					>
 						<div
 							style={{
@@ -301,10 +309,9 @@ const FlowGuidanceSystemPingUI: React.FC<FlowGuidanceSystemPingUIProps> = ({
 								Follow these steps to complete the {flowGuidance.title.toLowerCase()}:
 							</div>
 							{flowGuidance.steps.map((step, index) => (
-								<div
+								<button
 									key={index}
-									role="button"
-									tabIndex={0}
+									type="button"
 									style={{
 										display: 'flex',
 										alignItems: 'flex-start',
@@ -368,7 +375,7 @@ const FlowGuidanceSystemPingUI: React.FC<FlowGuidanceSystemPingUIProps> = ({
 									>
 										{step}
 									</div>
-								</div>
+								</button>
 							))}
 						</div>
 					)}
@@ -397,6 +404,14 @@ const FlowGuidanceSystemPingUI: React.FC<FlowGuidanceSystemPingUIProps> = ({
 							e.currentTarget.style.transform = 'translateY(-1px)';
 						}}
 						onMouseOut={(e) => {
+							e.currentTarget.style.borderColor = 'transparent';
+							e.currentTarget.style.transform = 'translateY(0)';
+						}}
+						onFocus={(e) => {
+							e.currentTarget.style.borderColor = 'var(--ping-info-color, #3b82f6)';
+							e.currentTarget.style.transform = 'translateY(-1px)';
+						}}
+						onBlur={(e) => {
 							e.currentTarget.style.borderColor = 'transparent';
 							e.currentTarget.style.transform = 'translateY(0)';
 						}}
@@ -460,8 +475,9 @@ const FlowGuidanceSystemPingUI: React.FC<FlowGuidanceSystemPingUIProps> = ({
 								}}
 							>
 								{specGuidance.features.map((feature, index) => (
-									<div
+									<button
 										key={index}
+										type="button"
 										style={{
 											display: 'flex',
 											alignItems: 'center',
@@ -471,12 +487,21 @@ const FlowGuidanceSystemPingUI: React.FC<FlowGuidanceSystemPingUIProps> = ({
 											borderRadius: 'var(--ping-border-radius-md, 8px)',
 											border: '1px solid var(--ping-border-color, #e5e7eb)',
 											transition: 'all var(--ping-transition-fast, 0.15s) ease-in-out',
+											cursor: 'pointer',
 										}}
 										onMouseOver={(e) => {
 											e.currentTarget.style.borderColor = 'var(--ping-info-color, #3b82f6)';
 											e.currentTarget.style.transform = 'translateX(2px)';
 										}}
 										onMouseOut={(e) => {
+											e.currentTarget.style.borderColor = 'var(--ping-border-color, #e5e7eb)';
+											e.currentTarget.style.transform = 'translateX(0)';
+										}}
+										onFocus={(e) => {
+											e.currentTarget.style.borderColor = 'var(--ping-info-color, #3b82f6)';
+											e.currentTarget.style.transform = 'translateX(2px)';
+										}}
+										onBlur={(e) => {
 											e.currentTarget.style.borderColor = 'var(--ping-border-color, #e5e7eb)';
 											e.currentTarget.style.transform = 'translateX(0)';
 										}}
@@ -495,7 +520,7 @@ const FlowGuidanceSystemPingUI: React.FC<FlowGuidanceSystemPingUIProps> = ({
 										>
 											{feature}
 										</span>
-									</div>
+									</button>
 								))}
 							</div>
 						</div>
