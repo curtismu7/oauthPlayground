@@ -201,6 +201,8 @@ import { FIDO2ConfigurationPageV8 } from './v8/flows/types/FIDO2ConfigurationPag
 import { MobileOTPConfigurationPageV8 } from './v8/flows/types/MobileOTPConfigurationPageV8';
 import { UserSearchPage } from './pages/UserSearchPage';
 import { LoginPatternsPage } from './pages/LoginPatternsPage';
+import { TokenApiDocumentationPage } from './pages/TokenApiDocumentationPage';
+import { SpiffeSpireTokenDisplayPage } from './pages/SpiffeSpireTokenDisplayPage';
 
 // Lazy load unified MFA flow for code splitting
 const UnifiedMFARegistrationFlowV8_Legacy = React.lazy(() =>
@@ -1400,6 +1402,10 @@ const AppRoutes: React.FC = () => {
 								<Route path="/user-search" element={<UserSearchPage />} />
 								{/* Login Patterns Page */}
 								<Route path="/login-patterns" element={<LoginPatternsPage />} />
+								{/* Token API Documentation Page */}
+								<Route path="/token-api-documentation" element={<TokenApiDocumentationPage />} />
+								{/* SPIFFE-Spire Token Display Page */}
+								<Route path="/spiffe-spire-token-display" element={<SpiffeSpireTokenDisplayPage />} />
 								{/* Protect Portal Application */}
 								<Route path="/protect-portal" element={<ProtectPortalWrapper />} />
 								{/* Company Editor Utility */}
