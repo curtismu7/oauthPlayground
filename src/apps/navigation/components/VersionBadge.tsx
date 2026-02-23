@@ -36,10 +36,8 @@ const Badge = styled.span<{ flow?: string; $variant?: string }>`
 export const VersionBadge: React.FC<VersionBadgeProps> = ({ version, flow, variant = 'flow' }) => {
 	console.log('[VersionBadge] Rendering:', { version, flow, variant });
 	return (
-		<div className="end-user-nano">
-			<Badge flow={flow || undefined} $variant={variant}>
-				{version}
-			</Badge>
-		</div>
+		<Badge flow={flow || undefined} $variant={variant} className="end-user-nano">
+			{version}
+		</Badge>
 	);
 };
