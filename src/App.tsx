@@ -646,7 +646,7 @@ const AppRoutes: React.FC = () => {
 			) : (
 				// Main app - render with full layout
 				<AppContainer>
-					<Navbar toggleSidebar={toggleSidebar} sidebarOpen={sidebarOpen} />
+					<Navbar toggleSidebar={toggleSidebar} sidebarOpen={sidebarOpen} sidebarWidth={sidebarWidth} />
 					<Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 					<ContentColumn>
 						<MainContent $sidebarWidth={sidebarWidth} className="end-user-nano">
