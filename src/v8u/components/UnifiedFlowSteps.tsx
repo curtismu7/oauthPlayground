@@ -38,6 +38,7 @@ import FlowConfigurationRequirements from '@/components/FlowConfigurationRequire
 import FlowSequenceDisplay from '@/components/FlowSequenceDisplay';
 import { PasswordChangeModal } from '@/components/PasswordChangeModal';
 import RedirectlessLoginModal from '@/components/RedirectlessLoginModal';
+import BootstrapButton from '@/components/bootstrap/BootstrapButton';
 import { EducationPreferenceService } from '@/services/educationPreferenceService';
 import { type PKCECodes, PKCEService } from '@/services/pkceService';
 import { unifiedTokenService } from '@/shared/services/unifiedTokenService';
@@ -3286,78 +3287,34 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 																				});
 																			}
 
-																			if (onCredentialsChange) {
-																				onCredentialsChange(updatedCredentials);
-																			}
-
-																			toastV8.success(
-																				`Fixed ${fixesApplied.length} error(s): ${fixesApplied.join(', ')}`
-																			);
-
-																			// Re-run validation
-																			setLoadingMessage('🔍 Re-validating configuration...');
-																			const workerToken = await workerTokenServiceV8.getToken();
-																			const newValidationResult =
-																				await PreFlightValidationServiceV8.validateBeforeAuthUrl({
-																					specVersion,
-																					flowType,
-																					credentials: updatedCredentials,
-																					...(workerToken && { workerToken }),
-																				});
-
+																			// Update preFlightValidationResult state (CRITICAL: include fixableErrors and appConfig for Fix button)
 																			setPreFlightValidationResult({
 																				passed: newValidationResult.passed,
 																				errors: newValidationResult.errors,
 																				warnings: newValidationResult.warnings,
-																				fixableErrors: newValidationResult.fixableErrors || [],
-																				...(newValidationResult.appConfig && {
-																					appConfig: newValidationResult.appConfig,
-																				}),
+																				fixableErrors: newValidationResult.fixableErrors,
+																				appConfig,
 																			});
 
-																			if (newValidationResult.errors.length > 0) {
-																				setValidationErrors(newValidationResult.errors);
-																				setValidationWarnings([]);
-																				toastV8.error('Some errors remain after fixes');
-																			} else if (newValidationResult.warnings.length > 0) {
-																				setValidationWarnings(newValidationResult.warnings);
-																				setValidationErrors([]);
-																				toastV8.warning('Pre-flight validation warnings remain');
-																			} else {
-																				setValidationWarnings([]);
-																				setValidationErrors([]);
-																				toastV8.success(
-																					'✅ All errors fixed! Pre-flight validation passed!'
-																				);
-																			}
+																			// Update validation state
+																			setValidationErrors(newValidationResult.errors);
+																			setValidationWarnings(newValidationResult.warnings);
+																		} else {
+																			toastV8.error('Failed to fix some errors. Please fix them manually.');
 																		}
-																	} catch (error) {
-																		console.error(`${MODULE_TAG} Error fixing errors:`, error);
-																		toastV8.error('Failed to fix errors');
+																	} catch (err) {
+																		const message = err instanceof Error ? err.message : 'Failed to fix errors';
+																		toastV8.error(message);
+																		console.error(`${MODULE_TAG} Error fixing validation errors:`, err);
 																	} finally {
 																		setIsLoading(false);
 																		setLoadingMessage('');
 																	}
 																}}
 																disabled={isLoading}
-																style={{
-																	marginTop: '12px',
-																	padding: '8px 16px',
-																	background: '#dc2626',
-																	border: 'none',
-																	borderRadius: '6px',
-																	color: 'white',
-																	fontSize: '14px',
-																	fontWeight: '500',
-																	cursor: isLoading ? 'not-allowed' : 'pointer',
-																	opacity: isLoading ? 0.6 : 1,
-																	display: 'inline-flex',
-																	alignItems: 'center',
-																	gap: '6px',
-																}}
 															>
 																🔧 Fix All Errors
-															</button>
+															</BootstrapButton>
 														)}
 												</div>
 											)}
@@ -6759,36 +6716,40 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					<div
 						style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}
 					>
-						<ButtonSpinner
-							loading={isGeneratingAuthUrl || isPreFlightValidating}
+						<BootstrapButton
+							variant="primary"
+							greyBorder={true}
 							onClick={handleGenerateAuthUrl}
 							disabled={isLoading || isPreFlightValidating}
-							spinnerSize={16}
-							spinnerPosition="center"
-							loadingText={isPreFlightValidating ? 'Validating...' : 'Generating...'}
-							className="btn btn-next"
+							loading={isGeneratingAuthUrl || isPreFlightValidating}
 							style={{
 								minWidth: '280px',
 								padding: '14px 28px',
-								fontSize: '16px',
-								fontWeight: '600',
-								display: 'inline-flex',
-								alignItems: 'center',
-								justifyContent: 'center',
-								gap: '8px',
 							}}
 						>
 							{isPreFlightValidating ? (
-								<span>🔍</span>
+								<>
+									<span
+										className="spinner-border spinner-border-sm me-2"
+										aria-hidden="true"
+									></span>
+									<span>Validating...</span>
+								</>
 							) : isGeneratingAuthUrl ? (
-								<span>🔗</span>
+								<>
+									<span
+										className="spinner-border spinner-border-sm me-2"
+										aria-hidden="true"
+									></span>
+									<span>Generating...</span>
+								</>
 							) : (
 								<>
 									<span>🔗</span>
 									<span>Generate Authorization URL</span>
 								</>
 							)}
-						</ButtonSpinner>
+						</BootstrapButton>
 						{isPreFlightValidating && preFlightStatus && (
 							<div
 								style={{
@@ -7480,14 +7441,14 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							marginBottom: '32px',
 						}}
 					>
-						<button
-							type="button"
-							className="btn btn-next"
+						<BootstrapButton
+							variant="primary"
+							greyBorder={true}
 							onClick={handleRequestDeviceAuth}
 							disabled={isLoading || !isValid}
 						>
 							{isLoading ? 'Requesting...' : 'Request Device Authorization'}
-						</button>
+						</BootstrapButton>
 					</div>
 				)}
 
