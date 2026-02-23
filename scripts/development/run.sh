@@ -929,13 +929,13 @@ show_banner() {
     echo "║                                                                              ║"
     echo "║  Frontend: ${CYAN}$FRONTEND_URL${NC}${PURPLE}"
     echo "║  Backend:  ${CYAN}$BACKEND_URL${NC}${PURPLE}"
-    echo "║  Server Log: ${YELLOW}server.log (default)${NC}${PURPLE}"
+    echo "║  Server Log: ${YELLOW}backend.log (default)${NC}${PURPLE}"
     echo "║                                                                              ║"
     echo "║  🌐 Custom Domain Support Available:                                         ║"
     echo "║     • Setup: ./setup-custom-domain.sh                                        ║"
     echo "║     • Run:   ./run-custom-domain.sh                                          ║"
     echo "║                                                                              ║"
-    echo "║  ${YELLOW}📋 Server logs available in: server.log (tail -f server.log)${NC}${PURPLE}"
+    echo "║  ${YELLOW}📋 Server logs available in: backend.log (tail -f backend.log)${NC}${PURPLE}"
     echo "║  This script will:                                                          ║"
     echo "║  1. Find and change to MasterFlow API directory                           ║"
     echo "║  2. Kill all existing servers                                               ║"
@@ -1336,8 +1336,8 @@ start_backend() {
     
     # Start backend server (HTTPS only)
     print_info "Starting backend server on port $BACKEND_PORT (HTTPS)..."
-    print_info "📋 Server logs: server.log (default) - Use 'tail -f server.log' to follow"
-    BACKEND_PORT=3001 node server.js > server.log 2>&1 &
+    print_info "📋 Server logs: backend.log (default) - Use 'tail -f backend.log' to follow"
+    BACKEND_PORT=3001 node server.js > backend.log 2>&1 &
     local backend_pid=$!
     echo $backend_pid > "$BACKEND_PID_FILE"
     
@@ -1361,8 +1361,8 @@ start_backend() {
         # Check if process is still running
         if ! kill -0 "$backend_pid" 2>/dev/null; then
             print_error "Backend process died during startup"
-            print_error "Check server.log for details:"
-            tail -10 server.log 2>/dev/null || echo "No log file found"
+            print_error "Check backend.log for details:"
+            tail -10 backend.log 2>/dev/null || echo "No log file found"
             BACKEND_STATUS="failed"
             return 1
         fi
@@ -1381,8 +1381,8 @@ start_backend() {
     fi
     
     print_error "Backend process status: $(kill -0 "$backend_pid" 2>/dev/null && echo "running" || echo "dead")"
-    print_error "Check server.log for details:"
-    tail -10 server.log 2>/dev/null || echo "No log file found"
+    print_error "Check backend.log for details:"
+    tail -10 backend.log 2>/dev/null || echo "No log file found"
     
     return 1
 }
@@ -1580,7 +1580,7 @@ show_final_status() {
     
     echo -e "${CYAN}║${NC}"
     echo -e "${CYAN}║${NC} Log Files:"
-    echo -e "${CYAN}║${NC}   Backend:        ${YELLOW}server.log (default)${NC}"
+    echo -e "${CYAN}║${NC}   Backend:        ${YELLOW}backend.log (default)${NC}"
     echo -e "${CYAN}║${NC}   Frontend:       frontend.log"
     echo -e "${CYAN}║${NC}   Server:         logs/server.log"
     echo -e "${CYAN}║${NC}   PingOne API:    ${GREEN}logs/pingone-api.log${NC} ${YELLOW}(NEW - all PingOne API calls)${NC}"
@@ -1683,7 +1683,7 @@ show_final_summary() {
             ;;
         "failure")
             echo -e "${banner_color}║${NC} ${RED}❌ FAILURE: Servers failed to start${NC}"
-            echo -e "${banner_color}║${NC} ${RED}🔍 Check server.log and frontend.log for details${NC}"
+            echo -e "${banner_color}║${NC} ${RED}🔍 Check backend.log and frontend.log for details${NC}"
             ;;
         *)
             echo -e "${banner_color}║${NC} ${YELLOW}❓ UNKNOWN STATUS: Unexpected result${NC}"
@@ -1827,7 +1827,7 @@ while [ $# -gt 0 ]; do
             echo "      6) whatsapp.log       - WhatsApp flow logs"
             echo "      7) voice.log           - Voice flow logs"
             echo "      8) fido.log            - FIDO2/WebAuthn logs"
-            echo "      9) server.log          - Backend application logs (default)"
+            echo "      9) backend.log          - Backend application logs (default)"
             echo "     10) frontend.log        - Frontend/Vite logs"
             echo "     11) startup.log         - Script startup logs"
             echo ""
@@ -2026,7 +2026,7 @@ main() {
             echo "  8) fido.log - FIDO2 flow"
             echo ""
             echo "App logs:"
-            echo "  9) server.log - Backend log (default)"
+            echo "  9) backend.log - Backend log (default)"
             echo "  10) frontend.log - Frontend log"
             echo "  11) startup.log - Startup log"
             echo ""
@@ -2074,7 +2074,7 @@ main() {
                     LOG_DESCRIPTION="FIDO2 flow log"
                     ;;
                 9)
-                    LOG_FILE="logs/server.log"
+                    LOG_FILE="logs/backend.log"
                     LOG_DESCRIPTION="Backend log (default)"
                     ;;
                 10)

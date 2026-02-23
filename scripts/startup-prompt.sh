@@ -61,7 +61,7 @@ echo "3) Clear Vite cache only"
 echo "4) Clear both dist and Vite cache"
 echo "5) Kill running processes only"
 echo "6) Full reset (kill processes + clear all cache)"
-echo "7) Clear server.log file"
+echo "7) Clear backend.log file"
 echo "8) Exit without starting"
 echo ""
 
@@ -148,12 +148,12 @@ case $choice in
         fi
         ;;
     7)
-        echo -e "${YELLOW}Clearing server.log file...${NC}"
-        if [ -f "server.log" ]; then
-            rm server.log
-            echo -e "${GREEN}✓ server.log file cleared${NC}"
+        echo -e "${YELLOW}Clearing backend.log file...${NC}"
+        if [ -f "backend.log" ]; then
+            rm backend.log
+            echo -e "${GREEN}✓ backend.log file cleared${NC}"
         else
-            echo -e "${BLUE}ℹ server.log file not found${NC}"
+            echo -e "${BLUE}ℹ backend.log file not found${NC}"
         fi
         ;;
     8)
