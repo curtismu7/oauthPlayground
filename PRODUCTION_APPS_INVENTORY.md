@@ -19,40 +19,40 @@ This document provides a comprehensive inventory of all applications in the Prod
 
 ### 📱 Production (Main) - 23 Apps
 
-| App ID | App Name | Path | Category | Services Used |
-|--------|----------|------|----------|----------------|
-| `mfa-feature-flags-admin-v8` | 🚦 MFA Feature Flags | `/v8/mfa-feature-flags` | Admin | `MFAFeatureFlagsServiceV8`, `EnvironmentIdServiceV8` |
-| `api-status-page` | 🔍 API Status | `/system-status` | Utility | `HealthCheckService`, `VersionService` |
-| `flow-comparison-tool` | Flow Comparison Tool | `/v8u/flow-comparison` | Education | `FlowComparisonService`, `OAuthFlowComparisonService` |
-| `resources-api-v8` | Resources API Tutorial | `/v8/resources-api` | Education | `ResourcesAPIServiceV8`, `EducationalContentService` |
-| `spiffe-spire-flow-v8u` | SPIFFE/SPIRE Mock | `/v8u/spiffe-spire` | Education | `SPIFFEService`, `TokenExchangeService` |
-| `postman-collection-generator` | Postman Collection Generator | `/postman-collection-generator` | Unified | `PostmanCollectionGeneratorV8`, `CredentialsServiceV8` |
-| `new-unified-mfa-v8` | 🔥 New Unified MFA | `/v8/unified-mfa` | Unified | `UnifiedMFAServiceV8`, `MFAServiceV8`, `TokenServiceV8` |
-| `unified-oauth-flow-v8u` | Unified OAuth & OIDC | `/v8u/unified` | Unified | `UnifiedOAuthFlowServiceV8U`, `TokenMonitoringServiceV8U` |
-| `device-management-v8` | Device Management | `/v8/device-management` | Management | `DeviceManagementService`, `MFAServiceV8`, `WorkerTokenServiceV8` |
-| `enhanced-state-management` | Enhanced State Management (V2) | `/v8u/enhanced-state-management` | Utility | `StateManagementServiceV8U`, `PersistenceServiceV8U` |
-| `token-monitoring-dashboard` | Token Monitoring Dashboard | `/v8u/token-monitoring` | Management | `TokenMonitoringServiceV8U`, `WorkerTokenServiceV8U` |
-| `protect-portal-app` | Protect Portal App | `/protect-portal` | Protect | `ProtectPortalService`, `AuthenticationService`, `MFAService` |
-| `environment-management` | Environment Management | `/environments` | Management | `EnvironmentServiceV8`, `WorkerTokenServiceV8` |
-| `create-company` | 🏢 Create Company | `/admin/create-company` | Admin | `CompanyCreationService`, `ThemeService` |
-| `sdk-examples` | SDK Examples | `/sdk-examples` | Education | `SDKExampleService`, `JWTService`, `OIDCService` |
-| `debug-log-viewer` | Debug Log Viewer | `/v8/debug-logs` | Utility | `DebugLogServiceV8`, `LogStorageService` |
-| `token-exchange-v7` | Token Exchange (V8M) | `/flows/token-exchange-v7` | Flow | `TokenExchangeServiceV8M`, `JWTValidationService` |
-| `oauth-authorization-code-v8` | Authorization Code (V8) | `/flows/oauth-authorization-code-v8` | Flow | `OAuthAuthorizationCodeServiceV8`, `TokenServiceV8` |
-| `implicit-v8` | Implicit Flow (V8) | `/flows/implicit-v8` | Flow | `ImplicitFlowServiceV8`, `TokenServiceV8` |
-| `all-flows-api-test` | All Flows API Test Suite | `/test/all-flows-api-test` | Test | `APITestService`, `FlowTestService` |
-| `par-test` | PAR Flow Test | `/test/par-test` | Test | `PARServiceV8`, `AuthorizationRequestService` |
+| App ID                          | App Name                      | Path                              | Category   | Services Used                                           |
+|--------------------------------|-------------------------------|-----------------------------------|------------|--------------------------------------------------------|
+| `mfa-feature-flags-admin-v8`    | 🚦 MFA Feature Flags          | `/v8/mfa-feature-flags`          | Admin      | `MFAFeatureFlagsServiceV8`, `EnvironmentIdServiceV8`       |
+| `api-status-page`                | 🔍 API Status                  | `/system-status`                  | Utility    | `HealthCheckService`, `VersionService`                     |
+| `flow-comparison-tool`           | Flow Comparison Tool          | `/v8u/flow-comparison`           | Education  | `FlowComparisonService`, `OAuthFlowComparisonService`      |
+| `resources-api-v8`                | Resources API Tutorial         | `/v8/resources-api`              | Education  | `ResourcesAPIServiceV8`, `EducationalContentService`        |
+| `spiffe-spire-flow-v8u`           | SPIFFE/SPIRE Mock              | `/v8u/spiffe-spire`              | Education  | `SPIFFEService`, `TokenExchangeService`                   |
+| `postman-collection-generator`    | Postman Collection Generator    | `/postman-collection-generator` | Unified    | `PostmanCollectionGeneratorV8`, `CredentialsServiceV8`        |
+| `new-unified-mfa-v8`              | 🔥 New Unified MFA              | `/v8/unified-mfa`                | Unified    | `UnifiedMFAServiceV8`, `MFAServiceV8`, `TokenServiceV8`       |
+| `unified-oauth-flow-v8u`          | Unified OAuth & OIDC            | `/v8u/unified`                   | Unified    | `UnifiedOAuthFlowServiceV8U`, `TokenMonitoringServiceV8U`    |
+| `device-management-v8`            | Device Management              | `/v8/device-management`          | Management | `DeviceManagementService`, `MFAServiceV8`, `WorkerTokenServiceV8` |
+| `enhanced-state-management`      | Enhanced State Management (V2) | `/v8u/enhanced-state-management` | Utility    | `StateManagementServiceV8U`, `PersistenceServiceV8U`    |
+| `token-monitoring-dashboard`     | Token Monitoring Dashboard      | `/v8u/token-monitoring`          | Management | `TokenMonitoringServiceV8U`, `WorkerTokenServiceV8U`    |
+| `protect-portal-app`             | Protect Portal App             | `/protect-portal`                | Protect    | `ProtectPortalService`, `AuthenticationService`, `MFAService` |
+| `environment-management`           | Environment Management          | `/environments`                  | Management | `EnvironmentServiceV8`, `WorkerTokenServiceV8`          |
+| `create-company`                  | 🏢 Create Company               | `/admin/create-company`          | Admin      | `CompanyCreationService`, `ThemeService`                   |
+| `sdk-examples`                   | SDK Examples                   | `/sdk-examples`                   | Education  | `SDKExampleService`, `JWTService`, `OIDCService`            |
+| `debug-log-viewer`                | Debug Log Viewer                | `/v8/debug-logs`                 | Utility    | `DebugLogServiceV8`, `LogStorageService`                   |
+| `token-exchange-v7`                | Token Exchange (V8M)            | `/flows/token-exchange-v7`        | Flow       | `TokenExchangeServiceV8M`, `JWTValidationService`           |
+| `oauth-authorization-code-v8`      | Authorization Code (V8)          | `/flows/oauth-authorization-code-v8` | Flow       | `OAuthAuthorizationCodeServiceV8`, `TokenServiceV8`        |
+| `implicit-v8`                     | Implicit Flow (V8)               | `/flows/implicit-v8`              | Flow       | `ImplicitFlowServiceV8`, `TokenServiceV8`                   |
+| `all-flows-api-test`               | All Flows API Test Suite         | `/test/all-flows-api-test`         | Test       | `APITestService`, `FlowTestService`                         |
+| `par-test`                        | PAR Flow Test                  | `/test/par-test`                  | Test       | `PARServiceV8`, `AuthorizationRequestService`               |
 
 ### 📱 Production (Legacy) - 6 Apps
 
-| App ID | App Name | Path | Category | Services Used |
-|--------|----------|------|----------|----------------|
-| `unified-mfa-v8` | 🔥 New Unified MFA | `/v8/unified-mfa` | Unified | `UnifiedMFAServiceV8`, `MFAServiceV8`, `TokenServiceV8` |
-| `dpop-authorization-code-v8` | DPoP Authorization Code (V8) | `/flows/dpop-authorization-code-v8` | Flow | `DPoPServiceV8`, `OAuthAuthorizationCodeServiceV8` |
-| `oauth-authorization-code-v8` | Authorization Code (V8) | `/flows/oauth-authorization-code-v8` | Flow | `OAuthAuthorizationCodeServiceV8`, `TokenServiceV8` |
-| `implicit-v8` | Implicit Flow (V8) | `/flows/implicit-v8` | Flow | `ImplicitFlowServiceV8`, `TokenServiceV8` |
-| `all-flows-api-test` | All Flows API Test Suite | `/test/all-flows-api-test` | Test | `APITestService`, `FlowTestService` |
-| `par-test` | PAR Flow Test | `/test/par-test` | Test | `PARServiceV8`, `AuthorizationRequestService` |
+| App ID                          | App Name                      | Path                              | Category   | Services Used                                           |
+|--------------------------------|-------------------------------|-----------------------------------|------------|--------------------------------------------------------|
+| `unified-mfa-v8`                 | 🔥 New Unified MFA              | `/v8/unified-mfa`                | Unified    | `UnifiedMFAServiceV8`, `MFAServiceV8`, `TokenServiceV8`       |
+| `dpop-authorization-code-v8`     | DPoP Authorization Code (V8) | `/flows/dpop-authorization-code-v8` | Flow       | `DPoPServiceV8`, `OAuthAuthorizationCodeServiceV8`       |
+| `oauth-authorization-code-v8`      | Authorization Code (V8)          | `/flows/oauth-authorization-code-v8` | Flow       | `OAuthAuthorizationCodeServiceV8`, `TokenServiceV8`        |
+| `implicit-v8`                     | Implicit Flow (V8)               | `/flows/implicit-v8`              | Flow       | `ImplicitFlowServiceV8`, `TokenServiceV8`                   |
+| `all-flows-api-test`               | All Flows API Test Suite         | `/test/all-flows-api-test`         | Test       | `APITestService`, `FlowTestService`                         |
+| `par-test`                        | PAR Flow Test                  | `/test/par-test`                  | Test       | `PARServiceV8`, `AuthorizationRequestService`               |
 
 ---
 

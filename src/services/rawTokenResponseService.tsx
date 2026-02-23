@@ -79,7 +79,7 @@ const getRawResponseDescriptionStyles = () => ({
 });
 
 interface RawTokenResponseServiceProps {
-	tokens: Record<string, any>;
+	tokens: Record<string, unknown>;
 	onNavigateToTokenManagement?: () => void;
 	showIndividualTokens?: boolean;
 	children?: React.ReactNode; // For additional content after individual tokens
