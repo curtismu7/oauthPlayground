@@ -13,7 +13,6 @@
  */
 
 import React, { useCallback, useState } from 'react';
-import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import { WorkerTokenStatusDisplayV8 } from '@/v8/components/WorkerTokenStatusDisplayV8';
 import AmericanAirlinesHero from './components/AmericanAirlinesHero';
 import BankOfAmericaHero from './components/BankOfAmericaHero';
@@ -60,7 +59,7 @@ const MDIIcon: React.FC<{
 // PingOne UI Styled Components (using inline styles with CSS variables)
 const getPortalContainerStyle = () => ({
 	minHeight: '100vh',
-	background: 'var(--pingone-surface-background)',
+	background: '#1e3a8a',
 	display: 'flex',
 	flexDirection: 'column',
 	width: '100%',
@@ -113,7 +112,7 @@ const getErrorTitleStyle = () => ({
 });
 
 const getErrorMessageStyle = () => ({
-	color: 'var(--pingone-text-primary)',
+	color: '#ffffff',
 	marginBottom: '1rem',
 	lineHeight: '1.5',
 });
@@ -121,7 +120,7 @@ const getErrorMessageStyle = () => ({
 const getButtonStyle = (variant: 'primary' | 'secondary' = 'primary') => ({
 	background:
 		variant === 'primary' ? 'var(--pingone-brand-primary)' : 'var(--pingone-surface-secondary)',
-	color: variant === 'primary' ? 'var(--pingone-text-inverse)' : 'var(--pingone-text-primary)',
+	color: '#ffffff',
 	border: variant === 'secondary' ? '1px solid var(--pingone-border-primary)' : 'none',
 	padding: '0.75rem 1.5rem',
 	borderRadius: '0.375rem',
@@ -160,7 +159,7 @@ const getLoadingSpinnerStyle = () => ({
 });
 
 const getLoadingTextStyle = () => ({
-	color: 'var(--pingone-text-secondary)',
+	color: '#ffffff',
 	fontSize: '1rem',
 	fontWeight: '500',
 });
@@ -175,7 +174,7 @@ const getResourceSectionStyle = () => ({
 });
 
 const getResourceTitleStyle = () => ({
-	color: 'var(--pingone-text-primary)',
+	color: '#ffffff',
 	fontSize: '1.25rem',
 	fontWeight: '600',
 	marginBottom: '1rem',
@@ -186,14 +185,14 @@ const getResourceTitleStyle = () => ({
 });
 
 const getResourceDescriptionStyle = () => ({
-	color: 'var(--pingone-text-secondary)',
+	color: '#e2e8f0',
 	marginBottom: '1.5rem',
 	lineHeight: '1.6',
 });
 
 const getDownloadButtonStyle = () => ({
 	background: 'var(--pingone-brand-primary)',
-	color: 'var(--pingone-text-inverse)',
+	color: '#ffffff',
 	textDecoration: 'none',
 	padding: '0.75rem 1.5rem',
 	borderRadius: '0.375rem',
@@ -210,7 +209,6 @@ const getDownloadButtonStyle = () => ({
 });
 
 const ProtectPortalAppPingUI: React.FC = () => {
-	const { workerToken, isLoading: workerTokenLoading } = useGlobalWorkerToken();
 	const { activeTheme } = useBrandTheme();
 
 	// State management
@@ -225,6 +223,38 @@ const ProtectPortalAppPingUI: React.FC = () => {
 		tokenDisplay: null,
 		error: null,
 		isLoading: false,
+		educationalContent: {
+			riskEvaluation: {
+				title: 'Risk Evaluation',
+				description: 'Understanding risk assessment',
+				keyPoints: ['Device reputation', 'Behavioral analysis', 'Location verification'],
+				learnMore: {
+					title: 'Learn More About Risk Evaluation',
+					url: '#',
+					description: 'Detailed guide to risk assessment',
+				},
+			},
+			mfaAuthentication: {
+				title: 'MFA Authentication',
+				description: 'Multi-factor authentication process',
+				keyPoints: ['SMS verification', 'Email authentication', 'Push notifications'],
+				learnMore: {
+					title: 'Learn More About MFA',
+					url: '#',
+					description: 'Complete MFA implementation guide',
+				},
+			},
+			tokenDisplay: {
+				title: 'Token Display',
+				description: 'View your authentication tokens',
+				keyPoints: ['Access tokens', 'ID tokens', 'Refresh tokens'],
+				learnMore: {
+					title: 'Learn More About Tokens',
+					url: '#',
+					description: 'Understanding OAuth tokens',
+				},
+			},
+		},
 	});
 
 	// Configuration
@@ -237,11 +267,79 @@ const ProtectPortalAppPingUI: React.FC = () => {
 
 	// Footer configuration
 	const footerConfig: CorporatePortalConfig = {
-		companyName: activeTheme.companyName,
-		supportEmail: 'support@example.com',
-		privacyUrl: '/privacy',
-		termsUrl: '/terms',
-		securityUrl: '/security',
+		company: {
+			name: activeTheme.name || 'PingIdentity',
+			displayName: activeTheme.name || 'PingIdentity',
+			industry:
+				activeTheme.name === 'bank-of-america'
+					? 'banking'
+					: activeTheme.name === 'fedex'
+						? 'logistics'
+						: activeTheme.name === 'american-airlines' ||
+								activeTheme.name === 'southwest-airlines' ||
+								activeTheme.name === 'united-airlines'
+							? 'aviation'
+							: 'tech',
+			logo: {
+				url: '',
+				alt: 'Company Logo',
+				width: '120px',
+				height: '40px',
+				text: 'PingIdentity',
+				colors: {
+					primary: '#3b82f6',
+					secondary: '#6b7280',
+				},
+			},
+		},
+		login: {
+			pattern: 'two-step-otp',
+			passwordless: false,
+			security: 'standard',
+		},
+		navigation: {
+			style: 'corporate',
+			showBrandSelector: false,
+			stickyHeader: true,
+		},
+		content: {
+			customerTerminology: false,
+			tone: 'professional',
+			heroTitle: 'PingOne Protect Portal',
+			heroSubtitle: 'Advanced security for your applications',
+			features: [],
+		},
+		branding: {
+			colors: {
+				primary: 'var(--pingone-brand-primary)',
+				secondary: 'var(--pingone-brand-secondary)',
+				primaryDark: 'var(--pingone-brand-primary-dark)',
+				accent: 'var(--pingone-brand-accent)',
+				background: 'var(--pingone-surface-background)',
+				surface: 'var(--pingone-surface-primary)',
+				border: 'var(--pingone-border-primary)',
+				text: 'var(--pingone-text-primary)',
+				textSecondary: 'var(--pingone-text-secondary)',
+				error: 'var(--pingone-text-error)',
+				success: 'var(--pingone-text-success)',
+				warning: 'var(--pingone-text-warning)',
+				muted: 'var(--pingone-text-muted)',
+				info: 'var(--pingone-text-info)',
+			},
+			typography: {
+				heading: 'var(--pingone-font-family)',
+				body: 'var(--pingone-font-family)',
+				mono: 'var(--pingone-font-family-mono)',
+			},
+			spacing: {
+				xs: '0.25rem',
+				sm: '0.5rem',
+				md: '1rem',
+				lg: '1.5rem',
+				xl: '2rem',
+				xxl: '3rem',
+			},
+		},
 	};
 
 	// Event handlers
@@ -370,7 +468,7 @@ const ProtectPortalAppPingUI: React.FC = () => {
 					{error.suggestedAction && (
 						<p
 							style={{
-								color: 'var(--pingone-text-tertiary)',
+								color: '#cbd5e1',
 								fontSize: '0.875rem',
 								marginBottom: '1rem',
 							}}
@@ -380,12 +478,12 @@ const ProtectPortalAppPingUI: React.FC = () => {
 					)}
 					<div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
 						{error.recoverable && (
-							<button style={getButtonStyle('primary')} onClick={handleRetry}>
+							<button type="button" style={getButtonStyle('primary')} onClick={handleRetry}>
 								<MDIIcon icon="refresh" size={20} />
 								Try Again
 							</button>
 						)}
-						<button style={getButtonStyle('secondary')} onClick={handleReset}>
+						<button type="button" style={getButtonStyle('secondary')} onClick={handleReset}>
 							<MDIIcon icon="home" size={20} />
 							Start Over
 						</button>
@@ -437,7 +535,7 @@ const ProtectPortalAppPingUI: React.FC = () => {
 						<div style={getErrorMessageStyle()}>
 							The application is in an unknown state. Please try again.
 						</div>
-						<button style={getButtonStyle('primary')} onClick={handleReset}>
+						<button type="button" style={getButtonStyle('primary')} onClick={handleReset}>
 							<MDIIcon icon="refresh" size={20} />
 							Reset Application
 						</button>
