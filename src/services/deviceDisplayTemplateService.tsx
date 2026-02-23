@@ -2,19 +2,44 @@
 // Service to configure device-specific content for the DeviceDisplayTemplate
 
 import React from 'react';
-import {
-	FiActivity,
-	FiCamera,
-	FiCar,
-	FiCreditCard,
-	FiGamepad2,
-	FiMic,
-	FiPrinter,
-	FiShield,
-	FiSmartphone,
-	FiTv,
-} from 'react-icons/fi';
 import { DeviceFlowState, deviceFlowService } from './deviceFlowService';
+
+// MDI Icon Helper Functions
+interface MDIIconProps {
+	icon: string;
+	size?: number;
+	color?: string;
+	ariaLabel: string;
+}
+
+const getMDIIconClass = (iconName: string): string => {
+	const iconMap: Record<string, string> = {
+		FiActivity: 'mdi-activity',
+		FiCamera: 'mdi-camera',
+		FiCar: 'mdi-car',
+		FiCreditCard: 'mdi-credit-card',
+		FiGamepad2: 'mdi-gamepad',
+		FiMic: 'mdi-microphone',
+		FiPrinter: 'mdi-printer',
+		FiShield: 'mdi-shield',
+		FiSmartphone: 'mdi-cellphone',
+		FiTv: 'mdi-television',
+	};
+	return iconMap[iconName] || 'mdi-help-circle';
+};
+
+const MDIIcon: React.FC<MDIIconProps> = ({ icon, size = 24, color, ariaLabel }) => {
+	const iconClass = getMDIIconClass(icon);
+	return (
+		<span
+			className={`mdi ${iconClass}`}
+			style={{ fontSize: size, color: color }}
+			role="img"
+			aria-label={ariaLabel}
+			aria-hidden={!ariaLabel}
+		></span>
+	);
+};
 
 export interface DeviceDisplayConfig {
 	brandName: string;
@@ -68,7 +93,7 @@ export const DeviceDisplayTemplateService = {
 						{ label: 'Status', value: 'Ready to Print' },
 						{ label: 'Paper', value: '100% Loaded' },
 					],
-					statusIcon: (_status) => <FiPrinter />,
+					statusIcon: (_status) => <MDIIcon icon="FiPrinter" ariaLabel="Printer" />,
 					statusTitle: (status) => {
 						switch (status) {
 							case 'authorized':
@@ -95,7 +120,7 @@ export const DeviceDisplayTemplateService = {
 						{ label: 'Register', value: 'Register 1' },
 						{ label: 'Network', value: 'Connected' },
 					],
-					statusIcon: (_status) => <FiCreditCard />,
+					statusIcon: (_status) => <MDIIcon icon="FiCreditCard" ariaLabel="Credit Card" />,
 					statusTitle: (status) => {
 						switch (status) {
 							case 'authorized':
@@ -121,7 +146,7 @@ export const DeviceDisplayTemplateService = {
 						{ label: 'Resolution', value: '4K UHD' },
 						{ label: 'Status', value: 'Connected' },
 					],
-					statusIcon: (_status) => <FiTv />,
+					statusIcon: (_status) => <MDIIcon icon="FiTv" ariaLabel="Television" />,
 					statusTitle: (status) => {
 						switch (status) {
 							case 'authorized':
@@ -147,7 +172,7 @@ export const DeviceDisplayTemplateService = {
 						{ label: 'Battery', value: '85%' },
 						{ label: 'Status', value: 'Connected' },
 					],
-					statusIcon: (_status) => <FiActivity />,
+					statusIcon: (_status) => <MDIIcon icon="FiActivity" ariaLabel="Activity" />,
 					statusTitle: (status) => {
 						switch (status) {
 							case 'authorized':
@@ -173,7 +198,7 @@ export const DeviceDisplayTemplateService = {
 						{ label: 'OS', value: 'iOS/Android' },
 						{ label: 'Status', value: 'Connected' },
 					],
-					statusIcon: (_status) => <FiSmartphone />,
+					statusIcon: (_status) => <MDIIcon icon="FiSmartphone" ariaLabel="Smartphone" />,
 					statusTitle: (status) => {
 						switch (status) {
 							case 'authorized':
@@ -200,7 +225,7 @@ export const DeviceDisplayTemplateService = {
 						{ label: 'Status', value: 'Online' },
 						{ label: 'Wake Word', value: 'Alexa' },
 					],
-					statusIcon: (_status) => <FiMic />,
+					statusIcon: (_status) => <MDIIcon icon="FiMic" ariaLabel="Microphone" />,
 					statusTitle: (status) => {
 						switch (status) {
 							case 'authorized':
@@ -226,7 +251,7 @@ export const DeviceDisplayTemplateService = {
 						{ label: 'Status', value: 'Active' },
 						{ label: 'Capabilities', value: 'Decision Making' },
 					],
-					statusIcon: (_status) => <FiShield />,
+					statusIcon: (_status) => <MDIIcon icon="FiShield" ariaLabel="Shield" />,
 					statusTitle: (status) => {
 						switch (status) {
 							case 'authorized':
@@ -252,7 +277,7 @@ export const DeviceDisplayTemplateService = {
 						{ label: 'Battery', value: '85%' },
 						{ label: 'Status', value: 'Parked' },
 					],
-					statusIcon: (_status) => <FiCar />,
+					statusIcon: (_status) => <MDIIcon icon="FiCar" ariaLabel="Car" />,
 					statusTitle: (status) => {
 						switch (status) {
 							case 'authorized':
@@ -278,7 +303,7 @@ export const DeviceDisplayTemplateService = {
 						{ label: 'Network', value: 'Connected' },
 						{ label: 'Status', value: 'Online' },
 					],
-					statusIcon: (_status) => <FiGamepad2 />,
+					statusIcon: (_status) => <MDIIcon icon="FiGamepad2" ariaLabel="Gamepad" />,
 					statusTitle: (status) => {
 						switch (status) {
 							case 'authorized':
@@ -303,7 +328,7 @@ export const DeviceDisplayTemplateService = {
 						{ label: 'Fuel', value: 'Regular, Premium' },
 						{ label: 'Status', value: 'Ready' },
 					],
-					statusIcon: (_status) => <FiCamera />,
+					statusIcon: (_status) => <MDIIcon icon="FiCamera" ariaLabel="Camera" />,
 					statusTitle: (status) => {
 						switch (status) {
 							case 'authorized':
