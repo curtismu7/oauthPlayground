@@ -265,7 +265,7 @@ export const WorkerTokenPromptModalV8PingUI: React.FC<WorkerTokenPromptModalV8Pi
 							Worker Token Required
 						</ModalTitle>
 						<CloseButton onClick={handleCancel} aria-label="Close modal">
-							<MDIIcon icon="FiX" size={16} ariaLabel="Close" />
+							<MDIIcon icon="FiX" size={16} ariaLabel="Close" style={{ color: 'white' }} />
 						</CloseButton>
 					</ModalHeader>
 

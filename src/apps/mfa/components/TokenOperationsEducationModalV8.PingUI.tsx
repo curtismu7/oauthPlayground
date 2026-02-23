@@ -311,7 +311,7 @@ export const TokenOperationsEducationModalV8PingUI: React.FC<
 							Token Operations Rules
 						</ModalTitle>
 						<CloseButton onClick={onClose} aria-label="Close modal">
-							<MDIIcon icon="FiX" size={20} ariaLabel="Close" />
+							<MDIIcon icon="FiX" size={20} ariaLabel="Close" style={{ color: 'white' }} />
 						</CloseButton>
 					</ModalHeader>
 
