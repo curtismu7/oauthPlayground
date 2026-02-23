@@ -444,7 +444,6 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 										color: '#1f2937',
 										marginBottom: '8px',
 									}}
-									htmlFor="searchapplications"
 								>
 									🔍 Search Applications
 								</label>
