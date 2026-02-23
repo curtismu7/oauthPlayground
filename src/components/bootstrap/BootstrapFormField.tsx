@@ -10,7 +10,7 @@ import React from 'react';
 
 interface BootstrapFormFieldProps {
   label: string;
-  type?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url';
+  type?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url' | 'select';
   id: string;
   value: string;
   onChange: (value: string) => void;
@@ -22,6 +22,7 @@ interface BootstrapFormFieldProps {
   className?: string;
   'aria-label'?: string;
   'aria-describedby'?: string;
+  children?: React.ReactNode; // For select options
 }
 
 const BootstrapFormField: React.FC<BootstrapFormFieldProps> = ({
@@ -38,6 +39,7 @@ const BootstrapFormField: React.FC<BootstrapFormFieldProps> = ({
   className = '',
   'aria-label': ariaLabel,
   'aria-describedby': ariaDescribedBy,
+  children,
 }) => {
   const fieldId = id || `field-${Math.random().toString(36).substr(2, 9)}`;
   const describedBy = [
@@ -57,19 +59,37 @@ const BootstrapFormField: React.FC<BootstrapFormFieldProps> = ({
         {label}
         {required && <span className="text-danger ms-1">*</span>}
       </label>
-      <input
-        type={type}
-        id={fieldId}
-        className={`form-control ping-form-control ${error ? 'is-invalid' : ''}`}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        required={required}
-        disabled={disabled}
-        aria-label={ariaLabel}
-        aria-describedby={describedBy}
-        aria-invalid={!!error}
-      />
+      
+      {type === 'select' ? (
+        <select
+          id={fieldId}
+          className={`form-select ping-form-control ${error ? 'is-invalid' : ''}`}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          required={required}
+          disabled={disabled}
+          aria-label={ariaLabel}
+          aria-describedby={describedBy}
+          aria-invalid={!!error}
+        >
+          {children}
+        </select>
+      ) : (
+        <input
+          type={type}
+          id={fieldId}
+          className={`form-control ping-form-control ${error ? 'is-invalid' : ''}`}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          required={required}
+          disabled={disabled}
+          aria-label={ariaLabel}
+          aria-describedby={describedBy}
+          aria-invalid={!!error}
+        />
+      )}
+      
       {error && (
         <div id={`${fieldId}-error`} className="invalid-feedback">
           {error}
