@@ -24,7 +24,7 @@ import { PromptModalV8 } from './v8/components/PromptModalV8';
 const CompactAppPickerDemo = lazy(() => import('./pages/CompactAppPickerDemo'));
 
 import Navbar from '@/apps/navigation/components/Navbar';
-import Sidebar from '@/apps/navigation/components/Sidebar';
+import Sidebar from '@/apps/navigation/components/UnifiedSidebar';
 import DeviceMockFlow from './components/DeviceMockFlow';
 import FlowComparisonTool from './components/FlowComparisonTool';
 import FlowHeaderDemo from './components/FlowHeaderDemo';
