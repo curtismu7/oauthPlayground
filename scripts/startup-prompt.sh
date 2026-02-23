@@ -61,11 +61,12 @@ echo "3) Clear Vite cache only"
 echo "4) Clear both dist and Vite cache"
 echo "5) Kill running processes only"
 echo "6) Full reset (kill processes + clear all cache)"
-echo "7) Exit without starting"
+echo "7) Clear server.log file"
+echo "8) Exit without starting"
 echo ""
 
 # Read user choice
-read -p "Enter your choice (1-7): " choice
+read -p "Enter your choice (1-8): " choice
 
 case $choice in
     1)
@@ -147,6 +148,15 @@ case $choice in
         fi
         ;;
     7)
+        echo -e "${YELLOW}Clearing server.log file...${NC}"
+        if [ -f "server.log" ]; then
+            rm server.log
+            echo -e "${GREEN}✓ server.log file cleared${NC}"
+        else
+            echo -e "${BLUE}ℹ server.log file not found${NC}"
+        fi
+        ;;
+    8)
         echo -e "${RED}Exiting without starting...${NC}"
         exit 0
         ;;
