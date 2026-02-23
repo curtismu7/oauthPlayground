@@ -3,10 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { useAccessibility } from '@/hooks/useAccessibility';
-import {
-	exportAllUseCasesAsMarkdown,
-	exportAllUseCasesAsPDF,
-} from '@/v8u/services/unifiedFlowDocumentationServiceV8U';
 import { APP_VERSION } from '@/version';
 
 const NavbarContainer = styled.nav<{ $sidebarOpen?: boolean; $sidebarWidth?: number }>`
@@ -172,130 +168,6 @@ const MenuButton = styled.button`
   }
 `;
 
-const ModalOverlay = styled.div<{ $isOpen: boolean }>`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(8px);
-  display: ${({ $isOpen }) => ($isOpen ? 'flex' : 'none')};
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-  padding: var(--ping-spacing-md);
-`;
-
-const ModalContent = styled.div`
-  background: #ffffff;
-  border-radius: var(--ping-border-radius-lg);
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
-  width: 100%;
-  max-width: 500px;
-  position: relative;
-  border: 1px solid var(--ping-border-color);
-`;
-
-const ModalHeader = styled.div`
-  padding: var(--ping-spacing-lg) var(--ping-spacing-xl);
-  border-bottom: 1px solid var(--ping-border-color);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: linear-gradient(135deg, var(--ping-primary-color) 0%, #2563eb 100%);
-  border-radius: var(--ping-border-radius-lg) var(--ping-border-radius-lg) 0 0;
-  color: white;
-`;
-
-const ModalTitle = styled.h2`
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: calc(var(--ping-spacing-xs) * 3);
-`;
-
-const CloseButton = styled.button`
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
-  padding: var(--ping-spacing-xs);
-  border-radius: var(--ping-border-radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: var(--ping-transition-normal);
-
-  &:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-  }
-`;
-
-const ModalBody = styled.div`
-  padding: var(--ping-spacing-xl);
-`;
-
-const ModalMessage = styled.p`
-  margin: 0 0 var(--ping-spacing-lg) 0;
-  color: var(--ping-gray);
-  line-height: 1.6;
-  font-size: 0.95rem;
-`;
-
-const ButtonGroup = styled.div`
-  display: flex;
-  gap: calc(var(--ping-spacing-xs) * 3);
-  justify-content: flex-end;
-`;
-
-const ExportButton = styled.button<{ $variant: 'markdown' | 'pdf' }>`
-  padding: calc(var(--ping-spacing-xs) * 3) var(--ping-spacing-lg);
-  border-radius: var(--ping-border-radius-lg);
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: var(--ping-transition-normal);
-  border: 1px solid;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--ping-spacing-xs);
-  
-  ${({ $variant }) => {
-		if ($variant === 'markdown') {
-			return `
-        background-color: var(--ping-primary-color);
-        color: #ffffff;
-        border-color: #2563eb;
-        
-        &:hover {
-          background-color: #2563eb;
-          border-color: #1d4ed8;
-        }
-      `;
-		} else {
-			return `
-        background-color: var(--ping-error-color);
-        color: #ffffff;
-        border-color: #b91c1c;
-        
-        &:hover {
-          background-color: #b91c1c;
-          border-color: #991b1b;
-        }
-      `;
-		}
-	}}
-`;
-
-interface NavbarProps {
-	toggleSidebar: () => void;
-	sidebarOpen?: boolean;
-	sidebarWidth?: number;
-}
-
 const Navbar: React.FC<NavbarProps> = ({
 	toggleSidebar,
 	sidebarOpen = false,
@@ -304,7 +176,6 @@ const Navbar: React.FC<NavbarProps> = ({
 	const { isAuthenticated, logout, user } = useAuth();
 	const navigate = useNavigate();
 	const { announce } = useAccessibility();
-	const [showExportModal, setShowExportModal] = useState(false);
 	const [sidebarWidth, setSidebarWidth] = useState(() => {
 		try {
 			const saved = localStorage.getItem('sidebar.width');
@@ -355,26 +226,6 @@ const Navbar: React.FC<NavbarProps> = ({
 		announce('Navigation menu toggled');
 	};
 
-	const handleExportAllUseCases = () => {
-		setShowExportModal(true);
-	};
-
-	const handleExportMarkdown = () => {
-		exportAllUseCasesAsMarkdown();
-		setShowExportModal(false);
-		announce('Exporting all Unified Flow use cases as Markdown');
-	};
-
-	const handleExportPDF = () => {
-		exportAllUseCasesAsPDF();
-		setShowExportModal(false);
-		announce('Exporting all Unified Flow use cases as PDF');
-	};
-
-	const handleCloseExportModal = () => {
-		setShowExportModal(false);
-	};
-
 	return (
 		<div className="end-user-nano">
 			<NavbarContainer
@@ -409,11 +260,11 @@ const Navbar: React.FC<NavbarProps> = ({
 
 				<NavItems role="navigation" aria-label="Main navigation">
 					<Link to="/documentation" title="View documentation and help">
-						<i className="mdi-help-circle" aria-hidden="true" />
+						<i className="mdi-book-open-variant" aria-hidden="true" />
 						<span>Docs</span>
 					</Link>
 					<Link to="/configuration" title="Configure OAuth settings">
-						<i className="mdi-settings" aria-hidden="true" />
+						<i className="mdi-cog" aria-hidden="true" />
 						<span>Configuration</span>
 					</Link>
 					<Link to="/system-status" title="View PingOne API server status and health metrics">
@@ -421,7 +272,7 @@ const Navbar: React.FC<NavbarProps> = ({
 						<span>PingOne API Status</span>
 					</Link>
 					<Link to="/dashboard" title="View dashboard and system overview">
-						<i className="mdi-activity" aria-hidden="true" />
+						<i className="mdi-view-dashboard" aria-hidden="true" />
 						<span>Dashboard</span>
 					</Link>
 					<Link to="/auto-discover" title="OIDC Discovery tool" aria-label="OIDC Discovery tool">
@@ -429,18 +280,9 @@ const Navbar: React.FC<NavbarProps> = ({
 						<span>OIDC Discovery</span>
 					</Link>
 					<Link to="/client-generator" title="Generate PingOne applications">
-						<i className="mdi-settings" aria-hidden="true" />
+						<i className="mdi-application-cog" aria-hidden="true" />
 						<span>App Generator</span>
 					</Link>
-					<button
-						type="button"
-						onClick={handleExportAllUseCases}
-						title="Export all Unified Flow use cases as PDF or Markdown"
-						aria-label="Export all Unified Flow use cases"
-					>
-						<i className="mdi-download" aria-hidden="true" />
-						<span>Export All</span>
-					</button>
 					{isAuthenticated ? (
 						<button
 							type="button"
@@ -451,47 +293,9 @@ const Navbar: React.FC<NavbarProps> = ({
 							<i className="mdi-logout" aria-hidden="true" />
 							<span>Logout</span>
 						</button>
-					) : (
-						<Link
-							to="/login"
-							title="Login to the application"
-							aria-label="Login to the application"
-						>
-							<i className="mdi-login" aria-hidden="true" />
-							<span>Login</span>
-						</Link>
-					)}
+					) : null}
 				</NavItems>
 			</NavbarContainer>
-			<ModalOverlay $isOpen={showExportModal} onClick={handleCloseExportModal}>
-				<ModalContent onClick={(e) => e.stopPropagation()}>
-					<ModalHeader>
-						<ModalTitle>
-							<i className="mdi-download" />
-							Export All Unified Flow Use Cases
-						</ModalTitle>
-						<CloseButton onClick={handleCloseExportModal} aria-label="Close modal">
-							<i className="mdi-close" aria-hidden="true" />
-						</CloseButton>
-					</ModalHeader>
-					<ModalBody>
-						<ModalMessage>
-							Choose a format to export all Unified Flow use cases. This will generate a
-							comprehensive document containing API calls for each flow type.
-						</ModalMessage>
-						<ButtonGroup>
-							<ExportButton $variant="markdown" onClick={handleExportMarkdown}>
-								<i className="mdi-file-document"></i>
-								Export as Markdown
-							</ExportButton>
-							<ExportButton $variant="pdf" onClick={handleExportPDF}>
-								<i className="mdi-download"></i>
-								Export as PDF
-							</ExportButton>
-						</ButtonGroup>
-					</ModalBody>
-				</ModalContent>
-			</ModalOverlay>
 		</div>
 	);
 };
