@@ -549,7 +549,7 @@ const menuData: MenuItem[] = [
 			{
 				id: 'oauth-authorization-code',
 				label: 'Authorization Code Flow',
-				icon: 'mdi-shield-key',
+				icon: 'mdi-shield-outline',
 				path: '/flows/oauth-authorization-code-v8',
 				version: 'v8',
 				description: 'OAuth 2.0 Authorization Code Flow with PKCE',
@@ -584,7 +584,7 @@ const menuData: MenuItem[] = [
 			{
 				id: 'oauth-resource-owner',
 				label: 'Resource Owner Password',
-				icon: 'mdi-account-key',
+				icon: 'mdi-account-lock',
 				path: '/flows/oauth-ropc-v7',
 				version: 'v7',
 				description: 'OAuth 2.0 Resource Owner Password Flow',
