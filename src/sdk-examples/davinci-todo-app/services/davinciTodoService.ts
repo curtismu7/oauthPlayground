@@ -504,6 +504,15 @@ export class DavinciTodoService {
 	}
 
 	/**
+	 * Get current user information
+	 */
+	static getCurrentUser(): { id: string; email: string; name: string } | null {
+		// In a real implementation, this would retrieve user information from storage
+		// For now, return null to indicate no user is stored
+		return null;
+	}
+
+	/**
 	 * Set current user information
 	 */
 	static setCurrentUser(user: { id: string; email: string; name: string }): void {
