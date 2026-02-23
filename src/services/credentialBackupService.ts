@@ -2,6 +2,7 @@
 // V7 Credential Backup Service - Saves non-sensitive credentials to .env files for fallback
 
 import { StepCredentials } from '../components/steps/CommonSteps';
+import { clientInfo, clientError } from '../utils/clientLogger';
 
 export interface CredentialBackupConfig {
 	flowKey: string;
@@ -66,15 +67,16 @@ class CredentialBackupService {
 				localStorage.setItem(this.BACKUP_KEY, JSON.stringify(existingBackup));
 			}
 
-			console.log(`🔧 [CredentialBackup] Saved backup for flow: ${flowKey}`, {
+			clientInfo(`🔧 [CredentialBackup] Saved backup for flow: ${flowKey}`, {
 				flowKey,
 				hasEnvironmentId: !!credentials.environmentId,
 				hasClientId: !!credentials.clientId,
 				hasRedirectUri: !!credentials.redirectUri,
+				hasPostLogoutRedirectUri: !!credentials.postLogoutRedirectUri,
 				scopes: credentials.scopes?.length || 0,
 			});
 		} catch (error) {
-			console.error('🔧 [CredentialBackup] Failed to save backup:', error);
+			clientError('🔧 [CredentialBackup] Failed to save backup', { error: error instanceof Error ? error.message : 'Unknown error' });
 		}
 	}
 
@@ -86,7 +88,7 @@ class CredentialBackupService {
 			const backup = this.getCredentialBackup();
 			return backup[flowKey] || null;
 		} catch (error) {
-			console.error('🔧 [CredentialBackup] Failed to load backup:', error);
+			clientError('🔧 [CredentialBackup] Failed to load backup', { error: error instanceof Error ? error.message : 'Unknown error' });
 			return null;
 		}
 	}
@@ -99,7 +101,7 @@ class CredentialBackupService {
 			const backupData = localStorage.getItem(this.BACKUP_KEY);
 			return backupData ? JSON.parse(backupData) : {};
 		} catch (error) {
-			console.error('🔧 [CredentialBackup] Failed to parse backup data:', error);
+			clientError('🔧 [CredentialBackup] Failed to parse backup data', { error: error instanceof Error ? error.message : 'Unknown error' });
 			return {};
 		}
 	}
@@ -113,9 +115,9 @@ class CredentialBackupService {
 			delete backup[flowKey];
 			localStorage.setItem(this.BACKUP_KEY, JSON.stringify(backup));
 
-			console.log(`🔧 [CredentialBackup] Cleared backup for flow: ${flowKey}`);
+			clientInfo(`🔧 [CredentialBackup] Cleared backup for flow: ${flowKey}`);
 		} catch (error) {
-			console.error('🔧 [CredentialBackup] Failed to clear backup:', error);
+			clientError('🔧 [CredentialBackup] Failed to clear backup', { error: error instanceof Error ? error.message : 'Unknown error' });
 		}
 	}
 
@@ -125,9 +127,9 @@ class CredentialBackupService {
 	clearAllBackups(): void {
 		try {
 			localStorage.removeItem(this.BACKUP_KEY);
-			console.log('🔧 [CredentialBackup] Cleared all credential backups');
+			clientInfo('🔧 [CredentialBackup] Cleared all credential backups');
 		} catch (error) {
-			console.error('🔧 [CredentialBackup] Failed to clear all backups:', error);
+			clientError('🔧 [CredentialBackup] Failed to clear all backups', { error: error instanceof Error ? error.message : 'Unknown error' });
 		}
 	}
 
@@ -196,9 +198,9 @@ class CredentialBackupService {
 			document.body.removeChild(link);
 			URL.revokeObjectURL(url);
 
-			console.log('🔧 [CredentialBackup] Downloaded .env file with credential backup');
+			clientInfo('🔧 [CredentialBackup] Downloaded .env file with credential backup');
 		} catch (error) {
-			console.error('🔧 [CredentialBackup] Failed to download .env file:', error);
+			clientError('🔧 [CredentialBackup] Failed to download .env file', { error: error instanceof Error ? error.message : 'Unknown error' });
 		}
 	}
 
@@ -221,10 +223,10 @@ class CredentialBackupService {
 		if (backup.scopes) restoredCredentials.scopes = backup.scopes;
 		if (backup.responseType) restoredCredentials.responseType = backup.responseType;
 
-		console.log(`🔧 [CredentialBackup] Restored credentials for flow: ${flowKey}`, {
-			flowKey,
-			restoredFields: Object.keys(restoredCredentials),
-		});
+		clientInfo(`🔧 [CredentialBackup] Restored credentials for flow: ${flowKey}`, {
+				flowKey,
+				restoredFields: Object.keys(restoredCredentials),
+			});
 
 		return restoredCredentials;
 	}
