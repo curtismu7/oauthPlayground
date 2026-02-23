@@ -3,14 +3,42 @@
 // Consolidates all common UI patterns from OAuth flows
 
 import React from 'react';
-import { FiAlertCircle, FiAlertTriangle, FiCheckCircle, FiInfo } from 'react-icons/fi';
-import styled from 'styled-components';
-
 import { CollapsibleIcon } from '../components/CollapsibleIcon';
 import {
 	CollapsibleHeaderProps,
 	CollapsibleHeader as V6CollapsibleHeader,
 } from './collapsibleHeaderService';
+
+// MDI Icon Helper Functions
+interface MDIIconProps {
+	icon: string;
+	size?: number;
+	color?: string;
+	ariaLabel: string;
+}
+
+const getMDIIconClass = (iconName: string): string => {
+	const iconMap: Record<string, string> = {
+		FiAlertCircle: 'mdi-alert-circle',
+		FiAlertTriangle: 'mdi-alert-triangle',
+		FiCheckCircle: 'mdi-check-circle',
+		FiInfo: 'mdi-information',
+	};
+	return iconMap[iconName] || 'mdi-help-circle';
+};
+
+const MDIIcon: React.FC<MDIIconProps> = ({ icon, size = 24, color, ariaLabel }) => {
+	const iconClass = getMDIIconClass(icon);
+	return (
+		<span
+			className={`mdi ${iconClass}`}
+			style={{ fontSize: size, color: color }}
+			role="img"
+			aria-label={ariaLabel}
+			aria-hidden={!ariaLabel}
+		></span>
+	);
+};
 
 export interface CollapsibleHeaderAdapterProps extends Omit<CollapsibleHeaderProps, 'theme'> {
 	theme?: CollapsibleHeaderProps['theme'];
@@ -1358,10 +1386,10 @@ const InfoTextStyled = FlowUIService.getInfoText()!;
 
 export const InfoBox: React.FC<InfoBoxProps> = ({ title, children, variant = 'info', icon }) => {
 	const defaultIcons = {
-		info: <FiInfo size={20} />,
-		warning: <FiAlertTriangle size={20} />,
-		success: <FiCheckCircle size={20} />,
-		danger: <FiAlertCircle size={20} />,
+		info: <MDIIcon icon="FiInfo" size={20} ariaLabel="Information" />,
+		warning: <MDIIcon icon="FiAlertTriangle" size={20} ariaLabel="Warning" />,
+		success: <MDIIcon icon="FiCheckCircle" size={20} ariaLabel="Success" />,
+		danger: <MDIIcon icon="FiAlertCircle" size={20} ariaLabel="Danger" />,
 	};
 
 	return (
