@@ -105,56 +105,31 @@ export class FlowUIService {
 	// ============================================================================
 	// CACHE FOR STYLED COMPONENTS (prevents dynamic creation warnings)
 	// ============================================================================
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _containerCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _variantSelectorCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _variantButtonCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _variantTitleCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _variantDescriptionCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _contentWrapperCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _mainCardCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _stepHeaderCache = new Map<string, any>();
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _stepHeaderLeftCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _stepHeaderRightCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _versionBadgeCache = new Map<string, any>();
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _stepHeaderTitleCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _stepHeaderSubtitleCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _stepNumberCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _stepTotalCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _stepContentWrapperCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _collapsibleSectionCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _collapsibleHeaderButtonCache = new Map<string, any>();
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _collapsibleTitleCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _collapsibleToggleIconCache = new Map<string, any>();
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _collapsibleContentCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _infoBoxCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _infoTitleCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _infoTextCache: any = null;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static _infoListCache: any = null;
+	private static _containerCache: React.ComponentType<React.HTMLAttributes<HTMLElement>> | null = null;
+	private static _variantSelectorCache: React.ComponentType<React.HTMLAttributes<HTMLElement>> | null = null;
+	private static _variantButtonCache: React.ComponentType<React.HTMLAttributes<HTMLElement>> | null = null;
+	private static _variantTitleCache: React.ComponentType<React.HTMLAttributes<HTMLElement>> | null = null;
+	private static _variantDescriptionCache: React.ComponentType<React.HTMLAttributes<HTMLElement>> | null = null;
+	private static _contentWrapperCache: React.ComponentType<React.HTMLAttributes<HTMLElement>> | null = null;
+	private static _mainCardCache: React.ComponentType<React.HTMLAttributes<HTMLElement>> | null = null;
+	private static _stepHeaderCache = new Map<string, React.ComponentType<React.HTMLAttributes<HTMLElement>>>();
+	private static _stepHeaderLeftCache: React.ComponentType<React.HTMLAttributes<HTMLElement>> | null = null;
+	private static _stepHeaderRightCache: React.ComponentType<React.HTMLAttributes<HTMLElement>> | null = null;
+	private static _versionBadgeCache = new Map<string, React.ComponentType<React.HTMLAttributes<HTMLElement>>>();
+	private static _stepHeaderTitleCache: React.ComponentType<React.HTMLAttributes<HTMLElement>> | null = null;
+	private static _stepHeaderSubtitleCache: React.ComponentType<React.HTMLAttributes<HTMLElement>> | null = null;
+	private static _stepNumberCache: React.ComponentType<React.HTMLAttributes<HTMLElement>> | null = null;
+	private static _stepTotalCache: React.ComponentType<React.HTMLAttributes<HTMLElement>> | null = null;
+	private static _stepContentWrapperCache: React.ComponentType<React.HTMLAttributes<HTMLElement>> | null = null;
+	private static _collapsibleSectionCache: React.ComponentType<React.HTMLAttributes<HTMLElement>> | null = null;
+	private static _collapsibleHeaderButtonCache = new Map<string, React.ComponentType<React.HTMLAttributes<HTMLElement>>>();
+	private static _collapsibleTitleCache: React.ComponentType<React.HTMLAttributes<HTMLElement>> | null = null;
+	private static _collapsibleToggleIconCache = new Map<string, React.ComponentType<React.HTMLAttributes<HTMLElement>>>();
+	private static _collapsibleContentCache: React.ComponentType<React.HTMLAttributes<HTMLElement>> | null = null;
+	private static _infoBoxCache: React.ComponentType<React.HTMLAttributes<HTMLElement>> | null = null;
+	private static _infoTitleCache: React.ComponentType<React.HTMLAttributes<HTMLElement>> | null = null;
+	private static _infoTextCache: React.ComponentType<React.HTMLAttributes<HTMLElement>> | null = null;
+	private static _infoListCache: React.ComponentType<React.HTMLAttributes<HTMLElement>> | null = null;
 
 	// ============================================================================
 	// LAYOUT COMPONENTS
