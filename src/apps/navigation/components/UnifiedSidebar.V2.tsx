@@ -96,14 +96,15 @@ const SidebarContainer = styled.div<{ $width: number; $isOpen: boolean }>`
 	position: relative;
 	width: ${(props) => props.$isOpen ? props.$width : 0}px;
 	min-width: ${(props) => props.$isOpen ? 'var(--sidebar-width-min, 300px)' : '0px'};
-	max-width: ${(props) => props.$isOpen ? 'var(--sidebar-width-max, 600px)' : '0px'};
+	max-width: ${(props) => props.$isOpen ? props.$width : 0}px;
 	height: 100vh;
 	background: var(--sidebar-bg-primary, #FFFFFF);
 	border-right: ${(props) => props.$isOpen ? '1px solid var(--sidebar-border, #E5E7EB)' : 'none'};
 	transition: width 0.15s ease-in-out, border-right 0.15s ease-in-out;
+	z-index: 100; /* Ensure sidebar stays above content */
+	overflow: hidden;
 	display: flex;
 	flex-direction: column;
-	overflow: hidden;
 	opacity: ${(props) => props.$isOpen ? 1 : 0};
 	visibility: ${(props) => props.$isOpen ? 'visible' : 'hidden'};
 	box-shadow: ${(props) => props.$isOpen ? '2px 0 8px rgba(0, 0, 0, 0.1)' : 'none'};
