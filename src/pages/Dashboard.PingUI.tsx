@@ -549,26 +549,11 @@ const Dashboard: React.FC = () => {
 						...getMainContentStyle(),
 					}}
 				>
-					<div style={getCardStyle()}>
-						<div style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
-							<span
-								style={getStatusIndicatorStyle(
-									serverStatus.backend as 'online' | 'offline' | 'checking'
-								)}
-							/>
-							<strong>Backend</strong>
-						</div>
-						<p style={{ color: 'var(--pingone-text-secondary)', margin: '0' }}>
-							{serverStatus.backend === 'online'
-								? 'Running'
-								: serverStatus.backend === 'offline'
-											? 'Offline'
-											: 'Checking...'}
-								</p>
-							</div>
-						</div>
-
-						{/* PingOne API Configuration */}
+					<CollapsibleHeader
+						title="PingOne API Configuration"
+						collapsed={collapsedSections.pingOneApiStatus}
+						onToggle={() => toggleSection('pingOneApiStatus')}
+					>
 						<div style={getCardStyle()}>
 							<div style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem' }}>
 								<MDIIcon
