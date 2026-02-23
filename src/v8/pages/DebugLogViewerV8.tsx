@@ -136,8 +136,12 @@ export const DebugLogViewerV8: React.FC = () => {
 	const eventSourceRef = useRef<EventSource | null>(null);
 	const logContainerRef = useRef<HTMLDivElement | null>(null);
 
-	// Loading states
-	const [isLoading, setIsLoading] = useState(false);
+	// Loading states for different operations
+	const [isLoading, setIsLoading] = useState<boolean>(false);
+	const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+	const [isClearing, setIsClearing] = useState<boolean>(false);
+	const [isExporting, setIsExporting] = useState<boolean>(false);
+	const [isChangingLogs, setIsChangingLogs] = useState<boolean>(false);
 	const [error, setError] = useState<string | null>(null);
 
 	const sourceOptions: SourceOption[] = [
@@ -692,14 +696,32 @@ export const DebugLogViewerV8: React.FC = () => {
 	}, [logSource, tailMode, selectedFile]);
 
 	const clearLogs = async () => {
-		if (logSource === 'localStorage') {
-			// Clear logs from unified storage
-			await unifiedTokenStorage.clearDebugLogs(selectedLocalStorageLog);
-			setLogs([]);
-		} else if (logSource === 'file') {
-			setFileContent('');
-		} else {
-			setLogs([]);
+		setIsClearing(true);
+		try {
+			if (logSource === 'localStorage') {
+				// Clear logs from unified storage
+				await unifiedTokenStorage.clearDebugLogs(selectedLocalStorageLog);
+				setLogs([]);
+				setFileContent('');
+			} else if (logSource === 'file') {
+				// Clear file content
+				setFileContent('');
+				setLogs([]);
+			} else if (logSource === 'indexedDB') {
+				// Clear IndexedDB logs
+				setLogs([]);
+				setFileContent('');
+			} else if (logSource === 'sqlite') {
+				// Clear SQLite logs
+				setLogs([]);
+				setFileContent('');
+			} else if (logSource === 'callback-debug') {
+				// Clear callback debug logs
+				setLogs([]);
+				setFileContent('');
+			}
+		} finally {
+			setIsClearing(false);
 		}
 	};
 
@@ -740,40 +762,58 @@ export const DebugLogViewerV8: React.FC = () => {
 	};
 
 	const exportLogs = () => {
-		if (logSource === 'localStorage') {
-			MFARedirectUriServiceV8.exportDebugLogs();
-		} else if (logSource === 'file') {
-			// Export file content
-			const blob = new Blob([fileContent], { type: 'text/plain' });
-			const url = URL.createObjectURL(blob);
-			const a = document.createElement('a');
-			a.href = url;
-			a.download = `${selectedFile}-export-${new Date().toISOString().slice(0, 10)}.txt`;
-			document.body.appendChild(a);
-			a.click();
-			document.body.removeChild(a);
-			URL.revokeObjectURL(url);
-		} else {
-			const blob = new Blob([JSON.stringify(logs, null, 2)], { type: 'application/json' });
-			const url = URL.createObjectURL(blob);
-			const a = document.createElement('a');
-			a.href = url;
-			a.download = `${logSource}-logs-export-${new Date().toISOString().slice(0, 10)}.json`;
-			document.body.appendChild(a);
-			a.click();
-			document.body.removeChild(a);
-			URL.revokeObjectURL(url);
+		setIsExporting(true);
+		try {
+			if (logSource === 'localStorage') {
+				MFARedirectUriServiceV8.exportDebugLogs();
+			} else if (logSource === 'file') {
+				// Export file content
+				const blob = new Blob([fileContent], { type: 'text/plain' });
+				const url = URL.createObjectURL(blob);
+				const a = document.createElement('a');
+				a.href = url;
+				a.download = selectedFile;
+				document.body.appendChild(a);
+				a.click();
+				document.body.removeChild(a);
+				URL.revokeObjectURL(url);
+			} else if (logSource === 'indexedDB') {
+				// Export IndexedDB logs
+				const blob = new Blob([JSON.stringify(logs, null, 2)], { type: 'application/json' });
+				const url = URL.createObjectURL(blob);
+				const a = document.createElement('a');
+				a.href = url;
+				a.download = `${selectedIndexedDBTarget.replace('|', '_')}_logs.json`;
+				document.body.appendChild(a);
+				a.click();
+				document.body.removeChild(a);
+				URL.revokeObjectURL(url);
+			} else if (logSource === 'sqlite') {
+				// Export SQLite logs
+				const blob = new Blob([JSON.stringify(logs, null, 2)], { type: 'application/json' });
+				const url = URL.createObjectURL(blob);
+				const a = document.createElement('a');
+				a.href = url;
+				a.download = `${selectedSQLiteTarget.replace(/[^a-zA-Z0-9]/g, '_')}_logs.json`;
+				document.body.appendChild(a);
+				a.click();
+				document.body.removeChild(a);
+				URL.revokeObjectURL(url);
+			} else if (logSource === 'callback-debug') {
+				// Export callback debug logs
+				const blob = new Blob([JSON.stringify(logs, null, 2)], { type: 'application/json' });
+				const url = URL.createObjectURL(blob);
+				const a = document.createElement('a');
+				a.href = url;
+				a.download = 'callback_debug_logs.json';
+				document.body.appendChild(a);
+				a.click();
+				document.body.removeChild(a);
+				URL.revokeObjectURL(url);
+			}
+		} finally {
+			setIsExporting(false);
 		}
-	};
-
-	const toggleLogExpansion = (index: number) => {
-		const newExpanded = new Set(expandedLogs);
-		if (newExpanded.has(index)) {
-			newExpanded.delete(index);
-		} else {
-			newExpanded.add(index);
-		}
-		setExpandedLogs(newExpanded);
 	};
 
 	const filteredLogs = logs.filter((log) => {
@@ -784,6 +824,7 @@ export const DebugLogViewerV8: React.FC = () => {
 	const categories: LogCategory[] = [
 		'ALL',
 		'REDIRECT_URI',
+		'CALLBACK_DEBUG',
 		'MIGRATION',
 		'VALIDATION',
 		'FLOW_MAPPING',
@@ -1050,15 +1091,24 @@ export const DebugLogViewerV8: React.FC = () => {
 	};
 
 	return (
-		<div
-			style={{
-				padding: '20px',
-				maxWidth: '1600px',
-				margin: '0 auto',
-				minHeight: '100vh',
-				background: '#f3f4f6',
-			}}
-		>
+		<>
+			<style>
+				{`
+					@keyframes spin {
+						0% { transform: rotate(0deg); }
+						100% { transform: rotate(360deg); }
+					}
+				`}
+			</style>
+			<div
+				style={{
+					padding: '20px',
+					maxWidth: '1600px',
+					margin: '0 auto',
+					minHeight: '100vh',
+					background: '#f3f4f6',
+				}}
+			>
 			<PageHeaderV8
 				title="Debug Log Viewer"
 				subtitle="View persistent debug logs and server log files with live tail"
@@ -1453,6 +1503,7 @@ export const DebugLogViewerV8: React.FC = () => {
 					<button
 						type="button"
 						onClick={clearLogs}
+						disabled={isClearing}
 						style={{
 							display: 'flex',
 							alignItems: 'center',
@@ -1464,32 +1515,71 @@ export const DebugLogViewerV8: React.FC = () => {
 							borderRadius: '6px',
 							fontSize: '14px',
 							fontWeight: '600',
-							cursor: 'pointer',
+							cursor: isClearing ? 'not-allowed' : 'pointer',
+							opacity: isClearing ? 0.7 : 1,
 						}}
 					>
-						<FiTrash2 size={16} />
-						Clear
+						{isClearing ? (
+							<>
+								<div
+									style={{
+										width: '16px',
+										height: '16px',
+										border: '2px solid #ffffff',
+										borderTop: '2px solid transparent',
+										borderRadius: '50%',
+										animation: 'spin 1s linear infinite',
+									}}
+								/>
+								Clearing...
+							</>
+						) : (
+							<>
+								<FiTrash2 size={16} />
+								Clear
+							</>
+						)}
 					</button>
 
 					<button
 						type="button"
 						onClick={exportLogs}
+						disabled={isExporting}
 						style={{
 							display: 'flex',
 							alignItems: 'center',
 							gap: '8px',
 							padding: '10px 16px',
-							background: '#10b981',
+							background: '#3b82f6',
 							color: 'white',
 							border: 'none',
 							borderRadius: '6px',
 							fontSize: '14px',
 							fontWeight: '600',
-							cursor: 'pointer',
+							cursor: isExporting ? 'not-allowed' : 'pointer',
+							opacity: isExporting ? 0.7 : 1,
 						}}
 					>
-						<FiDownload size={16} />
-						Export
+						{isExporting ? (
+							<>
+								<div
+									style={{
+										width: '16px',
+										height: '16px',
+										border: '2px solid #ffffff',
+										borderTop: '2px solid transparent',
+										borderRadius: '50%',
+										animation: 'spin 1s linear infinite',
+									}}
+								/>
+								Exporting...
+							</>
+						) : (
+							<>
+								<FiDownload size={16} />
+								Export
+							</>
+						)}
 					</button>
 
 					{!isPopoutWindow() && (
@@ -1885,6 +1975,7 @@ export const DebugLogViewerV8: React.FC = () => {
 							: 'Enable Tail Mode to see new log entries in real-time as they are written to the file. File entries now include clearer per-line separation.'}
 			</div>
 		</div>
+		</>
 	);
 };
 

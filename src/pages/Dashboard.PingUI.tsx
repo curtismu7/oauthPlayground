@@ -11,7 +11,6 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import AppVersionBadge from '../components/AppVersionBadge';
-import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import StandardHeader from '../components/StandardHeader';
 import { type ActivityItem, getRecentActivity } from '../utils/activityTracker';
 import BootstrapButton from '../components/bootstrap/BootstrapButton';
@@ -528,10 +527,17 @@ const Dashboard: React.FC = () => {
 						...getMainContentStyle(),
 					}}
 				>
-					<CollapsibleHeader
+					<StandardHeader
 						title="PingOne API Configuration"
-						collapsed={collapsedSections.pingOneApiStatus}
+						description="Configure environment settings, feature flags, and API status monitoring"
+						icon="cog"
+						isCollapsible={true}
+						isCollapsed={collapsedSections.pingOneApiStatus}
 						onToggle={() => toggleSection('pingOneApiStatus')}
+						badge={{
+							text: 'Active',
+							variant: 'success'
+						}}
 					>
 						<div style={getCardStyle()}>
 							<div style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem' }}>
@@ -613,7 +619,7 @@ const Dashboard: React.FC = () => {
 								</div>
 							</div>
 						</div>
-					</CollapsibleHeader>
+					</StandardHeader>
 
 					{/* Quick Access */}
 					<StandardHeader
@@ -833,11 +839,17 @@ const Dashboard: React.FC = () => {
 					)}
 
 					{/* API Endpoints */}
-					<CollapsibleHeader
+					<StandardHeader
 						title="API Endpoints"
-						collapsed={collapsedSections.apiEndpoints}
+						description="Access OAuth and MFA flow endpoints for testing and development"
+						icon="api"
+						isCollapsible={true}
+						isCollapsed={collapsedSections.apiEndpoints}
 						onToggle={() => toggleSection('apiEndpoints')}
-						icon={<MDIIcon icon="api" size={20} />}
+						badge={{
+							text: 'Available',
+							variant: 'primary'
+						}}
 					>
 						<div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
 							{apiEndpoints.map((endpoint, index) => (
@@ -877,14 +889,20 @@ const Dashboard: React.FC = () => {
 								</div>
 							))}
 						</div>
-					</CollapsibleHeader>
+					</StandardHeader>
 
 					{/* Recent Activity */}
-					<CollapsibleHeader
+					<StandardHeader
 						title="Recent Activity"
-						collapsed={collapsedSections.recentActivity}
+						description="Track recent OAuth flow executions, token exchanges, and API interactions"
+						icon="history"
+						isCollapsible={true}
+						isCollapsed={collapsedSections.recentActivity}
 						onToggle={() => toggleSection('recentActivity')}
-						icon={<MDIIcon icon="history" size={20} />}
+						badge={{
+							text: recentActivity.length > 0 ? recentActivity.length.toString() : 'None',
+							variant: recentActivity.length > 0 ? 'default' : 'default'
+						}}
 					>
 						<div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
 							{recentActivity.length === 0 ? (
@@ -943,7 +961,7 @@ const Dashboard: React.FC = () => {
 								))
 							)}
 						</div>
-					</CollapsibleHeader>
+					</StandardHeader>
 				</div>
 			</div>
 		</div>
