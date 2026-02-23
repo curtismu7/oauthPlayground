@@ -547,21 +547,21 @@ const Dashboard: React.FC = () => {
 				<div
 					style={{
 						...getMainContentStyle(),
-									/>
-							</div>
-							<div style={getCardStyle()}>
-								<div style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
-									<span
-										style={getStatusIndicatorStyle(
-											serverStatus.backend as 'online' | 'offline' | 'checking'
-										)}
-									/>
-									<strong>Backend</strong>
-								</div>
-								<p style={{ color: 'var(--pingone-text-secondary)', margin: '0' }}>
-									{serverStatus.backend === 'online'
-										? 'Running'
-										: serverStatus.backend === 'offline'
+					}}
+				>
+					<div style={getCardStyle()}>
+						<div style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
+							<span
+								style={getStatusIndicatorStyle(
+									serverStatus.backend as 'online' | 'offline' | 'checking'
+								)}
+							/>
+							<strong>Backend</strong>
+						</div>
+						<p style={{ color: 'var(--pingone-text-secondary)', margin: '0' }}>
+							{serverStatus.backend === 'online'
+								? 'Running'
+								: serverStatus.backend === 'offline'
 											? 'Offline'
 											: 'Checking...'}
 								</p>
@@ -652,12 +652,16 @@ const Dashboard: React.FC = () => {
 					</CollapsibleHeader>
 
 					{/* Quick Access */}
-					<CollapsibleHeader
+					<StandardHeader
 						title="Quick Access"
-						collapsed={collapsedSections.quickAccess}
+						description="Quick access to common OAuth flows and tools"
+						icon="rocket-launch"
+						isCollapsible={true}
+						isCollapsed={collapsedSections.quickAccess}
 						onToggle={() => toggleSection('quickAccess')}
-						icon={<MDIIcon icon="rocket-launch" size={20} />}
-					>
+					/>
+					
+					{!collapsedSections.quickAccess && (
 						<div style={getGridStyle(4)}>
 							<a href="/flows/oauth-authorization-code-v9" style={{ textDecoration: 'none' }}>
 								<div style={getCardHoverStyle()}>
@@ -862,7 +866,7 @@ const Dashboard: React.FC = () => {
 								</div>
 							</a>
 						</div>
-					</CollapsibleHeader>
+					)}
 
 					{/* API Endpoints */}
 					<CollapsibleHeader
