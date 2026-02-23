@@ -1,4 +1,35 @@
-import { FiKey, FiLock, FiShield, FiZap } from 'react-icons/fi';
+import React from 'react';
+
+// MDI Icon Helper Functions
+interface MDIIconProps {
+	icon: string;
+	size?: number;
+	color?: string;
+	ariaLabel: string;
+}
+
+const getMDIIconClass = (iconName: string): string => {
+	const iconMap: Record<string, string> = {
+		FiKey: 'mdi-key',
+		FiLock: 'mdi-lock',
+		FiShield: 'mdi-shield',
+		FiZap: 'mdi-flash',
+	};
+	return iconMap[iconName] || 'mdi-help-circle';
+};
+
+const MDIIcon: React.FC<MDIIconProps> = ({ icon, size = 24, color, ariaLabel }) => {
+	const iconClass = getMDIIconClass(icon);
+	return (
+		<span
+			className={`mdi ${iconClass}`}
+			style={{ fontSize: size, color: color }}
+			role="img"
+			aria-label={ariaLabel}
+			aria-hidden={!ariaLabel}
+		></span>
+	);
+};
 
 export type AuthMethod =
 	| 'client_secret_basic'
@@ -85,13 +116,13 @@ export class AuthMethodService {
 	static getMethodIcon(method: AuthMethod) {
 		switch (method) {
 			case 'client_secret_basic':
-				return <FiShield />;
+				return <MDIIcon icon="FiShield" ariaLabel="Shield" />;
 			case 'client_secret_post':
-				return <FiKey />;
+				return <MDIIcon icon="FiKey" ariaLabel="Key" />;
 			case 'client_secret_jwt':
-				return <FiLock />;
+				return <MDIIcon icon="FiLock" ariaLabel="Lock" />;
 			case 'private_key_jwt':
-				return <FiZap />;
+				return <MDIIcon icon="FiZap" ariaLabel="Lightning" />;
 			default:
 				return null;
 		}
@@ -125,9 +156,8 @@ export const AuthMethodSelector: React.FC<AuthMethodSelectorProps> = ({
 		<div className={className}>
 			<div className="mb-4">
 				<label
-					htmlFor="auth-method-select"
-					className="block text-sm font-medium text-gray-700 mb-1"
 					htmlFor="authenticationmethod"
+					className="block text-sm font-medium text-gray-700 mb-1"
 				>
 					Authentication Method
 				</label>
