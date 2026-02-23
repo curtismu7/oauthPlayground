@@ -397,7 +397,7 @@ interface MenuItem {
 	};
 	children?: MenuItem[];
 	isVisible?: boolean;
-	version?: 'v7' | 'v8' | 'v9'; // Add version support
+	version?: 'v7' | 'v8' | 'v9' | 'v8u'; // Add version support
 	category?: 'core' | 'auth' | 'protect' | 'legacy' | 'dev' | 'docs'; // Add categorization
 	description?: string; // Add descriptions for better UX
 	status?: 'active' | 'deprecated' | 'experimental'; // Add status indicators
@@ -455,6 +455,10 @@ const menuData: MenuItem[] = [
 				version: 'v9',
 				description: 'OAuth 2.0 Authorization Code Flow with PKCE',
 				status: 'active',
+				badge: {
+					text: 'REAL',
+					variant: 'success'
+				}
 			},
 			{
 				id: 'oauth-implicit',
@@ -464,6 +468,10 @@ const menuData: MenuItem[] = [
 				version: 'v8',
 				description: 'OAuth 2.0 Implicit Flow (deprecated)',
 				status: 'deprecated',
+				badge: {
+					text: 'MOCK',
+					variant: 'default'
+				}
 			},
 			{
 				id: 'oauth-client-credentials',
@@ -473,6 +481,10 @@ const menuData: MenuItem[] = [
 				version: 'v8',
 				description: 'OAuth 2.0 Client Credentials Flow',
 				status: 'active',
+				badge: {
+					text: 'MOCK',
+					variant: 'default'
+				}
 			},
 			{
 				id: 'oauth-resource-owner',
@@ -482,6 +494,10 @@ const menuData: MenuItem[] = [
 				version: 'v7',
 				description: 'OAuth 2.0 Resource Owner Password Flow',
 				status: 'deprecated',
+				badge: {
+					text: 'MOCK',
+					variant: 'default'
+				}
 			},
 			{
 				id: 'oauth-device-authorization',
@@ -491,6 +507,10 @@ const menuData: MenuItem[] = [
 				version: 'v8',
 				description: 'OAuth 2.0 Device Authorization Flow',
 				status: 'active',
+				badge: {
+					text: 'MOCK',
+					variant: 'default'
+				}
 			},
 			{
 				id: 'oauth-jwt-bearer',
@@ -500,6 +520,10 @@ const menuData: MenuItem[] = [
 				version: 'v8',
 				description: 'OAuth 2.0 JWT Bearer Token Flow',
 				status: 'active',
+				badge: {
+					text: 'MOCK',
+					variant: 'default'
+				}
 			},
 			{
 				id: 'oauth-par',
@@ -509,6 +533,10 @@ const menuData: MenuItem[] = [
 				version: 'v9',
 				description: 'OAuth 2.0 Pushed Authorization Request',
 				status: 'active',
+				badge: {
+					text: 'MOCK',
+					variant: 'default'
+				}
 			},
 			{
 				id: 'oauth-token-exchange',
@@ -518,6 +546,10 @@ const menuData: MenuItem[] = [
 				version: 'v8',
 				description: 'OAuth 2.0 Token Exchange',
 				status: 'active',
+				badge: {
+					text: 'MOCK',
+					variant: 'default'
+				}
 			},
 		],
 	},
@@ -534,6 +566,10 @@ const menuData: MenuItem[] = [
 				version: 'v8',
 				description: 'Multi-Factor Authentication Device Flow',
 				status: 'active',
+				badge: {
+					text: 'MOCK',
+					variant: 'default'
+				}
 			},
 			{
 				id: 'mfa-push',
@@ -543,6 +579,10 @@ const menuData: MenuItem[] = [
 				version: 'v8',
 				description: 'Multi-Factor Authentication Push',
 				status: 'active',
+				badge: {
+					text: 'MOCK',
+					variant: 'default'
+				}
 			},
 			{
 				id: 'mfa-sms',
@@ -552,6 +592,10 @@ const menuData: MenuItem[] = [
 				version: 'v8',
 				description: 'Multi-Factor Authentication SMS',
 				status: 'active',
+				badge: {
+					text: 'MOCK',
+					variant: 'default'
+				}
 			},
 			{
 				id: 'mfa-email',
@@ -561,6 +605,10 @@ const menuData: MenuItem[] = [
 				version: 'v8',
 				description: 'Multi-Factor Authentication Email',
 				status: 'active',
+				badge: {
+					text: 'MOCK',
+					variant: 'default'
+				}
 			},
 			{
 				id: 'mfa-voice',
@@ -570,6 +618,10 @@ const menuData: MenuItem[] = [
 				version: 'v8',
 				description: 'Multi-Factor Authentication Voice',
 				status: 'active',
+				badge: {
+					text: 'MOCK',
+					variant: 'default'
+				}
 			},
 			{
 				id: 'mfa-whatsapp',
@@ -579,6 +631,10 @@ const menuData: MenuItem[] = [
 				version: 'v8',
 				description: 'Multi-Factor Authentication WhatsApp',
 				status: 'active',
+				badge: {
+					text: 'MOCK',
+					variant: 'default'
+				}
 			},
 			{
 				id: 'mfa-fido',
@@ -588,6 +644,10 @@ const menuData: MenuItem[] = [
 				version: 'v8',
 				description: 'Multi-Factor Authentication FIDO/WebAuthn',
 				status: 'active',
+				badge: {
+					text: 'MOCK',
+					variant: 'default'
+				}
 			},
 		],
 	},
@@ -631,19 +691,27 @@ const menuData: MenuItem[] = [
 				id: 'unified-oauth-flow',
 				label: 'Unified OAuth Flow',
 				icon: 'mdi-key',
-				path: '/unified-oauth-flow',
+				path: '/v8u/unified/oauth-authz',
 				version: 'v8u',
 				description: 'Unified OAuth 2.0 Flow with enhanced features',
 				status: 'active',
+				badge: {
+					text: 'REAL',
+					variant: 'success'
+				}
 			},
 			{
 				id: 'unified-mfa-flow',
 				label: 'Unified MFA Flow',
 				icon: 'mdi-shield-check',
-				path: '/unified-mfa-flow',
-				version: 'v8u',
+				path: '/v8/unified-mfa',
+				version: 'v8',
 				description: 'Unified Multi-Factor Authentication Flow',
 				status: 'active',
+				badge: {
+					text: 'REAL',
+					variant: 'success'
+				}
 			},
 			{
 				id: 'enhanced-state-management',
@@ -653,6 +721,10 @@ const menuData: MenuItem[] = [
 				version: 'v8u',
 				description: 'Advanced state management and debugging',
 				status: 'active',
+				badge: {
+					text: 'MOCK',
+					variant: 'default'
+				}
 			},
 			{
 				id: 'flow-comparison',
@@ -662,6 +734,10 @@ const menuData: MenuItem[] = [
 				version: 'v8u',
 				description: 'Compare different OAuth flows side by side',
 				status: 'active',
+				badge: {
+					text: 'MOCK',
+					variant: 'default'
+				}
 			},
 			{
 				id: 'token-api-documentation',
@@ -671,6 +747,10 @@ const menuData: MenuItem[] = [
 				version: 'v8u',
 				description: 'Comprehensive token API documentation',
 				status: 'active',
+				badge: {
+					text: 'MOCK',
+					variant: 'default'
+				}
 			},
 			{
 				id: 'spiffe-spire-flow',
@@ -680,6 +760,10 @@ const menuData: MenuItem[] = [
 				version: 'v8u',
 				description: 'SPIFFE/SPIRE identity flow',
 				status: 'experimental',
+				badge: {
+					text: 'MOCK',
+					variant: 'default'
+				}
 			},
 			{
 				id: 'spiffe-spire-token-display',
@@ -689,6 +773,10 @@ const menuData: MenuItem[] = [
 				version: 'v8u',
 				description: 'SPIFFE/SPIRE token visualization',
 				status: 'experimental',
+				badge: {
+					text: 'MOCK',
+					variant: 'default'
+				}
 			},
 		],
 	},
