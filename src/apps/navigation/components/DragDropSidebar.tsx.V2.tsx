@@ -502,6 +502,109 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 					},
 				],
 			},
+			{
+				id: 'educational-pages',
+				label: 'Educational Pages',
+				icon: <MDIIcon icon="FiBook" ariaLabel="Educational pages" />,
+				isOpen: true,
+				items: [
+					{
+						id: 'user-search-page',
+						path: '/user-search',
+						label: '👥 User Search API',
+						icon: (
+							<div className={getColoredIconClass('#10b981')} style={{ color: '#10b981' }}>
+								<MDIIcon icon="FiUsers" ariaLabel="Users" />
+							</div>
+						),
+						badge: (
+							<span
+								className={getMigrationBadgeClass('education')}
+								style={{ background: '#10b981', color: 'white' }}
+								title="Learn PingOne User Management API with interactive examples"
+							>
+								EDU
+							</span>
+						),
+					},
+					{
+						id: 'login-patterns-page',
+						path: '/login-patterns',
+						label: '🔐 Login Patterns',
+						icon: (
+							<div className={getColoredIconClass('#3b82f6')} style={{ color: '#3b82f6' }}>
+								<MDIIcon icon="FiLock" ariaLabel="Lock" />
+							</div>
+						),
+						badge: (
+							<span
+								className={getMigrationBadgeClass('education')}
+								style={{ background: '#3b82f6', color: 'white' }}
+								title="Explore different login patterns and authentication methods"
+							>
+								EDU
+							</span>
+						),
+					},
+					{
+						id: 'token-api-documentation-page',
+						path: '/token-api-documentation',
+						label: '📚 Token API Documentation',
+						icon: (
+							<div className={getColoredIconClass('#8b5cf6')} style={{ color: '#8b5cf6' }}>
+								<MDIIcon icon="FiFileText" ariaLabel="Documentation" />
+							</div>
+						),
+						badge: (
+							<span
+								className={getMigrationBadgeClass('education')}
+								style={{ background: '#8b5cf6', color: 'white' }}
+								title="Comprehensive OAuth 2.0 token API reference and examples"
+							>
+								EDU
+							</span>
+						),
+					},
+					{
+						id: 'spiffe-spire-token-display-page',
+						path: '/spiffe-spire-token-display',
+						label: '🔐 SPIFFE-Spire Tokens',
+						icon: (
+							<div className={getColoredIconClass('#f59e0b')} style={{ color: '#f59e0b' }}>
+								<MDIIcon icon="FiShield" ariaLabel="Shield" />
+							</div>
+						),
+						badge: (
+							<span
+								className={getMigrationBadgeClass('education')}
+								style={{ background: '#f59e0b', color: 'white' }}
+								title="SPIFFE and SPIRE identity management with token display"
+							>
+								EDU
+							</span>
+						),
+					},
+					{
+						id: 'token-refresh-page',
+						path: '/token-refresh',
+						label: '🔄 Token Refresh',
+						icon: (
+							<div className={getColoredIconClass('#059669')} style={{ color: '#059669' }}>
+								<MDIIcon icon="FiRefreshCw" ariaLabel="Refresh" />
+							</div>
+						),
+						badge: (
+							<span
+								className={getMigrationBadgeClass('education')}
+								style={{ background: '#059669', color: 'white' }}
+								title="OAuth 2.0 token refresh mechanisms and automatic renewal"
+							>
+								EDU
+							</span>
+						),
+					},
+				],
+			},
 		];
 
 		try {
