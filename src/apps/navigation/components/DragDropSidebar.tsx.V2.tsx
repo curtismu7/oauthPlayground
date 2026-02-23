@@ -110,12 +110,18 @@ interface SimpleDragDropSidebarProps {
 	dragMode?: boolean;
 	searchQuery?: string;
 	matchAnywhere?: boolean;
+	onSave?: (menuGroups: MenuGroup[]) => void;
+	onRestore?: () => void;
+	onQuit?: () => void;
 }
 
 const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 	dragMode = false,
 	searchQuery = '',
 	matchAnywhere = false,
+	onSave,
+	onRestore,
+	onQuit,
 }) => {
 	const location = useLocation();
 	const navigate = useNavigate();
@@ -345,12 +351,39 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				localStorage.setItem('simpleDragDropSidebar.menuOrder', JSON.stringify(serializable));
 				localStorage.setItem('simpleDragDropSidebar.menuVersion', '2.2');
 				console.log('💾 Menu layout saved to localStorage:', serializable);
+				if (onSave) {
+					onSave(groups);
+				}
 			} catch (error) {
 				console.warn('❌ Failed to save menu layout:', error);
 			}
 		},
-		[createSerializableGroups]
+		[createSerializableGroups, onSave]
 	);
+
+	const handleSave = () => {
+		saveWithFeedback(menuGroups);
+	};
+
+	const handleRestore = () => {
+		try {
+			localStorage.removeItem('simpleDragDropSidebar.menuOrder');
+			localStorage.removeItem('simpleDragDropSidebar.menuVersion');
+			// Reset to default menu structure
+			window.location.reload(); // Simple way to restore defaults
+			if (onRestore) {
+				onRestore();
+			}
+		} catch (error) {
+			console.warn('❌ Failed to restore menu layout:', error);
+		}
+	};
+
+	const handleQuit = () => {
+		if (onQuit) {
+			onQuit();
+		}
+	};
 
 	// Initialize menu structure with Ping UI migration
 	const [menuGroups, setMenuGroups] = useState<MenuGroup[]>(() => {
@@ -795,6 +828,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 	}, [menuGroups, searchQuery, matchAnywhere]);
 
 	const handleDragStart = (e: React.DragEvent, item: typeof draggedItem) => {
+		console.log('🚀 Drag started:', item);
 		setDraggedItem(item);
 		e.dataTransfer.effectAllowed = 'move';
 	};
@@ -806,8 +840,12 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 
 	const handleDrop = (e: React.DragEvent, targetGroupId: string, targetIndex: number) => {
 		e.preventDefault();
+		console.log('🎯 Drop triggered:', { targetGroupId, targetIndex, draggedItem });
 
-		if (!draggedItem) return;
+		if (!draggedItem) {
+			console.warn('❌ No dragged item found');
+			return;
+		}
 
 		const newMenuGroups = [...menuGroups];
 		let draggedItemData: MenuItem | null = null;
@@ -819,6 +857,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 					if (itemIndex !== -1) {
 						draggedItemData = group.items[itemIndex];
 						group.items.splice(itemIndex, 1);
+						console.log('📤 Removed item from source:', draggedItemData);
 						break;
 					}
 				}
@@ -829,10 +868,17 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 			const targetGroup = newMenuGroups.find((g) => g.id === targetGroupId);
 			if (targetGroup) {
 				targetGroup.items.splice(targetIndex, 0, draggedItemData);
+				console.log('📥 Added item to target:', { targetGroupId, targetIndex, item: draggedItemData });
+				setMenuGroups(newMenuGroups);
+				// Auto-save after successful drop
+				saveWithFeedback(newMenuGroups);
+			} else {
+				console.warn('❌ Target group not found:', targetGroupId);
 			}
+		} else {
+			console.warn('❌ No dragged item data found');
 		}
 
-		setMenuGroups(newMenuGroups);
 		setDraggedItem(null);
 	};
 
@@ -845,11 +891,12 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 	const renderMenuItem = (item: MenuItem, groupId: string, index: number) => {
 		const isItemActive = isActive(item.path);
 		const isDragging = draggedItem?.id === item.id;
+		const isDragTarget = draggedItem && draggedItem.type === 'item' && draggedItem.id !== item.id;
 
 		return (
 			<div
 				key={item.id}
-				className={`menu-item ${isItemActive ? 'active' : ''} ${isDragging ? 'dragging' : ''}`}
+				className={`menu-item ${isItemActive ? 'active' : ''} ${isDragging ? 'dragging' : ''} ${isDragTarget ? 'drop-target' : ''}`}
 				draggable={dragMode}
 				onDragStart={(e) => handleDragStart(e, { type: 'item', id: item.id, groupId })}
 				onDragOver={handleDragOver}
@@ -857,6 +904,15 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				onClick={() => handleNavigation(item.path)}
 				style={{
 					transition: 'var(--ping-transition-fast, 0.15s ease-in-out)',
+					opacity: isDragging ? 0.5 : 1,
+					border: isDragTarget && dragMode ? '2px dashed var(--ping-primary-color, #0066cc)' : 'none',
+					backgroundColor: isDragTarget && dragMode ? 'var(--ping-hover-color, #f1f3f4)' : 'transparent',
+					cursor: dragMode ? 'grab' : 'pointer',
+					...(dragMode && {
+						padding: 'var(--pingone-spacing-sm, 0.5rem)',
+						margin: 'var(--pingone-spacing-xs, 0.25rem) 0',
+						borderRadius: 'var(--pingone-border-radius, 0.25rem)',
+					}),
 				}}
 			>
 				<div className="menu-item-icon">{item.icon}</div>
@@ -948,8 +1004,68 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 					<div className="ping-sidebar__menu">{filteredMenuGroups.map(renderMenuGroup)}</div>
 
 					{dragMode && (
-						<div className="ping-sidebar__drag-instructions">
-							<p>Drag and drop menu items to reorder</p>
+						<div className="ping-sidebar__drag-controls">
+							<div className="ping-sidebar__drag-instructions">
+								<p>Drag and drop menu items to reorder</p>
+							</div>
+							<div className="ping-sidebar__drag-buttons" style={{ 
+								display: 'flex', 
+								gap: 'var(--pingone-spacing-xs, 0.25rem)', 
+								marginTop: 'var(--pingone-spacing-sm, 0.5rem)',
+								flexDirection: 'column'
+							}}>
+								<button
+									type="button"
+									onClick={handleSave}
+									style={{
+										padding: 'var(--pingone-spacing-xs, 0.25rem) var(--pingone-spacing-sm, 0.5rem)',
+										background: 'var(--ping-success-color, #28a745)',
+										color: 'white',
+										border: '1px solid var(--ping-success-color, #28a745)',
+										borderRadius: 'var(--pingone-border-radius, 0.25rem)',
+										fontSize: '0.75rem',
+										cursor: 'pointer',
+										transition: 'var(--ping-transition-fast, 0.15s ease-in-out)'
+									}}
+								>
+									<span className="mdi mdi-content-save" style={{ marginRight: '0.25rem' }}></span>
+									Save Config
+								</button>
+								<button
+									type="button"
+									onClick={handleRestore}
+									style={{
+										padding: 'var(--pingone-spacing-xs, 0.25rem) var(--pingone-spacing-sm, 0.5rem)',
+										background: 'var(--ping-warning-color, #ffc107)',
+										color: '#000',
+										border: '1px solid var(--ping-warning-color, #ffc107)',
+										borderRadius: 'var(--pingone-border-radius, 0.25rem)',
+										fontSize: '0.75rem',
+										cursor: 'pointer',
+										transition: 'var(--ping-transition-fast, 0.15s ease-in-out)'
+									}}
+								>
+									<span className="mdi mdi-restore" style={{ marginRight: '0.25rem' }}></span>
+									Restore Default
+								</button>
+								<button
+									type="button"
+									onClick={handleQuit}
+									style={{
+										padding: 'var(--pingone-spacing-xs, 0.25rem) var(--pingone-spacing-sm, 0.5rem)',
+										background: 'var(--ping-error-color, #dc3545)',
+										color: 'white',
+										border: '1px solid var(--ping-error-color, #dc3545)',
+										borderRadius: 'var(--pingone-border-radius, 0.25rem)',
+										fontSize: '0.75rem',
+										cursor: 'pointer',
+										transition: 'var(--ping-transition-fast, 0.15s ease-in-out)'
+									}}
+								>
+									<span className="mdi mdi-close" style={{ marginRight: '0.25rem' }}></span>
+									Quit Drag Mode
+								</button>
+							</div>
 						</div>
 					)}
 				</div>
