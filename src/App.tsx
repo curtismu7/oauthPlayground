@@ -251,7 +251,7 @@ import UnifiedFlowErrorBoundary from './v8u/components/UnifiedFlowErrorBoundary'
 // Lazy load heavy V8U components for better performance
 const UnifiedFlowHelperPageV8U = lazy(() => import('./v8u/components/UnifiedFlowHelperPageV8U'));
 const SpiffeSpireFlowV8U = lazy(() => import('./v8u/flows/SpiffeSpireFlowV8U'));
-const UnifiedOAuthFlowV8U = lazy(() => import('./apps/oauth/flows/UnifiedOAuthFlowV8U.PingUI'));
+const UnifiedOAuthFlowV8U = lazy(() => import('./apps/oauth/flows/UnifiedOAuthFlowV8U'));
 const SpiffeSpireTokenDisplayV8U = lazy(() => import('./v8u/pages/SpiffeSpireTokenDisplayV8U'));
 const EnhancedStateManagementPage = lazy(() => import('./v8u/pages/EnhancedStateManagementPage'));
 const TokenApiDocumentationPage = lazy(() => import('./v8u/pages/TokenApiDocumentationPage'));
