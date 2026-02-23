@@ -429,6 +429,13 @@ main() {
             print_info "${YELLOW}💡 Pro Tip: Follow server logs in real-time with: tail -f backend.log${NC}"
             print_info "${YELLOW}💡 Pro Tip: Monitor both logs with: tail -f backend.log & tail -f vite.log${NC}"
             echo ""
+            print_info "${CYAN}📊 Recommended Monitoring Setups:${NC}"
+            print_info "${GREEN}  • Development: tail -f backend.log vite.log logs/pingone-api.log${NC}"
+            print_info "${GREEN}  • API Testing: tail -f backend.log logs/pingone-api.log logs/real-api.log${NC}"
+            print_info "${GREEN}  • Flow Testing: tail -f backend.log logs/sms.log logs/email.log${NC}"
+            print_info "${GREEN}  • Complete View: tail -f backend.log vite.log logs/pingone-api.log logs/server.log${NC}"
+            print_info "${GREEN}  • All-in-One: tail -f backend.log vite.log logs/pingone-api.log logs/server.log logs/sms.log logs/email.log${NC}"
+            echo ""
             
             # Keep script running and monitor processes
             while true; do
