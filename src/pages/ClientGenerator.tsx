@@ -39,6 +39,7 @@ import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { FlowHeader } from '../services/flowHeaderService';
 import TokenDisplayService from '../services/tokenDisplayService';
+import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
 // MDI Icon Helper Functions
@@ -506,9 +507,16 @@ const ClientGenerator: React.FC = () => {
 			const expiresIn = tokenData.expires_in ? parseInt(tokenData.expires_in, 10) : undefined;
 			const _expiresAt = expiresIn ? Date.now() + expiresIn * 1000 : undefined;
 
+			// Save token to unified service
+			await unifiedWorkerTokenService.saveToken(_accessToken, {
+				expiresAt: _expiresAt,
+				tokenType: tokenData.token_type || 'Bearer',
+				scope: tokenData.scope,
+			});
+
 			// Token is now managed by unified service
-			console.log('[App Generator] Worker token managed by unified service');
-			return workerToken;
+			console.log('[App Generator] Worker token saved to unified service');
+			return _accessToken;
 		} catch (error) {
 			console.error('[App Generator] Failed to get worker token:', error);
 			setTokenError(error instanceof Error ? error.message : 'Failed to get token');
@@ -521,26 +529,23 @@ const ClientGenerator: React.FC = () => {
 	useEffect(() => {
 		const loadAndGetToken = async () => {
 			try {
-				// Try to load saved worker credentials from global service
-				const saved = await workerTokenServiceV8.loadCredentials();
+				// Try to load saved worker credentials from unified service
+				const saved = await unifiedWorkerTokenService.loadCredentials();
 				if (saved) {
 					const authMethod = saved.tokenEndpointAuthMethod || 'client_secret_post';
 					const credentials = {
 						environmentId: saved.environmentId,
 						clientId: saved.clientId,
 						clientSecret: saved.clientSecret,
-						scopes: saved.scopes?.join(' ') || workerCredentials.scopes,
-						tokenEndpointAuthMethod: (authMethod === 'client_secret_basic' ||
-						authMethod === 'client_secret_post'
-							? authMethod
-							: 'client_secret_post') as 'client_secret_basic' | 'client_secret_post',
+						scopes: (saved.scopes || ['openid', 'p1:create:application', 'p1:read:application', 'p1:update:application']).join(' '),
+						tokenEndpointAuthMethod: (authMethod === 'client_secret_post' || authMethod === 'client_secret_basic') ? authMethod : 'client_secret_post',
 					};
 					setWorkerCredentials(credentials);
 
 					// Check if we have a valid token already
-					const existingToken = await workerTokenServiceV8.getToken();
+					const existingToken = await unifiedWorkerTokenService.getToken();
 					if (existingToken) {
-						console.log('[App Generator] Using existing worker token from service');
+						console.log('[App Generator] Using existing worker token from unified service');
 						setWorkerToken(existingToken);
 					} else if (
 						credentials.clientId &&
@@ -553,7 +558,7 @@ const ClientGenerator: React.FC = () => {
 					}
 				}
 			} catch (error) {
-				console.error('[App Generator] Failed to load credentials:', error);
+				console.error('[App Generator] Failed to load and get token:', error);
 			}
 		};
 
@@ -571,15 +576,15 @@ const ClientGenerator: React.FC = () => {
 		try {
 			// Credentials are now managed by unified service
 			console.log('[App Generator] Worker credentials managed by unified service');
-			// Save credentials to global service
-			await workerTokenServiceV8.saveCredentials({
+			// Save credentials to unified service
+			await unifiedWorkerTokenService.saveCredentials({
 				environmentId: workerCredentials.environmentId,
 				clientId: workerCredentials.clientId,
 				clientSecret: workerCredentials.clientSecret,
 				scopes: workerCredentials.scopes.split(/\s+/).filter(Boolean),
 				tokenEndpointAuthMethod: workerCredentials.tokenEndpointAuthMethod,
 			});
-			v4ToastManager.showSuccess('Worker credentials saved to global storage');
+			v4ToastManager.showSuccess('Worker credentials saved to unified storage');
 
 			// Get token
 			await getWorkerTokenSilently(workerCredentials);

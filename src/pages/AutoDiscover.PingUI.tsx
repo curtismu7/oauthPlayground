@@ -8,7 +8,7 @@ import { usePageScroll } from '../hooks/usePageScroll';
 import { OpenIDConfiguration } from '../services/discoveryService';
 import { FlowHeader } from '../services/flowHeaderService';
 import { credentialManager } from '../utils/credentialManager';
-import { logger } from '../utils/logger';
+import { feedbackService } from '../services/feedback/feedbackService';
 import { environmentIdPersistenceService } from '../services/environmentIdPersistenceService';
 
 // PingOne UI Icon Component
@@ -142,6 +142,7 @@ const AutoDiscoverPingUI: React.FC = () => {
 		environmentId: string;
 		timestamp: Date;
 	} | null>(null);
+	const [feedbackMessage, setFeedbackMessage] = useState<React.ReactElement | null>(null);
 
 	// Auto-load environment ID from storage on component mount
 	useEffect(() => {
@@ -176,16 +177,44 @@ const AutoDiscoverPingUI: React.FC = () => {
 					timestamp: new Date(),
 				});
 
-				logger.success('AutoDiscover', 'Configuration saved successfully', {
-					environmentId,
-					authEndpoint: config.authorization_endpoint,
-					tokenEndpoint: config.token_endpoint,
-				});
+				// Show success feedback using new messaging system
+				setFeedbackMessage(
+					feedbackService.showSuccessSnackbar(
+						`Configuration discovered and saved for environment ${environmentId}`,
+						{
+							label: 'View Details',
+							onClick: () => {
+								console.log('View configuration details:', {
+									authEndpoint: config.authorization_endpoint,
+									tokenEndpoint: config.token_endpoint,
+									userInfoEndpoint: config.userinfo_endpoint,
+								});
+							},
+						}
+					)
+				);
 			} else {
-				logger.error('AutoDiscover', 'Failed to save discovered configuration');
+				// Show error feedback using new messaging system
+				setFeedbackMessage(
+					feedbackService.showWarningSnackbar(
+						'Failed to save discovered configuration. Please try again.',
+						{
+							label: 'Retry',
+							onClick: () => setShowDiscoveryPanel(true),
+						}
+					)
+				);
 			}
 		} catch (error) {
-			logger.error('AutoDiscover', 'Error saving configuration', error as Error);
+			setFeedbackMessage(
+				feedbackService.showWarningSnackbar(
+					'Error saving configuration. Please check your connection and try again.',
+					{
+						label: 'Retry',
+						onClick: () => setShowDiscoveryPanel(true),
+					}
+				)
+			);
 		}
 	};
 
@@ -256,6 +285,13 @@ const AutoDiscoverPingUI: React.FC = () => {
 						<MDIIcon icon="check-circle" size={20} title="Success" />
 						Configuration discovered and saved for environment {lastDiscovered.environmentId}
 						at {lastDiscovered.timestamp.toLocaleString()}
+					</div>
+				)}
+
+				{/* Feedback messages */}
+				{feedbackMessage && (
+					<div style={{ marginBottom: '1rem' }}>
+						{feedbackMessage}
 					</div>
 				)}
 
