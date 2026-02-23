@@ -744,21 +744,10 @@ const ConfigurationPingUI: React.FC = () => {
 											<div className="col-md-6">
 												<BootstrapFormField
 													label="Token Auth Method"
-													type="text"
-													id="worker-auth-method"
-													value={workerTokenInfo.tokenAuthMethod}
-													onChange={(value) => setWorkerTokenInfo(prev => ({ ...prev, tokenAuthMethod: value as any }))}
-													placeholder="Authentication method"
-												/>
-											</div>
-											<div className="col-md-6">
-												<BootstrapFormField
-													label="Token Auth Method"
 													type="select"
 													id="worker-auth-method"
 													value={workerTokenInfo.tokenAuthMethod}
-													onChange={(value) => setWorkerTokenInfo(prev => ({ ...prev, tokenAuthMethod: value as any }))}
-													placeholder="Authentication method"
+													onChange={(value) => setWorkerTokenInfo(prev => ({ ...prev, tokenAuthMethod: value as "none" | "client_secret_post" | "client_secret_basic" }))}
 												>
 													<option value="client_secret_basic">Client Secret Basic</option>
 													<option value="client_secret_post">Client Secret Post</option>
@@ -777,29 +766,6 @@ const ConfigurationPingUI: React.FC = () => {
 												<MDIIcon icon="FiSave" size={14} />
 												{isLoading ? 'Saving...' : 'Save Worker Token Info'}
 											</BootstrapButton>
-										</div>
-									</div>
-								)}
-										</div>
-										<div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
-											<button
-												type="button"
-												onClick={saveWorkerTokenInfo}
-												disabled={isLoading || !workerTokenInfo.clientId.trim()}
-												style={{
-													padding: '0.5rem 1rem',
-													background: workerTokenInfo.clientId.trim() ? 'var(--ping-color-primary, #3b82f6)' : 'var(--ping-border-light, #e5e7eb)',
-													color: workerTokenInfo.clientId.trim() ? 'white' : 'var(--ping-text-secondary, #666)',
-													border: 'none',
-													borderRadius: '0.25rem',
-													fontSize: '0.875rem',
-													fontWeight: '500',
-													cursor: workerTokenInfo.clientId.trim() ? 'pointer' : 'not-allowed',
-												}}
-											>
-												<MDIIcon icon="FiSave" size={14} style={{ marginRight: '0.25rem' }} />
-												{isLoading ? 'Saving...' : 'Save Worker Token Info'}
-											</button>
 										</div>
 									</div>
 								)}
