@@ -8,50 +8,16 @@
  * Migrated to Ping UI with MDI icons and CSS variables.
  */
 
-import React, { useMemo, useState } from 'react';
+import React, { useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import MDIIcon from '@/components/MDIIcon';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import {
 	downloadPostmanCollectionWithEnvironment,
 	generateMFAPostmanCollection,
 } from '@/services/postmanCollectionGeneratorV8';
 import type { DeviceType } from '../flows/shared/MFATypes';
-
-// MDI Icon Component with proper accessibility
-const MDIIcon: React.FC<{
-	icon: string;
-	size?: number;
-	ariaLabel?: string;
-	ariaHidden?: boolean;
-	className?: string;
-	style?: React.CSSProperties;
-}> = ({ icon, size = 16, ariaLabel, ariaHidden, className = '', style }) => {
-	const iconClass = getMDIIconClass(icon);
-	const combinedClassName = `mdi ${iconClass} ${className}`.trim();
-
-	return (
-		<i
-			className={combinedClassName}
-			style={{ fontSize: `${size}px`, ...style }}
-			{...(ariaLabel ? { 'aria-label': ariaLabel } : {})}
-			{...(ariaHidden ? { 'aria-hidden': 'true' } : {})}
-		></i>
-	);
-};
-
-// MDI Icon mapping function
-const getMDIIconClass = (iconName: string): string => {
-	const iconMap: Record<string, string> = {
-		FiBook: 'mdi-book',
-		FiChevronDown: 'mdi-chevron-down',
-		FiChevronUp: 'mdi-chevron-up',
-		FiDownload: 'mdi-download',
-		FiFileText: 'mdi-file-document',
-		FiInfo: 'mdi-information',
-		FiPackage: 'mdi-package',
-	};
-	return iconMap[iconName] || 'mdi-help-circle';
-};
 
 interface MFADocumentationPageV8PingUIProps {
 	deviceType: DeviceType;

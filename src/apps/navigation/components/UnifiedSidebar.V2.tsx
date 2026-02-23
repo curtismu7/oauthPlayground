@@ -21,7 +21,8 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import MDIIcon from '@/components/MDIIcon';
+import BootstrapIcon from '@/components/BootstrapIcon';
+import { getBootstrapIconName } from '@/components/iconMapping';
 import SidebarSearch from './SidebarSearch';
 import { VersionBadge } from './VersionBadge';
 
@@ -1220,7 +1221,7 @@ const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({
 					<div key={item.id}>
 						<SubMenuHeader $isExpanded={isExpanded} onClick={() => toggleExpanded(item.id)}>
 							<MenuItemIcon $color={isActive ? 'var(--sidebar-accent, #2563EB)' : 'var(--sidebar-text-secondary, #6B7280)'}>
-								<MDIIcon icon={item.icon} size={18} />
+								<BootstrapIcon icon={getBootstrapIconName(item.icon)} size={18} />
 							</MenuItemIcon>
 							<MenuItemText $isActive={isActive}>
 								<div className="menu-item-title">{item.label}</div>
@@ -1228,7 +1229,7 @@ const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({
 									<div className="menu-item-description">{item.description}</div>
 								)}
 							</MenuItemText>
-							<MDIIcon icon="mdi-chevron-down" size={14} style={{ marginLeft: 'auto' }} />
+							<BootstrapIcon icon="chevron-down" size={14} style={{ marginLeft: 'auto' }} />
 							{item.badge && (
 								<MenuItemBadge $variant={item.badge.variant}>{item.badge.text}</MenuItemBadge>
 							)}
@@ -1257,7 +1258,7 @@ const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({
 				>
 					<MenuItemContent $isActive={isActive}>
 						<MenuItemIcon $color={isActive ? 'inherit' : 'var(--sidebar-text-secondary, #6B7280)'} $isActive={isActive}>
-							<MDIIcon icon={item.icon} size={18} />
+							<BootstrapIcon icon={getBootstrapIconName(item.icon)} size={18} />
 						</MenuItemIcon>
 						<MenuItemText $isActive={isActive}>
 							<div className="menu-item-title">{item.label}</div>

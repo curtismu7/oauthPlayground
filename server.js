@@ -116,33 +116,39 @@ const formatLogMessage = (level, ...args) => {
 	return formatted;
 };
 
-// Import unified logging system
-import { loggers, initializeLogFiles } from './src/utils/unifiedLogger.js';
-
-// Initialize log files with consistent headers
-initializeLogFiles();
-
-// Override console.log to use unified logging system
+// Override console.log to write to both console and file (async, non-blocking)
 const originalLog = console.log;
 const originalError = console.error;
 const originalWarn = console.warn;
 
 console.log = (...args) => {
 	originalLog(...args);
-	const message = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)).join(' ');
-	loggers.server.info(message);
+	// Write to file asynchronously to avoid blocking
+	fs.appendFile(logFile, formatLogMessage('LOG', ...args), 'utf8', (err) => {
+		if (err) {
+			originalError('[Logging Error] Failed to write to log file:', err);
+		}
+	});
 };
 
 console.error = (...args) => {
 	originalError(...args);
-	const message = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)).join(' ');
-	loggers.server.error(message);
+	// Write to file asynchronously to avoid blocking
+	fs.appendFile(logFile, formatLogMessage('ERROR', ...args), 'utf8', (err) => {
+		if (err) {
+			originalError('[Logging Error] Failed to write to log file:', err);
+		}
+	});
 };
 
 console.warn = (...args) => {
 	originalWarn(...args);
-	const message = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)).join(' ');
-	loggers.server.warn(message);
+	// Write to file asynchronously to avoid blocking
+	fs.appendFile(logFile, formatLogMessage('WARN', ...args), 'utf8', (err) => {
+		if (err) {
+			originalError('[Logging Error] Failed to write to log file:', err);
+		}
+	});
 };
 
 console.log('🚀 Starting MasterFlow API Backend Server...'); // MasterFlow API Backend Server

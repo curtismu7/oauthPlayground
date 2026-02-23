@@ -76,7 +76,7 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 		if (isOpen) {
 			// Token status is now managed by unified service
 			console.log('[AppDiscoveryModalV8U] Token status managed by unified service');
-			window.removeEventListener('workerTokenUpdated', globalTokenStatus);
+			window.removeEventListener('workerTokenUpdated', globalTokenStatus as any);
 		}
 	}, [isOpen, globalTokenStatus]);
 
@@ -228,14 +228,13 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 			{/* Backdrop */}
 			<div
 				role="button"
-				tabIndex={0}
+				tabIndex={-1}
 				onClick={onClose}
 				onKeyDown={(e) => {
 					if (e.key === 'Escape') {
 						onClose();
 					}
 				}}
-				tabIndex={-1}
 				style={{
 					position: 'fixed',
 					top: 0,
@@ -288,7 +287,6 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 						<button
 							type="button"
 							onClick={onClose}
-							type="button"
 							style={{
 								background: 'none',
 								border: 'none',
