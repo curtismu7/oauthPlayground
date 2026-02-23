@@ -2,54 +2,73 @@
 // Centralized Save Button Service with Flow-Specific Storage
 
 import React, { useCallback, useState } from 'react';
-import { FiCheck, FiSave } from 'react-icons/fi';
-import styled from 'styled-components';
 import type { StepCredentials } from '../components/steps/CommonSteps';
 import { credentialManager } from '../utils/credentialManager';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
-// Styled Save Button Component
-const SaveButtonStyled = styled.button<{ $saved?: boolean }>`
-	background: ${(props) => (props.$saved ? '#10b981' : '#10b981')};
-	color: white;
-	border: 1px solid ${(props) => (props.$saved ? '#059669' : '#10b981')};
-	border-radius: 0.5rem;
-	padding: 0.75rem 1.5rem;
-	font-size: 0.875rem;
-	font-weight: 600;
-	cursor: pointer;
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-	transition: all 0.2s ease;
-	min-width: 140px;
-	justify-content: center;
+// MDI Icon Helper Functions
+interface MDIIconProps {
+	icon: string;
+	size?: number;
+	color?: string;
+	ariaLabel: string;
+}
 
-	&:hover:not(:disabled) {
-		background: ${(props) => (props.$saved ? '#059669' : '#059669')};
-		border-color: ${(props) => (props.$saved ? '#047857' : '#059669')};
-		transform: translateY(-1px);
-		box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-	}
+const getMDIIconClass = (iconName: string): string => {
+	const iconMap: Record<string, string> = {
+		FiCheck: 'mdi-check',
+		FiSave: 'mdi-content-save',
+	};
+	return iconMap[iconName] || 'mdi-help-circle';
+};
 
-	&:disabled {
-		opacity: 0.6;
-		cursor: not-allowed;
-		transform: none;
-	}
+const MDIIcon: React.FC<MDIIconProps> = ({ icon, size = 24, color, ariaLabel }) => {
+	const iconClass = getMDIIconClass(icon);
+	return (
+		<span
+			className={`mdi ${iconClass}`}
+			style={{ fontSize: size, color: color }}
+			role="img"
+			aria-label={ariaLabel}
+			aria-hidden={!ariaLabel}
+		></span>
+	);
+};
 
-	svg {
-		transition: transform 0.2s ease;
-	}
+// CSS Helper Functions
+const getSaveButtonStyles = (saved?: boolean) => ({
+	background: saved ? '#10b981' : '#10b981',
+	color: 'white',
+	border: `1px solid ${saved ? '#059669' : '#10b981'}`,
+	borderRadius: '0.5rem',
+	padding: '0.75rem 1.5rem',
+	fontSize: '0.875rem',
+	fontWeight: '600',
+	cursor: 'pointer',
+	display: 'flex',
+	alignItems: 'center',
+	gap: '0.5rem',
+	transition: 'all 0.2s ease',
+	minWidth: '140px',
+	justifyContent: 'center',
+});
 
-	${(props) =>
-		props.$saved &&
-		`
-    svg {
-      transform: scale(1.2);
-    }
-  `}
-`;
+const getSaveButtonHoverStyles = (saved?: boolean) => ({
+	background: saved ? '#059669' : '#059669',
+	borderColor: saved ? '#047857' : '#059669',
+	transform: 'translateY(-1px)',
+	boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
+});
+
+const getSaveButtonDisabledStyles = () => ({
+	opacity: 0.6,
+	cursor: 'not-allowed',
+	transform: 'none',
+});
+
+const getSaveButtonSavedStyles = () => ({
+	transform: 'scale(1.2)',
+});
 
 // Storage Service
 export class FlowStorageService {
@@ -340,25 +359,41 @@ export const SaveButton: React.FC<SaveButtonProps> = ({
 	}, [flowType, credentials, additionalData, onSave, isSaving, disabled]);
 
 	return (
-		<SaveButtonStyled
+		<button
+			type="button"
 			onClick={handleSave}
 			disabled={disabled || isSaving}
-			$saved={saved}
-			style={style}
+			style={{
+				...getSaveButtonStyles(saved),
+				...(disabled || isSaving ? getSaveButtonDisabledStyles() : {}),
+				...style,
+			}}
 			className={className}
+			onMouseEnter={(e) => {
+				if (!disabled && !isSaving) {
+					Object.assign(e.currentTarget.style, getSaveButtonHoverStyles(saved));
+				}
+			}}
+			onMouseLeave={(e) => {
+				if (!disabled && !isSaving) {
+					Object.assign(e.currentTarget.style, getSaveButtonStyles(saved));
+				}
+			}}
 		>
 			{saved ? (
 				<>
-					<FiCheck size={16} />
+					<span style={{ ...getSaveButtonSavedStyles(), transition: 'transform 0.2s ease' }}>
+						<MDIIcon icon="FiCheck" size={16} ariaLabel="Saved" />
+					</span>
 					Saved!
 				</>
 			) : (
 				<>
-					<FiSave size={16} />
+					<MDIIcon icon="FiSave" size={16} ariaLabel="Save" />
 					{isSaving ? 'Saving...' : 'Save Configuration'}
 				</>
 			)}
-		</SaveButtonStyled>
+		</button>
 	);
 };
 
