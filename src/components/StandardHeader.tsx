@@ -22,6 +22,7 @@ export interface StandardHeaderProps {
   };
   className?: string;
   style?: React.CSSProperties;
+  children?: React.ReactNode;
 }
 
 const StandardHeader: React.FC<StandardHeaderProps> = ({
@@ -35,6 +36,7 @@ const StandardHeader: React.FC<StandardHeaderProps> = ({
   badge,
   className = '',
   style,
+  children,
 }) => {
   const handleClick = () => {
     if (isCollapsible && onToggle) {
@@ -169,7 +171,7 @@ const StandardHeader: React.FC<StandardHeaderProps> = ({
             justify-content: center;
             width: var(--icon-size);
             height: var(--icon-size);
-            color: var(--header-icon);
+            color: #FFFFFF !important;
             flex-shrink: 0;
           }
 
@@ -183,7 +185,7 @@ const StandardHeader: React.FC<StandardHeaderProps> = ({
             font-size: var(--header-title-size);
             font-weight: var(--header-title-weight);
             line-height: var(--header-title-line-height);
-            color: var(--header-text-primary);
+            color: #FFFFFF !important;
             margin: 0;
             white-space: nowrap;
             overflow: hidden;
@@ -194,7 +196,7 @@ const StandardHeader: React.FC<StandardHeaderProps> = ({
             font-size: var(--header-desc-size);
             font-weight: var(--header-desc-weight);
             line-height: var(--header-desc-line-height);
-            color: var(--header-text-secondary);
+            color: #F3F4F6 !important;
             margin: 0.25rem 0 0 0;
             white-space: nowrap;
             overflow: hidden;
@@ -242,7 +244,7 @@ const StandardHeader: React.FC<StandardHeaderProps> = ({
             justify-content: center;
             width: var(--icon-size);
             height: var(--icon-size);
-            color: var(--header-icon);
+            color: #FFFFFF !important;
             transition: transform 0.2s ease-in-out;
             flex-shrink: 0;
           }
@@ -337,6 +339,12 @@ const StandardHeader: React.FC<StandardHeaderProps> = ({
           )}
         </div>
       </div>
+      
+      {children && !isCollapsed && (
+        <div className="standard-header__content">
+          {children}
+        </div>
+      )}
     </>
   );
 };
