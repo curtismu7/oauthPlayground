@@ -150,13 +150,13 @@ const DeviceManagementV8PingUI: React.FC = () => {
 				}
 
 				// Load worker token
-				const token = workerTokenServiceV8.getWorkerToken();
+				const token = await workerTokenServiceV8.getToken();
 				if (token) {
 					setWorkerToken(token);
 				}
 
 				// Load username from storage
-				const storedUsername = StorageServiceV8.get('device-management-username');
+				const storedUsername = await StorageServiceV8.load<string>('device-management-username');
 				if (storedUsername) {
 					setUsername(storedUsername);
 				}
