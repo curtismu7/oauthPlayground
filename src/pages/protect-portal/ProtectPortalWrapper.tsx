@@ -12,6 +12,7 @@
 import React from 'react';
 import { getPortalAppConfig } from './config/protectPortalAppConfig';
 import ProtectPortalAppPingUI from './ProtectPortalApp.PingUI';
+import { BrandThemeProvider } from './themes/theme-provider';
 
 // ============================================================================
 // PROTECT PORTAL WRAPPER
@@ -20,7 +21,11 @@ import ProtectPortalAppPingUI from './ProtectPortalApp.PingUI';
 const ProtectPortalWrapper: React.FC = () => {
 	const _config = getPortalAppConfig();
 
-	return <ProtectPortalAppPingUI />;
+	return (
+		<BrandThemeProvider>
+			<ProtectPortalAppPingUI />
+		</BrandThemeProvider>
+	);
 };
 
 export default ProtectPortalWrapper;

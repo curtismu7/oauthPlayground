@@ -33,7 +33,8 @@ import { StorageServiceV8 } from '@/v8/services/storageServiceV8';
 import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { feedbackService } from '@/services/feedback/feedbackService';
+import { migrateToast } from '@/utils/migrationHelpers';
 
 const MODULE_TAG = '[🗑️ DELETE-DEVICES-V8]';
 
@@ -590,19 +591,33 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 	// Delete all devices
 	const handleDeleteAll = useCallback(async () => {
 		if (devices.length === 0) {
-			toastV8.warning('No devices to delete');
+			feedbackService.showSnackbar({
+				type: 'warning',
+				message: 'No devices to delete',
+				duration: 4000
+			});
 			return;
 		}
 
 		const devicesToDelete = devices.filter((device) => selectedDeviceIds.has(device.id as string));
 
 		if (devicesToDelete.length === 0) {
-			toastV8.warning('No devices selected for deletion');
+			feedbackService.showSnackbar({
+				type: 'warning',
+				message: 'No devices selected for deletion',
+				duration: 4000
+			});
 			return;
 		}
 
 		if (!environmentId.trim() || !username.trim() || !tokenStatus.isValid) {
 			setError('Please provide environment ID, username, and a valid worker token');
+			feedbackService.showPageBanner({
+				type: 'error',
+				title: 'Validation Error',
+				message: 'Please provide environment ID, username, and a valid worker token',
+				dismissible: true
+			});
 			return;
 		}
 
@@ -653,13 +668,21 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 
 			setDeletionResults(results);
 
-			// Show summary toast
+			// Show summary message
 			if (results.failed === 0) {
-				toastV8.success(`Successfully deleted ${results.success} device(s)`);
+				feedbackService.showPageBanner({
+					type: 'success',
+					title: 'Deletion Successful',
+					message: `Successfully deleted ${results.success} device(s)`,
+					dismissible: true
+				});
 			} else {
-				toastV8.warning(
-					`Deleted ${results.success} device(s), but ${results.failed} failed. Check details below.`
-				);
+				feedbackService.showPageBanner({
+					type: 'warning',
+					title: 'Partial Deletion',
+					message: `Deleted ${results.success} device(s), but ${results.failed} failed. Check details below.`,
+					dismissible: true
+				});
 			}
 
 			// Reload devices to show updated list
@@ -667,7 +690,12 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 		} catch (err) {
 			const errorMessage = err instanceof Error ? err.message : 'Failed to delete devices';
 			setError(errorMessage);
-			toastV8.error(`Failed to delete devices: ${errorMessage}`);
+			feedbackService.showPageBanner({
+				type: 'error',
+				title: 'Deletion Failed',
+				message: `Failed to delete devices: ${errorMessage}`,
+				dismissible: true
+			});
 		} finally {
 			deletingSpinner.hideSpinner();
 		}

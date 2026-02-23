@@ -471,10 +471,10 @@ class DeviceManagementService {
 				try {
 					// In real implementation: await PingOneMfaService.deleteDevice(credentials, device.id);
 					deletedDevices.push(device);
-					
+
 					// Clean up usage tracking
 					DeviceManagementService.deviceUsage.delete(device.id);
-					
+
 					logger.info('DeviceManagementService', 'Device deleted successfully', {
 						userId: credentials.userId,
 						deviceId: device.id,

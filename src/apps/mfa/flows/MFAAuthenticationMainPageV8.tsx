@@ -39,6 +39,7 @@ import { MFACooldownModalV8 } from '@/v8/components/MFACooldownModalV8';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
+import StandardHeader from '@/components/StandardHeader';
 import {
 	PageHeaderGradients,
 	PageHeaderTextColors,

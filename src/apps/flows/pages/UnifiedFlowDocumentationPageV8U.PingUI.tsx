@@ -8,27 +8,28 @@
  * Migrated to Ping UI with MDI icons and CSS variables.
  */
 
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { apiCallTrackerService } from '@/services/apiCallTrackerService';
-import {
-	downloadPostmanCollectionWithEnvironment,
-	generatePostmanCollection,
-} from '@/services/postmanCollectionGeneratorV8';
-import { SpecUrlServiceV8 } from '@/v8/services/specUrlServiceV8';
 import type { FlowType, SpecVersion } from '@/v8/services/specVersionServiceV8';
 import type { UnifiedFlowCredentials } from '../services/unifiedFlowIntegrationV8U';
+
+interface UnifiedFlowDocumentationPageV8UPingUIProps {
+	flowType: FlowType;
+	specVersion: SpecVersion;
+	credentials?: UnifiedFlowCredentials;
+	currentStep?: number;
+	totalSteps?: number;
+}
 
 // MDI Icon Component with proper accessibility
 const MDIIcon: React.FC<{
 	icon: string;
 	size?: number;
 	ariaLabel?: string;
-	ariaHidden?: boolean;
 	className?: string;
 	style?: React.CSSProperties;
-}> = ({ icon, size = 16, ariaLabel, ariaHidden = false, className = '', style }) => {
+}> = ({ icon, size = 16, ariaLabel, className = '', style }) => {
 	const iconClass = getMDIIconClass(icon);
 	const combinedClassName = `mdi ${iconClass} ${className}`.trim();
 
@@ -36,8 +37,7 @@ const MDIIcon: React.FC<{
 		<i
 			className={combinedClassName}
 			style={{ fontSize: `${size}px`, ...style }}
-			aria-label={ariaLabel}
-			aria-hidden={ariaHidden}
+			aria-hidden={!ariaLabel} // Hide from screen readers if no ariaLabel provided
 		></i>
 	);
 };
@@ -55,14 +55,6 @@ const getMDIIconClass = (iconName: string): string => {
 	};
 	return iconMap[iconName] || 'mdi-help-circle';
 };
-
-interface UnifiedFlowDocumentationPageV8UPingUIProps {
-	flowType: FlowType;
-	specVersion: SpecVersion;
-	credentials?: UnifiedFlowCredentials;
-	currentStep?: number;
-	totalSteps?: number;
-}
 
 const DocumentationContainer = styled.div`
   background: var(--ping-surface-primary, white);
@@ -138,9 +130,12 @@ const SecondaryButton = styled.button`
   gap: var(--ping-spacing-xs, 0.5rem);
 
   &:hover {
-    background: var(--ping-surface-secondary, #f8fafc);
-    border-color: var(--ping-primary-color, #3b82f6);
-    color: var(--ping-primary-color, #3b82f6);
+    background: var(--ping-border-default, #e2e8f0);
+  }
+
+  &:disabled {
+    color: var(--ping-text-secondary, #64748b);
+    cursor: not-allowed;
   }
 `;
 
@@ -311,18 +306,6 @@ const LoadingSpinner = styled.div`
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
   }
-`;
-
-const _NotesList = styled.ul`
-  margin: var(--ping-spacing-sm, 0.75rem) 0 0 0;
-  padding-left: var(--ping-spacing-lg, 1.5rem);
-`;
-
-const _NoteItem = styled.li`
-  color: var(--ping-text-secondary, #64748b);
-  font-size: 0.875rem;
-  line-height: 1.5;
-  margin-bottom: var(--ping-spacing-xs, 0.25rem);
 `;
 
 export const UnifiedFlowDocumentationPageV8UPingUI: React.FC<

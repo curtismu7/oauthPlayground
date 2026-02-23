@@ -83,7 +83,11 @@ const getCopyTooltipArrowStyles = (copied: boolean) => ({
 
 // Icon component that switches between copy and check
 const CopyIcon: React.FC<{ copied: boolean }> = ({ copied }) => {
-	return copied ? <MDIIcon icon="FiCheck" size={16} ariaLabel="Copied" /> : <MDIIcon icon="FiCopy" size={16} ariaLabel="Copy" />;
+	return copied ? (
+		<MDIIcon icon="FiCheck" size={16} ariaLabel="Copied" />
+	) : (
+		<MDIIcon icon="FiCopy" size={16} ariaLabel="Copy" />
+	);
 };
 
 // Main copy button component
@@ -175,9 +179,7 @@ export const CopyButtonService: React.FC<CopyButtonProps> = ({
 
 	return (
 		<div style={getCopyButtonContainerStyles()} className={className}>
-			<div
-				style={getCopyTooltipStyles(showTooltip, isCopied)}
-			>
+			<div style={getCopyTooltipStyles(showTooltip, isCopied)}>
 				{isCopied ? 'Copied!' : `${label} item`}
 				<div style={getCopyTooltipArrowStyles(isCopied)} />
 			</div>

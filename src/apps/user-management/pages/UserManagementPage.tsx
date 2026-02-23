@@ -30,19 +30,31 @@ const PageHeader = styled.div`
 	gap: 1rem;
 `;
 
-const PageTitle = styled.h1<{ theme: any }>`
+interface Theme {
+	colors: {
+		text: string;
+		textSecondary: string;
+		primary: string;
+		primaryDark?: string;
+		surface: string;
+		border: string;
+		surfaceHover?: string;
+	};
+}
+
+const PageTitle = styled.h1<{ theme: Theme }>`
 	font-size: 2rem;
 	font-weight: 700;
 	color: ${({ theme }) => theme.colors.text};
 	margin: 0;
 `;
 
-const PageDescription = styled.p<{ theme: any }>`
+const PageDescription = styled.p<{ theme: Theme }>`
 	color: ${({ theme }) => theme.colors.textSecondary};
 	margin: 0;
 `;
 
-const ActionButton = styled.button<{ theme: any; $variant?: 'primary' | 'secondary' | 'danger' }>`
+const ActionButton = styled.button<{ theme: Theme; $variant?: 'primary' | 'secondary' | 'danger' }>`
 	padding: 0.75rem 1.5rem;
 	border-radius: 8px;
 	font-weight: 600;
@@ -87,7 +99,7 @@ const ActionButton = styled.button<{ theme: any; $variant?: 'primary' | 'seconda
 	}}
 `;
 
-const SearchSection = styled.div<{ theme: any }>`
+const SearchSection = styled.div<{ theme: Theme }>`
 	background: ${({ theme }) => theme.colors.surface};
 	border: 1px solid ${({ theme }) => theme.colors.border};
 	border-radius: 8px;
@@ -103,7 +115,7 @@ const SearchField = styled.div`
 	min-width: 200px;
 `;
 
-const SearchLabel = styled.label<{ theme: any }>`
+const SearchLabel = styled.label<{ theme: Theme }>`
 	display: block;
 	font-size: 0.875rem;
 	font-weight: 600;
@@ -111,7 +123,7 @@ const SearchLabel = styled.label<{ theme: any }>`
 	margin-bottom: 0.5rem;
 `;
 
-const SearchSelect = styled.select<{ theme: any }>`
+const SearchSelect = styled.select<{ theme: Theme }>`
 	width: 100%;
 	padding: 0.75rem;
 	background: ${({ theme }) => theme.colors.background};
@@ -121,14 +133,14 @@ const SearchSelect = styled.select<{ theme: any }>`
 	color: ${({ theme }) => theme.colors.text};
 `;
 
-const UserTable = styled.div<{ theme: any }>`
+const UserTable = styled.div<{ theme: Theme }>`
 	background: ${({ theme }) => theme.colors.surface};
 	border: 1px solid ${({ theme }) => theme.colors.border};
 	border-radius: 8px;
 	overflow: hidden;
 `;
 
-const TableHeader = styled.div<{ theme: any }>`
+const TableHeader = styled.div<{ theme: Theme }>`
 	background: ${({ theme }) => theme.colors.primaryLight};
 	padding: 1rem;
 	display: grid;
@@ -139,7 +151,7 @@ const TableHeader = styled.div<{ theme: any }>`
 	border-bottom: 1px solid ${({ theme }) => theme.colors.border};
 `;
 
-const TableRow = styled.div<{ theme: any }>`
+const TableRow = styled.div<{ theme: Theme }>`
 	padding: 1rem;
 	display: grid;
 	grid-template-columns: 2fr 1fr 1fr 1fr 1fr 120px;
@@ -165,7 +177,7 @@ const UserCell = styled.div`
 	min-width: 0;
 `;
 
-const UserAvatar = styled.div<{ theme: any }>`
+const UserAvatar = styled.div<{ theme: Theme }>`
 	width: 32px;
 	height: 32px;
 	border-radius: 50%;
@@ -184,7 +196,7 @@ const UserInfo = styled.div`
 	min-width: 0;
 `;
 
-const UserName = styled.div<{ theme: any }>`
+const UserName = styled.div<{ theme: Theme }>`
 	font-weight: 600;
 	color: ${({ theme }) => theme.colors.text};
 	white-space: nowrap;
@@ -193,7 +205,7 @@ const UserName = styled.div<{ theme: any }>`
 	font-size: 0.875rem;
 `;
 
-const UserEmail = styled.div<{ theme: any }>`
+const UserEmail = styled.div<{ theme: Theme }>`
 	color: ${({ theme }) => theme.colors.textSecondary};
 	white-space: nowrap;
 	overflow: hidden;
@@ -201,7 +213,7 @@ const UserEmail = styled.div<{ theme: any }>`
 	font-size: 0.875rem;
 `;
 
-const StatusBadge = styled.span<{ theme: any; status: string }>`
+const StatusBadge = styled.span<{ theme: Theme; status: string }>`
 	padding: 0.25rem 0.75rem;
 	border-radius: 9999px;
 	font-size: 0.75rem;
@@ -240,7 +252,7 @@ const ActionButtons = styled.div`
 	gap: 0.5rem;
 `;
 
-const IconButton = styled.button<{ theme: any; $variant?: 'edit' | 'delete' }>`
+const IconButton = styled.button<{ theme: Theme; $variant?: 'edit' | 'delete' }>`
 	padding: 0.5rem;
 	border-radius: 6px;
 	border: none;
@@ -274,13 +286,13 @@ const IconButton = styled.button<{ theme: any; $variant?: 'edit' | 'delete' }>`
 	}}
 `;
 
-const EmptyState = styled.div<{ theme: any }>`
+const EmptyState = styled.div<{ theme: Theme }>`
 	text-align: center;
 	padding: 3rem;
 	color: ${({ theme }) => theme.colors.textSecondary};
 `;
 
-const LoadingState = styled.div<{ theme: any }>`
+const LoadingState = styled.div<{ theme: Theme }>`
 	text-align: center;
 	padding: 3rem;
 	color: ${({ theme }) => theme.colors.textSecondary};

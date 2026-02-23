@@ -60,9 +60,9 @@ export const TokenOperationsEducationModalV8: React.FC<TokenOperationsEducationM
 	return (
 		<>
 			{/* Backdrop */}
-			<div
-				role="button"
-				tabIndex={0}
+			<button
+				type="button"
+				aria-label="Close modal"
 				style={{
 					position: 'fixed',
 					top: 0,
@@ -72,14 +72,17 @@ export const TokenOperationsEducationModalV8: React.FC<TokenOperationsEducationM
 					background: 'rgba(0, 0, 0, 0.5)',
 					zIndex: 9998,
 					backdropFilter: 'blur(4px)',
+					border: 'none',
+					padding: 0,
+					margin: 0,
+					cursor: 'pointer',
 				}}
 				onClick={onClose}
-				onKeyDown={(e) => {
+				onKeyDown={(e: React.KeyboardEvent) => {
 					if (e.key === 'Enter' || e.key === ' ') {
 						onClose();
 					}
 				}}
-				aria-label="Close modal"
 			/>
 
 			{/* Modal */}

@@ -367,7 +367,8 @@ const AnalyticsPingUI: React.FC = () => {
 							</h1>
 						</div>
 						<p className="page-subtitle">
-							Monitor user behavior, performance metrics, and security events across your OAuth flows
+							Monitor user behavior, performance metrics, and security events across your OAuth
+							flows
 						</p>
 					</div>
 

@@ -44,6 +44,7 @@ export const MFAEducationDemo: React.FC = () => {
 					{/* Environment ID */}
 					<div>
 						<label
+							htmlFor="environment-id-input"
 							style={{
 								display: 'flex',
 								alignItems: 'center',
@@ -57,6 +58,7 @@ export const MFAEducationDemo: React.FC = () => {
 							<MFAInfoButtonV8 contentKey="credential.environmentId" displayMode="modal" />
 						</label>
 						<input
+							id="environment-id-input"
 							type="text"
 							placeholder="e.g., 12345678-1234-1234-1234-123456789012"
 							style={{
@@ -74,6 +76,7 @@ export const MFAEducationDemo: React.FC = () => {
 					{/* Username */}
 					<div>
 						<label
+							htmlFor="username-input"
 							style={{
 								display: 'flex',
 								alignItems: 'center',
@@ -87,6 +90,7 @@ export const MFAEducationDemo: React.FC = () => {
 							<MFAInfoButtonV8 contentKey="credential.username" />
 						</label>
 						<input
+							id="username-input"
 							type="text"
 							placeholder="e.g., john.doe@example.com"
 							style={{
@@ -104,6 +108,7 @@ export const MFAEducationDemo: React.FC = () => {
 					{/* Phone Number */}
 					<div>
 						<label
+							htmlFor="phone-number-input"
 							style={{
 								display: 'flex',
 								alignItems: 'center',
@@ -117,6 +122,7 @@ export const MFAEducationDemo: React.FC = () => {
 							<MFAInfoButtonV8 contentKey="phone.number" />
 						</label>
 						<input
+							id="phone-number-input"
 							type="tel"
 							placeholder="e.g., 5125551234"
 							style={{
@@ -147,8 +153,10 @@ export const MFAEducationDemo: React.FC = () => {
 					}}
 				>
 					{MFAEducationServiceV8.getAllFactorTypes().map(({ key, content }) => (
-						<div
+						<button
 							key={key}
+							type="button"
+							aria-label={`Learn more about ${content.title}`}
 							style={{
 								padding: '16px',
 								background: '#f9fafb',
@@ -214,7 +222,7 @@ export const MFAEducationDemo: React.FC = () => {
 							>
 								{content.description.substring(0, 80)}...
 							</p>
-						</div>
+						</button>
 					))}
 				</div>
 			</section>

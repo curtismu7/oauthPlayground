@@ -69,7 +69,7 @@ const WarningIcon = styled.div`
 const Title = styled.h2`
 	font-size: 1.5rem;
 	font-weight: 700;
-	color: #111827;
+	color: white;
 	margin: 0 0 0.75rem 0;
 `;
 

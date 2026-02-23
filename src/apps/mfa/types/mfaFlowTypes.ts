@@ -110,6 +110,11 @@ export interface AuthenticationFlowState {
 		lastActivity: number;
 		version: string;
 	};
+	// Optional properties for backward compatibility with component usage
+	challenge?: AuthenticationChallenge;
+	device?: MFADevice;
+	error?: Error | null;
+	isLoading?: boolean;
 }
 
 /**

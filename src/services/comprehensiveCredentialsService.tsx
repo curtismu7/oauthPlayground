@@ -22,10 +22,10 @@ import { EnvironmentIdPersistenceStatus } from '../components/EnvironmentIdPersi
 import JwksKeySourceSelector, { JwksKeySource } from '../components/JwksKeySourceSelector';
 import PingOneApplicationPicker from '../components/PingOneApplicationPicker';
 import type { StepCredentials } from '../components/steps/CommonSteps';
-import { WorkerTokenModalV8Streamlined } from '../v8/components/WorkerTokenModalV8.Streamlined';
 import type { PingOneApplication } from '../services/pingOneApplicationService';
 import { ClientAuthMethod } from '../utils/clientAuthentication';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+import { WorkerTokenModalV8Streamlined } from '../v8/components/WorkerTokenModalV8.Streamlined';
 import { callbackUriService } from './callbackUriService';
 // import PingOneApplicationConfig, {
 // 	type PingOneApplicationState,

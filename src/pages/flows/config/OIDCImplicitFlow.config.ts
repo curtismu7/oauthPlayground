@@ -58,6 +58,7 @@ export const DEFAULT_APP_CONFIG: PingOneApplicationState = {
 	jwksUrl: '',
 	jwks: '',
 	requirePushedAuthorizationRequest: false,
+	pushedAuthorizationRequestTimeout: 60,
 	enableDPoP: false,
 	dpopAlgorithm: 'ES256',
 	additionalRefreshTokenReplayProtection: false,

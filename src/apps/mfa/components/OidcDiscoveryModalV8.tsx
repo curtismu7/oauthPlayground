@@ -15,7 +15,7 @@ export interface OidcDiscoveryResult {
 	userInfoEndpoint?: string;
 	scopesSupported?: string[];
 	responseTypesSupported?: string[];
-	[key: string]: any;
+	[key: string]: unknown;
 }
 
 interface OidcDiscoveryModalV8Props {
@@ -69,9 +69,9 @@ export const OidcDiscoveryModalV8: React.FC<OidcDiscoveryModalV8Props> = ({
 	return (
 		<>
 			{/* Backdrop */}
-			<div
-				role="button"
-				tabIndex={0}
+			<button
+				type="button"
+				aria-label="Close modal"
 				style={{
 					position: 'fixed',
 					top: 0,
@@ -79,14 +79,19 @@ export const OidcDiscoveryModalV8: React.FC<OidcDiscoveryModalV8Props> = ({
 					right: 0,
 					bottom: 0,
 					background: 'rgba(0, 0, 0, 0.5)',
-					zIndex: 999,
 					display: 'flex',
 					alignItems: 'center',
 					justifyContent: 'center',
+					zIndex: 999,
+					border: 'none',
+					padding: 0,
+					margin: 0,
+					cursor: 'pointer',
 				}}
 				onClick={onClose}
 				onKeyDown={(e) => {
-					if (e.key === 'Enter' || e.key === ' ') {
+					if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') {
+						e.preventDefault();
 						onClose();
 					}
 				}}
@@ -94,8 +99,10 @@ export const OidcDiscoveryModalV8: React.FC<OidcDiscoveryModalV8Props> = ({
 
 			{/* Modal */}
 			<div
-				role="button"
-				tabIndex={0}
+				role="dialog"
+				aria-modal="true"
+				aria-labelledby="oidc-discovery-title"
+				aria-describedby="oidc-discovery-description"
 				style={{
 					position: 'fixed',
 					top: '50%',

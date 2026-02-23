@@ -65,8 +65,8 @@ const getMDIIconClass = (iconName: string): string => {
 
 interface DeviceRegistrationFlowPingUIProps {
 	initialStep?: RegistrationStep;
-	onComplete?: (result: any) => void;
-	onError?: (error: any) => void;
+	onComplete?: (result: DeviceRegistrationData) => void;
+	onError?: (error: Error) => void;
 	environmentId?: string;
 	region?: string;
 }
@@ -272,6 +272,7 @@ const DeviceRegistrationFlowPingUI: React.FC<DeviceRegistrationFlowPingUIProps> 
 								},
 							].map((device) => (
 								<button
+									type="button"
 									key={device.type}
 									onClick={() => handleDeviceSelection(device.type)}
 									disabled={isLoading}
@@ -293,6 +294,21 @@ const DeviceRegistrationFlowPingUI: React.FC<DeviceRegistrationFlowPingUIProps> 
 										}
 									}}
 									onMouseOut={(e) => {
+										if (!isLoading) {
+											e.currentTarget.style.borderColor = 'var(--ping-border-color, #e5e7eb)';
+											e.currentTarget.style.transform = 'translateY(0)';
+											e.currentTarget.style.boxShadow = 'none';
+										}
+									}}
+									onFocus={(e) => {
+										if (!isLoading) {
+											e.currentTarget.style.borderColor = 'var(--ping-primary-color, #3b82f6)';
+											e.currentTarget.style.transform = 'translateY(-2px)';
+											e.currentTarget.style.boxShadow =
+												'var(--ping-shadow-lg, 0 10px 15px -3px rgba(0, 0, 0, 0.1))';
+										}
+									}}
+									onBlur={(e) => {
 										if (!isLoading) {
 											e.currentTarget.style.borderColor = 'var(--ping-border-color, #e5e7eb)';
 											e.currentTarget.style.transform = 'translateY(0)';
@@ -451,6 +467,7 @@ const DeviceRegistrationFlowPingUI: React.FC<DeviceRegistrationFlowPingUIProps> 
 							}}
 						>
 							<button
+								type="button"
 								onClick={handleBack}
 								disabled={isLoading}
 								style={{
@@ -475,12 +492,23 @@ const DeviceRegistrationFlowPingUI: React.FC<DeviceRegistrationFlowPingUIProps> 
 									e.currentTarget.style.borderColor = 'var(--ping-border-color, #e5e7eb)';
 									e.currentTarget.style.backgroundColor = 'var(--ping-surface-primary, #ffffff)';
 								}}
+								onFocus={(e) => {
+									if (!isLoading) {
+										e.currentTarget.style.borderColor = 'var(--ping-primary-color, #3b82f6)';
+										e.currentTarget.style.backgroundColor = 'var(--ping-primary-light, #dbeafe)';
+									}
+								}}
+								onBlur={(e) => {
+									e.currentTarget.style.borderColor = 'var(--ping-border-color, #e5e7eb)';
+									e.currentTarget.style.backgroundColor = 'var(--ping-surface-primary, #ffffff)';
+								}}
 							>
 								<MDIIcon icon="FiArrowLeft" size={16} ariaLabel="Back" />
 								Back
 							</button>
 
 							<button
+								type="button"
 								onClick={() => onComplete?.(registrationData)}
 								disabled={isLoading}
 								style={{
@@ -497,11 +525,21 @@ const DeviceRegistrationFlowPingUI: React.FC<DeviceRegistrationFlowPingUIProps> 
 								}}
 								onMouseOver={(e) => {
 									if (!isLoading) {
-										e.currentTarget.style.backgroundColor = 'var(--ping-primary-dark, #2563eb)';
-										e.currentTarget.style.borderColor = 'var(--ping-primary-dark, #2563eb)';
+										e.currentTarget.style.backgroundColor = 'var(--ping-primary-hover, #2563eb)';
+										e.currentTarget.style.borderColor = 'var(--ping-primary-hover, #2563eb)';
 									}
 								}}
 								onMouseOut={(e) => {
+									e.currentTarget.style.backgroundColor = 'var(--ping-primary-color, #3b82f6)';
+									e.currentTarget.style.borderColor = 'var(--ping-primary-color, #3b82f6)';
+								}}
+								onFocus={(e) => {
+									if (!isLoading) {
+										e.currentTarget.style.backgroundColor = 'var(--ping-primary-hover, #2563eb)';
+										e.currentTarget.style.borderColor = 'var(--ping-primary-hover, #2563eb)';
+									}
+								}}
+								onBlur={(e) => {
 									e.currentTarget.style.backgroundColor = 'var(--ping-primary-color, #3b82f6)';
 									e.currentTarget.style.borderColor = 'var(--ping-primary-color, #3b82f6)';
 								}}
@@ -555,7 +593,22 @@ const DeviceRegistrationFlowPingUI: React.FC<DeviceRegistrationFlowPingUIProps> 
 						</div>
 
 						<button
+							type="button"
 							onClick={() => onComplete?.(registrationData)}
+							onFocus={(e) => {
+								e.currentTarget.style.backgroundColor = 'var(--ping-primary-dark, #2563eb)';
+								e.currentTarget.style.borderColor = 'var(--ping-primary-dark, #2563eb)';
+							}}
+							onBlur={(e) => {
+								e.currentTarget.style.backgroundColor = 'var(--ping-primary-color, #3b82f6)';
+								e.currentTarget.style.borderColor = 'var(--ping-primary-color, #3b82f6)';
+							}}
+							onKeyDown={(e) => {
+								if (e.key === 'Enter' || e.key === ' ') {
+									e.preventDefault();
+									onComplete?.(registrationData);
+								}
+							}}
 							style={{
 								display: 'flex',
 								alignItems: 'center',
@@ -655,7 +708,22 @@ const DeviceRegistrationFlowPingUI: React.FC<DeviceRegistrationFlowPingUIProps> 
 				</div>
 
 				<button
+					type="button"
 					onClick={handleRetry}
+					onFocus={(e) => {
+						e.currentTarget.style.backgroundColor = 'var(--ping-primary-dark, #2563eb)';
+						e.currentTarget.style.borderColor = 'var(--ping-primary-dark, #2563eb)';
+					}}
+					onBlur={(e) => {
+						e.currentTarget.style.backgroundColor = 'var(--ping-primary-color, #3b82f6)';
+						e.currentTarget.style.borderColor = 'var(--ping-primary-color, #3b82f6)';
+					}}
+					onKeyDown={(e) => {
+						if (e.key === 'Enter' || e.key === ' ') {
+							e.preventDefault();
+							handleRetry();
+						}
+					}}
 					style={{
 						padding: 'var(--ping-spacing-md, 1rem) var(--ping-spacing-lg, 1.5rem)',
 						background: 'var(--ping-primary-color, #3b82f6)',
@@ -726,7 +794,14 @@ const DeviceRegistrationFlowPingUI: React.FC<DeviceRegistrationFlowPingUIProps> 
 									{error}
 								</span>
 								<button
+									type="button"
 									onClick={handleRetry}
+									onKeyDown={(e) => {
+										if (e.key === 'Enter' || e.key === ' ') {
+											e.preventDefault();
+											handleRetry();
+										}
+									}}
 									style={{
 										marginLeft: 'auto',
 										padding: 'var(--spacing-xs, 0.25rem) var(--spacing-sm, 0.5rem)',

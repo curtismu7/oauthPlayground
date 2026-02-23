@@ -9,7 +9,12 @@
  * Authentication operations are handled by the separate DeviceAuthenticationService.
  */
 
-import type { DeviceConfigKey, DeviceRegistrationData } from '@/apps/mfa/types/mfaFlowTypes';
+import type { 
+	DeviceConfigKey, 
+	DeviceRegistrationData,
+	RegistrationFlowState
+} from '@/apps/mfa/types/mfaFlowTypes';
+import { RegistrationStep } from '@/apps/mfa/types/mfaFlowTypes';
 import { pingOneFetch } from '@/utils/pingOneFetch';
 
 const MODULE_TAG = '[📝 DEVICE-REGISTRATION-SERVICE]';
@@ -565,6 +570,81 @@ export class DeviceRegistrationService {
 			};
 		} catch (error) {
 			console.error(`${MODULE_TAG} Error getting device status:`, error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Select device type for registration flow
+	 * Added to resolve component integration issues
+	 */
+	static async selectDeviceType(
+		state: RegistrationFlowState,
+		deviceType: string
+	): Promise<RegistrationFlowState> {
+		console.log(`${MODULE_TAG} Selecting device type`, { deviceType });
+
+		try {
+			// Update the state with the selected device type
+			const updatedState: RegistrationFlowState = {
+				...state,
+				deviceType: deviceType as DeviceConfigKey,
+				currentStep: RegistrationStep.USER_VERIFICATION,
+				metadata: {
+					...state.metadata,
+					lastActivity: Date.now(),
+				},
+			};
+
+			console.log(`${MODULE_TAG} ✅ Device type selected`, {
+				deviceType,
+				nextStep: updatedState.currentStep,
+			});
+
+			return updatedState;
+		} catch (error) {
+			console.error(`${MODULE_TAG} Error selecting device type:`, error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Generate device configuration for registration
+	 * Added to resolve component integration issues
+	 */
+	static async generateDeviceConfig(state: RegistrationFlowState): Promise<DeviceRegistrationData> {
+		console.log(`${MODULE_TAG} Generating device configuration`, {
+			deviceType: state.deviceType,
+		});
+
+		try {
+			// Create device configuration based on type and user data
+			const configData: DeviceRegistrationData = {
+				type: state.deviceType,
+				phone: state.userData.username, // Mock phone from username
+				email: state.userData.username, // Mock email from username
+				name: `${state.userData.username}'s ${state.deviceType}`,
+				nickname: `${state.deviceType}-${state.userData.username}`,
+				status: 'ACTIVE',
+				notification: {
+					enabled: true,
+					method: state.deviceType === 'SMS' ? 'sms' : 'email',
+				},
+				configuration: {
+					environmentId: state.userData.environmentId,
+					userId: state.userData.userId,
+					createdAt: Date.now(),
+				},
+			};
+
+			console.log(`${MODULE_TAG} ✅ Device configuration generated`, {
+				deviceType: configData.type,
+				deviceId: configData.name,
+			});
+
+			return configData;
+		} catch (error) {
+			console.error(`${MODULE_TAG} Error generating device configuration:`, error);
 			throw error;
 		}
 	}

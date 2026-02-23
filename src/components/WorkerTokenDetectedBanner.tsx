@@ -204,7 +204,7 @@ export const WorkerTokenDetectedBanner: React.FC<WorkerTokenDetectedBannerProps>
 							: '#065f46',
 				}}
 			>
-				<FiDatabase size={14} /> Token cached • {token.substring(0, 16)}…
+				<FiDatabase size={14} /> Token cached • {token ? token.substring(0, 16) : 'No token'}…
 			</TokenBadge>
 			{expiryInfo && (
 				<ExpiryMessage

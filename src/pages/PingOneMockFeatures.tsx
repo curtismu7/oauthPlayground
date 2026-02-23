@@ -22,7 +22,7 @@ const CollapsibleHeader = styled.div`
   h2 {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #111827;
+    color: white;
     margin-bottom: 1rem;
   }
 `;
@@ -333,7 +333,7 @@ const PingOneMockFeatures: React.FC = () => {
 						style={{
 							fontSize: '2.5rem',
 							fontWeight: '800',
-							color: '#111827',
+							color: 'white',
 							marginBottom: '1rem',
 						}}
 					>

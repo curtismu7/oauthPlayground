@@ -60,6 +60,7 @@ export const DEFAULT_APP_CONFIG: PingOneApplicationState = {
 	jwksUrl: '',
 	jwks: '',
 	requirePushedAuthorizationRequest: true, // PAR is REQUIRED for this flow
+	pushedAuthorizationRequestTimeout: 60,
 	enableDPoP: false,
 	dpopAlgorithm: 'ES256',
 	additionalRefreshTokenReplayProtection: false,

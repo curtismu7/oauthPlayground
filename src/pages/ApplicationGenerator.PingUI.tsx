@@ -6,31 +6,11 @@
  * @since 2026-02-22
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { ConfigCheckerButtons } from '../components/ConfigCheckerButtons';
-import { ExportImportPanel } from '../components/ExportImportPanel';
-import { PresetSelector } from '../components/PresetSelector';
-import { CollapsibleHeader } from '../services/collapsibleHeaderService';
-import { FlowHeader } from '../services/flowHeaderService';
-import {
-	type AppCreationResult,
-	type OIDCNativeAppConfig,
-	type OIDCWebAppConfig,
-	pingOneAppCreationService,
-	type ServiceAppConfig,
-	type SinglePageAppConfig,
-	type WorkerAppConfig,
-} from '../services/pingOneAppCreationService';
-import {
-	type BuilderAppType,
-	type FormDataState,
-	presetManagerService,
-} from '../services/presetManagerService';
-import { UnifiedTokenDisplayService } from '../services/unifiedTokenDisplayService';
-import V7StepperService, { type StepMetadata } from '../services/v7StepperService';
-import { clearAllTokens } from '../utils/tokenCleaner';
+import React, { useState, useCallback } from 'react';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+import { pingOneAppCreationService, type AppCreationResult } from '../services/pingOneAppCreationService';
+import type { FormDataState } from '../services/presetManagerService';
+import type { StepMetadata } from '../services/v7StepperService';
 
 // MDI Icon Component
 const MDIIcon: React.FC<{
@@ -111,21 +91,32 @@ const MDIIcon: React.FC<{
 
 // Main Component
 const ApplicationGeneratorPingUI: React.FC = () => {
-	const location = useLocation();
-	const navigate = useNavigate();
-
 	// State management
 	const [currentStep, setCurrentStep] = useState(0);
 	const [formData, setFormData] = useState<FormDataState>({
-		appType: 'spa',
-		appName: '',
+		name: '',
 		description: '',
-		domain: '',
+		enabled: true,
 		redirectUris: [''],
+		postLogoutRedirectUris: [],
+		grantTypes: ['authorization_code'],
+		responseTypes: ['code'],
+		tokenEndpointAuthMethod: 'client_secret_basic',
+		pkceEnforcement: 'OPTIONAL',
 		scopes: ['openid', 'profile', 'email'],
-		environmentId: '',
-		clientId: '',
-		clientSecret: '',
+		accessTokenValiditySeconds: 3600,
+		refreshTokenValiditySeconds: 86400,
+		idTokenValiditySeconds: 3600,
+		refreshTokenDuration: 30,
+		refreshTokenRollingDuration: 7,
+		refreshTokenRollingGracePeriod: 300,
+		allowRedirectUriPatterns: false,
+		jwksUrl: '',
+		pushedAuthorizationRequestStatus: 'OPTIONAL',
+		parReferenceTimeout: 600,
+		initiateLoginUri: '',
+		targetLinkUri: '',
+		signoffUrls: [],
 	});
 
 	const [isGenerating, setIsGenerating] = useState(false);
@@ -169,76 +160,75 @@ const ApplicationGeneratorPingUI: React.FC = () => {
 		{
 			id: 'app-type',
 			title: 'Select Application Type',
-			description: 'Choose the type of application you want to create',
-			icon: 'settings',
+			subtitle: 'Choose the type of application you want to create',
 		},
 		{
 			id: 'basic-config',
 			title: 'Basic Configuration',
-			description: 'Configure basic application settings',
-			icon: 'info',
+			subtitle: 'Configure basic application settings',
 		},
 		{
 			id: 'oauth-config',
 			title: 'OAuth Configuration',
-			description: 'Set up OAuth 2.0/OIDC settings',
-			icon: 'shield',
+			subtitle: 'Set up OAuth 2.0/OIDC settings',
 		},
 		{
 			id: 'generate',
 			title: 'Generate Application',
-			description: 'Create your PingOne application',
-			icon: 'rocket',
+			subtitle: 'Create your PingOne application',
 		},
 	];
 
 	// Handle form field changes
-	const handleFieldChange = useCallback((field: keyof FormDataState, value: any) => {
-		setFormData(prev => ({ ...prev, [field]: value }));
-		if (errors[field]) {
-			setErrors(prev => {
+	const handleFieldChange = useCallback((field: keyof FormDataState, value: string | number | boolean | string[]) => {
+		setFormData((prev) => ({ ...prev, [field]: value }));
+		if (errors[field as string]) {
+			setErrors((prev) => {
 				const newErrors = { ...prev };
-				delete newErrors[field];
+				delete newErrors[field as string];
 				return newErrors;
 			});
 		}
-	}, []);
+	}, [errors]);
 
 	// Validate current step
-	const validateStep = useCallback((stepIndex: number): boolean => {
-		const step = steps[stepIndex];
-		switch (step.id) {
-			case 'app-type':
-				return !!formData.appType;
-			case 'basic-config':
-				return !!(formData.appName || formData.domain);
-			case 'oauth-config':
-				return !!(formData.environmentId || formData.clientId);
-			case 'generate':
-				return true;
-			default:
-				return true;
-		}
-	}, [formData, steps]);
+	const validateStep = useCallback(
+		(stepIndex: number): boolean => {
+			const step = steps[stepIndex];
+			switch (step.id) {
+				case 'app-type':
+					return !!formData.name;
+				case 'basic-config':
+					return !!(formData.name && formData.description);
+				case 'oauth-config':
+					return !!(formData.redirectUris.length > 0 && formData.scopes.length > 0);
+				case 'generate':
+					return true;
+				default:
+					return false;
+			}
+		},
+		[formData]
+	);
 
 	// Navigate to next step
 	const handleNext = useCallback(() => {
 		if (!validateStep(currentStep)) {
 			// Show validation errors
 			const step = steps[currentStep];
-			v4ToastManager.error(`Please complete the ${step.title} step`);
+			v4ToastManager.showError(`Please complete the ${step.title} step`);
 			return;
 		}
 
 		if (currentStep < steps.length - 1) {
-			setCurrentStep(prev => prev + 1);
+			setCurrentStep((prev) => prev + 1);
 		}
 	}, [currentStep, validateStep, steps]);
 
 	// Navigate to previous step
 	const handlePrevious = useCallback(() => {
 		if (currentStep > 0) {
-			setCurrentStep(prev => prev - 1);
+			setCurrentStep((prev) => prev - 1);
 		}
 	}, [currentStep]);
 
@@ -248,14 +238,29 @@ const ApplicationGeneratorPingUI: React.FC = () => {
 		setErrors({});
 
 		try {
-			const result = await pingOneAppCreationService.createApplication(formData);
+			const result = await pingOneAppCreationService.createOIDCWebApp({
+				name: formData.name,
+				description: formData.description,
+				enabled: formData.enabled,
+				redirectUris: formData.redirectUris,
+				postLogoutRedirectUris: formData.postLogoutRedirectUris,
+				grantTypes: formData.grantTypes as ("authorization_code" | "implicit" | "refresh_token" | "client_credentials")[],
+				responseTypes: formData.responseTypes as ("code" | "token" | "id_token")[],
+				tokenEndpointAuthMethod: formData.tokenEndpointAuthMethod,
+				pkceEnforcement: formData.pkceEnforcement,
+				scopes: formData.scopes,
+				accessTokenValiditySeconds: formData.accessTokenValiditySeconds,
+				refreshTokenValiditySeconds: formData.refreshTokenValiditySeconds,
+				idTokenValiditySeconds: formData.idTokenValiditySeconds,
+				type: 'OIDC_WEB_APP',
+			});
 			setGenerationResult(result);
 			setCurrentStep(steps.length - 1);
-			v4ToastManager.success('Application created successfully!');
+			v4ToastManager.showSuccess('Application created successfully!');
 		} catch (error) {
 			console.error('Failed to create application:', error);
 			setErrors({ general: 'Failed to create application. Please try again.' });
-			v4ToastManager.error('Failed to create application');
+			v4ToastManager.showError('Failed to create application');
 		} finally {
 			setIsGenerating(false);
 		}
@@ -264,15 +269,29 @@ const ApplicationGeneratorPingUI: React.FC = () => {
 	// Reset form
 	const handleReset = useCallback(() => {
 		setFormData({
-			appType: 'spa',
-			appName: '',
+			name: '',
 			description: '',
-			domain: '',
+			enabled: true,
 			redirectUris: [''],
+			postLogoutRedirectUris: [],
+			grantTypes: ['authorization_code'],
+			responseTypes: ['code'],
+			tokenEndpointAuthMethod: 'client_secret_basic',
+			pkceEnforcement: 'OPTIONAL',
 			scopes: ['openid', 'profile', 'email'],
-			environmentId: '',
-			clientId: '',
-			clientSecret: '',
+			accessTokenValiditySeconds: 3600,
+			refreshTokenValiditySeconds: 86400,
+			idTokenValiditySeconds: 3600,
+			refreshTokenDuration: 30,
+			refreshTokenRollingDuration: 7,
+			refreshTokenRollingGracePeriod: 300,
+			allowRedirectUriPatterns: false,
+			jwksUrl: '',
+			pushedAuthorizationRequestStatus: 'OPTIONAL',
+			parReferenceTimeout: 600,
+			initiateLoginUri: '',
+			targetLinkUri: '',
+			signoffUrls: [],
 		});
 		setErrors({});
 		setGenerationResult(null);
@@ -287,24 +306,25 @@ const ApplicationGeneratorPingUI: React.FC = () => {
 				timestamp: new Date().toISOString(),
 				version: '1.0.0',
 			};
-			
+
 			const blob = new Blob([JSON.stringify(exportData, null, 2)], {
 				type: 'application/json',
 			});
-			
+
 			const url = URL.createObjectURL(blob);
 			const a = document.createElement('a');
 			a.href = url;
-			a.download = `${formData.appName || 'app'}-config.json`;
+			const fileName = `${formData.name || 'app'}-config.json`;
+			a.download = fileName;
 			document.body.appendChild(a);
 			a.click();
 			document.body.removeChild(a);
 			URL.revokeObjectURL(url);
-			
-			v4ToastManager.success('Configuration exported successfully');
+
+			v4ToastManager.showSuccess('Configuration exported successfully');
 		} catch (error) {
 			console.error('Failed to export configuration:', error);
-			v4ToastManager.error('Failed to export configuration');
+			v4ToastManager.showError('Failed to export configuration');
 		}
 	}, [formData]);
 
@@ -317,14 +337,14 @@ const ApplicationGeneratorPingUI: React.FC = () => {
 		reader.onload = (e) => {
 			try {
 				const importedData = JSON.parse(e.target?.result as string);
-				setFormData(prev => ({
+				setFormData((prev) => ({
 					...prev,
 					...importedData,
 				}));
-				v4ToastManager.success('Configuration imported successfully');
+				v4ToastManager.showSuccess('Configuration imported successfully');
 			} catch (error) {
 				console.error('Failed to import configuration:', error);
-				v4ToastManager.error('Failed to import configuration');
+				v4ToastManager.showError('Failed to import configuration');
 			}
 		};
 		reader.readAsText(file);
@@ -678,19 +698,19 @@ const ApplicationGeneratorPingUI: React.FC = () => {
 			<div className="app-generator-pingui">
 				{/* Header */}
 				<div className="header">
-					<div className="header-content">
-						<div className="header-title">
-							<MDIIcon icon="rocket" size={24} className="icon" />
+					<div className="header-content d-flex justify-content-between align-items-center">
+						<div className="header-title d-flex align-items-center">
+							<MDIIcon icon="rocket" size={24} className="icon me-2" />
 							Application Generator
 						</div>
-						<div className="header-actions">
+						<div className="header-actions d-flex gap-2">
 							<button
 								type="button"
 								className="btn btn-secondary"
 								onClick={handleExport}
-								disabled={!formData.appName}
+								disabled={!formData.name}
 							>
-								<MDIIcon icon="download" size={14} />
+								<MDIIcon icon="download" size={14} className="me-1" />
 								Export
 							</button>
 							<button
@@ -698,7 +718,7 @@ const ApplicationGeneratorPingUI: React.FC = () => {
 								className="btn btn-secondary"
 								onClick={() => document.getElementById('import-file')?.click()}
 							>
-								<MDIIcon icon="upload" size={14} />
+								<MDIIcon icon="upload" size={14} className="me-1" />
 								Import
 							</button>
 							<input
@@ -708,12 +728,8 @@ const ApplicationGeneratorPingUI: React.FC = () => {
 								onChange={handleImport}
 								style={{ display: 'none' }}
 							/>
-							<button
-								type="button"
-								className="btn"
-								onClick={handleReset}
-							>
-								<MDIIcon icon="refresh" size={14} />
+							<button type="button" className="btn btn-primary" onClick={handleReset}>
+								<MDIIcon icon="refresh" size={14} className="me-1" />
 								Reset
 							</button>
 						</div>
@@ -728,10 +744,10 @@ const ApplicationGeneratorPingUI: React.FC = () => {
 							className={`step ${index === currentStep ? 'active' : ''} ${index < currentStep ? 'completed' : ''}`}
 						>
 							<div className="step-icon">
-								<MDIIcon icon={step.icon} />
+								<MDIIcon icon="check" />
 							</div>
 							<div className="step-title">{step.title}</div>
-							<div className="step-description">{step.description}</div>
+							<div className="step-description">{step.subtitle}</div>
 						</div>
 					))}
 				</div>
@@ -740,18 +756,29 @@ const ApplicationGeneratorPingUI: React.FC = () => {
 				<div className="content-area">
 					{currentStep === 0 && (
 						/* App Type Selection */
-						<div className="app-type-selector">
+						<div className="app-type-selector d-grid gap-3">
 							{appTypes.map((appType) => (
 								<div
 									key={appType.id}
-									className={`app-type-card ${formData.appType === appType.id ? 'selected' : ''}`}
-									onClick={() => handleFieldChange('appType', appType.id)}
+									className={`app-type-card card ${formData.name === appType.name ? 'selected border-primary' : ''}`}
+									onClick={() => handleFieldChange('name', appType.name)}
+									onKeyDown={(e) => {
+										if (e.key === 'Enter' || e.key === ' ') {
+											e.preventDefault();
+											handleFieldChange('name', appType.name);
+										}
+									}}
+									tabIndex={0}
+									role="button"
+									aria-pressed={formData.name === appType.name}
 								>
-									<div className="app-type-icon">
-										<MDIIcon icon={appType.icon} />
+									<div className="card-body text-center">
+										<div className="app-type-icon mb-3">
+											<MDIIcon icon={appType.icon} />
+										</div>
+										<div className="app-type-title h5 mb-2">{appType.name}</div>
+										<div className="app-type-description text-muted small">{appType.description}</div>
 									</div>
-									<div className="app-type-title">{appType.name}</div>
-									<div className="app-type-description">{appType.description}</div>
 								</div>
 							))}
 						</div>
@@ -760,43 +787,67 @@ const ApplicationGeneratorPingUI: React.FC = () => {
 					{currentStep === 1 && (
 						/* Basic Configuration */
 						<>
-							<div className="form-group">
-								<label htmlFor="appName">Application Name</label>
+							<div className="mb-3">
+								<label htmlFor="name" className="form-label">Application Name</label>
 								<input
-									id="appName"
+									id="name"
 									type="text"
-									value={formData.appName}
-									onChange={(e) => handleFieldChange('appName', e.target.value)}
+									value={formData.name}
+									onChange={(e) => handleFieldChange('name', e.target.value)}
 									placeholder="Enter application name"
-									className={errors.appName ? 'error' : ''}
+									className={`form-control ${errors.name ? 'is-invalid' : ''}`}
 								/>
-								{errors.appName && (
-									<div className="error-message">{errors.appName}</div>
-								)}
+								{errors.name && <div className="invalid-feedback">{errors.name}</div>}
 							</div>
-							<div className="form-group">
-								<label htmlFor="description">Description</label>
+							<div className="mb-3">
+								<label htmlFor="description" className="form-label">Description</label>
 								<textarea
 									id="description"
 									value={formData.description}
 									onChange={(e) => handleFieldChange('description', e.target.value)}
 									placeholder="Enter application description"
 									rows={3}
+									className="form-control"
 								/>
 							</div>
-							<div className="form-group">
-								<label htmlFor="domain">Domain</label>
-								<input
-									id="domain"
-									type="url"
-									value={formData.domain}
-									onChange={(e) => handleFieldChange('domain', e.target.value)}
-									placeholder="https://your-domain.com"
-									className={errors.domain ? 'error' : ''}
-								/>
-								{errors.domain && (
-									<div className="error-message">{errors.domain}</div>
-								)}
+							<div className="mb-3">
+								<label htmlFor="redirectUris" className="form-label">Redirect URIs</label>
+								{formData.redirectUris.map((uri, index) => (
+									<div key={index} className="input-group mb-2">
+										<input
+											type="url"
+											value={uri}
+											onChange={(e) => {
+												const newUris = [...formData.redirectUris];
+												newUris[index] = e.target.value;
+												handleFieldChange('redirectUris', newUris);
+											}}
+											placeholder="https://your-domain.com/callback"
+											className={`form-control ${errors.redirectUris ? 'is-invalid' : ''}`}
+										/>
+										{formData.redirectUris.length > 1 && (
+											<button
+												type="button"
+												onClick={() => {
+													const newUris = formData.redirectUris.filter((_, i) => i !== index);
+													handleFieldChange('redirectUris', newUris);
+												}}
+												className="btn btn-outline-danger"
+											>
+												<MDIIcon icon="close" size={16} />
+											</button>
+										)}
+									</div>
+								))}
+								<button
+									type="button"
+									onClick={() => handleFieldChange('redirectUris', [...formData.redirectUris, ''])}
+									className="btn btn-outline-secondary btn-sm"
+								>
+									<MDIIcon icon="plus" size={16} className="me-1" />
+									Add URI
+								</button>
+								{errors.redirectUris && <div className="invalid-feedback d-block">{errors.redirectUris}</div>}
 							</div>
 						</>
 					)}
@@ -805,42 +856,47 @@ const ApplicationGeneratorPingUI: React.FC = () => {
 						/* OAuth Configuration */
 						<>
 							<div className="form-group">
-								<label htmlFor="environmentId">Environment ID</label>
-								<input
-									id="environmentId"
-									type="text"
-									value={formData.environmentId}
-									onChange={(e) => handleFieldChange('environmentId', e.target.value)}
-									placeholder="Enter PingOne Environment ID"
-									className={errors.environmentId ? 'error' : ''}
-								/>
-								{errors.environmentId && (
-									<div className="error-message">{errors.environmentId}</div>
-								)}
+								<label htmlFor="scopes">Scopes</label>
+								<div className="scopes-container">
+									{['openid', 'profile', 'email', 'address', 'phone'].map((scope) => (
+										<label key={scope} className="scope-checkbox">
+											<input
+												type="checkbox"
+												checked={formData.scopes.includes(scope)}
+												onChange={(e) => {
+													const newScopes = e.target.checked
+														? [...formData.scopes, scope]
+														: formData.scopes.filter((s) => s !== scope);
+													handleFieldChange('scopes', newScopes);
+												}}
+											/>
+											{scope}
+										</label>
+									))}
+								</div>
 							</div>
 							<div className="form-group">
-								<label htmlFor="clientId">Client ID</label>
-								<input
-									id="clientId"
-									type="text"
-									value={formData.clientId}
-									onChange={(e) => handleFieldChange('clientId', e.target.value)}
-									placeholder="Enter Client ID"
-									className={errors.clientId ? 'error' : ''}
-								/>
-								{errors.clientId && (
-									<div className="error-message">{errors.clientId}</div>
-								)}
+								<label htmlFor="tokenEndpointAuthMethod">Token Endpoint Auth Method</label>
+								<select
+									id="tokenEndpointAuthMethod"
+									value={formData.tokenEndpointAuthMethod}
+									onChange={(e) => handleFieldChange('tokenEndpointAuthMethod', e.target.value)}
+								>
+									<option value="client_secret_basic">Client Secret Basic</option>
+									<option value="client_secret_post">Client Secret Post</option>
+									<option value="none">None (Public Client)</option>
+								</select>
 							</div>
 							<div className="form-group">
-								<label htmlFor="clientSecret">Client Secret</label>
-								<input
-									id="clientSecret"
-									type="password"
-									value={formData.clientSecret}
-									onChange={(e) => handleFieldChange('clientSecret', e.target.value)}
-									placeholder="Enter Client Secret"
-								/>
+								<label htmlFor="pkceEnforcement">PKCE Enforcement</label>
+								<select
+									id="pkceEnforcement"
+									value={formData.pkceEnforcement}
+									onChange={(e) => handleFieldChange('pkceEnforcement', e.target.value)}
+								>
+									<option value="OPTIONAL">Optional</option>
+									<option value="REQUIRED">Required</option>
+								</select>
 							</div>
 						</>
 					)}
@@ -848,8 +904,18 @@ const ApplicationGeneratorPingUI: React.FC = () => {
 					{currentStep === 3 && (
 						/* Generate Application */
 						<div style={{ textAlign: 'center', padding: '3rem' }}>
-							<MDIIcon icon="rocket" size={64} style={{ color: 'var(--ping-color-primary, #3b82f6)' }} />
-							<h2 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: 'var(--ping-text-primary, #1a1a1a)' }}>
+							<MDIIcon
+								icon="rocket"
+								size={64}
+								style={{ color: 'var(--ping-color-primary, #3b82f6)' }}
+							/>
+							<h2
+								style={{
+									fontSize: '1.5rem',
+									marginBottom: '1rem',
+									color: 'var(--ping-text-primary, #1a1a1a)',
+								}}
+							>
 								Ready to Generate
 							</h2>
 							<p style={{ color: 'var(--ping-text-secondary, #666)', marginBottom: '2rem' }}>
@@ -857,13 +923,17 @@ const ApplicationGeneratorPingUI: React.FC = () => {
 							</p>
 							<button
 								type="button"
-								className="btn"
+								className="btn-primary"
 								onClick={handleGenerate}
 								disabled={isGenerating}
 							>
 								{isGenerating ? (
 									<>
-										<MDIIcon icon="refresh" size={14} style={{ animation: 'spin 1s linear infinite' }} />
+										<MDIIcon
+											icon="refresh"
+											size={14}
+											style={{ animation: 'spin 1s linear infinite' }}
+										/>
 										Generating...
 									</>
 								) : (
@@ -877,69 +947,72 @@ const ApplicationGeneratorPingUI: React.FC = () => {
 					)}
 
 					{currentStep === 4 && generationResult && (
-						/* Results Display */
-						<div className="result-display">
-							<div className="result-header">
-								<MDIIcon icon="success" size={24} className="result-icon" />
-								<div className="result-title">Application Created Successfully!</div>
+						{/* Results Display */}
+						<div className="result-display card mb-4">
+							<div className="result-header card-header d-flex align-items-center">
+								<MDIIcon icon="success" size={24} className="result-icon text-success me-2" />
+								<div className="result-title h5 mb-0">Application Created Successfully!</div>
 							</div>
-							<div className="result-content">
-								<div className="result-item">
-									<span className="result-label">Application ID:</span>
-									<span className="result-value">{generationResult.applicationId}</span>
+							<div className="result-content card-body bg-light">
+								<div className="result-item d-flex justify-content-between py-2 border-bottom">
+									<span className="result-label text-muted">Application ID:</span>
+									<span className="result-value fw-bold">{generationResult.app?.id}</span>
 								</div>
-								<div className="result-item">
-									<span className="result-label">Client ID:</span>
-									<span className="result-value">{generationResult.clientId}</span>
+								<div className="result-item d-flex justify-content-between py-2 border-bottom">
+									<span className="result-label text-muted">Client ID:</span>
+									<span className="result-value fw-bold">{generationResult.app?.clientId}</span>
 								</div>
-								<div className="result-item">
-									<span className="result-label">Environment ID:</span>
-									<span className="result-value">{generationResult.environmentId}</span>
+								<div className="result-item d-flex justify-content-between py-2 border-bottom">
+									<span className="result-label text-muted">Environment ID:</span>
+									<span className="result-value fw-bold">{generationResult.app?.environment?.id}</span>
 								</div>
-								{generationResult.redirectUris && (
-									<div className="result-item">
-										<span className="result-label">Redirect URIs:</span>
-										<span className="result-value">{generationResult.redirectUris.join(', ')}</span>
+								{formData.redirectUris && (
+									<div className="result-item d-flex justify-content-between py-2">
+										<span className="result-label text-muted">Redirect URIs:</span>
+										<span className="result-value fw-bold">{formData.redirectUris.join(', ')}</span>
 									</div>
 								)}
 							</div>
 						</div>
 					)}
+					)}
 				</div>
 
 				{/* Navigation */}
-				<div className="navigation">
+				<div className="navigation d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
 					<button
 						type="button"
 						className="btn btn-secondary"
 						onClick={handlePrevious}
 						disabled={currentStep === 0}
 					>
-						<MDIIcon icon="chevronLeft" size={14} />
+						<MDIIcon icon="chevronLeft" size={14} className="me-1" />
 						Previous
 					</button>
 					<button
 						type="button"
-						className="btn"
+						className="btn btn-primary"
 						onClick={currentStep === steps.length - 1 ? handleGenerate : handleNext}
-						disabled={!validateStep(currentStep) || (currentStep === steps.length - 1 && isGenerating)}
+						disabled={
+							!validateStep(currentStep) || (currentStep === steps.length - 1 && isGenerating)
+						}
 					>
 						{currentStep === steps.length - 1 ? (
 							<>
-								<MDIIcon icon="rocket" size={14} />
+								<MDIIcon icon="rocket" size={14} className="me-1" />
 								Generate
 							</>
 						) : (
 							<>
 								Next
-								<MDIIcon icon="chevronRight" size={14} />
+								<MDIIcon icon="chevronRight" size={14} className="ms-1" />
 							</>
 						)}
 					</button>
 				</div>
 			</div>
 		</div>
-	);
-};
+		);
+	};
 
 export default ApplicationGeneratorPingUI;

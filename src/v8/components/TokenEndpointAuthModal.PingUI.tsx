@@ -32,7 +32,6 @@ const MDIIcon: React.FC<{
 	);
 };
 
-
 interface TokenEndpointAuthModalProps {
 	isOpen: boolean;
 	onClose: () => void;
@@ -114,20 +113,18 @@ const getSectionTitleStyle = (): React.CSSProperties => ({
 });
 
 const getInfoBoxStyle = (variant: 'info' | 'warning'): React.CSSProperties => ({
-	background: variant === 'info' 
-		? 'var(--ping-info-bg, #dbeafe)' 
-		: 'var(--ping-warning-bg, #fef3c7)',
-	border: `1px solid ${variant === 'info' 
-		? 'var(--ping-info-border, #3b82f6)' 
-		: 'var(--ping-warning-border, #f59e0b)'}`,
+	background:
+		variant === 'info' ? 'var(--ping-info-bg, #dbeafe)' : 'var(--ping-warning-bg, #fef3c7)',
+	border: `1px solid ${
+		variant === 'info' ? 'var(--ping-info-border, #3b82f6)' : 'var(--ping-warning-border, #f59e0b)'
+	}`,
 	borderRadius: 'var(--ping-border-radius-md, 0.5rem)',
 	padding: 'var(--ping-spacing-md, 1rem)',
 	display: 'flex',
 	gap: 'var(--ping-spacing-sm, 0.75rem)',
 	alignItems: 'flex-start',
-	color: variant === 'info' 
-		? 'var(--ping-info-text, #1e40af)' 
-		: 'var(--ping-warning-text, #92400e)',
+	color:
+		variant === 'info' ? 'var(--ping-info-text, #1e40af)' : 'var(--ping-warning-text, #92400e)',
 });
 
 const getMethodCardStyle = (): React.CSSProperties => ({
@@ -230,30 +227,27 @@ export const TokenEndpointAuthModalPingUI: React.FC<TokenEndpointAuthModalProps>
 
 	return (
 		<div className="end-user-nano">
-			<div 
-			style={getOverlayStyle(isOpen)} 
-			onClick={onClose}
-			onKeyDown={(e) => {
-				if (e.key === 'Enter' || e.key === ' ') {
-					onClose();
-				}
-			}}
-			role="dialog"
-			aria-modal="true"
-			aria-labelledby="token-auth-modal-title"
-		>
-				<main 
-					style={getModalContainerStyle()} 
+			<div
+				style={getOverlayStyle(isOpen)}
+				onClick={onClose}
+				onKeyDown={(e) => {
+					if (e.key === 'Enter' || e.key === ' ') {
+						onClose();
+					}
+				}}
+				role="dialog"
+				aria-modal="true"
+				aria-labelledby="token-auth-modal-title"
+			>
+				<main
+					style={getModalContainerStyle()}
 					onClick={(e) => e.stopPropagation()}
 					role="document"
 					tabIndex={-1}
 				>
 					<div style={getModalHeaderStyle()}>
 						<h2 id="token-auth-modal-title" style={getModalTitleStyle()}>
-							<MDIIcon 
-								icon="key" 
-								size={24} 
-							/>
+							<MDIIcon icon="key" size={24} />
 							Token Endpoint Authentication Methods
 						</h2>
 						<button
@@ -263,10 +257,7 @@ export const TokenEndpointAuthModalPingUI: React.FC<TokenEndpointAuthModalProps>
 							aria-label="Close modal"
 							title="Close modal"
 						>
-							<MDIIcon 
-								icon="close" 
-								size={24} 
-							/>
+							<MDIIcon icon="close" size={24} />
 						</button>
 					</div>
 
@@ -274,15 +265,12 @@ export const TokenEndpointAuthModalPingUI: React.FC<TokenEndpointAuthModalProps>
 						{/* Introduction */}
 						<div style={getSectionStyle()}>
 							<div style={getInfoBoxStyle('info')}>
-								<MDIIcon 
-								icon="information" 
-								size={20} 
-								/>
+								<MDIIcon icon="information" size={20} />
 								<div>
 									<strong>What is Token Endpoint Authentication?</strong>
 									<p style={{ margin: '0.5rem 0 0 0' }}>
-										Token Endpoint Authentication is how OAuth 2.0 clients authenticate themselves 
-										when requesting access tokens. This is different from the initial authorization 
+										Token Endpoint Authentication is how OAuth 2.0 clients authenticate themselves
+										when requesting access tokens. This is different from the initial authorization
 										where users authenticate.
 									</p>
 								</div>
@@ -292,28 +280,21 @@ export const TokenEndpointAuthModalPingUI: React.FC<TokenEndpointAuthModalProps>
 						{/* Authentication Methods */}
 						<div style={getSectionStyle()}>
 							<h3 style={getSectionTitleStyle()}>
-								<MDIIcon 
-								icon="shield-check" 
-								size={20} 
-																/>
+								<MDIIcon icon="shield-check" size={20} />
 								Authentication Methods
 							</h3>
 
 							<div style={getMethodCardStyle()}>
 								<div style={getMethodHeaderStyle()}>
-									<MDIIcon 
-										icon="key" 
-										size={18} 
-										style={{ color: '#10b981' }}
-																				/>
+									<MDIIcon icon="key" size={18} style={{ color: '#10b981' }} />
 									<h4 style={getMethodNameStyle()}>None (Public Client)</h4>
 								</div>
 								<p style={getMethodDescriptionStyle()}>
-									No authentication - suitable for public clients (mobile apps, SPAs) that cannot 
+									No authentication - suitable for public clients (mobile apps, SPAs) that cannot
 									securely store credentials. Requires PKCE for security.
 								</p>
 								<div style={getCodeExampleStyle()}>
-{`POST /token
+									{`POST /token
 Content-Type: application/x-www-form-urlencoded
 
 grant_type=authorization_code
@@ -325,19 +306,15 @@ grant_type=authorization_code
 
 							<div style={getMethodCardStyle()}>
 								<div style={getMethodHeaderStyle()}>
-									<MDIIcon 
-										icon="lock" 
-										size={18} 
-										style={{ color: '#3b82f6' }}
-																			/>
+									<MDIIcon icon="lock" size={18} style={{ color: '#3b82f6' }} />
 									<h4 style={getMethodNameStyle()}>Client Secret Basic</h4>
 								</div>
 								<p style={getMethodDescriptionStyle()}>
-									Client ID and secret sent in HTTP Basic Authorization header. Most common 
-									method for confidential clients.
+									Client ID and secret sent in HTTP Basic Authorization header. Most common method
+									for confidential clients.
 								</p>
 								<div style={getCodeExampleStyle()}>
-{`POST /token
+									{`POST /token
 Authorization: Basic base64(client_id:client_secret)
 Content-Type: application/x-www-form-urlencoded
 
@@ -349,19 +326,15 @@ grant_type=authorization_code
 
 							<div style={getMethodCardStyle()}>
 								<div style={getMethodHeaderStyle()}>
-									<MDIIcon 
-										icon="lock" 
-										size={18} 
-										style={{ color: '#8b5cf6' }}
-																			/>
+									<MDIIcon icon="lock" size={18} style={{ color: '#8b5cf6' }} />
 									<h4 style={getMethodNameStyle()}>Client Secret Post</h4>
 								</div>
 								<p style={getMethodDescriptionStyle()}>
-									Client ID and secret sent in request body instead of header. Functionally 
+									Client ID and secret sent in request body instead of header. Functionally
 									equivalent to Basic auth.
 								</p>
 								<div style={getCodeExampleStyle()}>
-{`POST /token
+									{`POST /token
 Content-Type: application/x-www-form-urlencoded
 
 grant_type=authorization_code
@@ -373,30 +346,22 @@ grant_type=authorization_code
 
 							<div style={getMethodCardStyle()}>
 								<div style={getMethodHeaderStyle()}>
-									<MDIIcon 
-										icon="shield-check" 
-										size={18} 
-										style={{ color: '#f59e0b' }}
-																			/>
+									<MDIIcon icon="shield-check" size={18} style={{ color: '#f59e0b' }} />
 									<h4 style={getMethodNameStyle()}>Client Secret JWT</h4>
 								</div>
 								<p style={getMethodDescriptionStyle()}>
-									Client creates and signs a JWT using client secret as key. Enhanced security 
-									with timestamp and nonce.
+									Client creates and signs a JWT using client secret as key. Enhanced security with
+									timestamp and nonce.
 								</p>
 							</div>
 
 							<div style={getMethodCardStyle()}>
 								<div style={getMethodHeaderStyle()}>
-									<MDIIcon 
-										icon="shield-check" 
-										size={18} 
-										style={{ color: '#ef4444' }}
-																			/>
+									<MDIIcon icon="shield-check" size={18} style={{ color: '#ef4444' }} />
 									<h4 style={getMethodNameStyle()}>Private Key JWT</h4>
 								</div>
 								<p style={getMethodDescriptionStyle()}>
-									Client creates and signs JWT using private key. Highest security for 
+									Client creates and signs JWT using private key. Highest security for
 									server-to-server communication.
 								</p>
 							</div>
@@ -405,10 +370,7 @@ grant_type=authorization_code
 						{/* Compatibility Matrix */}
 						<div style={getSectionStyle()}>
 							<h3 style={getSectionTitleStyle()}>
-								<MDIIcon 
-									icon="information" 
-									size={20} 
-																	/>
+								<MDIIcon icon="information" size={20} />
 								Flow Compatibility Matrix
 							</h3>
 
@@ -465,10 +427,7 @@ grant_type=authorization_code
 						{/* Recommendations */}
 						<div style={getSectionStyle()}>
 							<h3 style={getSectionTitleStyle()}>
-								<MDIIcon 
-									icon="check-circle" 
-									size={20} 
-																	/>
+								<MDIIcon icon="check-circle" size={20} />
 								Recommended Pairings
 							</h3>
 
@@ -505,16 +464,20 @@ grant_type=authorization_code
 						{/* Key Takeaways */}
 						<div style={getSectionStyle()}>
 							<div style={getInfoBoxStyle('warning')}>
-								<MDIIcon 
-									icon="information" 
-									size={20} 
-																	/>
+								<MDIIcon icon="information" size={20} />
 								<div>
 									<strong>Key Takeaways</strong>
 									<ul style={{ margin: '0.5rem 0 0 0', paddingLeft: '1.5rem' }}>
-										<li>Public clients (mobile, SPAs) <strong>must</strong> use "None" with PKCE</li>
-										<li>Confidential clients (web apps, services) <strong>must</strong> authenticate</li>
-										<li>JWT-based methods (Client Secret JWT, Private Key JWT) are strongest for enterprise workloads</li>
+										<li>
+											Public clients (mobile, SPAs) <strong>must</strong> use "None" with PKCE
+										</li>
+										<li>
+											Confidential clients (web apps, services) <strong>must</strong> authenticate
+										</li>
+										<li>
+											JWT-based methods (Client Secret JWT, Private Key JWT) are strongest for
+											enterprise workloads
+										</li>
 										<li>PingOne rejects "None" for confidential clients</li>
 										<li>Always use PKCE with "None" authentication method</li>
 									</ul>

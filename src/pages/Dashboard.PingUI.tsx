@@ -9,10 +9,12 @@
  * including MDI icons, CSS variables, and modern styling patterns.
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import AppVersionBadge from '../components/AppVersionBadge';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
+import StandardHeader from '../components/StandardHeader';
 import { type ActivityItem, getRecentActivity } from '../utils/activityTracker';
+import '../styles/button-color-system.css';
 
 // ============================================================================
 // MDI ICON COMPONENT
@@ -115,8 +117,11 @@ const getCardStyle = () => ({
 const getCardHoverStyle = () => ({
 	...getCardStyle(),
 	borderColor: 'var(--pingone-brand-primary)',
+	borderWidth: '2px',
 	boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
 	transform: 'translateY(-2px)',
+	cursor: 'pointer',
+	transition: 'all 0.2s ease-in-out',
 });
 
 const getGridStyle = (columns: number = 2) => ({
@@ -139,53 +144,86 @@ const getStatusIndicatorStyle = (status: 'online' | 'offline' | 'checking') => (
 	marginRight: '0.5rem',
 });
 
-const getButtonStyle = (variant: 'primary' | 'secondary' = 'primary') => ({
-	background:
-		variant === 'primary' ? 'var(--pingone-brand-primary)' : 'var(--pingone-surface-secondary)',
-	color: variant === 'primary' ? 'var(--pingone-text-inverse)' : 'var(--pingone-text-primary)',
-	border: variant === 'secondary' ? '1px solid var(--pingone-border-primary)' : 'none',
-	borderRadius: 'var(--pingone-border-radius-md, 0.375rem)',
-	padding: '0.5rem 1rem',
-	fontSize: 'var(--pingone-font-size-sm, 0.875rem)',
-	fontWeight: 'var(--pingone-font-weight-medium, 500)',
-	cursor: 'pointer',
-	transition: 'all 0.15s ease-in-out',
-	display: 'inline-flex',
-	alignItems: 'center',
-	gap: 'var(--pingone-spacing-xs, 0.25rem)',
-	'&:hover': {
-		background:
-			variant === 'primary'
-				? 'var(--pingone-brand-primary-dark)'
-				: 'var(--pingone-surface-tertiary)',
-		transform: 'translateY(-1px)',
-		boxShadow: 'var(--pingone-shadow-sm, 0 2px 4px rgba(0, 0, 0, 0.1))',
-	},
-});
+const getButtonStyle = (variant: 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info' = 'primary') => {
+	const baseStyle = {
+		padding: '0.625rem 1.25rem',
+		borderRadius: '0.5rem',
+		fontWeight: '500',
+		fontSize: '0.875rem',
+		cursor: 'pointer',
+		transition: 'all 0.15s ease-in-out',
+		display: 'inline-flex',
+		alignItems: 'center',
+		gap: '0.5rem',
+	};
+	
+	switch (variant) {
+		case 'primary':
+			return {
+				...baseStyle,
+				className: 'btn-primary',
+			};
+		case 'secondary':
+			return {
+				...baseStyle,
+				className: 'btn-secondary',
+			};
+		case 'success':
+			return {
+				...baseStyle,
+				className: 'btn-success',
+			};
+		case 'warning':
+			return {
+				...baseStyle,
+				className: 'btn-warning',
+			};
+		case 'danger':
+			return {
+				...baseStyle,
+				className: 'btn-danger',
+			};
+		case 'info':
+			return {
+				...baseStyle,
+				className: 'btn-info',
+			};
+		default:
+			return {
+				...baseStyle,
+				className: 'btn-primary',
+			};
+	}
+};
 
-const getViewModeButtonStyle = (isActive: boolean) => ({
-	background: isActive ? 'var(--pingone-brand-primary)' : 'var(--pingone-surface-secondary)',
-	color: isActive ? 'var(--pingone-text-inverse)' : 'var(--pingone-text-primary)',
-	border: isActive ? 'none' : '1px solid var(--pingone-border-primary)',
-	borderRadius: 'var(--pingone-border-radius-md, 0.375rem)',
-	padding: '0.375rem 0.75rem',
-	fontSize: 'var(--pingone-font-size-xs, 0.75rem)',
-	fontWeight: 'var(--pingone-font-weight-medium, 500)',
-	cursor: 'pointer',
-	transition: 'all 0.15s ease-in-out',
-	display: 'inline-flex',
-	alignItems: 'center',
-	gap: 'var(--pingone-spacing-xs, 0.25rem)',
-	'&:hover': {
-		background: isActive ? 'var(--pingone-brand-primary-dark)' : 'var(--pingone-surface-tertiary)',
-		transform: 'translateY(-1px)',
-	},
-});
+const getViewModeButtonStyle = (isActive: boolean) => {
+	const baseStyle = {
+		borderRadius: 'var(--pingone-border-radius-md, 0.375rem)',
+		padding: '0.375rem 0.75rem',
+		fontSize: 'var(--pingone-font-size-xs, 0.75rem)',
+		fontWeight: 'var(--pingone-font-weight-medium, 500)',
+		cursor: 'pointer',
+		transition: 'all 0.15s ease-in-out',
+	};
+	
+	if (isActive) {
+		return {
+			...baseStyle,
+			className: 'btn-primary',
+		};
+	} else {
+		return {
+			...baseStyle,
+			className: 'btn-outline-primary',
+		};
+	}
+};
 
 const getViewModeContainerStyle = () => ({
 	display: 'flex',
-	gap: 'var(--pingone-spacing-xs, 0.25rem)',
+	gap: 'var(--pingone-spacing-sm, 0.5rem)',
 	alignItems: 'center',
+	flexWrap: 'nowrap',
 });
 
 const getCompactHeaderStyle = () => ({
@@ -351,13 +389,15 @@ const Dashboard: React.FC = () => {
 				>
 					<div style={getHeaderBackgroundStyle()} />
 					<div style={getHeaderContentStyle()}>
-						<h1 style={getTitleStyle()}>
-							<MDIIcon icon="view-dashboard" size={32} />
-							Dashboard
-						</h1>
-						<p style={getSubtitleStyle()}>
-							Monitor PingOne API status, explore OAuth flows, and track recent activity
-						</p>
+						<StandardHeader
+							title="Dashboard"
+							description="Monitor PingOne API status, explore OAuth flows, and track recent activity"
+							icon="view-dashboard"
+							badge={{
+								text: 'Live',
+								variant: 'success'
+							}}
+						/>
 
 						{/* Version Badges */}
 						<div
@@ -438,38 +478,84 @@ const Dashboard: React.FC = () => {
 					</div>
 				</div>
 
+				{/* Migration Update Banner */}
+				<div
+					data-migration-banner
+					style={{
+						background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+						border: '1px solid #1e40af',
+						borderRadius: '0.75rem',
+						padding: '1rem 1.5rem',
+						marginBottom: '1.5rem',
+						boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+					}}
+				>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+						<MDIIcon
+							icon="information"
+							size={24}
+							style={{ color: '#ffffff', flexShrink: 0 }}
+						/>
+						<div style={{ flex: 1 }}>
+							<h4 style={{ color: '#ffffff', margin: '0 0 0.25rem 0', fontSize: '1.125rem', fontWeight: 600 }}>
+								Messaging System Migration In Progress
+							</h4>
+							<p style={{ color: '#f3f4f6', margin: '0', fontSize: '0.875rem', lineHeight: 1.5 }}>
+								We're upgrading our notification system to provide better user feedback. Critical authentication flows are being migrated first to ensure no disruption to your OAuth testing experience.
+							</p>
+						</div>
+						<button
+							type="button"
+							onClick={() => {
+								// Dismiss banner functionality
+								const banner = document.querySelector('[data-migration-banner]') as HTMLElement;
+								if (banner) {
+									banner.style.display = 'none';
+								}
+							}}
+							onFocus={(e) => {
+								e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)';
+							}}
+							onBlur={(e) => {
+								e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
+							}}
+							onMouseOver={(e) => {
+								e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)';
+							}}
+							onMouseOut={(e) => {
+								e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
+							}}
+							style={{
+								background: 'rgba(255, 255, 255, 0.2)',
+								border: '1px solid rgba(255, 255, 255, 0.3)',
+								borderRadius: '0.375rem',
+								padding: '0.5rem 1rem',
+								color: '#ffffff',
+								fontSize: '0.875rem',
+								fontWeight: 500,
+								cursor: 'pointer',
+								transition: 'all 0.15s ease-in-out',
+								flexShrink: 0,
+							}}
+						>
+							Dismiss
+						</button>
+					</div>
+				</div>
+
 				{/* Main Content */}
 				<div
 					style={{
 						...getMainContentStyle(),
-						...(viewMode === 'compact' && getCompactContentStyle()),
-						...(viewMode === 'hidden' && getHiddenContentStyle()),
-					}}
-				>
-					{/* PingOne API Status */}
-					<CollapsibleHeader
-						title="PingOne API Status"
-						collapsed={collapsedSections.pingOneApiStatus}
-						onToggle={() => toggleSection('pingOneApiStatus')}
-						icon={<MDIIcon icon="api" size={20} />}
-					>
-						<div style={getGridStyle(2)}>
-							<div style={getCardStyle()}>
-								<div style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
-									<span style={getStatusIndicatorStyle(serverStatus.frontend as 'online' | 'offline' | 'checking')} />
-									<strong>Frontend</strong>
-								</div>
-								<p style={{ color: 'var(--pingone-text-secondary)', margin: '0' }}>
-									{serverStatus.frontend === 'online'
-										? 'Running'
-										: serverStatus.frontend === 'offline'
-											? 'Offline'
-											: 'Checking...'}
-								</p>
+									/>
 							</div>
 							<div style={getCardStyle()}>
 								<div style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
-									<span style={getStatusIndicatorStyle(serverStatus.backend as 'online' | 'offline' | 'checking')} />
+									<span
+										style={getStatusIndicatorStyle(
+											serverStatus.backend as 'online' | 'offline' | 'checking'
+										)}
+									/>
 									<strong>Backend</strong>
 								</div>
 								<p style={{ color: 'var(--pingone-text-secondary)', margin: '0' }}>
@@ -481,32 +567,84 @@ const Dashboard: React.FC = () => {
 								</p>
 							</div>
 						</div>
-						
+
 						{/* PingOne API Configuration */}
 						<div style={getCardStyle()}>
 							<div style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem' }}>
-								<MDIIcon icon="api" size={20} style={{ marginRight: '0.5rem', color: 'var(--pingone-brand-primary)' }} />
+								<MDIIcon
+									icon="api"
+									size={20}
+									style={{ marginRight: '0.5rem', color: 'var(--pingone-brand-primary)' }}
+								/>
 								<strong>PingOne API Configuration</strong>
 							</div>
-							<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+							<div
+								style={{
+									display: 'grid',
+									gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+									gap: '1rem',
+								}}
+							>
 								<div>
-									<div style={{ fontSize: '0.875rem', color: 'var(--pingone-text-secondary)', marginBottom: '0.25rem' }}>API Domain</div>
+									<div
+										style={{
+											fontSize: '0.875rem',
+											color: 'var(--pingone-text-secondary)',
+											marginBottom: '0.25rem',
+										}}
+									>
+										API Domain
+									</div>
 									<div style={{ fontWeight: '500' }}>api.pingdemo.com</div>
 								</div>
 								<div>
-									<div style={{ fontSize: '0.875rem', color: 'var(--pingone-text-secondary)', marginBottom: '0.25rem' }}>Environment ID</div>
-									<div style={{ fontWeight: '500', fontSize: '0.75rem' }}>b9817c16-9910-4415-b67e-4ac687da74d9</div>
+									<div
+										style={{
+											fontSize: '0.875rem',
+											color: 'var(--pingone-text-secondary)',
+											marginBottom: '0.25rem',
+										}}
+									>
+										Environment ID
+									</div>
+									<div style={{ fontWeight: '500', fontSize: '0.75rem' }}>
+										b9817c16-9910-4415-b67e-4ac687da74d9
+									</div>
 								</div>
 								<div>
-									<div style={{ fontSize: '0.875rem', color: 'var(--pingone-text-secondary)', marginBottom: '0.25rem' }}>API Version</div>
+									<div
+										style={{
+											fontSize: '0.875rem',
+											color: 'var(--pingone-text-secondary)',
+											marginBottom: '0.25rem',
+										}}
+									>
+										API Version
+									</div>
 									<div style={{ fontWeight: '500' }}>v1</div>
 								</div>
 								<div>
-									<div style={{ fontSize: '0.875rem', color: 'var(--pingone-text-secondary)', marginBottom: '0.25rem' }}>Region</div>
+									<div
+										style={{
+											fontSize: '0.875rem',
+											color: 'var(--pingone-text-secondary)',
+											marginBottom: '0.25rem',
+										}}
+									>
+										Region
+									</div>
 									<div style={{ fontWeight: '500' }}>North America</div>
 								</div>
 								<div>
-									<div style={{ fontSize: '0.875rem', color: 'var(--pingone-text-secondary)', marginBottom: '0.25rem' }}>Authentication</div>
+									<div
+										style={{
+											fontSize: '0.875rem',
+											color: 'var(--pingone-text-secondary)',
+											marginBottom: '0.25rem',
+										}}
+									>
+										Authentication
+									</div>
 									<div style={{ fontWeight: '500' }}>OAuth 2.0 & OIDC</div>
 								</div>
 							</div>
@@ -520,8 +658,8 @@ const Dashboard: React.FC = () => {
 						onToggle={() => toggleSection('quickAccess')}
 						icon={<MDIIcon icon="rocket-launch" size={20} />}
 					>
-						<div style={getGridStyle(3)}>
-							<a href="/v8u/unified/oauth-authz/0" style={{ textDecoration: 'none' }}>
+						<div style={getGridStyle(4)}>
+							<a href="/flows/oauth-authorization-code-v9" style={{ textDecoration: 'none' }}>
 								<div style={getCardHoverStyle()}>
 									<div
 										style={{
@@ -536,7 +674,7 @@ const Dashboard: React.FC = () => {
 											size={20}
 											style={{ color: 'var(--pingone-brand-primary)' }}
 										/>
-										<strong>Unified OAuth V8U</strong>
+										<strong>OAuth Authorization Code V9</strong>
 									</div>
 									<p
 										style={{
@@ -545,12 +683,12 @@ const Dashboard: React.FC = () => {
 											fontSize: '0.875rem',
 										}}
 									>
-										Complete OAuth flow with device registration
+										Authorization Code with PKCE (V9)
 									</p>
 								</div>
 							</a>
 
-							<a href="/v8/mfa/authentication" style={{ textDecoration: 'none' }}>
+							<a href="/flows/implicit-v9" style={{ textDecoration: 'none' }}>
 								<div style={getCardHoverStyle()}>
 									<div
 										style={{
@@ -561,11 +699,11 @@ const Dashboard: React.FC = () => {
 										}}
 									>
 										<MDIIcon
-											icon="shield-account"
+											icon="eye"
 											size={20}
 											style={{ color: 'var(--pingone-brand-primary)' }}
 										/>
-										<strong>MFA Authentication</strong>
+										<strong>Implicit Flow V9</strong>
 									</div>
 									<p
 										style={{
@@ -574,12 +712,12 @@ const Dashboard: React.FC = () => {
 											fontSize: '0.875rem',
 										}}
 									>
-										Multi-factor authentication flows
+										Implicit Grant Flow (V9)
 									</p>
 								</div>
 							</a>
 
-							<a href="/v7/authorization-code" style={{ textDecoration: 'none' }}>
+							<a href="/flows/device-authorization-v9" style={{ textDecoration: 'none' }}>
 								<div style={getCardHoverStyle()}>
 									<div
 										style={{
@@ -590,11 +728,11 @@ const Dashboard: React.FC = () => {
 										}}
 									>
 										<MDIIcon
-											icon="code-braces"
+											icon="cellphone"
 											size={20}
 											style={{ color: 'var(--pingone-brand-primary)' }}
 										/>
-										<strong>OAuth V7</strong>
+										<strong>Device Authorization V9</strong>
 									</div>
 									<p
 										style={{
@@ -603,7 +741,123 @@ const Dashboard: React.FC = () => {
 											fontSize: '0.875rem',
 										}}
 									>
-										Classic OAuth 2.0 flows
+										Device Code Grant (V9)
+									</p>
+								</div>
+							</a>
+
+							<a href="/flows/client-credentials-v9" style={{ textDecoration: 'none' }}>
+								<div style={getCardHoverStyle()}>
+									<div
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '0.5rem',
+											marginBottom: '0.5rem',
+										}}
+									>
+										<MDIIcon
+											icon="server"
+											size={20}
+											style={{ color: 'var(--pingone-brand-primary)' }}
+										/>
+										<strong>Client Credentials V9</strong>
+									</div>
+									<p
+										style={{
+											color: 'var(--pingone-text-secondary)',
+											margin: '0',
+											fontSize: '0.875rem',
+										}}
+									>
+										Client Credentials Grant (V9)
+									</p>
+								</div>
+							</a>
+
+							<a href="/flows/oidc-hybrid-v9" style={{ textDecoration: 'none' }}>
+								<div style={getCardHoverStyle()}>
+									<div
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '0.5rem',
+											marginBottom: '0.5rem',
+										}}
+									>
+										<MDIIcon
+											icon="globe"
+											size={20}
+											style={{ color: 'var(--pingone-brand-primary)' }}
+										/>
+										<strong>OIDC Hybrid V9</strong>
+									</div>
+									<p
+										style={{
+											color: 'var(--pingone-text-secondary)',
+											margin: '0',
+											fontSize: '0.875rem',
+										}}
+									>
+										OpenID Connect Hybrid (V9)
+									</p>
+								</div>
+							</a>
+
+							<a href="/flows/token-exchange-v9" style={{ textDecoration: 'none' }}>
+								<div style={getCardHoverStyle()}>
+									<div
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '0.5rem',
+											marginBottom: '0.5rem',
+										}}
+									>
+										<MDIIcon
+											icon="swap-horizontal"
+											size={20}
+											style={{ color: 'var(--pingone-brand-primary)' }}
+										/>
+										<strong>Token Exchange V9</strong>
+									</div>
+									<p
+										style={{
+											color: 'var(--pingone-text-secondary)',
+											margin: '0',
+											fontSize: '0.875rem',
+										}}
+									>
+										OAuth Token Exchange (V9)
+									</p>
+								</div>
+							</a>
+
+							<a href="/application-generator" style={{ textDecoration: 'none' }}>
+								<div style={getCardHoverStyle()}>
+									<div
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '0.5rem',
+											marginBottom: '0.5rem',
+										}}
+									>
+										<MDIIcon
+											icon="cog"
+											size={20}
+											style={{ color: 'var(--pingone-brand-primary)' }}
+										/>
+										<strong>Application Generator</strong>
+									</div>
+									<p
+										style={{
+											color: 'var(--pingone-text-secondary)',
+											margin: '0',
+											fontSize: '0.875rem',
+										}}
+									>
+										Create OAuth applications with step-by-step wizard
 									</p>
 								</div>
 							</a>

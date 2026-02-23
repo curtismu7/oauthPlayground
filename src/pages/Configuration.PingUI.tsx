@@ -13,22 +13,21 @@ import { DomainConfiguration } from '../components/DomainConfiguration';
 import PingOneApplicationConfig, {
 	type PingOneApplicationState,
 } from '../components/PingOneApplicationConfig';
-import type { StepCredentials } from '../components/steps/CommonSteps';
 import { WorkerTokenButton } from '../components/WorkerTokenButton';
 import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
-import { usePageScroll } from '../hooks/usePageScroll';
+import StandardHeader from '../components/StandardHeader';
+import BootstrapButton from '../components/bootstrap/BootstrapButton';
+import BootstrapFormField from '../components/bootstrap/BootstrapFormField';
 import { callbackUriService } from '../services/callbackUriService';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
-import { CopyButtonService } from '../services/copyButtonService';
 import { credentialStorageManager } from '../services/credentialStorageManager';
-import { FlowHeader } from '../services/flowHeaderService';
-import { SaveButton } from '../services/saveButtonService';
-import { credentialManager } from '../utils/credentialManager';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import {
 	type TokenStatusInfo,
 	WorkerTokenStatusServiceV8,
 } from '../v8/services/workerTokenStatusServiceV8';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import '../styles/bootstrap/pingone-bootstrap.css';
 
 // MDI Icon Component
 const MDIIcon: React.FC<{
@@ -74,10 +73,17 @@ const MDIIcon: React.FC<{
 
 // Main Component
 const ConfigurationPingUI: React.FC = () => {
-	const { scrollToTopAfterAction } = usePageScroll();
-
+	
 	// State for PingOne application configuration
-	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>({
+	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState & {
+		clientId?: string;
+		clientSecret?: string;
+		environmentId?: string;
+		redirectUri?: string;
+		scopes?: string;
+		isValid?: boolean;
+		errors?: Record<string, string>;
+	}>({
 		clientAuthMethod: 'client_secret_basic',
 		allowRedirectUriPatterns: false,
 		pkceEnforcement: 'REQUIRED',
@@ -104,90 +110,137 @@ const ConfigurationPingUI: React.FC = () => {
 		terminateUserSessionByIdToken: false,
 		corsOrigins: [],
 		corsAllowAnyOrigin: false,
+		clientId: '',
+		clientSecret: '',
+		environmentId: '',
+		redirectUri: callbackUriService.getCallbackUri('authzCallback'),
+		scopes: 'openid profile email',
+		isValid: false,
+		errors: {},
 	});
 
 	// State for worker token
 	const [workerTokenStatus, setWorkerTokenStatus] = useState<TokenStatusInfo | null>(null);
 
-	// State for UI
-	const [showSecret, setShowSecret] = useState(false);
+	// State for Worker Token basic info
+	const [workerTokenInfo, setWorkerTokenInfo] = useState({
+		clientId: '',
+		clientSecret: '',
+		tokenAuthMethod: 'client_secret_basic' as 'client_secret_basic' | 'client_secret_post' | 'none',
+	});
+
+	// State for Authorization Flow basic info
+	const [authzFlowInfo, setAuthzFlowInfo] = useState({
+		clientId: '',
+		clientSecret: '',
+		redirectUri: '',
+		scopes: 'openid profile email',
+	});
+
 	const [isLoading, setIsLoading] = useState(false);
 	const [activeTab, setActiveTab] = useState<'pingone' | 'worker' | 'advanced'>('pingone');
 
-	// Load saved configuration on mount
-	useEffect(() => {
-		loadSavedConfiguration();
-		checkWorkerTokenStatus();
+	// State for collapsible sections
+	const [collapsedSections, setCollapsedSections] = useState({
+		pingOneApp: false,
+		workerTokenBasic: false,
+		workerTokenStatus: false,
+		authzFlowBasic: false,
+		advanced: false,
+		appInfo: false,
+		devTools: false,
+	});
+
+	const toggleSection = useCallback((section: keyof typeof collapsedSections) => {
+		setCollapsedSections(prev => ({
+			...prev,
+			[section]: !prev[section]
+		}));
 	}, []);
 
-	const loadSavedConfiguration = useCallback(() => {
+	const isValidUrl = useCallback((url: string): boolean => {
 		try {
-			const savedConfig = credentialStorageManager.loadCredentials();
-			if (savedConfig) {
-				setPingOneConfig(prev => ({
+			new URL(url);
+			return true;
+		} catch {
+			return false;
+		}
+	}, []);
+
+	const loadSavedConfiguration = useCallback(async () => {
+		try {
+			const savedConfig = await credentialStorageManager.loadFlowCredentials('default');
+			if (savedConfig.success && savedConfig.data) {
+				setPingOneConfig((prev) => ({
 					...prev,
-					clientId: savedConfig.clientId || '',
-					clientSecret: savedConfig.clientSecret || '',
-					environmentId: savedConfig.environmentId || '',
-					redirectUri: savedConfig.redirectUri || callbackUriService.getCallbackUrl(),
-					scopes: savedConfig.scopes || 'openid profile email',
+					clientId: savedConfig.data?.clientId || '',
+					clientSecret: savedConfig.data?.clientSecret || '',
+					environmentId: savedConfig.data?.environmentId || '',
+					redirectUri: savedConfig.data?.redirectUri || callbackUriService.getCallbackUri('authzCallback'),
+					scopes: typeof savedConfig.data?.scopes === 'string' ? savedConfig.data.scopes : Array.isArray(savedConfig.data?.scopes) ? savedConfig.data.scopes.join(' ') : (savedConfig.data?.scopes || 'openid profile email'),
 				}));
 			}
 		} catch (error) {
 			console.error('Failed to load saved configuration:', error);
-			v4ToastManager.error('Failed to load saved configuration');
+			v4ToastManager.showError('Failed to load saved configuration');
 		}
 	}, []);
 
-	const checkWorkerTokenStatus = useCallback(() => {
+	const checkWorkerTokenStatus = useCallback(async () => {
 		try {
-			const status = WorkerTokenStatusServiceV8.getTokenStatus();
+			const status = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 			setWorkerTokenStatus(status);
 		} catch (error) {
 			console.error('Failed to check worker token status:', error);
 		}
 	}, []);
 
-	const handlePingOneConfigChange = useCallback((field: keyof PingOneApplicationState, value: string) => {
-		setPingOneConfig(prev => ({
-			...prev,
-			[field]: value,
-		}));
-	}, []);
+	// Load saved configuration on mount
+	useEffect(() => {
+		loadSavedConfiguration();
+		// Use sync version to avoid async issues in useEffect
+		try {
+			const status = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
+			setWorkerTokenStatus(status);
+		} catch (error) {
+			console.error('Failed to check worker token status:', error);
+		}
+	}, [loadSavedConfiguration]);
+
 
 	const validateConfiguration = useCallback(() => {
 		const errors: Record<string, string> = {};
 
-		if (!pingOneConfig.clientId.trim()) {
+		if (!pingOneConfig.clientId?.trim()) {
 			errors.clientId = 'Client ID is required';
 		}
 
-		if (!pingOneConfig.environmentId.trim()) {
+		if (!pingOneConfig.environmentId?.trim()) {
 			errors.environmentId = 'Environment ID is required';
 		}
 
-		if (!pingOneConfig.redirectUri.trim()) {
+		if (!pingOneConfig.redirectUri?.trim()) {
 			errors.redirectUri = 'Redirect URI is required';
 		} else if (!isValidUrl(pingOneConfig.redirectUri)) {
 			errors.redirectUri = 'Invalid URL format';
 		}
 
-		if (!pingOneConfig.scopes.trim()) {
+		if (!pingOneConfig.scopes?.trim()) {
 			errors.scopes = 'At least one scope is required';
 		}
 
-		setPingOneConfig(prev => ({
+		setPingOneConfig((prev) => ({
 			...prev,
 			errors,
 			isValid: Object.keys(errors).length === 0,
 		}));
 
 		return Object.keys(errors).length === 0;
-	}, [pingOneConfig]);
+	}, [pingOneConfig, isValidUrl]);
 
 	const saveConfiguration = useCallback(async () => {
 		if (!validateConfiguration()) {
-			v4ToastManager.error('Please fix validation errors before saving');
+			v4ToastManager.showError('Please fix validation errors before saving');
 			return;
 		}
 
@@ -195,60 +248,104 @@ const ConfigurationPingUI: React.FC = () => {
 
 		try {
 			// Save to credential storage
-			credentialStorageManager.saveCredentials({
-				clientId: pingOneConfig.clientId,
-				clientSecret: pingOneConfig.clientSecret,
-				environmentId: pingOneConfig.environmentId,
-				redirectUri: pingOneConfig.redirectUri,
-				scopes: pingOneConfig.scopes,
+			await credentialStorageManager.saveFlowCredentials('default', {
+				clientId: pingOneConfig.clientId || '',
+				clientSecret: pingOneConfig.clientSecret || '',
+				environmentId: pingOneConfig.environmentId || '',
+				redirectUri: pingOneConfig.redirectUri || '',
+				scopes: pingOneConfig.scopes || '',
 			});
 
-			// Update callback URI service
-			callbackUriService.setCallbackUrl(pingOneConfig.redirectUri);
-
-			v4ToastManager.success('Configuration saved successfully');
+			v4ToastManager.showSuccess('Configuration saved successfully');
 		} catch (error) {
 			console.error('Failed to save configuration:', error);
-			v4ToastManager.error('Failed to save configuration');
+			v4ToastManager.showError('Failed to save configuration');
 		} finally {
 			setIsLoading(false);
 		}
 	}, [pingOneConfig, validateConfiguration]);
 
+	const saveWorkerTokenInfo = useCallback(async () => {
+		if (!workerTokenInfo.clientId.trim()) {
+			v4ToastManager.showError('Client ID is required for Worker Token');
+			return;
+		}
+
+		setIsLoading(true);
+
+		try {
+			// Save worker token info to credential storage
+			await credentialStorageManager.saveFlowCredentials('worker-token', {
+				clientId: workerTokenInfo.clientId,
+				clientSecret: workerTokenInfo.clientSecret,
+				tokenAuthMethod: workerTokenInfo.tokenAuthMethod,
+			});
+
+			v4ToastManager.showSuccess('Worker Token info saved successfully');
+		} catch (error) {
+			console.error('Failed to save Worker Token info:', error);
+			v4ToastManager.showError('Failed to save Worker Token info');
+		} finally {
+			setIsLoading(false);
+		}
+	}, [workerTokenInfo]);
+
+	const saveAuthzFlowInfo = useCallback(async () => {
+		if (!authzFlowInfo.clientId.trim()) {
+			v4ToastManager.showError('Client ID is required for Authorization Flow');
+			return;
+		}
+
+		if (!authzFlowInfo.redirectUri.trim()) {
+			v4ToastManager.showError('Redirect URI is required for Authorization Flow');
+			return;
+		} else if (!isValidUrl(authzFlowInfo.redirectUri)) {
+			v4ToastManager.showError('Invalid Redirect URI format');
+			return;
+		}
+
+		setIsLoading(true);
+
+		try {
+			// Save authorization flow info to credential storage
+			await credentialStorageManager.saveFlowCredentials('authz-flow', {
+				clientId: authzFlowInfo.clientId,
+				clientSecret: authzFlowInfo.clientSecret,
+				redirectUri: authzFlowInfo.redirectUri,
+				scopes: authzFlowInfo.scopes,
+			});
+
+			v4ToastManager.showSuccess('Authorization Flow info saved successfully');
+		} catch (error) {
+			console.error('Failed to save Authorization Flow info:', error);
+			v4ToastManager.showError('Failed to save Authorization Flow info');
+		} finally {
+			setIsLoading(false);
+		}
+	}, [authzFlowInfo, isValidUrl]);
+
 	const copyToClipboard = useCallback(async (text: string, label: string) => {
 		try {
 			await navigator.clipboard.writeText(text);
-			v4ToastManager.success(`${label} copied to clipboard`);
+			v4ToastManager.showSuccess(`${label} copied to clipboard`);
 		} catch (error) {
 			console.error('Failed to copy to clipboard:', error);
-			v4ToastManager.error('Failed to copy to clipboard');
+			v4ToastManager.showError('Failed to copy to clipboard');
 		}
 	}, []);
 
-	const generateWorkerToken = useCallback(() => {
-		// This would integrate with the worker token service
-		v4ToastManager.info('Worker token generation not implemented yet');
-	}, []);
 
-	const isValidUrl = (url: string): boolean => {
-		try {
-			new URL(url);
-			return true;
-		} catch {
-			return false;
-		}
-	};
 
 	const configurationSummary = useMemo(() => {
 		return {
 			hasClientId: !!pingOneConfig.clientId,
 			hasClientSecret: !!pingOneConfig.clientSecret,
 			hasEnvironmentId: !!pingOneConfig.environmentId,
-			hasValidRedirectUri: isValidUrl(pingOneConfig.redirectUri),
+			hasValidRedirectUri: isValidUrl(pingOneConfig.redirectUri || ''),
 			hasScopes: !!pingOneConfig.scopes,
 			isComplete: pingOneConfig.isValid,
 		};
-	}, [pingOneConfig]);
+	}, [pingOneConfig, isValidUrl]);
 
 	return (
 		<div className="end-user-nano">
@@ -482,8 +579,8 @@ const ConfigurationPingUI: React.FC = () => {
 			<div className="configuration-pingui">
 				<CollapsibleHeader title="Configuration">Configuration</CollapsibleHeader>
 
-				{workerTokenStatus && workerTokenStatus.isValid && (
-					<WorkerTokenDetectedBanner tokenStatus={workerTokenStatus} />
+				{workerTokenStatus && workerTokenStatus.isValid && workerTokenStatus.token && (
+					<WorkerTokenDetectedBanner token={workerTokenStatus.token} />
 				)}
 
 				<div className="tabs">
@@ -515,163 +612,449 @@ const ConfigurationPingUI: React.FC = () => {
 
 				{activeTab === 'pingone' && (
 					<div className="config-section">
-						<div className="section-header">
-							<h2 className="section-title">
-								<MDIIcon icon="FiKey" size={20} />
-								PingOne Application Configuration
-							</h2>
-							<div className="status-indicator success">
-								<MDIIcon icon="FiCheckCircle" size={12} />
-								{configurationSummary.isComplete ? 'Complete' : 'Incomplete'}
-							</div>
-						</div>
-
-						<div className="summary-grid">
-							<div className={`summary-item ${configurationSummary.hasClientId ? 'complete' : ''}`}>
-								<MDIIcon icon="FiCheckCircle" size={16} className="icon" />
-								<span>Client ID</span>
-							</div>
-							<div className={`summary-item ${configurationSummary.hasEnvironmentId ? 'complete' : ''}`}>
-								<MDIIcon icon="FiCheckCircle" size={16} className="icon" />
-								<span>Environment ID</span>
-							</div>
-							<div className={`summary-item ${configurationSummary.hasValidRedirectUri ? 'complete' : ''}`}>
-								<MDIIcon icon="FiCheckCircle" size={16} className="icon" />
-								<span>Redirect URI</span>
-							</div>
-							<div className={`summary-item ${configurationSummary.hasScopes ? 'complete' : ''}`}>
-								<MDIIcon icon="FiCheckCircle" size={16} className="icon" />
-								<span>Scopes</span>
-							</div>
-						</div>
-
-						<PingOneApplicationConfig
-							config={pingOneConfig}
-							onChange={handlePingOneConfigChange}
-							onValidate={validateConfiguration}
+						<StandardHeader
+							title="PingOne Application Configuration"
+							description="Configure OAuth flow parameters and settings"
+							icon="key"
+							isCollapsible={true}
+							isCollapsed={collapsedSections.pingOneApp}
+							onToggle={() => toggleSection('pingOneApp')}
+							badge={configurationSummary.isComplete ? {
+								text: 'Complete',
+								variant: 'success'
+							} : {
+								text: 'Incomplete',
+								variant: 'warning'
+							}}
 						/>
 
-						<div className="form-group">
-							<ConfigurationURIChecker />
-						</div>
+						{!collapsedSections.pingOneApp && (
+							<>
+								<div className="summary-grid">
+									<div className={`summary-item ${configurationSummary.hasClientId ? 'complete' : ''}`}>
+										<MDIIcon icon="FiCheckCircle" size={16} className="icon" />
+										<span>Client ID</span>
+									</div>
+									<div
+										className={`summary-item ${configurationSummary.hasEnvironmentId ? 'complete' : ''}`}
+									>
+										<MDIIcon icon="FiCheckCircle" size={16} className="icon" />
+										<span>Environment ID</span>
+									</div>
+									<div
+										className={`summary-item ${configurationSummary.hasValidRedirectUri ? 'complete' : ''}`}
+									>
+										<MDIIcon icon="FiCheckCircle" size={16} className="icon" />
+										<span>Redirect URI</span>
+									</div>
+									<div className={`summary-item ${configurationSummary.hasScopes ? 'complete' : ''}`}>
+										<MDIIcon icon="FiCheckCircle" size={16} className="icon" />
+										<span>Scopes</span>
+									</div>
+								</div>
 
-						<div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-							<button
-								type="button"
-								className="btn-primary"
-								onClick={saveConfiguration}
-								disabled={isLoading || !pingOneConfig.isValid}
-							>
-								<MDIIcon icon="FiSave" size={16} />
-								{isLoading ? 'Saving...' : 'Save Configuration'}
-							</button>
+								<PingOneApplicationConfig
+									value={pingOneConfig}
+									onChange={setPingOneConfig}
+								/>
 
-							<button
-								type="button"
-								className="btn-secondary"
-								onClick={() => copyToClipboard(pingOneConfig.redirectUri, 'Redirect URI')}
-							>
-								<MDIIcon icon="FiCopy" size={14} />
-								Copy Redirect URI
-							</button>
-						</div>
+								<div className="form-group">
+									<ConfigurationURIChecker />
+								</div>
+
+								<div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+									<BootstrapButton
+										variant="primary"
+										whiteBorder={true}
+										onClick={saveConfiguration}
+										loading={isLoading}
+										disabled={!pingOneConfig.isValid}
+									>
+										<MDIIcon icon="FiSave" size={14} />
+										{isLoading ? 'Saving...' : 'Save Configuration'}
+									</BootstrapButton>
+
+									<BootstrapButton
+										variant="secondary"
+										onClick={() => copyToClipboard(pingOneConfig.redirectUri || '', 'Redirect URI')}
+									>
+										<MDIIcon icon="FiCopy" size={14} />
+										Copy Redirect URI
+									</BootstrapButton>
+								</div>
+							</>
+						)}
 					</div>
 				)}
 
 				{activeTab === 'worker' && (
 					<div className="config-section">
-						<div className="section-header">
-							<h2 className="section-title">
-								<MDIIcon icon="FiPackage" size={20} />
-								Worker Token Configuration
-							</h2>
-							{workerTokenStatus && (
-								<div className={`status-indicator ${workerTokenStatus.isValid ? 'success' : 'error'}`}>
-									<MDIIcon icon={workerTokenStatus.isValid ? 'FiCheckCircle' : 'FiAlertCircle'} size={12} />
-									{workerTokenStatus.isValid ? 'Active' : 'Inactive'}
-								</div>
-							)}
-						</div>
+						<StandardHeader
+							title="Worker Token Configuration"
+							description="Manage and monitor worker token status"
+							icon="package-variant"
+							isCollapsible={true}
+							isCollapsed={collapsedSections.workerTokenBasic}
+							onToggle={() => toggleSection('workerTokenBasic')}
+							badge={workerTokenStatus && workerTokenStatus.isValid ? {
+								text: 'Active',
+								variant: 'success'
+							} : {
+								text: 'Inactive',
+								variant: 'default'
+							}}
+						/>
 
-						<WorkerTokenButton onTokenGenerated={checkWorkerTokenStatus} />
+						{!collapsedSections.workerTokenBasic && (
+							<>
+								{/* Worker Token Basic Info Section */}
+								<StandardHeader
+									title="Basic Information"
+									description="Configure worker token credentials and authentication method"
+									icon="key"
+									variant="secondary"
+									isCollapsible={true}
+									isCollapsed={collapsedSections.workerTokenBasic}
+									onToggle={() => toggleSection('workerTokenBasic')}
+								/>
 
-						{workerTokenStatus && (
-							<div style={{ marginTop: '1.5rem' }}>
-								<h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem' }}>
-									Token Status
-								</h3>
-								<div style={{ background: 'var(--ping-surface-secondary, #f8fafc)', padding: '1rem', borderRadius: '0.5rem' }}>
-									<p><strong>Status:</strong> {workerTokenStatus.isValid ? 'Valid' : 'Invalid'}</p>
-									{workerTokenStatus.expiresAt && (
-										<p><strong>Expires:</strong> {new Date(workerTokenStatus.expiresAt).toLocaleString()}</p>
-									)}
-									{workerTokenStatus.issuedAt && (
-										<p><strong>Issued:</strong> {new Date(workerTokenStatus.issuedAt).toLocaleString()}</p>
-									)}
-								</div>
-							</div>
+								{!collapsedSections.workerTokenBasic && (
+									<div className="ping-card p-4 mb-4">
+										<div className="row g-3">
+											<div className="col-md-6">
+												<BootstrapFormField
+													label="Client ID"
+													type="text"
+													id="worker-client-id"
+													value={workerTokenInfo.clientId}
+													onChange={(value) => setWorkerTokenInfo(prev => ({ ...prev, clientId: value }))}
+													placeholder="Enter Worker Token Client ID"
+												/>
+											</div>
+											<div className="col-md-6">
+												<BootstrapFormField
+													label="Client Secret"
+													type="password"
+													id="worker-client-secret"
+													value={workerTokenInfo.clientSecret}
+													onChange={(value) => setWorkerTokenInfo(prev => ({ ...prev, clientSecret: value }))}
+													placeholder="Enter Worker Token Client Secret"
+												/>
+											</div>
+											<div className="col-md-6">
+												<BootstrapFormField
+													label="Token Auth Method"
+													type="text"
+													id="worker-auth-method"
+													value={workerTokenInfo.tokenAuthMethod}
+													onChange={(value) => setWorkerTokenInfo(prev => ({ ...prev, tokenAuthMethod: value as any }))}
+													placeholder="Authentication method"
+												/>
+											</div>
+											<div className="col-md-6">
+												<BootstrapFormField
+													label="Token Auth Method"
+													type="select"
+													id="worker-auth-method"
+													value={workerTokenInfo.tokenAuthMethod}
+													onChange={(value) => setWorkerTokenInfo(prev => ({ ...prev, tokenAuthMethod: value as any }))}
+													placeholder="Authentication method"
+												>
+													<option value="client_secret_basic">Client Secret Basic</option>
+													<option value="client_secret_post">Client Secret Post</option>
+													<option value="none">None (Public Client)</option>
+												</BootstrapFormField>
+											</div>
+										</div>
+
+										<div className="d-flex gap-2 mt-3">
+											<BootstrapButton
+												variant="primary"
+												whiteBorder={true}
+												onClick={saveWorkerTokenInfo}
+												loading={isLoading}
+											>
+												<MDIIcon icon="FiSave" size={14} />
+												{isLoading ? 'Saving...' : 'Save Worker Token Info'}
+											</BootstrapButton>
+										</div>
+									</div>
+								)}
+										</div>
+										<div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
+											<button
+												type="button"
+												onClick={saveWorkerTokenInfo}
+												disabled={isLoading || !workerTokenInfo.clientId.trim()}
+												style={{
+													padding: '0.5rem 1rem',
+													background: workerTokenInfo.clientId.trim() ? 'var(--ping-color-primary, #3b82f6)' : 'var(--ping-border-light, #e5e7eb)',
+													color: workerTokenInfo.clientId.trim() ? 'white' : 'var(--ping-text-secondary, #666)',
+													border: 'none',
+													borderRadius: '0.25rem',
+													fontSize: '0.875rem',
+													fontWeight: '500',
+													cursor: workerTokenInfo.clientId.trim() ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<MDIIcon icon="FiSave" size={14} style={{ marginRight: '0.25rem' }} />
+												{isLoading ? 'Saving...' : 'Save Worker Token Info'}
+											</button>
+										</div>
+									</div>
+								)}
+
+								<WorkerTokenButton onTokenObtained={checkWorkerTokenStatus} />
+
+								{workerTokenStatus && (
+									<>
+										<StandardHeader
+											title="Token Status"
+											description="View worker token details and expiration information"
+											icon="information"
+											variant="secondary"
+											isCollapsible={true}
+											isCollapsed={collapsedSections.workerTokenStatus}
+											onToggle={() => toggleSection('workerTokenStatus')}
+										/>
+
+										{!collapsedSections.workerTokenStatus && (
+											<div
+												style={{
+													background: 'var(--ping-surface-secondary, #f8fafc)',
+													padding: '1rem',
+													borderRadius: '0.5rem',
+												}}
+											>
+												<p>
+													<strong>Status:</strong> {workerTokenStatus?.isValid ? 'Valid' : 'Invalid'}
+												</p>
+												{workerTokenStatus?.expiresAt && (
+													<p>
+														<strong>Expires:</strong>{' '}
+														{new Date(workerTokenStatus.expiresAt).toLocaleString()}
+													</p>
+												)}
+											</div>
+										)}
+									</>
+								)}
+							</>
 						)}
 					</div>
 				)}
 
 				{activeTab === 'advanced' && (
 					<div className="config-section">
-						<div className="section-header">
-							<h2 className="section-title">
-								<MDIIcon icon="FiSettings" size={20} />
-								Advanced Configuration
-							</h2>
-						</div>
+						<StandardHeader
+							title="Advanced Configuration"
+							description="Advanced settings and developer tools"
+							icon="cog"
+							isCollapsible={true}
+							isCollapsed={collapsedSections.advanced}
+							onToggle={() => toggleSection('advanced')}
+						/>
 
-						<DomainConfiguration />
+						{!collapsedSections.advanced && (
+							<>
+								{/* Authorization Flow Basic Info Section */}
+								<StandardHeader
+									title="Authorization Flow Basic Information"
+									description="Configure authorization flow credentials and settings"
+									icon="key"
+									variant="secondary"
+									isCollapsible={true}
+									isCollapsed={collapsedSections.authzFlowBasic}
+									onToggle={() => toggleSection('authzFlowBasic')}
+								/>
 
-						<div style={{ marginTop: '2rem' }}>
-							<h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem' }}>
-								Application Information
-							</h3>
-							<div style={{ background: 'var(--ping-surface-secondary, #f8fafc)', padding: '1rem', borderRadius: '0.5rem' }}>
-								<p><strong>Version:</strong> {packageJson.version}</p>
-								<p><strong>Environment:</strong> {process.env.NODE_ENV || 'development'}</p>
-								<p><strong>Build:</strong> {packageJson.buildDate || 'Unknown'}</p>
-							</div>
-						</div>
+								{!collapsedSections.authzFlowBasic && (
+									<div
+										style={{
+											background: 'var(--ping-surface-secondary, #f8fafc)',
+											padding: '1.5rem',
+											borderRadius: '0.5rem',
+											border: '1px solid var(--ping-border-light, #e5e7eb)',
+										}}
+									>
+										<div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
+											<div>
+												<label htmlFor="authz-client-id" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: 'var(--ping-text-primary, #1a1a1a)' }}>
+													Client ID
+												</label>
+												<input
+													id="authz-client-id"
+													type="text"
+													value={authzFlowInfo.clientId}
+													onChange={(e) => setAuthzFlowInfo(prev => ({ ...prev, clientId: e.target.value }))}
+													placeholder="Enter Authorization Flow Client ID"
+													style={{
+														width: '100%',
+														padding: '0.5rem',
+														border: '1px solid var(--ping-border-light, #e5e7eb)',
+														borderRadius: '0.25rem',
+														fontSize: '0.875rem',
+													}}
+												/>
+											</div>
+											<div>
+												<label htmlFor="authz-client-secret" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: 'var(--ping-text-primary, #1a1a1a)' }}>
+													Client Secret
+												</label>
+												<input
+													id="authz-client-secret"
+													type="password"
+													value={authzFlowInfo.clientSecret}
+													onChange={(e) => setAuthzFlowInfo(prev => ({ ...prev, clientSecret: e.target.value }))}
+													placeholder="Enter Authorization Flow Client Secret"
+													style={{
+														width: '100%',
+														padding: '0.5rem',
+														border: '1px solid var(--ping-border-light, #e5e7eb)',
+														borderRadius: '0.25rem',
+														fontSize: '0.875rem',
+													}}
+												/>
+											</div>
+											<div>
+												<label htmlFor="authz-redirect-uri" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: 'var(--ping-text-primary, #1a1a1a)' }}>
+													Redirect URI
+												</label>
+												<input
+													id="authz-redirect-uri"
+													type="url"
+													value={authzFlowInfo.redirectUri}
+													onChange={(e) => setAuthzFlowInfo(prev => ({ ...prev, redirectUri: e.target.value }))}
+													placeholder="https://your-domain.com/callback"
+													style={{
+														width: '100%',
+														padding: '0.5rem',
+														border: '1px solid var(--ping-border-light, #e5e7eb)',
+														borderRadius: '0.25rem',
+														fontSize: '0.875rem',
+													}}
+												/>
+											</div>
+											<div>
+												<label htmlFor="authz-scopes" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: 'var(--ping-text-primary, #1a1a1a)' }}>
+													Scopes
+												</label>
+												<input
+													id="authz-scopes"
+													type="text"
+													value={authzFlowInfo.scopes}
+													onChange={(e) => setAuthzFlowInfo(prev => ({ ...prev, scopes: e.target.value }))}
+													placeholder="openid profile email"
+													style={{
+														width: '100%',
+														padding: '0.5rem',
+														border: '1px solid var(--ping-border-light, #e5e7eb)',
+														borderRadius: '0.25rem',
+														fontSize: '0.875rem',
+													}}
+												/>
+											</div>
+										</div>
+										<div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
+											<button
+												type="button"
+												onClick={saveAuthzFlowInfo}
+												disabled={isLoading || !authzFlowInfo.clientId.trim() || !authzFlowInfo.redirectUri.trim()}
+												style={{
+													padding: '0.5rem 1rem',
+													background: authzFlowInfo.clientId.trim() && authzFlowInfo.redirectUri.trim() ? 'var(--ping-color-primary, #3b82f6)' : 'var(--ping-border-light, #e5e7eb)',
+													color: authzFlowInfo.clientId.trim() && authzFlowInfo.redirectUri.trim() ? 'white' : 'var(--ping-text-secondary, #666)',
+													border: 'none',
+													borderRadius: '0.25rem',
+													fontSize: '0.875rem',
+													fontWeight: '500',
+													cursor: authzFlowInfo.clientId.trim() && authzFlowInfo.redirectUri.trim() ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<MDIIcon icon="FiSave" size={14} style={{ marginRight: '0.25rem' }} />
+												{isLoading ? 'Saving...' : 'Save AuthZ Flow Info'}
+											</button>
+										</div>
+									</div>
+								)}
 
-						<div style={{ marginTop: '2rem' }}>
-							<h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem' }}>
-								Developer Tools
-							</h3>
-							<div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-								<button
-									type="button"
-									className="btn-secondary"
-									onClick={() => window.open('/docs', '_blank')}
-								>
-									<MDIIcon icon="FiExternalLink" size={14} />
-									API Documentation
-								</button>
-								<button
-									type="button"
-									className="btn-secondary"
-									onClick={() => window.open('https://github.com/pingidentity', '_blank')}
-								>
-									<MDIIcon icon="FiGithub" size={14} />
-									GitHub
-								</button>
-								<button
-									type="button"
-									className="btn-secondary"
-									onClick={() => console.log('Current config:', pingOneConfig)}
-								>
-									<MDIIcon icon="FiTerminal" size={14} />
-									Debug Console
-								</button>
-							</div>
-						</div>
+								<DomainConfiguration />
+
+								<StandardHeader
+									title="Application Information"
+									description="View application version and environment details"
+									icon="information"
+									variant="secondary"
+									isCollapsible={true}
+									isCollapsed={collapsedSections.appInfo}
+									onToggle={() => toggleSection('appInfo')}
+								/>
+
+								{!collapsedSections.appInfo && (
+									<div
+										style={{
+											background: 'var(--ping-surface-secondary, #f8fafc)',
+											padding: '1rem',
+											borderRadius: '0.5rem',
+										}}
+									>
+										<p>
+											<strong>Version:</strong> {packageJson.version}
+										</p>
+										<p>
+											<strong>Environment:</strong> {process.env.NODE_ENV || 'development'}
+										</p>
+										<p>
+											<strong>Build:</strong> {packageJson.buildDate || 'Unknown'}
+										</p>
+									</div>
+								)}
+
+								<StandardHeader
+									title="Developer Tools"
+									description="Access developer resources and tools"
+									icon="terminal"
+									variant="secondary"
+									isCollapsible={true}
+									isCollapsed={collapsedSections.devTools}
+									onToggle={() => toggleSection('devTools')}
+								/>
+
+								{!collapsedSections.devTools && (
+									<div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+										<button
+											type="button"
+											className="btn-secondary"
+											onClick={() => window.open('/docs', '_blank')}
+										>
+											<MDIIcon icon="FiExternalLink" size={14} />
+											API Documentation
+										</button>
+										<button
+											type="button"
+											className="btn-secondary"
+											onClick={() => window.open('https://github.com/pingidentity', '_blank')}
+										>
+											<MDIIcon icon="FiGithub" size={14} />
+											GitHub
+										</button>
+										<button
+											type="button"
+											className="btn-secondary"
+											onClick={() => console.log('Current config:', pingOneConfig)}
+										>
+											<MDIIcon icon="FiTerminal" size={14} />
+											Debug Console
+										</button>
+									</div>
+								)}
+							</>
+						)}
 					</div>
 				)}
 			</div>
 		</div>
 	);
-};
+	};
 
 export default ConfigurationPingUI;

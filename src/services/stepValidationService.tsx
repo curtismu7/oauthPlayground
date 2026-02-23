@@ -5,7 +5,7 @@ import { v4ToastManager } from '../utils/v4ToastMessages';
 
 export interface ValidationRule {
 	field: string;
-	value: any;
+	value: string | number | boolean | null | undefined;
 	required: boolean;
 	label: string;
 }
@@ -92,7 +92,6 @@ export const StepValidationModal: React.FC<StepValidationProps> = ({
 					: `Please complete all required fields for ${config.stepName}.`
 			}
 			confirmText="OK"
-			cancelText={null}
 			variant="danger"
 		/>
 	);
@@ -163,7 +162,12 @@ export const useStepValidation = () => {
 // Service for creating common validation rules
 export const StepValidationService = {
 	// Create validation rules for Step 0 (Credentials)
-	createStep0ValidationRules: (credentials: any) => [
+	createStep0ValidationRules: (credentials: {
+		environmentId?: string;
+		clientId?: string;
+		clientSecret?: string;
+		redirectUri?: string;
+	}) => [
 		{
 			field: 'environmentId',
 			value: credentials.environmentId,
@@ -191,7 +195,7 @@ export const StepValidationService = {
 	],
 
 	// Create validation rules for PKCE step
-	createPKCEValidationRules: (pkceCodes: any) => [
+	createPKCEValidationRules: (pkceCodes: { codeVerifier?: string; codeChallenge?: string }) => [
 		{
 			field: 'codeVerifier',
 			value: pkceCodes.codeVerifier,
@@ -222,7 +226,11 @@ export const StepValidationService = {
 		},
 	],
 
-	createTokenValidationRules: (tokens: any) => [
+	createTokenValidationRules: (tokens: {
+		access_token?: string;
+		id_token?: string;
+		refresh_token?: string;
+	}) => [
 		{
 			field: 'accessToken',
 			value: tokens?.access_token,

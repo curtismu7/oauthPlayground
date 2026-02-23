@@ -1,0 +1,371 @@
+/**
+ * @file pingone-bootstrap.css
+ * @module styles/bootstrap
+ * @description PingOne UI Bootstrap theme overrides and customizations
+ * @version 1.0.0
+ * @since 2026-02-23
+ */
+
+/* ==========================================================================
+   PINGONE UI BOOTSTRAP THEME
+   ========================================================================== */
+
+/* CSS Variables for PingOne Design System */
+:root {
+  --ping-blue-primary: #2563EB;
+  --ping-blue-hover: #1D4ED8;
+  --ping-blue-active: #1E40AF;
+  --ping-blue-light: #EFF6FF;
+  --ping-success: #059669;
+  --ping-success-hover: #10B981;
+  --ping-success-light: #ECFDF5;
+  --ping-warning: #D97706;
+  --ping-warning-hover: #F59E0B;
+  --ping-warning-light: #FEF3C7;
+  --ping-danger: #DC2626;
+  --ping-danger-hover: #EF4444;
+  --ping-danger-light: #FEE2E2;
+  --ping-gray: #6B7280;
+  --ping-gray-hover: #9CA3AF;
+  --ping-gray-light: #F9FAFB;
+  --ping-white: #FFFFFF;
+  --ping-border: #E5E7EB;
+  --ping-shadow: rgba(0, 0, 0, 0.1);
+}
+
+/* ==========================================================================
+   BOOTSTRAP VARIABLE OVERRIDES
+   ========================================================================== */
+
+/* Primary Color Overrides */
+.btn-primary {
+  --bs-btn-bg: var(--ping-blue-primary);
+  --bs-btn-border-color: var(--ping-blue-primary);
+  --bs-btn-hover-bg: var(--ping-blue-hover);
+  --bs-btn-hover-border-color: var(--ping-blue-hover);
+  --bs-btn-active-bg: var(--ping-blue-active);
+  --bs-btn-active-border-color: var(--ping-blue-active);
+  --bs-btn-disabled-bg: var(--ping-gray);
+  --bs-btn-disabled-border-color: var(--ping-gray);
+  --bs-btn-focus-box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
+}
+
+.btn-primary.border-white {
+  --bs-btn-border-color: var(--ping-white) !important;
+}
+
+.btn-primary.border-white:hover {
+  --bs-btn-hover-border-color: var(--ping-white) !important;
+}
+
+/* Success Color Overrides */
+.btn-success {
+  --bs-btn-bg: var(--ping-success);
+  --bs-btn-border-color: var(--ping-success);
+  --bs-btn-hover-bg: var(--ping-success-hover);
+  --bs-btn-hover-border-color: var(--ping-success-hover);
+  --bs-btn-active-bg: var(--ping-success);
+  --bs-btn-active-border-color: var(--ping-success);
+  --bs-btn-focus-box-shadow: 0 0 0 0.2rem rgba(5, 150, 105, 0.25);
+}
+
+.btn-success.border-white {
+  --bs-btn-border-color: var(--ping-white) !important;
+}
+
+.btn-success.border-white:hover {
+  --bs-btn-hover-border-color: var(--ping-white) !important;
+}
+
+/* Warning Color Overrides */
+.btn-warning {
+  --bs-btn-bg: var(--ping-warning);
+  --bs-btn-border-color: var(--ping-warning);
+  --bs-btn-hover-bg: var(--ping-warning-hover);
+  --bs-btn-hover-border-color: var(--ping-warning-hover);
+  --bs-btn-active-bg: var(--ping-warning);
+  --bs-btn-active-border-color: var(--ping-warning);
+  --bs-btn-focus-box-shadow: 0 0 0 0.2rem rgba(217, 119, 6, 0.25);
+}
+
+.btn-warning.border-white {
+  --bs-btn-border-color: var(--ping-white) !important;
+}
+
+.btn-warning.border-white:hover {
+  --bs-btn-hover-border-color: var(--ping-white) !important;
+}
+
+/* Danger Color Overrides */
+.btn-danger {
+  --bs-btn-bg: var(--ping-danger);
+  --bs-btn-border-color: var(--ping-danger);
+  --bs-btn-hover-bg: var(--ping-danger-hover);
+  --bs-btn-hover-border-color: var(--ping-danger-hover);
+  --bs-btn-active-bg: var(--ping-danger);
+  --bs-btn-active-border-color: var(--ping-danger);
+  --bs-btn-focus-box-shadow: 0 0 0 0.2rem rgba(220, 38, 38, 0.25);
+}
+
+.btn-danger.border-white {
+  --bs-btn-border-color: var(--ping-white) !important;
+}
+
+.btn-danger.border-white:hover {
+  --bs-btn-hover-border-color: var(--ping-white) !important;
+}
+
+/* Secondary/Info Color Overrides */
+.btn-secondary {
+  --bs-btn-bg: var(--ping-gray);
+  --bs-btn-border-color: var(--ping-gray);
+  --bs-btn-hover-bg: var(--ping-gray-hover);
+  --bs-btn-hover-border-color: var(--ping-gray-hover);
+  --bs-btn-active-bg: var(--ping-gray);
+  --bs-btn-active-border-color: var(--ping-gray);
+  --bs-btn-focus-box-shadow: 0 0 0 0.2rem rgba(107, 114, 128, 0.25);
+}
+
+.btn-secondary.border-white {
+  --bs-btn-border-color: var(--ping-white) !important;
+}
+
+.btn-secondary.border-white:hover {
+  --bs-btn-hover-border-color: var(--ping-white) !important;
+}
+
+/* ==========================================================================
+   PINGONE CUSTOM BOOTSTRAP CLASSES
+   ========================================================================== */
+
+/* PingOne Button Base Class */
+.ping-btn {
+  font-weight: 500;
+  border-radius: 0.5rem;
+  transition: all 0.15s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ping-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--ping-shadow);
+}
+
+.ping-btn:active {
+  transform: translateY(0);
+}
+
+/* PingOne Card Styles */
+.ping-card {
+  border: 1px solid var(--ping-border);
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px var(--ping-shadow);
+  background: var(--ping-white);
+  transition: all 0.15s ease-in-out;
+}
+
+.ping-card:hover {
+  box-shadow: 0 4px 12px var(--ping-shadow);
+}
+
+/* PingOne Form Controls */
+.ping-form-control {
+  border: 1px solid var(--ping-border);
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  transition: all 0.15s ease-in-out;
+}
+
+.ping-form-control:focus {
+  border-color: var(--ping-blue-primary);
+  box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
+  outline: none;
+}
+
+/* PingOne Navigation */
+.ping-navbar {
+  background: var(--ping-white);
+  border-bottom: 1px solid var(--ping-border);
+  padding: 1rem 0;
+}
+
+.ping-navbar-brand {
+  color: var(--ping-blue-primary);
+  font-weight: 600;
+  font-size: 1.25rem;
+  text-decoration: none;
+}
+
+.ping-navbar-brand:hover {
+  color: var(--ping-blue-hover);
+}
+
+/* PingOne Modal */
+.ping-modal {
+  border-radius: 0.5rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.ping-modal-header {
+  border-bottom: 1px solid var(--ping-border);
+  padding: 1.5rem;
+}
+
+.ping-modal-title {
+  color: var(--ping-gray);
+  font-weight: 600;
+  margin: 0;
+}
+
+.ping-modal-body {
+  padding: 1.5rem;
+}
+
+.ping-modal-footer {
+  border-top: 1px solid var(--ping-border);
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+/* PingOne Alert Styles */
+.ping-alert {
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid transparent;
+}
+
+.ping-alert-success {
+  background-color: var(--ping-success-light);
+  border-color: var(--ping-success);
+  color: var(--ping-success);
+}
+
+.ping-alert-warning {
+  background-color: var(--ping-warning-light);
+  border-color: var(--ping-warning);
+  color: var(--ping-warning);
+}
+
+.ping-alert-danger {
+  background-color: var(--ping-danger-light);
+  border-color: var(--ping-danger);
+  color: var(--ping-danger);
+}
+
+.ping-alert-info {
+  background-color: var(--ping-blue-light);
+  border-color: var(--ping-blue-primary);
+  color: var(--ping-blue-primary);
+}
+
+/* ==========================================================================
+   WORKER TOKEN STATUS BOOTSTRAP CLASSES
+   ========================================================================== */
+
+/* Worker Token Status Buttons */
+.btn-token-active {
+  background: var(--ping-success);
+  color: var(--ping-white);
+  border: 1px solid var(--ping-white);
+}
+
+.btn-token-active:hover {
+  background: var(--ping-success-hover);
+  border-color: var(--ping-white);
+}
+
+.btn-token-expiring {
+  background: var(--ping-warning);
+  color: var(--ping-white);
+  border: 1px solid var(--ping-white);
+}
+
+.btn-token-expiring:hover {
+  background: var(--ping-warning-hover);
+  border-color: var(--ping-white);
+}
+
+.btn-token-inactive {
+  background: var(--ping-danger);
+  color: var(--ping-white);
+  border: 1px solid var(--ping-white);
+}
+
+.btn-token-inactive:hover {
+  background: var(--ping-danger-hover);
+  border-color: var(--ping-white);
+}
+
+.btn-token-loading {
+  background: var(--ping-gray);
+  color: var(--ping-white);
+  border: 1px solid var(--ping-white);
+}
+
+.btn-token-loading:hover {
+  background: var(--ping-gray-hover);
+  border-color: var(--ping-white);
+}
+
+/* ==========================================================================
+   RESPONSIVE ADJUSTMENTS
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .ping-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+  
+  .ping-card {
+    margin-bottom: 1rem;
+  }
+  
+  .ping-modal {
+    margin: 1rem;
+  }
+}
+
+/* ==========================================================================
+   ACCESSIBILITY ENHANCEMENTS
+   ========================================================================== */
+
+.ping-btn:focus-visible {
+  outline: 2px solid var(--ping-blue-primary);
+  outline-offset: 2px;
+}
+
+.ping-form-control:focus-visible {
+  outline: 2px solid var(--ping-blue-primary);
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .ping-btn {
+    border-width: 2px;
+  }
+  
+  .ping-form-control {
+    border-width: 2px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .ping-btn,
+  .ping-card,
+  .ping-form-control {
+    transition: none;
+  }
+  
+  .ping-btn:hover {
+    transform: none;
+  }
+}

@@ -29,7 +29,6 @@ import { AuthorizationCodeSharedService } from '../../services/authorizationCode
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
 import { EducationalContentService } from '../../services/educationalContentService.tsx';
-import { UserSearchDropdownV8 } from '../../v8/components/UserSearchDropdownV8';
 import {
 	EnhancedApiCallData,
 	EnhancedApiCallDisplayService,
@@ -40,6 +39,7 @@ import { FlowStorageService } from '../../services/flowStorageService';
 import { FlowUIService } from '../../services/flowUIService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import { v4ToastManager } from '../../utils/v4ToastManager';
+import { UserSearchDropdownV8 } from '../../v8/components/UserSearchDropdownV8';
 import { PKCEStorageServiceV8U } from '../../v8u/services/pkceStorageServiceV8U';
 
 // Import config
@@ -1197,7 +1197,9 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 												id="v9-username-input"
 												environmentId={controller.credentials.environmentId}
 												value={loginCredentials.username}
-												onChange={(username) => setLoginCredentials(prev => ({ ...prev, username }))}
+												onChange={(username) =>
+													setLoginCredentials((prev) => ({ ...prev, username }))
+												}
 												placeholder="Search for a user..."
 												disabled={isAuthenticating}
 											/>
@@ -1220,7 +1222,9 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 												type="text"
 												placeholder="Enter your username"
 												value={loginCredentials.username}
-												onChange={(e) => setLoginCredentials(prev => ({ ...prev, username: e.target.value }))}
+												onChange={(e) =>
+													setLoginCredentials((prev) => ({ ...prev, username: e.target.value }))
+												}
 												style={{
 													width: '100%',
 													padding: '0.75rem',
