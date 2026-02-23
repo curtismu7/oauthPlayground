@@ -2,13 +2,14 @@
 // AutoDiscover Page - PingOne UI Version
 // PingOne UI migration following pingui2.md standards
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DiscoveryPanel from '../components/DiscoveryPanel';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { OpenIDConfiguration } from '../services/discoveryService';
 import { FlowHeader } from '../services/flowHeaderService';
 import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
+import { environmentIdPersistenceService } from '../services/environmentIdPersistenceService';
 
 // PingOne UI Icon Component
 const MDIIcon: React.FC<{
@@ -136,10 +137,24 @@ const AutoDiscoverPingUI: React.FC = () => {
 	usePageScroll({ pageName: 'OIDC Discovery', force: true });
 
 	const [showDiscoveryPanel, setShowDiscoveryPanel] = useState(false);
+	const [storedEnvironmentId, setStoredEnvironmentId] = useState<string | null>(null);
 	const [lastDiscovered, setLastDiscovered] = useState<{
 		environmentId: string;
 		timestamp: Date;
 	} | null>(null);
+
+	// Auto-load environment ID from storage on component mount
+	useEffect(() => {
+		const envId = environmentIdPersistenceService.loadEnvironmentId();
+		if (envId) {
+			setStoredEnvironmentId(envId);
+			console.log(`🔧 AutoDiscover: Loaded environment ID from storage: ${envId}`);
+			// Automatically show discovery panel with pre-filled environment ID
+			setShowDiscoveryPanel(true);
+		} else {
+			console.log('⚠️ AutoDiscover: No environment ID found in storage');
+		}
+	}, []);
 
 	const handleConfigurationDiscovered = (config: OpenIDConfiguration, environmentId: string) => {
 		try {
@@ -186,35 +201,54 @@ const AutoDiscoverPingUI: React.FC = () => {
 						Auto Discover
 					</h1>
 					<p style={getHeaderStyle().p}>
-						Automatically discover and configure PingOne OpenID Connect endpoints using your
-						Environment ID
+						{storedEnvironmentId 
+							? `Automatically discovering PingOne OpenID Connect endpoints for environment: ${storedEnvironmentId}`
+							: 'Configure PingOne OpenID Connect endpoints using your Environment ID'
+						}
 					</p>
 				</div>
 
-				{/* How it works card */}
+				{/* Status card */}
 				<div style={getCardStyle()}>
 					<h3 style={getSectionTitleStyle()}>
-						<MDIIcon icon="information" size={20} title="Information" />
-						How it works
+						<MDIIcon icon={storedEnvironmentId ? "check-circle" : "information"} size={20} title="Status" />
+						{storedEnvironmentId ? 'Environment ID Found' : 'Environment Setup Required'}
 					</h3>
-					<ul style={getListStyle()}>
-						<li>Enter your PingOne Environment ID</li>
-						<li>Select your region (US, EU, CA, or AP)</li>
-						<li>Click "Discover" to fetch the OpenID configuration</li>
-						<li>The discovered endpoints will be automatically saved to your configuration</li>
-						<li>You can then use these endpoints for OAuth flows</li>
-					</ul>
+					{storedEnvironmentId ? (
+						<div>
+							<p style={{ marginBottom: '1rem', color: 'var(--pingone-success-color, #059669)' }}>
+								✅ Environment ID automatically loaded from storage
+							</p>
+							<p style={{ marginBottom: '0.5rem' }}>
+								<strong>Environment:</strong> {storedEnvironmentId}
+							</p>
+							<p style={{ fontSize: '0.875rem', color: 'var(--pingone-text-secondary, #6b7280)' }}>
+								The discovery panel will open automatically to fetch your OpenID configuration.
+							</p>
+						</div>
+					) : (
+						<div>
+							<p style={{ marginBottom: '1rem', color: 'var(--pingone-warning-color, #d97706)' }}>
+								⚠️ No Environment ID found in storage
+							</p>
+							<p style={{ fontSize: '0.875rem', color: 'var(--pingone-text-secondary, #6b7280)' }}>
+								Please configure your Environment ID first through the dashboard or credential setup.
+							</p>
+						</div>
+					)}
 				</div>
 
 				{/* Action button */}
-				<button
-					type="button"
-					onClick={() => setShowDiscoveryPanel(true)}
-					style={getButtonStyle('primary')}
-				>
-					<MDIIcon icon="earth" size={20} />
-					Start OIDC Discovery
-				</button>
+				{!storedEnvironmentId && (
+					<button
+						type="button"
+						onClick={() => setShowDiscoveryPanel(true)}
+						style={getButtonStyle('primary')}
+					>
+						<MDIIcon icon="earth" size={20} />
+						Manual OIDC Discovery
+					</button>
+				)}
 
 				{/* Success message */}
 				{lastDiscovered && (
