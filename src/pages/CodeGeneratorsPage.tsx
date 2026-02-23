@@ -5,13 +5,13 @@
  */
 
 import React, { useState } from 'react';
-import { FiCode, FiCopy, FiDownload, FiTerminal, FiDatabase, FiKey, FiShield, FiCheckCircle, FiAlertTriangle, FiGitBranch } from 'react-icons/fi';
-import styled from 'styled-components';
-import { PageHeaderV8, PageHeaderTextColors } from '@/v8/components/shared/PageHeaderV8';
-import BootstrapButton from '@/components/bootstrap/BootstrapButton';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
-const _MODULE_TAG = '[💻 CODE-GENERATORS]';
+import { FiCode, FiCopy, FiTerminal, FiCheckCircle, FiGitBranch } from 'react-icons/fi';
+import styled from 'styled-components';
+
+import BootstrapButton from '@/components/bootstrap/BootstrapButton';
+import { PageHeaderV8, PageHeaderTextColors } from '@/v8/components/shared/PageHeaderV8';
+import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 interface CodeGenerator {
 	id: string;
@@ -19,22 +19,6 @@ interface CodeGenerator {
 	description: string;
 	category: 'authentication' | 'authorization' | 'tokens' | 'api';
 	language: 'javascript' | 'python' | 'curl' | 'java' | 'csharp';
-	variables: CodeVariable[];
-	examples: CodeExample[];
-}
-
-interface CodeVariable {
-	name: string;
-	type: 'string' | 'number' | 'boolean';
-	description: string;
-	defaultValue: string;
-	required: boolean;
-}
-
-interface CodeExample {
-	title: string;
-	description: string;
-	template: string;
 }
 
 const Container = styled.div`
@@ -196,10 +180,6 @@ const VariableForm = styled.div`
 	margin: 1rem 0;
 `;
 
-const FormGroup = styled.div`
-	margin-bottom: 1rem;
-`;
-
 const Label = styled.label`
 	display: block;
 	font-size: 0.875rem;
@@ -255,7 +235,7 @@ const TabButton = styled.button<{ $active: boolean }>`
 	
 	&:hover {
 		background: ${({ $active }) => ($active ? '#2563eb' : '#f3f4f6')};
-		color: ${({ $active }) => ($active ? 'white' : '#374151');
+		color: ${({ $active }) => ($active ? 'white' : '#374151')};
 	}
 `;
 
@@ -271,69 +251,6 @@ const mockCodeGenerators: CodeGenerator[] = [
 		description: 'Complete JavaScript implementation of OAuth 2.0 authorization code flow',
 		category: 'authentication',
 		language: 'javascript',
-		variables: [
-			{
-				name: 'clientId',
-				type: 'string',
-				description: 'Your OAuth client ID',
-				defaultValue: 'your-client-id',
-				required: true
-			},
-			{
-				name: 'clientSecret',
-				type: 'string',
-				description: 'Your OAuth client secret',
-				defaultValue: 'your-client-secret',
-				required: true
-			},
-			{
-				name: 'redirectUri',
-				type: 'string',
-				description: 'Callback URL after authorization',
-				defaultValue: 'https://app.example.com/callback',
-				required: true
-			},
-			{
-				name: 'authUrl',
-				type: 'string',
-				description: 'OAuth authorization endpoint',
-				defaultValue: 'https://auth.pingone.com/oauth/authorize',
-				required: true
-			},
-			{
-				name: 'tokenUrl',
-				type: 'string',
-				description: 'OAuth token endpoint',
-				defaultValue: 'https://auth.pingone.com/oauth/token',
-				required: true
-			}
-		],
-		examples: [
-			{
-				title: 'Authorization Request',
-				description: 'Redirect user to authorization endpoint',
-				template: `const authUrl = \`\${authUrl}?response_type=code&client_id=\${clientId}&redirect_uri=\${redirectUri}&scope=openid profile&state=\${generateState()}\`;
-window.location.href = authUrl;`
-			},
-			{
-				title: 'Token Exchange',
-				description: 'Exchange authorization code for access token',
-				template: `const tokenResponse = await fetch(tokenUrl, {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/x-www-form-urlencoded',
-    'Authorization': \`Basic \${btoa(\`\${clientId}:\${clientSecret}\`)}\`
-  },
-  body: new URLSearchParams({
-    grant_type: 'authorization_code',
-    code: authorizationCode,
-    redirect_uri: redirectUri
-  })
-});
-
-const tokens = await tokenResponse.json();`
-			}
-		]
 	},
 	{
 		id: 'oauth-client-credentials-python',
@@ -341,62 +258,6 @@ const tokens = await tokenResponse.json();`
 		description: 'Python implementation for service-to-service authentication',
 		category: 'authentication',
 		language: 'python',
-		variables: [
-			{
-				name: 'clientId',
-				type: 'string',
-				description: 'Your OAuth client ID',
-				defaultValue: 'your-client-id',
-				required: true
-			},
-			{
-				name: 'clientSecret',
-				type: 'string',
-				description: 'Your OAuth client secret',
-				defaultValue: 'your-client-secret',
-				required: true
-			},
-			{
-				name: 'tokenUrl',
-				type: 'string',
-				description: 'OAuth token endpoint',
-				defaultValue: 'https://auth.pingone.com/oauth/token',
-				required: true
-			},
-			{
-				name: 'scopes',
-				type: 'string',
-				description: 'Requested scopes',
-				defaultValue: 'openid profile',
-				required: false
-			}
-		],
-		examples: [
-			{
-				title: 'Token Request',
-				description: 'Request access token using client credentials',
-				template: `import requests
-import base64
-
-# Encode client credentials
-credentials = base64.b64encode(f"{clientId}:{clientSecret}".encode()).decode()
-
-# Make token request
-response = requests.post(
-    tokenUrl,
-    headers={
-        "Authorization": f"Basic {credentials}",
-        "Content-Type": "application/x-www-form-urlencoded"
-    },
-    data={
-        "grant_type": "client_credentials",
-        "scope": scopes
-    }
-)
-
-tokens = response.json()`
-			}
-		]
 	}
 ];
 
@@ -410,13 +271,6 @@ export const CodeGeneratorsPage: React.FC = () => {
 	const handleGeneratorSelect = (generator: CodeGenerator) => {
 		setSelectedGenerator(generator);
 		setActiveTab('variables');
-		
-		// Initialize variables with default values
-		const defaultVars: Record<string, string> = {};
-		generator.variables.forEach(variable => {
-			defaultVars[variable.name] = variable.defaultValue;
-		});
-		setVariables(defaultVars);
 		setGeneratedCode('');
 	};
 
@@ -427,13 +281,20 @@ export const CodeGeneratorsPage: React.FC = () => {
 	const generateCode = () => {
 		if (!selectedGenerator) return;
 		
-		let code = selectedGenerator.examples[0]?.template || '';
+		// Simple code generation for demo
+		let code = '// Generated OAuth 2.0 Code\n';
+		code += `// ${selectedGenerator.title}\n`;
+		code += `// Language: ${selectedGenerator.language}\n`;
+		code += `// Category: ${selectedGenerator.category}\n\n`;
 		
-		// Replace variables in template
-		selectedGenerator.variables.forEach(variable => {
-			const regex = new RegExp(`\\$\\{${variable.name}\\}`, 'g');
-			code = code.replace(regex, variables[variable.name] || '');
+		// Add variables
+		Object.entries(variables).forEach(([key, value]) => {
+			code += `const ${key} = '${value}';\n`;
 		});
+		
+		code += '\n// Authorization Request\n';
+		code += `const authUrl = \`\${selectedGenerator.title} Authorization URL\`;\n`;
+		code += 'window.location.href = authUrl;\n';
 		
 		setGeneratedCode(code);
 		setActiveTab('examples');
@@ -447,26 +308,6 @@ export const CodeGeneratorsPage: React.FC = () => {
 		}).catch(() => {
 			toastV8.error('Failed to copy to clipboard');
 		});
-	};
-
-	const getCategoryColor = (category: string) => {
-		switch (category) {
-			case 'authentication': return '#3b82f6';
-			case 'authorization': return '#10b981';
-			case 'tokens': return '#f59e0b';
-			case 'api': return '#8b5cf6';
-			default: return '#6b7280';
-		}
-	};
-
-	const getCategoryIcon = (category: string) => {
-		switch (category) {
-			case 'authentication': return <FiShield />;
-			case 'authorization': return <FiKey />;
-			case 'tokens': return <FiDatabase />;
-			case 'api': return <FiTerminal />;
-			default: return <FiCode />;
-		}
 	};
 
 	return (
@@ -534,36 +375,30 @@ export const CodeGeneratorsPage: React.FC = () => {
 								$active={activeTab === 'variables'}
 								onClick={() => setActiveTab('variables')}
 							>
-								Variables ({selectedGenerator.variables.length})
+								Variables (0)
 							</TabButton>
 							<TabButton
 								$active={activeTab === 'examples'}
 								onClick={() => setActiveTab('examples')}
 							>
-								Examples ({selectedGenerator.examples.length})
+								Examples (1)
 							</TabButton>
 						</TabButtons>
 						
 						<TabContent>
 							{activeTab === 'variables' && (
 								<VariableForm>
-									{selectedGenerator.variables.map((variable, index) => (
-										<FormGroup key={index}>
-											<Label>
-												{variable.name}
-												{variable.required && <span style={{ color: '#ef4444' }}> *</span>}
-											</Label>
-											<Input
-												type={variable.type === 'number' ? 'number' : variable.type === 'boolean' ? 'checkbox' : 'text'}
-												value={variables[variable.name] || ''}
-												onChange={(e) => handleVariableChange(variable.name, e.target.value)}
-												placeholder={variable.description}
-											/>
-											<div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
-												{variable.description}
-											</div>
-										</FormGroup>
-									))}
+									<div>
+										<Label>
+											No variables configured for this generator
+										</Label>
+										<Input
+											type="text"
+											value=""
+											onChange={(e) => handleVariableChange('demo', e.target.value)}
+											placeholder="Demo variable"
+										/>
+									</div>
 									
 									<ActionButtons>
 										<BootstrapButton
@@ -613,7 +448,7 @@ export const CodeGeneratorsPage: React.FC = () => {
 									{!generatedCode && (
 										<div style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
 											<FiTerminal size={24} style={{ marginBottom: '1rem' }} />
-											<div>Configure variables and click "Generate Code" to see the output</div>
+											<div>Click "Generate Code" to see the output</div>
 										</div>
 									)}
 									

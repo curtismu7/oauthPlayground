@@ -1,17 +1,19 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState, lazy, Suspense } from 'react';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import styled, { type DefaultTheme, ThemeProvider } from 'styled-components';
+
 import { AuthProvider } from './contexts/NewAuthContext';
 import { PageStyleProvider } from './contexts/PageStyleContext';
 import { type UISettings, UISettingsProvider, useUISettings } from './contexts/UISettingsContext';
-import { theme as baseTheme, GlobalStyle } from './styles/global';
 import { FlowStateProvider } from './v8/contexts/FlowStateContext';
 import UnifiedFlowProvider from './v8u/services/enhancedStateManagement';
+
+import { theme as baseTheme, GlobalStyle } from './styles/global';
 import './styles/spec-cards.css';
 import './styles/ui-settings.css';
 import './styles/button-text-white-enforcement.css'; // CRITICAL: Ensures all buttons have white text
 import './components/PingUIWrapper.css'; // Ping UI CSS variables and styling
-import { lazy, Suspense } from 'react';
+
 import CodeExamplesDemo from './components/CodeExamplesDemo';
 import CredentialSetupModal from './components/CredentialSetupModal';
 import { FloatingLogToggle } from './components/FloatingLogToggle';
