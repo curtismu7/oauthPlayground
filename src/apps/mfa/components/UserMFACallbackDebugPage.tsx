@@ -5,8 +5,8 @@
  * Shows all callback parameters and navigation state for troubleshooting
  */
 
-import { useEffect, useState } from 'react';
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 
 const MODULE_TAG = '[🔍 MFA-CALLBACK-DEBUG]';
@@ -141,6 +141,21 @@ export const UserMFACallbackDebugPage: React.FC = () => {
 	}, [searchParams]);
 
 	// Countdown timer for auto-redirect
+	const handleRedirect = useCallback(() => {
+		if (!debugInfo?.redirectTarget) return;
+
+		console.log(`${MODULE_TAG} 🚀 Executing redirect to:`, debugInfo.redirectTarget);
+
+		// Set marker that we're returning from OAuth callback
+		sessionStorage.setItem('mfa_oauth_callback_return', 'true');
+
+		// Store redirect intent as backup
+		sessionStorage.setItem('mfa_redirect_intent', debugInfo.redirectTarget);
+
+		// Use window.location.replace for immediate redirect
+		window.location.replace(debugInfo.redirectTarget);
+	}, [debugInfo]);
+
 	useEffect(() => {
 		if (!autoRedirectEnabled || !debugInfo?.willRedirect) return;
 
@@ -155,21 +170,6 @@ export const UserMFACallbackDebugPage: React.FC = () => {
 
 		return () => clearTimeout(timer);
 	}, [countdown, autoRedirectEnabled, debugInfo, handleRedirect]);
-
-	const handleRedirect = () => {
-		if (!debugInfo?.redirectTarget) return;
-
-		console.log(`${MODULE_TAG} 🚀 Executing redirect to:`, debugInfo.redirectTarget);
-
-		// Set marker that we're returning from OAuth callback
-		sessionStorage.setItem('mfa_oauth_callback_return', 'true');
-
-		// Store redirect intent as backup
-		sessionStorage.setItem('mfa_redirect_intent', debugInfo.redirectTarget);
-
-		// Use window.location.replace for immediate redirect
-		window.location.replace(debugInfo.redirectTarget);
-	};
 
 	const handleManualRedirect = () => {
 		if (!debugInfo?.redirectTarget) return;

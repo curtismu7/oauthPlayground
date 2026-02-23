@@ -59,7 +59,7 @@ const MDIIcon: React.FC<{
 // PingOne UI Styled Components (using inline styles with CSS variables)
 const getPortalContainerStyle = () => ({
 	minHeight: '100vh',
-	background: '#1e3a8a',
+	background: '#ffffff',
 	display: 'flex',
 	flexDirection: 'column',
 	width: '100%',
@@ -112,7 +112,7 @@ const getErrorTitleStyle = () => ({
 });
 
 const getErrorMessageStyle = () => ({
-	color: '#ffffff',
+	color: '#000000',
 	marginBottom: '1rem',
 	lineHeight: '1.5',
 });
@@ -120,7 +120,7 @@ const getErrorMessageStyle = () => ({
 const getButtonStyle = (variant: 'primary' | 'secondary' = 'primary') => ({
 	background:
 		variant === 'primary' ? 'var(--pingone-brand-primary)' : 'var(--pingone-surface-secondary)',
-	color: '#ffffff',
+	color: variant === 'primary' ? '#ffffff' : '#000000',
 	border: variant === 'secondary' ? '1px solid var(--pingone-border-primary)' : 'none',
 	padding: '0.75rem 1.5rem',
 	borderRadius: '0.375rem',

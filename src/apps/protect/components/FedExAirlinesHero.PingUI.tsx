@@ -25,11 +25,7 @@ const MDIIcon: React.FC<{
 	title?: string;
 }> = ({ icon, size = 24, className = '', title }) => {
 	return (
-		<span
-			className={`mdi mdi-${icon} ${className}`}
-			style={{ fontSize: size }}
-			title={title}
-		/>
+		<span className={`mdi mdi-${icon} ${className}`} style={{ fontSize: size }} title={title} />
 	);
 };
 

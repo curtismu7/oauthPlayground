@@ -17,6 +17,7 @@ import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { MFAUserDisplayV8 } from '@/v8/components/MFAUserDisplayV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
+import StandardHeader from '@/components/StandardHeader';
 import { PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
 import {
 	type MFAConfiguration,
@@ -410,44 +411,41 @@ export const MFAConfigurationPageV8PingUI: React.FC = () => {
 	return (
 		<div className="end-user-nano">
 			<PageContainer>
-				<Header>
-					<HeaderContent>
-						<HeaderTitle>
-							<MDIIcon icon="FiInfo" size={24} ariaLabel="Configuration" />
-							MFA Configuration
-						</HeaderTitle>
-						<HeaderActions>
-							<BackButton onClick={handleBack}>
-								<MDIIcon icon="FiArrowLeft" size={16} ariaLabel="Back" />
-								Back
-							</BackButton>
-							<RefreshButton onClick={handleRefreshToken} $loading={_isRefreshingToken}>
-								<MDIIcon icon="FiRefreshCw" size={16} ariaLabel="Refresh" />
-								{_isRefreshingToken ? 'Refreshing...' : 'Refresh Token'}
-							</RefreshButton>
-						</HeaderActions>
-					</HeaderContent>
-				</Header>
+				<StandardHeader
+					title="MFA Configuration"
+					description="Manage MFA policies and authentication settings"
+					icon="information"
+					badge={{
+						text: connectionStatus === 'connected' ? 'Connected' : 'Disconnected',
+						variant: connectionStatus === 'connected' ? 'success' : 'warning'
+					}}
+				/>
+				
+				<div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.5rem' }}>
+					<BackButton onClick={handleBack}>
+						<MDIIcon icon="FiArrowLeft" size={16} ariaLabel="Back" />
+						Back
+					</BackButton>
+					<RefreshButton onClick={handleRefreshToken} $loading={_isRefreshingToken}>
+						<MDIIcon icon="FiRefreshCw" size={16} ariaLabel="Refresh" />
+						{_isRefreshingToken ? 'Refreshing...' : 'Refresh Token'}
+					</RefreshButton>
+				</div>
 
 				<MainContent>
 					<MFANavigationV8 />
 
 					<Section>
-						<SectionHeader>
-							<SectionTitle>Connection Status</SectionTitle>
-							<StatusIndicator $status={connectionStatus}>
-								{connectionStatus === 'connected' && (
-									<MDIIcon icon="FiCheck" size={12} ariaHidden={true} />
-								)}
-								{connectionStatus === 'disconnected' && (
-									<MDIIcon icon="FiInfo" size={12} ariaHidden={true} />
-								)}
-								{connectionStatus === 'loading' && (
-									<MDIIcon icon="FiRefreshCw" size={12} ariaHidden={true} />
-								)}
-								{connectionStatus.charAt(0).toUpperCase() + connectionStatus.slice(1)}
-							</StatusIndicator>
-						</SectionHeader>
+						<StandardHeader
+							title="Connection Status"
+							description="Monitor and manage your MFA service connection"
+							icon="information"
+							variant="secondary"
+							badge={{
+								text: connectionStatus === 'connected' ? 'Connected' : connectionStatus === 'loading' ? 'Loading...' : 'Disconnected',
+								variant: connectionStatus === 'connected' ? 'success' : connectionStatus === 'loading' ? 'default' : 'warning'
+							}}
+						/>
 
 						<InfoBox>
 							<MDIIcon icon="FiInfo" size={20} ariaLabel="Information" />

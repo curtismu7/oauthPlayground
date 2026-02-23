@@ -64,7 +64,7 @@ const HeaderContainer = styled.div<{
 			oidc: 'linear-gradient(135deg, #064e3b 0%, #065f46 100%)',
 			pingone: 'linear-gradient(135deg, #92400e 0%, #78350f 100%)',
 			documentation: 'linear-gradient(135deg, #581c87 0%, #4c1d95 100%)',
-			default: 'linear-gradient(135deg, #1f2937 0%, #111827 100%)',
+			default: 'linear-gradient(135deg, #1f2937 0%, white 100%)',
 		};
 
 		// Return appropriate color based on security level
@@ -433,9 +433,9 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 	},
 	configuration: {
 		flowType: 'pingone',
-		title: 'Settings',
+		title: 'PingOne Application & Environment Configuration',
 		subtitle:
-			'Configure your PingOne environment credentials, OAuth clients, and application settings. Manage flow-specific configurations and customize your playground experience.',
+			'Configure your PingOne environment credentials, OAuth clients, redirect URIs, and application settings. Manage worker tokens, callback URIs, and customize your OAuth/OIDC playground experience.',
 		icon: '⚙️',
 	},
 	oauth21: {
@@ -665,8 +665,8 @@ export const FlowHeader: React.FC<FlowHeaderProps> = ({ flowId, flowType, custom
 	};
 
 	return (
-		<HeaderContainer $flowType={config.flowType} $securityFeatures={config.securityFeatures}>
-			<HeaderBadge $flowType={config.flowType} $securityFeatures={config.securityFeatures}>
+		<HeaderContainer $flowType={config.flowType || 'oauth'} $securityFeatures={config.securityFeatures}>
+			<HeaderBadge $flowType={config.flowType || 'oauth'} $securityFeatures={config.securityFeatures}>
 				{config.icon && <HeaderIcon>{config.icon}</HeaderIcon>}
 				{getBadgeText()}
 				{config.isExperimental && <StatusBadge $type="experimental">Experimental</StatusBadge>}
@@ -699,19 +699,19 @@ export const getFlowConfigsByType = (
 
 // Utility function to create security features config from PingOne application state
 export const createSecurityFeaturesConfig = (
-	pingOneConfig: any
+	pingOneConfig: Record<string, unknown>
 ): FlowHeaderConfig['securityFeatures'] => {
 	if (!pingOneConfig) return undefined;
 
 	return {
-		jwksEnabled: pingOneConfig.enableJWKS || false,
-		parEnabled: pingOneConfig.requirePushedAuthorizationRequest || false,
-		jarEnabled: pingOneConfig.requestParameterSignatureRequirement === 'REQUIRE_SIGNED' || false,
-		dpopEnabled: pingOneConfig.enableDPoP || false,
+		jwksEnabled: Boolean(pingOneConfig.enableJWKS),
+		parEnabled: Boolean(pingOneConfig.requirePushedAuthorizationRequest),
+		jarEnabled: (pingOneConfig.requestParameterSignatureRequirement as string) === 'REQUIRE_SIGNED',
+		dpopEnabled: Boolean(pingOneConfig.enableDPoP),
 		highSecurityMode:
-			(pingOneConfig.enableJWKS &&
-				pingOneConfig.requirePushedAuthorizationRequest &&
-				pingOneConfig.requestParameterSignatureRequirement === 'REQUIRE_SIGNED') ||
+			(Boolean(pingOneConfig.enableJWKS) &&
+				Boolean(pingOneConfig.requirePushedAuthorizationRequest) &&
+				(pingOneConfig.requestParameterSignatureRequirement as string) === 'REQUIRE_SIGNED') ||
 			false,
 	};
 };
@@ -719,9 +719,9 @@ export const createSecurityFeaturesConfig = (
 // Utility function to create a flow header with security features
 export const createFlowHeaderWithSecurity = (
 	flowId: string,
-	pingOneConfig?: any
+	pingOneConfig?: Record<string, unknown>
 ): React.ReactElement => {
-	const securityFeatures = createSecurityFeaturesConfig(pingOneConfig);
+	const securityFeatures = createSecurityFeaturesConfig(pingOneConfig || {});
 	return <FlowHeader flowId={flowId} customConfig={{ securityFeatures }} />;
 };
 

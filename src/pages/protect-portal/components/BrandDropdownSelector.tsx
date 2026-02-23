@@ -40,7 +40,7 @@ const DropdownButton = styled.button`
   color: white;
   transition: all 0.2s ease;
   font-family: var(--brand-body-font);
-  min-width: 120px;
+  min-width: 200px;
   backdrop-filter: blur(10px);
 
   &:hover {
@@ -106,7 +106,7 @@ const DropdownMenu = styled.div<{ $isOpen: boolean }>`
   transform: translateY(${({ $isOpen }) => ($isOpen ? '0' : '-10px')});
   transition: all 0.2s ease;
   z-index: 12001;
-  min-width: 360px;
+  min-width: 200px;
   max-height: 250px;
   overflow-y: auto;
 `;
@@ -272,7 +272,7 @@ const BrandDropdownSelector: React.FC<BrandDropdownSelectorProps> = ({
 							alt={activeTheme.logo?.alt || `${activeTheme.displayName} Logo`}
 						/>
 					</LogoWrapper>
-					<CurrentBrandText style={{ display: 'none' }}>{activeTheme.displayName}</CurrentBrandText>
+					<CurrentBrandText>{activeTheme.displayName}</CurrentBrandText>
 				</BrandIdentity>
 				<DropdownArrow $rotate={isOpen} />
 			</DropdownButton>

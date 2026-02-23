@@ -113,11 +113,14 @@ const FlowButtonsContainer = styled.div`
   align-items: stretch;
   width: 100%;
   
-  /* Ensure buttons have enough space */
+  /* Ensure buttons have consistent height and alignment */
   & > a {
     flex: 1;
     min-width: 140px;
     max-width: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 `;
 
@@ -217,7 +220,9 @@ const FLOW_BUTTON_THEMES: Record<
 };
 
 const FlowLink = styled.a<{ $variant?: 'primary' | 'secondary'; $palette?: FlowPalette }>`
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 0.75rem 1rem;
   border-radius: 8px;
   font-weight: 600;
@@ -231,6 +236,7 @@ const FlowLink = styled.a<{ $variant?: 'primary' | 'secondary'; $palette?: FlowP
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
+  position: relative;
 
   ${({ $variant = 'secondary', $palette = 'oauth' }) => {
 		const palette = FLOW_BUTTON_THEMES[$palette];
@@ -247,6 +253,11 @@ const FlowLink = styled.a<{ $variant?: 'primary' | 'secondary'; $palette?: FlowP
         color: white !important;
         box-shadow: ${theme.hoverShadow};
         transform: translateY(-1px);
+      }
+      
+      &:active {
+        transform: translateY(0);
+        box-shadow: ${theme.shadow};
       }
     `;
 	}}
@@ -344,20 +355,30 @@ const RefreshButton = styled.button`
   font-weight: 600;
   color: #3b82f6;
   background: #ffffff;
-  border: 1px solid #3b82f6;
+  border: 2px solid #3b82f6;
   border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(59, 130, 246, 0.1);
   
   &:hover:not(:disabled) {
     background: #eff6ff;
+    border-color: #2563eb;
+    color: #2563eb;
     transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.2);
   }
   
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    transform: none;
+    box-shadow: 0 1px 3px rgba(59, 130, 246, 0.1);
   }
 
   svg {

@@ -42,7 +42,7 @@ export const DeviceFailureModalV8: React.FC<DeviceFailureModalProps> = ({
 	onTryAnotherDevice,
 	onRetry,
 }) => {
-	// Handle ESC key to close modal
+	// Handle ESC key to close modal and keyboard events for interactive elements
 	React.useEffect(() => {
 		if (!isOpen) return undefined;
 
@@ -52,8 +52,23 @@ export const DeviceFailureModalV8: React.FC<DeviceFailureModalProps> = ({
 			}
 		};
 
+		const handleKeyDown = (e: KeyboardEvent) => {
+			// Handle Enter and Space keys for button-like elements
+			if (e.key === 'Enter' || e.key === ' ') {
+				const target = e.target as HTMLElement;
+				if (target.getAttribute('role') === 'button') {
+					e.preventDefault();
+					target.click();
+				}
+			}
+		};
+
 		window.addEventListener('keydown', handleEscape);
-		return () => window.removeEventListener('keydown', handleEscape);
+		window.addEventListener('keydown', handleKeyDown);
+		return () => {
+			window.removeEventListener('keydown', handleEscape);
+			window.removeEventListener('keydown', handleKeyDown);
+		};
 	}, [isOpen, onClose]);
 
 	if (!isOpen) return null;
@@ -103,9 +118,10 @@ export const DeviceFailureModalV8: React.FC<DeviceFailureModalProps> = ({
 
 	return (
 		<div className="end-user-nano">
-			<div
-				role="button"
-				tabIndex={0}
+			{/* Modal Backdrop */}
+			<button
+				type="button"
+				aria-label="Close modal"
 				style={{
 					position: 'fixed',
 					top: 0,
@@ -117,12 +133,25 @@ export const DeviceFailureModalV8: React.FC<DeviceFailureModalProps> = ({
 					alignItems: 'center',
 					justifyContent: 'center',
 					zIndex: 1000,
+					border: 'none',
+					padding: 0,
+					margin: 0,
+					cursor: 'pointer',
 				}}
 				onClick={onClose}
+				onKeyDown={(e) => {
+					if (e.key === 'Enter' || e.key === ' ') {
+						e.preventDefault();
+						onClose();
+					}
+				}}
 			>
+				{/* Modal Dialog */}
 				<div
-					role="button"
-					tabIndex={0}
+					role="dialog"
+					aria-modal="true"
+					aria-labelledby="device-failure-title"
+					aria-describedby="device-failure-description"
 					style={{
 						background: 'white',
 						borderRadius: '16px',
@@ -134,6 +163,10 @@ export const DeviceFailureModalV8: React.FC<DeviceFailureModalProps> = ({
 						boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
 					}}
 					onClick={(e) => e.stopPropagation()}
+					onKeyDown={(e) => {
+						// Prevent keyboard events from bubbling to backdrop
+						e.stopPropagation();
+					}}
 				>
 					{/* Header */}
 					<div
@@ -152,6 +185,7 @@ export const DeviceFailureModalV8: React.FC<DeviceFailureModalProps> = ({
 								style={{ fontSize: '24px', color: 'white' }}
 							></span>
 							<h3
+								id="device-failure-title"
 								style={{
 									margin: 0,
 									fontSize: '20px',
@@ -185,6 +219,7 @@ export const DeviceFailureModalV8: React.FC<DeviceFailureModalProps> = ({
 					<div style={{ padding: '32px' }}>
 						{/* Error Message */}
 						<div
+							id="device-failure-description"
 							style={{
 								background: '#fef2f2',
 								border: '1px solid #fecaca',
@@ -416,7 +451,7 @@ export const DeviceFailureModalV8: React.FC<DeviceFailureModalProps> = ({
 						</div>
 					</div>
 				</div>
-			</div>
+			</button>
 		</div>
 	);
 };

@@ -7,7 +7,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { FiEye, FiEyeOff, FiSave, FiX, FiKey } from 'react-icons/fi';
+import { FiEye, FiEyeOff, FiKey, FiSave, FiX } from 'react-icons/fi';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import {
 	exportWorkerTokenCredentials,
@@ -270,7 +270,7 @@ const WorkerTokenModalV8Streamlined: React.FC<WorkerTokenModalV8StreamlinedProps
 				throw new Error(`Token generation failed (HTTP ${response.status})`);
 			}
 
-			const data = await response.json() as { access_token?: string };
+			const data = (await response.json()) as { access_token?: string };
 			const token = data.access_token;
 			if (!token) {
 				throw new Error('No access token received');
@@ -278,7 +278,7 @@ const WorkerTokenModalV8Streamlined: React.FC<WorkerTokenModalV8StreamlinedProps
 
 			// Save token
 			await unifiedWorkerTokenService.saveToken(token);
-			
+
 			// Dispatch event
 			window.dispatchEvent(new Event('workerTokenUpdated'));
 
@@ -298,7 +298,11 @@ const WorkerTokenModalV8Streamlined: React.FC<WorkerTokenModalV8StreamlinedProps
 	return (
 		<>
 			{/* Spinner */}
-			<StandardModalSpinner show={generateSpinner.isLoading} message="Generating worker token..." theme="blue" />
+			<StandardModalSpinner
+				show={generateSpinner.isLoading}
+				message="Generating worker token..."
+				theme="blue"
+			/>
 
 			{/* Backdrop */}
 			<div
@@ -317,10 +321,7 @@ const WorkerTokenModalV8Streamlined: React.FC<WorkerTokenModalV8StreamlinedProps
 								<h2 className="text-lg font-bold text-amber-900">🔑 Worker Token</h2>
 								<p className="text-sm text-amber-700">Generate API access token</p>
 							</div>
-							<button
-								onClick={onClose}
-								className="text-amber-600 hover:text-amber-800 p-1"
-							>
+							<button onClick={onClose} className="text-amber-600 hover:text-amber-800 p-1">
 								<FiX size={20} />
 							</button>
 						</div>
@@ -434,7 +435,9 @@ const WorkerTokenModalV8Streamlined: React.FC<WorkerTokenModalV8StreamlinedProps
 
 								{/* Custom Domain */}
 								<div>
-									<label className="block text-sm font-medium text-gray-700 mb-1">Custom Domain (Optional)</label>
+									<label className="block text-sm font-medium text-gray-700 mb-1">
+										Custom Domain (Optional)
+									</label>
 									<input
 										type="text"
 										value={customDomain}
@@ -447,7 +450,9 @@ const WorkerTokenModalV8Streamlined: React.FC<WorkerTokenModalV8StreamlinedProps
 
 								{/* Auth Method */}
 								<div>
-									<label className="block text-sm font-medium text-gray-700 mb-1">Authentication Method</label>
+									<label className="block text-sm font-medium text-gray-700 mb-1">
+										Authentication Method
+									</label>
 									<select
 										value={authMethod}
 										onChange={(e) => setAuthMethod(e.target.value as AuthMethodV8)}

@@ -237,16 +237,18 @@ export const MFADeviceRegistrationV8: React.FC<MFADeviceRegistrationV8Props> = (
 
 			<div style={{ marginBottom: '16px' }}>
 				<label
+					htmlFor="device-name-input"
 					style={{ display: 'block', marginBottom: '6px', fontWeight: '600', color: '#374151' }}
 				>
 					Device Name
 					<MFAInfoButtonV8 contentKey="device.name" displayMode="tooltip" />
 				</label>
 				<input
+					id="device-name-input"
 					type="text"
 					value={deviceConfig.deviceName}
 					onChange={(e) => setDeviceConfig({ ...deviceConfig, deviceName: e.target.value })}
-					placeholder={`Enter a name for your ${String(deviceType)} device`}
+					placeholder={`Enter a name for your ${deviceType} device`}
 					style={{
 						width: '100%',
 						padding: '10px',
@@ -264,12 +266,12 @@ export const MFADeviceRegistrationV8: React.FC<MFADeviceRegistrationV8Props> = (
 			{(deviceType === 'SMS' || deviceType === 'VOICE') && (
 				<>
 					<div style={{ marginBottom: '16px' }}>
-						<label
+						<div
 							style={{ display: 'block', marginBottom: '6px', fontWeight: '600', color: '#374151' }}
 						>
 							Country Code
 							<MFAInfoButtonV8 contentKey="phone.country" displayMode="tooltip" />
-						</label>
+						</div>
 						<CountryCodePickerV8
 							value={deviceConfig.countryCode}
 							onChange={(countryCode) => setDeviceConfig({ ...deviceConfig, countryCode })}
@@ -282,24 +284,26 @@ export const MFADeviceRegistrationV8: React.FC<MFADeviceRegistrationV8Props> = (
 						>
 							Phone Number
 							<MFAInfoButtonV8 contentKey="phone.number" displayMode="tooltip" />
+							<input
+								id="phone-number-input"
+								type="tel"
+								value={deviceConfig.phoneNumber}
+								onChange={(e) => setDeviceConfig({ ...deviceConfig, phoneNumber: e.target.value })}
+								placeholder="Enter phone number"
+								style={{
+									width: '100%',
+									padding: '10px',
+									border: `1px solid ${
+										validationErrors.some((msg) => msg.toLowerCase().includes('phone number'))
+											? '#ef4444'
+											: '#d1d5db'
+									}`,
+									borderRadius: '6px',
+									fontSize: '14px',
+									marginTop: '6px',
+								}}
+							/>
 						</label>
-						<input
-							type="tel"
-							value={deviceConfig.phoneNumber}
-							onChange={(e) => setDeviceConfig({ ...deviceConfig, phoneNumber: e.target.value })}
-							placeholder="Enter phone number"
-							style={{
-								width: '100%',
-								padding: '10px',
-								border: `1px solid ${
-									validationErrors.some((msg) => msg.toLowerCase().includes('phone number'))
-										? '#ef4444'
-										: '#d1d5db'
-								}`,
-								borderRadius: '6px',
-								fontSize: '14px',
-							}}
-						/>
 					</div>
 				</>
 			)}
@@ -307,12 +311,14 @@ export const MFADeviceRegistrationV8: React.FC<MFADeviceRegistrationV8Props> = (
 			{deviceType === 'EMAIL' && (
 				<div style={{ marginBottom: '16px' }}>
 					<label
+						htmlFor="email-address-input"
 						style={{ display: 'block', marginBottom: '6px', fontWeight: '600', color: '#374151' }}
 					>
 						Email Address
 						<MFAInfoButtonV8 contentKey="email.address" displayMode="tooltip" />
 					</label>
 					<input
+						id="email-address-input"
 						type="email"
 						value={deviceConfig.email}
 						onChange={(e) => setDeviceConfig({ ...deviceConfig, email: e.target.value })}
@@ -340,12 +346,14 @@ export const MFADeviceRegistrationV8: React.FC<MFADeviceRegistrationV8Props> = (
 				<>
 					<div style={{ marginBottom: '16px' }}>
 						<label
+							htmlFor="fido2-display-name-input"
 							style={{ display: 'block', marginBottom: '6px', fontWeight: '600', color: '#374151' }}
 						>
 							Device Display Name
 							<MFAInfoButtonV8 contentKey="fido2.displayName" displayMode="tooltip" />
 						</label>
 						<input
+							id="fido2-display-name-input"
 							type="text"
 							value={deviceConfig.fido2Config.displayName}
 							onChange={(e) =>
@@ -367,12 +375,14 @@ export const MFADeviceRegistrationV8: React.FC<MFADeviceRegistrationV8Props> = (
 
 					<div style={{ marginBottom: '16px' }}>
 						<label
+							htmlFor="fido2-user-verification-select"
 							style={{ display: 'block', marginBottom: '6px', fontWeight: '600', color: '#374151' }}
 						>
 							User Verification
 							<MFAInfoButtonV8 contentKey="fido2.userVerification" displayMode="tooltip" />
 						</label>
 						<select
+							id="fido2-user-verification-select"
 							value={deviceConfig.fido2Config.userVerification}
 							onChange={(e) =>
 								setDeviceConfig({
@@ -399,12 +409,14 @@ export const MFADeviceRegistrationV8: React.FC<MFADeviceRegistrationV8Props> = (
 
 					<div style={{ marginBottom: '16px' }}>
 						<label
+							htmlFor="fido2-authenticator-select"
 							style={{ display: 'block', marginBottom: '6px', fontWeight: '600', color: '#374151' }}
 						>
 							Authenticator Type
 							<MFAInfoButtonV8 contentKey="fido2.authenticatorAttachment" displayMode="tooltip" />
 						</label>
 						<select
+							id="fido2-authenticator-select"
 							value={deviceConfig.fido2Config.authenticatorAttachment}
 							onChange={(e) =>
 								setDeviceConfig({
@@ -434,12 +446,14 @@ export const MFADeviceRegistrationV8: React.FC<MFADeviceRegistrationV8Props> = (
 				<>
 					<div style={{ marginBottom: '16px' }}>
 						<label
+							htmlFor="totp-qr-size-select"
 							style={{ display: 'block', marginBottom: '6px', fontWeight: '600', color: '#374151' }}
 						>
 							QR Code Size
 							<MFAInfoButtonV8 contentKey="totp.qrCodeSize" displayMode="tooltip" />
 						</label>
 						<select
+							id="totp-qr-size-select"
 							value={deviceConfig.totpConfig.qrCodeSize}
 							onChange={(e) =>
 								setDeviceConfig({
@@ -467,6 +481,7 @@ export const MFADeviceRegistrationV8: React.FC<MFADeviceRegistrationV8Props> = (
 
 					<div style={{ marginBottom: '16px' }}>
 						<label
+							htmlFor="totp-include-secret-checkbox"
 							style={{
 								display: 'flex',
 								alignItems: 'center',
@@ -476,6 +491,7 @@ export const MFADeviceRegistrationV8: React.FC<MFADeviceRegistrationV8Props> = (
 							}}
 						>
 							<input
+								id="totp-include-secret-checkbox"
 								type="checkbox"
 								checked={deviceConfig.totpConfig.includeSecret}
 								onChange={(e) =>
@@ -672,12 +688,14 @@ export const MFADeviceRegistrationV8: React.FC<MFADeviceRegistrationV8Props> = (
 
 					<div style={{ marginBottom: '16px' }}>
 						<label
+							htmlFor="verification-code-input"
 							style={{ display: 'block', marginBottom: '6px', fontWeight: '600', color: '#374151' }}
 						>
 							<span>Verification Code</span>
 							<MFAInfoButtonV8 contentKey="otp.code" displayMode="tooltip" />
 						</label>
 						<input
+							id="verification-code-input"
 							type="text"
 							value={otpCode}
 							onChange={(e) => setOtpCode(e.target.value)}

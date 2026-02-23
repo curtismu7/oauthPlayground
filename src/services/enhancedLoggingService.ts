@@ -24,7 +24,7 @@ export const Colors = {
 	MAGENTA: '\x1b[35m',
 	CYAN: '\x1b[36m',
 	WHITE: '\x1b[37m',
-	
+
 	// Bright variants
 	BRIGHT_BLACK: '\x1b[90m',
 	BRIGHT_RED: '\x1b[91m',
@@ -34,7 +34,7 @@ export const Colors = {
 	BRIGHT_MAGENTA: '\x1b[95m',
 	BRIGHT_CYAN: '\x1b[96m',
 	BRIGHT_WHITE: '\x1b[97m',
-	
+
 	// Background colors
 	BG_BLACK: '\x1b[40m',
 	BG_RED: '\x1b[41m',
@@ -44,7 +44,7 @@ export const Colors = {
 	BG_MAGENTA: '\x1b[45m',
 	BG_CYAN: '\x1b[46m',
 	BG_WHITE: '\x1b[47m',
-	
+
 	// Styles
 	RESET: '\x1b[0m',
 	BOLD: '\x1b[1m',
@@ -239,20 +239,23 @@ export class EnhancedLoggingService {
 		const width = 120;
 		const borderChar = '═';
 		const sideChar = '║';
-		
+
 		let banner = '\n';
 		banner += this.colorize(borderChar.repeat(width), config.color);
 		banner += '\n';
-		
+
 		// Header line
 		const header = `${config.icon} ${config.name} - ${module}`;
 		const padding = Math.max(0, width - header.length - 4);
-		banner += this.colorize(`${sideChar} ${header}${' '.repeat(padding)} ${sideChar}`, config.color);
+		banner += this.colorize(
+			`${sideChar} ${header}${' '.repeat(padding)} ${sideChar}`,
+			config.color
+		);
 		banner += '\n';
-		
+
 		banner += this.colorize(borderChar.repeat(width), config.color);
 		banner += '\n';
-		
+
 		return banner;
 	}
 
@@ -265,14 +268,14 @@ export class EnhancedLoggingService {
 		const config = this.levelConfigs[level];
 		const width = 120;
 		const borderChar = '═';
-		
+
 		let footer = this.colorize(borderChar.repeat(width), config.color);
 		footer += '\n';
 		footer += this.colorize(`${config.icon} END OF ${config.name} ENTRY`, config.color);
 		footer += '\n';
 		footer += this.colorize(borderChar.repeat(width), config.color);
 		footer += '\n\n';
-		
+
 		return footer;
 	}
 
@@ -359,7 +362,14 @@ export class EnhancedLoggingService {
 	/**
 	 * Internal logging method
 	 */
-	private log(level: LogLevel, module: string, message: string, data?: unknown, duration?: number, stackTrace?: string): void {
+	private log(
+		level: LogLevel,
+		module: string,
+		message: string,
+		data?: unknown,
+		duration?: number,
+		stackTrace?: string
+	): void {
 		// Check if we should log this level
 		if (level > this.config.minLogLevel) {
 			return;
@@ -495,9 +505,7 @@ export class EnhancedLoggingService {
 	 * Export logs with enhanced formatting
 	 */
 	exportLogs(): string {
-		return this.logs
-			.map((entry) => this.formatLogEntry(entry))
-			.join('\n');
+		return this.logs.map((entry) => this.formatLogEntry(entry)).join('\n');
 	}
 
 	/**

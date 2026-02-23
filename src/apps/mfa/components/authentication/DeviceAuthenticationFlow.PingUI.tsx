@@ -64,8 +64,8 @@ const getMDIIconClass = (iconName: string): string => {
 
 interface DeviceAuthenticationFlowProps {
 	initialStep?: AuthenticationStep;
-	onComplete?: (result: any) => void;
-	onError?: (error: any) => void;
+	onComplete?: (result: unknown) => void;
+	onError?: (error: unknown) => void;
 	deviceId?: string;
 }
 
@@ -142,7 +142,7 @@ const DeviceAuthenticationFlowPingUI: React.FC<DeviceAuthenticationFlowProps> = 
 
 	// Handle challenge response
 	const handleChallengeResponse = useCallback(
-		async (response: any) => {
+		async (response: unknown) => {
 			try {
 				setFlowState((prev) => ({ ...prev, isLoading: true, error: null }));
 
@@ -257,7 +257,27 @@ const DeviceAuthenticationFlowPingUI: React.FC<DeviceAuthenticationFlowProps> = 
 									{availableDevices.map((device) => (
 										<button
 											key={device.id}
+											type="button"
 											onClick={() => handleDeviceSelect(device)}
+											onFocus={(e) => {
+												if (!flowState.isLoading) {
+													e.currentTarget.style.background =
+														'var(--ping-surface-secondary, #f9fafb)';
+													e.currentTarget.style.borderColor = 'var(--ping-primary-color, #3b82f6)';
+												}
+											}}
+											onBlur={(e) => {
+												if (!flowState.isLoading) {
+													e.currentTarget.style.background = 'var(--ping-surface-primary, #ffffff)';
+													e.currentTarget.style.borderColor = 'var(--ping-border-color, #e5e7eb)';
+												}
+											}}
+											onKeyDown={(e) => {
+												if ((e.key === 'Enter' || e.key === ' ') && !flowState.isLoading) {
+													e.preventDefault();
+													handleDeviceSelect(device);
+												}
+											}}
 											disabled={flowState.isLoading}
 											style={{
 												display: 'flex',
@@ -392,7 +412,14 @@ const DeviceAuthenticationFlowPingUI: React.FC<DeviceAuthenticationFlowProps> = 
 								}}
 							>
 								<button
+									type="button"
 									onClick={handleBack}
+									onKeyDown={(e) => {
+										if (e.key === 'Enter' || e.key === ' ') {
+											e.preventDefault();
+											handleBack();
+										}
+									}}
 									disabled={flowState.isLoading}
 									style={{
 										display: 'flex',
@@ -412,7 +439,14 @@ const DeviceAuthenticationFlowPingUI: React.FC<DeviceAuthenticationFlowProps> = 
 								</button>
 
 								<button
+									type="button"
 									onClick={() => handleChallengeResponse({})}
+									onKeyDown={(e) => {
+										if ((e.key === 'Enter' || e.key === ' ') && !flowState.isLoading) {
+											e.preventDefault();
+											handleChallengeResponse({});
+										}
+									}}
 									disabled={flowState.isLoading}
 									style={{
 										display: 'flex',
@@ -507,7 +541,14 @@ const DeviceAuthenticationFlowPingUI: React.FC<DeviceAuthenticationFlowProps> = 
 								{flowState.error.message || 'An unexpected error occurred during authentication.'}
 							</p>
 							<button
+								type="button"
 								onClick={handleRetry}
+								onKeyDown={(e) => {
+									if (e.key === 'Enter' || e.key === ' ') {
+										e.preventDefault();
+										handleRetry();
+									}
+								}}
 								style={{
 									marginTop: 'var(--ping-spacing-sm, 0.5rem)',
 									padding: 'var(--ping-spacing-sm, 0.5rem) var(--ping-spacing-md, 1rem)',

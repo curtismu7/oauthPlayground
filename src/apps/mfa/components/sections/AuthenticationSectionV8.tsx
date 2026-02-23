@@ -84,7 +84,6 @@ export const AuthenticationSectionV8: React.FC<AuthenticationSectionProps> = ({
 						color: '#374151',
 						marginBottom: '6px',
 					}}
-					htmlFor="username"
 				>
 					Username
 				</label>

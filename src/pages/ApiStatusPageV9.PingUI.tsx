@@ -14,7 +14,7 @@
  * - PingOne UI card, button, and status styling patterns
  */
 
-import React, { useCallback, useEffect, useState, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 interface HealthData {
 	status: string;
@@ -122,7 +122,7 @@ const ApiStatusPage: React.FC = () => {
 	const lastFetchTimeRef = useRef<number>(0);
 	const consecutiveErrorsRef = useRef<number>(0);
 	const circuitBreakerRef = useRef<boolean>(false);
-	
+
 	const [servers, setServers] = useState<ServerStatus[]>([
 		{
 			name: 'Frontend Server',
@@ -238,15 +238,15 @@ const ApiStatusPage: React.FC = () => {
 	const fetchHealthData = useCallback(async () => {
 		// Circuit breaker: prevent infinite loops and rate limiting
 		const now = Date.now();
-		
+
 		// Skip if circuit breaker is open (too many consecutive errors)
 		if (circuitBreakerRef.current) {
 			console.log('[ApiStatusPage] Circuit breaker OPEN - skipping fetch');
 			return;
 		}
-		
+
 		// Skip if already fetching or called too recently (rate limiting)
-		if (isFetchingRef.current || (now - lastFetchTimeRef.current) < 2000) {
+		if (isFetchingRef.current || now - lastFetchTimeRef.current < 2000) {
 			console.log('[ApiStatusPage] Skipping fetch - already fetching or too soon');
 			return;
 		}
@@ -264,25 +264,25 @@ const ApiStatusPage: React.FC = () => {
 
 			setServers(updatedServers);
 			setLastRefresh(new Date());
-			
+
 			// Reset error counters on success
 			consecutiveErrorsRef.current = 0;
 			circuitBreakerRef.current = false;
 			setErrorCount(0);
-			
+
 			console.log('[ApiStatusPage] Health data fetch completed successfully');
 		} catch (err) {
 			console.error('[ApiStatusPage] Failed to fetch server health data:', err);
-			
+
 			// Increment error counters
 			consecutiveErrorsRef.current += 1;
-			setErrorCount(prev => prev + 1);
-			
+			setErrorCount((prev) => prev + 1);
+
 			// Open circuit breaker after 3 consecutive errors
 			if (consecutiveErrorsRef.current >= 3) {
 				circuitBreakerRef.current = true;
 				console.warn('[ApiStatusPage] Circuit breaker OPEN due to consecutive errors');
-				
+
 				// Auto-reset circuit breaker after 30 seconds
 				setTimeout(() => {
 					circuitBreakerRef.current = false;

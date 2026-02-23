@@ -37,7 +37,7 @@ const Card = styled.div`
 const Title = styled.h2`
   font-size: 1.5rem;
   font-weight: 600;
-  color: #1f2937;
+  color: white;
   margin-bottom: 1rem;
   display: flex;
   align-items: center;
@@ -45,7 +45,7 @@ const Title = styled.h2`
 `;
 
 const Description = styled.p`
-  color: #6b7280;
+  color: white;
   margin-bottom: 2rem;
   line-height: 1.6;
 `;
@@ -73,7 +73,7 @@ const FlowCard = styled.div<{ $hasCredentials: boolean }>`
 const FlowName = styled.h3`
   font-size: 1.125rem;
   font-weight: 600;
-  color: #1f2937;
+  color: white;
   margin-bottom: 0.5rem;
   display: flex;
   align-items: center;
@@ -85,7 +85,7 @@ const FlowStatus = styled.div<{ $status: 'active' | 'inactive' }>`
   align-items: center;
   gap: 0.5rem;
   font-size: 0.875rem;
-  color: ${(props) => (props.$status === 'active' ? '#16a34a' : '#9ca3af')};
+  color: ${(props) => (props.$status === 'active' ? '#16a34a' : 'white')};
   margin-bottom: 0.75rem;
 `;
 
@@ -94,7 +94,7 @@ const FlowMeta = styled.div`
   flex-direction: column;
   gap: 0.5rem;
   font-size: 0.875rem;
-  color: #6b7280;
+  color: white;
 `;
 
 const MetaRow = styled.div`
@@ -156,7 +156,7 @@ const ActionButton = styled.button`
 const EmptyState = styled.div`
   text-align: center;
   padding: 3rem;
-  color: #9ca3af;
+  color: white;
 `;
 
 const ButtonRow = styled.div`
@@ -275,7 +275,7 @@ const WorkerTokenCard = styled.div<{ $status: 'valid' | 'expired' | 'missing' }>
 const WorkerTokenTitle = styled.h3`
   font-size: 1.125rem;
   font-weight: 600;
-  color: #1f2937;
+  color: white;
   margin-bottom: 1rem;
   display: flex;
   align-items: center;
@@ -299,14 +299,14 @@ const WorkerTokenLabel = styled.span`
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
-  color: #6b7280;
+  color: white;
   letter-spacing: 0.05em;
 `;
 
 const WorkerTokenValue = styled.span`
   font-size: 0.875rem;
   font-weight: 500;
-  color: #1f2937;
+  color: white;
 `;
 
 const WorkerTokenActions = styled.div`

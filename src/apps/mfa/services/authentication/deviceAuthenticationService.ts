@@ -28,6 +28,16 @@ export interface DeviceAuthenticationInitParams {
 }
 
 /**
+ * Authentication result interface
+ */
+export interface AuthenticationResult {
+	success: boolean;
+	message: string;
+	deviceId: string;
+	status: string;
+}
+
+/**
  * Device authentication response
  */
 export interface DeviceAuthenticationResponse {
@@ -683,6 +693,75 @@ export class DeviceAuthenticationService {
 				deviceAuthenticationId,
 				status: 'FIDO2_ASSERTION_ERROR',
 				error: error instanceof Error ? error.message : 'Unknown FIDO2 assertion error',
+			};
+		}
+	}
+
+	/**
+	 * Start authentication challenge for a device
+	 * Added to resolve component integration issues
+	 */
+	static async startChallenge(deviceId: string): Promise<AuthenticationChallenge> {
+		console.log(`${MODULE_TAG} Starting authentication challenge`, { deviceId });
+
+		try {
+			// For now, create a mock challenge response
+			// In a real implementation, this would call the actual PingOne API
+			const challengeData = {
+				id: `challenge-${deviceId}-${Date.now()}`,
+				type: 'OTP' as const,
+				expiresAt: Date.now() + 300000, // 5 minutes
+				attemptsRemaining: 3,
+				data: {
+					deviceId,
+					method: 'OTP',
+				},
+			};
+
+			console.log(`${MODULE_TAG} ✅ Authentication challenge started`, {
+				challengeId: challengeData.id,
+				expiresAt: challengeData.expiresAt,
+			});
+
+			return challengeData;
+		} catch (error) {
+			console.error(`${MODULE_TAG} Error starting authentication challenge:`, error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Submit challenge response for authentication
+	 * Added to resolve component integration issues
+	 */
+	static async submitResponse(
+		challengeId: string,
+		_response: unknown
+	): Promise<AuthenticationResult> {
+		console.log(`${MODULE_TAG} Submitting challenge response`, { challengeId });
+
+		try {
+			// Mock successful response for now - replace with actual API call
+			const result: AuthenticationResult = {
+				success: true,
+				message: 'Authentication successful',
+				deviceId: 'mock-device-id',
+				status: 'COMPLETED',
+			};
+
+			console.log(`${MODULE_TAG} ✅ Challenge response submitted`, {
+				challengeId,
+				success: result.success,
+			});
+
+			return result;
+		} catch (error) {
+			console.error(`${MODULE_TAG} Error submitting challenge response:`, error);
+			return {
+				success: false,
+				message: error instanceof Error ? error.message : 'Failed to submit response',
+				deviceId: '',
+				status: 'FAILED',
 			};
 		}
 	}

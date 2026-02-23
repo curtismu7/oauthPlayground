@@ -181,7 +181,7 @@ export const DEVICE_TYPES: Record<string, DeviceTypeConfig> = {
 		emoji: '🚗',
 		description: 'Connected vehicle authorization',
 		color: '#1f2937', // BMW Dark
-		secondaryColor: '#111827',
+		secondaryColor: 'white',
 		scenario: 'Automotive & Transport',
 		useCase: 'Optimized for connected cars, vehicle infotainment, and automotive IoT systems',
 	},

@@ -13,15 +13,15 @@
  * - PingOne UI styling and components
  */
 
-import React, { useCallback, useEffect, useState, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { toastV8 } from '../v8/utils/toastNotificationsV8';
-import { EnvironmentIdServiceV8 } from '../v8/services/environmentIdServiceV8';
 import { MFAServiceV8 } from '../apps/mfa/services/mfaServiceV8';
 import { DeviceManagementService } from '../services/deviceManagementService';
+import { EnvironmentIdServiceV8 } from '../v8/services/environmentIdServiceV8';
+import { StorageServiceV8 } from '../v8/services/storageServiceV8';
 import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '../v8/services/workerTokenStatusServiceV8';
-import { StorageServiceV8 } from '../v8/services/storageServiceV8';
+import { toastV8 } from '../v8/utils/toastNotificationsV8';
 
 // MDI Icon Component
 const MDIIcon: React.FC<{
@@ -79,7 +79,7 @@ const DeviceManagement: React.FC = () => {
 		const loadInitialData = async () => {
 			try {
 				setLoading(true);
-				
+
 				// Load environment ID
 				const envId = EnvironmentIdServiceV8.getEnvironmentId();
 				if (envId) {
@@ -114,31 +114,34 @@ const DeviceManagement: React.FC = () => {
 	}, []);
 
 	// Load devices from API
-	const loadDevices = useCallback(async (token: string, user: string) => {
-		try {
-			const deviceList = await MFAServiceV8.getRegisteredDevices({
-				environmentId,
-				workerToken: token,
-				username: user,
-			});
-			
-			// Transform devices to our interface
-			const transformedDevices: Device[] = deviceList.map((device: any) => ({
-				id: device.id,
-				type: device.type,
-				status: device.status,
-				name: device.name || device.displayName || `${device.type} Device`,
-				createdAt: device.createdAt || new Date().toISOString(),
-				lastUsed: device.lastUsed,
-			}));
-			
-			setDevices(transformedDevices);
-		} catch (error) {
-			console.error('Failed to load devices:', error);
-			toastV8.error('Failed to load devices');
-			setDevices([]);
-		}
-	}, [environmentId]);
+	const loadDevices = useCallback(
+		async (token: string, user: string) => {
+			try {
+				const deviceList = await MFAServiceV8.getRegisteredDevices({
+					environmentId,
+					workerToken: token,
+					username: user,
+				});
+
+				// Transform devices to our interface
+				const transformedDevices: Device[] = deviceList.map((device: any) => ({
+					id: device.id,
+					type: device.type,
+					status: device.status,
+					name: device.name || device.displayName || `${device.type} Device`,
+					createdAt: device.createdAt || new Date().toISOString(),
+					lastUsed: device.lastUsed,
+				}));
+
+				setDevices(transformedDevices);
+			} catch (error) {
+				console.error('Failed to load devices:', error);
+				toastV8.error('Failed to load devices');
+				setDevices([]);
+			}
+		},
+		[environmentId]
+	);
 
 	// Handle device selection
 	const handleDeviceSelection = useCallback((deviceId: string, selected: boolean) => {
@@ -163,37 +166,40 @@ const DeviceManagement: React.FC = () => {
 	}, [devices, selectedDevices.size]);
 
 	// Handle individual device deletion
-	const handleDeleteDevice = useCallback(async (deviceId: string) => {
-		if (!workerToken || !username) {
-			toastV8.error('Worker token and username are required');
-			return;
-		}
-
-		try {
-			setLoading(true);
-			
-			const result = await DeviceManagementService.deleteDevice(
-				{
-					environmentId,
-					workerToken,
-					username,
-				},
-				deviceId
-			);
-
-			if (result.success) {
-				toastV8.success('Device deleted successfully');
-				await loadDevices(workerToken, username);
-			} else {
-				toastV8.error(result.error || 'Failed to delete device');
+	const handleDeleteDevice = useCallback(
+		async (deviceId: string) => {
+			if (!workerToken || !username) {
+				toastV8.error('Worker token and username are required');
+				return;
 			}
-		} catch (error) {
-			console.error('Failed to delete device:', error);
-			toastV8.error('Failed to delete device');
-		} finally {
-			setLoading(false);
-		}
-	}, [workerToken, username, environmentId, loadDevices]);
+
+			try {
+				setLoading(true);
+
+				const result = await DeviceManagementService.deleteDevice(
+					{
+						environmentId,
+						workerToken,
+						username,
+					},
+					deviceId
+				);
+
+				if (result.success) {
+					toastV8.success('Device deleted successfully');
+					await loadDevices(workerToken, username);
+				} else {
+					toastV8.error(result.error || 'Failed to delete device');
+				}
+			} catch (error) {
+				console.error('Failed to delete device:', error);
+				toastV8.error('Failed to delete device');
+			} finally {
+				setLoading(false);
+			}
+		},
+		[workerToken, username, environmentId, loadDevices]
+	);
 
 	// Handle delete all devices
 	const handleDeleteAllDevices = useCallback(async () => {
@@ -204,7 +210,7 @@ const DeviceManagement: React.FC = () => {
 
 		try {
 			setIsDeleting(true);
-			
+
 			const result = await DeviceManagementService.deleteAllDevices(
 				{
 					environmentId,
@@ -212,7 +218,8 @@ const DeviceManagement: React.FC = () => {
 					username,
 				},
 				{
-					deviceType: deleteAllOptions.deviceType === 'ALL' ? undefined : deleteAllOptions.deviceType,
+					deviceType:
+						deleteAllOptions.deviceType === 'ALL' ? undefined : deleteAllOptions.deviceType,
 					status: deleteAllOptions.status === 'ALL' ? undefined : deleteAllOptions.status,
 					confirmBeforeDelete: false, // Already confirmed via modal
 				}
@@ -237,14 +244,20 @@ const DeviceManagement: React.FC = () => {
 	// Get device statistics
 	const deviceStats = useMemo(() => {
 		const total = devices.length;
-		const byType = devices.reduce((acc, device) => {
-			acc[device.type] = (acc[device.type] || 0) + 1;
-			return acc;
-		}, {} as Record<string, number>);
-		const byStatus = devices.reduce((acc, device) => {
-			acc[device.status] = (acc[device.status] || 0) + 1;
-			return acc;
-		}, {} as Record<string, number>);
+		const byType = devices.reduce(
+			(acc, device) => {
+				acc[device.type] = (acc[device.type] || 0) + 1;
+				return acc;
+			},
+			{} as Record<string, number>
+		);
+		const byStatus = devices.reduce(
+			(acc, device) => {
+				acc[device.status] = (acc[device.status] || 0) + 1;
+				return acc;
+			},
+			{} as Record<string, number>
+		);
 
 		return { total, byType, byStatus };
 	}, [devices]);
@@ -252,15 +265,15 @@ const DeviceManagement: React.FC = () => {
 	// Get filtered devices for delete all operation
 	const getFilteredDevicesForDeletion = useCallback(() => {
 		let filtered = devices;
-		
+
 		if (deleteAllOptions.deviceType !== 'ALL') {
 			filtered = filtered.filter((d) => d.type === deleteAllOptions.deviceType);
 		}
-		
+
 		if (deleteAllOptions.status !== 'ALL') {
 			filtered = filtered.filter((d) => d.status === deleteAllOptions.status);
 		}
-		
+
 		return filtered;
 	}, [devices, deleteAllOptions]);
 
@@ -371,9 +384,7 @@ const DeviceManagement: React.FC = () => {
 						<MDIIcon icon="cellphone" size={24} />
 						Device Management
 					</h1>
-					<p style={{ color: 'var(--brand-text-secondary, #6b7280)' }}>
-						Loading devices...
-					</p>
+					<p style={{ color: 'var(--brand-text-secondary, #6b7280)' }}>Loading devices...</p>
 				</div>
 			</div>
 		);
@@ -396,21 +407,45 @@ const DeviceManagement: React.FC = () => {
 				<h3 style={{ marginBottom: '1rem' }}>
 					<MDIIcon icon="chart-bar" size={20} /> Device Statistics
 				</h3>
-				<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+				<div
+					style={{
+						display: 'grid',
+						gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+						gap: '1rem',
+					}}
+				>
 					<div>
-						<div style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--brand-primary, #3b82f6)' }}>
+						<div
+							style={{
+								fontSize: '2rem',
+								fontWeight: '700',
+								color: 'var(--brand-primary, #3b82f6)',
+							}}
+						>
 							{deviceStats.total}
 						</div>
 						<div style={{ color: 'var(--brand-text-secondary, #6b7280)' }}>Total Devices</div>
 					</div>
 					<div>
-						<div style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--brand-success, #10b981)' }}>
+						<div
+							style={{
+								fontSize: '2rem',
+								fontWeight: '700',
+								color: 'var(--brand-success, #10b981)',
+							}}
+						>
 							{deviceStats.byStatus.ACTIVE || 0}
 						</div>
 						<div style={{ color: 'var(--brand-text-secondary, #6b7280)' }}>Active</div>
 					</div>
 					<div>
-						<div style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--brand-warning, #f59e0b)' }}>
+						<div
+							style={{
+								fontSize: '2rem',
+								fontWeight: '700',
+								color: 'var(--brand-warning, #f59e0b)',
+							}}
+						>
 							{deviceStats.byStatus.PENDING || 0}
 						</div>
 						<div style={{ color: 'var(--brand-text-secondary, #6b7280)' }}>Pending</div>
@@ -423,10 +458,22 @@ const DeviceManagement: React.FC = () => {
 				<h3 style={{ marginBottom: '1rem' }}>
 					<MDIIcon icon="devices" size={20} /> Devices by Type
 				</h3>
-				<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem' }}>
+				<div
+					style={{
+						display: 'grid',
+						gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+						gap: '1rem',
+					}}
+				>
 					{Object.entries(deviceStats.byType).map(([type, count]) => (
 						<div key={type} style={{ textAlign: 'center' }}>
-							<div style={{ fontSize: '1.5rem', fontWeight: '600', color: 'var(--brand-text, #1f2937)' }}>
+							<div
+								style={{
+									fontSize: '1.5rem',
+									fontWeight: '600',
+									color: 'var(--brand-text, #1f2937)',
+								}}
+							>
 								{count}
 							</div>
 							<div style={{ color: 'var(--brand-text-secondary, #6b7280)' }}>{type}</div>
@@ -480,7 +527,13 @@ const DeviceManagement: React.FC = () => {
 					<MDIIcon icon="list" size={20} /> Device List ({devices.length})
 				</h3>
 				{devices.length === 0 ? (
-					<div style={{ textAlign: 'center', padding: '2rem', color: 'var(--brand-text-secondary, #6b7280)' }}>
+					<div
+						style={{
+							textAlign: 'center',
+							padding: '2rem',
+							color: 'var(--brand-text-secondary, #6b7280)',
+						}}
+					>
 						<MDIIcon icon="cellphone-off" size={48} style={{ marginBottom: '1rem' }} />
 						<div>No devices found</div>
 					</div>
@@ -516,13 +569,9 @@ const DeviceManagement: React.FC = () => {
 									<td style={getCellStyle()}>{device.type}</td>
 									<td style={getCellStyle()}>{device.name}</td>
 									<td style={getCellStyle()}>
-										<span style={getBadgeStyle(device.status)}>
-											{device.status}
-										</span>
+										<span style={getBadgeStyle(device.status)}>{device.status}</span>
 									</td>
-									<td style={getCellStyle()}>
-										{new Date(device.createdAt).toLocaleDateString()}
-									</td>
+									<td style={getCellStyle()}>{new Date(device.createdAt).toLocaleDateString()}</td>
 									<td style={getCellStyle()}>
 										{device.lastUsed ? new Date(device.lastUsed).toLocaleDateString() : 'Never'}
 									</td>
@@ -575,11 +624,16 @@ const DeviceManagement: React.FC = () => {
 						onClick={(e) => e.stopPropagation()}
 					>
 						<h2 style={{ marginBottom: '1rem' }}>
-							<MDIIcon icon="warning" size={24} style={{ marginRight: '0.5rem', color: '#ef4444' }} />
+							<MDIIcon
+								icon="warning"
+								size={24}
+								style={{ marginRight: '0.5rem', color: '#ef4444' }}
+							/>
 							Delete All Devices
 						</h2>
 						<p style={{ marginBottom: '1.5rem', color: 'var(--brand-text-secondary, #6b7280)' }}>
-							This will permanently delete {getFilteredDevicesForDeletion().length} devices. This action cannot be undone.
+							This will permanently delete {getFilteredDevicesForDeletion().length} devices. This
+							action cannot be undone.
 						</p>
 
 						<div style={{ marginBottom: '1.5rem' }}>
@@ -594,7 +648,9 @@ const DeviceManagement: React.FC = () => {
 									borderRadius: 'var(--brand-radius-md, 0.5rem)',
 								}}
 								value={deleteAllOptions.deviceType}
-								onChange={(e) => setDeleteAllOptions({ ...deleteAllOptions, deviceType: e.target.value })}
+								onChange={(e) =>
+									setDeleteAllOptions({ ...deleteAllOptions, deviceType: e.target.value })
+								}
 							>
 								<option value="ALL">All Types</option>
 								<option value="SMS">SMS</option>
@@ -616,7 +672,9 @@ const DeviceManagement: React.FC = () => {
 									borderRadius: 'var(--brand-radius-md, 0.5rem)',
 								}}
 								value={deleteAllOptions.status}
-								onChange={(e) => setDeleteAllOptions({ ...deleteAllOptions, status: e.target.value })}
+								onChange={(e) =>
+									setDeleteAllOptions({ ...deleteAllOptions, status: e.target.value })
+								}
 							>
 								<option value="ALL">All Statuses</option>
 								<option value="ACTIVE">Active</option>
@@ -626,8 +684,21 @@ const DeviceManagement: React.FC = () => {
 							</select>
 						</div>
 
-						<div style={{ marginBottom: '1.5rem', padding: '1rem', background: 'var(--brand-error-light, #fef2f2)', borderRadius: 'var(--brand-radius-sm, 0.25rem)' }}>
-							<div style={{ fontWeight: '600', color: 'var(--brand-error-dark, #991b1b)', marginBottom: '0.5rem' }}>
+						<div
+							style={{
+								marginBottom: '1.5rem',
+								padding: '1rem',
+								background: 'var(--brand-error-light, #fef2f2)',
+								borderRadius: 'var(--brand-radius-sm, 0.25rem)',
+							}}
+						>
+							<div
+								style={{
+									fontWeight: '600',
+									color: 'var(--brand-error-dark, #991b1b)',
+									marginBottom: '0.5rem',
+								}}
+							>
 								Devices to be deleted:
 							</div>
 							<div style={{ fontSize: '0.875rem', color: 'var(--brand-error-dark, #991b1b)' }}>
@@ -650,7 +721,11 @@ const DeviceManagement: React.FC = () => {
 							>
 								{isDeleting ? (
 									<>
-										<MDIIcon icon="loading" size={16} style={{ marginRight: '0.5rem', animation: 'spin 1s linear infinite' }} />
+										<MDIIcon
+											icon="loading"
+											size={16}
+											style={{ marginRight: '0.5rem', animation: 'spin 1s linear infinite' }}
+										/>
 										Deleting...
 									</>
 								) : (

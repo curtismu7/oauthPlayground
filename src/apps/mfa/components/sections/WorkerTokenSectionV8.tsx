@@ -234,7 +234,6 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionProps> = ({
 									color: '#374151',
 									marginBottom: '6px',
 								}}
-								htmlFor="environmentid"
 							>
 								Environment ID
 							</label>
@@ -265,7 +264,6 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionProps> = ({
 									color: '#374151',
 									marginBottom: '6px',
 								}}
-								htmlFor="username"
 							>
 								Username
 							</label>

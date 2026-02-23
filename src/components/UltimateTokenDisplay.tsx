@@ -66,18 +66,18 @@ const Container = styled.div<{ $mode: DisplayMode }>`
 		$mode === 'educational' ? '0 4px 12px rgba(0, 0, 0, 0.1)' : '0 1px 3px rgba(0, 0, 0, 0.1)'};
   overflow: hidden;
   min-height: ${({ $mode }) => {
-    // Ensure consistent height regardless of token count
-    switch ($mode) {
-      case 'compact':
-        return '200px'; // Minimum height for compact mode
-      case 'detailed':
-        return '400px'; // Minimum height for detailed mode
-      case 'educational':
-        return '500px'; // Minimum height for educational mode
-      default:
-        return '400px';
-    }
-  }};
+		// Ensure consistent height regardless of token count
+		switch ($mode) {
+			case 'compact':
+				return '200px'; // Minimum height for compact mode
+			case 'detailed':
+				return '400px'; // Minimum height for detailed mode
+			case 'educational':
+				return '500px'; // Minimum height for educational mode
+			default:
+				return '400px';
+		}
+	}};
 `;
 
 const Header = styled.div<{ $mode: DisplayMode }>`

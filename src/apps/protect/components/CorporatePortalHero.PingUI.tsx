@@ -110,13 +110,10 @@ const CorporatePortalHero: React.FC<CorporatePortalHeroProps> = ({
 	}, [navigate, portalConfig, onLoginStart]);
 
 	// Handle login form submission
-	const handleLoginSubmit = useCallback(
-		() => {
-			onLoginStart?.();
-			setLoginState((prev) => ({ ...prev, isOpen: false }));
-		},
-		[onLoginStart]
-	);
+	const handleLoginSubmit = useCallback(() => {
+		onLoginStart?.();
+		setLoginState((prev) => ({ ...prev, isOpen: false }));
+	}, [onLoginStart]);
 
 	// Handle missing portal configuration gracefully
 	if (!portalConfig || !portalConfig.login) {

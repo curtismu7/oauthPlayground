@@ -67,6 +67,7 @@ export const DEFAULT_APP_CONFIG: PingOneApplicationState = {
 	jwksUrl: '',
 	jwks: '',
 	requirePushedAuthorizationRequest: true, // RAR should use PAR for security
+	pushedAuthorizationRequestTimeout: 60,
 	enableDPoP: false,
 	dpopAlgorithm: 'ES256',
 	additionalRefreshTokenReplayProtection: false,

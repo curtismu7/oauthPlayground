@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useDraggableModal } from '@/v8/hooks/useDraggableModal';
 import { MFAServiceV8, type MFASettings } from '@/v8/services/mfaServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
@@ -27,6 +27,7 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 				document.body.style.overflow = originalOverflow;
 			};
 		}
+		return undefined;
 	}, [isOpen]);
 
 	// Handle ESC key to close modal
@@ -43,7 +44,7 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 		return () => window.removeEventListener('keydown', handleEscape);
 	}, [isOpen, onClose]);
 
-	const fetchSettings = async () => {
+	const fetchSettings = useCallback(async () => {
 		setIsLoading(true);
 		try {
 			const data = await MFAServiceV8.getMFASettings(environmentId);
@@ -54,13 +55,13 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, [environmentId]);
 
 	useEffect(() => {
 		if (isOpen && environmentId) {
 			fetchSettings();
 		}
-	}, [isOpen, environmentId]);
+	}, [isOpen, environmentId, fetchSettings]);
 
 	const handleSave = async () => {
 		setIsSaving(true);

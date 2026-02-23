@@ -14,6 +14,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FiBook, FiChevronDown, FiPackage } from 'react-icons/fi';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { FlowGuidanceSystem } from '@/apps/flows/components/FlowGuidanceSystem';
 import { EducationModeToggle } from '@/components/education/EducationModeToggle';
 import { MasterEducationSection } from '@/components/education/MasterEducationSection';
 import { StandardizedCredentialExportImport } from '@/components/StandardizedCredentialExportImport';
@@ -47,11 +48,10 @@ import {
 import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import CredentialsFormV8U from '@/v8u/components/CredentialsFormV8U';
 import { reloadCredentialsAfterReset } from '@/v8u/services/credentialReloadServiceV8U';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import { AdvancedOAuthFeatures } from '../components/AdvancedOAuthFeatures';
-import CredentialsFormV8U from '@/v8u/components/CredentialsFormV8U';
-import { FlowGuidanceSystem } from '@/apps/flows/components/FlowGuidanceSystem';
 // FlowNotAvailableModal removed - dropdown already filters flows by spec version
 import { FlowTypeSelector } from '../components/FlowTypeSelector';
 import { MobileResponsiveWrapper } from '../components/MobileResponsiveWrapper';

@@ -639,7 +639,6 @@ export const FlowComparisonTool: React.FC<FlowComparisonToolProps> = ({
 										))}
 									</ul>
 								</div>
-
 							</ComparisonCard>
 						);
 					})}

@@ -24,14 +24,20 @@ import { UserLoginModalV8 } from '@/v8/components/UserLoginModalV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { WorkerTokenPromptModalV8 } from '@/v8/components/WorkerTokenPromptModalV8';
 import type {
-	MFACredentials,
-	MFAState,
 	DeviceAuthenticationPolicy,
 	DeviceType,
+	MFACredentials,
+	MFAState,
 } from '@/v8/flows/shared/MFATypes';
-import { useStepNavigationV8, type UseStepNavigationV8Return } from '@/v8/hooks/useStepNavigationV8';
+import {
+	type UseStepNavigationV8Return,
+	useStepNavigationV8,
+} from '@/v8/hooks/useStepNavigationV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
-import { WorkerTokenStatusServiceV8, type TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
+import {
+	type TokenStatusInfo,
+	WorkerTokenStatusServiceV8,
+} from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const MODULE_TAG = '[🔐 AUTHENTICATION-STEPPER-V8]';

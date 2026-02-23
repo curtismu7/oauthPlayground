@@ -17,21 +17,20 @@ import { MFACallbackRouter } from '@/apps/mfa/services/shared/mfaCallbackRouter'
 import type {
 	DeviceConfigKey,
 	DeviceRegistrationData,
+	MFACallbackData,
 	RegistrationFlowState,
-	RegistrationStep,
 } from '@/apps/mfa/types/mfaFlowTypes';
+import { RegistrationStep } from '@/apps/mfa/types/mfaFlowTypes';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 import { MFAErrorBoundary } from '@/v8/components/MFAErrorBoundary';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 interface DeviceRegistrationFlowProps {
-	initialStep?: RegistrationStep;
-	onComplete?: (result: any) => void;
-	onCancel?: () => void;
 	environmentId: string;
 	username: string;
 	deviceType?: DeviceConfigKey;
+	onComplete?: (result: DeviceRegistrationData) => void;
 }
 
 /**
@@ -39,12 +38,10 @@ interface DeviceRegistrationFlowProps {
  * Handles the complete device registration process with separated concerns
  */
 export const DeviceRegistrationFlow: React.FC<DeviceRegistrationFlowProps> = ({
-	initialStep = RegistrationStep.DEVICE_TYPE_SELECTION,
-	onComplete,
-	onCancel,
 	environmentId,
 	username,
-	deviceType = 'SMS',
+	deviceType,
+	onComplete,
 }) => {
 	const [registrationState, setRegistrationState] = useState<RegistrationFlowState | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
@@ -69,7 +66,7 @@ export const DeviceRegistrationFlow: React.FC<DeviceRegistrationFlowProps> = ({
 
 	// Handle callbacks specifically for registration
 	useEffect(() => {
-		const handleCallback = async (callbackData: any) => {
+		const handleCallback = async (callbackData: MFACallbackData) => {
 			if (!registrationState) return;
 
 			setIsLoading(true);
@@ -93,6 +90,50 @@ export const DeviceRegistrationFlow: React.FC<DeviceRegistrationFlowProps> = ({
 			MFACallbackRouter.unregisterCallbackHandler('registration');
 		};
 	}, [registrationState]);
+
+	// Helper functions - moved before usage to fix hook dependencies
+	// Get step name for display
+	const getStepName = useCallback((step: RegistrationStep): string => {
+		const stepNames = {
+			[RegistrationStep.DEVICE_TYPE_SELECTION]: 'Device Type Selection',
+			[RegistrationStep.USER_VERIFICATION]: 'User Verification',
+			[RegistrationStep.DEVICE_CONFIGURATION]: 'Device Configuration',
+			[RegistrationStep.DEVICE_VALIDATION]: 'Device Validation',
+			[RegistrationStep.REGISTRATION_COMPLETE]: 'Registration Complete',
+		};
+		return stepNames[step] || 'Unknown Step';
+	}, []);
+
+	// Get next step
+	const getNextStep = useCallback((currentStep: RegistrationStep): RegistrationStep => {
+		const stepOrder = Object.values(RegistrationStep);
+		const currentIndex = stepOrder.indexOf(currentStep);
+		return stepOrder[Math.min(currentIndex + 1, stepOrder.length - 1)];
+	}, []);
+
+	// Get previous step
+	const getPreviousStep = useCallback((currentStep: RegistrationStep): RegistrationStep => {
+		const stepOrder = Object.values(RegistrationStep);
+		const currentIndex = stepOrder.indexOf(currentStep);
+		return stepOrder[Math.max(currentIndex - 1, 0)];
+	}, []);
+
+	// Execute step-specific logic
+	const executeStepLogic = useCallback(async (step: RegistrationStep, _state: RegistrationFlowState) => {
+		switch (step) {
+			case RegistrationStep.DEVICE_CONFIGURATION:
+				// Device configuration logic
+				break;
+			case RegistrationStep.DEVICE_VALIDATION:
+				// Device validation logic
+				break;
+			case RegistrationStep.REGISTRATION_COMPLETE:
+				// Completion logic
+				break;
+			default:
+				break;
+		}
+	}, []);
 
 	// Handle step navigation
 	const handleNextStep = useCallback(async () => {
@@ -174,49 +215,6 @@ export const DeviceRegistrationFlow: React.FC<DeviceRegistrationFlowProps> = ({
 		}
 	}, [registrationState, deviceData, selectedDeviceType, environmentId, username, onComplete]);
 
-	// Get step name for display
-	const getStepName = (step: RegistrationStep): string => {
-		const stepNames = {
-			[RegistrationStep.DEVICE_TYPE_SELECTION]: 'Device Type Selection',
-			[RegistrationStep.USER_VERIFICATION]: 'User Verification',
-			[RegistrationStep.DEVICE_CONFIGURATION]: 'Device Configuration',
-			[RegistrationStep.DEVICE_VALIDATION]: 'Device Validation',
-			[RegistrationStep.REGISTRATION_COMPLETE]: 'Registration Complete',
-		};
-		return stepNames[step] || 'Unknown Step';
-	};
-
-	// Get next step
-	const getNextStep = (currentStep: RegistrationStep): RegistrationStep => {
-		const stepOrder = Object.values(RegistrationStep);
-		const currentIndex = stepOrder.indexOf(currentStep);
-		return stepOrder[Math.min(currentIndex + 1, stepOrder.length - 1)];
-	};
-
-	// Get previous step
-	const getPreviousStep = (currentStep: RegistrationStep): RegistrationStep => {
-		const stepOrder = Object.values(RegistrationStep);
-		const currentIndex = stepOrder.indexOf(currentStep);
-		return stepOrder[Math.max(currentIndex - 1, 0)];
-	};
-
-	// Execute step-specific logic
-	const executeStepLogic = async (step: RegistrationStep, _state: RegistrationFlowState) => {
-		switch (step) {
-			case RegistrationStep.DEVICE_CONFIGURATION:
-				// Device configuration logic
-				break;
-			case RegistrationStep.DEVICE_VALIDATION:
-				// Device validation logic
-				break;
-			case RegistrationStep.REGISTRATION_COMPLETE:
-				// Completion logic
-				break;
-			default:
-				break;
-		}
-	};
-
 	// Calculate progress percentage
 	const getProgressPercentage = (): number => {
 		if (!registrationState) return 0;
@@ -236,6 +234,7 @@ export const DeviceRegistrationFlow: React.FC<DeviceRegistrationFlowProps> = ({
 							{(['SMS', 'EMAIL', 'MOBILE', 'WHATSAPP', 'TOTP', 'FIDO2'] as DeviceConfigKey[]).map(
 								(type) => (
 									<button
+										type="button"
 										key={type}
 										onClick={() => handleDeviceTypeSelect(type)}
 										className={`p-4 border-2 rounded-lg text-center transition-colors ${

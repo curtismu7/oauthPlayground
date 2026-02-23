@@ -31,17 +31,17 @@ const getMDIIconClass = (iconName: string): string => {
 };
 
 // MDI Icon Component
-const MDIIcon: React.FC<{ icon: string; size?: number; style?: React.CSSProperties; ariaLabel?: string }> = ({ 
-	icon, 
-	size = 16, 
-	style, 
-	ariaLabel 
-}) => (
+const MDIIcon: React.FC<{
+	icon: string;
+	size?: number;
+	style?: React.CSSProperties;
+	ariaLabel?: string;
+}> = ({ icon, size = 16, style, ariaLabel }) => (
 	<span
 		className={`mdi ${getMDIIconClass(icon)}`}
-		style={{ 
-			fontSize: `${size}px`, 
-			...style 
+		style={{
+			fontSize: `${size}px`,
+			...style,
 		}}
 		aria-label={ariaLabel}
 		aria-hidden={!ariaLabel}

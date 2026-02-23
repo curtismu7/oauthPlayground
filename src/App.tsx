@@ -24,7 +24,7 @@ import { PromptModalV8 } from './v8/components/PromptModalV8';
 const CompactAppPickerDemo = lazy(() => import('./pages/CompactAppPickerDemo'));
 
 import Navbar from '@/apps/navigation/components/Navbar';
-import Sidebar from '@/apps/navigation/components/UnifiedSidebar';
+import Sidebar from '@/apps/navigation/components/UnifiedSidebar.V2';
 import DeviceMockFlow from './components/DeviceMockFlow';
 import FlowComparisonTool from './components/FlowComparisonTool';
 import FlowHeaderDemo from './components/FlowHeaderDemo';
@@ -33,8 +33,8 @@ import { RouteRestorer } from './components/RouteRestorer';
 import { useAuth } from './contexts/NewAuthContext';
 import { NotificationContainer, NotificationProvider } from './hooks/useNotifications';
 import AIIdentityArchitectures from './pages/AIIdentityArchitectures';
-import ApplicationGeneratorPingUI from './pages/ApplicationGenerator.PingUI';
 import AnalyticsPingUI from './pages/Analytics.PingUI';
+import ApplicationGeneratorPingUI from './pages/ApplicationGenerator.PingUI';
 import Callback from './pages/Callback';
 import ClientGenerator from './pages/ClientGenerator';
 import ConfigurationPingUI from './pages/Configuration.PingUI';
@@ -223,6 +223,7 @@ const MobileFlowV8 = React.lazy(() =>
 //	import('./v8/flows/types/WhatsAppFlowV8').then((module) => ({ default: module.WhatsAppFlowV8 }))
 // );
 
+import DeviceManagementV9PingUI from './pages/DeviceManagementV9.PingUI';
 import EnvironmentManagementPageV8PingUI from './pages/EnvironmentManagementPageV8.PingUI';
 import TokenExchangeFlowV9PingUI from './pages/flows/TokenExchangeFlowV9.PingUI';
 // Import Protect Portal
@@ -232,7 +233,6 @@ import DavinciTodoApp from './sdk-examples/davinci-todo-app/DavinciTodoApp';
 import { DebugLogViewerPopoutV8 } from './v8/pages/DebugLogViewerPopoutV8';
 import DeleteAllDevicesUtilityV8 from './v8/pages/DeleteAllDevicesUtilityV8';
 import DeviceAuthenticationDetailsV8 from './v8/pages/DeviceAuthenticationDetailsV8';
-import DeviceManagementV9PingUI from './pages/DeviceManagementV9.PingUI';
 import { FIDO2RegistrationDocsPageV8 } from './v8/pages/FIDO2RegistrationDocsPageV8';
 import MFADeviceCreateDemoV8 from './v8/pages/MFADeviceCreateDemoV8';
 import { MFAFeatureFlagsAdminV8 } from './v8/pages/MFAFeatureFlagsAdminV8';

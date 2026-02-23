@@ -34,7 +34,8 @@ import { credentialStorageManager } from '../services/credentialStorageManager';
 import { FlowHeader } from '../services/flowHeaderService';
 import { SaveButton } from '../services/saveButtonService';
 import { credentialManager } from '../utils/credentialManager';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { feedbackService } from '../services/feedback/feedbackService';
+import { migrateToast } from '../utils/migrationHelpers';
 import {
 	type TokenStatusInfo,
 	WorkerTokenStatusServiceV8,
@@ -116,7 +117,7 @@ const StepHeader = styled.div`
   h3 {
     font-size: 1.125rem;
     font-weight: 600;
-    color: ${({ theme }) => theme.colors.gray900};
+    color: white;
     margin: 0;
   }
 `;
@@ -433,10 +434,15 @@ const Configuration: React.FC = () => {
 			callbackUriService.applyFlowOverrides({});
 			const updatedCatalog = callbackUriService.getRedirectUriCatalog();
 			setUriCatalog(updatedCatalog);
-			v4ToastManager.showSuccess('Callback URIs reset to default values.');
+			migrateToast.saveSuccess('Callback URIs reset to default values.');
 		} catch (error) {
 			console.error('[Configuration] Failed to reset callback URIs:', error);
-			v4ToastManager.showError('Unable to reset callback URIs. Check the console for details.');
+			feedbackService.showPageBanner({
+				type: 'error',
+				title: 'Reset Failed',
+				message: 'Unable to reset callback URIs. Check the console for details.',
+				dismissible: true
+			});
 		} finally {
 			setUriSaving(false);
 		}
@@ -479,14 +485,19 @@ const Configuration: React.FC = () => {
 			setUriCatalog(updatedCatalog);
 
 			const hasOverrides = Object.keys(overrides).length > 0;
-			v4ToastManager.showSuccess(
+			migrateToast.saveSuccess(
 				hasOverrides
 					? 'Callback URIs updated successfully.'
 					: 'Callback URIs now using default values.'
 			);
 		} catch (error) {
 			console.error('[Configuration] Failed to apply callback URI overrides:', error);
-			v4ToastManager.showError('Unable to update callback URIs. Check the console for details.');
+			feedbackService.showPageBanner({
+				type: 'error',
+				title: 'Update Failed',
+				message: 'Unable to update callback URIs. Check the console for details.',
+				dismissible: true
+			});
 		} finally {
 			setUriSaving(false);
 		}
@@ -505,7 +516,6 @@ const Configuration: React.FC = () => {
 		responseType: 'code',
 		grantType: 'authorization_code',
 		clientAuthMethod: 'client_secret_post',
-		tokenEndpointAuthMethod: 'client_secret_post',
 		issuerUrl: '',
 		authorizationEndpoint: '',
 		tokenEndpoint: '',
@@ -531,6 +541,7 @@ const Configuration: React.FC = () => {
 		jwksUrl: '',
 		jwks: '',
 		requirePushedAuthorizationRequest: false,
+		pushedAuthorizationRequestTimeout: 60,
 		enableDPoP: false,
 		dpopAlgorithm: 'ES256',
 		additionalRefreshTokenReplayProtection: false,
@@ -604,9 +615,16 @@ const Configuration: React.FC = () => {
 			setPingOneConfigSaved(true);
 
 			// Show success message
+			migrateToast.saveSuccess('PingOne application configuration saved');
 			setTimeout(() => setPingOneConfigSaved(false), 3000);
 		} catch (error) {
 			console.error('Failed to save PingOne configuration:', error);
+			feedbackService.showPageBanner({
+				type: 'error',
+				title: 'Save Failed',
+				message: 'Failed to save PingOne configuration. Please try again.',
+				dismissible: true
+			});
 		}
 	};
 
@@ -621,11 +639,18 @@ const Configuration: React.FC = () => {
 			);
 
 			setPingOneConfigSaved(true);
+			migrateToast.saveSuccess('All configuration saved successfully');
 			setTimeout(() => setPingOneConfigSaved(false), 10000);
 
 			console.log(`[Configuration] Saved configuration`);
 		} catch (error) {
 			console.error('Failed to save configuration:', error);
+			feedbackService.showPageBanner({
+				type: 'error',
+				title: 'Save Failed',
+				message: 'Failed to save configuration. Please try again.',
+				dismissible: true
+			});
 			throw error;
 		}
 	};
@@ -634,9 +659,15 @@ const Configuration: React.FC = () => {
 		try {
 			await navigator.clipboard.writeText(text);
 			setCopiedText(label);
+			migrateToast.copySuccess(label);
 			setTimeout(() => setCopiedText(''), 2000);
 		} catch (err) {
 			console.error('Failed to copy text: ', err);
+			feedbackService.showSnackbar({
+				type: 'warning',
+				message: `Failed to copy ${label}`,
+				duration: 3000
+			});
 		}
 	};
 
@@ -652,8 +683,8 @@ const Configuration: React.FC = () => {
 
 	// Check worker token status on mount and when token updates
 	useEffect(() => {
-		const checkTokenStatus = () => {
-			const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+		const checkTokenStatus = async () => {
+			const currentStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 			setTokenStatus(currentStatus);
 		};
 
@@ -783,7 +814,11 @@ const Configuration: React.FC = () => {
 									type="button"
 									onClick={() => {
 										// TODO: Implement check config functionality
-										v4ToastManager.showInfo('Check Config functionality coming soon!');
+										feedbackService.showSnackbar({
+											type: 'info',
+											message: 'Check Config functionality coming soon!',
+											duration: 4000
+										});
 									}}
 									style={{
 										background: '#3b82f6',
@@ -823,7 +858,11 @@ const Configuration: React.FC = () => {
 									type="button"
 									onClick={() => {
 										// TODO: Implement create app functionality
-										v4ToastManager.showInfo('Create App functionality coming soon!');
+										feedbackService.showSnackbar({
+											type: 'info',
+											message: 'Create App functionality coming soon!',
+											duration: 4000
+										});
 									}}
 									style={{
 										background: '#10b981',
@@ -871,7 +910,6 @@ const Configuration: React.FC = () => {
 				icon={<FiInfo />}
 				defaultCollapsed={false}
 				theme="orange"
-				id="redirect-uri-catalog"
 			>
 				<Card>
 					<p
@@ -1019,12 +1057,12 @@ const Configuration: React.FC = () => {
 			</CollapsibleHeader>
 
 			{/* Configuration URI Status - Check redirect and logout URIs against PingOne */}
-			{tokenStatus.isValid && credentials.environmentId && credentials.clientId && (
+			{tokenStatus.isValid && credentials.environmentId && credentials.clientId && tokenStatus.token && (
 				<ConfigurationURIChecker
 					flowType="configuration"
 					environmentId={credentials.environmentId}
 					clientId={credentials.clientId}
-					workerToken={tokenStatus.token || undefined}
+					workerToken={tokenStatus.token}
 					redirectUri={credentials.redirectUri || ''}
 					postLogoutRedirectUri={credentials.postLogoutRedirectUri || ''}
 					region={credentials.region || 'us'}
@@ -1405,6 +1443,131 @@ cd oauthPlayground`}
 							PingOne configuration. Check the <code>.env</code> file exists and contains the
 							required variables.
 						</InfoBox>
+					</div>
+				</Card>
+			</CollapsibleHeader>
+
+			<CollapsibleHeader
+				title="Feedback System Configuration"
+				subtitle="Configure the new toast alternatives system for better user experience"
+				icon={<FiSettings />}
+				defaultCollapsed={true}
+			>
+				<Card>
+					<h3 style={{ marginBottom: '1rem', color: '#1a1a1a' }}>Feedback System Settings</h3>
+					
+					<div style={{ marginBottom: '2rem' }}>
+						<h4 style={{ marginBottom: '1rem', color: '#374151' }}>Snackbar Configuration</h4>
+						<div style={{ backgroundColor: '#f8fafc', padding: '1rem', borderRadius: '0.5rem', marginBottom: '1rem' }}>
+							<p style={{ marginBottom: '0.5rem', fontWeight: '600' }}>Default Durations (milliseconds):</p>
+							<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#6b7280' }}>
+								<li>Success messages: <code>4000ms</code> (4 seconds)</li>
+								<li>Info messages: <code>4000ms</code> (4 seconds)</li>
+								<li>Warning messages: <code>6000ms</code> (6 seconds)</li>
+								<li>Error messages: <code>6000ms</code> (6 seconds)</li>
+							</ul>
+						</div>
+						
+						<div style={{ backgroundColor: '#f0fdf4', padding: '1rem', borderRadius: '0.5rem', marginBottom: '1rem' }}>
+							<p style={{ marginBottom: '0.5rem', fontWeight: '600' }}>Environment Variables:</p>
+							<div style={{ fontFamily: 'monospace', fontSize: '0.875rem', color: '#059669' }}>
+								<div>VITE_FEEDBACK_SNACKBAR_DURATION=4000</div>
+								<div>VITE_FEEDBACK_BANNER_AUTO_DISMISS=true</div>
+								<div>VITE_FEEDBACK_ENABLE_KEYBOARD_NAV=true</div>
+								<div>VITE_FEEDBACK_ENABLE_SCREEN_READER=true</div>
+							</div>
+						</div>
+					</div>
+
+					<div style={{ marginBottom: '2rem' }}>
+						<h4 style={{ marginBottom: '1rem', color: '#374151' }}>Message Types & Usage</h4>
+						<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
+							<div style={{ backgroundColor: '#fef2f2', padding: '1rem', borderRadius: '0.5rem', border: '1px solid #fecaca' }}>
+								<h5 style={{ color: '#dc2626', marginBottom: '0.5rem' }}>🚨 Inline Messages</h5>
+								<p style={{ margin: 0, fontSize: '0.875rem', color: '#6b7280' }}>
+									Form validation, per-field errors, contextual help. Appears directly where users need it.
+								</p>
+							</div>
+							<div style={{ backgroundColor: '#fffbeb', padding: '1rem', borderRadius: '0.5rem', border: '1px solid #fed7aa' }}>
+								<h5 style={{ color: '#d97706', marginBottom: '0.5rem' }}>📢 Page Banners</h5>
+								<p style={{ margin: 0, fontSize: '0.875rem', color: '#6b7280' }}>
+									System-wide messages, network issues, security warnings. Persistent until resolved.
+								</p>
+							</div>
+							<div style={{ backgroundColor: '#f0fdf4', padding: '1rem', borderRadius: '0.5rem', border: '1px solid #bbf7d0' }}>
+								<h5 style={{ color: '#059669', marginBottom: '0.5rem' }}>✅ Snackbars</h5>
+								<p style={{ margin: 0, fontSize: '0.875rem', color: '#6b7280' }}>
+									Quick confirmations, brief notifications. Auto-dismisses with optional actions.
+								</p>
+							</div>
+						</div>
+					</div>
+
+					<div style={{ marginBottom: '2rem' }}>
+						<h4 style={{ marginBottom: '1rem', color: '#374151' }}>Migration Guide</h4>
+						<div style={{ backgroundColor: '#eff6ff', padding: '1rem', borderRadius: '0.5rem', border: '1px solid #dbeafe' }}>
+							<p style={{ marginBottom: '1rem', fontWeight: '600' }}>Toast to Feedback Pattern Mapping:</p>
+							<table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
+								<thead>
+									<tr style={{ backgroundColor: '#dbeafe' }}>
+										<th style={{ padding: '0.5rem', textAlign: 'left', border: '1px solid #bfdbfe' }}>Toast Message</th>
+										<th style={{ padding: '0.5rem', textAlign: 'left', border: '1px solid #bfdbfe' }}>New Pattern</th>
+										<th style={{ padding: '0.5rem', textAlign: 'left', border: '1px solid #bfdbfe' }}>Example</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td style={{ padding: '0.5rem', border: '1px solid #e5e7eb' }}>Success confirmations</td>
+										<td style={{ padding: '0.5rem', border: '1px solid #e5e7eb' }}>Snackbar</td>
+										<td style={{ padding: '0.5rem', border: '1px solid #e5e7eb' }}>✓ Saved (Undo)</td>
+									</tr>
+									<tr>
+										<td style={{ padding: '0.5rem', border: '1px solid #e5e7eb' }}>Form validation errors</td>
+										<td style={{ padding: '0.5rem', border: '1px solid #e5e7eb' }}>Inline Message</td>
+										<td style={{ padding: '0.5rem', border: '1px solid #e5e7eb' }}>Field: Required</td>
+									</tr>
+									<tr>
+										<td style={{ padding: '0.5rem', border: '1px solid #e5e7eb' }}>Network issues</td>
+										<td style={{ padding: '0.5rem', border: '1px solid #e5e7eb' }}>Page Banner</td>
+										<td style={{ padding: '0.5rem', border: '1px solid #e5e7eb' }}>⚠️ Connection detected</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+
+					<div style={{ marginBottom: '2rem' }}>
+						<h4 style={{ marginBottom: '1rem', color: '#374151' }}>Accessibility Features</h4>
+						<div style={{ backgroundColor: '#f3f4f6', padding: '1rem', borderRadius: '0.5rem' }}>
+							<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#6b7280' }}>
+								<li><strong>WCAG 2.1 AA Compliance:</strong> All components meet accessibility standards</li>
+								<li><strong>Keyboard Navigation:</strong> Full Tab, Enter, Space support</li>
+								<li><strong>Screen Reader Support:</strong> Proper ARIA labels and live regions</li>
+								<li><strong>Focus Management:</strong> Visible focus states and logical tab order</li>
+								<li><strong>Color Contrast:</strong> PingOne UI ensures compliance</li>
+							</ul>
+						</div>
+					</div>
+
+					<div>
+						<h4 style={{ marginBottom: '1rem', color: '#374151' }}>Developer API</h4>
+						<div style={{ backgroundColor: '#f9fafb', padding: '1rem', borderRadius: '0.5rem' }}>
+							<p style={{ marginBottom: '1rem', fontWeight: '600' }}>Service Usage:</p>
+							<pre style={{ backgroundColor: '#1a1a1a', color: '#10b981', padding: '1rem', borderRadius: '0.25rem', overflow: 'auto', fontSize: '0.875rem' }}>
+{`import { feedbackService } from '@/services/feedback/feedbackService';
+
+// Inline messages
+feedbackService.showInlineError('This field is required', 'email');
+feedbackService.showInlineWarning('Password is weak');
+
+// Page banners  
+feedbackService.showErrorBanner('Network Error', 'Unable to connect');
+feedbackService.showWarningBanner('Session Expiring Soon');
+
+// Snackbars
+feedbackService.showSuccessSnackbar('Item saved');
+feedbackService.showInfoSnackbar('Changes synchronized');`}</pre>
+						</div>
 					</div>
 				</Card>
 			</CollapsibleHeader>

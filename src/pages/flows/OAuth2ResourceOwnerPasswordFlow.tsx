@@ -17,8 +17,8 @@ import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useResourceOwnerPasswordFlowV7 } from '../../hooks/useResourceOwnerPasswordFlowV7';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
-import { UserSearchDropdownV8 } from '../../v8/components/UserSearchDropdownV8';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
+import { UserSearchDropdownV8 } from '../../v8/components/UserSearchDropdownV8';
 
 const PageContainer = styled.div`
 	max-width: 1200px;

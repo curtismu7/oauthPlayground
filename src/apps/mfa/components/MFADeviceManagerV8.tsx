@@ -63,7 +63,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 	onUsernameChange,
 }) => {
 	const [devices, setDevices] = useState<Device[]>([]);
-	const [isLoading, _setIsLoading] = useState(false);
+	const [isLoading] = useState(false);
 	const [editingDeviceId, setEditingDeviceId] = useState<string | null>(null);
 	const [newName, setNewName] = useState('');
 	const [showInfo, setShowInfo] = useState(false);
@@ -434,13 +434,11 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 				throw new Error('Device not found');
 			}
 
-			let _activationResult: any;
-
 			// Use appropriate activation method based on device type
 			if (device.type === 'TOTP') {
 				// For TOTP devices, we can activate them directly with admin privileges
 				// The backend will handle the activation without requiring OTP
-				_activationResult = await MFAServiceV8.activateDevice({
+				await MFAServiceV8.activateDevice({
 					environmentId,
 					username,
 					deviceId,
@@ -448,7 +446,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 				});
 			} else if (device.type === 'FIDO2') {
 				// For FIDO2 devices, use the FIDO2 activation method
-				_activationResult = await MFAServiceV8.activateFIDO2Device({
+				await MFAServiceV8.activateFIDO2Device({
 					environmentId,
 					username,
 					deviceId,
@@ -456,7 +454,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 				});
 			} else {
 				// For SMS, EMAIL, VOICE devices, activate without OTP requirement
-				_activationResult = await MFAServiceV8.activateDevice({
+				await MFAServiceV8.activateDevice({
 					environmentId,
 					username,
 					deviceId,

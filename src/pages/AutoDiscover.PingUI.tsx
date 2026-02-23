@@ -91,15 +91,14 @@ const getButtonStyle = (variant: 'primary' | 'secondary' = 'primary') => ({
 	gap: 'var(--pingone-spacing-sm, 0.5rem)',
 	padding: 'var(--pingone-spacing-md, 0.75rem) var(--pingone-spacing-lg, 1.5rem)',
 	background:
-		variant === 'primary' 
-			? 'var(--pingone-brand-primary, #3b82f6)' 
+		variant === 'primary'
+			? 'var(--pingone-brand-primary, #3b82f6)'
 			: 'var(--pingone-surface-secondary, #f3f4f6)',
-	color: variant === 'primary' 
-		? 'var(--pingone-text-inverse, white)' 
-		: 'var(--pingone-text-primary, #1f2937)',
-	border: variant === 'secondary' 
-		? '1px solid var(--pingone-border-primary, #d1d5db)' 
-		: 'none',
+	color:
+		variant === 'primary'
+			? 'var(--pingone-text-inverse, white)'
+			: 'var(--pingone-text-primary, #1f2937)',
+	border: variant === 'secondary' ? '1px solid var(--pingone-border-primary, #d1d5db)' : 'none',
 	borderRadius: 'var(--pingone-border-radius-md, 0.5rem)',
 	fontSize: 'var(--pingone-font-size-base, 1rem)',
 	fontWeight: 'var(--pingone-font-weight-medium, 500)',
