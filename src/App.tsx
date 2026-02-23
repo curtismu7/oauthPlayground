@@ -200,6 +200,7 @@ import ResourcesAPIFlowV8 from './v8/flows/ResourcesAPIFlowV8';
 import { FIDO2ConfigurationPageV8 } from './v8/flows/types/FIDO2ConfigurationPageV8';
 import { MobileOTPConfigurationPageV8 } from './v8/flows/types/MobileOTPConfigurationPageV8';
 import { UserSearchPage } from './pages/UserSearchPage';
+import { LoginPatternsPage } from './pages/LoginPatternsPage';
 
 // Lazy load unified MFA flow for code splitting
 const UnifiedMFARegistrationFlowV8_Legacy = React.lazy(() =>
@@ -1397,6 +1398,8 @@ const AppRoutes: React.FC = () => {
 								/>
 								{/* User Search Page */}
 								<Route path="/user-search" element={<UserSearchPage />} />
+								{/* Login Patterns Page */}
+								<Route path="/login-patterns" element={<LoginPatternsPage />} />
 								{/* Protect Portal Application */}
 								<Route path="/protect-portal" element={<ProtectPortalWrapper />} />
 								{/* Company Editor Utility */}
