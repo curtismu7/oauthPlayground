@@ -768,6 +768,15 @@ const AppRoutes: React.FC = () => {
 									path="/v8/mfa/register/fido2/docs"
 									element={<FIDO2RegistrationDocsPageV8 />}
 								/>
+								{/* Legacy MFA routes redirect to v8 paths */}
+								<Route
+									path="/mfa/fido"
+									element={<Navigate to="/v8/mfa/register/fido2" replace />}
+								/>
+								<Route
+									path="/mfa/fido/device"
+									element={<Navigate to="/v8/mfa/register/fido2/device" replace />}
+								/>
 								{/* Platform and Security Key routes redirect to FIDO2 (they use the same flow) */}
 								<Route
 									path="/v8/mfa/register/platform"
@@ -785,14 +794,23 @@ const AppRoutes: React.FC = () => {
 									path="/v8/mfa/register/security_key/device"
 									element={<Navigate to="/v8/mfa/register/fido2/device" replace />}
 								/>
-								{/* Voice routes redirect to SMS (Voice uses the same phone-based flow as SMS) */}
+								{/* SMS routes redirect to Mobile (SMS functionality consolidated into Mobile flow) */}
+								<Route
+									path="/v8/mfa/register/sms"
+									element={<Navigate to="/v8/mfa/register/mobile" replace />}
+								/>
+								<Route
+									path="/v8/mfa/register/sms/device"
+									element={<Navigate to="/v8/mfa/register/mobile/device" replace />}
+								/>
+								{/* Voice routes redirect to Mobile (Voice uses the same phone-based flow as Mobile) */}
 								<Route
 									path="/v8/mfa/register/voice"
-									element={<Navigate to="/v8/mfa/register/sms" replace />}
+									element={<Navigate to="/v8/mfa/register/mobile" replace />}
 								/>
 								<Route
 									path="/v8/mfa/register/voice/device"
-									element={<Navigate to="/v8/mfa/register/sms/device" replace />}
+									element={<Navigate to="/v8/mfa/register/mobile/device" replace />}
 								/>
 								{/* Mobile routes - separate app from SMS */}
 								<Route path="/v8/mfa/register/mobile" element={<MobileOTPConfigurationPageV8 />} />
