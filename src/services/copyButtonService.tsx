@@ -2,8 +2,6 @@
 // Standardized copy button service with black popup and green checkmark
 
 import React, { useCallback, useState } from 'react';
-import { FiCheck, FiCopy } from 'react-icons/fi';
-import styled, { keyframes } from 'styled-components';
 
 export interface CopyButtonProps {
 	text: string;
@@ -14,161 +12,78 @@ export interface CopyButtonProps {
 	className?: string;
 }
 
-// Animations
-const fadeIn = keyframes`
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-`;
+// MDI Icon Helper Functions
+interface MDIIconProps {
+	icon: string;
+	size?: number;
+	color?: string;
+	ariaLabel: string;
+}
 
-// Container for the copy button and tooltip
-const CopyButtonContainer = styled.div`
-  position: relative;
-  display: inline-block;
-`;
+const getMDIIconClass = (iconName: string): string => {
+	const iconMap: Record<string, string> = {
+		FiCheck: 'mdi-check',
+		FiCopy: 'mdi-content-copy',
+	};
+	return iconMap[iconName] || 'mdi-help-circle';
+};
 
-// Tooltip that appears above the button
-const CopyTooltip = styled.div<{ $visible: boolean; $copied: boolean }>`
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  margin-bottom: 8px;
-  padding: 8px 12px;
-  background-color: ${({ $copied }) => ($copied ? '#10b981' : '#1f2937')};
-  color: white;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  white-space: nowrap;
-  z-index: 1000;
-  opacity: ${({ $visible }) => ($visible ? 1 : 0)};
-  visibility: ${({ $visible }) => ($visible ? 'visible' : 'hidden')};
-  transition: all 0.2s ease;
-  animation: ${({ $visible }) => ($visible ? fadeIn : 'none')} 0.2s ease;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+const MDIIcon: React.FC<MDIIconProps> = ({ icon, size = 24, color, ariaLabel }) => {
+	const iconClass = getMDIIconClass(icon);
+	return (
+		<span
+			className={`mdi ${iconClass}`}
+			style={{ fontSize: size, color: color }}
+			role="img"
+			aria-label={ariaLabel}
+			aria-hidden={!ariaLabel}
+		></span>
+	);
+};
 
-  /* Arrow pointing down to button */
-  &::after {
-    content: '';
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 6px solid transparent;
-    border-right: 6px solid transparent;
-    border-top: 6px solid ${({ $copied }) => ($copied ? '#10b981' : '#1f2937')};
-  }
-`;
+// CSS Helper Functions
+const getCopyButtonContainerStyles = () => ({
+	position: 'relative' as const,
+	display: 'inline-block',
+});
 
-// The actual copy button
-const CopyButton = styled.button<{
-	$size: 'sm' | 'md' | 'lg';
-	$variant: 'primary' | 'secondary' | 'outline';
-	$copied: boolean;
-}>`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  position: relative;
-  background-color: ${({ $copied, $variant }) => {
-		if ($copied) return '#10b981';
-		if ($variant === 'primary') return '#3b82f6';
-		if ($variant === 'secondary') return '#6b7280';
-		return 'transparent';
-	}};
-  color: ${({ $copied, $variant }) => {
-		if ($copied) return 'white';
-		if ($variant === 'outline') return '#374151';
-		return 'white';
-	}};
-  border: ${({ $variant, $copied }) => {
-		if ($copied) return '1px solid #10b981';
-		if ($variant === 'outline') return '1px solid #d1d5db';
-		return 'none';
-	}};
+const getCopyTooltipStyles = (visible: boolean, copied: boolean) => ({
+	position: 'relative' as const,
+	bottom: '100%',
+	left: '50%',
+	transform: 'translateX(-50%)',
+	marginBottom: '8px',
+	padding: '8px 12px',
+	backgroundColor: copied ? '#10b981' : '#1f2937',
+	color: 'white',
+	borderRadius: '6px',
+	fontSize: '0.75rem',
+	fontWeight: '500',
+	whiteSpace: 'nowrap',
+	zIndex: 1000,
+	opacity: visible ? 1 : 0,
+	visibility: (visible ? 'visible' : 'hidden') as 'visible' | 'hidden',
+	transition: 'all 0.2s ease',
+	animation: visible ? 'fadeIn 0.2s ease' : 'none',
+	boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+});
 
-  ${({ $size }) => {
-		switch ($size) {
-			case 'sm':
-				return `
-          padding: 0.375rem 0.5rem;
-          font-size: 0.75rem;
-        `;
-			case 'lg':
-				return `
-          padding: 0.75rem 1rem;
-          font-size: 1rem;
-        `;
-			default: // md
-				return `
-          padding: 0.5rem 0.75rem;
-          font-size: 0.875rem;
-        `;
-		}
-	}}
-
-  &:hover {
-    background-color: ${({ $copied, $variant }) => {
-			if ($copied) return '#059669';
-			if ($variant === 'primary') return '#2563eb';
-			if ($variant === 'secondary') return '#4b5563';
-			return '#f9fafb';
-		}};
-    transform: ${({ $copied }) => ($copied ? 'none' : 'translateY(-1px)')};
-    box-shadow: ${({ $copied }) =>
-			$copied ? '0 2px 4px rgba(16, 185, 129, 0.3)' : '0 4px 8px rgba(0, 0, 0, 0.1)'};
-  }
-
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-
-  svg {
-    width: ${({ $size }) => {
-			switch ($size) {
-				case 'sm':
-					return '14px';
-				case 'lg':
-					return '18px';
-				default:
-					return '16px';
-			}
-		}};
-    height: ${({ $size }) => {
-			switch ($size) {
-				case 'sm':
-					return '14px';
-				case 'lg':
-					return '18px';
-				default:
-					return '16px';
-			}
-		}};
-  }
-`;
+const getCopyTooltipArrowStyles = (copied: boolean) => ({
+	content: '',
+	position: 'absolute' as const,
+	top: '100%',
+	left: '50%',
+	transform: 'translateX(-50%)',
+	width: 0,
+	height: 0,
+	borderLeft: '6px solid transparent',
+	borderRight: '6px solid transparent',
+	borderTop: `6px solid ${copied ? '#10b981' : '#1f2937'}`,
+});
 
 // Icon component that switches between copy and check
 const CopyIcon: React.FC<{ copied: boolean }> = ({ copied }) => {
-	return copied ? <FiCheck /> : <FiCopy />;
+	return copied ? <MDIIcon icon="FiCheck" size={16} ariaLabel="Copied" /> : <MDIIcon icon="FiCopy" size={16} ariaLabel="Copy" />;
 };
 
 // Main copy button component
@@ -228,26 +143,108 @@ export const CopyButtonService: React.FC<CopyButtonProps> = ({
 		}
 	}, [isCopied]);
 
+	const sizeStyles = {
+		sm: { padding: '0.375rem 0.5rem', fontSize: '0.75rem', iconSize: '14px' },
+		md: { padding: '0.5rem 0.75rem', fontSize: '0.875rem', iconSize: '16px' },
+		lg: { padding: '0.75rem 1rem', fontSize: '1rem', iconSize: '18px' },
+	};
+
+	const variantStyles = {
+		primary: {
+			backgroundColor: isCopied ? '#10b981' : '#3b82f6',
+			color: 'white',
+			border: 'none',
+			hoverBackgroundColor: isCopied ? '#059669' : '#2563eb',
+		},
+		secondary: {
+			backgroundColor: isCopied ? '#10b981' : '#6b7280',
+			color: 'white',
+			border: 'none',
+			hoverBackgroundColor: isCopied ? '#059669' : '#4b5563',
+		},
+		outline: {
+			backgroundColor: 'transparent',
+			color: isCopied ? 'white' : '#374151',
+			border: isCopied ? '1px solid #10b981' : '1px solid #d1d5db',
+			hoverBackgroundColor: isCopied ? '#059669' : '#f9fafb',
+		},
+	};
+
+	const currentSize = sizeStyles[size];
+	const currentVariant = variantStyles[variant];
+
 	return (
-		<CopyButtonContainer className={className}>
-			<CopyTooltip $visible={showTooltip} $copied={isCopied}>
+		<div style={getCopyButtonContainerStyles()} className={className}>
+			<div
+				style={getCopyTooltipStyles(showTooltip, isCopied)}
+			>
 				{isCopied ? 'Copied!' : `${label} item`}
-			</CopyTooltip>
-			<CopyButton
+				<div style={getCopyTooltipArrowStyles(isCopied)} />
+			</div>
+			<button
 				type="button"
-				$size={size}
-				$variant={variant}
-				$copied={isCopied}
+				style={{
+					display: 'inline-flex',
+					alignItems: 'center',
+					justifyContent: 'center',
+					gap: '0.5rem',
+					border: currentVariant.border,
+					borderRadius: '6px',
+					cursor: 'pointer',
+					fontWeight: '500',
+					transition: 'all 0.2s ease',
+					position: 'relative',
+					backgroundColor: currentVariant.backgroundColor,
+					color: currentVariant.color,
+					padding: currentSize.padding,
+					fontSize: currentSize.fontSize,
+				}}
 				onClick={handleCopy}
 				onMouseEnter={handleMouseEnter}
 				onMouseLeave={handleMouseLeave}
 				aria-label={isCopied ? 'Copied!' : `Copy ${label}`}
+				onMouseOver={(e) => {
+					if (!isCopied) {
+						Object.assign(e.currentTarget.style, {
+							backgroundColor: currentVariant.hoverBackgroundColor,
+							transform: 'translateY(-1px)',
+							boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+						});
+					}
+				}}
+				onMouseOut={(e) => {
+					if (!isCopied) {
+						Object.assign(e.currentTarget.style, {
+							backgroundColor: currentVariant.backgroundColor,
+							transform: 'translateY(0)',
+							boxShadow: 'none',
+						});
+					}
+				}}
+				onFocus={(e) => {
+					Object.assign(e.currentTarget.style, {
+						outline: 'none',
+						boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.3)',
+					});
+				}}
+				onBlur={(e) => {
+					Object.assign(e.currentTarget.style, {
+						boxShadow: 'none',
+					});
+				}}
+				onMouseDown={(e) => {
+					Object.assign(e.currentTarget.style, {
+						transform: 'translateY(0)',
+					});
+				}}
 			>
-				<CopyIcon copied={isCopied} />
+				<span style={{ fontSize: currentSize.iconSize, transition: 'transform 0.2s ease' }}>
+					<CopyIcon copied={isCopied} />
+				</span>
 				{showLabel && !isCopied && label}
 				{showLabel && isCopied && 'Copied'}
-			</CopyButton>
-		</CopyButtonContainer>
+			</button>
+		</div>
 	);
 };
 
