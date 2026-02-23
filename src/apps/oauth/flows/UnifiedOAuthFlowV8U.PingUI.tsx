@@ -155,6 +155,41 @@ export const UnifiedOAuthFlowV8UPingUI: React.FC = () => {
 	const abortControllerRef = useRef<AbortController | null>(null);
 	const initializationRef = useRef(false);
 
+	// Helper functions (moved before useEffect to prevent temporal dead zone)
+	const initializeFlowSettings = async () => {
+		try {
+			const settings = await FlowSettingsServiceV8U.loadSettings();
+			setShowEducation(settings.showEducation ?? false);
+			setShowAdvanced(settings.showAdvanced ?? false);
+			setShowSecurityScorecard(settings.showSecurityScorecard ?? false);
+			setShowFlowGuidance(settings.showFlowGuidance ?? true);
+		} catch (err) {
+			console.warn(`${_MODULE_TAG} Failed to load flow settings:`, err);
+		}
+	};
+
+	const loadSavedCredentials = async () => {
+		try {
+			const savedCreds = await UnifiedOAuthCredentialsServiceV8U.loadCredentials();
+			if (savedCreds) {
+				setCredentials(savedCreds);
+			}
+		} catch (err) {
+			console.warn(`${_MODULE_TAG} Failed to load saved credentials:`, err);
+		}
+	};
+
+	const loadSharedCredentials = async () => {
+		try {
+			const sharedCreds = await SharedCredentialsServiceV8.loadSharedCredentials();
+			if (sharedCreds) {
+				setSharedCredentials(sharedCreds);
+			}
+		} catch (err) {
+			console.warn(`${_MODULE_TAG} Failed to load shared credentials:`, err);
+		}
+	};
+
 	// PING UI MIGRATION: Initialize component with proper error handling
 	useEffect(() => {
 		if (initializationRef.current) return;
@@ -213,43 +248,6 @@ export const UnifiedOAuthFlowV8UPingUI: React.FC = () => {
 		loadSavedCredentials,
 		loadSharedCredentials,
 	]);
-
-	// Load saved credentials
-	const loadSavedCredentials = async () => {
-		try {
-			const savedCreds = await UnifiedOAuthCredentialsServiceV8U.loadCredentials();
-			if (savedCreds) {
-				setCredentials(savedCreds);
-			}
-		} catch (err) {
-			console.warn(`${_MODULE_TAG} Failed to load saved credentials:`, err);
-		}
-	};
-
-	// Load shared credentials
-	const loadSharedCredentials = async () => {
-		try {
-			const sharedCreds = await SharedCredentialsServiceV8.loadSharedCredentials();
-			if (sharedCreds) {
-				setSharedCredentials(sharedCreds);
-			}
-		} catch (err) {
-			console.warn(`${_MODULE_TAG} Failed to load shared credentials:`, err);
-		}
-	};
-
-	// Initialize flow settings
-	const initializeFlowSettings = async () => {
-		try {
-			const settings = await FlowSettingsServiceV8U.loadSettings();
-			setShowEducation(settings.showEducation ?? false);
-			setShowAdvanced(settings.showAdvanced ?? false);
-			setShowSecurityScorecard(settings.showSecurityScorecard ?? false);
-			setShowFlowGuidance(settings.showFlowGuidance ?? true);
-		} catch (err) {
-			console.warn(`${_MODULE_TAG} Failed to load flow settings:`, err);
-		}
-	};
 
 	// Handle flow type change
 	const handleFlowTypeChange = useCallback(
