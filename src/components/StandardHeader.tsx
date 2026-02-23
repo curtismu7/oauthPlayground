@@ -109,18 +109,19 @@ const StandardHeader: React.FC<StandardHeaderProps> = ({
             overflow: hidden;
             display: flex;
             align-items: center;
+            z-index: 1; /* Ensure header doesn't cover sidebar */
           }
 
           .standard-header:hover {
             background: var(--header-bg-hover);
             border-color: var(--header-bg-hover);
-            transform: translateY(-1px);
+            /* Remove translateY transform to prevent overlapping sidebar */
             box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
           }
 
           .standard-header:active {
             background: var(--header-bg-active);
-            transform: translateY(0);
+            /* Remove transform to prevent layout shifts */
           }
 
           .standard-header--secondary {
