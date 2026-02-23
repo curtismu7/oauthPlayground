@@ -433,7 +433,7 @@ const Dashboard: React.FC = () => {
 							}}
 						>
 							<div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-								<AppVersionBadge />
+								<AppVersionBadge type="app" />
 								<ViewModeControls
 									viewMode={viewMode}
 									onExpandAll={expandAllSections}
