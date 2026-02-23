@@ -308,8 +308,9 @@ interface CorporateFooterProps {
 }
 
 const CorporateFooter: React.FC<CorporateFooterProps> = ({ config }) => {
-	const brandColor = config.branding.colors.primary;
-	const industry = config.company.industry;
+	// Add defensive check for branding and colors
+	const brandColor = config?.branding?.colors?.primary || '#3b82f6';
+	const industry = config?.company?.industry || 'default';
 	const currentYear = new Date().getFullYear();
 	const footerLinks = getFooterLinks(industry);
 
