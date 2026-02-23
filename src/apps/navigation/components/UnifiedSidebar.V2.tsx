@@ -18,33 +18,15 @@
  * ========================================================================
  */
 
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import MDIIcon from '@/components/MDIIcon';
 import SidebarSearch from './SidebarSearch';
 import { VersionBadge } from './VersionBadge';
 
 // App version from package.json
 const APP_VERSION = '9.25.1';
-
-// MDI Icon Component for PingOne UI
-const MDIIcon: React.FC<{
-	icon: string;
-	size?: number;
-	className?: string;
-	'aria-label'?: string;
-	'aria-hidden'?: boolean;
-	style?: React.CSSProperties;
-}> = ({ icon, size = 20, className = '', 'aria-label': ariaLabel, 'aria-hidden': ariaHidden, style }) => {
-	return (
-		<span
-			className={`mdi mdi-${icon} ${className}`}
-			style={{ fontSize: `${size}px`, ...style }}
-			aria-label={ariaLabel}
-			aria-hidden={ariaHidden}
-		/>
-	);
-};
 
 // Icon Mapping for Migration from React Icons to MDI
 const ICON_MAPPING: Record<string, string> = {
