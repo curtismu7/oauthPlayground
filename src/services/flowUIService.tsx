@@ -3,6 +3,7 @@
 // Consolidates all common UI patterns from OAuth flows
 
 import React from 'react';
+import styled from 'styled-components';
 import { CollapsibleIcon } from '../components/CollapsibleIcon';
 import {
 	CollapsibleHeaderProps,
