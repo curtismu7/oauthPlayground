@@ -49,7 +49,7 @@ const PageDescription = styled.p<{ theme: any }>`
 	margin: 0;
 `;
 
-const ActionButton = styled.button<{ theme: any; variant?: 'primary' | 'secondary' | 'danger' }>`
+const ActionButton = styled.button<{ theme: any; $variant?: 'primary' | 'secondary' | 'danger' }>`
 	padding: 0.75rem 1.5rem;
 	border-radius: ${({ theme }) => theme.borderRadius.md};
 	font-weight: 600;
@@ -253,7 +253,7 @@ const ActionButtons = styled.div`
 	gap: 0.5rem;
 `;
 
-const IconButton = styled.button<{ theme: any; variant?: 'edit' | 'delete' }>`
+const IconButton = styled.button<{ theme: any; $variant?: 'edit' | 'delete' }>`
 	padding: 0.5rem;
 	border-radius: ${({ theme }) => theme.borderRadius.sm};
 	border: none;

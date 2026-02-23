@@ -23,14 +23,14 @@ import PortalPageLayout, { PortalPageSection } from './PortalPageLayout';
 // STYLED COMPONENTS
 // ============================================================================
 
-const ProtectCard = styled.div<{ variant?: 'info' | 'warning' | 'error' }>`
+const ProtectCard = styled.div<{ $variant?: 'info' | 'warning' | 'error' }>`
   background: white;
   border-radius: 12px;
   padding: 2rem;
   margin-bottom: 2rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   border: 1px solid ${(props) => {
-		switch (props.variant) {
+		switch (props.$variant) {
 			case 'warning':
 				return '#f59e0b';
 			case 'error':
@@ -40,7 +40,7 @@ const ProtectCard = styled.div<{ variant?: 'info' | 'warning' | 'error' }>`
 		}
 	}};
   border-left: 4px solid ${(props) => {
-		switch (props.variant) {
+		switch (props.$variant) {
 			case 'warning':
 				return '#f59e0b';
 			case 'error':
@@ -51,7 +51,7 @@ const ProtectCard = styled.div<{ variant?: 'info' | 'warning' | 'error' }>`
 	}};
 `;
 
-const ProtectIcon = styled.div<{ variant?: 'info' | 'warning' | 'error' }>`
+const ProtectIcon = styled.div<{ $variant?: 'info' | 'warning' | 'error' }>`
   width: 48px;
   height: 48px;
   border-radius: 50%;
@@ -62,7 +62,7 @@ const ProtectIcon = styled.div<{ variant?: 'info' | 'warning' | 'error' }>`
   color: white;
   font-size: 1.5rem;
   background: ${(props) => {
-		switch (props.variant) {
+		switch (props.$variant) {
 			case 'warning':
 				return '#f59e0b';
 			case 'error':
@@ -120,9 +120,9 @@ const UserInfoValue = styled.span`
   color: var(--brand-text-secondary);
 `;
 
-const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
+const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
   background: ${(props) => {
-		switch (props.variant) {
+		switch (props.$variant) {
 			case 'secondary':
 				return '#6b7280';
 			case 'danger':
@@ -146,7 +146,7 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' | 'danger
 
   &:hover {
     background: ${(props) => {
-			switch (props.variant) {
+			switch (props.$variant) {
 				case 'secondary':
 					return '#4b5563';
 				case 'danger':

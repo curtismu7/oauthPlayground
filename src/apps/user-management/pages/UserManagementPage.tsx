@@ -42,7 +42,7 @@ const PageDescription = styled.p<{ theme: any }>`
 	margin: 0;
 `;
 
-const ActionButton = styled.button<{ theme: any; variant?: 'primary' | 'secondary' | 'danger' }>`
+const ActionButton = styled.button<{ theme: any; $variant?: 'primary' | 'secondary' | 'danger' }>`
 	padding: 0.75rem 1.5rem;
 	border-radius: 8px;
 	font-weight: 600;
@@ -54,8 +54,8 @@ const ActionButton = styled.button<{ theme: any; variant?: 'primary' | 'secondar
 	gap: 0.5rem;
 	transition: all 0.3s ease;
 
-	${({ variant = 'primary', theme }) => {
-		switch (variant) {
+	${({ $variant = 'primary', theme }) => {
+		switch ($variant) {
 			case 'primary':
 				return `
 					background: ${theme.colors.primary};
@@ -240,7 +240,7 @@ const ActionButtons = styled.div`
 	gap: 0.5rem;
 `;
 
-const IconButton = styled.button<{ theme: any; variant?: 'edit' | 'delete' }>`
+const IconButton = styled.button<{ theme: any; $variant?: 'edit' | 'delete' }>`
 	padding: 0.5rem;
 	border-radius: 6px;
 	border: none;
@@ -250,8 +250,8 @@ const IconButton = styled.button<{ theme: any; variant?: 'edit' | 'delete' }>`
 	justify-content: center;
 	transition: all 0.2s ease;
 
-	${({ variant = 'edit', theme }) => {
-		switch (variant) {
+	${({ $variant = 'edit', theme }) => {
+		switch ($variant) {
 			case 'edit':
 				return `
 					background: ${theme.colors.primary};
