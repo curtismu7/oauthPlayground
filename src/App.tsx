@@ -842,6 +842,11 @@ const AppRoutes: React.FC = () => {
 								<Route path="/v8/mfa/create-device" element={<MFADeviceCreateDemoV8 />} />
 								<Route path="/v8/email-mfa-signon" element={<EmailMFASignOnFlowV8 />} />
 								<Route path="/v8/resources-api" element={<ResourcesAPIFlowV8 />} />
+								{/* Legacy Protect routes redirect to v8 paths */}
+								<Route
+									path="/pingone-protect"
+									element={<Navigate to="/v8/protect" replace />}
+								/>
 								<Route path="/v8/protect" element={<PingOneProtectFlowV8 />} />
 								<Route
 									path="/flows/oauth-authorization-code-v7-condensed-mock"
