@@ -149,7 +149,7 @@ export const V7OAuthFlowVariant: React.FC<V7FlowVariantProps> = ({
 
 			<FormGroup>
 				<Label>Client Secret</Label>
-				<Input type="password" placeholder="Enter your OAuth client secret" />
+				<Input type="password" placeholder="Enter your OAuth client secret" autoComplete="current-password" />
 				<HelperText>Your OAuth application's client secret</HelperText>
 			</FormGroup>
 
@@ -424,7 +424,7 @@ export const V7OIDCFlowVariant: React.FC<V7FlowVariantProps> = ({
 
 			<FormGroup>
 				<Label>Client Secret</Label>
-				<Input type="password" placeholder="Enter your OIDC client secret" />
+				<Input type="password" placeholder="Enter your OIDC client secret" autoComplete="current-password" />
 				<HelperText>Your OpenID Connect application's client secret</HelperText>
 			</FormGroup>
 

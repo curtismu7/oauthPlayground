@@ -4,6 +4,8 @@ import styled from 'styled-components';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { useAccessibility } from '@/hooks/useAccessibility';
 import { APP_VERSION } from '@/version';
+import BootstrapIcon from '@/components/BootstrapIcon';
+import { getBootstrapIconName } from '@/components/iconMapping';
 
 const NavbarContainer = styled.nav<{ $sidebarOpen?: boolean; $sidebarWidth?: number }>`
   position: fixed;
@@ -240,7 +242,7 @@ const Navbar: React.FC<NavbarProps> = ({
 					aria-expanded="false"
 					aria-controls="sidebar-menu"
 				>
-					<i className="mdi-menu" aria-hidden="true" />
+					<BootstrapIcon icon={getBootstrapIconName("menu")} size={24} aria-hidden={true} />
 				</MenuButton>
 
 				<Logo>
@@ -260,27 +262,27 @@ const Navbar: React.FC<NavbarProps> = ({
 
 				<NavItems role="navigation" aria-label="Main navigation">
 					<Link to="/documentation" title="View documentation and help">
-						<i className="mdi-book-open-variant" aria-hidden="true" />
+						<BootstrapIcon icon={getBootstrapIconName("book")} size={20} aria-hidden={true} />
 						<span>Docs</span>
 					</Link>
 					<Link to="/configuration" title="Configure OAuth settings">
-						<i className="mdi-cog" aria-hidden="true" />
+						<BootstrapIcon icon={getBootstrapIconName("cog")} size={20} aria-hidden={true} />
 						<span>Configuration</span>
 					</Link>
 					<Link to="/system-status" title="View PingOne API server status and health metrics">
-						<i className="mdi-server" aria-hidden="true" />
+						<BootstrapIcon icon={getBootstrapIconName("server")} size={20} aria-hidden={true} />
 						<span>PingOne API Status</span>
 					</Link>
 					<Link to="/dashboard" title="View dashboard and system overview">
-						<i className="mdi-view-dashboard" aria-hidden="true" />
+						<BootstrapIcon icon={getBootstrapIconName("view-dashboard")} size={20} aria-hidden={true} />
 						<span>Dashboard</span>
 					</Link>
 					<Link to="/auto-discover" title="OIDC Discovery tool" aria-label="OIDC Discovery tool">
-						<i className="mdi-magnify" aria-hidden="true" />
+						<BootstrapIcon icon={getBootstrapIconName("magnify")} size={20} aria-hidden={true} />
 						<span>OIDC Discovery</span>
 					</Link>
 					<Link to="/client-generator" title="Generate PingOne applications">
-						<i className="mdi-application-cog" aria-hidden="true" />
+						<BootstrapIcon icon={getBootstrapIconName("application-cog")} size={20} aria-hidden={true} />
 						<span>App Generator</span>
 					</Link>
 					{isAuthenticated ? (
@@ -290,7 +292,7 @@ const Navbar: React.FC<NavbarProps> = ({
 							title="Logout from the application"
 							aria-label="Logout from the application"
 						>
-							<i className="mdi-logout" aria-hidden="true" />
+							<BootstrapIcon icon={getBootstrapIconName("logout")} size={20} aria-hidden={true} />
 							<span>Logout</span>
 						</button>
 					) : null}

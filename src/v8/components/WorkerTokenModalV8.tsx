@@ -273,24 +273,25 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 	};
 
 	const handleGenerate = async () => {
-		await generateSpinner.executeWithSpinner(
-			async () => {
-				if (!environmentId?.trim() || !clientId?.trim() || !clientSecret?.trim()) {
-					toastV8.error('Please fill in all required fields');
-					throw new Error('Please fill in all required fields');
-				}
+		try {
+			await generateSpinner.executeWithSpinner(
+				async () => {
+					if (!environmentId?.trim() || !clientId?.trim() || !clientSecret?.trim()) {
+						toastV8.error('Please fill in all required fields');
+						return; // Return instead of throwing
+					}
 
-				const normalizedScopes = scopeInput
-					.split(/\s+/)
-					.map((scope) => scope.trim())
-					.filter(Boolean);
+					const normalizedScopes = scopeInput
+						.split(/\s+/)
+						.map((scope) => scope.trim())
+						.filter(Boolean);
 
-				if (normalizedScopes.length === 0) {
-					toastV8.error('Please provide at least one scope for the worker token');
-					throw new Error('Please provide at least one scope for the worker token');
-				}
+					if (normalizedScopes.length === 0) {
+						toastV8.error('Please provide at least one scope for the worker token');
+						return; // Return instead of throwing
+					}
 
-				setScopeInput(normalizedScopes.join(' '));
+					setScopeInput(normalizedScopes.join(' '));
 
 				// Save credentials to unifiedWorkerTokenService
 				const credentials: UnifiedWorkerTokenCredentials = {
@@ -463,6 +464,10 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 				},
 			}
 		);
+		} catch (error) {
+			console.error(`${MODULE_TAG} Unexpected error in handleGenerate:`, error);
+			toastV8.error('An unexpected error occurred. Please try again.');
+		}
 	};
 
 	const handleExecuteRequest = async (): Promise<string | null> => {
@@ -1244,6 +1249,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 													value={clientSecret}
 													onChange={(e) => setClientSecret(e.target.value)}
 													placeholder="••••••••••••••••"
+													autoComplete="current-password"
 													style={{
 														width: '100%',
 														padding: '10px 12px',
