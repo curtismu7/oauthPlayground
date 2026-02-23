@@ -1,11 +1,11 @@
 /**
  * @file CodeGeneratorsPage.tsx
- * @description Code generators and SDK examples for OAuth 2.0 implementations
+ * @description Interactive code generators for OAuth 2.0 implementations
  * @version 9.27.0
  */
 
 import React, { useState } from 'react';
-import { FiCode, FiDownload, FiCopy, FiTerminal, FiDatabase, FiShield, FiKey, FiRefreshCw, FiCheckCircle, FiAlertTriangle, FiBook, FiGitBranch, FiPackage, FiSettings, FiEye, FiEyeOff, FiInfo } from 'react-icons/fi';
+import { FiCode, FiCopy, FiDownload, FiTerminal, FiDatabase, FiKey, FiShield, FiCheckCircle, FiAlertTriangle, FiGitBranch } from 'react-icons/fi';
 import styled from 'styled-components';
 import { PageHeaderV8, PageHeaderTextColors } from '@/v8/components/shared/PageHeaderV8';
 import BootstrapButton from '@/components/bootstrap/BootstrapButton';
@@ -15,28 +15,26 @@ const _MODULE_TAG = '[💻 CODE-GENERATORS]';
 
 interface CodeGenerator {
 	id: string;
-	name: string;
+	title: string;
 	description: string;
-	language: string;
-	category: 'oauth' | 'oidc' | 'mfa' | 'token' | 'security';
-	template: string;
+	category: 'authentication' | 'authorization' | 'tokens' | 'api';
+	language: 'javascript' | 'python' | 'curl' | 'java' | 'csharp';
 	variables: CodeVariable[];
 	examples: CodeExample[];
 }
 
 interface CodeVariable {
 	name: string;
+	type: 'string' | 'number' | 'boolean';
 	description: string;
 	defaultValue: string;
-	type: 'string' | 'number' | 'boolean' | 'array';
 	required: boolean;
 }
 
 interface CodeExample {
 	title: string;
 	description: string;
-	code: string;
-	language: string;
+	template: string;
 }
 
 const Container = styled.div`
@@ -65,12 +63,12 @@ const SectionTitle = styled.h2`
 
 const Grid = styled.div`
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+	grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
 	gap: 1.5rem;
 	margin: 1.5rem 0;
 `;
 
-const Card = styled.div`
+const GeneratorCard = styled.div`
 	background: white;
 	border: 1px solid #e5e7eb;
 	border-radius: 0.5rem;
@@ -84,20 +82,40 @@ const Card = styled.div`
 	}
 `;
 
-const CardTitle = styled.h3`
+const GeneratorTitle = styled.h3`
 	font-size: 1.125rem;
 	font-weight: 600;
 	color: #1f2937;
 	margin: 0 0 0.5rem 0;
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
 `;
 
-const CardDescription = styled.p`
+const GeneratorDescription = styled.p`
 	color: #6b7280;
 	font-size: 0.875rem;
 	margin: 0 0 1rem 0;
+`;
+
+const CategoryBadge = styled.span<{ $category: string }>`
+	padding: 0.25rem 0.5rem;
+	border-radius: 0.25rem;
+	font-size: 0.75rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	
+	${({ $category }) => {
+		switch ($category) {
+			case 'authentication':
+				return 'background: #3b82f6; color: white;';
+			case 'authorization':
+				return 'background: #10b981; color: white;';
+			case 'tokens':
+				return 'background: #f59e0b; color: white;';
+			case 'api':
+				return 'background: #8b5cf6; color: white;';
+			default:
+				return 'background: #6b7280; color: white;';
+		}
+	}}
 `;
 
 const LanguageBadge = styled.span<{ $language: string }>`
@@ -105,27 +123,19 @@ const LanguageBadge = styled.span<{ $language: string }>`
 	border-radius: 0.25rem;
 	font-size: 0.75rem;
 	font-weight: 600;
-	text-transform: uppercase;
 	
 	${({ $language }) => {
 		switch ($language) {
 			case 'javascript':
-			case 'node':
 				return 'background: #f7df1e; color: #323230;';
 			case 'python':
 				return 'background: #3776ab; color: white;';
+			case 'curl':
+				return 'background: #07407a; color: white;';
 			case 'java':
 				return 'background: #f89820; color: white;';
 			case 'csharp':
 				return 'background: #239120; color: white;';
-			case 'php':
-				return 'background: #777bb4; color: white;';
-			case 'ruby':
-				return 'background: #cc342d; color: white;';
-			case 'go':
-				return 'background: #00add8; color: white;';
-			case 'curl':
-				return 'background: #07407a; color: white;';
 			default:
 				return 'background: #6b7280; color: white;';
 		}
@@ -154,11 +164,28 @@ const CodeHeader = styled.div`
 	border-bottom: 1px solid #374151;
 `;
 
-const CodeContent = styled.div<{ $obfuscated: boolean }>`
-	white-space: pre-wrap;
-	word-break: break-all;
-	filter: ${({ $obfuscated }) => ($obfuscated ? 'blur(8px)' : 'none')};
-	transition: filter 0.3s ease;
+const LanguageBadgeDisplay = styled.span<{ $language: string }>`
+	padding: 0.25rem 0.5rem;
+	border-radius: 0.25rem;
+	font-size: 0.75rem;
+	font-weight: 600;
+	
+	${({ $language }) => {
+		switch ($language) {
+			case 'javascript':
+				return 'background: #f7df1e; color: #323230;';
+			case 'python':
+				return 'background: #3776ab; color: white;';
+			case 'curl':
+				return 'background: #07407a; color: white;';
+			case 'java':
+				return 'background: #f89820; color: white;';
+			case 'csharp':
+				return 'background: #239120; color: white;';
+			default:
+				return 'background: #6b7280; color: white;';
+		}
+	}}
 `;
 
 const VariableForm = styled.div`
@@ -171,27 +198,27 @@ const VariableForm = styled.div`
 
 const FormGroup = styled.div`
 	margin-bottom: 1rem;
+`;
+
+const Label = styled.label`
+	display: block;
+	font-size: 0.875rem;
+	font-weight: 500;
+	color: #374151;
+	margin-bottom: 0.25rem;
+`;
+
+const Input = styled.input`
+	width: 100%;
+	padding: 0.5rem;
+	border: 1px solid #d1d5db;
+	border-radius: 0.375rem;
+	font-size: 0.875rem;
 	
-	label {
-		display: block;
-		font-weight: 600;
-		color: #374151;
-		margin-bottom: 0.25rem;
-		font-size: 0.875rem;
-	}
-	
-	input, select, textarea {
-		width: 100%;
-		padding: 0.5rem;
-		border: 1px solid #d1d5db;
-		border-radius: 0.375rem;
-		font-size: 0.875rem;
-		
-		&:focus {
-			outline: none;
-			border-color: #3b82f6;
-			box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-		}
+	&:focus {
+		outline: none;
+		border-color: #3b82f6;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
 
@@ -203,8 +230,11 @@ const ActionButtons = styled.div`
 `;
 
 const TabContainer = styled.div`
-	border-bottom: 1px solid #e5e7eb;
-	margin-bottom: 1rem;
+	background: #f8fafc;
+	border: 1px solid #e5e7eb;
+	border-radius: 0.5rem;
+	padding: 1rem;
+	margin: 1rem 0;
 `;
 
 const TabButtons = styled.div`
@@ -237,75 +267,134 @@ const TabContent = styled.div`
 const mockCodeGenerators: CodeGenerator[] = [
 	{
 		id: 'oauth-authorization-code-js',
-		name: 'OAuth 2.0 Authorization Code',
-		description: 'JavaScript implementation of OAuth 2.0 Authorization Code flow',
+		title: 'OAuth 2.0 Authorization Code Flow',
+		description: 'Complete JavaScript implementation of OAuth 2.0 authorization code flow',
+		category: 'authentication',
 		language: 'javascript',
-		category: 'oauth',
-		template: `// OAuth 2.0 Authorization Code Flow Implementation
-const OAuthClient = {
-  clientId: '{{clientId}}',
-  clientSecret: '{{clientSecret}}',
-  redirectUri: '{{redirectUri}}',
-  authUrl: '{{authUrl}}',
-  tokenUrl: '{{tokenUrl}}',
-  
-  async initiateAuth() {
-    const params = new URLSearchParams({
-      response_type: 'code',
-      client_id: this.clientId,
-      redirect_uri: this.redirectUri,
-      scope: '{{scopes}}',
-      state: this.generateState()
-    });
-    
-    window.location.href = \`\${this.authUrl}?\${params.toString()}\`;
-  },
-  
-  async exchangeCodeForToken(code, state) {
-    const response = await fetch(this.tokenUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams({
-        grant_type: 'authorization_code',
-        client_id: this.clientId,
-        client_secret: this.clientSecret,
-        code: code,
-        redirect_uri: this.redirectUri,
-        state: state
-      })
-    });
-    
-    return await response.json();
-  },
-  
-  generateState() {
-    return Math.random().toString(36).substring(2, 15);
-  }
-};`,
 		variables: [
-			{ name: 'clientId', description: 'OAuth client ID', defaultValue: 'your-client-id', type: 'string', required: true },
-			{ name: 'clientSecret', description: 'OAuth client secret', defaultValue: 'your-client-secret', type: 'string', required: true },
-			{ name: 'redirectUri', description: 'Redirect URI', defaultValue: 'http://localhost:3000/callback', type: 'string', required: true },
-			{ name: 'authUrl', description: 'Authorization server URL', defaultValue: 'https://auth.pingone.com/oauth/authorize', type: 'string', required: true },
-			{ name: 'tokenUrl', description: 'Token endpoint URL', defaultValue: 'https://auth.pingone.com/oauth/token', type: 'string', required: true },
-			{ name: 'scopes', description: 'OAuth scopes', defaultValue: 'openid profile email', type: 'string', required: true }
+			{
+				name: 'clientId',
+				type: 'string',
+				description: 'Your OAuth client ID',
+				defaultValue: 'your-client-id',
+				required: true
+			},
+			{
+				name: 'clientSecret',
+				type: 'string',
+				description: 'Your OAuth client secret',
+				defaultValue: 'your-client-secret',
+				required: true
+			},
+			{
+				name: 'redirectUri',
+				type: 'string',
+				description: 'Callback URL after authorization',
+				defaultValue: 'https://app.example.com/callback',
+				required: true
+			},
+			{
+				name: 'authUrl',
+				type: 'string',
+				description: 'OAuth authorization endpoint',
+				defaultValue: 'https://auth.pingone.com/oauth/authorize',
+				required: true
+			},
+			{
+				name: 'tokenUrl',
+				type: 'string',
+				description: 'OAuth token endpoint',
+				defaultValue: 'https://auth.pingone.com/oauth/token',
+				required: true
+			}
 		],
 		examples: [
 			{
-				title: 'Basic Usage',
-				description: 'Simple authorization code flow implementation',
-				code: `const client = new OAuthClient();
-await client.initiateAuth();`,
-				language: 'javascript'
+				title: 'Authorization Request',
+				description: 'Redirect user to authorization endpoint',
+				template: `const authUrl = \`\${authUrl}?response_type=code&client_id=\${clientId}&redirect_uri=\${redirectUri}&scope=openid profile&state=\${generateState()}\`;
+window.location.href = authUrl;`
 			},
 			{
 				title: 'Token Exchange',
 				description: 'Exchange authorization code for access token',
-				code: `const tokenResponse = await client.exchangeCodeForToken(code, state);
-console.log('Access Token:', tokenResponse.access_token);`,
-				language: 'javascript'
+				template: `const tokenResponse = await fetch(tokenUrl, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded',
+    'Authorization': \`Basic \${btoa(\`\${clientId}:\${clientSecret}\`)}\`
+  },
+  body: new URLSearchParams({
+    grant_type: 'authorization_code',
+    code: authorizationCode,
+    redirect_uri: redirectUri
+  })
+});
+
+const tokens = await tokenResponse.json();`
+			}
+		]
+	},
+	{
+		id: 'oauth-client-credentials-python',
+		title: 'OAuth 2.0 Client Credentials Flow',
+		description: 'Python implementation for service-to-service authentication',
+		category: 'authentication',
+		language: 'python',
+		variables: [
+			{
+				name: 'clientId',
+				type: 'string',
+				description: 'Your OAuth client ID',
+				defaultValue: 'your-client-id',
+				required: true
+			},
+			{
+				name: 'clientSecret',
+				type: 'string',
+				description: 'Your OAuth client secret',
+				defaultValue: 'your-client-secret',
+				required: true
+			},
+			{
+				name: 'tokenUrl',
+				type: 'string',
+				description: 'OAuth token endpoint',
+				defaultValue: 'https://auth.pingone.com/oauth/token',
+				required: true
+			},
+			{
+				name: 'scopes',
+				type: 'string',
+				description: 'Requested scopes',
+				defaultValue: 'openid profile',
+				required: false
+			}
+		],
+		examples: [
+			{
+				title: 'Token Request',
+				description: 'Request access token using client credentials',
+				template: `import requests
+import base64
+
+# Encode client credentials
+credentials = base64.b64encode(f"{clientId}:{clientSecret}".encode()).decode()
+
+# Make token request
+response = requests.post(
+    tokenUrl,
+    headers={
+        "Authorization": f"Basic {credentials}",
+        "Content-Type": "application/x-www-form-urlencoded"
+    },
+    data={
+        "grant_type": "client_credentials",
+        "scope": scopes
+    }
+)
+
+tokens = response.json()`
 			}
 		]
 	}
@@ -313,15 +402,14 @@ console.log('Access Token:', tokenResponse.access_token);`,
 
 export const CodeGeneratorsPage: React.FC = () => {
 	const [selectedGenerator, setSelectedGenerator] = useState<CodeGenerator | null>(null);
-	const [generatedCode, setGeneratedCode] = useState<string>('');
 	const [variables, setVariables] = useState<Record<string, string>>({});
-	const [showCode, setShowCode] = useState(true);
+	const [generatedCode, setGeneratedCode] = useState<string>('');
+	const [activeTab, setActiveTab] = useState<'variables' | 'examples'>('variables');
 	const [copiedText, setCopiedText] = useState('');
-	const [activeTab, setActiveTab] = useState<'generator' | 'examples'>('generator');
 
 	const handleGeneratorSelect = (generator: CodeGenerator) => {
 		setSelectedGenerator(generator);
-		setActiveTab('generator');
+		setActiveTab('variables');
 		
 		// Initialize variables with default values
 		const defaultVars: Record<string, string> = {};
@@ -329,30 +417,26 @@ export const CodeGeneratorsPage: React.FC = () => {
 			defaultVars[variable.name] = variable.defaultValue;
 		});
 		setVariables(defaultVars);
-		
-		// Generate initial code
-		generateCode(generator, defaultVars);
-	};
-
-	const generateCode = (generator: CodeGenerator, vars: Record<string, string>) => {
-		let code = generator.template;
-		
-		// Replace variables in template
-		Object.entries(vars).forEach(([key, value]) => {
-			const regex = new RegExp(`{{${key}}}`, 'g');
-			code = code.replace(regex, value);
-		});
-		
-		setGeneratedCode(code);
+		setGeneratedCode('');
 	};
 
 	const handleVariableChange = (name: string, value: string) => {
-		const newVars = { ...variables, [name]: value };
-		setVariables(newVars);
+		setVariables(prev => ({ ...prev, [name]: value }));
+	};
+
+	const generateCode = () => {
+		if (!selectedGenerator) return;
 		
-		if (selectedGenerator) {
-			generateCode(selectedGenerator, newVars);
-		}
+		let code = selectedGenerator.examples[0]?.template || '';
+		
+		// Replace variables in template
+		selectedGenerator.variables.forEach(variable => {
+			const regex = new RegExp(`\\$\\{${variable.name}\\}`, 'g');
+			code = code.replace(regex, variables[variable.name] || '');
+		});
+		
+		setGeneratedCode(code);
+		setActiveTab('examples');
 	};
 
 	const copyToClipboard = (text: string, type: string) => {
@@ -365,38 +449,31 @@ export const CodeGeneratorsPage: React.FC = () => {
 		});
 	};
 
-	const downloadCode = () => {
-		if (!selectedGenerator) return;
-		
-		const blob = new Blob([generatedCode], { type: 'text/plain' });
-		const url = URL.createObjectURL(blob);
-		const a = document.createElement('a');
-		a.href = url;
-		a.download = `${selectedGenerator.name.replace(/\s+/g, '-').toLowerCase()}.${selectedGenerator.language}`;
-		document.body.appendChild(a);
-		a.click();
-		document.body.removeChild(a);
-		URL.revokeObjectURL(url);
-		
-		toastV8.success('Code downloaded successfully');
-	};
-
 	const getCategoryColor = (category: string) => {
 		switch (category) {
-			case 'oauth': return '#3b82f6';
-			case 'oidc': return '#10b981';
-			case 'mfa': return '#f59e0b';
-			case 'token': return '#ef4444';
-			case 'security': return '#8b5cf6';
+			case 'authentication': return '#3b82f6';
+			case 'authorization': return '#10b981';
+			case 'tokens': return '#f59e0b';
+			case 'api': return '#8b5cf6';
 			default: return '#6b7280';
+		}
+	};
+
+	const getCategoryIcon = (category: string) => {
+		switch (category) {
+			case 'authentication': return <FiShield />;
+			case 'authorization': return <FiKey />;
+			case 'tokens': return <FiDatabase />;
+			case 'api': return <FiTerminal />;
+			default: return <FiCode />;
 		}
 	};
 
 	return (
 		<Container>
 			<PageHeaderV8
-				title="Code Generators & SDK Examples"
-				subtitle="Interactive code generators and SDK examples for OAuth 2.0 implementations"
+				title="Code Generators"
+				subtitle="Interactive code generators for OAuth 2.0 implementations"
 				gradient="#8b5cf6"
 				textColor={PageHeaderTextColors.white}
 			/>
@@ -404,35 +481,22 @@ export const CodeGeneratorsPage: React.FC = () => {
 			<Section>
 				<SectionTitle>
 					<FiCode />
-					Available Code Generators
+					Available Code Generators ({mockCodeGenerators.length})
 				</SectionTitle>
 				
 				<Grid>
 					{mockCodeGenerators.map((generator) => (
-						<Card key={generator.id}>
-							<CardTitle>
-								<FiPackage />
-								{generator.name}
-							</CardTitle>
-							<CardDescription>
-								{generator.description}
-							</CardDescription>
+						<GeneratorCard key={generator.id}>
+							<GeneratorTitle>{generator.title}</GeneratorTitle>
+							<GeneratorDescription>{generator.description}</GeneratorDescription>
 							
 							<div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+								<CategoryBadge $category={generator.category}>
+									{generator.category}
+								</CategoryBadge>
 								<LanguageBadge $language={generator.language}>
 									{generator.language}
 								</LanguageBadge>
-								<span
-									style={{
-										padding: '0.25rem 0.5rem',
-										borderRadius: '0.25rem',
-										fontSize: '0.75rem',
-										background: getCategoryColor(generator.category),
-										color: 'white'
-									}}
-								>
-									{generator.category}
-								</span>
 							</div>
 							
 							<BootstrapButton
@@ -443,7 +507,7 @@ export const CodeGeneratorsPage: React.FC = () => {
 								<FiCode />
 								Generate Code
 							</BootstrapButton>
-						</Card>
+						</GeneratorCard>
 					))}
 				</Grid>
 			</Section>
@@ -452,181 +516,129 @@ export const CodeGeneratorsPage: React.FC = () => {
 				<Section>
 					<SectionTitle>
 						<FiTerminal />
-						{selectedGenerator.name} - Code Generator
+						{selectedGenerator.title}
 					</SectionTitle>
+					
+					<div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+						<CategoryBadge $category={selectedGenerator.category}>
+							{selectedGenerator.category}
+						</CategoryBadge>
+						<LanguageBadge $language={selectedGenerator.language}>
+							{selectedGenerator.language}
+						</LanguageBadge>
+					</div>
 					
 					<TabContainer>
 						<TabButtons>
 							<TabButton
-								$active={activeTab === 'generator'}
-								onClick={() => setActiveTab('generator')}
+								$active={activeTab === 'variables'}
+								onClick={() => setActiveTab('variables')}
 							>
-								<FiSettings />
-								Generator
+								Variables ({selectedGenerator.variables.length})
 							</TabButton>
 							<TabButton
 								$active={activeTab === 'examples'}
 								onClick={() => setActiveTab('examples')}
 							>
-								<FiBook />
-								Examples
+								Examples ({selectedGenerator.examples.length})
 							</TabButton>
 						</TabButtons>
-					</TabContainer>
-					
-					<TabContent>
-						{activeTab === 'generator' ? (
-							<>
+						
+						<TabContent>
+							{activeTab === 'variables' && (
 								<VariableForm>
-									<h3 style={{ margin: '0 0 1rem 0', fontSize: '1rem', fontWeight: 600 }}>
-										Configuration Variables
-									</h3>
-									{selectedGenerator.variables.map((variable) => (
-										<FormGroup key={variable.name}>
-											<label htmlFor={variable.name}>
+									{selectedGenerator.variables.map((variable, index) => (
+										<FormGroup key={index}>
+											<Label>
 												{variable.name}
 												{variable.required && <span style={{ color: '#ef4444' }}> *</span>}
-											</label>
-											<input
-												id={variable.name}
-												type="text"
+											</Label>
+											<Input
+												type={variable.type === 'number' ? 'number' : variable.type === 'boolean' ? 'checkbox' : 'text'}
 												value={variables[variable.name] || ''}
 												onChange={(e) => handleVariableChange(variable.name, e.target.value)}
-												placeholder={variable.defaultValue}
+												placeholder={variable.description}
 											/>
-											<small style={{ color: '#6b7280', display: 'block', marginTop: '0.25rem' }}>
+											<div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
 												{variable.description}
-											</small>
+											</div>
 										</FormGroup>
 									))}
-								</VariableForm>
-
-								<CodeDisplay>
-									<CodeHeader>
-										<div>
-											<span style={{ color: '#9ca3af', fontSize: '0.875rem' }}>
-												Generated {selectedGenerator.language} Code
-											</span>
-										</div>
+									
+									<ActionButtons>
+										<BootstrapButton
+											variant="primary"
+											onClick={generateCode}
+										>
+											<FiTerminal />
+											Generate Code
+										</BootstrapButton>
+										
 										<BootstrapButton
 											variant="secondary"
-											onClick={() => setShowCode(!showCode)}
-											style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}
+											onClick={() => setSelectedGenerator(null)}
 										>
-											{showCode ? <FiEyeOff /> : <FiEye />}
+											Close
 										</BootstrapButton>
-									</CodeHeader>
-									
-									<CodeContent $obfuscated={!showCode}>
-										{generatedCode}
-									</CodeContent>
-								</CodeDisplay>
-
-								<ActionButtons>
-									<BootstrapButton
-										variant="primary"
-										onClick={() => copyToClipboard(generatedCode, 'Generated Code')}
-									>
-										{copiedText === 'Generated Code' ? <FiRefreshCw /> : <FiCopy />}
-										{copiedText === 'Generated Code' ? 'Copied!' : 'Copy Code'}
-									</BootstrapButton>
-									
-									<BootstrapButton
-										variant="primary"
-										onClick={downloadCode}
-									>
-										<FiDownload />
-										Download
-									</BootstrapButton>
-									
-									<BootstrapButton
-										variant="secondary"
-										onClick={() => generateCode(selectedGenerator, variables)}
-									>
-										<FiRefreshCw />
-										Regenerate
-									</BootstrapButton>
-								</ActionButtons>
-							</>
-						) : (
-							<>
-								<h3 style={{ margin: '0 0 1rem 0', fontSize: '1rem', fontWeight: 600 }}>
-									Code Examples
-								</h3>
-								{selectedGenerator.examples.map((example, index) => (
-									<div key={index} style={{ marginBottom: '2rem' }}>
-										<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>
-											{example.title}
-										</h4>
-										<p style={{ color: '#6b7280', marginBottom: '1rem', fontSize: '0.875rem' }}>
-											{example.description}
-										</p>
+									</ActionButtons>
+								</VariableForm>
+							)}
+							
+							{activeTab === 'examples' && (
+								<>
+									{generatedCode && (
 										<CodeDisplay>
 											<CodeHeader>
 												<div>
-													<LanguageBadge $language={example.language}>
-														{example.language}
-													</LanguageBadge>
+													<LanguageBadgeDisplay $language={selectedGenerator.language}>
+														{selectedGenerator.language}
+													</LanguageBadgeDisplay>
 												</div>
 												<BootstrapButton
 													variant="secondary"
-													onClick={() => copyToClipboard(example.code, 'Example Code')}
+													onClick={() => copyToClipboard(generatedCode, 'Generated Code')}
 													style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}
 												>
-													{copiedText === 'Example Code' ? <FiRefreshCw /> : <FiCopy />}
+													{copiedText === 'Generated Code' ? <FiCheckCircle /> : <FiCopy />}
+													{copiedText === 'Generated Code' ? 'Copied!' : 'Copy'}
 												</BootstrapButton>
 											</CodeHeader>
 											
-											<CodeContent $obfuscated={false}>
-												{example.code}
-											</CodeContent>
+											<pre style={{ margin: 0, whiteSpace: 'pre-wrap' }}>
+												{generatedCode}
+											</pre>
 										</CodeDisplay>
-									</div>
-								))}
-							</>
-						)}
-					</TabContent>
+									)}
+									
+									{!generatedCode && (
+										<div style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
+											<FiTerminal size={24} style={{ marginBottom: '1rem' }} />
+											<div>Configure variables and click "Generate Code" to see the output</div>
+										</div>
+									)}
+									
+									<ActionButtons>
+										<BootstrapButton
+											variant="secondary"
+											onClick={() => setActiveTab('variables')}
+										>
+											<FiGitBranch />
+											Back to Variables
+										</BootstrapButton>
+										
+										<BootstrapButton
+											variant="secondary"
+											onClick={() => setSelectedGenerator(null)}
+										>
+											Close
+										</BootstrapButton>
+									</ActionButtons>
+								</>
+							)}
+						</TabContent>
+					</TabContainer>
 				</Section>
 			)}
-
-			<Section>
-				<SectionTitle>
-					<FiInfo />
-					Development Best Practices
-				</SectionTitle>
-				
-				<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
-					<div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '0.375rem', padding: '1rem' }}>
-						<h4 style={{ margin: '0 0 0.5rem 0', color: '#166534' }}>Security</h4>
-						<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#166534' }}>
-							<li>Never hardcode client secrets in production code</li>
-							<li>Use environment variables for sensitive configuration</li>
-							<li>Implement proper token storage and expiration handling</li>
-							<li>Validate all input parameters and tokens</li>
-						</ul>
-					</div>
-					
-					<div style={{ background: '#fef3c7', border: '1px solid #fcd34d', borderRadius: '0.375rem', padding: '1rem' }}>
-						<h4 style={{ margin: '0 0 0.5rem 0', color: '#92400e' }}>Error Handling</h4>
-						<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#92400e' }}>
-							<li>Implement proper error handling for network requests</li>
-							<li>Handle token expiration and refresh scenarios</li>
-							<li>Provide meaningful error messages to users</li>
-							<li>Log errors appropriately for debugging</li>
-						</ul>
-					</div>
-					
-					<div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '0.375rem', padding: '1rem' }}>
-						<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e40af' }}>Performance</h4>
-						<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#1e40af' }}>
-							<li>Cache access tokens when appropriate</li>
-							<li>Use connection pooling for HTTP requests</li>
-							<li>Implement token refresh before expiration</li>
-							<li>Minimize unnecessary API calls</li>
-						</ul>
-					</div>
-				</div>
-			</Section>
 		</Container>
 	);
 };
