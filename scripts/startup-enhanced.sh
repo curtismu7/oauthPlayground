@@ -428,6 +428,7 @@ main() {
             echo ""
             print_info "${YELLOW}💡 Pro Tip: Follow server logs in real-time with: tail -f backend.log${NC}"
             print_info "${YELLOW}💡 Pro Tip: Monitor both logs with: tail -f backend.log & tail -f vite.log${NC}"
+            print_info "${YELLOW}💡 Pro Tip: Check last 200 startup entries: tail -n 200 logs/startup.log${NC}"
             echo ""
             print_info "${CYAN}📊 Recommended Monitoring Setups:${NC}"
             print_info "${GREEN}  • Development: tail -f backend.log vite.log logs/pingone-api.log${NC}"
@@ -435,6 +436,7 @@ main() {
             print_info "${GREEN}  • Flow Testing: tail -f backend.log logs/sms.log logs/email.log${NC}"
             print_info "${GREEN}  • Complete View: tail -f backend.log vite.log logs/pingone-api.log logs/server.log${NC}"
             print_info "${GREEN}  • All-in-One: tail -f backend.log vite.log logs/pingone-api.log logs/server.log logs/sms.log logs/email.log${NC}"
+            print_info "${GREEN}  • Quick History: tail -n 200 logs/startup.log && tail -n 200 logs/pingone-api.log${NC}"
             echo ""
             
             # Keep script running and monitor processes
