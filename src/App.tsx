@@ -203,6 +203,7 @@ import { UserSearchPage } from './pages/UserSearchPage';
 import { LoginPatternsPage } from './pages/LoginPatternsPage';
 import { TokenApiDocumentationPage } from './pages/TokenApiDocumentationPage';
 import { SpiffeSpireTokenDisplayPage } from './pages/SpiffeSpireTokenDisplayPage';
+import { TokenRefreshPage } from './pages/TokenRefreshPage';
 
 // Lazy load unified MFA flow for code splitting
 const UnifiedMFARegistrationFlowV8_Legacy = React.lazy(() =>
@@ -1406,6 +1407,8 @@ const AppRoutes: React.FC = () => {
 								<Route path="/token-api-documentation" element={<TokenApiDocumentationPage />} />
 								{/* SPIFFE-Spire Token Display Page */}
 								<Route path="/spiffe-spire-token-display" element={<SpiffeSpireTokenDisplayPage />} />
+								{/* Token Refresh Page */}
+								<Route path="/token-refresh" element={<TokenRefreshPage />} />
 								{/* Protect Portal Application */}
 								<Route path="/protect-portal" element={<ProtectPortalWrapper />} />
 								{/* Company Editor Utility */}
