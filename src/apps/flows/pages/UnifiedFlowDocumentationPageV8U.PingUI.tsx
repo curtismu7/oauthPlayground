@@ -8,9 +8,10 @@
  * Migrated to Ping UI with MDI icons and CSS variables.
  */
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import MDIIcon from '@/components/MDIIcon';
 import type { FlowType, SpecVersion } from '@/v8/services/specVersionServiceV8';
 import type { UnifiedFlowCredentials } from '../services/unifiedFlowIntegrationV8U';
 
@@ -21,40 +22,6 @@ interface UnifiedFlowDocumentationPageV8UPingUIProps {
 	currentStep?: number;
 	totalSteps?: number;
 }
-
-// MDI Icon Component with proper accessibility
-const MDIIcon: React.FC<{
-	icon: string;
-	size?: number;
-	ariaLabel?: string;
-	className?: string;
-	style?: React.CSSProperties;
-}> = ({ icon, size = 16, ariaLabel, className = '', style }) => {
-	const iconClass = getMDIIconClass(icon);
-	const combinedClassName = `mdi ${iconClass} ${className}`.trim();
-
-	return (
-		<i
-			className={combinedClassName}
-			style={{ fontSize: `${size}px`, ...style }}
-			aria-hidden={!ariaLabel} // Hide from screen readers if no ariaLabel provided
-		></i>
-	);
-};
-
-// MDI Icon mapping function
-const getMDIIconClass = (iconName: string): string => {
-	const iconMap: Record<string, string> = {
-		FiChevronDown: 'mdi-chevron-down',
-		FiChevronUp: 'mdi-chevron-up',
-		FiDownload: 'mdi-download',
-		FiFileText: 'mdi-file-document',
-		FiHome: 'mdi-home',
-		FiInfo: 'mdi-information',
-		FiPackage: 'mdi-package',
-	};
-	return iconMap[iconName] || 'mdi-help-circle';
-};
 
 const DocumentationContainer = styled.div`
   background: var(--ping-surface-primary, white);
@@ -402,7 +369,7 @@ export const UnifiedFlowDocumentationPageV8UPingUI: React.FC<
 			<DocumentationContainer>
 				<Header>
 					<Title>
-						<MDIIcon icon="FiFileText" size={24} ariaLabel="Documentation" />
+						<MDIIcon icon="file-document" size={24} aria-label="Documentation" />
 						{generateDocumentation.title}
 					</Title>
 					<ActionButtons>
@@ -410,7 +377,7 @@ export const UnifiedFlowDocumentationPageV8UPingUI: React.FC<
 							{isGeneratingPDF ? (
 								<LoadingSpinner />
 							) : (
-								<MDIIcon icon="FiDownload" size={16} ariaLabel="Download PDF" />
+								<MDIIcon icon="download" size={16} aria-label="Download PDF" />
 							)}
 							{isGeneratingPDF ? 'Generating...' : 'Download PDF'}
 						</ActionButton>
@@ -418,7 +385,7 @@ export const UnifiedFlowDocumentationPageV8UPingUI: React.FC<
 							{isGeneratingMD ? (
 								<LoadingSpinner />
 							) : (
-								<MDIIcon icon="FiFileText" size={16} ariaLabel="Download Markdown" />
+								<MDIIcon icon="file-document" size={16} aria-label="Download Markdown" />
 							)}
 							{isGeneratingMD ? 'Generating...' : 'Download MD'}
 						</ActionButton>
@@ -426,7 +393,7 @@ export const UnifiedFlowDocumentationPageV8UPingUI: React.FC<
 							{isGeneratingPostman ? (
 								<LoadingSpinner />
 							) : (
-								<MDIIcon icon="FiPackage" size={16} ariaLabel="Download Postman Collection" />
+								<MDIIcon icon="package" size={16} aria-label="Download Postman Collection" />
 							)}
 							{isGeneratingPostman ? 'Generating...' : 'Postman'}
 						</SecondaryButton>
@@ -435,7 +402,7 @@ export const UnifiedFlowDocumentationPageV8UPingUI: React.FC<
 
 				{totalSteps > 1 && (
 					<ProgressIndicator>
-						<MDIIcon icon="FiInfo" size={16} ariaLabel="Progress Information" />
+						<MDIIcon icon="information" size={16} aria-label="Progress Information" />
 						<ProgressText>
 							Step {currentStep} of {totalSteps} - {generateDocumentation.description}
 						</ProgressText>
@@ -447,15 +414,15 @@ export const UnifiedFlowDocumentationPageV8UPingUI: React.FC<
 						<SectionTitle>
 							Flow Information
 							<MDIIcon
-								icon={expandedSections.has('flow-info') ? 'FiChevronUp' : 'FiChevronDown'}
+								icon={expandedSections.has('flow-info') ? 'chevron-up' : 'chevron-down'}
 								size={16}
-								ariaLabel={expandedSections.has('flow-info') ? 'Collapse' : 'Expand'}
+								aria-label={expandedSections.has('flow-info') ? 'Collapse' : 'Expand'}
 							/>
 						</SectionTitle>
 					</SectionHeader>
 					<SectionContent $isOpen={expandedSections.has('flow-info')}>
 						<InfoBox>
-							<MDIIcon icon="FiInfo" size={20} ariaLabel="Information" />
+							<MDIIcon icon="information" size={20} aria-label="Information" />
 							<InfoText>
 								<strong>Flow Type:</strong> {getFlowDescription(flowType)}
 								<br />
@@ -480,9 +447,9 @@ export const UnifiedFlowDocumentationPageV8UPingUI: React.FC<
 						<SectionTitle>
 							API Calls
 							<MDIIcon
-								icon={expandedSections.has('api-calls') ? 'FiChevronUp' : 'FiChevronDown'}
+								icon={expandedSections.has('api-calls') ? 'chevron-up' : 'chevron-down'}
 								size={16}
-								ariaLabel={expandedSections.has('api-calls') ? 'Collapse' : 'Expand'}
+								aria-label={expandedSections.has('api-calls') ? 'Collapse' : 'Expand'}
 							/>
 						</SectionTitle>
 						<span style={{ color: 'var(--ping-text-secondary, #64748b)', fontSize: '0.875rem' }}>
@@ -504,7 +471,7 @@ export const UnifiedFlowDocumentationPageV8UPingUI: React.FC<
 										<ApiUrl>{call.url}</ApiUrl>
 									</div>
 									<CopyButton onClick={() => copyToClipboard(call.prettyBody || '')}>
-										<MDIIcon icon="FiFileText" size={12} ariaLabel="Copy" />
+										<MDIIcon icon="file-document" size={12} aria-label="Copy" />
 										Copy
 									</CopyButton>
 								</ApiCallHeader>
@@ -523,15 +490,15 @@ export const UnifiedFlowDocumentationPageV8UPingUI: React.FC<
 						<SectionTitle>
 							Credentials Used
 							<MDIIcon
-								icon={expandedSections.has('credentials') ? 'FiChevronUp' : 'FiChevronDown'}
+								icon={expandedSections.has('credentials') ? 'chevron-up' : 'chevron-down'}
 								size={16}
-								ariaLabel={expandedSections.has('credentials') ? 'Collapse' : 'Expand'}
+								aria-label={expandedSections.has('credentials') ? 'Collapse' : 'Expand'}
 							/>
 						</SectionTitle>
 					</SectionHeader>
 					<SectionContent $isOpen={expandedSections.has('credentials')}>
 						<InfoBox>
-							<MDIIcon icon="FiInfo" size={20} ariaLabel="Information" />
+							<MDIIcon icon="information" size={20} aria-label="Information" />
 							<InfoText>
 								{credentials ? (
 									<>
@@ -559,7 +526,7 @@ export const UnifiedFlowDocumentationPageV8UPingUI: React.FC<
 						onClick={() => navigate('/')}
 						style={{ marginRight: 'var(--ping-spacing-md, 1rem)' }}
 					>
-						<MDIIcon icon="FiHome" size={16} ariaLabel="Home" />
+						<MDIIcon icon="home" size={16} aria-label="Home" />
 						Back to Home
 					</SecondaryButton>
 				</div>
