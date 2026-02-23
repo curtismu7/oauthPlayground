@@ -13,6 +13,8 @@ import type { ErrorTemplate } from '../constants/errorMessages';
 import type { FlowType } from '../services/flowStepDefinitions';
 import FlowSequenceDisplay from './FlowSequenceDisplay';
 import OAuthErrorHelper from './OAuthErrorHelper';
+import BootstrapButton from '../components/bootstrap/BootstrapButton';
+import StandardHeader from './StandardHeader';
 
 export interface FlowErrorDisplayProps {
 	// Flow context
@@ -297,15 +299,14 @@ export const FlowErrorDisplay: React.FC<FlowErrorDisplayProps> = ({
 
 				<ErrorContainer>
 					<ErrorCard>
-						<ErrorHeader>
-							<ErrorIconWrapper>
-								<span className={iconClassName} style={{ fontSize: '2rem' }}></span>
-							</ErrorIconWrapper>
-							<ErrorContent>
-								<ErrorTitle>{errorTemplate.title}</ErrorTitle>
-								<ErrorMessage>{errorTemplate.message}</ErrorMessage>
-							</ErrorContent>
-						</ErrorHeader>
+						<StandardHeader
+							title={errorTemplate.title}
+							description={errorTemplate.message}
+							icon="mdi-alert-circle"
+							variant="primary"
+							isCollapsible={false}
+							style={{ marginBottom: '1.5rem' }}
+						/>
 
 						{(errorCode || errorDescription || correlationId) && (
 							<ErrorMetadata>
@@ -346,22 +347,22 @@ export const FlowErrorDisplay: React.FC<FlowErrorDisplayProps> = ({
 						/>
 
 						<ActionButtons>
-							<ActionButton $variant="primary" onClick={handleStartOver}>
-								<span className="mdi mdi-home" style={{ fontSize: '18px' }}></span>
+							<BootstrapButton variant="primary" onClick={handleStartOver} whiteBorder={true}>
+								<span className="mdi mdi-home" style={{ fontSize: '18px', marginRight: '0.5rem' }}></span>
 								Start Over
-							</ActionButton>
+							</BootstrapButton>
 
 							{onRetry && (
-								<ActionButton $variant="secondary" onClick={handleRetry}>
-									<span className="mdi mdi-refresh" style={{ fontSize: '18px' }}></span>
+								<BootstrapButton variant="secondary" onClick={handleRetry} whiteBorder={true}>
+									<span className="mdi mdi-refresh" style={{ fontSize: '18px', marginRight: '0.5rem' }}></span>
 									Try Again
-								</ActionButton>
+								</BootstrapButton>
 							)}
 
-							<ActionButton $variant="ghost" onClick={handleGoToConfig}>
-								<span className="mdi mdi-cog" style={{ fontSize: '18px' }}></span>
+							<BootstrapButton variant="secondary" onClick={handleGoToConfig} whiteBorder={true}>
+								<span className="mdi mdi-cog" style={{ fontSize: '18px', marginRight: '0.5rem' }}></span>
 								Configuration
-							</ActionButton>
+							</BootstrapButton>
 						</ActionButtons>
 					</ErrorCard>
 				</ErrorContainer>

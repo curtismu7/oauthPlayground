@@ -2,8 +2,10 @@
 // Reusable OAuth Error Display Component for consistent error presentation across all flows
 
 import React from 'react';
-import { FiAlertTriangle, FiExternalLink, FiRefreshCw, FiX } from 'react-icons/fi';
+import { FiExternalLink } from 'react-icons/fi';
 import { OAuthErrorDetails } from '../services/oauthErrorHandlingService';
+import BootstrapButton from '../components/bootstrap/BootstrapButton';
+import StandardHeader from './StandardHeader';
 
 interface OAuthErrorDisplayProps {
 	errorDetails: OAuthErrorDetails;
@@ -77,7 +79,7 @@ const OAuthErrorDisplay: React.FC<OAuthErrorDisplayProps> = ({
 
 	return (
 		<div
-			className={`oauth-error-display ${className}`}
+			className={`oauth-error-display end-user-nano ${className}`}
 			style={{
 				marginTop: '1rem',
 				padding: '1rem',
@@ -88,50 +90,27 @@ const OAuthErrorDisplay: React.FC<OAuthErrorDisplayProps> = ({
 			}}
 		>
 			{/* Error Header */}
-			<div
-				style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', marginBottom: '1rem' }}
-			>
-				<div
+			<StandardHeader
+				title={errorDetails.message}
+				description="Please check the troubleshooting steps below to resolve this issue."
+				icon="mdi-alert-circle"
+				variant="primary"
+				isCollapsible={false}
+				style={{ marginBottom: '1rem' }}
+			/>
+			
+			{showCorrelationId && errorDetails.correlationId && (
+				<p
 					style={{
-						fontSize: '1.25rem',
-						flexShrink: 0,
-						marginTop: '2px',
-						display: 'flex',
-						alignItems: 'center',
-						gap: '0.5rem',
+						margin: '0.25rem 0 1rem 0',
+						fontSize: '0.75rem',
+						color: '#9ca3af',
+						fontFamily: 'monospace',
 					}}
 				>
-					<span>{errorIcon}</span>
-					<FiAlertTriangle size={20} style={{ color: errorColor }} />
-				</div>
-				<div style={{ flex: 1 }}>
-					<h4
-						style={{
-							margin: '0 0 0.5rem 0',
-							fontSize: '1rem',
-							fontWeight: 600,
-							color: errorColor,
-						}}
-					>
-						{errorDetails.message}
-					</h4>
-					<p style={{ margin: 0, fontSize: '0.875rem', color: '#7f1d1d' }}>
-						Please check the troubleshooting steps below to resolve this issue.
-					</p>
-					{showCorrelationId && errorDetails.correlationId && (
-						<p
-							style={{
-								margin: '0.25rem 0 0 0',
-								fontSize: '0.75rem',
-								color: '#9ca3af',
-								fontFamily: 'monospace',
-							}}
-						>
-							Correlation ID: {errorDetails.correlationId}
-						</p>
-					)}
-				</div>
-			</div>
+					Correlation ID: {errorDetails.correlationId}
+				</p>
+			)}
 
 			{/* Troubleshooting Steps */}
 			<div
@@ -194,126 +173,36 @@ const OAuthErrorDisplay: React.FC<OAuthErrorDisplayProps> = ({
 			)}
 
 			{/* Action Buttons */}
-			<div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-				<button
-					type="button"
-					onClick={onDismiss}
-					style={{
-						padding: '0.5rem 1rem',
-						background: errorColor,
-						color: 'white',
-						border: 'none',
-						borderRadius: '0.375rem',
-						fontSize: '0.875rem',
-						cursor: 'pointer',
-						display: 'flex',
-						alignItems: 'center',
-						gap: '0.5rem',
-						transition: 'all 0.2s ease',
-					}}
-					onMouseOver={(e) => {
-						e.currentTarget.style.background = errorColor;
-						e.currentTarget.style.opacity = '0.9';
-					}}
-					onMouseOut={(e) => {
-						e.currentTarget.style.background = errorColor;
-						e.currentTarget.style.opacity = '1';
-					}}
-				>
-					<FiX size={16} />
+			<div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginTop: '1rem' }}>
+				<BootstrapButton variant="primary" onClick={onDismiss} whiteBorder={true}>
+					<span className="mdi mdi-close" style={{ fontSize: '16px', marginRight: '0.5rem' }}></span>
 					Dismiss
-				</button>
+				</BootstrapButton>
 
 				{onRetry && (
-					<button
-						type="button"
-						onClick={onRetry}
-						style={{
-							padding: '0.5rem 1rem',
-							background: '#059669',
-							color: 'white',
-							border: 'none',
-							borderRadius: '0.375rem',
-							fontSize: '0.875rem',
-							cursor: 'pointer',
-							display: 'flex',
-							alignItems: 'center',
-							gap: '0.5rem',
-							transition: 'all 0.2s ease',
-						}}
-						onMouseOver={(e) => {
-							e.currentTarget.style.background = '#047857';
-						}}
-						onMouseOut={(e) => {
-							e.currentTarget.style.background = '#059669';
-						}}
-					>
-						<FiRefreshCw size={16} />
+					<BootstrapButton variant="success" onClick={onRetry} whiteBorder={true}>
+						<span className="mdi mdi-refresh" style={{ fontSize: '16px', marginRight: '0.5rem' }}></span>
 						Retry
-					</button>
+					</BootstrapButton>
 				)}
 
 				{onClearAndRetry && (
-					<button
-						type="button"
-						onClick={onClearAndRetry}
-						style={{
-							padding: '0.5rem 1rem',
-							background: '#6b7280',
-							color: 'white',
-							border: 'none',
-							borderRadius: '0.375rem',
-							fontSize: '0.875rem',
-							cursor: 'pointer',
-							display: 'flex',
-							alignItems: 'center',
-							gap: '0.5rem',
-							transition: 'all 0.2s ease',
-						}}
-						onMouseOver={(e) => {
-							e.currentTarget.style.background = '#4b5563';
-						}}
-						onMouseOut={(e) => {
-							e.currentTarget.style.background = '#6b7280';
-						}}
-					>
-						<FiRefreshCw size={16} />
+					<BootstrapButton variant="secondary" onClick={onClearAndRetry} whiteBorder={true}>
+						<span className="mdi mdi-refresh" style={{ fontSize: '16px', marginRight: '0.5rem' }}></span>
 						Clear & Retry
-					</button>
+					</BootstrapButton>
 				)}
 
 				{/* Documentation Link */}
-				<button
-					type="button"
-					onClick={() =>
-						window.open(
-							'https://docs.pingidentity.com/bundle/pingone-for-customers/page/authentication.html',
-							'_blank'
-						)
-					}
-					style={{
-						padding: '0.5rem 1rem',
-						background: '#3b82f6',
-						color: 'white',
-						border: 'none',
-						borderRadius: '0.375rem',
-						fontSize: '0.875rem',
-						cursor: 'pointer',
-						display: 'flex',
-						alignItems: 'center',
-						gap: '0.5rem',
-						transition: 'all 0.2s ease',
-					}}
-					onMouseOver={(e) => {
-						e.currentTarget.style.background = '#2563eb';
-					}}
-					onMouseOut={(e) => {
-						e.currentTarget.style.background = '#3b82f6';
-					}}
-				>
-					<FiExternalLink size={16} />
-					PingOne Docs
-				</button>
+				<BootstrapButton variant="primary" onClick={() =>
+					window.open(
+						'https://docs.pingidentity.com/bundle/pingone-for-customers/page/authentication.html',
+						'_blank'
+					)
+				} whiteBorder={true}>
+					<FiExternalLink size={16} style={{ marginRight: '0.5rem' }} />
+					Documentation
+				</BootstrapButton>
 			</div>
 		</div>
 	);
