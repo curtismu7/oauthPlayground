@@ -14,6 +14,7 @@ import AppVersionBadge from '../components/AppVersionBadge';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import StandardHeader from '../components/StandardHeader';
 import { type ActivityItem, getRecentActivity } from '../utils/activityTracker';
+import BootstrapButton from '../components/bootstrap/BootstrapButton';
 import '../styles/button-color-system.css';
 
 // ============================================================================
@@ -427,45 +428,41 @@ const Dashboard: React.FC = () => {
 							}}
 						>
 							<div style={getViewModeContainerStyle()}>
-								<button
-									type="button"
+								<BootstrapButton
+									variant={viewMode === 'full' ? 'primary' : 'secondary'}
 									onClick={() => setViewMode('full')}
-									style={getViewModeButtonStyle(viewMode === 'full')}
 									title="Full view - Show all sections"
+									whiteBorder={viewMode === 'full'}
 								>
 									<MDIIcon icon="view-fullscreen" size={14} />
 									Full
-								</button>
-								<button
-									type="button"
+								</BootstrapButton>
+								<BootstrapButton
+									variant={viewMode === 'compact' ? 'primary' : 'secondary'}
 									onClick={() => setViewMode('compact')}
-									style={getViewModeButtonStyle(viewMode === 'compact')}
 									title="Compact view - Reduced spacing"
+									whiteBorder={viewMode === 'compact'}
 								>
 									<MDIIcon icon="view-compact" size={14} />
 									Compact
-								</button>
-								<button
-									type="button"
+								</BootstrapButton>
+								<BootstrapButton
+									variant={viewMode === 'hidden' ? 'primary' : 'secondary'}
 									onClick={() => setViewMode('hidden')}
-									style={getViewModeButtonStyle(viewMode === 'hidden')}
 									title="Hidden view - Minimal display"
+									whiteBorder={viewMode === 'hidden'}
 								>
 									<MDIIcon icon="eye-off" size={14} />
 									Hidden
-								</button>
+								</BootstrapButton>
 							</div>
 
 							{/* Refresh Button */}
-							<button
+							<BootstrapButton
+								variant="secondary"
 								onClick={refreshDashboard}
 								disabled={isRefreshing}
-								type="button"
-								style={{
-									...getButtonStyle('secondary'),
-									opacity: isRefreshing ? 0.7 : 1,
-									cursor: isRefreshing ? 'not-allowed' : 'pointer',
-								}}
+								whiteBorder={true}
 							>
 								<MDIIcon
 									icon={isRefreshing ? 'loading' : 'refresh'}
@@ -473,7 +470,7 @@ const Dashboard: React.FC = () => {
 									className={isRefreshing ? 'mdi-spin' : ''}
 								/>
 								{isRefreshing ? 'Refreshing...' : 'Refresh'}
-							</button>
+							</BootstrapButton>
 						</div>
 					</div>
 				</div>
@@ -504,8 +501,8 @@ const Dashboard: React.FC = () => {
 								We're upgrading our notification system to provide better user feedback. Critical authentication flows are being migrated first to ensure no disruption to your OAuth testing experience.
 							</p>
 						</div>
-						<button
-							type="button"
+						<BootstrapButton
+							variant="primary"
 							onClick={() => {
 								// Dismiss banner functionality
 								const banner = document.querySelector('[data-migration-banner]') as HTMLElement;
@@ -513,33 +510,14 @@ const Dashboard: React.FC = () => {
 									banner.style.display = 'none';
 								}
 							}}
-							onFocus={(e) => {
-								e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)';
-							}}
-							onBlur={(e) => {
-								e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
-							}}
-							onMouseOver={(e) => {
-								e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)';
-							}}
-							onMouseOut={(e) => {
-								e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
-							}}
+							whiteBorder={true}
 							style={{
 								background: 'rgba(255, 255, 255, 0.2)',
 								border: '1px solid rgba(255, 255, 255, 0.3)',
-								borderRadius: '0.375rem',
-								padding: '0.5rem 1rem',
-								color: '#ffffff',
-								fontSize: '0.875rem',
-								fontWeight: 500,
-								cursor: 'pointer',
-								transition: 'all 0.15s ease-in-out',
-								flexShrink: 0,
 							}}
 						>
 							Dismiss
-						</button>
+						</BootstrapButton>
 					</div>
 				</div>
 
