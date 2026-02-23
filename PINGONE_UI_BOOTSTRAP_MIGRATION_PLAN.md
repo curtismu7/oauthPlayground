@@ -24,13 +24,224 @@ This document outlines the comprehensive migration strategy to update all apps a
 - ✅ `src/components/WorkerTokenButton.tsx` - Mixed styling (existing component)
 - ✅ `src/v8/components/StepActionButtonsV8.tsx` - **COMPLETED** - 21 button classes migrated
 - ✅ `src/apps/mfa/components/MFANavigationV8.tsx` - **COMPLETED** - 17 button classes migrated
-- 🔄 `src/v8u/components/UnifiedFlowSteps.tsx` - 22 button classes (IN PROGRESS)
+- 🔄 `src/v8u/components/UnifiedFlowSteps.tsx` - 22 button classes (NEXT PRIORITY)
 
 **Migration Priority Order**:
 1. ✅ **WorkerTokenButton** - COMPLETED (existing component)
 2. ✅ **StepActionButtonsV8** - COMPLETED (flow navigation)
 3. ✅ **MFANavigationV8** - COMPLETED (MFA navigation)
-4. 🔄 **UnifiedFlowSteps** - IN PROGRESS (unified flows)
+4. 🔄 **UnifiedFlowSteps** - NEXT PRIORITY (unified flows)
+
+#### 2.2 Form Components 🔄 IN PROGRESS
+**Files Status**:
+- ✅ `src/components/bootstrap/BootstrapFormField.tsx` - Created Bootstrap form field wrapper component
+- ✅ `src/pages/Configuration.PingUI.tsx` - Partially migrated (forms in progress)
+- 🔄 `src/v8u/components/CredentialsFormV8U.tsx` - 13 form classes (NEXT PRIORITY)
+
+**Migration Status**:
+- ✅ BootstrapFormField component created with PingOne styling
+- ✅ Form validation and accessibility support
+- ✅ Select element support added
+- 🔄 Configuration.PingUI.tsx partially migrated (some forms updated)
+- 🔄 CredentialsFormV8U.tsx ready for migration
+
+**Remaining Form Components**:
+- 🔄 `src/v8u/components/CredentialsFormV8U.tsx` - 13 form classes (NEXT PRIORITY)
+- [ ] `src/v8/components/CredentialsFormV8.tsx` - 4 form classes
+- [ ] Form components across other PingUI pages
+
+### 🔄 NEXT STEPS AVAILABLE FOR PINGONE BOOTSTRAP UI UPDATE
+
+#### **🔥 HIGH PRIORITY - Next Components to Migrate**
+
+1. **UnifiedFlowSteps.tsx** - 22 button classes
+   - **Status**: Ready for migration
+   - **Impact**: Core unified flow navigation
+   - **Components**: Step navigation buttons with BootstrapButton
+   - **Priority**: HIGH (next in sequence)
+
+2. **CredentialsFormV8U.tsx** - 13 form classes  
+   - **Status**: Ready for migration
+   - **Impact**: Main form component for unified flows
+   - **Components**: BootstrapFormField integration
+   - **Priority**: HIGH (form foundation)
+
+#### **📋 MEDIUM PRIORITY - Remaining Components**
+
+3. **24 PingUI pages** - Various components and layouts
+   - **Status**: Ready for systematic migration
+   - **Impact**: Complete UI consistency
+   - **Components**: Mix of buttons, forms, layouts, modals
+   - **Priority**: MEDIUM (comprehensive coverage)
+
+#### **🎯 Migration Strategy for Next Steps**
+
+**Phase 2A: Complete High Priority Components**
+1. ✅ **StepActionButtonsV8.tsx** - COMPLETED
+2. ✅ **MFANavigationV8.tsx** - COMPLETED  
+3. 🔄 **UnifiedFlowSteps.tsx** - START NEXT
+4. 🔄 **CredentialsFormV8U.tsx** - FOLLOWING
+
+**Phase 2B: Systematic PingUI Page Migration**
+5. 📋 **24 PingUI pages** - SYSTEMATIC APPROACH
+   - Group by component type (buttons, forms, layouts)
+   - Migrate 5-7 pages per iteration
+   - Focus on high-traffic pages first
+
+**Phase 3: Complete Migration Coverage**
+6. 🔄 **Remaining components** - Full coverage
+7. 🔄 **Layout components** - Grid and navigation systems
+8. 🔄 **Modal components** - Dialog overlays
+9. 🔄 **Utility components** - Spacing and positioning
+
+---
+
+## 🚀 **NEXT STEPS IMPLEMENTATION PLAN**
+
+### **🔥 IMMEDIATE NEXT: UnifiedFlowSteps.tsx Migration**
+
+#### **Component Analysis**
+- **File**: `src/v8u/components/UnifiedFlowSteps.tsx`
+- **Button Classes**: 22 button classes to migrate
+- **Current State**: Custom styled buttons with inline styles
+- **Target**: BootstrapButton components with PingOne styling
+
+#### **Migration Approach**
+1. **Import BootstrapButton**: Add BootstrapButton import
+2. **Replace Button Elements**: Convert 22 button instances
+3. **Apply Bootstrap Classes**: Use btn-primary, btn-secondary, etc.
+4. **🔥 CRITICAL: Add White Borders**: ALL colored buttons MUST have whiteBorder={true}
+5. **Preserve Functionality**: Maintain all event handlers and state
+
+#### **🎯 IMPORTANT: White Border Requirement**
+**ALL colored buttons (primary, success, warning, danger) MUST use whiteBorder={true}**
+- This is a mandatory PingOne design requirement
+- White borders provide visual consistency and accessibility
+- Only secondary/neutral buttons should not have white borders
+- Ensures proper contrast and professional appearance
+
+#### **Expected Changes**
+```typescript
+// BEFORE: Custom styled button
+<button
+  style={{
+    background: '#2563EB',
+    color: 'white',
+    border: '2px solid #2563EB',
+    padding: '0.625rem 1.25rem',
+    borderRadius: '0.5rem'
+  }}
+  onClick={handleStepClick}
+>
+  Continue
+</button>
+
+// AFTER: BootstrapButton
+<BootstrapButton
+  variant="primary"
+  onClick={handleStepClick}
+  whiteBorder={true}
+>
+  Continue
+</BootstrapButton>
+```
+
+### **🔥 FOLLOWING: CredentialsFormV8U.tsx Migration**
+
+#### **Component Analysis**
+- **File**: `src/v8u/components/CredentialsFormV8U.tsx`
+- **Form Classes**: 13 form classes to migrate
+- **Current State**: Custom form styling with FormGroup
+- **Target**: BootstrapFormField components
+
+#### **Migration Approach**
+1. **Import BootstrapFormField**: Add form field component
+2. **Replace Form Elements**: Convert input, select, textarea
+3. **Apply Bootstrap Grid**: Use row, col for layout
+4. **Preserve Validation**: Maintain all form validation logic
+5. **Add Accessibility**: Ensure proper ARIA labels
+
+#### **Expected Changes**
+```typescript
+// BEFORE: Custom form field
+<FormGroup>
+  <label htmlFor="clientId">Client ID</label>
+  <input
+    type="text"
+    id="clientId"
+    className="form-control"
+    value={formData.clientId}
+    onChange={handleChange}
+  />
+</FormGroup>
+
+// AFTER: BootstrapFormField
+<BootstrapFormField
+  id="clientId"
+  label="Client ID"
+  type="text"
+  value={formData.clientId}
+  onChange={handleChange}
+  required
+/>
+```
+
+### **📋 SYSTEMATIC: 24 PingUI Pages Migration**
+
+#### **Migration Strategy**
+1. **Prioritize High-Traffic Pages**: Dashboard, Configuration, Login
+2. **Group by Component Type**: 
+   - **Button-heavy pages**: Migrate buttons first
+   - **Form-heavy pages**: Migrate forms with BootstrapFormField
+   - **Layout-heavy pages**: Migrate with Bootstrap grid
+3. **Batch Processing**: 5-7 pages per iteration
+4. **Quality Assurance**: Test each migrated page
+
+#### **PingUI Pages Priority List**
+**HIGH PRIORITY** (Core user flows):
+1. Dashboard.PingUI.tsx - Main dashboard
+2. Configuration.PingUI.tsx - App configuration
+3. Login.PingUI.tsx - User authentication
+4. Documentation.PingUI.tsx - Help and docs
+5. About.PingUI.tsx - About page
+
+**MEDIUM PRIORITY** (Feature pages):
+6. Analytics.PingUI.tsx - Analytics dashboard
+7. TokenStatusPageV8U.tsx - Token status
+8. WorkerTokenTesterPingUI.tsx - Token testing
+9. PingOneUserProfilePingUI.tsx - User profile
+10. PingAIResourcesPingUI.tsx - AI resources
+
+**LOWER PRIORITY** (Specialized pages):
+11. Flow comparison tools
+12. Educational content pages
+13. Developer tools
+14. Admin interfaces
+15. Testing utilities
+
+---
+
+## 📊 **MIGRATION PROGRESS TRACKING**
+
+### **Current Status Summary**
+- ✅ **Bootstrap Foundation**: 100% complete
+- ✅ **Core Components**: BootstrapButton + BootstrapFormField ready
+- ✅ **High Priority Apps**: 2/4 components migrated
+- 🔄 **Next Components**: UnifiedFlowSteps.tsx + CredentialsFormV8U.tsx
+- 📋 **Remaining**: 24 PingUI pages + other components
+
+### **Success Metrics**
+- **Code Reduction**: 240+ lines of custom CSS eliminated
+- **Consistency**: Professional PingOne UI across migrated components
+- **Accessibility**: ARIA labels and keyboard navigation included
+- **Performance**: Leveraging Bootstrap's optimized CSS
+
+### **Quality Assurance Checklist**
+- [ ] **Visual Consistency**: All migrated components match PingOne design
+- [ ] **Functionality**: All interactions work correctly
+- [ ] **Responsive Design**: Mobile compatibility preserved
+- [ ] **Accessibility**: ARIA attributes and keyboard navigation
+- [ ] **Performance**: No performance degradation
 
 **Bootstrap Button Migration Patterns**:
 
@@ -50,10 +261,22 @@ This document outlines the comprehensive migration strategy to update all apps a
 </button>
 
 // AFTER: Bootstrap classes with PingOne overrides
+// 🔥 IMPORTANT: ALL colored buttons MUST have whiteBorder={true}
 <button className="btn btn-primary border-white ping-btn">
   Continue
 </button>
+
+// OR using BootstrapButton component (RECOMMENDED)
+<BootstrapButton variant="primary" whiteBorder={true}>
+  Continue
+</BootstrapButton>
 ```
+
+#### **🔥 WHITE BORDER RULES**
+- **✅ MUST HAVE**: primary, success, warning, danger buttons → whiteBorder={true}
+- **❌ NO WHITE BORDER**: secondary, outline, ghost buttons → whiteBorder={false}
+- **🎯 DESIGN REQUIREMENT**: White borders ensure PingOne visual consistency
+- **♿ ACCESSIBILITY**: White borders improve contrast and visibility
 
 #### 2.2 Form Components (Priority: HIGH)
 **Files Identified**:
@@ -364,7 +587,7 @@ touch src/styles/bootstrap/pingone-bootstrap.css
 interface BootstrapButtonProps {
   variant?: 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info';
   size?: 'sm' | 'md' | 'lg';
-  whiteBorder?: boolean;
+  whiteBorder?: boolean; // 🔥 CRITICAL for colored buttons
   children: React.ReactNode;
   onClick?: () => void;
   disabled?: boolean;
@@ -373,16 +596,20 @@ interface BootstrapButtonProps {
 const BootstrapButton: React.FC<BootstrapButtonProps> = ({
   variant = 'primary',
   size = 'md',
-  whiteBorder = false,
+  whiteBorder = false, // 🔥 DEFAULT: false, but colored buttons MUST set to true
   children,
   onClick,
   disabled = false
 }) => {
+  // 🔥 IMPORTANT: White border logic for PingOne design compliance
+  const shouldHaveWhiteBorder = whiteBorder || 
+    ['primary', 'success', 'warning', 'danger'].includes(variant);
+
   const classes = [
     'btn',
     `btn-${variant}`,
     size === 'sm' ? 'btn-sm' : size === 'lg' ? 'btn-lg' : '',
-    whiteBorder ? 'border-white' : '',
+    shouldHaveWhiteBorder ? 'border-white' : '',
     'ping-btn'
   ].filter(Boolean).join(' ');
 
@@ -396,6 +623,18 @@ const BootstrapButton: React.FC<BootstrapButtonProps> = ({
     </button>
   );
 };
+
+// 🔥 USAGE EXAMPLES:
+// ✅ Colored buttons MUST have whiteBorder={true}
+<BootstrapButton variant="primary" whiteBorder={true}>Primary</BootstrapButton>
+<BootstrapButton variant="success" whiteBorder={true}>Success</BootstrapButton>
+<BootstrapButton variant="warning" whiteBorder={true}>Warning</BootstrapButton>
+<BootstrapButton variant="danger" whiteBorder={true}>Danger</BootstrapButton>
+
+// ❌ Secondary/neutral buttons should NOT have white borders
+<BootstrapButton variant="secondary" whiteBorder={false}>Secondary</BootstrapButton>
+<BootstrapButton variant="outline-primary" whiteBorder={false}>Outline</BootstrapButton>
+```
 ```
 
 #### Form Component Template
