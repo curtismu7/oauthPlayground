@@ -215,15 +215,15 @@ const EnvironmentManagementPageV8PingUI: React.FC = () => {
 	const [_showCreateForm, setShowCreateForm] = useState(false);
 	const [_editingEnvironment, setEditingEnvironment] = useState<PingOneEnvironment | null>(null);
 
-	const { globalTokenStatus } = useGlobalWorkerToken();
+	const globalTokenStatus = useGlobalWorkerToken();
 
 	// Load environments
 	const loadEnvironments = useCallback(async () => {
 		try {
 			setLoading(true);
 			setEnvError(null);
-			const envs = await EnvironmentServiceV8.getEnvironments();
-			setEnvironments(envs);
+			const response = await EnvironmentServiceV8.getEnvironments();
+			setEnvironments(response.environments);
 		} catch (error) {
 			console.error('Failed to load environments:', error);
 			setEnvError(error instanceof Error ? error.message : 'Failed to load environments');
@@ -299,10 +299,12 @@ const EnvironmentManagementPageV8PingUI: React.FC = () => {
 	}
 
 	// Show worker token UI when token is not available
-	if (!globalTokenStatus.isAvailable) {
+	if (!globalTokenStatus.isValid || !globalTokenStatus.token) {
 		return (
 			<div style={getContainerStyle()}>
-				<WorkerTokenDetectedBanner />
+				{globalTokenStatus.token && (
+					<WorkerTokenDetectedBanner token={globalTokenStatus.token} />
+				)}
 				<WorkerTokenButton />
 			</div>
 		);

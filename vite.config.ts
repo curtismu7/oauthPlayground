@@ -144,9 +144,10 @@ export default defineConfig(({ mode }) => {
 			// In production, Vercel will handle HTTPS
 			hmr: {
 				port: 3000,
-				host: 'localhost', // Use localhost for HMR to avoid WebSocket issues
-				protocol: 'ws', // Use WebSocket for localhost development
+				host: 'api.pingdemo.com', // Use the custom domain for HMR
+				protocol: 'wss', // Use WebSocket Secure for HTTPS
 				clientPort: 3000,
+				overlay: false, // Disable HMR overlay to avoid conflicts
 			},
 			logLevel: 'warn', // Reduce Vite connection logs (suppresses "connecting..." and "connected" messages)
 			// Disable certificate verification for localhost development

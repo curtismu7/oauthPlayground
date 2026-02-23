@@ -5,7 +5,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { FiActivity, FiBug, FiTerminal, FiCopy, FiSearch, FiFilter, FiDownload, FiRefreshCw, FiInfo, FiAlertTriangle, FiCheckCircle, FiDatabase, FiClock, FiEye, FiEyeOff, FiTrash2 } from 'react-icons/fi';
+import { FiActivity, FiAlertTriangle, FiTerminal, FiCopy, FiSearch, FiFilter, FiDownload, FiRefreshCw, FiInfo, FiCheckCircle, FiDatabase, FiClock, FiEye, FiEyeOff, FiTrash2 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { PageHeaderV8, PageHeaderTextColors } from '@/v8/components/shared/PageHeaderV8';
 import BootstrapButton from '@/components/bootstrap/BootstrapButton';
@@ -435,7 +435,7 @@ export const DebugLogsPage: React.FC = () => {
 					
 					<Card>
 						<CardTitle>
-							<FiBug />
+							<FiAlertTriangle />
 							Errors
 						</CardTitle>
 						<MetricValue style={{ color: '#ef4444' }}>{stats.error + stats.fatal}</MetricValue>
