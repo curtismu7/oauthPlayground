@@ -250,8 +250,8 @@ start_backend() {
     
     # Start backend server
     print_info "Starting backend on port $BACKEND_PORT..."
-    print_info "📋 Server logs: server.log (default) - Use 'tail -f server.log' to follow"
-    node server.js > server.log 2>&1 &
+    print_info "📋 Server logs: backend.log (default) - Use 'tail -f backend.log' to follow"
+    node server.js > backend.log 2>&1 &
     local backend_pid=$!
     echo $backend_pid > "$BACKEND_PID_FILE"
     
@@ -349,11 +349,11 @@ show_banner() {
     echo "║                                                                              ║"
     echo "║  Frontend: ${CYAN}$FRONTEND_URL${NC}${PURPLE}"
     echo "║  Backend:  ${CYAN}$BACKEND_URL${NC}${PURPLE}"
-    echo "║  Server Log: ${YELLOW}server.log (default)${NC}${PURPLE}"
+    echo "║  Server Log: ${YELLOW}backend.log (default)${NC}${PURPLE}"
     echo "║                                                                              ║"
     echo "║  Mode: $([ "$FULL_CLEAR" = true ] && echo "Full Clear" || [ "$QUICK_START" = true ] && echo "Quick Start" || echo "Standard")"
     echo "║                                                                              ║"
-    echo "║  ${YELLOW}📋 Server logs available in: server.log (tail -f server.log)${NC}${PURPLE}"
+    echo "║  ${YELLOW}📋 Server logs available in: backend.log (tail -f backend.log)${NC}${PURPLE}"
     echo "║  Press Ctrl+C to stop both servers                                          ║"
     echo "║                                                                              ║"
     echo "╚══════════════════════════════════════════════════════════════════════════════╝"
@@ -363,7 +363,7 @@ show_banner() {
 # Function to cleanup on exit
 cleanup() {
     print_info "Shutting down servers..."
-    print_info "📋 Server logs preserved in: server.log"
+    print_info "📋 Server logs preserved in: backend.log"
     if [ -f "$FRONTEND_PID_FILE" ]; then
         local frontend_pid=$(cat "$FRONTEND_PID_FILE")
         if kill -0 "$frontend_pid" 2>/dev/null; then
@@ -381,7 +381,7 @@ cleanup() {
     fi
     
     print_success "Cleanup completed"
-    print_info "📋 Check server.log for complete session logs"
+    print_info "📋 Check backend.log for complete session logs"
     exit 0
 }
 
@@ -426,8 +426,8 @@ main() {
             print_info "Backend:  $BACKEND_URL"
             print_info "Press Ctrl+C to stop both servers"
             echo ""
-            print_info "${YELLOW}💡 Pro Tip: Follow server logs in real-time with: tail -f server.log${NC}"
-            print_info "${YELLOW}💡 Pro Tip: Monitor both logs with: tail -f server.log & tail -f vite.log${NC}"
+            print_info "${YELLOW}💡 Pro Tip: Follow server logs in real-time with: tail -f backend.log${NC}"
+            print_info "${YELLOW}💡 Pro Tip: Monitor both logs with: tail -f backend.log & tail -f vite.log${NC}"
             echo ""
             
             # Keep script running and monitor processes
