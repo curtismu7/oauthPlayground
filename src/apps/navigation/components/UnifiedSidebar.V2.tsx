@@ -452,8 +452,8 @@ const menuData: MenuItem[] = [
 				id: 'oauth-authorization-code',
 				label: 'Authorization Code Flow',
 				icon: 'mdi-key',
-				path: '/flows/oauth-authorization-code-v9',
-				version: 'v9',
+				path: '/flows/oauth-authorization-code-v8',
+				version: 'v8',
 				description: 'OAuth 2.0 Authorization Code Flow with PKCE',
 				status: 'active',
 				badge: {
@@ -465,7 +465,7 @@ const menuData: MenuItem[] = [
 				id: 'oauth-implicit',
 				label: 'Implicit Flow',
 				icon: 'mdi-key',
-				path: '/flows/oauth-implicit',
+				path: '/flows/implicit-v8',
 				version: 'v8',
 				description: 'OAuth 2.0 Implicit Flow (deprecated)',
 				status: 'deprecated',
@@ -478,8 +478,8 @@ const menuData: MenuItem[] = [
 				id: 'oauth-client-credentials',
 				label: 'Client Credentials Flow',
 				icon: 'mdi-key',
-				path: '/flows/oauth-client-credentials',
-				version: 'v8',
+				path: '/flows/client-credentials-v7',
+				version: 'v7',
 				description: 'OAuth 2.0 Client Credentials Flow',
 				status: 'active',
 				badge: {
@@ -494,7 +494,7 @@ const menuData: MenuItem[] = [
 				path: '/flows/oauth-ropc-v7',
 				version: 'v7',
 				description: 'OAuth 2.0 Resource Owner Password Flow',
-				status: 'deprecated',
+				status: 'active',
 				badge: {
 					text: 'MOCK',
 					variant: 'default'
