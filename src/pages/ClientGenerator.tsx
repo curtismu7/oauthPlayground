@@ -435,50 +435,6 @@ const ClientGenerator: React.FC = () => {
 	const _hasWorkerToken = globalTokenStatus.isValid;
 	const [_showWorkerTokenModal, _setShowWorkerTokenModal] = useState(false);
 
-	// Load saved worker credentials and silently get token on mount
-	useEffect(() => {
-		const loadAndGetToken = async () => {
-			try {
-				// Try to load saved worker credentials from global service
-				const saved = await workerTokenServiceV8.loadCredentials();
-				if (saved) {
-					const authMethod = saved.tokenEndpointAuthMethod || 'client_secret_post';
-					const credentials = {
-						environmentId: saved.environmentId,
-						clientId: saved.clientId,
-						clientSecret: saved.clientSecret,
-						scopes: saved.scopes?.join(' ') || workerCredentials.scopes,
-						tokenEndpointAuthMethod: (authMethod === 'client_secret_basic' ||
-						authMethod === 'client_secret_post'
-							? authMethod
-							: 'client_secret_post') as 'client_secret_basic' | 'client_secret_post',
-					};
-					setWorkerCredentials(credentials);
-
-					// Check if we have a valid token already
-					const existingToken = await workerTokenServiceV8.getToken();
-					if (existingToken) {
-						console.log('[App Generator] Using existing worker token from service');
-						setWorkerToken(existingToken);
-					} else if (
-						credentials.clientId &&
-						credentials.clientSecret &&
-						credentials.environmentId
-					) {
-						// Silently get token if we have credentials but no token
-						console.log('[App Generator] Silently requesting worker token...');
-						await getWorkerTokenSilently(credentials);
-					}
-				}
-			} catch (error) {
-				console.error('[App Generator] Failed to load credentials:', error);
-			}
-		};
-
-		loadAndGetToken();
-		// biome-ignore lint/correctness/useExhaustiveDependencies: Only run once on mount
-	}, [getWorkerTokenSilently, workerCredentials.scopes]);
-
 	// Silently get worker token
 	const getWorkerTokenSilently = async (credentials: typeof workerCredentials) => {
 		try {
@@ -560,6 +516,50 @@ const ClientGenerator: React.FC = () => {
 			setIsGettingToken(false);
 		}
 	};
+
+	// Load saved worker credentials and silently get token on mount
+	useEffect(() => {
+		const loadAndGetToken = async () => {
+			try {
+				// Try to load saved worker credentials from global service
+				const saved = await workerTokenServiceV8.loadCredentials();
+				if (saved) {
+					const authMethod = saved.tokenEndpointAuthMethod || 'client_secret_post';
+					const credentials = {
+						environmentId: saved.environmentId,
+						clientId: saved.clientId,
+						clientSecret: saved.clientSecret,
+						scopes: saved.scopes?.join(' ') || workerCredentials.scopes,
+						tokenEndpointAuthMethod: (authMethod === 'client_secret_basic' ||
+						authMethod === 'client_secret_post'
+							? authMethod
+							: 'client_secret_post') as 'client_secret_basic' | 'client_secret_post',
+					};
+					setWorkerCredentials(credentials);
+
+					// Check if we have a valid token already
+					const existingToken = await workerTokenServiceV8.getToken();
+					if (existingToken) {
+						console.log('[App Generator] Using existing worker token from service');
+						setWorkerToken(existingToken);
+					} else if (
+						credentials.clientId &&
+						credentials.clientSecret &&
+						credentials.environmentId
+					) {
+						// Silently get token if we have credentials but no token
+						console.log('[App Generator] Silently requesting worker token...');
+						await getWorkerTokenSilently(credentials);
+					}
+				}
+			} catch (error) {
+				console.error('[App Generator] Failed to load credentials:', error);
+			}
+		};
+
+		loadAndGetToken();
+		// biome-ignore lint/correctness/useExhaustiveDependencies: Only run once on mount
+	}, [getWorkerTokenSilently, workerCredentials.scopes]);
 
 	// Handle worker credential changes
 	const handleWorkerCredentialChange = useCallback((field: string, value: string) => {
