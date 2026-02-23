@@ -34,7 +34,7 @@ import { useAuth } from './contexts/NewAuthContext';
 import { NotificationContainer, NotificationProvider } from './hooks/useNotifications';
 import AIIdentityArchitectures from './pages/AIIdentityArchitectures';
 import AnalyticsPingUI from './pages/Analytics.PingUI';
-import ApplicationGeneratorPingUI from './pages/ApplicationGenerator.PingUI';
+// import ApplicationGeneratorPingUI from './pages/ApplicationGenerator.PingUI'; // Temporarily disabled due to build issues
 import Callback from './pages/Callback';
 import ClientGenerator from './pages/ClientGenerator';
 import ConfigurationPingUI from './pages/Configuration.PingUI';
@@ -95,7 +95,7 @@ import AutoDiscoverPingUI from './pages/AutoDiscover.PingUI';
 import CIBAvsDeviceAuthz from './pages/CIBAvsDeviceAuthz';
 import CompetitiveAnalysis from './pages/CompetitiveAnalysis';
 import ComprehensiveOAuthEducation from './pages/ComprehensiveOAuthEducation';
-import Dashboard from './pages/Dashboard.PingUI';
+import Dashboard from './pages/Dashboard.PingUI'; // Using PingUI version
 import DpopAuthorizationCodeFlowV8 from './pages/DpopAuthorizationCodeFlowV8';
 import OAuth2SecurityBestPractices from './pages/docs/OAuth2SecurityBestPractices.tsx';
 import OAuthForAI from './pages/docs/OAuthForAI.tsx';
@@ -1313,7 +1313,7 @@ const AppRoutes: React.FC = () => {
 								{/* Backward-compatible redirect for older links */}
 								<Route path="/oidc/tokens" element={<Navigate to="/oidc/id-tokens" replace />} />
 								<Route path="/client-generator" element={<ClientGenerator />} />{' '}
-								<Route path="/application-generator" element={<ApplicationGeneratorPingUI />} />
+								{/* <Route path="/application-generator" element={<ApplicationGeneratorPingUI />} /> */} {/* Temporarily disabled due to build issues */}
 								<Route path="/oauth-code-generator-hub" element={<OAuthCodeGeneratorHub />} />
 								<Route path="/configuration" element={<ConfigurationPingUI />} />
 								<Route path="/analytics" element={<AnalyticsPingUI />} />
