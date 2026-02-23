@@ -41,6 +41,7 @@ import ConfigurationPingUI from './pages/Configuration.PingUI';
 import DocumentationPingUI from './pages/Documentation.PingUI';
 import LoginPingUI from './pages/Login.PingUI';
 import OAuthCodeGeneratorHub from './pages/OAuthCodeGeneratorHub';
+import { MfaFlowCodeGenerator } from './components/MfaFlowCodeGenerator';
 import OAuthFlowsNew from './pages/OAuthFlows.PingUI';
 import { ApiRequestModalProvider } from './services/apiRequestModalService';
 import {
@@ -205,7 +206,6 @@ import { SpiffeSpireTokenDisplayPage } from './pages/SpiffeSpireTokenDisplayPage
 import { TokenRefreshPage } from './pages/TokenRefreshPage';
 import { TokenStatusPage } from './pages/TokenStatusPage';
 import { DebugLogsPage } from './pages/DebugLogsPage';
-import { CodeGeneratorsPage } from './pages/CodeGeneratorsPage';
 import { SecurityGuidesPage } from './pages/SecurityGuidesPage';
 
 // Lazy load unified MFA flow for code splitting
@@ -1346,6 +1346,7 @@ const AppRoutes: React.FC = () => {
 								<Route path="/client-generator" element={<ClientGenerator />} />{' '}
 								{/* <Route path="/application-generator" element={<ApplicationGeneratorPingUI />} /> */} {/* Temporarily disabled due to build issues */}
 								<Route path="/oauth-code-generator-hub" element={<OAuthCodeGeneratorHub />} />
+								<Route path="/mfa-flow-code-generator" element={<MfaFlowCodeGenerator />} />
 								<Route path="/configuration" element={<ConfigurationPingUI />} />
 								<Route path="/analytics" element={<AnalyticsPingUI />} />
 								<Route path="/documentation" element={<DocumentationPingUI />} />
@@ -1416,8 +1417,6 @@ const AppRoutes: React.FC = () => {
 								<Route path="/token-status" element={<TokenStatusPage />} />
 								{/* Debug Logs Page */}
 								<Route path="/debug-logs" element={<DebugLogsPage />} />
-								{/* Code Generators Page */}
-								<Route path="/code-generators" element={<CodeGeneratorsPage />} />
 								{/* Security Guides Page */}
 								<Route path="/security-guides" element={<SecurityGuidesPage />} />
 								{/* Protect Portal Application */}

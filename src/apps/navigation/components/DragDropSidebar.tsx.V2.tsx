@@ -642,21 +642,40 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						),
 					},
 					{
-						id: 'code-generators-page',
-						path: '/code-generators',
-						label: '💻 Code Generators',
+						id: 'oauth-code-generator-hub',
+						path: '/oauth-code-generator-hub',
+						label: '� OAuth Code Generator Hub',
 						icon: (
-							<div className={getColoredIconClass('#8b5cf6')} style={{ color: '#8b5cf6' }}>
+							<div className={getColoredIconClass('#3b82f6')} style={{ color: '#3b82f6' }}>
 								<MDIIcon icon="FiCode" ariaLabel="Code" />
 							</div>
 						),
 						badge: (
 							<span
 								className={getMigrationBadgeClass('education')}
-								style={{ background: '#8b5cf6', color: 'white' }}
-								title="Interactive code generators and SDK examples"
+								style={{ background: '#3b82f6', color: 'white' }}
+								title="Comprehensive OAuth code generator with educational features"
 							>
-								EDU
+								OAUTH
+							</span>
+						),
+					},
+					{
+						id: 'mfa-flow-code-generator',
+						path: '/mfa-flow-code-generator',
+						label: '🔐 MFA Flow Code Generator',
+						icon: (
+							<div className={getColoredIconClass('#10b981')} style={{ color: '#10b981' }}>
+								<MDIIcon icon="FiShield" ariaLabel="Shield" />
+							</div>
+						),
+						badge: (
+							<span
+								className={getMigrationBadgeClass('education')}
+								style={{ background: '#10b981', color: 'white' }}
+								title="Interactive MFA flow code generator with real-time editing"
+							>
+								MFA
 							</span>
 						),
 					},
