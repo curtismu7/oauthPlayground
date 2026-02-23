@@ -549,7 +549,7 @@ const menuData: MenuItem[] = [
 			{
 				id: 'oauth-authorization-code',
 				label: 'Authorization Code Flow',
-				icon: 'mdi-key',
+				icon: 'mdi-shield-key',
 				path: '/flows/oauth-authorization-code-v8',
 				version: 'v8',
 				description: 'OAuth 2.0 Authorization Code Flow with PKCE',
@@ -558,7 +558,7 @@ const menuData: MenuItem[] = [
 			{
 				id: 'oauth-implicit',
 				label: 'Implicit Flow',
-				icon: 'mdi-key',
+				icon: 'mdi-eye',
 				path: '/flows/implicit-v8',
 				version: 'v8',
 				description: 'OAuth 2.0 Implicit Flow (deprecated)',
@@ -571,7 +571,7 @@ const menuData: MenuItem[] = [
 			{
 				id: 'oauth-client-credentials',
 				label: 'Client Credentials Flow',
-				icon: 'mdi-key',
+				icon: 'mdi-server',
 				path: '/flows/client-credentials-v7',
 				version: 'v7',
 				description: 'OAuth 2.0 Client Credentials Flow',
@@ -584,7 +584,7 @@ const menuData: MenuItem[] = [
 			{
 				id: 'oauth-resource-owner',
 				label: 'Resource Owner Password',
-				icon: 'mdi-key',
+				icon: 'mdi-account-key',
 				path: '/flows/oauth-ropc-v7',
 				version: 'v7',
 				description: 'OAuth 2.0 Resource Owner Password Flow',
@@ -610,7 +610,7 @@ const menuData: MenuItem[] = [
 			{
 				id: 'oauth-jwt-bearer',
 				label: 'JWT Bearer Flow',
-				icon: 'mdi-key',
+				icon: 'mdi-certificate',
 				path: '/flows/jwt-bearer-token-v7',
 				version: 'v7',
 				description: 'OAuth 2.0 JWT Bearer Token Flow',
@@ -623,7 +623,7 @@ const menuData: MenuItem[] = [
 			{
 				id: 'oauth-par',
 				label: 'PAR (Pushed Authorization Request)',
-				icon: 'mdi-key',
+				icon: 'mdi-send',
 				path: '/flows/par',
 				version: 'v8',
 				description: 'OAuth 2.0 Pushed Authorization Request',
