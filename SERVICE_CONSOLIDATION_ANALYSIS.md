@@ -56,15 +56,13 @@ New: UnifiedEnvironmentServiceV8
 ---
 
 ### 3. **Flow & Educational Services Consolidation**
-**Current Services (8):**
+**Current Services (6):**
 - `FlowComparisonService` - Flow comparison and analysis
 - `OAuthFlowComparisonService` - OAuth flow comparison
 - `ResourcesAPIServiceV8` - Resources API tutorial
 - `EducationalContentService` - Educational content management
 - `SPIFFEService` - SPIFFE/SPIRE integration
 - `SDKExampleService` - SDK demonstration
-- `APITestService` - API testing framework
-- `FlowTestService` - Flow testing
 
 **🎯 Consolidation Strategy:**
 ```
@@ -74,11 +72,10 @@ New: UnifiedEducationalServiceV8
 ├── Resources API tutorials (from ResourcesAPIServiceV8)
 ├── SDK examples & demonstrations (from SDKExampleService)
 ├── SPIFFE/SPIRE integration (from SPIFFEService)
-├── API & flow testing framework (from APITestService + FlowTestService)
 └── Learning analytics & progress tracking
 ```
 
-**Impact:** Reduces 8 services → 1 service (87% reduction)
+**Impact:** Reduces 6 services → 1 service (83% reduction)
 **Apps Affected:** 4 educational apps
 **Risk:** Low (Educational functionality)
 
@@ -139,9 +136,9 @@ New: UnifiedUtilityServiceV8
 4. **`UnifiedUtilityServiceV8`** - Monitoring, logging, state, & utilities
 
 ### **Service Reduction Summary:**
-- **Before:** 21 unique services
+- **Before:** 19 unique services
 - **After:** 4 unified services
-- **Reduction:** 81% fewer services
+- **Reduction:** 79% fewer services
 - **Maintenance Impact:** Significantly reduced complexity
 
 ---
@@ -174,7 +171,7 @@ New: UnifiedUtilityServiceV8
 ## 📊 **Benefits of Consolidation**
 
 ### **Development Benefits:**
-- **81% reduction** in service count
+- **79% reduction** in service count
 - **Simplified dependency management**
 - **Consistent APIs** across similar functionality
 - **Reduced bundle size** through code sharing
@@ -229,7 +226,7 @@ New: UnifiedUtilityServiceV8
 ---
 
 *Analysis Date: February 23, 2026*
-*Current Services: 21*
+*Current Services: 19*
 *Proposed Services: 4*
-*Reduction: 81%*
+*Reduction: 79%*
 *Estimated Implementation: 8 weeks*
