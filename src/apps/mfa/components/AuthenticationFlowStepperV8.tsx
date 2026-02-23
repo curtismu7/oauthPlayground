@@ -24,14 +24,14 @@ import { UserLoginModalV8 } from '@/v8/components/UserLoginModalV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { WorkerTokenPromptModalV8 } from '@/v8/components/WorkerTokenPromptModalV8';
 import type {
-	DeviceAuthenticationPolicy,
-	DeviceType,
 	MFACredentials,
 	MFAState,
+	DeviceAuthenticationPolicy,
+	DeviceType,
 } from '@/v8/flows/shared/MFATypes';
-import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
+import { useStepNavigationV8, type UseStepNavigationV8Return } from '@/v8/hooks/useStepNavigationV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
-import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { WorkerTokenStatusServiceV8, type TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const MODULE_TAG = '[🔐 AUTHENTICATION-STEPPER-V8]';
@@ -48,8 +48,8 @@ export interface AuthenticationFlowStepperV8Props {
 	renderStep6: (props: AuthenticationFlowStepperRenderProps) => React.ReactNode;
 	validateStep0: (
 		credentials: MFACredentials,
-		tokenStatus: any,
-		nav: ReturnType<typeof useStepNavigationV8>
+		tokenStatus: TokenStatusInfo,
+		nav: UseStepNavigationV8Return
 	) => boolean;
 	stepLabels?: string[];
 	/** Optional function to determine if Next button should be hidden */
@@ -63,10 +63,10 @@ export interface AuthenticationFlowStepperRenderProps {
 	) => void;
 	mfaState: MFAState;
 	setMfaState: (state: Partial<MFAState>) => void;
-	tokenStatus: any;
+	tokenStatus: TokenStatusInfo;
 	isLoading: boolean;
 	setIsLoading: (loading: boolean) => void;
-	nav: ReturnType<typeof useStepNavigationV8>;
+	nav: UseStepNavigationV8Return;
 	showDeviceLimitModal: boolean;
 	setShowDeviceLimitModal: (show: boolean) => void;
 	showWorkerTokenModal: boolean;
@@ -82,7 +82,7 @@ export interface AuthenticationFlowStepperRenderProps {
 }
 
 export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Props> = ({
-	deviceType,
+	deviceType: _deviceType,
 	renderStep0,
 	renderStep1,
 	renderStep2,
@@ -100,7 +100,7 @@ export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Pr
 		'API Documentation',
 		'Success',
 	],
-	shouldHideNextButton,
+	shouldHideNextButton: _shouldHideNextButton,
 }) => {
 	const location = useLocation();
 	const [searchParams] = useSearchParams();

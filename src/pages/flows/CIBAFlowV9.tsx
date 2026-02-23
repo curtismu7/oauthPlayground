@@ -30,10 +30,10 @@ import styled from 'styled-components';
 
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 import { Button } from '@/components/ui/button';
-import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import { v4ToastManager } from '@/utils/v4ToastManager';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import { WorkerTokenStatusDisplayV8 } from '@/v8/components/WorkerTokenStatusDisplayV8';
+import { useCibaFlowV8Enhanced } from '@/v8/hooks/useCibaFlowV8Enhanced';
 import {
 	type CibaCredentials,
 	type CibaDiscoveryMetadata,
@@ -257,7 +257,6 @@ const CopyButton = styled.button`
 
 const CIBAFlowV9: React.FC = () => {
 	const cibaFlow = useCibaFlowV8Enhanced();
-	const { globalTokenStatus, getWorkerToken } = useGlobalWorkerToken();
 
 	// Form state
 	const [credentials, setCredentials] = useState<CibaCredentials>({
@@ -286,24 +285,28 @@ const CIBAFlowV9: React.FC = () => {
 
 	// Load saved credentials on mount
 	useEffect(() => {
-		const saved = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
-			flowKey: FLOW_KEY,
-			flowType: 'oidc',
-			includeClientSecret: true,
-			includeRedirectUri: false,
-			includeLogoutUri: false,
-			includeScopes: true,
-		});
+		const loadSavedCredentials = async () => {
+			const saved = await CredentialsServiceV8.loadCredentials(FLOW_KEY, {
+				flowKey: FLOW_KEY,
+				flowType: 'oidc',
+				includeClientSecret: true,
+				includeRedirectUri: false,
+				includeLogoutUri: false,
+				includeScopes: true,
+			});
 
-		if (saved) {
-			setCredentials((prev) => ({
-				...prev,
-				environmentId: saved.environmentId || '',
-				clientId: saved.clientId || '',
-				clientSecret: saved.clientSecret || '',
-				scope: saved.scope || 'openid profile email',
-			}));
-		}
+			if (saved) {
+				setCredentials((prev) => ({
+					...prev,
+					environmentId: saved.environmentId || '',
+					clientId: saved.clientId || '',
+					clientSecret: saved.clientSecret || '',
+					scope: saved.scope || 'openid profile email',
+				}));
+			}
+		};
+
+		loadSavedCredentials();
 	}, []);
 
 	// Load discovery metadata when environment changes (with rate limiting and caching)

@@ -22,16 +22,13 @@ const MDIIcon: React.FC<{
 	icon: string;
 	size?: number;
 	className?: string;
-	'aria-label'?: string;
-	'aria-hidden'?: boolean;
-}> = ({ icon, size = 24, className = '', 'aria-label': ariaLabel, 'aria-hidden': ariaHidden }) => {
+	title?: string;
+}> = ({ icon, size = 24, className = '', title }) => {
 	return (
-		<div
+		<span
 			className={`mdi mdi-${icon} ${className}`}
 			style={{ fontSize: size }}
-			aria-label={ariaLabel}
-			aria-hidden={ariaHidden}
-			title={ariaLabel}
+			title={title}
 		/>
 	);
 };
@@ -363,18 +360,6 @@ interface FedExAirlinesHeroProps {
 const FedExAirlinesHero: React.FC<FedExAirlinesHeroProps> = ({
 	currentStep = 'portal-home',
 	onLoginStart,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	_onLoginSuccess,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	_onError,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	_environmentId,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	_clientId,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	_clientSecret,
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	_redirectUri,
 }) => {
 	return (
 		<div className="end-user-nano">

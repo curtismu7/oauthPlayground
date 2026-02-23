@@ -27,28 +27,6 @@ import FeaturesSection from './Shared/FeaturesSection';
 import HeroSection from './Shared/HeroSection';
 
 // ============================================================================
-// MDI ICON COMPONENT
-// ============================================================================
-
-const _MDIIcon: React.FC<{
-	icon: string;
-	size?: number;
-	className?: string;
-	'aria-label'?: string;
-	'aria-hidden'?: boolean;
-}> = ({ icon, size = 24, className = '', 'aria-label': ariaLabel, 'aria-hidden': ariaHidden }) => {
-	return (
-		<div
-			className={`mdi mdi-${icon} ${className}`}
-			style={{ fontSize: size }}
-			aria-label={ariaLabel}
-			aria-hidden={ariaHidden}
-			title={ariaLabel}
-		/>
-	);
-};
-
-// ============================================================================
 // INLINE STYLES
 // ============================================================================
 

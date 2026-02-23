@@ -1,3 +1,19 @@
+/**
+ * @file ApiStatusPageV9.PingUI.tsx
+ * @module pages
+ * @description PingOne UI styled API status and health monitoring page
+ * @version 9.14.0-PingUI
+ * @since 2026-02-22
+ *
+ * PingOne UI migration following pingui2.md standards:
+ * - Added .end-user-nano namespace wrapper
+ * - Replaced React Icons with MDI CSS icons
+ * - Applied PingOne UI CSS variables and transitions
+ * - Enhanced accessibility with proper ARIA labels
+ * - Used 0.15s ease-in-out transitions
+ * - PingOne UI card, button, and status styling patterns
+ */
+
 import React, { useCallback, useEffect, useState, useRef } from 'react';
 
 interface HealthData {
@@ -11,31 +27,28 @@ interface HealthData {
 	};
 	pid: number;
 	startTime: string;
-	uptimeSeconds: number;
-	environment: string;
-	node: {
-		version: string;
-		platform: string;
-		arch: string;
-	};
+	uptime: string;
 	memory: {
-		rss: number;
-		heapTotal: number;
-		heapUsed: number;
-		external: number;
-		arrayBuffers: number;
+		used: string;
+		total: string;
+		percentage: string;
 	};
-	systemMemory: {
-		total: number;
-		free: number;
-		used: number;
+	cpu: {
+		usage: string;
+		cores: number;
 	};
-	loadAverage: number[];
-	cpuUsage: {
-		avg1mPercent: number;
-		avg5mPercent: number;
-		avg15mPercent: number;
-	};
+	endpoints: Array<{
+		name: string;
+		status: string;
+		responseTime: string;
+		lastCheck: string;
+	}>;
+	servers: Array<{
+		name: string;
+		status: string;
+		responseTime: string;
+		lastCheck: string;
+	}>;
 	requestStats: {
 		totalRequests: number;
 		activeConnections: number;

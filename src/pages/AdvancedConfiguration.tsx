@@ -1,24 +1,47 @@
 import { useEffect, useMemo, useState } from 'react';
-import {
-	FiCheckCircle,
-	FiCopy,
-	FiEdit,
-	FiEye,
-	FiInfo,
-	FiMinus,
-	FiPlus,
-	FiRotateCcw,
-	FiSave,
-	FiSettings,
-	FiShield,
-	FiTerminal,
-} from 'react-icons/fi';
 import styled from 'styled-components';
 import JsonEditor from '../components/JsonEditor';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import PageLayoutService from '../services/pageLayoutService';
 import { credentialManager } from '../utils/credentialManager';
+
+// MDI Icon Helper Functions
+const getMDIIconClass = (iconName: string): string => {
+	const iconMap: Record<string, string> = {
+		FiCheckCircle: 'mdi-check-circle',
+		FiCopy: 'mdi-content-copy',
+		FiEdit: 'mdi-pencil',
+		FiEye: 'mdi-eye',
+		FiInfo: 'mdi-information',
+		FiMinus: 'mdi-minus',
+		FiPlus: 'mdi-plus',
+		FiRotateCcw: 'mdi-refresh',
+		FiSave: 'mdi-content-save',
+		FiSettings: 'mdi-cog',
+		FiShield: 'mdi-shield',
+		FiTerminal: 'mdi-console',
+	};
+	return iconMap[iconName] || 'mdi-help-circle';
+};
+
+// MDI Icon Component
+const MDIIcon: React.FC<{ icon: string; size?: number; style?: React.CSSProperties; ariaLabel?: string }> = ({ 
+	icon, 
+	size = 16, 
+	style, 
+	ariaLabel 
+}) => (
+	<span
+		className={`mdi ${getMDIIconClass(icon)}`}
+		style={{ 
+			fontSize: `${size}px`, 
+			...style 
+		}}
+		aria-label={ariaLabel}
+		aria-hidden={!ariaLabel}
+	/>
+);
 
 const _Container = styled.div`
   max-width: 1200px;
@@ -429,7 +452,7 @@ const AdvancedConfiguration = () => {
 	const CodeBlockWithCopy = ({ children, label }: { children: string; label: string }) => (
 		<CodeBlock>
 			<CopyButton onClick={() => copyToClipboard(children, label)}>
-				<FiCopy />
+				<MDIIcon icon="FiCopy" ariaLabel="Copy to clipboard" />
 				{copiedText === label ? 'Copied!' : 'Copy'}
 			</CopyButton>
 			{children}
@@ -581,12 +604,12 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 				<CollapsibleHeader
 					title="PingOne Default Settings"
 					subtitle="Set default values for Environment ID, Redirect URI, and Scopes that will be used across all flows"
-					icon={<FiSettings />}
+					icon={<MDIIcon icon="FiSettings" ariaLabel="Settings" />}
 					defaultCollapsed={false}
 				>
 					<div style={{ padding: '1.5rem' }}>
 						<InfoBox $type="info" style={{ marginBottom: '1.5rem' }}>
-							<FiInfo />
+							<MDIIcon icon="FiInfo" ariaLabel="Information" />
 							<div>
 								<strong>About Default Settings</strong>
 								<p>
@@ -711,7 +734,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 										gap: '0.5rem',
 									}}
 								>
-									<FiCheckCircle />
+									<MDIIcon icon="FiCheckCircle" ariaLabel="Success" />
 									Defaults saved successfully!
 								</div>
 							)}
@@ -723,7 +746,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 				<CollapsibleHeader
 					title="Default OAuth Scopes"
 					subtitle="Select the default scopes that will be requested in all OAuth and OIDC flows"
-					icon={<FiShield />}
+					icon={<MDIIcon icon="FiShield" ariaLabel="Security" />}
 					defaultCollapsed={false}
 				>
 					<div style={{ padding: '1.5rem' }}>
@@ -732,7 +755,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 							<ConfigSection>
 								<CardHeader>
 									<h2>
-										<FiShield />
+										<MDIIcon icon="FiShield" ariaLabel="Security" />
 										OAuth Scopes
 									</h2>
 									<p>Configure the permissions your application requests</p>
@@ -788,7 +811,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 										>
 											<h3 style={{ fontSize: '1.125rem', fontWeight: '600' }}>Custom Scopes</h3>
 											<AddButton onClick={addCustomScope}>
-												<FiPlus size={16} />
+												<MDIIcon icon="FiPlus" ariaLabel="Add" size={16} />
 												Add Scope
 											</AddButton>
 										</div>
@@ -803,7 +826,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 													onChange={(e) => updateCustomScope(index, e.target.value)}
 												/>
 												<RemoveButton onClick={() => removeCustomScope(index)}>
-													<FiMinus size={16} />
+													<MDIIcon icon="FiMinus" ariaLabel="Remove" size={16} />
 												</RemoveButton>
 											</div>
 										))}
@@ -815,7 +838,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 							<ConfigSection>
 								<CardHeader>
 									<h2>
-										<FiEye />
+										<MDIIcon icon="FiEye" ariaLabel="View" />
 										OpenID Connect Claims
 									</h2>
 									<p>Configure the user information your application receives</p>
@@ -863,20 +886,20 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 										>
 											<h3 style={{ fontSize: '1.125rem', fontWeight: '600' }}>Custom Claims</h3>
 											<AddButton onClick={addCustomClaim}>
-												<FiPlus size={16} />
+												<MDIIcon icon="FiPlus" ariaLabel="Add" size={16} />
 												Add Claim
 											</AddButton>
 										</div>
 										{customClaims.map((claim, index) => (
 											<ClaimItem key={index}>
-												<FiEdit size={16} style={{ color: '#6b7280' }} />
+												<MDIIcon icon="FiEdit" ariaLabel="Edit" size={16} style={{ color: '#6b7280' }} />
 												<ClaimInput
 													placeholder="Enter custom claim (e.g., department)"
 													value={claim}
 													onChange={(e) => updateCustomClaim(index, e.target.value)}
 												/>
 												<RemoveButton onClick={() => removeCustomClaim(index)}>
-													<FiMinus size={16} />
+													<MDIIcon icon="FiMinus" ariaLabel="Remove" size={16} />
 												</RemoveButton>
 											</ClaimItem>
 										))}
@@ -940,7 +963,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 
 								<div style={{ marginBottom: '1.5rem' }}>
 									<h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem' }}>
-										<FiTerminal />
+										<MDIIcon icon="FiTerminal" ariaLabel="Code" />
 										Generated Configuration Code
 									</h3>
 									<p style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '1rem' }}>
@@ -981,7 +1004,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 										onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#dc2626')}
 										onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#ef4444')}
 									>
-										<FiRotateCcw />
+										<MDIIcon icon="FiRotateCcw" ariaLabel="Reset" />
 										Reset to Defaults
 									</button>
 								</div>

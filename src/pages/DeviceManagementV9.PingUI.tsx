@@ -1,8 +1,8 @@
 /**
- * @file DeviceManagementV8.PingUI.tsx
+ * @file DeviceManagementV9.PingUI.tsx
  * @module pages
  * @description PingOne UI styled comprehensive device management page with individual and bulk operations
- * @version 9.13.0-PingUI
+ * @version 9.14.0-PingUI
  * @since 2026-02-22
  *
  * PingOne UI migration following pingui2.md standards:

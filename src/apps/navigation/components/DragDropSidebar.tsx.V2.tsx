@@ -357,6 +357,32 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 		// Sample menu structure demonstrating Ping UI migration with MDI icons
 		const defaultGroups: MenuGroup[] = [
 			{
+				id: 'dashboard',
+				label: 'Dashboard',
+				icon: <MDIIcon icon="FiViewDashboard" ariaLabel="Dashboard" />,
+				isOpen: true,
+				items: [
+					{
+						id: 'main-dashboard',
+						path: '/dashboard',
+						label: '📊 Main Dashboard',
+						icon: (
+							<div className={getColoredIconClass('#3b82f6')} style={{ color: '#3b82f6' }}>
+								<MDIIcon icon="FiViewDashboard" ariaLabel="Dashboard" />
+							</div>
+						),
+						badge: (
+							<span
+								className={getMigrationBadgeClass('primary')}
+								title="Main dashboard with PingOne API status and quick access"
+							>
+								HOME
+							</span>
+						),
+					},
+				],
+			},
+			{
 				id: 'v8-flows-new',
 				label: 'Production',
 				// PING UI MIGRATION: Replaced React Icon with MDI icon
