@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import DragDropSidebar from './DragDropSidebar';
+import DragDropSidebar from './DragDropSidebar.tsx.V2';
 import SidebarSearch from './SidebarSearch';
 import { VersionBadge } from './VersionBadge';
 
