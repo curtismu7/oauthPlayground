@@ -40,9 +40,10 @@ import ClientGenerator from './pages/ClientGenerator';
 import ConfigurationPingUI from './pages/Configuration.PingUI';
 import DocumentationPingUI from './pages/Documentation.PingUI';
 import LoginPingUI from './pages/Login.PingUI';
-import OAuthCodeGeneratorHub from './pages/OAuthCodeGeneratorHub';
-import { MfaFlowCodeGenerator } from './components/MfaFlowCodeGenerator';
+import OAuthCodeGeneratorHub from './pages/OAuthCodeGeneratorHub.V9';
+import { MfaFlowCodeGeneratorV9 } from './components/MfaFlowCodeGenerator.V9';
 import OAuthFlowsNew from './pages/OAuthFlows.PingUI';
+import { CentralizedSuccessMessage } from './components/CentralizedSuccessMessage';
 import { ApiRequestModalProvider } from './services/apiRequestModalService';
 import {
 	AuthorizationUrlValidationModal,
@@ -1346,7 +1347,7 @@ const AppRoutes: React.FC = () => {
 								<Route path="/client-generator" element={<ClientGenerator />} />{' '}
 								{/* <Route path="/application-generator" element={<ApplicationGeneratorPingUI />} /> */} {/* Temporarily disabled due to build issues */}
 								<Route path="/oauth-code-generator-hub" element={<OAuthCodeGeneratorHub />} />
-								<Route path="/mfa-flow-code-generator" element={<MfaFlowCodeGenerator />} />
+								<Route path="/mfa-flow-code-generator" element={<MfaFlowCodeGeneratorV9 />} />
 								<Route path="/configuration" element={<ConfigurationPingUI />} />
 								<Route path="/analytics" element={<AnalyticsPingUI />} />
 								<Route path="/documentation" element={<DocumentationPingUI />} />
@@ -1832,6 +1833,9 @@ function AppContent() {
 
 			{/* Global Backend Connectivity Modal */}
 			<BackendDownModalV8 />
+
+			{/* Centralized Success Message System */}
+			<CentralizedSuccessMessage />
 
 			{!isStandaloneLogViewerRoute && (
 				<>
