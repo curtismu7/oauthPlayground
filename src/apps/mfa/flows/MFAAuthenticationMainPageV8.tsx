@@ -5625,7 +5625,16 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 																	setShowRegistrationModal(false);
 																	// Navigate to registration with the selected policy
 																	// The registration flow will use credentials.deviceAuthenticationPolicyId
-																	navigate(`/v8/mfa/register/${deviceType.toLowerCase()}`, {
+																	// Note: SMS functionality has been consolidated into Mobile flow
+																	const registrationRoutes = {
+																		SMS: '/v8/mfa/register/mobile',
+																		EMAIL: '/v8/mfa/register/email',
+																		WHATSAPP: '/v8/mfa/register/whatsapp',
+																		TOTP: '/v8/mfa/register/totp',
+																		FIDO2: '/v8/mfa/register/fido2',
+																		MOBILE: '/v8/mfa/register/mobile',
+																	};
+																	navigate(registrationRoutes[deviceType] || '/v8/mfa/register/mobile', {
 																		state: {
 																			deviceAuthenticationPolicyId:
 																				credentials.deviceAuthenticationPolicyId,
@@ -6373,7 +6382,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 												setShowRegistrationModal(false);
 												// Navigate to the appropriate registration page
 												const registrationRoutes = {
-													SMS: '/v8/mfa/register/sms',
+													SMS: '/v8/mfa/register/mobile',
 													EMAIL: '/v8/mfa/register/email',
 													WHATSAPP: '/v8/mfa/register/whatsapp',
 													TOTP: '/v8/mfa/register/totp',
