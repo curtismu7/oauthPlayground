@@ -192,6 +192,84 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 
 	if (!isOpen) return null;
 
+	const handleSaveCredentials = async () => {
+		// Validate required fields
+		if (!environmentId.trim() || !clientId.trim() || !clientSecret.trim()) {
+			toastV8.error('Please fill in all required fields (Environment ID, Client ID, and Client Secret)');
+			return;
+		}
+
+		try {
+			// Normalize scopes
+			const normalizedScopes = scopeInput
+				.split(/\s+/)
+				.map((scope) => scope.trim())
+				.filter(Boolean);
+
+			if (normalizedScopes.length === 0) {
+				toastV8.error('Please provide at least one scope for the worker token');
+				return;
+			}
+
+			// Prepare credentials object with all UI fields
+			const credentials: UnifiedWorkerTokenCredentials = {
+				environmentId: environmentId.trim(),
+				clientId: clientId.trim(),
+				clientSecret: clientSecret.trim(),
+				scopes: normalizedScopes,
+				region: region,
+				tokenEndpointAuthMethod: authMethod,
+				...(customDomain && { customDomain: customDomain.trim() }),
+			};
+
+			// Save to unifiedWorkerTokenService
+			await unifiedWorkerTokenService.saveCredentials(credentials);
+
+			// Also save to global environment service for compatibility
+			const options: { region: 'us' | 'eu' | 'ap' | 'ca'; customDomain?: string } = {
+				region: region as 'us' | 'eu' | 'ap' | 'ca',
+			};
+			if (customDomain?.trim()) {
+				options.customDomain = customDomain.trim();
+			}
+			environmentService.setEnvironmentId(environmentId.trim(), options);
+
+			// Also save credentials to MFA flow for MFA Hub compatibility
+			try {
+				const { CredentialsServiceV8 } = await import('@/v8/services/credentialsServiceV8');
+				const stored = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
+					flowKey: 'mfa-flow-v8',
+					flowType: 'oidc',
+					includeClientSecret: false,
+					includeRedirectUri: false,
+					includeLogoutUri: false,
+					includeScopes: false,
+				});
+				CredentialsServiceV8.saveCredentials('mfa-flow-v8', {
+					...stored,
+					environmentId: environmentId.trim(),
+					username: stored.username || '',
+				});
+			} catch (credError) {
+				console.warn('[WorkerTokenModalV8] Failed to save credentials to MFA flow:', credError);
+			}
+
+			toastV8.success('Worker token credentials saved successfully!');
+			console.log(`${MODULE_TAG} Credentials saved:`, {
+				environmentId: environmentId.trim(),
+				clientId: clientId.trim(),
+				hasClientSecret: !!clientSecret.trim(),
+				scopes: normalizedScopes,
+				region,
+				authMethod,
+				hasCustomDomain: !!customDomain?.trim(),
+			});
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to save credentials:`, error);
+			toastV8.error('Failed to save credentials');
+		}
+	};
+
 	const handleGenerate = async () => {
 		await generateSpinner.executeWithSpinner(
 			async () => {
@@ -1571,6 +1649,16 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 											<button type="button" className="btn btn-light-grey" onClick={onClose}>
 												<i className="mdi-close me-2"></i>
 												Cancel
+											</button>
+											<button
+												type="button"
+												className="btn btn-success"
+												onClick={handleSaveCredentials}
+												disabled={isGenerating}
+												title="Save credentials without generating token"
+											>
+												<i className="mdi-content-save me-2"></i>
+												Save Credentials
 											</button>
 											<button
 												type="button"
