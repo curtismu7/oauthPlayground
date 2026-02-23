@@ -622,6 +622,63 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							</span>
 						),
 					},
+					{
+						id: 'debug-logs-page',
+						path: '/debug-logs',
+						label: '🐛 Debug Logs',
+						icon: (
+							<div className={getColoredIconClass('#ef4444')} style={{ color: '#ef4444' }}>
+								<MDIIcon icon="FiTerminal" ariaLabel="Terminal" />
+							</div>
+						),
+						badge: (
+							<span
+								className={getMigrationBadgeClass('education')}
+								style={{ background: '#ef4444', color: 'white' }}
+								title="Real-time debug logs and troubleshooting tools"
+							>
+								EDU
+							</span>
+						),
+					},
+					{
+						id: 'code-generators-page',
+						path: '/code-generators',
+						label: '💻 Code Generators',
+						icon: (
+							<div className={getColoredIconClass('#8b5cf6')} style={{ color: '#8b5cf6' }}>
+								<MDIIcon icon="FiCode" ariaLabel="Code" />
+							</div>
+						),
+						badge: (
+							<span
+								className={getMigrationBadgeClass('education')}
+								style={{ background: '#8b5cf6', color: 'white' }}
+								title="Interactive code generators and SDK examples"
+							>
+								EDU
+							</span>
+						),
+					},
+					{
+						id: 'security-guides-page',
+						path: '/security-guides',
+						label: '🔒 Security Guides',
+						icon: (
+							<div className={getColoredIconClass('#10b981')} style={{ color: '#10b981' }}>
+								<MDIIcon icon="FiShield" ariaLabel="Shield" />
+							</div>
+						),
+						badge: (
+							<span
+								className={getMigrationBadgeClass('education')}
+								style={{ background: '#10b981', color: 'white' }}
+								title="Security best practices and implementation guides"
+							>
+								EDU
+							</span>
+						),
+					},
 				],
 			},
 		];
