@@ -667,7 +667,7 @@ const Dashboard: React.FC = () => {
 					
 					{!collapsedSections.quickAccess && (
 						<div style={getGridStyle(4)}>
-							<a href="/flows/oauth-authorization-code-v9" style={{ textDecoration: 'none' }}>
+							<a href="/flows/oauth-authorization-code-v8" style={{ textDecoration: 'none' }}>
 								<div style={getCardHoverStyle()}>
 									<div
 										style={{
@@ -682,7 +682,7 @@ const Dashboard: React.FC = () => {
 											size={20}
 											style={{ color: 'var(--pingone-brand-primary)' }}
 										/>
-										<strong>OAuth Authorization Code V9</strong>
+										<strong>OAuth Authorization Code V8</strong>
 									</div>
 									<p
 										style={{
@@ -691,12 +691,12 @@ const Dashboard: React.FC = () => {
 											fontSize: '0.875rem',
 										}}
 									>
-										Authorization Code with PKCE (V9)
+										Authorization Code with PKCE (V8)
 									</p>
 								</div>
 							</a>
 
-							<a href="/flows/implicit-v9" style={{ textDecoration: 'none' }}>
+							<a href="/flows/implicit-v8" style={{ textDecoration: 'none' }}>
 								<div style={getCardHoverStyle()}>
 									<div
 										style={{
@@ -711,7 +711,7 @@ const Dashboard: React.FC = () => {
 											size={20}
 											style={{ color: 'var(--pingone-brand-primary)' }}
 										/>
-										<strong>Implicit Flow V9</strong>
+										<strong>Implicit Flow V8</strong>
 									</div>
 									<p
 										style={{
@@ -720,12 +720,12 @@ const Dashboard: React.FC = () => {
 											fontSize: '0.875rem',
 										}}
 									>
-										Implicit Grant Flow (V9)
+										Implicit Grant Flow (V8)
 									</p>
 								</div>
 							</a>
 
-							<a href="/flows/device-authorization-v9" style={{ textDecoration: 'none' }}>
+							<a href="/flows/device-authorization-v7" style={{ textDecoration: 'none' }}>
 								<div style={getCardHoverStyle()}>
 									<div
 										style={{
@@ -740,7 +740,7 @@ const Dashboard: React.FC = () => {
 											size={20}
 											style={{ color: 'var(--pingone-brand-primary)' }}
 										/>
-										<strong>Device Authorization V9</strong>
+										<strong>Device Authorization V7</strong>
 									</div>
 									<p
 										style={{
@@ -749,12 +749,12 @@ const Dashboard: React.FC = () => {
 											fontSize: '0.875rem',
 										}}
 									>
-										Device Code Grant (V9)
+										Device Code Grant (V7)
 									</p>
 								</div>
 							</a>
 
-							<a href="/flows/client-credentials-v9" style={{ textDecoration: 'none' }}>
+							<a href="/flows/client-credentials-v7" style={{ textDecoration: 'none' }}>
 								<div style={getCardHoverStyle()}>
 									<div
 										style={{
@@ -769,7 +769,7 @@ const Dashboard: React.FC = () => {
 											size={20}
 											style={{ color: 'var(--pingone-brand-primary)' }}
 										/>
-										<strong>Client Credentials V9</strong>
+										<strong>Client Credentials V7</strong>
 									</div>
 									<p
 										style={{
@@ -778,12 +778,12 @@ const Dashboard: React.FC = () => {
 											fontSize: '0.875rem',
 										}}
 									>
-										Client Credentials Grant (V9)
+										Client Credentials Grant (V7)
 									</p>
 								</div>
 							</a>
 
-							<a href="/flows/oidc-hybrid-v9" style={{ textDecoration: 'none' }}>
+							<a href="/flows/oidc-hybrid-v8" style={{ textDecoration: 'none' }}>
 								<div style={getCardHoverStyle()}>
 									<div
 										style={{
@@ -798,7 +798,7 @@ const Dashboard: React.FC = () => {
 											size={20}
 											style={{ color: 'var(--pingone-brand-primary)' }}
 										/>
-										<strong>OIDC Hybrid V9</strong>
+										<strong>OIDC Hybrid V8</strong>
 									</div>
 									<p
 										style={{
@@ -807,7 +807,7 @@ const Dashboard: React.FC = () => {
 											fontSize: '0.875rem',
 										}}
 									>
-										OpenID Connect Hybrid (V9)
+										OpenID Connect Hybrid (V8)
 									</p>
 								</div>
 							</a>
