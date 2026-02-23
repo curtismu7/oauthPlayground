@@ -154,6 +154,24 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 		localStorage.setItem('sidebar.dragDropMode', newMode.toString());
 	};
 
+	// Handle drag/drop actions
+	// biome-ignore lint/suspicious/noExplicitAny: MenuGroup type not exported from DragDropSidebar
+	const handleSaveMenuConfig = (_menuGroups: any[]) => {
+		console.log('🎯 Menu configuration saved from sidebar');
+		// Additional save logic can be added here if needed
+	};
+
+	const handleRestoreMenuConfig = () => {
+		console.log('🔄 Menu configuration restored from sidebar');
+		// Additional restore logic can be added here if needed
+	};
+
+	const handleQuitDragMode = () => {
+		setIsDragDropMode(false);
+		localStorage.setItem('sidebar.dragDropMode', 'false');
+		console.log('🚪 Exited drag mode from sidebar');
+	};
+
 	// Handle resize start
 	const handleResizeStart = () => {
 		setIsResizing(true);
@@ -241,6 +259,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					dragMode={isDragDropMode}
 					searchQuery={searchQuery}
 					matchAnywhere={matchAnywhere}
+					onSave={handleSaveMenuConfig}
+					onRestore={handleRestoreMenuConfig}
+					onQuit={handleQuitDragMode}
 				/>
 			</div>
 
