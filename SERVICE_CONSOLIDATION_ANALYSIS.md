@@ -84,16 +84,13 @@ New: UnifiedEducationalServiceV8
 ## 🟡 **Medium Priority Consolidation Opportunities**
 
 ### 4. **Monitoring & Utility Services Consolidation**
-**Current Services (9):**
+**Current Services (6):**
 - `HealthCheckService` - Application health monitoring
 - `VersionService` - Version information management
 - `DebugLogServiceV8` - Debug log collection
 - `LogStorageService` - Log storage management
 - `StateManagementServiceV8U` - Application state tracking
 - `PersistenceServiceV8U` - Data persistence
-- `PostmanCollectionGeneratorV8` - Postman collection generation
-- `DeviceManagementService` - MFA device management
-- `PARServiceV8` - Pushed Authorization Request
 
 **🎯 Consolidation Strategy:**
 ```
@@ -101,14 +98,11 @@ New: UnifiedUtilityServiceV8
 ├── Health monitoring & version management
 ├── Debug logging & storage (from DebugLogServiceV8 + LogStorageService)
 ├── State management & persistence (from StateManagementServiceV8U + PersistenceServiceV8U)
-├── Postman collection generation (from PostmanCollectionGeneratorV8)
-├── Device management (from DeviceManagementService)
-├── PAR service integration
-└── Utility orchestration
+└── Application utilities & helpers
 ```
 
-**Impact:** Reduces 9 services → 1 service (89% reduction)
-**Apps Affected:** Multiple utility apps
+**Impact:** Reduces 6 services → 1 service (83% reduction)
+**Apps Affected:** 3 utility apps
 **Risk:** Low-Medium (Supporting functions)
 
 ---
@@ -116,8 +110,8 @@ New: UnifiedUtilityServiceV8
 ## 📈 **Proposed Service Architecture After Consolidation**
 
 ### **Phase 1: Safe Consolidations (Low Risk)**
-1. **Educational Services** (8 → 1) - 87% reduction
-2. **Utility Services** (9 → 1) - 89% reduction
+1. **Educational Services** (6 → 1) - 83% reduction
+2. **Utility Services** (6 → 1) - 83% reduction
 
 ### **Phase 2: Medium Risk Consolidations**
 2. **Environment Services** (4 → 1) - 75% reduction
@@ -136,9 +130,9 @@ New: UnifiedUtilityServiceV8
 4. **`UnifiedUtilityServiceV8`** - Monitoring, logging, state, & utilities
 
 ### **Service Reduction Summary:**
-- **Before:** 19 unique services
+- **Before:** 16 unique services
 - **After:** 4 unified services
-- **Reduction:** 79% fewer services
+- **Reduction:** 75% fewer services
 - **Maintenance Impact:** Significantly reduced complexity
 
 ---
@@ -171,7 +165,7 @@ New: UnifiedUtilityServiceV8
 ## 📊 **Benefits of Consolidation**
 
 ### **Development Benefits:**
-- **79% reduction** in service count
+- **75% reduction** in service count
 - **Simplified dependency management**
 - **Consistent APIs** across similar functionality
 - **Reduced bundle size** through code sharing
@@ -226,7 +220,7 @@ New: UnifiedUtilityServiceV8
 ---
 
 *Analysis Date: February 23, 2026*
-*Current Services: 19*
+*Current Services: 16*
 *Proposed Services: 4*
-*Reduction: 79%*
+*Reduction: 75%*
 *Estimated Implementation: 8 weeks*
