@@ -2,8 +2,36 @@
 // Service for centralized common UI components used across all flows
 
 import React from 'react';
-import { FiAlertTriangle, FiCheckCircle, FiInfo } from 'react-icons/fi';
-import styled from 'styled-components';
+
+// MDI Icon Helper Functions
+interface MDIIconProps {
+	icon: string;
+	size?: number;
+	color?: string;
+	ariaLabel: string;
+}
+
+const getMDIIconClass = (iconName: string): string => {
+	const iconMap: Record<string, string> = {
+		FiAlertTriangle: 'mdi-alert-triangle',
+		FiCheckCircle: 'mdi-check-circle',
+		FiInfo: 'mdi-information',
+	};
+	return iconMap[iconName] || 'mdi-help-circle';
+};
+
+const MDIIcon: React.FC<MDIIconProps> = ({ icon, size = 24, color, ariaLabel }) => {
+	const iconClass = getMDIIconClass(icon);
+	return (
+		<span
+			className={`mdi ${iconClass}`}
+			style={{ fontSize: size, color: color }}
+			role="img"
+			aria-label={ariaLabel}
+			aria-hidden={!ariaLabel}
+		></span>
+	);
+};
 
 export interface FlowUIComponentsConfig {
 	theme?: 'blue' | 'green' | 'purple' | 'gray';
@@ -11,264 +39,219 @@ export interface FlowUIComponentsConfig {
 	enableAnimations?: boolean;
 }
 
-const InfoBox = styled.div<{
-	$variant?: 'info' | 'warning' | 'success' | 'error';
-	$theme?: string;
-}>`
-	display: flex;
-	align-items: flex-start;
-	gap: 1rem;
-	padding: 1.5rem;
-	border-radius: 0.75rem;
-	background: ${({ $variant }) => {
-		switch ($variant) {
-			case 'warning':
-				return '#fef3c7';
-			case 'success':
-				return '#d1fae5';
-			case 'error':
-				return '#fee2e2';
-			default:
-				return '#eff6ff';
-		}
-	}};
-	border: 1px solid ${({ $variant }) => {
-		switch ($variant) {
-			case 'warning':
-				return '#f59e0b';
-			case 'success':
-				return '#10b981';
-			case 'error':
-				return '#ef4444';
-			default:
-				return '#3b82f6';
-		}
-	}};
-	margin-bottom: 1.5rem;
-	transition: all 0.2s ease;
+// CSS Helper Functions
+const getInfoBoxStyles = (variant?: 'info' | 'warning' | 'success' | 'error') => {
+	const variantStyles = {
+		info: {
+			background: '#eff6ff',
+			borderColor: '#3b82f6',
+		},
+		warning: {
+			background: '#fef3c7',
+			borderColor: '#f59e0b',
+		},
+		success: {
+			background: '#d1fae5',
+			borderColor: '#10b981',
+		},
+		error: {
+			background: '#fee2e2',
+			borderColor: '#ef4444',
+		},
+	};
+	const style = variantStyles[variant || 'info'];
+	return {
+		display: 'flex',
+		alignItems: 'flex-start',
+		gap: '1rem',
+		padding: '1.5rem',
+		borderRadius: '0.75rem',
+		background: style.background,
+		border: `1px solid ${style.borderColor}`,
+		marginBottom: '1.5rem',
+		transition: 'all 0.2s ease',
+	};
+};
 
-	&:hover {
-		transform: translateY(-1px);
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+const getInfoIconStyles = (variant?: 'info' | 'warning' | 'success' | 'error') => {
+	const variantStyles = {
+		info: '#3b82f6',
+		warning: '#f59e0b',
+		success: '#10b981',
+		error: '#ef4444',
+	};
+	return {
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'center',
+		width: '2rem',
+		height: '2rem',
+		borderRadius: '50%',
+		background: variantStyles[variant || 'info'],
+		color: 'white',
+		flexShrink: 0,
+	};
+};
+
+const getParameterGridStyles = (columns?: number) => ({
+	display: 'grid',
+	gridTemplateColumns: `repeat(${columns || 2}, 1fr)`,
+	gap: '0.75rem 1rem',
+	alignItems: 'start',
+	margin: '1rem 0',
+});
+
+const getButtonStyles = (variant?: 'primary' | 'secondary' | 'danger' | 'outline' | 'success', size?: 'small' | 'medium' | 'large') => {
+	const sizeStyles = {
+		small: '0.5rem 1rem',
+		medium: '0.625rem 1.25rem',
+		large: '0.875rem 2rem',
+	};
+	
+	const variantStyles = {
+		primary: {
+			background: '#3b82f6',
+			color: 'white',
+			borderColor: '#2563eb',
+		},
+		secondary: {
+			background: '#6b7280',
+			color: 'white',
+			borderColor: '#4b5563',
+		},
+		danger: {
+			background: '#ef4444',
+			color: 'white',
+			borderColor: '#dc2626',
+		},
+		outline: {
+			background: 'transparent',
+			color: '#6b7280',
+			borderColor: '#d1d5db',
+		},
+		success: {
+			background: '#10b981',
+			color: 'white',
+			borderColor: '#059669',
+		},
+	};
+	
+	const style = variantStyles[variant || 'secondary'];
+	
+	return {
+		padding: sizeStyles[size || 'medium'],
+		border: `1px solid ${style.borderColor}`,
+		borderRadius: '0.5rem',
+		background: style.background,
+		color: style.color,
+		cursor: 'pointer',
+		fontWeight: '500',
+		transition: 'all 0.15s ease-in-out',
+	};
+};
+
+// Additional CSS Helper Functions
+const getInfoTitleStyles = () => ({
+	fontSize: '1.125rem',
+	fontWeight: '600',
+	color: '#1f2937',
+	margin: '0 0 0.5rem 0',
+	display: 'flex',
+	alignItems: 'center',
+	gap: '0.5rem',
+});
+
+const getInfoTextStyles = () => ({
+	color: '#4b5563',
+	margin: 0,
+	lineHeight: '1.6',
+});
+
+const getInfoListStyles = () => ({
+	margin: '1rem 0 0 0',
+	paddingLeft: '1.5rem',
+	color: '#4b5563',
+});
+
+const getParameterLabelStyles = () => ({
+	fontWeight: '500',
+	color: '#4b5563',
+	fontSize: '0.875rem',
+});
+
+const getParameterValueStyles = () => ({
+	fontFamily: "'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace",
+	fontSize: '0.875rem',
+	color: '#064e3b',
+	wordBreak: 'break-word' as const,
+	background: '#f0fdf4',
+	padding: '0.5rem',
+	borderRadius: '0.375rem',
+	border: '1px solid #16a34a',
+});
+
+const getActionRowStyles = () => ({
+	display: 'flex',
+	gap: '1rem',
+	justifyContent: 'flex-start',
+	margin: '1.5rem 0',
+	flexWrap: 'wrap' as const,
+});
+
+const getGeneratedContentBoxStyles = () => ({
+	background: '#ffffff',
+	border: '1px solid #e5e7eb',
+	borderRadius: '0.75rem',
+	padding: '1.5rem',
+	marginBottom: '1.5rem',
+	boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+});
+
+const getGeneratedLabelStyles = () => ({
+	fontSize: '1rem',
+	fontWeight: '600',
+	color: '#1f2937',
+	marginBottom: '1rem',
+	display: 'flex',
+	alignItems: 'center',
+	gap: '0.5rem',
+});
+
+const getCardStyles = (variant?: 'default' | 'elevated' | 'outlined') => {
+	const baseStyles = {
+		background: '#ffffff',
+		borderRadius: '0.75rem',
+		padding: '1.5rem',
+		marginBottom: '1.5rem',
+	};
+	
+	switch (variant) {
+		case 'elevated':
+			return {
+				...baseStyles,
+				boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
+				border: '1px solid #e5e7eb',
+			};
+		case 'outlined':
+			return {
+				...baseStyles,
+				border: '2px solid #e5e7eb',
+				boxShadow: 'none',
+			};
+		default:
+			return {
+				...baseStyles,
+				border: '1px solid #e5e7eb',
+				boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+			};
 	}
-`;
+};
 
-const InfoIcon = styled.div<{ $variant?: 'info' | 'warning' | 'success' | 'error' }>`
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 2rem;
-	height: 2rem;
-	border-radius: 50%;
-	background: ${({ $variant }) => {
-		switch ($variant) {
-			case 'warning':
-				return '#f59e0b';
-			case 'success':
-				return '#10b981';
-			case 'error':
-				return '#ef4444';
-			default:
-				return '#3b82f6';
-		}
-	}};
-	color: white;
-	flex-shrink: 0;
-`;
-
-const InfoTitle = styled.h3`
-	font-size: 1.125rem;
-	font-weight: 600;
-	color: #1f2937;
-	margin: 0 0 0.5rem 0;
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-`;
-
-const InfoText = styled.p`
-	color: #4b5563;
-	margin: 0;
-	line-height: 1.6;
-`;
-
-const InfoList = styled.ul`
-	margin: 1rem 0 0 0;
-	padding-left: 1.5rem;
-	color: #4b5563;
-
-	li {
-		margin-bottom: 0.5rem;
-		line-height: 1.5;
-	}
-`;
-
-const ParameterGrid = styled.div<{ $columns?: number }>`
-	display: grid;
-	grid-template-columns: repeat(${({ $columns }) => $columns || 2}, 1fr);
-	gap: 0.75rem 1rem;
-	align-items: start;
-	margin: 1rem 0;
-`;
-
-const ParameterLabel = styled.div`
-	font-weight: 500;
-	color: #4b5563;
-	font-size: 0.875rem;
-`;
-
-const ParameterValue = styled.div`
-	font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
-	font-size: 0.875rem;
-	color: #064e3b;
-	word-break: break-all;
-	background: #f0fdf4; /* Light green for generated content */
-	padding: 0.5rem;
-	border-radius: 0.375rem;
-	border: 1px solid #16a34a;
-`;
-
-const ActionRow = styled.div`
-	display: flex;
-	gap: 1rem;
-	justify-content: flex-start;
-	margin: 1.5rem 0;
-	flex-wrap: wrap;
-`;
-
-const Button = styled.button<{
-	$variant?: 'primary' | 'secondary' | 'danger' | 'outline' | 'success';
-	$size?: 'small' | 'medium' | 'large';
-}>`
-	padding: ${({ $size }) => {
-		switch ($size) {
-			case 'small':
-				return '0.5rem 1rem';
-			case 'large':
-				return '0.875rem 2rem';
-			default:
-				return '0.75rem 1.5rem';
-		}
-	}};
-	border-radius: 0.5rem;
-	font-weight: 500;
-	font-size: ${({ $size }) => ($size === 'small' ? '0.875rem' : '1rem')};
-	cursor: pointer;
-	transition: all 0.2s ease;
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-	border: none;
-	text-decoration: none;
-
-	${({ $variant }) => {
-		switch ($variant) {
-			case 'primary':
-				return `
-					background: linear-gradient(135deg, #3b82f6, #2563eb);
-					color: white;
-					&:hover {
-						background: linear-gradient(135deg, #2563eb, #1d4ed8);
-						transform: translateY(-1px);
-					}
-				`;
-			case 'success':
-				return `
-					background: linear-gradient(135deg, #10b981, #059669);
-					color: white;
-					&:hover {
-						background: linear-gradient(135deg, #059669, #047857);
-						transform: translateY(-1px);
-					}
-				`;
-			case 'danger':
-				return `
-					background: linear-gradient(135deg, #ef4444, #dc2626);
-					color: white;
-					&:hover {
-						background: linear-gradient(135deg, #dc2626, #b91c1c);
-						transform: translateY(-1px);
-					}
-				`;
-			case 'outline':
-				return `
-					background: transparent;
-					color: #4b5563;
-					border: 1px solid #d1d5db;
-					&:hover {
-						background: #f9fafb;
-						border-color: #9ca3af;
-					}
-				`;
-			default:
-				return `
-					background: #f3f4f6;
-					color: #374151;
-					&:hover {
-						background: #e5e7eb;
-					}
-				`;
-		}
-	}}
-
-	&:disabled {
-		opacity: 0.5;
-		cursor: not-allowed;
-		transform: none !important;
-	}
-`;
-
-const GeneratedContentBox = styled.div`
-	background: #ffffff;
-	border: 1px solid #e5e7eb;
-	border-radius: 0.75rem;
-	padding: 1.5rem;
-	margin-bottom: 1.5rem;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-`;
-
-const GeneratedLabel = styled.div`
-	font-size: 1rem;
-	font-weight: 600;
-	color: #1f2937;
-	margin-bottom: 1rem;
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-`;
-
-const Card = styled.div<{ $variant?: 'default' | 'elevated' | 'outlined' }>`
-	background: #ffffff;
-	border-radius: 0.75rem;
-	padding: 1.5rem;
-	margin-bottom: 1.5rem;
-
-	${({ $variant }) => {
-		switch ($variant) {
-			case 'elevated':
-				return `
-					box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-					border: 1px solid #e5e7eb;
-				`;
-			case 'outlined':
-				return `
-					border: 2px solid #e5e7eb;
-					box-shadow: none;
-				`;
-			default:
-				return `
-					border: 1px solid #e5e7eb;
-					box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-				`;
-		}
-	}}
-`;
-
-const SectionDivider = styled.div`
-	height: 1px;
-	background: linear-gradient(90deg, #e5e7eb 0%, #d1d5db 50%, #e5e7eb 100%);
-	margin: 2rem 0;
-`;
+const getSectionDividerStyles = () => ({
+	height: '1px',
+	background: 'linear-gradient(90deg, #e5e7eb 0%, #d1d5db 50%, #e5e7eb 100%)',
+	margin: '2rem 0',
+});
 
 export interface InfoBoxProps {
 	variant?: 'info' | 'warning' | 'success' | 'error';
@@ -287,24 +270,24 @@ export const InfoBoxComponent: React.FC<InfoBoxProps> = ({
 		if (icon) return icon;
 		switch (variant) {
 			case 'warning':
-				return <FiAlertTriangle size={20} />;
+				return <MDIIcon icon="FiAlertTriangle" size={20} ariaLabel="Warning" />;
 			case 'success':
-				return <FiCheckCircle size={20} />;
+				return <MDIIcon icon="FiCheckCircle" size={20} ariaLabel="Success" />;
 			case 'error':
-				return <FiAlertTriangle size={20} />;
+				return <MDIIcon icon="FiAlertTriangle" size={20} ariaLabel="Error" />;
 			default:
-				return <FiInfo size={20} />;
+				return <MDIIcon icon="FiInfo" size={20} ariaLabel="Information" />;
 		}
 	};
 
 	return (
-		<InfoBox $variant={variant}>
-			<InfoIcon $variant={variant}>{getIcon()}</InfoIcon>
+		<div style={getInfoBoxStyles(variant)}>
+			<div style={getInfoIconStyles(variant)}>{getIcon()}</div>
 			<div>
-				<InfoTitle>{title}</InfoTitle>
+				<h3 style={getInfoTitleStyles()}>{title}</h3>
 				{children}
 			</div>
-		</InfoBox>
+		</div>
 	);
 };
 
@@ -314,7 +297,7 @@ export interface ParameterGridProps {
 }
 
 export const ParameterGridComponent: React.FC<ParameterGridProps> = ({ children, columns = 2 }) => {
-	return <ParameterGrid $columns={columns}>{children}</ParameterGrid>;
+	return <div style={getParameterGridStyles(columns)}>{children}</div>;
 };
 
 export interface ActionRowProps {
@@ -323,21 +306,16 @@ export interface ActionRowProps {
 }
 
 export const ActionRowComponent: React.FC<ActionRowProps> = ({ children, justify = 'start' }) => {
+	const justifyContent = 
+		justify === 'start' ? 'flex-start' :
+		justify === 'center' ? 'center' :
+		justify === 'end' ? 'flex-end' :
+		'space-between';
+	
 	return (
-		<ActionRow
-			style={{
-				justifyContent:
-					justify === 'start'
-						? 'flex-start'
-						: justify === 'center'
-							? 'center'
-							: justify === 'end'
-								? 'flex-end'
-								: 'space-between',
-			}}
-		>
+		<div style={{ ...getActionRowStyles(), justifyContent }}>
 			{children}
-		</ActionRow>
+		</div>
 	);
 };
 
@@ -362,25 +340,30 @@ export const ButtonComponent: React.FC<ButtonProps> = ({
 	href,
 	target,
 }) => {
+	const buttonStyles = getButtonStyles(variant, size);
+	
 	if (href) {
 		return (
-			<Button
-				as="a"
+			<a
 				href={href}
 				target={target}
-				$variant={variant}
-				$size={size}
-				disabled={disabled}
+				style={{ ...buttonStyles, textDecoration: 'none', display: 'inline-block' }}
+				onClick={disabled ? undefined : onClick}
 			>
 				{children}
-			</Button>
+			</a>
 		);
 	}
 
 	return (
-		<Button type={type} onClick={onClick} disabled={disabled} $variant={variant} $size={size}>
+		<button
+			type={type}
+			onClick={onClick}
+			disabled={disabled}
+			style={{ ...buttonStyles, ...(disabled ? { opacity: 0.5, cursor: 'not-allowed', transform: 'none' } : {}) }}
+		>
 			{children}
-		</Button>
+		</button>
 	);
 };
 
@@ -396,13 +379,13 @@ export const GeneratedContentBoxComponent: React.FC<GeneratedContentBoxProps> = 
 	icon,
 }) => {
 	return (
-		<GeneratedContentBox>
-			<GeneratedLabel>
+		<div style={getGeneratedContentBoxStyles()}>
+			<div style={getGeneratedLabelStyles()}>
 				{icon}
 				{label}
-			</GeneratedLabel>
+			</div>
 			{children}
-		</GeneratedContentBox>
+		</div>
 	);
 };
 
@@ -412,7 +395,7 @@ export interface CardProps {
 }
 
 export const CardComponent: React.FC<CardProps> = ({ variant = 'default', children }) => {
-	return <Card $variant={variant}>{children}</Card>;
+	return <div style={getCardStyles(variant)}>{children}</div>;
 };
 
 export class FlowUIComponentsService {
@@ -420,16 +403,21 @@ export class FlowUIComponentsService {
 		return {
 			InfoBox: InfoBoxComponent,
 			ParameterGrid: ParameterGridComponent,
-			ParameterLabel,
-			ParameterValue,
+			ParameterLabel: ({ children }: { children: React.ReactNode }) => 
+				<div style={getParameterLabelStyles()}>{children}</div>,
+			ParameterValue: ({ children }: { children: React.ReactNode }) => 
+				<div style={getParameterValueStyles()}>{children}</div>,
 			ActionRow: ActionRowComponent,
 			Button: ButtonComponent,
 			GeneratedContentBox: GeneratedContentBoxComponent,
 			Card: CardComponent,
-			SectionDivider,
-			InfoList,
-			InfoText,
-			InfoTitle,
+			SectionDivider: () => <div style={getSectionDividerStyles()} />,
+			InfoList: ({ children }: { children: React.ReactNode }) => 
+				<ul style={getInfoListStyles()}>{children}</ul>,
+			InfoText: ({ children }: { children: React.ReactNode }) => 
+				<p style={getInfoTextStyles()}>{children}</p>,
+			InfoTitle: ({ children }: { children: React.ReactNode }) => 
+				<h3 style={getInfoTitleStyles()}>{children}</h3>,
 
 			// Utility functions
 			copyToClipboard: async (text: string) => {
