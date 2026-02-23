@@ -260,6 +260,7 @@ const Dashboard: React.FC = () => {
 	}, []);
 
 	const collapseAllSections = useCallback(() => {
+		console.log('🔽 Dashboard: Collapsing all sections');
 		setCollapsedSections({
 			pingOneApiStatus: true,
 			quickAccess: true,
@@ -271,6 +272,7 @@ const Dashboard: React.FC = () => {
 	}, []);
 
 	const expandAllSections = useCallback(() => {
+		console.log('🔼 Dashboard: Expanding all sections');
 		setCollapsedSections({
 			pingOneApiStatus: false,
 			quickAccess: false,
@@ -303,6 +305,11 @@ const Dashboard: React.FC = () => {
 			}));
 		}
 	}, []);
+
+	// Debug: Log current state
+	useEffect(() => {
+		console.log('📊 Dashboard state:', { viewMode, collapsedSections });
+	}, [viewMode, collapsedSections]);
 
 	// Check server status on mount
 	useEffect(() => {
