@@ -22,7 +22,7 @@ import { EnvironmentIdPersistenceStatus } from '../components/EnvironmentIdPersi
 import JwksKeySourceSelector, { JwksKeySource } from '../components/JwksKeySourceSelector';
 import PingOneApplicationPicker from '../components/PingOneApplicationPicker';
 import type { StepCredentials } from '../components/steps/CommonSteps';
-import { WorkerTokenModal } from '../components/WorkerTokenModal';
+import { WorkerTokenModalV8Streamlined } from '../v8/components/WorkerTokenModalV8.Streamlined';
 import type { PingOneApplication } from '../services/pingOneApplicationService';
 import { ClientAuthMethod } from '../utils/clientAuthentication';
 import { v4ToastManager } from '../utils/v4ToastMessages';
@@ -1338,19 +1338,18 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 	return (
 		<>
 			{/* Worker Token Modal - moved above main content */}
-			<WorkerTokenModal
+			<WorkerTokenModalV8Streamlined
 				isOpen={showWorkerTokenModal}
 				onClose={() => {
 					setShowWorkerTokenModal(false);
 					// Re-check worker token when modal closes
 					checkWorkerToken();
 				}}
-				onContinue={() => {
+				onTokenGenerated={() => {
 					// Re-check worker token immediately after generation
 					checkWorkerToken();
 					setShowWorkerTokenModal(false);
 				}}
-				flowType={flowType || 'flow'}
 				environmentId={resolvedCredentials.environmentId || ''}
 			/>
 
