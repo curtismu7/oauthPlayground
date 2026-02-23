@@ -430,27 +430,27 @@ const Dashboard: React.FC = () => {
 							<div style={getViewModeContainerStyle()}>
 								<BootstrapButton
 									variant={viewMode === 'full' ? 'primary' : 'secondary'}
+									greyBorder={viewMode === 'full'}
 									onClick={() => setViewMode('full')}
 									title="Full view - Show all sections"
-									whiteBorder={viewMode === 'full'}
 								>
 									<MDIIcon icon="view-fullscreen" size={14} />
 									Full
 								</BootstrapButton>
 								<BootstrapButton
 									variant={viewMode === 'compact' ? 'primary' : 'secondary'}
+									greyBorder={viewMode === 'compact'}
 									onClick={() => setViewMode('compact')}
 									title="Compact view - Reduced spacing"
-									whiteBorder={viewMode === 'compact'}
 								>
 									<MDIIcon icon="view-compact" size={14} />
 									Compact
 								</BootstrapButton>
 								<BootstrapButton
 									variant={viewMode === 'hidden' ? 'primary' : 'secondary'}
+									greyBorder={viewMode === 'hidden'}
 									onClick={() => setViewMode('hidden')}
 									title="Hidden view - Minimal display"
-									whiteBorder={viewMode === 'hidden'}
 								>
 									<MDIIcon icon="eye-off" size={14} />
 									Hidden
@@ -503,6 +503,7 @@ const Dashboard: React.FC = () => {
 						</div>
 						<BootstrapButton
 							variant="primary"
+							greyBorder={true}
 							onClick={() => {
 								// Dismiss banner functionality
 								const banner = document.querySelector('[data-migration-banner]') as HTMLElement;
