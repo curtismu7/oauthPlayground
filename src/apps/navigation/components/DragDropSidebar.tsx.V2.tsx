@@ -603,6 +603,25 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							</span>
 						),
 					},
+					{
+						id: 'token-status-page',
+						path: '/token-status',
+						label: '📊 Token Status',
+						icon: (
+							<div className={getColoredIconClass('#3b82f6')} style={{ color: '#3b82f6' }}>
+								<MDIIcon icon="FiActivity" ariaLabel="Activity" />
+							</div>
+						),
+						badge: (
+							<span
+								className={getMigrationBadgeClass('education')}
+								style={{ background: '#3b82f6', color: 'white' }}
+								title="Real-time token status monitoring and management dashboard"
+							>
+								EDU
+							</span>
+						),
+					},
 				],
 			},
 		];
