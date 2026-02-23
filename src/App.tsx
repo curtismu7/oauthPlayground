@@ -201,7 +201,6 @@ import { FIDO2ConfigurationPageV8 } from './v8/flows/types/FIDO2ConfigurationPag
 import { MobileOTPConfigurationPageV8 } from './v8/flows/types/MobileOTPConfigurationPageV8';
 import { UserSearchPage } from './pages/UserSearchPage';
 import { LoginPatternsPage } from './pages/LoginPatternsPage';
-import { TokenApiDocumentationPage } from './pages/TokenApiDocumentationPage';
 import { SpiffeSpireTokenDisplayPage } from './pages/SpiffeSpireTokenDisplayPage';
 import { TokenRefreshPage } from './pages/TokenRefreshPage';
 import { TokenStatusPage } from './pages/TokenStatusPage';
@@ -259,7 +258,7 @@ const SpiffeSpireFlowV8U = lazy(() => import('./v8u/flows/SpiffeSpireFlowV8U'));
 const UnifiedOAuthFlowV8U = lazy(() => import('./apps/oauth/flows/UnifiedOAuthFlowV8U'));
 const SpiffeSpireTokenDisplayV8U = lazy(() => import('./v8u/pages/SpiffeSpireTokenDisplayV8U'));
 const EnhancedStateManagementPage = lazy(() => import('./v8u/pages/EnhancedStateManagementPage'));
-const TokenApiDocumentationPage = lazy(() => import('./v8u/pages/TokenApiDocumentationPage'));
+const TokenApiDocumentationPage = lazy(() => import('./pages/TokenApiDocumentationPage'));
 const FlowComparisonPage = lazy(() => import('./v8u/pages/FlowComparisonPage'));
 
 // Import test pages
