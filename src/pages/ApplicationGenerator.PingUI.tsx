@@ -947,8 +947,9 @@ const ApplicationGeneratorPingUI: React.FC = () => {
 					)}
 
 					{currentStep === 4 && generationResult && (
-						{/* Results Display */}
-						<div className="result-display card mb-4">
+						<>
+							{/* Results Display */}
+							<div className="result-display card mb-4">
 							<div className="result-header card-header d-flex align-items-center">
 								<MDIIcon icon="success" size={24} className="result-icon text-success me-2" />
 								<div className="result-title h5 mb-0">Application Created Successfully!</div>
@@ -975,7 +976,7 @@ const ApplicationGeneratorPingUI: React.FC = () => {
 							</div>
 						</div>
 					)}
-					)}
+						</>
 				</div>
 
 				{/* Navigation */}
