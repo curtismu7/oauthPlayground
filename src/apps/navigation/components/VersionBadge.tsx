@@ -7,26 +7,26 @@ interface VersionBadgeProps {
 	variant?: 'sidebar' | 'flow';
 }
 
-const Badge = styled.span<{ flow?: string; variant?: string }>`
+const Badge = styled.span<{ flow?: string; $variant?: string }>`
   align-self: flex-start;
   background: ${(props) => {
-		if (props.variant === 'sidebar') {
+		if (props.$variant === 'sidebar') {
 			return 'rgba(99, 102, 241, 0.2)';
 		}
 		return props.flow === 'Implicit' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(22, 163, 74, 0.2)';
 	}};
   border: 1px solid var(--ping-border-color);
   color: ${(props) => {
-		if (props.variant === 'sidebar') {
+		if (props.$variant === 'sidebar') {
 			return '#4f46e5';
 		}
 		return props.flow === 'Implicit' ? '#dbeafe' : '#bbf7d0';
 	}};
-  font-size: ${(props) => (props.variant === 'sidebar' ? '0.7rem' : '0.75rem')};
+  font-size: ${(props) => (props.$variant === 'sidebar' ? '0.7rem' : '0.75rem')};
   font-weight: 600;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  padding: ${(props) => (props.variant === 'sidebar' ? '0.25rem 0.6rem' : '0.25rem 0.75rem')};
+  padding: ${(props) => (props.$variant === 'sidebar' ? '0.25rem 0.6rem' : '0.25rem 0.75rem')};
   border-radius: 9999px;
   white-space: nowrap;
   min-width: 40px;
@@ -37,7 +37,7 @@ export const VersionBadge: React.FC<VersionBadgeProps> = ({ version, flow, varia
 	console.log('[VersionBadge] Rendering:', { version, flow, variant });
 	return (
 		<div className="end-user-nano">
-			<Badge flow={flow} variant={variant}>
+			<Badge flow={flow || undefined} $variant={variant}>
 				{version}
 			</Badge>
 		</div>
