@@ -448,6 +448,23 @@
   border-color: #FFFFFF !important;
 }
 
+/* Override Bootstrap to add grey borders for colored buttons */
+.btn-primary.border-grey,
+.btn-success.border-grey,
+.btn-warning.border-grey,
+.btn-danger.border-grey,
+.btn-info.border-grey {
+  border-color: #E5E7EB !important;
+}
+
+.btn-primary.border-grey:hover,
+.btn-success.border-grey:hover,
+.btn-warning.border-grey:hover,
+.btn-danger.border-grey:hover,
+.btn-info.border-grey:hover {
+  border-color: #D1D5DB !important;
+}
+
 /* Enhanced primary button with consistent white border */
 .btn-primary.border-white {
   border-width: 1px !important;

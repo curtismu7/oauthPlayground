@@ -12,6 +12,7 @@ interface BootstrapButtonProps {
   variant?: 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info' | 'light' | 'dark';
   size?: 'sm' | 'md' | 'lg';
   whiteBorder?: boolean;
+  greyBorder?: boolean;
   outline?: boolean;
   disabled?: boolean;
   loading?: boolean;
@@ -34,6 +35,7 @@ const BootstrapButton: React.FC<BootstrapButtonProps> = ({
   variant = 'primary',
   size = 'md',
   whiteBorder = false,
+  greyBorder = false,
   outline = false,
   disabled = false,
   loading = false,
@@ -56,6 +58,7 @@ const BootstrapButton: React.FC<BootstrapButtonProps> = ({
     outline ? `btn-outline-${variant}` : `btn-${variant}`,
     size === 'sm' ? 'btn-sm' : size === 'lg' ? 'btn-lg' : '',
     whiteBorder ? 'border-white' : '',
+    greyBorder ? 'border-grey' : '',
     loading ? 'btn-loading' : '',
     'ping-btn',
     className,

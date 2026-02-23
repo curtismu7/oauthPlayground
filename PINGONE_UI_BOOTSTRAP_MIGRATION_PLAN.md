@@ -110,14 +110,14 @@ This document outlines the comprehensive migration strategy to update all apps a
 1. **Import BootstrapButton**: Add BootstrapButton import
 2. **Replace Button Elements**: Convert 22 button instances
 3. **Apply Bootstrap Classes**: Use btn-primary, btn-secondary, etc.
-4. **🔥 CRITICAL: Add White Borders**: ALL colored buttons MUST have whiteBorder={true}
+4. **🔥 CRITICAL: Add Grey Borders**: ALL colored buttons MUST have greyBorder={true}
 5. **Preserve Functionality**: Maintain all event handlers and state
 
-#### **🎯 IMPORTANT: White Border Requirement**
-**ALL colored buttons (primary, success, warning, danger) MUST use whiteBorder={true}**
+#### **🎯 IMPORTANT: Grey Border Requirement**
+**ALL colored buttons (primary, success, warning, danger) MUST use greyBorder={true}**
 - This is a mandatory PingOne design requirement
-- White borders provide visual consistency and accessibility
-- Only secondary/neutral buttons should not have white borders
+- Grey borders provide visual consistency and accessibility
+- Only secondary/neutral buttons should not have grey borders
 - Ensures proper contrast and professional appearance
 
 #### **Expected Changes**
@@ -261,22 +261,22 @@ This document outlines the comprehensive migration strategy to update all apps a
 </button>
 
 // AFTER: Bootstrap classes with PingOne overrides
-// 🔥 IMPORTANT: ALL colored buttons MUST have whiteBorder={true}
-<button className="btn btn-primary border-white ping-btn">
+// 🔥 IMPORTANT: ALL colored buttons MUST have greyBorder={true}
+<button className="btn btn-primary border-grey ping-btn">
   Continue
 </button>
 
 // OR using BootstrapButton component (RECOMMENDED)
-<BootstrapButton variant="primary" whiteBorder={true}>
+<BootstrapButton variant="primary" greyBorder={true}>
   Continue
 </BootstrapButton>
 ```
 
-#### **🔥 WHITE BORDER RULES**
-- **✅ MUST HAVE**: primary, success, warning, danger buttons → whiteBorder={true}
-- **❌ NO WHITE BORDER**: secondary, outline, ghost buttons → whiteBorder={false}
-- **🎯 DESIGN REQUIREMENT**: White borders ensure PingOne visual consistency
-- **♿ ACCESSIBILITY**: White borders improve contrast and visibility
+#### **🔥 GREY BORDER RULES**
+- **✅ MUST HAVE**: primary, success, warning, danger buttons → greyBorder={true}
+- **❌ NO GREY BORDER**: secondary, outline, ghost buttons → greyBorder={false}
+- **🎯 DESIGN REQUIREMENT**: Grey borders ensure PingOne visual consistency
+- **♿ ACCESSIBILITY**: Grey borders improve contrast and visibility
 
 #### 2.2 Form Components (Priority: HIGH)
 **Files Identified**:
@@ -587,7 +587,7 @@ touch src/styles/bootstrap/pingone-bootstrap.css
 interface BootstrapButtonProps {
   variant?: 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info';
   size?: 'sm' | 'md' | 'lg';
-  whiteBorder?: boolean; // 🔥 CRITICAL for colored buttons
+  greyBorder?: boolean; // 🔥 CRITICAL for colored buttons
   children: React.ReactNode;
   onClick?: () => void;
   disabled?: boolean;
@@ -596,20 +596,20 @@ interface BootstrapButtonProps {
 const BootstrapButton: React.FC<BootstrapButtonProps> = ({
   variant = 'primary',
   size = 'md',
-  whiteBorder = false, // 🔥 DEFAULT: false, but colored buttons MUST set to true
+  greyBorder = false, // 🔥 DEFAULT: false, but colored buttons MUST set to true
   children,
   onClick,
   disabled = false
 }) => {
-  // 🔥 IMPORTANT: White border logic for PingOne design compliance
-  const shouldHaveWhiteBorder = whiteBorder || 
+  // 🔥 IMPORTANT: Grey border logic for PingOne design compliance
+  const shouldHaveGreyBorder = greyBorder || 
     ['primary', 'success', 'warning', 'danger'].includes(variant);
 
   const classes = [
     'btn',
     `btn-${variant}`,
     size === 'sm' ? 'btn-sm' : size === 'lg' ? 'btn-lg' : '',
-    shouldHaveWhiteBorder ? 'border-white' : '',
+    shouldHaveGreyBorder ? 'border-grey' : '',
     'ping-btn'
   ].filter(Boolean).join(' ');
 
@@ -625,15 +625,15 @@ const BootstrapButton: React.FC<BootstrapButtonProps> = ({
 };
 
 // 🔥 USAGE EXAMPLES:
-// ✅ Colored buttons MUST have whiteBorder={true}
-<BootstrapButton variant="primary" whiteBorder={true}>Primary</BootstrapButton>
-<BootstrapButton variant="success" whiteBorder={true}>Success</BootstrapButton>
-<BootstrapButton variant="warning" whiteBorder={true}>Warning</BootstrapButton>
-<BootstrapButton variant="danger" whiteBorder={true}>Danger</BootstrapButton>
+// ✅ Colored buttons MUST have greyBorder={true}
+<BootstrapButton variant="primary" greyBorder={true}>Primary</BootstrapButton>
+<BootstrapButton variant="success" greyBorder={true}>Success</BootstrapButton>
+<BootstrapButton variant="warning" greyBorder={true}>Warning</BootstrapButton>
+<BootstrapButton variant="danger" greyBorder={true}>Danger</BootstrapButton>
 
-// ❌ Secondary/neutral buttons should NOT have white borders
-<BootstrapButton variant="secondary" whiteBorder={false}>Secondary</BootstrapButton>
-<BootstrapButton variant="outline-primary" whiteBorder={false}>Outline</BootstrapButton>
+// ❌ Secondary/neutral buttons should NOT have grey borders
+<BootstrapButton variant="secondary" greyBorder={false}>Secondary</BootstrapButton>
+<BootstrapButton variant="outline-primary" greyBorder={false}>Outline</BootstrapButton>
 ```
 ```
 
