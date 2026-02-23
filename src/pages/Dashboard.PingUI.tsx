@@ -539,7 +539,10 @@ const Dashboard: React.FC = () => {
 						icon="cog"
 						isCollapsible={true}
 						isCollapsed={collapsedSections.pingOneApiStatus}
-						onToggle={() => toggleSection('pingOneApiStatus')}
+						onToggle={() => {
+							console.log('🔧 Toggling pingOneApiStatus section');
+							toggleSection('pingOneApiStatus');
+						}}
 						badge={{
 							text: 'Active',
 							variant: 'success'
@@ -634,7 +637,10 @@ const Dashboard: React.FC = () => {
 						icon="rocket-launch"
 						isCollapsible={true}
 						isCollapsed={collapsedSections.quickAccess}
-						onToggle={() => toggleSection('quickAccess')}
+						onToggle={() => {
+							console.log('🚀 Toggling quickAccess section');
+							toggleSection('quickAccess');
+						}}
 					/>
 					
 					{!collapsedSections.quickAccess && (
