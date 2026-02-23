@@ -403,18 +403,15 @@ const Dashboard: React.FC = () => {
 						<div
 							style={{
 								display: 'flex',
-								flexDirection: 'column',
+								justifyContent: 'center',
+								alignItems: 'center',
 								gap: '0.5rem',
 								marginBottom: '1.5rem',
 							}}
 						>
-							<div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-								<AppVersionBadge type="app" />
-								<AppVersionBadge type="mfa" />
-							</div>
-							<div style={{ display: 'flex', justifyContent: 'center' }}>
-								<AppVersionBadge type="unified" />
-							</div>
+							<AppVersionBadge type="app" />
+							<AppVersionBadge type="mfa" />
+							<AppVersionBadge type="unified" />
 						</div>
 
 						{/* View Mode Controls */}
