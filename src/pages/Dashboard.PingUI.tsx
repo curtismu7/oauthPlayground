@@ -14,6 +14,7 @@ import AppVersionBadge from '../components/AppVersionBadge';
 import StandardHeader from '../components/StandardHeader';
 import { type ActivityItem, getRecentActivity } from '../utils/activityTracker';
 import BootstrapButton from '../components/bootstrap/BootstrapButton';
+import { feedbackService } from '../services/feedback/feedbackService';
 import '../styles/button-color-system.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/bootstrap/pingone-bootstrap.css';
@@ -251,6 +252,7 @@ const Dashboard: React.FC = () => {
 	const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([]);
 	const [isRefreshing, setIsRefreshing] = useState(false);
 	const [viewMode, setViewMode] = useState<'full' | 'hidden'>('full');
+	const [feedbackMessage, setFeedbackMessage] = useState<React.ReactElement | null>(null);
 
 	const toggleSection = useCallback((section: keyof typeof collapsedSections) => {
 		setCollapsedSections((prev) => ({
@@ -269,6 +271,11 @@ const Dashboard: React.FC = () => {
 			recentActivity: true,
 		});
 		setViewMode('hidden');
+		
+		// Show feedback message
+		setFeedbackMessage(
+			feedbackService.showInfoSnackbar('All dashboard sections collapsed')
+		);
 	}, []);
 
 	const expandAllSections = useCallback(() => {
@@ -281,6 +288,11 @@ const Dashboard: React.FC = () => {
 			recentActivity: false,
 		});
 		setViewMode('full');
+		
+		// Show feedback message
+		setFeedbackMessage(
+			feedbackService.showSuccessSnackbar('All dashboard sections expanded')
+		);
 	}, []);
 
 	// Check server status
@@ -366,8 +378,18 @@ const Dashboard: React.FC = () => {
 			setRecentActivity(activity);
 			await checkServerStatus();
 			console.log('Dashboard refreshed successfully');
+			
+			// Show success feedback
+			setFeedbackMessage(
+				feedbackService.showSuccessSnackbar('Dashboard refreshed successfully')
+			);
 		} catch (error) {
 			console.error('Failed to refresh dashboard:', error);
+			
+			// Show error feedback
+			setFeedbackMessage(
+				feedbackService.showWarningSnackbar('Failed to refresh dashboard. Please try again.')
+			);
 		} finally {
 			setIsRefreshing(false);
 		}
@@ -976,6 +998,13 @@ const Dashboard: React.FC = () => {
 					</StandardHeader>
 				</div>
 			</div>
+			
+			{/* Feedback messages */}
+			{feedbackMessage && (
+				<div style={{ position: 'fixed', bottom: '2rem', right: '2rem', zIndex: 1000 }}>
+					{feedbackMessage}
+				</div>
+			)}
 		</div>
 	);
 };
