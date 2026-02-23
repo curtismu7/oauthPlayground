@@ -9,15 +9,15 @@ This document provides a comprehensive inventory of all applications in the Prod
 
 | Category | Count | Description |
 |----------|-------|-------------|
-| **Production Apps** | 23 | Main production-ready applications |
+| **Production Apps** | 22 | Main production-ready applications |
 | **Production (Legacy)** | 6 | Legacy production applications |
-| **Total Production Apps** | 29 | All production menu applications |
+| **Total Production Apps** | 28 | All production menu applications |
 
 ---
 
 ## 🏗️ Production Menu Structure
 
-### 📱 Production (Main) - 23 Apps
+### 📱 Production (Main) - 22 Apps
 
 | App ID                          | App Name                      | Path                              | Category   | Services Used                                           |
 |--------------------------------|-------------------------------|-----------------------------------|------------|--------------------------------------------------------|
@@ -34,7 +34,6 @@ This document provides a comprehensive inventory of all applications in the Prod
 | `token-monitoring-dashboard`     | Token Monitoring Dashboard      | `/v8u/token-monitoring`          | Management | `TokenMonitoringServiceV8U`, `WorkerTokenServiceV8U`    |
 | `protect-portal-app`             | Protect Portal App             | `/protect-portal`                | Protect    | `ProtectPortalService`, `AuthenticationService`, `MFAService` |
 | `environment-management`           | Environment Management          | `/environments`                  | Management | `EnvironmentServiceV8`, `WorkerTokenServiceV8`          |
-| `create-company`                  | 🏢 Create Company               | `/admin/create-company`          | Admin      | `CompanyCreationService`, `ThemeService`                   |
 | `sdk-examples`                   | SDK Examples                   | `/sdk-examples`                   | Education  | `SDKExampleService`, `JWTService`, `OIDCService`            |
 | `debug-log-viewer`                | Debug Log Viewer                | `/v8/debug-logs`                 | Utility    | `DebugLogServiceV8`, `LogStorageService`                   |
 | `token-exchange-v7`                | Token Exchange (V8M)            | `/flows/token-exchange-v7`        | Flow       | `TokenExchangeServiceV8M`, `JWTValidationService`           |
@@ -80,7 +79,6 @@ This document provides a comprehensive inventory of all applications in the Prod
 - `EnvironmentServiceV8` - PingOne environment management
 - `EnvironmentIdServiceV8` - Environment ID handling
 - `CredentialsServiceV8` - Credential management
-- `CompanyCreationService` - Company theme creation
 - `ThemeService` - UI theme management
 
 #### 📊 **Monitoring & Analytics Services**
@@ -126,13 +124,11 @@ This document provides a comprehensive inventory of all applications in the Prod
 
 ## 🎯 App Categories Breakdown
 
-### 🏛️ **Admin Applications** (2 apps)
+### 🏛️ **Admin Applications** (1 app)
 - MFA Feature Flags Admin
-- Create Company
 
 **Primary Services:**
 - `MFAFeatureFlagsServiceV8`
-- `CompanyCreationService`
 - `EnvironmentServiceV8`
 
 ### 📚 **Educational Applications** (4 apps)
@@ -246,7 +242,7 @@ Groups of services that commonly work together:
 - `EnvironmentServiceV8`
 - `EnvironmentIdServiceV8`
 - `CredentialsServiceV8`
-- `CompanyCreationService`
+- `ThemeService`
 
 ---
 
