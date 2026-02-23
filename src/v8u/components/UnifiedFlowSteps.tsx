@@ -7859,16 +7859,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 										</div>
 									</div>
 								)}
-								<button
-									type="button"
-									className="btn btn-next"
+								<BootstrapButton
+									variant="secondary"
 									onClick={handleRestartFlow}
-									style={{
-										marginTop: '12px',
-									}}
 								>
 									Go Back to Fix Configuration
-								</button>
+								</BootstrapButton>
 							</div>
 						</div>
 					</div>
@@ -8409,15 +8405,15 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 				{/* Hide Parse button if tokens already extracted */}
 				{!hasTokens && (
-					<button
-						type="button"
-						className="btn btn-next"
+					<BootstrapButton
+						variant="primary"
+						greyBorder={true}
 						onClick={handleParseFragment}
 						disabled={isLoading}
-						style={{ marginTop: '16px' }}
+						loading={isLoading}
 					>
 						{isLoading ? 'Parsing...' : 'Parse Fragment'}
-					</button>
+					</BootstrapButton>
 				)}
 
 				{error && (
@@ -9801,16 +9797,17 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							marginBottom: '32px',
 						}}
 					>
-						<button
-							type="button"
-							className="btn btn-next"
+						<BootstrapButton
+							variant="primary"
+							greyBorder={true}
 							onClick={handlePollForTokens}
 							disabled={isLoading || flowState.pollingStatus?.isPolling}
+							loading={isLoading || flowState.pollingStatus?.isPolling}
 						>
 							{isLoading || flowState.pollingStatus?.isPolling
 								? 'Polling...'
 								: 'Start Polling for Tokens'}
-						</button>
+						</BootstrapButton>
 					</div>
 				)}
 
@@ -10119,41 +10116,24 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 								{/* Action Buttons */}
 								<div style={{ display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
-									<button
-										type="button"
+									<BootstrapButton
+										variant="danger"
+										greyBorder={true}
 										onClick={handleStopPolling}
-										style={{
-											padding: '8px 16px',
-											background: '#ef4444',
-											color: '#ffffff',
-											border: 'none',
-											borderRadius: '6px',
-											cursor: 'pointer',
-											fontSize: '14px',
-											fontWeight: '600',
-										}}
 									>
 										⏹️ Stop Polling
-									</button>
+									</BootstrapButton>
 
 									{/* Request New Code Button - RFC 8628 allows multiple device code requests */}
-									<button
-										type="button"
+									<BootstrapButton
+										variant="primary"
+										greyBorder={true}
 										onClick={handleRequestDeviceAuth}
 										disabled={isLoading}
-										style={{
-											padding: '8px 16px',
-											background: isLoading ? '#9ca3af' : '#3b82f6',
-											color: '#ffffff',
-											border: 'none',
-											borderRadius: '6px',
-											cursor: isLoading ? 'not-allowed' : 'pointer',
-											fontSize: '14px',
-											fontWeight: '600',
-										}}
+										loading={isLoading}
 									>
-										{isLoading ? '⏳ Requesting...' : '🔄 Request New Code'}
-									</button>
+										{isLoading ? 'Requesting...' : '🔄 Request New Code'}
+									</BootstrapButton>
 								</div>
 							</div>
 						)}
