@@ -6,7 +6,7 @@ import { FiAlertCircle, FiCheckCircle, FiKey, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
 import { CompactApplicationPicker } from '../components/CompactApplicationPicker';
 import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
-import { WorkerTokenModal } from '../components/WorkerTokenModal';
+import { WorkerTokenModalV8Streamlined } from '../v8/components/WorkerTokenModalV8.Streamlined';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { getAnyWorkerToken } from '../utils/workerTokenDetection';
 
@@ -352,12 +352,14 @@ const CompactAppPickerDemo: React.FC = () => {
 				</SelectedAppCard>
 			)}
 
-			<WorkerTokenModal
+			<WorkerTokenModalV8Streamlined
 				isOpen={showWorkerTokenModal}
 				onClose={() => setShowWorkerTokenModal(false)}
-				storageKey="worker_token"
-				expiryKey="worker_token_expires_at"
-				eventName="workerTokenUpdated"
+				onTokenGenerated={(token) => {
+					setWorkerToken(token);
+					setShowWorkerTokenModal(false);
+					v4ToastManager.showSuccess('Worker token loaded successfully!');
+				}}
 			/>
 		</PageContainer>
 	);
