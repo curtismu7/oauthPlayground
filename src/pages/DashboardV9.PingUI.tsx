@@ -6,18 +6,17 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import BootstrapIcon from '@/components/BootstrapIcon';
-import { getBootstrapIconName } from '@/components/iconMapping';
-import { PingUIWrapper } from '@/components/PingUIWrapper';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { useSectionsViewMode } from '@/services/sectionsViewModeService';
-import { ExpandCollapseAllControls } from '@/components/ExpandCollapseAllControls';
-
 // Import existing components
 import AppVersionBadge from '@/components/AppVersionBadge';
+import BootstrapIcon from '@/components/BootstrapIcon';
+import { ExpandCollapseAllControls } from '@/components/ExpandCollapseAllControls';
+import { getBootstrapIconName } from '@/components/iconMapping';
+import { PingUIWrapper } from '@/components/PingUIWrapper';
 import { CollapsibleHeader } from '@/services/collapsibleHeaderService';
+import { useSectionsViewMode } from '@/services/sectionsViewModeService';
 import { type ActivityItem, getRecentActivity } from '@/utils/activityTracker';
 import { checkSavedCredentials } from '@/utils/configurationStatus';
+import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 // V9 Flow Categories
 interface V9FlowCategory {
@@ -58,7 +57,7 @@ const V9_FLOW_CATEGORIES: V9FlowCategory[] = [
 				category: 'oauth',
 				v9Route: '/v9/flows/oauth-authorization-code',
 				v8uRoute: '/v8u/unified/oauth-authz',
-				status: 'v9'
+				status: 'v9',
 			},
 			{
 				id: 'client-credentials',
@@ -69,7 +68,7 @@ const V9_FLOW_CATEGORIES: V9FlowCategory[] = [
 				category: 'oauth',
 				v9Route: '/v9/flows/client-credentials',
 				v8uRoute: '/v8u/unified/client-credentials',
-				status: 'v9'
+				status: 'v9',
 			},
 			{
 				id: 'device-authorization',
@@ -80,7 +79,7 @@ const V9_FLOW_CATEGORIES: V9FlowCategory[] = [
 				category: 'oauth',
 				v9Route: '/v9/flows/device-authorization',
 				v8uRoute: '/v8u/unified/device-code',
-				status: 'v9'
+				status: 'v9',
 			},
 			{
 				id: 'implicit',
@@ -91,9 +90,9 @@ const V9_FLOW_CATEGORIES: V9FlowCategory[] = [
 				category: 'oauth',
 				v9Route: '/v9/flows/implicit',
 				v8uRoute: '/v8u/unified/implicit',
-				status: 'v9'
-			}
-		]
+				status: 'v9',
+			},
+		],
 	},
 	{
 		id: 'oidc',
@@ -110,7 +109,7 @@ const V9_FLOW_CATEGORIES: V9FlowCategory[] = [
 				category: 'oidc',
 				v9Route: '/v9/flows/oauth-authorization-code-oidc',
 				v8uRoute: '/v8u/unified/oauth-authz',
-				status: 'v9'
+				status: 'v9',
 			},
 			{
 				id: 'hybrid',
@@ -121,7 +120,7 @@ const V9_FLOW_CATEGORIES: V9FlowCategory[] = [
 				category: 'oidc',
 				v9Route: '/v9/flows/hybrid',
 				v8uRoute: '/v8u/unified/hybrid',
-				status: 'v9'
+				status: 'v9',
 			},
 			{
 				id: 'implicit-oidc',
@@ -132,9 +131,9 @@ const V9_FLOW_CATEGORIES: V9FlowCategory[] = [
 				category: 'oidc',
 				v9Route: '/v9/flows/implicit-oidc',
 				v8uRoute: '/v8u/unified/implicit',
-				status: 'v9'
-			}
-		]
+				status: 'v9',
+			},
+		],
 	},
 	{
 		id: 'pingone',
@@ -151,7 +150,7 @@ const V9_FLOW_CATEGORIES: V9FlowCategory[] = [
 				category: 'pingone',
 				v9Route: '/v9/flows/worker-token',
 				v8uRoute: '/flows/worker-token-v6',
-				status: 'migrated'
+				status: 'migrated',
 			},
 			{
 				id: 'par',
@@ -162,7 +161,7 @@ const V9_FLOW_CATEGORIES: V9FlowCategory[] = [
 				category: 'pingone',
 				v9Route: '/v9/flows/par',
 				v8uRoute: '/flows/pingone-par-v6',
-				status: 'migrated'
+				status: 'migrated',
 			},
 			{
 				id: 'redirectless',
@@ -173,9 +172,9 @@ const V9_FLOW_CATEGORIES: V9FlowCategory[] = [
 				category: 'pingone',
 				v9Route: '/v9/flows/redirectless',
 				v8uRoute: '/flows/redirectless-v6-real',
-				status: 'migrated'
-			}
-		]
+				status: 'migrated',
+			},
+		],
 	},
 	{
 		id: 'mfa',
@@ -192,7 +191,7 @@ const V9_FLOW_CATEGORIES: V9FlowCategory[] = [
 				category: 'mfa',
 				v9Route: '/v9/mfa/webauthn',
 				v8uRoute: '/v8/mfa/register/fido2',
-				status: 'migrated'
+				status: 'migrated',
 			},
 			{
 				id: 'email-mfa',
@@ -203,7 +202,7 @@ const V9_FLOW_CATEGORIES: V9FlowCategory[] = [
 				category: 'mfa',
 				v9Route: '/v9/mfa/email-mfa',
 				v8uRoute: '/v8/mfa/register/email',
-				status: 'migrated'
+				status: 'migrated',
 			},
 			{
 				id: 'sms-mfa',
@@ -214,9 +213,9 @@ const V9_FLOW_CATEGORIES: V9FlowCategory[] = [
 				category: 'mfa',
 				v9Route: '/v9/mfa/sms-mfa',
 				v8uRoute: '/v8/mfa/register/mobile',
-				status: 'migrated'
-			}
-		]
+				status: 'migrated',
+			},
+		],
 	},
 	{
 		id: 'enterprise',
@@ -233,7 +232,7 @@ const V9_FLOW_CATEGORIES: V9FlowCategory[] = [
 				category: 'enterprise',
 				v9Route: '/v9/enterprise/token-management',
 				v8uRoute: '/v8u/token-monitoring',
-				status: 'v9'
+				status: 'v9',
 			},
 			{
 				id: 'advanced-security',
@@ -244,10 +243,10 @@ const V9_FLOW_CATEGORIES: V9FlowCategory[] = [
 				category: 'enterprise',
 				v9Route: '/v9/enterprise/advanced-security',
 				v8uRoute: '/v8/enterprise/security',
-				status: 'v9'
-			}
-		]
-	}
+				status: 'v9',
+			},
+		],
+	},
 ];
 
 // V9 Flow Button Themes
@@ -363,7 +362,7 @@ const V9_FLOW_THEMES = {
 		},
 	},
 	},
-};
+}
 
 // V9 Flow Link Component
 const V9FlowLink: React.FC<{
@@ -374,18 +373,21 @@ const V9FlowLink: React.FC<{
 	const navigate = useNavigate();
 	const handleClick = useCallback(() => {
 		if (disabled) return;
-		
+
 		// Show migration message if not V9
 		if (flow.status !== 'v9') {
-			toastV8.warning('Migration Required', `${flow.title} is not yet available in V9. Redirecting to ${flow.status.toUpperCase()} version.`);
+			toastV8.warning(
+				'Migration Required',
+				`${flow.title} is not yet available in V9. Redirecting to ${flow.status.toUpperCase()} version.`
+			);
 		}
-		
+
 		// Navigate to appropriate route
 		const targetRoute = flow.v9Route || flow.v8uRoute || flow.v7Route;
 		if (targetRoute) {
 			navigate(targetRoute);
 		}
-		
+
 		onClick?.();
 	}, [navigate, onClick, disabled, flow]);
 
@@ -404,7 +406,7 @@ const V9FlowLink: React.FC<{
 				border: `2px solid ${buttonTheme.border}`,
 				boxShadow: buttonTheme.shadow,
 				transition: 'all 0.15s ease-in-out',
-				minWidth: '200px'
+				minWidth: '200px',
 			}}
 			onMouseEnter={(e) => {
 				e.currentTarget.style.background = buttonTheme.hoverBg;
@@ -417,10 +419,10 @@ const V9FlowLink: React.FC<{
 				e.currentTarget.style.boxShadow = buttonTheme.shadow;
 			}}
 		>
-			<BootstrapIcon 
-				icon={getBootstrapIconName("arrow-right")} 
-				size={16} 
-				className="me-2" 
+			<BootstrapIcon
+				icon={getBootstrapIconName('arrow-right')}
+				size={16}
+				className="me-2"
 				aria-hidden="true"
 			/>
 			<span className="d-flex align-items-center">
@@ -442,12 +444,12 @@ export const DashboardV9: React.FC = () => {
 	const [serverStatus, setServerStatus] = useState({
 		api: 'online',
 		auth: 'online',
-		worker: 'online'
+		worker: 'online',
 	});
 	const [credentialStatus, setCredentialStatus] = useState({
 		hasClientId: false,
 		hasClientSecret: false,
-		hasEnvironmentId: false
+		hasEnvironmentId: false,
 	});
 	const [isLoading, setIsLoading] = useState(false);
 
@@ -460,7 +462,7 @@ export const DashboardV9: React.FC = () => {
 		expandAll,
 		collapseAll,
 		areAllExpanded,
-		areAllCollapsed
+		areAllCollapsed,
 	} = useSectionsViewMode('dashboard-v9', sectionIds);
 
 	// Load initial data
@@ -480,7 +482,7 @@ export const DashboardV9: React.FC = () => {
 				setServerStatus({
 					api: 'online',
 					auth: 'online',
-					worker: 'online'
+					worker: 'online',
 				});
 
 				toastV8.success('Dashboard Loaded', 'V9 Dashboard initialized successfully');
@@ -524,7 +526,7 @@ export const DashboardV9: React.FC = () => {
 			case 'offline':
 				return 'x-circle';
 			case 'warning':
-				return	'exclamation-triangle';
+				return 'exclamation-triangle';
 			default:
 				return 'question-circle';
 		}
@@ -539,11 +541,7 @@ export const DashboardV9: React.FC = () => {
 						<div className="d-flex align-items-center justify-content-between">
 							<div>
 								<h1 className="h2 mb-2">
-									<BootstrapIcon 
-										icon={getBootstrapIconName("grid")} 
-										size={24} 
-										className="me-2" 
-									/>
+									<BootstrapIcon icon={getBootstrapIconName('grid')} size={24} className="me-2" />
 									V9 Dashboard
 								</h1>
 								<p className="text-muted mb-0">
@@ -557,10 +555,10 @@ export const DashboardV9: React.FC = () => {
 									onClick={handleRefresh}
 									disabled={isLoading}
 								>
-									<BootstrapIcon 
-										icon={getBootstrapIconName("arrow-clockwise")} 
-										size={16} 
-										className="me-1" 
+									<BootstrapIcon
+										icon={getBootstrapIconName('arrow-clockwise')}
+										size={16}
+										className="me-1"
 										aria-hidden="true"
 									/>
 									{isLoading ? 'Refreshing...' : 'Refresh'}
@@ -587,10 +585,10 @@ export const DashboardV9: React.FC = () => {
 							defaultCollapsed={false}
 							onToggle={() => toggleSection('server-status')}
 						>
-							<BootstrapIcon 
-								icon={getBootstrapIconName("server")} 
-								size={16} 
-								className="me-2" 
+							<BootstrapIcon
+								icon={getBootstrapIconName('server')}
+								size={16}
+								className="me-2"
 								aria-hidden="true"
 							/>
 						</CollapsibleHeader>
@@ -602,16 +600,18 @@ export const DashboardV9: React.FC = () => {
 											<span className={`badge bg-${getStatusColor(serverStatus.api)} me-2`}>
 												API
 											</span>
-											<BootstrapIcon 
-												icon={getBootstrapIconName(getStatusIcon(serverStatus.api))} 
-												size={16} 
-												className="me-1" 
+											<BootstrapIcon
+												icon={getBootstrapIconName(getStatusIcon(serverStatus.api))}
+												size={16}
+												className="me-1"
 												aria-hidden="true"
 											/>
 											<span className="fw-semibold">API Server</span>
 										</div>
 										<p className="text-muted small mb-0">
-											{serverStatus.api === 'online' ? 'All systems operational' : 'Service unavailable'}
+											{serverStatus.api === 'online'
+												? 'All systems operational'
+												: 'Service unavailable'}
 										</p>
 									</div>
 								</div>
@@ -623,16 +623,18 @@ export const DashboardV9: React.FC = () => {
 											<span className={`badge bg-${getStatusColor(serverStatus.auth)} me-2`}>
 												Auth
 											</span>
-											<BootstrapIcon 
-												icon={getBootstrapIconName(getStatusIcon(serverStatus.auth))} 
-												size={16} 
-												className="me-1" 
+											<BootstrapIcon
+												icon={getBootstrapIconName(getStatusIcon(serverStatus.auth))}
+												size={16}
+												className="me-1"
 												aria-hidden="true"
 											/>
 											<span className="fw-semibold">Auth Service</span>
 										</div>
 										<p className="text-muted small mb-0">
-											{serverStatus.auth === 'online' ? 'Authentication working' : 'Auth service issues'}
+											{serverStatus.auth === 'online'
+												? 'Authentication working'
+												: 'Auth service issues'}
 										</p>
 									</div>
 								</div>
@@ -644,16 +646,18 @@ export const DashboardV9: React.FC = () => {
 											<span className={`badge bg-${getStatusColor(serverStatus.worker)} me-2`}>
 												Worker
 											</span>
-											<BootstrapIcon 
-												icon={getBootstrapIconName(getStatusIcon(serverStatus.worker))} 
-												size={16} 
-												className="me-1" 
+											<BootstrapIcon
+												icon={getBootstrapIconName(getStatusIcon(serverStatus.worker))}
+												size={16}
+												className="me-1"
 												aria-hidden="true"
 											/>
 											<span className="fw-semibold">Worker Token</span>
 										</div>
 										<p className="text-muted small mb-0">
-											{serverStatus.worker === 'online' ? 'Worker token service active' : 'Worker token issues'}
+											{serverStatus.worker === 'online'
+												? 'Worker token service active'
+												: 'Worker token issues'}
 										</p>
 									</div>
 								</div>
@@ -671,10 +675,10 @@ export const DashboardV9: React.FC = () => {
 							defaultCollapsed={false}
 							onToggle={() => toggleSection('quick-access')}
 						>
-							<BootstrapIcon 
-								icon={getBootstrapIconName("zap")} 
-								size={16} 
-								className="me-2" 
+							<BootstrapIcon
+								icon={getBootstrapIconName('zap')}
+								size={16}
+								className="me-2"
 								aria-hidden="true"
 							/>
 						</CollapsibleHeader>
@@ -683,12 +687,8 @@ export const DashboardV9: React.FC = () => {
 								<div key={category.id} className="col-lg-6">
 									<div className="card h-100">
 										<div className="card-header">
-											<h5 className="card-title mb-1">
-												{category.title}
-											</h5>
-											<p className="text-muted small mb-0">
-												{category.description}
-											</p>
+											<h5 className="card-title mb-1">{category.title}</h5>
+											<p className="text-muted small mb-0">{category.description}</p>
 										</div>
 										<div className="card-body">
 											<div className="d-grid gap-2">
@@ -713,10 +713,10 @@ export const DashboardV9: React.FC = () => {
 							defaultCollapsed={false}
 							onToggle={() => toggleSection('recent-activity')}
 						>
-							<BootstrapIcon 
-								icon={getBootstrapIconName("activity")} 
-								size={16} 
-								className="me-2" 
+							<BootstrapIcon
+								icon={getBootstrapIconName('activity')}
+								size={16}
+								className="me-2"
 								aria-hidden="true"
 							/>
 						</CollapsibleHeader>
@@ -745,10 +745,10 @@ export const DashboardV9: React.FC = () => {
 									</div>
 								) : (
 									<div className="text-center py-4">
-										<BootstrapIcon 
-											icon={getBootstrapIconName("info-circle")} 
-											size={24} 
-											className="text-muted mb-2" 
+										<BootstrapIcon
+											icon={getBootstrapIconName('info-circle')}
+											size={24}
+											className="text-muted mb-2"
 											aria-hidden="true"
 										/>
 										<p className="text-muted">No recent activity</p>
@@ -768,10 +768,10 @@ export const DashboardV9: React.FC = () => {
 							defaultCollapsed={false}
 							onToggle={() => toggleSection('api-endpoints')}
 						>
-							<BootstrapIcon 
-								icon={getBootstrapIconName("link")} 
-								size={16} 
-								className="me-2" 
+							<BootstrapIcon
+								icon={getBootstrapIconName('link')}
+								size={16}
+								className="me-2"
 								aria-hidden="true"
 							/>
 						</CollapsibleHeader>
@@ -790,7 +790,9 @@ export const DashboardV9: React.FC = () => {
 												<span className="badge bg-success ms-2">Token</span>
 											</div>
 											<div className="list-group-item">
-												<code className="text-bg-dark p-2 rounded">POST /oauth2/device_authorization</code>
+												<code className="text-bg-dark p-2 rounded">
+													POST /oauth2/device_authorization
+												</code>
 												<span className="badge bg-success ms-2">Device</span>
 											</div>
 											<div className="list-group-item">
@@ -828,10 +830,10 @@ export const DashboardV9: React.FC = () => {
 						<div className="card">
 							<div className="card-header">
 								<h5 className="card-title mb-0">
-									<BootstrapIcon 
-										icon={getBootstrapIconName("shield-check")} 
-										size={16} 
-										className="me-2" 
+									<BootstrapIcon
+										icon={getBootstrapIconName('shield-check')}
+										size={16}
+										className="me-2"
 										aria-hidden="true"
 									/>
 									Credential Configuration Status
@@ -841,13 +843,17 @@ export const DashboardV9: React.FC = () => {
 								<div className="row g-3">
 									<div className="col-md-4">
 										<div className="d-flex align-items-center mb-2">
-											<span className={`badge bg-${credentialStatus.hasClientId ? 'success' : 'warning'} me-2`}>
+											<span
+												className={`badge bg-${credentialStatus.hasClientId ? 'success' : 'warning'} me-2`}
+											>
 												Client ID
 											</span>
-											<BootstrapIcon 
-												icon={getBootstrapIconIcon(credentialStatus.hasClientId ? 'check-circle' : 'x-circle')} 
-												size={16} 
-												className="me-1" 
+											<BootstrapIcon
+												icon={getBootstrapIconIcon(
+													credentialStatus.hasClientId ? 'check-circle' : 'x-circle'
+												)}
+												size={16}
+												className="me-1"
 												aria-hidden="true"
 											/>
 											<span className="fw-semibold">Client ID</span>
@@ -858,13 +864,17 @@ export const DashboardV9: React.FC = () => {
 									</div>
 									<div className="col-md-4">
 										<div className="d-flex align-items-center mb-2">
-											<span className={`badge bg-${credentialStatus.hasClientSecret ? 'success' : 'warning'} me-2`}>
+											<span
+												className={`badge bg-${credentialStatus.hasClientSecret ? 'success' : 'warning'} me-2`}
+											>
 												Client Secret
 											</span>
-											<BootstrapIcon 
-												icon={getBootstrapIconIcon(credentialStatus.hasClientSecret ? 'check-circle' : 'x-circle')} 
-												size={16} 
-												className="me-1" 
+											<BootstrapIcon
+												icon={getBootstrapIconIcon(
+													credentialStatus.hasClientSecret ? 'check-circle' : 'x-circle'
+												)}
+												size={16}
+												className="me-1"
 												aria-hidden="true"
 											/>
 											<span className="fw-semibold">Client Secret</span>
@@ -875,13 +885,17 @@ export const DashboardV9: React.FC = () => {
 									</div>
 									<div className="col-md-4">
 										<div className="d-flex align-items-center mb-2">
-											<span className={`badge bg-${credentialStatus.hasEnvironmentId ? 'success' : 'warning'} me-2`}>
+											<span
+												className={`badge bg-${credentialStatus.hasEnvironmentId ? 'success' : 'warning'} me-2`}
+											>
 												Environment ID
 											</span>
-											<BootstrapIcon 
-												icon={getBootstrapIconIcon(credentialStatus.hasEnvironmentId ? 'check-circle' : 'x-circle')} 
-												size={16} 
-												className="me-1" 
+											<BootstrapIcon
+												icon={getBootstrapIconIcon(
+													credentialStatus.hasEnvironmentId ? 'check-circle' : 'x-circle'
+												)}
+												size={16}
+												className="me-1"
 												aria-hidden="true"
 											/>
 											<span className="fw-semibold">Environment ID</span>

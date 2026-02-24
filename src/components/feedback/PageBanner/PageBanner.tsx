@@ -274,7 +274,11 @@ export const PageBanner: React.FC<PageBannerProps> = ({
 
 	return (
 		<div className={`end-user-nano ${className || ''}`} style={style}>
-			<PageBannerContainer $type={type} role={getAriaRole()} aria-live={type === 'error' ? 'assertive' : 'polite'}>
+			<PageBannerContainer
+				$type={type}
+				role={getAriaRole()}
+				aria-live={type === 'error' ? 'assertive' : 'polite'}
+			>
 				<IconContainer>
 					<MDIIcon icon={getIcon()} size={20} title={`${type} notification`} />
 				</IconContainer>

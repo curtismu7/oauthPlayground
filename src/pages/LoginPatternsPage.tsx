@@ -5,17 +5,29 @@
  */
 
 import React, { useState } from 'react';
-import { FiLock, FiUsers, FiShield, FiCode, FiCopy, FiEye, FiEyeOff, FiRefreshCw, FiInfo, FiChevronDown, FiChevronUp, FiExternalLink } from 'react-icons/fi';
+import {
+	FiChevronDown,
+	FiChevronUp,
+	FiCode,
+	FiCopy,
+	FiExternalLink,
+	FiEye,
+	FiEyeOff,
+	FiInfo,
+	FiLock,
+	FiRefreshCw,
+	FiShield,
+	FiUsers,
+} from 'react-icons/fi';
 import styled from 'styled-components';
-import { PageHeaderV8, PageHeaderTextColors } from '@/v8/components/shared/PageHeaderV8';
-import BootstrapButton from '@/components/bootstrap/BootstrapButton';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-
 // Import login pattern components
 import DropdownLogin from '@/apps/protect/components/LoginPatterns/DropdownLogin';
 import EmbeddedLogin from '@/apps/protect/components/LoginPatterns/EmbeddedLogin';
 import RightPopoutLogin from '@/apps/protect/components/LoginPatterns/RightPopoutLogin';
 import TwoStepOTPLogin from '@/apps/protect/components/LoginPatterns/TwoStepOTPLogin';
+import BootstrapButton from '@/components/bootstrap/BootstrapButton';
+import { PageHeaderTextColors, PageHeaderV8 } from '@/v8/components/shared/PageHeaderV8';
+import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const _MODULE_TAG = '[🔐 LOGIN-PATTERNS-PAGE]';
 
@@ -68,7 +80,9 @@ const PatternCard = styled.div<{ $expanded: boolean }>`
 	border-radius: 0.5rem;
 	overflow: hidden;
 	transition: all 0.3s ease;
-	${({ $expanded }) => $expanded && `
+	${({ $expanded }) =>
+		$expanded &&
+		`
 		border-color: #3b82f6;
 		box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
 	`}
@@ -127,12 +141,12 @@ const ProsConsGrid = styled.div`
 `;
 
 const ProsConsList = styled.div<{ $type: 'pros' | 'cons' }>`
-	background: ${({ $type }) => $type === 'pros' ? '#f0fdf4' : '#fef2f2'};
-	border: 1px solid ${({ $type }) => $type === 'pros' ? '#bbf7d0' : '#fecaca'};
+	background: ${({ $type }) => ($type === 'pros' ? '#f0fdf4' : '#fef2f2')};
+	border: 1px solid ${({ $type }) => ($type === 'pros' ? '#bbf7d0' : '#fecaca')};
 	border-radius: 0.375rem;
 	padding: 1rem;
 	h4 {
-		color: ${({ $type }) => $type === 'pros' ? '#166534' : '#dc2626'};
+		color: ${({ $type }) => ($type === 'pros' ? '#166534' : '#dc2626')};
 		margin: 0 0 0.5rem 0;
 		font-size: 0.875rem;
 		font-weight: 600;
@@ -140,7 +154,7 @@ const ProsConsList = styled.div<{ $type: 'pros' | 'cons' }>`
 	ul {
 		margin: 0;
 		padding-left: 1rem;
-		color: ${({ $type }) => $type === 'pros' ? '#166534' : '#dc2626'};
+		color: ${({ $type }) => ($type === 'pros' ? '#166534' : '#dc2626')};
 		font-size: 0.875rem;
 		li {
 			margin-bottom: 0.25rem;
@@ -193,7 +207,7 @@ const loginPatterns: LoginPattern[] = [
 			'Space-efficient design',
 			'Quick access from header',
 			'Clean user experience',
-			'Minimal page disruption'
+			'Minimal page disruption',
 		],
 		useCase: 'Best for applications where login is secondary to main content',
 		implementation: 'Dropdown positioned in header with toggle functionality',
@@ -201,14 +215,14 @@ const loginPatterns: LoginPattern[] = [
 			'Non-intrusive design',
 			'Fast access to login',
 			'Preserves page context',
-			'Mobile-friendly'
+			'Mobile-friendly',
 		],
 		cons: [
 			'Limited space for form fields',
 			'May interfere with navigation',
 			'Not suitable for complex forms',
-			'Accessibility challenges'
-		]
+			'Accessibility challenges',
+		],
 	},
 	{
 		id: 'embedded',
@@ -219,7 +233,7 @@ const loginPatterns: LoginPattern[] = [
 			'Seamless integration',
 			'Prominent placement',
 			'Customizable design',
-			'Marketing opportunities'
+			'Marketing opportunities',
 		],
 		useCase: 'Ideal for applications where login is the primary action',
 		implementation: 'Form embedded in hero section or dedicated landing area',
@@ -227,14 +241,14 @@ const loginPatterns: LoginPattern[] = [
 			'High visibility',
 			'Flexible design options',
 			'Can include marketing content',
-			'Good conversion rates'
+			'Good conversion rates',
 		],
 		cons: [
 			'Takes significant page space',
 			'May distract from other content',
 			'Less elegant for returning users',
-			'Scrolling required on mobile'
-		]
+			'Scrolling required on mobile',
+		],
 	},
 	{
 		id: 'right-popout',
@@ -245,7 +259,7 @@ const loginPatterns: LoginPattern[] = [
 			'Dedicated login space',
 			'Smooth animations',
 			'Focus on authentication',
-			'Professional appearance'
+			'Professional appearance',
 		],
 		useCase: 'Perfect for enterprise applications requiring secure, focused login experience',
 		implementation: 'Slide-out panel with overlay and smooth transitions',
@@ -253,40 +267,35 @@ const loginPatterns: LoginPattern[] = [
 			'Full-screen focus on login',
 			'Professional appearance',
 			'Good for complex forms',
-			'Excellent for enterprise'
+			'Excellent for enterprise',
 		],
 		cons: [
 			'Requires more development effort',
 			'May feel heavy for simple apps',
 			'Overlay can be intrusive',
-			'Mobile implementation challenges'
-		]
+			'Mobile implementation challenges',
+		],
 	},
 	{
 		id: 'two-step-otp',
 		name: 'Two-Step OTP Login',
 		description: 'Username entry followed by OTP verification on separate screens',
 		example: 'PingIdentity Default',
-		features: [
-			'Enhanced security',
-			'Clean user flow',
-			'Mobile-optimized',
-			'MFA integration ready'
-		],
+		features: ['Enhanced security', 'Clean user flow', 'Mobile-optimized', 'MFA integration ready'],
 		useCase: 'Best for security-conscious applications requiring multi-factor authentication',
 		implementation: 'Two-step process with username screen followed by OTP entry',
 		pros: [
 			'Superior security',
 			'Reduced form complexity',
 			'Mobile-friendly',
-			'MFA-ready architecture'
+			'MFA-ready architecture',
 		],
 		cons: [
 			'More user steps',
 			'Longer login time',
 			'Higher user friction',
-			'Requires careful UX design'
-		]
+			'Requires careful UX design',
+		],
 	},
 	{
 		id: 'new-page',
@@ -297,7 +306,7 @@ const loginPatterns: LoginPattern[] = [
 			'Complete design freedom',
 			'Optimized for authentication',
 			'Professional branding',
-			'Security focus'
+			'Security focus',
 		],
 		useCase: 'Ideal for enterprise applications with strong security requirements',
 		implementation: 'Standalone page with full authentication focus',
@@ -305,15 +314,15 @@ const loginPatterns: LoginPattern[] = [
 			'Maximum security',
 			'Complete design control',
 			'Optimized user flow',
-			'Professional appearance'
+			'Professional appearance',
 		],
 		cons: [
 			'Requires page navigation',
 			'Context switching',
 			'Higher bounce rates',
-			'More development overhead'
-		]
-	}
+			'More development overhead',
+		],
+	},
 ];
 
 export const LoginPatternsPage: React.FC = () => {
@@ -342,13 +351,16 @@ export const LoginPatternsPage: React.FC = () => {
 	};
 
 	const copyToClipboard = (text: string, patternId: string) => {
-		navigator.clipboard.writeText(text).then(() => {
-			setCopiedCode(patternId);
-			toastV8.success('Code copied to clipboard');
-			setTimeout(() => setCopiedCode(''), 2000);
-		}).catch(() => {
-			toastV8.error('Failed to copy to clipboard');
-		});
+		navigator.clipboard
+			.writeText(text)
+			.then(() => {
+				setCopiedCode(patternId);
+				toastV8.success('Code copied to clipboard');
+				setTimeout(() => setCopiedCode(''), 2000);
+			})
+			.catch(() => {
+				toastV8.error('Failed to copy to clipboard');
+			});
 	};
 
 	const generateImplementationCode = (pattern: LoginPattern) => {
@@ -538,9 +550,9 @@ const LoginPage = () => {
       </div>
     </div>
   );
-};`
+};`,
 		};
-		
+
 		return codes[pattern.id] || '';
 	};
 
@@ -559,17 +571,19 @@ const LoginPage = () => {
 					About Login Patterns
 				</SectionTitle>
 				<p style={{ marginBottom: '1rem', color: '#6b7280' }}>
-					Login patterns define how users authenticate with web applications. Different patterns serve different use cases, 
-					from quick dropdown access to secure enterprise authentication. Explore each pattern to understand its strengths, 
-					implementation considerations, and best use cases.
+					Login patterns define how users authenticate with web applications. Different patterns
+					serve different use cases, from quick dropdown access to secure enterprise authentication.
+					Explore each pattern to understand its strengths, implementation considerations, and best
+					use cases.
 				</p>
-				
+
 				<InfoBox>
 					<div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}>
 						<FiInfo style={{ marginTop: '2px' }} />
 						<div>
-							<strong>Educational Note:</strong> This page demonstrates real-world login patterns used by major companies. 
-							Each pattern includes implementation examples, pros/cons analysis, and best practices for choosing the right approach.
+							<strong>Educational Note:</strong> This page demonstrates real-world login patterns
+							used by major companies. Each pattern includes implementation examples, pros/cons
+							analysis, and best practices for choosing the right approach.
 						</div>
 					</div>
 				</InfoBox>
@@ -583,24 +597,27 @@ const LoginPage = () => {
 								<PatternTitle>{pattern.name}</PatternTitle>
 								<PatternDescription>{pattern.description}</PatternDescription>
 								<div style={{ marginTop: '0.5rem' }}>
-									<span style={{ 
-										background: '#e5e7eb', 
-										color: '#374151', 
-										padding: '0.25rem 0.5rem', 
-										borderRadius: '0.25rem', 
-										fontSize: '0.75rem',
-										fontWeight: 500
-									}}>
+									<span
+										style={{
+											background: '#e5e7eb',
+											color: '#374151',
+											padding: '0.25rem 0.5rem',
+											borderRadius: '0.25rem',
+											fontSize: '0.75rem',
+											fontWeight: 500,
+										}}
+									>
 										{pattern.example}
 									</span>
 								</div>
 							</div>
-							{expandedPatterns.has(pattern.id) ? 
-								<FiChevronUp size={20} color="#6b7280" /> : 
+							{expandedPatterns.has(pattern.id) ? (
+								<FiChevronUp size={20} color="#6b7280" />
+							) : (
 								<FiChevronDown size={20} color="#6b7280" />
-							}
+							)}
 						</PatternHeader>
-						
+
 						<PatternContent $expanded={expandedPatterns.has(pattern.id)}>
 							<PatternBody>
 								<div>
@@ -637,34 +654,33 @@ const LoginPage = () => {
 								</ProsConsGrid>
 
 								<DemoSection>
-									<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>Implementation Approach</h4>
+									<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>
+										Implementation Approach
+									</h4>
 									<p style={{ color: '#6b7280', margin: '0 0 1rem 0' }}>{pattern.implementation}</p>
-									
+
 									<ActionButtons>
-										<BootstrapButton
-											variant="secondary"
-											onClick={() => toggleCode(pattern.id)}
-										>
+										<BootstrapButton variant="secondary" onClick={() => toggleCode(pattern.id)}>
 											{showCode.has(pattern.id) ? <FiEyeOff /> : <FiEye />}
 											{showCode.has(pattern.id) ? 'Hide Code' : 'Show Code'}
 										</BootstrapButton>
-										
+
 										{showCode.has(pattern.id) && (
 											<BootstrapButton
 												variant="primary"
-												onClick={() => copyToClipboard(generateImplementationCode(pattern), pattern.id)}
+												onClick={() =>
+													copyToClipboard(generateImplementationCode(pattern), pattern.id)
+												}
 											>
 												{copiedCode === pattern.id ? <FiRefreshCw /> : <FiCopy />}
 												{copiedCode === pattern.id ? 'Copied!' : 'Copy Code'}
 											</BootstrapButton>
 										)}
 									</ActionButtons>
-									
+
 									{showCode.has(pattern.id) && (
 										<div style={{ marginTop: '1rem' }}>
-											<CodeBlock>
-												{generateImplementationCode(pattern)}
-											</CodeBlock>
+											<CodeBlock>{generateImplementationCode(pattern)}</CodeBlock>
 										</div>
 									)}
 								</DemoSection>
@@ -679,8 +695,21 @@ const LoginPage = () => {
 					<FiShield />
 					Security Considerations
 				</SectionTitle>
-				<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
-					<div style={{ padding: '1rem', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '0.375rem' }}>
+				<div
+					style={{
+						display: 'grid',
+						gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+						gap: '1rem',
+					}}
+				>
+					<div
+						style={{
+							padding: '1rem',
+							background: '#f9fafb',
+							border: '1px solid #e5e7eb',
+							borderRadius: '0.375rem',
+						}}
+					>
 						<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>Authentication Security</h4>
 						<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#6b7280' }}>
 							<li>Always use HTTPS for login forms</li>
@@ -689,7 +718,14 @@ const LoginPage = () => {
 							<li>Enable multi-factor authentication (MFA)</li>
 						</ul>
 					</div>
-					<div style={{ padding: '1rem', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '0.375rem' }}>
+					<div
+						style={{
+							padding: '1rem',
+							background: '#f9fafb',
+							border: '1px solid #e5e7eb',
+							borderRadius: '0.375rem',
+						}}
+					>
 						<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>User Experience</h4>
 						<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#6b7280' }}>
 							<li>Provide clear error messages</li>
@@ -698,7 +734,14 @@ const LoginPage = () => {
 							<li>Design for mobile accessibility</li>
 						</ul>
 					</div>
-					<div style={{ padding: '1rem', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '0.375rem' }}>
+					<div
+						style={{
+							padding: '1rem',
+							background: '#f9fafb',
+							border: '1px solid #e5e7eb',
+							borderRadius: '0.375rem',
+						}}
+					>
 						<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>Best Practices</h4>
 						<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#6b7280' }}>
 							<li>Test login flows across devices</li>
@@ -715,15 +758,39 @@ const LoginPage = () => {
 					<FiCode />
 					Choosing the Right Pattern
 				</SectionTitle>
-				<div style={{ padding: '1rem', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '0.375rem', color: '#1e40af' }}>
+				<div
+					style={{
+						padding: '1rem',
+						background: '#eff6ff',
+						border: '1px solid #bfdbfe',
+						borderRadius: '0.375rem',
+						color: '#1e40af',
+					}}
+				>
 					<h4 style={{ margin: '0 0 0.5rem 0' }}>Decision Framework</h4>
-					<p style={{ margin: '0 0 1rem 0' }}>Consider these factors when choosing a login pattern:</p>
+					<p style={{ margin: '0 0 1rem 0' }}>
+						Consider these factors when choosing a login pattern:
+					</p>
 					<ul style={{ margin: 0, paddingLeft: '1.5rem' }}>
-						<li><strong>Security Requirements:</strong> Higher security needs favor separate pages or two-step flows</li>
-						<li><strong>User Frequency:</strong> Frequent logins benefit from quick access patterns like dropdown</li>
-						<li><strong>Application Type:</strong> Enterprise apps need professional patterns, consumer apps can be more flexible</li>
-						<li><strong>Mobile Priority:</strong> Some patterns work better on mobile devices</li>
-						<li><strong>Brand Requirements:</strong> Consider how login integrates with overall brand experience</li>
+						<li>
+							<strong>Security Requirements:</strong> Higher security needs favor separate pages or
+							two-step flows
+						</li>
+						<li>
+							<strong>User Frequency:</strong> Frequent logins benefit from quick access patterns
+							like dropdown
+						</li>
+						<li>
+							<strong>Application Type:</strong> Enterprise apps need professional patterns,
+							consumer apps can be more flexible
+						</li>
+						<li>
+							<strong>Mobile Priority:</strong> Some patterns work better on mobile devices
+						</li>
+						<li>
+							<strong>Brand Requirements:</strong> Consider how login integrates with overall brand
+							experience
+						</li>
 					</ul>
 				</div>
 			</Section>

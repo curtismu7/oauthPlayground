@@ -4,7 +4,7 @@
  * @description V9 App picker component with PingOne UI, new messaging, and enhanced features
  * @version 9.25.1
  * @since 2026-02-23
- * 
+ *
  * Enhanced app picker component featuring:
  * - PingOne UI design system with Bootstrap 5
  * - New feedback service integration
@@ -14,12 +14,12 @@
  * - Real-time status updates
  */
 
-import React, { useEffect, useState, useCallback } from 'react';
-import { PingUIWrapper } from '@/components/PingUIWrapper';
+import React, { useCallback, useEffect, useState } from 'react';
 import BootstrapIcon from '@/components/BootstrapIcon';
-import { useSectionsViewMode } from '@/services/sectionsViewModeService';
 import { ExpandCollapseAllControls } from '@/components/ExpandCollapseAllControls';
+import { PingUIWrapper } from '@/components/PingUIWrapper';
 import { feedbackService } from '@/services/feedback/feedbackService';
+import { useSectionsViewMode } from '@/services/sectionsViewModeService';
 import { unifiedStorageManager } from '@/services/unifiedStorageManager';
 import { AppDiscoveryServiceV9 } from '@/v9/services/appDiscoveryServiceV9';
 import { WorkerTokenServiceV9 } from '@/v9/services/workerTokenServiceV9';
@@ -63,7 +63,7 @@ interface AppPickerState {
 
 /**
  * V9 App Picker Component with PingOne UI and Enhanced Features
- * 
+ *
  * Features:
  * - PingOne UI design system with Bootstrap 5
  * - New feedback service (replaces toast notifications)
@@ -80,7 +80,7 @@ export const AppPickerV9: React.FC<AppPickerV9Props> = ({
 	onDiscoveryComplete,
 	showExpandCollapseControls = true,
 	enablePersistence = true,
-	sections = ['discovery', 'results', 'token-management']
+	sections = ['discovery', 'results', 'token-management'],
 }) => {
 	// State management
 	const [state, setState] = useState<AppPickerState>(() => ({
@@ -104,7 +104,7 @@ export const AppPickerV9: React.FC<AppPickerV9Props> = ({
 		expandAll,
 		collapseAll,
 		areAllExpanded,
-		areAllCollapsed
+		areAllCollapsed,
 	} = useSectionsViewMode('app-picker-v9', sections);
 
 	// Load persisted state on mount
@@ -116,9 +116,9 @@ export const AppPickerV9: React.FC<AppPickerV9Props> = ({
 				const persistedState = await unifiedStorageManager.load<AppPickerState>(
 					`app-picker-v9-state-${environmentId}`
 				);
-				
+
 				if (persistedState) {
-					setState(prev => ({
+					setState((prev) => ({
 						...prev,
 						expandedSections: persistedState.expandedSections || {},
 						lastDiscoveryTime: persistedState.lastDiscoveryTime,
@@ -133,31 +133,31 @@ export const AppPickerV9: React.FC<AppPickerV9Props> = ({
 	}, [environmentId, enablePersistence]);
 
 	// Save state to persistence
-	const saveState = useCallback(async (updates: Partial<AppPickerState>) => {
-		if (!enablePersistence) return;
+	const saveState = useCallback(
+		async (updates: Partial<AppPickerState>) => {
+			if (!enablePersistence) return;
 
-		try {
-			const newState = { ...state, ...updates };
-			await unifiedStorageManager.save(
-				`app-picker-v9-state-${environmentId}`,
-				{
+			try {
+				const newState = { ...state, ...updates };
+				await unifiedStorageManager.save(`app-picker-v9-state-${environmentId}`, {
 					expandedSections: newState.expandedSections,
 					lastDiscoveryTime: newState.lastDiscoveryTime,
-				}
-			);
-		} catch (error) {
-			console.warn(`${MODULE_TAG} Failed to save state:`, error);
-		}
-	}, [environmentId, enablePersistence, state]);
+				});
+			} catch (error) {
+				console.warn(`${MODULE_TAG} Failed to save state:`, error);
+			}
+		},
+		[environmentId, enablePersistence, state]
+	);
 
 	// Check token status on mount and periodically
 	useEffect(() => {
 		const checkStatus = () => {
 			const status = WorkerTokenStatusServiceV9.checkWorkerTokenStatusSync();
 			console.log(`${MODULE_TAG} Token status check:`, status);
-			
-			setState(prev => ({ ...prev, tokenStatus: status }));
-			
+
+			setState((prev) => ({ ...prev, tokenStatus: status }));
+
 			// Show feedback for token status changes
 			if (status.status === 'expiring-soon') {
 				feedbackService.showPageBanner({
@@ -197,13 +197,13 @@ export const AppPickerV9: React.FC<AppPickerV9Props> = ({
 	const handleManageWorkerToken = useCallback(async () => {
 		try {
 			if (state.tokenStatus.isValid) {
-				setState(prev => ({ ...prev, showConfirmModal: true }));
+				setState((prev) => ({ ...prev, showConfirmModal: true }));
 			} else {
 				// Show worker token modal for new token generation
 				const { handleShowWorkerTokenModal } = await import('@/v9/utils/workerTokenModalHelperV9');
 				await handleShowWorkerTokenModal(
-					(setShow: boolean) => setState(prev => ({ ...prev, showWorkerTokenModal: setShow })),
-					(setStatus: any) => setState(prev => ({ ...prev, tokenStatus: setStatus })),
+					(setShow: boolean) => setState((prev) => ({ ...prev, showWorkerTokenModal: setShow })),
+					(setStatus: any) => setState((prev) => ({ ...prev, tokenStatus: setStatus })),
 					undefined, // Use default silentApiRetrieval from config
 					undefined, // Use default showTokenAtEnd from config
 					true // Force show modal - user clicked button
@@ -225,12 +225,12 @@ export const AppPickerV9: React.FC<AppPickerV9Props> = ({
 		try {
 			await WorkerTokenServiceV9.clearToken();
 			window.dispatchEvent(new Event('workerTokenUpdated'));
-			
+
 			const newStatus = WorkerTokenStatusServiceV9.checkWorkerTokenStatusSync();
-			setState(prev => ({ 
-				...prev, 
+			setState((prev) => ({
+				...prev,
 				tokenStatus: newStatus,
-				showConfirmModal: false 
+				showConfirmModal: false,
 			}));
 
 			feedbackService.showSnackbar({
@@ -255,12 +255,12 @@ export const AppPickerV9: React.FC<AppPickerV9Props> = ({
 			// Dispatch events for status update
 			window.dispatchEvent(new Event('workerTokenUpdated'));
 			window.dispatchEvent(new Event('pingOneTokenRefreshed'));
-			
+
 			const newStatus = WorkerTokenStatusServiceV9.checkWorkerTokenStatusSync();
-			setState(prev => ({ 
-				...prev, 
+			setState((prev) => ({
+				...prev,
 				tokenStatus: newStatus,
-				showWorkerTokenModal: false 
+				showWorkerTokenModal: false,
 			}));
 
 			feedbackService.showPageBanner({
@@ -301,11 +301,11 @@ export const AppPickerV9: React.FC<AppPickerV9Props> = ({
 			return;
 		}
 
-		setState(prev => ({ 
-			...prev, 
-			isLoading: true, 
+		setState((prev) => ({
+			...prev,
+			isLoading: true,
 			discoveryError: null,
-			showResults: false 
+			showResults: false,
 		}));
 
 		try {
@@ -325,19 +325,19 @@ export const AppPickerV9: React.FC<AppPickerV9Props> = ({
 
 			if (discovered && discovered.length > 0) {
 				console.log(`${MODULE_TAG} Found ${discovered.length} apps`, discovered);
-				
-				const enhancedApps = discovered.map(app => ({
+
+				const enhancedApps = discovered.map((app) => ({
 					...app,
 					environmentId,
 					discoveredAt: new Date().toISOString(),
 				}));
 
-				setState(prev => ({ 
-					...prev, 
+				setState((prev) => ({
+					...prev,
 					apps: enhancedApps,
 					showResults: true,
 					lastDiscoveryTime: Date.now(),
-					discoveryError: null
+					discoveryError: null,
 				}));
 
 				// Save discovery state
@@ -360,29 +360,31 @@ export const AppPickerV9: React.FC<AppPickerV9Props> = ({
 					toggleSection('results');
 				}
 			} else {
-				setState(prev => ({ 
-					...prev, 
+				setState((prev) => ({
+					...prev,
 					apps: [],
 					showResults: true,
-					discoveryError: 'No applications found'
+					discoveryError: 'No applications found',
 				}));
 
 				feedbackService.showPageBanner({
 					type: 'warning',
 					title: 'No Applications Found',
-					message: 'No applications found in this environment. Check your Environment ID and permissions.',
+					message:
+						'No applications found in this environment. Check your Environment ID and permissions.',
 					dismissible: true,
 				});
 			}
 		} catch (error) {
 			console.error(`${MODULE_TAG} Discovery error`, error);
-			
-			const errorMessage = error instanceof Error ? error.message : 'Failed to discover applications';
-			
-			setState(prev => ({ 
-				...prev, 
+
+			const errorMessage =
+				error instanceof Error ? error.message : 'Failed to discover applications';
+
+			setState((prev) => ({
+				...prev,
 				discoveryError: errorMessage,
-				showResults: true
+				showResults: true,
 			}));
 
 			feedbackService.showPageBanner({
@@ -393,68 +395,83 @@ export const AppPickerV9: React.FC<AppPickerV9Props> = ({
 				persistent: false,
 			});
 		} finally {
-			setState(prev => ({ ...prev, isLoading: false }));
+			setState((prev) => ({ ...prev, isLoading: false }));
 		}
 	}, [
-		environmentId, 
-		state.tokenStatus, 
-		expandedStates, 
-		toggleSection, 
-		onDiscoveryComplete, 
-		saveState
+		environmentId,
+		state.tokenStatus,
+		expandedStates,
+		toggleSection,
+		onDiscoveryComplete,
+		saveState,
 	]);
 
 	// Handle app selection
-	const handleSelectApp = useCallback((app: DiscoveredApp) => {
-		console.log(`${MODULE_TAG} App selected`, { appId: app.id, appName: app.name });
-		
-		onAppSelected(app);
-		
-		setState(prev => ({ 
-			...prev, 
-			showResults: false,
-			apps: [],
-			selectedAppId: app.id 
-		}));
+	const handleSelectApp = useCallback(
+		(app: DiscoveredApp) => {
+			console.log(`${MODULE_TAG} App selected`, { appId: app.id, appName: app.name });
 
-		feedbackService.showSnackbar({
-			type: 'success',
-			message: `Selected: ${app.name}`,
-			duration: 3000,
-		});
-	}, [onAppSelected]);
+			onAppSelected(app);
+
+			setState((prev) => ({
+				...prev,
+				showResults: false,
+				apps: [],
+				selectedAppId: app.id,
+			}));
+
+			feedbackService.showSnackbar({
+				type: 'success',
+				message: `Selected: ${app.name}`,
+				duration: 3000,
+			});
+		},
+		[onAppSelected]
+	);
 
 	// Handle section toggle
-	const handleSectionToggle = useCallback((sectionId: string) => {
-		toggleSection(sectionId);
-		setState(prev => ({
-			...prev,
-			expandedSections: {
-				...prev.expandedSections,
-				[sectionId]: !prev.expandedSections[sectionId]
-			}
-		}));
-	}, [toggleSection]);
+	const handleSectionToggle = useCallback(
+		(sectionId: string) => {
+			toggleSection(sectionId);
+			setState((prev) => ({
+				...prev,
+				expandedSections: {
+					...prev.expandedSections,
+					[sectionId]: !prev.expandedSections[sectionId],
+				},
+			}));
+		},
+		[toggleSection]
+	);
 
 	// Get button disabled state
-	const isDiscoverDisabled = state.isLoading || !environmentId?.trim() || !state.tokenStatus.isValid;
+	const isDiscoverDisabled =
+		state.isLoading || !environmentId?.trim() || !state.tokenStatus.isValid;
 
 	// Get status color and icon
 	const getStatusColor = () => {
 		switch (state.tokenStatus.status) {
-			case 'valid': return 'success';
-			case 'expiring-soon': return 'warning';
-			case 'expired': return 'danger';
-			default: return 'secondary';
+			case 'valid':
+				return 'success';
+			case 'expiring-soon':
+				return 'warning';
+			case 'expired':
+				return 'danger';
+			default:
+				return 'secondary';
 		}
 	};
 
 	const getStatusIcon = () => {
 		switch (state.tokenStatus.status) {
-			case 'valid': return 'check-circle';
-			case 'expiring-soon': return 'exclamation-triangle';
-			case 'expired': return 'x-circle';
-			default: return 'question-circle';
+			case 'valid':
+				return 'check-circle';
+			case 'expiring-soon':
+				return 'exclamation-triangle';
+			case 'expired':
+				return 'x-circle';
+			default:
+				return 'question-circle';
 		}
 	};
 
@@ -467,7 +484,7 @@ export const AppPickerV9: React.FC<AppPickerV9Props> = ({
 						<BootstrapIcon icon="grid-3x3-gap" size={20} className="me-2" />
 						Application Discovery
 					</h5>
-					
+
 					{showExpandCollapseControls && (
 						<ExpandCollapseAllControls
 							pageKey="app-picker-v9"
@@ -495,15 +512,15 @@ export const AppPickerV9: React.FC<AppPickerV9Props> = ({
 								aria-expanded={expandedStates['discovery'] || false}
 								aria-controls="discovery-content"
 							>
-								<BootstrapIcon 
-									icon={expandedStates['discovery'] ? 'chevron-up' : 'chevron-down'} 
-									size={14} 
+								<BootstrapIcon
+									icon={expandedStates['discovery'] ? 'chevron-up' : 'chevron-down'}
+									size={14}
 								/>
 							</button>
 						</div>
 					</div>
-					
-					<div 
+
+					<div
 						id="discovery-content"
 						className={`collapse ${expandedStates['discovery'] ? 'show' : ''}`}
 					>
@@ -516,9 +533,9 @@ export const AppPickerV9: React.FC<AppPickerV9Props> = ({
 									disabled={isDiscoverDisabled}
 									className="btn btn-primary flex-grow-1"
 								>
-									<BootstrapIcon 
-										icon={state.isLoading ? 'arrow-clockwise' : 'search'} 
-										size={16} 
+									<BootstrapIcon
+										icon={state.isLoading ? 'arrow-clockwise' : 'search'}
+										size={16}
 										className={`me-2 ${state.isLoading ? 'spin' : ''}`}
 									/>
 									{state.isLoading ? 'Discovering...' : 'Discover Apps'}
@@ -540,11 +557,12 @@ export const AppPickerV9: React.FC<AppPickerV9Props> = ({
 							</div>
 
 							{/* Token Status Display */}
-							<div className={`alert alert-${getStatusColor()} d-flex align-items-center`} role="alert">
+							<div
+								className={`alert alert-${getStatusColor()} d-flex align-items-center`}
+								role="alert"
+							>
 								<BootstrapIcon icon={getStatusIcon()} size={16} className="me-2" />
-								<div className="flex-grow-1">
-									{state.tokenStatus.message}
-								</div>
+								<div className="flex-grow-1">{state.tokenStatus.message}</div>
 								{state.lastDiscoveryTime && (
 									<small className="text-muted ms-2">
 										Last discovery: {new Date(state.lastDiscoveryTime).toLocaleTimeString()}
@@ -564,9 +582,7 @@ export const AppPickerV9: React.FC<AppPickerV9Props> = ({
 									<BootstrapIcon icon="list-ul" size={16} className="me-2" />
 									Discovery Results
 									{state.apps.length > 0 && (
-										<span className="badge bg-primary ms-2">
-											{state.apps.length}
-										</span>
+										<span className="badge bg-primary ms-2">{state.apps.length}</span>
 									)}
 								</h6>
 								<button
@@ -576,15 +592,15 @@ export const AppPickerV9: React.FC<AppPickerV9Props> = ({
 									aria-expanded={expandedStates['results'] || false}
 									aria-controls="results-content"
 								>
-									<BootstrapIcon 
-										icon={expandedStates['results'] ? 'chevron-up' : 'chevron-down'} 
-										size={14} 
+									<BootstrapIcon
+										icon={expandedStates['results'] ? 'chevron-up' : 'chevron-down'}
+										size={14}
 									/>
 								</button>
 							</div>
 						</div>
-						
-						<div 
+
+						<div
 							id="results-content"
 							className={`collapse ${expandedStates['results'] ? 'show' : ''}`}
 						>
@@ -618,14 +634,13 @@ export const AppPickerV9: React.FC<AppPickerV9Props> = ({
 														{app.description && (
 															<p className="text-muted small mb-1">{app.description}</p>
 														)}
-														<small className="text-muted">
-															ID: {app.id}
-														</small>
+														<small className="text-muted">ID: {app.id}</small>
 														{app.redirectUris && app.redirectUris.length > 0 && (
 															<div className="mt-1">
 																<small className="text-info">
 																	<BootstrapIcon icon="link-45deg" size={12} className="me-1" />
-																	{app.redirectUris.length} Redirect URI{app.redirectUris.length !== 1 ? 's' : ''}
+																	{app.redirectUris.length} Redirect URI
+																	{app.redirectUris.length !== 1 ? 's' : ''}
 																</small>
 															</div>
 														)}
@@ -664,31 +679,27 @@ export const AppPickerV9: React.FC<AppPickerV9Props> = ({
 								aria-expanded={expandedStates['token-management'] || false}
 								aria-controls="token-management-content"
 							>
-								<BootstrapIcon 
-									icon={expandedStates['token-management'] ? 'chevron-up' : 'chevron-down'} 
-									size={14} 
+								<BootstrapIcon
+									icon={expandedStates['token-management'] ? 'chevron-up' : 'chevron-down'}
+									size={14}
 								/>
 							</button>
 						</div>
 					</div>
-					
-					<div 
+
+					<div
 						id="token-management-content"
 						className={`collapse ${expandedStates['token-management'] ? 'show' : ''}`}
 					>
 						<div className="card-body">
 							<div className="text-center">
-								<BootstrapIcon 
-									icon={getStatusIcon()} 
-									size={32} 
-									className={`text-${getStatusColor()} mb-2`} 
+								<BootstrapIcon
+									icon={getStatusIcon()}
+									size={32}
+									className={`text-${getStatusColor()} mb-2`}
 								/>
 								<p className="mb-3">{state.tokenStatus.message}</p>
-								<button
-									type="button"
-									onClick={handleManageWorkerToken}
-									className="btn btn-primary"
-								>
+								<button type="button" onClick={handleManageWorkerToken} className="btn btn-primary">
 									<BootstrapIcon icon="gear" size={16} className="me-2" />
 									Manage Worker Token
 								</button>

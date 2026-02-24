@@ -293,177 +293,177 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 
 					setScopeInput(normalizedScopes.join(' '));
 
-				// Save credentials to unifiedWorkerTokenService
-				const credentials: UnifiedWorkerTokenCredentials = {
-					environmentId: environmentId?.trim() || '',
-					clientId: clientId?.trim() || '',
-					clientSecret: clientSecret?.trim() || '',
-					scopes: normalizedScopes, // Already an array
-					region: region,
-					tokenEndpointAuthMethod: authMethod,
-					...(customDomain && { customDomain }),
-				};
+					// Save credentials to unifiedWorkerTokenService
+					const credentials: UnifiedWorkerTokenCredentials = {
+						environmentId: environmentId?.trim() || '',
+						clientId: clientId?.trim() || '',
+						clientSecret: clientSecret?.trim() || '',
+						scopes: normalizedScopes, // Already an array
+						region: region,
+						tokenEndpointAuthMethod: authMethod,
+						...(customDomain && { customDomain }),
+					};
 
-				await unifiedWorkerTokenService.saveCredentials(credentials);
+					await unifiedWorkerTokenService.saveCredentials(credentials);
 
-				// Run preflight validation
-				const { PreFlightValidationServiceV8 } = await import(
-					'@/v8/services/preFlightValidationServiceV8'
-				);
+					// Run preflight validation
+					const { PreFlightValidationServiceV8 } = await import(
+						'@/v8/services/preFlightValidationServiceV8'
+					);
 
-				// Try to get worker token from current or cached source
-				const tokenValidation = await workerTokenCacheServiceV8.getWorkerTokenForValidation(
-					environmentId.trim(),
-					clientId.trim()
-				);
+					// Try to get worker token from current or cached source
+					const tokenValidation = await workerTokenCacheServiceV8.getWorkerTokenForValidation(
+						environmentId.trim(),
+						clientId.trim()
+					);
 
-				// If we have a valid token, use it for validation
-				if (tokenValidation?.isValid) {
-					console.log(`${MODULE_TAG} 🔑 Using existing token for validation`);
-				} else {
-					console.log(`${MODULE_TAG} 🔑 No valid token found, proceeding with validation`);
-				}
+					// If we have a valid token, use it for validation
+					if (tokenValidation?.isValid) {
+						console.log(`${MODULE_TAG} 🔑 Using existing token for validation`);
+					} else {
+						console.log(`${MODULE_TAG} 🔑 No valid token found, proceeding with validation`);
+					}
 
-				// Validate OAuth configuration
-				if (tokenValidation?.isValid) {
-					// Use existing token for validation
-					const oauthConfigResult = await PreFlightValidationServiceV8.validateOAuthConfig({
-						specVersion: 'oauth2.0' as const, // Worker tokens use OAuth 2.0
-						flowType: 'client-credentials' as const, // Worker tokens use client credentials flow
-						credentials: {
-							environmentId: environmentId.trim(),
-							clientId: clientId.trim(),
-							clientSecret: clientSecret.trim(),
-							redirectUri: '', // Not needed for worker tokens
-							postLogoutRedirectUri: '', // Not needed for worker tokens
-							scopes: normalizedScopes.join(' '), // Convert array to string
-							responseType: '', // Not needed for worker tokens
-							clientAuthMethod: authMethod,
-						},
-						workerToken: tokenValidation.token,
-					});
+					// Validate OAuth configuration
+					if (tokenValidation?.isValid) {
+						// Use existing token for validation
+						const oauthConfigResult = await PreFlightValidationServiceV8.validateOAuthConfig({
+							specVersion: 'oauth2.0' as const, // Worker tokens use OAuth 2.0
+							flowType: 'client-credentials' as const, // Worker tokens use client credentials flow
+							credentials: {
+								environmentId: environmentId.trim(),
+								clientId: clientId.trim(),
+								clientSecret: clientSecret.trim(),
+								redirectUri: '', // Not needed for worker tokens
+								postLogoutRedirectUri: '', // Not needed for worker tokens
+								scopes: normalizedScopes.join(' '), // Convert array to string
+								responseType: '', // Not needed for worker tokens
+								clientAuthMethod: authMethod,
+							},
+							workerToken: tokenValidation.token,
+						});
 
-					if (!oauthConfigResult.passed) {
-						// Check if this is an OIDC scope error and provide helpful guidance
-						// But allow 'openid' scope for worker tokens
-						const errorString = oauthConfigResult.errors.join('; ');
-						if (
-							errorString.includes('Invalid OIDC Scopes') &&
-							!errorString.includes('profile') &&
-							!errorString.includes('email') &&
-							!errorString.includes('address') &&
-							!errorString.includes('phone')
-						) {
-							// If only 'openid' is mentioned, it might be a false positive for worker tokens
-							console.warn(
-								`${MODULE_TAG} Possible false positive OIDC scope validation for worker token`
-							);
+						if (!oauthConfigResult.passed) {
+							// Check if this is an OIDC scope error and provide helpful guidance
+							// But allow 'openid' scope for worker tokens
+							const errorString = oauthConfigResult.errors.join('; ');
+							if (
+								errorString.includes('Invalid OIDC Scopes') &&
+								!errorString.includes('profile') &&
+								!errorString.includes('email') &&
+								!errorString.includes('address') &&
+								!errorString.includes('phone')
+							) {
+								// If only 'openid' is mentioned, it might be a false positive for worker tokens
+								console.warn(
+									`${MODULE_TAG} Possible false positive OIDC scope validation for worker token`
+								);
+							}
+
+							// Show other validation errors
+							throw new Error(`Pre-flight validation failed: ${errorString}`);
 						}
 
-						// Show other validation errors
-						throw new Error(`Pre-flight validation failed: ${errorString}`);
+						// Show warnings if any
+						if (oauthConfigResult.warnings.length > 0) {
+							const warningMessage = oauthConfigResult.warnings.join('; ');
+							toastV8.warning(`Pre-flight warnings: ${warningMessage}`);
+						}
 					}
 
-					// Show warnings if any
-					if (oauthConfigResult.warnings.length > 0) {
-						const warningMessage = oauthConfigResult.warnings.join('; ');
-						toastV8.warning(`Pre-flight warnings: ${warningMessage}`);
-					}
-				}
+					// Determine the correct domain based on region
+					const domain = (() => {
+						const regionDomains = {
+							us: 'auth.pingone.com',
+							eu: 'auth.pingone.eu',
+							ap: 'auth.pingone.asia',
+							ca: 'auth.pingone.ca',
+						};
+						return regionDomains[region];
+					})();
+					const tokenEndpoint = `https://${domain}/${environmentId.trim()}/as/token`;
 
-				// Determine the correct domain based on region
-				const domain = (() => {
-					const regionDomains = {
-						us: 'auth.pingone.com',
-						eu: 'auth.pingone.eu',
-						ap: 'auth.pingone.asia',
-						ca: 'auth.pingone.ca',
-					};
-					return regionDomains[region];
-				})();
-				const tokenEndpoint = `https://${domain}/${environmentId.trim()}/as/token`;
-
-				const params = new URLSearchParams({
-					grant_type: 'client_credentials',
-					client_id: clientId.trim(),
-					scope: normalizedScopes.join(' '),
-				});
-
-				const headers: Record<string, string> = {
-					'Content-Type': 'application/x-www-form-urlencoded',
-				};
-
-				console.log(`${MODULE_TAG} 🔍 Debug - Auth method:`, authMethod);
-				console.log(`${MODULE_TAG} 🔍 Debug - Client ID:`, clientId.trim());
-
-				if (authMethod === 'client_secret_post') {
-					params.set('client_secret', clientSecret.trim());
-					console.log(`${MODULE_TAG} 🔍 Using client_secret_post method`);
-				} else if (authMethod === 'client_secret_basic') {
-					const basicAuth = btoa(`${clientId.trim()}:${clientSecret.trim()}`);
-					headers.Authorization = `Basic ${basicAuth}`;
-					console.log(`${MODULE_TAG} 🔍 Using client_secret_basic method`);
-				} else {
-					console.warn(`${MODULE_TAG} ⚠️ Unknown auth method:`, authMethod);
-				}
-
-				const details = {
-					tokenEndpoint,
-					requestParams: {
+					const params = new URLSearchParams({
 						grant_type: 'client_credentials',
 						client_id: clientId.trim(),
-						client_secret: clientSecret.trim(),
 						scope: normalizedScopes.join(' '),
-					},
-					authMethod,
-					region,
-					resolvedHeaders: headers,
-					resolvedBody: params.toString(),
-				};
+					});
 
-				setRequestDetails(details);
-				setShowRequestModal(true);
-			},
-			{
-				onSuccess: () => {
-					// Success handled in main function
-				},
-				onError: (error) => {
-					console.error(`${MODULE_TAG} Pre-flight validation error:`, error);
+					const headers: Record<string, string> = {
+						'Content-Type': 'application/x-www-form-urlencoded',
+					};
 
-					// Enhanced error handling for token-related issues
-					let errorMessage = 'Pre-flight validation failed';
-					let _showWorkerTokenButton = false;
+					console.log(`${MODULE_TAG} 🔍 Debug - Auth method:`, authMethod);
+					console.log(`${MODULE_TAG} 🔍 Debug - Client ID:`, clientId.trim());
 
-					if (error instanceof Error) {
-						const errorStr = error.message.toLowerCase();
-
-						// Check for 401 Unauthorized or token-related errors
-						if (
-							errorStr.includes('401') ||
-							errorStr.includes('unauthorized') ||
-							errorStr.includes('invalid token') ||
-							errorStr.includes('expired token') ||
-							errorStr.includes('token required') ||
-							errorStr.includes('worker token')
-						) {
-							errorMessage =
-								'Worker token is invalid or expired. Please generate a new worker token.';
-							_showWorkerTokenButton = true;
-						} else if (errorStr.includes('unsupported authentication method')) {
-							errorMessage =
-								'Your PingOne Worker application authentication method doesn\'t match. Please check your Worker app settings in PingOne and ensure the "Token Endpoint Authentication Method" matches the selected method.';
-							_showWorkerTokenButton = true;
-						} else {
-							errorMessage = error.message;
-						}
+					if (authMethod === 'client_secret_post') {
+						params.set('client_secret', clientSecret.trim());
+						console.log(`${MODULE_TAG} 🔍 Using client_secret_post method`);
+					} else if (authMethod === 'client_secret_basic') {
+						const basicAuth = btoa(`${clientId.trim()}:${clientSecret.trim()}`);
+						headers.Authorization = `Basic ${basicAuth}`;
+						console.log(`${MODULE_TAG} 🔍 Using client_secret_basic method`);
+					} else {
+						console.warn(`${MODULE_TAG} ⚠️ Unknown auth method:`, authMethod);
 					}
 
-					// Show error with appropriate recovery options
-					toastV8.error(errorMessage, { duration: 8000 });
+					const details = {
+						tokenEndpoint,
+						requestParams: {
+							grant_type: 'client_credentials',
+							client_id: clientId.trim(),
+							client_secret: clientSecret.trim(),
+							scope: normalizedScopes.join(' '),
+						},
+						authMethod,
+						region,
+						resolvedHeaders: headers,
+						resolvedBody: params.toString(),
+					};
+
+					setRequestDetails(details);
+					setShowRequestModal(true);
 				},
-			}
-		);
+				{
+					onSuccess: () => {
+						// Success handled in main function
+					},
+					onError: (error) => {
+						console.error(`${MODULE_TAG} Pre-flight validation error:`, error);
+
+						// Enhanced error handling for token-related issues
+						let errorMessage = 'Pre-flight validation failed';
+						let _showWorkerTokenButton = false;
+
+						if (error instanceof Error) {
+							const errorStr = error.message.toLowerCase();
+
+							// Check for 401 Unauthorized or token-related errors
+							if (
+								errorStr.includes('401') ||
+								errorStr.includes('unauthorized') ||
+								errorStr.includes('invalid token') ||
+								errorStr.includes('expired token') ||
+								errorStr.includes('token required') ||
+								errorStr.includes('worker token')
+							) {
+								errorMessage =
+									'Worker token is invalid or expired. Please generate a new worker token.';
+								_showWorkerTokenButton = true;
+							} else if (errorStr.includes('unsupported authentication method')) {
+								errorMessage =
+									'Your PingOne Worker application authentication method doesn\'t match. Please check your Worker app settings in PingOne and ensure the "Token Endpoint Authentication Method" matches the selected method.';
+								_showWorkerTokenButton = true;
+							} else {
+								errorMessage = error.message;
+							}
+						}
+
+						// Show error with appropriate recovery options
+						toastV8.error(errorMessage, { duration: 8000 });
+					},
+				}
+			);
 		} catch (error) {
 			console.error(`${MODULE_TAG} Unexpected error in handleGenerate:`, error);
 			toastV8.error('An unexpected error occurred. Please try again.');

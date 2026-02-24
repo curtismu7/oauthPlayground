@@ -33,20 +33,20 @@ import { checkCredentialsAndWarn } from '../../utils/credentialsWarningService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 // MDI Icon Component for PingOne UI
-const MDIIcon: React.FC<{ icon: string; size?: number; ariaLabel?: string; color?: string }> = ({ 
-	icon, 
-	size, 
-	ariaLabel, 
-	color 
+const MDIIcon: React.FC<{ icon: string; size?: number; ariaLabel?: string; color?: string }> = ({
+	icon,
+	size,
+	ariaLabel,
+	color,
 }) => {
 	const iconClass = getMDIIconClass(icon);
 	return (
-		<i 
-			className={`mdi ${iconClass}`} 
-			style={{ 
+		<i
+			className={`mdi ${iconClass}`}
+			style={{
 				fontSize: `${size}px`,
-				color: color || 'currentColor'
-			}} 
+				color: color || 'currentColor',
+			}}
 			aria-label={ariaLabel}
 		></i>
 	);
@@ -55,16 +55,16 @@ const MDIIcon: React.FC<{ icon: string; size?: number; ariaLabel?: string; color
 // MDI Icon Mapping
 const getMDIIconClass = (fiIcon: string): string => {
 	const iconMap: Record<string, string> = {
-		'FiAlertCircle': 'mdi-alert-circle',
-		'FiAlertTriangle': 'mdi-alert-triangle',
-		'FiCheckCircle': 'mdi-check-circle',
-		'FiChevronDown': 'mdi-chevron-down',
-		'FiExternalLink': 'mdi-open-in-new',
-		'FiGlobe': 'mdi-earth',
-		'FiInfo': 'mdi-information',
-		'FiKey': 'mdi-key',
-		'FiRefreshCw': 'mdi-refresh',
-		'FiShield': 'mdi-shield-check',
+		FiAlertCircle: 'mdi-alert-circle',
+		FiAlertTriangle: 'mdi-alert-triangle',
+		FiCheckCircle: 'mdi-check-circle',
+		FiChevronDown: 'mdi-chevron-down',
+		FiExternalLink: 'mdi-open-in-new',
+		FiGlobe: 'mdi-earth',
+		FiInfo: 'mdi-information',
+		FiKey: 'mdi-key',
+		FiRefreshCw: 'mdi-refresh',
+		FiShield: 'mdi-shield-check',
 	};
 	return iconMap[fiIcon] || fiIcon.replace('Fi', 'mdi-').toLowerCase();
 };
@@ -267,7 +267,7 @@ const HybridIcon = styled.div`
 const OIDCHybridFlowV9: React.FC = () => {
 	// Component implementation would go here
 	// This is a template showing the PingOne UI styling approach
-	
+
 	return (
 		<FlowContainer className="end-user-nano">
 			<FlowHeader>
@@ -281,7 +281,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 					Combination of authorization code and implicit flows for advanced OIDC scenarios
 				</FlowSubtitle>
 			</FlowHeader>
-			
+
 			<StepContainer>
 				<StepHeader>
 					<StepTitle>
@@ -290,12 +290,22 @@ const OIDCHybridFlowV9: React.FC = () => {
 					</StepTitle>
 					<StepBadge variant="primary">Advanced</StepBadge>
 				</StepHeader>
-				
+
 				<PingCard>
 					<h3>Hybrid Flow Overview</h3>
-					<p>The OIDC Hybrid Flow combines the security of authorization code flow with the immediacy of implicit flow.</p>
-					
-					<div style={{ marginTop: '1rem', padding: '1rem', background: 'var(--ping-primary-light, #dbeafe)', borderRadius: '8px' }}>
+					<p>
+						The OIDC Hybrid Flow combines the security of authorization code flow with the immediacy
+						of implicit flow.
+					</p>
+
+					<div
+						style={{
+							marginTop: '1rem',
+							padding: '1rem',
+							background: 'var(--ping-primary-light, #dbeafe)',
+							borderRadius: '8px',
+						}}
+					>
 						<h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--ping-primary, #3b82f6)' }}>
 							<MDIIcon icon="FiInfo" size={16} color="var(--ping-primary, #3b82f6)" />
 							Response Types
@@ -304,9 +314,9 @@ const OIDCHybridFlowV9: React.FC = () => {
 							Uses <code>code id_token token</code> response type for maximum flexibility.
 						</p>
 					</div>
-					
+
 					<CodeBlock style={{ marginTop: '1rem' }}>
-{`# Authorization Request
+						{`# Authorization Request
 GET /authorize?
   response_type=code%20id_token%20token
   client_id=your_client_id
@@ -317,7 +327,7 @@ GET /authorize?
 					</CodeBlock>
 				</PingCard>
 			</StepContainer>
-			
+
 			<StepContainer>
 				<StepHeader>
 					<StepTitle>
@@ -326,11 +336,11 @@ GET /authorize?
 					</StepTitle>
 					<StepBadge variant="success">Complete</StepBadge>
 				</StepHeader>
-				
+
 				<PingCard>
 					<h3>Hybrid Flow Response</h3>
 					<CodeBlock>
-{`# URL Fragment Response
+						{`# URL Fragment Response
 https://example.com/callback#
   code=SplxlOBeZQQYbYS6WxSbIA
   id_token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
@@ -339,21 +349,39 @@ https://example.com/callback#
   expires_in=3600
   state=xyz123`}
 					</CodeBlock>
-					
+
 					<div style={{ marginTop: '1rem', display: 'grid', gap: '0.5rem' }}>
-						<div style={{ padding: '0.75rem', background: 'var(--ping-bg-component, rgba(229, 231, 235, 0.4))', borderRadius: '6px' }}>
+						<div
+							style={{
+								padding: '0.75rem',
+								background: 'var(--ping-bg-component, rgba(229, 231, 235, 0.4))',
+								borderRadius: '6px',
+							}}
+						>
 							<strong>Authorization Code:</strong> Exchange for refresh tokens
 						</div>
-						<div style={{ padding: '0.75rem', background: 'var(--ping-bg-component, rgba(229, 231, 235, 0.4))', borderRadius: '6px' }}>
+						<div
+							style={{
+								padding: '0.75rem',
+								background: 'var(--ping-bg-component, rgba(229, 231, 235, 0.4))',
+								borderRadius: '6px',
+							}}
+						>
 							<strong>ID Token:</strong> User authentication verified
 						</div>
-						<div style={{ padding: '0.75rem', background: 'var(--ping-bg-component, rgba(229, 231, 235, 0.4))', borderRadius: '6px' }}>
+						<div
+							style={{
+								padding: '0.75rem',
+								background: 'var(--ping-bg-component, rgba(229, 231, 235, 0.4))',
+								borderRadius: '6px',
+							}}
+						>
 							<strong>Access Token:</strong> Immediate API access
 						</div>
 					</div>
 				</PingCard>
 			</StepContainer>
-			
+
 			<StepContainer>
 				<StepHeader>
 					<StepTitle>
@@ -362,7 +390,7 @@ https://example.com/callback#
 					</StepTitle>
 					<StepBadge variant="secondary">Security</StepBadge>
 				</StepHeader>
-				
+
 				<PingCard>
 					<h3>Hybrid Flow Security</h3>
 					<ul style={{ color: 'var(--ping-text-secondary, #6b7280)' }}>
@@ -371,17 +399,26 @@ https://example.com/callback#
 						<li>Authorization code should be exchanged for refresh tokens</li>
 						<li>More complex than standard flows</li>
 					</ul>
-					
-					<div style={{ marginTop: '1rem', padding: '1rem', background: 'var(--ping-badge-warning, #f59e0b)', borderRadius: '8px', color: 'white' }}>
+
+					<div
+						style={{
+							marginTop: '1rem',
+							padding: '1rem',
+							background: 'var(--ping-badge-warning, #f59e0b)',
+							borderRadius: '8px',
+							color: 'white',
+						}}
+					>
 						<h4 style={{ margin: '0 0 0.5rem 0' }}>
 							<MDIIcon icon="FiAlertTriangle" size={16} />
 							Use Cases
 						</h4>
 						<p style={{ margin: 0 }}>
-							Best for applications needing immediate access tokens while maintaining refresh token capability.
+							Best for applications needing immediate access tokens while maintaining refresh token
+							capability.
 						</p>
 					</div>
-					
+
 					<div style={{ marginTop: '1rem', display: 'flex', gap: '1rem' }}>
 						<PingButton variant="primary">
 							<MDIIcon icon="FiExternalLink" size={16} />

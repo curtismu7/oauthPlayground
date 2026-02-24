@@ -2,20 +2,18 @@
 // V9 Device Authorization Flow - PingOne UI with New Storage & Messaging
 
 import React, { useCallback, useEffect, useState } from 'react';
+import BootstrapIcon from '../../components/BootstrapIcon';
+import { ExpandCollapseAllControls } from '../../components/ExpandCollapseAllControls';
 import { EducationModeToggle } from '../../components/education/EducationModeToggle';
 import { MasterEducationSection } from '../../components/education/MasterEducationSection';
-import { StepNavigationButtons } from '../../components/StepNavigationButtons';
-import BootstrapIcon from '../../components/BootstrapIcon';
 import { getBootstrapIconName } from '../../components/iconMapping';
 import { PingUIWrapper } from '../../components/PingUIWrapper';
-import { ExpandCollapseAllControls } from '../../components/ExpandCollapseAllControls';
-import { useSectionsViewMode } from '../../services/sectionsViewModeService';
-import { feedbackService } from '../../services/feedback/feedbackService';
-import { unifiedStorageManager } from '../../services/unifiedStorageManager';
-import {
-	useDeviceAuthorizationFlow,
-} from '../../hooks/useDeviceAuthorizationFlow';
+import { StepNavigationButtons } from '../../components/StepNavigationButtons';
+import { useDeviceAuthorizationFlow } from '../../hooks/useDeviceAuthorizationFlow';
 import { usePageScroll } from '../../hooks/usePageScroll';
+import { feedbackService } from '../../services/feedback/feedbackService';
+import { useSectionsViewMode } from '../../services/sectionsViewModeService';
+import { unifiedStorageManager } from '../../services/unifiedStorageManager';
 import { checkCredentialsAndWarn } from '../../utils/credentialsWarningService';
 
 // Page key for expand/collapse state management
@@ -62,17 +60,13 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 	}, [controller.credentials]);
 
 	const [currentStep, setCurrentStep] = useState(0);
-	const [errorDetails, setErrorDetails] = useState<{ message?: string; details?: unknown } | null>(null);
+	const [errorDetails, setErrorDetails] = useState<{ message?: string; details?: unknown } | null>(
+		null
+	);
 
 	// V9: Use sections view mode for expand/collapse functionality
-	const {
-		expandedStates,
-		toggleSection,
-		expandAll,
-		collapseAll,
-		areAllExpanded,
-		areAllCollapsed
-	} = useSectionsViewMode(PAGE_KEY, SECTION_IDS);
+	const { expandedStates, toggleSection, expandAll, collapseAll, areAllExpanded, areAllCollapsed } =
+		useSectionsViewMode(PAGE_KEY, SECTION_IDS);
 
 	// V9: Persist flow state using unified storage manager
 	useEffect(() => {
@@ -101,7 +95,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 	useEffect(() => {
 		const loadFlowState = async () => {
 			try {
-				const savedState = await unifiedStorageManager.load(`${PAGE_KEY}-flow-state`) as {
+				const savedState = (await unifiedStorageManager.load(`${PAGE_KEY}-flow-state`)) as {
 					currentStep?: number;
 					errorDetails?: { message?: string; details?: unknown };
 					timestamp?: string;
@@ -110,7 +104,8 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 					console.log('🔄 [V9] Restored flow state:', savedState);
 					// Restore state if available and recent (within 1 hour)
 					const stateAge = Date.now() - new Date(savedState.timestamp || '').getTime();
-					if (stateAge < 3600000) { // 1 hour
+					if (stateAge < 3600000) {
+						// 1 hour
 						setCurrentStep(savedState.currentStep || 0);
 						setErrorDetails(savedState.errorDetails || null);
 					}
@@ -151,11 +146,14 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 	}, []);
 
 	// V9: Handle section toggle with feedback
-	const handleSectionToggle = useCallback((sectionId: string) => {
-		toggleSection(sectionId);
-		const isExpanded = expandedStates[sectionId];
-		showInfoFeedback(`${isExpanded ? 'Collapsed' : 'Expanded'} section`);
-	}, [toggleSection, expandedStates, showInfoFeedback]);
+	const handleSectionToggle = useCallback(
+		(sectionId: string) => {
+			toggleSection(sectionId);
+			const isExpanded = expandedStates[sectionId];
+			showInfoFeedback(`${isExpanded ? 'Collapsed' : 'Expanded'} section`);
+		},
+		[toggleSection, expandedStates, showInfoFeedback]
+	);
 
 	// V9: Handle expand all with feedback
 	const handleExpandAll = useCallback(() => {
@@ -170,14 +168,17 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 	}, [collapseAll, showSuccessFeedback]);
 
 	// V9: Handle copy with feedback
-	const handleCopy = useCallback(async (text: string, fieldName: string) => {
-		try {
-			await navigator.clipboard.writeText(text);
-			showSuccessFeedback(`Copied ${fieldName} to clipboard`);
-		} catch {
-			showWarningFeedback('Failed to copy to clipboard');
-		}
-	}, [showSuccessFeedback, showWarningFeedback]);
+	const handleCopy = useCallback(
+		async (text: string, fieldName: string) => {
+			try {
+				await navigator.clipboard.writeText(text);
+				showSuccessFeedback(`Copied ${fieldName} to clipboard`);
+			} catch {
+				showWarningFeedback('Failed to copy to clipboard');
+			}
+		},
+		[showSuccessFeedback, showWarningFeedback]
+	);
 
 	// V9: Handle step navigation
 	const handleNextStep = useCallback(() => {
@@ -195,10 +196,13 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 	}, [currentStep, showInfoFeedback]);
 
 	// V9: Handle credential updates
-	const handleCredentialChange = useCallback((field: string, value: string) => {
-		const updatedCredentials = { ...controller.credentials, [field]: value };
-		controller.setCredentials(updatedCredentials);
-	}, [controller.credentials, controller.setCredentials]);
+	const handleCredentialChange = useCallback(
+		(field: string, value: string) => {
+			const updatedCredentials = { ...controller.credentials, [field]: value };
+			controller.setCredentials(updatedCredentials);
+		},
+		[controller.credentials, controller.setCredentials]
+	);
 
 	return (
 		<PingUIWrapper>
@@ -216,17 +220,11 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 									/>
 									Device Authorization Flow V9
 								</h2>
-								<p className="mb-0 opacity-75">
-									RFC 8628 Device Authorization Grant - PingOne UI
-								</p>
+								<p className="mb-0 opacity-75">RFC 8628 Device Authorization Grant - PingOne UI</p>
 							</div>
 							<div className="text-end">
-								<span className="badge bg-light text-dark me-2">
-									Version 9.3.6
-								</span>
-								<span className="badge bg-info">
-									Step {currentStep + 1} of 6
-								</span>
+								<span className="badge bg-light text-dark me-2">Version 9.3.6</span>
+								<span className="badge bg-info">Step {currentStep + 1} of 6</span>
 							</div>
 						</div>
 					</div>
@@ -281,13 +279,19 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 					{expandedStates['flow-configuration'] && (
 						<div className="card-body">
 							<div className="alert alert-info">
-								<BootstrapIcon icon={getBootstrapIconName('info-circle')} size={20} className="me-2" />
+								<BootstrapIcon
+									icon={getBootstrapIconName('info-circle')}
+									size={20}
+									className="me-2"
+								/>
 								Configure your OAuth 2.0 Device Authorization Flow parameters below.
 							</div>
 							<div className="row">
 								<div className="col-md-6">
 									<div className="mb-3">
-										<label htmlFor="environmentId" className="form-label">Environment ID</label>
+										<label htmlFor="environmentId" className="form-label">
+											Environment ID
+										</label>
 										<input
 											type="text"
 											id="environmentId"
@@ -300,7 +304,9 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 								</div>
 								<div className="col-md-6">
 									<div className="mb-3">
-										<label htmlFor="clientId" className="form-label">Client ID</label>
+										<label htmlFor="clientId" className="form-label">
+											Client ID
+										</label>
 										<input
 											type="text"
 											id="clientId"
@@ -313,7 +319,9 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 								</div>
 								<div className="col-md-6">
 									<div className="mb-3">
-										<label htmlFor="clientSecret" className="form-label">Client Secret</label>
+										<label htmlFor="clientSecret" className="form-label">
+											Client Secret
+										</label>
 										<input
 											type="password"
 											id="clientSecret"
@@ -326,7 +334,9 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 								</div>
 								<div className="col-md-6">
 									<div className="mb-3">
-										<label htmlFor="deviceCodeEndpoint" className="form-label">Device Code Endpoint</label>
+										<label htmlFor="deviceCodeEndpoint" className="form-label">
+											Device Code Endpoint
+										</label>
 										<input
 											type="url"
 											id="deviceCodeEndpoint"
@@ -365,14 +375,22 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 					{expandedStates['device-selection'] && (
 						<div className="card-body">
 							<div className="alert alert-info">
-								<BootstrapIcon icon={getBootstrapIconName('smartphone')} size={20} className="me-2" />
+								<BootstrapIcon
+									icon={getBootstrapIconName('smartphone')}
+									size={20}
+									className="me-2"
+								/>
 								Select the device type for this authorization flow.
 							</div>
 							<div className="row">
 								<div className="col-md-4">
 									<div className="card border-primary">
 										<div className="card-body text-center">
-											<BootstrapIcon icon={getBootstrapIconName('monitor')} size={48} className="text-primary mb-3" />
+											<BootstrapIcon
+												icon={getBootstrapIconName('monitor')}
+												size={48}
+												className="text-primary mb-3"
+											/>
 											<h6>Smart TV</h6>
 											<small className="text-muted">Entertainment device</small>
 										</div>
@@ -381,7 +399,11 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 								<div className="col-md-4">
 									<div className="card border-info">
 										<div className="card-body text-center">
-											<BootstrapIcon icon={getBootstrapIconName('smartphone')} size={48} className="text-info mb-3" />
+											<BootstrapIcon
+												icon={getBootstrapIconName('smartphone')}
+												size={48}
+												className="text-info mb-3"
+											/>
 											<h6>Mobile Device</h6>
 											<small className="text-muted">Phone or tablet</small>
 										</div>
@@ -390,7 +412,11 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 								<div className="col-md-4">
 									<div className="card border-warning">
 										<div className="card-body text-center">
-											<BootstrapIcon icon={getBootstrapIconName('cpu')} size={48} className="text-warning mb-3" />
+											<BootstrapIcon
+												icon={getBootstrapIconName('cpu')}
+												size={48}
+												className="text-warning mb-3"
+											/>
 											<h6>IoT Device</h6>
 											<small className="text-muted">Connected device</small>
 										</div>
@@ -424,7 +450,11 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 					{expandedStates['authorization-request'] && (
 						<div className="card-body">
 							<div className="alert alert-success">
-								<BootstrapIcon icon={getBootstrapIconName('check-circle')} size={20} className="me-2" />
+								<BootstrapIcon
+									icon={getBootstrapIconName('check-circle')}
+									size={20}
+									className="me-2"
+								/>
 								Device authorization request will be sent here.
 							</div>
 							<div className="text-center">
@@ -464,12 +494,20 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 					{expandedStates['user-interaction'] && (
 						<div className="card-body">
 							<div className="alert alert-info">
-								<BootstrapIcon icon={getBootstrapIconName('external-link')} size={20} className="me-2" />
+								<BootstrapIcon
+									icon={getBootstrapIconName('external-link')}
+									size={20}
+									className="me-2"
+								/>
 								User will visit the verification URI to complete authorization.
 							</div>
 							<div className="text-center">
 								<div className="mb-3">
-									<BootstrapIcon icon={getBootstrapIconName('qr-code')} size={64} className="text-muted" />
+									<BootstrapIcon
+										icon={getBootstrapIconName('qr-code')}
+										size={64}
+										className="text-muted"
+									/>
 									<p className="mt-2">QR Code will be displayed here</p>
 								</div>
 								<div className="row">
@@ -477,15 +515,19 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 										<div className="card">
 											<div className="card-body">
 												<h6>Verification URI</h6>
-												<p className="text-break small">
-													https://auth.pingone.com/device/verify
-												</p>
+												<p className="text-break small">https://auth.pingone.com/device/verify</p>
 												<button
 													type="button"
 													className="btn btn-outline-primary btn-sm"
-													onClick={() => handleCopy('https://auth.pingone.com/device/verify', 'verification URI')}
+													onClick={() =>
+														handleCopy('https://auth.pingone.com/device/verify', 'verification URI')
+													}
 												>
-													<BootstrapIcon icon={getBootstrapIconName('clipboard')} size={16} className="me-1" />
+													<BootstrapIcon
+														icon={getBootstrapIconName('clipboard')}
+														size={16}
+														className="me-1"
+													/>
 													Copy
 												</button>
 											</div>
@@ -501,7 +543,11 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 													className="btn btn-outline-primary btn-sm"
 													onClick={() => handleCopy('ABCD-1234', 'user code')}
 												>
-													<BootstrapIcon icon={getBootstrapIconName('clipboard')} size={16} className="me-1" />
+													<BootstrapIcon
+														icon={getBootstrapIconName('clipboard')}
+														size={16}
+														className="me-1"
+													/>
 													Copy
 												</button>
 											</div>
@@ -517,7 +563,11 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 				<div className="card mb-4">
 					<div className="card-header d-flex justify-content-between align-items-center">
 						<h5 className="mb-0">
-							<BootstrapIcon icon={getBootstrapIconName('arrow-right')} size={20} className="me-2" />
+							<BootstrapIcon
+								icon={getBootstrapIconName('arrow-right')}
+								size={20}
+								className="me-2"
+							/>
 							Token Exchange
 						</h5>
 						<button
@@ -553,7 +603,11 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 				<div className="card mb-4">
 					<div className="card-header d-flex justify-content-between align-items-center">
 						<h5 className="mb-0">
-							<BootstrapIcon icon={getBootstrapIconName('shield-check')} size={20} className="me-2" />
+							<BootstrapIcon
+								icon={getBootstrapIconName('shield-check')}
+								size={20}
+								className="me-2"
+							/>
 							Token Display
 						</h5>
 						<button
@@ -572,7 +626,11 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 					{expandedStates['token-display'] && (
 						<div className="card-body">
 							<div className="alert alert-success">
-								<BootstrapIcon icon={getBootstrapIconName('check-circle')} size={20} className="me-2" />
+								<BootstrapIcon
+									icon={getBootstrapIconName('check-circle')}
+									size={20}
+									className="me-2"
+								/>
 								Access token will be displayed here after successful authorization.
 							</div>
 							{controller.tokens && (
@@ -585,7 +643,9 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 										<button
 											type="button"
 											className="btn btn-outline-primary btn-sm position-absolute top-0 end-0 m-2"
-											onClick={() => handleCopy(controller.tokens?.access_token || '', 'access token')}
+											onClick={() =>
+												handleCopy(controller.tokens?.access_token || '', 'access token')
+											}
 										>
 											<BootstrapIcon
 												icon={getBootstrapIconName('clipboard')}
@@ -634,7 +694,11 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 					<div className="card mb-4 border-danger">
 						<div className="card-header bg-danger text-white d-flex justify-content-between align-items-center">
 							<h5 className="mb-0">
-								<BootstrapIcon icon={getBootstrapIconName('exclamation-triangle')} size={20} className="me-2" />
+								<BootstrapIcon
+									icon={getBootstrapIconName('exclamation-triangle')}
+									size={20}
+									className="me-2"
+								/>
 								Error Details
 							</h5>
 							<button
@@ -653,7 +717,11 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 						{expandedStates['error-handling'] && (
 							<div className="card-body">
 								<div className="alert alert-danger">
-									<BootstrapIcon icon={getBootstrapIconName('alert-circle')} size={20} className="me-2" />
+									<BootstrapIcon
+										icon={getBootstrapIconName('alert-circle')}
+										size={20}
+										className="me-2"
+									/>
 									{errorDetails.message || 'An error occurred during the flow.'}
 								</div>
 								{errorDetails.details && (
@@ -670,7 +738,11 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 				<div className="card">
 					<div className="card-body text-center">
 						<p className="text-muted mb-0">
-							<BootstrapIcon icon={getBootstrapIconName('info-circle')} size={16} className="me-1" />
+							<BootstrapIcon
+								icon={getBootstrapIconName('info-circle')}
+								size={16}
+								className="me-1"
+							/>
 							Device Authorization Flow V9 - PingOne UI with Enhanced Storage & Messaging
 						</p>
 					</div>

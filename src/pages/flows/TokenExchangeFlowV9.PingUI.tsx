@@ -133,9 +133,17 @@ const getUseCaseStyle = (viewMode: ViewMode) => ({
 	marginBottom: viewMode === 'full' ? '1rem' : viewMode === 'compact' ? '0.75rem' : '0.5rem',
 });
 
-const getButtonStyle = (variant: 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info' = 'primary', viewMode: ViewMode) => {
+const getButtonStyle = (
+	variant: 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info' = 'primary',
+	viewMode: ViewMode
+) => {
 	const baseStyle = {
-		padding: viewMode === 'full' ? '0.75rem 1.5rem' : viewMode === 'compact' ? '0.5rem 1rem' : '0.375rem 0.75rem',
+		padding:
+			viewMode === 'full'
+				? '0.75rem 1.5rem'
+				: viewMode === 'compact'
+					? '0.5rem 1rem'
+					: '0.375rem 0.75rem',
 		borderRadius: '0.5rem',
 		fontWeight: '500',
 		fontSize: viewMode === 'full' ? '0.875rem' : viewMode === 'compact' ? '0.75rem' : '0.625rem',
@@ -145,7 +153,7 @@ const getButtonStyle = (variant: 'primary' | 'secondary' | 'success' | 'warning'
 		alignItems: 'center',
 		gap: '0.5rem',
 	};
-	
+
 	switch (variant) {
 		case 'primary':
 			return {

@@ -1,14 +1,13 @@
-import React, { useCallback, useEffect, useMemo, useState, lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import styled, { type DefaultTheme, ThemeProvider } from 'styled-components';
 
 import { AuthProvider } from './contexts/NewAuthContext';
 import { PageStyleProvider } from './contexts/PageStyleContext';
 import { type UISettings, UISettingsProvider, useUISettings } from './contexts/UISettingsContext';
+import { theme as baseTheme, GlobalStyle } from './styles/global';
 import { FlowStateProvider } from './v8/contexts/FlowStateContext';
 import UnifiedFlowProvider from './v8u/services/enhancedStateManagement';
-
-import { theme as baseTheme, GlobalStyle } from './styles/global';
 import './styles/spec-cards.css';
 import './styles/ui-settings.css';
 import './styles/button-text-white-enforcement.css'; // CRITICAL: Ensures all buttons have white text
@@ -27,10 +26,12 @@ const CompactAppPickerDemo = lazy(() => import('./pages/CompactAppPickerDemo'));
 
 import Navbar from '@/apps/navigation/components/Navbar';
 import Sidebar from '@/apps/navigation/components/UnifiedSidebar.V2';
+import { CentralizedSuccessMessage } from './components/CentralizedSuccessMessage';
 import DeviceMockFlow from './components/DeviceMockFlow';
 import FlowComparisonTool from './components/FlowComparisonTool';
 import FlowHeaderDemo from './components/FlowHeaderDemo';
 import InteractiveFlowDiagram from './components/InteractiveFlowDiagram';
+import { MfaFlowCodeGeneratorV9 } from './components/MfaFlowCodeGenerator.V9';
 import { RouteRestorer } from './components/RouteRestorer';
 import { useAuth } from './contexts/NewAuthContext';
 import { NotificationContainer, NotificationProvider } from './hooks/useNotifications';
@@ -43,9 +44,7 @@ import ConfigurationPingUI from './pages/Configuration.PingUI';
 import DocumentationPingUI from './pages/Documentation.PingUI';
 import LoginPingUI from './pages/Login.PingUI';
 import OAuthCodeGeneratorHub from './pages/OAuthCodeGeneratorHub.V9';
-import { MfaFlowCodeGeneratorV9 } from './components/MfaFlowCodeGenerator.V9';
 import OAuthFlowsNew from './pages/OAuthFlows.PingUI';
-import { CentralizedSuccessMessage } from './components/CentralizedSuccessMessage';
 import { ApiRequestModalProvider } from './services/apiRequestModalService';
 import {
 	AuthorizationUrlValidationModal,
@@ -100,6 +99,7 @@ import CIBAvsDeviceAuthz from './pages/CIBAvsDeviceAuthz';
 import CompetitiveAnalysis from './pages/CompetitiveAnalysis';
 import ComprehensiveOAuthEducation from './pages/ComprehensiveOAuthEducation';
 import Dashboard from './pages/Dashboard.PingUI'; // Using PingUI version
+import { DebugLogsPage } from './pages/DebugLogsPage';
 import DpopAuthorizationCodeFlowV8 from './pages/DpopAuthorizationCodeFlowV8';
 import OAuth2SecurityBestPractices from './pages/docs/OAuth2SecurityBestPractices.tsx';
 import OAuthForAI from './pages/docs/OAuthForAI.tsx';
@@ -155,6 +155,7 @@ import V7RMOIDCResourceOwnerPasswordFlow from './pages/flows/V7RMOIDCResourceOwn
 import WorkerTokenFlowV7 from './pages/flows/WorkerTokenFlowV7';
 // import InteractiveTutorials from './pages/InteractiveTutorials'; // Removed - unused tutorial feature
 import JWKSTroubleshooting from './pages/JWKSTroubleshooting';
+import { LoginPatternsPage } from './pages/LoginPatternsPage';
 import ResponseModesLearnPage from './pages/learn/ResponseModesLearnPage';
 import OAuth21 from './pages/OAuth21';
 import OAuthOIDCTraining from './pages/OAuthOIDCTraining';
@@ -175,7 +176,9 @@ import PingOneUserProfilePingUI from './pages/PingOneUserProfile.PingUI';
 import PingOneWebhookViewer from './pages/PingOneWebhookViewer';
 import PostmanCollectionGeneratorPingUI from './pages/PostmanCollectionGenerator.PingUI';
 import SDKSampleApp from './pages/SDKSampleApp';
+import { SecurityGuidesPage } from './pages/SecurityGuidesPage';
 import ServiceTestRunner from './pages/ServiceTestRunner';
+import { SpiffeSpireTokenDisplayPage } from './pages/SpiffeSpireTokenDisplayPage';
 import JWTExamples from './pages/sdk-examples/JWTExamples';
 import OIDCExamples from './pages/sdk-examples/OIDCExamples';
 import SDKDocumentation from './pages/sdk-examples/SDKDocumentation';
@@ -183,8 +186,11 @@ import SDKExamplesHomePingUI from './pages/sdk-examples/SDKExamplesHome.PingUI';
 import HelioMartPasswordResetPingUI from './pages/security/HelioMartPasswordReset.PingUI';
 import TestDemo from './pages/TestDemo';
 import TokenManagement from './pages/TokenManagement';
+import { TokenRefreshPage } from './pages/TokenRefreshPage';
+import { TokenStatusPage } from './pages/TokenStatusPage';
 import UltimateTokenDisplayDemoPingUI from './pages/UltimateTokenDisplayDemo.PingUI';
 import URLDecoder from './pages/URLDecoder';
+import { UserSearchPage } from './pages/UserSearchPage';
 import WorkerTokenTesterPingUI from './pages/WorkerTokenTester.PingUI';
 import { FIDO2SampleApp } from './samples/p1mfa/fido2/FIDO2SampleApp';
 import { IntegratedMFASample } from './samples/p1mfa/IntegratedMFASample';
@@ -203,13 +209,6 @@ import PingOneProtectFlowV8 from './v8/flows/PingOneProtectFlowV8';
 import ResourcesAPIFlowV8 from './v8/flows/ResourcesAPIFlowV8';
 import { FIDO2ConfigurationPageV8 } from './v8/flows/types/FIDO2ConfigurationPageV8';
 import { MobileOTPConfigurationPageV8 } from './v8/flows/types/MobileOTPConfigurationPageV8';
-import { UserSearchPage } from './pages/UserSearchPage';
-import { LoginPatternsPage } from './pages/LoginPatternsPage';
-import { SpiffeSpireTokenDisplayPage } from './pages/SpiffeSpireTokenDisplayPage';
-import { TokenRefreshPage } from './pages/TokenRefreshPage';
-import { TokenStatusPage } from './pages/TokenStatusPage';
-import { DebugLogsPage } from './pages/DebugLogsPage';
-import { SecurityGuidesPage } from './pages/SecurityGuidesPage';
 
 // Lazy load unified MFA flow for code splitting
 const UnifiedMFARegistrationFlowV8_Legacy = React.lazy(() =>
@@ -657,7 +656,11 @@ const AppRoutes: React.FC = () => {
 			) : (
 				// Main app - render with full layout
 				<AppContainer>
-					<Navbar toggleSidebar={toggleSidebar} sidebarOpen={sidebarOpen} sidebarWidth={sidebarWidth} />
+					<Navbar
+						toggleSidebar={toggleSidebar}
+						sidebarOpen={sidebarOpen}
+						sidebarWidth={sidebarWidth}
+					/>
 					<Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 					<ContentColumn>
 						<MainContent $sidebarWidth={sidebarWidth} className="end-user-nano">
@@ -854,10 +857,7 @@ const AppRoutes: React.FC = () => {
 								<Route path="/v8/email-mfa-signon" element={<EmailMFASignOnFlowV8 />} />
 								<Route path="/v8/resources-api" element={<ResourcesAPIFlowV8 />} />
 								{/* Legacy Protect routes redirect to v8 paths */}
-								<Route
-									path="/pingone-protect"
-									element={<Navigate to="/v8/protect" replace />}
-								/>
+								<Route path="/pingone-protect" element={<Navigate to="/v8/protect" replace />} />
 								<Route path="/v8/protect" element={<PingOneProtectFlowV8 />} />
 								<Route
 									path="/flows/oauth-authorization-code-v7-condensed-mock"
@@ -1347,7 +1347,8 @@ const AppRoutes: React.FC = () => {
 								{/* Backward-compatible redirect for older links */}
 								<Route path="/oidc/tokens" element={<Navigate to="/oidc/id-tokens" replace />} />
 								<Route path="/client-generator" element={<ClientGenerator />} />{' '}
-								{/* <Route path="/application-generator" element={<ApplicationGeneratorPingUI />} /> */} {/* Temporarily disabled due to build issues */}
+								{/* <Route path="/application-generator" element={<ApplicationGeneratorPingUI />} /> */}{' '}
+								{/* Temporarily disabled due to build issues */}
 								<Route path="/oauth-code-generator-hub" element={<OAuthCodeGeneratorHub />} />
 								<Route path="/mfa-flow-code-generator" element={<MfaFlowCodeGeneratorV9 />} />
 								<Route path="/configuration" element={<ConfigurationPingUI />} />
@@ -1413,7 +1414,10 @@ const AppRoutes: React.FC = () => {
 								{/* Token API Documentation Page */}
 								<Route path="/token-api-documentation" element={<TokenApiDocumentationPage />} />
 								{/* SPIFFE-Spire Token Display Page */}
-								<Route path="/spiffe-spire-token-display" element={<SpiffeSpireTokenDisplayPage />} />
+								<Route
+									path="/spiffe-spire-token-display"
+									element={<SpiffeSpireTokenDisplayPage />}
+								/>
 								{/* Token Refresh Page */}
 								<Route path="/token-refresh" element={<TokenRefreshPage />} />
 								{/* Token Status Page */}

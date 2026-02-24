@@ -5,10 +5,26 @@
  */
 
 import React, { useState } from 'react';
-import { FiShield, FiLock, FiKey, FiAlertTriangle, FiCheckCircle, FiBook, FiDownload, FiCopy, FiEye, FiEyeOff, FiRefreshCw, FiInfo, FiUsers, FiDatabase, FiActivity } from 'react-icons/fi';
+import {
+	FiActivity,
+	FiAlertTriangle,
+	FiBook,
+	FiCheckCircle,
+	FiCopy,
+	FiDatabase,
+	FiDownload,
+	FiEye,
+	FiEyeOff,
+	FiInfo,
+	FiKey,
+	FiLock,
+	FiRefreshCw,
+	FiShield,
+	FiUsers,
+} from 'react-icons/fi';
 import styled from 'styled-components';
-import { PageHeaderV8, PageHeaderTextColors } from '@/v8/components/shared/PageHeaderV8';
 import BootstrapButton from '@/components/bootstrap/BootstrapButton';
+import { PageHeaderTextColors, PageHeaderV8 } from '@/v8/components/shared/PageHeaderV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const _MODULE_TAG = '[🔒 SECURITY-GUIDES]';
@@ -258,13 +274,25 @@ const mockSecurityGuides: SecurityGuide[] = [
 			{ item: 'Use short-lived access tokens', completed: false, critical: true },
 			{ item: 'Store tokens securely (HttpOnly cookies)', completed: false, critical: true },
 			{ item: 'Implement CSRF protection', completed: false, critical: false },
-			{ item: 'Log and monitor OAuth events', completed: false, critical: false }
+			{ item: 'Log and monitor OAuth events', completed: false, critical: false },
 		],
 		resources: [
-			{ title: 'OAuth 2.0 Security Best Practices', url: 'https://tools.ietf.org/html/rfc6819', type: 'standard' },
-			{ title: 'OAuth 2.0 Threat Model and Security Considerations', url: 'https://datatracker.ietf.org/doc/html/rfc6819', type: 'documentation' },
-			{ title: 'OWASP OAuth 2.0 Cheat Sheet', url: 'https://cheatsheetseries.owasp.org/cheatsheets/OAuth_2_0_Cheat_Sheet.html', type: 'article' }
-		]
+			{
+				title: 'OAuth 2.0 Security Best Practices',
+				url: 'https://tools.ietf.org/html/rfc6819',
+				type: 'standard',
+			},
+			{
+				title: 'OAuth 2.0 Threat Model and Security Considerations',
+				url: 'https://datatracker.ietf.org/doc/html/rfc6819',
+				type: 'documentation',
+			},
+			{
+				title: 'OWASP OAuth 2.0 Cheat Sheet',
+				url: 'https://cheatsheetseries.owasp.org/cheatsheets/OAuth_2_0_Cheat_Sheet.html',
+				type: 'article',
+			},
+		],
 	},
 	{
 		id: 'token-security',
@@ -317,13 +345,25 @@ const mockSecurityGuides: SecurityGuide[] = [
 			{ item: 'Validate all token signatures', completed: false, critical: true },
 			{ item: 'Implement token revocation mechanism', completed: false, critical: true },
 			{ item: 'Use mTLS for sensitive operations', completed: false, critical: false },
-			{ item: 'Implement DPoP for enhanced security', completed: false, critical: false }
+			{ item: 'Implement DPoP for enhanced security', completed: false, critical: false },
 		],
 		resources: [
-			{ title: 'JWT Best Practices', url: 'https://auth0.com/blog/jwt-best-practices/', type: 'article' },
-			{ title: 'Token Binding for OAuth 2.0', url: 'https://tools.ietf.org/html/rfc8471', type: 'standard' },
-			{ title: 'OAuth 2.0 Token Binding', url: 'https://datatracker.ietf.org/doc/html/rfc8471', type: 'documentation' }
-		]
+			{
+				title: 'JWT Best Practices',
+				url: 'https://auth0.com/blog/jwt-best-practices/',
+				type: 'article',
+			},
+			{
+				title: 'Token Binding for OAuth 2.0',
+				url: 'https://tools.ietf.org/html/rfc8471',
+				type: 'standard',
+			},
+			{
+				title: 'OAuth 2.0 Token Binding',
+				url: 'https://datatracker.ietf.org/doc/html/rfc8471',
+				type: 'documentation',
+			},
+		],
 	},
 	{
 		id: 'api-security',
@@ -392,14 +432,26 @@ const mockSecurityGuides: SecurityGuide[] = [
 			{ item: 'Implement request signing for sensitive APIs', completed: false, critical: true },
 			{ item: 'Deploy Web Application Firewall', completed: false, critical: true },
 			{ item: 'Implement DDoS protection', completed: false, critical: false },
-			{ item: 'Use security monitoring and analytics', completed: false, critical: false }
+			{ item: 'Use security monitoring and analytics', completed: false, critical: false },
 		],
 		resources: [
-			{ title: 'OWASP API Security Top 10', url: 'https://owasp.org/www-project-api-security/', type: 'documentation' },
-			{ title: 'API Security Best Practices', url: 'https://owasp.org/www-project-api-security/', type: 'article' },
-			{ title: 'OAuth 2.0 for Browser-Based Apps', url: 'https://tools.ietf.org/html/draft-ietf-oauth-browser-based-apps', type: 'standard' }
-		]
-	}
+			{
+				title: 'OWASP API Security Top 10',
+				url: 'https://owasp.org/www-project-api-security/',
+				type: 'documentation',
+			},
+			{
+				title: 'API Security Best Practices',
+				url: 'https://owasp.org/www-project-api-security/',
+				type: 'article',
+			},
+			{
+				title: 'OAuth 2.0 for Browser-Based Apps',
+				url: 'https://tools.ietf.org/html/draft-ietf-oauth-browser-based-apps',
+				type: 'standard',
+			},
+		],
+	},
 ];
 
 export const SecurityGuidesPage: React.FC = () => {
@@ -409,7 +461,7 @@ export const SecurityGuidesPage: React.FC = () => {
 	const [checklist, setChecklist] = useState<SecurityChecklist[]>([]);
 	const [copiedText, setCopiedText] = useState('');
 
-	const filteredGuides = mockSecurityGuides.filter(guide => {
+	const filteredGuides = mockSecurityGuides.filter((guide) => {
 		const matchesCategory = selectedCategory === 'all' || guide.category === selectedCategory;
 		const matchesLevel = selectedLevel === 'all' || guide.level === selectedLevel;
 		return matchesCategory && matchesLevel;
@@ -417,7 +469,7 @@ export const SecurityGuidesPage: React.FC = () => {
 
 	const handleGuideSelect = (guide: SecurityGuide) => {
 		setSelectedGuide(guide);
-		setChecklist(guide.checklist.map(item => ({ ...item })));
+		setChecklist(guide.checklist.map((item) => ({ ...item })));
 	};
 
 	const handleChecklistToggle = (index: number) => {
@@ -427,25 +479,28 @@ export const SecurityGuidesPage: React.FC = () => {
 	};
 
 	const copyToClipboard = (text: string, type: string) => {
-		navigator.clipboard.writeText(text).then(() => {
-			setCopiedText(type);
-			toastV8.success(`${type} copied to clipboard`);
-			setTimeout(() => setCopiedText(''), 2000);
-		}).catch(() => {
-			toastV8.error('Failed to copy to clipboard');
-		});
+		navigator.clipboard
+			.writeText(text)
+			.then(() => {
+				setCopiedText(type);
+				toastV8.success(`${type} copied to clipboard`);
+				setTimeout(() => setCopiedText(''), 2000);
+			})
+			.catch(() => {
+				toastV8.error('Failed to copy to clipboard');
+			});
 	};
 
 	const exportChecklist = () => {
 		if (!selectedGuide) return;
-		
+
 		const checklistText = checklist
-			.filter(item => !item.completed)
-			.map(item => `${item.critical ? '🔴' : '🟡'} ${item.item}`)
+			.filter((item) => !item.completed)
+			.map((item) => `${item.critical ? '🔴' : '🟡'} ${item.item}`)
 			.join('\n');
-		
+
 		const fullText = `Security Checklist: ${selectedGuide.title}\n\n${checklistText}`;
-		
+
 		const blob = new Blob([fullText], { type: 'text/plain' });
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement('a');
@@ -455,28 +510,39 @@ export const SecurityGuidesPage: React.FC = () => {
 		a.click();
 		document.body.removeChild(a);
 		URL.revokeObjectURL(url);
-		
+
 		toastV8.success('Checklist exported successfully');
 	};
 
 	const getCategoryIcon = (category: string) => {
 		switch (category) {
-			case 'authentication': return <FiShield />;
-			case 'authorization': return <FiKey />;
-			case 'tokens': return <FiLock />;
-			case 'api': return <FiDatabase />;
-			case 'infrastructure': return <FiActivity />;
-			case 'compliance': return <FiUsers />;
-			default: return <FiShield />;
+			case 'authentication':
+				return <FiShield />;
+			case 'authorization':
+				return <FiKey />;
+			case 'tokens':
+				return <FiLock />;
+			case 'api':
+				return <FiDatabase />;
+			case 'infrastructure':
+				return <FiActivity />;
+			case 'compliance':
+				return <FiUsers />;
+			default:
+				return <FiShield />;
 		}
 	};
 
 	const getLevelColor = (level: string) => {
 		switch (level) {
-			case 'beginner': return '#10b981';
-			case 'intermediate': return '#f59e0b';
-			case 'advanced': return '#ef4444';
-			default: return '#6b7280';
+			case 'beginner':
+				return '#10b981';
+			case 'intermediate':
+				return '#f59e0b';
+			case 'advanced':
+				return '#ef4444';
+			default:
+				return '#6b7280';
 		}
 	};
 
@@ -494,12 +560,9 @@ export const SecurityGuidesPage: React.FC = () => {
 					<FiFilter />
 					Security Guides ({filteredGuides.length})
 				</SectionTitle>
-				
+
 				<FilterBar>
-					<Select
-						value={selectedCategory}
-						onChange={(e) => setSelectedCategory(e.target.value)}
-					>
+					<Select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
 						<option value="all">All Categories</option>
 						<option value="authentication">Authentication</option>
 						<option value="authorization">Authorization</option>
@@ -508,11 +571,8 @@ export const SecurityGuidesPage: React.FC = () => {
 						<option value="infrastructure">Infrastructure</option>
 						<option value="compliance">Compliance</option>
 					</Select>
-					
-					<Select
-						value={selectedLevel}
-						onChange={(e) => setSelectedLevel(e.target.value)}
-					>
+
+					<Select value={selectedLevel} onChange={(e) => setSelectedLevel(e.target.value)}>
 						<option value="all">All Levels</option>
 						<option value="beginner">Beginner</option>
 						<option value="intermediate">Intermediate</option>
@@ -533,19 +593,13 @@ export const SecurityGuidesPage: React.FC = () => {
 									{getCategoryIcon(guide.category)}
 									{guide.title}
 								</GuideTitle>
-								<GuideDescription>
-									{guide.description}
-								</GuideDescription>
-								
+								<GuideDescription>{guide.description}</GuideDescription>
+
 								<div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
-									<CategoryBadge $category={guide.category}>
-										{guide.category}
-									</CategoryBadge>
-									<LevelBadge $level={guide.level}>
-										{guide.level}
-									</LevelBadge>
+									<CategoryBadge $category={guide.category}>{guide.category}</CategoryBadge>
+									<LevelBadge $level={guide.level}>{guide.level}</LevelBadge>
 								</div>
-								
+
 								<BootstrapButton
 									variant="primary"
 									onClick={() => handleGuideSelect(guide)}
@@ -566,40 +620,34 @@ export const SecurityGuidesPage: React.FC = () => {
 						<FiBook />
 						{selectedGuide.title}
 					</SectionTitle>
-					
+
 					<div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
 						<CategoryBadge $category={selectedGuide.category}>
 							{selectedGuide.category}
 						</CategoryBadge>
-						<LevelBadge $level={selectedGuide.level}>
-							{selectedGuide.level}
-						</LevelBadge>
+						<LevelBadge $level={selectedGuide.level}>{selectedGuide.level}</LevelBadge>
 					</div>
-					
+
 					<ContentArea>
-						<div style={{ whiteSpace: 'pre-line', lineHeight: '1.6' }}>
-							{selectedGuide.content}
-						</div>
+						<div style={{ whiteSpace: 'pre-line', lineHeight: '1.6' }}>{selectedGuide.content}</div>
 					</ContentArea>
-					
-					<h3 style={{ margin: '2rem 0 1rem 0', color: '#1f2937' }}>
-						Security Checklist
-					</h3>
-					
+
+					<h3 style={{ margin: '2rem 0 1rem 0', color: '#1f2937' }}>Security Checklist</h3>
+
 					<Checklist>
 						{checklist.map((item, index) => (
-							<ChecklistItem
-								key={index}
-								$completed={item.completed}
-								$critical={item.critical}
-							>
+							<ChecklistItem key={index} $completed={item.completed} $critical={item.critical}>
 								<input
 									type="checkbox"
 									checked={item.completed}
 									onChange={() => handleChecklistToggle(index)}
 									style={{ cursor: 'pointer' }}
 								/>
-								{item.completed ? <FiCheckCircle color="#10b981" /> : <FiAlertTriangle color={item.critical ? "#ef4444" : "#f59e0b"} />}
+								{item.completed ? (
+									<FiCheckCircle color="#10b981" />
+								) : (
+									<FiAlertTriangle color={item.critical ? '#ef4444' : '#f59e0b'} />
+								)}
 								<span style={{ textDecoration: item.completed ? 'line-through' : 'none' }}>
 									{item.item}
 								</span>
@@ -611,22 +659,19 @@ export const SecurityGuidesPage: React.FC = () => {
 							</ChecklistItem>
 						))}
 					</Checklist>
-					
+
 					<ActionButtons>
-						<BootstrapButton
-							variant="primary"
-							onClick={exportChecklist}
-						>
+						<BootstrapButton variant="primary" onClick={exportChecklist}>
 							<FiDownload />
 							Export Checklist
 						</BootstrapButton>
-						
+
 						<BootstrapButton
 							variant="secondary"
 							onClick={() => {
 								const checklistText = checklist
-									.filter(item => !item.completed)
-									.map(item => `${item.critical ? '🔴' : '🟡'} ${item.item}`)
+									.filter((item) => !item.completed)
+									.map((item) => `${item.critical ? '🔴' : '🟡'} ${item.item}`)
 									.join('\n');
 								copyToClipboard(checklistText, 'Checklist');
 							}}
@@ -635,11 +680,9 @@ export const SecurityGuidesPage: React.FC = () => {
 							{copiedText === 'Checklist' ? 'Copied!' : 'Copy Checklist'}
 						</BootstrapButton>
 					</ActionButtons>
-					
-					<h3 style={{ margin: '2rem 0 1rem 0', color: '#1f2937' }}>
-						Additional Resources
-					</h3>
-					
+
+					<h3 style={{ margin: '2rem 0 1rem 0', color: '#1f2937' }}>Additional Resources</h3>
+
 					<ResourceList>
 						{selectedGuide.resources.map((resource, index) => (
 							<ResourceItem key={index}>
@@ -659,12 +702,9 @@ export const SecurityGuidesPage: React.FC = () => {
 							</ResourceItem>
 						))}
 					</ResourceList>
-					
+
 					<ActionButtons>
-						<BootstrapButton
-							variant="secondary"
-							onClick={() => setSelectedGuide(null)}
-						>
+						<BootstrapButton variant="secondary" onClick={() => setSelectedGuide(null)}>
 							Close
 						</BootstrapButton>
 					</ActionButtons>
@@ -676,9 +716,22 @@ export const SecurityGuidesPage: React.FC = () => {
 					<FiInfo />
 					Security Overview
 				</SectionTitle>
-				
-				<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
-					<div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '0.375rem', padding: '1rem' }}>
+
+				<div
+					style={{
+						display: 'grid',
+						gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+						gap: '1.5rem',
+					}}
+				>
+					<div
+						style={{
+							background: '#f0fdf4',
+							border: '1px solid #bbf7d0',
+							borderRadius: '0.375rem',
+							padding: '1rem',
+						}}
+					>
 						<h4 style={{ margin: '0 0 0.5rem 0', color: '#166534' }}>Critical Security Items</h4>
 						<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#166534' }}>
 							<li>Always use HTTPS for OAuth endpoints</li>
@@ -688,8 +741,15 @@ export const SecurityGuidesPage: React.FC = () => {
 							<li>Implement proper scope management</li>
 						</ul>
 					</div>
-					
-					<div style={{ background: '#fef3c7', border: '1px solid #fcd34d', borderRadius: '0.375rem', padding: '1rem' }}>
+
+					<div
+						style={{
+							background: '#fef3c7',
+							border: '1px solid #fcd34d',
+							borderRadius: '0.375rem',
+							padding: '1rem',
+						}}
+					>
 						<h4 style={{ margin: '0 0 0.5rem 0', color: '#92400e' }}>Common Vulnerabilities</h4>
 						<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#92400e' }}>
 							<li>Token leakage through logs</li>
@@ -699,8 +759,15 @@ export const SecurityGuidesPage: React.FC = () => {
 							<li>Improper input validation</li>
 						</ul>
 					</div>
-					
-					<div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '0.375rem', padding: '1rem' }}>
+
+					<div
+						style={{
+							background: '#eff6ff',
+							border: '1px solid #bfdbfe',
+							borderRadius: '0.375rem',
+							padding: '1rem',
+						}}
+					>
 						<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e40af' }}>Security Tools</h4>
 						<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#1e40af' }}>
 							<li>OWASP ZAP for security testing</li>

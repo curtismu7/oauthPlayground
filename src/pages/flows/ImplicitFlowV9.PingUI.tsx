@@ -4,9 +4,9 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import BootstrapIcon from '../../components/BootstrapIcon';
+import { ExpandCollapseAllControls } from '../../components/ExpandCollapseAllControls';
 import { getBootstrapIconName } from '../../components/iconMapping';
 import { PingUIWrapper } from '../../components/PingUIWrapper';
-import { ExpandCollapseAllControls } from '../../components/ExpandCollapseAllControls';
 import { useSectionsViewMode } from '../../services/sectionsViewModeService';
 import { unifiedStorageManager } from '../../services/unifiedStorageManager';
 
@@ -34,14 +34,16 @@ interface ImplicitFlowV9Props {
 	variant?: 'oauth' | 'oidc';
 }
 
-const ImplicitFlowV9: React.FC<ImplicitFlowV9Props> = ({
-	variant: initialVariant = 'oauth',
-}) => {
+const ImplicitFlowV9: React.FC<ImplicitFlowV9Props> = ({ variant: initialVariant = 'oauth' }) => {
 	// Section management with V9 service
-	const {
-		areAllExpanded,
-		areAllCollapsed
-	} = useSectionsViewMode('implicit-flow-v9', ['overview', 'credentials', 'auth-request', 'auth-response', 'token-display', 'introspection']);
+	const { areAllExpanded, areAllCollapsed } = useSectionsViewMode('implicit-flow-v9', [
+		'overview',
+		'credentials',
+		'auth-request',
+		'auth-response',
+		'token-display',
+		'introspection',
+	]);
 
 	// Core state
 	const [selectedVariant, setSelectedVariant] = useState<'oauth' | 'oidc'>(initialVariant);
@@ -113,22 +115,25 @@ const ImplicitFlowV9: React.FC<ImplicitFlowV9Props> = ({
 			case 1:
 				return !!controller.authUrl;
 			case 2:
-				return !!(controller.tokens);
+				return !!controller.tokens;
 			case 3:
-				return !!(controller.tokens);
+				return !!controller.tokens;
 			default:
 				return true;
 		}
 	};
 
 	// V9 variant change handler
-	const handleVariantChange = useCallback((variant: 'oauth' | 'oidc') => {
-		setSelectedVariant(variant);
-		setCurrentStep(0);
-		controller.resetFlow();
+	const handleVariantChange = useCallback(
+		(variant: 'oauth' | 'oidc') => {
+			setSelectedVariant(variant);
+			setCurrentStep(0);
+			controller.resetFlow();
 
-		controller.showSuccessFeedback(`Switched to ${variant.toUpperCase()} Implicit Flow variant`);
-	}, [controller]);
+			controller.showSuccessFeedback(`Switched to ${variant.toUpperCase()} Implicit Flow variant`);
+		},
+		[controller]
+	);
 
 	// Render V9 variant selector
 	const renderVariantSelector = () => (
@@ -137,13 +142,12 @@ const ImplicitFlowV9: React.FC<ImplicitFlowV9Props> = ({
 				<div className="d-flex gap-3 p-3 bg-light rounded-3 border">
 					<button
 						type="button"
-						className={`btn flex-fill ${selectedVariant === 'oauth'
-							? 'btn-success'
-							: 'btn-outline-success'
+						className={`btn flex-fill ${
+							selectedVariant === 'oauth' ? 'btn-success' : 'btn-outline-success'
 						}`}
 						onClick={() => handleVariantChange('oauth')}
 					>
-						<BootstrapIcon icon={getBootstrapIconName("shield-check")} size={16} className="me-2" />
+						<BootstrapIcon icon={getBootstrapIconName('shield-check')} size={16} className="me-2" />
 						<div className="text-start">
 							<div className="fw-semibold">OAuth 2.0 Implicit</div>
 							<small className="opacity-75">Access token only - API authorization</small>
@@ -151,16 +155,17 @@ const ImplicitFlowV9: React.FC<ImplicitFlowV9Props> = ({
 					</button>
 					<button
 						type="button"
-						className={`btn flex-fill ${selectedVariant === 'oidc'
-							? 'btn-primary'
-							: 'btn-outline-primary'
+						className={`btn flex-fill ${
+							selectedVariant === 'oidc' ? 'btn-primary' : 'btn-outline-primary'
 						}`}
 						onClick={() => handleVariantChange('oidc')}
 					>
-						<BootstrapIcon icon={getBootstrapIconName("person-badge")} size={16} className="me-2" />
+						<BootstrapIcon icon={getBootstrapIconName('person-badge')} size={16} className="me-2" />
 						<div className="text-start">
 							<div className="fw-semibold">OpenID Connect Implicit</div>
-							<small className="opacity-75">ID token + Access token - Authentication + Authorization</small>
+							<small className="opacity-75">
+								ID token + Access token - Authentication + Authorization
+							</small>
 						</div>
 					</button>
 				</div>
@@ -177,7 +182,11 @@ const ImplicitFlowV9: React.FC<ImplicitFlowV9Props> = ({
 						<div className="d-flex align-items-center justify-content-between">
 							<div>
 								<h1 className="h2 mb-2 d-flex align-items-center">
-									<BootstrapIcon icon={getBootstrapIconName("lightning")} size={28} className="me-3 text-warning" />
+									<BootstrapIcon
+										icon={getBootstrapIconName('lightning')}
+										size={28}
+										className="me-3 text-warning"
+									/>
 									Implicit Flow V9
 									<span className="badge bg-success ms-2">PingOne UI</span>
 								</h1>
@@ -188,7 +197,14 @@ const ImplicitFlowV9: React.FC<ImplicitFlowV9Props> = ({
 							<div className="d-flex gap-2">
 								<ExpandCollapseAllControls
 									pageKey="implicit-flow-v9"
-									sectionIds={['overview', 'credentials', 'auth-request', 'auth-response', 'token-display', 'introspection']}
+									sectionIds={[
+										'overview',
+										'credentials',
+										'auth-request',
+										'auth-response',
+										'token-display',
+										'introspection',
+									]}
 									allExpanded={areAllExpanded()}
 									allCollapsed={areAllCollapsed()}
 									onExpandAll={() => {}}
@@ -206,7 +222,10 @@ const ImplicitFlowV9: React.FC<ImplicitFlowV9Props> = ({
 							<nav aria-label="Implicit flow steps">
 								<ul className="pagination pagination-lg">
 									{['Setup', 'Authorize', 'Tokens', 'Introspect'].map((step, index) => (
-										<li key={step} className={`page-item ${currentStep === index ? 'active' : ''} ${isStepValid(index) ? '' : 'disabled'}`}>
+										<li
+											key={step}
+											className={`page-item ${currentStep === index ? 'active' : ''} ${isStepValid(index) ? '' : 'disabled'}`}
+										>
 											<button
 												type="button"
 												className="page-link"
@@ -231,7 +250,11 @@ const ImplicitFlowV9: React.FC<ImplicitFlowV9Props> = ({
 					<div className="col-12">
 						{/* Placeholder for step content - will be implemented based on currentStep */}
 						<div className="alert alert-info">
-							<BootstrapIcon icon={getBootstrapIconName("info-circle")} size={16} className="me-2" />
+							<BootstrapIcon
+								icon={getBootstrapIconName('info-circle')}
+								size={16}
+								className="me-2"
+							/>
 							Implicit Flow V9 - Step {currentStep + 1} content will be implemented here
 						</div>
 					</div>

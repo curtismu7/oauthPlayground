@@ -100,7 +100,7 @@ export class MFAErrorBoundaryPingUI extends Component<Props, State> {
 						>
 							{/* PING UI MIGRATION: Replaced FiAlertTriangle with Bootstrap icon */}
 							<BootstrapIcon
-								icon={getBootstrapIconName("alert-triangle")}
+								icon={getBootstrapIconName('alert-triangle')}
 								size={64}
 								ariaLabel="Error occurred"
 								style={{
@@ -193,7 +193,11 @@ export class MFAErrorBoundaryPingUI extends Component<Props, State> {
 									aria-label="Try again"
 								>
 									{/* PING UI MIGRATION: Replaced FiRefreshCw with Bootstrap icon */}
-									<BootstrapIcon icon={getBootstrapIconName("refresh-cw")} size={18} ariaLabel="Refresh" />
+									<BootstrapIcon
+										icon={getBootstrapIconName('refresh-cw')}
+										size={18}
+										ariaLabel="Refresh"
+									/>
 									Try Again
 								</button>
 								<button
@@ -216,7 +220,7 @@ export class MFAErrorBoundaryPingUI extends Component<Props, State> {
 									aria-label="Go to MFA hub"
 								>
 									{/* PING UI MIGRATION: Replaced FiHome with Bootstrap icon */}
-									<BootstrapIcon icon={getBootstrapIconName("home")} size={18} ariaLabel="Home" />
+									<BootstrapIcon icon={getBootstrapIconName('home')} size={18} ariaLabel="Home" />
 									Go to MFA Hub
 								</button>
 							</div>

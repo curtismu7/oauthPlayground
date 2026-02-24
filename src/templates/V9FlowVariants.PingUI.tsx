@@ -4,17 +4,22 @@
  * @version 9.25.1
  */
 
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BootstrapIcon from '@/components/BootstrapIcon';
 import { getBootstrapIconName } from '@/components/iconMapping';
 import { PingUIWrapper } from '@/components/PingUIWrapper';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { unifiedStorageManager } from '@/services/unifiedStorageManager';
+import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { FlowUIService } from '../services/flowUIService';
 
 // V9 Flow Types
-export type V9FlowName = 'authorization-code' | 'client-credentials' | 'device-authorization' | 'implicit' | 'pkce';
+export type V9FlowName =
+	| 'authorization-code'
+	| 'client-credentials'
+	| 'device-authorization'
+	| 'implicit'
+	| 'pkce';
 export type V9FlowVariant = 'oauth' | 'oidc';
 
 // V9 Configuration Interface
@@ -38,7 +43,7 @@ const V9_STORAGE_KEYS = {
 	FLOW_STATE: 'v9_flow_state',
 	USER_PREFERENCES: 'v9_user_preferences',
 	COMPLIANCE_SETTINGS: 'v9_compliance_settings',
-	EDUCATIONAL_PROGRESS: 'v9_educational_progress'
+	EDUCATIONAL_PROGRESS: 'v9_educational_progress',
 } as const;
 
 // V9 Message Types
@@ -48,7 +53,7 @@ export enum V9MessageType {
 	WARNING = 'warning',
 	INFO = 'info',
 	COMPLIANCE = 'compliance',
-	EDUCATIONAL = 'educational'
+	EDUCATIONAL = 'educational',
 }
 
 // V9 Message Interface
@@ -93,7 +98,7 @@ const DEFAULT_V9_CONFIG: V9FlowConfig = {
 	authMethod: 'client_secret_basic',
 	pkceEnabled: true,
 	enablePAR: false,
-	enableRAR: false
+	enableRAR: false,
 };
 
 export interface V9FlowVariantProps {
@@ -171,10 +176,10 @@ class V9StorageService {
 		try {
 			const keys = [
 				`${V9_STORAGE_KEYS.FLOW_CONFIG}_${flowName}`,
-				`${V9_STORAGE_KEYS.FLOW_STATE}_${flowName}`
+				`${V9_STORAGE_KEYS.FLOW_STATE}_${flowName}`,
 			];
-			
-			await Promise.all(keys.map(key => unifiedStorageManager.clear(key)));
+
+			await Promise.all(keys.map((key) => unifiedStorageManager.clear(key)));
 			console.log(`${V9StorageService.MODULE_TAG} Cleared data for ${flowName}`);
 		} catch (error) {
 			console.error(`${V9StorageService.MODULE_TAG} Failed to clear flow data:`, error);
@@ -227,8 +232,9 @@ class V9MessagingService {
 	 */
 	static compliance(check: string, status: 'passed' | 'failed' | 'warning'): void {
 		const title = `Compliance Check: ${check}`;
-		const content = status === 'passed' ? '✅ Passed' : status === 'failed' ? '❌ Failed' : '⚠️ Warning';
-		
+		const content =
+			status === 'passed' ? '✅ Passed' : status === 'failed' ? '❌ Failed' : '⚠️ Warning';
+
 		if (status === 'passed') {
 			V9MessagingService.success(title, content);
 		} else if (status === 'failed') {
@@ -254,7 +260,7 @@ export const V9OAuthFlowVariant: React.FC<V9FlowVariantProps> = ({
 	baseFlowName,
 	showVariantSelector = false,
 	onVariantChange,
-	initialVariant = 'oauth'
+	initialVariant = 'oauth',
 }) => {
 	const navigate = useNavigate();
 	const [config, setConfig] = useState<V9FlowConfig>(DEFAULT_V9_CONFIG);
@@ -269,8 +275,8 @@ export const V9OAuthFlowVariant: React.FC<V9FlowVariantProps> = ({
 			pkceEnabled: true,
 			stateParameterUsed: false,
 			nonceUsed: false,
-			scopeValidation: false
-		}
+			scopeValidation: false,
+		},
 	});
 	const [selectedVariant, setSelectedVariant] = useState<V9FlowVariant>(initialVariant);
 
@@ -280,12 +286,12 @@ export const V9OAuthFlowVariant: React.FC<V9FlowVariantProps> = ({
 			try {
 				const savedConfig = await V9StorageService.loadConfig(baseFlowName);
 				const savedState = await V9StorageService.loadFlowState(baseFlowName);
-				
+
 				if (Object.keys(savedConfig).length > 0) {
-					setConfig(prev => ({ ...prev, ...savedConfig }));
+					setConfig((prev) => ({ ...prev, ...savedConfig }));
 					V9MessagingService.success('Configuration Loaded', 'Previous settings restored');
 				}
-				
+
 				if (savedState) {
 					setFlowState(savedState);
 				}
@@ -330,23 +336,26 @@ export const V9OAuthFlowVariant: React.FC<V9FlowVariantProps> = ({
 	};
 
 	const handleConfigUpdate = (updates: Partial<V9FlowConfig>) => {
-		setConfig(prev => ({ ...prev, ...updates }));
+		setConfig((prev) => ({ ...prev, ...updates }));
 		V9MessagingService.success('Configuration Updated', 'Settings saved successfully');
 	};
 
 	const handleStepChange = (step: number) => {
-		setFlowState(prev => ({ ...prev, currentStep: step }));
+		setFlowState((prev) => ({ ...prev, currentStep: step }));
 	};
 
-	const handleComplianceCheck = (check: keyof typeof flowState.complianceChecks, passed: boolean) => {
-		setFlowState(prev => ({
+	const handleComplianceCheck = (
+		check: keyof typeof flowState.complianceChecks,
+		passed: boolean
+	) => {
+		setFlowState((prev) => ({
 			...prev,
 			complianceChecks: {
 				...prev.complianceChecks,
-				[check]: passed
-			}
+				[check]: passed,
+			},
 		}));
-		
+
 		const checkName = check.replace(/([A-Z])/g, ' $1').trim();
 		V9MessagingService.compliance(checkName, passed ? 'passed' : 'failed');
 	};
@@ -366,8 +375,8 @@ export const V9OAuthFlowVariant: React.FC<V9FlowVariantProps> = ({
 					pkceEnabled: true,
 					stateParameterUsed: false,
 					nonceUsed: false,
-					scopeValidation: false
-				}
+					scopeValidation: false,
+				},
 			});
 			V9MessagingService.success('Data Cleared', 'All flow data has been reset');
 		} catch (error) {
@@ -383,14 +392,16 @@ export const V9OAuthFlowVariant: React.FC<V9FlowVariantProps> = ({
 					<div className="card">
 						<div className="card-header">
 							<h5 className="card-title">
-								<BootstrapIcon icon={getBootstrapIconName("gear")} size={20} className="me-2" />
+								<BootstrapIcon icon={getBootstrapIconName('gear')} size={20} className="me-2" />
 								Configuration
 							</h5>
 						</div>
 						<div className="card-body">
 							<div className="row g-3">
 								<div className="col-md-6">
-									<label htmlFor="baseUrl" className="form-label">Base URL</label>
+									<label htmlFor="baseUrl" className="form-label">
+										Base URL
+									</label>
 									<input
 										id="baseUrl"
 										type="text"
@@ -400,7 +411,9 @@ export const V9OAuthFlowVariant: React.FC<V9FlowVariantProps> = ({
 									/>
 								</div>
 								<div className="col-md-6">
-									<label htmlFor="clientId" className="form-label">Client ID</label>
+									<label htmlFor="clientId" className="form-label">
+										Client ID
+									</label>
 									<input
 										id="clientId"
 										type="text"
@@ -410,7 +423,9 @@ export const V9OAuthFlowVariant: React.FC<V9FlowVariantProps> = ({
 									/>
 								</div>
 								<div className="col-md-6">
-									<label htmlFor="clientSecret" className="form-label">Client Secret</label>
+									<label htmlFor="clientSecret" className="form-label">
+										Client Secret
+									</label>
 									<input
 										id="clientSecret"
 										type="password"
@@ -420,7 +435,9 @@ export const V9OAuthFlowVariant: React.FC<V9FlowVariantProps> = ({
 									/>
 								</div>
 								<div className="col-md-6">
-									<label htmlFor="redirectUri" className="form-label">Redirect URI</label>
+									<label htmlFor="redirectUri" className="form-label">
+										Redirect URI
+									</label>
 									<input
 										id="redirectUri"
 										type="text"
@@ -430,7 +447,9 @@ export const V9OAuthFlowVariant: React.FC<V9FlowVariantProps> = ({
 									/>
 								</div>
 								<div className="col-md-6">
-									<label htmlFor="environmentId" className="form-label">Environment ID</label>
+									<label htmlFor="environmentId" className="form-label">
+										Environment ID
+									</label>
 									<input
 										id="environmentId"
 										type="text"
@@ -440,17 +459,23 @@ export const V9OAuthFlowVariant: React.FC<V9FlowVariantProps> = ({
 									/>
 								</div>
 								<div className="col-md-6">
-									<label htmlFor="scopes" className="form-label">Scopes</label>
+									<label htmlFor="scopes" className="form-label">
+										Scopes
+									</label>
 									<input
 										id="scopes"
 										type="text"
 										className="form-control"
 										value={config.scopes.join(' ')}
-										onChange={(e) => handleConfigUpdate({ scopes: e.target.value.split(' ').filter(Boolean) })}
+										onChange={(e) =>
+											handleConfigUpdate({ scopes: e.target.value.split(' ').filter(Boolean) })
+										}
 									/>
 								</div>
 								<div className="col-md-6">
-									<label htmlFor="region" className="form-label">Region</label>
+									<label htmlFor="region" className="form-label">
+										Region
+									</label>
 									<select
 										id="region"
 										className="form-select"
@@ -464,7 +489,9 @@ export const V9OAuthFlowVariant: React.FC<V9FlowVariantProps> = ({
 									</select>
 								</div>
 								<div className="col-md-6">
-									<label htmlFor="authMethod" className="form-label">Auth Method</label>
+									<label htmlFor="authMethod" className="form-label">
+										Auth Method
+									</label>
 									<select
 										id="authMethod"
 										className="form-select"
@@ -513,7 +540,11 @@ export const V9OAuthFlowVariant: React.FC<V9FlowVariantProps> = ({
 					<div className="card">
 						<div className="card-header">
 							<h5 className="card-title">
-								<BootstrapIcon icon={getBootstrapIconName("shield-check")} size={20} className="me-2" />
+								<BootstrapIcon
+									icon={getBootstrapIconName('shield-check')}
+									size={20}
+									className="me-2"
+								/>
 								Compliance Checks
 							</h5>
 						</div>
@@ -522,7 +553,9 @@ export const V9OAuthFlowVariant: React.FC<V9FlowVariantProps> = ({
 								<div className="list-group-item">
 									<div className="d-flex justify-content-between align-items-center">
 										<span>PKCE Enabled</span>
-										<span className={`badge bg-${flowState.complianceChecks.pkceEnabled ? 'success' : 'danger'}`}>
+										<span
+											className={`badge bg-${flowState.complianceChecks.pkceEnabled ? 'success' : 'danger'}`}
+										>
 											{flowState.complianceChecks.pkceEnabled ? '✅' : '❌'}
 										</span>
 									</div>
@@ -530,7 +563,9 @@ export const V9OAuthFlowVariant: React.FC<V9FlowVariantProps> = ({
 								<div className="list-group-item">
 									<div className="d-flex justify-content-between align-items-center">
 										<span>State Parameter Used</span>
-										<span className={`badge bg-${flowState.complianceChecks.stateParameterUsed ? 'success' : 'danger'}`}>
+										<span
+											className={`badge bg-${flowState.complianceChecks.stateParameterUsed ? 'success' : 'danger'}`}
+										>
 											{flowState.complianceChecks.stateParameterUsed ? '✅' : '❌'}
 										</span>
 									</div>
@@ -538,7 +573,9 @@ export const V9OAuthFlowVariant: React.FC<V9FlowVariantProps> = ({
 								<div className="list-group-item">
 									<div className="d-flex justify-content-between align-items-center">
 										<span>Nonce Used (OIDC)</span>
-										<span className={`badge bg-${flowState.complianceChecks.nonceUsed ? 'success' : 'danger'}`}>
+										<span
+											className={`badge bg-${flowState.complianceChecks.nonceUsed ? 'success' : 'danger'}`}
+										>
 											{flowState.complianceChecks.nonceUsed ? '✅' : '❌'}
 										</span>
 									</div>
@@ -546,7 +583,9 @@ export const V9OAuthFlowVariant: React.FC<V9FlowVariantProps> = ({
 								<div className="list-group-item">
 									<div className="d-flex justify-content-between align-items-center">
 										<span>Scope Validation</span>
-										<span className={`badge bg-${flowState.complianceChecks.scopeValidation ? 'success' : 'danger'}`}>
+										<span
+											className={`badge bg-${flowState.complianceChecks.scopeValidation ? 'success' : 'danger'}`}
+										>
 											{flowState.complianceChecks.scopeValidation ? '✅' : '❌'}
 										</span>
 									</div>
@@ -559,7 +598,11 @@ export const V9OAuthFlowVariant: React.FC<V9FlowVariantProps> = ({
 				return (
 					<div className="card">
 						<div className="card-body text-center">
-							<BootstrapIcon icon={getBootstrapIconName("info-circle")} size={48} className="text-muted mb-3" />
+							<BootstrapIcon
+								icon={getBootstrapIconName('info-circle')}
+								size={48}
+								className="text-muted mb-3"
+							/>
 							<h5>Step {flowState.currentStep} Coming Soon</h5>
 							<p className="text-muted">This step is under development</p>
 						</div>
@@ -577,7 +620,7 @@ export const V9OAuthFlowVariant: React.FC<V9FlowVariantProps> = ({
 						<div className="d-flex align-items-center justify-content-between">
 							<div>
 								<h1 className="h2 mb-2">
-									<BootstrapIcon icon={getBootstrapIconName("layers")} size={24} className="me-2" />
+									<BootstrapIcon icon={getBootstrapIconName('layers')} size={24} className="me-2" />
 									V9 {baseFlowName.replace('-', ' ').toUpperCase()} Flow
 								</h1>
 								<p className="text-muted mb-0">
@@ -603,12 +646,8 @@ export const V9OAuthFlowVariant: React.FC<V9FlowVariantProps> = ({
 										</button>
 									</div>
 								)}
-								<button
-									type="button"
-									className="btn btn-outline-secondary"
-									onClick={clearFlowData}
-								>
-									<BootstrapIcon icon={getBootstrapIconName("trash")} size={16} className="me-1" />
+								<button type="button" className="btn btn-outline-secondary" onClick={clearFlowData}>
+									<BootstrapIcon icon={getBootstrapIconName('trash')} size={16} className="me-1" />
 									Clear Data
 								</button>
 								<button
@@ -616,7 +655,11 @@ export const V9OAuthFlowVariant: React.FC<V9FlowVariantProps> = ({
 									className="btn btn-outline-secondary"
 									onClick={() => navigate('/')}
 								>
-									<BootstrapIcon icon={getBootstrapIconName("arrow-left")} size={16} className="me-1" />
+									<BootstrapIcon
+										icon={getBootstrapIconName('arrow-left')}
+										size={16}
+										className="me-1"
+									/>
 									Back
 								</button>
 							</div>
@@ -638,8 +681,12 @@ export const V9OAuthFlowVariant: React.FC<V9FlowVariantProps> = ({
 							/>
 						</div>
 						<div className="d-flex justify-content-between mt-2">
-							<small className="text-muted">Step {flowState.currentStep + 1} of {flowState.totalSteps}</small>
-							<small className="text-muted">{Math.round(((flowState.currentStep + 1) / flowState.totalSteps) * 100)}% Complete</small>
+							<small className="text-muted">
+								Step {flowState.currentStep + 1} of {flowState.totalSteps}
+							</small>
+							<small className="text-muted">
+								{Math.round(((flowState.currentStep + 1) / flowState.totalSteps) * 100)}% Complete
+							</small>
 						</div>
 					</div>
 				</div>
@@ -655,11 +702,37 @@ export const V9OAuthFlowVariant: React.FC<V9FlowVariantProps> = ({
 									className={`btn ${i === flowState.currentStep ? 'btn-primary' : 'btn-outline-secondary'}`}
 									onClick={() => handleStepChange(i)}
 								>
-									{i === 0 && <BootstrapIcon icon={getBootstrapIconName("gear")} size={16} className="me-1" />}
-									{i === 1 && <BootstrapIcon icon={getBootstrapIconName("shield-check")} size={16} className="me-1" />}
-									{i === 2 && <BootstrapIcon icon={getBootstrapIconName("play-circle")} size={16} className="me-1" />}
-									{i === 3 && <BootstrapIcon icon={getBootstrapIconName("arrow-repeat")} size={16} className="me-1" />}
-									{i === 4 && <BootstrapIcon icon={getBootstrapIconName("check-circle")} size={16} className="me-1" />}
+									{i === 0 && (
+										<BootstrapIcon icon={getBootstrapIconName('gear')} size={16} className="me-1" />
+									)}
+									{i === 1 && (
+										<BootstrapIcon
+											icon={getBootstrapIconName('shield-check')}
+											size={16}
+											className="me-1"
+										/>
+									)}
+									{i === 2 && (
+										<BootstrapIcon
+											icon={getBootstrapIconName('play-circle')}
+											size={16}
+											className="me-1"
+										/>
+									)}
+									{i === 3 && (
+										<BootstrapIcon
+											icon={getBootstrapIconName('arrow-repeat')}
+											size={16}
+											className="me-1"
+										/>
+									)}
+									{i === 4 && (
+										<BootstrapIcon
+											icon={getBootstrapIconName('check-circle')}
+											size={16}
+											className="me-1"
+										/>
+									)}
 									Step {i + 1}
 								</button>
 							))}
@@ -669,9 +742,7 @@ export const V9OAuthFlowVariant: React.FC<V9FlowVariantProps> = ({
 
 				{/* Step Content */}
 				<div className="row">
-					<div className="col-12">
-						{renderStepContent()}
-					</div>
+					<div className="col-12">{renderStepContent()}</div>
 				</div>
 
 				{/* Flow Actions */}
@@ -684,17 +755,27 @@ export const V9OAuthFlowVariant: React.FC<V9FlowVariantProps> = ({
 								onClick={() => handleStepChange(Math.max(0, flowState.currentStep - 1))}
 								disabled={flowState.currentStep === 0}
 							>
-								<BootstrapIcon icon={getBootstrapIconName("arrow-left")} size={16} className="me-1" />
+								<BootstrapIcon
+									icon={getBootstrapIconName('arrow-left')}
+									size={16}
+									className="me-1"
+								/>
 								Previous
 							</button>
 							<button
 								type="button"
 								className="btn btn-primary"
-								onClick={() => handleStepChange(Math.min(flowState.totalSteps - 1, flowState.currentStep + 1))}
+								onClick={() =>
+									handleStepChange(Math.min(flowState.totalSteps - 1, flowState.currentStep + 1))
+								}
 								disabled={flowState.currentStep === flowState.totalSteps - 1}
 							>
 								Next
-								<BootstrapIcon icon={getBootstrapIconName("arrow-right")} size={16} className="ms-1" />
+								<BootstrapIcon
+									icon={getBootstrapIconName('arrow-right')}
+									size={16}
+									className="ms-1"
+								/>
 							</button>
 						</div>
 					</div>
@@ -719,14 +800,14 @@ export const V9OIDCFlowVariant: React.FC<V9FlowVariantProps> = (props) => {
  */
 export const V9FlowVariants: React.FC<V9FlowVariantProps> = (props) => {
 	const { baseFlowName } = props;
-	
+
 	// Determine if this is an OIDC flow based on scopes or flow type
 	const isOIDCFlow = baseFlowName.includes('oidc') || baseFlowName === 'authorization-code';
-	
+
 	if (isOIDCFlow) {
 		return <V9OIDCFlowVariant {...props} />;
 	}
-	
+
 	return <V9OAuthFlowVariant {...props} />;
 };
 

@@ -119,21 +119,24 @@ export const DeviceRegistrationFlow: React.FC<DeviceRegistrationFlowProps> = ({
 	}, []);
 
 	// Execute step-specific logic
-	const executeStepLogic = useCallback(async (step: RegistrationStep, _state: RegistrationFlowState) => {
-		switch (step) {
-			case RegistrationStep.DEVICE_CONFIGURATION:
-				// Device configuration logic
-				break;
-			case RegistrationStep.DEVICE_VALIDATION:
-				// Device validation logic
-				break;
-			case RegistrationStep.REGISTRATION_COMPLETE:
-				// Completion logic
-				break;
-			default:
-				break;
-		}
-	}, []);
+	const executeStepLogic = useCallback(
+		async (step: RegistrationStep, _state: RegistrationFlowState) => {
+			switch (step) {
+				case RegistrationStep.DEVICE_CONFIGURATION:
+					// Device configuration logic
+					break;
+				case RegistrationStep.DEVICE_VALIDATION:
+					// Device validation logic
+					break;
+				case RegistrationStep.REGISTRATION_COMPLETE:
+					// Completion logic
+					break;
+				default:
+					break;
+			}
+		},
+		[]
+	);
 
 	// Handle step navigation
 	const handleNextStep = useCallback(async () => {

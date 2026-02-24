@@ -306,9 +306,7 @@ const EnvironmentManagementPageV8PingUI: React.FC = () => {
 	if (!globalTokenStatus.isValid || !globalTokenStatus.token) {
 		return (
 			<div style={getContainerStyle()}>
-				{globalTokenStatus.token && (
-					<WorkerTokenDetectedBanner token={globalTokenStatus.token} />
-				)}
+				{globalTokenStatus.token && <WorkerTokenDetectedBanner token={globalTokenStatus.token} />}
 				<WorkerTokenButton />
 			</div>
 		);

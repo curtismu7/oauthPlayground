@@ -16,6 +16,8 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useProductionSpinner } from '@/hooks/useProductionSpinner';
+import { feedbackService } from '@/services/feedback/feedbackService';
+import { migrateToast } from '@/utils/migrationHelpers';
 import type { SearchableDropdownOption } from '@/v8/components/SearchableDropdownV8';
 import { SearchableDropdownV8 } from '@/v8/components/SearchableDropdownV8';
 import {
@@ -33,8 +35,6 @@ import { StorageServiceV8 } from '@/v8/services/storageServiceV8';
 import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
-import { feedbackService } from '@/services/feedback/feedbackService';
-import { migrateToast } from '@/utils/migrationHelpers';
 
 const MODULE_TAG = '[🗑️ DELETE-DEVICES-V8]';
 
@@ -594,7 +594,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 			feedbackService.showSnackbar({
 				type: 'warning',
 				message: 'No devices to delete',
-				duration: 4000
+				duration: 4000,
 			});
 			return;
 		}
@@ -605,7 +605,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 			feedbackService.showSnackbar({
 				type: 'warning',
 				message: 'No devices selected for deletion',
-				duration: 4000
+				duration: 4000,
 			});
 			return;
 		}
@@ -616,7 +616,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 				type: 'error',
 				title: 'Validation Error',
 				message: 'Please provide environment ID, username, and a valid worker token',
-				dismissible: true
+				dismissible: true,
 			});
 			return;
 		}
@@ -674,14 +674,14 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 					type: 'success',
 					title: 'Deletion Successful',
 					message: `Successfully deleted ${results.success} device(s)`,
-					dismissible: true
+					dismissible: true,
 				});
 			} else {
 				feedbackService.showPageBanner({
 					type: 'warning',
 					title: 'Partial Deletion',
 					message: `Deleted ${results.success} device(s), but ${results.failed} failed. Check details below.`,
-					dismissible: true
+					dismissible: true,
 				});
 			}
 
@@ -694,7 +694,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 				type: 'error',
 				title: 'Deletion Failed',
 				message: `Failed to delete devices: ${errorMessage}`,
-				dismissible: true
+				dismissible: true,
 			});
 		} finally {
 			deletingSpinner.hideSpinner();

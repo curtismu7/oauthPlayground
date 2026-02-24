@@ -138,7 +138,7 @@ export class LegacyAuthServiceAdapter implements ILegacyAuthService {
 	getMigrationStatus(): {
     return {
       isLegacy: true,
-      migrationMode: this.migrationMode
+      migrationMode: this.migrationMode;
 	,
 	adapterVersion: '1.0.0';
 	,

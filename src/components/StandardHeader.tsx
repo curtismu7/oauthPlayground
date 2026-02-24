@@ -9,52 +9,52 @@
 import React from 'react';
 
 export interface StandardHeaderProps {
-  title: string;
-  description?: string;
-  icon?: string; // MDI icon name
-  isCollapsible?: boolean;
-  isCollapsed?: boolean;
-  onToggle?: () => void;
-  variant?: 'primary' | 'secondary' | 'accent';
-  badge?: {
-    text: string;
-    variant?: 'default' | 'primary' | 'success' | 'warning' | 'danger';
-  };
-  className?: string;
-  style?: React.CSSProperties;
-  children?: React.ReactNode;
+	title: string;
+	description?: string;
+	icon?: string; // MDI icon name
+	isCollapsible?: boolean;
+	isCollapsed?: boolean;
+	onToggle?: () => void;
+	variant?: 'primary' | 'secondary' | 'accent';
+	badge?: {
+		text: string;
+		variant?: 'default' | 'primary' | 'success' | 'warning' | 'danger';
+	};
+	className?: string;
+	style?: React.CSSProperties;
+	children?: React.ReactNode;
 }
 
 const StandardHeader: React.FC<StandardHeaderProps> = ({
-  title,
-  description,
-  icon,
-  isCollapsible = true,
-  isCollapsed = false,
-  onToggle,
-  variant = 'primary',
-  badge,
-  className = '',
-  style,
-  children,
+	title,
+	description,
+	icon,
+	isCollapsible = true,
+	isCollapsed = false,
+	onToggle,
+	variant = 'primary',
+	badge,
+	className = '',
+	style,
+	children,
 }) => {
-  const handleClick = () => {
-    if (isCollapsible && onToggle) {
-      onToggle();
-    }
-  };
+	const handleClick = () => {
+		if (isCollapsible && onToggle) {
+			onToggle();
+		}
+	};
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (isCollapsible && (e.key === 'Enter' || e.key === ' ')) {
-      e.preventDefault();
-      onToggle?.();
-    }
-  };
+	const handleKeyDown = (e: React.KeyboardEvent) => {
+		if (isCollapsible && (e.key === 'Enter' || e.key === ' ')) {
+			e.preventDefault();
+			onToggle?.();
+		}
+	};
 
-  return (
-    <>
-      <style>
-        {`
+	return (
+		<>
+			<style>
+				{`
           /* Standard Header CSS Variables */
           :root {
             /* Primary Blue Header Colors */
@@ -300,53 +300,49 @@ const StandardHeader: React.FC<StandardHeaderProps> = ({
             box-shadow: none;
           }
         `}
-      </style>
+			</style>
 
-      <div
-        className={`standard-header standard-header--${variant} ${className}`}
-        onClick={handleClick}
-        onKeyDown={handleKeyDown}
-        role={isCollapsible ? "button" : "heading"}
-        tabIndex={isCollapsible ? 0 : undefined}
-        aria-expanded={isCollapsible ? !isCollapsed : undefined}
-        aria-label={isCollapsible ? `${title}, ${isCollapsed ? 'expand' : 'collapse'}` : title}
-        style={style}
-      >
-        <div className="standard-header__content">
-          {icon && (
-            <div className="standard-header__icon">
-              <span className={`mdi mdi-${icon}`}></span>
-            </div>
-          )}
-          
-          <div className="standard-header__text">
-            <h3 className="standard-header__title">{title}</h3>
-            {description && (
-              <p className="standard-header__description">{description}</p>
-            )}
-          </div>
-          
-          {badge && (
-            <div className={`standard-header__badge standard-header__badge--${badge.variant || 'default'}`}>
-              {badge.text}
-            </div>
-          )}
-          
-          {isCollapsible && (
-            <div className={`standard-header__toggle ${isCollapsed ? 'collapsed' : 'expanded'}`}>
-              <span className="mdi mdi-chevron-down"></span>
-            </div>
-          )}
-        </div>
-      </div>
-      
-      {children && !isCollapsed && (
-        <div className="standard-header__content">
-          {children}
-        </div>
-      )}
-    </>
-  );
+			<div
+				className={`standard-header standard-header--${variant} ${className}`}
+				onClick={handleClick}
+				onKeyDown={handleKeyDown}
+				role={isCollapsible ? 'button' : 'heading'}
+				tabIndex={isCollapsible ? 0 : undefined}
+				aria-expanded={isCollapsible ? !isCollapsed : undefined}
+				aria-label={isCollapsible ? `${title}, ${isCollapsed ? 'expand' : 'collapse'}` : title}
+				style={style}
+			>
+				<div className="standard-header__content">
+					{icon && (
+						<div className="standard-header__icon">
+							<span className={`mdi mdi-${icon}`}></span>
+						</div>
+					)}
+
+					<div className="standard-header__text">
+						<h3 className="standard-header__title">{title}</h3>
+						{description && <p className="standard-header__description">{description}</p>}
+					</div>
+
+					{badge && (
+						<div
+							className={`standard-header__badge standard-header__badge--${badge.variant || 'default'}`}
+						>
+							{badge.text}
+						</div>
+					)}
+
+					{isCollapsible && (
+						<div className={`standard-header__toggle ${isCollapsed ? 'collapsed' : 'expanded'}`}>
+							<span className="mdi mdi-chevron-down"></span>
+						</div>
+					)}
+				</div>
+			</div>
+
+			{children && !isCollapsed && <div className="standard-header__content">{children}</div>}
+		</>
+	);
 };
 
 export default StandardHeader;

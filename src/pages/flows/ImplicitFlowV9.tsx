@@ -39,20 +39,20 @@ import {
 } from '../../services/oauthErrorHandlingService';
 
 // MDI Icon Component for PingOne UI
-const MDIIcon: React.FC<{ icon: string; size?: number; ariaLabel?: string; color?: string }> = ({ 
-	icon, 
-	size, 
-	ariaLabel, 
-	color 
+const MDIIcon: React.FC<{ icon: string; size?: number; ariaLabel?: string; color?: string }> = ({
+	icon,
+	size,
+	ariaLabel,
+	color,
 }) => {
 	const iconClass = getMDIIconClass(icon);
 	return (
-		<i 
-			className={`mdi ${iconClass}`} 
-			style={{ 
+		<i
+			className={`mdi ${iconClass}`}
+			style={{
 				fontSize: `${size}px`,
-				color: color || 'currentColor'
-			}} 
+				color: color || 'currentColor',
+			}}
 			aria-label={ariaLabel}
 		></i>
 	);
@@ -61,15 +61,15 @@ const MDIIcon: React.FC<{ icon: string; size?: number; ariaLabel?: string; color
 // MDI Icon Mapping
 const getMDIIconClass = (fiIcon: string): string => {
 	const iconMap: Record<string, string> = {
-		'FiAlertCircle': 'mdi-alert-circle',
-		'FiAlertTriangle': 'mdi-alert-triangle',
-		'FiCheckCircle': 'mdi-check-circle',
-		'FiChevronDown': 'mdi-chevron-down',
-		'FiCode': 'mdi-code-tags',
-		'FiExternalLink': 'mdi-open-in-new',
-		'FiGlobe': 'mdi-earth',
-		'FiInfo': 'mdi-information',
-		'FiShield': 'mdi-shield-check',
+		FiAlertCircle: 'mdi-alert-circle',
+		FiAlertTriangle: 'mdi-alert-triangle',
+		FiCheckCircle: 'mdi-check-circle',
+		FiChevronDown: 'mdi-chevron-down',
+		FiCode: 'mdi-code-tags',
+		FiExternalLink: 'mdi-open-in-new',
+		FiGlobe: 'mdi-earth',
+		FiInfo: 'mdi-information',
+		FiShield: 'mdi-shield-check',
 	};
 	return iconMap[fiIcon] || fiIcon.replace('Fi', 'mdi-').toLowerCase();
 };
@@ -278,10 +278,10 @@ const CodeBlock = styled.pre`
 const ImplicitFlowV9: React.FC = () => {
 	const location = useLocation();
 	const isOIDC = location.search.includes('variant=oidc');
-	
+
 	// Component implementation would go here
 	// This is a template showing the PingOne UI styling approach
-	
+
 	return (
 		<FlowContainer className="end-user-nano">
 			<FlowHeader>
@@ -290,18 +290,17 @@ const ImplicitFlowV9: React.FC = () => {
 					{isOIDC ? 'OIDC' : 'OAuth 2.0'} Implicit Flow V9
 				</FlowTitle>
 				<FlowSubtitle>
-					{isOIDC 
+					{isOIDC
 						? 'Deprecated OIDC implicit flow with ID tokens - Educational purposes only'
-						: 'Deprecated OAuth 2.0 implicit flow - Educational purposes only'
-					}
+						: 'Deprecated OAuth 2.0 implicit flow - Educational purposes only'}
 				</FlowSubtitle>
 			</FlowHeader>
-			
+
 			<WarningBanner>
 				<MDIIcon icon="FiAlertTriangle" size={20} />
 				<span>This flow is deprecated and insecure. Use Authorization Code Flow instead.</span>
 			</WarningBanner>
-			
+
 			<StepContainer>
 				<StepHeader>
 					<StepTitle>
@@ -310,7 +309,7 @@ const ImplicitFlowV9: React.FC = () => {
 					</StepTitle>
 					<StepBadge variant="warning">Deprecated</StepBadge>
 				</StepHeader>
-				
+
 				<PingCard>
 					<h3>Why This Flow Is Insecure</h3>
 					<ul style={{ color: 'var(--ping-text-secondary, #6b7280)' }}>
@@ -319,8 +318,15 @@ const ImplicitFlowV9: React.FC = () => {
 						<li>Vulnerable to token leakage</li>
 						<li>Not recommended for production use</li>
 					</ul>
-					
-					<div style={{ marginTop: '1rem', padding: '1rem', background: 'var(--ping-primary-light, #dbeafe)', borderRadius: '8px' }}>
+
+					<div
+						style={{
+							marginTop: '1rem',
+							padding: '1rem',
+							background: 'var(--ping-primary-light, #dbeafe)',
+							borderRadius: '8px',
+						}}
+					>
 						<h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--ping-primary, #3b82f6)' }}>
 							<MDIIcon icon="FiInfo" size={16} color="var(--ping-primary, #3b82f6)" />
 							Secure Alternative
@@ -329,14 +335,14 @@ const ImplicitFlowV9: React.FC = () => {
 							Use the <strong>Authorization Code Flow with PKCE</strong> for secure token exchange.
 						</p>
 					</div>
-					
+
 					<PingButton variant="primary" style={{ marginTop: '1rem' }}>
 						<MDIIcon icon="FiExternalLink" size={16} />
 						Learn About Secure Flows
 					</PingButton>
 				</PingCard>
 			</StepContainer>
-			
+
 			<StepContainer>
 				<StepHeader>
 					<StepTitle>
@@ -345,23 +351,33 @@ const ImplicitFlowV9: React.FC = () => {
 					</StepTitle>
 					<StepBadge variant="secondary">Educational</StepBadge>
 				</StepHeader>
-				
+
 				<PingCard>
 					<h3>Token Response Example</h3>
 					<CodeBlock>
-{isOIDC ? `# URL Fragment with ID Token
+						{isOIDC
+							? `# URL Fragment with ID Token
 https://example.com/callback#access_token=eyJhbGciOiJIUzI1NiIs...
 &id_token=eyJhbGciOiJIUzI1NiIs...
 &token_type=Bearer
 &expires_in=3600
-&state=xyz123` : `# URL Fragment with Access Token
+&state=xyz123`
+							: `# URL Fragment with Access Token
 https://example.com/callback#access_token=eyJhbGciOiJIUzI1NiIs...
 &token_type=Bearer
 &expires_in=3600
 &state=xyz123`}
 					</CodeBlock>
-					
-					<div style={{ marginTop: '1rem', padding: '0.75rem', background: 'var(--ping-badge-warning, #f59e0b)', borderRadius: '6px', color: 'white' }}>
+
+					<div
+						style={{
+							marginTop: '1rem',
+							padding: '0.75rem',
+							background: 'var(--ping-badge-warning, #f59e0b)',
+							borderRadius: '6px',
+							color: 'white',
+						}}
+					>
 						<strong>⚠️ Security Risk:</strong> Tokens visible in browser history and server logs
 					</div>
 				</PingCard>

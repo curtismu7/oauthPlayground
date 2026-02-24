@@ -1,7 +1,7 @@
 // src/components/MfaFlowCodeGenerator.V9.tsx
 /**
  * V9 PingOne UI Upgrade - MFA Flow Code Generator
- * 
+ *
  * V9 Upgrades Applied:
  * - Removed React Icons (FiCode) in favor of MDI CSS icons
  * - Added .end-user-nano namespace wrapper for Ping UI scoping
@@ -14,15 +14,15 @@
 
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
+import { showFlowError, showFlowSuccess } from '../components/CentralizedSuccessMessage';
 import { CodeGenerationService } from '../services/codeGeneration';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
-import { showFlowSuccess, showFlowError } from '../components/CentralizedSuccessMessage';
 
 // Import types from the original InteractiveCodeEditor for compatibility
-import { 
-	CodeCategory as OriginalCodeCategory, 
-	CodeType as OriginalCodeType, 
-	FlowStep as OriginalFlowStep 
+import {
+	CodeCategory as OriginalCodeCategory,
+	CodeType as OriginalCodeType,
+	FlowStep as OriginalFlowStep,
 } from './InteractiveCodeEditor';
 
 // Import the V9 component
@@ -216,7 +216,9 @@ export const MfaFlowCodeGeneratorV9: React.FC<MfaFlowCodeGeneratorProps> = ({
 		<PingUIWrapper className="end-user-nano">
 			<CollapsibleHeader
 				title={
-					<div style={{ display: 'flex', alignItems: 'center', gap: 'var(--ping-spacing-sm, 8px)' }}>
+					<div
+						style={{ display: 'flex', alignItems: 'center', gap: 'var(--ping-spacing-sm, 8px)' }}
+					>
 						<MDIIcon icon="FiCode" size={20} ariaLabel="Code generator" />
 						Code Examples - Production Ready
 					</div>

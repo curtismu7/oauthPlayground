@@ -3,17 +3,17 @@
 // Reusable template for creating V9 flows with consistent architecture
 
 import React, { useCallback, useEffect, useState } from 'react';
+import BootstrapIcon from '../components/BootstrapIcon';
+import { ExpandCollapseAllControls } from '../components/ExpandCollapseAllControls';
 import { EducationModeToggle } from '../components/education/EducationModeToggle';
 import { MasterEducationSection } from '../components/education/MasterEducationSection';
-import { StepNavigationButtons } from '../components/StepNavigationButtons';
-import BootstrapIcon from '../components/BootstrapIcon';
 import { getBootstrapIconName } from '../components/iconMapping';
 import { PingUIWrapper } from '../components/PingUIWrapper';
-import { ExpandCollapseAllControls } from '../components/ExpandCollapseAllControls';
-import { useSectionsViewMode } from '../services/sectionsViewModeService';
-import { feedbackService } from '../services/feedback/feedbackService';
-import { unifiedStorageManager } from '../services/unifiedStorageManager';
+import { StepNavigationButtons } from '../components/StepNavigationButtons';
 import { usePageScroll } from '../hooks/usePageScroll';
+import { feedbackService } from '../services/feedback/feedbackService';
+import { useSectionsViewMode } from '../services/sectionsViewModeService';
+import { unifiedStorageManager } from '../services/unifiedStorageManager';
 
 export interface V9FlowTemplateProps {
 	/** Unique identifier for this flow */
@@ -72,7 +72,6 @@ const V9FlowTemplate: React.FC<V9FlowTemplateProps> = ({
 	tokenDisplayComponent: TokenDisplayComponent,
 	additionalSections = [],
 }) => {
-
 	console.log(`🚀 [V9FlowTemplate] ${title} loaded!`, {
 		url: window.location.href,
 		search: window.location.search,
@@ -83,17 +82,13 @@ const V9FlowTemplate: React.FC<V9FlowTemplateProps> = ({
 	usePageScroll({ pageName: `${title} - PingOne UI`, force: true });
 
 	const [currentStep, setCurrentStep] = useState(0);
-	const [errorDetails, setErrorDetails] = useState<{ message?: string; details?: unknown } | null>(null);
+	const [errorDetails, setErrorDetails] = useState<{ message?: string; details?: unknown } | null>(
+		null
+	);
 
 	// V9: Use sections view mode for expand/collapse functionality
-	const {
-		expandedStates,
-		toggleSection,
-		expandAll,
-		collapseAll,
-		areAllExpanded,
-		areAllCollapsed
-	} = useSectionsViewMode(flowKey, sectionIds);
+	const { expandedStates, toggleSection, expandAll, collapseAll, areAllExpanded, areAllCollapsed } =
+		useSectionsViewMode(flowKey, sectionIds);
 
 	// V9: Persist flow state using unified storage manager
 	useEffect(() => {
@@ -122,7 +117,7 @@ const V9FlowTemplate: React.FC<V9FlowTemplateProps> = ({
 	useEffect(() => {
 		const loadFlowState = async () => {
 			try {
-				const savedState = await unifiedStorageManager.load(`${flowKey}-flow-state`) as {
+				const savedState = (await unifiedStorageManager.load(`${flowKey}-flow-state`)) as {
 					currentStep?: number;
 					flowVariant?: string;
 					errorDetails?: { message?: string; details?: unknown };
@@ -132,7 +127,8 @@ const V9FlowTemplate: React.FC<V9FlowTemplateProps> = ({
 					console.log('🔄 [V9] Restored flow state:', savedState);
 					// Restore state if available and recent (within 1 hour)
 					const stateAge = Date.now() - new Date(savedState.timestamp || '').getTime();
-					if (stateAge < 3600000) { // 1 hour
+					if (stateAge < 3600000) {
+						// 1 hour
 						setCurrentStep(savedState.currentStep || 0);
 						setErrorDetails(savedState.errorDetails || null);
 					}
@@ -173,11 +169,14 @@ const V9FlowTemplate: React.FC<V9FlowTemplateProps> = ({
 	}, []);
 
 	// V9: Handle section toggle with feedback
-	const handleSectionToggle = useCallback((sectionId: string) => {
-		toggleSection(sectionId);
-		const isExpanded = expandedStates[sectionId];
-		showInfoFeedback(`${isExpanded ? 'Collapsed' : 'Expanded'} section`);
-	}, [toggleSection, expandedStates, showInfoFeedback]);
+	const handleSectionToggle = useCallback(
+		(sectionId: string) => {
+			toggleSection(sectionId);
+			const isExpanded = expandedStates[sectionId];
+			showInfoFeedback(`${isExpanded ? 'Collapsed' : 'Expanded'} section`);
+		},
+		[toggleSection, expandedStates, showInfoFeedback]
+	);
 
 	// V9: Handle expand all with feedback
 	const handleExpandAll = useCallback(() => {
@@ -192,14 +191,17 @@ const V9FlowTemplate: React.FC<V9FlowTemplateProps> = ({
 	}, [collapseAll, showSuccessFeedback]);
 
 	// V9: Handle copy with feedback
-	const handleCopy = useCallback(async (text: string, fieldName: string) => {
-		try {
-			await navigator.clipboard.writeText(text);
-			showSuccessFeedback(`Copied ${fieldName} to clipboard`);
-		} catch {
-			showWarningFeedback('Failed to copy to clipboard');
-		}
-	}, [showSuccessFeedback, showWarningFeedback]);
+	const handleCopy = useCallback(
+		async (text: string, fieldName: string) => {
+			try {
+				await navigator.clipboard.writeText(text);
+				showSuccessFeedback(`Copied ${fieldName} to clipboard`);
+			} catch {
+				showWarningFeedback('Failed to copy to clipboard');
+			}
+		},
+		[showSuccessFeedback, showWarningFeedback]
+	);
 
 	// V9: Handle step navigation
 	const handleNextStep = useCallback(() => {
@@ -225,21 +227,13 @@ const V9FlowTemplate: React.FC<V9FlowTemplateProps> = ({
 						<div className="d-flex justify-content-between align-items-center">
 							<div>
 								<h2 className="mb-1">
-									<BootstrapIcon
-										icon={getBootstrapIconName(iconName)}
-										size={24}
-										className="me-2"
-									/>
+									<BootstrapIcon icon={getBootstrapIconName(iconName)} size={24} className="me-2" />
 									{title}
 								</h2>
-								<p className="mb-0 opacity-75">
-									{subtitle}
-								</p>
+								<p className="mb-0 opacity-75">{subtitle}</p>
 							</div>
 							<div className="text-end">
-								<span className="badge bg-light text-dark me-2">
-									Version 9.3.6
-								</span>
+								<span className="badge bg-light text-dark me-2">Version 9.3.6</span>
 								<span className="badge bg-info">
 									Step {currentStep + 1} of {totalSteps}
 								</span>
@@ -282,7 +276,11 @@ const V9FlowTemplate: React.FC<V9FlowTemplateProps> = ({
 											onChange={() => {}} // TODO: Implement variant switching
 										/>
 										<label className="form-check-label" htmlFor={`${flowKey}-oauthVariant`}>
-											<BootstrapIcon icon={getBootstrapIconName('lock')} size={20} className="me-2" />
+											<BootstrapIcon
+												icon={getBootstrapIconName('lock')}
+												size={20}
+												className="me-2"
+											/>
 											OAuth 2.0
 										</label>
 									</div>
@@ -299,7 +297,11 @@ const V9FlowTemplate: React.FC<V9FlowTemplateProps> = ({
 											onChange={() => {}} // TODO: Implement variant switching
 										/>
 										<label className="form-check-label" htmlFor={`${flowKey}-oidcVariant`}>
-											<BootstrapIcon icon={getBootstrapIconName('shield-check')} size={20} className="me-2" />
+											<BootstrapIcon
+												icon={getBootstrapIconName('shield-check')}
+												size={20}
+												className="me-2"
+											/>
 											OpenID Connect
 										</label>
 									</div>
@@ -384,7 +386,11 @@ const V9FlowTemplate: React.FC<V9FlowTemplateProps> = ({
 					<div className="card mb-4">
 						<div className="card-header d-flex justify-content-between align-items-center">
 							<h5 className="mb-0">
-								<BootstrapIcon icon={getBootstrapIconName('arrow-right')} size={20} className="me-2" />
+								<BootstrapIcon
+									icon={getBootstrapIconName('arrow-right')}
+									size={20}
+									className="me-2"
+								/>
 								Response
 							</h5>
 							<button
@@ -413,7 +419,11 @@ const V9FlowTemplate: React.FC<V9FlowTemplateProps> = ({
 					<div className="card mb-4">
 						<div className="card-header d-flex justify-content-between align-items-center">
 							<h5 className="mb-0">
-								<BootstrapIcon icon={getBootstrapIconName('exchange-alt')} size={20} className="me-2" />
+								<BootstrapIcon
+									icon={getBootstrapIconName('exchange-alt')}
+									size={20}
+									className="me-2"
+								/>
 								Token Exchange
 							</h5>
 							<button
@@ -442,7 +452,11 @@ const V9FlowTemplate: React.FC<V9FlowTemplateProps> = ({
 					<div className="card mb-4">
 						<div className="card-header d-flex justify-content-between align-items-center">
 							<h5 className="mb-0">
-								<BootstrapIcon icon={getBootstrapIconName('shield-check')} size={20} className="me-2" />
+								<BootstrapIcon
+									icon={getBootstrapIconName('shield-check')}
+									size={20}
+									className="me-2"
+								/>
 								Token Display
 							</h5>
 							<button
@@ -471,7 +485,11 @@ const V9FlowTemplate: React.FC<V9FlowTemplateProps> = ({
 					<div key={section.id} className="card mb-4">
 						<div className="card-header d-flex justify-content-between align-items-center">
 							<h5 className="mb-0">
-								<BootstrapIcon icon={getBootstrapIconName(section.iconName)} size={20} className="me-2" />
+								<BootstrapIcon
+									icon={getBootstrapIconName(section.iconName)}
+									size={20}
+									className="me-2"
+								/>
 								{section.title}
 							</h5>
 							<button
@@ -528,7 +546,11 @@ const V9FlowTemplate: React.FC<V9FlowTemplateProps> = ({
 					<div className="card mb-4 border-danger">
 						<div className="card-header bg-danger text-white d-flex justify-content-between align-items-center">
 							<h5 className="mb-0">
-								<BootstrapIcon icon={getBootstrapIconName('exclamation-triangle')} size={20} className="me-2" />
+								<BootstrapIcon
+									icon={getBootstrapIconName('exclamation-triangle')}
+									size={20}
+									className="me-2"
+								/>
 								Error Details
 							</h5>
 							<button
@@ -547,7 +569,11 @@ const V9FlowTemplate: React.FC<V9FlowTemplateProps> = ({
 						{expandedStates['error-handling'] && (
 							<div className="card-body">
 								<div className="alert alert-danger">
-									<BootstrapIcon icon={getBootstrapIconName('alert-circle')} size={20} className="me-2" />
+									<BootstrapIcon
+										icon={getBootstrapIconName('alert-circle')}
+										size={20}
+										className="me-2"
+									/>
 									{errorDetails.message || 'An error occurred during the flow.'}
 								</div>
 								{errorDetails.details && (
@@ -567,7 +593,11 @@ const V9FlowTemplate: React.FC<V9FlowTemplateProps> = ({
 				<div className="card">
 					<div className="card-body text-center">
 						<p className="text-muted mb-0">
-							<BootstrapIcon icon={getBootstrapIconName('info-circle')} size={16} className="me-1" />
+							<BootstrapIcon
+								icon={getBootstrapIconName('info-circle')}
+								size={16}
+								className="me-1"
+							/>
 							{title} V9 - PingOne UI with Enhanced Storage & Messaging
 						</p>
 					</div>

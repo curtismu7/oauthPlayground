@@ -1,7 +1,7 @@
 // src/utils/unifiedLogger.ts
 /**
  * Unified Logging System - Consistent logging across all components
- * 
+ *
  * Provides standardized logging with:
  * - Consistent banners and footers
  * - Color-coded log levels with icons
@@ -15,7 +15,19 @@ import fs from 'fs';
 import path from 'path';
 
 export type LogLevel = 'DEBUG' | 'INFO' | 'WARN' | 'ERROR' | 'SUCCESS';
-export type LogCategory = 'SERVER' | 'CLIENT' | 'API' | 'SMS' | 'EMAIL' | 'FIDO' | 'AUTHZ' | 'STARTUP' | 'PINGONE' | 'CLIENT_CODE' | 'FLOW' | 'SYSTEM';
+export type LogCategory =
+	| 'SERVER'
+	| 'CLIENT'
+	| 'API'
+	| 'SMS'
+	| 'EMAIL'
+	| 'FIDO'
+	| 'AUTHZ'
+	| 'STARTUP'
+	| 'PINGONE'
+	| 'CLIENT_CODE'
+	| 'FLOW'
+	| 'SYSTEM';
 
 export interface LogContext {
 	category?: LogCategory;
@@ -31,13 +43,16 @@ export interface LogContext {
 }
 
 // Log level configuration with colors and icons
-const LOG_CONFIG: Record<LogLevel, {
-	icon: string;
-	emoji: string;
-	color: string;
-	bgColor: string;
-	priority: number;
-}> = {
+const LOG_CONFIG: Record<
+	LogLevel,
+	{
+		icon: string;
+		emoji: string;
+		color: string;
+		bgColor: string;
+		priority: number;
+	}
+> = {
 	DEBUG: {
 		icon: '🐛',
 		emoji: '🔍',
@@ -47,14 +62,14 @@ const LOG_CONFIG: Record<LogLevel, {
 	},
 	INFO: {
 		icon: 'ℹ️',
-	emoji: '🔵',
+		emoji: '🔵',
 		color: '#3b82f6', // Blue
 		bgColor: '#eff6ff',
 		priority: 1,
 	},
 	SUCCESS: {
 		icon: '✅',
-	emoji: '🟢',
+		emoji: '🟢',
 		color: '#10b981', // Green
 		bgColor: '#f0fdf4',
 		priority: 1,
@@ -76,12 +91,15 @@ const LOG_CONFIG: Record<LogLevel, {
 };
 
 // Category configuration with icons and colors
-const CATEGORY_CONFIG: Record<LogCategory, {
-	icon: string;
-	emoji: string;
-	color: string;
-	description: string;
-}> = {
+const CATEGORY_CONFIG: Record<
+	LogCategory,
+	{
+		icon: string;
+		emoji: string;
+		color: string;
+		description: string;
+	}
+> = {
 	SERVER: {
 		icon: '🖥️',
 		emoji: '🖥️',
@@ -138,7 +156,7 @@ const CATEGORY_CONFIG: Record<LogCategory, {
 	},
 	CLIENT_CODE: {
 		icon: '💻',
-	emoji: '💻',
+		emoji: '💻',
 		color: '#8b5cf6',
 		description: 'Code generation operations',
 	},
@@ -150,7 +168,7 @@ const CATEGORY_CONFIG: Record<LogCategory, {
 	},
 	SYSTEM: {
 		icon: '⚙️',
-	emoji: '⚙️',
+		emoji: '⚙️',
 		color: '#6b7280',
 		description: 'System operations',
 	},
@@ -189,21 +207,21 @@ const formatLogMessage = (
 		month: '2-digit',
 		day: '2-digit',
 		hour: '2-digit',
-	 minute: '2-digit',
+		minute: '2-digit',
 		second: '2-digit',
 		hour12: false,
 	});
 
 	const levelConfig = LOG_CONFIG[level];
 	const categoryConfig = context?.category ? CATEGORY_CONFIG[context.category] : null;
-	
+
 	const width = 120;
 	const borderChar = '═';
 	const sideChar = '║';
 	const reset = '\x1b[0m';
 
 	let formatted = '\n';
-	
+
 	// Top banner with category if available
 	if (categoryConfig) {
 		const categoryBanner = `${categoryConfig.emoji} ${categoryConfig.description.toUpperCase()}`;
@@ -215,19 +233,19 @@ const formatLogMessage = (
 	// Main log entry banner
 	const mainBanner = `${levelConfig.icon} ${level} ${categoryConfig ? `(${categoryConfig.description})` : ''}`;
 	formatted += `${borderChar.repeat(width)}\n`;
-	
+
 	// Header line with level and category
 	const header = `${levelConfig.icon} ${level}${categoryConfig ? ` (${categoryConfig.description})` : ''}`;
 	const padding = Math.max(0, width - header.length - 4);
 	formatted += `${sideChar} ${levelConfig.color}${header}${reset}${' '.repeat(padding)} ${sideChar}\n`;
-	
+
 	// Timestamp
 	formatted += `${sideChar} 📅 Timestamp: ${localTime} (${timestamp}) ${sideChar}\n`;
-	
+
 	// Context information if provided
 	if (context) {
 		const contextLines: string[] = [];
-		
+
 		if (context.flowType) contextLines.push(`🌊 Flow: ${context.flowType}`);
 		if (context.step) contextLines.push(`📋 Step: ${context.step}`);
 		if (context.operation) contextLines.push(`⚙️ Operation: ${context.operation}`);
@@ -236,22 +254,22 @@ const formatLogMessage = (
 		if (context.userId) contextLines.push(`👤 User: ${context.userId}`);
 		if (context.requestId) contextLines.push(`🆔 Request: ${context.requestId}`);
 		if (context.duration) contextLines.push(`⏱️ Duration: ${context.duration}ms`);
-		
+
 		contextLines.forEach((line, index) => {
 			const contextPadding = index === 0 ? '📋 Context:' : '           ';
 			formatted += `${sideChar} ${contextPadding} ${levelConfig.color}${line}${reset} ${sideChar}\n`;
 		});
 	}
-	
+
 	// Message with proper wrapping
 	const messageLines = message.split('\n');
 	formatted += `${sideChar} 📝 Message: ${levelConfig.color}${messageLines[0]}${reset} ${sideChar}\n`;
-	
+
 	// Additional message lines if any
 	for (let i = 1; i < messageLines.length; i++) {
 		formatted += `${sideChar}           ${levelConfig.color}${messageLines[i]}${reset} ${sideChar}\n`;
 	}
-	
+
 	// Bottom banner
 	formatted += `${borderChar.repeat(width)}\n`;
 	formatted += `${sideChar} ${levelConfig.icon} END OF ${level} ENTRY${categoryConfig ? ` (${categoryConfig.description})` : ''} ${sideChar}\n`;
@@ -272,12 +290,12 @@ const writeLog = (
 	consoleOutput: boolean = true
 ): void => {
 	const formattedMessage = formatLogMessage(level, message, context, category);
-	
+
 	// Console output with colors
 	if (consoleOutput) {
 		const levelConfig = LOG_CONFIG[level];
 		const coloredMessage = `${levelConfig.color}${message}${'\x1b[0m'}`;
-		
+
 		switch (level) {
 			case 'ERROR':
 				console.error(coloredMessage);
@@ -296,7 +314,7 @@ const writeLog = (
 				break;
 		}
 	}
-	
+
 	// File output
 	try {
 		// Ensure log directory exists
@@ -304,7 +322,7 @@ const writeLog = (
 		if (!fs.existsSync(logDir)) {
 			fs.mkdirSync(logDir, { recursive: true });
 		}
-		
+
 		// Write to file asynchronously
 		fs.appendFile(logPath, formattedMessage, 'utf8', (err) => {
 			if (err) {
@@ -385,7 +403,7 @@ export class UnifiedLogger {
 	private log(level: LogLevel, message: string, context?: LogContext): void {
 		const mergedContext = { ...this.context, ...context };
 		const logPath = this.category ? LOG_PATHS[this.category] : LOG_PATHS.SYSTEM;
-		
+
 		writeLog(level, message, logPath, mergedContext, this.category, this.consoleOutput);
 	}
 
@@ -444,7 +462,11 @@ export const log = {
 /**
  * Create a new logger instance
  */
-export function createLogger(category?: LogCategory, context?: LogContext, consoleOutput?: boolean): UnifiedLogger {
+export function createLogger(
+	category?: LogCategory,
+	context?: LogContext,
+	consoleOutput?: boolean
+): UnifiedLogger {
 	return new UnifiedLogger(category, context, consoleOutput);
 }
 
@@ -459,7 +481,7 @@ export function initializeLogFiles(): void {
 			description: 'SMS OTP device authentication and registration API calls',
 			includes: [
 				'Device registration for SMS devices',
-				'Device activation for SMS devices', 
+				'Device activation for SMS devices',
 				'Device authentication/verification for SMS devices',
 				'Policy lookups and configuration',
 				'Any other API calls detected as part of the SMS flow',
@@ -516,7 +538,7 @@ ${'═'.repeat(120)}
 
 This log file contains all PingOne API calls related to ${config.description.toLowerCase()}.
 
-${config.includes.map(item => `  • ${item}`).join('\n')}
+${config.includes.map((item) => `  • ${item}`).join('\n')}
 
 Flow detection is based on:
   • deviceType metadata in API call
@@ -533,7 +555,7 @@ ${'║'} ${config.icon} START OF LOG FILE ${'║'}
 ${'═'.repeat(120)}
 
 `;
-			
+
 			try {
 				const logDir = path.dirname(logPath);
 				if (!fs.existsSync(logDir)) {

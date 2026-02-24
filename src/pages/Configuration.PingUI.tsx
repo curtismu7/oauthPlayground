@@ -7,17 +7,17 @@
  */
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { ExpandCollapseAllControls } from '@/components/ExpandCollapseAllControls';
+import { useSectionsViewMode } from '@/services/sectionsViewModeService';
 import packageJson from '../../package.json';
+import BootstrapButton from '../components/bootstrap/BootstrapButton';
+import BootstrapFormField from '../components/bootstrap/BootstrapFormField';
 import ConfigurationURIChecker from '../components/ConfigurationURIChecker';
 import { DomainConfiguration } from '../components/DomainConfiguration';
 import PingOneApplicationConfig, {
 	type PingOneApplicationState,
 } from '../components/PingOneApplicationConfig';
-import { useSectionsViewMode } from '@/services/sectionsViewModeService';
-import { ExpandCollapseAllControls } from '@/components/ExpandCollapseAllControls';
 import StandardHeader from '../components/StandardHeader';
-import BootstrapButton from '../components/bootstrap/BootstrapButton';
-import BootstrapFormField from '../components/bootstrap/BootstrapFormField';
 import { callbackUriService } from '../services/callbackUriService';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { credentialStorageManager } from '../services/credentialStorageManager';
@@ -73,17 +73,18 @@ const MDIIcon: React.FC<{
 
 // Main Component
 const ConfigurationPingUI: React.FC = () => {
-	
 	// State for PingOne application configuration
-	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState & {
-		clientId?: string;
-		clientSecret?: string;
-		environmentId?: string;
-		redirectUri?: string;
-		scopes?: string;
-		isValid?: boolean;
-		errors?: Record<string, string>;
-	}>({
+	const [pingOneConfig, setPingOneConfig] = useState<
+		PingOneApplicationState & {
+			clientId?: string;
+			clientSecret?: string;
+			environmentId?: string;
+			redirectUri?: string;
+			scopes?: string;
+			isValid?: boolean;
+			errors?: Record<string, string>;
+		}
+	>({
 		clientAuthMethod: 'client_secret_basic',
 		allowRedirectUriPatterns: false,
 		pkceEnforcement: 'REQUIRED',
@@ -142,34 +143,19 @@ const ConfigurationPingUI: React.FC = () => {
 
 	// Expand/Collapse functionality - Phase 3 implementation
 	const pageKey = 'configuration-page';
-	const sectionIds = ['pingOneApp', 'workerTokenBasic', 'workerTokenStatus', 'authzFlowBasic', 'advanced', 'appInfo', 'devTools'];
-	const {
-		expandedStates,
-		toggleSection,
-		expandAll,
-		collapseAll,
-		areAllExpanded,
-		areAllCollapsed,
-	} = useSectionsViewMode(pageKey, sectionIds);
+	const sectionIds = [
+		'pingOneApp',
+		'workerTokenBasic',
+		'workerTokenStatus',
+		'authzFlowBasic',
+		'advanced',
+		'appInfo',
+		'devTools',
+	];
+	const { expandedStates, toggleSection, expandAll, collapseAll, areAllExpanded, areAllCollapsed } =
+		useSectionsViewMode(pageKey, sectionIds);
 
-	// Legacy collapsible sections state (keeping for backwards compatibility during migration)
-	const [collapsedSections, setCollapsedSections] = useState({
-		pingOneApp: false,
-		workerTokenBasic: false,
-		workerTokenStatus: false,
-		authzFlowBasic: false,
-		advanced: false,
-		appInfo: false,
-		devTools: false,
-	});
-
-	const toggleSection = useCallback((section: keyof typeof collapsedSections) => {
-		setCollapsedSections(prev => ({
-			...prev,
-			[section]: !prev[section]
-		}));
-	}, []);
-
+	
 	const isValidUrl = useCallback((url: string): boolean => {
 		try {
 			new URL(url);
@@ -188,8 +174,14 @@ const ConfigurationPingUI: React.FC = () => {
 					clientId: savedConfig.data?.clientId || '',
 					clientSecret: savedConfig.data?.clientSecret || '',
 					environmentId: savedConfig.data?.environmentId || '',
-					redirectUri: savedConfig.data?.redirectUri || callbackUriService.getCallbackUri('authzCallback'),
-					scopes: typeof savedConfig.data?.scopes === 'string' ? savedConfig.data.scopes : Array.isArray(savedConfig.data?.scopes) ? savedConfig.data.scopes.join(' ') : (savedConfig.data?.scopes || 'openid profile email'),
+					redirectUri:
+						savedConfig.data?.redirectUri || callbackUriService.getCallbackUri('authzCallback'),
+					scopes:
+						typeof savedConfig.data?.scopes === 'string'
+							? savedConfig.data.scopes
+							: Array.isArray(savedConfig.data?.scopes)
+								? savedConfig.data.scopes.join(' ')
+								: savedConfig.data?.scopes || 'openid profile email',
 				}));
 			}
 		} catch (error) {
@@ -218,7 +210,6 @@ const ConfigurationPingUI: React.FC = () => {
 			console.error('Failed to check worker token status:', error);
 		}
 	}, [loadSavedConfiguration]);
-
 
 	const validateConfiguration = useCallback(() => {
 		const errors: Record<string, string> = {};
@@ -345,8 +336,6 @@ const ConfigurationPingUI: React.FC = () => {
 			v4ToastManager.showError('Failed to copy to clipboard');
 		}
 	}, []);
-
-
 
 	const configurationSummary = useMemo(() => {
 		return {
@@ -643,19 +632,25 @@ const ConfigurationPingUI: React.FC = () => {
 							isCollapsible={true}
 							isCollapsed={!expandedStates['pingOneApp']}
 							onToggle={() => toggleSection('pingOneApp')}
-							badge={configurationSummary.isComplete ? {
-								text: 'Complete',
-								variant: 'success'
-							} : {
-								text: 'Incomplete',
-								variant: 'warning'
-							}}
+							badge={
+								configurationSummary.isComplete
+									? {
+											text: 'Complete',
+											variant: 'success',
+										}
+									: {
+											text: 'Incomplete',
+											variant: 'warning',
+										}
+							}
 						/>
 
 						{expandedStates['pingOneApp'] && (
 							<>
 								<div className="summary-grid">
-									<div className={`summary-item ${configurationSummary.hasClientId ? 'complete' : ''}`}>
+									<div
+										className={`summary-item ${configurationSummary.hasClientId ? 'complete' : ''}`}
+									>
 										<MDIIcon icon="FiCheckCircle" size={16} className="icon" />
 										<span>Client ID</span>
 									</div>
@@ -671,16 +666,15 @@ const ConfigurationPingUI: React.FC = () => {
 										<MDIIcon icon="FiCheckCircle" size={16} className="icon" />
 										<span>Redirect URI</span>
 									</div>
-									<div className={`summary-item ${configurationSummary.hasScopes ? 'complete' : ''}`}>
+									<div
+										className={`summary-item ${configurationSummary.hasScopes ? 'complete' : ''}`}
+									>
 										<MDIIcon icon="FiCheckCircle" size={16} className="icon" />
 										<span>Scopes</span>
 									</div>
 								</div>
 
-								<PingOneApplicationConfig
-									value={pingOneConfig}
-									onChange={setPingOneConfig}
-								/>
+								<PingOneApplicationConfig value={pingOneConfig} onChange={setPingOneConfig} />
 
 								<div className="form-group">
 									<ConfigurationURIChecker />
@@ -720,13 +714,17 @@ const ConfigurationPingUI: React.FC = () => {
 							isCollapsible={true}
 							isCollapsed={!expandedStates['workerTokenBasic']}
 							onToggle={() => toggleSection('workerTokenBasic')}
-							badge={workerTokenStatus && workerTokenStatus.isValid ? {
-								text: 'Active',
-								variant: 'success'
-							} : {
-								text: 'Inactive',
-								variant: 'default'
-							}}
+							badge={
+								workerTokenStatus && workerTokenStatus.isValid
+									? {
+											text: 'Active',
+											variant: 'success',
+										}
+									: {
+											text: 'Inactive',
+											variant: 'default',
+										}
+							}
 						/>
 
 						{expandedStates['workerTokenBasic'] && (
@@ -751,7 +749,9 @@ const ConfigurationPingUI: React.FC = () => {
 													type="text"
 													id="worker-client-id"
 													value={workerTokenInfo.clientId}
-													onChange={(value) => setWorkerTokenInfo(prev => ({ ...prev, clientId: value }))}
+													onChange={(value) =>
+														setWorkerTokenInfo((prev) => ({ ...prev, clientId: value }))
+													}
 													placeholder="Enter Worker Token Client ID"
 												/>
 											</div>
@@ -761,7 +761,9 @@ const ConfigurationPingUI: React.FC = () => {
 													type="password"
 													id="worker-client-secret"
 													value={workerTokenInfo.clientSecret}
-													onChange={(value) => setWorkerTokenInfo(prev => ({ ...prev, clientSecret: value }))}
+													onChange={(value) =>
+														setWorkerTokenInfo((prev) => ({ ...prev, clientSecret: value }))
+													}
 													placeholder="Enter Worker Token Client Secret"
 												/>
 											</div>
@@ -771,7 +773,15 @@ const ConfigurationPingUI: React.FC = () => {
 													type="select"
 													id="worker-auth-method"
 													value={workerTokenInfo.tokenAuthMethod}
-													onChange={(value) => setWorkerTokenInfo(prev => ({ ...prev, tokenAuthMethod: value as "none" | "client_secret_post" | "client_secret_basic" }))}
+													onChange={(value) =>
+														setWorkerTokenInfo((prev) => ({
+															...prev,
+															tokenAuthMethod: value as
+																| 'none'
+																| 'client_secret_post'
+																| 'client_secret_basic',
+														}))
+													}
 												>
 													<option value="client_secret_basic">Client Secret Basic</option>
 													<option value="client_secret_post">Client Secret Post</option>
@@ -817,7 +827,8 @@ const ConfigurationPingUI: React.FC = () => {
 												}}
 											>
 												<p>
-													<strong>Status:</strong> {workerTokenStatus?.isValid ? 'Valid' : 'Invalid'}
+													<strong>Status:</strong>{' '}
+													{workerTokenStatus?.isValid ? 'Valid' : 'Invalid'}
 												</p>
 												{workerTokenStatus?.expiresAt && (
 													<p>
@@ -867,16 +878,32 @@ const ConfigurationPingUI: React.FC = () => {
 											border: '1px solid var(--ping-border-light, #e5e7eb)',
 										}}
 									>
-										<div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
+										<div
+											style={{
+												display: 'grid',
+												gap: '1rem',
+												gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+											}}
+										>
 											<div>
-												<label htmlFor="authz-client-id" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: 'var(--ping-text-primary, #1a1a1a)' }}>
+												<label
+													htmlFor="authz-client-id"
+													style={{
+														display: 'block',
+														marginBottom: '0.5rem',
+														fontWeight: '500',
+														color: 'var(--ping-text-primary, #1a1a1a)',
+													}}
+												>
 													Client ID
 												</label>
 												<input
 													id="authz-client-id"
 													type="text"
 													value={authzFlowInfo.clientId}
-													onChange={(e) => setAuthzFlowInfo(prev => ({ ...prev, clientId: e.target.value }))}
+													onChange={(e) =>
+														setAuthzFlowInfo((prev) => ({ ...prev, clientId: e.target.value }))
+													}
 													placeholder="Enter Authorization Flow Client ID"
 													style={{
 														width: '100%',
@@ -888,14 +915,24 @@ const ConfigurationPingUI: React.FC = () => {
 												/>
 											</div>
 											<div>
-												<label htmlFor="authz-client-secret" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: 'var(--ping-text-primary, #1a1a1a)' }}>
+												<label
+													htmlFor="authz-client-secret"
+													style={{
+														display: 'block',
+														marginBottom: '0.5rem',
+														fontWeight: '500',
+														color: 'var(--ping-text-primary, #1a1a1a)',
+													}}
+												>
 													Client Secret
 												</label>
 												<input
 													id="authz-client-secret"
 													type="password"
 													value={authzFlowInfo.clientSecret}
-													onChange={(e) => setAuthzFlowInfo(prev => ({ ...prev, clientSecret: e.target.value }))}
+													onChange={(e) =>
+														setAuthzFlowInfo((prev) => ({ ...prev, clientSecret: e.target.value }))
+													}
 													placeholder="Enter Authorization Flow Client Secret"
 													style={{
 														width: '100%',
@@ -907,14 +944,24 @@ const ConfigurationPingUI: React.FC = () => {
 												/>
 											</div>
 											<div>
-												<label htmlFor="authz-redirect-uri" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: 'var(--ping-text-primary, #1a1a1a)' }}>
+												<label
+													htmlFor="authz-redirect-uri"
+													style={{
+														display: 'block',
+														marginBottom: '0.5rem',
+														fontWeight: '500',
+														color: 'var(--ping-text-primary, #1a1a1a)',
+													}}
+												>
 													Redirect URI
 												</label>
 												<input
 													id="authz-redirect-uri"
 													type="url"
 													value={authzFlowInfo.redirectUri}
-													onChange={(e) => setAuthzFlowInfo(prev => ({ ...prev, redirectUri: e.target.value }))}
+													onChange={(e) =>
+														setAuthzFlowInfo((prev) => ({ ...prev, redirectUri: e.target.value }))
+													}
 													placeholder="https://your-domain.com/callback"
 													style={{
 														width: '100%',
@@ -926,14 +973,24 @@ const ConfigurationPingUI: React.FC = () => {
 												/>
 											</div>
 											<div>
-												<label htmlFor="authz-scopes" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: 'var(--ping-text-primary, #1a1a1a)' }}>
+												<label
+													htmlFor="authz-scopes"
+													style={{
+														display: 'block',
+														marginBottom: '0.5rem',
+														fontWeight: '500',
+														color: 'var(--ping-text-primary, #1a1a1a)',
+													}}
+												>
 													Scopes
 												</label>
 												<input
 													id="authz-scopes"
 													type="text"
 													value={authzFlowInfo.scopes}
-													onChange={(e) => setAuthzFlowInfo(prev => ({ ...prev, scopes: e.target.value }))}
+													onChange={(e) =>
+														setAuthzFlowInfo((prev) => ({ ...prev, scopes: e.target.value }))
+													}
 													placeholder="openid profile email"
 													style={{
 														width: '100%',
@@ -949,16 +1006,29 @@ const ConfigurationPingUI: React.FC = () => {
 											<button
 												type="button"
 												onClick={saveAuthzFlowInfo}
-												disabled={isLoading || !authzFlowInfo.clientId.trim() || !authzFlowInfo.redirectUri.trim()}
+												disabled={
+													isLoading ||
+													!authzFlowInfo.clientId.trim() ||
+													!authzFlowInfo.redirectUri.trim()
+												}
 												style={{
 													padding: '0.5rem 1rem',
-													background: authzFlowInfo.clientId.trim() && authzFlowInfo.redirectUri.trim() ? 'var(--ping-color-primary, #3b82f6)' : 'var(--ping-border-light, #e5e7eb)',
-													color: authzFlowInfo.clientId.trim() && authzFlowInfo.redirectUri.trim() ? 'white' : 'var(--ping-text-secondary, #666)',
+													background:
+														authzFlowInfo.clientId.trim() && authzFlowInfo.redirectUri.trim()
+															? 'var(--ping-color-primary, #3b82f6)'
+															: 'var(--ping-border-light, #e5e7eb)',
+													color:
+														authzFlowInfo.clientId.trim() && authzFlowInfo.redirectUri.trim()
+															? 'white'
+															: 'var(--ping-text-secondary, #666)',
 													border: 'none',
 													borderRadius: '0.25rem',
 													fontSize: '0.875rem',
 													fontWeight: '500',
-													cursor: authzFlowInfo.clientId.trim() && authzFlowInfo.redirectUri.trim() ? 'pointer' : 'not-allowed',
+													cursor:
+														authzFlowInfo.clientId.trim() && authzFlowInfo.redirectUri.trim()
+															? 'pointer'
+															: 'not-allowed',
 												}}
 											>
 												<MDIIcon icon="FiSave" size={14} style={{ marginRight: '0.25rem' }} />
@@ -976,11 +1046,11 @@ const ConfigurationPingUI: React.FC = () => {
 									icon="information"
 									variant="secondary"
 									isCollapsible={true}
-									isCollapsed={collapsedSections.appInfo}
+									isCollapsed={!expandedStates.appInfo}
 									onToggle={() => toggleSection('appInfo')}
 								/>
 
-								{!collapsedSections.appInfo && (
+								{expandedStates.appInfo && (
 									<div
 										style={{
 											background: 'var(--ping-surface-secondary, #f8fafc)',
@@ -1006,11 +1076,11 @@ const ConfigurationPingUI: React.FC = () => {
 									icon="terminal"
 									variant="secondary"
 									isCollapsible={true}
-									isCollapsed={collapsedSections.devTools}
+									isCollapsed={!expandedStates.devTools}
 									onToggle={() => toggleSection('devTools')}
 								/>
 
-								{!collapsedSections.devTools && (
+								{expandedStates.devTools && (
 									<div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
 										<button
 											type="button"
@@ -1045,6 +1115,6 @@ const ConfigurationPingUI: React.FC = () => {
 			</div>
 		</div>
 	);
-	};
+};
 
 export default ConfigurationPingUI;

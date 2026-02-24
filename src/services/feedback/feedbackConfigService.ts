@@ -18,7 +18,7 @@ export const DEFAULT_FEEDBACK_CONFIG = {
 		warning: 6000,
 		error: 6000,
 	},
-	
+
 	// Feature flags
 	FEATURES: {
 		KEYBOARD_NAVIGATION: true,
@@ -26,14 +26,14 @@ export const DEFAULT_FEEDBACK_CONFIG = {
 		AUTO_DISMISS_BANNERS: true,
 		DEBUG_MODE: false,
 	},
-	
+
 	// Animation settings
 	ANIMATION: {
 		TRANSITION_DURATION: 150, // 0.15s ease-in-out
 		FADE_DURATION: 300,
 		SLIDE_DURATION: 200,
 	},
-	
+
 	// Accessibility settings
 	ACCESSIBILITY: {
 		FOCUS_VISIBLE_DURATION: 2000,
@@ -62,7 +62,7 @@ interface MutableFeedbackConfig {
 		SLIDE_DURATION: number;
 	};
 	ACCESSIBILITY: {
-	FOCUS_VISIBLE_DURATION: number;
+		FOCUS_VISIBLE_DURATION: number;
 		ANNOUNCEMENT_DELAY: number;
 		LIVE_REGION_POLITE: boolean;
 	};
@@ -163,12 +163,12 @@ export class FeedbackConfigService {
 		if (typeof import.meta !== 'undefined' && import.meta.env) {
 			return import.meta.env[key];
 		}
-		
+
 		// Server-side (Node.js)
 		if (typeof process !== 'undefined' && process.env) {
 			return process.env[key];
 		}
-		
+
 		return undefined;
 	}
 

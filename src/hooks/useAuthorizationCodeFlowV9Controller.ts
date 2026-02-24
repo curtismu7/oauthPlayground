@@ -2,16 +2,12 @@
 // V9 Authorization Code Flow Controller - PingOne UI with New Storage & Messaging
 // Updated controller for V9 architecture with unified storage and feedback service
 
-import {
-	useCallback,
-	useEffect,
-	useState,
-} from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { FlowConfig } from '../components/FlowConfiguration';
 import type { PKCECodes, StepCredentials } from '../components/steps/CommonSteps';
 import { feedbackService } from '../services/feedback/feedbackService';
-import { unifiedStorageManager } from '../services/unifiedStorageManager';
 import { FlowCredentialService } from '../services/flowCredentialService';
+import { unifiedStorageManager } from '../services/unifiedStorageManager';
 import { trackTokenOperation } from '../utils/activityTracker';
 import { applyClientAuthentication } from '../utils/clientAuthentication';
 import { getDefaultConfig } from '../utils/flowConfigDefaults';
@@ -120,7 +116,9 @@ const useAuthorizationCodeFlowV9Controller = (
 	const [tokens, setTokens] = useState<AuthorizationTokens | null>(null);
 	const [userInfo, setUserInfo] = useState<Record<string, unknown> | null>(null);
 	const [isFetchingUserInfo, setIsFetchingUserInfo] = useState(false);
-	const [tokenIntrospection, setTokenIntrospection] = useState<Record<string, unknown> | null>(null);
+	const [tokenIntrospection, setTokenIntrospection] = useState<Record<string, unknown> | null>(
+		null
+	);
 
 	// V9: Feedback methods
 	const showSuccessFeedback = useCallback((message: string) => {
@@ -196,7 +194,7 @@ const useAuthorizationCodeFlowV9Controller = (
 	useEffect(() => {
 		const loadControllerState = async () => {
 			try {
-				const savedState = await unifiedStorageManager.load(`${persistKey}-controller-state`) as {
+				const savedState = (await unifiedStorageManager.load(`${persistKey}-controller-state`)) as {
 					flowVariant?: FlowVariant;
 					credentials?: StepCredentials;
 					flowConfig?: FlowConfig;
@@ -213,7 +211,8 @@ const useAuthorizationCodeFlowV9Controller = (
 					console.log('🔄 [V9] Restored controller state:', savedState);
 					// Restore state if available and recent (within 1 hour)
 					const stateAge = Date.now() - new Date(savedState.timestamp || '').getTime();
-					if (stateAge < 3600000) { // 1 hour
+					if (stateAge < 3600000) {
+						// 1 hour
 						setFlowVariant(savedState.flowVariant || defaultFlowVariant);
 						setCredentials(savedState.credentials || credentials);
 						setFlowConfig(savedState.flowConfig || flowConfig);
@@ -237,9 +236,7 @@ const useAuthorizationCodeFlowV9Controller = (
 	useEffect(() => {
 		const loadCredentials = async () => {
 			try {
-				const {
-					credentials: loadedCreds,
-				} = await FlowCredentialService.loadFlowCredentials({
+				const { credentials: loadedCreds } = await FlowCredentialService.loadFlowCredentials({
 					flowKey: persistKey,
 					defaultCredentials: credentials,
 				});
@@ -257,10 +254,13 @@ const useAuthorizationCodeFlowV9Controller = (
 		loadCredentials();
 	}, [persistKey, showInfoFeedback, showWarningFeedback]);
 
-	const handleFlowConfigChange = useCallback((config: FlowConfig) => {
-		setFlowConfig(config);
-		showInfoFeedback('Flow configuration updated');
-	}, [showInfoFeedback]);
+	const handleFlowConfigChange = useCallback(
+		(config: FlowConfig) => {
+			setFlowConfig(config);
+			showInfoFeedback('Flow configuration updated');
+		},
+		[showInfoFeedback]
+	);
 
 	const generatePkceCodes = useCallback(async () => {
 		try {
@@ -351,18 +351,24 @@ const useAuthorizationCodeFlowV9Controller = (
 		}
 
 		// Store current state before redirect
-		sessionStorage.setItem('oauth_redirect_state', JSON.stringify({
-			flowKey,
-			returnUrl: window.location.href,
-		}));
+		sessionStorage.setItem(
+			'oauth_redirect_state',
+			JSON.stringify({
+				flowKey,
+				returnUrl: window.location.href,
+			})
+		);
 
 		window.location.href = authUrl;
 	}, [authUrl, flowKey, showWarningFeedback]);
 
-	const setAuthCodeManually = useCallback((code: string) => {
-		setAuthCode(code);
-		showSuccessFeedback('Authorization code set manually');
-	}, [showSuccessFeedback]);
+	const setAuthCodeManually = useCallback(
+		(code: string) => {
+			setAuthCode(code);
+			showSuccessFeedback('Authorization code set manually');
+		},
+		[showSuccessFeedback]
+	);
 
 	const resetFlow = useCallback(() => {
 		setAuthUrl('');
@@ -424,7 +430,9 @@ const useAuthorizationCodeFlowV9Controller = (
 		} catch (error) {
 			console.error('Token exchange failed:', error);
 			trackTokenOperation('exchange', 'error');
-			showErrorFeedback(`Token exchange failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+			showErrorFeedback(
+				`Token exchange failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+			);
 		} finally {
 			setIsExchangingTokens(false);
 		}
@@ -471,7 +479,7 @@ const useAuthorizationCodeFlowV9Controller = (
 
 	const isTokenExpired = useCallback(() => {
 		if (!tokens?.expires_in) return false;
-		const expirationTime = Date.now() + (tokens.expires_in * 1000);
+		const expirationTime = Date.now() + tokens.expires_in * 1000;
 		return Date.now() > expirationTime;
 	}, [tokens]);
 

@@ -19,20 +19,20 @@ import { checkCredentialsAndWarn } from '../../utils/credentialsWarningService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 // MDI Icon Component for PingOne UI
-const MDIIcon: React.FC<{ icon: string; size?: number; ariaLabel?: string; color?: string }> = ({ 
-	icon, 
-	size, 
-	ariaLabel, 
-	color 
+const MDIIcon: React.FC<{ icon: string; size?: number; ariaLabel?: string; color?: string }> = ({
+	icon,
+	size,
+	ariaLabel,
+	color,
 }) => {
 	const iconClass = getMDIIconClass(icon);
 	return (
-		<i 
-			className={`mdi ${iconClass}`} 
-			style={{ 
+		<i
+			className={`mdi ${iconClass}`}
+			style={{
 				fontSize: `${size}px`,
-				color: color || 'currentColor'
-			}} 
+				color: color || 'currentColor',
+			}}
 			aria-label={ariaLabel}
 		></i>
 	);
@@ -41,16 +41,16 @@ const MDIIcon: React.FC<{ icon: string; size?: number; ariaLabel?: string; color
 // MDI Icon Mapping
 const getMDIIconClass = (fiIcon: string): string => {
 	const iconMap: Record<string, string> = {
-		'FiAlertCircle': 'mdi-alert-circle',
-		'FiCheckCircle': 'mdi-check-circle',
-		'FiChevronDown': 'mdi-chevron-down',
-		'FiCode': 'mdi-code-tags',
-		'FiExternalLink': 'mdi-open-in-new',
-		'FiInfo': 'mdi-information',
-		'FiKey': 'mdi-key',
-		'FiRefreshCw': 'mdi-refresh',
-		'FiSettings': 'mdi-cog',
-		'FiShield': 'mdi-shield-check',
+		FiAlertCircle: 'mdi-alert-circle',
+		FiCheckCircle: 'mdi-check-circle',
+		FiChevronDown: 'mdi-chevron-down',
+		FiCode: 'mdi-code-tags',
+		FiExternalLink: 'mdi-open-in-new',
+		FiInfo: 'mdi-information',
+		FiKey: 'mdi-key',
+		FiRefreshCw: 'mdi-refresh',
+		FiSettings: 'mdi-cog',
+		FiShield: 'mdi-shield-check',
 	};
 	return iconMap[fiIcon] || fiIcon.replace('Fi', 'mdi-').toLowerCase();
 };
@@ -270,7 +270,7 @@ const ServerIcon = styled.div`
 const ClientCredentialsFlowV9: React.FC = () => {
 	// Component implementation would go here
 	// This is a template showing the PingOne UI styling approach
-	
+
 	return (
 		<FlowContainer className="end-user-nano">
 			<FlowHeader>
@@ -280,11 +280,9 @@ const ClientCredentialsFlowV9: React.FC = () => {
 					</ServerIcon>
 					OAuth 2.0 Client Credentials Flow V9
 				</FlowTitle>
-				<FlowSubtitle>
-					Machine-to-machine authentication without user interaction
-				</FlowSubtitle>
+				<FlowSubtitle>Machine-to-machine authentication without user interaction</FlowSubtitle>
 			</FlowHeader>
-			
+
 			<StepContainer>
 				<StepHeader>
 					<StepTitle>
@@ -293,7 +291,7 @@ const ClientCredentialsFlowV9: React.FC = () => {
 					</StepTitle>
 					<StepBadge variant="primary">M2M</StepBadge>
 				</StepHeader>
-				
+
 				<PingCard>
 					<h3>Client Credentials</h3>
 					<div style={{ display: 'grid', gap: '1rem' }}>
@@ -301,8 +299,15 @@ const ClientCredentialsFlowV9: React.FC = () => {
 						<PingInput placeholder="Client Secret" type="password" />
 						<PingInput placeholder="Token URL" />
 					</div>
-					
-					<div style={{ marginTop: '1rem', padding: '1rem', background: 'var(--ping-primary-light, #dbeafe)', borderRadius: '8px' }}>
+
+					<div
+						style={{
+							marginTop: '1rem',
+							padding: '1rem',
+							background: 'var(--ping-primary-light, #dbeafe)',
+							borderRadius: '8px',
+						}}
+					>
 						<h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--ping-primary, #3b82f6)' }}>
 							<MDIIcon icon="FiInfo" size={16} color="var(--ping-primary, #3b82f6)" />
 							M2M Authentication
@@ -311,7 +316,7 @@ const ClientCredentialsFlowV9: React.FC = () => {
 							Perfect for server-to-server communication and background processes.
 						</p>
 					</div>
-					
+
 					<div style={{ marginTop: '1rem', display: 'flex', gap: '1rem' }}>
 						<PingButton variant="primary">
 							<MDIIcon icon="FiRefreshCw" size={16} />
@@ -324,7 +329,7 @@ const ClientCredentialsFlowV9: React.FC = () => {
 					</div>
 				</PingCard>
 			</StepContainer>
-			
+
 			<StepContainer>
 				<StepHeader>
 					<StepTitle>
@@ -333,11 +338,11 @@ const ClientCredentialsFlowV9: React.FC = () => {
 					</StepTitle>
 					<StepBadge variant="success">Success</StepBadge>
 				</StepHeader>
-				
+
 				<PingCard>
 					<h3>Access Token Generated</h3>
 					<CodeBlock>
-{`# Token Response
+						{`# Token Response
 {
   "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ...",
   "token_type": "Bearer",
@@ -345,7 +350,7 @@ const ClientCredentialsFlowV9: React.FC = () => {
   "scope": "read write admin"
 }`}
 					</CodeBlock>
-					
+
 					<div style={{ marginTop: '1rem', display: 'flex', gap: '1rem' }}>
 						<PingButton variant="primary">
 							<MDIIcon icon="FiCode" size={16} />
@@ -358,7 +363,7 @@ const ClientCredentialsFlowV9: React.FC = () => {
 					</div>
 				</PingCard>
 			</StepContainer>
-			
+
 			<StepContainer>
 				<StepHeader>
 					<StepTitle>
@@ -367,7 +372,7 @@ const ClientCredentialsFlowV9: React.FC = () => {
 					</StepTitle>
 					<StepBadge variant="secondary">Secure</StepBadge>
 				</StepHeader>
-				
+
 				<PingCard>
 					<h3>Client Credentials Security</h3>
 					<ul style={{ color: 'var(--ping-text-secondary, #6b7280)' }}>
@@ -376,14 +381,23 @@ const ClientCredentialsFlowV9: React.FC = () => {
 						<li>Implement proper token validation</li>
 						<li>Rotate credentials regularly</li>
 					</ul>
-					
-					<div style={{ marginTop: '1rem', padding: '1rem', background: 'var(--ping-badge-warning, #f59e0b)', borderRadius: '8px', color: 'white' }}>
+
+					<div
+						style={{
+							marginTop: '1rem',
+							padding: '1rem',
+							background: 'var(--ping-badge-warning, #f59e0b)',
+							borderRadius: '8px',
+							color: 'white',
+						}}
+					>
 						<h4 style={{ margin: '0 0 0.5rem 0' }}>
 							<MDIIcon icon="FiAlertCircle" size={16} />
 							Security Best Practice
 						</h4>
 						<p style={{ margin: 0 }}>
-							Store client credentials securely using environment variables or secret management systems.
+							Store client credentials securely using environment variables or secret management
+							systems.
 						</p>
 					</div>
 				</PingCard>
