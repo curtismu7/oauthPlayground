@@ -13,49 +13,9 @@ import React from 'react';
 import styled from 'styled-components';
 import type { CorporatePortalConfig } from '../../types/CorporatePortalConfig';
 
-// MDI Icon Component with proper accessibility
-const MDIIcon: React.FC<{
-	icon: string;
-	size?: number;
-	ariaLabel?: string;
-	ariaHidden?: boolean;
-	className?: string;
-	style?: React.CSSProperties;
-}> = ({ icon, size = 16, ariaLabel, ariaHidden = false, className = '', style }) => {
-	const iconClass = getMDIIconClass(icon);
-	const combinedClassName = `mdi ${iconClass} ${className}`.trim();
-
-	return (
-		<i
-			className={combinedClassName}
-			style={{ fontSize: `${size}px`, ...style }}
-			aria-label={ariaLabel}
-			aria-hidden={ariaHidden}
-		></i>
-	);
-};
-
-// MDI Icon mapping function
-const getMDIIconClass = (iconName: string): string => {
-	const iconMap: Record<string, string> = {
-		FiArrowRight: 'mdi-arrow-right',
-		FiAward: 'mdi-award',
-		FiCalendar: 'mdi-calendar',
-		FiCheckCircle: 'mdi-check-circle',
-		FiCode: 'mdi-code-tags',
-		FiCreditCard: 'mdi-credit-card',
-		FiGlobe: 'mdi-earth',
-		FiLock: 'mdi-lock',
-		FiMapPin: 'mdi-map-marker',
-		FiPackage: 'mdi-package',
-		FiSearch: 'mdi-magnify',
-		FiShield: 'mdi-shield',
-		FiStar: 'mdi-star',
-		FiTrendingUp: 'mdi-trending-up',
-		FiUsers: 'mdi-account-group',
-	};
-	return iconMap[iconName] || 'mdi-help-circle';
-};
+// Bootstrap Icon Component (migrated from MDI)
+import BootstrapIcon from '@/components/BootstrapIcon';
+import { getBootstrapIconName } from '@/components/iconMapping';
 
 // ============================================================================
 // STYLED COMPONENTS
@@ -299,7 +259,7 @@ export const HeroSectionPingUI: React.FC<HeroSectionProps> = ({
 				<HeroActions>
 					<PrimaryButton $brandColor={config.branding.primaryColor} onClick={onPrimaryAction}>
 						{config.hero.primaryAction.text}
-						<MDIIcon icon="FiArrowRight" size={16} ariaLabel="Arrow Right" />
+						<BootstrapIcon icon={getBootstrapIconName("FiArrowRight")} size={16} aria-label="Arrow Right" />
 					</PrimaryButton>
 					{config.hero.secondaryAction && (
 						<SecondaryButton $brandColor={config.branding.primaryColor} onClick={onSecondaryAction}>
@@ -314,7 +274,7 @@ export const HeroSectionPingUI: React.FC<HeroSectionProps> = ({
 					$delay={0.2}
 					style={{ top: '0', left: '0' }}
 				>
-					<MDIIcon icon="FiGlobe" size={32} ariaLabel="Global Network" />
+					<BootstrapIcon icon={getBootstrapIconName("FiGlobe")} size={32} aria-label="Global Network" />
 					<h4 style={{ margin: '1rem 0 0.5rem', color: config.branding.primaryColor }}>
 						Global Network
 					</h4>
@@ -333,7 +293,7 @@ export const HeroSectionPingUI: React.FC<HeroSectionProps> = ({
 					$delay={0.4}
 					style={{ top: '80px', right: '0' }}
 				>
-					<MDIIcon icon="FiCalendar" size={32} ariaLabel="Daily Flights" />
+					<BootstrapIcon icon={getBootstrapIconName("FiCalendar")} size={32} aria-label="Daily Flights" />
 					<h4 style={{ margin: '1rem 0 0.5rem', color: config.branding.secondaryColor }}>
 						Daily Flights
 					</h4>
@@ -352,7 +312,7 @@ export const HeroSectionPingUI: React.FC<HeroSectionProps> = ({
 					$delay={0.6}
 					style={{ bottom: '0', left: '50%', transform: 'translateX(-50%)' }}
 				>
-					<MDIIcon icon="FiUsers" size={32} ariaLabel="Passengers" />
+					<BootstrapIcon icon={getBootstrapIconName("FiUsers")} size={32} aria-label="Passengers" />
 					<h4 style={{ margin: '1rem 0 0.5rem', color: config.branding.primaryColor }}>
 						Million Passengers
 					</h4>
@@ -378,7 +338,7 @@ export const HeroSectionPingUI: React.FC<HeroSectionProps> = ({
 				<HeroActions>
 					<PrimaryButton $brandColor={config.branding.primaryColor} onClick={onPrimaryAction}>
 						{config.hero.primaryAction.text}
-						<MDIIcon icon="FiArrowRight" size={16} ariaLabel="Arrow Right" />
+						<BootstrapIcon icon={getBootstrapIconName("FiArrowRight")} size={16} aria-label="Arrow Right" />
 					</PrimaryButton>
 					{config.hero.secondaryAction && (
 						<SecondaryButton $brandColor={config.branding.primaryColor} onClick={onSecondaryAction}>
@@ -393,7 +353,7 @@ export const HeroSectionPingUI: React.FC<HeroSectionProps> = ({
 					$delay={0.2}
 					style={{ top: '0', left: '0' }}
 				>
-					<MDIIcon icon="FiCreditCard" size={32} ariaLabel="Credit Cards" />
+					<BootstrapIcon icon={getBootstrapIconName("FiCreditCard")} size={32} aria-label="Credit Cards" />
 					<h4 style={{ margin: '1rem 0 0.5rem', color: config.branding.primaryColor }}>
 						Digital Banking
 					</h4>
@@ -412,7 +372,7 @@ export const HeroSectionPingUI: React.FC<HeroSectionProps> = ({
 					$delay={0.4}
 					style={{ top: '80px', right: '0' }}
 				>
-					<MDIIcon icon="FiShield" size={32} ariaLabel="Security" />
+					<BootstrapIcon icon={getBootstrapIconName("FiShield")} size={32} aria-label="Security" />
 					<h4 style={{ margin: '1rem 0 0.5rem', color: config.branding.secondaryColor }}>
 						Secure Transactions
 					</h4>
@@ -431,7 +391,7 @@ export const HeroSectionPingUI: React.FC<HeroSectionProps> = ({
 					$delay={0.6}
 					style={{ bottom: '0', left: '50%', transform: 'translateX(-50%)' }}
 				>
-					<MDIIcon icon="FiAward" size={32} ariaLabel="Awards" />
+					<BootstrapIcon icon={getBootstrapIconName("FiAward")} size={32} aria-label="Awards" />
 					<h4 style={{ margin: '1rem 0 0.5rem', color: config.branding.primaryColor }}>
 						Trusted Platform
 					</h4>
@@ -457,7 +417,7 @@ export const HeroSectionPingUI: React.FC<HeroSectionProps> = ({
 				<HeroActions>
 					<PrimaryButton $brandColor={config.branding.primaryColor} onClick={onPrimaryAction}>
 						{config.hero.primaryAction.text}
-						<MDIIcon icon="FiArrowRight" size={16} ariaLabel="Arrow Right" />
+						<BootstrapIcon icon={getBootstrapIconName("FiArrowRight")} size={16} aria-label="Arrow Right" />
 					</PrimaryButton>
 					{config.hero.secondaryAction && (
 						<SecondaryButton $brandColor={config.branding.primaryColor} onClick={onSecondaryAction}>
@@ -472,7 +432,7 @@ export const HeroSectionPingUI: React.FC<HeroSectionProps> = ({
 					$delay={0.2}
 					style={{ top: '0', left: '0' }}
 				>
-					<MDIIcon icon="FiPackage" size={32} ariaLabel="Packages" />
+					<BootstrapIcon icon={getBootstrapIconName("FiPackage")} size={32} aria-label="Packages" />
 					<h4 style={{ margin: '1rem 0 0.5rem', color: config.branding.primaryColor }}>
 						Package Delivery
 					</h4>
@@ -491,7 +451,7 @@ export const HeroSectionPingUI: React.FC<HeroSectionProps> = ({
 					$delay={0.4}
 					style={{ top: '80px', right: '0' }}
 				>
-					<MDIIcon icon="FiMapPin" size={32} ariaLabel="Locations" />
+					<BootstrapIcon icon={getBootstrapIconName("FiMapPin")} size={32} aria-label="Locations" />
 					<h4 style={{ margin: '1rem 0 0.5rem', color: config.branding.secondaryColor }}>
 						Global Coverage
 					</h4>
@@ -510,7 +470,7 @@ export const HeroSectionPingUI: React.FC<HeroSectionProps> = ({
 					$delay={0.6}
 					style={{ bottom: '0', left: '50%', transform: 'translateX(-50%)' }}
 				>
-					<MDIIcon icon="FiTrendingUp" size={32} ariaLabel="Growth" />
+					<BootstrapIcon icon={getBootstrapIconName("FiTrendingUp")} size={32} aria-label="Growth" />
 					<h4 style={{ margin: '1rem 0 0.5rem', color: config.branding.primaryColor }}>
 						Growth Rate
 					</h4>
@@ -536,7 +496,7 @@ export const HeroSectionPingUI: React.FC<HeroSectionProps> = ({
 				<HeroActions>
 					<PrimaryButton $brandColor={config.branding.primaryColor} onClick={onPrimaryAction}>
 						{config.hero.primaryAction.text}
-						<MDIIcon icon="FiArrowRight" size={16} ariaLabel="Arrow Right" />
+						<BootstrapIcon icon={getBootstrapIconName("FiArrowRight")} size={16} aria-label="Arrow Right" />
 					</PrimaryButton>
 					{config.hero.secondaryAction && (
 						<SecondaryButton $brandColor={config.branding.primaryColor} onClick={onSecondaryAction}>
@@ -551,7 +511,7 @@ export const HeroSectionPingUI: React.FC<HeroSectionProps> = ({
 					$delay={0.2}
 					style={{ top: '0', left: '0' }}
 				>
-					<MDIIcon icon="FiUsers" size={32} ariaLabel="Patients" />
+					<BootstrapIcon icon={getBootstrapIconName("FiUsers")} size={32} aria-label="Patients" />
 					<h4 style={{ margin: '1rem 0 0.5rem', color: config.branding.primaryColor }}>
 						Patient Care
 					</h4>
@@ -570,7 +530,7 @@ export const HeroSectionPingUI: React.FC<HeroSectionProps> = ({
 					$delay={0.4}
 					style={{ top: '80px', right: '0' }}
 				>
-					<MDIIcon icon="FiSearch" size={32} ariaLabel="Research" />
+					<BootstrapIcon icon={getBootstrapIconName("FiSearch")} size={32} aria-label="Research" />
 					<h4 style={{ margin: '1rem 0 0.5rem', color: config.branding.secondaryColor }}>
 						Medical Research
 					</h4>
@@ -589,7 +549,7 @@ export const HeroSectionPingUI: React.FC<HeroSectionProps> = ({
 					$delay={0.6}
 					style={{ bottom: '0', left: '50%', transform: 'translateX(-50%)' }}
 				>
-					<MDIIcon icon="FiStar" size={32} ariaLabel="Quality" />
+					<BootstrapIcon icon={getBootstrapIconName("FiStar")} size={32} aria-label="Quality" />
 					<h4 style={{ margin: '1rem 0 0.5rem', color: config.branding.primaryColor }}>
 						Quality Rating
 					</h4>
@@ -615,7 +575,7 @@ export const HeroSectionPingUI: React.FC<HeroSectionProps> = ({
 				<HeroActions>
 					<PrimaryButton $brandColor={config.branding.primaryColor} onClick={onPrimaryAction}>
 						{config.hero.primaryAction.text}
-						<MDIIcon icon="FiArrowRight" size={16} ariaLabel="Arrow Right" />
+						<BootstrapIcon icon={getBootstrapIconName("FiArrowRight")} size={16} aria-label="Arrow Right" />
 					</PrimaryButton>
 					{config.hero.secondaryAction && (
 						<SecondaryButton $brandColor={config.branding.primaryColor} onClick={onSecondaryAction}>
@@ -630,7 +590,7 @@ export const HeroSectionPingUI: React.FC<HeroSectionProps> = ({
 					$delay={0.2}
 					style={{ top: '0', left: '0' }}
 				>
-					<MDIIcon icon="FiPackage" size={32} ariaLabel="Products" />
+					<BootstrapIcon icon={getBootstrapIconName("FiPackage")} size={32} aria-label="Products" />
 					<h4 style={{ margin: '1rem 0 0.5rem', color: config.branding.primaryColor }}>
 						Product Catalog
 					</h4>
@@ -649,7 +609,7 @@ export const HeroSectionPingUI: React.FC<HeroSectionProps> = ({
 					$delay={0.4}
 					style={{ top: '80px', right: '0' }}
 				>
-					<MDIIcon icon="FiUsers" size={32} ariaLabel="Customers" />
+					<BootstrapIcon icon={getBootstrapIconName("FiUsers")} size={32} aria-label="Customers" />
 					<h4 style={{ margin: '1rem 0 0.5rem', color: config.branding.secondaryColor }}>
 						Happy Customers
 					</h4>
@@ -668,7 +628,7 @@ export const HeroSectionPingUI: React.FC<HeroSectionProps> = ({
 					$delay={0.6}
 					style={{ bottom: '0', left: '50%', transform: 'translateX(-50%)' }}
 				>
-					<MDIIcon icon="FiTrendingUp" size={32} ariaLabel="Revenue" />
+					<BootstrapIcon icon={getBootstrapIconName("FiTrendingUp")} size={32} aria-label="Revenue" />
 					<h4 style={{ margin: '1rem 0 0.5rem', color: config.branding.primaryColor }}>
 						Revenue Growth
 					</h4>
@@ -694,7 +654,7 @@ export const HeroSectionPingUI: React.FC<HeroSectionProps> = ({
 				<HeroActions>
 					<PrimaryButton $brandColor={config.branding.primaryColor} onClick={onPrimaryAction}>
 						{config.hero.primaryAction.text}
-						<MDIIcon icon="FiArrowRight" size={16} ariaLabel="Arrow Right" />
+						<BootstrapIcon icon={getBootstrapIconName("FiArrowRight")} size={16} aria-label="Arrow Right" />
 					</PrimaryButton>
 					{config.hero.secondaryAction && (
 						<SecondaryButton $brandColor={config.branding.primaryColor} onClick={onSecondaryAction}>
@@ -709,7 +669,7 @@ export const HeroSectionPingUI: React.FC<HeroSectionProps> = ({
 					$delay={0.2}
 					style={{ top: '0', left: '0' }}
 				>
-					<MDIIcon icon="FiShield" size={32} ariaLabel="Security" />
+					<BootstrapIcon icon={getBootstrapIconName("FiShield")} size={32} aria-label="Security" />
 					<h4 style={{ margin: '1rem 0 0.5rem', color: config.branding.primaryColor }}>
 						Secure Platform
 					</h4>
@@ -728,7 +688,7 @@ export const HeroSectionPingUI: React.FC<HeroSectionProps> = ({
 					$delay={0.4}
 					style={{ top: '80px', right: '0' }}
 				>
-					<MDIIcon icon="FiCode" size={32} ariaLabel="Developer" />
+					<BootstrapIcon icon={getBootstrapIconName("FiCode")} size={32} aria-label="Developer" />
 					<h4 style={{ margin: '1rem 0 0.5rem', color: config.branding.secondaryColor }}>
 						Developer Friendly
 					</h4>
@@ -747,7 +707,7 @@ export const HeroSectionPingUI: React.FC<HeroSectionProps> = ({
 					$delay={0.6}
 					style={{ bottom: '0', left: '50%', transform: 'translateX(-50%)' }}
 				>
-					<MDIIcon icon="FiGlobe" size={32} ariaLabel="Global" />
+					<BootstrapIcon icon={getBootstrapIconName("FiGlobe")} size={32} aria-label="Global" />
 					<h4 style={{ margin: '1rem 0 0.5rem', color: config.branding.primaryColor }}>
 						Global Scale
 					</h4>
@@ -793,10 +753,10 @@ export const HeroSectionPingUI: React.FC<HeroSectionProps> = ({
 							{config.features?.map((feature, index) => (
 								<FeatureItem key={index}>
 									<FeatureIcon $brandColor={config.branding.primaryColor}>
-										<MDIIcon
+										<BootstrapIcon
 											icon={feature.icon || 'FiCheckCircle'}
 											size={20}
-											ariaLabel={feature.title}
+											aria-label={feature.title}
 										/>
 									</FeatureIcon>
 									<FeatureText>

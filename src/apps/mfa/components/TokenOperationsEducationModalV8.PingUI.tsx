@@ -11,46 +11,16 @@
  * - Educational content with examples
  * - Simple, user-friendly explanations
  *
- * Migrated to Ping UI with MDI icons and CSS variables.
+ * Migrated to Ping UI with Bootstrap icons and CSS variables.
  */
 
 import React from 'react';
 import styled from 'styled-components';
 import { TokenOperationsServiceV8 } from '@/v8/services/tokenOperationsServiceV8';
 
-// MDI Icon Component with proper accessibility
-const MDIIcon: React.FC<{
-	icon: string;
-	size?: number;
-	ariaLabel?: string;
-	ariaHidden?: boolean;
-	className?: string;
-	style?: React.CSSProperties;
-}> = ({ icon, size = 16, ariaLabel, ariaHidden = false, className = '', style }) => {
-	const iconClass = getMDIIconClass(icon);
-	const combinedClassName = `mdi ${iconClass} ${className}`.trim();
-
-	return (
-		<span
-			className={combinedClassName}
-			style={{ fontSize: `${size}px`, ...style }}
-			{...(ariaLabel ? { 'aria-label': ariaLabel } : {})}
-			{...(ariaHidden ? { 'aria-hidden': 'true' } : {})}
-			role="img"
-		></span>
-	);
-};
-
-// MDI Icon mapping function
-const getMDIIconClass = (iconName: string): string => {
-	const iconMap: Record<string, string> = {
-		FiCheckCircle: 'mdi-check-circle',
-		FiInfo: 'mdi-information',
-		FiX: 'mdi-close',
-		FiXCircle: 'mdi-close-circle',
-	};
-	return iconMap[iconName] || 'mdi-help-circle';
-};
+// Bootstrap Icon Component (migrated from MDI)
+import BootstrapIcon from '@/components/BootstrapIcon';
+import { getBootstrapIconName } from '@/components/iconMapping';
 
 interface TokenOperationsEducationModalV8PingUIProps {
 	isOpen: boolean;
@@ -307,11 +277,11 @@ export const TokenOperationsEducationModalV8PingUI: React.FC<
 				<ModalContainer>
 					<ModalHeader>
 						<ModalTitle>
-							<MDIIcon icon="FiInfo" size={24} ariaLabel="Information" />
+							<BootstrapIcon icon={getBootstrapIconName("FiInfo")} size={24} aria-label="Information" />
 							Token Operations Rules
 						</ModalTitle>
 						<CloseButton onClick={onClose} aria-label="Close modal">
-							<MDIIcon icon="FiX" size={20} ariaLabel="Close" style={{ color: 'white' }} />
+							<BootstrapIcon icon={getBootstrapIconName("FiX")} size={20} aria-label="Close" style={{ color: 'white' }} />
 						</CloseButton>
 					</ModalHeader>
 
@@ -319,7 +289,7 @@ export const TokenOperationsEducationModalV8PingUI: React.FC<
 						<Section>
 							<SectionTitle>Flow Information</SectionTitle>
 							<FlowInfo>
-								<MDIIcon icon="FiInfo" size={20} ariaLabel="Flow Information" />
+								<BootstrapIcon icon={getBootstrapIconName("FiInfo")} size={20} aria-label="Flow Information" />
 								<FlowText>
 									<strong>Current Flow:</strong> {getFlowDisplayName(flowType)}
 									<br />
@@ -329,7 +299,7 @@ export const TokenOperationsEducationModalV8PingUI: React.FC<
 
 							{scopes && (
 								<ScopesInfo>
-									<MDIIcon icon="FiInfo" size={20} ariaLabel="Scopes Information" />
+									<BootstrapIcon icon={getBootstrapIconName("FiInfo")} size={20} aria-label="Scopes Information" />
 									<ScopesText>
 										<strong>Scopes Control Access:</strong> The scopes you requested determine what
 										information is available in the ID token and UserInfo endpoint. The 'openid'
@@ -349,7 +319,7 @@ export const TokenOperationsEducationModalV8PingUI: React.FC<
 							<RulesGrid>
 								<RuleCard>
 									<RuleHeader>
-										<MDIIcon icon="FiCheckCircle" size={20} ariaLabel="Allowed" />
+										<BootstrapIcon icon={getBootstrapIconName("FiCheckCircle")} size={20} aria-label="Allowed" />
 										<RuleTitle>What You Can Introspect</RuleTitle>
 									</RuleHeader>
 									<RuleDescription>
@@ -359,7 +329,7 @@ export const TokenOperationsEducationModalV8PingUI: React.FC<
 										{rules.introspection.allowed.map((item, index) => (
 											<RuleItem key={index}>
 												<ItemIcon $allowed={true}>
-													<MDIIcon icon="FiCheckCircle" size={16} ariaLabel="Allowed" />
+													<BootstrapIcon icon={getBootstrapIconName("FiCheckCircle")} size={16} aria-label="Allowed" />
 												</ItemIcon>
 												<ItemText>{item}</ItemText>
 											</RuleItem>
@@ -369,7 +339,7 @@ export const TokenOperationsEducationModalV8PingUI: React.FC<
 
 								<RuleCard>
 									<RuleHeader>
-										<MDIIcon icon="FiXCircle" size={20} ariaLabel="Not Allowed" />
+										<BootstrapIcon icon={getBootstrapIconName("FiXCircle")} size={20} aria-label="Not Allowed" />
 										<RuleTitle>What You Cannot Introspect</RuleTitle>
 									</RuleHeader>
 									<RuleDescription>
@@ -379,7 +349,7 @@ export const TokenOperationsEducationModalV8PingUI: React.FC<
 										{rules.introspection.restricted.map((item, index) => (
 											<RuleItem key={index}>
 												<ItemIcon $allowed={false}>
-													<MDIIcon icon="FiXCircle" size={16} ariaLabel="Not Allowed" />
+													<BootstrapIcon icon={getBootstrapIconName("FiXCircle")} size={16} aria-label="Not Allowed" />
 												</ItemIcon>
 												<ItemText>{item}</ItemText>
 											</RuleItem>
@@ -399,7 +369,7 @@ export const TokenOperationsEducationModalV8PingUI: React.FC<
 							<RulesGrid>
 								<RuleCard>
 									<RuleHeader>
-										<MDIIcon icon="FiCheckCircle" size={20} ariaLabel="Available" />
+										<BootstrapIcon icon={getBootstrapIconName("FiCheckCircle")} size={20} aria-label="Available" />
 										<RuleTitle>Available User Information</RuleTitle>
 									</RuleHeader>
 									<RuleDescription>
@@ -409,7 +379,7 @@ export const TokenOperationsEducationModalV8PingUI: React.FC<
 										{rules.userInfo.available.map((item, index) => (
 											<RuleItem key={index}>
 												<ItemIcon $allowed={true}>
-													<MDIIcon icon="FiCheckCircle" size={16} ariaLabel="Available" />
+													<BootstrapIcon icon={getBootstrapIconName("FiCheckCircle")} size={16} aria-label="Available" />
 												</ItemIcon>
 												<ItemText>{item}</ItemText>
 											</RuleItem>
@@ -419,7 +389,7 @@ export const TokenOperationsEducationModalV8PingUI: React.FC<
 
 								<RuleCard>
 									<RuleHeader>
-										<MDIIcon icon="FiXCircle" size={20} ariaLabel="Not Available" />
+										<BootstrapIcon icon={getBootstrapIconName("FiXCircle")} size={20} aria-label="Not Available" />
 										<RuleTitle>Not Available Without Additional Scopes</RuleTitle>
 									</RuleHeader>
 									<RuleDescription>
@@ -429,7 +399,7 @@ export const TokenOperationsEducationModalV8PingUI: React.FC<
 										{rules.userInfo.requiresScopes.map((item, index) => (
 											<RuleItem key={index}>
 												<ItemIcon $allowed={false}>
-													<MDIIcon icon="FiXCircle" size={16} ariaLabel="Requires Scope" />
+													<BootstrapIcon icon={getBootstrapIconName("FiXCircle")} size={16} aria-label="Requires Scope" />
 												</ItemIcon>
 												<ItemText>{item}</ItemText>
 											</RuleItem>

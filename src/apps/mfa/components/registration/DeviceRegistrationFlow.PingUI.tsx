@@ -29,39 +29,9 @@ import { MFAErrorBoundary } from '@/v8/components/MFAErrorBoundary';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
-// MDI Icon Component with proper accessibility
-const MDIIcon: React.FC<{
-	icon: string;
-	size?: number;
-	ariaLabel?: string;
-	ariaHidden?: boolean;
-	className?: string;
-	style?: React.CSSProperties;
-}> = ({ icon, size = 16, ariaLabel, ariaHidden, className = '', style }) => {
-	const iconClass = getMDIIconClass(icon);
-	const combinedClassName = `mdi ${iconClass} ${className}`.trim();
-
-	return (
-		<span
-			className={combinedClassName}
-			style={{ fontSize: `${size}px`, ...style }}
-			{...(ariaLabel ? { 'aria-label': ariaLabel } : {})}
-			{...(ariaHidden ? { 'aria-hidden': 'true' } : {})}
-			role="img"
-		></span>
-	);
-};
-
-// MDI Icon mapping function
-const getMDIIconClass = (iconName: string): string => {
-	const iconMap: Record<string, string> = {
-		FiArrowLeft: 'mdi-arrow-left',
-		FiArrowRight: 'mdi-arrow-right',
-		FiCheckCircle: 'mdi-check-circle',
-		FiUserPlus: 'mdi-account-plus',
-	};
-	return iconMap[iconName] || 'mdi-help-circle';
-};
+// Bootstrap Icon Component (migrated from MDI)
+import BootstrapIcon from '@/components/BootstrapIcon';
+import { getBootstrapIconName } from '@/components/iconMapping';
 
 interface DeviceRegistrationFlowPingUIProps {
 	initialStep?: RegistrationStep;
@@ -217,10 +187,10 @@ const DeviceRegistrationFlowPingUI: React.FC<DeviceRegistrationFlowPingUIProps> 
 								marginBottom: 'var(--ping-spacing-xl, 2rem)',
 							}}
 						>
-							<MDIIcon
-								icon="FiUserPlus"
+							<BootstrapIcon
+								icon={getBootstrapIconName("FiUserPlus")}
 								size={64}
-								ariaLabel="Device Registration"
+								aria-label="Device Registration"
 								style={{ color: 'var(--ping-primary-color, #3b82f6)' }}
 							/>
 							<h2
@@ -353,10 +323,10 @@ const DeviceRegistrationFlowPingUI: React.FC<DeviceRegistrationFlowPingUIProps> 
 								marginBottom: 'var(--ping-spacing-xl, 2rem)',
 							}}
 						>
-							<MDIIcon
-								icon="FiCheckCircle"
+							<BootstrapIcon
+								icon={getBootstrapIconName("FiCheckCircle")}
 								size={64}
-								ariaLabel="Device Configured"
+								aria-label="Device Configured"
 								style={{ color: 'var(--ping-success-color, #22c55e)' }}
 							/>
 							<h2
@@ -503,7 +473,7 @@ const DeviceRegistrationFlowPingUI: React.FC<DeviceRegistrationFlowPingUIProps> 
 									e.currentTarget.style.backgroundColor = 'var(--ping-surface-primary, #ffffff)';
 								}}
 							>
-								<MDIIcon icon="FiArrowLeft" size={16} ariaLabel="Back" />
+								<BootstrapIcon icon={getBootstrapIconName("FiArrowLeft")} size={16} aria-label="Back" />
 								Back
 							</button>
 
@@ -545,7 +515,7 @@ const DeviceRegistrationFlowPingUI: React.FC<DeviceRegistrationFlowPingUIProps> 
 								}}
 							>
 								Complete
-								<MDIIcon icon="FiArrowRight" size={16} ariaLabel="Complete" />
+								<BootstrapIcon icon={getBootstrapIconName("FiArrowRight")} size={16} aria-label="Complete" />
 							</button>
 						</div>
 					</div>
@@ -564,10 +534,10 @@ const DeviceRegistrationFlowPingUI: React.FC<DeviceRegistrationFlowPingUIProps> 
 								marginBottom: 'var(--ping-spacing-xl, 2rem)',
 							}}
 						>
-							<MDIIcon
-								icon="FiCheckCircle"
+							<BootstrapIcon
+								icon={getBootstrapIconName("FiCheckCircle")}
 								size={64}
-								ariaLabel="Registration Complete"
+								aria-label="Registration Complete"
 								style={{ color: 'var(--ping-success-color, #22c55e)' }}
 							/>
 							<h2
@@ -632,7 +602,7 @@ const DeviceRegistrationFlowPingUI: React.FC<DeviceRegistrationFlowPingUIProps> 
 							}}
 						>
 							Continue
-							<MDIIcon icon="FiArrowRight" size={16} ariaLabel="Continue" />
+							<BootstrapIcon icon={getBootstrapIconName("FiArrowRight")} size={16} aria-label="Continue" />
 						</button>
 					</div>
 				);
@@ -784,10 +754,10 @@ const DeviceRegistrationFlowPingUI: React.FC<DeviceRegistrationFlowPingUIProps> 
 									gap: 'var(--ping-spacing-sm, 0.5rem)',
 								}}
 							>
-								<MDIIcon
-									icon="FiCheckCircle"
+								<BootstrapIcon
+									icon={getBootstrapIconName("FiCheckCircle")}
 									size={16}
-									ariaLabel="Error"
+									aria-label="Error"
 									style={{ color: 'var(--ping-error-color, #ef4444)' }}
 								/>
 								<span style={{ color: 'var(--ping-error-color, #ef4444)', fontSize: '0.875rem' }}>
