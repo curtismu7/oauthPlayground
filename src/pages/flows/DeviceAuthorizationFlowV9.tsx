@@ -32,47 +32,9 @@ import {
 	useDeviceAuthorizationFlow,
 } from '../../hooks/useDeviceAuthorizationFlow';
 
-// MDI Icon Component for PingOne UI
-const MDIIcon: React.FC<{ icon: string; size?: number; ariaLabel?: string; color?: string }> = ({
-	icon,
-	size,
-	ariaLabel,
-	color,
-}) => {
-	const iconClass = getMDIIconClass(icon);
-	return (
-		<i
-			className={`mdi ${iconClass}`}
-			style={{
-				fontSize: `${size}px`,
-				color: color || 'currentColor',
-			}}
-			aria-label={ariaLabel}
-		></i>
-	);
-};
-
-// MDI Icon Mapping
-const getMDIIconClass = (fiIcon: string): string => {
-	const iconMap: Record<string, string> = {
-		FiAlertCircle: 'mdi-alert-circle',
-		FiAlertTriangle: 'mdi-alert-triangle',
-		FiCheckCircle: 'mdi-check-circle',
-		FiChevronDown: 'mdi-chevron-down',
-		FiClock: 'mdi-clock',
-		FiCopy: 'mdi-content-copy',
-		FiExternalLink: 'mdi-open-in-new',
-		FiInfo: 'mdi-information',
-		FiKey: 'mdi-key',
-		FiMonitor: 'mdi-monitor',
-		FiRefreshCw: 'mdi-refresh',
-		FiShield: 'mdi-shield-check',
-		FiSmartphone: 'mdi-cellphone',
-		FiX: 'mdi-close',
-		FiZap: 'mdi-flash',
-	};
-	return iconMap[fiIcon] || fiIcon.replace('Fi', 'mdi-').toLowerCase();
-};
+// Bootstrap Icon Component (migrated from MDI)
+import BootstrapIcon from '@/components/BootstrapIcon';
+import { getBootstrapIconName } from '@/components/iconMapping';
 
 // PingOne UI Styled Components
 const FlowContainer = styled.div`
@@ -295,7 +257,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 			<FlowHeader>
 				<FlowTitle>
 					<DeviceIcon>
-						<MDIIcon icon="FiSmartphone" size={24} color="var(--ping-primary, #3b82f6)" />
+						<BootstrapIcon icon={getBootstrapIconName('phone')} size={24} color="var(--ping-primary, #3b82f6)" />
 					</DeviceIcon>
 					{isOIDC ? 'OIDC' : 'OAuth 2.0'} Device Authorization Flow V9
 				</FlowTitle>
@@ -309,7 +271,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 			<StepContainer>
 				<StepHeader>
 					<StepTitle>
-						<MDIIcon icon="FiMonitor" size={20} color="var(--ping-primary, #3b82f6)" />
+						<BootstrapIcon icon={getBootstrapIconName('display')} size={20} color="var(--ping-primary, #3b82f6)" />
 						Device Selection
 					</StepTitle>
 					<StepBadge variant="primary">Step 1</StepBadge>
@@ -319,15 +281,15 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 					<h3>Choose Device Type</h3>
 					<div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
 						<PingButton variant="secondary">
-							<MDIIcon icon="FiMonitor" size={16} />
+							<BootstrapIcon icon={getBootstrapIconName('display')} size={16} />
 							Smart TV
 						</PingButton>
 						<PingButton variant="secondary">
-							<MDIIcon icon="FiSmartphone" size={16} />
+							<BootstrapIcon icon={getBootstrapIconName('phone')} size={16} />
 							Mobile Device
 						</PingButton>
 						<PingButton variant="secondary">
-							<MDIIcon icon="FiZap" size={16} />
+							<BootstrapIcon icon={getBootstrapIconName('lightning')} size={16} />
 							IoT Device
 						</PingButton>
 					</div>
@@ -341,7 +303,7 @@ Verification URL: https://example.com/device`}
 						</CodeBlock>
 
 						<PingButton variant="primary" style={{ marginTop: '1rem' }}>
-							<MDIIcon icon="FiCopy" size={16} />
+							<BootstrapIcon icon={getBootstrapIconName('clipboard')} size={16} />
 							Copy User Code
 						</PingButton>
 					</div>
@@ -351,7 +313,7 @@ Verification URL: https://example.com/device`}
 			<StepContainer>
 				<StepHeader>
 					<StepTitle>
-						<MDIIcon icon="FiClock" size={20} color="var(--ping-text-secondary, #6b7280)" />
+						<BootstrapIcon icon={getBootstrapIconName('clock')} size={20} color="var(--ping-text-secondary, #6b7280)" />
 						Awaiting User Authorization
 					</StepTitle>
 					<StepBadge variant="secondary">Step 2</StepBadge>
@@ -372,7 +334,7 @@ Verification URL: https://example.com/device`}
 									justifyContent: 'center',
 								}}
 							>
-								<MDIIcon icon="FiMonitor" size={48} color="var(--ping-text-muted, #9ca3af)" />
+								<BootstrapIcon icon={getBootstrapIconName('display')} size={48} color="var(--ping-text-muted, #9ca3af)" />
 							</div>
 						</QRCodeContainer>
 					</div>
@@ -387,7 +349,7 @@ Verification URL: https://example.com/device`}
 					</div>
 
 					<PingButton variant="secondary">
-						<MDIIcon icon="FiRefreshCw" size={16} />
+						<BootstrapIcon icon={getBootstrapIconName('arrow-clockwise')} size={16} />
 						Refresh Status
 					</PingButton>
 				</PingCard>
@@ -396,7 +358,7 @@ Verification URL: https://example.com/device`}
 			<StepContainer>
 				<StepHeader>
 					<StepTitle>
-						<MDIIcon icon="FiCheckCircle" size={20} color="var(--ping-badge-success, #10b981)" />
+						<BootstrapIcon icon={getBootstrapIconName('check-circle-fill')} size={20} color="var(--ping-badge-success, #10b981)" />
 						Authorization Complete
 					</StepTitle>
 					<StepBadge variant="success">Step 3</StepBadge>
@@ -426,7 +388,7 @@ Verification URL: https://example.com/device`}
 					</CodeBlock>
 
 					<PingButton variant="primary" style={{ marginTop: '1rem' }}>
-						<MDIIcon icon="FiKey" size={16} />
+						<BootstrapIcon icon={getBootstrapIconName('key')} size={16} />
 						Use Access Token
 					</PingButton>
 				</PingCard>
