@@ -5,18 +5,19 @@
  * @version 1.0.0
  * 
  * This provides mapping between MDI icon names and Bootstrap Icons
- * for the PingOne UI Bootstrap migration.
+ * for the PingOne UI Bootstrap migration, with PingOne-specific icon preferences.
  */
 
 /**
- * MDI to Bootstrap Icon mapping
+ * PingOne UI Bootstrap Icon mapping
  * Maps Material Design Icons to Bootstrap Icons equivalents
+ * with PingOne design system preferences
  */
 export const MDIToBootstrapMapping: Record<string, string> = {
-	// Navigation & Actions
-	'home': 'house',
-	'settings': 'gear',
-	'cog': 'gear',
+	// Navigation & Actions - PingOne UI preferred
+	'home': 'house-door-fill',
+	'settings': 'gear-fill',
+	'cog': 'gear-fill',
 	'chevron-down': 'chevron-down',
 	'chevron-up': 'chevron-up',
 	'chevron-left': 'chevron-left',
@@ -25,52 +26,74 @@ export const MDIToBootstrapMapping: Record<string, string> = {
 	'arrow-right': 'arrow-right',
 	'arrow-up': 'arrow-up',
 	'arrow-down': 'arrow-down',
+	'arrow-clockwise': 'arrow-clockwise',
+	'refresh-cw': 'arrow-clockwise',
+	'refresh': 'arrow-clockwise',
 	
-	// Authentication & Security
+	// Authentication & Security - PingOne branding
 	'shield-outline': 'shield',
 	'shield-check': 'shield-check',
-	'account': 'person',
+	'shield-fill': 'shield-fill',
+	'account': 'person-fill',
 	'account-lock': 'person-lock',
-	'key': 'key',
-	'lock': 'lock',
+	'key': 'key-fill',
+	'lock': 'lock-fill',
 	'eye': 'eye',
 	'eye-off': 'eye-slash',
-	'certificate': 'award',
-	'devices': 'devices',
+	'certificate': 'award-fill',
+	'devices': 'phone-laptop',
+	'fingerprint': 'fingerprint',
+	'security': 'shield-lock',
+	
+	// PingOne Specific Icons
+	'pingone': 'building',
+	'ping': 'broadcast',
+	'one': '1-circle-fill',
+	'worker': 'person-workspace',
+	'token': 'key',
+	'api': 'diagram-3',
+	'oauth': 'shield-lock',
+	'oidc': 'person-badge',
+	'mfa': 'shield-exclamation',
+	'sso': 'arrow-left-right',
 	
 	// Content & Media
-	'file-document': 'file-earmark-text',
-	'file-text': 'file-earmark-text',
+	'file-document': 'file-earmark-text-fill',
+	'file-text': 'file-earmark-text-fill',
 	'download': 'download',
 	'upload': 'upload',
-	'book': 'book',
-	'package': 'box',
-	'information': 'info-circle',
-	'info': 'info-circle',
-	'alert': 'exclamation-triangle',
-	'warning': 'exclamation-triangle',
-	'error': 'x-circle',
-	'success': 'check-circle',
-	'check-circle': 'check-circle',
+	'book': 'book-fill',
+	'package': 'box-seam',
+	'information': 'info-circle-fill',
+	'info': 'info-circle-fill',
+	'alert': 'exclamation-triangle-fill',
+	'warning': 'exclamation-triangle-fill',
+	'error': 'x-circle-fill',
+	'success': 'check-circle-fill',
+	'check-circle': 'check-circle-fill',
+	'check': 'check-lg',
 	
-	// System & Status
+	// System & Status - PingOne status colors
 	'server': 'server',
 	'database': 'database',
 	'cpu': 'cpu',
 	'activity': 'activity',
-	'refresh': 'arrow-clockwise',
-	'refresh-cw': 'arrow-clockwise',
-	'close': 'x',
-	'x-circle': 'x-circle',
+	'close': 'x-lg',
+	'x-circle': 'x-circle-fill',
 	'menu': 'list',
 	'more': 'three-dots',
 	'ellipsis': 'three-dots',
+	'status': 'circle-fill',
+	'online': 'circle-fill',
+	'offline': 'circle',
+	'pending': 'half-circle',
 	
 	// Communication
-	'mail': 'envelope',
-	'phone': 'telephone',
-	'message-text': 'chat',
-	'notification': 'bell',
+	'mail': 'envelope-fill',
+	'phone': 'telephone-fill',
+	'message-text': 'chat-dots',
+	'notification': 'bell-fill',
+	'bell': 'bell-fill',
 	
 	// Social & Sharing
 	'share': 'share',
@@ -79,106 +102,147 @@ export const MDIToBootstrapMapping: Record<string, string> = {
 	'open-in-new': 'box-arrow-up-right',
 	'content-copy': 'clipboard',
 	'clipboard-text': 'clipboard',
+	'copy': 'clipboard',
 	
 	// Media & Entertainment
-	'play-circle': 'play-circle',
-	'pause-circle': 'pause-circle',
-	'stop-circle': 'stop-circle',
-	'volume-high': 'volume-up',
+	'play-circle': 'play-circle-fill',
+	'pause-circle': 'pause-circle-fill',
+	'stop-circle': 'stop-circle-fill',
+	'volume-high': 'volume-up-fill',
 	'volume-low': 'volume-down',
-	'volume-off': 'volume-mute',
+	'volume-off': 'volume-mute-fill',
 	
 	// Editing & Tools
-	'pencil': 'pencil',
+	'pencil': 'pencil-fill',
 	'pencil-outline': 'pencil',
-	'trash-can': 'trash',
+	'trash-can': 'trash-fill',
 	'delete-outline': 'trash',
 	'content-save': 'save',
 	'save-outline': 'save',
 	'content-cut': 'scissors',
 	'content-paste': 'clipboard',
 	
-	// View & Layout
-	'view-module': 'grid',
-	'view-list': 'list',
-	'view-column': 'columns',
-	'arrow-expand': 'arrows-expand',
-	'arrow-collapse': 'arrows-collapse',
-	'fullscreen': 'fullscreen',
-	'fullscreen-exit': 'fullscreen-exit',
+	// Flow & Process - PingOne flow icons
+	'flow': 'diagram-3',
+	'process': 'gear-wide-connected',
+	'pipeline': 'diagram-3',
+	'workflow': 'diagram-3',
+	'step': '1-square',
+	'steps': 'list-ol',
+	'progress': 'arrow-repeat',
+	'loading': 'arrow-repeat',
+	'spinner': 'arrow-repeat',
 	
-	// Time & Date
-	'clock-outline': 'clock',
-	'calendar-today': 'calendar-today',
-	'alarm': 'alarm',
+	// Enterprise & Business
+	'business': 'building',
+	'enterprise': 'building',
+	'organization': 'building',
+	'company': 'building',
+	'corporate': 'building',
+	'portal': 'door-open',
+	'dashboard': 'speedometer2',
+	'analytics': 'graph-up',
+	'reports': 'file-bar-graph',
+	'metrics': 'speedometer2',
+	
+	// Developer & Technical
+	'code': 'code-slash',
+	'developer': 'code-slash',
+	'terminal': 'terminal',
+	'console': 'terminal',
+	'debug': 'bug',
+	'test': 'check2-square',
+	'deploy': 'cloud-upload',
+	'build': 'gear-wide-connected',
+	'integration': 'link',
+	
+	// User & Access Management
+	'user': 'person-fill',
+	'users': 'people-fill',
+	'group': 'people-fill',
+	'team': 'people-fill',
+	'role': 'person-badge',
+	'permission': 'key',
+	'access': 'key',
+	'login': 'box-arrow-in-right',
+	'logout': 'box-arrow-right',
+	'signup': 'person-plus',
+	'register': 'person-plus',
+	
+	// Data & Storage
+	'data': 'database',
+	'storage': 'database',
+	'backup': 'shield-check',
+	'archive': 'archive',
+	'export': 'download',
+	'import': 'upload',
+	'sync': 'arrow-repeat',
+	'cloud': 'cloud',
+	'cloud-download': 'cloud-download',
+	'cloud-upload': 'cloud-upload',
+	
+	// Search & Filter
+	'search': 'search',
+	'filter': 'funnel',
+	'sort': 'sort-down',
+	'find': 'search',
+	'locate': 'geo-alt',
+	'browse': 'folder',
+	'explore': 'compass',
+	
+	// Time & Calendar
+	'time': 'clock',
+	'clock': 'clock',
+	'calendar': 'calendar',
+	'date': 'calendar',
+	'schedule': 'calendar-check',
+	'recent': 'clock-history',
+	'history': 'clock-history',
+	'future': 'calendar-week',
 	
 	// Location & Geography
-	'map-marker': 'map',
-	'pin-drop': 'geo-alt',
-	'location-on': 'geo-alt',
-	'navigation': 'compass',
+	'location': 'geo-alt',
+	'map': 'map',
+	'globe': 'globe',
+	'world': 'globe',
+	'region': 'geo',
+	'area': 'square',
 	
-	// Shopping & Commerce
-	'shopping-cart': 'cart',
-	'credit-card-outline': 'credit-card',
-	'tag-outline': 'tag',
-	'tags-outline': 'tags',
-	'barcode-scan': 'upc-scan',
+	// Configuration & Settings
+	'config': 'gear-fill',
+	'preferences': 'sliders',
+	'options': 'three-dots',
+	'tools': 'gear-wide-connected',
+	'customize': 'palette',
+	'theme': 'palette',
+	'layout': 'grid',
 	
-	// Transportation
-	'car-outline': 'car-front',
-	'truck-outline': 'truck',
-	'airplane': 'airplane',
-	'train-outline': 'train-front',
-	'ship-outline': 'boat',
+	// Help & Support
+	'help': 'question-circle',
+	'support': 'headset',
+	'faq': 'question-circle',
+	'documentation': 'book',
+	'guide': 'signpost',
+	'tutorial': 'play-circle',
+	'learn': 'mortarboard',
 	
-	// Weather & Environment
-	'weather-sunny': 'sun',
-	'weather-cloudy': 'cloud',
-	'weather-rainy': 'cloud-rain',
-	'weather-snowy': 'snow',
-	'weather-lightning': 'cloud-lightning',
-	'weather-windy': 'wind',
-	
-	// Health & Medical
-	'heart-outline': 'heart',
-	'heart-pulse': 'heart-pulse',
-	'hospital-building': 'hospital',
-	'pill-outline': 'capsule',
-	
-	// Education & Learning
-	'school-outline': 'mortarboard',
-	'graduation-cap': 'mortarboard',
-	'book-open-page-variant': 'book',
-	'library-outline': 'book',
-	
-	// Finance & Business
-	'currency-usd': 'currency-dollar',
-	'dollar-outline': 'currency-dollar',
-	'credit-card': 'credit-card',
-	'bank-outline': 'bank',
-	'trending-up': 'graph-up',
-	'trending-down': 'graph-down',
-	
-	// Gaming & Entertainment
-	'gamepad': 'controller',
-	'joystick-outline': 'controller',
-	'trophy-outline': 'trophy',
-	'medal-outline': 'award',
-	
-	// Miscellaneous
-	'star-outline': 'star',
-	'heart': 'heart',
-	'thumb-up-outline': 'hand-thumbs-up',
-	'thumb-down-outline': 'hand-thumbs-down',
-	'bookmark-outline': 'bookmark',
-	'bookmark': 'bookmark',
-	'filter-outline': 'funnel',
-	'magnify': 'search',
-	'magnify-plus': 'zoom-in',
-	'magnify-minus': 'zoom-out',
-	'qrcode': 'qr-code',
-	'barcode': 'upc-scan',
+	// Status Indicators - PingOne status colors
+	'valid': 'check-circle-fill',
+	'invalid': 'x-circle-fill',
+	'active': 'circle-fill',
+	'inactive': 'circle',
+	'enabled': 'toggle-on',
+	'disabled': 'toggle-off',
+	'connected': 'wifi',
+	'disconnected': 'wifi-off',
+	'synced': 'check-circle',
+	'unsynced': 'x-circle',
+	'updated': 'arrow-clockwise',
+	'outdated': 'exclamation-triangle',
+	'current': 'circle-fill',
+	'expired': 'x-circle',
+	'required': 'asterisk',
+	'optional': 'circle',
 };
 
 /**
@@ -197,23 +261,24 @@ export const getBootstrapIconName = (mdiIconName: string): string => {
 };
 
 /**
- * Common icon mappings for quick reference
+ * PingOne UI Common icon mappings for quick reference
  */
 export const CommonIconMappings = {
-	// Most frequently used icons in the app
-	'home': 'house',
-	'settings': 'gear',
-	'user': 'person',
-	'key': 'key',
-	'shield': 'shield',
+	// Most frequently used icons in the app - PingOne UI preferred
+	'home': 'house-door-fill',
+	'settings': 'gear-fill',
+	'user': 'person-fill',
+	'key': 'key-fill',
+	'shield': 'shield-check',
+	'security': 'shield-lock',
 	'download': 'download',
 	'upload': 'upload',
-	'info': 'info-circle',
-	'warning': 'exclamation-triangle',
-	'error': 'x-circle',
-	'success': 'check-circle',
-	'edit': 'pencil',
-	'delete': 'trash',
+	'info': 'info-circle-fill',
+	'warning': 'exclamation-triangle-fill',
+	'error': 'x-circle-fill',
+	'success': 'check-circle-fill',
+	'edit': 'pencil-fill',
+	'delete': 'trash-fill',
 	'save': 'save',
 	'copy': 'clipboard',
 	'share': 'share',
@@ -221,7 +286,20 @@ export const CommonIconMappings = {
 	'menu': 'list',
 	'search': 'search',
 	'filter': 'funnel',
-	'close': 'x',
+	'close': 'x-lg',
 	'expand': 'arrows-expand',
 	'collapse': 'arrows-collapse',
+	
+	// PingOne specific icons
+	'pingone': 'building',
+	'oauth': 'shield-lock',
+	'oidc': 'person-badge',
+	'mfa': 'shield-exclamation',
+	'worker': 'person-workspace',
+	'token': 'key-fill',
+	'api': 'diagram-3',
+	'flow': 'diagram-3',
+	'enterprise': 'building',
+	'portal': 'door-open',
+	'dashboard': 'speedometer2',
 } as const;

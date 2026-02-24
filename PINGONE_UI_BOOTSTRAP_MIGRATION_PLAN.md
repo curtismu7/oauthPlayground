@@ -30,7 +30,8 @@ The PingOne UI Bootstrap migration is a comprehensive upgrade to align the Maste
 - [x] Create PingOne Bootstrap component library
 - [x] **NEW**: Bootstrap Icons CSS integration (v1.11.0)
 - [x] **NEW**: BootstrapIcon component creation
-- [x] **NEW**: MDI to Bootstrap icon mapping system
+- [x] **UPDATED**: PingOne-specific icon mapping system with fill variants
+- [x] **NEW**: PingOne UI preferred icons (building, shield-lock, person-badge, etc.)
 
 ### **Phase 2: Core Component Migration (Priority: HIGH) 🔄 IN PROGRESS**
 
@@ -46,15 +47,114 @@ The PingOne UI Bootstrap migration is a comprehensive upgrade to align the Maste
 | **Navigation Components** | 5/5 | 0 | ✅ Complete |
 | **Shared Services** | 5/5 | 0 | ✅ Complete |
 
-#### **2.2 Bootstrap Migration Status 🔄 4/73 STARTED**
-**Bootstrap Components Migrated**: 4/73
+#### **2.2 Bootstrap Migration Status 🔄 5/73 STARTED**
+**Bootstrap Components Migrated**: 5/73
 
 | Component | Status | File | Bootstrap Features |
 |----------|--------|------|------------------|
 | **BootstrapIcon** | ✅ Complete | `src/components/BootstrapIcon.tsx` | Centralized Bootstrap icon component |
-| **Icon Mapping** | ✅ Complete | `src/components/iconMapping.ts` | MDI to Bootstrap conversion |
+| **Icon Mapping** | ✅ Updated | `src/components/iconMapping.ts` | PingOne-specific icon mapping with fill variants |
 | **UnifiedSidebar.V2** | ✅ Complete | `src/apps/navigation/components/UnifiedSidebar.V2.tsx` | Bootstrap icons with mapping |
 | **Bootstrap CSS** | ✅ Complete | `index.html` | Bootstrap Icons CDN integration |
+| **BootstrapFormField** | ✅ Complete | `src/components/bootstrap/BootstrapFormField.tsx` | Enhanced form field with Bootstrap 5, icons, validation |
+
+---
+
+## 🎨 **PINGONE ICON IMPROVEMENTS**
+
+### **Icon Mapping Updates ✅ COMPLETED**
+
+#### **PingOne-Specific Icon Preferences**
+Updated icon mapping to prioritize PingOne branding and design consistency:
+
+| Category | MDI Icon | Bootstrap Icon | PingOne Context |
+|----------|----------|---------------|-----------------|
+| **Navigation** | `home` | `house-door-fill` | Main dashboard/home |
+| **Settings** | `settings` | `gear-fill` | Configuration panels |
+| **Authentication** | `key` | `key-fill` | API keys, tokens |
+| **Security** | `shield` | `shield-check` | Security features |
+| **OAuth** | `oauth` | `shield-lock` | OAuth flows |
+| **OIDC** | `oidc` | `person-badge` | Identity management |
+| **MFA** | `mfa` | `shield-exclamation` | Multi-factor auth |
+| **Enterprise** | `enterprise` | `building` | Corporate features |
+| **Portal** | `portal` | `door-open` | Entry points |
+| **Dashboard** | `dashboard` | `speedometer2` | Analytics dashboards |
+
+#### **Fill Variants for Visual Consistency**
+- **Navigation Icons**: Use `-fill` variants for better visual weight
+- **Status Icons**: Use `-fill` variants for clear status indication
+- **Action Icons**: Use `-fill` variants for interactive elements
+- **Brand Icons**: Use PingOne-specific mappings for brand consistency
+
+#### **Enhanced Icon Categories**
+
+##### **Authentication & Security**
+```typescript
+// PingOne authentication icons
+'oauth': 'shield-lock'        // OAuth flows
+'oidc': 'person-badge'        // OpenID Connect
+'mfa': 'shield-exclamation'   // Multi-factor auth
+'worker': 'person-workspace'  // Worker tokens
+'token': 'key-fill'          // API tokens
+'security': 'shield-lock'     // Security features
+```
+
+##### **Enterprise & Business**
+```typescript
+// PingOne enterprise icons
+'pingone': 'building'         // PingOne platform
+'enterprise': 'building'      // Enterprise features
+'portal': 'door-open'         // Portal access
+'api': 'diagram-3'           // API documentation
+'flow': 'diagram-3'          // Flow diagrams
+```
+
+##### **Status Indicators**
+```typescript
+// PingOne status icons with proper fill variants
+'valid': 'check-circle-fill'     // Valid/Success
+'invalid': 'x-circle-fill'       // Invalid/Error
+'active': 'circle-fill'          // Active state
+'inactive': 'circle'             // Inactive state
+'current': 'circle-fill'         // Current item
+'expired': 'x-circle-fill'       // Expired state
+```
+
+### **Icon Usage Guidelines**
+
+#### **1. Fill Variants Priority**
+- **Use `-fill` variants** for primary actions and important indicators
+- **Use regular variants** for secondary elements and decorative icons
+- **Maintain consistency** within the same component category
+
+#### **2. PingOne Brand Icons**
+- **`building`** for PingOne platform references
+- **`shield-lock`** for OAuth/security contexts
+- **`person-badge`** for identity/OIDC contexts
+- **`shield-exclamation`** for MFA contexts
+
+#### **3. Status Icon Standards**
+- **Success**: `check-circle-fill` (green)
+- **Error**: `x-circle-fill` (red)
+- **Warning**: `exclamation-triangle-fill` (yellow)
+- **Info**: `info-circle-fill` (blue)
+
+### **Migration Benefits**
+
+#### **Visual Consistency**
+- **Unified Icon Style**: All icons use consistent fill variants
+- **Brand Alignment**: Icons match PingOne design language
+- **Better Hierarchy**: Fill variants provide clear visual weight
+
+#### **Improved UX**
+- **Clearer Indicators**: Status icons are more prominent
+- **Better Recognition**: PingOne-specific icons improve brand recognition
+- **Accessibility**: Better contrast and readability
+
+#### **Developer Experience**
+- **Centralized Mapping**: Single source of truth for icon mappings
+- **Type Safety**: TypeScript interfaces for icon names
+- **Easy Maintenance**: Clear categorization and documentation
 
 ---
 
