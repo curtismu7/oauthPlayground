@@ -39,7 +39,7 @@ export class PingOneAPIServiceV9 {
 	): Promise<APIResponse<Application[]>> {
 		try {
 			const includeParams = options.include?.join(',') || '';
-			const url = `${this.BASE_URL}/environments/${environmentId}/applications${includeParams ? `?include=${includeParams}` : ''}`;
+			const url = `${PingOneAPIServiceV9.BASE_URL}/environments/${environmentId}/applications${includeParams ? `?include=${includeParams}` : ''}`;
 
 			const response = await fetch(url, {
 				headers: {

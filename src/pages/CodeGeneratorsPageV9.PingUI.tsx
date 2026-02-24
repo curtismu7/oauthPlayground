@@ -532,6 +532,7 @@ console.log('Configuration:', config);`;
 							</div>
 							<button
 								className="btn btn-outline-secondary"
+								type="button"
 								onClick={() => navigate('/')}
 							>
 								<BootstrapIcon 
@@ -562,8 +563,9 @@ console.log('Configuration:', config);`;
 							<div className="card-body">
 								<div className="row g-3">
 									<div className="col-md-6">
-										<label className="form-label">Base URL</label>
+										<label htmlFor="baseUrl" className="form-label">Base URL</label>
 										<input
+											id="baseUrl"
 											type="text"
 											className="form-control"
 											value={config.baseUrl}
@@ -571,8 +573,9 @@ console.log('Configuration:', config);`;
 										/>
 									</div>
 									<div className="col-md-6">
-										<label className="form-label">Client ID</label>
+										<label htmlFor="clientId" className="form-label">Client ID</label>
 										<input
+											id="clientId"
 											type="text"
 											className="form-control"
 											value={config.clientId}
@@ -581,8 +584,9 @@ console.log('Configuration:', config);`;
 										/>
 									</div>
 									<div className="col-md-6">
-										<label className="form-label">Client Secret</label>
+										<label htmlFor="clientSecret" className="form-label">Client Secret</label>
 										<input
+											id="clientSecret"
 											type="password"
 											className="form-control"
 											value={config.clientSecret}
@@ -591,8 +595,9 @@ console.log('Configuration:', config);`;
 										/>
 									</div>
 									<div className="col-md-6">
-										<label className="form-label">Redirect URI</label>
+										<label htmlFor="redirectUri" className="form-label">Redirect URI</label>
 										<input
+											id="redirectUri"
 											type="text"
 											className="form-control"
 											value={config.redirectUri}
@@ -600,8 +605,9 @@ console.log('Configuration:', config);`;
 										/>
 									</div>
 									<div className="col-md-6">
-										<label className="form-label">Environment ID</label>
+										<label htmlFor="environmentId" className="form-label">Environment ID</label>
 										<input
+											id="environmentId"
 											type="text"
 											className="form-control"
 											value={config.environmentId}
@@ -610,8 +616,9 @@ console.log('Configuration:', config);`;
 										/>
 									</div>
 									<div className="col-md-6">
-										<label className="form-label">Scopes</label>
+										<label htmlFor="scopes" className="form-label">Scopes</label>
 										<input
+											id="scopes"
 											type="text"
 											className="form-control"
 											value={config.scopes.join(' ')}
@@ -656,6 +663,7 @@ console.log('Configuration:', config);`;
 											</div>
 											<button
 												className="btn btn-primary w-100"
+												type="button"
 												onClick={() => handleGeneratorSelect(generator)}
 												disabled={isLoading}
 											>
@@ -691,6 +699,7 @@ console.log('Configuration:', config);`;
 									<div className="d-flex gap-2">
 										<button
 											className="btn btn-outline-secondary btn-sm"
+											type="button"
 											onClick={() => copyToClipboard(generatedContent.content, 'Generated Content')}
 										>
 											<BootstrapIcon 
@@ -702,6 +711,7 @@ console.log('Configuration:', config);`;
 										</button>
 										<button
 											className="btn btn-outline-secondary btn-sm"
+											type="button"
 											onClick={() => downloadContent(generatedContent)}
 										>
 											<BootstrapIcon 
@@ -713,6 +723,7 @@ console.log('Configuration:', config);`;
 										</button>
 										<button
 											className="btn btn-outline-secondary btn-sm"
+											type="button"
 											onClick={() => setSelectedGenerator(null)}
 										>
 											<BootstrapIcon 

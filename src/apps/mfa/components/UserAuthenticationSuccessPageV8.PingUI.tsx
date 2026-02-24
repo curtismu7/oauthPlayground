@@ -2,10 +2,10 @@
  * @file UserAuthenticationSuccessPageV8.PingUI.tsx
  * @module v8/components
  * @description Ping UI migrated success page component displayed after successful user authentication
- * @version 8.0.0
+ * @version 8.0.0-Bootstrap
  *
  * Shows user information and session details after OAuth login
- * Migrated to Ping UI with MDI icons and CSS variables.
+ * Migrated to Ping UI with Bootstrap icons and CSS variables.
  */
 
 import React, { useEffect, useState } from 'react';
@@ -14,39 +14,9 @@ import styled from 'styled-components';
 import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
-// MDI Icon Component with proper accessibility
-const MDIIcon: React.FC<{
-	icon: string;
-	size?: number;
-	ariaLabel?: string;
-	ariaHidden?: boolean;
-	className?: string;
-	style?: React.CSSProperties;
-}> = ({ icon, size = 16, ariaLabel, ariaHidden = false, className = '', style }) => {
-	const iconClass = getMDIIconClass(icon);
-	const combinedClassName = `mdi ${iconClass} ${className}`.trim();
-
-	return (
-		<span
-			className={combinedClassName}
-			style={{ fontSize: `${size}px`, ...style }}
-			{...(ariaLabel ? { 'aria-label': ariaLabel } : {})}
-			{...(ariaHidden ? { 'aria-hidden': 'true' } : {})}
-			role="img"
-		></span>
-	);
-};
-
-// MDI Icon mapping function
-const getMDIIconClass = (iconName: string): string => {
-	const iconMap: Record<string, string> = {
-		FiCheckCircle: 'mdi-check-circle',
-		FiCopy: 'mdi-content-copy',
-		FiShield: 'mdi-shield',
-		FiUser: 'mdi-account',
-	};
-	return iconMap[iconName] || 'mdi-help-circle';
-};
+// Bootstrap Icon Component (migrated from MDI)
+import BootstrapIcon from '@/components/BootstrapIcon';
+import { getBootstrapIconName } from '@/components/iconMapping';
 
 export interface UserInfo {
 	sub?: string;
@@ -358,7 +328,7 @@ export const UserAuthenticationSuccessPageV8PingUI: React.FC<
 			<SuccessContainer>
 				<SuccessHeader>
 					<SuccessIcon>
-						<MDIIcon icon="FiCheckCircle" size={64} ariaLabel="Success" />
+						<BootstrapIcon icon={getBootstrapIconName("check-circle")} size={64} ariaLabel="Success" />
 					</SuccessIcon>
 					<SuccessTitle>Authentication Successful!</SuccessTitle>
 					<SuccessSubtitle>You have successfully authenticated with PingOne</SuccessSubtitle>
@@ -367,7 +337,7 @@ export const UserAuthenticationSuccessPageV8PingUI: React.FC<
 				{userInfo && (
 					<Section>
 						<SectionTitle>
-							<MDIIcon icon="FiUser" size={24} ariaLabel="User Information" />
+							<BootstrapIcon icon={getBootstrapIconName("person")} size={24} ariaLabel="User Information" />
 							User Information
 						</SectionTitle>
 						<UserInfoCard>
@@ -403,7 +373,7 @@ export const UserAuthenticationSuccessPageV8PingUI: React.FC<
 
 				<Section>
 					<SectionTitle>
-						<MDIIcon icon="FiShield" size={24} ariaLabel="Session Information" />
+						<BootstrapIcon icon={getBootstrapIconName("shield")} size={24} ariaLabel="Session Information" />
 						Session Information
 					</SectionTitle>
 					<TokenCard>
@@ -413,7 +383,7 @@ export const UserAuthenticationSuccessPageV8PingUI: React.FC<
 								<CopyButton
 									onClick={() => copyToClipboard(sessionInfo.accessToken, 'Access Token')}
 								>
-									<MDIIcon icon="FiCopy" size={12} ariaLabel="Copy" />
+									<BootstrapIcon icon={getBootstrapIconName("clipboard")} size={12} ariaLabel="Copy" />
 									Copy
 								</CopyButton>
 							</TokenHeader>
@@ -430,7 +400,7 @@ export const UserAuthenticationSuccessPageV8PingUI: React.FC<
 								<TokenHeader>
 									<TokenTitle>ID Token</TokenTitle>
 									<CopyButton onClick={() => copyToClipboard(sessionInfo.idToken!, 'ID Token')}>
-										<MDIIcon icon="FiCopy" size={12} ariaLabel="Copy" />
+										<BootstrapIcon icon={getBootstrapIconName("clipboard")} size={12} ariaLabel="Copy" />
 										Copy
 									</CopyButton>
 								</TokenHeader>

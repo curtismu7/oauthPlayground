@@ -2,11 +2,11 @@
  * @file MFADocumentationModalV8.PingUI.tsx
  * @module v8/components
  * @description Ping UI migration of Modal for selecting and downloading MFA documentation
- * @version 8.0.0-PingUI
+ * @version 8.0.0-PingUI-Bootstrap
  *
  * Ping UI migration following pingui2.md standards:
  * - Added .end-user-nano namespace wrapper
- * - Replaced React Icons with MDI CSS icons
+ * - Replaced MDI icons with Bootstrap Icons (migration step)
  * - Applied Ping UI CSS variables and transitions
  * - Enhanced accessibility with proper ARIA labels
  * - Used 0.15s ease-in-out transitions
@@ -24,37 +24,9 @@ import {
 	getApiCalls,
 } from './MFADocumentationPageV8';
 
-// MDI Icon Mapping for React Icons → MDI CSS
-const getMDIIconClass = (fiIcon: string): string => {
-	const iconMap: Record<string, string> = {
-		FiBook: 'mdi-book',
-		FiDownload: 'mdi-download',
-		FiFileText: 'mdi-file-text',
-		FiX: 'mdi-close',
-	};
-	return iconMap[fiIcon] || 'mdi-help-circle';
-};
-
-// MDI Icon Component with proper accessibility
-const MDIIcon: React.FC<{
-	icon: string;
-	size?: number;
-	ariaLabel?: string;
-	ariaHidden?: boolean;
-	className?: string;
-}> = ({ icon, size = 16, ariaLabel, ariaHidden = false, className = '' }) => {
-	const iconClass = getMDIIconClass(icon);
-	const combinedClassName = `mdi ${iconClass} ${className}`.trim();
-
-	return (
-		<i
-			className={combinedClassName}
-			style={{ fontSize: `${size}px` }}
-			title={ariaLabel}
-			aria-hidden={ariaHidden}
-		></i>
-	);
-};
+// Bootstrap Icon Component (migrated from MDI)
+import BootstrapIcon from '@/components/BootstrapIcon';
+import { getBootstrapIconName } from '@/components/iconMapping';
 
 interface UseCase {
 	id: string;
@@ -275,8 +247,8 @@ export const MFADocumentationModalV8PingUI: React.FC<MFADocumentationModalV8Ping
 								gap: 'var(--ping-spacing-sm, 0.5rem)',
 							}}
 						>
-							{/* PING UI MIGRATION: Replaced FiBook with MDI icon */}
-							<MDIIcon icon="FiBook" size={24} ariaLabel="Documentation" />
+							{/* PING UI MIGRATION: Replaced FiBook with Bootstrap icon */}
+							<BootstrapIcon icon={getBootstrapIconName("book")} size={24} ariaLabel="Documentation" />
 							<h2
 								style={{
 									margin: 0,
@@ -303,8 +275,8 @@ export const MFADocumentationModalV8PingUI: React.FC<MFADocumentationModalV8Ping
 							}}
 							aria-label="Close modal"
 						>
-							{/* PING UI MIGRATION: Replaced FiX with MDI icon */}
-							<MDIIcon icon="FiX" size={24} ariaLabel="Close" />
+							{/* PING UI MIGRATION: Replaced FiX with Bootstrap icon */}
+							<BootstrapIcon icon={getBootstrapIconName("x")} size={24} ariaLabel="Close" />
 						</button>
 					</div>
 
@@ -492,8 +464,8 @@ export const MFADocumentationModalV8PingUI: React.FC<MFADocumentationModalV8Ping
 										gap: 'var(--ping-spacing-xs, 0.25rem)',
 									}}
 								>
-									{/* PING UI MIGRATION: Replaced React Icons with MDI icons */}
-									<MDIIcon icon={option.icon} size={18} ariaLabel={`${option.label} format`} />
+									{/* PING UI MIGRATION: Replaced React Icons with Bootstrap icons */}
+									<BootstrapIcon icon={getBootstrapIconName(option.icon)} size={18} ariaLabel={`${option.label} format`} />
 									{option.label}
 								</button>
 							))}
@@ -547,8 +519,8 @@ export const MFADocumentationModalV8PingUI: React.FC<MFADocumentationModalV8Ping
 								gap: 'var(--ping-spacing-xs, 0.25rem)',
 							}}
 						>
-							{/* PING UI MIGRATION: Replaced FiDownload with MDI icon */}
-							<MDIIcon icon="FiDownload" size={18} ariaLabel="Download" />
+							{/* PING UI MIGRATION: Replaced FiDownload with Bootstrap icon */}
+							<BootstrapIcon icon={getBootstrapIconName("download")} size={18} ariaLabel="Download" />
 							Download ({selectedUseCases.size} use case{selectedUseCases.size !== 1 ? 's' : ''})
 						</button>
 					</div>
