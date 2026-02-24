@@ -15,6 +15,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { FiCode, FiShield } from 'react-icons/fi';
 import { UserTokenStatusDisplayV8U } from '@/apps/user-management/components/UserTokenStatusDisplayV8U';
 import { WorkerTokenButton } from '@/components/WorkerTokenButton';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
@@ -188,13 +189,15 @@ const StatusIndicator = styled.div<{ status: 'success' | 'warning' | 'error' | '
 export const TokenStatusPageV8U: React.FC = () => {
 	const [workerTokenStatus, setWorkerTokenStatus] = useState<TokenStatusInfo | null>(null);
 	const [userTokenStatus, setUserTokenStatus] = useState<Record<string, unknown> | null>(null);
+	const [isLoading, setIsLoading] = useState(true);
 
 	const loadTokenStatuses = useCallback(async () => {
+		setIsLoading(true);
 		try {
 			logger.info('Loading token statuses...');
 
 			// Load worker token status
-			const workerStatus = await WorkerTokenStatusServiceV8.getStatus();
+			const workerStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 			setWorkerTokenStatus(workerStatus);
 
 			// Load user token status (placeholder for now)
@@ -209,7 +212,7 @@ export const TokenStatusPageV8U: React.FC = () => {
 
 			logger.info('Token statuses loaded successfully');
 		} catch (error) {
-			logger.error('Failed to load token statuses', {}, error as Error);
+			logger.error('Failed to load token statuses', error);
 		} finally {
 			setIsLoading(false);
 		}
@@ -232,9 +235,9 @@ export const TokenStatusPageV8U: React.FC = () => {
 	const getWorkerTokenStatusIndicator = () => {
 		if (!workerTokenStatus) return { status: 'info' as const, text: 'Unknown' };
 
-		if (workerTokenStatus.hasCredentials && workerTokenStatus.tokenValid) {
+		if (!!workerTokenStatus.token && workerTokenStatus.isValid) {
 			return { status: 'success' as const, text: 'Active' };
-		} else if (workerTokenStatus.hasCredentials && !workerTokenStatus.tokenValid) {
+		} else if (!!workerTokenStatus.token && !workerTokenStatus.isValid) {
 			return { status: 'warning' as const, text: 'Expired' };
 		} else {
 			return { status: 'error' as const, text: 'Not Configured' };
@@ -300,7 +303,7 @@ export const TokenStatusPageV8U: React.FC = () => {
 							</Button>
 						</div>
 					</StatusCard>
-					{workerTokenStatus && <WorkerTokenStatusDisplayV8 status={workerTokenStatus} />}
+					{workerTokenStatus && <WorkerTokenStatusDisplayV8 tokenStatus={workerTokenStatus} />}
 				</Section>
 
 				{/* User Token Status */}
@@ -309,7 +312,7 @@ export const TokenStatusPageV8U: React.FC = () => {
 						<FiCode className="section-icon" />
 						User Token Status
 					</h2>
-					{userTokenStatus && <UserTokenStatusDisplayV8U tokenStatus={userTokenStatus} />}
+					{userTokenStatus && <UserTokenStatusDisplayV8U status={userTokenStatus} />}
 				</Section>
 			</GridContainer>
 
@@ -317,8 +320,6 @@ export const TokenStatusPageV8U: React.FC = () => {
 			<Section>
 				<h2>Token API Endpoints</h2>
 				<SuperSimpleApiDisplayV8
-					title="Token Status API"
-					description="API endpoints for checking token status and performing token operations"
 					endpoints={[
 						{
 							method: 'GET',
