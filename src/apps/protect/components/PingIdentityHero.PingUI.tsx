@@ -145,7 +145,7 @@ export const PingIdentityHero: React.FC = () => {
 								e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.05)';
 							}}
 						>
-							<MDIIcon icon="shield-check" size={48} aria-hidden={true} />
+							<BootstrapIcon icon={getBootstrapIconName('shield-check')} size={48} aria-hidden={true} />
 							<h3 style={featureTitleStyle}>Advanced Security</h3>
 							<p style={featureDescriptionStyle}>
 								Multi-factor authentication, single sign-on, and adaptive security policies to
@@ -164,7 +164,7 @@ export const PingIdentityHero: React.FC = () => {
 								e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.05)';
 							}}
 						>
-							<MDIIcon icon="account-group" size={48} aria-hidden={true} />
+							<BootstrapIcon icon={getBootstrapIconName('account-group')} size={48} aria-hidden={true} />
 							<h3 style={featureTitleStyle}>User Management</h3>
 							<p style={featureDescriptionStyle}>
 								Comprehensive user lifecycle management with automated provisioning, deprovisioning,
@@ -183,7 +183,7 @@ export const PingIdentityHero: React.FC = () => {
 								e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.05)';
 							}}
 						>
-							<MDIIcon icon="key" size={48} aria-hidden={true} />
+							<BootstrapIcon icon={getBootstrapIconName('key')} size={48} aria-hidden={true} />
 							<h3 style={featureTitleStyle}>Credential Management</h3>
 							<p style={featureDescriptionStyle}>
 								Secure credential storage, password management, and certificate-based authentication
@@ -202,7 +202,7 @@ export const PingIdentityHero: React.FC = () => {
 								e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.05)';
 							}}
 						>
-							<MDIIcon icon="database" size={48} aria-hidden={true} />
+							<BootstrapIcon icon={getBootstrapIconName('database')} size={48} aria-hidden={true} />
 							<h3 style={featureTitleStyle}>Directory Integration</h3>
 							<p style={featureDescriptionStyle}>
 								Seamless integration with existing directories and identity stores, supporting LDAP,
@@ -221,7 +221,7 @@ export const PingIdentityHero: React.FC = () => {
 								e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.05)';
 							}}
 						>
-							<MDIIcon icon="cog" size={48} aria-hidden={true} />
+							<BootstrapIcon icon={getBootstrapIconName('cog')} size={48} aria-hidden={true} />
 							<h3 style={featureTitleStyle}>Policy Management</h3>
 							<p style={featureDescriptionStyle}>
 								Flexible policy engine for access control, compliance, and risk-based authentication
@@ -240,7 +240,7 @@ export const PingIdentityHero: React.FC = () => {
 								e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.05)';
 							}}
 						>
-							<MDIIcon icon="lock" size={48} aria-hidden={true} />
+							<BootstrapIcon icon={getBootstrapIconName('lock')} size={48} aria-hidden={true} />
 							<h3 style={featureTitleStyle}>Zero Trust Security</h3>
 							<p style={featureDescriptionStyle}>
 								Implement zero trust architecture with continuous authentication, device trust, and
@@ -263,7 +263,7 @@ export const PingIdentityHero: React.FC = () => {
 						}}
 					>
 						Get Started
-						<MDIIcon icon="arrow-right" size={20} aria-hidden={true} />
+						<BootstrapIcon icon={getBootstrapIconName('arrow-right')} size={20} aria-hidden={true} />
 					</button>
 				</div>
 			</section>
