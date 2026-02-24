@@ -29,47 +29,9 @@ import {
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/bootstrap/pingone-bootstrap.css';
 
-// MDI Icon Component
-const MDIIcon: React.FC<{
-	icon: string;
-	size?: number;
-	ariaLabel?: string;
-	className?: string;
-	style?: React.CSSProperties;
-}> = ({ icon, size = 20, ariaLabel, className = '', style }) => {
-	const iconMap: Record<string, string> = {
-		FiAlertCircle: 'mdi-alert-circle',
-		FiCheckCircle: 'mdi-check-circle',
-		FiCopy: 'mdi-content-copy',
-		FiDownload: 'mdi-download',
-		FiExternalLink: 'mdi-open-in-new',
-		FiEye: 'mdi-eye',
-		FiEyeOff: 'mdi-eye-off',
-		FiGithub: 'mdi-github',
-		FiInfo: 'mdi-information',
-		FiKey: 'mdi-key',
-		FiPackage: 'mdi-package',
-		FiPlay: 'mdi-play',
-		FiSave: 'mdi-content-save',
-		FiSettings: 'mdi-cog',
-		FiTerminal: 'mdi-console',
-		FiRefreshCw: 'mdi-refresh',
-		FiChevronDown: 'mdi-chevron-down',
-		FiChevronUp: 'mdi-chevron-up',
-	};
-
-	const iconClass = iconMap[icon] || icon;
-	const combinedClassName = `mdi ${iconClass} ${className}`.trim();
-
-	return (
-		<span
-			className={combinedClassName}
-			style={{ fontSize: `${size}px`, ...style }}
-			title={ariaLabel}
-			aria-hidden={!ariaLabel}
-		/>
-	);
-};
+// Bootstrap Icon Component (migrated from MDI)
+import BootstrapIcon from '@/components/BootstrapIcon';
+import { getBootstrapIconName } from '@/components/iconMapping';
 
 // Main Component
 const ConfigurationPingUI: React.FC = () => {
@@ -602,7 +564,7 @@ const ConfigurationPingUI: React.FC = () => {
 						className={`tab ${activeTab === 'pingone' ? 'active' : ''}`}
 						onClick={() => setActiveTab('pingone')}
 					>
-						<MDIIcon icon="FiKey" size={16} />
+						<BootstrapIcon icon={getBootstrapIconName('key')} size={16} />
 						PingOne Application
 					</button>
 					<button
@@ -610,7 +572,7 @@ const ConfigurationPingUI: React.FC = () => {
 						className={`tab ${activeTab === 'worker' ? 'active' : ''}`}
 						onClick={() => setActiveTab('worker')}
 					>
-						<MDIIcon icon="FiPackage" size={16} />
+						<BootstrapIcon icon={getBootstrapIconName('box-seam')} size={16} />
 						Worker Token
 					</button>
 					<button
@@ -618,7 +580,7 @@ const ConfigurationPingUI: React.FC = () => {
 						className={`tab ${activeTab === 'advanced' ? 'active' : ''}`}
 						onClick={() => setActiveTab('advanced')}
 					>
-						<MDIIcon icon="FiSettings" size={16} />
+						<BootstrapIcon icon={getBootstrapIconName('gear-fill')} size={16} />
 						Advanced
 					</button>
 				</div>
@@ -651,25 +613,25 @@ const ConfigurationPingUI: React.FC = () => {
 									<div
 										className={`summary-item ${configurationSummary.hasClientId ? 'complete' : ''}`}
 									>
-										<MDIIcon icon="FiCheckCircle" size={16} className="icon" />
+										<BootstrapIcon icon={getBootstrapIconName('check-circle-fill')} size={16} className="icon" />
 										<span>Client ID</span>
 									</div>
 									<div
 										className={`summary-item ${configurationSummary.hasEnvironmentId ? 'complete' : ''}`}
 									>
-										<MDIIcon icon="FiCheckCircle" size={16} className="icon" />
+										<BootstrapIcon icon={getBootstrapIconName('check-circle-fill')} size={16} className="icon" />
 										<span>Environment ID</span>
 									</div>
 									<div
 										className={`summary-item ${configurationSummary.hasValidRedirectUri ? 'complete' : ''}`}
 									>
-										<MDIIcon icon="FiCheckCircle" size={16} className="icon" />
+										<BootstrapIcon icon={getBootstrapIconName('check-circle-fill')} size={16} className="icon" />
 										<span>Redirect URI</span>
 									</div>
 									<div
 										className={`summary-item ${configurationSummary.hasScopes ? 'complete' : ''}`}
 									>
-										<MDIIcon icon="FiCheckCircle" size={16} className="icon" />
+										<BootstrapIcon icon={getBootstrapIconName('check-circle-fill')} size={16} className="icon" />
 										<span>Scopes</span>
 									</div>
 								</div>
@@ -688,7 +650,7 @@ const ConfigurationPingUI: React.FC = () => {
 										loading={isLoading}
 										disabled={!pingOneConfig.isValid}
 									>
-										<MDIIcon icon="FiSave" size={14} />
+										<BootstrapIcon icon={getBootstrapIconName('save')} size={14} />
 										{isLoading ? 'Saving...' : 'Save Configuration'}
 									</BootstrapButton>
 
@@ -696,7 +658,7 @@ const ConfigurationPingUI: React.FC = () => {
 										variant="secondary"
 										onClick={() => copyToClipboard(pingOneConfig.redirectUri || '', 'Redirect URI')}
 									>
-										<MDIIcon icon="FiCopy" size={14} />
+										<BootstrapIcon icon={getBootstrapIconName('clipboard')} size={14} />
 										Copy Redirect URI
 									</BootstrapButton>
 								</div>
@@ -797,7 +759,7 @@ const ConfigurationPingUI: React.FC = () => {
 												onClick={saveWorkerTokenInfo}
 												loading={isLoading}
 											>
-												<MDIIcon icon="FiSave" size={14} />
+												<BootstrapIcon icon={getBootstrapIconName('save')} size={14} />
 												{isLoading ? 'Saving...' : 'Save Worker Token Info'}
 											</BootstrapButton>
 										</div>
@@ -1031,7 +993,7 @@ const ConfigurationPingUI: React.FC = () => {
 															: 'not-allowed',
 												}}
 											>
-												<MDIIcon icon="FiSave" size={14} style={{ marginRight: '0.25rem' }} />
+												<BootstrapIcon icon={getBootstrapIconName('save')} size={14} style={{ marginRight: '0.25rem' }} />
 												{isLoading ? 'Saving...' : 'Save AuthZ Flow Info'}
 											</button>
 										</div>
@@ -1087,7 +1049,7 @@ const ConfigurationPingUI: React.FC = () => {
 											className="btn-secondary"
 											onClick={() => window.open('/docs', '_blank')}
 										>
-											<MDIIcon icon="FiExternalLink" size={14} />
+											<BootstrapIcon icon={getBootstrapIconName('box-arrow-up-right')} size={14} />
 											API Documentation
 										</button>
 										<button
@@ -1095,7 +1057,7 @@ const ConfigurationPingUI: React.FC = () => {
 											className="btn-secondary"
 											onClick={() => window.open('https://github.com/pingidentity', '_blank')}
 										>
-											<MDIIcon icon="FiGithub" size={14} />
+											<BootstrapIcon icon={getBootstrapIconName('github')} size={14} />
 											GitHub
 										</button>
 										<button
@@ -1103,7 +1065,7 @@ const ConfigurationPingUI: React.FC = () => {
 											className="btn-secondary"
 											onClick={() => console.log('Current config:', pingOneConfig)}
 										>
-											<MDIIcon icon="FiTerminal" size={14} />
+											<BootstrapIcon icon={getBootstrapIconName('terminal')} size={14} />
 											Debug Console
 										</button>
 									</div>
