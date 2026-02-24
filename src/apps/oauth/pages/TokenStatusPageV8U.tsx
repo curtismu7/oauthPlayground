@@ -189,10 +189,8 @@ const StatusIndicator = styled.div<{ status: 'success' | 'warning' | 'error' | '
 export const TokenStatusPageV8U: React.FC = () => {
 	const [workerTokenStatus, setWorkerTokenStatus] = useState<TokenStatusInfo | null>(null);
 	const [userTokenStatus, setUserTokenStatus] = useState<Record<string, unknown> | null>(null);
-	const [isLoading, setIsLoading] = useState(true);
 
 	const loadTokenStatuses = useCallback(async () => {
-		setIsLoading(true);
 		try {
 			logger.info('Loading token statuses...');
 
@@ -212,9 +210,7 @@ export const TokenStatusPageV8U: React.FC = () => {
 
 			logger.info('Token statuses loaded successfully');
 		} catch (error) {
-			logger.error('Failed to load token statuses', error);
-		} finally {
-			setIsLoading(false);
+			logger.error('Failed to load token statuses', {}, error as Error);
 		}
 	}, []);
 
@@ -228,7 +224,7 @@ export const TokenStatusPageV8U: React.FC = () => {
 			await loadTokenStatuses();
 			logger.info('Tokens refreshed successfully');
 		} catch (error) {
-			logger.error('Failed to refresh tokens', error);
+			logger.error('Failed to refresh tokens', {}, error as Error);
 		}
 	};
 
@@ -303,7 +299,7 @@ export const TokenStatusPageV8U: React.FC = () => {
 							</Button>
 						</div>
 					</StatusCard>
-					{workerTokenStatus && <WorkerTokenStatusDisplayV8 tokenStatus={workerTokenStatus} />}
+					{workerTokenStatus && <WorkerTokenStatusDisplayV8 />}
 				</Section>
 
 				{/* User Token Status */}
@@ -312,63 +308,14 @@ export const TokenStatusPageV8U: React.FC = () => {
 						<FiCode className="section-icon" />
 						User Token Status
 					</h2>
-					{userTokenStatus && <UserTokenStatusDisplayV8U status={userTokenStatus} />}
+					{userTokenStatus && <UserTokenStatusDisplayV8U />}
 				</Section>
 			</GridContainer>
 
 			{/* API Display */}
 			<Section>
 				<h2>Token API Endpoints</h2>
-				<SuperSimpleApiDisplayV8
-					endpoints={[
-						{
-							method: 'GET',
-							path: '/api/token/status',
-							description: 'Get current token status information',
-							parameters: [],
-							responses: {
-								200: 'Token status object',
-								401: 'Unauthorized',
-							},
-						},
-						{
-							method: 'POST',
-							path: '/api/token/refresh',
-							description: 'Refresh expired tokens',
-							parameters: [
-								{
-									name: 'refresh_token',
-									type: 'string',
-									required: true,
-									description: 'Refresh token to use',
-								},
-							],
-							responses: {
-								200: 'New token pair',
-								400: 'Invalid refresh token',
-							},
-						},
-						{
-							method: 'POST',
-							path: '/api/token/introspect',
-							description: 'Introspect access token',
-							parameters: [
-								{
-									name: 'token',
-									type: 'string',
-									required: true,
-									description: 'Access token to introspect',
-								},
-							],
-							responses: {
-								200: 'Token information',
-								400: 'Invalid token',
-							},
-						},
-					]}
-					showHeaders={true}
-					showTryIt={true}
-				/>
+				<SuperSimpleApiDisplayV8 />
 			</Section>
 		</PageContainer>
 	);
