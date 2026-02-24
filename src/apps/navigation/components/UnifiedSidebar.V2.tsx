@@ -18,7 +18,7 @@
  * ========================================================================
  */
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import BootstrapIcon from '@/components/BootstrapIcon';
@@ -32,65 +32,65 @@ const APP_VERSION = '9.25.1';
 // Icon Mapping for Migration from React Icons to MDI
 const ICON_MAPPING: Record<string, string> = {
 	// Core & Configuration
-	'FiCpu': 'mdi-cpu',
-	'FiActivity': 'mdi-activity',
-	'FiSettings': 'mdi-cog',
-	'FiServer': 'mdi-server',
-	'FiShield': 'mdi-shield-check',
-	'FiCheckCircle': 'mdi-check-circle',
-	'FiDatabase': 'mdi-database',
-	'FiLayers': 'mdi-layers',
-	
+	FiCpu: 'mdi-cpu',
+	FiActivity: 'mdi-activity',
+	FiSettings: 'mdi-cog',
+	FiServer: 'mdi-server',
+	FiShield: 'mdi-shield-check',
+	FiCheckCircle: 'mdi-check-circle',
+	FiDatabase: 'mdi-database',
+	FiLayers: 'mdi-layers',
+
 	// Authentication & Security
-	'FiKey': 'mdi-key',
-	'FiSmartphone': 'mdi-cellphone',
-	'FiRefreshCw': 'mdi-refresh',
-	'FiLink': 'mdi-link',
-	'FiUsers': 'mdi-account-group',
-	'FiUser': 'mdi-account',
-	
+	FiKey: 'mdi-key',
+	FiSmartphone: 'mdi-cellphone',
+	FiRefreshCw: 'mdi-refresh',
+	FiLink: 'mdi-link',
+	FiUsers: 'mdi-account-group',
+	FiUser: 'mdi-account',
+
 	// Navigation & UI
-	'FiHome': 'mdi-home',
-	'FiChevronDown': 'mdi-chevron-down',
-	'FiEye': 'mdi-eye',
-	'FiTrash2': 'mdi-delete',
-	'FiFileText': 'mdi-file-document',
-	'FiBook': 'mdi-book',
-	'FiBookOpen': 'mdi-book-open-page-variant',
-	'FiCode': 'mdi-code-tags',
-	'FiTool': 'mdi-tools',
-	
+	FiHome: 'mdi-home',
+	FiChevronDown: 'mdi-chevron-down',
+	FiEye: 'mdi-eye',
+	FiTrash2: 'mdi-delete',
+	FiFileText: 'mdi-file-document',
+	FiBook: 'mdi-book',
+	FiBookOpen: 'mdi-book-open-page-variant',
+	FiCode: 'mdi-code-tags',
+	FiTool: 'mdi-tools',
+
 	// Analytics & Monitoring
-	'FiBarChart2': 'mdi-chart-bar',
-	'FiTrendingUp': 'mdi-trending-up',
-	'FiClock': 'mdi-clock',
-	'FiZap': 'mdi-lightning-bolt',
-	
+	FiBarChart2: 'mdi-chart-bar',
+	FiTrendingUp: 'mdi-trending-up',
+	FiClock: 'mdi-clock',
+	FiZap: 'mdi-lightning-bolt',
+
 	// Documentation & Learning
-	'FiFileText': 'mdi-file-document',
-	
+	FiFileText: 'mdi-file-document',
+
 	// UI Elements
-	'FiX': 'mdi-close',
-	'FiSearch': 'mdi-magnify',
+	FiX: 'mdi-close',
+	FiSearch: 'mdi-magnify',
 };
 
 // Styled Components - PingOne UI Design System
 const SidebarContainer = styled.div<{ $width: number; $isOpen: boolean }>`
 	position: relative;
-	width: ${(props) => props.$isOpen ? props.$width : 0}px;
-	min-width: ${(props) => props.$isOpen ? 'var(--sidebar-width-min, 300px)' : '0px'};
-	max-width: ${(props) => props.$isOpen ? props.$width : 0}px;
+	width: ${(props) => (props.$isOpen ? props.$width : 0)}px;
+	min-width: ${(props) => (props.$isOpen ? 'var(--sidebar-width-min, 300px)' : '0px')};
+	max-width: ${(props) => (props.$isOpen ? props.$width : 0)}px;
 	height: 100vh;
 	background: var(--sidebar-bg-primary, #FFFFFF);
-	border-right: ${(props) => props.$isOpen ? '1px solid var(--sidebar-border, #E5E7EB)' : 'none'};
+	border-right: ${(props) => (props.$isOpen ? '1px solid var(--sidebar-border, #E5E7EB)' : 'none')};
 	transition: width 0.15s ease-in-out, border-right 0.15s ease-in-out;
 	z-index: 100; /* Ensure sidebar stays above content */
 	overflow: hidden;
 	display: flex;
 	flex-direction: column;
-	opacity: ${(props) => props.$isOpen ? 1 : 0};
-	visibility: ${(props) => props.$isOpen ? 'visible' : 'hidden'};
-	box-shadow: ${(props) => props.$isOpen ? '2px 0 8px rgba(0, 0, 0, 0.1)' : 'none'};
+	opacity: ${(props) => (props.$isOpen ? 1 : 0)};
+	visibility: ${(props) => (props.$isOpen ? 'visible' : 'hidden')};
+	box-shadow: ${(props) => (props.$isOpen ? '2px 0 8px rgba(0, 0, 0, 0.1)' : 'none')};
 `;
 
 const ResizeHandle = styled.div<{ $isDragging?: boolean }>`
@@ -218,26 +218,32 @@ const SidebarFooter = styled.div`
 `;
 
 // Menu Item Components - PingOne UI Design System
-const MenuItemContainer = styled.div<{ $isDragging?: boolean; $isOver?: boolean; $isActive?: boolean }>`
+const MenuItemContainer = styled.div<{
+	$isDragging?: boolean;
+	$isOver?: boolean;
+	$isActive?: boolean;
+}>`
 	padding: 0.75rem 1rem;
 	margin: 0.25rem 0.5rem;
 	border-radius: var(--sidebar-border-radius, 0.5rem);
 	cursor: pointer;
 	transition: all 0.15s ease-in-out;
-	background: ${(props) => 
-		props.$isActive ? 'var(--sidebar-accent, #2563EB)' : 
-		props.$isDragging ? 'var(--sidebar-bg-tertiary, #F1F5F9)' : 
-		'transparent'
-	};
-	border: ${(props) => 
-		props.$isOver ? '2px solid var(--sidebar-accent, #2563EB)' : 
-		props.$isActive ? '2px solid var(--sidebar-accent, #2563EB)' : 
-		'2px solid transparent'
-	};
-	color: ${(props) => props.$isActive ? 'var(--sidebar-bg-primary, #FFFFFF)' : 'var(--sidebar-text-primary, #111827)'};
+	background: ${(props) =>
+		props.$isActive
+			? 'var(--sidebar-accent, #2563EB)'
+			: props.$isDragging
+				? 'var(--sidebar-bg-tertiary, #F1F5F9)'
+				: 'transparent'};
+	border: ${(props) =>
+		props.$isOver
+			? '2px solid var(--sidebar-accent, #2563EB)'
+			: props.$isActive
+				? '2px solid var(--sidebar-accent, #2563EB)'
+				: '2px solid transparent'};
+	color: ${(props) => (props.$isActive ? 'var(--sidebar-bg-primary, #FFFFFF)' : 'var(--sidebar-text-primary, #111827)')};
 
 	&:hover {
-		background: ${(props) => props.$isActive ? 'var(--sidebar-accent-hover, #1D4ED8)' : 'var(--sidebar-bg-tertiary, #F1F5F9)'};
+		background: ${(props) => (props.$isActive ? 'var(--sidebar-accent-hover, #1D4ED8)' : 'var(--sidebar-bg-tertiary, #F1F5F9)')};
 		transform: translateX(2px);
 	}
 
@@ -259,7 +265,7 @@ const MenuItemIcon = styled.div<{ $color?: string; $isActive?: boolean }>`
 	justify-content: center;
 	width: 1.25rem;
 	height: 1.25rem;
-	color: ${(props) => props.$isActive ? 'inherit' : props.$color || 'var(--sidebar-text-secondary, #6B7280)'};
+	color: ${(props) => (props.$isActive ? 'inherit' : props.$color || 'var(--sidebar-text-secondary, #6B7280)')};
 	transition: color 0.15s ease-in-out;
 `;
 
@@ -269,7 +275,7 @@ const MenuItemText = styled.div<{ $isActive?: boolean }>`
 	
 	.menu-item-title {
 		font-size: var(--sidebar-item-size, 0.875rem);
-		font-weight: ${(props) => props.$isActive ? '600' : '400'};
+		font-weight: ${(props) => (props.$isActive ? '600' : '400')};
 		color: inherit;
 		margin: 0;
 		white-space: nowrap;
@@ -279,7 +285,7 @@ const MenuItemText = styled.div<{ $isActive?: boolean }>`
 	
 	.menu-item-description {
 		font-size: 0.75rem;
-		color: ${(props) => props.$isActive ? 'inherit' : 'var(--sidebar-text-secondary, #6B7280)'};
+		color: ${(props) => (props.$isActive ? 'inherit' : 'var(--sidebar-text-secondary, #6B7280)')};
 		margin: 0.125rem 0 0 0;
 		white-space: nowrap;
 		overflow: hidden;
@@ -441,8 +447,8 @@ const menuData: MenuItem[] = [
 				status: 'active',
 				badge: {
 					text: 'REAL',
-					variant: 'success'
-				}
+					variant: 'success',
+				},
 			},
 			{
 				id: 'unified-mfa-flow',
@@ -454,8 +460,8 @@ const menuData: MenuItem[] = [
 				status: 'active',
 				badge: {
 					text: 'REAL',
-					variant: 'success'
-				}
+					variant: 'success',
+				},
 			},
 			{
 				id: 'enhanced-state-management',
@@ -467,8 +473,8 @@ const menuData: MenuItem[] = [
 				status: 'active',
 				badge: {
 					text: 'MOCK',
-					variant: 'default'
-				}
+					variant: 'default',
+				},
 			},
 			{
 				id: 'flow-comparison',
@@ -480,8 +486,8 @@ const menuData: MenuItem[] = [
 				status: 'active',
 				badge: {
 					text: 'MOCK',
-					variant: 'default'
-				}
+					variant: 'default',
+				},
 			},
 			{
 				id: 'token-api-documentation',
@@ -493,8 +499,8 @@ const menuData: MenuItem[] = [
 				status: 'active',
 				badge: {
 					text: 'MOCK',
-					variant: 'default'
-				}
+					variant: 'default',
+				},
 			},
 			{
 				id: 'spiffe-spire-flow',
@@ -506,8 +512,8 @@ const menuData: MenuItem[] = [
 				status: 'experimental',
 				badge: {
 					text: 'MOCK',
-					variant: 'default'
-				}
+					variant: 'default',
+				},
 			},
 			{
 				id: 'spiffe-spire-token-display',
@@ -519,8 +525,8 @@ const menuData: MenuItem[] = [
 				status: 'experimental',
 				badge: {
 					text: 'MOCK',
-					variant: 'default'
-				}
+					variant: 'default',
+				},
 			},
 		],
 	},
@@ -548,8 +554,8 @@ const menuData: MenuItem[] = [
 				status: 'deprecated',
 				badge: {
 					text: 'MOCK',
-					variant: 'default'
-				}
+					variant: 'default',
+				},
 			},
 			{
 				id: 'oauth-client-credentials',
@@ -561,8 +567,8 @@ const menuData: MenuItem[] = [
 				status: 'active',
 				badge: {
 					text: 'MOCK',
-					variant: 'default'
-				}
+					variant: 'default',
+				},
 			},
 			{
 				id: 'oauth-resource-owner',
@@ -574,8 +580,8 @@ const menuData: MenuItem[] = [
 				status: 'active',
 				badge: {
 					text: 'MOCK',
-					variant: 'default'
-				}
+					variant: 'default',
+				},
 			},
 			{
 				id: 'oauth-device-authorization',
@@ -587,8 +593,8 @@ const menuData: MenuItem[] = [
 				status: 'active',
 				badge: {
 					text: 'MOCK',
-					variant: 'default'
-				}
+					variant: 'default',
+				},
 			},
 			{
 				id: 'oauth-jwt-bearer',
@@ -600,8 +606,8 @@ const menuData: MenuItem[] = [
 				status: 'active',
 				badge: {
 					text: 'MOCK',
-					variant: 'default'
-				}
+					variant: 'default',
+				},
 			},
 			{
 				id: 'oauth-par',
@@ -613,8 +619,8 @@ const menuData: MenuItem[] = [
 				status: 'active',
 				badge: {
 					text: 'MOCK',
-					variant: 'default'
-				}
+					variant: 'default',
+				},
 			},
 			{
 				id: 'oauth-token-exchange',
@@ -626,8 +632,8 @@ const menuData: MenuItem[] = [
 				status: 'active',
 				badge: {
 					text: 'MOCK',
-					variant: 'default'
-				}
+					variant: 'default',
+				},
 			},
 		],
 	},
@@ -646,8 +652,8 @@ const menuData: MenuItem[] = [
 				status: 'active',
 				badge: {
 					text: 'REAL',
-					variant: 'default'
-				}
+					variant: 'default',
+				},
 			},
 			{
 				id: 'mfa-push',
@@ -659,8 +665,8 @@ const menuData: MenuItem[] = [
 				status: 'active',
 				badge: {
 					text: 'REAL',
-					variant: 'default'
-				}
+					variant: 'default',
+				},
 			},
 			{
 				id: 'mfa-sms',
@@ -672,8 +678,8 @@ const menuData: MenuItem[] = [
 				status: 'active',
 				badge: {
 					text: 'REAL',
-					variant: 'default'
-				}
+					variant: 'default',
+				},
 			},
 			{
 				id: 'mfa-email',
@@ -685,8 +691,8 @@ const menuData: MenuItem[] = [
 				status: 'active',
 				badge: {
 					text: 'REAL',
-					variant: 'default'
-				}
+					variant: 'default',
+				},
 			},
 			{
 				id: 'mfa-voice',
@@ -698,8 +704,8 @@ const menuData: MenuItem[] = [
 				status: 'active',
 				badge: {
 					text: 'REAL',
-					variant: 'default'
-				}
+					variant: 'default',
+				},
 			},
 			{
 				id: 'mfa-whatsapp',
@@ -711,8 +717,8 @@ const menuData: MenuItem[] = [
 				status: 'active',
 				badge: {
 					text: 'REAL',
-					variant: 'default'
-				}
+					variant: 'default',
+				},
 			},
 			{
 				id: 'mfa-fido',
@@ -724,8 +730,8 @@ const menuData: MenuItem[] = [
 				status: 'active',
 				badge: {
 					text: 'REAL',
-					variant: 'success'
-				}
+					variant: 'success',
+				},
 			},
 		],
 	},
@@ -1017,41 +1023,44 @@ const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({
 	const navigate = useNavigate();
 
 	// Resize functionality
-	const handleMouseDown = useCallback((e: React.MouseEvent) => {
-		e.preventDefault();
-		e.stopPropagation();
-		setIsDragging(true);
+	const handleMouseDown = useCallback(
+		(e: React.MouseEvent) => {
+			e.preventDefault();
+			e.stopPropagation();
+			setIsDragging(true);
 
-		const startX = e.clientX;
-		const startWidth = width;
+			const startX = e.clientX;
+			const startWidth = width;
 
-		const handleMouseMove = (e: MouseEvent) => {
-			const deltaX = e.clientX - startX;
-			const newWidth = startWidth + deltaX;
-			
-			// Constrain width between 300px and 600px
-			const constrainedWidth = Math.max(300, Math.min(600, newWidth));
-			setWidth(constrainedWidth);
-			
-			// Save to localStorage for persistence
-			localStorage.setItem('sidebar.width', constrainedWidth.toString());
-		};
+			const handleMouseMove = (e: MouseEvent) => {
+				const deltaX = e.clientX - startX;
+				const newWidth = startWidth + deltaX;
 
-		const handleMouseUp = () => {
-			setIsDragging(false);
-			document.removeEventListener('mousemove', handleMouseMove);
-			document.removeEventListener('mouseup', handleMouseUp);
-			document.body.style.cursor = '';
-			document.body.style.userSelect = '';
-		};
+				// Constrain width between 300px and 600px
+				const constrainedWidth = Math.max(300, Math.min(600, newWidth));
+				setWidth(constrainedWidth);
 
-		// Change cursor and prevent text selection during resize
-		document.body.style.cursor = 'ew-resize';
-		document.body.style.userSelect = 'none';
+				// Save to localStorage for persistence
+				localStorage.setItem('sidebar.width', constrainedWidth.toString());
+			};
 
-		document.addEventListener('mousemove', handleMouseMove);
-		document.addEventListener('mouseup', handleMouseUp);
-	}, [width]);
+			const handleMouseUp = () => {
+				setIsDragging(false);
+				document.removeEventListener('mousemove', handleMouseMove);
+				document.removeEventListener('mouseup', handleMouseUp);
+				document.body.style.cursor = '';
+				document.body.style.userSelect = '';
+			};
+
+			// Change cursor and prevent text selection during resize
+			document.body.style.cursor = 'ew-resize';
+			document.body.style.userSelect = 'none';
+
+			document.addEventListener('mousemove', handleMouseMove);
+			document.addEventListener('mouseup', handleMouseUp);
+		},
+		[width]
+	);
 
 	// Search functionality
 	const handleSearch = useCallback(
@@ -1132,7 +1141,7 @@ const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({
 
 			// Find the items in the current filtered data
 			const filteredData = filterMenuItems(menuData, searchQuery, matchAnywhere);
-			
+
 			// Find the dragged and target items in the filtered data
 			const findItemInData = (items: MenuItem[], targetId: string): MenuItem | null => {
 				for (const item of items) {
@@ -1156,8 +1165,8 @@ const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({
 			// Update the menu data with reordered items
 			const reorderMenuItems = (items: MenuItem[]): MenuItem[] => {
 				const newItems = [...items];
-				const draggedIndex = newItems.findIndex(item => item.id === draggedItem.id);
-				const targetIndex = newItems.findIndex(item => item.id === targetItem.id);
+				const draggedIndex = newItems.findIndex((item) => item.id === draggedItem.id);
+				const targetIndex = newItems.findIndex((item) => item.id === targetItem.id);
 
 				if (draggedIndex !== -1 && targetIndex !== -1) {
 					// Remove dragged item
@@ -1166,23 +1175,23 @@ const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({
 					newItems.splice(targetIndex, 0, removed);
 				}
 
-				return newItems.map(item => ({
+				return newItems.map((item) => ({
 					...item,
-					children: item.children ? reorderMenuItems(item.children) : undefined
+					children: item.children ? reorderMenuItems(item.children) : undefined,
 				}));
 			};
 
 			// Apply the reordering to the original menu data
 			const reorderedMenuData = reorderMenuItems(menuData);
-			
+
 			// Update the menu data via callback
 			if (onMenuReorder) {
 				onMenuReorder(reorderedMenuData);
 			}
-			
+
 			// Save the new order to localStorage
 			localStorage.setItem('sidebar.menuOrder', JSON.stringify(reorderedMenuData));
-			
+
 			console.log('Reordering:', draggedItem.label, '→', targetItem.label);
 
 			setDraggedItem(null);
@@ -1220,7 +1229,13 @@ const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({
 				return (
 					<div key={item.id}>
 						<SubMenuHeader $isExpanded={isExpanded} onClick={() => toggleExpanded(item.id)}>
-							<MenuItemIcon $color={isActive ? 'var(--sidebar-accent, #2563EB)' : 'var(--sidebar-text-secondary, #6B7280)'}>
+							<MenuItemIcon
+								$color={
+									isActive
+										? 'var(--sidebar-accent, #2563EB)'
+										: 'var(--sidebar-text-secondary, #6B7280)'
+								}
+							>
 								<BootstrapIcon icon={getBootstrapIconName(item.icon)} size={18} />
 							</MenuItemIcon>
 							<MenuItemText $isActive={isActive}>
@@ -1257,14 +1272,15 @@ const UnifiedSidebar: React.FC<UnifiedSidebarProps> = ({
 					onDrop={(e) => dragMode && handleDrop(e, item)}
 				>
 					<MenuItemContent $isActive={isActive}>
-						<MenuItemIcon $color={isActive ? 'inherit' : 'var(--sidebar-text-secondary, #6B7280)'} $isActive={isActive}>
+						<MenuItemIcon
+							$color={isActive ? 'inherit' : 'var(--sidebar-text-secondary, #6B7280)'}
+							$isActive={isActive}
+						>
 							<BootstrapIcon icon={getBootstrapIconName(item.icon)} size={18} />
 						</MenuItemIcon>
 						<MenuItemText $isActive={isActive}>
 							<div className="menu-item-title">{item.label}</div>
-							{item.description && (
-								<div className="menu-item-description">{item.description}</div>
-							)}
+							{item.description && <div className="menu-item-description">{item.description}</div>}
 						</MenuItemText>
 						{item.badge && (
 							<MenuItemBadge $variant={item.badge.variant}>{item.badge.text}</MenuItemBadge>

@@ -4,25 +4,25 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { EducationModeToggle } from '../../components/education/EducationModeToggle';
-import { MasterEducationSection } from '../../components/education/MasterEducationSection';
-import { LearningTooltip } from '../../components/LearningTooltip';
+import BootstrapIcon from '../../components/BootstrapIcon';
 import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
+import { ExpandCollapseAllControls } from '../../components/ExpandCollapseAllControls';
+import { EducationModeToggle } from '../../components/education/EducationModeToggle';
+import { MasterEducationSection } from '../../components/education/MasterEducationSection';
+import { getBootstrapIconName } from '../../components/iconMapping';
+import { LearningTooltip } from '../../components/LearningTooltip';
+import { PingUIWrapper } from '../../components/PingUIWrapper';
 import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import type { StepCredentials } from '../../components/steps/CommonSteps';
+import TokenIntrospect from '../../components/TokenIntrospect';
 import { useCredentialBackup } from '../../hooks/useCredentialBackup';
 import { useHybridFlowControllerV7 } from '../../hooks/useHybridFlowControllerV7';
 import { usePageScroll } from '../../hooks/usePageScroll';
-import BootstrapIcon from '../../components/BootstrapIcon';
-import { getBootstrapIconName } from '../../components/iconMapping';
-import { PingUIWrapper } from '../../components/PingUIWrapper';
-import { ExpandCollapseAllControls } from '../../components/ExpandCollapseAllControls';
-import { useSectionsViewMode } from '../../services/sectionsViewModeService';
 import { feedbackService } from '../../services/feedback/feedbackService';
+import { useSectionsViewMode } from '../../services/sectionsViewModeService';
 import { unifiedStorageManager } from '../../services/unifiedStorageManager';
-import TokenIntrospect from '../../components/TokenIntrospect';
 
 // V9 OIDC Hybrid Flow Controller Interface
 interface OIDCHybridFlowV9Controller {
@@ -61,23 +61,27 @@ interface OIDCHybridFlowV9Props {
 const OIDCHybridFlowV9: React.FC<OIDCHybridFlowV9Props> = ({
 	initialVariant = 'code-id-token',
 	showAdvancedConfig = true,
-	sectionIds = ['overview', 'credentials', 'variant', 'authorization', 'exchange', 'tokens', 'introspect'],
+	sectionIds = [
+		'overview',
+		'credentials',
+		'variant',
+		'authorization',
+		'exchange',
+		'tokens',
+		'introspect',
+	],
 }) => {
 	const location = useLocation();
 
 	// Section management with V9 service
-	const {
-		expandedStates,
-		toggleSection,
-		expandAll,
-		collapseAll,
-		areAllExpanded,
-		areAllCollapsed
-	} = useSectionsViewMode('oidc-hybrid-flow-v9', sectionIds);
+	const { expandedStates, toggleSection, expandAll, collapseAll, areAllExpanded, areAllCollapsed } =
+		useSectionsViewMode('oidc-hybrid-flow-v9', sectionIds);
 
 	// Core state
 	const [currentStep, setCurrentStep] = useState(0);
-	const [selectedVariant, setSelectedVariant] = useState<'code-id-token' | 'code-token' | 'code-id-token-token'>(initialVariant);
+	const [selectedVariant, setSelectedVariant] = useState<
+		'code-id-token' | 'code-token' | 'code-id-token-token'
+	>(initialVariant);
 	const [isExchanging, setIsExchanging] = useState(false);
 	const [workerToken, setWorkerToken] = useState<string>('');
 
@@ -109,7 +113,7 @@ const OIDCHybridFlowV9: React.FC<OIDCHybridFlowV9Props> = ({
 	useEffect(() => {
 		const loadFlowState = async () => {
 			try {
-				const savedState = await unifiedStorageManager.load('oidc-hybrid-flow-v9-state') as {
+				const savedState = (await unifiedStorageManager.load('oidc-hybrid-flow-v9-state')) as {
 					selectedVariant?: 'code-id-token' | 'code-token' | 'code-id-token-token';
 					currentStep?: number;
 					tokens?: any;
@@ -140,7 +144,7 @@ const OIDCHybridFlowV9: React.FC<OIDCHybridFlowV9Props> = ({
 	useEffect(() => {
 		const loadToken = async () => {
 			try {
-				const savedToken = await unifiedStorageManager.load('worker-token') as string;
+				const savedToken = (await unifiedStorageManager.load('worker-token')) as string;
 				if (savedToken) {
 					setWorkerToken(savedToken);
 					console.log('[OIDCHybridFlowV9] Worker token loaded from storage');
@@ -159,7 +163,11 @@ const OIDCHybridFlowV9: React.FC<OIDCHybridFlowV9Props> = ({
 		if (!hash) return;
 
 		const fragment = hash.startsWith('#') ? hash.substring(1) : hash;
-		if (fragment.includes('id_token') || fragment.includes('access_token') || fragment.includes('code=')) {
+		if (
+			fragment.includes('id_token') ||
+			fragment.includes('access_token') ||
+			fragment.includes('code=')
+		) {
 			console.log('[OIDCHybridFlowV9] Processing tokens from URL fragment');
 			// Token processing logic would go here
 			setCurrentStep(3);
@@ -176,34 +184,40 @@ const OIDCHybridFlowV9: React.FC<OIDCHybridFlowV9Props> = ({
 	usePageScroll({ pageName: 'OIDC Hybrid Flow V9 - PingOne UI', force: true });
 
 	// V9 step validation
-	const isStepValid = useCallback((step: number): boolean => {
-		switch (step) {
-			case 0:
-				return !!(controller.credentials?.environmentId && controller.credentials?.clientId);
-			case 1:
-				return !!controller.flowVariant;
-			case 2:
-				return !!controller.authorizationUrl;
-			case 3:
-				return !!controller.tokens?.code;
-			case 4:
-				return !!controller.tokens?.access_token;
-			case 5:
-				return !!controller.tokens;
-			default:
-				return true;
-		}
-	}, [controller]);
+	const isStepValid = useCallback(
+		(step: number): boolean => {
+			switch (step) {
+				case 0:
+					return !!(controller.credentials?.environmentId && controller.credentials?.clientId);
+				case 1:
+					return !!controller.flowVariant;
+				case 2:
+					return !!controller.authorizationUrl;
+				case 3:
+					return !!controller.tokens?.code;
+				case 4:
+					return !!controller.tokens?.access_token;
+				case 5:
+					return !!controller.tokens;
+				default:
+					return true;
+			}
+		},
+		[controller]
+	);
 
 	// V9 variant change handler
-	const handleVariantChange = useCallback((
-		variant: 'code-id-token' | 'code-token' | 'code-id-token-token'
-	) => {
-		setSelectedVariant(variant);
-		setCurrentStep(0);
-		controller.reset();
-		controller.showSuccessFeedback(`Switched to ${variant.replace('-', ' ').toUpperCase()} variant`);
-	}, [controller]);
+	const handleVariantChange = useCallback(
+		(variant: 'code-id-token' | 'code-token' | 'code-id-token-token') => {
+			setSelectedVariant(variant);
+			setCurrentStep(0);
+			controller.reset();
+			controller.showSuccessFeedback(
+				`Switched to ${variant.replace('-', ' ').toUpperCase()} variant`
+			);
+		},
+		[controller]
+	);
 
 	// V9 authorization URL generation
 	const handleGenerateAuthorizationUrl = useCallback(async () => {
@@ -224,7 +238,9 @@ const OIDCHybridFlowV9: React.FC<OIDCHybridFlowV9Props> = ({
 
 			const url = controller.generateAuthorizationUrl();
 			if (!url) {
-				controller.showErrorFeedback('Unable to generate authorization URL. Check required parameters.');
+				controller.showErrorFeedback(
+					'Unable to generate authorization URL. Check required parameters.'
+				);
 				return;
 			}
 
@@ -252,7 +268,9 @@ const OIDCHybridFlowV9: React.FC<OIDCHybridFlowV9Props> = ({
 	const handleExchangeCode = useCallback(async () => {
 		const code = controller.tokens?.code;
 		if (!code) {
-			controller.showErrorFeedback('No authorization code available. Complete authorization step first.');
+			controller.showErrorFeedback(
+				'No authorization code available. Complete authorization step first.'
+			);
 			return;
 		}
 
@@ -310,9 +328,7 @@ const OIDCHybridFlowV9: React.FC<OIDCHybridFlowV9Props> = ({
 							<div key={variant.id} className="col-md-4">
 								<div
 									className={`card h-100 cursor-pointer border-2 ${
-										selectedVariant === variant.id
-											? 'border-primary bg-light'
-											: 'border-light'
+										selectedVariant === variant.id ? 'border-primary bg-light' : 'border-light'
 									}`}
 									onClick={() => handleVariantChange(variant.id)}
 									style={{ cursor: 'pointer' }}
@@ -346,7 +362,11 @@ const OIDCHybridFlowV9: React.FC<OIDCHybridFlowV9Props> = ({
 						<div className="d-flex align-items-center justify-content-between">
 							<div>
 								<h1 className="h2 mb-2 d-flex align-items-center">
-									<BootstrapIcon icon={getBootstrapIconName("arrows-angle-contract")} size={28} className="me-3 text-info" />
+									<BootstrapIcon
+										icon={getBootstrapIconName('arrows-angle-contract')}
+										size={28}
+										className="me-3 text-info"
+									/>
 									OIDC Hybrid Flow V9
 									<span className="badge bg-success ms-2">PingOne UI</span>
 								</h1>
@@ -375,7 +395,10 @@ const OIDCHybridFlowV9: React.FC<OIDCHybridFlowV9Props> = ({
 							<nav aria-label="OIDC Hybrid flow steps">
 								<ul className="pagination pagination-lg">
 									{['Setup', 'Variant', 'Authorize', 'Exchange', 'Tokens'].map((step, index) => (
-										<li key={step} className={`page-item ${currentStep === index ? 'active' : ''} ${isStepValid(index) ? '' : 'disabled'}`}>
+										<li
+											key={step}
+											className={`page-item ${currentStep === index ? 'active' : ''} ${isStepValid(index) ? '' : 'disabled'}`}
+										>
 											<button
 												type="button"
 												className="page-link"
@@ -400,7 +423,11 @@ const OIDCHybridFlowV9: React.FC<OIDCHybridFlowV9Props> = ({
 					<div className="col-12">
 						{/* Placeholder for step content - will be implemented based on currentStep */}
 						<div className="alert alert-info">
-							<BootstrapIcon icon={getBootstrapIconName("info-circle")} size={16} className="me-2" />
+							<BootstrapIcon
+								icon={getBootstrapIconName('info-circle')}
+								size={16}
+								className="me-2"
+							/>
 							OIDC Hybrid Flow V9 - Step {currentStep + 1} content will be implemented here
 						</div>
 
@@ -412,7 +439,7 @@ const OIDCHybridFlowV9: React.FC<OIDCHybridFlowV9Props> = ({
 								onClick={handleGenerateAuthorizationUrl}
 								disabled={!isStepValid(0) || controller.isLoading}
 							>
-								<BootstrapIcon icon={getBootstrapIconName("link")} size={16} className="me-2" />
+								<BootstrapIcon icon={getBootstrapIconName('link')} size={16} className="me-2" />
 								{controller.isLoading ? 'Generating...' : 'Generate Authorization URL'}
 							</button>
 
@@ -422,7 +449,11 @@ const OIDCHybridFlowV9: React.FC<OIDCHybridFlowV9Props> = ({
 									className="btn btn-outline-primary"
 									onClick={handleRedirectAuthorization}
 								>
-									<BootstrapIcon icon={getBootstrapIconName("box-arrow-up-right")} size={16} className="me-2" />
+									<BootstrapIcon
+										icon={getBootstrapIconName('box-arrow-up-right')}
+										size={16}
+										className="me-2"
+									/>
 									Redirect to Authorize
 								</button>
 							)}
@@ -434,17 +465,21 @@ const OIDCHybridFlowV9: React.FC<OIDCHybridFlowV9Props> = ({
 									onClick={handleExchangeCode}
 									disabled={isExchanging}
 								>
-									<BootstrapIcon icon={getBootstrapIconName("arrow-left-right")} size={16} className="me-2" />
+									<BootstrapIcon
+										icon={getBootstrapIconName('arrow-left-right')}
+										size={16}
+										className="me-2"
+									/>
 									{isExchanging ? 'Exchanging...' : 'Exchange Code for Tokens'}
 								</button>
 							)}
 
-							<button
-								type="button"
-								className="btn btn-outline-secondary"
-								onClick={handleReset}
-							>
-								<BootstrapIcon icon={getBootstrapIconName("arrow-clockwise")} size={16} className="me-2" />
+							<button type="button" className="btn btn-outline-secondary" onClick={handleReset}>
+								<BootstrapIcon
+									icon={getBootstrapIconName('arrow-clockwise')}
+									size={16}
+									className="me-2"
+								/>
 								Reset Flow
 							</button>
 						</div>

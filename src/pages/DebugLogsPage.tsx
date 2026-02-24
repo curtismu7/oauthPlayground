@@ -4,11 +4,27 @@
  * @version 9.27.0
  */
 
-import React, { useState, useEffect } from 'react';
-import { FiActivity, FiAlertTriangle, FiTerminal, FiCopy, FiSearch, FiFilter, FiDownload, FiRefreshCw, FiInfo, FiCheckCircle, FiDatabase, FiClock, FiEye, FiEyeOff, FiTrash2 } from 'react-icons/fi';
+import React, { useEffect, useState } from 'react';
+import {
+	FiActivity,
+	FiAlertTriangle,
+	FiCheckCircle,
+	FiClock,
+	FiCopy,
+	FiDatabase,
+	FiDownload,
+	FiEye,
+	FiEyeOff,
+	FiFilter,
+	FiInfo,
+	FiRefreshCw,
+	FiSearch,
+	FiTerminal,
+	FiTrash2,
+} from 'react-icons/fi';
 import styled from 'styled-components';
-import { PageHeaderV8, PageHeaderTextColors } from '@/v8/components/shared/PageHeaderV8';
 import BootstrapButton from '@/components/bootstrap/BootstrapButton';
+import { PageHeaderTextColors, PageHeaderV8 } from '@/v8/components/shared/PageHeaderV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const _MODULE_TAG = '[🐛 DEBUG-LOGS]';
@@ -237,7 +253,7 @@ const mockLogs: LogEntry[] = [
 		flow: 'authorization-code',
 		user: 'user123',
 		ipAddress: '192.168.1.100',
-		details: { clientId: 'client-123', scopes: ['openid', 'profile'] }
+		details: { clientId: 'client-123', scopes: ['openid', 'profile'] },
 	},
 	{
 		id: '2',
@@ -246,7 +262,7 @@ const mockLogs: LogEntry[] = [
 		message: 'Token validation successful',
 		module: 'TokenServiceV8',
 		flow: 'authorization-code',
-		details: { tokenType: 'Bearer', expiresIn: 3600 }
+		details: { tokenType: 'Bearer', expiresIn: 3600 },
 	},
 	{
 		id: '3',
@@ -255,7 +271,7 @@ const mockLogs: LogEntry[] = [
 		message: 'Token expiration approaching',
 		module: 'TokenRefreshService',
 		flow: 'authorization-code',
-		details: { expiresIn: 300, warningTime: 1800 }
+		details: { expiresIn: 300, warningTime: 1800 },
 	},
 	{
 		id: '4',
@@ -264,7 +280,7 @@ const mockLogs: LogEntry[] = [
 		message: 'Failed to refresh token',
 		module: 'TokenRefreshService',
 		flow: 'authorization-code',
-		details: { error: 'invalid_grant', errorCode: 'TOKEN_REFRESH_FAILED' }
+		details: { error: 'invalid_grant', errorCode: 'TOKEN_REFRESH_FAILED' },
 	},
 	{
 		id: '5',
@@ -275,8 +291,8 @@ const mockLogs: LogEntry[] = [
 		flow: 'authorization-code',
 		user: 'user123',
 		ipAddress: '192.168.1.100',
-		details: { userId: 'user123', authMethod: 'authorization_code' }
-	}
+		details: { userId: 'user123', authMethod: 'authorization_code' },
+	},
 ];
 
 export const DebugLogsPage: React.FC = () => {
@@ -286,7 +302,7 @@ export const DebugLogsPage: React.FC = () => {
 		level: 'all',
 		module: 'all',
 		search: '',
-		timeRange: '24h'
+		timeRange: '24h',
 	});
 	const [showDetails, setShowDetails] = useState(false);
 	const [copiedText, setCopiedText] = useState('');
@@ -297,22 +313,23 @@ export const DebugLogsPage: React.FC = () => {
 
 		// Filter by level
 		if (filter.level !== 'all') {
-			filtered = filtered.filter(log => log.level === filter.level);
+			filtered = filtered.filter((log) => log.level === filter.level);
 		}
 
 		// Filter by module
 		if (filter.module !== 'all') {
-			filtered = filtered.filter(log => log.module.includes(filter.module));
+			filtered = filtered.filter((log) => log.module.includes(filter.module));
 		}
 
 		// Filter by search
 		if (filter.search) {
 			const searchLower = filter.search.toLowerCase();
-			filtered = filtered.filter(log => 
-				log.message.toLowerCase().includes(searchLower) ||
-				log.module.toLowerCase().includes(searchLower) ||
-				log.flow?.toLowerCase().includes(searchLower) ||
-				log.user?.toLowerCase().includes(searchLower)
+			filtered = filtered.filter(
+				(log) =>
+					log.message.toLowerCase().includes(searchLower) ||
+					log.module.toLowerCase().includes(searchLower) ||
+					log.flow?.toLowerCase().includes(searchLower) ||
+					log.user?.toLowerCase().includes(searchLower)
 			);
 		}
 
@@ -323,12 +340,12 @@ export const DebugLogsPage: React.FC = () => {
 			'6h': 6 * 60 * 60 * 1000,
 			'24h': 24 * 60 * 60 * 1000,
 			'7d': 7 * 24 * 60 * 60 * 1000,
-			'all': Infinity
+			all: Infinity,
 		};
 
 		if (filter.timeRange !== 'all') {
 			const cutoff = now - timeRanges[filter.timeRange as keyof typeof timeRanges];
-			filtered = filtered.filter(log => new Date(log.timestamp).getTime() >= cutoff);
+			filtered = filtered.filter((log) => new Date(log.timestamp).getTime() >= cutoff);
 		}
 
 		// Sort by timestamp (newest first)
@@ -345,16 +362,19 @@ export const DebugLogsPage: React.FC = () => {
 			level: 'info',
 			message: 'Logs refreshed successfully',
 			module: 'DebugLogsPage',
-			details: { logCount: logs.length }
+			details: { logCount: logs.length },
 		};
 		setLogs([newLog, ...logs]);
 		toastV8.success('Logs refreshed');
 	};
 
 	const handleExport = () => {
-		const logText = filteredLogs.map(log => 
-			`[${log.timestamp}] [${log.level.toUpperCase()}] [${log.module}] ${log.message}${log.details ? ` | ${JSON.stringify(log.details)}` : ''}`
-		).join('\n');
+		const logText = filteredLogs
+			.map(
+				(log) =>
+					`[${log.timestamp}] [${log.level.toUpperCase()}] [${log.module}] ${log.message}${log.details ? ` | ${JSON.stringify(log.details)}` : ''}`
+			)
+			.join('\n');
 
 		const blob = new Blob([logText], { type: 'text/plain' });
 		const url = URL.createObjectURL(blob);
@@ -365,7 +385,7 @@ export const DebugLogsPage: React.FC = () => {
 		a.click();
 		document.body.removeChild(a);
 		URL.revokeObjectURL(url);
-		
+
 		toastV8.success('Logs exported successfully');
 	};
 
@@ -376,23 +396,26 @@ export const DebugLogsPage: React.FC = () => {
 	};
 
 	const copyToClipboard = (text: string, type: string) => {
-		navigator.clipboard.writeText(text).then(() => {
-			setCopiedText(type);
-			toastV8.success(`${type} copied to clipboard`);
-			setTimeout(() => setCopiedText(''), 2000);
-		}).catch(() => {
-			toastV8.error('Failed to copy to clipboard');
-		});
+		navigator.clipboard
+			.writeText(text)
+			.then(() => {
+				setCopiedText(type);
+				toastV8.success(`${type} copied to clipboard`);
+				setTimeout(() => setCopiedText(''), 2000);
+			})
+			.catch(() => {
+				toastV8.error('Failed to copy to clipboard');
+			});
 	};
 
 	const getLogStats = () => {
 		const stats = {
 			total: filteredLogs.length,
-			debug: filteredLogs.filter(l => l.level === 'debug').length,
-			info: filteredLogs.filter(l => l.level === 'info').length,
-			warn: filteredLogs.filter(l => l.level === 'warn').length,
-			error: filteredLogs.filter(l => l.level === 'error').length,
-			fatal: filteredLogs.filter(l => l.level === 'fatal').length
+			debug: filteredLogs.filter((l) => l.level === 'debug').length,
+			info: filteredLogs.filter((l) => l.level === 'info').length,
+			warn: filteredLogs.filter((l) => l.level === 'warn').length,
+			error: filteredLogs.filter((l) => l.level === 'error').length,
+			fatal: filteredLogs.filter((l) => l.level === 'fatal').length,
 		};
 		return stats;
 	};
@@ -413,7 +436,7 @@ export const DebugLogsPage: React.FC = () => {
 					<FiActivity />
 					Log Statistics
 				</SectionTitle>
-				
+
 				<Grid>
 					<Card>
 						<CardTitle>
@@ -423,7 +446,7 @@ export const DebugLogsPage: React.FC = () => {
 						<MetricValue>{stats.total}</MetricValue>
 						<MetricLabel>All log entries</MetricLabel>
 					</Card>
-					
+
 					<Card>
 						<CardTitle>
 							<FiAlertTriangle />
@@ -432,7 +455,7 @@ export const DebugLogsPage: React.FC = () => {
 						<MetricValue style={{ color: '#f59e0b' }}>{stats.warn}</MetricValue>
 						<MetricLabel>Warning messages</MetricLabel>
 					</Card>
-					
+
 					<Card>
 						<CardTitle>
 							<FiAlertTriangle />
@@ -441,7 +464,7 @@ export const DebugLogsPage: React.FC = () => {
 						<MetricValue style={{ color: '#ef4444' }}>{stats.error + stats.fatal}</MetricValue>
 						<MetricLabel>Error & Fatal messages</MetricLabel>
 					</Card>
-					
+
 					<Card>
 						<CardTitle>
 							<FiInfo />
@@ -458,18 +481,18 @@ export const DebugLogsPage: React.FC = () => {
 					<FiFilter />
 					Log Filters
 				</SectionTitle>
-				
+
 				<FilterBar>
 					<SearchInput
 						type="text"
 						placeholder="Search logs..."
 						value={filter.search}
-						onChange={(e) => setFilter(prev => ({ ...prev, search: e.target.value }))}
+						onChange={(e) => setFilter((prev) => ({ ...prev, search: e.target.value }))}
 					/>
-					
+
 					<Select
 						value={filter.level}
-						onChange={(e) => setFilter(prev => ({ ...prev, level: e.target.value }))}
+						onChange={(e) => setFilter((prev) => ({ ...prev, level: e.target.value }))}
 					>
 						<option value="all">All Levels</option>
 						<option value="debug">Debug</option>
@@ -478,10 +501,10 @@ export const DebugLogsPage: React.FC = () => {
 						<option value="error">Error</option>
 						<option value="fatal">Fatal</option>
 					</Select>
-					
+
 					<Select
 						value={filter.module}
-						onChange={(e) => setFilter(prev => ({ ...prev, module: e.target.value }))}
+						onChange={(e) => setFilter((prev) => ({ ...prev, module: e.target.value }))}
 					>
 						<option value="all">All Modules</option>
 						<option value="OAuthAuthorizationCodeFlowV8">OAuth Auth Code</option>
@@ -489,10 +512,10 @@ export const DebugLogsPage: React.FC = () => {
 						<option value="AuthenticationService">Authentication</option>
 						<option value="TokenRefreshService">Token Refresh</option>
 					</Select>
-					
+
 					<Select
 						value={filter.timeRange}
-						onChange={(e) => setFilter(prev => ({ ...prev, timeRange: e.target.value as any }))}
+						onChange={(e) => setFilter((prev) => ({ ...prev, timeRange: e.target.value as any }))}
 					>
 						<option value="1h">Last Hour</option>
 						<option value="6h">Last 6 Hours</option>
@@ -500,11 +523,8 @@ export const DebugLogsPage: React.FC = () => {
 						<option value="7d">Last 7 Days</option>
 						<option value="all">All Time</option>
 					</Select>
-					
-					<BootstrapButton
-						variant="secondary"
-						onClick={() => setShowDetails(!showDetails)}
-					>
+
+					<BootstrapButton variant="secondary" onClick={() => setShowDetails(!showDetails)}>
 						{showDetails ? <FiEyeOff /> : <FiEye />}
 						{showDetails ? 'Hide Details' : 'Show Details'}
 					</BootstrapButton>
@@ -516,7 +536,7 @@ export const DebugLogsPage: React.FC = () => {
 					<FiTerminal />
 					Log Entries ({filteredLogs.length})
 				</SectionTitle>
-				
+
 				<LogContainer>
 					{filteredLogs.length === 0 ? (
 						<div style={{ textAlign: 'center', padding: '2rem', color: '#9ca3af' }}>
@@ -531,9 +551,17 @@ export const DebugLogsPage: React.FC = () => {
 										<LogTimestamp>{new Date(log.timestamp).toLocaleString()}</LogTimestamp>
 										<LogLevel $level={log.level}>{log.level}</LogLevel>
 										<span style={{ color: '#60a5fa', marginRight: '0.5rem' }}>{log.module}</span>
-										{log.flow && <span style={{ color: '#34d399', marginRight: '0.5rem' }}>{log.flow}</span>}
-										{log.user && <span style={{ color: '#fbbf24', marginRight: '0.5rem' }}>@{log.user}</span>}
-										{log.ipAddress && <span style={{ color: '#a78bfa', marginRight: '0.5rem' }}>{log.ipAddress}</span>}
+										{log.flow && (
+											<span style={{ color: '#34d399', marginRight: '0.5rem' }}>{log.flow}</span>
+										)}
+										{log.user && (
+											<span style={{ color: '#fbbf24', marginRight: '0.5rem' }}>@{log.user}</span>
+										)}
+										{log.ipAddress && (
+											<span style={{ color: '#a78bfa', marginRight: '0.5rem' }}>
+												{log.ipAddress}
+											</span>
+										)}
 									</div>
 									<BootstrapButton
 										variant="secondary"
@@ -543,40 +571,29 @@ export const DebugLogsPage: React.FC = () => {
 										{copiedText === 'Log Message' ? <FiRefreshCw /> : <FiCopy />}
 									</BootstrapButton>
 								</LogHeader>
-								
+
 								<LogMessage>{log.message}</LogMessage>
-								
+
 								{showDetails && log.details && (
-									<LogDetails>
-										Details: {JSON.stringify(log.details, null, 2)}
-									</LogDetails>
+									<LogDetails>Details: {JSON.stringify(log.details, null, 2)}</LogDetails>
 								)}
 							</LogEntry>
 						))
 					)}
 				</LogContainer>
-				
+
 				<ActionButtons>
-					<BootstrapButton
-						variant="primary"
-						onClick={handleRefresh}
-					>
+					<BootstrapButton variant="primary" onClick={handleRefresh}>
 						<FiRefreshCw />
 						Refresh
 					</BootstrapButton>
-					
-					<BootstrapButton
-						variant="primary"
-						onClick={handleExport}
-					>
+
+					<BootstrapButton variant="primary" onClick={handleExport}>
 						<FiDownload />
 						Export
 					</BootstrapButton>
-					
-					<BootstrapButton
-						variant="danger"
-						onClick={handleClear}
-					>
+
+					<BootstrapButton variant="danger" onClick={handleClear}>
 						<FiTrash2 />
 						Clear All
 					</BootstrapButton>
@@ -588,20 +605,50 @@ export const DebugLogsPage: React.FC = () => {
 					<FiInfo />
 					Debugging Best Practices
 				</SectionTitle>
-				
-				<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
-					<div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '0.375rem', padding: '1rem' }}>
+
+				<div
+					style={{
+						display: 'grid',
+						gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+						gap: '1.5rem',
+					}}
+				>
+					<div
+						style={{
+							background: '#f0fdf4',
+							border: '1px solid #bbf7d0',
+							borderRadius: '0.375rem',
+							padding: '1rem',
+						}}
+					>
 						<h4 style={{ margin: '0 0 0.5rem 0', color: '#166534' }}>Log Levels</h4>
 						<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#166534' }}>
-							<li><strong>DEBUG:</strong> Detailed development information</li>
-							<li><strong>INFO:</strong> General information about flow execution</li>
-							<li><strong>WARN:</strong> Potentially problematic situations</li>
-							<li><strong>ERROR:</strong> Error conditions that need attention</li>
-							<li><strong>FATAL:</strong> Critical errors that stop execution</li>
+							<li>
+								<strong>DEBUG:</strong> Detailed development information
+							</li>
+							<li>
+								<strong>INFO:</strong> General information about flow execution
+							</li>
+							<li>
+								<strong>WARN:</strong> Potentially problematic situations
+							</li>
+							<li>
+								<strong>ERROR:</strong> Error conditions that need attention
+							</li>
+							<li>
+								<strong>FATAL:</strong> Critical errors that stop execution
+							</li>
 						</ul>
 					</div>
-					
-					<div style={{ background: '#fef3c7', border: '1px solid #fcd34d', borderRadius: '0.375rem', padding: '1rem' }}>
+
+					<div
+						style={{
+							background: '#fef3c7',
+							border: '1px solid #fcd34d',
+							borderRadius: '0.375rem',
+							padding: '1rem',
+						}}
+					>
 						<h4 style={{ margin: '0 0 0.5rem 0', color: '#92400e' }}>Troubleshooting Tips</h4>
 						<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#92400e' }}>
 							<li>Filter by module to isolate specific flow issues</li>
@@ -611,14 +658,29 @@ export const DebugLogsPage: React.FC = () => {
 							<li>Export logs for detailed analysis</li>
 						</ul>
 					</div>
-					
-					<div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '0.375rem', padding: '1rem' }}>
+
+					<div
+						style={{
+							background: '#eff6ff',
+							border: '1px solid #bfdbfe',
+							borderRadius: '0.375rem',
+							padding: '1rem',
+						}}
+					>
 						<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e40af' }}>Common Issues</h4>
 						<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#1e40af' }}>
-							<li><strong>Token Errors:</strong> Check credentials and token validity</li>
-							<li><strong>Network Issues:</strong> Verify API endpoints and connectivity</li>
-							<li><strong>Configuration:</strong> Review environment settings</li>
-							<li><strong>Authentication:</strong> Check user credentials and permissions</li>
+							<li>
+								<strong>Token Errors:</strong> Check credentials and token validity
+							</li>
+							<li>
+								<strong>Network Issues:</strong> Verify API endpoints and connectivity
+							</li>
+							<li>
+								<strong>Configuration:</strong> Review environment settings
+							</li>
+							<li>
+								<strong>Authentication:</strong> Check user credentials and permissions
+							</li>
 						</ul>
 					</div>
 				</div>

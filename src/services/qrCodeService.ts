@@ -1,7 +1,7 @@
 // src/services/qrCodeService.ts
 // QR Code Service for TOTP QR code generation and validation
 
-import { clientInfo, clientWarn, clientError } from '../utils/clientLogger';
+import { clientError, clientInfo, clientWarn } from '../utils/clientLogger';
 
 export interface TOTPConfig {
 	secret: string;
@@ -73,7 +73,9 @@ export class QRCodeService {
 				backupCodes,
 			};
 		} catch (error) {
-			clientError('[QRCodeService] Failed to generate TOTP QR code', { error: error instanceof Error ? error.message : 'Unknown error' });
+			clientError('[QRCodeService] Failed to generate TOTP QR code', {
+				error: error instanceof Error ? error.message : 'Unknown error',
+			});
 			throw new Error(
 				`QR code generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);
@@ -96,7 +98,9 @@ export class QRCodeService {
 			clientInfo('[QRCodeService] Generated manual entry code', { secretLength: secret.length });
 			return formatted;
 		} catch (error) {
-			clientError('[QRCodeService] Failed to generate manual entry code', { error: error instanceof Error ? error.message : 'Unknown error' });
+			clientError('[QRCodeService] Failed to generate manual entry code', {
+				error: error instanceof Error ? error.message : 'Unknown error',
+			});
 			throw new Error(
 				`Manual entry code generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);
@@ -149,10 +153,17 @@ export class QRCodeService {
 				}
 			}
 
-			clientWarn('[QRCodeService] TOTP code validation failed', { codeLength: cleanCode.length, algorithm, digits, period });
+			clientWarn('[QRCodeService] TOTP code validation failed', {
+				codeLength: cleanCode.length,
+				algorithm,
+				digits,
+				period,
+			});
 			return { valid: false, error: 'Invalid code or code has expired' };
 		} catch (error) {
-			clientError('[QRCodeService] TOTP validation error', { error: error instanceof Error ? error.message : 'Unknown error' });
+			clientError('[QRCodeService] TOTP validation error', {
+				error: error instanceof Error ? error.message : 'Unknown error',
+			});
 			return {
 				valid: false,
 				error: `Validation error: ${error instanceof Error ? error.message : 'Unknown error'}`,
@@ -183,10 +194,18 @@ export class QRCodeService {
 				}
 			}
 
-			clientInfo('[QRCodeService] Generated TOTP secret', { length, method: typeof crypto !== 'undefined' && crypto.getRandomValues ? 'crypto.getRandomValues' : 'Math.random' });
+			clientInfo('[QRCodeService] Generated TOTP secret', {
+				length,
+				method:
+					typeof crypto !== 'undefined' && crypto.getRandomValues
+						? 'crypto.getRandomValues'
+						: 'Math.random',
+			});
 			return secret;
 		} catch (error) {
-			clientError('[QRCodeService] Failed to generate TOTP secret', { error: error instanceof Error ? error.message : 'Unknown error' });
+			clientError('[QRCodeService] Failed to generate TOTP secret', {
+				error: error instanceof Error ? error.message : 'Unknown error',
+			});
 			throw new Error(
 				`Secret generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);
@@ -272,7 +291,9 @@ export class QRCodeService {
 
 			return dataUrl;
 		} catch (error) {
-			clientError('[QRCodeService] Failed to generate QR code data URL', { error: error instanceof Error ? error.message : 'Unknown error' });
+			clientError('[QRCodeService] Failed to generate QR code data URL', {
+				error: error instanceof Error ? error.message : 'Unknown error',
+			});
 
 			// Fallback: return a placeholder data URL
 			const placeholderSvg = QRCodeService.generatePlaceholderQRCode(totpUri);
@@ -395,7 +416,9 @@ export class QRCodeService {
 			const otp = code % 10 ** digits;
 			return otp.toString().padStart(digits, '0');
 		} catch (error) {
-			clientError('[QRCodeService] TOTP code generation error', { error: error instanceof Error ? error.message : 'Unknown error' });
+			clientError('[QRCodeService] TOTP code generation error', {
+				error: error instanceof Error ? error.message : 'Unknown error',
+			});
 			return '000000'; // Fallback
 		}
 	}

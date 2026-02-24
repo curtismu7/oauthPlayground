@@ -2,14 +2,14 @@
 // AutoDiscover Page - PingOne UI Version
 // PingOne UI migration following pingui2.md standards
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import DiscoveryPanel from '../components/DiscoveryPanel';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { OpenIDConfiguration } from '../services/discoveryService';
+import { environmentIdPersistenceService } from '../services/environmentIdPersistenceService';
+import { feedbackService } from '../services/feedback/feedbackService';
 import { FlowHeader } from '../services/flowHeaderService';
 import { credentialManager } from '../utils/credentialManager';
-import { feedbackService } from '../services/feedback/feedbackService';
-import { environmentIdPersistenceService } from '../services/environmentIdPersistenceService';
 
 // PingOne UI Icon Component
 const MDIIcon: React.FC<{
@@ -230,17 +230,20 @@ const AutoDiscoverPingUI: React.FC = () => {
 						Auto Discover
 					</h1>
 					<p style={getHeaderStyle().p}>
-						{storedEnvironmentId 
+						{storedEnvironmentId
 							? `Automatically discovering PingOne OpenID Connect endpoints for environment: ${storedEnvironmentId}`
-							: 'Configure PingOne OpenID Connect endpoints using your Environment ID'
-						}
+							: 'Configure PingOne OpenID Connect endpoints using your Environment ID'}
 					</p>
 				</div>
 
 				{/* Status card */}
 				<div style={getCardStyle()}>
 					<h3 style={getSectionTitleStyle()}>
-						<MDIIcon icon={storedEnvironmentId ? "check-circle" : "information"} size={20} title="Status" />
+						<MDIIcon
+							icon={storedEnvironmentId ? 'check-circle' : 'information'}
+							size={20}
+							title="Status"
+						/>
 						{storedEnvironmentId ? 'Environment ID Found' : 'Environment Setup Required'}
 					</h3>
 					{storedEnvironmentId ? (
@@ -261,7 +264,8 @@ const AutoDiscoverPingUI: React.FC = () => {
 								⚠️ No Environment ID found in storage
 							</p>
 							<p style={{ fontSize: '0.875rem', color: 'var(--pingone-text-secondary, #6b7280)' }}>
-								Please configure your Environment ID first through the dashboard or credential setup.
+								Please configure your Environment ID first through the dashboard or credential
+								setup.
 							</p>
 						</div>
 					)}
@@ -289,11 +293,7 @@ const AutoDiscoverPingUI: React.FC = () => {
 				)}
 
 				{/* Feedback messages */}
-				{feedbackMessage && (
-					<div style={{ marginBottom: '1rem' }}>
-						{feedbackMessage}
-					</div>
-				)}
+				{feedbackMessage && <div style={{ marginBottom: '1rem' }}>{feedbackMessage}</div>}
 
 				{/* Discovery panel modal */}
 				{showDiscoveryPanel && (

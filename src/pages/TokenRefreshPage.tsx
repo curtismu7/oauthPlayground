@@ -4,11 +4,26 @@
  * @version 9.27.0
  */
 
-import React, { useState, useEffect } from 'react';
-import { FiRefreshCw, FiKey, FiShield, FiCopy, FiEye, FiEyeOff, FiInfo, FiAlertTriangle, FiCheckCircle, FiDatabase, FiLock, FiUnlock, FiClock, FiActivity } from 'react-icons/fi';
+import React, { useEffect, useState } from 'react';
+import {
+	FiActivity,
+	FiAlertTriangle,
+	FiCheckCircle,
+	FiClock,
+	FiCopy,
+	FiDatabase,
+	FiEye,
+	FiEyeOff,
+	FiInfo,
+	FiKey,
+	FiLock,
+	FiRefreshCw,
+	FiShield,
+	FiUnlock,
+} from 'react-icons/fi';
 import styled from 'styled-components';
-import { PageHeaderV8, PageHeaderTextColors } from '@/v8/components/shared/PageHeaderV8';
 import BootstrapButton from '@/components/bootstrap/BootstrapButton';
+import { PageHeaderTextColors, PageHeaderV8 } from '@/v8/components/shared/PageHeaderV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const _MODULE_TAG = '[🔄 TOKEN-REFRESH]';
@@ -210,39 +225,39 @@ const ProgressBar = styled.div<{ $progress: number }>`
 		display: block;
 		height: 100%;
 		width: ${({ $progress }) => $progress}%;
-		background: ${({ $progress }) => 
-			$progress > 60 ? '#10b981' : 
-			$progress > 30 ? '#f59e0b' : '#ef4444'
-		};
+		background: ${({ $progress }) =>
+			$progress > 60 ? '#10b981' : $progress > 30 ? '#f59e0b' : '#ef4444'};
 		transition: width 1s linear, background 0.3s ease;
 	}
 `;
 
 // Mock token data for demonstration
 const mockTokenData: TokenData = {
-	accessToken: "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
-	refreshToken: "def456ghi789jkl012mno345pqr678stu901vwx234yz",
-	tokenType: "Bearer",
+	accessToken:
+		'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+	refreshToken: 'def456ghi789jkl012mno345pqr678stu901vwx234yz',
+	tokenType: 'Bearer',
 	expiresIn: 3600,
-	scope: "openid profile email api:read api:write",
+	scope: 'openid profile email api:read api:write',
 	issuedAt: new Date().toISOString(),
-	expiresAt: new Date(Date.now() + 3600 * 1000).toISOString()
+	expiresAt: new Date(Date.now() + 3600 * 1000).toISOString(),
 };
 
 const mockRefreshRequest: RefreshRequest = {
-	grantType: "refresh_token",
-	refreshToken: "def456ghi789jkl012mno345pqr678stu901vwx234yz",
-	clientId: "your-client-id",
-	clientSecret: "your-client-secret",
-	scope: "openid profile email api:read api:write"
+	grantType: 'refresh_token',
+	refreshToken: 'def456ghi789jkl012mno345pqr678stu901vwx234yz',
+	clientId: 'your-client-id',
+	clientSecret: 'your-client-secret',
+	scope: 'openid profile email api:read api:write',
 };
 
 const mockRefreshResponse: RefreshResponse = {
-	accessToken: "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
-	tokenType: "Bearer",
+	accessToken:
+		'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+	tokenType: 'Bearer',
 	expiresIn: 3600,
-	refreshToken: "ghi789jkl012mno345pqr678stu901vwx234yz567",
-	scope: "openid profile email api:read api:write"
+	refreshToken: 'ghi789jkl012mno345pqr678stu901vwx234yz567',
+	scope: 'openid profile email api:read api:write',
 };
 
 export const TokenRefreshPage: React.FC = () => {
@@ -279,7 +294,8 @@ export const TokenRefreshPage: React.FC = () => {
 
 		if (remaining <= 0) {
 			return 'expired';
-		} else if (remaining <= 300) { // 5 minutes
+		} else if (remaining <= 300) {
+			// 5 minutes
 			return 'expiring';
 		}
 		return 'valid';
@@ -308,7 +324,7 @@ export const TokenRefreshPage: React.FC = () => {
 		setIsRefreshing(true);
 		try {
 			// Simulate API call
-			await new Promise(resolve => setTimeout(resolve, 2000));
+			await new Promise((resolve) => setTimeout(resolve, 2000));
 
 			// Update token with new data
 			const newTokenData: TokenData = {
@@ -317,14 +333,14 @@ export const TokenRefreshPage: React.FC = () => {
 				refreshToken: mockRefreshResponse.refreshToken || currentToken.refreshToken,
 				expiresIn: mockRefreshResponse.expiresIn,
 				issuedAt: new Date().toISOString(),
-				expiresAt: new Date(Date.now() + mockRefreshResponse.expiresIn * 1000).toISOString()
+				expiresAt: new Date(Date.now() + mockRefreshResponse.expiresIn * 1000).toISOString(),
 			};
 
 			setCurrentToken(newTokenData);
 			setRefreshResponse(mockRefreshResponse);
-			setRefreshRequest(prev => ({
+			setRefreshRequest((prev) => ({
 				...prev,
-				refreshToken: newTokenData.refreshToken
+				refreshToken: newTokenData.refreshToken,
 			}));
 
 			toastV8.success('Token refreshed successfully!');
@@ -336,13 +352,16 @@ export const TokenRefreshPage: React.FC = () => {
 	};
 
 	const copyToClipboard = (text: string, type: string) => {
-		navigator.clipboard.writeText(text).then(() => {
-			setCopiedText(type);
-			toastV8.success(`${type} copied to clipboard`);
-			setTimeout(() => setCopiedText(''), 2000);
-		}).catch(() => {
-			toastV8.error('Failed to copy to clipboard');
-		});
+		navigator.clipboard
+			.writeText(text)
+			.then(() => {
+				setCopiedText(type);
+				toastV8.success(`${type} copied to clipboard`);
+				setTimeout(() => setCopiedText(''), 2000);
+			})
+			.catch(() => {
+				toastV8.error('Failed to copy to clipboard');
+			});
 	};
 
 	const formatTokenForDisplay = (token: string): string => {
@@ -368,9 +387,16 @@ export const TokenRefreshPage: React.FC = () => {
 					<FiClock />
 					Current Token Status
 				</SectionTitle>
-				
+
 				<div>
-					<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+					<div
+						style={{
+							display: 'flex',
+							justifyContent: 'space-between',
+							alignItems: 'center',
+							marginBottom: '1rem',
+						}}
+					>
 						<div>
 							<div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.25rem' }}>
 								Token expires in
@@ -389,9 +415,9 @@ export const TokenRefreshPage: React.FC = () => {
 							</span>
 						</div>
 					</div>
-					
+
 					<ProgressBar $progress={getProgressPercentage()} />
-					
+
 					<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '1rem' }}>
 						<input
 							type="checkbox"
@@ -412,7 +438,7 @@ export const TokenRefreshPage: React.FC = () => {
 					<FiKey />
 					Access Token
 				</SectionTitle>
-				
+
 				<TokenDisplay>
 					<TokenHeader>
 						<div>
@@ -427,21 +453,18 @@ export const TokenRefreshPage: React.FC = () => {
 							{getTokenStatus(currentToken.expiresAt)}
 						</StatusBadge>
 					</TokenHeader>
-					
+
 					<TokenContent $obfuscated={!showTokens}>
 						{formatTokenForDisplay(currentToken.accessToken)}
 					</TokenContent>
 				</TokenDisplay>
-				
+
 				<ActionButtons>
-					<BootstrapButton
-						variant="primary"
-						onClick={() => setShowTokens(!showTokens)}
-					>
+					<BootstrapButton variant="primary" onClick={() => setShowTokens(!showTokens)}>
 						{showTokens ? <FiEyeOff /> : <FiEye />}
 						{showTokens ? 'Hide Token' : 'Show Token'}
 					</BootstrapButton>
-					
+
 					<BootstrapButton
 						variant="primary"
 						onClick={() => copyToClipboard(currentToken.accessToken, 'Access Token')}
@@ -457,7 +480,7 @@ export const TokenRefreshPage: React.FC = () => {
 					<FiRefreshCw />
 					Refresh Token
 				</SectionTitle>
-				
+
 				<TokenDisplay>
 					<TokenHeader>
 						<div>
@@ -469,22 +492,16 @@ export const TokenRefreshPage: React.FC = () => {
 							</div>
 						</div>
 					</TokenHeader>
-					
-					<TokenContent $obfuscated={!showTokens}>
-						{currentToken.refreshToken}
-					</TokenContent>
+
+					<TokenContent $obfuscated={!showTokens}>{currentToken.refreshToken}</TokenContent>
 				</TokenDisplay>
-				
+
 				<ActionButtons>
-					<BootstrapButton
-						variant="success"
-						onClick={handleTokenRefresh}
-						disabled={isRefreshing}
-					>
+					<BootstrapButton variant="success" onClick={handleTokenRefresh} disabled={isRefreshing}>
 						{isRefreshing ? <FiRefreshCw /> : <FiRefreshCw />}
 						{isRefreshing ? 'Refreshing...' : 'Refresh Token'}
 					</BootstrapButton>
-					
+
 					<BootstrapButton
 						variant="primary"
 						onClick={() => copyToClipboard(currentToken.refreshToken, 'Refresh Token')}
@@ -501,7 +518,7 @@ export const TokenRefreshPage: React.FC = () => {
 						<FiCheckCircle />
 						Latest Refresh Response
 					</SectionTitle>
-					
+
 					<TokenDisplay>
 						<TokenHeader>
 							<div>
@@ -513,7 +530,7 @@ export const TokenRefreshPage: React.FC = () => {
 								</div>
 							</div>
 						</TokenHeader>
-						
+
 						<TokenContent $obfuscated={!showTokens}>
 							{JSON.stringify(refreshResponse, null, 2)}
 						</TokenContent>
@@ -526,7 +543,7 @@ export const TokenRefreshPage: React.FC = () => {
 					<FiDatabase />
 					Token Details
 				</SectionTitle>
-				
+
 				<Grid>
 					<Card>
 						<CardTitle>
@@ -546,7 +563,7 @@ export const TokenRefreshPage: React.FC = () => {
 							<dd>{new Date(currentToken.expiresAt).toLocaleString()}</dd>
 						</PropertyList>
 					</Card>
-					
+
 					<Card>
 						<CardTitle>
 							<FiShield />
@@ -558,7 +575,7 @@ export const TokenRefreshPage: React.FC = () => {
 							<dt>Token Type:</dt>
 							<dd>JWT</dd>
 							<dt>Header:</dt>
-							<dd>{"{\"alg\":\"RS256\",\"typ\":\"JWT\"}"}</dd>
+							<dd>{'{"alg":"RS256","typ":"JWT"}'}</dd>
 							<dt>Refresh Token:</dt>
 							<dd>Available and valid</dd>
 							<dt>Auto-Refresh:</dt>
@@ -573,7 +590,7 @@ export const TokenRefreshPage: React.FC = () => {
 					<FiShield />
 					Refresh Request Example
 				</SectionTitle>
-				
+
 				<TokenDisplay>
 					<TokenHeader>
 						<div>
@@ -585,24 +602,26 @@ export const TokenRefreshPage: React.FC = () => {
 							</div>
 						</div>
 					</TokenHeader>
-					
+
 					<TokenContent $obfuscated={!showTokens}>
 						{JSON.stringify(refreshRequest, null, 2)}
 					</TokenContent>
 				</TokenDisplay>
-				
+
 				<ActionButtons>
 					<BootstrapButton
 						variant="primary"
-						onClick={() => copyToClipboard(
-							`curl -X POST https://auth.pingone.com/${refreshRequest.clientId}/as/token \\
+						onClick={() =>
+							copyToClipboard(
+								`curl -X POST https://auth.pingone.com/${refreshRequest.clientId}/as/token \\
   -H "Content-Type: application/x-www-form-urlencoded" \\
   -d "grant_type=refresh_token" \\
   -d "refresh_token=${refreshRequest.refreshToken}" \\
   -d "client_id=${refreshRequest.clientId}" \\
   -d "client_secret=${refreshRequest.clientSecret}"`,
-							'cURL Command'
-						)}
+								'cURL Command'
+							)
+						}
 					>
 						{copiedText === 'cURL Command' ? <FiRefreshCw /> : <FiCopy />}
 						{copiedText === 'cURL Command' ? 'Copied!' : 'Copy cURL'}
@@ -615,10 +634,17 @@ export const TokenRefreshPage: React.FC = () => {
 					<FiShield />
 					Security Best Practices
 				</SectionTitle>
-				
+
 				<Grid>
 					<SuccessBox>
-						<h4 style={{ margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+						<h4
+							style={{
+								margin: '0 0 0.5rem 0',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+							}}
+						>
 							<FiCheckCircle /> Token Storage
 						</h4>
 						<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#166534' }}>
@@ -629,9 +655,16 @@ export const TokenRefreshPage: React.FC = () => {
 							<li>Use secure storage mechanisms like Keychain/Keystore</li>
 						</ul>
 					</SuccessBox>
-					
+
 					<SuccessBox>
-						<h4 style={{ margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+						<h4
+							style={{
+								margin: '0 0 0.5rem 0',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+							}}
+						>
 							<FiCheckCircle /> Refresh Strategy
 						</h4>
 						<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#166534' }}>
@@ -642,9 +675,16 @@ export const TokenRefreshPage: React.FC = () => {
 							<li>Monitor refresh token usage and anomalies</li>
 						</ul>
 					</SuccessBox>
-					
+
 					<SuccessBox>
-						<h4 style={{ margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+						<h4
+							style={{
+								margin: '0 0 0.5rem 0',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+							}}
+						>
 							<FiCheckCircle /> Error Handling
 						</h4>
 						<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#166534' }}>
@@ -663,18 +703,26 @@ export const TokenRefreshPage: React.FC = () => {
 					<FiAlertTriangle />
 					Troubleshooting
 				</SectionTitle>
-				
+
 				<Grid>
 					<WarningBox>
 						<h4 style={{ margin: '0 0 0.5rem 0' }}>Common Issues</h4>
 						<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#92400e' }}>
-							<li><strong>invalid_grant:</strong> Refresh token expired or revoked</li>
-							<li><strong>invalid_client:</strong> Client authentication failed</li>
-							<li><strong>unauthorized_client:</strong> Client not allowed to use grant type</li>
-							<li><strong>unsupported_grant_type:</strong> Refresh token grant not supported</li>
+							<li>
+								<strong>invalid_grant:</strong> Refresh token expired or revoked
+							</li>
+							<li>
+								<strong>invalid_client:</strong> Client authentication failed
+							</li>
+							<li>
+								<strong>unauthorized_client:</strong> Client not allowed to use grant type
+							</li>
+							<li>
+								<strong>unsupported_grant_type:</strong> Refresh token grant not supported
+							</li>
 						</ul>
 					</WarningBox>
-					
+
 					<WarningBox>
 						<h4 style={{ margin: '0 0 0.5rem 0' }}>Debugging Steps</h4>
 						<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#92400e' }}>
@@ -685,7 +733,7 @@ export const TokenRefreshPage: React.FC = () => {
 							<li>Review OAuth configuration settings</li>
 						</ul>
 					</WarningBox>
-					
+
 					<WarningBox>
 						<h4 style={{ margin: '0 0 0.5rem 0' }}>Performance Tips</h4>
 						<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#92400e' }}>

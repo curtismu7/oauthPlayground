@@ -537,8 +537,18 @@ const ClientGenerator: React.FC = () => {
 						environmentId: saved.environmentId,
 						clientId: saved.clientId,
 						clientSecret: saved.clientSecret,
-						scopes: (saved.scopes || ['openid', 'p1:create:application', 'p1:read:application', 'p1:update:application']).join(' '),
-						tokenEndpointAuthMethod: (authMethod === 'client_secret_post' || authMethod === 'client_secret_basic') ? authMethod : 'client_secret_post',
+						scopes: (
+							saved.scopes || [
+								'openid',
+								'p1:create:application',
+								'p1:read:application',
+								'p1:update:application',
+							]
+						).join(' '),
+						tokenEndpointAuthMethod:
+							authMethod === 'client_secret_post' || authMethod === 'client_secret_basic'
+								? authMethod
+								: 'client_secret_post',
 					};
 					setWorkerCredentials(credentials);
 

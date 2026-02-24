@@ -4,7 +4,7 @@
  * @description V9 Application Discovery Service with PingOne API integration
  * @version 9.25.1
  * @since 2026-02-23
- * 
+ *
  * Enhanced application discovery service featuring:
  * - PingOne API v1 integration
  * - Unified storage manager
@@ -55,7 +55,7 @@ export interface DiscoveryConfig {
 
 /**
  * V9 Application Discovery Service
- * 
+ *
  * Provides enhanced application discovery with PingOne API integration,
  * caching, and improved error handling.
  */
@@ -77,9 +77,8 @@ export class AppDiscoveryServiceV9 {
 
 		// Load persisted config
 		try {
-			const persistedConfig = await unifiedStorageManager.load<DiscoveryConfig>(
-				DISCOVERY_CONFIG_KEY
-			);
+			const persistedConfig =
+				await unifiedStorageManager.load<DiscoveryConfig>(DISCOVERY_CONFIG_KEY);
 			if (persistedConfig) {
 				AppDiscoveryServiceV9.config = { ...AppDiscoveryServiceV9.config, ...persistedConfig };
 			}
@@ -133,7 +132,9 @@ export class AppDiscoveryServiceV9 {
 
 		for (let attempt = 1; attempt <= AppDiscoveryServiceV9.config.maxRetryAttempts; attempt++) {
 			try {
-				console.log(`${MODULE_TAG} API attempt ${attempt}/${AppDiscoveryServiceV9.config.maxRetryAttempts}`);
+				console.log(
+					`${MODULE_TAG} API attempt ${attempt}/${AppDiscoveryServiceV9.config.maxRetryAttempts}`
+				);
 
 				// Use PingOne API service
 				const response = await PingOneAPIServiceV9.getApplications(environmentId, {
@@ -145,7 +146,7 @@ export class AppDiscoveryServiceV9 {
 					throw new Error(response.error?.message || 'Failed to fetch applications');
 				}
 
-				const apps: DiscoveredApp[] = response.data.map(app => ({
+				const apps: DiscoveredApp[] = response.data.map((app) => ({
 					id: app.id,
 					name: app.name,
 					description: app.description,
@@ -160,7 +161,6 @@ export class AppDiscoveryServiceV9 {
 
 				console.log(`${MODULE_TAG} Successfully discovered ${apps.length} applications`);
 				return apps;
-
 			} catch (error) {
 				lastError = error instanceof Error ? error : new Error('Unknown error');
 				console.error(`${MODULE_TAG} API attempt ${attempt} failed:`, lastError);
@@ -169,7 +169,7 @@ export class AppDiscoveryServiceV9 {
 					// Exponential backoff
 					const delay = RETRY_DELAY * 2 ** (attempt - 1);
 					console.log(`${MODULE_TAG} Retrying in ${delay}ms`);
-					await new Promise(resolve => setTimeout(resolve, delay));
+					await new Promise((resolve) => setTimeout(resolve, delay));
 				}
 			}
 		}
@@ -181,7 +181,9 @@ export class AppDiscoveryServiceV9 {
 	/**
 	 * Get cached applications
 	 */
-	private static async getCachedApplications(environmentId: string): Promise<DiscoveredApp[] | null> {
+	private static async getCachedApplications(
+		environmentId: string
+	): Promise<DiscoveredApp[] | null> {
 		try {
 			const cache = await unifiedStorageManager.load<DiscoveryCache>(
 				`${DISCOVERY_CACHE_KEY}-${environmentId}`
@@ -221,10 +223,7 @@ export class AppDiscoveryServiceV9 {
 				environmentId,
 			};
 
-			await unifiedStorageManager.save(
-				`${DISCOVERY_CACHE_KEY}-${environmentId}`,
-				cache
-			);
+			await unifiedStorageManager.save(`${DISCOVERY_CACHE_KEY}-${environmentId}`, cache);
 
 			console.log(`${MODULE_TAG} Cached ${apps.length} applications`);
 		} catch (error) {
@@ -243,12 +242,12 @@ export class AppDiscoveryServiceV9 {
 			} else {
 				// Clear all cache entries
 				const keys = await unifiedStorageManager.getKeys();
-				const cacheKeys = keys.filter(key => key.startsWith(DISCOVERY_CACHE_KEY));
-				
+				const cacheKeys = keys.filter((key) => key.startsWith(DISCOVERY_CACHE_KEY));
+
 				for (const key of cacheKeys) {
 					await unifiedStorageManager.clear(key);
 				}
-				
+
 				console.log(`${MODULE_TAG} Cleared all application cache`);
 			}
 		} catch (error) {
@@ -267,8 +266,8 @@ export class AppDiscoveryServiceV9 {
 	}> {
 		try {
 			const keys = await unifiedStorageManager.getKeys();
-			const cacheKeys = keys.filter(key => key.startsWith(DISCOVERY_CACHE_KEY));
-			
+			const cacheKeys = keys.filter((key) => key.startsWith(DISCOVERY_CACHE_KEY));
+
 			let totalApps = 0;
 			let oldestEntry: number | null = null;
 			let newestEntry: number | null = null;
@@ -277,11 +276,11 @@ export class AppDiscoveryServiceV9 {
 				const cache = await unifiedStorageManager.load<DiscoveryCache>(key);
 				if (cache) {
 					totalApps += cache.apps.length;
-					
+
 					if (oldestEntry === null || cache.timestamp < oldestEntry) {
 						oldestEntry = cache.timestamp;
 					}
-					
+
 					if (newestEntry === null || cache.timestamp > newestEntry) {
 						newestEntry = cache.timestamp;
 					}
@@ -310,7 +309,7 @@ export class AppDiscoveryServiceV9 {
 	 */
 	static async updateConfig(config: Partial<DiscoveryConfig>): Promise<void> {
 		AppDiscoveryServiceV9.config = { ...AppDiscoveryServiceV9.config, ...config };
-		
+
 		try {
 			await unifiedStorageManager.save(DISCOVERY_CONFIG_KEY, AppDiscoveryServiceV9.config);
 			console.log(`${MODULE_TAG} Updated configuration:`, AppDiscoveryServiceV9.config);

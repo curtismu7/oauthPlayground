@@ -30,6 +30,7 @@ import {
 } from 'react-icons/fi';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
+import BootstrapButton from '@/components/bootstrap/BootstrapButton';
 import { ColoredUrlDisplay } from '@/components/ColoredUrlDisplay';
 import DeviceTypeSelector from '@/components/DeviceTypeSelector';
 import DynamicDeviceFlow from '@/components/DynamicDeviceFlow';
@@ -38,7 +39,6 @@ import FlowConfigurationRequirements from '@/components/FlowConfigurationRequire
 import FlowSequenceDisplay from '@/components/FlowSequenceDisplay';
 import { PasswordChangeModal } from '@/components/PasswordChangeModal';
 import RedirectlessLoginModal from '@/components/RedirectlessLoginModal';
-import BootstrapButton from '@/components/bootstrap/BootstrapButton';
 import { EducationPreferenceService } from '@/services/educationPreferenceService';
 import { type PKCECodes, PKCEService } from '@/services/pkceService';
 import { unifiedTokenService } from '@/shared/services/unifiedTokenService';
@@ -3301,12 +3301,18 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 																			setValidationErrors(newValidationResult.errors);
 																			setValidationWarnings(newValidationResult.warnings);
 																		} else {
-																			toastV8.error('Failed to fix some errors. Please fix them manually.');
+																			toastV8.error(
+																				'Failed to fix some errors. Please fix them manually.'
+																			);
 																		}
 																	} catch (err) {
-																		const message = err instanceof Error ? err.message : 'Failed to fix errors';
+																		const message =
+																			err instanceof Error ? err.message : 'Failed to fix errors';
 																		toastV8.error(message);
-																		console.error(`${MODULE_TAG} Error fixing validation errors:`, err);
+																		console.error(
+																			`${MODULE_TAG} Error fixing validation errors:`,
+																			err
+																		);
 																	} finally {
 																		setIsLoading(false);
 																		setLoadingMessage('');
@@ -6685,18 +6691,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						>
 							{isPreFlightValidating ? (
 								<>
-									<span
-										className="spinner-border spinner-border-sm me-2"
-										aria-hidden="true"
-									></span>
+									<span className="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
 									<span>Validating...</span>
 								</>
 							) : isGeneratingAuthUrl ? (
 								<>
-									<span
-										className="spinner-border spinner-border-sm me-2"
-										aria-hidden="true"
-									></span>
+									<span className="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
 									<span>Generating...</span>
 								</>
 							) : (
@@ -7859,10 +7859,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 										</div>
 									</div>
 								)}
-								<BootstrapButton
-									variant="secondary"
-									onClick={handleRestartFlow}
-								>
+								<BootstrapButton variant="secondary" onClick={handleRestartFlow}>
 									Go Back to Fix Configuration
 								</BootstrapButton>
 							</div>
@@ -10116,11 +10113,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 								{/* Action Buttons */}
 								<div style={{ display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
-									<BootstrapButton
-										variant="danger"
-										greyBorder={true}
-										onClick={handleStopPolling}
-									>
+									<BootstrapButton variant="danger" greyBorder={true} onClick={handleStopPolling}>
 										⏹️ Stop Polling
 									</BootstrapButton>
 

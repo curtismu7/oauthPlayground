@@ -2,18 +2,18 @@
 // V9 Complete OAuth 2.0 Client Credentials Flow - PingOne UI with New Storage & Messaging
 
 import { useCallback, useEffect, useState } from 'react';
+import BootstrapIcon from '../../components/BootstrapIcon';
+import { ExpandCollapseAllControls } from '../../components/ExpandCollapseAllControls';
 import { EducationModeToggle } from '../../components/education/EducationModeToggle';
 import { MasterEducationSection } from '../../components/education/MasterEducationSection';
-import { StepNavigationButtons } from '../../components/StepNavigationButtons';
-import BootstrapIcon from '../../components/BootstrapIcon';
 import { getBootstrapIconName } from '../../components/iconMapping';
 import { PingUIWrapper } from '../../components/PingUIWrapper';
-import { ExpandCollapseAllControls } from '../../components/ExpandCollapseAllControls';
-import { useSectionsViewMode } from '../../services/sectionsViewModeService';
-import { feedbackService } from '../../services/feedback/feedbackService';
-import { unifiedStorageManager } from '../../services/unifiedStorageManager';
+import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useClientCredentialsFlowController } from '../../hooks/useClientCredentialsFlowController';
 import { usePageScroll } from '../../hooks/usePageScroll';
+import { feedbackService } from '../../services/feedback/feedbackService';
+import { useSectionsViewMode } from '../../services/sectionsViewModeService';
+import { unifiedStorageManager } from '../../services/unifiedStorageManager';
 import { checkCredentialsAndWarn } from '../../utils/credentialsWarningService';
 
 // Page key for expand/collapse state management
@@ -57,17 +57,13 @@ const ClientCredentialsFlowV9: React.FC = () => {
 	}, [controller.credentials]);
 
 	const [currentStep, setCurrentStep] = useState(0);
-	const [errorDetails, setErrorDetails] = useState<{ message?: string; details?: unknown } | null>(null);
+	const [errorDetails, setErrorDetails] = useState<{ message?: string; details?: unknown } | null>(
+		null
+	);
 
 	// V9: Use sections view mode for expand/collapse functionality
-	const {
-		expandedStates,
-		toggleSection,
-		expandAll,
-		collapseAll,
-		areAllExpanded,
-		areAllCollapsed
-	} = useSectionsViewMode(PAGE_KEY, SECTION_IDS);
+	const { expandedStates, toggleSection, expandAll, collapseAll, areAllExpanded, areAllCollapsed } =
+		useSectionsViewMode(PAGE_KEY, SECTION_IDS);
 
 	// V9: Persist flow state using unified storage manager
 	useEffect(() => {
@@ -97,7 +93,7 @@ const ClientCredentialsFlowV9: React.FC = () => {
 	useEffect(() => {
 		const loadFlowState = async () => {
 			try {
-				const savedState = await unifiedStorageManager.load(`${PAGE_KEY}-flow-state`) as {
+				const savedState = (await unifiedStorageManager.load(`${PAGE_KEY}-flow-state`)) as {
 					currentStep?: number;
 					errorDetails?: { message?: string; details?: unknown };
 					timestamp?: string;
@@ -106,7 +102,8 @@ const ClientCredentialsFlowV9: React.FC = () => {
 					console.log('🔄 [V9] Restored flow state:', savedState);
 					// Restore state if available and recent (within 1 hour)
 					const stateAge = Date.now() - new Date(savedState.timestamp || '').getTime();
-					if (stateAge < 3600000) { // 1 hour
+					if (stateAge < 3600000) {
+						// 1 hour
 						setCurrentStep(savedState.currentStep || 0);
 						setErrorDetails(savedState.errorDetails || null);
 					}
@@ -147,11 +144,14 @@ const ClientCredentialsFlowV9: React.FC = () => {
 	}, []);
 
 	// V9: Handle section toggle with feedback
-	const handleSectionToggle = useCallback((sectionId: string) => {
-		toggleSection(sectionId);
-		const isExpanded = expandedStates[sectionId];
-		showInfoFeedback(`${isExpanded ? 'Collapsed' : 'Expanded'} section`);
-	}, [toggleSection, expandedStates]);
+	const handleSectionToggle = useCallback(
+		(sectionId: string) => {
+			toggleSection(sectionId);
+			const isExpanded = expandedStates[sectionId];
+			showInfoFeedback(`${isExpanded ? 'Collapsed' : 'Expanded'} section`);
+		},
+		[toggleSection, expandedStates]
+	);
 
 	// V9: Handle expand all with feedback
 	const handleExpandAll = useCallback(() => {
@@ -166,15 +166,18 @@ const ClientCredentialsFlowV9: React.FC = () => {
 	}, [collapseAll]);
 
 	// V9: Handle copy with feedback
-	const handleCopy = useCallback(async (text: string, fieldName: string) => {
-		try {
-			await navigator.clipboard.writeText(text);
-			controller.handleCopy(text, fieldName);
-			showSuccessFeedback(`Copied ${fieldName} to clipboard`);
-		} catch {
-			showWarningFeedback('Failed to copy to clipboard');
-		}
-	}, [controller.handleCopy, showSuccessFeedback, showWarningFeedback]);
+	const handleCopy = useCallback(
+		async (text: string, fieldName: string) => {
+			try {
+				await navigator.clipboard.writeText(text);
+				controller.handleCopy(text, fieldName);
+				showSuccessFeedback(`Copied ${fieldName} to clipboard`);
+			} catch {
+				showWarningFeedback('Failed to copy to clipboard');
+			}
+		},
+		[controller.handleCopy, showSuccessFeedback, showWarningFeedback]
+	);
 
 	// V9: Handle step navigation
 	const handleNextStep = useCallback(() => {
@@ -192,10 +195,13 @@ const ClientCredentialsFlowV9: React.FC = () => {
 	}, [currentStep, showInfoFeedback]);
 
 	// V9: Handle credential updates
-	const handleCredentialChange = useCallback((field: string, value: string) => {
-		const updatedCredentials = { ...controller.credentials, [field]: value };
-		controller.setCredentials(updatedCredentials);
-	}, [controller.credentials, controller.setCredentials]);
+	const handleCredentialChange = useCallback(
+		(field: string, value: string) => {
+			const updatedCredentials = { ...controller.credentials, [field]: value };
+			controller.setCredentials(updatedCredentials);
+		},
+		[controller.credentials, controller.setCredentials]
+	);
 
 	return (
 		<PingUIWrapper>
@@ -206,24 +212,14 @@ const ClientCredentialsFlowV9: React.FC = () => {
 						<div className="d-flex justify-content-between align-items-center">
 							<div>
 								<h2 className="mb-1">
-									<BootstrapIcon 
-										icon={getBootstrapIconName('key')} 
-										size={24} 
-										className="me-2" 
-									/>
+									<BootstrapIcon icon={getBootstrapIconName('key')} size={24} className="me-2" />
 									Client Credentials Flow V9
 								</h2>
-								<p className="mb-0 opacity-75">
-									OAuth 2.0 Client Credentials Flow - PingOne UI
-								</p>
+								<p className="mb-0 opacity-75">OAuth 2.0 Client Credentials Flow - PingOne UI</p>
 							</div>
 							<div className="text-end">
-								<span className="badge bg-light text-dark me-2">
-									Version 9.3.6
-								</span>
-								<span className="badge bg-info">
-									Step {currentStep + 1} of 5
-								</span>
+								<span className="badge bg-light text-dark me-2">Version 9.3.6</span>
+								<span className="badge bg-info">Step {currentStep + 1} of 5</span>
 							</div>
 						</div>
 					</div>
@@ -267,37 +263,47 @@ const ClientCredentialsFlowV9: React.FC = () => {
 							className="btn btn-outline-secondary btn-sm"
 							onClick={() => handleSectionToggle('flow-configuration')}
 						>
-							<BootstrapIcon 
+							<BootstrapIcon
 								icon={getBootstrapIconName(
 									expandedStates['flow-configuration'] ? 'chevron-up' : 'chevron-down'
-								)} 
-								size={16} 
+								)}
+								size={16}
 							/>
 						</button>
 					</div>
 					{expandedStates['flow-configuration'] && (
 						<div className="card-body">
 							<div className="alert alert-info">
-								<BootstrapIcon icon={getBootstrapIconName('info-circle')} size={20} className="me-2" />
+								<BootstrapIcon
+									icon={getBootstrapIconName('info-circle')}
+									size={20}
+									className="me-2"
+								/>
 								Configure your OAuth 2.0 Client Credentials Flow parameters below.
 							</div>
 							<div className="row">
 								<div className="col-md-6">
 									<div className="mb-3">
-										<label htmlFor="environmentId" className="form-label">Environment ID</label>
+										<label htmlFor="environmentId" className="form-label">
+											Environment ID
+										</label>
 										<input
 											type="text"
 											id="environmentId"
 											className="form-control"
 											value={controller.credentials.environmentId || ''}
-											onChange={(e) => controller.updateCredentials('environmentId', e.target.value)}
+											onChange={(e) =>
+												controller.updateCredentials('environmentId', e.target.value)
+											}
 											placeholder="Enter Environment ID"
 										/>
 									</div>
 								</div>
 								<div className="col-md-6">
 									<div className="mb-3">
-										<label htmlFor="clientId" className="form-label">Client ID</label>
+										<label htmlFor="clientId" className="form-label">
+											Client ID
+										</label>
 										<input
 											type="text"
 											id="clientId"
@@ -310,7 +316,9 @@ const ClientCredentialsFlowV9: React.FC = () => {
 								</div>
 								<div className="col-md-6">
 									<div className="mb-3">
-										<label htmlFor="clientSecret" className="form-label">Client Secret</label>
+										<label htmlFor="clientSecret" className="form-label">
+											Client Secret
+										</label>
 										<input
 											type="password"
 											id="clientSecret"
@@ -323,13 +331,17 @@ const ClientCredentialsFlowV9: React.FC = () => {
 								</div>
 								<div className="col-md-6">
 									<div className="mb-3">
-										<label htmlFor="tokenEndpoint" className="form-label">Token Endpoint</label>
+										<label htmlFor="tokenEndpoint" className="form-label">
+											Token Endpoint
+										</label>
 										<input
 											type="url"
 											id="tokenEndpoint"
 											className="form-control"
 											value={controller.credentials.tokenEndpoint || ''}
-											onChange={(e) => controller.updateCredentials('tokenEndpoint', e.target.value)}
+											onChange={(e) =>
+												controller.updateCredentials('tokenEndpoint', e.target.value)
+											}
 											placeholder="https://auth.pingone.com/token"
 										/>
 									</div>
@@ -351,11 +363,11 @@ const ClientCredentialsFlowV9: React.FC = () => {
 							className="btn btn-outline-secondary btn-sm"
 							onClick={() => handleSectionToggle('educational-content')}
 						>
-							<BootstrapIcon 
+							<BootstrapIcon
 								icon={getBootstrapIconName(
 									expandedStates['educational-content'] ? 'chevron-up' : 'chevron-down'
-								)} 
-								size={16} 
+								)}
+								size={16}
 							/>
 						</button>
 					</div>
@@ -371,7 +383,11 @@ const ClientCredentialsFlowV9: React.FC = () => {
 				<div className="card mb-4">
 					<div className="card-header d-flex justify-content-between align-items-center">
 						<h5 className="mb-0">
-							<BootstrapIcon icon={getBootstrapIconName('shield-check')} size={20} className="me-2" />
+							<BootstrapIcon
+								icon={getBootstrapIconName('shield-check')}
+								size={20}
+								className="me-2"
+							/>
 							Token Display
 						</h5>
 						<button
@@ -379,18 +395,22 @@ const ClientCredentialsFlowV9: React.FC = () => {
 							className="btn btn-outline-secondary btn-sm"
 							onClick={() => handleSectionToggle('token-display')}
 						>
-							<BootstrapIcon 
+							<BootstrapIcon
 								icon={getBootstrapIconName(
 									expandedStates['token-display'] ? 'chevron-up' : 'chevron-down'
-								)} 
-								size={16} 
+								)}
+								size={16}
 							/>
 						</button>
 					</div>
 					{expandedStates['token-display'] && (
 						<div className="card-body">
 							<div className="alert alert-success">
-								<BootstrapIcon icon={getBootstrapIconName('check-circle')} size={20} className="me-2" />
+								<BootstrapIcon
+									icon={getBootstrapIconName('check-circle')}
+									size={20}
+									className="me-2"
+								/>
 								Access token will be displayed here after successful authentication.
 							</div>
 							{controller.accessToken && (
@@ -405,10 +425,12 @@ const ClientCredentialsFlowV9: React.FC = () => {
 											className="btn btn-outline-primary btn-sm position-absolute top-0 end-0 m-2"
 											onClick={() => handleCopy(controller.accessToken || '', 'access token')}
 										>
-											<BootstrapIcon 
-												icon={getBootstrapIconName(copiedField === 'access token' ? 'check' : 'clipboard')} 
-												size={16} 
-												className="me-1" 
+											<BootstrapIcon
+												icon={getBootstrapIconName(
+													copiedField === 'access token' ? 'check' : 'clipboard'
+												)}
+												size={16}
+												className="me-1"
 											/>
 											{copiedField === 'access token' ? 'Copied!' : 'Copy'}
 										</button>
@@ -424,7 +446,11 @@ const ClientCredentialsFlowV9: React.FC = () => {
 					<div className="card mb-4 border-danger">
 						<div className="card-header bg-danger text-white d-flex justify-content-between align-items-center">
 							<h5 className="mb-0">
-								<BootstrapIcon icon={getBootstrapIconName('exclamation-triangle')} size={20} className="me-2" />
+								<BootstrapIcon
+									icon={getBootstrapIconName('exclamation-triangle')}
+									size={20}
+									className="me-2"
+								/>
 								Error Details
 							</h5>
 							<button
@@ -432,18 +458,22 @@ const ClientCredentialsFlowV9: React.FC = () => {
 								className="btn btn-outline-light btn-sm"
 								onClick={() => handleSectionToggle('error-handling')}
 							>
-								<BootstrapIcon 
+								<BootstrapIcon
 									icon={getBootstrapIconName(
 										expandedStates['error-handling'] ? 'chevron-up' : 'chevron-down'
-									)} 
-									size={16} 
+									)}
+									size={16}
 								/>
 							</button>
 						</div>
 						{expandedStates['error-handling'] && (
 							<div className="card-body">
 								<div className="alert alert-danger">
-									<BootstrapIcon icon={getBootstrapIconName('alert-circle')} size={20} className="me-2" />
+									<BootstrapIcon
+										icon={getBootstrapIconName('alert-circle')}
+										size={20}
+										className="me-2"
+									/>
 									{errorDetails.message || 'An error occurred during the flow.'}
 								</div>
 								{errorDetails.details && (
@@ -460,7 +490,11 @@ const ClientCredentialsFlowV9: React.FC = () => {
 				<div className="card">
 					<div className="card-body text-center">
 						<p className="text-muted mb-0">
-							<BootstrapIcon icon={getBootstrapIconName('info-circle')} size={16} className="me-1" />
+							<BootstrapIcon
+								icon={getBootstrapIconName('info-circle')}
+								size={16}
+								className="me-1"
+							/>
 							Client Credentials Flow V9 - PingOne UI with Enhanced Storage & Messaging
 						</p>
 					</div>

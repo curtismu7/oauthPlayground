@@ -1,7 +1,7 @@
 // src/components/InteractiveCodeEditor.V9.tsx
 /**
  * V9 PingOne UI Upgrade - Interactive Code Editor
- * 
+ *
  * V9 Upgrades Applied:
  * - Removed React Icons (Fi*) in favor of MDI CSS icons
  * - Added .end-user-nano namespace wrapper for Ping UI scoping
@@ -12,11 +12,11 @@
  * - Applied Ping UI color palette and design tokens
  */
 
+import * as monaco from 'monaco-editor';
 import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
-import * as monaco from 'monaco-editor';
+import { showFlowError, showFlowSuccess } from './CentralizedSuccessMessage';
 import ConfirmationModal from './ConfirmationModal';
-import { showFlowSuccess, showFlowError } from './CentralizedSuccessMessage';
 
 // Ping UI Namespace Wrapper
 const PingUIWrapper = styled.div`
@@ -502,7 +502,10 @@ export const InteractiveCodeEditorV9: React.FC<InteractiveCodeEditorProps> = ({
 					<ControlsContainer>
 						<SelectContainer>
 							<SelectLabel>Step:</SelectLabel>
-							<Select value={activeStep} onChange={(e) => handleStepChange(e.target.value as FlowStep)}>
+							<Select
+								value={activeStep}
+								onChange={(e) => handleStepChange(e.target.value as FlowStep)}
+							>
 								{flowSteps.map((step) => (
 									<option key={step} value={step}>
 										{FLOW_STEP_LABELS[step]}
@@ -513,7 +516,10 @@ export const InteractiveCodeEditorV9: React.FC<InteractiveCodeEditorProps> = ({
 
 						<SelectContainer>
 							<SelectLabel>Language:</SelectLabel>
-							<Select value={selectedLanguage} onChange={(e) => handleLanguageChange(e.target.value as LanguageOption)}>
+							<Select
+								value={selectedLanguage}
+								onChange={(e) => handleLanguageChange(e.target.value as LanguageOption)}
+							>
 								<option value="javascript">JavaScript</option>
 								<option value="typescript">TypeScript</option>
 								<option value="python">Python</option>
@@ -528,7 +534,10 @@ export const InteractiveCodeEditorV9: React.FC<InteractiveCodeEditorProps> = ({
 						</SelectContainer>
 
 						<ControlButton onClick={handleCopy} disabled={copied}>
-							<MDIIcon icon={copied ? 'FiCheck' : 'FiCopy'} ariaLabel={copied ? 'Copied' : 'Copy'} />
+							<MDIIcon
+								icon={copied ? 'FiCheck' : 'FiCopy'}
+								ariaLabel={copied ? 'Copied' : 'Copy'}
+							/>
 							{copied ? 'Copied!' : 'Copy'}
 						</ControlButton>
 

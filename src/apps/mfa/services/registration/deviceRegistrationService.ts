@@ -9,10 +9,10 @@
  * Authentication operations are handled by the separate DeviceAuthenticationService.
  */
 
-import type { 
-	DeviceConfigKey, 
+import type {
+	DeviceConfigKey,
 	DeviceRegistrationData,
-	RegistrationFlowState
+	RegistrationFlowState,
 } from '@/apps/mfa/types/mfaFlowTypes';
 import { RegistrationStep } from '@/apps/mfa/types/mfaFlowTypes';
 import { pingOneFetch } from '@/utils/pingOneFetch';

@@ -665,8 +665,14 @@ export const FlowHeader: React.FC<FlowHeaderProps> = ({ flowId, flowType, custom
 	};
 
 	return (
-		<HeaderContainer $flowType={config.flowType || 'oauth'} $securityFeatures={config.securityFeatures}>
-			<HeaderBadge $flowType={config.flowType || 'oauth'} $securityFeatures={config.securityFeatures}>
+		<HeaderContainer
+			$flowType={config.flowType || 'oauth'}
+			$securityFeatures={config.securityFeatures}
+		>
+			<HeaderBadge
+				$flowType={config.flowType || 'oauth'}
+				$securityFeatures={config.securityFeatures}
+			>
 				{config.icon && <HeaderIcon>{config.icon}</HeaderIcon>}
 				{getBadgeText()}
 				{config.isExperimental && <StatusBadge $type="experimental">Experimental</StatusBadge>}

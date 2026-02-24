@@ -33,20 +33,20 @@ import {
 } from '../../services/enhancedApiCallDisplayService';
 
 // MDI Icon Component for PingOne UI
-const MDIIcon: React.FC<{ icon: string; size?: number; ariaLabel?: string; color?: string }> = ({ 
-	icon, 
-	size, 
-	ariaLabel, 
-	color 
+const MDIIcon: React.FC<{ icon: string; size?: number; ariaLabel?: string; color?: string }> = ({
+	icon,
+	size,
+	ariaLabel,
+	color,
 }) => {
 	const iconClass = getMDIIconClass(icon);
 	return (
-		<i 
-			className={`mdi ${iconClass}`} 
-			style={{ 
+		<i
+			className={`mdi ${iconClass}`}
+			style={{
 				fontSize: `${size}px`,
-				color: color || 'currentColor'
-			}} 
+				color: color || 'currentColor',
+			}}
 			aria-label={ariaLabel}
 		></i>
 	);
@@ -55,21 +55,21 @@ const MDIIcon: React.FC<{ icon: string; size?: number; ariaLabel?: string; color
 // MDI Icon Mapping
 const getMDIIconClass = (fiIcon: string): string => {
 	const iconMap: Record<string, string> = {
-		'FiAlertCircle': 'mdi-alert-circle',
-		'FiArrowRight': 'mdi-arrow-right',
-		'FiBook': 'mdi-book-open-variant',
-		'FiCheckCircle': 'mdi-check-circle',
-		'FiChevronDown': 'mdi-chevron-down',
-		'FiCode': 'mdi-code-tags',
-		'FiExternalLink': 'mdi-open-in-new',
-		'FiGlobe': 'mdi-earth',
-		'FiInfo': 'mdi-information',
-		'FiKey': 'mdi-key',
-		'FiPackage': 'mdi-package-variant',
-		'FiRefreshCw': 'mdi-refresh',
-		'FiSend': 'mdi-send',
-		'FiSettings': 'mdi-cog',
-		'FiShield': 'mdi-shield-check',
+		FiAlertCircle: 'mdi-alert-circle',
+		FiArrowRight: 'mdi-arrow-right',
+		FiBook: 'mdi-book-open-variant',
+		FiCheckCircle: 'mdi-check-circle',
+		FiChevronDown: 'mdi-chevron-down',
+		FiCode: 'mdi-code-tags',
+		FiExternalLink: 'mdi-open-in-new',
+		FiGlobe: 'mdi-earth',
+		FiInfo: 'mdi-information',
+		FiKey: 'mdi-key',
+		FiPackage: 'mdi-package-variant',
+		FiRefreshCw: 'mdi-refresh',
+		FiSend: 'mdi-send',
+		FiSettings: 'mdi-cog',
+		FiShield: 'mdi-shield-check',
 	};
 	return iconMap[fiIcon] || fiIcon.replace('Fi', 'mdi-').toLowerCase();
 };
@@ -266,7 +266,7 @@ const PingCard = styled.div`
 const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 	// Component implementation would go here
 	// This is a template showing the PingOne UI styling approach
-	
+
 	return (
 		<FlowContainer className="end-user-nano">
 			<FlowHeader>
@@ -278,7 +278,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 					Secure OAuth 2.0 authorization code flow with PingOne UI upgrade
 				</FlowSubtitle>
 			</FlowHeader>
-			
+
 			<StepContainer>
 				<StepHeader>
 					<StepTitle>
@@ -287,13 +287,13 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 					</StepTitle>
 					<StepBadge variant="primary">Step 1</StepBadge>
 				</StepHeader>
-				
+
 				<PingCard>
 					<h3>Client Configuration</h3>
 					<PingInput placeholder="Client ID" />
 					<PingInput placeholder="Client Secret" type="password" />
 					<PingInput placeholder="Redirect URI" />
-					
+
 					<div style={{ marginTop: '1rem', display: 'flex', gap: '1rem' }}>
 						<PingButton variant="primary">
 							<MDIIcon icon="FiSend" size={16} />
@@ -306,7 +306,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 					</div>
 				</PingCard>
 			</StepContainer>
-			
+
 			<StepContainer>
 				<StepHeader>
 					<StepTitle>
@@ -315,11 +315,11 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 					</StepTitle>
 					<StepBadge variant="success">Step 2</StepBadge>
 				</StepHeader>
-				
+
 				<PingCard>
 					<h3>Authorization Code Received</h3>
 					<p>Successfully obtained authorization code from PingOne</p>
-					
+
 					<PingButton variant="primary">
 						<MDIIcon icon="FiArrowRight" size={16} />
 						Exchange for Tokens

@@ -16,6 +16,9 @@
  */
 
 import React, { useState } from 'react';
+// Bootstrap Icon Component (migrated from MDI)
+import BootstrapIcon from '@/components/BootstrapIcon';
+import { getBootstrapIconName } from '@/components/iconMapping';
 import type { DeviceType } from '../flows/shared/MFATypes';
 import {
 	downloadAsMarkdown,
@@ -23,10 +26,6 @@ import {
 	generateMarkdown,
 	getApiCalls,
 } from './MFADocumentationPageV8';
-
-// Bootstrap Icon Component (migrated from MDI)
-import BootstrapIcon from '@/components/BootstrapIcon';
-import { getBootstrapIconName } from '@/components/iconMapping';
 
 interface UseCase {
 	id: string;
@@ -248,7 +247,11 @@ export const MFADocumentationModalV8PingUI: React.FC<MFADocumentationModalV8Ping
 							}}
 						>
 							{/* PING UI MIGRATION: Replaced FiBook with Bootstrap icon */}
-							<BootstrapIcon icon={getBootstrapIconName("book")} size={24} ariaLabel="Documentation" />
+							<BootstrapIcon
+								icon={getBootstrapIconName('book')}
+								size={24}
+								ariaLabel="Documentation"
+							/>
 							<h2
 								style={{
 									margin: 0,
@@ -276,7 +279,7 @@ export const MFADocumentationModalV8PingUI: React.FC<MFADocumentationModalV8Ping
 							aria-label="Close modal"
 						>
 							{/* PING UI MIGRATION: Replaced FiX with Bootstrap icon */}
-							<BootstrapIcon icon={getBootstrapIconName("x")} size={24} ariaLabel="Close" />
+							<BootstrapIcon icon={getBootstrapIconName('x')} size={24} ariaLabel="Close" />
 						</button>
 					</div>
 
@@ -465,7 +468,11 @@ export const MFADocumentationModalV8PingUI: React.FC<MFADocumentationModalV8Ping
 									}}
 								>
 									{/* PING UI MIGRATION: Replaced React Icons with Bootstrap icons */}
-									<BootstrapIcon icon={getBootstrapIconName(option.icon)} size={18} ariaLabel={`${option.label} format`} />
+									<BootstrapIcon
+										icon={getBootstrapIconName(option.icon)}
+										size={18}
+										ariaLabel={`${option.label} format`}
+									/>
 									{option.label}
 								</button>
 							))}
@@ -520,7 +527,11 @@ export const MFADocumentationModalV8PingUI: React.FC<MFADocumentationModalV8Ping
 							}}
 						>
 							{/* PING UI MIGRATION: Replaced FiDownload with Bootstrap icon */}
-							<BootstrapIcon icon={getBootstrapIconName("download")} size={18} ariaLabel="Download" />
+							<BootstrapIcon
+								icon={getBootstrapIconName('download')}
+								size={18}
+								ariaLabel="Download"
+							/>
 							Download ({selectedUseCases.size} use case{selectedUseCases.size !== 1 ? 's' : ''})
 						</button>
 					</div>

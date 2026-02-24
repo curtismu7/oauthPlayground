@@ -3,30 +3,28 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import BootstrapIcon from '../../components/BootstrapIcon';
 import CodeExamplesDisplay from '../../components/CodeExamplesDisplay';
 import EnhancedSecurityFeaturesDemo from '../../components/EnhancedSecurityFeaturesDemo';
+import { ExpandCollapseAllControls } from '../../components/ExpandCollapseAllControls';
 // Education components
 import { EducationModeToggle } from '../../components/education/EducationModeToggle';
 import { MasterEducationSection } from '../../components/education/MasterEducationSection';
 import FlowTrackingDisplay from '../../components/FlowTrackingDisplay';
-import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
-import BootstrapIcon from '../../components/BootstrapIcon';
 import { getBootstrapIconName } from '../../components/iconMapping';
+import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
 import { PingUIWrapper } from '../../components/PingUIWrapper';
-import { ExpandCollapseAllControls } from '../../components/ExpandCollapseAllControls';
-import { useSectionsViewMode } from '../../services/sectionsViewModeService';
-import { feedbackService } from '../../services/feedback/feedbackService';
-import { unifiedStorageManager } from '../../services/unifiedStorageManager';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowV7Controller';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import AuthorizationCodeSharedService from '../../services/authorizationCodeSharedService';
+import { feedbackService } from '../../services/feedback/feedbackService';
+import { useSectionsViewMode } from '../../services/sectionsViewModeService';
 import type { V7FlowName } from '../../services/sharedService';
 import { V7SharedService } from '../../services/sharedService';
+import { unifiedStorageManager } from '../../services/unifiedStorageManager';
 import type { ClientAuthMethod } from '../../utils/clientAuthentication';
 import { checkCredentialsAndWarn } from '../../utils/credentialsWarningService';
-import {
-	DEFAULT_APP_CONFIG,
-} from './config/OAuthAuthzCodeFlowV7.config';
+import { DEFAULT_APP_CONFIG } from './config/OAuthAuthzCodeFlowV7.config';
 
 // Page key for expand/collapse state management
 const PAGE_KEY = 'oauth-authorization-code-v9';
@@ -135,14 +133,8 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 	const [flowVariant, setFlowVariant] = useState<'oauth' | 'oidc'>(getDefaultVariant());
 
 	// V9: Use sections view mode for expand/collapse functionality
-	const {
-		expandedStates,
-		toggleSection,
-		expandAll,
-		collapseAll,
-		areAllExpanded,
-		areAllCollapsed
-	} = useSectionsViewMode(PAGE_KEY, SECTION_IDS);
+	const { expandedStates, toggleSection, expandAll, collapseAll, areAllExpanded, areAllCollapsed } =
+		useSectionsViewMode(PAGE_KEY, SECTION_IDS);
 
 	// V9: Persist flow state using unified storage manager
 	useEffect(() => {
@@ -179,7 +171,8 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 					console.log('🔄 [V9] Restored flow state:', savedState);
 					// Restore state if available and recent (within 1 hour)
 					const stateAge = Date.now() - new Date(savedState.timestamp).getTime();
-					if (stateAge < 3600000) { // 1 hour
+					if (stateAge < 3600000) {
+						// 1 hour
 						setCurrentStep(savedState.currentStep || 0);
 						setFlowVariant(savedState.flowVariant || 'oauth');
 						setPingOneConfig(savedState.pingOneConfig || DEFAULT_APP_CONFIG);
@@ -215,11 +208,14 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 	}, []);
 
 	// V9: Handle section toggle with feedback
-	const handleSectionToggle = useCallback((sectionId: string) => {
-		toggleSection(sectionId);
-		const isExpanded = expandedStates[sectionId];
-		showInfoFeedback(`${isExpanded ? 'Collapsed' : 'Expanded'} section`);
-	}, [toggleSection, expandedStates]);
+	const handleSectionToggle = useCallback(
+		(sectionId: string) => {
+			toggleSection(sectionId);
+			const isExpanded = expandedStates[sectionId];
+			showInfoFeedback(`${isExpanded ? 'Collapsed' : 'Expanded'} section`);
+		},
+		[toggleSection, expandedStates]
+	);
 
 	// V9: Handle expand all with feedback
 	const handleExpandAll = useCallback(() => {
@@ -238,18 +234,18 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 			<div className="container-fluid">
 				{/* V9: Flow Header with PingOne UI */}
 				<div className="card mb-4">
-					<div className={`card-header bg-gradient ${
-						flowVariant === 'oidc' 
-							? 'bg-primary' 
-							: 'bg-success'
-					} text-white`}>
+					<div
+						className={`card-header bg-gradient ${
+							flowVariant === 'oidc' ? 'bg-primary' : 'bg-success'
+						} text-white`}
+					>
 						<div className="d-flex justify-content-between align-items-center">
 							<div>
 								<h2 className="mb-1">
-									<BootstrapIcon 
-										icon={getBootstrapIconName(flowVariant === 'oidc' ? 'shield-check' : 'lock')} 
-										size={24} 
-										className="me-2" 
+									<BootstrapIcon
+										icon={getBootstrapIconName(flowVariant === 'oidc' ? 'shield-check' : 'lock')}
+										size={24}
+										className="me-2"
 									/>
 									OAuth Authorization Code Flow V9
 								</h2>
@@ -258,14 +254,8 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 								</p>
 							</div>
 							<div className="text-end">
-								<span className="badge bg-light text-dark me-2">
-									Version 9.3.6
-								</span>
-								<span className={`badge ${
-									flowVariant === 'oidc' 
-										? 'bg-info' 
-										: 'bg-success'
-								}`}>
+								<span className="badge bg-light text-dark me-2">Version 9.3.6</span>
+								<span className={`badge ${flowVariant === 'oidc' ? 'bg-info' : 'bg-success'}`}>
 									{flowVariant === 'oidc' ? 'OIDC' : 'OAuth'}
 								</span>
 							</div>
@@ -299,9 +289,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 								<button
 									type="button"
 									className={`btn ${
-										flowVariant === 'oauth' 
-											? 'btn-success active' 
-											: 'btn-outline-success'
+										flowVariant === 'oauth' ? 'btn-success active' : 'btn-outline-success'
 									}`}
 									onClick={() => setFlowVariant('oauth')}
 								>
@@ -311,13 +299,15 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 								<button
 									type="button"
 									className={`btn ${
-										flowVariant === 'oidc' 
-											? 'btn-primary active' 
-											: 'btn-outline-primary'
+										flowVariant === 'oidc' ? 'btn-primary active' : 'btn-outline-primary'
 									}`}
 									onClick={() => setFlowVariant('oidc')}
 								>
-									<BootstrapIcon icon={getBootstrapIconName('shield-check')} size={16} className="me-1" />
+									<BootstrapIcon
+										icon={getBootstrapIconName('shield-check')}
+										size={16}
+										className="me-1"
+									/>
 									OpenID Connect
 								</button>
 							</div>
@@ -337,18 +327,22 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 							className="btn btn-outline-secondary btn-sm"
 							onClick={() => handleSectionToggle('flow-configuration')}
 						>
-							<BootstrapIcon 
+							<BootstrapIcon
 								icon={getBootstrapIconName(
 									expandedStates['flow-configuration'] ? 'chevron-up' : 'chevron-down'
-								)} 
-								size={16} 
+								)}
+								size={16}
 							/>
 						</button>
 					</div>
 					{expandedStates['flow-configuration'] && (
 						<div className="card-body">
 							<div className="alert alert-info">
-								<BootstrapIcon icon={getBootstrapIconName('info-circle')} size={20} className="me-2" />
+								<BootstrapIcon
+									icon={getBootstrapIconName('info-circle')}
+									size={20}
+									className="me-2"
+								/>
 								Configure your OAuth 2.0 Authorization Code Flow parameters below.
 							</div>
 							{/* Flow configuration content will go here */}
@@ -368,11 +362,11 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 							className="btn btn-outline-secondary btn-sm"
 							onClick={() => handleSectionToggle('educational-content')}
 						>
-							<BootstrapIcon 
+							<BootstrapIcon
 								icon={getBootstrapIconName(
 									expandedStates['educational-content'] ? 'chevron-up' : 'chevron-down'
-								)} 
-								size={16} 
+								)}
+								size={16}
 							/>
 						</button>
 					</div>
@@ -396,11 +390,11 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 							className="btn btn-outline-secondary btn-sm"
 							onClick={() => handleSectionToggle('security-features')}
 						>
-							<BootstrapIcon 
+							<BootstrapIcon
 								icon={getBootstrapIconName(
 									expandedStates['security-features'] ? 'chevron-up' : 'chevron-down'
-								)} 
-								size={16} 
+								)}
+								size={16}
 							/>
 						</button>
 					</div>
@@ -423,11 +417,11 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 							className="btn btn-outline-secondary btn-sm"
 							onClick={() => handleSectionToggle('code-examples')}
 						>
-							<BootstrapIcon 
+							<BootstrapIcon
 								icon={getBootstrapIconName(
 									expandedStates['code-examples'] ? 'chevron-up' : 'chevron-down'
-								)} 
-								size={16} 
+								)}
+								size={16}
 							/>
 						</button>
 					</div>
@@ -450,11 +444,11 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 							className="btn btn-outline-secondary btn-sm"
 							onClick={() => handleSectionToggle('flow-tracking')}
 						>
-							<BootstrapIcon 
+							<BootstrapIcon
 								icon={getBootstrapIconName(
 									expandedStates['flow-tracking'] ? 'chevron-up' : 'chevron-down'
-								)} 
-								size={16} 
+								)}
+								size={16}
 							/>
 						</button>
 					</div>
@@ -469,7 +463,11 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 				<div className="card">
 					<div className="card-body text-center">
 						<p className="text-muted mb-0">
-							<BootstrapIcon icon={getBootstrapIconName('info-circle')} size={16} className="me-1" />
+							<BootstrapIcon
+								icon={getBootstrapIconName('info-circle')}
+								size={16}
+								className="me-1"
+							/>
 							OAuth Authorization Code Flow V9 - PingOne UI with Enhanced Storage & Messaging
 						</p>
 					</div>

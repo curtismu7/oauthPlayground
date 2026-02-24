@@ -1,6 +1,6 @@
 /**
  * Migration Helpers for Toast to Feedback System Transition
- * 
+ *
  * This file provides utilities to help migrate from v4ToastManager
  * to the new feedback system components.
  */
@@ -36,7 +36,7 @@ export const showMessage = {
 		}
 
 		const context = options.context || determineContext(message, options);
-		
+
 		switch (context) {
 			case 'page':
 				return feedbackService.showPageBanner({
@@ -46,10 +46,10 @@ export const showMessage = {
 					dismissible: options.dismissible !== false,
 					persistent: options.persistent || false,
 				});
-				
+
 			case 'inline':
 				return feedbackService.showInlineSuccess(message, options.field);
-				
+
 			case 'snackbar':
 			default:
 				return feedbackService.showSnackbar({
@@ -69,7 +69,7 @@ export const showMessage = {
 		}
 
 		const context = options.context || determineContext(message, options);
-		
+
 		switch (context) {
 			case 'page':
 				return feedbackService.showPageBanner({
@@ -79,10 +79,10 @@ export const showMessage = {
 					dismissible: options.dismissible !== false,
 					persistent: options.persistent || false,
 				});
-				
+
 			case 'inline':
 				return feedbackService.showInlineError(message, options.field);
-				
+
 			case 'snackbar':
 			default:
 				return feedbackService.showSnackbar({
@@ -102,7 +102,7 @@ export const showMessage = {
 		}
 
 		const context = options.context || determineContext(message, options);
-		
+
 		switch (context) {
 			case 'page':
 				return feedbackService.showPageBanner({
@@ -112,11 +112,11 @@ export const showMessage = {
 					dismissible: options.dismissible !== false,
 					persistent: options.persistent || false,
 				});
-				
+
 			case 'inline':
 				// Note: showInlineInfo doesn't exist, so we use showInlineWarning for inline info
 				return feedbackService.showInlineWarning(message, options.field);
-				
+
 			case 'snackbar':
 			default:
 				return feedbackService.showSnackbar({
@@ -136,7 +136,7 @@ export const showMessage = {
 		}
 
 		const context = options.context || determineContext(message, options);
-		
+
 		switch (context) {
 			case 'page':
 				return feedbackService.showPageBanner({
@@ -146,10 +146,10 @@ export const showMessage = {
 					dismissible: options.dismissible !== false,
 					persistent: options.persistent || false,
 				});
-				
+
 			case 'inline':
 				return feedbackService.showInlineWarning(message, options.field);
-				
+
 			case 'snackbar':
 			default:
 				return feedbackService.showSnackbar({
@@ -158,7 +158,7 @@ export const showMessage = {
 					duration: options.duration || 6000,
 				});
 		}
-	}
+	},
 };
 
 /**
@@ -195,7 +195,7 @@ export const migrateToast = {
 		return showMessage.success(message, {
 			context: 'page',
 			title: 'Authentication Successful',
-			duration: 5000
+			duration: 5000,
 		});
 	},
 
@@ -206,7 +206,7 @@ export const migrateToast = {
 		return showMessage.error(message, {
 			context: 'page',
 			title: 'Authentication Failed',
-			persistent: true
+			persistent: true,
 		});
 	},
 
@@ -216,7 +216,7 @@ export const migrateToast = {
 	validationError: (message: string, field: string) => {
 		return showMessage.error(message, {
 			context: 'inline',
-			field
+			field,
 		});
 	},
 
@@ -226,7 +226,7 @@ export const migrateToast = {
 	saveSuccess: (message: string = 'Changes saved successfully') => {
 		return showMessage.success(message, {
 			context: 'snackbar',
-			duration: 3000
+			duration: 3000,
 		});
 	},
 
@@ -236,7 +236,7 @@ export const migrateToast = {
 	copySuccess: (item: string) => {
 		return showMessage.success(`${item} copied to clipboard`, {
 			context: 'snackbar',
-			duration: 2000
+			duration: 2000,
 		});
 	},
 
@@ -246,9 +246,9 @@ export const migrateToast = {
 	operationFailed: (operation: string) => {
 		return showMessage.error(`Failed to ${operation}`, {
 			context: 'snackbar',
-			duration: 5000
+			duration: 5000,
 		});
-	}
+	},
 };
 
 /**
@@ -256,7 +256,7 @@ export const migrateToast = {
  */
 export const createToastMigrator = (componentName: string) => {
 	const migrated = new Set<string>();
-	
+
 	return {
 		/**
 		 * Log migration for tracking purposes
@@ -275,8 +275,8 @@ export const createToastMigrator = (componentName: string) => {
 		getStats: () => ({
 			component: componentName,
 			migratedCalls: migrated.size,
-			totalCalls: migrated.size
-		})
+			totalCalls: migrated.size,
+		}),
 	};
 };
 
@@ -290,7 +290,10 @@ export const isMigrationEnabled = () => {
 /**
  * Development helper to preview both systems
  */
-export const previewBothSystems = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
+export const previewBothSystems = (
+	message: string,
+	type: 'success' | 'error' | 'info' = 'success'
+) => {
 	if (import.meta.env.DEV) {
 		// Show old system first
 		if (type === 'success') {
@@ -300,12 +303,12 @@ export const previewBothSystems = (message: string, type: 'success' | 'error' | 
 		} else {
 			v4ToastManager.showInfo(message);
 		}
-		
+
 		// Show new system after a delay
 		setTimeout(() => {
 			showMessage[type](message, {
 				context: 'snackbar',
-				duration: 3000
+				duration: 3000,
 			});
 		}, 1000);
 	}

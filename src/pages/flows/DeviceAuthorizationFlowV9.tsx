@@ -33,20 +33,20 @@ import {
 } from '../../hooks/useDeviceAuthorizationFlow';
 
 // MDI Icon Component for PingOne UI
-const MDIIcon: React.FC<{ icon: string; size?: number; ariaLabel?: string; color?: string }> = ({ 
-	icon, 
-	size, 
-	ariaLabel, 
-	color 
+const MDIIcon: React.FC<{ icon: string; size?: number; ariaLabel?: string; color?: string }> = ({
+	icon,
+	size,
+	ariaLabel,
+	color,
 }) => {
 	const iconClass = getMDIIconClass(icon);
 	return (
-		<i 
-			className={`mdi ${iconClass}`} 
-			style={{ 
+		<i
+			className={`mdi ${iconClass}`}
+			style={{
 				fontSize: `${size}px`,
-				color: color || 'currentColor'
-			}} 
+				color: color || 'currentColor',
+			}}
 			aria-label={ariaLabel}
 		></i>
 	);
@@ -55,21 +55,21 @@ const MDIIcon: React.FC<{ icon: string; size?: number; ariaLabel?: string; color
 // MDI Icon Mapping
 const getMDIIconClass = (fiIcon: string): string => {
 	const iconMap: Record<string, string> = {
-		'FiAlertCircle': 'mdi-alert-circle',
-		'FiAlertTriangle': 'mdi-alert-triangle',
-		'FiCheckCircle': 'mdi-check-circle',
-		'FiChevronDown': 'mdi-chevron-down',
-		'FiClock': 'mdi-clock',
-		'FiCopy': 'mdi-content-copy',
-		'FiExternalLink': 'mdi-open-in-new',
-		'FiInfo': 'mdi-information',
-		'FiKey': 'mdi-key',
-		'FiMonitor': 'mdi-monitor',
-		'FiRefreshCw': 'mdi-refresh',
-		'FiShield': 'mdi-shield-check',
-		'FiSmartphone': 'mdi-cellphone',
-		'FiX': 'mdi-close',
-		'FiZap': 'mdi-flash',
+		FiAlertCircle: 'mdi-alert-circle',
+		FiAlertTriangle: 'mdi-alert-triangle',
+		FiCheckCircle: 'mdi-check-circle',
+		FiChevronDown: 'mdi-chevron-down',
+		FiClock: 'mdi-clock',
+		FiCopy: 'mdi-content-copy',
+		FiExternalLink: 'mdi-open-in-new',
+		FiInfo: 'mdi-information',
+		FiKey: 'mdi-key',
+		FiMonitor: 'mdi-monitor',
+		FiRefreshCw: 'mdi-refresh',
+		FiShield: 'mdi-shield-check',
+		FiSmartphone: 'mdi-cellphone',
+		FiX: 'mdi-close',
+		FiZap: 'mdi-flash',
 	};
 	return iconMap[fiIcon] || fiIcon.replace('Fi', 'mdi-').toLowerCase();
 };
@@ -286,10 +286,10 @@ const CodeBlock = styled.pre`
 const DeviceAuthorizationFlowV9: React.FC = () => {
 	const location = useLocation();
 	const isOIDC = location.search.includes('variant=oidc');
-	
+
 	// Component implementation would go here
 	// This is a template showing the PingOne UI styling approach
-	
+
 	return (
 		<FlowContainer className="end-user-nano">
 			<FlowHeader>
@@ -300,13 +300,12 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 					{isOIDC ? 'OIDC' : 'OAuth 2.0'} Device Authorization Flow V9
 				</FlowTitle>
 				<FlowSubtitle>
-					{isOIDC 
+					{isOIDC
 						? 'Secure device authorization for OIDC with PingOne'
-						: 'Secure device authorization for OAuth 2.0 with PingOne'
-					}
+						: 'Secure device authorization for OAuth 2.0 with PingOne'}
 				</FlowSubtitle>
 			</FlowHeader>
-			
+
 			<StepContainer>
 				<StepHeader>
 					<StepTitle>
@@ -315,7 +314,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 					</StepTitle>
 					<StepBadge variant="primary">Step 1</StepBadge>
 				</StepHeader>
-				
+
 				<PingCard>
 					<h3>Choose Device Type</h3>
 					<div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
@@ -332,7 +331,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 							IoT Device
 						</PingButton>
 					</div>
-					
+
 					<div style={{ marginTop: '1rem' }}>
 						<h4>Device Code</h4>
 						<CodeBlock>
@@ -340,7 +339,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 User Code: 1234-5678
 Verification URL: https://example.com/device`}
 						</CodeBlock>
-						
+
 						<PingButton variant="primary" style={{ marginTop: '1rem' }}>
 							<MDIIcon icon="FiCopy" size={16} />
 							Copy User Code
@@ -348,7 +347,7 @@ Verification URL: https://example.com/device`}
 					</div>
 				</PingCard>
 			</StepContainer>
-			
+
 			<StepContainer>
 				<StepHeader>
 					<StepTitle>
@@ -357,18 +356,27 @@ Verification URL: https://example.com/device`}
 					</StepTitle>
 					<StepBadge variant="secondary">Step 2</StepBadge>
 				</StepHeader>
-				
+
 				<PingCard>
 					<h3>Scan QR Code or Visit URL</h3>
 					<div style={{ textAlign: 'center', marginBottom: '1rem' }}>
 						<QRCodeContainer>
 							{/* QR Code would be generated here */}
-							<div style={{ width: '200px', height: '200px', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+							<div
+								style={{
+									width: '200px',
+									height: '200px',
+									background: '#f0f0f0',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+								}}
+							>
 								<MDIIcon icon="FiMonitor" size={48} color="var(--ping-text-muted, #9ca3af)" />
 							</div>
 						</QRCodeContainer>
 					</div>
-					
+
 					<div style={{ textAlign: 'center' }}>
 						<p style={{ marginBottom: '1rem', color: 'var(--ping-text-secondary, #6b7280)' }}>
 							Or visit: <strong>https://example.com/device</strong>
@@ -377,14 +385,14 @@ Verification URL: https://example.com/device`}
 							Enter user code: <strong>1234-5678</strong>
 						</p>
 					</div>
-					
+
 					<PingButton variant="secondary">
 						<MDIIcon icon="FiRefreshCw" size={16} />
 						Refresh Status
 					</PingButton>
 				</PingCard>
 			</StepContainer>
-			
+
 			<StepContainer>
 				<StepHeader>
 					<StepTitle>
@@ -393,20 +401,22 @@ Verification URL: https://example.com/device`}
 					</StepTitle>
 					<StepBadge variant="success">Step 3</StepBadge>
 				</StepHeader>
-				
+
 				<PingCard>
 					<h3>Device Authorized Successfully</h3>
 					<p>Device has been authorized and tokens are ready for exchange.</p>
-					
+
 					<CodeBlock>
-{isOIDC ? `# Token Response
+						{isOIDC
+							? `# Token Response
 {
   "access_token": "eyJhbGciOiJIUzI1NiIs...",
   "id_token": "eyJhbGciOiJIUzI1NiIs...",
   "token_type": "Bearer",
   "expires_in": 3600,
   "scope": "openid profile email"
-}` : `# Token Response
+}`
+							: `# Token Response
 {
   "access_token": "eyJhbGciOiJIUzI1NiIs...",
   "token_type": "Bearer",
@@ -414,7 +424,7 @@ Verification URL: https://example.com/device`}
   "scope": "read write"
 }`}
 					</CodeBlock>
-					
+
 					<PingButton variant="primary" style={{ marginTop: '1rem' }}>
 						<MDIIcon icon="FiKey" size={16} />
 						Use Access Token

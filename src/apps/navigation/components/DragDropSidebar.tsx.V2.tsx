@@ -868,7 +868,11 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 			const targetGroup = newMenuGroups.find((g) => g.id === targetGroupId);
 			if (targetGroup) {
 				targetGroup.items.splice(targetIndex, 0, draggedItemData);
-				console.log('📥 Added item to target:', { targetGroupId, targetIndex, item: draggedItemData });
+				console.log('📥 Added item to target:', {
+					targetGroupId,
+					targetIndex,
+					item: draggedItemData,
+				});
 				setMenuGroups(newMenuGroups);
 				// Auto-save after successful drop
 				saveWithFeedback(newMenuGroups);
@@ -905,8 +909,10 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				style={{
 					transition: 'var(--ping-transition-fast, 0.15s ease-in-out)',
 					opacity: isDragging ? 0.5 : 1,
-					border: isDragTarget && dragMode ? '2px dashed var(--ping-primary-color, #0066cc)' : 'none',
-					backgroundColor: isDragTarget && dragMode ? 'var(--ping-hover-color, #f1f3f4)' : 'transparent',
+					border:
+						isDragTarget && dragMode ? '2px dashed var(--ping-primary-color, #0066cc)' : 'none',
+					backgroundColor:
+						isDragTarget && dragMode ? 'var(--ping-hover-color, #f1f3f4)' : 'transparent',
 					cursor: dragMode ? 'grab' : 'pointer',
 					...(dragMode && {
 						padding: 'var(--pingone-spacing-sm, 0.5rem)',
@@ -1008,12 +1014,15 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							<div className="ping-sidebar__drag-instructions">
 								<p>Drag and drop menu items to reorder</p>
 							</div>
-							<div className="ping-sidebar__drag-buttons" style={{ 
-								display: 'flex', 
-								gap: 'var(--pingone-spacing-xs, 0.25rem)', 
-								marginTop: 'var(--pingone-spacing-sm, 0.5rem)',
-								flexDirection: 'column'
-							}}>
+							<div
+								className="ping-sidebar__drag-buttons"
+								style={{
+									display: 'flex',
+									gap: 'var(--pingone-spacing-xs, 0.25rem)',
+									marginTop: 'var(--pingone-spacing-sm, 0.5rem)',
+									flexDirection: 'column',
+								}}
+							>
 								<button
 									type="button"
 									onClick={handleSave}
@@ -1025,7 +1034,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 										borderRadius: 'var(--pingone-border-radius, 0.25rem)',
 										fontSize: '0.75rem',
 										cursor: 'pointer',
-										transition: 'var(--ping-transition-fast, 0.15s ease-in-out)'
+										transition: 'var(--ping-transition-fast, 0.15s ease-in-out)',
 									}}
 								>
 									<span className="mdi mdi-content-save" style={{ marginRight: '0.25rem' }}></span>
@@ -1042,7 +1051,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 										borderRadius: 'var(--pingone-border-radius, 0.25rem)',
 										fontSize: '0.75rem',
 										cursor: 'pointer',
-										transition: 'var(--ping-transition-fast, 0.15s ease-in-out)'
+										transition: 'var(--ping-transition-fast, 0.15s ease-in-out)',
 									}}
 								>
 									<span className="mdi mdi-restore" style={{ marginRight: '0.25rem' }}></span>
@@ -1059,7 +1068,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 										borderRadius: 'var(--pingone-border-radius, 0.25rem)',
 										fontSize: '0.75rem',
 										cursor: 'pointer',
-										transition: 'var(--ping-transition-fast, 0.15s ease-in-out)'
+										transition: 'var(--ping-transition-fast, 0.15s ease-in-out)',
 									}}
 								>
 									<span className="mdi mdi-close" style={{ marginRight: '0.25rem' }}></span>

@@ -1,7 +1,7 @@
 // src/pages/OAuthCodeGeneratorHub.V9.tsx
 /**
  * V9 PingOne UI Upgrade - OAuth Code Generator Hub
- * 
+ *
  * V9 Upgrades Applied:
  * - Removed React Icons in favor of MDI CSS icons
  * - Added .end-user-nano namespace wrapper for Ping UI scoping
@@ -15,10 +15,10 @@
 
 import React from 'react';
 import styled from 'styled-components';
+import { showFlowSuccess } from '../components/CentralizedSuccessMessage';
 import LiveRFCExplorer from '../components/LiveRFCExplorer';
 import RealWorldScenarioBuilder from '../components/RealWorldScenarioBuilder';
 import SecurityThreatTheater from '../components/SecurityThreatTheater';
-import { showFlowSuccess } from '../components/CentralizedSuccessMessage';
 
 // Ping UI Namespace Wrapper
 const PingUIWrapper = styled.div`
@@ -362,7 +362,8 @@ const OAuthCodeGeneratorHubV9: React.FC = () => {
 							</FeatureIcon>
 							<FeatureTitle>Real-World Scenarios</FeatureTitle>
 							<FeatureDescription>
-								Banking, SaaS, Mobile, IoT — choose your use case, get pre-configured OAuth parameters
+								Banking, SaaS, Mobile, IoT — choose your use case, get pre-configured OAuth
+								parameters
 							</FeatureDescription>
 						</FeatureCard>
 
@@ -382,7 +383,8 @@ const OAuthCodeGeneratorHubV9: React.FC = () => {
 							</FeatureIcon>
 							<FeatureTitle>Security Theater</FeatureTitle>
 							<FeatureDescription>
-								Watch CSRF, replay, and interception attacks in action — see how parameters protect you
+								Watch CSRF, replay, and interception attacks in action — see how parameters protect
+								you
 							</FeatureDescription>
 						</FeatureCard>
 
@@ -435,8 +437,8 @@ const OAuthCodeGeneratorHubV9: React.FC = () => {
 						<CallToActionTitle>🎓 Ready to Implement OAuth?</CallToActionTitle>
 						<CallToActionText>
 							You now have access to production-ready code, security best practices, and real-world
-							scenarios. Pick a scenario above, choose your language, and start building secure OAuth
-							flows today!
+							scenarios. Pick a scenario above, choose your language, and start building secure
+							OAuth flows today!
 						</CallToActionText>
 						<ActionButtons>
 							<PrimaryButton

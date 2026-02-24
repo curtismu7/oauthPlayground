@@ -4,11 +4,30 @@
  * @version 9.27.0
  */
 
-import React, { useState, useEffect } from 'react';
-import { FiActivity, FiKey, FiShield, FiCopy, FiEye, FiEyeOff, FiInfo, FiAlertTriangle, FiCheckCircle, FiDatabase, FiLock, FiUnlock, FiClock, FiRefreshCw, FiTrendingUp, FiTrendingDown, FiPause, FiPlay } from 'react-icons/fi';
+import React, { useEffect, useState } from 'react';
+import {
+	FiActivity,
+	FiAlertTriangle,
+	FiCheckCircle,
+	FiClock,
+	FiCopy,
+	FiDatabase,
+	FiEye,
+	FiEyeOff,
+	FiInfo,
+	FiKey,
+	FiLock,
+	FiPause,
+	FiPlay,
+	FiRefreshCw,
+	FiShield,
+	FiTrendingDown,
+	FiTrendingUp,
+	FiUnlock,
+} from 'react-icons/fi';
 import styled from 'styled-components';
-import { PageHeaderV8, PageHeaderTextColors } from '@/v8/components/shared/PageHeaderV8';
 import BootstrapButton from '@/components/bootstrap/BootstrapButton';
+import { PageHeaderTextColors, PageHeaderV8 } from '@/v8/components/shared/PageHeaderV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const _MODULE_TAG = '[📊 TOKEN-STATUS]';
@@ -206,10 +225,8 @@ const MetricCard = styled.div<{ $trend: 'up' | 'down' | 'stable' }>`
 	border-radius: 0.5rem;
 	padding: 1.5rem;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-	border-left: 4px solid ${({ $trend }) => 
-		$trend === 'up' ? '#10b981' : 
-		$trend === 'down' ? '#ef4444' : '#6b7280'
-	};
+	border-left: 4px solid ${({ $trend }) =>
+		$trend === 'up' ? '#10b981' : $trend === 'down' ? '#ef4444' : '#6b7280'};
 `;
 
 const MetricValue = styled.div`
@@ -231,10 +248,8 @@ const MetricTrend = styled.div<{ $trend: 'up' | 'down' | 'stable' }>`
 	gap: 0.25rem;
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: ${({ $trend }) => 
-		$trend === 'up' ? '#10b981' : 
-		$trend === 'down' ? '#ef4444' : '#6b7280'
-	};
+	color: ${({ $trend }) =>
+		$trend === 'up' ? '#10b981' : $trend === 'down' ? '#ef4444' : '#6b7280'};
 `;
 
 const ActivityTable = styled.table`
@@ -265,7 +280,8 @@ const mockTokenStatuses: TokenStatus[] = [
 	{
 		id: 'access-token-1',
 		type: 'access',
-		value: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+		value:
+			'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
 		status: 'active',
 		issuedAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
 		expiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
@@ -274,7 +290,7 @@ const mockTokenStatuses: TokenStatus[] = [
 		scopes: ['openid', 'profile', 'email', 'api:read'],
 		remainingTime: 1800,
 		lastUsed: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
-		usageCount: 15
+		usageCount: 15,
 	},
 	{
 		id: 'refresh-token-1',
@@ -287,12 +303,13 @@ const mockTokenStatuses: TokenStatus[] = [
 		audience: 'client-123456',
 		remainingTime: 79200,
 		lastUsed: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-		usageCount: 3
+		usageCount: 3,
 	},
 	{
 		id: 'id-token-1',
 		type: 'id',
-		value: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiZW1haWwiOiJqb2huLmRvZUBleGFtcGxlLmNvbSIsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjoxNTE2MjM5MDIyfQ.abc123def456ghi789',
+		value:
+			'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiZW1haWwiOiJqb2huLmRvZUBleGFtcGxlLmNvbSIsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjoxNTE2MjM5MDIyfQ.abc123def456ghi789',
 		status: 'active',
 		issuedAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
 		expiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
@@ -301,7 +318,7 @@ const mockTokenStatuses: TokenStatus[] = [
 		scopes: ['openid', 'profile', 'email'],
 		remainingTime: 1800,
 		lastUsed: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
-		usageCount: 15
+		usageCount: 15,
 	},
 	{
 		id: 'worker-token-1',
@@ -314,7 +331,7 @@ const mockTokenStatuses: TokenStatus[] = [
 		audience: 'worker-service',
 		remainingTime: 900,
 		lastUsed: new Date(Date.now() - 2 * 60 * 1000).toISOString(),
-		usageCount: 25
+		usageCount: 25,
 	},
 	{
 		id: 'expired-token-1',
@@ -327,8 +344,8 @@ const mockTokenStatuses: TokenStatus[] = [
 		audience: 'client-123456',
 		remainingTime: 0,
 		lastUsed: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-		usageCount: 50
-	}
+		usageCount: 50,
+	},
 ];
 
 const mockMetrics: TokenMetrics = {
@@ -347,7 +364,7 @@ const mockMetrics: TokenMetrics = {
 			timestamp: new Date(Date.now() - 2 * 60 * 1000).toISOString(),
 			ipAddress: '192.168.1.100',
 			userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-			location: 'New York, US'
+			location: 'New York, US',
 		},
 		{
 			id: 'activity-2',
@@ -356,7 +373,7 @@ const mockMetrics: TokenMetrics = {
 			timestamp: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
 			ipAddress: '10.0.0.1',
 			userAgent: 'curl/7.68.0',
-			location: 'Server Location'
+			location: 'Server Location',
 		},
 		{
 			id: 'activity-3',
@@ -365,9 +382,9 @@ const mockMetrics: TokenMetrics = {
 			timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
 			ipAddress: '192.168.1.100',
 			userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-			location: 'New York, US'
-		}
-	]
+			location: 'New York, US',
+		},
+	],
 };
 
 export const TokenStatusPage: React.FC = () => {
@@ -380,7 +397,7 @@ export const TokenStatusPage: React.FC = () => {
 
 	const formatTimeRemaining = (seconds: number): string => {
 		if (seconds <= 0) return 'Expired';
-		
+
 		const hours = Math.floor(seconds / 3600);
 		const minutes = Math.floor((seconds % 3600) / 60);
 		const secs = seconds % 60;
@@ -409,15 +426,14 @@ export const TokenStatusPage: React.FC = () => {
 		setIsRefreshing(true);
 		try {
 			// Simulate API call to refresh token status
-			await new Promise(resolve => setTimeout(resolve, 1500));
-			
+			await new Promise((resolve) => setTimeout(resolve, 1500));
+
 			// Update token statuses with new timestamps
-			const updatedTokens = tokenStatuses.map(token => ({
+			const updatedTokens = tokenStatuses.map((token) => ({
 				...token,
-				remainingTime: token.status === 'active' ? 
-					Math.max(0, token.remainingTime! - 60) : 0
+				remainingTime: token.status === 'active' ? Math.max(0, token.remainingTime! - 60) : 0,
 			}));
-			
+
 			setTokenStatuses(updatedTokens);
 			toastV8.success('Token status refreshed successfully');
 		} catch (error) {
@@ -428,13 +444,16 @@ export const TokenStatusPage: React.FC = () => {
 	};
 
 	const copyToClipboard = (text: string, type: string) => {
-		navigator.clipboard.writeText(text).then(() => {
-			setCopiedText(type);
-			toastV8.success(`${type} copied to clipboard`);
-			setTimeout(() => setCopiedText(''), 2000);
-		}).catch(() => {
-			toastV8.error('Failed to copy to clipboard');
-		});
+		navigator.clipboard
+			.writeText(text)
+			.then(() => {
+				setCopiedText(type);
+				toastV8.success(`${type} copied to clipboard`);
+				setTimeout(() => setCopiedText(''), 2000);
+			})
+			.catch(() => {
+				toastV8.error('Failed to copy to clipboard');
+			});
 	};
 
 	const formatTokenForDisplay = (token: string): string => {
@@ -477,7 +496,7 @@ export const TokenStatusPage: React.FC = () => {
 					<FiActivity />
 					Token Metrics Overview
 				</SectionTitle>
-				
+
 				<Grid>
 					<MetricCard $trend="up">
 						<MetricLabel>Total Tokens</MetricLabel>
@@ -487,7 +506,7 @@ export const TokenStatusPage: React.FC = () => {
 							Active: {metrics.activeTokens}
 						</MetricTrend>
 					</MetricCard>
-					
+
 					<MetricCard $trend="down">
 						<MetricLabel>Expired Tokens</MetricLabel>
 						<MetricValue>{metrics.expiredTokens}</MetricValue>
@@ -496,7 +515,7 @@ export const TokenStatusPage: React.FC = () => {
 							Revoked: {metrics.revokedTokens}
 						</MetricTrend>
 					</MetricCard>
-					
+
 					<MetricCard $trend="stable">
 						<MetricLabel>Average Lifetime</MetricLabel>
 						<MetricValue>{formatTimeRemaining(metrics.averageLifetime)}</MetricValue>
@@ -505,7 +524,7 @@ export const TokenStatusPage: React.FC = () => {
 							Per Token
 						</MetricTrend>
 					</MetricCard>
-					
+
 					<MetricCard $trend="up">
 						<MetricLabel>Most Used Token</MetricLabel>
 						<MetricValue style={{ fontSize: '1.25rem' }}>
@@ -513,17 +532,13 @@ export const TokenStatusPage: React.FC = () => {
 						</MetricValue>
 						<MetricTrend $trend="up">
 							<FiTrendingUp />
-							{tokenStatuses.find(t => t.id === metrics.mostUsedToken)?.usageCount} uses
+							{tokenStatuses.find((t) => t.id === metrics.mostUsedToken)?.usageCount} uses
 						</MetricTrend>
 					</MetricCard>
 				</Grid>
-				
+
 				<ActionButtons>
-					<BootstrapButton
-						variant="primary"
-						onClick={handleRefreshStatus}
-						disabled={isRefreshing}
-					>
+					<BootstrapButton variant="primary" onClick={handleRefreshStatus} disabled={isRefreshing}>
 						{isRefreshing ? <FiRefreshCw /> : <FiRefreshCw />}
 						{isRefreshing ? 'Refreshing...' : 'Refresh Status'}
 					</BootstrapButton>
@@ -535,27 +550,69 @@ export const TokenStatusPage: React.FC = () => {
 					<FiDatabase />
 					Token Status List
 				</SectionTitle>
-				
+
 				<div style={{ overflowX: 'auto' }}>
 					<table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
 						<thead>
 							<tr style={{ background: '#f8fafc', borderBottom: '2px solid #e5e7eb' }}>
-								<th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600, color: '#1f2937' }}>
+								<th
+									style={{
+										padding: '0.75rem',
+										textAlign: 'left',
+										fontWeight: 600,
+										color: '#1f2937',
+									}}
+								>
 									Type
 								</th>
-								<th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600, color: '#1f2937' }}>
+								<th
+									style={{
+										padding: '0.75rem',
+										textAlign: 'left',
+										fontWeight: 600,
+										color: '#1f2937',
+									}}
+								>
 									Status
 								</th>
-								<th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600, color: '#1f2937' }}>
+								<th
+									style={{
+										padding: '0.75rem',
+										textAlign: 'left',
+										fontWeight: 600,
+										color: '#1f2937',
+									}}
+								>
 									Expires In
 								</th>
-								<th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600, color: '#1f2937' }}>
+								<th
+									style={{
+										padding: '0.75rem',
+										textAlign: 'left',
+										fontWeight: 600,
+										color: '#1f2937',
+									}}
+								>
 									Usage Count
 								</th>
-								<th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600, color: '#1f2937' }}>
+								<th
+									style={{
+										padding: '0.75rem',
+										textAlign: 'left',
+										fontWeight: 600,
+										color: '#1f2937',
+									}}
+								>
 									Last Used
 								</th>
-								<th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600, color: '#1f2937' }}>
+								<th
+									style={{
+										padding: '0.75rem',
+										textAlign: 'left',
+										fontWeight: 600,
+										color: '#1f2937',
+									}}
+								>
 									Actions
 								</th>
 							</tr>
@@ -567,16 +624,12 @@ export const TokenStatusPage: React.FC = () => {
 										{token.type.toUpperCase()}
 									</td>
 									<td style={{ padding: '0.75rem' }}>
-										<StatusBadge $status={token.status}>
-											{token.status}
-										</StatusBadge>
+										<StatusBadge $status={token.status}>{token.status}</StatusBadge>
 									</td>
 									<td style={{ padding: '0.75rem' }}>
 										{formatTimeRemaining(token.remainingTime || 0)}
 									</td>
-									<td style={{ padding: '0.75rem' }}>
-										{token.usageCount}
-									</td>
+									<td style={{ padding: '0.75rem' }}>{token.usageCount}</td>
 									<td style={{ padding: '0.75rem' }}>
 										{token.lastUsed ? new Date(token.lastUsed).toLocaleString() : 'Never'}
 									</td>
@@ -603,7 +656,7 @@ export const TokenStatusPage: React.FC = () => {
 						<FiKey />
 						Token Details: {selectedToken.id}
 					</SectionTitle>
-					
+
 					<TokenDisplay>
 						<TokenHeader>
 							<div>
@@ -614,16 +667,14 @@ export const TokenStatusPage: React.FC = () => {
 									Status: {selectedToken.status} | Type: {selectedToken.type}
 								</div>
 							</div>
-							<StatusBadge $status={selectedToken.status}>
-								{selectedToken.status}
-							</StatusBadge>
+							<StatusBadge $status={selectedToken.status}>{selectedToken.status}</StatusBadge>
 						</TokenHeader>
-						
+
 						<TokenContent $obfuscated={!showTokens}>
 							{formatTokenForDisplay(selectedToken.value)}
 						</TokenContent>
 					</TokenDisplay>
-					
+
 					<Grid>
 						<Card>
 							<CardTitle>
@@ -637,9 +688,7 @@ export const TokenStatusPage: React.FC = () => {
 								<dd>{selectedToken.type.toUpperCase()}</dd>
 								<dt>Status:</dt>
 								<dd>
-									<StatusBadge $status={selectedToken.status}>
-										{selectedToken.status}
-									</StatusBadge>
+									<StatusBadge $status={selectedToken.status}>{selectedToken.status}</StatusBadge>
 								</dd>
 								<dt>Expires In:</dt>
 								<dd>{formatTimeRemaining(selectedToken.remainingTime || 0)}</dd>
@@ -647,7 +696,7 @@ export const TokenStatusPage: React.FC = () => {
 								<dd>{selectedToken.usageCount}</dd>
 							</PropertyList>
 						</Card>
-						
+
 						<Card>
 							<CardTitle>
 								<FiClock />
@@ -659,12 +708,16 @@ export const TokenStatusPage: React.FC = () => {
 								<dt>Expires At:</dt>
 								<dd>{new Date(selectedToken.expiresAt).toLocaleString()}</dd>
 								<dt>Last Used:</dt>
-								<dd>{selectedToken.lastUsed ? new Date(selectedToken.lastUsed).toLocaleString() : 'Never'}</dd>
+								<dd>
+									{selectedToken.lastUsed
+										? new Date(selectedToken.lastUsed).toLocaleString()
+										: 'Never'}
+								</dd>
 								<dt>Remaining:</dt>
 								<dd>{formatTimeRemaining(selectedToken.remainingTime || 0)}</dd>
 							</PropertyList>
 						</Card>
-						
+
 						<Card>
 							<CardTitle>
 								<FiShield />
@@ -680,16 +733,13 @@ export const TokenStatusPage: React.FC = () => {
 							</PropertyList>
 						</Card>
 					</Grid>
-					
+
 					<ActionButtons>
-						<BootstrapButton
-							variant="primary"
-							onClick={() => setShowTokens(!showTokens)}
-						>
+						<BootstrapButton variant="primary" onClick={() => setShowTokens(!showTokens)}>
 							{showTokens ? <FiEyeOff /> : <FiEye />}
 							{showTokens ? 'Hide Token' : 'Show Token'}
 						</BootstrapButton>
-						
+
 						<BootstrapButton
 							variant="primary"
 							onClick={() => copyToClipboard(selectedToken.value, 'Token')}
@@ -697,11 +747,8 @@ export const TokenStatusPage: React.FC = () => {
 							{copiedText === 'Token' ? <FiRefreshCw /> : <FiCopy />}
 							{copiedText === 'Token' ? 'Copied!' : 'Copy Token'}
 						</BootstrapButton>
-						
-						<BootstrapButton
-							variant="secondary"
-							onClick={() => setSelectedToken(null)}
-						>
+
+						<BootstrapButton variant="secondary" onClick={() => setSelectedToken(null)}>
 							<FiX />
 							Close
 						</BootstrapButton>
@@ -714,23 +761,33 @@ export const TokenStatusPage: React.FC = () => {
 					<FiActivity />
 					Recent Token Activity
 				</SectionTitle>
-				
+
 				<ActivityTable>
 					<thead>
 						<tr style={{ background: '#f8fafc', borderBottom: '2px solid #e5e7eb' }}>
-							<th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600, color: '#1f2937' }}>
+							<th
+								style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600, color: '#1f2937' }}
+							>
 								Action
 							</th>
-							<th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600, color: '#1f2937' }}>
+							<th
+								style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600, color: '#1f2937' }}
+							>
 								Token ID
 							</th>
-							<th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600, color: '#1f2937' }}>
+							<th
+								style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600, color: '#1f2937' }}
+							>
 								Timestamp
 							</th>
-							<th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600, color: '#1f2937' }}>
+							<th
+								style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600, color: '#1f2937' }}
+							>
 								IP Address
 							</th>
-							<th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600, color: '#1f2937' }}>
+							<th
+								style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600, color: '#1f2937' }}
+							>
 								Location
 							</th>
 						</tr>
@@ -744,18 +801,14 @@ export const TokenStatusPage: React.FC = () => {
 										<span style={{ textTransform: 'capitalize' }}>{activity.action}</span>
 									</div>
 								</td>
-								<td style={{ padding: '0.75rem', fontFamily: 'monospace' }}>
-									{activity.tokenId}
-								</td>
+								<td style={{ padding: '0.75rem', fontFamily: 'monospace' }}>{activity.tokenId}</td>
 								<td style={{ padding: '0.75rem' }}>
 									{new Date(activity.timestamp).toLocaleString()}
 								</td>
 								<td style={{ padding: '0.75rem', fontFamily: 'monospace' }}>
 									{activity.ipAddress}
 								</td>
-								<td style={{ padding: '0.75rem' }}>
-									{activity.location}
-								</td>
+								<td style={{ padding: '0.75rem' }}>{activity.location}</td>
 							</tr>
 						))}
 					</tbody>
@@ -767,10 +820,17 @@ export const TokenStatusPage: React.FC = () => {
 					<FiShield />
 					Security Best Practices
 				</SectionTitle>
-				
+
 				<Grid>
 					<SuccessBox>
-						<h4 style={{ margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+						<h4
+							style={{
+								margin: '0 0 0.5rem 0',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+							}}
+						>
 							<FiCheckCircle /> Token Monitoring
 						</h4>
 						<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#166534' }}>
@@ -781,9 +841,16 @@ export const TokenStatusPage: React.FC = () => {
 							<li>Log all token validation activities</li>
 						</ul>
 					</SuccessBox>
-					
+
 					<SuccessBox>
-						<h4 style={{ margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+						<h4
+							style={{
+								margin: '0 0 0.5rem 0',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+							}}
+						>
 							<FiCheckCircle /> Security Monitoring
 						</h4>
 						<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#166534' }}>
@@ -794,9 +861,16 @@ export const TokenStatusPage: React.FC = () => {
 							<li>Monitor for concurrent token usage</li>
 						</ul>
 					</SuccessBox>
-					
+
 					<SuccessBox>
-						<h4 style={{ margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+						<h4
+							style={{
+								margin: '0 0 0.5rem 0',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+							}}
+						>
 							<FiCheckCircle /> Performance Optimization
 						</h4>
 						<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#166534' }}>
@@ -815,18 +889,27 @@ export const TokenStatusPage: React.FC = () => {
 					<FiAlertTriangle />
 					Troubleshooting
 				</SectionTitle>
-				
+
 				<Grid>
 					<WarningBox>
 						<h4 style={{ margin: '0 0 0.5rem 0' }}>Common Issues</h4>
 						<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#92400e' }}>
-							<li><strong>Token Status Not Updating:</strong> Check refresh interval and API connectivity</li>
-							<li><strong>Expired Tokens Still Active:</strong> Verify token validation logic</li>
-							<li><strong>Missing Token Activities:</strong> Check logging configuration</li>
-							<li><strong>Performance Issues:</strong> Optimize database queries and caching</li>
+							<li>
+								<strong>Token Status Not Updating:</strong> Check refresh interval and API
+								connectivity
+							</li>
+							<li>
+								<strong>Expired Tokens Still Active:</strong> Verify token validation logic
+							</li>
+							<li>
+								<strong>Missing Token Activities:</strong> Check logging configuration
+							</li>
+							<li>
+								<strong>Performance Issues:</strong> Optimize database queries and caching
+							</li>
 						</ul>
 					</WarningBox>
-					
+
 					<WarningBox>
 						<h4 style={{ margin: '0 0 0.5rem 0' }}>Debugging Steps</h4>
 						<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#92400e' }}>
@@ -837,7 +920,7 @@ export const TokenStatusPage: React.FC = () => {
 							<li>Monitor API response times and errors</li>
 						</ul>
 					</WarningBox>
-					
+
 					<WarningBox>
 						<h4 style={{ margin: '0 0 0.5rem 0' }}>Performance Tips</h4>
 						<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#92400e' }}>

@@ -43,7 +43,7 @@ export class PingOneAPIServiceV9 {
 
 			const response = await fetch(url, {
 				headers: {
-					'Authorization': `Bearer ${options.workerToken}`,
+					Authorization: `Bearer ${options.workerToken}`,
 					'Content-Type': 'application/json',
 				},
 			});

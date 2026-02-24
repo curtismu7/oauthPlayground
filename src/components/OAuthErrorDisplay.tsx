@@ -3,8 +3,8 @@
 
 import React from 'react';
 import { FiExternalLink } from 'react-icons/fi';
-import { OAuthErrorDetails } from '../services/oauthErrorHandlingService';
 import BootstrapButton from '../components/bootstrap/BootstrapButton';
+import { OAuthErrorDetails } from '../services/oauthErrorHandlingService';
 import StandardHeader from './StandardHeader';
 
 interface OAuthErrorDisplayProps {
@@ -98,7 +98,7 @@ const OAuthErrorDisplay: React.FC<OAuthErrorDisplayProps> = ({
 				isCollapsible={false}
 				style={{ marginBottom: '1rem' }}
 			/>
-			
+
 			{showCorrelationId && errorDetails.correlationId && (
 				<p
 					style={{
@@ -175,31 +175,44 @@ const OAuthErrorDisplay: React.FC<OAuthErrorDisplayProps> = ({
 			{/* Action Buttons */}
 			<div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginTop: '1rem' }}>
 				<BootstrapButton variant="primary" onClick={onDismiss} whiteBorder={true}>
-					<span className="mdi mdi-close" style={{ fontSize: '16px', marginRight: '0.5rem' }}></span>
+					<span
+						className="mdi mdi-close"
+						style={{ fontSize: '16px', marginRight: '0.5rem' }}
+					></span>
 					Dismiss
 				</BootstrapButton>
 
 				{onRetry && (
 					<BootstrapButton variant="success" onClick={onRetry} whiteBorder={true}>
-						<span className="mdi mdi-refresh" style={{ fontSize: '16px', marginRight: '0.5rem' }}></span>
+						<span
+							className="mdi mdi-refresh"
+							style={{ fontSize: '16px', marginRight: '0.5rem' }}
+						></span>
 						Retry
 					</BootstrapButton>
 				)}
 
 				{onClearAndRetry && (
 					<BootstrapButton variant="secondary" onClick={onClearAndRetry} whiteBorder={true}>
-						<span className="mdi mdi-refresh" style={{ fontSize: '16px', marginRight: '0.5rem' }}></span>
+						<span
+							className="mdi mdi-refresh"
+							style={{ fontSize: '16px', marginRight: '0.5rem' }}
+						></span>
 						Clear & Retry
 					</BootstrapButton>
 				)}
 
 				{/* Documentation Link */}
-				<BootstrapButton variant="primary" onClick={() =>
-					window.open(
-						'https://docs.pingidentity.com/bundle/pingone-for-customers/page/authentication.html',
-						'_blank'
-					)
-				} whiteBorder={true}>
+				<BootstrapButton
+					variant="primary"
+					onClick={() =>
+						window.open(
+							'https://docs.pingidentity.com/bundle/pingone-for-customers/page/authentication.html',
+							'_blank'
+						)
+					}
+					whiteBorder={true}
+				>
 					<FiExternalLink size={16} style={{ marginRight: '0.5rem' }} />
 					Documentation
 				</BootstrapButton>

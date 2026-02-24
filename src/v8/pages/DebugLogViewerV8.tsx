@@ -1109,872 +1109,881 @@ export const DebugLogViewerV8: React.FC = () => {
 					background: '#f3f4f6',
 				}}
 			>
-			<PageHeaderV8
-				title="Debug Log Viewer"
-				subtitle="View persistent debug logs and server log files with live tail"
-				gradient={PageHeaderGradients.unifiedOAuth}
-				textColor={PageHeaderTextColors.darkBlue}
-			/>
+				<PageHeaderV8
+					title="Debug Log Viewer"
+					subtitle="View persistent debug logs and server log files with live tail"
+					gradient={PageHeaderGradients.unifiedOAuth}
+					textColor={PageHeaderTextColors.darkBlue}
+				/>
 
-			{/* Keyboard Shortcuts Help */}
-			<div
-				style={{
-					background: '#f0f9ff',
-					border: '1px solid #bae6fd',
-					borderRadius: '8px',
-					padding: '16px',
-					marginBottom: '20px',
-					boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-				}}
-			>
-				<div style={{ fontSize: '14px', fontWeight: '600', color: '#0369a1', marginBottom: '8px' }}>
-					⌨️ Keyboard Shortcuts:
-				</div>
-				<div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', fontSize: '13px' }}>
-					<div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-						<kbd
-							style={{
-								background: '#e2e8f0',
-								border: '1px solid #cbd5e1',
-								borderRadius: '4px',
-								padding: '2px 6px',
-								fontSize: '11px',
-								fontWeight: '600',
-							}}
-						>
-							↑ Arrow
-						</kbd>
-						<span style={{ color: '#64748b' }}>Scroll to top</span>
-					</div>
-					<div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-						<kbd
-							style={{
-								background: '#e2e8f0',
-								border: '1px solid #cbd5e1',
-								borderRadius: '4px',
-								padding: '2px 6px',
-								fontSize: '11px',
-								fontWeight: '600',
-							}}
-						>
-							↓ Arrow
-						</kbd>
-						<span style={{ color: '#64748b' }}>Scroll to bottom</span>
-					</div>
-					<div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-						<kbd
-							style={{
-								background: '#e2e8f0',
-								border: '1px solid #cbd5e1',
-								borderRadius: '4px',
-								padding: '2px 6px',
-								fontSize: '11px',
-								fontWeight: '600',
-							}}
-						>
-							R
-						</kbd>
-						<span style={{ color: '#64748b' }}>Refresh logs</span>
-					</div>
-					<div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-						<kbd
-							style={{
-								background: '#e2e8f0',
-								border: '1px solid #cbd5e1',
-								borderRadius: '4px',
-								padding: '2px 6px',
-								fontSize: '11px',
-								fontWeight: '600',
-							}}
-						>
-							Delete
-						</kbd>
-						<span style={{ color: '#64748b' }}>Clear logs</span>
-					</div>
-				</div>
-				<div style={{ fontSize: '12px', color: '#64748b', marginTop: '8px', fontStyle: 'italic' }}>
-					Note: Arrow keys work directly. R and Delete require Ctrl/Cmd modifier.
-				</div>
-			</div>
-
-			{/* Source Selection */}
-			<div
-				style={{
-					background: 'white',
-					borderRadius: '8px',
-					padding: '20px',
-					marginBottom: '20px',
-					boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-				}}
-			>
-				<div style={{ marginBottom: '15px' }}>
-					<span
-						style={{ fontSize: '14px', fontWeight: '600', color: '#374151', marginRight: '12px' }}
-					>
-						Log Source:
-					</span>
-					{sourceOptions.map((option, index) => (
-						<button
-							key={option.value}
-							type="button"
-							onClick={() => setLogSource(option.value)}
-							style={{
-								padding: '8px 14px',
-								background: logSource === option.value ? '#3b82f6' : '#f3f4f6',
-								color: logSource === option.value ? 'white' : '#374151',
-								border: 'none',
-								borderRadius:
-									index === 0
-										? '6px 0 0 6px'
-										: index === sourceOptions.length - 1
-											? '0 6px 6px 0'
-											: '0',
-								fontSize: '14px',
-								fontWeight: '600',
-								cursor: 'pointer',
-								display: 'inline-flex',
-								alignItems: 'center',
-								gap: '6px',
-							}}
-						>
-							{option.icon}
-							{option.label}
-						</button>
-					))}
-				</div>
-
-				{logSource === 'localStorage' && (
-					<div style={{ marginBottom: '15px' }}>
-						<label
-							style={{
-								display: 'block',
-								fontSize: '14px',
-								fontWeight: '600',
-								color: '#374151',
-								marginBottom: '8px',
-							}}
-							htmlFor="localstorage-log-select"
-							htmlFor="selectlocalstoragelogkey"
-						>
-							Select localStorage log key:
-						</label>
-						<select
-							id="localstorage-log-select"
-							value={selectedLocalStorageLog}
-							onChange={(e) => setSelectedLocalStorageLog(e.target.value)}
-							style={{
-								width: '100%',
-								padding: '10px',
-								fontSize: '14px',
-								border: '1px solid #d1d5db',
-								borderRadius: '6px',
-								background: 'white',
-							}}
-						>
-							{availableLocalStorageLogs.map((key) => (
-								<option key={key} value={key}>
-									{key}
-								</option>
-							))}
-						</select>
-					</div>
-				)}
-
-				{logSource === 'indexedDB' && (
-					<div style={{ marginBottom: '15px' }}>
-						<label
-							style={{
-								display: 'block',
-								fontSize: '14px',
-								fontWeight: '600',
-								color: '#374151',
-								marginBottom: '8px',
-							}}
-							htmlFor="indexeddb-target-select"
-							htmlFor="selectindexeddbtarget"
-						>
-							Select IndexedDB target:
-						</label>
-						<select
-							id="indexeddb-target-select"
-							value={selectedIndexedDBTarget}
-							onChange={(e) => setSelectedIndexedDBTarget(e.target.value)}
-							style={{
-								width: '100%',
-								padding: '10px',
-								fontSize: '14px',
-								border: '1px solid #d1d5db',
-								borderRadius: '6px',
-								background: 'white',
-							}}
-						>
-							{INDEXED_DB_TARGETS.map((target) => (
-								<option
-									key={`${target.dbName}|${target.storeName}`}
-									value={`${target.dbName}|${target.storeName}`}
-								>
-									{target.label} ({target.dbName}.{target.storeName})
-								</option>
-							))}
-						</select>
-					</div>
-				)}
-
-				{logSource === 'sqlite' && (
-					<div style={{ marginBottom: '15px' }}>
-						<label
-							style={{
-								display: 'block',
-								fontSize: '14px',
-								fontWeight: '600',
-								color: '#374151',
-								marginBottom: '8px',
-							}}
-							htmlFor="sqlite-target-select"
-							htmlFor="selectsqliteendpoint"
-						>
-							Select SQLite endpoint:
-						</label>
-						<select
-							id="sqlite-target-select"
-							value={selectedSQLiteTarget}
-							onChange={(e) => setSelectedSQLiteTarget(e.target.value)}
-							style={{
-								width: '100%',
-								padding: '10px',
-								fontSize: '14px',
-								border: '1px solid #d1d5db',
-								borderRadius: '6px',
-								background: 'white',
-							}}
-						>
-							{SQLITE_TARGETS.map((target) => (
-								<option key={target.endpoint} value={target.endpoint}>
-									{target.label} ({target.endpoint})
-								</option>
-							))}
-						</select>
-					</div>
-				)}
-
-				{/* File Selection */}
-				{logSource === 'file' && (
-					<div style={{ marginBottom: '15px' }}>
-						<label
-							style={{
-								display: 'block',
-								fontSize: '14px',
-								fontWeight: '600',
-								color: '#374151',
-								marginBottom: '8px',
-							}}
-							htmlFor="log-file-select"
-							htmlFor="selectlogfile"
-						>
-							Select Log File:
-						</label>
-						<select
-							id="log-file-select"
-							value={selectedFile}
-							onChange={(e) => setSelectedFile(e.target.value)}
-							style={{
-								width: '100%',
-								padding: '10px',
-								fontSize: '14px',
-								border: '1px solid #d1d5db',
-								borderRadius: '6px',
-								background: 'white',
-								cursor: 'pointer',
-							}}
-						>
-							{Object.entries(groupedFiles).map(([category, files]) => (
-								<optgroup key={category} label={categoryLabels[category] || category}>
-									{files.map((file) => (
-										<option key={file.name} value={file.name}>
-											{file.name} ({LogFileService.formatFileSize(file.size)})
-											{LogFileService.isLargeFile(file.size) && ' ⚠️ Large'}
-										</option>
-									))}
-								</optgroup>
-							))}
-						</select>
-					</div>
-				)}
-
-				{/* Line Count Selection */}
-				{logSource === 'file' && (
-					<div style={{ marginBottom: '15px' }}>
-						<label
-							style={{
-								display: 'block',
-								fontSize: '14px',
-								fontWeight: '600',
-								color: '#374151',
-								marginBottom: '8px',
-							}}
-							htmlFor="line-count-select"
-							htmlFor="linestoshow"
-						>
-							Lines to show:
-						</label>
-						<div style={{ display: 'flex', gap: '8px' }} id="line-count-select">
-							{[100, 500, 1000].map((count) => (
-								<button
-									key={count}
-									type="button"
-									onClick={() => setLineCount(count)}
-									style={{
-										padding: '8px 16px',
-										background: lineCount === count ? '#3b82f6' : '#f3f4f6',
-										color: lineCount === count ? 'white' : '#374151',
-										border: 'none',
-										borderRadius: '6px',
-										fontSize: '14px',
-										fontWeight: '600',
-										cursor: 'pointer',
-									}}
-								>
-									{count}
-								</button>
-							))}
-						</div>
-					</div>
-				)}
-
-				{/* Controls */}
+				{/* Keyboard Shortcuts Help */}
 				<div
 					style={{
-						display: 'flex',
-						gap: '15px',
-						flexWrap: 'wrap',
-						alignItems: 'center',
+						background: '#f0f9ff',
+						border: '1px solid #bae6fd',
+						borderRadius: '8px',
+						padding: '16px',
+						marginBottom: '20px',
+						boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
 					}}
 				>
-					<button
-						type="button"
-						onClick={() =>
-							logSource === 'localStorage'
-								? loadLocalStorageLogs()
-								: logSource === 'indexedDB'
-									? void loadIndexedDBLogs()
-									: logSource === 'sqlite'
-										? void loadSQLiteLogs()
-										: void loadFileLogs()
-						}
-						disabled={isLoading}
-						style={{
-							display: 'flex',
-							alignItems: 'center',
-							gap: '8px',
-							padding: '10px 16px',
-							background: isLoading ? '#9ca3af' : '#3b82f6',
-							color: 'white',
-							border: 'none',
-							borderRadius: '6px',
-							fontSize: '14px',
-							fontWeight: '600',
-							cursor: isLoading ? 'not-allowed' : 'pointer',
-						}}
+					<div
+						style={{ fontSize: '14px', fontWeight: '600', color: '#0369a1', marginBottom: '8px' }}
 					>
-						<FiRefreshCw size={16} />
-						{isLoading ? 'Loading...' : 'Refresh'}
-					</button>
+						⌨️ Keyboard Shortcuts:
+					</div>
+					<div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', fontSize: '13px' }}>
+						<div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+							<kbd
+								style={{
+									background: '#e2e8f0',
+									border: '1px solid #cbd5e1',
+									borderRadius: '4px',
+									padding: '2px 6px',
+									fontSize: '11px',
+									fontWeight: '600',
+								}}
+							>
+								↑ Arrow
+							</kbd>
+							<span style={{ color: '#64748b' }}>Scroll to top</span>
+						</div>
+						<div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+							<kbd
+								style={{
+									background: '#e2e8f0',
+									border: '1px solid #cbd5e1',
+									borderRadius: '4px',
+									padding: '2px 6px',
+									fontSize: '11px',
+									fontWeight: '600',
+								}}
+							>
+								↓ Arrow
+							</kbd>
+							<span style={{ color: '#64748b' }}>Scroll to bottom</span>
+						</div>
+						<div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+							<kbd
+								style={{
+									background: '#e2e8f0',
+									border: '1px solid #cbd5e1',
+									borderRadius: '4px',
+									padding: '2px 6px',
+									fontSize: '11px',
+									fontWeight: '600',
+								}}
+							>
+								R
+							</kbd>
+							<span style={{ color: '#64748b' }}>Refresh logs</span>
+						</div>
+						<div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+							<kbd
+								style={{
+									background: '#e2e8f0',
+									border: '1px solid #cbd5e1',
+									borderRadius: '4px',
+									padding: '2px 6px',
+									fontSize: '11px',
+									fontWeight: '600',
+								}}
+							>
+								Delete
+							</kbd>
+							<span style={{ color: '#64748b' }}>Clear logs</span>
+						</div>
+					</div>
+					<div
+						style={{ fontSize: '12px', color: '#64748b', marginTop: '8px', fontStyle: 'italic' }}
+					>
+						Note: Arrow keys work directly. R and Delete require Ctrl/Cmd modifier.
+					</div>
+				</div>
 
-					{logSource === 'file' && (
-						<label
-							style={{
-								display: 'flex',
-								alignItems: 'center',
-								gap: '8px',
-								fontSize: '14px',
-								cursor: 'pointer',
-							}}
+				{/* Source Selection */}
+				<div
+					style={{
+						background: 'white',
+						borderRadius: '8px',
+						padding: '20px',
+						marginBottom: '20px',
+						boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+					}}
+				>
+					<div style={{ marginBottom: '15px' }}>
+						<span
+							style={{ fontSize: '14px', fontWeight: '600', color: '#374151', marginRight: '12px' }}
 						>
-							<input
-								type="checkbox"
-								checked={tailMode}
-								onChange={(e) => setTailMode(e.target.checked)}
-								style={{ cursor: 'pointer' }}
-							/>
-							Tail Mode (Live - 1s refresh)
-						</label>
+							Log Source:
+						</span>
+						{sourceOptions.map((option, index) => (
+							<button
+								key={option.value}
+								type="button"
+								onClick={() => setLogSource(option.value)}
+								style={{
+									padding: '8px 14px',
+									background: logSource === option.value ? '#3b82f6' : '#f3f4f6',
+									color: logSource === option.value ? 'white' : '#374151',
+									border: 'none',
+									borderRadius:
+										index === 0
+											? '6px 0 0 6px'
+											: index === sourceOptions.length - 1
+												? '0 6px 6px 0'
+												: '0',
+									fontSize: '14px',
+									fontWeight: '600',
+									cursor: 'pointer',
+									display: 'inline-flex',
+									alignItems: 'center',
+									gap: '6px',
+								}}
+							>
+								{option.icon}
+								{option.label}
+							</button>
+						))}
+					</div>
+
+					{logSource === 'localStorage' && (
+						<div style={{ marginBottom: '15px' }}>
+							<label
+								style={{
+									display: 'block',
+									fontSize: '14px',
+									fontWeight: '600',
+									color: '#374151',
+									marginBottom: '8px',
+								}}
+								htmlFor="localstorage-log-select"
+								htmlFor="selectlocalstoragelogkey"
+							>
+								Select localStorage log key:
+							</label>
+							<select
+								id="localstorage-log-select"
+								value={selectedLocalStorageLog}
+								onChange={(e) => setSelectedLocalStorageLog(e.target.value)}
+								style={{
+									width: '100%',
+									padding: '10px',
+									fontSize: '14px',
+									border: '1px solid #d1d5db',
+									borderRadius: '6px',
+									background: 'white',
+								}}
+							>
+								{availableLocalStorageLogs.map((key) => (
+									<option key={key} value={key}>
+										{key}
+									</option>
+								))}
+							</select>
+						</div>
 					)}
 
-					<button
-						type="button"
-						onClick={clearLogs}
-						disabled={isClearing}
+					{logSource === 'indexedDB' && (
+						<div style={{ marginBottom: '15px' }}>
+							<label
+								style={{
+									display: 'block',
+									fontSize: '14px',
+									fontWeight: '600',
+									color: '#374151',
+									marginBottom: '8px',
+								}}
+								htmlFor="indexeddb-target-select"
+								htmlFor="selectindexeddbtarget"
+							>
+								Select IndexedDB target:
+							</label>
+							<select
+								id="indexeddb-target-select"
+								value={selectedIndexedDBTarget}
+								onChange={(e) => setSelectedIndexedDBTarget(e.target.value)}
+								style={{
+									width: '100%',
+									padding: '10px',
+									fontSize: '14px',
+									border: '1px solid #d1d5db',
+									borderRadius: '6px',
+									background: 'white',
+								}}
+							>
+								{INDEXED_DB_TARGETS.map((target) => (
+									<option
+										key={`${target.dbName}|${target.storeName}`}
+										value={`${target.dbName}|${target.storeName}`}
+									>
+										{target.label} ({target.dbName}.{target.storeName})
+									</option>
+								))}
+							</select>
+						</div>
+					)}
+
+					{logSource === 'sqlite' && (
+						<div style={{ marginBottom: '15px' }}>
+							<label
+								style={{
+									display: 'block',
+									fontSize: '14px',
+									fontWeight: '600',
+									color: '#374151',
+									marginBottom: '8px',
+								}}
+								htmlFor="sqlite-target-select"
+								htmlFor="selectsqliteendpoint"
+							>
+								Select SQLite endpoint:
+							</label>
+							<select
+								id="sqlite-target-select"
+								value={selectedSQLiteTarget}
+								onChange={(e) => setSelectedSQLiteTarget(e.target.value)}
+								style={{
+									width: '100%',
+									padding: '10px',
+									fontSize: '14px',
+									border: '1px solid #d1d5db',
+									borderRadius: '6px',
+									background: 'white',
+								}}
+							>
+								{SQLITE_TARGETS.map((target) => (
+									<option key={target.endpoint} value={target.endpoint}>
+										{target.label} ({target.endpoint})
+									</option>
+								))}
+							</select>
+						</div>
+					)}
+
+					{/* File Selection */}
+					{logSource === 'file' && (
+						<div style={{ marginBottom: '15px' }}>
+							<label
+								style={{
+									display: 'block',
+									fontSize: '14px',
+									fontWeight: '600',
+									color: '#374151',
+									marginBottom: '8px',
+								}}
+								htmlFor="log-file-select"
+								htmlFor="selectlogfile"
+							>
+								Select Log File:
+							</label>
+							<select
+								id="log-file-select"
+								value={selectedFile}
+								onChange={(e) => setSelectedFile(e.target.value)}
+								style={{
+									width: '100%',
+									padding: '10px',
+									fontSize: '14px',
+									border: '1px solid #d1d5db',
+									borderRadius: '6px',
+									background: 'white',
+									cursor: 'pointer',
+								}}
+							>
+								{Object.entries(groupedFiles).map(([category, files]) => (
+									<optgroup key={category} label={categoryLabels[category] || category}>
+										{files.map((file) => (
+											<option key={file.name} value={file.name}>
+												{file.name} ({LogFileService.formatFileSize(file.size)})
+												{LogFileService.isLargeFile(file.size) && ' ⚠️ Large'}
+											</option>
+										))}
+									</optgroup>
+								))}
+							</select>
+						</div>
+					)}
+
+					{/* Line Count Selection */}
+					{logSource === 'file' && (
+						<div style={{ marginBottom: '15px' }}>
+							<label
+								style={{
+									display: 'block',
+									fontSize: '14px',
+									fontWeight: '600',
+									color: '#374151',
+									marginBottom: '8px',
+								}}
+								htmlFor="line-count-select"
+								htmlFor="linestoshow"
+							>
+								Lines to show:
+							</label>
+							<div style={{ display: 'flex', gap: '8px' }} id="line-count-select">
+								{[100, 500, 1000].map((count) => (
+									<button
+										key={count}
+										type="button"
+										onClick={() => setLineCount(count)}
+										style={{
+											padding: '8px 16px',
+											background: lineCount === count ? '#3b82f6' : '#f3f4f6',
+											color: lineCount === count ? 'white' : '#374151',
+											border: 'none',
+											borderRadius: '6px',
+											fontSize: '14px',
+											fontWeight: '600',
+											cursor: 'pointer',
+										}}
+									>
+										{count}
+									</button>
+								))}
+							</div>
+						</div>
+					)}
+
+					{/* Controls */}
+					<div
 						style={{
 							display: 'flex',
+							gap: '15px',
+							flexWrap: 'wrap',
 							alignItems: 'center',
-							gap: '8px',
-							padding: '10px 16px',
-							background: '#ef4444',
-							color: 'white',
-							border: 'none',
-							borderRadius: '6px',
-							fontSize: '14px',
-							fontWeight: '600',
-							cursor: isClearing ? 'not-allowed' : 'pointer',
-							opacity: isClearing ? 0.7 : 1,
 						}}
 					>
-						{isClearing ? (
-							<>
-								<div
-									style={{
-										width: '16px',
-										height: '16px',
-										border: '2px solid #ffffff',
-										borderTop: '2px solid transparent',
-										borderRadius: '50%',
-										animation: 'spin 1s linear infinite',
-									}}
-								/>
-								Clearing...
-							</>
-						) : (
-							<>
-								<FiTrash2 size={16} />
-								Clear
-							</>
-						)}
-					</button>
-
-					<button
-						type="button"
-						onClick={exportLogs}
-						disabled={isExporting}
-						style={{
-							display: 'flex',
-							alignItems: 'center',
-							gap: '8px',
-							padding: '10px 16px',
-							background: '#3b82f6',
-							color: 'white',
-							border: 'none',
-							borderRadius: '6px',
-							fontSize: '14px',
-							fontWeight: '600',
-							cursor: isExporting ? 'not-allowed' : 'pointer',
-							opacity: isExporting ? 0.7 : 1,
-						}}
-					>
-						{isExporting ? (
-							<>
-								<div
-									style={{
-										width: '16px',
-										height: '16px',
-										border: '2px solid #ffffff',
-										borderTop: '2px solid transparent',
-										borderRadius: '50%',
-										animation: 'spin 1s linear infinite',
-									}}
-								/>
-								Exporting...
-							</>
-						) : (
-							<>
-								<FiDownload size={16} />
-								Export
-							</>
-						)}
-					</button>
-
-					{!isPopoutWindow() && (
 						<button
 							type="button"
-							onClick={openDebugLogViewerPopout}
+							onClick={() =>
+								logSource === 'localStorage'
+									? loadLocalStorageLogs()
+									: logSource === 'indexedDB'
+										? void loadIndexedDBLogs()
+										: logSource === 'sqlite'
+											? void loadSQLiteLogs()
+											: void loadFileLogs()
+							}
+							disabled={isLoading}
 							style={{
 								display: 'flex',
 								alignItems: 'center',
 								gap: '8px',
 								padding: '10px 16px',
-								background: '#6366f1',
+								background: isLoading ? '#9ca3af' : '#3b82f6',
 								color: 'white',
 								border: 'none',
 								borderRadius: '6px',
 								fontSize: '14px',
 								fontWeight: '600',
-								cursor: 'pointer',
+								cursor: isLoading ? 'not-allowed' : 'pointer',
 							}}
-							title="Open in new window (stays on top of other apps)"
 						>
-							<FiExternalLink size={16} />
-							Popout
+							<FiRefreshCw size={16} />
+							{isLoading ? 'Loading...' : 'Refresh'}
 						</button>
-					)}
 
-					<div
-						style={{
-							marginLeft: 'auto',
-							fontSize: '14px',
-							color: '#6b7280',
-							fontWeight: '600',
-						}}
-					>
-						{logSource !== 'file'
-							? `${filteredLogs.length} ${filteredLogs.length === 1 ? 'entry' : 'entries'}`
-							: `${fileContent.split('\n').length} lines`}
-					</div>
-				</div>
-
-				{/* Category Filter (non-file sources) */}
-				{logSource !== 'file' && (
-					<div
-						style={{
-							display: 'flex',
-							gap: '8px',
-							flexWrap: 'wrap',
-							marginTop: '15px',
-						}}
-					>
-						<span
-							style={{ fontSize: '14px', fontWeight: '600', color: '#374151', marginRight: '8px' }}
-						>
-							Filter by category:
-						</span>
-						{categories.map((category) => (
-							<button
-								key={category}
-								type="button"
-								onClick={() => setSelectedCategory(category)}
+						{logSource === 'file' && (
+							<label
 								style={{
-									padding: '6px 12px',
-									background:
-										selectedCategory === category ? getCategoryColor(category) : '#f3f4f6',
-									color: selectedCategory === category ? 'white' : '#374151',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '8px',
+									fontSize: '14px',
+									cursor: 'pointer',
+								}}
+							>
+								<input
+									type="checkbox"
+									checked={tailMode}
+									onChange={(e) => setTailMode(e.target.checked)}
+									style={{ cursor: 'pointer' }}
+								/>
+								Tail Mode (Live - 1s refresh)
+							</label>
+						)}
+
+						<button
+							type="button"
+							onClick={clearLogs}
+							disabled={isClearing}
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: '8px',
+								padding: '10px 16px',
+								background: '#ef4444',
+								color: 'white',
+								border: 'none',
+								borderRadius: '6px',
+								fontSize: '14px',
+								fontWeight: '600',
+								cursor: isClearing ? 'not-allowed' : 'pointer',
+								opacity: isClearing ? 0.7 : 1,
+							}}
+						>
+							{isClearing ? (
+								<>
+									<div
+										style={{
+											width: '16px',
+											height: '16px',
+											border: '2px solid #ffffff',
+											borderTop: '2px solid transparent',
+											borderRadius: '50%',
+											animation: 'spin 1s linear infinite',
+										}}
+									/>
+									Clearing...
+								</>
+							) : (
+								<>
+									<FiTrash2 size={16} />
+									Clear
+								</>
+							)}
+						</button>
+
+						<button
+							type="button"
+							onClick={exportLogs}
+							disabled={isExporting}
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: '8px',
+								padding: '10px 16px',
+								background: '#3b82f6',
+								color: 'white',
+								border: 'none',
+								borderRadius: '6px',
+								fontSize: '14px',
+								fontWeight: '600',
+								cursor: isExporting ? 'not-allowed' : 'pointer',
+								opacity: isExporting ? 0.7 : 1,
+							}}
+						>
+							{isExporting ? (
+								<>
+									<div
+										style={{
+											width: '16px',
+											height: '16px',
+											border: '2px solid #ffffff',
+											borderTop: '2px solid transparent',
+											borderRadius: '50%',
+											animation: 'spin 1s linear infinite',
+										}}
+									/>
+									Exporting...
+								</>
+							) : (
+								<>
+									<FiDownload size={16} />
+									Export
+								</>
+							)}
+						</button>
+
+						{!isPopoutWindow() && (
+							<button
+								type="button"
+								onClick={openDebugLogViewerPopout}
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: '8px',
+									padding: '10px 16px',
+									background: '#6366f1',
+									color: 'white',
 									border: 'none',
-									borderRadius: '4px',
-									fontSize: '13px',
+									borderRadius: '6px',
+									fontSize: '14px',
 									fontWeight: '600',
 									cursor: 'pointer',
-									transition: 'all 0.2s ease',
+								}}
+								title="Open in new window (stays on top of other apps)"
+							>
+								<FiExternalLink size={16} />
+								Popout
+							</button>
+						)}
+
+						<div
+							style={{
+								marginLeft: 'auto',
+								fontSize: '14px',
+								color: '#6b7280',
+								fontWeight: '600',
+							}}
+						>
+							{logSource !== 'file'
+								? `${filteredLogs.length} ${filteredLogs.length === 1 ? 'entry' : 'entries'}`
+								: `${fileContent.split('\n').length} lines`}
+						</div>
+					</div>
+
+					{/* Category Filter (non-file sources) */}
+					{logSource !== 'file' && (
+						<div
+							style={{
+								display: 'flex',
+								gap: '8px',
+								flexWrap: 'wrap',
+								marginTop: '15px',
+							}}
+						>
+							<span
+								style={{
+									fontSize: '14px',
+									fontWeight: '600',
+									color: '#374151',
+									marginRight: '8px',
 								}}
 							>
-								{category}
-							</button>
-						))}
+								Filter by category:
+							</span>
+							{categories.map((category) => (
+								<button
+									key={category}
+									type="button"
+									onClick={() => setSelectedCategory(category)}
+									style={{
+										padding: '6px 12px',
+										background:
+											selectedCategory === category ? getCategoryColor(category) : '#f3f4f6',
+										color: selectedCategory === category ? 'white' : '#374151',
+										border: 'none',
+										borderRadius: '4px',
+										fontSize: '13px',
+										fontWeight: '600',
+										cursor: 'pointer',
+										transition: 'all 0.2s ease',
+									}}
+								>
+									{category}
+								</button>
+							))}
+						</div>
+					)}
+				</div>
+
+				{/* Error Display */}
+				{error && (
+					<div
+						style={{
+							background: '#fef2f2',
+							border: '1px solid #fecaca',
+							borderRadius: '8px',
+							padding: '16px',
+							marginBottom: '20px',
+							color: '#991b1b',
+							fontSize: '14px',
+						}}
+					>
+						<strong>Error:</strong> {error}
 					</div>
 				)}
-			</div>
 
-			{/* Error Display */}
-			{error && (
+				{/* Log Content */}
 				<div
+					ref={logContainerRef}
 					style={{
-						background: '#fef2f2',
-						border: '1px solid #fecaca',
+						background: 'white',
 						borderRadius: '8px',
-						padding: '16px',
-						marginBottom: '20px',
-						color: '#991b1b',
-						fontSize: '14px',
+						padding: '20px',
+						boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+						maxHeight: '70vh',
+						overflowY: 'auto',
 					}}
 				>
-					<strong>Error:</strong> {error}
-				</div>
-			)}
-
-			{/* Log Content */}
-			<div
-				ref={logContainerRef}
-				style={{
-					background: 'white',
-					borderRadius: '8px',
-					padding: '20px',
-					boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-					maxHeight: '70vh',
-					overflowY: 'auto',
-				}}
-			>
-				{logSource !== 'file' ? (
-					// non-file logs display
-					filteredLogs.length === 0 ? (
-						<div
-							style={{
-								textAlign: 'center',
-								padding: '40px',
-								color: '#6b7280',
-							}}
-						>
-							<p style={{ fontSize: '16px', marginBottom: '8px' }}>No debug logs found</p>
-							<p style={{ fontSize: '14px' }}>Navigate through MFA flows to generate logs</p>
-						</div>
-					) : (
-						<div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-							{filteredLogs.map((log, index) => {
-								const isExpanded = expandedLogs.has(index);
-								const hasData = log.data && Object.keys(log.data).length > 0;
-
-								return (
-									<div
-										key={index}
-										style={{
-											border: '1px solid #e5e7eb',
-											borderTop: `3px solid ${getLevelColor(log.level)}`,
-											borderLeft: `4px solid ${getCategoryColor(log.category)}`,
-											borderRadius: '6px',
-											padding: '12px',
-											background: index % 2 === 0 ? '#f9fafb' : '#f3f4f6',
-											marginBottom: '8px',
-											boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
-											position: 'relative',
-											overflow: 'hidden',
-										}}
-									>
-										<div
-											style={{
-												fontSize: '11px',
-												color: '#6b7280',
-												fontWeight: '600',
-												marginBottom: '8px',
-												fontFamily: 'monospace',
-											}}
-										>
-											{buildTransactionMarker(log.timestamp, log.message, 'ENTRY')}
-										</div>
-										<div
-											style={{
-												display: 'flex',
-												alignItems: 'flex-start',
-												gap: '12px',
-											}}
-										>
-											<div
-												style={{
-													padding: '4px 8px',
-													background: getLevelColor(log.level),
-													color: 'white',
-													borderRadius: '4px',
-													fontSize: '11px',
-													fontWeight: '700',
-													minWidth: '50px',
-													textAlign: 'center',
-												}}
-											>
-												{log.level}
-											</div>
-
-											<div
-												style={{
-													padding: '4px 8px',
-													background: getCategoryColor(log.category),
-													color: 'white',
-													borderRadius: '4px',
-													fontSize: '11px',
-													fontWeight: '600',
-													minWidth: '100px',
-													textAlign: 'center',
-												}}
-											>
-												{log.category}
-											</div>
-
-											<div style={{ flex: 1 }}>
-												<div
-													style={{
-														fontSize: '13px',
-														color: '#000000',
-														marginBottom: '4px',
-														fontWeight: '500',
-													}}
-												>
-													{log.message}
-												</div>
-												<div
-													style={{
-														fontSize: '11px',
-														color: '#374151',
-													}}
-												>
-													{new Date(log.timestamp).toLocaleString()}
-												</div>
-												{log.url && (
-													<div
-														style={{
-															fontSize: '11px',
-															color: '#374151',
-															marginTop: '4px',
-															wordBreak: 'break-all',
-														}}
-													>
-														URL: {log.url}
-													</div>
-												)}
-											</div>
-
-											{hasData && (
-												<button
-													type="button"
-													onClick={() => toggleLogExpansion(index)}
-													style={{
-														padding: '6px',
-														background: 'transparent',
-														border: '1px solid #d1d5db',
-														borderRadius: '4px',
-														cursor: 'pointer',
-														display: 'flex',
-														alignItems: 'center',
-														justifyContent: 'center',
-													}}
-													title={isExpanded ? 'Hide details' : 'Show details'}
-												>
-													{isExpanded ? <FiEyeOff size={14} /> : <FiEye size={14} />}
-												</button>
-											)}
-										</div>
-
-										{isExpanded && hasData && (
-											<div
-												style={{
-													marginTop: '12px',
-													padding: '12px',
-													background: '#1f2937',
-													borderRadius: '4px',
-													overflow: 'auto',
-												}}
-											>
-												<pre
-													style={{
-														margin: 0,
-														fontSize: '11px',
-														color: '#d1d5db',
-														fontFamily: 'monospace',
-														whiteSpace: 'pre-wrap',
-														wordBreak: 'break-word',
-													}}
-												>
-													{JSON.stringify(log.data, null, 2)}
-												</pre>
-											</div>
-										)}
-									</div>
-								);
-							})}
-						</div>
-					)
-				) : // File content display
-				fileContent ? (
-					<>
-						{isContentTruncated && (
+					{logSource !== 'file' ? (
+						// non-file logs display
+						filteredLogs.length === 0 ? (
 							<div
 								style={{
-									background: '#fef3c7',
-									border: '1px solid #f59e0b',
-									borderRadius: '4px',
-									padding: '12px',
-									marginBottom: '16px',
-									color: '#92400e',
-									fontSize: '13px',
-									fontWeight: '500',
+									textAlign: 'center',
+									padding: '40px',
+									color: '#6b7280',
 								}}
 							>
-								⚠️ File content truncated due to size limit
-								<br />
-								Original size: {(originalFileSize / 1024 / 1024).toFixed(2)} MB
-								<br />
-								Displaying: {(MAX_STRING_LENGTH / 1024 / 1024).toFixed(2)} MB
-								<br />
-								File: {selectedFile}
-								<br />
-								Use tail mode or reduce line count to see recent content.
+								<p style={{ fontSize: '16px', marginBottom: '8px' }}>No debug logs found</p>
+								<p style={{ fontSize: '14px' }}>Navigate through MFA flows to generate logs</p>
 							</div>
-						)}
-						<div
-							style={{
-								background: '#ffffff',
-								borderRadius: '4px',
-								padding: '8px',
-								maxHeight: '600px',
-								border: '1px solid #e5e7eb',
-								overflow: 'auto',
-							}}
-						>
-							<div
-								style={{
-									fontSize: '12px',
-									color: '#111827',
-									fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
-									lineHeight: '1.55',
-								}}
-							>
-								{fileContent.split('\n').map((line, index) => {
-									const lineTimestamp = getIsoTimestampFromLine(line) ?? new Date().toISOString();
-									const marker = buildTransactionMarker(
-										lineTimestamp,
-										line || '(empty line)',
-										'FILE'
-									);
+						) : (
+							<div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+								{filteredLogs.map((log, index) => {
+									const isExpanded = expandedLogs.has(index);
+									const hasData = log.data && Object.keys(log.data).length > 0;
 
 									return (
 										<div
 											key={index}
 											style={{
-												padding: '8px 10px',
-												borderBottom: '1px solid #e5e7eb',
-												borderLeft: '3px solid #d1d5db',
-												background: index % 2 === 0 ? '#f9fafb' : '#ffffff',
-												whiteSpace: 'pre-wrap',
-												wordBreak: 'break-word',
+												border: '1px solid #e5e7eb',
+												borderTop: `3px solid ${getLevelColor(log.level)}`,
+												borderLeft: `4px solid ${getCategoryColor(log.category)}`,
+												borderRadius: '6px',
+												padding: '12px',
+												background: index % 2 === 0 ? '#f9fafb' : '#f3f4f6',
+												marginBottom: '8px',
+												boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
+												position: 'relative',
+												overflow: 'hidden',
 											}}
 										>
 											<div
 												style={{
 													fontSize: '11px',
 													color: '#6b7280',
-													marginBottom: '5px',
 													fontWeight: '600',
+													marginBottom: '8px',
+													fontFamily: 'monospace',
 												}}
 											>
-												{marker}
+												{buildTransactionMarker(log.timestamp, log.message, 'ENTRY')}
 											</div>
-											{colorizeLogLine(line)}
+											<div
+												style={{
+													display: 'flex',
+													alignItems: 'flex-start',
+													gap: '12px',
+												}}
+											>
+												<div
+													style={{
+														padding: '4px 8px',
+														background: getLevelColor(log.level),
+														color: 'white',
+														borderRadius: '4px',
+														fontSize: '11px',
+														fontWeight: '700',
+														minWidth: '50px',
+														textAlign: 'center',
+													}}
+												>
+													{log.level}
+												</div>
+
+												<div
+													style={{
+														padding: '4px 8px',
+														background: getCategoryColor(log.category),
+														color: 'white',
+														borderRadius: '4px',
+														fontSize: '11px',
+														fontWeight: '600',
+														minWidth: '100px',
+														textAlign: 'center',
+													}}
+												>
+													{log.category}
+												</div>
+
+												<div style={{ flex: 1 }}>
+													<div
+														style={{
+															fontSize: '13px',
+															color: '#000000',
+															marginBottom: '4px',
+															fontWeight: '500',
+														}}
+													>
+														{log.message}
+													</div>
+													<div
+														style={{
+															fontSize: '11px',
+															color: '#374151',
+														}}
+													>
+														{new Date(log.timestamp).toLocaleString()}
+													</div>
+													{log.url && (
+														<div
+															style={{
+																fontSize: '11px',
+																color: '#374151',
+																marginTop: '4px',
+																wordBreak: 'break-all',
+															}}
+														>
+															URL: {log.url}
+														</div>
+													)}
+												</div>
+
+												{hasData && (
+													<button
+														type="button"
+														onClick={() => toggleLogExpansion(index)}
+														style={{
+															padding: '6px',
+															background: 'transparent',
+															border: '1px solid #d1d5db',
+															borderRadius: '4px',
+															cursor: 'pointer',
+															display: 'flex',
+															alignItems: 'center',
+															justifyContent: 'center',
+														}}
+														title={isExpanded ? 'Hide details' : 'Show details'}
+													>
+														{isExpanded ? <FiEyeOff size={14} /> : <FiEye size={14} />}
+													</button>
+												)}
+											</div>
+
+											{isExpanded && hasData && (
+												<div
+													style={{
+														marginTop: '12px',
+														padding: '12px',
+														background: '#1f2937',
+														borderRadius: '4px',
+														overflow: 'auto',
+													}}
+												>
+													<pre
+														style={{
+															margin: 0,
+															fontSize: '11px',
+															color: '#d1d5db',
+															fontFamily: 'monospace',
+															whiteSpace: 'pre-wrap',
+															wordBreak: 'break-word',
+														}}
+													>
+														{JSON.stringify(log.data, null, 2)}
+													</pre>
+												</div>
+											)}
 										</div>
 									);
 								})}
 							</div>
-						</div>
-					</>
-				) : (
-					<div
-						style={{
-							textAlign: 'center',
-							padding: '40px',
-							color: '#374151',
-						}}
-					>
-						<p style={{ fontSize: '16px', marginBottom: '8px' }}>No log content</p>
-						<p style={{ fontSize: '14px' }}>
-							Select a log file and click Refresh to view its contents
-						</p>
-					</div>
-				)}
-			</div>
+						)
+					) : // File content display
+					fileContent ? (
+						<>
+							{isContentTruncated && (
+								<div
+									style={{
+										background: '#fef3c7',
+										border: '1px solid #f59e0b',
+										borderRadius: '4px',
+										padding: '12px',
+										marginBottom: '16px',
+										color: '#92400e',
+										fontSize: '13px',
+										fontWeight: '500',
+									}}
+								>
+									⚠️ File content truncated due to size limit
+									<br />
+									Original size: {(originalFileSize / 1024 / 1024).toFixed(2)} MB
+									<br />
+									Displaying: {(MAX_STRING_LENGTH / 1024 / 1024).toFixed(2)} MB
+									<br />
+									File: {selectedFile}
+									<br />
+									Use tail mode or reduce line count to see recent content.
+								</div>
+							)}
+							<div
+								style={{
+									background: '#ffffff',
+									borderRadius: '4px',
+									padding: '8px',
+									maxHeight: '600px',
+									border: '1px solid #e5e7eb',
+									overflow: 'auto',
+								}}
+							>
+								<div
+									style={{
+										fontSize: '12px',
+										color: '#111827',
+										fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
+										lineHeight: '1.55',
+									}}
+								>
+									{fileContent.split('\n').map((line, index) => {
+										const lineTimestamp = getIsoTimestampFromLine(line) ?? new Date().toISOString();
+										const marker = buildTransactionMarker(
+											lineTimestamp,
+											line || '(empty line)',
+											'FILE'
+										);
 
-			{/* Info Box */}
-			<div
-				style={{
-					marginTop: '20px',
-					padding: '16px',
-					background: '#eff6ff',
-					border: '1px solid #bfdbfe',
-					borderRadius: '8px',
-					fontSize: '13px',
-					color: '#1e40af',
-				}}
-			>
-				<strong>💡 Tip:</strong>{' '}
-				{logSource === 'localStorage'
-					? 'These logs persist across page redirects and refreshes. Use the dropdown to switch between all detected localStorage log keys.'
-					: logSource === 'indexedDB'
-						? 'Use IndexedDB target dropdown to read records from known databases/stores. Reader normalizes arrays and objects into log entries.'
-						: logSource === 'sqlite'
-							? 'Use SQLite endpoint dropdown to read JSON responses. Reader handles object/array and common logs/data/entries wrappers.'
-							: 'Enable Tail Mode to see new log entries in real-time as they are written to the file. File entries now include clearer per-line separation.'}
+										return (
+											<div
+												key={index}
+												style={{
+													padding: '8px 10px',
+													borderBottom: '1px solid #e5e7eb',
+													borderLeft: '3px solid #d1d5db',
+													background: index % 2 === 0 ? '#f9fafb' : '#ffffff',
+													whiteSpace: 'pre-wrap',
+													wordBreak: 'break-word',
+												}}
+											>
+												<div
+													style={{
+														fontSize: '11px',
+														color: '#6b7280',
+														marginBottom: '5px',
+														fontWeight: '600',
+													}}
+												>
+													{marker}
+												</div>
+												{colorizeLogLine(line)}
+											</div>
+										);
+									})}
+								</div>
+							</div>
+						</>
+					) : (
+						<div
+							style={{
+								textAlign: 'center',
+								padding: '40px',
+								color: '#374151',
+							}}
+						>
+							<p style={{ fontSize: '16px', marginBottom: '8px' }}>No log content</p>
+							<p style={{ fontSize: '14px' }}>
+								Select a log file and click Refresh to view its contents
+							</p>
+						</div>
+					)}
+				</div>
+
+				{/* Info Box */}
+				<div
+					style={{
+						marginTop: '20px',
+						padding: '16px',
+						background: '#eff6ff',
+						border: '1px solid #bfdbfe',
+						borderRadius: '8px',
+						fontSize: '13px',
+						color: '#1e40af',
+					}}
+				>
+					<strong>💡 Tip:</strong>{' '}
+					{logSource === 'localStorage'
+						? 'These logs persist across page redirects and refreshes. Use the dropdown to switch between all detected localStorage log keys.'
+						: logSource === 'indexedDB'
+							? 'Use IndexedDB target dropdown to read records from known databases/stores. Reader normalizes arrays and objects into log entries.'
+							: logSource === 'sqlite'
+								? 'Use SQLite endpoint dropdown to read JSON responses. Reader handles object/array and common logs/data/entries wrappers.'
+								: 'Enable Tail Mode to see new log entries in real-time as they are written to the file. File entries now include clearer per-line separation.'}
+				</div>
 			</div>
-		</div>
 		</>
 	);
 };

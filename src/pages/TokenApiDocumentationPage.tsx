@@ -5,10 +5,25 @@
  */
 
 import React, { useState } from 'react';
-import { FiKey, FiShield, FiCode, FiCopy, FiRefreshCw, FiInfo, FiBook, FiDatabase, FiLock, FiUnlock, FiCheckCircle, FiAlertTriangle, FiChevronDown, FiChevronUp } from 'react-icons/fi';
+import {
+	FiAlertTriangle,
+	FiBook,
+	FiCheckCircle,
+	FiChevronDown,
+	FiChevronUp,
+	FiCode,
+	FiCopy,
+	FiDatabase,
+	FiInfo,
+	FiKey,
+	FiLock,
+	FiRefreshCw,
+	FiShield,
+	FiUnlock,
+} from 'react-icons/fi';
 import styled from 'styled-components';
-import { PageHeaderV8, PageHeaderTextColors } from '@/v8/components/shared/PageHeaderV8';
 import BootstrapButton from '@/components/bootstrap/BootstrapButton';
+import { PageHeaderTextColors, PageHeaderV8 } from '@/v8/components/shared/PageHeaderV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const _MODULE_TAG = '[📚 TOKEN-API-DOCUMENTATION]';
@@ -74,7 +89,9 @@ const ApiCard = styled.div<{ $expanded: boolean }>`
 	border-radius: 0.5rem;
 	overflow: hidden;
 	transition: all 0.3s ease;
-	${({ $expanded }) => $expanded && `
+	${({ $expanded }) =>
+		$expanded &&
+		`
 		border-color: #3b82f6;
 		box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
 	`}
@@ -217,36 +234,36 @@ const tokenApiEndpoints: ApiEndpoint[] = [
 				type: 'string',
 				required: true,
 				description: 'Grant type - authorization_code, client_credentials, password, refresh_token',
-				example: 'authorization_code'
+				example: 'authorization_code',
 			},
 			{
 				name: 'code',
 				type: 'string',
 				required: true,
 				description: 'Authorization code received from authorization endpoint',
-				example: 'abc123def456'
+				example: 'abc123def456',
 			},
 			{
 				name: 'redirect_uri',
 				type: 'string',
 				required: true,
 				description: 'Must match the redirect URI used in authorization request',
-				example: 'https://app.example.com/callback'
+				example: 'https://app.example.com/callback',
 			},
 			{
 				name: 'client_id',
 				type: 'string',
 				required: true,
 				description: 'Application client ID',
-				example: 'your-client-id'
+				example: 'your-client-id',
 			},
 			{
 				name: 'client_secret',
 				type: 'string',
 				required: false,
 				description: 'Application client secret (for confidential clients)',
-				example: 'your-client-secret'
-			}
+				example: 'your-client-secret',
+			},
 		],
 		responses: [
 			{
@@ -258,7 +275,7 @@ const tokenApiEndpoints: ApiEndpoint[] = [
   "expires_in": 3600,
   "refresh_token": "def456ghi789",
   "scope": "openid profile email"
-}`
+}`,
 			},
 			{
 				status: 400,
@@ -266,8 +283,8 @@ const tokenApiEndpoints: ApiEndpoint[] = [
 				example: `{
   "error": "invalid_grant",
   "error_description": "Authorization code is invalid or expired"
-}`
-			}
+}`,
+			},
 		],
 		example: `curl -X POST https://api.pingone.com/v1/oauth2/token \\
   -H "Content-Type: application/x-www-form-urlencoded" \\
@@ -275,7 +292,7 @@ const tokenApiEndpoints: ApiEndpoint[] = [
   -d "code=abc123def456" \\
   -d "redirect_uri=https://app.example.com/callback" \\
   -d "client_id=your-client-id" \\
-  -d "client_secret=your-client-secret"`
+  -d "client_secret=your-client-secret"`,
 	},
 	{
 		method: 'POST',
@@ -287,29 +304,29 @@ const tokenApiEndpoints: ApiEndpoint[] = [
 				type: 'string',
 				required: true,
 				description: 'Must be "refresh_token"',
-				example: 'refresh_token'
+				example: 'refresh_token',
 			},
 			{
 				name: 'refresh_token',
 				type: 'string',
 				required: true,
 				description: 'Refresh token received from initial token exchange',
-				example: 'def456ghi789'
+				example: 'def456ghi789',
 			},
 			{
 				name: 'client_id',
 				type: 'string',
 				required: true,
 				description: 'Application client ID',
-				example: 'your-client-id'
+				example: 'your-client-id',
 			},
 			{
 				name: 'client_secret',
 				type: 'string',
 				required: false,
 				description: 'Application client secret (for confidential clients)',
-				example: 'your-client-secret'
-			}
+				example: 'your-client-secret',
+			},
 		],
 		responses: [
 			{
@@ -321,7 +338,7 @@ const tokenApiEndpoints: ApiEndpoint[] = [
   "expires_in": 3600,
   "refresh_token": "ghi789jkl012",
   "scope": "openid profile email"
-}`
+}`,
 			},
 			{
 				status: 400,
@@ -329,15 +346,15 @@ const tokenApiEndpoints: ApiEndpoint[] = [
 				example: `{
   "error": "invalid_grant",
   "error_description": "Refresh token is invalid or expired"
-}`
-			}
+}`,
+			},
 		],
 		example: `curl -X POST https://api.pingone.com/v1/oauth2/token \\
   -H "Content-Type: application/x-www-form-urlencoded" \\
   -d "grant_type=refresh_token" \\
   -d "refresh_token=def456ghi789" \\
   -d "client_id=your-client-id" \\
-  -d "client_secret=your-client-secret"`
+  -d "client_secret=your-client-secret"`,
 	},
 	{
 		method: 'POST',
@@ -349,29 +366,29 @@ const tokenApiEndpoints: ApiEndpoint[] = [
 				type: 'string',
 				required: true,
 				description: 'Must be "client_credentials"',
-				example: 'client_credentials'
+				example: 'client_credentials',
 			},
 			{
 				name: 'client_id',
 				type: 'string',
 				required: true,
 				description: 'Application client ID',
-				example: 'your-client-id'
+				example: 'your-client-id',
 			},
 			{
 				name: 'client_secret',
 				type: 'string',
 				required: true,
 				description: 'Application client secret',
-				example: 'your-client-secret'
+				example: 'your-client-secret',
 			},
 			{
 				name: 'scope',
 				type: 'string',
 				required: false,
 				description: 'Requested scopes',
-				example: 'openid profile email'
-			}
+				example: 'openid profile email',
+			},
 		],
 		responses: [
 			{
@@ -382,7 +399,7 @@ const tokenApiEndpoints: ApiEndpoint[] = [
   "token_type": "Bearer",
   "expires_in": 3600,
   "scope": "openid profile email"
-}`
+}`,
 			},
 			{
 				status: 401,
@@ -390,15 +407,15 @@ const tokenApiEndpoints: ApiEndpoint[] = [
 				example: `{
   "error": "invalid_client",
   "error_description": "Client authentication failed"
-}`
-			}
+}`,
+			},
 		],
 		example: `curl -X POST https://api.pingone.com/v1/oauth2/token \\
   -H "Content-Type: application/x-www-form-urlencoded" \\
   -d "grant_type=client_credentials" \\
   -d "client_id=your-client-id" \\
   -d "client_secret=your-client-secret" \\
-  -d "scope=openid profile email"`
+  -d "scope=openid profile email"`,
 	},
 	{
 		method: 'POST',
@@ -410,35 +427,35 @@ const tokenApiEndpoints: ApiEndpoint[] = [
 				type: 'string',
 				required: true,
 				description: 'Token to revoke (access token or refresh token)',
-				example: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...'
+				example: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
 			},
 			{
 				name: 'client_id',
 				type: 'string',
 				required: true,
 				description: 'Application client ID',
-				example: 'your-client-id'
+				example: 'your-client-id',
 			},
 			{
 				name: 'client_secret',
 				type: 'string',
 				required: false,
 				description: 'Application client secret (for confidential clients)',
-				example: 'your-client-secret'
+				example: 'your-client-secret',
 			},
 			{
 				name: 'token_type_hint',
 				type: 'string',
 				required: false,
 				description: 'Hint about the type of token (access_token or refresh_token)',
-				example: 'access_token'
-			}
+				example: 'access_token',
+			},
 		],
 		responses: [
 			{
 				status: 200,
 				description: 'Token successfully revoked',
-				example: 'Token revoked successfully'
+				example: 'Token revoked successfully',
 			},
 			{
 				status: 400,
@@ -446,15 +463,15 @@ const tokenApiEndpoints: ApiEndpoint[] = [
 				example: `{
   "error": "invalid_request",
   "error_description": "Token is required"
-}`
-			}
+}`,
+			},
 		],
 		example: `curl -X POST https://api.pingone.com/v1/oauth2/revoke \\
   -H "Content-Type: application/x-www-form-urlencoded" \\
   -d "token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..." \\
   -d "client_id=your-client-id" \\
   -d "client_secret=your-client-secret" \\
-  -d "token_type_hint=access_token"`
+  -d "token_type_hint=access_token"`,
 	},
 	{
 		method: 'GET',
@@ -466,22 +483,22 @@ const tokenApiEndpoints: ApiEndpoint[] = [
 				type: 'string',
 				required: true,
 				description: 'Token to introspect',
-				example: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...'
+				example: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
 			},
 			{
 				name: 'client_id',
 				type: 'string',
 				required: true,
 				description: 'Application client ID',
-				example: 'your-client-id'
+				example: 'your-client-id',
 			},
 			{
 				name: 'client_secret',
 				type: 'string',
 				required: false,
 				description: 'Application client secret (for confidential clients)',
-				example: 'your-client-secret'
-			}
+				example: 'your-client-secret',
+			},
 		],
 		responses: [
 			{
@@ -497,26 +514,28 @@ const tokenApiEndpoints: ApiEndpoint[] = [
   "sub": "1234567890",
   "aud": "your-client-id",
   "iss": "https://api.pingone.com"
-}`
+}`,
 			},
 			{
 				status: 200,
 				description: 'Token is inactive or invalid',
 				example: `{
   "active": false
-}`
-			}
+}`,
+			},
 		],
 		example: `curl -X POST https://api.pingone.com/v1/oauth2/introspect \\
   -H "Content-Type: application/x-www-form-urlencoded" \\
   -d "token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..." \\
   -d "client_id=your-client-id" \\
-  -d "client_secret=your-client-secret"`
-	}
+  -d "client_secret=your-client-secret"`,
+	},
 ];
 
 export const TokenApiDocumentationPage: React.FC = () => {
-	const [expandedEndpoints, setExpandedEndpoints] = useState<Set<string>>(new Set(['token-exchange']));
+	const [expandedEndpoints, setExpandedEndpoints] = useState<Set<string>>(
+		new Set(['token-exchange'])
+	);
 	const [copiedCode, setCopiedCode] = useState<string>('');
 
 	const toggleEndpoint = (endpointId: string) => {
@@ -530,13 +549,16 @@ export const TokenApiDocumentationPage: React.FC = () => {
 	};
 
 	const copyToClipboard = (text: string, endpointId: string) => {
-		navigator.clipboard.writeText(text).then(() => {
-			setCopiedCode(endpointId);
-			toastV8.success('Code copied to clipboard');
-			setTimeout(() => setCopiedCode(''), 2000);
-		}).catch(() => {
-			toastV8.error('Failed to copy to clipboard');
-		});
+		navigator.clipboard
+			.writeText(text)
+			.then(() => {
+				setCopiedCode(endpointId);
+				toastV8.success('Code copied to clipboard');
+				setTimeout(() => setCopiedCode(''), 2000);
+			})
+			.catch(() => {
+				toastV8.error('Failed to copy to clipboard');
+			});
 	};
 
 	const getEndpointId = (endpoint: ApiEndpoint) => {
@@ -558,16 +580,18 @@ export const TokenApiDocumentationPage: React.FC = () => {
 					About Token APIs
 				</SectionTitle>
 				<p style={{ marginBottom: '1rem', color: '#6b7280' }}>
-					The PingOne OAuth 2.0 token endpoints provide secure authentication and authorization mechanisms for your applications. 
-					This documentation covers the core token operations including token exchange, refresh, revocation, and introspection.
+					The PingOne OAuth 2.0 token endpoints provide secure authentication and authorization
+					mechanisms for your applications. This documentation covers the core token operations
+					including token exchange, refresh, revocation, and introspection.
 				</p>
-				
+
 				<InfoBox>
 					<div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}>
 						<FiInfo style={{ marginTop: '2px' }} />
 						<div>
-							<strong>Security Note:</strong> Always use HTTPS for all token API calls. Never expose client secrets in frontend code or public repositories.
-							Store tokens securely and implement proper token validation and refresh mechanisms.
+							<strong>Security Note:</strong> Always use HTTPS for all token API calls. Never expose
+							client secrets in frontend code or public repositories. Store tokens securely and
+							implement proper token validation and refresh mechanisms.
 						</div>
 					</div>
 				</InfoBox>
@@ -578,30 +602,36 @@ export const TokenApiDocumentationPage: React.FC = () => {
 					<FiDatabase />
 					Token Endpoints
 				</SectionTitle>
-				
+
 				<ApiGrid>
 					{tokenApiEndpoints.map((endpoint) => {
 						const endpointId = getEndpointId(endpoint);
 						const isExpanded = expandedEndpoints.has(endpointId);
-						
+
 						return (
 							<ApiCard key={endpointId} $expanded={isExpanded}>
 								<ApiHeader onClick={() => toggleEndpoint(endpointId)}>
 									<div>
-										<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-											<MethodBadge $method={endpoint.method}>
-												{endpoint.method}
-											</MethodBadge>
+										<div
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												gap: '0.5rem',
+												marginBottom: '0.5rem',
+											}}
+										>
+											<MethodBadge $method={endpoint.method}>{endpoint.method}</MethodBadge>
 											<ApiTitle>{endpoint.path}</ApiTitle>
 										</div>
 										<ApiDescription>{endpoint.description}</ApiDescription>
 									</div>
-									{isExpanded ? 
-										<FiChevronUp size={20} color="#6b7280" /> : 
+									{isExpanded ? (
+										<FiChevronUp size={20} color="#6b7280" />
+									) : (
 										<FiChevronDown size={20} color="#6b7280" />
-									}
+									)}
 								</ApiHeader>
-								
+
 								<ApiContent $expanded={isExpanded}>
 									<ApiBody>
 										<div>
@@ -622,14 +652,13 @@ export const TokenApiDocumentationPage: React.FC = () => {
 															<td style={{ fontFamily: 'monospace', fontWeight: 600 }}>
 																{param.name}
 															</td>
-															<td style={{ fontFamily: 'monospace' }}>
-																{param.type}
-															</td>
+															<td style={{ fontFamily: 'monospace' }}>{param.type}</td>
 															<td>
-																{param.required ? 
-																	<span style={{ color: '#dc2626' }}>Required</span> : 
+																{param.required ? (
+																	<span style={{ color: '#dc2626' }}>Required</span>
+																) : (
 																	<span style={{ color: '#6b7280' }}>Optional</span>
-																}
+																)}
 															</td>
 															<td>{param.description}</td>
 															<td style={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>
@@ -645,39 +674,41 @@ export const TokenApiDocumentationPage: React.FC = () => {
 											<h4 style={{ margin: '1.5rem 0 1rem 0', color: '#1f2937' }}>Responses</h4>
 											{endpoint.responses.map((response, index) => (
 												<div key={index} style={{ marginBottom: '1rem' }}>
-													<div style={{ 
-														display: 'flex', 
-														alignItems: 'center', 
-														gap: '0.5rem',
-														marginBottom: '0.5rem'
-													}}>
-														<span style={{ 
-															padding: '0.25rem 0.5rem',
-															borderRadius: '0.25rem',
-															fontSize: '0.75rem',
-															fontWeight: 600,
-															background: response.status === 200 ? '#10b981' : '#ef4444',
-															color: 'white'
-														}}>
+													<div
+														style={{
+															display: 'flex',
+															alignItems: 'center',
+															gap: '0.5rem',
+															marginBottom: '0.5rem',
+														}}
+													>
+														<span
+															style={{
+																padding: '0.25rem 0.5rem',
+																borderRadius: '0.25rem',
+																fontSize: '0.75rem',
+																fontWeight: 600,
+																background: response.status === 200 ? '#10b981' : '#ef4444',
+																color: 'white',
+															}}
+														>
 															{response.status}
 														</span>
 														<span style={{ fontWeight: 600, color: '#1f2937' }}>
 															{response.description}
 														</span>
 													</div>
-													<CodeBlock>
-														{response.example}
-													</CodeBlock>
+													<CodeBlock>{response.example}</CodeBlock>
 												</div>
 											))}
 										</div>
 
 										<div>
-											<h4 style={{ margin: '1.5rem 0 1rem 0', color: '#1f2937' }}>Example Request</h4>
-											<CodeBlock>
-												{endpoint.example}
-											</CodeBlock>
-											
+											<h4 style={{ margin: '1.5rem 0 1rem 0', color: '#1f2937' }}>
+												Example Request
+											</h4>
+											<CodeBlock>{endpoint.example}</CodeBlock>
+
 											<ActionButtons>
 												<BootstrapButton
 													variant="primary"
@@ -701,8 +732,21 @@ export const TokenApiDocumentationPage: React.FC = () => {
 					<FiShield />
 					Security Best Practices
 				</SectionTitle>
-				<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
-					<div style={{ padding: '1rem', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '0.375rem' }}>
+				<div
+					style={{
+						display: 'grid',
+						gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+						gap: '1rem',
+					}}
+				>
+					<div
+						style={{
+							padding: '1rem',
+							background: '#f9fafb',
+							border: '1px solid #e5e7eb',
+							borderRadius: '0.375rem',
+						}}
+					>
 						<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>Token Security</h4>
 						<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#6b7280' }}>
 							<li>Always use HTTPS for token requests</li>
@@ -712,7 +756,14 @@ export const TokenApiDocumentationPage: React.FC = () => {
 							<li>Never store tokens in localStorage for production</li>
 						</ul>
 					</div>
-					<div style={{ padding: '1rem', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '0.375rem' }}>
+					<div
+						style={{
+							padding: '1rem',
+							background: '#f9fafb',
+							border: '1px solid #e5e7eb',
+							borderRadius: '0.375rem',
+						}}
+					>
 						<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>Client Credentials</h4>
 						<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#6b7280' }}>
 							<li>Store client secrets securely (environment variables)</li>
@@ -722,7 +773,14 @@ export const TokenApiDocumentationPage: React.FC = () => {
 							<li>Implement client authentication methods</li>
 						</ul>
 					</div>
-					<div style={{ padding: '1rem', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '0.375rem' }}>
+					<div
+						style={{
+							padding: '1rem',
+							background: '#f9fafb',
+							border: '1px solid #e5e7eb',
+							borderRadius: '0.375rem',
+						}}
+					>
 						<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>Error Handling</h4>
 						<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#6b7280' }}>
 							<li>Handle OAuth error responses properly</li>
@@ -740,46 +798,68 @@ export const TokenApiDocumentationPage: React.FC = () => {
 					<FiBook />
 					Common Use Cases
 				</SectionTitle>
-				<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
+				<div
+					style={{
+						display: 'grid',
+						gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+						gap: '1rem',
+					}}
+				>
 					<SuccessBox>
-						<h4 style={{ margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+						<h4
+							style={{
+								margin: '0 0 0.5rem 0',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+							}}
+						>
 							<FiCheckCircle /> Web Application Login
 						</h4>
 						<p style={{ margin: '0 0 0.5rem 0', color: '#166534' }}>
 							Use authorization code grant for secure web application authentication
 						</p>
 						<CodeBlock style={{ fontSize: '0.8rem', margin: '0' }}>
-grant_type=authorization_code
-code=auth_code_from_redirect
-redirect_uri=https://app.com/callback
+							grant_type=authorization_code code=auth_code_from_redirect
+							redirect_uri=https://app.com/callback
 						</CodeBlock>
 					</SuccessBox>
-					
+
 					<SuccessBox>
-						<h4 style={{ margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+						<h4
+							style={{
+								margin: '0 0 0.5rem 0',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+							}}
+						>
 							<FiCheckCircle /> API Service Authentication
 						</h4>
 						<p style={{ margin: '0 0 0.5rem 0', color: '#166534' }}>
 							Use client credentials grant for service-to-service authentication
 						</p>
 						<CodeBlock style={{ fontSize: '0.8rem', margin: '0' }}>
-grant_type=client_credentials
-client_id=service_client_id
-client_secret=service_secret
+							grant_type=client_credentials client_id=service_client_id client_secret=service_secret
 						</CodeBlock>
 					</SuccessBox>
-					
+
 					<SuccessBox>
-						<h4 style={{ margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+						<h4
+							style={{
+								margin: '0 0 0.5rem 0',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+							}}
+						>
 							<FiCheckCircle /> Token Refresh
 						</h4>
 						<p style={{ margin: '0 0 0.5rem 0', color: '#166534' }}>
 							Use refresh token grant to maintain user sessions without re-authentication
 						</p>
 						<CodeBlock style={{ fontSize: '0.8rem', margin: '0' }}>
-grant_type=refresh_token
-refresh_token=stored_refresh_token
-client_id=app_client_id
+							grant_type=refresh_token refresh_token=stored_refresh_token client_id=app_client_id
 						</CodeBlock>
 					</SuccessBox>
 				</div>
@@ -790,17 +870,31 @@ client_id=app_client_id
 					<FiAlertTriangle />
 					Troubleshooting
 				</SectionTitle>
-				<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
+				<div
+					style={{
+						display: 'grid',
+						gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+						gap: '1rem',
+					}}
+				>
 					<WarningBox>
 						<h4 style={{ margin: '0 0 0.5rem 0' }}>Common Errors</h4>
 						<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#92400e' }}>
-							<li><strong>invalid_grant:</strong> Authorization code expired or invalid</li>
-							<li><strong>invalid_client:</strong> Client authentication failed</li>
-							<li><strong>invalid_scope:</strong> Requested scope not allowed</li>
-							<li><strong>access_denied:</strong> User denied authorization</li>
+							<li>
+								<strong>invalid_grant:</strong> Authorization code expired or invalid
+							</li>
+							<li>
+								<strong>invalid_client:</strong> Client authentication failed
+							</li>
+							<li>
+								<strong>invalid_scope:</strong> Requested scope not allowed
+							</li>
+							<li>
+								<strong>access_denied:</strong> User denied authorization
+							</li>
 						</ul>
 					</WarningBox>
-					
+
 					<WarningBox>
 						<h4 style={{ margin: '0 0 0.5rem 0' }}>Debugging Tips</h4>
 						<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#92400e' }}>
@@ -811,7 +905,7 @@ client_id=app_client_id
 							<li>Review OAuth configuration settings</li>
 						</ul>
 					</WarningBox>
-					
+
 					<WarningBox>
 						<h4 style={{ margin: '0 0 0.5rem 0' }}>Performance Tips</h4>
 						<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#92400e' }}>

@@ -18,11 +18,11 @@
 
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import BootstrapButton from '@/components/bootstrap/BootstrapButton';
 import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { MFADocumentationModalV8 } from './MFADocumentationModalV8';
 import { ApiDisplayCheckbox } from './SuperSimpleApiDisplayV8';
-import BootstrapButton from '@/components/bootstrap/BootstrapButton';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../../../styles/bootstrap/pingone-bootstrap.css';
 
@@ -91,9 +91,7 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 	return (
 		<>
 			<div className="d-flex justify-content-between align-items-center mb-3 p-3 bg-white border rounded-2 shadow-sm">
-				<div
-					className="mfa-nav-links mb-0 d-flex gap-2 flex-1 align-items-center w-100"
-				>
+				<div className="mfa-nav-links mb-0 d-flex gap-2 flex-1 align-items-center w-100">
 					<BootstrapButton
 						variant={currentPage === 'hub' ? 'primary' : 'secondary'}
 						onClick={handleBackToMain}

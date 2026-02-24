@@ -219,31 +219,31 @@ export const TokenStatusPageV8U: React.FC = () => {
 		loadTokenStatuses();
 	}, [loadTokenStatuses]);
 
-const handleRefreshTokens = async () => {
-	try {
-		logger.info('Refreshing all tokens...');
-		await loadTokenStatuses();
-		logger.info('Tokens refreshed successfully');
-	} catch (error) {
-		logger.error('Failed to refresh tokens', error);
-	}
-};
+	const handleRefreshTokens = async () => {
+		try {
+			logger.info('Refreshing all tokens...');
+			await loadTokenStatuses();
+			logger.info('Tokens refreshed successfully');
+		} catch (error) {
+			logger.error('Failed to refresh tokens', error);
+		}
+	};
 
-const getWorkerTokenStatusIndicator = () => {
-	if (!workerTokenStatus) return { status: 'info' as const, text: 'Unknown' };
+	const getWorkerTokenStatusIndicator = () => {
+		if (!workerTokenStatus) return { status: 'info' as const, text: 'Unknown' };
 
-	if (workerTokenStatus.hasCredentials && workerTokenStatus.tokenValid) {
-		return { status: 'success' as const, text: 'Active' };
-	} else if (workerTokenStatus.hasCredentials && !workerTokenStatus.tokenValid) {
-		return { status: 'warning' as const, text: 'Expired' };
-	} else {
-		return { status: 'error' as const, text: 'Not Configured' };
-	}
-};
+		if (workerTokenStatus.hasCredentials && workerTokenStatus.tokenValid) {
+			return { status: 'success' as const, text: 'Active' };
+		} else if (workerTokenStatus.hasCredentials && !workerTokenStatus.tokenValid) {
+			return { status: 'warning' as const, text: 'Expired' };
+		} else {
+			return { status: 'error' as const, text: 'Not Configured' };
+		}
+	};
 
-const workerStatusIndicator = getWorkerTokenStatusIndicator();
+	const workerStatusIndicator = getWorkerTokenStatusIndicator();
 
-return (
+	return (
 		<PageContainer>
 			<HeaderSection>
 				<FiCode className="icon" />
@@ -251,8 +251,8 @@ return (
 			</HeaderSection>
 
 			<Description>
-				Comprehensive monitoring of OAuth tokens including worker tokens, access tokens, 
-				ID tokens, and refresh tokens. Configure and manage your token lifecycle.
+				Comprehensive monitoring of OAuth tokens including worker tokens, access tokens, ID tokens,
+				and refresh tokens. Configure and manage your token lifecycle.
 			</Description>
 
 			<GridContainer>
@@ -272,7 +272,7 @@ return (
 						</StatusIndicator>
 						<div className="status-actions">
 							{/* Standardized Worker Token Button - matching MFA flow */}
-							<WorkerTokenButton 
+							<WorkerTokenButton
 								onTokenObtained={(token) => {
 									console.log('TokenStatusPageV8U: Worker token obtained:', token);
 									loadTokenStatuses(); // Refresh status after token obtained
@@ -295,17 +295,12 @@ return (
 								buttonText="Configure Token"
 								loadingText="Configuring..."
 							/>
-							<Button 
-								className="secondary" 
-								onClick={handleRefreshTokens}
-							>
+							<Button className="secondary" onClick={handleRefreshTokens}>
 								Refresh Status
 							</Button>
 						</div>
 					</StatusCard>
-					{workerTokenStatus && (
-						<WorkerTokenStatusDisplayV8 status={workerTokenStatus} />
-					)}
+					{workerTokenStatus && <WorkerTokenStatusDisplayV8 status={workerTokenStatus} />}
 				</Section>
 
 				{/* User Token Status */}
@@ -314,9 +309,7 @@ return (
 						<FiCode className="section-icon" />
 						User Token Status
 					</h2>
-					{userTokenStatus && (
-						<UserTokenStatusDisplayV8U tokenStatus={userTokenStatus} />
-					)}
+					{userTokenStatus && <UserTokenStatusDisplayV8U tokenStatus={userTokenStatus} />}
 				</Section>
 			</GridContainer>
 
@@ -376,9 +369,8 @@ return (
 					showTryIt={true}
 				/>
 			</Section>
-
-			</PageContainer>
+		</PageContainer>
 	);
-}
+};
 
 export default TokenStatusPageV8U;

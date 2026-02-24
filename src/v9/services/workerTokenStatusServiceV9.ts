@@ -6,7 +6,7 @@
  * @since 2026-02-23
  */
 
-import { WorkerTokenServiceV9, type WorkerToken } from './workerTokenServiceV9';
+import { type WorkerToken, WorkerTokenServiceV9 } from './workerTokenServiceV9';
 
 export type TokenStatus = 'valid' | 'expiring-soon' | 'expired' | 'missing' | 'invalid';
 
@@ -31,23 +31,35 @@ export class WorkerTokenStatusServiceV9 {
 
 	static getStatusColor(status: TokenStatus): string {
 		switch (status) {
-			case 'valid': return '#10b981';
-			case 'expiring-soon': return '#f59e0b';
-			case 'expired': return '#ef4444';
-			case 'missing': return '#6b7280';
-			case 'invalid': return '#ef4444';
-			default: return '#6b7280';
+			case 'valid':
+				return '#10b981';
+			case 'expiring-soon':
+				return '#f59e0b';
+			case 'expired':
+				return '#ef4444';
+			case 'missing':
+				return '#6b7280';
+			case 'invalid':
+				return '#ef4444';
+			default:
+				return '#6b7280';
 		}
 	}
 
 	static getStatusIcon(status: TokenStatus): string {
 		switch (status) {
-			case 'valid': return '✅';
-			case 'expiring-soon': return '⚠️';
-			case 'expired': return '❌';
-			case 'missing': return '❓';
-			case 'invalid': return '❌';
-			default: return '❓';
+			case 'valid':
+				return '✅';
+			case 'expiring-soon':
+				return '⚠️';
+			case 'expired':
+				return '❌';
+			case 'missing':
+				return '❓';
+			case 'invalid':
+				return '❌';
+			default:
+				return '❓';
 		}
 	}
 }

@@ -13,15 +13,14 @@
  */
 
 import React, { useState } from 'react';
+// Bootstrap Icon Component (migrated from MDI)
+import BootstrapIcon from '@/components/BootstrapIcon';
+import { getBootstrapIconName } from '@/components/iconMapping';
 import type { FlowType, SpecVersion } from '@/v8/services/specVersionServiceV8';
 import {
 	type TokenEndpointAuthMethod,
 	TokenEndpointAuthMethodServiceV8,
 } from '@/v8/services/tokenEndpointAuthMethodServiceV8';
-
-// Bootstrap Icon Component (migrated from MDI)
-import BootstrapIcon from '@/components/BootstrapIcon';
-import { getBootstrapIconName } from '@/components/iconMapping';
 
 export interface TokenEndpointAuthMethodDropdownV8PingUIProps {
 	value: TokenEndpointAuthMethod;
@@ -181,7 +180,7 @@ export const TokenEndpointAuthMethodDropdownV8PingUI: React.FC<
 						}
 					>
 						{/* PING UI MIGRATION: Replaced FiInfo with Bootstrap icon */}
-						<BootstrapIcon icon={getBootstrapIconName("info")} size={14} ariaLabel="Information" />
+						<BootstrapIcon icon={getBootstrapIconName('info')} size={14} ariaLabel="Information" />
 						{showInfo ? 'Hide Info' : 'What is this?'}
 					</button>
 				</div>
@@ -241,7 +240,7 @@ export const TokenEndpointAuthMethodDropdownV8PingUI: React.FC<
 					</select>
 					{/* PING UI MIGRATION: Replaced FiChevronDown with Bootstrap icon */}
 					<BootstrapIcon
-						icon={getBootstrapIconName("chevron-down")}
+						icon={getBootstrapIconName('chevron-down')}
 						size={16}
 						style={{
 							position: 'absolute',

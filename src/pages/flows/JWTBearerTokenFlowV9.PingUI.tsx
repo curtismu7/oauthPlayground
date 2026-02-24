@@ -5,15 +5,15 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import BootstrapIcon from '../../components/BootstrapIcon';
-import { getBootstrapIconName } from '../../components/iconMapping';
-import { PingUIWrapper } from '../../components/PingUIWrapper';
 import { ExpandCollapseAllControls } from '../../components/ExpandCollapseAllControls';
-import { useSectionsViewMode } from '../../services/sectionsViewModeService';
-import { feedbackService } from '../../services/feedback/feedbackService';
-import { unifiedStorageManager } from '../../services/unifiedStorageManager';
+import { getBootstrapIconName } from '../../components/iconMapping';
 import { LearningTooltip } from '../../components/LearningTooltip';
+import { PingUIWrapper } from '../../components/PingUIWrapper';
 import { useCredentialBackup } from '../../hooks/useCredentialBackup';
 import { usePageScroll } from '../../hooks/usePageScroll';
+import { feedbackService } from '../../services/feedback/feedbackService';
+import { useSectionsViewMode } from '../../services/sectionsViewModeService';
+import { unifiedStorageManager } from '../../services/unifiedStorageManager';
 
 // V9 JWT Bearer Flow Controller Interface
 interface JWTBearerFlowV9Controller {
@@ -54,19 +54,20 @@ interface JWTSignature {
 
 const JWTBearerTokenFlowV9: React.FC<JWTBearerFlowV9Props> = ({
 	showAdvancedConfig = false,
-	sectionIds = ['overview', 'credentials', 'jwt-builder', 'jwt-display', 'token-request', 'token-response'],
+	sectionIds = [
+		'overview',
+		'credentials',
+		'jwt-builder',
+		'jwt-display',
+		'token-request',
+		'token-response',
+	],
 }) => {
 	const location = useLocation();
 
 	// Section management with V9 service
-	const {
-		expandedStates,
-		toggleSection,
-		expandAll,
-		collapseAll,
-		areAllExpanded,
-		areAllCollapsed
-	} = useSectionsViewMode('jwt-bearer-flow-v9', sectionIds);
+	const { expandedStates, toggleSection, expandAll, collapseAll, areAllExpanded, areAllCollapsed } =
+		useSectionsViewMode('jwt-bearer-flow-v9', sectionIds);
 
 	// Core state
 	const [currentStep, setCurrentStep] = useState(0);
@@ -123,26 +124,30 @@ const JWTBearerTokenFlowV9: React.FC<JWTBearerFlowV9Props> = ({
 				controller.showErrorFeedback('Failed to save credentials');
 			}
 		},
-		showSuccessFeedback: (message: string) => feedbackService.showSnackbar({
-			type: 'success',
-			message,
-			duration: 4000,
-		}),
-		showInfoFeedback: (message: string) => feedbackService.showSnackbar({
-			type: 'info',
-			message,
-			duration: 3000,
-		}),
-		showWarningFeedback: (message: string) => feedbackService.showSnackbar({
-			type: 'warning',
-			message,
-			duration: 3000,
-		}),
-		showErrorFeedback: (message: string) => feedbackService.showSnackbar({
-			type: 'error',
-			message,
-			duration: 5000,
-		}),
+		showSuccessFeedback: (message: string) =>
+			feedbackService.showSnackbar({
+				type: 'success',
+				message,
+				duration: 4000,
+			}),
+		showInfoFeedback: (message: string) =>
+			feedbackService.showSnackbar({
+				type: 'info',
+				message,
+				duration: 3000,
+			}),
+		showWarningFeedback: (message: string) =>
+			feedbackService.showSnackbar({
+				type: 'warning',
+				message,
+				duration: 3000,
+			}),
+		showErrorFeedback: (message: string) =>
+			feedbackService.showSnackbar({
+				type: 'error',
+				message,
+				duration: 5000,
+			}),
 	} as JWTBearerFlowV9Controller;
 
 	// V9: Persist flow state using unified storage
@@ -185,7 +190,7 @@ const JWTBearerTokenFlowV9: React.FC<JWTBearerFlowV9Props> = ({
 	useEffect(() => {
 		const loadFlowState = async () => {
 			try {
-				const savedState = await unifiedStorageManager.load('jwt-bearer-flow-v9-state') as {
+				const savedState = (await unifiedStorageManager.load('jwt-bearer-flow-v9-state')) as {
 					currentStep?: number;
 					environmentId?: string;
 					clientId?: string;
@@ -228,7 +233,7 @@ const JWTBearerTokenFlowV9: React.FC<JWTBearerFlowV9Props> = ({
 	useEffect(() => {
 		const loadToken = async () => {
 			try {
-				const savedToken = await unifiedStorageManager.load('worker-token') as string;
+				const savedToken = (await unifiedStorageManager.load('worker-token')) as string;
 				if (savedToken) {
 					setWorkerToken(savedToken);
 					console.log('[JWTBearerFlowV9] Worker token loaded from storage');
@@ -253,22 +258,25 @@ const JWTBearerTokenFlowV9: React.FC<JWTBearerFlowV9Props> = ({
 	usePageScroll({ pageName: 'JWT Bearer Token Flow V9 - PingOne UI', force: true });
 
 	// V9 step validation
-	const isStepValid = useCallback((step: number): boolean => {
-		switch (step) {
-			case 0:
-				return !!(environmentId && clientId);
-			case 1:
-				return !!generatedJWT;
-			case 2:
-				return !!generatedJWT;
-			case 3:
-				return !!tokenResponse;
-			case 4:
-				return !!tokenResponse;
-			default:
-				return true;
-		}
-	}, [environmentId, clientId, generatedJWT, tokenResponse]);
+	const isStepValid = useCallback(
+		(step: number): boolean => {
+			switch (step) {
+				case 0:
+					return !!(environmentId && clientId);
+				case 1:
+					return !!generatedJWT;
+				case 2:
+					return !!generatedJWT;
+				case 3:
+					return !!tokenResponse;
+				case 4:
+					return !!tokenResponse;
+				default:
+					return true;
+			}
+		},
+		[environmentId, clientId, generatedJWT, tokenResponse]
+	);
 
 	// V9 handlers
 	const handleEnvironmentIdChange = useCallback((value: string) => {
@@ -410,14 +418,17 @@ const JWTBearerTokenFlowV9: React.FC<JWTBearerFlowV9Props> = ({
 		controller.showInfoFeedback('Flow reset successfully');
 	}, [controller]);
 
-	const handleCopy = useCallback(async (text: string, label: string) => {
-		try {
-			await navigator.clipboard.writeText(text);
-			controller.showSuccessFeedback(`${label} copied to clipboard`);
-		} catch (error) {
-			controller.showWarningFeedback('Failed to copy to clipboard');
-		}
-	}, [controller]);
+	const handleCopy = useCallback(
+		async (text: string, label: string) => {
+			try {
+				await navigator.clipboard.writeText(text);
+				controller.showSuccessFeedback(`${label} copied to clipboard`);
+			} catch (error) {
+				controller.showWarningFeedback('Failed to copy to clipboard');
+			}
+		},
+		[controller]
+	);
 
 	// V9 step content renderer
 	const renderStepContent = useMemo(() => {
@@ -430,7 +441,11 @@ const JWTBearerTokenFlowV9: React.FC<JWTBearerFlowV9Props> = ({
 							<div className="card mb-4">
 								<div className="card-header d-flex align-items-center justify-content-between">
 									<h5 className="mb-0 d-flex align-items-center">
-										<BootstrapIcon icon={getBootstrapIconName("shield-check")} size={20} className="me-2 text-info" />
+										<BootstrapIcon
+											icon={getBootstrapIconName('shield-check')}
+											size={20}
+											className="me-2 text-info"
+										/>
 										JWT Bearer Flow Overview
 									</h5>
 									<button
@@ -438,18 +453,35 @@ const JWTBearerTokenFlowV9: React.FC<JWTBearerFlowV9Props> = ({
 										className="btn btn-sm btn-outline-secondary"
 										onClick={() => toggleSection('overview')}
 									>
-										<BootstrapIcon icon={getBootstrapIconName(expandedStates['overview'] ? "chevron-up" : "chevron-down")} size={16} />
+										<BootstrapIcon
+											icon={getBootstrapIconName(
+												expandedStates['overview'] ? 'chevron-up' : 'chevron-down'
+											)}
+											size={16}
+										/>
 									</button>
 								</div>
 								{expandedStates['overview'] && (
 									<div className="card-body">
 										<div className="alert alert-info">
-											<BootstrapIcon icon={getBootstrapIconName("info-circle")} size={16} className="me-2" />
-											<strong>JWT Bearer Token Flow (RFC 7523)</strong> enables OAuth clients to authenticate using JWT assertions instead of traditional client credentials. Perfect for server-to-server scenarios.
+											<BootstrapIcon
+												icon={getBootstrapIconName('info-circle')}
+												size={16}
+												className="me-2"
+											/>
+											<strong>JWT Bearer Token Flow (RFC 7523)</strong> enables OAuth clients to
+											authenticate using JWT assertions instead of traditional client credentials.
+											Perfect for server-to-server scenarios.
 										</div>
 										<div className="alert alert-warning">
-											<BootstrapIcon icon={getBootstrapIconName("exclamation-triangle")} size={16} className="me-2" />
-											<strong>Educational Mock Implementation:</strong> This is a simulated implementation for learning purposes. PingOne does not currently support JWT Bearer assertions.
+											<BootstrapIcon
+												icon={getBootstrapIconName('exclamation-triangle')}
+												size={16}
+												className="me-2"
+											/>
+											<strong>Educational Mock Implementation:</strong> This is a simulated
+											implementation for learning purposes. PingOne does not currently support JWT
+											Bearer assertions.
 										</div>
 									</div>
 								)}
@@ -459,7 +491,11 @@ const JWTBearerTokenFlowV9: React.FC<JWTBearerFlowV9Props> = ({
 							<div className="card">
 								<div className="card-header d-flex align-items-center justify-content-between">
 									<h5 className="mb-0 d-flex align-items-center">
-										<BootstrapIcon icon={getBootstrapIconName("gear")} size={20} className="me-2 text-primary" />
+										<BootstrapIcon
+											icon={getBootstrapIconName('gear')}
+											size={20}
+											className="me-2 text-primary"
+										/>
 										JWT Bearer Configuration
 									</h5>
 									<button
@@ -467,7 +503,12 @@ const JWTBearerTokenFlowV9: React.FC<JWTBearerFlowV9Props> = ({
 										className="btn btn-sm btn-outline-secondary"
 										onClick={() => toggleSection('credentials')}
 									>
-										<BootstrapIcon icon={getBootstrapIconName(expandedStates['credentials'] ? "chevron-up" : "chevron-down")} size={16} />
+										<BootstrapIcon
+											icon={getBootstrapIconName(
+												expandedStates['credentials'] ? 'chevron-up' : 'chevron-down'
+											)}
+											size={16}
+										/>
 									</button>
 								</div>
 								{expandedStates['credentials'] && (
@@ -519,7 +560,7 @@ const JWTBearerTokenFlowV9: React.FC<JWTBearerFlowV9Props> = ({
 														onClick={handleDiscoverAudience}
 														disabled={!environmentId}
 													>
-														<BootstrapIcon icon={getBootstrapIconName("search")} size={16} />
+														<BootstrapIcon icon={getBootstrapIconName('search')} size={16} />
 													</button>
 												</div>
 											</div>
@@ -548,14 +589,23 @@ const JWTBearerTokenFlowV9: React.FC<JWTBearerFlowV9Props> = ({
 							<div className="card">
 								<div className="card-header">
 									<h5 className="mb-0 d-flex align-items-center">
-										<BootstrapIcon icon={getBootstrapIconName("file-earmark-code")} size={20} className="me-2 text-success" />
+										<BootstrapIcon
+											icon={getBootstrapIconName('file-earmark-code')}
+											size={20}
+											className="me-2 text-success"
+										/>
 										JWT Generation
 									</h5>
 								</div>
 								<div className="card-body">
 									<div className="alert alert-info">
-										<BootstrapIcon icon={getBootstrapIconName("info-circle")} size={16} className="me-2" />
-										Configure JWT claims and signature algorithm. The JWT will be used as a client assertion in the token request.
+										<BootstrapIcon
+											icon={getBootstrapIconName('info-circle')}
+											size={16}
+											className="me-2"
+										/>
+										Configure JWT claims and signature algorithm. The JWT will be used as a client
+										assertion in the token request.
 									</div>
 
 									<div className="row g-3">
@@ -565,7 +615,7 @@ const JWTBearerTokenFlowV9: React.FC<JWTBearerFlowV9Props> = ({
 												type="text"
 												className="form-control"
 												value={jwtClaims.iss}
-												onChange={(e) => setJwtClaims(prev => ({ ...prev, iss: e.target.value }))}
+												onChange={(e) => setJwtClaims((prev) => ({ ...prev, iss: e.target.value }))}
 												placeholder="https://auth.pingone.com"
 											/>
 											<div className="form-text">Should be the authorization server URL</div>
@@ -576,7 +626,7 @@ const JWTBearerTokenFlowV9: React.FC<JWTBearerFlowV9Props> = ({
 												type="text"
 												className="form-control"
 												value={jwtClaims.sub}
-												onChange={(e) => setJwtClaims(prev => ({ ...prev, sub: e.target.value }))}
+												onChange={(e) => setJwtClaims((prev) => ({ ...prev, sub: e.target.value }))}
 												placeholder="your-client-id"
 											/>
 										</div>
@@ -586,7 +636,9 @@ const JWTBearerTokenFlowV9: React.FC<JWTBearerFlowV9Props> = ({
 												className="form-control"
 												rows={4}
 												value={jwtSignature.privateKey}
-												onChange={(e) => setJwtSignature(prev => ({ ...prev, privateKey: e.target.value }))}
+												onChange={(e) =>
+													setJwtSignature((prev) => ({ ...prev, privateKey: e.target.value }))
+												}
 												placeholder="-----BEGIN PRIVATE KEY-----..."
 											/>
 											<div className="d-flex gap-2 mt-2">
@@ -595,7 +647,11 @@ const JWTBearerTokenFlowV9: React.FC<JWTBearerFlowV9Props> = ({
 													className="btn btn-sm btn-outline-primary"
 													onClick={handleGenerateSampleKeys}
 												>
-													<BootstrapIcon icon={getBootstrapIconName("key")} size={16} className="me-1" />
+													<BootstrapIcon
+														icon={getBootstrapIconName('key')}
+														size={16}
+														className="me-1"
+													/>
 													Generate Sample Keys
 												</button>
 												<button
@@ -603,7 +659,11 @@ const JWTBearerTokenFlowV9: React.FC<JWTBearerFlowV9Props> = ({
 													className="btn btn-sm btn-outline-secondary"
 													onClick={handleGenerateJWTId}
 												>
-													<BootstrapIcon icon={getBootstrapIconName("arrow-clockwise")} size={16} className="me-1" />
+													<BootstrapIcon
+														icon={getBootstrapIconName('arrow-clockwise')}
+														size={16}
+														className="me-1"
+													/>
 													New JWT ID
 												</button>
 											</div>
@@ -617,7 +677,11 @@ const JWTBearerTokenFlowV9: React.FC<JWTBearerFlowV9Props> = ({
 											onClick={handleGenerateJWT}
 											disabled={!jwtSignature.privateKey}
 										>
-											<BootstrapIcon icon={getBootstrapIconName("cpu")} size={16} className="me-2" />
+											<BootstrapIcon
+												icon={getBootstrapIconName('cpu')}
+												size={16}
+												className="me-2"
+											/>
 											Generate JWT
 										</button>
 									</div>
@@ -630,7 +694,7 @@ const JWTBearerTokenFlowV9: React.FC<JWTBearerFlowV9Props> = ({
 			default:
 				return (
 					<div className="alert alert-secondary">
-						<BootstrapIcon icon={getBootstrapIconName("info-circle")} size={16} className="me-2" />
+						<BootstrapIcon icon={getBootstrapIconName('info-circle')} size={16} className="me-2" />
 						JWT Bearer Flow V9 - Step {currentStep + 1} content will be implemented here
 					</div>
 				);
@@ -670,13 +734,15 @@ const JWTBearerTokenFlowV9: React.FC<JWTBearerFlowV9Props> = ({
 						<div className="d-flex align-items-center justify-content-between">
 							<div>
 								<h1 className="h2 mb-2 d-flex align-items-center">
-									<BootstrapIcon icon={getBootstrapIconName("file-earmark-binary")} size={28} className="me-3 text-warning" />
+									<BootstrapIcon
+										icon={getBootstrapIconName('file-earmark-binary')}
+										size={28}
+										className="me-3 text-warning"
+									/>
 									JWT Bearer Token Flow V9
 									<span className="badge bg-success ms-2">PingOne UI</span>
 								</h1>
-								<p className="text-muted mb-0">
-									JWT Bearer Token Flow (RFC 7523) with PingOne UI
-								</p>
+								<p className="text-muted mb-0">JWT Bearer Token Flow (RFC 7523) with PingOne UI</p>
 							</div>
 							<div className="d-flex gap-2">
 								<ExpandCollapseAllControls
@@ -699,7 +765,10 @@ const JWTBearerTokenFlowV9: React.FC<JWTBearerFlowV9Props> = ({
 							<nav aria-label="JWT Bearer flow steps">
 								<ul className="pagination pagination-lg">
 									{['Setup', 'JWT Gen', 'Request', 'Tokens'].map((step, index) => (
-										<li key={step} className={`page-item ${currentStep === index ? 'active' : ''} ${isStepValid(index) ? '' : 'disabled'}`}>
+										<li
+											key={step}
+											className={`page-item ${currentStep === index ? 'active' : ''} ${isStepValid(index) ? '' : 'disabled'}`}
+										>
 											<button
 												type="button"
 												className="page-link"
@@ -723,7 +792,11 @@ const JWTBearerTokenFlowV9: React.FC<JWTBearerFlowV9Props> = ({
 							<div className="card">
 								<div className="card-header d-flex align-items-center justify-content-between">
 									<h5 className="mb-0 d-flex align-items-center">
-										<BootstrapIcon icon={getBootstrapIconName("file-earmark-code")} size={20} className="me-2 text-success" />
+										<BootstrapIcon
+											icon={getBootstrapIconName('file-earmark-code')}
+											size={20}
+											className="me-2 text-success"
+										/>
 										Generated JWT
 									</h5>
 									<button
@@ -731,7 +804,11 @@ const JWTBearerTokenFlowV9: React.FC<JWTBearerFlowV9Props> = ({
 										className="btn btn-sm btn-outline-secondary"
 										onClick={() => handleCopy(generatedJWT, 'JWT')}
 									>
-										<BootstrapIcon icon={getBootstrapIconName("clipboard")} size={16} className="me-1" />
+										<BootstrapIcon
+											icon={getBootstrapIconName('clipboard')}
+											size={16}
+											className="me-1"
+										/>
 										Copy
 									</button>
 								</div>
@@ -750,7 +827,11 @@ const JWTBearerTokenFlowV9: React.FC<JWTBearerFlowV9Props> = ({
 							<div className="card">
 								<div className="card-header">
 									<h5 className="mb-0 d-flex align-items-center">
-										<BootstrapIcon icon={getBootstrapIconName("check-circle")} size={20} className="me-2 text-success" />
+										<BootstrapIcon
+											icon={getBootstrapIconName('check-circle')}
+											size={20}
+											className="me-2 text-success"
+										/>
 										Token Response
 									</h5>
 								</div>
@@ -766,9 +847,7 @@ const JWTBearerTokenFlowV9: React.FC<JWTBearerFlowV9Props> = ({
 
 				{/* V9 Step Content */}
 				<div className="row">
-					<div className="col-12">
-						{renderStepContent}
-					</div>
+					<div className="col-12">{renderStepContent}</div>
 				</div>
 
 				{/* V9 Action Buttons */}
@@ -781,7 +860,11 @@ const JWTBearerTokenFlowV9: React.FC<JWTBearerFlowV9Props> = ({
 								onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
 								disabled={currentStep === 0}
 							>
-								<BootstrapIcon icon={getBootstrapIconName("chevron-left")} size={16} className="me-1" />
+								<BootstrapIcon
+									icon={getBootstrapIconName('chevron-left')}
+									size={16}
+									className="me-1"
+								/>
 								Previous
 							</button>
 
@@ -795,24 +878,32 @@ const JWTBearerTokenFlowV9: React.FC<JWTBearerFlowV9Props> = ({
 									>
 										{isLoading ? (
 											<>
-												<BootstrapIcon icon={getBootstrapIconName("arrow-repeat")} size={16} className="me-2 spinning" />
+												<BootstrapIcon
+													icon={getBootstrapIconName('arrow-repeat')}
+													size={16}
+													className="me-2 spinning"
+												/>
 												Requesting Token...
 											</>
 										) : (
 											<>
-												<BootstrapIcon icon={getBootstrapIconName("send")} size={16} className="me-2" />
+												<BootstrapIcon
+													icon={getBootstrapIconName('send')}
+													size={16}
+													className="me-2"
+												/>
 												Make Token Request
 											</>
 										)}
 									</button>
 								)}
 
-								<button
-									type="button"
-									className="btn btn-outline-danger"
-									onClick={handleReset}
-								>
-									<BootstrapIcon icon={getBootstrapIconName("arrow-clockwise")} size={16} className="me-1" />
+								<button type="button" className="btn btn-outline-danger" onClick={handleReset}>
+									<BootstrapIcon
+										icon={getBootstrapIconName('arrow-clockwise')}
+										size={16}
+										className="me-1"
+									/>
 									Reset Flow
 								</button>
 							</div>
@@ -824,7 +915,11 @@ const JWTBearerTokenFlowV9: React.FC<JWTBearerFlowV9Props> = ({
 								disabled={!isStepValid(currentStep) || currentStep === 3}
 							>
 								Next
-								<BootstrapIcon icon={getBootstrapIconName("chevron-right")} size={16} className="ms-1" />
+								<BootstrapIcon
+									icon={getBootstrapIconName('chevron-right')}
+									size={16}
+									className="ms-1"
+								/>
 							</button>
 						</div>
 					</div>
