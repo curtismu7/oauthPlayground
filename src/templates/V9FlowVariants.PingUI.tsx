@@ -230,11 +230,11 @@ class V9MessagingService {
 		const content = status === 'passed' ? '✅ Passed' : status === 'failed' ? '❌ Failed' : '⚠️ Warning';
 		
 		if (status === 'passed') {
-			this.success(title, content);
+			V9MessagingService.success(title, content);
 		} else if (status === 'failed') {
-			this.error(title, content);
+			V9MessagingService.error(title, content);
 		} else {
-			this.warning(title, content);
+			V9MessagingService.warning(title, content);
 		}
 	}
 
@@ -242,7 +242,7 @@ class V9MessagingService {
 	 * Show educational message
 	 */
 	static educational(topic: string, content: string): void {
-		this.info(`📚 Educational: ${topic}`, content, { duration: 8000 });
+		V9MessagingService.info(`📚 Educational: ${topic}`, content, { duration: 8000 });
 	}
 }
 

@@ -20,6 +20,7 @@
 
 import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { FiShield, FiAlertCircle } from 'react-icons/fi';
 import { EducationModeToggle } from '@/components/education/EducationModeToggle';
 import { MasterEducationSection } from '@/components/education/MasterEducationSection';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
@@ -2250,7 +2251,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 								>
 									▶
 								</span>
-							</div>
 							<span style={{ fontSize: '16px', fontWeight: '600', color: '#1f2937' }}>
 								Worker Token Configuration
 							</span>
@@ -2321,7 +2321,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 										{/* Worker Token Status Display */}
 										<WorkerTokenStatusDisplayV8 mode="detailed" showRefresh={true} />
-									</div>
 
 									{/* Worker Token Configuration Options */}
 									<div
@@ -2404,7 +2403,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 												<span style={{ fontSize: '12px', color: '#6b7280' }}>
 													Automatically fetch worker token in the background without showing modals
 												</span>
-											</div>
 										</label>
 
 										<label
@@ -2458,10 +2456,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 												<span style={{ fontSize: '12px', color: '#6b7280' }}>
 													Display the generated worker token in a modal after successful retrieval
 												</span>
-											</div>
 										</label>
-									</div>
-								</div>
 
 								<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
 									{/* Environment ID */}
@@ -2508,7 +2503,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 												fontSize: '14px',
 											}}
 										/>
-									</div>
 
 								{/* MFA Policy Selection - Second Row */}
 								<div style={{ marginTop: '20px' }}>
@@ -2531,12 +2525,10 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 												style={{ fontSize: '14px' }}
 											></span>{' '}
 											Loading policies...
-										</div>
 									) : policiesError ? (
 										<div style={{ padding: '8px 12px', color: '#dc2626', fontSize: '14px' }}>
 											<span className="mdi mdi-alert" style={{ fontSize: '14px' }}></span>{' '}
 											{policiesError}
-										</div>
 									) : (
 										<select
 											id={policySelectId}
@@ -2571,10 +2563,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											))}
 										</select>
 									)}
-								</div>
-							</div>
 						)}
-					</div>
 
 					{/* 3. Dashboard Features (Merged) */}
 					{/* Policy Summary */}
@@ -2623,7 +2612,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									<span className="mdi mdi-information" style={{ fontSize: '14px' }}></span>
 									<span>What is this?</span>
 								</button>
-							</div>
 							{(() => {
 								const selectedPolicy = deviceAuthPolicies.find(
 									(p) => p.id === credentials.deviceAuthenticationPolicyId
@@ -2677,7 +2665,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 													{status}
 												</span>
 											)}
-										</div>
 
 										{/* Policy Description */}
 										{selectedPolicy.description && (
@@ -2729,8 +2716,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 													{selectedPolicy.id}
 												</div>
 											</div>
-
-											{/* Device Selection Behavior */}
 											{deviceSelection && (
 												<div>
 													<div
@@ -2743,7 +2728,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 													>
 														<div style={{ fontSize: '12px', color: '#6b7280', fontWeight: '500' }}>
 															Device Selection
-														</div>
 														<button
 															type="button"
 															onClick={() => setShowDeviceSelectionInfoModal(true)}
@@ -2775,14 +2759,11 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 															></span>
 															<span>What is this?</span>
 														</button>
-													</div>
 													<div style={{ fontSize: '13px', color: '#1f2937', fontWeight: '500' }}>
 														{deviceSelection.replace(/_/g, ' ')}
 													</div>
 												</div>
 											)}
-
-											{/* Status */}
 											{status && (
 												<div>
 													<div
@@ -2794,14 +2775,11 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 														}}
 													>
 														Status
-													</div>
 													<div style={{ fontSize: '13px', color: '#1f2937', fontWeight: '500' }}>
 														{status}
 													</div>
 												</div>
 											)}
-
-											{/* Important Policy Settings - Highlighted */}
 											{(selectedPolicy.skipUserLockVerification !== undefined ||
 												selectedPolicy.pairingDisabled !== undefined ||
 												selectedPolicy.promptForNicknameOnPairing !== undefined) && (
@@ -2815,7 +2793,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 														}}
 													>
 														Important Policy Settings
-													</div>
 													<div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
 														{/* Skip User Lock Verification */}
 														{selectedPolicy.skipUserLockVerification !== undefined && (
@@ -2856,7 +2833,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 																				contentKey="policy.skipUserLockVerification"
 																				displayMode="tooltip"
 																			/>
-																		</div>
 																		<div
 																			style={{
 																				fontSize: '13px',
@@ -2880,7 +2856,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 																					will be blocked.
 																				</>
 																			)}
-																		</div>
 																		<div
 																			style={{
 																				fontSize: '12px',
@@ -2892,10 +2867,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 																			{selectedPolicy.skipUserLockVerification
 																				? 'true (enabled)'
 																				: 'false (disabled)'}
-																		</div>
-																	</div>
-																</div>
-															</div>
 														)}
 
 														{/* Pairing Disabled */}
@@ -2937,7 +2908,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 																				contentKey="policy.pairingDisabled"
 																				displayMode="tooltip"
 																			/>
-																		</div>
 																		<div
 																			style={{
 																				fontSize: '13px',
@@ -2959,7 +2929,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 																					Users can register new MFA devices.
 																				</>
 																			)}
-																		</div>
 																		<div
 																			style={{
 																				fontSize: '12px',
@@ -2971,10 +2940,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 																			{selectedPolicy.pairingDisabled
 																				? 'true (disabled)'
 																				: 'false (enabled)'}
-																		</div>
-																	</div>
-																</div>
-															</div>
 														)}
 
 														{/* Prompt for Nickname on Pairing */}
@@ -3016,7 +2981,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 																				contentKey="policy.promptForNicknameOnPairing"
 																				displayMode="tooltip"
 																			/>
-																		</div>
 																		<div
 																			style={{
 																				fontSize: '13px',
@@ -3039,7 +3003,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 																					without prompting the user.
 																				</>
 																			)}
-																		</div>
 																		<div
 																			style={{
 																				fontSize: '12px',
@@ -3051,13 +3014,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 																			{selectedPolicy.promptForNicknameOnPairing
 																				? 'true (prompt enabled)'
 																				: 'false (auto nickname)'}
-																		</div>
-																	</div>
-																</div>
-															</div>
 														)}
-													</div>
-												</div>
 											)}
 
 											{/* Full Policy JSON - Collapsible */}
@@ -3072,7 +3029,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 														}}
 													>
 														Full Policy JSON (Click to expand)
-													</div>
 													<details
 														style={{
 															background: '#f9fafb',
@@ -3113,15 +3069,10 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 															>
 																{JSON.stringify(selectedPolicy, null, 2)}
 															</pre>
-														</div>
 													</details>
-												</div>
 											)}
-										</div>
-									</div>
 								);
 							})()}
-						</div>
 					)}
 
 					{/* Authentication Session Details */}
@@ -3166,7 +3117,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											}}
 										>
 											User ID
-										</div>
 										<div
 											style={{
 												fontSize: '14px',
@@ -3180,8 +3130,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											}}
 										>
 											{authState.userId}
-										</div>
-									</div>
 								)}
 
 								{/* Username */}
@@ -3196,7 +3144,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											}}
 										>
 											Username
-										</div>
 										<div
 											style={{
 												fontSize: '14px',
@@ -3208,8 +3155,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											}}
 										>
 											{usernameInput.trim()}
-										</div>
-									</div>
 								)}
 
 								{/* Authentication ID */}
@@ -3224,7 +3169,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											}}
 										>
 											Authentication ID
-										</div>
 										<div
 											style={{
 												fontSize: '14px',
@@ -3238,8 +3182,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											}}
 										>
 											{authState.authenticationId}
-										</div>
-									</div>
 								)}
 
 								{/* Status */}
@@ -3272,7 +3214,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 												}
 												return null;
 											})()}
-										</div>
 										<div
 											style={{
 												fontSize: '14px',
@@ -3285,8 +3226,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											}}
 										>
 											{authState.status.replace(/_/g, ' ')}
-										</div>
-									</div>
 								)}
 
 								{/* Next Step */}
@@ -3320,7 +3259,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 												}
 												return null;
 											})()}
-										</div>
 										<div
 											style={{
 												fontSize: '14px',
@@ -3333,8 +3271,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											}}
 										>
 											{authState.nextStep.replace(/_/g, ' ')}
-										</div>
-									</div>
 								)}
 
 								{/* Policy Used */}
@@ -3349,7 +3285,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											}}
 										>
 											Policy Used
-										</div>
 										<div
 											style={{
 												fontSize: '14px',
@@ -3363,10 +3298,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											{deviceAuthPolicies.find(
 												(p) => p.id === credentials.deviceAuthenticationPolicyId
 											)?.name || credentials.deviceAuthenticationPolicyId}
-										</div>
-									</div>
 								)}
-							</div>
 
 							{/* Selected Device Details */}
 							{authState.selectedDeviceId && authState.devices.length > 0 && (
@@ -3411,7 +3343,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 														}}
 													>
 														Device ID
-													</div>
 													<div
 														style={{
 															fontSize: '13px',
@@ -3421,8 +3352,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 														}}
 													>
 														{selectedDevice.id}
-													</div>
-												</div>
 												<div>
 													<div
 														style={{
@@ -3433,11 +3362,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 														}}
 													>
 														Device Type
-													</div>
 													<div style={{ fontSize: '13px', color: '#1f2937', fontWeight: '500' }}>
 														{selectedDevice.type}
-													</div>
-												</div>
 												<div>
 													<div
 														style={{
@@ -3448,11 +3374,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 														}}
 													>
 														Device Name
-													</div>
 													<div style={{ fontSize: '13px', color: '#1f2937', fontWeight: '500' }}>
 														{selectedDevice.nickname || selectedDevice.name || 'Unnamed'}
-													</div>
-												</div>
 												{selectedDevice.phone && (
 													<div>
 														<div
@@ -3464,11 +3387,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 															}}
 														>
 															Phone
-														</div>
 														<div style={{ fontSize: '13px', color: '#1f2937' }}>
 															{selectedDevice.phone}
-														</div>
-													</div>
 												)}
 												{selectedDevice.email && (
 													<div>
@@ -3481,11 +3401,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 															}}
 														>
 															Email
-														</div>
 														<div style={{ fontSize: '13px', color: '#1f2937' }}>
 															{selectedDevice.email}
-														</div>
-													</div>
 												)}
 												{selectedDevice.status && (
 													<div>
@@ -3498,7 +3415,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 															}}
 														>
 															Status
-														</div>
 														<div
 															style={{
 																fontSize: '13px',
@@ -3507,13 +3423,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 															}}
 														>
 															{selectedDevice.status}
-														</div>
-													</div>
 												)}
-											</div>
 										);
 									})()}
-								</div>
 							)}
 
 							{/* Challenge ID (if available) */}
@@ -3530,7 +3442,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 										}}
 									>
 										Challenge ID
-									</div>
 									<div
 										style={{
 											fontSize: '13px',
@@ -3544,10 +3455,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 										}}
 									>
 										{authState.challengeId}
-									</div>
-								</div>
 							)}
-						</div>
 					)}
 
 					{/* Device List */}
@@ -3616,7 +3524,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 								>
 									{isLoadingDevices ? '' : 'Refresh'}
 								</ButtonSpinner>
-							</div>
 
 							{devicesError && (
 								<div
@@ -3631,14 +3538,12 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									}}
 								>
 									{devicesError}
-								</div>
 							)}
 
 							{isLoadingDevices ? (
 								<div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
 									<span className="mdi mdi-loading mdi-spin" style={{ fontSize: '24px' }}></span>
 									<p>Loading devices...</p>
-								</div>
 							) : userDevices.length > 0 ? (
 								<div
 									style={{
@@ -3832,25 +3737,18 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 													) : (
 														<FiShield color="white" />
 													)}
-												</div>
 												<div style={{ flex: 1 }}>
 													<div style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>
 														{String(
 															device.nickname || device.name || device.type || 'Unknown Device'
 														)}
-													</div>
 													<div style={{ fontSize: '12px', color: '#6b7280' }}>
 														{String(device.type || 'Unknown')}
-													</div>
-												</div>
-											</div>
 											<div style={{ fontSize: '12px', color: '#6b7280' }}>
 												Status:{' '}
 												<strong style={{ color: '#1f2937' }}>{device.status as string}</strong>
-											</div>
 										</ButtonSpinner>
 									))}
-								</div>
 							) : (
 								<div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
 									<span
@@ -3858,9 +3756,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 										style={{ fontSize: '48px', marginBottom: '12px', opacity: 0.5 }}
 									></span>
 									<p>No devices found for this user</p>
-								</div>
 							)}
-						</div>
 					)}
 
 					{/* Device Selection Section - Show when authentication requires device selection */}
@@ -4020,22 +3916,15 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 												) : (
 													<span className="mdi mdi-shield" style={{ color: 'white' }}></span>
 												)}
-											</div>
 											<div style={{ flex: 1 }}>
 												<div style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>
 													{device.nickname || device.type}
-												</div>
 												<div style={{ fontSize: '12px', color: '#6b7280' }}>
 													{device.type}
 													{device.phone && ` • ${device.phone}`}
 													{device.email && ` • ${device.email}`}
-												</div>
-											</div>
-										</div>
 									</button>
 								))}
-							</div>
-						</div>
 					)}
 
 					{/* Authentication Status */}
@@ -4077,21 +3966,14 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 										}}
 									>
 										{authState.status || 'Unknown'}
-									</div>
-								</div>
 								<div>
 									<span style={{ fontSize: '12px', color: '#6b7280' }}>Next Step</span>
 									<div style={{ fontSize: '16px', fontWeight: '500', color: '#1f2937' }}>
 										{authState.nextStep || 'None'}
-									</div>
-								</div>
 								<div>
 									<span style={{ fontSize: '12px', color: '#6b7280' }}>Devices Available</span>
 									<div style={{ fontSize: '16px', fontWeight: '500', color: '#1f2937' }}>
 										{authState.devices.length}
-									</div>
-								</div>
-							</div>
 
 							{/* Success Section - Show when authentication is completed */}
 							{authState.status === 'COMPLETED' && (
@@ -4128,7 +4010,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 												className="mdi mdi-check"
 												style={{ color: 'white', fontSize: '24px' }}
 											></span>
-										</div>
 										<div>
 											<h3
 												style={{ margin: 0, fontSize: '22px', fontWeight: '700', color: '#166534' }}
@@ -4138,8 +4019,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											<p style={{ margin: '4px 0 0 0', fontSize: '14px', color: '#15803d' }}>
 												Your authentication has been completed successfully.
 											</p>
-										</div>
-									</div>
 									{authState.completionResult ? (
 										<div
 											style={{
@@ -4182,8 +4061,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 														}}
 													>
 														{authState.completionResult.accessToken.substring(0, 60)}...
-													</div>
-												</div>
 											)}
 											{authState.completionResult.tokenType && (
 												<div
@@ -4214,8 +4091,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 														}}
 													>
 														{authState.completionResult.tokenType}
-													</div>
-												</div>
 											)}
 											{authState.completionResult.expiresIn && (
 												<div
@@ -4246,10 +4121,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 														}}
 													>
 														{authState.completionResult.expiresIn} seconds
-													</div>
-												</div>
 											)}
-										</div>
 									) : (
 										<div
 											style={{
@@ -4264,11 +4136,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 												Authentication completed successfully. No additional token information
 												available.
 											</p>
-										</div>
 									)}
-								</div>
 							)}
-						</div>
 					)}
 
 					{/* Modals */}
@@ -4330,9 +4199,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									>
 										Dismiss
 									</button>
-								</div>
-							</div>
-						</div>
 					)}
 
 					{/* Username Decision Modal */}
@@ -4393,7 +4259,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											? 'Register a new passkey'
 											: 'Use passkey or enter username?'}
 									</h3>
-								</div>
 								<div style={{ padding: '32px' }}>
 									<div
 										style={{
@@ -4549,8 +4414,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 														: 'Register Passkey'
 													: 'Continue with username'}
 											</button>
-										</div>
-									</div>
 									<button
 										type="button"
 										onClick={() => {
@@ -4573,9 +4436,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									>
 										Cancel
 									</button>
-								</div>
-							</div>
-						</div>
 					)}
 
 					{/* Device Registration Modal */}
@@ -4682,7 +4542,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											User ID: <strong>{authState.userId}</strong>
 										</p>
 									)}
-								</div>
 								<div style={{ padding: '24px', overflow: 'auto', flex: 1 }}>
 									{/* Search Input */}
 									<div style={{ marginBottom: '16px' }}>
@@ -4748,8 +4607,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 													<span className="mdi mdi-close" style={{ fontSize: '16px' }}></span>
 												</button>
 											)}
-										</div>
-									</div>
 
 									{(() => {
 										// Merge devices from authState and userDevices, deduplicating by ID
@@ -4841,7 +4698,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 														>
 															Clear Search
 														</button>
-													</div>
 												);
 											}
 											return (
@@ -4892,7 +4748,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 														<span className="mdi mdi-plus"></span>
 														Register New Device
 													</button>
-												</div>
 											);
 										}
 
@@ -4937,12 +4792,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 																}}
 															>
 																✅ Active Devices ({activeDevices.length})
-															</div>
 															<div style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.9)' }}>
 																These devices are ready to use for authentication. They appear in
 																PingOne Console.
-															</div>
-														</div>
 														{/* Device List */}
 														<MFADeviceSelector
 															devices={activeDevices}
@@ -5302,7 +5154,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 																setShowRegistrationModal(true);
 															}}
 														/>
-													</div>
 												)}
 												{/* Activation Required Devices Section */}
 												{activationRequiredDevices.length > 0 && (
@@ -5334,12 +5185,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 															>
 																⚠️ Devices Still in ACTIVATION_REQUIRED (
 																{activationRequiredDevices.length})
-															</div>
 															<div style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.9)' }}>
 																These devices need activation before they can be used for
 																authentication. They are NOT shown in PingOne Console.
-															</div>
-														</div>
 														{/* Device List */}
 														<MFADeviceSelector
 															devices={activationRequiredDevices}
@@ -5402,14 +5250,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 																setShowRegistrationModal(true);
 															}}
 														/>
-													</div>
 												)}
-											</div>
 										);
 									})()}
-								</div>
-							</div>
-						</div>
 					)}
 
 					{/* Device Registration Modal */}
@@ -5499,7 +5342,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									>
 										Select a device type allowed by your MFA Policy
 									</p>
-								</div>
 								<div style={{ padding: '32px' }}>
 									{(() => {
 										const selectedPolicy = deviceAuthPolicies.find(
@@ -5516,7 +5358,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 													<p style={{ margin: 0, fontSize: '16px', color: '#6b7280' }}>
 														Please select an MFA Policy first to see allowed device types.
 													</p>
-												</div>
 											);
 										}
 
@@ -5572,7 +5413,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 															Please configure the policy to allow specific device types, or select
 															a different policy.
 														</p>
-													</div>
 													<button
 														type="button"
 														onClick={() => setShowRegistrationModal(false)}
@@ -5605,7 +5445,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 														The following device types are allowed for registration based on your
 														selected MFA Policy:
 													</p>
-												</div>
 												<div
 													style={{
 														display: 'grid',
@@ -5691,7 +5530,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 															</button>
 														);
 													})}
-												</div>
 												<button
 													type="button"
 													onClick={() => setShowRegistrationModal(false)}
@@ -5722,9 +5560,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											</>
 										);
 									})()}
-								</div>
-							</div>
-						</div>
 					)}
 
 					{/* Device Selection Info Modal */}
@@ -6369,7 +6204,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									>
 										×
 									</button>
-								</div>
 								<p style={{ margin: '0 0 24px 0', color: '#666' }}>
 									Choose a device type to register for MFA authentication.
 								</p>
@@ -6403,7 +6237,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											{deviceType}
 										</button>
 									))}
-								</div>
 								<button
 									type="button"
 									onClick={() => setShowRegistrationModal(false)}
@@ -6419,8 +6252,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 								>
 									Cancel
 								</button>
-							</div>
-						</div>
 					)}
 
 					{/* Device Failure Modal */}
@@ -6447,9 +6278,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						/>
 					)}
 				</div>
+			</div>
+			</div>
 			</>
-		</div>
-	);
-};
-
-export default MFAAuthenticationMainPageV8;
+		);
+	};

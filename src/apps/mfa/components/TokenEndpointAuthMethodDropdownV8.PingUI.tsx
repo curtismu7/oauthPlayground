@@ -2,11 +2,11 @@
  * @file TokenEndpointAuthMethodDropdownV8.PingUI.tsx
  * @module v8/components
  * @description Ping UI migration of Token endpoint authentication method dropdown with education for V8 flows
- * @version 8.0.0-PingUI
+ * @version 8.0.0-PingUI-Bootstrap
  *
  * Ping UI migration following pingui2.md standards:
  * - Added .end-user-nano namespace wrapper
- * - Replaced React Icons with MDI CSS icons
+ * - Replaced MDI icons with Bootstrap Icons (migration step)
  * - Applied Ping UI CSS variables and transitions
  * - Enhanced accessibility with proper ARIA labels
  * - Used 0.15s ease-in-out transitions
@@ -19,39 +19,9 @@ import {
 	TokenEndpointAuthMethodServiceV8,
 } from '@/v8/services/tokenEndpointAuthMethodServiceV8';
 
-const MODULE_TAG = '[🔐 TOKEN-AUTH-METHOD-V8-PINGUI]';
-
-// MDI Icon Mapping for React Icons → MDI CSS
-const getMDIIconClass = (fiIcon: string): string => {
-	const iconMap: Record<string, string> = {
-		FiChevronDown: 'mdi-chevron-down',
-		FiInfo: 'mdi-information',
-	};
-	return iconMap[fiIcon] || 'mdi-help-circle';
-};
-
-// MDI Icon Component with proper accessibility
-const MDIIcon: React.FC<{
-	icon: string;
-	size?: number;
-	ariaLabel?: string;
-	ariaHidden?: boolean;
-	className?: string;
-	style?: React.CSSProperties;
-}> = ({ icon, size = 16, ariaLabel, ariaHidden = false, className = '', style }) => {
-	const iconClass = getMDIIconClass(icon);
-	const combinedClassName = `mdi ${iconClass} ${className}`.trim();
-
-	return (
-		<span
-			className={combinedClassName}
-			style={{ fontSize: `${size}px`, ...style }}
-			{...(ariaLabel ? { 'aria-label': ariaLabel } : {})}
-			{...(ariaHidden ? { 'aria-hidden': 'true' } : {})}
-			role="img"
-		></span>
-	);
-};
+// Bootstrap Icon Component (migrated from MDI)
+import BootstrapIcon from '@/components/BootstrapIcon';
+import { getBootstrapIconName } from '@/components/iconMapping';
 
 export interface TokenEndpointAuthMethodDropdownV8PingUIProps {
 	value: TokenEndpointAuthMethod;
@@ -210,8 +180,8 @@ export const TokenEndpointAuthMethodDropdownV8PingUI: React.FC<
 								: 'Show authentication method information'
 						}
 					>
-						{/* PING UI MIGRATION: Replaced FiInfo with MDI icon */}
-						<MDIIcon icon="FiInfo" size={14} ariaLabel="Information" />
+						{/* PING UI MIGRATION: Replaced FiInfo with Bootstrap icon */}
+						<BootstrapIcon icon={getBootstrapIconName("info")} size={14} ariaLabel="Information" />
 						{showInfo ? 'Hide Info' : 'What is this?'}
 					</button>
 				</div>
@@ -269,9 +239,9 @@ export const TokenEndpointAuthMethodDropdownV8PingUI: React.FC<
 							);
 						})}
 					</select>
-					{/* PING UI MIGRATION: Replaced FiChevronDown with MDI icon */}
-					<MDIIcon
-						icon="FiChevronDown"
+					{/* PING UI MIGRATION: Replaced FiChevronDown with Bootstrap icon */}
+					<BootstrapIcon
+						icon={getBootstrapIconName("chevron-down")}
 						size={16}
 						style={{
 							position: 'absolute',

@@ -2,16 +2,17 @@
  * @file MFADocumentationPageV8.PingUI.tsx
  * @module v8/components
  * @description Ping UI migrated comprehensive documentation page for MFA device registration flows
- * @version 8.0.0
+ * @version 8.0.0-Bootstrap
  *
  * Displays API calls, JSON bodies, rules, and allows download as PDF/MD
- * Migrated to Ping UI with MDI icons and CSS variables.
+ * Migrated to Ping UI with Bootstrap icons and CSS variables.
  */
 
-import React, { useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
 import styled from 'styled-components';
-import MDIIcon from '@/components/MDIIcon';
+// Bootstrap Icon Component (migrated from MDI)
+import BootstrapIcon from '@/components/BootstrapIcon';
+import { getBootstrapIconName } from '@/components/iconMapping';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import {
 	downloadPostmanCollectionWithEnvironment,
@@ -387,7 +388,7 @@ export const MFADocumentationPageV8PingUI: React.FC<MFADocumentationPageV8PingUI
 			<DocumentationContainer>
 				<Header>
 					<Title>
-						<MDIIcon icon="FiBook" size={24} ariaLabel="Documentation" />
+						<BootstrapIcon icon={getBootstrapIconName("book")} size={24} ariaLabel="Documentation" />
 						{generateDocumentation.title}
 					</Title>
 					<ActionButtons>
@@ -395,7 +396,7 @@ export const MFADocumentationPageV8PingUI: React.FC<MFADocumentationPageV8PingUI
 							{isGeneratingPDF ? (
 								<LoadingSpinner />
 							) : (
-								<MDIIcon icon="FiDownload" size={16} ariaLabel="Download PDF" />
+								<BootstrapIcon icon={getBootstrapIconName("download")} size={16} ariaLabel="Download PDF" />
 							)}
 							{isGeneratingPDF ? 'Generating...' : 'Download PDF'}
 						</ActionButton>
@@ -403,7 +404,7 @@ export const MFADocumentationPageV8PingUI: React.FC<MFADocumentationPageV8PingUI
 							{isGeneratingMD ? (
 								<LoadingSpinner />
 							) : (
-								<MDIIcon icon="FiFileText" size={16} ariaLabel="Download Markdown" />
+								<BootstrapIcon icon={getBootstrapIconName("file-earmark-text")} size={16} ariaLabel="Download Markdown" />
 							)}
 							{isGeneratingMD ? 'Generating...' : 'Download MD'}
 						</ActionButton>
@@ -411,7 +412,7 @@ export const MFADocumentationPageV8PingUI: React.FC<MFADocumentationPageV8PingUI
 							{isGeneratingPostman ? (
 								<LoadingSpinner />
 							) : (
-								<MDIIcon icon="FiPackage" size={16} ariaLabel="Download Postman Collection" />
+								<BootstrapIcon icon={getBootstrapIconName("box-seam")} size={16} ariaLabel="Download Postman Collection" />
 							)}
 							{isGeneratingPostman ? 'Generating...' : 'Postman'}
 						</SecondaryButton>
@@ -420,7 +421,7 @@ export const MFADocumentationPageV8PingUI: React.FC<MFADocumentationPageV8PingUI
 
 				{totalSteps > 1 && (
 					<ProgressIndicator>
-						<MDIIcon icon="FiInfo" size={16} ariaLabel="Progress Information" />
+						<BootstrapIcon icon={getBootstrapIconName("info-circle")} size={16} ariaLabel="Progress Information" />
 						<ProgressText>
 							Step {currentStep} of {totalSteps} - {generateDocumentation.description}
 						</ProgressText>
@@ -431,8 +432,8 @@ export const MFADocumentationPageV8PingUI: React.FC<MFADocumentationPageV8PingUI
 					<SectionHeader onClick={() => toggleSection('api-calls')}>
 						<SectionTitle>
 							API Calls
-							<MDIIcon
-								icon={expandedSections.has('api-calls') ? 'FiChevronUp' : 'FiChevronDown'}
+							<BootstrapIcon
+								icon={getBootstrapIconName(expandedSections.has('api-calls') ? "chevron-up" : "chevron-down")}
 								size={16}
 								ariaLabel={expandedSections.has('api-calls') ? 'Collapse' : 'Expand'}
 							/>
@@ -464,7 +465,7 @@ export const MFADocumentationPageV8PingUI: React.FC<MFADocumentationPageV8PingUI
 											)
 										}
 									>
-										<MDIIcon icon="FiFileText" size={12} ariaLabel="Copy" />
+										<BootstrapIcon icon={getBootstrapIconName("clipboard")} size={12} ariaLabel="Copy" />
 										Copy
 									</CopyButton>
 								</ApiCallHeader>
@@ -486,8 +487,8 @@ export const MFADocumentationPageV8PingUI: React.FC<MFADocumentationPageV8PingUI
 					<SectionHeader onClick={() => toggleSection('credentials')}>
 						<SectionTitle>
 							Credentials Used
-							<MDIIcon
-								icon={expandedSections.has('credentials') ? 'FiChevronUp' : 'FiChevronDown'}
+							<BootstrapIcon
+								icon={getBootstrapIconName(expandedSections.has('credentials') ? "chevron-up" : "chevron-down")}
 								size={16}
 								ariaLabel={expandedSections.has('credentials') ? 'Collapse' : 'Expand'}
 							/>
@@ -495,7 +496,7 @@ export const MFADocumentationPageV8PingUI: React.FC<MFADocumentationPageV8PingUI
 					</SectionHeader>
 					<SectionContent $isOpen={expandedSections.has('credentials')}>
 						<InfoBox>
-							<MDIIcon icon="FiInfo" size={20} ariaLabel="Information" />
+							<BootstrapIcon icon={getBootstrapIconName("info-circle")} size={20} ariaLabel="Information" />
 							<InfoText>
 								<strong>Environment ID:</strong> {credentials?.environmentId || 'Not provided'}
 								<br />
@@ -516,8 +517,8 @@ export const MFADocumentationPageV8PingUI: React.FC<MFADocumentationPageV8PingUI
 					<SectionHeader onClick={() => toggleSection('flow-details')}>
 						<SectionTitle>
 							Flow Details
-							<MDIIcon
-								icon={expandedSections.has('flow-details') ? 'FiChevronUp' : 'FiChevronDown'}
+							<BootstrapIcon
+								icon={getBootstrapIconName(expandedSections.has('flow-details') ? "chevron-up" : "chevron-down")}
 								size={16}
 								ariaLabel={expandedSections.has('flow-details') ? 'Collapse' : 'Expand'}
 							/>
@@ -525,7 +526,7 @@ export const MFADocumentationPageV8PingUI: React.FC<MFADocumentationPageV8PingUI
 					</SectionHeader>
 					<SectionContent $isOpen={expandedSections.has('flow-details')}>
 						<InfoBox>
-							<MDIIcon icon="FiInfo" size={20} ariaLabel="Information" />
+							<BootstrapIcon icon={getBootstrapIconName("info-circle")} size={20} ariaLabel="Information" />
 							<InfoText>
 								<strong>Registration Flow Type:</strong> {registrationFlowType}
 								<br />

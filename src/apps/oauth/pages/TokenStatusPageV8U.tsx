@@ -9,12 +9,11 @@
  * Features include:
  * - Worker token status monitoring with configuration
  * - User token monitoring (Access, ID, and Refresh tokens)
- * - Real-time token status updates
  * - OAuth configuration management
  * - Token refresh and validation
  */
 
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { UserTokenStatusDisplayV8U } from '@/apps/user-management/components/UserTokenStatusDisplayV8U';
 import { WorkerTokenButton } from '@/components/WorkerTokenButton';
@@ -25,8 +24,6 @@ import {
 	WorkerTokenStatusServiceV8,
 } from '@/v8/services/workerTokenStatusServiceV8';
 import { logger } from '../services/unifiedFlowLoggerServiceV8U';
-
-const _MODULE_TAG = '[🔍 TOKEN-STATUS-V8U]';
 
 // Styled components
 const PageContainer = styled.div`
@@ -188,13 +185,11 @@ const StatusIndicator = styled.div<{ status: 'success' | 'warning' | 'error' | '
 	}}
 `;
 
-type TokenStatusPageProps = {};
+export const TokenStatusPageV8U: React.FC = () => {
+	const [workerTokenStatus, setWorkerTokenStatus] = useState<TokenStatusInfo | null>(null);
+	const [userTokenStatus, setUserTokenStatus] = useState<Record<string, unknown> | null>(null);
 
-export const TokenStatusPageV8U: React.FC<TokenStatusPageProps> = () => {
-	const [_workerTokenStatus, setWorkerTokenStatus] = useState<TokenStatusInfo | null>(null);
-	const [_userTokenStatus, setUserTokenStatus] = useState<any>(null);
-
-	const _loadTokenStatuses = async () => {
+	const loadTokenStatuses = useCallback(async () => {
 		try {
 			logger.info('Loading token statuses...');
 
@@ -207,34 +202,22 @@ export const TokenStatusPageV8U: React.FC<TokenStatusPageProps> = () => {
 				accessToken: 'placeholder',
 				idToken: 'placeholder',
 				refreshToken: 'placeholder',
-						email: 'test@example.com',
-					},
-				}
-		,
-				refreshToken:
-		valid: true, expiresIn
-		: 2592000, // 30 days
-		,
-	};
-	)
+				email: 'test@example.com',
+				valid: true,
+				expiresIn: 2592000, // 30 days
+			});
 
-	logger.info('Token statuses loaded successfully')
-};
-catch (error)
-{
-	logger.error('Failed to load token statuses', error);
-}
-finally
-{
-	setIsLoading(false);
-}
-}
+			logger.info('Token statuses loaded successfully');
+		} catch (error) {
+			logger.error('Failed to load token statuses', {}, error as Error);
+		} finally {
+			setIsLoading(false);
+		}
+	}, []);
 
-useEffect(() =>
-{
-	loadTokenStatuses();
-}
-, [])
+	useEffect(() => {
+		loadTokenStatuses();
+	}, [loadTokenStatuses]);
 
 const handleRefreshTokens = async () => {
 	try {

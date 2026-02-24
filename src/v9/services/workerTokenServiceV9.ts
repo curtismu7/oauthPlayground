@@ -31,7 +31,7 @@ export class WorkerTokenServiceV9 {
 	}
 
 	static async hasValidToken(): Promise<boolean> {
-		const token = await this.getToken();
+		const token = await WorkerTokenServiceV9.getToken();
 		return !!token?.token;
 	}
 }
