@@ -27,38 +27,9 @@ import { MFACredentialProvider } from '@/v8/contexts/MFACredentialContext';
 // V8 Hooks
 import { useWorkerToken } from '@/v8/hooks/useWorkerToken';
 
-// MDI Icon Component with proper accessibility
-const MDIIcon: React.FC<{
-	icon: string;
-	size?: number;
-	ariaLabel?: string;
-	ariaHidden?: boolean;
-	className?: string;
-	style?: React.CSSProperties;
-}> = ({ icon, size = 16, ariaLabel, ariaHidden = false, className = '', style }) => {
-	const iconClass = getMDIIconClass(icon);
-	const combinedClassName = `mdi ${iconClass} ${className}`.trim();
-
-	return (
-		<i
-			className={combinedClassName}
-			style={{ fontSize: `${size}px`, ...style }}
-			{...(ariaLabel ? { 'aria-label': ariaLabel } : {})}
-			{...(ariaHidden ? { 'aria-hidden': 'true' } : {})}
-		></i>
-	);
-};
-
-// MDI Icon mapping function
-const getMDIIconClass = (iconName: string): string => {
-	const iconMap: Record<string, string> = {
-		FiAlertTriangle: 'mdi-alert',
-		FiArrowLeft: 'mdi-arrow-left',
-		FiArrowRight: 'mdi-arrow-right',
-		FiCheckCircle: 'mdi-check-circle',
-	};
-	return iconMap[iconName] || 'mdi-help-circle';
-};
+// Bootstrap Icon Component (migrated from MDI)
+import BootstrapIcon from '@/components/BootstrapIcon';
+import { getBootstrapIconName } from '@/components/iconMapping';
 
 // Extended credentials interface for the complete MFA flow
 interface CompleteMfaCredentials {
@@ -468,7 +439,7 @@ export const CompleteMFAFlowV8PingUI: React.FC<CompleteMFAFlowV8PingUIProps> = (
 
 							{error && (
 								<ErrorBox>
-									<MDIIcon icon="FiAlertTriangle" size={20} ariaLabel="Error" />
+									<BootstrapIcon icon={getBootstrapIconName("FiAlertTriangle")} size={20} aria-label="Error" />
 									<ErrorText>{error}</ErrorText>
 								</ErrorBox>
 							)}
@@ -479,7 +450,7 @@ export const CompleteMFAFlowV8PingUI: React.FC<CompleteMFAFlowV8PingUIProps> = (
 								<div>
 									{currentStep > 0 && (
 										<NavigationButton onClick={handlePrevious} disabled={isLoading}>
-											<MDIIcon icon="FiArrowLeft" size={16} ariaLabel="Previous" />
+											<BootstrapIcon icon={getBootstrapIconName("FiArrowLeft")} size={16} aria-label="Previous" />
 											Previous
 										</NavigationButton>
 									)}
@@ -495,10 +466,10 @@ export const CompleteMFAFlowV8PingUI: React.FC<CompleteMFAFlowV8PingUIProps> = (
 									<StatusIndicator $status={flowStatus}>
 										{flowStatus === 'loading' && <ButtonSpinner size={16} />}
 										{flowStatus === 'success' && (
-											<MDIIcon icon="FiCheckCircle" size={16} ariaLabel="Success" />
+											<BootstrapIcon icon={getBootstrapIconName("FiCheckCircle")} size={16} aria-label="Success" />
 										)}
 										{flowStatus === 'error' && (
-											<MDIIcon icon="FiAlertTriangle" size={16} ariaLabel="Error" />
+											<BootstrapIcon icon={getBootstrapIconName("FiAlertTriangle")} size={16} aria-label="Error" />
 										)}
 										{flowStatus.charAt(0).toUpperCase() + flowStatus.slice(1)}
 									</StatusIndicator>
@@ -510,12 +481,12 @@ export const CompleteMFAFlowV8PingUI: React.FC<CompleteMFAFlowV8PingUIProps> = (
 											disabled={isLoading || !hasWorkerToken}
 										>
 											Next
-											<MDIIcon icon="FiArrowRight" size={16} ariaLabel="Next" />
+											<BootstrapIcon icon={getBootstrapIconName("FiArrowRight")} size={16} aria-label="Next" />
 										</NavigationButton>
 									) : (
 										<NavigationButton onClick={handleNext} $variant="primary" disabled={isLoading}>
 											Complete Setup
-											<MDIIcon icon="FiCheckCircle" size={16} ariaLabel="Complete" />
+											<BootstrapIcon icon={getBootstrapIconName("FiCheckCircle")} size={16} aria-label="Complete" />
 										</NavigationButton>
 									)}
 								</div>

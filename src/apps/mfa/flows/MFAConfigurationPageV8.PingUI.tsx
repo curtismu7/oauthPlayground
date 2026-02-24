@@ -28,38 +28,9 @@ import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import WorkerTokenStatusServiceV8 from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
-// MDI Icon Component with proper accessibility
-const MDIIcon: React.FC<{
-	icon: string;
-	size?: number;
-	ariaLabel?: string;
-	ariaHidden?: boolean;
-	className?: string;
-	style?: React.CSSProperties;
-}> = ({ icon, size = 16, ariaLabel, ariaHidden = false, className = '', style }) => {
-	const iconClass = getMDIIconClass(icon);
-	const combinedClassName = `mdi ${iconClass} ${className}`.trim();
-
-	return (
-		<i
-			className={combinedClassName}
-			style={{ fontSize: `${size}px`, ...style }}
-			{...(ariaLabel ? { 'aria-label': ariaLabel } : {})}
-			{...(ariaHidden ? { 'aria-hidden': 'true' } : {})}
-		></i>
-	);
-};
-
-// MDI Icon mapping function
-const getMDIIconClass = (iconName: string): string => {
-	const iconMap: Record<string, string> = {
-		FiArrowLeft: 'mdi-arrow-left',
-		FiCheck: 'mdi-check',
-		FiInfo: 'mdi-information',
-		FiRefreshCw: 'mdi-refresh',
-	};
-	return iconMap[iconName] || 'mdi-help-circle';
-};
+// Bootstrap Icon Component (migrated from MDI)
+import BootstrapIcon from '@/components/BootstrapIcon';
+import { getBootstrapIconName } from '@/components/iconMapping';
 
 const _MODULE_TAG = '[⚙️ MFA-CONFIG-PAGE-V8-PINGUI]';
 
@@ -423,11 +394,11 @@ export const MFAConfigurationPageV8PingUI: React.FC = () => {
 
 				<div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.5rem' }}>
 					<BackButton onClick={handleBack}>
-						<MDIIcon icon="FiArrowLeft" size={16} ariaLabel="Back" />
+						<BootstrapIcon icon={getBootstrapIconName("FiArrowLeft")} size={16} aria-label="Back" />
 						Back
 					</BackButton>
 					<RefreshButton onClick={handleRefreshToken} $loading={_isRefreshingToken}>
-						<MDIIcon icon="FiRefreshCw" size={16} ariaLabel="Refresh" />
+						<BootstrapIcon icon={getBootstrapIconName("FiRefreshCw")} size={16} aria-label="Refresh" />
 						{_isRefreshingToken ? 'Refreshing...' : 'Refresh Token'}
 					</RefreshButton>
 				</div>
@@ -458,7 +429,7 @@ export const MFAConfigurationPageV8PingUI: React.FC = () => {
 						/>
 
 						<InfoBox>
-							<MDIIcon icon="FiInfo" size={20} ariaLabel="Information" />
+							<BootstrapIcon icon={getBootstrapIconName("FiInfo")} size={20} aria-label="Information" />
 							<InfoText>
 								<strong>Worker Token Status:</strong>{' '}
 								{connectionStatus === 'connected' ? 'Active and valid' : 'Not available or expired'}

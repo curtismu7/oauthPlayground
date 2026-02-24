@@ -31,36 +31,9 @@ import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { MFAReportingServiceV8 } from '@/v8/services/mfaReportingServiceV8';
 
-// MDI Icon Component with proper accessibility
-const MDIIcon: React.FC<{
-	icon: string;
-	size?: number;
-	ariaLabel?: string;
-	ariaHidden?: boolean;
-	className?: string;
-	style?: React.CSSProperties;
-}> = ({ icon, size = 16, ariaLabel, ariaHidden, className = '', style }) => {
-	const iconClass = getMDIIconClass(icon);
-	const combinedClassName = `mdi ${iconClass} ${className}`.trim();
-
-	return (
-		<span
-			className={combinedClassName}
-			style={{ fontSize: `${size}px`, ...style }}
-			{...(ariaLabel ? { 'aria-label': ariaLabel } : {})}
-			{...(ariaHidden ? { 'aria-hidden': 'true' } : {})}
-			role="img"
-		></span>
-	);
-};
-
-// MDI Icon mapping function
-const getMDIIconClass = (iconName: string): string => {
-	const iconMap: Record<string, string> = {
-		FiPackage: 'mdi-package',
-	};
-	return iconMap[iconName] || 'mdi-help-circle';
-};
+// Bootstrap Icon Component (migrated from MDI)
+import BootstrapIcon from '@/components/BootstrapIcon';
+import { getBootstrapIconName } from '@/components/iconMapping';
 
 interface MFAReportData {
 	userReports: Array<{
@@ -308,10 +281,10 @@ const MFAReportingFlowV8PingUI: React.FC = () => {
 							>
 								{card.title}
 							</h3>
-							<MDIIcon
+							<BootstrapIcon
 								icon={card.icon}
 								size={20}
-								ariaLabel={card.title}
+								aria-label={card.title}
 								style={{ color: card.color }}
 							/>
 						</div>
@@ -695,7 +668,7 @@ const MFAReportingFlowV8PingUI: React.FC = () => {
 									e.currentTarget.style.backgroundColor = 'var(--ping-surface-primary, #ffffff)';
 								}}
 							>
-								<MDIIcon icon="FiPackage" size={16} ariaLabel="Refresh" />
+								<BootstrapIcon icon={getBootstrapIconName("FiPackage")} size={16} aria-label="Refresh" />
 								Refresh
 							</button>
 

@@ -13,42 +13,9 @@ import styled from 'styled-components';
 
 const _MODULE_TAG = '[🔐 TOKEN-AUTH-MODAL-V8-PINGUI]';
 
-// MDI Icon Component with proper accessibility
-const MDIIcon: React.FC<{
-	icon: string;
-	size?: number;
-	ariaLabel?: string;
-	ariaHidden?: boolean;
-	className?: string;
-	style?: React.CSSProperties;
-}> = ({ icon, size = 16, ariaLabel, ariaHidden = false, className = '', style }) => {
-	const iconClass = getMDIIconClass(icon);
-	const combinedClassName = `mdi ${iconClass} ${className}`.trim();
-
-	return (
-		<span
-			className={combinedClassName}
-			style={{ fontSize: `${size}px`, ...style }}
-			{...(ariaLabel ? { 'aria-label': ariaLabel } : {})}
-			{...(ariaHidden ? { 'aria-hidden': 'true' } : {})}
-			role="img"
-		></span>
-	);
-};
-
-// MDI Icon mapping function
-const getMDIIconClass = (iconName: string): string => {
-	const iconMap: Record<string, string> = {
-		FiCheckCircle: 'mdi-check-circle',
-		FiInfo: 'mdi-information',
-		FiKey: 'mdi-key',
-		FiLock: 'mdi-lock',
-		FiShield: 'mdi-shield',
-		FiX: 'mdi-close',
-		FiXCircle: 'mdi-close-circle',
-	};
-	return iconMap[iconName] || 'mdi-help-circle';
-};
+// Bootstrap Icon Component (migrated from MDI)
+import BootstrapIcon from '@/components/BootstrapIcon';
+import { getBootstrapIconName } from '@/components/iconMapping';
 
 interface TokenEndpointAuthModalPingUIProps {
 	isOpen: boolean;
@@ -347,13 +314,13 @@ export const TokenEndpointAuthModalPingUI: React.FC<TokenEndpointAuthModalPingUI
 	const getSecurityIcon = (level: string) => {
 		switch (level) {
 			case 'low':
-				return 'FiXCircle';
+				return <BootstrapIcon icon={getBootstrapIconName("FiXCircle")} size={12} aria-hidden={true} />;
 			case 'medium':
-				return 'FiShield';
+				return <BootstrapIcon icon={getBootstrapIconName("FiShield")} size={12} aria-hidden={true} />;
 			case 'high':
-				return 'FiCheckCircle';
+				return <BootstrapIcon icon={getBootstrapIconName("FiCheckCircle")} size={12} aria-hidden={true} />;
 			default:
-				return 'FiInfo';
+				return <BootstrapIcon icon={getBootstrapIconName("FiInfo")} size={12} aria-hidden={true} />;
 		}
 	};
 
@@ -363,18 +330,18 @@ export const TokenEndpointAuthModalPingUI: React.FC<TokenEndpointAuthModalPingUI
 				<ModalContainer>
 					<ModalHeader>
 						<ModalTitle>
-							<MDIIcon icon="FiKey" size={24} ariaLabel="Authentication Methods" />
+							<BootstrapIcon icon={getBootstrapIconName("FiKey")} size={24} aria-label="Authentication Methods" />
 							Token Endpoint Authentication Methods
 						</ModalTitle>
 						<CloseButton onClick={onClose} aria-label="Close modal">
-							<MDIIcon icon="FiX" size={20} ariaLabel="Close" style={{ color: 'white' }} />
+							<BootstrapIcon icon={getBootstrapIconName("FiX")} size={20} aria-label="Close" style={{ color: 'white' }} />
 						</CloseButton>
 					</ModalHeader>
 
 					<ModalBody>
 						<Section>
 							<SectionTitle>
-								<MDIIcon icon="FiInfo" size={20} ariaLabel="Information" />
+								<BootstrapIcon icon={getBootstrapIconName("FiInfo")} size={20} aria-label="Information" />
 								What is Token Endpoint Authentication?
 							</SectionTitle>
 							<SectionDescription>
@@ -384,7 +351,7 @@ export const TokenEndpointAuthModalPingUI: React.FC<TokenEndpointAuthModalPingUI
 							</SectionDescription>
 
 							<InfoBox>
-								<MDIIcon icon="FiShield" size={20} ariaLabel="Security Information" />
+								<BootstrapIcon icon={getBootstrapIconName("FiShield")} size={20} aria-label="Security Information" />
 								<InfoText>
 									<strong>Security Recommendation:</strong> Use the most secure method supported by
 									your client type. For server-side applications, prefer client secret methods. For
@@ -400,17 +367,13 @@ export const TokenEndpointAuthModalPingUI: React.FC<TokenEndpointAuthModalPingUI
 									<AuthMethodCard key={method.method}>
 										<MethodHeader>
 											<MethodIcon $method={method.method}>
-												<MDIIcon icon="FiLock" size={24} ariaLabel={method.name} />
+												<BootstrapIcon icon={getBootstrapIconName("FiLock")} size={24} aria-label={method.name} />
 											</MethodIcon>
 											<MethodName>{method.name}</MethodName>
 										</MethodHeader>
 										<MethodDescription>{method.description}</MethodDescription>
 										<SecurityLevel $level={method.security as 'low' | 'medium' | 'high'}>
-											<MDIIcon
-												icon={getSecurityIcon(method.security)}
-												size={12}
-												ariaHidden={true}
-											/>
+											{getSecurityIcon(method.security)}
 											Security: {method.security.toUpperCase()}
 										</SecurityLevel>
 									</AuthMethodCard>
@@ -434,11 +397,7 @@ export const TokenEndpointAuthModalPingUI: React.FC<TokenEndpointAuthModalPingUI
 										</TableCell>
 										<TableCell>
 											<SecurityLevel $level={method.security as 'low' | 'medium' | 'high'}>
-												<MDIIcon
-													icon={getSecurityIcon(method.security)}
-													size={12}
-													ariaHidden={true}
-												/>
+												{getSecurityIcon(method.security)}
 												{method.security}
 											</SecurityLevel>
 										</TableCell>
