@@ -388,7 +388,11 @@ export const MFADocumentationPageV8PingUI: React.FC<MFADocumentationPageV8PingUI
 			<DocumentationContainer>
 				<Header>
 					<Title>
-						<BootstrapIcon icon={getBootstrapIconName("book")} size={24} ariaLabel="Documentation" />
+						<BootstrapIcon
+							icon={getBootstrapIconName('book')}
+							size={24}
+							ariaLabel="Documentation"
+						/>
 						{generateDocumentation.title}
 					</Title>
 					<ActionButtons>
@@ -396,7 +400,11 @@ export const MFADocumentationPageV8PingUI: React.FC<MFADocumentationPageV8PingUI
 							{isGeneratingPDF ? (
 								<LoadingSpinner />
 							) : (
-								<BootstrapIcon icon={getBootstrapIconName("download")} size={16} ariaLabel="Download PDF" />
+								<BootstrapIcon
+									icon={getBootstrapIconName('download')}
+									size={16}
+									ariaLabel="Download PDF"
+								/>
 							)}
 							{isGeneratingPDF ? 'Generating...' : 'Download PDF'}
 						</ActionButton>
@@ -404,7 +412,11 @@ export const MFADocumentationPageV8PingUI: React.FC<MFADocumentationPageV8PingUI
 							{isGeneratingMD ? (
 								<LoadingSpinner />
 							) : (
-								<BootstrapIcon icon={getBootstrapIconName("file-earmark-text")} size={16} ariaLabel="Download Markdown" />
+								<BootstrapIcon
+									icon={getBootstrapIconName('file-earmark-text')}
+									size={16}
+									ariaLabel="Download Markdown"
+								/>
 							)}
 							{isGeneratingMD ? 'Generating...' : 'Download MD'}
 						</ActionButton>
@@ -412,7 +424,11 @@ export const MFADocumentationPageV8PingUI: React.FC<MFADocumentationPageV8PingUI
 							{isGeneratingPostman ? (
 								<LoadingSpinner />
 							) : (
-								<BootstrapIcon icon={getBootstrapIconName("box-seam")} size={16} ariaLabel="Download Postman Collection" />
+								<BootstrapIcon
+									icon={getBootstrapIconName('box-seam')}
+									size={16}
+									ariaLabel="Download Postman Collection"
+								/>
 							)}
 							{isGeneratingPostman ? 'Generating...' : 'Postman'}
 						</SecondaryButton>
@@ -421,7 +437,11 @@ export const MFADocumentationPageV8PingUI: React.FC<MFADocumentationPageV8PingUI
 
 				{totalSteps > 1 && (
 					<ProgressIndicator>
-						<BootstrapIcon icon={getBootstrapIconName("info-circle")} size={16} ariaLabel="Progress Information" />
+						<BootstrapIcon
+							icon={getBootstrapIconName('info-circle')}
+							size={16}
+							ariaLabel="Progress Information"
+						/>
 						<ProgressText>
 							Step {currentStep} of {totalSteps} - {generateDocumentation.description}
 						</ProgressText>
@@ -433,7 +453,9 @@ export const MFADocumentationPageV8PingUI: React.FC<MFADocumentationPageV8PingUI
 						<SectionTitle>
 							API Calls
 							<BootstrapIcon
-								icon={getBootstrapIconName(expandedSections.has('api-calls') ? "chevron-up" : "chevron-down")}
+								icon={getBootstrapIconName(
+									expandedSections.has('api-calls') ? 'chevron-up' : 'chevron-down'
+								)}
 								size={16}
 								ariaLabel={expandedSections.has('api-calls') ? 'Collapse' : 'Expand'}
 							/>
@@ -465,7 +487,11 @@ export const MFADocumentationPageV8PingUI: React.FC<MFADocumentationPageV8PingUI
 											)
 										}
 									>
-										<BootstrapIcon icon={getBootstrapIconName("clipboard")} size={12} ariaLabel="Copy" />
+										<BootstrapIcon
+											icon={getBootstrapIconName('clipboard')}
+											size={12}
+											ariaLabel="Copy"
+										/>
 										Copy
 									</CopyButton>
 								</ApiCallHeader>
@@ -488,7 +514,9 @@ export const MFADocumentationPageV8PingUI: React.FC<MFADocumentationPageV8PingUI
 						<SectionTitle>
 							Credentials Used
 							<BootstrapIcon
-								icon={getBootstrapIconName(expandedSections.has('credentials') ? "chevron-up" : "chevron-down")}
+								icon={getBootstrapIconName(
+									expandedSections.has('credentials') ? 'chevron-up' : 'chevron-down'
+								)}
 								size={16}
 								ariaLabel={expandedSections.has('credentials') ? 'Collapse' : 'Expand'}
 							/>
@@ -496,7 +524,11 @@ export const MFADocumentationPageV8PingUI: React.FC<MFADocumentationPageV8PingUI
 					</SectionHeader>
 					<SectionContent $isOpen={expandedSections.has('credentials')}>
 						<InfoBox>
-							<BootstrapIcon icon={getBootstrapIconName("info-circle")} size={20} ariaLabel="Information" />
+							<BootstrapIcon
+								icon={getBootstrapIconName('info-circle')}
+								size={20}
+								ariaLabel="Information"
+							/>
 							<InfoText>
 								<strong>Environment ID:</strong> {credentials?.environmentId || 'Not provided'}
 								<br />
@@ -518,7 +550,9 @@ export const MFADocumentationPageV8PingUI: React.FC<MFADocumentationPageV8PingUI
 						<SectionTitle>
 							Flow Details
 							<BootstrapIcon
-								icon={getBootstrapIconName(expandedSections.has('flow-details') ? "chevron-up" : "chevron-down")}
+								icon={getBootstrapIconName(
+									expandedSections.has('flow-details') ? 'chevron-up' : 'chevron-down'
+								)}
 								size={16}
 								ariaLabel={expandedSections.has('flow-details') ? 'Collapse' : 'Expand'}
 							/>
@@ -526,7 +560,11 @@ export const MFADocumentationPageV8PingUI: React.FC<MFADocumentationPageV8PingUI
 					</SectionHeader>
 					<SectionContent $isOpen={expandedSections.has('flow-details')}>
 						<InfoBox>
-							<BootstrapIcon icon={getBootstrapIconName("info-circle")} size={20} ariaLabel="Information" />
+							<BootstrapIcon
+								icon={getBootstrapIconName('info-circle')}
+								size={20}
+								ariaLabel="Information"
+							/>
 							<InfoText>
 								<strong>Registration Flow Type:</strong> {registrationFlowType}
 								<br />

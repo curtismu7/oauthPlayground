@@ -6,11 +6,11 @@
 
 import React, { useState } from 'react';
 
-import { FiCode, FiCopy, FiTerminal, FiCheckCircle, FiGitBranch } from 'react-icons/fi';
+import { FiCheckCircle, FiCode, FiCopy, FiGitBranch, FiTerminal } from 'react-icons/fi';
 import styled from 'styled-components';
 
 import BootstrapButton from '@/components/bootstrap/BootstrapButton';
-import { PageHeaderV8, PageHeaderTextColors } from '@/v8/components/shared/PageHeaderV8';
+import { PageHeaderTextColors, PageHeaderV8 } from '@/v8/components/shared/PageHeaderV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 interface CodeGenerator {
@@ -258,7 +258,7 @@ const mockCodeGenerators: CodeGenerator[] = [
 		description: 'Python implementation for service-to-service authentication',
 		category: 'authentication',
 		language: 'python',
-	}
+	},
 ];
 
 export const CodeGeneratorsPage: React.FC = () => {
@@ -275,39 +275,42 @@ export const CodeGeneratorsPage: React.FC = () => {
 	};
 
 	const handleVariableChange = (name: string, value: string) => {
-		setVariables(prev => ({ ...prev, [name]: value }));
+		setVariables((prev) => ({ ...prev, [name]: value }));
 	};
 
 	const generateCode = () => {
 		if (!selectedGenerator) return;
-		
+
 		// Simple code generation for demo
 		let code = '// Generated OAuth 2.0 Code\n';
 		code += `// ${selectedGenerator.title}\n`;
 		code += `// Language: ${selectedGenerator.language}\n`;
 		code += `// Category: ${selectedGenerator.category}\n\n`;
-		
+
 		// Add variables
 		Object.entries(variables).forEach(([key, value]) => {
 			code += `const ${key} = '${value}';\n`;
 		});
-		
+
 		code += '\n// Authorization Request\n';
 		code += `const authUrl = \`\${selectedGenerator.title} Authorization URL\`;\n`;
 		code += 'window.location.href = authUrl;\n';
-		
+
 		setGeneratedCode(code);
 		setActiveTab('examples');
 	};
 
 	const copyToClipboard = (text: string, type: string) => {
-		navigator.clipboard.writeText(text).then(() => {
-			setCopiedText(type);
-			toastV8.success(`${type} copied to clipboard`);
-			setTimeout(() => setCopiedText(''), 2000);
-		}).catch(() => {
-			toastV8.error('Failed to copy to clipboard');
-		});
+		navigator.clipboard
+			.writeText(text)
+			.then(() => {
+				setCopiedText(type);
+				toastV8.success(`${type} copied to clipboard`);
+				setTimeout(() => setCopiedText(''), 2000);
+			})
+			.catch(() => {
+				toastV8.error('Failed to copy to clipboard');
+			});
 	};
 
 	return (
@@ -324,22 +327,18 @@ export const CodeGeneratorsPage: React.FC = () => {
 					<FiCode />
 					Available Code Generators ({mockCodeGenerators.length})
 				</SectionTitle>
-				
+
 				<Grid>
 					{mockCodeGenerators.map((generator) => (
 						<GeneratorCard key={generator.id}>
 							<GeneratorTitle>{generator.title}</GeneratorTitle>
 							<GeneratorDescription>{generator.description}</GeneratorDescription>
-							
+
 							<div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
-								<CategoryBadge $category={generator.category}>
-									{generator.category}
-								</CategoryBadge>
-								<LanguageBadge $language={generator.language}>
-									{generator.language}
-								</LanguageBadge>
+								<CategoryBadge $category={generator.category}>{generator.category}</CategoryBadge>
+								<LanguageBadge $language={generator.language}>{generator.language}</LanguageBadge>
 							</div>
-							
+
 							<BootstrapButton
 								variant="primary"
 								onClick={() => handleGeneratorSelect(generator)}
@@ -359,7 +358,7 @@ export const CodeGeneratorsPage: React.FC = () => {
 						<FiTerminal />
 						{selectedGenerator.title}
 					</SectionTitle>
-					
+
 					<div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
 						<CategoryBadge $category={selectedGenerator.category}>
 							{selectedGenerator.category}
@@ -368,7 +367,7 @@ export const CodeGeneratorsPage: React.FC = () => {
 							{selectedGenerator.language}
 						</LanguageBadge>
 					</div>
-					
+
 					<TabContainer>
 						<TabButtons>
 							<TabButton
@@ -384,14 +383,12 @@ export const CodeGeneratorsPage: React.FC = () => {
 								Examples (1)
 							</TabButton>
 						</TabButtons>
-						
+
 						<TabContent>
 							{activeTab === 'variables' && (
 								<VariableForm>
 									<div>
-										<Label>
-											No variables configured for this generator
-										</Label>
+										<Label>No variables configured for this generator</Label>
 										<Input
 											type="text"
 											value=""
@@ -399,26 +396,20 @@ export const CodeGeneratorsPage: React.FC = () => {
 											placeholder="Demo variable"
 										/>
 									</div>
-									
+
 									<ActionButtons>
-										<BootstrapButton
-											variant="primary"
-											onClick={generateCode}
-										>
+										<BootstrapButton variant="primary" onClick={generateCode}>
 											<FiTerminal />
 											Generate Code
 										</BootstrapButton>
-										
-										<BootstrapButton
-											variant="secondary"
-											onClick={() => setSelectedGenerator(null)}
-										>
+
+										<BootstrapButton variant="secondary" onClick={() => setSelectedGenerator(null)}>
 											Close
 										</BootstrapButton>
 									</ActionButtons>
 								</VariableForm>
 							)}
-							
+
 							{activeTab === 'examples' && (
 								<>
 									{generatedCode && (
@@ -438,33 +429,25 @@ export const CodeGeneratorsPage: React.FC = () => {
 													{copiedText === 'Generated Code' ? 'Copied!' : 'Copy'}
 												</BootstrapButton>
 											</CodeHeader>
-											
-											<pre style={{ margin: 0, whiteSpace: 'pre-wrap' }}>
-												{generatedCode}
-											</pre>
+
+											<pre style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{generatedCode}</pre>
 										</CodeDisplay>
 									)}
-									
+
 									{!generatedCode && (
 										<div style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
 											<FiTerminal size={24} style={{ marginBottom: '1rem' }} />
 											<div>Click "Generate Code" to see the output</div>
 										</div>
 									)}
-									
+
 									<ActionButtons>
-										<BootstrapButton
-											variant="secondary"
-											onClick={() => setActiveTab('variables')}
-										>
+										<BootstrapButton variant="secondary" onClick={() => setActiveTab('variables')}>
 											<FiGitBranch />
 											Back to Variables
 										</BootstrapButton>
-										
-										<BootstrapButton
-											variant="secondary"
-											onClick={() => setSelectedGenerator(null)}
-										>
+
+										<BootstrapButton variant="secondary" onClick={() => setSelectedGenerator(null)}>
 											Close
 										</BootstrapButton>
 									</ActionButtons>

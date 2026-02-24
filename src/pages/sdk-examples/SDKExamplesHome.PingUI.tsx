@@ -4,7 +4,10 @@
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import CollapsibleSection from '@/components/CollapsibleSection';
+import { ExpandCollapseAllControls } from '@/components/ExpandCollapseAllControls';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
+import { useSectionsViewMode } from '@/services/sectionsViewModeService';
 import { ShowTokenConfigCheckboxV8 } from '@/v8/components/ShowTokenConfigCheckboxV8';
 import { SilentApiConfigCheckboxV8 } from '@/v8/components/SilentApiConfigCheckboxV8';
 import {
@@ -12,9 +15,6 @@ import {
 	SuperSimpleApiDisplayV8,
 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
-import { useSectionsViewMode } from '@/services/sectionsViewModeService';
-import { ExpandCollapseAllControls } from '@/components/ExpandCollapseAllControls';
-import CollapsibleSection from '@/components/CollapsibleSection';
 
 // PingOne UI Icon Component
 const MDIIcon: React.FC<{
@@ -175,13 +175,8 @@ const SDKExamplesHomePingUI: React.FC = () => {
 	// Expand/Collapse functionality - Phase 2 implementation
 	const pageKey = 'sdk-examples-home';
 	const sectionIds = ['examples-grid', 'api-display', 'documentation'];
-	const {
-		expandedStates,
-		expandAll,
-		collapseAll,
-		areAllExpanded,
-		areAllCollapsed,
-	} = useSectionsViewMode(pageKey, sectionIds);
+	const { expandedStates, expandAll, collapseAll, areAllExpanded, areAllCollapsed } =
+		useSectionsViewMode(pageKey, sectionIds);
 
 	return (
 		<div className="end-user-nano">
@@ -285,8 +280,8 @@ const SDKExamplesHomePingUI: React.FC = () => {
 							<span style={getStatusBadgeStyle('implemented')}>Implemented</span>
 							<h3 style={getExampleTitleStyle()}>SDK Documentation</h3>
 							<p style={getExampleDescriptionStyle()}>
-								Comprehensive documentation, usage guides, and best practices for implementing PingOne
-								SDKs in your applications.
+								Comprehensive documentation, usage guides, and best practices for implementing
+								PingOne SDKs in your applications.
 							</p>
 							<Link to="/sdk-examples/documentation" style={getExampleLinkStyle()}>
 								<MDIIcon icon="book" size={20} />

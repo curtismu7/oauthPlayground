@@ -14,6 +14,9 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { FlowGuidanceSystem } from '@/apps/flows/components/FlowGuidanceSystem';
+import { AdvancedOAuthFeatures } from '@/apps/unified/components/AdvancedOAuthFeatures';
+import { MobileResponsiveWrapper } from '@/apps/unified/components/MobileResponsiveWrapper';
 import { EducationModeToggle } from '@/components/education/EducationModeToggle';
 import { MasterEducationSection } from '@/components/education/MasterEducationSection';
 import { StandardizedCredentialExportImport } from '@/components/StandardizedCredentialExportImport';
@@ -38,10 +41,7 @@ import {
 	SpecVersionServiceV8,
 } from '@/v8/services/specVersionServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { AdvancedOAuthFeatures } from '@/apps/unified/components/AdvancedOAuthFeatures';
 import CredentialsFormV8U from '@/v8u/components/CredentialsFormV8U';
-import { FlowGuidanceSystem } from '@/apps/flows/components/FlowGuidanceSystem';
-import { MobileResponsiveWrapper } from '@/apps/unified/components/MobileResponsiveWrapper';
 import { SecurityScorecard } from '@/v8u/components/SecurityScorecard';
 import { UnifiedFlowSteps } from '@/v8u/components/UnifiedFlowSteps';
 import { UnifiedNavigationV8U } from '@/v8u/components/UnifiedNavigationV8U';

@@ -5,8 +5,8 @@
  * Shows all callback parameters and navigation state for troubleshooting
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 
 const MODULE_TAG = '[🔍 MFA-CALLBACK-DEBUG]';

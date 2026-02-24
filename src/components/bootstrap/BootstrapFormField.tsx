@@ -4,7 +4,7 @@
  * @description PingOne UI Bootstrap Form Field component
  * @version 9.25.1
  * @since 2026-02-23
- * 
+ *
  * Enhanced form field component with PingOne UI styling, Bootstrap 5 integration,
  * and comprehensive accessibility support. Features include validation states,
  * help text, error handling, and responsive design.
@@ -14,35 +14,35 @@ import React from 'react';
 import BootstrapIcon from '@/components/BootstrapIcon';
 
 interface BootstrapFormFieldProps {
-  label: string;
-  type?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url' | 'select';
-  id: string;
-  value: string;
-  onChange: (value: string) => void;
-  placeholder?: string;
-  required?: boolean;
-  disabled?: boolean;
-  error?: string;
-  helpText?: string;
-  className?: string;
-  'aria-label'?: string;
-  'aria-describedby'?: string;
-  children?: React.ReactNode; // For select options
-  size?: 'sm' | 'md' | 'lg';
-  variant?: 'default' | 'success' | 'warning' | 'info';
-  icon?: string;
-  iconPosition?: 'start' | 'end';
-  floating?: boolean;
-  readonly?: boolean;
+	label: string;
+	type?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url' | 'select';
+	id: string;
+	value: string;
+	onChange: (value: string) => void;
+	placeholder?: string;
+	required?: boolean;
+	disabled?: boolean;
+	error?: string;
+	helpText?: string;
+	className?: string;
+	'aria-label'?: string;
+	'aria-describedby'?: string;
+	children?: React.ReactNode; // For select options
+	size?: 'sm' | 'md' | 'lg';
+	variant?: 'default' | 'success' | 'warning' | 'info';
+	icon?: string;
+	iconPosition?: 'start' | 'end';
+	floating?: boolean;
+	readonly?: boolean;
 }
 
 /**
  * PingOne UI Bootstrap Form Field Component
- * 
+ *
  * A comprehensive form field component that implements PingOne UI design standards
  * with Bootstrap 5 classes and utilities. Supports various input types, validation
  * states, and accessibility features.
- * 
+ *
  * Features:
  * - Bootstrap 5 form control styling
  * - PingOne UI color scheme integration
@@ -54,290 +54,264 @@ interface BootstrapFormFieldProps {
  * - Help text and error messaging
  */
 const BootstrapFormField: React.FC<BootstrapFormFieldProps> = ({
-  label,
-  type = 'text',
-  id,
-  value,
-  onChange,
-  placeholder,
-  required = false,
-  disabled = false,
-  error,
-  helpText,
-  className = '',
-  'aria-label': ariaLabel,
-  'aria-describedby': ariaDescribedBy,
-  children,
-  size = 'md',
-  variant = 'default',
-  icon,
-  iconPosition = 'start',
-  floating = false,
-  readonly = false,
+	label,
+	type = 'text',
+	id,
+	value,
+	onChange,
+	placeholder,
+	required = false,
+	disabled = false,
+	error,
+	helpText,
+	className = '',
+	'aria-label': ariaLabel,
+	'aria-describedby': ariaDescribedBy,
+	children,
+	size = 'md',
+	variant = 'default',
+	icon,
+	iconPosition = 'start',
+	floating = false,
+	readonly = false,
 }) => {
-  const fieldId = id || `field-${Math.random().toString(36).substr(2, 9)}`;
-  
-  // Build aria-describedby attribute
-  const describedBy = [
-    ariaDescribedBy,
-    error ? `${fieldId}-error` : null,
-    helpText ? `${fieldId}-help` : null,
-  ]
-    .filter(Boolean)
-    .join(' ');
+	const fieldId = id || `field-${Math.random().toString(36).substr(2, 9)}`;
 
-  // Build validation state classes
-  const getValidationClasses = () => {
-    const classes = [];
-    
-    if (error) {
-      classes.push('is-invalid');
-    } else if (variant === 'success') {
-      classes.push('is-valid');
-    }
-    
-    return classes.join(' ');
-  };
+	// Build aria-describedby attribute
+	const describedBy = [
+		ariaDescribedBy,
+		error ? `${fieldId}-error` : null,
+		helpText ? `${fieldId}-help` : null,
+	]
+		.filter(Boolean)
+		.join(' ');
 
-  // Build size classes
-  const getSizeClasses = () => {
-    switch (size) {
-      case 'sm':
-        return 'form-control-sm';
-      case 'lg':
-        return 'form-control-lg';
-      default:
-        return '';
-    }
-  };
+	// Build validation state classes
+	const getValidationClasses = () => {
+		const classes = [];
 
-  // Build input wrapper classes
-  const getWrapperClasses = () => {
-    const classes = ['mb-3', 'ping-form-field'];
-    
-    if (floating) {
-      classes.push('form-floating');
-    }
-    
-    if (icon) {
-      classes.push('position-relative');
-    }
-    
-    if (className) {
-      classes.push(className);
-    }
-    
-    return classes.join(' ');
-  };
+		if (error) {
+			classes.push('is-invalid');
+		} else if (variant === 'success') {
+			classes.push('is-valid');
+		}
 
-  // Build input classes
-  const getInputClasses = () => {
-    const classes = [
-      'form-control',
-      'ping-form-control',
-      getSizeClasses(),
-      getValidationClasses()
-    ].filter(Boolean).join(' ');
+		return classes.join(' ');
+	};
 
-    return classes;
-  };
+	// Build size classes
+	const getSizeClasses = () => {
+		switch (size) {
+			case 'sm':
+				return 'form-control-sm';
+			case 'lg':
+				return 'form-control-lg';
+			default:
+				return '';
+		}
+	};
 
-  // Build select classes
-  const getSelectClasses = () => {
-    const classes = [
-      'form-select',
-      'ping-form-select',
-      getSizeClasses(),
-      getValidationClasses()
-    ].filter(Boolean).join(' ');
+	// Build input wrapper classes
+	const getWrapperClasses = () => {
+		const classes = ['mb-3', 'ping-form-field'];
 
-    return classes;
-  };
+		if (floating) {
+			classes.push('form-floating');
+		}
 
-  // Build label classes
-  const getLabelClasses = () => {
-    const classes = ['form-label', 'ping-form-label'];
-    
-    if (required) {
-      classes.push('required');
-    }
-    
-    if (floating) {
-      classes.push('floating-label');
-    }
-    
-    return classes.join(' ');
-  };
+		if (icon) {
+			classes.push('position-relative');
+		}
 
-  // Render input with icon
-  const renderInputWithIcon = (inputElement: React.ReactElement) => {
-    if (!icon) return inputElement;
+		if (className) {
+			classes.push(className);
+		}
 
-    if (iconPosition === 'start') {
-      return (
-        <div className="input-group">
-          <span className="input-group-text">
-            <BootstrapIcon icon={icon} size={16} aria-hidden={true} />
-          </span>
-          {inputElement}
-        </div>
-      );
-    } else {
-      return (
-        <div className="input-group">
-          {inputElement}
-          <span className="input-group-text">
-            <BootstrapIcon icon={icon} size={16} aria-hidden={true} />
-          </span>
-        </div>
-      );
-    }
-  };
+		return classes.join(' ');
+	};
 
-  // Render validation feedback
-  const renderValidationFeedback = () => {
-    if (error) {
-      return (
-        <div 
-          id={`${fieldId}-error`} 
-          className="invalid-feedback d-flex align-items-center"
-          role="alert"
-          aria-live="polite"
-        >
-          <BootstrapIcon 
-            icon="exclamation-triangle" 
-            size={14} 
-            className="me-1" 
-            aria-hidden={true}
-          />
-          {error}
-        </div>
-      );
-    }
+	// Build input classes
+	const getInputClasses = () => {
+		const classes = ['form-control', 'ping-form-control', getSizeClasses(), getValidationClasses()]
+			.filter(Boolean)
+			.join(' ');
 
-    if (variant === 'success') {
-      return (
-        <div 
-          id={`${fieldId}-success`} 
-          className="valid-feedback d-flex align-items-center"
-          aria-live="polite"
-        >
-          <BootstrapIcon 
-            icon="check-circle" 
-            size={14} 
-            className="me-1" 
-            aria-hidden={true}
-          />
-          Valid
-        </div>
-      );
-    }
+		return classes;
+	};
 
-    return null;
-  };
+	// Build select classes
+	const getSelectClasses = () => {
+		const classes = ['form-select', 'ping-form-select', getSizeClasses(), getValidationClasses()]
+			.filter(Boolean)
+			.join(' ');
 
-  // Render help text
-  const renderHelpText = () => {
-    if (!helpText) return null;
+		return classes;
+	};
 
-    return (
-      <div 
-        id={`${fieldId}-help`} 
-        className="form-text text-muted d-flex align-items-start"
-      >
-        <BootstrapIcon 
-          icon="info-circle" 
-          size={14} 
-          className="me-1 mt-0.5 flex-shrink-0" 
-          aria-hidden={true}
-        />
-        <span>{helpText}</span>
-      </div>
-    );
-  };
+	// Build label classes
+	const getLabelClasses = () => {
+		const classes = ['form-label', 'ping-form-label'];
 
-  // Render required indicator
-  const renderRequiredIndicator = () => {
-    if (!required) return null;
+		if (required) {
+			classes.push('required');
+		}
 
-    return (
-      <span 
-        className="text-danger ms-1" 
-        title="This field is required"
-        aria-label="required"
-      >
-        *
-      </span>
-    );
-  };
+		if (floating) {
+			classes.push('floating-label');
+		}
 
-  return (
-    <div className={getWrapperClasses()}>
-      {/* Label */}
-      {!floating && (
-        <label 
-          htmlFor={fieldId} 
-          className={getLabelClasses()}
-        >
-          {label}
-          {renderRequiredIndicator()}
-        </label>
-      )}
+		return classes.join(' ');
+	};
 
-      {/* Input/Select with Icon */}
-      {type === 'select' ? (
-        renderInputWithIcon(
-          <select
-            id={fieldId}
-            className={getSelectClasses()}
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            required={required}
-            disabled={disabled}
-            aria-label={ariaLabel}
-            aria-describedby={describedBy}
-            aria-invalid={!!error}
-          >
-            {children}
-          </select>
-        )
-      ) : (
-        renderInputWithIcon(
-          <input
-            type={type}
-            id={fieldId}
-            className={getInputClasses()}
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            placeholder={placeholder}
-            required={required}
-            disabled={disabled}
-            readOnly={readonly}
-            aria-label={ariaLabel}
-            aria-describedby={describedBy}
-            aria-invalid={!!error}
-          />
-        )
-      )}
+	// Render input with icon
+	const renderInputWithIcon = (inputElement: React.ReactElement) => {
+		if (!icon) return inputElement;
 
-      {/* Floating Label */}
-      {floating && (
-        <label 
-          htmlFor={fieldId} 
-          className={getLabelClasses()}
-        >
-          {label}
-          {renderRequiredIndicator()}
-        </label>
-      )}
+		if (iconPosition === 'start') {
+			return (
+				<div className="input-group">
+					<span className="input-group-text">
+						<BootstrapIcon icon={icon} size={16} aria-hidden={true} />
+					</span>
+					{inputElement}
+				</div>
+			);
+		} else {
+			return (
+				<div className="input-group">
+					{inputElement}
+					<span className="input-group-text">
+						<BootstrapIcon icon={icon} size={16} aria-hidden={true} />
+					</span>
+				</div>
+			);
+		}
+	};
 
-      {/* Validation Feedback */}
-      {renderValidationFeedback()}
+	// Render validation feedback
+	const renderValidationFeedback = () => {
+		if (error) {
+			return (
+				<div
+					id={`${fieldId}-error`}
+					className="invalid-feedback d-flex align-items-center"
+					role="alert"
+					aria-live="polite"
+				>
+					<BootstrapIcon
+						icon="exclamation-triangle"
+						size={14}
+						className="me-1"
+						aria-hidden={true}
+					/>
+					{error}
+				</div>
+			);
+		}
 
-      {/* Help Text */}
-      {renderHelpText()}
-    </div>
-  );
+		if (variant === 'success') {
+			return (
+				<div
+					id={`${fieldId}-success`}
+					className="valid-feedback d-flex align-items-center"
+					aria-live="polite"
+				>
+					<BootstrapIcon icon="check-circle" size={14} className="me-1" aria-hidden={true} />
+					Valid
+				</div>
+			);
+		}
+
+		return null;
+	};
+
+	// Render help text
+	const renderHelpText = () => {
+		if (!helpText) return null;
+
+		return (
+			<div id={`${fieldId}-help`} className="form-text text-muted d-flex align-items-start">
+				<BootstrapIcon
+					icon="info-circle"
+					size={14}
+					className="me-1 mt-0.5 flex-shrink-0"
+					aria-hidden={true}
+				/>
+				<span>{helpText}</span>
+			</div>
+		);
+	};
+
+	// Render required indicator
+	const renderRequiredIndicator = () => {
+		if (!required) return null;
+
+		return (
+			<span className="text-danger ms-1" title="This field is required" aria-label="required">
+				*
+			</span>
+		);
+	};
+
+	return (
+		<div className={getWrapperClasses()}>
+			{/* Label */}
+			{!floating && (
+				<label htmlFor={fieldId} className={getLabelClasses()}>
+					{label}
+					{renderRequiredIndicator()}
+				</label>
+			)}
+
+			{/* Input/Select with Icon */}
+			{type === 'select'
+				? renderInputWithIcon(
+						<select
+							id={fieldId}
+							className={getSelectClasses()}
+							value={value}
+							onChange={(e) => onChange(e.target.value)}
+							required={required}
+							disabled={disabled}
+							aria-label={ariaLabel}
+							aria-describedby={describedBy}
+							aria-invalid={!!error}
+						>
+							{children}
+						</select>
+					)
+				: renderInputWithIcon(
+						<input
+							type={type}
+							id={fieldId}
+							className={getInputClasses()}
+							value={value}
+							onChange={(e) => onChange(e.target.value)}
+							placeholder={placeholder}
+							required={required}
+							disabled={disabled}
+							readOnly={readonly}
+							aria-label={ariaLabel}
+							aria-describedby={describedBy}
+							aria-invalid={!!error}
+						/>
+					)}
+
+			{/* Floating Label */}
+			{floating && (
+				<label htmlFor={fieldId} className={getLabelClasses()}>
+					{label}
+					{renderRequiredIndicator()}
+				</label>
+			)}
+
+			{/* Validation Feedback */}
+			{renderValidationFeedback()}
+
+			{/* Help Text */}
+			{renderHelpText()}
+		</div>
+	);
 };
 
 export default BootstrapFormField;

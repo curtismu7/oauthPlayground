@@ -9,91 +9,88 @@
 import React from 'react';
 
 interface BootstrapButtonProps {
-  variant?: 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info' | 'light' | 'dark';
-  size?: 'sm' | 'md' | 'lg';
-  whiteBorder?: boolean;
-  greyBorder?: boolean;
-  outline?: boolean;
-  disabled?: boolean;
-  loading?: boolean;
-  className?: string;
-  children: React.ReactNode;
-  onClick?: () => void;
-  type?: 'button' | 'submit' | 'reset';
-  id?: string;
-  'aria-label'?: string;
-  'aria-disabled'?: boolean;
-  title?: string;
-  onMouseEnter?: () => void;
-  onMouseLeave?: () => void;
-  onFocus?: () => void;
-  onBlur?: () => void;
-  style?: React.CSSProperties;
+	variant?: 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info' | 'light' | 'dark';
+	size?: 'sm' | 'md' | 'lg';
+	whiteBorder?: boolean;
+	greyBorder?: boolean;
+	outline?: boolean;
+	disabled?: boolean;
+	loading?: boolean;
+	className?: string;
+	children: React.ReactNode;
+	onClick?: () => void;
+	type?: 'button' | 'submit' | 'reset';
+	id?: string;
+	'aria-label'?: string;
+	'aria-disabled'?: boolean;
+	title?: string;
+	onMouseEnter?: () => void;
+	onMouseLeave?: () => void;
+	onFocus?: () => void;
+	onBlur?: () => void;
+	style?: React.CSSProperties;
 }
 
 const BootstrapButton: React.FC<BootstrapButtonProps> = ({
-  variant = 'primary',
-  size = 'md',
-  whiteBorder = false,
-  greyBorder = false,
-  outline = false,
-  disabled = false,
-  loading = false,
-  className = '',
-  children,
-  onClick,
-  type = 'button',
-  id,
-  'aria-label': ariaLabel,
-  'aria-disabled': ariaDisabled,
-  title,
-  onMouseEnter,
-  onMouseLeave,
-  onFocus,
-  onBlur,
-  style,
+	variant = 'primary',
+	size = 'md',
+	whiteBorder = false,
+	greyBorder = false,
+	outline = false,
+	disabled = false,
+	loading = false,
+	className = '',
+	children,
+	onClick,
+	type = 'button',
+	id,
+	'aria-label': ariaLabel,
+	'aria-disabled': ariaDisabled,
+	title,
+	onMouseEnter,
+	onMouseLeave,
+	onFocus,
+	onBlur,
+	style,
 }) => {
-  const baseClasses = [
-    'btn',
-    outline ? `btn-outline-${variant}` : `btn-${variant}`,
-    size === 'sm' ? 'btn-sm' : size === 'lg' ? 'btn-lg' : '',
-    whiteBorder ? 'border-white' : '',
-    greyBorder ? 'border-grey' : '',
-    loading ? 'btn-loading' : '',
-    'ping-btn',
-    className,
-  ]
-    .filter(Boolean)
-    .join(' ');
+	const baseClasses = [
+		'btn',
+		outline ? `btn-outline-${variant}` : `btn-${variant}`,
+		size === 'sm' ? 'btn-sm' : size === 'lg' ? 'btn-lg' : '',
+		whiteBorder ? 'border-white' : '',
+		greyBorder ? 'border-grey' : '',
+		loading ? 'btn-loading' : '',
+		'ping-btn',
+		className,
+	]
+		.filter(Boolean)
+		.join(' ');
 
-  return (
-    <button
-      type={type}
-      id={id}
-      className={baseClasses}
-      onClick={onClick}
-      disabled={disabled || loading}
-      aria-label={ariaLabel}
-      aria-disabled={ariaDisabled || disabled || loading}
-      title={title}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-      onFocus={onFocus}
-      onBlur={onBlur}
-      style={style}
-    >
-      {loading && (
-        <>
-          <span
-            className="spinner-border spinner-border-sm me-2"
-            aria-hidden="true"
-          ></span>
-          <span className="visually-hidden">Loading...</span>
-        </>
-      )}
-      {children}
-    </button>
-  );
+	return (
+		<button
+			type={type}
+			id={id}
+			className={baseClasses}
+			onClick={onClick}
+			disabled={disabled || loading}
+			aria-label={ariaLabel}
+			aria-disabled={ariaDisabled || disabled || loading}
+			title={title}
+			onMouseEnter={onMouseEnter}
+			onMouseLeave={onMouseLeave}
+			onFocus={onFocus}
+			onBlur={onBlur}
+			style={style}
+		>
+			{loading && (
+				<>
+					<span className="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+					<span className="visually-hidden">Loading...</span>
+				</>
+			)}
+			{children}
+		</button>
+	);
 };
 
 export default BootstrapButton;

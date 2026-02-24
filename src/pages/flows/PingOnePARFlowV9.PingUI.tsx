@@ -4,20 +4,20 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { AuthorizationDetailsEditor } from '../../components/AuthorizationDetailsEditor';
 import BootstrapIcon from '../../components/BootstrapIcon';
-import { getBootstrapIconName } from '../../components/iconMapping';
-import { PingUIWrapper } from '../../components/PingUIWrapper';
-import { ExpandCollapseAllControls } from '../../components/ExpandCollapseAllControls';
-import { useSectionsViewMode } from '../../services/sectionsViewModeService';
-import { feedbackService } from '../../services/feedback/feedbackService';
-import { unifiedStorageManager } from '../../services/unifiedStorageManager';
-import { LearningTooltip } from '../../components/LearningTooltip';
 import ColoredTokenDisplay from '../../components/ColoredTokenDisplay';
 import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
-import { AuthorizationDetailsEditor } from '../../components/AuthorizationDetailsEditor';
-import { useCredentialBackup } from '../../hooks/useCredentialBackup';
+import { ExpandCollapseAllControls } from '../../components/ExpandCollapseAllControls';
+import { getBootstrapIconName } from '../../components/iconMapping';
+import { LearningTooltip } from '../../components/LearningTooltip';
+import { PingUIWrapper } from '../../components/PingUIWrapper';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
+import { useCredentialBackup } from '../../hooks/useCredentialBackup';
 import { usePageScroll } from '../../hooks/usePageScroll';
+import { feedbackService } from '../../services/feedback/feedbackService';
+import { useSectionsViewMode } from '../../services/sectionsViewModeService';
+import { unifiedStorageManager } from '../../services/unifiedStorageManager';
 
 // V9 PAR Flow Controller Interface
 interface PingOnePARFlowV9Controller {
@@ -99,19 +99,23 @@ const STEP_METADATA = [
 
 const PingOnePARFlowV9: React.FC<PingOnePARFlowV9Props> = ({
 	showAdvancedConfig = true,
-	sectionIds = ['overview', 'credentials', 'pkce', 'par-request', 'auth', 'response', 'exchange', 'tokens', 'completion'],
+	sectionIds = [
+		'overview',
+		'credentials',
+		'pkce',
+		'par-request',
+		'auth',
+		'response',
+		'exchange',
+		'tokens',
+		'completion',
+	],
 }) => {
 	const location = useLocation();
 
 	// Section management with V9 service
-	const {
-		expandedStates,
-		toggleSection,
-		expandAll,
-		collapseAll,
-		areAllExpanded,
-		areAllCollapsed
-	} = useSectionsViewMode('pingone-par-flow-v9', sectionIds);
+	const { expandedStates, toggleSection, expandAll, collapseAll, areAllExpanded, areAllCollapsed } =
+		useSectionsViewMode('pingone-par-flow-v9', sectionIds);
 
 	// Core state
 	const [currentStep, setCurrentStep] = useState(0);
@@ -182,7 +186,7 @@ const PingOnePARFlowV9: React.FC<PingOnePARFlowV9Props> = ({
 	useEffect(() => {
 		const loadFlowState = async () => {
 			try {
-				const savedState = await unifiedStorageManager.load('pingone-par-flow-v9-state') as {
+				const savedState = (await unifiedStorageManager.load('pingone-par-flow-v9-state')) as {
 					selectedVariant?: 'oauth' | 'oidc';
 					currentStep?: number;
 					pkceCodes?: typeof pkceCodes;
@@ -202,7 +206,8 @@ const PingOnePARFlowV9: React.FC<PingOnePARFlowV9Props> = ({
 						setCurrentStep(savedState.currentStep || 0);
 						if (savedState.pkceCodes) setPkceCodes(savedState.pkceCodes);
 						if (savedState.parConfig) setParConfig(savedState.parConfig);
-						if (savedState.authorizationDetails) setAuthorizationDetails(savedState.authorizationDetails);
+						if (savedState.authorizationDetails)
+							setAuthorizationDetails(savedState.authorizationDetails);
 						setParRequestUri(savedState.parRequestUri || '');
 						setTokens(savedState.tokens || null);
 					}
@@ -219,7 +224,7 @@ const PingOnePARFlowV9: React.FC<PingOnePARFlowV9Props> = ({
 	useEffect(() => {
 		const loadToken = async () => {
 			try {
-				const savedToken = await unifiedStorageManager.load('worker-token') as string;
+				const savedToken = (await unifiedStorageManager.load('worker-token')) as string;
 				if (savedToken) {
 					setWorkerToken(savedToken);
 					console.log('[PingOnePARFlowV9] Worker token loaded from storage');
@@ -240,32 +245,38 @@ const PingOnePARFlowV9: React.FC<PingOnePARFlowV9Props> = ({
 	usePageScroll({ pageName: 'PingOne PAR Flow V9 - PingOne UI', force: true });
 
 	// V9 step validation
-	const isStepValid = useCallback((step: number): boolean => {
-		switch (step) {
-			case 0:
-				return !!(controller.credentials?.environmentId && controller.credentials?.clientId);
-			case 1:
-				return !!(pkceCodes.codeVerifier && pkceCodes.codeChallenge);
-			case 2:
-				return !!parRequestUri;
-			case 3:
-				return !!controller.authorizationUrl;
-			case 4:
-				return !!controller.authCode;
-			case 5:
-				return !!tokens;
-			default:
-				return true;
-		}
-	}, [controller, pkceCodes, parRequestUri, tokens]);
+	const isStepValid = useCallback(
+		(step: number): boolean => {
+			switch (step) {
+				case 0:
+					return !!(controller.credentials?.environmentId && controller.credentials?.clientId);
+				case 1:
+					return !!(pkceCodes.codeVerifier && pkceCodes.codeChallenge);
+				case 2:
+					return !!parRequestUri;
+				case 3:
+					return !!controller.authorizationUrl;
+				case 4:
+					return !!controller.authCode;
+				case 5:
+					return !!tokens;
+				default:
+					return true;
+			}
+		},
+		[controller, pkceCodes, parRequestUri, tokens]
+	);
 
 	// V9 handlers
-	const handleVariantChange = useCallback((variant: 'oauth' | 'oidc') => {
-		setSelectedVariant(variant);
-		setCurrentStep(0);
-		controller.resetFlow();
-		controller.showSuccessFeedback(`Switched to ${variant.toUpperCase()} PAR Flow variant`);
-	}, [controller]);
+	const handleVariantChange = useCallback(
+		(variant: 'oauth' | 'oidc') => {
+			setSelectedVariant(variant);
+			setCurrentStep(0);
+			controller.resetFlow();
+			controller.showSuccessFeedback(`Switched to ${variant.toUpperCase()} PAR Flow variant`);
+		},
+		[controller]
+	);
 
 	const handleGeneratePKCE = useCallback(async () => {
 		try {
@@ -361,14 +372,17 @@ const PingOnePARFlowV9: React.FC<PingOnePARFlowV9Props> = ({
 		controller.showInfoFeedback('Flow reset successfully');
 	}, [controller]);
 
-	const handleCopy = useCallback(async (text: string, label: string) => {
-		try {
-			await navigator.clipboard.writeText(text);
-			controller.showSuccessFeedback(`${label} copied to clipboard`);
-		} catch (error) {
-			controller.showWarningFeedback('Failed to copy to clipboard');
-		}
-	}, [controller]);
+	const handleCopy = useCallback(
+		async (text: string, label: string) => {
+			try {
+				await navigator.clipboard.writeText(text);
+				controller.showSuccessFeedback(`${label} copied to clipboard`);
+			} catch (error) {
+				controller.showWarningFeedback('Failed to copy to clipboard');
+			}
+		},
+		[controller]
+	);
 
 	// V9 PAR request preview
 	const parRequestPreview = useMemo(() => {
@@ -407,13 +421,12 @@ const PingOnePARFlowV9: React.FC<PingOnePARFlowV9Props> = ({
 				<div className="d-flex gap-3 p-3 bg-light rounded-3 border">
 					<button
 						type="button"
-						className={`btn flex-fill ${selectedVariant === 'oauth'
-							? 'btn-success'
-							: 'btn-outline-success'
+						className={`btn flex-fill ${
+							selectedVariant === 'oauth' ? 'btn-success' : 'btn-outline-success'
 						}`}
 						onClick={() => handleVariantChange('oauth')}
 					>
-						<BootstrapIcon icon={getBootstrapIconName("shield-check")} size={16} className="me-2" />
+						<BootstrapIcon icon={getBootstrapIconName('shield-check')} size={16} className="me-2" />
 						<div className="text-start">
 							<div className="fw-semibold">OAuth 2.0 PAR</div>
 							<small className="opacity-75">Access token only - API authorization</small>
@@ -421,16 +434,17 @@ const PingOnePARFlowV9: React.FC<PingOnePARFlowV9Props> = ({
 					</button>
 					<button
 						type="button"
-						className={`btn flex-fill ${selectedVariant === 'oidc'
-							? 'btn-primary'
-							: 'btn-outline-primary'
+						className={`btn flex-fill ${
+							selectedVariant === 'oidc' ? 'btn-primary' : 'btn-outline-primary'
 						}`}
 						onClick={() => handleVariantChange('oidc')}
 					>
-						<BootstrapIcon icon={getBootstrapIconName("person-badge")} size={16} className="me-2" />
+						<BootstrapIcon icon={getBootstrapIconName('person-badge')} size={16} className="me-2" />
 						<div className="text-start">
 							<div className="fw-semibold">OpenID Connect PAR</div>
-							<small className="opacity-75">ID token + Access token - Authentication + Authorization</small>
+							<small className="opacity-75">
+								ID token + Access token - Authentication + Authorization
+							</small>
 						</div>
 					</button>
 				</div>
@@ -449,7 +463,11 @@ const PingOnePARFlowV9: React.FC<PingOnePARFlowV9Props> = ({
 							<div className="card mb-4">
 								<div className="card-header d-flex align-items-center justify-content-between">
 									<h5 className="mb-0 d-flex align-items-center">
-										<BootstrapIcon icon={getBootstrapIconName("info-circle")} size={20} className="me-2 text-info" />
+										<BootstrapIcon
+											icon={getBootstrapIconName('info-circle')}
+											size={20}
+											className="me-2 text-info"
+										/>
 										PingOne PAR Flow Overview
 									</h5>
 									<button
@@ -457,14 +475,26 @@ const PingOnePARFlowV9: React.FC<PingOnePARFlowV9Props> = ({
 										className="btn btn-sm btn-outline-secondary"
 										onClick={() => toggleSection('overview')}
 									>
-										<BootstrapIcon icon={getBootstrapIconName(expandedStates['overview'] ? "chevron-up" : "chevron-down")} size={16} />
+										<BootstrapIcon
+											icon={getBootstrapIconName(
+												expandedStates['overview'] ? 'chevron-up' : 'chevron-down'
+											)}
+											size={16}
+										/>
 									</button>
 								</div>
 								{expandedStates['overview'] && (
 									<div className="card-body">
 										<div className="alert alert-info">
-											<BootstrapIcon icon={getBootstrapIconName("shield-lock")} size={16} className="me-2" />
-											<strong>Pushed Authorization Requests (PAR)</strong> is an OAuth 2.0 security enhancement (RFC 9126) that addresses authorization code interception attacks by pushing authorization request parameters to the authorization server before redirecting the user.
+											<BootstrapIcon
+												icon={getBootstrapIconName('shield-lock')}
+												size={16}
+												className="me-2"
+											/>
+											<strong>Pushed Authorization Requests (PAR)</strong> is an OAuth 2.0 security
+											enhancement (RFC 9126) that addresses authorization code interception attacks
+											by pushing authorization request parameters to the authorization server before
+											redirecting the user.
 										</div>
 
 										<div className="row g-3 mt-3">
@@ -472,11 +502,16 @@ const PingOnePARFlowV9: React.FC<PingOnePARFlowV9Props> = ({
 												<div className="card h-100 border-danger">
 													<div className="card-body">
 														<h6 className="card-title d-flex align-items-center">
-															<BootstrapIcon icon={getBootstrapIconName("exclamation-triangle")} size={18} className="me-2 text-danger" />
+															<BootstrapIcon
+																icon={getBootstrapIconName('exclamation-triangle')}
+																size={18}
+																className="me-2 text-danger"
+															/>
 															Security Problem Solved
 														</h6>
 														<p className="card-text small">
-															PAR prevents authorization code interception attacks by keeping sensitive parameters server-side instead of in the browser URL.
+															PAR prevents authorization code interception attacks by keeping
+															sensitive parameters server-side instead of in the browser URL.
 														</p>
 													</div>
 												</div>
@@ -485,11 +520,16 @@ const PingOnePARFlowV9: React.FC<PingOnePARFlowV9Props> = ({
 												<div className="card h-100 border-success">
 													<div className="card-body">
 														<h6 className="card-title d-flex align-items-center">
-															<BootstrapIcon icon={getBootstrapIconName("check-circle")} size={18} className="me-2 text-success" />
+															<BootstrapIcon
+																icon={getBootstrapIconName('check-circle')}
+																size={18}
+																className="me-2 text-success"
+															/>
 															PingOne Implementation
 														</h6>
 														<p className="card-text small">
-															PingOne provides full PAR support with advanced security features, Rich Authorization Requests (RAR), and seamless integration.
+															PingOne provides full PAR support with advanced security features,
+															Rich Authorization Requests (RAR), and seamless integration.
 														</p>
 													</div>
 												</div>
@@ -506,13 +546,21 @@ const PingOnePARFlowV9: React.FC<PingOnePARFlowV9Props> = ({
 							<div className="card">
 								<div className="card-header">
 									<h5 className="mb-0 d-flex align-items-center">
-										<BootstrapIcon icon={getBootstrapIconName("key")} size={20} className="me-2 text-warning" />
+										<BootstrapIcon
+											icon={getBootstrapIconName('key')}
+											size={20}
+											className="me-2 text-warning"
+										/>
 										Credentials Configuration
 									</h5>
 								</div>
 								<div className="card-body">
 									<div className="alert alert-warning">
-										<BootstrapIcon icon={getBootstrapIconName("info-circle")} size={16} className="me-2" />
+										<BootstrapIcon
+											icon={getBootstrapIconName('info-circle')}
+											size={16}
+											className="me-2"
+										/>
 										Configure your PingOne environment and application credentials for PAR flow.
 									</div>
 
@@ -523,10 +571,12 @@ const PingOnePARFlowV9: React.FC<PingOnePARFlowV9Props> = ({
 												type="text"
 												className="form-control"
 												value={controller.credentials?.environmentId || ''}
-												onChange={(e) => controller.setCredentials({
-													...controller.credentials,
-													environmentId: e.target.value
-												})}
+												onChange={(e) =>
+													controller.setCredentials({
+														...controller.credentials,
+														environmentId: e.target.value,
+													})
+												}
 												placeholder="your-environment-id"
 											/>
 										</div>
@@ -536,10 +586,12 @@ const PingOnePARFlowV9: React.FC<PingOnePARFlowV9Props> = ({
 												type="text"
 												className="form-control"
 												value={controller.credentials?.clientId || ''}
-												onChange={(e) => controller.setCredentials({
-													...controller.credentials,
-													clientId: e.target.value
-												})}
+												onChange={(e) =>
+													controller.setCredentials({
+														...controller.credentials,
+														clientId: e.target.value,
+													})
+												}
 												placeholder="your-client-id"
 											/>
 										</div>
@@ -549,10 +601,12 @@ const PingOnePARFlowV9: React.FC<PingOnePARFlowV9Props> = ({
 												type="password"
 												className="form-control"
 												value={controller.credentials?.clientSecret || ''}
-												onChange={(e) => controller.setCredentials({
-													...controller.credentials,
-													clientSecret: e.target.value
-												})}
+												onChange={(e) =>
+													controller.setCredentials({
+														...controller.credentials,
+														clientSecret: e.target.value,
+													})
+												}
 												placeholder="your-client-secret"
 											/>
 										</div>
@@ -561,11 +615,16 @@ const PingOnePARFlowV9: React.FC<PingOnePARFlowV9Props> = ({
 											<input
 												type="url"
 												className="form-control"
-												value={controller.credentials?.redirectUri || 'https://localhost:3000/par-callback'}
-												onChange={(e) => controller.setCredentials({
-													...controller.credentials,
-													redirectUri: e.target.value
-												})}
+												value={
+													controller.credentials?.redirectUri ||
+													'https://localhost:3000/par-callback'
+												}
+												onChange={(e) =>
+													controller.setCredentials({
+														...controller.credentials,
+														redirectUri: e.target.value,
+													})
+												}
 												placeholder="https://your-app.com/callback"
 											/>
 										</div>
@@ -583,14 +642,23 @@ const PingOnePARFlowV9: React.FC<PingOnePARFlowV9Props> = ({
 							<div className="card">
 								<div className="card-header">
 									<h5 className="mb-0 d-flex align-items-center">
-										<BootstrapIcon icon={getBootstrapIconName("cpu")} size={20} className="me-2 text-success" />
+										<BootstrapIcon
+											icon={getBootstrapIconName('cpu')}
+											size={20}
+											className="me-2 text-success"
+										/>
 										PKCE Generation
 									</h5>
 								</div>
 								<div className="card-body">
 									<div className="alert alert-info">
-										<BootstrapIcon icon={getBootstrapIconName("shield-check")} size={16} className="me-2" />
-										Generate secure PKCE (Proof Key for Code Exchange) parameters for enhanced security in the PAR flow.
+										<BootstrapIcon
+											icon={getBootstrapIconName('shield-check')}
+											size={16}
+											className="me-2"
+										/>
+										Generate secure PKCE (Proof Key for Code Exchange) parameters for enhanced
+										security in the PAR flow.
 									</div>
 
 									{pkceCodes.codeVerifier && (
@@ -601,11 +669,15 @@ const PingOnePARFlowV9: React.FC<PingOnePARFlowV9Props> = ({
 													<div className="row g-2">
 														<div className="col-md-6">
 															<small className="text-muted d-block">Code Verifier</small>
-															<code className="d-block text-break small">{pkceCodes.codeVerifier}</code>
+															<code className="d-block text-break small">
+																{pkceCodes.codeVerifier}
+															</code>
 														</div>
 														<div className="col-md-6">
 															<small className="text-muted d-block">Code Challenge</small>
-															<code className="d-block text-break small">{pkceCodes.codeChallenge}</code>
+															<code className="d-block text-break small">
+																{pkceCodes.codeChallenge}
+															</code>
 														</div>
 													</div>
 												</div>
@@ -620,7 +692,11 @@ const PingOnePARFlowV9: React.FC<PingOnePARFlowV9Props> = ({
 											onClick={handleGeneratePKCE}
 											disabled={!!pkceCodes.codeVerifier}
 										>
-											<BootstrapIcon icon={getBootstrapIconName("cpu")} size={16} className="me-2" />
+											<BootstrapIcon
+												icon={getBootstrapIconName('cpu')}
+												size={16}
+												className="me-2"
+											/>
 											{pkceCodes.codeVerifier ? 'PKCE Generated' : 'Generate PKCE'}
 										</button>
 									</div>
@@ -633,7 +709,7 @@ const PingOnePARFlowV9: React.FC<PingOnePARFlowV9Props> = ({
 			default:
 				return (
 					<div className="alert alert-secondary">
-						<BootstrapIcon icon={getBootstrapIconName("info-circle")} size={16} className="me-2" />
+						<BootstrapIcon icon={getBootstrapIconName('info-circle')} size={16} className="me-2" />
 						PingOne PAR Flow V9 - Step {currentStep + 1} content will be implemented here
 					</div>
 				);
@@ -658,7 +734,11 @@ const PingOnePARFlowV9: React.FC<PingOnePARFlowV9Props> = ({
 						<div className="d-flex align-items-center justify-content-between">
 							<div>
 								<h1 className="h2 mb-2 d-flex align-items-center">
-									<BootstrapIcon icon={getBootstrapIconName("send-check")} size={28} className="me-3 text-primary" />
+									<BootstrapIcon
+										icon={getBootstrapIconName('send-check')}
+										size={28}
+										className="me-3 text-primary"
+									/>
 									PingOne PAR Flow V9
 									<span className="badge bg-success ms-2">PingOne UI</span>
 								</h1>
@@ -687,7 +767,10 @@ const PingOnePARFlowV9: React.FC<PingOnePARFlowV9Props> = ({
 							<nav aria-label="PingOne PAR flow steps">
 								<ul className="pagination pagination-lg">
 									{STEP_METADATA.map((step, index) => (
-										<li key={step.title} className={`page-item ${currentStep === index ? 'active' : ''} ${isStepValid(index) ? '' : 'disabled'}`}>
+										<li
+											key={step.title}
+											className={`page-item ${currentStep === index ? 'active' : ''} ${isStepValid(index) ? '' : 'disabled'}`}
+										>
 											<button
 												type="button"
 												className="page-link"
@@ -711,7 +794,11 @@ const PingOnePARFlowV9: React.FC<PingOnePARFlowV9Props> = ({
 							<div className="card">
 								<div className="card-header d-flex align-items-center justify-content-between">
 									<h5 className="mb-0 d-flex align-items-center">
-										<BootstrapIcon icon={getBootstrapIconName("code-slash")} size={20} className="me-2 text-info" />
+										<BootstrapIcon
+											icon={getBootstrapIconName('code-slash')}
+											size={20}
+											className="me-2 text-info"
+										/>
 										PAR Request Preview
 									</h5>
 									<button
@@ -719,7 +806,11 @@ const PingOnePARFlowV9: React.FC<PingOnePARFlowV9Props> = ({
 										className="btn btn-sm btn-outline-secondary"
 										onClick={() => handleCopy(parRequestPreview, 'PAR Request')}
 									>
-										<BootstrapIcon icon={getBootstrapIconName("clipboard")} size={16} className="me-1" />
+										<BootstrapIcon
+											icon={getBootstrapIconName('clipboard')}
+											size={16}
+											className="me-1"
+										/>
 										Copy
 									</button>
 								</div>
@@ -740,7 +831,11 @@ const PingOnePARFlowV9: React.FC<PingOnePARFlowV9Props> = ({
 							<div className="card">
 								<div className="card-header">
 									<h5 className="mb-0 d-flex align-items-center">
-										<BootstrapIcon icon={getBootstrapIconName("key")} size={20} className="me-2 text-success" />
+										<BootstrapIcon
+											icon={getBootstrapIconName('key')}
+											size={20}
+											className="me-2 text-success"
+										/>
 										Received Tokens
 									</h5>
 								</div>
@@ -756,9 +851,7 @@ const PingOnePARFlowV9: React.FC<PingOnePARFlowV9Props> = ({
 
 				{/* V9 Step Content */}
 				<div className="row">
-					<div className="col-12">
-						{renderStepContent}
-					</div>
+					<div className="col-12">{renderStepContent}</div>
 				</div>
 
 				{/* V9 Action Buttons */}
@@ -771,61 +864,53 @@ const PingOnePARFlowV9: React.FC<PingOnePARFlowV9Props> = ({
 								onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
 								disabled={currentStep === 0}
 							>
-								<BootstrapIcon icon={getBootstrapIconName("chevron-left")} size={16} className="me-1" />
+								<BootstrapIcon
+									icon={getBootstrapIconName('chevron-left')}
+									size={16}
+									className="me-1"
+								/>
 								Previous
 							</button>
 
 							<div className="d-flex gap-2">
 								{currentStep === 1 && !pkceCodes.codeVerifier && (
-									<button
-										type="button"
-										className="btn btn-success"
-										onClick={handleGeneratePKCE}
-									>
-										<BootstrapIcon icon={getBootstrapIconName("cpu")} size={16} className="me-2" />
+									<button type="button" className="btn btn-success" onClick={handleGeneratePKCE}>
+										<BootstrapIcon icon={getBootstrapIconName('cpu')} size={16} className="me-2" />
 										Generate PKCE
 									</button>
 								)}
 
 								{currentStep === 2 && !parRequestUri && (
-									<button
-										type="button"
-										className="btn btn-primary"
-										onClick={handlePARRequest}
-									>
-										<BootstrapIcon icon={getBootstrapIconName("send")} size={16} className="me-2" />
+									<button type="button" className="btn btn-primary" onClick={handlePARRequest}>
+										<BootstrapIcon icon={getBootstrapIconName('send')} size={16} className="me-2" />
 										Send PAR Request
 									</button>
 								)}
 
 								{currentStep === 3 && !controller.authorizationUrl && (
-									<button
-										type="button"
-										className="btn btn-primary"
-										onClick={handleGenerateAuthUrl}
-									>
-										<BootstrapIcon icon={getBootstrapIconName("link")} size={16} className="me-2" />
+									<button type="button" className="btn btn-primary" onClick={handleGenerateAuthUrl}>
+										<BootstrapIcon icon={getBootstrapIconName('link')} size={16} className="me-2" />
 										Generate Auth URL
 									</button>
 								)}
 
 								{currentStep === 4 && controller.authCode && !tokens && (
-									<button
-										type="button"
-										className="btn btn-success"
-										onClick={handleTokenExchange}
-									>
-										<BootstrapIcon icon={getBootstrapIconName("arrow-left-right")} size={16} className="me-2" />
+									<button type="button" className="btn btn-success" onClick={handleTokenExchange}>
+										<BootstrapIcon
+											icon={getBootstrapIconName('arrow-left-right')}
+											size={16}
+											className="me-2"
+										/>
 										Exchange Tokens
 									</button>
 								)}
 
-								<button
-									type="button"
-									className="btn btn-outline-danger"
-									onClick={handleReset}
-								>
-									<BootstrapIcon icon={getBootstrapIconName("arrow-clockwise")} size={16} className="me-1" />
+								<button type="button" className="btn btn-outline-danger" onClick={handleReset}>
+									<BootstrapIcon
+										icon={getBootstrapIconName('arrow-clockwise')}
+										size={16}
+										className="me-1"
+									/>
 									Reset Flow
 								</button>
 							</div>
@@ -837,7 +922,11 @@ const PingOnePARFlowV9: React.FC<PingOnePARFlowV9Props> = ({
 								disabled={!isStepValid(currentStep) || currentStep === STEP_METADATA.length - 1}
 							>
 								Next
-								<BootstrapIcon icon={getBootstrapIconName("chevron-right")} size={16} className="ms-1" />
+								<BootstrapIcon
+									icon={getBootstrapIconName('chevron-right')}
+									size={16}
+									className="ms-1"
+								/>
 							</button>
 						</div>
 					</div>

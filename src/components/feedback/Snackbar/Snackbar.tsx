@@ -198,7 +198,7 @@ export const Snackbar: React.FC<SnackbarProps> = ({
 
 			return () => clearTimeout(timer);
 		}
-		
+
 		// Return empty cleanup function for manual dismiss case
 		return () => {};
 	}, [duration, manualDismiss, handleDismiss]);

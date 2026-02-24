@@ -11,12 +11,12 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import AppVersionBadge from '../components/AppVersionBadge';
+import BootstrapButton from '../components/bootstrap/BootstrapButton';
 import StandardHeader from '../components/StandardHeader';
 import ViewModeControls from '../components/ViewModeControls';
 import { useViewMode } from '../hooks/useViewMode';
-import { type ActivityItem, getRecentActivity } from '../utils/activityTracker';
-import BootstrapButton from '../components/bootstrap/BootstrapButton';
 import { feedbackService } from '../services/feedback/feedbackService';
+import { type ActivityItem, getRecentActivity } from '../utils/activityTracker';
 import '../styles/button-color-system.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/bootstrap/pingone-bootstrap.css';
@@ -149,7 +149,9 @@ const getStatusIndicatorStyle = (status: 'online' | 'offline' | 'checking') => (
 	marginRight: '0.5rem',
 });
 
-const getButtonStyle = (variant: 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info' = 'primary') => {
+const getButtonStyle = (
+	variant: 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info' = 'primary'
+) => {
 	const baseStyle = {
 		padding: '0.625rem 1.25rem',
 		borderRadius: '0.5rem',
@@ -161,7 +163,7 @@ const getButtonStyle = (variant: 'primary' | 'secondary' | 'success' | 'warning'
 		alignItems: 'center',
 		gap: '0.5rem',
 	};
-	
+
 	switch (variant) {
 		case 'primary':
 			return {
@@ -210,7 +212,7 @@ const getViewModeButtonStyle = (isActive: boolean) => {
 		cursor: 'pointer',
 		transition: 'all 0.15s ease-in-out',
 	};
-	
+
 	if (isActive) {
 		return {
 			...baseStyle,
@@ -247,15 +249,10 @@ const Dashboard: React.FC = () => {
 		apiEndpoints: false,
 		recentActivity: false,
 	};
-	
-	const {
-		viewMode,
-		collapsedSections,
-		toggleSection,
-		expandAllSections,
-		collapseAllSections,
-	} = useViewMode(initialSections);
-	
+
+	const { viewMode, collapsedSections, toggleSection, expandAllSections, collapseAllSections } =
+		useViewMode(initialSections);
+
 	const [serverStatus, setServerStatus] = useState({
 		backend: 'checking',
 		frontend: 'online',
@@ -347,14 +344,12 @@ const Dashboard: React.FC = () => {
 			setRecentActivity(activity);
 			await checkServerStatus();
 			console.log('Dashboard refreshed successfully');
-			
+
 			// Show success feedback
-			setFeedbackMessage(
-				feedbackService.showSuccessSnackbar('Dashboard refreshed successfully')
-			);
+			setFeedbackMessage(feedbackService.showSuccessSnackbar('Dashboard refreshed successfully'));
 		} catch (error) {
 			console.error('Failed to refresh dashboard:', error);
-			
+
 			// Show error feedback
 			setFeedbackMessage(
 				feedbackService.showWarningSnackbar('Failed to refresh dashboard. Please try again.')
@@ -404,7 +399,7 @@ const Dashboard: React.FC = () => {
 							icon="view-dashboard"
 							badge={{
 								text: 'Live',
-								variant: 'success'
+								variant: 'success',
 							}}
 						/>
 
@@ -472,17 +467,22 @@ const Dashboard: React.FC = () => {
 					}}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-						<MDIIcon
-							icon="information"
-							size={24}
-							style={{ color: '#ffffff', flexShrink: 0 }}
-						/>
+						<MDIIcon icon="information" size={24} style={{ color: '#ffffff', flexShrink: 0 }} />
 						<div style={{ flex: 1 }}>
-							<h4 style={{ color: '#ffffff', margin: '0 0 0.25rem 0', fontSize: '1.125rem', fontWeight: 600 }}>
+							<h4
+								style={{
+									color: '#ffffff',
+									margin: '0 0 0.25rem 0',
+									fontSize: '1.125rem',
+									fontWeight: 600,
+								}}
+							>
 								Messaging System Migration In Progress
 							</h4>
 							<p style={{ color: '#f3f4f6', margin: '0', fontSize: '0.875rem', lineHeight: 1.5 }}>
-								We're upgrading our notification system to provide better user feedback. Critical authentication flows are being migrated first to ensure no disruption to your OAuth testing experience.
+								We're upgrading our notification system to provide better user feedback. Critical
+								authentication flows are being migrated first to ensure no disruption to your OAuth
+								testing experience.
 							</p>
 						</div>
 						<BootstrapButton
@@ -524,7 +524,7 @@ const Dashboard: React.FC = () => {
 						}}
 						badge={{
 							text: 'Active',
-							variant: 'success'
+							variant: 'success',
 						}}
 					>
 						<div style={getCardStyle()}>
@@ -621,7 +621,7 @@ const Dashboard: React.FC = () => {
 							toggleSection('quickAccess');
 						}}
 					/>
-					
+
 					{!collapsedSections.quickAccess && (
 						<div style={getGridStyle(4)}>
 							<a href="/flows/oauth-authorization-code-v8" style={{ textDecoration: 'none' }}>
@@ -839,7 +839,7 @@ const Dashboard: React.FC = () => {
 						onToggle={() => toggleSection('apiEndpoints')}
 						badge={{
 							text: 'Available',
-							variant: 'primary'
+							variant: 'primary',
 						}}
 					>
 						<div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -892,7 +892,7 @@ const Dashboard: React.FC = () => {
 						onToggle={() => toggleSection('recentActivity')}
 						badge={{
 							text: recentActivity.length > 0 ? recentActivity.length.toString() : 'None',
-							variant: recentActivity.length > 0 ? 'default' : 'default'
+							variant: recentActivity.length > 0 ? 'default' : 'default',
 						}}
 					>
 						<div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -955,7 +955,7 @@ const Dashboard: React.FC = () => {
 					</StandardHeader>
 				</div>
 			</div>
-			
+
 			{/* Feedback messages */}
 			{feedbackMessage && (
 				<div style={{ position: 'fixed', bottom: '2rem', right: '2rem', zIndex: 1000 }}>

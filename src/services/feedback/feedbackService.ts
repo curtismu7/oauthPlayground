@@ -116,48 +116,60 @@ export class FeedbackService {
 	/**
 	 * Show inline error message
 	 */
-	showInlineError(message: string, field?: string, action?: { label: string; onClick: () => void }): React.ReactElement {
+	showInlineError(
+		message: string,
+		field?: string,
+		action?: { label: string; onClick: () => void }
+	): React.ReactElement {
 		const options: InlineFeedbackOptions = {
 			type: 'error',
 			message,
 			dismissible: true,
 		};
-		
+
 		if (field !== undefined) options.field = field;
 		if (action !== undefined) options.action = action;
-		
+
 		return this.showInlineMessage(options);
 	}
 
 	/**
 	 * Show inline warning message
 	 */
-	showInlineWarning(message: string, field?: string, action?: { label: string; onClick: () => void }): React.ReactElement {
+	showInlineWarning(
+		message: string,
+		field?: string,
+		action?: { label: string; onClick: () => void }
+	): React.ReactElement {
 		const options: InlineFeedbackOptions = {
 			type: 'warning',
 			message,
 			dismissible: true,
 		};
-		
+
 		if (field !== undefined) options.field = field;
 		if (action !== undefined) options.action = action;
-		
+
 		return this.showInlineMessage(options);
 	}
 
 	/**
 	 * Show inline success message
 	 */
-	showInlineSuccess(message: string, field?: string, action?: { label: string; onClick: () => void }): React.ReactElement {
+	showInlineSuccess(
+		message: string,
+		field?: string,
+		action?: { label: string; onClick: () => void }
+	): React.ReactElement {
 		const options: InlineFeedbackOptions = {
 			type: 'success',
 			message,
 			dismissible: true,
 		};
-		
+
 		if (field !== undefined) options.field = field;
 		if (action !== undefined) options.action = action;
-		
+
 		return this.showInlineMessage(options);
 	}
 
@@ -166,19 +178,19 @@ export class FeedbackService {
 	 */
 	showPageBanner(options: BannerFeedbackOptions): React.ReactElement {
 		const id = `banner-${Date.now()}-${Math.random()}`;
-		
+
 		// Build the final props object with only defined properties
 		const finalProps: Record<string, unknown> = {
 			type: options.type,
 			title: options.title,
 		};
-		
+
 		if (options.message !== undefined) finalProps.message = options.message;
 		if (options.dismissible !== undefined) finalProps.dismissible = options.dismissible;
 		if (options.persistent !== undefined) finalProps.persistent = options.persistent;
 		if (options.action !== undefined) finalProps.action = options.action;
 		if (options.role !== undefined) finalProps.role = options.role;
-		
+
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const element = React.createElement(PageBanner, finalProps as any);
 
@@ -191,68 +203,84 @@ export class FeedbackService {
 	/**
 	 * Show error banner
 	 */
-	showErrorBanner(title: string, message?: string, action?: { label: string; onClick: () => void }): React.ReactElement {
+	showErrorBanner(
+		title: string,
+		message?: string,
+		action?: { label: string; onClick: () => void }
+	): React.ReactElement {
 		const options: BannerFeedbackOptions = {
 			type: 'error',
 			title,
 			dismissible: true,
 			role: 'alert',
 		};
-		
+
 		if (message !== undefined) options.message = message;
 		if (action !== undefined) options.action = action;
-		
+
 		return this.showPageBanner(options);
 	}
 
 	/**
 	 * Show warning banner
 	 */
-	showWarningBanner(title: string, message?: string, action?: { label: string; onClick: () => void }): React.ReactElement {
+	showWarningBanner(
+		title: string,
+		message?: string,
+		action?: { label: string; onClick: () => void }
+	): React.ReactElement {
 		const options: BannerFeedbackOptions = {
 			type: 'warning',
 			title,
 			dismissible: true,
 			role: 'status',
 		};
-		
+
 		if (message !== undefined) options.message = message;
 		if (action !== undefined) options.action = action;
-		
+
 		return this.showPageBanner(options);
 	}
 
 	/**
 	 * Show info banner
 	 */
-	showInfoBanner(title: string, message?: string, action?: { label: string; onClick: () => void }): React.ReactElement {
+	showInfoBanner(
+		title: string,
+		message?: string,
+		action?: { label: string; onClick: () => void }
+	): React.ReactElement {
 		const options: BannerFeedbackOptions = {
 			type: 'info',
 			title,
 			dismissible: true,
 			role: 'status',
 		};
-		
+
 		if (message !== undefined) options.message = message;
 		if (action !== undefined) options.action = action;
-		
+
 		return this.showPageBanner(options);
 	}
 
 	/**
 	 * Show success banner
 	 */
-	showSuccessBanner(title: string, message?: string, action?: { label: string; onClick: () => void }): React.ReactElement {
+	showSuccessBanner(
+		title: string,
+		message?: string,
+		action?: { label: string; onClick: () => void }
+	): React.ReactElement {
 		const options: BannerFeedbackOptions = {
 			type: 'success',
 			title,
 			dismissible: true,
 			role: 'status',
 		};
-		
+
 		if (message !== undefined) options.message = message;
 		if (action !== undefined) options.action = action;
-		
+
 		return this.showPageBanner(options);
 	}
 
@@ -261,18 +289,18 @@ export class FeedbackService {
 	 */
 	showSnackbar(options: SnackbarFeedbackOptions): React.ReactElement {
 		const id = `snackbar-${Date.now()}-${Math.random()}`;
-		
+
 		// Build the final props object with only defined properties
 		const finalProps: Record<string, unknown> = {
 			message: options.message,
 			type: options.type,
 		};
-		
+
 		if (options.duration !== undefined) finalProps.duration = options.duration;
 		if (options.action !== undefined) finalProps.action = options.action;
 		if (options.onDismiss !== undefined) finalProps.onDismiss = options.onDismiss;
 		if (options.manualDismiss !== undefined) finalProps.manualDismiss = options.manualDismiss;
-		
+
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const element = React.createElement(Snackbar, finalProps as any);
 
@@ -285,59 +313,79 @@ export class FeedbackService {
 	/**
 	 * Show success snackbar
 	 */
-	showSuccessSnackbar(message: string, action?: { label: string; onClick: () => void }, duration?: number): React.ReactElement {
+	showSuccessSnackbar(
+		message: string,
+		action?: { label: string; onClick: () => void },
+		duration?: number
+	): React.ReactElement {
 		const options: SnackbarFeedbackOptions = {
 			type: 'success',
 			message,
 			duration: duration || 4000,
 		};
-		
+
 		if (action !== undefined) options.action = action;
-		
+
 		return this.showSnackbar(options);
 	}
 
 	/**
 	 * Show info snackbar
 	 */
-	showInfoSnackbar(message: string, action?: { label: string; onClick: () => void }, duration?: number): React.ReactElement {
+	showInfoSnackbar(
+		message: string,
+		action?: { label: string; onClick: () => void },
+		duration?: number
+	): React.ReactElement {
 		const options: SnackbarFeedbackOptions = {
 			type: 'info',
 			message,
 			duration: duration || 4000,
 		};
-		
+
 		if (action !== undefined) options.action = action;
-		
+
 		return this.showSnackbar(options);
 	}
 
 	/**
 	 * Show warning snackbar
 	 */
-	showWarningSnackbar(message: string, action?: { label: string; onClick: () => void }, duration?: number): React.ReactElement {
+	showWarningSnackbar(
+		message: string,
+		action?: { label: string; onClick: () => void },
+		duration?: number
+	): React.ReactElement {
 		const options: SnackbarFeedbackOptions = {
 			type: 'warning',
 			message,
 			duration: duration || 6000,
 		};
-		
+
 		if (action !== undefined) options.action = action;
-		
+
 		return this.showSnackbar(options);
 	}
 
 	/**
 	 * Get active banners
 	 */
-	getActiveBanners(): Array<{ id: string; options: BannerFeedbackOptions; element: React.ReactElement }> {
+	getActiveBanners(): Array<{
+		id: string;
+		options: BannerFeedbackOptions;
+		element: React.ReactElement;
+	}> {
 		return this.bannerQueue;
 	}
 
 	/**
 	 * Get active snackbars
 	 */
-	getActiveSnackbars(): Array<{ id: string; options: SnackbarFeedbackOptions; element: React.ReactElement }> {
+	getActiveSnackbars(): Array<{
+		id: string;
+		options: SnackbarFeedbackOptions;
+		element: React.ReactElement;
+	}> {
 		return this.snackbarQueue;
 	}
 
@@ -368,34 +416,61 @@ export class FeedbackService {
 export const feedbackService = FeedbackService.getInstance();
 
 // Export convenience methods for backward compatibility with toast patterns
-export const showInlineError = (message: string, field?: string, action?: { label: string; onClick: () => void }) =>
-	feedbackService.showInlineError(message, field, action);
+export const showInlineError = (
+	message: string,
+	field?: string,
+	action?: { label: string; onClick: () => void }
+) => feedbackService.showInlineError(message, field, action);
 
-export const showInlineWarning = (message: string, field?: string, action?: { label: string; onClick: () => void }) =>
-	feedbackService.showInlineWarning(message, field, action);
+export const showInlineWarning = (
+	message: string,
+	field?: string,
+	action?: { label: string; onClick: () => void }
+) => feedbackService.showInlineWarning(message, field, action);
 
-export const showInlineSuccess = (message: string, field?: string, action?: { label: string; onClick: () => void }) =>
-	feedbackService.showInlineSuccess(message, field, action);
+export const showInlineSuccess = (
+	message: string,
+	field?: string,
+	action?: { label: string; onClick: () => void }
+) => feedbackService.showInlineSuccess(message, field, action);
 
-export const showErrorBanner = (title: string, message?: string, action?: { label: string; onClick: () => void }) =>
-	feedbackService.showErrorBanner(title, message, action);
+export const showErrorBanner = (
+	title: string,
+	message?: string,
+	action?: { label: string; onClick: () => void }
+) => feedbackService.showErrorBanner(title, message, action);
 
-export const showWarningBanner = (title: string, message?: string, action?: { label: string; onClick: () => void }) =>
-	feedbackService.showWarningBanner(title, message, action);
+export const showWarningBanner = (
+	title: string,
+	message?: string,
+	action?: { label: string; onClick: () => void }
+) => feedbackService.showWarningBanner(title, message, action);
 
-export const showInfoBanner = (title: string, message?: string, action?: { label: string; onClick: () => void }) =>
-	feedbackService.showInfoBanner(title, message, action);
+export const showInfoBanner = (
+	title: string,
+	message?: string,
+	action?: { label: string; onClick: () => void }
+) => feedbackService.showInfoBanner(title, message, action);
 
-export const showSuccessBanner = (title: string, message?: string, action?: { label: string; onClick: () => void }) =>
-	feedbackService.showSuccessBanner(title, message, action);
+export const showSuccessBanner = (
+	title: string,
+	message?: string,
+	action?: { label: string; onClick: () => void }
+) => feedbackService.showSuccessBanner(title, message, action);
 
-export const showSuccessSnackbar = (message: string, action?: { label: string; onClick: () => void }) =>
-	feedbackService.showSuccessSnackbar(message, action);
+export const showSuccessSnackbar = (
+	message: string,
+	action?: { label: string; onClick: () => void }
+) => feedbackService.showSuccessSnackbar(message, action);
 
-export const showInfoSnackbar = (message: string, action?: { label: string; onClick: () => void }) =>
-	feedbackService.showInfoSnackbar(message, action);
+export const showInfoSnackbar = (
+	message: string,
+	action?: { label: string; onClick: () => void }
+) => feedbackService.showInfoSnackbar(message, action);
 
-export const showWarningSnackbar = (message: string, action?: { label: string; onClick: () => void }) =>
-	feedbackService.showWarningSnackbar(message, action);
+export const showWarningSnackbar = (
+	message: string,
+	action?: { label: string; onClick: () => void }
+) => feedbackService.showWarningSnackbar(message, action);
 
 export default feedbackService;

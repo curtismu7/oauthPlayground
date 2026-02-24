@@ -35,7 +35,7 @@ const availableGenerators: CodeGenerator[] = [
 		description: 'OAuth 2.0 Authorization Code implementation with PKCE',
 		category: 'authentication',
 		language: 'javascript',
-		flow: 'authorization-code'
+		flow: 'authorization-code',
 	},
 	{
 		id: 'client-credentials-python',
@@ -43,7 +43,7 @@ const availableGenerators: CodeGenerator[] = [
 		description: 'Service-to-service authentication using client credentials',
 		category: 'authentication',
 		language: 'python',
-		flow: 'client-credentials'
+		flow: 'client-credentials',
 	},
 	{
 		id: 'device-code-curl',
@@ -51,7 +51,7 @@ const availableGenerators: CodeGenerator[] = [
 		description: 'Device authorization for limited input devices',
 		category: 'authentication',
 		language: 'curl',
-		flow: 'device-code'
+		flow: 'device-code',
 	},
 	{
 		id: 'pkce-typescript',
@@ -59,8 +59,8 @@ const availableGenerators: CodeGenerator[] = [
 		description: 'Authorization Code with Proof Key for Code Exchange',
 		category: 'authentication',
 		language: 'typescript',
-		flow: 'pkce'
-	}
+		flow: 'pkce',
+	},
 ];
 
 export const CodeGeneratorsPageV9: React.FC = () => {
@@ -77,7 +77,7 @@ export const CodeGeneratorsPageV9: React.FC = () => {
 		clientSecret: '',
 		redirectUri: 'https://localhost:3000/callback',
 		environmentId: '',
-		scopes: ['openid', 'profile', 'email']
+		scopes: ['openid', 'profile', 'email'],
 	});
 
 	const handleGeneratorSelect = async (generator: CodeGenerator) => {
@@ -179,7 +179,7 @@ authUrl.searchParams.set('redirect_uri', config.redirectUri);
 authUrl.searchParams.set('scope', config.scopes.join(' '));
 authUrl.searchParams.set('state', generateRandomString(32));
 
-console.log('Authorization URL:', authUrl.toString());`
+console.log('Authorization URL:', authUrl.toString());`,
 				},
 				'client-credentials': {
 					python: `# OAuth 2.0 Client Credentials Flow
@@ -242,7 +242,7 @@ if __name__ == "__main__":
         token = flow.get_access_token(${JSON.stringify(config.scopes)})
         print("Token:", token)
     except Exception as e:
-        print("Failed to get token:", e)`
+        print("Failed to get token:", e)`,
 				},
 				'device-code': {
 					curl: `# OAuth 2.0 Device Authorization Flow
@@ -309,9 +309,9 @@ while true; do
         echo "Access Token: $ACCESS_TOKEN"
         break
     fi
-done`
+done`,
 				},
-				'pkce': {
+				pkce: {
 					typescript: `// OAuth 2.0 PKCE Authorization Code Flow
 // Generated for ${generator.title}
 
@@ -415,18 +415,18 @@ async function exchangeCodeForToken(authorizationCode: string): Promise<any> {
 
 // Usage
 console.log('PKCE Authorization Code Flow initialized');
-console.log('Call initiateAuthorization() to start the flow');`
-				}
+console.log('Call initiateAuthorization() to start the flow');`,
+				},
 			};
 
 			const template = templates[generator.flow]?.[generator.language];
-			
+
 			if (template) {
 				const content: GeneratedContent = {
 					type: 'code',
 					title: `${generator.title} - ${generator.language}`,
 					content: template,
-					language: generator.language
+					language: generator.language,
 				};
 				setGeneratedContent(content);
 			} else {
@@ -451,7 +451,7 @@ console.log('Configuration:', config);`;
 					type: 'code',
 					title: `${generator.title} - ${generator.language}`,
 					content: fallbackTemplate,
-					language: generator.language
+					language: generator.language,
 				};
 				setGeneratedContent(content);
 			}
@@ -464,18 +464,21 @@ console.log('Configuration:', config);`;
 	};
 
 	const copyToClipboard = (text: string, type: string) => {
-		navigator.clipboard.writeText(text).then(() => {
-			setCopiedText(type);
-			toastV8.success(`${type} copied to clipboard`);
-			setTimeout(() => setCopiedText(''), 2000);
-		}).catch(() => {
-			toastV8.error('Failed to copy to clipboard');
-		});
+		navigator.clipboard
+			.writeText(text)
+			.then(() => {
+				setCopiedText(type);
+				toastV8.success(`${type} copied to clipboard`);
+				setTimeout(() => setCopiedText(''), 2000);
+			})
+			.catch(() => {
+				toastV8.error('Failed to copy to clipboard');
+			});
 	};
 
 	const downloadContent = (content: GeneratedContent) => {
-		const blob = new Blob([content.content], { 
-			type: content.type === 'postman' ? 'application/json' : 'text/plain' 
+		const blob = new Blob([content.content], {
+			type: content.type === 'postman' ? 'application/json' : 'text/plain',
 		});
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement('a');
@@ -490,23 +493,35 @@ console.log('Configuration:', config);`;
 
 	const getCategoryColor = (category: string) => {
 		switch (category) {
-			case 'authentication': return 'primary';
-			case 'authorization': return 'success';
-			case 'tokens': return 'warning';
-			case 'api': return 'info';
-			default: return 'secondary';
+			case 'authentication':
+				return 'primary';
+			case 'authorization':
+				return 'success';
+			case 'tokens':
+				return 'warning';
+			case 'api':
+				return 'info';
+			default:
+				return 'secondary';
 		}
 	};
 
 	const getLanguageColor = (language: string) => {
 		switch (language) {
-			case 'javascript': return 'warning';
-			case 'typescript': return 'primary';
-			case 'python': return 'info';
-			case 'curl': return 'dark';
-			case 'java': return 'warning';
-			case 'csharp': return 'primary';
-			default: return 'secondary';
+			case 'javascript':
+				return 'warning';
+			case 'typescript':
+				return 'primary';
+			case 'python':
+				return 'info';
+			case 'curl':
+				return 'dark';
+			case 'java':
+				return 'warning';
+			case 'csharp':
+				return 'primary';
+			default:
+				return 'secondary';
 		}
 	};
 
@@ -519,11 +534,7 @@ console.log('Configuration:', config);`;
 						<div className="d-flex align-items-center justify-content-between">
 							<div>
 								<h1 className="h2 mb-2">
-									<BootstrapIcon 
-										icon={getBootstrapIconName("code")} 
-										size={24} 
-										className="me-2" 
-									/>
+									<BootstrapIcon icon={getBootstrapIconName('code')} size={24} className="me-2" />
 									Code Generators V9
 								</h1>
 								<p className="text-muted mb-0">
@@ -535,10 +546,10 @@ console.log('Configuration:', config);`;
 								type="button"
 								onClick={() => navigate('/')}
 							>
-								<BootstrapIcon 
-									icon={getBootstrapIconName("arrow-left")} 
-									size={16} 
-									className="me-1" 
+								<BootstrapIcon
+									icon={getBootstrapIconName('arrow-left')}
+									size={16}
+									className="me-1"
 								/>
 								Back
 							</button>
@@ -552,80 +563,96 @@ console.log('Configuration:', config);`;
 						<div className="card">
 							<div className="card-header">
 								<h5 className="card-title mb-0">
-									<BootstrapIcon 
-										icon={getBootstrapIconName("gear")} 
-										size={16} 
-										className="me-2" 
-									/>
+									<BootstrapIcon icon={getBootstrapIconName('gear')} size={16} className="me-2" />
 									Configuration
 								</h5>
 							</div>
 							<div className="card-body">
 								<div className="row g-3">
 									<div className="col-md-6">
-										<label htmlFor="baseUrl" className="form-label">Base URL</label>
+										<label htmlFor="baseUrl" className="form-label">
+											Base URL
+										</label>
 										<input
 											id="baseUrl"
 											type="text"
 											className="form-control"
 											value={config.baseUrl}
-											onChange={(e) => setConfig(prev => ({ ...prev, baseUrl: e.target.value }))}
+											onChange={(e) => setConfig((prev) => ({ ...prev, baseUrl: e.target.value }))}
 										/>
 									</div>
 									<div className="col-md-6">
-										<label htmlFor="clientId" className="form-label">Client ID</label>
+										<label htmlFor="clientId" className="form-label">
+											Client ID
+										</label>
 										<input
 											id="clientId"
 											type="text"
 											className="form-control"
 											value={config.clientId}
-											onChange={(e) => setConfig(prev => ({ ...prev, clientId: e.target.value }))}
+											onChange={(e) => setConfig((prev) => ({ ...prev, clientId: e.target.value }))}
 											placeholder="your-client-id"
 										/>
 									</div>
 									<div className="col-md-6">
-										<label htmlFor="clientSecret" className="form-label">Client Secret</label>
+										<label htmlFor="clientSecret" className="form-label">
+											Client Secret
+										</label>
 										<input
 											id="clientSecret"
 											type="password"
 											className="form-control"
 											value={config.clientSecret}
-											onChange={(e) => setConfig(prev => ({ ...prev, clientSecret: e.target.value }))}
+											onChange={(e) =>
+												setConfig((prev) => ({ ...prev, clientSecret: e.target.value }))
+											}
 											placeholder="your-client-secret"
 										/>
 									</div>
 									<div className="col-md-6">
-										<label htmlFor="redirectUri" className="form-label">Redirect URI</label>
+										<label htmlFor="redirectUri" className="form-label">
+											Redirect URI
+										</label>
 										<input
 											id="redirectUri"
 											type="text"
 											className="form-control"
 											value={config.redirectUri}
-											onChange={(e) => setConfig(prev => ({ ...prev, redirectUri: e.target.value }))}
+											onChange={(e) =>
+												setConfig((prev) => ({ ...prev, redirectUri: e.target.value }))
+											}
 										/>
 									</div>
 									<div className="col-md-6">
-										<label htmlFor="environmentId" className="form-label">Environment ID</label>
+										<label htmlFor="environmentId" className="form-label">
+											Environment ID
+										</label>
 										<input
 											id="environmentId"
 											type="text"
 											className="form-control"
 											value={config.environmentId}
-											onChange={(e) => setConfig(prev => ({ ...prev, environmentId: e.target.value }))}
+											onChange={(e) =>
+												setConfig((prev) => ({ ...prev, environmentId: e.target.value }))
+											}
 											placeholder="your-environment-id"
 										/>
 									</div>
 									<div className="col-md-6">
-										<label htmlFor="scopes" className="form-label">Scopes</label>
+										<label htmlFor="scopes" className="form-label">
+											Scopes
+										</label>
 										<input
 											id="scopes"
 											type="text"
 											className="form-control"
 											value={config.scopes.join(' ')}
-											onChange={(e) => setConfig(prev => ({ 
-												...prev, 
-												scopes: e.target.value.split(' ').filter(Boolean) 
-											}))}
+											onChange={(e) =>
+												setConfig((prev) => ({
+													...prev,
+													scopes: e.target.value.split(' ').filter(Boolean),
+												}))
+											}
 											placeholder="openid profile email"
 										/>
 									</div>
@@ -639,11 +666,7 @@ console.log('Configuration:', config);`;
 				<div className="row mb-4">
 					<div className="col-12">
 						<h3 className="h4 mb-3">
-							<BootstrapIcon 
-								icon={getBootstrapIconName("list")} 
-								size={20} 
-								className="me-2" 
-							/>
+							<BootstrapIcon icon={getBootstrapIconName('list')} size={20} className="me-2" />
 							Available Generators ({availableGenerators.length})
 						</h3>
 						<div className="row g-3">
@@ -667,10 +690,10 @@ console.log('Configuration:', config);`;
 												onClick={() => handleGeneratorSelect(generator)}
 												disabled={isLoading}
 											>
-												<BootstrapIcon 
-													icon={getBootstrapIconName("code")} 
-													size={16} 
-													className="me-1" 
+												<BootstrapIcon
+													icon={getBootstrapIconName('code')}
+													size={16}
+													className="me-1"
 												/>
 												{isLoading ? 'Generating...' : 'Generate'}
 											</button>
@@ -689,10 +712,10 @@ console.log('Configuration:', config);`;
 							<div className="card">
 								<div className="card-header d-flex justify-content-between align-items-center">
 									<h5 className="card-title mb-0">
-										<BootstrapIcon 
-											icon={getBootstrapIconName("file-earmark-code")} 
-											size={16} 
-											className="me-2" 
+										<BootstrapIcon
+											icon={getBootstrapIconName('file-earmark-code')}
+											size={16}
+											className="me-2"
 										/>
 										{generatedContent.title}
 									</h5>
@@ -702,10 +725,12 @@ console.log('Configuration:', config);`;
 											type="button"
 											onClick={() => copyToClipboard(generatedContent.content, 'Generated Content')}
 										>
-											<BootstrapIcon 
-												icon={getBootstrapIconName(copiedText === 'Generated Content' ? "check-circle" : "clipboard")} 
-												size={14} 
-												className="me-1" 
+											<BootstrapIcon
+												icon={getBootstrapIconName(
+													copiedText === 'Generated Content' ? 'check-circle' : 'clipboard'
+												)}
+												size={14}
+												className="me-1"
 											/>
 											{copiedText === 'Generated Content' ? 'Copied!' : 'Copy'}
 										</button>
@@ -714,10 +739,10 @@ console.log('Configuration:', config);`;
 											type="button"
 											onClick={() => downloadContent(generatedContent)}
 										>
-											<BootstrapIcon 
-												icon={getBootstrapIconName("download")} 
-												size={14} 
-												className="me-1" 
+											<BootstrapIcon
+												icon={getBootstrapIconName('download')}
+												size={14}
+												className="me-1"
 											/>
 											Download
 										</button>
@@ -726,11 +751,7 @@ console.log('Configuration:', config);`;
 											type="button"
 											onClick={() => setSelectedGenerator(null)}
 										>
-											<BootstrapIcon 
-												icon={getBootstrapIconName("x")} 
-												size={14} 
-												className="me-1" 
-											/>
+											<BootstrapIcon icon={getBootstrapIconName('x')} size={14} className="me-1" />
 											Close
 										</button>
 									</div>

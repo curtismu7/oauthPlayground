@@ -11,12 +11,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-
 // Bootstrap Icon Component (migrated from MDI)
 import BootstrapIcon from '@/components/BootstrapIcon';
 import { getBootstrapIconName } from '@/components/iconMapping';
+import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
+import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 export interface UserInfo {
 	sub?: string;
@@ -328,7 +327,11 @@ export const UserAuthenticationSuccessPageV8PingUI: React.FC<
 			<SuccessContainer>
 				<SuccessHeader>
 					<SuccessIcon>
-						<BootstrapIcon icon={getBootstrapIconName("check-circle")} size={64} ariaLabel="Success" />
+						<BootstrapIcon
+							icon={getBootstrapIconName('check-circle')}
+							size={64}
+							ariaLabel="Success"
+						/>
 					</SuccessIcon>
 					<SuccessTitle>Authentication Successful!</SuccessTitle>
 					<SuccessSubtitle>You have successfully authenticated with PingOne</SuccessSubtitle>
@@ -337,7 +340,11 @@ export const UserAuthenticationSuccessPageV8PingUI: React.FC<
 				{userInfo && (
 					<Section>
 						<SectionTitle>
-							<BootstrapIcon icon={getBootstrapIconName("person")} size={24} ariaLabel="User Information" />
+							<BootstrapIcon
+								icon={getBootstrapIconName('person')}
+								size={24}
+								ariaLabel="User Information"
+							/>
 							User Information
 						</SectionTitle>
 						<UserInfoCard>
@@ -373,7 +380,11 @@ export const UserAuthenticationSuccessPageV8PingUI: React.FC<
 
 				<Section>
 					<SectionTitle>
-						<BootstrapIcon icon={getBootstrapIconName("shield")} size={24} ariaLabel="Session Information" />
+						<BootstrapIcon
+							icon={getBootstrapIconName('shield')}
+							size={24}
+							ariaLabel="Session Information"
+						/>
 						Session Information
 					</SectionTitle>
 					<TokenCard>
@@ -383,7 +394,11 @@ export const UserAuthenticationSuccessPageV8PingUI: React.FC<
 								<CopyButton
 									onClick={() => copyToClipboard(sessionInfo.accessToken, 'Access Token')}
 								>
-									<BootstrapIcon icon={getBootstrapIconName("clipboard")} size={12} ariaLabel="Copy" />
+									<BootstrapIcon
+										icon={getBootstrapIconName('clipboard')}
+										size={12}
+										ariaLabel="Copy"
+									/>
 									Copy
 								</CopyButton>
 							</TokenHeader>
@@ -400,7 +415,11 @@ export const UserAuthenticationSuccessPageV8PingUI: React.FC<
 								<TokenHeader>
 									<TokenTitle>ID Token</TokenTitle>
 									<CopyButton onClick={() => copyToClipboard(sessionInfo.idToken!, 'ID Token')}>
-										<BootstrapIcon icon={getBootstrapIconName("clipboard")} size={12} ariaLabel="Copy" />
+										<BootstrapIcon
+											icon={getBootstrapIconName('clipboard')}
+											size={12}
+											ariaLabel="Copy"
+										/>
 										Copy
 									</CopyButton>
 								</TokenHeader>

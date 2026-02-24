@@ -31,10 +31,10 @@ import { callbackUriService } from '../services/callbackUriService';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { CopyButtonService } from '../services/copyButtonService';
 import { credentialStorageManager } from '../services/credentialStorageManager';
+import { feedbackService } from '../services/feedback/feedbackService';
 import { FlowHeader } from '../services/flowHeaderService';
 import { SaveButton } from '../services/saveButtonService';
 import { credentialManager } from '../utils/credentialManager';
-import { feedbackService } from '../services/feedback/feedbackService';
 import { migrateToast } from '../utils/migrationHelpers';
 import {
 	type TokenStatusInfo,
@@ -441,7 +441,7 @@ const Configuration: React.FC = () => {
 				type: 'error',
 				title: 'Reset Failed',
 				message: 'Unable to reset callback URIs. Check the console for details.',
-				dismissible: true
+				dismissible: true,
 			});
 		} finally {
 			setUriSaving(false);
@@ -496,7 +496,7 @@ const Configuration: React.FC = () => {
 				type: 'error',
 				title: 'Update Failed',
 				message: 'Unable to update callback URIs. Check the console for details.',
-				dismissible: true
+				dismissible: true,
 			});
 		} finally {
 			setUriSaving(false);
@@ -623,7 +623,7 @@ const Configuration: React.FC = () => {
 				type: 'error',
 				title: 'Save Failed',
 				message: 'Failed to save PingOne configuration. Please try again.',
-				dismissible: true
+				dismissible: true,
 			});
 		}
 	};
@@ -649,7 +649,7 @@ const Configuration: React.FC = () => {
 				type: 'error',
 				title: 'Save Failed',
 				message: 'Failed to save configuration. Please try again.',
-				dismissible: true
+				dismissible: true,
 			});
 			throw error;
 		}
@@ -666,7 +666,7 @@ const Configuration: React.FC = () => {
 			feedbackService.showSnackbar({
 				type: 'warning',
 				message: `Failed to copy ${label}`,
-				duration: 3000
+				duration: 3000,
 			});
 		}
 	};
@@ -817,7 +817,7 @@ const Configuration: React.FC = () => {
 										feedbackService.showSnackbar({
 											type: 'info',
 											message: 'Check Config functionality coming soon!',
-											duration: 4000
+											duration: 4000,
 										});
 									}}
 									style={{
@@ -861,7 +861,7 @@ const Configuration: React.FC = () => {
 										feedbackService.showSnackbar({
 											type: 'info',
 											message: 'Create App functionality coming soon!',
-											duration: 4000
+											duration: 4000,
 										});
 									}}
 									style={{
@@ -1057,17 +1057,20 @@ const Configuration: React.FC = () => {
 			</CollapsibleHeader>
 
 			{/* Configuration URI Status - Check redirect and logout URIs against PingOne */}
-			{tokenStatus.isValid && credentials.environmentId && credentials.clientId && tokenStatus.token && (
-				<ConfigurationURIChecker
-					flowType="configuration"
-					environmentId={credentials.environmentId}
-					clientId={credentials.clientId}
-					workerToken={tokenStatus.token}
-					redirectUri={credentials.redirectUri || ''}
-					postLogoutRedirectUri={credentials.postLogoutRedirectUri || ''}
-					region={credentials.region || 'us'}
-				/>
-			)}
+			{tokenStatus.isValid &&
+				credentials.environmentId &&
+				credentials.clientId &&
+				tokenStatus.token && (
+					<ConfigurationURIChecker
+						flowType="configuration"
+						environmentId={credentials.environmentId}
+						clientId={credentials.clientId}
+						workerToken={tokenStatus.token}
+						redirectUri={credentials.redirectUri || ''}
+						postLogoutRedirectUri={credentials.postLogoutRedirectUri || ''}
+						region={credentials.region || 'us'}
+					/>
+				)}
 
 			<CollapsibleHeader
 				title="Application Information"
@@ -1455,20 +1458,44 @@ cd oauthPlayground`}
 			>
 				<Card>
 					<h3 style={{ marginBottom: '1rem', color: '#1a1a1a' }}>Feedback System Settings</h3>
-					
+
 					<div style={{ marginBottom: '2rem' }}>
 						<h4 style={{ marginBottom: '1rem', color: '#374151' }}>Snackbar Configuration</h4>
-						<div style={{ backgroundColor: '#f8fafc', padding: '1rem', borderRadius: '0.5rem', marginBottom: '1rem' }}>
-							<p style={{ marginBottom: '0.5rem', fontWeight: '600' }}>Default Durations (milliseconds):</p>
+						<div
+							style={{
+								backgroundColor: '#f8fafc',
+								padding: '1rem',
+								borderRadius: '0.5rem',
+								marginBottom: '1rem',
+							}}
+						>
+							<p style={{ marginBottom: '0.5rem', fontWeight: '600' }}>
+								Default Durations (milliseconds):
+							</p>
 							<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#6b7280' }}>
-								<li>Success messages: <code>4000ms</code> (4 seconds)</li>
-								<li>Info messages: <code>4000ms</code> (4 seconds)</li>
-								<li>Warning messages: <code>6000ms</code> (6 seconds)</li>
-								<li>Error messages: <code>6000ms</code> (6 seconds)</li>
+								<li>
+									Success messages: <code>4000ms</code> (4 seconds)
+								</li>
+								<li>
+									Info messages: <code>4000ms</code> (4 seconds)
+								</li>
+								<li>
+									Warning messages: <code>6000ms</code> (6 seconds)
+								</li>
+								<li>
+									Error messages: <code>6000ms</code> (6 seconds)
+								</li>
 							</ul>
 						</div>
-						
-						<div style={{ backgroundColor: '#f0fdf4', padding: '1rem', borderRadius: '0.5rem', marginBottom: '1rem' }}>
+
+						<div
+							style={{
+								backgroundColor: '#f0fdf4',
+								padding: '1rem',
+								borderRadius: '0.5rem',
+								marginBottom: '1rem',
+							}}
+						>
 							<p style={{ marginBottom: '0.5rem', fontWeight: '600' }}>Environment Variables:</p>
 							<div style={{ fontFamily: 'monospace', fontSize: '0.875rem', color: '#059669' }}>
 								<div>VITE_FEEDBACK_SNACKBAR_DURATION=4000</div>
@@ -1481,20 +1508,49 @@ cd oauthPlayground`}
 
 					<div style={{ marginBottom: '2rem' }}>
 						<h4 style={{ marginBottom: '1rem', color: '#374151' }}>Message Types & Usage</h4>
-						<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
-							<div style={{ backgroundColor: '#fef2f2', padding: '1rem', borderRadius: '0.5rem', border: '1px solid #fecaca' }}>
+						<div
+							style={{
+								display: 'grid',
+								gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+								gap: '1rem',
+							}}
+						>
+							<div
+								style={{
+									backgroundColor: '#fef2f2',
+									padding: '1rem',
+									borderRadius: '0.5rem',
+									border: '1px solid #fecaca',
+								}}
+							>
 								<h5 style={{ color: '#dc2626', marginBottom: '0.5rem' }}>🚨 Inline Messages</h5>
 								<p style={{ margin: 0, fontSize: '0.875rem', color: '#6b7280' }}>
-									Form validation, per-field errors, contextual help. Appears directly where users need it.
+									Form validation, per-field errors, contextual help. Appears directly where users
+									need it.
 								</p>
 							</div>
-							<div style={{ backgroundColor: '#fffbeb', padding: '1rem', borderRadius: '0.5rem', border: '1px solid #fed7aa' }}>
+							<div
+								style={{
+									backgroundColor: '#fffbeb',
+									padding: '1rem',
+									borderRadius: '0.5rem',
+									border: '1px solid #fed7aa',
+								}}
+							>
 								<h5 style={{ color: '#d97706', marginBottom: '0.5rem' }}>📢 Page Banners</h5>
 								<p style={{ margin: 0, fontSize: '0.875rem', color: '#6b7280' }}>
-									System-wide messages, network issues, security warnings. Persistent until resolved.
+									System-wide messages, network issues, security warnings. Persistent until
+									resolved.
 								</p>
 							</div>
-							<div style={{ backgroundColor: '#f0fdf4', padding: '1rem', borderRadius: '0.5rem', border: '1px solid #bbf7d0' }}>
+							<div
+								style={{
+									backgroundColor: '#f0fdf4',
+									padding: '1rem',
+									borderRadius: '0.5rem',
+									border: '1px solid #bbf7d0',
+								}}
+							>
 								<h5 style={{ color: '#059669', marginBottom: '0.5rem' }}>✅ Snackbars</h5>
 								<p style={{ margin: 0, fontSize: '0.875rem', color: '#6b7280' }}>
 									Quick confirmations, brief notifications. Auto-dismisses with optional actions.
@@ -1505,31 +1561,66 @@ cd oauthPlayground`}
 
 					<div style={{ marginBottom: '2rem' }}>
 						<h4 style={{ marginBottom: '1rem', color: '#374151' }}>Migration Guide</h4>
-						<div style={{ backgroundColor: '#eff6ff', padding: '1rem', borderRadius: '0.5rem', border: '1px solid #dbeafe' }}>
-							<p style={{ marginBottom: '1rem', fontWeight: '600' }}>Toast to Feedback Pattern Mapping:</p>
+						<div
+							style={{
+								backgroundColor: '#eff6ff',
+								padding: '1rem',
+								borderRadius: '0.5rem',
+								border: '1px solid #dbeafe',
+							}}
+						>
+							<p style={{ marginBottom: '1rem', fontWeight: '600' }}>
+								Toast to Feedback Pattern Mapping:
+							</p>
 							<table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
 								<thead>
 									<tr style={{ backgroundColor: '#dbeafe' }}>
-										<th style={{ padding: '0.5rem', textAlign: 'left', border: '1px solid #bfdbfe' }}>Toast Message</th>
-										<th style={{ padding: '0.5rem', textAlign: 'left', border: '1px solid #bfdbfe' }}>New Pattern</th>
-										<th style={{ padding: '0.5rem', textAlign: 'left', border: '1px solid #bfdbfe' }}>Example</th>
+										<th
+											style={{ padding: '0.5rem', textAlign: 'left', border: '1px solid #bfdbfe' }}
+										>
+											Toast Message
+										</th>
+										<th
+											style={{ padding: '0.5rem', textAlign: 'left', border: '1px solid #bfdbfe' }}
+										>
+											New Pattern
+										</th>
+										<th
+											style={{ padding: '0.5rem', textAlign: 'left', border: '1px solid #bfdbfe' }}
+										>
+											Example
+										</th>
 									</tr>
 								</thead>
 								<tbody>
 									<tr>
-										<td style={{ padding: '0.5rem', border: '1px solid #e5e7eb' }}>Success confirmations</td>
+										<td style={{ padding: '0.5rem', border: '1px solid #e5e7eb' }}>
+											Success confirmations
+										</td>
 										<td style={{ padding: '0.5rem', border: '1px solid #e5e7eb' }}>Snackbar</td>
-										<td style={{ padding: '0.5rem', border: '1px solid #e5e7eb' }}>✓ Saved (Undo)</td>
+										<td style={{ padding: '0.5rem', border: '1px solid #e5e7eb' }}>
+											✓ Saved (Undo)
+										</td>
 									</tr>
 									<tr>
-										<td style={{ padding: '0.5rem', border: '1px solid #e5e7eb' }}>Form validation errors</td>
-										<td style={{ padding: '0.5rem', border: '1px solid #e5e7eb' }}>Inline Message</td>
-										<td style={{ padding: '0.5rem', border: '1px solid #e5e7eb' }}>Field: Required</td>
+										<td style={{ padding: '0.5rem', border: '1px solid #e5e7eb' }}>
+											Form validation errors
+										</td>
+										<td style={{ padding: '0.5rem', border: '1px solid #e5e7eb' }}>
+											Inline Message
+										</td>
+										<td style={{ padding: '0.5rem', border: '1px solid #e5e7eb' }}>
+											Field: Required
+										</td>
 									</tr>
 									<tr>
-										<td style={{ padding: '0.5rem', border: '1px solid #e5e7eb' }}>Network issues</td>
+										<td style={{ padding: '0.5rem', border: '1px solid #e5e7eb' }}>
+											Network issues
+										</td>
 										<td style={{ padding: '0.5rem', border: '1px solid #e5e7eb' }}>Page Banner</td>
-										<td style={{ padding: '0.5rem', border: '1px solid #e5e7eb' }}>⚠️ Connection detected</td>
+										<td style={{ padding: '0.5rem', border: '1px solid #e5e7eb' }}>
+											⚠️ Connection detected
+										</td>
 									</tr>
 								</tbody>
 							</table>
@@ -1540,11 +1631,22 @@ cd oauthPlayground`}
 						<h4 style={{ marginBottom: '1rem', color: '#374151' }}>Accessibility Features</h4>
 						<div style={{ backgroundColor: '#f3f4f6', padding: '1rem', borderRadius: '0.5rem' }}>
 							<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#6b7280' }}>
-								<li><strong>WCAG 2.1 AA Compliance:</strong> All components meet accessibility standards</li>
-								<li><strong>Keyboard Navigation:</strong> Full Tab, Enter, Space support</li>
-								<li><strong>Screen Reader Support:</strong> Proper ARIA labels and live regions</li>
-								<li><strong>Focus Management:</strong> Visible focus states and logical tab order</li>
-								<li><strong>Color Contrast:</strong> PingOne UI ensures compliance</li>
+								<li>
+									<strong>WCAG 2.1 AA Compliance:</strong> All components meet accessibility
+									standards
+								</li>
+								<li>
+									<strong>Keyboard Navigation:</strong> Full Tab, Enter, Space support
+								</li>
+								<li>
+									<strong>Screen Reader Support:</strong> Proper ARIA labels and live regions
+								</li>
+								<li>
+									<strong>Focus Management:</strong> Visible focus states and logical tab order
+								</li>
+								<li>
+									<strong>Color Contrast:</strong> PingOne UI ensures compliance
+								</li>
 							</ul>
 						</div>
 					</div>
@@ -1553,8 +1655,17 @@ cd oauthPlayground`}
 						<h4 style={{ marginBottom: '1rem', color: '#374151' }}>Developer API</h4>
 						<div style={{ backgroundColor: '#f9fafb', padding: '1rem', borderRadius: '0.5rem' }}>
 							<p style={{ marginBottom: '1rem', fontWeight: '600' }}>Service Usage:</p>
-							<pre style={{ backgroundColor: '#1a1a1a', color: '#10b981', padding: '1rem', borderRadius: '0.25rem', overflow: 'auto', fontSize: '0.875rem' }}>
-{`import { feedbackService } from '@/services/feedback/feedbackService';
+							<pre
+								style={{
+									backgroundColor: '#1a1a1a',
+									color: '#10b981',
+									padding: '1rem',
+									borderRadius: '0.25rem',
+									overflow: 'auto',
+									fontSize: '0.875rem',
+								}}
+							>
+								{`import { feedbackService } from '@/services/feedback/feedbackService';
 
 // Inline messages
 feedbackService.showInlineError('This field is required', 'email');
@@ -1566,7 +1677,8 @@ feedbackService.showWarningBanner('Session Expiring Soon');
 
 // Snackbars
 feedbackService.showSuccessSnackbar('Item saved');
-feedbackService.showInfoSnackbar('Changes synchronized');`}</pre>
+feedbackService.showInfoSnackbar('Changes synchronized');`}
+							</pre>
 						</div>
 					</div>
 				</Card>

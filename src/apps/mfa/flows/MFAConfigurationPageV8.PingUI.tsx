@@ -11,13 +11,13 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import StandardHeader from '@/components/StandardHeader';
 import { usePageScroll } from '@/hooks/usePageScroll';
 import { CreatePolicyModalV8 } from '@/v8/components/CreatePolicyModalV8';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { MFAUserDisplayV8 } from '@/v8/components/MFAUserDisplayV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
-import StandardHeader from '@/components/StandardHeader';
 import { PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
 import {
 	type MFAConfiguration,
@@ -417,10 +417,10 @@ export const MFAConfigurationPageV8PingUI: React.FC = () => {
 					icon="information"
 					badge={{
 						text: connectionStatus === 'connected' ? 'Connected' : 'Disconnected',
-						variant: connectionStatus === 'connected' ? 'success' : 'warning'
+						variant: connectionStatus === 'connected' ? 'success' : 'warning',
 					}}
 				/>
-				
+
 				<div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.5rem' }}>
 					<BackButton onClick={handleBack}>
 						<MDIIcon icon="FiArrowLeft" size={16} ariaLabel="Back" />
@@ -442,8 +442,18 @@ export const MFAConfigurationPageV8PingUI: React.FC = () => {
 							icon="information"
 							variant="secondary"
 							badge={{
-								text: connectionStatus === 'connected' ? 'Connected' : connectionStatus === 'loading' ? 'Loading...' : 'Disconnected',
-								variant: connectionStatus === 'connected' ? 'success' : connectionStatus === 'loading' ? 'default' : 'warning'
+								text:
+									connectionStatus === 'connected'
+										? 'Connected'
+										: connectionStatus === 'loading'
+											? 'Loading...'
+											: 'Disconnected',
+								variant:
+									connectionStatus === 'connected'
+										? 'success'
+										: connectionStatus === 'loading'
+											? 'default'
+											: 'warning',
 							}}
 						/>
 

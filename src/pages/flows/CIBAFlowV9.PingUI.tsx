@@ -5,16 +5,16 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import BootstrapIcon from '../../components/BootstrapIcon';
-import { getBootstrapIconName } from '../../components/iconMapping';
-import { PingUIWrapper } from '../../components/PingUIWrapper';
 import { ExpandCollapseAllControls } from '../../components/ExpandCollapseAllControls';
-import { useSectionsViewMode } from '../../services/sectionsViewModeService';
-import { feedbackService } from '../../services/feedback/feedbackService';
-import { unifiedStorageManager } from '../../services/unifiedStorageManager';
+import { getBootstrapIconName } from '../../components/iconMapping';
 import { LearningTooltip } from '../../components/LearningTooltip';
-import { useCredentialBackup } from '../../hooks/useCredentialBackup';
+import { PingUIWrapper } from '../../components/PingUIWrapper';
 import { useCibaFlowV7 } from '../../hooks/useCibaFlowV7';
+import { useCredentialBackup } from '../../hooks/useCredentialBackup';
 import { usePageScroll } from '../../hooks/usePageScroll';
+import { feedbackService } from '../../services/feedback/feedbackService';
+import { useSectionsViewMode } from '../../services/sectionsViewModeService';
+import { unifiedStorageManager } from '../../services/unifiedStorageManager';
 
 // V9 CIBA Flow Controller Interface
 interface CIBAFlowV9Controller {
@@ -50,14 +50,8 @@ const CIBAFlowV9: React.FC<CIBAFlowV9Props> = ({
 	const location = useLocation();
 
 	// Section management with V9 service
-	const {
-		expandedStates,
-		toggleSection,
-		expandAll,
-		collapseAll,
-		areAllExpanded,
-		areAllCollapsed
-	} = useSectionsViewMode('ciba-flow-v9', sectionIds);
+	const { expandedStates, toggleSection, expandAll, collapseAll, areAllExpanded, areAllCollapsed } =
+		useSectionsViewMode('ciba-flow-v9', sectionIds);
 
 	// Core state
 	const [currentStep, setCurrentStep] = useState(0);
@@ -102,7 +96,7 @@ const CIBAFlowV9: React.FC<CIBAFlowV9Props> = ({
 	useEffect(() => {
 		const loadFlowState = async () => {
 			try {
-				const savedState = await unifiedStorageManager.load('ciba-flow-v9-state') as {
+				const savedState = (await unifiedStorageManager.load('ciba-flow-v9-state')) as {
 					currentStep?: number;
 					loginHint?: string;
 					bindingMessage?: string;
@@ -137,7 +131,7 @@ const CIBAFlowV9: React.FC<CIBAFlowV9Props> = ({
 	useEffect(() => {
 		const loadToken = async () => {
 			try {
-				const savedToken = await unifiedStorageManager.load('worker-token') as string;
+				const savedToken = (await unifiedStorageManager.load('worker-token')) as string;
 				if (savedToken) {
 					setWorkerToken(savedToken);
 					console.log('[CIBAFlowV9] Worker token loaded from storage');
@@ -169,22 +163,27 @@ const CIBAFlowV9: React.FC<CIBAFlowV9Props> = ({
 	usePageScroll({ pageName: 'CIBA Flow V9 - PingOne UI', force: true });
 
 	// V9 step validation
-	const isStepValid = useCallback((step: number): boolean => {
-		switch (step) {
-			case 0:
-				return !!(controller.credentials?.environmentId &&
-						 controller.credentials?.clientId &&
-						 loginHint);
-			case 1:
-				return !!controller.authRequest;
-			case 2:
-				return !!controller.authRequest;
-			case 3:
-				return !!controller.tokens;
-			default:
-				return true;
-		}
-	}, [controller, loginHint]);
+	const isStepValid = useCallback(
+		(step: number): boolean => {
+			switch (step) {
+				case 0:
+					return !!(
+						controller.credentials?.environmentId &&
+						controller.credentials?.clientId &&
+						loginHint
+					);
+				case 1:
+					return !!controller.authRequest;
+				case 2:
+					return !!controller.authRequest;
+				case 3:
+					return !!controller.tokens;
+				default:
+					return true;
+			}
+		},
+		[controller, loginHint]
+	);
 
 	// V9 form update handlers
 	const handleLoginHintChange = useCallback((value: string) => {
@@ -229,19 +228,24 @@ const CIBAFlowV9: React.FC<CIBAFlowV9Props> = ({
 		setCurrentStep(0);
 		setLoginHint('');
 		setBindingMessage('');
-		setRequestContext(JSON.stringify({ device: 'Smart TV', location: 'living room', ip: '192.168.1.1' }, null, 2));
+		setRequestContext(
+			JSON.stringify({ device: 'Smart TV', location: 'living room', ip: '192.168.1.1' }, null, 2)
+		);
 		controller.showInfoFeedback('Flow reset successfully');
 	}, [controller]);
 
 	// V9 copy to clipboard handler
-	const handleCopy = useCallback(async (text: string, label: string) => {
-		try {
-			await navigator.clipboard.writeText(text);
-			controller.showSuccessFeedback(`${label} copied to clipboard`);
-		} catch (error) {
-			controller.showWarningFeedback('Failed to copy to clipboard');
-		}
-	}, [controller]);
+	const handleCopy = useCallback(
+		async (text: string, label: string) => {
+			try {
+				await navigator.clipboard.writeText(text);
+				controller.showSuccessFeedback(`${label} copied to clipboard`);
+			} catch (error) {
+				controller.showWarningFeedback('Failed to copy to clipboard');
+			}
+		},
+		[controller]
+	);
 
 	// V9 status display helper
 	const getStatusDisplay = (status: 'pending' | 'approved' | 'completed' | 'failed') => {
@@ -254,8 +258,14 @@ const CIBAFlowV9: React.FC<CIBAFlowV9Props> = ({
 
 		const config = statusConfig[status];
 		return (
-			<div className={`d-flex align-items-center p-3 rounded border bg-${config.bg} bg-opacity-10 border-${config.bg}`}>
-				<BootstrapIcon icon={getBootstrapIconName(config.icon)} size={20} className={`text-${config.bg} me-2`} />
+			<div
+				className={`d-flex align-items-center p-3 rounded border bg-${config.bg} bg-opacity-10 border-${config.bg}`}
+			>
+				<BootstrapIcon
+					icon={getBootstrapIconName(config.icon)}
+					size={20}
+					className={`text-${config.bg} me-2`}
+				/>
 				<div>
 					<strong>{config.text}</strong>
 				</div>
@@ -266,12 +276,18 @@ const CIBAFlowV9: React.FC<CIBAFlowV9Props> = ({
 	// V9 progress indicator
 	const getProgressPercentage = () => {
 		switch (currentStep) {
-			case 0: return 0;
-			case 1: return 25;
-			case 2: return controller.isInProgress ? 50 : 75;
-			case 3: return 75;
-			case 4: return 100;
-			default: return 0;
+			case 0:
+				return 0;
+			case 1:
+				return 25;
+			case 2:
+				return controller.isInProgress ? 50 : 75;
+			case 3:
+				return 75;
+			case 4:
+				return 100;
+			default:
+				return 0;
 		}
 	};
 
@@ -284,7 +300,11 @@ const CIBAFlowV9: React.FC<CIBAFlowV9Props> = ({
 						<div className="d-flex align-items-center justify-content-between">
 							<div>
 								<h1 className="h2 mb-2 d-flex align-items-center">
-									<BootstrapIcon icon={getBootstrapIconName("phone")} size={28} className="me-3 text-primary" />
+									<BootstrapIcon
+										icon={getBootstrapIconName('phone')}
+										size={28}
+										className="me-3 text-primary"
+									/>
 									CIBA Flow V9
 									<span className="badge bg-success ms-2">PingOne UI</span>
 								</h1>
@@ -333,7 +353,10 @@ const CIBAFlowV9: React.FC<CIBAFlowV9Props> = ({
 							<nav aria-label="CIBA flow steps">
 								<ul className="pagination pagination-lg">
 									{['Setup', 'Initiate', 'Polling', 'Tokens'].map((step, index) => (
-										<li key={step} className={`page-item ${currentStep === index ? 'active' : ''} ${isStepValid(index) ? '' : 'disabled'}`}>
+										<li
+											key={step}
+											className={`page-item ${currentStep === index ? 'active' : ''} ${isStepValid(index) ? '' : 'disabled'}`}
+										>
 											<button
 												type="button"
 												className="page-link"
@@ -354,13 +377,11 @@ const CIBAFlowV9: React.FC<CIBAFlowV9Props> = ({
 				{controller.authRequest && (
 					<div className="row mb-4">
 						<div className="col-12">
-							{controller.isInProgress ? (
-								getStatusDisplay('pending')
-							) : controller.tokens ? (
-								getStatusDisplay('completed')
-							) : (
-								getStatusDisplay('approved')
-							)}
+							{controller.isInProgress
+								? getStatusDisplay('pending')
+								: controller.tokens
+									? getStatusDisplay('completed')
+									: getStatusDisplay('approved')}
 						</div>
 					</div>
 				)}
@@ -370,7 +391,11 @@ const CIBAFlowV9: React.FC<CIBAFlowV9Props> = ({
 					<div className="col-12">
 						{/* Placeholder for step content - will be implemented based on currentStep */}
 						<div className="alert alert-info">
-							<BootstrapIcon icon={getBootstrapIconName("info-circle")} size={16} className="me-2" />
+							<BootstrapIcon
+								icon={getBootstrapIconName('info-circle')}
+								size={16}
+								className="me-2"
+							/>
 							CIBA Flow V9 - Step {currentStep + 1} content will be implemented here
 						</div>
 
@@ -383,17 +408,21 @@ const CIBAFlowV9: React.FC<CIBAFlowV9Props> = ({
 									onClick={handleInitiateFlow}
 									disabled={!controller.canStart}
 								>
-									<BootstrapIcon icon={getBootstrapIconName("play-fill")} size={16} className="me-2" />
+									<BootstrapIcon
+										icon={getBootstrapIconName('play-fill')}
+										size={16}
+										className="me-2"
+									/>
 									Initiate CIBA Flow
 								</button>
 							)}
 
-							<button
-								type="button"
-								className="btn btn-outline-secondary"
-								onClick={handleReset}
-							>
-								<BootstrapIcon icon={getBootstrapIconName("arrow-clockwise")} size={16} className="me-2" />
+							<button type="button" className="btn btn-outline-secondary" onClick={handleReset}>
+								<BootstrapIcon
+									icon={getBootstrapIconName('arrow-clockwise')}
+									size={16}
+									className="me-2"
+								/>
 								Reset Flow
 							</button>
 						</div>

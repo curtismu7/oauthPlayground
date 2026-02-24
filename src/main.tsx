@@ -8,7 +8,8 @@ import { GlobalStyle, theme } from './styles/global';
 
 // Expose EducationPreferenceService for testing (only in development)
 if (process.env.NODE_ENV === 'development') {
-	(window as unknown as Record<string, unknown>).EducationPreferenceService = EducationPreferenceService;
+	(window as unknown as Record<string, unknown>).EducationPreferenceService =
+		EducationPreferenceService;
 }
 
 // Suppress defaultProps warnings from drag-and-drop libraries (library issue, not our code)

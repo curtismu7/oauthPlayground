@@ -4,11 +4,24 @@
  * @version 9.27.0
  */
 
-import React, { useState, useEffect } from 'react';
-import { FiShield, FiKey, FiRefreshCw, FiCopy, FiEye, FiEyeOff, FiInfo, FiAlertTriangle, FiCheckCircle, FiDatabase, FiLock, FiUnlock } from 'react-icons/fi';
+import React, { useEffect, useState } from 'react';
+import {
+	FiAlertTriangle,
+	FiCheckCircle,
+	FiCopy,
+	FiDatabase,
+	FiEye,
+	FiEyeOff,
+	FiInfo,
+	FiKey,
+	FiLock,
+	FiRefreshCw,
+	FiShield,
+	FiUnlock,
+} from 'react-icons/fi';
 import styled from 'styled-components';
-import { PageHeaderV8, PageHeaderTextColors } from '@/v8/components/shared/PageHeaderV8';
 import BootstrapButton from '@/components/bootstrap/BootstrapButton';
+import { PageHeaderTextColors, PageHeaderV8 } from '@/v8/components/shared/PageHeaderV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const _MODULE_TAG = '[🔐 SPIFFE-SPIRE-TOKEN-DISPLAY]';
@@ -182,38 +195,38 @@ const StatusBadge = styled.span<{ $status: 'valid' | 'expired' | 'invalid' }>`
 `;
 
 const mockSpiffeToken: SpiffeToken = {
-	svid: "spiffe://example.org/workload/web-server",
-	bundles: ["spiffe://example.org", "spiffe://trust-domain.org"],
-	selector: "unix:uid:1000",
-	expiresAt: "2026-02-23T18:36:00Z",
-	issuedAt: "2026-02-23T12:36:00Z",
-	csr: "-----BEGIN CERTIFICATE REQUEST-----\nMIIBVjCB...mock-csr-data...\n-----END CERTIFICATE REQUEST-----",
-	keyId: "key-id-12345",
-	algorithm: "ECDSA"
+	svid: 'spiffe://example.org/workload/web-server',
+	bundles: ['spiffe://example.org', 'spiffe://trust-domain.org'],
+	selector: 'unix:uid:1000',
+	expiresAt: '2026-02-23T18:36:00Z',
+	issuedAt: '2026-02-23T12:36:00Z',
+	csr: '-----BEGIN CERTIFICATE REQUEST-----\nMIIBVjCB...mock-csr-data...\n-----END CERTIFICATE REQUEST-----',
+	keyId: 'key-id-12345',
+	algorithm: 'ECDSA',
 };
 
 const mockWorkloads: SpireWorkload[] = [
 	{
-		workloadId: "web-server-01",
-		selector: "unix:uid:1000",
+		workloadId: 'web-server-01',
+		selector: 'unix:uid:1000',
 		attested: true,
-		lastSeen: "2026-02-23T12:35:00Z",
-		agentId: "agent-node-01"
+		lastSeen: '2026-02-23T12:35:00Z',
+		agentId: 'agent-node-01',
 	},
 	{
-		workloadId: "api-service-02",
-		selector: "k8s:ns:default:pod:api-service",
+		workloadId: 'api-service-02',
+		selector: 'k8s:ns:default:pod:api-service',
 		attested: true,
-		lastSeen: "2026-02-23T12:34:00Z",
-		agentId: "agent-node-02"
+		lastSeen: '2026-02-23T12:34:00Z',
+		agentId: 'agent-node-02',
 	},
 	{
-		workloadId: "database-03",
-		selector: "unix:uid:1001",
+		workloadId: 'database-03',
+		selector: 'unix:uid:1001',
 		attested: false,
-		lastSeen: "2026-02-23T12:30:00Z",
-		agentId: "agent-node-01"
-	}
+		lastSeen: '2026-02-23T12:30:00Z',
+		agentId: 'agent-node-01',
+	},
 ];
 
 export const SpiffeSpireTokenDisplayPage: React.FC = () => {
@@ -226,16 +239,16 @@ export const SpiffeSpireTokenDisplayPage: React.FC = () => {
 	const getTokenStatus = (expiresAt: string): 'valid' | 'expired' | 'invalid' => {
 		const now = new Date();
 		const expiry = new Date(expiresAt);
-		
+
 		if (expiry < now) {
 			return 'expired';
 		}
-		
+
 		const sixHoursFromNow = new Date(now.getTime() + 6 * 60 * 60 * 1000);
 		if (expiry < sixHoursFromNow) {
 			return 'expired'; // Consider tokens expiring within 6 hours as "expiring soon"
 		}
-		
+
 		return 'valid';
 	};
 
@@ -243,15 +256,15 @@ export const SpiffeSpireTokenDisplayPage: React.FC = () => {
 		setIsLoading(true);
 		try {
 			// Simulate token refresh
-			await new Promise(resolve => setTimeout(resolve, 1500));
-			
+			await new Promise((resolve) => setTimeout(resolve, 1500));
+
 			const newToken: SpiffeToken = {
 				...mockSpiffeToken,
 				issuedAt: new Date().toISOString(),
 				expiresAt: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString(), // 6 hours from now
-				keyId: `key-id-${Date.now()}`
+				keyId: `key-id-${Date.now()}`,
 			};
-			
+
 			setCurrentToken(newToken);
 			toastV8.success('SPIFFE token refreshed successfully');
 		} catch (error) {
@@ -262,13 +275,16 @@ export const SpiffeSpireTokenDisplayPage: React.FC = () => {
 	};
 
 	const copyToClipboard = (text: string, type: string) => {
-		navigator.clipboard.writeText(text).then(() => {
-			setCopiedText(type);
-			toastV8.success(`${type} copied to clipboard`);
-			setTimeout(() => setCopiedText(''), 2000);
-		}).catch(() => {
-			toastV8.error('Failed to copy to clipboard');
-		});
+		navigator.clipboard
+			.writeText(text)
+			.then(() => {
+				setCopiedText(type);
+				toastV8.success(`${type} copied to clipboard`);
+				setTimeout(() => setCopiedText(''), 2000);
+			})
+			.catch(() => {
+				toastV8.error('Failed to copy to clipboard');
+			});
 	};
 
 	const formatTokenForDisplay = (token: SpiffeToken): string => {
@@ -279,18 +295,18 @@ export const SpiffeSpireTokenDisplayPage: React.FC = () => {
 		const expiry = new Date(expiresAt);
 		const now = new Date();
 		const diff = expiry.getTime() - now.getTime();
-		
+
 		if (diff <= 0) {
 			return 'Expired';
 		}
-		
+
 		const hours = Math.floor(diff / (1000 * 60 * 60));
 		const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-		
+
 		if (hours > 0) {
 			return `${hours}h ${minutes}m`;
 		}
-		
+
 		return `${minutes}m`;
 	};
 
@@ -309,17 +325,18 @@ export const SpiffeSpireTokenDisplayPage: React.FC = () => {
 					About SPIFFE & SPIRE
 				</SectionTitle>
 				<p style={{ marginBottom: '1rem', color: '#6b7280' }}>
-					SPIFFE (Secure Production Identity Framework for Everyone) provides a secure identity framework 
-					for distributed systems. SPIRE (SPIFFE Runtime Environment) is the reference implementation 
-					that issues and manages SPIFFE identities through X.509 SVIDs (SPIFFE Verifiable Identity Documents).
+					SPIFFE (Secure Production Identity Framework for Everyone) provides a secure identity
+					framework for distributed systems. SPIRE (SPIFFE Runtime Environment) is the reference
+					implementation that issues and manages SPIFFE identities through X.509 SVIDs (SPIFFE
+					Verifiable Identity Documents).
 				</p>
-				
+
 				<InfoBox>
 					<div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}>
 						<FiInfo style={{ marginTop: '2px' }} />
 						<div>
-							<strong>Security Note:</strong> SPIFFE tokens provide cryptographically verifiable 
-							identity for workloads. They are automatically rotated and managed by SPIRE, ensuring 
+							<strong>Security Note:</strong> SPIFFE tokens provide cryptographically verifiable
+							identity for workloads. They are automatically rotated and managed by SPIRE, ensuring
 							continuous security without manual intervention.
 						</div>
 					</div>
@@ -331,7 +348,7 @@ export const SpiffeSpireTokenDisplayPage: React.FC = () => {
 					<FiKey />
 					Current SPIFFE Token
 				</SectionTitle>
-				
+
 				{currentToken && (
 					<>
 						<TokenDisplay>
@@ -340,9 +357,7 @@ export const SpiffeSpireTokenDisplayPage: React.FC = () => {
 									<div style={{ fontSize: '0.875rem', color: '#9ca3af', marginBottom: '0.25rem' }}>
 										SPIFFE Verifiable Identity Document (SVID)
 									</div>
-									<div style={{ fontSize: '1rem', fontWeight: 600 }}>
-										{currentToken.svid}
-									</div>
+									<div style={{ fontSize: '1rem', fontWeight: 600 }}>{currentToken.svid}</div>
 								</div>
 								<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
 									<StatusBadge $status={getTokenStatus(currentToken.expiresAt)}>
@@ -353,21 +368,18 @@ export const SpiffeSpireTokenDisplayPage: React.FC = () => {
 									</span>
 								</div>
 							</TokenHeader>
-							
+
 							<TokenContent $obfuscated={!showToken}>
 								{formatTokenForDisplay(currentToken)}
 							</TokenContent>
 						</TokenDisplay>
-						
+
 						<ActionButtons>
-							<BootstrapButton
-								variant="primary"
-								onClick={() => setShowToken(!showToken)}
-							>
+							<BootstrapButton variant="primary" onClick={() => setShowToken(!showToken)}>
 								{showToken ? <FiEyeOff /> : <FiEye />}
 								{showToken ? 'Hide Token' : 'Show Token'}
 							</BootstrapButton>
-							
+
 							<BootstrapButton
 								variant="primary"
 								onClick={() => copyToClipboard(formatTokenForDisplay(currentToken), 'Token')}
@@ -375,12 +387,8 @@ export const SpiffeSpireTokenDisplayPage: React.FC = () => {
 								{copiedText === 'Token' ? <FiRefreshCw /> : <FiCopy />}
 								{copiedText === 'Token' ? 'Copied!' : 'Copy Token'}
 							</BootstrapButton>
-							
-							<BootstrapButton
-								variant="success"
-								onClick={refreshToken}
-								disabled={isLoading}
-							>
+
+							<BootstrapButton variant="success" onClick={refreshToken} disabled={isLoading}>
 								{isLoading ? <FiRefreshCw /> : <FiRefreshCw />}
 								{isLoading ? 'Refreshing...' : 'Refresh Token'}
 							</BootstrapButton>
@@ -394,7 +402,7 @@ export const SpiffeSpireTokenDisplayPage: React.FC = () => {
 					<FiDatabase />
 					Token Details
 				</SectionTitle>
-				
+
 				{currentToken && (
 					<Grid>
 						<Card>
@@ -413,7 +421,7 @@ export const SpiffeSpireTokenDisplayPage: React.FC = () => {
 								<dd>{currentToken.selector}</dd>
 							</PropertyList>
 						</Card>
-						
+
 						<Card>
 							<CardTitle>
 								<FiRefreshCw />
@@ -434,7 +442,7 @@ export const SpiffeSpireTokenDisplayPage: React.FC = () => {
 								</dd>
 							</PropertyList>
 						</Card>
-						
+
 						<Card>
 							<CardTitle>
 								<FiLock />
@@ -462,24 +470,59 @@ export const SpiffeSpireTokenDisplayPage: React.FC = () => {
 					<FiDatabase />
 					Attested Workloads
 				</SectionTitle>
-				
+
 				<div style={{ overflowX: 'auto' }}>
 					<table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
 						<thead>
 							<tr style={{ background: '#f8fafc', borderBottom: '2px solid #e5e7eb' }}>
-								<th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600, color: '#1f2937' }}>
+								<th
+									style={{
+										padding: '0.75rem',
+										textAlign: 'left',
+										fontWeight: 600,
+										color: '#1f2937',
+									}}
+								>
 									Workload ID
 								</th>
-								<th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600, color: '#1f2937' }}>
+								<th
+									style={{
+										padding: '0.75rem',
+										textAlign: 'left',
+										fontWeight: 600,
+										color: '#1f2937',
+									}}
+								>
 									Selector
 								</th>
-								<th style={{ padding: '0.75rem', textAlign: 'center', fontWeight: 600, color: '#1f2937' }}>
+								<th
+									style={{
+										padding: '0.75rem',
+										textAlign: 'center',
+										fontWeight: 600,
+										color: '#1f2937',
+									}}
+								>
 									Status
 								</th>
-								<th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600, color: '#1f2937' }}>
+								<th
+									style={{
+										padding: '0.75rem',
+										textAlign: 'left',
+										fontWeight: 600,
+										color: '#1f2937',
+									}}
+								>
 									Last Seen
 								</th>
-								<th style={{ padding: '0.75rem', textAlign: 'left', fontWeight: 600, color: '#1f2937' }}>
+								<th
+									style={{
+										padding: '0.75rem',
+										textAlign: 'left',
+										fontWeight: 600,
+										color: '#1f2937',
+									}}
+								>
 									Agent ID
 								</th>
 							</tr>
@@ -516,10 +559,17 @@ export const SpiffeSpireTokenDisplayPage: React.FC = () => {
 					<FiShield />
 					Security Best Practices
 				</SectionTitle>
-				
+
 				<Grid>
 					<SuccessBox>
-						<h4 style={{ margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+						<h4
+							style={{
+								margin: '0 0 0.5rem 0',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+							}}
+						>
 							<FiCheckCircle /> Token Management
 						</h4>
 						<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#166534' }}>
@@ -530,9 +580,16 @@ export const SpiffeSpireTokenDisplayPage: React.FC = () => {
 							<li>Use short-lived tokens for enhanced security</li>
 						</ul>
 					</SuccessBox>
-					
+
 					<SuccessBox>
-						<h4 style={{ margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+						<h4
+							style={{
+								margin: '0 0 0.5rem 0',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+							}}
+						>
 							<FiCheckCircle /> Workload Attestation
 						</h4>
 						<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#166534' }}>
@@ -543,9 +600,16 @@ export const SpiffeSpireTokenDisplayPage: React.FC = () => {
 							<li>Use node attesters for secure identity</li>
 						</ul>
 					</SuccessBox>
-					
+
 					<SuccessBox>
-						<h4 style={{ margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+						<h4
+							style={{
+								margin: '0 0 0.5rem 0',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+							}}
+						>
 							<FiCheckCircle /> Network Security
 						</h4>
 						<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#166534' }}>
@@ -564,18 +628,26 @@ export const SpiffeSpireTokenDisplayPage: React.FC = () => {
 					<FiAlertTriangle />
 					Troubleshooting
 				</SectionTitle>
-				
+
 				<Grid>
 					<WarningBox>
 						<h4 style={{ margin: '0 0 0.5rem 0' }}>Common Issues</h4>
 						<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#92400e' }}>
-							<li><strong>Token Not Issued:</strong> Workload not properly attested</li>
-							<li><strong>Expired Tokens:</strong> SPIRE server connectivity issues</li>
-							<li><strong>Invalid SVID:</strong> Trust bundle misconfiguration</li>
-							<li><strong>Selector Mismatch:</strong> Workload selector configuration</li>
+							<li>
+								<strong>Token Not Issued:</strong> Workload not properly attested
+							</li>
+							<li>
+								<strong>Expired Tokens:</strong> SPIRE server connectivity issues
+							</li>
+							<li>
+								<strong>Invalid SVID:</strong> Trust bundle misconfiguration
+							</li>
+							<li>
+								<strong>Selector Mismatch:</strong> Workload selector configuration
+							</li>
 						</ul>
 					</WarningBox>
-					
+
 					<WarningBox>
 						<h4 style={{ margin: '0 0 0.5rem 0' }}>Debugging Steps</h4>
 						<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#92400e' }}>
@@ -586,7 +658,7 @@ export const SpiffeSpireTokenDisplayPage: React.FC = () => {
 							<li>Review workload selector patterns</li>
 						</ul>
 					</WarningBox>
-					
+
 					<WarningBox>
 						<h4 style={{ margin: '0 0 0.5rem 0' }}>Performance Tips</h4>
 						<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#92400e' }}>

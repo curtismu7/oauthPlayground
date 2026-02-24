@@ -9,11 +9,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import BootstrapButton from '../components/bootstrap/BootstrapButton';
 import type { ErrorTemplate } from '../constants/errorMessages';
 import type { FlowType } from '../services/flowStepDefinitions';
 import FlowSequenceDisplay from './FlowSequenceDisplay';
 import OAuthErrorHelper from './OAuthErrorHelper';
-import BootstrapButton from '../components/bootstrap/BootstrapButton';
 import StandardHeader from './StandardHeader';
 
 export interface FlowErrorDisplayProps {
@@ -348,19 +348,28 @@ export const FlowErrorDisplay: React.FC<FlowErrorDisplayProps> = ({
 
 						<ActionButtons>
 							<BootstrapButton variant="primary" onClick={handleStartOver} whiteBorder={true}>
-								<span className="mdi mdi-home" style={{ fontSize: '18px', marginRight: '0.5rem' }}></span>
+								<span
+									className="mdi mdi-home"
+									style={{ fontSize: '18px', marginRight: '0.5rem' }}
+								></span>
 								Start Over
 							</BootstrapButton>
 
 							{onRetry && (
 								<BootstrapButton variant="secondary" onClick={handleRetry} whiteBorder={true}>
-									<span className="mdi mdi-refresh" style={{ fontSize: '18px', marginRight: '0.5rem' }}></span>
+									<span
+										className="mdi mdi-refresh"
+										style={{ fontSize: '18px', marginRight: '0.5rem' }}
+									></span>
 									Try Again
 								</BootstrapButton>
 							)}
 
 							<BootstrapButton variant="secondary" onClick={handleGoToConfig} whiteBorder={true}>
-								<span className="mdi mdi-cog" style={{ fontSize: '18px', marginRight: '0.5rem' }}></span>
+								<span
+									className="mdi mdi-cog"
+									style={{ fontSize: '18px', marginRight: '0.5rem' }}
+								></span>
 								Configuration
 							</BootstrapButton>
 						</ActionButtons>

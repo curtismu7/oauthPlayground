@@ -4,14 +4,14 @@
  * @version 9.27.0
  */
 
-import React, { useState, useCallback } from 'react';
-import { FiSearch, FiUsers, FiCode, FiCopy, FiRefreshCw, FiInfo } from 'react-icons/fi';
+import React, { useCallback, useState } from 'react';
+import { FiCode, FiCopy, FiInfo, FiRefreshCw, FiSearch, FiUsers } from 'react-icons/fi';
 import styled from 'styled-components';
-import { UserSearchDropdownV8 } from '@/v8/components/UserSearchDropdownV8';
-import { ApiCallDisplayService } from '@/services/apiCallDisplayService';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { PageHeaderV8, PageHeaderTextColors } from '@/v8/components/shared/PageHeaderV8';
 import BootstrapButton from '@/components/bootstrap/BootstrapButton';
+import { ApiCallDisplayService } from '@/services/apiCallDisplayService';
+import { PageHeaderTextColors, PageHeaderV8 } from '@/v8/components/shared/PageHeaderV8';
+import { UserSearchDropdownV8 } from '@/v8/components/UserSearchDropdownV8';
+import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const _MODULE_TAG = '[🔍 USER-SEARCH-PAGE]';
 
@@ -148,84 +148,93 @@ export const UserSearchPage: React.FC = () => {
 		const mockUser: User = {
 			id: 'demo-user-id',
 			username,
-			email: `${username}@example.com`
+			email: `${username}@example.com`,
 		};
 		setSelectedUser(mockUser);
 	}, []);
 
-	const generateUserApiCall = useCallback((user: User, endpoint: string, method: ApiCallData['method'] = 'GET', body?: object) => {
-		const baseUrl = 'https://api.pingone.com/v1';
-		const url = `${baseUrl}/environments/${environmentId}/users/${user.id}${endpoint}`;
-		
-		const apiCallData: ApiCallData = {
-			method,
-			url,
-			headers: {
-				'Authorization': 'Bearer ***REDACTED***',
-				'Content-Type': 'application/json',
-			},
-			body: method !== 'GET' ? body : null,
-			timestamp: new Date(),
-		};
-
-		setApiCall(apiCallData);
-	}, [environmentId]);
-
-	const executeApiCall = useCallback(async (user: User, endpoint: string, method: ApiCallData['method'] = 'GET', body?: object) => {
-		if (!user || !environmentId) return;
-
-		setIsLoading(true);
-		setError(null);
-
-		try {
+	const generateUserApiCall = useCallback(
+		(user: User, endpoint: string, method: ApiCallData['method'] = 'GET', body?: object) => {
 			const baseUrl = 'https://api.pingone.com/v1';
 			const url = `${baseUrl}/environments/${environmentId}/users/${user.id}${endpoint}`;
-			
-			const response = await fetch(url, {
-				method,
-				headers: {
-					'Authorization': 'Bearer ***REDACTED***',
-					'Content-Type': 'application/json',
-				},
-				body: method !== 'GET' ? JSON.stringify(body) : null,
-			});
-
-			const responseData = response.ok ? await response.json() : { error: 'Request failed' };
 
 			const apiCallData: ApiCallData = {
 				method,
 				url,
 				headers: {
-					'Authorization': 'Bearer ***REDACTED***',
+					Authorization: 'Bearer ***REDACTED***',
 					'Content-Type': 'application/json',
 				},
 				body: method !== 'GET' ? body : null,
-				response: {
-					status: response.status,
-					statusText: response.statusText,
-					data: responseData,
-				},
 				timestamp: new Date(),
-				duration: Math.random() * 1000 + 100, // Mock duration
 			};
 
 			setApiCall(apiCallData);
-			toastV8.success(`API call executed: ${method} ${endpoint}`);
-		} catch (err) {
-			const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
-			setError(errorMessage);
-			toastV8.error(`API call failed: ${errorMessage}`);
-		} finally {
-			setIsLoading(false);
-		}
-	}, [environmentId]);
+		},
+		[environmentId]
+	);
+
+	const executeApiCall = useCallback(
+		async (user: User, endpoint: string, method: ApiCallData['method'] = 'GET', body?: object) => {
+			if (!user || !environmentId) return;
+
+			setIsLoading(true);
+			setError(null);
+
+			try {
+				const baseUrl = 'https://api.pingone.com/v1';
+				const url = `${baseUrl}/environments/${environmentId}/users/${user.id}${endpoint}`;
+
+				const response = await fetch(url, {
+					method,
+					headers: {
+						Authorization: 'Bearer ***REDACTED***',
+						'Content-Type': 'application/json',
+					},
+					body: method !== 'GET' ? JSON.stringify(body) : null,
+				});
+
+				const responseData = response.ok ? await response.json() : { error: 'Request failed' };
+
+				const apiCallData: ApiCallData = {
+					method,
+					url,
+					headers: {
+						Authorization: 'Bearer ***REDACTED***',
+						'Content-Type': 'application/json',
+					},
+					body: method !== 'GET' ? body : null,
+					response: {
+						status: response.status,
+						statusText: response.statusText,
+						data: responseData,
+					},
+					timestamp: new Date(),
+					duration: Math.random() * 1000 + 100, // Mock duration
+				};
+
+				setApiCall(apiCallData);
+				toastV8.success(`API call executed: ${method} ${endpoint}`);
+			} catch (err) {
+				const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+				setError(errorMessage);
+				toastV8.error(`API call failed: ${errorMessage}`);
+			} finally {
+				setIsLoading(false);
+			}
+		},
+		[environmentId]
+	);
 
 	const copyToClipboard = useCallback((text: string) => {
-		navigator.clipboard.writeText(text).then(() => {
-			toastV8.success('Copied to clipboard');
-		}).catch(() => {
-			toastV8.error('Failed to copy to clipboard');
-		});
+		navigator.clipboard
+			.writeText(text)
+			.then(() => {
+				toastV8.success('Copied to clipboard');
+			})
+			.catch(() => {
+				toastV8.error('Failed to copy to clipboard');
+			});
 	}, []);
 
 	const generateCurlCommand = useCallback((apiCallData: ApiCallData) => {
@@ -255,9 +264,10 @@ export const UserSearchPage: React.FC = () => {
 					Select User
 				</SectionTitle>
 				<p style={{ marginBottom: '1rem', color: '#6b7280' }}>
-					Choose a user to explore various user-related API endpoints. This educational tool demonstrates how to structure API calls for user management operations.
+					Choose a user to explore various user-related API endpoints. This educational tool
+					demonstrates how to structure API calls for user management operations.
 				</p>
-				
+
 				<div style={{ maxWidth: '400px' }}>
 					<UserSearchDropdownV8
 						environmentId={environmentId}
@@ -295,14 +305,17 @@ export const UserSearchPage: React.FC = () => {
 						User API Endpoints
 					</SectionTitle>
 					<p style={{ marginBottom: '1rem', color: '#6b7280' }}>
-						Explore common user management API endpoints. Click any button to generate the API call structure and see the curl command.
+						Explore common user management API endpoints. Click any button to generate the API call
+						structure and see the curl command.
 					</p>
 
 					<InfoBox>
 						<div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}>
 							<FiInfo style={{ marginTop: '2px' }} />
 							<div>
-								<strong>Educational Note:</strong> This is a demonstration tool. The API calls shown here are for educational purposes only and won't actually execute against real PingOne APIs. Use this to learn the structure and format of user API calls.
+								<strong>Educational Note:</strong> This is a demonstration tool. The API calls shown
+								here are for educational purposes only and won't actually execute against real
+								PingOne APIs. Use this to learn the structure and format of user API calls.
 							</div>
 						</div>
 					</InfoBox>
@@ -324,14 +337,20 @@ export const UserSearchPage: React.FC = () => {
 						</BootstrapButton>
 						<BootstrapButton
 							variant="success"
-							onClick={() => generateUserApiCall(selectedUser, '/password', 'PUT', { newPassword: '***REDACTED***' })}
+							onClick={() =>
+								generateUserApiCall(selectedUser, '/password', 'PUT', {
+									newPassword: '***REDACTED***',
+								})
+							}
 							disabled={isLoading}
 						>
 							<FiRefreshCw /> Update Password
 						</BootstrapButton>
 						<BootstrapButton
 							variant="warning"
-							onClick={() => generateUserApiCall(selectedUser, '/mfa', 'POST', { deviceType: 'EMAIL' })}
+							onClick={() =>
+								generateUserApiCall(selectedUser, '/mfa', 'POST', { deviceType: 'EMAIL' })
+							}
 							disabled={isLoading}
 						>
 							<FiCode /> Enable MFA
@@ -345,9 +364,7 @@ export const UserSearchPage: React.FC = () => {
 								API Call Details
 							</SectionTitle>
 
-							<ApiCallDisplay>
-								{formatApiCall(apiCall)}
-							</ApiCallDisplay>
+							<ApiCallDisplay>{formatApiCall(apiCall)}</ApiCallDisplay>
 
 							<ActionButtons>
 								<BootstrapButton
@@ -358,7 +375,16 @@ export const UserSearchPage: React.FC = () => {
 								</BootstrapButton>
 								<BootstrapButton
 									variant="secondary"
-									onClick={() => executeApiCall(selectedUser, apiCall.url.replace(`https://api.pingone.com/v1/environments/${environmentId}/users/${selectedUser.id}`, ''), apiCall.method)}
+									onClick={() =>
+										executeApiCall(
+											selectedUser,
+											apiCall.url.replace(
+												`https://api.pingone.com/v1/environments/${environmentId}/users/${selectedUser.id}`,
+												''
+											),
+											apiCall.method
+										)
+									}
 									disabled={isLoading}
 								>
 									<FiRefreshCw /> Execute Demo
@@ -368,7 +394,16 @@ export const UserSearchPage: React.FC = () => {
 					)}
 
 					{error && (
-						<div style={{ marginTop: '1rem', padding: '1rem', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '0.375rem', color: '#dc2626' }}>
+						<div
+							style={{
+								marginTop: '1rem',
+								padding: '1rem',
+								background: '#fef2f2',
+								border: '1px solid #fecaca',
+								borderRadius: '0.375rem',
+								color: '#dc2626',
+							}}
+						>
 							<strong>Error:</strong> {error}
 						</div>
 					)}
@@ -380,8 +415,21 @@ export const UserSearchPage: React.FC = () => {
 					<FiInfo />
 					Learning Resources
 				</SectionTitle>
-				<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
-					<div style={{ padding: '1rem', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '0.375rem' }}>
+				<div
+					style={{
+						display: 'grid',
+						gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+						gap: '1rem',
+					}}
+				>
+					<div
+						style={{
+							padding: '1rem',
+							background: '#f9fafb',
+							border: '1px solid #e5e7eb',
+							borderRadius: '0.375rem',
+						}}
+					>
 						<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>User Management APIs</h4>
 						<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#6b7280' }}>
 							<li>GET /users/{'id'} - Get user details</li>
@@ -391,7 +439,14 @@ export const UserSearchPage: React.FC = () => {
 							<li>POST /users/{'id'}/password - Reset password</li>
 						</ul>
 					</div>
-					<div style={{ padding: '1rem', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '0.375rem' }}>
+					<div
+						style={{
+							padding: '1rem',
+							background: '#f9fafb',
+							border: '1px solid #e5e7eb',
+							borderRadius: '0.375rem',
+						}}
+					>
 						<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>Authentication</h4>
 						<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#6b7280' }}>
 							<li>Bearer token authentication</li>
@@ -400,7 +455,14 @@ export const UserSearchPage: React.FC = () => {
 							<li>Error handling patterns</li>
 						</ul>
 					</div>
-					<div style={{ padding: '1rem', background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '0.375rem' }}>
+					<div
+						style={{
+							padding: '1rem',
+							background: '#f9fafb',
+							border: '1px solid #e5e7eb',
+							borderRadius: '0.375rem',
+						}}
+					>
 						<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>Best Practices</h4>
 						<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#6b7280' }}>
 							<li>Always validate user permissions</li>

@@ -24,8 +24,8 @@
  */
 
 import React, { useState } from 'react';
-import { StepActionButtonsProps } from '@/v8/types/stepNavigation';
 import BootstrapButton from '@/components/bootstrap/BootstrapButton';
+import { StepActionButtonsProps } from '@/v8/types/stepNavigation';
 import 'bootstrap/dist/css/bootstrap.min.css';
 // import 'styles/bootstrap/pingone-bootstrap.css'; // Temporarily disabled for build
 

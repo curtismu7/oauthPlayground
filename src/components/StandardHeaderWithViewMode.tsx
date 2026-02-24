@@ -77,12 +77,8 @@ const StandardHeaderWithViewMode: React.FC<StandardHeaderWithViewModeProps> = ({
 					/>
 				)}
 			</StandardHeader>
-			
-			{children && viewMode === 'full' && (
-				<div style={{ marginTop: '1rem' }}>
-					{children}
-				</div>
-			)}
+
+			{children && viewMode === 'full' && <div style={{ marginTop: '1rem' }}>{children}</div>}
 		</div>
 	);
 };
