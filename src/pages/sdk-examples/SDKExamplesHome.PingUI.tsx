@@ -1,5 +1,5 @@
 // src/pages/sdk-examples/SDKExamplesHome.PingUI.tsx
-// SDK Examples Home Page - PingOne UI Version
+// SDK Examples Home Page - PingOne UI Version with Expand/Collapse
 // PingOne UI migration following pingui2.md standards
 
 import React, { useState } from 'react';
@@ -12,6 +12,9 @@ import {
 	SuperSimpleApiDisplayV8,
 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { useSectionsViewMode } from '@/services/sectionsViewModeService';
+import { ExpandCollapseAllControls } from '@/components/ExpandCollapseAllControls';
+import CollapsibleSection from '@/components/CollapsibleSection';
 
 // PingOne UI Icon Component
 const MDIIcon: React.FC<{
@@ -169,6 +172,17 @@ const SDKExamplesHomePingUI: React.FC = () => {
 	// Check if worker token is available
 	const hasWorkerToken = globalTokenStatus?.isValid || false;
 
+	// Expand/Collapse functionality - Phase 2 implementation
+	const pageKey = 'sdk-examples-home';
+	const sectionIds = ['examples-grid', 'api-display', 'documentation'];
+	const {
+		expandedStates,
+		expandAll,
+		collapseAll,
+		areAllExpanded,
+		areAllCollapsed,
+	} = useSectionsViewMode(pageKey, sectionIds);
+
 	return (
 		<div className="end-user-nano">
 			<div style={getContainerStyle()}>
@@ -183,6 +197,18 @@ const SDKExamplesHomePingUI: React.FC = () => {
 					Explore comprehensive SDK examples demonstrating PingOne integration patterns,
 					authentication flows, and best practices for building secure identity solutions.
 				</p>
+
+				{/* Expand/Collapse All Controls - Phase 2 implementation */}
+				<div style={{ marginBottom: '2rem' }}>
+					<ExpandCollapseAllControls
+						pageKey={pageKey}
+						sectionIds={sectionIds}
+						allExpanded={areAllExpanded()}
+						allCollapsed={areAllCollapsed()}
+						onExpandAll={expandAll}
+						onCollapseAll={collapseAll}
+					/>
+				</div>
 
 				{/* Configuration Options */}
 				<div style={{ marginBottom: '2rem', display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
@@ -199,109 +225,150 @@ const SDKExamplesHomePingUI: React.FC = () => {
 				</div>
 
 				{/* Examples Grid */}
-				<div style={getExamplesGridStyle()}>
-					{/* DaVinci Todo App */}
-					<div style={getExampleCardStyle()}>
-						<span style={getStatusBadgeStyle('implemented')}>Implemented</span>
-						<h3 style={getExampleTitleStyle()}>DaVinci Todo App</h3>
-						<p style={getExampleDescriptionStyle()}>
-							Complete full-stack application demonstrating user authentication, token management,
-							and secure API integration with a modern React frontend and Node.js backend.
-						</p>
-						<Link to="/sdk-examples/davinci-todo-app" style={getExampleLinkStyle()}>
-							<MDIIcon icon="application" size={20} />
-							Explore Todo App
-						</Link>
-					</div>
+				<CollapsibleSection
+					title="SDK Examples"
+					defaultCollapsed={!expandedStates['examples-grid']}
+					headerActions={
+						<MDIIcon
+							icon="grid"
+							size={20}
+							style={{ color: 'var(--pingone-text-secondary)' }}
+							title="SDK Examples Grid"
+						/>
+					}
+				>
+					<div style={getExamplesGridStyle()}>
+						{/* DaVinci Todo App */}
+						<div style={getExampleCardStyle()}>
+							<span style={getStatusBadgeStyle('implemented')}>Implemented</span>
+							<h3 style={getExampleTitleStyle()}>DaVinci Todo App</h3>
+							<p style={getExampleDescriptionStyle()}>
+								Complete full-stack application demonstrating user authentication, token management,
+								and secure API integration with a modern React frontend and Node.js backend.
+							</p>
+							<Link to="/sdk-examples/davinci-todo-app" style={getExampleLinkStyle()}>
+								<MDIIcon icon="application" size={20} />
+								Explore Todo App
+							</Link>
+						</div>
 
-					{/* JWT Authentication */}
-					<div style={getExampleCardStyle()}>
-						<span style={getStatusBadgeStyle('implemented')}>Implemented</span>
-						<h3 style={getExampleTitleStyle()}>JWT Authentication</h3>
-						<p style={getExampleDescriptionStyle()}>
-							Complete JWT implementation with private key and client secret JWT generation, token
-							validation, and secure key management using the jose library.
-						</p>
-						<Link to="/sdk-examples/jwt-authentication" style={getExampleLinkStyle()}>
-							<MDIIcon icon="key" size={20} />
-							Explore JWT Examples
-						</Link>
-					</div>
+						{/* JWT Authentication */}
+						<div style={getExampleCardStyle()}>
+							<span style={getStatusBadgeStyle('implemented')}>Implemented</span>
+							<h3 style={getExampleTitleStyle()}>JWT Authentication</h3>
+							<p style={getExampleDescriptionStyle()}>
+								Complete JWT implementation with private key and client secret JWT generation, token
+								validation, and secure key management using the jose library.
+							</p>
+							<Link to="/sdk-examples/jwt-authentication" style={getExampleLinkStyle()}>
+								<MDIIcon icon="key" size={20} />
+								Explore JWT Examples
+							</Link>
+						</div>
 
-					{/* OIDC Centralized Login */}
-					<div style={getExampleCardStyle()}>
-						<span style={getStatusBadgeStyle('implemented')}>Implemented</span>
-						<h3 style={getExampleTitleStyle()}>OIDC Centralized Login</h3>
-						<p style={getExampleDescriptionStyle()}>
-							Demonstrate server-side UI authentication using the PingOne OIDC SDK with redirect
-							flows, background token renewal, and secure session management.
-						</p>
-						<Link to="/sdk-examples/oidc-centralized-login" style={getExampleLinkStyle()}>
-							<MDIIcon icon="login" size={20} />
-							Explore OIDC Examples
-						</Link>
-					</div>
+						{/* OIDC Centralized Login */}
+						<div style={getExampleCardStyle()}>
+							<span style={getStatusBadgeStyle('implemented')}>Implemented</span>
+							<h3 style={getExampleTitleStyle()}>OIDC Centralized Login</h3>
+							<p style={getExampleDescriptionStyle()}>
+								Demonstrate server-side UI authentication using the PingOne OIDC SDK with redirect
+								flows, background token renewal, and secure session management.
+							</p>
+							<Link to="/sdk-examples/oidc-centralized-login" style={getExampleLinkStyle()}>
+								<MDIIcon icon="login" size={20} />
+								Explore OIDC Examples
+							</Link>
+						</div>
 
-					{/* SDK Documentation */}
-					<div style={getExampleCardStyle()}>
-						<span style={getStatusBadgeStyle('implemented')}>Implemented</span>
-						<h3 style={getExampleTitleStyle()}>SDK Documentation</h3>
-						<p style={getExampleDescriptionStyle()}>
-							Comprehensive documentation, usage guides, and best practices for implementing PingOne
-							SDKs in your applications.
-						</p>
-						<Link to="/sdk-examples/documentation" style={getExampleLinkStyle()}>
-							<MDIIcon icon="book" size={20} />
-							View Documentation
-						</Link>
+						{/* SDK Documentation */}
+						<div style={getExampleCardStyle()}>
+							<span style={getStatusBadgeStyle('implemented')}>Implemented</span>
+							<h3 style={getExampleTitleStyle()}>SDK Documentation</h3>
+							<p style={getExampleDescriptionStyle()}>
+								Comprehensive documentation, usage guides, and best practices for implementing PingOne
+								SDKs in your applications.
+							</p>
+							<Link to="/sdk-examples/documentation" style={getExampleLinkStyle()}>
+								<MDIIcon icon="book" size={20} />
+								View Documentation
+							</Link>
+						</div>
 					</div>
-				</div>
+				</CollapsibleSection>
 
 				{/* API Display - Using the unified service */}
-				{showApiDisplay && <SuperSimpleApiDisplayV8 flowFilter="all" reserveSpace={true} />}
+				{showApiDisplay && (
+					<CollapsibleSection
+						title="API Display"
+						defaultCollapsed={!expandedStates['api-display']}
+						headerActions={
+							<MDIIcon
+								icon="api"
+								size={20}
+								style={{ color: 'var(--pingone-text-secondary)' }}
+								title="API Display Section"
+							/>
+						}
+					>
+						<SuperSimpleApiDisplayV8 flowFilter="all" reserveSpace={true} />
+					</CollapsibleSection>
+				)}
 
 				{/* Documentation Section */}
-				<div style={getDocumentationSectionStyle()}>
-					<h3 style={getDocumentationTitleStyle()}>
-						<MDIIcon icon="book-open" size={24} style={{ marginRight: '0.5rem' }} />
-						SDK Documentation
-					</h3>
-					<div style={getDocumentationListStyle()}>
-						<div style={getDocumentationItemStyle()}>
-							<a
-								href="https://docs.pingidentity.com/sdks/latest/"
-								target="_blank"
-								rel="noopener noreferrer"
-								style={getDocumentationLinkStyle()}
-							>
-								<MDIIcon icon="external-link" size={16} style={{ marginRight: '0.5rem' }} />
-								PingOne SDK Documentation - Official PingOne SDK documentation
-							</a>
-						</div>
-						<div style={getDocumentationItemStyle()}>
-							<a
-								href="https://github.com/pingidentity/pingone-nodejs-sdk"
-								target="_blank"
-								rel="noopener noreferrer"
-								style={getDocumentationLinkStyle()}
-							>
-								<MDIIcon icon="github" size={16} style={{ marginRight: '0.5rem' }} />
-								PingOne Node.js SDK - GitHub repository with examples and API reference
-							</a>
-						</div>
-						<div style={getDocumentationItemStyle()}>
-							<a
-								href="https://apidocs.pingidentity.com/pingone/platform/v1/api/"
-								target="_blank"
-								rel="noopener noreferrer"
-								style={getDocumentationLinkStyle()}
-							>
-								<MDIIcon icon="api" size={16} style={{ marginRight: '0.5rem' }} />
-								PingOne Platform API - Complete API documentation and interactive explorer
-							</a>
+				<CollapsibleSection
+					title="SDK Documentation"
+					defaultCollapsed={!expandedStates['documentation']}
+					headerActions={
+						<MDIIcon
+							icon="book-open"
+							size={20}
+							style={{ color: 'var(--pingone-text-secondary)' }}
+							title="Documentation Section"
+						/>
+					}
+				>
+					<div style={getDocumentationSectionStyle()}>
+						<h3 style={getDocumentationTitleStyle()}>
+							<MDIIcon icon="book-open" size={24} style={{ marginRight: '0.5rem' }} />
+							SDK Documentation
+						</h3>
+						<div style={getDocumentationListStyle()}>
+							<div style={getDocumentationItemStyle()}>
+								<a
+									href="https://docs.pingidentity.com/sdks/latest/"
+									target="_blank"
+									rel="noopener noreferrer"
+									style={getDocumentationLinkStyle()}
+								>
+									<MDIIcon icon="external-link" size={16} style={{ marginRight: '0.5rem' }} />
+									PingOne SDK Documentation - Official PingOne SDK documentation
+								</a>
+							</div>
+							<div style={getDocumentationItemStyle()}>
+								<a
+									href="https://github.com/pingidentity/pingone-nodejs-sdk"
+									target="_blank"
+									rel="noopener noreferrer"
+									style={getDocumentationLinkStyle()}
+								>
+									<MDIIcon icon="github" size={16} style={{ marginRight: '0.5rem' }} />
+									PingOne Node.js SDK - GitHub repository with examples and API reference
+								</a>
+							</div>
+							<div style={getDocumentationItemStyle()}>
+								<a
+									href="https://apidocs.pingidentity.com/pingone/platform/v1/api/"
+									target="_blank"
+									rel="noopener noreferrer"
+									style={getDocumentationLinkStyle()}
+								>
+									<MDIIcon icon="api" size={16} style={{ marginRight: '0.5rem' }} />
+									PingOne Platform API - Complete API documentation and interactive explorer
+								</a>
+							</div>
 						</div>
 					</div>
-				</div>
+				</CollapsibleSection>
 
 				{/* Worker Token Modal */}
 				{!hasWorkerToken && <WorkerTokenModalV8 />}

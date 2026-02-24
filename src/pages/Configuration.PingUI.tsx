@@ -13,8 +13,8 @@ import { DomainConfiguration } from '../components/DomainConfiguration';
 import PingOneApplicationConfig, {
 	type PingOneApplicationState,
 } from '../components/PingOneApplicationConfig';
-import { WorkerTokenButton } from '../components/WorkerTokenButton';
-import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
+import { useSectionsViewMode } from '@/services/sectionsViewModeService';
+import { ExpandCollapseAllControls } from '@/components/ExpandCollapseAllControls';
 import StandardHeader from '../components/StandardHeader';
 import BootstrapButton from '../components/bootstrap/BootstrapButton';
 import BootstrapFormField from '../components/bootstrap/BootstrapFormField';
@@ -140,7 +140,19 @@ const ConfigurationPingUI: React.FC = () => {
 	const [isLoading, setIsLoading] = useState(false);
 	const [activeTab, setActiveTab] = useState<'pingone' | 'worker' | 'advanced'>('pingone');
 
-	// State for collapsible sections
+	// Expand/Collapse functionality - Phase 3 implementation
+	const pageKey = 'configuration-page';
+	const sectionIds = ['pingOneApp', 'workerTokenBasic', 'workerTokenStatus', 'authzFlowBasic', 'advanced', 'appInfo', 'devTools'];
+	const {
+		expandedStates,
+		toggleSection,
+		expandAll,
+		collapseAll,
+		areAllExpanded,
+		areAllCollapsed,
+	} = useSectionsViewMode(pageKey, sectionIds);
+
+	// Legacy collapsible sections state (keeping for backwards compatibility during migration)
 	const [collapsedSections, setCollapsedSections] = useState({
 		pingOneApp: false,
 		workerTokenBasic: false,
@@ -579,6 +591,18 @@ const ConfigurationPingUI: React.FC = () => {
 			<div className="configuration-pingui">
 				<CollapsibleHeader title="Configuration">Configuration</CollapsibleHeader>
 
+				{/* Expand/Collapse All Controls - Phase 3 implementation */}
+				<div style={{ marginBottom: '2rem' }}>
+					<ExpandCollapseAllControls
+						pageKey={pageKey}
+						sectionIds={sectionIds}
+						allExpanded={areAllExpanded()}
+						allCollapsed={areAllCollapsed()}
+						onExpandAll={expandAll}
+						onCollapseAll={collapseAll}
+					/>
+				</div>
+
 				{workerTokenStatus && workerTokenStatus.isValid && workerTokenStatus.token && (
 					<WorkerTokenDetectedBanner token={workerTokenStatus.token} />
 				)}
@@ -617,7 +641,7 @@ const ConfigurationPingUI: React.FC = () => {
 							description="Configure OAuth flow parameters and settings"
 							icon="key"
 							isCollapsible={true}
-							isCollapsed={collapsedSections.pingOneApp}
+							isCollapsed={!expandedStates['pingOneApp']}
 							onToggle={() => toggleSection('pingOneApp')}
 							badge={configurationSummary.isComplete ? {
 								text: 'Complete',
@@ -628,7 +652,7 @@ const ConfigurationPingUI: React.FC = () => {
 							}}
 						/>
 
-						{!collapsedSections.pingOneApp && (
+						{expandedStates['pingOneApp'] && (
 							<>
 								<div className="summary-grid">
 									<div className={`summary-item ${configurationSummary.hasClientId ? 'complete' : ''}`}>
@@ -694,7 +718,7 @@ const ConfigurationPingUI: React.FC = () => {
 							description="Manage and monitor worker token status"
 							icon="package-variant"
 							isCollapsible={true}
-							isCollapsed={collapsedSections.workerTokenBasic}
+							isCollapsed={!expandedStates['workerTokenBasic']}
 							onToggle={() => toggleSection('workerTokenBasic')}
 							badge={workerTokenStatus && workerTokenStatus.isValid ? {
 								text: 'Active',
@@ -705,7 +729,7 @@ const ConfigurationPingUI: React.FC = () => {
 							}}
 						/>
 
-						{!collapsedSections.workerTokenBasic && (
+						{expandedStates['workerTokenBasic'] && (
 							<>
 								{/* Worker Token Basic Info Section */}
 								<StandardHeader
@@ -714,11 +738,11 @@ const ConfigurationPingUI: React.FC = () => {
 									icon="key"
 									variant="secondary"
 									isCollapsible={true}
-									isCollapsed={collapsedSections.workerTokenBasic}
+									isCollapsed={!expandedStates['workerTokenBasic']}
 									onToggle={() => toggleSection('workerTokenBasic')}
 								/>
 
-								{!collapsedSections.workerTokenBasic && (
+								{expandedStates['workerTokenBasic'] && (
 									<div className="ping-card p-4 mb-4">
 										<div className="row g-3">
 											<div className="col-md-6">
@@ -780,11 +804,11 @@ const ConfigurationPingUI: React.FC = () => {
 											icon="information"
 											variant="secondary"
 											isCollapsible={true}
-											isCollapsed={collapsedSections.workerTokenStatus}
+											isCollapsed={!expandedStates['workerTokenStatus']}
 											onToggle={() => toggleSection('workerTokenStatus')}
 										/>
 
-										{!collapsedSections.workerTokenStatus && (
+										{expandedStates['workerTokenStatus'] && (
 											<div
 												style={{
 													background: 'var(--ping-surface-secondary, #f8fafc)',
@@ -817,11 +841,11 @@ const ConfigurationPingUI: React.FC = () => {
 							description="Advanced settings and developer tools"
 							icon="cog"
 							isCollapsible={true}
-							isCollapsed={collapsedSections.advanced}
+							isCollapsed={!expandedStates['advanced']}
 							onToggle={() => toggleSection('advanced')}
 						/>
 
-						{!collapsedSections.advanced && (
+						{expandedStates['advanced'] && (
 							<>
 								{/* Authorization Flow Basic Info Section */}
 								<StandardHeader
@@ -830,11 +854,11 @@ const ConfigurationPingUI: React.FC = () => {
 									icon="key"
 									variant="secondary"
 									isCollapsible={true}
-									isCollapsed={collapsedSections.authzFlowBasic}
+									isCollapsed={!expandedStates['authzFlowBasic']}
 									onToggle={() => toggleSection('authzFlowBasic')}
 								/>
 
-								{!collapsedSections.authzFlowBasic && (
+								{expandedStates['authzFlowBasic'] && (
 									<div
 										style={{
 											background: 'var(--ping-surface-secondary, #f8fafc)',

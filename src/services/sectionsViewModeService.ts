@@ -121,7 +121,7 @@ class SectionsViewModeManager {
     this.cache.set(pageKey, newState);
     this.scheduleWrite(pageKey, newState);
     
-    toastV8.info('View Mode', 'All sections expanded');
+    toastV8.info('All sections expanded');
     console.log(`${MODULE_TAG} Expanded all sections for ${pageKey}`);
   }
 
@@ -136,7 +136,7 @@ class SectionsViewModeManager {
     this.cache.set(pageKey, newState);
     this.scheduleWrite(pageKey, newState);
     
-    toastV8.info('View Mode', 'All sections collapsed');
+    toastV8.info('All sections collapsed');
     console.log(`${MODULE_TAG} Collapsed all sections for ${pageKey}`);
   }
 
@@ -174,7 +174,7 @@ class SectionsViewModeManager {
       console.log(`${MODULE_TAG} Saved view state for ${pageKey}`);
     } catch (error) {
       console.error(`${MODULE_TAG} Failed to save view state for ${pageKey}:`, error);
-      toastV8.error('View Mode', 'Failed to save section states');
+      toastV8.error('Failed to save section states');
     }
   }
 
@@ -224,7 +224,7 @@ class SectionsViewModeManager {
         await unifiedStorageManager.save(newKey, legacyState);
         await unifiedStorageManager.clear(legacyKey);
         console.log(`${MODULE_TAG} Successfully migrated legacy data for ${pageKey}`);
-        toastV8.success('View Mode', 'Settings migrated successfully');
+        toastV8.success('Settings migrated successfully');
       }
     } catch (error) {
       console.error(`${MODULE_TAG} Failed to migrate legacy data for ${pageKey}:`, error);

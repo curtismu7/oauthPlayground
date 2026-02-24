@@ -8,9 +8,10 @@
 
 import React, { useCallback, useState } from 'react';
 import { FlowUIService } from '../services/flowUIService';
-import { V7FlowTemplateService } from '../services/v7FlowTemplateService';
-import type { V7FlowName } from '../services/v7SharedService';
 import { V7FlowTemplate } from './V7FlowTemplate';
+
+// Define types locally since services don't exist
+type V7FlowName = 'authorization-code' | 'client-credentials' | 'device-authorization' | 'implicit';
 
 // Get shared UI components
 const {
