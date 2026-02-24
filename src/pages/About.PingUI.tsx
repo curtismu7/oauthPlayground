@@ -9,105 +9,9 @@
 import { usePageScroll } from '../hooks/usePageScroll';
 import { APP_VERSION, MFA_V8_VERSION, UNIFIED_V8U_VERSION } from '../version';
 
-// MDI Icon Component
-const MDIIcon: React.FC<{
-	icon: string;
-	size?: number;
-	ariaLabel?: string;
-	className?: string;
-	style?: React.CSSProperties;
-}> = ({ icon, size = 20, ariaLabel, className = '', style }) => {
-	const iconMap: Record<string, string> = {
-		book: 'mdi-book-open-variant',
-		target: 'mdi-target',
-		code: 'mdi-code-tags',
-		shield: 'mdi-shield-check',
-		rocket: 'mdi-rocket',
-		tools: 'mdi-tools',
-		school: 'mdi-school',
-		lightbulb: 'mdi-lightbulb',
-		star: 'mdi-star',
-		heart: 'mdi-heart',
-		github: 'mdi-github',
-		email: 'mdi-email',
-		phone: 'mdi-phone',
-		web: 'mdi-web',
-		database: 'mdi-database',
-		api: 'mdi-api',
-		key: 'mdi-key',
-		lock: 'mdi-lock',
-		refresh: 'mdi-refresh',
-		cloud: 'mdi-cloud',
-		server: 'mdi-server',
-		network: 'mdi-network',
-		security: 'mdi-security',
-		chart: 'mdi-chart-line',
-		puzzle: 'mdi-puzzle',
-		cog: 'mdi-cog',
-		settings: 'mdi-settings',
-		help: 'mdi-help-circle',
-		info: 'mdi-information',
-		warning: 'mdi-alert',
-		error: 'mdi-alert-circle',
-		success: 'mdi-check-circle',
-		close: 'mdi-close',
-		menu: 'mdi-menu',
-		home: 'mdi-home',
-		user: 'mdi-account',
-		users: 'mdi-account-group',
-		organization: 'mdi-office-building',
-		building: 'mdi-domain',
-		globe: 'mdi-earth',
-		map: 'mdi-map',
-		location: 'mdi-map-marker',
-		navigation: 'mdi-compass',
-		search: 'mdi-magnify',
-		filter: 'mdi-filter',
-		sort: 'mdi-sort',
-		download: 'mdi-download',
-		upload: 'mdi-upload',
-		print: 'mdi-print',
-		share: 'mdi-share',
-		link: 'mdi-link',
-		copy: 'mdi-content-copy',
-		paste: 'mdi-content-paste',
-		cut: 'mdi-content-cut',
-		undo: 'mdi-undo',
-		redo: 'mdi-redo',
-		save: 'mdi-content-save',
-		edit: 'mdi-pencil',
-		delete: 'mdi-delete',
-		add: 'mdi-plus',
-		remove: 'mdi-minus',
-		expand: 'mdi-chevron-down',
-		collapse: 'mdi-chevron-up',
-		next: 'mdi-chevron-right',
-		previous: 'mdi-chevron-left',
-		play: 'mdi-play',
-		pause: 'mdi-pause',
-		stop: 'mdi-stop',
-		skip: 'mdi-skip-next',
-		backward: 'mdi-skip-previous',
-		volume: 'mdi-volume-high',
-		mute: 'mdi-volume-mute',
-		fullscreen: 'mdi-fullscreen',
-		minimize: 'mdi-window-minimize',
-		maximize: 'mdi-window-maximize',
-		closeWindow: 'mdi-window-close',
-	};
-
-	const iconClass = iconMap[icon] || icon;
-	const combinedClassName = `mdi ${iconClass} ${className}`.trim();
-
-	return (
-		<span
-			className={combinedClassName}
-			style={{ fontSize: `${size}px`, ...style }}
-			title={ariaLabel}
-			aria-hidden={!ariaLabel}
-		/>
-	);
-};
+// Bootstrap Icon Component (migrated from MDI)
+import BootstrapIcon from '@/components/BootstrapIcon';
+import { getBootstrapIconName } from '@/components/iconMapping';
 
 // Main Component
 export default function AboutPingUI() {
@@ -389,7 +293,7 @@ export default function AboutPingUI() {
 				<div className="header-card">
 					<div className="header-content">
 						<div className="header-icon">
-							<MDIIcon icon="book" size={32} ariaLabel="Documentation" />
+							<BootstrapIcon icon={getBootstrapIconName('book')} size={32} aria-label="Documentation" />
 						</div>
 						<div className="header-text">
 							<h1>PingOne MasterFlow API Documentation</h1>
@@ -415,7 +319,7 @@ export default function AboutPingUI() {
 				{/* Content Sections */}
 				<div className="content-section">
 					<div className="section-header">
-						<MDIIcon icon="target" size={24} className="icon" />
+						<BootstrapIcon icon={getBootstrapIconName('target')} size={24} className="icon" />
 						<h2>Overview</h2>
 					</div>
 					<div className="section-content">
@@ -435,14 +339,14 @@ export default function AboutPingUI() {
 				{/* Key Features */}
 				<div className="content-section">
 					<div className="section-header">
-						<MDIIcon icon="star" size={24} className="icon" />
+						<BootstrapIcon icon={getBootstrapIconName('star')} size={24} className="icon" />
 						<h2>Key Features</h2>
 					</div>
 					<div className="section-content">
 						<div className="feature-grid">
 							<div className="feature-card">
 								<h3>
-									<MDIIcon icon="code" size={16} />
+									<BootstrapIcon icon={getBootstrapIconName('code')} size={16} />
 									Interactive OAuth Flows
 								</h3>
 								<p>
@@ -452,7 +356,7 @@ export default function AboutPingUI() {
 							</div>
 							<div className="feature-card">
 								<h3>
-									<MDIIcon icon="shield" size={16} />
+									<BootstrapIcon icon={getBootstrapIconName('shield')} size={16} />
 									MFA Integration
 								</h3>
 								<p>
@@ -462,7 +366,7 @@ export default function AboutPingUI() {
 							</div>
 							<div className="feature-card">
 								<h3>
-									<MDIIcon icon="tools" size={16} />
+									<BootstrapIcon icon={getBootstrapIconName('tools')} size={16} />
 									Developer Tools
 								</h3>
 								<p>
@@ -472,7 +376,7 @@ export default function AboutPingUI() {
 							</div>
 							<div className="feature-card">
 								<h3>
-									<MDIIcon icon="school" size={16} />
+									<BootstrapIcon icon={getBootstrapIconName('school')} size={16} />
 									Educational Content
 								</h3>
 								<p>
@@ -482,7 +386,7 @@ export default function AboutPingUI() {
 							</div>
 							<div className="feature-card">
 								<h3>
-									<MDIIcon icon="api" size={16} />
+									<BootstrapIcon icon={getBootstrapIconName('api')} size={16} />
 									Postman Collection
 								</h3>
 								<p>
@@ -492,7 +396,7 @@ export default function AboutPingUI() {
 							</div>
 							<div className="feature-card">
 								<h3>
-									<MDIIcon icon="puzzle" size={16} />
+									<BootstrapIcon icon={getBootstrapIconName('puzzle')} size={16} />
 									Flow Comparison
 								</h3>
 								<p>
@@ -507,7 +411,7 @@ export default function AboutPingUI() {
 				{/* Platform Statistics */}
 				<div className="content-section">
 					<div className="section-header">
-						<MDIIcon icon="chart" size={24} className="icon" />
+						<BootstrapIcon icon={getBootstrapIconName('chart')} size={24} className="icon" />
 						<h2>Platform Statistics</h2>
 					</div>
 					<div className="section-content">
@@ -535,7 +439,7 @@ export default function AboutPingUI() {
 				{/* Getting Started */}
 				<div className="content-section">
 					<div className="section-header">
-						<MDIIcon icon="rocket" size={24} className="icon" />
+						<BootstrapIcon icon={getBootstrapIconName('rocket')} size={24} className="icon" />
 						<h2>Getting Started</h2>
 					</div>
 					<div className="section-content">
@@ -564,27 +468,27 @@ export default function AboutPingUI() {
 				{/* Contact & Support */}
 				<div className="content-section">
 					<div className="section-header">
-						<MDIIcon icon="help" size={24} className="icon" />
+						<BootstrapIcon icon={getBootstrapIconName('help')} size={24} className="icon" />
 						<h2>Contact & Support</h2>
 					</div>
 					<div className="section-content">
 						<div className="contact-grid">
 							<div className="contact-item">
-								<MDIIcon icon="github" size={20} className="contact-icon" />
+								<BootstrapIcon icon={getBootstrapIconName('github')} size={20} className="contact-icon" />
 								<div className="contact-text">
 									<h4>GitHub Repository</h4>
 									<p>View source code, report issues, and contribute to the project.</p>
 								</div>
 							</div>
 							<div className="contact-item">
-								<MDIIcon icon="email" size={20} className="contact-icon" />
+								<BootstrapIcon icon={getBootstrapIconName('email')} size={20} className="contact-icon" />
 								<div className="contact-text">
 									<h4>Email Support</h4>
 									<p>Get help with technical questions and implementation guidance.</p>
 								</div>
 							</div>
 							<div className="contact-item">
-								<MDIIcon icon="web" size={20} className="contact-icon" />
+								<BootstrapIcon icon={getBootstrapIconName('web')} size={20} className="contact-icon" />
 								<div className="contact-text">
 									<h4>Documentation</h4>
 									<p>Comprehensive guides and API references for all features.</p>
@@ -597,7 +501,7 @@ export default function AboutPingUI() {
 				{/* Footer */}
 				<div className="footer">
 					<p>
-						Made with <MDIIcon icon="heart" size={14} className="heart" /> for the PingOne developer
+						Made with <BootstrapIcon icon={getBootstrapIconName('heart')} size={14} className="heart" /> for the PingOne developer
 						community
 					</p>
 					<p>© 2026 MasterFlow API. Built with PingOne UI design system.</p>
