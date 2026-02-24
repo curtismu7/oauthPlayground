@@ -29,47 +29,9 @@ import { StorageServiceV8 } from '../v8/services/storageServiceV8';
 import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
 import { toastV8 } from '../v8/utils/toastNotificationsV8';
 
-// MDI Icon Mapping for React Icons → MDI CSS
-const getMDIIconClass = (fiIcon: string): string => {
-	const iconMap: Record<string, string> = {
-		FiCellphone: 'mdi-cellphone',
-		FiTrash2: 'mdi-delete',
-		FiTrash: 'mdi-delete',
-		FiDeleteSweep: 'mdi-delete-sweep',
-		FiSelectAll: 'mdi-select-all',
-		FiDeselectAll: 'mdi-select-off',
-		FiChartBar: 'mdi-chart-bar',
-		FiDevices: 'mdi-devices',
-		FiCog: 'mdi-cog',
-		FiList: 'mdi-format-list-bulleted',
-		FiCellphoneOff: 'mdi-cellphone-off',
-		FiWarning: 'mdi-alert',
-		FiLoading: 'mdi-loading',
-	};
-	return iconMap[fiIcon] || 'mdi-help-circle';
-};
-
-// MDI Icon Component with proper accessibility
-const MDIIcon: React.FC<{
-	icon: string;
-	size?: number;
-	ariaLabel?: string;
-	ariaHidden?: boolean;
-	className?: string;
-	style?: React.CSSProperties;
-}> = ({ icon, size = 16, ariaLabel, ariaHidden = false, className = '', style }) => {
-	const iconClass = getMDIIconClass(icon);
-	const combinedClassName = `mdi ${iconClass} ${className}`.trim();
-
-	return (
-		<i
-			className={combinedClassName}
-			style={{ fontSize: `${size}px`, ...style }}
-			title={ariaLabel}
-			aria-hidden={ariaHidden}
-		/>
-	);
-};
+// Bootstrap Icon Component (migrated from MDI)
+import BootstrapIcon from '@/components/BootstrapIcon';
+import { getBootstrapIconName } from '@/components/iconMapping';
 
 interface Device {
 	id: string;
@@ -426,10 +388,10 @@ const DeviceManagementV8PingUI: React.FC = () => {
 							padding: 'var(--ping-spacing-xl, 2rem)',
 						}}
 					>
-						<MDIIcon
-							icon="FiCellphone"
+						<BootstrapIcon
+							icon={getBootstrapIconName('phone')}
 							size={48}
-							ariaLabel="Loading devices"
+							aria-label="Loading devices"
 							style={{
 								marginBottom: 'var(--ping-spacing-lg, 1.5rem)',
 								color: 'var(--ping-primary-color, #0066cc)',
@@ -487,7 +449,7 @@ const DeviceManagementV8PingUI: React.FC = () => {
 							gap: 'var(--ping-spacing-sm, 0.5rem)',
 						}}
 					>
-						<MDIIcon icon="FiCellphone" size={32} />
+						<BootstrapIcon icon={getBootstrapIconName('phone')} size={32} />
 						Device Management
 					</h1>
 					<p
@@ -514,7 +476,7 @@ const DeviceManagementV8PingUI: React.FC = () => {
 							gap: 'var(--ping-spacing-sm, 0.5rem)',
 						}}
 					>
-						<MDIIcon icon="FiChartBar" size={20} />
+						<BootstrapIcon icon={getBootstrapIconName('bar-chart')} size={20} />
 						Device Statistics
 					</h3>
 					<div
@@ -597,7 +559,7 @@ const DeviceManagementV8PingUI: React.FC = () => {
 							gap: 'var(--ping-spacing-sm, 0.5rem)',
 						}}
 					>
-						<MDIIcon icon="FiDevices" size={20} />
+						<BootstrapIcon icon={getBootstrapIconName('phone-laptop')} size={20} />
 						Devices by Type
 					</h3>
 					<div
@@ -653,7 +615,7 @@ const DeviceManagementV8PingUI: React.FC = () => {
 							gap: 'var(--ping-spacing-sm, 0.5rem)',
 						}}
 					>
-						<MDIIcon icon="FiCog" size={20} />
+						<BootstrapIcon icon={getBootstrapIconName('gear-fill')} size={20} />
 						Device Operations
 					</h3>
 					<div
@@ -675,7 +637,7 @@ const DeviceManagementV8PingUI: React.FC = () => {
 								e.currentTarget.style.background = 'var(--ping-error-color, #dc3545)';
 							}}
 						>
-							<MDIIcon icon="FiDeleteSweep" size={16} />
+							<BootstrapIcon icon={getBootstrapIconName('trash')} size={16} />
 							Delete All Devices
 						</button>
 						<button
@@ -690,7 +652,7 @@ const DeviceManagementV8PingUI: React.FC = () => {
 								e.currentTarget.style.background = 'var(--ping-secondary-color, #f8f9fa)';
 							}}
 						>
-							<MDIIcon icon="FiSelectAll" size={16} />
+							<BootstrapIcon icon={getBootstrapIconName('check-all')} size={16} />
 							{selectedDevices.size === devices.length ? 'Deselect All' : 'Select All'}
 						</button>
 						{selectedDevices.size > 0 && (
@@ -710,7 +672,7 @@ const DeviceManagementV8PingUI: React.FC = () => {
 									e.currentTarget.style.background = 'var(--ping-error-color, #dc3545)';
 								}}
 							>
-								<MDIIcon icon="FiTrash" size={16} />
+								<BootstrapIcon icon={getBootstrapIconName('trash')} size={16} />
 								Delete Selected ({selectedDevices.size})
 							</button>
 						)}
@@ -730,7 +692,7 @@ const DeviceManagementV8PingUI: React.FC = () => {
 							gap: 'var(--ping-spacing-sm, 0.5rem)',
 						}}
 					>
-						<MDIIcon icon="FiList" size={20} />
+						<BootstrapIcon icon={getBootstrapIconName('list')} size={20} />
 						Device List ({devices.length})
 					</h3>
 					{devices.length === 0 ? (
@@ -741,8 +703,8 @@ const DeviceManagementV8PingUI: React.FC = () => {
 								color: 'var(--ping-text-secondary, #6c757d)',
 							}}
 						>
-							<MDIIcon
-								icon="FiCellphoneOff"
+							<BootstrapIcon
+								icon={getBootstrapIconName('phone-x')}
 								size={64}
 								style={{
 									marginBottom: 'var(--ping-spacing-lg, 1.5rem)',
@@ -817,7 +779,7 @@ const DeviceManagementV8PingUI: React.FC = () => {
 													e.currentTarget.style.background = 'var(--ping-error-color, #dc3545)';
 												}}
 											>
-												<MDIIcon icon="FiTrash" size={14} />
+												<BootstrapIcon icon={getBootstrapIconName('trash')} size={14} />
 											</button>
 										</td>
 									</tr>
@@ -895,8 +857,8 @@ const DeviceManagementV8PingUI: React.FC = () => {
 									gap: 'var(--ping-spacing-sm, 0.5rem)',
 								}}
 							>
-								<MDIIcon
-									icon="FiWarning"
+								<BootstrapIcon
+									icon={getBootstrapIconName('exclamation-triangle-fill')}
 									size={24}
 									style={{ color: 'var(--ping-error-color, #dc3545)' }}
 								/>
@@ -1032,8 +994,8 @@ const DeviceManagementV8PingUI: React.FC = () => {
 								>
 									{isDeleting ? (
 										<>
-											<MDIIcon
-												icon="FiLoading"
+											<BootstrapIcon
+												icon={getBootstrapIconName('arrow-repeat')}
 												size={16}
 												style={{
 													animation: 'spin 1s linear infinite',
@@ -1044,7 +1006,7 @@ const DeviceManagementV8PingUI: React.FC = () => {
 										</>
 									) : (
 										<>
-											<MDIIcon icon="FiDeleteSweep" size={16} />
+											<BootstrapIcon icon={getBootstrapIconName('trash')} size={16} />
 											Delete All
 										</>
 									)}
