@@ -72,7 +72,7 @@ export class AppDiscoveryServiceV9 {
 	 */
 	static async initialize(config?: Partial<DiscoveryConfig>): Promise<void> {
 		if (config) {
-			this.config = { ...this.config, ...config };
+			AppDiscoveryServiceV9.config = { ...AppDiscoveryServiceV9.config, ...config };
 		}
 
 		// Load persisted config
@@ -81,13 +81,13 @@ export class AppDiscoveryServiceV9 {
 				DISCOVERY_CONFIG_KEY
 			);
 			if (persistedConfig) {
-				this.config = { ...this.config, ...persistedConfig };
+				AppDiscoveryServiceV9.config = { ...AppDiscoveryServiceV9.config, ...persistedConfig };
 			}
 		} catch (error) {
 			console.warn(`${MODULE_TAG} Failed to load config:`, error);
 		}
 
-		console.log(`${MODULE_TAG} Initialized with config:`, this.config);
+		console.log(`${MODULE_TAG} Initialized with config:`, AppDiscoveryServiceV9.config);
 	}
 
 	/**
@@ -103,8 +103,8 @@ export class AppDiscoveryServiceV9 {
 		});
 
 		// Check cache first
-		if (this.config.enableCaching) {
-			const cached = await this.getCachedApplications(environmentId);
+		if (AppDiscoveryServiceV9.config.enableCaching) {
+			const cached = await AppDiscoveryServiceV9.getCachedApplications(environmentId);
 			if (cached) {
 				console.log(`${MODULE_TAG} Returning cached applications`);
 				return cached;
@@ -112,11 +112,11 @@ export class AppDiscoveryServiceV9 {
 		}
 
 		// Discover from API
-		const apps = await this.discoverFromAPI(environmentId, workerToken);
+		const apps = await AppDiscoveryServiceV9.discoverFromAPI(environmentId, workerToken);
 
 		// Cache results
-		if (this.config.enableCaching && apps.length > 0) {
-			await this.cacheApplications(environmentId, apps);
+		if (AppDiscoveryServiceV9.config.enableCaching && apps.length > 0) {
+			await AppDiscoveryServiceV9.cacheApplications(environmentId, apps);
 		}
 
 		return apps;
@@ -131,9 +131,9 @@ export class AppDiscoveryServiceV9 {
 	): Promise<DiscoveredApp[]> {
 		let lastError: Error | null = null;
 
-		for (let attempt = 1; attempt <= this.config.maxRetryAttempts; attempt++) {
+		for (let attempt = 1; attempt <= AppDiscoveryServiceV9.config.maxRetryAttempts; attempt++) {
 			try {
-				console.log(`${MODULE_TAG} API attempt ${attempt}/${this.config.maxRetryAttempts}`);
+				console.log(`${MODULE_TAG} API attempt ${attempt}/${AppDiscoveryServiceV9.config.maxRetryAttempts}`);
 
 				// Use PingOne API service
 				const response = await PingOneAPIServiceV9.getApplications(environmentId, {
@@ -165,9 +165,9 @@ export class AppDiscoveryServiceV9 {
 				lastError = error instanceof Error ? error : new Error('Unknown error');
 				console.error(`${MODULE_TAG} API attempt ${attempt} failed:`, lastError);
 
-				if (attempt < this.config.maxRetryAttempts) {
+				if (attempt < AppDiscoveryServiceV9.config.maxRetryAttempts) {
 					// Exponential backoff
-					const delay = RETRY_DELAY * Math.pow(2, attempt - 1);
+					const delay = RETRY_DELAY * 2 ** (attempt - 1);
 					console.log(`${MODULE_TAG} Retrying in ${delay}ms`);
 					await new Promise(resolve => setTimeout(resolve, delay));
 				}
@@ -193,7 +193,7 @@ export class AppDiscoveryServiceV9 {
 
 			// Check if cache is still valid
 			const now = Date.now();
-			if (now - cache.timestamp > this.config.cacheTTL) {
+			if (now - cache.timestamp > AppDiscoveryServiceV9.config.cacheTTL) {
 				console.log(`${MODULE_TAG} Cache expired`);
 				await unifiedStorageManager.clear(`${DISCOVERY_CACHE_KEY}-${environmentId}`);
 				return null;
@@ -309,11 +309,11 @@ export class AppDiscoveryServiceV9 {
 	 * Update configuration
 	 */
 	static async updateConfig(config: Partial<DiscoveryConfig>): Promise<void> {
-		this.config = { ...this.config, ...config };
+		AppDiscoveryServiceV9.config = { ...AppDiscoveryServiceV9.config, ...config };
 		
 		try {
-			await unifiedStorageManager.save(DISCOVERY_CONFIG_KEY, this.config);
-			console.log(`${MODULE_TAG} Updated configuration:`, this.config);
+			await unifiedStorageManager.save(DISCOVERY_CONFIG_KEY, AppDiscoveryServiceV9.config);
+			console.log(`${MODULE_TAG} Updated configuration:`, AppDiscoveryServiceV9.config);
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to save config:`, error);
 		}
@@ -323,6 +323,6 @@ export class AppDiscoveryServiceV9 {
 	 * Get current configuration
 	 */
 	static getConfig(): DiscoveryConfig {
-		return { ...this.config };
+		return { ...AppDiscoveryServiceV9.config };
 	}
 }

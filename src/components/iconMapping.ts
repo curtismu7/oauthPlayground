@@ -247,14 +247,19 @@ export const MDIToBootstrapMapping: Record<string, string> = {
 
 /**
  * Get Bootstrap icon name from MDI icon name
- * @param mdiIconName - MDI icon name (with or without 'mdi-' prefix)
+ * @param mdiIconName - MDI icon name (with or without 'mdi-' prefix) or Fi icon name (with 'Fi' prefix)
  * @returns Bootstrap icon name (without 'bi-' prefix)
  */
 export const getBootstrapIconName = (mdiIconName: string): string => {
 	// Remove 'mdi-' prefix if present
-	const cleanName = mdiIconName.startsWith('mdi-') 
+	let cleanName = mdiIconName.startsWith('mdi-') 
 		? mdiIconName.substring(4) 
 		: mdiIconName;
+	
+	// Remove 'Fi' prefix and convert to lowercase if present (for react-icons compatibility)
+	if (cleanName.startsWith('Fi')) {
+		cleanName = cleanName.substring(2).toLowerCase();
+	}
 	
 	// Return mapped Bootstrap icon or fallback
 	return MDIToBootstrapMapping[cleanName] || 'question-circle';

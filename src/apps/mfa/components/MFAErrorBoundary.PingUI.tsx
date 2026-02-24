@@ -2,11 +2,11 @@
  * @file MFAErrorBoundary.PingUI.tsx
  * @module v8/components
  * @description Ping UI migration of Error boundary component for graceful error handling in MFA flows
- * @version 9.1.0-PingUI
+ * @version 9.1.0-PingUI-Bootstrap
  *
  * Ping UI migration following pingui2.md standards:
  * - Added .end-user-nano namespace wrapper
- * - Replaced React Icons with MDI CSS icons
+ * - Replaced MDI icons with Bootstrap Icons (migration step)
  * - Applied Ping UI CSS variables and transitions
  * - Enhanced accessibility with proper ARIA labels
  * - Used 0.15s ease-in-out transitions
@@ -14,37 +14,9 @@
 
 import { Component, ErrorInfo, ReactNode } from 'react';
 
-// MDI Icon Mapping for React Icons → MDI CSS
-const getMDIIconClass = (fiIcon: string): string => {
-	const iconMap: Record<string, string> = {
-		FiAlertTriangle: 'mdi-alert',
-		FiHome: 'mdi-home',
-		FiRefreshCw: 'mdi-refresh',
-	};
-	return iconMap[fiIcon] || 'mdi-help-circle';
-};
-
-// MDI Icon Component with proper accessibility
-const MDIIcon: React.FC<{
-	icon: string;
-	size?: number;
-	ariaLabel?: string;
-	ariaHidden?: boolean;
-	className?: string;
-	style?: React.CSSProperties;
-}> = ({ icon, size = 16, ariaLabel, ariaHidden = false, className = '', style }) => {
-	const iconClass = getMDIIconClass(icon);
-	const combinedClassName = `mdi ${iconClass} ${className}`.trim();
-
-	return (
-		<i
-			className={combinedClassName}
-			style={{ fontSize: `${size}px`, ...style }}
-			title={ariaLabel}
-			aria-hidden={ariaHidden}
-		></i>
-	);
-};
+// Bootstrap Icon Component (migrated from MDI)
+import BootstrapIcon from '@/components/BootstrapIcon';
+import { getBootstrapIconName } from '@/components/iconMapping';
 
 interface Props {
 	children: ReactNode;
@@ -126,9 +98,9 @@ export class MFAErrorBoundaryPingUI extends Component<Props, State> {
 								border: `1px solid var(--ping-border-color, #dee2e6)`,
 							}}
 						>
-							{/* PING UI MIGRATION: Replaced FiAlertTriangle with MDI icon */}
-							<MDIIcon
-								icon="FiAlertTriangle"
+							{/* PING UI MIGRATION: Replaced FiAlertTriangle with Bootstrap icon */}
+							<BootstrapIcon
+								icon={getBootstrapIconName("alert-triangle")}
 								size={64}
 								ariaLabel="Error occurred"
 								style={{
@@ -220,8 +192,8 @@ export class MFAErrorBoundaryPingUI extends Component<Props, State> {
 									}}
 									aria-label="Try again"
 								>
-									{/* PING UI MIGRATION: Replaced FiRefreshCw with MDI icon */}
-									<MDIIcon icon="FiRefreshCw" size={18} ariaLabel="Refresh" />
+									{/* PING UI MIGRATION: Replaced FiRefreshCw with Bootstrap icon */}
+									<BootstrapIcon icon={getBootstrapIconName("refresh-cw")} size={18} ariaLabel="Refresh" />
 									Try Again
 								</button>
 								<button
@@ -243,8 +215,8 @@ export class MFAErrorBoundaryPingUI extends Component<Props, State> {
 									}}
 									aria-label="Go to MFA hub"
 								>
-									{/* PING UI MIGRATION: Replaced FiHome with MDI icon */}
-									<MDIIcon icon="FiHome" size={18} ariaLabel="Home" />
+									{/* PING UI MIGRATION: Replaced FiHome with Bootstrap icon */}
+									<BootstrapIcon icon={getBootstrapIconName("home")} size={18} ariaLabel="Home" />
 									Go to MFA Hub
 								</button>
 							</div>
