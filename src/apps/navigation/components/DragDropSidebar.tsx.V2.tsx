@@ -32,67 +32,6 @@ const getColoredIconClass = (color: string): string =>
 const getMigrationBadgeClass = (variant: string = 'default'): string =>
 	`ping-badge ping-badge--${variant}`;
 
-// MDI Icon Mapping for React Icons → MDI CSS
-const getMDIIconClass = (fiIcon: string): string => {
-	const iconMap: Record<string, string> = {
-		FiActivity: 'mdi-activity',
-		FiAlertTriangle: 'mdi-alert',
-		FiBarChart2: 'mdi-chart-bar',
-		FiBook: 'mdi-book',
-		FiBookOpen: 'mdi-book-open',
-		FiBox: 'mdi-box',
-		FiCheckCircle: 'mdi-check-circle',
-		FiChevronDown: 'mdi-chevron-down',
-		FiCode: 'mdi-code',
-		FiCpu: 'mdi-cpu',
-		FiDatabase: 'mdi-database',
-		FiEye: 'mdi-eye',
-		FiFileText: 'mdi-file-text',
-		FiGitBranch: 'mdi-git-branch',
-		FiKey: 'mdi-key',
-		FiLayers: 'mdi-layers',
-		FiLock: 'mdi-lock',
-		FiLogOut: 'mdi-logout',
-		FiMove: 'mdi-drag-horizontal-variant',
-		FiPackage: 'mdi-package',
-		FiRefreshCw: 'mdi-refresh',
-		FiSearch: 'mdi-search',
-		FiServer: 'mdi-server',
-		FiSettings: 'mdi-cog',
-		FiShield: 'mdi-shield',
-		FiShoppingCart: 'mdi-shopping',
-		FiSmartphone: 'mdi-cellphone',
-		FiTool: 'mdi-tools',
-		FiTrash2: 'mdi-trash-can',
-		FiUser: 'mdi-account',
-		FiUsers: 'mdi-account-group',
-		FiX: 'mdi-close',
-		FiZap: 'mdi-flash',
-	};
-	return iconMap[fiIcon] || 'mdi-help-circle';
-};
-
-// MDI Icon Component with proper accessibility
-const MDIIcon: React.FC<{
-	icon: string;
-	size?: number;
-	ariaLabel?: string;
-	ariaHidden?: boolean;
-	className?: string;
-}> = ({ icon, size = 16, ariaLabel, ariaHidden = false, className = '' }) => {
-	const iconClass = getMDIIconClass(icon);
-	const combinedClassName = `mdi ${iconClass} ${className}`.trim();
-
-	return (
-		<i
-			className={combinedClassName}
-			style={{ fontSize: `${size}px` }}
-			aria-label={ariaLabel}
-			aria-hidden={ariaHidden}
-		></i>
-	);
-};
-
 interface MenuItem {
 	id: string;
 	path: string;
@@ -256,7 +195,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								icon: (
 									// PING UI MIGRATION: Replaced ColoredIcon with div + MDI icon
 									<div className={getColoredIconClass('#6366f1')} style={{ color: '#6366f1' }}>
-										<MDIIcon icon="FiSettings" ariaLabel="Settings icon" />
+										<BootstrapIcon icon={getBootstrapIconName('settings')} size={16} aria-label="Settings icon" />
 									</div>
 								),
 							}
@@ -396,7 +335,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 			{
 				id: 'dashboard',
 				label: 'Dashboard',
-				icon: <MDIIcon icon="FiViewDashboard" ariaLabel="Dashboard" />,
+				icon: <BootstrapIcon icon={getBootstrapIconName('speedometer2')} size={16} aria-label="Dashboard" />,
 				isOpen: true,
 				items: [
 					{
@@ -405,7 +344,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: '📊 Main Dashboard',
 						icon: (
 							<div className={getColoredIconClass('#3b82f6')} style={{ color: '#3b82f6' }}>
-								<MDIIcon icon="FiViewDashboard" ariaLabel="Dashboard" />
+								<BootstrapIcon icon={getBootstrapIconName('speedometer2')} size={16} aria-label="Dashboard" />
 							</div>
 						),
 						badge: (
@@ -423,7 +362,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				id: 'v8-flows-new',
 				label: 'Production',
 				// PING UI MIGRATION: Replaced React Icon with MDI icon
-				icon: <MDIIcon icon="FiZap" ariaLabel="Production flows" />,
+				icon: <BootstrapIcon icon={getBootstrapIconName('lightning')} size={16} aria-label="Production flows" />,
 				isOpen: true,
 				items: [
 					{
@@ -433,7 +372,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						// PING UI MIGRATION: Replaced ColoredIcon with div + MDI icon
 						icon: (
 							<div className={getColoredIconClass('#f59e0b')} style={{ color: '#f59e0b' }}>
-								<MDIIcon icon="FiSettings" ariaLabel="Settings" />
+								<BootstrapIcon icon={getBootstrapIconName('settings')} size={16} aria-label="Settings" />
 							</div>
 						),
 						// PING UI MIGRATION: Replaced MigrationBadge with span + ping-badge class
@@ -453,7 +392,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						// PING UI MIGRATION: Replaced ColoredIcon with div + MDI icon
 						icon: (
 							<div className={getColoredIconClass('#3b82f6')} style={{ color: '#3b82f6' }}>
-								<MDIIcon icon="FiActivity" ariaLabel="Activity" />
+								<BootstrapIcon icon={getBootstrapIconName('activity')} size={16} aria-label="Activity" />
 							</div>
 						),
 						// PING UI MIGRATION: Replaced MigrationBadge with span + ping-badge class
@@ -473,7 +412,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						// PING UI MIGRATION: Replaced ColoredIcon with div + MDI icon
 						icon: (
 							<div className={getColoredIconClass('#10b981')} style={{ color: '#10b981' }}>
-								<MDIIcon icon="FiZap" ariaLabel="Lightning bolt" />
+								<BootstrapIcon icon={getBootstrapIconName('lightning')} size={16} aria-label="Lightning bolt" />
 							</div>
 						),
 						// PING UI MIGRATION: Replaced MigrationBadge with span + ping-badge class (with custom style)
@@ -494,7 +433,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						// PING UI MIGRATION: Replaced ColoredIcon with div + MDI icon
 						icon: (
 							<div className={getColoredIconClass('#ef4444')} style={{ color: '#ef4444' }}>
-								<MDIIcon icon="FiLayers" ariaLabel="Layers" />
+								<BootstrapIcon icon={getBootstrapIconName('layers')} size={16} aria-label="Layers" />
 							</div>
 						),
 						// PING UI MIGRATION: Replaced MigrationBadge with span + ping-badge class (with custom style)
@@ -514,7 +453,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				id: 'v8-flows-legacy',
 				label: 'Production (Legacy)',
 				// PING UI MIGRATION: Replaced React Icon with MDI icon
-				icon: <MDIIcon icon="FiZap" ariaLabel="Legacy production flows" />,
+				icon: <BootstrapIcon icon={getBootstrapIconName('lightning')} size={16} aria-label="Legacy production flows" />,
 				isOpen: false,
 				items: [
 					{
@@ -524,7 +463,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						// PING UI MIGRATION: Replaced ColoredIcon with div + MDI icon
 						icon: (
 							<div className={getColoredIconClass('#06b6d4')} style={{ color: '#06b6d4' }}>
-								<MDIIcon icon="FiKey" ariaLabel="Key" />
+								<BootstrapIcon icon={getBootstrapIconName('key')} size={16} aria-label="Key" />
 							</div>
 						),
 						// PING UI MIGRATION: Replaced MigrationBadge with span + ping-badge class
@@ -533,7 +472,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								className={getMigrationBadgeClass('v8')}
 								title="V8: Simplified UI with educational content in modals"
 							>
-								<MDIIcon icon="FiCheckCircle" ariaLabel="Check circle" />
+								<BootstrapIcon icon={getBootstrapIconName('check-circle')} size={16} aria-label="Check circle" />
 							</span>
 						),
 					},
@@ -542,7 +481,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 			{
 				id: 'educational-pages',
 				label: 'Educational Pages',
-				icon: <MDIIcon icon="FiBook" ariaLabel="Educational pages" />,
+				icon: <BootstrapIcon icon={getBootstrapIconName('book')} size={16} aria-label="Educational pages" />,
 				isOpen: true,
 				items: [
 					{
@@ -551,7 +490,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: '👥 User Search API',
 						icon: (
 							<div className={getColoredIconClass('#10b981')} style={{ color: '#10b981' }}>
-								<MDIIcon icon="FiUsers" ariaLabel="Users" />
+								<BootstrapIcon icon={getBootstrapIconName('people')} size={16} aria-label="Users" />
 							</div>
 						),
 						badge: (
@@ -570,7 +509,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: '🔐 Login Patterns',
 						icon: (
 							<div className={getColoredIconClass('#3b82f6')} style={{ color: '#3b82f6' }}>
-								<MDIIcon icon="FiLock" ariaLabel="Lock" />
+								<BootstrapIcon icon={getBootstrapIconName('lock')} size={16} aria-label="Lock" />
 							</div>
 						),
 						badge: (
@@ -589,7 +528,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: '📚 Token API Documentation',
 						icon: (
 							<div className={getColoredIconClass('#8b5cf6')} style={{ color: '#8b5cf6' }}>
-								<MDIIcon icon="FiFileText" ariaLabel="Documentation" />
+								<BootstrapIcon icon={getBootstrapIconName('file-earmark-text')} size={16} aria-label="Documentation" />
 							</div>
 						),
 						badge: (
@@ -608,7 +547,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: '🔐 SPIFFE-Spire Tokens',
 						icon: (
 							<div className={getColoredIconClass('#f59e0b')} style={{ color: '#f59e0b' }}>
-								<MDIIcon icon="FiShield" ariaLabel="Shield" />
+								<BootstrapIcon icon={getBootstrapIconName('shield')} size={16} aria-label="Shield" />
 							</div>
 						),
 						badge: (
@@ -627,7 +566,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: '🔄 Token Refresh',
 						icon: (
 							<div className={getColoredIconClass('#059669')} style={{ color: '#059669' }}>
-								<MDIIcon icon="FiRefreshCw" ariaLabel="Refresh" />
+								<BootstrapIcon icon={getBootstrapIconName('arrow-clockwise')} size={16} aria-label="Refresh" />
 							</div>
 						),
 						badge: (
@@ -646,7 +585,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: '📊 Token Status',
 						icon: (
 							<div className={getColoredIconClass('#3b82f6')} style={{ color: '#3b82f6' }}>
-								<MDIIcon icon="FiActivity" ariaLabel="Activity" />
+								<BootstrapIcon icon={getBootstrapIconName('activity')} size={16} aria-label="Activity" />
 							</div>
 						),
 						badge: (
@@ -665,7 +604,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: '🐛 Debug Logs',
 						icon: (
 							<div className={getColoredIconClass('#ef4444')} style={{ color: '#ef4444' }}>
-								<MDIIcon icon="FiTerminal" ariaLabel="Terminal" />
+								<BootstrapIcon icon={getBootstrapIconName('terminal')} size={16} aria-label="Terminal" />
 							</div>
 						),
 						badge: (
@@ -684,7 +623,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: '� OAuth Code Generator Hub',
 						icon: (
 							<div className={getColoredIconClass('#3b82f6')} style={{ color: '#3b82f6' }}>
-								<MDIIcon icon="FiCode" ariaLabel="Code" />
+								<BootstrapIcon icon={getBootstrapIconName('code-slash')} size={16} aria-label="Code" />
 							</div>
 						),
 						badge: (
@@ -703,7 +642,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: '🔐 MFA Flow Code Generator',
 						icon: (
 							<div className={getColoredIconClass('#10b981')} style={{ color: '#10b981' }}>
-								<MDIIcon icon="FiShield" ariaLabel="Shield" />
+								<BootstrapIcon icon={getBootstrapIconName('shield')} size={16} aria-label="Shield" />
 							</div>
 						),
 						badge: (
@@ -722,7 +661,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						label: '🔒 Security Guides',
 						icon: (
 							<div className={getColoredIconClass('#10b981')} style={{ color: '#10b981' }}>
-								<MDIIcon icon="FiShield" ariaLabel="Shield" />
+								<BootstrapIcon icon={getBootstrapIconName('shield')} size={16} aria-label="Shield" />
 							</div>
 						),
 						badge: (
@@ -944,10 +883,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				<div className="menu-group-icon">{group.icon}</div>
 				<span className="menu-group-label">{group.label}</span>
 				<div className={`menu-group-chevron ${group.isOpen ? 'open' : ''}`}>
-					<MDIIcon
-						icon="FiChevronDown"
-						ariaLabel={`${group.isOpen ? 'Collapse' : 'Expand'} ${group.label}`}
-					/>
+					<BootstrapIcon icon={getBootstrapIconName('chevron-down')} size={16} aria-label={`${group.isOpen ? 'Collapse' : 'Expand'} ${group.label}`} />
 				</div>
 			</div>
 			{group.isOpen && (
@@ -962,21 +898,6 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						onClick={() => toggleGroup(subGroup.id)}
 						style={{
 							transition: 'var(--ping-transition-fast, 0.15s ease-in-out)',
-						}}
-					>
-						<div className="menu-subgroup-icon">{subGroup.icon}</div>
-						<span className="menu-subgroup-label">{subGroup.label}</span>
-						<div className={`menu-subgroup-chevron ${subGroup.isOpen ? 'open' : ''}`}>
-							<MDIIcon
-								icon="FiChevronDown"
-								ariaLabel={`${subGroup.isOpen ? 'Collapse' : 'Expand'} ${subGroup.label}`}
-							/>
-						</div>
-					</div>
-					{subGroup.isOpen && (
-						<div className="menu-subgroup-items">
-							{subGroup.items.map((item, index) => renderMenuItem(item, subGroup.id, index))}
-						</div>
 					)}
 				</div>
 			))}
