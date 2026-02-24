@@ -23,43 +23,9 @@ import type {
 } from '../types/protectPortal.types';
 import CompanyLogoHeader from './CompanyLogoHeader';
 
-// MDI Icon Component with proper accessibility
-const MDIIcon: React.FC<{
-	icon: string;
-	size?: number;
-	ariaLabel?: string;
-	ariaHidden?: boolean;
-	className?: string;
-	style?: React.CSSProperties;
-}> = ({ icon, size = 16, ariaLabel, ariaHidden = false, className = '', style }) => {
-	const iconClass = getMDIIconClass(icon);
-	const combinedClassName = `mdi ${iconClass} ${className}`.trim();
-
-	return (
-		<span
-			className={combinedClassName}
-			style={{ fontSize: `${size}px`, ...style }}
-			{...(ariaLabel ? { 'aria-label': ariaLabel } : {})}
-			{...(ariaHidden ? { 'aria-hidden': 'true' } : {})}
-			role="img"
-		></span>
-	);
-};
-
-// MDI Icon mapping function
-const getMDIIconClass = (iconName: string): string => {
-	const iconMap: Record<string, string> = {
-		FiAlertTriangle: 'mdi-alert',
-		FiCheckCircle: 'mdi-check-circle',
-		FiKey: 'mdi-key',
-		FiLoader: 'mdi-loading',
-		FiLock: 'mdi-lock',
-		FiMail: 'mdi-email',
-		FiShield: 'mdi-shield',
-		FiSmartphone: 'mdi-cellphone',
-	};
-	return iconMap[iconName] || 'mdi-help-circle';
-};
+// Bootstrap Icon Component (migrated from MDI)
+import BootstrapIcon from '@/components/BootstrapIcon';
+import { getBootstrapIconName } from '@/components/iconMapping';
 
 // ============================================================================
 // STYLED COMPONENTS
@@ -426,13 +392,13 @@ export const MFAAuthenticationFlowPingUI: React.FC<MFAAuthenticationFlowPingUIPr
 	const getDeviceIcon = (deviceType: string) => {
 		switch (deviceType) {
 			case 'mobile':
-				return 'FiSmartphone';
+				return getBootstrapIconName("FiSmartphone");
 			case 'email':
-				return 'FiMail';
+				return getBootstrapIconName("FiMail");
 			case 'hardware':
-				return 'FiKey';
+				return getBootstrapIconName("FiKey");
 			default:
-				return 'FiShield';
+				return getBootstrapIconName("FiShield");
 		}
 	};
 
@@ -462,7 +428,7 @@ export const MFAAuthenticationFlowPingUI: React.FC<MFAAuthenticationFlowPingUIPr
 				{educationalContent && (
 					<EducationalContent>
 						<EducationalTitle>
-							<MDIIcon icon="FiShield" size={16} ariaLabel="Security Information" />
+							<BootstrapIcon icon={getBootstrapIconName("FiShield")} size={16} aria-label="Security Information" />
 							{educationalContent.title}
 						</EducationalTitle>
 						<EducationalText>{educationalContent.content}</EducationalText>
@@ -471,7 +437,7 @@ export const MFAAuthenticationFlowPingUI: React.FC<MFAAuthenticationFlowPingUIPr
 
 				{error && (
 					<AlertBox $type="error">
-						<MDIIcon icon="FiAlertTriangle" size={20} ariaLabel="Error" />
+						<BootstrapIcon icon={getBootstrapIconName("FiAlertTriangle")} size={20} aria-label="Error" />
 						<AlertText $type="error">{error}</AlertText>
 					</AlertBox>
 				)}
@@ -496,10 +462,10 @@ export const MFAAuthenticationFlowPingUI: React.FC<MFAAuthenticationFlowPingUIPr
 									onClick={() => handleDeviceSelect(device)}
 								>
 									<DeviceIcon $deviceType={device.type}>
-										<MDIIcon
+										<BootstrapIcon
 											icon={getDeviceIcon(device.type)}
 											size={40}
-											ariaLabel={`${device.type} device`}
+											aria-label={`${device.type} device`}
 										/>
 									</DeviceIcon>
 									<DeviceName>{device.name}</DeviceName>
@@ -523,10 +489,10 @@ export const MFAAuthenticationFlowPingUI: React.FC<MFAAuthenticationFlowPingUIPr
 				) : (
 					<AuthenticationForm>
 						<FormTitle>
-							<MDIIcon
+							<BootstrapIcon
 								icon={getDeviceIcon(selectedDevice.type)}
 								size={20}
-								ariaLabel={selectedDevice.type}
+								aria-label={selectedDevice.type}
 							/>
 							Authenticate with {selectedDevice.name}
 						</FormTitle>
@@ -551,7 +517,7 @@ export const MFAAuthenticationFlowPingUI: React.FC<MFAAuthenticationFlowPingUIPr
 								{isAuthenticating ? (
 									<LoadingSpinner />
 								) : (
-									<MDIIcon icon="FiLock" size={16} ariaLabel="Authenticate" />
+									<BootstrapIcon icon={getBootstrapIconName("FiLock")} size={16} aria-label="Authenticate" />
 								)}
 								{isAuthenticating ? 'Authenticating...' : 'Authenticate'}
 							</PrimaryButton>

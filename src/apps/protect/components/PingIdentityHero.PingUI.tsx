@@ -11,31 +11,9 @@
 
 import React from 'react';
 
-// MDI Icon component
-const MDIIcon: React.FC<{
-	icon: string;
-	size?: number;
-	className?: string;
-	'aria-label'?: string;
-	'aria-hidden'?: boolean;
-}> = ({ icon, size = 24, className = '', 'aria-label': ariaLabel, 'aria-hidden': ariaHidden }) => {
-	const style: React.CSSProperties = {
-		width: size,
-		height: size,
-		fontSize: size,
-		lineHeight: 1,
-	};
-
-	return (
-		<span
-			role="img"
-			aria-label={ariaLabel}
-			aria-hidden={ariaHidden}
-			className={`mdi mdi-${icon} ${className}`}
-			style={style}
-		/>
-	);
-};
+// Bootstrap Icon Component (migrated from MDI)
+import BootstrapIcon from '@/components/BootstrapIcon';
+import { getBootstrapIconName } from '@/components/iconMapping';
 
 // ============================================================================
 // STYLES (Ping UI - replacing styled-components)

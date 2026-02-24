@@ -19,36 +19,9 @@
 import React from 'react';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 
-// MDI Icon Component with proper accessibility
-const MDIIcon: React.FC<{
-	icon: string;
-	size?: number;
-	ariaLabel?: string;
-	ariaHidden?: boolean;
-	className?: string;
-	style?: React.CSSProperties;
-}> = ({ icon, size = 16, ariaLabel, ariaHidden, className = '', style }) => {
-	const iconClass = getMDIIconClass(icon);
-	const combinedClassName = `mdi ${iconClass} ${className}`.trim();
-
-	return (
-		<span
-			className={combinedClassName}
-			style={{ fontSize: `${size}px`, ...style }}
-			{...(ariaLabel ? { 'aria-label': ariaLabel } : {})}
-			{...(ariaHidden ? { 'aria-hidden': 'true' } : {})}
-			role="img"
-		></span>
-	);
-};
-
-// MDI Icon mapping function
-const getMDIIconClass = (iconName: string): string => {
-	const iconMap: Record<string, string> = {
-		FiX: 'mdi-close',
-	};
-	return iconMap[iconName] || 'mdi-help-circle';
-};
+// Bootstrap Icon Component (migrated from MDI)
+import BootstrapIcon from '@/components/BootstrapIcon';
+import { getBootstrapIconName } from '@/components/iconMapping';
 
 export interface MFADeviceSelectionInfoModalPingUIProps {
 	show: boolean;
@@ -161,7 +134,7 @@ export const MFADeviceSelectionInfoModalPingUI: React.FC<
 									padding: 0,
 								}}
 							>
-								<MDIIcon icon="FiX" size={20} ariaLabel="Close modal" />
+								<BootstrapIcon icon={getBootstrapIconName("FiX")} size={20} aria-label="Close modal" />
 							</ButtonSpinner>
 						</div>
 					</div>

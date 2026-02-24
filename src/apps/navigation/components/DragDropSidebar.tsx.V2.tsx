@@ -22,6 +22,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
+// Bootstrap Icon Component (migrated from MDI)
+import BootstrapIcon from '@/components/BootstrapIcon';
+import { getBootstrapIconName } from '@/components/iconMapping';
+
 // Ping UI Helper Functions
 const getColoredIconClass = (color: string): string =>
 	`ping-icon ping-icon--${color.replace('#', 'color-')}`;

@@ -27,40 +27,9 @@ import { MFAErrorBoundary } from '@/v8/components/MFAErrorBoundary';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
-// MDI Icon Component with proper accessibility
-const MDIIcon: React.FC<{
-	icon: string;
-	size?: number;
-	ariaLabel?: string;
-	ariaHidden?: boolean;
-	className?: string;
-	style?: React.CSSProperties;
-}> = ({ icon, size = 16, ariaLabel, ariaHidden, className = '', style }) => {
-	const iconClass = getMDIIconClass(icon);
-	const combinedClassName = `mdi ${iconClass} ${className}`.trim();
-
-	return (
-		<span
-			className={combinedClassName}
-			style={{ fontSize: `${size}px`, ...style }}
-			{...(ariaLabel ? { 'aria-label': ariaLabel } : {})}
-			{...(ariaHidden ? { 'aria-hidden': 'true' } : {})}
-			role="img"
-		></span>
-	);
-};
-
-// MDI Icon mapping function
-const getMDIIconClass = (iconName: string): string => {
-	const iconMap: Record<string, string> = {
-		FiArrowLeft: 'mdi-arrow-left',
-		FiArrowRight: 'mdi-arrow-right',
-		FiCheckCircle: 'mdi-check-circle',
-		FiLock: 'mdi-lock',
-		FiShieldAlt: 'mdi-shield-check',
-	};
-	return iconMap[iconName] || 'mdi-help-circle';
-};
+// Bootstrap Icon Component (migrated from MDI)
+import BootstrapIcon from '@/components/BootstrapIcon';
+import { getBootstrapIconName } from '@/components/iconMapping';
 
 interface DeviceAuthenticationFlowProps {
 	initialStep?: AuthenticationStep;
@@ -238,10 +207,10 @@ const DeviceAuthenticationFlowPingUI: React.FC<DeviceAuthenticationFlowProps> = 
 										color: 'var(--ping-text-secondary, #6b7280)',
 									}}
 								>
-									<MDIIcon
-										icon="FiLock"
+									<BootstrapIcon
+										icon={getBootstrapIconName("FiLock")}
 										size={48}
-										ariaLabel="No devices available"
+										aria-label="No devices available"
 										style={{ marginBottom: 'var(--ping-spacing-md, 1rem)' }}
 									/>
 									<p>No devices available for authentication</p>
@@ -305,10 +274,10 @@ const DeviceAuthenticationFlowPingUI: React.FC<DeviceAuthenticationFlowProps> = 
 												}
 											}}
 										>
-											<MDIIcon
-												icon="FiShieldAlt"
+											<BootstrapIcon
+												icon={getBootstrapIconName("FiShieldAlt")}
 												size={24}
-												ariaLabel={`Device: ${device.name}`}
+												aria-label={`Device: ${device.name}`}
 												style={{ color: 'var(--ping-primary-color, #3b82f6)' }}
 											/>
 											<div style={{ textAlign: 'left' }}>
@@ -382,10 +351,10 @@ const DeviceAuthenticationFlowPingUI: React.FC<DeviceAuthenticationFlowProps> = 
 											padding: 'var(--ping-spacing-lg, 2rem)',
 										}}
 									>
-										<MDIIcon
-											icon="FiShieldAlt"
+										<BootstrapIcon
+											icon={getBootstrapIconName("FiShieldAlt")}
 											size={48}
-											ariaLabel="Push notification sent"
+											aria-label="Push notification sent"
 											style={{
 												color: 'var(--ping-primary-color, #3b82f6)',
 												marginBottom: 'var(--ping-spacing-md, 1rem)',
@@ -434,7 +403,7 @@ const DeviceAuthenticationFlowPingUI: React.FC<DeviceAuthenticationFlowProps> = 
 										transition: 'all var(--ping-transition-fast, 0.15s) ease-in-out',
 									}}
 								>
-									<MDIIcon icon="FiArrowLeft" size={16} ariaLabel="Back" />
+									<BootstrapIcon icon={getBootstrapIconName("FiArrowLeft")} size={16} aria-label="Back" />
 									Back
 								</button>
 
@@ -467,7 +436,7 @@ const DeviceAuthenticationFlowPingUI: React.FC<DeviceAuthenticationFlowProps> = 
 									) : (
 										<>
 											Continue
-											<MDIIcon icon="FiArrowRight" size={16} ariaLabel="Continue" />
+											<BootstrapIcon icon={getBootstrapIconName("FiArrowRight")} size={16} aria-label="Continue" />
 										</>
 									)}
 								</button>
@@ -484,10 +453,10 @@ const DeviceAuthenticationFlowPingUI: React.FC<DeviceAuthenticationFlowProps> = 
 								padding: 'var(--ping-spacing-xl, 3rem)',
 							}}
 						>
-							<MDIIcon
-								icon="FiCheckCircle"
+							<BootstrapIcon
+								icon={getBootstrapIconName("FiCheckCircle")}
 								size={64}
-								ariaLabel="Authentication successful"
+								aria-label="Authentication successful"
 								style={{
 									color: 'var(--ping-success-color, #10b981)',
 									marginBottom: 'var(--ping-spacing-lg, 2rem)',
@@ -534,7 +503,7 @@ const DeviceAuthenticationFlowPingUI: React.FC<DeviceAuthenticationFlowProps> = 
 									marginBottom: 'var(--ping-spacing-sm, 0.5rem)',
 								}}
 							>
-								<MDIIcon icon="FiLock" size={16} ariaLabel="Error" />
+								<BootstrapIcon icon={getBootstrapIconName("FiLock")} size={16} aria-label="Error" />
 								<strong>Authentication Error</strong>
 							</div>
 							<p style={{ margin: 0 }}>

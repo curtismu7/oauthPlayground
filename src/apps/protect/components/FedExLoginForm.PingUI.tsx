@@ -16,38 +16,9 @@ import { ButtonSpinner } from '../../../components/ui/ButtonSpinner';
 // import PingOneLoginService from '../services/pingOneLoginService';
 import type { PortalError, UserContext } from '../types/protectPortal.types';
 
-// MDI Icon Component with proper accessibility
-const MDIIcon: React.FC<{
-	icon: string;
-	size?: number;
-	ariaLabel?: string;
-	ariaHidden?: boolean;
-	className?: string;
-	style?: React.CSSProperties;
-}> = ({ icon, size = 16, ariaLabel, ariaHidden = false, className = '', style }) => {
-	const iconClass = getMDIIconClass(icon);
-	const combinedClassName = `mdi ${iconClass} ${className}`.trim();
-
-	return (
-		<i
-			className={combinedClassName}
-			style={{ fontSize: `${size}px`, ...style }}
-			{...(ariaLabel ? { 'aria-label': ariaLabel } : {})}
-			{...(ariaHidden ? { 'aria-hidden': 'true' } : {})}
-		></i>
-	);
-};
-
-// MDI Icon mapping function
-const getMDIIconClass = (iconName: string): string => {
-	const iconMap: Record<string, string> = {
-		FiAlertTriangle: 'mdi-alert',
-		FiEye: 'mdi-eye',
-		FiEyeOff: 'mdi-eye-off',
-		FiLock: 'mdi-lock',
-	};
-	return iconMap[iconName] || 'mdi-help-circle';
-};
+// Bootstrap Icon Component (migrated from MDI)
+import BootstrapIcon from '@/components/BootstrapIcon';
+import { getBootstrapIconName } from '@/components/iconMapping';
 
 // ============================================================================
 // INTERFACES
@@ -364,14 +335,14 @@ export const FedExLoginFormPingUI: React.FC<FedExLoginFormPingUIProps> = ({
 
 				{error && (
 					<ErrorMessage>
-						<MDIIcon icon="FiAlertTriangle" size={16} ariaLabel="Error" />
+						<BootstrapIcon icon={getBootstrapIconName("FiAlertTriangle")} size={16} aria-label="Error" />
 						{error}
 					</ErrorMessage>
 				)}
 
 				{success && (
 					<SuccessMessage>
-						<MDIIcon icon="FiCheckCircle" size={16} ariaLabel="Success" />
+						<BootstrapIcon icon={getBootstrapIconName("FiCheckCircle")} size={16} aria-label="Success" />
 						{success}
 					</SuccessMessage>
 				)}
@@ -409,10 +380,10 @@ export const FedExLoginFormPingUI: React.FC<FedExLoginFormPingUIProps> = ({
 							aria-label={showPassword ? 'Hide password' : 'Show password'}
 							disabled={isLoading}
 						>
-							<MDIIcon
-								icon={showPassword ? 'FiEyeOff' : 'FiEye'}
+							<BootstrapIcon
+								icon={showPassword ? getBootstrapIconName("FiEyeOff") : getBootstrapIconName("FiEye")}
 								size={16}
-								ariaLabel={showPassword ? 'Hide password' : 'Show password'}
+								aria-label={showPassword ? 'Hide password' : 'Show password'}
 							/>
 						</PasswordToggle>
 					</InputGroup>
@@ -436,7 +407,7 @@ export const FedExLoginFormPingUI: React.FC<FedExLoginFormPingUIProps> = ({
 							</>
 						) : (
 							<>
-								<MDIIcon icon="FiLock" size={16} ariaLabel="Lock" />
+								<BootstrapIcon icon={getBootstrapIconName("FiLock")} size={16} aria-label="Lock" />
 								Sign In
 							</>
 						)}
@@ -453,7 +424,7 @@ export const FedExLoginFormPingUI: React.FC<FedExLoginFormPingUIProps> = ({
 				</HelpLinks>
 
 				<SecurityBadge>
-					<MDIIcon icon="FiLock" size={12} ariaLabel="Security" />
+					<BootstrapIcon icon={getBootstrapIconName("FiLock")} size={12} aria-label="Security" />
 					Secure Connection • SSL Encrypted
 				</SecurityBadge>
 			</LoginContainer>

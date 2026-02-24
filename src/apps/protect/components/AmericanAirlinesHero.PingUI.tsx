@@ -14,39 +14,9 @@ import React from 'react';
 // import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
 import AmericanAirlinesNavigation from './AmericanAirlinesNavigation';
 
-// MDI Icon Component with proper accessibility
-const MDIIcon: React.FC<{
-	icon: string;
-	size?: number;
-	ariaLabel?: string;
-	ariaHidden?: boolean;
-	className?: string;
-	style?: React.CSSProperties;
-}> = ({ icon, size = 16, ariaLabel, ariaHidden = false, className = '', style }) => {
-	const iconClass = getMDIIconClass(icon);
-	const combinedClassName = `mdi ${iconClass} ${className}`.trim();
-
-	return (
-		<i
-			className={combinedClassName}
-			style={{ fontSize: `${size}px`, ...style }}
-			{...(ariaLabel ? { 'aria-label': ariaLabel } : {})}
-			{...(ariaHidden ? { 'aria-hidden': 'true' } : {})}
-		></i>
-	);
-};
-
-// MDI Icon mapping function
-const getMDIIconClass = (iconName: string): string => {
-	const iconMap: Record<string, string> = {
-		FiArrowRight: 'mdi-arrow-right',
-		FiCalendar: 'mdi-calendar',
-		FiLock: 'mdi-lock',
-		FiMapPin: 'mdi-map-marker',
-		FiSearch: 'mdi-magnify',
-	};
-	return iconMap[iconName] || 'mdi-help-circle';
-};
+// Bootstrap Icon Component (migrated from MDI)
+import BootstrapIcon from '@/components/BootstrapIcon';
+import { getBootstrapIconName } from '@/components/iconMapping';
 
 // ============================================================================
 // INTERFACES
@@ -248,7 +218,7 @@ export const AmericanAirlinesHeroPingUI: React.FC<AmericanAirlinesHeroPingUIProp
 							<div style={getSearchRowStyle()}>
 								<div style={getSearchColumnStyle()}>
 									<label style={getSearchLabelStyle()}>
-										<MDIIcon icon="map-marker" size={16} aria-label="Location" />
+										<BootstrapIcon icon={getBootstrapIconName("FiMapPin")} size={16} aria-label="Location" />
 										From
 									</label>
 									<input
@@ -260,7 +230,7 @@ export const AmericanAirlinesHeroPingUI: React.FC<AmericanAirlinesHeroPingUIProp
 								</div>
 								<div style={getSearchColumnStyle()}>
 									<label style={getSearchLabelStyle()}>
-										<MDIIcon icon="map-marker" size={16} aria-label="Location" />
+										<BootstrapIcon icon={getBootstrapIconName("FiMapPin")} size={16} aria-label="Location" />
 										To
 									</label>
 									<input
@@ -275,21 +245,21 @@ export const AmericanAirlinesHeroPingUI: React.FC<AmericanAirlinesHeroPingUIProp
 							<div style={getSearchRowStyle()}>
 								<div style={getSearchColumnStyle()}>
 									<label style={getSearchLabelStyle()}>
-										<MDIIcon icon="calendar" size={16} aria-label="Calendar" />
+										<BootstrapIcon icon={getBootstrapIconName("FiCalendar")} size={16} aria-label="Calendar" />
 										Departure
 									</label>
 									<input style={getSearchInputStyle()} type="date" defaultValue="2024-03-15" />
 								</div>
 								<div style={getSearchColumnStyle()}>
 									<label style={getSearchLabelStyle()}>
-										<MDIIcon icon="calendar" size={16} aria-label="Calendar" />
+										<BootstrapIcon icon={getBootstrapIconName("FiCalendar")} size={16} aria-label="Calendar" />
 										Return
 									</label>
 									<input style={getSearchInputStyle()} type="date" defaultValue="2024-03-22" />
 								</div>
 								<div style={getSearchColumnStyle()}>
 									<button style={getSearchButtonStyle()} type="submit">
-										<MDIIcon icon="magnify" size={16} aria-label="Search" />
+										<BootstrapIcon icon={getBootstrapIconName("FiSearch")} size={16} aria-label="Search" />
 										Search Flights
 									</button>
 								</div>
@@ -300,7 +270,7 @@ export const AmericanAirlinesHeroPingUI: React.FC<AmericanAirlinesHeroPingUIProp
 					<div style={getFeaturesGridStyle()}>
 						<div style={getFeatureCardStyle()}>
 							<div style={getFeatureIconStyle()}>
-								<MDIIcon icon="lock" size={32} aria-label="Security" />
+								<BootstrapIcon icon={getBootstrapIconName("FiLock")} size={32} aria-label="Security" />
 							</div>
 							<h3 style={getFeatureTitleStyle()}>Secure Booking</h3>
 							<p style={getFeatureDescriptionStyle()}>
@@ -310,7 +280,7 @@ export const AmericanAirlinesHeroPingUI: React.FC<AmericanAirlinesHeroPingUIProp
 
 						<div style={getFeatureCardStyle()}>
 							<div style={getFeatureIconStyle()}>
-								<MDIIcon icon="calendar" size={32} aria-label="Schedule" />
+								<BootstrapIcon icon={getBootstrapIconName("FiCalendar")} size={32} aria-label="Schedule" />
 							</div>
 							<h3 style={getFeatureTitleStyle()}>Flexible Scheduling</h3>
 							<p style={getFeatureDescriptionStyle()}>
@@ -320,7 +290,7 @@ export const AmericanAirlinesHeroPingUI: React.FC<AmericanAirlinesHeroPingUIProp
 
 						<div style={getFeatureCardStyle()}>
 							<div style={getFeatureIconStyle()}>
-								<MDIIcon icon="arrow-right" size={32} aria-label="Directions" />
+								<BootstrapIcon icon={getBootstrapIconName("FiArrowRight")} size={32} aria-label="Directions" />
 							</div>
 							<h3 style={getFeatureTitleStyle()}>Global Network</h3>
 							<p style={getFeatureDescriptionStyle()}>Connect to over 350 destinations worldwide</p>
@@ -330,19 +300,19 @@ export const AmericanAirlinesHeroPingUI: React.FC<AmericanAirlinesHeroPingUIProp
 					<div style={getTrustBadgesStyle()}>
 						<div style={getTrustBadgeStyle()}>
 							<div style={getBadgeIconStyle()}>
-								<MDIIcon icon="lock" size={16} aria-label="Secure" />
+								<BootstrapIcon icon={getBootstrapIconName("FiLock")} size={16} aria-label="Secure" />
 							</div>
 							Secure Booking
 						</div>
 						<div style={getTrustBadgeStyle()}>
 							<div style={getBadgeIconStyle()}>
-								<MDIIcon icon="check" size={16} aria-label="Verified" />
+								<BootstrapIcon icon={getBootstrapIconName("FiCheck")} size={16} aria-label="Verified" />
 							</div>
 							Verified Reviews
 						</div>
 						<div style={getTrustBadgeStyle()}>
 							<div style={getBadgeIconStyle()}>
-								<MDIIcon icon="shield" size={16} aria-label="Protected" />
+								<BootstrapIcon icon={getBootstrapIconName("shield")} size={16} aria-label="Protected" />
 							</div>
 							Travel Protection
 						</div>
