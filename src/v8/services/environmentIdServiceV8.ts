@@ -12,6 +12,14 @@
 const MODULE_TAG = '[🌍 ENVIRONMENT-ID-SERVICE-V8]';
 const STORAGE_KEY = 'v8:global_environment_id';
 
+declare global {
+	interface Window {
+		__envIdLogged?: boolean;
+		resetEnvironmentIdLogging?: () => void;
+	}
+}
+
+// biome-ignore lint/complexity/noStaticOnlyClass: V8 service pattern used across app
 export class EnvironmentIdServiceV8 {
 	/**
 	 * Get stored environment ID
@@ -22,9 +30,9 @@ export class EnvironmentIdServiceV8 {
 			const stored = localStorage.getItem(STORAGE_KEY);
 			if (stored) {
 				// Only log if debug mode is enabled or if this is the first call
-				if (typeof window !== 'undefined' && !(window as any).__envIdLogged) {
+				if (typeof window !== 'undefined' && !window.__envIdLogged) {
 					console.log(`${MODULE_TAG} Retrieved stored environment ID`);
-					(window as any).__envIdLogged = true;
+					window.__envIdLogged = true;
 				}
 				return stored;
 			}
@@ -39,14 +47,14 @@ export class EnvironmentIdServiceV8 {
 	 */
 	static resetLoggingState(): void {
 		if (typeof window !== 'undefined') {
-			(window as any).__envIdLogged = false;
+			window.__envIdLogged = false;
 		}
 	}
 
 	// Add debug helper to window object for easy access
 	static addDebugHelper(): void {
 		if (typeof window !== 'undefined') {
-			(window as any).resetEnvironmentIdLogging = () => {
+			window.resetEnvironmentIdLogging = () => {
 				EnvironmentIdServiceV8.resetLoggingState();
 				console.log('🔧 Environment ID logging state reset');
 			};
