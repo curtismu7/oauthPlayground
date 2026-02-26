@@ -1,1 +1,0 @@
-scripts/development/run.sh
