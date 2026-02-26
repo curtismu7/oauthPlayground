@@ -345,6 +345,8 @@ Plan to align the left-hand navigation with the Ping-style reference: fixed narr
 
 **See:** `docs/MENU_PING_UI_PLAN.md` for full steps (theme CSS, new `SidebarMenuPing` or V2 menu component, layout/App/Navbar width, no changes to locked `DragDropSidebar.tsx`).
 
+**Ping UI consistency (all pages):** Same doc, Phase 5 — use **light red headers + white text** on every page (no blue/grey headers); use **almost black** body text (`#111827` / `#1f2937`) instead of grey/muted everywhere.
+
 ---
 
 # SMOKE TEST CHECKLIST (run after every PR)

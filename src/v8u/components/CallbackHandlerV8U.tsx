@@ -18,6 +18,7 @@ import {
 	performDetailedAuthenticationCheck,
 } from '@/v8/services/pingOneAuthenticationServiceV8';
 import { ReturnTargetServiceV8U } from '@/v8u/services/returnTargetServiceV8U';
+import { trackOAuthFlow } from '@/utils/activityTracker';
 import { LoadingSpinnerModalV8U } from './LoadingSpinnerModalV8U';
 
 const MODULE_TAG = '[🔄 CALLBACK-HANDLER-V8U]';
@@ -705,6 +706,13 @@ export const CallbackHandlerV8U: React.FC = () => {
 
 		sessionStorage.setItem('v8u_callback_data', JSON.stringify(callbackData));
 		console.log(`${MODULE_TAG} Stored callback data in sessionStorage`, callbackData);
+
+		// Track for dashboard recent activity (not mock flows)
+		if (error) {
+			trackOAuthFlow(flowType, false, errorDescription ?? undefined);
+		} else {
+			trackOAuthFlow(flowType, true);
+		}
 
 		// Redirect back to the flow at the appropriate step
 		// CRITICAL: For implicit/hybrid flows, preserve the fragment (hash) in the URL
