@@ -215,6 +215,16 @@ const formatUptime = (seconds: number): string => {
 	}
 };
 
+// Backend health URL: use env when set (e.g. production without proxy), else relative for same-origin/proxy
+function getBackendHealthUrl(): string {
+	const base = import.meta.env.VITE_BACKEND_URL;
+	if (base) {
+		const normalized = base.replace(/\/$/, '');
+		return `${normalized}/api/health`;
+	}
+	return '/api/health';
+}
+
 const ApiStatusPage: React.FC = () => {
 	const [servers, setServers] = useState<ServerStatus[]>([
 		{
@@ -227,17 +237,8 @@ const ApiStatusPage: React.FC = () => {
 			lastChecked: null,
 		},
 		{
-			name: 'Backend HTTP Server',
+			name: 'Backend Server',
 			port: 3001,
-			protocol: 'HTTP',
-			status: 'checking',
-			healthData: null,
-			error: null,
-			lastChecked: null,
-		},
-		{
-			name: 'Backend HTTPS Server',
-			port: 3002,
 			protocol: 'HTTPS',
 			status: 'checking',
 			healthData: null,
@@ -252,13 +253,18 @@ const ApiStatusPage: React.FC = () => {
 		const updatedServer = { ...server, status: 'checking' as const };
 
 		try {
+			// Backend health URL: use VITE_BACKEND_URL in production when /api is not proxied
+			const backendHealthUrl = getBackendHealthUrl();
+			const isFrontend = server.port === 3000;
+			const url = isFrontend ? '/' : backendHealthUrl;
+
 			// Track the health check API call for display in API monitoring
 			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
 			const callId = apiCallTrackerService.trackApiCall({
 				method: 'GET',
-				url: '/api/health',
-				actualPingOneUrl: `${server.protocol.toLowerCase()}://localhost:${server.port}/api/health`,
-				isProxy: server.port !== 3000, // Frontend server doesn't use proxy
+				url: isFrontend ? '/' : '/api/health',
+				actualPingOneUrl: isFrontend ? `${window.location.origin}/` : backendHealthUrl,
+				isProxy: !isFrontend,
 				headers: {
 					Accept: 'application/json',
 				},
@@ -267,9 +273,6 @@ const ApiStatusPage: React.FC = () => {
 				flowType: 'system',
 			});
 
-			// For frontend server, we can't directly check its health endpoint
-			// Instead, we'll check if it's responding by making a request to the root
-			const url = server.port === 3000 ? '/' : '/api/health';
 			const response = await fetch(url);
 
 			if (!response.ok) {

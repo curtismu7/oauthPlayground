@@ -17,6 +17,9 @@ interface ImportMetaEnv {
 	readonly VITE_DEV_SERVER_PORT: string;
 	readonly VITE_DEV_SERVER_HTTPS: string;
 
+	// Optional: backend base URL for API status / health (e.g. production when /api is not proxied)
+	readonly VITE_BACKEND_URL?: string;
+
 	// Feature Flags
 	readonly VITE_FEATURE_DEBUG_MODE: string;
 }

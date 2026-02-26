@@ -1,0 +1,38 @@
+# Option A — Proxy: serve the SPA on port 3000 and proxy /api to the backend (e.g. 3001).
+# Use this when the frontend is served from port 3000 and the backend runs on another port.
+#
+# 1. Copy to your nginx sites (e.g. /etc/nginx/sites-available/oauth-playground)
+# 2. Set root to your built app (e.g. /path/to/oauth-playground/dist)
+# 3. Set backend upstream to your backend (e.g. https://localhost:3001 or https://api.pingdemo.com:3001)
+# 4. Reload nginx: sudo nginx -t && sudo nginx -s reload
+
+server {
+    listen 3000 ssl;
+    server_name api.pingdemo.com localhost;
+
+    # SSL (use your certs in production)
+    ssl_certificate     /path/to/ssl/cert.pem;
+    ssl_certificate_key /path/to/ssl/key.pem;
+
+    # SPA root (built app)
+    root /path/to/oauth-playground/dist;
+    index index.html;
+
+    # Proxy /api to backend
+    location /api/ {
+        proxy_pass https://api.pingdemo.com:3001;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_connect_timeout 10s;
+        proxy_send_timeout 60s;
+        proxy_read_timeout 60s;
+    }
+
+    # SPA fallback: serve index.html for non-file routes
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}

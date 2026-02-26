@@ -1,369 +1,25 @@
 import { useCallback, useEffect, useState } from 'react';
-import {
-	FiActivity,
-	FiCheckCircle,
-	FiCode,
-	FiGlobe,
-	FiKey,
-	FiLink,
-	FiRefreshCw,
-	FiServer,
-	FiZap,
-} from 'react-icons/fi';
-import styled from 'styled-components';
 import AppVersionBadge from '../components/AppVersionBadge';
+import { Icon } from '../components/Icon/Icon';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { type ActivityItem, getRecentActivity } from '../utils/activityTracker';
 import { checkSavedCredentials } from '../utils/configurationStatus';
 import { v4ToastManager } from '../utils/v4ToastMessages';
-
-// Content card for sections (matches Unified flow standard)
-const ContentCard = styled.div`
-  padding: 24px;
-`;
-
-const ServerStatusGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-const ServerCard = styled.div`
-  padding: 1rem;
-  background: #ffffff;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-`;
-
-const ApiGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
-`;
-
-const ApiEndpointCard = styled.div`
-  padding: 1rem;
-  background-color: #ffffff;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease;
-
-  &:hover {
-    border-color: #3b82f6;
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
-  }
-`;
-
-const MethodBadge = styled.span<{ $method: string }>`
-  padding: 0.25rem 0.5rem;
-  background-color: ${(props) => (props.$method === 'GET' ? '#dbeafe' : '#dcfce7')};
-  color: ${(props) => (props.$method === 'GET' ? '#1e40af' : '#166534')};
-  border-radius: 0.25rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-`;
-
-const QuickAccessGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1rem;
-`;
-
-const FlowCard = styled.div`
-  background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  border: 1px solid #e2e8f0;
-  transition: all 0.2s ease;
-
-  &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    transform: translateY(-2px);
-  }
-
-  h3 {
-    font-size: 1.2rem;
-    margin: 0;
-    color: #1f2937;
-    font-weight: 600;
-  }
-
-  p {
-    color: #6b7280;
-    font-size: 0.9rem;
-    margin: 0;
-    line-height: 1.5;
-  }
-`;
-
-const FlowButtonsContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  align-items: stretch;
-  width: 100%;
-  
-  /* Ensure buttons have enough space */
-  & > a {
-    flex: 1;
-    min-width: 140px;
-    max-width: 200px;
-  }
-`;
+import '../styles/dashboard.css';
 
 type FlowPalette = 'oauth' | 'oidc' | 'pingone';
 
-const FLOW_BUTTON_THEMES: Record<
-	FlowPalette,
-	{
-		primary: {
-			bg: string;
-			border: string;
-			color: string;
-			hoverBg: string;
-			hoverBorder: string;
-			hoverColor: string;
-			shadow: string;
-			hoverShadow: string;
-		};
-		secondary: {
-			bg: string;
-			border: string;
-			color: string;
-			hoverBg: string;
-			hoverBorder: string;
-			hoverColor: string;
-			shadow: string;
-			hoverShadow: string;
-		};
-	}
-> = {
-	oauth: {
-		primary: {
-			bg: '#047857',
-			border: '#065f46',
-			color: '#ffffff',
-			hoverBg: '#065f46',
-			hoverBorder: '#047857',
-			hoverColor: '#ffffff',
-			shadow: '0 2px 4px rgba(4, 120, 87, 0.25)',
-			hoverShadow: '0 4px 10px rgba(4, 120, 87, 0.35)',
-		},
-		secondary: {
-			bg: '#10b981',
-			border: '#059669',
-			color: '#ffffff',
-			hoverBg: '#059669',
-			hoverBorder: '#047857',
-			hoverColor: '#ffffff',
-			shadow: '0 2px 4px rgba(16, 185, 129, 0.2)',
-			hoverShadow: '0 4px 8px rgba(16, 185, 129, 0.3)',
-		},
-	},
-	oidc: {
-		primary: {
-			bg: '#5b21b6',
-			border: '#4c1d95',
-			color: '#ffffff',
-			hoverBg: '#4c1d95',
-			hoverBorder: '#3b1680',
-			hoverColor: '#ffffff',
-			shadow: '0 2px 4px rgba(91, 33, 182, 0.25)',
-			hoverShadow: '0 4px 10px rgba(91, 33, 182, 0.35)',
-		},
-		secondary: {
-			bg: '#7c3aed',
-			border: '#6d28d9',
-			color: '#ffffff',
-			hoverBg: '#6d28d9',
-			hoverBorder: '#5b21b6',
-			hoverColor: '#ffffff',
-			shadow: '0 2px 4px rgba(124, 58, 237, 0.2)',
-			hoverShadow: '0 4px 8px rgba(124, 58, 237, 0.3)',
-		},
-	},
-	pingone: {
-		primary: {
-			bg: '#c2410c',
-			border: '#9a3412',
-			color: '#ffffff',
-			hoverBg: '#9a3412',
-			hoverBorder: '#7c2d12',
-			hoverColor: '#ffffff',
-			shadow: '0 2px 4px rgba(194, 65, 12, 0.25)',
-			hoverShadow: '0 4px 10px rgba(194, 65, 12, 0.35)',
-		},
-		secondary: {
-			bg: '#f97316',
-			border: '#ea580c',
-			color: '#ffffff',
-			hoverBg: '#ea580c',
-			hoverBorder: '#c2410c',
-			hoverColor: '#ffffff',
-			shadow: '0 2px 4px rgba(249, 115, 22, 0.2)',
-			hoverShadow: '0 4px 8px rgba(249, 115, 22, 0.3)',
-		},
-	},
-};
+/** Build flow link class: btn btn-{palette} and optionally btn-outline for secondary */
+function flowLinkClass(variant: 'primary' | 'secondary', palette: FlowPalette): string {
+	const base = `btn btn-${palette}`;
+	return variant === 'secondary' ? `${base} btn-outline` : base;
+}
 
-const FlowLink = styled.a<{ $variant?: 'primary' | 'secondary'; $palette?: FlowPalette }>`
-  display: inline-block;
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-  font-weight: 600;
-  text-decoration: none;
-  font-size: 0.9rem;
-  transition: all 0.2s ease;
-  text-align: center;
-  min-height: 2.5rem;
-  line-height: 1.2;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-
-  ${({ $variant = 'secondary', $palette = 'oauth' }) => {
-		const palette = FLOW_BUTTON_THEMES[$palette];
-		const theme = palette[$variant];
-		return `
-      background: ${theme.bg};
-      color: white !important;
-      border: 2px solid ${theme.border};
-      box-shadow: ${theme.shadow};
-
-      &:hover {
-        background: ${theme.hoverBg};
-        border-color: ${theme.hoverBorder};
-        color: white !important;
-        box-shadow: ${theme.hoverShadow};
-        transform: translateY(-1px);
-      }
-    `;
-	}}
-`;
-
-const ActivityList = styled.div`
-  max-height: 400px;
-  overflow-y: auto;
-
-  ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-`;
-
-const ActivityListItem = styled.li<{ $isLast?: boolean }>`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  border-bottom: ${(props) => (props.$isLast ? 'none' : '1px solid #e5e7eb')};
-`;
-
-const ActivityIcon = styled.div<{ $success: boolean }>`
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: ${(props) => (props.$success ? '#dcfce7' : '#fee2e2')};
-  color: ${(props) => (props.$success ? '#166534' : '#dc2626')};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-  flex-shrink: 0;
-`;
-
-const ActivityContent = styled.div`
-  flex: 1;
-`;
-
-const ActivityAction = styled.div`
-  font-weight: 500;
-  color: #333;
-  margin-bottom: 0.25rem;
-`;
-
-const ActivityTime = styled.div`
-  font-size: 0.875rem;
-  color: #666;
-`;
-
-const EmptyState = styled.li`
-  text-align: center;
-  padding: 2rem;
-  color: #6b7280;
-
-  svg {
-    margin-bottom: 1rem;
-    opacity: 0.5;
-  }
-
-  p {
-    margin: 0.5rem 0;
-  }
-`;
-
-const StatusBadge = styled.span<{ $status: 'active' | 'pending' | 'error' }>`
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 500;
-  
-  ${({ $status }) => {
-		switch ($status) {
-			case 'active':
-				return 'background: rgba(67, 233, 123, 0.1); color: #43e97b;';
-			case 'pending':
-				return 'background: rgba(255, 193, 7, 0.1); color: #ffc107;';
-			case 'error':
-				return 'background: rgba(245, 87, 108, 0.1); color: #f5576c;';
-			default:
-				return 'background: rgba(67, 233, 123, 0.1); color: #43e97b;';
-		}
-	}}
-`;
-
-const RefreshButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #3b82f6;
-  background: #ffffff;
-  border: 1px solid #3b82f6;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  &:hover:not(:disabled) {
-    background: #eff6ff;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
-  }
-  
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  svg {
-    transition: transform 0.3s ease;
-  }
-`;
+/** Status badge class from status key */
+function statusBadgeClass(status: 'active' | 'pending' | 'error'): string {
+	const map = { active: 'badge-success', pending: 'badge-warning', error: 'badge-danger' };
+	return `badge ${map[status] ?? map.active}`;
+}
 
 const Dashboard = () => {
 	const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([]);
@@ -373,13 +29,14 @@ const Dashboard = () => {
 		backend: 'checking' as 'online' | 'offline' | 'checking',
 	});
 
-	// Collapsible sections state
+	// Collapsible sections state (all sections use Ping red/white, narrow header, common expand/collapse icon)
 	const [collapsedSections, setCollapsedSections] = useState({
-		systemStatus: false, // Start expanded
-		apiTesting: true, // Start collapsed
-		apiEndpoints: true, // Start collapsed
-		quickAccess: false, // Start expanded
-		recentActivity: false, // Start expanded
+		dashboardHeader: false,
+		systemStatus: false,
+		apiTesting: true,
+		apiEndpoints: true,
+		quickAccess: false,
+		recentActivity: false,
 	});
 
 	const toggleSection = useCallback((section: keyof typeof collapsedSections) => {
@@ -403,7 +60,7 @@ const Dashboard = () => {
 				backend: backendResponse.ok ? 'online' : 'offline',
 				frontend: 'online',
 			}));
-		} catch (_error) {
+		} catch {
 			setServerStatus((prev) => ({
 				...prev,
 				backend: 'offline',
@@ -453,7 +110,7 @@ const Dashboard = () => {
 				}
 
 				setRecentActivity(activity);
-			} catch (_error) {
+			} catch {
 				// Handle error silently
 			}
 		};
@@ -468,7 +125,7 @@ const Dashboard = () => {
 			const activity = getRecentActivity();
 			setRecentActivity(activity);
 			await checkServerStatus();
-		} catch (_error) {
+		} catch {
 			// Handle error silently
 		} finally {
 			setIsRefreshing(false);
@@ -479,7 +136,7 @@ const Dashboard = () => {
 		try {
 			await refreshDashboard();
 			v4ToastManager.showSuccess('saveConfigurationSuccess');
-		} catch (_error) {
+		} catch {
 			v4ToastManager.showError('networkError');
 		}
 	};
@@ -513,532 +170,339 @@ const Dashboard = () => {
 	};
 
 	return (
-		<div
-			style={{
-				maxWidth: '1200px',
-				margin: '0 auto',
-				padding: '2rem',
-				background: '#f8fafc',
-				minHeight: '100vh',
-			}}
-		>
-			{/* Header with Unified Flow Design */}
-			<div
-				style={{
-					marginBottom: '32px',
-					padding: '24px',
-					background: 'linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)',
-					borderRadius: '12px',
-					color: '#0c4a6e',
-					position: 'relative',
-					overflow: 'hidden',
-				}}
-			>
-				{/* Decorative background pattern */}
-				<div
-					style={{
-						position: 'absolute',
-						top: 0,
-						right: 0,
-						width: '300px',
-						height: '100%',
-						background:
-							'radial-gradient(circle at top right, rgba(255,255,255,0.3) 0%, transparent 70%)',
-						pointerEvents: 'none',
-					}}
-				/>
-
-				<h1
-					style={{
-						fontSize: '32px',
-						fontWeight: '700',
-						margin: '0 0 8px 0',
-						position: 'relative',
-						zIndex: 1,
-					}}
+		<div className="dashboard-page">
+			{/* Dashboard header — collapsible, Ping red/white, narrow */}
+			<div className="section-wrap">
+				<CollapsibleHeader
+					title="Dashboard"
+					subtitle="Monitor system status, explore OAuth flows, and track recent activity"
+					icon={<Icon name="chart-box" />}
+					theme="ping"
+					variant="compact"
+					defaultCollapsed={collapsedSections.dashboardHeader}
+					collapsed={collapsedSections.dashboardHeader}
+					onToggle={() => toggleSection('dashboardHeader')}
 				>
-					📊 Dashboard
-				</h1>
-				<p
-					style={{
-						fontSize: '16px',
-						margin: 0,
-						opacity: 0.9,
-						position: 'relative',
-						zIndex: 1,
-					}}
-				>
-					Monitor system status, explore OAuth flows, and track recent activity
-				</p>
-
-				{/* Version Badges */}
-				<div
-					style={{
-						display: 'flex',
-						flexDirection: 'column',
-						gap: '0.5rem',
-						padding: '0.5rem 0px',
-						position: 'relative',
-						zIndex: 1,
-					}}
-				>
-					<div
-						style={{
-							display: 'flex',
-							flexWrap: 'wrap',
-							gap: '0.5rem',
-							justifyContent: 'center',
-						}}
-					>
+					<div className="card-body card-body--lg d-flex flex-column align-items-center gap-2">
 						<AppVersionBadge type="app" />
 						<AppVersionBadge type="mfa" />
-					</div>
-					<div
-						style={{
-							display: 'flex',
-							flexWrap: 'wrap',
-							gap: '0.5rem',
-							justifyContent: 'center',
-						}}
-					>
 						<AppVersionBadge type="unified" />
 						<AppVersionBadge type="protect" />
 					</div>
-				</div>
+				</CollapsibleHeader>
 			</div>
 
 			{/* System Status */}
-			<div style={{ marginBottom: '24px' }}>
+			<div className="section-wrap">
 				<CollapsibleHeader
 					title="System Status"
 					subtitle="Frontend and backend server health monitoring"
-					icon={<FiServer />}
+					icon={<Icon name="server" />}
+					theme="ping"
+					variant="compact"
 					defaultCollapsed={collapsedSections.systemStatus}
 					collapsed={collapsedSections.systemStatus}
 					onToggle={() => toggleSection('systemStatus')}
 				>
-					<ContentCard>
-						<div
-							style={{
-								display: 'flex',
-								gap: '0.5rem',
-								marginBottom: '1rem',
-								justifyContent: 'flex-end',
-							}}
-						>
-							<RefreshButton onClick={handleRefresh} disabled={isRefreshing}>
-								<FiRefreshCw
-									size={16}
-									style={{
-										animation: isRefreshing ? 'spin 1s linear infinite' : 'none',
-									}}
+					<div className="card-body card-body--lg">
+						<div className="d-flex gap-2 mb-3 justify-content-end">
+							<button
+								type="button"
+								className="btn btn-outline-primary"
+								onClick={handleRefresh}
+								disabled={isRefreshing}
+								aria-label="Refresh server status"
+							>
+								<Icon
+									name="refresh"
+									size="sm"
+									style={{ animation: isRefreshing ? 'spin 1s linear infinite' : 'none' }}
 								/>
 								Refresh
-							</RefreshButton>
+							</button>
 						</div>
 
-						<div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
-							<StatusBadge
-								$status={hasSavedCredentials ? 'active' : 'error'}
-								style={{
-									display: 'flex',
-									alignItems: 'center',
-									gap: '0.5rem',
-									padding: '0.75rem 1rem',
-									fontSize: '0.9rem',
-								}}
+						<div className="d-flex gap-3 flex-wrap mb-4">
+							<span
+								className={`${statusBadgeClass(hasSavedCredentials ? 'active' : 'error')} d-flex align-items-center gap-2 p-3 text-small`}
 							>
-								<FiCheckCircle />
+								<Icon name="check-circle" />
 								{hasSavedCredentials ? 'Global Configuration Ready' : 'Configuration Missing'}
-							</StatusBadge>
+							</span>
 						</div>
 
 						{/* Server Status Details */}
-						<ServerStatusGrid>
-							<ServerCard>
-								<div
-									style={{
-										display: 'flex',
-										alignItems: 'center',
-										gap: '0.5rem',
-										marginBottom: '0.75rem',
-									}}
-								>
-									<StatusBadge
-										$status={
-											serverStatus.frontend === 'online'
-												? 'active'
-												: serverStatus.frontend === 'checking'
-													? 'pending'
-													: 'error'
-										}
-									>
-										{serverStatus.frontend === 'online'
-											? 'Online'
-											: serverStatus.frontend === 'checking'
-												? 'Checking...'
-												: 'Offline'}
-									</StatusBadge>
-									<div style={{ fontWeight: '600', color: '#333' }}>Frontend Server</div>
+						<div className="row">
+							<div className="col-md-6 mb-3">
+								<div className="card">
+									<div className="card-body">
+										<div className="d-flex align-items-center gap-2 mb-2">
+											<span
+												className={statusBadgeClass(
+													serverStatus.frontend === 'online'
+														? 'active'
+														: serverStatus.frontend === 'checking'
+															? 'pending'
+															: 'error'
+												)}
+											>
+												{serverStatus.frontend === 'online'
+													? 'Online'
+													: serverStatus.frontend === 'checking'
+														? 'Checking...'
+														: 'Offline'}
+											</span>
+											<span className="fw-600 text-muted">Frontend Server</span>
+										</div>
+										<div className="text-small text-muted">
+											<Icon name="earth" style={{ marginRight: '0.25rem' }} />
+											<strong>URL:</strong> https://localhost:3000
+										</div>
+									</div>
 								</div>
-								<div style={{ fontSize: '0.875rem', color: '#666' }}>
-									<FiGlobe style={{ marginRight: '0.25rem' }} />
-									<strong>URL:</strong> https://localhost:3000
+							</div>
+							<div className="col-md-6 mb-3">
+								<div className="card">
+									<div className="card-body">
+										<div className="d-flex align-items-center gap-2 mb-2">
+											<span
+												className={statusBadgeClass(
+													serverStatus.backend === 'online'
+														? 'active'
+														: serverStatus.backend === 'checking'
+															? 'pending'
+															: 'error'
+												)}
+											>
+												{serverStatus.backend === 'online'
+													? 'Online'
+													: serverStatus.backend === 'checking'
+														? 'Checking...'
+														: 'Offline'}
+											</span>
+											<span className="fw-600 text-muted">Backend API</span>
+										</div>
+										<div className="text-small text-muted">
+											<Icon name="key" style={{ marginRight: '0.25rem' }} />
+											<strong>URL:</strong> https://localhost:3001
+										</div>
+									</div>
 								</div>
-							</ServerCard>
-
-							<ServerCard>
-								<div
-									style={{
-										display: 'flex',
-										alignItems: 'center',
-										gap: '0.5rem',
-										marginBottom: '0.75rem',
-									}}
-								>
-									<StatusBadge
-										$status={
-											serverStatus.backend === 'online'
-												? 'active'
-												: serverStatus.backend === 'checking'
-													? 'pending'
-													: 'error'
-										}
-									>
-										{serverStatus.backend === 'online'
-											? 'Online'
-											: serverStatus.backend === 'checking'
-												? 'Checking...'
-												: 'Offline'}
-									</StatusBadge>
-									<div style={{ fontWeight: '600', color: '#333' }}>Backend API</div>
-								</div>
-								<div style={{ fontSize: '0.875rem', color: '#666' }}>
-									<FiKey style={{ marginRight: '0.25rem' }} />
-									<strong>URL:</strong> https://localhost:3001
-								</div>
-							</ServerCard>
-						</ServerStatusGrid>
-					</ContentCard>
+							</div>
+						</div>
+					</div>
 				</CollapsibleHeader>
 			</div>
 
 			{/* API Testing */}
-			<div style={{ marginBottom: '24px' }}>
+			<div className="section-wrap">
 				<CollapsibleHeader
 					title="API Testing"
 					subtitle="Comprehensive OAuth and MFA API test suite"
-					icon={<FiZap />}
+					icon={<Icon name="lightning-bolt" />}
+					theme="ping"
+					variant="compact"
 					defaultCollapsed={collapsedSections.apiTesting}
 					collapsed={collapsedSections.apiTesting}
 					onToggle={() => toggleSection('apiTesting')}
 				>
-					<ContentCard>
-						<div style={{ marginBottom: '16px' }}>
-							<p
-								style={{
-									margin: '0 0 16px 0',
-									color: '#666',
-									fontSize: '14px',
-									lineHeight: '1.5',
-								}}
-							>
-								Test all OAuth and MFA flows with comprehensive API validation. Includes
-								authorization code, implicit, hybrid, device authorization, client credentials, and
-								MFA device management.
-							</p>
-						</div>
+					<div className="card-body card-body--lg">
+						<p className="text-muted text-small mb-3" style={{ lineHeight: 1.5 }}>
+							Test all OAuth and MFA flows with comprehensive API validation. Includes authorization
+							code, implicit, hybrid, device authorization, client credentials, and MFA device
+							management.
+						</p>
 
-						<div
-							style={{
-								display: 'flex',
-								gap: '12px',
-								flexWrap: 'wrap',
-								alignItems: 'center',
-							}}
-						>
-							<FlowLink
+						<div className="d-flex gap-3 flex-wrap align-items-center">
+							<a
 								href="/v8u/unified/oauth-authz/0"
-								$variant="primary"
-								$palette="oauth"
-								style={{
-									display: 'flex',
-									alignItems: 'center',
-									gap: '8px',
-									textDecoration: 'none',
-								}}
+								className={`${flowLinkClass('primary', 'oauth')} d-flex align-items-center gap-2`}
 							>
-								<FiCode size={16} />
+								<Icon name="code-tags" size="sm" />
 								OAuth & MFA API Test
-							</FlowLink>
-
-							<div
-								style={{
-									fontSize: '12px',
-									color: '#888',
-									fontStyle: 'italic',
-								}}
-							>
+							</a>
+							<span className="text-muted text-small" style={{ fontStyle: 'italic' }}>
 								Comprehensive testing for all flow types
-							</div>
+							</span>
 						</div>
 
-						<div
-							style={{
-								marginTop: '16px',
-								padding: '12px',
-								background: '#f8fafc',
-								borderRadius: '6px',
-								border: '1px solid #e2e8f0',
-							}}
-						>
-							<div
-								style={{
-									fontSize: '12px',
-									color: '#666',
-									marginBottom: '8px',
-									fontWeight: '600',
-								}}
-							>
-								Test Coverage:
-							</div>
-							<div
-								style={{
-									display: 'flex',
-									flexWrap: 'wrap',
-									gap: '8px',
-									fontSize: '11px',
-								}}
-							>
-								<span
-									style={{
-										background: '#e0f2fe',
-										color: '#0369a1',
-										padding: '2px 6px',
-										borderRadius: '4px',
-									}}
-								>
-									Authorization Code
-								</span>
-								<span
-									style={{
-										background: '#fef3c7',
-										color: '#92400e',
-										padding: '2px 6px',
-										borderRadius: '4px',
-									}}
-								>
-									Implicit
-								</span>
-								<span
-									style={{
-										background: '#f3e8ff',
-										color: '#7c3aed',
-										padding: '2px 6px',
-										borderRadius: '4px',
-									}}
-								>
-									Hybrid
-								</span>
-								<span
-									style={{
-										background: '#dcfce7',
-										color: '#166534',
-										padding: '2px 6px',
-										borderRadius: '4px',
-									}}
-								>
-									Device Auth
-								</span>
-								<span
-									style={{
-										background: '#fee2e2',
-										color: '#dc2626',
-										padding: '2px 6px',
-										borderRadius: '4px',
-									}}
-								>
-									Client Credentials
-								</span>
-								<span
-									style={{
-										background: '#f0f9ff',
-										color: '#0369a1',
-										padding: '2px 6px',
-										borderRadius: '4px',
-									}}
-								>
-									MFA Device Management
-								</span>
+						<div className="test-coverage-box">
+							<div className="text-small fw-600 text-muted mb-2">Test Coverage:</div>
+							<div className="test-coverage-tags">
+								<span className="tag-blue">Authorization Code</span>
+								<span className="tag-amber">Implicit</span>
+								<span className="tag-purple">Hybrid</span>
+								<span className="tag-green">Device Auth</span>
+								<span className="tag-red">Client Credentials</span>
+								<span className="tag-sky">MFA Device Management</span>
 							</div>
 						</div>
-					</ContentCard>
+					</div>
 				</CollapsibleHeader>
 			</div>
 
 			{/* API Endpoints */}
-			<div style={{ marginBottom: '24px' }}>
+			<div className="section-wrap">
 				<CollapsibleHeader
 					title="Available API Endpoints"
 					subtitle="Backend API endpoints for OAuth/OIDC operations"
-					icon={<FiLink />}
+					icon={<Icon name="link" />}
+					theme="ping"
+					variant="compact"
 					defaultCollapsed={collapsedSections.apiEndpoints}
 					collapsed={collapsedSections.apiEndpoints}
 					onToggle={() => toggleSection('apiEndpoints')}
 				>
-					<ContentCard>
-						<ApiGrid>
+					<div className="card-body card-body--lg">
+						<div className="api-grid">
 							{apiEndpoints.map((endpoint, index) => (
-								<ApiEndpointCard key={index}>
-									<div
-										style={{
-											display: 'flex',
-											alignItems: 'center',
-											gap: '0.5rem',
-											marginBottom: '0.5rem',
-										}}
-									>
-										<MethodBadge $method={endpoint.method}>{endpoint.method}</MethodBadge>
-										<code style={{ fontSize: '0.875rem', fontWeight: '500' }}>{endpoint.path}</code>
+								<div key={index} className="api-endpoint-card">
+									<div className="d-flex align-items-center gap-2 mb-2">
+										<span className={`method-badge method-badge--${endpoint.method.toLowerCase()}`}>
+											{endpoint.method}
+										</span>
+										<code className="text-small fw-600">{endpoint.path}</code>
 									</div>
-									<p style={{ fontSize: '0.875rem', color: '#6b7280', margin: 0 }}>
-										{endpoint.desc}
-									</p>
-								</ApiEndpointCard>
+									<p className="text-small text-muted mb-1">{endpoint.desc}</p>
+								</div>
 							))}
-						</ApiGrid>
-					</ContentCard>
+						</div>
+					</div>
 				</CollapsibleHeader>
 			</div>
 
 			{/* Quick Access Flows */}
-			<div style={{ marginBottom: '24px' }}>
+			<div className="section-wrap">
 				<CollapsibleHeader
 					title="Quick Access Flows"
 					subtitle="Explore OAuth 2.0 and OpenID Connect flows"
-					icon={<FiZap />}
+					icon={<Icon name="lightning-bolt" />}
+					theme="ping"
+					variant="compact"
 					defaultCollapsed={collapsedSections.quickAccess}
 					collapsed={collapsedSections.quickAccess}
 					onToggle={() => toggleSection('quickAccess')}
 				>
-					<ContentCard>
-						<div style={{ marginBottom: '1rem' }}>
-							<p style={{ color: '#666', fontSize: '0.95rem' }}>
-								Explore OAuth 2.0 and OpenID Connect flows. Defaults are secure-by-default (Auth
-								Code with PKCE).
-							</p>
-						</div>
+					<div className="card-body card-body--lg">
+						<p className="text-muted mb-3" style={{ fontSize: '0.95rem' }}>
+							Explore OAuth 2.0 and OpenID Connect flows. Defaults are secure-by-default (Auth Code
+							with PKCE).
+						</p>
 
-						<QuickAccessGrid>
-							<FlowCard>
+						<div className="quick-access-grid">
+							<div className="flow-card">
 								<h3>OAuth 2.0</h3>
 								<p>
 									Standards-based authorization flows. Recommended: Authorization Code (with PKCE
 									for public clients).
 								</p>
-								<FlowButtonsContainer>
-									<FlowLink href="/v8u/unified/oauth-authz" $variant="primary" $palette="oauth">
+								<div className="flow-buttons">
+									<a href="/v8u/unified/oauth-authz" className={flowLinkClass('primary', 'oauth')}>
 										Authorization Code
-									</FlowLink>
-									<FlowLink href="/v8u/unified/implicit" $variant="secondary" $palette="oauth">
+									</a>
+									<a href="/v8u/unified/implicit" className={flowLinkClass('secondary', 'oauth')}>
 										Implicit Flow
-									</FlowLink>
-									<FlowLink href="/v8u/unified/device-code" $variant="secondary" $palette="oauth">
+									</a>
+									<a
+										href="/v8u/unified/device-code"
+										className={flowLinkClass('secondary', 'oauth')}
+									>
 										Device Authorization
-									</FlowLink>
-									<FlowLink
+									</a>
+									<a
 										href="/v8u/unified/client-credentials"
-										$variant="secondary"
-										$palette="oauth"
+										className={flowLinkClass('secondary', 'oauth')}
 									>
 										Client Credentials
-									</FlowLink>
-								</FlowButtonsContainer>
-							</FlowCard>
+									</a>
+								</div>
+							</div>
 
-							<FlowCard>
+							<div className="flow-card">
 								<h3>OpenID Connect</h3>
 								<p>Identity layer on top of OAuth 2.0.</p>
-								<FlowButtonsContainer>
-									<FlowLink href="/v8u/unified/oauth-authz" $variant="primary" $palette="oidc">
+								<div className="flow-buttons">
+									<a href="/v8u/unified/oauth-authz" className={flowLinkClass('primary', 'oidc')}>
 										Authorization Code
-									</FlowLink>
-									<FlowLink href="/v8u/unified/hybrid" $variant="secondary" $palette="oidc">
+									</a>
+									<a href="/v8u/unified/hybrid" className={flowLinkClass('secondary', 'oidc')}>
 										Hybrid Flow
-									</FlowLink>
-									<FlowLink href="/v8u/unified/implicit" $variant="secondary" $palette="oidc">
+									</a>
+									<a href="/v8u/unified/implicit" className={flowLinkClass('secondary', 'oidc')}>
 										Implicit Flow
-									</FlowLink>
-									<FlowLink href="/oidc-overview" $variant="secondary" $palette="oidc">
+									</a>
+									<a href="/oidc-overview" className={flowLinkClass('secondary', 'oidc')}>
 										OIDC Overview
-									</FlowLink>
-								</FlowButtonsContainer>
-							</FlowCard>
+									</a>
+								</div>
+							</div>
 
-							<FlowCard>
+							<div className="flow-card">
 								<h3>PingOne Flows</h3>
 								<p>PingOne-specific authentication and authorization flows.</p>
-								<FlowButtonsContainer>
-									<FlowLink href="/flows/worker-token-v6" $variant="primary" $palette="pingone">
+								<div className="flow-buttons">
+									<a href="/flows/worker-token-v6" className={flowLinkClass('primary', 'pingone')}>
 										Worker Token (V6)
-									</FlowLink>
-									<FlowLink href="/flows/pingone-par-v6" $variant="secondary" $palette="pingone">
+									</a>
+									<a href="/flows/pingone-par-v6" className={flowLinkClass('secondary', 'pingone')}>
 										PAR (V6)
-									</FlowLink>
-									<FlowLink
+									</a>
+									<a
 										href="/flows/redirectless-v6-real"
-										$variant="secondary"
-										$palette="pingone"
+										className={flowLinkClass('secondary', 'pingone')}
 									>
 										Redirectless Flow (V6)
-									</FlowLink>
-								</FlowButtonsContainer>
-							</FlowCard>
-						</QuickAccessGrid>
-					</ContentCard>
+									</a>
+								</div>
+							</div>
+						</div>
+					</div>
 				</CollapsibleHeader>
 			</div>
 
 			{/* Recent Activity */}
-			<div style={{ marginBottom: '24px' }}>
+			<div className="section-wrap">
 				<CollapsibleHeader
 					title="Recent Activity"
 					subtitle="Latest OAuth flow runs, credential updates, and API interactions"
-					icon={<FiActivity />}
+					icon={<Icon name="chart-line" />}
+					theme="ping"
+					variant="compact"
 					defaultCollapsed={collapsedSections.recentActivity}
 					collapsed={collapsedSections.recentActivity}
 					onToggle={() => toggleSection('recentActivity')}
 				>
-					<ContentCard>
-						<ActivityList>
+					<div className="card-body card-body--lg">
+						<div className="activity-list">
 							<ul>
 								{recentActivity.length === 0 ? (
-									<EmptyState>
-										<FiActivity size={48} />
+									<li className="empty-state">
+										<Icon name="chart-line" size="xl" style={{ fontSize: 48 }} />
 										<p>No recent activity</p>
-										<p style={{ fontSize: '0.875rem' }}>
-											Complete an OAuth flow to see activity here
-										</p>
-									</EmptyState>
+										<p className="text-small">Complete an OAuth flow to see activity here</p>
+									</li>
 								) : (
 									recentActivity.slice(0, 10).map((activity, index) => (
-										<ActivityListItem
-											key={activity.id || index}
-											$isLast={index >= recentActivity.length - 1}
-										>
-											<ActivityIcon $success={activity.success}>
+										<li key={activity.id || index} className="activity-item">
+											<div
+												className={`activity-icon activity-icon--${activity.success ? 'success' : 'error'}`}
+											>
 												{activity.success ? '✓' : '✗'}
-											</ActivityIcon>
-											<ActivityContent>
-												<ActivityAction>{formatActivityAction(activity.action)}</ActivityAction>
-												<ActivityTime>{new Date(activity.timestamp).toLocaleString()}</ActivityTime>
-											</ActivityContent>
-										</ActivityListItem>
+											</div>
+											<div className="activity-content">
+												<div className="activity-action">
+													{formatActivityAction(activity.action)}
+												</div>
+												<div className="activity-time">
+													{new Date(activity.timestamp).toLocaleString()}
+												</div>
+											</div>
+										</li>
 									))
 								)}
 							</ul>
-						</ActivityList>
-					</ContentCard>
+						</div>
+					</div>
 				</CollapsibleHeader>
 			</div>
 		</div>

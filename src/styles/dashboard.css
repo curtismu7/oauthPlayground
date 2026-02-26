@@ -1,0 +1,376 @@
+/* Dashboard — Nano/Bootstrap-like layout and components (PR 5) */
+
+.dashboard-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: #f8fafc;
+  min-height: 100vh;
+}
+
+.dashboard-page .row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: -0.75rem;
+  margin-left: -0.75rem;
+}
+
+.dashboard-page .col,
+.dashboard-page .col-12,
+.dashboard-page .col-md-6 {
+  padding-right: 0.75rem;
+  padding-left: 0.75rem;
+  flex: 0 0 100%;
+  max-width: 100%;
+}
+
+@media (min-width: 768px) {
+  .dashboard-page .col-md-6 {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+}
+
+.dashboard-page .card {
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+}
+
+.dashboard-page .card-body {
+  padding: 1rem;
+}
+
+.dashboard-page .card-body--lg {
+  padding: 1.5rem;
+}
+
+/* Flow cards */
+.dashboard-page .flow-card {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.dashboard-page .flow-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.dashboard-page .flow-card h3 {
+  font-size: 1.2rem;
+  margin: 0;
+  color: #1f2937;
+  font-weight: 600;
+}
+
+.dashboard-page .flow-card p {
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.dashboard-page .flow-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: stretch;
+}
+
+.dashboard-page .flow-buttons > a {
+  flex: 1;
+  min-width: 140px;
+  max-width: 200px;
+}
+
+/* Buttons — Bootstrap-like btn + palette modifiers */
+.dashboard-page .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+  min-height: 2.5rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  color: #fff;
+}
+
+.dashboard-page .btn:hover {
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.dashboard-page .btn-oauth {
+  background: #047857;
+  border-color: #065f46;
+  box-shadow: 0 2px 4px rgba(4, 120, 87, 0.25);
+}
+
+.dashboard-page .btn-oauth:hover {
+  background: #065f46;
+  border-color: #047857;
+  box-shadow: 0 4px 10px rgba(4, 120, 87, 0.35);
+}
+
+.dashboard-page .btn-oauth.btn-outline {
+  background: #10b981;
+  border-color: #059669;
+}
+
+.dashboard-page .btn-oidc {
+  background: #5b21b6;
+  border-color: #4c1d95;
+  box-shadow: 0 2px 4px rgba(91, 33, 182, 0.25);
+}
+
+.dashboard-page .btn-oidc:hover {
+  background: #4c1d95;
+  border-color: #3b1680;
+  box-shadow: 0 4px 10px rgba(91, 33, 182, 0.35);
+}
+
+.dashboard-page .btn-oidc.btn-outline {
+  background: #7c3aed;
+  border-color: #6d28d9;
+}
+
+.dashboard-page .btn-pingone {
+  background: #c2410c;
+  border-color: #9a3412;
+  box-shadow: 0 2px 4px rgba(194, 65, 12, 0.25);
+}
+
+.dashboard-page .btn-pingone:hover {
+  background: #9a3412;
+  border-color: #7c2d12;
+  box-shadow: 0 4px 10px rgba(194, 65, 12, 0.35);
+}
+
+.dashboard-page .btn-pingone.btn-outline {
+  background: #f97316;
+  border-color: #ea580c;
+}
+
+.dashboard-page .btn-outline-primary {
+  background: #fff;
+  color: #3b82f6;
+  border-color: #3b82f6;
+}
+
+.dashboard-page .btn-outline-primary:hover:not(:disabled) {
+  background: #eff6ff;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+}
+
+.dashboard-page .btn-outline-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Badges */
+.dashboard-page .badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.dashboard-page .badge-success {
+  background: rgba(67, 233, 123, 0.1);
+  color: #43e97b;
+}
+
+.dashboard-page .badge-warning {
+  background: rgba(255, 193, 7, 0.1);
+  color: #ffc107;
+}
+
+.dashboard-page .badge-danger {
+  background: rgba(245, 87, 108, 0.1);
+  color: #f5576c;
+}
+
+.dashboard-page .method-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.dashboard-page .method-badge--get {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.dashboard-page .method-badge--post {
+  background: #dcfce7;
+  color: #166534;
+}
+
+/* API endpoint cards grid */
+.dashboard-page .api-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.dashboard-page .api-endpoint-card {
+  padding: 1rem;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dashboard-page .api-endpoint-card:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+}
+
+/* Quick access grid */
+.dashboard-page .quick-access-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+/* Activity list */
+.dashboard-page .activity-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.dashboard-page .activity-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.dashboard-page .activity-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.dashboard-page .activity-item:last-child {
+  border-bottom: none;
+}
+
+.dashboard-page .activity-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.dashboard-page .activity-icon--success {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.dashboard-page .activity-icon--error {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.dashboard-page .activity-content {
+  flex: 1;
+}
+
+.dashboard-page .activity-action {
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 0.25rem;
+}
+
+.dashboard-page .activity-time {
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.dashboard-page .empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: #6b7280;
+  list-style: none;
+}
+
+.dashboard-page .empty-state p {
+  margin: 0.5rem 0;
+}
+
+/* Utilities */
+.dashboard-page .d-flex { display: flex; }
+.dashboard-page .flex-column { flex-direction: column; }
+.dashboard-page .align-items-center { align-items: center; }
+.dashboard-page .justify-content-end { justify-content: flex-end; }
+.dashboard-page .flex-wrap { flex-wrap: wrap; }
+.dashboard-page .gap-1 { gap: 0.25rem; }
+.dashboard-page .gap-2 { gap: 0.5rem; }
+.dashboard-page .gap-3 { gap: 0.75rem; }
+.dashboard-page .mb-1 { margin-bottom: 0.25rem; }
+.dashboard-page .mb-2 { margin-bottom: 0.5rem; }
+.dashboard-page .mb-3 { margin-bottom: 1rem; }
+.dashboard-page .mb-4 { margin-bottom: 1.5rem; }
+.dashboard-page .mb-5 { margin-bottom: 2rem; }
+.dashboard-page .p-3 { padding: 1rem; }
+.dashboard-page .text-muted { color: #666; }
+.dashboard-page .text-small { font-size: 0.875rem; }
+.dashboard-page .fw-600 { font-weight: 600; }
+
+.dashboard-page .section-wrap {
+  margin-bottom: 1.5rem;
+}
+
+.dashboard-page .test-coverage-box {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: #f8fafc;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+.dashboard-page .test-coverage-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.dashboard-page .test-coverage-tags span {
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.dashboard-page .tag-blue { background: #e0f2fe; color: #0369a1; }
+.dashboard-page .tag-amber { background: #fef3c7; color: #92400e; }
+.dashboard-page .tag-purple { background: #f3e8ff; color: #7c3aed; }
+.dashboard-page .tag-green { background: #dcfce7; color: #166534; }
+.dashboard-page .tag-red { background: #fee2e2; color: #dc2626; }
+.dashboard-page .tag-sky { background: #f0f9ff; color: #0369a1; }
