@@ -130,6 +130,7 @@ const DEFAULT_CONFIG: MFAConfiguration = {
 	},
 };
 
+// biome-ignore lint/complexity/noStaticOnlyClass: V8 service pattern used across app
 export class MFAConfigurationServiceV8 {
 	/**
 	 * Load configuration from localStorage or return defaults

@@ -20,6 +20,13 @@
 
 import { unifiedTokenStorage } from './unifiedTokenStorageService';
 
+declare global {
+	interface Window {
+		__workerTokenSaved?: boolean;
+		resetWorkerTokenLogging?: () => void;
+	}
+}
+
 const MODULE_TAG = '[🔑 UNIFIED-WORKER-TOKEN]';
 
 // Storage keys
@@ -189,7 +196,7 @@ class UnifiedWorkerTokenService {
 	 */
 	static resetLoggingState(): void {
 		if (typeof window !== 'undefined') {
-			(window as any).__workerTokenSaved = false;
+			window.__workerTokenSaved = false;
 		}
 	}
 
@@ -251,10 +258,10 @@ class UnifiedWorkerTokenService {
 		this.lastSaveTime = now;
 
 		// Only log if this is the first save or debug mode is enabled
-		const isFirstSave = !(window as any).__workerTokenSaved;
+		const isFirstSave = !window.__workerTokenSaved;
 		if (isFirstSave) {
 			console.log(`${MODULE_TAG} Saving worker token credentials`);
-			(window as any).__workerTokenSaved = true;
+			window.__workerTokenSaved = true;
 		}
 
 		const data: UnifiedWorkerTokenData = {
@@ -1261,7 +1268,7 @@ if (typeof window !== 'undefined') {
 	).unifiedWorkerTokenService = unifiedWorkerTokenService;
 
 	// Add debug helper for resetting logging state
-	(window as any).resetWorkerTokenLogging = () => {
+	window.resetWorkerTokenLogging = () => {
 		UnifiedWorkerTokenService.resetLoggingState();
 		console.log(' Worker token logging state reset');
 	};
