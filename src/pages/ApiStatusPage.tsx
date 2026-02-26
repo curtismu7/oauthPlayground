@@ -215,15 +215,7 @@ const formatUptime = (seconds: number): string => {
 	}
 };
 
-// Backend health URL: use env when set (e.g. production without proxy), else relative for same-origin/proxy
-function getBackendHealthUrl(): string {
-	const base = import.meta.env.VITE_BACKEND_URL;
-	if (base) {
-		const normalized = base.replace(/\/$/, '');
-		return `${normalized}/api/health`;
-	}
-	return '/api/health';
-}
+import { getBackendHealthUrl } from '../services/serverHealthService';
 
 const ApiStatusPage: React.FC = () => {
 	const [servers, setServers] = useState<ServerStatus[]>([

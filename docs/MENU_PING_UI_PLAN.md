@@ -140,6 +140,31 @@ The plan below assumes **Option A** for a reliable, maintainable result; Option 
 
 ---
 
+### Phase 5 — Ping UI consistency (all pages)
+
+Apply the same header and text treatment across every page so the app feels consistent.
+
+11. **Section / page headers (same on every page)**
+    - **All** section headers (e.g. collapsible headers, step headers, page titles) MUST use the **same color**: **Ping light red** background with **white text**.
+    - Use the existing token: `#E4002B` (Ping red), or a CSS variable such as `--ping-header-bg: #E4002B` and `--ping-header-text: #ffffff`.
+    - Apply to:
+      - Dashboard section headers (already use `CollapsibleHeader` with `theme="ping"`).
+      - Any flow or app page that shows a section title or step header — use the same red/white style (e.g. `CollapsibleHeader` with `theme="ping"` or a shared `.ping-page-header` class).
+    - **Goal:** No page uses a different header colour (e.g. blue or grey); every page uses light red + white for headers.
+
+12. **Body text (almost black, no muted grey)**
+    - Where body or secondary text is currently **grey or muted** (e.g. `#6b7280`, `#666`, `#9ca3af`), change it to **almost black** for readability and consistency.
+    - Use:
+      - Primary text: `#111827` (or `--ping-text-primary: #111827`).
+      - Secondary / supporting text: `#1f2937` (or `--ping-text-secondary: #1f2937`).
+    - Apply in:
+      - Page-level CSS (e.g. dashboard, flow pages, settings).
+      - Shared components (cards, descriptions, labels).
+      - Avoid leaving large blocks of text in light grey; reserve grey only for subtle hints if needed, and prefer dark grey/almost black everywhere else.
+    - **Goal:** Same reading experience on every page — almost black text, no washed-out grey.
+
+---
+
 ## File checklist
 
 | Action | File / artifact |
@@ -168,5 +193,7 @@ The plan below assumes **Option A** for a reliable, maintainable result; Option 
 4. Use **Icon** (MDI) in the new menu; align layout and tokens with the reference.
 5. Ensure **App** and **Navbar** use the same sidebar width when the Ping theme is active.
 6. Add a way to switch theme (or default to Ping) and run smoke tests.
+7. **Consistency (all pages):** Use **same header style everywhere** — **light red** (`#E4002B`) background with **white** text for every section/page header (e.g. via `CollapsibleHeader` theme `ping` or shared header class).
+8. **Text colour (all pages):** Use **almost black** text (`#111827` / `#1f2937`) instead of grey or muted; apply across pages and shared components so no page has washed-out grey body text.
 
 This keeps the locked `DragDropSidebar.tsx` unchanged and delivers the reference colour and menu layout via a new component and theme CSS.
