@@ -759,6 +759,7 @@ start_frontend() {
     # Start frontend server (listen on all interfaces so https://api.pingdemo.com:3000 works)
     print_info "Starting frontend on $FRONTEND_URL..."
     export VITE_HMR_HOST="$FRONTEND_HOST"
+    export VITE_PUBLIC_APP_URL="https://${FRONTEND_HOST}:3000"
     npm run dev -- --host > frontend.log 2>&1 &
     local frontend_pid=$!
     echo $frontend_pid > "$FRONTEND_PID_FILE"

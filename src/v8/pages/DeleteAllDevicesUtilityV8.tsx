@@ -18,6 +18,7 @@ import { FiAlertCircle, FiKey, FiLoader, FiTrash2, FiX } from 'react-icons/fi';
 import { useLocation } from 'react-router-dom';
 import { useProductionSpinner } from '@/hooks/useProductionSpinner';
 import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
+import { trackActivity } from '@/utils/activityTracker';
 import type { SearchableDropdownOption } from '@/v8/components/SearchableDropdownV8';
 import { SearchableDropdownV8 } from '@/v8/components/SearchableDropdownV8';
 import { ShowTokenConfigCheckboxV8 } from '@/v8/components/ShowTokenConfigCheckboxV8';
@@ -37,7 +38,6 @@ import { StorageServiceV8 } from '@/v8/services/storageServiceV8';
 import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { trackActivity } from '@/utils/activityTracker';
 
 const MODULE_TAG = '[🗑️ DELETE-DEVICES-V8]';
 

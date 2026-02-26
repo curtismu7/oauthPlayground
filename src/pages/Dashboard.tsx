@@ -1,11 +1,23 @@
+/**
+ * Dashboard — home page: API status, endpoints, quick access flows, recent activity.
+ * Follows migrate_cursor.md consistency (Ping headers, #111827/#1f2937 text, collapsible sections).
+ * See docs/updates-to-apps/dashboard-updates.md.
+ */
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import AppVersionBadge from '../components/AppVersionBadge';
 import { Icon } from '../components/Icon/Icon';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import {
-	checkServerStatusForDashboard,
-	type SimpleServerStatus,
+	getAppUrlForDomain,
+	getCustomDomain,
+	saveCustomDomain,
+} from '../services/customDomainService';
+import {
+	type DetailedServerStatus,
+	fetchDetailedHealth,
+	formatBytes,
+	formatUptime,
 } from '../services/serverHealthService';
 import { type ActivityItem, getRecentActivity } from '../utils/activityTracker';
 import { checkSavedCredentials } from '../utils/configurationStatus';
@@ -29,15 +41,13 @@ function statusBadgeClass(status: 'active' | 'pending' | 'error'): string {
 const Dashboard = () => {
 	const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([]);
 	const [isRefreshing, setIsRefreshing] = useState(false);
-	const [serverStatus, setServerStatus] = useState<SimpleServerStatus>({
-		frontend: 'online',
-		backend: 'checking',
-	});
+	const [detailedServers, setDetailedServers] = useState<DetailedServerStatus[]>([]);
 
 	// Collapsible sections state (all sections use Ping red/white, narrow header, common expand/collapse icon)
 	const [collapsedSections, setCollapsedSections] = useState({
 		dashboardHeader: false,
 		apiStatus: false,
+		config: false,
 		apiEndpoints: true,
 		quickAccess: false,
 		recentActivity: false,
@@ -50,17 +60,46 @@ const Dashboard = () => {
 		}));
 	}, []);
 
-	// Check server status using shared service (same as API Status page)
-	const checkServerStatus = useCallback(async () => {
-		const status = await checkServerStatusForDashboard();
-		setServerStatus(status);
+	// Fetch detailed server health (same data as API Status page)
+	const fetchServerHealth = useCallback(async () => {
+		const servers = await fetchDetailedHealth();
+		setDetailedServers(servers);
 	}, []);
 
 	useEffect(() => {
-		checkServerStatus();
-	}, [checkServerStatus]);
+		fetchServerHealth();
+	}, [fetchServerHealth]);
 
 	const hasSavedCredentials = checkSavedCredentials();
+
+	// Custom domain: editable in Config section; stored in SQLite + IndexedDB via customDomainService
+	const [customDomain, setCustomDomain] = useState('');
+	const [savingDomain, setSavingDomain] = useState(false);
+	const [domainError, setDomainError] = useState<string | null>(null);
+
+	useEffect(() => {
+		getCustomDomain().then(setCustomDomain);
+	}, []);
+
+	const appDisplayUrl = customDomain
+		? getAppUrlForDomain(customDomain)
+		: 'https://api.pingdemo.com:3000';
+
+	const handleSaveCustomDomain = useCallback(async () => {
+		if (!customDomain.trim()) return;
+		setDomainError(null);
+		setSavingDomain(true);
+		try {
+			const newAppUrl = await saveCustomDomain(customDomain.trim());
+			v4ToastManager.showSuccess('saveConfigurationSuccess');
+			window.location.href = `${newAppUrl}/dashboard`;
+		} catch (err) {
+			setDomainError(err instanceof Error ? err.message : 'Failed to save domain');
+			v4ToastManager.showError('networkError');
+		} finally {
+			setSavingDomain(false);
+		}
+	}, [customDomain]);
 
 	// Load initial dashboard data
 	useEffect(() => {
@@ -110,7 +149,7 @@ const Dashboard = () => {
 		try {
 			const activity = getRecentActivity();
 			setRecentActivity(activity);
-			await checkServerStatus();
+			await fetchServerHealth();
 		} catch {
 			// Handle error silently
 		} finally {
@@ -127,7 +166,7 @@ const Dashboard = () => {
 		}
 	};
 
-	// Current backend API endpoints (see docs/DASHBOARD_UPDATES.md and server.js)
+	// Current backend API endpoints (see docs/updates-to-apps/dashboard-updates.md and server.js)
 	const apiEndpoints = [
 		{ method: 'GET', path: '/api/health', desc: 'Backend health check' },
 		{ method: 'GET', path: '/api/env-config', desc: 'Environment defaults' },
@@ -143,6 +182,8 @@ const Dashboard = () => {
 		{ method: 'POST', path: '/api/user-jwks', desc: 'Generate JWKS from user key' },
 		{ method: 'POST', path: '/api/credentials/save', desc: 'Save credentials' },
 		{ method: 'GET', path: '/api/credentials/load', desc: 'Load credentials' },
+		{ method: 'GET', path: '/api/settings/custom-domain', desc: 'Get custom domain (SQLite)' },
+		{ method: 'POST', path: '/api/settings/custom-domain', desc: 'Save custom domain (SQLite)' },
 		{ method: 'GET', path: '/api/environments', desc: 'List environments' },
 		{ method: 'POST', path: '/api/pingone/worker-token', desc: 'Worker token' },
 		{ method: 'POST', path: '/api/pingone/token', desc: 'Token endpoint proxy' },
@@ -230,54 +271,169 @@ const Dashboard = () => {
 							</div>
 						</div>
 
-						<div className="row">
-							<div className="col-md-6 mb-3">
-								<div className="card">
-									<div className="card-body">
-										<div className="d-flex align-items-center gap-2 mb-2">
-											<span
-												className={statusBadgeClass(
-													serverStatus.frontend === 'online'
-														? 'active'
-														: serverStatus.frontend === 'checking'
-															? 'pending'
-															: 'error'
-												)}
-											>
-												{serverStatus.frontend === 'online'
-													? 'Online'
-													: serverStatus.frontend === 'checking'
-														? 'Checking...'
-														: 'Offline'}
-											</span>
-											<span className="fw-600 text-muted">Frontend</span>
+						<div className="row g-3">
+							{detailedServers.map((server) => (
+								<div key={server.name} className="col-md-6">
+									<div className="card h-100">
+										<div className="card-body">
+											<div className="d-flex align-items-center gap-2 mb-2">
+												<span
+													className={statusBadgeClass(
+														server.status === 'online'
+															? 'active'
+															: server.status === 'checking'
+																? 'pending'
+																: 'error'
+													)}
+												>
+													{server.status === 'online'
+														? 'Online'
+														: server.status === 'checking'
+															? 'Checking...'
+															: 'Offline'}
+												</span>
+												<span className="fw-600 text-dark">{server.name}</span>
+											</div>
+											{server.error && <p className="text-danger small mb-2">{server.error}</p>}
+											{server.healthData && (
+												<ul className="list-unstyled small mb-0 text-dark">
+													<li className="d-flex justify-content-between py-1 border-bottom border-light">
+														<span className="text-muted">Port</span>
+														<span>
+															{server.port} ({server.protocol})
+														</span>
+													</li>
+													<li className="d-flex justify-content-between py-1 border-bottom border-light">
+														<span className="text-muted">Version</span>
+														<span>{server.healthData.version}</span>
+													</li>
+													<li className="d-flex justify-content-between py-1 border-bottom border-light">
+														<span className="text-muted">Environment</span>
+														<span>{server.healthData.environment}</span>
+													</li>
+													{server.healthData.uptimeSeconds > 0 && (
+														<li className="d-flex justify-content-between py-1 border-bottom border-light">
+															<span className="text-muted">Uptime</span>
+															<span>{formatUptime(server.healthData.uptimeSeconds)}</span>
+														</li>
+													)}
+													{server.lastChecked && (
+														<li className="d-flex justify-content-between py-1 border-bottom border-light">
+															<span className="text-muted">Last checked</span>
+															<span>{server.lastChecked.toLocaleTimeString()}</span>
+														</li>
+													)}
+													{server.port !== 3000 && (
+														<>
+															<li className="d-flex justify-content-between py-1 border-bottom border-light">
+																<span className="text-muted">Node</span>
+																<span>{server.healthData.node.version}</span>
+															</li>
+															<li className="d-flex justify-content-between py-1 border-bottom border-light">
+																<span className="text-muted">Memory</span>
+																<span>
+																	{formatBytes(server.healthData.memory.heapUsed)} /{' '}
+																	{formatBytes(server.healthData.memory.heapTotal)}
+																</span>
+															</li>
+															<li className="d-flex justify-content-between py-1 border-bottom border-light">
+																<span className="text-muted">CPU</span>
+																<span>{server.healthData.cpuUsage.avg1mPercent.toFixed(1)}%</span>
+															</li>
+															<li className="d-flex justify-content-between py-1">
+																<span className="text-muted">Requests</span>
+																<span>
+																	{server.healthData.requestStats.totalRequests}
+																	{server.healthData.requestStats.errorRate > 0
+																		? ` (${server.healthData.requestStats.errorRate.toFixed(1)}% errors)`
+																		: ' (no errors)'}
+																</span>
+															</li>
+														</>
+													)}
+												</ul>
+											)}
 										</div>
 									</div>
 								</div>
+							))}
+						</div>
+					</div>
+				</CollapsibleHeader>
+			</div>
+
+			{/* Config — custom domain: edit, save to SQLite + IndexedDB, redirect to new URL */}
+			<div className="section-wrap">
+				<CollapsibleHeader
+					title="Config"
+					subtitle="App URL and custom domain (always HTTPS)"
+					icon={<Icon name="cog" />}
+					theme="ping"
+					variant="compact"
+					defaultCollapsed={collapsedSections.config}
+					collapsed={collapsedSections.config}
+					onToggle={() => toggleSection('config')}
+				>
+					<div className="card-body card-body--lg">
+						<div className="d-flex flex-column gap-2">
+							<div className="d-flex align-items-center gap-2 flex-wrap">
+								<span className="fw-600 text-muted">App URL (HTTPS):</span>
+								<code className="text-small fw-600" style={{ color: '#111827' }}>
+									{appDisplayUrl}
+								</code>
 							</div>
-							<div className="col-md-6 mb-3">
-								<div className="card">
-									<div className="card-body">
-										<div className="d-flex align-items-center gap-2 mb-2">
-											<span
-												className={statusBadgeClass(
-													serverStatus.backend === 'online'
-														? 'active'
-														: serverStatus.backend === 'checking'
-															? 'pending'
-															: 'error'
-												)}
-											>
-												{serverStatus.backend === 'online'
-													? 'Online'
-													: serverStatus.backend === 'checking'
-														? 'Checking...'
-														: 'Offline'}
-											</span>
-											<span className="fw-600 text-muted">Backend API</span>
-										</div>
-									</div>
-								</div>
+							<div className="d-flex flex-column gap-2" style={{ maxWidth: '400px' }}>
+								<label htmlFor="dashboard-custom-domain" className="fw-600 text-muted text-small">
+									Custom domain (hostname only)
+								</label>
+								<input
+									id="dashboard-custom-domain"
+									type="text"
+									className="form-control"
+									placeholder="api.pingdemo.com"
+									value={customDomain}
+									onChange={(e) => {
+										setCustomDomain(e.target.value);
+										setDomainError(null);
+									}}
+									aria-describedby="dashboard-domain-hint dashboard-domain-error"
+								/>
+								{domainError && (
+									<p
+										id="dashboard-domain-error"
+										className="text-small mb-0"
+										style={{ color: '#dc2626' }}
+									>
+										{domainError}
+									</p>
+								)}
+								<p id="dashboard-domain-hint" className="text-small text-muted mb-0">
+									Saved to SQLite (backend) and IndexedDB. After saving, the app will open at the
+									new URL.
+								</p>
+								<button
+									type="button"
+									className="btn btn-oauth align-self-start"
+									onClick={handleSaveCustomDomain}
+									disabled={savingDomain || !customDomain.trim()}
+									aria-label="Save custom domain and open app at new URL"
+								>
+									{savingDomain ? (
+										<>
+											<Icon
+												name="refresh"
+												size="sm"
+												style={{ animation: 'spin 1s linear infinite' }}
+											/>
+											Saving…
+										</>
+									) : (
+										<>
+											<Icon name="content-save" size="sm" />
+											Save and use this domain
+										</>
+									)}
+								</button>
 							</div>
 						</div>
 					</div>

@@ -7,10 +7,14 @@
 
 const MODULE_TAG = '[📁 LOG-FILE-SERVICE]';
 
-/** Base URL for log API: use backend when VITE_BACKEND_URL is set (e.g. production without proxy). */
+/**
+ * Base URL for log API. Prefers relative /api/logs so the Vite dev proxy is used (avoids
+ * ERR_CERT_AUTHORITY_INVALID when the backend uses a self-signed cert). Use VITE_BACKEND_URL
+ * only when set and not localhost (e.g. production backend on a different host with valid cert).
+ */
 function getLogsApiBase(): string {
 	const base = import.meta.env.VITE_BACKEND_URL as string | undefined;
-	if (base) {
+	if (base && !base.includes('localhost')) {
 		const normalized = base.replace(/\/$/, '');
 		return `${normalized}/api/logs`;
 	}
@@ -78,7 +82,11 @@ export class LogFileService {
 			const apiBase = getLogsApiBase();
 			const response = await fetch(`${apiBase}/read?${params}`);
 			if (!response.ok) {
-				// Try to get error message, but handle if it's not JSON
+				if (response.status === 404) {
+					throw new Error(
+						'Log API not available. Start the backend server (e.g. ./run.sh) to view logs.'
+					);
+				}
 				let errorMessage = `Failed to read log file: ${response.statusText}`;
 				try {
 					const errorData = await response.json();
@@ -108,7 +116,11 @@ export class LogFileService {
 				modified: new Date(data.modified),
 			};
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to read log file:`, error);
+			// Only log unexpected errors; 404 message is user-facing and shown in UI
+			const msg = error instanceof Error ? error.message : '';
+			if (!msg.includes('Log API not available')) {
+				console.error(`${MODULE_TAG} Failed to read log file:`, error);
+			}
 			throw error;
 		}
 	}
