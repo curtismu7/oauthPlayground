@@ -1,0 +1,128 @@
+/* Sidebar Ping UI theme — fixed width, light grey, blue active, no wrap (see MENU_PING_UI_PLAN.md) */
+
+:root {
+  --sidebar-ping-width: 260px;
+  --sidebar-ping-bg: #f5f5f5;
+  --sidebar-ping-item-text: #374151;
+  --sidebar-ping-active-bg: #007bff;
+  --sidebar-ping-active-text: #ffffff;
+  --sidebar-ping-active-bar: #0056b3;
+}
+
+.sidebar--ping {
+  width: var(--sidebar-ping-width) !important;
+  min-width: var(--sidebar-ping-width) !important;
+  max-width: var(--sidebar-ping-width) !important;
+  background: var(--sidebar-ping-bg) !important;
+  border-right: 1px solid #e5e7eb;
+}
+
+.sidebar--ping .sidebar-ping__nav {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0.5rem 0;
+}
+
+.sidebar-ping__group {
+  margin-bottom: 0.25rem;
+}
+
+.sidebar-ping__group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--sidebar-ping-item-text);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.sidebar-ping__group-header:hover {
+  color: #111827;
+}
+
+.sidebar-ping__group-header:focus-visible {
+  outline: 2px solid var(--sidebar-ping-active-bg);
+  outline-offset: 2px;
+}
+
+.sidebar-ping__group-items {
+  padding-left: 0;
+  list-style: none;
+  margin: 0;
+}
+
+.sidebar-ping__group-items--nested {
+  padding-left: 1.5rem;
+}
+
+.sidebar-ping__item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  color: var(--sidebar-ping-item-text);
+  text-decoration: none;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-left: 4px solid transparent;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.sidebar-ping__item:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #111827;
+}
+
+.sidebar-ping__item:focus-visible {
+  outline: 2px solid var(--sidebar-ping-active-bg);
+  outline-offset: -2px;
+}
+
+.sidebar-ping__item--active {
+  background: var(--sidebar-ping-active-bg);
+  color: var(--sidebar-ping-active-text);
+  border-left-color: var(--sidebar-ping-active-bar);
+}
+
+.sidebar-ping__item--active:hover {
+  background: #0069d9;
+  color: var(--sidebar-ping-active-text);
+}
+
+.sidebar-ping__item-icon {
+  flex-shrink: 0;
+  width: 1.25rem;
+  text-align: center;
+}
+
+.sidebar-ping__item-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-ping__chevron {
+  flex-shrink: 0;
+  color: var(--sidebar-ping-item-text);
+  transition: transform 0.2s ease;
+}
+
+.sidebar-ping__group[aria-expanded="false"] .sidebar-ping__chevron {
+  transform: rotate(-90deg);
+}
+
+.sidebar-ping__group[aria-expanded="true"] .sidebar-ping__chevron {
+  transform: rotate(0deg);
+}
