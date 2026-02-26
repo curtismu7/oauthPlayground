@@ -201,19 +201,18 @@ show_banner() {
     echo -e "${PURPLE}"
     echo "╔══════════════════════════════════════════════════════════════════════════════╗"
     echo "║                                                                              ║"
-    echo "║                    🔄 OAuth Playground Server Restart 🔄                    ║"
+    echo "║                    🔄 OAuth Playground Server Restart 🔄                     ║"
     echo "║                                                                              ║"
-    echo "║  Frontend: https://localhost:3000 (Vite Dev Server)                        ║"
-    echo "║  Backend:  http://localhost:3001 (Express API Server - HTTP)               ║"
-    echo "║  Backend:  https://localhost:3002 (Express API Server - HTTPS)             ║"
+    echo "║  Frontend: https://localhost:3000 (Vite Dev Server)                          ║"
+    echo "║  Backend:  https://localhost:3001 (Express API Server - HTTPS only)          ║"
     echo "║                                                                              ║"
-    echo "║  This script will:                                                          ║"
-    echo "║  1. Find and change to OAuth Playground directory                          ║"
-    echo "║  2. Kill all existing servers                                               ║"
-    echo "║  3. Clean up processes and ports 3000, 3001 & 3002                         ║"
+    echo "║  This script will:                                                           ║"
+    echo "║  1. Find and change to OAuth Playground directory                            ║"
+    echo "║  2. Kill all existing servers                                                 ║"
+    echo "║  3. Clean up processes and ports 3000 & 3001                                 ║"
     echo "║  4. Clear Vite cache and build artifacts                                    ║"
-    echo "║  5. Restart all three servers                                               ║"
-    echo "║  6. Check for errors and report status                                      ║"
+    echo "║  5. Restart frontend and backend servers                                   ║"
+    echo "║  6. Check for errors and report status                                    ║"
     echo "║                                                                              ║"
     echo "╚══════════════════════════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
@@ -787,31 +786,15 @@ show_final_status() {
     echo -e "${CYAN}║                              📊 FINAL STATUS REPORT                          ║${NC}"
     echo -e "${CYAN}╠══════════════════════════════════════════════════════════════════════════════╣${NC}"
     
-    # Backend HTTP status
-    echo -e "${CYAN}║${NC} Backend HTTP Server:"
-    if [ "$BACKEND_HTTP_STATUS" = "running" ]; then
+    # Backend status
+    echo -e "${CYAN}║${NC} Backend Server (HTTPS):"
+    if [ "$BACKEND_STATUS" = "running" ]; then
         echo -e "${CYAN}║${NC}   Status: ${GREEN}✅ RUNNING${NC}"
-        echo -e "${CYAN}║${NC}   URL:    ${BLUE}$BACKEND_HTTP_URL${NC}"
+        echo -e "${CYAN}║${NC}   URL:    ${BLUE}$BACKEND_URL${NC}"
         echo -e "${CYAN}║${NC}   Health: ${GREEN}✅ HEALTHY${NC}"
-    elif [ "$BACKEND_HTTP_STATUS" = "failed" ]; then
+    elif [ "$BACKEND_STATUS" = "failed" ]; then
         echo -e "${CYAN}║${NC}   Status: ${RED}❌ FAILED${NC}"
-        echo -e "${CYAN}║${NC}   URL:    ${RED}$BACKEND_HTTP_URL (not accessible)${NC}"
-        echo -e "${CYAN}║${NC}   Health: ${RED}❌ UNHEALTHY${NC}"
-    else
-        echo -e "${CYAN}║${NC}   Status: ${YELLOW}⚠️  UNKNOWN${NC}"
-    fi
-    
-    echo -e "${CYAN}║${NC}"
-    
-    # Backend HTTPS status
-    echo -e "${CYAN}║${NC} Backend HTTPS Server:"
-    if [ "$BACKEND_HTTPS_STATUS" = "running" ]; then
-        echo -e "${CYAN}║${NC}   Status: ${GREEN}✅ RUNNING${NC}"
-        echo -e "${CYAN}║${NC}   URL:    ${BLUE}$BACKEND_HTTPS_URL${NC}"
-        echo -e "${CYAN}║${NC}   Health: ${GREEN}✅ HEALTHY${NC}"
-    elif [ "$BACKEND_HTTPS_STATUS" = "failed" ]; then
-        echo -e "${CYAN}║${NC}   Status: ${RED}❌ FAILED${NC}"
-        echo -e "${CYAN}║${NC}   URL:    ${RED}$BACKEND_HTTPS_URL (not accessible)${NC}"
+        echo -e "${CYAN}║${NC}   URL:    ${RED}$BACKEND_URL (not accessible)${NC}"
         echo -e "${CYAN}║${NC}   Health: ${RED}❌ UNHEALTHY${NC}"
     else
         echo -e "${CYAN}║${NC}   Status: ${YELLOW}⚠️  UNKNOWN${NC}"
@@ -836,25 +819,20 @@ show_final_status() {
     echo -e "${CYAN}║${NC}"
     
     # Overall status
-    if [ "$BACKEND_HTTP_STATUS" = "running" ] && [ "$BACKEND_HTTPS_STATUS" = "running" ] && [ "$FRONTEND_STATUS" = "running" ]; then
+    if [ "$BACKEND_STATUS" = "running" ] && [ "$FRONTEND_STATUS" = "running" ]; then
         OVERALL_STATUS="success"
         echo -e "${CYAN}║${NC} Overall Status: ${GREEN}🎉 ALL SERVERS RUNNING SUCCESSFULLY${NC}"
         echo -e "${CYAN}║${NC}"
         echo -e "${CYAN}║${NC} ${GREEN}✅ OAuth Playground is ready to use!${NC}"
         echo -e "${CYAN}║${NC} ${GREEN}✅ Open your browser and navigate to: $FRONTEND_URL${NC}"
-    elif [ "$BACKEND_HTTP_STATUS" = "running" ] || [ "$BACKEND_HTTPS_STATUS" = "running" ] || [ "$FRONTEND_STATUS" = "running" ]; then
+    elif [ "$BACKEND_STATUS" = "running" ] || [ "$FRONTEND_STATUS" = "running" ]; then
         OVERALL_STATUS="partial"
         echo -e "${CYAN}║${NC} Overall Status: ${YELLOW}⚠️  PARTIAL SUCCESS${NC}"
         echo -e "${CYAN}║${NC}"
-        if [ "$BACKEND_HTTP_STATUS" = "running" ]; then
-            echo -e "${CYAN}║${NC} ${GREEN}✅ Backend HTTP is running${NC}"
+        if [ "$BACKEND_STATUS" = "running" ]; then
+            echo -e "${CYAN}║${NC} ${GREEN}✅ Backend is running${NC}"
         else
-            echo -e "${CYAN}║${NC} ${RED}❌ Backend HTTP failed to start${NC}"
-        fi
-        if [ "$BACKEND_HTTPS_STATUS" = "running" ]; then
-            echo -e "${CYAN}║${NC} ${GREEN}✅ Backend HTTPS is running${NC}"
-        else
-            echo -e "${CYAN}║${NC} ${RED}❌ Backend HTTPS failed to start${NC}"
+            echo -e "${CYAN}║${NC} ${RED}❌ Backend failed to start${NC}"
         fi
         if [ "$FRONTEND_STATUS" = "running" ]; then
             echo -e "${CYAN}║${NC} ${GREEN}✅ Frontend is running${NC}"
@@ -874,7 +852,7 @@ show_final_status() {
     echo -e "${CYAN}║${NC}   Backend:        backend.log"
     echo -e "${CYAN}║${NC}   Frontend:       frontend.log"
     echo -e "${CYAN}║${NC}   Server:         logs/server.log"
-    echo -e "${CYAN}║${NC}   PingOne API:    ${GREEN}logs/pingone-api.log${NC} ${YELLOW}(NEW - all PingOne API calls)${NC}"
+    echo -e "${CYAN}║${NC}   PingOne API:    ${GREEN}logs/pingone-api.log${NC} (all PingOne API calls)"
     echo -e "${CYAN}╚══════════════════════════════════════════════════════════════════════════════╝${NC}"
     echo ""
 }
@@ -1124,7 +1102,7 @@ while [ $# -gt 0 ]; do
             echo "  130 ⛔ Interrupted (Ctrl+C)"
             echo ""
             echo "🔧 TROUBLESHOOTING:"
-            echo "  • If servers don't start: Check port conflicts with 'lsof -i :3000-3002'"
+            echo "  • If servers don't start: Check port conflicts with 'lsof -i :3000-3001'"
             echo "  • If lockdown fails: Run 'git status' to check for uncommitted changes"
             echo "  • If health checks fail: Check logs/server.log for detailed errors"
             echo "  • For permission issues: Ensure script has execute permissions (chmod +x run.sh)"
@@ -1255,6 +1233,7 @@ main() {
             # Tail the log file
             echo ""
             print_info "📋 Tailing ${LOG_DESCRIPTION} file (Ctrl+C to stop)..."
+            echo -e "   ${CYAN}Log file: ${GREEN}${LOG_FILE}${NC}"
             echo ""
             tail -f "$LOG_FILE"
             return
@@ -1270,21 +1249,21 @@ main() {
             print_info "📋 Which log file would you like to tail?"
             echo ""
             echo -e "${CYAN}Available log files:${NC}"
-            echo "  1) ${GREEN}pingone-api.log${NC} - All PingOne API calls (proxy and direct)"
-            echo "  2) ${GREEN}real-api.log${NC} - Direct PingOne API calls only (no proxy)"
-            echo "  3) ${GREEN}server.log${NC} - Server logs"
+            echo -e "  1) ${GREEN}pingone-api.log${NC} - All PingOne API calls (proxy and direct)"
+            echo -e "  2) ${GREEN}real-api.log${NC} - Direct PingOne API calls only (no proxy)"
+            echo -e "  3) ${GREEN}server.log${NC} - Server logs"
             echo ""
             echo -e "${CYAN}Flow logs:${NC}"
-            echo "  4) ${GREEN}sms.log${NC} - SMS flow"
-            echo "  5) ${GREEN}email.log${NC} - Email flow"
-            echo "  6) ${GREEN}whatsapp.log${NC} - WhatsApp flow"
-            echo "  7) ${GREEN}voice.log${NC} - Voice flow"
-            echo "  8) ${GREEN}fido.log${NC} - FIDO2 flow"
+            echo -e "  4) ${GREEN}sms.log${NC} - SMS flow"
+            echo -e "  5) ${GREEN}email.log${NC} - Email flow"
+            echo -e "  6) ${GREEN}whatsapp.log${NC} - WhatsApp flow"
+            echo -e "  7) ${GREEN}voice.log${NC} - Voice flow"
+            echo -e "  8) ${GREEN}fido.log${NC} - FIDO2 flow"
             echo ""
             echo -e "${CYAN}App logs:${NC}"
-            echo "  9) ${GREEN}backend.log${NC} - Backend log"
-            echo "  10) ${GREEN}frontend.log${NC} - Frontend log"
-            echo "  11) ${GREEN}startup.log${NC} - Startup log"
+            echo -e "  9) ${GREEN}backend.log${NC} - Backend log"
+            echo -e "  10) ${GREEN}frontend.log${NC} - Frontend log"
+            echo -e "  11) ${GREEN}startup.log${NC} - Startup log"
             echo ""
             echo -n "Enter your choice (1-11, or press Enter for default): "
             read -r log_choice
@@ -1389,6 +1368,7 @@ main() {
             # Tail the log file
             echo ""
             print_info "📋 Tailing ${LOG_DESCRIPTION} file (Ctrl+C to stop)..."
+            echo -e "   ${CYAN}Log file: ${GREEN}${LOG_FILE}${NC}"
             echo ""
             tail -f "$LOG_FILE"
         else
