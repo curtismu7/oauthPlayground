@@ -394,18 +394,23 @@ const OIDCHybridFlowV7: React.FC = () => {
 	}, [controller.credentials]);
 
 	// Use credential backup hook for automatic backup and restoration
-	const { clearBackup, getBackupStats, downloadEnvFile } = useCredentialBackup({
+	const { clearBackup } = useCredentialBackup({
 		flowKey: 'hybrid-flow-v7',
 		credentials: controller.credentials,
 		setCredentials: controller.setCredentials,
 		enabled: true,
 	});
 
+	// Apply flow-variant defaults once per variant to avoid infinite setState loop (do not depend on controller.credentials)
+	const appliedDefaultsForVariantRef = React.useRef<string | null>(null);
 	useEffect(() => {
 		if (!controller.credentials) {
 			return;
 		}
-
+		if (appliedDefaultsForVariantRef.current === controller.flowVariant) {
+			return;
+		}
+		appliedDefaultsForVariantRef.current = controller.flowVariant;
 		controller.setCredentials(((prev) => ({
 			...prev,
 			...HybridFlowDefaults.getDefaultCredentials(controller.flowVariant),
@@ -419,7 +424,6 @@ const OIDCHybridFlowV7: React.FC = () => {
 				HybridFlowDefaults.getDefaultCredentials(controller.flowVariant).scope ||
 				'openid profile email',
 		})) as CredentialsUpdater);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [controller.credentials, controller.flowVariant, controller.setCredentials]);
 
 	const handleVariantChange = useCallback(
@@ -1426,11 +1430,17 @@ const OIDCHybridFlowV7: React.FC = () => {
 		}
 	}, [
 		currentStep,
+		// biome-ignore lint/correctness/useExhaustiveDependencies: step renderers intentionally in deps for correct step content
 		renderCompletionStep,
+		// biome-ignore lint/correctness/useExhaustiveDependencies: step renderer in deps for correct step content
 		renderAuthorizationStep,
+		// biome-ignore lint/correctness/useExhaustiveDependencies: step renderer in deps for correct step content
 		renderCredentialsStep,
+		// biome-ignore lint/correctness/useExhaustiveDependencies: step renderer in deps for correct step content
 		renderFragmentStep,
+		// biome-ignore lint/correctness/useExhaustiveDependencies: step renderer in deps for correct step content
 		renderTokenAnalysisStep,
+		// biome-ignore lint/correctness/useExhaustiveDependencies: step renderer in deps for correct step content
 		renderVariantStep,
 	]);
 
