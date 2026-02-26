@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import AppVersionBadge from '../components/AppVersionBadge';
 import { Icon } from '../components/Icon/Icon';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
+import {
+	checkServerStatusForDashboard,
+	type SimpleServerStatus,
+} from '../services/serverHealthService';
 import { type ActivityItem, getRecentActivity } from '../utils/activityTracker';
 import { checkSavedCredentials } from '../utils/configurationStatus';
 import { v4ToastManager } from '../utils/v4ToastMessages';
@@ -24,16 +29,15 @@ function statusBadgeClass(status: 'active' | 'pending' | 'error'): string {
 const Dashboard = () => {
 	const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([]);
 	const [isRefreshing, setIsRefreshing] = useState(false);
-	const [serverStatus, setServerStatus] = useState({
-		frontend: 'checking' as 'online' | 'offline' | 'checking',
-		backend: 'checking' as 'online' | 'offline' | 'checking',
+	const [serverStatus, setServerStatus] = useState<SimpleServerStatus>({
+		frontend: 'online',
+		backend: 'checking',
 	});
 
 	// Collapsible sections state (all sections use Ping red/white, narrow header, common expand/collapse icon)
 	const [collapsedSections, setCollapsedSections] = useState({
 		dashboardHeader: false,
-		systemStatus: false,
-		apiTesting: true,
+		apiStatus: false,
 		apiEndpoints: true,
 		quickAccess: false,
 		recentActivity: false,
@@ -46,30 +50,12 @@ const Dashboard = () => {
 		}));
 	}, []);
 
-	// Check server status
+	// Check server status using shared service (same as API Status page)
 	const checkServerStatus = useCallback(async () => {
-		try {
-			const backendResponse = await fetch('/api/health', {
-				method: 'GET',
-				mode: 'cors',
-				signal: AbortSignal.timeout(3000),
-			});
-
-			setServerStatus((prev) => ({
-				...prev,
-				backend: backendResponse.ok ? 'online' : 'offline',
-				frontend: 'online',
-			}));
-		} catch {
-			setServerStatus((prev) => ({
-				...prev,
-				backend: 'offline',
-				frontend: 'online',
-			}));
-		}
+		const status = await checkServerStatusForDashboard();
+		setServerStatus(status);
 	}, []);
 
-	// Check server status on mount
 	useEffect(() => {
 		checkServerStatus();
 	}, [checkServerStatus]);
@@ -141,22 +127,28 @@ const Dashboard = () => {
 		}
 	};
 
+	// Current backend API endpoints (see docs/DASHBOARD_UPDATES.md and server.js)
 	const apiEndpoints = [
-		{ method: 'GET', path: '/api/health', desc: 'Health check for backend status' },
-		{ method: 'GET', path: '/api/env-config', desc: 'Retrieve environment defaults' },
-		{
-			method: 'POST',
-			path: '/api/token-exchange',
-			desc: 'Exchange authorization codes for tokens',
-		},
-		{ method: 'POST', path: '/api/client-credentials', desc: 'Client credentials grant flow' },
-		{ method: 'POST', path: '/api/introspect-token', desc: 'Introspect tokens via PingOne' },
-		{ method: 'GET', path: '/api/userinfo', desc: 'Retrieve user information' },
+		{ method: 'GET', path: '/api/health', desc: 'Backend health check' },
+		{ method: 'GET', path: '/api/env-config', desc: 'Environment defaults' },
+		{ method: 'GET', path: '/api/version', desc: 'Backend version' },
+		{ method: 'POST', path: '/api/token-exchange', desc: 'Exchange authorization code for tokens' },
+		{ method: 'POST', path: '/api/client-credentials', desc: 'Client credentials grant' },
+		{ method: 'POST', path: '/api/introspect-token', desc: 'Token introspection' },
+		{ method: 'GET', path: '/api/userinfo', desc: 'UserInfo (OAuth)' },
 		{ method: 'POST', path: '/api/validate-token', desc: 'Validate access tokens' },
 		{ method: 'POST', path: '/api/device-authorization', desc: 'Device authorization flow' },
 		{ method: 'POST', path: '/api/par', desc: 'Pushed Authorization Request' },
-		{ method: 'GET', path: '/api/jwks', desc: 'Fetch PingOne JWKS' },
+		{ method: 'GET', path: '/api/jwks', desc: 'PingOne JWKS' },
 		{ method: 'POST', path: '/api/user-jwks', desc: 'Generate JWKS from user key' },
+		{ method: 'POST', path: '/api/credentials/save', desc: 'Save credentials' },
+		{ method: 'GET', path: '/api/credentials/load', desc: 'Load credentials' },
+		{ method: 'GET', path: '/api/environments', desc: 'List environments' },
+		{ method: 'POST', path: '/api/pingone/worker-token', desc: 'Worker token' },
+		{ method: 'POST', path: '/api/pingone/token', desc: 'Token endpoint proxy' },
+		{ method: 'POST', path: '/api/pingone/oidc-discovery', desc: 'OIDC discovery' },
+		{ method: 'POST', path: '/api/mfa/challenge/initiate', desc: 'MFA challenge' },
+		{ method: 'POST', path: '/api/device/register', desc: 'FIDO2 device registration' },
 	];
 
 	const formatActivityAction = (action?: string) => {
@@ -192,46 +184,52 @@ const Dashboard = () => {
 				</CollapsibleHeader>
 			</div>
 
-			{/* System Status */}
+			{/* API Status — shared with /api-status page; single place for server health */}
 			<div className="section-wrap">
 				<CollapsibleHeader
-					title="System Status"
-					subtitle="Frontend and backend server health monitoring"
+					title="API Status"
+					subtitle="Server health (shared with API Status page)"
 					icon={<Icon name="server" />}
 					theme="ping"
 					variant="compact"
-					defaultCollapsed={collapsedSections.systemStatus}
-					collapsed={collapsedSections.systemStatus}
-					onToggle={() => toggleSection('systemStatus')}
+					defaultCollapsed={collapsedSections.apiStatus}
+					collapsed={collapsedSections.apiStatus}
+					onToggle={() => toggleSection('apiStatus')}
 				>
 					<div className="card-body card-body--lg">
-						<div className="d-flex gap-2 mb-3 justify-content-end">
-							<button
-								type="button"
-								className="btn btn-outline-primary"
-								onClick={handleRefresh}
-								disabled={isRefreshing}
-								aria-label="Refresh server status"
-							>
-								<Icon
-									name="refresh"
-									size="sm"
-									style={{ animation: isRefreshing ? 'spin 1s linear infinite' : 'none' }}
-								/>
-								Refresh
-							</button>
-						</div>
-
-						<div className="d-flex gap-3 flex-wrap mb-4">
+						<div className="d-flex gap-2 mb-3 justify-content-between flex-wrap align-items-center">
 							<span
-								className={`${statusBadgeClass(hasSavedCredentials ? 'active' : 'error')} d-flex align-items-center gap-2 p-3 text-small`}
+								className={`${statusBadgeClass(hasSavedCredentials ? 'active' : 'error')} d-flex align-items-center gap-2 p-2 text-small`}
 							>
 								<Icon name="check-circle" />
 								{hasSavedCredentials ? 'Global Configuration Ready' : 'Configuration Missing'}
 							</span>
+							<div className="d-flex gap-2 align-items-center">
+								<button
+									type="button"
+									className="btn btn-outline-primary"
+									onClick={handleRefresh}
+									disabled={isRefreshing}
+									aria-label="Refresh server status"
+								>
+									<Icon
+										name="refresh"
+										size="sm"
+										style={{ animation: isRefreshing ? 'spin 1s linear infinite' : 'none' }}
+									/>
+									Refresh
+								</button>
+								<Link
+									to="/api-status"
+									className="btn btn-oauth"
+									aria-label="Open full API Status page"
+								>
+									<Icon name="open-in-new" size="sm" />
+									API Status
+								</Link>
+							</div>
 						</div>
 
-						{/* Server Status Details */}
 						<div className="row">
 							<div className="col-md-6 mb-3">
 								<div className="card">
@@ -252,11 +250,7 @@ const Dashboard = () => {
 														? 'Checking...'
 														: 'Offline'}
 											</span>
-											<span className="fw-600 text-muted">Frontend Server</span>
-										</div>
-										<div className="text-small text-muted">
-											<Icon name="earth" style={{ marginRight: '0.25rem' }} />
-											<strong>URL:</strong> https://localhost:3000
+											<span className="fw-600 text-muted">Frontend</span>
 										</div>
 									</div>
 								</div>
@@ -282,59 +276,8 @@ const Dashboard = () => {
 											</span>
 											<span className="fw-600 text-muted">Backend API</span>
 										</div>
-										<div className="text-small text-muted">
-											<Icon name="key" style={{ marginRight: '0.25rem' }} />
-											<strong>URL:</strong> https://localhost:3001
-										</div>
 									</div>
 								</div>
-							</div>
-						</div>
-					</div>
-				</CollapsibleHeader>
-			</div>
-
-			{/* API Testing */}
-			<div className="section-wrap">
-				<CollapsibleHeader
-					title="API Testing"
-					subtitle="Comprehensive OAuth and MFA API test suite"
-					icon={<Icon name="lightning-bolt" />}
-					theme="ping"
-					variant="compact"
-					defaultCollapsed={collapsedSections.apiTesting}
-					collapsed={collapsedSections.apiTesting}
-					onToggle={() => toggleSection('apiTesting')}
-				>
-					<div className="card-body card-body--lg">
-						<p className="text-muted text-small mb-3" style={{ lineHeight: 1.5 }}>
-							Test all OAuth and MFA flows with comprehensive API validation. Includes authorization
-							code, implicit, hybrid, device authorization, client credentials, and MFA device
-							management.
-						</p>
-
-						<div className="d-flex gap-3 flex-wrap align-items-center">
-							<a
-								href="/v8u/unified/oauth-authz/0"
-								className={`${flowLinkClass('primary', 'oauth')} d-flex align-items-center gap-2`}
-							>
-								<Icon name="code-tags" size="sm" />
-								OAuth & MFA API Test
-							</a>
-							<span className="text-muted text-small" style={{ fontStyle: 'italic' }}>
-								Comprehensive testing for all flow types
-							</span>
-						</div>
-
-						<div className="test-coverage-box">
-							<div className="text-small fw-600 text-muted mb-2">Test Coverage:</div>
-							<div className="test-coverage-tags">
-								<span className="tag-blue">Authorization Code</span>
-								<span className="tag-amber">Implicit</span>
-								<span className="tag-purple">Hybrid</span>
-								<span className="tag-green">Device Auth</span>
-								<span className="tag-red">Client Credentials</span>
-								<span className="tag-sky">MFA Device Management</span>
 							</div>
 						</div>
 					</div>
@@ -441,17 +384,17 @@ const Dashboard = () => {
 								<h3>PingOne Flows</h3>
 								<p>PingOne-specific authentication and authorization flows.</p>
 								<div className="flow-buttons">
-									<a href="/flows/worker-token-v6" className={flowLinkClass('primary', 'pingone')}>
-										Worker Token (V6)
+									<a href="/flows/worker-token-v7" className={flowLinkClass('primary', 'pingone')}>
+										Worker Token (V7)
 									</a>
-									<a href="/flows/pingone-par-v6" className={flowLinkClass('secondary', 'pingone')}>
-										PAR (V6)
+									<a href="/flows/pingone-par-v7" className={flowLinkClass('secondary', 'pingone')}>
+										PAR (V7)
 									</a>
 									<a
-										href="/flows/redirectless-v6-real"
+										href="/flows/redirectless-v7-real"
 										className={flowLinkClass('secondary', 'pingone')}
 									>
-										Redirectless Flow (V6)
+										Redirectless Flow (V7)
 									</a>
 								</div>
 							</div>

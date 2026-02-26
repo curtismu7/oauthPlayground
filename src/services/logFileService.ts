@@ -7,6 +7,16 @@
 
 const MODULE_TAG = '[📁 LOG-FILE-SERVICE]';
 
+/** Base URL for log API: use backend when VITE_BACKEND_URL is set (e.g. production without proxy). */
+function getLogsApiBase(): string {
+	const base = import.meta.env.VITE_BACKEND_URL as string | undefined;
+	if (base) {
+		const normalized = base.replace(/\/$/, '');
+		return `${normalized}/api/logs`;
+	}
+	return '/api/logs';
+}
+
 export interface LogFile {
 	name: string;
 	size: number;
@@ -21,15 +31,15 @@ export interface LogFileContent {
 	modified: Date;
 }
 
+// biome-ignore lint/complexity/noStaticOnlyClass: kept as class for API consistency with existing callers
 export class LogFileService {
-	private static readonly API_BASE = '/api/logs';
-
 	/**
 	 * List all available log files
 	 */
 	static async listLogFiles(): Promise<LogFile[]> {
 		try {
-			const response = await fetch(`${LogFileService.API_BASE}/list`);
+			const apiBase = getLogsApiBase();
+			const response = await fetch(`${apiBase}/list`);
 			if (!response.ok) {
 				throw new Error(`Failed to list log files: ${response.statusText}`);
 			}
@@ -65,7 +75,8 @@ export class LogFileService {
 				tail: tail.toString(),
 			});
 
-			const response = await fetch(`${LogFileService.API_BASE}/read?${params}`);
+			const apiBase = getLogsApiBase();
+			const response = await fetch(`${apiBase}/read?${params}`);
 			if (!response.ok) {
 				// Try to get error message, but handle if it's not JSON
 				let errorMessage = `Failed to read log file: ${response.statusText}`;
@@ -84,7 +95,7 @@ export class LogFileService {
 				throw new Error('Empty response from server');
 			}
 
-			let data;
+			let data: unknown;
 			try {
 				data = JSON.parse(text);
 			} catch (parseError: unknown) {
@@ -107,7 +118,8 @@ export class LogFileService {
 	 */
 	static createTailStream(file: string): EventSource {
 		const params = new URLSearchParams({ file });
-		const eventSource = new EventSource(`${LogFileService.API_BASE}/tail?${params}`);
+		const apiBase = getLogsApiBase();
+		const eventSource = new EventSource(`${apiBase}/tail?${params}`);
 
 		console.log(`${MODULE_TAG} Created tail stream for: ${file}`);
 

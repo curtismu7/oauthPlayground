@@ -37,6 +37,7 @@ import { StorageServiceV8 } from '@/v8/services/storageServiceV8';
 import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { trackActivity } from '@/utils/activityTracker';
 
 const MODULE_TAG = '[🗑️ DELETE-DEVICES-V8]';
 
@@ -616,6 +617,17 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 			}
 
 			setDeletionResults(results);
+
+			// Track for dashboard recent activity (not a mock flow)
+			const success = results.failed === 0;
+			trackActivity({
+				action: success
+					? `Delete All Devices: removed ${results.success} device(s)`
+					: `Delete All Devices: ${results.success} removed, ${results.failed} failed`,
+				flowType: 'delete-all-devices',
+				success,
+				details: success ? undefined : `${results.errors.length} error(s)`,
+			});
 
 			// Show summary toast
 			if (results.failed === 0) {

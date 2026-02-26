@@ -31,12 +31,17 @@ CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 # Configuration - Fixed ports for OAuth Playground
-# These ports are hardcoded to ensure consistency with OAuth redirect URIs
-# and API endpoint configurations. Do not change these values.
+# Custom domain and certs are loaded from config/run-config.db (see load_ssl_config); default below.
+# App starts on https://<domain>:3000 (ensure domain resolves to this host, e.g. /etc/hosts).
 FRONTEND_PORT=3000  # Vite dev server (HTTPS)
 BACKEND_PORT=3001   # Express API server (HTTPS only)
-FRONTEND_URL="https://localhost:${FRONTEND_PORT}"
-BACKEND_URL="https://localhost:${BACKEND_PORT}"
+FRONTEND_HOST="${FRONTEND_HOST:-api.pingdemo.com}"
+BACKEND_HOST="${BACKEND_HOST:-api.pingdemo.com}"
+FRONTEND_URL="https://${FRONTEND_HOST}:${FRONTEND_PORT}"
+BACKEND_URL="https://${BACKEND_HOST}:${BACKEND_PORT}"
+# SSL cert paths (set by load_ssl_config from run-config-ssl.js; backend uses these if set)
+SSL_CERT_PATH="${SSL_CERT_PATH:-}"
+SSL_KEY_PATH="${SSL_KEY_PATH:-}"
 
 # PID files for process management
 FRONTEND_PID_FILE=".frontend.pid"
@@ -376,6 +381,71 @@ check_requirements() {
     print_success "System requirements check passed"
 }
 
+# Load custom domain and SSL cert paths from SQLite (config/run-config.db); optionally prompt to change domain.
+# Sets FRONTEND_HOST, BACKEND_HOST, SSL_CERT_PATH, SSL_KEY_PATH and recomputes FRONTEND_URL, BACKEND_URL.
+load_ssl_config() {
+    print_status "🔐 Loading custom domain and SSL certificate config..."
+    local prompt_flag=""
+    [ "${CHANGE_DOMAIN:-false}" = true ] && prompt_flag="--prompt"
+    local run_ssl_output
+    run_ssl_output=$(node scripts/development/run-config-ssl.js $prompt_flag) || true
+    if [ -n "$run_ssl_output" ]; then
+        eval "$run_ssl_output"
+        FRONTEND_URL="https://${FRONTEND_HOST}:${FRONTEND_PORT}"
+        BACKEND_URL="https://${BACKEND_HOST}:${BACKEND_PORT}"
+        export FRONTEND_HOST BACKEND_HOST SSL_CERT_PATH SSL_KEY_PATH
+        print_success "Domain: ${FRONTEND_HOST:-api.pingdemo.com}"
+    else
+        print_warning "Could not load SSL config; using default domain ${FRONTEND_HOST:-api.pingdemo.com}"
+    fi
+}
+
+# Ask user if the script should add/update the hosts file so the custom domain resolves to 127.0.0.1.
+# Skips in -quick/-default; on macOS/Linux uses /etc/hosts (requires sudo to write).
+ask_and_update_hosts_file() {
+    [ "$QUICK_MODE" = true ] && return 0
+    [ "$DEFAULT_MODE" = true ] && return 0
+
+    local domain="${FRONTEND_HOST:-api.pingdemo.com}"
+    local hosts_file=""
+
+    case "$(uname -s)" in
+        Darwin|Linux)
+            hosts_file="/etc/hosts"
+            ;;
+        *)
+            print_info "Hosts file update is supported on macOS/Linux only. Add manually: 127.0.0.1 $domain"
+            return 0
+            ;;
+    esac
+
+    if [ ! -r "$hosts_file" ]; then
+        print_warning "Cannot read $hosts_file; add manually: 127.0.0.1 $domain"
+        return 0
+    fi
+
+    if grep -qF "127.0.0.1 $domain" "$hosts_file" 2>/dev/null; then
+        print_success "Hosts file already has 127.0.0.1 $domain"
+        return 0
+    fi
+
+    echo ""
+    echo -n "Add/update hosts file so ${domain} resolves to 127.0.0.1? (y/N): "
+    read -r reply
+    if [ -z "$reply" ] || [ "$reply" != "y" ] && [ "$reply" != "Y" ]; then
+        print_info "Skipping hosts file. Add manually if needed: 127.0.0.1 $domain"
+        return 0
+    fi
+
+    print_status "Adding 127.0.0.1 $domain to $hosts_file (may prompt for password)..."
+    if sudo sh -c "echo '127.0.0.1 $domain' >> $hosts_file" 2>/dev/null; then
+        print_success "Hosts file updated. $domain now resolves to 127.0.0.1"
+    else
+        print_warning "Could not write to $hosts_file (sudo failed or denied). Add manually:"
+        echo -e "   ${CYAN}echo '127.0.0.1 $domain' | sudo tee -a $hosts_file${NC}"
+    fi
+}
+
 # Check SQLite database schema
 check_sqlite_database() {
     local db_file="src/server/data/users.db"
@@ -686,9 +756,10 @@ start_frontend() {
     find node_modules -name ".cache" -type d -exec rm -rf {} + 2>/dev/null || true
     print_success "All caches cleared for clean Vite restart"
     
-    # Start frontend server
-    print_info "Starting frontend on port $FRONTEND_PORT..."
-    npm run dev > frontend.log 2>&1 &
+    # Start frontend server (listen on all interfaces so https://api.pingdemo.com:3000 works)
+    print_info "Starting frontend on $FRONTEND_URL..."
+    export VITE_HMR_HOST="$FRONTEND_HOST"
+    npm run dev -- --host > frontend.log 2>&1 &
     local frontend_pid=$!
     echo $frontend_pid > "$FRONTEND_PID_FILE"
     
@@ -1003,8 +1074,8 @@ while [ $# -gt 0 ]; do
             echo "  • Supports multiple operation modes for different use cases"
             echo ""
             echo "🌐 SERVERS AND PORTS:"
-            echo "  Frontend: https://localhost:${FRONTEND_PORT}    (Vite dev server with HMR)"
-            echo "  Backend:  https://localhost:${BACKEND_PORT}  (Express API with SSL)"
+            echo "  Frontend: $FRONTEND_URL    (Vite dev server with HMR)"
+            echo "  Backend:  $BACKEND_URL  (Express API with SSL)"
             echo ""
             echo "📚 AVAILABLE OPTIONS:"
             echo ""
@@ -1032,6 +1103,11 @@ while [ $# -gt 0 ]; do
             echo "        • Automatically tails pingone-api.log (default log)"
             echo "        • No user interaction required"
             echo ""
+            echo "    -change-domain, --change-domain"
+            echo "        Prompt to change the custom domain (default api.pingdemo.com)."
+            echo "        Generates a new self-signed certificate for the chosen domain and saves"
+            echo "        domain and cert paths in config/run-config.db for the next run."
+            echo ""
             echo "🔧 DEFAULT BEHAVIOR (no flags):"
             echo "  1️⃣  DIRECTORY DISCOVERY:"
             echo "      • Searches common OAuth Playground locations"
@@ -1042,6 +1118,11 @@ while [ $# -gt 0 ]; do
             echo "      • Checks Node.js, npm, curl availability"
             echo "      • Validates package.json and server.js exist"
             echo "      • Verifies SQLite3 is available"
+            echo ""
+            echo "  2b️⃣ CUSTOM DOMAIN & HOSTS FILE:"
+            echo "      • Loads domain/certs from config/run-config.db"
+            echo "      • Asks whether to add/update hosts file (e.g. /etc/hosts) so the domain"
+            echo "        resolves to 127.0.0.1 (macOS/Linux; skipped with -quick/-default)"
             echo ""
             echo "  3️⃣  LOCKDOWN INTEGRITY CHECKS:"
             echo "      • SMS lockdown verification (verify:sms-lockdown)"
@@ -1110,8 +1191,8 @@ while [ $# -gt 0 ]; do
             echo "📖 MORE INFORMATION:"
             echo "  • Project README: ./README.md"
             echo "  • API Documentation: Available at https://localhost:${BACKEND_PORT}/docs"
-            echo "  • Protect Portal: http://localhost:${FRONTEND_PORT}/protect-portal"
-            echo "  • OAuth Playground: http://localhost:${FRONTEND_PORT}"
+            echo "  • Protect Portal: $FRONTEND_URL/protect-portal"
+            echo "  • OAuth Playground: $FRONTEND_URL"
             echo ""
             echo "🎮 QUICK START:"
             echo "  1. Ensure you're in the OAuth Playground directory"
@@ -1158,12 +1239,18 @@ main() {
                 print_info "📋 Default mode enabled - using default logging without prompting"
                 shift
                 ;;
+            -change-domain|--change-domain)
+                CHANGE_DOMAIN=true
+                export CHANGE_DOMAIN
+                print_info "🔐 Will prompt to change custom domain and regenerate certificate"
+                shift
+                ;;
             *)
                 break
                 ;;
         esac
     done
-    
+
     show_banner
     
     # Step 0: Find and change to project directory
@@ -1171,6 +1258,12 @@ main() {
     
     # Step 1: Check requirements
     check_requirements
+
+    # Step 1a: Load custom domain and SSL cert from SQLite (prompt to change if --change-domain)
+    load_ssl_config
+
+    # Step 1a2: Optionally add/update hosts file so the custom domain resolves to 127.0.0.1
+    ask_and_update_hosts_file
 
     # Step 1b: Verify lock-down integrity (blocks restart on drift)
     verify_sms_lockdown
