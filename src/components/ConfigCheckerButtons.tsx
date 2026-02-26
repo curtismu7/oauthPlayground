@@ -27,7 +27,9 @@ const P1Logo = ({ size = 14, style = {} }) => (
 		height={size}
 		viewBox="0 0 24 24"
 		style={{ display: 'inline-block', marginRight: '4px', ...style }}
+		aria-hidden
 	>
+		<title>P1 Logo</title>
 		<rect width="24" height="24" fill="#dc2626" rx="2" />
 		<text
 			x="12"
@@ -1064,7 +1066,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 
 			// Get applications to find the app ID
 			const applications = await pingOneAppCreationService.getApplications();
-			const app = applications.find((app: any) => app.clientId === clientId);
+			const app = applications.find((a: { clientId?: string }) => a.clientId === clientId);
 
 			if (!app) {
 				v4ToastManager.showError('Application not found in PingOne');
@@ -1970,6 +1972,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 				>
 					<div>
 						<label
+							htmlFor="create-app-name"
 							style={{
 								display: 'block',
 								marginBottom: '0.5rem',
@@ -1980,6 +1983,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 							Application Name *
 						</label>
 						<input
+							id="create-app-name"
 							type="text"
 							value={createFormData.name}
 							onChange={(e) => setCreateFormData((prev) => ({ ...prev, name: e.target.value }))}
@@ -2000,6 +2004,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 
 					<div>
 						<label
+							htmlFor="create-app-description"
 							style={{
 								display: 'block',
 								marginBottom: '0.5rem',
@@ -2010,6 +2015,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 							Description
 						</label>
 						<textarea
+							id="create-app-description"
 							value={createFormData.description}
 							onChange={(e) =>
 								setCreateFormData((prev) => ({ ...prev, description: e.target.value }))
@@ -2034,6 +2040,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 					{flowNeedsRedirectUri && (
 						<div>
 							<label
+								htmlFor="create-app-redirect-uri"
 								style={{
 									display: 'block',
 									marginBottom: '0.5rem',
@@ -2044,6 +2051,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								Redirect URI *
 							</label>
 							<input
+								id="create-app-redirect-uri"
 								type="url"
 								value={createFormData.redirectUri}
 								onChange={(e) =>
@@ -2068,6 +2076,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 					{shouldShowTokenAuthSelector && (
 						<div>
 							<label
+								htmlFor="create-app-token-auth"
 								style={{
 									display: 'block',
 									marginBottom: '0.5rem',
@@ -2078,6 +2087,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								Token Endpoint Authentication Method
 							</label>
 							<select
+								id="create-app-token-auth"
 								value={createFormData.tokenEndpointAuthMethod}
 								onChange={(e) =>
 									setCreateFormData((prev) => ({
@@ -2160,6 +2170,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 						{/* Response Types */}
 						<div style={{ marginBottom: '1.5rem' }}>
 							<label
+								htmlFor="create-app-response-type"
 								style={{
 									display: 'block',
 									marginBottom: '0.75rem',
@@ -2171,6 +2182,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								Response Type *
 							</label>
 							<select
+								id="create-app-response-type"
 								value={
 									createFormData.responseTypes.length > 0 ? createFormData.responseTypes[0] : 'code'
 								}
@@ -2256,7 +2268,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 
 						{/* Grant Types */}
 						<div>
-							<label
+							<span
 								style={{
 									display: 'flex',
 									alignItems: 'center',
@@ -2284,7 +2296,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								>
 									?
 								</span>
-							</label>
+							</span>
 							<div
 								style={{
 									display: 'grid',
@@ -2451,6 +2463,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								</div>
 							</div>
 							<button
+								type="button"
 								onClick={() => setShowAuthErrorModal(false)}
 								style={{
 									background: 'none',
@@ -2513,6 +2526,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 							}}
 						>
 							<button
+								type="button"
 								onClick={() => setShowAuthErrorModal(false)}
 								style={{
 									padding: '0.75rem 1.5rem',
@@ -2527,6 +2541,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								Close
 							</button>
 							<button
+								type="button"
 								onClick={() => {
 									setShowAuthErrorModal(false);
 									if (onGenerateWorkerToken) {
@@ -2585,6 +2600,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								</div>
 							</div>
 							<button
+								type="button"
 								onClick={() => setShowCreationResultModal(false)}
 								style={{
 									background: 'none',
@@ -2691,6 +2707,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 							}}
 						>
 							<button
+								type="button"
 								onClick={() => setShowCreationResultModal(false)}
 								style={{
 									padding: '0.75rem 1.5rem',
@@ -2705,6 +2722,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								Close
 							</button>
 							<button
+								type="button"
 								onClick={() => {
 									setShowCreationResultModal(false);
 									// Copy client ID to clipboard
