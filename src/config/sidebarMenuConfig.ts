@@ -1,14 +1,17 @@
 /**
  * Shared sidebar menu configuration.
- * Source of truth for menu structure; see docs/MENU_GROUPING_PROPOSAL.md.
+ * Source of truth for menu structure; see docs/updates-to-apps/MENU_GROUPING_PROPOSAL.md.
  * Consumed by Sidebar + DragDropSidebar (or SidebarMenuPing) for a single place to add/remove/reorder items.
  */
 
 /** When true, app uses Ping UI sidebar (SidebarMenuPing) with fixed width. */
 export const USE_PING_MENU = true;
 
-/** Fixed sidebar width when USE_PING_MENU is true (px). */
+/** Default sidebar width when USE_PING_MENU is true (px). Resizable between min and max. */
 export const SIDEBAR_PING_WIDTH = 260;
+/** Min/max width for Ping sidebar when resizing (px). */
+export const SIDEBAR_PING_MIN_WIDTH = 220;
+export const SIDEBAR_PING_MAX_WIDTH = 500;
 
 export interface SidebarMenuItem {
 	id: string;

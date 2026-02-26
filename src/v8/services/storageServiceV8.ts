@@ -67,6 +67,8 @@ const ensureMigration = async (): Promise<void> => {
 			const result = await StorageServiceV8Migration.migrateAll();
 			console.log(`${MODULE_TAG} Migration completed`, result);
 		}
+		// Single-threaded; no other code mutates migrationCompleted during await
+		// eslint-disable-next-line require-atomic-updates
 		migrationCompleted = true;
 	}
 };
@@ -75,6 +77,7 @@ const ensureMigration = async (): Promise<void> => {
 // STORAGE SERVICE CLASS (Compatibility Layer)
 // ============================================================================
 
+// biome-ignore lint/complexity/noStaticOnlyClass: V8 compatibility layer, static API used by callers
 export class StorageServiceV8 {
 	/**
 	 * Save data with versioning (now uses unified storage)
