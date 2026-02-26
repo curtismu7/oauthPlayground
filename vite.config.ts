@@ -118,12 +118,10 @@ export default defineConfig(({ mode }) => {
 			open: true,
 			// https: true, // Remove this - basicSsl plugin handles HTTPS
 			// In production, Vercel will handle HTTPS
-			hmr: {
-				port: 3000,
-				host: 'localhost',
-				protocol: 'wss', // Use secure WebSocket for HTTPS
-				clientPort: 3000,
-			},
+			// When accessed via a different host (e.g. api.pingdemo.com), set VITE_HMR_HOST so WebSocket connects there
+			hmr: env.VITE_HMR_HOST
+				? { host: env.VITE_HMR_HOST, port: 3000, protocol: 'wss', clientPort: 3000 }
+				: { port: 3000, host: 'localhost', protocol: 'wss', clientPort: 3000 },
 			logLevel: 'warn', // Reduce Vite connection logs (suppresses "connecting..." and "connected" messages)
 			// Disable certificate verification for localhost development
 			proxy: {
