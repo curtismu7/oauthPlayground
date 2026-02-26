@@ -6,6 +6,7 @@
   padding: 2rem;
   background: #f8fafc;
   min-height: 100vh;
+  color: #111827;
 }
 
 .dashboard-page .row {
@@ -68,12 +69,12 @@
 .dashboard-page .flow-card h3 {
   font-size: 1.2rem;
   margin: 0;
-  color: #1f2937;
+  color: #111827;
   font-weight: 600;
 }
 
 .dashboard-page .flow-card p {
-  color: #6b7280;
+  color: #1f2937;
   font-size: 0.9rem;
   margin: 0;
   line-height: 1.5;
@@ -305,19 +306,19 @@
 
 .dashboard-page .activity-action {
   font-weight: 500;
-  color: #333;
+  color: #111827;
   margin-bottom: 0.25rem;
 }
 
 .dashboard-page .activity-time {
   font-size: 0.875rem;
-  color: #666;
+  color: #1f2937;
 }
 
 .dashboard-page .empty-state {
   text-align: center;
   padding: 2rem;
-  color: #6b7280;
+  color: #1f2937;
   list-style: none;
 }
 
@@ -340,7 +341,7 @@
 .dashboard-page .mb-4 { margin-bottom: 1.5rem; }
 .dashboard-page .mb-5 { margin-bottom: 2rem; }
 .dashboard-page .p-3 { padding: 1rem; }
-.dashboard-page .text-muted { color: #666; }
+.dashboard-page .text-muted { color: #1f2937; }
 .dashboard-page .text-small { font-size: 0.875rem; }
 .dashboard-page .fw-600 { font-weight: 600; }
 
