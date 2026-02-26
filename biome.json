@@ -2,7 +2,21 @@
 	"$schema": "https://biomejs.dev/schemas/2.4.1/schema.json",
 	"files": {
 		"ignoreUnknown": false,
-		"includes": ["**/src/**/*", "*.md", "**/*.md", "**/*.json"]
+		"includes": [
+			"**/src/**/*",
+			"*.md",
+			"**/*.md",
+			"**/*.json",
+			"!AI Ping",
+			"!pingone-mcp-server",
+			"!biome_issues.json",
+			"!user-cache",
+			"!node_modules",
+			"!dist",
+			"!.vite",
+			"!coverage",
+			"!resources/data/mcp.json"
+		]
 	},
 	"formatter": {
 		"enabled": true,
