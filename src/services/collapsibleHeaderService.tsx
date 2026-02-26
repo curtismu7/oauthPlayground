@@ -11,7 +11,7 @@ export interface CollapsibleHeaderConfig {
 	defaultCollapsed?: boolean;
 	showArrow?: boolean;
 	variant?: 'default' | 'compact' | 'large';
-	theme?: 'blue' | 'green' | 'orange' | 'purple' | 'yellow' | 'highlight';
+	theme?: 'blue' | 'green' | 'orange' | 'purple' | 'yellow' | 'highlight' | 'ping';
 }
 
 export interface CollapsibleHeaderProps extends CollapsibleHeaderConfig {
@@ -21,15 +21,18 @@ export interface CollapsibleHeaderProps extends CollapsibleHeaderConfig {
 	onToggle?: (collapsed: boolean) => void;
 }
 
-// Arrow icon component with the requested styling
-const ArrowIcon = styled.div<{ $collapsed: boolean }>`
+// Ping red brand color for section headers
+const PING_RED = '#E4002B';
+
+// Arrow icon component with the requested styling; supports ping theme (white circle, red arrow)
+const ArrowIcon = styled.div<{ $collapsed: boolean; $theme: string }>`
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 24px;
   height: 24px;
-  background: #3b82f6;
-  color: white;
+  background: ${(props) => (props.$theme === 'ping' ? '#ffffff' : '#3b82f6')};
+  color: ${(props) => (props.$theme === 'ping' ? PING_RED : 'white')};
   border-radius: 50%;
   transition: transform 0.2s ease, background-color 0.2s ease;
   cursor: pointer;
@@ -37,7 +40,7 @@ const ArrowIcon = styled.div<{ $collapsed: boolean }>`
   transform: ${(props) => (props.$collapsed ? 'rotate(0deg)' : 'rotate(180deg)')};
 
   &:hover {
-    background: #2563eb;
+    background: ${(props) => (props.$theme === 'ping' ? '#f1f5f9' : '#2563eb')};
   }
 
   svg {
@@ -143,6 +146,17 @@ const HeaderButton = styled.button<{ $variant: string; $theme: string }>`
           }
           &:focus {
             outline: 2px solid #fef9c3;
+            outline-offset: 2px;
+          }
+        `;
+			case 'ping':
+				return `
+          background: ${PING_RED};
+          &:hover {
+            background: #c40024;
+          }
+          &:focus {
+            outline: 2px solid #ffb3c1;
             outline-offset: 2px;
           }
         `;
@@ -348,6 +362,7 @@ export const CollapsibleHeader: React.FC<CollapsibleHeaderProps> = ({
 	return (
 		<CollapsibleHeaderContainer $variant={variant} className={className}>
 			<HeaderButton
+				id={`header-${ariaId}`}
 				$variant={variant}
 				$theme={theme}
 				onClick={toggleCollapsed}
@@ -362,7 +377,7 @@ export const CollapsibleHeader: React.FC<CollapsibleHeaderProps> = ({
 					</HeaderText>
 				</HeaderContent>
 				{showArrow && (
-					<ArrowIcon $collapsed={resolvedCollapsed}>
+					<ArrowIcon $collapsed={resolvedCollapsed} $theme={theme}>
 						<DefaultArrowIcon collapsed={resolvedCollapsed} />
 					</ArrowIcon>
 				)}
@@ -392,6 +407,7 @@ export const GreenCollapsibleHeader = createThemedCollapsibleHeader('green');
 export const OrangeCollapsibleHeader = createThemedCollapsibleHeader('orange');
 export const PurpleCollapsibleHeader = createThemedCollapsibleHeader('purple');
 export const HighlightCollapsibleHeader = createThemedCollapsibleHeader('highlight');
+export const PingCollapsibleHeader = createThemedCollapsibleHeader('ping');
 
 // Hook for managing collapsible state externally
 export const useCollapsibleState = (defaultCollapsed = false) => {
@@ -416,5 +432,6 @@ export default {
 	OrangeCollapsibleHeader,
 	PurpleCollapsibleHeader,
 	HighlightCollapsibleHeader,
+	PingCollapsibleHeader,
 	useCollapsibleState,
 };

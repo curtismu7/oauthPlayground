@@ -11,6 +11,7 @@
 		"start": "./scripts/dev/start-full-stack.sh",
 		"start:frontend": "vite",
 		"start:backend": "BACKEND_PORT=3001 node server.js",
+		"start:frontend-proxy": "node server-frontend-proxy.js",
 		"start:interactive": "./scripts/dev/start-interactive.sh",
 		"start:dev": "./scripts/dev/start-dev.sh",
 		"test:all": "npm run test:backend && npm run test && npm run test:e2e",
