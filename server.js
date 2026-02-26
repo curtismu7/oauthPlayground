@@ -10388,7 +10388,7 @@ app.use((error, _req, res, _next) => {
 	});
 });
 
-// Generate self-signed certificates for HTTPS
+// Generate self-signed certificates for HTTPS (fallback when env cert paths not set)
 function generateSelfSignedCert() {
 	const certDir = path.join(__dirname, 'certs');
 
@@ -10419,6 +10419,17 @@ function generateSelfSignedCert() {
 		console.log('🔄 Falling back to HTTP server...');
 		return null;
 	}
+}
+
+// Prefer SSL cert paths from env (set by run.sh / run-config-ssl.js); otherwise generate or use default.
+function getCertPaths() {
+	const envCert = process.env.SSL_CERT_PATH;
+	const envKey = process.env.SSL_KEY_PATH;
+	if (envCert && envKey && fs.existsSync(envCert) && fs.existsSync(envKey)) {
+		console.log('🔐 Using custom domain certificates from env:', envCert);
+		return { keyPath: envKey, certPath: envCert };
+	}
+	return generateSelfSignedCert();
 }
 
 // In-memory storage for webhook events (for demo purposes)
@@ -19846,8 +19857,8 @@ app.use((req, res, next) => {
 // SERVER STARTUP
 // ============================================================================
 
-// Load or generate self-signed certificates for HTTPS
-const certs = generateSelfSignedCert();
+// Load or generate self-signed certificates for HTTPS (env SSL_CERT_PATH/SSL_KEY_PATH take precedence)
+const certs = getCertPaths();
 
 // Server variable declarations
 let httpsServer;

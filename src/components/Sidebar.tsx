@@ -1,9 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { FiMove, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
+import { SIDEBAR_PING_WIDTH, USE_PING_MENU } from '../config/sidebarMenuConfig';
 import DragDropSidebar from './DragDropSidebar';
+import SidebarMenuPing from './SidebarMenuPing';
 import SidebarSearch from './SidebarSearch';
 import { VersionBadge } from './VersionBadge';
+import '../styles/sidebar-ping-theme.css';
 
 // App version from package.json
 const APP_VERSION = '9.11.76';
@@ -113,8 +116,9 @@ export interface SidebarProps {
 
 // Main Sidebar component
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
-	// Sidebar width state
+	// Sidebar width state (fixed when USE_PING_MENU)
 	const [sidebarWidth, setSidebarWidth] = useState(() => {
+		if (USE_PING_MENU) return SIDEBAR_PING_WIDTH;
 		const savedWidth = localStorage.getItem('sidebar.width');
 		return savedWidth ? parseInt(savedWidth, 10) : 300;
 	});
@@ -133,9 +137,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 		return saved === 'true';
 	});
 
-	// Save sidebar width to localStorage
+	// Save sidebar width to localStorage (Ping menu uses fixed width; sync so App layout matches)
 	useEffect(() => {
-		localStorage.setItem('sidebar.width', sidebarWidth.toString());
+		const w = USE_PING_MENU ? SIDEBAR_PING_WIDTH : sidebarWidth;
+		localStorage.setItem('sidebar.width', String(w));
 	}, [sidebarWidth]);
 
 	// Handle search
@@ -185,9 +190,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
 	if (!isOpen) return null;
 
+	const width = USE_PING_MENU ? SIDEBAR_PING_WIDTH : sidebarWidth;
+	const containerClass = USE_PING_MENU ? 'sidebar--ping' : '';
+
 	return (
-		<SidebarContainer $width={sidebarWidth}>
-			<ResizeHandle onMouseDown={handleResizeStart} />
+		<SidebarContainer $width={width} className={containerClass}>
+			{!USE_PING_MENU && <ResizeHandle onMouseDown={handleResizeStart} />}
 
 			<SidebarHeader>
 				<div
@@ -195,7 +203,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						display: 'flex',
 						alignItems: 'center',
 						justifyContent: 'space-between',
-						marginBottom: '16px',
+						marginBottom: USE_PING_MENU ? 0 : '16px',
 					}}
 				>
 					<h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 'bold', color: '#111827' }}>
@@ -209,38 +217,40 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					</div>
 				</div>
 
-				{/* Search */}
-				<SidebarSearch
-					onSearch={handleSearch}
-					placeholder="Search flows and pages..."
-					activeSearchQuery={searchQuery}
-					matchAnywhere={matchAnywhere}
-					onMatchAnywhereChange={setMatchAnywhere}
-				/>
-
-				{/* Drag Mode Toggle */}
-				<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '12px' }}>
-					<DragModeToggle
-						onClick={toggleDragDropMode}
-						title={isDragDropMode ? 'Switch to standard menu' : 'Enable drag & drop mode'}
-						$isActive={isDragDropMode}
-					>
-						<FiMove size={14} />
-						{isDragDropMode ? 'Drag Mode' : 'Enable Drag'}
-					</DragModeToggle>
-				</div>
+				{!USE_PING_MENU && (
+					<>
+						<SidebarSearch
+							onSearch={handleSearch}
+							placeholder="Search flows and pages..."
+							activeSearchQuery={searchQuery}
+							matchAnywhere={matchAnywhere}
+							onMatchAnywhereChange={setMatchAnywhere}
+						/>
+						<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '12px' }}>
+							<DragModeToggle
+								onClick={toggleDragDropMode}
+								title={isDragDropMode ? 'Switch to standard menu' : 'Enable drag & drop mode'}
+								$isActive={isDragDropMode}
+							>
+								<FiMove size={14} />
+								{isDragDropMode ? 'Drag Mode' : 'Enable Drag'}
+							</DragModeToggle>
+						</div>
+					</>
+				)}
 			</SidebarHeader>
 
-			{/* Main Content - DragDropSidebar */}
 			<div style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
-				<DragDropSidebar
-					dragMode={isDragDropMode}
-					searchQuery={searchQuery}
-					matchAnywhere={matchAnywhere}
-				/>
+				{USE_PING_MENU ? <SidebarMenuPing /> : (
+					<DragDropSidebar
+						dragMode={isDragDropMode}
+						searchQuery={searchQuery}
+						matchAnywhere={matchAnywhere}
+					/>
+				)}
 			</div>
 
-			<SidebarFooter></SidebarFooter>
+			{!USE_PING_MENU && <SidebarFooter />}
 		</SidebarContainer>
 	);
 };

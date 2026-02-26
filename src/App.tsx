@@ -26,6 +26,7 @@ import DeviceMockFlow from './components/DeviceMockFlow';
 import FlowComparisonTool from './components/FlowComparisonTool';
 import FlowHeaderDemo from './components/FlowHeaderDemo';
 import InteractiveFlowDiagram from './components/InteractiveFlowDiagram';
+import { SIDEBAR_PING_WIDTH, USE_PING_MENU } from './config/sidebarMenuConfig';
 import Navbar from './components/Navbar';
 import { RouteRestorer } from './components/RouteRestorer';
 import Sidebar from './components/Sidebar';
@@ -400,17 +401,22 @@ function NotFoundRedirect() {
 const AppRoutes: React.FC = () => {
 	const [sidebarOpen, setSidebarOpen] = useState(true);
 	const [sidebarWidth, setSidebarWidth] = useState(() => {
+		if (USE_PING_MENU) return SIDEBAR_PING_WIDTH;
 		try {
 			const saved = localStorage.getItem('sidebar.width');
 			const parsed = saved ? parseInt(saved, 10) : NaN;
 			if (Number.isFinite(parsed) && parsed >= 300 && parsed <= 600) return parsed;
 		} catch {}
-		return 450; // Default width, matching Sidebar component
+		return 450;
 	});
 
 	// Listen for sidebar width changes from localStorage
 	useEffect(() => {
 		const handleStorageChange = () => {
+			if (USE_PING_MENU) {
+				setSidebarWidth(SIDEBAR_PING_WIDTH);
+				return;
+			}
 			try {
 				const saved = localStorage.getItem('sidebar.width');
 				const parsed = saved ? parseInt(saved, 10) : NaN;
