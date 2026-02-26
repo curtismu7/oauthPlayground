@@ -73,7 +73,7 @@ const StatusText = styled.p`
   color: #4b5563;
 `;
 
-const DiscoveryResult = styled.div`
+const DiscoveryResultBox = styled.div`
   margin-top: 1rem;
   padding: 1rem;
   background: #f0f9ff;
@@ -280,10 +280,10 @@ const CredentialsServicesMock: React.FC = () => {
 				/>
 
 				{discoveryResult && (
-					<DiscoveryResult>
+					<DiscoveryResultBox>
 						<h4>🎯 Discovery Result:</h4>
 						<CodeBlock>{JSON.stringify(discoveryResult, null, 2)}</CodeBlock>
-					</DiscoveryResult>
+					</DiscoveryResultBox>
 				)}
 			</Section>
 

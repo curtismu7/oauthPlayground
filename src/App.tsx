@@ -26,10 +26,15 @@ import DeviceMockFlow from './components/DeviceMockFlow';
 import FlowComparisonTool from './components/FlowComparisonTool';
 import FlowHeaderDemo from './components/FlowHeaderDemo';
 import InteractiveFlowDiagram from './components/InteractiveFlowDiagram';
-import { SIDEBAR_PING_WIDTH, USE_PING_MENU } from './config/sidebarMenuConfig';
 import Navbar from './components/Navbar';
 import { RouteRestorer } from './components/RouteRestorer';
 import Sidebar from './components/Sidebar';
+import {
+	SIDEBAR_PING_MAX_WIDTH,
+	SIDEBAR_PING_MIN_WIDTH,
+	SIDEBAR_PING_WIDTH,
+	USE_PING_MENU,
+} from './config/sidebarMenuConfig';
 import { useAuth } from './contexts/NewAuthContext';
 import { NotificationContainer, NotificationProvider } from './hooks/useNotifications';
 import AIIdentityArchitectures from './pages/AIIdentityArchitectures';
@@ -401,10 +406,18 @@ function NotFoundRedirect() {
 const AppRoutes: React.FC = () => {
 	const [sidebarOpen, setSidebarOpen] = useState(true);
 	const [sidebarWidth, setSidebarWidth] = useState(() => {
-		if (USE_PING_MENU) return SIDEBAR_PING_WIDTH;
 		try {
 			const saved = localStorage.getItem('sidebar.width');
 			const parsed = saved ? parseInt(saved, 10) : NaN;
+			if (USE_PING_MENU) {
+				if (
+					Number.isFinite(parsed) &&
+					parsed >= SIDEBAR_PING_MIN_WIDTH &&
+					parsed <= SIDEBAR_PING_MAX_WIDTH
+				)
+					return parsed;
+				return SIDEBAR_PING_WIDTH;
+			}
 			if (Number.isFinite(parsed) && parsed >= 300 && parsed <= 600) return parsed;
 		} catch {}
 		return 450;
@@ -413,16 +426,19 @@ const AppRoutes: React.FC = () => {
 	// Listen for sidebar width changes from localStorage
 	useEffect(() => {
 		const handleStorageChange = () => {
-			if (USE_PING_MENU) {
-				setSidebarWidth(SIDEBAR_PING_WIDTH);
-				return;
-			}
 			try {
 				const saved = localStorage.getItem('sidebar.width');
 				const parsed = saved ? parseInt(saved, 10) : NaN;
-				if (Number.isFinite(parsed) && parsed >= 300 && parsed <= 600) {
-					setSidebarWidth(parsed);
+				if (USE_PING_MENU) {
+					if (
+						Number.isFinite(parsed) &&
+						parsed >= SIDEBAR_PING_MIN_WIDTH &&
+						parsed <= SIDEBAR_PING_MAX_WIDTH
+					)
+						setSidebarWidth(parsed);
+					return;
 				}
+				if (Number.isFinite(parsed) && parsed >= 300 && parsed <= 600) setSidebarWidth(parsed);
 			} catch {}
 		};
 

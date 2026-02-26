@@ -1159,6 +1159,55 @@ app.get('/api/settings/debug-log-viewer', async (req, res) => {
 	}
 });
 
+/**
+ * Custom domain (app URL) — stored in SQLite via settingsDB; synced with Dashboard + IndexedDB on client.
+ * GET /api/settings/custom-domain — returns { domain } (hostname only, e.g. api.pingdemo.com)
+ * POST /api/settings/custom-domain — body: { domain: string }; validates and saves.
+ */
+const CUSTOM_DOMAIN_KEY = 'custom_domain';
+const DEFAULT_CUSTOM_DOMAIN = 'api.pingdemo.com';
+const DOMAIN_REGEX = /^[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]$|^[a-zA-Z0-9]$/;
+
+app.get('/api/settings/custom-domain', async (_req, res) => {
+	try {
+		let raw = await settingsDB.get(CUSTOM_DOMAIN_KEY);
+		if (raw != null) {
+			try {
+				raw = JSON.parse(raw);
+			} catch {
+				raw = null;
+			}
+		}
+		res.status(200).json({ domain: raw && typeof raw === 'string' ? raw : DEFAULT_CUSTOM_DOMAIN });
+	} catch (error) {
+		console.error('[Settings] Failed to get custom domain:', error);
+		res.status(500).json({ error: 'Failed to retrieve custom domain', message: error.message });
+	}
+});
+
+app.post('/api/settings/custom-domain', async (req, res) => {
+	try {
+		let { domain } = req.body || {};
+		if (typeof domain !== 'string') {
+			return res.status(400).json({ error: 'Missing or invalid domain' });
+		}
+		domain = domain.trim().toLowerCase();
+		// Strip protocol and path if present
+		domain = domain.replace(/^https?:\/\//, '').replace(/\/.*$/, '').split(':')[0];
+		if (!domain) {
+			return res.status(400).json({ error: 'Domain cannot be empty' });
+		}
+		if (!DOMAIN_REGEX.test(domain)) {
+			return res.status(400).json({ error: 'Invalid domain format (use hostname only, e.g. api.pingdemo.com)' });
+		}
+		await settingsDB.set(CUSTOM_DOMAIN_KEY, domain);
+		res.status(200).json({ success: true, domain });
+	} catch (error) {
+		console.error('[Settings] Failed to save custom domain:', error);
+		res.status(500).json({ error: 'Failed to save custom domain', message: error.message });
+	}
+});
+
 // ============================================================================
 // FILE STORAGE API
 // ============================================================================

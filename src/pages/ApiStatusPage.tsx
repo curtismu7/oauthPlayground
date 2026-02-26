@@ -1,60 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { FiRefreshCw, FiServer } from 'react-icons/fi';
 import styled from 'styled-components';
-
-interface HealthData {
-	status: string;
-	timestamp: string;
-	version: string;
-	versions: {
-		app: string;
-		mfaV8: string;
-		unifiedV8u: string;
-	};
-	pid: number;
-	startTime: string;
-	uptimeSeconds: number;
-	environment: string;
-	node: {
-		version: string;
-		platform: string;
-		arch: string;
-	};
-	memory: {
-		rss: number;
-		heapTotal: number;
-		heapUsed: number;
-		external: number;
-		arrayBuffers: number;
-	};
-	systemMemory: {
-		total: number;
-		free: number;
-		used: number;
-	};
-	loadAverage: number[];
-	cpuUsage: {
-		avg1mPercent: number;
-		avg5mPercent: number;
-		avg15mPercent: number;
-	};
-	requestStats: {
-		totalRequests: number;
-		activeConnections: number;
-		avgResponseTime: number;
-		errorRate: number;
-	};
-}
-
-interface ServerStatus {
-	name: string;
-	port: number;
-	protocol: 'HTTP' | 'HTTPS';
-	status: 'online' | 'offline' | 'checking';
-	healthData: HealthData | null;
-	error: string | null;
-	lastChecked: Date | null;
-}
+import {
+	type DetailedServerStatus,
+	fetchDetailedHealth,
+	formatBytes,
+	formatUptime,
+} from '../services/serverHealthService';
 
 const PageContainer = styled.div`
 	max-width: 1200px;
@@ -193,152 +145,15 @@ const _ErrorMessage = styled.div`
 	margin-bottom: 1.5rem;
 `;
 
-const formatBytes = (bytes: number): string => {
-	if (bytes === 0) return '0 Bytes';
-	const k = 1024;
-	const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-	const i = Math.floor(Math.log(bytes) / Math.log(k));
-	return `${parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`;
-};
-
-const formatUptime = (seconds: number): string => {
-	const days = Math.floor(seconds / 86400);
-	const hours = Math.floor((seconds % 86400) / 3600);
-	const minutes = Math.floor((seconds % 3600) / 60);
-
-	if (days > 0) {
-		return `${days}d ${hours}h ${minutes}m`;
-	} else if (hours > 0) {
-		return `${hours}h ${minutes}m`;
-	} else {
-		return `${minutes}m`;
-	}
-};
-
-import { getBackendHealthUrl } from '../services/serverHealthService';
-
 const ApiStatusPage: React.FC = () => {
-	const [servers, setServers] = useState<ServerStatus[]>([
-		{
-			name: 'Frontend Server',
-			port: 3000,
-			protocol: 'HTTPS',
-			status: 'checking',
-			healthData: null,
-			error: null,
-			lastChecked: null,
-		},
-		{
-			name: 'Backend Server',
-			port: 3001,
-			protocol: 'HTTPS',
-			status: 'checking',
-			healthData: null,
-			error: null,
-			lastChecked: null,
-		},
-	]);
+	const [servers, setServers] = useState<DetailedServerStatus[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
 
-	const checkServerHealth = async (server: ServerStatus): Promise<ServerStatus> => {
-		const updatedServer = { ...server, status: 'checking' as const };
-
+	const fetchHealthData = useCallback(async () => {
+		setLoading(true);
 		try {
-			// Backend health URL: use VITE_BACKEND_URL in production when /api is not proxied
-			const backendHealthUrl = getBackendHealthUrl();
-			const isFrontend = server.port === 3000;
-			const url = isFrontend ? '/' : backendHealthUrl;
-
-			// Track the health check API call for display in API monitoring
-			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
-			const callId = apiCallTrackerService.trackApiCall({
-				method: 'GET',
-				url: isFrontend ? '/' : '/api/health',
-				actualPingOneUrl: isFrontend ? `${window.location.origin}/` : backendHealthUrl,
-				isProxy: !isFrontend,
-				headers: {
-					Accept: 'application/json',
-				},
-				body: null,
-				step: 'api-status-monitoring',
-				flowType: 'system',
-			});
-
-			const response = await fetch(url);
-
-			if (!response.ok) {
-				// Update with error response
-				apiCallTrackerService.updateApiCallResponse(callId, {
-					status: response.status,
-					statusText: response.statusText,
-					data: null,
-				});
-				throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-			}
-
-			// Only backend servers have health endpoint data
-			let data: HealthData | null = null;
-			if (server.port !== 3000) {
-				data = await response.json();
-			} else {
-				// For frontend, create minimal health data
-				data = {
-					status: 'ok',
-					timestamp: new Date().toISOString(),
-					version: '9.4.8',
-					versions: { app: '9.4.8', mfaV8: '9.4.8', unifiedV8u: '9.4.8' },
-					pid: 0,
-					startTime: new Date().toISOString(),
-					uptimeSeconds: 0,
-					environment: 'development',
-					node: { version: 'v22.16.0', platform: 'darwin', arch: 'arm64' },
-					memory: { rss: 0, heapTotal: 0, heapUsed: 0, external: 0, arrayBuffers: 0 },
-					systemMemory: { total: 0, free: 0, used: 0 },
-					loadAverage: [0, 0, 0],
-					cpuUsage: { avg1mPercent: 0, avg5mPercent: 0, avg15mPercent: 0 },
-					requestStats: {
-						totalRequests: 0,
-						activeConnections: 0,
-						avgResponseTime: 0,
-						errorRate: 0,
-					},
-				};
-			}
-
-			// Update with successful response
-			apiCallTrackerService.updateApiCallResponse(callId, {
-				status: response.status,
-				statusText: response.statusText,
-				data: data,
-			});
-
-			return {
-				...updatedServer,
-				status: 'online',
-				healthData: data,
-				error: null,
-				lastChecked: new Date(),
-			};
-		} catch (err) {
-			return {
-				...updatedServer,
-				status: 'offline',
-				healthData: null,
-				error: err instanceof Error ? err.message : 'Failed to fetch health data',
-				lastChecked: new Date(),
-			};
-		}
-	};
-
-	const fetchHealthData = async () => {
-		try {
-			setLoading(true);
-
-			// Check all servers in parallel
-			const serverPromises = servers.map((server) => checkServerHealth(server));
-			const updatedServers = await Promise.all(serverPromises);
-
+			const updatedServers = await fetchDetailedHealth();
 			setServers(updatedServers);
 			setLastRefresh(new Date());
 		} catch (err) {
@@ -346,11 +161,10 @@ const ApiStatusPage: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	};
+	}, []);
 
 	useEffect(() => {
 		fetchHealthData();
-		// biome-ignore lint/correctness/useExhaustiveDependencies: Only run once on mount
 	}, [fetchHealthData]);
 
 	if (loading && servers.every((s) => s.status === 'checking')) {
@@ -491,7 +305,7 @@ const ApiStatusPage: React.FC = () => {
 											<StatValue>
 												{server.healthData.requestStats.totalRequests} (
 												{server.healthData.requestStats.errorRate > 0
-													? `${(server.healthData.requestStats.errorRate * 100).toFixed(1)}% errors`
+													? `${server.healthData.requestStats.errorRate.toFixed(1)}% errors`
 													: 'no errors'}
 												)
 											</StatValue>
