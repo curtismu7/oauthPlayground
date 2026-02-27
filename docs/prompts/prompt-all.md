@@ -140,29 +140,74 @@ feat: add unified storage credential checking to Dashboard
 
 ### When to Create Changelogs
 
-**Changelog REQUIRED in `docs/updates-to-apps/`:**
+**MANDATORY: ALL changes to apps or services MUST be documented in `docs/updates-to-apps/`**
 
-- **feat** (new features) - Always document new functionality
-- **fix** (bug fixes) - If the fix changes user-facing behavior or resolves a critical issue
-- **refactor** (code restructuring) - If it changes how services are consumed or affects multiple apps
-- **Breaking changes** - Always document with migration guide
+Create comprehensive local documentation for EVERY commit that modifies code files, regardless of change type. This is required for:
+- Historical tracking of all changes per app/service
+- Understanding evolution of codebase over time
+- Debugging when things break
+- Onboarding new developers
 
-**Changelog OPTIONAL (commit message is sufficient):**
+**Documentation Location:** `docs/updates-to-apps/{descriptive-name}-{YYYY-MM-DD}.md`
 
-- **style** (formatting, linting) - Pure code style changes with no functional impact
-- **docs** (documentation) - Updates to existing docs
-- **test** (tests) - Adding or updating tests
-- **chore** (maintenance) - Dependency updates, config changes
-- **fix** (trivial bugs) - Removing unused imports/variables, fixing typos
+**Documentation Depth by Change Type:**
 
-**When in doubt:**
-- If the change could affect how developers use the app/service → Create changelog
-- If the change only affects code quality/maintainability → Commit message is enough
+**COMPREHENSIVE (full before/after, testing, rollback):**
+- **feat** (new features) - Full changelog with examples, testing, migration
+- **fix** (critical bugs) - Security, data loss, crashes → Full documentation
+- **fix** (user-facing bugs) - UI glitches, incorrect behavior → Full documentation
+- **refactor** (multi-app impact) - Changes affecting multiple apps/services
+- **Breaking changes** - Always include migration guide
 
-**Bug fix documentation guideline:**
-Critical bug fixes (security, data loss, crashes) → Always create changelog
-User-facing bug fixes (UI glitches, incorrect behavior) → Create changelog
-Code quality bug fixes (hook dependencies, unused code) → Commit message only
+**DETAILED (what changed, why, which files):**
+- **fix** (code quality) - Hook dependencies, unused imports, TypeScript errors
+- **style** (formatting) - Biome/prettier runs affecting multiple files
+- **refactor** (single app) - Restructuring within one app
+- **chore** (significant) - Major dependency updates, config changes
+
+**BRIEF (summary, files changed):**
+- **test** - Adding/updating test files
+- **docs** - Documentation-only updates
+- **chore** (minor) - Single dependency bump, trivial config
+
+**Required in ALL changelogs:**
+1. Commit hash reference
+2. List of ALL files modified
+3. What changed (before/after for code changes)
+4. Why it changed
+5. Testing verification (when applicable)
+6. Rollback plan (for non-trivial changes)
+
+**Example documentation structure:**
+```markdown
+# [Descriptive Title] — [Date]
+
+Commit: [hash]
+Type: [feat|fix|refactor|style|etc]
+
+## Summary
+What changed and why.
+
+## Files Modified
+- src/path/to/file.tsx - [description]
+- src/path/to/other.tsx - [description]
+
+## Changes
+### File 1
+**Before:** [code or description]
+**After:** [code or description]
+**Why:** [rationale]
+
+## Testing
+- [verification steps]
+
+## Rollback
+git revert [hash]
+```
+
+**Rule of thumb:** 
+- Can future you understand what changed and why just from the changelog? → Good
+- Would you need to read git diffs to understand the change? → Add more detail
 
 ---
 
