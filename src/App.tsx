@@ -237,6 +237,7 @@ import { MFAFeatureFlagsAdminV8 } from './v8/pages/MFAFeatureFlagsAdminV8';
 import { MobileRegistrationDocsPageV8 } from './v8/pages/MobileRegistrationDocsPageV8';
 import UnifiedCredentialsMockupV8 from './v8/pages/UnifiedCredentialsMockupV8';
 import { isPopoutWindow } from './v8/utils/debugLogViewerPopoutHelperV8';
+import { isWebhookPopout } from './v8/utils/webhookViewerPopoutHelper';
 import V8MTokenExchange from './v8m/pages/V8MTokenExchange';
 import CallbackHandlerV8U from './v8u/components/CallbackHandlerV8U';
 import UnifiedFlowErrorBoundary from './v8u/components/UnifiedFlowErrorBoundary';
@@ -561,10 +562,16 @@ const AppRoutes: React.FC = () => {
 			<GlobalErrorDisplay />
 			<RouteRestorer />
 			{isPopoutWindow() ? (
-				// Popout window - render without layout
+				// Debug log viewer popout - render without layout
 				<Routes>
 					<Route path="/v8/debug-logs-popout" element={<DebugLogViewerPopoutV8 />} />
 					<Route path="*" element={<Navigate to="/v8/debug-logs-popout" replace />} />
+				</Routes>
+			) : isWebhookPopout() ? (
+				// Webhook viewer popout - render without layout
+				<Routes>
+					<Route path="/pingone-webhook-viewer-popout" element={<PingOneWebhookViewer />} />
+					<Route path="*" element={<Navigate to="/pingone-webhook-viewer-popout" replace />} />
 				</Routes>
 			) : (
 				// Main app - render with full layout
