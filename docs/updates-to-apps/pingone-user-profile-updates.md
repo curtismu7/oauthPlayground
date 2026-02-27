@@ -418,3 +418,48 @@ Next pages to migrate:
 **Commit:** TBD  
 **Documented by:** Curtis Muir  
 **Last updated:** 2026-02-27
+---
+
+## Update 2 — Selector Layout Expansion
+
+**Commit:** `078e19e7c`  
+**Date:** 2026-02-27  
+**Type:** fix (UI layout — no functional changes)
+
+### Problem
+
+The initial "Select User to View Profile" state rendered a narrow 600px card floating in a largely empty 1400px-wide `MainContent` container, making the page look broken/incomplete.
+
+### Changes
+
+**File:** `src/pages/PingOneUserProfile.tsx`
+
+1. **`UserSelectorCard`** — `max-width: 600px` → `max-width: 860px` (45% wider)
+
+2. **Added `SelectorPageHeader` styled component** — matches the red header used on the full profile view:
+   - Red background (`#dc2626`), `FiUser` icon (36px), white title + subtitle
+   - Same 860px max-width as the card, displayed above it
+   - Renders outside the card: `<SelectorPageHeader>` + `<UserSelectorCard>` as siblings inside `<PageContainer>`
+
+3. **Checkboxes** — changed from `flexDirection: 'column'` → `flexDirection: 'row'` with `flexWrap: 'wrap'`
+   - Silent API Token Retrieval and Show Token After Generation now sit side by side
+
+### Before / After
+
+**Before:** Narrow 600px card → `<h2>Select User to View Profile</h2>` inside card  
+**After:** Full-width red page header outside card + 860px card (no h2 inside card)
+
+### Verification
+
+```
+npx eslint src/pages/PingOneUserProfile.tsx
+→ 0 errors (1 pre-existing _savedWorkerCredentials warning)
+```
+
+### Rollback
+
+```
+git revert 078e19e7c
+```
+
+No functional impact — layout only.
