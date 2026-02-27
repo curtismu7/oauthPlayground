@@ -138,6 +138,32 @@ feat: add unified storage credential checking to Dashboard
 - Fixes "Configuration Missing" when creds stored in unified storage
 ```
 
+### When to Create Changelogs
+
+**Changelog REQUIRED in `docs/updates-to-apps/`:**
+
+- **feat** (new features) - Always document new functionality
+- **fix** (bug fixes) - If the fix changes user-facing behavior or resolves a critical issue
+- **refactor** (code restructuring) - If it changes how services are consumed or affects multiple apps
+- **Breaking changes** - Always document with migration guide
+
+**Changelog OPTIONAL (commit message is sufficient):**
+
+- **style** (formatting, linting) - Pure code style changes with no functional impact
+- **docs** (documentation) - Updates to existing docs
+- **test** (tests) - Adding or updating tests
+- **chore** (maintenance) - Dependency updates, config changes
+- **fix** (trivial bugs) - Removing unused imports/variables, fixing typos
+
+**When in doubt:**
+- If the change could affect how developers use the app/service → Create changelog
+- If the change only affects code quality/maintainability → Commit message is enough
+
+**Bug fix documentation guideline:**
+Critical bug fixes (security, data loss, crashes) → Always create changelog
+User-facing bug fixes (UI glitches, incorrect behavior) → Create changelog
+Code quality bug fixes (hook dependencies, unused code) → Commit message only
+
 ---
 
 ## STORAGE POLICY (CONFIG & UI PERSISTENCE)
