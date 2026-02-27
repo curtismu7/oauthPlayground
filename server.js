@@ -17043,15 +17043,16 @@ app.get('/api/tokens/query', async (req, res) => {
 	try {
 		const { type, source } = req.query;
 
-		console.log('[Token Query] Querying tokens:', { type, source });
+		// Only log when DEBUG_TOKEN_QUERY is set — endpoint is polled frequently
+		if (process.env.DEBUG_TOKEN_QUERY) {
+			console.log('[Token Query] Querying tokens:', source ? { type, source } : { type });
+		}
 
-		// For now, return empty response - this endpoint is used by unified token storage
-		// In a full implementation, this would query the SQLite database
 		res.json({
 			tokens: [],
 			count: 0,
 			type: type || 'all',
-			source: source || 'all',
+			...(source ? { source } : {}),
 		});
 	} catch (error) {
 		console.error('[Token Query] Failed to query tokens:', error);
