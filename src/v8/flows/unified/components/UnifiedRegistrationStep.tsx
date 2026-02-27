@@ -104,7 +104,7 @@ export interface UnifiedRegistrationStepProps extends MFAFlowBaseRenderProps {
 export const UnifiedRegistrationStep: React.FC<UnifiedRegistrationStepProps> = ({
 	credentials,
 	setCredentials,
-	mfaState,
+	mfaState: _mfaState,
 	setMfaState,
 	tokenStatus,
 	isLoading,
@@ -121,7 +121,7 @@ export const UnifiedRegistrationStep: React.FC<UnifiedRegistrationStepProps> = (
 	console.log(`${MODULE_TAG} Rendering registration step for:`, config.deviceType);
 
 	// State for registration result
-	const [_registrationResult, setRegistrationResult] = useState<any>(null);
+	const [_registrationResult, setRegistrationResult] = useState<unknown>(null);
 	const [registrationError, setRegistrationError] = useState<string | null>(null);
 
 	// Check if form is valid for registration
