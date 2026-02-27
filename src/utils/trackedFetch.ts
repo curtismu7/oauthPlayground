@@ -1,7 +1,33 @@
 // src/utils/trackedFetch.ts
-// Wrapper around fetch to automatically track API calls
+// Wrapper around fetch to automatically track API calls.
+// When calling PingOne direct (custom domain), also reports the call to the backend for pingone-api.log.
 
 import { type ApiCall, apiCallTrackerService } from '../services/apiCallTrackerService';
+
+/** True if url is a direct PingOne URL (not our proxy). */
+function isDirectPingOneUrl(url: string): boolean {
+	return (
+		(url.includes('pingone.com') ||
+			url.includes('pingone.eu') ||
+			url.includes('pingone.asia') ||
+			url.includes('pingone.ca')) &&
+		!url.startsWith('/api/')
+	);
+}
+
+/** Derive a short operation name from the PingOne URL path for logging. */
+function operationNameFromUrl(url: string): string {
+	try {
+		const path = new URL(url).pathname;
+		const segments = path.split('/').filter(Boolean);
+		if (segments.length >= 2) {
+			return `${segments[0]}/${segments[1]}`;
+		}
+		return path || 'Direct PingOne Call';
+	} catch {
+		return 'Direct PingOne Call';
+	}
+}
 
 /**
  * Extended RequestInit with optional actualPingOneUrl for tracking
@@ -163,6 +189,22 @@ export async function trackedFetch(
 		}
 		apiCallTrackerService.updateApiCallResponse(callId, responseData_obj, duration);
 
+		// When calling PingOne direct (custom domain), report to backend for pingone-api.log
+		if (isDirectPingOneUrl(url)) {
+			logDirectCallToBackend({
+				operationName: operationNameFromUrl(url),
+				url,
+				method,
+				headers,
+				body,
+				status: response.status,
+				statusText: response.statusText,
+				responseHeaders,
+				responseData,
+				duration,
+			});
+		}
+
 		return response;
 	} catch (error) {
 		const duration = Date.now() - startTime;
@@ -178,6 +220,44 @@ export async function trackedFetch(
 			duration
 		);
 
+		// Log direct call failure to backend for pingone-api.log
+		if (isDirectPingOneUrl(url)) {
+			logDirectCallToBackend({
+				operationName: operationNameFromUrl(url),
+				url,
+				method,
+				headers,
+				body,
+				status: 0,
+				statusText: 'Network Error',
+				responseData: { error: error instanceof Error ? error.message : 'Unknown error' },
+				duration,
+			});
+		}
+
 		throw error;
 	}
+}
+
+/** Fire-and-forget: report a direct PingOne call to the backend so it can write to pingone-api.log. */
+function logDirectCallToBackend(payload: {
+	operationName: string;
+	url: string;
+	method: string;
+	headers?: Record<string, string>;
+	body?: string | object | null;
+	status: number;
+	statusText: string;
+	responseHeaders?: Record<string, string>;
+	responseData?: unknown;
+	duration: number;
+}): void {
+	fetch('/api/pingone/log-call', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify(payload),
+		credentials: 'same-origin',
+	}).catch(() => {
+		// Ignore; backend may be down when using direct calls
+	});
 }

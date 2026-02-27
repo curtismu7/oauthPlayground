@@ -4485,7 +4485,8 @@ app.post('/api/mfa/challenge/initiate', async (req, res) =>
 )
 
 // JWKS Endpoint (proxy to PingOne)
-app.get('/api/jwks', async (req, res) => {
+app.get('/api/jwks', async (req, res) =>
+{
 	try {
 		const { environment_id } = req.query;
 
@@ -4531,10 +4532,12 @@ app.get('/api/jwks', async (req, res) => {
 			error_description: 'Internal server error during JWKS fetch',
 		});
 	}
-});
+}
+)
 
 // Device Registration Endpoint (proxy to PingOne)
-app.post('/api/device/register', async (req, res) => {
+app.post('/api/device/register', async (req, res) =>
+{
 	try {
 		const {
 			environmentId,
@@ -4628,10 +4631,12 @@ app.post('/api/device/register', async (req, res) => {
 			details: error.message,
 		});
 	}
-});
+}
+)
 
 // Network connectivity check endpoint
-app.get('/api/network/check', async (_req, res) => {
+app.get('/api/network/check', async (_req, res) =>
+{
 	try {
 		console.log(`[Network Check] Testing connectivity to PingOne...`);
 
@@ -4670,10 +4675,12 @@ app.get('/api/network/check', async (_req, res) => {
 			timestamp: new Date().toISOString(),
 		});
 	}
-});
+}
+)
 
 // PingOne Redirectless Authorization Endpoint (for starting redirectless authentication)
-app.post('/api/pingone/redirectless/authorize', async (req, res) => {
+app.post('/api/pingone/redirectless/authorize', async (req, res) =>
+{
 	try {
 		console.log(`[PingOne Redirectless] Received request body:`, JSON.stringify(req.body, null, 2));
 
@@ -5019,10 +5026,12 @@ app.post('/api/pingone/redirectless/authorize', async (req, res) => {
 			},
 		});
 	}
-});
+}
+)
 
 // PingOne Redirectless Poll Endpoint (for polling redirectless authentication status)
-app.post('/api/pingone/redirectless/poll', async (req, res) => {
+app.post('/api/pingone/redirectless/poll', async (req, res) =>
+{
 	try {
 		const { resumeUrl } = req.body;
 
@@ -5075,10 +5084,12 @@ app.post('/api/pingone/redirectless/poll', async (req, res) => {
 			details: error.message,
 		});
 	}
-});
+}
+)
 
 // PingOne Resume URL Endpoint (for completing redirectless authentication)
-app.post('/api/pingone/resume', async (req, res) => {
+app.post('/api/pingone/resume', async (req, res) =>
+{
 	try {
 		console.log(`[PingOne Resume] Received request body:`, JSON.stringify(req.body, null, 2));
 
@@ -5594,7 +5605,8 @@ app.post('/api/pingone/resume', async (req, res) => {
 			details: error.message,
 		});
 	}
-});
+}
+)
 
 // ============================================================================
 // OIDC Discovery Proxy Endpoint
@@ -11758,7 +11770,8 @@ app.post('/api/pingone/mfa/resend-pairing-code', async (req, res) =>
 // Use MfaAuthenticationServiceV8.validateOTP() which correctly uses auth.pingone.com/{envId}/deviceAuthentications/{authId}
 // with Content-Type: application/vnd.pingidentity.otp.check+json
 // This endpoint is kept for backwards compatibility but should not be used
-app.post('/api/pingone/mfa/validate-otp', async (req, res) => {
+app.post('/api/pingone/mfa/validate-otp', async (req, res) =>
+{
 	try {
 		const { environmentId, userId, deviceId, otp, workerToken } = req.body;
 
@@ -11842,12 +11855,14 @@ app.post('/api/pingone/mfa/validate-otp', async (req, res) => {
 		console.error('[MFA Validate OTP] Error:', error);
 		res.status(500).json({ error: 'Failed to validate OTP', message: error.message });
 	}
-});
+}
+)
 
 // Validate OTP for Device Authentication (MFA v1 API)
 // POST {authPath}/{environmentId}/deviceAuthentications/{deviceAuthId}/otp
 // API Reference: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-validate-otp-for-device
-app.post('/api/pingone/mfa/validate-otp-for-device', async (req, res) => {
+app.post('/api/pingone/mfa/validate-otp-for-device', async (req, res) =>
+{
 	try {
 		const {
 			environmentId,
@@ -12007,10 +12022,12 @@ app.post('/api/pingone/mfa/validate-otp-for-device', async (req, res) => {
 			message: error instanceof Error ? error.message : String(error),
 		});
 	}
-});
+}
+)
 
 // Read Device Authentication Status
-app.get('/api/pingone/mfa/read-device-authentication', async (req, res) => {
+app.get('/api/pingone/mfa/read-device-authentication', async (req, res) =>
+{
 	try {
 		const { environmentId, userId, authenticationId, workerToken } = req.query;
 
@@ -12111,10 +12128,12 @@ app.get('/api/pingone/mfa/read-device-authentication', async (req, res) => {
 		console.error('[MFA Read Device Auth] Error:', error);
 		res.status(500).json({ error: 'Failed to read device authentication', message: error.message });
 	}
-});
+}
+)
 
 // Activate FIDO2 Device
-app.post('/api/pingone/mfa/activate-fido2-device', async (req, res) => {
+app.post('/api/pingone/mfa/activate-fido2-device', async (req, res) =>
+{
 	const requestStartTime = Date.now();
 	logOperationMarker('Activate FIDO2 Device', 'START', {
 		endpoint: '/api/pingone/mfa/activate-fido2-device',
@@ -12966,12 +12985,14 @@ app.post('/api/pingone/mfa/activate-fido2-device', async (req, res) => {
 
 		res.status(500).json({ error: 'Failed to activate FIDO2 device', message: error.message });
 	}
-});
+}
+)
 
 // Check Assertion (FIDO Device)
 // POST {{authPath}}/{{envID}}/deviceAuthentications/{{deviceAuthID}}
 // Content-Type: application/vnd.pingidentity.assertion.check+json
-app.post('/api/pingone/mfa/check-fido2-assertion', async (req, res) => {
+app.post('/api/pingone/mfa/check-fido2-assertion', async (req, res) =>
+{
 	try {
 		const { deviceAuthId, assertion: assertionRaw } = req.body;
 
@@ -13331,14 +13352,16 @@ app.post('/api/pingone/mfa/check-fido2-assertion', async (req, res) => {
 			message: error.message,
 		});
 	}
-});
+}
+)
 
 // Activate TOTP Device
 // According to totp.md section 1.4:
 // POST {{apiPath}}/environments/{{envID}}/users/{{userID}}/devices/{{deviceID}}
 // Content-Type: application/vnd.pingidentity.device.activate+json
 // Body: { "otp": "123456" }
-app.post('/api/pingone/mfa/activate-totp-device', async (req, res) => {
+app.post('/api/pingone/mfa/activate-totp-device', async (req, res) =>
+{
 	try {
 		const { environmentId, userId, deviceId, workerToken, otp } = req.body;
 
@@ -13446,7 +13469,8 @@ app.post('/api/pingone/mfa/activate-totp-device', async (req, res) => {
 			message: error.message,
 		});
 	}
-});
+}
+)
 
 // Activate SMS/EMAIL Device with OTP
 // Per rightOTP.md: Use the exact activation URI returned by PingOne if provided

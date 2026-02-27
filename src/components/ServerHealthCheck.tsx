@@ -142,6 +142,49 @@ const DismissButton = styled.button`
   }
 `;
 
+const ModalBackdrop = styled.div`
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+`;
+
+const ModalDialog = styled.div`
+  background: #fff;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  max-width: 420px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e5e7eb;
+`;
+
+const ModalTitle = styled.h2`
+  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
+const ModalBody = styled.p`
+  margin: 0 0 1rem 0;
+  font-size: 0.875rem;
+  color: #374151;
+  line-height: 1.5;
+`;
+
+const ModalActions = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+`;
+
 interface ServerHealthCheckProps {
 	onDismiss?: () => void;
 }
@@ -229,8 +272,8 @@ const ServerHealthCheck: React.FC<ServerHealthCheckProps> = ({ onDismiss }) => {
 			case 'offline':
 				return {
 					icon: <FiWifiOff />,
-					title: 'Backend Server Offline',
-					message: `Backend server is not responding. ${retryCount > 0 ? `(${retryCount} failed attempts)` : ''} Please start the backend server with: node server.js`,
+					title: 'Server is not running',
+					message: `The backend server is not responding. Start it with \`./run.sh\` from the project root to use logs, custom domain, and other API features.${retryCount > 0 ? ` (${retryCount} failed attempts)` : ''}`,
 				};
 			default:
 				return {
@@ -242,6 +285,30 @@ const ServerHealthCheck: React.FC<ServerHealthCheckProps> = ({ onDismiss }) => {
 	};
 
 	const statusInfo = getStatusInfo();
+
+	// When server is offline, show a modal so the user clearly sees "Server is not running"
+	if (status === 'offline') {
+		return (
+			<ModalBackdrop role="alertdialog" aria-modal="true" aria-labelledby="server-offline-title">
+				<ModalDialog>
+					<ModalTitle id="server-offline-title">
+						<HealthIcon $status="offline">{statusInfo.icon}</HealthIcon>
+						{statusInfo.title}
+					</ModalTitle>
+					<ModalBody>{statusInfo.message}</ModalBody>
+					<ModalActions>
+						<HealthButton type="button" onClick={handleRetry}>
+							<FiRefreshCw />
+							Retry
+						</HealthButton>
+						<DismissButton type="button" onClick={handleDismiss}>
+							Dismiss
+						</DismissButton>
+					</ModalActions>
+				</ModalDialog>
+			</ModalBackdrop>
+		);
+	}
 
 	return (
 		<HealthCheckContainer>
@@ -257,11 +324,15 @@ const ServerHealthCheck: React.FC<ServerHealthCheckProps> = ({ onDismiss }) => {
 					</HealthMessage>
 				)}
 				<HealthActions>
-					<HealthButton onClick={handleRetry} disabled={status === 'checking'}>
+					<HealthButton type="button" onClick={handleRetry} disabled={status === 'checking'}>
 						<FiRefreshCw />
 						Retry
 					</HealthButton>
-					{status === 'online' && <DismissButton onClick={handleDismiss}>Dismiss</DismissButton>}
+					{status === 'online' && (
+						<DismissButton type="button" onClick={handleDismiss}>
+							Dismiss
+						</DismissButton>
+					)}
 				</HealthActions>
 			</HealthCard>
 		</HealthCheckContainer>

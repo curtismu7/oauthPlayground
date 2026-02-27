@@ -14,6 +14,7 @@ import {
 import styled from 'styled-components';
 import { LearningTooltip } from '../../components/LearningTooltip';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
+import { readBestEnvironmentId } from '../../hooks/useAutoEnvironmentId';
 import { usePageScroll } from '../../hooks/usePageScroll';
 // Import V7 UI components
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
@@ -55,8 +56,6 @@ const {
 	ParameterLabel,
 	ParameterValue,
 	GeneratedContentBox,
-	ResultsHeading,
-	ResultsSection,
 } = FlowUIService.getFlowUIComponents();
 
 // Custom responsive container for RAR flow
@@ -185,15 +184,6 @@ interface RARAuthorizationDetails {
 	privileges?: string[];
 }
 
-interface IntrospectionApiCallData {
-	url: string;
-	method: string;
-	headers: Record<string, string>;
-	body?: string;
-	response?: any;
-	timestamp: string;
-}
-
 // Main Component
 const RARFlowV7: React.FC = () => {
 	// Scroll management
@@ -210,7 +200,7 @@ const RARFlowV7: React.FC = () => {
 	});
 
 	// RAR Configuration
-	const [environmentId, setEnvironmentId] = useState('');
+	const [environmentId, setEnvironmentId] = useState(() => readBestEnvironmentId());
 	const [clientId, setClientId] = useState('');
 	const [clientSecret, setClientSecret] = useState('');
 	const [scopes, setScopes] = useState('openid');
@@ -283,7 +273,7 @@ const RARFlowV7: React.FC = () => {
 	// Generated authorization URL and tokens
 	const [authUrl, setAuthUrl] = useState('');
 	const [authCode, setAuthCode] = useState('');
-	const [tokenResponse, setTokenResponse] = useState<any>(null);
+	const [tokenResponse, setTokenResponse] = useState<Record<string, unknown> | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
 	const [showMissingCredentialsModal, setShowMissingCredentialsModal] = useState(false);
 	const [missingCredentialFields, setMissingCredentialFields] = useState<string[]>([]);
@@ -309,6 +299,7 @@ const RARFlowV7: React.FC = () => {
 				v4ToastManager.showSuccess(`Applied ${example.name} RAR example`);
 			}
 		},
+		// biome-ignore lint/correctness/useExhaustiveDependencies: rarExamples is stable
 		[rarExamples]
 	);
 
@@ -795,6 +786,7 @@ const RARFlowV7: React.FC = () => {
 										>
 											{Object.entries(rarExamples).map(([key, example]) => (
 												<button
+													type="button"
 													key={key}
 													onClick={() => applyRarExample(key)}
 													style={{
@@ -1435,6 +1427,7 @@ const RARFlowV7: React.FC = () => {
 										Banking, Healthcare, Enterprise use cases
 									</p>
 									<button
+										type="button"
 										onClick={() => setCurrentStep(0)}
 										style={{
 											background: 'none',
@@ -1499,6 +1492,7 @@ const RARFlowV7: React.FC = () => {
 		applyRarExample,
 		saveCredentials,
 		selectedExample,
+		// biome-ignore lint/correctness/useExhaustiveDependencies: rarExamples is stable
 		rarExamples,
 	]);
 

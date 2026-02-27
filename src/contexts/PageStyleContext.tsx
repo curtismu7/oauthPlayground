@@ -90,7 +90,7 @@ const pageStyles: Record<string, PageStyle> = {
 		titleTextColor: '#ffffff',
 		accentColor: '#9a3412',
 	},
-	'/advanced-config': {
+	'/advanced-configuration': {
 		titleBackgroundColor: '#374151',
 		titleTextColor: '#ffffff',
 		accentColor: '#1f2937',
