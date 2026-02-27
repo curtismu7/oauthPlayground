@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
+	FiArrowLeft,
 	FiCheckCircle,
 	FiCopy,
 	FiEdit,
@@ -236,6 +238,33 @@ const CopyButton = styled.button`
   }
 `;
 
+const BackButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background-color: #6b7280;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    background-color: #4b5563;
+    transform: translateX(-2px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  }
+
+  &:active {
+    transform: translateX(0);
+  }
+`;
+
 const InfoBox = styled.div<{ $type?: 'info' | 'warning' | 'success' }>`
   padding: 1rem;
   border-radius: 0.5rem;
@@ -296,7 +325,32 @@ const _CredentialStatus = styled.div<{ $status: 'complete' | 'partial' | 'missin
 	}}
 `;
 
+// Standard OpenID Connect claims - defined outside component to avoid re-creating on every render
+const STANDARD_CLAIMS = [
+	'sub',
+	'name',
+	'given_name',
+	'family_name',
+	'middle_name',
+	'nickname',
+	'preferred_username',
+	'profile',
+	'picture',
+	'website',
+	'email',
+	'email_verified',
+	'gender',
+	'birthdate',
+	'zoneinfo',
+	'locale',
+	'phone_number',
+	'phone_number_verified',
+	'address',
+	'updated_at',
+];
+
 const AdvancedConfiguration = () => {
+	const navigate = useNavigate();
 	usePageScroll({ pageName: 'Advanced Configuration', force: true });
 
 	// Use V6 pageLayoutService for consistent dimensions and FlowHeader integration
@@ -353,30 +407,6 @@ const AdvancedConfiguration = () => {
 	const [saved, setSaved] = useState(false);
 	const [copiedText, setCopiedText] = useState<string>('');
 
-	// Standard OpenID Connect claims
-	const standardClaims = [
-		'sub',
-		'name',
-		'given_name',
-		'family_name',
-		'middle_name',
-		'nickname',
-		'preferred_username',
-		'profile',
-		'picture',
-		'website',
-		'email',
-		'email_verified',
-		'gender',
-		'birthdate',
-		'zoneinfo',
-		'locale',
-		'phone_number',
-		'phone_number_verified',
-		'address',
-		'updated_at',
-	];
-
 	// Generate the configuration object for the JSON editor
 	const configurationObject = useMemo(() => {
 		const allScopes = [
@@ -384,7 +414,7 @@ const AdvancedConfiguration = () => {
 			...customScopes.filter((scope) => scope.trim() !== ''),
 		];
 
-		const allClaims = [...standardClaims, ...customClaims.filter((claim) => claim.trim() !== '')];
+		const allClaims = [...STANDARD_CLAIMS, ...customClaims.filter((claim) => claim.trim() !== '')];
 
 		return {
 			oauth: {
@@ -401,7 +431,7 @@ const AdvancedConfiguration = () => {
 				version: '1.0.0',
 			},
 		};
-	}, [selectedScopes, customScopes, customClaims, standardClaims]);
+	}, [selectedScopes, customScopes, customClaims]);
 
 	// Define scope colors for the JSON editor
 	const scopeColors = {
@@ -577,6 +607,11 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 			<ContentWrapper>
 				{LayoutFlowHeader && <LayoutFlowHeader />}
 
+				<BackButton onClick={() => navigate('/')} aria-label="Back to Dashboard">
+					<FiArrowLeft />
+					Back to Dashboard
+				</BackButton>
+
 				{/* PingOne Defaults Configuration */}
 				<CollapsibleHeader
 					title="PingOne Default Settings"
@@ -599,6 +634,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 						{/* Environment ID Input */}
 						<div style={{ marginBottom: '1.5rem' }}>
 							<label
+								htmlFor="environment-id-input"
 								style={{
 									display: 'block',
 									fontWeight: '600',
@@ -609,6 +645,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 								Environment ID
 							</label>
 							<input
+								id="environment-id-input"
 								type="text"
 								value={environmentId}
 								onChange={(e) => setEnvironmentId(e.target.value)}
@@ -630,6 +667,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 						{/* Redirect URI Input */}
 						<div style={{ marginBottom: '1.5rem' }}>
 							<label
+								htmlFor="redirect-uri-input"
 								style={{
 									display: 'block',
 									fontWeight: '600',
@@ -640,6 +678,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 								Default Redirect URI
 							</label>
 							<input
+								id="redirect-uri-input"
 								type="text"
 								value={redirectUri}
 								onChange={(e) => setRedirectUri(e.target.value)}
@@ -660,8 +699,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 
 						{/* Save Button */}
 						<div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
-							<button
-								onClick={() => {
+							<button							type="button"								onClick={() => {
 									// Save defaults
 									const scopes = Array.from(selectedScopes)
 										.concat(customScopes.filter((s) => s.trim()))
@@ -958,8 +996,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 										<FiSave />
 										{saved ? 'Configuration Saved!' : 'Save Configuration'}
 									</SaveButton>
-									<button
-										onClick={resetToDefaults}
+									<button									type="button"										onClick={resetToDefaults}
 										style={{
 											display: 'flex',
 											alignItems: 'center',
