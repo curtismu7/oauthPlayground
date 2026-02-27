@@ -30,6 +30,7 @@ import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import { secureLog } from '../utils/secureLogging';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { getAnyWorkerToken } from '../utils/workerTokenDetection';
+import { SuperSimpleApiDisplayV8 } from '../v8/components/SuperSimpleApiDisplayV8';
 
 // Container - responsive and accounts for sidebar
 const Container = styled.div`
@@ -427,11 +428,23 @@ interface WebhookSubscription {
 	id: string;
 	name: string;
 	enabled: boolean;
-	destination: {
+	/** PingOne API field */
+	httpEndpoint?: {
+		url: string;
+		headers?: Record<string, string>;
+	};
+	/** Legacy compat — some responses may still have this */
+	destination?: {
 		url: string;
 	};
 	format?: string;
+	filterOptions?: {
+		includedActionTypes?: string[];
+	};
+	/** Legacy compat */
 	topics?: string[];
+	protocol?: string;
+	verifyTlsCertificates?: boolean;
 	createdAt?: string;
 	updatedAt?: string;
 }
@@ -458,9 +471,10 @@ const PingOneWebhookViewer: React.FC = () => {
 	const [formData, setFormData] = useState({
 		name: 'PingOne Webhook Viewer',
 		enabled: true,
-		destination: 'https://oauth-playground-pi.vercel.app/api/webhooks/pingone',
+		httpEndpointUrl: `${window.location.origin}/api/webhooks/pingone`,
 		format: 'ACTIVITY',
-		topics: '',
+		includedActionTypes: 'AUTHENTICATION.LOGIN.SUCCESS,USER.PROVISIONED.CREATED,USER.PROVISIONED.UPDATED,USER.PROVISIONED.DELETED',
+		verifyTlsCertificates: false,
 	});
 
 	// Ensure URL is correct when component mounts
@@ -890,14 +904,19 @@ const PingOneWebhookViewer: React.FC = () => {
 			const subscriptionData = {
 				name: formData.name,
 				enabled: formData.enabled,
-				destination: {
-					url: formData.destination,
-				},
+				protocol: 'HTTPS',
 				format: formData.format,
-				topics: formData.topics
-					.split(',')
-					.map((t) => t.trim())
-					.filter(Boolean),
+				httpEndpoint: {
+					url: formData.httpEndpointUrl,
+					headers: {},
+				},
+				filterOptions: {
+					includedActionTypes: formData.includedActionTypes
+						.split(',')
+						.map((t) => t.trim())
+						.filter(Boolean),
+				},
+				verifyTlsCertificates: formData.verifyTlsCertificates,
 			};
 
 			const url = `/api/pingone/subscriptions?environmentId=${encodeURIComponent(environmentId)}&workerToken=${encodeURIComponent(effectiveWorkerToken)}&region=na`;
@@ -939,7 +958,7 @@ const PingOneWebhookViewer: React.FC = () => {
 
 			v4ToastManager.showSuccess('Webhook subscription created successfully');
 			setShowCreateModal(false);
-			setFormData({ name: '', enabled: true, destination: '', format: 'ACTIVITY', topics: '' });
+			setFormData({ name: '', enabled: true, httpEndpointUrl: '', format: 'ACTIVITY', includedActionTypes: '', verifyTlsCertificates: false });
 			await fetchSubscriptions();
 		} catch (error) {
 			console.error('[Webhook Viewer] Error creating subscription:', error);
@@ -966,14 +985,19 @@ const PingOneWebhookViewer: React.FC = () => {
 				const subscriptionData = {
 					name: formData.name,
 					enabled: formData.enabled,
-					destination: {
-						url: formData.destination,
-					},
+					protocol: 'HTTPS',
 					format: formData.format,
-					topics: formData.topics
-						.split(',')
-						.map((t) => t.trim())
-						.filter(Boolean),
+					httpEndpoint: {
+						url: formData.httpEndpointUrl,
+						headers: {},
+					},
+					filterOptions: {
+						includedActionTypes: formData.includedActionTypes
+							.split(',')
+							.map((t) => t.trim())
+							.filter(Boolean),
+					},
+					verifyTlsCertificates: formData.verifyTlsCertificates,
 				};
 
 				const url = `/api/pingone/subscriptions/${subscription.id}?environmentId=${encodeURIComponent(environmentId)}&workerToken=${encodeURIComponent(effectiveWorkerToken)}&region=na`;
@@ -1015,7 +1039,7 @@ const PingOneWebhookViewer: React.FC = () => {
 
 				v4ToastManager.showSuccess('Webhook subscription updated successfully');
 				setEditingSubscription(null);
-				setFormData({ name: '', enabled: true, destination: '', format: 'ACTIVITY', topics: '' });
+				setFormData({ name: '', enabled: true, httpEndpointUrl: '', format: 'ACTIVITY', includedActionTypes: '', verifyTlsCertificates: false });
 				await fetchSubscriptions();
 			} catch (error) {
 				console.error('[Webhook Viewer] Error updating subscription:', error);
@@ -1093,9 +1117,14 @@ const PingOneWebhookViewer: React.FC = () => {
 		setFormData({
 			name: subscription.name,
 			enabled: subscription.enabled,
-			destination: subscription.destination?.url || '',
+			httpEndpointUrl: subscription.httpEndpoint?.url || subscription.destination?.url || '',
 			format: subscription.format || 'ACTIVITY',
-			topics: subscription.topics?.join(', ') || '',
+			includedActionTypes: (
+				subscription.filterOptions?.includedActionTypes ||
+				subscription.topics ||
+				[]
+			).join(', '),
+			verifyTlsCertificates: subscription.verifyTlsCertificates ?? false,
 		});
 		setShowCreateModal(true);
 	}, []);
@@ -1103,7 +1132,7 @@ const PingOneWebhookViewer: React.FC = () => {
 	const handleCancelEdit = useCallback(() => {
 		setEditingSubscription(null);
 		setShowCreateModal(false);
-		setFormData({ name: '', enabled: true, destination: '', format: 'ACTIVITY', topics: '' });
+		setFormData({ name: '', enabled: true, httpEndpointUrl: '', format: 'ACTIVITY', includedActionTypes: '', verifyTlsCertificates: false });
 	}, []);
 
 	// Get unique event types from webhooks
@@ -1308,9 +1337,10 @@ const PingOneWebhookViewer: React.FC = () => {
 										setFormData({
 											name: '',
 											enabled: true,
-											destination: '',
+											httpEndpointUrl: `${window.location.origin}/api/webhooks/pingone`,
 											format: 'ACTIVITY',
-											topics: '',
+											includedActionTypes: 'AUTHENTICATION.LOGIN.SUCCESS,USER.PROVISIONED.CREATED',
+											verifyTlsCertificates: false,
 										});
 										setShowCreateModal(true);
 									}}
@@ -1411,13 +1441,16 @@ const PingOneWebhookViewer: React.FC = () => {
 									/>
 								</InputGroup>
 								<InputGroup>
-									<Label>Destination URL *</Label>
+									<Label>Webhook Endpoint URL (httpEndpoint.url) *</Label>
 									<Input
 										type="url"
-										value={formData.destination}
-										onChange={(e) => setFormData({ ...formData, destination: e.target.value })}
-										placeholder="https://example.com/webhook"
+										value={formData.httpEndpointUrl}
+										onChange={(e) => setFormData({ ...formData, httpEndpointUrl: e.target.value })}
+										placeholder={`${window.location.origin}/api/webhooks/pingone`}
 									/>
+									<small style={{ color: '#64748b', fontSize: '0.78rem' }}>
+										PingOne will POST events to this HTTPS URL.
+									</small>
 								</InputGroup>
 								<InputGroup>
 									<Label>Format</Label>
@@ -1425,18 +1458,35 @@ const PingOneWebhookViewer: React.FC = () => {
 										value={formData.format}
 										onChange={(e) => setFormData({ ...formData, format: e.target.value })}
 									>
-										<option value="ACTIVITY">ACTIVITY</option>
-										<option value="JSON">JSON</option>
+										<option value="ACTIVITY">ACTIVITY — Generic Ping JSON</option>
+										<option value="SPLUNK">SPLUNK — Splunk-friendly</option>
+										<option value="NEWRELIC">NEWRELIC — New Relic-friendly</option>
 									</FilterSelect>
 								</InputGroup>
 								<InputGroup>
-									<Label>Topics (comma-separated)</Label>
+									<Label>Event Types — filterOptions.includedActionTypes (comma-separated)</Label>
 									<Input
 										type="text"
-										value={formData.topics}
-										onChange={(e) => setFormData({ ...formData, topics: e.target.value })}
-										placeholder="user.created, user.updated"
+										value={formData.includedActionTypes}
+										onChange={(e) => setFormData({ ...formData, includedActionTypes: e.target.value })}
+										placeholder="AUTHENTICATION.LOGIN.SUCCESS,USER.PROVISIONED.CREATED"
 									/>
+									<small style={{ color: '#64748b', fontSize: '0.78rem' }}>
+										See Audit Reporting Events docs for valid values.
+									</small>
+								</InputGroup>
+								<InputGroup>
+									<Label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+										<Checkbox
+											type="checkbox"
+											checked={formData.verifyTlsCertificates}
+											onChange={(e) => setFormData({ ...formData, verifyTlsCertificates: e.target.checked })}
+										/>
+										Verify TLS Certificates
+									</Label>
+									<small style={{ color: '#64748b', fontSize: '0.78rem' }}>
+										Set false for self-signed certs / local dev.
+									</small>
 								</InputGroup>
 								<InputGroup>
 									<Label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -1456,7 +1506,7 @@ const PingOneWebhookViewer: React.FC = () => {
 												? () => handleUpdateSubscription(editingSubscription)
 												: handleCreateSubscription
 										}
-										disabled={!formData.name || !formData.destination || isLoadingSubscriptions}
+										disabled={!formData.name || !formData.httpEndpointUrl || isLoadingSubscriptions}
 									>
 										{editingSubscription ? 'Update' : 'Create'} Subscription
 									</Button>
@@ -1491,10 +1541,12 @@ const PingOneWebhookViewer: React.FC = () => {
 															{subscription.enabled ? <FiCheckCircle /> : <FiX />}
 															{subscription.enabled ? 'Enabled' : 'Disabled'}
 														</StatusBadge>
-														<span>URL: {subscription.destination?.url || 'N/A'}</span>
+														<span>URL: {subscription.httpEndpoint?.url || subscription.destination?.url || 'N/A'}</span>
 														{subscription.format && <span>Format: {subscription.format}</span>}
-														{subscription.topics && subscription.topics.length > 0 && (
-															<span>Topics: {subscription.topics.join(', ')}</span>
+														{((subscription.filterOptions?.includedActionTypes?.length ?? 0) > 0 || (subscription.topics?.length ?? 0) > 0) && (
+															<span style={{ fontSize: '0.78rem', color: '#64748b' }}>
+																Events: {(subscription.filterOptions?.includedActionTypes || subscription.topics || []).join(', ')}
+															</span>
 														)}
 													</SubscriptionMeta>
 												</SubscriptionInfo>
@@ -1719,6 +1771,7 @@ const PingOneWebhookViewer: React.FC = () => {
 					</>
 				)}
 
+				<SuperSimpleApiDisplayV8 flowFilter="all" reserveSpace={true} />
 				<ApiCallList title="API Calls to PingOne" showLegend={true} />
 			</PageContainer>
 		</Container>
