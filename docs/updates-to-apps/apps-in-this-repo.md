@@ -37,6 +37,7 @@ See `docs/updates-to-apps/run-sh-updates.md` (Troubleshooting) for more detail.
 - **dashboard-updates.md** — Dashboard UI, API Status, Config (custom domain), Quick Access, Recent Activity.
 - **menu-updates.md** — Ping UI sidebar, `sidebarMenuConfig.ts`, resize, drag-and-drop.
 - **run-sh-updates.md** — Custom domain, SSL, hosts file, frontend/backend URLs, troubleshooting 404 for /api.
+- **CredentialManagement** — Route `/credential-management`. Hosts two tabs: **Flow Credentials** (import/export/clear credential sets) and **Token Tester** (JWT decode, claims display, PingOne API validation). V8 Worker Token Modal (`WorkerTokenModalV8` + `useGlobalWorkerToken`). The old `/worker-token-tester` route now redirects here. See `docs/migration/V9_MIGRATION_LESSONS_LEARNED.md` § "Page Consolidation: 4 → 3 Pages" for full change log.
 
 ---
 
