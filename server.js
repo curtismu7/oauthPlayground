@@ -1220,6 +1220,45 @@ app.post('/api/settings/custom-domain', async (req, res) => {
 });
 
 // ============================================================================
+// SETTINGS: ENVIRONMENT ID
+// ============================================================================
+/**
+ * GET  /api/settings/environment-id — returns { value: string | null }
+ * POST /api/settings/environment-id — body: { value: string }; validates UUID and saves.
+ */
+const ENVIRONMENT_ID_KEY = 'environment_id';
+const ENV_ID_UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+app.get('/api/settings/environment-id', async (_req, res) => {
+	try {
+		let raw = await settingsDB.get(ENVIRONMENT_ID_KEY);
+		if (raw != null) {
+			try { raw = JSON.parse(raw); } catch { raw = null; }
+		}
+		const value = typeof raw === 'string' && ENV_ID_UUID_RE.test(raw.trim()) ? raw.trim() : null;
+		res.status(200).json({ value });
+	} catch (error) {
+		console.error('[Settings] Failed to get environment ID:', error);
+		res.status(500).json({ error: 'Failed to retrieve environment ID', message: error.message });
+	}
+});
+
+app.post('/api/settings/environment-id', async (req, res) => {
+	try {
+		const { value } = req.body || {};
+		if (typeof value !== 'string' || !ENV_ID_UUID_RE.test(value.trim())) {
+			return res.status(400).json({ error: 'Invalid or missing environment ID (must be a UUID)' });
+		}
+		await settingsDB.set(ENVIRONMENT_ID_KEY, value.trim());
+		res.status(200).json({ success: true, value: value.trim() });
+	} catch (error) {
+		console.error('[Settings] Failed to save environment ID:', error);
+		res.status(500).json({ error: 'Failed to save environment ID', message: error.message });
+	}
+});
+
+
+// ============================================================================
 // FILE STORAGE API
 // ============================================================================
 
