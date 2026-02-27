@@ -557,3 +557,30 @@ Additionally `server.js` regionMaps only handled `{ na: 'us', eu: 'eu', asia: 'a
 **Valid regions:** `na` (→ `.us`), `eu` (→ `.eu`), `ap`/`asia` (→ `.asia`), `ca` (→ `.ca`)
 
 **Files:** `server.js` (10 lines), `src/pages/PingOneWebhookViewer.tsx` (+56/-14)
+
+
+---
+
+## Session 7 — WorkerTokenSectionV8 Migration: PingOneWebhookViewer
+
+**Commit:** TBD (next commit)  
+**Date:** 2026-02-27  
+**Type:** Migration — replace ad-hoc token UI with standard v8 service component
+
+### Problem
+
+`PingOneWebhookViewer` used a custom worker token UI: a `WorkerTokenModal` (conditionally shown only when no token), a `WorkerTokenDetectedBanner` (conditionally shown when token exists), and an inline environment ID card. This pattern had no persistent token status section — users could not see their token state, refresh it, or clear it. All other V8 pages use `WorkerTokenSectionV8`.
+
+### Changes
+
+**`src/pages/PingOneWebhookViewer.tsx`:**
+- Removed imports: `WorkerTokenModal`, `WorkerTokenDetectedBanner`
+- Added import: `WorkerTokenSectionV8` from `'../v8/components/WorkerTokenSectionV8'`
+- Removed state: `showWorkerTokenModal`
+- Replaced the three conditional JSX blocks (modal + banner + env ID card, ~80 lines) with:
+  - `<WorkerTokenSectionV8 environmentId={environmentId} onTokenUpdated={...} compact={false} showSettings={false} />`
+  - `onTokenUpdated` callback updates both `workerToken` state, `environmentId`, and `selectedRegion` from `unified_worker_token` localStorage
+  - Compact always-visible Environment ID `<input>` (not gated on `hasWorkerToken`)
+- Removed the "A worker token is required" warning card inside the Subscriptions tab (now redundant)
+
+**Result:** Consistent token management UI across all pages. Users can now see token status (Active/Not Set), refresh, get, or clear the token from a dedicated visible section at the top of the page.
