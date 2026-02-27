@@ -6,6 +6,7 @@ import { FiAlertTriangle, FiInfo, FiKey, FiRefreshCw, FiShield } from 'react-ico
 import styled from 'styled-components';
 import { StepNavigationButtons } from '../components/StepNavigationButtons';
 import { usePageScroll } from '../hooks/usePageScroll';
+import { usePageStepper } from '../contexts/FloatingStepperContext';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import {
 	getAllLicenses,
@@ -366,6 +367,28 @@ const OrganizationLicensingV2: React.FC = () => {
 
 	// Track if we've initialized to prevent auto-advance after user clicks reset
 	const [hasInitialized, setHasInitialized] = useState(false);
+
+	// Global floating stepper
+	const { registerSteps, setCurrentStep: setStepperStep } = usePageStepper();
+
+	useEffect(() => {
+		registerSteps([
+			{ id: 'worker-token', title: 'Worker Token', description: 'Verify worker token credentials' },
+			{ id: 'org-info', title: 'Org Info', description: 'Fetch organization details' },
+			{ id: 'licensing', title: 'Licensing', description: 'View license information' },
+		]);
+	}, [registerSteps]);
+
+	// Sync floating stepper step to reflect data loading progress
+	useEffect(() => {
+		if (allLicenses.length > 0 || orgInfo) {
+			setStepperStep(2);
+		} else if (credentials.environmentId) {
+			setStepperStep(1);
+		} else {
+			setStepperStep(0);
+		}
+	}, [credentials.environmentId, orgInfo, allLicenses, setStepperStep]);
 
 	// Load credentials and tokens, then determine starting step - only on mount
 	useEffect(() => {
