@@ -35,8 +35,7 @@ import { SilentApiConfigCheckboxV8 } from '@/v8/components/SilentApiConfigCheckb
 import { SQLiteStatsDisplayV8 } from '@/v8/components/SQLiteStatsDisplayV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { UserLoginModalV8 } from '@/v8/components/UserLoginModalV8';
-import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
-import { WorkerTokenStatusDisplayV8 } from '@/v8/components/WorkerTokenStatusDisplayV8';
+import { WorkerTokenSectionV8 } from '@/v8/components/WorkerTokenSectionV8';
 import { getDeviceConfig } from '@/v8/config/deviceFlowConfigs';
 import type { DeviceConfigKey, DeviceRegistrationResult } from '@/v8/config/deviceFlowConfigTypes';
 import { GlobalMFAProvider } from '@/v8/contexts/GlobalMFAContext';
@@ -165,8 +164,6 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 	// Use unified global worker token hook for token management
 	const globalTokenStatus = useGlobalWorkerToken();
 	const _workerToken = globalTokenStatus.token || '';
-	const hasWorkerToken = globalTokenStatus.isValid;
-	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 
 	const _tokenStatus = globalTokenStatus;
 
@@ -712,34 +709,13 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 					>
 						<SilentApiConfigCheckboxV8 />
 						<ShowTokenConfigCheckboxV8 />
-						{!hasWorkerToken && (
-							<button
-								type="button"
-								onClick={() => setShowWorkerTokenModal(true)}
-								style={{
-									marginBottom: '16px',
-									padding: '8px 16px',
-									backgroundColor: '#007bff',
-									color: 'white',
-									border: 'none',
-									borderRadius: '4px',
-									cursor: 'pointer',
-								}}
-							>
-								Get Worker Token
-							</button>
-						)}
-						<WorkerTokenModalV8
-							isOpen={showWorkerTokenModal}
-							onClose={() => setShowWorkerTokenModal(false)}
-							onTokenGenerated={() => {
-								// Token generated, can refresh data if needed
-								console.log('Worker token generated');
+						{/* Worker Token Section */}
+						<WorkerTokenSectionV8
+							environmentId={environmentId}
+							onTokenUpdated={(_token) => {
+								// Token updated — global hook will auto-refresh
 							}}
 						/>
-
-						{/* Worker Token Status Display */}
-						<WorkerTokenStatusDisplayV8 />
 
 						{/* User Token Status */}
 						{userToken && (
