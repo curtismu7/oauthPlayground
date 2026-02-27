@@ -592,34 +592,16 @@ const PingOneWebhookViewer: React.FC = () => {
 	};
 
 	// Format conversion functions for different display formats
-	const formatEventForDisplay = useCallback(
-		(event: WebhookEvent, format: string) => {
-			switch (format) {
-				case 'splunk':
-					return formatAsSplunk(event);
-				case 'ping-activity':
-					return formatAsPingActivity(event);
-				case 'new-relic':
-					return formatAsNewRelic(event);
-				default:
-					return JSON.stringify(event.data, null, 2);
-			}
-		},
-		// biome-ignore lint/correctness/noInvalidUseBeforeDeclaration: functions are hoisted
-		// biome-ignore lint/correctness/useExhaustiveDependencies: stable formatter functions defined below
-		[formatAsNewRelic, formatAsPingActivity, formatAsSplunk]
-	);
-
-	const formatAsSplunk = (event: WebhookEvent): string => {
+	const formatAsSplunk = useCallback((event: WebhookEvent): string => {
 		const timestamp = event.timestamp.toISOString();
 		const eventType = event.type || 'unknown';
 		const eventData = event.data || {};
 
 		// Splunk format: timestamp, log_level, source, event_type, message
 		return `${timestamp} INFO pingone-webhook ${eventType} ${JSON.stringify(eventData)}`;
-	};
+	}, []);
 
-	const formatAsPingActivity = (event: WebhookEvent): string => {
+	const formatAsPingActivity = useCallback((event: WebhookEvent): string => {
 		// Ping Activity JSON format
 		const activity = {
 			timestamp: event.timestamp.toISOString(),
@@ -638,9 +620,9 @@ const PingOneWebhookViewer: React.FC = () => {
 		};
 
 		return JSON.stringify(activity, null, 2);
-	};
+	}, [environmentId]);
 
-	const formatAsNewRelic = (event: WebhookEvent): string => {
+	const formatAsNewRelic = useCallback((event: WebhookEvent): string => {
 		// New Relic format for application monitoring
 		const newRelicEvent = {
 			eventType: 'PingOneWebhook',
@@ -669,7 +651,23 @@ const PingOneWebhookViewer: React.FC = () => {
 		};
 
 		return JSON.stringify(newRelicEvent, null, 2);
-	};
+	}, [environmentId]);
+
+	const formatEventForDisplay = useCallback(
+		(event: WebhookEvent, format: string) => {
+			switch (format) {
+				case 'splunk':
+					return formatAsSplunk(event);
+				case 'ping-activity':
+					return formatAsPingActivity(event);
+				case 'new-relic':
+					return formatAsNewRelic(event);
+				default:
+					return JSON.stringify(event.data, null, 2);
+			}
+		},
+		[formatAsNewRelic, formatAsPingActivity, formatAsSplunk]
+	);
 
 	// Fetch webhook subscriptions
 	const fetchSubscriptions = useCallback(async () => {
