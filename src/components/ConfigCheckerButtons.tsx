@@ -16,6 +16,7 @@ import {
 import styled from 'styled-components';
 import { ConfigComparisonService, ConfigDiffResult } from '../services/configComparisonService';
 import { pingOneAppCreationService } from '../services/pingOneAppCreationService';
+import { getAppOrigin } from '../utils/flowRedirectUriMapping';
 import { logger } from '../utils/logger';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { DraggableModal } from './DraggableModal';
@@ -535,10 +536,10 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 
 		// Generate redirect URI with same unique ID as app name
 		const generateRedirectUri = (appType: string | null | undefined) => {
-			// Handle null/undefined appType
+			const base = getAppOrigin();
 			if (!appType) {
 				const uniqueId = Math.floor(Math.random() * 900) + 100;
-				return `https://localhost:3000/callback/app-${uniqueId}`;
+				return `${base}/callback/app-${uniqueId}`;
 			}
 
 			const flowTypeMap: Record<string, string> = {
@@ -551,7 +552,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 
 			const flowName = flowTypeMap[appType] || appType.replace(/[-_]/g, '-').toLowerCase();
 			const uniqueId = Math.floor(Math.random() * 900) + 100; // 3-digit number (100-999)
-			return `https://localhost:3000/callback/${flowName}-${uniqueId}`;
+			return `${base}/callback/${flowName}-${uniqueId}`;
 		};
 
 		return {
@@ -948,16 +949,17 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 			};
 
 			// Check grant types to override if necessary
+			const base = getAppOrigin();
 			if (grantTypes) {
 				if (grantTypes.some((gt) => gt.toLowerCase() === 'client_credentials')) {
 					const uniqueId = Math.floor(Math.random() * 900) + 100;
-					return `https://localhost:3000/callback/client-credentials-${uniqueId}`;
+					return `${base}/callback/client-credentials-${uniqueId}`;
 				}
 			}
 
 			const flowName = flowTypeMap[appType] || appType.replace(/[-_]/g, '-').toLowerCase();
 			const uniqueId = Math.floor(Math.random() * 900) + 100;
-			return `https://localhost:3000/callback/${flowName}-${uniqueId}`;
+			return `${base}/callback/${flowName}-${uniqueId}`;
 		};
 
 		// Regenerate form data with current selectedAppType and grantTypes
@@ -2057,7 +2059,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 								onChange={(e) =>
 									setCreateFormData((prev) => ({ ...prev, redirectUri: e.target.value }))
 								}
-								placeholder="http://localhost:3000/callback"
+								placeholder={`${getAppOrigin()}/callback`}
 								style={{
 									width: '100%',
 									padding: '0.75rem',

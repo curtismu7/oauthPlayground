@@ -16,6 +16,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FiAlertCircle, FiKey, FiLoader, FiTrash2, FiX } from 'react-icons/fi';
 import { useLocation } from 'react-router-dom';
+import { readBestEnvironmentId } from '@/hooks/useAutoEnvironmentId';
 import { useProductionSpinner } from '@/hooks/useProductionSpinner';
 import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import { trackActivity } from '@/utils/activityTracker';
@@ -37,7 +38,6 @@ import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { StorageServiceV8 } from '@/v8/services/storageServiceV8';
 import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const MODULE_TAG = '[🗑️ DELETE-DEVICES-V8]';
 
@@ -103,26 +103,11 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 			if (stored?.environmentId) {
 				return stored.environmentId;
 			}
-			const globalEnvId = EnvironmentIdServiceV8.getEnvironmentId();
-			if (globalEnvId) {
-				return globalEnvId;
-			}
-			// Try synchronous check from localStorage for worker token credentials
-			try {
-				const stored = localStorage.getItem('unified_worker_token');
-				if (stored) {
-					const data = JSON.parse(stored);
-					if (data.credentials?.environmentId) {
-						return data.credentials.environmentId;
-					}
-				}
-			} catch (syncError) {
-				console.log(`${MODULE_TAG} Sync worker token check failed:`, syncError);
-			}
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to load saved environment ID`, error);
 		}
-		return '';
+		// Fall back to best available value from all sources
+		return readBestEnvironmentId();
 	});
 	const [username, setUsername] = useState(() => {
 		// Check location.state first (passed from TOTP flow)
@@ -555,14 +540,14 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 	// Delete all devices
 	const handleDeleteAll = useCallback(async () => {
 		if (devices.length === 0) {
-			toastV8.warning('No devices to delete');
+			setError('No devices to delete.');
 			return;
 		}
 
 		const devicesToDelete = devices.filter((device) => selectedDeviceIds.has(device.id as string));
 
 		if (devicesToDelete.length === 0) {
-			toastV8.warning('No devices selected for deletion');
+			setError('No devices selected for deletion.');
 			return;
 		}
 
@@ -629,21 +614,13 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 				details: success ? undefined : `${results.errors.length} error(s)`,
 			});
 
-			// Show summary toast
-			if (results.failed === 0) {
-				toastV8.success(`Successfully deleted ${results.success} device(s)`);
-			} else {
-				toastV8.warning(
-					`Deleted ${results.success} device(s), but ${results.failed} failed. Check details below.`
-				);
-			}
+			// Summary shown inline via deletionResults (toast-replace: contextual feedback)
 
 			// Reload devices to show updated list
 			await handleLoadDevices();
 		} catch (err) {
 			const errorMessage = err instanceof Error ? err.message : 'Failed to delete devices';
 			setError(errorMessage);
-			toastV8.error(`Failed to delete devices: ${errorMessage}`);
 		} finally {
 			deletingSpinner.hideSpinner();
 		}

@@ -115,7 +115,7 @@ const _FormTextarea = styled.textarea`
 	}
 `;
 
-const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
+const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
 	padding: 0.75rem 1.5rem;
 	border-radius: 0.5rem;
 	font-weight: 600;
@@ -127,7 +127,7 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
 	transition: all 0.2s;
 	
 	${(props) =>
-		props.variant === 'primary' &&
+		props.$variant === 'primary' &&
 		`
 		background: #3b82f6;
 		color: white;
@@ -136,7 +136,7 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
 	`}
 	
 	${(props) =>
-		props.variant === 'secondary' &&
+		props.$variant === 'secondary' &&
 		`
 		background: #f3f4f6;
 		color: #374151;
@@ -145,7 +145,7 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
 	`}
 	
 	${(props) =>
-		props.variant === 'danger' &&
+		props.$variant === 'danger' &&
 		`
 		background: #dc2626;
 		color: white;
@@ -325,7 +325,7 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 
 							<div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
 								<Button
-									variant="primary"
+									$ variant="primary"
 									onClick={controller.saveCredentials}
 									disabled={controller.isSavingCredentials}
 								>
@@ -364,7 +364,7 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 						</p>
 
 						<Button
-							variant="primary"
+							$ variant="primary"
 							onClick={controller.authenticateUser}
 							disabled={controller.isAuthenticating || !controller.hasCredentialsSaved}
 						>
@@ -454,7 +454,7 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 						</p>
 
 						<Button
-							variant="primary"
+							$ variant="primary"
 							onClick={controller.fetchUserInfo}
 							disabled={controller.isFetchingUserInfo || !controller.tokens}
 						>
@@ -522,7 +522,7 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 						</p>
 
 						<Button
-							variant="primary"
+							$ variant="primary"
 							onClick={controller.refreshTokens}
 							disabled={controller.isRefreshingTokens || !controller.tokens?.refresh_token}
 						>

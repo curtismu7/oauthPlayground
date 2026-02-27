@@ -62,13 +62,42 @@ export interface WorkerTokenStatusConfig {
 
 /**
  * Get status variant from token status
+ * 
+ * Returns:
+ * - 'valid': Token is valid and has more than 5 minutes remaining
+ * - 'warning': Token expires in less than 5 minutes
+ * - 'invalid': Token is expired, missing, or invalid
  */
 export function getWorkerTokenStatusVariant(
 	tokenStatus: TokenStatusInfo
 ): WorkerTokenStatusVariant {
-	if (tokenStatus.isValid) return 'valid';
-	if (tokenStatus.status === 'expired') return 'warning';
-	return 'invalid';
+	// Check if token is missing or explicitly invalid
+	if (!tokenStatus.isValid || tokenStatus.status === 'missing' || tokenStatus.status === 'invalid') {
+		return 'invalid';
+	}
+	
+	// Check if token is expired
+	if (tokenStatus.status === 'expired') {
+		return 'invalid';
+	}
+	
+	// Check if token has less than 5 minutes remaining (warning state)
+	if (tokenStatus.expiresAt) {
+		const now = Date.now();
+		const remaining = tokenStatus.expiresAt - now;
+		const fiveMinutesInMs = 5 * 60 * 1000;
+		
+		if (remaining <= 0) {
+			return 'invalid'; // Expired
+		}
+		
+		if (remaining < fiveMinutesInMs) {
+			return 'warning'; // Expires soon
+		}
+	}
+	
+	// Token is valid with sufficient time remaining
+	return 'valid';
 }
 
 /**

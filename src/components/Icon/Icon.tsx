@@ -49,7 +49,7 @@ export function Icon({
 }: IconProps) {
 	if (!decorative && !label && process.env.NODE_ENV !== 'production') {
 		// Fail fast in dev
-		 
+
 		console.error(`Icon("${name}") requires 'label' when decorative={false}`);
 	}
 

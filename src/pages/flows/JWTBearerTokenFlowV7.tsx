@@ -15,6 +15,7 @@ import {
 	FiShield,
 } from 'react-icons/fi';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
+import { readBestEnvironmentId } from '../../hooks/useAutoEnvironmentId';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 // Import V6 UI components
@@ -71,7 +72,7 @@ interface JWTClaims {
 	iat: number; // issued at
 	exp: number; // expiration
 	jti: string; // JWT ID
-	[key: string]: any;
+	[key: string]: unknown;
 }
 
 interface JWTSignature {
@@ -101,15 +102,10 @@ const JWTBearerTokenFlowV7: React.FC = () => {
 		Label,
 		Input,
 		TextArea: Textarea,
-		Button,
-		CodeBlock,
 		GeneratedContentBox,
 		ParameterGrid,
 		ParameterLabel,
 		ParameterValue,
-		SectionDivider,
-		ResultsSection,
-		ResultsHeading,
 		HelperText,
 	} = FlowUIService.getFlowUIComponents();
 
@@ -132,7 +128,7 @@ const JWTBearerTokenFlowV7: React.FC = () => {
 	});
 
 	// JWT Configuration with defaults
-	const [environmentId, setEnvironmentId] = useState('');
+	const [environmentId, setEnvironmentId] = useState(() => readBestEnvironmentId());
 	const [clientId, setClientId] = useState('');
 	const [tokenEndpoint, setTokenEndpoint] = useState('https://auth.pingone.com/as/token');
 	const [audience, setAudience] = useState('https://auth.pingone.com/as/token');
@@ -157,7 +153,7 @@ const JWTBearerTokenFlowV7: React.FC = () => {
 
 	// Generated JWT
 	const [generatedJWT, setGeneratedJWT] = useState('');
-	const [tokenResponse, setTokenResponse] = useState<any>(null);
+	const [tokenResponse, setTokenResponse] = useState<Record<string, unknown> | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
 	const [showMissingCredentialsModal, setShowMissingCredentialsModal] = useState(false);
 	const [missingCredentialFields, setMissingCredentialFields] = useState<string[]>([]);
@@ -559,7 +555,7 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 			};
 
 			const { missingFields, canProceed } = CredentialGuardService.checkMissingFields(
-				credentials as any,
+				credentials as Record<string, unknown>,
 				{
 					requiredFields: ['environmentId', 'clientId'],
 					fieldLabels: {
@@ -976,7 +972,10 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 									<select
 										value={jwtSignature.algorithm}
 										onChange={(e) =>
-											setJwtSignature((prev) => ({ ...prev, algorithm: e.target.value as any }))
+											setJwtSignature((prev) => ({
+												...prev,
+												algorithm: e.target.value as JWTSignature['algorithm'],
+											}))
 										}
 										style={{
 											width: '100%',
@@ -1110,7 +1109,8 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 										🌐 Real-World JWT Bearer Examples
 									</h4>
 									<div style={{ display: 'grid', gap: '0.75rem' }}>
-										<div
+										<button
+											type="button"
 											onClick={() => setTokenEndpoint('https://oauth2.googleapis.com/token')}
 											style={{
 												padding: '0.75rem',
@@ -1120,10 +1120,8 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 												fontSize: '0.875rem',
 												cursor: 'pointer',
 												transition: 'all 0.2s ease',
-												'&:hover': {
-													background: '#f1f5f9',
-													borderColor: '#3b82f6',
-												},
+												textAlign: 'left',
+												width: '100%',
 											}}
 											onMouseEnter={(e) => {
 												e.currentTarget.style.background = '#f1f5f9';
@@ -1143,9 +1141,10 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 											<div style={{ color: '#6b7280', fontSize: '0.75rem', marginTop: '0.25rem' }}>
 												Supports JWT Bearer for service account authentication
 											</div>
-										</div>
+										</button>
 
-										<div
+										<button
+											type="button"
 											onClick={() =>
 												setTokenEndpoint(
 													'https://login.microsoftonline.com/{tenant-id}/oauth2/v2.0/token'
@@ -1159,6 +1158,8 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 												fontSize: '0.875rem',
 												cursor: 'pointer',
 												transition: 'all 0.2s ease',
+												textAlign: 'left',
+												width: '100%',
 											}}
 											onMouseEnter={(e) => {
 												e.currentTarget.style.background = '#f1f5f9';
@@ -1173,14 +1174,15 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 												🟠 Microsoft Azure AD
 											</div>
 											<div style={{ color: '#6b7280', fontFamily: 'monospace' }}>
-												https://login.microsoftonline.com/{tenant - id}/oauth2/v2.0/token
+												https://login.microsoftonline.com/&#123;tenant-id&#125;/oauth2/v2.0/token
 											</div>
 											<div style={{ color: '#6b7280', fontSize: '0.75rem', marginTop: '0.25rem' }}>
 												Supports JWT Bearer for application authentication
 											</div>
-										</div>
+										</button>
 
-										<div
+										<button
+											type="button"
 											onClick={() => setTokenEndpoint('https://{pingfederate-host}:9031/as/token')}
 											style={{
 												padding: '0.75rem',
@@ -1190,6 +1192,8 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 												fontSize: '0.875rem',
 												cursor: 'pointer',
 												transition: 'all 0.2s ease',
+												textAlign: 'left',
+												width: '100%',
 											}}
 											onMouseEnter={(e) => {
 												e.currentTarget.style.background = '#f1f5f9';
@@ -1204,14 +1208,15 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 												🟢 PingFederate
 											</div>
 											<div style={{ color: '#6b7280', fontFamily: 'monospace' }}>
-												https://{pingfederate - host}:9031/as/token
+												https://&#123;pingfederate-host&#125;:9031/as/token
 											</div>
 											<div style={{ color: '#6b7280', fontSize: '0.75rem', marginTop: '0.25rem' }}>
 												Supports JWT Bearer for enterprise authentication
 											</div>
-										</div>
+										</button>
 
-										<div
+										<button
+											type="button"
 											onClick={() => setTokenEndpoint('https://{pingone-ais-host}/oauth/token')}
 											style={{
 												padding: '0.75rem',
@@ -1221,6 +1226,8 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 												fontSize: '0.875rem',
 												cursor: 'pointer',
 												transition: 'all 0.2s ease',
+												textAlign: 'left',
+												width: '100%',
 											}}
 											onMouseEnter={(e) => {
 												e.currentTarget.style.background = '#f1f5f9';
@@ -1235,12 +1242,12 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 												🟣 PingOne Advanced Identity Cloud
 											</div>
 											<div style={{ color: '#6b7280', fontFamily: 'monospace' }}>
-												https://{pingone - ais - host}/oauth/token
+												https://&#123;pingone-ais-host&#125;/oauth/token
 											</div>
 											<div style={{ color: '#6b7280', fontSize: '0.75rem', marginTop: '0.25rem' }}>
 												Supports JWT Bearer (RFC 7523) for advanced identity scenarios
 											</div>
-										</div>
+										</button>
 									</div>
 
 									<div
@@ -1418,7 +1425,6 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 		generateSampleKeyPair,
 		isDiscoveringAudience,
 		saveCredentials,
-		Button,
 		CollapsibleContent,
 		CollapsibleHeaderButton,
 		CollapsibleSection,
@@ -1435,7 +1441,6 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 		ParameterGrid,
 		ParameterLabel,
 		ParameterValue,
-		SectionDivider,
 		Textarea,
 	]);
 
