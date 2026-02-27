@@ -132,7 +132,7 @@ test.describe('Configuration and Settings', () => {
 	});
 
 	test('Advanced configuration options', async ({ page }) => {
-		await page.goto('/advanced-config');
+		await page.goto('/advanced-configuration');
 
 		// Test timeout settings
 		const timeoutInput = page.locator('[name*="timeout"], [placeholder*="timeout"]');
