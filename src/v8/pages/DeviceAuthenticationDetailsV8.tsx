@@ -243,7 +243,6 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 
 		const html = buildJsonHtml(data);
 		// biome lint justification: buildJsonHtml properly escapes HTML entities before adding syntax highlighting
-		/* biome-ignore lint/security/noDangerouslySetInnerHtml: HTML is escaped via escapeHtml function */
 		return (
 			<pre
 				className="json-display"
@@ -253,6 +252,7 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 					borderRadius: '8px',
 					border: '1px solid #e5e7eb',
 				}}
+				// biome-ignore lint/security/noDangerouslySetInnerHtml: HTML escaped via escapeHtml before syntax coloring
 				dangerouslySetInnerHTML={{ __html: html }}
 			/>
 		);

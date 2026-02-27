@@ -55,9 +55,7 @@ const FloatingStepperContext = createContext<FloatingStepperContextValue | null>
 
 // ─── Provider ─────────────────────────────────────────────────────────────────
 
-export const FloatingStepperProvider: React.FC<{ children: React.ReactNode }> = ({
-	children,
-}) => {
+export const FloatingStepperProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 	const [steps, setSteps] = useState<FloatingStepperStep[]>([]);
 	const [currentStep, setCurrentStepState] = useState(0);
 	const location = useLocation();
@@ -74,7 +72,7 @@ export const FloatingStepperProvider: React.FC<{ children: React.ReactNode }> = 
 
 	const registerSteps = useCallback((newSteps: FloatingStepperStep[]) => {
 		setSteps(
-			newSteps.map((s, i) => ({
+			newSteps.map((s, _i) => ({
 				...s,
 				completed: s.completed ?? false,
 				current: s.current ?? false,
@@ -95,9 +93,7 @@ export const FloatingStepperProvider: React.FC<{ children: React.ReactNode }> = 
 	}, []);
 
 	const completeStep = useCallback((index: number) => {
-		setSteps((prev) =>
-			prev.map((s, i) => (i === index ? { ...s, completed: true } : s))
-		);
+		setSteps((prev) => prev.map((s, i) => (i === index ? { ...s, completed: true } : s)));
 	}, []);
 
 	const nextStep = useCallback(() => {
@@ -129,9 +125,7 @@ export const FloatingStepperProvider: React.FC<{ children: React.ReactNode }> = 
 
 	const resetSteps = useCallback(() => {
 		setCurrentStepState(0);
-		setSteps((prev) =>
-			prev.map((s, i) => ({ ...s, completed: false, current: i === 0 }))
-		);
+		setSteps((prev) => prev.map((s, i) => ({ ...s, completed: false, current: i === 0 })));
 	}, []);
 
 	const clearSteps = useCallback(() => {
@@ -156,9 +150,9 @@ export const FloatingStepperProvider: React.FC<{ children: React.ReactNode }> = 
 			{children}
 			{steps.length > 0 && (
 				<FloatingStepper
-					{...FloatingStepperService.getDefaultPosition
+					{...(FloatingStepperService.getDefaultPosition
 						? { position: FloatingStepperService.getDefaultPosition() }
-						: { position: { x: 20, y: window.innerHeight - 180 } }}
+						: { position: { x: 20, y: window.innerHeight - 180 } })}
 					steps={steps}
 					currentStep={currentStep}
 					onStepChange={setCurrentStep}
