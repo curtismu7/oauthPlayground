@@ -50,13 +50,13 @@ import type { MFAFeatureFlag } from '@/v8/services/mfaFeatureFlagsV8';
 import { MFAFeatureFlagsV8 } from '@/v8/services/mfaFeatureFlagsV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { usePageStepper } from '../../../contexts/FloatingStepperContext';
 import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBaseV8';
 import type { MFACredentials, MFAState } from '../shared/MFATypes';
 import { UnifiedActivationStep } from './components/UnifiedActivationStep';
 import { UnifiedDeviceRegistrationForm } from './components/UnifiedDeviceRegistrationForm';
 import { UnifiedDeviceSelectionModal } from './components/UnifiedDeviceSelectionModal';
 import { UnifiedSuccessStep } from './components/UnifiedSuccessStep';
-import { usePageStepper } from '../../../contexts/FloatingStepperContext';
 import './UnifiedMFAFlow.css';
 
 const MODULE_TAG = '[🔄 UNIFIED-MFA-FLOW-V8]';
@@ -1582,7 +1582,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 > = ({
 	deviceType,
 	environmentId,
-	username,
+	username: _username,
 	initialCredentials: _initialCredentials,
 	onSuccess: _onSuccess,
 	onCancel,
@@ -1706,6 +1706,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 	/**
 	 * Perform device registration API call (with token already available)
 	 */
+	// biome-ignore lint/correctness/useExhaustiveDependencies: large callback with intentional dep array
 	const performRegistrationWithToken = useCallback(
 		async (
 			props: MFAFlowBaseRenderProps,

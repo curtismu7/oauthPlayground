@@ -118,273 +118,285 @@ export const APIComparisonModal: React.FC<APIComparisonModalProps> = ({ isOpen, 
 	);
 
 	return (
-		<div
-			style={{
-				position: 'fixed',
-				top: 0,
-				left: 0,
-				right: 0,
-				bottom: 0,
-				background: 'rgba(0, 0, 0, 0.5)',
-				display: 'flex',
-				alignItems: 'center',
-				justifyContent: 'center',
-				zIndex: 1000,
-			}}
-			onClick={onClose}
-		>
+		<>
+			{/* biome-ignore lint/a11y/useSemanticElements: backdrop overlay captures click-outside to close */}
 			<div
 				style={{
-					background: 'white',
-					borderRadius: '12px',
-					maxWidth: '1200px',
-					width: '90%',
-					maxHeight: '90vh',
-					overflow: 'auto',
-					boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+					position: 'fixed',
+					top: 0,
+					left: 0,
+					right: 0,
+					bottom: 0,
+					background: 'rgba(0, 0, 0, 0.5)',
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'center',
+					zIndex: 1000,
 				}}
-				onClick={(e) => e.stopPropagation()}
+				role="button"
+				tabIndex={0}
+				onKeyDown={(e) => {
+					if (e.key === 'Escape' || e.key === 'Enter') onClose();
+				}}
+				onClick={onClose}
 			>
-				{/* Header */}
+				{/* biome-ignore lint/a11y/noStaticElementInteractions: content div stops click propagation to backdrop */}
 				<div
 					style={{
-						padding: '24px',
-						borderBottom: '1px solid #e5e7eb',
-						display: 'flex',
-						justifyContent: 'space-between',
-						alignItems: 'center',
+						background: 'white',
+						borderRadius: '12px',
+						maxWidth: '1200px',
+						width: '90%',
+						maxHeight: '90vh',
+						overflow: 'auto',
+						boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
 					}}
+					role="presentation"
+					onKeyDown={(e) => e.stopPropagation()}
+					onClick={(e) => e.stopPropagation()}
 				>
-					<div>
-						<h2 style={{ margin: 0, fontSize: '24px', fontWeight: '700', color: '#111827' }}>
-							MFA Flow API Comparison
-						</h2>
-						<p style={{ margin: '8px 0 0 0', fontSize: '14px', color: '#6b7280' }}>
-							API calls and parameters for Admin, Admin Activation Required, and User flows
-						</p>
-					</div>
-					<button
-						onClick={onClose}
+					{/* Header */}
+					<div
 						style={{
-							background: 'none',
-							border: 'none',
-							fontSize: '24px',
-							cursor: 'pointer',
-							color: '#6b7280',
-							padding: '4px',
+							padding: '24px',
+							borderBottom: '1px solid #e5e7eb',
+							display: 'flex',
+							justifyContent: 'space-between',
+							alignItems: 'center',
 						}}
 					>
-						×
-					</button>
-				</div>
-
-				{/* Content */}
-				<div style={{ padding: '24px' }}>
-					{Object.entries(apiEndpoints).map(([key, flow]) => (
-						<div
-							key={key}
+						<div>
+							<h2 style={{ margin: 0, fontSize: '24px', fontWeight: '700', color: '#111827' }}>
+								MFA Flow API Comparison
+							</h2>
+							<p style={{ margin: '8px 0 0 0', fontSize: '14px', color: '#6b7280' }}>
+								API calls and parameters for Admin, Admin Activation Required, and User flows
+							</p>
+						</div>
+						<button
+							type="button"
+							onClick={onClose}
 							style={{
-								marginBottom: '32px',
-								padding: '24px',
-								border: '1px solid #e5e7eb',
-								borderRadius: '8px',
-								background:
-									key === 'admin'
-										? '#f0fdf4'
-										: key === 'adminActivationRequired'
-											? '#fef3c7'
-											: '#dbeafe',
+								background: 'none',
+								border: 'none',
+								fontSize: '24px',
+								cursor: 'pointer',
+								color: '#6b7280',
+								padding: '4px',
 							}}
 						>
-							{/* Flow Header */}
-							<div style={{ marginBottom: '20px' }}>
-								<h3 style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: '#111827' }}>
-									{flow.name}
-								</h3>
-								<p style={{ margin: '8px 0 0 0', fontSize: '14px', color: '#6b7280' }}>
-									{flow.description}
-								</p>
-							</div>
+							×
+						</button>
+					</div>
 
-							{/* API Details */}
-							<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-								{/* Left Column */}
-								<div>
-									{/* URL and Method */}
-									<div style={{ marginBottom: '16px' }}>
-										<h4
-											style={{
-												margin: '0 0 8px 0',
-												fontSize: '14px',
-												fontWeight: '600',
-												color: '#374151',
-											}}
-										>
-											Endpoint
-										</h4>
-										<div
-											style={{
-												display: 'flex',
-												alignItems: 'center',
-												gap: '8px',
-												marginBottom: '8px',
-											}}
-										>
-											<span
+					{/* Content */}
+					<div style={{ padding: '24px' }}>
+						{Object.entries(apiEndpoints).map(([key, flow]) => (
+							<div
+								key={key}
+								style={{
+									marginBottom: '32px',
+									padding: '24px',
+									border: '1px solid #e5e7eb',
+									borderRadius: '8px',
+									background:
+										key === 'admin'
+											? '#f0fdf4'
+											: key === 'adminActivationRequired'
+												? '#fef3c7'
+												: '#dbeafe',
+								}}
+							>
+								{/* Flow Header */}
+								<div style={{ marginBottom: '20px' }}>
+									<h3 style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: '#111827' }}>
+										{flow.name}
+									</h3>
+									<p style={{ margin: '8px 0 0 0', fontSize: '14px', color: '#6b7280' }}>
+										{flow.description}
+									</p>
+								</div>
+
+								{/* API Details */}
+								<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+									{/* Left Column */}
+									<div>
+										{/* URL and Method */}
+										<div style={{ marginBottom: '16px' }}>
+											<h4
 												style={{
-													background: flow.method === 'POST' ? '#10b981' : '#6b7280',
-													color: 'white',
-													padding: '4px 8px',
-													borderRadius: '4px',
-													fontSize: '12px',
+													margin: '0 0 8px 0',
+													fontSize: '14px',
 													fontWeight: '600',
+													color: '#374151',
 												}}
 											>
-												{flow.method}
-											</span>
-											<code
+												Endpoint
+											</h4>
+											<div
 												style={{
-													background: '#f3f4f6',
-													padding: '4px 8px',
-													borderRadius: '4px',
-													fontSize: '13px',
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													marginBottom: '8px',
 												}}
 											>
-												{flow.url}
-											</code>
+												<span
+													style={{
+														background: flow.method === 'POST' ? '#10b981' : '#6b7280',
+														color: 'white',
+														padding: '4px 8px',
+														borderRadius: '4px',
+														fontSize: '12px',
+														fontWeight: '600',
+													}}
+												>
+													{flow.method}
+												</span>
+												<code
+													style={{
+														background: '#f3f4f6',
+														padding: '4px 8px',
+														borderRadius: '4px',
+														fontSize: '13px',
+													}}
+												>
+													{flow.url}
+												</code>
+											</div>
+										</div>
+
+										{/* Headers */}
+										<div style={{ marginBottom: '16px' }}>
+											<h4
+												style={{
+													margin: '0 0 8px 0',
+													fontSize: '14px',
+													fontWeight: '600',
+													color: '#374151',
+												}}
+											>
+												Headers
+											</h4>
+											{renderCodeBlock(flow.headers)}
 										</div>
 									</div>
 
-									{/* Headers */}
-									<div style={{ marginBottom: '16px' }}>
-										<h4
-											style={{
-												margin: '0 0 8px 0',
-												fontSize: '14px',
-												fontWeight: '600',
-												color: '#374151',
-											}}
-										>
-											Headers
-										</h4>
-										{renderCodeBlock(flow.headers)}
+									{/* Right Column */}
+									<div>
+										{/* Request Body */}
+										<div style={{ marginBottom: '16px' }}>
+											<h4
+												style={{
+													margin: '0 0 8px 0',
+													fontSize: '14px',
+													fontWeight: '600',
+													color: '#374151',
+												}}
+											>
+												Request Body
+											</h4>
+											{renderCodeBlock(flow.body)}
+										</div>
+
+										{/* Response */}
+										<div style={{ marginBottom: '16px' }}>
+											<h4
+												style={{
+													margin: '0 0 8px 0',
+													fontSize: '14px',
+													fontWeight: '600',
+													color: '#374151',
+												}}
+											>
+												Response
+											</h4>
+											{renderCodeBlock(flow.response)}
+										</div>
 									</div>
 								</div>
 
-								{/* Right Column */}
-								<div>
-									{/* Request Body */}
-									<div style={{ marginBottom: '16px' }}>
-										<h4
-											style={{
-												margin: '0 0 8px 0',
-												fontSize: '14px',
-												fontWeight: '600',
-												color: '#374151',
-											}}
-										>
-											Request Body
-										</h4>
-										{renderCodeBlock(flow.body)}
-									</div>
-
-									{/* Response */}
-									<div style={{ marginBottom: '16px' }}>
-										<h4
-											style={{
-												margin: '0 0 8px 0',
-												fontSize: '14px',
-												fontWeight: '600',
-												color: '#374151',
-											}}
-										>
-											Response
-										</h4>
-										{renderCodeBlock(flow.response)}
-									</div>
-								</div>
-							</div>
-
-							{/* Notes */}
-							<div
-								style={{
-									marginTop: '16px',
-									padding: '12px',
-									background: 'white',
-									borderRadius: '6px',
-								}}
-							>
-								<h4
+								{/* Notes */}
+								<div
 									style={{
-										margin: '0 0 8px 0',
-										fontSize: '14px',
-										fontWeight: '600',
-										color: '#374151',
+										marginTop: '16px',
+										padding: '12px',
+										background: 'white',
+										borderRadius: '6px',
 									}}
 								>
-									📝 Notes
-								</h4>
-								<p style={{ margin: 0, fontSize: '13px', color: '#6b7280', lineHeight: '1.5' }}>
-									{flow.notes}
-								</p>
+									<h4
+										style={{
+											margin: '0 0 8px 0',
+											fontSize: '14px',
+											fontWeight: '600',
+											color: '#374151',
+										}}
+									>
+										📝 Notes
+									</h4>
+									<p style={{ margin: 0, fontSize: '13px', color: '#6b7280', lineHeight: '1.5' }}>
+										{flow.notes}
+									</p>
+								</div>
 							</div>
-						</div>
-					))}
+						))}
 
-					{/* Key Differences Summary */}
-					<div
-						style={{
-							padding: '20px',
-							background: '#f9fafb',
-							border: '1px solid #e5e7eb',
-							borderRadius: '8px',
-							marginTop: '24px',
-						}}
-					>
-						<h3
+						{/* Key Differences Summary */}
+						<div
 							style={{
-								margin: '0 0 16px 0',
-								fontSize: '16px',
-								fontWeight: '600',
-								color: '#111827',
+								padding: '20px',
+								background: '#f9fafb',
+								border: '1px solid #e5e7eb',
+								borderRadius: '8px',
+								marginTop: '24px',
 							}}
 						>
-							🔑 Key Differences
-						</h3>
-						<ul
-							style={{
-								margin: 0,
-								paddingLeft: '20px',
-								color: '#374151',
-								fontSize: '14px',
-								lineHeight: '1.6',
-							}}
-						>
-							<li>
-								<strong>Token Type:</strong> Admin flows use <code>tokenType: 'worker'</code>, User
-								flow uses <code>tokenType: 'user'</code>
-							</li>
-							<li>
-								<strong>Authentication:</strong> Admin flows use Worker Token, User flow requires
-								User Token from OAuth login
-							</li>
-							<li>
-								<strong>Device Status:</strong> Admin flow can choose <code>'ACTIVE'</code> or{' '}
-								<code>'ACTIVATION_REQUIRED'</code>, User flow always uses{' '}
-								<code>'ACTIVATION_REQUIRED'</code>
-							</li>
-							<li>
-								<strong>OTP Requirement:</strong> Only flows with <code>'ACTIVATION_REQUIRED'</code>{' '}
-								status trigger OTP automatically
-							</li>
-							<li>
-								<strong>User Token:</strong> User flow includes <code>userToken</code> field from
-								OAuth login
-							</li>
-						</ul>
+							<h3
+								style={{
+									margin: '0 0 16px 0',
+									fontSize: '16px',
+									fontWeight: '600',
+									color: '#111827',
+								}}
+							>
+								🔑 Key Differences
+							</h3>
+							<ul
+								style={{
+									margin: 0,
+									paddingLeft: '20px',
+									color: '#374151',
+									fontSize: '14px',
+									lineHeight: '1.6',
+								}}
+							>
+								<li>
+									<strong>Token Type:</strong> Admin flows use <code>tokenType: 'worker'</code>,
+									User flow uses <code>tokenType: 'user'</code>
+								</li>
+								<li>
+									<strong>Authentication:</strong> Admin flows use Worker Token, User flow requires
+									User Token from OAuth login
+								</li>
+								<li>
+									<strong>Device Status:</strong> Admin flow can choose <code>'ACTIVE'</code> or{' '}
+									<code>'ACTIVATION_REQUIRED'</code>, User flow always uses{' '}
+									<code>'ACTIVATION_REQUIRED'</code>
+								</li>
+								<li>
+									<strong>OTP Requirement:</strong> Only flows with{' '}
+									<code>'ACTIVATION_REQUIRED'</code> status trigger OTP automatically
+								</li>
+								<li>
+									<strong>User Token:</strong> User flow includes <code>userToken</code> field from
+									OAuth login
+								</li>
+							</ul>
+						</div>
 					</div>
 				</div>
 			</div>
-		</div>
+		</>
 	);
 };

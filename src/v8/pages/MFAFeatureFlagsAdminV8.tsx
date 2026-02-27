@@ -110,7 +110,7 @@ export const MFAFeatureFlagsAdminV8: React.FC = () => {
 			<div style={{ maxWidth: '1200px', margin: '0 auto' }}>
 				<div
 					style={{
-						background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+						background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)',
 						borderRadius: '12px',
 						padding: '32px',
 						marginBottom: '32px',

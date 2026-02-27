@@ -50,13 +50,6 @@ export const UnifiedDeviceSelectionStepModern: React.FC<UnifiedDeviceSelectionSt
 	const [isLoading, setIsLoading] = useState(false);
 	const [loadError, setLoadError] = useState<string | null>(null);
 
-	// Load existing devices
-	useEffect(() => {
-		if (isConfigured && credentials.username) {
-			loadDevices();
-		}
-	}, [isConfigured, credentials.username, loadDevices]);
-
 	const loadDevices = async () => {
 		setIsLoading(true);
 		setLoadError(null);
@@ -80,6 +73,14 @@ export const UnifiedDeviceSelectionStepModern: React.FC<UnifiedDeviceSelectionSt
 			setIsLoading(false);
 		}
 	};
+
+	// Load existing devices
+	useEffect(() => {
+		if (isConfigured && credentials.username) {
+			loadDevices();
+		}
+		// biome-ignore lint/correctness/useExhaustiveDependencies: loadDevices is not stable; intentional
+	}, [isConfigured, credentials.username, loadDevices]);
 
 	const handleUseDevice = useCallback(() => {
 		if (!selectedDeviceId) {
@@ -199,6 +200,7 @@ export const UnifiedDeviceSelectionStepModern: React.FC<UnifiedDeviceSelectionSt
 						<div style={{ display: 'grid', gap: spacing.md }}>
 							{existingDevices.map((device) => (
 								<button
+									type="button"
 									key={device.id}
 									onClick={() => setSelectedDeviceId(device.id)}
 									style={{
