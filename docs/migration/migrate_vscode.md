@@ -59,10 +59,15 @@ This guide combines the migration workflow with lessons learned from the first p
 - `#e5e7eb` - Border gray
 - `white` / `#ffffff` - White
 
-**Header Gradient (Blue Only):**
+**Header Gradient — Blue (default) or Red (PingOne admin pages):**
 ```typescript
+// Standard blue header (flows, utilities, general pages)
 background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)'
 // NOT purple: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%) ❌
+
+// Red header (PingOne Management API pages — Webhook Viewer, Audit, etc.)
+background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
+// Title and subtitle must use color: white / rgba(255,255,255,0.85) ❌ not #0891b2
 ```
 
 **❌ FORBIDDEN COLORS:**
@@ -367,6 +372,89 @@ import ImplicitFlowV9 from './pages/flows/v9/ImplicitFlowV9';
 ```
 
 ### Step 7: Test
+
+---
+
+## 🪟 Popout Window Pattern (Monitoring Pages)
+
+Pages used to **monitor live events** (webhook viewer, debug log viewer) must support a popout window so the user can watch them while running a flow in the main tab.
+
+### 1. Create the helper utility
+
+```typescript
+// src/v8/utils/myPagePopoutHelper.ts
+const POPUP_WIDTH = 1400;
+const POPUP_HEIGHT = 900;
+
+export function openMyPagePopout(): void {
+  const left = (window.screen.width - POPUP_WIDTH) / 2;
+  const top = (window.screen.height - POPUP_HEIGHT) / 2;
+  const popup = window.open(
+    '/my-page-popout',
+    'myPagePopout',
+    `width=${POPUP_WIDTH},height=${POPUP_HEIGHT},left=${left},top=${top},resizable=yes,scrollbars=yes,toolbar=no,menubar=no,location=no`
+  );
+  if (!popup) { alert('Popup blocked. Please allow popups for this site.'); return; }
+  popup.focus();
+}
+
+export function isMyPagePopout(): boolean {
+  return window.location.pathname.includes('/my-page-popout');
+}
+```
+
+### 2. Register route in App.tsx
+
+```tsx
+// Add import
+import { isMyPagePopout } from './v8/utils/myPagePopoutHelper';
+
+// In the App component routing block — add BEFORE the main app branch:
+} : isMyPagePopout() ? (
+  <Routes>
+    <Route path="/my-page-popout" element={<MyPage />} />
+    <Route path="*" element={<Navigate to="/my-page-popout" replace />} />
+  </Routes>
+) : (
+  // ...main app
+
+// Also add inside main app Routes (so deep-linking still works):
+<Route path="/my-page-popout" element={<MyPage />} />
+```
+
+### 3. Add Popout button in the header
+
+Place the button inside `TitleRow` — hide it when already in popout via `!isMyPagePopout()`:
+
+```tsx
+import { FiExternalLink } from 'react-icons/fi';
+import { isMyPagePopout, openMyPagePopout } from '../v8/utils/myPagePopoutHelper';
+
+// In JSX header:
+{!isMyPagePopout() && (
+  <button
+    type="button"
+    onClick={openMyPagePopout}
+    style={{
+      display: 'flex', alignItems: 'center', gap: '0.4rem',
+      paddingInline: '0.85rem', paddingBlock: '0.45rem',
+      borderRadius: '0.5rem',
+      border: '1px solid rgba(255,255,255,0.4)',
+      background: 'rgba(255,255,255,0.15)',
+      color: 'white', fontSize: '0.8rem', fontWeight: 600,
+      cursor: 'pointer', whiteSpace: 'nowrap',
+    }}
+    title="Open in popout window to monitor while using the app"
+  >
+    <FiExternalLink size={14} />
+    Popout
+  </button>
+)}
+```
+
+**Reference implementation:** `src/pages/PingOneWebhookViewer.tsx` + `src/v8/utils/webhookViewerPopoutHelper.ts`
+
+---
 
 ```bash
 npm run dev
