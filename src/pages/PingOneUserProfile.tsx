@@ -300,7 +300,7 @@ interface PingOneMfaDetails {
 type PingOneMfaStatus = PingOneMfaDetails | null;
 
 const PageContainer = styled.div`
-	max-width: 90rem;
+	max-width: 1200px;
 	margin: 0 auto;
 	padding: 2rem;
 	background: #f8fafc;
@@ -313,7 +313,7 @@ const Header = styled.div`
 	gap: 1rem;
 	margin-bottom: 2rem;
 	padding: 1.5rem;
-	background: white;
+	background: #dc2626;
 	border-radius: 0.75rem;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 `;
@@ -322,11 +322,11 @@ const UserAvatar = styled.div`
 	width: 64px;
 	height: 64px;
 	border-radius: 50%;
-	background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+	background: white;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	color: white;
+	color: #dc2626;
 	font-size: 1.5rem;
 	font-weight: 600;
 `;
@@ -337,10 +337,10 @@ const UserInfo = styled.div`
 		margin: 0;
 		font-size: 1.875rem;
 		font-weight: 700;
-		color: #1f2937;
+		color: white;
 	}
 	.subtitle {
-		color: #6b7280;
+		color: #fecaca;
 		font-size: 0.875rem;
 		margin-top: 0.25rem;
 	}
@@ -356,11 +356,11 @@ const TokenStatus = styled.div<{ $variant: 'valid' | 'expired' | 'missing' }>`
 	color: ${({ $variant }) => {
 		switch ($variant) {
 			case 'valid':
-				return '#047857';
+				return '#dcfce7';
 			case 'expired':
-				return '#b45309';
+				return '#fef3c7';
 			default:
-				return '#b91c1c';
+				return '#fecaca';
 		}
 	}};
 `;
@@ -619,9 +619,32 @@ const UserSelectorCard = styled.div`
 	background: white;
 	border-radius: 0.75rem;
 	padding: 2rem;
-	max-width: 600px;
+	max-width: 860px;
 	margin: 2rem auto;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+`;
+
+const SelectorPageHeader = styled.div`
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	max-width: 860px;
+	margin: 0 auto 0 auto;
+	padding: 1.5rem 2rem;
+	background: #dc2626;
+	border-radius: 0.75rem;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+	h1 {
+		margin: 0;
+		font-size: 1.5rem;
+		font-weight: 700;
+		color: white;
+	}
+	p {
+		margin: 0.25rem 0 0;
+		font-size: 0.9rem;
+		color: rgba(255,255,255,0.85);
+	}
 `;
 
 const ServerErrorModalOverlay = styled.div`
@@ -1697,8 +1720,14 @@ const PingOneUserProfile: React.FC = () => {
 	if (!userProfile && showUserSelector) {
 		return (
 			<PageContainer>
+				<SelectorPageHeader>
+					<FiUser size={36} style={{ color: 'white', flexShrink: 0 }} />
+					<div>
+						<h1>Select User to View Profile</h1>
+						<p>Look up a PingOne user by ID, username, or email address</p>
+					</div>
+				</SelectorPageHeader>
 				<UserSelectorCard>
-					<h2 style={{ marginTop: 0, marginBottom: '1.5rem' }}>Select User to View Profile</h2>
 					{hasValidWorkerToken ? (
 						<AlertBanner
 							style={{
@@ -1759,8 +1788,9 @@ const PingOneUserProfile: React.FC = () => {
 						style={{
 							marginBottom: '1rem',
 							display: 'flex',
-							flexDirection: 'column',
-							gap: '0.75rem',
+							flexDirection: 'row',
+							flexWrap: 'wrap',
+							gap: '1.5rem',
 						}}
 					>
 						<SilentApiConfigCheckboxV8 />
@@ -1814,7 +1844,7 @@ const PingOneUserProfile: React.FC = () => {
 								type="button"
 								onClick={() => {
 									// Clear worker token through unified service
-									
+
 									unifiedWorkerTokenService.clearToken();
 									setWorkerTokenMeta(getWorkerTokenMeta());
 									v4ToastManager.showSuccess(
@@ -2372,7 +2402,13 @@ const PingOneUserProfile: React.FC = () => {
 						<div>
 							{workerTokenStatusMessage}
 							{workerTokenStatusDetail && (
-								<div style={{ fontSize: '0.75rem', color: '#475569', marginTop: '0.125rem' }}>
+								<div
+									style={{
+										fontSize: '0.75rem',
+										color: 'rgba(255, 255, 255, 0.9)',
+										marginTop: '0.125rem',
+									}}
+								>
 									{workerTokenStatusDetail}
 								</div>
 							)}
@@ -2384,12 +2420,12 @@ const PingOneUserProfile: React.FC = () => {
 					onClick={handleStartOver}
 					style={{
 						padding: '0.5rem 1rem',
-						background: '#ef4444',
-						color: 'white',
-						border: 'none',
+						background: 'white',
+						color: '#dc2626',
+						border: '1px solid white',
 						borderRadius: '0.375rem',
 						fontSize: '0.875rem',
-						fontWeight: '500',
+						fontWeight: '600',
 						cursor: 'pointer',
 						display: 'flex',
 						alignItems: 'center',
