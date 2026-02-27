@@ -563,7 +563,7 @@ Additionally `server.js` regionMaps only handled `{ na: 'us', eu: 'eu', asia: 'a
 
 ## Session 7 — WorkerTokenSectionV8 Migration: PingOneWebhookViewer
 
-**Commit:** TBD (next commit)  
+**Commit:** `7d94c9ded`  
 **Date:** 2026-02-27  
 **Type:** Migration — replace ad-hoc token UI with standard v8 service component
 
