@@ -11,6 +11,7 @@
  */
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { FiArrowLeft, FiArrowRight, FiCheckCircle, FiMaximize2, FiMinimize2, FiMove, FiTrash2 } from 'react-icons/fi';
 import styled from 'styled-components';
 
 export interface FloatingStepperStep {
@@ -44,7 +45,7 @@ export interface FloatingStepperProps extends FloatingStepperConfig {
 }
 
 // Styled Components
-const _FloatingStepperContainer = styled.div<{
+const FloatingStepperContainer = styled.div<{
 	$position: { x: number; y: number };
 	$isDragging?: boolean;
 	$compact?: boolean;
@@ -81,7 +82,7 @@ const _FloatingStepperContainer = styled.div<{
 	}
 `;
 
-const _StepIndicator = styled.div<{ $compact?: boolean }>`
+const StepIndicator = styled.div<{ $compact?: boolean }>`
 	display: ${({ $compact }) => ($compact ? 'none' : 'flex')};
 	align-items: center;
 	gap: 0.75rem;
@@ -93,7 +94,7 @@ const _StepIndicator = styled.div<{ $compact?: boolean }>`
 	}
 `;
 
-const _StepDot = styled.div<{ $active: boolean; $completed: boolean }>`
+const StepDot = styled.div<{ $active: boolean; $completed: boolean }>`
 	width: 12px;
 	height: 12px;
 	border-radius: 50%;
@@ -105,24 +106,24 @@ const _StepDot = styled.div<{ $active: boolean; $completed: boolean }>`
 	transition: all 0.2s ease;
 `;
 
-const _StepInfo = styled.div<{ $compact?: boolean }>`
+const StepInfo = styled.div<{ $compact?: boolean }>`
 	display: ${({ $compact }) => ($compact ? 'none' : 'flex')};
 	flex-direction: column;
 	gap: 0.25rem;
 `;
 
-const _StepTitle = styled.div`
+const StepTitle = styled.div`
 	font-size: 0.875rem;
 	font-weight: 600;
 	color: #374151;
 `;
 
-const _StepDescription = styled.div`
+const StepDescription = styled.div`
 	font-size: 0.75rem;
 	color: #6b7280;
 `;
 
-const _DragHandle = styled.div`
+const DragHandle = styled.div`
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -142,13 +143,13 @@ const _DragHandle = styled.div`
 	}
 `;
 
-const _NavigationButtons = styled.div`
+const NavigationButtons = styled.div`
 	display: flex;
 	gap: 0.75rem;
 	margin-left: auto;
 `;
 
-const _NavButton = styled.button<{
+const NavButton = styled.button<{
 	$variant?: 'primary' | 'secondary' | 'danger';
 	$disabled?: boolean;
 }>`
@@ -203,7 +204,7 @@ const _NavButton = styled.button<{
 	}}
 `;
 
-const _CompactToggle = styled.button`
+const CompactToggle = styled.button`
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -310,7 +311,7 @@ export const FloatingStepper: React.FC<FloatingStepperProps> = ({
 		}
 	}, [isDragging, handleMouseMove, handleMouseUp]);
 
-	const _handleStepClick = useCallback(
+	const handleStepClick = useCallback(
 		(stepIndex: number) => {
 			if (onStepChange) {
 				onStepChange(stepIndex);
@@ -319,13 +320,13 @@ export const FloatingStepper: React.FC<FloatingStepperProps> = ({
 		[onStepChange]
 	);
 
-	const _handlePrevious = useCallback(() => {
+	const handlePrevious = useCallback(() => {
 		if (onPrevious && !isFirstStep) {
 			onPrevious();
 		}
 	}, [onPrevious, isFirstStep]);
 
-	const _handleNext = useCallback(() => {
+	const handleNext = useCallback(() => {
 		if (onNext && canNavigateNext) {
 			onNext();
 		} else if (onComplete && isLastStep) {
@@ -333,62 +334,51 @@ export const FloatingStepper: React.FC<FloatingStepperProps> = ({
 		}
 	}, [onNext, onComplete, canNavigateNext, isLastStep]);
 
-	const _handleReset = useCallback(() => {
+	const handleReset = useCallback(() => {
 		if (onReset) {
 			onReset();
 		}
 	}, [onReset]);
 
-	const _toggleCompact = useCallback(() => {
+	const toggleCompact = useCallback(() => {
 		setIsCompact((prev) => !prev);
 	}, []);
 
 	return (
 		<FloatingStepperContainer
 			ref={dragRef}
-	$position = { currentPosition };
-	$isDragging = { isDragging };
-	$compact = { isCompact };
-	$variant = { variant };
-	$theme = { theme };
-	onMouseDown = { handleMouseDown };
-	className = { className };
-	style={style}
+			$position={currentPosition}
+			$isDragging={isDragging}
+			$compact={isCompact}
+			$variant={variant}
+			$theme={theme}
+			onMouseDown={handleMouseDown}
+			className={className}
+			style={style}
 		>
 			{draggable && (
-				<_DragHandle>
-					<_FiMove _size={16} />
-				</_DragHandle>
-	)
-};
+				<DragHandle>
+					<FiMove size={16} />
+				</DragHandle>
+			)}
 
-{
-	showStepIndicator && !isCompact && (
+			{showStepIndicator && !isCompact && (
 				<StepIndicator>
 					{steps.slice(0, 3).map((step, index) => (
-						<_StepDot
-							_key={step.id}
-							_$active={index === currentStep}
-							_$completed={step.completed || index < currentStep}
+						<StepDot
+							key={step.id}
+							$active={index === currentStep}
+							$completed={step.completed || index < currentStep}
 						/>
-					)
-	)
-}
-{
-	totalSteps > 3 && <span>
-	...</span>
-}
-<StepDot
+					))}
+					{totalSteps > 3 && <span>...</span>}
+					<StepDot
 						$active={totalSteps - 1 === currentStep}
-$completed={steps[totalSteps - 1]?.completed || totalSteps - 1 < currentStep}
+						$completed={steps[totalSteps - 1]?.completed || totalSteps - 1 < currentStep}
 					/>
 					<StepInfo $compact={isCompact}>
 						<StepTitle>
-							{showStepNumbers && `${currentStep + 1}/$
-{
-	totalSteps;
-}
-`}
+							{showStepNumbers && `${currentStep + 1}/${totalSteps}`}
 							{steps[currentStep]?.title}
 						</StepTitle>
 						{steps[currentStep]?.description && (
