@@ -10770,12 +10770,11 @@ app.post('/api/pingone/subscriptions', express.json(), async (req, res) => {
 		if (
 			!subscriptionData ||
 			!subscriptionData.name ||
-			!subscriptionData.enabled ||
-			!subscriptionData.destination
+			!subscriptionData.httpEndpoint?.url
 		) {
 			return res.status(400).json({
 				error: 'invalid_request',
-				error_description: 'Missing required fields: name, enabled, destination',
+				error_description: 'Missing required fields: name, httpEndpoint.url',
 			});
 		}
 
