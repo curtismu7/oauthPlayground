@@ -62,14 +62,14 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 	isLoadingPolicies,
 	policiesError,
 	refreshDeviceAuthPolicies,
-	showWorkerTokenModal,
-	setShowWorkerTokenModal,
-	showUserLoginModal,
+	_showWorkerTokenModal,
+	_setShowWorkerTokenModal,
+	_showUserLoginModal,
 	setShowUserLoginModal,
-	showSettingsModal,
-	setShowSettingsModal,
+	showSettingsModal: _showSettingsModal,
+	setShowSettingsModal: _setShowSettingsModal,
 	isLoading,
-	setIsLoading,
+	setIsLoading: _setIsLoading,
 	nav,
 	config,
 	registrationFlowType = 'admin',
@@ -228,6 +228,7 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 	/**
 	 * Validate configuration fields
 	 */
+	// biome-ignore lint/correctness/useExhaustiveDependencies: dep array is intentionally explicit
 	const validateConfiguration = useCallback((): boolean => {
 		const newErrors: Record<string, string> = {};
 
@@ -546,7 +547,7 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 
 					{/* Registration Flow Type Selection */}
 					<div className="form-field">
-						<label
+						<p
 							style={{
 								display: 'flex',
 								alignItems: 'center',
@@ -555,11 +556,12 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 								fontWeight: '600',
 								color: '#374151',
 								marginBottom: '12px',
+								margin: '0 0 12px 0',
 							}}
 						>
 							Registration Flow <span className="required">*</span>
 							<MFAInfoButtonV8 contentKey="mfa.registrationFlowType" displayMode="modal" />
-						</label>
+						</p>
 						<div
 							style={{
 								display: 'flex',
