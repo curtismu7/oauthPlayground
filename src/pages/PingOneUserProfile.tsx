@@ -14,6 +14,7 @@ import {
 	FiShield,
 	FiUser,
 	FiUsers,
+	FiKey,
 	FiX,
 } from 'react-icons/fi';
 import { useSearchParams } from 'react-router-dom';
@@ -29,14 +30,6 @@ import { v4ToastManager } from '../utils/v4ToastMessages';
 import { ShowTokenConfigCheckboxV8 } from '../v8/components/ShowTokenConfigCheckboxV8';
 import { SilentApiConfigCheckboxV8 } from '../v8/components/SilentApiConfigCheckboxV8';
 import { WorkerTokenModalV8 } from '../v8/components/WorkerTokenModalV8';
-
-interface WorkerTokenMeta {
-	hasToken: boolean;
-	expiresAt: number | null;
-	isExpired: boolean;
-	relativeDescription: string;
-	absoluteDescription: string;
-}
 
 interface PingOneConsentRecord {
 	id?: string;
@@ -54,53 +47,6 @@ interface UserDataBundle {
 	resolvedId: string;
 	consents: PingOneConsentRecord[];
 }
-
-/**
- * Returns human readable strings describing how long remains before expiration.
- */
-const describeExpiry = (expiresAt: number | null): { relative: string; absolute: string } => {
-	if (!expiresAt) {
-		return {
-			relative: 'Expiration time unavailable. Generate a new worker token.',
-			absolute: 'Unknown expiration',
-		};
-	}
-
-	const now = Date.now();
-	const diffMs = expiresAt - now;
-	const absolute = new Date(expiresAt).toLocaleString('en-US', {
-		year: 'numeric',
-		month: 'short',
-		day: 'numeric',
-		hour: '2-digit',
-		minute: '2-digit',
-	});
-
-	const minutes = Math.round(Math.abs(diffMs) / 60000);
-	const hours = Math.floor(minutes / 60);
-	const remainingMinutes = minutes % 60;
-	const buildSegment = () => {
-		if (hours > 0 && remainingMinutes > 0) {
-			return `${hours}h ${remainingMinutes}m`;
-		}
-		if (hours > 0) {
-			return `${hours}h`;
-		}
-		return `${minutes || 1}m`;
-	};
-
-	if (diffMs <= 0) {
-		return {
-			relative: `Expired ${buildSegment()} ago`,
-			absolute,
-		};
-	}
-
-	return {
-		relative: `Expires in ${buildSegment()}`,
-		absolute,
-	};
-};
 
 const extractLabel = (
 	input: unknown,
@@ -206,50 +152,6 @@ const isAffirmativeStatus = (status: string): boolean => {
 		'true',
 		'consented',
 	].includes(normalized);
-};
-
-/**
- * Reads worker token status from unified worker token service.
- * Uses unifiedWorkerTokenService to match the rest of the application.
- */
-const getWorkerTokenMeta = (): WorkerTokenMeta => {
-	try {
-		const data = unifiedWorkerTokenService.getTokenDataSync();
-		if (!data || !data.token) {
-			return {
-				hasToken: false,
-				expiresAt: null,
-				isExpired: false,
-				relativeDescription: 'No worker token found. Generate one to continue.',
-				absoluteDescription: 'Unknown expiration',
-			};
-		}
-
-		const token = data.token || '';
-		const expiresAtParsed = data.expiresAt ? Number(data.expiresAt) : null;
-		const hasToken = Boolean(token);
-		const hasExpiration = typeof expiresAtParsed === 'number' && Number.isFinite(expiresAtParsed);
-
-		const isExpired = hasExpiration && expiresAtParsed < Date.now();
-		const { relative, absolute } = describeExpiry(expiresAtParsed);
-
-		return {
-			hasToken,
-			expiresAt: hasExpiration ? expiresAtParsed : null,
-			isExpired,
-			relativeDescription: hasToken ? relative : 'No worker token found. Generate one to continue.',
-			absoluteDescription: absolute,
-		};
-	} catch (error) {
-		console.warn('Unable to read worker token metadata:', error);
-		return {
-			hasToken: false,
-			expiresAt: null,
-			isExpired: false,
-			relativeDescription: 'No worker token found. Generate one to continue.',
-			absoluteDescription: 'Unknown expiration',
-		};
-	}
 };
 
 interface PingOneUserProfileData {
@@ -852,9 +754,6 @@ const PingOneUserProfile: React.FC = () => {
 	);
 	const [identifierError, setIdentifierError] = useState<string | null>(null);
 	const [isResolvingUser, setIsResolvingUser] = useState(false);
-	const [workerTokenMeta, setWorkerTokenMeta] = useState<WorkerTokenMeta>(() =>
-		getWorkerTokenMeta()
-	);
 	const [compareIdentifier, setCompareIdentifier] = useState('');
 	const [comparisonResolvedId, setComparisonResolvedId] = useState('');
 	const [comparisonProfile, setComparisonProfile] = useState<PingOneUserProfileData | null>(null);
@@ -864,6 +763,16 @@ const PingOneUserProfile: React.FC = () => {
 	const [comparisonConsents, setComparisonConsents] = useState<PingOneConsentRecord[]>([]);
 	const [isComparisonLoading, setIsComparisonLoading] = useState(false);
 	const [comparisonError, setComparisonError] = useState<string | null>(null);
+
+	const handleClearWorkerToken = () => {
+		localStorage.removeItem('unified_worker_token');
+		v4ToastManager.showSuccess('Worker token cleared successfully.');
+		window.location.reload();
+	};
+
+	const handleGetWorkerToken = useCallback(() => {
+		setShowWorkerTokenModal(true);
+	}, []);
 
 	const fetchUserBundle = useCallback(
 		async (targetUserId: string): Promise<UserDataBundle> => {
@@ -1399,7 +1308,7 @@ const PingOneUserProfile: React.FC = () => {
 			return;
 		}
 
-		if (workerTokenMeta.isExpired) {
+		if (!globalTokenStatus.isValid) {
 			v4ToastManager.showError('Worker token expired. Generate a new worker token to continue.');
 			return;
 		}
@@ -1490,7 +1399,7 @@ const PingOneUserProfile: React.FC = () => {
 		} finally {
 			setIsResolvingUser(false);
 		}
-	}, [accessToken, environmentId, userIdentifier, fetchUserProfile, workerTokenMeta.isExpired]);
+	}, [accessToken, environmentId, userIdentifier, fetchUserProfile, globalTokenStatus.isValid]);
 
 	const handleLoadComparisonUser = useCallback(async () => {
 		if (!accessToken) {
@@ -1498,7 +1407,7 @@ const PingOneUserProfile: React.FC = () => {
 			return;
 		}
 
-		if (workerTokenMeta.isExpired) {
+		if (!globalTokenStatus.isValid) {
 			v4ToastManager.showError(
 				'Worker token expired. Generate a new worker token to compare access.'
 			);
@@ -1568,7 +1477,7 @@ const PingOneUserProfile: React.FC = () => {
 		} finally {
 			setIsComparisonLoading(false);
 		}
-	}, [accessToken, environmentId, compareIdentifier, fetchUserBundle, workerTokenMeta.isExpired]);
+	}, [accessToken, environmentId, compareIdentifier, fetchUserBundle, globalTokenStatus.isValid]);
 
 	const handleClearComparison = useCallback(() => {
 		setComparisonProfile(null);
@@ -1589,43 +1498,17 @@ const PingOneUserProfile: React.FC = () => {
 
 	useEffect(() => {
 		const handleStorageChange = (event: StorageEvent) => {
-			if (!event.key || event.key === 'worker_token' || event.key === 'worker_token_expires_at') {
-				// Global token status will automatically update
-				setWorkerTokenMeta(getWorkerTokenMeta());
-			}
 			if (!event.key || event.key === 'pingone_permanent_credentials') {
 				setSavedWorkerCredentials(credentialManager.getAllCredentials());
 			}
 		};
 
-		const handleWorkerTokenUpdated = () => {
-			// Global token status will automatically update
-			setWorkerTokenMeta(getWorkerTokenMeta());
-		};
-
 		window.addEventListener('storage', handleStorageChange);
-		window.addEventListener('workerTokenUpdated', handleWorkerTokenUpdated as EventListener);
 
 		return () => {
 			window.removeEventListener('storage', handleStorageChange);
-			window.removeEventListener('workerTokenUpdated', handleWorkerTokenUpdated as EventListener);
 		};
 	}, []);
-
-	useEffect(() => {
-		setWorkerTokenMeta(getWorkerTokenMeta());
-	}, []);
-
-	// Refresh local token meta whenever the global token changes
-	useEffect(() => {
-		setWorkerTokenMeta(getWorkerTokenMeta());
-	}, [globalTokenStatus.token, globalTokenStatus.isValid]);
-
-	useEffect(() => {
-		if (workerTokenMeta.isExpired && accessToken) {
-			setShowUserSelector(true);
-		}
-	}, [workerTokenMeta.isExpired, accessToken]);
 
 	const copyToClipboard = (text: string) => {
 		navigator.clipboard.writeText(text);
@@ -1701,12 +1584,8 @@ const PingOneUserProfile: React.FC = () => {
 		);
 	}
 
-	// Use global worker token status instead of custom validation.
-	// Also treat a locally-known non-expired token as valid while global status is still loading
-	// to avoid a false "expired" flash on page load / after token generation.
-	const hasValidWorkerToken =
-		(globalTokenStatus.isValid && !!globalTokenStatus.token) ||
-		(globalTokenStatus.isLoading && workerTokenMeta.hasToken && !workerTokenMeta.isExpired);
+	// Worker token state derived from global hook
+	const hasValidWorkerToken = globalTokenStatus.isValid && !!globalTokenStatus.token;
 	const workerTokenStatusVariant: 'valid' | 'expired' | 'missing' = hasValidWorkerToken
 		? 'valid'
 		: globalTokenStatus.token
@@ -1717,13 +1596,7 @@ const PingOneUserProfile: React.FC = () => {
 		: globalTokenStatus.token
 			? `${globalTokenStatus.message}. Refresh before making new API calls.`
 			: globalTokenStatus.message;
-	const hasAbsoluteExpiration = workerTokenMeta.absoluteDescription !== 'Unknown expiration';
-	const workerTokenStatusDetail =
-		hasValidWorkerToken && hasAbsoluteExpiration
-			? `Valid until ${workerTokenMeta.absoluteDescription}.`
-			: workerTokenMeta.hasToken && hasAbsoluteExpiration
-				? `Expired on ${workerTokenMeta.absoluteDescription}.`
-				: '';
+	const workerTokenStatusDetail = '';
 
 	if (!userProfile && showUserSelector) {
 		return (
@@ -1742,35 +1615,15 @@ const PingOneUserProfile: React.FC = () => {
 								background: '#dcfce7',
 								borderColor: '#34d399',
 								color: '#047857',
-								flexDirection: 'column',
-								alignItems: 'flex-start',
 							}}
 						>
-							<div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-								<FiCheckCircle />
-								<span>Worker token detected. {workerTokenMeta.relativeDescription}.</span>
-							</div>
-							<small style={{ color: '#065f46', marginLeft: '1.75rem' }}>
-								Valid until {workerTokenMeta.absoluteDescription}.
-							</small>
-						</AlertBanner>
-					) : workerTokenMeta.hasToken && workerTokenMeta.isExpired ? (
-						<AlertBanner style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
-							<div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-								<FiAlertTriangle />
-								<span>
-									Worker token found but it has expired. {workerTokenMeta.relativeDescription}.
-								</span>
-							</div>
-							<small style={{ color: '#92400e', marginLeft: '1.75rem' }}>
-								Last expiration timestamp: {workerTokenMeta.absoluteDescription}. Generate a fresh
-								worker token to continue.
-							</small>
+							<FiCheckCircle />
+							<span>Worker token detected. Token is active.</span>
 						</AlertBanner>
 					) : (
 						<AlertBanner>
 							<FiAlertTriangle />
-							<span>No worker token found. Generate one to load a user profile.</span>
+							<span>No worker token found or token expired. Generate one to load a user profile.</span>
 						</AlertBanner>
 					)}
 					<InputField>
@@ -1787,7 +1640,6 @@ const PingOneUserProfile: React.FC = () => {
 						<WorkerTokenDetectedBanner
 							token={accessToken}
 							tokenExpiryKey="unified_worker_token"
-							message={`Worker token is active and will expire ${workerTokenMeta.relativeDescription}. Use it for API calls or generate a new one if needed.`}
 						/>
 					)}
 
@@ -1805,62 +1657,36 @@ const PingOneUserProfile: React.FC = () => {
 						<ShowTokenConfigCheckboxV8 />
 					</div>
 
-					<div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+					<div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
 						<button
 							type="button"
-							onClick={() => {
-								if (hasValidWorkerToken) {
-									v4ToastManager.showInfo(
-										'Worker token already available. Opening modal in case you want to refresh it.'
-									);
-								} else if (workerTokenMeta.hasToken) {
-									v4ToastManager.showWarning(
-										'Stored worker token has expired. Refresh it to continue.'
-									);
-								}
-								setShowWorkerTokenModal(true);
-							}}
+							onClick={handleGetWorkerToken}
 							style={{
 								flex: '1 1 200px',
 								padding: '0.75rem',
-								background: globalTokenStatus.isLoading
-									? '#6b7280'
-									: hasValidWorkerToken
-										? '#10b981'
-										: workerTokenMeta.hasToken
-											? '#f59e0b'
-											: '#3b82f6',
+								background: hasValidWorkerToken ? '#10b981' : '#3b82f6',
 								color: 'white',
 								border: 'none',
 								borderRadius: '0.375rem',
 								fontSize: '0.875rem',
 								fontWeight: 600,
 								cursor: 'pointer',
-								opacity: workerTokenMeta.hasToken && !hasValidWorkerToken ? 1 : 0.95,
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+								gap: '0.5rem',
 							}}
 						>
-							{globalTokenStatus.isLoading
-								? 'Loading...'
-								: hasValidWorkerToken
-									? 'Worker Token Ready'
-									: workerTokenMeta.hasToken
-										? 'Refresh Worker Token'
-										: 'Get Worker Token'}
+							{hasValidWorkerToken ? (
+								<><FiCheckCircle /> Worker Token Ready</>
+							) : (
+								<><FiKey /> Get Worker Token</>
+							)}
 						</button>
 						{accessToken && (
 							<button
 								type="button"
-								onClick={() => {
-									// Clear worker token through unified service
-
-									unifiedWorkerTokenService.clearToken();
-									setWorkerTokenMeta(getWorkerTokenMeta());
-									v4ToastManager.showSuccess(
-										'Worker token cleared. Generate a new token to continue.'
-									);
-									// Trigger a page reload to reset state
-									window.location.reload();
-								}}
+								onClick={handleClearWorkerToken}
 								style={{
 									flex: '0 0 auto',
 									padding: '0.75rem',
@@ -1873,20 +1699,11 @@ const PingOneUserProfile: React.FC = () => {
 									cursor: 'pointer',
 								}}
 							>
-								Clear Token
+								<FiX /> Clear Token
 							</button>
 						)}
 					</div>
-					<div
-						style={{
-							width: '100%',
-							color: hasValidWorkerToken ? '#0f766e' : '#b45309',
-							fontSize: '0.75rem',
-							marginBottom: '1.5rem',
-						}}
-					>
-						{workerTokenMeta.relativeDescription}
-					</div>
+
 					<InputField>
 						<label htmlFor="userIdentifier">User Identifier *</label>
 						<input
@@ -1959,22 +1776,10 @@ const PingOneUserProfile: React.FC = () => {
 					isOpen={showWorkerTokenModal}
 					onClose={() => setShowWorkerTokenModal(false)}
 					onTokenGenerated={() => {
-						// Global token status will automatically update
-						setWorkerTokenMeta(getWorkerTokenMeta());
 						setShowWorkerTokenModal(false);
 						setSavedWorkerCredentials(credentialManager.getAllCredentials());
 					}}
-					environmentId={(() => {
-						try {
-							const data = unifiedWorkerTokenService.getTokenDataSync();
-							if (data) {
-								return data.credentials?.environmentId || '';
-							}
-						} catch (error) {
-							console.log('Failed to load environment ID from unified worker token:', error);
-						}
-						return '';
-					})()}
+					environmentId={environmentId}
 				/>
 			</PageContainer>
 		);
@@ -3004,8 +2809,6 @@ const PingOneUserProfile: React.FC = () => {
 				isOpen={showWorkerTokenModal}
 				onClose={() => setShowWorkerTokenModal(false)}
 				onTokenGenerated={() => {
-					// Global token status will automatically update
-					setWorkerTokenMeta(getWorkerTokenMeta());
 					setShowWorkerTokenModal(false);
 					setSavedWorkerCredentials(credentialManager.getAllCredentials());
 				}}
