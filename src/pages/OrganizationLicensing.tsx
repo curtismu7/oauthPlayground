@@ -34,7 +34,7 @@ type CredentialsState = {
 
 const pageConfig = {
 	flowType: 'documentation' as const,
-	theme: 'purple' as const,
+	theme: 'blue' as const,
 	maxWidth: '64rem',
 	showHeader: true,
 	showFooter: false,
@@ -293,7 +293,7 @@ const InputLabel = styled.label`
 
 // Create V5 stepper layout components
 const stepperComponents = V7StepperService.createStepLayout({
-	theme: 'purple',
+	theme: 'blue',
 	showProgress: true,
 });
 
@@ -918,7 +918,7 @@ const OrganizationLicensingV2: React.FC = () => {
 			<ContentWrapper>
 				<div
 					style={{
-						background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+						background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)',
 						color: 'white',
 						padding: '1rem 1.5rem',
 						borderRadius: '12px',
