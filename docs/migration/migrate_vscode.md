@@ -36,6 +36,47 @@ This guide combines the migration workflow with lessons learned from the first p
 
 ---
 
+## 🎨 UI COLOR STANDARDS (MANDATORY)
+
+**Approved Colors Only:** Red, Blue, Black, White
+
+**Primary Blue (Headers, Primary Actions):**
+- `#2563eb` - Primary blue (borders, accents)
+- `#1e40af` - Darker blue (headings)
+- `#1e3a8a` - Darkest blue (text)
+- `#eff6ff` - Light blue background
+- `#dbeafe` - Lighter blue background
+
+**Red (Errors, Warnings, Destructive Actions):**
+- `#dc2626` - Error red
+- `#fef2f2` - Light red background
+
+**Neutral (Backgrounds, Borders):**
+- `#111827` - Black (primary text)
+- `#1f2937` - Dark gray (code blocks)
+- `#6b7280` - Medium gray (secondary text)
+- `#f9fafb` - Light gray (page background)
+- `#e5e7eb` - Border gray
+- `white` / `#ffffff` - White
+
+**Header Gradient (Blue Only):**
+```typescript
+background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)'
+// NOT purple: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%) ❌
+```
+
+**❌ FORBIDDEN COLORS:**
+- Purple (#8b5cf6, #7c3aed, #6d28d9, etc.)
+- Green (except success states: #10b981)
+- Orange (except warnings: #f59e0b)
+- Any color not listed above
+
+**Reference Pages:**
+- ✅ [CustomDomainTestPage.tsx](../../src/pages/CustomDomainTestPage.tsx) - Approved blue/red palette
+- ✅ [Dashboard.tsx](../../src/pages/Dashboard.tsx) - Standard blue headers
+
+---
+
 ## 🚨 Common Errors You WILL Encounter
 
 ### Error 1: Wrong Import Path Depth
@@ -558,7 +599,7 @@ curl -o src/styles/vendor/end-user-nano.css "https://assets.pingone.com/ux/end-u
 
 - [V9 Migration Lessons Learned](./V9_MIGRATION_LESSONS_LEARNED.md) - Complete error catalog
 - [V7 to V9 Migration Guide](./V7_TO_V9_MIGRATION_GUIDE.md) - Original plan
-- [Migration Cursor Guide](./migrate_cursor.md) - Cursor-specific instructions
+- [UI & Icon Migration Guide](./migrate_cursor.md) - Bootstrap/Nano/MDI icon migration (VS Code edition)
 - [Icon Migration Complete](./ICON_MIGRATION_COMPLETE.md) - Icon font setup
 - [Complete Icon List](./COMPLETE_ICON_LIST.md) - All 34 icons
 
