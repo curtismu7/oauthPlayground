@@ -605,6 +605,36 @@ curl -o src/styles/vendor/end-user-nano.css "https://assets.pingone.com/ux/end-u
 
 ---
 
+## ✅ Completed Migrations: Feb 27, 2026
+
+### PingOneWebhookViewer — Worker Token Service Migration
+
+**Commit:** `(see git log)`  
+**Date:** 2026-02-27  
+**File:** `src/pages/PingOneWebhookViewer.tsx`
+
+**Problem:**  
+The page used a bespoke ad-hoc worker token flow (`WorkerTokenModal` + `WorkerTokenDetectedBanner` + inline env ID card) instead of the standard `WorkerTokenSectionV8` service component used by all other V8 pages. The page had no visible token status section — users could not see their token state or easily refresh/clear it.
+
+**Changes:**
+- **Removed imports:** `WorkerTokenModal`, `WorkerTokenDetectedBanner`
+- **Added import:** `WorkerTokenSectionV8` from `@/v8/components/WorkerTokenSectionV8`
+- **Removed state:** `showWorkerTokenModal` (managed internally by `WorkerTokenSectionV8`)
+- **Replaced** the three conditional blocks (modal + banner + env ID card) with:
+  - `<WorkerTokenSectionV8>` — standard token status display, Get/Update/Clear buttons, internal modal, refreshes on `workerTokenUpdated` events
+  - `onTokenUpdated` callback also auto-updates `environmentId` and `selectedRegion` from `unified_worker_token` localStorage
+  - Compact always-visible Environment ID input below the token section
+- **Removed** the "Provide Worker Token" card inside the Subscriptions tab (now redundant — `WorkerTokenSectionV8` is always shown)
+
+**WorkerTokenSectionV8 features gained:**
+- ✅ Token status badge (green Active / red Not Set)
+- ✅ Get Worker Token / Update Token / Clear Token action buttons
+- ✅ `WorkerTokenStatusDisplayV8` embedded in compact mode
+- ✅ Responds to `workerTokenUpdated` window events for cross-tab sync
+- ✅ Consistent with all other V8 pages
+
+---
+
 ## 📝 Quick Command Reference
 
 ```bash
