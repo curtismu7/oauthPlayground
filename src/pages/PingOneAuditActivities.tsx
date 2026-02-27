@@ -27,6 +27,7 @@ import styled from 'styled-components';
 import ApiCallList from '../components/ApiCallList';
 import JSONHighlighter, { type JSONData } from '../components/JSONHighlighter';
 import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
+import { readBestEnvironmentId } from '../hooks/useAutoEnvironmentId';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import { apiRequestModalService } from '../services/apiRequestModalService';
@@ -560,31 +561,7 @@ const PingOneAuditActivities: React.FC = () => {
 	const hasWorkerToken = globalTokenStatus.isValid;
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 
-	// Environment ID state - load from unified worker token with global fallback
-	const [environmentId, setEnvironmentId] = useState<string>(() => {
-		try {
-			// First try unified worker token
-			const stored = localStorage.getItem('unified_worker_token');
-			if (stored) {
-				const data = JSON.parse(stored);
-				const envId = data.credentials?.environmentId;
-				if (envId) {
-					return envId;
-				}
-			}
-
-			// CRITICAL FIX: Fallback to global environment ID service
-			// This prevents "Environment ID is required" errors in standalone pages
-			const globalEnvId = localStorage.getItem('v8:global_environment_id');
-			if (globalEnvId) {
-				console.log('🔧 Applied global environment ID fallback for PingOneAuditActivities');
-				return globalEnvId;
-			}
-		} catch (error) {
-			console.log('Failed to load environment ID from storage:', error);
-		}
-		return '';
-	});
+	const [environmentId, setEnvironmentId] = useState<string>(() => readBestEnvironmentId());
 
 	// Filter state
 	const [actionType, setActionType] = useState('');

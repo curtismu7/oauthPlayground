@@ -10,7 +10,7 @@ import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import { usePageScroll } from '@/hooks/usePageScroll';
 import { PasskeyManagementUtility } from '@/utils/PasskeyManagementUtility';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
-import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
+import { readBestEnvironmentId } from '../hooks/useAutoEnvironmentId';
 
 export const PasskeyManager: React.FC = () => {
 	usePageScroll({ pageName: 'Passkey Manager', force: true });
@@ -21,9 +21,7 @@ export const PasskeyManager: React.FC = () => {
 	const hasWorkerToken = globalTokenStatus.isValid;
 	const [_showWorkerTokenModal, _setShowWorkerTokenModal] = useState(false);
 
-	const [environmentId, setEnvironmentId] = useState(
-		() => EnvironmentIdServiceV8.getEnvironmentId() || ''
-	);
+	const [environmentId, setEnvironmentId] = useState(() => readBestEnvironmentId());
 	const [userId, setUserId] = useState('');
 	const [loadingToken, setLoadingToken] = useState(false);
 
@@ -93,6 +91,7 @@ export const PasskeyManager: React.FC = () => {
 				<div style={{ display: 'grid', gap: '1rem' }}>
 					<div>
 						<label
+							htmlFor="passkey-env-id"
 							style={{
 								display: 'block',
 								marginBottom: '0.5rem',
@@ -104,6 +103,7 @@ export const PasskeyManager: React.FC = () => {
 							Environment ID *
 						</label>
 						<input
+							id="passkey-env-id"
 							type="text"
 							value={environmentId}
 							onChange={(e) => setEnvironmentId(e.target.value)}
@@ -120,6 +120,7 @@ export const PasskeyManager: React.FC = () => {
 
 					<div>
 						<label
+							htmlFor="passkey-user-id"
 							style={{
 								display: 'block',
 								marginBottom: '0.5rem',
@@ -131,6 +132,7 @@ export const PasskeyManager: React.FC = () => {
 							User ID *
 						</label>
 						<input
+							id="passkey-user-id"
 							type="text"
 							value={userId}
 							onChange={(e) => setUserId(e.target.value)}
@@ -147,6 +149,7 @@ export const PasskeyManager: React.FC = () => {
 
 					<div>
 						<label
+							htmlFor="passkey-worker-token"
 							style={{
 								display: 'block',
 								marginBottom: '0.5rem',
@@ -159,6 +162,7 @@ export const PasskeyManager: React.FC = () => {
 						</label>
 						<div style={{ display: 'flex', gap: '0.5rem' }}>
 							<input
+								id="passkey-worker-token"
 								type="password"
 								value={workerToken || ''}
 								readOnly
@@ -173,6 +177,7 @@ export const PasskeyManager: React.FC = () => {
 								}}
 							/>
 							<button
+								type="button"
 								onClick={handleLoadWorkerToken}
 								disabled={loadingToken || !environmentId}
 								style={{

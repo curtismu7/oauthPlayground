@@ -35,8 +35,8 @@ export interface WorkerTokenStatusLabelProps {
 export const WorkerTokenStatusLabel: React.FC<WorkerTokenStatusLabelProps> = ({
 	token,
 	expiresAt,
-	tokenStorageKey,
-	tokenExpiryKey,
+	tokenStorageKey: _tokenStorageKey,
+	tokenExpiryKey: _tokenExpiryKey,
 	align = 'flex-start',
 }) => {
 	const [tokenState, setTokenState] = React.useState<{
@@ -168,11 +168,15 @@ export const WorkerTokenStatusLabel: React.FC<WorkerTokenStatusLabelProps> = ({
 		const handleUpdate = () => setStatus(computeStatus());
 		const events = STATUS_EVENTS;
 
-		events.forEach((event) => window.addEventListener(event, handleUpdate));
+		for (const event of events) {
+			window.addEventListener(event, handleUpdate);
+		}
 		window.addEventListener('storage', handleUpdate);
 
 		return () => {
-			events.forEach((event) => window.removeEventListener(event, handleUpdate));
+			for (const event of events) {
+				window.removeEventListener(event, handleUpdate);
+			}
 			window.removeEventListener('storage', handleUpdate);
 		};
 	}, [computeStatus]);

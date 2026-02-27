@@ -20,6 +20,9 @@ interface ImportMetaEnv {
 	// Optional: backend base URL for API status / health (e.g. production when /api is not proxied)
 	readonly VITE_BACKEND_URL?: string;
 
+	// Optional: public app URL / custom domain (e.g. https://api.pingdemo.com:3000); set by run.sh
+	readonly VITE_PUBLIC_APP_URL?: string;
+
 	// Feature Flags
 	readonly VITE_FEATURE_DEBUG_MODE: string;
 }

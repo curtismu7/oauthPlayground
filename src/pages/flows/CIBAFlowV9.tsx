@@ -31,7 +31,7 @@ import styled from 'styled-components';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 import { Button } from '@/components/ui/button';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
-import { v4ToastManager } from '@/utils/v4ToastManager';
+import { v4ToastManager } from '@/utils/v4ToastMessages';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import { WorkerTokenStatusDisplayV8 } from '@/v8/components/WorkerTokenStatusDisplayV8';
 import {

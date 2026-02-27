@@ -45,6 +45,11 @@ export class LogFileService {
 			const apiBase = getLogsApiBase();
 			const response = await fetch(`${apiBase}/list`);
 			if (!response.ok) {
+				if (response.status === 404) {
+					throw new Error(
+						'Log API not available. Start the backend server (e.g. ./run.sh) to view logs.'
+					);
+				}
 				throw new Error(`Failed to list log files: ${response.statusText}`);
 			}
 			const files = (await response.json()) as Array<{
@@ -59,7 +64,10 @@ export class LogFileService {
 				category: f.category as LogFile['category'],
 			}));
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to list log files:`, error);
+			const msg = error instanceof Error ? error.message : '';
+			if (!msg.includes('Log API not available')) {
+				console.error(`${MODULE_TAG} Failed to list log files:`, error);
+			}
 			throw error;
 		}
 	}
@@ -113,7 +121,7 @@ export class LogFileService {
 			}
 			return {
 				...data,
-				modified: new Date(data.modified),
+				modified: new Date((data as { modified?: string | null }).modified ?? 0),
 			};
 		} catch (error) {
 			// Only log unexpected errors; 404 message is user-facing and shown in UI
