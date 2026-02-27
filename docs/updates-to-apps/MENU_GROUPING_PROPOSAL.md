@@ -16,7 +16,7 @@ Top-level groups and their items. Subgroups are indented.
 | 4 | **OAuth 2.0 Flows** | Authorization Code (V7.2), Implicit Flow (V7), Device Authorization (V7), Client Credentials (V7) |
 | 5 | **OpenID Connect** | Authorization Code (V7.2), Implicit Flow (V7), Device Authorization (V7 – OIDC), Hybrid Flow (V7) |
 | 6 | **PingOne Flows** | Pushed Authorization Request (V7), PingOne MFA (V7), PingOne MFA Workflow Library (V7), Kroger Grocery Store MFA, PingOne Authentication, Redirectless Flow (V7), PAR Flow |
-| 7 | **Token Apps** | Worker Token (V7), Worker Token Check, Token Management, Token Introspection, Token Revocation, UserInfo Flow, PingOne Logout |
+| 7 | **Token Apps** | Worker Token (V7), Credential Management & Token Tester, Token Management, Token Introspection, Token Revocation, UserInfo Flow, PingOne Logout |
 | 8 | **Mock & Educational Flows** | → **OAuth Mock Flows**: JWT Bearer (V7), SAML Bearer (V7), ROPC (V7), OAuth2 ROPC (Legacy), Advanced OAuth Parameters Demo, Mock OIDC ROPC, Auth Code Condensed (Mock), V7 Condensed (Prototype) • → **Advanced Mock Flows**: DPoP (Educational), RAR Flow (V7), SAML Service Provider (V1) |
 | 9 | **PingOne Tools** | → **PingOne User & Identity**: User Profile, Identity Metrics, Password Reset • → **PingOne Monitoring**: Audit Activities, Webhook Viewer, Organization Licensing |
 | 10 | **Developer Tools** | → **Core Developer Tools**: OIDC Discovery, Advanced Configuration • → **Developer Utilities**: JWKS Troubleshooting, URL Decoder, OAuth Code Generator Hub, Application Generator, Client Generator, Service Test Runner, Postman Collection Generator |
@@ -153,7 +153,8 @@ Token and session management in one place.
 | Path | Label |
 |------|--------|
 | `/flows/worker-token-v7` | Worker Token (V7) |
-| `/worker-token-tester` | Worker Token Check |
+| `/credential-management` | Credential Management & Token Tester |
+| ~~`/worker-token-tester`~~ | ~~Worker Token Check~~ → redirects to `/credential-management` |
 | `/token-management` | Token Management |
 | `/flows/token-introspection` | Token Introspection |
 | `/flows/token-revocation` | Token Revocation |
