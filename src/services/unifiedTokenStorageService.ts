@@ -1392,10 +1392,11 @@ export class UnifiedTokenStorageService {
 	 */
 	async loadV8Versioned<T>(key: string, migrations?: Migration[]): Promise<T | null> {
 		try {
-			const tokens = await this.getTokens({
+			const result = await this.getTokens({
 				type: 'v8_storage',
 				key,
 			});
+			const tokens = result.data ?? [];
 
 			if (tokens.length === 0) {
 				logger.info(MODULE_TAG, 'No V8 versioned data found', { key });
@@ -1509,10 +1510,10 @@ export class UnifiedTokenStorageService {
 	 */
 	async getAllV8Keys(): Promise<string[]> {
 		try {
-			const tokens = await this.getTokens({
+			const result = await this.getTokens({
 				type: 'v8_storage',
 			});
-			return tokens.map((token) => token.metadata?.key || token.id);
+			return (result.data ?? []).map((token) => token.metadata?.key || token.id);
 		} catch (error) {
 			logger.error(MODULE_TAG, 'Failed to get all V8 keys', error as Error);
 			return [];
@@ -1524,12 +1525,12 @@ export class UnifiedTokenStorageService {
 	 */
 	async exportAllV8(): Promise<string> {
 		try {
-			const tokens = await this.getTokens({
+			const result = await this.getTokens({
 				type: 'v8_storage',
 			});
 			const data: Record<string, StorageData> = {};
 
-			tokens.forEach((token) => {
+			(result.data ?? []).forEach((token) => {
 				try {
 					const storageData: StorageData = JSON.parse(token.value);
 					const key = token.metadata?.key || token.id;
@@ -1608,11 +1609,11 @@ export class UnifiedTokenStorageService {
 	 */
 	async hasV8Key(key: string): Promise<boolean> {
 		try {
-			const tokens = await this.getTokens({
+			const result = await this.getTokens({
 				type: 'v8_storage',
 				key,
 			});
-			return tokens.length > 0;
+			return (result.data?.length ?? 0) > 0;
 		} catch (error) {
 			logger.error(MODULE_TAG, 'Failed to check V8 key existence', error as Error);
 			return false;
@@ -1624,10 +1625,11 @@ export class UnifiedTokenStorageService {
 	 */
 	async getV8Age(key: string): Promise<number | null> {
 		try {
-			const tokens = await this.getTokens({
+			const result = await this.getTokens({
 				type: 'v8_storage',
 				key,
 			});
+			const tokens = result.data ?? [];
 
 			if (tokens.length === 0) {
 				return null;
