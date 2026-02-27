@@ -23,6 +23,7 @@ import { readBestEnvironmentId } from '../hooks/useAutoEnvironmentId';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { lookupPingOneUser } from '../services/pingOneUserProfileService';
+import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { credentialManager } from '../utils/credentialManager';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { ShowTokenConfigCheckboxV8 } from '../v8/components/ShowTokenConfigCheckboxV8';
@@ -208,13 +209,13 @@ const isAffirmativeStatus = (status: string): boolean => {
 };
 
 /**
- * Reads worker token status from localStorage so UI can guide the user.
- * Uses unified_worker_token to match the rest of the application.
+ * Reads worker token status from unified worker token service.
+ * Uses unifiedWorkerTokenService to match the rest of the application.
  */
 const getWorkerTokenMeta = (): WorkerTokenMeta => {
 	try {
-		const stored = localStorage.getItem('unified_worker_token');
-		if (!stored) {
+		const data = unifiedWorkerTokenService.getTokenDataSync();
+		if (!data || !data.token) {
 			return {
 				hasToken: false,
 				expiresAt: null,
@@ -224,7 +225,6 @@ const getWorkerTokenMeta = (): WorkerTokenMeta => {
 			};
 		}
 
-		const data = JSON.parse(stored);
 		const token = data.token || '';
 		const expiresAtParsed = data.expiresAt ? Number(data.expiresAt) : null;
 		const hasToken = Boolean(token);
@@ -815,7 +815,7 @@ const PingOneUserProfile: React.FC = () => {
 		setIsComparisonLoading(false);
 	}, []);
 
-	// Use global worker token service instead of custom localStorage handling
+	// Use global worker token service (unified storage)
 	// IMPORTANT: Must be declared before fetchUserBundle callback to avoid TDZ errors
 	const globalTokenStatus = useGlobalWorkerToken();
 
@@ -1247,7 +1247,7 @@ const PingOneUserProfile: React.FC = () => {
 					v4ToastManager.showError(
 						'Worker token expired or missing permissions. Please generate a new worker token.'
 					);
-					// Token is managed by workerTokenManager via unified_worker_token
+					// Clear worker token through unified service
 					setShowUserSelector(true);
 					return;
 				}
@@ -1315,12 +1315,9 @@ const PingOneUserProfile: React.FC = () => {
 	useEffect(() => {
 		const handleTokenUpdate = () => {
 			try {
-				const stored = localStorage.getItem('unified_worker_token');
-				if (stored) {
-					const data = JSON.parse(stored);
-					if (data.credentials?.environmentId && !environmentId) {
-						setEnvironmentId(data.credentials.environmentId);
-					}
+				const data = unifiedWorkerTokenService.getTokenDataSync();
+				if (data?.credentials?.environmentId && !environmentId) {
+					setEnvironmentId(data.credentials.environmentId);
 				}
 			} catch (error) {
 				console.log('Failed to update environment ID from worker token:', error);
@@ -1443,7 +1440,7 @@ const PingOneUserProfile: React.FC = () => {
 			}
 			try {
 				localStorage.setItem('worker_environment_id', trimmedEnvironment);
-				// Token is managed by workerTokenManager via unified_worker_token
+				// Clear worker token through unified service
 				if (finalIdentifier) {
 					localStorage.setItem(USER_IDENTIFIER_STORAGE_KEY, finalIdentifier);
 				}
@@ -1816,9 +1813,9 @@ const PingOneUserProfile: React.FC = () => {
 							<button
 								type="button"
 								onClick={() => {
-									// Token is managed by workerTokenManager via unified_worker_token
-									// Clear it through the manager
-									localStorage.removeItem('unified_worker_token');
+									// Clear worker token through unified service
+									
+									unifiedWorkerTokenService.clearToken();
 									setWorkerTokenMeta(getWorkerTokenMeta());
 									v4ToastManager.showSuccess(
 										'Worker token cleared. Generate a new token to continue.'
@@ -1931,9 +1928,8 @@ const PingOneUserProfile: React.FC = () => {
 					}}
 					environmentId={(() => {
 						try {
-							const stored = localStorage.getItem('unified_worker_token');
-							if (stored) {
-								const data = JSON.parse(stored);
+							const data = unifiedWorkerTokenService.getTokenDataSync();
+							if (data) {
 								return data.credentials?.environmentId || '';
 							}
 						} catch (error) {
