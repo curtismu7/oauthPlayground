@@ -56,6 +56,7 @@ import { UnifiedActivationStep } from './components/UnifiedActivationStep';
 import { UnifiedDeviceRegistrationForm } from './components/UnifiedDeviceRegistrationForm';
 import { UnifiedDeviceSelectionModal } from './components/UnifiedDeviceSelectionModal';
 import { UnifiedSuccessStep } from './components/UnifiedSuccessStep';
+import { usePageStepper } from '../../../contexts/FloatingStepperContext';
 import './UnifiedMFAFlow.css';
 
 const MODULE_TAG = '[🔄 UNIFIED-MFA-FLOW-V8]';
@@ -1494,6 +1495,24 @@ export const UnifiedMFARegistrationFlowV8: React.FC<UnifiedMFARegistrationFlowV8
 		});
 		return savedCreds?.accessToken || null;
 	});
+
+	// Global floating stepper
+	const { registerSteps, setCurrentStep: setStepperStep } = usePageStepper();
+
+	useEffect(() => {
+		registerSteps([
+			{ id: 'device-select', title: 'Select Device', description: 'Choose your MFA device type' },
+			{ id: 'configure', title: 'Configure', description: 'Set credentials and environment ID' },
+			{ id: 'user-login', title: 'User Login', description: 'Authenticate the user' },
+			{ id: 'register', title: 'Register', description: 'Generate OTP or QR code' },
+			{ id: 'validate', title: 'Validate', description: 'Complete OTP validation' },
+			{ id: 'success', title: 'Success', description: 'Device registered successfully' },
+		]);
+	}, [registerSteps]);
+
+	useEffect(() => {
+		setStepperStep(selectedDeviceType ? 1 : 0);
+	}, [selectedDeviceType, setStepperStep]);
 
 	// If no device type selected, show device type selection screen
 	if (!selectedDeviceType) {
