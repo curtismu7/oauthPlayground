@@ -99,6 +99,7 @@ import AutoDiscover from './pages/AutoDiscover';
 import CIBAvsDeviceAuthz from './pages/CIBAvsDeviceAuthz';
 import CompetitiveAnalysis from './pages/CompetitiveAnalysis';
 import ComprehensiveOAuthEducation from './pages/ComprehensiveOAuthEducation';
+import CustomDomainTestPage from './pages/CustomDomainTestPage';
 import Dashboard from './pages/Dashboard';
 import DpopAuthorizationCodeFlowV8 from './pages/DpopAuthorizationCodeFlowV8';
 import OAuth2SecurityBestPractices from './pages/docs/OAuth2SecurityBestPractices.tsx';
@@ -119,10 +120,13 @@ import EnvironmentIdInputDemo from './pages/EnvironmentIdInputDemo';
 import AdvancedOAuthParametersDemoFlow from './pages/flows/AdvancedOAuthParametersDemoFlow';
 import CIBAFlowV9 from './pages/flows/CIBAFlowV9';
 import ClientCredentialsFlowV7 from './pages/flows/ClientCredentialsFlowV7';
+import ClientCredentialsFlowV9 from './pages/flows/v9/ClientCredentialsFlowV9';
 import DeviceAuthorizationFlowV7 from './pages/flows/DeviceAuthorizationFlowV7';
+import DeviceAuthorizationFlowV9 from './pages/flows/v9/DeviceAuthorizationFlowV9';
 import DPoPFlow from './pages/flows/DPoPFlow';
 import IDTokensFlow from './pages/flows/IDTokensFlow';
 import ImplicitFlowV7 from './pages/flows/ImplicitFlowV7';
+import ImplicitFlowV9 from './pages/flows/v9/ImplicitFlowV9';
 import JWTBearerFlow from './pages/flows/JWTBearerFlow';
 import JWTBearerTokenFlowV7 from './pages/flows/JWTBearerTokenFlowV7';
 import KrogerGroceryStoreMFA from './pages/flows/KrogerGroceryStoreMFA';
@@ -131,6 +135,7 @@ import OAuth2CompliantAuthorizationCodeFlow from './pages/flows/OAuth2CompliantA
 import OAuth2ResourceOwnerPasswordFlow from './pages/flows/OAuth2ResourceOwnerPasswordFlow';
 import OAuthAuthorizationCodeFlowV7 from './pages/flows/OAuthAuthorizationCodeFlowV7';
 import OAuthAuthorizationCodeFlowV7_2 from './pages/flows/OAuthAuthorizationCodeFlowV7_2';
+import OAuthAuthorizationCodeFlowV9 from './pages/flows/v9/OAuthAuthorizationCodeFlowV9';
 import OAuthImplicitFlowCompletion from './pages/flows/OAuthImplicitFlowCompletion';
 import OAuthROPCFlowV7 from './pages/flows/OAuthROPCFlowV7';
 import OIDCCompliantAuthorizationCodeFlow from './pages/flows/OIDCCompliantAuthorizationCodeFlow';
@@ -210,20 +215,11 @@ const UnifiedMFARegistrationFlowV8_Legacy = React.lazy(() =>
 		default: module.UnifiedMFARegistrationFlowV8,
 	}))
 );
-const _EmailFlowV8 = React.lazy(() =>
-	import('./v8/flows/types/EmailFlowV8').then((module) => ({ default: module.EmailFlowV8 }))
-);
 const FIDO2FlowV8 = React.lazy(() =>
 	import('./v8/flows/types/FIDO2FlowV8').then((module) => ({ default: module.FIDO2FlowV8 }))
 );
 const MobileFlowV8 = React.lazy(() =>
 	import('./v8/flows/types/MobileFlowV8').then((module) => ({ default: module.MobileFlowV8 }))
-);
-const _SMSFlowV8 = React.lazy(() =>
-	import('./v8/flows/types/SMSFlowV8').then((module) => ({ default: module.SMSFlowV8 }))
-);
-const _WhatsAppFlowV8 = React.lazy(() =>
-	import('./v8/flows/types/WhatsAppFlowV8').then((module) => ({ default: module.WhatsAppFlowV8 }))
 );
 
 import EnvironmentManagementPageV8 from './pages/EnvironmentManagementPageV8';
@@ -633,6 +629,8 @@ const AppRoutes: React.FC = () => {
 								<Route path="/sdk-examples/davinci-todo-app" element={<DavinciTodoApp />} />
 								{/* Environment Management */}
 								<Route path="/environments" element={<EnvironmentManagementPageV8 />} />
+								{/* Custom Domain & API Test */}
+								<Route path="/custom-domain-test" element={<CustomDomainTestPage />} />
 								{/* DaVinci Todo App */}
 								<Route path="/davinci-todo" element={<DavinciTodoApp />} />
 								{/* V7 OAuth/OIDC Flow Routes */}
@@ -643,6 +641,10 @@ const AppRoutes: React.FC = () => {
 								<Route
 									path="/flows/oauth-authorization-code-v7-2"
 									element={<OAuthAuthorizationCodeFlowV7_2 />}
+								/>
+								<Route
+									path="/flows/oauth-authorization-code-v9"
+									element={<OAuthAuthorizationCodeFlowV9 />}
 								/>
 								<Route
 									path="/flows/oauth-authorization-code-v8"
@@ -860,6 +862,8 @@ const AppRoutes: React.FC = () => {
 								<Route path="/flows/implicit-v7" element={<ImplicitFlowV7 />} />
 								{/* V8 Implicit Flow */}
 								<Route path="/flows/implicit-v8" element={<ImplicitFlowV8 />} />
+								{/* V9 Implicit Flow */}
+								<Route path="/flows/implicit-v9" element={<ImplicitFlowV9 />} />
 								{/* V8 Unified UI Mockup */}
 								<Route
 									path="/v8/unified-credentials-mockup"
@@ -1071,6 +1075,11 @@ const AppRoutes: React.FC = () => {
 									path="/flows/device-authorization-v7"
 									element={<DeviceAuthorizationFlowV7 />}
 								/>
+								{/* V9 Device Authorization Flow */}
+								<Route
+									path="/flows/device-authorization-v9"
+									element={<DeviceAuthorizationFlowV9 />}
+								/>
 								{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
 								<Route
 									path="/flows/device-authorization-v6"
@@ -1112,6 +1121,8 @@ const AppRoutes: React.FC = () => {
 								/>
 								{/* V7 Client Credentials Flow */}
 								<Route path="/flows/client-credentials-v7" element={<ClientCredentialsFlowV7 />} />
+								{/* V9 Client Credentials Flow */}
+								<Route path="/flows/client-credentials-v9" element={<ClientCredentialsFlowV9 />} />
 								{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
 								<Route
 									path="/flows/client-credentials-v6"
@@ -1294,7 +1305,7 @@ const AppRoutes: React.FC = () => {
 										</Suspense>
 									}
 								/>
-								<Route path="/advanced-config" element={<AdvancedConfiguration />} />
+								<Route path="/advanced-configuration" element={<AdvancedConfiguration />} />
 								<Route
 									path="/advanced-security-settings"
 									element={<AdvancedSecuritySettingsDemo />}
