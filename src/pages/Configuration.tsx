@@ -25,18 +25,19 @@ import PingOneApplicationConfig, {
 } from '../components/PingOneApplicationConfig';
 import type { StepCredentials } from '../components/steps/CommonSteps';
 import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
-import { WorkerTokenModal } from '../components/WorkerTokenModal';
-import { WorkerTokenStatusLabel } from '../components/WorkerTokenStatusLabel';
+import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { usePageScroll } from '../hooks/usePageScroll';
+import { WorkerTokenModalV8 } from '../v8/components/WorkerTokenModalV8';
+import { WorkerTokenStatusDisplayV8 } from '../v8/components/WorkerTokenStatusDisplayV8';
 import { callbackUriService } from '../services/callbackUriService';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { CopyButtonService } from '../services/copyButtonService';
 import { credentialStorageManager } from '../services/credentialStorageManager';
 import { FlowHeader } from '../services/flowHeaderService';
 import { SaveButton } from '../services/saveButtonService';
+import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { credentialManager } from '../utils/credentialManager';
 import { v4ToastManager } from '../utils/v4ToastMessages';
-import { WorkerTokenStatusServiceV8 } from '../v8/services/workerTokenStatusServiceV8';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -541,13 +542,20 @@ const Configuration: React.FC = () => {
 	});
 	const [pingOneConfigSaved, setPingOneConfigSaved] = useState(false);
 
-	const [workerTokenLoading, _setWorkerTokenLoading] = useState(false);
-	const [workerTokenError, _setWorkerTokenError] = useState<string | null>(null);
-	const [showWorkerToken, setShowWorkerToken] = useState(false);
+	// Global worker token for authenticated API calls
+	const globalTokenStatus = useGlobalWorkerToken();
+
+	// Worker token state - using unifiedWorkerTokenService for consistency
+	const [workerToken, setWorkerToken] = useState<string>(() => {
+		// Try to get token from unifiedWorkerTokenService first
+		try {
+			const tokenData = unifiedWorkerTokenService.getTokenDataSync();
+			return tokenData?.token || '';
+		} catch {
+			return '';
+		}
+	});
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
-	const [tokenStatus, setTokenStatus] = useState(() =>
-		WorkerTokenStatusServiceV8.checkWorkerTokenStatus()
-	);
 
 	// Load existing credentials on mount
 	useEffect(() => {
@@ -650,25 +658,29 @@ const Configuration: React.FC = () => {
 		</CodeBlock>
 	);
 
-	// Check worker token status on mount and when token updates
+	// Listen for token updates
 	useEffect(() => {
-		const checkTokenStatus = () => {
-			const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-			setTokenStatus(currentStatus);
+		const handleTokenUpdate = async () => {
+			// Get token from unifiedWorkerTokenService
+			try {
+				const tokenData = unifiedWorkerTokenService.getTokenDataSync();
+				const token = tokenData?.token || '';
+				setWorkerToken(token);
+			} catch (error) {
+				console.error('[Configuration] Failed to get token from unifiedWorkerTokenService:', error);
+				setWorkerToken('');
+			}
 		};
 
-		checkTokenStatus();
+		// Initial load
+		handleTokenUpdate();
 
-		// Listen for token updates
-		const handleTokenUpdate = () => {
-			checkTokenStatus();
-		};
-		window.addEventListener('storage', handleTokenUpdate);
 		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
+		window.addEventListener('workerTokenMetricsUpdated', handleTokenUpdate);
 
 		return () => {
-			window.removeEventListener('storage', handleTokenUpdate);
 			window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
+			window.removeEventListener('workerTokenMetricsUpdated', handleTokenUpdate);
 		};
 	}, []);
 
@@ -695,24 +707,10 @@ const Configuration: React.FC = () => {
 				defaultCollapsed={false}
 			>
 				<Card style={{ border: 'none', boxShadow: 'none', marginBottom: 0 }}>
-					{workerTokenError && (
-						<InfoBox $type="error">
-							<FiAlertCircle size={16} />
-							<strong>Error:</strong> {workerTokenError}
-						</InfoBox>
-					)}
-
-					{tokenStatus.isValid && tokenStatus.token && (
-						<WorkerTokenDetectedBanner
-							token={tokenStatus.token}
-							tokenExpiryKey="worker_token_expires_at"
-							message={
-								tokenStatus.expiresAt
-									? `Worker token obtained! Config Checker is now available in all flows. Token expires at ${new Date(tokenStatus.expiresAt).toLocaleString()}.`
-									: 'Worker token obtained! Config Checker is now available in all flows.'
-							}
-						/>
-					)}
+					{/* Worker Token Status Display */}
+					<div style={{ marginBottom: '1rem' }}>
+						<WorkerTokenStatusDisplayV8 />
+					</div>
 
 					<div
 						style={{
@@ -724,182 +722,35 @@ const Configuration: React.FC = () => {
 						}}
 					>
 						<button
+							type="button"
 							onClick={() => setShowWorkerTokenModal(true)}
-							disabled={workerTokenLoading}
 							style={{
-								background: tokenStatus.isValid ? '#10b981' : '#3b82f6',
+								background: workerToken ? '#10b981' : '#3b82f6',
 								color: 'white',
 								border: '1px solid #ffffff',
 								borderRadius: '0.5rem',
 								padding: '0.75rem 1.5rem',
 								fontSize: '0.875rem',
 								fontWeight: '600',
-								cursor: workerTokenLoading ? 'not-allowed' : 'pointer',
+								cursor: 'pointer',
 								display: 'flex',
 								alignItems: 'center',
 								gap: '0.5rem',
 								transition: 'all 0.2s ease',
-								opacity: workerTokenLoading ? 0.6 : 1,
 							}}
 							onMouseEnter={(e) => {
-								if (!workerTokenLoading) {
-									e.currentTarget.style.backgroundColor = tokenStatus.isValid
-										? '#059669'
-										: '#2563eb';
-									e.currentTarget.style.borderColor = '#ffffff';
-								}
+								e.currentTarget.style.backgroundColor = workerToken ? '#059669' : '#2563eb';
+								e.currentTarget.style.borderColor = '#ffffff';
 							}}
 							onMouseLeave={(e) => {
-								if (!workerTokenLoading) {
-									e.currentTarget.style.backgroundColor = tokenStatus.isValid
-										? '#10b981'
-										: '#3b82f6';
-									e.currentTarget.style.borderColor = '#ffffff';
-								}
+								e.currentTarget.style.backgroundColor = workerToken ? '#10b981' : '#3b82f6';
+								e.currentTarget.style.borderColor = '#ffffff';
 							}}
 						>
-							{workerTokenLoading ? (
-								<FiRefreshCw size={16} className="animate-spin" />
-							) : (
-								<FiKey size={16} />
-							)}
-							{workerTokenLoading
-								? 'Getting Token...'
-								: tokenStatus.isValid
-									? 'Token Obtained'
-									: 'Get Worker Token'}
+							<FiKey size={16} />
+							{workerToken ? 'Token Obtained' : 'Get Worker Token'}
 						</button>
-						<WorkerTokenStatusLabel
-							token={tokenStatus.token || ''}
-							expiresAt={tokenStatus.expiresAt}
-							tokenStorageKey="worker_token"
-							tokenExpiryKey="worker_token_expires_at"
-						/>
 					</div>
-
-					{tokenStatus.isValid && tokenStatus.token && (
-						<div style={{ marginTop: '1rem' }}>
-							<div
-								style={{
-									display: 'flex',
-									alignItems: 'center',
-									gap: '0.5rem',
-									marginBottom: '0.5rem',
-								}}
-							>
-								<strong style={{ fontSize: '0.875rem' }}>Worker Token:</strong>
-								<button
-									onClick={() => setShowWorkerToken(!showWorkerToken)}
-									style={{
-										background: 'none',
-										border: 'none',
-										color: '#6b7280',
-										cursor: 'pointer',
-										display: 'flex',
-										alignItems: 'center',
-										gap: '0.25rem',
-										fontSize: '0.75rem',
-									}}
-								>
-									{showWorkerToken ? <FiEyeOff size={14} /> : <FiEye size={14} />}
-									{showWorkerToken ? 'Hide' : 'Show'}
-								</button>
-							</div>
-							<CodeBlockWithCopy label="worker-token">
-								{showWorkerToken
-									? tokenStatus.token
-									: '••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••'}
-							</CodeBlockWithCopy>
-
-							{/* Check Config, Save Configuration, and Create App buttons */}
-							<div
-								style={{
-									marginTop: '1.5rem',
-									display: 'flex',
-									gap: '1rem',
-									flexWrap: 'wrap',
-								}}
-							>
-								<button
-									onClick={() => {
-										// TODO: Implement check config functionality
-										v4ToastManager.showInfo('Check Config functionality coming soon!');
-									}}
-									style={{
-										background: '#3b82f6',
-										color: 'white',
-										border: '1px solid #3b82f6',
-										borderRadius: '0.5rem',
-										padding: '0.75rem 1.5rem',
-										fontSize: '0.875rem',
-										fontWeight: '600',
-										cursor: 'pointer',
-										display: 'flex',
-										alignItems: 'center',
-										gap: '0.5rem',
-										transition: 'all 0.2s ease',
-									}}
-									onMouseEnter={(e) => {
-										e.currentTarget.style.backgroundColor = '#2563eb';
-										e.currentTarget.style.borderColor = '#2563eb';
-									}}
-									onMouseLeave={(e) => {
-										e.currentTarget.style.backgroundColor = '#3b82f6';
-										e.currentTarget.style.borderColor = '#3b82f6';
-									}}
-								>
-									<FiSettings size={16} />
-									Check Config
-								</button>
-
-								<SaveButton
-									flowType="configuration"
-									credentials={credentials}
-									additionalData={pingOneConfig as unknown as Record<string, unknown>}
-									onSave={saveAllConfiguration}
-								/>
-
-								<button
-									onClick={() => {
-										// TODO: Implement create app functionality
-										v4ToastManager.showInfo('Create App functionality coming soon!');
-									}}
-									style={{
-										background: '#10b981',
-										color: 'white',
-										border: '1px solid #10b981',
-										borderRadius: '0.5rem',
-										padding: '0.75rem 1.5rem',
-										fontSize: '0.875rem',
-										fontWeight: '600',
-										cursor: 'pointer',
-										display: 'flex',
-										alignItems: 'center',
-										gap: '0.5rem',
-										transition: 'all 0.2s ease',
-									}}
-									onMouseEnter={(e) => {
-										e.currentTarget.style.backgroundColor = '#059669';
-										e.currentTarget.style.borderColor = '#059669';
-									}}
-									onMouseLeave={(e) => {
-										e.currentTarget.style.backgroundColor = '#10b981';
-										e.currentTarget.style.borderColor = '#10b981';
-									}}
-								>
-									<FiPackage size={16} />
-									Create App
-								</button>
-							</div>
-						</div>
-					)}
-
-					<InfoBox $type="info">
-						<strong>What this enables:</strong> The worker token allows the Config Checker to
-						compare your flow configurations with existing PingOne applications and create new
-						applications automatically. This is available in all flows that support Config Checker
-						functionality.
-					</InfoBox>
 				</Card>
 			</CollapsibleHeader>
 
@@ -1551,16 +1402,21 @@ cd oauthPlayground`}
 				</Card>
 			</CollapsibleHeader>
 			{showWorkerTokenModal && (
-				<WorkerTokenModal
+				<WorkerTokenModalV8
 					isOpen={showWorkerTokenModal}
 					onClose={() => setShowWorkerTokenModal(false)}
-					onContinue={async () => {
-						// Re-check worker token status after modal closes
-						const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-						setTokenStatus(currentStatus);
+					onTokenGenerated={() => {
+						// Token generated, reload the token
+						try {
+							const tokenData = unifiedWorkerTokenService.getTokenDataSync();
+							const token = tokenData?.token || '';
+							setWorkerToken(token);
+						} catch (error) {
+							console.error('[Configuration] Failed to get token:', error);
+							setWorkerToken('');
+						}
 						setShowWorkerTokenModal(false);
 					}}
-					flowType="configuration"
 					environmentId={credentials.environmentId || ''}
 				/>
 			)}
