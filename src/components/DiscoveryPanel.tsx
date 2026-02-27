@@ -314,22 +314,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 	const regionSelectId = useId();
 	const environmentInputId = useId();
 
-	const [environmentId, setEnvironmentId] = useState(() => {
-		// Auto-populate from worker token credentials
-		try {
-			// Try synchronous check from localStorage for worker token credentials
-			const stored = localStorage.getItem('unified_worker_token');
-			if (stored) {
-				const data = JSON.parse(stored);
-				if (data.credentials?.environmentId) {
-					return data.credentials.environmentId;
-				}
-			}
-		} catch {
-			return '';
-		}
-		return '';
-	});
+	const [environmentId, setEnvironmentId] = useState('');
 	const [region, setRegion] = useState('us');
 	const [isLoading, setIsLoading] = useState(false);
 	const [status, setStatus] = useState<{
@@ -341,64 +326,65 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 	const [copiedField, setCopiedField] = useState<string | null>(null);
 	const [viewMode, setViewMode] = useState<'formatted' | 'json'>('formatted');
 
-	// Load stored discovery preferences when component mounts
+	// Load stored discovery preferences when component mounts (async unified storage)
 	useEffect(() => {
-		try {
-			// Load discovery preferences (Environment ID and Region)
-			const preferences = credentialManager.loadDiscoveryPreferences();
-
-			if (preferences.environmentId) {
-				setEnvironmentId(preferences.environmentId);
-				logger.info('DiscoveryPanel', 'Pre-populated Environment ID from discovery preferences', {
-					environmentId: preferences.environmentId,
-				});
-			} else {
-				// Fallback: Try to load from existing credentials
-				const configCreds = credentialManager.loadConfigCredentials();
-				const authzCreds = credentialManager.loadAuthzFlowCredentials();
-
-				let allCredentials = configCreds;
-				if (!allCredentials.environmentId && !allCredentials.clientId) {
-					allCredentials = authzCreds;
-				}
-
-				if (!allCredentials.environmentId && !allCredentials.clientId) {
-					try {
-						const oldCredentials = credentialManager.getAllCredentials();
-						if (oldCredentials.environmentId) {
-							allCredentials = oldCredentials;
-						}
-					} catch (error) {
-						console.log(' [DiscoveryPanel] Fallback getAllCredentials() failed:', error);
-					}
-				}
-
-				if (allCredentials.environmentId) {
-					setEnvironmentId(allCredentials.environmentId);
-					logger.info('DiscoveryPanel', 'Pre-populated Environment ID from stored credentials', {
-						environmentId: allCredentials.environmentId,
+		const loadPreferences = async () => {
+			try {
+				// Try to load worker token credentials first (most common source)
+				const workerCreds = await unifiedWorkerTokenService.loadCredentials();
+				if (workerCreds?.environmentId) {
+					setEnvironmentId(workerCreds.environmentId);
+					logger.info('DiscoveryPanel', 'Pre-populated Environment ID from worker token', {
+						environmentId: workerCreds.environmentId,
 					});
+					return;
 				}
-			}
 
-			// Set the region from preferences
-			setRegion(preferences.region);
-			logger.info('DiscoveryPanel', 'Pre-populated Region from discovery preferences', {
-				region: preferences.region,
-			});
-		} catch (error) {
-			logger.error('DiscoveryPanel', 'Failed to load stored discovery preferences', error);
-		}
+				// Fallback: Try to load from OAuth credentials in unified storage
+				const oauthCreds = await unifiedWorkerTokenService.storageService?.getOAuthCredentials();
+				if (oauthCreds?.environmentId) {
+					setEnvironmentId(oauthCreds.environmentId as string);
+					logger.info('DiscoveryPanel', 'Pre-populated Environment ID from OAuth credentials', {
+						environmentId: oauthCreds.environmentId,
+					});
+					return;
+				}
+
+				// Last resort: Check localStorage discovery preferences (legacy support)
+				try {
+					const stored = localStorage.getItem('pingone_discovery_preferences');
+					if (stored) {
+						const prefs = JSON.parse(stored);
+						if (prefs.environmentId) {
+							setEnvironmentId(prefs.environmentId);
+							if (prefs.region) {
+								setRegion(prefs.region);
+							}
+							logger.info('DiscoveryPanel', 'Pre-populated from legacy discovery preferences', {
+								environmentId: prefs.environmentId,
+								region: prefs.region,
+							});
+						}
+					}
+				} catch (error) {
+					logger.warn('DiscoveryPanel', 'Failed to load legacy discovery preferences', undefined, error);
+				}
+			} catch (error) {
+				logger.error('DiscoveryPanel', 'Failed to load stored discovery preferences', error);
+			}
+		};
+
+		loadPreferences();
 	}, []);
 
 	// Update environment ID when worker token is updated
 	useEffect(() => {
-		const handleTokenUpdate = () => {
+		const handleTokenUpdate = async () => {
 			try {
-				const credentials = unifiedWorkerTokenService.loadCredentials();
+				const credentials = await unifiedWorkerTokenService.loadCredentials();
 				if (credentials?.environmentId && !environmentId.trim()) {
 					setEnvironmentId(credentials.environmentId);
-					logger.info('DiscoveryPanel', 'Auto-populated Environment ID from worker token', {
+					logger.info('DiscoveryPanel', 'Auto-populated Environment ID from worker token update', {
 						environmentId: credentials.environmentId,
 					});
 				}
