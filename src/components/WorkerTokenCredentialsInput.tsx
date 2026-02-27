@@ -321,7 +321,7 @@ export const WorkerTokenCredentialsInput: React.FC<WorkerTokenCredentialsInputPr
 	hasUnsavedChanges = false,
 	isSaving = false,
 	showAdvancedOptions = false,
-	disabled = false,
+	disabled: _disabled = false,
 }) => {
 	const [isCollapsed, setIsCollapsed] = useState(false);
 	const [showClientSecret, setShowClientSecret] = useState(false);

@@ -14,7 +14,12 @@ import {
 } from 'react-icons/fi';
 import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { SIDEBAR_PING_WIDTH, USE_PING_MENU } from '../config/sidebarMenuConfig';
+import {
+	SIDEBAR_PING_MAX_WIDTH,
+	SIDEBAR_PING_MIN_WIDTH,
+	SIDEBAR_PING_WIDTH,
+	USE_PING_MENU,
+} from '../config/sidebarMenuConfig';
 import { useAuth } from '../contexts/NewAuthContext';
 import { useAccessibility } from '../hooks/useAccessibility';
 import {
@@ -319,10 +324,18 @@ const Navbar: React.FC<NavbarProps> = ({
 	const { announce } = useAccessibility();
 	const [showExportModal, setShowExportModal] = useState(false);
 	const [sidebarWidth, setSidebarWidth] = useState(() => {
-		if (USE_PING_MENU) return SIDEBAR_PING_WIDTH;
 		try {
 			const saved = localStorage.getItem('sidebar.width');
 			const parsed = saved ? parseInt(saved, 10) : NaN;
+			if (USE_PING_MENU) {
+				if (
+					Number.isFinite(parsed) &&
+					parsed >= SIDEBAR_PING_MIN_WIDTH &&
+					parsed <= SIDEBAR_PING_MAX_WIDTH
+				)
+					return parsed;
+				return SIDEBAR_PING_WIDTH;
+			}
 			if (Number.isFinite(parsed) && parsed >= 300 && parsed <= 600) return parsed;
 		} catch {}
 		return 450;
@@ -331,16 +344,19 @@ const Navbar: React.FC<NavbarProps> = ({
 	// Listen for sidebar width changes from localStorage
 	useEffect(() => {
 		const handleStorageChange = () => {
-			if (USE_PING_MENU) {
-				setSidebarWidth(SIDEBAR_PING_WIDTH);
-				return;
-			}
 			try {
 				const saved = localStorage.getItem('sidebar.width');
 				const parsed = saved ? parseInt(saved, 10) : NaN;
-				if (Number.isFinite(parsed) && parsed >= 300 && parsed <= 600) {
-					setSidebarWidth(parsed);
+				if (USE_PING_MENU) {
+					if (
+						Number.isFinite(parsed) &&
+						parsed >= SIDEBAR_PING_MIN_WIDTH &&
+						parsed <= SIDEBAR_PING_MAX_WIDTH
+					)
+						setSidebarWidth(parsed);
+					return;
 				}
+				if (Number.isFinite(parsed) && parsed >= 300 && parsed <= 600) setSidebarWidth(parsed);
 			} catch {}
 		};
 

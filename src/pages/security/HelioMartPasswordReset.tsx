@@ -22,6 +22,7 @@ import {
 	FiSearch,
 } from 'react-icons/fi';
 import styled from 'styled-components';
+import { useAutoEnvironmentId } from '../../hooks/useAutoEnvironmentId';
 import 'prismjs/themes/prism.css';
 import 'prismjs/components/prism-javascript';
 import 'prismjs/components/prism-json';
@@ -37,6 +38,17 @@ import type { ApiCall } from '../../services/apiCallTrackerService';
 import { apiCallTrackerService } from '../../services/apiCallTrackerService';
 import { comprehensiveFlowDataService } from '../../services/comprehensiveFlowDataService';
 import { PageLayoutService } from '../../services/pageLayoutService';
+
+// Create layout components at module level so styled.header is never created inside a hook.
+// styled-components v6 uses useContext internally; creating them inside useMemo violates Rules of Hooks.
+const _helioMartLayout = PageLayoutService.createPageLayout({
+	flowType: 'pingone',
+	theme: 'red',
+	showHeader: true,
+	showFooter: false,
+	responsive: true,
+});
+
 import {
 	changePassword,
 	checkPassword,
@@ -530,7 +542,7 @@ const HelioMartPasswordReset: React.FC = () => {
 	const [apiCalls, setApiCalls] = useState<ApiCall[]>([]);
 	const [workerToken, setWorkerToken] = useState('');
 	// const [workerTokenExpiresAt, setWorkerTokenExpiresAt] = useState<number | undefined>(undefined);
-	const [environmentId, setEnvironmentId] = useState('');
+	const { environmentId, setEnvironmentId } = useAutoEnvironmentId();
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [showAuthzConfigModal, setShowAuthzConfigModal] = useState(false);
 	const [showSetupModal, setShowSetupModal] = useState(false);
@@ -665,7 +677,7 @@ const HelioMartPasswordReset: React.FC = () => {
 
 		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
 		return () => window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
-	}, [environmentId]);
+	}, [environmentId, setEnvironmentId]);
 
 	// Load environment ID, worker token, and authz credentials
 	useEffect(() => {
@@ -773,7 +785,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			window.removeEventListener('storage', handleStorageChange);
 			clearInterval(interval);
 		};
-	}, [workerToken]);
+	}, [workerToken, setEnvironmentId]);
 
 	// Handle login with PingOne
 	const handleLogin = useCallback(async () => {
@@ -1994,13 +2006,7 @@ export { changePassword, handleChangePassword };`;
 		}
 	}, [passwordState]);
 
-	const { PageHeader, PageContainer, ContentWrapper } = PageLayoutService.createPageLayout({
-		flowType: 'pingone',
-		theme: 'red',
-		showHeader: true,
-		showFooter: false,
-		responsive: true,
-	});
+	const { PageHeader, PageContainer, ContentWrapper } = _helioMartLayout;
 
 	return (
 		<PageContainer>
@@ -3944,51 +3950,54 @@ export { changePassword, handleChangePassword };`;
 					<ApiCallTable apiCalls={apiCalls} onClear={() => apiCallTrackerService.clearApiCalls()} />
 				</ApiCallTableContainer>
 
-				<WorkerTokenModal
-					isOpen={showWorkerTokenModal}
-					onClose={() => setShowWorkerTokenModal(false)}
-					onContinue={() => {
-						setShowWorkerTokenModal(false);
+				{/* Mount only when open so modal hooks never run when closed (avoids hooks-order issues) */}
+				{showWorkerTokenModal && (
+					<WorkerTokenModal
+						isOpen={true}
+						onClose={() => setShowWorkerTokenModal(false)}
+						onContinue={() => {
+							setShowWorkerTokenModal(false);
 
-						// Use global worker token after modal closes
-						const globalToken = getAnyWorkerToken();
-						if (globalToken) {
-							setWorkerToken(globalToken);
-							console.log('✅ [HelioMartPasswordReset] Global worker token detected');
-						} else {
-							console.log('⚠️ [HelioMartPasswordReset] No global worker token found after save');
-						}
-					}}
-					flowType="heliomart-password-reset"
-					environmentId={environmentId}
-					tokenStorageKey="worker_token"
-					tokenExpiryKey="worker_token_expires_at"
-					prefillCredentials={(() => {
-						const savedCreds = workerTokenCredentialsService.loadCredentials(
-							'heliomart-password-reset'
-						);
-						if (savedCreds) {
+							// Use global worker token after modal closes
+							const globalToken = getAnyWorkerToken();
+							if (globalToken) {
+								setWorkerToken(globalToken);
+								console.log('✅ [HelioMartPasswordReset] Global worker token detected');
+							} else {
+								console.log('⚠️ [HelioMartPasswordReset] No global worker token found after save');
+							}
+						}}
+						flowType="heliomart-password-reset"
+						environmentId={environmentId}
+						tokenStorageKey="worker_token"
+						tokenExpiryKey="worker_token_expires_at"
+						prefillCredentials={(() => {
+							const savedCreds = workerTokenCredentialsService.loadCredentials(
+								'heliomart-password-reset'
+							);
+							if (savedCreds) {
+								return {
+									environmentId: savedCreds.environmentId || '',
+									clientId: savedCreds.clientId || '',
+									clientSecret: savedCreds.clientSecret || '',
+									region: savedCreds.region || 'us',
+									scopes: Array.isArray(savedCreds.scopes)
+										? savedCreds.scopes[0]
+										: savedCreds.scopes?.[0] || '',
+									authMethod: savedCreds.tokenEndpointAuthMethod || ('client_secret_post' as const),
+								};
+							}
 							return {
-								environmentId: savedCreds.environmentId || '',
-								clientId: savedCreds.clientId || '',
-								clientSecret: savedCreds.clientSecret || '',
-								region: savedCreds.region || 'us',
-								scopes: Array.isArray(savedCreds.scopes)
-									? savedCreds.scopes[0]
-									: savedCreds.scopes?.[0] || '',
-								authMethod: savedCreds.tokenEndpointAuthMethod || ('client_secret_post' as const),
+								environmentId: '',
+								clientId: '',
+								clientSecret: '',
+								region: 'us',
+								scopes: '',
+								authMethod: 'client_secret_post' as const,
 							};
-						}
-						return {
-							environmentId: '',
-							clientId: '',
-							clientSecret: '',
-							region: 'us',
-							scopes: '',
-							authMethod: 'client_secret_post' as const,
-						};
-					})()}
-				/>
+						})()}
+					/>
+				)}
 
 				{/* Setup Modal - Shows when authorization code credentials are not configured */}
 				{showSetupModal && (
@@ -4006,6 +4015,7 @@ export { changePassword, handleChangePassword };`;
 									Configuration Required
 								</h2>
 								<button
+									type="button"
 									onClick={() => setShowSetupModal(false)}
 									style={{
 										background: 'none',
@@ -4065,49 +4075,52 @@ export { changePassword, handleChangePassword };`;
 					</ModalOverlay>
 				)}
 
-				<AuthorizationCodeConfigModal
-					isOpen={showAuthzConfigModal}
-					onClose={() => {
-						setShowAuthzConfigModal(false);
-						const FLOW_TYPE = 'heliomart-password-reset';
-						const saved = comprehensiveFlowDataService.loadFlowCredentialsIsolated(FLOW_TYPE);
-						if (saved?.environmentId && saved.clientId && saved.clientSecret) {
+				{/* Mount only when open so modal hooks never run when closed (avoids hooks-order issues) */}
+				{showAuthzConfigModal && (
+					<AuthorizationCodeConfigModal
+						isOpen={true}
+						onClose={() => {
+							setShowAuthzConfigModal(false);
+							const FLOW_TYPE = 'heliomart-password-reset';
+							const saved = comprehensiveFlowDataService.loadFlowCredentialsIsolated(FLOW_TYPE);
+							if (saved?.environmentId && saved.clientId && saved.clientSecret) {
+								setAuthzCredentials({
+									environmentId: saved.environmentId || '',
+									clientId: saved.clientId || '',
+									clientSecret: saved.clientSecret || '',
+									redirectUri: saved.redirectUri || 'https://localhost:3000/callback',
+									scopes: Array.isArray(saved.scopes)
+										? saved.scopes.join(' ')
+										: saved.scopes || 'openid profile email',
+								});
+								// Close setup modal if credentials are now complete
+								setShowSetupModal(false);
+							}
+						}}
+						flowType="heliomart-password-reset"
+						initialCredentials={authzCredentials}
+						onCredentialsSaved={(savedCredentials) => {
+							// Update credentials state immediately
 							setAuthzCredentials({
-								environmentId: saved.environmentId || '',
-								clientId: saved.clientId || '',
-								clientSecret: saved.clientSecret || '',
-								redirectUri: saved.redirectUri || 'https://localhost:3000/callback',
-								scopes: Array.isArray(saved.scopes)
-									? saved.scopes.join(' ')
-									: saved.scopes || 'openid profile email',
+								environmentId: savedCredentials.environmentId || '',
+								clientId: savedCredentials.clientId || '',
+								clientSecret: savedCredentials.clientSecret || '',
+								redirectUri: savedCredentials.redirectUri || 'https://localhost:3000/callback',
+								scopes: Array.isArray(savedCredentials.scopes)
+									? savedCredentials.scopes.join(' ')
+									: savedCredentials.scopes || 'openid profile email',
 							});
 							// Close setup modal if credentials are now complete
-							setShowSetupModal(false);
-						}
-					}}
-					flowType="heliomart-password-reset"
-					initialCredentials={authzCredentials}
-					onCredentialsSaved={(savedCredentials) => {
-						// Update credentials state immediately
-						setAuthzCredentials({
-							environmentId: savedCredentials.environmentId || '',
-							clientId: savedCredentials.clientId || '',
-							clientSecret: savedCredentials.clientSecret || '',
-							redirectUri: savedCredentials.redirectUri || 'https://localhost:3000/callback',
-							scopes: Array.isArray(savedCredentials.scopes)
-								? savedCredentials.scopes.join(' ')
-								: savedCredentials.scopes || 'openid profile email',
-						});
-						// Close setup modal if credentials are now complete
-						if (
-							savedCredentials.environmentId &&
-							savedCredentials.clientId &&
-							savedCredentials.clientSecret
-						) {
-							setShowSetupModal(false);
-						}
-					}}
-				/>
+							if (
+								savedCredentials.environmentId &&
+								savedCredentials.clientId &&
+								savedCredentials.clientSecret
+							) {
+								setShowSetupModal(false);
+							}
+						}}
+					/>
+				)}
 
 				{/* Login Modal */}
 				{showLoginModal && (
