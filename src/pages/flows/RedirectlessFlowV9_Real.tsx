@@ -38,7 +38,7 @@ import { FlowHeader } from '../../services/flowHeaderService';
 import { FlowStorageService } from '../../services/flowStorageService';
 import { FlowUIService } from '../../services/flowUIService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
-import { v4ToastManager } from '../../utils/v4ToastManager';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { PKCEStorageServiceV8U } from '../../v8u/services/pkceStorageServiceV8U';
 
 // Import config

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FiCheck, FiCopy } from 'react-icons/fi';
 import styled from 'styled-components';
-import { v4ToastManager } from '../utils/v4ToastManager';
+import { v4ToastManager } from '../utils/v4ToastMessages';
 
 const Container = styled.div`
   background: #f8fafc;

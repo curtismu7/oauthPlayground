@@ -519,19 +519,7 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 		}
 	};
 
-	if (!isOpen) {
-		console.log('[WorkerTokenRequestModal] Modal is closed (isOpen = false)');
-		return null;
-	}
-
-	console.log('[WorkerTokenRequestModal] ✅ Rendering educational modal (isOpen = true)', {
-		tokenEndpoint,
-		clientIdLength: requestParams.client_id.length,
-		hasSecret: !!requestParams.client_secret,
-		authMethod,
-		region,
-	});
-
+	// Always return same structure (no early return) so React hook order is stable
 	return (
 		<ModalOverlay $isOpen={isOpen}>
 			<ModalContainer>
