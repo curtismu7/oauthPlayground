@@ -11,6 +11,7 @@ import {
 	FiCopy,
 	FiDownload,
 	FiEdit,
+	FiExternalLink,
 	FiFilter,
 	FiKey,
 	FiPlus,
@@ -25,6 +26,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import ApiCallList from '../components/ApiCallList';
 import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
+import { isWebhookPopout, openWebhookViewerPopout } from '../v8/utils/webhookViewerPopoutHelper';
 import { readBestEnvironmentId } from '../hooks/useAutoEnvironmentId';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import { secureLog } from '../utils/secureLogging';
@@ -61,26 +63,34 @@ const HeaderCard = styled.div`
 	gap: 1rem;
 	padding: 1.75rem;
 	border-radius: 1rem;
-	background: linear-gradient(135deg, rgba(6, 182, 212, 0.12), rgba(14, 165, 233, 0.04));
-	border: 1px solid rgba(6, 182, 212, 0.2);
+	background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+	border: none;
 `;
 
 const TitleRow = styled.div`
 	display: flex;
 	align-items: center;
+	justify-content: space-between;
 	gap: 0.75rem;
-	color: #0891b2;
+	color: white;
+`;
+
+const TitleLeft = styled.div`
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
 `;
 
 const Title = styled.h1`
 	margin: 0;
 	font-size: 1.75rem;
 	font-weight: 700;
+	color: white;
 `;
 
 const Subtitle = styled.p`
 	margin: 0;
-	color: #0e7490;
+	color: rgba(255, 255, 255, 0.85);
 	max-width: 720px;
 	line-height: 1.6;
 `;
@@ -1215,8 +1225,38 @@ const PingOneWebhookViewer: React.FC = () => {
 			<PageContainer>
 				<HeaderCard>
 					<TitleRow>
-						<FiServer size={28} />
-						<Title>PingOne Webhook Management</Title>
+						<TitleLeft>
+							<FiServer size={28} />
+							<Title>PingOne Webhook Management</Title>
+						</TitleLeft>
+						{!isWebhookPopout() && (
+							<button
+								type="button"
+								onClick={openWebhookViewerPopout}
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.4rem',
+									paddingInline: '0.85rem',
+									paddingBlock: '0.45rem',
+									borderRadius: '0.5rem',
+									border: '1px solid rgba(255,255,255,0.4)',
+									background: 'rgba(255,255,255,0.15)',
+									color: 'white',
+									fontSize: '0.8rem',
+									fontWeight: 600,
+									cursor: 'pointer',
+									whiteSpace: 'nowrap',
+									transition: 'background 0.15s',
+								}}
+								onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.25)'; }}
+								onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.15)'; }}
+								title="Open in popout window to monitor while using the app"
+							>
+								<FiExternalLink size={14} />
+								Popout
+							</button>
+						)}
 					</TitleRow>
 					<Subtitle>
 						Manage webhook subscriptions and monitor webhook events in real-time. Create, update,
