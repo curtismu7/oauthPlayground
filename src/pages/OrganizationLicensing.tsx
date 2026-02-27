@@ -19,6 +19,7 @@ import V7StepperService from '../services/v7StepperService';
 import { credentialManager } from '../utils/credentialManager';
 import { getOAuthTokens } from '../utils/tokenStorage';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { getAnyWorkerToken } from '../utils/workerTokenDetection';
 import WorkerTokenStatusDisplayV8 from '../v8/components/WorkerTokenStatusDisplayV8';
 
@@ -432,14 +433,11 @@ const OrganizationLicensingV2: React.FC = () => {
 			const savedCreds = credentialManager.getAllCredentials();
 			let envId = savedCreds?.environmentId || '';
 
-			// Try worker token credentials as fallback
+			// Try worker token credentials as fallback (via unified service)
 			if (!envId) {
 				try {
-					const stored = localStorage.getItem('unified_worker_token');
-					if (stored) {
-						const data = JSON.parse(stored);
-						envId = data.credentials?.environmentId || '';
-					}
+					const data = unifiedWorkerTokenService.getTokenDataSync();
+					envId = data?.credentials?.environmentId || '';
 				} catch (error) {
 					console.log('Failed to load environment ID from worker token:', error);
 				}
@@ -467,15 +465,12 @@ const OrganizationLicensingV2: React.FC = () => {
 	useEffect(() => {
 		const handleTokenUpdate = () => {
 			try {
-				const stored = localStorage.getItem('unified_worker_token');
-				if (stored) {
-					const data = JSON.parse(stored);
-					if (data.credentials?.environmentId && !credentials.environmentId) {
-						setCredentials((prev) => ({
-							...prev,
-							environmentId: data.credentials.environmentId,
-						}));
-					}
+				const data = unifiedWorkerTokenService.getTokenDataSync();
+				if (data?.credentials?.environmentId && !credentials.environmentId) {
+					setCredentials((prev) => ({
+						...prev,
+						environmentId: data.credentials.environmentId,
+					}));
 				}
 			} catch (error) {
 				console.log('Failed to update environment ID from worker token:', error);
