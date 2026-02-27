@@ -463,3 +463,46 @@ git revert 078e19e7c
 ```
 
 No functional impact — layout only.
+---
+
+## Update 3 — Standardize Worker Token to useGlobalWorkerToken Pattern
+
+**Commit:** TBD  
+**Date:** 2026-06-29  
+**Type:** refactor (internal cleanup — no user-facing changes)
+
+### Problem
+
+`PingOneUserProfile.tsx` was maintaining its own bespoke worker token infrastructure:
+- `WorkerTokenMeta` interface tracking `hasToken`, `isExpired`, `relativeDescription`, `absoluteDescription`
+- `describeExpiry()` helper for human-readable expiry text
+- `getWorkerTokenMeta()` function reading from `unifiedWorkerTokenService`
+- `[workerTokenMeta, setWorkerTokenMeta]` useState declaration
+- Three storage/effects cascading updates to `workerTokenMeta`
+- Three-way AlertBanner conditional rendering based on `workerTokenMeta` fields
+
+All other V9 pages use the standard `useGlobalWorkerToken()` hook + `WorkerTokenModalV8` pattern.
+
+### Changes
+
+**File:** `src/pages/PingOneUserProfile.tsx`
+
+1. **Removed** `WorkerTokenMeta` interface, `describeExpiry()`, and `getWorkerTokenMeta()` (dead infrastructure)
+2. **Removed** `[workerTokenMeta, setWorkerTokenMeta]` useState
+3. **Removed** three `setWorkerTokenMeta` effects (storage event listener simplified, three standalone effects deleted)
+4. **Added** `handleClearWorkerToken` and `handleGetWorkerToken` useCallback hooks (standard V9 pattern)
+5. **Simplified** `hasValidWorkerToken` to `globalTokenStatus.isValid && !!globalTokenStatus.token`
+6. **Simplified** `workerTokenStatusDetail` to `''` (no longer needed)
+7. **Replaced** three-way AlertBanner (based on expired/hasToken logic) with simple two-way banner: valid = green, else = warning
+8. **Replaced** `if (workerTokenMeta.isExpired)` guards in `handleLoadUserProfile` and `handleLoadComparisonUser` with `if (!globalTokenStatus.isValid)`
+9. **Updated** both useCallback dependency arrays: `workerTokenMeta.isExpired` → `globalTokenStatus.isValid`
+
+### Classification: PATCH
+
+No breaking changes. Internal refactor aligns this page with project-wide V9 standard.
+
+### Files Modified
+
+| File | Description |
+|------|-------------|
+| `src/pages/PingOneUserProfile.tsx` | Removed ~120 lines of custom token meta infrastructure; replaced with standard hook pattern |
