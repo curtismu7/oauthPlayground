@@ -433,3 +433,127 @@ git revert 441265a6f
 ```
 
 No user-facing impact — pure type system and linting fixes.
+
+---
+
+## Session 3 — TDZ Crash Fix: PingOneWebhookViewer
+
+**Commit:** `7d55322d1`  
+**Date:** 2026-02-27  
+**Type:** Bug fix — runtime crash
+
+### Problem
+
+`PingOneWebhookViewer.tsx` crashed with a `ReferenceError` (Temporal Dead Zone) on every render. `formatAsSplunk`, `formatAsPingActivity`, and `formatAsNewRelic` were declared with `const` *after* `formatEventForDisplay`'s `useCallback`, which listed them in its dependency array. JavaScript's TDZ means the `let`/`const` binding exists in scope but is uninitialized at the point it's referenced.
+
+```
+ReferenceError: Cannot access 'formatAsSplunk' before initialization
+```
+
+There were `biome-ignore` suppression comments that masked the hint.
+
+### Fix
+
+- Moved `formatAsSplunk`, `formatAsPingActivity`, `formatAsNewRelic` above `formatEventForDisplay` in the file
+- Wrapped each in `useCallback` with `[environmentId]` dependency to prevent stale closure over `environmentId`
+- Removed the `biome-ignore` TDZ suppression comments
+
+**Files:** `src/pages/PingOneWebhookViewer.tsx` — 46 lines changed (+22/-24)
+
+---
+
+## Session 4 — Crash Fix: `tokenStatus is not defined` in Configuration
+
+**Commit:** `3cda72095`  
+**Date:** 2026-02-27  
+**Type:** Bug fix — runtime crash
+
+### Problem
+
+`Configuration.tsx` referenced `tokenStatus.isValid` and `tokenStatus.token` at lines 883/888 inside `ConfigurationURIChecker`, but `useGlobalWorkerToken()` was never called — the hook and its import had been removed in an earlier cleanup session (Session 1 removed unused imports, but this usage was missed).
+
+```
+ReferenceError: tokenStatus is not defined
+```
+
+### Fix
+
+- Re-added `import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken'`
+- Added `const tokenStatus = useGlobalWorkerToken({ autoFetch: false })` — `autoFetch: false` because this is a read-only display check, not a token acquisition
+
+**Files:** `src/pages/Configuration.tsx` — 2 lines added
+
+---
+
+## Session 5 — Webhook Subscription Body Format Fix
+
+**Commit:** `cd5322258`  
+**Date:** 2026-02-27  
+**Type:** Bug fix — webhooks not receiving events
+
+### Problem
+
+`PingOneWebhookViewer` was sending the wrong body to the PingOne Subscriptions API. The created subscription had no valid endpoint, so PingOne never delivered any events.
+
+**Wrong body being sent:**
+```json
+{ "name": "...", "enabled": true, "destination": { "url": "..." }, "topics": ["..."] }
+```
+
+**PingOne API requires:**
+```json
+{
+  "name": "...", "enabled": true, "protocol": "HTTPS",
+  "format": "ACTIVITY",
+  "httpEndpoint": { "url": "https://...", "headers": {} },
+  "filterOptions": { "includedActionTypes": ["AUTHENTICATION.LOGIN.SUCCESS"] },
+  "verifyTlsCertificates": false
+}
+```
+
+`destination` and `topics` are not valid PingOne Subscriptions API fields — silently ignored. Additionally, `server.js` was validating the old field name (`!subscriptionData.destination`).
+
+### Fixes
+
+**`src/pages/PingOneWebhookViewer.tsx`:**
+- `formData` state: `destination` → `httpEndpointUrl`; `topics` → `includedActionTypes`; added `verifyTlsCertificates: false`
+- `handleCreateSubscription` / `handleUpdateSubscription`: build correct PingOne body with `httpEndpoint.url`, `filterOptions.includedActionTypes`, `protocol: 'HTTPS'`
+- `handleEditSubscription`: read from `subscription.httpEndpoint?.url` (legacy fallback to `subscription.destination?.url`)
+- Form JSX: updated all `value={formData.*}` bindings; replaced `JSON` format option with `SPLUNK` / `NEWRELIC`; added `verifyTlsCertificates` checkbox
+- Subscription card: display `httpEndpoint.url` with legacy fallback; show `filterOptions.includedActionTypes` event list
+- Added `<SuperSimpleApiDisplayV8 flowFilter="all" reserveSpace={true} />` for live API call visibility
+
+**`server.js`:**
+- POST `/api/pingone/subscriptions` validation: `!subscriptionData.destination` → `!subscriptionData.httpEndpoint?.url`
+
+**Files:** `server.js` (5 lines), `src/pages/PingOneWebhookViewer.tsx` (+93/-41)
+
+---
+
+## Session 6 — Webhook Region Selector
+
+**Commit:** `9601a69b2`  
+**Date:** 2026-02-27  
+**Type:** Bug fix — EU/AP/CA environments could not receive events
+
+### Problem
+
+All 5 subscription API call URLs in `PingOneWebhookViewer` had `&region=na` hardcoded. EU, Asia-Pacific, and Canada PingOne environments use different base domains (`api.pingone.eu`, `api.pingone.asia`, `api.pingone.ca`). Users on those environments could not create, list, update, or delete subscriptions, and therefore could not receive webhook events.
+
+Additionally `server.js` regionMaps only handled `{ na: 'us', eu: 'eu', asia: 'ap' }` — no `ca` or direct `ap` alias.
+
+### Fixes
+
+**`src/pages/PingOneWebhookViewer.tsx`:**
+- Added `selectedRegion` state — initialized from `unified_worker_token` in localStorage (`credentials.region`), defaults to `'na'`
+- Replaced all 5 `&region=na` URL params with `&region=${selectedRegion}`
+- Added `selectedRegion` to `useCallback` dependency arrays for `fetchSubscriptions`, `handleCreateSubscription`, `handleUpdateSubscription`, `handleDeleteSubscription`
+- Added region toolbar at top of Subscriptions tab showing the live API domain (e.g. `api.pingone.eu`)
+- Added region selector dropdown inside the create/edit subscription form
+
+**`server.js`:**
+- All 5 subscription route `regionMap` objects updated: `{ na: 'us', eu: 'eu', asia: 'ap' }` → `{ na: 'us', eu: 'eu', asia: 'ap', ap: 'ap', ca: 'ca' }`
+
+**Valid regions:** `na` (→ `.us`), `eu` (→ `.eu`), `ap`/`asia` (→ `.asia`), `ca` (→ `.ca`)
+
+**Files:** `server.js` (10 lines), `src/pages/PingOneWebhookViewer.tsx` (+56/-14)
