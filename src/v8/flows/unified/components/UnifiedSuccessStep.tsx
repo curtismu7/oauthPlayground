@@ -84,12 +84,19 @@ export const UnifiedSuccessStep: React.FC<UnifiedSuccessStepProps> = ({
 		nav.markStepComplete();
 
 		// Log analytics event
-		if (typeof window !== 'undefined' && (window as any).gtag) {
-			(window as any).gtag('event', 'mfa_registration_success', {
-				device_type: config.deviceType,
-				device_id: mfaState.deviceId,
-				flow_version: 'v8-unified',
-			});
+		if (
+			typeof window !== 'undefined' &&
+			(window as unknown as { gtag?: (e: string, t: string, d: object) => void }).gtag
+		) {
+			(window as unknown as { gtag: (e: string, t: string, d: object) => void }).gtag(
+				'event',
+				'mfa_registration_success',
+				{
+					device_type: config.deviceType,
+					device_id: mfaState.deviceId,
+					flow_version: 'v8-unified',
+				}
+			);
 		}
 
 		// Call onComplete callback
@@ -307,12 +314,12 @@ export const UnifiedSuccessStep: React.FC<UnifiedSuccessStepProps> = ({
 
 			{/* Token Status Info */}
 			{tokenStatus.isValid && (
-				<div className="token-info" role="status">
+				<output className="token-info">
 					<small>
 						✓ Worker token is valid and will expire{' '}
 						{tokenStatus.expiresAt ? new Date(tokenStatus.expiresAt).toLocaleString() : 'soon'}
 					</small>
-				</div>
+				</output>
 			)}
 		</div>
 	);

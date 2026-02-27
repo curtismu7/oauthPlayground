@@ -68,7 +68,7 @@ export interface UnifiedDeviceSelectionStepProps extends MFAFlowBaseRenderProps 
  */
 export const UnifiedDeviceSelectionStep: React.FC<UnifiedDeviceSelectionStepProps> = ({
 	credentials,
-	setCredentials,
+	setCredentials: _setCredentials,
 	mfaState,
 	setMfaState,
 	tokenStatus,
@@ -88,19 +88,6 @@ export const UnifiedDeviceSelectionStep: React.FC<UnifiedDeviceSelectionStepProp
 	const [selectedDeviceId, setSelectedDeviceId] = useState<string | null>(null);
 	const [loadError, setLoadError] = useState<string | null>(null);
 	const [hasLoadedDevices, setHasLoadedDevices] = useState(false);
-
-	// ========================================================================
-	// EFFECTS
-	// ========================================================================
-
-	/**
-	 * Load existing devices on mount
-	 */
-	useEffect(() => {
-		if (!hasLoadedDevices && credentials.environmentId && credentials.username) {
-			loadExistingDevices();
-		}
-	}, [hasLoadedDevices, credentials.environmentId, credentials.username, loadExistingDevices]);
 
 	// ========================================================================
 	// HANDLERS
@@ -150,6 +137,19 @@ export const UnifiedDeviceSelectionStep: React.FC<UnifiedDeviceSelectionStepProp
 			setIsLoading(false);
 		}
 	}, [credentials, mfaState, tokenStatus, config, controller, nav, setIsLoading]);
+
+	// ========================================================================
+	// EFFECTS
+	// ========================================================================
+
+	/**
+	 * Load existing devices on mount
+	 */
+	useEffect(() => {
+		if (!hasLoadedDevices && credentials.environmentId && credentials.username) {
+			loadExistingDevices();
+		}
+	}, [hasLoadedDevices, credentials.environmentId, credentials.username, loadExistingDevices]);
 
 	/**
 	 * Handle device selection
@@ -303,18 +303,12 @@ export const UnifiedDeviceSelectionStep: React.FC<UnifiedDeviceSelectionStepProp
 
 							<div className="device-list">
 								{existingDevices.map((device) => (
-									<div
+									<button
+										type="button"
 										key={device.id}
 										className={`device-card ${selectedDeviceId === device.id ? 'selected' : ''}`}
 										onClick={() => handleSelectDevice(device.id)}
-										role="button"
-										tabIndex={0}
-										onKeyPress={(e) => {
-											if (e.key === 'Enter' || e.key === ' ') {
-												handleSelectDevice(device.id);
-											}
-										}}
-										aria-selected={selectedDeviceId === device.id}
+										aria-pressed={selectedDeviceId === device.id}
 									>
 										<div className="device-icon">{getDeviceIcon(device.type)}</div>
 										<div className="device-info">
@@ -330,7 +324,7 @@ export const UnifiedDeviceSelectionStep: React.FC<UnifiedDeviceSelectionStepProp
 											)}
 										</div>
 										{selectedDeviceId === device.id && <div className="selection-indicator">✓</div>}
-									</div>
+									</button>
 								))}
 							</div>
 

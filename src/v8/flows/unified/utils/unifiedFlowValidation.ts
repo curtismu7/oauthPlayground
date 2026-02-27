@@ -140,7 +140,7 @@ export function validateAllFields(
  */
 export function validateConfigurationStep(
 	credentials: MFACredentials,
-	tokenStatus: { isValid: boolean; [key: string]: any }
+	tokenStatus: { isValid: boolean; [key: string]: unknown }
 ): { valid: boolean; errors: string[] } {
 	console.log(`${MODULE_TAG} Validating configuration step`);
 
@@ -263,8 +263,8 @@ export function canProceedToNextStep(
 	currentStep: number,
 	_config: DeviceFlowConfig,
 	credentials: MFACredentials,
-	mfaState: { deviceId?: string; deviceStatus?: string; [key: string]: any },
-	tokenStatus: { isValid: boolean; [key: string]: any }
+	mfaState: { deviceId?: string; deviceStatus?: string; [key: string]: unknown },
+	tokenStatus: { isValid: boolean; [key: string]: unknown }
 ): boolean {
 	console.log(`${MODULE_TAG} Checking if can proceed from step ${currentStep}`);
 
@@ -346,7 +346,7 @@ function formatFieldName(fieldName: string): string {
 export function combineErrors(
 	...errorObjects: Array<Record<string, string>>
 ): Record<string, string> {
-	return errorObjects.reduce((combined, errors) => ({ ...combined, ...errors }), {});
+	return Object.assign({}, ...errorObjects);
 }
 
 /**
