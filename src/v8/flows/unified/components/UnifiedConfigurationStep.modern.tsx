@@ -166,7 +166,7 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 				const deviceStatus = selectedFlowType === 'admin-active' ? 'ACTIVE' : 'ACTIVATION_REQUIRED';
 
 				// Prepare registration parameters
-				const registrationParams: Record<string, any> = {
+				const registrationParams: Record<string, unknown> = {
 					environmentId: environmentId!,
 					username: values.username.trim(),
 					deviceType,
@@ -392,17 +392,18 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 
 					{/* Flow Type Selection */}
 					<div style={{ marginTop: spacing.lg }}>
-						<label
+						<p
 							style={{
 								display: 'block',
 								marginBottom: spacing.sm,
 								fontWeight: typography.fontWeight.semibold,
 								color: colors.neutral[700],
 								fontSize: typography.fontSize.sm,
+								margin: `0 0 ${spacing.sm} 0`,
 							}}
 						>
 							Registration Flow Type
-						</label>
+						</p>
 						<div style={{ display: 'flex', flexDirection: 'column', gap: spacing.sm }}>
 							<label
 								style={{
