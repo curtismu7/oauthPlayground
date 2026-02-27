@@ -24,8 +24,7 @@ import {
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import ApiCallList from '../components/ApiCallList';
-import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
-import { WorkerTokenModal } from '../components/WorkerTokenModal';
+import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
 import { readBestEnvironmentId } from '../hooks/useAutoEnvironmentId';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import { secureLog } from '../utils/secureLogging';
@@ -466,7 +465,6 @@ const PingOneWebhookViewer: React.FC = () => {
 	const [isLoadingSubscriptions, setIsLoadingSubscriptions] = useState(false);
 	const [workerToken, setWorkerToken] = useState<string | null>(() => getAnyWorkerToken());
 	const [environmentId, setEnvironmentId] = useState<string>(() => readBestEnvironmentId());
-	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [showCreateModal, setShowCreateModal] = useState(false);
 	const [editingSubscription, setEditingSubscription] = useState<WebhookSubscription | null>(null);
 	const [selectedRegion, setSelectedRegion] = useState<string>(() => {
@@ -1227,113 +1225,57 @@ const PingOneWebhookViewer: React.FC = () => {
 					</Subtitle>
 				</HeaderCard>
 
-				{!hasWorkerToken && (
-					<WorkerTokenModal
-						isOpen={showWorkerTokenModal}
-						onClose={() => setShowWorkerTokenModal(false)}
-						onContinue={() => {
-							setShowWorkerTokenModal(false);
-							const token = getAnyWorkerToken();
-							setWorkerToken(token);
-							// Update environment ID from unified worker token credentials
-							try {
-								const stored = localStorage.getItem('unified_worker_token');
-								if (stored) {
-									const data = JSON.parse(stored);
-									if (data.credentials?.environmentId) {
-										setEnvironmentId(data.credentials.environmentId);
-										localStorage.setItem('environmentId', data.credentials.environmentId);
-									}
+				<WorkerTokenSectionV8
+					environmentId={environmentId}
+					onTokenUpdated={(token) => {
+						setWorkerToken(token);
+						try {
+							const stored = localStorage.getItem('unified_worker_token');
+							if (stored) {
+								const data = JSON.parse(stored);
+								if (data.credentials?.environmentId) {
+									setEnvironmentId(data.credentials.environmentId);
+									localStorage.setItem('environmentId', data.credentials.environmentId);
 								}
-							} catch (error) {
-								console.log('Failed to update environment ID from unified worker token:', error);
+								if (data.credentials?.region) {
+									setSelectedRegion(data.credentials.region === 'eu' ? 'eu' : data.credentials.region === 'ap' ? 'ap' : data.credentials.region === 'ca' ? 'ca' : 'na');
+								}
 							}
+						} catch {}
+					}}
+					compact={false}
+					showSettings={false}
+				/>
+
+				<SectionCard style={{ marginBottom: '1rem' }}>
+					<label
+						htmlFor="webhook-env-id"
+						style={{ fontWeight: 600, fontSize: '0.875rem', color: '#334155', display: 'block', marginBottom: '0.5rem' }}
+					>
+						Environment ID
+					</label>
+					<input
+						id="webhook-env-id"
+						type="text"
+						value={environmentId}
+						onChange={(e) => {
+							setEnvironmentId(e.target.value);
+							localStorage.setItem('environmentId', e.target.value);
 						}}
-						flowType="pingone-webhook-viewer"
-						environmentId={environmentId}
-						prefillCredentials={(() => {
-							try {
-								const stored = localStorage.getItem('unified_worker_token');
-								if (stored) {
-									const data = JSON.parse(stored);
-									return {
-										environmentId: environmentId || data.credentials?.environmentId || '',
-										region: data.credentials?.region || 'us',
-										scopes: 'p1:read:subscriptions p1:write:subscriptions',
-									};
-								}
-							} catch (error) {
-								console.log('Failed to prefill credentials from unified worker token:', error);
-							}
-							return {};
-						})()}
-						tokenStorageKey="worker_token"
-						tokenExpiryKey="worker_token_expires_at"
+						placeholder="12345678-1234-1234-1234-123456789abc"
+						style={{
+							width: '100%', padding: '0.6rem 0.85rem', borderRadius: '0.5rem',
+							border: `1px solid ${!environmentId.trim() ? '#f59e0b' : '#cbd5e1'}`,
+							background: !environmentId.trim() ? '#fffbeb' : '#f8fafc',
+							fontSize: '0.875rem', fontFamily: "'Monaco', 'Menlo', monospace",
+						}}
 					/>
-				)}
-
-				{hasWorkerToken && currentToken && (
-					<WorkerTokenDetectedBanner
-						token={currentToken}
-						tokenExpiryKey="worker_token_expires_at"
-					/>
-				)}
-
-				{hasWorkerToken && (
-					<SectionCard style={{ marginBottom: '1.5rem' }}>
-						<div style={{ marginBottom: '0.5rem' }}>
-							<label
-								htmlFor="webhook-env-id"
-								style={{
-									fontWeight: 600,
-									fontSize: '0.875rem',
-									color: '#334155',
-									display: 'block',
-									marginBottom: '0.5rem',
-								}}
-							>
-								Environment ID
-							</label>
-							<input
-								id="webhook-env-id"
-								type="text"
-								value={environmentId}
-								onChange={(e) => {
-									const newEnvId = e.target.value;
-									setEnvironmentId(newEnvId);
-									localStorage.setItem('environmentId', newEnvId);
-								}}
-								placeholder="Enter PingOne Environment ID (e.g., 12345678-1234-1234-1234-123456789abc)"
-								style={{
-									width: '100%',
-									padding: '0.75rem 0.85rem',
-									borderRadius: '0.75rem',
-									border: `1px solid ${!environmentId.trim() ? '#f59e0b' : '#cbd5f5'}`,
-									background: !environmentId.trim() ? '#fffbeb' : '#f8fafc',
-									fontSize: '0.92rem',
-									fontFamily: "'Monaco', 'Menlo', 'Courier New', monospace",
-								}}
-							/>
-							{!environmentId.trim() ? (
-								<p
-									style={{
-										margin: '0.5rem 0 0 0',
-										fontSize: '0.8rem',
-										color: '#d97706',
-										fontWeight: 600,
-									}}
-								>
-									⚠️ Environment ID is required. Enter it manually or generate a worker token to
-									auto-fill.
-								</p>
-							) : (
-								<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.8rem', color: '#64748b' }}>
-									Your PingOne Environment ID (saved to localStorage)
-								</p>
-							)}
-						</div>
-					</SectionCard>
-				)}
+					{!environmentId.trim() && (
+						<p style={{ margin: '0.4rem 0 0', fontSize: '0.78rem', color: '#d97706', fontWeight: 600 }}>
+							⚠️ Environment ID required to manage subscriptions.
+						</p>
+					)}
+				</SectionCard>
 
 				<Header>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -1437,18 +1379,6 @@ const PingOneWebhookViewer: React.FC = () => {
 								API: api.pingone.{selectedRegion === 'na' ? 'us' : selectedRegion === 'ap' ? 'asia' : selectedRegion}
 							</span>
 						</div>
-						{!hasWorkerToken && (
-							<SectionCard>
-								<p style={{ color: '#64748b', marginBottom: '1rem' }}>
-									A worker token is required to manage webhook subscriptions. Please provide a
-									worker token to continue.
-								</p>
-								<Button $variant="primary" onClick={() => setShowWorkerTokenModal(true)}>
-									<FiKey />
-									Provide Worker Token
-								</Button>
-							</SectionCard>
-						)}
 
 						{showCreateModal && (
 							<SectionCard>
