@@ -20,6 +20,7 @@ import {
 	FiMail,
 	FiRefreshCw,
 	FiSearch,
+	FiX,
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { useAutoEnvironmentId } from '../../hooks/useAutoEnvironmentId';
@@ -34,6 +35,7 @@ import { useGlobalWorkerToken } from '../../hooks/useGlobalWorkerToken';
 // import { CompactAppPickerV8U } from '../../v8u/components/CompactAppPickerV8U';
 // import { renderWorkerTokenButton } from '../../services/workerTokenUIService';
 // import type { DiscoveredApp } from '../../v8/components/AppPickerV8';
+import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
 import type { ApiCall } from '../../services/apiCallTrackerService';
 import { apiCallTrackerService } from '../../services/apiCallTrackerService';
 import { comprehensiveFlowDataService } from '../../services/comprehensiveFlowDataService';
@@ -540,7 +542,9 @@ const HelioMartPasswordReset: React.FC = () => {
 	const [showLoginModal, setShowLoginModal] = useState(false);
 	const [apiCalls, setApiCalls] = useState<ApiCall[]>([]);
 	const { environmentId, setEnvironmentId } = useAutoEnvironmentId();
-	const globalTokenStatus = useGlobalWorkerToken();
+	// autoFetch: false — do not silently call the token API on load.
+	// The user must click "Get Worker Token" to fetch a new token.
+	const globalTokenStatus = useGlobalWorkerToken({ autoFetch: false });
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [showAuthzConfigModal, setShowAuthzConfigModal] = useState(false);
 	const [showSetupModal, setShowSetupModal] = useState(false);
@@ -657,16 +661,13 @@ const HelioMartPasswordReset: React.FC = () => {
 		return unsubscribe;
 	}, []);
 
-	// Update environment ID when worker token is updated
+	// Update environment ID when a worker token is saved
 	useEffect(() => {
 		const handleTokenUpdate = () => {
 			try {
-				const stored = localStorage.getItem('unified_worker_token');
-				if (stored) {
-					const data = JSON.parse(stored);
-					if (data.credentials?.environmentId && !environmentId) {
-						setEnvironmentId(data.credentials.environmentId);
-					}
+				const data = unifiedWorkerTokenService.getTokenDataSync();
+				if (data?.credentials?.environmentId && !environmentId) {
+					setEnvironmentId(data.credentials.environmentId);
 				}
 			} catch (error) {
 				console.log('Failed to update environment ID from worker token:', error);
@@ -676,6 +677,16 @@ const HelioMartPasswordReset: React.FC = () => {
 		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
 		return () => window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
 	}, [environmentId, setEnvironmentId]);
+
+	const handleGetWorkerToken = useCallback(() => {
+		setShowWorkerTokenModal(true);
+	}, []);
+
+	const handleClearWorkerToken = useCallback(async () => {
+		await unifiedWorkerTokenService.clearToken();
+		window.dispatchEvent(new Event('workerTokenUpdated'));
+		v4ToastManager.showSuccess('Worker token cleared');
+	}, []);
 
 	// Load environment ID, worker token, and authz credentials
 	useEffect(() => {
@@ -688,15 +699,8 @@ const HelioMartPasswordReset: React.FC = () => {
 
 			// Try worker token credentials as fallback
 			if (!envId) {
-				try {
-					const stored = localStorage.getItem('unified_worker_token');
-					if (stored) {
-						const data = JSON.parse(stored);
-						envId = data.credentials?.environmentId || '';
-					}
-				} catch (error) {
-					console.log('Failed to load environment ID from worker token:', error);
-				}
+				const tokenData = unifiedWorkerTokenService.getTokenDataSync();
+				envId = tokenData?.credentials?.environmentId || '';
 			}
 
 			// Use default if still empty
@@ -2086,14 +2090,20 @@ export { changePassword, handleChangePassword };`;
 							'Refresh Worker Token'
 						)} */}
 
-						{/* Worker Token Button */}
-						<Button
-							$variant={globalTokenStatus.isValid ? 'success' : 'danger'}
-							onClick={() => setShowWorkerTokenModal(true)}
-						>
-							<FiKey />
-							{globalTokenStatus.isValid ? 'Worker Token Ready' : 'Configure Worker Token'}
+{/* Worker Token Buttons */}
+					<Button
+						$variant={globalTokenStatus.isValid ? 'success' : 'danger'}
+						onClick={handleGetWorkerToken}
+					>
+						<FiKey />
+						{globalTokenStatus.isValid ? 'Worker Token Ready' : 'Get Worker Token'}
+					</Button>
+					{globalTokenStatus.isValid && (
+						<Button $variant="secondary" onClick={handleClearWorkerToken}>
+							<FiX />
+							Clear Token
 						</Button>
+					)}
 
 						{/* Auth Code Client Button */}
 						<Button
