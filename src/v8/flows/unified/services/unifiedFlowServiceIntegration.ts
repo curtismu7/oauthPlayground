@@ -65,7 +65,7 @@ export class UnifiedFlowServiceIntegration {
 		// Use MFAServiceV8.registerDevice
 		const result = await MFAServiceV8.registerDevice({
 			...credentials,
-			type: deviceType as any,
+			type: deviceType as string,
 			phoneNumber: deviceData.phoneNumber,
 			email: deviceData.email,
 			name: deviceData.name || `${deviceType} Device`,
@@ -101,7 +101,7 @@ export class UnifiedFlowServiceIntegration {
 
 		return {
 			success: true,
-			status: (result as any).status || 'ACTIVE',
+			status: (result as { status?: string }).status || 'ACTIVE',
 		};
 	}
 

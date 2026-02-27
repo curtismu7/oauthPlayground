@@ -57,7 +57,7 @@ export interface UnifiedActivationStepProps extends MFAFlowBaseRenderProps {
  */
 export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 	credentials,
-	setCredentials,
+	_setCredentials,
 	mfaState,
 	setMfaState,
 	tokenStatus,
@@ -654,7 +654,7 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 							window.dispatchEvent(event);
 						}}
 						style={{
-							background: '#8b5cf6',
+							background: '#2563eb',
 							color: 'white',
 							border: 'none',
 							padding: '8px 16px',
@@ -665,10 +665,16 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 							transition: 'all 0.2s ease',
 						}}
 						onMouseOver={(e) => {
-							e.currentTarget.style.background = '#7c3aed';
+							e.currentTarget.style.background = '#1e40af';
 						}}
 						onMouseOut={(e) => {
-							e.currentTarget.style.background = '#8b5cf6';
+							e.currentTarget.style.background = '#2563eb';
+						}}
+						onFocus={(e) => {
+							e.currentTarget.style.background = '#1e40af';
+						}}
+						onBlur={(e) => {
+							e.currentTarget.style.background = '#2563eb';
 						}}
 					>
 						🔄 Refresh Worker Token
