@@ -957,7 +957,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 							}
 
 							// Determine correct return path based on flow version
-							let returnPath;
+							let returnPath: string;
 							if (isV7Flow) {
 								const isV7_2 =
 									parsed?.flow === 'oauth-authorization-code-v7-2' ||
@@ -1366,7 +1366,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 							}
 
 							// Determine correct return path based on flow version
-							let returnPath;
+							let returnPath: string;
 							if (isV7Flow) {
 								// For V7 flows, redirect directly to the flow page (they handle auth code themselves)
 								console.log(
@@ -1572,7 +1572,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 					let errorMessage = `Token exchange failed: ${errorText}`;
 
 					// Parse error response for better user guidance
-					let parsedError;
+					let parsedError: { error?: string; error_description?: string };
 					try {
 						parsedError = JSON.parse(errorText);
 					} catch (_e) {
@@ -1830,7 +1830,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 	}, []);
 
 	// V7 Standardized credential saving function
-	const saveCredentialsV7 = useCallback(async (credentials: any) => {
+	const saveCredentialsV7 = useCallback(async (credentials: Record<string, unknown>) => {
 		try {
 			console.log(
 				' [NewAuthContext] Saving credentials using V7 standardized system...',
@@ -1871,7 +1871,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 		(
 			flowType: string,
 			currentStep: number,
-			flowState: any,
+			flowState: Record<string, unknown>,
 			additionalParams?: Record<string, string>
 		): string => {
 			try {
@@ -1890,7 +1890,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 	);
 
 	const updateFlowStep = useCallback(
-		(flowId: string, newStep: number, flowState?: any): boolean => {
+		(flowId: string, newStep: number, flowState?: Record<string, unknown>): boolean => {
 			try {
 				return FlowContextUtils.updateFlowStep(flowId, newStep, flowState);
 			} catch (error) {
@@ -1921,6 +1921,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 	// Context value
 	const contextValue = useMemo(() => {
 		// Handle both config structures: config.pingone.* and config.*
+		// biome-ignore lint/suspicious/noExplicitAny: legacy config shape, types not exported
 		const pingoneConfig = (config?.pingone as any) || (config as any) || {};
 
 		// Debug logging for config issues
@@ -2020,14 +2021,17 @@ export const useAuth = (): AuthContextType => {
 		// In development, suppress the error to prevent console spam during HMR
 		if (process.env.NODE_ENV === 'development') {
 			// Only log once per session to avoid spam
+			// biome-ignore lint/suspicious/noExplicitAny: custom window property for HMR dedup
 			if (!(window as any).__useAuthErrorLogged) {
 				logger.warn(
 					'useAuth',
 					'Context is undefined - likely due to HMR, returning default context'
 				);
+				// biome-ignore lint/suspicious/noExplicitAny: custom window property for HMR dedup
 				(window as any).__useAuthErrorLogged = true;
 				// Reset the flag after a delay to allow for recovery
 				setTimeout(() => {
+					// biome-ignore lint/suspicious/noExplicitAny: custom window property for HMR dedup
 					(window as any).__useAuthErrorLogged = false;
 				}, 5000);
 			}
