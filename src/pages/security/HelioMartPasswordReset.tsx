@@ -30,7 +30,7 @@ import { ApiCallTable } from '../../components/ApiCallTable';
 import { AuthorizationCodeConfigModal } from '../../components/AuthorizationCodeConfigModal';
 import { PasswordSetValueTab } from '../../components/password-reset/PasswordSetValueTab';
 import { WorkerTokenDetectedBanner } from '../../components/WorkerTokenDetectedBanner';
-import { WorkerTokenModal } from '../../components/WorkerTokenModal';
+import { useGlobalWorkerToken } from '../../hooks/useGlobalWorkerToken';
 // import { CompactAppPickerV8U } from '../../v8u/components/CompactAppPickerV8U';
 // import { renderWorkerTokenButton } from '../../services/workerTokenUIService';
 // import type { DiscoveredApp } from '../../v8/components/AppPickerV8';
@@ -38,6 +38,7 @@ import type { ApiCall } from '../../services/apiCallTrackerService';
 import { apiCallTrackerService } from '../../services/apiCallTrackerService';
 import { comprehensiveFlowDataService } from '../../services/comprehensiveFlowDataService';
 import { PageLayoutService } from '../../services/pageLayoutService';
+import { WorkerTokenModalV8 } from '../../v8/components/WorkerTokenModalV8';
 
 // Create layout components at module level so styled.header is never created inside a hook.
 // styled-components v6 uses useContext internally; creating them inside useMemo violates Rules of Hooks.
@@ -62,10 +63,8 @@ import {
 	unlockPassword,
 } from '../../services/passwordResetService';
 import { lookupPingOneUser } from '../../services/pingOneUserProfileService';
-import { workerTokenCredentialsService } from '../../services/workerTokenCredentialsService';
 import { trackedFetch } from '../../utils/trackedFetch';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { getAnyWorkerToken } from '../../utils/workerTokenDetection';
 
 // Type for PingOne user objects
 interface PingOneUserName {
@@ -540,9 +539,8 @@ const HelioMartPasswordReset: React.FC = () => {
 	const [activeTab, setActiveTab] = useState<TabType>('overview');
 	const [showLoginModal, setShowLoginModal] = useState(false);
 	const [apiCalls, setApiCalls] = useState<ApiCall[]>([]);
-	const [workerToken, setWorkerToken] = useState('');
-	// const [workerTokenExpiresAt, setWorkerTokenExpiresAt] = useState<number | undefined>(undefined);
 	const { environmentId, setEnvironmentId } = useAutoEnvironmentId();
+	const globalTokenStatus = useGlobalWorkerToken();
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [showAuthzConfigModal, setShowAuthzConfigModal] = useState(false);
 	const [showSetupModal, setShowSetupModal] = useState(false);
@@ -708,35 +706,8 @@ const HelioMartPasswordReset: React.FC = () => {
 
 			setEnvironmentId(envId);
 
-			// Use global worker token
-			const globalToken = getAnyWorkerToken();
-			if (globalToken) {
-				setWorkerToken(globalToken);
-				// Try to get expiresAt from stored token data
-				// try {
-				// 	const stored = localStorage.getItem('unified_worker_token');
-				// 	if (stored) {
-				// 		const data = JSON.parse(stored);
-				// 		setWorkerTokenExpiresAt(data.expiresAt);
-				// 	}
-				// } catch (error) {
-				// 	console.log('Failed to load worker token expiresAt:', error);
-				// }
-			} else {
-				// Check for saved credentials
-				const savedCreds = workerTokenCredentialsService.loadCredentials(FLOW_TYPE);
-				if (
-					!savedCreds ||
-					!savedCreds.environmentId ||
-					!savedCreds.clientId ||
-					!savedCreds.clientSecret
-				) {
-					// Pre-fill with provided credentials if available
-					if (!savedCreds) {
-						setShowWorkerTokenModal(true);
-					}
-				}
-			}
+			// Worker token is now handled by useGlobalWorkerToken hook
+			// No need to check or set worker token here
 
 			// Load authorization code credentials
 			const savedAuthz = comprehensiveFlowDataService.loadFlowCredentialsIsolated(FLOW_TYPE);
@@ -760,32 +731,7 @@ const HelioMartPasswordReset: React.FC = () => {
 		};
 
 		loadConfig();
-
-		// Listen for global worker token changes
-		const handleStorageChange = (e: StorageEvent) => {
-			if (e.key?.startsWith('worker_token') || e.key?.startsWith('pingone_worker_token')) {
-				const newToken = getAnyWorkerToken();
-				if (newToken) {
-					setWorkerToken(newToken);
-				}
-			}
-		};
-
-		window.addEventListener('storage', handleStorageChange);
-
-		// Also poll for same-tab updates (since storage event only fires cross-tab)
-		const interval = setInterval(() => {
-			const currentToken = getAnyWorkerToken();
-			if (currentToken && currentToken !== workerToken) {
-				setWorkerToken(currentToken);
-			}
-		}, 1000);
-
-		return () => {
-			window.removeEventListener('storage', handleStorageChange);
-			clearInterval(interval);
-		};
-	}, [workerToken, setEnvironmentId]);
+	}, [setEnvironmentId]);
 
 	// Handle login with PingOne
 	const handleLogin = useCallback(async () => {
@@ -982,7 +928,7 @@ const HelioMartPasswordReset: React.FC = () => {
 
 	// Lookup user by email and send recovery code
 	const handleSendRecoveryCode = useCallback(async () => {
-		const effectiveWorkerToken = getAnyWorkerToken() || workerToken;
+		const effectiveWorkerToken = globalTokenStatus.token || '';
 		const effectiveEnvironmentId = getEffectiveEnvironmentId();
 
 		if (!recoverEmail) {
@@ -991,8 +937,8 @@ const HelioMartPasswordReset: React.FC = () => {
 		}
 		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
 			console.error('[HelioMartPasswordReset] ❌ Missing worker token:', {
-				globalToken: getAnyWorkerToken() ? 'present' : 'missing',
-				localToken: workerToken ? 'present' : 'missing',
+				globalToken: globalTokenStatus.token ? 'present' : 'missing',
+				localToken: globalTokenStatus.token ? 'present' : 'missing',
 			});
 			v4ToastManager.showError('Worker token is required. Please generate a worker token first.');
 			return;
@@ -1036,7 +982,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			const sendResult = await sendRecoveryCode({
 				environmentId,
 				userId: userId as string,
-				workerToken,
+				globalTokenStatus,
 			});
 
 			if (sendResult.success) {
@@ -1052,11 +998,17 @@ const HelioMartPasswordReset: React.FC = () => {
 		} finally {
 			setRecoverLoading(false);
 		}
-	}, [recoverEmail, workerToken, environmentId, getEffectiveEnvironmentId]);
+	}, [recoverEmail, globalTokenStatus, environmentId, getEffectiveEnvironmentId]);
 
 	// Recover password
 	const handleRecoverPassword = useCallback(async () => {
-		if (!recoverUserId || !recoveryCode || !newPassword || !workerToken || !environmentId) {
+		if (
+			!recoverUserId ||
+			!recoveryCode ||
+			!newPassword ||
+			!globalTokenStatus.token ||
+			!environmentId
+		) {
 			v4ToastManager.showError('Please fill in all required fields');
 			return;
 		}
@@ -1066,7 +1018,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			const result = await recoverPassword(
 				environmentId,
 				recoverUserId,
-				workerToken,
+				globalTokenStatus,
 				recoveryCode,
 				newPassword
 			);
@@ -1090,11 +1042,11 @@ const HelioMartPasswordReset: React.FC = () => {
 		} finally {
 			setRecoverLoading(false);
 		}
-	}, [recoverUserId, recoveryCode, newPassword, workerToken, environmentId]);
+	}, [recoverUserId, recoveryCode, newPassword, globalTokenStatus, environmentId]);
 
 	// Lookup user for force reset
 	const handleForceResetLookup = useCallback(async () => {
-		const effectiveWorkerToken = getAnyWorkerToken() || workerToken;
+		const effectiveWorkerToken = globalTokenStatus.token || '';
 		const effectiveEnvironmentId = getEffectiveEnvironmentId();
 
 		if (!forceResetIdentifier) {
@@ -1103,8 +1055,8 @@ const HelioMartPasswordReset: React.FC = () => {
 		}
 		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
 			console.error('[HelioMartPasswordReset] ❌ Missing worker token:', {
-				globalToken: getAnyWorkerToken() ? 'present' : 'missing',
-				localToken: workerToken ? 'present' : 'missing',
+				globalToken: globalTokenStatus.token ? 'present' : 'missing',
+				localToken: globalTokenStatus.token ? 'present' : 'missing',
 			});
 			v4ToastManager.showError('Worker token is required. Please generate a worker token first.');
 			return;
@@ -1139,18 +1091,22 @@ const HelioMartPasswordReset: React.FC = () => {
 		} catch (error) {
 			v4ToastManager.showError(error instanceof Error ? error.message : 'Failed to lookup user');
 		}
-	}, [forceResetIdentifier, workerToken, environmentId, getEffectiveEnvironmentId]);
+	}, [forceResetIdentifier, globalTokenStatus, environmentId, getEffectiveEnvironmentId]);
 
 	// Force password reset
 	const handleForcePasswordReset = useCallback(async () => {
-		if (!forceResetUser || !forceResetUser.id || !workerToken || !environmentId) {
+		if (!forceResetUser || !forceResetUser.id || !globalTokenStatus.token || !environmentId) {
 			v4ToastManager.showError('User not found or credentials missing');
 			return;
 		}
 
 		setForceResetLoading(true);
 		try {
-			const result = await forcePasswordChange(environmentId, forceResetUser.id, workerToken);
+			const result = await forcePasswordChange(
+				environmentId,
+				forceResetUser.id,
+				globalTokenStatus.token || ''
+			);
 
 			if (result.success) {
 				setForceResetSuccess(true);
@@ -1165,7 +1121,7 @@ const HelioMartPasswordReset: React.FC = () => {
 		} finally {
 			setForceResetLoading(false);
 		}
-	}, [forceResetUser, workerToken, environmentId]);
+	}, [forceResetUser, globalTokenStatus, environmentId]);
 
 	// Change password (using authenticated user)
 	const handleChangePassword = useCallback(async () => {
@@ -1215,7 +1171,7 @@ const HelioMartPasswordReset: React.FC = () => {
 
 	// Lookup user for check password
 	const handleCheckPasswordLookup = useCallback(async () => {
-		const effectiveWorkerToken = getAnyWorkerToken() || workerToken;
+		const effectiveWorkerToken = globalTokenStatus.token || '';
 		const effectiveEnvironmentId = getEffectiveEnvironmentId();
 
 		if (!checkPasswordIdentifier) {
@@ -1224,8 +1180,8 @@ const HelioMartPasswordReset: React.FC = () => {
 		}
 		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
 			console.error('[HelioMartPasswordReset] ❌ Missing worker token:', {
-				globalToken: getAnyWorkerToken() ? 'present' : 'missing',
-				localToken: workerToken ? 'present' : 'missing',
+				globalToken: globalTokenStatus.token ? 'present' : 'missing',
+				localToken: globalTokenStatus.token ? 'present' : 'missing',
 			});
 			v4ToastManager.showError('Worker token is required. Please generate a worker token first.');
 			return;
@@ -1259,11 +1215,11 @@ const HelioMartPasswordReset: React.FC = () => {
 		} catch (error) {
 			v4ToastManager.showError(error instanceof Error ? error.message : 'Failed to lookup user');
 		}
-	}, [checkPasswordIdentifier, workerToken, environmentId, getEffectiveEnvironmentId]);
+	}, [checkPasswordIdentifier, globalTokenStatus, environmentId, getEffectiveEnvironmentId]);
 
 	// Check password
 	const handleCheckPassword = useCallback(async () => {
-		if (!checkPasswordUser || !checkPasswordValue || !workerToken || !environmentId) {
+		if (!checkPasswordUser || !checkPasswordValue || !globalTokenStatus.token || !environmentId) {
 			v4ToastManager.showError('Please fill in all required fields');
 			return;
 		}
@@ -1277,7 +1233,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			const result = await checkPassword(
 				environmentId,
 				checkPasswordUser.id,
-				workerToken,
+				globalTokenStatus,
 				checkPasswordValue
 			);
 			if (result.success) {
@@ -1295,11 +1251,11 @@ const HelioMartPasswordReset: React.FC = () => {
 		} finally {
 			setCheckPasswordLoading(false);
 		}
-	}, [checkPasswordUser, checkPasswordValue, workerToken, environmentId]);
+	}, [checkPasswordUser, checkPasswordValue, globalTokenStatus, environmentId]);
 
 	// Lookup user for unlock
 	const handleUnlockLookup = useCallback(async () => {
-		const effectiveWorkerToken = getAnyWorkerToken() || workerToken;
+		const effectiveWorkerToken = globalTokenStatus.token || '';
 		const effectiveEnvironmentId = getEffectiveEnvironmentId();
 
 		if (!unlockIdentifier) {
@@ -1308,8 +1264,8 @@ const HelioMartPasswordReset: React.FC = () => {
 		}
 		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
 			console.error('[HelioMartPasswordReset] ❌ Missing worker token:', {
-				globalToken: getAnyWorkerToken() ? 'present' : 'missing',
-				localToken: workerToken ? 'present' : 'missing',
+				globalToken: globalTokenStatus.token ? 'present' : 'missing',
+				localToken: globalTokenStatus.token ? 'present' : 'missing',
 			});
 			v4ToastManager.showError('Worker token is required. Please generate a worker token first.');
 			return;
@@ -1343,17 +1299,21 @@ const HelioMartPasswordReset: React.FC = () => {
 		} catch (error) {
 			v4ToastManager.showError(error instanceof Error ? error.message : 'Failed to lookup user');
 		}
-	}, [unlockIdentifier, workerToken, environmentId, getEffectiveEnvironmentId]);
+	}, [unlockIdentifier, globalTokenStatus, environmentId, getEffectiveEnvironmentId]);
 
 	// Unlock password
 	const handleUnlockPassword = useCallback(async () => {
-		if (!unlockUser || !unlockUser.id || !workerToken || !environmentId) {
+		if (!unlockUser || !unlockUser.id || !globalTokenStatus.token || !environmentId) {
 			v4ToastManager.showError('User not found or credentials missing');
 			return;
 		}
 		setUnlockLoading(true);
 		try {
-			const result = await unlockPassword(environmentId, unlockUser.id, workerToken);
+			const result = await unlockPassword(
+				environmentId,
+				unlockUser.id,
+				globalTokenStatus.token || ''
+			);
 			if (result.success) {
 				setUnlockSuccess(true);
 				v4ToastManager.showSuccess('Password unlocked successfully');
@@ -1365,11 +1325,11 @@ const HelioMartPasswordReset: React.FC = () => {
 		} finally {
 			setUnlockLoading(false);
 		}
-	}, [unlockUser, workerToken, environmentId]);
+	}, [unlockUser, globalTokenStatus, environmentId]);
 
 	// Lookup user for read state
 	const handleStateLookup = useCallback(async () => {
-		const effectiveWorkerToken = getAnyWorkerToken() || workerToken;
+		const effectiveWorkerToken = globalTokenStatus.token || '';
 		const effectiveEnvironmentId = getEffectiveEnvironmentId();
 
 		if (!stateIdentifier) {
@@ -1378,8 +1338,8 @@ const HelioMartPasswordReset: React.FC = () => {
 		}
 		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
 			console.error('[HelioMartPasswordReset] ❌ Missing worker token:', {
-				globalToken: getAnyWorkerToken() ? 'present' : 'missing',
-				localToken: workerToken ? 'present' : 'missing',
+				globalToken: globalTokenStatus.token ? 'present' : 'missing',
+				localToken: globalTokenStatus.token ? 'present' : 'missing',
 			});
 			v4ToastManager.showError('Worker token is required. Please generate a worker token first.');
 			return;
@@ -1413,17 +1373,21 @@ const HelioMartPasswordReset: React.FC = () => {
 		} catch (error) {
 			v4ToastManager.showError(error instanceof Error ? error.message : 'Failed to lookup user');
 		}
-	}, [stateIdentifier, workerToken, environmentId, getEffectiveEnvironmentId]);
+	}, [stateIdentifier, globalTokenStatus, environmentId, getEffectiveEnvironmentId]);
 
 	// Read password state
 	const handleReadPasswordState = useCallback(async () => {
-		if (!stateUser || !stateUser.id || !workerToken || !environmentId) {
+		if (!stateUser || !stateUser.id || !globalTokenStatus.token || !environmentId) {
 			v4ToastManager.showError('User not found or credentials missing');
 			return;
 		}
 		setStateLoading(true);
 		try {
-			const result = await readPasswordState(environmentId, stateUser.id, workerToken);
+			const result = await readPasswordState(
+				environmentId,
+				stateUser.id,
+				globalTokenStatus.token || ''
+			);
 			if (result.success && result.passwordState) {
 				setPasswordState(result.passwordState as PasswordState);
 				v4ToastManager.showSuccess('Password state read successfully');
@@ -1437,11 +1401,11 @@ const HelioMartPasswordReset: React.FC = () => {
 		} finally {
 			setStateLoading(false);
 		}
-	}, [stateUser, workerToken, environmentId]);
+	}, [stateUser, globalTokenStatus, environmentId]);
 
 	// Lookup user for admin set
 	const handleAdminSetLookup = useCallback(async () => {
-		const effectiveWorkerToken = getAnyWorkerToken() || workerToken;
+		const effectiveWorkerToken = globalTokenStatus.token || '';
 		const effectiveEnvironmentId = getEffectiveEnvironmentId();
 
 		if (!adminSetIdentifier) {
@@ -1450,8 +1414,8 @@ const HelioMartPasswordReset: React.FC = () => {
 		}
 		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
 			console.error('[HelioMartPasswordReset] ❌ Missing worker token:', {
-				globalToken: getAnyWorkerToken() ? 'present' : 'missing',
-				localToken: workerToken ? 'present' : 'missing',
+				globalToken: globalTokenStatus.token ? 'present' : 'missing',
+				localToken: globalTokenStatus.token ? 'present' : 'missing',
 			});
 			v4ToastManager.showError('Worker token is required. Please generate a worker token first.');
 			return;
@@ -1485,11 +1449,17 @@ const HelioMartPasswordReset: React.FC = () => {
 		} catch (error) {
 			v4ToastManager.showError(error instanceof Error ? error.message : 'Failed to lookup user');
 		}
-	}, [adminSetIdentifier, workerToken, environmentId, getEffectiveEnvironmentId]);
+	}, [adminSetIdentifier, globalTokenStatus, environmentId, getEffectiveEnvironmentId]);
 
 	// Admin set password
 	const handleAdminSetPassword = useCallback(async () => {
-		if (!adminSetUser || !adminSetUser.id || !adminSetPassword || !workerToken || !environmentId) {
+		if (
+			!adminSetUser ||
+			!adminSetUser.id ||
+			!adminSetPassword ||
+			!globalTokenStatus.token ||
+			!environmentId
+		) {
 			v4ToastManager.showError('Please fill in all required fields');
 			return;
 		}
@@ -1498,7 +1468,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			const result = await setPasswordAdmin(
 				environmentId,
 				adminSetUser.id,
-				workerToken,
+				globalTokenStatus,
 				adminSetPassword,
 				{ forceChange: adminSetForceChange, bypassPasswordPolicy: adminSetBypassPolicy }
 			);
@@ -1522,13 +1492,13 @@ const HelioMartPasswordReset: React.FC = () => {
 		adminSetPassword,
 		adminSetForceChange,
 		adminSetBypassPolicy,
-		workerToken,
+		globalTokenStatus,
 		environmentId,
 	]);
 
 	// Lookup user for set password
 	const handleSetPasswordLookup = useCallback(async () => {
-		const effectiveWorkerToken = getAnyWorkerToken() || workerToken;
+		const effectiveWorkerToken = globalTokenStatus.token || '';
 		const effectiveEnvironmentId = getEffectiveEnvironmentId();
 
 		if (!setPasswordIdentifier) {
@@ -1537,8 +1507,8 @@ const HelioMartPasswordReset: React.FC = () => {
 		}
 		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
 			console.error('[HelioMartPasswordReset] ❌ Missing worker token:', {
-				globalToken: getAnyWorkerToken() ? 'present' : 'missing',
-				localToken: workerToken ? 'present' : 'missing',
+				globalToken: globalTokenStatus.token ? 'present' : 'missing',
+				localToken: globalTokenStatus.token ? 'present' : 'missing',
 			});
 			v4ToastManager.showError('Worker token is required. Please generate a worker token first.');
 			return;
@@ -1572,7 +1542,7 @@ const HelioMartPasswordReset: React.FC = () => {
 		} catch (error) {
 			v4ToastManager.showError(error instanceof Error ? error.message : 'Failed to lookup user');
 		}
-	}, [setPasswordIdentifier, workerToken, environmentId, getEffectiveEnvironmentId]);
+	}, [setPasswordIdentifier, globalTokenStatus, environmentId, getEffectiveEnvironmentId]);
 
 	// Set password
 	const handleSetPassword = useCallback(async () => {
@@ -1580,7 +1550,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			!setPasswordUser ||
 			!setPasswordUser.id ||
 			!setPasswordValue ||
-			!workerToken ||
+			!globalTokenStatus.token ||
 			!environmentId
 		) {
 			v4ToastManager.showError('Please fill in all required fields');
@@ -1591,7 +1561,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			const result = await setPassword(
 				environmentId,
 				setPasswordUser.id,
-				workerToken,
+				globalTokenStatus,
 				setPasswordValue,
 				{ forceChange: setPasswordForceChange, bypassPasswordPolicy: setPasswordBypassPolicy }
 			);
@@ -1615,13 +1585,13 @@ const HelioMartPasswordReset: React.FC = () => {
 		setPasswordValue,
 		setPasswordForceChange,
 		setPasswordBypassPolicy,
-		workerToken,
+		globalTokenStatus,
 		environmentId,
 	]);
 
 	// Lookup user for LDAP Gateway
 	const handleLdapLookup = useCallback(async () => {
-		const effectiveWorkerToken = getAnyWorkerToken() || workerToken;
+		const effectiveWorkerToken = globalTokenStatus.token || '';
 		const effectiveEnvironmentId = getEffectiveEnvironmentId();
 
 		if (!ldapIdentifier) {
@@ -1630,8 +1600,8 @@ const HelioMartPasswordReset: React.FC = () => {
 		}
 		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
 			console.error('[HelioMartPasswordReset] ❌ Missing worker token:', {
-				globalToken: getAnyWorkerToken() ? 'present' : 'missing',
-				localToken: workerToken ? 'present' : 'missing',
+				globalToken: globalTokenStatus.token ? 'present' : 'missing',
+				localToken: globalTokenStatus.token ? 'present' : 'missing',
 			});
 			v4ToastManager.showError('Worker token is required. Please generate a worker token first.');
 			return;
@@ -1665,11 +1635,11 @@ const HelioMartPasswordReset: React.FC = () => {
 		} catch (error) {
 			v4ToastManager.showError(error instanceof Error ? error.message : 'Failed to lookup user');
 		}
-	}, [ldapIdentifier, workerToken, environmentId, getEffectiveEnvironmentId]);
+	}, [ldapIdentifier, globalTokenStatus, environmentId, getEffectiveEnvironmentId]);
 
 	// Set password via LDAP Gateway
 	const handleSetPasswordLdap = useCallback(async () => {
-		if (!ldapUser || !ldapUser.id || !ldapPassword || !workerToken || !environmentId) {
+		if (!ldapUser || !ldapUser.id || !ldapPassword || !globalTokenStatus.token || !environmentId) {
 			v4ToastManager.showError('Please fill in all required fields');
 			return;
 		}
@@ -1678,7 +1648,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			const result = await setPasswordLdapGateway(
 				environmentId,
 				ldapUser.id,
-				workerToken,
+				globalTokenStatus,
 				ldapPassword,
 				ldapGatewayId || undefined,
 				{ forceChange: ldapForceChange, bypassPasswordPolicy: ldapBypassPolicy }
@@ -1706,7 +1676,7 @@ const HelioMartPasswordReset: React.FC = () => {
 		ldapGatewayId,
 		ldapForceChange,
 		ldapBypassPolicy,
-		workerToken,
+		globalTokenStatus,
 		environmentId,
 	]);
 
@@ -2019,7 +1989,7 @@ export { changePassword, handleChangePassword };`;
 				)}
 
 				{(() => {
-					const currentToken = getAnyWorkerToken() || workerToken;
+					const currentToken = globalTokenStatus.token || '';
 					return currentToken ? (
 						<WorkerTokenDetectedBanner
 							token={currentToken}
@@ -2064,7 +2034,7 @@ export { changePassword, handleChangePassword };`;
 					</StatusItem>
 					<StatusItem>
 						{(() => {
-							const currentToken = getAnyWorkerToken() || workerToken;
+							const currentToken = globalTokenStatus.token || '';
 							return currentToken ? (
 								<>
 									<FiCheckCircle style={{ color: '#22C55E' }} />
@@ -2108,7 +2078,7 @@ export { changePassword, handleChangePassword };`;
 
 						{/* Worker Token Button */}
 						{/* {renderWorkerTokenButton(
-							workerToken,
+							globalTokenStatus,
 							workerTokenExpiresAt,
 							() => setShowWorkerTokenModal(true),
 							'Get Worker Token',
@@ -2116,13 +2086,13 @@ export { changePassword, handleChangePassword };`;
 							'Refresh Worker Token'
 						)} */}
 
-						{/* Temporary fallback button */}
+						{/* Worker Token Button */}
 						<Button
-							$variant={workerToken ? 'success' : 'danger'}
+							$variant={globalTokenStatus.isValid ? 'success' : 'danger'}
 							onClick={() => setShowWorkerTokenModal(true)}
 						>
 							<FiKey />
-							Configure Worker Token
+							{globalTokenStatus.isValid ? 'Worker Token Ready' : 'Configure Worker Token'}
 						</Button>
 
 						{/* Auth Code Client Button */}
@@ -3952,53 +3922,17 @@ export { changePassword, handleChangePassword };`;
 
 				{/* Mount only when open so modal hooks never run when closed (avoids hooks-order issues) */}
 				{showWorkerTokenModal && (
-					<WorkerTokenModal
+					<WorkerTokenModalV8
 						isOpen={true}
 						onClose={() => setShowWorkerTokenModal(false)}
-						onContinue={() => {
-							setShowWorkerTokenModal(false);
-
-							// Use global worker token after modal closes
-							const globalToken = getAnyWorkerToken();
-							if (globalToken) {
-								setWorkerToken(globalToken);
-								console.log('✅ [HelioMartPasswordReset] Global worker token detected');
-							} else {
-								console.log('⚠️ [HelioMartPasswordReset] No global worker token found after save');
-							}
+						onTokenGenerated={() => {
+							// Token is now managed by useGlobalWorkerToken hook
+							// No need to manually set state
+							v4ToastManager.showSuccess('Worker token generated successfully');
 						}}
-						flowType="heliomart-password-reset"
 						environmentId={environmentId}
-						tokenStorageKey="worker_token"
-						tokenExpiryKey="worker_token_expires_at"
-						prefillCredentials={(() => {
-							const savedCreds = workerTokenCredentialsService.loadCredentials(
-								'heliomart-password-reset'
-							);
-							if (savedCreds) {
-								return {
-									environmentId: savedCreds.environmentId || '',
-									clientId: savedCreds.clientId || '',
-									clientSecret: savedCreds.clientSecret || '',
-									region: savedCreds.region || 'us',
-									scopes: Array.isArray(savedCreds.scopes)
-										? savedCreds.scopes[0]
-										: savedCreds.scopes?.[0] || '',
-									authMethod: savedCreds.tokenEndpointAuthMethod || ('client_secret_post' as const),
-								};
-							}
-							return {
-								environmentId: '',
-								clientId: '',
-								clientSecret: '',
-								region: 'us',
-								scopes: '',
-								authMethod: 'client_secret_post' as const,
-							};
-						})()}
 					/>
 				)}
-
 				{/* Setup Modal - Shows when authorization code credentials are not configured */}
 				{showSetupModal && (
 					<ModalOverlay onClick={() => {}}>
