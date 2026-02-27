@@ -297,8 +297,7 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 			requiredFields: ['environmentId', 'clientId', 'clientSecret'],
 			showToast: true,
 		});
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []); // Only run once on mount
+	}, [controller.credentials]);
 
 	// Use credential backup hook for automatic backup and restoration
 	const { clearBackup } = useCredentialBackup({
