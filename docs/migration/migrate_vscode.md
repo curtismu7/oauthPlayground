@@ -115,6 +115,39 @@ find archived -name "v4ToastMessages.ts"
 cp archived/v4/utils/v4ToastMessages.ts src/utils/
 ```
 
+### Error 6: Using localStorage for Worker Tokens
+**Symptom:**
+```typescript
+const stored = localStorage.getItem('unified_worker_token');
+const data = JSON.parse(stored);
+```
+
+**Why:** Pages should use `unifiedWorkerTokenService` for consistent worker token management, dual storage (IndexedDB + SQLite), and event-driven updates.
+
+**Fix:**
+```bash
+# Check if page uses localStorage for worker tokens
+grep -n "localStorage.getItem('unified_worker_token')" src/pages/YourPage.tsx
+grep -n "localStorage.removeItem('unified_worker_token')" src/pages/YourPage.tsx
+
+# If found, migrate to unified service:
+# 1. Add import
+echo "import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';" >> src/pages/YourPage.tsx
+
+# 2. Replace localStorage.getItem
+sed -i '' "s/const stored = localStorage.getItem('unified_worker_token');/const data = unifiedWorkerTokenService.getTokenDataSync();/" src/pages/YourPage.tsx
+sed -i '' "s/if (stored) {/if (data) {/" src/pages/YourPage.tsx
+sed -i '' "/const data = JSON.parse(stored);/d" src/pages/YourPage.tsx
+
+# 3. Replace localStorage.removeItem
+sed -i '' "s/localStorage.removeItem('unified_worker_token');/unifiedWorkerTokenService.clearToken();/" src/pages/YourPage.tsx
+```
+
+**Examples:**
+- ✅ [PingOne User Profile](../updates-to-apps/pingone-user-profile-updates.md) - Migrated 2026-02-27
+- ✅ [Configuration](../updates-to-apps/configuration-dashboard-v8-migration.md) - Migrated 2026-02-27
+- ✅ [Dashboard](../updates-to-apps/configuration-dashboard-v8-migration.md) - Migrated 2026-02-27
+
 ---
 
 ## 📋 Pre-Migration Checklist
@@ -151,8 +184,18 @@ grep "from.*utils/" "$V7_FILE" | sed "s/.*utils\/\([^'\"]*\).*/\1/" | sort -u | 
   fi
 done
 
-# 4. Check external dependencies
-echo "4. External URLs (needs vendoring):"
+# 4. Check for direct localStorage worker token usage
+echo "4. Worker token storage check:"
+if grep -q "localStorage.getItem('unified_worker_token')\|localStorage.removeItem('unified_worker_token')" "$V7_FILE" 2>/dev/null; then
+  echo "   ⚠️  Using direct localStorage for worker tokens"
+  echo "      Should migrate to: unifiedWorkerTokenService"
+  echo "      See Error 6 in migration guide"
+else
+  echo "   ✓ Using unified worker token service (or no worker tokens)"
+fi
+
+# 5. Check external dependencies
+echo "5. External URLs (needs vendoring):"
 grep -o "https://[^'\"]*" "$V7_FILE" | sort -u || echo "   ✓ None found"
 
 echo ""
