@@ -19,6 +19,7 @@ import {
 import { useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
+import { readBestEnvironmentId } from '../hooks/useAutoEnvironmentId';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { lookupPingOneUser } from '../services/pingOneUserProfileService';
@@ -779,27 +780,10 @@ const PingOneUserProfile: React.FC = () => {
 	const [userIdentifier, setUserIdentifier] = useState(initialIdentifier);
 	const [resolvedUserId, setResolvedUserId] = useState(initialIdentifier);
 	const [environmentId, setEnvironmentId] = useState(() => {
-		// Try search params first, then localStorage, then worker token credentials
+		// URL param takes highest priority, then fall back to any stored source
 		const searchParamEnvId = searchParams.get('environmentId');
-		const localStorageEnvId = localStorage.getItem('worker_environment_id');
-
 		if (searchParamEnvId) return searchParamEnvId;
-		if (localStorageEnvId) return localStorageEnvId;
-
-		// Try worker token credentials as fallback
-		try {
-			const stored = localStorage.getItem('unified_worker_token');
-			if (stored) {
-				const data = JSON.parse(stored);
-				if (data.credentials?.environmentId) {
-					return data.credentials.environmentId;
-				}
-			}
-		} catch (error) {
-			console.log('Failed to load environment ID from worker token:', error);
-		}
-
-		return '';
+		return readBestEnvironmentId();
 	});
 	// Always show user selector initially - user must explicitly load the profile
 	const [showUserSelector, setShowUserSelector] = useState(true);
@@ -861,7 +845,7 @@ const PingOneUserProfile: React.FC = () => {
 	const fetchUserBundle = useCallback(
 		async (targetUserId: string): Promise<UserDataBundle> => {
 			const profileResponse = await fetch(
-				`https://localhost:3001/api/pingone/user/${encodeURIComponent(targetUserId)}?environmentId=${encodeURIComponent(environmentId)}&accessToken=${encodeURIComponent(accessToken)}`
+				`/api/pingone/user/${encodeURIComponent(targetUserId)}?environmentId=${encodeURIComponent(environmentId)}&accessToken=${encodeURIComponent(accessToken)}`
 			);
 
 			if (!profileResponse.ok) {
@@ -912,7 +896,7 @@ const PingOneUserProfile: React.FC = () => {
 			try {
 				const [groupsPayload, rolesPayload, mfaPayload, consentsPayload] = await Promise.all([
 					fetch(
-						`https://localhost:3001/api/pingone/user/${encodeURIComponent(resolvedId)}/groups?environmentId=${encodeURIComponent(environmentId)}&accessToken=${encodeURIComponent(accessToken)}`
+						`/api/pingone/user/${encodeURIComponent(resolvedId)}/groups?environmentId=${encodeURIComponent(environmentId)}&accessToken=${encodeURIComponent(accessToken)}`
 					)
 						.then((r) => {
 							console.log('[fetchUserBundle] Groups fetch response status:', r.status, r.ok);
@@ -932,15 +916,15 @@ const PingOneUserProfile: React.FC = () => {
 						};
 					}>,
 					fetch(
-						`https://localhost:3001/api/pingone/user/${encodeURIComponent(resolvedId)}/roles?environmentId=${encodeURIComponent(environmentId)}&accessToken=${encodeURIComponent(accessToken)}`
+						`/api/pingone/user/${encodeURIComponent(resolvedId)}/roles?environmentId=${encodeURIComponent(environmentId)}&accessToken=${encodeURIComponent(accessToken)}`
 					).then((r) => (r.ok ? r.json() : { _embedded: { roles: [] } })) as Promise<{
 						_embedded?: { roles?: PingOneUserRole[]; items?: PingOneUserRole[] };
 					}>,
 					fetch(
-						`https://localhost:3001/api/pingone/user/${encodeURIComponent(resolvedId)}/mfa?environmentId=${encodeURIComponent(environmentId)}&accessToken=${encodeURIComponent(accessToken)}`
+						`/api/pingone/user/${encodeURIComponent(resolvedId)}/mfa?environmentId=${encodeURIComponent(environmentId)}&accessToken=${encodeURIComponent(accessToken)}`
 					).then((r) => (r.ok ? r.json() : null)) as Promise<PingOneMfaStatus>,
 					fetch(
-						`https://localhost:3001/api/pingone/user/${encodeURIComponent(resolvedId)}/consents?environmentId=${encodeURIComponent(environmentId)}&accessToken=${encodeURIComponent(accessToken)}`
+						`/api/pingone/user/${encodeURIComponent(resolvedId)}/consents?environmentId=${encodeURIComponent(environmentId)}&accessToken=${encodeURIComponent(accessToken)}`
 					).then((r) => (r.ok ? r.json() : { _embedded: { consents: [] } })) as Promise<{
 						_embedded?: { consents?: PingOneConsentRecord[]; items?: PingOneConsentRecord[] };
 					}>,
@@ -1314,7 +1298,7 @@ const PingOneUserProfile: React.FC = () => {
 
 		// Fetch population details
 		fetch(
-			`https://localhost:3001/api/pingone/population/${encodeURIComponent(populationId)}?environmentId=${encodeURIComponent(environmentId)}&accessToken=${encodeURIComponent(accessToken)}`
+			`/api/pingone/population/${encodeURIComponent(populationId)}?environmentId=${encodeURIComponent(environmentId)}&accessToken=${encodeURIComponent(accessToken)}`
 		)
 			.then((r) => (r.ok ? r.json() : null))
 			.then((data) => {
@@ -1376,7 +1360,7 @@ const PingOneUserProfile: React.FC = () => {
 
 		// Fetch population details
 		fetch(
-			`https://localhost:3001/api/pingone/population/${encodeURIComponent(populationId)}?environmentId=${encodeURIComponent(environmentId)}&accessToken=${encodeURIComponent(accessToken)}`
+			`/api/pingone/population/${encodeURIComponent(populationId)}?environmentId=${encodeURIComponent(environmentId)}&accessToken=${encodeURIComponent(accessToken)}`
 		)
 			.then((r) => (r.ok ? r.json() : null))
 			.then((data) => {

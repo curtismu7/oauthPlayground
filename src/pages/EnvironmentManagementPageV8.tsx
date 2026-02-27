@@ -81,7 +81,7 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
     transform: translateY(-1px);
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     background: ${(props) => {
-			switch (props.variant) {
+			switch (props.$variant) {
 				case 'primary':
 					return '#0056b3';
 				case 'secondary':
@@ -524,6 +524,34 @@ const EnvironmentManagementPageV8: React.FC = () => {
 		}
 	});
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
+	
+	// Calculate button style based on token expiration
+	const buttonStyle = useMemo(() => {
+		try {
+			const tokenData = unifiedWorkerTokenService.getTokenDataSync();
+			if (!tokenData || !tokenData.token) {
+				return { backgroundColor: '#ef4444', label: 'No Token' }; // Red - no token
+			}
+			
+			if (tokenData.expiresAt) {
+				const now = Date.now();
+				const remaining = tokenData.expiresAt - now;
+				const fiveMinutesInMs = 5 * 60 * 1000;
+				
+				if (remaining <= 0) {
+					return { backgroundColor: '#ef4444', label: 'Token Expired' }; // Red - expired
+				}
+				
+				if (remaining < fiveMinutesInMs) {
+					return { backgroundColor: '#f59e0b', label: 'Token Expiring Soon' }; // Yellow - expiring soon
+				}
+			}
+			
+			return { backgroundColor: '#10b981', label: 'Token Valid' }; // Green - valid
+		} catch {
+			return { backgroundColor: '#ef4444', label: 'No Token' }; // Red - error
+		}
+	}, []); // No dependencies - recalculates on component re-render
 
 	// Listen for token updates
 	useEffect(() => {
@@ -1075,13 +1103,20 @@ const EnvironmentManagementPageV8: React.FC = () => {
 					/>
 
 					<div
-						style={{ marginTop: '1rem', display: 'flex', gap: '1rem', justifyContent: 'center' }}
+						style={{ 
+							marginTop: '2rem', 
+							marginBottom: '1.5rem',
+							display: 'flex', 
+							gap: '1rem', 
+							justifyContent: 'center',
+							flexWrap: 'wrap'
+						}}
 					>
 						<button
 							type="button"
 							onClick={testEnvironmentFetch}
 							style={{
-								padding: '0.75rem 1.5rem',
+								padding: '1rem 1.75rem',
 								backgroundColor: '#f59e0b',
 								color: 'white',
 								border: 'none',
@@ -1092,6 +1127,24 @@ const EnvironmentManagementPageV8: React.FC = () => {
 								display: 'flex',
 								alignItems: 'center',
 								gap: '0.5rem',
+								transition: 'all 0.2s ease',
+								boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+							}}
+							onMouseOver={(e) => {
+								e.currentTarget.style.transform = 'translateY(-2px)';
+								e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)';
+							}}
+							onMouseOut={(e) => {
+								e.currentTarget.style.transform = 'translateY(0)';
+								e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+							}}
+							onFocus={(e) => {
+								e.currentTarget.style.transform = 'translateY(-2px)';
+								e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)';
+							}}
+							onBlur={(e) => {
+								e.currentTarget.style.transform = 'translateY(0)';
+								e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
 							}}
 						>
 							🔍 Test Environment Fetch
@@ -1101,8 +1154,8 @@ const EnvironmentManagementPageV8: React.FC = () => {
 							type="button"
 							onClick={() => setShowWorkerTokenModal(true)}
 							style={{
-								padding: '0.75rem 1.5rem',
-								backgroundColor: '#3b82f6',
+								padding: '1rem 1.75rem',
+								backgroundColor: buttonStyle.backgroundColor,
 								color: 'white',
 								border: 'none',
 								borderRadius: '0.5rem',
@@ -1112,8 +1165,26 @@ const EnvironmentManagementPageV8: React.FC = () => {
 								display: 'flex',
 								alignItems: 'center',
 								gap: '0.5rem',
-								margin: '0 auto',
+								transition: 'all 0.2s ease',
+								boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
 							}}
+							onMouseOver={(e) => {
+								e.currentTarget.style.transform = 'translateY(-2px)';
+								e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)';
+							}}
+							onMouseOut={(e) => {
+								e.currentTarget.style.transform = 'translateY(0)';
+								e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+							}}
+							onFocus={(e) => {
+								e.currentTarget.style.transform = 'translateY(-2px)';
+								e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)';
+							}}
+							onBlur={(e) => {
+								e.currentTarget.style.transform = 'translateY(0)';
+								e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+							}}
+							title={buttonStyle.label}
 						>
 							<FiRefreshCw size={16} />
 							Get Worker Token for Environments
@@ -1132,7 +1203,9 @@ const EnvironmentManagementPageV8: React.FC = () => {
 					/>
 
 					{/* Worker Token Status Display */}
-					<WorkerTokenStatusDisplayV8 />
+					<div style={{ marginTop: '2rem', marginBottom: '1rem' }}>
+						<WorkerTokenStatusDisplayV8 />
+					</div>
 				</div>
 			</Container>
 		);
@@ -1193,7 +1266,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 				</APIEndpointsDescription>
 				<APIEndpointsTable>
 					<APIEndpointCell
-						href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#get-environments"
+						href="https://developer.pingidentity.com/pingone-api/platform/environments.html#get-read-all-environments"
 						target="_blank"
 						rel="noopener noreferrer"
 					>
@@ -1201,7 +1274,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 						<APIEndpointText>/api/environments - List all environments</APIEndpointText>
 					</APIEndpointCell>
 					<APIEndpointCell
-						href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#get-environment"
+						href="https://developer.pingidentity.com/pingone-api/platform/environments.html#get-read-one-environment"
 						target="_blank"
 						rel="noopener noreferrer"
 					>
@@ -1209,7 +1282,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 						<APIEndpointText>/api/environments/:id - Get single environment</APIEndpointText>
 					</APIEndpointCell>
 					<APIEndpointCell
-						href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#create-environment"
+						href="https://developer.pingidentity.com/pingone-api/platform/environments.html#post-create-environment-activelicense"
 						target="_blank"
 						rel="noopener noreferrer"
 					>
@@ -1217,7 +1290,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 						<APIEndpointText>/api/environments - Create new environment</APIEndpointText>
 					</APIEndpointCell>
 					<APIEndpointCell
-						href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#update-environment"
+						href="https://developer.pingidentity.com/pingone-api/platform/environments.html#put-update-environment"
 						target="_blank"
 						rel="noopener noreferrer"
 					>
@@ -1225,7 +1298,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 						<APIEndpointText>/api/environments/:id - Update environment</APIEndpointText>
 					</APIEndpointCell>
 					<APIEndpointCell
-						href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#update-environment-status"
+						href="https://developer.pingidentity.com/pingone-api/platform/environments.html#put-update-environment"
 						target="_blank"
 						rel="noopener noreferrer"
 					>
@@ -1233,7 +1306,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 						<APIEndpointText>/api/environments/:id/status - Update status</APIEndpointText>
 					</APIEndpointCell>
 					<APIEndpointCell
-						href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#delete-environment"
+						href="https://developer.pingidentity.com/pingone-api/platform/environments.html#delete-delete-environment"
 						target="_blank"
 						rel="noopener noreferrer"
 					>
@@ -1246,7 +1319,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			<Header>
 				<Title>PingOne Environment Management</Title>
 				<Actions>
-					<Button onClick={() => setShowWorkerTokenModal(true)} variant="secondary">
+					<Button onClick={() => setShowWorkerTokenModal(true)} $variant="secondary">
 						<FiRefreshCw />
 						Worker Token
 					</Button>
@@ -1261,15 +1334,15 @@ const EnvironmentManagementPageV8: React.FC = () => {
 						<FiCode />
 						{showApiDisplay ? 'Hide API' : 'Show API'}
 					</Button>
-					<Button variant="secondary" onClick={handleExportEnvironments}>
+					<Button $variant="secondary" onClick={handleExportEnvironments}>
 						<FiDownload />
 						Export
 					</Button>
-					<Button variant="secondary" onClick={handleImportEnvironments}>
+					<Button $variant="secondary" onClick={handleImportEnvironments}>
 						<FiUpload />
 						Import
 					</Button>
-					<Button variant="primary" onClick={handleCreateEnvironment}>
+					<Button $variant="primary" onClick={handleCreateEnvironment}>
 						<FiPlus />
 						Create Environment
 					</Button>
@@ -1339,16 +1412,16 @@ const EnvironmentManagementPageV8: React.FC = () => {
 					<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
 						<span>{selectedEnvironments.length} environments selected</span>
 						<div style={{ display: 'flex', gap: '0.5rem' }}>
-							<Button variant="secondary" onClick={() => handleBulkStatusUpdate('ACTIVE')}>
+							<Button $variant="secondary" onClick={() => handleBulkStatusUpdate('ACTIVE')}>
 								Activate
 							</Button>
-							<Button variant="secondary" onClick={() => handleBulkStatusUpdate('INACTIVE')}>
+							<Button $variant="secondary" onClick={() => handleBulkStatusUpdate('INACTIVE')}>
 								Deactivate
 							</Button>
-							<Button variant="danger" onClick={handleBulkDelete}>
+							<Button $variant="danger" onClick={handleBulkDelete}>
 								Delete
 							</Button>
-							<Button variant="secondary" onClick={() => setSelectedEnvironments([])}>
+							<Button $variant="secondary" onClick={() => setSelectedEnvironments([])}>
 								Clear Selection
 							</Button>
 						</div>
@@ -1632,7 +1705,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 						justifyContent: 'flex-end',
 					}}
 				>
-					<Button variant="secondary" onClick={handleCancelEdit}>
+					<Button $variant="secondary" onClick={handleCancelEdit}>
 						Cancel
 					</Button>
 					<Button

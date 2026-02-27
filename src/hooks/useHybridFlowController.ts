@@ -26,6 +26,7 @@ import {
 	getStoredRedirectUri,
 	storeRedirectUriFromAuthUrl,
 } from '../utils/redirectUriHelpers';
+import { getAppOrigin } from '../utils/flowRedirectUriMapping';
 import { safeSessionStorageParse } from '../utils/secureJson';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
@@ -383,7 +384,7 @@ export const useHybridFlowController = (
 		try {
 			const params = new URLSearchParams({
 				client_id: credentials.clientId,
-				redirect_uri: credentials.redirectUri || 'https://localhost:3002/hybrid-callback',
+				redirect_uri: credentials.redirectUri || `${getAppOrigin()}/hybrid-callback`,
 				response_type: flowConfig.responseType,
 				scope: credentials.scope || 'openid profile email',
 				response_mode: flowConfig.responseMode,
@@ -414,7 +415,7 @@ export const useHybridFlowController = (
 
 			// ✅ CRITICAL: Store the EXACT redirect_uri from the URL for token exchange
 			storeRedirectUriFromAuthUrl(url, flowKey);
-			const redirectUri = credentials.redirectUri || 'https://localhost:3002/hybrid-callback';
+			const redirectUri = credentials.redirectUri || `${getAppOrigin()}/hybrid-callback`;
 			auditRedirectUri('authorization', redirectUri, flowKey);
 
 			log.success('Authorization URL generated', {
@@ -479,7 +480,7 @@ export const useHybridFlowController = (
 				// ✅ CRITICAL FIX: Use the EXACT redirect_uri from the authorization request
 				const actualRedirectUri = getStoredRedirectUri(
 					flowKey,
-					credentials.redirectUri || 'https://localhost:3000/hybrid-callback'
+					credentials.redirectUri || `${getAppOrigin()}/hybrid-callback`
 				);
 				auditRedirectUri('token-exchange', actualRedirectUri, flowKey);
 

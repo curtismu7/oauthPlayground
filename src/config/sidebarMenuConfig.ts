@@ -57,6 +57,7 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 		label: 'Admin & Configuration',
 		items: items([
 			['/api-status', 'API Status'],
+			['/custom-domain-test', 'Custom Domain & API Test'],
 			['/v8/mfa-feature-flags', 'MFA Feature Flags'],
 			['/environments', 'Environment Management'],
 			['/advanced-configuration', 'Advanced Configuration'],
@@ -94,9 +95,13 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 		label: 'OAuth 2.0 Flows',
 		items: items([
 			['/flows/oauth-authorization-code-v7-2', 'Authorization Code (V7.2)'],
+			['/flows/oauth-authorization-code-v9', 'Authorization Code (V9)'],
 			['/flows/implicit-v7', 'Implicit Flow (V7)'],
+			['/flows/implicit-v9', 'Implicit Flow (V9)'],
 			['/flows/device-authorization-v7', 'Device Authorization (V7)'],
+			['/flows/device-authorization-v9', 'Device Authorization (V9)'],
 			['/flows/client-credentials-v7', 'Client Credentials (V7)'],
+			['/flows/client-credentials-v9', 'Client Credentials (V9)'],
 			['/flows/oauth-authorization-code-v8', 'Authorization Code (V8)'],
 			['/flows/implicit-v8', 'Implicit Flow (V8)'],
 			['/flows/dpop-authorization-code-v8', 'DPoP Authorization Code (V8)'],
@@ -107,8 +112,11 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 		label: 'OpenID Connect',
 		items: items([
 			['/flows/oauth-authorization-code-v7-2', 'Authorization Code (V7.2)'],
+			['/flows/oauth-authorization-code-v9', 'Authorization Code (V9)'],
 			['/flows/implicit-v7?variant=oidc', 'Implicit Flow (V7)'],
+			['/flows/implicit-v9?variant=oidc', 'Implicit Flow (V9)'],
 			['/flows/device-authorization-v7?variant=oidc', 'Device Authorization (V7 – OIDC)'],
+			['/flows/device-authorization-v9?variant=oidc', 'Device Authorization (V9 – OIDC)'],
 			['/flows/oidc-hybrid-v7', 'Hybrid Flow (V7)'],
 			['/flows/ciba-v9', 'CIBA Flow (V9)'],
 		]),

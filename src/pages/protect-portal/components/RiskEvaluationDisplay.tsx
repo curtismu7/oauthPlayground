@@ -511,7 +511,7 @@ const RiskEvaluationDisplay: React.FC<RiskEvaluationDisplayProps> = ({
 	// ============================================================================
 	// GLOBAL WORKER TOKEN INTEGRATION
 	// ============================================================================
-	
+
 	const { globalTokenStatus } = useGlobalWorkerToken();
 
 	// ============================================================================

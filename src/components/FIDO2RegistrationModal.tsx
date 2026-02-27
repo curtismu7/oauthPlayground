@@ -4,7 +4,7 @@
 import React, { useEffect, useState } from 'react';
 import { FiAlertCircle, FiCheckCircle, FiKey, FiMonitor, FiShield, FiX } from 'react-icons/fi';
 import { FIDO2Config, FIDO2Service } from '../services/fido2Service';
-import { v4ToastManager } from '../utils/v4ToastManager';
+import { v4ToastManager } from '../utils/v4ToastMessages';
 
 interface FIDO2RegistrationModalProps {
 	isOpen: boolean;
