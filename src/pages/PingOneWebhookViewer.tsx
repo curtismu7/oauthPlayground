@@ -25,6 +25,7 @@ import styled from 'styled-components';
 import ApiCallList from '../components/ApiCallList';
 import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
 import { WorkerTokenModal } from '../components/WorkerTokenModal';
+import { readBestEnvironmentId } from '../hooks/useAutoEnvironmentId';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import { secureLog } from '../utils/secureLogging';
 import { v4ToastManager } from '../utils/v4ToastMessages';
@@ -450,29 +451,7 @@ const PingOneWebhookViewer: React.FC = () => {
 	const [isActive, setIsActive] = useState(false);
 	const [isLoadingSubscriptions, setIsLoadingSubscriptions] = useState(false);
 	const [workerToken, setWorkerToken] = useState<string | null>(() => getAnyWorkerToken());
-	const [environmentId, setEnvironmentId] = useState<string>(() => {
-		// Try to load from unified worker token first, then fall back to environmentId
-		try {
-			const stored = localStorage.getItem('unified_worker_token');
-			if (stored) {
-				const data = JSON.parse(stored);
-				if (data.credentials?.environmentId) {
-					console.log(
-						'[Webhook Viewer] Loading Environment ID from unified worker token:',
-						data.credentials.environmentId
-					);
-					return data.credentials.environmentId;
-				}
-			}
-		} catch (error) {
-			console.log('Failed to load environment ID from unified worker token:', error);
-		}
-
-		// Fallback to old environmentId storage
-		const fallbackEnvId = localStorage.getItem('environmentId') || '';
-		console.log('[Webhook Viewer] Loading Environment ID from fallback storage:', fallbackEnvId);
-		return fallbackEnvId;
-	});
+	const [environmentId, setEnvironmentId] = useState<string>(() => readBestEnvironmentId());
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [showCreateModal, setShowCreateModal] = useState(false);
 	const [editingSubscription, setEditingSubscription] = useState<WebhookSubscription | null>(null);
@@ -626,6 +605,8 @@ const PingOneWebhookViewer: React.FC = () => {
 					return JSON.stringify(event.data, null, 2);
 			}
 		},
+		// biome-ignore lint/correctness/noInvalidUseBeforeDeclaration: functions are hoisted
+		// biome-ignore lint/correctness/useExhaustiveDependencies: stable formatter functions defined below
 		[formatAsNewRelic, formatAsPingActivity, formatAsSplunk]
 	);
 
@@ -669,12 +650,21 @@ const PingOneWebhookViewer: React.FC = () => {
 				eventType: event.type || 'unknown',
 				source: 'pingone-api',
 				environmentId: environmentId,
-				actor: (event.data as any)?.actor?.id || 'unknown',
-				action: (event.data as any)?.action?.type || 'unknown',
-				resourceType: (event.data as any)?.resource?.type || 'unknown',
-				result: (event.data as any)?.result?.status || 'unknown',
-				userAgent: (event.data as any)?.userAgent || 'unknown',
-				ipAddress: (event.data as any)?.ipAddress || 'unknown',
+				actor:
+					((event.data as Record<string, unknown> | undefined)?.['actor'] as string) || 'unknown',
+				action:
+					((event.data as Record<string, unknown> | undefined)?.['action'] as string) || 'unknown',
+				resourceType:
+					((event.data as Record<string, unknown> | undefined)?.['resource'] as string) ||
+					'unknown',
+				result:
+					((event.data as Record<string, unknown> | undefined)?.['result'] as string) || 'unknown',
+				userAgent:
+					((event.data as Record<string, unknown> | undefined)?.['userAgent'] as string) ||
+					'unknown',
+				ipAddress:
+					((event.data as Record<string, unknown> | undefined)?.['ipAddress'] as string) ||
+					'unknown',
 			},
 		};
 
@@ -1253,6 +1243,7 @@ const PingOneWebhookViewer: React.FC = () => {
 					<SectionCard style={{ marginBottom: '1.5rem' }}>
 						<div style={{ marginBottom: '0.5rem' }}>
 							<label
+								htmlFor="webhook-env-id"
 								style={{
 									fontWeight: 600,
 									fontSize: '0.875rem',
@@ -1264,6 +1255,7 @@ const PingOneWebhookViewer: React.FC = () => {
 								Environment ID
 							</label>
 							<input
+								id="webhook-env-id"
 								type="text"
 								value={environmentId}
 								onChange={(e) => {
@@ -1573,6 +1565,7 @@ const PingOneWebhookViewer: React.FC = () => {
 									{window.location.origin}/api/webhooks/pingone
 								</div>
 								<button
+									type="button"
 									onClick={() => {
 										navigator.clipboard.writeText(`${window.location.origin}/api/webhooks/pingone`);
 										v4ToastManager.showSuccess('Webhook URL copied to clipboard');
@@ -1666,7 +1659,9 @@ const PingOneWebhookViewer: React.FC = () => {
 									Display Format:
 									<FilterSelect
 										value={displayFormat}
-										onChange={(e) => setDisplayFormat(e.target.value as any)}
+										onChange={(e) =>
+											setDisplayFormat(e.target.value as 'json' | 'splunk' | 'new_relic')
+										}
 									>
 										<option value="json">Raw JSON</option>
 										<option value="splunk">Splunk Format</option>

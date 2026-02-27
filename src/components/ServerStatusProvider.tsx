@@ -21,6 +21,21 @@ export const useServerStatus = () => {
 	return context;
 };
 
+const defaultStatus: ServerStatusContextType = {
+	isOnline: true,
+	isChecking: false,
+	lastChecked: null,
+	error: null,
+	retryCount: 0,
+	checkHealth: () => {},
+};
+
+/** Use when component may be outside ServerStatusProvider; returns default (isOnline: true) so API calls are not skipped. */
+export const useServerStatusOptional = (): ServerStatusContextType => {
+	const context = useContext(ServerStatusContext);
+	return context ?? defaultStatus;
+};
+
 interface ServerStatusProviderProps {
 	children: ReactNode;
 	showHealthCheck?: boolean;

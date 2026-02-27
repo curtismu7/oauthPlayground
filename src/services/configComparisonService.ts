@@ -32,7 +32,7 @@ export class ConfigComparisonService {
 			// Add timestamp to ensure fresh data is fetched every time
 			const timestamp = Date.now();
 			// Use proxy endpoint instead of direct API call
-			const applicationsUrl = `https://localhost:3001/api/pingone/applications?environmentId=${this.environmentId}&clientId=${this.clientId}&clientSecret=${this.clientSecret}&workerToken=${encodeURIComponent(this.token)}&region=${this.region}&t=${timestamp}&_=${Math.random()}`;
+			const applicationsUrl = `/api/pingone/applications?environmentId=${this.environmentId}&clientId=${this.clientId}&clientSecret=${this.clientSecret}&workerToken=${encodeURIComponent(this.token)}&region=${this.region}&t=${timestamp}&_=${Math.random()}`;
 			const response = await fetch(applicationsUrl);
 			const responseData = await response.json();
 			const applications = responseData._embedded?.applications || [];
@@ -61,7 +61,7 @@ export class ConfigComparisonService {
 			if (!app.scopes && !app.allowedScopes && !app.resources) {
 				try {
 					// Use proxy endpoint instead of direct API call
-					const resourcesUrl = `https://localhost:3001/api/pingone/applications/${app.id}/resources?environmentId=${this.environmentId}&clientId=${this.clientId}&clientSecret=${this.clientSecret}&workerToken=${encodeURIComponent(this.token)}&region=${this.region}`;
+					const resourcesUrl = `/api/pingone/applications/${app.id}/resources?environmentId=${this.environmentId}&clientId=${this.clientId}&clientSecret=${this.clientSecret}&workerToken=${encodeURIComponent(this.token)}&region=${this.region}`;
 					const resourcesResponse = await fetch(resourcesUrl);
 					const resourcesData = await resourcesResponse.json();
 
@@ -84,7 +84,7 @@ export class ConfigComparisonService {
 				if (!appWithScopes.scopes || appWithScopes.scopes.length === 0) {
 					try {
 						// Use proxy endpoint instead of direct API call
-						const discoveryUrl = `https://localhost:3001/api/pingone/oidc-config?environmentId=${this.environmentId}&region=${this.region}`;
+						const discoveryUrl = `/api/pingone/oidc-config?environmentId=${this.environmentId}&region=${this.region}`;
 						const discoveryResponse = await fetch(discoveryUrl);
 						const discoveryData = await discoveryResponse.json();
 

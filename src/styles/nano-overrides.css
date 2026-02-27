@@ -1,0 +1,4 @@
+/* Keep this file small. Only fix cascade conflicts needed for migration. */
+.mdi::before {
+	vertical-align: -0.125em;
+}

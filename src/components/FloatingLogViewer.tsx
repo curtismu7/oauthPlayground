@@ -15,7 +15,26 @@ import {
 	FiX,
 } from 'react-icons/fi';
 import styled from 'styled-components';
+import { useServerStatusOptional } from './ServerStatusProvider';
 import { type LogFile, LogFileService } from '../services/logFileService';
+
+const BACKEND_DOWN_MESSAGE =
+	'Log API not available. Start the backend server (e.g. ./run.sh) to view logs.';
+
+/** Startup log types (same options as run.sh 1–11); always selectable in Debug Log Viewer. */
+const STARTUP_LOG_OPTIONS: Array<{ value: string; label: string }> = [
+	{ value: 'pingone-api.log', label: 'PingOne API (all calls)' },
+	{ value: 'real-api.log', label: 'Real API (direct only)' },
+	{ value: 'server.log', label: 'Server log' },
+	{ value: 'sms.log', label: 'SMS flow' },
+	{ value: 'email.log', label: 'Email flow' },
+	{ value: 'whatsapp.log', label: 'WhatsApp flow' },
+	{ value: 'voice.log', label: 'Voice flow' },
+	{ value: 'fido.log', label: 'FIDO2 flow' },
+	{ value: 'backend.log', label: 'Backend log' },
+	{ value: 'frontend.log', label: 'Frontend log' },
+	{ value: 'startup.log', label: 'Startup log' },
+];
 
 // Styled components
 const FloatingContainer = styled.div<{ width: number; height: number; x: number; y: number }>`
@@ -290,14 +309,19 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
 	const containerRef = useRef<HTMLDivElement>(null);
 	const eventSourceRef = useRef<EventSource | null>(null);
 
+	const { isOnline } = useServerStatusOptional();
+
 	// Load available files
 	const loadFiles = useCallback(async () => {
 		try {
 			const files = await LogFileService.listLogFiles();
 			setAvailableFiles(files);
 		} catch (err) {
-			console.error('[FloatingLogViewer] Failed to load files:', err);
-			setError('Failed to load log files');
+			const msg = err instanceof Error ? err.message : '';
+			if (!msg.includes('Log API not available')) {
+				console.error('[FloatingLogViewer] Failed to load files:', err);
+			}
+			setError(msg || 'Failed to load log files');
 		}
 	}, []);
 
@@ -482,13 +506,26 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
 		}
 	}, [isMaximized, initialWidth, initialHeight, initialX, initialY]);
 
-	// Effects
+	// Effects: when panel opens, load only if backend is up (avoids 404 in console).
+	// In standalone (popout) mode we have no ServerStatusProvider so isOnline is always true;
+	// skip auto-load there to avoid 404s — user can click Refresh to load.
 	useEffect(() => {
-		if (isOpen) {
-			loadFiles();
-			loadLogContent();
+		if (!isOpen) return;
+		if (standaloneMode) {
+			setError(null);
+			setLogContent('');
+			return;
 		}
-	}, [isOpen, loadFiles, loadLogContent]);
+		if (!isOnline) {
+			setAvailableFiles([]);
+			setError(BACKEND_DOWN_MESSAGE);
+			setLogContent('');
+			return;
+		}
+		setError(null);
+		loadFiles();
+		loadLogContent();
+	}, [isOpen, isOnline, standaloneMode, loadFiles, loadLogContent]);
 
 	useEffect(() => {
 		// Stop tail mode when component unmounts or file changes
@@ -509,11 +546,14 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
 		}
 	}, [isTailMode]);
 
-	// Stop tail mode and load content when file changes
+	// Stop tail mode and load content when file changes (only if backend is up; skip auto in standalone)
 	useEffect(() => {
 		stopTailMode();
-		loadLogContent();
-	}, [stopTailMode, loadLogContent]);
+		if (standaloneMode) return;
+		if (isOnline) {
+			loadLogContent();
+		}
+	}, [stopTailMode, loadLogContent, isOnline, selectedFile, standaloneMode]);
 
 	// Global mouse event listeners
 	useEffect(() => {
@@ -559,16 +599,17 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
 			<Header className="header">
 				<Title>
 					<StatusIndicator $status={isTailMode ? 'connected' : 'disconnected'} />
-					Log Viewer
+					Debug Log Viewer
 				</Title>
 				<Controls>
 					{!standaloneMode && (
 						<ControlButton
 							$variant="secondary"
 							onClick={handlePopOut}
-							title="Open Debug Log Viewer in separate window"
+							title="Popout window - Open Debug Log Viewer in separate window"
 						>
 							<FiExternalLink />
+							<span style={{ marginLeft: 4, fontSize: 12 }}>Popout window</span>
 						</ControlButton>
 					)}
 					<ControlButton
@@ -599,11 +640,18 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
 							onChange={(e) => setSelectedFile(e.target.value)}
 							disabled={isLoading || isTailMode}
 						>
-							{availableFiles.map((file) => (
-								<option key={file.name} value={file.name}>
-									{file.name} ({(file.size / 1024).toFixed(1)}KB)
+							{STARTUP_LOG_OPTIONS.map((opt) => (
+								<option key={opt.value} value={opt.value}>
+									{opt.label}
 								</option>
 							))}
+							{availableFiles
+								.filter((file) => !STARTUP_LOG_OPTIONS.some((s) => s.value === file.name))
+								.map((file) => (
+									<option key={file.name} value={file.name}>
+										{file.name} ({(file.size / 1024).toFixed(1)}KB)
+									</option>
+								))}
 						</Select>
 
 						<CheckboxContainer
@@ -611,7 +659,7 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
 							title={
 								isTailMode
 									? 'Stop tailing - Disable real-time log updates'
-									: 'Start tailing - Enable real-time log updates'
+									: 'Live tail - Enable real-time log updates'
 							}
 						>
 							<CheckboxInput
@@ -620,7 +668,7 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
 								onChange={toggleTailMode}
 								disabled={isLoading}
 							/>
-							<CheckboxLabel>Tail Mode</CheckboxLabel>
+							<CheckboxLabel>Live tail</CheckboxLabel>
 						</CheckboxContainer>
 
 						<ControlButton

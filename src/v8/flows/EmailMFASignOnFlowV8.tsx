@@ -28,6 +28,7 @@ import {
 } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { readBestEnvironmentId } from '@/hooks/useAutoEnvironmentId';
 import { usePageScroll } from '@/hooks/usePageScroll';
 import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
@@ -295,7 +296,7 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 	usePageScroll({ pageName: 'Email MFA Sign-On Flow V8', force: true });
 
 	// Credentials state
-	const [environmentId, setEnvironmentId] = useState('');
+	const [environmentId, setEnvironmentId] = useState(() => readBestEnvironmentId());
 	const [workerToken, setWorkerToken] = useState('');
 
 	// Current step tracking

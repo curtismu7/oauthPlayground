@@ -25,6 +25,7 @@ export interface WorkerTokenBackupData {
 /**
  * Enhanced worker token service with SQLite backup
  */
+// biome-ignore lint/complexity/noStaticOnlyClass: kept as class for API consistency with existing callers
 export class UnifiedWorkerTokenBackupServiceV8 {
 	private static readonly BACKUP_API_BASE = '/api/backup';
 	private static readonly DEFAULT_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 days

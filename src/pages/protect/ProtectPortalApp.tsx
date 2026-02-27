@@ -280,7 +280,7 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 	// ============================================================================
 	// GLOBAL WORKER TOKEN INTEGRATION
 	// ============================================================================
-	
+
 	const globalTokenStatus = useGlobalWorkerToken();
 
 	// ============================================================================

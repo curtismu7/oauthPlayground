@@ -1356,17 +1356,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 		onContinue();
 	};
 
-	if (!isOpen) {
-		console.log('[WorkerTokenModal] Modal is closed (isOpen = false)');
-		return null;
-	}
-
-	console.log('[WorkerTokenModal] ✅ Rendering modal (isOpen = true)', {
-		skipCredentialsStep,
-		showForm,
-		hasCredentials: !!(workerCredentials.clientId && workerCredentials.clientSecret),
-	});
-
+	// Always return the same structure (no early return) so React hook order is stable
 	return (
 		<>
 			<DraggableModal
@@ -1684,12 +1674,16 @@ export const WorkerTokenModal: React.FC<Props> = ({
 												clientSecret: workerCredentials.clientSecret,
 												region: workerCredentials.region || 'us',
 												tokenEndpointAuthMethod:
-													workerCredentials.tokenEndpointAuthMethod || 'client_secret_basic',
-												scopes: workerCredentials.scopes || [],
+													workerCredentials.authMethod || 'client_secret_post',
+												scopes: workerCredentials.scopes
+													? workerCredentials.scopes.split(/\s+/).filter(Boolean)
+													: [],
 											}}
 											metadata={{
-												workflow: 'worker-token',
-												description: 'Worker Token credentials for PingOne API access',
+												flowType: 'worker-token',
+												additionalData: {
+													description: 'Worker Token credentials for PingOne API access',
+												},
 											}}
 											onExport={() => {
 												console.log('WorkerTokenModal: Credentials exported');

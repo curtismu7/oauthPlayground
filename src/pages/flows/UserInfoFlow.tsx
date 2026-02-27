@@ -110,7 +110,7 @@ const _DemoControls = styled.div`
   flex-wrap: wrap;
 `;
 
-const _DemoButton = styled.button<{ variant?: 'primary' | 'secondary' }>`
+const _DemoButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;

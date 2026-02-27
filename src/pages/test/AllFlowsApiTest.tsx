@@ -6,7 +6,9 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { Icon } from '../../components/Icon/Icon';
 import { useCredentialStoreV8 } from '../../hooks/useCredentialStoreV8';
+import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
 import WorkerTokenStatusDisplayV8 from '../../v8/components/WorkerTokenStatusDisplayV8';
 
@@ -54,9 +56,9 @@ interface TestResult {
 }
 
 const Container = styled.div`
-  max-width: 1400px;
+  max-width: 72rem;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1.5rem;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 `;
 
@@ -65,12 +67,12 @@ const Header = styled.div`
 `;
 
 const Title = styled.h1`
-  color: #1f2937;
+  color: #111827;
   margin-bottom: 0.5rem;
 `;
 
 const Subtitle = styled.p`
-  color: #6b7280;
+  color: #1f2937;
   font-size: 1.1rem;
 `;
 
@@ -78,12 +80,12 @@ const TestSection = styled.div`
   margin-bottom: 2rem;
   padding: 1.5rem;
   border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
+  border-radius: 0.75rem;
   background: #ffffff;
 `;
 
 const SectionTitle = styled.h2`
-  color: #1f2937;
+  color: #111827;
   margin-bottom: 1rem;
   font-size: 1.25rem;
 `;
@@ -108,8 +110,8 @@ const FormGroup = styled.div`
 `;
 
 const Label = styled.label`
-  font-weight: 500;
-  color: #374151;
+  font-weight: 600;
+  color: #111827;
   font-size: 0.875rem;
 `;
 
@@ -228,7 +230,7 @@ const ResultTitle = styled.h3<{ success: boolean }>`
 
 const ResultTime = styled.span`
   font-size: 0.75rem;
-  color: #6b7280;
+  color: #1f2937;
 `;
 
 const CodeBlock = styled.pre`
@@ -449,6 +451,15 @@ const AllFlowsApiTest: React.FC = () => {
 
 			return newConfig;
 		});
+	}, []);
+
+	// Helper function to get worker token - defined before callbacks that use it
+	const getWorkerToken = useCallback(async () => {
+		const token = localStorage.getItem('worker_token');
+		if (!token) {
+			throw new Error('No worker token available. Please generate a worker token first.');
+		}
+		return token;
 	}, []);
 
 	// Test 1: URL Generation
@@ -853,7 +864,10 @@ const AllFlowsApiTest: React.FC = () => {
 
 			const devices = await devicesResponse.json();
 			const targetDevice = devices._embedded?.devices?.find(
-				(device: any) => device.type === config.deviceType
+				(device: unknown) => {
+					const dev = device as { type?: string };
+					return dev.type === config.deviceType;
+				}
 			);
 
 			if (!targetDevice) {
@@ -904,15 +918,6 @@ const AllFlowsApiTest: React.FC = () => {
 			return null;
 		}
 	}, [config, addResult, getWorkerToken]);
-
-	// Helper function to get worker token
-	const getWorkerToken = async () => {
-		const token = localStorage.getItem('worker_token');
-		if (!token) {
-			throw new Error('No worker token available. Please generate a worker token first.');
-		}
-		return token;
-	};
 
 	// Run tests based on flow type
 	const runTests = useCallback(async () => {
@@ -977,8 +982,13 @@ const AllFlowsApiTest: React.FC = () => {
 				</div>
 			</Header>
 
-			<TestSection>
-				<SectionTitle>Test Configuration</SectionTitle>
+			<CollapsibleHeader
+				title="Test Configuration"
+				theme="ping"
+				variant="compact"
+				defaultCollapsed={false}
+			>
+				<TestSection>
 				<Form>
 					<FormRow>
 						<FormGroup>
@@ -1177,7 +1187,7 @@ const AllFlowsApiTest: React.FC = () => {
 									/>
 									Use PKCE
 								</Label>
-								<span style={{ fontSize: '0.8rem', color: '#6b7280' }}>
+								<span style={{ fontSize: '0.8rem', color: '#1f2937' }}>
 									{config.flowType === 'implicit'
 										? 'Not used in implicit flow'
 										: config.flowType === 'client_credentials'
@@ -1276,22 +1286,34 @@ const AllFlowsApiTest: React.FC = () => {
 						<Button variant="secondary" onClick={() => navigator.clipboard.writeText(generatedUrl)}>
 							Copy URL
 						</Button>
-						<Button variant="danger" onClick={() => window.open(generatedUrl, '_blank')}>
-							Open URL (Redirect to PingOne)
+					<Button variant="danger" onClick={() => window.open(generatedUrl, '_blank')}>
+						Open URL (Redirect to PingOne)
 						</Button>
 					</ButtonGroup>
 				</TestSection>
 			)}
+			</CollapsibleHeader>
 
+			<CollapsibleHeader
+				title={`Test Results (${results.length})`}
+				theme="ping"
+				variant="compact"
+				defaultCollapsed={false}
+			>
 			<ResultsContainer>
-				<SectionTitle>Test Results ({results.length})</SectionTitle>
 
 				{results.map((result, index) => (
 					<ResultCard key={index} success={result.success}>
 						<ResultHeader>
 							<div style={{ display: 'flex', alignItems: 'center' }}>
 								<ResultTitle success={result.success}>
-									{result.success ? '✅' : '❌'} {result.testName}
+									<Icon
+										name={result.success ? 'check-circle' : 'close-circle'}
+										tone={result.success ? 'success' : 'danger'}
+										size="sm"
+										style={{ marginRight: '0.35rem', verticalAlign: 'middle' }}
+									/>
+									{result.testName}
 								</ResultTitle>
 								<FlowTypeBadge flowtype={result.flowType}>
 									{result.flowType.replace('_', ' ')}
@@ -1321,11 +1343,12 @@ const AllFlowsApiTest: React.FC = () => {
 				))}
 
 				{results.length === 0 && (
-					<div style={{ textAlign: 'center', color: '#6b7280', padding: '2rem' }}>
+					<div style={{ textAlign: 'center', color: '#1f2937', padding: '2rem' }}>
 						No test results yet. Configure your settings and run the tests.
 					</div>
 				)}
 			</ResultsContainer>
+			</CollapsibleHeader>
 		</Container>
 	);
 };

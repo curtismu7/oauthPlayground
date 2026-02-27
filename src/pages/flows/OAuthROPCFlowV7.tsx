@@ -229,7 +229,7 @@ const PasswordToggle = styled.button`
 	}
 `;
 
-const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' | 'success' }>`
+const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'success' }>`
 	display: inline-flex;
 	align-items: center;
 	gap: 0.75rem;
@@ -259,7 +259,7 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' | 'succes
 	}
 	
 	${(props) =>
-		props.variant === 'primary' &&
+		props.$variant === 'primary' &&
 		`
 		background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
 		color: white;
@@ -277,7 +277,7 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' | 'succes
 	`}
 	
 	${(props) =>
-		props.variant === 'success' &&
+		props.$variant === 'success' &&
 		`
 		background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
 		color: white;
@@ -295,7 +295,7 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' | 'succes
 	`}
 	
 	${(props) =>
-		props.variant === 'secondary' &&
+		props.$variant === 'secondary' &&
 		`
 		background: #f8fafc;
 		color: #374151;
@@ -563,7 +563,7 @@ const OAuthROPCFlowV7: React.FC = () => {
 
 								<div style={{ marginTop: '2.5rem' }}>
 									<ActionButton
-										variant="success"
+										$ variant="success"
 										onClick={controller.saveCredentials}
 										disabled={controller.isSavingCredentials}
 									>
@@ -602,7 +602,7 @@ const OAuthROPCFlowV7: React.FC = () => {
 								</p>
 
 								<ActionButton
-									variant="primary"
+									$ variant="primary"
 									onClick={controller.authenticateUser}
 									disabled={controller.isAuthenticating || !controller.hasCredentialsSaved}
 								>
@@ -658,7 +658,7 @@ const OAuthROPCFlowV7: React.FC = () => {
 								</p>
 
 								<ActionButton
-									variant="primary"
+									$ variant="primary"
 									onClick={controller.fetchUserInfo}
 									disabled={controller.isFetchingUserInfo || !controller.tokens}
 								>
@@ -708,7 +708,7 @@ const OAuthROPCFlowV7: React.FC = () => {
 								</p>
 
 								<ActionButton
-									variant="primary"
+									$ variant="primary"
 									onClick={controller.refreshTokens}
 									disabled={controller.isRefreshingTokens || !controller.tokens?.refresh_token}
 								>
@@ -733,7 +733,7 @@ const OAuthROPCFlowV7: React.FC = () => {
 								<>
 									{controller.tokens && (
 										<ResultCard style={{ marginBottom: '1.5rem' }}>
-											<InfoBox $variant="info" style={{ marginBottom: '1rem' }}>
+											<InfoBox $$ variant="info" style={{ marginBottom: '1rem' }}>
 												<FiInfo size={20} />
 												<div>
 													<InfoTitle>🔄 Before Refresh</InfoTitle>
@@ -754,7 +754,7 @@ const OAuthROPCFlowV7: React.FC = () => {
 										</ResultCard>
 									)}
 									<ResultCard>
-										<InfoBox $variant="success" style={{ marginBottom: '1rem' }}>
+										<InfoBox $$ variant="success" style={{ marginBottom: '1rem' }}>
 											<FiCheckCircle size={20} />
 											<div>
 												<InfoTitle>✅ After Refresh</InfoTitle>
@@ -808,7 +808,7 @@ const OAuthROPCFlowV7: React.FC = () => {
 				/>
 
 				{/* Flow Configuration Requirements */}
-				<FlowConfigurationRequirements flowType="resource-owner-password" variant="oauth" />
+				<FlowConfigurationRequirements flowType="resource-owner-password" $ variant="oauth" />
 
 				{/* Step Content */}
 				{renderStepContent()}

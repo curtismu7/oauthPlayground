@@ -17,7 +17,10 @@ import {
 } from '@/services/credentialExportImportService';
 import { environmentService } from '@/services/environmentService';
 import { UnifiedTokenDisplayService } from '@/services/unifiedTokenDisplayService';
-import { unifiedWorkerTokenService, type UnifiedWorkerTokenCredentials } from '@/services/unifiedWorkerTokenService';
+import {
+	type UnifiedWorkerTokenCredentials,
+	unifiedWorkerTokenService,
+} from '@/services/unifiedWorkerTokenService';
 import pingOneFetch from '@/utils/pingOneFetch';
 import { PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
 import { AuthMethodServiceV8, type AuthMethodV8 } from '@/v8/services/authMethodServiceV8';
@@ -158,24 +161,22 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 			// Load from unifiedWorkerTokenService (IndexedDB + SQLite backup)
 			unifiedWorkerTokenService
 				.loadCredentials()
-				.then(
-					(creds: UnifiedWorkerTokenCredentials | null) => {
-						if (creds) {
-							setEnvironmentId(creds.environmentId || propEnvironmentId);
-							setClientId(creds.clientId || '');
-							setClientSecret(creds.clientSecret || '');
-							setScopeInput(
-								Array.isArray(creds.scopes) && creds.scopes.length ? creds.scopes.join(' ') : ''
-							);
-							setRegion(creds.region || 'us');
-							setCustomDomain(creds.customDomain || '');
-							setAuthMethod(creds.tokenEndpointAuthMethod || 'client_secret_basic');
-							console.log(`${MODULE_TAG} Loaded credentials from unifiedWorkerTokenService`);
-						} else {
-							console.log(`${MODULE_TAG} No credentials found in unified storage`);
-						}
+				.then((creds: UnifiedWorkerTokenCredentials | null) => {
+					if (creds) {
+						setEnvironmentId(creds.environmentId || propEnvironmentId);
+						setClientId(creds.clientId || '');
+						setClientSecret(creds.clientSecret || '');
+						setScopeInput(
+							Array.isArray(creds.scopes) && creds.scopes.length ? creds.scopes.join(' ') : ''
+						);
+						setRegion(creds.region || 'us');
+						setCustomDomain(creds.customDomain || '');
+						setAuthMethod(creds.tokenEndpointAuthMethod || 'client_secret_basic');
+						console.log(`${MODULE_TAG} Loaded credentials from unifiedWorkerTokenService`);
+					} else {
+						console.log(`${MODULE_TAG} No credentials found in unified storage`);
 					}
-				)
+				})
 				.catch((error) => {
 					console.error(
 						`${MODULE_TAG} Failed to load credentials from unifiedWorkerTokenService:`,

@@ -6,15 +6,16 @@ import { FiMaximize2, FiMinimize2, FiMove, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
 
 // Styled components
-const ModalBackdrop = styled.div`
+const ModalBackdrop = styled.div<{ $hidden?: boolean }>`
   position: fixed;
   inset: 0;
   background: rgba(15, 23, 42, 0.45);
-  display: flex;
+  display: ${({ $hidden }) => ($hidden ? 'none' : 'flex')};
   align-items: center;
   justify-content: center;
   z-index: 999998;
   padding: 2rem;
+  pointer-events: ${({ $hidden }) => ($hidden ? 'none' : 'auto')};
   
   @media (max-width: 1024px) {
     padding: 1.5rem;
@@ -307,10 +308,15 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
 		setModalPosition({ x: 0, y: 0 });
 	};
 
-	if (!isOpen) return null;
-
+	// Always return same structure (no early return) so React hook order is stable
 	return (
-		<ModalBackdrop role="dialog" aria-modal="true" aria-labelledby="modal-title">
+		<ModalBackdrop
+			$hidden={!isOpen}
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby="modal-title"
+			aria-hidden={!isOpen}
+		>
 			<ModalContent
 				ref={modalRef}
 				$isMinimized={isMinimized}

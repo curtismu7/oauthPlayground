@@ -47,7 +47,7 @@ export interface SharedGlobalConfig {
 
 export interface SharedUserSession {
 	isAuthenticated: boolean;
-	userInfo?: Record<string, any>;
+	userInfo?: Record<string, unknown>;
 	sessionId?: string;
 	lastActivity: number;
 }
@@ -73,8 +73,8 @@ export interface FlowSpecificCredentials {
 
 export interface FlowSpecificState {
 	currentStep: number;
-	flowConfig: Record<string, any>;
-	tokens?: Record<string, any>;
+	flowConfig: Record<string, unknown>;
+	tokens?: Record<string, unknown>;
 	nonce?: string;
 	state?: string;
 	pkceVerifier?: string;
@@ -161,6 +161,15 @@ class ComprehensiveFlowDataService {
 			localStorage.setItem(this.SHARED_ENVIRONMENT_KEY, JSON.stringify(updated));
 			console.log(`✅ Saved shared environment data:`, updated);
 			console.groupEnd();
+
+			// Cascade: sync environmentId to dual-store (IndexedDB + SQLite + localStorage)
+			if (updated.environmentId) {
+				import('./environmentIdService')
+					.then(({ saveEnvironmentId }) => saveEnvironmentId(updated.environmentId))
+					.catch(() => {
+						// Silent — sync is best-effort
+					});
+			}
 
 			return true;
 		} catch (error) {
@@ -890,6 +899,7 @@ export const comprehensiveFlowDataService = new ComprehensiveFlowDataService();
 
 // Make it available globally for debugging
 if (typeof window !== 'undefined') {
+	// biome-ignore lint/suspicious/noExplicitAny: window global for debug access
 	(window as any).ComprehensiveFlowDataService = comprehensiveFlowDataService;
 }
 

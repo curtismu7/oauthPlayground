@@ -147,7 +147,7 @@ const ModalFooter = styled.div`
   gap: 0.75rem;
 `;
 
-const Button = styled.button<{ variant: 'primary' | 'secondary' | 'danger' }>`
+const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'danger' }>` 
   padding: 0.5rem 1rem;
   border-radius: 6px;
   font-size: 0.875rem;
@@ -157,7 +157,7 @@ const Button = styled.button<{ variant: 'primary' | 'secondary' | 'danger' }>`
   transition: all 0.2s;
   
   ${(props) => {
-		switch (props.variant) {
+		switch (props.$variant) {
 			case 'primary':
 				return `
           background: #2563eb;
@@ -309,18 +309,18 @@ export const AuthorizationUrlValidationModal: React.FC<AuthorizationUrlValidatio
 				</ModalBody>
 
 				<ModalFooter>
-					<Button variant="secondary" onClick={onClose}>
-						Close
+				<Button $variant="secondary" onClick={onClose}>
+					Close
+				</Button>
+
+				{!isValid && onFix && (
+					<Button $variant="danger" onClick={handleFix}>
+						Fix Issues
 					</Button>
+				)}
 
-					{!isValid && onFix && (
-						<Button variant="danger" onClick={handleFix}>
-							Fix Issues
-						</Button>
-					)}
-
-					{isValid && onProceed && (
-						<Button variant="primary" onClick={handleProceed}>
+				{isValid && onProceed && (
+					<Button $variant="primary" onClick={handleProceed}>
 							Proceed with Authorization
 						</Button>
 					)}
@@ -412,5 +412,5 @@ export { AuthorizationUrlValidationModalService };
 
 // Global access for debugging
 if (typeof window !== 'undefined') {
-	(window as any).authorizationUrlValidationModalService = authorizationUrlValidationModalService;
+	(window as unknown as { authorizationUrlValidationModalService: typeof authorizationUrlValidationModalService }).authorizationUrlValidationModalService = authorizationUrlValidationModalService;
 }

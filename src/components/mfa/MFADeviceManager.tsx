@@ -4,7 +4,7 @@ import {
 	EnhancedPingOneMfaService,
 	type MfaDevice,
 } from '../../services/enhancedPingOneMfaService';
-import { v4ToastManager } from '../../utils/v4ToastManager';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 import ConfirmationModal from '../ConfirmationModal';
 
 interface MFADeviceManagerProps {

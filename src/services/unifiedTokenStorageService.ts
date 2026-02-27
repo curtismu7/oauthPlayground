@@ -60,6 +60,8 @@ export interface StorageQuery {
 	flowType?: string;
 	flowName?: string;
 	expired?: boolean;
+	activeOnly?: boolean;
+	expiredOnly?: boolean;
 }
 
 export interface TokenStorageResult<T = UnifiedStorageItem> {
@@ -562,14 +564,20 @@ export class UnifiedTokenStorageService {
 	private async querySQLite(query?: TokenQuery): Promise<UnifiedToken[]> {
 		try {
 			const params = new URLSearchParams();
-			if (query?.type) params.append('type', query.type);
-			if (query?.source) params.append('source', query.source);
-			if (query?.environmentId) params.append('environmentId', query.environmentId);
-			if (query?.clientId) params.append('clientId', query.clientId);
-			if (query?.activeOnly) params.append('activeOnly', 'true');
-			if (query?.expiredOnly) params.append('expiredOnly', 'true');
+			
+			// Only append parameters that have actual values
+			if (query) {
+				if (query.type) params.append('type', query.type);
+				if (query.source) params.append('source', query.source);
+				if (query.environmentId) params.append('environmentId', query.environmentId);
+				if (query.clientId) params.append('clientId', query.clientId);
+				if (query.flowType) params.append('flowType', query.flowType);
+				if (query.flowName) params.append('flowName', query.flowName);
+			}
 
-			const response = await fetch(`/api/tokens/query?${params.toString()}`);
+			const queryString = params.toString();
+			const url = queryString ? `/api/tokens/query?${queryString}` : '/api/tokens/query';
+			const response = await fetch(url);
 			if (!response.ok) {
 				throw new Error(`SQLite query failed: ${response.statusText}`);
 			}
@@ -593,6 +601,8 @@ export class UnifiedTokenStorageService {
 			if (query.source && token.source !== query.source) return false;
 			if (query.environmentId && token.environmentId !== query.environmentId) return false;
 			if (query.clientId && token.clientId !== query.clientId) return false;
+			if (query.flowType && token.flowType !== query.flowType) return false;
+			if (query.flowName && token.flowName !== query.flowName) return false;
 
 			const now = Date.now();
 			if (query.activeOnly && (!token.expiresAt || token.expiresAt <= now)) return false;
@@ -730,7 +740,7 @@ export class UnifiedTokenStorageService {
 	public async deleteTokens(query: TokenQuery): Promise<TokenStorageResult<void>> {
 		try {
 			const tokensResult = await this.getTokens(query);
-			
+
 			if (!tokensResult.success || !tokensResult.data) {
 				throw new Error('Failed to get tokens for deletion');
 			}
@@ -740,9 +750,9 @@ export class UnifiedTokenStorageService {
 				await this.deleteToken(token.id);
 			}
 
-			logger.info(MODULE_TAG, 'Tokens deleted successfully', { 
+			logger.info(MODULE_TAG, 'Tokens deleted successfully', {
 				count: tokensResult.data.length,
-				query 
+				query,
 			});
 
 			return {

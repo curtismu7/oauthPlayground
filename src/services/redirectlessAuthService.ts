@@ -2,7 +2,7 @@
 // Reusable service for PingOne redirectless authentication flows (response_mode=pi.flow)
 // Based on working implementations in PingOneAuthentication.tsx and RedirectlessFlowV7_Real.tsx
 
-import { v4ToastManager } from '../utils/v4ToastManager';
+import { v4ToastManager } from '../utils/v4ToastMessages';
 
 export interface RedirectlessAuthCredentials {
 	environmentId: string;

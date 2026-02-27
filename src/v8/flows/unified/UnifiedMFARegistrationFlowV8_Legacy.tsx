@@ -160,16 +160,15 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 		type: string;
 		nickname?: string;
 	} | null>(null);
-	
+
 	// Use unified global worker token hook for token management
 	const globalTokenStatus = useGlobalWorkerToken();
 	const _workerToken = globalTokenStatus.token || '';
 	const hasWorkerToken = globalTokenStatus.isValid;
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 
-		const _tokenStatus = globalTokenStatus;
+	const _tokenStatus = globalTokenStatus;
 
-	
 	// Debug: Log environment and token status
 	useEffect(() => {
 		console.log(`${MODULE_TAG} environment and token status:`, {
@@ -526,7 +525,6 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 						</div>
 					)}
 
-					
 					{/* MFA Policy Dropdown */}
 					<div style={{ marginBottom: '20px' }}>
 						<label

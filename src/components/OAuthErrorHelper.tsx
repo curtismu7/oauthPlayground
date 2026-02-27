@@ -1,5 +1,6 @@
 // src/components/OAuthErrorHelper.tsx
 import React from 'react';
+import { getAppOrigin } from '../utils/flowRedirectUriMapping';
 import {
 	FiAlertTriangle,
 	FiCheckCircle,
@@ -264,7 +265,7 @@ export const OAuthErrorHelper: React.FC<OAuthErrorHelperProps> = ({
 								'Add the redirect URI to allowed URIs',
 								'Ensure exact match including protocol and port',
 							],
-							codeExample: 'https://localhost:3000/authz-callback',
+							codeExample: `${getAppOrigin()}/authz-callback`,
 						},
 					],
 				};

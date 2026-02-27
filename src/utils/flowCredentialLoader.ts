@@ -1,6 +1,8 @@
 // src/utils/flowCredentialLoader.ts
 // Flow-specific credential loading utility to prevent credential conflicts
 
+import { getAppOrigin } from './flowRedirectUriMapping';
+
 export interface FlowCredentials {
 	environmentId: string;
 	clientId: string;
@@ -123,57 +125,33 @@ const getFlowPrefix = (flowKey: string): string => {
 	return flowPrefixMap[flowKey] || flowKey.toUpperCase().replace(/-/g, '_');
 };
 
+/** Callback paths per flow (origin from getAppOrigin(), e.g. custom domain). */
+const FLOW_CALLBACK_PATHS: Record<string, string> = {
+	'pingone-par-flow-v7': 'par-callback',
+	'oauth-authorization-code-v7': 'authz-callback',
+	'oauth-authorization-code-v7-1': 'authz-v7-1-callback',
+	'oidc-hybrid-flow-v7': 'hybrid-callback',
+	'implicit-flow-v7': 'implicit-callback',
+	'device-authorization-v7': 'device-callback',
+	'client-credentials-v7': 'client-creds-callback',
+	'ciba-v7': 'ciba-callback',
+	'worker-token-v7': 'worker-callback',
+	'pingone-complete-mfa-v7': 'mfa-callback',
+	'rar-v7': 'rar-callback',
+	'jwt-bearer-v7': 'jwt-bearer-callback',
+	'saml-bearer-v7': 'saml-bearer-callback',
+	'redirectless-v7': 'redirectless-callback',
+	'ropc-v7': 'ropc-callback',
+	'token-exchange-v7': 'token-exchange-callback',
+};
+
 /**
- * Gets the default redirect URI for a flow
+ * Gets the default redirect URI for a flow (uses current app origin, e.g. custom domain).
  */
 const getDefaultRedirectUri = (flowKey: string): string => {
-	const defaultRedirectUris: Record<string, string> = {
-		// PAR Flow
-		'pingone-par-flow-v7': 'https://localhost:3000/par-callback',
-
-		// OAuth Authorization Code Flows
-		'oauth-authorization-code-v7': 'https://localhost:3000/authz-callback',
-		'oauth-authorization-code-v7-1': 'https://localhost:3000/authz-v7-1-callback',
-
-		// OIDC Flows
-		'oidc-hybrid-flow-v7': 'https://localhost:3000/hybrid-callback',
-		'implicit-flow-v7': 'https://localhost:3000/implicit-callback',
-
-		// Device Authorization
-		'device-authorization-v7': 'https://localhost:3000/device-callback',
-
-		// Client Credentials
-		'client-credentials-v7': 'https://localhost:3000/client-creds-callback',
-
-		// CIBA Flow
-		'ciba-v7': 'https://localhost:3000/ciba-callback',
-
-		// Worker Token
-		'worker-token-v7': 'https://localhost:3000/worker-callback',
-
-		// MFA Flow
-		'pingone-complete-mfa-v7': 'https://localhost:3000/mfa-callback',
-
-		// RAR Flow
-		'rar-v7': 'https://localhost:3000/rar-callback',
-
-		// JWT Bearer Token
-		'jwt-bearer-v7': 'https://localhost:3000/jwt-bearer-callback',
-
-		// SAML Bearer Assertion
-		'saml-bearer-v7': 'https://localhost:3000/saml-bearer-callback',
-
-		// Redirectless Flow
-		'redirectless-v7': 'https://localhost:3000/redirectless-callback',
-
-		// ROPC Flow
-		'ropc-v7': 'https://localhost:3000/ropc-callback',
-
-		// Token Exchange
-		'token-exchange-v7': 'https://localhost:3000/token-exchange-callback',
-	};
-
-	return defaultRedirectUris[flowKey] || 'https://localhost:3000/authz-callback';
+	const base = getAppOrigin();
+	const path = FLOW_CALLBACK_PATHS[flowKey] ?? 'authz-callback';
+	return `${base}/${path}`;
 };
 
 /**

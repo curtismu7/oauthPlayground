@@ -330,6 +330,15 @@ class UnifiedWorkerTokenService {
 			// Don't throw - local storage is primary
 		}
 
+		// Sync environmentId to dual-store (IndexedDB + SQLite + localStorage) so all pages pick it up
+		if (credentials.environmentId) {
+			import('../services/environmentIdService')
+				.then(({ saveEnvironmentId }) => saveEnvironmentId(credentials.environmentId))
+				.catch((error) => {
+					console.warn(`${MODULE_TAG} Failed to sync environmentId to dual store`, error);
+				});
+		}
+
 		// Save to SQLite backup for server restart persistence
 		try {
 			const { EnvironmentIdServiceV8 } = await import('../v8/services/environmentIdServiceV8');

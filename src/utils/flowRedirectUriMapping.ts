@@ -1,6 +1,15 @@
 // src/utils/flowRedirectUriMapping.ts
 // Centralized mapping of OAuth/OIDC flows to their redirect URI patterns
 
+/**
+ * Returns the app origin (e.g. https://api.pingdemo.com:3000) for building redirect URIs.
+ * Uses current page origin so custom domain is used when the app is opened there.
+ */
+export function getAppOrigin(): string {
+	if (typeof window !== 'undefined') return window.location.origin;
+	return 'https://localhost:3000';
+}
+
 export interface FlowRedirectUriConfig {
 	/** The flow type identifier */
 	flowType: string;
@@ -16,7 +25,7 @@ export interface FlowRedirectUriConfig {
 
 /**
  * Centralized mapping of all OAuth/OIDC flows to their redirect URI patterns
- * Pattern: https://localhost:{port}/{callbackPath}
+ * Pattern: {origin}/{callbackPath} (origin from getAppOrigin(), e.g. custom domain)
  */
 export const FLOW_REDIRECT_URI_MAPPING: FlowRedirectUriConfig[] = [
 	// OAuth 2.0 Authorization Code Flows
@@ -389,11 +398,7 @@ export function generateRedirectUriForFlow(flowType: string, baseUrl?: string): 
 		return null;
 	}
 
-	const base =
-		baseUrl ||
-		(typeof window !== 'undefined'
-			? window.location.origin.replace('http://', 'https://')
-			: 'https://localhost:3000');
+	const base = baseUrl || getAppOrigin().replace(/^http:\/\//, 'https://');
 	return `${base}/${config.callbackPath}`;
 }
 

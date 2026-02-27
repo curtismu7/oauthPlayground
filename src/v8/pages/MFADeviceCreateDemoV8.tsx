@@ -13,6 +13,7 @@ import {
 	FiRefreshCw,
 	FiUser,
 } from 'react-icons/fi';
+import { readBestEnvironmentId } from '@/hooks/useAutoEnvironmentId';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import SimplePingOneApiDisplayV8 from '@/v8/components/SimplePingOneApiDisplayV8';
 import deviceCreateDemoServiceV8 from '@/v8/services/deviceCreateDemoServiceV8';
@@ -74,7 +75,7 @@ const buildJsonHtml = (input: unknown): string => {
  * Renders an editable JSON card for Create Device requests.
  */
 export const MFADeviceCreateDemoV8: React.FC = () => {
-	const [environmentId, setEnvironmentId] = useState('');
+	const [environmentId, setEnvironmentId] = useState(() => readBestEnvironmentId());
 	const [username, setUsername] = useState('');
 	const [userId, setUserId] = useState('');
 	const [savedWorkerToken, setSavedWorkerToken] = useState('');

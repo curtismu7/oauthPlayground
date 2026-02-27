@@ -1079,6 +1079,174 @@ export class ImplicitFlowV7Helpers {
 }
 
 /**
+ * V9 Helpers - Enhanced version for V9 flows with improved educational content
+ */
+export class ImplicitFlowV9Helpers {
+	/**
+	 * Get flow-specific metadata for V9
+	 */
+	static getFlowMetadata(variant: ImplicitFlowVariant) {
+		const baseMetadata = {
+			version: 'v9',
+			type: 'implicit',
+		};
+
+		switch (variant) {
+			case 'oauth':
+				return {
+					...baseMetadata,
+					name: 'OAuth 2.0 Implicit Flow (V9)',
+					shortName: 'OAuth Implicit V9',
+					responseType: 'token',
+					tokens: ['access_token'],
+					scopes: '',
+					requiresOpenid: false,
+				};
+			case 'oidc':
+				return {
+					...baseMetadata,
+					name: 'OIDC Implicit Flow (V9)',
+					shortName: 'OIDC Implicit V9',
+					responseType: 'id_token token',
+					tokens: ['access_token', 'id_token'],
+					scopes: 'openid',
+					requiresOpenid: true,
+				};
+		}
+	}
+
+	/**
+	 * Get educational content keyed by variant
+	 */
+	static getEducationalContent(variant: ImplicitFlowVariant) {
+		switch (variant) {
+			case 'oauth':
+				return {
+					overview:
+						'The OAuth 2.0 Implicit Grant is designed for public clients (SPAs, mobile apps) that cannot securely store client secrets.',
+					security:
+						'Access tokens are returned directly in the URL fragment, making them vulnerable to interception. Always use HTTPS.',
+					tokens: 'Only returns an access token. No refresh token is provided.',
+				};
+			case 'oidc':
+				return {
+					overview:
+						'The OIDC Implicit Flow extends OAuth 2.0 with identity information, providing both access tokens and ID tokens.',
+					security:
+						'ID tokens contain user identity claims. Access tokens are still vulnerable in URL fragments.',
+					tokens:
+						'Returns both access token and ID token. The ID token contains verified user identity claims.',
+				};
+		}
+	}
+
+	/**
+	 * Get flow diagram steps keyed by variant
+	 */
+	static getFlowDiagram(variant: ImplicitFlowVariant) {
+		const commonSteps = [
+			'1. User initiates login',
+			'2. Client redirects to authorization server',
+			'3. User authenticates and authorizes',
+		];
+
+		switch (variant) {
+			case 'oauth':
+				return [
+					...commonSteps,
+					'4. Server redirects with access_token in fragment',
+					'5. Client extracts token from URL',
+				];
+			case 'oidc':
+				return [
+					...commonSteps,
+					'4. Server redirects with access_token and id_token in fragment',
+					'5. Client extracts tokens and validates ID token',
+				];
+		}
+	}
+
+	/**
+	 * Get requirements keyed by variant
+	 */
+	static getRequirements(variant: ImplicitFlowVariant) {
+		const common = [
+			'HTTPS redirect URI',
+			'Public client (no client secret)',
+			'Browser-based application',
+		];
+
+		switch (variant) {
+			case 'oauth':
+				return [...common, 'response_type=token'];
+			case 'oidc':
+				return [...common, 'response_type=id_token token', 'openid scope required'];
+		}
+	}
+
+	/**
+	 * Get token handling helpers keyed by variant
+	 */
+	static getTokenHandlers(variant: ImplicitFlowVariant) {
+		switch (variant) {
+			case 'oauth':
+				return {
+					expectedTokens: ['access_token'],
+					validationChecks: ['token_type', 'expires_in', 'scope'],
+					displayFormat: 'Access token only',
+				};
+			case 'oidc':
+				return {
+					expectedTokens: ['access_token', 'id_token'],
+					validationChecks: ['token_type', 'expires_in', 'scope', 'id_token validation'],
+					displayFormat: 'Access token + ID token',
+				};
+		}
+	}
+
+	/**
+	 * Get summary content keyed by variant
+	 */
+	static getSummaryContent(variant: ImplicitFlowVariant) {
+		switch (variant) {
+			case 'oauth':
+				return {
+					title: 'OAuth 2.0 Implicit Flow Complete (V9)',
+					description: 'Successfully obtained an access token for API authorization.',
+					nextSteps: [
+						'Use access token to call protected APIs',
+						'Store token securely (sessionStorage, not localStorage)',
+						'Handle token expiration appropriately',
+					],
+				};
+			case 'oidc':
+				return {
+					title: 'OIDC Implicit Flow Complete (V9)',
+					description:
+						'Successfully obtained access token and ID token for authorization and identity.',
+					nextSteps: [
+						'Validate ID token signature and claims',
+						'Use access token to call protected APIs',
+						'Extract user identity from ID token',
+						'Store tokens securely',
+					],
+				};
+		}
+	}
+
+	/**
+	 * Get session helpers for V9
+	 */
+	static getSessionHelpers(variant: ImplicitFlowVariant) {
+		return {
+			setActiveFlow: () => SessionStorageManager.setActiveFlow(variant, 'v9'),
+			isActiveFlow: () => SessionStorageManager.getActiveFlow('v9') === variant,
+			clearFlow: () => SessionStorageManager.clearAllFlowFlags(),
+		};
+	}
+}
+
+/**
  * Main Service Export
  * Single import point for all implicit flow shared functionality
  */
@@ -1098,4 +1266,5 @@ export const ImplicitFlowSharedService = {
 	ResponseTypeEnforcer: ImplicitFlowResponseTypeEnforcer,
 	CredentialsSync: ImplicitFlowCredentialsSync,
 	V7Helpers: ImplicitFlowV7Helpers,
+	V9Helpers: ImplicitFlowV9Helpers,
 };

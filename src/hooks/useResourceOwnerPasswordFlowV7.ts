@@ -183,28 +183,26 @@ export const useResourceOwnerPasswordFlowV7 = ({
 				console.log('🔐 [ResourceOwnerPasswordV7] Starting authentication...');
 			}
 
-			const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://localhost:3001';
+		// Prepare request body for Resource Owner Password flow
+		const requestBody = {
+			grant_type: 'password',
+			username: credentials.username,
+			password: credentials.password,
+			scope: credentials.scope,
+			client_id: credentials.clientId,
+			client_secret: credentials.clientSecret,
+		};
 
-			// Prepare request body for Resource Owner Password flow
-			const requestBody = {
-				grant_type: 'password',
-				username: credentials.username,
-				password: credentials.password,
-				scope: credentials.scope,
-				client_id: credentials.clientId,
-				client_secret: credentials.clientSecret,
-			};
-
-			if (enableDebugger) {
-				console.log('🔍 [ResourceOwnerPasswordV7] Token request:', {
-					url: `${backendUrl}/api/token-exchange`,
+		if (enableDebugger) {
+			console.log('🔍 [ResourceOwnerPasswordV7] Token request:', {
+				url: '/api/token-exchange',
 					grant_type: 'password',
 					username: credentials.username,
 					scope: credentials.scope,
 				});
 			}
 
-			const response = await fetch(`${backendUrl}/api/token-exchange`, {
+			const response = await fetch(`/api/token-exchange`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -278,9 +276,9 @@ export const useResourceOwnerPasswordFlowV7 = ({
 				console.log('👤 [ResourceOwnerPasswordV7] Fetching user info...');
 			}
 
-			const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://localhost:3001';
+			
 
-			const response = await fetch(`${backendUrl}/api/userinfo`, {
+			const response = await fetch(`/api/userinfo`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -340,7 +338,7 @@ export const useResourceOwnerPasswordFlowV7 = ({
 				console.log('🔄 [ResourceOwnerPasswordV7] Refreshing tokens...');
 			}
 
-			const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://localhost:3001';
+			
 
 			const requestBody = {
 				grant_type: 'refresh_token',
@@ -349,7 +347,7 @@ export const useResourceOwnerPasswordFlowV7 = ({
 				client_secret: credentials.clientSecret,
 			};
 
-			const response = await fetch(`${backendUrl}/api/token-exchange`, {
+			const response = await fetch(`/api/token-exchange`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
