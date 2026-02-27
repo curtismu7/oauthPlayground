@@ -32,7 +32,11 @@ export interface UnifiedStorageItem {
 		| 'environment_settings'
 		| 'ui_preferences'
 		| 'pkce_state'
-		| 'flow_state';
+		| 'flow_state'
+		// Legacy compat types used by V8/V8U storages:
+		| 'v8_storage'
+		| 'v8_credentials'
+		| 'v8u_pkce';
 	value: string;
 	expiresAt: number | null;
 	issuedAt: number;
@@ -81,7 +85,7 @@ export interface TokenStorageOptions {
 
 // Legacy interfaces for backward compatibility
 export interface TokenQuery extends Omit<StorageQuery, 'type'> {
-	type?: UnifiedToken['type'];
+	type?: UnifiedStorageItem['type'];
 }
 
 // V8 Storage Compatibility Interfaces
@@ -100,7 +104,7 @@ export interface V8DiscoveryData {
 	userInfoEndpoint?: string;
 	jwksUrl?: string;
 	endSessionEndpoint?: string;
-	discoveryDocument?: any;
+	discoveryDocument?: Record<string, unknown>;
 	discoveredAt?: number;
 }
 
@@ -122,7 +126,7 @@ export interface V8AdvancedData {
 	issuer?: string;
 	subject?: string;
 	tokenEndpointAuthMethod?: string;
-	[key: string]: any;
+	[key: string]: unknown;
 }
 
 // StorageServiceV8 Compatibility Interfaces
@@ -168,7 +172,7 @@ export interface V8Credentials {
 	maxAge?: number;
 	display?: 'page' | 'popup' | 'touch' | 'wap';
 	prompt?: 'none' | 'login' | 'consent';
-	[key: string]: any;
+	[key: string]: unknown;
 }
 
 export interface V8CredentialsConfig {
@@ -376,13 +380,13 @@ export class UnifiedTokenStorageService {
 	 * Store a token in all storage layers
 	 */
 	public async storeToken(
-		token: Omit<UnifiedToken, 'id' | 'createdAt' | 'updatedAt'>,
+		token: Omit<UnifiedStorageItem, 'id' | 'createdAt' | 'updatedAt'>,
 		options?: TokenStorageOptions
 	): Promise<TokenStorageResult<string>> {
 		try {
 			await this.initializeIndexedDB();
 
-			const unifiedToken: UnifiedToken = {
+			const unifiedToken: UnifiedStorageItem = {
 				...token,
 				id: this.generateTokenId(token),
 				createdAt: Date.now(),
@@ -426,7 +430,7 @@ export class UnifiedTokenStorageService {
 	/**
 	 * Store token in IndexedDB
 	 */
-	private async storeInIndexedDB(token: UnifiedToken): Promise<void> {
+	private async storeInIndexedDB(token: UnifiedStorageItem): Promise<void> {
 		if (!this.db) throw new Error('IndexedDB not initialized');
 
 		return new Promise((resolve, reject) => {
@@ -487,7 +491,9 @@ export class UnifiedTokenStorageService {
 			const indexedDbTokens = await this.queryIndexedDB(query);
 			if (indexedDbTokens.length > 0) {
 				// Update cache
-				indexedDbTokens.forEach((token) => this.cache.set(token.id, token));
+				indexedDbTokens.forEach((token) => {
+					this.cache.set(token.id, token);
+				});
 				this.saveCache();
 
 				return {
@@ -564,7 +570,7 @@ export class UnifiedTokenStorageService {
 	private async querySQLite(query?: TokenQuery): Promise<UnifiedToken[]> {
 		try {
 			const params = new URLSearchParams();
-			
+
 			// Only append parameters that have actual values
 			if (query) {
 				if (query.type) params.append('type', query.type);
@@ -1184,7 +1190,7 @@ export class UnifiedTokenStorageService {
 
 			await this.storeToken({
 				id: itemId,
-				type: 'oauth_credentials' as any,
+				type: 'oauth_credentials',
 				value: JSON.stringify(data),
 				expiresAt: null,
 				issuedAt: Date.now(),
@@ -1218,7 +1224,7 @@ export class UnifiedTokenStorageService {
 	async loadV8FlowData(flowType: string): Promise<V8FlowData | null> {
 		try {
 			const items = await this.getTokens({
-				type: 'oauth_credentials' as any,
+				type: 'oauth_credentials',
 				flowType,
 			});
 
@@ -1336,7 +1342,7 @@ export class UnifiedTokenStorageService {
 	async clearV8FlowData(flowType: string): Promise<void> {
 		try {
 			await this.deleteTokens({
-				type: 'oauth_credentials' as any,
+				type: 'oauth_credentials',
 				flowType,
 			});
 		} catch (error) {
@@ -1361,7 +1367,7 @@ export class UnifiedTokenStorageService {
 
 			await this.storeToken({
 				id: key,
-				type: 'v8_storage' as any,
+				type: 'v8_storage',
 				value: JSON.stringify(storageData),
 				expiresAt: null,
 				issuedAt: Date.now(),
@@ -1387,7 +1393,7 @@ export class UnifiedTokenStorageService {
 	async loadV8Versioned<T>(key: string, migrations?: Migration[]): Promise<T | null> {
 		try {
 			const tokens = await this.getTokens({
-				type: 'v8_storage' as any,
+				type: 'v8_storage',
 				key,
 			});
 
@@ -1475,7 +1481,7 @@ export class UnifiedTokenStorageService {
 	async clearV8Key(key: string): Promise<void> {
 		try {
 			await this.deleteTokens({
-				type: 'v8_storage' as any,
+				type: 'v8_storage',
 				key,
 			});
 			logger.info(MODULE_TAG, 'V8 key cleared', { key });
@@ -1490,7 +1496,7 @@ export class UnifiedTokenStorageService {
 	async clearAllV8(): Promise<void> {
 		try {
 			await this.deleteTokens({
-				type: 'v8_storage' as any,
+				type: 'v8_storage',
 			});
 			logger.info(MODULE_TAG, 'All V8 data cleared');
 		} catch (error) {
@@ -1504,7 +1510,7 @@ export class UnifiedTokenStorageService {
 	async getAllV8Keys(): Promise<string[]> {
 		try {
 			const tokens = await this.getTokens({
-				type: 'v8_storage' as any,
+				type: 'v8_storage',
 			});
 			return tokens.map((token) => token.metadata?.key || token.id);
 		} catch (error) {
@@ -1519,7 +1525,7 @@ export class UnifiedTokenStorageService {
 	async exportAllV8(): Promise<string> {
 		try {
 			const tokens = await this.getTokens({
-				type: 'v8_storage' as any,
+				type: 'v8_storage',
 			});
 			const data: Record<string, StorageData> = {};
 
@@ -1571,7 +1577,7 @@ export class UnifiedTokenStorageService {
 				// Check if key already exists
 				if (!overwrite) {
 					const existing = await this.getTokens({
-						type: 'v8_storage' as any,
+						type: 'v8_storage',
 						key,
 					});
 					if (existing.length > 0) {
@@ -1603,7 +1609,7 @@ export class UnifiedTokenStorageService {
 	async hasV8Key(key: string): Promise<boolean> {
 		try {
 			const tokens = await this.getTokens({
-				type: 'v8_storage' as any,
+				type: 'v8_storage',
 				key,
 			});
 			return tokens.length > 0;
@@ -1619,7 +1625,7 @@ export class UnifiedTokenStorageService {
 	async getV8Age(key: string): Promise<number | null> {
 		try {
 			const tokens = await this.getTokens({
-				type: 'v8_storage' as any,
+				type: 'v8_storage',
 				key,
 			});
 
@@ -1653,7 +1659,7 @@ export class UnifiedTokenStorageService {
 	async cleanupExpiredV8(maxAge: number): Promise<number> {
 		try {
 			const tokens = await this.getTokens({
-				type: 'v8_storage' as any,
+				type: 'v8_storage',
 			});
 			let cleaned = 0;
 
@@ -1716,7 +1722,7 @@ export class UnifiedTokenStorageService {
 	async clearV8Credentials(flowKey: string): Promise<void> {
 		try {
 			await this.deleteTokens({
-				type: 'v8_credentials' as any,
+				type: 'v8_credentials',
 				id: `v8_credentials_${flowKey}`,
 			});
 			logger.info(MODULE_TAG, 'V8 credentials cleared', { flowKey });
@@ -1799,7 +1805,7 @@ export class UnifiedTokenStorageService {
 			// Secret indicators (never log actual values)
 			hasClientSecret: !!credentials.clientSecret,
 			clientSecretLength: credentials.clientSecret?.length || 0,
-			hasPrivateKey: !!(credentials as any).privateKey,
+			hasPrivateKey: !!(credentials as V8AdvancedData).privateKey,
 			// Safe fields
 			redirectUri: credentials.redirectUri || '(empty)',
 			postLogoutRedirectUri: credentials.postLogoutRedirectUri || '(empty)',
@@ -1875,7 +1881,7 @@ export class UnifiedTokenStorageService {
 	async getAllV8CredentialsKeys(): Promise<string[]> {
 		try {
 			const tokens = await this.getTokens({
-				type: 'v8_credentials' as any,
+				type: 'v8_credentials',
 			});
 			return tokens.map(
 				(token) => token.metadata?.flowKey || token.id.replace('v8_credentials_', '')
@@ -1892,7 +1898,7 @@ export class UnifiedTokenStorageService {
 	async exportAllV8Credentials(): Promise<string> {
 		try {
 			const tokens = await this.getTokens({
-				type: 'v8_credentials' as any,
+				type: 'v8_credentials',
 			});
 			const data: Record<string, V8Credentials> = {};
 
@@ -1978,7 +1984,7 @@ export class UnifiedTokenStorageService {
 
 			await this.storeToken({
 				id: `v8u_pkce_${flowKey}`,
-				type: 'v8u_pkce' as any,
+				type: 'v8u_pkce',
 				value: JSON.stringify(pkceData),
 				expiresAt: null,
 				issuedAt: Date.now(),
@@ -2007,7 +2013,7 @@ export class UnifiedTokenStorageService {
 	async loadV8UPKCECodesAsync(flowKey: string): Promise<V8UPKCECodes | null> {
 		try {
 			const tokens = await this.getTokens({
-				type: 'v8u_pkce' as any,
+				type: 'v8u_pkce',
 				id: `v8u_pkce_${flowKey}`,
 			});
 
@@ -2095,7 +2101,7 @@ export class UnifiedTokenStorageService {
 	async clearV8UPKCECodes(flowKey: string): Promise<void> {
 		try {
 			await this.deleteTokens({
-				type: 'v8u_pkce' as any,
+				type: 'v8u_pkce',
 				id: `v8u_pkce_${flowKey}`,
 			});
 
@@ -2131,7 +2137,7 @@ export class UnifiedTokenStorageService {
 	async getAllV8UPKCEKeys(): Promise<string[]> {
 		try {
 			const tokens = await this.getTokens({
-				type: 'v8u_pkce' as any,
+				type: 'v8u_pkce',
 			});
 			return tokens.map((token) => token.metadata?.flowKey || token.id.replace('v8u_pkce_', ''));
 		} catch (error) {
@@ -2146,7 +2152,7 @@ export class UnifiedTokenStorageService {
 	async exportAllV8UPKCECodes(): Promise<string> {
 		try {
 			const tokens = await this.getTokens({
-				type: 'v8u_pkce' as any,
+				type: 'v8u_pkce',
 			});
 			const data: Record<string, V8UPKCECodes> = {};
 
@@ -2235,7 +2241,7 @@ export class UnifiedTokenStorageService {
 
 			await this.storeToken({
 				id: `flow_storage_${key}`,
-				type: 'flow_state' as any,
+				type: 'flow_state',
 				value: JSON.stringify(storageData),
 				expiresAt: null,
 				issuedAt: Date.now(),
@@ -2278,7 +2284,7 @@ export class UnifiedTokenStorageService {
 
 			// Try unified storage first
 			const tokens = await this.getTokens({
-				type: 'flow_state' as any,
+				type: 'flow_state',
 				id: `flow_storage_${key}`,
 			});
 
@@ -2343,7 +2349,7 @@ export class UnifiedTokenStorageService {
 
 			// Remove from unified storage
 			await this.deleteTokens({
-				type: 'flow_state' as any,
+				type: 'flow_state',
 				id: `flow_storage_${key}`,
 			});
 
@@ -2380,7 +2386,7 @@ export class UnifiedTokenStorageService {
 
 			// Check unified storage first
 			const tokens = await this.getTokens({
-				type: 'flow_state' as any,
+				type: 'flow_state',
 				id: `flow_storage_${key}`,
 			});
 
@@ -2412,14 +2418,14 @@ export class UnifiedTokenStorageService {
 		try {
 			// Get all flow storage keys for this flow
 			const tokens = await this.getTokens({
-				type: 'flow_state' as any,
+				type: 'flow_state',
 				flowName: flowId,
 			});
 
 			// Remove from unified storage
 			for (const token of tokens) {
 				await this.deleteTokens({
-					type: 'flow_state' as any,
+					type: 'flow_state',
 					id: token.id,
 				});
 			}
@@ -2468,9 +2474,9 @@ export class UnifiedTokenStorageService {
 	async exportAllFlowStorageData(): Promise<string> {
 		try {
 			const tokens = await this.getTokens({
-				type: 'flow_state' as any,
+				type: 'flow_state',
 			});
-			const data: Record<string, any> = {};
+			const data: Record<string, unknown> = {};
 
 			tokens.forEach((token) => {
 				try {
@@ -2501,7 +2507,7 @@ export class UnifiedTokenStorageService {
 	 */
 	async importAllFlowStorageData(jsonData: string, overwrite = false): Promise<void> {
 		try {
-			const data: Record<string, any> = JSON.parse(jsonData);
+			const data: Record<string, unknown> = JSON.parse(jsonData);
 
 			let imported = 0;
 			let skipped = 0;
@@ -2551,13 +2557,17 @@ export class UnifiedTokenStorageService {
 	/**
 	 * Load flow credentials (CredentialStorageManager compatibility)
 	 */
-	async loadFlowCredentials(
-		flowKey: string
-	): Promise<{ success: boolean; data: any; source: string; timestamp?: number; error?: string }> {
+	async loadFlowCredentials(flowKey: string): Promise<{
+		success: boolean;
+		data: unknown;
+		source: string;
+		timestamp?: number;
+		error?: string;
+	}> {
 		try {
 			// Try unified storage first
 			const tokens = await this.getTokens({
-				type: 'oauth_credentials' as any,
+				type: 'oauth_credentials',
 				flowName: flowKey,
 			});
 
@@ -2614,7 +2624,7 @@ export class UnifiedTokenStorageService {
 	 */
 	async saveFlowCredentials(
 		flowKey: string,
-		credentials: any
+		credentials: Record<string, unknown>
 	): Promise<{ success: boolean; source: string; error?: string }> {
 		try {
 			// Add timestamp
@@ -2626,8 +2636,8 @@ export class UnifiedTokenStorageService {
 			// Save to unified storage
 			await this.storeToken({
 				id: `flow_credentials_${flowKey}`,
-				type: 'oauth_credentials' as any,
-				value: credentialsWithMetadata,
+				type: 'oauth_credentials',
+				value: JSON.stringify(credentialsWithMetadata),
 				expiresAt: null,
 				issuedAt: Date.now(),
 				source: 'indexeddb',
@@ -2668,7 +2678,7 @@ export class UnifiedTokenStorageService {
 		try {
 			// Remove from unified storage
 			await this.deleteTokens({
-				type: 'oauth_credentials' as any,
+				type: 'oauth_credentials',
 				id: `flow_credentials_${flowKey}`,
 			});
 
@@ -2690,12 +2700,12 @@ export class UnifiedTokenStorageService {
 		try {
 			// Remove all credential tokens from unified storage
 			const tokens = await this.getTokens({
-				type: 'oauth_credentials' as any,
+				type: 'oauth_credentials',
 			});
 
 			for (const token of tokens) {
 				await this.deleteTokens({
-					type: 'oauth_credentials' as any,
+					type: 'oauth_credentials',
 					id: token.id,
 				});
 			}
@@ -2709,7 +2719,9 @@ export class UnifiedTokenStorageService {
 						keysToRemove.push(key);
 					}
 				}
-				keysToRemove.forEach((key) => localStorage.removeItem(key));
+				keysToRemove.forEach((key) => {
+					localStorage.removeItem(key);
+				});
 			} catch {}
 
 			logger.info(MODULE_TAG, 'All credentials cleared');
@@ -2739,7 +2751,7 @@ export class UnifiedTokenStorageService {
 			// Save to unified storage
 			await this.storeToken({
 				id: key,
-				type: 'pkce_state' as any,
+				type: 'pkce_state',
 				value: JSON.stringify(data),
 				expiresAt: null,
 				issuedAt: Date.now(),
@@ -2775,7 +2787,7 @@ export class UnifiedTokenStorageService {
 
 			// Try unified storage first
 			const tokens = await this.getTokens({
-				type: 'pkce_state' as any,
+				type: 'pkce_state',
 				id: key,
 			});
 
@@ -2818,7 +2830,7 @@ export class UnifiedTokenStorageService {
 
 			// Remove from unified storage
 			await this.deleteTokens({
-				type: 'pkce_state' as any,
+				type: 'pkce_state',
 				id: key,
 			});
 
@@ -2836,7 +2848,7 @@ export class UnifiedTokenStorageService {
 	/**
 	 * Save flow state (CredentialStorageManager compatibility)
 	 */
-	async saveFlowState(flowKey: string, state: any): Promise<void> {
+	async saveFlowState(flowKey: string, state: Record<string, unknown>): Promise<void> {
 		try {
 			const key = `flow_state_${flowKey}`;
 			const data = {
@@ -2847,7 +2859,7 @@ export class UnifiedTokenStorageService {
 			// Save to unified storage
 			await this.storeToken({
 				id: key,
-				type: 'flow_state' as any,
+				type: 'flow_state',
 				value: JSON.stringify(data),
 				expiresAt: null,
 				issuedAt: Date.now(),
@@ -2873,13 +2885,13 @@ export class UnifiedTokenStorageService {
 	/**
 	 * Load flow state (CredentialStorageManager compatibility)
 	 */
-	async loadFlowState(flowKey: string): Promise<any | null> {
+	async loadFlowState(flowKey: string): Promise<unknown> {
 		try {
 			const key = `flow_state_${flowKey}`;
 
 			// Try unified storage first
 			const tokens = await this.getTokens({
-				type: 'flow_state' as any,
+				type: 'flow_state',
 				id: key,
 			});
 
@@ -2925,7 +2937,7 @@ export class UnifiedTokenStorageService {
 
 			// Remove from unified storage
 			await this.deleteTokens({
-				type: 'flow_state' as any,
+				type: 'flow_state',
 				id: key,
 			});
 
@@ -2958,7 +2970,7 @@ export class UnifiedTokenStorageService {
 			// Save to unified storage
 			await this.storeToken({
 				id: 'worker_token',
-				type: 'worker_token' as any,
+				type: 'worker_token',
 				value: JSON.stringify(tokenData),
 				expiresAt: data.expiresAt,
 				issuedAt: Date.now(),
@@ -3003,7 +3015,7 @@ export class UnifiedTokenStorageService {
 		try {
 			// Try unified storage first
 			const tokens = await this.getTokens({
-				type: 'worker_token' as any,
+				type: 'worker_token',
 				id: 'worker_token',
 			});
 
@@ -3015,7 +3027,7 @@ export class UnifiedTokenStorageService {
 				if (data.expiresAt && data.expiresAt < Date.now()) {
 					logger.info(MODULE_TAG, 'Worker token expired, removing');
 					await this.deleteTokens({
-						type: 'worker_token' as any,
+						type: 'worker_token',
 						id: 'worker_token',
 					});
 					return null;
@@ -3066,7 +3078,7 @@ export class UnifiedTokenStorageService {
 		try {
 			// Remove from unified storage
 			await this.deleteTokens({
-				type: 'worker_token' as any,
+				type: 'worker_token',
 				id: 'worker_token',
 			});
 

@@ -34,7 +34,7 @@
  * @see {@link ServicePerformanceMonitor} for performance monitoring
  */
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { CredentialGuardService } from '../credentialGuardService';
 import ModalPresentationService from '../modalPresentationService';
@@ -278,26 +278,19 @@ export const useV9CredentialValidation = ({
 	// Get flow configuration
 	const baseConfig = V9_FLOW_CONFIGS[flowKey];
 
-	if (!baseConfig) {
-		console.warn(`[V9CredentialValidation] No configuration found for flow: ${flowKey}`);
-		return {
-			showMissingCredentialsModal: false,
-			missingCredentialFields: [],
-			validateCredentialsAndProceed: (onProceed: () => void) => onProceed(),
-			closeModal: () => {},
-			CredentialValidationModal: () => null,
-			isValidForStep: true,
-			validationMessage: '',
-		};
-	}
-
-	const config: V9FlowCredentialConfig = {
-		...baseConfig,
-		...customConfig,
-	};
+	// Memoize config — computed before any early return to comply with Rules of Hooks.
+	// biome-ignore lint/correctness/useExhaustiveDependencies: customConfig excluded (unstable object identity)
+	const config = useMemo<V9FlowCredentialConfig>(
+		() => ({ ...(baseConfig as V9FlowCredentialConfig), ...customConfig }),
+		[baseConfig]
+	);
 
 	const validateCredentialsAndProceed = useCallback(
 		(onProceed: () => void) => {
+			if (!baseConfig) {
+				onProceed();
+				return;
+			}
 			// Only validate on the configured step
 			if (currentStep !== config.stepIndex) {
 				onProceed();
@@ -345,7 +338,7 @@ export const useV9CredentialValidation = ({
 			onValidationSuccess?.();
 			onProceed();
 		},
-		[credentials, currentStep, config, onValidationSuccess, onValidationFailure]
+		[credentials, currentStep, config, onValidationSuccess, onValidationFailure, baseConfig]
 	);
 
 	const closeModal = useCallback(() => {
@@ -355,7 +348,7 @@ export const useV9CredentialValidation = ({
 
 	// Check if current step is valid for navigation
 	const isValidForStep = useCallback(() => {
-		if (currentStep !== config.stepIndex) return true;
+		if (!baseConfig || currentStep !== config.stepIndex) return true;
 
 		const { canProceed } = CredentialGuardService.checkMissingFields(
 			sanitizeCredentials(credentials),
@@ -366,11 +359,11 @@ export const useV9CredentialValidation = ({
 		);
 
 		return canProceed;
-	}, [credentials, currentStep, config]);
+	}, [credentials, currentStep, config, baseConfig]);
 
 	// Get validation message for current step
 	const validationMessage = useCallback(() => {
-		if (currentStep !== config.stepIndex) return '';
+		if (!baseConfig || currentStep !== config.stepIndex) return '';
 
 		const { missingFields } = CredentialGuardService.checkMissingFields(
 			sanitizeCredentials(credentials),
@@ -382,7 +375,21 @@ export const useV9CredentialValidation = ({
 
 		if (missingFields.length === 0) return '';
 		return `${missingFields.join(', ')} ${missingFields.length === 1 ? 'is' : 'are'} required`;
-	}, [credentials, currentStep, config]);
+	}, [credentials, currentStep, config, baseConfig]);
+
+	// Early return AFTER all hooks to comply with Rules of Hooks
+	if (!baseConfig) {
+		console.warn(`[V9CredentialValidation] No configuration found for flow: ${flowKey}`);
+		return {
+			showMissingCredentialsModal: false,
+			missingCredentialFields: [],
+			validateCredentialsAndProceed,
+			closeModal,
+			CredentialValidationModal: () => null,
+			isValidForStep: true,
+			validationMessage: '',
+		};
+	}
 
 	const CredentialValidationModal: React.FC = () => (
 		<ModalPresentationService
