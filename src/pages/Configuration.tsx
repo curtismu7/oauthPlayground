@@ -21,6 +21,7 @@ import PingOneApplicationConfig, {
 	type PingOneApplicationState,
 } from '../components/PingOneApplicationConfig';
 import type { StepCredentials } from '../components/steps/CommonSteps';
+import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { WorkerTokenModalV8 } from '../v8/components/WorkerTokenModalV8';
 import { WorkerTokenStatusDisplayV8 } from '../v8/components/WorkerTokenStatusDisplayV8';
@@ -329,6 +330,7 @@ const UriHelper = styled.p`
 
 const Configuration: React.FC = () => {
 	usePageScroll({ pageName: 'Configuration & Setup', force: true });
+	const tokenStatus = useGlobalWorkerToken({ autoFetch: false });
 	const [copiedText, setCopiedText] = useState<string>('');
 
 	const buildUriEditState = useCallback(
