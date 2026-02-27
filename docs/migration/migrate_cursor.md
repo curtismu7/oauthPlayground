@@ -1,8 +1,11 @@
-# migrate.md — Cursor Execution Mode (OAuth Playground / Vite + React)
+# migrate.md — VS Code Edition (OAuth Playground / Vite + React)
 
 ## End-User Nano (Bootstrap-based) + Astro Nano Icons (mdi subset)
 
-This document is written as **explicit, executable steps** for Cursor. Follow in order. Each step should be a small PR where possible.
+**Optimized for:** VS Code + GitHub Copilot  
+**Last Updated:** February 27, 2026
+
+This document is written as **explicit, executable steps** for VS Code + GitHub Copilot. Follow in order. Each step should be a small, focused commit where possible.
 
 ---
 
@@ -110,6 +113,7 @@ After migration, create changelog in `docs/updates-to-apps/{page-name}-updates.m
 - ✅ [Configuration](../updates-to-apps/configuration-dashboard-v8-migration.md) - Feb 27, 2026
 - ✅ [Dashboard](../updates-to-apps/configuration-dashboard-v8-migration.md) - Feb 27, 2026
 - ✅ [Auto-Discover](../updates-to-apps/auto-discover-updates.md) - Feb 27, 2026
+- ✅ [HelioMart Password Reset](../updates-to-apps/helio-mart-password-reset-updates.md) - Feb 27, 2026
 
 ---
 
@@ -401,6 +405,45 @@ Fixed JSX structure in `src/pages/test/AllFlowsApiTest.tsx`:
 - ✅ Cleaner TypeScript (no warnings)
 - ✅ Started icon font migration
 - ✅ First page fully migrated to Ping UI guidelines
+
+---
+
+### ✅ COMPLETED: Worker Token Standardization — useGlobalWorkerToken Pattern (February 27, 2026)
+
+**Scope:** PingOneUserProfile, HelioMartPasswordReset, useGlobalWorkerToken hook
+
+**Changes Made:**
+
+1. **`useGlobalWorkerToken` hook** — Added `autoFetch?: boolean` option (default `true`). When `false`, reads stored token only (no API call). Also added `workerTokenUpdated` event listener in both modes for reactive updates.
+
+2. **PingOneUserProfile** — Removed custom `WorkerTokenMeta` infrastructure (`interface`, `describeExpiry()`, `getWorkerTokenMeta()`, `useState`, 3 effects). Replaced with `useGlobalWorkerToken` + standard `handleGetWorkerToken` / `handleClearWorkerToken` callbacks. Simplified AlertBanner to two-state. Updated `isExpired` guards to `!globalTokenStatus.isValid`.
+
+3. **HelioMartPasswordReset** — Added `autoFetch: false` so page load no longer triggers a PingOne API call. Added `handleGetWorkerToken` / `handleClearWorkerToken` standard callbacks. Replaced raw `localStorage.getItem` calls with `unifiedWorkerTokenService.getTokenDataSync()`.
+
+**Files Modified:**
+- `src/hooks/useGlobalWorkerToken.ts`
+- `src/pages/PingOneUserProfile.tsx`
+- `src/pages/security/HelioMartPasswordReset.tsx`
+
+**Changelogs:**
+- [PingOne User Profile — Update 3](../updates-to-apps/pingone-user-profile-updates.md)
+- [HelioMart Password Reset — Update 1](../updates-to-apps/helio-mart-password-reset-updates.md)
+
+---
+
+### ✅ COMPLETED: Identity Metrics JSON/Formatted Toggle (February 27, 2026)
+
+**Page:** `/pingone-identity-metrics`
+
+**Changes Made:**
+- Added `showRawJson` state to `PingOneIdentityMetrics.tsx`
+- Replaced static Full API Response card with a Formatted/Raw JSON toggle pill in the SectionTitle header
+- Formatted view: `JSONHighlighter` component; Raw JSON view: `<pre>` block with `JSON.stringify(metrics, null, 2)`
+
+**Files Modified:**
+- `src/pages/PingOneIdentityMetrics.tsx`
+
+**Changelog:** [PingOne Identity Metrics Updates](../updates-to-apps/pingone-identity-metrics-updates.md)
 
 ---
 
