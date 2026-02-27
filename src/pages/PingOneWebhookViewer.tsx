@@ -15,6 +15,7 @@ import {
 	FiKey,
 	FiPlus,
 	FiRefreshCw,
+	FiGlobe,
 	FiServer,
 	FiTag,
 	FiTrash2,
@@ -468,6 +469,18 @@ const PingOneWebhookViewer: React.FC = () => {
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [showCreateModal, setShowCreateModal] = useState(false);
 	const [editingSubscription, setEditingSubscription] = useState<WebhookSubscription | null>(null);
+	const [selectedRegion, setSelectedRegion] = useState<string>(() => {
+		try {
+			const stored = localStorage.getItem('unified_worker_token');
+			if (stored) {
+				const data = JSON.parse(stored);
+				const r = data.credentials?.region || 'us';
+				if (r === 'eu') return 'eu';
+				if (r === 'ap') return 'ap';
+			}
+		} catch {}
+		return 'na';
+	});
 	const [formData, setFormData] = useState({
 		name: 'PingOne Webhook Viewer',
 		enabled: true,
@@ -568,7 +581,7 @@ const PingOneWebhookViewer: React.FC = () => {
 		try {
 			// Test basic environment access
 			const testResponse = await fetch(
-				`/api/pingone/subscriptions?environmentId=${envId}&workerToken=${token}&region=na`,
+				`/api/pingone/subscriptions?environmentId=${envId}&workerToken=${token}&region=${selectedRegion}`,
 				{
 					method: 'GET',
 				}
@@ -694,7 +707,7 @@ const PingOneWebhookViewer: React.FC = () => {
 			setIsLoadingSubscriptions(true);
 			let callId: string | null = null;
 
-			const url = `/api/pingone/subscriptions?environmentId=${encodeURIComponent(environmentId)}&workerToken=${encodeURIComponent(effectiveWorkerToken)}&region=na`;
+			const url = `/api/pingone/subscriptions?environmentId=${encodeURIComponent(environmentId)}&workerToken=${encodeURIComponent(effectiveWorkerToken)}&region=${selectedRegion}`;
 
 			callId = apiCallTrackerService.trackApiCall({
 				method: 'GET',
@@ -769,7 +782,7 @@ const PingOneWebhookViewer: React.FC = () => {
 		} finally {
 			setIsLoadingSubscriptions(false);
 		}
-	}, [environmentId]);
+	}, [environmentId, selectedRegion]);
 
 	// Fetch webhook events from backend
 	const fetchWebhookEvents = useCallback(async () => {
@@ -919,7 +932,7 @@ const PingOneWebhookViewer: React.FC = () => {
 				verifyTlsCertificates: formData.verifyTlsCertificates,
 			};
 
-			const url = `/api/pingone/subscriptions?environmentId=${encodeURIComponent(environmentId)}&workerToken=${encodeURIComponent(effectiveWorkerToken)}&region=na`;
+			const url = `/api/pingone/subscriptions?environmentId=${encodeURIComponent(environmentId)}&workerToken=${encodeURIComponent(effectiveWorkerToken)}&region=${selectedRegion}`;
 
 			callId = apiCallTrackerService.trackApiCall({
 				method: 'POST',
@@ -968,7 +981,7 @@ const PingOneWebhookViewer: React.FC = () => {
 		} finally {
 			setIsLoadingSubscriptions(false);
 		}
-	}, [environmentId, formData, fetchSubscriptions]);
+	}, [environmentId, formData, fetchSubscriptions, selectedRegion]);
 
 	const handleUpdateSubscription = useCallback(
 		async (subscription: WebhookSubscription) => {
@@ -1000,7 +1013,7 @@ const PingOneWebhookViewer: React.FC = () => {
 					verifyTlsCertificates: formData.verifyTlsCertificates,
 				};
 
-				const url = `/api/pingone/subscriptions/${subscription.id}?environmentId=${encodeURIComponent(environmentId)}&workerToken=${encodeURIComponent(effectiveWorkerToken)}&region=na`;
+				const url = `/api/pingone/subscriptions/${subscription.id}?environmentId=${encodeURIComponent(environmentId)}&workerToken=${encodeURIComponent(effectiveWorkerToken)}&region=${selectedRegion}`;
 
 				callId = apiCallTrackerService.trackApiCall({
 					method: 'PUT',
@@ -1050,7 +1063,7 @@ const PingOneWebhookViewer: React.FC = () => {
 				setIsLoadingSubscriptions(false);
 			}
 		},
-		[environmentId, formData, fetchSubscriptions]
+		[environmentId, formData, fetchSubscriptions, selectedRegion]
 	);
 
 	const handleDeleteSubscription = useCallback(
@@ -1069,7 +1082,7 @@ const PingOneWebhookViewer: React.FC = () => {
 				setIsLoadingSubscriptions(true);
 				let callId: string | null = null;
 
-				const url = `/api/pingone/subscriptions/${subscriptionId}?environmentId=${encodeURIComponent(environmentId)}&workerToken=${encodeURIComponent(effectiveWorkerToken)}&region=na`;
+				const url = `/api/pingone/subscriptions/${subscriptionId}?environmentId=${encodeURIComponent(environmentId)}&workerToken=${encodeURIComponent(effectiveWorkerToken)}&region=${selectedRegion}`;
 
 				callId = apiCallTrackerService.trackApiCall({
 					method: 'DELETE',
@@ -1109,7 +1122,7 @@ const PingOneWebhookViewer: React.FC = () => {
 				setIsLoadingSubscriptions(false);
 			}
 		},
-		[environmentId, fetchSubscriptions]
+		[environmentId, fetchSubscriptions, selectedRegion]
 	);
 
 	const handleEditSubscription = useCallback((subscription: WebhookSubscription) => {
@@ -1407,6 +1420,23 @@ const PingOneWebhookViewer: React.FC = () => {
 
 				{activeTab === 'subscriptions' && (
 					<>
+						<div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem', padding: '0.75rem 1rem', background: '#f8fafc', borderRadius: '0.5rem', border: '1px solid #e2e8f0' }}>
+							<FiGlobe size={16} style={{ color: '#64748b' }} />
+							<span style={{ fontSize: '0.875rem', color: '#475569', fontWeight: 600 }}>PingOne Region:</span>
+							<FilterSelect
+								value={selectedRegion}
+								onChange={(e) => setSelectedRegion(e.target.value)}
+								style={{ fontSize: '0.875rem', padding: '0.25rem 0.5rem', minWidth: 220 }}
+							>
+								<option value="na">North America (.us)</option>
+								<option value="eu">Europe (.eu)</option>
+								<option value="ap">Asia Pacific (.asia)</option>
+								<option value="ca">Canada (.ca)</option>
+							</FilterSelect>
+							<span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
+								API: api.pingone.{selectedRegion === 'na' ? 'us' : selectedRegion === 'ap' ? 'asia' : selectedRegion}
+							</span>
+						</div>
 						{!hasWorkerToken && (
 							<SectionCard>
 								<p style={{ color: '#64748b', marginBottom: '1rem' }}>
@@ -1439,6 +1469,18 @@ const PingOneWebhookViewer: React.FC = () => {
 										onChange={(e) => setFormData({ ...formData, name: e.target.value })}
 										placeholder="My Webhook Subscription"
 									/>
+								</InputGroup>
+								<InputGroup>
+									<Label>PingOne Region</Label>
+									<FilterSelect
+										value={selectedRegion}
+										onChange={(e) => setSelectedRegion(e.target.value)}
+									>
+										<option value="na">North America (api.pingone.com / .us)</option>
+										<option value="eu">Europe (api.pingone.eu)</option>
+										<option value="ap">Asia Pacific (api.pingone.asia)</option>
+										<option value="ca">Canada (api.pingone.ca)</option>
+									</FilterSelect>
 								</InputGroup>
 								<InputGroup>
 									<Label>Webhook Endpoint URL (httpEndpoint.url) *</Label>
