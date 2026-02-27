@@ -11,7 +11,15 @@
  */
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { FiArrowLeft, FiArrowRight, FiCheckCircle, FiMaximize2, FiMinimize2, FiMove, FiTrash2 } from 'react-icons/fi';
+import {
+	FiArrowLeft,
+	FiArrowRight,
+	FiCheckCircle,
+	FiMaximize2,
+	FiMinimize2,
+	FiMove,
+	FiTrash2,
+} from 'react-icons/fi';
 import styled from 'styled-components';
 
 export interface FloatingStepperStep {
@@ -311,7 +319,7 @@ export const FloatingStepper: React.FC<FloatingStepperProps> = ({
 		}
 	}, [isDragging, handleMouseMove, handleMouseUp]);
 
-	const handleStepClick = useCallback(
+	const _handleStepClick = useCallback(
 		(stepIndex: number) => {
 			if (onStepChange) {
 				onStepChange(stepIndex);
@@ -390,11 +398,7 @@ export const FloatingStepper: React.FC<FloatingStepperProps> = ({
 
 			<NavigationButtons>
 				{!isCompact && onReset && (
-					<NavButton
-						$variant="danger"
-						onClick={handleReset}
-						title="Reset flow"
-					>
+					<NavButton $variant="danger" onClick={handleReset} title="Reset flow">
 						<FiTrash2 size={16} />
 						Reset
 					</NavButton>
@@ -414,7 +418,7 @@ export const FloatingStepper: React.FC<FloatingStepperProps> = ({
 					$variant="primary"
 					onClick={handleNext}
 					$disabled={!canNavigateNext && !isLastStep}
-					title={isLastStep ? "Complete flow" : "Next step"}
+					title={isLastStep ? 'Complete flow' : 'Next step'}
 				>
 					{isLastStep ? <FiCheckCircle size={16} /> : <FiArrowRight size={16} />}
 					{isLastStep ? 'Complete' : 'Next'}
@@ -423,7 +427,7 @@ export const FloatingStepper: React.FC<FloatingStepperProps> = ({
 				{draggable && (
 					<CompactToggle
 						onClick={toggleCompact}
-						title={isCompact ? "Expand stepper" : "Compact stepper"}
+						title={isCompact ? 'Expand stepper' : 'Compact stepper'}
 					>
 						{isCompact ? <FiMaximize2 size={16} /> : <FiMinimize2 size={16} />}
 					</CompactToggle>
@@ -435,14 +439,14 @@ export const FloatingStepper: React.FC<FloatingStepperProps> = ({
 
 /**
  * FloatingStepperService
- * 
+ *
  * Service class for managing floating stepper instances and configurations.
  */
 export class FloatingStepperService {
 	/**
 	 * Default configuration for OAuth flows
 	 */
-	static getOAuthConfig(steps: FloatingStepperStep[]): Partial<FloatingStepperConfig> {
+	getOAuthConfig(steps: FloatingStepperStep[]): Partial<FloatingStepperConfig> {
 		return {
 			steps,
 			variant: 'oauth',
@@ -457,7 +461,7 @@ export class FloatingStepperService {
 	/**
 	 * Default configuration for MFA flows
 	 */
-	static getMFAConfig(steps: FloatingStepperStep[]): Partial<FloatingStepperConfig> {
+	getMFAConfig(steps: FloatingStepperStep[]): Partial<FloatingStepperConfig> {
 		return {
 			steps,
 			variant: 'mfa',
@@ -472,7 +476,7 @@ export class FloatingStepperService {
 	/**
 	 * Default configuration for OIDC flows
 	 */
-	static getOIDCConfig(steps: FloatingStepperStep[]): Partial<FloatingStepperConfig> {
+	getOIDCConfig(steps: FloatingStepperStep[]): Partial<FloatingStepperConfig> {
 		return {
 			steps,
 			variant: 'oidc',
@@ -487,7 +491,7 @@ export class FloatingStepperService {
 	/**
 	 * Create a compact stepper configuration
 	 */
-	static getCompactConfig(steps: FloatingStepperStep[]): Partial<FloatingStepperConfig> {
+	getCompactConfig(steps: FloatingStepperStep[]): Partial<FloatingStepperConfig> {
 		return {
 			steps,
 			compact: true,
@@ -501,10 +505,10 @@ export class FloatingStepperService {
 	/**
 	 * Get default position based on screen size
 	 */
-	static getDefaultPosition(): { x: number; y: number } {
+	getDefaultPosition(): { x: number; y: number } {
 		const screenWidth = window.innerWidth;
 		const screenHeight = window.innerHeight;
-		
+
 		// Position in bottom-right corner by default
 		return {
 			x: screenWidth - 300,

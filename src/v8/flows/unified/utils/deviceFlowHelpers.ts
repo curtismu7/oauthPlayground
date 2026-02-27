@@ -78,7 +78,7 @@ export function getFullPhoneNumberFromCredentials(credentials: MFACredentials): 
  */
 export function getNextStepAfterRegistration(
 	config: DeviceFlowConfig,
-	registrationResult: { status?: string; deviceId?: string; [key: string]: any }
+	registrationResult: { status?: string; deviceId?: string; [key: string]: unknown }
 ): number {
 	console.log(`${MODULE_TAG} Determining next step`, {
 		deviceType: config.deviceType,
@@ -134,8 +134,8 @@ export function canProceedToNextStep(
 	currentStep: number,
 	_config: DeviceFlowConfig,
 	credentials: MFACredentials,
-	mfaState: { deviceId?: string; deviceStatus?: string; [key: string]: any },
-	tokenStatus: { isValid: boolean; [key: string]: any }
+	mfaState: { deviceId?: string; deviceStatus?: string; [key: string]: unknown },
+	tokenStatus: { isValid: boolean; [key: string]: unknown }
 ): boolean {
 	console.log(`${MODULE_TAG} Checking if can proceed from step ${currentStep}`);
 
@@ -234,7 +234,7 @@ export function formatDeviceDisplayName(
 		nickname?: string;
 		phone?: string;
 		email?: string;
-		[key: string]: any;
+		[key: string]: unknown;
 	}
 ): string {
 	// If no device data, return config display name
@@ -272,7 +272,7 @@ export function formatDeviceDisplayName(
  */
 export function formatDeviceContact(
 	deviceType: DeviceConfigKey,
-	deviceData: { phone?: string; email?: string; [key: string]: any }
+	deviceData: { phone?: string; email?: string; [key: string]: unknown }
 ): string | null {
 	switch (deviceType) {
 		case 'SMS':

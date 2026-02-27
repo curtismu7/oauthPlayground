@@ -73,7 +73,7 @@ export interface UnifiedDeviceRegistrationFormProps {
 
 export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFormProps> = ({
 	onSubmit,
-	onCancel,
+	onCancel: _onCancel,
 	isLoading = false,
 	initialDeviceType = 'SMS',
 	tokenStatus,
@@ -98,7 +98,7 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 	});
 
 	// Worker token for user search
-	const { tokenStatus: workerTokenStatus } = useWorkerToken();
+	const { tokenStatus: _workerTokenStatus } = useWorkerToken();
 
 	// Format users for dropdown
 	const userOptions: SearchableDropdownOption[] = useMemo(
