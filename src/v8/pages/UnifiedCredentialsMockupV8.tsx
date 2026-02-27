@@ -142,6 +142,7 @@ export const UnifiedCredentialsMockupV8: React.FC = () => {
 					</div>
 					<div className="section-content">
 						<div className="form-group">
+							{/* biome-ignore lint/a11y/noLabelWithoutControl: mockup display only */}
 							<label>Select Flow Type</label>
 							<select
 								value={effectiveFlowType}
@@ -183,6 +184,7 @@ export const UnifiedCredentialsMockupV8: React.FC = () => {
 					<div className="section-content">
 						{fieldVisibility.showEnvironmentId && (
 							<div className="form-group">
+								{/* biome-ignore lint/a11y/noLabelWithoutControl: mockup display only */}
 								<label>
 									Environment ID <span className="required">*</span>
 								</label>
@@ -193,6 +195,7 @@ export const UnifiedCredentialsMockupV8: React.FC = () => {
 
 						{fieldVisibility.showClientId && (
 							<div className="form-group">
+								{/* biome-ignore lint/a11y/noLabelWithoutControl: mockup display only */}
 								<label>
 									Client ID <span className="required">*</span>
 								</label>
@@ -203,6 +206,7 @@ export const UnifiedCredentialsMockupV8: React.FC = () => {
 
 						{fieldVisibility.showClientSecret && (
 							<div className="form-group">
+								{/* biome-ignore lint/a11y/noLabelWithoutControl: mockup display only */}
 								<label>
 									Client Secret
 									{flowOptions.requiresClientSecret ? (
@@ -226,6 +230,7 @@ export const UnifiedCredentialsMockupV8: React.FC = () => {
 						</div>
 						<div className="section-content">
 							<div className="form-group">
+								{/* biome-ignore lint/a11y/noLabelWithoutControl: mockup display only */}
 								<label>
 									Redirect URI <span className="required">*</span>
 								</label>
@@ -265,6 +270,7 @@ export const UnifiedCredentialsMockupV8: React.FC = () => {
 						</div>
 						<div className="section-content">
 							<div className="form-group">
+								{/* biome-ignore lint/a11y/noLabelWithoutControl: mockup display only */}
 								<label>
 									Post-Logout Redirect URI <span className="optional">(optional)</span>
 								</label>
@@ -283,6 +289,7 @@ export const UnifiedCredentialsMockupV8: React.FC = () => {
 						</div>
 						<div className="section-content">
 							<div className="form-group">
+								{/* biome-ignore lint/a11y/noLabelWithoutControl: mockup display only */}
 								<label>
 									Scopes <span className="required">*</span>
 								</label>
@@ -311,6 +318,7 @@ export const UnifiedCredentialsMockupV8: React.FC = () => {
 					<div className="section-content">
 						{fieldVisibility.showResponseType && flowOptions.responseTypes.length > 0 && (
 							<div className="form-group">
+								{/* biome-ignore lint/a11y/noLabelWithoutControl: mockup display only */}
 								<label>Response Type</label>
 								<select className="flow-select">
 									{flowOptions.responseTypes.map((type) => (
@@ -325,6 +333,7 @@ export const UnifiedCredentialsMockupV8: React.FC = () => {
 
 						{fieldVisibility.showAuthMethod && (
 							<div className="form-group">
+								{/* biome-ignore lint/a11y/noLabelWithoutControl: mockup display only */}
 								<label>Token Endpoint Authentication Method</label>
 								<select className="flow-select">
 									{flowOptions.authMethods.map((method) => (
@@ -386,6 +395,7 @@ export const UnifiedCredentialsMockupV8: React.FC = () => {
 						{/* OIDC-specific fields */}
 						{fieldVisibility.showIdToken && (
 							<div className="form-group">
+								{/* biome-ignore lint/a11y/noLabelWithoutControl: mockup display only */}
 								<label>ID Token Display</label>
 								<div className="info-box">
 									OIDC flow - ID Token will be included in the response
@@ -395,6 +405,7 @@ export const UnifiedCredentialsMockupV8: React.FC = () => {
 
 						{fieldVisibility.showUserInfo && (
 							<div className="form-group">
+								{/* biome-ignore lint/a11y/noLabelWithoutControl: mockup display only */}
 								<label>UserInfo Endpoint</label>
 								<div className="info-box">
 									OIDC flow - UserInfo endpoint available for user profile information
