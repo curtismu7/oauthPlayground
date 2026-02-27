@@ -472,7 +472,7 @@ const AdvancedConfiguration = () => {
 			...customScopes.filter((scope) => scope.trim() !== ''),
 		];
 
-		const allClaims = [...standardClaims, ...customClaims.filter((claim) => claim.trim() !== '')];
+		const allClaims = [...STANDARD_CLAIMS, ...customClaims.filter((claim) => claim.trim() !== '')];
 
 		return `// OAuth Configuration
 const oauthConfig = {
@@ -549,7 +549,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 			...customScopes.filter((scope) => scope.trim() !== ''),
 		].join(' ');
 
-		const allClaims = [...standardClaims, ...customClaims.filter((claim) => claim.trim() !== '')];
+		const allClaims = [...STANDARD_CLAIMS, ...customClaims.filter((claim) => claim.trim() !== '')];
 
 		const config = {
 			scopes: allScopes,
@@ -575,7 +575,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 		...customScopes.filter((scope) => scope.trim() !== ''),
 	];
 
-	const _allClaims = [...standardClaims, ...customClaims.filter((claim) => claim.trim() !== '')];
+	const _allClaims = [...STANDARD_CLAIMS, ...customClaims.filter((claim) => claim.trim() !== '')];
 
 	// Update environment ID when worker token is updated
 	useEffect(() => {
@@ -867,7 +867,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 												gap: '0.5rem',
 											}}
 										>
-											{standardClaims.map((claim) => (
+											{STANDARD_CLAIMS.map((claim) => (
 												<div
 													key={claim}
 													style={{
