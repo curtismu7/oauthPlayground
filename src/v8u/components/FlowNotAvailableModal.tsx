@@ -39,7 +39,7 @@ export const FlowNotAvailableModal: React.FC<FlowNotAvailableModalProps> = ({
 	const fallbackFlowLabel = SpecVersionServiceV8.getFlowLabel(fallbackFlow);
 
 	// CRITICAL: Log the actual spec version being used to debug modal issues
-	logger.debug(Modal rendering`, {
+	logger.debug(`Modal rendering`, {
 		requestedFlow,
 		specVersion,
 		specLabel,
@@ -86,9 +86,9 @@ export const FlowNotAvailableModal: React.FC<FlowNotAvailableModalProps> = ({
 			}
 		}
 		return `We recommend using ${fallbackFlowLabel} for ${specLabel}.`;
-};
+	};
 
-logger.debug(Modal opened`, {
+	logger.debug(`Modal opened`, {
 		requestedFlow,
 		specVersion,
 		fallbackFlow,
@@ -229,14 +229,13 @@ logger.debug(Modal opened`, {
 					<button
 						type="button"
 						onClick={() => {
-							logger.debug(User accepted fallback flow`, { fallbackFlow });
-onAccept();
-onClose();
-}}
-						style=
-{
-	padding: '14px 24px', background;
-	: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+							logger.debug(`User accepted fallback flow`, { fallbackFlow });
+							onAccept();
+							onClose();
+						}}
+						style={{
+							padding: '14px 24px',
+							background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
 							color: 'white',
 							border: 'none',
 							borderRadius: '8px',
@@ -244,33 +243,24 @@ onClose();
 							fontWeight: '600',
 							cursor: 'pointer',
 							transition: 'all 0.2s ease',
-}
-onMouseEnter={(_e) => {
+						}}
+						onMouseEnter={(e) => {
 							e.currentTarget.style.transform = 'translateY(-1px)';
-e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.4)';
-}}
-						onMouseLeave=
-{
-	(e) => {
-		e.currentTarget.style.transform = 'translateY(0)';
-		e.currentTarget.style.boxShadow = 'none';
-	};
-}
->
-						✅ Use
-{
-	fallbackFlowLabel;
-}
-Instead;
-</button>
+							e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.4)';
+						}}
+						onMouseLeave={(e) => {
+							e.currentTarget.style.transform = 'translateY(0)';
+							e.currentTarget.style.boxShadow = 'none';
+						}}
+					>
+						✅ Use {fallbackFlowLabel} Instead
+					</button>
 
-{
-	/* Secondary action: Change spec version */
-}
-<button
-	type="button"
-	onClick={() => {
-		logger.debug(User wants to change spec version`);
+					{/* Secondary action: Change spec version */}
+					<button
+						type="button"
+						onClick={() => {
+							logger.debug(`User wants to change spec version`);
 							onChangeSpec();
 							onClose();
 						}}
@@ -299,31 +289,31 @@ Instead;
 					<button
 						type="button"
 						onClick={() => {
-							logger.debug(User cancelled`);
-		onClose();
-	}}
-	style={{
-		padding: '12px 24px',
-		background: 'transparent',
-		color: '#6b7280',
-		border: 'none',
-		borderRadius: '8px',
-		fontSize: '14px',
-		fontWeight: '500',
-		cursor: 'pointer',
-		transition: 'all 0.2s ease',
-	}}
-	onMouseEnter={(e) => {
-		e.currentTarget.style.background = '#f3f4f6';
-	}}
-	onMouseLeave={(e) => {
-		e.currentTarget.style.background = 'transparent';
-	}}
->
-	Cancel
-</button>;
-</div>
+							logger.debug(`User cancelled`);
+							onClose();
+						}}
+						style={{
+							padding: '12px 24px',
+							background: 'transparent',
+							color: '#6b7280',
+							border: 'none',
+							borderRadius: '8px',
+							fontSize: '14px',
+							fontWeight: '500',
+							cursor: 'pointer',
+							transition: 'all 0.2s ease',
+						}}
+						onMouseEnter={(e) => {
+							e.currentTarget.style.background = '#f3f4f6';
+						}}
+						onMouseLeave={(e) => {
+							e.currentTarget.style.background = 'transparent';
+						}}
+					>
+						Cancel
+					</button>
+				</div>
 			</div>
 		</div>
-	)
-}
+	);
+};
