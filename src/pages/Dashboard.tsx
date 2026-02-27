@@ -457,7 +457,7 @@ const Dashboard = () => {
 			{/* Config — custom domain: edit, save to SQLite + IndexedDB, redirect to new URL */}
 			<div className="section-wrap">
 				<CollapsibleHeader
-					title="Config"
+				title="Custom Domain Config"
 					subtitle="App URL and custom domain (always HTTPS)"
 					icon={<Icon name="cog" />}
 					theme="ping"
