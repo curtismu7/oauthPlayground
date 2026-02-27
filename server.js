@@ -10619,7 +10619,7 @@ app.get('/api/pingone/subscriptions', async (req, res) => {
 			});
 		}
 
-		const regionMap = { na: 'us', eu: 'eu', asia: 'ap' };
+		const regionMap = { na: 'us', eu: 'eu', asia: 'ap', ap: 'ap', ca: 'ca' };
 		const apiRegion = regionMap[region] || 'us';
 		const apiUrl = `https://api.pingone.${apiRegion}/v1/environments/${environmentId}/subscriptions`;
 
@@ -10694,7 +10694,7 @@ app.get('/api/pingone/subscriptions/:subscriptionId', async (req, res) => {
 			});
 		}
 
-		const regionMap = { na: 'us', eu: 'eu', asia: 'ap' };
+		const regionMap = { na: 'us', eu: 'eu', asia: 'ap', ap: 'ap', ca: 'ca' };
 		const apiRegion = regionMap[region] || 'us';
 		const apiUrl = `https://api.pingone.${apiRegion}/v1/environments/${environmentId}/subscriptions/${subscriptionId}`;
 
@@ -10778,7 +10778,7 @@ app.post('/api/pingone/subscriptions', express.json(), async (req, res) => {
 			});
 		}
 
-		const regionMap = { na: 'us', eu: 'eu', asia: 'ap' };
+		const regionMap = { na: 'us', eu: 'eu', asia: 'ap', ap: 'ap', ca: 'ca' };
 		const apiRegion = regionMap[region] || 'us';
 		const apiUrl = `https://api.pingone.${apiRegion}/v1/environments/${environmentId}/subscriptions`;
 
@@ -10853,7 +10853,7 @@ app.put('/api/pingone/subscriptions/:subscriptionId', express.json(), async (req
 			});
 		}
 
-		const regionMap = { na: 'us', eu: 'eu', asia: 'ap' };
+		const regionMap = { na: 'us', eu: 'eu', asia: 'ap', ap: 'ap', ca: 'ca' };
 		const apiRegion = regionMap[region] || 'us';
 		const apiUrl = `https://api.pingone.${apiRegion}/v1/environments/${environmentId}/subscriptions/${subscriptionId}`;
 
@@ -10927,7 +10927,7 @@ app.delete('/api/pingone/subscriptions/:subscriptionId', async (req, res) => {
 			});
 		}
 
-		const regionMap = { na: 'us', eu: 'eu', asia: 'ap' };
+		const regionMap = { na: 'us', eu: 'eu', asia: 'ap', ap: 'ap', ca: 'ca' };
 		const apiRegion = regionMap[region] || 'us';
 		const apiUrl = `https://api.pingone.${apiRegion}/v1/environments/${environmentId}/subscriptions/${subscriptionId}`;
 
