@@ -1038,8 +1038,8 @@ show_final_summary() {
     echo -e "${banner_color}║${NC} ${CYAN}   - logs/real-api.log (direct PingOne API calls only - no proxy)${NC}"
     echo -e "${banner_color}║${NC}"
     echo -e "${banner_color}║${NC} ${CYAN}📌 Quick tail commands (copy/paste):${NC}"
-    echo -e "${banner_color}║${NC} ${CYAN}   tail -f logs/pingone-api.log${NC}"
-    echo -e "${banner_color}║${NC} ${CYAN}   tail -n 200 logs/pingone-api.log${NC}"
+    echo -e "${banner_color}║${NC} ${CYAN}   tail -f backend.log   tail -f frontend.log   tail -f logs/server.log${NC}"
+    echo -e "${banner_color}║${NC} ${CYAN}   tail -f logs/pingone-api.log   tail -n 200 logs/pingone-api.log${NC}"
     echo -e "${banner_color}║${NC}"
     echo -e "${banner_color}║${NC} ${CYAN}📋 Usage:${NC}"
     echo -e "${banner_color}║${NC} ${CYAN}   ./run.sh - Restart servers (will prompt to tail logs)${NC}"
@@ -1151,23 +1151,24 @@ while [ $# -gt 0 ]; do
             echo ""
             echo "  7️⃣  LOG MANAGEMENT (interactive):"
             echo "      • Prompts to tail a log file"
-            echo "      • Offers 11 different log file options"
+            echo "      • Offers 12 options (1-11 = log files, 12 = no tail)"
             echo "      • Includes PingOne API logs, flow logs, server logs"
             echo "      • Option to clear log before tailing"
-            echo "      • Defaults to Y for both prompts"
+            echo "      • Default: option 1 (pingone-api.log) if you press Enter"
             echo ""
             echo "📋 LOG FILE OPTIONS:"
-            echo "      1) pingone-api.log     - All PingOne API calls (proxy + direct)"
+            echo "      1) pingone-api.log     - All PingOne API calls (proxy + direct) [DEFAULT]"
             echo "      2) real-api.log        - Direct PingOne API calls only"
-            echo "      3) server.log          - General server logs"
+            echo "      3) server.log          - General server logs (tail -f logs/server.log)"
             echo "      4) sms.log             - SMS flow logs"
             echo "      5) email.log           - Email flow logs"
             echo "      6) whatsapp.log       - WhatsApp flow logs"
             echo "      7) voice.log           - Voice flow logs"
             echo "      8) fido.log            - FIDO2/WebAuthn logs"
-            echo "      9) backend.log         - Backend application logs"
-            echo "     10) frontend.log        - Frontend/Vite logs"
+            echo "      9) backend.log         - Backend log (tail -f backend.log)"
+            echo "     10) frontend.log        - Frontend log (tail -f frontend.log)"
             echo "     11) startup.log         - Script startup logs"
+            echo "     12) No tail             - Exit without following a log"
             echo ""
             echo "🎯 USE CASE EXAMPLES:"
             echo "  • Development:           ./run.sh"
@@ -1345,7 +1346,7 @@ main() {
             echo -e "${CYAN}Available log files:${NC}"
             echo -e "  1) ${GREEN}pingone-api.log${NC} - All PingOne API calls (proxy and direct)"
             echo -e "  2) ${GREEN}real-api.log${NC} - Direct PingOne API calls only (no proxy)"
-            echo -e "  3) ${GREEN}server.log${NC} - Server logs"
+            echo -e "  3) ${GREEN}server.log${NC} - Server logs (tail -f logs/server.log)"
             echo ""
             echo -e "${CYAN}Flow logs:${NC}"
             echo -e "  4) ${GREEN}sms.log${NC} - SMS flow"
@@ -1355,17 +1356,20 @@ main() {
             echo -e "  8) ${GREEN}fido.log${NC} - FIDO2 flow"
             echo ""
             echo -e "${CYAN}App logs:${NC}"
-            echo -e "  9) ${GREEN}backend.log${NC} - Backend log"
-            echo -e "  10) ${GREEN}frontend.log${NC} - Frontend log"
+            echo -e "  9) ${GREEN}backend.log${NC} - Backend log (tail -f backend.log)"
+            echo -e "  10) ${GREEN}frontend.log${NC} - Frontend log (tail -f frontend.log)"
             echo -e "  11) ${GREEN}startup.log${NC} - Startup log"
+            echo -e "  12) ${GREEN}Server + Backend + Frontend${NC} - Tail server.log, backend.log, frontend.log ${CYAN}[DEFAULT]${NC}"
+            echo -e "  13) ${GREEN}No tail${NC} - Exit without following a log"
             echo ""
-            echo -n "Enter your choice (1-11, or press Enter for default): "
+            echo -e "${CYAN}Default: 12 (tail server + backend + frontend). Press Enter for default.${NC}"
+            echo -n "Enter your choice (1-13, or press Enter for default): "
             read -r log_choice
             
-            # Default to option 1 if no choice is made or invalid choice
+            # Default to option 12 (tail server + backend + frontend) if no choice is made or invalid choice
             if [ -z "$log_choice" ]; then
-                log_choice="1"
-                print_info "No choice entered, defaulting to option 1 (PingOne API log)"
+                log_choice="12"
+                print_info "No choice entered, defaulting to option 12 (tail server + backend + frontend)"
             fi
             
             # Determine which log file to tail based on user choice
@@ -1403,24 +1407,60 @@ main() {
                     LOG_DESCRIPTION="FIDO2 flow log"
                     ;;
                 9)
-                    LOG_FILE="logs/backend.log"
-                    LOG_DESCRIPTION="Backend log"
+                    LOG_FILE="backend.log"
+                    LOG_DESCRIPTION="Backend log (tail -f backend.log)"
                     ;;
                 10)
-                    LOG_FILE="logs/frontend.log"
-                    LOG_DESCRIPTION="Frontend log"
+                    LOG_FILE="frontend.log"
+                    LOG_DESCRIPTION="Frontend log (tail -f frontend.log)"
                     ;;
                 11)
                     LOG_FILE="logs/startup.log"
                     LOG_DESCRIPTION="Startup log"
                     ;;
+                12)
+                    # Tail server, backend, and frontend logs together (default)
+                    echo ""
+                    print_info "📋 Tailing server.log, backend.log, frontend.log (Ctrl+C to stop)..."
+                    echo -e "   ${CYAN}Files: ${GREEN}logs/server.log backend.log frontend.log${NC}"
+                    echo ""
+                    tail -f logs/server.log backend.log frontend.log 2>/dev/null || \
+                    tail -f backend.log frontend.log 2>/dev/null || \
+                    tail -f backend.log 2>/dev/null || true
+                    case "$OVERALL_STATUS" in
+                        "success") exit 0 ;;
+                        "partial") exit 2 ;;
+                        "failure") exit 1 ;;
+                        *) exit 3 ;;
+                    esac
+                    ;;
+                13)
+                    print_info "No tail selected. Exiting."
+                    case "$OVERALL_STATUS" in
+                        "success") exit 0 ;;
+                        "partial") exit 2 ;;
+                        "failure") exit 1 ;;
+                        *) exit 3 ;;
+                    esac
+                    ;;
                 *)
-                    print_warning "Invalid choice '$log_choice'. Defaulting to option 1 (PingOne API log)"
-                    LOG_FILE="logs/pingone-api.log"
-                    LOG_DESCRIPTION="PingOne API log (all calls)"
+                    print_warning "Invalid choice '$log_choice'. Defaulting to option 12 (tail server + backend + frontend)"
+                    log_choice="12"
+                    LOG_FILE=""
                     ;;
             esac
             
+            # For single-file choices (1-11), prompt to clear and then tail; option 12 already tailed and exited
+            if [ -z "$LOG_FILE" ]; then
+                # Invalid choice defaulted to 12 - run triple tail here
+                echo ""
+                print_info "📋 Tailing server.log, backend.log, frontend.log (Ctrl+C to stop)..."
+                echo -e "   ${CYAN}Files: ${GREEN}logs/server.log backend.log frontend.log${NC}"
+                echo ""
+                tail -f logs/server.log backend.log frontend.log 2>/dev/null || \
+                tail -f backend.log frontend.log 2>/dev/null || \
+                tail -f backend.log 2>/dev/null || true
+            else
             echo ""
             
             # Ask if user wants to clear the log file (default to Y)
@@ -1465,6 +1505,7 @@ main() {
             echo -e "   ${CYAN}Log file: ${GREEN}${LOG_FILE}${NC}"
             echo ""
             tail -f "$LOG_FILE"
+            fi
         else
             print_info "Skipping log tail."
         fi
