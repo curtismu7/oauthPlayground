@@ -45,7 +45,7 @@ function generateCert(domain) {
 	try {
 		execSync(
 			`openssl req -x509 -newkey rsa:4096 -keyout "${keyPath}" -out "${certPath}" -days 365 -nodes -subj "${subj}"`,
-			{ stdio: 'inherit', cwd: projectRoot }
+			{ stdio: ['inherit', 'inherit', 'ignore'], cwd: projectRoot }
 		);
 		return { certPath, keyPath };
 	} catch (err) {
