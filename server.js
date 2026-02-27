@@ -854,11 +854,11 @@ app.get('/api/logs/list', (req, res) => {
 		const mfaLogFiles = new Set(['fido.log', 'sms.log', 'email.log', 'whatsapp.log', 'voice.log']);
 		const oauthLogFiles = new Set(['authz-redirects.log', 'oauth.log', 'oidc.log']);
 		const logFiles = files
-			.filter(f => f.endsWith('.log'))
-			.map(f => {
+			.filter((f) => f.endsWith('.log'))
+			.map((f) => {
 				const filePath = path.join(logsDir, f);
 				const stats = fs.statSync(filePath);
-				
+
 				// Categorize log files
 				let category = 'other';
 				if (serverLogFiles.has(f) || /^server(-|_).+\.log$/i.test(f)) {
@@ -872,16 +872,16 @@ app.get('/api/logs/list', (req, res) => {
 				} else if (oauthLogFiles.has(f) || /(authz|oauth|oidc|redirect).+\.log$/i.test(f)) {
 					category = 'oauth';
 				}
-				
+
 				return {
 					name: f,
 					size: stats.size,
 					modified: stats.mtime,
-					category
+					category,
 				};
 			})
 			.sort((a, b) => b.modified - a.modified); // Most recent first
-		
+
 		res.json(logFiles);
 	} catch (error) {
 		console.error('[Log Viewer] Failed to list log files:', error);
@@ -896,42 +896,42 @@ app.get('/api/logs/list', (req, res) => {
 app.get('/api/logs/read', (req, res) => {
 	try {
 		const { file, lines = '100', tail = 'false' } = req.query;
-		
+
 		if (!file) {
 			return res.status(400).json({ error: 'Missing required parameter: file' });
 		}
-		
+
 		const filePath = path.join(logsDir, file);
-		
+
 		// Security: validate file path is within logs directory
 		const resolvedPath = path.resolve(filePath);
 		const resolvedLogsDir = path.resolve(logsDir);
 		if (!resolvedPath.startsWith(resolvedLogsDir)) {
 			return res.status(403).json({ error: 'Access denied' });
 		}
-		
+
 		// If file does not exist (e.g. pingone-api.log not created yet), return 200 with empty content
 		if (!fs.existsSync(filePath)) {
 			return res.status(200).json({
 				content: '',
 				totalLines: 0,
 				fileSize: 0,
-				modified: null
+				modified: null,
 			});
 		}
 
 		const stats = fs.statSync(filePath);
 		const lineCount = parseInt(lines, 10);
-		
+
 		// For large files (>100MB), enforce streaming
 		if (stats.size > 100 * 1024 * 1024 && tail === 'false') {
-			return res.status(400).json({ 
-				error: 'File too large', 
+			return res.status(400).json({
+				error: 'File too large',
 				message: 'This file is too large. Please use tail mode or reduce line count.',
-				size: stats.size 
+				size: stats.size,
 			});
 		}
-		
+
 		let content;
 		if (tail === 'true') {
 			// Read last N lines
@@ -945,19 +945,19 @@ app.get('/api/logs/read', (req, res) => {
 			const allLines = fileContent.split('\n');
 			content = allLines.slice(0, lineCount).join('\n');
 		}
-		
+
 		// Ensure content is a string and handle empty files
 		if (typeof content !== 'string') {
 			content = '';
 		}
-		
+
 		const response = {
 			content: content || '', // Ensure content is never undefined
 			totalLines: content ? content.split('\n').length : 0,
 			fileSize: stats.size,
-			modified: stats.mtime
+			modified: stats.mtime,
 		};
-		
+
 		res.json(response);
 	} catch (error) {
 		console.error('[Log Viewer] Failed to read log file:', error);
@@ -972,59 +972,59 @@ app.get('/api/logs/read', (req, res) => {
 app.get('/api/logs/tail', (req, res) => {
 	try {
 		const { file } = req.query;
-		
+
 		if (!file) {
 			return res.status(400).json({ error: 'Missing required parameter: file' });
 		}
-		
+
 		const filePath = path.join(logsDir, file);
-		
+
 		// Security: validate file path
 		const resolvedPath = path.resolve(filePath);
 		const resolvedLogsDir = path.resolve(logsDir);
 		if (!resolvedPath.startsWith(resolvedLogsDir)) {
 			return res.status(403).json({ error: 'Access denied' });
 		}
-		
+
 		// Check if file exists
 		if (!fs.existsSync(filePath)) {
 			return res.status(404).json({ error: 'Log file not found' });
 		}
-		
+
 		// Setup SSE
 		res.setHeader('Content-Type', 'text/event-stream');
 		res.setHeader('Cache-Control', 'no-cache');
 		res.setHeader('Connection', 'keep-alive');
 		res.setHeader('X-Accel-Buffering', 'no'); // Disable nginx buffering
-		
+
 		// Send initial connection message
 		res.write('data: {"type":"connected"}\n\n');
 		res.flush(); // Ensure initial message is sent immediately
-		
+
 		let lastSize = fs.statSync(filePath).size;
-		
+
 		// Poll for changes every 1 second
 		const interval = setInterval(() => {
 			try {
 				const stats = fs.statSync(filePath);
 				const currentSize = stats.size;
-				
+
 				if (currentSize > lastSize) {
 					// File has grown, read new content
 					const stream = fs.createReadStream(filePath, {
 						start: lastSize,
 						end: currentSize - 1,
-						encoding: 'utf8'
+						encoding: 'utf8',
 					});
-					
+
 					let newContent = '';
 					stream.on('data', (chunk) => {
 						newContent += chunk;
 					});
-					
+
 					stream.on('end', () => {
 						if (newContent) {
-							const lines = newContent.split('\n').filter(line => line.trim());
+							const lines = newContent.split('\n').filter((line) => line.trim());
 							if (lines.length > 0) {
 								res.write(`data: ${JSON.stringify({ type: 'update', lines })}\n\n`);
 								res.flush(); // Ensure update is sent immediately
@@ -1040,13 +1040,12 @@ app.get('/api/logs/tail', (req, res) => {
 				res.end();
 			}
 		}, 1000); // 1 second poll rate as requested
-		
+
 		// Cleanup on client disconnect
 		req.on('close', () => {
 			clearInterval(interval);
 			console.log(`[Log Tail] Client disconnected from ${file}`);
 		});
-		
 	} catch (error) {
 		console.error('[Log Viewer] Failed to setup tail:', error);
 		// Don't send JSON response if headers might already be set
@@ -1054,7 +1053,9 @@ app.get('/api/logs/tail', (req, res) => {
 			res.status(500).json({ error: 'Failed to setup tail', message: error.message });
 		} else {
 			// If headers already sent, send error via SSE
-			res.write(`data: ${JSON.stringify({ type: 'error', message: 'Failed to setup tail: ' + error.message })}\n\n`);
+			res.write(
+				`data: ${JSON.stringify({ type: 'error', message: 'Failed to setup tail: ' + error.message })}\n\n`
+			);
 			res.end();
 		}
 	}
@@ -1141,11 +1142,11 @@ app.post('/__client-log', async (req, res) => {
 app.post('/api/settings/debug-log-viewer', async (req, res) => {
 	try {
 		const { lastSelectedFile } = req.body;
-		
+
 		if (!lastSelectedFile) {
 			return res.status(400).json({ error: 'Missing setting: lastSelectedFile' });
 		}
-		
+
 		await settingsDB.set('debugLogViewer_lastSelectedFile', lastSelectedFile);
 		res.status(200).json({ success: true });
 	} catch (error) {
@@ -1198,12 +1199,17 @@ app.post('/api/settings/custom-domain', async (req, res) => {
 		}
 		domain = domain.trim().toLowerCase();
 		// Strip protocol and path if present
-		domain = domain.replace(/^https?:\/\//, '').replace(/\/.*$/, '').split(':')[0];
+		domain = domain
+			.replace(/^https?:\/\//, '')
+			.replace(/\/.*$/, '')
+			.split(':')[0];
 		if (!domain) {
 			return res.status(400).json({ error: 'Domain cannot be empty' });
 		}
 		if (!DOMAIN_REGEX.test(domain)) {
-			return res.status(400).json({ error: 'Invalid domain format (use hostname only, e.g. api.pingdemo.com)' });
+			return res
+				.status(400)
+				.json({ error: 'Invalid domain format (use hostname only, e.g. api.pingdemo.com)' });
 		}
 		await settingsDB.set(CUSTOM_DOMAIN_KEY, domain);
 		res.status(200).json({ success: true, domain });
@@ -1224,25 +1230,25 @@ app.post('/api/settings/custom-domain', async (req, res) => {
 app.post('/api/file-storage/save', async (req, res) => {
 	try {
 		const { directory, filename, data } = req.body;
-		
+
 		if (!directory || !filename) {
 			return res.status(400).json({ error: 'Missing directory or filename' });
 		}
-		
+
 		const fs = await import('node:fs');
 		const path = await import('node:path');
 		const os = await import('node:os');
-		
+
 		// Create directory in user's home directory
 		const baseDir = path.join(os.homedir(), '.pingone-playground', directory);
 		const filePath = path.join(baseDir, filename);
-		
+
 		// Ensure directory exists
 		await fs.promises.mkdir(baseDir, { recursive: true });
-		
+
 		// Write data to file
 		await fs.promises.writeFile(filePath, JSON.stringify(data, null, 2), 'utf8');
-		
+
 		res.status(200).json({ success: true });
 	} catch (error) {
 		console.error('[File Storage] Failed to save file:', error);
@@ -1257,26 +1263,26 @@ app.post('/api/file-storage/save', async (req, res) => {
 app.post('/api/file-storage/load', async (req, res) => {
 	try {
 		const { directory, filename } = req.body;
-		
+
 		if (!directory || !filename) {
 			return res.status(400).json({ error: 'Missing directory or filename' });
 		}
-		
+
 		const fs = await import('node:fs');
 		const path = await import('node:path');
 		const os = await import('node:os');
-		
+
 		const filePath = path.join(os.homedir(), '.pingone-playground', directory, filename);
-		
+
 		// Check if file exists
 		if (!fs.existsSync(filePath)) {
 			return res.status(404).json({ error: 'File not found' });
 		}
-		
+
 		// Read data from file
 		const data = await fs.promises.readFile(filePath, 'utf8');
 		const parsed = JSON.parse(data);
-		
+
 		res.status(200).json({ success: true, data: parsed });
 	} catch (error) {
 		console.error('[File Storage] Failed to load file:', error);
@@ -1291,25 +1297,25 @@ app.post('/api/file-storage/load', async (req, res) => {
 app.delete('/api/file-storage/delete', async (req, res) => {
 	try {
 		const { directory, filename } = req.body;
-		
+
 		if (!directory || !filename) {
 			return res.status(400).json({ error: 'Missing directory or filename' });
 		}
-		
+
 		const fs = await import('node:fs');
 		const path = await import('node:path');
 		const os = await import('node:os');
-		
+
 		const filePath = path.join(os.homedir(), '.pingone-playground', directory, filename);
-		
+
 		// Check if file exists
 		if (!fs.existsSync(filePath)) {
 			return res.status(404).json({ error: 'File not found' });
 		}
-		
+
 		// Delete file
 		await fs.promises.unlink(filePath);
-		
+
 		res.status(200).json({ success: true });
 	} catch (error) {
 		console.error('[File Storage] Failed to delete file:', error);
@@ -1516,11 +1522,11 @@ app.get('/api/health', (_req, res) => {
 // PingOne Environments API Proxy Endpoint
 app.get('/api/environments', async (req, res) => {
 	console.log('[PingOne Environments API] Request received:', req.url);
-	
+
 	try {
 		const url = new URL(req.url, `http://${req.headers.host}`);
 		const params = url.searchParams;
-		
+
 		// Parse query parameters
 		const typeFilters = params.getAll('type');
 		const statusFilters = params.getAll('status');
@@ -1528,23 +1534,23 @@ app.get('/api/environments', async (req, res) => {
 		const search = params.get('search');
 		const page = parseInt(params.get('page')) || 1;
 		const pageSize = parseInt(params.get('pageSize')) || 12;
-		
+
 		console.log(`[PingOne Environments API] Params:`, {
 			typeFilters,
 			statusFilters,
 			regionFilters,
 			search,
 			page,
-			pageSize
+			pageSize,
 		});
-		
+
 		// Get authentication from query or headers
 		const { accessToken, environmentId, region = 'na' } = req.query;
-		
+
 		if (!accessToken) {
 			return res.status(401).json({
 				error: 'Unauthorized',
-				message: 'Access token is required to fetch PingOne environments'
+				message: 'Access token is required to fetch PingOne environments',
 			});
 		}
 
@@ -1555,16 +1561,18 @@ app.get('/api/environments', async (req, res) => {
 			'GET',
 			{
 				Authorization: `Bearer ${accessToken.substring(0, 20)}...`,
-				'Content-Type': 'application/json'
+				'Content-Type': 'application/json',
 			},
 			{ typeFilters, statusFilters, regionFilters, search, page, pageSize }
 		);
 
 		// Check if this is a worker token (starts with "ey" and contains worker token patterns)
 		const isWorkerToken = accessToken.startsWith('ey') && accessToken.length > 100;
-		
-		console.log(`[PingOne Environments API] Fetching real environments data${isWorkerToken ? ' using worker token' : ' using user token'}`);
-		
+
+		console.log(
+			`[PingOne Environments API] Fetching real environments data${isWorkerToken ? ' using worker token' : ' using user token'}`
+		);
+
 		// Determine PingOne API base URL based on region
 		const regionMap = {
 			us: 'https://api.pingone.com',
@@ -1580,97 +1588,104 @@ app.get('/api/environments', async (req, res) => {
 			AU: 'https://api.pingone.com.au',
 			sg: 'https://api.pingone.sg',
 			SG: 'https://api.pingone.sg',
-			asia: 'https://api.pingone.asia'
+			asia: 'https://api.pingone.asia',
 		};
-		
+
 		const baseUrl = regionMap[String(region).toLowerCase()] || regionMap.na;
-		
+
 		// First, try to get organization info to fetch environments
 		let environments = [];
-		
+
 		try {
 			// Get organization info
 			const orgResponse = await fetch(`${baseUrl}/v1/organizations`, {
 				method: 'GET',
 				headers: {
-					'Authorization': `Bearer ${accessToken}`,
-					'Content-Type': 'application/json'
-				}
+					Authorization: `Bearer ${accessToken}`,
+					'Content-Type': 'application/json',
+				},
 			});
-			
+
 			if (!orgResponse.ok) {
 				throw new Error(`Failed to fetch organizations: ${orgResponse.status}`);
 			}
-			
+
 			const orgData = await orgResponse.json();
 			const organizations = orgData._embedded?.organizations || [];
-			
+
 			if (organizations.length === 0) {
 				throw new Error('No organizations found');
 			}
-			
+
 			// Use the first organization
 			const organization = organizations[0];
-			console.log(`[PingOne Environments API] Using organization: ${organization.name} (${organization.id})`);
-			
+			console.log(
+				`[PingOne Environments API] Using organization: ${organization.name} (${organization.id})`
+			);
+
 			// Fetch environments for this organization
 			const envResponse = await fetch(
 				`${baseUrl}/v1/organizations/${organization.id}/environments?limit=100`,
 				{
 					method: 'GET',
 					headers: {
-						'Authorization': `Bearer ${accessToken}`,
-						'Content-Type': 'application/json'
-					}
+						Authorization: `Bearer ${accessToken}`,
+						'Content-Type': 'application/json',
+					},
 				}
 			);
-			
+
 			if (!envResponse.ok) {
 				throw new Error(`Failed to fetch environments: ${envResponse.status}`);
 			}
-			
+
 			const envData = await envResponse.json();
 			environments = envData._embedded?.environments || [];
-			
-			console.log(`[PingOne Environments API] Fetched ${environments.length} environments from PingOne`);
-			
+
+			console.log(
+				`[PingOne Environments API] Fetched ${environments.length} environments from PingOne`
+			);
 		} catch (orgError) {
-			console.log(`[PingOne Environments API] Organization-based fetch failed, trying direct endpoint:`, orgError.message);
-			
+			console.log(
+				`[PingOne Environments API] Organization-based fetch failed, trying direct endpoint:`,
+				orgError.message
+			);
+
 			// Fallback: try direct environments endpoint
 			try {
 				const directEnvResponse = await fetch(`${baseUrl}/v1/environments?limit=100`, {
 					method: 'GET',
 					headers: {
-						'Authorization': `Bearer ${accessToken}`,
-						'Content-Type': 'application/json'
-					}
+						Authorization: `Bearer ${accessToken}`,
+						'Content-Type': 'application/json',
+					},
 				});
-				
+
 				if (!directEnvResponse.ok) {
 					throw new Error(`Failed to fetch environments directly: ${directEnvResponse.status}`);
 				}
-				
+
 				const directEnvData = await directEnvResponse.json();
 				environments = directEnvData._embedded?.environments || [];
-				
-				console.log(`[PingOne Environments API] Fetched ${environments.length} environments from direct endpoint`);
-				
+
+				console.log(
+					`[PingOne Environments API] Fetched ${environments.length} environments from direct endpoint`
+				);
 			} catch (directError) {
 				console.error(`[PingOne Environments API] Both endpoints failed:`, directError.message);
 				throw directError;
 			}
 		}
-		
+
 		// Transform PingOne environment data to match expected format
-		const transformedEnvironments = environments.map(env => {
+		const transformedEnvironments = environments.map((env) => {
 			console.log(`[DEBUG] Environment ${env.id}: enabled =`, env.enabled, typeof env.enabled);
 			return {
 				id: env.id,
 				name: env.name,
 				description: env.description || `PingOne Environment: ${env.name}`,
 				type: env.type || 'PRODUCTION', // PingOne may not have type, default to PRODUCTION
-				status: (env.enabled === true || env.enabled === 'true') ? 'ACTIVE' : 'INACTIVE',
+				status: env.enabled === true || env.enabled === 'true' ? 'ACTIVE' : 'INACTIVE',
 				region: determineRegionFromBaseUrl(env._links?.self?.href || baseUrl),
 				createdAt: env.createdAt || new Date().toISOString(),
 				updatedAt: env.updatedAt || new Date().toISOString(),
@@ -1680,85 +1695,97 @@ app.get('/api/environments', async (req, res) => {
 				pingOneRegion: determineRegionFromBaseUrl(env._links?.self?.href || baseUrl),
 				pingOneType: env.type,
 				pingOneEnabled: env.enabled,
-				_links: env._links
+				_links: env._links,
 			};
 		});
-		
-		console.log(`[PingOne Environments API] Transformed ${transformedEnvironments.length} environments`);
-		
+
+		console.log(
+			`[PingOne Environments API] Transformed ${transformedEnvironments.length} environments`
+		);
+
 		// Debug: Show first few environments
 		if (transformedEnvironments.length > 0) {
-			console.log('[PingOne Environments API] Sample transformed environments:', 
-				transformedEnvironments.slice(0, 3).map(env => ({
+			console.log(
+				'[PingOne Environments API] Sample transformed environments:',
+				transformedEnvironments.slice(0, 3).map((env) => ({
 					id: env.id,
 					name: env.name,
 					type: env.type,
 					status: env.status,
-					region: env.region
+					region: env.region,
 				}))
 			);
-			
+
 			// Show all unique regions
-			const uniqueRegions = [...new Set(transformedEnvironments.map(env => env.region).filter(Boolean))];
+			const uniqueRegions = [
+				...new Set(transformedEnvironments.map((env) => env.region).filter(Boolean)),
+			];
 			console.log('[PingOne Environments API] All regions found:', uniqueRegions);
 		}
-		
+
 		// Apply filters
 		let filteredEnvironments = [...transformedEnvironments];
-		
+
 		console.log(`[PingOne Environments API] Applying filters:`, {
 			typeFilters,
 			statusFilters,
 			regionFilters,
 			search,
-			initialCount: filteredEnvironments.length
+			initialCount: filteredEnvironments.length,
 		});
-		
+
 		if (typeFilters.length > 0) {
 			const beforeCount = filteredEnvironments.length;
-			filteredEnvironments = filteredEnvironments.filter(env => 
-				typeFilters.includes(env.type)
+			filteredEnvironments = filteredEnvironments.filter((env) => typeFilters.includes(env.type));
+			console.log(
+				`[PingOne Environments API] Type filter: ${beforeCount} -> ${filteredEnvironments.length}`
 			);
-			console.log(`[PingOne Environments API] Type filter: ${beforeCount} -> ${filteredEnvironments.length}`);
 		}
-		
+
 		if (statusFilters.length > 0) {
 			const beforeCount = filteredEnvironments.length;
-			filteredEnvironments = filteredEnvironments.filter(env => 
+			filteredEnvironments = filteredEnvironments.filter((env) =>
 				statusFilters.includes(env.status)
 			);
-			console.log(`[PingOne Environments API] Status filter: ${beforeCount} -> ${filteredEnvironments.length}`);
+			console.log(
+				`[PingOne Environments API] Status filter: ${beforeCount} -> ${filteredEnvironments.length}`
+			);
 		}
-		
+
 		if (regionFilters.length > 0) {
 			const beforeCount = filteredEnvironments.length;
-			filteredEnvironments = filteredEnvironments.filter(env => 
+			filteredEnvironments = filteredEnvironments.filter((env) =>
 				regionFilters.includes(env.region || '')
 			);
-			console.log(`[PingOne Environments API] Region filter: ${beforeCount} -> ${filteredEnvironments.length}`);
+			console.log(
+				`[PingOne Environments API] Region filter: ${beforeCount} -> ${filteredEnvironments.length}`
+			);
 		}
-		
+
 		if (search) {
 			const beforeCount = filteredEnvironments.length;
 			const searchLower = search.toLowerCase();
-			filteredEnvironments = filteredEnvironments.filter(env => 
-				env.name.toLowerCase().includes(searchLower) ||
-				env.description?.toLowerCase().includes(searchLower) ||
-				env.id.toLowerCase().includes(searchLower)
+			filteredEnvironments = filteredEnvironments.filter(
+				(env) =>
+					env.name.toLowerCase().includes(searchLower) ||
+					env.description?.toLowerCase().includes(searchLower) ||
+					env.id.toLowerCase().includes(searchLower)
 			);
-			console.log(`[PingOne Environments API] Search filter: ${beforeCount} -> ${filteredEnvironments.length}`);
+			console.log(
+				`[PingOne Environments API] Search filter: ${beforeCount} -> ${filteredEnvironments.length}`
+			);
 		}
-		
+
 		// Sort by name
 		filteredEnvironments.sort((a, b) => a.name.localeCompare(b.name));
-		
+
 		// Pagination
 		const totalCount = filteredEnvironments.length;
 		const totalPages = Math.ceil(totalCount / pageSize);
 		const startIndex = (page - 1) * pageSize;
 		const endIndex = startIndex + pageSize;
 		const paginatedEnvironments = filteredEnvironments.slice(startIndex, endIndex);
-		
+
 		const response = {
 			environments: paginatedEnvironments,
 			totalCount,
@@ -1769,34 +1796,37 @@ app.get('/api/environments', async (req, res) => {
 				type: typeFilters.length > 0 ? typeFilters : undefined,
 				status: statusFilters.length > 0 ? statusFilters : undefined,
 				region: regionFilters.length > 0 ? regionFilters : undefined,
-				search: search || undefined
+				search: search || undefined,
 			},
 			source: 'PingOne Platform API',
 			pingOneApi: {
 				baseUrl,
 				region: String(region).toLowerCase(),
-				totalFetched: environments.length
-			}
+				totalFetched: environments.length,
+			},
 		};
-		
-		console.log(`[PingOne Environments API] ✅ Returning ${paginatedEnvironments.length} of ${totalCount} environments`);
-		
+
+		console.log(
+			`[PingOne Environments API] ✅ Returning ${paginatedEnvironments.length} of ${totalCount} environments`
+		);
+
 		res.writeHead(200, {
 			'Content-Type': 'application/json',
 			'Access-Control-Allow-Origin': '*',
 			'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
-			'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+			'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 		});
 		res.end(JSON.stringify(response));
-		
 	} catch (error) {
 		console.error('[PingOne Environments API] ❌ Error:', error);
 		res.writeHead(500, { 'Content-Type': 'application/json' });
-		res.end(JSON.stringify({
-			error: 'Internal server error',
-			message: error.message,
-			source: 'PingOne Platform API Proxy'
-		}));
+		res.end(
+			JSON.stringify({
+				error: 'Internal server error',
+				message: error.message,
+				source: 'PingOne Platform API Proxy',
+			})
+		);
 	}
 });
 
@@ -1805,14 +1835,14 @@ app.get('/api/test-environments', async (req, res) => {
 	console.log('[TEST] Debug endpoint hit');
 	try {
 		const { accessToken, region = 'na' } = req.query;
-		
+
 		if (!accessToken) {
 			return res.status(401).json({ error: 'No access token' });
 		}
-		
+
 		console.log('[TEST] Token length:', accessToken?.length);
 		console.log('[TEST] Region:', region);
-		
+
 		// Test direct PingOne API call
 		const regionMap = {
 			us: 'https://api.pingone.com',
@@ -1828,75 +1858,76 @@ app.get('/api/test-environments', async (req, res) => {
 			AU: 'https://api.pingone.com.au',
 			sg: 'https://api.pingone.sg',
 			SG: 'https://api.pingone.sg',
-			asia: 'https://api.pingone.asia'
+			asia: 'https://api.pingone.asia',
 		};
-		
+
 		const baseUrl = regionMap[String(region).toLowerCase()] || regionMap.na;
-		
+
 		// Get organizations
 		const orgResponse = await fetch(`${baseUrl}/v1/organizations`, {
 			headers: {
-				'Authorization': `Bearer ${accessToken}`,
-			}
+				Authorization: `Bearer ${accessToken}`,
+			},
 		});
-		
+
 		console.log('[TEST] Org response status:', orgResponse.status);
-		
+
 		if (!orgResponse.ok) {
 			return res.status(400).json({ error: 'Org fetch failed', status: orgResponse.status });
 		}
-		
+
 		const orgData = await orgResponse.json();
 		const organizations = orgData._embedded?.organizations || [];
-		
+
 		console.log('[TEST] Organizations count:', organizations.length);
-		
+
 		if (organizations.length === 0) {
 			return res.json({ error: 'No organizations found' });
 		}
-		
+
 		// Get environments
 		const envResponse = await fetch(
 			`${baseUrl}/v1/organizations/${organizations[0].id}/environments?limit=100`,
 			{
 				headers: {
-					'Authorization': `Bearer ${accessToken}`,
-				}
+					Authorization: `Bearer ${accessToken}`,
+				},
 			}
 		);
-		
+
 		console.log('[TEST] Env response status:', envResponse.status);
-		
+
 		if (!envResponse.ok) {
 			return res.status(400).json({ error: 'Env fetch failed', status: envResponse.status });
 		}
-		
+
 		const envData = await envResponse.json();
 		const environments = envData._embedded?.environments || [];
-		
+
 		console.log('[TEST] Raw environments count:', environments.length);
-		
+
 		// Show first environment details
 		if (environments.length > 0) {
 			console.log('[TEST] First environment:', {
 				id: environments[0].id,
 				name: environments[0].name,
 				enabled: environments[0].enabled,
-				type: environments[0].type
+				type: environments[0].type,
 			});
 		}
-		
+
 		res.json({
 			organizations: organizations.length,
 			environments: environments.length,
-			firstEnv: environments[0] ? {
-				id: environments[0].id,
-				name: environments[0].name,
-				enabled: environments[0].enabled,
-				type: environments[0].type
-			} : null
+			firstEnv: environments[0]
+				? {
+						id: environments[0].id,
+						name: environments[0].name,
+						enabled: environments[0].enabled,
+						type: environments[0].type,
+					}
+				: null,
 		});
-		
 	} catch (error) {
 		console.error('[TEST] Error:', error);
 		res.status(500).json({ error: error.message });
@@ -1914,15 +1945,15 @@ app.get('/api/debug', (req, res) => {
 // Get Single Environment API Proxy Endpoint
 app.get('/api/environments/:id', async (req, res) => {
 	console.log('[PingOne Get Environment API] Request received:', req.url);
-	
+
 	try {
 		const { id } = req.params;
 		const { accessToken, region = 'na' } = req.query;
-		
+
 		if (!accessToken) {
 			return res.status(401).json({
 				error: 'Unauthorized',
-				message: 'Access token is required to fetch PingOne environment'
+				message: 'Access token is required to fetch PingOne environment',
 			});
 		}
 
@@ -1933,11 +1964,11 @@ app.get('/api/environments/:id', async (req, res) => {
 			'GET',
 			{
 				Authorization: `Bearer ${accessToken.substring(0, 20)}...`,
-				'Content-Type': 'application/json'
+				'Content-Type': 'application/json',
 			},
 			{ environmentId: id, region }
 		);
-		
+
 		const regionMap = {
 			us: 'https://api.pingone.com',
 			na: 'https://api.pingone.com',
@@ -1946,23 +1977,23 @@ app.get('/api/environments/:id', async (req, res) => {
 			ap: 'https://api.pingone.asia',
 			asia: 'https://api.pingone.asia',
 		};
-		
+
 		const baseUrl = regionMap[String(region).toLowerCase()] || regionMap.na;
-		
+
 		const response = await fetch(`${baseUrl}/v1/environments/${id}`, {
 			method: 'GET',
 			headers: {
-				'Authorization': `Bearer ${accessToken}`,
-				'Content-Type': 'application/json'
-			}
+				Authorization: `Bearer ${accessToken}`,
+				'Content-Type': 'application/json',
+			},
 		});
-		
+
 		if (!response.ok) {
 			throw new Error(`Failed to fetch environment: ${response.status}`);
 		}
-		
+
 		const envData = await response.json();
-		
+
 		// Transform the environment data
 		const transformedEnvironment = {
 			id: envData.id,
@@ -1982,42 +2013,45 @@ app.get('/api/environments/:id', async (req, res) => {
 			organizationId: envData.organization?.id,
 			licenseId: envData.license?.id,
 			billOfMaterials: envData.billOfMaterials,
-			_links: envData._links
+			_links: envData._links,
 		};
-		
-		console.log(`[PingOne Get Environment API] ✅ Successfully fetched environment: ${envData.name}`);
-		
+
+		console.log(
+			`[PingOne Get Environment API] ✅ Successfully fetched environment: ${envData.name}`
+		);
+
 		res.writeHead(200, {
 			'Content-Type': 'application/json',
 			'Access-Control-Allow-Origin': '*',
 			'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
-			'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+			'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 		});
 		res.end(JSON.stringify(transformedEnvironment));
-		
 	} catch (error) {
 		console.error('[PingOne Get Environment API] ❌ Error:', error);
 		res.writeHead(500, { 'Content-Type': 'application/json' });
-		res.end(JSON.stringify({
-			error: 'Internal server error',
-			message: error.message,
-			source: 'PingOne Platform API Proxy'
-		}));
+		res.end(
+			JSON.stringify({
+				error: 'Internal server error',
+				message: error.message,
+				source: 'PingOne Platform API Proxy',
+			})
+		);
 	}
 });
 
 // Create Environment API Proxy Endpoint
 app.post('/api/environments', async (req, res) => {
 	console.log('[PingOne Create Environment API] Request received:', req.url);
-	
+
 	try {
 		const { accessToken, region = 'na' } = req.query;
 		const environmentData = req.body;
-		
+
 		if (!accessToken) {
 			return res.status(401).json({
 				error: 'Unauthorized',
-				message: 'Access token is required to create PingOne environment'
+				message: 'Access token is required to create PingOne environment',
 			});
 		}
 
@@ -2028,11 +2062,11 @@ app.post('/api/environments', async (req, res) => {
 			'POST',
 			{
 				Authorization: `Bearer ${accessToken.substring(0, 20)}...`,
-				'Content-Type': 'application/json'
+				'Content-Type': 'application/json',
 			},
 			{ ...environmentData, region }
 		);
-		
+
 		const regionMap = {
 			us: 'https://api.pingone.com',
 			na: 'https://api.pingone.com',
@@ -2041,59 +2075,64 @@ app.post('/api/environments', async (req, res) => {
 			ap: 'https://api.pingone.asia',
 			asia: 'https://api.pingone.asia',
 		};
-		
+
 		const baseUrl = regionMap[String(region).toLowerCase()] || regionMap.na;
-		
+
 		const response = await fetch(`${baseUrl}/v1/environments`, {
 			method: 'POST',
 			headers: {
-				'Authorization': `Bearer ${accessToken}`,
-				'Content-Type': 'application/json'
+				Authorization: `Bearer ${accessToken}`,
+				'Content-Type': 'application/json',
 			},
-			body: JSON.stringify(environmentData)
+			body: JSON.stringify(environmentData),
 		});
-		
+
 		if (!response.ok) {
 			const errorData = await response.json().catch(() => ({}));
-			throw new Error(`Failed to create environment: ${response.status} - ${errorData.message || response.statusText}`);
+			throw new Error(
+				`Failed to create environment: ${response.status} - ${errorData.message || response.statusText}`
+			);
 		}
-		
+
 		const envData = await response.json();
-		
-		console.log(`[PingOne Create Environment API] ✅ Successfully created environment: ${envData.name}`);
-		
+
+		console.log(
+			`[PingOne Create Environment API] ✅ Successfully created environment: ${envData.name}`
+		);
+
 		res.writeHead(201, {
 			'Content-Type': 'application/json',
 			'Access-Control-Allow-Origin': '*',
 			'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
-			'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+			'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 		});
 		res.end(JSON.stringify(envData));
-		
 	} catch (error) {
 		console.error('[PingOne Create Environment API] ❌ Error:', error);
 		res.writeHead(500, { 'Content-Type': 'application/json' });
-		res.end(JSON.stringify({
-			error: 'Internal server error',
-			message: error.message,
-			source: 'PingOne Platform API Proxy'
-		}));
+		res.end(
+			JSON.stringify({
+				error: 'Internal server error',
+				message: error.message,
+				source: 'PingOne Platform API Proxy',
+			})
+		);
 	}
 });
 
 // Update Environment API Proxy Endpoint
 app.put('/api/environments/:id', async (req, res) => {
 	console.log('[PingOne Update Environment API] Request received:', req.url);
-	
+
 	try {
 		const { id } = req.params;
 		const { accessToken, region = 'na' } = req.query;
 		const environmentData = req.body;
-		
+
 		if (!accessToken) {
 			return res.status(401).json({
 				error: 'Unauthorized',
-				message: 'Access token is required to update PingOne environment'
+				message: 'Access token is required to update PingOne environment',
 			});
 		}
 
@@ -2104,11 +2143,11 @@ app.put('/api/environments/:id', async (req, res) => {
 			'PUT',
 			{
 				Authorization: `Bearer ${accessToken.substring(0, 20)}...`,
-				'Content-Type': 'application/json'
+				'Content-Type': 'application/json',
 			},
 			{ environmentId: id, ...environmentData, region }
 		);
-		
+
 		const regionMap = {
 			us: 'https://api.pingone.com',
 			na: 'https://api.pingone.com',
@@ -2117,58 +2156,63 @@ app.put('/api/environments/:id', async (req, res) => {
 			ap: 'https://api.pingone.asia',
 			asia: 'https://api.pingone.asia',
 		};
-		
+
 		const baseUrl = regionMap[String(region).toLowerCase()] || regionMap.na;
-		
+
 		const response = await fetch(`${baseUrl}/v1/environments/${id}`, {
 			method: 'PUT',
 			headers: {
-				'Authorization': `Bearer ${accessToken}`,
-				'Content-Type': 'application/json'
+				Authorization: `Bearer ${accessToken}`,
+				'Content-Type': 'application/json',
 			},
-			body: JSON.stringify(environmentData)
+			body: JSON.stringify(environmentData),
 		});
-		
+
 		if (!response.ok) {
 			const errorData = await response.json().catch(() => ({}));
-			throw new Error(`Failed to update environment: ${response.status} - ${errorData.message || response.statusText}`);
+			throw new Error(
+				`Failed to update environment: ${response.status} - ${errorData.message || response.statusText}`
+			);
 		}
-		
+
 		const envData = await response.json();
-		
-		console.log(`[PingOne Update Environment API] ✅ Successfully updated environment: ${envData.name}`);
-		
+
+		console.log(
+			`[PingOne Update Environment API] ✅ Successfully updated environment: ${envData.name}`
+		);
+
 		res.writeHead(200, {
 			'Content-Type': 'application/json',
 			'Access-Control-Allow-Origin': '*',
 			'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
-			'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+			'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 		});
 		res.end(JSON.stringify(envData));
-		
 	} catch (error) {
 		console.error('[PingOne Update Environment API] ❌ Error:', error);
 		res.writeHead(500, { 'Content-Type': 'application/json' });
-		res.end(JSON.stringify({
-			error: 'Internal server error',
-			message: error.message,
-			source: 'PingOne Platform API Proxy'
-		}));
+		res.end(
+			JSON.stringify({
+				error: 'Internal server error',
+				message: error.message,
+				source: 'PingOne Platform API Proxy',
+			})
+		);
 	}
 });
 
 // Delete Environment API Proxy Endpoint
 app.delete('/api/environments/:id', async (req, res) => {
 	console.log('[PingOne Delete Environment API] Request received:', req.url);
-	
+
 	try {
 		const { id } = req.params;
 		const { accessToken, region = 'na' } = req.query;
-		
+
 		if (!accessToken) {
 			return res.status(401).json({
 				error: 'Unauthorized',
-				message: 'Access token is required to delete PingOne environment'
+				message: 'Access token is required to delete PingOne environment',
 			});
 		}
 
@@ -2179,11 +2223,11 @@ app.delete('/api/environments/:id', async (req, res) => {
 			'DELETE',
 			{
 				Authorization: `Bearer ${accessToken.substring(0, 20)}...`,
-				'Content-Type': 'application/json'
+				'Content-Type': 'application/json',
 			},
 			{ environmentId: id, region }
 		);
-		
+
 		const regionMap = {
 			us: 'https://api.pingone.com',
 			na: 'https://api.pingone.com',
@@ -2192,55 +2236,58 @@ app.delete('/api/environments/:id', async (req, res) => {
 			ap: 'https://api.pingone.asia',
 			asia: 'https://api.pingone.asia',
 		};
-		
+
 		const baseUrl = regionMap[String(region).toLowerCase()] || regionMap.na;
-		
+
 		const response = await fetch(`${baseUrl}/v1/environments/${id}`, {
 			method: 'DELETE',
 			headers: {
-				'Authorization': `Bearer ${accessToken}`,
-				'Content-Type': 'application/json'
-			}
+				Authorization: `Bearer ${accessToken}`,
+				'Content-Type': 'application/json',
+			},
 		});
-		
+
 		if (!response.ok) {
 			const errorData = await response.json().catch(() => ({}));
-			throw new Error(`Failed to delete environment: ${response.status} - ${errorData.message || response.statusText}`);
+			throw new Error(
+				`Failed to delete environment: ${response.status} - ${errorData.message || response.statusText}`
+			);
 		}
-		
+
 		console.log(`[PingOne Delete Environment API] ✅ Successfully deleted environment: ${id}`);
-		
+
 		res.writeHead(204, {
 			'Access-Control-Allow-Origin': '*',
 			'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
-			'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+			'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 		});
 		res.end();
-		
 	} catch (error) {
 		console.error('[PingOne Delete Environment API] ❌ Error:', error);
 		res.writeHead(500, { 'Content-Type': 'application/json' });
-		res.end(JSON.stringify({
-			error: 'Internal server error',
-			message: error.message,
-			source: 'PingOne Platform API Proxy'
-		}));
+		res.end(
+			JSON.stringify({
+				error: 'Internal server error',
+				message: error.message,
+				source: 'PingOne Platform API Proxy',
+			})
+		);
 	}
 });
 
 // Update Environment Status API Proxy Endpoint
 app.put('/api/environments/:id/status', async (req, res) => {
 	console.log('[PingOne Update Environment Status API] Request received:', req.url);
-	
+
 	try {
 		const { id } = req.params;
 		const { accessToken, region = 'na' } = req.query;
 		const { status } = req.body;
-		
+
 		if (!accessToken) {
 			return res.status(401).json({
 				error: 'Unauthorized',
-				message: 'Access token is required to update PingOne environment status'
+				message: 'Access token is required to update PingOne environment status',
 			});
 		}
 
@@ -2251,18 +2298,18 @@ app.put('/api/environments/:id/status', async (req, res) => {
 			'PUT',
 			{
 				Authorization: `Bearer ${accessToken.substring(0, 20)}...`,
-				'Content-Type': 'application/json'
+				'Content-Type': 'application/json',
 			},
 			{ environmentId: id, status, region }
 		);
-		
+
 		if (!status || !['ACTIVE', 'DELETE_PENDING'].includes(status)) {
 			return res.status(400).json({
 				error: 'Bad Request',
-				message: 'Status must be either ACTIVE or DELETE_PENDING'
+				message: 'Status must be either ACTIVE or DELETE_PENDING',
 			});
 		}
-		
+
 		const regionMap = {
 			us: 'https://api.pingone.com',
 			na: 'https://api.pingone.com',
@@ -2271,43 +2318,48 @@ app.put('/api/environments/:id/status', async (req, res) => {
 			ap: 'https://api.pingone.asia',
 			asia: 'https://api.pingone.asia',
 		};
-		
+
 		const baseUrl = regionMap[String(region).toLowerCase()] || regionMap.na;
-		
+
 		const response = await fetch(`${baseUrl}/v1/environments/${id}`, {
 			method: 'PUT',
 			headers: {
-				'Authorization': `Bearer ${accessToken}`,
-				'Content-Type': 'application/json'
+				Authorization: `Bearer ${accessToken}`,
+				'Content-Type': 'application/json',
 			},
-			body: JSON.stringify({ status })
+			body: JSON.stringify({ status }),
 		});
-		
+
 		if (!response.ok) {
 			const errorData = await response.json().catch(() => ({}));
-			throw new Error(`Failed to update environment status: ${response.status} - ${errorData.message || response.statusText}`);
+			throw new Error(
+				`Failed to update environment status: ${response.status} - ${errorData.message || response.statusText}`
+			);
 		}
-		
+
 		const envData = await response.json();
-		
-		console.log(`[PingOne Update Environment Status API] ✅ Successfully updated environment status: ${id} -> ${status}`);
-		
+
+		console.log(
+			`[PingOne Update Environment Status API] ✅ Successfully updated environment status: ${id} -> ${status}`
+		);
+
 		res.writeHead(200, {
 			'Content-Type': 'application/json',
 			'Access-Control-Allow-Origin': '*',
 			'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
-			'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+			'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 		});
 		res.end(JSON.stringify(envData));
-		
 	} catch (error) {
 		console.error('[PingOne Update Environment Status API] ❌ Error:', error);
 		res.writeHead(500, { 'Content-Type': 'application/json' });
-		res.end(JSON.stringify({
-			error: 'Internal server error',
-			message: error.message,
-			source: 'PingOne Platform API Proxy'
-		}));
+		res.end(
+			JSON.stringify({
+				error: 'Internal server error',
+				message: error.message,
+				source: 'PingOne Platform API Proxy',
+			})
+		);
 	}
 });
 
@@ -2323,21 +2375,21 @@ function determineRegionFromBaseUrl(url) {
 
 function determineEnabledServices(env) {
 	const services = [];
-	
+
 	// PingOne environments typically have these services available
 	// We can determine based on the environment type and capabilities
 	if (env.type !== 'TRIAL') {
 		services.push('oauth'); // OAuth is available in non-trial environments
 	}
-	
+
 	// MFA is generally available in most environments
 	services.push('mfa');
-	
+
 	// Protect (risk evaluation) is typically available in production environments
 	if (env.type === 'PRODUCTION') {
 		services.push('protect');
 	}
-	
+
 	return services;
 }
 
@@ -3484,7 +3536,7 @@ app.post('/api/pingone/worker-token', async (req, res) => {
 			client_id,
 			client_secret,
 			grant_type = 'client_credentials',
-			region = 'us'
+			region = 'us',
 		} = req.body;
 
 		if (!environment_id || !client_id || !client_secret) {
@@ -3497,31 +3549,30 @@ app.post('/api/pingone/worker-token', async (req, res) => {
 		console.log('[Protect Portal Worker Token] Request received:', {
 			environmentId: `${environment_id?.substring(0, 8)}...`,
 			clientId: `${client_id?.substring(0, 8)}...`,
-			grantType: grant_type
+			grantType: grant_type,
 		});
 
 		// For demo purposes, return a mock worker token
 		// In production, this would call the actual PingOne token endpoint
 		const mockWorkerToken = `mock-worker-token-${Date.now()}-${Math.random().toString(36).substring(7)}`;
-		
+
 		const tokenResponse = {
 			access_token: mockWorkerToken,
 			token_type: 'Bearer',
 			expires_in: 3600,
 			scope: 'pingone:read pingone:write',
-			environment_id: environment_id
+			environment_id: environment_id,
 		};
 
 		console.log('[Protect Portal Worker Token] Mock token generated');
 
 		return res.json(tokenResponse);
-
 	} catch (error) {
 		console.error('[Protect Portal Worker Token] Error:', error);
 		return res.status(500).json({
 			error: 'server_error',
 			error_description: 'Internal server error during worker token generation',
-			details: error.message
+			details: error.message,
 		});
 	}
 });
@@ -4595,18 +4646,18 @@ app.get('/api/pingone/user/:userId/consents', async (req, res) => {
 app.post('/api/pingone/risk-evaluations', async (req, res) => {
 	try {
 		const { environmentId, riskEvent } = req.body || {};
-		
+
 		console.log('[Protect Portal Risk Evaluation] Request received:', {
 			environmentId: environmentId?.substring(0, 8) + '...',
 			hasRiskEvent: !!riskEvent,
 			eventType: riskEvent?.type,
-			userId: riskEvent?.userId?.substring(0, 8) + '...'
+			userId: riskEvent?.userId?.substring(0, 8) + '...',
 		});
 
 		// Validate required fields
 		if (!environmentId || !riskEvent) {
 			return res.status(400).json({
-				error: 'Missing required fields: environmentId, riskEvent'
+				error: 'Missing required fields: environmentId, riskEvent',
 			});
 		}
 
@@ -4614,7 +4665,7 @@ app.post('/api/pingone/risk-evaluations', async (req, res) => {
 		const authHeader = req.headers.authorization;
 		if (!authHeader || !authHeader.startsWith('Bearer ')) {
 			return res.status(401).json({
-				error: 'Missing or invalid authorization header'
+				error: 'Missing or invalid authorization header',
 			});
 		}
 
@@ -4639,7 +4690,7 @@ app.post('/api/pingone/risk-evaluations', async (req, res) => {
 				level: riskLevel,
 				recommendedAction: recommendedAction,
 				score: riskScore,
-				confidence: 0.85
+				confidence: 0.85,
 			},
 			details: {
 				evaluationTime: new Date().toISOString(),
@@ -4647,32 +4698,31 @@ app.post('/api/pingone/risk-evaluations', async (req, res) => {
 					ipReputation: riskScore > 50 ? 'SUSPICIOUS' : 'CLEAN',
 					deviceFamiliarity: riskScore < 30 ? 'KNOWN' : 'UNKNOWN',
 					locationAnomaly: riskScore > 70 ? 'ANOMALY_DETECTED' : 'NORMAL',
-					timeBasedPattern: riskScore < 50 ? 'CONSISTENT' : 'UNUSUAL'
+					timeBasedPattern: riskScore < 50 ? 'CONSISTENT' : 'UNUSUAL',
 				},
 				originalScore: riskScore,
-				customThresholdsApplied: false
+				customThresholdsApplied: false,
 			},
 			metadata: {
 				environmentId,
 				evaluationId: `risk-${Date.now()}-${Math.random().toString(36).substring(7)}`,
-				processingTime: Math.floor(Math.random() * 100) + 50 // 50-150ms
-			}
+				processingTime: Math.floor(Math.random() * 100) + 50, // 50-150ms
+			},
 		};
 
 		console.log('[Protect Portal Risk Evaluation] Evaluation completed:', {
 			riskLevel,
 			riskScore,
 			recommendedAction,
-			evaluationId: evaluationResult.metadata.evaluationId?.substring(0, 12) + '...'
+			evaluationId: evaluationResult.metadata.evaluationId?.substring(0, 12) + '...',
 		});
 
 		return res.json(evaluationResult);
-
 	} catch (error) {
 		console.error('[Protect Portal Risk Evaluation] Error:', error);
 		return res.status(500).json({
 			error: 'Internal server error during risk evaluation',
-			message: error.message
+			message: error.message,
 		});
 	}
 });
@@ -5890,7 +5940,7 @@ app.post('/api/mfa/challenge/initiate', async (req, res) => {
 			url: pingOneChallengeUrl,
 			method: 'POST',
 			body: challengeRequestBody,
-			note: 'Empty body - device type is determined by deviceId in URL path'
+			note: 'Empty body - device type is determined by deviceId in URL path',
 		});
 
 		// Require Authorization header (kill malformed/missing requests early)
@@ -5900,7 +5950,8 @@ app.post('/api/mfa/challenge/initiate', async (req, res) => {
 			return res.status(401).json({
 				success: false,
 				error: 'missing_authorization',
-				error_description: 'Missing or malformed Authorization header. Please include a Bearer token.'
+				error_description:
+					'Missing or malformed Authorization header. Please include a Bearer token.',
 			});
 		}
 
@@ -5931,7 +5982,9 @@ app.post('/api/mfa/challenge/initiate', async (req, res) => {
 			} catch (e) {
 				console.warn('[PingOne MFA] Failed to read PingOne error text', e);
 			}
-			console.error(`[PingOne MFA] PingOne challenge initiation failed: status=${pingOneResponse.status}, body=${errorText}`);
+			console.error(
+				`[PingOne MFA] PingOne challenge initiation failed: status=${pingOneResponse.status}, body=${errorText}`
+			);
 			return res.status(pingOneResponse.status).json({
 				success: false,
 				error: 'challenge_initiation_failed',
@@ -6173,27 +6226,28 @@ app.post('/api/pingone/redirectless/authorize-mock', async (req, res) => {
 			scopes,
 			codeChallenge,
 			codeChallengeMethod,
-			state
+			state,
 		} = req.body || {};
 
 		console.log('[Protect Portal Mock Login] Request received:', {
 			environmentId: environmentId?.substring(0, 8) + '...',
 			clientId: clientId?.substring(0, 8) + '...',
 			hasScopes: !!scopes,
-			hasCodeChallenge: !!codeChallenge
+			hasCodeChallenge: !!codeChallenge,
 		});
 
 		// Validate required fields
 		if (!environmentId || !clientId) {
 			return res.status(400).json({
 				error: 'invalid_request',
-				error_description: 'Missing required parameters: environmentId, clientId'
+				error_description: 'Missing required parameters: environmentId, clientId',
 			});
 		}
 
 		// Generate mock flow response
-		const mockFlowId = state || `mock-flow-${Date.now()}-${Math.random().toString(36).substring(7)}`;
-		
+		const mockFlowId =
+			state || `mock-flow-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+
 		const mockResponse = {
 			flowId: mockFlowId,
 			flowType: 'REDIRECTLESS',
@@ -6201,19 +6255,21 @@ app.post('/api/pingone/redirectless/authorize-mock', async (req, res) => {
 			status: 'INITIALIZED',
 			expiresIn: 600,
 			environmentId: environmentId,
-			clientId: clientId
+			clientId: clientId,
 		};
 
-		console.log('[Protect Portal Mock Login] Mock flow initialized:', mockFlowId.substring(0, 12) + '...');
+		console.log(
+			'[Protect Portal Mock Login] Mock flow initialized:',
+			mockFlowId.substring(0, 12) + '...'
+		);
 
 		return res.json(mockResponse);
-
 	} catch (error) {
 		console.error('[Protect Portal Mock Login] Error:', error);
 		return res.status(500).json({
 			error: 'internal_server_error',
 			error_description: 'Internal server error during mock login initialization',
-			details: error.message
+			details: error.message,
 		});
 	}
 });
@@ -6261,7 +6317,7 @@ app.post('/api/pingone/redirectless/authorize', async (req, res) => {
 		authParams.set('response_mode', 'pi.flow'); // CRITICAL: Enable redirectless flow
 		authParams.set('client_id', clientId);
 		// Ensure 'openid' is included in scopes for OIDC flows
-		const scopesString = Array.isArray(scopes) ? scopes.join(' ') : (scopes || 'openid');
+		const scopesString = Array.isArray(scopes) ? scopes.join(' ') : scopes || 'openid';
 		const scopeList = scopesString.trim().split(/\s+/);
 		if (!scopeList.includes('openid')) {
 			scopeList.unshift('openid'); // Add 'openid' at the beginning if missing
@@ -9484,21 +9540,20 @@ app.get('/api/pingone/user/:userId/devices-mock', async (req, res) => {
 				type: 'SMS',
 				status: 'ACTIVE',
 				phone: '+1XXXXXXXXXX',
-				createdAt: new Date().toISOString()
+				createdAt: new Date().toISOString(),
 			},
 			{
-				id: 'mock-email-device-2', 
+				id: 'mock-email-device-2',
 				type: 'EMAIL',
 				status: 'ACTIVE',
 				email: 'user@example.com',
-				createdAt: new Date().toISOString()
-			}
+				createdAt: new Date().toISOString(),
+			},
 		];
 
 		console.log('[Protect Portal Mock User Devices] Retrieved mock devices:', mockDevices.length);
 
 		return res.json(mockDevices);
-
 	} catch (error) {
 		console.error('[Protect Portal Mock User Devices] Error:', error);
 		res.status(500).json({
@@ -9529,21 +9584,20 @@ app.get('/api/pingone/user-mock/:userId', async (req, res) => {
 			username: userId,
 			population: {
 				id: 'mock-population-1',
-				name: 'Default Population'
+				name: 'Default Population',
 			},
 			enabled: true,
 			account: {
 				locked: false,
-				disabled: false
+				disabled: false,
 			},
 			createdAt: new Date().toISOString(),
-			updatedAt: new Date().toISOString()
+			updatedAt: new Date().toISOString(),
 		};
 
 		console.log('[Protect Portal Mock User Profile] Retrieved mock profile');
 
 		return res.json(mockUserProfile);
-
 	} catch (error) {
 		console.error('[Protect Portal Mock User Profile] Error:', error);
 		res.status(500).json({
@@ -9574,21 +9628,20 @@ app.get('/api/pingone/user/:userId-mock', async (req, res) => {
 			username: userId,
 			population: {
 				id: 'mock-population-1',
-				name: 'Default Population'
+				name: 'Default Population',
 			},
 			enabled: true,
 			account: {
 				locked: false,
-				disabled: false
+				disabled: false,
 			},
 			createdAt: new Date().toISOString(),
-			updatedAt: new Date().toISOString()
+			updatedAt: new Date().toISOString(),
 		};
 
 		console.log('[Protect Portal Mock User Profile] Retrieved mock profile');
 
 		return res.json(mockUserProfile);
-
 	} catch (error) {
 		console.error('[Protect Portal Mock User Profile] Error:', error);
 		res.status(500).json({
@@ -9608,7 +9661,7 @@ app.get('/api/pingone/user/:userId/devices', async (req, res) => {
 
 		if (!environmentId || !accessToken) {
 			return res.status(400).json({
-				error: 'Missing required parameters: environmentId, accessToken'
+				error: 'Missing required parameters: environmentId, accessToken',
 			});
 		}
 
@@ -9623,9 +9676,9 @@ app.get('/api/pingone/user/:userId/devices', async (req, res) => {
 		const devicesResponse = await fetch(devicesUrl, {
 			method: 'GET',
 			headers: {
-				'Authorization': `Bearer ${accessToken}`,
-				'Content-Type': 'application/json'
-			}
+				Authorization: `Bearer ${accessToken}`,
+				'Content-Type': 'application/json',
+			},
 		});
 
 		if (!devicesResponse.ok) {
@@ -9643,7 +9696,6 @@ app.get('/api/pingone/user/:userId/devices', async (req, res) => {
 
 		// Return devices in expected format
 		return res.json(devices);
-
 	} catch (error) {
 		console.error('[Protect Portal User Devices] Error:', error);
 		res.status(500).json({
@@ -15331,12 +15383,12 @@ app.post('/api/pingone/mfa/activate-device', async (req, res) => {
 				requestHeaders,
 				requestBody,
 			});
-			
+
 			// Log detailed validation errors if present
 			if (responseData && responseData.details) {
 				console.error('[MFA Activate Device] Validation Details:', responseData.details);
 			}
-			
+
 			return res.status(response.status).json({
 				error: 'Failed to activate device',
 				message: responseData.message || responseData.error || response.statusText,
@@ -15443,17 +15495,17 @@ app.post('/api/pingone/mfa/lookup-user', async (req, res) => {
 			environmentIdValue: environmentId,
 			usernameValue: username,
 			workerTokenLength: workerToken ? workerToken.length : 0,
-			});
+		});
 
 		if (!environmentId || !username || !workerToken) {
 			console.log('[LOOKUP-USER] 400 Error: Missing required fields');
-			return res.status(400).json({ 
+			return res.status(400).json({
 				error: 'Missing required fields',
 				details: {
 					environmentId: !!environmentId,
 					username: !!username,
 					workerToken: !!workerToken,
-				}
+				},
 			});
 		}
 
@@ -15519,7 +15571,7 @@ app.post('/api/pingone/mfa/lookup-user', async (req, res) => {
 		const data = responseData;
 		console.log('[LOOKUP-USER] PingOne API Success:', {
 			userCount: data._embedded?.users?.length || 0,
-			hasUsers: !!(data._embedded?.users),
+			hasUsers: !!data._embedded?.users,
 		});
 
 		if (!data._embedded?.users || data._embedded.users.length === 0) {
@@ -15613,7 +15665,7 @@ app.post('/api/pingone/mfa/list-users', async (req, res) => {
 			if (filter) {
 				queryParams.append('filter', filter);
 			}
-			
+
 			const usersEndpoint = `${apiBase}/v1/environments/${environmentId}/users?${queryParams.toString()}`;
 			const startTime = Date.now();
 			const response = await global.fetch(usersEndpoint, {
@@ -15682,15 +15734,15 @@ app.post('/api/pingone/mfa/list-users', async (req, res) => {
 
 		// Filter results to ensure they actually match the search criteria
 		// PingOne sometimes returns users where the name/displayName matches, not just username/email
-				const filteredUsers = search?.trim()
-						? users.filter((user) => {
-										const searchTerm = search.trim().toLowerCase();
-										const username = (user.username || user.userName || '').toLowerCase();
-										const email = (user.emails?.[0]?.value || '').toLowerCase();
-										// Include users where username or email contains the search term (more forgiving)
-										return username.includes(searchTerm) || email.includes(searchTerm);
-							})
-						: users;
+		const filteredUsers = search?.trim()
+			? users.filter((user) => {
+					const searchTerm = search.trim().toLowerCase();
+					const username = (user.username || user.userName || '').toLowerCase();
+					const email = (user.emails?.[0]?.value || '').toLowerCase();
+					// Include users where username or email contains the search term (more forgiving)
+					return username.includes(searchTerm) || email.includes(searchTerm);
+				})
+			: users;
 
 		// Extract pagination info if available
 		const totalCount = responseData.count || responseData.totalResults || filteredUsers.length;
@@ -16670,7 +16722,7 @@ app.post('/api/pingone/mfa/initialize-device-authentication', async (req, res) =
 		// Determine which token to use based on tokenType
 		let effectiveToken = workerToken;
 		let effectiveTokenType = tokenType || 'worker';
-		
+
 		if (effectiveTokenType === 'user') {
 			// For user flows, use the user token (access token from Authorization Code Flow)
 			effectiveToken = userToken;
@@ -16687,7 +16739,7 @@ app.post('/api/pingone/mfa/initialize-device-authentication', async (req, res) =
 				});
 			}
 		}
-		
+
 		// No-username variant: Allow initialization without username/userId if oneTimeDevice is provided
 		if (!environmentId || !effectiveToken) {
 			return res.status(400).json({
@@ -16755,9 +16807,10 @@ app.post('/api/pingone/mfa/initialize-device-authentication', async (req, res) =
 		if (cleanToken.length === 0) {
 			return res.status(400).json({
 				error: `${effectiveTokenType === 'user' ? 'User' : 'Worker'} token is empty`,
-				message: effectiveTokenType === 'user' 
-					? 'Please complete the OAuth flow to get a valid access token.'
-					: 'Please generate a new worker token using the "Manage Token" button.',
+				message:
+					effectiveTokenType === 'user'
+						? 'Please complete the OAuth flow to get a valid access token.'
+						: 'Please generate a new worker token using the "Manage Token" button.',
 			});
 		}
 
@@ -16864,10 +16917,7 @@ app.post('/api/pingone/mfa/initialize-device-authentication', async (req, res) =
 		}
 
 		// Extract devices from both authData.devices and authData._embedded.devices
-		const allDevices = [
-			...(authData.devices || []),
-			...(authData._embedded?.devices || []),
-		];
+		const allDevices = [...(authData.devices || []), ...(authData._embedded?.devices || [])];
 
 		// Log devices returned from PingOne
 		if (allDevices.length > 0) {
@@ -16887,7 +16937,9 @@ app.post('/api/pingone/mfa/initialize-device-authentication', async (req, res) =
 				})),
 				sources: {
 					hasDirectDevices: !!(authData.devices && Array.isArray(authData.devices)),
-					hasEmbeddedDevices: !!(authData._embedded?.devices && Array.isArray(authData._embedded.devices)),
+					hasEmbeddedDevices: !!(
+						authData._embedded?.devices && Array.isArray(authData._embedded.devices)
+					),
 					directDeviceCount: (authData.devices || []).length,
 					embeddedDeviceCount: (authData._embedded?.devices || []).length,
 				},
@@ -16897,7 +16949,9 @@ app.post('/api/pingone/mfa/initialize-device-authentication', async (req, res) =
 				'[MFA Initialize Device Auth] No devices found in response or devices is not an array',
 				{
 					hasDirectDevices: !!(authData.devices && Array.isArray(authData.devices)),
-					hasEmbeddedDevices: !!(authData._embedded?.devices && Array.isArray(authData._embedded.devices)),
+					hasEmbeddedDevices: !!(
+						authData._embedded?.devices && Array.isArray(authData._embedded.devices)
+					),
 					directDevicesType: typeof authData.devices,
 					embeddedDevicesType: typeof authData._embedded?.devices,
 					isDirectArray: Array.isArray(authData.devices),
@@ -16989,22 +17043,22 @@ app.post('/api/pingone/mfa/initialize-device-authentication', async (req, res) =
 app.get('/api/tokens/query', async (req, res) => {
 	try {
 		const { type, source } = req.query;
-		
+
 		console.log('[Token Query] Querying tokens:', { type, source });
-		
+
 		// For now, return empty response - this endpoint is used by unified token storage
 		// In a full implementation, this would query the SQLite database
 		res.json({
 			tokens: [],
 			count: 0,
 			type: type || 'all',
-			source: source || 'all'
+			source: source || 'all',
 		});
 	} catch (error) {
 		console.error('[Token Query] Failed to query tokens:', error);
-		res.status(500).json({ 
-			error: 'Failed to query tokens', 
-			message: error.message 
+		res.status(500).json({
+			error: 'Failed to query tokens',
+			message: error.message,
 		});
 	}
 });
@@ -17018,8 +17072,8 @@ app.post('/api/tokens/store', async (req, res) => {
 		const { flowKey, data } = req.body;
 
 		if (!flowKey || !data) {
-			return res.status(400).json({ 
-				error: 'Missing required fields: flowKey, data' 
+			return res.status(400).json({
+				error: 'Missing required fields: flowKey, data',
 			});
 		}
 
@@ -17034,9 +17088,9 @@ app.post('/api/tokens/store', async (req, res) => {
 		});
 	} catch (error) {
 		console.error('[Token Store] Failed to store token:', error);
-		res.status(500).json({ 
-			error: 'Failed to store token', 
-			message: error.message 
+		res.status(500).json({
+			error: 'Failed to store token',
+			message: error.message,
 		});
 	}
 });
@@ -19882,32 +19936,32 @@ app.get('/api/cli-cache/:environmentId', (req, res) => {
 	try {
 		const { environmentId } = req.params;
 		const cacheFile = path.join(__dirname, 'user-cache', `${environmentId}.json`);
-		
+
 		console.log('[CLI Cache] Checking for cache file:', cacheFile);
-		
+
 		if (!fs.existsSync(cacheFile)) {
 			console.log('[CLI Cache] File not found');
 			return res.status(404).json({
 				error: 'cache_not_found',
-				message: 'No CLI cache file found for this environment'
+				message: 'No CLI cache file found for this environment',
 			});
 		}
-		
+
 		const cacheData = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
 		console.log('[CLI Cache] Serving cache with', cacheData.users?.length || 0, 'users');
-		
+
 		res.json({
 			environmentId: cacheData.environmentId,
 			users: cacheData.users || [],
 			totalUsers: cacheData.totalUsers || 0,
 			lastFetchedAt: cacheData.lastFetchedAt,
-			fetchComplete: cacheData.fetchComplete
+			fetchComplete: cacheData.fetchComplete,
 		});
 	} catch (error) {
 		console.error('[CLI Cache] Error reading cache:', error);
 		res.status(500).json({
 			error: 'cache_read_error',
-			message: error.message
+			message: error.message,
 		});
 	}
 });
@@ -19940,22 +19994,22 @@ app.use((req, res, next) => {
 			method: req.method,
 		});
 	}
-	
+
 	// Only handle GET requests for React Router
 	if (req.method !== 'GET') {
 		return next();
 	}
-	
+
 	// Serve index.html for all other routes to support React Router
 	const indexPath = path.join(__dirname, 'dist', 'index.html');
-	
+
 	// Check if index.html exists
 	fs.access(indexPath, fs.constants.F_OK, (err) => {
 		if (err) {
 			console.error('[React Router 404] index.html not found:', indexPath);
 			return res.status(404).send('Application not found. Please build the application first.');
 		}
-		
+
 		console.log(`[React Router] Serving index.html for route: ${req.path}`);
 		res.sendFile(indexPath);
 	});
