@@ -492,7 +492,7 @@ const ImplicitFlowV9: React.FC = () => {
 		</VariantSelector>
 	);
 
-	const renderStep0 = () => {
+	const renderStep0 = useCallback(() => {
 		const metadata = ImplicitFlowV9Helpers.getFlowMetadata(selectedVariant);
 		const educationalContent = ImplicitFlowV9Helpers.getEducationalContent(selectedVariant);
 		const flowDiagram = ImplicitFlowV9Helpers.getFlowDiagram(selectedVariant);
@@ -858,7 +858,7 @@ const ImplicitFlowV9: React.FC = () => {
 				/>
 			</>
 		);
-	};
+	}, [selectedVariant, collapsedSections, toggleSection, credentials, controller, workerToken]);
 
 	const renderStepContent = useMemo(() => {
 		const tokens = controller.tokens;
