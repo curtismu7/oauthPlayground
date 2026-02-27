@@ -2,7 +2,7 @@
 // Service to show warning toasts when flows start without credentials
 
 import React from 'react';
-import { v4ToastManager } from './v4ToastManager';
+import { v4ToastManager } from './v4ToastMessages';
 
 export interface CredentialsCheck {
 	environmentId?: string;

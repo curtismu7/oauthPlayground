@@ -1,3 +1,7 @@
+import './styles/vendor/end-user-nano.css';
+import './styles/icons.css';
+import './styles/nano-overrides.css';
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
