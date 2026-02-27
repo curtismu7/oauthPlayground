@@ -7,10 +7,12 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import AppVersionBadge from '../components/AppVersionBadge';
 import { Icon } from '../components/Icon/Icon';
+import { useServerStatusOptional } from '../components/ServerStatusProvider';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import {
 	getAppUrlForDomain,
 	getCustomDomain,
+	getDomainFromIndexedDB,
 	saveCustomDomain,
 } from '../services/customDomainService';
 import {
@@ -20,8 +22,9 @@ import {
 	formatUptime,
 } from '../services/serverHealthService';
 import { type ActivityItem, getRecentActivity } from '../utils/activityTracker';
-import { checkSavedCredentials } from '../utils/configurationStatus';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { checkSavedCredentialsAsync } from '../utils/configurationStatus';
+import { credentialManager } from '../utils/credentialManager';
+import { UnifiedTokenStorageService } from '../services/unifiedTokenStorageService';
 import '../styles/dashboard.css';
 
 type FlowPalette = 'oauth' | 'oidc' | 'pingone';
@@ -42,6 +45,12 @@ const Dashboard = () => {
 	const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([]);
 	const [isRefreshing, setIsRefreshing] = useState(false);
 	const [detailedServers, setDetailedServers] = useState<DetailedServerStatus[]>([]);
+	const [refreshMessage, setRefreshMessage] = useState<string | null>(null);
+	const [refreshError, setRefreshError] = useState<string | null>(null);
+	const [customDomain, setCustomDomain] = useState('');
+	const [savingDomain, setSavingDomain] = useState(false);
+	const [domainError, setDomainError] = useState<string | null>(null);
+	const [hasSavedCredentials, setHasSavedCredentials] = useState(false);
 
 	// Collapsible sections state (all sections use Ping red/white, narrow header, common expand/collapse icon)
 	const [collapsedSections, setCollapsedSections] = useState({
@@ -70,20 +79,69 @@ const Dashboard = () => {
 		fetchServerHealth();
 	}, [fetchServerHealth]);
 
-	const hasSavedCredentials = checkSavedCredentials();
+	const { isOnline } = useServerStatusOptional();
 
-	// Custom domain: editable in Config section; stored in SQLite + IndexedDB via customDomainService
-	const [customDomain, setCustomDomain] = useState('');
-	const [savingDomain, setSavingDomain] = useState(false);
-	const [domainError, setDomainError] = useState<string | null>(null);
-
+	// Check credentials from unified storage (IndexedDB/SQLite) and localStorage
 	useEffect(() => {
-		getCustomDomain().then(setCustomDomain);
+		const checkCredentials = async () => {
+			const hasCredentials = await checkSavedCredentialsAsync();
+			setHasSavedCredentials(hasCredentials);
+			
+			// Debug: Log credential status
+			const configCreds = credentialManager.loadConfigCredentials();
+			const authzCreds = credentialManager.loadAuthzFlowCredentials();
+			const localStorageCreds = localStorage.getItem('oauth_config');
+			const pingoneCreds = localStorage.getItem('pingone_config_credentials');
+			
+			// Check unified storage
+			const unifiedStorage = UnifiedTokenStorageService.getInstance();
+			const unifiedCreds = await unifiedStorage.getOAuthCredentials();
+			
+			console.group('[Dashboard] 🔐 Credential Check');
+			console.log('✅ hasSavedCredentials:', hasCredentials);
+			console.log('🗄️  Unified Storage (IndexedDB/SQLite):', unifiedCreds || '❌ none');
+			console.log('📋 Config Credentials:', {
+				environmentId: configCreds?.environmentId || '(empty)',
+				clientId: configCreds?.clientId || '(empty)',
+				hasClientSecret: !!configCreds?.clientSecret,
+			});
+			console.log('🔑 Authz Credentials:', {
+				environmentId: authzCreds?.environmentId || '(empty)',
+				clientId: authzCreds?.clientId || '(empty)',
+				hasClientSecret: !!authzCreds?.clientSecret,
+			});
+			console.log('💾 LocalStorage Keys:', {
+				oauth_config: localStorageCreds ? '✅ present' : '❌ missing',
+				pingone_config_credentials: pingoneCreds ? '✅ present' : '❌ missing',
+			});
+			console.groupEnd();
+		};
+		
+		checkCredentials();
 	}, []);
 
-	const appDisplayUrl = customDomain
-		? getAppUrlForDomain(customDomain)
-		: 'https://api.pingdemo.com:3000';
+
+	// Resolve domain: when backend down use IndexedDB + env/default only (avoids 404); when up use getCustomDomain (API).
+	useEffect(() => {
+		if (!isOnline) {
+			getDomainFromIndexedDB().then((idb) => {
+				if (idb) {
+					setCustomDomain(idb);
+					return;
+				}
+				const env = (import.meta.env.VITE_PUBLIC_APP_URL as string) || '';
+				const fromEnv = env.replace(/^https?:\/\//i, '').split('/')[0].split(':')[0].trim();
+				setCustomDomain(fromEnv || 'api.pingdemo.com');
+			});
+			return;
+		}
+		getCustomDomain().then(setCustomDomain);
+	}, [isOnline]);
+
+	const appDisplayUrl =
+		typeof customDomain === 'string' && customDomain.trim()
+			? getAppUrlForDomain(customDomain.trim())
+			: 'https://api.pingdemo.com:3000';
 
 	const handleSaveCustomDomain = useCallback(async () => {
 		if (!customDomain.trim()) return;
@@ -91,11 +149,9 @@ const Dashboard = () => {
 		setSavingDomain(true);
 		try {
 			const newAppUrl = await saveCustomDomain(customDomain.trim());
-			v4ToastManager.showSuccess('saveConfigurationSuccess');
 			window.location.href = `${newAppUrl}/dashboard`;
 		} catch (err) {
 			setDomainError(err instanceof Error ? err.message : 'Failed to save domain');
-			v4ToastManager.showError('networkError');
 		} finally {
 			setSavingDomain(false);
 		}
@@ -157,39 +213,53 @@ const Dashboard = () => {
 		}
 	};
 
-	const handleRefresh = async () => {
+	const handleRefresh = useCallback(async () => {
+		setRefreshMessage(null);
+		setRefreshError(null);
 		try {
 			await refreshDashboard();
-			v4ToastManager.showSuccess('saveConfigurationSuccess');
+			setRefreshMessage('Refreshed');
 		} catch {
-			v4ToastManager.showError('networkError');
+			setRefreshError('Refresh failed. Try again.');
 		}
-	};
+	}, []);
 
-	// Current backend API endpoints (see docs/updates-to-apps/dashboard-updates.md and server.js)
-	const apiEndpoints = [
+	// Clear refresh success message after a short delay (contextual feedback per toast-replace)
+	useEffect(() => {
+		if (!refreshMessage) return;
+		const t = setTimeout(() => setRefreshMessage(null), 4000);
+		return () => clearTimeout(t);
+	}, [refreshMessage]);
+
+	const PINGONE_DOC_BASE = 'https://developer.pingidentity.com/pingone-api';
+	const PINGONE_AUTH_DOC = `${PINGONE_DOC_BASE}/auth/introduction.html`;
+	const PINGONE_PLATFORM_DOC = `${PINGONE_DOC_BASE}/platform/introduction.html`;
+	const PINGONE_MFA_DOC = `${PINGONE_DOC_BASE}/mfa/introduction.html`;
+
+	// Current backend API endpoints; docUrl links to PingOne Platform API docs (intro page per section)
+	const apiEndpoints: Array<{ method: string; path: string; desc: string; docUrl?: string }> = [
 		{ method: 'GET', path: '/api/health', desc: 'Backend health check' },
 		{ method: 'GET', path: '/api/env-config', desc: 'Environment defaults' },
 		{ method: 'GET', path: '/api/version', desc: 'Backend version' },
-		{ method: 'POST', path: '/api/token-exchange', desc: 'Exchange authorization code for tokens' },
-		{ method: 'POST', path: '/api/client-credentials', desc: 'Client credentials grant' },
-		{ method: 'POST', path: '/api/introspect-token', desc: 'Token introspection' },
-		{ method: 'GET', path: '/api/userinfo', desc: 'UserInfo (OAuth)' },
-		{ method: 'POST', path: '/api/validate-token', desc: 'Validate access tokens' },
-		{ method: 'POST', path: '/api/device-authorization', desc: 'Device authorization flow' },
-		{ method: 'POST', path: '/api/par', desc: 'Pushed Authorization Request' },
-		{ method: 'GET', path: '/api/jwks', desc: 'PingOne JWKS' },
+		{ method: 'POST', path: '/api/token-exchange', desc: 'Exchange authorization code for tokens', docUrl: PINGONE_AUTH_DOC },
+		{ method: 'POST', path: '/api/client-credentials', desc: 'Client credentials grant', docUrl: PINGONE_AUTH_DOC },
+		{ method: 'POST', path: '/api/introspect-token', desc: 'Token introspection', docUrl: PINGONE_AUTH_DOC },
+		{ method: 'GET', path: '/api/userinfo', desc: 'UserInfo (OAuth)', docUrl: PINGONE_AUTH_DOC },
+		{ method: 'POST', path: '/api/validate-token', desc: 'Validate access tokens', docUrl: PINGONE_AUTH_DOC },
+		{ method: 'POST', path: '/api/device-authorization', desc: 'Device authorization flow', docUrl: PINGONE_AUTH_DOC },
+		{ method: 'POST', path: '/api/par', desc: 'Pushed Authorization Request', docUrl: PINGONE_AUTH_DOC },
+		{ method: 'GET', path: '/api/jwks', desc: 'PingOne JWKS', docUrl: PINGONE_AUTH_DOC },
 		{ method: 'POST', path: '/api/user-jwks', desc: 'Generate JWKS from user key' },
 		{ method: 'POST', path: '/api/credentials/save', desc: 'Save credentials' },
 		{ method: 'GET', path: '/api/credentials/load', desc: 'Load credentials' },
 		{ method: 'GET', path: '/api/settings/custom-domain', desc: 'Get custom domain (SQLite)' },
 		{ method: 'POST', path: '/api/settings/custom-domain', desc: 'Save custom domain (SQLite)' },
-		{ method: 'GET', path: '/api/environments', desc: 'List environments' },
-		{ method: 'POST', path: '/api/pingone/worker-token', desc: 'Worker token' },
-		{ method: 'POST', path: '/api/pingone/token', desc: 'Token endpoint proxy' },
-		{ method: 'POST', path: '/api/pingone/oidc-discovery', desc: 'OIDC discovery' },
-		{ method: 'POST', path: '/api/mfa/challenge/initiate', desc: 'MFA challenge' },
-		{ method: 'POST', path: '/api/device/register', desc: 'FIDO2 device registration' },
+		{ method: 'GET', path: '/api/environments', desc: 'List environments', docUrl: PINGONE_PLATFORM_DOC },
+		{ method: 'POST', path: '/api/pingone/worker-token', desc: 'Worker token', docUrl: PINGONE_AUTH_DOC },
+		{ method: 'POST', path: '/api/pingone/token', desc: 'Token endpoint proxy', docUrl: PINGONE_AUTH_DOC },
+		{ method: 'POST', path: '/api/pingone/oidc-discovery', desc: 'OIDC discovery', docUrl: PINGONE_AUTH_DOC },
+		{ method: 'POST', path: '/api/mfa/challenge/initiate', desc: 'MFA challenge', docUrl: PINGONE_MFA_DOC },
+		{ method: 'POST', path: '/api/device/register', desc: 'FIDO2 device registration', docUrl: PINGONE_MFA_DOC },
 	];
 
 	const formatActivityAction = (action?: string) => {
@@ -239,13 +309,23 @@ const Dashboard = () => {
 				>
 					<div className="card-body card-body--lg">
 						<div className="d-flex gap-2 mb-3 justify-content-between flex-wrap align-items-center">
-							<span
-								className={`${statusBadgeClass(hasSavedCredentials ? 'active' : 'error')} d-flex align-items-center gap-2 p-2 text-small`}
-							>
-								<Icon name="check-circle" />
-								{hasSavedCredentials ? 'Global Configuration Ready' : 'Configuration Missing'}
-							</span>
-							<div className="d-flex gap-2 align-items-center">
+							{hasSavedCredentials ? (
+								<span
+									className={`${statusBadgeClass('active')} d-flex align-items-center gap-2 p-2 text-small`}
+								>
+									<Icon name="check-circle" />
+									Global Configuration Ready
+								</span>
+							) : (
+								<Link
+									to="/configuration"
+									className={`${statusBadgeClass('error')} d-flex align-items-center gap-2 p-2 text-small text-decoration-none`}
+								>
+									<Icon name="alert-circle" />
+									Configuration Missing - Click to Configure
+								</Link>
+							)}
+							<div className="d-flex gap-2 align-items-center flex-wrap">
 								<button
 									type="button"
 									className="btn btn-outline-primary"
@@ -260,6 +340,18 @@ const Dashboard = () => {
 									/>
 									Refresh
 								</button>
+								{refreshMessage && (
+									<span className="text-success small d-flex align-items-center gap-1" role="status">
+										<Icon name="check-circle" size="sm" />
+										{refreshMessage}
+									</span>
+								)}
+								{refreshError && (
+									<span className="text-danger small d-flex align-items-center gap-1" role="alert">
+										<Icon name="alert-circle" size="sm" />
+										{refreshError}
+									</span>
+								)}
 								<Link
 									to="/api-status"
 									className="btn btn-oauth"
@@ -453,14 +545,37 @@ const Dashboard = () => {
 					onToggle={() => toggleSection('apiEndpoints')}
 				>
 					<div className="card-body card-body--lg">
+						<p className="text-small text-muted mb-3">
+							App backend routes; where applicable, links go to{' '}
+							<a
+								href={`${PINGONE_DOC_BASE}/introduction.html`}
+								target="_blank"
+								rel="noopener noreferrer"
+								className="text-primary"
+							>
+								PingOne Platform API docs
+							</a>
+							.
+						</p>
 						<div className="api-grid">
 							{apiEndpoints.map((endpoint, index) => (
 								<div key={index} className="api-endpoint-card">
-									<div className="d-flex align-items-center gap-2 mb-2">
+									<div className="d-flex align-items-center gap-2 mb-2 flex-wrap">
 										<span className={`method-badge method-badge--${endpoint.method.toLowerCase()}`}>
 											{endpoint.method}
 										</span>
 										<code className="text-small fw-600">{endpoint.path}</code>
+										{endpoint.docUrl && (
+											<a
+												href={endpoint.docUrl}
+												target="_blank"
+												rel="noopener noreferrer"
+												className="ms-auto text-nowrap text-primary small"
+												title="Open in PingOne docs"
+											>
+												PingOne docs
+											</a>
+										)}
 									</div>
 									<p className="text-small text-muted mb-1">{endpoint.desc}</p>
 								</div>

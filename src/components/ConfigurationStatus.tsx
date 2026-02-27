@@ -12,7 +12,7 @@ import {
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { getCallbackUrlForFlow } from '../utils/callbackUrls';
-import { getSharedConfigurationStatus } from '../utils/configurationStatus';
+import { getSharedConfigurationStatusAsync, type ConfigStatus } from '../utils/configurationStatus';
 import { credentialManager } from '../utils/credentialManager';
 
 interface OAuthConfig {
@@ -210,22 +210,35 @@ const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
 	defaultExpanded = false,
 }) => {
 	const [isExpanded, setIsExpanded] = useState(defaultExpanded);
-	const [statusData, setStatusData] = useState(() => getSharedConfigurationStatus(flowType));
+	const [statusData, setStatusData] = useState<ConfigStatus>({
+		isConfigured: false,
+		statusText: 'Loading...',
+		statusColor: 'gray',
+		status: 'warning',
+		message: 'Checking configuration...',
+		missingItems: [],
+	});
 
-	// Update status when credentials change
+	// Load initial status and update when credentials change
 	useEffect(() => {
+		const updateStatus = async () => {
+			console.log(' [ConfigurationStatus] Checking credentials from unified storage...');
+			const newStatus = await getSharedConfigurationStatusAsync(flowType);
+			setStatusData(newStatus);
+		};
+
 		const handleCredentialChange = () => {
 			console.log(' [ConfigurationStatus] Credential change detected, refreshing status');
-			setStatusData(getSharedConfigurationStatus(flowType));
+			updateStatus();
 		};
+
+		// Load initial status
+		updateStatus();
 
 		// Listen for credential changes
 		window.addEventListener('permanent-credentials-changed', handleCredentialChange);
 		window.addEventListener('pingone-config-changed', handleCredentialChange);
 		window.addEventListener('config-credentials-changed', handleCredentialChange);
-
-		// Also refresh on component mount
-		handleCredentialChange();
 
 		return () => {
 			window.removeEventListener('permanent-credentials-changed', handleCredentialChange);
@@ -254,10 +267,11 @@ const ConfigurationStatus: React.FC<ConfigurationStatusProps> = ({
 		}
 	};
 
-	const handleRefresh = (e: React.MouseEvent) => {
+	const handleRefresh = async (e: React.MouseEvent) => {
 		e.stopPropagation();
 		console.log(' [ConfigurationStatus] Manual refresh button clicked');
-		setStatusData(getSharedConfigurationStatus(flowType));
+		const newStatus = await getSharedConfigurationStatusAsync(flowType);
+		setStatusData(newStatus);
 	};
 
 	const getStatusIcon = () => {
