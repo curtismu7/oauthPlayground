@@ -2,6 +2,26 @@
 
 Summary of the left-hand menu and sidebar so we can restore behavior after a regression.
 
+---
+
+## Change Log
+
+### 2026-02-27: Enhanced Resize Handle UX
+
+**Changes:**
+- Widened resize handle from 4px to 8px for easier grabbing
+- Changed cursor from `ew-resize` to `col-resize` (standard)
+- Added hover effect: blue translucent background
+- Added visual indicator line (2px) that turns blue on hover
+- Improved z-index layering for better usability
+- Made min/max width configurable via props (supports Ping vs legacy menu)
+
+**Files Modified:**
+- `src/components/Sidebar.tsx` - ResizeHandle styling, SidebarContainer min/max props
+- Uses `SIDEBAR_PING_MIN_WIDTH` (220px) and `SIDEBAR_PING_MAX_WIDTH` (500px) from config
+
+---
+
 ## Current implementation
 
 - **Config**: `src/config/sidebarMenuConfig.ts` — `USE_PING_MENU = true`, `SIDEBAR_MENU_GROUPS`, `SIDEBAR_PING_WIDTH` (260), `SIDEBAR_PING_MIN_WIDTH` (220), `SIDEBAR_PING_MAX_WIDTH` (500).
