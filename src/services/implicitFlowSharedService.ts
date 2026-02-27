@@ -9,10 +9,23 @@
 import { useCallback, useState } from 'react';
 import type { PingOneApplicationState } from '../components/PingOneApplicationConfig';
 import type { StepCredentials } from '../components/steps/CommonSteps';
+import { storeFlowNavigationState } from '../utils/flowNavigation';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { validateForStep } from './credentialsValidationService';
+import { FlowRedirectUriService } from './flowRedirectUriService';
 
 export type ImplicitFlowVariant = 'oauth' | 'oidc';
+
+/**
+ * Minimal controller interface used by shared implicit flow handler factories.
+ * Controllers implementing this interface can use ImplicitFlowCredentialsHandlers,
+ * ImplicitFlowAuthorizationManager, and related shared utilities.
+ */
+export interface ControllerLike {
+	credentials: StepCredentials;
+	setCredentials: (creds: StepCredentials) => void;
+	saveCredentials: () => Promise<void>;
+}
 
 /**
  * Session Storage Management
@@ -62,8 +75,12 @@ export class SessionStorageManager {
 	 * Clear all implicit flow session storage flags
 	 */
 	static clearAllFlowFlags(): void {
-		Object.values(SESSION_FLAG_CONFIG.oauth).forEach((key) => sessionStorage.removeItem(key));
-		Object.values(SESSION_FLAG_CONFIG.oidc).forEach((key) => sessionStorage.removeItem(key));
+		Object.values(SESSION_FLAG_CONFIG.oauth).forEach((key) => {
+			sessionStorage.removeItem(key);
+		});
+		Object.values(SESSION_FLAG_CONFIG.oidc).forEach((key) => {
+			sessionStorage.removeItem(key);
+		});
 		console.log('[SessionStorageManager] All implicit flow flags cleared');
 	}
 
@@ -278,7 +295,7 @@ export class ImplicitFlowCredentialsHandlers {
 	 */
 	static createEnvironmentIdHandler(
 		variant: ImplicitFlowVariant,
-		controller: any,
+		controller: ControllerLike,
 		setCredentials: (creds: StepCredentials) => void
 	) {
 		return (value: string) => {
@@ -294,7 +311,7 @@ export class ImplicitFlowCredentialsHandlers {
 	 */
 	static createClientIdHandler(
 		variant: ImplicitFlowVariant,
-		controller: any,
+		controller: ControllerLike,
 		setCredentials: (creds: StepCredentials) => void
 	) {
 		return (value: string) => {
@@ -309,7 +326,7 @@ export class ImplicitFlowCredentialsHandlers {
 	 * Create client secret change handler
 	 */
 	static createClientSecretHandler(
-		controller: any,
+		controller: ControllerLike,
 		setCredentials: (creds: StepCredentials) => void
 	) {
 		return (value: string) => {
@@ -324,7 +341,7 @@ export class ImplicitFlowCredentialsHandlers {
 	 */
 	static createRedirectUriHandler(
 		variant: ImplicitFlowVariant,
-		controller: any,
+		controller: ControllerLike,
 		setCredentials: (creds: StepCredentials) => void
 	) {
 		return (value: string) => {
@@ -348,7 +365,10 @@ export class ImplicitFlowCredentialsHandlers {
 	/**
 	 * Create scopes change handler
 	 */
-	static createScopesHandler(controller: any, setCredentials: (creds: StepCredentials) => void) {
+	static createScopesHandler(
+		controller: ControllerLike,
+		setCredentials: (creds: StepCredentials) => void
+	) {
 		return (value: string) => {
 			const updated = { ...controller.credentials, scope: value, scopes: value };
 			controller.setCredentials(updated);
@@ -359,7 +379,10 @@ export class ImplicitFlowCredentialsHandlers {
 	/**
 	 * Create login hint change handler
 	 */
-	static createLoginHintHandler(controller: any, setCredentials: (creds: StepCredentials) => void) {
+	static createLoginHintHandler(
+		controller: ControllerLike,
+		setCredentials: (creds: StepCredentials) => void
+	) {
 		return (value: string) => {
 			const updated = { ...controller.credentials, loginHint: value };
 			controller.setCredentials(updated);
@@ -370,7 +393,7 @@ export class ImplicitFlowCredentialsHandlers {
 	/**
 	 * Create save credentials handler
 	 */
-	static createSaveHandler(variant: ImplicitFlowVariant, controller: any) {
+	static createSaveHandler(variant: ImplicitFlowVariant, controller: ControllerLike) {
 		return async () => {
 			try {
 				await controller.saveCredentials();
@@ -386,7 +409,7 @@ export class ImplicitFlowCredentialsHandlers {
 	 * Create OIDC discovery complete handler
 	 */
 	static createDiscoveryHandler(variant: ImplicitFlowVariant) {
-		return (result: any) => {
+		return (result: unknown) => {
 			console.log(`[${variant.toUpperCase()} Implicit V5] OIDC Discovery completed:`, result);
 			// Service already handles environment ID extraction
 		};
@@ -418,7 +441,7 @@ export class ImplicitFlowAuthorizationManager {
 	static async generateAuthUrl(
 		variant: ImplicitFlowVariant,
 		credentials: StepCredentials,
-		controller: any
+		controller: ControllerLike
 	): Promise<boolean> {
 		console.log(`[${variant.toUpperCase()} Implicit V5] Generate URL - Checking credentials:`, {
 			local_clientId: credentials.clientId,
@@ -524,7 +547,6 @@ export class ImplicitFlowDefaults {
 	 * Get default credentials for OAuth Implicit
 	 */
 	static getOAuthDefaults(): Partial<StepCredentials> {
-		const { FlowRedirectUriService } = require('../services/flowRedirectUriService');
 		return {
 			redirectUri: FlowRedirectUriService.getDefaultRedirectUri('oauth-implicit-v6'),
 			scope: 'openid profile email', // Consistent scopes for both OAuth 2.0 and OIDC variants
@@ -538,7 +560,6 @@ export class ImplicitFlowDefaults {
 	 * Get default credentials for OIDC Implicit
 	 */
 	static getOIDCDefaults(): Partial<StepCredentials> {
-		const { FlowRedirectUriService } = require('../services/flowRedirectUriService');
 		return {
 			redirectUri: FlowRedirectUriService.getDefaultRedirectUri('oidc-implicit-v6'),
 			scope: 'openid profile email',
@@ -616,7 +637,7 @@ export class ImplicitFlowTokenManagement {
 	 */
 	static navigateToTokenManagement(
 		variant: ImplicitFlowVariant,
-		tokens: any,
+		tokens: Record<string, string>,
 		credentials: StepCredentials,
 		currentStep: number
 	): void {
@@ -624,7 +645,6 @@ export class ImplicitFlowTokenManagement {
 		const flowType = variant === 'oauth' ? 'oauth' : 'oidc';
 
 		// Store flow navigation state for back navigation
-		const { storeFlowNavigationState } = require('../utils/flowNavigation');
 		storeFlowNavigationState(flowId, currentStep, flowType);
 
 		// Set flow source for Token Management page
@@ -661,7 +681,7 @@ export class ImplicitFlowTokenFragmentProcessor {
 	 * Process tokens from URL fragment
 	 */
 	static processTokenFragment(
-		controller: any,
+		controller: ControllerLike,
 		setCurrentStep: (step: number) => void,
 		setShowSuccessModal: (show: boolean) => void
 	): boolean {
@@ -821,35 +841,37 @@ export class ImplicitFlowCollapsibleSectionsManager {
 }
 
 /**
- * Modal State Manager
- * Manages success and redirect modals
+ * Modal State Handlers Hook
+ * Manages success and redirect modals — must be called from a React component or custom hook.
  */
+export function useImplicitFlowModalHandlers(controller: {
+	handleRedirectAuthorization: () => void;
+}) {
+	const [showSuccessModal, setShowSuccessModal] = useState(false);
+	const [showRedirectModal, setShowRedirectModal] = useState(false);
+
+	const handleConfirmRedirect = useCallback(() => {
+		setShowRedirectModal(false);
+		controller.handleRedirectAuthorization();
+	}, [controller]);
+
+	const handleCancelRedirect = useCallback(() => {
+		setShowRedirectModal(false);
+	}, []);
+
+	return {
+		showSuccessModal,
+		setShowSuccessModal,
+		showRedirectModal,
+		setShowRedirectModal,
+		handleConfirmRedirect,
+		handleCancelRedirect,
+	};
+}
+
+/** @deprecated Use `useImplicitFlowModalHandlers` hook instead */
 export class ImplicitFlowModalManager {
-	/**
-	 * Create modal handlers
-	 */
-	static createHandlers(controller: any) {
-		const [showSuccessModal, setShowSuccessModal] = useState(false);
-		const [showRedirectModal, setShowRedirectModal] = useState(false);
-
-		const handleConfirmRedirect = useCallback(() => {
-			setShowRedirectModal(false);
-			controller.handleRedirectAuthorization();
-		}, [controller]);
-
-		const handleCancelRedirect = useCallback(() => {
-			setShowRedirectModal(false);
-		}, []);
-
-		return {
-			showSuccessModal,
-			setShowSuccessModal,
-			showRedirectModal,
-			setShowRedirectModal,
-			handleConfirmRedirect,
-			handleCancelRedirect,
-		};
-	}
+	static createHandlers = useImplicitFlowModalHandlers;
 }
 
 /**
@@ -896,7 +918,7 @@ export class ImplicitFlowCredentialsSync {
 	 */
 	static syncCredentials(
 		variant: ImplicitFlowVariant,
-		controllerCredentials: any,
+		controllerCredentials: StepCredentials,
 		setCredentials: (creds: StepCredentials) => void
 	): void {
 		if (controllerCredentials) {
