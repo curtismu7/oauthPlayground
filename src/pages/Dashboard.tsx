@@ -21,10 +21,10 @@ import {
 	formatBytes,
 	formatUptime,
 } from '../services/serverHealthService';
+import { UnifiedTokenStorageService } from '../services/unifiedTokenStorageService';
 import { type ActivityItem, getRecentActivity } from '../utils/activityTracker';
 import { checkSavedCredentialsAsync } from '../utils/configurationStatus';
 import { credentialManager } from '../utils/credentialManager';
-import { UnifiedTokenStorageService } from '../services/unifiedTokenStorageService';
 import '../styles/dashboard.css';
 
 type FlowPalette = 'oauth' | 'oidc' | 'pingone';
@@ -86,17 +86,17 @@ const Dashboard = () => {
 		const checkCredentials = async () => {
 			const hasCredentials = await checkSavedCredentialsAsync();
 			setHasSavedCredentials(hasCredentials);
-			
+
 			// Debug: Log credential status
 			const configCreds = credentialManager.loadConfigCredentials();
 			const authzCreds = credentialManager.loadAuthzFlowCredentials();
 			const localStorageCreds = localStorage.getItem('oauth_config');
 			const pingoneCreds = localStorage.getItem('pingone_config_credentials');
-			
+
 			// Check unified storage
 			const unifiedStorage = UnifiedTokenStorageService.getInstance();
 			const unifiedCreds = await unifiedStorage.getOAuthCredentials();
-			
+
 			console.group('[Dashboard] 🔐 Credential Check');
 			console.log('✅ hasSavedCredentials:', hasCredentials);
 			console.log('🗄️  Unified Storage (IndexedDB/SQLite):', unifiedCreds || '❌ none');
@@ -116,10 +116,9 @@ const Dashboard = () => {
 			});
 			console.groupEnd();
 		};
-		
+
 		checkCredentials();
 	}, []);
-
 
 	// Resolve domain: when backend down use IndexedDB + env/default only (avoids 404); when up use getCustomDomain (API).
 	useEffect(() => {
@@ -130,7 +129,11 @@ const Dashboard = () => {
 					return;
 				}
 				const env = (import.meta.env.VITE_PUBLIC_APP_URL as string) || '';
-				const fromEnv = env.replace(/^https?:\/\//i, '').split('/')[0].split(':')[0].trim();
+				const fromEnv = env
+					.replace(/^https?:\/\//i, '')
+					.split('/')[0]
+					.split(':')[0]
+					.trim();
 				setCustomDomain(fromEnv || 'api.pingdemo.com');
 			});
 			return;
@@ -241,25 +244,85 @@ const Dashboard = () => {
 		{ method: 'GET', path: '/api/health', desc: 'Backend health check' },
 		{ method: 'GET', path: '/api/env-config', desc: 'Environment defaults' },
 		{ method: 'GET', path: '/api/version', desc: 'Backend version' },
-		{ method: 'POST', path: '/api/token-exchange', desc: 'Exchange authorization code for tokens', docUrl: PINGONE_AUTH_DOC },
-		{ method: 'POST', path: '/api/client-credentials', desc: 'Client credentials grant', docUrl: PINGONE_AUTH_DOC },
-		{ method: 'POST', path: '/api/introspect-token', desc: 'Token introspection', docUrl: PINGONE_AUTH_DOC },
+		{
+			method: 'POST',
+			path: '/api/token-exchange',
+			desc: 'Exchange authorization code for tokens',
+			docUrl: PINGONE_AUTH_DOC,
+		},
+		{
+			method: 'POST',
+			path: '/api/client-credentials',
+			desc: 'Client credentials grant',
+			docUrl: PINGONE_AUTH_DOC,
+		},
+		{
+			method: 'POST',
+			path: '/api/introspect-token',
+			desc: 'Token introspection',
+			docUrl: PINGONE_AUTH_DOC,
+		},
 		{ method: 'GET', path: '/api/userinfo', desc: 'UserInfo (OAuth)', docUrl: PINGONE_AUTH_DOC },
-		{ method: 'POST', path: '/api/validate-token', desc: 'Validate access tokens', docUrl: PINGONE_AUTH_DOC },
-		{ method: 'POST', path: '/api/device-authorization', desc: 'Device authorization flow', docUrl: PINGONE_AUTH_DOC },
-		{ method: 'POST', path: '/api/par', desc: 'Pushed Authorization Request', docUrl: PINGONE_AUTH_DOC },
+		{
+			method: 'POST',
+			path: '/api/validate-token',
+			desc: 'Validate access tokens',
+			docUrl: PINGONE_AUTH_DOC,
+		},
+		{
+			method: 'POST',
+			path: '/api/device-authorization',
+			desc: 'Device authorization flow',
+			docUrl: PINGONE_AUTH_DOC,
+		},
+		{
+			method: 'POST',
+			path: '/api/par',
+			desc: 'Pushed Authorization Request',
+			docUrl: PINGONE_AUTH_DOC,
+		},
 		{ method: 'GET', path: '/api/jwks', desc: 'PingOne JWKS', docUrl: PINGONE_AUTH_DOC },
 		{ method: 'POST', path: '/api/user-jwks', desc: 'Generate JWKS from user key' },
 		{ method: 'POST', path: '/api/credentials/save', desc: 'Save credentials' },
 		{ method: 'GET', path: '/api/credentials/load', desc: 'Load credentials' },
 		{ method: 'GET', path: '/api/settings/custom-domain', desc: 'Get custom domain (SQLite)' },
 		{ method: 'POST', path: '/api/settings/custom-domain', desc: 'Save custom domain (SQLite)' },
-		{ method: 'GET', path: '/api/environments', desc: 'List environments', docUrl: PINGONE_PLATFORM_DOC },
-		{ method: 'POST', path: '/api/pingone/worker-token', desc: 'Worker token', docUrl: PINGONE_AUTH_DOC },
-		{ method: 'POST', path: '/api/pingone/token', desc: 'Token endpoint proxy', docUrl: PINGONE_AUTH_DOC },
-		{ method: 'POST', path: '/api/pingone/oidc-discovery', desc: 'OIDC discovery', docUrl: PINGONE_AUTH_DOC },
-		{ method: 'POST', path: '/api/mfa/challenge/initiate', desc: 'MFA challenge', docUrl: PINGONE_MFA_DOC },
-		{ method: 'POST', path: '/api/device/register', desc: 'FIDO2 device registration', docUrl: PINGONE_MFA_DOC },
+		{
+			method: 'GET',
+			path: '/api/environments',
+			desc: 'List environments',
+			docUrl: PINGONE_PLATFORM_DOC,
+		},
+		{
+			method: 'POST',
+			path: '/api/pingone/worker-token',
+			desc: 'Worker token',
+			docUrl: PINGONE_AUTH_DOC,
+		},
+		{
+			method: 'POST',
+			path: '/api/pingone/token',
+			desc: 'Token endpoint proxy',
+			docUrl: PINGONE_AUTH_DOC,
+		},
+		{
+			method: 'POST',
+			path: '/api/pingone/oidc-discovery',
+			desc: 'OIDC discovery',
+			docUrl: PINGONE_AUTH_DOC,
+		},
+		{
+			method: 'POST',
+			path: '/api/mfa/challenge/initiate',
+			desc: 'MFA challenge',
+			docUrl: PINGONE_MFA_DOC,
+		},
+		{
+			method: 'POST',
+			path: '/api/device/register',
+			desc: 'FIDO2 device registration',
+			docUrl: PINGONE_MFA_DOC,
+		},
 	];
 
 	const formatActivityAction = (action?: string) => {
@@ -274,6 +337,14 @@ const Dashboard = () => {
 
 	return (
 		<div className="dashboard-page">
+			{/* Version badges — top of page, single row */}
+			<div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+				<AppVersionBadge type="app" />
+				<AppVersionBadge type="mfa" />
+				<AppVersionBadge type="unified" />
+				<AppVersionBadge type="protect" />
+			</div>
+
 			{/* Dashboard header — collapsible, Ping red/white, narrow */}
 			<div className="section-wrap">
 				<CollapsibleHeader
@@ -285,14 +356,7 @@ const Dashboard = () => {
 					defaultCollapsed={collapsedSections.dashboardHeader}
 					collapsed={collapsedSections.dashboardHeader}
 					onToggle={() => toggleSection('dashboardHeader')}
-				>
-					<div className="card-body card-body--lg d-flex flex-column align-items-center gap-2">
-						<AppVersionBadge type="app" />
-						<AppVersionBadge type="mfa" />
-						<AppVersionBadge type="unified" />
-						<AppVersionBadge type="protect" />
-					</div>
-				</CollapsibleHeader>
+				/>
 			</div>
 
 			{/* API Status — shared with /api-status page; single place for server health */}
@@ -457,7 +521,7 @@ const Dashboard = () => {
 			{/* Config — custom domain: edit, save to SQLite + IndexedDB, redirect to new URL */}
 			<div className="section-wrap">
 				<CollapsibleHeader
-				title="Custom Domain Config"
+					title="Custom Domain Config"
 					subtitle="App URL and custom domain (always HTTPS)"
 					icon={<Icon name="cog" />}
 					theme="ping"
