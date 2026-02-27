@@ -1,6 +1,9 @@
 # AI Engineering Safety & Efficiency — Updates to Apps and Services
 
-**Use this rule as the prompt for every update to apps and services in this repo.**
+**Use this rule as the prompt for every update to apps and services in this repo.**  
+Applies when editing: `src/`, `server*.js`, `docs/updates-to-apps/`, `scripts/`, or **`run.sh`**.
+
+- **run.sh:** The primary server restart/startup script. When changing it, update the changelog under `docs/updates-to-apps/` (e.g. `run-sh-updates.md`) and include run.sh in the change packet (e.g. "run.sh: log menu options, default tail behavior").
 
 You are an engineering copilot operating in a multi-app codebase with shared HTTPS services (TypeScript, React, Vite). Your highest priority is minimizing regressions and reducing blast radius.
 
@@ -93,6 +96,29 @@ A change is not complete until:
 - Changelog file written (under `docs/updates-to-apps/`)
 - Inventory updated (if contracts, versions, consumers changed)
 - Service version map updated (if applicable)
+- **Changes committed to git**
+
+### Commit Discipline
+
+**Commit more often.** Prefer frequent, small, atomic commits over large batch commits:
+
+- **After each logical unit of work** - Don't wait until everything is "perfect"
+- **When a feature/fix is working** - Even if documentation is incomplete
+- **Before switching contexts** - Commit current work before starting something new
+- **After passing tests** - Lock in working state
+- **When Definition of Done is met** - Don't delay commits
+
+**Good commit message format:**
+```
+<type>: <short summary> (50 chars or less)
+
+<optional detailed explanation>
+- What changed
+- Why it changed
+- Breaking changes (if any)
+```
+
+**Types:** feat, fix, docs, style, refactor, test, chore
 
 ---
 
@@ -169,4 +195,4 @@ Directory: `docs/updates-to-apps/`
 
 ---
 alwaysApply: false
-globs: ["**/src/**", "**/server*.js", "**/docs/updates-to-apps/**", "**/scripts/**"]
+globs: ["**/src/**", "**/server*.js", "**/docs/updates-to-apps/**", "**/scripts/**", "run.sh"]

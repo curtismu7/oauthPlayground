@@ -910,11 +910,16 @@ app.get('/api/logs/read', (req, res) => {
 			return res.status(403).json({ error: 'Access denied' });
 		}
 		
-		// Check if file exists
+		// If file does not exist (e.g. pingone-api.log not created yet), return 200 with empty content
 		if (!fs.existsSync(filePath)) {
-			return res.status(404).json({ error: 'Log file not found' });
+			return res.status(200).json({
+				content: '',
+				totalLines: 0,
+				fileSize: 0,
+				modified: null
+			});
 		}
-		
+
 		const stats = fs.statSync(filePath);
 		const lineCount = parseInt(lines, 10);
 		
@@ -1333,6 +1338,60 @@ app.get('/api/pingone/api-calls', (_req, res) => {
 	} catch (error) {
 		console.error('[API Calls Endpoint] Error:', error);
 		return res.status(500).json({ error: 'Failed to retrieve API calls', message: error.message });
+	}
+});
+
+// Log a client-side direct PingOne API call to pingone-api.log (when using custom domain, not proxy)
+app.post('/api/pingone/log-call', (req, res) => {
+	try {
+		const {
+			operationName = 'Direct PingOne Call',
+			url,
+			method = 'GET',
+			headers = {},
+			body,
+			status,
+			statusText = '',
+			responseHeaders = {},
+			responseData,
+			duration = 0,
+			metadata = {},
+		} = req.body || {};
+
+		if (!url || !method) {
+			return res.status(400).json({ error: 'missing_url_or_method' });
+		}
+
+		// Build a response-like object for logPingOneApiCall (it expects .status, .statusText, .headers.forEach)
+		const syntheticResponse = {
+			status: status ?? 0,
+			statusText: statusText || 'No response',
+			headers: {
+				forEach(cb) {
+					Object.entries(responseHeaders).forEach(([k, v]) => cb(v, k));
+				},
+			},
+		};
+
+		logPingOneApiCall(
+			operationName,
+			url,
+			method,
+			headers,
+			body ?? null,
+			syntheticResponse,
+			responseData ?? null,
+			duration,
+			{ ...metadata, source: 'client-direct' }
+		);
+
+		return res.status(200).json({ success: true });
+	} catch (error) {
+		console.error('[PingOne log-call] Error:', error);
+		return res.status(500).json({
+			error: 'Failed to log call',
+			message: error instanceof Error ? error.message : String(error),
+		});
 	}
 });
 
