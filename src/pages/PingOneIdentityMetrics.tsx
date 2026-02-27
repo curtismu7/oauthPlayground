@@ -434,6 +434,7 @@ const PingOneIdentityMetrics: React.FC = () => {
 	const [metrics, setMetrics] = useState<IdentityCountResponse | null>(null);
 	const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 	const [showPermissionsErrorModal, setShowPermissionsErrorModal] = useState(false);
+	const [showRawJson, setShowRawJson] = useState(false);
 
 	// Use global worker token hook for unified token management
 	const globalTokenStatus = useGlobalWorkerToken();
@@ -1070,11 +1071,78 @@ const PingOneIdentityMetrics: React.FC = () => {
 
 								<Card style={{ border: '1px solid #dbeafe', background: '#ffffff' }}>
 									<SectionTitle>
-										<FiDatabase /> Full API Response
+										<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1 }}>
+											<FiDatabase /> Full API Response
+										</div>
+										{formattedMetrics && (
+											<div
+												style={{
+													display: 'flex',
+													gap: '0.25rem',
+													background: '#f1f5f9',
+													borderRadius: '0.5rem',
+													padding: '0.2rem',
+												}}
+											>
+												<button
+													type="button"
+													onClick={() => setShowRawJson(false)}
+													style={{
+														padding: '0.25rem 0.75rem',
+														borderRadius: '0.375rem',
+														border: 'none',
+														fontSize: '0.75rem',
+														fontWeight: 600,
+														cursor: 'pointer',
+														background: !showRawJson ? '#3b82f6' : 'transparent',
+														color: !showRawJson ? 'white' : '#64748b',
+														transition: 'all 0.15s',
+													}}
+												>
+													Formatted
+												</button>
+												<button
+													type="button"
+													onClick={() => setShowRawJson(true)}
+													style={{
+														padding: '0.25rem 0.75rem',
+														borderRadius: '0.375rem',
+														border: 'none',
+														fontSize: '0.75rem',
+														fontWeight: 600,
+														cursor: 'pointer',
+														background: showRawJson ? '#3b82f6' : 'transparent',
+														color: showRawJson ? 'white' : '#64748b',
+														transition: 'all 0.15s',
+													}}
+												>
+													Raw JSON
+												</button>
+											</div>
+										)}
 									</SectionTitle>
 									{formattedMetrics && (
 										<div style={{ maxHeight: '600px', overflow: 'auto' }}>
-											<JSONHighlighter data={formattedMetrics} />
+											{showRawJson ? (
+												<pre
+													style={{
+														margin: 0,
+														padding: '1rem',
+														background: '#0f172a',
+														color: '#e2e8f0',
+														borderRadius: '0.5rem',
+														fontFamily: "'Monaco', 'Menlo', 'Courier New', monospace",
+														fontSize: '0.8rem',
+														lineHeight: 1.6,
+														whiteSpace: 'pre-wrap',
+														wordBreak: 'break-all',
+													}}
+												>
+													{JSON.stringify(metrics, null, 2)}
+												</pre>
+											) : (
+												<JSONHighlighter data={formattedMetrics} />
+											)}
 										</div>
 									)}
 								</Card>
