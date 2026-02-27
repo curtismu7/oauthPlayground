@@ -5,14 +5,11 @@ import {
 	FiCopy,
 	FiDownload,
 	FiExternalLink,
-	FiEye,
-	FiEyeOff,
 	FiGithub,
 	FiInfo,
 	FiKey,
 	FiPackage,
 	FiPlay,
-	FiRefreshCw,
 	FiSave,
 	FiSettings,
 	FiTerminal,
@@ -24,8 +21,6 @@ import PingOneApplicationConfig, {
 	type PingOneApplicationState,
 } from '../components/PingOneApplicationConfig';
 import type { StepCredentials } from '../components/steps/CommonSteps';
-import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
-import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { WorkerTokenModalV8 } from '../v8/components/WorkerTokenModalV8';
 import { WorkerTokenStatusDisplayV8 } from '../v8/components/WorkerTokenStatusDisplayV8';
@@ -34,7 +29,6 @@ import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { CopyButtonService } from '../services/copyButtonService';
 import { credentialStorageManager } from '../services/credentialStorageManager';
 import { FlowHeader } from '../services/flowHeaderService';
-import { SaveButton } from '../services/saveButtonService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { credentialManager } from '../utils/credentialManager';
 import { v4ToastManager } from '../utils/v4ToastMessages';
@@ -542,9 +536,6 @@ const Configuration: React.FC = () => {
 	});
 	const [pingOneConfigSaved, setPingOneConfigSaved] = useState(false);
 
-	// Global worker token for authenticated API calls
-	const globalTokenStatus = useGlobalWorkerToken();
-
 	// Worker token state - using unifiedWorkerTokenService for consistency
 	const [workerToken, setWorkerToken] = useState<string>(() => {
 		// Try to get token from unifiedWorkerTokenService first
@@ -615,26 +606,6 @@ const Configuration: React.FC = () => {
 			setTimeout(() => setPingOneConfigSaved(false), 3000);
 		} catch (error) {
 			console.error('Failed to save PingOne configuration:', error);
-		}
-	};
-
-	// Save all configuration (credentials + PingOne config)
-	const saveAllConfiguration = async () => {
-		try {
-			// Save PingOne application config
-			await credentialStorageManager.saveFlowData(
-				'configuration',
-				'pingone-application-config',
-				pingOneConfig
-			);
-
-			setPingOneConfigSaved(true);
-			setTimeout(() => setPingOneConfigSaved(false), 10000);
-
-			console.log(`[Configuration] Saved configuration`);
-		} catch (error) {
-			console.error('Failed to save configuration:', error);
-			throw error;
 		}
 	};
 
@@ -1094,6 +1065,7 @@ cd oauthPlayground`}
 							}}
 						>
 							<button
+								type="button"
 								onClick={savePingOneConfig}
 								style={{
 									background: '#10b981',
