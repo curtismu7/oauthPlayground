@@ -719,6 +719,77 @@ When adding worker token functionality to a page:
 
 ---
 
+## 📦 Page Consolidation: 4 → 3 Pages (February 27, 2026)
+
+### Problem
+
+The app had four separate pages covering overlapping credential/token concerns:
+
+| Route | Page | Purpose |
+|-------|------|---------|
+| `/flows/worker-token-v7` | `WorkerTokenFlowV7.tsx` | Full OAuth worker token flow |
+| `/worker-token-tester` | `WorkerTokenTester.tsx` | JWT decode + PingOne API validation |
+| (implicit) | `CredentialManagement.tsx` | Flow credential storage |
+| `/credential-management` | (did not exist yet) | — |
+
+`WorkerTokenTester` and `CredentialManagement` were separate pages with significant conceptual overlap — both deal with credentials/tokens. The tester page had no dedicated route in `App.tsx`.
+
+### Solution
+
+**Merge `WorkerTokenTester` functionality as a second tab inside `CredentialManagement`.**
+
+- Added `TabBar` / `Tab` styled components with `activeTab` state (`'credentials' | 'tester'`)
+- Tab initializes from URL param: `?tab=tester` → opens Token Tester directly
+- Inlined all JWT decode/claims display/PingOne API test logic from `WorkerTokenTester.tsx`
+- Removed the standalone `WorkerTokenTester.tsx` page entirely
+- Registered `/credential-management` route in `App.tsx`
+- Redirected old `/worker-token-tester` route to `/credential-management`
+
+### V8 Modal Upgrade (same session)
+
+`CredentialManagement.tsx` was also upgraded from legacy inline token state to the V8 pattern:
+
+**Removed:**
+- `loadWorkerTokenStatus()` function
+- `formatTimeRemaining()` function
+- `workerTokenStatus` state object
+- 7 legacy styled components: `WorkerTokenCard`, `WorkerTokenTitle`, `WorkerTokenInfo`, `WorkerTokenInfoItem`, `WorkerTokenLabel`, `WorkerTokenValue`, `WorkerTokenActions`
+
+**Added:**
+- `WorkerTokenModalV8` (button-triggered modal)
+- `useGlobalWorkerToken()` hook for live status badge
+- `WorkerTokenButton` styled component (blue, shows ✓/⚠/✗ status inline)
+
+### ESLint Pitfall: `require-atomic-updates`
+
+When the async `handleImportCredentials` handler reset the file `<input>` after awaits, ESLint flagged a race condition:
+
+```tsx
+// ❌ WRONG — event.target may be stale after awaits
+const handleImportCredentials = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const file = event.target.files?.[0];
+  await file.text(); // async gap
+  event.target.value = ''; // ESLint error: require-atomic-updates
+};
+
+// ✅ CORRECT — capture ref before any await
+const handleImportCredentials = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const inputEl = event.target; // capture synchronously
+  const file = inputEl.files?.[0];
+  await file.text();
+  inputEl.value = ''; // safe: captured ref, not re-read from event
+};
+```
+
+**Rule:** Always capture `event.target` (or any event property) into a local variable _before_ the first `await` in an async event handler.
+
+### Files Changed
+
+- `src/pages/CredentialManagement.tsx` — V8 modal upgrade + Token Tester tab merged in
+- `src/App.tsx` — Added `/credential-management` route; `/worker-token-tester` → `<Navigate>` redirect; removed `WorkerTokenTester` import
+
+---
+
 ## 🆘 Troubleshooting Quick Reference
 
 | Error Message | Likely Cause | Quick Fix |
