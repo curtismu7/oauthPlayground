@@ -13,6 +13,7 @@ This document is written as **explicit, executable steps** for Cursor. Follow in
 📖 **[V9 Migration Lessons Learned](./V9_MIGRATION_LESSONS_LEARNED.md)**
 
 This document captures all errors, solutions, and best practices from the first V7→V9 production migration session (February 2026). It includes:
+
 - Pre-migration checklist (service dependencies, archived files, external assets)
 - Common import path errors and fixes
 - Service migration patterns
@@ -31,6 +32,7 @@ Reading this document will help you avoid 7+ hours of debugging common issues.
 ### Why This Matters
 
 Pages should use `unifiedWorkerTokenService` instead of direct `localStorage` manipulation for worker tokens. This provides:
+
 - ✅ **Dual storage:** IndexedDB (primary) + SQLite (backup)  
 - ✅ **Event-driven updates:** Cross-tab synchronization  
 - ✅ **Consistent pattern:** Same as Configuration, Dashboard, Auto-Discover  
@@ -47,6 +49,7 @@ grep -n "localStorage.removeItem('unified_worker_token')" src/pages/YourPage.tsx
 ### Migration Pattern
 
 **BEFORE (Direct localStorage):**
+
 ```typescript
 const stored = localStorage.getItem('unified_worker_token');
 if (stored) {
@@ -59,6 +62,7 @@ localStorage.removeItem('unified_worker_token');
 ```
 
 **AFTER (Unified Service):**
+
 ```typescript
 // Add import
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
@@ -94,6 +98,7 @@ sed -i '' "s|// Use global worker token service instead of custom localStorage h
 ### Documentation Required
 
 After migration, create changelog in `docs/updates-to-apps/{page-name}-updates.md`:
+
 - Before/after code examples
 - Files modified
 - Testing instructions
@@ -439,6 +444,7 @@ Fixed JSX structure in `src/pages/test/AllFlowsApiTest.tsx`:
 - `src/styles/nano-overrides.css` - Already has minimal overrides
 
 **Result:**
+
 - ✅ All icon fonts loaded successfully
 - ✅ Dashboard "ea09" bug fixed - now shows ✓ check-circle icon
 - ✅ All 34 icons available throughout application
@@ -446,6 +452,7 @@ Fixed JSX structure in `src/pages/test/AllFlowsApiTest.tsx`:
 - ✅ Production-ready
 
 **Dependencies:**
+
 ```json
 "@mdi/font": "^7.4.47"
 ```
@@ -457,11 +464,13 @@ Fixed JSX structure in `src/pages/test/AllFlowsApiTest.tsx`:
 ~~The original plan was to use IcoMoon for manual font subset generation.~~
 
 **Why We Didn't Use IcoMoon:**
+
 - More error-prone (manual Unicode mapping)
 - Time-consuming (selecting 34 icons individually)
 - Hard to maintain (no package updates)
 
 **Why @mdi/font is Better:**
+
 - One command: `npm install @mdi/font`
 - Auto-updated when package updates
 - Contains all MDI icons (no manual selection)

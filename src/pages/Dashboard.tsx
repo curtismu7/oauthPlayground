@@ -200,7 +200,7 @@ const Dashboard = () => {
 	}, []);
 
 	// Refresh dashboard data
-	const refreshDashboard = async () => {
+	const refreshDashboard = useCallback(async () => {
 		setIsRefreshing(true);
 		try {
 			const activity = getRecentActivity();
@@ -211,7 +211,7 @@ const Dashboard = () => {
 		} finally {
 			setIsRefreshing(false);
 		}
-	};
+	}, [fetchServerHealth]);
 
 	const handleRefresh = useCallback(async () => {
 		setRefreshMessage(null);
@@ -222,7 +222,7 @@ const Dashboard = () => {
 		} catch {
 			setRefreshError('Refresh failed. Try again.');
 		}
-	}, []);
+	}, [refreshDashboard]);
 
 	// Clear refresh success message after a short delay (contextual feedback per toast-replace)
 	useEffect(() => {
@@ -341,10 +341,10 @@ const Dashboard = () => {
 									Refresh
 								</button>
 								{refreshMessage && (
-									<span className="text-success small d-flex align-items-center gap-1" role="status">
+									<output className="text-success small d-flex align-items-center gap-1">
 										<Icon name="check-circle" size="sm" />
 										{refreshMessage}
-									</span>
+									</output>
 								)}
 								{refreshError && (
 									<span className="text-danger small d-flex align-items-center gap-1" role="alert">
