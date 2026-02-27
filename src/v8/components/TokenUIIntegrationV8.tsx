@@ -419,8 +419,9 @@ export const TokenUIIntegrationV8: React.FC = () => {
 							</div>
 						)}
 					</div>
+				</div>
 
-					{/* User Token Section */}
+				{/* User Token Section */}
 					<div
 						style={{
 							background: 'white',
@@ -601,9 +602,9 @@ export const TokenUIIntegrationV8: React.FC = () => {
 							)}
 						</div>
 					</div>
-				</div>
 			</div>
 		</div>
+	);
 };
 
 export default TokenUIIntegrationV8;
