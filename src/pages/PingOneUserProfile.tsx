@@ -1616,6 +1616,11 @@ const PingOneUserProfile: React.FC = () => {
 		setWorkerTokenMeta(getWorkerTokenMeta());
 	}, []);
 
+	// Refresh local token meta whenever the global token changes
+	useEffect(() => {
+		setWorkerTokenMeta(getWorkerTokenMeta());
+	}, [globalTokenStatus.token, globalTokenStatus.isValid]);
+
 	useEffect(() => {
 		if (workerTokenMeta.isExpired && accessToken) {
 			setShowUserSelector(true);
@@ -1696,9 +1701,12 @@ const PingOneUserProfile: React.FC = () => {
 		);
 	}
 
-	// Use global worker token status instead of custom validation
+	// Use global worker token status instead of custom validation.
+	// Also treat a locally-known non-expired token as valid while global status is still loading
+	// to avoid a false "expired" flash on page load / after token generation.
 	const hasValidWorkerToken =
-		globalTokenStatus.isValid && globalTokenStatus.token && !globalTokenStatus.isLoading;
+		(globalTokenStatus.isValid && !!globalTokenStatus.token) ||
+		(globalTokenStatus.isLoading && workerTokenMeta.hasToken && !workerTokenMeta.isExpired);
 	const workerTokenStatusVariant: 'valid' | 'expired' | 'missing' = hasValidWorkerToken
 		? 'valid'
 		: globalTokenStatus.token
@@ -1746,7 +1754,7 @@ const PingOneUserProfile: React.FC = () => {
 								Valid until {workerTokenMeta.absoluteDescription}.
 							</small>
 						</AlertBanner>
-					) : workerTokenMeta.hasToken ? (
+					) : workerTokenMeta.hasToken && workerTokenMeta.isExpired ? (
 						<AlertBanner style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
 							<div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
 								<FiAlertTriangle />
