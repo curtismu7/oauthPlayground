@@ -24,6 +24,90 @@ Reading this document will help you avoid 7+ hours of debugging common issues.
 
 ---
 
+## 🔒 CRITICAL: Worker Token Service Check
+
+**ALWAYS check pages for direct localStorage worker token usage and migrate to unified service.**
+
+### Why This Matters
+
+Pages should use `unifiedWorkerTokenService` instead of direct `localStorage` manipulation for worker tokens. This provides:
+- ✅ **Dual storage:** IndexedDB (primary) + SQLite (backup)  
+- ✅ **Event-driven updates:** Cross-tab synchronization  
+- ✅ **Consistent pattern:** Same as Configuration, Dashboard, Auto-Discover  
+- ✅ **No JSON parsing errors:** Service returns parsed objects  
+
+### Quick Check
+
+```bash
+# Check if a page uses direct localStorage for worker tokens
+grep -n "localStorage.getItem('unified_worker_token')" src/pages/YourPage.tsx
+grep -n "localStorage.removeItem('unified_worker_token')" src/pages/YourPage.tsx
+```
+
+### Migration Pattern
+
+**BEFORE (Direct localStorage):**
+```typescript
+const stored = localStorage.getItem('unified_worker_token');
+if (stored) {
+  const data = JSON.parse(stored);
+  // Use data...
+}
+
+// Clearing
+localStorage.removeItem('unified_worker_token');
+```
+
+**AFTER (Unified Service):**
+```typescript
+// Add import
+import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
+
+// Reading token
+const data = unifiedWorkerTokenService.getTokenDataSync();
+if (data) {
+  // Use data... (no JSON.parse needed)
+}
+
+// Clearing
+unifiedWorkerTokenService.clearToken();
+```
+
+### Automated Migration
+
+```bash
+# 1. Add import (manually or with this helper)
+echo "import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';" >> src/pages/YourPage.tsx
+
+# 2. Replace localStorage.getItem
+sed -i '' "s/const stored = localStorage.getItem('unified_worker_token');/const data = unifiedWorkerTokenService.getTokenDataSync();/" src/pages/YourPage.tsx
+sed -i '' "s/if (stored) {/if (data) {/" src/pages/YourPage.tsx
+sed -i '' "/const data = JSON.parse(stored);/d" src/pages/YourPage.tsx
+
+# 3. Replace localStorage.removeItem
+sed -i '' "s/localStorage.removeItem('unified_worker_token');/unifiedWorkerTokenService.clearToken();/" src/pages/YourPage.tsx
+
+# 4. Update comments
+sed -i '' "s|// Use global worker token service instead of custom localStorage handling|// Use global worker token service (unified storage)|g" src/pages/YourPage.tsx
+```
+
+### Documentation Required
+
+After migration, create changelog in `docs/updates-to-apps/{page-name}-updates.md`:
+- Before/after code examples
+- Files modified
+- Testing instructions
+- Rollback plan
+
+### Already Migrated Examples
+
+- ✅ [PingOne User Profile](../updates-to-apps/pingone-user-profile-updates.md) - Feb 27, 2026
+- ✅ [Configuration](../updates-to-apps/configuration-dashboard-v8-migration.md) - Feb 27, 2026
+- ✅ [Dashboard](../updates-to-apps/configuration-dashboard-v8-migration.md) - Feb 27, 2026
+- ✅ [Auto-Discover](../updates-to-apps/auto-discover-updates.md) - Feb 27, 2026
+
+---
+
 ## 🎯 Recent Completions (February 26, 2026)
 
 ### Session Summary: UI Polish, API Enhancements, and Icon Migration (PR 1)
