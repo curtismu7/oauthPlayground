@@ -238,7 +238,9 @@ const styles = {
 					? '#dc2626'
 					: color === '#dbeafe'
 						? '#1e40af'
-						: '#374151',
+						: color === '#e0f2fe'
+							? '#0369a1'
+							: '#374151',
 		fontWeight: 500,
 		display: 'inline-flex' as const,
 		alignItems: 'center' as const,
@@ -1518,7 +1520,7 @@ const PingOneAuditActivities: React.FC = () => {
 																	</span>
 																)}
 																{activity.actors?.client?.name && (
-																	<span style={styles.detailBadge('#f3e8ff')}>
+																	<span style={styles.detailBadge('#e0f2fe')}>
 																		<FiServer size={12} />
 																		{activity.actors.client.name}
 																	</span>
