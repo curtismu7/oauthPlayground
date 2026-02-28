@@ -37,36 +37,103 @@
 	border-bottom: 1px solid #bae6fd;
 }
 
-/* Drop zones for reordering groups — always visible so users know where to drop */
+/* Drop zones for reordering groups — visible gap between sections */
 .sidebar-ping__drop-zone {
-	min-height: 10px;
-	margin: 2px 4px;
-	border-radius: 4px;
+	min-height: 22px;
+	margin: 1px 6px;
+	border-radius: 6px;
 	border: 2px dashed transparent;
-	background: rgba(0, 123, 255, 0.06);
+	background: transparent;
 	transition:
-		background 0.15s ease,
-		border-color 0.15s ease;
+		background 0.12s ease,
+		border-color 0.12s ease;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .sidebar-ping__drop-zone--group:hover {
-	background: rgba(0, 123, 255, 0.12);
-	border-color: rgba(0, 123, 255, 0.25);
+	background: rgba(0, 123, 255, 0.08);
+	border-color: rgba(0, 123, 255, 0.35);
 }
 
 .sidebar-ping__drop-zone--group.sidebar-ping__drop-zone--active {
-	background: rgba(0, 123, 255, 0.2);
-	border-color: var(--sidebar-ping-active-bg);
-	border-style: solid;
+	background: rgba(0, 123, 255, 0.14);
+	border-color: #007bff;
+	border-style: dashed;
 }
 
-/* Drop line shown above an item when dragging to reorder within a group */
+.sidebar-ping__drop-zone--group.sidebar-ping__drop-zone--active::after {
+	content: '↓ drop here';
+	font-size: 0.68rem;
+	font-weight: 600;
+	color: #007bff;
+	letter-spacing: 0.02em;
+	opacity: 0.85;
+}
+
+/* Drop line shown above/below an item when dragging to reorder within a group */
 .sidebar-ping__drop-line {
-	height: 3px;
-	margin: 0 0.5rem;
-	background: var(--sidebar-ping-active-bg);
-	border-radius: 2px;
+	height: 0;
+	margin: 0;
+	position: relative;
+	overflow: visible;
 	flex-shrink: 0;
+}
+
+.sidebar-ping__drop-line::before {
+	content: '';
+	display: block;
+	position: absolute;
+	left: 10px;
+	right: 10px;
+	top: -2px;
+	height: 4px;
+	background: #007bff;
+	border-radius: 2px;
+	box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.sidebar-ping__drop-line::after {
+	content: '';
+	display: block;
+	position: absolute;
+	left: 6px;
+	top: -5px;
+	width: 10px;
+	height: 10px;
+	background: #007bff;
+	border-radius: 50%;
+	border: 2px solid white;
+	box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.4);
+}
+
+/* Trailing drop slot — target zone below last item in a group */
+.sidebar-ping__drop-trail {
+	min-height: 18px;
+	list-style: none;
+	margin: 0 6px 2px;
+	border-radius: 4px;
+	border: 2px dashed transparent;
+	transition:
+		background 0.1s ease,
+		border-color 0.1s ease;
+}
+
+.sidebar-ping__drop-trail--active {
+	background: rgba(0, 123, 255, 0.1);
+	border-color: #007bff;
+}
+
+.sidebar-ping__drop-trail--active::after {
+	content: '↓';
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 0.7rem;
+	color: #007bff;
+	font-weight: 700;
+	min-height: 18px;
 }
 
 .sidebar--ping .sidebar-ping__nav {
