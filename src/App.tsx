@@ -120,19 +120,19 @@ import SpiffeSpirePingOne from './pages/docs/SpiffeSpirePingOne.tsx';
 import EnvironmentIdInputDemo from './pages/EnvironmentIdInputDemo';
 import AdvancedOAuthParametersDemoFlow from './pages/flows/AdvancedOAuthParametersDemoFlow';
 import CIBAFlowV9 from './pages/flows/CIBAFlowV9';
-import ClientCredentialsFlowV7 from './pages/flows/ClientCredentialsFlowV7';
-import DeviceAuthorizationFlowV7 from './pages/flows/DeviceAuthorizationFlowV7';
+// ClientCredentialsFlowV7 archived — route redirects to v9
+// DeviceAuthorizationFlowV7 archived — route redirects to v9
 import DPoPFlow from './pages/flows/DPoPFlow';
 import IDTokensFlow from './pages/flows/IDTokensFlow';
-import ImplicitFlowV7 from './pages/flows/ImplicitFlowV7';
+// ImplicitFlowV7 archived — route redirects to v9
 import JWTBearerFlow from './pages/flows/JWTBearerFlow';
 import JWTBearerTokenFlowV7 from './pages/flows/JWTBearerTokenFlowV7';
 import KrogerGroceryStoreMFA from './pages/flows/KrogerGroceryStoreMFA';
 import MFAFlow from './pages/flows/MFAFlow';
 import OAuth2CompliantAuthorizationCodeFlow from './pages/flows/OAuth2CompliantAuthorizationCodeFlow';
 import OAuth2ResourceOwnerPasswordFlow from './pages/flows/OAuth2ResourceOwnerPasswordFlow';
-import OAuthAuthorizationCodeFlowV7 from './pages/flows/OAuthAuthorizationCodeFlowV7';
-import OAuthAuthorizationCodeFlowV7_2 from './pages/flows/OAuthAuthorizationCodeFlowV7_2';
+// OAuthAuthorizationCodeFlowV7 archived — route redirects to v9
+// OAuthAuthorizationCodeFlowV7_2 archived — route redirects to v9
 import OAuthImplicitFlowCompletion from './pages/flows/OAuthImplicitFlowCompletion';
 import OAuthROPCFlowV7 from './pages/flows/OAuthROPCFlowV7';
 import OIDCCompliantAuthorizationCodeFlow from './pages/flows/OIDCCompliantAuthorizationCodeFlow';
@@ -641,14 +641,14 @@ const AppRoutes: React.FC = () => {
 								<Route path="/custom-domain-test" element={<CustomDomainTestPage />} />
 								{/* DaVinci Todo App */}
 								<Route path="/davinci-todo" element={<DavinciTodoApp />} />
-								{/* V7 OAuth/OIDC Flow Routes */}
+								{/* V7 OAuth/OIDC Flow Routes — redirected to V9 */}
 								<Route
 									path="/flows/oauth-authorization-code-v7"
-									element={<OAuthAuthorizationCodeFlowV7 />}
+									element={<Navigate to="/flows/oauth-authorization-code-v9" replace />}
 								/>
 								<Route
 									path="/flows/oauth-authorization-code-v7-2"
-									element={<OAuthAuthorizationCodeFlowV7_2 />}
+									element={<Navigate to="/flows/oauth-authorization-code-v9" replace />}
 								/>
 								<Route
 									path="/flows/oauth-authorization-code-v9"
@@ -866,8 +866,11 @@ const AppRoutes: React.FC = () => {
 									path="/flows/oidc-authorization-code-v6"
 									element={<Navigate to="/flows/oauth-authorization-code-v7" replace />}
 								/>
-								{/* V7 Implicit Flow */}
-								<Route path="/flows/implicit-v7" element={<ImplicitFlowV7 />} />
+								{/* V7 Implicit Flow — redirected to V9 */}
+								<Route
+									path="/flows/implicit-v7"
+									element={<Navigate to="/flows/implicit-v9" replace />}
+								/>
 								{/* V8 Implicit Flow */}
 								<Route path="/flows/implicit-v8" element={<ImplicitFlowV8 />} />
 								{/* V9 Implicit Flow */}
@@ -1078,10 +1081,10 @@ const AppRoutes: React.FC = () => {
 									path="/flows/oauth-implicit-completion"
 									element={<OAuthImplicitFlowCompletion />}
 								/>
-								{/* V7 Device Authorization Flow */}
+								{/* V7 Device Authorization Flow — redirected to V9 */}
 								<Route
 									path="/flows/device-authorization-v7"
-									element={<DeviceAuthorizationFlowV7 />}
+									element={<Navigate to="/flows/device-authorization-v9" replace />}
 								/>
 								{/* V9 Device Authorization Flow */}
 								<Route
@@ -1091,11 +1094,11 @@ const AppRoutes: React.FC = () => {
 								{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
 								<Route
 									path="/flows/device-authorization-v6"
-									element={<Navigate to="/flows/device-authorization-v7" replace />}
+									element={<Navigate to="/flows/device-authorization-v9" replace />}
 								/>
 								<Route
 									path="/flows/oidc-device-authorization-v6"
-									element={<Navigate to="/flows/device-authorization-v7" replace />}
+									element={<Navigate to="/flows/device-authorization-v9" replace />}
 								/>
 								{/* V7 JWT Bearer Token Flow */}
 								<Route path="/flows/jwt-bearer-token-v7" element={<JWTBearerTokenFlowV7 />} />
@@ -1127,14 +1130,17 @@ const AppRoutes: React.FC = () => {
 									path="/flows/worker-token-v6"
 									element={<Navigate to="/flows/worker-token-v7" replace />}
 								/>
-								{/* V7 Client Credentials Flow */}
-								<Route path="/flows/client-credentials-v7" element={<ClientCredentialsFlowV7 />} />
+								{/* V7 Client Credentials Flow — redirected to V9 */}
+								<Route
+									path="/flows/client-credentials-v7"
+									element={<Navigate to="/flows/client-credentials-v9" replace />}
+								/>
 								{/* V9 Client Credentials Flow */}
 								<Route path="/flows/client-credentials-v9" element={<ClientCredentialsFlowV9 />} />
 								{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
 								<Route
 									path="/flows/client-credentials-v6"
-									element={<Navigate to="/flows/client-credentials-v7" replace />}
+									element={<Navigate to="/flows/client-credentials-v9" replace />}
 								/>
 								{/* V7 OIDC Hybrid Flow */}
 								<Route path="/flows/oidc-hybrid-v7" element={<OIDCHybridFlowV7 />} />
