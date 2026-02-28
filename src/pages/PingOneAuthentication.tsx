@@ -16,6 +16,20 @@ export const RESPONSE_TYPES = {
 } as const;
 
 export const RESULT_STORAGE_KEY = 'pingone_auth_result';
+export const STORAGE_KEY = 'pingone_auth_config';
+export const FLOW_CONTEXT_KEY = 'pingone_flow_context';
+export const REDIRECT_FLOW_CONTEXT_KEY = 'pingone_redirect_flow_context';
+
+// Default configuration for PingOne authentication
+export const DEFAULT_CONFIG = {
+	environmentId: '',
+	clientId: '',
+	clientSecret: '',
+	redirectUri: `${window.location.origin}/p1-callback`,
+	scopes: 'openid profile email',
+	responseType: 'code' as const,
+	tokenEndpointAuthMethod: 'client_secret_post' as const,
+};
 
 /**
  * PingOne Authentication Page
