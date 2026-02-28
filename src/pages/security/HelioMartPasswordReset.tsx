@@ -3793,7 +3793,10 @@ export { changePassword, handleChangePassword };`;
 				)}
 
 				{activeTab === 'set-value' && (
-					<PasswordSetValueTab environmentId={environmentId} workerToken={workerToken} />
+					<PasswordSetValueTab
+						environmentId={environmentId}
+						workerToken={globalTokenStatus.token || ''}
+					/>
 				)}
 
 				{activeTab === 'ldap-gateway' && (
