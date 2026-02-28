@@ -18,302 +18,173 @@ import {
 	FiXCircle,
 } from 'react-icons/fi';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import styled from 'styled-components';
 import ConfirmationModal from '../components/ConfirmationModal';
-import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { credentialStorageManager } from '../services/credentialStorageManager';
 // import { FlowHeader } from '../services/flowHeaderService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
-import { WorkerTokenModalV8 } from '../v8/components/WorkerTokenModalV8';
+import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
 
-const Container = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-`;
-
-const Card = styled.div`
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  padding: 2rem;
-  margin-bottom: 2rem;
-`;
-
-const Title = styled.h2`
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #1f2937;
-  margin-bottom: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-`;
-
-const Description = styled.p`
-  color: #6b7280;
-  margin-bottom: 2rem;
-  line-height: 1.6;
-`;
-
-const FlowGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 1.5rem;
-`;
-
-const FlowCard = styled.div<{ $hasCredentials: boolean }>`
-  background: ${(props) => (props.$hasCredentials ? '#f0fdf4' : '#f9fafb')};
-  border: 2px solid ${(props) => (props.$hasCredentials ? '#86efac' : '#e5e7eb')};
-  border-radius: 8px;
-  padding: 1.5rem;
-  transition: all 0.2s;
-  cursor: pointer;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
-`;
-
-const FlowName = styled.h3`
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #1f2937;
-  margin-bottom: 0.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-`;
-
-const FlowStatus = styled.div<{ $status: 'active' | 'inactive' }>`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  color: ${(props) => (props.$status === 'active' ? '#16a34a' : '#9ca3af')};
-  margin-bottom: 0.75rem;
-`;
-
-const FlowMeta = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  color: #6b7280;
-`;
-
-const MetaRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-`;
-
-const Badge = styled.span<{ $variant: 'browser' | 'file' | 'memory' }>`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  background: ${(props) => {
-		switch (props.$variant) {
-			case 'file':
-				return '#dbeafe';
-			case 'browser':
-				return '#fef3c7';
-			case 'memory':
-				return '#e0e7ff';
-		}
-	}};
-  color: ${(props) => {
-		switch (props.$variant) {
-			case 'file':
-				return '#1e40af';
-			case 'browser':
-				return '#92400e';
-			case 'memory':
-				return '#4338ca';
-		}
-	}};
-`;
-
-const ActionButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: #3b82f6;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-top: 0.75rem;
-
-  &:hover {
-    background: #2563eb;
-  }
-`;
-
-const EmptyState = styled.div`
-  text-align: center;
-  padding: 3rem;
-  color: #9ca3af;
-`;
-
-const ButtonRow = styled.div`
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  flex-wrap: wrap;
-`;
-
-const RefreshButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  background: #10b981;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &:hover {
-    background: #059669;
-  }
-`;
-
-const ExportButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  background: #3b82f6;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &:hover {
-    background: #2563eb;
-  }
-`;
-
-const ImportButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  background: #2563eb;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &:hover {
-    background: #1d4ed8;
-  }
-`;
-
-const ClearButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  background: #ef4444;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &:hover {
-    background: #dc2626;
-  }
-`;
-
-const HiddenFileInput = styled.input`
-  display: none;
-`;
-
-const PageHeader = styled.div`
-  margin-bottom: 1.5rem;
-`;
-
-const PageTitle = styled.h1`
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #111827;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin: 0 0 0.25rem 0;
-`;
-
-const PageSubtitle = styled.p`
-  color: #6b7280;
-  margin: 0 0 1.5rem 0;
-  font-size: 0.95rem;
-`;
-
-const TabBar = styled.div`
-  display: flex;
-  gap: 0;
-  border-bottom: 2px solid #e5e7eb;
-  margin-bottom: 1.5rem;
-`;
-
-const Tab = styled.button<{ $active: boolean }>`
-  background: none;
-  border: none;
-  border-bottom: 2px solid ${(p) => (p.$active ? '#2563eb' : 'transparent')};
-  color: ${(p) => (p.$active ? '#2563eb' : '#6b7280')};
-  font-size: 0.95rem;
-  font-weight: ${(p) => (p.$active ? 700 : 500)};
-  padding: 0.75rem 1.5rem;
-  cursor: pointer;
-  margin-bottom: -2px;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: color 0.15s;
-  &:hover { color: #2563eb; }
-`;
-
-const WorkerTokenButton = styled.button`
-	display: inline-flex;
-	align-items: center;
-	gap: 0.5rem;
-	padding: 0.75rem 1.5rem;
-	background: #2563eb;
-	color: white;
-	border: none;
-	border-radius: 8px;
-	font-size: 0.95rem;
-	font-weight: 600;
-	cursor: pointer;
-	transition: all 0.2s;
-	margin-bottom: 1.5rem;
-	&:hover {
-		background: #1e40af;
-	}
-`;
+const styles = {
+	container: {
+		maxWidth: '1200px',
+		margin: '0 auto',
+		padding: '2rem',
+	} as React.CSSProperties,
+	pageHeader: {
+		background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)',
+		borderRadius: '12px',
+		padding: '2rem',
+		marginBottom: '1.5rem',
+		color: 'white',
+	} as React.CSSProperties,
+	pageTitle: {
+		fontSize: '1.75rem',
+		fontWeight: 700,
+		display: 'flex',
+		alignItems: 'center',
+		gap: '0.75rem',
+		margin: '0 0 0.5rem 0',
+		color: 'white',
+	} as React.CSSProperties,
+	pageSubtitle: {
+		color: 'rgba(255,255,255,0.85)',
+		margin: '0 0 1.5rem 0',
+		fontSize: '0.95rem',
+	} as React.CSSProperties,
+	card: {
+		background: 'white',
+		borderRadius: '12px',
+		boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+		padding: '2rem',
+		marginBottom: '2rem',
+	} as React.CSSProperties,
+	title: {
+		fontSize: '1.5rem',
+		fontWeight: 600,
+		color: '#1f2937',
+		marginBottom: '1rem',
+		display: 'flex',
+		alignItems: 'center',
+		gap: '0.75rem',
+	} as React.CSSProperties,
+	description: {
+		color: '#6b7280',
+		marginBottom: '2rem',
+		lineHeight: 1.6,
+	} as React.CSSProperties,
+	flowGrid: {
+		display: 'grid',
+		gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
+		gap: '1.5rem',
+	} as React.CSSProperties,
+	flowName: {
+		fontSize: '1.125rem',
+		fontWeight: 600,
+		color: '#1f2937',
+		marginBottom: '0.5rem',
+		display: 'flex',
+		alignItems: 'center',
+		gap: '0.5rem',
+	} as React.CSSProperties,
+	flowMeta: {
+		display: 'flex',
+		flexDirection: 'column' as const,
+		gap: '0.5rem',
+		fontSize: '0.875rem',
+		color: '#6b7280',
+	} as React.CSSProperties,
+	metaRow: {
+		display: 'flex',
+		alignItems: 'center',
+		gap: '0.5rem',
+	} as React.CSSProperties,
+	actionButton: {
+		display: 'inline-flex',
+		alignItems: 'center',
+		gap: '0.5rem',
+		padding: '0.5rem 1rem',
+		background: '#3b82f6',
+		color: 'white',
+		border: 'none',
+		borderRadius: '6px',
+		fontSize: '0.875rem',
+		fontWeight: 500,
+		cursor: 'pointer',
+		marginTop: '0.75rem',
+	} as React.CSSProperties,
+	emptyState: {
+		textAlign: 'center' as const,
+		padding: '3rem',
+		color: '#9ca3af',
+	} as React.CSSProperties,
+	buttonRow: {
+		display: 'flex',
+		gap: '1rem',
+		marginBottom: '2rem',
+		flexWrap: 'wrap' as const,
+	} as React.CSSProperties,
+	refreshButton: {
+		display: 'inline-flex',
+		alignItems: 'center',
+		gap: '0.5rem',
+		padding: '0.75rem 1.5rem',
+		background: '#10b981',
+		color: 'white',
+		border: 'none',
+		borderRadius: '8px',
+		fontSize: '0.875rem',
+		fontWeight: 600,
+		cursor: 'pointer',
+	} as React.CSSProperties,
+	exportButton: {
+		display: 'inline-flex',
+		alignItems: 'center',
+		gap: '0.5rem',
+		padding: '0.75rem 1.5rem',
+		background: '#3b82f6',
+		color: 'white',
+		border: 'none',
+		borderRadius: '8px',
+		fontSize: '0.875rem',
+		fontWeight: 600,
+		cursor: 'pointer',
+	} as React.CSSProperties,
+	importLabel: {
+		display: 'inline-flex',
+		alignItems: 'center',
+		gap: '0.5rem',
+		padding: '0.75rem 1.5rem',
+		background: '#2563eb',
+		color: 'white',
+		border: 'none',
+		borderRadius: '8px',
+		fontSize: '0.875rem',
+		fontWeight: 600,
+		cursor: 'pointer',
+	} as React.CSSProperties,
+	clearButton: {
+		display: 'inline-flex',
+		alignItems: 'center',
+		gap: '0.5rem',
+		padding: '0.75rem 1.5rem',
+		background: '#ef4444',
+		color: 'white',
+		border: 'none',
+		borderRadius: '8px',
+		fontSize: '0.875rem',
+		fontWeight: 600,
+		cursor: 'pointer',
+	} as React.CSSProperties,
+	hiddenFileInput: {
+		display: 'none',
+	} as React.CSSProperties,
+	tabBar: {
+		display: 'flex',
+		gap: 0,
+		borderBottom: '2px solid #e5e7eb',
+		marginBottom: '1.5rem',
+	} as React.CSSProperties,
+};
 
 interface TokenPayload {
 	client_id?: string;
@@ -376,8 +247,6 @@ export const CredentialManagement: React.FC = () => {
 	const [loading, setLoading] = useState(true);
 	const [showClearAllModal, setShowClearAllModal] = useState(false);
 	const [isClearingAll, setIsClearingAll] = useState(false);
-	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
-	const globalTokenStatus = useGlobalWorkerToken();
 	const [activeTab, setActiveTab] = useState<'credentials' | 'tester'>(
 		searchParams.get('tab') === 'tester' ? 'tester' : 'credentials'
 	);
@@ -684,51 +553,40 @@ export const CredentialManagement: React.FC = () => {
 	};
 
 	return (
-		<Container>
-			<PageHeader>
-				<PageTitle>
+		<div style={styles.container}>
+			<div style={styles.pageHeader}>
+				<h1 style={styles.pageTitle}>
 					<FiKey /> Credential Management
-				</PageTitle>
-				<PageSubtitle>Manage PingOne credentials and validate worker tokens</PageSubtitle>
-				<WorkerTokenButton onClick={() => setShowWorkerTokenModal(true)}>
-					<FiKey />
-					Manage Worker Token
-					{globalTokenStatus.status === 'valid' && (
-						<span style={{ color: '#10b981', marginLeft: 8 }}>✓ Active</span>
-					)}
-					{globalTokenStatus.status === 'expired' && (
-						<span style={{ color: '#fbbf24', marginLeft: 8 }}>⚠ Expired</span>
-					)}
-					{globalTokenStatus.status === 'missing' && (
-						<span style={{ color: '#fca5a5', marginLeft: 8 }}>✗ Not configured</span>
-					)}
-				</WorkerTokenButton>
-			</PageHeader>
+				</h1>
+				<p style={styles.pageSubtitle}>Manage PingOne credentials and validate worker tokens</p>
+				<WorkerTokenSectionV8 compact />
+			</div>
 
-			{showWorkerTokenModal && (
-				<WorkerTokenModalV8
-					isOpen={showWorkerTokenModal}
-					onClose={() => setShowWorkerTokenModal(false)}
-				/>
-			)}
-
-			<TabBar>
-				<Tab $active={activeTab === 'credentials'} onClick={() => setActiveTab('credentials')}>
+			<div style={styles.tabBar}>
+				<button
+					type="button"
+					style={{ background: 'none', border: 'none', borderBottom: `2px solid ${activeTab === 'credentials' ? '#2563eb' : 'transparent'}`, color: activeTab === 'credentials' ? '#2563eb' : '#6b7280', fontSize: '0.95rem', fontWeight: activeTab === 'credentials' ? 700 : 500, padding: '0.75rem 1.5rem', cursor: 'pointer', marginBottom: '-2px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+					onClick={() => setActiveTab('credentials')}
+				>
 					<FiDatabase size={15} /> Flow Credentials
-				</Tab>
-				<Tab $active={activeTab === 'tester'} onClick={() => setActiveTab('tester')}>
+				</button>
+				<button
+					type="button"
+					style={{ background: 'none', border: 'none', borderBottom: `2px solid ${activeTab === 'tester' ? '#2563eb' : 'transparent'}`, color: activeTab === 'tester' ? '#2563eb' : '#6b7280', fontSize: '0.95rem', fontWeight: activeTab === 'tester' ? 700 : 500, padding: '0.75rem 1.5rem', cursor: 'pointer', marginBottom: '-2px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+					onClick={() => setActiveTab('tester')}
+				>
 					<FiShield size={15} /> Token Tester
-				</Tab>
-			</TabBar>
+				</button>
+			</div>
 
 			{activeTab === 'tester' ? (
-				<Card>
-					<Title>
+				<div style={styles.card}>
+					<h2 style={styles.title}>
 						<FiShield /> Worker Token Tester
-					</Title>
-					<Description>
+					</h2>
+					<p style={styles.description}>
 						Paste a PingOne worker token to decode and validate it against the PingOne API.
-					</Description>
+					</p>
 					<div style={{ marginBottom: '1.5rem' }}>
 						<label
 							htmlFor="tester-token-input"
@@ -994,22 +852,14 @@ export const CredentialManagement: React.FC = () => {
 								</div>
 							)}
 
-							<ActionButton
-								style={{
-									width: '100%',
-									justifyContent: 'center',
-									padding: '0.75rem',
-									background: testerIsTesting || testerIsExpired ? '#9ca3af' : '#2563eb',
-									fontSize: '0.95rem',
-									cursor: testerIsTesting || testerIsExpired ? 'not-allowed' : 'pointer',
-									marginTop: 0,
-								}}
+							<button
+								type="button"
+								style={{ ...styles.actionButton, width: '100%', justifyContent: 'center', padding: '0.75rem', background: testerIsTesting || testerIsExpired ? '#9ca3af' : '#2563eb', fontSize: '0.95rem', cursor: testerIsTesting || testerIsExpired ? 'not-allowed' : 'pointer', marginTop: 0 }}
 								onClick={runTesterTests}
 								disabled={testerIsTesting || testerIsExpired}
 							>
 								<FiShield /> {testerIsTesting ? 'Testing...' : 'Test Token Against PingOne API'}
-							</ActionButton>
-
+							</button>
 							{testerResults.length > 0 && (
 								<div
 									style={{
@@ -1082,104 +932,106 @@ export const CredentialManagement: React.FC = () => {
 							)}
 						</>
 					)}
-				</Card>
+				</div>
 			) : (
-				<Card>
-					<Title>
+				<div style={styles.card}>
+					<h2 style={styles.title}>
 						<FiDatabase />
 						Flow Credentials
-					</Title>
-					<Description>
+					</h2>
+					<p style={styles.description}>
 						View and manage credentials for all OAuth and OIDC flows. Credentials are stored
 						securely in browser storage and backed up to file storage for persistence.
-					</Description>
+					</p>
 
-					<ButtonRow>
-						<RefreshButton onClick={loadFlowCredentials}>
+					<div style={styles.buttonRow}>
+						<button type="button" style={styles.refreshButton} onClick={loadFlowCredentials}>
 							<FiRefreshCw />
 							Refresh Status
-						</RefreshButton>
+						</button>
 
-						<ExportButton onClick={handleExportCredentials}>
+						<button type="button" style={styles.exportButton} onClick={handleExportCredentials}>
 							<FiDownload />
 							Export All Credentials
-						</ExportButton>
+						</button>
 
-						<ImportButton as="label">
+						<label style={styles.importLabel}>
 							<FiUpload />
 							Import Credentials
-							<HiddenFileInput type="file" accept=".json" onChange={handleImportCredentials} />
-						</ImportButton>
+							<input type="file" accept=".json" style={styles.hiddenFileInput} onChange={handleImportCredentials} />
+						</label>
 
-						<ClearButton onClick={() => setShowClearAllModal(true)}>
+						<button type="button" style={styles.clearButton} onClick={() => setShowClearAllModal(true)}>
 							<FiTrash2 />
 							Clear All Credentials
-						</ClearButton>
-					</ButtonRow>
+						</button>
+					</div>
 
 					{loading ? (
-						<EmptyState>Loading credential information...</EmptyState>
+						<div style={styles.emptyState}>Loading credential information...</div>
 					) : flows.length === 0 ? (
-						<EmptyState>No flows found</EmptyState>
+						<div style={styles.emptyState}>No flows found</div>
 					) : (
-						<FlowGrid>
+						<div style={styles.flowGrid}>
 							{flows.map((flow) => (
-								<FlowCard
-									key={flow.flowKey}
-									$hasCredentials={flow.hasCredentials}
-									onClick={() => handleNavigateToFlow(flow.flowKey)}
-								>
-									<FlowName>
-										{flow.hasCredentials ? (
-											<FiCheckCircle color="#16a34a" />
-										) : (
-											<FiAlertCircle color="#9ca3af" />
-										)}
-										{flow.flowName}
-									</FlowName>
-
-									<FlowStatus $status={flow.hasCredentials ? 'active' : 'inactive'}>
-										{flow.hasCredentials ? 'Credentials Saved' : 'No Credentials'}
-									</FlowStatus>
-
-									{flow.hasCredentials && (
-										<FlowMeta>
-											{flow.environmentId && (
-												<MetaRow>
-													<strong>Environment:</strong> {flow.environmentId.substring(0, 8)}...
-												</MetaRow>
-											)}
-											{flow.clientId && (
-												<MetaRow>
-													<strong>Client ID:</strong> {flow.clientId.substring(0, 12)}...
-												</MetaRow>
-											)}
-											{flow.source && (
-												<MetaRow>
-													<Badge $variant={flow.source}>
-														{flow.source === 'browser' && <FiHardDrive size={12} />}
-														{flow.source === 'file' && <FiDatabase size={12} />}
-														{flow.source.toUpperCase()}
-													</Badge>
-												</MetaRow>
-											)}
-										</FlowMeta>
+							<div
+								key={flow.flowKey}
+								style={{ borderRadius: '8px', padding: '1.5rem', cursor: 'pointer', ...(flow.hasCredentials ? { background: '#f0fdf4', border: '2px solid #86efac' } : { background: '#f9fafb', border: '2px solid #e5e7eb' }) }}
+								onClick={() => handleNavigateToFlow(flow.flowKey)}
+							>
+								<h3 style={styles.flowName}>
+									{flow.hasCredentials ? (
+										<FiCheckCircle color="#16a34a" />
+									) : (
+										<FiAlertCircle color="#9ca3af" />
 									)}
+									{flow.flowName}
+								</h3>
 
-									<ActionButton
-										onClick={(e) => {
-											e.stopPropagation();
-											handleNavigateToFlow(flow.flowKey);
-										}}
-									>
-										<FiExternalLink />
-										Open Flow
-									</ActionButton>
-								</FlowCard>
-							))}
-						</FlowGrid>
+								<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: flow.hasCredentials ? '#16a34a' : '#9ca3af', marginBottom: '0.75rem' }}>
+									{flow.hasCredentials ? 'Credentials Saved' : 'No Credentials'}
+								</div>
+
+								{flow.hasCredentials && (
+									<div style={styles.flowMeta}>
+										{flow.environmentId && (
+											<div style={styles.metaRow}>
+												<strong>Environment:</strong> {flow.environmentId.substring(0, 8)}...
+											</div>
+										)}
+										{flow.clientId && (
+											<div style={styles.metaRow}>
+												<strong>Client ID:</strong> {flow.clientId.substring(0, 12)}...
+											</div>
+										)}
+										{flow.source && (
+											<div style={styles.metaRow}>
+												<span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', padding: '0.25rem 0.5rem', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 500, ...(flow.source === 'file' ? { background: '#dbeafe', color: '#1e40af' } : flow.source === 'browser' ? { background: '#fef3c7', color: '#92400e' } : { background: '#e0e7ff', color: '#4338ca' }) }}>
+													{flow.source === 'browser' && <FiHardDrive size={12} />}
+													{flow.source === 'file' && <FiDatabase size={12} />}
+													{flow.source.toUpperCase()}
+												</span>
+											</div>
+										)}
+									</div>
+								)}
+
+								<button
+									type="button"
+									style={styles.actionButton}
+									onClick={(e) => {
+										e.stopPropagation();
+										handleNavigateToFlow(flow.flowKey);
+									}}
+								>
+									<FiExternalLink />
+									Open Flow
+								</button>
+							</div>
+						))}
+						</div>
 					)}
-				</Card>
+				</div>
 			)}
 			{/* Clear All Credentials Confirmation Modal */}
 			<ConfirmationModal
@@ -1193,6 +1045,6 @@ export const CredentialManagement: React.FC = () => {
 				variant="danger"
 				isLoading={isClearingAll}
 			/>
-		</Container>
+		</div>
 	);
 };
