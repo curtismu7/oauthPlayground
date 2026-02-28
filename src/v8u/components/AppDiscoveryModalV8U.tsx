@@ -13,6 +13,7 @@ import {
 	AppDiscoveryServiceV8,
 	type DiscoveredApplication,
 } from '@/v8/services/appDiscoveryServiceV8';
+import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const MODULE_TAG = '[🔍 APP-DISCOVERY-MODAL-V8U]';
@@ -63,10 +64,8 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 	useEffect(() => {
 		if (isOpen) {
 			// Token status is now managed by unified service
-			console.log('[AppDiscoveryModalV8U] Token status managed by unified service');
-			window.removeEventListener('workerTokenUpdated', globalTokenStatus);
 		}
-	}, [isOpen, globalTokenStatus]);
+	}, [isOpen]);
 
 	// Memoized handleDiscover to prevent infinite loops
 	const handleDiscover = useCallback(async () => {
@@ -343,7 +342,7 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 										: globalTokenStatus.status === 'expiring-soon'
 											? '#fef3c7'
 											: '#fee2e2',
-								border: `1px solid ${globalTokenStatus.getStatusColor(globalTokenStatus.status)}`,
+								border: `1px solid ${WorkerTokenStatusServiceV8.getStatusColor(globalTokenStatus.status)}`,
 								borderRadius: '8px',
 								fontSize: '14px',
 								color:
@@ -357,7 +356,7 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 								gap: '8px',
 							}}
 						>
-							<span>{globalTokenStatus.getStatusIcon(globalTokenStatus.status)}</span>
+							<span>{WorkerTokenStatusServiceV8.getStatusIcon(globalTokenStatus.status)}</span>
 							<span>{globalTokenStatus.message}</span>
 						</div>
 
