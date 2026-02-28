@@ -1,10 +1,9 @@
 // src/hooks/useV7RMOIDCResourceOwnerPasswordController.ts - Enhanced with Real Services
 
-import React, { useCallback, useEffect, useState } from 'react';
-import { credentialManager } from '../utils/credentialManager';
+import React, { useCallback, useState } from 'react';
 import { useFlowStepManager } from '../utils/flowStepSystem';
-import { v4ToastManager } from '../utils/v4ToastMessages';
 import { generateMockIdToken } from '../utils/mockOAuth';
+import { v4ToastManager } from '../utils/v4ToastMessages';
 
 export interface V7RMCredentials {
 	environmentId: string;
@@ -216,9 +215,10 @@ export const useV7RMOIDCResourceOwnerPasswordController = ({
 			const enhancedTokens: V7RMTokens = {
 				...tokenData,
 				// Add mock ID token if openid scope is requested but not provided by PingOne
-				...(credentials.scopes.includes('openid') && !tokenData.id_token && {
-					id_token: generateMockIdToken(credentials.username, credentials.environmentId),
-				}),
+				...(credentials.scopes.includes('openid') &&
+					!tokenData.id_token && {
+						id_token: generateMockIdToken(credentials.username, credentials.environmentId),
+					}),
 			};
 
 			if (enableDebugger) {
@@ -307,7 +307,7 @@ export const useV7RMOIDCResourceOwnerPasswordController = ({
 		} finally {
 			setIsFetchingUserInfo(false);
 		}
-	}, [tokens, credentials.username, enableDebugger]);
+	}, [tokens, enableDebugger, credentials.environmentId]);
 
 	// Refresh tokens (mock implementation)
 	const refreshTokens = useCallback(async () => {
