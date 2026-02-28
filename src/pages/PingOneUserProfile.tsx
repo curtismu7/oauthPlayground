@@ -14,7 +14,6 @@ import {
 	FiShield,
 	FiUser,
 	FiUsers,
-	FiKey,
 	FiX,
 } from 'react-icons/fi';
 import { useSearchParams } from 'react-router-dom';
@@ -1537,7 +1536,9 @@ const PingOneUserProfile: React.FC = () => {
 					<FiUser size={36} style={{ color: 'white', flexShrink: 0 }} />
 					<div>
 						<h1 style={styles.selectorPageHeaderH1}>Select User to View Profile</h1>
-						<p style={styles.selectorPageHeaderP}>Look up a PingOne user by ID, username, or email address</p>
+						<p style={styles.selectorPageHeaderP}>
+							Look up a PingOne user by ID, username, or email address
+						</p>
 					</div>
 				</div>
 				<div style={styles.userSelectorCard}>
@@ -1556,11 +1557,15 @@ const PingOneUserProfile: React.FC = () => {
 					) : (
 						<div style={styles.alertBanner}>
 							<FiAlertTriangle />
-							<span>No worker token found or token expired. Generate one to load a user profile.</span>
+							<span>
+								No worker token found or token expired. Generate one to load a user profile.
+							</span>
 						</div>
 					)}
 					<div style={styles.inputField}>
-						<label htmlFor="environmentId" style={styles.inputLabel}>Environment ID *</label>
+						<label htmlFor="environmentId" style={styles.inputLabel}>
+							Environment ID *
+						</label>
 						<input
 							id="environmentId"
 							type="text"
@@ -1589,7 +1594,9 @@ const PingOneUserProfile: React.FC = () => {
 					</div>
 
 					<div style={styles.inputField}>
-						<label htmlFor="userIdentifier" style={styles.inputLabel}>User Identifier *</label>
+						<label htmlFor="userIdentifier" style={styles.inputLabel}>
+							User Identifier *
+						</label>
 						<input
 							id="userIdentifier"
 							type="text"

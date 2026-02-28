@@ -21,7 +21,6 @@ import PingOneApplicationConfig, {
 } from '../components/PingOneApplicationConfig';
 import type { StepCredentials } from '../components/steps/CommonSteps';
 import { usePageScroll } from '../hooks/usePageScroll';
-import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
 import { callbackUriService } from '../services/callbackUriService';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { CopyButtonService } from '../services/copyButtonService';
@@ -30,6 +29,7 @@ import { FlowHeader } from '../services/flowHeaderService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { credentialManager } from '../utils/credentialManager';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
 
 const styles = {
 	container: {
@@ -148,7 +148,8 @@ const styles = {
 		flexWrap: 'wrap',
 	} as React.CSSProperties,
 	uriCode: {
-		fontFamily: '"Fira Code", "SFMono-Regular", ui-monospace, Menlo, Monaco, Consolas, "Courier New", monospace',
+		fontFamily:
+			'"Fira Code", "SFMono-Regular", ui-monospace, Menlo, Monaco, Consolas, "Courier New", monospace',
 		background: '#f8fafc',
 		padding: '0.35rem 0.5rem',
 		borderRadius: '0.5rem',
@@ -184,7 +185,7 @@ const styles = {
 	} as React.CSSProperties,
 };
 
-const getInfoBoxStyle = (type?: 'info' | 'warning' | 'success' | 'error'): React.CSSProperties => {
+const _getInfoBoxStyle = (type?: 'info' | 'warning' | 'success' | 'error'): React.CSSProperties => {
 	const base: React.CSSProperties = {
 		padding: '1rem',
 		borderRadius: '0.5rem',
@@ -203,7 +204,7 @@ const getInfoBoxStyle = (type?: 'info' | 'warning' | 'success' | 'error'): React
 	}
 };
 
-const getUriActionButtonStyle = (variant?: 'primary' | 'secondary'): React.CSSProperties => ({
+const _getUriActionButtonStyle = (variant?: 'primary' | 'secondary'): React.CSSProperties => ({
 	borderRadius: '0.75rem',
 	padding: '0.65rem 1rem',
 	fontWeight: '600',
@@ -213,7 +214,7 @@ const getUriActionButtonStyle = (variant?: 'primary' | 'secondary'): React.CSSPr
 	color: variant === 'primary' ? '#ffffff' : '#0f172a',
 });
 
-const getUriStatusBadgeStyle = (variant: 'default' | 'override'): React.CSSProperties => ({
+const _getUriStatusBadgeStyle = (variant: 'default' | 'override'): React.CSSProperties => ({
 	display: 'inline-block',
 	padding: '0.35rem 0.6rem',
 	borderRadius: '0.5rem',
@@ -515,7 +516,11 @@ const Configuration: React.FC = () => {
 
 	const CodeBlockWithCopy = ({ children, label }: { children: string; label: string }) => (
 		<pre style={styles.codeBlock}>
-			<button type="button" style={styles.copyButton} onClick={() => copyToClipboard(children, label)}>
+			<button
+				type="button"
+				style={styles.copyButton}
+				onClick={() => copyToClipboard(children, label)}
+			>
 				<FiCopy />
 				{copiedText === label ? 'Copied!' : 'Copy'}
 			</button>
@@ -527,12 +532,39 @@ const Configuration: React.FC = () => {
 		<div style={styles.container}>
 			<FlowHeader flowId="configuration" />
 
-			<div style={{ background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)', borderRadius: '1rem', padding: '2rem', marginBottom: '2rem', textAlign: 'center', color: 'white' }}>
-				<h1 style={{ fontSize: '2rem', fontWeight: '700', color: 'white', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem' }}>
+			<div
+				style={{
+					background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)',
+					borderRadius: '1rem',
+					padding: '2rem',
+					marginBottom: '2rem',
+					textAlign: 'center',
+					color: 'white',
+				}}
+			>
+				<h1
+					style={{
+						fontSize: '2rem',
+						fontWeight: '700',
+						color: 'white',
+						marginBottom: '0.5rem',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						gap: '0.75rem',
+					}}
+				>
 					<FiSettings />
 					Setup & Config
 				</h1>
-				<p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '1.1rem', maxWidth: '700px', margin: '0 auto' }}>
+				<p
+					style={{
+						color: 'rgba(255,255,255,0.85)',
+						fontSize: '1.1rem',
+						maxWidth: '700px',
+						margin: '0 auto',
+					}}
+				>
 					Complete setup guide for the PingOne OAuth/OIDC Playground. Get your environment
 					configured and start exploring OAuth flows in minutes.
 				</p>
