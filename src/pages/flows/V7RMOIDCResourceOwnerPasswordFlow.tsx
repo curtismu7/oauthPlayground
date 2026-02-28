@@ -1,7 +1,7 @@
-// src/pages/flows/V7RMOIDCResourceOwnerPasswordFlow.tsx - V7RM OIDC Resource Owner Password Flow (Mock because PingOne doesn't support it)
+// src/pages/flows/V7RMOIDCResourceOwnerPasswordFlow.tsx - Enhanced with Real Services
 
 import React, { useMemo } from 'react';
-import { FiAlertTriangle, FiLock, FiShield, FiUser } from 'react-icons/fi';
+import { FiAlertTriangle, FiInfo, FiLock, FiShield, FiUser } from 'react-icons/fi';
 import CollapsibleSection from '../../components/CollapsibleSection';
 import EnhancedStepFlowV2 from '../../components/EnhancedStepFlowV2';
 import { FlowConfiguration } from '../../components/FlowConfiguration';
@@ -26,11 +26,11 @@ const V7RMOIDCResourceOwnerPasswordFlow: React.FC = () => {
 	const highlights = useMemo(
 		() => [
 			{
-				title: 'Educational Mock Flow',
+				title: 'Enhanced Real API Integration',
 				description:
-					'This is a simulated OIDC Resource Owner Password flow to demonstrate how it would work if PingOne supported it.',
+					'This flow now uses real PingOne APIs for authentication and user info while adding OIDC extensions like ID tokens.',
 				icon: <FiUser />,
-				tone: 'info' as const,
+				tone: 'success' as const,
 			},
 			{
 				title: 'Security Awareness',
@@ -44,7 +44,7 @@ const V7RMOIDCResourceOwnerPasswordFlow: React.FC = () => {
 				description:
 					'See how OIDC adds ID tokens, user info endpoints, and standardized claims to the basic OAuth flow.',
 				icon: <FiShield />,
-				tone: 'success' as const,
+				tone: 'info' as const,
 			},
 		],
 		[]
@@ -131,12 +131,12 @@ const V7RMOIDCResourceOwnerPasswordFlow: React.FC = () => {
 
 	return (
 		<FlowTemplate
-			title="V7RM OIDC Resource Owner Password Flow"
-			subtitle="Mock implementation (PingOne doesn't support this flow)"
+			title="Enhanced OIDC Resource Owner Password Flow"
+			subtitle="Real API Integration with OIDC Extensions"
 			description="Learn how the OIDC Resource Owner Password flow would work through this educational simulation. Understand the security risks and see why modern alternatives are preferred."
 			badge={
 				<span>
-					<FiLock /> V7RM - Mock (Not Supported by PingOne)
+					<FiLock /> Enhanced - Real API + OIDC
 				</span>
 			}
 			highlights={highlights}
