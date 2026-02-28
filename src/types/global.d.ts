@@ -14,17 +14,17 @@ declare global {
 			load<T>(key: string): Promise<T | null>;
 			delete(key: string): Promise<void>;
 		};
-		
+
 		// Global Service References (for debugging)
 		UnifiedOAuthCredentialsServiceV8U?: unknown;
 		MFADeviceManagerV8?: unknown;
 		TokenMonitoringServiceV8U?: unknown;
-		
+
 		// Debug Utilities
 		debugLogViewerPopoutHelperV8?: {
 			isPopoutWindow(): boolean;
 		};
-		
+
 		// Other Global Services
 		[key: string]: unknown;
 	}

@@ -42,7 +42,7 @@ export const StepNavigationV8U: React.FC<StepNavigationV8Props> = ({
 	completedSteps,
 	className = '',
 }) => {
-	logger.debug(Rendering navigation`, {
+	logger.debug('Rendering navigation', {
 		currentStep,
 		totalSteps,
 		completedSteps: completedSteps.length,

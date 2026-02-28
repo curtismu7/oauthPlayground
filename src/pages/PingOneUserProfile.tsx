@@ -22,10 +22,12 @@ import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { lookupPingOneUser } from '../services/pingOneUserProfileService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
+import PageLayoutService from '../services/pageLayoutService';
 import { credentialManager } from '../utils/credentialManager';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { ShowTokenConfigCheckboxV8 } from '../v8/components/ShowTokenConfigCheckboxV8';
 import { SilentApiConfigCheckboxV8 } from '../v8/components/SilentApiConfigCheckboxV8';
+import { UserSearchDropdownV8 } from '../v8/components/UserSearchDropdownV8';
 import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
 
 interface PingOneConsentRecord {
@@ -209,7 +211,7 @@ const styles: Record<string, CSSProperties> = {
 		minHeight: '100vh',
 	},
 	header: {
-		background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)',
+		background: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)',
 		borderRadius: '1rem',
 		padding: '2rem',
 		marginBottom: '2rem',
@@ -229,7 +231,7 @@ const styles: Record<string, CSSProperties> = {
 		display: 'flex',
 		alignItems: 'center',
 		justifyContent: 'center',
-		color: '#2563eb',
+		color: '#dc2626',
 		fontSize: '1.5rem',
 		fontWeight: 600,
 		flexShrink: 0,
@@ -245,7 +247,7 @@ const styles: Record<string, CSSProperties> = {
 		color: 'white',
 	},
 	userInfoSubtitle: {
-		color: 'rgba(255,255,255,0.85)',
+		color: 'rgba(255,255,255,0.9)',
 		fontSize: '0.875rem',
 		marginTop: '0.25rem',
 	},
@@ -256,7 +258,7 @@ const styles: Record<string, CSSProperties> = {
 		marginTop: '0.5rem',
 		fontSize: '0.8125rem',
 		fontWeight: 500,
-		color: '#dcfce7',
+		color: 'rgba(255,255,255,0.9)',
 	},
 	tokenStatusExpired: {
 		display: 'flex',
@@ -620,6 +622,25 @@ const PingOneUserProfile: React.FC = () => {
 	usePageScroll({ pageName: 'PingOne User Profile', force: true });
 	const [searchParams] = useSearchParams();
 
+	// Use global worker token service (unified storage) - MUST be called before any useState hooks
+	// IMPORTANT: This hook must be called first to maintain consistent hook order
+	const globalTokenStatus = useGlobalWorkerToken();
+
+	// Use global worker token instead of custom accessToken state
+	const accessToken = globalTokenStatus.token || '';
+
+	// PageLayoutService setup
+	const pageConfig = {
+		title: 'PingOne User Profile',
+		subtitle: 'View detailed user information using real PingOne APIs',
+		maxWidth: '1200px',
+		showHeader: true,
+		showFooter: false,
+		responsive: true,
+	};
+
+	const { PageContainer } = PageLayoutService.createPageLayout(pageConfig);
+
 	const [activeTab, setActiveTab] = useState<'profile' | 'user-status' | 'compare-access'>(
 		'profile'
 	);
@@ -681,13 +702,6 @@ const PingOneUserProfile: React.FC = () => {
 		setComparisonError(null);
 		setIsComparisonLoading(false);
 	}, []);
-
-	// Use global worker token service (unified storage)
-	// IMPORTANT: Must be declared before fetchUserBundle callback to avoid TDZ errors
-	const globalTokenStatus = useGlobalWorkerToken();
-
-	// Use global worker token instead of custom accessToken state
-	const accessToken = globalTokenStatus.token || '';
 
 	const [showServerErrorModal, setShowServerErrorModal] = useState(false);
 	const [_savedWorkerCredentials, setSavedWorkerCredentials] = useState(() =>
@@ -1597,12 +1611,10 @@ const PingOneUserProfile: React.FC = () => {
 						<label htmlFor="userIdentifier" style={styles.inputLabel}>
 							User Identifier *
 						</label>
-						<input
-							id="userIdentifier"
-							type="text"
+						<UserSearchDropdownV8
+							environmentId={environmentId}
 							value={userIdentifier}
-							onChange={(e) => {
-								const value = e.target.value;
+							onChange={(value) => {
 								setUserIdentifier(value);
 								setIdentifierError(null);
 								// Persist to localStorage as user types
@@ -1616,11 +1628,13 @@ const PingOneUserProfile: React.FC = () => {
 									console.warn('Unable to persist user identifier to localStorage:', storageError);
 								}
 							}}
-							placeholder="Enter user ID, username, or email"
-							style={styles.inputEl}
+							placeholder="Search for a user by ID, username, or email..."
+							disabled={!environmentId.trim() || !accessToken.trim()}
+							id="userIdentifier"
+							autoLoad={true}
 						/>
 						<div style={{ color: '#64748b', fontSize: '0.75rem' }}>
-							We will look up the user by ID, username, or email in the selected environment.
+							Search and select a user from the dropdown list in the selected environment.
 						</div>
 						{identifierError && (
 							<div style={{ color: '#b91c1c', fontSize: '0.75rem', marginTop: '0.5rem' }}>
@@ -2421,18 +2435,20 @@ const PingOneUserProfile: React.FC = () => {
 						)}
 						<InputField>
 							<label htmlFor="compareIdentifier">Comparison User Identifier *</label>
-							<input
-								id="compareIdentifier"
-								type="text"
+							<UserSearchDropdownV8
+								environmentId={environmentId}
 								value={compareIdentifier}
-								onChange={(e) => {
-									setCompareIdentifier(e.target.value);
+								onChange={(value) => {
+									setCompareIdentifier(value);
 									setComparisonError(null);
 								}}
-								placeholder="Enter user ID, username, or email"
+								placeholder="Search for a user by ID, username, or email..."
+								disabled={!environmentId.trim() || !accessToken.trim()}
+								id="compareIdentifier"
+								autoLoad={true}
 							/>
 							<div style={{ color: '#64748b', fontSize: '0.75rem' }}>
-								We will resolve the identifier using the same environment and worker token.
+								Search and select a user from the dropdown list for comparison.
 							</div>
 						</InputField>
 						<div

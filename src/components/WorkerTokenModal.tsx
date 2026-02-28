@@ -17,7 +17,7 @@ import styled from 'styled-components';
 import { showTokenSuccessMessage } from '../services/tokenExpirationService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { trackedFetch } from '../utils/trackedFetch';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { useNotifications } from '../hooks/useNotifications';
 import { DraggableModal } from './DraggableModal';
 import { StandardizedCredentialExportImport } from './StandardizedCredentialExportImport';
 import { WorkerTokenRequestModal } from './WorkerTokenRequestModal';
@@ -261,6 +261,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 	educationalMode = true,
 }) => {
 	const navigate = useNavigate();
+	const { showSuccess, showError, showWarning, showInfo } = useNotifications();
 	const [isNavigating, setIsNavigating] = useState(false);
 	const [showForm, setShowForm] = useState(skipCredentialsStep); // Start with form if skipping credentials
 	const [isGenerating, setIsGenerating] = useState(false);
@@ -567,7 +568,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 
 	const handleGetWorkerToken = () => {
 		setIsNavigating(true);
-		v4ToastManager.showInfo('Navigating to get worker token...');
+		showInfo('Navigating to get worker token...');
 		navigate('/client-generator');
 	};
 
@@ -642,7 +643,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 			authMethod: 'client_secret_post',
 		});
 
-		v4ToastManager.showSuccess('Saved credentials cleared successfully');
+		showSuccess('Saved credentials cleared successfully');
 		console.log('[WorkerTokenModal] Cleared all saved credentials via service');
 	};
 
@@ -653,7 +654,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 			!workerCredentials.clientId ||
 			!workerCredentials.clientSecret
 		) {
-			v4ToastManager.showError('Please fill in all required fields before saving');
+			showError('Please fill in all required fields before saving');
 			return;
 		}
 
@@ -698,7 +699,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 		if (!credentialsToSave.clientSecret?.trim())
 			validation.errors.push('Client Secret is required');
 		if (!validation.isValid) {
-			v4ToastManager.showError(`Invalid credentials: ${validation.errors.join(', ')}`);
+			showError(`Invalid credentials: ${validation.errors.join(', ')}`);
 			return;
 		}
 
@@ -707,7 +708,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 			await unifiedWorkerTokenService.saveCredentials(credentialsToSave);
 		} catch (error) {
 			console.error('[WorkerTokenModal] Failed to save credentials:', error);
-			v4ToastManager.showError('Failed to save credentials');
+			showError('Failed to save credentials');
 			return;
 		}
 
@@ -734,7 +735,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 			authMethod: credentialsToSave.tokenEndpointAuthMethod,
 		});
 
-		v4ToastManager.showSuccess('Credentials saved successfully');
+		showSuccess('Credentials saved successfully');
 	};
 
 	// Prepare request details and show educational modal
@@ -744,7 +745,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 			!workerCredentials.clientId ||
 			!workerCredentials.clientSecret
 		) {
-			v4ToastManager.showError('Please fill in all required fields');
+			showError('Please fill in all required fields');
 			return;
 		}
 
@@ -786,7 +787,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 			if (!credentialsToSave.clientSecret?.trim())
 				validation.errors.push('Client Secret is required');
 			if (!validation.isValid) {
-				v4ToastManager.showError(`Invalid credentials: ${validation.errors.join(', ')}`);
+				showError(`Invalid credentials: ${validation.errors.join(', ')}`);
 				return;
 			}
 
@@ -838,7 +839,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 		}
 
 		if (!effectiveEnvironmentId) {
-			v4ToastManager.showError('Environment ID is required');
+			showError('Environment ID is required');
 			return;
 		}
 
@@ -849,7 +850,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 				'[WorkerTokenModal] ❌ Environment ID does not look like a valid UUID:',
 				effectiveEnvironmentId
 			);
-			v4ToastManager.showError(
+			showError(
 				`Invalid Environment ID format. Expected UUID format, got: ${effectiveEnvironmentId.substring(0, 20)}...`
 			);
 			return;
@@ -919,7 +920,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 		const trimmedEnvironmentId = effectiveEnvironmentId;
 
 		if (!trimmedClientId || !trimmedClientSecret || !trimmedEnvironmentId) {
-			v4ToastManager.showError(
+			showError(
 				'Please fill in all required fields (Environment ID, Client ID, and Client Secret)'
 			);
 			return;
@@ -999,7 +1000,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 	// Execute the actual token request (called from educational modal)
 	const executeTokenRequest = async () => {
 		if (!pendingRequestDetails) {
-			v4ToastManager.showError('Request details not available');
+			showError('Request details not available');
 			return;
 		}
 
@@ -1175,7 +1176,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 				}
 
 				// Show user-friendly error message (don't throw to avoid stack trace)
-				v4ToastManager.showError(userMessage);
+				showError(userMessage);
 				setIsGenerating(false);
 				return;
 			}
@@ -1343,7 +1344,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 			setShowTokenGenerated(true); // Show success state with option to get another token
 		} catch (error) {
 			console.error('Worker token generation failed:', error);
-			v4ToastManager.showError(
+			showError(
 				`Failed to generate worker token: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);
 		} finally {
@@ -1352,7 +1353,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 	};
 
 	const handleContinueWithoutToken = () => {
-		v4ToastManager.showWarning('Config Checker will be disabled without worker token');
+		showWarning('Config Checker will be disabled without worker token');
 		onContinue();
 	};
 
