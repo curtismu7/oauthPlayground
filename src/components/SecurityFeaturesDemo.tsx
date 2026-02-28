@@ -15,8 +15,9 @@ import {
 	FiPlus,
 	FiRefreshCw,
 	FiShield,
+	FiTrash,
 	FiTrash2,
-	FiX,
+	FiX
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';

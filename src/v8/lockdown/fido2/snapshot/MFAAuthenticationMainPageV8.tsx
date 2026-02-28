@@ -30,8 +30,9 @@ import {
 	FiPhone,
 	FiPlus,
 	FiShield,
+	FiTrash,
 	FiTrash2,
-	FiX,
+	FiX
 } from 'react-icons/fi';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';

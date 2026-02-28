@@ -7,7 +7,12 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { FiDownload, FiRefreshCw, FiTrash2 } from 'react-icons/fi';
+import {
+	FiDownload,
+	FiRefreshCw,
+	FiTrash,
+	FiTrash2
+} from 'react-icons/fi';
 import styled from 'styled-components';
 import { LogEntry, LogLevel, logger } from '@/services/loggingService';
 

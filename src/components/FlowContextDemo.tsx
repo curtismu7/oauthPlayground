@@ -8,7 +8,8 @@ import {
 	FiCheckCircle,
 	FiRefreshCw,
 	FiSettings,
-	FiTrash2,
+	FiTrash,
+	FiTrash2
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import FlowContextService, { type FlowContext } from '../services/flowContextService';

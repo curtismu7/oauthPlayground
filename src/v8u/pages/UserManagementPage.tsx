@@ -7,7 +7,14 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { FiEdit2, FiPlus, FiTrash2, FiUser } from 'react-icons/fi';
+import {
+	FiEdit,
+	FiEdit2,
+	FiPlus,
+	FiTrash,
+	FiTrash2,
+	FiUser
+} from 'react-icons/fi';
 import styled from 'styled-components';
 import { UserSearchDropdown } from '../../protect-app/components/UserSearchDropdown';
 import { useTheme } from '../contexts/ThemeContext';

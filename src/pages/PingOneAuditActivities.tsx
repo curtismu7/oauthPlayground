@@ -6,6 +6,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
 	FiActivity,
 	FiAlertCircle,
+	FiBarChart,
 	FiBarChart2,
 	FiCheck,
 	FiCheckCircle,
@@ -20,7 +21,7 @@ import {
 	FiServer,
 	FiShield,
 	FiUser,
-	FiX,
+	FiX
 } from 'react-icons/fi';
 import ApiCallList from '../components/ApiCallList';
 import JSONHighlighter, { type JSONData } from '../components/JSONHighlighter';

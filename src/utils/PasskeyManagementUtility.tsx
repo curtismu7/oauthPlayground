@@ -6,7 +6,14 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { FiCheckCircle, FiCopy, FiExternalLink, FiInfo, FiTrash2 } from 'react-icons/fi';
+import {
+	FiCheckCircle,
+	FiCopy,
+	FiExternalLink,
+	FiInfo,
+	FiTrash,
+	FiTrash2
+} from 'react-icons/fi';
 
 interface PasskeyDevice {
 	id: string;

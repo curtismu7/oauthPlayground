@@ -12,13 +12,14 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
 	FiAlertTriangle,
+	FiBook,
 	FiCheckCircle,
 	FiKey,
 	FiLoader,
 	FiLock,
 	FiMail,
 	FiShield,
-	FiSmartphone,
+	FiSmartphone
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import MFAAuthenticationService from '../services/mfaAuthenticationService';

@@ -4,6 +4,7 @@ import {
 	FiBook,
 	FiBookOpen,
 	FiChevronDown,
+	FiChevronRight,
 	FiClock,
 	FiCode,
 	FiCpu,
@@ -23,7 +24,7 @@ import {
 	FiShield,
 	FiTool,
 	FiUser,
-	FiZap,
+	FiZap
 } from 'react-icons/fi';
 import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';

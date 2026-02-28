@@ -4,10 +4,11 @@ import {
 	FiDownload,
 	FiEye,
 	FiGitCompare,
+	FiShare,
 	FiShare2,
 	FiShield,
 	FiTrendingUp,
-	FiUsers,
+	FiUsers
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';

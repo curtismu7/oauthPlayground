@@ -12,8 +12,9 @@ import {
 	FiMic,
 	FiPause,
 	FiSettings,
+	FiVolume,
 	FiVolume2,
-	FiXCircle,
+	FiXCircle
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';

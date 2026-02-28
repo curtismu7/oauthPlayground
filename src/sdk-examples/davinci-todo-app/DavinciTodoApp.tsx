@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { FiLoader, FiLogOut, FiPlus, FiTrash2 } from 'react-icons/fi';
+import {
+	FiLoader,
+	FiLogOut,
+	FiPlus,
+	FiTrash,
+	FiTrash2
+} from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { DavinciTodoProvider, useDavinciTodo } from './contexts/DavinciTodoContext';

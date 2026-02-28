@@ -6,7 +6,14 @@
  */
 
 import React, { useEffect, useId, useState } from 'react';
-import { FiAlertCircle, FiArrowLeft, FiInfo, FiTrash2, FiX } from 'react-icons/fi';
+import {
+	FiAlertCircle,
+	FiArrowLeft,
+	FiInfo,
+	FiTrash,
+	FiTrash2,
+	FiX
+} from 'react-icons/fi';
 import styled from 'styled-components';
 import { useDraggableModal } from '@/v8/hooks/useDraggableModal';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';

@@ -14,7 +14,13 @@
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FiAlertCircle, FiLoader, FiTrash2, FiX } from 'react-icons/fi';
+import {
+	FiAlertCircle,
+	FiLoader,
+	FiTrash,
+	FiTrash2,
+	FiX
+} from 'react-icons/fi';
 import { useLocation } from 'react-router-dom';
 import { readBestEnvironmentId } from '@/hooks/useAutoEnvironmentId';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
