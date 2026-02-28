@@ -10,7 +10,7 @@
  */
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { FiEye, FiEyeOff, FiInfo } from 'react-icons/fi';
+import { FiEye, FiEyeOff, FiInfo } from '@icons';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { AuthMethodServiceV8, type AuthMethodV8 } from '@/v8/services/authMethodServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';

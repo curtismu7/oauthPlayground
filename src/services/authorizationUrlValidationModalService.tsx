@@ -2,7 +2,7 @@
 // Modal service for displaying authorization URL validation results
 
 import React from 'react';
-import { FiAlertTriangle, FiCheckCircle, FiInfo, FiXCircle } from 'react-icons/fi';
+import { FiAlertTriangle, FiCheckCircle, FiInfo, FiXCircle } from '@icons';
 import styled from 'styled-components';
 import type { UrlValidationResult } from './authorizationUrlValidationService';
 

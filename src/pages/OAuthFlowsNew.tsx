@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FiHelpCircle } from 'react-icons/fi';
+import { FiHelpCircle } from '@icons';
 import { Outlet } from 'react-router-dom';
 import styled from 'styled-components';
 import FlowCategories from '../components/FlowCategories';

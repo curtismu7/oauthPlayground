@@ -25,7 +25,7 @@ import {
 	FiTrash,
 	FiTrash2,
 	FiUser
-} from 'react-icons/fi';
+} from '@icons';
 import styled, { css, keyframes } from 'styled-components';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';

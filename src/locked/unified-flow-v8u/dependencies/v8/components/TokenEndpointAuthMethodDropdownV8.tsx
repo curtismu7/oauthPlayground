@@ -16,7 +16,7 @@
  */
 
 import React, { useState } from 'react';
-import { FiChevronDown, FiInfo } from 'react-icons/fi';
+import { FiChevronDown, FiInfo } from '@icons';
 import type { FlowType, SpecVersion } from '../services/specVersionServiceV8.ts';
 import {
 	type TokenEndpointAuthMethod,

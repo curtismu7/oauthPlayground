@@ -2,7 +2,7 @@
 // Update Password (Set Value) Tab Component
 
 import React, { useState } from 'react';
-import { FiBook, FiCheckCircle, FiExternalLink, FiEye, FiEyeOff, FiSearch } from 'react-icons/fi';
+import { FiBook, FiCheckCircle, FiExternalLink, FiEye, FiEyeOff, FiSearch } from '@icons';
 import styled from 'styled-components';
 import { setPasswordValue as setPasswordValueService } from '../../services/passwordResetService';
 import { lookupPingOneUser } from '../../services/pingOneUserProfileService';

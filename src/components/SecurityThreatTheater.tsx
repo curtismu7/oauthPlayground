@@ -15,7 +15,7 @@ import {
 	FiUnlock,
 	FiUser,
 	FiXCircle,
-} from 'react-icons/fi';
+} from '@icons';
 import styled, { keyframes } from 'styled-components';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 

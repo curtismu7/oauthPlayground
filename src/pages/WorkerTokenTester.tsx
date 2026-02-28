@@ -8,7 +8,7 @@ import {
 	FiKey,
 	FiUser,
 	FiXCircle,
-} from 'react-icons/fi';
+} from '@icons';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import { v4ToastManager } from '../utils/v4ToastMessages';

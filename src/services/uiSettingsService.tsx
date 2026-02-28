@@ -1,6 +1,6 @@
 // src/services/uiSettingsService.tsx
 import React, { useState } from 'react';
-import { FiExternalLink, FiKey, FiRefreshCw, FiSettings, FiShield } from 'react-icons/fi';
+import { FiExternalLink, FiKey, FiRefreshCw, FiSettings, FiShield } from '@icons';
 import styled from 'styled-components';
 import { CollapsibleHeader } from './collapsibleHeaderService';
 

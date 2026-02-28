@@ -1,5 +1,5 @@
 import type React from 'react';
-import { FiAlertTriangle } from 'react-icons/fi';
+import { FiAlertTriangle } from '@icons';
 
 const cardStyle: React.CSSProperties = {
 	background: '#fff7ed',

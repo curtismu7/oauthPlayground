@@ -22,7 +22,7 @@ import {
 	FiShield,
 	FiUser,
 	FiX
-} from 'react-icons/fi';
+} from '@icons';
 import ApiCallList from '../components/ApiCallList';
 import JSONHighlighter, { type JSONData } from '../components/JSONHighlighter';
 import { readBestEnvironmentId } from '../hooks/useAutoEnvironmentId';

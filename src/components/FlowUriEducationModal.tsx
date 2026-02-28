@@ -8,7 +8,7 @@ import {
 	FiLink,
 	FiLink2,
 	FiTarget
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import type { FlowUriEducationEntry } from '../services/flowUriEducationService';
 import { flowUriEducationService } from '../services/flowUriEducationService';

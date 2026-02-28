@@ -11,7 +11,7 @@ import {
 	FiMonitor,
 	FiSettings,
 	FiSmartphone,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../components/Card';
 import { showFlowSuccess } from '../components/CentralizedSuccessMessage';

@@ -14,7 +14,7 @@
 
 import { QRCodeSVG } from 'qrcode.react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { FiInfo, FiX } from 'react-icons/fi';
+import { FiInfo, FiX } from '@icons';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';

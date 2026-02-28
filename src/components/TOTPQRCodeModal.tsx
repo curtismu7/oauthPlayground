@@ -3,7 +3,7 @@
 
 import { QRCodeSVG } from 'qrcode.react';
 import React, { useEffect, useState } from 'react';
-import { FiCheck, FiCopy, FiEye, FiEyeOff, FiKey, FiSmartphone, FiX } from 'react-icons/fi';
+import { FiCheck, FiCopy, FiEye, FiEyeOff, FiKey, FiSmartphone, FiX } from '@icons';
 import { QRCodeService, TOTPConfig } from '../services/qrCodeService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 

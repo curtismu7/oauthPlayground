@@ -16,7 +16,7 @@ import {
 	FiLayers,
 	FiSearch,
 	FiTool,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 

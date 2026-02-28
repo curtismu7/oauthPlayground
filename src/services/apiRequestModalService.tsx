@@ -14,7 +14,7 @@ import {
 	FiSend,
 	FiShield,
 	FiX,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { ColoredUrlDisplay } from '../components/ColoredUrlDisplay';
 import { v4ToastManager } from '../utils/v4ToastMessages';

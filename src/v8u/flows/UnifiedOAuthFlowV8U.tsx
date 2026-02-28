@@ -12,7 +12,7 @@
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FiBook, FiChevronDown, FiPackage } from 'react-icons/fi';
+import { FiBook, FiChevronDown, FiPackage } from '@icons';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { EducationModeToggle } from '@/components/education/EducationModeToggle';
 import { MasterEducationSection } from '@/components/education/MasterEducationSection';

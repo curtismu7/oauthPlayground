@@ -12,7 +12,7 @@
  */
 
 import React from 'react';
-import { FiArrowLeft, FiBook, FiCheckCircle, FiInfo, FiShield } from 'react-icons/fi';
+import { FiArrowLeft, FiBook, FiCheckCircle, FiInfo, FiShield } from '@icons';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import {

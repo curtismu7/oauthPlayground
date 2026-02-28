@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FiEye, FiEyeOff, FiLoader, FiLock, FiShield, FiUser, FiX } from 'react-icons/fi';
+import { FiEye, FiEyeOff, FiLoader, FiLock, FiShield, FiUser, FiX } from '@icons';
 import styled from 'styled-components';
 
 interface RedirectlessLoginModalProps {

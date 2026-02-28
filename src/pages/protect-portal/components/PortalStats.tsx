@@ -10,7 +10,7 @@
  */
 
 import React, { useEffect } from 'react';
-import { FiActivity, FiCheckCircle, FiClock, FiMapPin } from 'react-icons/fi';
+import { FiActivity, FiCheckCircle, FiClock, FiMapPin } from '@icons';
 import styled from 'styled-components';
 import type {
 	EducationalContent,

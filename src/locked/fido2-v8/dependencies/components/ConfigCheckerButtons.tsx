@@ -12,7 +12,7 @@ import {
 	FiMonitor,
 	FiSave,
 	FiX,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { ConfigComparisonService, ConfigDiffResult } from '../services/configComparisonService';
 import { pingOneAppCreationService } from '../services/pingOneAppCreationService';

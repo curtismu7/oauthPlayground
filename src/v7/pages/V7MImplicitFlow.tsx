@@ -1,6 +1,6 @@
 // src/v7m/pages/V7MImplicitFlow.tsx
 import React, { useMemo, useState } from 'react';
-import { FiAlertTriangle, FiBook, FiKey, FiSend, FiShield } from 'react-icons/fi';
+import { FiAlertTriangle, FiBook, FiKey, FiSend, FiShield } from '@icons';
 import { authorizeIssueCode, V7MAuthorizeRequest } from '../../services/v7m/V7MAuthorizeService';
 import { introspectToken } from '../../services/v7m/V7MIntrospectionService';
 import { getUserInfoFromAccessToken } from '../../services/v7m/V7MUserInfoService';

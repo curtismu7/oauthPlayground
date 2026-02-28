@@ -11,7 +11,7 @@ import {
 	FiShield,
 	FiUser,
 	FiX,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 
 interface AuthorizationUrlExplainerProps {

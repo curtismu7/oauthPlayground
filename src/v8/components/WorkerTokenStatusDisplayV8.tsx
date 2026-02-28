@@ -33,7 +33,7 @@ import {
 	FiShield,
 	FiTrendingUp,
 	FiZap,
-} from 'react-icons/fi';
+} from '@icons';
 import styled, { css, keyframes } from 'styled-components';
 import type {
 	UnifiedWorkerTokenCredentials,

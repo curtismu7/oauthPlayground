@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import { FiBook, FiCode, FiCopy, FiExternalLink } from 'react-icons/fi';
+import { FiBook, FiCode, FiCopy, FiExternalLink } from '@icons';
 import styled from 'styled-components';
 import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';
 

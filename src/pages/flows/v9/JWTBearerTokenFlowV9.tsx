@@ -13,7 +13,7 @@ import {
 	FiKey,
 	FiRefreshCw,
 	FiShield,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { StepNavigationButtons } from '../../../components/StepNavigationButtons';
 import { readBestEnvironmentId } from '../../../hooks/useAutoEnvironmentId';

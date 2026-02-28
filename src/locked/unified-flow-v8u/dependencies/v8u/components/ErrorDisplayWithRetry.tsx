@@ -13,7 +13,7 @@
  */
 
 import React, { useState } from 'react';
-import { FiAlertCircle, FiExternalLink, FiRefreshCw } from 'react-icons/fi';
+import { FiAlertCircle, FiExternalLink, FiRefreshCw } from '@icons';
 import { OAuthErrorCodesServiceV8 } from '../../v8/services/oauthErrorCodesServiceV8.ts';
 
 const _MODULE_TAG = '[❌ ERROR-DISPLAY-V8U]';

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { FiExternalLink, FiMessageCircle, FiSend, FiX } from 'react-icons/fi';
+import { FiExternalLink, FiMessageCircle, FiSend, FiX } from '@icons';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { aiAgentService } from '../services/aiAgentService';

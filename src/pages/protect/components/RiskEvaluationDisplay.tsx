@@ -18,7 +18,7 @@ import {
 	FiLoader,
 	FiShield,
 	FiXCircle,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import { workerTokenManager } from '@/services/workerTokenManager';

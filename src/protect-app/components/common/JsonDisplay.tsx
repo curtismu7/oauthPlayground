@@ -12,7 +12,7 @@
  */
 
 import React, { useState } from 'react';
-import { FiCheck, FiChevronDown, FiChevronRight, FiCopy } from 'react-icons/fi';
+import { FiCheck, FiChevronDown, FiChevronRight, FiCopy } from '@icons';
 import { useTheme } from '../../contexts/ThemeContext';
 
 interface JsonDisplayProps {

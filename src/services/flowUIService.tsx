@@ -3,7 +3,7 @@
 // Consolidates all common UI patterns from OAuth flows
 
 import React from 'react';
-import { FiAlertCircle, FiAlertTriangle, FiCheckCircle, FiInfo } from 'react-icons/fi';
+import { FiAlertCircle, FiAlertTriangle, FiCheckCircle, FiInfo } from '@icons';
 import styled from 'styled-components';
 
 import { CollapsibleIcon } from '../components/CollapsibleIcon';

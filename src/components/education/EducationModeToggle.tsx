@@ -16,7 +16,7 @@ import {
 	FiEyeOff,
 	FiMinimize,
 	FiMinimize2
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import {
 	type EducationMode,

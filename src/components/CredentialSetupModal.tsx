@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiDownload, FiEye, FiEyeOff, FiLoader, FiLock, FiUpload } from 'react-icons/fi';
+import { FiDownload, FiEye, FiEyeOff, FiLoader, FiLock, FiUpload } from '@icons';
 import styled from 'styled-components';
 import {
 	type AuthzCredentials,

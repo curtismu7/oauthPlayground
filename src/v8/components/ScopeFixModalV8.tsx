@@ -7,7 +7,7 @@
  */
 
 import React, { useState } from 'react';
-import { FiCheck, FiCopy, FiExternalLink, FiX } from 'react-icons/fi';
+import { FiCheck, FiCopy, FiExternalLink, FiX } from '@icons';
 import {
 	ClientCredentialsIntegrationServiceV8,
 	type ScopeFixResult,

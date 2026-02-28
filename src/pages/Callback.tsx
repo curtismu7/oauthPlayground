@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FiAlertCircle, FiCheckCircle, FiLoader } from 'react-icons/fi';
+import { FiAlertCircle, FiCheckCircle, FiLoader } from '@icons';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/NewAuthContext';

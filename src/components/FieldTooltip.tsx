@@ -7,7 +7,7 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { FiHelpCircle } from 'react-icons/fi';
+import { FiHelpCircle } from '@icons';
 import styled from 'styled-components';
 
 export interface FieldTooltipProps {

@@ -10,7 +10,7 @@ import {
 	FiRefreshCw,
 	FiShield,
 	FiXCircle,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../../components/Card';
 import PageTitle from '../../components/PageTitle';

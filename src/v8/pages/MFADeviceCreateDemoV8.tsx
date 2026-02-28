@@ -12,7 +12,7 @@ import {
 	FiPhone,
 	FiRefreshCw,
 	FiUser,
-} from 'react-icons/fi';
+} from '@icons';
 import { readBestEnvironmentId } from '@/hooks/useAutoEnvironmentId';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import SimplePingOneApiDisplayV8 from '@/v8/components/SimplePingOneApiDisplayV8';

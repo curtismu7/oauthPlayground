@@ -1,7 +1,7 @@
 // src/components/DeviceRegistrationModal.tsx
 
 import React from 'react';
-import { FiCheckCircle, FiMail, FiShield, FiSmartphone, FiX } from 'react-icons/fi';
+import { FiCheckCircle, FiMail, FiShield, FiSmartphone, FiX } from '@icons';
 import styled from 'styled-components';
 
 const ModalOverlay = styled.div`

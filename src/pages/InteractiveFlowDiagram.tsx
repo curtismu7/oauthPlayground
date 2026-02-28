@@ -1,7 +1,7 @@
 // src/pages/InteractiveFlowDiagram.tsx
 // ⭐ V6 UPGRADE - Interactive OAuth/OIDC Flow Diagrams with Mermaid.js
 import React from 'react';
-import { FiGitBranch, FiKey, FiShield, FiUsers, FiZap } from 'react-icons/fi';
+import { FiGitBranch, FiKey, FiShield, FiUsers, FiZap } from '@icons';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import InteractiveFlowDiagramService from '../services/interactiveFlowDiagramService';

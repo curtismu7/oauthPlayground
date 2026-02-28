@@ -21,7 +21,7 @@ import {
 	FiTrash,
 	FiTrash2,
 	FiX
-} from 'react-icons/fi';
+} from '@icons';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ApiCallList from '../components/ApiCallList';
 import { readBestEnvironmentId } from '../hooks/useAutoEnvironmentId';

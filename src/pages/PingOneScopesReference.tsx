@@ -14,7 +14,7 @@ import {
 	FiRefreshCw,
 	FiShield,
 	FiUser,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 
 const PageContainer = styled.div`

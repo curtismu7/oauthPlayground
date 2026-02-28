@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FiCopy, FiExternalLink, FiQrCode, FiRefreshCw, FiXCircle } from 'react-icons/fi';
+import { FiCopy, FiExternalLink, FiGrid, FiRefreshCw, FiXCircle } from '@icons';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';
@@ -392,7 +392,7 @@ const DeviceFlowDisplay: React.FC<DeviceFlowDisplayProps> = ({
 		<DeviceFlowContainer>
 			<DeviceFlowHeader>
 				<DeviceFlowTitle>
-					<FiQrCode />
+					<FiGrid />
 					Device Authorization
 				</DeviceFlowTitle>
 				<StatusBadge $status={state.status}>{state.status}</StatusBadge>

@@ -10,7 +10,7 @@ import {
 	FiKey,
 	FiRefreshCw,
 	FiSettings,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { StandardizedCredentialExportImport } from '../../../components/StandardizedCredentialExportImport';
 import { StepNavigationButtons } from '../../../components/StepNavigationButtons';
@@ -232,7 +232,7 @@ const RARFlowV9: React.FC = () => {
 	// Flow state
 	const [authorizationUrl, setAuthorizationUrl] = useState('');
 	const [authorizationCode, setAuthorizationCode] = useState('');
-	const [tokens, setTokens] = useState<any>(null);
+	const [tokens, setTokens] = useState<Record<string, unknown> | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
 	const [errors, setErrors] = useState<string[]>([]);
 
@@ -329,7 +329,7 @@ const RARFlowV9: React.FC = () => {
 	}, [authorizationCode, generateRARAuthorizationDetails]);
 
 	// Handle input changes
-	const handleConfigChange = useCallback((field: keyof typeof rarConfig, value: any) => {
+	const handleConfigChange = useCallback((field: keyof typeof rarConfig, value: string | number | boolean) => {
 		setRarConfig((prev) => ({
 			...prev,
 			[field]: value,

@@ -9,7 +9,7 @@ import {
 	FiLink,
 	FiRefreshCw,
 	FiSearch,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { showFlowError, showFlowSuccess } from '../components/CentralizedSuccessMessage';
 import { FlowHeader } from '../services/flowHeaderService';

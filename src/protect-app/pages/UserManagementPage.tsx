@@ -22,7 +22,7 @@ import {
 	FiTrash2,
 	FiUser,
 	FiX
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { PageApiInfo } from '../components/common/PageApiInfo';
 import { UserSearchDropdown } from '../components/UserSearchDropdown';

@@ -9,7 +9,7 @@ import {
 	FiKey,
 	FiLock,
 	FiUser,
-} from 'react-icons/fi';
+} from '@icons';
 import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 import {
 	introspectToken,

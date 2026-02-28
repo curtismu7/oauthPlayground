@@ -1,6 +1,6 @@
 // src/components/GeneratedParametersDisplay.tsx
 import React, { useState } from 'react';
-import { FiCopy, FiEye, FiEyeOff, FiInfo } from 'react-icons/fi';
+import { FiCopy, FiEye, FiEyeOff, FiInfo } from '@icons';
 import styled from 'styled-components';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 

@@ -10,7 +10,7 @@ import {
 	FiSettings,
 	FiTarget,
 	FiZap,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { StandardizedCredentialExportImport } from '../../../components/StandardizedCredentialExportImport';
 import UltimateTokenDisplay from '../../../components/UltimateTokenDisplay';

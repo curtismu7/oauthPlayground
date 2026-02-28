@@ -25,7 +25,7 @@
  */
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { FiAlertTriangle, FiCheckCircle, FiClock, FiCopy, FiX } from 'react-icons/fi';
+import { FiAlertTriangle, FiCheckCircle, FiClock, FiCopy, FiX } from '@icons';
 import styled from 'styled-components';
 
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';

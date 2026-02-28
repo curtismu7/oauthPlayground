@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiCode, FiDownload, FiExternalLink, FiGithub, FiPlay } from 'react-icons/fi';
+import { FiCode, FiDownload, FiExternalLink, FiGithub, FiPlay } from '@icons';
 import styled from 'styled-components';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';

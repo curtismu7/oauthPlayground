@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FiAlertTriangle, FiCheck, FiChevronDown, FiInfo, FiShield, FiX } from 'react-icons/fi';
+import { FiAlertTriangle, FiCheck, FiChevronDown, FiInfo, FiShield, FiX } from '@icons';
 import styled from 'styled-components';
 import { type FlowType, type SpecVersion } from '@/v8/services/specVersionServiceV8';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';

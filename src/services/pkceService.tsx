@@ -9,7 +9,7 @@ import {
 	FiKey,
 	FiRefreshCw,
 	FiShield,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import ColoredUrlDisplay from '../components/ColoredUrlDisplay';
 import { generateCodeChallenge, generateCodeVerifier } from '../utils/oauth';

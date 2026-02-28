@@ -15,7 +15,7 @@ import {
 	FiRefreshCw,
 	FiTrash,
 	FiTrash2
-} from 'react-icons/fi';
+} from '@icons';
 import { type LogFile, LogFileService } from '@/services/logFileService';
 // PageHeaderV8 removed - using compact inline header for space efficiency
 import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';

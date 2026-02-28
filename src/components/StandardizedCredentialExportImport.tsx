@@ -2,7 +2,7 @@
 // Standardized credential export/import component for all Production apps
 
 import React from 'react';
-import { FiDownload, FiUpload } from 'react-icons/fi';
+import { FiDownload, FiUpload } from '@icons';
 import styled from 'styled-components';
 import {
 	exportStandardizedCredentials,

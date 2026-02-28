@@ -10,7 +10,7 @@
  */
 
 import React from 'react';
-import { FiArrowRight, FiCalendar, FiLock, FiMapPin, FiSearch } from 'react-icons/fi';
+import { FiArrowRight, FiCalendar, FiLock, FiMapPin, FiSearch } from '@icons';
 import styled from 'styled-components';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
 import AmericanAirlinesNavigation from './AmericanAirlinesNavigation';

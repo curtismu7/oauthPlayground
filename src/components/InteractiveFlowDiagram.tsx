@@ -13,7 +13,7 @@ import {
 	FiServer,
 	FiShield,
 	FiUser,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 
 interface FlowStep {

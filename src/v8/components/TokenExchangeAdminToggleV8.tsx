@@ -9,7 +9,7 @@ import {
 	FiShield,
 	FiToggleLeft,
 	FiToggleRight,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { GlobalEnvironmentService } from '../services/globalEnvironmentService';
 import { TokenExchangeConfigServiceV8 } from '../services/tokenExchangeConfigServiceV8';

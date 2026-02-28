@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FiCheckCircle, FiClock, FiInfo, FiXCircle } from 'react-icons/fi';
+import { FiCheckCircle, FiClock, FiInfo, FiXCircle } from '@icons';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { logger } from '../../utils/logger';

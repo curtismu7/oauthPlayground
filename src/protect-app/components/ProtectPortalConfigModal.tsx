@@ -10,7 +10,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { FiAlertTriangle, FiInfo, FiSave, FiX } from 'react-icons/fi';
+import { FiAlertTriangle, FiInfo, FiSave, FiX } from '@icons';
 import { useProtectPortal } from '../contexts/ProtectPortalContext';
 import { useTheme } from '../contexts/ThemeContext';
 

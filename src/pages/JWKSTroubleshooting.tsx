@@ -7,7 +7,7 @@ import {
 	FiCopy,
 	FiExternalLink,
 	FiPlay,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { FlowHeader } from '../services/flowHeaderService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';

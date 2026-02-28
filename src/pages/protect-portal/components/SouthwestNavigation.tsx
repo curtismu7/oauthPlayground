@@ -7,7 +7,7 @@
  */
 
 import React, { useState } from 'react';
-import { FiMenu, FiSearch, FiX } from 'react-icons/fi';
+import { FiMenu, FiSearch, FiX } from '@icons';
 import styled from 'styled-components';
 import { useBrandTheme } from '../themes/theme-provider';
 

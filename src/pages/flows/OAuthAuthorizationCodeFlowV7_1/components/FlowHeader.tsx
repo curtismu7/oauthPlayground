@@ -2,7 +2,7 @@
 // V7.1 Flow Header - Header component with variant selector and flow information
 
 import React from 'react';
-import { FiChevronDown, FiInfo } from 'react-icons/fi';
+import { FiChevronDown, FiInfo } from '@icons';
 import styled from 'styled-components';
 import { UI_CONSTANTS } from '../constants/uiConstants';
 import type { FlowVariant } from '../types/flowTypes';

@@ -14,7 +14,7 @@ import {
 	FiTrash,
 	FiTrash2,
 	FiUser
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { UserSearchDropdown } from '../../protect-app/components/UserSearchDropdown';
 import { useTheme } from '../contexts/ThemeContext';

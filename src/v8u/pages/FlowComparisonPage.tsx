@@ -11,7 +11,7 @@ import {
 	FiRefreshCw,
 	FiShield,
 	FiUsers
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { type FlowType } from '../../v8/services/specVersionServiceV8';
 import { FlowComparisonTool } from '../components/FlowComparisonTool';

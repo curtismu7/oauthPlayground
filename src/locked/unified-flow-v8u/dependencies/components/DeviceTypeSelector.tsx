@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { FaCar, FaTv } from 'react-icons/fa';
-import { FiSpeaker } from 'react-icons/fi';
+import { FiSpeaker } from '@icons';
 import styled from 'styled-components';
 
 const DeviceSelectorContainer = styled.div<{ $isCompact?: boolean }>`

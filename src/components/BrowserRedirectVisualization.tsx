@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FiAlertCircle, FiCheckCircle, FiClock, FiExternalLink } from 'react-icons/fi';
+import { FiAlertCircle, FiCheckCircle, FiClock, FiExternalLink } from '@icons';
 
 interface BrowserRedirectVisualizationProps {
 	authorizationUrl: string;

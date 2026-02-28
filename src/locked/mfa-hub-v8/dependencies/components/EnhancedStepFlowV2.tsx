@@ -17,7 +17,7 @@ import {
 	FiUser,
 	FiXCircle,
 	FiZap,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { logger } from '../utils/logger';
 import '../styles/enhanced-flow.css';

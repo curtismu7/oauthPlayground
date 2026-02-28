@@ -2,7 +2,7 @@
 // Table component to display tracked API calls with full details
 
 import React, { useState } from 'react';
-import { FiChevronDown, FiChevronRight, FiCode, FiFileText } from 'react-icons/fi';
+import { FiChevronDown, FiChevronRight, FiCode, FiFileText } from '@icons';
 import styled from 'styled-components';
 import type { ApiCall } from '../services/apiCallTrackerService';
 import JSONHighlighter, { type JSONData } from './JSONHighlighter';

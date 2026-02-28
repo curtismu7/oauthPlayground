@@ -2,7 +2,7 @@
 // Demo showing RedirectStateManager usage in OAuth flows
 
 import React, { useState } from 'react';
-import { FiAlertCircle, FiArrowRight, FiCheckCircle, FiRefreshCw, FiSave } from 'react-icons/fi';
+import { FiAlertCircle, FiArrowRight, FiCheckCircle, FiRefreshCw, FiSave } from '@icons';
 import styled from 'styled-components';
 import RedirectStateManager, { type FlowState } from '../services/redirectStateManager';
 

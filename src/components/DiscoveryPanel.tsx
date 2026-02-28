@@ -11,7 +11,7 @@ import {
 	FiSearch,
 	FiSettings,
 	FiX,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { discoveryService, type OpenIDConfiguration } from '../services/discoveryService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';

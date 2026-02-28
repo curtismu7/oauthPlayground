@@ -8,7 +8,7 @@ import {
 	FiLink2,
 	FiRefreshCw,
 	FiSearch
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { fetchApplications, type PingOneApplication } from '../services/pingOneApplicationService';
 import { v4ToastManager } from '../utils/v4ToastMessages';

@@ -1,5 +1,5 @@
 import React, { ReactNode, useEffect, useState } from 'react';
-import { FiAlertCircle, FiCheckCircle, FiInfo } from 'react-icons/fi';
+import { FiAlertCircle, FiCheckCircle, FiInfo } from '@icons';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/NewAuthContext';
 import { config } from '../services/config';

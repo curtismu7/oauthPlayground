@@ -6,7 +6,7 @@
  */
 
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { FiShield } from 'react-icons/fi';
+import { FiShield } from '@icons';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FIDO2Service } from '@/services/fido2Service';
 import { FIDODeviceExistsModalV8 } from '@/v8/components/FIDODeviceExistsModalV8';

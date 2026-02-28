@@ -12,7 +12,7 @@ import {
 	FiPackage,
 	FiRefreshCw,
 	FiShield,
-} from 'react-icons/fi';
+} from '@icons';
 import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 import { LearningTooltip } from '../../components/LearningTooltip';
 import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';

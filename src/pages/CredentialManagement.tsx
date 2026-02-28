@@ -17,7 +17,7 @@ import {
 	FiUpload,
 	FiUser,
 	FiXCircle
-} from 'react-icons/fi';
+} from '@icons';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import ConfirmationModal from '../components/ConfirmationModal';
 import { credentialStorageManager } from '../services/credentialStorageManager';

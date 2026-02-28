@@ -17,7 +17,7 @@ import {
 	FiUpload,
 	FiWifi,
 	FiZap
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import { StandardModalSpinner, useStandardSpinner } from '../../components/ui/StandardSpinner';

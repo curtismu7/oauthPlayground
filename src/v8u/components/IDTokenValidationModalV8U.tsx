@@ -12,7 +12,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { FiAlertCircle, FiCheckCircle, FiExternalLink, FiX } from 'react-icons/fi';
+import { FiAlertCircle, FiCheckCircle, FiExternalLink, FiX } from '@icons';
 import type { IDTokenValidationResult } from '@/v8/services/idTokenValidationServiceV8';
 import { IDTokenValidationServiceV8 } from '@/v8/services/idTokenValidationServiceV8';
 

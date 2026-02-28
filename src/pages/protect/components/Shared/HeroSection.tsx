@@ -25,7 +25,7 @@ import {
 	FiStar,
 	FiTrendingUp,
 	FiUsers,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import type { CorporatePortalConfig } from '../../types/CorporatePortalConfig';
 

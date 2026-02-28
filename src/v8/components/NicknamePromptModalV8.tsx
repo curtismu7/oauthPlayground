@@ -2,7 +2,7 @@
 // Modal for prompting user to set device nickname after pairing
 
 import React, { useEffect, useId, useState } from 'react';
-import { FiCheck, FiInfo, FiX } from 'react-icons/fi';
+import { FiCheck, FiInfo, FiX } from '@icons';
 import styled from 'styled-components';
 
 interface NicknamePromptModalV8Props {

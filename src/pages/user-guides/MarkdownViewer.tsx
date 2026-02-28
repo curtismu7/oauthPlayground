@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FiArrowLeft } from 'react-icons/fi';
+import { FiArrowLeft } from '@icons';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { usePageScroll } from '../../hooks/usePageScroll';

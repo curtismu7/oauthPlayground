@@ -7,7 +7,7 @@
  */
 
 import React from 'react';
-import { FiCheckCircle, FiHash, FiMail, FiUser, FiX } from 'react-icons/fi';
+import { FiCheckCircle, FiHash, FiMail, FiUser, FiX } from '@icons';
 
 const MODULE_TAG = '[✅ USER-INFO-SUCCESS-MODAL-V8U]';
 

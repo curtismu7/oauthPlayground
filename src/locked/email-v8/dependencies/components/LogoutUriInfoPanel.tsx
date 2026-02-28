@@ -1,6 +1,6 @@
 // src/components/LogoutUriInfoPanel.tsx
 import React from 'react';
-import { FiCheck, FiCopy } from 'react-icons/fi';
+import { FiCheck, FiCopy } from '@icons';
 import styled from 'styled-components';
 import { callbackUriService } from '../services/callbackUriService';
 

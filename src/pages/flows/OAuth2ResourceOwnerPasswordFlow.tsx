@@ -10,7 +10,7 @@ import {
 	FiLock,
 	FiRefreshCw,
 	FiUser,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import CollapsibleSection from '../../components/CollapsibleSection';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';

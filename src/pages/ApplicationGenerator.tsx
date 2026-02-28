@@ -14,7 +14,7 @@ import {
 	FiSettings,
 	FiShield,
 	FiSmartphone,
-} from 'react-icons/fi';
+} from '@icons';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { ConfigCheckerButtons } from '../components/ConfigCheckerButtons';

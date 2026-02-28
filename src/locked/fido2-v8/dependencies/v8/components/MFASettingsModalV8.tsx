@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FiSettings, FiX } from 'react-icons/fi';
+import { FiSettings, FiX } from '@icons';
 import { useDraggableModal } from '@/v8/hooks/useDraggableModal';
 import { MFAServiceV8, type MFASettings } from '@/v8/services/mfaServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';

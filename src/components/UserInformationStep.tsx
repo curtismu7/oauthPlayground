@@ -6,7 +6,7 @@ import {
 	FiExternalLink,
 	FiEye,
 	FiUser,
-} from 'react-icons/fi';
+} from '@icons';
 import styled, { keyframes } from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';
 import { v4ToastManager } from '../utils/v4ToastMessages';

@@ -13,7 +13,7 @@ import {
 	FiExternalLink,
 	FiRefreshCw,
 	FiShield,
-} from 'react-icons/fi';
+} from '@icons';
 import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';
 
 const MODULE_TAG = '[✅ SUCCESS-STEP-V8]';

@@ -23,7 +23,7 @@ import {
 	FiSettings,
 	FiShield,
 	FiX,
-} from 'react-icons/fi';
+} from '@icons';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { FIDO2Service } from '@/services/fido2Service';

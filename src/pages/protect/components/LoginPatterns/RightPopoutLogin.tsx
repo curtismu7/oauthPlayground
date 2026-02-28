@@ -9,7 +9,7 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { FiLock, FiX } from 'react-icons/fi';
+import { FiLock, FiX } from '@icons';
 import styled from 'styled-components';
 import type { CorporatePortalConfig } from '../../types/CorporatePortalConfig';
 

@@ -6,7 +6,7 @@
  */
 
 import React, { useState } from 'react';
-import { FiBook, FiChevronDown, FiChevronUp, FiExternalLink } from 'react-icons/fi';
+import { FiBook, FiChevronDown, FiChevronUp, FiExternalLink } from '@icons';
 import styled from 'styled-components';
 
 const DocsContainer = styled.div`

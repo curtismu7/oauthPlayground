@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FiClock, FiCode, FiLock, FiPlay, FiShield, FiUser } from 'react-icons/fi';
+import { FiClock, FiCode, FiLock, FiPlay, FiShield, FiUser } from '@icons';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../components/Card';
 import { useAuth } from '../contexts/NewAuthContext';

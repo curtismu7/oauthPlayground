@@ -2,7 +2,7 @@
 // React component for displaying API calls with enhanced features
 
 import React, { useCallback, useState } from 'react';
-import { FiChevronDown, FiCode, FiCopy, FiExternalLink } from 'react-icons/fi';
+import { FiChevronDown, FiCode, FiCopy, FiExternalLink } from '@icons';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import {

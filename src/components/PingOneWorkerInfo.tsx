@@ -8,7 +8,7 @@ import {
 	FiRefreshCw,
 	FiServer,
 	FiShield,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 
 const Container = styled.div`

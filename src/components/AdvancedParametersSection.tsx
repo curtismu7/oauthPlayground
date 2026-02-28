@@ -1,6 +1,6 @@
 // src/components/AdvancedParametersSection.tsx
 import React, { useEffect, useState } from 'react';
-import { FiCode, FiGlobe, FiSettings, FiShield } from 'react-icons/fi';
+import { FiCode, FiGlobe, FiSettings, FiShield } from '@icons';
 import styled from 'styled-components';
 // Import services
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';

@@ -13,7 +13,7 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiAlertCircle, FiArrowRight, FiCheck } from 'react-icons/fi';
+import { FiAlertCircle, FiArrowRight, FiCheck } from '@icons';
 import { Button } from '@/v8/components/Button';
 import { FormInput } from '@/v8/components/FormInput';
 import { LoadingSpinner } from '@/v8/components/LoadingSpinner';

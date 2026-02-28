@@ -20,7 +20,7 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiInfo } from 'react-icons/fi';
+import { FiInfo } from '@icons';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { ButtonSpinner } from '../../components/ui';

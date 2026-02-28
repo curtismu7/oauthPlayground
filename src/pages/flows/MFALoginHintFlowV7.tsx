@@ -2,7 +2,7 @@
 // MFA-Only Flow Using Login Hint Token - Based on PingOne Workflow Library
 
 import { useCallback, useEffect, useState } from 'react';
-import { FiCheckCircle, FiKey, FiSettings, FiShield, FiSmartphone, FiUser } from 'react-icons/fi';
+import { FiCheckCircle, FiKey, FiSettings, FiShield, FiSmartphone, FiUser } from '@icons';
 import styled from 'styled-components';
 import { HelperText } from '../../components/ResultsPanel';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';

@@ -7,7 +7,7 @@ import {
 	FiCopy,
 	FiEye,
 	FiEyeOff,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';

@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiLoader } from 'react-icons/fi';
+import { FiLoader } from '@icons';
 import styled, { keyframes } from 'styled-components';
 
 const spin = keyframes`

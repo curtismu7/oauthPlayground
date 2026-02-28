@@ -12,7 +12,7 @@ import {
 	FiExternalLink,
 	FiTrash,
 	FiTrash2
-} from 'react-icons/fi';
+} from '@icons';
 
 const MODULE_TAG = '[🚫 DEVICE-LIMIT-MODAL-V8]';
 

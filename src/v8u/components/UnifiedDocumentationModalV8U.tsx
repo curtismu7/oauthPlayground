@@ -9,7 +9,7 @@
  */
 
 import React, { useState } from 'react';
-import { FiBook, FiDownload, FiFileText, FiX } from 'react-icons/fi';
+import { FiBook, FiDownload, FiFileText, FiX } from '@icons';
 import type { FlowType, SpecVersion } from '@/v8/services/specVersionServiceV8';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import {

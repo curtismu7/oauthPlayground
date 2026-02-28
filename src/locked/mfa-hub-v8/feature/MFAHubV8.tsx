@@ -20,7 +20,7 @@ import {
 	FiPackage,
 	FiTrash,
 	FiTrash2
-} from 'react-icons/fi';
+} from '@icons';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { usePageScroll } from '@/hooks/usePageScroll';

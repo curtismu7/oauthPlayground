@@ -6,7 +6,7 @@ import {
 	FiToggleLeft,
 	FiToggleRight,
 	FiX,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../components/Card';
 

@@ -10,7 +10,7 @@
  */
 
 import React, { useState } from 'react';
-import { FiBook, FiCode, FiExternalLink, FiInfo, FiKey, FiLayers, FiShield } from 'react-icons/fi';
+import { FiBook, FiCode, FiExternalLink, FiInfo, FiKey, FiLayers, FiShield } from '@icons';
 import styled from 'styled-components';
 
 const MODULE_TAG = '[📚 RESOURCES-API-V8]';

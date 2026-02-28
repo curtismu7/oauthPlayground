@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FiAlertCircle, FiCheckCircle, FiEdit, FiInfo, FiRefreshCw, FiSave } from 'react-icons/fi';
+import { FiAlertCircle, FiCheckCircle, FiEdit, FiInfo, FiRefreshCw, FiSave } from '@icons';
 import styled from 'styled-components';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { environmentIdPersistenceService } from '../services/environmentIdPersistenceService';

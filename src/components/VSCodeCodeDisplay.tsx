@@ -2,7 +2,7 @@
 
 import Prism from 'prismjs';
 import React, { useEffect, useMemo, useState } from 'react';
-import { FiCheck, FiCopy, FiDownload } from 'react-icons/fi';
+import { FiCheck, FiCopy, FiDownload } from '@icons';
 import styled from 'styled-components';
 import 'prismjs/themes/prism.css';
 import 'prismjs/components/prism-javascript';

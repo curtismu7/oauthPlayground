@@ -15,7 +15,7 @@ import {
 	FiMinimize2,
 	FiRefreshCw,
 	FiX
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { type LogFile, LogFileService } from '../services/logFileService';
 import { useServerStatusOptional } from './ServerStatusProvider';

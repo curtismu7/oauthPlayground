@@ -11,7 +11,7 @@ import {
 	FiKey,
 	FiRefreshCw,
 	FiSave,
-} from 'react-icons/fi';
+} from '@icons';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { showTokenSuccessMessage } from '../services/tokenExpirationService';

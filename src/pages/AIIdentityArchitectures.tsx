@@ -19,7 +19,7 @@ import {
 	FiTrendingUp,
 	FiUsers,
 	FiZap,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';

@@ -3,7 +3,7 @@
 // Used throughout flows to help users understand OAuth/OIDC concepts
 
 import React, { useEffect, useRef, useState } from 'react';
-import { FiAlertCircle, FiBook, FiCheckCircle, FiInfo, FiShield } from 'react-icons/fi';
+import { FiAlertCircle, FiBook, FiCheckCircle, FiInfo, FiShield } from '@icons';
 import styled from 'styled-components';
 
 export type TooltipVariant = 'info' | 'learning' | 'warning' | 'success' | 'security';

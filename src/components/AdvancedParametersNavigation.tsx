@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiArrowRight, FiSettings } from 'react-icons/fi';
+import { FiArrowRight, FiSettings } from '@icons';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 

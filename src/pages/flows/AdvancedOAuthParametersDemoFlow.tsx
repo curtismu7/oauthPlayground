@@ -22,7 +22,7 @@ import {
 	FiLink,
 	FiPackage,
 	FiSettings,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import AudienceParameterInput from '../../components/AudienceParameterInput';
 // Import components

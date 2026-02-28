@@ -12,7 +12,7 @@ import {
 	FiRefreshCw,
 	FiShield,
 	FiUser,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 
 export type StepType =

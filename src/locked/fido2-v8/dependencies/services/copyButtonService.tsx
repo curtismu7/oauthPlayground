@@ -2,7 +2,7 @@
 // Standardized copy button service with black popup and green checkmark
 
 import React, { useCallback, useState } from 'react';
-import { FiCheck, FiCopy } from 'react-icons/fi';
+import { FiCheck, FiCopy } from '@icons';
 import styled, { keyframes } from 'styled-components';
 
 export interface CopyButtonProps {

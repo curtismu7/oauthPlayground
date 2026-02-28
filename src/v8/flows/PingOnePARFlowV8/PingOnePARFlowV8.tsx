@@ -33,7 +33,7 @@
 //    - Check PAR service logs for request generation errors
 //
 import React, { useCallback, useEffect } from 'react';
-import { FiCheckCircle, FiInfo, FiLock, FiSettings } from 'react-icons/fi';
+import { FiCheckCircle, FiInfo, FiLock, FiSettings } from '@icons';
 import styled from 'styled-components';
 import { CommonSpinner } from '../../../components/common/CommonSpinner';
 import { LearningTooltip } from '../../../components/LearningTooltip';

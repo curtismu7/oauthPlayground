@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { FiChevronDown } from 'react-icons/fi';
+import { FiChevronDown } from '@icons';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 
 interface CountryCode {

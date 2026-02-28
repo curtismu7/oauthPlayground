@@ -11,7 +11,7 @@ import {
 	FiRefreshCw,
 	FiShield,
 	FiTrendingUp,
-} from 'react-icons/fi';
+} from '@icons';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 

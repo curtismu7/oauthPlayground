@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiAlertTriangle, FiCheckCircle, FiRefreshCw, FiWifiOff } from 'react-icons/fi';
+import { FiAlertTriangle, FiCheckCircle, FiRefreshCw, FiWifiOff } from '@icons';
 import styled, { css, keyframes } from 'styled-components';
 
 const pulse = keyframes`

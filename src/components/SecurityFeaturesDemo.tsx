@@ -18,7 +18,7 @@ import {
 	FiTrash,
 	FiTrash2,
 	FiX
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';
 import { showGlobalSuccess } from '../hooks/useNotifications';

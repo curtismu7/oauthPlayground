@@ -8,7 +8,7 @@ import {
 	FiEye,
 	FiInfo,
 	FiSave
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { CopyButtonService } from '../services/copyButtonService';
 

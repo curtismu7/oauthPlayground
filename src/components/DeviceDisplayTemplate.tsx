@@ -3,7 +3,7 @@
 
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
-import { FiCopy, FiExternalLink } from 'react-icons/fi';
+import { FiCopy, FiExternalLink } from '@icons';
 import styled from 'styled-components';
 
 // Main Device Container

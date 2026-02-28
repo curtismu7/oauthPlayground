@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { FiAlertTriangle, FiX } from 'react-icons/fi';
+import { FiAlertTriangle, FiX } from '@icons';
 import styled from 'styled-components';
 
 interface ModalActionDescriptor {

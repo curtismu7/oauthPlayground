@@ -84,6 +84,7 @@ export default defineConfig(({ mode }) => {
 				'@/v8/flows': path.resolve(__dirname, './src/v8/flows'),
 				'@/v8/types': path.resolve(__dirname, './src/v8/types'),
 				'@/v8/utils': path.resolve(__dirname, './src/v8/utils'),
+				'@icons': path.resolve(__dirname, './src/icons/index.ts'),
 			},
 		},
 		plugins: [

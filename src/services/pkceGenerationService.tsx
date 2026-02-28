@@ -1,6 +1,6 @@
 // src/services/pkceGenerationService.tsx
 import React, { useCallback, useState } from 'react';
-import { FiAlertCircle, FiCheckCircle, FiCopy, FiKey, FiRefreshCw } from 'react-icons/fi';
+import { FiAlertCircle, FiCheckCircle, FiCopy, FiKey, FiRefreshCw } from '@icons';
 import styled from 'styled-components';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { UISettingsService } from './uiSettingsService';

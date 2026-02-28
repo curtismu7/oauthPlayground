@@ -9,7 +9,7 @@ import {
 	FiInfo,
 	FiSave,
 	FiX
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { CopyButtonService } from '../services/copyButtonService';
 

@@ -7,7 +7,7 @@ import {
 	FiEyeOff,
 	FiGlobe,
 	FiSettings,
-} from 'react-icons/fi';
+} from '@icons';
 import styled, { createGlobalStyle } from 'styled-components';
 import { callbackUriService } from '../services/callbackUriService';
 import { CopyButtonVariants } from '../services/copyButtonService';

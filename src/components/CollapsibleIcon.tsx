@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
+import { FiChevronDown, FiChevronUp } from '@icons';
 import styled from 'styled-components';
 
 interface CollapsibleIconProps {

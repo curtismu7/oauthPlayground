@@ -6,7 +6,7 @@
  */
 
 import { Component, ErrorInfo, ReactNode } from 'react';
-import { FiAlertTriangle, FiHome, FiRefreshCw } from 'react-icons/fi';
+import { FiAlertTriangle, FiHome, FiRefreshCw } from '@icons';
 
 interface Props {
 	children: ReactNode;

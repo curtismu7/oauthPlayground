@@ -6,7 +6,7 @@ import {
 	FiPlay,
 	FiRefreshCw,
 	FiServer
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import Card from '../../components/Card';
 import { useAuth } from '../../contexts/NewAuthContext';

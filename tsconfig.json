@@ -47,7 +47,8 @@
 			"@/v8/hooks/*": ["src/v8/hooks/*"],
 			"@/v8/flows/*": ["src/v8/flows/*"],
 			"@/v8/types/*": ["src/v8/types/*"],
-			"@/v8/utils/*": ["src/v8/utils/*"]
+			"@/v8/utils/*": ["src/v8/utils/*"],
+			"@icons": ["src/icons/index.ts"]
 		},
 
 		/* Additional type checking for security */

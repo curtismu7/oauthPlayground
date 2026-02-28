@@ -15,7 +15,7 @@ import {
 	FiTrendingUp,
 	FiUsers,
 	FiWifi,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 
 type AnswerValue =

@@ -6,7 +6,7 @@
  */
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { FiChevronDown, FiSearch, FiX } from 'react-icons/fi';
+import { FiChevronDown, FiSearch, FiX } from '@icons';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 

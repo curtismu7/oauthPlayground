@@ -10,7 +10,7 @@ import {
 	FiShield,
 	FiX,
 	FiZap,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { Card, CardBody } from '../components/Card';
 import { CollapsibleHeader as V6CollapsibleHeader } from '../services/collapsibleHeaderService';
