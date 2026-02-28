@@ -10,300 +10,239 @@ import {
 	FiUsers,
 	FiZap,
 } from 'react-icons/fi';
-import styled from 'styled-components';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { FlowUIService } from '../services/flowUIService';
 
-const PageContainer = styled.div`
-	max-width: 1400px;
-	margin: 0 auto;
-	padding: 2rem;
-`;
-
-const HeroSection = styled.div`
-	background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
-	color: white;
-	padding: 4rem 3rem;
-	border-radius: 1rem;
-	margin-bottom: 3rem;
-	text-align: center;
-	box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-`;
-
-const HeroTitle = styled.h1`
-	font-size: 3.5rem;
-	font-weight: 800;
-	margin: 0 0 1.5rem 0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: 1rem;
-`;
-
-const HeroSubtitle = styled.p`
-	font-size: 1.5rem;
-	margin: 0 0 2rem 0;
-	opacity: 0.9;
-	max-width: 800px;
-	margin-left: auto;
-	margin-right: auto;
-	line-height: 1.6;
-`;
-
-const HeroDescription = styled.p`
-	font-size: 1.125rem;
-	margin: 0;
-	opacity: 0.8;
-	max-width: 600px;
-	margin-left: auto;
-	margin-right: auto;
-	line-height: 1.6;
-`;
-
-const ComparisonGrid = styled.div`
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-	gap: 2rem;
-	margin-bottom: 3rem;
-`;
-
-const ProviderCard = styled.div<{ $featured?: boolean }>`
-	background: white;
-	border-radius: 1rem;
-	padding: 2rem;
-	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-	border: 2px solid ${({ $featured }) => ($featured ? '#3b82f6' : '#e5e7eb')};
-	transition: all 0.3s ease;
-	position: relative;
-
-	&:hover {
-		transform: translateY(-4px);
-		box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-	}
-
-	${({ $featured }) =>
-		$featured &&
-		`
-		&::before {
-			content: '🏆 Featured';
-			position: absolute;
-			top: -10px;
-			right: 20px;
-			background: #3b82f6;
-			color: white;
-			padding: 0.5rem 1rem;
-			border-radius: 1rem;
-			font-size: 0.875rem;
-			font-weight: 600;
-		}
-	`}
-`;
-
-const ProviderHeader = styled.div`
-	display: flex;
-	align-items: center;
-	gap: 1rem;
-	margin-bottom: 1.5rem;
-`;
-
-const ProviderIcon = styled.div<{ $color: string }>`
-	width: 60px;
-	height: 60px;
-	border-radius: 1rem;
-	background: ${({ $color }) => $color};
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-size: 1.5rem;
-	color: white;
-`;
-
-const ProviderInfo = styled.div`
-	flex: 1;
-`;
-
-const ProviderName = styled.h3`
-	font-size: 1.5rem;
-	font-weight: 700;
-	margin: 0 0 0.5rem 0;
-	color: #1f2937;
-`;
-
-const ProviderTagline = styled.p`
-	font-size: 1rem;
-	color: #6b7280;
-	margin: 0;
-`;
-
-const RatingContainer = styled.div`
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-	margin-bottom: 1rem;
-`;
-
-const Rating = styled.div`
-	display: flex;
-	align-items: center;
-	gap: 0.25rem;
-`;
-
-const Star = styled.span<{ $filled: boolean }>`
-	color: ${({ $filled }) => ($filled ? '#fbbf24' : '#d1d5db')};
-	font-size: 1rem;
-`;
-
-const RatingText = styled.span`
-	font-weight: 600;
-	color: #374151;
-`;
-
-const Pricing = styled.div`
-	background: #f8fafc;
-	border-radius: 0.5rem;
-	padding: 1rem;
-	margin-bottom: 1.5rem;
-`;
-
-const PricingText = styled.div`
-	font-size: 1.25rem;
-	font-weight: 700;
-	color: #1f2937;
-	margin-bottom: 0.25rem;
-`;
-
-const PricingNote = styled.div`
-	font-size: 0.875rem;
-	color: #6b7280;
-`;
-
-const FeaturesList = styled.ul`
-	list-style: none;
-	padding: 0;
-	margin: 0 0 1.5rem 0;
-`;
-
-const FeatureItem = styled.li`
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-	padding: 0.5rem 0;
-	font-size: 0.875rem;
-	color: #374151;
-`;
-
-const ProsConsContainer = styled.div`
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	gap: 1rem;
-	margin-bottom: 1.5rem;
-`;
-
-const ProsConsSection = styled.div`
-	background: ${({ $type }: { $type: 'pros' | 'cons' }) =>
-		$type === 'pros' ? '#f0fdf4' : '#fef2f2'};
-	border-radius: 0.5rem;
-	padding: 1rem;
-`;
-
-const ProsConsTitle = styled.h4`
-	font-size: 0.875rem;
-	font-weight: 600;
-	color: ${({ $type }: { $type: 'pros' | 'cons' }) => ($type === 'pros' ? '#166534' : '#dc2626')};
-	margin: 0 0 0.5rem 0;
-	display: flex;
-	align-items: center;
-	gap: 0.25rem;
-`;
-
-const ProsConsList = styled.ul`
-	list-style: none;
-	padding: 0;
-	margin: 0;
-`;
-
-const ProsConsItem = styled.li`
-	font-size: 0.75rem;
-	color: ${({ $type }: { $type: 'pros' | 'cons' }) => ($type === 'pros' ? '#166534' : '#dc2626')};
-	padding: 0.25rem 0;
-`;
-
-const ActionButtons = styled.div`
-	display: flex;
-	gap: 0.75rem;
-`;
-
 const Button = FlowUIService.getButton();
 
-const ComparisonTable = styled.div`
-	background: white;
-	border-radius: 1rem;
-	overflow: hidden;
-	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-	margin-bottom: 3rem;
-`;
+const styles = {
+	pageContainer: {
+		maxWidth: '1400px',
+		margin: '0 auto',
+		padding: '2rem',
+	} as React.CSSProperties,
+	heroSection: {
+		background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)',
+		color: 'white',
+		padding: '4rem 3rem',
+		borderRadius: '1rem',
+		marginBottom: '3rem',
+		textAlign: 'center' as const,
+		boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+	} as React.CSSProperties,
+	heroTitle: {
+		fontSize: '3.5rem',
+		fontWeight: 800,
+		margin: '0 0 1.5rem 0',
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'center',
+		gap: '1rem',
+	} as React.CSSProperties,
+	heroSubtitle: {
+		fontSize: '1.5rem',
+		marginTop: '0',
+		marginBottom: '2rem',
+		marginLeft: 'auto',
+		marginRight: 'auto',
+		opacity: 0.9,
+		maxWidth: '800px',
+		lineHeight: 1.6,
+	} as React.CSSProperties,
+	heroDescription: {
+		fontSize: '1.125rem',
+		margin: '0',
+		opacity: 0.8,
+		maxWidth: '600px',
+		marginLeft: 'auto',
+		marginRight: 'auto',
+		lineHeight: 1.6,
+	} as React.CSSProperties,
+	comparisonGrid: {
+		display: 'grid',
+		gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+		gap: '2rem',
+		marginBottom: '3rem',
+	} as React.CSSProperties,
 
-const TableHeader = styled.div`
-	background: #f8fafc;
-	padding: 1.5rem;
-	border-bottom: 1px solid #e5e7eb;
-`;
+	providerCard: ($featured?: boolean): React.CSSProperties => ({
+		background: 'white',
+		borderRadius: '1rem',
+		padding: '2rem',
+		boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+		border: `2px solid ${$featured ? '#3b82f6' : '#e5e7eb'}`,
+		position: 'relative',
+	}),
 
-const TableTitle = styled.h3`
-	font-size: 1.5rem;
-	font-weight: 700;
-	margin: 0;
-	color: #1f2937;
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
-`;
-
-const TableContent = styled.div`
-	overflow-x: auto;
-`;
-
-const Table = styled.table`
-	width: 100%;
-	border-collapse: collapse;
-`;
-
-const TableHead = styled.thead`
-	background: #f8fafc;
-`;
-
-const TableRow = styled.tr`
-	border-bottom: 1px solid #e5e7eb;
-
-	&:hover {
-		background: #f8fafc;
-	}
-`;
-
-const TableHeaderCell = styled.th`
-	padding: 1rem;
-	text-align: left;
-	font-weight: 600;
-	color: #374151;
-	border-right: 1px solid #e5e7eb;
-	min-width: 150px;
-`;
-
-const TableCell = styled.td`
-	padding: 1rem;
-	border-right: 1px solid #e5e7eb;
-	color: #374151;
-`;
-
-const CheckIcon = styled.span`
-	color: #10b981;
-	font-weight: 600;
-`;
-
-const XIcon = styled.span`
-	color: #ef4444;
-	font-weight: 600;
-`;
+	providerHeader: {
+		display: 'flex',
+		alignItems: 'center',
+		gap: '1rem',
+		marginBottom: '1.5rem',
+	} as React.CSSProperties,
+	providerIcon: ($color: string): React.CSSProperties => ({
+		width: '60px',
+		height: '60px',
+		borderRadius: '1rem',
+		background: $color,
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'center',
+		fontSize: '1.5rem',
+		color: 'white',
+	}),
+	providerInfo: {
+		flex: 1,
+	} as React.CSSProperties,
+	providerName: {
+		fontSize: '1.5rem',
+		fontWeight: 700,
+		margin: '0 0 0.5rem 0',
+		color: '#1f2937',
+	} as React.CSSProperties,
+	providerTagline: {
+		fontSize: '1rem',
+		color: '#6b7280',
+		margin: '0',
+	} as React.CSSProperties,
+	ratingContainer: {
+		display: 'flex',
+		alignItems: 'center',
+		gap: '0.5rem',
+		marginBottom: '1rem',
+	} as React.CSSProperties,
+	rating: {
+		display: 'flex',
+		alignItems: 'center',
+		gap: '0.25rem',
+	} as React.CSSProperties,
+	star: ($filled: boolean): React.CSSProperties => ({
+		color: $filled ? '#fbbf24' : '#d1d5db',
+		fontSize: '1rem',
+	}),
+	ratingText: {
+		fontWeight: 600,
+		color: '#374151',
+	} as React.CSSProperties,
+	pricing: {
+		background: '#f8fafc',
+		borderRadius: '0.5rem',
+		padding: '1rem',
+		marginBottom: '1.5rem',
+	} as React.CSSProperties,
+	pricingText: {
+		fontSize: '1.25rem',
+		fontWeight: 700,
+		color: '#1f2937',
+		marginBottom: '0.25rem',
+	} as React.CSSProperties,
+	pricingNote: {
+		fontSize: '0.875rem',
+		color: '#6b7280',
+	} as React.CSSProperties,
+	featuresList: {
+		listStyle: 'none',
+		padding: '0',
+		margin: '0 0 1.5rem 0',
+	} as React.CSSProperties,
+	featureItem: {
+		display: 'flex',
+		alignItems: 'center',
+		gap: '0.5rem',
+		padding: '0.5rem 0',
+		fontSize: '0.875rem',
+		color: '#374151',
+	} as React.CSSProperties,
+	prosConsContainer: {
+		display: 'grid',
+		gridTemplateColumns: '1fr 1fr',
+		gap: '1rem',
+		marginBottom: '1.5rem',
+	} as React.CSSProperties,
+	prosConsSection: ($type: 'pros' | 'cons'): React.CSSProperties => ({
+		background: $type === 'pros' ? '#f0fdf4' : '#fef2f2',
+		borderRadius: '0.5rem',
+		padding: '1rem',
+	}),
+	prosConsTitle: ($type: 'pros' | 'cons'): React.CSSProperties => ({
+		fontSize: '0.875rem',
+		fontWeight: 600,
+		color: $type === 'pros' ? '#166534' : '#dc2626',
+		margin: '0 0 0.5rem 0',
+		display: 'flex',
+		alignItems: 'center',
+		gap: '0.25rem',
+	}),
+	prosConsList: {
+		listStyle: 'none',
+		padding: '0',
+		margin: '0',
+	} as React.CSSProperties,
+	prosConsItem: ($type: 'pros' | 'cons'): React.CSSProperties => ({
+		fontSize: '0.75rem',
+		color: $type === 'pros' ? '#166534' : '#dc2626',
+		padding: '0.25rem 0',
+	}),
+	actionButtons: {
+		display: 'flex',
+		gap: '0.75rem',
+	} as React.CSSProperties,
+	comparisonTable: {
+		background: 'white',
+		borderRadius: '1rem',
+		overflow: 'hidden',
+		boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+		marginBottom: '3rem',
+	} as React.CSSProperties,
+	tableHeader: {
+		background: '#f8fafc',
+		padding: '1.5rem',
+		borderBottom: '1px solid #e5e7eb',
+	} as React.CSSProperties,
+	tableTitle: {
+		fontSize: '1.5rem',
+		fontWeight: 700,
+		margin: '0',
+		color: '#1f2937',
+		display: 'flex',
+		alignItems: 'center',
+		gap: '0.75rem',
+	} as React.CSSProperties,
+	tableContent: {
+		overflowX: 'auto' as const,
+	} as React.CSSProperties,
+	table: {
+		width: '100%',
+		borderCollapse: 'collapse' as const,
+	} as React.CSSProperties,
+	tableHead: {
+		background: '#f8fafc',
+	} as React.CSSProperties,
+	tableRow: {
+		borderBottom: '1px solid #e5e7eb',
+	} as React.CSSProperties,
+	tableHeaderCell: {
+		padding: '1rem',
+		textAlign: 'left' as const,
+		fontWeight: 600,
+		color: '#374151',
+		borderRight: '1px solid #e5e7eb',
+		minWidth: '150px',
+	} as React.CSSProperties,
+	tableCell: {
+		padding: '1rem',
+		borderRight: '1px solid #e5e7eb',
+		color: '#374151',
+	} as React.CSSProperties,
+	checkIcon: {
+		color: '#10b981',
+		fontWeight: 600,
+	} as React.CSSProperties,
+	xIcon: {
+		color: '#ef4444',
+		fontWeight: 600,
+	} as React.CSSProperties,
+};
 
 const CompetitiveAnalysis: React.FC = () => {
 	const [_selectedProvider, setSelectedProvider] = useState<string | null>(null);
@@ -596,18 +535,18 @@ const CompetitiveAnalysis: React.FC = () => {
 	];
 
 	return (
-		<PageContainer>
-			<HeroSection>
-				<HeroTitle>
+		<div style={styles.pageContainer}>
+			<div style={styles.heroSection}>
+				<h1 style={styles.heroTitle}>
 					<FiAward />
 					Identity Provider Competitive Analysis
-				</HeroTitle>
-				<HeroSubtitle>Compare leading Identity & Access Management solutions</HeroSubtitle>
-				<HeroDescription>
+				</h1>
+				<p style={styles.heroSubtitle}>Compare leading Identity & Access Management solutions</p>
+				<p style={styles.heroDescription}>
 					Comprehensive analysis of major IAM providers including features, pricing, pros, cons, and
 					use cases to help you choose the right solution.
-				</HeroDescription>
-			</HeroSection>
+				</p>
+			</div>
 
 			<CollapsibleHeader
 				title="Provider Overview"
@@ -615,75 +554,75 @@ const CompetitiveAnalysis: React.FC = () => {
 				icon={<FiUsers />}
 				defaultCollapsed={false}
 			>
-				<ComparisonGrid>
+				<div style={styles.comparisonGrid}>
 					{providers.map((provider) => (
-						<ProviderCard key={provider.id} $featured={provider.featured}>
-							<ProviderHeader>
-								<ProviderIcon $color={provider.color}>{provider.icon}</ProviderIcon>
-								<ProviderInfo>
-									<ProviderName>{provider.name}</ProviderName>
-									<ProviderTagline>{provider.tagline}</ProviderTagline>
-								</ProviderInfo>
-							</ProviderHeader>
+						<div key={provider.id} style={styles.providerCard(provider.featured)}>
+							<div style={styles.providerHeader}>
+								<div style={styles.providerIcon(provider.color)}>{provider.icon}</div>
+								<div style={styles.providerInfo}>
+									<h3 style={styles.providerName}>{provider.name}</h3>
+									<p style={styles.providerTagline}>{provider.tagline}</p>
+								</div>
+							</div>
 
-							<RatingContainer>
-								<Rating>
+							<div style={styles.ratingContainer}>
+								<div style={styles.rating}>
 									{[1, 2, 3, 4, 5].map((star) => (
-										<Star key={star} $filled={star <= Math.floor(provider.rating)}>
+										<span key={star} style={styles.star(star <= Math.floor(provider.rating))}>
 											★
-										</Star>
+										</span>
 									))}
-								</Rating>
-								<RatingText>
+								</div>
+								<span style={styles.ratingText}>
 									{provider.rating}/5 ({provider.reviews} reviews)
-								</RatingText>
-							</RatingContainer>
+								</span>
+							</div>
 
-							<Pricing>
-								<PricingText>{provider.pricing}</PricingText>
-								<PricingNote>{provider.pricingNote}</PricingNote>
-							</Pricing>
+							<div style={styles.pricing}>
+								<div style={styles.pricingText}>{provider.pricing}</div>
+								<div style={styles.pricingNote}>{provider.pricingNote}</div>
+							</div>
 
-							<FeaturesList>
+							<ul style={styles.featuresList}>
 								{provider.features.map((feature, index) => (
-									<FeatureItem key={index}>
+									<li key={index} style={styles.featureItem}>
 										<FiCheckCircle size={16} color="#10b981" />
 										{feature}
-									</FeatureItem>
+									</li>
 								))}
-							</FeaturesList>
+							</ul>
 
-							<ProsConsContainer>
-								<ProsConsSection $type="pros">
-									<ProsConsTitle $type="pros">
+							<div style={styles.prosConsContainer}>
+								<div style={styles.prosConsSection('pros')}>
+									<h4 style={styles.prosConsTitle('pros')}>
 										<FiTrendingUp size={14} />
 										Pros
-									</ProsConsTitle>
-									<ProsConsList>
+									</h4>
+									<ul style={styles.prosConsList}>
 										{provider.pros.map((pro, index) => (
-											<ProsConsItem key={index} $type="pros">
+											<li key={index} style={styles.prosConsItem('pros')}>
 												• {pro}
-											</ProsConsItem>
+											</li>
 										))}
-									</ProsConsList>
-								</ProsConsSection>
+									</ul>
+								</div>
 
-								<ProsConsSection $type="cons">
-									<ProsConsTitle $type="cons">
+								<div style={styles.prosConsSection('cons')}>
+									<h4 style={styles.prosConsTitle('cons')}>
 										<FiZap size={14} />
 										Cons
-									</ProsConsTitle>
-									<ProsConsList>
+									</h4>
+									<ul style={styles.prosConsList}>
 										{provider.cons.map((con, index) => (
-											<ProsConsItem key={index} $type="cons">
+											<li key={index} style={styles.prosConsItem('cons')}>
 												• {con}
-											</ProsConsItem>
+											</li>
 										))}
-									</ProsConsList>
-								</ProsConsSection>
-							</ProsConsContainer>
+									</ul>
+								</div>
+							</div>
 
-							<ActionButtons>
+							<div style={styles.actionButtons}>
 								<Button
 									$variant="primary"
 									size="sm"
@@ -700,10 +639,10 @@ const CompetitiveAnalysis: React.FC = () => {
 									<FiShield size={14} />
 									Learn More
 								</Button>
-							</ActionButtons>
-						</ProviderCard>
+							</div>
+						</div>
 					))}
-				</ComparisonGrid>
+				</div>
 			</CollapsibleHeader>
 
 			<CollapsibleHeader
@@ -712,46 +651,78 @@ const CompetitiveAnalysis: React.FC = () => {
 				icon={<FiCheckCircle />}
 				defaultCollapsed={false}
 			>
-				<ComparisonTable>
-					<TableHeader>
-						<TableTitle>
+				<div style={styles.comparisonTable}>
+					<div style={styles.tableHeader}>
+						<h3 style={styles.tableTitle}>
 							<FiCheckCircle />
 							Feature Comparison Matrix
-						</TableTitle>
-					</TableHeader>
-					<TableContent>
-						<Table>
-							<TableHead>
-								<TableRow>
-									<TableHeaderCell>Feature</TableHeaderCell>
-									<TableHeaderCell>Ping Identity</TableHeaderCell>
-									<TableHeaderCell>Okta</TableHeaderCell>
-									<TableHeaderCell>Auth0</TableHeaderCell>
-									<TableHeaderCell>Microsoft Entra</TableHeaderCell>
-									<TableHeaderCell>Google Identity</TableHeaderCell>
-									<TableHeaderCell>AWS IAM</TableHeaderCell>
-								</TableRow>
-							</TableHead>
+						</h3>
+					</div>
+					<div style={styles.tableContent}>
+						<table style={styles.table}>
+							<thead style={styles.tableHead}>
+								<tr style={styles.tableRow}>
+									<th style={styles.tableHeaderCell}>Feature</th>
+									<th style={styles.tableHeaderCell}>Ping Identity</th>
+									<th style={styles.tableHeaderCell}>Okta</th>
+									<th style={styles.tableHeaderCell}>Auth0</th>
+									<th style={styles.tableHeaderCell}>Microsoft Entra</th>
+									<th style={styles.tableHeaderCell}>Google Identity</th>
+									<th style={styles.tableHeaderCell}>AWS IAM</th>
+								</tr>
+							</thead>
 							<tbody>
 								{comparisonData.map((row, index) => (
-									<TableRow key={index}>
-										<TableCell>{row.feature}</TableCell>
-										<TableCell>{row.ping ? <CheckIcon>✓</CheckIcon> : <XIcon>✗</XIcon>}</TableCell>
-										<TableCell>{row.okta ? <CheckIcon>✓</CheckIcon> : <XIcon>✗</XIcon>}</TableCell>
-										<TableCell>{row.auth0 ? <CheckIcon>✓</CheckIcon> : <XIcon>✗</XIcon>}</TableCell>
-										<TableCell>
-											{row.microsoft ? <CheckIcon>✓</CheckIcon> : <XIcon>✗</XIcon>}
-										</TableCell>
-										<TableCell>
-											{row.google ? <CheckIcon>✓</CheckIcon> : <XIcon>✗</XIcon>}
-										</TableCell>
-										<TableCell>{row.aws ? <CheckIcon>✓</CheckIcon> : <XIcon>✗</XIcon>}</TableCell>
-									</TableRow>
+									<tr key={index} style={styles.tableRow}>
+										<td style={styles.tableCell}>{row.feature}</td>
+										<td style={styles.tableCell}>
+											{row.ping ? (
+												<span style={styles.checkIcon}>✓</span>
+											) : (
+												<span style={styles.xIcon}>✗</span>
+											)}
+										</td>
+										<td style={styles.tableCell}>
+											{row.okta ? (
+												<span style={styles.checkIcon}>✓</span>
+											) : (
+												<span style={styles.xIcon}>✗</span>
+											)}
+										</td>
+										<td style={styles.tableCell}>
+											{row.auth0 ? (
+												<span style={styles.checkIcon}>✓</span>
+											) : (
+												<span style={styles.xIcon}>✗</span>
+											)}
+										</td>
+										<td style={styles.tableCell}>
+											{row.microsoft ? (
+												<span style={styles.checkIcon}>✓</span>
+											) : (
+												<span style={styles.xIcon}>✗</span>
+											)}
+										</td>
+										<td style={styles.tableCell}>
+											{row.google ? (
+												<span style={styles.checkIcon}>✓</span>
+											) : (
+												<span style={styles.xIcon}>✗</span>
+											)}
+										</td>
+										<td style={styles.tableCell}>
+											{row.aws ? (
+												<span style={styles.checkIcon}>✓</span>
+											) : (
+												<span style={styles.xIcon}>✗</span>
+											)}
+										</td>
+									</tr>
 								))}
 							</tbody>
-						</Table>
-					</TableContent>
-				</ComparisonTable>
+						</table>
+					</div>
+				</div>
 			</CollapsibleHeader>
 
 			<CollapsibleHeader
@@ -894,7 +865,7 @@ const CompetitiveAnalysis: React.FC = () => {
 					</div>
 				</div>
 			</CollapsibleHeader>
-		</PageContainer>
+		</div>
 	);
 };
 
