@@ -129,9 +129,9 @@ import CIBAFlowV9 from './pages/flows/CIBAFlowV9';
 import DPoPFlow from './pages/flows/DPoPFlow';
 import IDTokensFlow from './pages/flows/IDTokensFlow';
 // ImplicitFlowV7 archived — route redirects to v9
-import JWTBearerFlow from './pages/flows/JWTBearerFlow';
 import JWTBearerTokenFlow from './pages/flows/JWTBearerTokenFlow';
 import JWTBearerTokenFlowV7 from './pages/flows/JWTBearerTokenFlowV7';
+import JWTBearerTokenFlowV9 from './pages/flows/v9/JWTBearerTokenFlowV9';
 import KrogerGroceryStoreMFA from './pages/flows/KrogerGroceryStoreMFA';
 import MFAFlow from './pages/flows/MFAFlow';
 import OAuth2CompliantAuthorizationCodeFlow from './pages/flows/OAuth2CompliantAuthorizationCodeFlow';
@@ -142,6 +142,7 @@ import OAuthImplicitFlowCompletion from './pages/flows/OAuthImplicitFlowCompleti
 import OAuthROPCFlowV7 from './pages/flows/OAuthROPCFlowV7';
 import OIDCCompliantAuthorizationCodeFlow from './pages/flows/OIDCCompliantAuthorizationCodeFlow';
 import OIDCHybridFlowV7 from './pages/flows/OIDCHybridFlowV7';
+import OIDCHybridFlowV9 from './pages/flows/v9/OIDCHybridFlowV9';
 import PARFlow from './pages/flows/PARFlow';
 import PARFlowV7 from './pages/flows/PARFlowV7';
 import PingOneCompleteMFAFlowV7 from './pages/flows/PingOneCompleteMFAFlowV7';
@@ -149,8 +150,10 @@ import PingOneLogoutFlow from './pages/flows/PingOneLogoutFlow';
 import PingOneMFAWorkflowLibraryV7 from './pages/flows/PingOneMFAWorkflowLibraryV7';
 import PingOnePARFlowV7 from './pages/flows/PingOnePARFlowV7';
 import RARFlowV7 from './pages/flows/RARFlowV7';
+import RARFlowV9 from './pages/flows/v9/RARFlowV9';
 import RedirectlessFlowV9_Real from './pages/flows/RedirectlessFlowV9_Real';
 import SAMLBearerAssertionFlowV7 from './pages/flows/SAMLBearerAssertionFlowV7';
+import SAMLBearerAssertionFlowV9 from './pages/flows/v9/SAMLBearerAssertionFlowV9';
 import SAMLServiceProviderFlowV1 from './pages/flows/SAMLServiceProviderFlowV1';
 import TokenIntrospectionFlow from './pages/flows/TokenIntrospectionFlow';
 import TokenRevocationFlow from './pages/flows/TokenRevocationFlow';
@@ -162,12 +165,8 @@ import V7RMOIDCResourceOwnerPasswordFlow from './pages/flows/V7RMOIDCResourceOwn
 import ClientCredentialsFlowV9 from './pages/flows/v9/ClientCredentialsFlowV9';
 import DeviceAuthorizationFlowV9 from './pages/flows/v9/DeviceAuthorizationFlowV9';
 import ImplicitFlowV9 from './pages/flows/v9/ImplicitFlowV9';
-import JWTBearerTokenFlowV9 from './pages/flows/v9/JWTBearerTokenFlowV9';
 import OAuthAuthorizationCodeFlowV9 from './pages/flows/v9/OAuthAuthorizationCodeFlowV9';
 import OAuthAuthorizationCodeFlowV9_Condensed from './pages/flows/v9/OAuthAuthorizationCodeFlowV9_Condensed';
-import OIDCHybridFlowV9 from './pages/flows/v9/OIDCHybridFlowV9';
-import RARFlowV9 from './pages/flows/v9/RARFlowV9';
-import SAMLBearerAssertionFlowV9 from './pages/flows/v9/SAMLBearerAssertionFlowV9';
 import WorkerTokenFlowV7 from './pages/flows/WorkerTokenFlowV7';
 // import InteractiveTutorials from './pages/InteractiveTutorials'; // Removed - unused tutorial feature
 import JWKSTroubleshooting from './pages/JWKSTroubleshooting';
@@ -190,6 +189,7 @@ import PingOneSessionsAPI from './pages/PingOneSessionsAPI';
 import PingOneUserProfile from './pages/PingOneUserProfile';
 import PingOneWebhookViewer from './pages/PingOneWebhookViewer';
 import { PostmanCollectionGenerator } from './pages/PostmanCollectionGenerator';
+import { PostmanCollectionGenerator as PostmanCollectionGeneratorV9 } from './pages/v9/PostmanCollectionGeneratorV9';
 import SDKSampleApp from './pages/SDKSampleApp';
 import ServiceTestRunner from './pages/ServiceTestRunner';
 import JWTExamples from './pages/sdk-examples/JWTExamples';
@@ -201,7 +201,6 @@ import TestDemo from './pages/TestDemo';
 import TokenManagement from './pages/TokenManagement';
 import UltimateTokenDisplayDemo from './pages/UltimateTokenDisplayDemo';
 import URLDecoder from './pages/URLDecoder';
-import { PostmanCollectionGenerator as PostmanCollectionGeneratorV9 } from './pages/v9/PostmanCollectionGeneratorV9';
 import { FIDO2SampleApp } from './samples/p1mfa/fido2/FIDO2SampleApp';
 import { IntegratedMFASample } from './samples/p1mfa/IntegratedMFASample';
 import { SMSSampleApp } from './samples/p1mfa/sms/SMSSampleApp';
@@ -763,10 +762,7 @@ const AppRoutes: React.FC = () => {
 									path="/flows/oauth-authorization-code-v7-condensed-mock"
 									element={<V7RMOAuthAuthorizationCodeFlow_Condensed />}
 								/>
-								<Route
-									path="/flows/mock-oidc-ropc"
-									element={<V7RMOIDCResourceOwnerPasswordFlow />}
-								/>
+								<Route path="/flows/mock-oidc-ropc" element={<V7RMOIDCResourceOwnerPasswordFlow />} />
 								<Route
 									path="/v7/oidc/authorization-code"
 									element={
@@ -1140,15 +1136,9 @@ const AppRoutes: React.FC = () => {
 								{/* V9 OIDC Hybrid Flow */}
 								<Route path="/flows/oidc-hybrid-v9" element={<OIDCHybridFlowV9 />} />
 								{/* V9 Authorization Code Flow */}
-								<Route
-									path="/flows/oauth-authorization-code-v9"
-									element={<OAuthAuthorizationCodeFlowV9 />}
-								/>
+								<Route path="/flows/oauth-authorization-code-v9" element={<OAuthAuthorizationCodeFlowV9 />} />
 								{/* V9 Authorization Code Flow - Condensed */}
-								<Route
-									path="/flows/oauth-authorization-code-v9-condensed"
-									element={<OAuthAuthorizationCodeFlowV9_Condensed />}
-								/>
+								<Route path="/flows/oauth-authorization-code-v9-condensed" element={<OAuthAuthorizationCodeFlowV9_Condensed />} />
 								{/* V8 OIDC Hybrid Flow */}
 								<Route path="/flows/hybrid-v8" element={<OIDCHybridFlowV8 />} />
 								{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
@@ -1185,7 +1175,7 @@ const AppRoutes: React.FC = () => {
 									element={<Navigate to="/flows/redirectless-v9-real" replace />}
 								/>
 								<Route path="/flows/par" element={<PARFlow />} />
-								<Route path="/flows-old/jwt-bearer" element={<JWTBearerTokenFlow />} />
+								<Route path="/flows-old/jwt-bearer" element={<JWTBearerFlow />} />
 								{/* Unsupported by PingOne flows */}
 								<Route
 									path="/oauth/resource-owner-password"
