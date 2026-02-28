@@ -65,7 +65,8 @@ export class LogFileService {
 			}));
 		} catch (error) {
 			const msg = error instanceof Error ? error.message : '';
-			if (!msg.includes('Log API not available')) {
+			const isNetworkUnavailable = msg.includes('Log API not available') || msg.includes('Failed to fetch');
+			if (!isNetworkUnavailable) {
 				console.error(`${MODULE_TAG} Failed to list log files:`, error);
 			}
 			throw error;
@@ -124,9 +125,10 @@ export class LogFileService {
 				modified: new Date((data as { modified?: string | null }).modified ?? 0),
 			};
 		} catch (error) {
-			// Only log unexpected errors; 404 message is user-facing and shown in UI
+			// Only log unexpected errors; network-unavailable cases are user-facing
 			const msg = error instanceof Error ? error.message : '';
-			if (!msg.includes('Log API not available')) {
+			const isNetworkUnavailable = msg.includes('Log API not available') || msg.includes('Failed to fetch');
+			if (!isNetworkUnavailable) {
 				console.error(`${MODULE_TAG} Failed to read log file:`, error);
 			}
 			throw error;
