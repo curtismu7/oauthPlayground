@@ -2,7 +2,14 @@
 // V7 Credential Backup Manager Component
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiDownload, FiInfo, FiRefreshCw, FiShield, FiTrash2 } from 'react-icons/fi';
+import {
+	FiDownload,
+	FiInfo,
+	FiRefreshCw,
+	FiShield,
+	FiTrash,
+	FiTrash2
+} from 'react-icons/fi';
 import styled from 'styled-components';
 import { credentialBackupService, type EnvBackupData } from '../services/credentialBackupService';
 import { v4ToastManager } from '../utils/v4ToastMessages';

@@ -12,10 +12,11 @@ import {
 	FiKey,
 	FiRefreshCw,
 	FiShield,
+	FiTrash,
 	FiTrash2,
 	FiUpload,
 	FiUser,
-	FiXCircle,
+	FiXCircle
 } from 'react-icons/fi';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import ConfirmationModal from '../components/ConfirmationModal';

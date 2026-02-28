@@ -5,7 +5,14 @@
  */
 
 import React, { useMemo, useState } from 'react';
-import { FiActivity, FiGitBranch, FiInfo, FiNavigation, FiShare2 } from 'react-icons/fi';
+import {
+	FiActivity,
+	FiGitBranch,
+	FiInfo,
+	FiNavigation,
+	FiShare,
+	FiShare2
+} from 'react-icons/fi';
 import styled from 'styled-components';
 
 type ResponseMode = 'query' | 'fragment' | 'form_post' | 'pi.flow';

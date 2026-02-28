@@ -3,10 +3,12 @@ import {
 	FiCalendar,
 	FiCheckCircle,
 	FiClock,
+	FiEdit,
 	FiEdit3,
 	FiInbox,
 	FiPlus,
-	FiTrash2,
+	FiTrash,
+	FiTrash2
 } from 'react-icons/fi';
 import styled from 'styled-components';
 

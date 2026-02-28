@@ -14,7 +14,14 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiAlertTriangle, FiEye, FiEyeOff, FiLock as FiLockIcon, FiUser } from 'react-icons/fi';
+import {
+	FiAlertTriangle,
+	FiEye,
+	FiEyeOff,
+	FiLock as FiLockIcon,
+	FiLockIcon,
+	FiUser
+} from 'react-icons/fi';
 import styled from 'styled-components';
 import { ButtonSpinner } from '../../../components/ui/ButtonSpinner';
 import PingOneLoginService from '../services/pingOneLoginService';
