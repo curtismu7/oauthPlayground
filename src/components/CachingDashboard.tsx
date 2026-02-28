@@ -5,8 +5,9 @@ import {
 	FiDownload,
 	FiInfo,
 	FiRefreshCw,
+	FiTrash,
 	FiTrash2,
-	FiXCircle,
+	FiXCircle
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { useServiceWorker } from '../hooks/useServiceWorker';

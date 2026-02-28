@@ -22,8 +22,9 @@ import {
 	FiKey,
 	FiRefreshCw,
 	FiShield,
+	FiTrash,
 	FiTrash2,
-	FiUser,
+	FiUser
 } from 'react-icons/fi';
 import styled, { css, keyframes } from 'styled-components';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';

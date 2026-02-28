@@ -12,10 +12,11 @@ import {
 	FiRefreshCw,
 	FiRotateCcw,
 	FiSettings,
+	FiTrash,
 	FiTrash2,
 	FiUpload,
 	FiWifi,
-	FiZap,
+	FiZap
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';

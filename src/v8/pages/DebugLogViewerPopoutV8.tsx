@@ -13,7 +13,8 @@ import {
 	FiEyeOff,
 	FiFile,
 	FiRefreshCw,
-	FiTrash2,
+	FiTrash,
+	FiTrash2
 } from 'react-icons/fi';
 import { type LogFile, LogFileService } from '@/services/logFileService';
 // PageHeaderV8 removed - using compact inline header for space efficiency

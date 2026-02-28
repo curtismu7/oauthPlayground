@@ -9,10 +9,12 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
 	FiDownload,
 	FiExternalLink,
+	FiMaximize,
 	FiMaximize2,
+	FiMinimize,
 	FiMinimize2,
 	FiRefreshCw,
-	FiX,
+	FiX
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { type LogFile, LogFileService } from '../services/logFileService';

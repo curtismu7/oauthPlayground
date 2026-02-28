@@ -7,7 +7,12 @@
  */
 
 import React from 'react';
-import { FiAlertTriangle, FiExternalLink, FiTrash2 } from 'react-icons/fi';
+import {
+	FiAlertTriangle,
+	FiExternalLink,
+	FiTrash,
+	FiTrash2
+} from 'react-icons/fi';
 
 const MODULE_TAG = '[🚫 DEVICE-LIMIT-MODAL-V8]';
 
