@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
 	FiAlertTriangle,
 	FiArrowRight,
+	FiBarChart,
 	FiBarChart2,
 	FiCheckCircle,
 	FiClock,
@@ -9,7 +10,7 @@ import {
 	FiDownload,
 	FiRefreshCw,
 	FiShield,
-	FiUsers,
+	FiUsers
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { type FlowType } from '../../v8/services/specVersionServiceV8';

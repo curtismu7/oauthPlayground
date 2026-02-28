@@ -5,6 +5,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
 	FiActivity,
 	FiDatabase,
+	FiEdit,
 	FiEdit3,
 	FiEye,
 	FiFilter,
@@ -14,7 +15,8 @@ import {
 	FiSearch,
 	FiServer,
 	FiSettings,
-	FiTrash2,
+	FiTrash,
+	FiTrash2
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import {

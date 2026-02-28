@@ -2,7 +2,14 @@
 // Reusable draggable and collapsible modal component
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { FiMaximize2, FiMinimize2, FiMove, FiX } from 'react-icons/fi';
+import {
+	FiMaximize,
+	FiMaximize2,
+	FiMinimize,
+	FiMinimize2,
+	FiMove,
+	FiX
+} from 'react-icons/fi';
 import styled from 'styled-components';
 
 // Styled components
