@@ -6,6 +6,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Icon } from '../components/Icon/Icon';
 import { useServerStatusOptional } from '../components/ServerStatusProvider';
+import { useNotifications } from '../contexts/NotificationSystem';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import {
 	getAppUrlForDomain,
@@ -63,13 +64,14 @@ export default function CustomDomainTestPage() {
 	const [testingKey, setTestingKey] = useState<string | null>(null);
 	const [collapsed, setCollapsed] = useState({ domain: false, apis: false });
 
-	// State for API parameters
+	// State for API parameters — keyed by param name, shared across cards
 	const [apiParams, setApiParams] = useState<Record<string, string>>({
 		username: '',
 		orgId: '',
 		envId: '',
 	});
 
+	const { showWarning } = useNotifications();
 	const { isOnline } = useServerStatusOptional();
 
 	useEffect(() => {
@@ -113,54 +115,60 @@ export default function CustomDomainTestPage() {
 		}
 	}, [customDomain]);
 
-	const runTest = useCallback(async (spec: ApiTestSpec, params: Record<string, string>) => {
-		// Replace path parameters with actual values
-		let finalPath = spec.path;
-		if (spec.requiresParams) {
-			for (const param of spec.requiresParams) {
-				const value = params[param];
-				if (!value || !value.trim()) {
-					alert(`Please enter ${param} before testing this endpoint`);
-					return;
+	const runTest = useCallback(
+		async (spec: ApiTestSpec, params: Record<string, string>) => {
+			// Replace path parameters with actual values
+			let finalPath = spec.path;
+			if (spec.requiresParams) {
+				for (const param of spec.requiresParams) {
+					const value = params[param];
+					if (!value || !value.trim()) {
+						showWarning(`Please enter ${param} before testing this endpoint`, { duration: 4000 });
+						return;
+					}
+					finalPath = finalPath.replace(`{${param}}`, encodeURIComponent(value.trim()));
 				}
-				finalPath = finalPath.replace(`{${param}}`, encodeURIComponent(value.trim()));
 			}
-		}
 
-		const key = `${spec.method} ${spec.path}`;
-		setTestingKey(key);
-		setTestResults((prev) => ({ ...prev, [key]: { status: 0, statusText: '…', bodyPreview: '' } }));
-		try {
-			const res = await fetch(finalPath, { method: spec.method });
-			let bodyPreview = '';
+			const key = `${spec.method} ${spec.path}`;
+			setTestingKey(key);
+			setTestResults((prev) => ({
+				...prev,
+				[key]: { status: 0, statusText: '…', bodyPreview: '' },
+			}));
 			try {
-				const text = await res.text();
-				bodyPreview = text.length > 200 ? `${text.slice(0, 200)}…` : text;
-			} catch {
-				bodyPreview = '(non-text response)';
+				const res = await fetch(finalPath, { method: spec.method });
+				let bodyPreview = '';
+				try {
+					const text = await res.text();
+					bodyPreview = text.length > 200 ? `${text.slice(0, 200)}…` : text;
+				} catch {
+					bodyPreview = '(non-text response)';
+				}
+				setTestResults((prev) => ({
+					...prev,
+					[key]: {
+						status: res.status,
+						statusText: res.statusText,
+						bodyPreview,
+					},
+				}));
+			} catch (err) {
+				setTestResults((prev) => ({
+					...prev,
+					[key]: {
+						status: 0,
+						statusText: 'Error',
+						bodyPreview: '',
+						error: err instanceof Error ? err.message : 'Request failed',
+					},
+				}));
+			} finally {
+				setTestingKey(null);
 			}
-			setTestResults((prev) => ({
-				...prev,
-				[key]: {
-					status: res.status,
-					statusText: res.statusText,
-					bodyPreview,
-				},
-			}));
-		} catch (err) {
-			setTestResults((prev) => ({
-				...prev,
-				[key]: {
-					status: 0,
-					statusText: 'Error',
-					bodyPreview: '',
-					error: err instanceof Error ? err.message : 'Request failed',
-				},
-			}));
-		} finally {
-			setTestingKey(null);
-		}
-	}, []);
+		},
+		[showWarning]
+	);
 
 	return (
 		<div className="dashboard-page">
@@ -266,74 +274,6 @@ export default function CustomDomainTestPage() {
 				</CollapsibleHeader>
 			</div>
 
-			{/* API Parameters Section */}
-			<div className="section-wrap">
-				<div className="card">
-					<div className="card-body">
-						<h6 className="fw-600 mb-3 d-flex align-items-center gap-2">
-							<Icon name="settings" size="sm" />
-							API Parameters
-						</h6>
-						<p className="text-muted text-small mb-3">
-							Enter parameter values for parameterized endpoints
-						</p>
-						<div className="row g-3">
-							<div className="col-md-4">
-								<label htmlFor="param-username" className="form-label fw-600 text-small">
-									Username
-								</label>
-								<input
-									id="param-username"
-									type="text"
-									className="form-control"
-									placeholder="e.g., john.doe"
-									value={apiParams.username}
-									onChange={(e) => setApiParams((prev) => ({ ...prev, username: e.target.value }))}
-									aria-describedby="username-hint"
-								/>
-								<small id="username-hint" className="text-muted">
-									For /api/user/:username
-								</small>
-							</div>
-							<div className="col-md-4">
-								<label htmlFor="param-orgId" className="form-label fw-600 text-small">
-									Organization ID
-								</label>
-								<input
-									id="param-orgId"
-									type="text"
-									className="form-control"
-									placeholder="e.g., org_123456"
-									value={apiParams.orgId}
-									onChange={(e) => setApiParams((prev) => ({ ...prev, orgId: e.target.value }))}
-									aria-describedby="orgId-hint"
-								/>
-								<small id="orgId-hint" className="text-muted">
-									For /api/org/:orgId/licensing
-								</small>
-							</div>
-							<div className="col-md-4">
-								<label htmlFor="param-envId" className="form-label fw-600 text-small">
-									Environment ID
-								</label>
-								<input
-									id="param-envId"
-									type="text"
-									className="form-control"
-									placeholder="e.g., env_abc123"
-									value={apiParams.envId}
-									onChange={(e) => setApiParams((prev) => ({ ...prev, envId: e.target.value }))}
-									aria-describedby="envId-hint"
-								/>
-								<small id="envId-hint" className="text-muted">
-									For /api/environment/:envId
-								</small>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-
 			<div className="section-wrap">
 				<CollapsibleHeader
 					title="APIs to test"
@@ -357,16 +297,49 @@ export default function CustomDomainTestPage() {
 								const result = testResults[key];
 								const isTesting = testingKey === key;
 								return (
-									<div key={key} className="card" style={{ borderLeft: '4px solid #e5e7eb' }}>
+									<div
+										key={key}
+										className="card"
+										style={{
+											borderLeft: `4px solid ${spec.requiresParams ? '#2563eb' : '#e5e7eb'}`,
+										}}
+									>
 										<div className="card-body d-flex flex-wrap align-items-center gap-2 justify-content-between">
-											<div className="d-flex flex-column gap-1">
-												<span className="badge bg-secondary me-2" style={{ width: 'fit-content' }}>
-													{spec.method}
-												</span>
-												<code className="text-small" style={{ color: '#111827' }}>
-													{spec.path}
-												</code>
+											<div className="d-flex flex-column gap-1" style={{ flex: 1, minWidth: 0 }}>
+												<div className="d-flex align-items-center gap-2 flex-wrap">
+													<span className="badge bg-secondary" style={{ width: 'fit-content' }}>
+														{spec.method}
+													</span>
+													<code className="text-small" style={{ color: '#111827' }}>
+														{spec.path}
+													</code>
+												</div>
 												<span className="text-muted text-small">{spec.description}</span>
+												{spec.requiresParams && (
+													<div className="d-flex flex-wrap gap-2 mt-2">
+														{spec.requiresParams.map((param) => (
+															<div key={param} className="d-flex flex-column gap-1">
+																<label
+																	htmlFor={`inline-param-${key}-${param}`}
+																	className="text-small fw-600 text-muted mb-0"
+																>
+																	{param}
+																</label>
+																<input
+																	id={`inline-param-${key}-${param}`}
+																	type="text"
+																	className="form-control form-control-sm"
+																	placeholder={param}
+																	value={apiParams[param] ?? ''}
+																	onChange={(e) =>
+																		setApiParams((prev) => ({ ...prev, [param]: e.target.value }))
+																	}
+																	style={{ minWidth: '160px', maxWidth: '240px' }}
+																/>
+															</div>
+														))}
+													</div>
+												)}
 											</div>
 											<div className="d-flex align-items-center gap-2">
 												{result && (
