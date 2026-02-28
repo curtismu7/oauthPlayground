@@ -16,460 +16,356 @@ import {
 	FiFilter,
 	FiGlobe,
 	FiInfo,
-	FiKey,
 	FiRefreshCw,
 	FiServer,
 	FiShield,
 	FiUser,
 	FiX,
 } from 'react-icons/fi';
-import styled from 'styled-components';
 import ApiCallList from '../components/ApiCallList';
 import JSONHighlighter, { type JSONData } from '../components/JSONHighlighter';
-import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
 import { readBestEnvironmentId } from '../hooks/useAutoEnvironmentId';
-import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import { apiRequestModalService } from '../services/apiRequestModalService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { ShowTokenConfigCheckboxV8 } from '../v8/components/ShowTokenConfigCheckboxV8';
 import { SilentApiConfigCheckboxV8 } from '../v8/components/SilentApiConfigCheckboxV8';
-import { WorkerTokenModalV8 } from '../v8/components/WorkerTokenModalV8';
+import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
 
-const PageContainer = styled.div`
-	max-width: 90rem;
-	margin: 0 auto;
-	padding: 2rem 1.5rem 4rem;
-	display: flex;
-	flex-direction: column;
-	gap: 1.75rem;
-	width: 100%;
-`;
-
-const HeaderCard = styled.div`
-	display: flex;
-	flex-direction: column;
-	gap: 1rem;
-	padding: 1.75rem;
-	border-radius: 1rem;
-	background: linear-gradient(135deg, rgba(102, 126, 234, 0.12), rgba(118, 75, 162, 0.04));
-	border: 1px solid rgba(102, 126, 234, 0.2);
-`;
-
-const TitleRow = styled.div`
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
-	color: #4f46e5;
-`;
-
-const Title = styled.h1`
-	margin: 0;
-	font-size: 1.75rem;
-	font-weight: 700;
-`;
-
-const Subtitle = styled.p`
-	margin: 0;
-	color: #4338ca;
-	max-width: 720px;
-	line-height: 1.6;
-`;
-
-const LayoutGrid = styled.div`
-	display: grid;
-	grid-template-columns: 280px 1fr;
-	gap: 2rem;
-
-	@media (max-width: 1080px) {
-		grid-template-columns: 1fr;
-	}
-`;
-
-const Card = styled.div`
-	background: #ffffff;
-	border-radius: 1rem;
-	border: 1px solid #e2e8f0;
-	box-shadow: 0 10px 30px -12px rgba(15, 23, 42, 0.18);
-	overflow: hidden;
-	padding: 1.5rem;
-	display: flex;
-	flex-direction: column;
-	gap: 1.25rem;
-`;
-
-const SectionTitle = styled.h2`
-	margin: 0;
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-	font-size: 1.1rem;
-	font-weight: 600;
-	color: #0f172a;
-`;
-
-const FieldGroup = styled.div`
-	display: flex;
-	flex-direction: column;
-	gap: 0.5rem;
-`;
-
-const Label = styled.label`
-	font-weight: 600;
-	font-size: 0.85rem;
-	color: #334155;
-	display: flex;
-	align-items: center;
-	gap: 0.35rem;
-`;
-
-const Select = styled.select`
-	width: 100%;
-	padding: 0.75rem 0.85rem;
-	border-radius: 0.75rem;
-	border: 1px solid #cbd5f5;
-	background: #f8fafc;
-	transition: all 0.2s ease;
-	font-size: 0.92rem;
-	cursor: pointer;
-
-	&:focus {
-		outline: none;
-		border-color: #667eea;
-		box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
-	}
-`;
-
-const Hint = styled.p`
-	margin: 0;
-	font-size: 0.8rem;
-	color: #64748b;
-`;
-
-const ButtonRow = styled.div`
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.75rem;
-`;
-
-const PrimaryButton = styled.button<{ disabled?: boolean }>`
-	border: none;
-	border-radius: 0.75rem;
-	padding: 0.85rem 1.35rem;
-	background: ${({ disabled }) => (disabled ? '#cbd5f5' : '#667eea')};
-	color: white;
-	font-weight: 600;
-	display: inline-flex;
-	align-items: center;
-	gap: 0.5rem;
-	cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
-	transition: transform 0.15s ease, box-shadow 0.15s ease;
-
-	&:hover {
-		transform: ${({ disabled }) => (disabled ? 'none' : 'translateY(-1px)')};
-		box-shadow: ${({ disabled }) => (disabled ? 'none' : '0 10px 22px -12px rgba(102, 126, 234, 0.65)')};
-	}
-
-	.spin {
-		animation: spin 1s linear infinite;
-	}
-
-	@keyframes spin {
-		from { transform: rotate(0deg); }
-		to { transform: rotate(360deg); }
-	}
-`;
-
-const DangerButton = styled.button`
-	border: none;
-	border-radius: 0.75rem;
-	padding: 0.85rem 1.35rem;
-	background: #ef4444;
-	color: white;
-	font-weight: 600;
-	display: inline-flex;
-	align-items: center;
-	gap: 0.5rem;
-	cursor: pointer;
-	transition: transform 0.15s ease, box-shadow 0.15s ease;
-
-	&:hover {
-		transform: translateY(-1px);
-		box-shadow: 0 10px 22px -12px rgba(239, 68, 68, 0.65);
-		background: #dc2626;
-	}
-
-	&:active {
-		transform: translateY(0);
-	}
-`;
-
-const SecondaryButton = styled.button`
-	border: 1px solid #cbd5f5;
-	border-radius: 0.75rem;
-	padding: 0.85rem 1.35rem;
-	background: white;
-	color: #1e293b;
-	font-weight: 600;
-	display: inline-flex;
-	align-items: center;
-	gap: 0.5rem;
-	cursor: pointer;
-	transition: background 0.15s ease, color 0.15s ease;
-
-	&:hover {
-		background: #f8fafc;
-		border-color: #94a3b8;
-	}
-`;
-
-const WarningBanner = styled.div`
-	padding: 1rem;
-	background: #fef3c7;
-	border: 1px solid #fbbf24;
-	border-radius: 0.75rem;
-	margin-bottom: 1rem;
-`;
-
-const ErrorBanner = styled.div`
-	padding: 1rem;
-	background: #fee2e2;
-	border: 1px solid #f87171;
-	border-radius: 0.75rem;
-	margin-bottom: 1rem;
-	display: flex;
-	align-items: flex-start;
-	gap: 0.75rem;
-	color: #dc2626;
-	font-size: 0.875rem;
-`;
-
-const ResultContainer = styled.div`
-	display: flex;
-	flex-direction: column;
-	gap: 1.25rem;
-`;
-
-const EmptyState = styled.div`
-	text-align: center;
-	padding: 3rem 2rem;
-	color: #6b7280;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 0.75rem;
-`;
-
-const ActivityCard = styled.div<{ $clickable?: boolean }>`
-	padding: 0.75rem;
-	border: 1px solid #e5e7eb;
-	border-radius: 0.5rem;
-	background: #f9fafb;
-	cursor: ${({ $clickable }) => ($clickable ? 'pointer' : 'default')};
-	transition: all 0.2s ease;
-
-	&:hover {
-		${({ $clickable }) =>
-			$clickable
-				? `
-			border-color: #667eea;
-			background: #f0f4ff;
-			box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
-			transform: translateY(-1px);
-		`
-				: ''}
-	}
-`;
-
-const ActivityRow = styled.div`
-	display: flex;
-	justify-content: space-between;
-	align-items: flex-start;
-	gap: 1rem;
-	margin-bottom: 0.5rem;
-`;
-
-const ActivityMain = styled.div`
-	flex: 1;
-`;
-
-const ActivityMeta = styled.div`
-	display: flex;
-	flex-direction: column;
-	align-items: flex-end;
-	gap: 0.25rem;
-	font-size: 0.75rem;
-	color: #6b7280;
-`;
-
-const ActivityDetails = styled.div`
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.75rem;
-	margin-top: 0.5rem;
-	font-size: 0.8rem;
-`;
-
-const DetailBadge = styled.span<{ $color?: string }>`
-	padding: 0.25rem 0.5rem;
-	border-radius: 0.375rem;
-	background: ${({ $color }) => $color || '#e5e7eb'};
-	color: ${({ $color }) => {
-		if ($color === '#d1fae5') return '#065f46';
-		if ($color === '#fee2e2') return '#dc2626';
-		if ($color === '#dbeafe') return '#1e40af';
-		return '#374151';
-	}};
-	font-weight: 500;
-	display: inline-flex;
-	align-items: center;
-	gap: 0.25rem;
-`;
-
-const DetailModalOverlay = styled.div<{ $isOpen: boolean }>`
-	position: fixed;
-	inset: 0;
-	background: rgba(15, 23, 42, 0.6);
-	display: ${({ $isOpen }) => ($isOpen ? 'flex' : 'none')};
-	align-items: center;
-	justify-content: center;
-	z-index: 2000;
-	padding: 2rem;
-	backdrop-filter: blur(4px);
-`;
-
-const DetailModalContent = styled.div`
-	background: white;
-	border-radius: 1rem;
-	box-shadow: 0 20px 45px rgba(15, 23, 42, 0.25);
-	max-width: 900px;
-	width: 100%;
-	max-height: 90vh;
-	display: flex;
-	flex-direction: column;
-	overflow: hidden;
-`;
-
-const DetailModalHeader = styled.div`
-	padding: 1.5rem;
-	border-bottom: 1px solid #e2e8f0;
-	display: flex;
-	justify-content: space-between;
-	align-items: flex-start;
-	gap: 1rem;
-	background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-`;
-
-const DetailModalTitle = styled.h2`
-	margin: 0;
-	font-size: 1.25rem;
-	font-weight: 700;
-	color: #1e293b;
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-`;
-
-const CloseButton = styled.button`
-	background: none;
-	border: none;
-	color: #64748b;
-	cursor: pointer;
-	padding: 0.5rem;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	border-radius: 0.5rem;
-	transition: all 0.2s ease;
-	font-size: 1.5rem;
-	line-height: 1;
-
-	&:hover {
-		background: #f1f5f9;
-		color: #0f172a;
-	}
-`;
-
-const DetailModalBody = styled.div`
-	padding: 1.5rem;
-	overflow-y: auto;
-	flex: 1;
-`;
-
-const DetailSection = styled.div`
-	margin-bottom: 1.5rem;
-
-	&:last-child {
-		margin-bottom: 0;
-	}
-`;
-
-const DetailSectionTitle = styled.h3`
-	margin: 0 0 0.75rem 0;
-	font-size: 1rem;
-	font-weight: 600;
-	color: #334155;
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-	padding-bottom: 0.5rem;
-	border-bottom: 2px solid #e2e8f0;
-`;
-
-const DetailGrid = styled.div`
-	display: grid;
-	grid-template-columns: 140px 1fr;
-	gap: 0.75rem;
-	font-size: 0.875rem;
-`;
-
-const DetailLabel = styled.div`
-	font-weight: 600;
-	color: #64748b;
-	padding: 0.5rem;
-	background: #f8fafc;
-	border-radius: 0.375rem;
-`;
-
-const DetailValue = styled.div<{ $isCode?: boolean }>`
-	color: #1e293b;
-	padding: 0.5rem;
-	word-break: break-word;
-	font-family: ${({ $isCode }) => ($isCode ? "'Monaco', 'Menlo', 'Courier New', monospace" : 'inherit')};
-	font-size: ${({ $isCode }) => ($isCode ? '0.8rem' : 'inherit')};
-	background: ${({ $isCode }) => ($isCode ? '#f8fafc' : 'transparent')};
-	border-radius: ${({ $isCode }) => ($isCode ? '0.375rem' : '0')};
-	border: ${({ $isCode }) => ($isCode ? '1px solid #e2e8f0' : 'none')};
-`;
-
-const DetailModalFooter = styled.div`
-	padding: 1rem 1.5rem;
-	border-top: 1px solid #e2e8f0;
-	background: #f8fafc;
-	display: flex;
-	justify-content: flex-end;
-	gap: 0.75rem;
-`;
-
-const CopyButton = styled.button`
-	border: 1px solid #cbd5e1;
-	border-radius: 0.5rem;
-	padding: 0.5rem 1rem;
-	background: white;
-	color: #475569;
-	font-weight: 600;
-	font-size: 0.875rem;
-	display: inline-flex;
-	align-items: center;
-	gap: 0.5rem;
-	cursor: pointer;
-	transition: all 0.2s ease;
-
-	&:hover {
-		background: #f1f5f9;
-		border-color: #94a3b8;
-	}
-`;
+const styles = {
+	pageContainer: {
+		maxWidth: '90rem',
+		margin: '0 auto',
+		padding: '2rem 1.5rem 4rem',
+		display: 'flex' as const,
+		flexDirection: 'column' as const,
+		gap: '1.75rem',
+		width: '100%',
+	},
+	headerCard: {
+		display: 'flex' as const,
+		flexDirection: 'column' as const,
+		gap: '1rem',
+		padding: '1.75rem',
+		borderRadius: '1rem',
+		background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)',
+		border: '1px solid rgba(37, 99, 235, 0.4)',
+	},
+	titleRow: {
+		display: 'flex' as const,
+		alignItems: 'center' as const,
+		gap: '0.75rem',
+		color: '#ffffff',
+	},
+	title: {
+		margin: 0,
+		fontSize: '1.75rem',
+		fontWeight: 700,
+		color: '#ffffff',
+	} as React.CSSProperties,
+	subtitle: {
+		margin: 0,
+		color: '#bfdbfe',
+		maxWidth: '720px',
+		lineHeight: 1.6,
+	} as React.CSSProperties,
+	layoutGrid: {
+		display: 'grid' as const,
+		gridTemplateColumns: '280px 1fr',
+		gap: '2rem',
+	},
+	card: {
+		background: '#ffffff',
+		borderRadius: '1rem',
+		border: '1px solid #e2e8f0',
+		boxShadow: '0 10px 30px -12px rgba(15, 23, 42, 0.18)',
+		overflow: 'hidden' as const,
+		padding: '1.5rem',
+		display: 'flex' as const,
+		flexDirection: 'column' as const,
+		gap: '1.25rem',
+	},
+	sectionTitle: {
+		margin: 0,
+		display: 'flex' as const,
+		alignItems: 'center' as const,
+		gap: '0.5rem',
+		fontSize: '1.1rem',
+		fontWeight: 600,
+		color: '#0f172a',
+	} as React.CSSProperties,
+	fieldGroup: {
+		display: 'flex' as const,
+		flexDirection: 'column' as const,
+		gap: '0.5rem',
+	},
+	label: {
+		fontWeight: 600,
+		fontSize: '0.85rem',
+		color: '#334155',
+		display: 'flex' as const,
+		alignItems: 'center' as const,
+		gap: '0.35rem',
+	} as React.CSSProperties,
+	select: {
+		width: '100%',
+		padding: '0.75rem 0.85rem',
+		borderRadius: '0.75rem',
+		border: '1px solid #cbd5f5',
+		background: '#f8fafc',
+		fontSize: '0.92rem',
+		cursor: 'pointer' as const,
+	},
+	hint: {
+		margin: 0,
+		fontSize: '0.8rem',
+		color: '#64748b',
+	} as React.CSSProperties,
+	buttonRow: {
+		display: 'flex' as const,
+		flexWrap: 'wrap' as const,
+		gap: '0.75rem',
+	},
+	primaryButton: (disabled?: boolean): React.CSSProperties => ({
+		border: 'none',
+		borderRadius: '0.75rem',
+		padding: '0.85rem 1.35rem',
+		background: disabled ? '#cbd5f5' : '#667eea',
+		color: 'white',
+		fontWeight: 600,
+		display: 'inline-flex',
+		alignItems: 'center',
+		gap: '0.5rem',
+		cursor: disabled ? 'not-allowed' : 'pointer',
+	}),
+	dangerButton: {
+		border: 'none',
+		borderRadius: '0.75rem',
+		padding: '0.85rem 1.35rem',
+		background: '#ef4444',
+		color: 'white',
+		fontWeight: 600,
+		display: 'inline-flex' as const,
+		alignItems: 'center' as const,
+		gap: '0.5rem',
+		cursor: 'pointer' as const,
+	},
+	secondaryButton: {
+		border: '1px solid #cbd5f5',
+		borderRadius: '0.75rem',
+		padding: '0.85rem 1.35rem',
+		background: 'white',
+		color: '#1e293b',
+		fontWeight: 600,
+		display: 'inline-flex' as const,
+		alignItems: 'center' as const,
+		gap: '0.5rem',
+		cursor: 'pointer' as const,
+	},
+	warningBanner: {
+		padding: '1rem',
+		background: '#fef3c7',
+		border: '1px solid #fbbf24',
+		borderRadius: '0.75rem',
+		marginBottom: '1rem',
+	},
+	errorBanner: {
+		padding: '1rem',
+		background: '#fee2e2',
+		border: '1px solid #f87171',
+		borderRadius: '0.75rem',
+		marginBottom: '1rem',
+		display: 'flex' as const,
+		alignItems: 'flex-start' as const,
+		gap: '0.75rem',
+		color: '#dc2626',
+		fontSize: '0.875rem',
+	},
+	resultContainer: {
+		display: 'flex' as const,
+		flexDirection: 'column' as const,
+		gap: '1.25rem',
+	},
+	emptyState: {
+		textAlign: 'center' as const,
+		padding: '3rem 2rem',
+		color: '#6b7280',
+		display: 'flex' as const,
+		flexDirection: 'column' as const,
+		alignItems: 'center' as const,
+		gap: '0.75rem',
+	},
+	activityCard: (clickable?: boolean): React.CSSProperties => ({
+		padding: '0.75rem',
+		border: '1px solid #e5e7eb',
+		borderRadius: '0.5rem',
+		background: '#f9fafb',
+		cursor: clickable ? 'pointer' : 'default',
+	}),
+	activityRow: {
+		display: 'flex' as const,
+		justifyContent: 'space-between' as const,
+		alignItems: 'flex-start' as const,
+		gap: '1rem',
+		marginBottom: '0.5rem',
+	},
+	activityMain: {
+		flex: 1,
+	},
+	activityMeta: {
+		display: 'flex' as const,
+		flexDirection: 'column' as const,
+		alignItems: 'flex-end' as const,
+		gap: '0.25rem',
+		fontSize: '0.75rem',
+		color: '#6b7280',
+	},
+	activityDetails: {
+		display: 'flex' as const,
+		flexWrap: 'wrap' as const,
+		gap: '0.75rem',
+		marginTop: '0.5rem',
+		fontSize: '0.8rem',
+	},
+	detailBadge: (color?: string): React.CSSProperties => ({
+		padding: '0.25rem 0.5rem',
+		borderRadius: '0.375rem',
+		background: color || '#e5e7eb',
+		color:
+			color === '#d1fae5'
+				? '#065f46'
+				: color === '#fee2e2'
+					? '#dc2626'
+					: color === '#dbeafe'
+						? '#1e40af'
+						: '#374151',
+		fontWeight: 500,
+		display: 'inline-flex' as const,
+		alignItems: 'center' as const,
+		gap: '0.25rem',
+	}),
+	detailModalOverlay: (isOpen: boolean): React.CSSProperties => ({
+		position: 'fixed',
+		inset: 0,
+		background: 'rgba(15, 23, 42, 0.6)',
+		display: isOpen ? 'flex' : 'none',
+		alignItems: 'center',
+		justifyContent: 'center',
+		zIndex: 2000,
+		padding: '2rem',
+		backdropFilter: 'blur(4px)',
+	}),
+	detailModalContent: {
+		background: 'white',
+		borderRadius: '1rem',
+		boxShadow: '0 20px 45px rgba(15, 23, 42, 0.25)',
+		maxWidth: '900px',
+		width: '100%',
+		maxHeight: '90vh',
+		display: 'flex' as const,
+		flexDirection: 'column' as const,
+		overflow: 'hidden' as const,
+	},
+	detailModalHeader: {
+		padding: '1.5rem',
+		borderBottom: '1px solid #e2e8f0',
+		display: 'flex' as const,
+		justifyContent: 'space-between' as const,
+		alignItems: 'flex-start' as const,
+		gap: '1rem',
+		background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+	},
+	detailModalTitle: {
+		margin: 0,
+		fontSize: '1.25rem',
+		fontWeight: 700,
+		color: '#1e293b',
+		display: 'flex' as const,
+		alignItems: 'center' as const,
+		gap: '0.5rem',
+	} as React.CSSProperties,
+	closeButton: {
+		background: 'none',
+		border: 'none',
+		color: '#64748b',
+		cursor: 'pointer' as const,
+		padding: '0.5rem',
+		display: 'flex' as const,
+		alignItems: 'center' as const,
+		justifyContent: 'center' as const,
+		borderRadius: '0.5rem',
+		fontSize: '1.5rem',
+		lineHeight: '1',
+	},
+	detailModalBody: {
+		padding: '1.5rem',
+		overflowY: 'auto' as const,
+		flex: 1,
+	},
+	detailSection: {
+		marginBottom: '1.5rem',
+	},
+	detailSectionTitle: {
+		margin: '0 0 0.75rem 0',
+		fontSize: '1rem',
+		fontWeight: 600,
+		color: '#334155',
+		display: 'flex' as const,
+		alignItems: 'center' as const,
+		gap: '0.5rem',
+		paddingBottom: '0.5rem',
+		borderBottom: '2px solid #e2e8f0',
+	} as React.CSSProperties,
+	detailGrid: {
+		display: 'grid' as const,
+		gridTemplateColumns: '140px 1fr',
+		gap: '0.75rem',
+		fontSize: '0.875rem',
+	},
+	detailLabel: {
+		fontWeight: 600,
+		color: '#64748b',
+		padding: '0.5rem',
+		background: '#f8fafc',
+		borderRadius: '0.375rem',
+	},
+	detailValue: {
+		color: '#1e293b',
+		padding: '0.5rem',
+		wordBreak: 'break-word' as const,
+	},
+	detailValueCode: {
+		color: '#1e293b',
+		padding: '0.5rem',
+		wordBreak: 'break-word' as const,
+		fontFamily: "'Monaco', 'Menlo', 'Courier New', monospace",
+		fontSize: '0.8rem',
+		background: '#f8fafc',
+		borderRadius: '0.375rem',
+		border: '1px solid #e2e8f0',
+	},
+	detailModalFooter: {
+		padding: '1rem 1.5rem',
+		borderTop: '1px solid #e2e8f0',
+		background: '#f8fafc',
+		display: 'flex' as const,
+		justifyContent: 'flex-end' as const,
+		gap: '0.75rem',
+	},
+	copyButton: {
+		border: '1px solid #cbd5e1',
+		borderRadius: '0.5rem',
+		padding: '0.5rem 1rem',
+		background: 'white',
+		color: '#475569',
+		fontWeight: 600,
+		fontSize: '0.875rem',
+		display: 'inline-flex' as const,
+		alignItems: 'center' as const,
+		gap: '0.5rem',
+		cursor: 'pointer' as const,
+	},
+};
 
 interface AuditActivity {
 	id: string;
@@ -555,11 +451,18 @@ const PingOneAuditActivities: React.FC = () => {
 	const [error, setError] = useState<string | null>(null);
 	const [auditResponse, setAuditResponse] = useState<AuditResponse | null>(null);
 
-	// Use global worker token hook for unified token management
-	const globalTokenStatus = useGlobalWorkerToken();
-	const workerToken = globalTokenStatus.token || '';
-	const hasWorkerToken = globalTokenStatus.isValid;
-	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
+	// Read worker token directly from localStorage
+	const [workerToken, setWorkerToken] = useState<string>(() => {
+		try {
+			const stored = localStorage.getItem('unified_worker_token');
+			if (stored) {
+				const data = JSON.parse(stored);
+				return data.token || '';
+			}
+		} catch {}
+		return '';
+	});
+	const hasWorkerToken = workerToken.length > 0;
 
 	const [environmentId, setEnvironmentId] = useState<string>(() => readBestEnvironmentId());
 
@@ -581,16 +484,13 @@ const PingOneAuditActivities: React.FC = () => {
 	const handleClearWorkerToken = () => {
 		// Clear unified worker token
 		localStorage.removeItem('unified_worker_token');
+		setWorkerToken('');
 		v4ToastManager.showSuccess('Worker token cleared successfully.');
 		// Trigger page reload to reset state
 		window.location.reload();
 	};
 
-	const handleGetWorkerToken = useCallback(() => {
-		setShowWorkerTokenModal(true);
-	}, []);
-
-	// Update environment ID when worker token is updated
+	// Update environment ID and workerToken when worker token is updated
 	useEffect(() => {
 		const handleTokenUpdate = () => {
 			try {
@@ -599,6 +499,9 @@ const PingOneAuditActivities: React.FC = () => {
 					const data = JSON.parse(stored);
 					if (data.credentials?.environmentId && !environmentId) {
 						setEnvironmentId(data.credentials.environmentId);
+					}
+					if (data.token) {
+						setWorkerToken(data.token);
 					}
 				}
 			} catch (error) {
@@ -830,7 +733,7 @@ const PingOneAuditActivities: React.FC = () => {
 		});
 
 		if (!effectiveWorkerToken) {
-			setError('Worker token required. Click "Get Worker Token" to generate one.');
+			setError('Worker token required. Use the Worker Token section to generate one.');
 			return;
 		}
 
@@ -994,7 +897,7 @@ const PingOneAuditActivities: React.FC = () => {
 			return <span style={{ color: '#94a3b8', fontStyle: 'italic' }}>Not available</span>;
 		}
 		if (typeof value === 'object' && !Array.isArray(value)) {
-			return <DetailValue $isCode>{JSON.stringify(value, null, 2)}</DetailValue>;
+			return <div style={styles.detailValueCode}>{JSON.stringify(value, null, 2)}</div>;
 		}
 		if (Array.isArray(value)) {
 			if (value.length === 0) {
@@ -1013,53 +916,54 @@ const PingOneAuditActivities: React.FC = () => {
 							}}
 						>
 							{typeof item === 'object' ? (
-								<DetailValue $isCode>{JSON.stringify(item, null, 2)}</DetailValue>
+								<div style={styles.detailValueCode}>{JSON.stringify(item, null, 2)}</div>
 							) : (
-								<DetailValue>{String(item)}</DetailValue>
+								<div style={styles.detailValue}>{String(item)}</div>
 							)}
 						</div>
 					))}
 				</div>
 			);
 		}
-		return <DetailValue>{String(value)}</DetailValue>;
+		return <div style={styles.detailValue}>{String(value)}</div>;
 	};
 
 	return (
-		<PageContainer>
-			<HeaderCard>
-				<TitleRow>
+		<div style={styles.pageContainer}>
+			<div style={styles.headerCard}>
+				<div style={styles.titleRow}>
 					<FiActivity size={24} />
-					<Title>PingOne Audit Activities</Title>
-				</TitleRow>
-				<Subtitle>
+					<h1 style={styles.title}>PingOne Audit Activities</h1>
+				</div>
+				<p style={styles.subtitle}>
 					Query and analyze audit events from your PingOne environment. Retrieve activities by ID,
 					filter by action type, status, actor, resource, or correlation ID. Track user actions,
 					system events, and security activities. Requires <strong>p1:read:audit</strong> scope.
-				</Subtitle>
+				</p>
 				{!hasWorkerToken && (
-					<WarningBanner>
+					<div style={styles.warningBanner}>
 						<div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
 							<FiAlertCircle size={20} style={{ marginTop: '0.1rem', flexShrink: 0 }} />
 							<div style={{ flex: 1 }}>
 								<strong>Worker Token Required</strong>
 								<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
-									Click "Get Worker Token" below to generate a token with your PingOne credentials.
+									Use the Worker Token section below to generate a token with your PingOne
+									credentials.
 								</p>
 							</div>
 						</div>
-					</WarningBanner>
+					</div>
 				)}
-			</HeaderCard>
+			</div>
 
-			<LayoutGrid>
-				<Card>
-					<SectionTitle>
+			<div style={styles.layoutGrid}>
+				<div style={styles.card}>
+					<h2 style={styles.sectionTitle}>
 						<FiShield /> Authentication & Configuration
-					</SectionTitle>
+					</h2>
 
-					<FieldGroup>
-						<Label>Environment ID</Label>
+					<div style={styles.fieldGroup}>
+						<label style={styles.label}>Environment ID</label>
 						<input
 							type="text"
 							value={environmentId}
@@ -1076,33 +980,18 @@ const PingOneAuditActivities: React.FC = () => {
 							}}
 						/>
 						{!environmentId.trim() ? (
-							<Hint style={{ color: '#d97706', fontWeight: 600 }}>
-								⚠️ Environment ID is required. Enter it manually or click "Get Worker Token" below to
-								auto-fill.
-							</Hint>
+							<p style={{ ...styles.hint, color: '#d97706', fontWeight: 600 }}>
+								⚠️ Environment ID is required. Enter it manually or use the Worker Token section
+								below to auto-fill.
+							</p>
 						) : (
-							<Hint>
+							<p style={styles.hint}>
 								Your PingOne Environment ID (automatically loaded from worker credentials)
-							</Hint>
+							</p>
 						)}
-					</FieldGroup>
+					</div>
 
-					{hasWorkerToken ? (
-						<WorkerTokenDetectedBanner token={workerToken} tokenExpiryKey="unified_worker_token" />
-					) : (
-						<WarningBanner style={{ marginBottom: '1rem' }}>
-							<div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-								<FiAlertCircle size={18} style={{ marginTop: '0.1rem', flexShrink: 0 }} />
-								<div style={{ flex: 1 }}>
-									<strong>No Worker Token Found</strong>
-									<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
-										Click the button below to open the Worker Token modal and generate a token with
-										the required credentials.
-									</p>
-								</div>
-							</div>
-						</WarningBanner>
-					)}
+					<WorkerTokenSectionV8 compact />
 
 					{/* Configuration Checkboxes */}
 					<div
@@ -1117,42 +1006,24 @@ const PingOneAuditActivities: React.FC = () => {
 						<ShowTokenConfigCheckboxV8 />
 					</div>
 
-					<ButtonRow>
-						<PrimaryButton
-							onClick={handleGetWorkerToken}
-							type="button"
-							style={{
-								background: hasWorkerToken ? '#10b981' : undefined,
-								cursor: 'pointer',
-								color: 'white',
-							}}
-						>
-							{hasWorkerToken ? (
-								<>
-									<FiCheckCircle /> Worker Token Ready
-								</>
-							) : (
-								<>
-									<FiKey /> Get Worker Token
-								</>
-							)}
-						</PrimaryButton>
+					<div style={styles.buttonRow}>
 						{hasWorkerToken && (
-							<DangerButton onClick={handleClearWorkerToken} type="button">
+							<button style={styles.dangerButton} onClick={handleClearWorkerToken} type="button">
 								<FiX /> Clear Token
-							</DangerButton>
+							</button>
 						)}
-					</ButtonRow>
-				</Card>
+					</div>
+				</div>
 
-				<Card>
-					<SectionTitle>
+				<div style={styles.card}>
+					<h2 style={styles.sectionTitle}>
 						<FiFilter /> Query Configuration
-					</SectionTitle>
+					</h2>
 
-					<FieldGroup>
-						<Label>View Mode</Label>
-						<Select
+					<div style={styles.fieldGroup}>
+						<label style={styles.label}>View Mode</label>
+						<select
+							style={styles.select}
 							value={viewMode}
 							onChange={(e) => {
 								setViewMode(e.target.value as 'list' | 'single');
@@ -1169,13 +1040,13 @@ const PingOneAuditActivities: React.FC = () => {
 						>
 							<option value="list">List Activities (with filters)</option>
 							<option value="single">Get Single Activity by ID</option>
-						</Select>
-						<Hint>Choose whether to list multiple activities or retrieve a specific one by ID</Hint>
-					</FieldGroup>
+						</select>
+						<p style={styles.hint}>Choose whether to list multiple activities or retrieve a specific one by ID</p>
+					</div>
 
 					{viewMode === 'single' ? (
-						<FieldGroup>
-							<Label>Activity ID</Label>
+						<div style={styles.fieldGroup}>
+							<label style={styles.label}>Activity ID</label>
 							<input
 								type="text"
 								value={singleActivityId}
@@ -1191,13 +1062,13 @@ const PingOneAuditActivities: React.FC = () => {
 									fontFamily: "'Monaco', 'Menlo', 'Courier New', monospace",
 								}}
 							/>
-							<Hint>Enter the unique ID of the activity you want to retrieve</Hint>
-						</FieldGroup>
+							<p style={styles.hint}>Enter the unique ID of the activity you want to retrieve</p>
+						</div>
 					) : (
 						<>
-							<FieldGroup>
-								<Label>Action Type</Label>
-								<Select value={actionType} onChange={(e) => setActionType(e.target.value)}>
+							<div style={styles.fieldGroup}>
+								<label style={styles.label}>Action Type</label>
+								<select style={styles.select} value={actionType} onChange={(e) => setActionType(e.target.value)}>
 									<option value="">All Actions</option>
 									<optgroup label="User Actions">
 										<option value="USER.CREATED">User Created</option>
@@ -1227,24 +1098,25 @@ const PingOneAuditActivities: React.FC = () => {
 										<option value="ROLE_ASSIGNMENT.CREATED">Role Assignment Created</option>
 										<option value="ROLE_ASSIGNMENT.DELETED">Role Assignment Deleted</option>
 									</optgroup>
-								</Select>
-								<Hint>Filter by specific action type (e.g., USER.CREATED, SESSION.CREATED)</Hint>
-							</FieldGroup>
+								</select>
+								<p style={styles.hint}>Filter by specific action type (e.g., USER.CREATED, SESSION.CREATED)</p>
+							</div>
 
-							<FieldGroup>
-								<Label>Actor Type</Label>
-								<Select
+							<div style={styles.fieldGroup}>
+								<label style={styles.label}>Actor Type</label>
+								<select
+									style={styles.select}
 									value={actorType}
 									onChange={(e) => setActorType(e.target.value as 'user' | 'client')}
 								>
 									<option value="user">User</option>
 									<option value="client">Client (Application)</option>
-								</Select>
-								<Hint>Select whether to filter by user ID or client (application) ID</Hint>
-							</FieldGroup>
+								</select>
+								<p style={styles.hint}>Select whether to filter by user ID or client (application) ID</p>
+							</div>
 
-							<FieldGroup>
-								<Label>{actorType === 'user' ? 'User ID' : 'Client ID'}</Label>
+							<div style={styles.fieldGroup}>
+								<label style={styles.label}>{actorType === 'user' ? 'User ID' : 'Client ID'}</label>
 								<input
 									type="text"
 									value={actorId}
@@ -1262,15 +1134,15 @@ const PingOneAuditActivities: React.FC = () => {
 										fontFamily: "'Monaco', 'Menlo', 'Courier New', monospace",
 									}}
 								/>
-								<Hint>
+								<p style={styles.hint}>
 									{actorType === 'user'
 										? 'Filter by user UUID (Note: username and email filtering not supported by PingOne API)'
 										: 'Filter by client (application) UUID'}
-								</Hint>
-							</FieldGroup>
+								</p>
+							</div>
 
-							<FieldGroup>
-								<Label>Correlation ID</Label>
+							<div style={styles.fieldGroup}>
+								<label style={styles.label}>Correlation ID</label>
 								<input
 									type="text"
 									value={correlationId}
@@ -1286,34 +1158,41 @@ const PingOneAuditActivities: React.FC = () => {
 										fontFamily: "'Monaco', 'Menlo', 'Courier New', monospace",
 									}}
 								/>
-								<Hint>
+								<p style={styles.hint}>
 									Filter by correlation ID to track related activities across multiple audit events
-								</Hint>
-							</FieldGroup>
+								</p>
+							</div>
 
-							<FieldGroup>
-								<Label>Limit</Label>
-								<Select value={limit} onChange={(e) => setLimit(e.target.value)}>
+							<div style={styles.fieldGroup}>
+								<label style={styles.label}>Limit</label>
+								<select style={styles.select} value={limit} onChange={(e) => setLimit(e.target.value)}>
 									<option value="10">10 activities</option>
 									<option value="25">25 activities</option>
 									<option value="50">50 activities</option>
 									<option value="100">100 activities</option>
 									<option value="500">500 activities</option>
 									<option value="1000">1000 activities</option>
-								</Select>
-								<Hint>Maximum number of activities to retrieve (ordered by newest first)</Hint>
-							</FieldGroup>
-							<FieldGroup>
-								<Label style={{ color: '#6b7280', fontSize: '0.75rem', fontWeight: 'normal' }}>
+								</select>
+								<p style={styles.hint}>Maximum number of activities to retrieve (ordered by newest first)</p>
+							</div>
+							<div style={styles.fieldGroup}>
+								<label style={{ ...styles.label, color: '#6b7280', fontSize: '0.75rem', fontWeight: 'normal' }}>
 									Note: Time-based filtering is not supported by the PingOne Audit API. Results are
 									ordered by newest first.
-								</Label>
-							</FieldGroup>
+								</label>
+							</div>
 						</>
 					)}
 
-					<ButtonRow>
-						<PrimaryButton
+					<div style={styles.buttonRow}>
+						<button
+							type="button"
+							style={styles.primaryButton(
+								!hasWorkerToken ||
+									loading ||
+									!environmentId.trim() ||
+									(viewMode === 'single' && !singleActivityId.trim())
+							)}
 							onClick={handleFetch}
 							disabled={
 								!hasWorkerToken ||
@@ -1344,9 +1223,10 @@ const PingOneAuditActivities: React.FC = () => {
 									<FiActivity /> Retrieve Activities
 								</>
 							)}
-						</PrimaryButton>
+						</button>
 
-						<SecondaryButton
+						<button
+							style={styles.secondaryButton}
 							type="button"
 							onClick={() => {
 								if (viewMode === 'single') {
@@ -1361,29 +1241,30 @@ const PingOneAuditActivities: React.FC = () => {
 							}}
 						>
 							<FiX /> {viewMode === 'single' ? 'Clear ID' : 'Reset Filters'}
-						</SecondaryButton>
-					</ButtonRow>
+						</button>
+					</div>
 
 					{error && (
-						<ErrorBanner>
+						<div style={styles.errorBanner}>
 							<FiInfo size={18} style={{ marginTop: '0.2rem' }} />
 							<span>{error}</span>
-						</ErrorBanner>
+						</div>
 					)}
 
-					<ResultContainer>
+					<div style={styles.resultContainer}>
 						{auditResponse ? (
 							<>
 								{summary && (
-									<Card
+									<div
 										style={{
+											...styles.card,
 											border: '1px solid #667eea',
 											background: 'linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%)',
 										}}
 									>
-										<SectionTitle>
+										<h2 style={styles.sectionTitle}>
 											<FiBarChart2 /> Summary Statistics
-										</SectionTitle>
+										</h2>
 										<div
 											style={{
 												display: 'grid',
@@ -1496,27 +1377,28 @@ const PingOneAuditActivities: React.FC = () => {
 											</div>
 										</div>
 										{lastUpdated && (
-											<Hint
+											<p
 												style={{
+													...styles.hint,
 													marginTop: '1rem',
 													paddingTop: '1rem',
 													borderTop: '1px solid #c4b5fd',
 												}}
 											>
 												Last updated: {new Date(lastUpdated).toLocaleString()}
-											</Hint>
+											</p>
 										)}
-									</Card>
+									</div>
 								)}
 
 								{activities.length > 0 && (
-									<Card style={{ border: '1px solid #e2e8f0', background: '#ffffff' }}>
-										<SectionTitle>
+									<div style={{ ...styles.card, border: '1px solid #e2e8f0', background: '#ffffff' }}>
+										<h2 style={styles.sectionTitle}>
 											<FiActivity /> Activity Details{' '}
 											{totalCount > activities.length
 												? `(${activities.length} of ${totalCount})`
 												: `(${activities.length})`}
-										</SectionTitle>
+										</h2>
 										<div
 											style={{
 												display: 'flex',
@@ -1528,13 +1410,13 @@ const PingOneAuditActivities: React.FC = () => {
 											}}
 										>
 											{activities.map((activity) => (
-												<ActivityCard
+												<div
 													key={activity.id}
-													$clickable
+													style={styles.activityCard(true)}
 													onClick={() => handleActivityClick(activity)}
 												>
-													<ActivityRow>
-														<ActivityMain>
+													<div style={styles.activityRow}>
+														<div style={styles.activityMain}>
 															<div
 																style={{
 																	fontWeight: 600,
@@ -1556,14 +1438,14 @@ const PingOneAuditActivities: React.FC = () => {
 																	{activity.action.description}
 																</div>
 															)}
-															<ActivityDetails>
+															<div style={styles.activityDetails}>
 																{activity.result?.status && (
-																	<DetailBadge
-																		$color={
+																	<span
+																		style={styles.detailBadge(
 																			activity.result.status?.toLowerCase() === 'success'
 																				? '#d1fae5'
 																				: '#fee2e2'
-																		}
+																		)}
 																	>
 																		{activity.result.status === 'success' ? (
 																			<FiCheckCircle size={12} />
@@ -1571,36 +1453,36 @@ const PingOneAuditActivities: React.FC = () => {
 																			<FiAlertCircle size={12} />
 																		)}
 																		{activity.result.status.toUpperCase()}
-																	</DetailBadge>
+																	</span>
 																)}
 																{activity.actors?.user?.name && (
-																	<DetailBadge $color="#dbeafe">
+																	<span style={styles.detailBadge('#dbeafe')}>
 																		<FiUser size={12} />
 																		{activity.actors.user.name}
-																	</DetailBadge>
+																	</span>
 																)}
 																{activity.actors?.client?.name && (
-																	<DetailBadge $color="#f3e8ff">
+																	<span style={styles.detailBadge('#f3e8ff')}>
 																		<FiServer size={12} />
 																		{activity.actors.client.name}
-																	</DetailBadge>
+																	</span>
 																)}
 																{activity.resources && activity.resources.length > 0 && (
-																	<DetailBadge $color="#fef3c7">
+																	<span style={styles.detailBadge('#fef3c7')}>
 																		<FiDatabase size={12} />
 																		{activity.resources.length} resource
 																		{activity.resources.length !== 1 ? 's' : ''}
-																	</DetailBadge>
+																	</span>
 																)}
 																{activity.ipAddress && (
-																	<DetailBadge>
+																	<span style={styles.detailBadge()}>
 																		<FiGlobe size={12} />
 																		{activity.ipAddress}
-																	</DetailBadge>
+																	</span>
 																)}
-															</ActivityDetails>
-														</ActivityMain>
-														<ActivityMeta>
+															</div>
+														</div>
+														<div style={styles.activityMeta}>
 															<div
 																style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}
 															>
@@ -1619,117 +1501,81 @@ const PingOneAuditActivities: React.FC = () => {
 																<FiEye size={12} />
 																<span style={{ fontSize: '0.7rem' }}>View Details</span>
 															</div>
-														</ActivityMeta>
-													</ActivityRow>
-												</ActivityCard>
+														</div>
+													</div>
+												</div>
 											))}
 										</div>
-									</Card>
+									</div>
 								)}
 
-								<Card style={{ border: '1px solid #dbeafe', background: '#ffffff' }}>
-									<SectionTitle>
+								<div style={{ ...styles.card, border: '1px solid #dbeafe', background: '#ffffff' }}>
+									<h2 style={styles.sectionTitle}>
 										<FiDatabase /> Full API Response
-									</SectionTitle>
+									</h2>
 									{formattedResponse && (
 										<div style={{ maxHeight: '600px', overflow: 'auto' }}>
 											<JSONHighlighter data={formattedResponse} />
 										</div>
 									)}
-								</Card>
+								</div>
 							</>
 						) : (
-							<EmptyState>
+							<div style={styles.emptyState}>
 								<FiActivity size={22} />
 								<span>Run the request to see audit activities returned by PingOne.</span>
-							</EmptyState>
+							</div>
 						)}
-					</ResultContainer>
-				</Card>
-			</LayoutGrid>
-
-			<WorkerTokenModalV8
-				isOpen={showWorkerTokenModal}
-				onClose={() => setShowWorkerTokenModal(false)}
-				onTokenGenerated={() => {
-					// Token generated, the global hook will automatically update
-					// Update environment ID from unified worker token credentials
-					try {
-						const stored = localStorage.getItem('unified_worker_token');
-						if (stored) {
-							const data = JSON.parse(stored);
-							if (data.credentials?.environmentId) {
-								setEnvironmentId(data.credentials.environmentId);
-							}
-						}
-					} catch (error) {
-						console.log('Failed to update environment ID from unified worker token:', error);
-					}
-					setShowWorkerTokenModal(false);
-					v4ToastManager.showSuccess(
-						'Worker token generated successfully. Ready to query audit activities.'
-					);
-				}}
-				environmentId={(() => {
-					try {
-						const stored = localStorage.getItem('unified_worker_token');
-						if (stored) {
-							const data = JSON.parse(stored);
-							return data.credentials?.environmentId || '';
-						}
-					} catch (error) {
-						console.log('Failed to load environment ID from unified worker token:', error);
-					}
-					return '';
-				})()}
-			/>
-
+					</div>
+				</div>
+			</div>
 			{/* Activity Detail Modal */}
-			<DetailModalOverlay $isOpen={!!selectedActivity} onClick={handleCloseDetailModal}>
-				<DetailModalContent onClick={(e) => e.stopPropagation()}>
+			<div style={styles.detailModalOverlay(!!selectedActivity)} onClick={handleCloseDetailModal}>
+				<div style={styles.detailModalContent} onClick={(e) => e.stopPropagation()}>
 					{selectedActivity && (
 						<>
-							<DetailModalHeader>
-								<DetailModalTitle>
+							<div style={styles.detailModalHeader}>
+								<h2 style={styles.detailModalTitle}>
 									<FiActivity size={24} />
 									Activity Details
-								</DetailModalTitle>
-								<CloseButton onClick={handleCloseDetailModal}>
+								</h2>
+								<button type="button" style={styles.closeButton} onClick={handleCloseDetailModal}>
 									<FiX />
-								</CloseButton>
-							</DetailModalHeader>
-							<DetailModalBody>
+								</button>
+							</div>
+							<div style={styles.detailModalBody}>
 								{/* Basic Information */}
-								<DetailSection>
-									<DetailSectionTitle>
+								<div style={styles.detailSection}>
+									<h3 style={styles.detailSectionTitle}>
 										<FiInfo /> Basic Information
-									</DetailSectionTitle>
-									<DetailGrid>
-										<DetailLabel>Activity ID</DetailLabel>
+									</h3>
+									<div style={styles.detailGrid}>
+										<div style={styles.detailLabel}>Activity ID</div>
 										{renderDetailValue(selectedActivity.id)}
-										<DetailLabel>Action Type</DetailLabel>
+										<div style={styles.detailLabel}>Action Type</div>
 										{renderDetailValue(selectedActivity.action.type)}
 										{selectedActivity.action.description && (
 											<>
-												<DetailLabel>Description</DetailLabel>
+												<div style={styles.detailLabel}>Description</div>
 												{renderDetailValue(selectedActivity.action.description)}
 											</>
 										)}
-										<DetailLabel>Created At</DetailLabel>
-										<DetailValue>{formatTimestamp(selectedActivity.createdAt)}</DetailValue>
-									</DetailGrid>
-								</DetailSection>
+										<div style={styles.detailLabel}>Created At</div>
+										<div style={styles.detailValue}>{formatTimestamp(selectedActivity.createdAt)}</div>
+									</div>
+								</div>
 
 								{/* Result Information */}
 								{selectedActivity.result && (
-									<DetailSection>
-										<DetailSectionTitle>
+									<div style={styles.detailSection}>
+										<h3 style={styles.detailSectionTitle}>
 											<FiCheckCircle /> Result
-										</DetailSectionTitle>
-										<DetailGrid>
-											<DetailLabel>Status</DetailLabel>
-											<DetailValue
+										</h3>
+										<div style={styles.detailGrid}>
+											<div style={styles.detailLabel}>Status</div>
+											<div
 												style={{
+													...styles.detailValue,
 													color:
 														selectedActivity.result.status?.toLowerCase() === 'success'
 															? '#10b981'
@@ -1738,108 +1584,108 @@ const PingOneAuditActivities: React.FC = () => {
 												}}
 											>
 												{selectedActivity.result.status?.toUpperCase() || 'Unknown'}
-											</DetailValue>
+											</div>
 											{selectedActivity.result.description && (
 												<>
-													<DetailLabel>Description</DetailLabel>
+													<div style={styles.detailLabel}>Description</div>
 													{renderDetailValue(selectedActivity.result.description)}
 												</>
 											)}
 											{selectedActivity.result.error && (
 												<>
-													<DetailLabel>Error Code</DetailLabel>
+													<div style={styles.detailLabel}>Error Code</div>
 													{renderDetailValue(selectedActivity.result.error.code)}
-													<DetailLabel>Error Message</DetailLabel>
+													<div style={styles.detailLabel}>Error Message</div>
 													{renderDetailValue(selectedActivity.result.error.message)}
 												</>
 											)}
-										</DetailGrid>
-									</DetailSection>
+										</div>
+									</div>
 								)}
 
 								{/* Actors Information */}
 								{selectedActivity.actors && (
-									<DetailSection>
-										<DetailSectionTitle>
+									<div style={styles.detailSection}>
+										<h3 style={styles.detailSectionTitle}>
 											<FiUser /> Actors
-										</DetailSectionTitle>
-										<DetailGrid>
+										</h3>
+										<div style={styles.detailGrid}>
 											{selectedActivity.actors.user && (
 												<>
-													<DetailLabel>User</DetailLabel>
+													<div style={styles.detailLabel}>User</div>
 													<div>
 														{selectedActivity.actors.user.name && (
-															<DetailValue style={{ marginBottom: '0.25rem' }}>
+															<div style={{ ...styles.detailValue, marginBottom: '0.25rem' }}>
 																<strong>Name:</strong> {selectedActivity.actors.user.name}
-															</DetailValue>
+															</div>
 														)}
 														{selectedActivity.actors.user.id && (
-															<DetailValue style={{ marginBottom: '0.25rem' }}>
+															<div style={{ ...styles.detailValue, marginBottom: '0.25rem' }}>
 																<strong>ID:</strong> {selectedActivity.actors.user.id}
-															</DetailValue>
+															</div>
 														)}
 														{selectedActivity.actors.user.username && (
-															<DetailValue style={{ marginBottom: '0.25rem' }}>
+															<div style={{ ...styles.detailValue, marginBottom: '0.25rem' }}>
 																<strong>Username:</strong> {selectedActivity.actors.user.username}
-															</DetailValue>
+															</div>
 														)}
 														{selectedActivity.actors.user.email && (
-															<DetailValue>
+															<div style={styles.detailValue}>
 																<strong>Email:</strong> {selectedActivity.actors.user.email}
-															</DetailValue>
+															</div>
 														)}
 													</div>
 												</>
 											)}
 											{selectedActivity.actors.client && (
 												<>
-													<DetailLabel>Client</DetailLabel>
+													<div style={styles.detailLabel}>Client</div>
 													<div>
 														{selectedActivity.actors.client.name && (
-															<DetailValue style={{ marginBottom: '0.25rem' }}>
+															<div style={{ ...styles.detailValue, marginBottom: '0.25rem' }}>
 																<strong>Name:</strong> {selectedActivity.actors.client.name}
-															</DetailValue>
+															</div>
 														)}
 														{selectedActivity.actors.client.id && (
-															<DetailValue style={{ marginBottom: '0.25rem' }}>
+															<div style={{ ...styles.detailValue, marginBottom: '0.25rem' }}>
 																<strong>ID:</strong> {selectedActivity.actors.client.id}
-															</DetailValue>
+															</div>
 														)}
 														{selectedActivity.actors.client.type && (
-															<DetailValue>
+															<div style={styles.detailValue}>
 																<strong>Type:</strong> {selectedActivity.actors.client.type}
-															</DetailValue>
+															</div>
 														)}
 													</div>
 												</>
 											)}
 											{selectedActivity.actors.system && (
 												<>
-													<DetailLabel>System</DetailLabel>
+													<div style={styles.detailLabel}>System</div>
 													<div>
 														{selectedActivity.actors.system.name && (
-															<DetailValue style={{ marginBottom: '0.25rem' }}>
+															<div style={{ ...styles.detailValue, marginBottom: '0.25rem' }}>
 																<strong>Name:</strong> {selectedActivity.actors.system.name}
-															</DetailValue>
+															</div>
 														)}
 														{selectedActivity.actors.system.id && (
-															<DetailValue>
+															<div style={styles.detailValue}>
 																<strong>ID:</strong> {selectedActivity.actors.system.id}
-															</DetailValue>
+															</div>
 														)}
 													</div>
 												</>
 											)}
-										</DetailGrid>
-									</DetailSection>
+										</div>
+									</div>
 								)}
 
 								{/* Resources Information */}
 								{selectedActivity.resources && selectedActivity.resources.length > 0 && (
-									<DetailSection>
-										<DetailSectionTitle>
+									<div style={styles.detailSection}>
+										<h3 style={styles.detailSectionTitle}>
 											<FiDatabase /> Resources ({selectedActivity.resources.length})
-										</DetailSectionTitle>
+										</h3>
 										<div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
 											{selectedActivity.resources.map((resource, idx) => (
 												<div
@@ -1851,142 +1697,142 @@ const PingOneAuditActivities: React.FC = () => {
 														border: '1px solid #e2e8f0',
 													}}
 												>
-													<DetailGrid>
+													<div style={styles.detailGrid}>
 														{resource.type && (
 															<>
-																<DetailLabel>Type</DetailLabel>
+																<div style={styles.detailLabel}>Type</div>
 																{renderDetailValue(resource.type)}
 															</>
 														)}
 														{resource.name && (
 															<>
-																<DetailLabel>Name</DetailLabel>
+																<div style={styles.detailLabel}>Name</div>
 																{renderDetailValue(resource.name)}
 															</>
 														)}
 														{resource.id && (
 															<>
-																<DetailLabel>ID</DetailLabel>
+																<div style={styles.detailLabel}>ID</div>
 																{renderDetailValue(resource.id)}
 															</>
 														)}
-													</DetailGrid>
+													</div>
 												</div>
 											))}
 										</div>
-									</DetailSection>
+									</div>
 								)}
 
 								{/* Request Context */}
 								{(selectedActivity.ipAddress ||
 									selectedActivity.userAgent ||
 									selectedActivity.correlationId) && (
-									<DetailSection>
-										<DetailSectionTitle>
+									<div style={styles.detailSection}>
+										<h3 style={styles.detailSectionTitle}>
 											<FiGlobe /> Request Context
-										</DetailSectionTitle>
-										<DetailGrid>
+										</h3>
+										<div style={styles.detailGrid}>
 											{selectedActivity.ipAddress && (
 												<>
-													<DetailLabel>IP Address</DetailLabel>
+													<div style={styles.detailLabel}>IP Address</div>
 													{renderDetailValue(selectedActivity.ipAddress)}
 												</>
 											)}
 											{selectedActivity.userAgent && (
 												<>
-													<DetailLabel>User Agent</DetailLabel>
+													<div style={styles.detailLabel}>User Agent</div>
 													{renderDetailValue(selectedActivity.userAgent)}
 												</>
 											)}
 											{selectedActivity.correlationId && (
 												<>
-													<DetailLabel>Correlation ID</DetailLabel>
+													<div style={styles.detailLabel}>Correlation ID</div>
 													{renderDetailValue(selectedActivity.correlationId)}
 												</>
 											)}
-										</DetailGrid>
-									</DetailSection>
+										</div>
+									</div>
 								)}
 
 								{/* Environment & Organization */}
 								{(selectedActivity.environment || selectedActivity.organization) && (
-									<DetailSection>
-										<DetailSectionTitle>
+									<div style={styles.detailSection}>
+										<h3 style={styles.detailSectionTitle}>
 											<FiShield /> Context
-										</DetailSectionTitle>
-										<DetailGrid>
+										</h3>
+										<div style={styles.detailGrid}>
 											{selectedActivity.environment && (
 												<>
-													<DetailLabel>Environment</DetailLabel>
+													<div style={styles.detailLabel}>Environment</div>
 													<div>
 														{selectedActivity.environment.name && (
-															<DetailValue style={{ marginBottom: '0.25rem' }}>
+															<div style={{ ...styles.detailValue, marginBottom: '0.25rem' }}>
 																<strong>Name:</strong> {selectedActivity.environment.name}
-															</DetailValue>
+															</div>
 														)}
 														{selectedActivity.environment.id && (
-															<DetailValue>
+															<div style={styles.detailValue}>
 																<strong>ID:</strong> {selectedActivity.environment.id}
-															</DetailValue>
+															</div>
 														)}
 													</div>
 												</>
 											)}
 											{selectedActivity.organization && (
 												<>
-													<DetailLabel>Organization</DetailLabel>
+													<div style={styles.detailLabel}>Organization</div>
 													<div>
 														{selectedActivity.organization.name && (
-															<DetailValue style={{ marginBottom: '0.25rem' }}>
+															<div style={{ ...styles.detailValue, marginBottom: '0.25rem' }}>
 																<strong>Name:</strong> {selectedActivity.organization.name}
-															</DetailValue>
+															</div>
 														)}
 														{selectedActivity.organization.id && (
-															<DetailValue>
+															<div style={styles.detailValue}>
 																<strong>ID:</strong> {selectedActivity.organization.id}
-															</DetailValue>
+															</div>
 														)}
 													</div>
 												</>
 											)}
-										</DetailGrid>
-									</DetailSection>
+										</div>
+									</div>
 								)}
 
 								{/* Target */}
 								{selectedActivity.target && (
-									<DetailSection>
-										<DetailSectionTitle>
+									<div style={styles.detailSection}>
+										<h3 style={styles.detailSectionTitle}>
 											<FiDatabase /> Target
-										</DetailSectionTitle>
-										<DetailGrid>
+										</h3>
+										<div style={styles.detailGrid}>
 											{selectedActivity.target.type && (
 												<>
-													<DetailLabel>Type</DetailLabel>
+													<div style={styles.detailLabel}>Type</div>
 													{renderDetailValue(selectedActivity.target.type)}
 												</>
 											)}
 											{selectedActivity.target.name && (
 												<>
-													<DetailLabel>Name</DetailLabel>
+													<div style={styles.detailLabel}>Name</div>
 													{renderDetailValue(selectedActivity.target.name)}
 												</>
 											)}
 											{selectedActivity.target.id && (
 												<>
-													<DetailLabel>ID</DetailLabel>
+													<div style={styles.detailLabel}>ID</div>
 													{renderDetailValue(selectedActivity.target.id)}
 												</>
 											)}
-										</DetailGrid>
-									</DetailSection>
+										</div>
+									</div>
 								)}
 
 								{/* Raw JSON */}
-								<DetailSection>
-									<DetailSectionTitle>
+								<div style={styles.detailSection}>
+									<h3 style={styles.detailSectionTitle}>
 										<FiDatabase /> Complete JSON
-									</DetailSectionTitle>
+									</h3>
 									<div
 										style={{
 											maxHeight: '400px',
@@ -1999,25 +1845,25 @@ const PingOneAuditActivities: React.FC = () => {
 									>
 										<JSONHighlighter data={selectedActivity as JSONData} />
 									</div>
-								</DetailSection>
-							</DetailModalBody>
-							<DetailModalFooter>
-								<CopyButton onClick={handleCopyJson}>
+								</div>
+							</div>
+							<div style={styles.detailModalFooter}>
+								<button type="button" style={styles.copyButton} onClick={handleCopyJson}>
 									{copiedJson ? <FiCheck size={16} /> : <FiCopy size={16} />}
 									{copiedJson ? 'Copied!' : 'Copy JSON'}
-								</CopyButton>
-								<SecondaryButton onClick={handleCloseDetailModal}>
+								</button>
+								<button type="button" style={styles.secondaryButton} onClick={handleCloseDetailModal}>
 									<FiX /> Close
-								</SecondaryButton>
-							</DetailModalFooter>
+								</button>
+							</div>
 						</>
 					)}
-				</DetailModalContent>
-			</DetailModalOverlay>
+				</div>
+			</div>
 
 			{/* API Call Display at the bottom */}
 			<ApiCallList title="API Calls to PingOne" showLegend={true} />
-		</PageContainer>
+		</div>
 	);
 };
 

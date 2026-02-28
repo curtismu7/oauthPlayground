@@ -14,17 +14,14 @@ import {
 	FiSettings,
 	FiTerminal,
 } from 'react-icons/fi';
-import styled from 'styled-components';
 import packageJson from '../../package.json';
 import ConfigurationURIChecker from '../components/ConfigurationURIChecker';
 import PingOneApplicationConfig, {
 	type PingOneApplicationState,
 } from '../components/PingOneApplicationConfig';
 import type { StepCredentials } from '../components/steps/CommonSteps';
-import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { usePageScroll } from '../hooks/usePageScroll';
-import { WorkerTokenModalV8 } from '../v8/components/WorkerTokenModalV8';
-import { WorkerTokenStatusDisplayV8 } from '../v8/components/WorkerTokenStatusDisplayV8';
+import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
 import { callbackUriService } from '../services/callbackUriService';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { CopyButtonService } from '../services/copyButtonService';
@@ -34,303 +31,200 @@ import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService
 import { credentialManager } from '../utils/credentialManager';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
-const Container = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1.5rem;
-`;
+const styles = {
+	container: {
+		maxWidth: '1200px',
+		margin: '0 auto',
+		padding: '1.5rem',
+	} as React.CSSProperties,
+	card: {
+		background: 'white',
+		borderRadius: '1rem',
+		padding: '2rem',
+		boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+		marginBottom: '2rem',
+		border: '1px solid #e5e7eb',
+	} as React.CSSProperties,
+	stepCard: {
+		background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+		border: '2px solid #e5e7eb',
+		borderRadius: '0.75rem',
+		padding: '1.5rem',
+		marginBottom: '1.5rem',
+	} as React.CSSProperties,
+	stepHeader: {
+		display: 'flex',
+		alignItems: 'center',
+		gap: '1rem',
+		marginBottom: '1rem',
+	} as React.CSSProperties,
+	stepNumber: {
+		width: '32px',
+		height: '32px',
+		background: '#2563eb',
+		color: 'white',
+		borderRadius: '50%',
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'center',
+		fontWeight: '600',
+		fontSize: '0.875rem',
+		flexShrink: 0,
+	} as React.CSSProperties,
+	stepTitle: {
+		fontSize: '1.125rem',
+		fontWeight: '600',
+		color: '#0f172a',
+		margin: 0,
+	} as React.CSSProperties,
+	codeBlock: {
+		backgroundColor: '#1f2937',
+		color: '#f9fafb',
+		borderRadius: '0.5rem',
+		padding: '1.5rem',
+		fontFamily: '"Monaco", "Menlo", "Ubuntu Mono", monospace',
+		fontSize: '0.875rem',
+		lineHeight: 1.6,
+		overflowX: 'auto',
+		margin: '1rem 0',
+		border: '1px solid #374151',
+		position: 'relative',
+	} as React.CSSProperties,
+	copyButton: {
+		position: 'absolute',
+		top: '0.75rem',
+		right: '0.75rem',
+		background: 'rgba(255, 255, 255, 0.1)',
+		border: '1px solid rgba(255, 255, 255, 0.2)',
+		color: 'white',
+		borderRadius: '0.375rem',
+		padding: '0.5rem',
+		cursor: 'pointer',
+		fontSize: '0.75rem',
+		display: 'flex',
+		alignItems: 'center',
+		gap: '0.25rem',
+	} as React.CSSProperties,
+	featureGrid: {
+		display: 'grid',
+		gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+		gap: '1rem',
+		margin: '1.5rem 0',
+	} as React.CSSProperties,
+	featureItem: {
+		display: 'flex',
+		alignItems: 'center',
+		gap: '0.75rem',
+		padding: '0.75rem',
+		background: '#f8fafc',
+		border: '1px solid #e2e8f0',
+		borderRadius: '0.5rem',
+	} as React.CSSProperties,
+	uriTable: {
+		width: '100%',
+		borderCollapse: 'collapse',
+		marginTop: '1.5rem',
+	} as React.CSSProperties,
+	uriHeaderCell: {
+		textAlign: 'left',
+		padding: '0.75rem 1rem',
+		background: '#f1f5f9',
+		color: '#0f172a',
+		fontSize: '0.9rem',
+		textTransform: 'uppercase',
+		letterSpacing: '0.05em',
+		borderBottom: '2px solid #e2e8f0',
+	} as React.CSSProperties,
+	uriCell: {
+		padding: '0.85rem 1rem',
+		verticalAlign: 'top',
+		borderBottom: '1px solid #e2e8f0',
+	} as React.CSSProperties,
+	uriValue: {
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'space-between',
+		gap: '0.75rem',
+		flexWrap: 'wrap',
+	} as React.CSSProperties,
+	uriCode: {
+		fontFamily: '"Fira Code", "SFMono-Regular", ui-monospace, Menlo, Monaco, Consolas, "Courier New", monospace',
+		background: '#f8fafc',
+		padding: '0.35rem 0.5rem',
+		borderRadius: '0.5rem',
+		border: '1px solid #e2e8f0',
+		color: '#0f172a',
+		wordBreak: 'break-all',
+	} as React.CSSProperties,
+	uriDescription: {
+		margin: '0.35rem 0 0',
+		fontSize: '0.85rem',
+		color: '#475569',
+	} as React.CSSProperties,
+	uriActionRow: {
+		display: 'flex',
+		justifyContent: 'flex-end',
+		gap: '0.75rem',
+		marginTop: '1.25rem',
+		flexWrap: 'wrap',
+	} as React.CSSProperties,
+	uriInput: {
+		width: '100%',
+		padding: '0.65rem 0.75rem',
+		borderRadius: '0.6rem',
+		border: '1px solid #cbd5f5',
+		background: '#ffffff',
+		color: '#0f172a',
+		fontSize: '0.9rem',
+	} as React.CSSProperties,
+	uriHelper: {
+		margin: '0.35rem 0 0',
+		fontSize: '0.8rem',
+		color: '#64748b',
+	} as React.CSSProperties,
+};
 
-const Header = styled.div`
-  text-align: center;
-  margin-bottom: 3rem;
+const getInfoBoxStyle = (type?: 'info' | 'warning' | 'success' | 'error'): React.CSSProperties => {
+	const base: React.CSSProperties = {
+		padding: '1rem',
+		borderRadius: '0.5rem',
+		margin: '1rem 0',
+		borderLeft: '4px solid',
+	};
+	switch (type) {
+		case 'warning':
+			return { ...base, backgroundColor: '#fef3c7', borderLeftColor: '#f59e0b', color: '#92400e' };
+		case 'success':
+			return { ...base, backgroundColor: '#d1fae5', borderLeftColor: '#10b981', color: '#065f46' };
+		case 'error':
+			return { ...base, backgroundColor: '#fee2e2', borderLeftColor: '#ef4444', color: '#991b1b' };
+		default:
+			return { ...base, backgroundColor: '#dbeafe', borderLeftColor: '#3b82f6', color: '#1e40af' };
+	}
+};
 
-  h1 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: ${({ theme }) => theme.colors.primary};
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-  }
+const getUriActionButtonStyle = (variant?: 'primary' | 'secondary'): React.CSSProperties => ({
+	borderRadius: '0.75rem',
+	padding: '0.65rem 1rem',
+	fontWeight: '600',
+	cursor: 'pointer',
+	border: `1px solid ${variant === 'primary' ? '#2563eb' : '#cbd5f5'}`,
+	background: variant === 'primary' ? '#2563eb' : '#ffffff',
+	color: variant === 'primary' ? '#ffffff' : '#0f172a',
+});
 
-  p {
-    font-size: 1.25rem;
-    color: ${({ theme }) => theme.colors.gray600};
-    max-width: 800px;
-    margin: 0 auto;
-    line-height: 1.6;
-  }
-`;
-
-const Card = styled.div`
-  background: white;
-  border-radius: 1rem;
-  padding: 2rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin-bottom: 2rem;
-  border: 1px solid #e5e7eb;
-`;
-
-const StepCard = styled.div`
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  border: 2px solid #e5e7eb;
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  transition: all 0.3s ease;
-
-  &:hover {
-    border-color: ${({ theme }) => theme.colors.primary};
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-  }
-`;
-
-const StepHeader = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
-
-  .step-number {
-    width: 32px;
-    height: 32px;
-    background: ${({ theme }) => theme.colors.primary};
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    font-size: 0.875rem;
-  }
-
-  h3 {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: ${({ theme }) => theme.colors.gray900};
-    margin: 0;
-  }
-`;
-
-const CodeBlock = styled.pre`
-  background-color: #1f2937;
-  color: #f9fafb;
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
-  font-size: 0.875rem;
-  line-height: 1.6;
-  overflow-x: auto;
-  margin: 1rem 0;
-  border: 1px solid #374151;
-  position: relative;
-`;
-
-const CopyButton = styled.button`
-  position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: white;
-  border-radius: 0.375rem;
-  padding: 0.5rem;
-  cursor: pointer;
-  font-size: 0.75rem;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  transition: all 0.2s;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.3);
-  }
-`;
-
-const InfoBox = styled.div<{
-	$type?: 'info' | 'warning' | 'success' | 'error';
-}>`
-  padding: 1rem;
-  border-radius: 0.5rem;
-  margin: 1rem 0;
-  border-left: 4px solid;
-
-  ${({ $type }) => {
-		switch ($type) {
-			case 'warning':
-				return `
-          background-color: #fef3c7;
-          border-left-color: #f59e0b;
-          color: #92400e;
-        `;
-			case 'success':
-				return `
-          background-color: #d1fae5;
-          border-left-color: #10b981;
-          color: #065f46;
-        `;
-			case 'error':
-				return `
-          background-color: #fee2e2;
-          border-left-color: #ef4444;
-          color: #991b1b;
-        `;
-			default:
-				return `
-          background-color: #dbeafe;
-          border-left-color: #3b82f6;
-          color: #1e40af;
-        `;
-		}
-	}}
-`;
-
-const FeatureGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
-  margin: 1.5rem 0;
-`;
-
-const FeatureItem = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.5rem;
-
-  .feature-icon {
-    color: ${({ theme }) => theme.colors.success};
-    font-size: 1.25rem;
-  }
-
-  .feature-text {
-    font-size: 0.875rem;
-    color: ${({ theme }) => theme.colors.gray700};
-    font-weight: 500;
-  }
-`;
-
-const UriTable = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1.5rem;
-`;
-
-const UriHeaderCell = styled.th`
-  text-align: left;
-  padding: 0.75rem 1rem;
-  background: #f1f5f9;
-  color: #0f172a;
-  font-size: 0.9rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border-bottom: 2px solid #e2e8f0;
-`;
-
-const UriRow = styled.tr`
-  &:nth-child(even) {
-    background: #f9fafb;
-  }
-`;
-
-const UriCell = styled.td`
-  padding: 0.85rem 1rem;
-  vertical-align: top;
-  border-bottom: 1px solid #e2e8f0;
-`;
-
-const UriValue = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-`;
-
-const UriCode = styled.code`
-  font-family: "Fira Code", "SFMono-Regular", ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  background: #f8fafc;
-  padding: 0.35rem 0.5rem;
-  border-radius: 0.5rem;
-  border: 1px solid #e2e8f0;
-  color: #0f172a;
-  word-break: break-all;
-`;
-
-const UriDescription = styled.p`
-  margin: 0.35rem 0 0;
-  font-size: 0.85rem;
-  color: #475569;
-`;
-
-const UriActionRow = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  margin-top: 1.25rem;
-  flex-wrap: wrap;
-`;
-
-const UriActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
-  border-radius: 0.75rem;
-  padding: 0.65rem 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  border: 1px solid ${({ $variant }) => ($variant === 'primary' ? '#2563eb' : '#cbd5f5')};
-  background: ${({ $variant }) => ($variant === 'primary' ? '#2563eb' : '#ffffff')};
-  color: ${({ $variant }) => ($variant === 'primary' ? '#ffffff' : '#0f172a')};
-  transition: background 0.2s ease, border 0.2s ease, transform 0.2s ease;
-
-  &:hover {
-    background: ${({ $variant }) => ($variant === 'primary' ? '#1d4ed8' : '#f8fafc')};
-    border-color: ${({ $variant }) => ($variant === 'primary' ? '#1d4ed8' : '#cbd5f5')};
-    transform: translateY(-1px);
-  }
-`;
-
-const UriInput = styled.input<{ $disabled?: boolean }>`
-  width: 100%;
-  padding: 0.65rem 0.75rem;
-  border-radius: 0.6rem;
-  border: 1px solid ${({ $disabled }) => ($disabled ? '#e2e8f0' : '#cbd5f5')};
-  background: ${({ $disabled }) => ($disabled ? '#f8fafc' : '#ffffff')};
-  color: ${({ $disabled }) => ($disabled ? '#94a3b8' : '#0f172a')};
-  font-size: 0.9rem;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-
-  &:focus {
-    outline: none;
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-  }
-`;
-
-const UriStatusBadge = styled.span<{ $variant: 'default' | 'override' }>`
-  display: inline-block;
-  padding: 0.35rem 0.6rem;
-  border-radius: 0.5rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  background: ${({ $variant }) => ($variant === 'override' ? '#0f172a' : '#e2e8f0')};
-  color: ${({ $variant }) => ($variant === 'override' ? '#ffffff' : '#0f172a')};
-`;
-
-const UriHelper = styled.p`
-  margin: 0.35rem 0 0;
-  font-size: 0.8rem;
-  color: #64748b;
-`;
+const getUriStatusBadgeStyle = (variant: 'default' | 'override'): React.CSSProperties => ({
+	display: 'inline-block',
+	padding: '0.35rem 0.6rem',
+	borderRadius: '0.5rem',
+	fontSize: '0.75rem',
+	fontWeight: '600',
+	background: variant === 'override' ? '#0f172a' : '#e2e8f0',
+	color: variant === 'override' ? '#ffffff' : '#0f172a',
+});
 
 const Configuration: React.FC = () => {
 	usePageScroll({ pageName: 'Configuration & Setup', force: true });
-	const tokenStatus = useGlobalWorkerToken({ autoFetch: false });
 	const [copiedText, setCopiedText] = useState<string>('');
 
 	const buildUriEditState = useCallback(
@@ -548,8 +442,6 @@ const Configuration: React.FC = () => {
 			return '';
 		}
 	});
-	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
-
 	// Load existing credentials on mount
 	useEffect(() => {
 		const loadCredentials = () => {
@@ -622,55 +514,29 @@ const Configuration: React.FC = () => {
 	};
 
 	const CodeBlockWithCopy = ({ children, label }: { children: string; label: string }) => (
-		<CodeBlock>
-			<CopyButton onClick={() => copyToClipboard(children, label)}>
+		<pre style={styles.codeBlock}>
+			<button type="button" style={styles.copyButton} onClick={() => copyToClipboard(children, label)}>
 				<FiCopy />
 				{copiedText === label ? 'Copied!' : 'Copy'}
-			</CopyButton>
+			</button>
 			{children}
-		</CodeBlock>
+		</pre>
 	);
 
-	// Listen for token updates
-	useEffect(() => {
-		const handleTokenUpdate = async () => {
-			// Get token from unifiedWorkerTokenService
-			try {
-				const tokenData = unifiedWorkerTokenService.getTokenDataSync();
-				const token = tokenData?.token || '';
-				setWorkerToken(token);
-			} catch (error) {
-				console.error('[Configuration] Failed to get token from unifiedWorkerTokenService:', error);
-				setWorkerToken('');
-			}
-		};
-
-		// Initial load
-		handleTokenUpdate();
-
-		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
-		window.addEventListener('workerTokenMetricsUpdated', handleTokenUpdate);
-
-		return () => {
-			window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
-			window.removeEventListener('workerTokenMetricsUpdated', handleTokenUpdate);
-		};
-	}, []);
-
 	return (
-		<Container>
+		<div style={styles.container}>
 			<FlowHeader flowId="configuration" />
 
-			<Header>
-				<h1>
+			<div style={{ background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)', borderRadius: '1rem', padding: '2rem', marginBottom: '2rem', textAlign: 'center', color: 'white' }}>
+				<h1 style={{ fontSize: '2rem', fontWeight: '700', color: 'white', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem' }}>
 					<FiSettings />
 					Setup & Config
 				</h1>
-				<p>
+				<p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '1.1rem', maxWidth: '700px', margin: '0 auto' }}>
 					Complete setup guide for the PingOne OAuth/OIDC Playground. Get your environment
 					configured and start exploring OAuth flows in minutes.
 				</p>
-			</Header>
+			</div>
 
 			{/* Worker Token Section - First Step */}
 			<CollapsibleHeader
@@ -679,52 +545,7 @@ const Configuration: React.FC = () => {
 				icon={<FiKey />}
 				defaultCollapsed={false}
 			>
-				<Card style={{ border: 'none', boxShadow: 'none', marginBottom: 0 }}>
-					{/* Worker Token Status Display */}
-					<div style={{ marginBottom: '1rem' }}>
-						<WorkerTokenStatusDisplayV8 />
-					</div>
-
-					<div
-						style={{
-							marginBottom: '1rem',
-							display: 'flex',
-							flexDirection: 'column',
-							alignItems: 'flex-start',
-							gap: '0.35rem',
-						}}
-					>
-						<button
-							type="button"
-							onClick={() => setShowWorkerTokenModal(true)}
-							style={{
-								background: workerToken ? '#10b981' : '#3b82f6',
-								color: 'white',
-								border: '1px solid #ffffff',
-								borderRadius: '0.5rem',
-								padding: '0.75rem 1.5rem',
-								fontSize: '0.875rem',
-								fontWeight: '600',
-								cursor: 'pointer',
-								display: 'flex',
-								alignItems: 'center',
-								gap: '0.5rem',
-								transition: 'all 0.2s ease',
-							}}
-							onMouseEnter={(e) => {
-								e.currentTarget.style.backgroundColor = workerToken ? '#059669' : '#2563eb';
-								e.currentTarget.style.borderColor = '#ffffff';
-							}}
-							onMouseLeave={(e) => {
-								e.currentTarget.style.backgroundColor = workerToken ? '#10b981' : '#3b82f6';
-								e.currentTarget.style.borderColor = '#ffffff';
-							}}
-						>
-							<FiKey size={16} />
-							{workerToken ? 'Token Obtained' : 'Get Worker Token'}
-						</button>
-					</div>
-				</Card>
+				<WorkerTokenSectionV8 compact onTokenUpdated={(token) => setWorkerToken(token || '')} />
 			</CollapsibleHeader>
 
 			{/* Configuration URI Reference Table */}
@@ -882,12 +703,12 @@ const Configuration: React.FC = () => {
 			</CollapsibleHeader>
 
 			{/* Configuration URI Status - Check redirect and logout URIs against PingOne */}
-			{tokenStatus.isValid && credentials.environmentId && credentials.clientId && (
+			{!!workerToken && credentials.environmentId && credentials.clientId && (
 				<ConfigurationURIChecker
 					flowType="configuration"
 					environmentId={credentials.environmentId}
 					clientId={credentials.clientId}
-					workerToken={tokenStatus.token || undefined}
+					workerToken={workerToken || undefined}
 					redirectUri={credentials.redirectUri || ''}
 					postLogoutRedirectUri={credentials.postLogoutRedirectUri || ''}
 					region={credentials.region || 'us'}
@@ -1375,26 +1196,7 @@ cd oauthPlayground`}
 					</div>
 				</Card>
 			</CollapsibleHeader>
-			{showWorkerTokenModal && (
-				<WorkerTokenModalV8
-					isOpen={showWorkerTokenModal}
-					onClose={() => setShowWorkerTokenModal(false)}
-					onTokenGenerated={() => {
-						// Token generated, reload the token
-						try {
-							const tokenData = unifiedWorkerTokenService.getTokenDataSync();
-							const token = tokenData?.token || '';
-							setWorkerToken(token);
-						} catch (error) {
-							console.error('[Configuration] Failed to get token:', error);
-							setWorkerToken('');
-						}
-						setShowWorkerTokenModal(false);
-					}}
-					environmentId={credentials.environmentId || ''}
-				/>
-			)}
-		</Container>
+		</div>
 	);
 };
 

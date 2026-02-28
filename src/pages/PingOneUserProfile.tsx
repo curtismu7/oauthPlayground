@@ -18,8 +18,6 @@ import {
 	FiX,
 } from 'react-icons/fi';
 import { useSearchParams } from 'react-router-dom';
-import styled from 'styled-components';
-import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
 import { readBestEnvironmentId } from '../hooks/useAutoEnvironmentId';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { usePageScroll } from '../hooks/usePageScroll';
@@ -29,7 +27,7 @@ import { credentialManager } from '../utils/credentialManager';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { ShowTokenConfigCheckboxV8 } from '../v8/components/ShowTokenConfigCheckboxV8';
 import { SilentApiConfigCheckboxV8 } from '../v8/components/SilentApiConfigCheckboxV8';
-import { WorkerTokenModalV8 } from '../v8/components/WorkerTokenModalV8';
+import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
 
 interface PingOneConsentRecord {
 	id?: string;
@@ -201,478 +199,423 @@ interface PingOneMfaDetails {
 
 type PingOneMfaStatus = PingOneMfaDetails | null;
 
-const PageContainer = styled.div`
-	max-width: 1200px;
-	margin: 0 auto;
-	padding: 2rem;
-	background: #f8fafc;
-	min-height: 100vh;
-`;
+import type { CSSProperties } from 'react';
 
-const Header = styled.div`
-	display: flex;
-	align-items: center;
-	gap: 1rem;
-	margin-bottom: 2rem;
-	padding: 1.5rem;
-	background: #dc2626;
-	border-radius: 0.75rem;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-`;
-
-const UserAvatar = styled.div`
-	width: 64px;
-	height: 64px;
-	border-radius: 50%;
-	background: white;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	color: #dc2626;
-	font-size: 1.5rem;
-	font-weight: 600;
-`;
-
-const UserInfo = styled.div`
-	flex: 1;
-	h1 {
-		margin: 0;
-		font-size: 1.875rem;
-		font-weight: 700;
-		color: white;
-	}
-	.subtitle {
-		color: #fecaca;
-		font-size: 0.875rem;
-		margin-top: 0.25rem;
-	}
-`;
-
-const TokenStatus = styled.div<{ $variant: 'valid' | 'expired' | 'missing' }>`
-	display: flex;
-	align-items: flex-start;
-	gap: 0.5rem;
-	margin-top: 0.5rem;
-	font-size: 0.8125rem;
-	font-weight: 500;
-	color: ${({ $variant }) => {
-		switch ($variant) {
-			case 'valid':
-				return '#dcfce7';
-			case 'expired':
-				return '#fef3c7';
-			default:
-				return '#fecaca';
-		}
-	}};
-`;
-
-const CompareTable = styled.table`
-	width: 100%;
-	border-collapse: collapse;
-	font-size: 0.875rem;
-	margin-top: 1rem;
-`;
-
-const CompareHeaderCell = styled.th`
-	text-align: left;
-	padding: 0.75rem;
-	background: #f8fafc;
-	border-bottom: 1px solid #e2e8f0;
-	font-size: 0.875rem;
-	font-weight: 700;
-	text-transform: uppercase;
-	letter-spacing: 0.05em;
-	color: #475569;
-`;
-
-const CompareCell = styled.td<{ $emphasize?: boolean }>`
-	padding: 0.75rem;
-	border-bottom: 1px solid #e2e8f0;
-	vertical-align: top;
-	color: ${({ $emphasize }) => ($emphasize ? '#1f2937' : '#475569')};
-	font-weight: ${({ $emphasize }) => ($emphasize ? 600 : 500)};
-`;
-
-const CompareBadge = styled.span<{ $active: boolean }>`
-	display: inline-flex;
-	align-items: center;
-	gap: 0.25rem;
-	padding: 0.25rem 0.5rem;
-	border-radius: 9999px;
-	font-size: 0.75rem;
-	font-weight: 600;
-	background: ${({ $active }) => ($active ? '#dcfce7' : '#fee2e2')};
-	color: ${({ $active }) => ($active ? '#166534' : '#991b1b')};
-`;
-
-const TabsContainer = styled.div`
-	display: flex;
-	gap: 0.5rem;
-	margin-bottom: 1.5rem;
-	border-bottom: 2px solid #e5e7eb;
-`;
-
-const Tab = styled.button<{ $active?: boolean }>`
-	padding: 0.75rem 1.5rem;
-	border: none;
-	background: none;
-	cursor: pointer;
-	font-size: 0.875rem;
-	font-weight: 500;
-	color: ${(props) => (props.$active ? '#3b82f6' : '#6b7280')};
-	border-bottom: 2px solid ${(props) => (props.$active ? '#3b82f6' : 'transparent')};
-	margin-bottom: -2px;
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-	transition: all 0.2s;
-
-	&:hover {
-		color: ${(props) => (props.$active ? '#3b82f6' : '#374151')};
-	}
-`;
-
-const AlertBanner = styled.div`
-	padding: 1rem 1.5rem;
-	background: #fef3c7;
-	border: 1px solid #fbbf24;
-	border-radius: 0.5rem;
-	margin-bottom: 1.5rem;
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
-	color: #92400e;
-
-	svg {
-		flex-shrink: 0;
-	}
-`;
-
-const Section = styled.div`
-	background: white;
-	border-radius: 0.75rem;
-	padding: 1.5rem;
-	margin-bottom: 1.5rem;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-`;
-
-const SectionHeader = styled.div`
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	margin-bottom: 1.5rem;
-	padding-bottom: 1rem;
-	border-bottom: 1px solid #e5e7eb;
-
-	h2 {
-		margin: 0;
-		font-size: 1.125rem;
-		font-weight: 600;
-		color: #1f2937;
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-	}
-
-	.timestamp {
-		color: #6b7280;
-		font-size: 0.875rem;
-	}
-`;
-
-const FieldGrid = styled.div`
-	display: grid;
-	grid-template-columns: repeat(2, 1fr);
-	gap: 1.5rem;
-
-	@media (max-width: 768px) {
-		grid-template-columns: 1fr;
-	}
-`;
-
-const Field = styled.div`
-	.field-label {
-		font-size: 0.75rem;
-		font-weight: 500;
-		color: #6b7280;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		margin-bottom: 0.5rem;
-	}
-
-	.field-value {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		font-size: 0.875rem;
-		color: #1f2937;
-		font-weight: 500;
-
-		.copy-btn {
-			opacity: 0;
-			transition: opacity 0.2s;
-			cursor: pointer;
-			color: #3b82f6;
-		}
-	}
-
-	&:hover .copy-btn {
-		opacity: 1;
-	}
-
-	.verification-badge {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.25rem;
-		font-size: 0.75rem;
-		padding: 0.25rem 0.5rem;
-		border-radius: 0.25rem;
-		margin-left: 0.5rem;
-	}
-
-	.verified {
-		background: #dcfce7;
-		color: #166534;
-	}
-
-	.not-verified {
-		background: #fee2e2;
-		color: #991b1b;
-	}
-`;
-
-const InfoCards = styled.div`
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-	gap: 1rem;
-`;
-
-const InfoCard = styled.div`
-	padding: 1.5rem;
-	background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-	border-radius: 0.5rem;
-	border: 1px solid #e5e7eb;
-	text-align: center;
-
-	.icon {
-		font-size: 2rem;
-		margin-bottom: 0.75rem;
-		color: #3b82f6;
-	}
-
-	.value {
-		font-size: 1.5rem;
-		font-weight: 700;
-		color: #1f2937;
-		margin-bottom: 0.25rem;
-	}
-
-	.label {
-		font-size: 0.875rem;
-		color: #6b7280;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-`;
-
-const StatusTagList = styled.div`
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.5rem;
-`;
-
-const StatusTag = styled.span`
-	background: #f1f5f9;
-	color: #0f172a;
-	padding: 0.3rem 0.75rem;
-	border-radius: 9999px;
-	font-size: 0.75rem;
-	font-weight: 600;
-`;
-
-const StatusSection = styled.div`
-	margin-top: 1.5rem;
-`;
-
-const StatusHeading = styled.h4`
-	margin: 0 0 0.5rem;
-	font-size: 0.9rem;
-	font-weight: 600;
-	color: #0f172a;
-`;
-
-const LoadingState = styled.div`
-	padding: 3rem;
-	text-align: center;
-	color: #6b7280;
-`;
-
-const ErrorState = styled.div`
-	padding: 2rem;
-	background: #fee2e2;
-	border: 1px solid #fca5a5;
-	border-radius: 0.5rem;
-	color: #991b1b;
-	text-align: center;
-`;
-
-const UserSelectorCard = styled.div`
-	background: white;
-	border-radius: 0.75rem;
-	padding: 2rem;
-	max-width: 860px;
-	margin: 2rem auto;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-`;
-
-const SelectorPageHeader = styled.div`
-	display: flex;
-	align-items: center;
-	gap: 1rem;
-	max-width: 860px;
-	margin: 0 auto 0 auto;
-	padding: 1.5rem 2rem;
-	background: #dc2626;
-	border-radius: 0.75rem;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-	h1 {
-		margin: 0;
-		font-size: 1.5rem;
-		font-weight: 700;
-		color: white;
-	}
-	p {
-		margin: 0.25rem 0 0;
-		font-size: 0.9rem;
-		color: rgba(255,255,255,0.85);
-	}
-`;
-
-const ServerErrorModalOverlay = styled.div`
-	position: fixed;
-	inset: 0;
-	background: rgba(0, 0, 0, 0.6);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	z-index: 10000;
-	backdrop-filter: blur(4px);
-`;
-
-const ServerErrorModalContent = styled.div`
-	background: white;
-	border-radius: 0.75rem;
-	padding: 2rem;
-	max-width: 550px;
-	margin: 1rem;
-	box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-	border: 3px solid #dc2626;
-`;
-
-const ServerErrorModalTitle = styled.h2`
-	font-size: 1.5rem;
-	font-weight: 700;
-	color: #1f2937;
-	margin: 0 0 1rem 0;
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
-`;
-
-const ServerErrorModalMessage = styled.p`
-	font-size: 1rem;
-	color: #374151;
-	line-height: 1.6;
-	margin: 0 0 1.5rem 0;
-`;
-
-const ServerErrorModalInstructions = styled.div`
-	font-size: 0.9rem;
-	color: #374151;
-	line-height: 1.6;
-	margin: 0 0 1.5rem 0;
-	padding: 1rem;
-	background: #f3f4f6;
-	border-radius: 0.5rem;
-	border-left: 4px solid #3b82f6;
-
-	strong {
-		color: #1f2937;
-		display: block;
-		margin-bottom: 0.75rem;
-	}
-
-	ol {
-		margin: 0;
-		padding-left: 1.5rem;
-	}
-
-	li {
-		margin-bottom: 0.5rem;
-	}
-
-	code {
-		background: #1f2937;
-		color: #10b981;
-		padding: 0.25rem 0.5rem;
-		border-radius: 0.25rem;
-		font-family: 'Monaco', 'Courier New', monospace;
-		font-size: 0.85rem;
-		font-weight: 600;
-	}
-`;
-
-const ServerErrorModalActions = styled.div`
-	display: flex;
-	justify-content: flex-end;
-	gap: 0.75rem;
-`;
-
-const ServerErrorModalButton = styled.button`
-	padding: 0.75rem 1.5rem;
-	background: #3b82f6;
-	color: white;
-	border: none;
-	border-radius: 0.5rem;
-	font-size: 1rem;
-	font-weight: 600;
-	cursor: pointer;
-	transition: all 200ms ease;
-
-	&:hover {
-		background: #2563eb;
-		transform: translateY(-1px);
-		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-	}
-
-	&:active {
-		transform: translateY(0);
-	}
-`;
-
-const InputField = styled.div`
-	margin-bottom: 1.5rem;
-	label {
-		display: block;
-		font-size: 0.875rem;
-		font-weight: 500;
-		color: #374151;
-		margin-bottom: 0.5rem;
-	}
-	input {
-		width: 100%;
-		padding: 0.75rem;
-		border: 1px solid #d1d5db;
-		border-radius: 0.375rem;
-		font-size: 0.875rem;
-		&:focus {
-			outline: none;
-			border-color: #3b82f6;
-			box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-		}
-	}
-`;
+const styles: Record<string, CSSProperties> = {
+	pageContainer: {
+		maxWidth: '1200px',
+		margin: '0 auto',
+		padding: '2rem',
+		background: '#f8fafc',
+		minHeight: '100vh',
+	},
+	header: {
+		background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)',
+		borderRadius: '1rem',
+		padding: '2rem',
+		marginBottom: '2rem',
+		textAlign: 'center',
+	},
+	headerInner: {
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'space-between',
+		gap: '1rem',
+	},
+	userAvatar: {
+		width: '64px',
+		height: '64px',
+		borderRadius: '50%',
+		background: 'white',
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'center',
+		color: '#2563eb',
+		fontSize: '1.5rem',
+		fontWeight: 600,
+		flexShrink: 0,
+	},
+	userInfo: {
+		flex: 1,
+		textAlign: 'left',
+	},
+	userInfoName: {
+		margin: 0,
+		fontSize: '1.875rem',
+		fontWeight: 700,
+		color: 'white',
+	},
+	userInfoSubtitle: {
+		color: 'rgba(255,255,255,0.85)',
+		fontSize: '0.875rem',
+		marginTop: '0.25rem',
+	},
+	tokenStatusValid: {
+		display: 'flex',
+		alignItems: 'flex-start',
+		gap: '0.5rem',
+		marginTop: '0.5rem',
+		fontSize: '0.8125rem',
+		fontWeight: 500,
+		color: '#dcfce7',
+	},
+	tokenStatusExpired: {
+		display: 'flex',
+		alignItems: 'flex-start',
+		gap: '0.5rem',
+		marginTop: '0.5rem',
+		fontSize: '0.8125rem',
+		fontWeight: 500,
+		color: '#fef3c7',
+	},
+	tokenStatusMissing: {
+		display: 'flex',
+		alignItems: 'flex-start',
+		gap: '0.5rem',
+		marginTop: '0.5rem',
+		fontSize: '0.8125rem',
+		fontWeight: 500,
+		color: '#fecaca',
+	},
+	compareTable: {
+		width: '100%',
+		borderCollapse: 'collapse',
+		fontSize: '0.875rem',
+		marginTop: '1rem',
+	},
+	compareHeaderCell: {
+		textAlign: 'left',
+		padding: '0.75rem',
+		background: '#f8fafc',
+		borderBottom: '1px solid #e2e8f0',
+		fontSize: '0.875rem',
+		fontWeight: 700,
+		textTransform: 'uppercase',
+		letterSpacing: '0.05em',
+		color: '#475569',
+	},
+	compareCell: {
+		padding: '0.75rem',
+		borderBottom: '1px solid #e2e8f0',
+		verticalAlign: 'top',
+		color: '#475569',
+		fontWeight: 500,
+	},
+	compareCellEmphasize: {
+		padding: '0.75rem',
+		borderBottom: '1px solid #e2e8f0',
+		verticalAlign: 'top',
+		color: '#1f2937',
+		fontWeight: 600,
+	},
+	compareBadgeActive: {
+		display: 'inline-flex',
+		alignItems: 'center',
+		gap: '0.25rem',
+		padding: '0.25rem 0.5rem',
+		borderRadius: '9999px',
+		fontSize: '0.75rem',
+		fontWeight: 600,
+		background: '#dcfce7',
+		color: '#166534',
+	},
+	compareBadgeInactive: {
+		display: 'inline-flex',
+		alignItems: 'center',
+		gap: '0.25rem',
+		padding: '0.25rem 0.5rem',
+		borderRadius: '9999px',
+		fontSize: '0.75rem',
+		fontWeight: 600,
+		background: '#fee2e2',
+		color: '#991b1b',
+	},
+	tabsContainer: {
+		display: 'flex',
+		gap: '0.5rem',
+		marginBottom: '1.5rem',
+		borderBottom: '2px solid #e5e7eb',
+	},
+	tabActive: {
+		padding: '0.75rem 1.5rem',
+		border: 'none',
+		background: 'none',
+		cursor: 'pointer',
+		fontSize: '0.875rem',
+		fontWeight: 500,
+		color: '#3b82f6',
+		borderBottom: '2px solid #3b82f6',
+		marginBottom: '-2px',
+		display: 'flex',
+		alignItems: 'center',
+		gap: '0.5rem',
+	},
+	tabInactive: {
+		padding: '0.75rem 1.5rem',
+		border: 'none',
+		background: 'none',
+		cursor: 'pointer',
+		fontSize: '0.875rem',
+		fontWeight: 500,
+		color: '#6b7280',
+		borderBottom: '2px solid transparent',
+		marginBottom: '-2px',
+		display: 'flex',
+		alignItems: 'center',
+		gap: '0.5rem',
+	},
+	alertBanner: {
+		padding: '1rem 1.5rem',
+		background: '#fef3c7',
+		border: '1px solid #fbbf24',
+		borderRadius: '0.5rem',
+		marginBottom: '1.5rem',
+		display: 'flex',
+		alignItems: 'center',
+		gap: '0.75rem',
+		color: '#92400e',
+	},
+	section: {
+		background: 'white',
+		borderRadius: '0.75rem',
+		padding: '1.5rem',
+		marginBottom: '1.5rem',
+		boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+	},
+	sectionHeader: {
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'space-between',
+		marginBottom: '1.5rem',
+		paddingBottom: '1rem',
+		borderBottom: '1px solid #e5e7eb',
+	},
+	sectionHeaderH2: {
+		margin: 0,
+		fontSize: '1.125rem',
+		fontWeight: 600,
+		color: '#1f2937',
+		display: 'flex',
+		alignItems: 'center',
+		gap: '0.5rem',
+	},
+	sectionTimestamp: {
+		color: '#6b7280',
+		fontSize: '0.875rem',
+	},
+	fieldGrid: {
+		display: 'grid',
+		gridTemplateColumns: 'repeat(2, 1fr)',
+		gap: '1.5rem',
+	},
+	fieldLabel: {
+		fontSize: '0.75rem',
+		fontWeight: 500,
+		color: '#6b7280',
+		textTransform: 'uppercase',
+		letterSpacing: '0.05em',
+		marginBottom: '0.5rem',
+	},
+	fieldValue: {
+		display: 'flex',
+		alignItems: 'center',
+		gap: '0.5rem',
+		fontSize: '0.875rem',
+		color: '#1f2937',
+		fontWeight: 500,
+	},
+	verificationBadgeVerified: {
+		display: 'inline-flex',
+		alignItems: 'center',
+		gap: '0.25rem',
+		fontSize: '0.75rem',
+		padding: '0.25rem 0.5rem',
+		borderRadius: '0.25rem',
+		marginLeft: '0.5rem',
+		background: '#dcfce7',
+		color: '#166534',
+	},
+	verificationBadgeUnverified: {
+		display: 'inline-flex',
+		alignItems: 'center',
+		gap: '0.25rem',
+		fontSize: '0.75rem',
+		padding: '0.25rem 0.5rem',
+		borderRadius: '0.25rem',
+		marginLeft: '0.5rem',
+		background: '#fee2e2',
+		color: '#991b1b',
+	},
+	infoCards: {
+		display: 'grid',
+		gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+		gap: '1rem',
+	},
+	infoCard: {
+		padding: '1.5rem',
+		background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+		borderRadius: '0.5rem',
+		border: '1px solid #e5e7eb',
+		textAlign: 'center',
+	},
+	infoCardIcon: {
+		fontSize: '2rem',
+		marginBottom: '0.75rem',
+		color: '#3b82f6',
+	},
+	infoCardValue: {
+		fontSize: '1.5rem',
+		fontWeight: 700,
+		color: '#1f2937',
+		marginBottom: '0.25rem',
+	},
+	infoCardLabel: {
+		fontSize: '0.875rem',
+		color: '#6b7280',
+		textTransform: 'uppercase',
+		letterSpacing: '0.05em',
+	},
+	statusTagList: {
+		display: 'flex',
+		flexWrap: 'wrap',
+		gap: '0.5rem',
+	},
+	statusTag: {
+		background: '#f1f5f9',
+		color: '#0f172a',
+		padding: '0.3rem 0.75rem',
+		borderRadius: '9999px',
+		fontSize: '0.75rem',
+		fontWeight: 600,
+	},
+	statusSection: {
+		marginTop: '1.5rem',
+	},
+	statusHeading: {
+		margin: '0 0 0.5rem',
+		fontSize: '0.9rem',
+		fontWeight: 600,
+		color: '#0f172a',
+	},
+	loadingState: {
+		padding: '3rem',
+		textAlign: 'center',
+		color: '#6b7280',
+	},
+	errorState: {
+		padding: '2rem',
+		background: '#fee2e2',
+		border: '1px solid #fca5a5',
+		borderRadius: '0.5rem',
+		color: '#991b1b',
+		textAlign: 'center',
+	},
+	userSelectorCard: {
+		background: 'white',
+		borderRadius: '0.75rem',
+		padding: '2rem',
+		maxWidth: '860px',
+		margin: '2rem auto',
+		boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+	},
+	selectorPageHeader: {
+		display: 'flex',
+		alignItems: 'center',
+		gap: '1rem',
+		maxWidth: '860px',
+		margin: '0 auto',
+		padding: '1.5rem 2rem',
+		background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)',
+		borderRadius: '0.75rem',
+		boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+	},
+	selectorPageHeaderH1: {
+		margin: 0,
+		fontSize: '1.5rem',
+		fontWeight: 700,
+		color: 'white',
+	},
+	selectorPageHeaderP: {
+		margin: '0.25rem 0 0',
+		fontSize: '0.9rem',
+		color: 'rgba(255,255,255,0.85)',
+	},
+	serverErrorModalOverlay: {
+		position: 'fixed',
+		inset: 0,
+		background: 'rgba(0,0,0,0.6)',
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'center',
+		zIndex: 10000,
+	},
+	serverErrorModalContent: {
+		background: 'white',
+		borderRadius: '0.75rem',
+		padding: '2rem',
+		maxWidth: '550px',
+		margin: '1rem',
+		boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
+		border: '3px solid #dc2626',
+	},
+	serverErrorModalTitle: {
+		fontSize: '1.5rem',
+		fontWeight: 700,
+		color: '#1f2937',
+		margin: '0 0 1rem 0',
+		display: 'flex',
+		alignItems: 'center',
+		gap: '0.75rem',
+	},
+	serverErrorModalMessage: {
+		fontSize: '1rem',
+		color: '#374151',
+		lineHeight: 1.6,
+		margin: '0 0 1.5rem 0',
+	},
+	serverErrorModalInstructions: {
+		fontSize: '0.9rem',
+		color: '#374151',
+		lineHeight: 1.6,
+		margin: '0 0 1.5rem 0',
+		padding: '1rem',
+		background: '#f3f4f6',
+		borderRadius: '0.5rem',
+		borderLeft: '4px solid #3b82f6',
+	},
+	serverErrorModalActions: {
+		display: 'flex',
+		justifyContent: 'flex-end',
+		gap: '0.75rem',
+	},
+	serverErrorModalButton: {
+		padding: '0.75rem 1.5rem',
+		background: '#3b82f6',
+		color: 'white',
+		border: 'none',
+		borderRadius: '0.5rem',
+		fontSize: '1rem',
+		fontWeight: 600,
+		cursor: 'pointer',
+	},
+	inputField: {
+		marginBottom: '1.5rem',
+	},
+	inputLabel: {
+		display: 'block',
+		fontSize: '0.875rem',
+		fontWeight: 500,
+		color: '#374151',
+		marginBottom: '0.5rem',
+	},
+	inputEl: {
+		width: '100%',
+		padding: '0.75rem',
+		border: '1px solid #d1d5db',
+		borderRadius: '0.375rem',
+		fontSize: '0.875rem',
+	},
+};
 
 const PingOneUserProfile: React.FC = () => {
 	usePageScroll({ pageName: 'PingOne User Profile', force: true });
@@ -747,7 +690,6 @@ const PingOneUserProfile: React.FC = () => {
 	// Use global worker token instead of custom accessToken state
 	const accessToken = globalTokenStatus.token || '';
 
-	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [showServerErrorModal, setShowServerErrorModal] = useState(false);
 	const [_savedWorkerCredentials, setSavedWorkerCredentials] = useState(() =>
 		credentialManager.getAllCredentials()
@@ -763,16 +705,6 @@ const PingOneUserProfile: React.FC = () => {
 	const [comparisonConsents, setComparisonConsents] = useState<PingOneConsentRecord[]>([]);
 	const [isComparisonLoading, setIsComparisonLoading] = useState(false);
 	const [comparisonError, setComparisonError] = useState<string | null>(null);
-
-	const handleClearWorkerToken = () => {
-		localStorage.removeItem('unified_worker_token');
-		v4ToastManager.showSuccess('Worker token cleared successfully.');
-		window.location.reload();
-	};
-
-	const handleGetWorkerToken = useCallback(() => {
-		setShowWorkerTokenModal(true);
-	}, []);
 
 	const fetchUserBundle = useCallback(
 		async (targetUserId: string): Promise<UserDataBundle> => {
@@ -1549,19 +1481,19 @@ const PingOneUserProfile: React.FC = () => {
 
 	if (loading) {
 		return (
-			<PageContainer>
-				<LoadingState>
+			<div style={styles.pageContainer}>
+				<div style={styles.loadingState}>
 					<FiRefreshCw className="animate-spin" size={24} style={{ marginBottom: '1rem' }} />
 					<p>Loading user profile...</p>
-				</LoadingState>
-			</PageContainer>
+				</div>
+			</div>
 		);
 	}
 
 	if (error) {
 		return (
-			<PageContainer>
-				<ErrorState>
+			<div style={styles.pageContainer}>
+				<div style={styles.errorState}>
 					<FiAlertTriangle size={24} style={{ marginBottom: '1rem' }} />
 					<p>{error}</p>
 					<button
@@ -1579,8 +1511,8 @@ const PingOneUserProfile: React.FC = () => {
 					>
 						Retry
 					</button>
-				</ErrorState>
-			</PageContainer>
+				</div>
+			</div>
 		);
 	}
 
@@ -1600,48 +1532,47 @@ const PingOneUserProfile: React.FC = () => {
 
 	if (!userProfile && showUserSelector) {
 		return (
-			<PageContainer>
-				<SelectorPageHeader>
+			<div style={styles.pageContainer}>
+				<div style={styles.selectorPageHeader}>
 					<FiUser size={36} style={{ color: 'white', flexShrink: 0 }} />
 					<div>
-						<h1>Select User to View Profile</h1>
-						<p>Look up a PingOne user by ID, username, or email address</p>
+						<h1 style={styles.selectorPageHeaderH1}>Select User to View Profile</h1>
+						<p style={styles.selectorPageHeaderP}>Look up a PingOne user by ID, username, or email address</p>
 					</div>
-				</SelectorPageHeader>
-				<UserSelectorCard>
+				</div>
+				<div style={styles.userSelectorCard}>
 					{hasValidWorkerToken ? (
-						<AlertBanner
+						<div
 							style={{
+								...styles.alertBanner,
 								background: '#dcfce7',
-								borderColor: '#34d399',
+								border: '1px solid #34d399',
 								color: '#047857',
 							}}
 						>
 							<FiCheckCircle />
 							<span>Worker token detected. Token is active.</span>
-						</AlertBanner>
+						</div>
 					) : (
-						<AlertBanner>
+						<div style={styles.alertBanner}>
 							<FiAlertTriangle />
 							<span>No worker token found or token expired. Generate one to load a user profile.</span>
-						</AlertBanner>
+						</div>
 					)}
-					<InputField>
-						<label htmlFor="environmentId">Environment ID *</label>
+					<div style={styles.inputField}>
+						<label htmlFor="environmentId" style={styles.inputLabel}>Environment ID *</label>
 						<input
 							id="environmentId"
 							type="text"
 							value={environmentId}
 							onChange={(e) => setEnvironmentId(e.target.value)}
 							placeholder="Enter PingOne Environment ID"
+							style={styles.inputEl}
 						/>
-					</InputField>
-					{hasValidWorkerToken && accessToken && (
-						<WorkerTokenDetectedBanner
-							token={accessToken}
-							tokenExpiryKey="unified_worker_token"
-						/>
-					)}
+					</div>
+
+					{/* Worker Token Section */}
+					<WorkerTokenSectionV8 compact environmentId={environmentId} />
 
 					{/* Configuration Checkboxes */}
 					<div
@@ -1657,55 +1588,8 @@ const PingOneUserProfile: React.FC = () => {
 						<ShowTokenConfigCheckboxV8 />
 					</div>
 
-					<div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
-						<button
-							type="button"
-							onClick={handleGetWorkerToken}
-							style={{
-								flex: '1 1 200px',
-								padding: '0.75rem',
-								background: hasValidWorkerToken ? '#10b981' : '#3b82f6',
-								color: 'white',
-								border: 'none',
-								borderRadius: '0.375rem',
-								fontSize: '0.875rem',
-								fontWeight: 600,
-								cursor: 'pointer',
-								display: 'flex',
-								alignItems: 'center',
-								justifyContent: 'center',
-								gap: '0.5rem',
-							}}
-						>
-							{hasValidWorkerToken ? (
-								<><FiCheckCircle /> Worker Token Ready</>
-							) : (
-								<><FiKey /> Get Worker Token</>
-							)}
-						</button>
-						{accessToken && (
-							<button
-								type="button"
-								onClick={handleClearWorkerToken}
-								style={{
-									flex: '0 0 auto',
-									padding: '0.75rem',
-									background: '#ef4444',
-									color: 'white',
-									border: 'none',
-									borderRadius: '0.375rem',
-									fontSize: '0.875rem',
-									fontWeight: 600,
-									cursor: 'pointer',
-								}}
-							>
-								<FiX /> Clear Token
-							</button>
-						)}
-					</div>
-
-					<InputField>
-						<label htmlFor="userIdentifier">User Identifier *</label>
+					<div style={styles.inputField}>
+						<label htmlFor="userIdentifier" style={styles.inputLabel}>User Identifier *</label>
 						<input
 							id="userIdentifier"
 							type="text"
@@ -1726,6 +1610,7 @@ const PingOneUserProfile: React.FC = () => {
 								}
 							}}
 							placeholder="Enter user ID, username, or email"
+							style={styles.inputEl}
 						/>
 						<div style={{ color: '#64748b', fontSize: '0.75rem' }}>
 							We will look up the user by ID, username, or email in the selected environment.
@@ -1735,7 +1620,7 @@ const PingOneUserProfile: React.FC = () => {
 								{identifierError}
 							</div>
 						)}
-					</InputField>
+					</div>
 					<button
 						type="button"
 						onClick={() => handleLoadUserProfile()}
@@ -1771,17 +1656,8 @@ const PingOneUserProfile: React.FC = () => {
 					>
 						{isResolvingUser ? 'Resolving user…' : 'Load User Profile'}
 					</button>
-				</UserSelectorCard>
-				<WorkerTokenModalV8
-					isOpen={showWorkerTokenModal}
-					onClose={() => setShowWorkerTokenModal(false)}
-					onTokenGenerated={() => {
-						setShowWorkerTokenModal(false);
-						setSavedWorkerCredentials(credentialManager.getAllCredentials());
-					}}
-					environmentId={environmentId}
-				/>
-			</PageContainer>
+				</div>
+			</div>
 		);
 	}
 
@@ -2805,15 +2681,6 @@ const PingOneUserProfile: React.FC = () => {
 					)}
 				</>
 			)}
-			<WorkerTokenModalV8
-				isOpen={showWorkerTokenModal}
-				onClose={() => setShowWorkerTokenModal(false)}
-				onTokenGenerated={() => {
-					setShowWorkerTokenModal(false);
-					setSavedWorkerCredentials(credentialManager.getAllCredentials());
-				}}
-				environmentId={environmentId}
-			/>
 
 			{/* Server Error Modal */}
 			{showServerErrorModal && (
