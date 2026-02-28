@@ -1,7 +1,7 @@
 # V7 to V9 Migration Guide - VS Code Edition
 
 **Optimized for:** VS Code + GitHub Copilot  
-**Last Updated:** February 27, 2026  
+**Last Updated:** February 28, 2026  
 **Status:** Production Guide
 
 ---
@@ -79,6 +79,8 @@ background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
 **Reference Pages:**
 - ✅ [CustomDomainTestPage.tsx](../../src/pages/CustomDomainTestPage.tsx) - Approved blue/red palette
 - ✅ [Dashboard.tsx](../../src/pages/Dashboard.tsx) - Standard blue headers
+- ✅ [PingOneAuditActivities.tsx](../../src/pages/PingOneAuditActivities.tsx) - Red header (PingOne Management API page)
+- ✅ [PingOneWebhookViewer.tsx](../../src/pages/PingOneWebhookViewer.tsx) - Red header + popout pattern
 
 ---
 
@@ -693,6 +695,27 @@ curl -o src/styles/vendor/end-user-nano.css "https://assets.pingone.com/ux/end-u
 
 ---
 
+## ✅ Completed Migrations: Feb 28, 2026
+
+### PingOneAuditActivities — Color Compliance Migration
+
+**Date:** 2026-02-28  
+**File:** `src/pages/PingOneAuditActivities.tsx`
+
+**Problem:**  
+The page used a blue header gradient and multiple forbidden purple/indigo colors (`#667eea`, `#6366f1`, `#c4b5fd`) throughout the UI. Per the migration guide, PingOne Management API pages (Audit, Webhook Viewer, etc.) must use the **red** header gradient.
+
+**Changes:**
+- **Header gradient:** `#2563eb → #1e40af` (blue) → `#ef4444 → #dc2626` (red — PingOne admin)
+- **Subtitle color:** `#bfdbfe` → `rgba(255, 255, 255, 0.85)` (white on red)
+- **Primary button:** `#667eea` (forbidden purple) → `#2563eb` blue
+- **Summary card:** border `#667eea` → `#93c5fd`; background lavender → `#eff6ff/#dbeafe`
+- **Stat card borders (×6):** `#c4b5fd` (lavender) → `#bfdbfe` blue
+- **Stat value numbers:** `#6366f1` (indigo) → `#1e40af` dark blue
+- **"View Details" link:** `#667eea` → `#2563eb`
+
+---
+
 ## ✅ Completed Migrations: Feb 27, 2026
 
 ### PingOneWebhookViewer — Worker Token Service Migration
@@ -754,6 +777,6 @@ npm run dev
 
 ---
 
-**Last Updated:** February 27, 2026  
+**Last Updated:** February 28, 2026  
 **Status:** Production Ready ✅  
 **Next Migration:** Follow this guide for remaining V7 flows
