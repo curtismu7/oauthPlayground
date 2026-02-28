@@ -86,10 +86,7 @@ const MainCard = styled.div`
 `;
 
 const StepHeader = styled.div<{ $variant: 'oauth' | 'oidc' }>`
-	background: ${(props) =>
-		props.$variant === 'oidc'
-			? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)'
-			: 'linear-gradient(135deg, #eab308 0%, #ca8a04 100%)'};
+	background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
 	color: #ffffff;
 	padding: 2rem;
 	display: flex;
@@ -105,10 +102,9 @@ const StepHeaderLeft = styled.div`
 
 const VersionBadge = styled.span<{ $variant: 'oauth' | 'oidc' }>`
 	align-self: flex-start;
-	background: ${(props) =>
-		props.$variant === 'oidc' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(234, 179, 8, 0.2)'};
-	border: 1px solid ${(props) => (props.$variant === 'oidc' ? '#60a5fa' : '#facc15')};
-	color: ${(props) => (props.$variant === 'oidc' ? '#dbeafe' : '#fef3c7')};
+	background: rgba(59, 130, 246, 0.2);
+	border: 1px solid #60a5fa;
+	color: #dbeafe;
 	font-size: 0.75rem;
 	font-weight: 600;
 	letter-spacing: 0.08em;
@@ -134,8 +130,8 @@ const StepHeaderRight = styled.div`
 `;
 
 const RequirementsIndicator = styled.div`
-	background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-	border: 1px solid #f59e0b;
+	background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+	border: 1px solid #93c5fd;
 	border-radius: 8px;
 	padding: 1rem;
 	margin: 1rem 0;
@@ -145,7 +141,7 @@ const RequirementsIndicator = styled.div`
 `;
 
 const RequirementsIcon = styled.div`
-	color: #d97706;
+	color: #2563eb;
 	font-size: 1.25rem;
 	margin-top: 0.125rem;
 	flex-shrink: 0;
@@ -190,7 +186,7 @@ const VariantDescription = styled.div`
 `;
 
 const RequirementsText = styled.div`
-	color: #92400e;
+	color: #1e3a8a;
 	font-size: 0.875rem;
 	line-height: 1.5;
 
@@ -262,29 +258,29 @@ const CollapsibleHeaderButton = styled.button<{ $collapsed?: boolean }>`
 	justify-content: space-between;
 	width: 100%;
 	padding: 1.5rem 1.75rem;
-	background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf3 100%);
+	background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
 	border: none;
 	border-radius: 0.75rem;
 	cursor: pointer;
 	font-size: 1.1rem;
 	font-weight: 600;
-	color: #14532d;
+	color: #1e3a8a;
 	transition: background 0.2s ease;
 	line-height: 1.4;
 	min-height: 72px;
 
 	&:hover {
-		background: linear-gradient(135deg, #dcfce7 0%, #ecfdf3 100%);
+		background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
 	}
 `;
 
-// Theme-specific header variants
+// Theme-specific header variants (all using approved blue palette)
 const _OrangeHeaderButton = styled(CollapsibleHeaderButton)`
-	background: linear-gradient(135deg, #fed7aa 0%, #fb923c 100%);
-	color: #7c2d12;
+	background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+	color: #1e3a8a;
 	
 	&:hover {
-		background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
+		background: linear-gradient(135deg, #bfdbfe 0%, #93c5fd 100%);
 	}
 `;
 
@@ -298,20 +294,20 @@ const BlueHeaderButton = styled(CollapsibleHeaderButton)`
 `;
 
 const YellowHeaderButton = styled(CollapsibleHeaderButton)`
-	background: linear-gradient(135deg, #fef3c7 0%, #fcd34d 100%);
-	color: #78350f;
+	background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+	color: #1e3a8a;
 	
 	&:hover {
-		background: linear-gradient(135deg, #fde68a 0%, #fbbf24 100%);
+		background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
 	}
 `;
 
 const GreenHeaderButton = styled(CollapsibleHeaderButton)`
-	background: linear-gradient(135deg, #d1fae5 0%, #6ee7b7 100%);
-	color: #065f46;
+	background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+	color: #1e3a8a;
 	
 	&:hover {
-		background: linear-gradient(135deg, #a7f3d0 0%, #34d399 100%);
+		background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
 	}
 `;
 
