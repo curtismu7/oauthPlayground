@@ -2,7 +2,7 @@
 // Enhanced V7RM OIDC Resource Owner Password Flow - Uses real services where possible
 
 import React, { useMemo } from 'react';
-import { FiAlertTriangle, FiInfo, FiLock, FiShield, FiUser } from 'react-icons/fi';
+import { FiAlertTriangle, FiInfo, FiLock, FiShield, FiUser } from '@icons';
 import CollapsibleSection from '../../components/CollapsibleSection';
 import { FlowConfiguration } from '../../components/FlowConfiguration';
 import createV7RMOIDCResourceOwnerPasswordEnhancedSteps from '../../components/flow/createV7RMOIDCResourceOwnerPasswordEnhancedSteps';

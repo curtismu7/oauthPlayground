@@ -1,6 +1,6 @@
 // src/v7m/pages/V7MClientCredentials.tsx
 import React, { useState } from 'react';
-import { FiBook, FiKey } from 'react-icons/fi';
+import { FiBook, FiKey } from '@icons';
 import {
 	introspectToken,
 	type V7MIntrospectionResponse,

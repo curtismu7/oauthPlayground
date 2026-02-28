@@ -10,7 +10,7 @@ import {
 	FiRefreshCw,
 	FiSettings,
 	FiShield,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { LearningTooltip } from '../../components/LearningTooltip';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';

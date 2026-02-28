@@ -15,7 +15,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { FiCode, FiShield } from 'react-icons/fi';
+import { FiCode, FiShield } from '@icons';
 import styled from 'styled-components';
 import {
 	ApiDisplayCheckbox,

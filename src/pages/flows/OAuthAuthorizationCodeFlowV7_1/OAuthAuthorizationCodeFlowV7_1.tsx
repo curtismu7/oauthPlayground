@@ -2,7 +2,7 @@
 // V7.1 Main Container - Orchestrates all refactored components
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiBook, FiCheckCircle, FiChevronDown, FiSettings } from 'react-icons/fi';
+import { FiBook, FiCheckCircle, FiChevronDown, FiSettings } from '@icons';
 import styled from 'styled-components';
 import type { PingOneApplicationState } from '../../../components/PingOneApplicationConfig';
 import { StepNavigationButtons } from '../../../components/StepNavigationButtons';

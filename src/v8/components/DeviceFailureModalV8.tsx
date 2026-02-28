@@ -10,7 +10,7 @@
  */
 
 import React from 'react';
-import { FiAlertCircle, FiRefreshCw, FiUnlock, FiX } from 'react-icons/fi';
+import { FiAlertCircle, FiRefreshCw, FiUnlock, FiX } from '@icons';
 
 export interface UnavailableDevice {
 	id: string;

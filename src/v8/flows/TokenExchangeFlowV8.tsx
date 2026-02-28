@@ -13,7 +13,7 @@ import {
 	FiShield,
 	FiUsers,
 	FiZap,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { CommonSpinner } from '../../components/common/CommonSpinner';
 import { ButtonSpinner } from '../../components/ui/ButtonSpinner';

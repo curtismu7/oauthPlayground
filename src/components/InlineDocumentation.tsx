@@ -8,7 +8,7 @@ import {
 	FiCode,
 	FiExternalLink,
 	FiInfo,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 
 const DocContainer = styled.div`

@@ -15,7 +15,7 @@ import {
 	FiVolume,
 	FiVolume2,
 	FiXCircle
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';

@@ -7,7 +7,7 @@ import {
 	FiTrendingDown,
 	FiTrendingUp,
 	FiZap,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { PerformanceMonitor } from '../components/PerformanceMonitor';
 import { useLazyLoadingMetrics } from '../hooks/useLazyLoading';

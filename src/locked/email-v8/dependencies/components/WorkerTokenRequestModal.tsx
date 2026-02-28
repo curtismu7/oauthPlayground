@@ -14,7 +14,7 @@ import {
 	FiRefreshCw,
 	FiShield,
 	FiX,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { ColoredUrlDisplay } from './ColoredUrlDisplay';
 

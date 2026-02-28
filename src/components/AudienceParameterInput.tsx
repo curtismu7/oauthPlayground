@@ -1,7 +1,7 @@
 // src/components/AudienceParameterInput.tsx
 // OAuth/OIDC Audience Parameter Input - API targeting for access tokens
 import React, { useEffect } from 'react';
-import { FiAlertCircle, FiInfo, FiMove, FiTarget } from 'react-icons/fi';
+import { FiAlertCircle, FiInfo, FiMove, FiTarget } from '@icons';
 import styled from 'styled-components';
 
 interface AudienceParameterInputProps {

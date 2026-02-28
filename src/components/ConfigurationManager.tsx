@@ -12,7 +12,7 @@ import {
 	FiSettings,
 	FiUpload,
 	FiZap,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import {
 	BaseFlowConfig,

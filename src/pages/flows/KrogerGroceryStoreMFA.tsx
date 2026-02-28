@@ -3,7 +3,7 @@
 // This page demonstrates PingOne MFA in a realistic grocery store website context
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { FiHeart, FiLock, FiSearch, FiShoppingCart, FiUser } from 'react-icons/fi';
+import { FiHeart, FiLock, FiSearch, FiShoppingCart, FiUser } from '@icons';
 import styled from 'styled-components';
 import { ApiCallTable } from '../../components/ApiCallTable';
 import { AuthorizationCodeConfigModal } from '../../components/AuthorizationCodeConfigModal';

@@ -2,7 +2,7 @@
 // Compact checkbox UI with live URL preview for OAuth/OIDC response modes
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { FiAlertTriangle, FiChevronDown, FiInfo } from 'react-icons/fi';
+import { FiAlertTriangle, FiChevronDown, FiInfo } from '@icons';
 import styled from 'styled-components';
 import { CopyButtonService } from '../../services/copyButtonService';
 

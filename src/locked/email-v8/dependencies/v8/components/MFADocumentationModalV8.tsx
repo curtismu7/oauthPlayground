@@ -9,7 +9,7 @@
  */
 
 import React, { useState } from 'react';
-import { FiBook, FiDownload, FiFileText, FiX } from 'react-icons/fi';
+import { FiBook, FiDownload, FiFileText, FiX } from '@icons';
 import type { DeviceType } from '../flows/shared/MFATypes';
 import {
 	downloadAsMarkdown,

@@ -1,7 +1,7 @@
 // src/components/FlowInfoCard.tsx - Reusable flow information comparison card
 
 import React, { useEffect, useState } from 'react';
-import { FiChevronDown } from 'react-icons/fi';
+import { FiChevronDown } from '@icons';
 import styled from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';
 

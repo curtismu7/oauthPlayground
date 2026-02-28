@@ -13,7 +13,7 @@ import {
 	FiLock,
 	FiSettings,
 	FiShield,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 
 interface PARInputInterfaceProps {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FiGlobe, FiSettings } from 'react-icons/fi';
+import { FiGlobe, FiSettings } from '@icons';
 import styled from 'styled-components';
 import EnvironmentIdInput from '../components/EnvironmentIdInput';
 import { usePageScroll } from '../hooks/usePageScroll';
