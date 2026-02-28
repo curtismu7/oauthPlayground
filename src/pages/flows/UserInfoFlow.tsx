@@ -1,6 +1,6 @@
 import type React from 'react';
-import { useCallback, useEffect, useState } from 'react';
-import { FiAlertCircle, FiDownload, FiInfo, FiSend } from 'react-icons/fi';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { FiAlertCircle, FiDownload, FiInfo, FiSend, FiUpload } from 'react-icons/fi';
 import styled from 'styled-components';
 import { CardBody, CardHeader } from '../../components/Card';
 import ConfigurationButton from '../../components/ConfigurationButton';
@@ -456,6 +456,54 @@ const UserInfoFlow: React.FC = () => {
 		console.log(' [UserInfoFlow] Manually refreshing tokens...');
 		scanForTokens();
 	}, [scanForTokens]);
+
+	// Config import/export
+	const importFileRef = useRef<HTMLInputElement>(null);
+
+	const handleExportConfig = useCallback(() => {
+		try {
+			const raw = localStorage.getItem('pingone_config');
+			const cfg = raw ? JSON.parse(raw) : {};
+			const exportData = {
+				_meta: { flowType: 'userinfo', exportedAt: new Date().toISOString() },
+				...cfg,
+			};
+			const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = 'userinfo-config.json';
+			a.click();
+			URL.revokeObjectURL(url);
+			v4ToastManager.showSuccess('Config exported successfully');
+		} catch (err) {
+			v4ToastManager.showError('Failed to export config');
+			console.error('[UserInfoFlow] Export error:', err);
+		}
+	}, []);
+
+	const handleImportConfig = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (!file) return;
+		const reader = new FileReader();
+		reader.onload = (ev) => {
+			try {
+				const imported = JSON.parse(ev.target?.result as string);
+				// Strip internal meta key before saving
+				const { _meta: _m, ...configData } = imported;
+				localStorage.setItem('pingone_config', JSON.stringify(configData));
+				window.dispatchEvent(new StorageEvent('storage', { key: 'pingone_config' }));
+				v4ToastManager.showSuccess('Config imported — reloading...');
+				setTimeout(() => window.location.reload(), 800);
+			} catch (err) {
+				v4ToastManager.showError('Invalid config file — must be valid JSON');
+				console.error('[UserInfoFlow] Import error:', err);
+			}
+		};
+		reader.readAsText(file);
+		// Reset input so the same file can be re-imported if needed
+		e.target.value = '';
+	}, []);
 	const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 	const [currentStep, setCurrentStep] = useState(0);
 	const [userInfo, setUserInfo] = useState<OIDCUserInfo | null>(null);
@@ -890,6 +938,69 @@ console.log('Welcome, ' + user.name + '!');`,
 					console.log('UserInfo flow credentials updated:', credentials);
 				}}
 			/>
+
+			{/* Config import/export */}
+			<div
+				style={{
+					display: 'flex',
+					gap: '0.75rem',
+					alignItems: 'center',
+					padding: '0.75rem 1rem',
+					background: '#f9fafb',
+					border: '1px solid #e5e7eb',
+					borderRadius: '0.5rem',
+					marginBottom: '1rem',
+				}}
+			>
+				<span style={{ fontSize: '0.8rem', color: '#6b7280', marginRight: 'auto' }}>Config</span>
+				<button
+					type="button"
+					onClick={handleExportConfig}
+					style={{
+						display: 'flex',
+						alignItems: 'center',
+						gap: '0.4rem',
+						padding: '0.4rem 0.9rem',
+						background: '#2563eb',
+						color: 'white',
+						border: 'none',
+						borderRadius: '0.375rem',
+						fontSize: '0.8rem',
+						fontWeight: 600,
+						cursor: 'pointer',
+					}}
+				>
+					<FiDownload size={13} />
+					Export Config
+				</button>
+				<button
+					type="button"
+					onClick={() => importFileRef.current?.click()}
+					style={{
+						display: 'flex',
+						alignItems: 'center',
+						gap: '0.4rem',
+						padding: '0.4rem 0.9rem',
+						background: 'white',
+						color: '#2563eb',
+						border: '1px solid #2563eb',
+						borderRadius: '0.375rem',
+						fontSize: '0.8rem',
+						fontWeight: 600,
+						cursor: 'pointer',
+					}}
+				>
+					<FiUpload size={13} />
+					Import Config
+				</button>
+				<input
+					ref={importFileRef}
+					type="file"
+					accept=".json,application/json"
+					onChange={handleImportConfig}
+					style={{ display: 'none' }}
+				/>
+			</div>
 
 			<FlowOverview>
 				<CardHeader>
