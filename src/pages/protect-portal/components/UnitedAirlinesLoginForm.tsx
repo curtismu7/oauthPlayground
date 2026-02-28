@@ -16,8 +16,9 @@ import {
 	FiEye,
 	FiEyeOff,
 	FiLock as FiLockIcon,
+	FiLockIcon,
 	FiPhone,
-	FiUser,
+	FiUser
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { ButtonSpinner } from '../../../components/ui/ButtonSpinner';

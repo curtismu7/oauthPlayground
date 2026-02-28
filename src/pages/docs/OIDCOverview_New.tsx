@@ -6,6 +6,7 @@ import {
 	FiCode,
 	FiSearch,
 	FiShield,
+	FiTrendingUp
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { Card, CardBody } from '../../components/Card';

@@ -6,13 +6,14 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import {
 	FiAlertCircle,
+	FiBarChart,
 	FiBarChart2,
 	FiCalendar,
 	FiClock,
 	FiDatabase,
 	FiInfo,
 	FiRefreshCw,
-	FiShield,
+	FiShield
 } from 'react-icons/fi';
 import JSONHighlighter, { type JSONData } from '../components/JSONHighlighter';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';

@@ -5,11 +5,14 @@ import {
 	FiArrowLeft,
 	FiArrowRight,
 	FiCheckCircle,
+	FiMaximize,
 	FiMaximize2,
+	FiMinimize,
 	FiMinimize2,
 	FiMove,
 	FiSkipBack,
-	FiTrash2,
+	FiTrash,
+	FiTrash2
 } from 'react-icons/fi';
 import styled from 'styled-components';
 
