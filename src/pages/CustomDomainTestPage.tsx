@@ -20,7 +20,8 @@ interface ApiTestSpec {
 	method: string;
 	path: string;
 	description: string;
-	requiresParams?: string[]; // e.g., ['userId'], ['orgId'], ['envId']
+	requiresParams?: string[]; // path params e.g., ['userId']
+	queryParams?: string[]; // query string params e.g., ['environmentId', 'accessToken']
 }
 
 const API_TESTS: ApiTestSpec[] = [
@@ -33,6 +34,15 @@ const API_TESTS: ApiTestSpec[] = [
 		path: '/api/pingone/user/{userId}',
 		description: 'Get user by user ID (PingOne API)',
 		requiresParams: ['userId'],
+		queryParams: ['environmentId', 'accessToken'],
+	},
+	{
+		method: 'GET',
+		path: '/api/pingone/user/by-username/{username}',
+		description:
+			'Get user ID by username — returns id, username, email (use result in other calls)',
+		requiresParams: ['username'],
+		queryParams: ['environmentId', 'accessToken'],
 	},
 	{ method: 'GET', path: '/api/pingone/api-calls', description: 'Recent PingOne API call log' },
 	{
@@ -60,6 +70,9 @@ export default function CustomDomainTestPage() {
 	// State for API parameters — keyed by param name, shared across cards
 	const [apiParams, setApiParams] = useState<Record<string, string>>({
 		userId: '',
+		username: '',
+		environmentId: '',
+		accessToken: '',
 	});
 
 	const { showWarning } = useNotifications();
@@ -119,6 +132,15 @@ export default function CustomDomainTestPage() {
 					}
 					finalPath = finalPath.replace(`{${param}}`, encodeURIComponent(value.trim()));
 				}
+			}
+
+			// Append query parameters
+			if (spec.queryParams && spec.queryParams.length > 0) {
+				const qs = spec.queryParams
+					.filter((p) => params[p]?.trim())
+					.map((p) => `${encodeURIComponent(p)}=${encodeURIComponent(params[p].trim())}`)
+					.join('&');
+				if (qs) finalPath = `${finalPath}?${qs}`;
 			}
 
 			const key = `${spec.method} ${spec.path}`;
