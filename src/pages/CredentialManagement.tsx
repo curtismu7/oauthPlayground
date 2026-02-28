@@ -565,14 +565,40 @@ export const CredentialManagement: React.FC = () => {
 			<div style={styles.tabBar}>
 				<button
 					type="button"
-					style={{ background: 'none', border: 'none', borderBottom: `2px solid ${activeTab === 'credentials' ? '#2563eb' : 'transparent'}`, color: activeTab === 'credentials' ? '#2563eb' : '#6b7280', fontSize: '0.95rem', fontWeight: activeTab === 'credentials' ? 700 : 500, padding: '0.75rem 1.5rem', cursor: 'pointer', marginBottom: '-2px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+					style={{
+						background: 'none',
+						border: 'none',
+						borderBottom: `2px solid ${activeTab === 'credentials' ? '#2563eb' : 'transparent'}`,
+						color: activeTab === 'credentials' ? '#2563eb' : '#6b7280',
+						fontSize: '0.95rem',
+						fontWeight: activeTab === 'credentials' ? 700 : 500,
+						padding: '0.75rem 1.5rem',
+						cursor: 'pointer',
+						marginBottom: '-2px',
+						display: 'flex',
+						alignItems: 'center',
+						gap: '0.5rem',
+					}}
 					onClick={() => setActiveTab('credentials')}
 				>
 					<FiDatabase size={15} /> Flow Credentials
 				</button>
 				<button
 					type="button"
-					style={{ background: 'none', border: 'none', borderBottom: `2px solid ${activeTab === 'tester' ? '#2563eb' : 'transparent'}`, color: activeTab === 'tester' ? '#2563eb' : '#6b7280', fontSize: '0.95rem', fontWeight: activeTab === 'tester' ? 700 : 500, padding: '0.75rem 1.5rem', cursor: 'pointer', marginBottom: '-2px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+					style={{
+						background: 'none',
+						border: 'none',
+						borderBottom: `2px solid ${activeTab === 'tester' ? '#2563eb' : 'transparent'}`,
+						color: activeTab === 'tester' ? '#2563eb' : '#6b7280',
+						fontSize: '0.95rem',
+						fontWeight: activeTab === 'tester' ? 700 : 500,
+						padding: '0.75rem 1.5rem',
+						cursor: 'pointer',
+						marginBottom: '-2px',
+						display: 'flex',
+						alignItems: 'center',
+						gap: '0.5rem',
+					}}
 					onClick={() => setActiveTab('tester')}
 				>
 					<FiShield size={15} /> Token Tester
@@ -854,7 +880,16 @@ export const CredentialManagement: React.FC = () => {
 
 							<button
 								type="button"
-								style={{ ...styles.actionButton, width: '100%', justifyContent: 'center', padding: '0.75rem', background: testerIsTesting || testerIsExpired ? '#9ca3af' : '#2563eb', fontSize: '0.95rem', cursor: testerIsTesting || testerIsExpired ? 'not-allowed' : 'pointer', marginTop: 0 }}
+								style={{
+									...styles.actionButton,
+									width: '100%',
+									justifyContent: 'center',
+									padding: '0.75rem',
+									background: testerIsTesting || testerIsExpired ? '#9ca3af' : '#2563eb',
+									fontSize: '0.95rem',
+									cursor: testerIsTesting || testerIsExpired ? 'not-allowed' : 'pointer',
+									marginTop: 0,
+								}}
 								onClick={runTesterTests}
 								disabled={testerIsTesting || testerIsExpired}
 							>
@@ -958,10 +993,19 @@ export const CredentialManagement: React.FC = () => {
 						<label style={styles.importLabel}>
 							<FiUpload />
 							Import Credentials
-							<input type="file" accept=".json" style={styles.hiddenFileInput} onChange={handleImportCredentials} />
+							<input
+								type="file"
+								accept=".json"
+								style={styles.hiddenFileInput}
+								onChange={handleImportCredentials}
+							/>
 						</label>
 
-						<button type="button" style={styles.clearButton} onClick={() => setShowClearAllModal(true)}>
+						<button
+							type="button"
+							style={styles.clearButton}
+							onClick={() => setShowClearAllModal(true)}
+						>
 							<FiTrash2 />
 							Clear All Credentials
 						</button>
@@ -974,61 +1018,96 @@ export const CredentialManagement: React.FC = () => {
 					) : (
 						<div style={styles.flowGrid}>
 							{flows.map((flow) => (
-							<div
-								key={flow.flowKey}
-								style={{ borderRadius: '8px', padding: '1.5rem', cursor: 'pointer', ...(flow.hasCredentials ? { background: '#f0fdf4', border: '2px solid #86efac' } : { background: '#f9fafb', border: '2px solid #e5e7eb' }) }}
-								onClick={() => handleNavigateToFlow(flow.flowKey)}
-							>
-								<h3 style={styles.flowName}>
-									{flow.hasCredentials ? (
-										<FiCheckCircle color="#16a34a" />
-									) : (
-										<FiAlertCircle color="#9ca3af" />
-									)}
-									{flow.flowName}
-								</h3>
-
-								<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: flow.hasCredentials ? '#16a34a' : '#9ca3af', marginBottom: '0.75rem' }}>
-									{flow.hasCredentials ? 'Credentials Saved' : 'No Credentials'}
-								</div>
-
-								{flow.hasCredentials && (
-									<div style={styles.flowMeta}>
-										{flow.environmentId && (
-											<div style={styles.metaRow}>
-												<strong>Environment:</strong> {flow.environmentId.substring(0, 8)}...
-											</div>
-										)}
-										{flow.clientId && (
-											<div style={styles.metaRow}>
-												<strong>Client ID:</strong> {flow.clientId.substring(0, 12)}...
-											</div>
-										)}
-										{flow.source && (
-											<div style={styles.metaRow}>
-												<span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', padding: '0.25rem 0.5rem', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 500, ...(flow.source === 'file' ? { background: '#dbeafe', color: '#1e40af' } : flow.source === 'browser' ? { background: '#fef3c7', color: '#92400e' } : { background: '#e0e7ff', color: '#4338ca' }) }}>
-													{flow.source === 'browser' && <FiHardDrive size={12} />}
-													{flow.source === 'file' && <FiDatabase size={12} />}
-													{flow.source.toUpperCase()}
-												</span>
-											</div>
-										)}
-									</div>
-								)}
-
 								<button
 									type="button"
-									style={styles.actionButton}
-									onClick={(e) => {
-										e.stopPropagation();
-										handleNavigateToFlow(flow.flowKey);
+									key={flow.flowKey}
+									style={{
+										borderRadius: '8px',
+										padding: '1.5rem',
+										cursor: 'pointer',
+										border: 'none',
+										textAlign: 'left',
+										width: '100%',
+										...(flow.hasCredentials
+											? { background: '#f0fdf4', outline: '2px solid #86efac' }
+											: { background: '#f9fafb', outline: '2px solid #e5e7eb' }),
 									}}
+									onClick={() => handleNavigateToFlow(flow.flowKey)}
 								>
-									<FiExternalLink />
-									Open Flow
+									<h3 style={styles.flowName}>
+										{flow.hasCredentials ? (
+											<FiCheckCircle color="#16a34a" />
+										) : (
+											<FiAlertCircle color="#9ca3af" />
+										)}
+										{flow.flowName}
+									</h3>
+
+									<div
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '0.5rem',
+											fontSize: '0.875rem',
+											color: flow.hasCredentials ? '#16a34a' : '#9ca3af',
+											marginBottom: '0.75rem',
+										}}
+									>
+										{flow.hasCredentials ? 'Credentials Saved' : 'No Credentials'}
+									</div>
+
+									{flow.hasCredentials && (
+										<div style={styles.flowMeta}>
+											{flow.environmentId && (
+												<div style={styles.metaRow}>
+													<strong>Environment:</strong> {flow.environmentId.substring(0, 8)}...
+												</div>
+											)}
+											{flow.clientId && (
+												<div style={styles.metaRow}>
+													<strong>Client ID:</strong> {flow.clientId.substring(0, 12)}...
+												</div>
+											)}
+											{flow.source && (
+												<div style={styles.metaRow}>
+													<span
+														style={{
+															display: 'inline-flex',
+															alignItems: 'center',
+															gap: '0.25rem',
+															padding: '0.25rem 0.5rem',
+															borderRadius: '4px',
+															fontSize: '0.75rem',
+															fontWeight: 500,
+															...(flow.source === 'file'
+																? { background: '#dbeafe', color: '#1e40af' }
+																: flow.source === 'browser'
+																	? { background: '#fef3c7', color: '#92400e' }
+																	: { background: '#e0e7ff', color: '#4338ca' }),
+														}}
+													>
+														{flow.source === 'browser' && <FiHardDrive size={12} />}
+														{flow.source === 'file' && <FiDatabase size={12} />}
+														{flow.source.toUpperCase()}
+													</span>
+												</div>
+											)}
+										</div>
+									)}
+
+									<button
+										type="button"
+										style={styles.actionButton}
+										onClick={(e) => {
+											e.stopPropagation();
+											handleNavigateToFlow(flow.flowKey);
+										}}
+									>
+										<FiExternalLink />
+										Open Flow
+									</button>
 								</button>
-							</div>
-						))}
+							))}
 						</div>
 					)}
 				</div>
