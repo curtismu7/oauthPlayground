@@ -18,8 +18,9 @@ import {
 	FiRefreshCw,
 	FiServer,
 	FiTag,
+	FiTrash,
 	FiTrash2,
-	FiX,
+	FiX
 } from 'react-icons/fi';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ApiCallList from '../components/ApiCallList';

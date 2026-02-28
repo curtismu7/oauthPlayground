@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
-import { FiCheck, FiCode, FiSettings, FiSun, FiX } from 'react-icons/fi';
+import {
+	FiCheck,
+	FiCode,
+	FiEye,
+	FiSettings,
+	FiSun,
+	FiX
+} from 'react-icons/fi';
 import styled from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';
 

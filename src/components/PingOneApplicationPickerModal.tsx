@@ -1,5 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { FiBookOpen, FiCheck, FiInfo, FiKey, FiLink2, FiRefreshCw, FiSearch } from 'react-icons/fi';
+import {
+	FiBookOpen,
+	FiCheck,
+	FiInfo,
+	FiKey,
+	FiLink,
+	FiLink2,
+	FiRefreshCw,
+	FiSearch
+} from 'react-icons/fi';
 import styled from 'styled-components';
 import { fetchApplications, type PingOneApplication } from '../services/pingOneApplicationService';
 import { v4ToastManager } from '../utils/v4ToastMessages';

@@ -6,13 +6,15 @@ import {
 	FiBook,
 	FiCode,
 	FiDownload,
+	FiEdit,
 	FiEdit2,
 	FiInfo,
 	FiPlus,
 	FiRefreshCw,
 	FiShield,
+	FiTrash,
 	FiTrash2,
-	FiUpload,
+	FiUpload
 } from 'react-icons/fi';
 import ApiCallList from '../components/ApiCallList';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';

@@ -13,7 +13,16 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiAlertTriangle, FiEdit2, FiPlus, FiTrash2, FiUser, FiX } from 'react-icons/fi';
+import {
+	FiAlertTriangle,
+	FiEdit,
+	FiEdit2,
+	FiPlus,
+	FiTrash,
+	FiTrash2,
+	FiUser,
+	FiX
+} from 'react-icons/fi';
 import styled from 'styled-components';
 import { PageApiInfo } from '../components/common/PageApiInfo';
 import { UserSearchDropdown } from '../components/UserSearchDropdown';

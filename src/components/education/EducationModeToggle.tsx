@@ -10,7 +10,13 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiBook, FiChevronDown, FiEyeOff, FiMinimize2 } from 'react-icons/fi';
+import {
+	FiBook,
+	FiChevronDown,
+	FiEyeOff,
+	FiMinimize,
+	FiMinimize2
+} from 'react-icons/fi';
 import styled from 'styled-components';
 import {
 	type EducationMode,
