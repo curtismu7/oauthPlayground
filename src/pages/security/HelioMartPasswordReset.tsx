@@ -2,7 +2,7 @@
 // HelioMart Password Reset Demo - Real-world password management interface
 
 import Prism from 'prismjs';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiBook,
@@ -11,6 +11,7 @@ import {
 	FiChevronUp,
 	FiCode,
 	FiCopy,
+	FiDownload,
 	FiExternalLink,
 	FiEye,
 	FiEyeOff,
@@ -20,6 +21,7 @@ import {
 	FiMail,
 	FiRefreshCw,
 	FiSearch,
+	FiUpload,
 	FiX,
 } from 'react-icons/fi';
 import styled from 'styled-components';
@@ -548,6 +550,7 @@ const HelioMartPasswordReset: React.FC = () => {
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [showAuthzConfigModal, setShowAuthzConfigModal] = useState(false);
 	const [showSetupModal, setShowSetupModal] = useState(false);
+	const importConfigRef = useRef<HTMLInputElement>(null);
 
 	// Login state
 	const [loginUsername, setLoginUsername] = useState('');
@@ -725,17 +728,56 @@ const HelioMartPasswordReset: React.FC = () => {
 						? savedAuthz.scopes.join(' ')
 						: savedAuthz.scopes || 'openid profile email',
 				});
-			} else {
-				// No authorization code credentials found - show setup modal
-				console.log(
-					'⚠️ [HelioMartPasswordReset] No authorization code credentials found, showing setup modal...'
-				);
-				setTimeout(() => setShowSetupModal(true), 200);
 			}
+			// No credentials saved — user can click the Configure button to set them up
 		};
 
 		loadConfig();
 	}, [setEnvironmentId]);
+
+	// Export authz config as JSON file
+	const handleExportConfig = useCallback(() => {
+		const payload = {
+			flowType: 'heliomart-password-reset',
+			exportedAt: new Date().toISOString(),
+			credentials: authzCredentials,
+		};
+		const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = `heliomart-auth-config-${new Date().toISOString().slice(0, 10)}.json`;
+		a.click();
+		URL.revokeObjectURL(url);
+	}, [authzCredentials]);
+
+	// Import authz config from JSON file
+	const handleImportConfig = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (!file) return;
+		const reader = new FileReader();
+		reader.onload = (ev) => {
+			try {
+				const parsed = JSON.parse(ev.target?.result as string);
+				const creds = parsed.credentials ?? parsed;
+				setAuthzCredentials({
+					environmentId: creds.environmentId || '',
+					clientId: creds.clientId || '',
+					clientSecret: creds.clientSecret || '',
+					redirectUri: creds.redirectUri || 'https://localhost:3000/callback',
+					scopes: Array.isArray(creds.scopes)
+						? creds.scopes.join(' ')
+						: creds.scopes || 'openid profile email',
+				});
+				v4ToastManager.showSuccess('Config imported successfully');
+			} catch {
+				v4ToastManager.showError('Invalid config file — must be JSON');
+			}
+		};
+		reader.readAsText(file);
+		// Reset so the same file can be re-imported
+		e.target.value = '';
+	}, []);
 
 	// Handle login with PingOne
 	const handleLogin = useCallback(async () => {
@@ -2119,6 +2161,31 @@ export { changePassword, handleChangePassword };`;
 							<FiKey />
 							Configure Auth Code Client
 						</Button>
+
+						{/* Export / Import Config */}
+						<Button
+							$variant="secondary"
+							onClick={handleExportConfig}
+							title="Export auth config as JSON"
+						>
+							<FiDownload />
+							Export Config
+						</Button>
+						<Button
+							$variant="secondary"
+							onClick={() => importConfigRef.current?.click()}
+							title="Import auth config from JSON file"
+						>
+							<FiUpload />
+							Import Config
+						</Button>
+						<input
+							ref={importConfigRef}
+							type="file"
+							accept=".json,application/json"
+							style={{ display: 'none' }}
+							onChange={handleImportConfig}
+						/>
 					</div>
 				</StatusBar>
 
