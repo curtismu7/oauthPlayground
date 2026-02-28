@@ -10,6 +10,7 @@ import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import { usePageScroll } from '@/hooks/usePageScroll';
 import { PasskeyManagementUtility } from '@/utils/PasskeyManagementUtility';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { UserSearchDropdownV8 } from '@/v8/components/UserSearchDropdownV8';
 import { readBestEnvironmentId } from '../hooks/useAutoEnvironmentId';
 
 export const PasskeyManager: React.FC = () => {
@@ -118,32 +119,26 @@ export const PasskeyManager: React.FC = () => {
 						/>
 					</div>
 
-					<div>
+					<div style={{ marginBottom: '1.5rem' }}>
 						<label
 							htmlFor="passkey-user-id"
 							style={{
 								display: 'block',
 								marginBottom: '0.5rem',
-								fontSize: '0.875rem',
-								fontWeight: '500',
+								fontWeight: '600',
 								color: '#374151',
 							}}
 						>
 							User ID *
 						</label>
-						<input
-							id="passkey-user-id"
-							type="text"
+						<UserSearchDropdownV8
+							environmentId={environmentId}
 							value={userId}
-							onChange={(e) => setUserId(e.target.value)}
-							placeholder="Enter the User ID to manage passkeys for"
-							style={{
-								width: '100%',
-								padding: '0.75rem',
-								border: '1px solid #d1d5db',
-								borderRadius: '6px',
-								fontSize: '0.95rem',
-							}}
+							onChange={(value) => setUserId(value)}
+							placeholder="Search for a user by ID, username, or email..."
+							disabled={!environmentId.trim() || !workerToken.trim()}
+							id="passkey-user-id"
+							autoLoad={true}
 						/>
 					</div>
 
