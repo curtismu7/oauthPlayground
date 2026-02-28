@@ -4,7 +4,6 @@
 import React, { useMemo } from 'react';
 import { FiAlertTriangle, FiInfo, FiLock, FiShield, FiUser } from 'react-icons/fi';
 import CollapsibleSection from '../../components/CollapsibleSection';
-import EnhancedStepFlowV2 from '../../components/EnhancedStepFlowV2';
 import { FlowConfiguration } from '../../components/FlowConfiguration';
 import createV7RMOIDCResourceOwnerPasswordEnhancedSteps from '../../components/flow/createV7RMOIDCResourceOwnerPasswordEnhancedSteps';
 import FlowTemplate from '../../components/flow/FlowTemplate';

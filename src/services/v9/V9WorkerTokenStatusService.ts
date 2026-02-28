@@ -4,7 +4,7 @@
  * @description Worker token status checking and formatting for V9
  * @version 9.0.0
  * @since 2026-02-28
- * 
+ *
  * Migrated from workerTokenStatusServiceV8.ts with enhanced V9 features:
  * - Uses unifiedWorkerTokenService for consistent storage
  * - Improved error handling and logging
@@ -61,7 +61,7 @@ export const V9checkWorkerTokenStatus = async (): Promise<V9TokenStatusInfo> => 
 	try {
 		// Use unified service for consistent data access
 		const tokenData = unifiedWorkerTokenService.getTokenDataSync();
-		
+
 		if (!tokenData) {
 			return {
 				status: 'missing',
@@ -144,7 +144,7 @@ export const V9checkWorkerTokenStatusSync = (): V9TokenStatusInfo => {
 	try {
 		// Use unified service sync method
 		const tokenData = unifiedWorkerTokenService.getTokenDataSync();
-		
+
 		if (!tokenData) {
 			return {
 				status: 'missing',
@@ -250,10 +250,15 @@ export const V9getStatusIcon = (status: V9TokenStatus): string => {
  */
 export const V9getStatusBadgeStyle = (status: V9TokenStatus) => {
 	const color = V9getStatusColor(status);
-	const backgroundColor = status === 'valid' ? '#dcfce7' : 
-						  status === 'expiring-soon' ? '#fef3c7' :
-						  status === 'expired' ? '#fef3c7' : '#fef2f2';
-	
+	const backgroundColor =
+		status === 'valid'
+			? '#dcfce7'
+			: status === 'expiring-soon'
+				? '#fef3c7'
+				: status === 'expired'
+					? '#fef3c7'
+					: '#fef2f2';
+
 	return {
 		backgroundColor,
 		color,
@@ -309,9 +314,10 @@ export const V9getExpirationWarning = async (
 			minutesRemaining,
 			message: `Worker token expires in ${V9formatTimeRemaining(status.expiresAt)}.`,
 			severity: 'warning',
-			actions: minutesRemaining <= 0 ? 
-				['Generate new worker token immediately'] : 
-				['Generate new worker token soon', 'Save current work'],
+			actions:
+				minutesRemaining <= 0
+					? ['Generate new worker token immediately']
+					: ['Generate new worker token soon', 'Save current work'],
 		};
 	}
 
@@ -327,7 +333,9 @@ export const V9getExpirationWarning = async (
  * Validate worker token format and structure
  * Enhanced validation for V9
  */
-export const V9validateWorkerToken = (token: string): {
+export const V9validateWorkerToken = (
+	token: string
+): {
 	isValid: boolean;
 	errors: string[];
 	warnings: string[];

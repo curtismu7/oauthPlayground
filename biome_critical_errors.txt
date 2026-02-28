@@ -1,4 +1,11 @@
-    2107 │ 			console.warn('❌ Failed to persist menu layout:', error);
+    2072 │ 			console.warn('❌ Failed to persist menu layout:', error);
+     96 │ 				throw new Error(result.error || 'Registration failed');
+   > 98 │ 		} catch (error: any) {
+     99 │ 			console.error('❌ [FIDO2 Registration] Registration failed:', error);
+    100 │ 			setError(error.message || 'Registration failed');
+src/v8u/services/unifiedFlowErrorHandlerV8U.ts:63:8 lint/complexity/noStaticOnlyClass ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     61 │  * error parsing and user-friendly error messages.
+   > 63 │ export class UnifiedFlowErrorHandler {
      62 │  * performance tracking, and error monitoring.
-Found 2656 errors.
+Found 2660 errors.
   × Some errors were emitted while running checks.

@@ -1,6 +1,6 @@
 import React from 'react';
-import styled from 'styled-components';
 import { Link } from 'react-router-dom';
+import styled from 'styled-components';
 
 const FloatingPromptsButton = styled(Link)`
   position: fixed;
@@ -42,15 +42,15 @@ const FloatingPromptsButton = styled(Link)`
 `;
 
 const FloatingPrompts: React.FC = () => {
-  return (
-    <FloatingPromptsButton 
-      to="/docs/prompts/prompt-all"
-      title="🚀 AI Development Prompts - Quick Access"
-      aria-label="AI Development Prompts"
-    >
-      🚀
-    </FloatingPromptsButton>
-  );
+	return (
+		<FloatingPromptsButton
+			to="/docs/prompts/prompt-all"
+			title="🚀 AI Development Prompts - Quick Access"
+			aria-label="AI Development Prompts"
+		>
+			🚀
+		</FloatingPromptsButton>
+	);
 };
 
 export default FloatingPrompts;
