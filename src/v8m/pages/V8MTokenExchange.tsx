@@ -11,6 +11,7 @@ import {
 	FiCode,
 	FiCopy,
 	FiCpu,
+	FiDollarSign,
 	FiExternalLink,
 	FiGlobe,
 	FiInfo,
