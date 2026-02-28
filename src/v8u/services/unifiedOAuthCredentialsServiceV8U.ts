@@ -105,13 +105,9 @@ export class UnifiedOAuthCredentialsServiceV8U {
 			localStorage.setItem(storageKey, JSON.stringify(credentialsWithTimestamps));
 
 			// Save to IndexedDB (persistent)
-			if (typeof window !== 'undefined' && (window as any).IndexedDBBackupServiceV8U) {
+			if (typeof window !== 'undefined' && window.IndexedDBBackupServiceV8U) {
 				try {
-					await (window as any).IndexedDBBackupServiceV8U.save(
-						storageKey,
-						credentialsWithTimestamps,
-						'credentials'
-					);
+					await window.IndexedDBBackupServiceV8U.save(storageKey, credentialsWithTimestamps);
 				} catch (error) {
 					logger.warn(`${_MODULE_TAG} IndexedDB save failed`, { flowKey, error });
 				}
@@ -127,7 +123,7 @@ export class UnifiedOAuthCredentialsServiceV8U {
 					environmentId: options.environmentId,
 					flowKey,
 					timestamp: now,
-					expiresAt: options.backupExpiry ? now + options.backupExpiry : undefined,
+					...(options.backupExpiry && { expiresAt: now + options.backupExpiry }),
 				};
 
 				const backupOptions: BackupOptions = {
@@ -183,11 +179,10 @@ export class UnifiedOAuthCredentialsServiceV8U {
 			}
 
 			// Try IndexedDB (persistent)
-			if (typeof window !== 'undefined' && (window as any).IndexedDBBackupServiceV8U) {
+			if (typeof window !== 'undefined' && window.IndexedDBBackupServiceV8U) {
 				try {
-					const indexedData = await (
-						window as any
-					).IndexedDBBackupServiceV8U.load<UnifiedOAuthCredentials>(storageKey);
+					const indexedData =
+						await window.IndexedDBBackupServiceV8U.load<UnifiedOAuthCredentials>(storageKey);
 					if (indexedData) {
 						// Cache to localStorage for next time
 						localStorage.setItem(storageKey, JSON.stringify(indexedData));
@@ -210,13 +205,9 @@ export class UnifiedOAuthCredentialsServiceV8U {
 					// Restore to localStorage and IndexedDB
 					localStorage.setItem(storageKey, JSON.stringify(backupData.credentials));
 
-					if (typeof window !== 'undefined' && (window as any).IndexedDBBackupServiceV8U) {
+					if (typeof window !== 'undefined' && window.IndexedDBBackupServiceV8U) {
 						try {
-							await (window as any).IndexedDBBackupServiceV8U.save(
-								storageKey,
-								backupData.credentials,
-								'credentials'
-							);
+							await window.IndexedDBBackupServiceV8U.save(storageKey, backupData.credentials);
 						} catch (error) {
 							logger.warn(`${_MODULE_TAG} IndexedDB restore failed`, { flowKey, error });
 						}
@@ -263,13 +254,9 @@ export class UnifiedOAuthCredentialsServiceV8U {
 			localStorage.setItem(storageKey, JSON.stringify(credentialsWithTimestamps));
 
 			// Save to IndexedDB
-			if (typeof window !== 'undefined' && (window as any).IndexedDBBackupServiceV8U) {
+			if (typeof window !== 'undefined' && window.IndexedDBBackupServiceV8U) {
 				try {
-					await (window as any).IndexedDBBackupServiceV8U.save(
-						storageKey,
-						credentialsWithTimestamps,
-						'shared-credentials'
-					);
+					await window.IndexedDBBackupServiceV8U.save(storageKey, credentialsWithTimestamps);
 				} catch (error) {
 					logger.warn(`${_MODULE_TAG} Shared IndexedDB save failed`, { error });
 				}
@@ -279,13 +266,13 @@ export class UnifiedOAuthCredentialsServiceV8U {
 			if (options?.enableBackup && options.environmentId) {
 				const backupData: OAuthBackupData = {
 					flowType: 'shared',
-					specVersion: 'shared',
+					specVersion: 'oauth2.0',
 					credentials: {},
 					sharedCredentials: credentialsWithTimestamps,
 					environmentId: options.environmentId,
 					flowKey: storageKey,
 					timestamp: now,
-					expiresAt: options.backupExpiry ? now + options.backupExpiry : undefined,
+					...(options.backupExpiry && { expiresAt: now + options.backupExpiry }),
 				};
 
 				const backupOptions: BackupOptions = {
@@ -336,11 +323,10 @@ export class UnifiedOAuthCredentialsServiceV8U {
 			}
 
 			// Try IndexedDB
-			if (typeof window !== 'undefined' && (window as any).IndexedDBBackupServiceV8U) {
+			if (typeof window !== 'undefined' && window.IndexedDBBackupServiceV8U) {
 				try {
-					const indexedData = await (
-						window as any
-					).IndexedDBBackupServiceV8U.load<SharedOAuthCredentials>(storageKey);
+					const indexedData =
+						await window.IndexedDBBackupServiceV8U.load<SharedOAuthCredentials>(storageKey);
 					if (indexedData) {
 						// Cache to localStorage
 						localStorage.setItem(storageKey, JSON.stringify(indexedData));
@@ -363,13 +349,9 @@ export class UnifiedOAuthCredentialsServiceV8U {
 					// Restore to localStorage and IndexedDB
 					localStorage.setItem(storageKey, JSON.stringify(backupData.sharedCredentials));
 
-					if (typeof window !== 'undefined' && (window as any).IndexedDBBackupServiceV8U) {
+					if (typeof window !== 'undefined' && window.IndexedDBBackupServiceV8U) {
 						try {
-							await (window as any).IndexedDBBackupServiceV8U.save(
-								storageKey,
-								backupData.sharedCredentials,
-								'shared-credentials'
-							);
+							await window.IndexedDBBackupServiceV8U.save(storageKey, backupData.sharedCredentials);
 						} catch (error) {
 							logger.warn(`${_MODULE_TAG} Shared IndexedDB restore failed`, { error });
 						}
@@ -407,9 +389,9 @@ export class UnifiedOAuthCredentialsServiceV8U {
 			localStorage.removeItem(storageKey);
 
 			// Delete from IndexedDB
-			if (typeof window !== 'undefined' && (window as any).IndexedDBBackupServiceV8U) {
+			if (typeof window !== 'undefined' && window.IndexedDBBackupServiceV8U) {
 				try {
-					await (window as any).IndexedDBBackupServiceV8U.delete(storageKey);
+					await window.IndexedDBBackupServiceV8U.delete(storageKey);
 				} catch (error) {
 					logger.warn(`${_MODULE_TAG} IndexedDB delete failed`, { flowKey, error });
 				}
@@ -516,5 +498,5 @@ export const UnifiedOAuthCredentialsService = UnifiedOAuthCredentialsServiceV8U;
 
 // Make available globally for debugging
 if (typeof window !== 'undefined') {
-	(window as any).UnifiedOAuthCredentialsServiceV8U = UnifiedOAuthCredentialsServiceV8U;
+	(window as Window).UnifiedOAuthCredentialsServiceV8U = UnifiedOAuthCredentialsServiceV8U;
 }

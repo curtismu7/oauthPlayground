@@ -12,7 +12,7 @@ import {
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { getCallbackUrlForFlow } from '../utils/callbackUrls';
-import { getSharedConfigurationStatusAsync, type ConfigStatus } from '../utils/configurationStatus';
+import { type ConfigStatus, getSharedConfigurationStatusAsync } from '../utils/configurationStatus';
 import { credentialManager } from '../utils/credentialManager';
 
 interface OAuthConfig {

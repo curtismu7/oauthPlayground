@@ -239,20 +239,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 	const maxW = USE_PING_MENU ? SIDEBAR_PING_MAX_WIDTH : 600;
 
 	return (
-		<SidebarContainer 
-			$width={width} 
-			$minWidth={minW} 
-			$maxWidth={maxW} 
+		<SidebarContainer
+			$width={width}
+			$minWidth={minW}
+			$maxWidth={maxW}
 			className={containerClass}
 			style={{
 				userSelect: isResizing ? 'none' : 'auto',
-				transition: isResizing ? 'none' : 'width 0.2s ease'
+				transition: isResizing ? 'none' : 'width 0.2s ease',
 			}}
 		>
-			<ResizeHandle 
-				onMouseDown={handleResizeStart}
-				title="Drag to resize sidebar"
-			/>
+			<ResizeHandle onMouseDown={handleResizeStart} title="Drag to resize sidebar" />
 
 			<SidebarHeader>
 				<div

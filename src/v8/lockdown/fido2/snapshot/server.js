@@ -5612,7 +5612,8 @@ app.post('/api/pingone/resume', async (req, res) =>
 // OIDC Discovery Proxy Endpoint
 // ============================================================================
 // Proxies OIDC well-known configuration requests to avoid CORS issues
-app.post('/api/pingone/oidc-discovery', async (req, res) => {
+app.post('/api/pingone/oidc-discovery', async (req, res) =>
+{
 	try {
 		const { issuerUrl } = req.body;
 
@@ -5674,13 +5675,15 @@ app.post('/api/pingone/oidc-discovery', async (req, res) => {
 			message: error.message || 'Internal server error',
 		});
 	}
-});
+}
+)
 
 // ============================================================================
 // UserInfo Proxy Endpoint
 // ============================================================================
 // Proxies UserInfo requests to avoid CORS issues
-app.post('/api/pingone/userinfo', async (req, res) => {
+app.post('/api/pingone/userinfo', async (req, res) =>
+{
 	try {
 		const { userInfoEndpoint, accessToken } = req.body;
 
@@ -5739,7 +5742,8 @@ app.post('/api/pingone/userinfo', async (req, res) => {
 			message: error.message || 'Internal server error',
 		});
 	}
-});
+}
+)
 
 // PingOne Flow Username/Password Check Endpoint
 // NOTE: This endpoint proxies credentials directly to PingOne's Flow API over HTTPS.
@@ -13478,7 +13482,8 @@ app.post('/api/pingone/mfa/activate-totp-device', async (req, res) =>
 // Content-Type: application/vnd.pingidentity.device.activate+json
 // Body: { "otp": "123456" }
 // Same pattern as TOTP activation
-app.post('/api/pingone/mfa/activate-device', async (req, res) => {
+app.post('/api/pingone/mfa/activate-device', async (req, res) =>
+{
 	try {
 		const { environmentId, userId, deviceId, workerToken, otp, deviceActivateUri } = req.body;
 
@@ -13639,11 +13644,13 @@ app.post('/api/pingone/mfa/activate-device', async (req, res) => {
 			message: error.message,
 		});
 	}
-});
+}
+)
 
 // Lookup User by Username
 // Get Device Details Endpoint
-app.post('/api/pingone/mfa/get-device', async (req, res) => {
+app.post('/api/pingone/mfa/get-device', async (req, res) =>
+{
 	try {
 		const { environmentId, userId, deviceId, workerToken } = req.body;
 
@@ -13710,9 +13717,11 @@ app.post('/api/pingone/mfa/get-device', async (req, res) => {
 			details: error.message,
 		});
 	}
-});
+}
+)
 
-app.post('/api/pingone/mfa/lookup-user', async (req, res) => {
+app.post('/api/pingone/mfa/lookup-user', async (req, res) =>
+{
 	try {
 		const { environmentId, username, workerToken } = req.body;
 
@@ -13791,7 +13800,8 @@ app.post('/api/pingone/mfa/lookup-user', async (req, res) => {
 		console.error('[MFA Lookup User] Error:', error);
 		res.status(500).json({ error: 'Failed to lookup user', message: error.message });
 	}
-});
+}
+)
 
 // List Users with Search and Pagination
 app.post('/api/pingone/mfa/list-users', async (req, res) => {

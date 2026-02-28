@@ -1,6 +1,7 @@
 // src/utils/configurationStatus.ts
-import { credentialManager } from './credentialManager';
+
 import { UnifiedTokenStorageService } from '../services/unifiedTokenStorageService';
+import { credentialManager } from './credentialManager';
 
 /**
  * Centralized configuration status logic
@@ -26,11 +27,11 @@ export const checkSavedCredentialsAsync = async (): Promise<boolean> => {
 		// Check unified storage first (IndexedDB/SQLite)
 		const unifiedStorage = UnifiedTokenStorageService.getInstance();
 		const unifiedCreds = await unifiedStorage.getOAuthCredentials();
-		
+
 		if (unifiedCreds) {
 			const envId = unifiedCreds.environmentId as string | undefined;
 			const clientId = unifiedCreds.clientId as string | undefined;
-			
+
 			if (envId && clientId && envId.trim() !== '' && clientId.trim() !== '') {
 				return true;
 			}
@@ -131,7 +132,9 @@ export const checkSavedCredentials = (): boolean => {
 /**
  * Get shared configuration status (async version - checks unified storage)
  */
-export const getSharedConfigurationStatusAsync = async (flowType?: string): Promise<ConfigStatus> => {
+export const getSharedConfigurationStatusAsync = async (
+	flowType?: string
+): Promise<ConfigStatus> => {
 	const hasSavedCredentials = await checkSavedCredentialsAsync();
 
 	if (hasSavedCredentials) {
