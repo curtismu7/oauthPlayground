@@ -95,6 +95,7 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 		label: 'OAuth 2.0 Flows',
 		items: items([
 			['/flows/oauth-authorization-code-v9', 'Authorization Code (V9)'],
+			['/flows/oauth-authorization-code-v9-condensed', 'Authorization Code Condensed (V9)'],
 			['/flows/implicit-v9', 'Implicit Flow (V9)'],
 			['/flows/device-authorization-v9', 'Device Authorization (V9)'],
 			['/flows/client-credentials-v9', 'Client Credentials (V9)'],
@@ -111,6 +112,7 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 			['/flows/implicit-v9?variant=oidc', 'Implicit Flow (V9)'],
 			['/flows/device-authorization-v9?variant=oidc', 'Device Authorization (V9 – OIDC)'],
 			['/flows/oidc-hybrid-v7', 'Hybrid Flow (V7)'],
+			['/flows/oidc-hybrid-v9', 'Hybrid Flow (V9)'],
 			['/flows/ciba-v9', 'CIBA Flow (V9)'],
 		]),
 	},
@@ -174,7 +176,9 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 				items: items(
 					[
 						['/flows/jwt-bearer-token-v7', 'JWT Bearer Token (V7)'],
+						['/flows/jwt-bearer-token-v9', 'JWT Bearer Token (V9)'],
 						['/flows/saml-bearer-assertion-v7', 'SAML Bearer Assertion (V7)'],
+						['/flows/saml-bearer-assertion-v9', 'SAML Bearer Assertion (V9)'],
 						['/flows/oauth-ropc-v7', 'Resource Owner Password (V7)'],
 						['/flows/oauth2-resource-owner-password', 'OAuth2 ROPC (Legacy)'],
 						['/flows/mock-oidc-ropc', 'Mock OIDC ROPC'],
@@ -191,6 +195,7 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 					[
 						['/flows/dpop', 'DPoP (Educational/Mock)'],
 						['/flows/rar-v7', 'RAR Flow (V7)'],
+						['/flows/rar-v9', 'RAR Flow (V9)'],
 						['/flows/saml-sp-dynamic-acs-v1', 'SAML Service Provider (V1)'],
 					],
 					'advanced-mock'
