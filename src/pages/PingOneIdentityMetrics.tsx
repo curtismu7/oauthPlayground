@@ -260,7 +260,6 @@ const styles = {
 	},
 };
 
-
 interface ActiveIdentityCount {
 	startDate: string;
 	count: number;
@@ -312,7 +311,7 @@ const PingOneIdentityMetrics: React.FC = () => {
 	const resetDates = () => setDateRange(defaultDateRange());
 
 	// Clear the worker token (clears unified worker token)
-	const handleClearWorkerToken = useCallback(() => {
+	const _handleClearWorkerToken = useCallback(() => {
 		// Clear unified worker token
 		localStorage.removeItem('unified_worker_token');
 		v4ToastManager.showSuccess('Worker token cleared successfully.');
@@ -626,8 +625,11 @@ const PingOneIdentityMetrics: React.FC = () => {
 					</h2>
 
 					<div style={styles.fieldGroup}>
-						<label style={styles.label}>Endpoint Type</label>
+						<label htmlFor="metrics-endpoint-type" style={styles.label}>
+							Endpoint Type
+						</label>
 						<select
+							id="metrics-endpoint-type"
 							style={styles.select}
 							value={endpointType}
 							onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
@@ -648,8 +650,11 @@ const PingOneIdentityMetrics: React.FC = () => {
 					{endpointType === 'byDateRange' && (
 						<>
 							<div style={styles.fieldGroup}>
-								<label style={styles.label}>Start date</label>
+								<label htmlFor="metrics-start-date" style={styles.label}>
+									Start date
+								</label>
 								<input
+									id="metrics-start-date"
 									style={styles.input}
 									type="date"
 									value={start}
@@ -657,8 +662,11 @@ const PingOneIdentityMetrics: React.FC = () => {
 								/>
 							</div>
 							<div style={styles.fieldGroup}>
-								<label style={styles.label}>Sampling Period</label>
+								<label htmlFor="metrics-sampling-dr" style={styles.label}>
+									Sampling Period
+								</label>
 								<select
+									id="metrics-sampling-dr"
 									style={styles.select}
 									value={samplingPeriod}
 									onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
@@ -669,7 +677,9 @@ const PingOneIdentityMetrics: React.FC = () => {
 									<option value="24">24 hours (daily)</option>
 									<option value="168">168 hours (weekly)</option>
 								</select>
-								<p style={styles.hint}>Time interval for data points in the time-series response.</p>
+								<p style={styles.hint}>
+									Time interval for data points in the time-series response.
+								</p>
 							</div>
 						</>
 					)}
@@ -677,8 +687,11 @@ const PingOneIdentityMetrics: React.FC = () => {
 					{endpointType === 'byLicense' && (
 						<>
 							<div style={styles.fieldGroup}>
-								<label style={styles.label}>License ID</label>
+								<label htmlFor="metrics-license-id" style={styles.label}>
+									License ID
+								</label>
 								<input
+									id="metrics-license-id"
 									style={styles.input}
 									type="text"
 									value={licenseId}
@@ -688,8 +701,11 @@ const PingOneIdentityMetrics: React.FC = () => {
 								<p style={styles.hint}>License ID to filter identity counts by.</p>
 							</div>
 							<div style={styles.fieldGroup}>
-								<label style={styles.label}>Sampling Period</label>
+								<label htmlFor="metrics-sampling-lic" style={styles.label}>
+									Sampling Period
+								</label>
 								<select
+									id="metrics-sampling-lic"
 									style={styles.select}
 									value={samplingPeriod}
 									onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
@@ -700,15 +716,20 @@ const PingOneIdentityMetrics: React.FC = () => {
 									<option value="24">24 hours (daily)</option>
 									<option value="168">168 hours (weekly)</option>
 								</select>
-								<p style={styles.hint}>Time interval for data points in the time-series response.</p>
+								<p style={styles.hint}>
+									Time interval for data points in the time-series response.
+								</p>
 							</div>
 						</>
 					)}
 
 					{endpointType === 'simple' && (
 						<div style={styles.fieldGroup}>
-							<label style={styles.label}>Limit</label>
+							<label htmlFor="metrics-limit" style={styles.label}>
+								Limit
+							</label>
 							<input
+								id="metrics-limit"
 								style={{ ...styles.input, background: '#f1f5f9', cursor: 'not-allowed' }}
 								type="number"
 								value="100"
@@ -722,7 +743,9 @@ const PingOneIdentityMetrics: React.FC = () => {
 						<button
 							style={{
 								...styles.primaryButton,
-								...(!hasWorkerToken || loading ? { background: '#cbd5f5', cursor: 'not-allowed' } : {}),
+								...(!hasWorkerToken || loading
+									? { background: '#cbd5f5', cursor: 'not-allowed' }
+									: {}),
 							}}
 							type="button"
 							onClick={handleFetch}
@@ -988,8 +1011,14 @@ const PingOneIdentityMetrics: React.FC = () => {
 
 			{/* Permissions Error Modal */}
 			{showPermissionsErrorModal && (
-				<div style={styles.permissionsModalOverlay} onClick={() => setShowPermissionsErrorModal(false)}>
-					<div style={styles.permissionsModalContent} onClick={(e) => e.stopPropagation()}>
+				<div style={styles.permissionsModalOverlay}>
+					<div
+						role="dialog"
+						aria-modal="true"
+						aria-labelledby="metrics-permissions-modal-title"
+						style={styles.permissionsModalContent}
+						onKeyDown={(e) => e.key === 'Escape' && setShowPermissionsErrorModal(false)}
+					>
 						<h2 style={styles.permissionsModalTitle}>
 							<FiAlertCircle size={24} style={{ color: '#dc2626' }} />
 							403 Forbidden - Missing Roles

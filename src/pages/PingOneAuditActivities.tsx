@@ -963,8 +963,11 @@ const PingOneAuditActivities: React.FC = () => {
 					</h2>
 
 					<div style={styles.fieldGroup}>
-						<label style={styles.label}>Environment ID</label>
+						<label htmlFor="audit-env-id" style={styles.label}>
+							Environment ID
+						</label>
 						<input
+							id="audit-env-id"
 							type="text"
 							value={environmentId}
 							onChange={(e) => setEnvironmentId(e.target.value)}
@@ -1021,8 +1024,11 @@ const PingOneAuditActivities: React.FC = () => {
 					</h2>
 
 					<div style={styles.fieldGroup}>
-						<label style={styles.label}>View Mode</label>
+						<label htmlFor="audit-view-mode" style={styles.label}>
+							View Mode
+						</label>
 						<select
+							id="audit-view-mode"
 							style={styles.select}
 							value={viewMode}
 							onChange={(e) => {
@@ -1041,13 +1047,18 @@ const PingOneAuditActivities: React.FC = () => {
 							<option value="list">List Activities (with filters)</option>
 							<option value="single">Get Single Activity by ID</option>
 						</select>
-						<p style={styles.hint}>Choose whether to list multiple activities or retrieve a specific one by ID</p>
+						<p style={styles.hint}>
+							Choose whether to list multiple activities or retrieve a specific one by ID
+						</p>
 					</div>
 
 					{viewMode === 'single' ? (
 						<div style={styles.fieldGroup}>
-							<label style={styles.label}>Activity ID</label>
+							<label htmlFor="audit-activity-id" style={styles.label}>
+								Activity ID
+							</label>
 							<input
+								id="audit-activity-id"
 								type="text"
 								value={singleActivityId}
 								onChange={(e) => setSingleActivityId(e.target.value)}
@@ -1067,8 +1078,15 @@ const PingOneAuditActivities: React.FC = () => {
 					) : (
 						<>
 							<div style={styles.fieldGroup}>
-								<label style={styles.label}>Action Type</label>
-								<select style={styles.select} value={actionType} onChange={(e) => setActionType(e.target.value)}>
+								<label htmlFor="audit-action-type" style={styles.label}>
+									Action Type
+								</label>
+								<select
+									id="audit-action-type"
+									style={styles.select}
+									value={actionType}
+									onChange={(e) => setActionType(e.target.value)}
+								>
 									<option value="">All Actions</option>
 									<optgroup label="User Actions">
 										<option value="USER.CREATED">User Created</option>
@@ -1099,12 +1117,17 @@ const PingOneAuditActivities: React.FC = () => {
 										<option value="ROLE_ASSIGNMENT.DELETED">Role Assignment Deleted</option>
 									</optgroup>
 								</select>
-								<p style={styles.hint}>Filter by specific action type (e.g., USER.CREATED, SESSION.CREATED)</p>
+								<p style={styles.hint}>
+									Filter by specific action type (e.g., USER.CREATED, SESSION.CREATED)
+								</p>
 							</div>
 
 							<div style={styles.fieldGroup}>
-								<label style={styles.label}>Actor Type</label>
+								<label htmlFor="audit-actor-type" style={styles.label}>
+									Actor Type
+								</label>
 								<select
+									id="audit-actor-type"
 									style={styles.select}
 									value={actorType}
 									onChange={(e) => setActorType(e.target.value as 'user' | 'client')}
@@ -1112,12 +1135,17 @@ const PingOneAuditActivities: React.FC = () => {
 									<option value="user">User</option>
 									<option value="client">Client (Application)</option>
 								</select>
-								<p style={styles.hint}>Select whether to filter by user ID or client (application) ID</p>
+								<p style={styles.hint}>
+									Select whether to filter by user ID or client (application) ID
+								</p>
 							</div>
 
 							<div style={styles.fieldGroup}>
-								<label style={styles.label}>{actorType === 'user' ? 'User ID' : 'Client ID'}</label>
+								<label htmlFor="audit-actor-id" style={styles.label}>
+									{actorType === 'user' ? 'User ID' : 'Client ID'}
+								</label>
 								<input
+									id="audit-actor-id"
 									type="text"
 									value={actorId}
 									onChange={(e) => setActorId(e.target.value)}
@@ -1142,8 +1170,11 @@ const PingOneAuditActivities: React.FC = () => {
 							</div>
 
 							<div style={styles.fieldGroup}>
-								<label style={styles.label}>Correlation ID</label>
+								<label htmlFor="audit-correlation-id" style={styles.label}>
+									Correlation ID
+								</label>
 								<input
+									id="audit-correlation-id"
 									type="text"
 									value={correlationId}
 									onChange={(e) => setCorrelationId(e.target.value)}
@@ -1164,8 +1195,15 @@ const PingOneAuditActivities: React.FC = () => {
 							</div>
 
 							<div style={styles.fieldGroup}>
-								<label style={styles.label}>Limit</label>
-								<select style={styles.select} value={limit} onChange={(e) => setLimit(e.target.value)}>
+								<label htmlFor="audit-limit" style={styles.label}>
+									Limit
+								</label>
+								<select
+									id="audit-limit"
+									style={styles.select}
+									value={limit}
+									onChange={(e) => setLimit(e.target.value)}
+								>
 									<option value="10">10 activities</option>
 									<option value="25">25 activities</option>
 									<option value="50">50 activities</option>
@@ -1173,13 +1211,22 @@ const PingOneAuditActivities: React.FC = () => {
 									<option value="500">500 activities</option>
 									<option value="1000">1000 activities</option>
 								</select>
-								<p style={styles.hint}>Maximum number of activities to retrieve (ordered by newest first)</p>
+								<p style={styles.hint}>
+									Maximum number of activities to retrieve (ordered by newest first)
+								</p>
 							</div>
 							<div style={styles.fieldGroup}>
-								<label style={{ ...styles.label, color: '#6b7280', fontSize: '0.75rem', fontWeight: 'normal' }}>
+								<p
+									style={{
+										...styles.label,
+										color: '#6b7280',
+										fontSize: '0.75rem',
+										fontWeight: 'normal',
+									}}
+								>
 									Note: Time-based filtering is not supported by the PingOne Audit API. Results are
 									ordered by newest first.
-								</label>
+								</p>
 							</div>
 						</>
 					)}
@@ -1392,7 +1439,9 @@ const PingOneAuditActivities: React.FC = () => {
 								)}
 
 								{activities.length > 0 && (
-									<div style={{ ...styles.card, border: '1px solid #e2e8f0', background: '#ffffff' }}>
+									<div
+										style={{ ...styles.card, border: '1px solid #e2e8f0', background: '#ffffff' }}
+									>
 										<h2 style={styles.sectionTitle}>
 											<FiActivity /> Activity Details{' '}
 											{totalCount > activities.length
@@ -1410,9 +1459,16 @@ const PingOneAuditActivities: React.FC = () => {
 											}}
 										>
 											{activities.map((activity) => (
-												<div
+												<button
+													type="button"
 													key={activity.id}
-													style={styles.activityCard(true)}
+													style={{
+														...styles.activityCard(true),
+														border: 'none',
+														cursor: 'pointer',
+														textAlign: 'left',
+														width: '100%',
+													}}
 													onClick={() => handleActivityClick(activity)}
 												>
 													<div style={styles.activityRow}>
@@ -1503,7 +1559,7 @@ const PingOneAuditActivities: React.FC = () => {
 															</div>
 														</div>
 													</div>
-												</div>
+												</button>
 											))}
 										</div>
 									</div>
@@ -1530,8 +1586,14 @@ const PingOneAuditActivities: React.FC = () => {
 				</div>
 			</div>
 			{/* Activity Detail Modal */}
-			<div style={styles.detailModalOverlay(!!selectedActivity)} onClick={handleCloseDetailModal}>
-				<div style={styles.detailModalContent} onClick={(e) => e.stopPropagation()}>
+			<div style={styles.detailModalOverlay(!!selectedActivity)}>
+				<div
+					role="dialog"
+					aria-modal="true"
+					aria-label="Activity Details"
+					style={styles.detailModalContent}
+					onKeyDown={(e) => e.key === 'Escape' && handleCloseDetailModal()}
+				>
 					{selectedActivity && (
 						<>
 							<div style={styles.detailModalHeader}>
@@ -1561,7 +1623,9 @@ const PingOneAuditActivities: React.FC = () => {
 											</>
 										)}
 										<div style={styles.detailLabel}>Created At</div>
-										<div style={styles.detailValue}>{formatTimestamp(selectedActivity.createdAt)}</div>
+										<div style={styles.detailValue}>
+											{formatTimestamp(selectedActivity.createdAt)}
+										</div>
 									</div>
 								</div>
 
@@ -1852,7 +1916,11 @@ const PingOneAuditActivities: React.FC = () => {
 									{copiedJson ? <FiCheck size={16} /> : <FiCopy size={16} />}
 									{copiedJson ? 'Copied!' : 'Copy JSON'}
 								</button>
-								<button type="button" style={styles.secondaryButton} onClick={handleCloseDetailModal}>
+								<button
+									type="button"
+									style={styles.secondaryButton}
+									onClick={handleCloseDetailModal}
+								>
 									<FiX /> Close
 								</button>
 							</div>
