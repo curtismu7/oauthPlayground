@@ -160,26 +160,23 @@ function isImageRequest(request) {
 
 // Handle static assets with cache-first strategy
 async function handleStaticAsset(request) {
-	try {
-		const cache = await caches.open(STATIC_CACHE_NAME);
-		const cachedResponse = await cache.match(request);
+	const cache = await caches.open(STATIC_CACHE_NAME);
+	const cachedResponse = await cache.match(request);
 
-		if (cachedResponse) {
-			console.log('[SW] Serving static asset from cache:', request.url);
-			return cachedResponse;
-		}
-
-		const networkResponse = await fetch(request);
-		if (networkResponse.ok) {
-			cache.put(request, networkResponse.clone());
-			console.log('[SW] Cached static asset:', request.url);
-		}
-
-		return networkResponse;
-	} catch (error) {
-		console.error('[SW] Error handling static asset:', error);
-		return new Response('Static asset not available', { status: 404 });
+	if (cachedResponse) {
+		console.log('[SW] Serving static asset from cache:', request.url);
+		return cachedResponse;
 	}
+
+	// Let network errors propagate naturally — returning a synthetic 404/503
+	// for fonts causes ERR_TOO_MANY_RETRIES in Chrome.
+	const networkResponse = await fetch(request);
+	if (networkResponse.ok) {
+		cache.put(request, networkResponse.clone());
+		console.log('[SW] Cached static asset:', request.url);
+	}
+
+	return networkResponse;
 }
 
 // Handle API requests with network-first strategy
@@ -215,26 +212,22 @@ async function handleAPIRequest(request) {
 
 // Handle image requests with cache-first strategy
 async function handleImageRequest(request) {
-	try {
-		const cache = await caches.open(DYNAMIC_CACHE_NAME);
-		const cachedResponse = await cache.match(request);
+	const cache = await caches.open(DYNAMIC_CACHE_NAME);
+	const cachedResponse = await cache.match(request);
 
-		if (cachedResponse) {
-			console.log('[SW] Serving image from cache:', request.url);
-			return cachedResponse;
-		}
-
-		const networkResponse = await fetch(request);
-		if (networkResponse.ok) {
-			cache.put(request, networkResponse.clone());
-			console.log('[SW] Cached image:', request.url);
-		}
-
-		return networkResponse;
-	} catch (error) {
-		console.error('[SW] Error handling image request:', error);
-		return new Response('Image not available', { status: 404 });
+	if (cachedResponse) {
+		console.log('[SW] Serving image from cache:', request.url);
+		return cachedResponse;
 	}
+
+	// Let network errors propagate — synthetic failure responses cause retry loops.
+	const networkResponse = await fetch(request);
+	if (networkResponse.ok) {
+		cache.put(request, networkResponse.clone());
+		console.log('[SW] Cached image:', request.url);
+	}
+
+	return networkResponse;
 }
 
 // Handle dynamic requests with network-first strategy
