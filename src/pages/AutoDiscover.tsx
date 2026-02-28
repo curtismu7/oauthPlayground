@@ -157,11 +157,22 @@ const AutoDiscover: React.FC = () => {
 				>
 					<InfoContent>
 						<ul>
-							<li><strong>Step 1:</strong> Enter your PingOne Environment ID</li>
-							<li><strong>Step 2:</strong> Select your region (US, EU, CA, or AP)</li>
-							<li><strong>Step 3:</strong> Click "Discover" to fetch the OpenID configuration</li>
-							<li><strong>Step 4:</strong> The discovered endpoints will be automatically saved to your configuration</li>
-							<li><strong>Step 5:</strong> You can then use these endpoints for OAuth flows</li>
+							<li>
+								<strong>Step 1:</strong> Enter your PingOne Environment ID
+							</li>
+							<li>
+								<strong>Step 2:</strong> Select your region (US, EU, CA, or AP)
+							</li>
+							<li>
+								<strong>Step 3:</strong> Click "Discover" to fetch the OpenID configuration
+							</li>
+							<li>
+								<strong>Step 4:</strong> The discovered endpoints will be automatically saved to
+								your configuration
+							</li>
+							<li>
+								<strong>Step 5:</strong> You can then use these endpoints for OAuth flows
+							</li>
 						</ul>
 					</InfoContent>
 				</CollapsibleHeader>
