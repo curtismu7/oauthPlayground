@@ -25,6 +25,7 @@ interface UserSearchDropdownV8Props {
 	placeholder?: string;
 	disabled?: boolean;
 	id?: string;
+	autoLoad?: boolean; // New prop to control automatic loading
 }
 
 export const UserSearchDropdownV8: React.FC<UserSearchDropdownV8Props> = ({
@@ -34,6 +35,7 @@ export const UserSearchDropdownV8: React.FC<UserSearchDropdownV8Props> = ({
 	placeholder = 'Search for a user...',
 	disabled = false,
 	id,
+	autoLoad = true, // Default to true for backward compatibility
 }) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const [searchTerm, setSearchTerm] = useState('');
@@ -88,7 +90,14 @@ export const UserSearchDropdownV8: React.FC<UserSearchDropdownV8Props> = ({
 		[environmentId, offset]
 	);
 
-	// Load users when dropdown opens
+	// Load users when dropdown opens OR when environmentId becomes available (if autoLoad is true)
+	useEffect(() => {
+		if (autoLoad && environmentId && users.length === 0) {
+			loadUsers('', true);
+		}
+	}, [autoLoad, environmentId, loadUsers, users.length]);
+
+	// Load users when dropdown opens (if not already loaded)
 	useEffect(() => {
 		if (isOpen && environmentId && users.length === 0) {
 			loadUsers('', true);

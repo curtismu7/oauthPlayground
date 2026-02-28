@@ -21,6 +21,7 @@ import { usePageScroll } from '../hooks/usePageScroll';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import PageLayoutService from '../services/pageLayoutService';
 import { credentialManager } from '../utils/credentialManager';
+import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 
 const _Container = styled.div`
   max-width: 1200px;
@@ -367,7 +368,7 @@ const AdvancedConfiguration = () => {
 	const {
 		PageContainer,
 		ContentWrapper,
-		FlowHeader: LayoutFlowHeader,
+		PageHeader: LayoutPageHeader,
 	} = PageLayoutService.createPageLayout(pageConfig);
 
 	// Load defaults from credentialManager
@@ -380,12 +381,9 @@ const AdvancedConfiguration = () => {
 		// Try worker token credentials as fallback
 		if (!credentialManagerEnvId) {
 			try {
-				const stored = localStorage.getItem('unified_worker_token');
-				if (stored) {
-					const data = JSON.parse(stored);
-					if (data.credentials?.environmentId) {
-						return data.credentials.environmentId;
-					}
+				const data = unifiedWorkerTokenService.getTokenDataSync();
+				if (data?.credentials?.environmentId) {
+					return data.credentials.environmentId;
 				}
 			} catch (error) {
 				console.log('Failed to load environment ID from worker token:', error);
@@ -439,7 +437,7 @@ const AdvancedConfiguration = () => {
 		profile: '#10b981',
 		email: '#f59e0b',
 		address: '#ef4444',
-		phone: '#8b5cf6',
+		phone: '#2563eb',
 		offline_access: '#06b6d4',
 		read: '#84cc16',
 		write: '#f97316',
@@ -581,12 +579,9 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 	useEffect(() => {
 		const handleTokenUpdate = () => {
 			try {
-				const stored = localStorage.getItem('unified_worker_token');
-				if (stored) {
-					const data = JSON.parse(stored);
-					if (data.credentials?.environmentId && !environmentId) {
-						setEnvironmentId(data.credentials.environmentId);
-					}
+				const data = unifiedWorkerTokenService.getTokenDataSync();
+				if (data?.credentials?.environmentId && !environmentId) {
+					setEnvironmentId(data.credentials.environmentId);
 				}
 			} catch (error) {
 				console.log('Failed to update environment ID from worker token:', error);
@@ -605,7 +600,7 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 	return (
 		<PageContainer>
 			<ContentWrapper>
-				{LayoutFlowHeader && <LayoutFlowHeader />}
+				{LayoutPageHeader && <LayoutPageHeader />}
 
 				<BackButton onClick={() => navigate('/')} aria-label="Back to Dashboard">
 					<FiArrowLeft />

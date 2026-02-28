@@ -17,6 +17,7 @@ import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useResourceOwnerPasswordFlowV7 } from '../../hooks/useResourceOwnerPasswordFlowV7';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
+import { UserSearchDropdownV8 } from '../../v8/components/UserSearchDropdownV8';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const PageContainer = styled.div`
@@ -289,11 +290,13 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 
 							<FormGroup>
 								<FormLabel>Username</FormLabel>
-								<FormInput
-									type="text"
+								<UserSearchDropdownV8
+									environmentId={controller.credentials.environmentId}
 									value={controller.credentials.username}
-									onChange={(e) => handleCredentialChange('username', e.target.value)}
-									placeholder="Enter username (email)"
+									onChange={(value) => handleCredentialChange('username', value)}
+									placeholder="Search for a user by ID, username, or email..."
+									disabled={!controller.credentials.environmentId.trim()}
+									autoLoad={true}
 								/>
 							</FormGroup>
 

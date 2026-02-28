@@ -135,6 +135,20 @@ function isStaticAsset(request) {
 // Check if request is for API
 function isAPIRequest(request) {
 	const url = new URL(request.url);
+	
+	// Exclude client-side routes that start with /api- but are not actual API endpoints
+	const clientRoutes = [
+		'/api-status',
+		'/api-monitoring',
+		'/api-documentation',
+		// Add other client-side routes that start with /api- here
+	];
+	
+	// If it's a client-side route, don't treat as API request
+	if (clientRoutes.some(route => url.pathname === route)) {
+		return false;
+	}
+	
 	return API_CACHE_PATTERNS.some((pattern) => pattern.test(url.pathname));
 }
 

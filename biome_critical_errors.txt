@@ -1,0 +1,4 @@
+    2107 │ 			console.warn('❌ Failed to persist menu layout:', error);
+     62 │  * performance tracking, and error monitoring.
+Found 2656 errors.
+  × Some errors were emitted while running checks.

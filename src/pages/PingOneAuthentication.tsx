@@ -12,7 +12,7 @@ export interface PlaygroundResult {
 export const RESPONSE_TYPES = {
 	SUCCESS: 'success',
 	ERROR: 'error',
-	INFO: 'info'
+	INFO: 'info',
 } as const;
 
 export const RESULT_STORAGE_KEY = 'pingone_auth_result';
@@ -33,7 +33,7 @@ export const DEFAULT_CONFIG = {
 
 /**
  * PingOne Authentication Page
- * 
+ *
  * This is a placeholder component that redirects to the main authentication flow.
  * The original implementation appears to be missing, so this provides a minimal
  * fallback to prevent build failures.

@@ -17,6 +17,7 @@ import {
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { ColoredUrlDisplay } from './ColoredUrlDisplay';
+import { useNotifications } from '../hooks/useNotifications';
 
 // Helper function to decode JWT
 const decodeJWT = (token: string) => {
@@ -419,6 +420,7 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 	authMethod,
 	region,
 }) => {
+	const { showSuccess } = useNotifications();
 	const [copiedCurl, setCopiedCurl] = useState(false);
 	const [showSecret, setShowSecret] = useState(false);
 	const [generatedToken, setGeneratedToken] = useState<string>('');
@@ -471,8 +473,8 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 
 	const handleCopyToken = () => {
 		navigator.clipboard.writeText(generatedToken);
-		// Show toast notification that token was copied
-		v4ToastManager.showSuccess('Token copied to clipboard');
+		// Show notification that token was copied
+		showSuccess('Token copied to clipboard');
 	};
 
 	const handleUseToken = () => {

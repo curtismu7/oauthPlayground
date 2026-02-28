@@ -187,12 +187,21 @@ export const EnhancedAuthContextDemo: React.FC = () => {
 		type: 'success' | 'error' | 'info';
 		message: string;
 	} | null>(null);
-	const [currentFlow, setCurrentFlow] = useState<any>(null);
+
+	interface CurrentFlow {
+		flowType: string;
+		currentStep: number;
+		returnPath?: string;
+		age?: number;
+		[key: string]: unknown;
+	}
+
+	const [currentFlow, setCurrentFlow] = useState<CurrentFlow | null>(null);
 
 	// Check current flow status
 	useEffect(() => {
 		const flow = auth.getCurrentFlow();
-		setCurrentFlow(flow);
+		setCurrentFlow(flow as CurrentFlow | null);
 	}, [auth]);
 
 	const steps = [
@@ -415,7 +424,7 @@ export const EnhancedAuthContextDemo: React.FC = () => {
 							<strong>Return Path:</strong> {currentFlow.returnPath}
 						</p>
 						<p>
-							<strong>Age:</strong> {Math.round(currentFlow.age / 1000)}s
+							<strong>Age:</strong> {Math.round((currentFlow.age || 0) / 1000)}s
 						</p>
 					</div>
 				) : (
