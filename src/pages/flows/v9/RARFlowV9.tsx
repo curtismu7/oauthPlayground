@@ -22,7 +22,7 @@ import { unifiedWorkerTokenService } from '../../../services/unifiedWorkerTokenS
 import { WorkerTokenStatusServiceV8 } from '../../../v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '../../../v8/utils/toastNotificationsV8';
 // V9 specific imports
-import { FlowUIService } from '../../../services/flowUIService';
+import { FlowUIService } from '../../../services/flowUIService.tsx';
 import { V9FlowCredentialService } from '../../../services/v9/core/V9FlowCredentialService';
 import { EnvironmentIdServiceV8 } from '../../../services/v9/environmentIdServiceV9';
 import { V9SpecVersionService } from '../../../services/v9/V9SpecVersionService';

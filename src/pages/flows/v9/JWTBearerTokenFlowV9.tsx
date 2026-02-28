@@ -1,5 +1,5 @@
-// src/pages/flows/JWTBearerTokenFlowV7.tsx
-// OAuth 2.0 JWT Bearer Token Flow (RFC 7523) - V7 Service Architecture
+// src/pages/flows/JWTBearerTokenFlowV9.tsx
+// OAuth 2.0 JWT Bearer Token Flow (RFC 7523) - V9 Service Architecture
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
@@ -15,26 +15,26 @@ import {
 	FiShield,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import { StepNavigationButtons } from '../../components/StepNavigationButtons';
-import { readBestEnvironmentId } from '../../hooks/useAutoEnvironmentId';
-import { usePageScroll } from '../../hooks/usePageScroll';
-import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
+import { StepNavigationButtons } from '../../../components/StepNavigationButtons';
+import { readBestEnvironmentId } from '../../../hooks/useAutoEnvironmentId';
+import { usePageScroll } from '../../../hooks/usePageScroll';
+import { CollapsibleHeader } from '../../../services/collapsibleHeaderService';
 // Import V6 UI components
-import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
-import { comprehensiveFlowDataService } from '../../services/comprehensiveFlowDataService';
-import { CopyButtonService } from '../../services/copyButtonService';
-import { CredentialGuardService } from '../../services/credentialGuardService';
-import { FlowCompletionConfigs, FlowCompletionService } from '../../services/flowCompletionService';
-import type { StepCredentials } from '../../services/flowCredentialService';
+import ComprehensiveCredentialsService from '../../../services/comprehensiveCredentialsService';
+import { comprehensiveFlowDataService } from '../../../services/comprehensiveFlowDataService';
+import { CopyButtonService } from '../../../services/copyButtonService';
+import { CredentialGuardService } from '../../../services/credentialGuardService';
+import { FlowCompletionConfigs, FlowCompletionService } from '../../../services/flowCompletionService';
+import type { StepCredentials } from '../../../services/flowCredentialService';
 // Import V6 service architecture components
-import { FlowHeader } from '../../services/flowHeaderService';
+import { FlowHeader } from '../../../services/flowHeaderService';
 // Get shared UI components from FlowUIService
-import { FlowUIService } from '../../services/flowUIService';
-import ModalPresentationService from '../../services/modalPresentationService';
-import { OAuthFlowComparisonService } from '../../services/oauthFlowComparisonService';
-import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
-import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
+import { FlowUIService } from '../../../services/flowUIService';
+import ModalPresentationService from '../../../services/modalPresentationService';
+import { OAuthFlowComparisonService } from '../../../services/oauthFlowComparisonService';
+import { oidcDiscoveryService } from '../../../services/oidcDiscoveryService';
+import { UnifiedTokenDisplayService } from '../../../services/unifiedTokenDisplayService';
+import { v4ToastManager } from '../../../utils/v4ToastMessages';
 
 // Styled Components
 const SectionDivider = styled.div`
@@ -143,7 +143,7 @@ interface JWTSignature {
 }
 
 // Main Component
-const JWTBearerTokenFlowV7: React.FC = () => {
+const JWTBearerTokenFlowV9: React.FC = () => {
 	// Get shared UI components from FlowUIService
 	const {
 		Container,
@@ -239,7 +239,7 @@ const JWTBearerTokenFlowV7: React.FC = () => {
 	// Load credentials on mount
 	useEffect(() => {
 		const loadCredentials = async () => {
-			console.log('🔄 [JWTBearerTokenFlowV7] Loading credentials with comprehensive service...');
+			console.log('🔄 [JWTBearerTokenFlowV9] Loading credentials with comprehensive service...');
 
 			const flowData = comprehensiveFlowDataService.loadFlowDataComprehensive({
 				flowKey: FLOW_KEY,
@@ -248,7 +248,7 @@ const JWTBearerTokenFlowV7: React.FC = () => {
 			});
 
 			if (flowData.flowCredentials && Object.keys(flowData.flowCredentials).length > 0) {
-				console.log('✅ [JWTBearerTokenFlowV7] Found flow-specific credentials');
+				console.log('✅ [JWTBearerTokenFlowV9] Found flow-specific credentials');
 				if (flowData.sharedEnvironment?.environmentId)
 					setEnvironmentId(flowData.sharedEnvironment.environmentId);
 				if (flowData.flowCredentials.clientId) setClientId(flowData.flowCredentials.clientId);
@@ -259,10 +259,10 @@ const JWTBearerTokenFlowV7: React.FC = () => {
 					setScopes(scopesValue || 'openid');
 				}
 			} else if (flowData.sharedEnvironment?.environmentId) {
-				console.log('ℹ️ [JWTBearerTokenFlowV7] Using shared environment data only');
+				console.log('ℹ️ [JWTBearerTokenFlowV9] Using shared environment data only');
 				setEnvironmentId(flowData.sharedEnvironment.environmentId);
 			} else {
-				console.log('ℹ️ [JWTBearerTokenFlowV7] No saved credentials found');
+				console.log('ℹ️ [JWTBearerTokenFlowV9] No saved credentials found');
 			}
 		};
 
@@ -297,10 +297,10 @@ const JWTBearerTokenFlowV7: React.FC = () => {
 			});
 
 			if (!success) {
-				console.error('[JWTBearerTokenFlowV7] Failed to save credentials to comprehensive service');
+				console.error('[JWTBearerTokenFlowV9] Failed to save credentials to comprehensive service');
 			}
 
-			console.log('💾 [JWTBearerTokenFlowV7] Credentials saved:', credentials);
+			console.log('💾 [JWTBearerTokenFlowV9] Credentials saved:', credentials);
 		},
 		[environmentId, clientId, scopes]
 	);
@@ -315,7 +315,7 @@ const JWTBearerTokenFlowV7: React.FC = () => {
 	const discoverAudience = useCallback(async () => {
 		// Enhanced validation with better error messages
 		if (!environmentId || environmentId.trim() === '') {
-			console.warn('⚠️ [JWT Bearer] Cannot discover audience - Environment ID is empty');
+			console.warn('⚠️ [JWT Bearer V9] Cannot discover audience - Environment ID is empty');
 			v4ToastManager.showWarning('Please enter an Environment ID first');
 			return;
 		}
@@ -323,18 +323,18 @@ const JWTBearerTokenFlowV7: React.FC = () => {
 		// Additional validation for environment ID format
 		const trimmedEnvId = environmentId.trim();
 		if (!trimmedEnvId || trimmedEnvId.length < 10) {
-			console.warn('⚠️ [JWT Bearer] Environment ID appears to be invalid:', trimmedEnvId);
+			console.warn('⚠️ [JWT Bearer V9] Environment ID appears to be invalid:', trimmedEnvId);
 			v4ToastManager.showWarning('Please enter a valid Environment ID');
 			return;
 		}
 
 		setIsDiscoveringAudience(true);
 		try {
-			console.log('🔍 [JWT Bearer] Discovering audience for environment:', trimmedEnvId);
+			console.log('🔍 [JWT Bearer V9] Discovering audience for environment:', trimmedEnvId);
 
 			// Construct issuer URL from environment ID
 			const issuerUrl = `https://auth.pingone.com/${trimmedEnvId}/as`;
-			console.log('🔍 [JWT Bearer] Constructed issuer URL:', issuerUrl);
+			console.log('🔍 [JWT Bearer V9] Constructed issuer URL:', issuerUrl);
 
 			// Validate issuer URL before calling discovery
 			if (!issuerUrl || typeof issuerUrl !== 'string' || !issuerUrl.startsWith('https://')) {
@@ -351,13 +351,13 @@ const JWTBearerTokenFlowV7: React.FC = () => {
 				const discoveredAudience = result.document.issuer;
 				setAudience(discoveredAudience);
 				setJwtClaims((prev) => ({ ...prev, aud: discoveredAudience }));
-				console.log('✅ [JWT Bearer] Audience discovered:', discoveredAudience);
+				console.log('✅ [JWT Bearer V9] Audience discovered:', discoveredAudience);
 				v4ToastManager.showSuccess('Audience discovered and populated!');
 			} else {
 				throw new Error('No issuer found in OIDC discovery document');
 			}
 		} catch (error) {
-			console.error('❌ [JWT Bearer] Failed to discover audience:', error);
+			console.error('❌ [JWT Bearer V9] Failed to discover audience:', error);
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
 			v4ToastManager.showError(
 				`Failed to discover audience: ${errorMessage}. Please enter manually.`
@@ -428,7 +428,7 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 		}));
 
 		v4ToastManager.showSuccess('Sample RSA key pair generated! (For educational purposes only)');
-		console.log('🔑 [JWT Bearer] Generated sample RSA-2048 key pair');
+		console.log('🔑 [JWT Bearer V9] Generated sample RSA-2048 key pair');
 	}, []);
 
 	// Auto-update JWT Claims when clientId, tokenEndpoint, or audience changes (from OIDC Discovery or manual entry)
@@ -440,7 +440,7 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 			aud: audience || tokenEndpoint || prev.aud, // Prioritize audience, fallback to tokenEndpoint
 		}));
 		console.log(
-			'🔄 [JWT Bearer] Auto-updated JWT claims with audience:',
+			'🔄 [JWT Bearer V9] Auto-updated JWT claims with audience:',
 			audience || tokenEndpoint
 		);
 	}, [clientId, tokenEndpoint, audience]);
@@ -504,7 +504,7 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 
 			v4ToastManager.showSuccess('JWT generated successfully!');
 		} catch (error) {
-			console.error('[JWT Bearer] Error generating JWT:', error);
+			console.error('[JWT Bearer V9] Error generating JWT:', error);
 			v4ToastManager.showError('Failed to generate JWT');
 		}
 	}, [clientId, tokenEndpoint, jwtClaims, jwtSignature, audience]);
@@ -942,11 +942,11 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 										<Button
 											onClick={() => {
 												console.log(
-													'🔍 [JWT Bearer] Auto Discover clicked, environmentId:',
+													'🔍 [JWT Bearer V9] Auto Discover clicked, environmentId:',
 													environmentId
 												);
 												if (!environmentId || environmentId.trim() === '') {
-													console.warn('⚠️ [JWT Bearer] Button clicked but environmentId is empty');
+													console.warn('⚠️ [JWT Bearer V9] Button clicked but environmentId is empty');
 													v4ToastManager.showWarning('Please enter an Environment ID first');
 													return;
 												}
@@ -1639,4 +1639,4 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 	);
 };
 
-export default JWTBearerTokenFlowV7;
+export default JWTBearerTokenFlowV9;

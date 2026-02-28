@@ -1,10 +1,10 @@
-// src/hooks/useV7RMOIDCResourceOwnerPasswordController.ts - V7RM (Mock because PingOne doesn't support this flow)
+// src/hooks/useV7RMOIDCResourceOwnerPasswordController.ts - Enhanced with Real Services
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { credentialManager } from '../utils/credentialManager';
 import { useFlowStepManager } from '../utils/flowStepSystem';
-import { generateMockTokens, generateMockUserInfo } from '../utils/mockOAuth';
-import { safeLocalStorageParse } from '../utils/secureJson';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+import { generateMockIdToken } from '../utils/mockOAuth';
 
 export interface V7RMCredentials {
 	environmentId: string;
@@ -154,58 +154,147 @@ export const useV7RMOIDCResourceOwnerPasswordController = ({
 		}
 	}, [credentials, persistKey, enableDebugger]);
 
-	// Authenticate user (mock implementation)
+	// Authenticate user using real PingOne API
 	const authenticateUser = useCallback(async () => {
+		if (
+			!credentials.environmentId ||
+			!credentials.clientId ||
+			!credentials.clientSecret ||
+			!credentials.username ||
+			!credentials.password
+		) {
+			v4ToastManager.showError('allCredentialsRequired');
+			return;
+		}
+
 		setIsAuthenticating(true);
 		try {
-			// Simulate authentication delay
-			await new Promise((resolve) => setTimeout(resolve, 2000));
-
-			// Validate mock credentials
-			if (!credentials.username || !credentials.password) {
-				throw new Error('Username and password are required');
+			if (enableDebugger) {
+				console.log('🔐 [V7RM-Enhanced] Starting authentication with real PingOne API...');
 			}
 
-			// Generate mock tokens
-			const mockTokens = generateMockTokens({
-				scopes: credentials.scopes,
-				includeRefreshToken: flowConfig.includeRefreshToken,
-				includeIdToken: flowConfig.includeIdToken,
-				expiresIn: flowConfig.tokenExpiry,
-			});
-
-			setTokens(mockTokens);
-
-			v4ToastManager.showSuccess('saveConfigurationSuccess');
+			// Prepare request for real PingOne token endpoint
+			const requestBody = {
+				grant_type: 'password',
+				username: credentials.username,
+				password: credentials.password,
+				scope: credentials.scopes.join(' '),
+				client_id: credentials.clientId,
+				client_secret: credentials.clientSecret,
+			};
 
 			if (enableDebugger) {
-				console.log('🎫 Mock tokens generated:', mockTokens);
+				console.log('🔍 [V7RM-Enhanced] Token request:', {
+					url: '/api/token-exchange',
+					grant_type: 'password',
+					username: credentials.username,
+					scope: credentials.scopes.join(' '),
+				});
 			}
+
+			// Use real token exchange API
+			const response = await fetch(`/api/token-exchange`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					...requestBody,
+					environmentId: credentials.environmentId,
+					clientAuthMethod: 'client_secret_basic',
+				}),
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json().catch(() => ({}));
+				throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+			}
+
+			const tokenData = await response.json();
+
+			// Enhance with OIDC features if ID token is requested but not provided
+			const enhancedTokens: V7RMTokens = {
+				...tokenData,
+				// Add mock ID token if openid scope is requested but not provided by PingOne
+				...(credentials.scopes.includes('openid') && !tokenData.id_token && {
+					id_token: generateMockIdToken(credentials.username, credentials.environmentId),
+				}),
+			};
+
+			if (enableDebugger) {
+				console.log('🎫 [V7RM-Enhanced] Real tokens received:', {
+					hasAccessToken: !!enhancedTokens.access_token,
+					hasIdToken: !!enhancedTokens.id_token,
+					hasRefreshToken: !!enhancedTokens.refresh_token,
+					expiresIn: enhancedTokens.expires_in,
+					scope: enhancedTokens.scope,
+				});
+			}
+
+			setTokens(enhancedTokens);
+			saveStepResult('authenticate-user', {
+				success: true,
+				timestamp: Date.now(),
+				tokenType: enhancedTokens.token_type,
+				expiresIn: enhancedTokens.expires_in,
+				scope: enhancedTokens.scope,
+				realApi: true,
+			});
+
+			v4ToastManager.showSuccess('authenticationSuccess');
 
 			// Auto-advance to next step
 			stepManager.setStep(stepManager.currentStepIndex + 1, 'authentication completed');
 		} catch (error) {
-			v4ToastManager.showError('networkError');
-			console.error('Mock authentication failed:', error);
+			console.error('❌ [V7RM-Enhanced] Authentication failed:', error);
+			v4ToastManager.showError('authenticationFailed', {
+				error: error instanceof Error ? error.message : 'Unknown error',
+			});
+
+			saveStepResult('authenticate-user', {
+				success: false,
+				error: error instanceof Error ? error.message : 'Unknown error',
+				timestamp: Date.now(),
+				realApi: true,
+			});
 		} finally {
 			setIsAuthenticating(false);
 		}
-	}, [credentials, flowConfig, stepManager, enableDebugger]);
+	}, [credentials, stepManager, enableDebugger, saveStepResult]);
 
-	// Fetch user info (mock implementation)
+	// Fetch user info using real API
 	const fetchUserInfo = useCallback(async () => {
 		if (!tokens?.access_token) {
-			v4ToastManager.showError('stepError');
+			v4ToastManager.showError('accessTokenRequired');
 			return;
 		}
 
 		setIsFetchingUserInfo(true);
 		try {
-			// Simulate API delay
-			await new Promise((resolve) => setTimeout(resolve, 1500));
+			// Use real userinfo API
+			const response = await fetch(`/api/userinfo`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					access_token: tokens.access_token,
+					environmentId: credentials.environmentId,
+				}),
+			});
 
-			const mockUserInfo = generateMockUserInfo(credentials.username);
-			setUserInfo(mockUserInfo);
+			if (!response.ok) {
+				const errorData = await response.json().catch(() => ({}));
+				throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+			}
+
+			const userData = await response.json();
+
+			if (enableDebugger) {
+				console.log('👤 [V7RM-Enhanced] Real user info received:', userData);
+			}
+
+			setUserInfo(userData);
 
 			v4ToastManager.showSuccess('saveConfigurationSuccess');
 
