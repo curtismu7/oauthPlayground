@@ -47,7 +47,7 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'warning' | 'success' | 'error'
 			case 'warning':
 				return '#fef3c7';
 			case 'success':
-				return '#f0fdf4';
+				return '#eff6ff';
 			case 'error':
 				return '#fef2f2';
 			default:
@@ -59,7 +59,7 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'warning' | 'success' | 'error'
 			case 'warning':
 				return '#fbbf24';
 			case 'success':
-				return '#bbf7d0';
+				return '#93c5fd';
 			case 'error':
 				return '#fca5a5';
 			default:
@@ -75,7 +75,7 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'warning' | 'success' | 'error'
 			case 'warning':
 				return '#78350f';
 			case 'success':
-				return '#065f46';
+				return '#1e40af';
 			case 'error':
 				return '#991b1b';
 			default:
@@ -160,11 +160,11 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'success' }>
 			`;
 		} else if (props.$variant === 'success') {
 			return `
-				background-color: #22c55e;
+				background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
 				color: white;
 				
 				&:hover:not(:disabled) {
-					background-color: #16a34a;
+					background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
 				}
 			`;
 		} else {
@@ -211,10 +211,10 @@ const ParameterLabel = styled.div`
 const ParameterValue = styled.div`
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	font-size: 0.875rem;
-	color: #064e3b;
+	color: #1e3a8a;
 	word-break: break-all;
-	background-color: #f0fdf4; /* Light green for generated content */
-	border: 1px solid #16a34a;
+	background-color: #eff6ff;
+	border: 1px solid #93c5fd;
 	padding: 0.5rem;
 	border-radius: 0.25rem;
 `;
@@ -1161,7 +1161,7 @@ const SAMLBearerAssertionFlowV7: React.FC = () => {
 	// Main render
 	return (
 		<Container>
-			<FlowHeader flowId="saml-bearer" />
+			<FlowHeader flowId="saml-bearer-assertion-v7" />
 			<ContentWrapper>
 				{renderCredentials()}
 				<SectionDivider />
