@@ -13,416 +13,314 @@ import {
 	FiEdit,
 	FiExternalLink,
 	FiFilter,
-	FiKey,
+	FiGlobe,
 	FiPlus,
 	FiRefreshCw,
-	FiGlobe,
 	FiServer,
 	FiTag,
 	FiTrash2,
 	FiX,
 } from 'react-icons/fi';
 import { useLocation, useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
 import ApiCallList from '../components/ApiCallList';
-import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
-import { isWebhookPopout, openWebhookViewerPopout } from '../v8/utils/webhookViewerPopoutHelper';
 import { readBestEnvironmentId } from '../hooks/useAutoEnvironmentId';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import { secureLog } from '../utils/secureLogging';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { getAnyWorkerToken } from '../utils/workerTokenDetection';
 import { SuperSimpleApiDisplayV8 } from '../v8/components/SuperSimpleApiDisplayV8';
+import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
+import { isWebhookPopout, openWebhookViewerPopout } from '../v8/utils/webhookViewerPopoutHelper';
 
-// Container - responsive and accounts for sidebar
-const Container = styled.div`
-	width: 100%;
-	max-width: 100%;
-	padding: 2rem;
-	box-sizing: border-box;
-	overflow-x: auto;
-	min-width: 0;
-
-	@media (max-width: 1024px) {
-		padding: 1rem;
-	}
-`;
-
-const PageContainer = styled.div`
-	max-width: 90rem;
-	margin: 0 auto;
-	padding: 2rem 1.5rem 4rem;
-	display: flex;
-	flex-direction: column;
-	gap: 1.75rem;
-`;
-
-const HeaderCard = styled.div`
-	display: flex;
-	flex-direction: column;
-	gap: 1rem;
-	padding: 1.75rem;
-	border-radius: 1rem;
-	background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-	border: none;
-`;
-
-const TitleRow = styled.div`
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 0.75rem;
-	color: white;
-`;
-
-const TitleLeft = styled.div`
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
-`;
-
-const Title = styled.h1`
-	margin: 0;
-	font-size: 1.75rem;
-	font-weight: 700;
-	color: white;
-`;
-
-const Subtitle = styled.p`
-	margin: 0;
-	color: rgba(255, 255, 255, 0.85);
-	max-width: 720px;
-	line-height: 1.6;
-`;
-
-const Header = styled.div`
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	margin-bottom: 2rem;
-`;
-
-const ActionButtons = styled.div`
-	display: flex;
-	gap: 0.75rem;
-	flex-wrap: wrap;
-`;
-
-const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-	padding: 0.75rem 1.5rem;
-	border: none;
-	border-radius: 0.5rem;
-	font-size: 0.875rem;
-	font-weight: 600;
-	cursor: pointer;
-	transition: all 0.2s;
-
-	${({ $variant = 'secondary' }) => {
-		switch ($variant) {
-			case 'primary':
-				return `
-					background: #3b82f6;
-					color: white;
-					&:hover { background: #2563eb; }
-				`;
-			case 'danger':
-				return `
-					background: #ef4444;
-					color: white;
-					&:hover { background: #dc2626; }
-				`;
-			default:
-				return `
-					background: #f1f5f9;
-					color: #475569;
-					&:hover { background: #e2e8f0; }
-				`;
-		}
-	}}
-
-	&:disabled {
-		opacity: 0.5;
-		cursor: not-allowed;
-	}
-`;
-
-const TabsContainer = styled.div`
-	display: flex;
-	gap: 0.5rem;
-	margin-bottom: 2rem;
-	border-bottom: 2px solid #e2e8f0;
-`;
-
-const Tab = styled.button<{ $active: boolean }>`
-	padding: 0.75rem 1.5rem;
-	border: none;
-	background: none;
-	font-size: 0.875rem;
-	font-weight: 600;
-	color: ${({ $active }) => ($active ? '#3b82f6' : '#64748b')};
-	cursor: pointer;
-	border-bottom: 2px solid ${({ $active }) => ($active ? '#3b82f6' : 'transparent')};
-	margin-bottom: -2px;
-	transition: all 0.2s;
-
-	&:hover {
-		color: #3b82f6;
-	}
-`;
-
-const SectionCard = styled.div`
-	background: white;
-	border: 1px solid #e2e8f0;
-	border-radius: 0.75rem;
-	padding: 1.5rem;
-	margin-bottom: 2rem;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-`;
-
-const SectionHeader = styled.div`
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	margin-bottom: 1.5rem;
-`;
-
-const SectionTitle = styled.h2`
-	font-size: 1.25rem;
-	font-weight: 600;
-	color: #1e293b;
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-`;
-
-const InputGroup = styled.div`
-	display: flex;
-	flex-direction: column;
-	gap: 0.5rem;
-	margin-bottom: 1rem;
-`;
-
-const Label = styled.label`
-	font-size: 0.875rem;
-	font-weight: 600;
-	color: #475569;
-`;
-
-const Input = styled.input`
-	padding: 0.75rem;
-	border: 1px solid #cbd5e1;
-	border-radius: 0.375rem;
-	font-size: 0.875rem;
-	color: #1e293b;
-
-	&:focus {
-		outline: none;
-		border-color: #3b82f6;
-		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-	}
-`;
-
-const Checkbox = styled.input`
-	width: 1.25rem;
-	height: 1.25rem;
-	cursor: pointer;
-`;
-
-const SubscriptionList = styled.div`
-	display: flex;
-	flex-direction: column;
-	gap: 1rem;
-`;
-
-const SubscriptionCard = styled.div`
-	background: #f8fafc;
-	border: 1px solid #e2e8f0;
-	border-radius: 0.5rem;
-	padding: 1.25rem;
-	display: flex;
-	justify-content: space-between;
-	align-items: start;
-	gap: 1rem;
-`;
-
-const SubscriptionInfo = styled.div`
-	flex: 1;
-`;
-
-const SubscriptionName = styled.div`
-	font-size: 1rem;
-	font-weight: 600;
-	color: #1e293b;
-	margin-bottom: 0.5rem;
-`;
-
-const SubscriptionMeta = styled.div`
-	display: flex;
-	flex-wrap: wrap;
-	gap: 1rem;
-	font-size: 0.875rem;
-	color: #64748b;
-`;
-
-const SubscriptionActions = styled.div`
-	display: flex;
-	gap: 0.5rem;
-`;
-
-const StatusBadge = styled.span<{ $enabled: boolean }>`
-	display: inline-flex;
-	align-items: center;
-	gap: 0.25rem;
-	padding: 0.25rem 0.75rem;
-	border-radius: 0.375rem;
-	font-size: 0.75rem;
-	font-weight: 600;
-	background: ${({ $enabled }) => ($enabled ? '#dcfce7' : '#fee2e2')};
-	color: ${({ $enabled }) => ($enabled ? '#166534' : '#991b1b')};
-`;
-
-// Webhook List
-const WebhookContainer = styled.div`
-	display: flex;
-	flex-direction: column;
-	gap: 1rem;
-	margin-top: 2rem;
-`;
-
-const WebhookCard = styled.div<{ $type?: string }>`
-	background: white;
-	border: 1px solid #e2e8f0;
-	border-radius: 0.75rem;
-	padding: 1.5rem;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-	transition: all 0.2s;
-
-	&:hover {
-		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-		border-color: #cbd5e1;
-	}
-`;
-
-const WebhookHeader = styled.div`
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	margin-bottom: 1rem;
-`;
-
-const WebhookTitle = styled.div`
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
-	font-size: 1.125rem;
-	font-weight: 600;
-	color: #1e293b;
-`;
-
-const WebhookMeta = styled.div`
-	display: flex;
-	align-items: center;
-	gap: 1rem;
-	font-size: 0.875rem;
-	color: #64748b;
-`;
-
-const WebhookBody = styled.div`
-	background: #f8fafc;
-	border: 1px solid #e2e8f0;
-	border-radius: 0.5rem;
-	padding: 1rem;
-	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-	font-size: 0.875rem;
-	overflow-x: auto;
-`;
-
-const EventStatusBadge = styled.span<{ $status?: string }>`
-	display: inline-flex;
-	align-items: center;
-	gap: 0.25rem;
-	padding: 0.25rem 0.75rem;
-	border-radius: 0.375rem;
-	font-size: 0.75rem;
-	font-weight: 600;
-
-	${({ $status }) => {
-		switch ($status) {
-			case 'success':
-				return 'background: #dcfce7; color: #166534;';
-			case 'error':
-				return 'background: #fee2e2; color: #991b1b;';
-			case 'pending':
-				return 'background: #fef3c7; color: #92400e;';
-			default:
-				return 'background: #f1f5f9; color: #475569;';
-		}
-	}}
-`;
-
-const EmptyState = styled.div`
-	text-align: center;
-	padding: 4rem 2rem;
-	color: #64748b;
-
-	svg {
-		margin-bottom: 1rem;
-		opacity: 0.5;
-	}
-`;
-
-// Filter Bar
-const FilterBar = styled.div`
-	display: flex;
-	gap: 1rem;
-	align-items: center;
-	padding: 1rem;
-	background: #f8fafc;
-	border-radius: 0.5rem;
-	margin-bottom: 1.5rem;
-	flex-wrap: wrap;
-`;
-
-const FilterSelect = styled.select`
-	padding: 0.5rem 1rem;
-	border: 1px solid #cbd5e1;
-	border-radius: 0.375rem;
-	background: white;
-	font-size: 0.875rem;
-	color: #1e293b;
-	min-width: 150px;
-`;
-
-const FilterLabel = styled.label`
-	font-size: 0.875rem;
-	font-weight: 600;
-	color: #475569;
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-`;
-
-const ClearFiltersButton = styled.button`
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-	padding: 0.5rem 1rem;
-	border: 1px solid #cbd5e1;
-	border-radius: 0.375rem;
-	background: white;
-	font-size: 0.875rem;
-	color: #64748b;
-	cursor: pointer;
-	transition: all 0.2s;
-
-	&:hover {
-		background: #f1f5f9;
-		color: #475569;
-	}
-`;
+const styles = {
+	container: {
+		width: '100%',
+		maxWidth: '100%',
+		padding: '2rem',
+		boxSizing: 'border-box' as const,
+		overflowX: 'auto' as const,
+		minWidth: 0,
+	} as React.CSSProperties,
+	pageContainer: {
+		maxWidth: '90rem',
+		margin: '0 auto',
+		padding: '2rem 1.5rem 4rem',
+		display: 'flex',
+		flexDirection: 'column' as const,
+		gap: '1.75rem',
+	} as React.CSSProperties,
+	headerCard: {
+		display: 'flex',
+		flexDirection: 'column' as const,
+		gap: '1rem',
+		padding: '1.75rem',
+		borderRadius: '1rem',
+		background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)',
+		border: 'none',
+	} as React.CSSProperties,
+	titleRow: {
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'space-between',
+		gap: '0.75rem',
+		color: 'white',
+	} as React.CSSProperties,
+	titleLeft: {
+		display: 'flex',
+		alignItems: 'center',
+		gap: '0.75rem',
+	} as React.CSSProperties,
+	title: {
+		margin: 0,
+		fontSize: '1.75rem',
+		fontWeight: 700,
+		color: 'white',
+	} as React.CSSProperties,
+	subtitle: {
+		margin: 0,
+		color: 'rgba(255, 255, 255, 0.85)',
+		maxWidth: '720px',
+		lineHeight: 1.6,
+	} as React.CSSProperties,
+	header: {
+		display: 'flex',
+		justifyContent: 'space-between',
+		alignItems: 'center',
+		marginBottom: '2rem',
+	} as React.CSSProperties,
+	actionButtons: {
+		display: 'flex',
+		gap: '0.75rem',
+		flexWrap: 'wrap' as const,
+	} as React.CSSProperties,
+	button: (variant: 'primary' | 'secondary' | 'danger' = 'secondary'): React.CSSProperties => {
+		const base: React.CSSProperties = {
+			display: 'flex',
+			alignItems: 'center',
+			gap: '0.5rem',
+			padding: '0.75rem 1.5rem',
+			border: 'none',
+			borderRadius: '0.5rem',
+			fontSize: '0.875rem',
+			fontWeight: 600,
+			cursor: 'pointer',
+		};
+		if (variant === 'primary') return { ...base, background: '#3b82f6', color: 'white' };
+		if (variant === 'danger') return { ...base, background: '#ef4444', color: 'white' };
+		return { ...base, background: '#f1f5f9', color: '#475569' };
+	},
+	tabsContainer: {
+		display: 'flex',
+		gap: '0.5rem',
+		marginBottom: '2rem',
+		borderBottom: '2px solid #e2e8f0',
+	} as React.CSSProperties,
+	tab: (active: boolean): React.CSSProperties => ({
+		padding: '0.75rem 1.5rem',
+		border: 'none',
+		background: 'none',
+		fontSize: '0.875rem',
+		fontWeight: 600,
+		color: active ? '#3b82f6' : '#64748b',
+		cursor: 'pointer',
+		borderBottom: `2px solid ${active ? '#3b82f6' : 'transparent'}`,
+		marginBottom: '-2px',
+	}),
+	sectionCard: {
+		background: 'white',
+		border: '1px solid #e2e8f0',
+		borderRadius: '0.75rem',
+		padding: '1.5rem',
+		marginBottom: '2rem',
+		boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+	} as React.CSSProperties,
+	sectionHeader: {
+		display: 'flex',
+		justifyContent: 'space-between',
+		alignItems: 'center',
+		marginBottom: '1.5rem',
+	} as React.CSSProperties,
+	sectionTitle: {
+		fontSize: '1.25rem',
+		fontWeight: 600,
+		color: '#1e293b',
+		display: 'flex',
+		alignItems: 'center',
+		gap: '0.5rem',
+		margin: 0,
+	} as React.CSSProperties,
+	inputGroup: {
+		display: 'flex',
+		flexDirection: 'column' as const,
+		gap: '0.5rem',
+		marginBottom: '1rem',
+	} as React.CSSProperties,
+	labelText: {
+		fontSize: '0.875rem',
+		fontWeight: 600,
+		color: '#475569',
+	} as React.CSSProperties,
+	input: {
+		padding: '0.75rem',
+		border: '1px solid #cbd5e1',
+		borderRadius: '0.375rem',
+		fontSize: '0.875rem',
+		color: '#1e293b',
+	} as React.CSSProperties,
+	checkbox: {
+		width: '1.25rem',
+		height: '1.25rem',
+		cursor: 'pointer',
+	} as React.CSSProperties,
+	subscriptionList: {
+		display: 'flex',
+		flexDirection: 'column' as const,
+		gap: '1rem',
+	} as React.CSSProperties,
+	subscriptionCard: {
+		background: '#f8fafc',
+		border: '1px solid #e2e8f0',
+		borderRadius: '0.5rem',
+		padding: '1.25rem',
+		display: 'flex',
+		justifyContent: 'space-between',
+		alignItems: 'flex-start',
+		gap: '1rem',
+	} as React.CSSProperties,
+	subscriptionInfo: {
+		flex: 1,
+	} as React.CSSProperties,
+	subscriptionName: {
+		fontSize: '1rem',
+		fontWeight: 600,
+		color: '#1e293b',
+		marginBottom: '0.5rem',
+	} as React.CSSProperties,
+	subscriptionMeta: {
+		display: 'flex',
+		flexWrap: 'wrap' as const,
+		gap: '1rem',
+		fontSize: '0.875rem',
+		color: '#64748b',
+	} as React.CSSProperties,
+	subscriptionActions: {
+		display: 'flex',
+		gap: '0.5rem',
+	} as React.CSSProperties,
+	statusBadge: (enabled: boolean): React.CSSProperties => ({
+		display: 'inline-flex',
+		alignItems: 'center',
+		gap: '0.25rem',
+		padding: '0.25rem 0.75rem',
+		borderRadius: '0.375rem',
+		fontSize: '0.75rem',
+		fontWeight: 600,
+		background: enabled ? '#dcfce7' : '#fee2e2',
+		color: enabled ? '#166534' : '#991b1b',
+	}),
+	webhookContainer: {
+		display: 'flex',
+		flexDirection: 'column' as const,
+		gap: '1rem',
+		marginTop: '2rem',
+	} as React.CSSProperties,
+	webhookCard: {
+		background: 'white',
+		border: '1px solid #e2e8f0',
+		borderRadius: '0.75rem',
+		padding: '1.5rem',
+		boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+	} as React.CSSProperties,
+	webhookHeader: {
+		display: 'flex',
+		justifyContent: 'space-between',
+		alignItems: 'center',
+		marginBottom: '1rem',
+	} as React.CSSProperties,
+	webhookTitle: {
+		display: 'flex',
+		alignItems: 'center',
+		gap: '0.75rem',
+		fontSize: '1.125rem',
+		fontWeight: 600,
+		color: '#1e293b',
+	} as React.CSSProperties,
+	webhookMeta: {
+		display: 'flex',
+		alignItems: 'center',
+		gap: '1rem',
+		fontSize: '0.875rem',
+		color: '#64748b',
+	} as React.CSSProperties,
+	webhookBody: {
+		background: '#f8fafc',
+		border: '1px solid #e2e8f0',
+		borderRadius: '0.5rem',
+		padding: '1rem',
+		fontFamily: "'Monaco', 'Menlo', 'Ubuntu Mono', monospace",
+		fontSize: '0.875rem',
+		overflowX: 'auto' as const,
+	} as React.CSSProperties,
+	eventStatusBadge: (status?: string): React.CSSProperties => {
+		const base: React.CSSProperties = {
+			display: 'inline-flex',
+			alignItems: 'center',
+			gap: '0.25rem',
+			padding: '0.25rem 0.75rem',
+			borderRadius: '0.375rem',
+			fontSize: '0.75rem',
+			fontWeight: 600,
+		};
+		if (status === 'success') return { ...base, background: '#dcfce7', color: '#166534' };
+		if (status === 'error') return { ...base, background: '#fee2e2', color: '#991b1b' };
+		if (status === 'pending') return { ...base, background: '#fef3c7', color: '#92400e' };
+		return { ...base, background: '#f1f5f9', color: '#475569' };
+	},
+	emptyState: {
+		textAlign: 'center' as const,
+		padding: '4rem 2rem',
+		color: '#64748b',
+	} as React.CSSProperties,
+	filterBar: {
+		display: 'flex',
+		gap: '1rem',
+		alignItems: 'center',
+		padding: '1rem',
+		background: '#f8fafc',
+		borderRadius: '0.5rem',
+		marginBottom: '1.5rem',
+		flexWrap: 'wrap' as const,
+	} as React.CSSProperties,
+	filterSelect: {
+		padding: '0.5rem 1rem',
+		border: '1px solid #cbd5e1',
+		borderRadius: '0.375rem',
+		background: 'white',
+		fontSize: '0.875rem',
+		color: '#1e293b',
+		minWidth: '150px',
+	} as React.CSSProperties,
+	filterLabel: {
+		fontSize: '0.875rem',
+		fontWeight: 600,
+		color: '#475569',
+		display: 'flex',
+		alignItems: 'center',
+		gap: '0.5rem',
+	} as React.CSSProperties,
+	clearFiltersButton: {
+		display: 'flex',
+		alignItems: 'center',
+		gap: '0.5rem',
+		padding: '0.5rem 1rem',
+		border: '1px solid #cbd5e1',
+		borderRadius: '0.375rem',
+		background: 'white',
+		fontSize: '0.875rem',
+		color: '#64748b',
+		cursor: 'pointer',
+	} as React.CSSProperties,
+};
 
 interface WebhookEvent {
 	id: string;
@@ -494,7 +392,8 @@ const PingOneWebhookViewer: React.FC = () => {
 		enabled: true,
 		httpEndpointUrl: `${window.location.origin}/api/webhooks/pingone`,
 		format: 'ACTIVITY',
-		includedActionTypes: 'AUTHENTICATION.LOGIN.SUCCESS,USER.PROVISIONED.CREATED,USER.PROVISIONED.UPDATED,USER.PROVISIONED.DELETED',
+		includedActionTypes:
+			'AUTHENTICATION.LOGIN.SUCCESS,USER.PROVISIONED.CREATED,USER.PROVISIONED.UPDATED,USER.PROVISIONED.DELETED',
 		verifyTlsCertificates: false,
 	});
 
@@ -636,57 +535,65 @@ const PingOneWebhookViewer: React.FC = () => {
 		return `${timestamp} INFO pingone-webhook ${eventType} ${JSON.stringify(eventData)}`;
 	}, []);
 
-	const formatAsPingActivity = useCallback((event: WebhookEvent): string => {
-		// Ping Activity JSON format
-		const activity = {
-			timestamp: event.timestamp.toISOString(),
-			eventId: event.id,
-			eventType: event.type || 'unknown',
-			source: 'pingone-api',
-			actor: event.data?.actor || {},
-			action: event.data?.action || {},
-			resource: event.data?.resource || {},
-			result: event.data?.result || {},
-			metadata: {
-				environmentId: environmentId,
-				webhookId: event.id,
-				receivedAt: event.timestamp.toISOString(),
-			},
-		};
-
-		return JSON.stringify(activity, null, 2);
-	}, [environmentId]);
-
-	const formatAsNewRelic = useCallback((event: WebhookEvent): string => {
-		// New Relic format for application monitoring
-		const newRelicEvent = {
-			eventType: 'PingOneWebhook',
-			timestamp: event.timestamp.getTime(),
-			attributes: {
+	const formatAsPingActivity = useCallback(
+		(event: WebhookEvent): string => {
+			// Ping Activity JSON format
+			const activity = {
+				timestamp: event.timestamp.toISOString(),
 				eventId: event.id,
 				eventType: event.type || 'unknown',
 				source: 'pingone-api',
-				environmentId: environmentId,
-				actor:
-					((event.data as Record<string, unknown> | undefined)?.['actor'] as string) || 'unknown',
-				action:
-					((event.data as Record<string, unknown> | undefined)?.['action'] as string) || 'unknown',
-				resourceType:
-					((event.data as Record<string, unknown> | undefined)?.['resource'] as string) ||
-					'unknown',
-				result:
-					((event.data as Record<string, unknown> | undefined)?.['result'] as string) || 'unknown',
-				userAgent:
-					((event.data as Record<string, unknown> | undefined)?.['userAgent'] as string) ||
-					'unknown',
-				ipAddress:
-					((event.data as Record<string, unknown> | undefined)?.['ipAddress'] as string) ||
-					'unknown',
-			},
-		};
+				actor: event.data?.actor || {},
+				action: event.data?.action || {},
+				resource: event.data?.resource || {},
+				result: event.data?.result || {},
+				metadata: {
+					environmentId: environmentId,
+					webhookId: event.id,
+					receivedAt: event.timestamp.toISOString(),
+				},
+			};
 
-		return JSON.stringify(newRelicEvent, null, 2);
-	}, [environmentId]);
+			return JSON.stringify(activity, null, 2);
+		},
+		[environmentId]
+	);
+
+	const formatAsNewRelic = useCallback(
+		(event: WebhookEvent): string => {
+			// New Relic format for application monitoring
+			const newRelicEvent = {
+				eventType: 'PingOneWebhook',
+				timestamp: event.timestamp.getTime(),
+				attributes: {
+					eventId: event.id,
+					eventType: event.type || 'unknown',
+					source: 'pingone-api',
+					environmentId: environmentId,
+					actor:
+						((event.data as Record<string, unknown> | undefined)?.['actor'] as string) || 'unknown',
+					action:
+						((event.data as Record<string, unknown> | undefined)?.['action'] as string) ||
+						'unknown',
+					resourceType:
+						((event.data as Record<string, unknown> | undefined)?.['resource'] as string) ||
+						'unknown',
+					result:
+						((event.data as Record<string, unknown> | undefined)?.['result'] as string) ||
+						'unknown',
+					userAgent:
+						((event.data as Record<string, unknown> | undefined)?.['userAgent'] as string) ||
+						'unknown',
+					ipAddress:
+						((event.data as Record<string, unknown> | undefined)?.['ipAddress'] as string) ||
+						'unknown',
+				},
+			};
+
+			return JSON.stringify(newRelicEvent, null, 2);
+		},
+		[environmentId]
+	);
 
 	const formatEventForDisplay = useCallback(
 		(event: WebhookEvent, format: string) => {
@@ -979,7 +886,14 @@ const PingOneWebhookViewer: React.FC = () => {
 
 			v4ToastManager.showSuccess('Webhook subscription created successfully');
 			setShowCreateModal(false);
-			setFormData({ name: '', enabled: true, httpEndpointUrl: '', format: 'ACTIVITY', includedActionTypes: '', verifyTlsCertificates: false });
+			setFormData({
+				name: '',
+				enabled: true,
+				httpEndpointUrl: '',
+				format: 'ACTIVITY',
+				includedActionTypes: '',
+				verifyTlsCertificates: false,
+			});
 			await fetchSubscriptions();
 		} catch (error) {
 			console.error('[Webhook Viewer] Error creating subscription:', error);
@@ -1060,7 +974,14 @@ const PingOneWebhookViewer: React.FC = () => {
 
 				v4ToastManager.showSuccess('Webhook subscription updated successfully');
 				setEditingSubscription(null);
-				setFormData({ name: '', enabled: true, httpEndpointUrl: '', format: 'ACTIVITY', includedActionTypes: '', verifyTlsCertificates: false });
+				setFormData({
+					name: '',
+					enabled: true,
+					httpEndpointUrl: '',
+					format: 'ACTIVITY',
+					includedActionTypes: '',
+					verifyTlsCertificates: false,
+				});
 				await fetchSubscriptions();
 			} catch (error) {
 				console.error('[Webhook Viewer] Error updating subscription:', error);
@@ -1153,7 +1074,14 @@ const PingOneWebhookViewer: React.FC = () => {
 	const handleCancelEdit = useCallback(() => {
 		setEditingSubscription(null);
 		setShowCreateModal(false);
-		setFormData({ name: '', enabled: true, httpEndpointUrl: '', format: 'ACTIVITY', includedActionTypes: '', verifyTlsCertificates: false });
+		setFormData({
+			name: '',
+			enabled: true,
+			httpEndpointUrl: '',
+			format: 'ACTIVITY',
+			includedActionTypes: '',
+			verifyTlsCertificates: false,
+		});
 	}, []);
 
 	// Get unique event types from webhooks
@@ -1221,14 +1149,14 @@ const PingOneWebhookViewer: React.FC = () => {
 	const hasWorkerToken = !!currentToken;
 
 	return (
-		<Container>
-			<PageContainer>
-				<HeaderCard>
-					<TitleRow>
-						<TitleLeft>
+		<div style={styles.container}>
+			<div style={styles.pageContainer}>
+				<div style={styles.headerCard}>
+					<div style={styles.titleRow}>
+						<div style={styles.titleLeft}>
 							<FiServer size={28} />
-							<Title>PingOne Webhook Management</Title>
-						</TitleLeft>
+							<h1 style={styles.title}>PingOne Webhook Management</h1>
+						</div>
 						{!isWebhookPopout() && (
 							<button
 								type="button"
@@ -1249,21 +1177,27 @@ const PingOneWebhookViewer: React.FC = () => {
 									whiteSpace: 'nowrap',
 									transition: 'background 0.15s',
 								}}
-								onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.25)'; }}
-								onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.15)'; }}
+								onMouseEnter={(e) => {
+									(e.currentTarget as HTMLButtonElement).style.background =
+										'rgba(255,255,255,0.25)';
+								}}
+								onMouseLeave={(e) => {
+									(e.currentTarget as HTMLButtonElement).style.background =
+										'rgba(255,255,255,0.15)';
+								}}
 								title="Open in popout window to monitor while using the app"
 							>
 								<FiExternalLink size={14} />
 								Popout
 							</button>
 						)}
-					</TitleRow>
-					<Subtitle>
+					</div>
+					<p style={styles.subtitle}>
 						Manage webhook subscriptions and monitor webhook events in real-time. Create, update,
 						and delete webhook subscriptions using the PingOne Management API. Requires
 						p1:read:subscriptions and p1:write:subscriptions scopes.
-					</Subtitle>
-				</HeaderCard>
+					</p>
+				</div>
 
 				<WorkerTokenSectionV8
 					environmentId={environmentId}
@@ -1278,7 +1212,15 @@ const PingOneWebhookViewer: React.FC = () => {
 									localStorage.setItem('environmentId', data.credentials.environmentId);
 								}
 								if (data.credentials?.region) {
-									setSelectedRegion(data.credentials.region === 'eu' ? 'eu' : data.credentials.region === 'ap' ? 'ap' : data.credentials.region === 'ca' ? 'ca' : 'na');
+									setSelectedRegion(
+										data.credentials.region === 'eu'
+											? 'eu'
+											: data.credentials.region === 'ap'
+												? 'ap'
+												: data.credentials.region === 'ca'
+													? 'ca'
+													: 'na'
+									);
 								}
 							}
 						} catch {}
@@ -1287,10 +1229,16 @@ const PingOneWebhookViewer: React.FC = () => {
 					showSettings={false}
 				/>
 
-				<SectionCard style={{ marginBottom: '1rem' }}>
+				<div style={{ ...styles.sectionCard, marginBottom: '1rem' }}>
 					<label
 						htmlFor="webhook-env-id"
-						style={{ fontWeight: 600, fontSize: '0.875rem', color: '#334155', display: 'block', marginBottom: '0.5rem' }}
+						style={{
+							fontWeight: 600,
+							fontSize: '0.875rem',
+							color: '#334155',
+							display: 'block',
+							marginBottom: '0.5rem',
+						}}
 					>
 						Environment ID
 					</label>
@@ -1304,29 +1252,40 @@ const PingOneWebhookViewer: React.FC = () => {
 						}}
 						placeholder="12345678-1234-1234-1234-123456789abc"
 						style={{
-							width: '100%', padding: '0.6rem 0.85rem', borderRadius: '0.5rem',
+							width: '100%',
+							padding: '0.6rem 0.85rem',
+							borderRadius: '0.5rem',
 							border: `1px solid ${!environmentId.trim() ? '#f59e0b' : '#cbd5e1'}`,
 							background: !environmentId.trim() ? '#fffbeb' : '#f8fafc',
-							fontSize: '0.875rem', fontFamily: "'Monaco', 'Menlo', monospace",
+							fontSize: '0.875rem',
+							fontFamily: "'Monaco', 'Menlo', monospace",
 						}}
 					/>
 					{!environmentId.trim() && (
-						<p style={{ margin: '0.4rem 0 0', fontSize: '0.78rem', color: '#d97706', fontWeight: 600 }}>
+						<p
+							style={{
+								margin: '0.4rem 0 0',
+								fontSize: '0.78rem',
+								color: '#d97706',
+								fontWeight: 600,
+							}}
+						>
 							⚠️ Environment ID required to manage subscriptions.
 						</p>
 					)}
-				</SectionCard>
+				</div>
 
-				<Header>
+				<div style={styles.header}>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
 						<FiServer size={24} />
-						<Title style={{ fontSize: '1.5rem', margin: 0 }}>Webhook Management</Title>
+						<h1 style={{ ...styles.title, fontSize: '1.5rem', margin: 0 }}>Webhook Management</h1>
 					</div>
-					<ActionButtons>
+					<div style={styles.actionButtons}>
 						{activeTab === 'subscriptions' && (
 							<>
-								<Button
-									$variant="primary"
+								<button
+									type="button"
+									style={styles.button('primary')}
 									onClick={() => {
 										setEditingSubscription(null);
 										setFormData({
@@ -1343,106 +1302,153 @@ const PingOneWebhookViewer: React.FC = () => {
 								>
 									<FiPlus />
 									Create Subscription
-								</Button>
-								<Button
-									$variant="secondary"
+								</button>
+								<button
+									type="button"
+									style={styles.button('secondary')}
 									onClick={fetchSubscriptions}
 									disabled={!hasWorkerToken || !environmentId || isLoadingSubscriptions}
 								>
 									<FiRefreshCw />
 									Refresh
-								</Button>
+								</button>
 							</>
 						)}
 						{activeTab === 'events' && (
 							<>
 								{!isActive ? (
-									<Button $variant="primary" onClick={handleStartMonitoring}>
+									<button
+										type="button"
+										style={styles.button('primary')}
+										onClick={handleStartMonitoring}
+									>
 										<FiActivity />
 										Start Monitoring
-									</Button>
+									</button>
 								) : (
-									<Button $variant="danger" onClick={handleStopMonitoring}>
+									<button
+										type="button"
+										style={styles.button('danger')}
+										onClick={handleStopMonitoring}
+									>
 										<FiActivity />
 										Stop Monitoring
-									</Button>
+									</button>
 								)}
-								<Button
-									$variant="secondary"
+								<button
+									type="button"
+									style={styles.button('secondary')}
 									onClick={handleClearWebhooks}
 									disabled={webhooks.length === 0}
 								>
 									<FiTrash2 />
 									Clear History
-								</Button>
-								<Button
-									$variant="secondary"
+								</button>
+								<button
+									type="button"
+									style={styles.button('secondary')}
 									onClick={handleExportWebhooks}
 									disabled={webhooks.length === 0}
 								>
 									<FiDownload />
 									Export
-								</Button>
+								</button>
 							</>
 						)}
-					</ActionButtons>
-				</Header>
+					</div>
+				</div>
 
-				<TabsContainer>
-					<Tab
-						$active={activeTab === 'subscriptions'}
+				<div style={styles.tabsContainer}>
+					<button
+						type="button"
+						style={styles.tab(activeTab === 'subscriptions')}
 						onClick={() => setActiveTab('subscriptions')}
 					>
 						Subscriptions ({subscriptions.length})
-					</Tab>
-					<Tab $active={activeTab === 'events'} onClick={() => setActiveTab('events')}>
+					</button>
+					<button
+						type="button"
+						style={styles.tab(activeTab === 'events')}
+						onClick={() => setActiveTab('events')}
+					>
 						Events ({webhooks.length})
-					</Tab>
-				</TabsContainer>
+					</button>
+				</div>
 
 				{activeTab === 'subscriptions' && (
 					<>
-						<div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem', padding: '0.75rem 1rem', background: '#f8fafc', borderRadius: '0.5rem', border: '1px solid #e2e8f0' }}>
+						<div
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.75rem',
+								marginBottom: '1rem',
+								padding: '0.75rem 1rem',
+								background: '#f8fafc',
+								borderRadius: '0.5rem',
+								border: '1px solid #e2e8f0',
+							}}
+						>
 							<FiGlobe size={16} style={{ color: '#64748b' }} />
-							<span style={{ fontSize: '0.875rem', color: '#475569', fontWeight: 600 }}>PingOne Region:</span>
-							<FilterSelect
+							<span style={{ fontSize: '0.875rem', color: '#475569', fontWeight: 600 }}>
+								PingOne Region:
+							</span>
+							<select
+								style={{
+									...styles.filterSelect,
+									fontSize: '0.875rem',
+									padding: '0.25rem 0.5rem',
+									minWidth: 220,
+								}}
 								value={selectedRegion}
 								onChange={(e) => setSelectedRegion(e.target.value)}
-								style={{ fontSize: '0.875rem', padding: '0.25rem 0.5rem', minWidth: 220 }}
 							>
 								<option value="na">North America (.us)</option>
 								<option value="eu">Europe (.eu)</option>
 								<option value="ap">Asia Pacific (.asia)</option>
 								<option value="ca">Canada (.ca)</option>
-							</FilterSelect>
+							</select>
 							<span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
-								API: api.pingone.{selectedRegion === 'na' ? 'us' : selectedRegion === 'ap' ? 'asia' : selectedRegion}
+								API: api.pingone.
+								{selectedRegion === 'na' ? 'us' : selectedRegion === 'ap' ? 'asia' : selectedRegion}
 							</span>
 						</div>
 
 						{showCreateModal && (
-							<SectionCard>
-								<SectionHeader>
-									<SectionTitle>
+							<div style={styles.sectionCard}>
+								<div style={styles.sectionHeader}>
+									<h2 style={styles.sectionTitle}>
 										{editingSubscription ? 'Edit Subscription' : 'Create Subscription'}
-									</SectionTitle>
-									<Button $variant="secondary" onClick={handleCancelEdit}>
+									</h2>
+									<button
+										type="button"
+										style={styles.button('secondary')}
+										onClick={handleCancelEdit}
+									>
 										<FiX />
 										Cancel
-									</Button>
-								</SectionHeader>
-								<InputGroup>
-									<Label>Name *</Label>
-									<Input
+									</button>
+								</div>
+								<div style={styles.inputGroup}>
+									<label htmlFor="webhook-name" style={styles.labelText}>
+										Name *
+									</label>
+									<input
+										id="webhook-name"
+										style={styles.input}
 										type="text"
 										value={formData.name}
 										onChange={(e) => setFormData({ ...formData, name: e.target.value })}
 										placeholder="My Webhook Subscription"
 									/>
-								</InputGroup>
-								<InputGroup>
-									<Label>PingOne Region</Label>
-									<FilterSelect
+								</div>
+								<div style={styles.inputGroup}>
+									<label htmlFor="webhook-region" style={styles.labelText}>
+										PingOne Region
+									</label>
+									<select
+										id="webhook-region"
+										style={styles.filterSelect}
 										value={selectedRegion}
 										onChange={(e) => setSelectedRegion(e.target.value)}
 									>
@@ -1450,11 +1456,15 @@ const PingOneWebhookViewer: React.FC = () => {
 										<option value="eu">Europe (api.pingone.eu)</option>
 										<option value="ap">Asia Pacific (api.pingone.asia)</option>
 										<option value="ca">Canada (api.pingone.ca)</option>
-									</FilterSelect>
-								</InputGroup>
-								<InputGroup>
-									<Label>Webhook Endpoint URL (httpEndpoint.url) *</Label>
-									<Input
+									</select>
+								</div>
+								<div style={styles.inputGroup}>
+									<label htmlFor="webhook-url" style={styles.labelText}>
+										Webhook Endpoint URL (httpEndpoint.url) *
+									</label>
+									<input
+										id="webhook-url"
+										style={styles.input}
 										type="url"
 										value={formData.httpEndpointUrl}
 										onChange={(e) => setFormData({ ...formData, httpEndpointUrl: e.target.value })}
@@ -1463,56 +1473,85 @@ const PingOneWebhookViewer: React.FC = () => {
 									<small style={{ color: '#64748b', fontSize: '0.78rem' }}>
 										PingOne will POST events to this HTTPS URL.
 									</small>
-								</InputGroup>
-								<InputGroup>
-									<Label>Format</Label>
-									<FilterSelect
+								</div>
+								<div style={styles.inputGroup}>
+									<label htmlFor="webhook-format" style={styles.labelText}>
+										Format
+									</label>
+									<select
+										id="webhook-format"
+										style={styles.filterSelect}
 										value={formData.format}
 										onChange={(e) => setFormData({ ...formData, format: e.target.value })}
 									>
 										<option value="ACTIVITY">ACTIVITY — Generic Ping JSON</option>
 										<option value="SPLUNK">SPLUNK — Splunk-friendly</option>
 										<option value="NEWRELIC">NEWRELIC — New Relic-friendly</option>
-									</FilterSelect>
-								</InputGroup>
-								<InputGroup>
-									<Label>Event Types — filterOptions.includedActionTypes (comma-separated)</Label>
-									<Input
+									</select>
+								</div>
+								<div style={styles.inputGroup}>
+									<label htmlFor="webhook-action-types" style={styles.labelText}>
+										Event Types — filterOptions.includedActionTypes (comma-separated)
+									</label>
+									<input
+										id="webhook-action-types"
+										style={styles.input}
 										type="text"
 										value={formData.includedActionTypes}
-										onChange={(e) => setFormData({ ...formData, includedActionTypes: e.target.value })}
+										onChange={(e) =>
+											setFormData({ ...formData, includedActionTypes: e.target.value })
+										}
 										placeholder="AUTHENTICATION.LOGIN.SUCCESS,USER.PROVISIONED.CREATED"
 									/>
 									<small style={{ color: '#64748b', fontSize: '0.78rem' }}>
 										See Audit Reporting Events docs for valid values.
 									</small>
-								</InputGroup>
-								<InputGroup>
-									<Label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-										<Checkbox
+								</div>
+								<div style={styles.inputGroup}>
+									<label
+										style={{
+											...styles.labelText,
+											display: 'flex',
+											alignItems: 'center',
+											gap: '0.5rem',
+										}}
+									>
+										<input
+											style={styles.checkbox}
 											type="checkbox"
 											checked={formData.verifyTlsCertificates}
-											onChange={(e) => setFormData({ ...formData, verifyTlsCertificates: e.target.checked })}
+											onChange={(e) =>
+												setFormData({ ...formData, verifyTlsCertificates: e.target.checked })
+											}
 										/>
 										Verify TLS Certificates
-									</Label>
+									</label>
 									<small style={{ color: '#64748b', fontSize: '0.78rem' }}>
 										Set false for self-signed certs / local dev.
 									</small>
-								</InputGroup>
-								<InputGroup>
-									<Label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-										<Checkbox
+								</div>
+								<div style={styles.inputGroup}>
+									<label
+										style={{
+											...styles.labelText,
+											display: 'flex',
+											alignItems: 'center',
+											gap: '0.5rem',
+										}}
+									>
+										<input
+											style={styles.checkbox}
 											type="checkbox"
 											checked={formData.enabled}
 											onChange={(e) => setFormData({ ...formData, enabled: e.target.checked })}
 										/>
 										Enabled
-									</Label>
-								</InputGroup>
-								<ActionButtons>
-									<Button
-										$variant="primary"
+									</label>
+								</div>
+								<div style={styles.actionButtons}>
+									<button
+										type="button"
+										style={styles.button('primary')}
 										onClick={
 											editingSubscription
 												? () => handleUpdateSubscription(editingSubscription)
@@ -1521,68 +1560,83 @@ const PingOneWebhookViewer: React.FC = () => {
 										disabled={!formData.name || !formData.httpEndpointUrl || isLoadingSubscriptions}
 									>
 										{editingSubscription ? 'Update' : 'Create'} Subscription
-									</Button>
-									<Button $variant="secondary" onClick={handleCancelEdit}>
+									</button>
+									<button
+										type="button"
+										style={styles.button('secondary')}
+										onClick={handleCancelEdit}
+									>
 										Cancel
-									</Button>
-								</ActionButtons>
-							</SectionCard>
+									</button>
+								</div>
+							</div>
 						)}
 
 						{hasWorkerToken && environmentId && (
-							<SectionCard>
-								<SectionHeader>
-									<SectionTitle>Webhook Subscriptions</SectionTitle>
-								</SectionHeader>
+							<div style={styles.sectionCard}>
+								<div style={styles.sectionHeader}>
+									<h2 style={styles.sectionTitle}>Webhook Subscriptions</h2>
+								</div>
 								{isLoadingSubscriptions ? (
 									<p style={{ color: '#64748b' }}>Loading subscriptions...</p>
 								) : subscriptions.length === 0 ? (
-									<EmptyState>
+									<div style={styles.emptyState}>
 										<FiServer size={48} />
 										<h3>No webhook subscriptions</h3>
 										<p>Create your first webhook subscription to start receiving events.</p>
-									</EmptyState>
+									</div>
 								) : (
-									<SubscriptionList>
+									<div style={styles.subscriptionList}>
 										{subscriptions.map((subscription) => (
-											<SubscriptionCard key={subscription.id}>
-												<SubscriptionInfo>
-													<SubscriptionName>{subscription.name}</SubscriptionName>
-													<SubscriptionMeta>
-														<StatusBadge $enabled={subscription.enabled}>
+											<div style={styles.subscriptionCard} key={subscription.id}>
+												<div style={styles.subscriptionInfo}>
+													<div style={styles.subscriptionName}>{subscription.name}</div>
+													<div style={styles.subscriptionMeta}>
+														<span style={styles.statusBadge(subscription.enabled)}>
 															{subscription.enabled ? <FiCheckCircle /> : <FiX />}
 															{subscription.enabled ? 'Enabled' : 'Disabled'}
-														</StatusBadge>
-														<span>URL: {subscription.httpEndpoint?.url || subscription.destination?.url || 'N/A'}</span>
+														</span>
+														<span>
+															URL:{' '}
+															{subscription.httpEndpoint?.url ||
+																subscription.destination?.url ||
+																'N/A'}
+														</span>
 														{subscription.format && <span>Format: {subscription.format}</span>}
-														{((subscription.filterOptions?.includedActionTypes?.length ?? 0) > 0 || (subscription.topics?.length ?? 0) > 0) && (
+														{((subscription.filterOptions?.includedActionTypes?.length ?? 0) > 0 ||
+															(subscription.topics?.length ?? 0) > 0) && (
 															<span style={{ fontSize: '0.78rem', color: '#64748b' }}>
-																Events: {(subscription.filterOptions?.includedActionTypes || subscription.topics || []).join(', ')}
+																Events:{' '}
+																{(
+																	subscription.filterOptions?.includedActionTypes ||
+																	subscription.topics ||
+																	[]
+																).join(', ')}
 															</span>
 														)}
-													</SubscriptionMeta>
-												</SubscriptionInfo>
-												<SubscriptionActions>
-													<Button
+													</div>
+												</div>
+												<div style={styles.subscriptionActions}>
+													<button
 														type="button"
-														$variant="secondary"
+														style={styles.button('secondary')}
 														onClick={() => handleEditSubscription(subscription)}
 													>
 														<FiEdit />
-													</Button>
-													<Button
+													</button>
+													<button
 														type="button"
-														$variant="danger"
+														style={styles.button('danger')}
 														onClick={() => handleDeleteSubscription(subscription.id)}
 													>
 														<FiTrash2 />
-													</Button>
-												</SubscriptionActions>
-											</SubscriptionCard>
+													</button>
+												</div>
+											</div>
 										))}
-									</SubscriptionList>
+									</div>
 								)}
-							</SectionCard>
+							</div>
 						)}
 					</>
 				)}
@@ -1676,11 +1730,15 @@ const PingOneWebhookViewer: React.FC = () => {
 						</div>
 
 						{webhooks.length > 0 && (
-							<FilterBar>
+							<div style={styles.filterBar}>
 								<FiFilter size={20} color="#64748b" />
-								<FilterLabel>
+								<label style={styles.filterLabel}>
 									Status:
-									<FilterSelect value={filter} onChange={(e) => setFilter(e.target.value)}>
+									<select
+										style={styles.filterSelect}
+										value={filter}
+										onChange={(e) => setFilter(e.target.value)}
+									>
 										<option value="all">All ({webhooks.length})</option>
 										<option value="success">
 											Success ({webhooks.filter((w) => w.status === 'success').length})
@@ -1691,35 +1749,44 @@ const PingOneWebhookViewer: React.FC = () => {
 										<option value="pending">
 											Pending ({webhooks.filter((w) => w.status === 'pending').length})
 										</option>
-									</FilterSelect>
-								</FilterLabel>
-								<FilterLabel>
+									</select>
+								</label>
+								<label style={styles.filterLabel}>
 									<FiCalendar />
 									Time:
-									<FilterSelect value={timeFilter} onChange={(e) => setTimeFilter(e.target.value)}>
+									<select
+										style={styles.filterSelect}
+										value={timeFilter}
+										onChange={(e) => setTimeFilter(e.target.value)}
+									>
 										<option value="all">All Time</option>
 										<option value="1h">Last Hour</option>
 										<option value="24h">Last 24 Hours</option>
 										<option value="7d">Last 7 Days</option>
 										<option value="30d">Last 30 Days</option>
-									</FilterSelect>
-								</FilterLabel>
-								<FilterLabel>
+									</select>
+								</label>
+								<label style={styles.filterLabel}>
 									<FiTag />
 									Type:
-									<FilterSelect value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
+									<select
+										style={styles.filterSelect}
+										value={typeFilter}
+										onChange={(e) => setTypeFilter(e.target.value)}
+									>
 										<option value="all">All Types ({eventTypes.length})</option>
 										{eventTypes.map((type) => (
 											<option key={type} value={type}>
 												{type} ({webhooks.filter((w) => w.type === type).length})
 											</option>
 										))}
-									</FilterSelect>
-								</FilterLabel>
-								<FilterLabel>
+									</select>
+								</label>
+								<label style={styles.filterLabel}>
 									<FiTag />
 									Display Format:
-									<FilterSelect
+									<select
+										style={styles.filterSelect}
 										value={displayFormat}
 										onChange={(e) =>
 											setDisplayFormat(e.target.value as 'json' | 'splunk' | 'new_relic')
@@ -1729,20 +1796,24 @@ const PingOneWebhookViewer: React.FC = () => {
 										<option value="splunk">Splunk Format</option>
 										<option value="ping-activity">Ping Activity JSON</option>
 										<option value="new-relic">New Relic Format</option>
-									</FilterSelect>
-								</FilterLabel>
+									</select>
+								</label>
 								{(filter !== 'all' || typeFilter !== 'all' || timeFilter !== 'all') && (
-									<ClearFiltersButton onClick={handleClearFilters}>
+									<button
+										type="button"
+										style={styles.clearFiltersButton}
+										onClick={handleClearFilters}
+									>
 										<FiX />
 										Clear Filters
-									</ClearFiltersButton>
+									</button>
 								)}
-							</FilterBar>
+							</div>
 						)}
 
-						<WebhookContainer>
+						<div style={styles.webhookContainer}>
 							{filteredWebhooks.length === 0 ? (
-								<EmptyState>
+								<div style={styles.emptyState}>
 									<FiServer size={48} />
 									<h3>
 										{webhooks.length === 0 ? 'No webhooks yet' : 'No webhooks match your filters'}
@@ -1754,39 +1825,39 @@ const PingOneWebhookViewer: React.FC = () => {
 												: 'Click "Start Monitoring" to begin receiving webhook events.'
 											: 'Try adjusting your filters to see more results.'}
 									</p>
-								</EmptyState>
+								</div>
 							) : (
 								filteredWebhooks.map((webhook) => (
-									<WebhookCard key={webhook.id} $type={webhook.type}>
-										<WebhookHeader>
-											<WebhookTitle>
-												<EventStatusBadge $status={webhook.status}>
+									<div key={webhook.id} style={styles.webhookCard}>
+										<div style={styles.webhookHeader}>
+											<div style={styles.webhookTitle}>
+												<span style={styles.eventStatusBadge(webhook.status)}>
 													{webhook.status === 'success' ? <FiCheckCircle /> : <FiAlertCircle />}
 													{webhook.status}
-												</EventStatusBadge>
+												</span>
 												<span>{webhook.type}</span>
-											</WebhookTitle>
-											<WebhookMeta>
+											</div>
+											<div style={styles.webhookMeta}>
 												<FiClock size={16} />
 												{formatTimestamp(webhook.timestamp)}
 												<FiTag size={16} />
 												{webhook.source}
-											</WebhookMeta>
-										</WebhookHeader>
-										<WebhookBody>
+											</div>
+										</div>
+										<div style={styles.webhookBody}>
 											<pre>{formatData(webhook.data, webhook)}</pre>
-										</WebhookBody>
-									</WebhookCard>
+										</div>
+									</div>
 								))
 							)}
-						</WebhookContainer>
+						</div>
 					</>
 				)}
 
 				<SuperSimpleApiDisplayV8 flowFilter="all" reserveSpace={true} />
 				<ApiCallList title="API Calls to PingOne" showLegend={true} />
-			</PageContainer>
-		</Container>
+			</div>
+		</div>
 	);
 };
 

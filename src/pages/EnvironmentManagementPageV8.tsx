@@ -14,485 +14,377 @@ import {
 	FiTrash2,
 	FiUpload,
 } from 'react-icons/fi';
-import styled from 'styled-components';
 import ApiCallList from '../components/ApiCallList';
-import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import EnvironmentServiceV8, { PingOneEnvironment } from '../services/environmentServiceV8';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
-import { WorkerTokenModalV8 } from '../v8/components/WorkerTokenModalV8';
-import { WorkerTokenStatusDisplayV8 } from '../v8/components/WorkerTokenStatusDisplayV8';
+import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
 
-const Container = styled.div`
-  padding: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
-`;
+const styles = {
+	container: {
+		padding: '2rem',
+		maxWidth: '1400px',
+		margin: '0 auto',
+	} as React.CSSProperties,
 
-const Header = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  flex-wrap: wrap;
-  gap: 1rem;
-`;
+	header: {
+		display: 'flex',
+		justifyContent: 'space-between',
+		alignItems: 'center',
+		marginBottom: '2rem',
+		flexWrap: 'wrap' as React.CSSProperties['flexWrap'],
+		gap: '1rem',
+	} as React.CSSProperties,
 
-const Title = styled.h1`
-  color: #333;
-  font-size: 2rem;
-  font-weight: 600;
-`;
+	title: {
+		color: '#333',
+		fontSize: '2rem',
+		fontWeight: 600,
+	} as React.CSSProperties,
 
-const Actions = styled.div`
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-`;
+	actions: {
+		display: 'flex',
+		gap: '1rem',
+		flexWrap: 'wrap' as React.CSSProperties['flexWrap'],
+	} as React.CSSProperties,
 
-const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
-  background: ${(props) => {
-		switch (props.variant) {
-			case 'primary':
-				return '#007bff';
-			case 'secondary':
-				return '#6c757d';
-			case 'danger':
-				return '#dc3545';
-			default:
-				return '#007bff';
-		}
-	}};
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 500;
-  font-size: 0.875rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: all 0.2s ease;
-  white-space: nowrap;
+	button: (variant?: 'primary' | 'secondary' | 'danger'): React.CSSProperties => ({
+		background: variant === 'secondary' ? '#6c757d' : variant === 'danger' ? '#dc3545' : '#007bff',
+		color: 'white',
+		border: 'none',
+		padding: '0.5rem 1rem',
+		borderRadius: '6px',
+		cursor: 'pointer',
+		fontWeight: 500,
+		fontSize: '0.875rem',
+		display: 'flex',
+		alignItems: 'center',
+		gap: '0.5rem',
+		transition: 'all 0.2s ease',
+		whiteSpace: 'nowrap',
+	}),
 
-  &:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    background: ${(props) => {
-			switch (props.$variant) {
-				case 'primary':
-					return '#0056b3';
-				case 'secondary':
-					return '#545b62';
-				case 'danger':
-					return '#c82333';
-				default:
-					return '#0056b3';
-			}
-		}};
-  }
+	searchContainer: {
+		display: 'flex',
+		gap: '1rem',
+		marginBottom: '2rem',
+		flexWrap: 'wrap' as React.CSSProperties['flexWrap'],
+	} as React.CSSProperties,
 
-  &:active {
-    transform: translateY(0);
-    box-shadow: none;
-  }
+	filterContainer: {
+		display: 'flex',
+		gap: '1rem',
+		flexWrap: 'wrap' as React.CSSProperties['flexWrap'],
+	} as React.CSSProperties,
 
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-  }
-`;
+	filterSelect: {
+		padding: '0.75rem',
+		border: '1px solid #ddd',
+		borderRadius: '4px',
+		fontSize: '1rem',
+		background: 'white',
+	} as React.CSSProperties,
 
-const SearchContainer = styled.div`
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  flex-wrap: wrap;
-`;
+	environmentGrid: {
+		display: 'grid',
+		gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
+		gap: '1.5rem',
+		marginBottom: '2rem',
+	} as React.CSSProperties,
 
-const FilterContainer = styled.div`
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-`;
+	environmentCard: {
+		background: 'white',
+		borderRadius: '8px',
+		padding: '1.5rem',
+		boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+		border: '1px solid #e0e0e0',
+	} as React.CSSProperties,
 
-const FilterSelect = styled.select`
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
-  background: white;
+	cardHeader: {
+		display: 'flex',
+		justifyContent: 'space-between',
+		alignItems: 'flex-start',
+		marginBottom: '1rem',
+	} as React.CSSProperties,
 
-  &:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-  }
-`;
+	cardTitle: {
+		color: '#333',
+		fontSize: '1.25rem',
+		fontWeight: 600,
+		margin: 0,
+		flex: 1,
+	} as React.CSSProperties,
 
-const EnvironmentGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-`;
+	cardStatus: (status: string): React.CSSProperties => ({
+		padding: '0.25rem 0.75rem',
+		borderRadius: '12px',
+		fontSize: '0.875rem',
+		fontWeight: 500,
+		background: `${EnvironmentServiceV8.getStatusColor(status)}20`,
+		color: EnvironmentServiceV8.getStatusColor(status),
+	}),
 
-const EnvironmentCard = styled.div`
-  background: white;
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e0e0e0;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+	cardType: (type: string): React.CSSProperties => ({
+		padding: '0.25rem 0.75rem',
+		borderRadius: '12px',
+		fontSize: '0.875rem',
+		fontWeight: 500,
+		background: `${EnvironmentServiceV8.getTypeColor(type)}20`,
+		color: EnvironmentServiceV8.getTypeColor(type),
+		marginLeft: '0.5rem',
+	}),
 
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-  }
-`;
+	cardDescription: {
+		color: '#666',
+		fontSize: '0.875rem',
+		marginBottom: '1rem',
+		lineHeight: 1.5,
+	} as React.CSSProperties,
 
-const CardHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 1rem;
-`;
+	cardInfo: {
+		display: 'grid',
+		gridTemplateColumns: 'repeat(2, 1fr)',
+		gap: '0.5rem',
+		marginBottom: '1rem',
+	} as React.CSSProperties,
 
-const CardTitle = styled.h3`
-  color: #333;
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin: 0;
-  flex: 1;
-`;
+	infoItem: {
+		display: 'flex',
+		justifyContent: 'space-between',
+		fontSize: '0.875rem',
+	} as React.CSSProperties,
 
-const CardStatus = styled.span<{ $status: string }>`
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  background: ${(props) => EnvironmentServiceV8.getStatusColor(props.$status)}20;
-  color: ${(props) => EnvironmentServiceV8.getStatusColor(props.$status)};
-`;
+	infoLabel: {
+		color: '#666',
+	} as React.CSSProperties,
 
-const CardType = styled.span<{ $type: string }>`
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  background: ${(props) => EnvironmentServiceV8.getTypeColor(props.$type)}20;
-  color: ${(props) => EnvironmentServiceV8.getTypeColor(props.$type)};
-  margin-left: 0.5rem;
-`;
+	infoValue: {
+		color: '#333',
+		fontWeight: 500,
+	} as React.CSSProperties,
 
-const CardDescription = styled.p`
-  color: #666;
-  font-size: 0.875rem;
-  margin-bottom: 1rem;
-  line-height: 1.5;
-`;
+	cardActions: {
+		display: 'flex',
+		gap: '0.5rem',
+		justifyContent: 'flex-end',
+	} as React.CSSProperties,
 
-const CardInfo = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-`;
+	iconButton: {
+		background: 'none',
+		border: '1px solid #ddd',
+		padding: '0.5rem',
+		borderRadius: '4px',
+		cursor: 'pointer',
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'center',
+		transition: 'all 0.2s ease',
+	} as React.CSSProperties,
 
-const InfoItem = styled.div`
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.875rem;
-`;
+	loadingMessage: {
+		textAlign: 'center',
+		padding: '2rem',
+		color: '#666',
+		fontSize: '1.1rem',
+	} as React.CSSProperties,
 
-const InfoLabel = styled.span`
-  color: #666;
-`;
+	errorMessage: {
+		textAlign: 'center',
+		padding: '2rem',
+		color: '#dc3545',
+		fontSize: '1.1rem',
+	} as React.CSSProperties,
 
-const InfoValue = styled.span`
-  color: #333;
-  font-weight: 500;
-`;
+	educationalSection: {
+		background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)',
+		borderRadius: '12px',
+		padding: '2rem',
+		marginBottom: '2rem',
+		color: 'white',
+		boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
+	} as React.CSSProperties,
 
-const CardActions = styled.div`
-  display: flex;
-  gap: 0.5rem;
-  justify-content: flex-end;
-`;
+	educationalHeader: {
+		display: 'flex',
+		alignItems: 'center',
+		gap: '1rem',
+		marginBottom: '1.5rem',
+	} as React.CSSProperties,
 
-const IconButton = styled.button`
-  background: none;
-  border: 1px solid #ddd;
-  padding: 0.5rem;
-  border-radius: 4px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
+	educationalTitle: {
+		fontSize: '1.5rem',
+		fontWeight: 600,
+		margin: 0,
+	} as React.CSSProperties,
 
-  &:hover {
-    background: #f8f9fa;
-    border-color: #007bff;
-  }
+	educationalContent: {
+		display: 'grid',
+		gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+		gap: '1.5rem',
+	} as React.CSSProperties,
 
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-`;
+	educationalCard: {
+		background: 'white',
+		borderRadius: '8px',
+		padding: '1.5rem',
+		border: '1px solid #e0e0e0',
+		boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+	} as React.CSSProperties,
 
-const LoadingMessage = styled.div`
-  text-align: center;
-  padding: 2rem;
-  color: #666;
-  font-size: 1.1rem;
-`;
+	educationalCardTitle: {
+		display: 'flex',
+		alignItems: 'center',
+		gap: '0.5rem',
+		fontSize: '1.1rem',
+		fontWeight: 600,
+		margin: '0 0 0.75rem 0',
+		color: '#333',
+	} as React.CSSProperties,
 
-const ErrorMessage = styled.div`
-  text-align: center;
-  padding: 2rem;
-  color: #dc3545;
-  font-size: 1.1rem;
-`;
+	educationalCardText: {
+		margin: 0,
+		lineHeight: 1.6,
+		color: '#555',
+	} as React.CSSProperties,
 
-// Educational Section Styles
-const EducationalSection = styled.div`
-  background: #f5f5f5;
-  border-radius: 12px;
-  padding: 2rem;
-  margin-bottom: 2rem;
-  color: #333;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-`;
+	apiEndpointsSection: {
+		margin: '2rem 0',
+		padding: '1.5rem',
+		background: '#ffffff',
+		borderRadius: '12px',
+		border: '1px solid #e9ecef',
+	} as React.CSSProperties,
 
-const EducationalHeader = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-`;
+	apiEndpointsHeader: {
+		display: 'flex',
+		alignItems: 'center',
+		gap: '0.5rem',
+		margin: '0 0 0.5rem 0',
+		color: '#495057',
+		fontSize: '1.25rem',
+		fontWeight: 600,
+	} as React.CSSProperties,
 
-const EducationalTitle = styled.h2`
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin: 0;
-`;
+	apiEndpointsDescription: {
+		margin: '0 0 1rem 0',
+		color: '#6c757d',
+	} as React.CSSProperties,
 
-const EducationalContent = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-`;
+	apiEndpointsTable: {
+		display: 'grid',
+		gridTemplateColumns: '1fr 1fr',
+		gap: '1rem',
+		marginTop: '1rem',
+	} as React.CSSProperties,
 
-const EducationalCard = styled.div`
-  background: white;
-  border-radius: 8px;
-  padding: 1.5rem;
-  border: 1px solid #e0e0e0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-`;
+	apiEndpointCell: {
+		display: 'flex',
+		alignItems: 'center',
+		padding: '0.75rem',
+		background: '#f8f9fa',
+		border: '1px solid #e9ecef',
+		borderRadius: '6px',
+		textDecoration: 'none',
+		color: 'inherit',
+		fontFamily: "'Monaco', 'Menlo', 'Ubuntu Mono', monospace",
+		fontSize: '0.875rem',
+		transition: 'all 0.2s ease',
+	} as React.CSSProperties,
 
-const EducationalCardTitle = styled.h3`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin: 0 0 0.75rem 0;
-`;
+	apiEndpointText: {
+		marginLeft: '0.5rem',
+	} as React.CSSProperties,
 
-const EducationalCardText = styled.div`
-  margin: 0;
-  line-height: 1.6;
-  color: #555;
-`;
+	apiVerb: (method: 'GET' | 'POST' | 'PUT' | 'DELETE'): React.CSSProperties => ({
+		display: 'inline-block',
+		width: '60px',
+		fontWeight: 'bold',
+		color:
+			method === 'GET'
+				? '#61dafb'
+				: method === 'POST'
+					? '#4caf50'
+					: method === 'PUT'
+						? '#ff9800'
+						: '#f44336',
+	}),
 
-// Full-width API endpoints section
-const APIEndpointsSection = styled.div`
-  margin: 2rem 0;
-  padding: 1.5rem;
-  background: #ffffff;
-  border-radius: 12px;
-  border: 1px solid #e9ecef;
-`;
+	apiDisplayModal: (isOpen: boolean): React.CSSProperties => ({
+		position: 'fixed',
+		top: 0,
+		right: isOpen ? 0 : '-600px',
+		width: '600px',
+		height: '100vh',
+		background: 'white',
+		boxShadow: '-2px 0 10px rgba(0, 0, 0, 0.1)',
+		zIndex: 1000,
+		transition: 'right 0.3s ease',
+		overflowY: 'auto',
+	}),
 
-const APIEndpointsHeader = styled.h3`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin: 0 0 0.5rem 0;
-  color: #495057;
-  font-size: 1.25rem;
-  font-weight: 600;
-`;
+	apiDisplayOverlay: (isOpen: boolean): React.CSSProperties => ({
+		position: 'fixed',
+		top: 0,
+		left: 0,
+		right: 0,
+		bottom: 0,
+		background: 'rgba(0, 0, 0, 0.5)',
+		zIndex: 999,
+		display: isOpen ? 'block' : 'none',
+	}),
 
-const APIEndpointsDescription = styled.p`
-  margin: 0 0 1rem 0;
-  color: #6c757d;
-`;
+	apiDisplayHeader: {
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'space-between',
+		padding: '1.5rem',
+		borderBottom: '1px solid #e9ecef',
+		background: '#f8f9fa',
+	} as React.CSSProperties,
 
-const APIEndpointsTable = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-top: 1rem;
-`;
+	apiDisplayTitle: {
+		margin: 0,
+		fontSize: '1.25rem',
+		fontWeight: 600,
+		color: '#495057',
+		display: 'flex',
+		alignItems: 'center',
+		gap: '0.5rem',
+	} as React.CSSProperties,
 
-const APIEndpointCell = styled.a`
-  display: flex;
-  align-items: center;
-  padding: 0.75rem;
-  background: #f8f9fa;
-  border: 1px solid #e9ecef;
-  border-radius: 6px;
-  text-decoration: none;
-  color: inherit;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.875rem;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    background: #e9ecef;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  }
-`;
+	closeButton: {
+		background: 'none',
+		border: 'none',
+		fontSize: '1.5rem',
+		cursor: 'pointer',
+		color: '#6c757d',
+		padding: '0.5rem',
+		borderRadius: '4px',
+	} as React.CSSProperties,
 
-const APIEndpointText = styled.span`
-  margin-left: 0.5rem;
-`;
+	apiDisplayContent: {
+		padding: '1.5rem',
+	} as React.CSSProperties,
 
-const APIVerb = styled.span<{ method: 'GET' | 'POST' | 'PUT' | 'DELETE' }>`
-  display: inline-block;
-  width: 60px;
-  font-weight: bold;
-  color: ${(props) => {
-		switch (props.method) {
-			case 'GET':
-				return '#61dafb';
-			case 'POST':
-				return '#4caf50';
-			case 'PUT':
-				return '#ff9800';
-			case 'DELETE':
-				return '#f44336';
-			default:
-				return 'white';
-		}
-	}};
-`;
+	pagination: {
+		display: 'flex',
+		justifyContent: 'center',
+		alignItems: 'center',
+		gap: '1rem',
+		marginTop: '2rem',
+	} as React.CSSProperties,
 
-// API Display Section Styles
-const ApiDisplayModal = styled.div<{ $isOpen: boolean }>`
-  position: fixed;
-  top: 0;
-  right: ${(props) => (props.$isOpen ? '0' : '-600px')};
-  width: 600px;
-  height: 100vh;
-  background: white;
-  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
-  transition: right 0.3s ease;
-  overflow-y: auto;
-`;
-
-const ApiDisplayOverlay = styled.div<{ $isOpen: boolean }>`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 999;
-  display: ${(props) => (props.$isOpen ? 'block' : 'none')};
-`;
-
-const ApiDisplayHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.5rem;
-  border-bottom: 1px solid #e9ecef;
-  background: #f8f9fa;
-`;
-
-const ApiDisplayTitle = styled.h3`
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #495057;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-`;
-
-const CloseButton = styled.button`
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: #6c757d;
-  padding: 0.5rem;
-  border-radius: 4px;
-  
-  &:hover {
-    background: #e9ecef;
-    color: #495057;
-  }
-`;
-
-const ApiDisplayContent = styled.div`
-  padding: 1.5rem;
-`;
-
-const Pagination = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 1rem;
-  margin-top: 2rem;
-`;
-
-const _DisplayAllButton = styled.button`
-  padding: 0.5rem 1rem;
-  border: 1px solid #28a745;
-  background: white;
-  color: #28a745;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 0.9rem;
-
-  &:hover {
-    background: #28a745;
-    color: white;
-  }
-`;
-
-const PaginationButton = styled.button<{ $active?: boolean }>`
-  padding: 0.5rem 1rem;
-  border: 1px solid #ddd;
-  background: ${(props) => (props.$active ? '#007bff' : 'white')};
-  color: ${(props) => (props.$active ? 'white' : '#333')};
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover:not(:disabled) {
-    background: ${(props) => (props.$active ? '#0056b3' : '#f8f9fa')};
-    border-color: #007bff;
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-`;
+	paginationButton: (active?: boolean): React.CSSProperties => ({
+		padding: '0.5rem 1rem',
+		border: '1px solid #ddd',
+		background: active ? '#007bff' : 'white',
+		color: active ? 'white' : '#333',
+		borderRadius: '4px',
+		cursor: 'pointer',
+		transition: 'all 0.2s ease',
+	}),
+};
 
 const EnvironmentManagementPageV8: React.FC = () => {
 	const [environments, setEnvironments] = useState<PingOneEnvironment[]>([]);
@@ -514,7 +406,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 	const globalTokenStatus = useGlobalWorkerToken();
 
 	// Worker token state - using unifiedWorkerTokenService for consistency
-	const [workerToken, setWorkerToken] = useState<string>(() => {
+	const [_workerToken, setWorkerToken] = useState<string>(() => {
 		// Try to get token from unifiedWorkerTokenService first
 		try {
 			const tokenData = unifiedWorkerTokenService.getTokenDataSync();
@@ -523,8 +415,8 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			return '';
 		}
 	});
-	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
-	
+	const [_showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
+
 	// Calculate button style based on token expiration
 	const buttonStyle = useMemo(() => {
 		try {
@@ -532,21 +424,21 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			if (!tokenData || !tokenData.token) {
 				return { backgroundColor: '#ef4444', label: 'No Token' }; // Red - no token
 			}
-			
+
 			if (tokenData.expiresAt) {
 				const now = Date.now();
 				const remaining = tokenData.expiresAt - now;
 				const fiveMinutesInMs = 5 * 60 * 1000;
-				
+
 				if (remaining <= 0) {
 					return { backgroundColor: '#ef4444', label: 'Token Expired' }; // Red - expired
 				}
-				
+
 				if (remaining < fiveMinutesInMs) {
 					return { backgroundColor: '#f59e0b', label: 'Token Expiring Soon' }; // Yellow - expiring soon
 				}
 			}
-			
+
 			return { backgroundColor: '#10b981', label: 'Token Valid' }; // Green - valid
 		} catch {
 			return { backgroundColor: '#ef4444', label: 'No Token' }; // Red - error
@@ -1069,16 +961,16 @@ const EnvironmentManagementPageV8: React.FC = () => {
 	}, [selectedEnvironments]);
 
 	if (globalTokenStatus.isLoading) {
-		return <LoadingMessage>Initializing global worker token...</LoadingMessage>;
+		return <div style={styles.loadingMessage}>Initializing global worker token...</div>;
 	}
 
 	// Show worker token UI when token is not available
 	if (!globalTokenStatus.isValid || !globalTokenStatus.token) {
 		return (
-			<Container>
-				<Header>
+			<div style={styles.container}>
+				<div style={styles.header}>
 					<h1>Environment Management</h1>
-				</Header>
+				</div>
 
 				<div
 					style={{
@@ -1096,20 +988,16 @@ const EnvironmentManagementPageV8: React.FC = () => {
 						generate a worker token to continue.
 					</p>
 
-					<WorkerTokenDetectedBanner
-						token={workerToken}
-						message="Generate a worker token to access PingOne environment management features."
-						tokenExpiryKey="worker_token_expires_at"
-					/>
+					<WorkerTokenSectionV8 compact />
 
 					<div
-						style={{ 
-							marginTop: '2rem', 
+						style={{
+							marginTop: '2rem',
 							marginBottom: '1.5rem',
-							display: 'flex', 
-							gap: '1rem', 
+							display: 'flex',
+							gap: '1rem',
 							justifyContent: 'center',
-							flexWrap: 'wrap'
+							flexWrap: 'wrap',
 						}}
 					>
 						<button
@@ -1128,23 +1016,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 								alignItems: 'center',
 								gap: '0.5rem',
 								transition: 'all 0.2s ease',
-								boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-							}}
-							onMouseOver={(e) => {
-								e.currentTarget.style.transform = 'translateY(-2px)';
-								e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)';
-							}}
-							onMouseOut={(e) => {
-								e.currentTarget.style.transform = 'translateY(0)';
-								e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
-							}}
-							onFocus={(e) => {
-								e.currentTarget.style.transform = 'translateY(-2px)';
-								e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)';
-							}}
-							onBlur={(e) => {
-								e.currentTarget.style.transform = 'translateY(0)';
-								e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+								boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
 							}}
 						>
 							🔍 Test Environment Fetch
@@ -1166,23 +1038,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 								alignItems: 'center',
 								gap: '0.5rem',
 								transition: 'all 0.2s ease',
-								boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-							}}
-							onMouseOver={(e) => {
-								e.currentTarget.style.transform = 'translateY(-2px)';
-								e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)';
-							}}
-							onMouseOut={(e) => {
-								e.currentTarget.style.transform = 'translateY(0)';
-								e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
-							}}
-							onFocus={(e) => {
-								e.currentTarget.style.transform = 'translateY(-2px)';
-								e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)';
-							}}
-							onBlur={(e) => {
-								e.currentTarget.style.transform = 'translateY(0)';
-								e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+								boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
 							}}
 							title={buttonStyle.label}
 						>
@@ -1190,170 +1046,175 @@ const EnvironmentManagementPageV8: React.FC = () => {
 							Get Worker Token for Environments
 						</button>
 					</div>
-
-					{/* Worker Token Modal */}
-					<WorkerTokenModalV8
-						isOpen={showWorkerTokenModal}
-						onClose={() => setShowWorkerTokenModal(false)}
-						onTokenGenerated={() => {
-							// Token generated, reload the page to show environments
-							window.location.reload();
-						}}
-						environmentId={selectedEnvironmentId}
-					/>
-
-					{/* Worker Token Status Display */}
-					<div style={{ marginTop: '2rem', marginBottom: '1rem' }}>
-						<WorkerTokenStatusDisplayV8 />
-					</div>
 				</div>
-			</Container>
+			</div>
 		);
 	}
 
 	if (loading && environments.length === 0) {
-		return <LoadingMessage>Loading environments...</LoadingMessage>;
+		return <div style={styles.loadingMessage}>Loading environments...</div>;
 	}
 
 	if (envError) {
-		return <ErrorMessage>Error: {envError}</ErrorMessage>;
+		return <div style={styles.errorMessage}>Error: {envError}</div>;
 	}
 
 	return (
-		<Container>
-			<EducationalSection>
-				<EducationalHeader>
+		<div style={styles.container}>
+			<div style={styles.educationalSection}>
+				<div style={styles.educationalHeader}>
 					<FiBook size={24} />
-					<EducationalTitle>PingOne Environments API</EducationalTitle>
-				</EducationalHeader>
-				<EducationalContent>
-					<EducationalCard>
-						<EducationalCardTitle>
+					<h2 style={styles.educationalTitle}>PingOne Environments API</h2>
+				</div>
+				<div style={styles.educationalContent}>
+					<div style={styles.educationalCard}>
+						<h3 style={styles.educationalCardTitle}>
 							<FiInfo />
 							What are Environments?
-						</EducationalCardTitle>
-						<EducationalCardText>
+						</h3>
+						<div style={styles.educationalCardText}>
 							Every organization contains at least one environment resource. Environments are the
 							primary subdivision of an organization and contain the core resources on which all
 							identity services are built. They can be based on region or used to segregate
 							operations by functionality, staging, or configurations.
-						</EducationalCardText>
-					</EducationalCard>
-					<EducationalCard>
-						<EducationalCardTitle>
+						</div>
+					</div>
+					<div style={styles.educationalCard}>
+						<h3 style={styles.educationalCardTitle}>
 							<FiShield />
 							Environment Types
-						</EducationalCardTitle>
-						<EducationalCardText>
+						</h3>
+						<div style={styles.educationalCardText}>
 							<strong>PRODUCTION:</strong> Contains actual business identities. Requires non-Trial
 							license. Cannot be immediately deleted - must go through soft delete state.
 							<br />
 							<strong>SANDBOX:</strong> Temporary configurations for testing. Can be deleted
 							immediately. Cannot be restored once deleted.
-						</EducationalCardText>
-					</EducationalCard>
-				</EducationalContent>
-			</EducationalSection>
+						</div>
+					</div>
+				</div>
+			</div>
 
 			{/* API Endpoints Section - Full Width */}
-			<APIEndpointsSection>
-				<APIEndpointsHeader>
+			<div style={styles.apiEndpointsSection}>
+				<h3 style={styles.apiEndpointsHeader}>
 					<FiCode />
 					Supported API Endpoints
-				</APIEndpointsHeader>
-				<APIEndpointsDescription>
+				</h3>
+				<p style={styles.apiEndpointsDescription}>
 					All environment management operations are supported and tracked:
-				</APIEndpointsDescription>
-				<APIEndpointsTable>
-					<APIEndpointCell
+				</p>
+				<div style={styles.apiEndpointsTable}>
+					<a
+						style={styles.apiEndpointCell}
 						href="https://developer.pingidentity.com/pingone-api/platform/environments.html#get-read-all-environments"
 						target="_blank"
 						rel="noopener noreferrer"
 					>
-						<APIVerb method="GET">GET</APIVerb>
-						<APIEndpointText>/api/environments - List all environments</APIEndpointText>
-					</APIEndpointCell>
-					<APIEndpointCell
+						<span style={styles.apiVerb('GET')}>GET</span>
+						<span style={styles.apiEndpointText}>/api/environments - List all environments</span>
+					</a>
+					<a
+						style={styles.apiEndpointCell}
 						href="https://developer.pingidentity.com/pingone-api/platform/environments.html#get-read-one-environment"
 						target="_blank"
 						rel="noopener noreferrer"
 					>
-						<APIVerb method="GET">GET</APIVerb>
-						<APIEndpointText>/api/environments/:id - Get single environment</APIEndpointText>
-					</APIEndpointCell>
-					<APIEndpointCell
+						<span style={styles.apiVerb('GET')}>GET</span>
+						<span style={styles.apiEndpointText}>
+							/api/environments/:id - Get single environment
+						</span>
+					</a>
+					<a
+						style={styles.apiEndpointCell}
 						href="https://developer.pingidentity.com/pingone-api/platform/environments.html#post-create-environment-activelicense"
 						target="_blank"
 						rel="noopener noreferrer"
 					>
-						<APIVerb method="POST">POST</APIVerb>
-						<APIEndpointText>/api/environments - Create new environment</APIEndpointText>
-					</APIEndpointCell>
-					<APIEndpointCell
+						<span style={styles.apiVerb('POST')}>POST</span>
+						<span style={styles.apiEndpointText}>/api/environments - Create new environment</span>
+					</a>
+					<a
+						style={styles.apiEndpointCell}
 						href="https://developer.pingidentity.com/pingone-api/platform/environments.html#put-update-environment"
 						target="_blank"
 						rel="noopener noreferrer"
 					>
-						<APIVerb method="PUT">PUT</APIVerb>
-						<APIEndpointText>/api/environments/:id - Update environment</APIEndpointText>
-					</APIEndpointCell>
-					<APIEndpointCell
+						<span style={styles.apiVerb('PUT')}>PUT</span>
+						<span style={styles.apiEndpointText}>/api/environments/:id - Update environment</span>
+					</a>
+					<a
+						style={styles.apiEndpointCell}
 						href="https://developer.pingidentity.com/pingone-api/platform/environments.html#put-update-environment"
 						target="_blank"
 						rel="noopener noreferrer"
 					>
-						<APIVerb method="PUT">PUT</APIVerb>
-						<APIEndpointText>/api/environments/:id/status - Update status</APIEndpointText>
-					</APIEndpointCell>
-					<APIEndpointCell
+						<span style={styles.apiVerb('PUT')}>PUT</span>
+						<span style={styles.apiEndpointText}>/api/environments/:id/status - Update status</span>
+					</a>
+					<a
+						style={styles.apiEndpointCell}
 						href="https://developer.pingidentity.com/pingone-api/platform/environments.html#delete-delete-environment"
 						target="_blank"
 						rel="noopener noreferrer"
 					>
-						<APIVerb method="DELETE">DELETE</APIVerb>
-						<APIEndpointText>/api/environments/:id - Delete environment</APIEndpointText>
-					</APIEndpointCell>
-				</APIEndpointsTable>
-			</APIEndpointsSection>
+						<span style={styles.apiVerb('DELETE')}>DELETE</span>
+						<span style={styles.apiEndpointText}>/api/environments/:id - Delete environment</span>
+					</a>
+				</div>
+			</div>
 
-			<Header>
-				<Title>PingOne Environment Management</Title>
-				<Actions>
-					<Button onClick={() => setShowWorkerTokenModal(true)} $variant="secondary">
+			<div style={styles.header}>
+				<h1 style={styles.title}>PingOne Environment Management</h1>
+				<div style={styles.actions}>
+					<button
+						type="button"
+						style={styles.button('secondary')}
+						onClick={() => setShowWorkerTokenModal(true)}
+					>
 						<FiRefreshCw />
 						Worker Token
-					</Button>
-					<Button onClick={handleRefresh}>
+					</button>
+					<button type="button" style={styles.button()} onClick={handleRefresh}>
 						<FiRefreshCw />
 						Refresh
-					</Button>
-					<Button
+					</button>
+					<button
+						type="button"
+						style={styles.button(showApiDisplay ? 'primary' : 'secondary')}
 						onClick={handleToggleApiDisplay}
-						variant={showApiDisplay ? 'primary' : 'secondary'}
 					>
 						<FiCode />
 						{showApiDisplay ? 'Hide API' : 'Show API'}
-					</Button>
-					<Button $variant="secondary" onClick={handleExportEnvironments}>
+					</button>
+					<button
+						type="button"
+						style={styles.button('secondary')}
+						onClick={handleExportEnvironments}
+					>
 						<FiDownload />
 						Export
-					</Button>
-					<Button $variant="secondary" onClick={handleImportEnvironments}>
+					</button>
+					<button
+						type="button"
+						style={styles.button('secondary')}
+						onClick={handleImportEnvironments}
+					>
 						<FiUpload />
 						Import
-					</Button>
-					<Button $variant="primary" onClick={handleCreateEnvironment}>
+					</button>
+					<button type="button" style={styles.button('primary')} onClick={handleCreateEnvironment}>
 						<FiPlus />
 						Create Environment
-					</Button>
-				</Actions>
-			</Header>
+					</button>
+				</div>
+			</div>
 
-			<SearchContainer>
-				<FilterSelect
+			<div style={styles.searchContainer}>
+				<select
+					style={{ ...styles.filterSelect, minWidth: '150px', opacity: isChangingRegion ? 0.6 : 1 }}
 					value={selectedApiRegion}
 					onChange={handleRegionChange}
-					style={{ minWidth: '150px', opacity: isChangingRegion ? 0.6 : 1 }}
 					disabled={isChangingRegion}
 				>
 					<option value="na">North America</option>
@@ -1362,11 +1223,11 @@ const EnvironmentManagementPageV8: React.FC = () => {
 					<option value="au">Australia</option>
 					<option value="sg">Singapore</option>
 					<option value="ap">Asia Pacific</option>
-				</FilterSelect>
-				<FilterSelect
+				</select>
+				<select
+					style={{ ...styles.filterSelect, flex: 1, minWidth: '300px' }}
 					value={selectedEnvironmentId}
 					onChange={(e) => setSelectedEnvironmentId(e.target.value)}
-					style={{ flex: 1, minWidth: '300px' }}
 				>
 					<option value="">Select Environment...</option>
 					{environments?.map((env) => (
@@ -1374,21 +1235,33 @@ const EnvironmentManagementPageV8: React.FC = () => {
 							{env.name} ({env.type}) - {env.region}
 						</option>
 					))}
-				</FilterSelect>
-				<FilterContainer>
-					<FilterSelect value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
+				</select>
+				<div style={styles.filterContainer}>
+					<select
+						style={styles.filterSelect}
+						value={typeFilter}
+						onChange={(e) => setTypeFilter(e.target.value)}
+					>
 						<option value="all">All Types</option>
 						<option value="PRODUCTION">Production</option>
 						<option value="SANDBOX">Sandbox</option>
 						<option value="DEVELOPMENT">Development</option>
-					</FilterSelect>
-					<FilterSelect value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+					</select>
+					<select
+						style={styles.filterSelect}
+						value={statusFilter}
+						onChange={(e) => setStatusFilter(e.target.value)}
+					>
 						<option value="all">All Status</option>
 						<option value="ACTIVE">Active</option>
 						<option value="INACTIVE">Inactive</option>
 						<option value="DELETE_PENDING">Delete Pending</option>
-					</FilterSelect>
-					<FilterSelect value={regionFilter} onChange={(e) => setRegionFilter(e.target.value)}>
+					</select>
+					<select
+						style={styles.filterSelect}
+						value={regionFilter}
+						onChange={(e) => setRegionFilter(e.target.value)}
+					>
 						<option value="all">All Regions</option>
 						<option value="NA">North America (.com)</option>
 						<option value="EU">European Union (.eu)</option>
@@ -1396,9 +1269,9 @@ const EnvironmentManagementPageV8: React.FC = () => {
 						<option value="AU">Australia (.com.au)</option>
 						<option value="SG">Singapore (.sg)</option>
 						<option value="AP">Asia Pacific (.asia)</option>
-					</FilterSelect>
-				</FilterContainer>
-			</SearchContainer>
+					</select>
+				</div>
+			</div>
 
 			{showBulkActions && (
 				<div
@@ -1412,18 +1285,30 @@ const EnvironmentManagementPageV8: React.FC = () => {
 					<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
 						<span>{selectedEnvironments.length} environments selected</span>
 						<div style={{ display: 'flex', gap: '0.5rem' }}>
-							<Button $variant="secondary" onClick={() => handleBulkStatusUpdate('ACTIVE')}>
+							<button
+								type="button"
+								style={styles.button('secondary')}
+								onClick={() => handleBulkStatusUpdate('ACTIVE')}
+							>
 								Activate
-							</Button>
-							<Button $variant="secondary" onClick={() => handleBulkStatusUpdate('INACTIVE')}>
+							</button>
+							<button
+								type="button"
+								style={styles.button('secondary')}
+								onClick={() => handleBulkStatusUpdate('INACTIVE')}
+							>
 								Deactivate
-							</Button>
-							<Button $variant="danger" onClick={handleBulkDelete}>
+							</button>
+							<button type="button" style={styles.button('danger')} onClick={handleBulkDelete}>
 								Delete
-							</Button>
-							<Button $variant="secondary" onClick={() => setSelectedEnvironments([])}>
+							</button>
+							<button
+								type="button"
+								style={styles.button('secondary')}
+								onClick={() => setSelectedEnvironments([])}
+							>
 								Clear Selection
-							</Button>
+							</button>
 						</div>
 					</div>
 				</div>
@@ -1474,11 +1359,11 @@ const EnvironmentManagementPageV8: React.FC = () => {
 				</div>
 			</div>
 
-			<EnvironmentGrid>
+			<div style={styles.environmentGrid}>
 				{/* CRITICAL FIX: Add null safety check to prevent undefined .map() crash */}
 				{filteredEnvironments.map((environment) => (
-					<EnvironmentCard key={environment.id}>
-						<CardHeader>
+					<div key={environment.id} style={styles.environmentCard}>
+						<div style={styles.cardHeader}>
 							<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
 								<input
 									type="checkbox"
@@ -1486,7 +1371,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 									onChange={() => handleSelectEnvironment(environment.id)}
 									style={{ marginRight: '0.5rem' }}
 								/>
-								<CardTitle>{environment.name}</CardTitle>
+								<h3 style={styles.cardTitle}>{environment.name}</h3>
 							</div>
 							<div
 								style={{
@@ -1496,114 +1381,136 @@ const EnvironmentManagementPageV8: React.FC = () => {
 									gap: '0.25rem',
 								}}
 							>
-								<CardStatus $status={environment.status}>
+								<span style={styles.cardStatus(environment.status)}>
 									{EnvironmentServiceV8.formatEnvironmentStatus(environment.status)}
-								</CardStatus>
-								<CardType $type={environment.type}>
+								</span>
+								<span style={styles.cardType(environment.type)}>
 									{EnvironmentServiceV8.formatEnvironmentType(environment.type)}
-								</CardType>
+								</span>
 							</div>
-						</CardHeader>
+						</div>
 
 						{environment.description && (
-							<CardDescription>{environment.description}</CardDescription>
+							<p style={styles.cardDescription}>{environment.description}</p>
 						)}
 
-						<CardInfo>
-							<InfoItem>
-								<InfoLabel>ID:</InfoLabel>
-								<InfoValue>{environment.id}</InfoValue>
-							</InfoItem>
-							<InfoItem>
-								<InfoLabel>Region:</InfoLabel>
-								<InfoValue>{environment.region || 'N/A'}</InfoValue>
-							</InfoItem>
-							<InfoItem>
-								<InfoLabel>Created:</InfoLabel>
-								<InfoValue>{new Date(environment.createdAt).toLocaleDateString()}</InfoValue>
-							</InfoItem>
-							<InfoItem>
-								<InfoLabel>Updated:</InfoLabel>
-								<InfoValue>{new Date(environment.updatedAt).toLocaleDateString()}</InfoValue>
-							</InfoItem>
-							<InfoItem>
-								<InfoLabel>Services:</InfoLabel>
-								<InfoValue>{environment.enabledServices.length}</InfoValue>
-							</InfoItem>
-							<InfoItem>
-								<InfoLabel>Status:</InfoLabel>
-								<InfoValue>
+						<div style={styles.cardInfo}>
+							<div style={styles.infoItem}>
+								<span style={styles.infoLabel}>ID:</span>
+								<span style={styles.infoValue}>{environment.id}</span>
+							</div>
+							<div style={styles.infoItem}>
+								<span style={styles.infoLabel}>Region:</span>
+								<span style={styles.infoValue}>{environment.region || 'N/A'}</span>
+							</div>
+							<div style={styles.infoItem}>
+								<span style={styles.infoLabel}>Created:</span>
+								<span style={styles.infoValue}>
+									{new Date(environment.createdAt).toLocaleDateString()}
+								</span>
+							</div>
+							<div style={styles.infoItem}>
+								<span style={styles.infoLabel}>Updated:</span>
+								<span style={styles.infoValue}>
+									{new Date(environment.updatedAt).toLocaleDateString()}
+								</span>
+							</div>
+							<div style={styles.infoItem}>
+								<span style={styles.infoLabel}>Services:</span>
+								<span style={styles.infoValue}>{environment.enabledServices.length}</span>
+							</div>
+							<div style={styles.infoItem}>
+								<span style={styles.infoLabel}>Status:</span>
+								<span style={styles.infoValue}>
 									{EnvironmentServiceV8.formatEnvironmentStatus(environment.status)}
-								</InfoValue>
-							</InfoItem>
-						</CardInfo>
+								</span>
+							</div>
+						</div>
 
-						<CardActions>
-							<IconButton
+						<div style={styles.cardActions}>
+							<button
+								type="button"
+								style={styles.iconButton}
 								onClick={() => handleToggleEnvironmentStatus(environment.id)}
 								disabled={!EnvironmentServiceV8.canEditEnvironment(environment)}
 								title={environment.status === 'ACTIVE' ? 'Deactivate' : 'Activate'}
 							>
 								<FiRefreshCw />
-							</IconButton>
-							<IconButton
+							</button>
+							<button
+								type="button"
+								style={styles.iconButton}
 								onClick={() => handleEditEnvironment(environment.id)}
 								disabled={!EnvironmentServiceV8.canEditEnvironment(environment)}
 								title="Edit"
 							>
 								<FiEdit2 />
-							</IconButton>
-							<IconButton
+							</button>
+							<button
+								type="button"
+								style={styles.iconButton}
 								onClick={() => handleDeleteEnvironment(environment.id)}
 								disabled={!EnvironmentServiceV8.canDeleteEnvironment(environment)}
 								title="Delete"
 							>
 								<FiTrash2 />
-							</IconButton>
-						</CardActions>
-					</EnvironmentCard>
+							</button>
+						</div>
+					</div>
 				))}
-			</EnvironmentGrid>
+			</div>
 
 			{totalPages > 1 && (
-				<Pagination>
-					<PaginationButton
+				<div style={styles.pagination}>
+					<button
+						type="button"
+						style={styles.paginationButton(false)}
 						onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
 						disabled={currentPage === 1}
 					>
 						Previous
-					</PaginationButton>
+					</button>
 
 					{Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-						<PaginationButton
+						<button
 							key={page}
+							type="button"
+							style={styles.paginationButton(page === currentPage)}
 							onClick={() => setCurrentPage(page)}
-							$active={page === currentPage}
 						>
 							{page}
-						</PaginationButton>
+						</button>
 					))}
 
-					<PaginationButton
+					<button
+						type="button"
+						style={styles.paginationButton(false)}
 						onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
 						disabled={currentPage === totalPages}
 					>
 						Next
-					</PaginationButton>
-				</Pagination>
+					</button>
+				</div>
 			)}
 
 			{/* Edit Environment Modal */}
-			<ApiDisplayOverlay $isOpen={showEditModal} onClick={handleCancelEdit} />
-			<ApiDisplayModal $isOpen={showEditModal}>
-				<ApiDisplayHeader>
-					<ApiDisplayTitle>
+			<button
+				type="button"
+				aria-label="Close modal"
+				style={{ ...styles.apiDisplayOverlay(showEditModal), border: 'none' }}
+				onClick={handleCancelEdit}
+			/>
+			<div style={styles.apiDisplayModal(showEditModal)}>
+				<div style={styles.apiDisplayHeader}>
+					<h3 style={styles.apiDisplayTitle}>
 						<FiEdit2 />
 						Edit Environment
-					</ApiDisplayTitle>
-					<CloseButton onClick={handleCancelEdit}>×</CloseButton>
-				</ApiDisplayHeader>
-				<ApiDisplayContent>
+					</h3>
+					<button type="button" style={styles.closeButton} onClick={handleCancelEdit}>
+						×
+					</button>
+				</div>
+				<div style={styles.apiDisplayContent}>
 					<div style={{ padding: '1rem' }}>
 						{editingEnvironment && (
 							<div>
@@ -1695,7 +1602,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 							</div>
 						)}
 					</div>
-				</ApiDisplayContent>
+				</div>
 				<div
 					style={{
 						padding: '1rem',
@@ -1705,55 +1612,55 @@ const EnvironmentManagementPageV8: React.FC = () => {
 						justifyContent: 'flex-end',
 					}}
 				>
-					<Button $variant="secondary" onClick={handleCancelEdit}>
+					<button type="button" style={styles.button('secondary')} onClick={handleCancelEdit}>
 						Cancel
-					</Button>
-					<Button
+					</button>
+					<button
+						type="button"
 						onClick={handleSaveEdit}
 						disabled={!editName.trim()}
 						style={{
+							...styles.button(),
 							backgroundColor: hasUnsavedChanges
 								? '#dc3545'
 								: editName.trim()
 									? '#28a745'
 									: '#6c757d',
-							borderColor: hasUnsavedChanges ? '#dc3545' : editName.trim() ? '#28a745' : '#6c757d',
 							color: '#fff',
 							opacity: editName.trim() ? 1 : 0.6,
 							cursor: editName.trim() ? 'pointer' : 'not-allowed',
 						}}
 					>
 						{hasUnsavedChanges ? 'Save Changes*' : editName.trim() ? 'Saved' : 'Save Changes'}
-					</Button>
+					</button>
 				</div>
-			</ApiDisplayModal>
+			</div>
 
 			{/* API Display Modal */}
-			<ApiDisplayOverlay $isOpen={showApiDisplay} onClick={() => setShowApiDisplay(false)} />
-			<ApiDisplayModal $isOpen={showApiDisplay}>
-				<ApiDisplayHeader>
-					<ApiDisplayTitle>
+			<button
+				type="button"
+				aria-label="Close modal"
+				style={{ ...styles.apiDisplayOverlay(showApiDisplay), border: 'none' }}
+				onClick={() => setShowApiDisplay(false)}
+			/>
+			<div style={styles.apiDisplayModal(showApiDisplay)}>
+				<div style={styles.apiDisplayHeader}>
+					<h3 style={styles.apiDisplayTitle}>
 						<FiCode />
 						API Call History
-					</ApiDisplayTitle>
-					<CloseButton onClick={() => setShowApiDisplay(false)}>×</CloseButton>
-				</ApiDisplayHeader>
-				<ApiDisplayContent>
+					</h3>
+					<button type="button" style={styles.closeButton} onClick={() => setShowApiDisplay(false)}>
+						×
+					</button>
+				</div>
+				<div style={styles.apiDisplayContent}>
 					<ApiCallList />
-				</ApiDisplayContent>
-			</ApiDisplayModal>
+				</div>
+			</div>
 
-			{/* Worker Token Modal - Always available */}
-			<WorkerTokenModalV8
-				isOpen={showWorkerTokenModal}
-				onClose={() => setShowWorkerTokenModal(false)}
-				onTokenGenerated={() => {
-					// Token generated, reload the page to show environments
-					window.location.reload();
-				}}
-				environmentId={selectedEnvironmentId}
-			/>
-		</Container>
+			{/* Worker Token Section - Always available */}
+			<WorkerTokenSectionV8 compact />
+		</div>
 	);
 };
 
