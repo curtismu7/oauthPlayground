@@ -3,10 +3,9 @@
 
 import React, { useEffect, useState } from 'react';
 import { FiAlertTriangle, FiInfo, FiKey, FiRefreshCw, FiShield } from 'react-icons/fi';
-import styled from 'styled-components';
 import { StepNavigationButtons } from '../components/StepNavigationButtons';
-import { usePageScroll } from '../hooks/usePageScroll';
 import { usePageStepper } from '../contexts/FloatingStepperContext';
+import { usePageScroll } from '../hooks/usePageScroll';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import {
 	getAllLicenses,
@@ -15,11 +14,11 @@ import {
 	type OrganizationLicense,
 } from '../services/organizationLicensingService';
 import PageLayoutService from '../services/pageLayoutService';
+import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import V7StepperService from '../services/v7StepperService';
 import { credentialManager } from '../utils/credentialManager';
 import { getOAuthTokens } from '../utils/tokenStorage';
 import { v4ToastManager } from '../utils/v4ToastMessages';
-import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { getAnyWorkerToken } from '../utils/workerTokenDetection';
 import WorkerTokenStatusDisplayV8 from '../v8/components/WorkerTokenStatusDisplayV8';
 
@@ -44,252 +43,170 @@ const pageConfig = {
 
 const { PageContainer, ContentWrapper } = PageLayoutService.createPageLayout(pageConfig);
 
-const StepContainer = styled.div`
-	background: white;
-	border-radius: 8px;
-	padding: 24px;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-	margin-bottom: 20px;
-`;
-
-const _StepTitle = styled.h2`
-	font-size: 24px;
-	font-weight: 600;
-	margin-bottom: 16px;
-	color: #1a202c;
-	display: flex;
-	align-items: center;
-	gap: 12px;
-`;
-
-const _HelperText = styled.p`
-	color: #64748b;
-	font-size: 14px;
-	line-height: 1.6;
-	margin-bottom: 20px;
-`;
-
-const StepContent = styled.div`
-	padding: 1.5rem;
-	background: white;
-	border-radius: 0.75rem;
-	border: 1px solid #e5e7eb;
-`;
-
-const StepDescription = styled.div`
-	margin-bottom: 1.5rem;
-	
-	p {
-		margin-bottom: 1rem;
-		line-height: 1.6;
-		color: #374151;
-	}
-	
-	&:last-child {
-		margin-bottom: 0;
-	}
-`;
-
-const ScopeList = styled.ul`
-	margin: 1rem 0;
-	padding-left: 1.5rem;
-	
-	li {
-		margin-bottom: 0.5rem;
-		line-height: 1.6;
-		color: #374151;
-		
-		code {
-			background: #f3f4f6;
-			padding: 0.125rem 0.25rem;
-			border-radius: 0.25rem;
-			font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
-			font-size: 0.875rem;
-			color: #1f2937;
-		}
-	}
-	
-	li:last-child {
-		margin-bottom: 0;
-	}
-`;
-
-const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
-	padding: 0.75rem 1.5rem;
-	border-radius: 0.5rem;
-	border: none;
-	font-weight: 600;
-	cursor: pointer;
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-	transition: all 0.2s;
-	
-	background: ${({ $variant }) => ($variant === 'primary' ? '#3b82f6' : '#6b7280')};
-	color: white;
-	
-	&:hover:not(:disabled) {
-		opacity: 0.9;
-	}
-	
-	&:disabled {
-		opacity: 1;
-		cursor: not-allowed;
-		background: #9ca3af;
-		color: #f8fafc;
-	}
-`;
-
-const ErrorMessage = styled.div`
-	background: #fef2f2;
-	border: 1px solid #fecaca;
-	border-radius: 8px;
-	padding: 1rem;
-	color: #991b1b;
-	margin: 1rem 0;
-`;
-
-const LicenseGrid = styled.div`
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-	gap: 1.5rem;
-	margin-top: 1rem;
-`;
-
-const LicenseCard = styled.div<{ $borderColor?: string }>`
-	background: white;
-	border: 2px solid ${({ $borderColor }) => $borderColor || '#e5e7eb'};
-	border-radius: 8px;
-	padding: 1.5rem;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-`;
-
-const FeatureBadge = styled.span`
-	display: inline-flex;
-	align-items: center;
-	padding: 0.35rem 0.75rem;
-	margin: 0.25rem;
-	border-radius: 9999px;
-	background: #e0f2fe;
-	color: #0369a1;
-	font-size: 0.75rem;
-	font-weight: 600;
-`;
-
-const EnvironmentTable = styled.div`
-	border: 1px solid #e2e8f0;
-	border-radius: 0.75rem;
-	overflow: hidden;
-	margin-top: 1rem;
-`;
-
-const EnvironmentHeader = styled.div`
-	display: grid;
-	grid-template-columns: 2fr 1fr 2fr 1.5fr;
-	gap: 0.75rem;
-	padding: 0.75rem 1rem;
-	background: #f1f5f9;
-	font-weight: 600;
-	font-size: 0.85rem;
-	color: #475569;
-`;
-
-const EnvironmentRow = styled.div`
-	display: grid;
-	grid-template-columns: 2fr 1fr 2fr 1.5fr;
-	gap: 0.75rem;
-	padding: 0.75rem 1rem;
-	border-top: 1px solid #e2e8f0;
-	font-size: 0.85rem;
-
-	&:nth-child(even) {
-		background: #f8fafc;
-	}
-`;
-
-const EnvironmentName = styled.span`
-	font-weight: 600;
-	color: #1e293b;
-`;
-
-const EnvironmentRegion = styled.span`
-	display: inline-flex;
-	align-items: center;
-	justify-content: flex-start;
-	gap: 0.35rem;
-	font-weight: 600;
-	color: #0f172a;
-`;
-
-const EnvironmentId = styled.code`
-	font-family: 'SFMono-Regular', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-	font-size: 0.75rem;
-	color: #475569;
-	word-break: break-all;
-`;
-
-const EnvironmentLicense = styled.div`
-	display: flex;
-	flex-direction: column;
-	gap: 0.35rem;
-	font-size: 0.8rem;
-	color: #1f2937;
-
-	strong {
-		font-weight: 600;
-	}
-`;
-
-const EnvironmentLicenseMeta = styled.div`
-	display: flex;
-	flex-direction: column;
-	gap: 0.25rem;
-	font-size: 0.75rem;
-	color: #64748b;
-`;
-
-const InfoRow = styled.div`
-	display: flex;
-	justify-content: space-between;
-	padding: 0.5rem 0;
-	border-bottom: 1px solid #e5e7eb;
-	
-	&:last-child {
-		border-bottom: none;
-	}
-`;
-
-const InfoLabel = styled.span`
-	font-weight: 600;
-	color: #6b7280;
-`;
-
-const InfoValue = styled.span`
-	color: #111827;
-`;
-
-const Input = styled.input`
-	width: 100%;
-	padding: 0.75rem;
-	border: 1px solid #d1d5db;
-	border-radius: 0.5rem;
-	font-size: 1rem;
-	margin-bottom: 1rem;
-	
-	&:focus {
-		outline: none;
-		border-color: #3b82f6;
-		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-	}
-`;
-
-const InputLabel = styled.label`
-	display: block;
-	font-weight: 600;
-	color: #374151;
-	margin-bottom: 0.5rem;
-	font-size: 0.875rem;
-`;
+const styles = {
+	stepContainer: {
+		background: 'white',
+		borderRadius: '8px',
+		padding: '24px',
+		boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+		marginBottom: '20px',
+	} as React.CSSProperties,
+	stepContent: {
+		padding: '1.5rem',
+		background: 'white',
+		borderRadius: '0.75rem',
+		border: '1px solid #e5e7eb',
+	} as React.CSSProperties,
+	stepDescription: {
+		marginBottom: '1.5rem',
+	} as React.CSSProperties,
+	scopeList: {
+		margin: '1rem 0',
+		paddingLeft: '1.5rem',
+	} as React.CSSProperties,
+	scopeItem: {
+		marginBottom: '0.5rem',
+		lineHeight: 1.6,
+		color: '#374151',
+	} as React.CSSProperties,
+	scopeCode: {
+		background: '#f3f4f6',
+		padding: '0.125rem 0.25rem',
+		borderRadius: '0.25rem',
+		fontFamily: "'Monaco', 'Menlo', 'Courier New', monospace",
+		fontSize: '0.875rem',
+		color: '#1f2937',
+	} as React.CSSProperties,
+	button: (isPrimary: boolean, isDisabled?: boolean): React.CSSProperties => ({
+		padding: '0.75rem 1.5rem',
+		borderRadius: '0.5rem',
+		border: 'none',
+		fontWeight: 600,
+		cursor: isDisabled ? 'not-allowed' : 'pointer',
+		display: 'flex',
+		alignItems: 'center',
+		gap: '0.5rem',
+		background: isDisabled ? '#9ca3af' : isPrimary ? '#3b82f6' : '#6b7280',
+		color: isDisabled ? '#f8fafc' : 'white',
+	}),
+	errorMessage: {
+		background: '#fef2f2',
+		border: '1px solid #fecaca',
+		borderRadius: '8px',
+		padding: '1rem',
+		color: '#991b1b',
+		margin: '1rem 0',
+	} as React.CSSProperties,
+	licenseGrid: {
+		display: 'grid',
+		gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+		gap: '1.5rem',
+		marginTop: '1rem',
+	} as React.CSSProperties,
+	licenseCard: (borderColor?: string): React.CSSProperties => ({
+		background: 'white',
+		border: `2px solid ${borderColor || '#e5e7eb'}`,
+		borderRadius: '8px',
+		padding: '1.5rem',
+		boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+	}),
+	featureBadge: {
+		display: 'inline-flex',
+		alignItems: 'center',
+		padding: '0.35rem 0.75rem',
+		margin: '0.25rem',
+		borderRadius: '9999px',
+		background: '#e0f2fe',
+		color: '#0369a1',
+		fontSize: '0.75rem',
+		fontWeight: 600,
+	} as React.CSSProperties,
+	environmentTable: {
+		border: '1px solid #e2e8f0',
+		borderRadius: '0.75rem',
+		overflow: 'hidden',
+		marginTop: '1rem',
+	} as React.CSSProperties,
+	environmentHeader: {
+		display: 'grid',
+		gridTemplateColumns: '2fr 1fr 2fr 1.5fr',
+		gap: '0.75rem',
+		padding: '0.75rem 1rem',
+		background: '#f1f5f9',
+		fontWeight: 600,
+		fontSize: '0.85rem',
+		color: '#475569',
+	} as React.CSSProperties,
+	environmentRow: {
+		display: 'grid',
+		gridTemplateColumns: '2fr 1fr 2fr 1.5fr',
+		gap: '0.75rem',
+		padding: '0.75rem 1rem',
+		borderTop: '1px solid #e2e8f0',
+		fontSize: '0.85rem',
+	} as React.CSSProperties,
+	environmentName: {
+		fontWeight: 600,
+		color: '#1e293b',
+	} as React.CSSProperties,
+	environmentRegion: {
+		display: 'inline-flex',
+		alignItems: 'center',
+		justifyContent: 'flex-start',
+		gap: '0.35rem',
+		fontWeight: 600,
+		color: '#0f172a',
+	} as React.CSSProperties,
+	environmentId: {
+		fontFamily:
+			"'SFMono-Regular', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+		fontSize: '0.75rem',
+		color: '#475569',
+		wordBreak: 'break-all',
+	} as React.CSSProperties,
+	environmentLicense: {
+		display: 'flex',
+		flexDirection: 'column',
+		gap: '0.35rem',
+		fontSize: '0.8rem',
+		color: '#1f2937',
+	} as React.CSSProperties,
+	environmentLicenseMeta: {
+		display: 'flex',
+		flexDirection: 'column',
+		gap: '0.25rem',
+		fontSize: '0.75rem',
+		color: '#64748b',
+	} as React.CSSProperties,
+	infoRow: {
+		display: 'flex',
+		justifyContent: 'space-between',
+		padding: '0.5rem 0',
+		borderBottom: '1px solid #e5e7eb',
+	} as React.CSSProperties,
+	infoLabel: {
+		fontWeight: 600,
+		color: '#6b7280',
+	} as React.CSSProperties,
+	infoValue: {
+		color: '#111827',
+	} as React.CSSProperties,
+	input: {
+		width: '100%',
+		padding: '0.75rem',
+		border: '1px solid #d1d5db',
+		borderRadius: '0.5rem',
+		fontSize: '1rem',
+		marginBottom: '1rem',
+	} as React.CSSProperties,
+	inputLabel: {
+		display: 'block',
+		fontWeight: 600,
+		color: '#374151',
+		marginBottom: '0.5rem',
+		fontSize: '0.875rem',
+	} as React.CSSProperties,
+};
 
 // Create V5 stepper layout components
 const stepperComponents = V7StepperService.createStepLayout({
@@ -605,36 +522,38 @@ const OrganizationLicensingV2: React.FC = () => {
 		const hasWorkerToken = Boolean(workerToken);
 		// Combined step: Get Worker Token + Get License Information
 		return (
-			<StepContainer>
+			<div style={styles.stepContainer}>
 				<CollapsibleHeader
 					title="Worker Token Status"
 					subtitle="Unified worker token service with real-time status and management"
 					icon={<FiKey />}
 					defaultCollapsed={false}
 				>
-					<StepContent>
-						<StepDescription>
+					<div style={styles.stepContent}>
+						<div style={styles.stepDescription}>
 							<p>
 								The unified worker token service provides comprehensive token management with
 								real-time status updates. The token needs the following scopes for organization
 								licensing:
 							</p>
-							<ScopeList>
-								<li>
-									<code>p1:read:organization</code> - Read organization information
+							<ul style={styles.scopeList}>
+								<li style={styles.scopeItem}>
+									<code style={styles.scopeCode}>p1:read:organization</code> - Read organization
+									information
 								</li>
-								<li>
-									<code>p1:read:licensing</code> - Read licensing information
+								<li style={styles.scopeItem}>
+									<code style={styles.scopeCode}>p1:read:licensing</code> - Read licensing
+									information
 								</li>
-							</ScopeList>
+							</ul>
 							<p>
 								The status display below shows token availability, expiration, and provides refresh
 								capabilities.
 							</p>
-						</StepDescription>
+						</div>
 
 						<WorkerTokenStatusDisplayV8 mode="detailed" showRefresh={true} />
-					</StepContent>
+					</div>
 				</CollapsibleHeader>
 
 				<div style={{ marginBottom: '1rem' }}>
@@ -655,8 +574,11 @@ const OrganizationLicensingV2: React.FC = () => {
 						Enter your Organization ID to fetch organization information including region and number
 						of environments.
 					</p>
-					<InputLabel htmlFor="organization-id">Organization ID</InputLabel>
-					<Input
+					<label htmlFor="organization-id" style={styles.inputLabel}>
+						Organization ID
+					</label>
+					<input
+						style={styles.input}
 						id="organization-id"
 						type="text"
 						value={organizationId}
@@ -678,84 +600,97 @@ const OrganizationLicensingV2: React.FC = () => {
 						</Button>
 					</div>
 					{error && (
-						<ErrorMessage>
+						<div style={styles.errorMessage}>
 							<FiAlertTriangle /> {error}
-						</ErrorMessage>
+						</div>
 					)}
 				</div>
 
 				{/* Results */}
 				{orgInfo && (
 					<CollapsibleHeader title="Organization Information" icon={<FiInfo />} theme="blue">
-						<LicenseGrid>
-							<LicenseCard $borderColor="#3b82f6">
-								<InfoRow>
-									<InfoLabel>Name:</InfoLabel>
-									<InfoValue>{orgInfo.name}</InfoValue>
-								</InfoRow>
-								<InfoRow>
-									<InfoLabel>Region:</InfoLabel>
-									<InfoValue>{orgInfo.region}</InfoValue>
-								</InfoRow>
-								<InfoRow>
-									<InfoLabel>Created:</InfoLabel>
-									<InfoValue>{new Date(orgInfo.createdAt).toLocaleDateString()}</InfoValue>
-								</InfoRow>
-								<InfoRow>
-									<InfoLabel>Updated:</InfoLabel>
-									<InfoValue>{new Date(orgInfo.updatedAt).toLocaleDateString()}</InfoValue>
-								</InfoRow>
-								<InfoRow>
-									<InfoLabel>Total Environments:</InfoLabel>
-									<InfoValue>{orgInfo.environments.length}</InfoValue>
-								</InfoRow>
-							</LicenseCard>
-						</LicenseGrid>
+						<div style={styles.licenseGrid}>
+							<div style={styles.licenseCard('#3b82f6')}>
+								<div style={styles.infoRow}>
+									<span style={styles.infoLabel}>Name:</span>
+									<span style={styles.infoValue}>{orgInfo.name}</span>
+								</div>
+								<div style={styles.infoRow}>
+									<span style={styles.infoLabel}>Region:</span>
+									<span style={styles.infoValue}>{orgInfo.region}</span>
+								</div>
+								<div style={styles.infoRow}>
+									<span style={styles.infoLabel}>Created:</span>
+									<span style={styles.infoValue}>
+										{new Date(orgInfo.createdAt).toLocaleDateString()}
+									</span>
+								</div>
+								<div style={styles.infoRow}>
+									<span style={styles.infoLabel}>Updated:</span>
+									<span style={styles.infoValue}>
+										{new Date(orgInfo.updatedAt).toLocaleDateString()}
+									</span>
+								</div>
+								<div style={styles.infoRow}>
+									<span style={styles.infoLabel}>Total Environments:</span>
+									<span style={styles.infoValue}>{orgInfo.environments.length}</span>
+								</div>
+							</div>
+						</div>
 					</CollapsibleHeader>
 				)}
 				{orgInfo && (
 					<CollapsibleHeader title="Applied License" icon={<FiShield />} theme="green">
-						<LicenseCard $borderColor="#10b981">
-							<InfoRow>
-								<InfoLabel>License Name:</InfoLabel>
-								<InfoValue>{orgInfo.license.name}</InfoValue>
-							</InfoRow>
-							<InfoRow>
-								<InfoLabel>Status:</InfoLabel>
-								<InfoValue
+						<div style={styles.licenseCard('#10b981')}>
+							<div style={styles.infoRow}>
+								<span style={styles.infoLabel}>License Name:</span>
+								<span style={styles.infoValue}>{orgInfo.license.name}</span>
+							</div>
+							<div style={styles.infoRow}>
+								<span style={styles.infoLabel}>Status:</span>
+								<span
 									style={{
+										...styles.infoValue,
 										fontWeight: 700,
 										color: orgInfo.license.status === 'active' ? '#047857' : '#b45309',
 									}}
 								>
 									{orgInfo.license.status.toUpperCase()}
-								</InfoValue>
-							</InfoRow>
-							<InfoRow>
-								<InfoLabel>Type:</InfoLabel>
-								<InfoValue>{orgInfo.license.type}</InfoValue>
-							</InfoRow>
-							<InfoRow>
-								<InfoLabel>Start Date:</InfoLabel>
-								<InfoValue>{new Date(orgInfo.license.startDate).toLocaleDateString()}</InfoValue>
-							</InfoRow>
+								</span>
+							</div>
+							<div style={styles.infoRow}>
+								<span style={styles.infoLabel}>Type:</span>
+								<span style={styles.infoValue}>{orgInfo.license.type}</span>
+							</div>
+							<div style={styles.infoRow}>
+								<span style={styles.infoLabel}>Start Date:</span>
+								<span style={styles.infoValue}>
+									{new Date(orgInfo.license.startDate).toLocaleDateString()}
+								</span>
+							</div>
 							{orgInfo.license.endDate && (
-								<InfoRow>
-									<InfoLabel>End Date:</InfoLabel>
-									<InfoValue>{new Date(orgInfo.license.endDate).toLocaleDateString()}</InfoValue>
-								</InfoRow>
+								<div style={styles.infoRow}>
+									<span style={styles.infoLabel}>End Date:</span>
+									<span style={styles.infoValue}>
+										{new Date(orgInfo.license.endDate).toLocaleDateString()}
+									</span>
+								</div>
 							)}
 							{orgInfo.license.users && (
-								<InfoRow>
-									<InfoLabel>User Capacity:</InfoLabel>
-									<InfoValue>{`${orgInfo.license.users.used}/${orgInfo.license.users.total} used`}</InfoValue>
-								</InfoRow>
+								<div style={styles.infoRow}>
+									<span style={styles.infoLabel}>User Capacity:</span>
+									<span
+										style={styles.infoValue}
+									>{`${orgInfo.license.users.used}/${orgInfo.license.users.total} used`}</span>
+								</div>
 							)}
 							{orgInfo.license.applications && (
-								<InfoRow>
-									<InfoLabel>Applications:</InfoLabel>
-									<InfoValue>{`${orgInfo.license.applications.used}/${orgInfo.license.applications.total} used`}</InfoValue>
-								</InfoRow>
+								<div style={styles.infoRow}>
+									<span style={styles.infoLabel}>Applications:</span>
+									<span
+										style={styles.infoValue}
+									>{`${orgInfo.license.applications.used}/${orgInfo.license.applications.total} used`}</span>
+								</div>
 							)}
 							{orgInfo.license.features && orgInfo.license.features.length > 0 && (
 								<div style={{ marginTop: '1rem' }}>
@@ -764,12 +699,14 @@ const OrganizationLicensingV2: React.FC = () => {
 									</p>
 									<div style={{ display: 'flex', flexWrap: 'wrap' }}>
 										{orgInfo.license.features.map((feature) => (
-											<FeatureBadge key={feature}>{feature}</FeatureBadge>
+											<span key={feature} style={styles.featureBadge}>
+												{feature}
+											</span>
 										))}
 									</div>
 								</div>
 							)}
-						</LicenseCard>
+						</div>
 					</CollapsibleHeader>
 				)}
 				{orgInfo && (
@@ -783,13 +720,13 @@ const OrganizationLicensingV2: React.FC = () => {
 								No environments were returned for this organization.
 							</p>
 						) : (
-							<EnvironmentTable>
-								<EnvironmentHeader>
+							<div style={styles.environmentTable}>
+								<div style={styles.environmentHeader}>
 									<span>Environment Name</span>
 									<span>Region</span>
 									<span>Environment ID</span>
 									<span>Applied License</span>
-								</EnvironmentHeader>
+								</div>
 								<div style={{ maxHeight: '360px', overflowY: 'auto' }}>
 									{orgInfo.environments.slice(0, 5).map((environment) => {
 										const appliedLicenseName = environment.licenseName || 'Not Assigned';
@@ -799,25 +736,28 @@ const OrganizationLicensingV2: React.FC = () => {
 										const isInheritedLicense = false;
 
 										return (
-											<EnvironmentRow key={environment.id}>
-												<EnvironmentName>{environment.name}</EnvironmentName>
-												<EnvironmentRegion>{environment.region || 'unknown'}</EnvironmentRegion>
-												<EnvironmentId>{environment.id}</EnvironmentId>
-												<EnvironmentLicense>
+											<div key={environment.id} style={styles.environmentRow}>
+												<span style={styles.environmentName}>{environment.name}</span>
+												<span style={styles.environmentRegion}>
+													{environment.region || 'unknown'}
+												</span>
+												<code style={styles.environmentId}>{environment.id}</code>
+												<div style={styles.environmentLicense}>
 													<strong>{appliedLicenseName}</strong>
 													{appliedLicenseStatus && (
-														<FeatureBadge
+														<span
 															style={{
+																...styles.featureBadge,
 																background:
 																	appliedLicenseStatus === 'active' ? '#dcfce7' : '#fee2e2',
 																color: appliedLicenseStatus === 'active' ? '#166534' : '#b91c1c',
 															}}
 														>
 															{appliedLicenseStatus.toUpperCase()}
-														</FeatureBadge>
+														</span>
 													)}
 													{(appliedLicenseId || appliedLicenseType || isInheritedLicense) && (
-														<EnvironmentLicenseMeta>
+														<div style={styles.environmentLicenseMeta}>
 															{appliedLicenseId && <span>License ID: {appliedLicenseId}</span>}
 															{appliedLicenseType && (
 																<span>License Type: {appliedLicenseType}</span>
@@ -825,14 +765,14 @@ const OrganizationLicensingV2: React.FC = () => {
 															{isInheritedLicense && (
 																<span>Inherited from organization license</span>
 															)}
-														</EnvironmentLicenseMeta>
+														</div>
 													)}
-												</EnvironmentLicense>
-											</EnvironmentRow>
+												</div>
+											</div>
 										);
 									})}
 								</div>
-							</EnvironmentTable>
+							</div>
 						)}
 					</CollapsibleHeader>
 				)}
@@ -842,11 +782,11 @@ const OrganizationLicensingV2: React.FC = () => {
 						icon={<FiShield />}
 						theme="green"
 					>
-						<LicenseGrid>
+						<div style={styles.licenseGrid}>
 							{allLicenses.map((license) => (
-								<LicenseCard
+								<div
 									key={license.id}
-									$borderColor={
+									style={styles.licenseCard(
 										license.status === 'active'
 											? '#10b981'
 											: license.status === 'expired'
@@ -854,7 +794,7 @@ const OrganizationLicensingV2: React.FC = () => {
 												: license.status === 'trial'
 													? '#f59e0b'
 													: '#e5e7eb'
-									}
+									)}
 								>
 									<div
 										style={{
@@ -877,20 +817,22 @@ const OrganizationLicensingV2: React.FC = () => {
 											{license.status.toUpperCase()}
 										</span>
 									</div>
-									<InfoRow>
-										<InfoLabel>Type:</InfoLabel>
-										<InfoValue>{license.type}</InfoValue>
-									</InfoRow>
-									<InfoRow>
-										<InfoLabel>Start Date:</InfoLabel>
-										<InfoValue>{new Date(license.startDate).toLocaleDateString()}</InfoValue>
-									</InfoRow>
-								</LicenseCard>
+									<div style={styles.infoRow}>
+										<span style={styles.infoLabel}>Type:</span>
+										<span style={styles.infoValue}>{license.type}</span>
+									</div>
+									<div style={styles.infoRow}>
+										<span style={styles.infoLabel}>Start Date:</span>
+										<span style={styles.infoValue}>
+											{new Date(license.startDate).toLocaleDateString()}
+										</span>
+									</div>
+								</div>
 							))}
-						</LicenseGrid>
+						</div>
 					</CollapsibleHeader>
 				)}
-			</StepContainer>
+			</div>
 		);
 	};
 
