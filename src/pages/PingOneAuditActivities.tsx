@@ -48,8 +48,8 @@ const styles = {
 		gap: '1rem',
 		padding: '1.75rem',
 		borderRadius: '1rem',
-		background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)',
-		border: '1px solid rgba(37, 99, 235, 0.4)',
+		background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+		border: '1px solid rgba(220, 38, 38, 0.4)',
 	},
 	titleRow: {
 		display: 'flex' as const,
@@ -65,7 +65,7 @@ const styles = {
 	} as React.CSSProperties,
 	subtitle: {
 		margin: 0,
-		color: '#bfdbfe',
+		color: 'rgba(255, 255, 255, 0.85)',
 		maxWidth: '720px',
 		lineHeight: 1.6,
 	} as React.CSSProperties,
@@ -130,7 +130,7 @@ const styles = {
 		border: 'none',
 		borderRadius: '0.75rem',
 		padding: '0.85rem 1.35rem',
-		background: disabled ? '#cbd5f5' : '#667eea',
+		background: disabled ? '#cbd5f5' : '#2563eb',
 		color: 'white',
 		fontWeight: 600,
 		display: 'inline-flex',
@@ -1305,8 +1305,8 @@ const PingOneAuditActivities: React.FC = () => {
 									<div
 										style={{
 											...styles.card,
-											border: '1px solid #667eea',
-											background: 'linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%)',
+											border: '1px solid #93c5fd',
+											background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
 										}}
 									>
 										<h2 style={styles.sectionTitle}>
@@ -1325,7 +1325,7 @@ const PingOneAuditActivities: React.FC = () => {
 													padding: '0.75rem',
 													background: 'white',
 													borderRadius: '0.5rem',
-													border: '1px solid #c4b5fd',
+													border: '1px solid #bfdbfe',
 												}}
 											>
 												<div
@@ -1333,7 +1333,7 @@ const PingOneAuditActivities: React.FC = () => {
 												>
 													Total Activities
 												</div>
-												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#6366f1' }}>
+												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1e40af' }}>
 													{summary.total}
 												</div>
 											</div>
@@ -1342,7 +1342,7 @@ const PingOneAuditActivities: React.FC = () => {
 													padding: '0.75rem',
 													background: 'white',
 													borderRadius: '0.5rem',
-													border: '1px solid #c4b5fd',
+													border: '1px solid #bfdbfe',
 												}}
 											>
 												<div
@@ -1359,7 +1359,7 @@ const PingOneAuditActivities: React.FC = () => {
 													padding: '0.75rem',
 													background: 'white',
 													borderRadius: '0.5rem',
-													border: '1px solid #c4b5fd',
+													border: '1px solid #bfdbfe',
 												}}
 											>
 												<div
@@ -1376,7 +1376,7 @@ const PingOneAuditActivities: React.FC = () => {
 													padding: '0.75rem',
 													background: 'white',
 													borderRadius: '0.5rem',
-													border: '1px solid #c4b5fd',
+													border: '1px solid #bfdbfe',
 												}}
 											>
 												<div
@@ -1384,7 +1384,7 @@ const PingOneAuditActivities: React.FC = () => {
 												>
 													Action Types
 												</div>
-												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#6366f1' }}>
+												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1e40af' }}>
 													{summary.uniqueActionTypes}
 												</div>
 											</div>
@@ -1393,7 +1393,7 @@ const PingOneAuditActivities: React.FC = () => {
 													padding: '0.75rem',
 													background: 'white',
 													borderRadius: '0.5rem',
-													border: '1px solid #c4b5fd',
+													border: '1px solid #bfdbfe',
 												}}
 											>
 												<div
@@ -1401,7 +1401,7 @@ const PingOneAuditActivities: React.FC = () => {
 												>
 													Unique Users
 												</div>
-												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#6366f1' }}>
+												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#1e40af' }}>
 													{summary.uniqueUsers}
 												</div>
 											</div>
@@ -1410,7 +1410,7 @@ const PingOneAuditActivities: React.FC = () => {
 													padding: '0.75rem',
 													background: 'white',
 													borderRadius: '0.5rem',
-													border: '1px solid #c4b5fd',
+													border: '1px solid #bfdbfe',
 												}}
 											>
 												<div
@@ -1418,7 +1418,7 @@ const PingOneAuditActivities: React.FC = () => {
 												>
 													Total Count
 												</div>
-												<div style={{ fontSize: '1.1rem', fontWeight: 600, color: '#6366f1' }}>
+												<div style={{ fontSize: '1.1rem', fontWeight: 600, color: '#1e40af' }}>
 													{totalCount.toLocaleString()}
 												</div>
 											</div>
@@ -1429,7 +1429,7 @@ const PingOneAuditActivities: React.FC = () => {
 													...styles.hint,
 													marginTop: '1rem',
 													paddingTop: '1rem',
-													borderTop: '1px solid #c4b5fd',
+													borderTop: '1px solid #bfdbfe',
 												}}
 											>
 												Last updated: {new Date(lastUpdated).toLocaleString()}
@@ -1551,7 +1551,7 @@ const PingOneAuditActivities: React.FC = () => {
 																	alignItems: 'center',
 																	gap: '0.25rem',
 																	marginTop: '0.25rem',
-																	color: '#667eea',
+																	color: '#2563eb',
 																}}
 															>
 																<FiEye size={12} />
