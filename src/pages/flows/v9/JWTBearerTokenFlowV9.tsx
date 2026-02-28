@@ -24,7 +24,10 @@ import ComprehensiveCredentialsService from '../../../services/comprehensiveCred
 import { comprehensiveFlowDataService } from '../../../services/comprehensiveFlowDataService';
 import { CopyButtonService } from '../../../services/copyButtonService';
 import { CredentialGuardService } from '../../../services/credentialGuardService';
-import { FlowCompletionConfigs, FlowCompletionService } from '../../../services/flowCompletionService';
+import {
+	FlowCompletionConfigs,
+	FlowCompletionService,
+} from '../../../services/flowCompletionService';
 import type { StepCredentials } from '../../../services/flowCredentialService';
 // Import V6 service architecture components
 import { FlowHeader } from '../../../services/flowHeaderService';
@@ -946,7 +949,9 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 													environmentId
 												);
 												if (!environmentId || environmentId.trim() === '') {
-													console.warn('⚠️ [JWT Bearer V9] Button clicked but environmentId is empty');
+													console.warn(
+														'⚠️ [JWT Bearer V9] Button clicked but environmentId is empty'
+													);
 													v4ToastManager.showWarning('Please enter an Environment ID first');
 													return;
 												}

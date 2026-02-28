@@ -4,14 +4,14 @@
  * @description Migration adapter for V8 workerTokenStatusService to V9
  * @version 9.0.0
  * @since 2026-02-28
- * 
+ *
  * This adapter provides backward compatibility for V8 code using workerTokenStatusServiceV8
  * while internally using the new V9WorkerTokenStatusService.
- * 
+ *
  * Usage:
  * // Replace V8 import:
  * // import { checkWorkerTokenStatus, formatTimeRemaining } from '@/v8/services/workerTokenStatusServiceV8';
- * 
+ *
  * // With V9 adapter:
  * // import { checkWorkerTokenStatus, formatTimeRemaining } from '@/services/v9/V8ToV9WorkerTokenStatusAdapter';
  */
@@ -20,13 +20,13 @@ import {
 	V9checkWorkerTokenStatus,
 	V9checkWorkerTokenStatusSync,
 	V9formatTimeRemaining,
+	V9getExpirationWarning,
+	V9getStatusBadgeStyle,
 	V9getStatusColor,
 	V9getStatusIcon,
-	V9getStatusBadgeStyle,
-	V9getExpirationWarning,
-	V9validateWorkerToken,
 	V9TokenStatus,
 	V9TokenStatusInfo,
+	V9validateWorkerToken,
 } from './V9WorkerTokenStatusService';
 
 // Re-export V9 types with V8 names for compatibility
@@ -49,7 +49,9 @@ export const getStatusBadgeStyle = V9getStatusBadgeStyle;
  * Migration helper to check if code is using V8 or V9 patterns
  * Returns recommendations for migration
  */
-export const analyzeV8Usage = (filePath: string): {
+export const analyzeV8Usage = (
+	_filePath: string
+): {
 	v8Patterns: string[];
 	v9Recommendations: string[];
 	migrationComplexity: 'low' | 'medium' | 'high';
@@ -76,7 +78,7 @@ export const analyzeV8Usage = (filePath: string): {
  * Helps migrate multiple files from V8 to V9 patterns
  */
 export const migrateMultipleComponents = async (
-	componentPaths: string[]
+	_componentPaths: string[]
 ): Promise<{
 	migrated: string[];
 	failed: string[];

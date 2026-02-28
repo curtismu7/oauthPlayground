@@ -279,7 +279,6 @@ const InfoBox = styled.div<{ type: 'info' | 'success' | 'warning' | 'error' }>`
           border: 1px solid #fecaca;
           color: #dc2626;
         `;
-			case 'info':
 			default:
 				return `
           background-color: #eff6ff;
