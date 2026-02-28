@@ -79,6 +79,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 	const [saveCredentials, setSaveCredentials] = useState(true);
 	const [currentToken, setCurrentToken] = useState<string | null>(null);
 	const [showTokenDisplay, setShowTokenDisplay] = useState(false);
+	const [authMethodError, setAuthMethodError] = useState<string | null>(null);
 	const [krpCompliance, setKrpCompliance] = useState<{
 		compliant: boolean;
 		daysUntilDeadline: number;
@@ -373,6 +374,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 							errorMessage =
 								'Your PingOne Worker application authentication method doesn\'t match. Please check your Worker app settings in PingOne and ensure the "Token Endpoint Authentication Method" matches the selected method.';
 							_showWorkerTokenButton = true;
+							setAuthMethodError(errorMessage);
 						} else {
 							errorMessage = error.message;
 						}
@@ -470,17 +472,55 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 					errorMessage = errorJson.error_description || errorJson.error || errorMessage;
 				}
 
-				if (/client authentication failed/i.test(errorMessage)) {
-					errorMessage +=
-						'. Verify the client secret and make sure the token endpoint authentication method matches your PingOne app (try switching between Client Secret Post and Client Secret Basic).';
+				const isAuthMethodMismatch =
+					/unsupported authentication method/i.test(errorMessage) ||
+					/client authentication failed/i.test(errorMessage);
+
+				if (isAuthMethodMismatch) {
+					// Auto-retry with the opposite auth method
+					const fallbackMethod =
+						requestDetails.authMethod === 'client_secret_basic'
+							? ('client_secret_post' as const)
+							: ('client_secret_basic' as const);
+					console.log(`${MODULE_TAG} 🔄 Auth method mismatch — retrying with ${fallbackMethod}`);
+
+					const retryParams = new URLSearchParams(requestDetails.resolvedBody);
+					const retryHeaders: Record<string, string> = { 'Content-Type': 'application/x-www-form-urlencoded' };
+					if (fallbackMethod === 'client_secret_post') {
+						retryParams.set('client_secret', clientSecret.trim());
+					} else {
+						retryParams.delete('client_secret');
+						retryHeaders.Authorization = `Basic ${btoa(`${clientId.trim()}:${clientSecret.trim()}`)}`;
+					}
+
+					const retryResponse = await pingOneFetch(requestDetails.tokenEndpoint, {
+						method: 'POST',
+						headers: retryHeaders,
+						body: retryParams.toString(),
+					});
+
+					if (retryResponse.ok) {
+						// Auto-fix succeeded — update auth method state and continue
+						setAuthMethod(fallbackMethod);
+						setAuthMethodError(null);
+						const autoLabel = fallbackMethod === 'client_secret_basic' ? 'Client Secret Basic' : 'Client Secret Post';
+						toastV8.success(`Auth method auto-corrected to ${autoLabel} and token generated successfully.`, { duration: 6000 });
+						try { responseData = await retryResponse.json(); } catch { responseData = null; }
+					} else {
+						// Both methods failed — show persistent on-screen error
+						const origLabel = requestDetails.authMethod === 'client_secret_basic' ? 'Client Secret Basic' : 'Client Secret Post';
+						const bannerMsg =
+							`Authentication method mismatch: tried both Client Secret Basic and Client Secret Post — both rejected by PingOne. ` +
+							`In PingOne Admin → Applications → your Worker app → Configuration, set “Token Endpoint Auth Method” to match (currently "${origLabel}").`;
+						setAuthMethodError(bannerMsg);
+						throw new Error(bannerMsg);
+					}
 				} else if (/unsupported_grant_type/i.test(errorMessage)) {
 					errorMessage += '. Double-check that the Worker app allows the client_credentials grant.';
-				} else if (/unsupported authentication method/i.test(errorMessage)) {
-					errorMessage +=
-						'. Your PingOne Worker application is configured with a different authentication method. Please go to your PingOne Worker app settings and ensure the "Token Endpoint Authentication Method" matches the selected method (Client Secret Basic or Client Secret Post).';
+					throw new Error(errorMessage);
+				} else {
+					throw new Error(errorMessage);
 				}
-
-				throw new Error(errorMessage);
 			}
 
 			const data = responseData as { access_token?: string; expires_in?: number };
@@ -1327,7 +1367,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 											<select
 												id="authMethod"
 												value={authMethod}
-												onChange={(e) => setAuthMethod(e.target.value as AuthMethodV8)}
+												onChange={(e) => { setAuthMethod(e.target.value as AuthMethodV8); setAuthMethodError(null); }}
 												style={{
 													width: '100%',
 													padding: '10px 12px',
@@ -1347,6 +1387,15 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 											<div style={{ marginTop: '6px', fontSize: '12px', color: '#6b7280' }}>
 												{AuthMethodServiceV8.getMethodConfig(authMethod).description}
 											</div>
+											{authMethodError && (
+												<div style={{ marginTop: '10px', padding: '12px 14px', background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: '6px', color: '#991b1b', fontSize: '13px', lineHeight: '1.5' }}>
+													<strong>⚠️ Authentication Method Mismatch</strong>
+													<br />
+													{authMethodError}
+													<br />
+													<button type="button" onClick={() => setAuthMethodError(null)} style={{ marginTop: '6px', fontSize: '12px', color: '#991b1b', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}>Dismiss</button>
+												</div>
+											)}
 										</div>
 									</form>
 
