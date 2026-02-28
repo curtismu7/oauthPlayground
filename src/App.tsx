@@ -129,7 +129,7 @@ import CIBAFlowV9 from './pages/flows/CIBAFlowV9';
 import DPoPFlow from './pages/flows/DPoPFlow';
 import IDTokensFlow from './pages/flows/IDTokensFlow';
 // ImplicitFlowV7 archived — route redirects to v9
-import JWTBearerTokenFlow from './pages/flows/JWTBearerTokenFlow';
+import JWTBearerFlow from './pages/flows/JWTBearerFlow';
 import JWTBearerTokenFlowV7 from './pages/flows/JWTBearerTokenFlowV7';
 import JWTBearerTokenFlowV9 from './pages/flows/v9/JWTBearerTokenFlowV9';
 import KrogerGroceryStoreMFA from './pages/flows/KrogerGroceryStoreMFA';
