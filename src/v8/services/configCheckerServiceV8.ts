@@ -150,13 +150,14 @@ export class ConfigCheckerServiceV8 {
 				isProxy: true,
 			});
 
-			// Fetch from backend proxy
+			// Fetch from backend proxy — 10 s timeout prevents hanging spinner
 			const response = await fetch(proxyUrl, {
 				method: 'GET',
 				headers: {
 					'Content-Type': 'application/json',
 					Authorization: `Bearer ${workerToken}`,
 				},
+				signal: AbortSignal.timeout(10_000),
 			});
 
 			if (!response.ok) {
