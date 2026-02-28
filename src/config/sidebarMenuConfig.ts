@@ -210,6 +210,14 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 		]),
 	},
 	{
+		id: 'ai-prompts',
+		label: 'AI Prompts & Development',
+		items: items([
+			['/docs/prompts/prompt-all', '🚀 Complete Prompts Guide'],
+			['/docs/migration/migrate-vscode', 'VSCode Migration Guide'],
+		]),
+	},
+	{
 		id: 'documentation-reference',
 		label: 'Documentation & Reference',
 		items: items([

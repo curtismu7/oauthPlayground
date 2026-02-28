@@ -1,6 +1,6 @@
 /**
  * Unified Credentials Service Adapter
- * 
+ *
  * This file provides a compatibility layer for the flowStorageService
  * to work with the V8U unified credentials service.
  */
@@ -45,14 +45,10 @@ class UnifiedCredentialsServiceAdapter {
 	): Promise<void> {
 		try {
 			// Use the V8U service with the flow name as the key
-			await UnifiedOAuthCredentialsServiceV8U.saveCredentials(
-				options.flowName,
-				credentials,
-				{
-					...(options.enableBackup !== undefined && { enableBackup: options.enableBackup }),
-					...(options.environmentId && { environmentId: options.environmentId }),
-				}
-			);
+			await UnifiedOAuthCredentialsServiceV8U.saveCredentials(options.flowName, credentials, {
+				...(options.enableBackup !== undefined && { enableBackup: options.enableBackup }),
+				...(options.environmentId && { environmentId: options.environmentId }),
+			});
 		} catch (error) {
 			console.error('Failed to store credentials:', error);
 			throw error;
@@ -62,9 +58,7 @@ class UnifiedCredentialsServiceAdapter {
 	/**
 	 * Get OAuth credentials
 	 */
-	async getOAuthCredentials(
-		options: CredentialsStorageOptions
-	): Promise<OAuthCredentials | null> {
+	async getOAuthCredentials(options: CredentialsStorageOptions): Promise<OAuthCredentials | null> {
 		try {
 			// Use the V8U service to retrieve credentials
 			const credentials = await UnifiedOAuthCredentialsServiceV8U.loadCredentials(
@@ -85,9 +79,7 @@ class UnifiedCredentialsServiceAdapter {
 	/**
 	 * Clear OAuth credentials
 	 */
-	async clearOAuthCredentials(
-		options: CredentialsStorageOptions
-	): Promise<void> {
+	async clearOAuthCredentials(options: CredentialsStorageOptions): Promise<void> {
 		try {
 			await UnifiedOAuthCredentialsServiceV8U.deleteCredentials(options.flowName, {
 				...(options.enableBackup !== undefined && { enableBackup: options.enableBackup }),

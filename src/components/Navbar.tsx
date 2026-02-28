@@ -442,6 +442,10 @@ const Navbar: React.FC<NavbarProps> = ({
 				</Logo>
 
 				<NavItems role="navigation" aria-label="Main navigation">
+					<Link to="/docs/prompts/prompt-all" title="🚀 AI Development Prompts">
+						<FiActivity aria-hidden="true" />
+						<span>AI Prompts</span>
+					</Link>
 					<Link to="/documentation" title="View documentation and help">
 						<FiHelpCircle aria-hidden="true" />
 						<span>Docs</span>

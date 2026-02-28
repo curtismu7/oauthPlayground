@@ -34,21 +34,24 @@ const EditorTitle = styled.div`
   color: #d1d5db;
 `;
 
-const CopyButton = styled.button<{ copied?: boolean }>`
+const CopyButton = styled.button.withConfig({
+	shouldForwardProp: (prop) => prop !== 'copied',
+})<{ copied?: boolean }>`
   display: flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
-  background: ${(props) => (props.copied ? '#10b981' : '#6b7280')};
+  background: ${(props) => (props.copied ? '#059669' : '#374151')};
   color: white;
   border: none;
   border-radius: 0.375rem;
   font-size: 0.75rem;
+  font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s;
 
   &:hover {
-    background: ${(props) => (props.copied ? '#059669' : '#9ca3af')};
+    background: ${(props) => (props.copied ? '#047857' : '#4b5563')};
   }
 `;
 
