@@ -267,6 +267,26 @@ function GroupContent({
 					/>
 				</li>
 			))}
+			{/* Trailing drop slot — allows dropping after the last item */}
+			{dragMode && (
+				<li
+					className={`sidebar-ping__drop-trail${
+						dropTargetItem?.groupId === groupId && dropTargetItem?.index === group.items.length
+							? ' sidebar-ping__drop-trail--active'
+							: ''
+					}`}
+					onDragOver={(e) => {
+						e.preventDefault();
+						e.dataTransfer.dropEffect = 'move';
+						onItemDragOver?.(groupId, group.items.length);
+					}}
+					onDrop={(e) => {
+						e.preventDefault();
+						e.stopPropagation();
+						onItemDrop?.(e, groupId, group.items.length);
+					}}
+				/>
+			)}
 		</ul>
 	);
 }
@@ -381,8 +401,9 @@ export const SidebarMenuPing: React.FC<{ dragMode?: boolean }> = ({ dragMode = f
 
 	// Item reorder within same group (drop before target index).
 	const handleDropOnItemSameGroup = useCallback(
-		(groupId: string, targetIndex: number) => {
-			const data = draggedItem;
+		(e: React.DragEvent, groupId: string, targetIndex: number) => {
+			// Use dataTransfer as primary source — state may be stale if React hasn't re-rendered yet
+			const data = getDraggedData(e);
 			if (!data || data.type !== 'item') return;
 			setDropTargetItem(null);
 			const groupIdx = menuGroups.findIndex((g) => g.id === groupId);
@@ -390,6 +411,7 @@ export const SidebarMenuPing: React.FC<{ dragMode?: boolean }> = ({ dragMode = f
 			const group = menuGroups[groupIdx];
 			const srcIdx = group.items.findIndex((i) => i.id === data.id);
 			if (srcIdx === -1) return;
+			if (srcIdx === targetIndex) return;
 			const next = [...menuGroups];
 			const items = [...next[groupIdx].items];
 			const [removed] = items.splice(srcIdx, 1);
@@ -400,7 +422,7 @@ export const SidebarMenuPing: React.FC<{ dragMode?: boolean }> = ({ dragMode = f
 			saveOrder(next);
 			setDraggedItem(null);
 		},
-		[menuGroups, draggedItem, saveOrder]
+		[menuGroups, draggedItem, getDraggedData, saveOrder]
 	);
 
 	return (
@@ -472,7 +494,7 @@ export const SidebarMenuPing: React.FC<{ dragMode?: boolean }> = ({ dragMode = f
 										onDragStart={(e) => handleDragStart(e, 'item', group.items[0].id, group.id)}
 										onDragEnd={handleDragEnd}
 										onDragOver={handleDragOver}
-										onDrop={(_e) => handleDropOnItemSameGroup(group.id, 0)}
+									onDrop={(e) => handleDropOnItemSameGroup(e, group.id, 0)}
 									/>
 								</ul>
 							</div>
@@ -550,7 +572,7 @@ export const SidebarMenuPing: React.FC<{ dragMode?: boolean }> = ({ dragMode = f
 										onItemDragStart={(e, itemId) => handleDragStart(e, 'item', itemId, group.id)}
 										onItemDragEnd={handleDragEnd}
 										onItemDragOverHandler={handleDragOver}
-										onItemDrop={(_e, gid, idx) => handleDropOnItemSameGroup(gid, idx)}
+									onItemDrop={(e, gid, idx) => handleDropOnItemSameGroup(e, gid, idx)}
 									/>
 								</section>
 							)}
