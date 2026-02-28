@@ -91,9 +91,9 @@ const PromptAll: React.FC = () => {
 	const prompts = [
 		// Authentication & OAuth Prompts
 		{
-			title: "OAuth 2.0 Authorization Code Flow",
-			description: "Complete OAuth 2.0 authorization code flow with PKCE",
-			category: "Authentication",
+			title: 'OAuth 2.0 Authorization Code Flow',
+			description: 'Complete OAuth 2.0 authorization code flow with PKCE',
+			category: 'Authentication',
 			prompt: `Implement OAuth 2.0 Authorization Code Flow with PKCE:
 - Generate code verifier and code challenge
 - Build authorization URL with proper parameters
@@ -102,12 +102,12 @@ const PromptAll: React.FC = () => {
 - Implement token refresh mechanism
 - Store tokens securely with encryption
 - Handle token expiration gracefully
-- Include proper error handling for all OAuth errors`
+- Include proper error handling for all OAuth errors`,
 		},
 		{
-			title: "OpenID Connect (OIDC) Integration",
-			description: "Add OIDC identity layer to OAuth 2.0 flow",
-			category: "Authentication",
+			title: 'OpenID Connect (OIDC) Integration',
+			description: 'Add OIDC identity layer to OAuth 2.0 flow',
+			category: 'Authentication',
 			prompt: `Implement OpenID Connect integration:
 - Add openid scope to OAuth flow
 - Parse and validate ID tokens
@@ -116,12 +116,12 @@ const PromptAll: React.FC = () => {
 - Handle nonce parameter for replay protection
 - Implement user session management
 - Support multiple identity providers
-- Add logout with ID token revocation`
+- Add logout with ID token revocation`,
 		},
 		{
-			title: "Client Credentials Flow",
-			description: "Machine-to-machine authentication using client credentials",
-			category: "Authentication",
+			title: 'Client Credentials Flow',
+			description: 'Machine-to-machine authentication using client credentials',
+			category: 'Authentication',
 			prompt: `Implement OAuth 2.0 Client Credentials Flow:
 - Use client ID and client secret for authentication
 - Support JWT client assertion authentication
@@ -130,12 +130,12 @@ const PromptAll: React.FC = () => {
 - Add proper scope management
 - Support multiple client configurations
 - Include token introspection capabilities
-- Add rate limiting for token requests`
+- Add rate limiting for token requests`,
 		},
 		{
-			title: "Device Authorization Flow",
-			description: "OAuth flow for devices with limited input capabilities",
-			category: "Authentication",
+			title: 'Device Authorization Flow',
+			description: 'OAuth flow for devices with limited input capabilities',
+			category: 'Authentication',
 			prompt: `Implement OAuth 2.0 Device Authorization Flow:
 - Initiate device authorization request
 - Display user code and verification URI
@@ -144,14 +144,14 @@ const PromptAll: React.FC = () => {
 - Support multiple device types
 - Add QR code generation for mobile apps
 - Implement device user confirmation flow
-- Handle device authorization errors gracefully`
+- Handle device authorization errors gracefully`,
 		},
-		
+
 		// Security Prompts
 		{
-			title: "Multi-Factor Authentication (MFA)",
-			description: "Implement comprehensive MFA with multiple methods",
-			category: "Security",
+			title: 'Multi-Factor Authentication (MFA)',
+			description: 'Implement comprehensive MFA with multiple methods',
+			category: 'Security',
 			prompt: `Implement Multi-Factor Authentication system:
 - TOTP (Time-based One-Time Password) support
 - SMS and email verification codes
@@ -160,12 +160,12 @@ const PromptAll: React.FC = () => {
 - Hardware token integration (YubiKey)
 - Adaptive authentication based on risk
 - Backup codes for account recovery
-- MFA enrollment and management flow`
+- MFA enrollment and management flow`,
 		},
 		{
-			title: "JWT Token Security",
-			description: "Secure JWT implementation with proper validation",
-			category: "Security",
+			title: 'JWT Token Security',
+			description: 'Secure JWT implementation with proper validation',
+			category: 'Security',
 			prompt: `Implement secure JWT token handling:
 - RS256 asymmetric key signing
 - Proper token validation (signature, expiration, issuer)
@@ -174,12 +174,12 @@ const PromptAll: React.FC = () => {
 - Secure token storage (httpOnly cookies, secure storage)
 - Token binding to client/device
 - Implement token introspection endpoint
-- Add token leakage detection`
+- Add token leakage detection`,
 		},
 		{
-			title: "API Security Hardening",
-			description: "Comprehensive API security implementation",
-			category: "Security",
+			title: 'API Security Hardening',
+			description: 'Comprehensive API security implementation',
+			category: 'Security',
 			prompt: `Implement API security measures:
 - Rate limiting with token bucket algorithm
 - API key management and rotation
@@ -188,12 +188,12 @@ const PromptAll: React.FC = () => {
 - Input validation and sanitization
 - SQL injection and XSS prevention
 - Security headers (HSTS, CSP, X-Frame-Options)
-- Security audit logging and monitoring`
+- Security audit logging and monitoring`,
 		},
 		{
-			title: "Zero Trust Architecture",
-			description: "Implement zero trust security principles",
-			category: "Security",
+			title: 'Zero Trust Architecture',
+			description: 'Implement zero trust security principles',
+			category: 'Security',
 			prompt: `Implement Zero Trust security model:
 - Verify every request regardless of source
 - Implement principle of least privilege
@@ -202,14 +202,14 @@ const PromptAll: React.FC = () => {
 - Device trust assessment
 - Behavioral analytics for anomaly detection
 - Just-in-time access provisioning
-- Comprehensive audit trails`
+- Comprehensive audit trails`,
 		},
 
 		// Token Management Prompts
 		{
-			title: "Token Storage & Encryption",
-			description: "Secure token storage with encryption at rest",
-			category: "Token Management",
+			title: 'Token Storage & Encryption',
+			description: 'Secure token storage with encryption at rest',
+			category: 'Token Management',
 			prompt: `Implement secure token storage:
 - AES-256 encryption for token storage
 - Hardware security module (HSM) integration
@@ -218,12 +218,12 @@ const PromptAll: React.FC = () => {
 - Token isolation per user/tenant
 - Backup and recovery mechanisms
 - Secure token deletion and cleanup
-- Compliance with data protection regulations`
+- Compliance with data protection regulations`,
 		},
 		{
-			title: "Token Refresh Optimization",
-			description: "Intelligent token refresh with performance optimization",
-			category: "Token Management",
+			title: 'Token Refresh Optimization',
+			description: 'Intelligent token refresh with performance optimization',
+			category: 'Token Management',
 			prompt: `Implement optimized token refresh:
 - Proactive token refresh before expiration
 - Parallel refresh requests deduplication
@@ -232,12 +232,12 @@ const PromptAll: React.FC = () => {
 - Token cache management with TTL
 - Background refresh for seamless UX
 - Handle refresh token revocation
-- Performance metrics and monitoring`
+- Performance metrics and monitoring`,
 		},
 		{
-			title: "Token Introspection & Validation",
-			description: "Token validation and introspection services",
-			category: "Token Management",
+			title: 'Token Introspection & Validation',
+			description: 'Token validation and introspection services',
+			category: 'Token Management',
 			prompt: `Implement token introspection service:
 - RFC 7662 token introspection endpoint
 - Token metadata and claims extraction
@@ -246,12 +246,12 @@ const PromptAll: React.FC = () => {
 - Token scope validation
 - Token audience verification
 - Custom token validation rules
-- Token usage analytics and reporting`
+- Token usage analytics and reporting`,
 		},
 		{
-			title: "Cross-Domain Token Sharing",
-			description: "Secure token sharing across multiple domains",
-			category: "Token Management",
+			title: 'Cross-Domain Token Sharing',
+			description: 'Secure token sharing across multiple domains',
+			category: 'Token Management',
 			prompt: `Implement secure cross-domain token sharing:
 - OAuth 2.0 Token Exchange (RFC 8693)
 - JWT token translation and mapping
@@ -260,14 +260,14 @@ const PromptAll: React.FC = () => {
 - Token federation across services
 - Domain trust relationships
 - Token lifecycle management
-- Audit trails for token sharing`
+- Audit trails for token sharing`,
 		},
 
 		// Performance Prompts
 		{
-			title: "API Response Optimization",
-			description: "Optimize API responses for maximum performance",
-			category: "Performance",
+			title: 'API Response Optimization',
+			description: 'Optimize API responses for maximum performance',
+			category: 'Performance',
 			prompt: `Implement API response optimization:
 - HTTP response compression (gzip, brotli)
 - Response caching with ETags and Last-Modified
@@ -276,12 +276,12 @@ const PromptAll: React.FC = () => {
 - Concurrent request handling
 - Response time monitoring
 - CDN integration for static assets
-- Performance budget enforcement`
+- Performance budget enforcement`,
 		},
 		{
-			title: "Database Connection Pooling",
-			description: "Optimize database connections for high performance",
-			category: "Performance",
+			title: 'Database Connection Pooling',
+			description: 'Optimize database connections for high performance',
+			category: 'Performance',
 			prompt: `Implement database connection pooling:
 - Configure optimal pool size
 - Connection timeout and retry logic
@@ -290,12 +290,12 @@ const PromptAll: React.FC = () => {
 - Connection health monitoring
 - Database failover handling
 - Performance metrics collection
-- Load balancing across database nodes`
+- Load balancing across database nodes`,
 		},
 		{
-			title: "Caching Strategy Implementation",
-			description: "Multi-layer caching for optimal performance",
-			category: "Performance",
+			title: 'Caching Strategy Implementation',
+			description: 'Multi-layer caching for optimal performance',
+			category: 'Performance',
 			prompt: `Implement comprehensive caching strategy:
 - Redis distributed caching
 - Application-level caching
@@ -304,12 +304,12 @@ const PromptAll: React.FC = () => {
 - Cache invalidation strategies
 - Cache warming and preloading
 - Cache performance monitoring
-- Cache hit ratio optimization`
+- Cache hit ratio optimization`,
 		},
 		{
-			title: "Async Processing & Queues",
-			description: "Implement asynchronous processing for scalability",
-			category: "Performance",
+			title: 'Async Processing & Queues',
+			description: 'Implement asynchronous processing for scalability',
+			category: 'Performance',
 			prompt: `Implement async processing with queues:
 - Message queue implementation (RabbitMQ, SQS)
 - Background job processing
@@ -318,14 +318,14 @@ const PromptAll: React.FC = () => {
 - Job retry mechanisms
 - Distributed task coordination
 - Performance monitoring of queues
-- Horizontal scaling of workers`
+- Horizontal scaling of workers`,
 		},
 
 		// Error Handling Prompts
 		{
-			title: "Comprehensive Error Handling",
-			description: "Robust error handling with proper user feedback",
-			category: "Error Handling",
+			title: 'Comprehensive Error Handling',
+			description: 'Robust error handling with proper user feedback',
+			category: 'Error Handling',
 			prompt: `Implement comprehensive error handling:
 - Structured error response format
 - Error classification and categorization
@@ -334,12 +334,12 @@ const PromptAll: React.FC = () => {
 - Error logging and monitoring
 - Graceful degradation strategies
 - Error recovery mechanisms
-- Error reporting and analytics`
+- Error reporting and analytics`,
 		},
 		{
-			title: "Circuit Breaker Pattern",
-			description: "Implement circuit breaker for fault tolerance",
-			category: "Error Handling",
+			title: 'Circuit Breaker Pattern',
+			description: 'Implement circuit breaker for fault tolerance',
+			category: 'Error Handling',
 			prompt: `Implement circuit breaker pattern:
 - Failure threshold configuration
 - Timeout and retry policies
@@ -348,12 +348,12 @@ const PromptAll: React.FC = () => {
 - Health check endpoints
 - Circuit breaker monitoring
 - Automatic recovery detection
-- Performance impact measurement`
+- Performance impact measurement`,
 		},
 		{
-			title: "Retry Mechanisms",
-			description: "Intelligent retry logic for transient failures",
-			category: "Error Handling",
+			title: 'Retry Mechanisms',
+			description: 'Intelligent retry logic for transient failures',
+			category: 'Error Handling',
 			prompt: `Implement intelligent retry mechanisms:
 - Exponential backoff with jitter
 - Retry condition detection
@@ -362,14 +362,14 @@ const PromptAll: React.FC = () => {
 - Idempotent operation handling
 - Retry state persistence
 - Retry performance monitoring
-- Retry failure escalation`
+- Retry failure escalation`,
 		},
 
 		// Monitoring & Analytics Prompts
 		{
-			title: "Application Performance Monitoring",
-			description: "Comprehensive APM implementation",
-			category: "Monitoring",
+			title: 'Application Performance Monitoring',
+			description: 'Comprehensive APM implementation',
+			category: 'Monitoring',
 			prompt: `Implement application performance monitoring:
 - Request tracing and profiling
 - Performance metrics collection
@@ -378,12 +378,12 @@ const PromptAll: React.FC = () => {
 - Resource utilization monitoring
 - User experience metrics
 - Performance baseline establishment
-- Anomaly detection and alerting`
+- Anomaly detection and alerting`,
 		},
 		{
-			title: "Security Event Monitoring",
-			description: "Security monitoring and threat detection",
-			category: "Monitoring",
+			title: 'Security Event Monitoring',
+			description: 'Security monitoring and threat detection',
+			category: 'Monitoring',
 			prompt: `Implement security event monitoring:
 - Real-time security event collection
 - Threat detection and analysis
@@ -392,12 +392,12 @@ const PromptAll: React.FC = () => {
 - Security metrics dashboard
 - Compliance reporting
 - Security audit trails
-- Automated security alerts`
+- Automated security alerts`,
 		},
 		{
-			title: "Business Analytics Integration",
-			description: "Business intelligence and analytics",
-			category: "Monitoring",
+			title: 'Business Analytics Integration',
+			description: 'Business intelligence and analytics',
+			category: 'Monitoring',
 			prompt: `Implement business analytics:
 - User behavior tracking
 - Feature usage analytics
@@ -406,14 +406,14 @@ const PromptAll: React.FC = () => {
 - Business KPI monitoring
 - Custom event tracking
 - Analytics dashboard
-- Data export and reporting`
+- Data export and reporting`,
 		},
 
 		// Development & DevOps Prompts
 		{
-			title: "CI/CD Pipeline Setup",
-			description: "Complete continuous integration and deployment",
-			category: "DevOps",
+			title: 'CI/CD Pipeline Setup',
+			description: 'Complete continuous integration and deployment',
+			category: 'DevOps',
 			prompt: `Implement CI/CD pipeline:
 - Automated testing integration
 - Code quality checks (linting, security scanning)
@@ -422,12 +422,12 @@ const PromptAll: React.FC = () => {
 - Rollback strategies
 - Blue-green deployments
 - Canary releases
-- Deployment monitoring and alerts`
+- Deployment monitoring and alerts`,
 		},
 		{
-			title: "Infrastructure as Code",
-			description: "Infrastructure automation and management",
-			category: "DevOps",
+			title: 'Infrastructure as Code',
+			description: 'Infrastructure automation and management',
+			category: 'DevOps',
 			prompt: `Implement infrastructure as code:
 - Terraform/CloudFormation templates
 - Environment configuration management
@@ -436,12 +436,12 @@ const PromptAll: React.FC = () => {
 - Cost optimization strategies
 - Security hardening automation
 - Backup and disaster recovery
-- Compliance automation`
+- Compliance automation`,
 		},
 		{
-			title: "Container Orchestration",
-			description: "Kubernetes deployment and management",
-			category: "DevOps",
+			title: 'Container Orchestration',
+			description: 'Kubernetes deployment and management',
+			category: 'DevOps',
 			prompt: `Implement container orchestration:
 - Kubernetes deployment manifests
 - Service mesh integration
@@ -450,8 +450,8 @@ const PromptAll: React.FC = () => {
 - Configuration management
 - Secret management
 - Monitoring and logging
-- Rolling updates and maintenance`
-		}
+- Rolling updates and maintenance`,
+		},
 	];
 
 	return (
@@ -461,93 +461,107 @@ const PromptAll: React.FC = () => {
 				<ContentContainer>
 					<Title>Complete Prompts Guide</Title>
 					<Description>
-						Comprehensive collection of 25+ development prompts covering authentication, security, 
-						token management, performance, error handling, monitoring, and DevOps best practices 
-						for MasterFlow API integration and enterprise-grade application development.
+						Comprehensive collection of 25+ development prompts covering authentication, security,
+						token management, performance, error handling, monitoring, and DevOps best practices for
+						MasterFlow API integration and enterprise-grade application development.
 					</Description>
 
 					<Section>
 						<SectionTitle>Authentication Prompts</SectionTitle>
-						{prompts.filter(p => p.category === 'Authentication').map((prompt, index) => (
-							<PromptCard key={index}>
-								<PromptTitle>{prompt.title}</PromptTitle>
-								<Tag>{prompt.category}</Tag>
-								<PromptDescription>{prompt.description}</PromptDescription>
-								<CodeBlock>{prompt.prompt}</CodeBlock>
-							</PromptCard>
-						))}
+						{prompts
+							.filter((p) => p.category === 'Authentication')
+							.map((prompt, index) => (
+								<PromptCard key={index}>
+									<PromptTitle>{prompt.title}</PromptTitle>
+									<Tag>{prompt.category}</Tag>
+									<PromptDescription>{prompt.description}</PromptDescription>
+									<CodeBlock>{prompt.prompt}</CodeBlock>
+								</PromptCard>
+							))}
 					</Section>
 
 					<Section>
 						<SectionTitle>Security Prompts</SectionTitle>
-						{prompts.filter(p => p.category === 'Security').map((prompt, index) => (
-							<PromptCard key={index}>
-								<PromptTitle>{prompt.title}</PromptTitle>
-								<Tag>{prompt.category}</Tag>
-								<PromptDescription>{prompt.description}</PromptDescription>
-								<CodeBlock>{prompt.prompt}</CodeBlock>
-							</PromptCard>
-						))}
+						{prompts
+							.filter((p) => p.category === 'Security')
+							.map((prompt, index) => (
+								<PromptCard key={index}>
+									<PromptTitle>{prompt.title}</PromptTitle>
+									<Tag>{prompt.category}</Tag>
+									<PromptDescription>{prompt.description}</PromptDescription>
+									<CodeBlock>{prompt.prompt}</CodeBlock>
+								</PromptCard>
+							))}
 					</Section>
 
 					<Section>
 						<SectionTitle>Token Management Prompts</SectionTitle>
-						{prompts.filter(p => p.category === 'Token Management').map((prompt, index) => (
-							<PromptCard key={index}>
-								<PromptTitle>{prompt.title}</PromptTitle>
-								<Tag>{prompt.category}</Tag>
-								<PromptDescription>{prompt.description}</PromptDescription>
-								<CodeBlock>{prompt.prompt}</CodeBlock>
-							</PromptCard>
-						))}
+						{prompts
+							.filter((p) => p.category === 'Token Management')
+							.map((prompt, index) => (
+								<PromptCard key={index}>
+									<PromptTitle>{prompt.title}</PromptTitle>
+									<Tag>{prompt.category}</Tag>
+									<PromptDescription>{prompt.description}</PromptDescription>
+									<CodeBlock>{prompt.prompt}</CodeBlock>
+								</PromptCard>
+							))}
 					</Section>
 
 					<Section>
 						<SectionTitle>Performance Prompts</SectionTitle>
-						{prompts.filter(p => p.category === 'Performance').map((prompt, index) => (
-							<PromptCard key={index}>
-								<PromptTitle>{prompt.title}</PromptTitle>
-								<Tag>{prompt.category}</Tag>
-								<PromptDescription>{prompt.description}</PromptDescription>
-								<CodeBlock>{prompt.prompt}</CodeBlock>
-							</PromptCard>
-						))}
+						{prompts
+							.filter((p) => p.category === 'Performance')
+							.map((prompt, index) => (
+								<PromptCard key={index}>
+									<PromptTitle>{prompt.title}</PromptTitle>
+									<Tag>{prompt.category}</Tag>
+									<PromptDescription>{prompt.description}</PromptDescription>
+									<CodeBlock>{prompt.prompt}</CodeBlock>
+								</PromptCard>
+							))}
 					</Section>
 
 					<Section>
 						<SectionTitle>Error Handling Prompts</SectionTitle>
-						{prompts.filter(p => p.category === 'Error Handling').map((prompt, index) => (
-							<PromptCard key={index}>
-								<PromptTitle>{prompt.title}</PromptTitle>
-								<Tag>{prompt.category}</Tag>
-								<PromptDescription>{prompt.description}</PromptDescription>
-								<CodeBlock>{prompt.prompt}</CodeBlock>
-							</PromptCard>
-						))}
+						{prompts
+							.filter((p) => p.category === 'Error Handling')
+							.map((prompt, index) => (
+								<PromptCard key={index}>
+									<PromptTitle>{prompt.title}</PromptTitle>
+									<Tag>{prompt.category}</Tag>
+									<PromptDescription>{prompt.description}</PromptDescription>
+									<CodeBlock>{prompt.prompt}</CodeBlock>
+								</PromptCard>
+							))}
 					</Section>
 
 					<Section>
 						<SectionTitle>Monitoring & Analytics Prompts</SectionTitle>
-						{prompts.filter(p => p.category === 'Monitoring').map((prompt, index) => (
-							<PromptCard key={index}>
-								<PromptTitle>{prompt.title}</PromptTitle>
-								<Tag>{prompt.category}</Tag>
-								<PromptDescription>{prompt.description}</PromptDescription>
-								<CodeBlock>{prompt.prompt}</CodeBlock>
-							</PromptCard>
-						))}
+						{prompts
+							.filter((p) => p.category === 'Monitoring')
+							.map((prompt, index) => (
+								<PromptCard key={index}>
+									<PromptTitle>{prompt.title}</PromptTitle>
+									<Tag>{prompt.category}</Tag>
+									<PromptDescription>{prompt.description}</PromptDescription>
+									<CodeBlock>{prompt.prompt}</CodeBlock>
+								</PromptCard>
+							))}
 					</Section>
 
 					<Section>
 						<SectionTitle>DevOps Prompts</SectionTitle>
-						{prompts.filter(p => p.category === 'DevOps').map((prompt, index) => (
-							<PromptCard key={index}>
-								<PromptTitle>{prompt.title}</PromptTitle>
-								<Tag>{prompt.category}</Tag>
-								<PromptDescription>{prompt.description}</PromptDescription>
-								<CodeBlock>{prompt.prompt}</CodeBlock>
-							</PromptCard>
-						))}
+						{prompts
+							.filter((p) => p.category === 'DevOps')
+							.map((prompt, index) => (
+								<PromptCard key={index}>
+									<PromptTitle>{prompt.title}</PromptTitle>
+									<Tag>{prompt.category}</Tag>
+									<PromptDescription>{prompt.description}</PromptDescription>
+									<CodeBlock>{prompt.prompt}</CodeBlock>
+								</PromptCard>
+							))}
 					</Section>
 
 					<Section>
@@ -555,12 +569,12 @@ const PromptAll: React.FC = () => {
 						<PromptCard>
 							<PromptTitle>Related Documentation</PromptTitle>
 							<PromptDescription>
-								For more detailed migration instructions and engineering guidelines, see the 
-								<a href="/docs/migration/migrate-vscode">VSCode Migration Guide</a> and 
+								For more detailed migration instructions and engineering guidelines, see the
+								<a href="/docs/migration/migrate-vscode">VSCode Migration Guide</a> and
 								<a href="/docs/prompts/prompt-all.md">Engineering Safety Rules</a>.
 							</PromptDescription>
 							<PromptDescription>
-								These prompts are designed to help you implement comprehensive, production-ready 
+								These prompts are designed to help you implement comprehensive, production-ready
 								features following security best practices and modern development standards.
 							</PromptDescription>
 						</PromptCard>

@@ -4,7 +4,9 @@
 import React, { useEffect, useState } from 'react';
 import { FiAlertTriangle, FiInfo, FiKey, FiRefreshCw, FiShield } from 'react-icons/fi';
 import { StepNavigationButtons } from '../components/StepNavigationButtons';
+import { WorkerTokenModal } from '../components/WorkerTokenModal';
 import { usePageStepper } from '../contexts/FloatingStepperContext';
+import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import {
@@ -19,9 +21,7 @@ import V7StepperService from '../services/v7StepperService';
 import { credentialManager } from '../utils/credentialManager';
 import { getOAuthTokens } from '../utils/tokenStorage';
 import { v4ToastManager } from '../utils/v4ToastMessages';
-import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import WorkerTokenStatusDisplayV8 from '../v8/components/WorkerTokenStatusDisplayV8';
-import { WorkerTokenModal } from '../components/WorkerTokenModal';
 
 type CredentialsState = {
 	environmentId: string;
@@ -489,7 +489,10 @@ const OrganizationLicensingV2: React.FC = () => {
 
 		setIsFetchingAllLicenses(true);
 		try {
-			const licenses = await getAllLicenses(globalTokenStatus.token, organizationId.trim() || undefined);
+			const licenses = await getAllLicenses(
+				globalTokenStatus.token,
+				organizationId.trim() || undefined
+			);
 			setAllLicenses(licenses);
 			v4ToastManager.showSuccess(`Successfully fetched ${licenses.length} licenses`);
 		} catch (err) {
@@ -533,29 +536,30 @@ const OrganizationLicensingV2: React.FC = () => {
 								capabilities.
 							</p>
 						</div>
-
-						<WorkerTokenStatusDisplayV8 mode="detailed" showRefresh={true} />							<div style={{ marginTop: '1rem' }}>
-								<button
-									type="button"
-									onClick={() => setShowWorkerTokenModal(true)}
-									style={{
-										display: 'flex',
-										alignItems: 'center',
-										gap: '0.5rem',
-										padding: '0.625rem 1.25rem',
-										background: '#ef4444',
-										color: 'white',
-										border: 'none',
-										borderRadius: '0.5rem',
-										fontSize: '0.875rem',
-										fontWeight: 600,
-										cursor: 'pointer',
-									}}
-								>
-									<FiKey />
-									Get Worker Token
-								</button>
-							</div>					</div>
+						<WorkerTokenStatusDisplayV8 mode="detailed" showRefresh={true} />{' '}
+						<div style={{ marginTop: '1rem' }}>
+							<button
+								type="button"
+								onClick={() => setShowWorkerTokenModal(true)}
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
+									padding: '0.625rem 1.25rem',
+									background: '#ef4444',
+									color: 'white',
+									border: 'none',
+									borderRadius: '0.5rem',
+									fontSize: '0.875rem',
+									fontWeight: 600,
+									cursor: 'pointer',
+								}}
+							>
+								<FiKey />
+								Get Worker Token
+							</button>
+						</div>{' '}
+					</div>
 				</CollapsibleHeader>
 
 				<div style={{ marginBottom: '1rem' }}>

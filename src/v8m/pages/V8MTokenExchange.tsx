@@ -889,28 +889,25 @@ const V8MTokenExchange: React.FC = () => {
 		}));
 	}, [selectedScenario]);
 
-	const handleScenarioChange = useCallback(
-		(scenario: TokenExchangeScenario) => {
-			setSelectedScenario(scenario);
-			setCurrentStep(0);
-			setSubjectToken('');
-			setExchangedToken('');
-			setAuthCode('');
-			setInitialAccessToken('');
-			// Initialize with default scopes for the scenario
-			const defaultScopes = scenarios[scenario].scope.split(' ');
-			setSelectedScopes(defaultScopes);
-			// Set scenario-specific defaults
-			setExchangeParams((prev) => ({
-				...prev,
-				audience: scenarios[scenario].audience,
-				claims: scenarios[scenario].defaultClaims,
-				authorizationDetails: scenarios[scenario].defaultAuthDetails,
-			}));
-			v4ToastManager.showSuccess(`Selected ${scenarios[scenario].title} scenario`);
-		},
-		[selectedScenario]
-	);
+	const handleScenarioChange = useCallback((scenario: TokenExchangeScenario) => {
+		setSelectedScenario(scenario);
+		setCurrentStep(0);
+		setSubjectToken('');
+		setExchangedToken('');
+		setAuthCode('');
+		setInitialAccessToken('');
+		// Initialize with default scopes for the scenario
+		const defaultScopes = scenarios[scenario].scope.split(' ');
+		setSelectedScopes(defaultScopes);
+		// Set scenario-specific defaults
+		setExchangeParams((prev) => ({
+			...prev,
+			audience: scenarios[scenario].audience,
+			claims: scenarios[scenario].defaultClaims,
+			authorizationDetails: scenarios[scenario].defaultAuthDetails,
+		}));
+		v4ToastManager.showSuccess(`Selected ${scenarios[scenario].title} scenario`);
+	}, []);
 
 	const handleScopeToggle = useCallback((scopeName: string) => {
 		setSelectedScopes((prev) => {

@@ -4,7 +4,7 @@
  * @description Spec version management service for V9 with enhanced features
  * @version 9.0.0
  * @since 2026-02-28
- * 
+ *
  * Migrated from specVersionServiceV8.ts with V9 enhancements:
  * - Enhanced compliance checking
  * - Better TypeScript types
@@ -73,7 +73,8 @@ export interface V9FlowCompatibility {
 const V9_SPEC_CONFIGS: Record<V9SpecVersion, V9SpecConfig> = {
 	'oauth2.0': {
 		name: 'OAuth 2.0 Authorization Framework',
-		description: 'Baseline OAuth framework standard (RFC 6749). Provides authorization without authentication. Supports all flow types including Implicit.',
+		description:
+			'Baseline OAuth framework standard (RFC 6749). Provides authorization without authentication. Supports all flow types including Implicit.',
 		version: 'RFC 6749',
 		rfcReference: 'https://tools.ietf.org/html/rfc6749',
 		status: 'active',
@@ -89,14 +90,21 @@ const V9_SPEC_CONFIGS: Record<V9SpecVersion, V9SpecConfig> = {
 			maxTokenLength: 4096,
 			requireState: true,
 			supportedResponseTypes: ['code', 'token'],
-			supportedGrantTypes: ['authorization_code', 'implicit', 'client_credentials', 'password', 'refresh_token'],
+			supportedGrantTypes: [
+				'authorization_code',
+				'implicit',
+				'client_credentials',
+				'password',
+				'refresh_token',
+			],
 		},
 		securityFeatures: ['State parameter', 'Redirect URI validation', 'Client authentication'],
 		deprecatedFeatures: ['Implicit flow (security concerns)', 'ROPC (password in native apps)'],
 	},
 	'oauth2.1': {
 		name: 'OAuth 2.1 Authorization Framework',
-		description: 'Consolidated OAuth specification that removes deprecated flows and enforces modern security practices. PKCE required, HTTPS enforced.',
+		description:
+			'Consolidated OAuth specification that removes deprecated flows and enforces modern security practices. PKCE required, HTTPS enforced.',
 		version: 'draft-ietf-oauth-v2-1-04',
 		rfcReference: 'https://datatracker.ietf.org/doc/draft-ietf-oauth-v2-1/',
 		status: 'draft',
@@ -113,14 +121,20 @@ const V9_SPEC_CONFIGS: Record<V9SpecVersion, V9SpecConfig> = {
 			requireState: true,
 			requireNonce: false,
 			supportedResponseTypes: ['code'],
-			supportedGrantTypes: ['authorization_code', 'client_credentials', 'refresh_token', 'urn:ietf:params:oauth:grant-type:device_code'],
+			supportedGrantTypes: [
+				'authorization_code',
+				'client_credentials',
+				'refresh_token',
+				'urn:ietf:params:oauth:grant-type:device_code',
+			],
 		},
 		securityFeatures: ['PKCE required', 'HTTPS enforced', 'No implicit flow', 'No ROPC'],
 		newFeatures: ['Enhanced security', 'Simplified flows', 'Better mobile app support'],
 	},
-	'oidc': {
+	oidc: {
 		name: 'OpenID Connect Core 1.0',
-		description: 'Authentication layer on top of OAuth 2.0 that adds identity layer with ID Tokens, openid scope, and UserInfo endpoint.',
+		description:
+			'Authentication layer on top of OAuth 2.0 that adds identity layer with ID Tokens, openid scope, and UserInfo endpoint.',
 		version: 'OpenID Connect Core 1.0',
 		rfcReference: 'https://openid.net/specs/openid-connect-core-1_0.html',
 		status: 'active',
@@ -144,7 +158,8 @@ const V9_SPEC_CONFIGS: Record<V9SpecVersion, V9SpecConfig> = {
 	},
 	'oauth2.2': {
 		name: 'OAuth 2.2 Authorization Framework',
-		description: 'Next generation OAuth specification with enhanced security features and modern best practices built-in.',
+		description:
+			'Next generation OAuth specification with enhanced security features and modern best practices built-in.',
 		version: 'draft-ietf-oauth-v2-2-00',
 		rfcReference: 'https://datatracker.ietf.org/doc/draft-ietf-oauth-v2-2/',
 		status: 'experimental',
@@ -161,7 +176,13 @@ const V9_SPEC_CONFIGS: Record<V9SpecVersion, V9SpecConfig> = {
 			requireState: true,
 			requireNonce: false,
 			supportedResponseTypes: ['code'],
-			supportedGrantTypes: ['authorization_code', 'client_credentials', 'refresh_token', 'urn:ietf:params:oauth:grant-type:device_code', 'urn:ietf:params:oauth:grant-type:par'],
+			supportedGrantTypes: [
+				'authorization_code',
+				'client_credentials',
+				'refresh_token',
+				'urn:ietf:params:oauth:grant-type:device_code',
+				'urn:ietf:params:oauth:grant-type:par',
+			],
 		},
 		securityFeatures: ['PAR support', 'Enhanced PKCE', 'Longer tokens', 'JWS signed requests'],
 		newFeatures: ['Pushed Authorization Requests', 'Enhanced PKCE', 'Better security defaults'],
@@ -283,7 +304,9 @@ export class V9SpecVersionService {
 		// Check token length
 		if (options.tokenLength) {
 			if (rules.minTokenLength && options.tokenLength < rules.minTokenLength) {
-				warnings.push(`Token length is shorter than recommended minimum (${rules.minTokenLength} chars)`);
+				warnings.push(
+					`Token length is shorter than recommended minimum (${rules.minTokenLength} chars)`
+				);
 			}
 			if (rules.maxTokenLength && options.tokenLength > rules.maxTokenLength) {
 				warnings.push(`Token length exceeds recommended maximum (${rules.maxTokenLength} chars)`);
