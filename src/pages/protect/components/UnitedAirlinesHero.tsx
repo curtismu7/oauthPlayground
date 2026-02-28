@@ -10,7 +10,7 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { FiLock, FiMail, FiMenu, FiSearch, FiUser, FiX } from 'react-icons/fi';
+import { FiLock, FiMail, FiMenu, FiSearch, FiUser, FiX } from '@icons';
 import styled from 'styled-components';
 import { useBrandTheme } from '../themes/theme-provider';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';

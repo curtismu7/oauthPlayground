@@ -1,6 +1,6 @@
 // src/components/JWTTokenDisplay.tsx
 import React, { useState } from 'react';
-import { FiEye, FiEyeOff, FiKey } from 'react-icons/fi';
+import { FiEye, FiEyeOff, FiKey } from '@icons';
 import styled from 'styled-components';
 import { CopyButtonService } from '../services/copyButtonService';
 import { type DecodedJWT, decodeJWT, isJWT } from '../utils/jwtDecoder';

@@ -14,7 +14,7 @@ import {
 	FiShield,
 	FiSmartphone,
 	FiUser,
-} from 'react-icons/fi';
+} from '@icons';
 import JSONHighlighter, { type JSONData } from '../../components/JSONHighlighter';
 import PhoneNumberInput from '../../components/PhoneNumberInput';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';

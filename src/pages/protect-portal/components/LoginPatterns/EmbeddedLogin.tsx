@@ -9,7 +9,7 @@
  */
 
 import React, { useState } from 'react';
-import { FiEye, FiEyeOff, FiKey, FiLock, FiShield, FiUser } from 'react-icons/fi';
+import { FiEye, FiEyeOff, FiKey, FiLock, FiShield, FiUser } from '@icons';
 import styled from 'styled-components';
 import type { CorporatePortalConfig } from '../../types/CorporatePortalConfig';
 

@@ -10,7 +10,7 @@
  */
 
 import React from 'react';
-import { FiArrowRight, FiCheckCircle, FiLock, FiShield, FiUser } from 'react-icons/fi';
+import { FiArrowRight, FiCheckCircle, FiLock, FiShield, FiUser } from '@icons';
 import styled from 'styled-components';
 import type { EducationalContent } from '../types/protectPortal.types';
 import CompanySelector from './CompanySelector';

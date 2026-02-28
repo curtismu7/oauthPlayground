@@ -13,7 +13,7 @@
  */
 
 import React, { useState } from 'react';
-import { FiChevronDown, FiInfo } from 'react-icons/fi';
+import { FiChevronDown, FiInfo } from '@icons';
 
 const MODULE_TAG = '[🔐 PKCE-ENFORCEMENT-V8]';
 

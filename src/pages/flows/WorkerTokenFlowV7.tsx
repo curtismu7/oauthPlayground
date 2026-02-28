@@ -2,7 +2,7 @@
 // V7 PingOne Worker Token Flow with ComprehensiveCredentialsService
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiAlertCircle, FiCheckCircle, FiKey, FiShield } from 'react-icons/fi';
+import { FiAlertCircle, FiCheckCircle, FiKey, FiShield } from '@icons';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';

@@ -11,7 +11,7 @@
  */
 
 import React, { useState } from 'react';
-import { FiLogIn, FiRefreshCw, FiUser } from 'react-icons/fi';
+import { FiLogIn, FiRefreshCw, FiUser } from '@icons';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { UserLoginModalV8 } from './UserLoginModalV8';

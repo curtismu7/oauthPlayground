@@ -12,7 +12,7 @@ import {
 	FiNavigation,
 	FiShare,
 	FiShare2
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 
 type ResponseMode = 'query' | 'fragment' | 'form_post' | 'pi.flow';

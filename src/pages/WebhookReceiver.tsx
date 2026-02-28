@@ -2,7 +2,7 @@
 // Webhook Receiver - Receives and processes PingOne webhook events
 
 import React, { useEffect, useState } from 'react';
-import { FiAlertTriangle, FiCopy, FiRefreshCw, FiServer } from 'react-icons/fi';
+import { FiAlertTriangle, FiCopy, FiRefreshCw, FiServer } from '@icons';
 import styled from 'styled-components';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 

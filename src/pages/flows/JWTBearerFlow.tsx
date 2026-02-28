@@ -11,7 +11,7 @@ import {
 	FiShield,
 	FiUser,
 	FiXCircle,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { CardBody, CardHeader } from '../../components/Card';
 import { SpecCard } from '../../components/SpecCard';

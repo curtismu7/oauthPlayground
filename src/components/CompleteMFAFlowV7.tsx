@@ -20,7 +20,7 @@ import {
 	FiShield,
 	FiSmartphone,
 	FiZap,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import EnhancedFlowInfoCard from '../components/EnhancedFlowInfoCard';
 import { StepNavigationButtons } from '../components/StepNavigationButtons';

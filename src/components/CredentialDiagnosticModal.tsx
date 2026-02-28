@@ -2,7 +2,7 @@
 // Modal to show diagnostic information about credentials being sent
 
 import React from 'react';
-import { FiAlertTriangle, FiCheckCircle, FiX } from 'react-icons/fi';
+import { FiAlertTriangle, FiCheckCircle, FiX } from '@icons';
 import styled from 'styled-components';
 
 interface CredentialDiagnostic {

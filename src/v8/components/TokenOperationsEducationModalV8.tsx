@@ -21,7 +21,7 @@
  */
 
 import React from 'react';
-import { FiCheckCircle, FiInfo, FiX, FiXCircle } from 'react-icons/fi';
+import { FiCheckCircle, FiInfo, FiX, FiXCircle } from '@icons';
 import { TokenOperationsServiceV8 } from '@/v8/services/tokenOperationsServiceV8';
 
 interface TokenOperationsEducationModalV8Props {

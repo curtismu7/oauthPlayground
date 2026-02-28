@@ -14,9 +14,8 @@ import {
 	FiAlertTriangle,
 	FiEye,
 	FiEyeOff,
-	FiLock as FiLockIcon,
-	FiLockIcon
-} from 'react-icons/fi';
+	FiLock as FiLockIcon
+} from '@icons';
 import styled from 'styled-components';
 import { ButtonSpinner } from '../../../components/ui/ButtonSpinner';
 import PingOneLoginService from '../services/pingOneLoginService';

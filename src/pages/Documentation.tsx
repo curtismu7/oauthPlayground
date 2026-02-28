@@ -8,7 +8,7 @@ import {
 	FiSettings,
 	FiShield,
 	FiTool,
-} from 'react-icons/fi';
+} from '@icons';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { usePageScroll } from '../hooks/usePageScroll';

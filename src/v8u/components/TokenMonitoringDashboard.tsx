@@ -12,7 +12,7 @@ import {
 	FiTrash,
 	FiTrash2,
 	FiX
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { type TokenInfo } from '../services/tokenMonitoringService';
 

@@ -2,7 +2,7 @@
 // Comprehensive table showing configuration requirements for all OAuth/OIDC flows
 
 import React from 'react';
-import { FiAlertTriangle, FiCheck, FiX } from 'react-icons/fi';
+import { FiAlertTriangle, FiCheck, FiX } from '@icons';
 import styled from 'styled-components';
 
 const TableContainer = styled.div`

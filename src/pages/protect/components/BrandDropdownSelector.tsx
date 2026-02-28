@@ -10,7 +10,7 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { FiCheck, FiChevronDown } from 'react-icons/fi';
+import { FiCheck, FiChevronDown } from '@icons';
 import styled from 'styled-components';
 import { useBrandTheme } from '../themes/theme-provider';
 import TextLogo from './TextLogo';

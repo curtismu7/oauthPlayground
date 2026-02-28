@@ -9,7 +9,7 @@ import {
 	FiTrendingDown,
 	FiTrendingUp,
 	FiXCircle,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
 import { useSecurityAnalytics } from '../hooks/useSecurityAnalytics';

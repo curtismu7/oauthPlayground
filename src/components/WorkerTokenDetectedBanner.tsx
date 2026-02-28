@@ -2,7 +2,7 @@
 // Reusable banner component to display when a worker token is detected
 
 import React from 'react';
-import { FiAlertCircle, FiCheckCircle, FiClock, FiDatabase } from 'react-icons/fi';
+import { FiAlertCircle, FiCheckCircle, FiClock, FiDatabase } from '@icons';
 import styled from 'styled-components';
 import { checkTokenExpiration, type TokenExpirationInfo } from '../services/tokenExpirationService';
 

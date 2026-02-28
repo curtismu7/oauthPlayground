@@ -11,7 +11,7 @@
 const SERVICE_VERSION = '2.0.0';
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FiCheckCircle, FiKey, FiSettings } from 'react-icons/fi';
+import { FiCheckCircle, FiKey, FiSettings } from '@icons';
 import styled from 'styled-components';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 import ClientAuthMethodSelector from '../components/ClientAuthMethodSelector';

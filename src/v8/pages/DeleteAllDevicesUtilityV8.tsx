@@ -20,7 +20,7 @@ import {
 	FiTrash,
 	FiTrash2,
 	FiX
-} from 'react-icons/fi';
+} from '@icons';
 import { useLocation } from 'react-router-dom';
 import { readBestEnvironmentId } from '@/hooks/useAutoEnvironmentId';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
