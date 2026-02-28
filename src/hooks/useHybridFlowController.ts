@@ -20,13 +20,13 @@ import {
 } from '../services/hybridFlowSharedService';
 import { StepCredentials } from '../types/flowTypes';
 import { credentialManager } from '../utils/credentialManager';
+import { getAppOrigin } from '../utils/flowRedirectUriMapping';
 import {
 	auditRedirectUri,
 	clearRedirectUri,
 	getStoredRedirectUri,
 	storeRedirectUriFromAuthUrl,
 } from '../utils/redirectUriHelpers';
-import { getAppOrigin } from '../utils/flowRedirectUriMapping';
 import { safeSessionStorageParse } from '../utils/secureJson';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 

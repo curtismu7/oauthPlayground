@@ -222,6 +222,7 @@ const MobileFlowV8 = React.lazy(() =>
 	import('./v8/flows/types/MobileFlowV8').then((module) => ({ default: module.MobileFlowV8 }))
 );
 
+import { FloatingStepperProvider } from './contexts/FloatingStepperContext';
 import EnvironmentManagementPageV8 from './pages/EnvironmentManagementPageV8';
 // Import Protect Portal
 import ProtectPortalWrapper from './pages/protect-portal/ProtectPortalWrapper';
@@ -238,7 +239,6 @@ import { MobileRegistrationDocsPageV8 } from './v8/pages/MobileRegistrationDocsP
 import UnifiedCredentialsMockupV8 from './v8/pages/UnifiedCredentialsMockupV8';
 import { isPopoutWindow } from './v8/utils/debugLogViewerPopoutHelperV8';
 import { isWebhookPopout } from './v8/utils/webhookViewerPopoutHelper';
-import { FloatingStepperProvider } from './contexts/FloatingStepperContext';
 import V8MTokenExchange from './v8m/pages/V8MTokenExchange';
 import CallbackHandlerV8U from './v8u/components/CallbackHandlerV8U';
 import UnifiedFlowErrorBoundary from './v8u/components/UnifiedFlowErrorBoundary';

@@ -2,7 +2,7 @@
  * Tests for trackedFetch: proxy vs direct PingOne calls and backend log-call reporting.
  */
 
-import { afterEach, beforeEach, describe, it, expect, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { trackedFetch } from './trackedFetch';
 
 // Mock apiCallTrackerService
@@ -19,18 +19,25 @@ describe('trackedFetch', () => {
 
 	beforeEach(() => {
 		fetchCalls = [];
-		fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation((input: RequestInfo | URL, init?: RequestInit) => {
-			const url = typeof input === 'string' ? input : input instanceof URL ? input.toString() : (input as Request).url;
-			fetchCalls.push({ url, init });
-			// Return a minimal Response so trackedFetch can read status, headers, clone, json()
-			return Promise.resolve(
-				new Response(JSON.stringify({ data: 'test' }), {
-					status: 200,
-					statusText: 'OK',
-					headers: new Headers({ 'content-type': 'application/json' }),
-				})
-			);
-		});
+		fetchSpy = vi
+			.spyOn(globalThis, 'fetch')
+			.mockImplementation((input: RequestInfo | URL, init?: RequestInit) => {
+				const url =
+					typeof input === 'string'
+						? input
+						: input instanceof URL
+							? input.toString()
+							: (input as Request).url;
+				fetchCalls.push({ url, init });
+				// Return a minimal Response so trackedFetch can read status, headers, clone, json()
+				return Promise.resolve(
+					new Response(JSON.stringify({ data: 'test' }), {
+						status: 200,
+						statusText: 'OK',
+						headers: new Headers({ 'content-type': 'application/json' }),
+					})
+				);
+			});
 	});
 
 	afterEach(() => {
