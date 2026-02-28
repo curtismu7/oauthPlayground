@@ -1,8 +1,8 @@
 /**
  * @file ProtectPortalApp.tsx
  * @module protect-portal
- * @description Main Protect Portal application component
- * @version 9.6.5
+ * @description Main Protect Portal application component — V8 migration
+ * @version 9.7.0
  * @since 2026-02-10
  *
  * This is the main component for the Protect Portal application that demonstrates
@@ -11,9 +11,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { FiAlertTriangle, FiCheckCircle, FiLoader, FiShield, FiX } from 'react-icons/fi';
-import styled from 'styled-components';
-import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
-import { WorkerTokenStatusDisplayV8 } from '@/v8/components/WorkerTokenStatusDisplayV8';
+import { WorkerTokenSectionV8 } from '@/v8/components/WorkerTokenSectionV8';
 import AmericanAirlinesHero from './components/AmericanAirlinesHero';
 import BankOfAmericaHero from './components/BankOfAmericaHero';
 import CompanyHeader from './components/CompanyHeader';
@@ -42,209 +40,144 @@ import type {
 } from './types/protectPortal.types';
 
 // ============================================================================
-// STYLED COMPONENTS
+// INLINE STYLE HELPERS
 // ============================================================================
 
-const PortalContainer = styled.div`
-  min-height: 100vh;
-  background: var(--brand-background);
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  font-family: var(--brand-font-family);
-  align-items: stretch;
-  justify-content: flex-start;
-`;
-
-const PortalCard = styled.div`
-  background: transparent;
-  overflow: hidden;
-  width: 100%;
-  max-width: none;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  justify-content: flex-start;
-`;
-
-const PortalContent = styled.div`
-  flex: 1;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  align-items: stretch;
-  justify-content: flex-start;
-`;
-
-const ErrorContainer = styled.div`
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  max-width: 500px;
-  width: 100%;
-  text-align: center;
-`;
-
-const ErrorTitle = styled.h3`
-  color: #dc2626;
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin: 0 0 0.75rem 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-`;
-
-const ErrorMessage = styled.p`
-  color: #7f1d1d;
-  font-size: 1rem;
-  margin: 0 0 1rem 0;
-  line-height: 1.5;
-`;
-
-const ErrorActions = styled.div`
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  flex-wrap: wrap;
-`;
-
-const ResourceSection = styled.div`
-  background: var(--brand-surface, #f9fafb);
-  border-top: 1px solid var(--brand-border, #e5e7eb);
-  padding: 2rem 1.5rem;
-  text-align: center;
-`;
-
-const ResourceTitle = styled.h3`
-  color: var(--brand-text, #1f2937);
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin: 0 0 0.5rem 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-`;
-
-const ResourceDescription = styled.p`
-  color: var(--brand-text-secondary, #6b7280);
-  font-size: 1rem;
-  margin: 0 0 1.5rem 0;
-  line-height: 1.5;
-`;
-
-const DownloadButton = styled.a`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.875rem 1.75rem;
-  background: var(--brand-primary, #0066cc);
-  color: white !important;
-  border-radius: var(--brand-radius-md, 0.5rem);
-  font-weight: 600;
-  font-size: 1rem;
-  text-decoration: none;
-  transition: var(--brand-transition, all 0.2s ease);
-  cursor: pointer;
-
-  &:hover {
-    background: var(--brand-accent, #0052a3);
-    color: white !important;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-`;
-
-const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
-  padding: 0.75rem 1.5rem;
-  border-radius: var(--brand-radius-md);
-  font-weight: 600;
-  font-size: 1rem;
-  border: none;
-  cursor: pointer;
-  transition: var(--brand-transition);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-
-  ${(props) => {
-		switch (props.variant) {
-			case 'primary':
-				return `
-          background: var(--brand-primary);
-          color: white;
-          &:hover {
-            background: var(--brand-accent);
-          }
-        `;
-			case 'secondary':
-				return `
-          background: var(--brand-surface);
-          color: var(--brand-text);
-          border: 2px solid var(--brand-primary);
-          &:hover {
-            background: var(--brand-primary);
-            color: white;
-          }
-        `;
-			case 'danger':
-				return `
-          background: var(--brand-error);
-          color: white;
-          &:hover {
-            background: #b91c1c;
-          }
-        `;
-			default:
-				return `
-          background: var(--brand-primary);
-          color: white;
-          &:hover {
-            background: var(--brand-accent);
-          }
-        `;
-		}
-	}}
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-`;
-
-const LoadingContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  text-align: center;
-`;
-
-const LoadingSpinner = styled(FiLoader)`
-  animation: spin 1s linear infinite;
-  font-size: 2rem;
-  color: #3b82f6;
-
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-`;
-
-const LoadingText = styled.p`
-  color: #6b7280;
-  font-size: 1rem;
-  margin: 0;
-`;
+const styles = {
+	portalContainer: {
+		minHeight: '100vh',
+		background: 'var(--brand-background, #f9fafb)',
+		display: 'flex',
+		flexDirection: 'column' as const,
+		width: '100%',
+		fontFamily: 'var(--brand-font-family, inherit)',
+		alignItems: 'stretch',
+		justifyContent: 'flex-start',
+	},
+	portalCard: {
+		background: 'transparent',
+		overflow: 'hidden',
+		width: '100%',
+		flex: 1,
+		display: 'flex',
+		flexDirection: 'column' as const,
+		alignItems: 'stretch',
+		justifyContent: 'flex-start',
+	},
+	portalContent: {
+		flex: 1,
+		padding: 0,
+		display: 'flex',
+		flexDirection: 'column' as const,
+		width: '100%',
+		alignItems: 'stretch',
+		justifyContent: 'flex-start',
+	},
+	errorContainer: {
+		background: '#fef2f2',
+		border: '1px solid #fecaca',
+		borderRadius: '0.5rem',
+		padding: '1.5rem',
+		maxWidth: '500px',
+		width: '100%',
+		textAlign: 'center' as const,
+	},
+	errorTitle: {
+		color: '#dc2626',
+		fontSize: '1.25rem',
+		fontWeight: 600,
+		margin: '0 0 0.75rem 0',
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'center',
+		gap: '0.5rem',
+	},
+	errorMessage: {
+		color: '#7f1d1d',
+		fontSize: '1rem',
+		margin: '0 0 1rem 0',
+		lineHeight: 1.5,
+	},
+	errorActions: {
+		display: 'flex',
+		gap: '1rem',
+		justifyContent: 'center',
+		flexWrap: 'wrap' as const,
+	},
+	resourceSection: {
+		background: 'var(--brand-surface, #f9fafb)',
+		borderTop: '1px solid var(--brand-border, #e5e7eb)',
+		padding: '2rem 1.5rem',
+		textAlign: 'center' as const,
+	},
+	resourceTitle: {
+		color: 'var(--brand-text, #1f2937)',
+		fontSize: '1.5rem',
+		fontWeight: 600,
+		margin: '0 0 0.5rem 0',
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'center',
+		gap: '0.5rem',
+	},
+	resourceDescription: {
+		color: 'var(--brand-text-secondary, #6b7280)',
+		fontSize: '1rem',
+		margin: '0 0 1.5rem 0',
+		lineHeight: 1.5,
+	},
+	downloadButton: {
+		display: 'inline-flex',
+		alignItems: 'center',
+		gap: '0.5rem',
+		padding: '0.875rem 1.75rem',
+		background: '#2563eb',
+		color: 'white',
+		borderRadius: '0.5rem',
+		fontWeight: 600,
+		fontSize: '1rem',
+		textDecoration: 'none',
+		cursor: 'pointer',
+	},
+	btnBase: {
+		padding: '0.75rem 1.5rem',
+		borderRadius: '0.5rem',
+		fontWeight: 600,
+		fontSize: '1rem',
+		border: 'none',
+		cursor: 'pointer',
+		display: 'flex',
+		alignItems: 'center',
+		gap: '0.5rem',
+	},
+	btnPrimary: {
+		background: '#2563eb',
+		color: 'white',
+	},
+	btnSecondary: {
+		background: 'var(--brand-surface, #f9fafb)',
+		color: 'var(--brand-text, #1f2937)',
+		border: '2px solid #2563eb',
+	},
+	loadingContainer: {
+		display: 'flex',
+		flexDirection: 'column' as const,
+		alignItems: 'center',
+		gap: '1rem',
+		textAlign: 'center' as const,
+		padding: '2rem',
+	},
+	loadingText: {
+		color: '#6b7280',
+		fontSize: '1rem',
+		margin: 0,
+	},
+	workerTokenWrapper: {
+		padding: '1.5rem',
+		borderTop: '1px solid #e5e7eb',
+		background: '#f9fafb',
+	},
+} as const;
 
 // ============================================================================
 // MAIN COMPONENT
@@ -277,12 +210,6 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 	redirectUri,
 	protectCredentials,
 }) => {
-	// ============================================================================
-	// GLOBAL WORKER TOKEN INTEGRATION
-	// ============================================================================
-
-	const globalTokenStatus = useGlobalWorkerToken();
-
 	// ============================================================================
 	// STATE MANAGEMENT
 	// ============================================================================
@@ -356,7 +283,6 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 	// ============================================================================
 
 	const handleLoginStart = useCallback(() => {
-		console.log('[🚀 PROTECT-PORTAL] Starting login flow');
 		setPortalState((prev) => ({
 			...prev,
 			currentStep: 'custom-login',
@@ -365,7 +291,6 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 	}, []);
 
 	const handleLoginSuccess = useCallback((userContext: UserContext, loginContext: LoginContext) => {
-		console.log('[🚀 PROTECT-PORTAL] Login successful, starting risk evaluation');
 		setPortalState((prev) => ({
 			...prev,
 			userContext,
@@ -376,8 +301,6 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 	}, []);
 
 	const handleRiskEvaluationComplete = useCallback(async (result: RiskEvaluationResult) => {
-		console.log('[🚀 PROTECT-PORTAL] Risk evaluation completed:', result.result.level);
-
 		setPortalState((prev) => ({
 			...prev,
 			riskEvaluation: result,
@@ -413,7 +336,6 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 	}, []);
 
 	const handleMFAComplete = useCallback((tokens: TokenSet) => {
-		console.log('[🚀 PROTECT-PORTAL] MFA completed, proceeding to success');
 		setPortalState((prev) => ({
 			...prev,
 			tokens,
@@ -433,7 +355,6 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 	}, []);
 
 	const handleRetry = useCallback(() => {
-		console.log('[🚀 PROTECT-PORTAL] Retrying from error state');
 		setPortalState((prev) => ({
 			...prev,
 			currentStep: 'portal-home',
@@ -443,7 +364,6 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 	}, []);
 
 	const handleReset = useCallback(() => {
-		console.log('[🚀 PROTECT-PORTAL] Resetting to initial state');
 		setPortalState((prev) => ({
 			...prev,
 			currentStep: initialStep,
@@ -466,43 +386,55 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 	const renderStep = () => {
 		const { currentStep, isLoading, error } = portalState;
 
-		console.log('[🚀 PROTECT-PORTAL-APP] Rendering step:', currentStep);
-
 		if (isLoading) {
 			return (
-				<LoadingContainer>
-					<LoadingSpinner />
-					<LoadingText>Processing your request...</LoadingText>
-				</LoadingContainer>
+				<div style={styles.loadingContainer}>
+					<FiLoader
+						style={{
+							animation: 'spin 1s linear infinite',
+							fontSize: '2rem',
+							color: '#3b82f6',
+						}}
+					/>
+					<p style={styles.loadingText}>Processing your request...</p>
+				</div>
 			);
 		}
 
 		if (error && currentStep === 'error') {
 			return (
-				<ErrorContainer>
-					<ErrorTitle>
+				<div style={styles.errorContainer}>
+					<h3 style={styles.errorTitle}>
 						<FiAlertTriangle />
 						Something went wrong
-					</ErrorTitle>
-					<ErrorMessage>{error.message}</ErrorMessage>
+					</h3>
+					<p style={styles.errorMessage}>{error.message}</p>
 					{error.suggestedAction && (
 						<p style={{ color: '#9ca3af', fontSize: '0.875rem', marginBottom: '1rem' }}>
 							{error.suggestedAction}
 						</p>
 					)}
-					<ErrorActions>
+					<div style={styles.errorActions}>
 						{error.recoverable && (
-							<Button variant="primary" onClick={handleRetry}>
+							<button
+								type="button"
+								style={{ ...styles.btnBase, ...styles.btnPrimary }}
+								onClick={handleRetry}
+							>
 								<FiCheckCircle />
 								Try Again
-							</Button>
+							</button>
 						)}
-						<Button variant="secondary" onClick={handleReset}>
+						<button
+							type="button"
+							style={{ ...styles.btnBase, ...styles.btnSecondary }}
+							onClick={handleReset}
+						>
 							<FiX />
 							Start Over
-						</Button>
-					</ErrorActions>
-				</ErrorContainer>
+						</button>
+					</div>
+				</div>
 			);
 		}
 
@@ -641,22 +573,26 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 			case 'risk-high-block':
 				// High protect score: blocked page
 				return (
-					<ErrorContainer>
-						<ErrorTitle>
+					<div style={styles.errorContainer}>
+						<h3 style={styles.errorTitle}>
 							<FiShield />
 							Access Blocked
-						</ErrorTitle>
-						<ErrorMessage>
+						</h3>
+						<p style={styles.errorMessage}>
 							This login attempt has been blocked due to high-risk indicators. For your security,
 							please contact your administrator or try again from a trusted location and device.
-						</ErrorMessage>
-						<ErrorActions>
-							<Button variant="secondary" onClick={handleReset}>
+						</p>
+						<div style={styles.errorActions}>
+							<button
+								type="button"
+								style={{ ...styles.btnBase, ...styles.btnSecondary }}
+								onClick={handleReset}
+							>
 								<FiX />
 								Try Again Later
-							</Button>
-						</ErrorActions>
-					</ErrorContainer>
+							</button>
+						</div>
+					</div>
 				);
 
 			case 'portal-success':
@@ -672,19 +608,25 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 
 			default:
 				return (
-					<ErrorContainer>
-						<ErrorTitle>
+					<div style={styles.errorContainer}>
+						<h3 style={styles.errorTitle}>
 							<FiAlertTriangle />
 							Unknown Step
-						</ErrorTitle>
-						<ErrorMessage>The application is in an unknown state. Please start over.</ErrorMessage>
-						<ErrorActions>
-							<Button variant="primary" onClick={handleReset}>
+						</h3>
+						<p style={styles.errorMessage}>
+							The application is in an unknown state. Please start over.
+						</p>
+						<div style={styles.errorActions}>
+							<button
+								type="button"
+								style={{ ...styles.btnBase, ...styles.btnPrimary }}
+								onClick={handleReset}
+							>
 								<FiCheckCircle />
 								Start Over
-							</Button>
-						</ErrorActions>
-					</ErrorContainer>
+							</button>
+						</div>
+					</div>
 				);
 		}
 	};
@@ -692,15 +634,6 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 	// ============================================================================
 	// EFFECTS
 	// ============================================================================
-
-	useEffect(() => {
-		console.log('[�️ PROTECT-PORTAL] Portal app initialized', {
-			initialStep,
-			environmentId,
-			clientId,
-			protectCredentials: !!protectCredentials,
-		});
-	}, [initialStep, environmentId, clientId, protectCredentials]);
 
 	useEffect(() => {
 		const handleThemeSwitched = () => {
@@ -801,11 +734,11 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 			} satisfies CorporatePortalConfig);
 
 		return (
-			<PortalContainer>
+			<div style={styles.portalContainer}>
 				{/* Global company header for non-home steps or PingIdentity default home */}
 				{showGlobalHeader && <CompanyHeader showBrandSelector={true} />}
 
-				<PortalCard>
+				<div style={styles.portalCard}>
 					{isPortalHome && activeTheme.name === 'american-airlines' && (
 						<AmericanAirlinesHero
 							currentStep={portalState.currentStep}
@@ -866,7 +799,16 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 							_redirectUri={redirectUri}
 						/>
 					)}
-					{isPortalHome && activeTheme.name === 'pingidentity' && (
+					{(isPortalHome && activeTheme.name === 'pingidentity') ||
+					(isPortalHome &&
+						![
+							'american-airlines',
+							'southwest-airlines',
+							'fedex',
+							'bank-of-america',
+							'united-airlines',
+							'pingidentity',
+						].includes(activeTheme.name)) ? (
 						<CorporatePortalHero
 							currentStep={portalState.currentStep}
 							onLoginStart={handleLoginStart}
@@ -877,40 +819,21 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 							_clientSecret={clientSecret}
 							_redirectUri={redirectUri}
 						/>
-					)}
-					{isPortalHome &&
-						![
-							'american-airlines',
-							'southwest-airlines',
-							'fedex',
-							'bank-of-america',
-							'united-airlines',
-							'pingidentity',
-						].includes(activeTheme.name) && (
-							<CorporatePortalHero
-								currentStep={portalState.currentStep}
-								onLoginStart={handleLoginStart}
-								_onLoginSuccess={handleLoginSuccess}
-								_onError={handleError}
-								_environmentId={environmentId}
-								_clientId={clientId}
-								_clientSecret={clientSecret}
-								_redirectUri={redirectUri}
-							/>
-						)}
-					<PortalContent>{renderStep()}</PortalContent>
-				</PortalCard>
+					) : null}
+					<div style={styles.portalContent}>{renderStep()}</div>
+				</div>
 
-				<ResourceSection>
-					<ResourceTitle>
+				<div style={styles.resourceSection}>
+					<h3 style={styles.resourceTitle}>
 						<FiShield size={24} />
 						PingOne Protect Best Practices
-					</ResourceTitle>
-					<ResourceDescription>
+					</h3>
+					<p style={styles.resourceDescription}>
 						Download our comprehensive guide for debugging PingOne payloads and implementing best
 						practices for risk-based authentication.
-					</ResourceDescription>
-					<DownloadButton
+					</p>
+					<a
+						style={styles.downloadButton}
 						href="/Debugging-PingOne-Payload.pdf"
 						download="Debugging-PingOne-Payload.pdf"
 						target="_blank"
@@ -918,14 +841,16 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 					>
 						<FiCheckCircle size={20} />
 						Download PDF Guide
-					</DownloadButton>
-				</ResourceSection>
+					</a>
+				</div>
 
-				{/* Worker Token Status Display */}
-				<WorkerTokenStatusDisplayV8 />
+				{/* Worker Token Status */}
+				<div style={styles.workerTokenWrapper}>
+					<WorkerTokenSectionV8 compact environmentId={environmentId} />
+				</div>
 
 				<CorporateFooter config={footerConfig} />
-			</PortalContainer>
+			</div>
 		);
 	};
 
