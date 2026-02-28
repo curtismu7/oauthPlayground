@@ -195,6 +195,7 @@ sed -i '' "s/localStorage.removeItem('unified_worker_token');/unifiedWorkerToken
 - ✅ [PingOne User Profile](../updates-to-apps/pingone-user-profile-updates.md) - Migrated 2026-02-27
 - ✅ [Configuration](../updates-to-apps/configuration-dashboard-v8-migration.md) - Migrated 2026-02-27
 - ✅ [Dashboard](../updates-to-apps/configuration-dashboard-v8-migration.md) - Migrated 2026-02-27
+- ✅ [PingOneAuditActivities.tsx](../../src/pages/PingOneAuditActivities.tsx) - Migrated 2026-02-28
 
 ---
 
@@ -696,6 +697,26 @@ curl -o src/styles/vendor/end-user-nano.css "https://assets.pingone.com/ux/end-u
 ---
 
 ## ✅ Completed Migrations: Feb 28, 2026
+
+### PingOneAuditActivities — Worker Token Service Migration
+
+**Date:** 2026-02-28  
+**File:** `src/pages/PingOneAuditActivities.tsx`
+
+**Problem:**  
+The page used direct `localStorage.getItem/removeItem('unified_worker_token')` in three places — the `useState` initializer, `handleClearWorkerToken`, and the `workerTokenUpdated` event handler — instead of `unifiedWorkerTokenService` (Error 6 in this guide).
+
+**Changes:**
+- **Added import:** `unifiedWorkerTokenService` from `../services/unifiedWorkerTokenService`
+- **`useState` initializer:** Replaced 8-line try/catch localStorage parse → `unifiedWorkerTokenService.getTokenDataSync()?.token ?? ''`
+- **`handleClearWorkerToken`:** `localStorage.removeItem('unified_worker_token')` → `unifiedWorkerTokenService.clearToken()`
+- **`workerTokenUpdated` useEffect:** Replaced try/catch localStorage parse → `unifiedWorkerTokenService.getTokenDataSync()`
+
+**Examples:**
+- ✅ [PingOneAuditActivities.tsx](../../src/pages/PingOneAuditActivities.tsx) - Migrated 2026-02-28
+- ✅ [PingOneWebhookViewer.tsx](../../src/pages/PingOneWebhookViewer.tsx) - Migrated 2026-02-27
+
+---
 
 ### PingOneAuditActivities — Color Compliance Migration
 

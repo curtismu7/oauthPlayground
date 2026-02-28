@@ -27,6 +27,7 @@ import JSONHighlighter, { type JSONData } from '../components/JSONHighlighter';
 import { readBestEnvironmentId } from '../hooks/useAutoEnvironmentId';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import { apiRequestModalService } from '../services/apiRequestModalService';
+import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { ShowTokenConfigCheckboxV8 } from '../v8/components/ShowTokenConfigCheckboxV8';
 import { SilentApiConfigCheckboxV8 } from '../v8/components/SilentApiConfigCheckboxV8';
@@ -453,16 +454,10 @@ const PingOneAuditActivities: React.FC = () => {
 	const [error, setError] = useState<string | null>(null);
 	const [auditResponse, setAuditResponse] = useState<AuditResponse | null>(null);
 
-	// Read worker token directly from localStorage
+	// Read worker token via unifiedWorkerTokenService (dual storage: IndexedDB + SQLite)
 	const [workerToken, setWorkerToken] = useState<string>(() => {
-		try {
-			const stored = localStorage.getItem('unified_worker_token');
-			if (stored) {
-				const data = JSON.parse(stored);
-				return data.token || '';
-			}
-		} catch {}
-		return '';
+		const data = unifiedWorkerTokenService.getTokenDataSync();
+		return data?.token ?? '';
 	});
 	const hasWorkerToken = workerToken.length > 0;
 
@@ -484,8 +479,7 @@ const PingOneAuditActivities: React.FC = () => {
 	const [copiedJson, setCopiedJson] = useState(false);
 
 	const handleClearWorkerToken = () => {
-		// Clear unified worker token
-		localStorage.removeItem('unified_worker_token');
+		unifiedWorkerTokenService.clearToken();
 		setWorkerToken('');
 		v4ToastManager.showSuccess('Worker token cleared successfully.');
 		// Trigger page reload to reset state
@@ -495,19 +489,14 @@ const PingOneAuditActivities: React.FC = () => {
 	// Update environment ID and workerToken when worker token is updated
 	useEffect(() => {
 		const handleTokenUpdate = () => {
-			try {
-				const stored = localStorage.getItem('unified_worker_token');
-				if (stored) {
-					const data = JSON.parse(stored);
-					if (data.credentials?.environmentId && !environmentId) {
-						setEnvironmentId(data.credentials.environmentId);
-					}
-					if (data.token) {
-						setWorkerToken(data.token);
-					}
+			const data = unifiedWorkerTokenService.getTokenDataSync();
+			if (data) {
+				if (data.credentials?.environmentId && !environmentId) {
+					setEnvironmentId(data.credentials.environmentId);
 				}
-			} catch (error) {
-				console.log('Failed to update environment ID from worker token:', error);
+				if (data.token) {
+					setWorkerToken(data.token);
+				}
 			}
 		};
 
