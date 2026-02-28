@@ -1403,7 +1403,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					const contentType = response.headers.get('content-type');
 					console.log(`🔐 [MFA Flow V7] Response content-type:`, contentType);
 
-					let responseData: any;
+					let responseData: unknown;
 					if (contentType?.includes('application/json')) {
 						responseData = await response.json();
 						console.log(`🔐 [MFA Flow V7] Response data:`, responseData);
@@ -3758,6 +3758,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								{selectedDeviceType === 'email' && (
 									<div>
 										<label
+											htmlFor="device-email"
 											style={{
 												display: 'block',
 												marginBottom: '0.5rem',
@@ -3768,6 +3769,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 											Email Address *
 										</label>
 										<input
+											id="device-email"
 											type="email"
 											value={deviceInfo.email}
 											onChange={(e) =>
@@ -3848,6 +3850,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 										<div>
 											<label
+												htmlFor="verification-code"
 												style={{
 													display: 'block',
 													marginBottom: '0.5rem',
@@ -3858,6 +3861,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 												Verification Code *
 											</label>
 											<input
+												id="verification-code"
 												type="text"
 												value={deviceInfo.verificationCode}
 												onChange={(e) =>
@@ -4199,6 +4203,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 								<div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-end' }}>
 									<div style={{ flex: 1 }}>
 										<label
+											htmlFor="mfa-challenge-code"
 											style={{
 												display: 'block',
 												marginBottom: '0.5rem',
@@ -4210,6 +4215,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 											Verification Code
 										</label>
 										<input
+											id="mfa-challenge-code"
 											type="text"
 											value={mfaChallenge.challengeCode || ''}
 											onChange={(e) =>

@@ -29,9 +29,9 @@ export interface EnhancedFlowStep {
 	description: string;
 	icon?: React.ReactNode;
 	code?: string;
-	execute?: () => Promise<any>;
+	execute?: () => Promise<unknown>;
 	canExecute?: boolean;
-	result?: any;
+	result?: unknown;
 	error?: string;
 	timestamp?: number;
 	duration?: number;
@@ -39,7 +39,7 @@ export interface EnhancedFlowStep {
 	isOptional?: boolean;
 	dependencies?: string[]; // Step IDs this step depends on
 	category?: 'preparation' | 'authorization' | 'token-exchange' | 'validation' | 'cleanup';
-	debugInfo?: Record<string, any>;
+	debugInfo?: Record<string, unknown>;
 	tips?: string[];
 	securityNotes?: string[];
 	content?: React.ReactNode; // Custom content for the step
@@ -59,7 +59,7 @@ export interface EnhancedFlowStep {
 interface StepHistory {
 	stepId: string;
 	timestamp: number;
-	result?: any;
+	result?: unknown;
 	error?: string;
 	duration: number;
 }
@@ -67,9 +67,9 @@ interface StepHistory {
 interface EnhancedStepFlowProps {
 	steps: EnhancedFlowStep[];
 	title: string;
-	onStepComplete?: (stepId: string, result: any) => void;
+	onStepComplete?: (stepId: string, result: unknown) => void;
 	onStepError?: (stepId: string, error: string) => void;
-	onFlowComplete?: (results: Record<string, any>) => void;
+	onFlowComplete?: (results: Record<string, unknown>) => void;
 	persistKey?: string; // Key for localStorage persistence
 	autoAdvance?: boolean;
 	showDebugInfo?: boolean;
@@ -920,7 +920,7 @@ export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
 					}
 					return acc;
 				},
-				{} as Record<string, any>
+				{} as Record<string, unknown>
 			);
 			onFlowComplete?.(results);
 		}
