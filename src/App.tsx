@@ -13,6 +13,7 @@ import './styles/button-text-white-enforcement.css'; // CRITICAL: Ensures all bu
 import { lazy, Suspense } from 'react';
 import CodeExamplesDemo from './components/CodeExamplesDemo';
 import CredentialSetupModal from './components/CredentialSetupModal';
+import FloatingPrompts from './components/FloatingPrompts';
 import { FloatingLogToggle } from './components/FloatingLogToggle';
 import { FloatingLogViewer } from './components/FloatingLogViewer';
 import { WorkerTokenModal } from './components/WorkerTokenModal';
@@ -37,6 +38,7 @@ import {
 } from './config/sidebarMenuConfig';
 import { useAuth } from './contexts/NewAuthContext';
 import { NotificationContainer, NotificationProvider } from './hooks/useNotifications';
+import { usePromptsShortcut } from './hooks/usePromptsShortcut';
 import AIIdentityArchitectures from './pages/AIIdentityArchitectures';
 import ApplicationGenerator from './pages/ApplicationGenerator';
 import Callback from './pages/Callback';
@@ -140,6 +142,7 @@ import OAuthImplicitFlowCompletion from './pages/flows/OAuthImplicitFlowCompleti
 import OAuthROPCFlowV7 from './pages/flows/OAuthROPCFlowV7';
 import OIDCCompliantAuthorizationCodeFlow from './pages/flows/OIDCCompliantAuthorizationCodeFlow';
 import OIDCHybridFlowV7 from './pages/flows/OIDCHybridFlowV7';
+import OIDCHybridFlowV9 from './pages/flows/v9/OIDCHybridFlowV9';
 import PARFlow from './pages/flows/PARFlow';
 import PARFlowV7 from './pages/flows/PARFlowV7';
 import PingOneCompleteMFAFlowV7 from './pages/flows/PingOneCompleteMFAFlowV7';
@@ -183,6 +186,7 @@ import PingOneSessionsAPI from './pages/PingOneSessionsAPI';
 import PingOneUserProfile from './pages/PingOneUserProfile';
 import PingOneWebhookViewer from './pages/PingOneWebhookViewer';
 import { PostmanCollectionGenerator } from './pages/PostmanCollectionGenerator';
+import { PostmanCollectionGenerator as PostmanCollectionGeneratorV9 } from './pages/v9/PostmanCollectionGeneratorV9';
 import SDKSampleApp from './pages/SDKSampleApp';
 import ServiceTestRunner from './pages/ServiceTestRunner';
 import JWTExamples from './pages/sdk-examples/JWTExamples';
@@ -572,10 +576,11 @@ const AppRoutes: React.FC = () => {
 					<Route path="*" element={<Navigate to="/v8/debug-logs-popout" replace />} />
 				</Routes>
 			) : isWebhookPopout() ? (
-				// Webhook viewer popout - render without layout
+				// Webhook viewer (regular + popout) - render without sidebar layout
 				<Routes>
+					<Route path="/pingone-webhook-viewer" element={<PingOneWebhookViewer />} />
 					<Route path="/pingone-webhook-viewer-popout" element={<PingOneWebhookViewer />} />
-					<Route path="*" element={<Navigate to="/pingone-webhook-viewer-popout" replace />} />
+					<Route path="*" element={<Navigate to="/pingone-webhook-viewer" replace />} />
 				</Routes>
 			) : (
 				// Main app - render with full layout
@@ -1147,6 +1152,8 @@ const AppRoutes: React.FC = () => {
 								/>
 								{/* V7 OIDC Hybrid Flow */}
 								<Route path="/flows/oidc-hybrid-v7" element={<OIDCHybridFlowV7 />} />
+								{/* V9 OIDC Hybrid Flow */}
+								<Route path="/flows/oidc-hybrid-v9" element={<OIDCHybridFlowV9 />} />
 								{/* V8 OIDC Hybrid Flow */}
 								<Route path="/flows/hybrid-v8" element={<OIDCHybridFlowV8 />} />
 								{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
@@ -1287,6 +1294,10 @@ const AppRoutes: React.FC = () => {
 								<Route
 									path="/postman-collection-generator"
 									element={<PostmanCollectionGenerator />}
+								/>
+								<Route
+									path="/postman-collection-generator-v9"
+									element={<PostmanCollectionGeneratorV9 />}
 								/>
 								<Route path="/samples/p1mfa" element={<P1MFASamples />} />
 								<Route path="/samples/p1mfa/integrated" element={<IntegratedMFASample />} />
@@ -1556,6 +1567,9 @@ function AppContent() {
 	// Floating log viewer state
 	const [isFloatingLogViewerOpen, setIsFloatingLogViewerOpen] = useState(false);
 
+	// Enable prompts keyboard shortcut
+	usePromptsShortcut();
+
 	// Initialize credential debugger for development
 	useEffect(() => {
 		if (process.env.NODE_ENV === 'development') {
@@ -1733,6 +1747,9 @@ function AppContent() {
 
 			{!isStandaloneLogViewerRoute && (
 				<>
+					{/* Floating Prompts Button */}
+					<FloatingPrompts />
+
 					{/* Floating Log Viewer */}
 					<FloatingLogViewer
 						isOpen={isFloatingLogViewerOpen}
