@@ -13,6 +13,8 @@
 import React, { useRef, useState } from 'react';
 import { FiChevronDown, FiChevronRight, FiDownload, FiPackage } from 'react-icons/fi';
 import { usePageScroll } from '../../hooks/usePageScroll';
+import { V9FlowCredentialService } from '../../services/v9/core/V9FlowCredentialService';
+import { EnvironmentIdServiceV8 } from '../../services/v9/environmentIdServiceV9';
 import {
 	COLLECTION_VERSION,
 	downloadPostmanCollection,
@@ -26,8 +28,6 @@ import {
 	type PostmanCollection,
 	type PostmanCollectionItem,
 } from '../../services/v9/postmanCollectionGeneratorV9';
-import { V9FlowCredentialService } from '../../services/v9/core/V9FlowCredentialService';
-import { EnvironmentIdServiceV8 } from '../../services/v9/environmentIdServiceV9';
 import {
 	type V9FlowType,
 	type V9SpecVersion,
@@ -477,7 +477,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 		const flowKey = 'oauth-authz-v9';
 
 		// Get flow config with proper fallback
-		const unifiedConfig = {
+		const _unifiedConfig = {
 			flowKey,
 			flowType: 'oauth' as const,
 			includeClientSecret: true,
@@ -490,7 +490,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 
 		// MFA flow config
 		const mfaFlowKey = 'mfa-hub-v9';
-		const mfaConfig = {
+		const _mfaConfig = {
 			flowKey: mfaFlowKey,
 			flowType: 'oidc' as const,
 			includeClientSecret: false,

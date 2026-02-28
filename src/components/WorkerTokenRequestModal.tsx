@@ -16,8 +16,8 @@ import {
 	FiX,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import { ColoredUrlDisplay } from './ColoredUrlDisplay';
 import { useNotifications } from '../hooks/useNotifications';
+import { ColoredUrlDisplay } from './ColoredUrlDisplay';
 
 // Helper function to decode JWT
 const decodeJWT = (token: string) => {

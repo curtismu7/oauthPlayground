@@ -80,14 +80,16 @@ const MigrateVscode: React.FC = () => {
 				<ContentContainer>
 					<Title>VSCode Migration Guide</Title>
 					<Description>
-						Comprehensive guide for migrating VSCode extensions and configurations to the latest MasterFlow API platform.
+						Comprehensive guide for migrating VSCode extensions and configurations to the latest
+						MasterFlow API platform.
 					</Description>
 
 					<Section>
 						<SectionTitle>Overview</SectionTitle>
 						<p>
-							This migration guide helps you transition your VSCode setup to work seamlessly with the MasterFlow API platform,
-							ensuring consistent development experience and optimal performance.
+							This migration guide helps you transition your VSCode setup to work seamlessly with
+							the MasterFlow API platform, ensuring consistent development experience and optimal
+							performance.
 						</p>
 					</Section>
 
@@ -139,15 +141,16 @@ code --install-extension dbaeumer.vscode-eslint`}</CodeBlock>
 					<Section>
 						<SectionTitle>Troubleshooting</SectionTitle>
 						<Note>
-							<strong>Common Issue:</strong> Extension conflicts may occur during migration. Disable all extensions first,
-							then enable them one by one to identify conflicts.
+							<strong>Common Issue:</strong> Extension conflicts may occur during migration. Disable
+							all extensions first, then enable them one by one to identify conflicts.
 						</Note>
 					</Section>
 
 					<Section>
 						<SectionTitle>Next Steps</SectionTitle>
 						<p>
-							After completing the migration, refer to the <a href="/docs/prompts/prompt-all">Complete Prompts Guide</a>
+							After completing the migration, refer to the{' '}
+							<a href="/docs/prompts/prompt-all">Complete Prompts Guide</a>
 							for comprehensive development workflows and best practices.
 						</p>
 					</Section>

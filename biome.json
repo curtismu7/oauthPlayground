@@ -7,6 +7,7 @@
 			"*.md",
 			"**/*.md",
 			"**/*.json",
+			"!src/styles/icons.css",
 			"!AI Ping",
 			"!pingone-mcp-server",
 			"!biome_issues.json",

@@ -65,7 +65,8 @@ export class LogFileService {
 			}));
 		} catch (error) {
 			const msg = error instanceof Error ? error.message : '';
-			const isNetworkUnavailable = msg.includes('Log API not available') || msg.includes('Failed to fetch');
+			const isNetworkUnavailable =
+				msg.includes('Log API not available') || msg.includes('Failed to fetch');
 			if (!isNetworkUnavailable) {
 				console.error(`${MODULE_TAG} Failed to list log files:`, error);
 			}
@@ -127,7 +128,8 @@ export class LogFileService {
 		} catch (error) {
 			// Only log unexpected errors; network-unavailable cases are user-facing
 			const msg = error instanceof Error ? error.message : '';
-			const isNetworkUnavailable = msg.includes('Log API not available') || msg.includes('Failed to fetch');
+			const isNetworkUnavailable =
+				msg.includes('Log API not available') || msg.includes('Failed to fetch');
 			if (!isNetworkUnavailable) {
 				console.error(`${MODULE_TAG} Failed to read log file:`, error);
 			}

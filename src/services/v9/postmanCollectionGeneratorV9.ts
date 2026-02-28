@@ -4,7 +4,7 @@
  * @description Postman collection generation service for V9 with enhanced features
  * @version 9.0.0
  * @since 2026-02-28
- * 
+ *
  * Migrated from postmanCollectionGeneratorV8.ts with V9 enhancements:
  * - Enhanced TypeScript types
  * - Better error handling
@@ -15,8 +15,8 @@
 // Collection version - update this when making breaking changes or major updates
 export const COLLECTION_VERSION = '9.0.0';
 
-import type { V9FlowType } from './V9SpecVersionService';
 import type { ApiCall as TrackedApiCall } from '../../../services/apiCallTrackerService';
+import type { V9FlowType } from './V9SpecVersionService';
 
 export interface PostmanCollectionItem {
 	name: string;
@@ -508,10 +508,10 @@ export const generatePostmanCollection = (
 		implicit: 'Implicit',
 		'client-credentials': 'Client Credentials',
 		'device-code': 'Device Code',
-		'ropc': 'Resource Owner Password Credentials',
-		'mfa': 'MFA',
-		'ciba': 'Client-Initiated Backchannel Authentication',
-		'par': 'Pushed Authorization Request',
+		ropc: 'Resource Owner Password Credentials',
+		mfa: 'MFA',
+		ciba: 'Client-Initiated Backchannel Authentication',
+		par: 'Pushed Authorization Request',
 	};
 
 	const collectionName = `PingOne ${flowTypeLabels[flowType]} Flow (${specVersion})`;

@@ -377,7 +377,7 @@ const EnhancedFlowInfoCard: React.FC<EnhancedFlowInfoCardProps> = ({
 							<SectionContent>
 								{flowInfoCard.securityNotes.map((note, index) => (
 									<SecurityNote key={index} $type={getSecurityNoteType(note)}>
-										{note.replace(/[✅⚠️❌ℹ️]/g, '').trim()}
+										{note.replace(/(?:✅|⚠️|❌|ℹ️)/g, '').trim()}
 									</SecurityNote>
 								))}
 							</SectionContent>

@@ -9,8 +9,8 @@ import React, { useState } from 'react';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import { usePageScroll } from '@/hooks/usePageScroll';
 import { PasskeyManagementUtility } from '@/utils/PasskeyManagementUtility';
-import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { UserSearchDropdownV8 } from '@/v8/components/UserSearchDropdownV8';
+import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { readBestEnvironmentId } from '../hooks/useAutoEnvironmentId';
 
 export const PasskeyManager: React.FC = () => {

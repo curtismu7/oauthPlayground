@@ -20,8 +20,8 @@ import JsonEditor from '../components/JsonEditor';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import PageLayoutService from '../services/pageLayoutService';
-import { credentialManager } from '../utils/credentialManager';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
+import { credentialManager } from '../utils/credentialManager';
 
 const _Container = styled.div`
   max-width: 1200px;

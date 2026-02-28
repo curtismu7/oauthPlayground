@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FiAlertCircle, FiCheck, FiCopy, FiEye, FiKey, FiRefreshCw, FiTool } from 'react-icons/fi';
 import styled from 'styled-components';
-import { generateCodeChallenge, generateRandomString, parseJwt } from '../utils/oauth';
+import { generateCodeChallenge, generateRandomString } from '../utils/oauth';
 import { Card, CardBody, CardHeader } from './Card';
 
 const UtilitiesContainer = styled.div`
@@ -98,21 +98,21 @@ const ResultBox = styled.div<{ $type?: 'success' | 'error' | 'info' }>`
   background-color: ${({ $type, theme }) => {
 		switch ($type) {
 			case 'success':
-				return theme.colors.success + '10';
+				return `${theme.colors.success}10`;
 			case 'error':
-				return theme.colors.danger + '10';
+				return `${theme.colors.danger}10`;
 			default:
-				return theme.colors.info + '10';
+				return `${theme.colors.info}10`;
 		}
 	}};
   border: 1px solid ${({ $type, theme }) => {
 		switch ($type) {
 			case 'success':
-				return theme.colors.success + '40';
+				return `${theme.colors.success}40`;
 			case 'error':
-				return theme.colors.danger + '40';
+				return `${theme.colors.danger}40`;
 			default:
-				return theme.colors.info + '40';
+				return `${theme.colors.info}40`;
 		}
 	}};
 
@@ -123,17 +123,6 @@ const ResultBox = styled.div<{ $type?: 'success' | 'error' | 'info' }>`
     white-space: pre-wrap;
     word-break: break-all;
   }
-`;
-
-const ButtonGroup = styled.div`
-  display: flex;
-  gap: 0.75rem;
-  margin-top: 1rem;
-`;
-
-const CopyableField = styled.div`
-  position: relative;
-  margin-top: 0.5rem;
 `;
 
 const CopyButton = styled.button`
@@ -187,8 +176,8 @@ const OAuthUtilities: React.FC = () => {
 			}
 
 			// Use modern base64 decoding
-			let decoded;
-			if (typeof window !== 'undefined' && window.btoa) {
+			let decoded: string;
+			if (typeof window !== 'undefined' && 'atob' in window) {
 				// Browser environment
 				decoded = atob(base64);
 			} else {
@@ -198,12 +187,12 @@ const OAuthUtilities: React.FC = () => {
 
 			// Convert to UTF-8 string
 			const jsonPayload = decodeURIComponent(
-				Array.from(decoded, (c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')
+				Array.from(decoded, (c) => `%${`00${c.charCodeAt(0).toString(16)}`.slice(-2)}`).join('')
 			);
 
 			const parsed = JSON.parse(jsonPayload);
 			console.log(' [JWT Decoder] Successfully parsed JWT part:', {
-				part: part.substring(0, 20) + '...',
+				part: `${part.substring(0, 20)}...`,
 				result: parsed,
 			});
 			return parsed;
@@ -212,7 +201,7 @@ const OAuthUtilities: React.FC = () => {
 				' [JWT Decoder] Error parsing JWT part:',
 				e,
 				'Part:',
-				part.substring(0, 20) + '...'
+				`${part.substring(0, 20)}...`
 			);
 			return null;
 		}
@@ -229,7 +218,7 @@ const OAuthUtilities: React.FC = () => {
 			}
 
 			const token = jwtInput.trim();
-			console.log(' [JWT Decoder] Attempting to decode token:', token.substring(0, 50) + '...');
+			console.log(' [JWT Decoder] Attempting to decode token:', `${token.substring(0, 50)}...`);
 
 			const parts = token.split('.');
 			console.log(' [JWT Decoder] Token parts count:', parts.length);
@@ -240,7 +229,7 @@ const OAuthUtilities: React.FC = () => {
 			}
 
 			// Decode header
-			console.log(' [JWT Decoder] Decoding header part:', parts[0].substring(0, 20) + '...');
+			console.log(' [JWT Decoder] Decoding header part:', `${parts[0].substring(0, 20)}...`);
 			const header = parseJwtPart(parts[0]);
 			if (!header) {
 				setJwtError('Failed to decode JWT header');
@@ -248,7 +237,7 @@ const OAuthUtilities: React.FC = () => {
 			}
 
 			// Decode payload
-			console.log(' [JWT Decoder] Decoding payload part:', parts[1].substring(0, 20) + '...');
+			console.log(' [JWT Decoder] Decoding payload part:', `${parts[1].substring(0, 20)}...`);
 			const payload = parseJwtPart(parts[1]);
 			if (!payload) {
 				setJwtError('Failed to decode JWT payload');
@@ -260,7 +249,7 @@ const OAuthUtilities: React.FC = () => {
 			setJwtError(''); // Clear any previous errors
 		} catch (error) {
 			console.error(' [JWT Decoder] Error in handleDecodeJWT:', error);
-			setJwtError('Failed to decode JWT: ' + (error as Error).message);
+			setJwtError(`Failed to decode JWT: ${(error as Error).message}`);
 			setDecodedJwt(null);
 		}
 	};
@@ -274,7 +263,7 @@ const OAuthUtilities: React.FC = () => {
 			setCodeVerifier(verifier);
 			setCodeChallenge(challenge);
 		} catch (error) {
-			setPkceError('Failed to generate PKCE: ' + (error as Error).message);
+			setPkceError(`Failed to generate PKCE: ${(error as Error).message}`);
 		}
 	};
 
@@ -532,7 +521,7 @@ const OAuthUtilities: React.FC = () => {
 								min="8"
 								max="128"
 								value={stringLength}
-								onChange={(e) => setStringLength(parseInt(e.target.value) || 32)}
+								onChange={(e) => setStringLength(parseInt(e.target.value, 10) || 32)}
 							/>
 						</InputGroup>
 
@@ -605,7 +594,7 @@ const OAuthUtilities: React.FC = () => {
 									Copy
 								</CopyButton>
 							</div>
-							<pre>// Decoded parameters will appear here</pre>
+							<pre>{`// Decoded parameters will appear here`}</pre>
 						</ResultBox>
 					</CardBody>
 				</UtilityCard>

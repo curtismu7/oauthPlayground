@@ -25,19 +25,19 @@ class StubMetrics implements LazyLoadingMetrics {
 	recordLoadTime(flowType: string, loadTime: number): void {
 		logger.debug(`Load time recorded for ${flowType}: ${loadTime}ms`);
 	}
-	
+
 	recordError(flowType: string): void {
 		logger.error(`Error recorded for ${flowType}`);
 	}
-	
+
 	getAverageLoadTime(): number {
 		return 0;
 	}
-	
+
 	getTotalErrors(): number {
 		return 0;
 	}
-	
+
 	clearMetrics(): void {
 		// Stub implementation
 	}
@@ -49,15 +49,15 @@ class StubManager implements LazyLoadingManager {
 		// Return a simple stub component
 		return () => null;
 	}
-	
+
 	async preloadOAuthFlows(flowTypes: string[]): Promise<void> {
 		logger.debug(`Preloading OAuth flows: ${flowTypes.join(', ')}`);
 	}
-	
+
 	getLoadedComponentCount(): number {
 		return 0;
 	}
-	
+
 	getLoadingComponentCount(): number {
 		return 0;
 	}

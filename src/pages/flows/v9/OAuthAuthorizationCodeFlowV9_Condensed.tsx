@@ -1,30 +1,25 @@
 // src/pages/flows/v9/OAuthAuthorizationCodeFlowV9_Condensed.tsx
 // V9 Condensed Authorization Code Flow - Enhanced Architecture with V9 Standards
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
 	FiBook,
 	FiCheckCircle,
 	FiChevronDown,
-	FiDownload,
 	FiKey,
-	FiRefreshCw,
 	FiSettings,
 	FiTarget,
-	FiUpload,
 	FiZap,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import { StepNavigationButtons } from '../../../components/StepNavigationButtons';
 import { StandardizedCredentialExportImport } from '../../../components/StandardizedCredentialExportImport';
 import UltimateTokenDisplay from '../../../components/UltimateTokenDisplay';
-import WorkerTokenStatusDisplayV8 from '../../../v8/components/WorkerTokenStatusDisplayV8';
 import { usePageScroll } from '../../../hooks/usePageScroll';
-import { unifiedWorkerTokenService } from '../../../services/unifiedWorkerTokenService';
-import { toastV8 } from '../../../v8/utils/toastNotificationsV8';
 // V9 specific imports
 import { V9FlowCredentialService } from '../../../services/v9/core/V9FlowCredentialService';
 import { EnvironmentIdServiceV8 } from '../../../services/v9/environmentIdServiceV9';
+import WorkerTokenStatusDisplayV8 from '../../../v8/components/WorkerTokenStatusDisplayV8';
+import { toastV8 } from '../../../v8/utils/toastNotificationsV8';
 
 // V9 Color Standards - Approved Colors Only: Red, Blue, Black, White
 const V9_COLORS = {
@@ -233,8 +228,10 @@ const OAuthAuthorizationCodeFlowV9_Condensed: React.FC = () => {
 	usePageScroll({ pageName: 'OAuth Authorization Code Flow V9 Condensed', force: true });
 
 	// V9 Credential management
-	const [credentials, setCredentials] = useState(() => V9FlowCredentialService.load());
-	const [environmentId, setEnvironmentId] = useState(() => EnvironmentIdServiceV8.getEnvironmentId());
+	const [credentials, _setCredentials] = useState(() => V9FlowCredentialService.load());
+	const [environmentId, setEnvironmentId] = useState(() =>
+		EnvironmentIdServiceV8.getEnvironmentId()
+	);
 
 	// Worker token state
 	const [isWorkerTokenStatusCollapsed, setIsWorkerTokenStatusCollapsed] = useState(true);
@@ -277,55 +274,62 @@ const OAuthAuthorizationCodeFlowV9_Condensed: React.FC = () => {
 		}, 2000);
 	}, []);
 
-	const handleCredentialChange = useCallback((field: keyof typeof mockCredentials, value: string) => {
-		setMockCredentials(prev => ({
-			...prev,
-			[field]: value,
-		}));
-	}, []);
+	const handleCredentialChange = useCallback(
+		(field: keyof typeof mockCredentials, value: string) => {
+			setMockCredentials((prev) => ({
+				...prev,
+				[field]: value,
+			}));
+		},
+		[]
+	);
 
 	const handleVariantChange = useCallback((variant: 'oauth' | 'oidc') => {
 		setSelectedVariant(variant);
-		setMockCredentials(prev => ({
+		setMockCredentials((prev) => ({
 			...prev,
 			scope: variant === 'oidc' ? 'openid profile email' : 'read write',
 		}));
 	}, []);
 
 	const generateAuthUrl = useCallback(() => {
-		const baseUrl = 'https://auth.pingone.com/' + environmentId + '/as/authorization.oauth2';
+		const baseUrl = `https://auth.pingone.com/${environmentId}/as/authorization.oauth2`;
 		const params = new URLSearchParams({
 			response_type: 'code',
 			client_id: mockCredentials.clientId,
 			redirect_uri: mockCredentials.redirectUri,
 			scope: mockCredentials.scope,
-			state: 'v9-condensed-' + Date.now(),
+			state: `v9-condensed-${Date.now()}`,
 		});
 
 		if (selectedVariant === 'oidc') {
-			params.set('nonce', 'nonce-' + Date.now());
+			params.set('nonce', `nonce-${Date.now()}`);
 		}
 
-		return baseUrl + '?' + params.toString();
+		return `${baseUrl}?${params.toString()}`;
 	}, [environmentId, mockCredentials, selectedVariant]);
 
 	return (
 		<ResponsiveContainer>
 			{/* Header */}
 			<div style={{ marginBottom: '2rem' }}>
-				<h1 style={{ 
-					color: V9_COLORS.DARK_BLUE, 
-					marginBottom: '0.5rem',
-					fontSize: '2rem',
-					fontWeight: '700'
-				}}>
+				<h1
+					style={{
+						color: V9_COLORS.DARK_BLUE,
+						marginBottom: '0.5rem',
+						fontSize: '2rem',
+						fontWeight: '700',
+					}}
+				>
 					🎯 Condensed V9 Authorization Code Flow
 				</h1>
-				<p style={{ 
-					color: V9_COLORS.TEXT_SECONDARY, 
-					marginBottom: '2rem',
-					fontSize: '1rem'
-				}}>
+				<p
+					style={{
+						color: V9_COLORS.TEXT_SECONDARY,
+						marginBottom: '2rem',
+						fontSize: '1rem',
+					}}
+				>
 					Enhanced V9 architecture with condensed 4-section structure and modern UI standards.
 				</p>
 			</div>
@@ -404,19 +408,20 @@ const OAuthAuthorizationCodeFlowV9_Condensed: React.FC = () => {
 
 			{/* 2. CONFIGURATION */}
 			<Section>
-				<SectionHeader 
-					$color={V9_COLORS.PRIMARY_BLUE} 
+				<SectionHeader
+					$color={V9_COLORS.PRIMARY_BLUE}
 					$expanded={true}
 					onClick={() => toggleSection('configuration')}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-						<FiSettings />⚙️ Configuration
+						<FiSettings />
+						⚙️ Configuration
 					</div>
-					<FiChevronDown 
-						style={{ 
+					<FiChevronDown
+						style={{
 							transform: expandedSections.configuration ? 'rotate(0deg)' : 'rotate(-90deg)',
-							transition: 'transform 0.2s'
-						}} 
+							transition: 'transform 0.2s',
+						}}
 					/>
 				</SectionHeader>
 				<SectionContent $show={expandedSections.configuration}>
@@ -476,27 +481,35 @@ const OAuthAuthorizationCodeFlowV9_Condensed: React.FC = () => {
 
 			{/* 3. EXECUTION */}
 			<Section>
-				<SectionHeader 
-					$color={V9_COLORS.WARNING} 
+				<SectionHeader
+					$color={V9_COLORS.WARNING}
 					$expanded={true}
 					onClick={() => toggleSection('execution')}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
 						<FiTarget />🎯 Execution
 					</div>
-					<FiChevronDown 
-						style={{ 
+					<FiChevronDown
+						style={{
 							transform: expandedSections.execution ? 'rotate(0deg)' : 'rotate(-90deg)',
-							transition: 'transform 0.2s'
-						}} 
+							transition: 'transform 0.2s',
+						}}
 					/>
 				</SectionHeader>
 				<SectionContent $show={expandedSections.execution}>
 					<StepIndicator>
-						<Step $active={currentStep === 0} $completed={currentStep > 0}>1</Step>
-						<Step $active={currentStep === 1} $completed={currentStep > 1}>2</Step>
-						<Step $active={currentStep === 2} $completed={currentStep > 2}>3</Step>
-						<Step $active={currentStep === 3} $completed={currentStep > 3}>4</Step>
+						<Step $active={currentStep === 0} $completed={currentStep > 0}>
+							1
+						</Step>
+						<Step $active={currentStep === 1} $completed={currentStep > 1}>
+							2
+						</Step>
+						<Step $active={currentStep === 2} $completed={currentStep > 2}>
+							3
+						</Step>
+						<Step $active={currentStep === 3} $completed={currentStep > 3}>
+							4
+						</Step>
 					</StepIndicator>
 
 					<div style={{ marginBottom: '1rem' }}>
@@ -518,19 +531,19 @@ const OAuthAuthorizationCodeFlowV9_Condensed: React.FC = () => {
 
 			{/* 4. RESULTS */}
 			<Section>
-				<SectionHeader 
-					$color={V9_COLORS.PRIMARY_BLUE} 
+				<SectionHeader
+					$color={V9_COLORS.PRIMARY_BLUE}
 					$expanded={true}
 					onClick={() => toggleSection('results')}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
 						<FiCheckCircle />📊 Results
 					</div>
-					<FiChevronDown 
-						style={{ 
+					<FiChevronDown
+						style={{
 							transform: expandedSections.results ? 'rotate(0deg)' : 'rotate(-90deg)',
-							transition: 'transform 0.2s'
-						}} 
+							transition: 'transform 0.2s',
+						}}
 					/>
 				</SectionHeader>
 				<SectionContent $show={expandedSections.results}>
@@ -538,9 +551,9 @@ const OAuthAuthorizationCodeFlowV9_Condensed: React.FC = () => {
 						<div>
 							<h4 style={{ color: V9_COLORS.DARK_BLUE }}>✅ Flow Completed Successfully!</h4>
 							<p>Tokens have been received and are ready for use.</p>
-							
+
 							<div style={{ marginTop: '2rem' }}>
-								<UltimateTokenDisplay 
+								<UltimateTokenDisplay
 									tokens={{
 										access_token: `mock_access_token_${Date.now()}`,
 										token_type: 'Bearer',
@@ -548,8 +561,8 @@ const OAuthAuthorizationCodeFlowV9_Condensed: React.FC = () => {
 										refresh_token: `mock_refresh_token_${Date.now()}`,
 										scope: mockCredentials.scope,
 										...(selectedVariant === 'oidc' && {
-											id_token: `mock_id_token_${Date.now()}`
-										})
+											id_token: `mock_id_token_${Date.now()}`,
+										}),
 									}}
 								/>
 							</div>
@@ -565,19 +578,19 @@ const OAuthAuthorizationCodeFlowV9_Condensed: React.FC = () => {
 
 			{/* Worker Token Status Section */}
 			<Section style={{ marginTop: '2rem' }}>
-				<SectionHeader 
-					$color={V9_COLORS.BLACK} 
+				<SectionHeader
+					$color={V9_COLORS.BLACK}
 					$expanded={true}
 					onClick={() => setIsWorkerTokenStatusCollapsed(!isWorkerTokenStatusCollapsed)}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
 						<FiKey />🔑 Worker Token Status
 					</div>
-					<FiChevronDown 
-						style={{ 
+					<FiChevronDown
+						style={{
 							transform: isWorkerTokenStatusCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
-							transition: 'transform 0.2s'
-						}} 
+							transition: 'transform 0.2s',
+						}}
 					/>
 				</SectionHeader>
 				<SectionContent $show={!isWorkerTokenStatusCollapsed}>
