@@ -14003,7 +14003,8 @@ app.get('/api/pingone/mfa/device-authentication-policies/:policyId', async (req,
 // Get User Authentication Reports
 // Reference: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#reporting
 // Endpoint: GET /v1/environments/{environmentId}/userMfaDeviceAuthentications
-app.post('/api/pingone/mfa/user-authentication-reports', async (req, res) => {
+app.post('/api/pingone/mfa/user-authentication-reports', async (req, res) =>
+{
 	try {
 		const { environmentId, queryParams, workerToken } = req.body;
 		if (!environmentId || !workerToken) {
@@ -14296,7 +14297,8 @@ app.post('/api/pingone/mfa/user-authentication-reports', async (req, res) => {
 			.status(500)
 			.json({ error: 'Failed to get user authentication reports', message: error.message });
 	}
-});
+}
+)
 
 // ============================================================================
 // PingOne MFA Reporting API Endpoints
@@ -14308,7 +14310,8 @@ app.post('/api/pingone/mfa/user-authentication-reports', async (req, res) => {
  * POST /v1/environments/{envID}/reports/smsDevices
  * Creates a report of SMS devices with entries returned directly in the response
  */
-app.post('/api/pingone/mfa/reports/create-sms-devices-report', async (req, res) => {
+app.post('/api/pingone/mfa/reports/create-sms-devices-report', async (req, res) =>
+{
 	try {
 		const {
 			environmentId,
@@ -14448,7 +14451,8 @@ app.post('/api/pingone/mfa/reports/create-sms-devices-report', async (req, res) 
 		console.error('[MFA Reports] Create SMS devices report error:', error);
 		res.status(500).json({ error: 'Failed to create SMS devices report', message: error.message });
 	}
-});
+}
+)
 
 /**
  * Get Report Results - Entries in Response

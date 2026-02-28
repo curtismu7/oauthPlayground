@@ -1,31 +1,26 @@
 // src/pages/flows/v9/RARFlowV9.tsx
 // V9 RAR (Rich Authorization Requests) Flow with Enhanced Architecture
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
 	FiArrowRight,
 	FiCheckCircle,
 	FiChevronDown,
-	FiDownload,
 	FiInfo,
 	FiKey,
 	FiRefreshCw,
 	FiSettings,
-	FiUpload,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import { StepNavigationButtons } from '../../../components/StepNavigationButtons';
 import { StandardizedCredentialExportImport } from '../../../components/StandardizedCredentialExportImport';
-import WorkerTokenStatusDisplayV8 from '../../../v8/components/WorkerTokenStatusDisplayV8';
+import { StepNavigationButtons } from '../../../components/StepNavigationButtons';
 import { usePageScroll } from '../../../hooks/usePageScroll';
-import { unifiedWorkerTokenService } from '../../../services/unifiedWorkerTokenService';
-import { WorkerTokenStatusServiceV8 } from '../../../v8/services/workerTokenStatusServiceV8';
-import { toastV8 } from '../../../v8/utils/toastNotificationsV8';
 // V9 specific imports
 import { FlowUIService } from '../../../services/flowUIService.tsx';
 import { V9FlowCredentialService } from '../../../services/v9/core/V9FlowCredentialService';
 import { EnvironmentIdServiceV8 } from '../../../services/v9/environmentIdServiceV9';
-import { V9SpecVersionService } from '../../../services/v9/V9SpecVersionService';
+import WorkerTokenStatusDisplayV8 from '../../../v8/components/WorkerTokenStatusDisplayV8';
+import { toastV8 } from '../../../v8/utils/toastNotificationsV8';
 
 const {
 	Container,
@@ -214,8 +209,10 @@ const RARFlowV9: React.FC = () => {
 	});
 
 	// V9 Credential management
-	const [credentials, setCredentials] = useState(() => V9FlowCredentialService.load());
-	const [environmentId, setEnvironmentId] = useState(() => EnvironmentIdServiceV8.getEnvironmentId());
+	const [credentials, _setCredentials] = useState(() => V9FlowCredentialService.load());
+	const [environmentId, setEnvironmentId] = useState(() =>
+		EnvironmentIdServiceV8.getEnvironmentId()
+	);
 
 	// Worker token state
 	const [isWorkerTokenStatusCollapsed, setIsWorkerTokenStatusCollapsed] = useState(true);
@@ -241,7 +238,7 @@ const RARFlowV9: React.FC = () => {
 
 	// Toggle collapsible sections
 	const toggleSection = useCallback((section: string) => {
-		setCollapsedSections(prev => ({
+		setCollapsedSections((prev) => ({
 			...prev,
 			[section]: !prev[section],
 		}));
@@ -250,13 +247,13 @@ const RARFlowV9: React.FC = () => {
 	// Navigation functions
 	const nextStep = useCallback(() => {
 		if (currentStep < STEP_METADATA.length - 1) {
-			setCurrentStep(prev => prev + 1);
+			setCurrentStep((prev) => prev + 1);
 		}
 	}, [currentStep]);
 
 	const prevStep = useCallback(() => {
 		if (currentStep > 0) {
-			setCurrentStep(prev => prev - 1);
+			setCurrentStep((prev) => prev - 1);
 		}
 	}, [currentStep]);
 
@@ -287,8 +284,9 @@ const RARFlowV9: React.FC = () => {
 
 		const authDetails = generateRARAuthorizationDetails();
 		const rarParams = encodeURIComponent(JSON.stringify([authDetails]));
-		
-		const url = `https://auth.pingone.com/${environmentId}/as/authorization.oauth2?` +
+
+		const url =
+			`https://auth.pingone.com/${environmentId}/as/authorization.oauth2?` +
 			`response_type=code&` +
 			`client_id=${encodeURIComponent(rarConfig.clientId)}&` +
 			`redirect_uri=${encodeURIComponent(rarConfig.redirectUri)}&` +
@@ -322,7 +320,7 @@ const RARFlowV9: React.FC = () => {
 
 			setTokens(mockTokens);
 			v4ToastManager.success('Token exchange completed successfully');
-		} catch (error) {
+		} catch (_error) {
 			setErrors(['Token exchange failed. Please try again.']);
 			v4ToastManager.error('Token exchange failed');
 		} finally {
@@ -332,7 +330,7 @@ const RARFlowV9: React.FC = () => {
 
 	// Handle input changes
 	const handleConfigChange = useCallback((field: keyof typeof rarConfig, value: any) => {
-		setRarConfig(prev => ({
+		setRarConfig((prev) => ({
 			...prev,
 			[field]: value,
 		}));
@@ -340,8 +338,11 @@ const RARFlowV9: React.FC = () => {
 
 	// Handle array field changes (actions, locations, etc.)
 	const handleArrayFieldChange = useCallback((field: keyof typeof rarConfig, value: string) => {
-		const arrayValue = value.split(',').map(item => item.trim()).filter(Boolean);
-		setRarConfig(prev => ({
+		const arrayValue = value
+			.split(',')
+			.map((item) => item.trim())
+			.filter(Boolean);
+		setRarConfig((prev) => ({
 			...prev,
 			[field]: arrayValue,
 		}));
@@ -352,418 +353,412 @@ const RARFlowV9: React.FC = () => {
 		switch (currentStep) {
 			case 0: // RAR Overview
 				return (
-					<>
-						<CollapsibleSection>
-							<CollapsibleHeaderButton onClick={() => toggleSection('overview')}>
-								<CollapsibleTitle>
-									<FiInfo /> Rich Authorization Requests Overview
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon collapsed={!collapsedSections.overview} />
-							</CollapsibleHeaderButton>
-							{!collapsedSections.overview && (
-								<CollapsibleContent>
-									<InfoBox $variant="info">
-										<InfoTitle>{RAR_EDUCATION.overview.description}</InfoTitle>
-										<InfoText>{RAR_EDUCATION.overview.keyPoint}</InfoText>
-									</InfoBox>
+					<CollapsibleSection>
+						<CollapsibleHeaderButton onClick={() => toggleSection('overview')}>
+							<CollapsibleTitle>
+								<FiInfo /> Rich Authorization Requests Overview
+							</CollapsibleTitle>
+							<CollapsibleToggleIcon collapsed={!collapsedSections.overview} />
+						</CollapsibleHeaderButton>
+						{!collapsedSections.overview && (
+							<CollapsibleContent>
+								<InfoBox $variant="info">
+									<InfoTitle>{RAR_EDUCATION.overview.description}</InfoTitle>
+									<InfoText>{RAR_EDUCATION.overview.keyPoint}</InfoText>
+								</InfoBox>
 
-									<InfoBox $variant="success">
-										<InfoTitle>Key Benefits</InfoTitle>
-										<InfoList>
-											{RAR_EDUCATION.benefits.map((benefit, index) => (
-												<li key={index}>{benefit}</li>
-											))}
-										</InfoList>
-									</InfoBox>
+								<InfoBox $variant="success">
+									<InfoTitle>Key Benefits</InfoTitle>
+									<InfoList>
+										{RAR_EDUCATION.benefits.map((benefit, index) => (
+											<li key={index}>{benefit}</li>
+										))}
+									</InfoList>
+								</InfoBox>
 
-									<InfoBox $variant="warning">
-										<InfoTitle>Example Use Case</InfoTitle>
-										<InfoText>{RAR_EDUCATION.example.description}</InfoText>
-									</InfoBox>
+								<InfoBox $variant="warning">
+									<InfoTitle>Example Use Case</InfoTitle>
+									<InfoText>{RAR_EDUCATION.example.description}</InfoText>
+								</InfoBox>
 
-									<InfoBox $variant="info">
-										<InfoTitle>Common Use Cases</InfoTitle>
-										<InfoList>
-											{RAR_EDUCATION.useCases.map((useCase, index) => (
-												<li key={index}>{useCase}</li>
-											))}
-										</InfoList>
-									</InfoBox>
+								<InfoBox $variant="info">
+									<InfoTitle>Common Use Cases</InfoTitle>
+									<InfoList>
+										{RAR_EDUCATION.useCases.map((useCase, index) => (
+											<li key={index}>{useCase}</li>
+										))}
+									</InfoList>
+								</InfoBox>
 
-									<InfoBox $variant="info">
-										<InfoTitle>Standard Reference</InfoTitle>
-										<InfoText>{RAR_EDUCATION.standard}</InfoText>
-									</InfoBox>
+								<InfoBox $variant="info">
+									<InfoTitle>Standard Reference</InfoTitle>
+									<InfoText>{RAR_EDUCATION.standard}</InfoText>
+								</InfoBox>
 
-									<InfoBox $variant="warning">
-										<InfoTitle>Educational Implementation</InfoTitle>
-										<InfoText>{RAR_EDUCATION.mockFlow.description}</InfoText>
-										<InfoText>{RAR_EDUCATION.mockFlow.note}</InfoText>
-									</InfoBox>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
-					</>
+								<InfoBox $variant="warning">
+									<InfoTitle>Educational Implementation</InfoTitle>
+									<InfoText>{RAR_EDUCATION.mockFlow.description}</InfoText>
+									<InfoText>{RAR_EDUCATION.mockFlow.note}</InfoText>
+								</InfoBox>
+							</CollapsibleContent>
+						)}
+					</CollapsibleSection>
 				);
 
 			case 1: // RAR Configuration
 				return (
-					<>
-						<CollapsibleSection>
-							<CollapsibleHeaderButton onClick={() => toggleSection('configuration')}>
-								<CollapsibleTitle>
-									<FiSettings /> RAR Configuration
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon collapsed={!collapsedSections.configuration} />
-							</CollapsibleHeaderButton>
-							{!collapsedSections.configuration && (
-								<CollapsibleContent>
-									<ResponsiveFormGrid>
-										<FormGroup>
-											<Label>Environment ID</Label>
-											<Input
-												type="text"
-												value={environmentId}
-												onChange={(e) => setEnvironmentId(e.target.value)}
-												placeholder="Enter PingOne Environment ID"
-												style={{ borderColor: V9_COLORS.BORDER }}
-											/>
-											<HelperText>Your PingOne environment identifier</HelperText>
-										</FormGroup>
+					<CollapsibleSection>
+						<CollapsibleHeaderButton onClick={() => toggleSection('configuration')}>
+							<CollapsibleTitle>
+								<FiSettings /> RAR Configuration
+							</CollapsibleTitle>
+							<CollapsibleToggleIcon collapsed={!collapsedSections.configuration} />
+						</CollapsibleHeaderButton>
+						{!collapsedSections.configuration && (
+							<CollapsibleContent>
+								<ResponsiveFormGrid>
+									<FormGroup>
+										<Label>Environment ID</Label>
+										<Input
+											type="text"
+											value={environmentId}
+											onChange={(e) => setEnvironmentId(e.target.value)}
+											placeholder="Enter PingOne Environment ID"
+											style={{ borderColor: V9_COLORS.BORDER }}
+										/>
+										<HelperText>Your PingOne environment identifier</HelperText>
+									</FormGroup>
 
-										<FormGroup>
-											<Label>Client ID</Label>
-											<Input
-												type="text"
-												value={rarConfig.clientId}
-												onChange={(e) => handleConfigChange('clientId', e.target.value)}
-												placeholder="Enter Client ID"
-												style={{ borderColor: V9_COLORS.BORDER }}
-											/>
-											<HelperText>OAuth client identifier</HelperText>
-										</FormGroup>
+									<FormGroup>
+										<Label>Client ID</Label>
+										<Input
+											type="text"
+											value={rarConfig.clientId}
+											onChange={(e) => handleConfigChange('clientId', e.target.value)}
+											placeholder="Enter Client ID"
+											style={{ borderColor: V9_COLORS.BORDER }}
+										/>
+										<HelperText>OAuth client identifier</HelperText>
+									</FormGroup>
 
-										<FormGroup>
-											<Label>Redirect URI</Label>
-											<Input
-												type="url"
-												value={rarConfig.redirectUri}
-												onChange={(e) => handleConfigChange('redirectUri', e.target.value)}
-												placeholder="https://localhost:3000/callback"
-												style={{ borderColor: V9_COLORS.BORDER }}
-											/>
-											<HelperText>Where the user is redirected after authorization</HelperText>
-										</FormGroup>
+									<FormGroup>
+										<Label>Redirect URI</Label>
+										<Input
+											type="url"
+											value={rarConfig.redirectUri}
+											onChange={(e) => handleConfigChange('redirectUri', e.target.value)}
+											placeholder="https://localhost:3000/callback"
+											style={{ borderColor: V9_COLORS.BORDER }}
+										/>
+										<HelperText>Where the user is redirected after authorization</HelperText>
+									</FormGroup>
 
-										<FormGroup>
-											<Label>Resource</Label>
-											<Input
-												type="url"
-												value={rarConfig.resource}
-												onChange={(e) => handleConfigChange('resource', e.target.value)}
-												placeholder="https://api.example.com/records"
-												style={{ borderColor: V9_COLORS.BORDER }}
-											/>
-											<HelperText>The API resource being accessed</HelperText>
-										</FormGroup>
+									<FormGroup>
+										<Label>Resource</Label>
+										<Input
+											type="url"
+											value={rarConfig.resource}
+											onChange={(e) => handleConfigChange('resource', e.target.value)}
+											placeholder="https://api.example.com/records"
+											style={{ borderColor: V9_COLORS.BORDER }}
+										/>
+										<HelperText>The API resource being accessed</HelperText>
+									</FormGroup>
 
-										<FormGroup>
-											<Label>Actions (comma-separated)</Label>
-											<Input
-												type="text"
-												value={rarConfig.actions.join(', ')}
-												onChange={(e) => handleArrayFieldChange('actions', e.target.value)}
-												placeholder="read, write, delete"
-												style={{ borderColor: V9_COLORS.BORDER }}
-											/>
-											<HelperText>Permitted actions on the resource</HelperText>
-										</FormGroup>
+									<FormGroup>
+										<Label>Actions (comma-separated)</Label>
+										<Input
+											type="text"
+											value={rarConfig.actions.join(', ')}
+											onChange={(e) => handleArrayFieldChange('actions', e.target.value)}
+											placeholder="read, write, delete"
+											style={{ borderColor: V9_COLORS.BORDER }}
+										/>
+										<HelperText>Permitted actions on the resource</HelperText>
+									</FormGroup>
 
-										<FormGroup>
-											<Label>Locations (comma-separated)</Label>
-											<Input
-												type="text"
-												value={rarConfig.locations.join(', ')}
-												onChange={(e) => handleArrayFieldChange('locations', e.target.value)}
-												placeholder="https://api.example.com"
-												style={{ borderColor: V9_COLORS.BORDER }}
-											/>
-											<HelperText>Resource locations (optional)</HelperText>
-										</FormGroup>
+									<FormGroup>
+										<Label>Locations (comma-separated)</Label>
+										<Input
+											type="text"
+											value={rarConfig.locations.join(', ')}
+											onChange={(e) => handleArrayFieldChange('locations', e.target.value)}
+											placeholder="https://api.example.com"
+											style={{ borderColor: V9_COLORS.BORDER }}
+										/>
+										<HelperText>Resource locations (optional)</HelperText>
+									</FormGroup>
 
-										<FormGroup>
-											<Label>Data Types (comma-separated)</Label>
-											<Input
-												type="text"
-												value={rarConfig.datatypes.join(', ')}
-												onChange={(e) => handleArrayFieldChange('datatypes', e.target.value)}
-												placeholder="user_profile, financial_data"
-												style={{ borderColor: V9_COLORS.BORDER }}
-											/>
-											<HelperText>Types of data to be accessed (optional)</HelperText>
-										</FormGroup>
+									<FormGroup>
+										<Label>Data Types (comma-separated)</Label>
+										<Input
+											type="text"
+											value={rarConfig.datatypes.join(', ')}
+											onChange={(e) => handleArrayFieldChange('datatypes', e.target.value)}
+											placeholder="user_profile, financial_data"
+											style={{ borderColor: V9_COLORS.BORDER }}
+										/>
+										<HelperText>Types of data to be accessed (optional)</HelperText>
+									</FormGroup>
 
-										<FormGroup>
-											<Label>Identifier</Label>
-											<Input
-												type="text"
-												value={rarConfig.identifier}
-												onChange={(e) => handleConfigChange('identifier', e.target.value)}
-												placeholder="user_123"
-												style={{ borderColor: V9_COLORS.BORDER }}
-											/>
-											<HelperText>Resource identifier (optional)</HelperText>
-										</FormGroup>
+									<FormGroup>
+										<Label>Identifier</Label>
+										<Input
+											type="text"
+											value={rarConfig.identifier}
+											onChange={(e) => handleConfigChange('identifier', e.target.value)}
+											placeholder="user_123"
+											style={{ borderColor: V9_COLORS.BORDER }}
+										/>
+										<HelperText>Resource identifier (optional)</HelperText>
+									</FormGroup>
 
-										<FormGroup>
-											<Label>Privileges (comma-separated)</Label>
-											<Input
-												type="text"
-												value={rarConfig.privileges.join(', ')}
-												onChange={(e) => handleArrayFieldChange('privileges', e.target.value)}
-												placeholder="basic, premium, admin"
-												style={{ borderColor: V9_COLORS.BORDER }}
-											/>
-											<HelperText>Access privileges (optional)</HelperText>
-										</FormGroup>
-									</ResponsiveFormGrid>
+									<FormGroup>
+										<Label>Privileges (comma-separated)</Label>
+										<Input
+											type="text"
+											value={rarConfig.privileges.join(', ')}
+											onChange={(e) => handleArrayFieldChange('privileges', e.target.value)}
+											placeholder="basic, premium, admin"
+											style={{ borderColor: V9_COLORS.BORDER }}
+										/>
+										<HelperText>Access privileges (optional)</HelperText>
+									</FormGroup>
+								</ResponsiveFormGrid>
 
-									{errors.length > 0 && (
-										<InfoBox $variant="error" style={{ marginTop: '1rem' }}>
-											<InfoTitle>Configuration Errors</InfoTitle>
-											<InfoList>
-												{errors.map((error, index) => (
-													<li key={index}>{error}</li>
-												))}
-											</InfoList>
-										</InfoBox>
-									)}
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
-					</>
+								{errors.length > 0 && (
+									<InfoBox $variant="error" style={{ marginTop: '1rem' }}>
+										<InfoTitle>Configuration Errors</InfoTitle>
+										<InfoList>
+											{errors.map((error, index) => (
+												<li key={index}>{error}</li>
+											))}
+										</InfoList>
+									</InfoBox>
+								)}
+							</CollapsibleContent>
+						)}
+					</CollapsibleSection>
 				);
 
 			case 2: // Authorization Request
 				return (
-					<>
-						<CollapsibleSection>
-							<CollapsibleHeaderButton onClick={() => toggleSection('authorization')}>
-								<CollapsibleTitle>
-									<FiKey /> Generate Authorization Request
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon collapsed={!collapsedSections.authorization} />
-							</CollapsibleHeaderButton>
-							{!collapsedSections.authorization && (
-								<CollapsibleContent>
-									<Button
-										onClick={generateAuthorizationUrl}
-										disabled={!environmentId || !rarConfig.clientId}
-										style={{
-											backgroundColor: V9_COLORS.PRIMARY_BLUE,
-											color: V9_COLORS.WHITE,
-											border: 'none',
-											padding: '0.75rem 1.5rem',
-											marginBottom: '1rem',
-										}}
-									>
-										<FiArrowRight /> Generate Authorization URL
-									</Button>
+					<CollapsibleSection>
+						<CollapsibleHeaderButton onClick={() => toggleSection('authorization')}>
+							<CollapsibleTitle>
+								<FiKey /> Generate Authorization Request
+							</CollapsibleTitle>
+							<CollapsibleToggleIcon collapsed={!collapsedSections.authorization} />
+						</CollapsibleHeaderButton>
+						{!collapsedSections.authorization && (
+							<CollapsibleContent>
+								<Button
+									onClick={generateAuthorizationUrl}
+									disabled={!environmentId || !rarConfig.clientId}
+									style={{
+										backgroundColor: V9_COLORS.PRIMARY_BLUE,
+										color: V9_COLORS.WHITE,
+										border: 'none',
+										padding: '0.75rem 1.5rem',
+										marginBottom: '1rem',
+									}}
+								>
+									<FiArrowRight /> Generate Authorization URL
+								</Button>
 
-									{authorizationUrl && (
-										<GeneratedContentBox>
-											<InfoTitle>Authorization URL</InfoTitle>
-											<CodeBlock>{authorizationUrl}</CodeBlock>
-											<HelperText>
-												This URL contains RAR authorization details that specify exactly what permissions are being requested.
-											</HelperText>
-											
-											<ParameterGrid>
-												<ParameterLabel>Authorization Details:</ParameterLabel>
-												<ParameterValue>
-													<CodeBlock>{JSON.stringify([generateRARAuthorizationDetails()], null, 2)}</CodeBlock>
-												</ParameterValue>
-											</ParameterGrid>
-										</GeneratedContentBox>
-									)}
+								{authorizationUrl && (
+									<GeneratedContentBox>
+										<InfoTitle>Authorization URL</InfoTitle>
+										<CodeBlock>{authorizationUrl}</CodeBlock>
+										<HelperText>
+											This URL contains RAR authorization details that specify exactly what
+											permissions are being requested.
+										</HelperText>
 
-									{authorizationUrl && (
-										<FormGroup style={{ marginTop: '1rem' }}>
-											<Label>Authorization Code (for testing)</Label>
-											<Input
-												type="text"
-												value={authorizationCode}
-												onChange={(e) => setAuthorizationCode(e.target.value)}
-												placeholder="Enter mock authorization code"
-												style={{ borderColor: V9_COLORS.BORDER }}
-											/>
-											<HelperText>
-												In a real flow, this would be obtained from the authorization server callback
-											</HelperText>
-										</FormGroup>
-									)}
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
-					</>
+										<ParameterGrid>
+											<ParameterLabel>Authorization Details:</ParameterLabel>
+											<ParameterValue>
+												<CodeBlock>
+													{JSON.stringify([generateRARAuthorizationDetails()], null, 2)}
+												</CodeBlock>
+											</ParameterValue>
+										</ParameterGrid>
+									</GeneratedContentBox>
+								)}
+
+								{authorizationUrl && (
+									<FormGroup style={{ marginTop: '1rem' }}>
+										<Label>Authorization Code (for testing)</Label>
+										<Input
+											type="text"
+											value={authorizationCode}
+											onChange={(e) => setAuthorizationCode(e.target.value)}
+											placeholder="Enter mock authorization code"
+											style={{ borderColor: V9_COLORS.BORDER }}
+										/>
+										<HelperText>
+											In a real flow, this would be obtained from the authorization server callback
+										</HelperText>
+									</FormGroup>
+								)}
+							</CollapsibleContent>
+						)}
+					</CollapsibleSection>
 				);
 
 			case 3: // Token Exchange
 				return (
-					<>
-						<CollapsibleSection>
-							<CollapsibleHeaderButton onClick={() => toggleSection('tokenExchange')}>
-								<CollapsibleTitle>
-									<FiRefreshCw /> Token Exchange
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon collapsed={!collapsedSections.tokenExchange} />
-							</CollapsibleHeaderButton>
-							{!collapsedSections.tokenExchange && (
-								<CollapsibleContent>
-									<Button
-										onClick={mockTokenExchange}
-										disabled={!authorizationCode || isLoading}
-										style={{
-											backgroundColor: V9_COLORS.PRIMARY_BLUE,
-											color: V9_COLORS.WHITE,
-											border: 'none',
-											padding: '0.75rem 1.5rem',
-											marginBottom: '1rem',
-										}}
-									>
-										{isLoading ? (
-											<>Exchanging Token...</>
-										) : (
-											<><FiRefreshCw /> Exchange Authorization Code for Tokens</>
-										)}
-									</Button>
-
-									{tokens && (
-										<GeneratedContentBox>
-											<InfoTitle>Token Response</InfoTitle>
-											<ParameterGrid>
-												<ParameterLabel>Access Token:</ParameterLabel>
-												<ParameterValue>
-													<CodeBlock>{tokens.access_token}</CodeBlock>
-												</ParameterValue>
-											</ParameterGrid>
-											
-											<ParameterGrid>
-												<ParameterLabel>Token Type:</ParameterLabel>
-												<ParameterValue>{tokens.token_type}</ParameterValue>
-											</ParameterGrid>
-											
-											<ParameterGrid>
-												<ParameterLabel>Expires In:</ParameterLabel>
-												<ParameterValue>{tokens.expires_in} seconds</ParameterValue>
-											</ParameterGrid>
-											
-											<ParameterGrid>
-												<ParameterLabel>Scope:</ParameterLabel>
-												<ParameterValue>{tokens.scope}</ParameterValue>
-											</ParameterGrid>
-											
-											<ParameterGrid>
-												<ParameterLabel>Authorization Details:</ParameterLabel>
-												<ParameterValue>
-													<CodeBlock>{tokens.authorization_details}</CodeBlock>
-												</ParameterValue>
-											</ParameterGrid>
-
-											<InfoBox $variant="success" style={{ marginTop: '1rem' }}>
-												<InfoTitle>
-													<FiCheckCircle /> Token Exchange Successful
-												</InfoTitle>
-												<InfoText>
-													The token includes RAR authorization details that grant specific permissions as configured in step 2.
-												</InfoText>
-											</InfoBox>
-										</GeneratedContentBox>
+					<CollapsibleSection>
+						<CollapsibleHeaderButton onClick={() => toggleSection('tokenExchange')}>
+							<CollapsibleTitle>
+								<FiRefreshCw /> Token Exchange
+							</CollapsibleTitle>
+							<CollapsibleToggleIcon collapsed={!collapsedSections.tokenExchange} />
+						</CollapsibleHeaderButton>
+						{!collapsedSections.tokenExchange && (
+							<CollapsibleContent>
+								<Button
+									onClick={mockTokenExchange}
+									disabled={!authorizationCode || isLoading}
+									style={{
+										backgroundColor: V9_COLORS.PRIMARY_BLUE,
+										color: V9_COLORS.WHITE,
+										border: 'none',
+										padding: '0.75rem 1.5rem',
+										marginBottom: '1rem',
+									}}
+								>
+									{isLoading ? 'Exchanging Token...' : (
+										<>
+											<FiRefreshCw /> Exchange Authorization Code for Tokens
+										</>
 									)}
+								</Button>
 
-									{errors.length > 0 && (
-										<InfoBox $variant="error" style={{ marginTop: '1rem' }}>
-											<InfoTitle>Token Exchange Errors</InfoTitle>
-											<InfoList>
-												{errors.map((error, index) => (
-													<li key={index}>{error}</li>
-												))}
-											</InfoList>
+								{tokens && (
+									<GeneratedContentBox>
+										<InfoTitle>Token Response</InfoTitle>
+										<ParameterGrid>
+											<ParameterLabel>Access Token:</ParameterLabel>
+											<ParameterValue>
+												<CodeBlock>{tokens.access_token}</CodeBlock>
+											</ParameterValue>
+										</ParameterGrid>
+
+										<ParameterGrid>
+											<ParameterLabel>Token Type:</ParameterLabel>
+											<ParameterValue>{tokens.token_type}</ParameterValue>
+										</ParameterGrid>
+
+										<ParameterGrid>
+											<ParameterLabel>Expires In:</ParameterLabel>
+											<ParameterValue>{tokens.expires_in} seconds</ParameterValue>
+										</ParameterGrid>
+
+										<ParameterGrid>
+											<ParameterLabel>Scope:</ParameterLabel>
+											<ParameterValue>{tokens.scope}</ParameterValue>
+										</ParameterGrid>
+
+										<ParameterGrid>
+											<ParameterLabel>Authorization Details:</ParameterLabel>
+											<ParameterValue>
+												<CodeBlock>{tokens.authorization_details}</CodeBlock>
+											</ParameterValue>
+										</ParameterGrid>
+
+										<InfoBox $variant="success" style={{ marginTop: '1rem' }}>
+											<InfoTitle>
+												<FiCheckCircle /> Token Exchange Successful
+											</InfoTitle>
+											<InfoText>
+												The token includes RAR authorization details that grant specific permissions
+												as configured in step 2.
+											</InfoText>
 										</InfoBox>
-									)}
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
-					</>
+									</GeneratedContentBox>
+								)}
+
+								{errors.length > 0 && (
+									<InfoBox $variant="error" style={{ marginTop: '1rem' }}>
+										<InfoTitle>Token Exchange Errors</InfoTitle>
+										<InfoList>
+											{errors.map((error, index) => (
+												<li key={index}>{error}</li>
+											))}
+										</InfoList>
+									</InfoBox>
+								)}
+							</CollapsibleContent>
+						)}
+					</CollapsibleSection>
 				);
 
 			case 4: // Flow Completion
 				return (
-					<>
-						<CollapsibleSection>
-							<CollapsibleHeaderButton onClick={() => toggleSection('completion')}>
-								<CollapsibleTitle>
-									<FiCheckCircle /> Flow Completion
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon collapsed={!collapsedSections.completion} />
-							</CollapsibleHeaderButton>
-							{!collapsedSections.completion && (
-								<CollapsibleContent>
-									<InfoBox $variant="success">
-										<InfoTitle>RAR Flow Completed Successfully</InfoTitle>
-										<InfoText>
-											You have successfully completed the Rich Authorization Requests flow demonstration.
-											The token you received includes specific authorization details that grant precise permissions
-											as configured in the RAR parameters.
-										</InfoText>
-									</InfoBox>
+					<CollapsibleSection>
+						<CollapsibleHeaderButton onClick={() => toggleSection('completion')}>
+							<CollapsibleTitle>
+								<FiCheckCircle /> Flow Completion
+							</CollapsibleTitle>
+							<CollapsibleToggleIcon collapsed={!collapsedSections.completion} />
+						</CollapsibleHeaderButton>
+						{!collapsedSections.completion && (
+							<CollapsibleContent>
+								<InfoBox $variant="success">
+									<InfoTitle>RAR Flow Completed Successfully</InfoTitle>
+									<InfoText>
+										You have successfully completed the Rich Authorization Requests flow
+										demonstration. The token you received includes specific authorization details
+										that grant precise permissions as configured in the RAR parameters.
+									</InfoText>
+								</InfoBox>
 
-									<InfoBox $variant="info">
-										<InfoTitle>Key Takeaways</InfoTitle>
-										<InfoList>
-											<li>RAR enables fine-grained authorization beyond simple scopes</li>
-											<li>Authorization details are structured JSON objects with specific fields</li>
-											<li>PingOne supports RAR parameters in authorization requests</li>
-											<li>Tokens can include the granted authorization details for verification</li>
-											<li>RAR provides better security and user consent experiences</li>
-										</InfoList>
-									</InfoBox>
+								<InfoBox $variant="info">
+									<InfoTitle>Key Takeaways</InfoTitle>
+									<InfoList>
+										<li>RAR enables fine-grained authorization beyond simple scopes</li>
+										<li>Authorization details are structured JSON objects with specific fields</li>
+										<li>PingOne supports RAR parameters in authorization requests</li>
+										<li>Tokens can include the granted authorization details for verification</li>
+										<li>RAR provides better security and user consent experiences</li>
+									</InfoList>
+								</InfoBox>
 
-									<InfoBox $variant="warning">
-										<InfoTitle>Next Steps</InfoTitle>
-										<InfoList>
-											<li>Explore other OAuth flows in the playground</li>
-											<li>Read the RFC 9396 specification for detailed RAR information</li>
-											<li>Test with real PingOne applications to implement RAR in production</li>
-											<li>Review PingOne documentation for RAR-specific configuration</li>
-										</InfoList>
-									</InfoBox>
+								<InfoBox $variant="warning">
+									<InfoTitle>Next Steps</InfoTitle>
+									<InfoList>
+										<li>Explore other OAuth flows in the playground</li>
+										<li>Read the RFC 9396 specification for detailed RAR information</li>
+										<li>Test with real PingOne applications to implement RAR in production</li>
+										<li>Review PingOne documentation for RAR-specific configuration</li>
+									</InfoList>
+								</InfoBox>
 
-									{tokens && (
-										<GeneratedContentBox style={{ marginTop: '1rem' }}>
-											<InfoTitle>Final Token Summary</InfoTitle>
-											<ParameterGrid>
-												<ParameterLabel>Token Type:</ParameterLabel>
-												<ParameterValue>{tokens.token_type}</ParameterValue>
-											</ParameterGrid>
-											
-											<ParameterGrid>
-												<ParameterLabel>Granted Permissions:</ParameterLabel>
-												<ParameterValue>
-													<CodeBlock>{tokens.authorization_details}</CodeBlock>
-												</ParameterValue>
-											</ParameterGrid>
-											
-											<ParameterGrid>
-												<ParameterLabel>Expires In:</ParameterLabel>
-												<ParameterValue>{tokens.expires_in} seconds</ParameterValue>
-											</ParameterGrid>
-										</GeneratedContentBox>
-									)}
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
-					</>
+								{tokens && (
+									<GeneratedContentBox style={{ marginTop: '1rem' }}>
+										<InfoTitle>Final Token Summary</InfoTitle>
+										<ParameterGrid>
+											<ParameterLabel>Token Type:</ParameterLabel>
+											<ParameterValue>{tokens.token_type}</ParameterValue>
+										</ParameterGrid>
+
+										<ParameterGrid>
+											<ParameterLabel>Granted Permissions:</ParameterLabel>
+											<ParameterValue>
+												<CodeBlock>{tokens.authorization_details}</CodeBlock>
+											</ParameterValue>
+										</ParameterGrid>
+
+										<ParameterGrid>
+											<ParameterLabel>Expires In:</ParameterLabel>
+											<ParameterValue>{tokens.expires_in} seconds</ParameterValue>
+										</ParameterGrid>
+									</GeneratedContentBox>
+								)}
+							</CollapsibleContent>
+						)}
+					</CollapsibleSection>
 				);
 
 			default:
@@ -785,13 +780,15 @@ const RARFlowV9: React.FC = () => {
 					<StepContentWrapper>
 						{/* Step Progress */}
 						<div style={{ marginBottom: '2rem' }}>
-							<div style={{ 
-								display: 'flex', 
-								justifyContent: 'space-between', 
-								marginBottom: '1rem',
-								flexWrap: 'wrap',
-								gap: '0.5rem'
-							}}>
+							<div
+								style={{
+									display: 'flex',
+									justifyContent: 'space-between',
+									marginBottom: '1rem',
+									flexWrap: 'wrap',
+									gap: '0.5rem',
+								}}
+							>
 								{STEP_METADATA.map((step, index) => (
 									<div
 										key={index}
@@ -801,7 +798,8 @@ const RARFlowV9: React.FC = () => {
 											textAlign: 'center',
 											padding: '0.5rem',
 											borderRadius: '0.375rem',
-											backgroundColor: index <= currentStep ? V9_COLORS.PRIMARY_BLUE : V9_COLORS.LIGHT_BLUE_BG,
+											backgroundColor:
+												index <= currentStep ? V9_COLORS.PRIMARY_BLUE : V9_COLORS.LIGHT_BLUE_BG,
 											color: index <= currentStep ? V9_COLORS.WHITE : V9_COLORS.TEXT_PRIMARY,
 											border: `1px solid ${index <= currentStep ? V9_COLORS.PRIMARY_BLUE : V9_COLORS.BORDER}`,
 											fontSize: '0.875rem',
@@ -819,25 +817,31 @@ const RARFlowV9: React.FC = () => {
 
 						{/* Current Step Info */}
 						<div style={{ marginBottom: '2rem' }}>
-							<h2 style={{ 
-								color: V9_COLORS.DARK_BLUE, 
-								marginBottom: '0.5rem',
-								fontSize: '1.5rem',
-								fontWeight: '600'
-							}}>
+							<h2
+								style={{
+									color: V9_COLORS.DARK_BLUE,
+									marginBottom: '0.5rem',
+									fontSize: '1.5rem',
+									fontWeight: '600',
+								}}
+							>
 								{STEP_METADATA[currentStep].title}
 							</h2>
-							<p style={{ 
-								color: V9_COLORS.TEXT_SECONDARY, 
-								marginBottom: '1rem',
-								fontSize: '1rem'
-							}}>
+							<p
+								style={{
+									color: V9_COLORS.TEXT_SECONDARY,
+									marginBottom: '1rem',
+									fontSize: '1rem',
+								}}
+							>
 								{STEP_METADATA[currentStep].subtitle}
 							</p>
-							<p style={{ 
-								color: V9_COLORS.TEXT_PRIMARY,
-								fontSize: '0.875rem'
-							}}>
+							<p
+								style={{
+									color: V9_COLORS.TEXT_PRIMARY,
+									fontSize: '0.875rem',
+								}}
+							>
 								{STEP_METADATA[currentStep].description}
 							</p>
 						</div>
@@ -891,7 +895,8 @@ const RARFlowV9: React.FC = () => {
 							transition: 'all 0.3s ease',
 						}}
 						onMouseEnter={(e) => {
-							e.currentTarget.style.background = 'linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%)';
+							e.currentTarget.style.background =
+								'linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%)';
 							e.currentTarget.style.color = '#1f2937';
 						}}
 						onMouseLeave={(e) => {
@@ -938,12 +943,14 @@ const RARFlowV9: React.FC = () => {
 				{/* Credential Export/Import Section */}
 				<ResponsiveMainCard style={{ marginTop: '2rem' }}>
 					<StepContentWrapper>
-						<h3 style={{ 
-							color: V9_COLORS.DARK_BLUE, 
-							marginBottom: '1rem',
-							fontSize: '1.25rem',
-							fontWeight: '600'
-						}}>
+						<h3
+							style={{
+								color: V9_COLORS.DARK_BLUE,
+								marginBottom: '1rem',
+								fontSize: '1.25rem',
+								fontWeight: '600',
+							}}
+						>
 							<FiSettings /> Credential Management
 						</h3>
 						<StandardizedCredentialExportImport
