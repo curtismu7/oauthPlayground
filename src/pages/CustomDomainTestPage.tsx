@@ -20,7 +20,7 @@ interface ApiTestSpec {
 	method: string;
 	path: string;
 	description: string;
-	requiresParams?: string[]; // e.g., ['username'], ['orgId'], ['envId']
+	requiresParams?: string[]; // e.g., ['userId'], ['orgId'], ['envId']
 }
 
 const API_TESTS: ApiTestSpec[] = [
@@ -30,22 +30,15 @@ const API_TESTS: ApiTestSpec[] = [
 	{ method: 'GET', path: '/api/version', description: 'Backend version' },
 	{
 		method: 'GET',
-		path: '/api/user/{username}',
-		description: 'Get user by username',
-		requiresParams: ['username'],
+		path: '/api/pingone/user/{userId}',
+		description: 'Get user by user ID (PingOne API)',
+		requiresParams: ['userId'],
 	},
+	{ method: 'GET', path: '/api/pingone/api-calls', description: 'Recent PingOne API call log' },
 	{
 		method: 'GET',
-		path: '/api/org/{orgId}/licensing',
-		description: 'Organization licensing info',
-		requiresParams: ['orgId'],
-	},
-	{ method: 'GET', path: '/api/identity/metrics', description: 'Identity metrics and statistics' },
-	{
-		method: 'GET',
-		path: '/api/environment/{envId}',
-		description: 'Get environment details',
-		requiresParams: ['envId'],
+		path: '/api/env-config',
+		description: 'Get environment configuration',
 	},
 ];
 
@@ -66,9 +59,7 @@ export default function CustomDomainTestPage() {
 
 	// State for API parameters — keyed by param name, shared across cards
 	const [apiParams, setApiParams] = useState<Record<string, string>>({
-		username: '',
-		orgId: '',
-		envId: '',
+		userId: '',
 	});
 
 	const { showWarning } = useNotifications();
