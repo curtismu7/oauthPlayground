@@ -10,7 +10,7 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiBook, FiChevronRight, FiInfo, FiShield } from 'react-icons/fi';
+import { FiBook, FiChevronRight, FiInfo, FiShield } from '@icons';
 import styled from 'styled-components';
 import {
 	type EducationMode,

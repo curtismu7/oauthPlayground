@@ -7,7 +7,7 @@
  */
 
 import React from 'react';
-import { FiCheckCircle, FiInfo, FiRefreshCw, FiZap } from 'react-icons/fi';
+import { FiCheckCircle, FiInfo, FiRefreshCw, FiZap } from '@icons';
 import styled from 'styled-components';
 
 export interface FlowCompletionStep {

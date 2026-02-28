@@ -53,7 +53,7 @@ import {
 	FiUsers,
 	FiX,
 	FiZap
-} from 'react-icons/fi';
+} from '@icons';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { v4ToastManager } from '../utils/v4ToastMessages';

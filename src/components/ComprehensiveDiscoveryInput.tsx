@@ -12,7 +12,7 @@
  */
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { FiCheck, FiEye, FiEyeOff, FiInfo, FiSearch, FiX } from 'react-icons/fi';
+import { FiCheck, FiEye, FiEyeOff, FiInfo, FiSearch, FiX } from '@icons';
 import styled from 'styled-components';
 import {
 	comprehensiveDiscoveryService,

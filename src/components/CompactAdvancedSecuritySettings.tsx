@@ -2,7 +2,7 @@
 // Compact version of Advanced Security Settings for use inside flows
 
 import React, { useState } from 'react';
-import { FiCheck, FiChevronDown, FiSettings, FiShield } from 'react-icons/fi';
+import { FiCheck, FiChevronDown, FiSettings, FiShield } from '@icons';
 import styled from 'styled-components';
 import {
 	type AdvancedSecuritySettings,

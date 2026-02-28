@@ -11,7 +11,7 @@
  */
 
 import React, { useRef, useState } from 'react';
-import { FiChevronDown, FiChevronRight, FiDownload, FiPackage } from 'react-icons/fi';
+import { FiChevronDown, FiChevronRight, FiDownload, FiPackage } from '@icons';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { V9FlowCredentialService } from '../../services/v9/core/V9FlowCredentialService';
 import { EnvironmentIdServiceV8 } from '../../services/v9/environmentIdServiceV9';

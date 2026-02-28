@@ -1,7 +1,7 @@
 // src/components/JWKSConverter.tsx
 import type React from 'react';
 import { useId, useState } from 'react';
-import { FiAlertCircle, FiCheckCircle, FiCopy, FiDownload, FiRefreshCw } from 'react-icons/fi';
+import { FiAlertCircle, FiCheckCircle, FiCopy, FiDownload, FiRefreshCw } from '@icons';
 import styled from 'styled-components';
 import { showGlobalError, showGlobalSuccess } from '../hooks/useNotifications';
 import { convertPrivateKeyToJWKS, formatJWKS, isPrivateKey } from '../utils/jwksConverter';

@@ -10,7 +10,7 @@ import {
 	FiRefreshCw,
 	FiSave,
 	FiSearch,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { type DiscoveryResult, oidcDiscoveryService } from '../services/oidcDiscoveryService';
 

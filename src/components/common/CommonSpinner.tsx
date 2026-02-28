@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import { FiLoader, FiX } from 'react-icons/fi';
+import { FiLoader, FiX } from '@icons';
 import styled, { keyframes } from 'styled-components';
 import type { CommonSpinnerProps, SpinnerSize, SpinnerTheme } from '@/types/spinner';
 

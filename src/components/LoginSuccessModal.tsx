@@ -1,6 +1,6 @@
 // src/components/LoginSuccessModal.tsx
 import React from 'react';
-import { FiCheckCircle, FiX } from 'react-icons/fi';
+import { FiCheckCircle, FiX } from '@icons';
 import styled from 'styled-components';
 
 interface LoginSuccessModalProps {

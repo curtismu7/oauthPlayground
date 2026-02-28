@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FiCheckCircle, FiEye, FiPlay, FiRefreshCw, FiSettings } from 'react-icons/fi';
+import { FiCheckCircle, FiEye, FiPlay, FiRefreshCw, FiSettings } from '@icons';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from './Card';
 import TutorialStep from './TutorialStep';

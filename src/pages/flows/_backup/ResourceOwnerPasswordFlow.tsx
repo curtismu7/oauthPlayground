@@ -1,5 +1,5 @@
 import type React from 'react';
-import { FiInfo, FiLock, FiShield, FiUser, FiX } from 'react-icons/fi';
+import { FiInfo, FiLock, FiShield, FiUser, FiX } from '@icons';
 import styled from 'styled-components';
 
 const PageContainer = styled.div`

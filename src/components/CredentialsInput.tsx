@@ -7,7 +7,7 @@ import {
 	FiEyeOff,
 	FiGlobe,
 	FiSettings,
-} from 'react-icons/fi';
+} from '@icons';
 import styled, { createGlobalStyle } from 'styled-components';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 import { callbackUriService } from '../services/callbackUriService';

@@ -12,7 +12,7 @@ import {
 	FiRefreshCw,
 	FiTrash,
 	FiTrash2
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { LogEntry, LogLevel, logger } from '@/services/loggingService';
 

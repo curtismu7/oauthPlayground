@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FiAlertCircle, FiCheckCircle, FiLoader } from 'react-icons/fi';
+import { FiAlertCircle, FiCheckCircle, FiLoader } from '@icons';
 import styled, { css, keyframes } from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
 

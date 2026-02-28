@@ -7,7 +7,7 @@
  */
 
 import React from 'react';
-import { FiCheckCircle, FiHash, FiMail, FiUser, FiX } from 'react-icons/fi';
+import { FiCheckCircle, FiHash, FiMail, FiUser, FiX } from '@icons';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 
 const _MODULE_TAG = '[✅ USER-INFO-SUCCESS-MODAL-V8U]';

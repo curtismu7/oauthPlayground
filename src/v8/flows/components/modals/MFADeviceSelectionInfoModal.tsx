@@ -10,7 +10,7 @@
  */
 
 import React from 'react';
-import { FiX } from 'react-icons/fi';
+import { FiX } from '@icons';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 
 export interface MFADeviceSelectionInfoModalProps {

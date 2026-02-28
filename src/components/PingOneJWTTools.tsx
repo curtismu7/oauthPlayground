@@ -18,7 +18,7 @@ import {
 	FiCopy,
 	FiKey,
 	FiSettings,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import {
 	KeyPair,

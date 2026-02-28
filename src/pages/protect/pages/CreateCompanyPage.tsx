@@ -16,7 +16,7 @@ import {
 	FiSave,
 	FiUpload,
 	FiX,
-} from 'react-icons/fi';
+} from '@icons';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { v4ToastManager } from '../../../utils/v4ToastMessages';

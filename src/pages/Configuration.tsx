@@ -13,7 +13,7 @@ import {
 	FiSave,
 	FiSettings,
 	FiTerminal,
-} from 'react-icons/fi';
+} from '@icons';
 import packageJson from '../../package.json';
 import ConfigurationURIChecker from '../components/ConfigurationURIChecker';
 import PingOneApplicationConfig, {

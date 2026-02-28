@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FiCheckCircle, FiChevronDown, FiChevronUp } from 'react-icons/fi';
+import { FiCheckCircle, FiChevronDown, FiChevronUp } from '@icons';
 import styled from 'styled-components';
 
 interface TutorialStepProps {

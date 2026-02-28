@@ -10,7 +10,7 @@
  */
 
 import React, { useCallback, useState } from 'react';
-import { FiShield, FiX } from 'react-icons/fi';
+import { FiShield, FiX } from '@icons';
 import { useLocation } from 'react-router-dom';
 import { CountryCodePickerV8 } from '@/v8/components/CountryCodePickerV8';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';

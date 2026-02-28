@@ -11,7 +11,7 @@ import {
 	FiServer,
 	FiSettings,
 	FiX,
-} from 'react-icons/fi';
+} from '@icons';
 import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import {

@@ -27,7 +27,7 @@ import {
 	FiInfo,
 	FiKey,
 	FiShield,
-} from 'react-icons/fi';
+} from '@icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { ColoredUrlDisplay } from '@/components/ColoredUrlDisplay';
