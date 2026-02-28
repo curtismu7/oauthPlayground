@@ -244,24 +244,37 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 					console.log(`${MODULE_TAG} 🔑 No valid token found, proceeding with validation`);
 				}
 
-				// Validate OAuth configuration
+				// Validate OAuth configuration — race against a 12 s timeout so a
+				// hanging API call can never leave the spinner stuck permanently.
+				// On timeout we skip validation and continue rather than blocking.
 				if (tokenValidation?.isValid) {
+					const PREFLIGHT_TIMEOUT_MS = 12_000;
+					const timeoutPromise = new Promise<{ passed: true; warnings: string[]; errors: string[] }>(
+						(resolve) =>
+							setTimeout(() => {
+								console.warn(`${MODULE_TAG} Pre-flight validation timed out — skipping`);
+								resolve({ passed: true, warnings: [], errors: [] });
+							}, PREFLIGHT_TIMEOUT_MS)
+					);
 					// Use existing token for validation
-					const oauthConfigResult = await PreFlightValidationServiceV8.validateOAuthConfig({
-						specVersion: 'oauth2.0' as const, // Worker tokens use OAuth 2.0
-						flowType: 'client-credentials' as const, // Worker tokens use client credentials flow
-						credentials: {
-							environmentId: environmentId.trim(),
-							clientId: clientId.trim(),
-							clientSecret: clientSecret.trim(),
-							redirectUri: '', // Not needed for worker tokens
-							postLogoutRedirectUri: '', // Not needed for worker tokens
-							scopes: normalizedScopes.join(' '), // Convert array to string
-							responseType: '', // Not needed for worker tokens
-							clientAuthMethod: authMethod,
-						},
-						workerToken: tokenValidation.token,
-					});
+					const oauthConfigResult = await Promise.race([
+						PreFlightValidationServiceV8.validateOAuthConfig({
+							specVersion: 'oauth2.0' as const, // Worker tokens use OAuth 2.0
+							flowType: 'client-credentials' as const, // Worker tokens use client credentials flow
+							credentials: {
+								environmentId: environmentId.trim(),
+								clientId: clientId.trim(),
+								clientSecret: clientSecret.trim(),
+								redirectUri: '', // Not needed for worker tokens
+								postLogoutRedirectUri: '', // Not needed for worker tokens
+								scopes: normalizedScopes.join(' '), // Convert array to string
+								responseType: '', // Not needed for worker tokens
+								clientAuthMethod: authMethod,
+							},
+							workerToken: tokenValidation.token,
+						}),
+						timeoutPromise,
+					]);
 
 					if (!oauthConfigResult.passed) {
 						// Check if this is an OIDC scope error and provide helpful guidance
