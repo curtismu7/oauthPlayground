@@ -16,7 +16,7 @@ import {
 	FiFileText,
 	FiInfo,
 	FiPackage,
-} from 'react-icons/fi';
+} from '@icons';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import {
 	downloadPostmanCollectionWithEnvironment,

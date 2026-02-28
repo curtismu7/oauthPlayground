@@ -14,7 +14,7 @@ import {
 	FiSettings,
 	FiShield,
 	FiUsers,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { FlowHeader } from '../../services/flowHeaderService';

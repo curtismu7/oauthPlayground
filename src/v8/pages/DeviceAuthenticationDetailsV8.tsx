@@ -13,7 +13,7 @@ import {
 	FiExternalLink,
 	FiRefreshCw,
 	FiShield,
-} from 'react-icons/fi';
+} from '@icons';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';

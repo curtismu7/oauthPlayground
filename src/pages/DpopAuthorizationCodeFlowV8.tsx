@@ -29,7 +29,7 @@ import {
 	FiRefreshCw,
 	FiShield,
 	FiUnlock,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 
 // Styled components

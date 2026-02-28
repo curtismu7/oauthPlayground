@@ -1,4 +1,4 @@
-import { FiKey, FiLock, FiShield, FiZap } from 'react-icons/fi';
+import { FiKey, FiLock, FiShield, FiZap } from '@icons';
 
 export type AuthMethod =
 	| 'client_secret_basic'

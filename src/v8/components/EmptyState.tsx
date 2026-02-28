@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import { FiInbox } from 'react-icons/fi';
+import { FiInbox } from '@icons';
 import { colors, spacing, typography } from '@/v8/design/tokens';
 import { Button } from './Button';
 

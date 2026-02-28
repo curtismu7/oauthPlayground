@@ -2,7 +2,7 @@
 // Comparison page showing both compact and full versions
 
 import React from 'react';
-import { FiArrowLeft, FiExternalLink, FiMonitor, FiSmartphone } from 'react-icons/fi';
+import { FiArrowLeft, FiExternalLink, FiMonitor, FiSmartphone } from '@icons';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import CompactAdvancedSecuritySettings from '../components/CompactAdvancedSecuritySettings';

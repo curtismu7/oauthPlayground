@@ -1,5 +1,5 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { FiAlertTriangle, FiHome, FiRefreshCw } from 'react-icons/fi';
+import { FiAlertTriangle, FiHome, FiRefreshCw } from '@icons';
 import styled from 'styled-components';
 import { logger } from '../utils/logger';
 

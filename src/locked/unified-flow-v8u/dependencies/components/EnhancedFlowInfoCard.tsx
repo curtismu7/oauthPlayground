@@ -9,7 +9,7 @@ import {
 	FiShield,
 	FiUsers,
 	FiZap,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';
 import { FlowInfoCardData, FlowInfoService } from '../services/FlowInfoService';

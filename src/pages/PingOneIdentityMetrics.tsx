@@ -14,7 +14,7 @@ import {
 	FiInfo,
 	FiRefreshCw,
 	FiShield
-} from 'react-icons/fi';
+} from '@icons';
 import JSONHighlighter, { type JSONData } from '../components/JSONHighlighter';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { apiRequestModalService } from '../services/apiRequestModalService';

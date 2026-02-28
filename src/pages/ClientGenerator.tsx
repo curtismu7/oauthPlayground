@@ -30,7 +30,7 @@ const WorkerActions: React.FC<{
 
 // src/pages/ClientGenerator.tsx
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiArrowRight, FiEye, FiEyeOff, FiKey, FiSettings, FiShield, FiX } from 'react-icons/fi';
+import { FiArrowRight, FiEye, FiEyeOff, FiKey, FiSettings, FiShield, FiX } from '@icons';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import ColoredUrlDisplay from '../components/ColoredUrlDisplay';

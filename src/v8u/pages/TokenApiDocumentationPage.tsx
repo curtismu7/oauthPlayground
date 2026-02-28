@@ -7,7 +7,7 @@ import {
 	FiExternalLink,
 	FiRefreshCw,
 	FiSearch,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { apiCallTrackerService } from '../../services/apiCallTrackerService';
 import { type ApiCall, TokenMonitoringService } from '../services/tokenMonitoringService';

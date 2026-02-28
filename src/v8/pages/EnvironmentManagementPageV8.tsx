@@ -17,7 +17,7 @@ import {
 	FiSettings,
 	FiTrash,
 	FiTrash2
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import {
 	type EnvironmentListOptions,

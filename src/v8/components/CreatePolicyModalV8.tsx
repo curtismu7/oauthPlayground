@@ -6,7 +6,7 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { FiX } from 'react-icons/fi';
+import { FiX } from '@icons';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const MODULE_TAG = '[📝 CREATE-POLICY-MODAL-V8]';

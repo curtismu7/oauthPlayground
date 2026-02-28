@@ -7,7 +7,7 @@
  */
 
 import React from 'react';
-import { FiLock } from 'react-icons/fi';
+import { FiLock } from '@icons';
 import styled from 'styled-components';
 
 export interface ReadOnlyFieldProps {

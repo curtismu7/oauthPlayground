@@ -2,7 +2,7 @@
 // Reusable component for displaying flow sequences
 
 import React, { useState } from 'react';
-import { FiCheckCircle, FiChevronDown, FiZap } from 'react-icons/fi';
+import { FiCheckCircle, FiChevronDown, FiZap } from '@icons';
 import styled from 'styled-components';
 import { getFlowSequence } from '../services/flowSequenceService';
 import { themeService } from '../services/themeService';

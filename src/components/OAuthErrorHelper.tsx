@@ -10,7 +10,7 @@ import {
 	FiSettings,
 	FiShield,
 	FiX,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { getAppOrigin } from '../utils/flowRedirectUriMapping';
 

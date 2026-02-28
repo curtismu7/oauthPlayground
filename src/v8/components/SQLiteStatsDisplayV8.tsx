@@ -10,7 +10,7 @@
  */
 
 import React from 'react';
-import { FiDatabase, FiRefreshCw } from 'react-icons/fi';
+import { FiDatabase, FiRefreshCw } from '@icons';
 import { useSQLiteStats } from '@/v8/hooks/useSQLiteStats';
 
 interface SQLiteStatsDisplayV8Props {

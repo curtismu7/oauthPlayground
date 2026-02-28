@@ -12,7 +12,7 @@
  */
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { FiChevronDown, FiUser } from 'react-icons/fi';
+import { FiChevronDown, FiUser } from '@icons';
 import styled from 'styled-components';
 import { useTheme } from '../contexts/ThemeContext';
 import { userService } from '../services/UserService';

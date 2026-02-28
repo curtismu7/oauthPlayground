@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import { FiAlertTriangle, FiX } from 'react-icons/fi';
+import { FiAlertTriangle, FiX } from '@icons';
 import { PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
 
 const _MODULE_TAG = '[🔑 WORKER-TOKEN-PROMPT-MODAL-V8]';

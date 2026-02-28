@@ -10,7 +10,7 @@
  */
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { FiDownload, FiEye, FiEyeOff, FiInfo, FiUpload } from 'react-icons/fi';
+import { FiDownload, FiEye, FiEyeOff, FiInfo, FiUpload } from '@icons';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { safeGetUserInfo } from '@/utils/authUtils';
 import type { DiscoveredApp } from '@/v8/components/AppPickerV8';

@@ -5,7 +5,7 @@
  */
 
 import React, { useState } from 'react';
-import { FiAlertCircle, FiEye, FiEyeOff, FiLock, FiX } from 'react-icons/fi';
+import { FiAlertCircle, FiEye, FiEyeOff, FiLock, FiX } from '@icons';
 import styled from 'styled-components';
 
 const ModalOverlay = styled.div`

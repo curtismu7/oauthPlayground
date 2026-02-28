@@ -20,7 +20,7 @@ import {
 	FiTerminal,
 	FiUsers,
 	FiZap,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import EnhancedApiCallDisplay from '../../components/EnhancedApiCallDisplay';
 import { LearningTooltip } from '../../components/LearningTooltip';
