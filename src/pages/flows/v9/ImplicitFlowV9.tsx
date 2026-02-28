@@ -34,7 +34,10 @@ import { usePageScroll } from '../../../hooks/usePageScroll';
 import ComprehensiveCredentialsService from '../../../services/comprehensiveCredentialsService';
 import { comprehensiveFlowDataService } from '../../../services/comprehensiveFlowDataService';
 import { CopyButtonService } from '../../../services/copyButtonService';
-import { FlowCompletionConfigs, FlowCompletionService } from '../../../services/flowCompletionService';
+import {
+	FlowCompletionConfigs,
+	FlowCompletionService,
+} from '../../../services/flowCompletionService';
 import { FlowCredentialService } from '../../../services/flowCredentialService';
 import { FlowHeader } from '../../../services/flowHeaderService';
 // Import UI components from services
@@ -439,10 +442,16 @@ const ImplicitFlowV9: React.FC = () => {
 				return !!controller.authUrl;
 			case 3:
 				// Step 3: Must have tokens from callback
-				return !!(controller.tokens?.access_token || (controller.tokens as Record<string, unknown>)?.accessToken);
+				return !!(
+					controller.tokens?.access_token ||
+					(controller.tokens as Record<string, unknown>)?.accessToken
+				);
 			case 4:
 				// Step 4: Must have completed token introspection
-				return !!(controller.tokens?.access_token || (controller.tokens as Record<string, unknown>)?.accessToken);
+				return !!(
+					controller.tokens?.access_token ||
+					(controller.tokens as Record<string, unknown>)?.accessToken
+				);
 			default:
 				return true; // Other steps are always valid
 		}
@@ -745,18 +754,18 @@ const ImplicitFlowV9: React.FC = () => {
 						try {
 							// Import the service dynamically
 							const { pingOneAppCreationService } = await import(
-							'../../../services/pingOneAppCreationService'
-						);
+								'../../../services/pingOneAppCreationService'
+							);
 
-						// Initialize the service
-						pingOneAppCreationService.initialize(workerToken, credentials.environmentId || '');
+							// Initialize the service
+							pingOneAppCreationService.initialize(workerToken, credentials.environmentId || '');
 
-						// Generate app name with PingOne and flow type
-					const generateAppName = (flowType: string) => {
-						// Extract the actual flow name from flowType
-						let flowName = flowType.replace(/[-_]/g, '-').toLowerCase();
+							// Generate app name with PingOne and flow type
+							const generateAppName = (flowType: string) => {
+								// Extract the actual flow name from flowType
+								let flowName = flowType.replace(/[-_]/g, '-').toLowerCase();
 
-						// For specific flow types, use the main flow name
+								// For specific flow types, use the main flow name
 								if (flowName.includes('implicit')) {
 									flowName = 'implicit';
 								} else if (flowName.includes('authorization-code')) {
