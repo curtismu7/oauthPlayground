@@ -43,27 +43,27 @@ const HeaderContainer = styled.div<{
 		// Base colors by flow type
 		const baseColors = {
 			oauth: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-			oidc: 'linear-gradient(135deg, #10b981 0%, #047857 100%)',
-			pingone: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-			documentation: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+			oidc: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)',
+			pingone: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+			documentation: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)',
 			default: 'linear-gradient(135deg, #6b7280 0%, #374151 100%)',
 		};
 
 		// Security-enhanced colors (darker, more professional)
 		const securityColors = {
 			oauth: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)',
-			oidc: 'linear-gradient(135deg, #047857 0%, #065f46 100%)',
-			pingone: 'linear-gradient(135deg, #d97706 0%, #b45309 100%)',
-			documentation: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)',
+			oidc: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)',
+			pingone: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)',
+			documentation: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)',
 			default: 'linear-gradient(135deg, #374151 0%, #1f2937 100%)',
 		};
 
-		// High security colors (premium, gold accents)
+		// High security colors (premium, dark)
 		const highSecurityColors = {
 			oauth: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-			oidc: 'linear-gradient(135deg, #064e3b 0%, #065f46 100%)',
-			pingone: 'linear-gradient(135deg, #92400e 0%, #78350f 100%)',
-			documentation: 'linear-gradient(135deg, #581c87 0%, #4c1d95 100%)',
+			oidc: 'linear-gradient(135deg, #1e3a8a 0%, #172554 100%)',
+			pingone: 'linear-gradient(135deg, #991b1b 0%, #7f1d1d 100%)',
+			documentation: 'linear-gradient(135deg, #1e3a8a 0%, #172554 100%)',
 			default: 'linear-gradient(135deg, #1f2937 0%, #111827 100%)',
 		};
 
@@ -201,6 +201,47 @@ const HeaderIcon = styled.span`
 
 // Predefined flow configurations - Updated for V7 flows - Cache bust: 2025-01-17-08:50
 export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
+	// OAuth 2.0 / OIDC V9 Flows
+	'oauth-authorization-code-v9': {
+		flowType: 'oauth',
+		title: 'Authorization Code Flow (V9)',
+		subtitle:
+			'🔐 V9: Production-grade Authorization Code Flow with PKCE — supports both OAuth 2.0 and OpenID Connect variants. Unified credential management, enhanced error handling, and V9 services.',
+		icon: '🔐',
+		version: 'V9',
+	},
+	'implicit-v9': {
+		flowType: 'oauth',
+		title: 'Implicit Flow (V9)',
+		subtitle:
+			'⚡ V9: Implicit Flow with OAuth 2.0 and OIDC variant selector — modern implementation with enhanced security awareness and educational content. Note: Implicit flow is deprecated in OAuth 2.1; use Authorization Code + PKCE for new apps.',
+		icon: '⚡',
+		version: 'V9',
+	},
+	'device-authorization-v9': {
+		flowType: 'oauth',
+		title: 'Device Authorization Flow (V9)',
+		subtitle:
+			'📱 V9: Device Authorization Grant for TVs, IoT devices, and CLI tools — polls for user authorization via a secondary device. Supports OIDC variant.',
+		icon: '📱',
+		version: 'V9',
+	},
+	'client-credentials-v9': {
+		flowType: 'oauth',
+		title: 'Client Credentials Flow (V9)',
+		subtitle:
+			'🔑 V9: Machine-to-machine authentication for backend services and APIs. Obtain access tokens directly with client ID and secret — no user interaction required.',
+		icon: '🔑',
+		version: 'V9',
+	},
+	'ciba-v9': {
+		flowType: 'oidc',
+		title: 'CIBA Flow (V9) — Client Initiated Backchannel Authentication',
+		subtitle:
+			"🛡️ V9: Backchannel authentication flow for decoupled device scenarios — push auth request to user's mobile device. PingOne-specific implementation.",
+		icon: '🛡️',
+		version: 'V9',
+	},
 	// OAuth 2.0 V7 Flows
 	'oauth-authorization-code-v7': {
 		flowType: 'oauth',

@@ -101,10 +101,7 @@ const {
 
 // Local styled components with dynamic colors
 const DynamicStepHeader = styled(StepHeader)<{ $variant: 'oauth' | 'oidc' }>`
-	background: ${(props) =>
-		props.$variant === 'oidc'
-			? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)'
-			: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)'};
+	background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
 	color: #ffffff;
 `;
 
@@ -118,10 +115,9 @@ const DynamicStepNumber = styled(StepNumber)`
 `;
 
 const DynamicVersionBadge = styled(VersionBadge)<{ $variant: 'oauth' | 'oidc' }>`
-	background: ${(props) =>
-		props.$variant === 'oidc' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(22, 163, 74, 0.2)'};
-	border: 1px solid ${(props) => (props.$variant === 'oidc' ? '#60a5fa' : '#4ade80')};
-	color: ${(props) => (props.$variant === 'oidc' ? '#dbeafe' : '#bbf7d0')};
+	background: rgba(59, 130, 246, 0.2);
+	border: 1px solid #60a5fa;
+	color: #dbeafe;
 `;
 
 // Local CollapsibleToggleIcon that accepts children
