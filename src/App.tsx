@@ -857,14 +857,14 @@ const AppRoutes: React.FC = () => {
 									path="/flows/oidc-compliant-authorization-code"
 									element={<OIDCCompliantAuthorizationCodeFlow />}
 								/>
-								{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
+								{/* Legacy V6 routes - redirect to V9 equivalents directly */}
 								<Route
 									path="/flows/oauth-authorization-code-v6"
-									element={<Navigate to="/flows/oauth-authorization-code-v7" replace />}
+									element={<Navigate to="/flows/oauth-authorization-code-v9" replace />}
 								/>
 								<Route
 									path="/flows/oidc-authorization-code-v6"
-									element={<Navigate to="/flows/oauth-authorization-code-v7" replace />}
+									element={<Navigate to="/flows/oauth-authorization-code-v9" replace />}
 								/>
 								{/* V7 Implicit Flow — redirected to V9 */}
 								<Route
@@ -1075,7 +1075,7 @@ const AppRoutes: React.FC = () => {
 								/>
 								<Route
 									path="/flows/oidc-implicit-v6"
-									element={<Navigate to="/flows/implicit-v7?variant=oidc" replace />}
+									element={<Navigate to="/flows/implicit-v9?variant=oidc" replace />}
 								/>
 								<Route
 									path="/flows/oauth-implicit-completion"
