@@ -23,8 +23,8 @@ const _MODULE_TAG = '[💾 UNIFIED-OAUTH-BACKUP-V8U]';
 export interface OAuthBackupData {
 	flowType: string;
 	specVersion: string;
-	credentials: any;
-	sharedCredentials: any;
+	credentials: unknown;
+	sharedCredentials: unknown;
 	environmentId: string;
 	flowKey: string;
 	timestamp: number;
@@ -340,5 +340,5 @@ export const UnifiedOAuthBackupService = UnifiedOAuthBackupServiceV8U;
 
 // Make available globally for debugging
 if (typeof window !== 'undefined') {
-	(window as any).UnifiedOAuthBackupServiceV8U = UnifiedOAuthBackupServiceV8U;
+	(window as Window).UnifiedOAuthBackupServiceV8U = UnifiedOAuthBackupServiceV8U;
 }

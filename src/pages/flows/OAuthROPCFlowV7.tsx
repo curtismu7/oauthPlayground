@@ -563,7 +563,8 @@ const OAuthROPCFlowV7: React.FC = () => {
 
 								<div style={{ marginTop: '2.5rem' }}>
 									<ActionButton
-										$ variant="success"
+										$
+										variant="success"
 										onClick={controller.saveCredentials}
 										disabled={controller.isSavingCredentials}
 									>
@@ -602,7 +603,8 @@ const OAuthROPCFlowV7: React.FC = () => {
 								</p>
 
 								<ActionButton
-									$ variant="primary"
+									$
+									variant="primary"
 									onClick={controller.authenticateUser}
 									disabled={controller.isAuthenticating || !controller.hasCredentialsSaved}
 								>
@@ -658,7 +660,8 @@ const OAuthROPCFlowV7: React.FC = () => {
 								</p>
 
 								<ActionButton
-									$ variant="primary"
+									$
+									variant="primary"
 									onClick={controller.fetchUserInfo}
 									disabled={controller.isFetchingUserInfo || !controller.tokens}
 								>
@@ -708,7 +711,8 @@ const OAuthROPCFlowV7: React.FC = () => {
 								</p>
 
 								<ActionButton
-									$ variant="primary"
+									$
+									variant="primary"
 									onClick={controller.refreshTokens}
 									disabled={controller.isRefreshingTokens || !controller.tokens?.refresh_token}
 								>

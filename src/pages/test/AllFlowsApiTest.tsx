@@ -863,12 +863,10 @@ const AllFlowsApiTest: React.FC = () => {
 			);
 
 			const devices = await devicesResponse.json();
-			const targetDevice = devices._embedded?.devices?.find(
-				(device: unknown) => {
-					const dev = device as { type?: string };
-					return dev.type === config.deviceType;
-				}
-			);
+			const targetDevice = devices._embedded?.devices?.find((device: unknown) => {
+				const dev = device as { type?: string };
+				return dev.type === config.deviceType;
+			});
 
 			if (!targetDevice) {
 				throw new Error(`No ${config.deviceType} device found for user ${config.username}`);
@@ -989,309 +987,315 @@ const AllFlowsApiTest: React.FC = () => {
 				defaultCollapsed={false}
 			>
 				<TestSection>
-				<Form>
-					<FormRow>
-						<FormGroup>
-							<Label>Select App:</Label>
-							<Select
-								value={selectedAppId || ''}
-								onChange={(e) => selectApp(e.target.value || null)}
-								disabled={!hasWorkerToken}
-							>
-								<option key="manual" value="">
-									Manual Configuration
-								</option>
-								{apps.map((app) => (
-									<option key={app.id} value={app.id}>
-										{app.name} ({app.clientId?.substring(0, 8)}...)
+					<Form>
+						<FormRow>
+							<FormGroup>
+								<Label>Select App:</Label>
+								<Select
+									value={selectedAppId || ''}
+									onChange={(e) => selectApp(e.target.value || null)}
+									disabled={!hasWorkerToken}
+								>
+									<option key="manual" value="">
+										Manual Configuration
 									</option>
-								))}
-							</Select>
-						</FormGroup>
+									{apps.map((app) => (
+										<option key={app.id} value={app.id}>
+											{app.name} ({app.clientId?.substring(0, 8)}...)
+										</option>
+									))}
+								</Select>
+							</FormGroup>
 
-						<FormGroup>
-							<Label>Flow Type:</Label>
-							<Select
-								value={config.flowType}
-								onChange={(e) => handleConfigChange('flowType', e.target.value)}
-							>
-								<option key="auth_code" value="authorization_code">
-									Authorization Code
-								</option>
-								<option key="implicit" value="implicit">
-									Implicit
-								</option>
-								<option key="hybrid" value="hybrid">
-									Hybrid
-								</option>
-								<option key="device_code" value="device_code">
-									Device Code
-								</option>
-								<option key="client_credentials" value="client_credentials">
-									Client Credentials
-								</option>
-								<option key="mfa_registration" value="mfa_registration">
-									MFA Device Registration
-								</option>
-								<option key="mfa_authentication" value="mfa_authentication">
-									MFA Authentication
-								</option>
-							</Select>
-						</FormGroup>
-					</FormRow>
+							<FormGroup>
+								<Label>Flow Type:</Label>
+								<Select
+									value={config.flowType}
+									onChange={(e) => handleConfigChange('flowType', e.target.value)}
+								>
+									<option key="auth_code" value="authorization_code">
+										Authorization Code
+									</option>
+									<option key="implicit" value="implicit">
+										Implicit
+									</option>
+									<option key="hybrid" value="hybrid">
+										Hybrid
+									</option>
+									<option key="device_code" value="device_code">
+										Device Code
+									</option>
+									<option key="client_credentials" value="client_credentials">
+										Client Credentials
+									</option>
+									<option key="mfa_registration" value="mfa_registration">
+										MFA Device Registration
+									</option>
+									<option key="mfa_authentication" value="mfa_authentication">
+										MFA Authentication
+									</option>
+								</Select>
+							</FormGroup>
+						</FormRow>
 
-					<FormRow>
-						<FormGroup>
-							<Label>
-								Environment ID:
-								{config.environmentId && hasWorkerToken && (
-									<span style={{ color: '#10b981', fontSize: '0.875rem', marginLeft: '0.5rem' }}>
-										✓ Auto-populated from worker token
-									</span>
-								)}
-							</Label>
-							<Input
-								type="text"
-								value={config.environmentId}
-								onChange={(e) => handleConfigChange('environmentId', e.target.value)}
-								placeholder="e.g. f9d1e21a-54dc-4b3d-990e-fa36191730d4"
-								style={{
-									backgroundColor: config.environmentId && hasWorkerToken ? '#f0fdf4' : 'white',
-									borderColor: config.environmentId && hasWorkerToken ? '#10b981' : '#d1d5db',
-								}}
-							/>
-						</FormGroup>
-
-						<FormGroup>
-							<Label>
-								Client ID:
-								{config.clientId && selectedAppId && (
-									<span style={{ color: '#10b981', fontSize: '0.875rem', marginLeft: '0.5rem' }}>
-										✓ From {apps.find((app) => app.id === selectedAppId)?.name}
-									</span>
-								)}
-							</Label>
-							<Input
-								type="text"
-								value={config.clientId}
-								onChange={(e) => handleConfigChange('clientId', e.target.value)}
-								placeholder="e.g. a1b2c3d4..."
-								style={{
-									backgroundColor: config.clientId && selectedAppId ? '#f0fdf4' : 'white',
-									borderColor: config.clientId && selectedAppId ? '#10b981' : '#d1d5db',
-								}}
-							/>
-						</FormGroup>
-					</FormRow>
-
-					{(config.flowType === 'authorization_code' ||
-						config.flowType === 'hybrid' ||
-						config.flowType === 'client_credentials') && (
 						<FormRow>
 							<FormGroup>
 								<Label>
-									Client Secret:
-									{config.clientSecret && selectedAppId && (
+									Environment ID:
+									{config.environmentId && hasWorkerToken && (
+										<span style={{ color: '#10b981', fontSize: '0.875rem', marginLeft: '0.5rem' }}>
+											✓ Auto-populated from worker token
+										</span>
+									)}
+								</Label>
+								<Input
+									type="text"
+									value={config.environmentId}
+									onChange={(e) => handleConfigChange('environmentId', e.target.value)}
+									placeholder="e.g. f9d1e21a-54dc-4b3d-990e-fa36191730d4"
+									style={{
+										backgroundColor: config.environmentId && hasWorkerToken ? '#f0fdf4' : 'white',
+										borderColor: config.environmentId && hasWorkerToken ? '#10b981' : '#d1d5db',
+									}}
+								/>
+							</FormGroup>
+
+							<FormGroup>
+								<Label>
+									Client ID:
+									{config.clientId && selectedAppId && (
 										<span style={{ color: '#10b981', fontSize: '0.875rem', marginLeft: '0.5rem' }}>
 											✓ From {apps.find((app) => app.id === selectedAppId)?.name}
 										</span>
 									)}
 								</Label>
 								<Input
-									type="password"
-									value={config.clientSecret}
-									onChange={(e) => handleConfigChange('clientSecret', e.target.value)}
-									placeholder="Required for confidential clients"
+									type="text"
+									value={config.clientId}
+									onChange={(e) => handleConfigChange('clientId', e.target.value)}
+									placeholder="e.g. a1b2c3d4..."
 									style={{
-										backgroundColor: config.clientSecret && selectedAppId ? '#f0fdf4' : 'white',
-										borderColor: config.clientSecret && selectedAppId ? '#10b981' : '#d1d5db',
+										backgroundColor: config.clientId && selectedAppId ? '#f0fdf4' : 'white',
+										borderColor: config.clientId && selectedAppId ? '#10b981' : '#d1d5db',
 									}}
 								/>
 							</FormGroup>
-
-							<FormGroup>
-								<Label>Scopes:</Label>
-								<Input
-									type="text"
-									value={config.scopes}
-									onChange={(e) => handleConfigChange('scopes', e.target.value)}
-									placeholder="openid profile email"
-								/>
-							</FormGroup>
 						</FormRow>
-					)}
 
-					{config.flowType !== 'client_credentials' && config.flowType !== 'device_code' && (
-						<FormRow>
-							<FormGroup>
-								<Label>Redirect URI:</Label>
-								<Input
-									type="url"
-									value={config.redirectUri}
-									onChange={(e) => handleConfigChange('redirectUri', e.target.value)}
-									placeholder="http://localhost:3000/test-callback"
-								/>
-							</FormGroup>
-
-							<FormGroup>
-								<Label>Response Type:</Label>
-								<Select
-									value={config.responseType}
-									onChange={(e) => handleConfigChange('responseType', e.target.value)}
-								>
-									<option key="code" value="code">
-										code
-									</option>
-									<option key="token" value="token">
-										token
-									</option>
-									<option key="id_token token" value="id_token token">
-										id_token token
-									</option>
-									<option key="code token" value="code token">
-										code token
-									</option>
-									<option key="code id_token" value="code id_token">
-										code id_token
-									</option>
-									<option key="code id_token token" value="code id_token token">
-										code id_token token
-									</option>
-								</Select>
-							</FormGroup>
-
-							<FormGroup>
-								<Label>Response Mode:</Label>
-								<Select
-									value={config.responseMode}
-									onChange={(e) => handleConfigChange('responseMode', e.target.value)}
-								>
-									<option key="fragment" value="fragment">
-										fragment
-									</option>
-									<option key="form_post" value="form_post">
-										form_post
-									</option>
-									<option key="query" value="query">
-										query
-									</option>
-								</Select>
-							</FormGroup>
-
-							<FormGroup>
-								<Label>
-									<Checkbox
-										type="checkbox"
-										checked={config.usePkce}
-										onChange={(e) => handleConfigChange('usePkce', e.target.checked)}
-									/>
-									Use PKCE
-								</Label>
-								<span style={{ fontSize: '0.8rem', color: '#1f2937' }}>
-									{config.flowType === 'implicit'
-										? 'Not used in implicit flow'
-										: config.flowType === 'client_credentials'
-											? 'Not applicable'
-											: 'Secure code exchange'}
-								</span>
-							</FormGroup>
-						</FormRow>
-					)}
-
-					{(config.flowType === 'implicit' || config.flowType === 'hybrid') &&
-						config.responseType?.includes('id_token') && (
+						{(config.flowType === 'authorization_code' ||
+							config.flowType === 'hybrid' ||
+							config.flowType === 'client_credentials') && (
 							<FormRow>
 								<FormGroup>
-									<Label>Nonce:</Label>
+									<Label>
+										Client Secret:
+										{config.clientSecret && selectedAppId && (
+											<span
+												style={{ color: '#10b981', fontSize: '0.875rem', marginLeft: '0.5rem' }}
+											>
+												✓ From {apps.find((app) => app.id === selectedAppId)?.name}
+											</span>
+										)}
+									</Label>
 									<Input
-										type="text"
-										value={config.nonce || ''}
-										onChange={(e) => handleConfigChange('nonce', e.target.value)}
-										placeholder="Auto-generated if empty"
+										type="password"
+										value={config.clientSecret}
+										onChange={(e) => handleConfigChange('clientSecret', e.target.value)}
+										placeholder="Required for confidential clients"
+										style={{
+											backgroundColor: config.clientSecret && selectedAppId ? '#f0fdf4' : 'white',
+											borderColor: config.clientSecret && selectedAppId ? '#10b981' : '#d1d5db',
+										}}
 									/>
 								</FormGroup>
 
 								<FormGroup>
-									<Label>State:</Label>
+									<Label>Scopes:</Label>
 									<Input
 										type="text"
-										value={config.state || ''}
-										onChange={(e) => handleConfigChange('state', e.target.value)}
-										placeholder="Auto-generated if empty"
+										value={config.scopes}
+										onChange={(e) => handleConfigChange('scopes', e.target.value)}
+										placeholder="openid profile email"
 									/>
 								</FormGroup>
 							</FormRow>
 						)}
 
-					{/* MFA-specific fields */}
-					{(config.flowType === 'mfa_registration' || config.flowType === 'mfa_authentication') && (
-						<FormRow>
-							<FormGroup>
-								<Label>Username:</Label>
-								<Input
-									type="text"
-									value={config.username || ''}
-									onChange={(e) => handleConfigChange('username', e.target.value)}
-									placeholder="User ID or username for MFA"
-								/>
-							</FormGroup>
+						{config.flowType !== 'client_credentials' && config.flowType !== 'device_code' && (
+							<FormRow>
+								<FormGroup>
+									<Label>Redirect URI:</Label>
+									<Input
+										type="url"
+										value={config.redirectUri}
+										onChange={(e) => handleConfigChange('redirectUri', e.target.value)}
+										placeholder="http://localhost:3000/test-callback"
+									/>
+								</FormGroup>
 
-							<FormGroup>
-								<Label>Device Type:</Label>
-								<Select
-									value={config.deviceType || 'sms'}
-									onChange={(e) => handleConfigChange('deviceType', e.target.value)}
-								>
-									<option key="sms" value="sms">
-										SMS
-									</option>
-									<option key="email" value="email">
-										Email
-									</option>
-									<option key="totp" value="totp">
-										TOTP
-									</option>
-									<option key="fido2" value="fido2">
-										FIDO2
-									</option>
-									<option key="push" value="push">
-										Push
-									</option>
-								</Select>
-							</FormGroup>
-						</FormRow>
-					)}
-				</Form>
+								<FormGroup>
+									<Label>Response Type:</Label>
+									<Select
+										value={config.responseType}
+										onChange={(e) => handleConfigChange('responseType', e.target.value)}
+									>
+										<option key="code" value="code">
+											code
+										</option>
+										<option key="token" value="token">
+											token
+										</option>
+										<option key="id_token token" value="id_token token">
+											id_token token
+										</option>
+										<option key="code token" value="code token">
+											code token
+										</option>
+										<option key="code id_token" value="code id_token">
+											code id_token
+										</option>
+										<option key="code id_token token" value="code id_token token">
+											code id_token token
+										</option>
+									</Select>
+								</FormGroup>
 
-				<ButtonGroup>
-					<Button variant="primary" onClick={runTests} disabled={isRunning}>
-						{isRunning
-							? 'Running Tests...'
-							: `Test ${config.flowType.replace('_', ' ').toUpperCase()} Flow`}
-					</Button>
-					<Button variant="secondary" onClick={() => setResults([])}>
-						Clear Results
-					</Button>
-					<Button variant="secondary" onClick={testUrlGeneration}>
-						Generate URL Only
-					</Button>
-				</ButtonGroup>
-			</TestSection>
+								<FormGroup>
+									<Label>Response Mode:</Label>
+									<Select
+										value={config.responseMode}
+										onChange={(e) => handleConfigChange('responseMode', e.target.value)}
+									>
+										<option key="fragment" value="fragment">
+											fragment
+										</option>
+										<option key="form_post" value="form_post">
+											form_post
+										</option>
+										<option key="query" value="query">
+											query
+										</option>
+									</Select>
+								</FormGroup>
 
-			{generatedUrl && (
-				<TestSection>
-					<SectionTitle>Generated Authorization URL</SectionTitle>
-					<CodeBlock>{generatedUrl}</CodeBlock>
+								<FormGroup>
+									<Label>
+										<Checkbox
+											type="checkbox"
+											checked={config.usePkce}
+											onChange={(e) => handleConfigChange('usePkce', e.target.checked)}
+										/>
+										Use PKCE
+									</Label>
+									<span style={{ fontSize: '0.8rem', color: '#1f2937' }}>
+										{config.flowType === 'implicit'
+											? 'Not used in implicit flow'
+											: config.flowType === 'client_credentials'
+												? 'Not applicable'
+												: 'Secure code exchange'}
+									</span>
+								</FormGroup>
+							</FormRow>
+						)}
+
+						{(config.flowType === 'implicit' || config.flowType === 'hybrid') &&
+							config.responseType?.includes('id_token') && (
+								<FormRow>
+									<FormGroup>
+										<Label>Nonce:</Label>
+										<Input
+											type="text"
+											value={config.nonce || ''}
+											onChange={(e) => handleConfigChange('nonce', e.target.value)}
+											placeholder="Auto-generated if empty"
+										/>
+									</FormGroup>
+
+									<FormGroup>
+										<Label>State:</Label>
+										<Input
+											type="text"
+											value={config.state || ''}
+											onChange={(e) => handleConfigChange('state', e.target.value)}
+											placeholder="Auto-generated if empty"
+										/>
+									</FormGroup>
+								</FormRow>
+							)}
+
+						{/* MFA-specific fields */}
+						{(config.flowType === 'mfa_registration' ||
+							config.flowType === 'mfa_authentication') && (
+							<FormRow>
+								<FormGroup>
+									<Label>Username:</Label>
+									<Input
+										type="text"
+										value={config.username || ''}
+										onChange={(e) => handleConfigChange('username', e.target.value)}
+										placeholder="User ID or username for MFA"
+									/>
+								</FormGroup>
+
+								<FormGroup>
+									<Label>Device Type:</Label>
+									<Select
+										value={config.deviceType || 'sms'}
+										onChange={(e) => handleConfigChange('deviceType', e.target.value)}
+									>
+										<option key="sms" value="sms">
+											SMS
+										</option>
+										<option key="email" value="email">
+											Email
+										</option>
+										<option key="totp" value="totp">
+											TOTP
+										</option>
+										<option key="fido2" value="fido2">
+											FIDO2
+										</option>
+										<option key="push" value="push">
+											Push
+										</option>
+									</Select>
+								</FormGroup>
+							</FormRow>
+						)}
+					</Form>
+
 					<ButtonGroup>
-						<Button variant="secondary" onClick={() => navigator.clipboard.writeText(generatedUrl)}>
-							Copy URL
+						<Button variant="primary" onClick={runTests} disabled={isRunning}>
+							{isRunning
+								? 'Running Tests...'
+								: `Test ${config.flowType.replace('_', ' ').toUpperCase()} Flow`}
 						</Button>
-					<Button variant="danger" onClick={() => window.open(generatedUrl, '_blank')}>
-						Open URL (Redirect to PingOne)
+						<Button variant="secondary" onClick={() => setResults([])}>
+							Clear Results
+						</Button>
+						<Button variant="secondary" onClick={testUrlGeneration}>
+							Generate URL Only
 						</Button>
 					</ButtonGroup>
 				</TestSection>
-			)}
+
+				{generatedUrl && (
+					<TestSection>
+						<SectionTitle>Generated Authorization URL</SectionTitle>
+						<CodeBlock>{generatedUrl}</CodeBlock>
+						<ButtonGroup>
+							<Button
+								variant="secondary"
+								onClick={() => navigator.clipboard.writeText(generatedUrl)}
+							>
+								Copy URL
+							</Button>
+							<Button variant="danger" onClick={() => window.open(generatedUrl, '_blank')}>
+								Open URL (Redirect to PingOne)
+							</Button>
+						</ButtonGroup>
+					</TestSection>
+				)}
 			</CollapsibleHeader>
 
 			<CollapsibleHeader
@@ -1300,54 +1304,53 @@ const AllFlowsApiTest: React.FC = () => {
 				variant="compact"
 				defaultCollapsed={false}
 			>
-			<ResultsContainer>
+				<ResultsContainer>
+					{results.map((result, index) => (
+						<ResultCard key={index} success={result.success}>
+							<ResultHeader>
+								<div style={{ display: 'flex', alignItems: 'center' }}>
+									<ResultTitle success={result.success}>
+										<Icon
+											name={result.success ? 'check-circle' : 'close-circle'}
+											tone={result.success ? 'success' : 'danger'}
+											size="sm"
+											style={{ marginRight: '0.35rem', verticalAlign: 'middle' }}
+										/>
+										{result.testName}
+									</ResultTitle>
+									<FlowTypeBadge flowtype={result.flowType}>
+										{result.flowType.replace('_', ' ')}
+									</FlowTypeBadge>
+								</div>
+								<ResultTime>
+									{result.timestamp.toLocaleTimeString()} ({result.duration}ms)
+								</ResultTime>
+							</ResultHeader>
 
-				{results.map((result, index) => (
-					<ResultCard key={index} success={result.success}>
-						<ResultHeader>
-							<div style={{ display: 'flex', alignItems: 'center' }}>
-								<ResultTitle success={result.success}>
-									<Icon
-										name={result.success ? 'check-circle' : 'close-circle'}
-										tone={result.success ? 'success' : 'danger'}
-										size="sm"
-										style={{ marginRight: '0.35rem', verticalAlign: 'middle' }}
-									/>
-									{result.testName}
-								</ResultTitle>
-								<FlowTypeBadge flowtype={result.flowType}>
-									{result.flowType.replace('_', ' ')}
-								</FlowTypeBadge>
+							{!result.success && result.error && (
+								<div style={{ marginBottom: '1rem' }}>
+									<strong>Error:</strong> {result.error}
+								</div>
+							)}
+
+							<div style={{ marginBottom: '0.5rem' }}>
+								<strong>Input:</strong>
 							</div>
-							<ResultTime>
-								{result.timestamp.toLocaleTimeString()} ({result.duration}ms)
-							</ResultTime>
-						</ResultHeader>
+							<CodeBlock>{JSON.stringify(result.input, null, 2)}</CodeBlock>
 
-						{!result.success && result.error && (
-							<div style={{ marginBottom: '1rem' }}>
-								<strong>Error:</strong> {result.error}
+							<div style={{ marginBottom: '0.5rem' }}>
+								<strong>Output:</strong>
 							</div>
-						)}
+							<CodeBlock>{JSON.stringify(result.output, null, 2)}</CodeBlock>
+						</ResultCard>
+					))}
 
-						<div style={{ marginBottom: '0.5rem' }}>
-							<strong>Input:</strong>
+					{results.length === 0 && (
+						<div style={{ textAlign: 'center', color: '#1f2937', padding: '2rem' }}>
+							No test results yet. Configure your settings and run the tests.
 						</div>
-						<CodeBlock>{JSON.stringify(result.input, null, 2)}</CodeBlock>
-
-						<div style={{ marginBottom: '0.5rem' }}>
-							<strong>Output:</strong>
-						</div>
-						<CodeBlock>{JSON.stringify(result.output, null, 2)}</CodeBlock>
-					</ResultCard>
-				))}
-
-				{results.length === 0 && (
-					<div style={{ textAlign: 'center', color: '#1f2937', padding: '2rem' }}>
-						No test results yet. Configure your settings and run the tests.
-					</div>
-				)}
-			</ResultsContainer>
+					)}
+				</ResultsContainer>
 			</CollapsibleHeader>
 		</Container>
 	);

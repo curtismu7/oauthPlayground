@@ -422,186 +422,183 @@ export const TokenUIIntegrationV8: React.FC = () => {
 				</div>
 
 				{/* User Token Section */}
+				<div
+					style={{
+						background: 'white',
+						border: `2px solid ${tokenState.userTokenValid ? '#3b82f6' : '#e5e7eb'}`,
+						borderRadius: '16px',
+						padding: '24px',
+						boxShadow: tokenState.userTokenValid
+							? '0 0 0 4px rgba(59, 130, 246, 0.1)'
+							: '0 1px 3px rgba(0, 0, 0, 0.1)',
+					}}
+				>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px' }}>
+						<div
+							style={{
+								width: '48px',
+								height: '48px',
+								borderRadius: '12px',
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+								fontSize: '20px',
+								background: tokenState.userTokenValid ? '#dbeafe' : '#f3f4f6',
+								border: `2px solid ${tokenState.userTokenValid ? '#3b82f6' : '#e5e7eb'}`,
+							}}
+						>
+							👤
+						</div>
+						<div>
+							<h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#1f2937' }}>
+								User Login
+							</h3>
+							<p style={{ margin: 0, color: '#6b7280', fontSize: '14px' }}>
+								User authentication token for MFA flow access
+							</p>
+						</div>
+					</div>
+
 					<div
 						style={{
-							background: 'white',
-							border: `2px solid ${tokenState.userTokenValid ? '#3b82f6' : '#e5e7eb'}`,
-							borderRadius: '16px',
-							padding: '24px',
-							boxShadow: tokenState.userTokenValid
-								? '0 0 0 4px rgba(59, 130, 246, 0.1)'
-								: '0 1px 3px rgba(0, 0, 0, 0.1)',
+							position: 'relative',
+							display: 'flex',
+							alignItems: 'flex-start',
+							gap: '16px',
+							fontSize: '16px',
+							fontWeight: '600',
+							marginBottom: '20px',
+							padding: '20px',
+							borderRadius: '12px',
+							background: tokenState.userTokenValid ? '#f0fdf4' : '#fef2f2',
+							color: tokenState.userTokenValid ? '#16a34a' : '#dc2626',
+							border: `2px solid ${tokenState.userTokenValid ? '#bbf7d0' : '#fecaca'}`,
+							minHeight: '120px',
+							overflow: 'hidden',
 						}}
 					>
-						<div
-							style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px' }}
+						<button
+							type="button"
+							onClick={() => toggleCollapsibleStatus('user')}
+							style={{
+								position: 'absolute',
+								top: '12px',
+								right: '12px',
+								background: 'rgba(255, 255, 255, 0.9)',
+								border: '2px solid rgba(0, 0, 0, 0.2)',
+								borderRadius: '8px',
+								padding: '6px 10px',
+								cursor: 'pointer',
+								fontSize: '14px',
+								fontWeight: '700',
+								color: 'inherit',
+								zIndex: 10,
+								minWidth: '32px',
+								minHeight: '32px',
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+								boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+							}}
+							onMouseOver={(e) => {
+								e.currentTarget.style.background = 'rgba(255, 255, 255, 1)';
+								e.currentTarget.style.transform = 'scale(1.05)';
+							}}
+							onMouseOut={(e) => {
+								e.currentTarget.style.background = 'rgba(255, 255, 255, 0.9)';
+								e.currentTarget.style.transform = 'scale(1)';
+							}}
+							onFocus={(e) => {
+								e.currentTarget.style.background = 'rgba(255, 255, 255, 1)';
+								e.currentTarget.style.transform = 'scale(1.05)';
+							}}
+							onBlur={(e) => {
+								e.currentTarget.style.background = 'rgba(255, 255, 255, 0.9)';
+								e.currentTarget.style.transform = 'scale(1)';
+							}}
 						>
-							<div
-								style={{
-									width: '48px',
-									height: '48px',
-									borderRadius: '12px',
-									display: 'flex',
-									alignItems: 'center',
-									justifyContent: 'center',
-									fontSize: '20px',
-									background: tokenState.userTokenValid ? '#dbeafe' : '#f3f4f6',
-									border: `2px solid ${tokenState.userTokenValid ? '#3b82f6' : '#e5e7eb'}`,
-								}}
-							>
-								👤
-							</div>
-							<div>
-								<h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#1f2937' }}>
-									User Login
-								</h3>
-								<p style={{ margin: 0, color: '#6b7280', fontSize: '14px' }}>
-									User authentication token for MFA flow access
-								</p>
-							</div>
-						</div>
+							{collapsibleStates.user.isExpanded ? '▲' : '▼'}
+						</button>
 
 						<div
 							style={{
-								position: 'relative',
-								display: 'flex',
-								alignItems: 'flex-start',
-								gap: '16px',
-								fontSize: '16px',
-								fontWeight: '600',
-								marginBottom: '20px',
-								padding: '20px',
-								borderRadius: '12px',
-								background: tokenState.userTokenValid ? '#f0fdf4' : '#fef2f2',
-								color: tokenState.userTokenValid ? '#16a34a' : '#dc2626',
-								border: `2px solid ${tokenState.userTokenValid ? '#bbf7d0' : '#fecaca'}`,
-								minHeight: '120px',
+								flex: 1,
 								overflow: 'hidden',
+								transition: 'max-height 0.3s ease',
+								maxHeight: collapsibleStates.user.isExpanded ? 'none' : '0',
+								opacity: collapsibleStates.user.isExpanded ? '1' : '0',
 							}}
 						>
-							<button
-								type="button"
-								onClick={() => toggleCollapsibleStatus('user')}
-								style={{
-									position: 'absolute',
-									top: '12px',
-									right: '12px',
-									background: 'rgba(255, 255, 255, 0.9)',
-									border: '2px solid rgba(0, 0, 0, 0.2)',
-									borderRadius: '8px',
-									padding: '6px 10px',
-									cursor: 'pointer',
-									fontSize: '14px',
-									fontWeight: '700',
-									color: 'inherit',
-									zIndex: 10,
-									minWidth: '32px',
-									minHeight: '32px',
-									display: 'flex',
-									alignItems: 'center',
-									justifyContent: 'center',
-									boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-								}}
-								onMouseOver={(e) => {
-									e.currentTarget.style.background = 'rgba(255, 255, 255, 1)';
-									e.currentTarget.style.transform = 'scale(1.05)';
-								}}
-								onMouseOut={(e) => {
-									e.currentTarget.style.background = 'rgba(255, 255, 255, 0.9)';
-									e.currentTarget.style.transform = 'scale(1)';
-								}}
-								onFocus={(e) => {
-									e.currentTarget.style.background = 'rgba(255, 255, 255, 1)';
-									e.currentTarget.style.transform = 'scale(1.05)';
-								}}
-								onBlur={(e) => {
-									e.currentTarget.style.background = 'rgba(255, 255, 255, 0.9)';
-									e.currentTarget.style.transform = 'scale(1)';
-								}}
-							>
-								{collapsibleStates.user.isExpanded ? '▲' : '▼'}
-							</button>
+							{/* Expanded content */}
+							<div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '12px' }}>
+								{tokenState.userTokenValid ? '✅ User Authenticated' : '⚠️ User Not Authenticated'}
+							</div>
+							<div style={{ fontSize: '14px', opacity: 0.9, lineHeight: '1.6' }}>
+								{tokenState.hasUserToken ? (
+									<>
+										<div style={{ marginBottom: '8px' }}>
+											<strong>Username:</strong> {tokenState.userTokenInfo.username}
+										</div>
+										<div style={{ marginBottom: '8px' }}>
+											<strong>Email:</strong> {tokenState.userTokenInfo.email}
+										</div>
+										<div style={{ marginBottom: '8px' }}>
+											<strong>Status:</strong> {tokenState.userTokenInfo.status.toUpperCase()}
+										</div>
+										<div style={{ marginBottom: '8px' }}>
+											<strong>Expires:</strong>{' '}
+											{formatTimeRemaining(tokenState.userTokenInfo.expiresAt)}
+										</div>
+										<div>
+											<strong>Roles:</strong> {tokenState.userTokenInfo.roles?.join(', ') || 'N/A'}
+										</div>
+									</>
+								) : (
+									<>
+										<div style={{ marginBottom: '8px' }}>
+											<strong>Status:</strong> NOT AUTHENTICATED
+										</div>
+										<div style={{ marginBottom: '8px' }}>
+											<strong>Action:</strong> Click "User Login" to authenticate
+										</div>
+										<div>
+											<strong>Required:</strong> For MFA user authentication
+										</div>
+									</>
+								)}
+							</div>
+						</div>
 
+						{/* Collapsed state - basic info */}
+						{!collapsibleStates.user.isExpanded && (
 							<div
 								style={{
-									flex: 1,
-									overflow: 'hidden',
-									transition: 'max-height 0.3s ease',
-									maxHeight: collapsibleStates.user.isExpanded ? 'none' : '0',
-									opacity: collapsibleStates.user.isExpanded ? '1' : '0',
+									position: 'absolute',
+									bottom: '12px',
+									left: '20px',
+									right: '60px',
+									fontSize: '12px',
+									color: tokenState.userTokenValid ? '#16a34a' : '#dc2626',
+									fontWeight: '500',
+									opacity: 0.8,
 								}}
 							>
-								{/* Expanded content */}
-								<div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '12px' }}>
-									{tokenState.userTokenValid ? '✅ User Authenticated' : '⚠️ User Not Authenticated'}
-								</div>
-								<div style={{ fontSize: '14px', opacity: 0.9, lineHeight: '1.6' }}>
-									{tokenState.hasUserToken ? (
-										<>
-											<div style={{ marginBottom: '8px' }}>
-												<strong>Username:</strong> {tokenState.userTokenInfo.username}
-											</div>
-											<div style={{ marginBottom: '8px' }}>
-												<strong>Email:</strong> {tokenState.userTokenInfo.email}
-											</div>
-											<div style={{ marginBottom: '8px' }}>
-												<strong>Status:</strong> {tokenState.userTokenInfo.status.toUpperCase()}
-											</div>
-											<div style={{ marginBottom: '8px' }}>
-												<strong>Expires:</strong>{' '}
-												{formatTimeRemaining(tokenState.userTokenInfo.expiresAt)}
-											</div>
-											<div>
-												<strong>Roles:</strong>{' '}
-												{tokenState.userTokenInfo.roles?.join(', ') || 'N/A'}
-											</div>
-										</>
-									) : (
-										<>
-											<div style={{ marginBottom: '8px' }}>
-												<strong>Status:</strong> NOT AUTHENTICATED
-											</div>
-											<div style={{ marginBottom: '8px' }}>
-												<strong>Action:</strong> Click "User Login" to authenticate
-											</div>
-											<div>
-												<strong>Required:</strong> For MFA user authentication
-											</div>
-										</>
-									)}
-								</div>
+								{tokenState.hasUserToken ? (
+									<>
+										<span>{tokenState.userTokenInfo.status.toUpperCase()}</span>
+										{tokenState.userTokenInfo.expiresAt && (
+											<span style={{ marginLeft: '12px' }}>
+												• {formatTimeRemaining(tokenState.userTokenInfo.expiresAt)}
+											</span>
+										)}
+									</>
+								) : (
+									<span>NOT AUTHENTICATED</span>
+								)}
 							</div>
-
-							{/* Collapsed state - basic info */}
-							{!collapsibleStates.user.isExpanded && (
-								<div
-									style={{
-										position: 'absolute',
-										bottom: '12px',
-										left: '20px',
-										right: '60px',
-										fontSize: '12px',
-										color: tokenState.userTokenValid ? '#16a34a' : '#dc2626',
-										fontWeight: '500',
-										opacity: 0.8,
-									}}
-								>
-									{tokenState.hasUserToken ? (
-										<>
-											<span>{tokenState.userTokenInfo.status.toUpperCase()}</span>
-											{tokenState.userTokenInfo.expiresAt && (
-												<span style={{ marginLeft: '12px' }}>
-													• {formatTimeRemaining(tokenState.userTokenInfo.expiresAt)}
-												</span>
-											)}
-										</>
-									) : (
-										<span>NOT AUTHENTICATED</span>
-									)}
-								</div>
-							)}
-						</div>
+						)}
 					</div>
+				</div>
 			</div>
 		</div>
 	);
