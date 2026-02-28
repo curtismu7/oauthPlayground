@@ -228,9 +228,10 @@ export const useV7RMOIDCResourceOwnerPasswordControllerEnhanced = ({
 			const enhancedTokens: V7RMTokens = {
 				...tokenData,
 				// Add mock ID token if openid scope is requested but not provided by PingOne
-				...(credentials.scope.includes('openid') && !tokenData.id_token && {
-					id_token: generateMockIdToken(credentials.username, credentials.environmentId),
-				}),
+				...(credentials.scope.includes('openid') &&
+					!tokenData.id_token && {
+						id_token: generateMockIdToken(credentials.username, credentials.environmentId),
+					}),
 			};
 
 			if (enableDebugger) {
@@ -426,17 +427,19 @@ export const useV7RMOIDCResourceOwnerPasswordControllerEnhanced = ({
 // Helper function to generate mock ID token for OIDC compliance
 function generateMockIdToken(username: string, environmentId: string): string {
 	const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-	const payload = btoa(JSON.stringify({
-		sub: username,
-		iss: `https://auth.pingone.com/${environmentId}/as`,
-		aud: 'mock-client',
-		exp: Math.floor(Date.now() / 1000) + 3600,
-		iat: Math.floor(Date.now() / 1000),
-		name: username,
-		email: `${username}@example.com`,
-		email_verified: true,
-		preferred_username: username,
-	}));
+	const payload = btoa(
+		JSON.stringify({
+			sub: username,
+			iss: `https://auth.pingone.com/${environmentId}/as`,
+			aud: 'mock-client',
+			exp: Math.floor(Date.now() / 1000) + 3600,
+			iat: Math.floor(Date.now() / 1000),
+			name: username,
+			email: `${username}@example.com`,
+			email_verified: true,
+			preferred_username: username,
+		})
+	);
 	const signature = 'mock-signature';
 	return `${header}.${payload}.${signature}`;
 }
