@@ -249,12 +249,15 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 				// On timeout we skip validation and continue rather than blocking.
 				if (tokenValidation?.isValid) {
 					const PREFLIGHT_TIMEOUT_MS = 12_000;
-					const timeoutPromise = new Promise<{ passed: true; warnings: string[]; errors: string[] }>(
-						(resolve) =>
-							setTimeout(() => {
-								console.warn(`${MODULE_TAG} Pre-flight validation timed out — skipping`);
-								resolve({ passed: true, warnings: [], errors: [] });
-							}, PREFLIGHT_TIMEOUT_MS)
+					const timeoutPromise = new Promise<{
+						passed: true;
+						warnings: string[];
+						errors: string[];
+					}>((resolve) =>
+						setTimeout(() => {
+							console.warn(`${MODULE_TAG} Pre-flight validation timed out — skipping`);
+							resolve({ passed: true, warnings: [], errors: [] });
+						}, PREFLIGHT_TIMEOUT_MS)
 					);
 					// Use existing token for validation
 					const oauthConfigResult = await Promise.race([
