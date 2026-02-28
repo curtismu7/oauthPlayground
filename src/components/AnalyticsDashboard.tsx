@@ -8,7 +8,7 @@ import {
 	FiShield,
 	FiTrendingUp,
 	FiUsers,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
 import { useAnalytics } from '../hooks/useAnalytics';

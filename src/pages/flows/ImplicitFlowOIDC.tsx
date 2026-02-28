@@ -1,6 +1,6 @@
 import type React from 'react';
 import { useState } from 'react';
-import { FiAlertCircle } from 'react-icons/fi';
+import { FiAlertCircle } from '@icons';
 import styled from 'styled-components';
 import { CardBody, CardHeader } from '../../components/Card';
 import ConfigurationButton from '../../components/ConfigurationButton';

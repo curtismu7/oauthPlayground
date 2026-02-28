@@ -10,7 +10,7 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiCheckCircle, FiCopy, FiEye, FiEyeOff, FiInfo, FiLogOut, FiShield } from 'react-icons/fi';
+import { FiCheckCircle, FiCopy, FiEye, FiEyeOff, FiInfo, FiLogOut, FiShield } from '@icons';
 import styled from 'styled-components';
 import TokenUtilityService, { type TokenValidationResult } from '../services/tokenUtilityService';
 import type {

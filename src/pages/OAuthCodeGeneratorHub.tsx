@@ -9,7 +9,7 @@
  */
 
 import React from 'react';
-import { FiBook, FiCode, FiShield, FiZap } from 'react-icons/fi';
+import { FiBook, FiCode, FiShield, FiZap } from '@icons';
 import styled from 'styled-components';
 import LiveRFCExplorer from '../components/LiveRFCExplorer';
 import RealWorldScenarioBuilder from '../components/RealWorldScenarioBuilder';

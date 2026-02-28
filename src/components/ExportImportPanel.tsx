@@ -2,7 +2,7 @@
 // Export/Import UI components for the Application Generator
 
 import React, { useCallback, useRef, useState } from 'react';
-import { FiAlertTriangle, FiCheck, FiDownload, FiFile, FiUpload, FiX } from 'react-icons/fi';
+import { FiAlertTriangle, FiCheck, FiDownload, FiFile, FiUpload, FiX } from '@icons';
 import styled from 'styled-components';
 import {
 	exportImportService,

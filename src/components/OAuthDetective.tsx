@@ -5,7 +5,7 @@
  */
 
 import React, { useCallback, useState } from 'react';
-import { FiCheckCircle, FiCopy, FiInfo, FiSearch } from 'react-icons/fi';
+import { FiCheckCircle, FiCopy, FiInfo, FiSearch } from '@icons';
 import styled from 'styled-components';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 

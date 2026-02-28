@@ -8,7 +8,7 @@
  */
 
 import React, { useCallback, useEffect, useId, useState } from 'react';
-import { FiAlertCircle, FiCopy, FiRefreshCw, FiSave } from 'react-icons/fi';
+import { FiAlertCircle, FiCopy, FiRefreshCw, FiSave } from '@icons';
 import styled from 'styled-components';
 import { showGlobalError, showGlobalSuccess } from '../hooks/useNotifications';
 import type { DiscoveryResult } from '../services/oidcDiscoveryService';

@@ -9,7 +9,7 @@ import {
 	FiKey,
 	FiRefreshCw,
 	FiSettings,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import QRCodeService, { type QRCodeResult, type TOTPConfig } from '../services/qrCodeService';
 

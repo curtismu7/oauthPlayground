@@ -3,13 +3,13 @@ import {
 	FiClock,
 	FiDownload,
 	FiEye,
-	FiGitCompare,
+	FiGitMerge,
 	FiShare,
 	FiShare2,
 	FiShield,
 	FiTrendingUp,
 	FiUsers
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
 
@@ -549,7 +549,7 @@ export const FlowComparisonTools: React.FC = () => {
 		<ComparisonContainer role="main" aria-label="OAuth flow comparison tools">
 			<ComparisonHeader>
 				<ComparisonIcon>
-					<FiGitCompare />
+					<FiGitMerge />
 				</ComparisonIcon>
 				<div>
 					<ComparisonTitle>OAuth Flow Comparison Tools</ComparisonTitle>

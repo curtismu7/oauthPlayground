@@ -11,7 +11,7 @@ import {
 	FiLock,
 	FiLogIn,
 	FiSettings,
-} from 'react-icons/fi';
+} from '@icons';
 import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import packageJson from '../../package.json';

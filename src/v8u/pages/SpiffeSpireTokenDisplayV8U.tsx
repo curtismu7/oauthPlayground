@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiArrowLeft, FiKey, FiShield } from 'react-icons/fi';
+import { FiArrowLeft, FiKey, FiShield } from '@icons';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';

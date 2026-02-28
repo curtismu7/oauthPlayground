@@ -17,7 +17,7 @@ import {
 	FiRefreshCw,
 	FiShield,
 	FiUser,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { type FlowType, type SpecVersion } from '@/v8/services/specVersionServiceV8';

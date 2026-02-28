@@ -9,7 +9,7 @@ import {
 	FiTrendingUp,
 	FiUsers,
 	FiZap,
-} from 'react-icons/fi';
+} from '@icons';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { FlowUIService } from '../services/flowUIService';
 

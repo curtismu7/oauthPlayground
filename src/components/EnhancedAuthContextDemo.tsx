@@ -8,7 +8,7 @@ import {
 	FiCheckCircle,
 	FiRefreshCw,
 	FiSettings,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/NewAuthContext';
 

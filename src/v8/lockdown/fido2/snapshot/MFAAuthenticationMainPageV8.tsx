@@ -33,7 +33,7 @@ import {
 	FiTrash,
 	FiTrash2,
 	FiX
-} from 'react-icons/fi';
+} from '@icons';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { usePageScroll } from '@/hooks/usePageScroll';

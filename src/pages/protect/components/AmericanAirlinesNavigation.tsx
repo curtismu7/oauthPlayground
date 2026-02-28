@@ -10,7 +10,7 @@
  */
 
 import React, { useState } from 'react';
-import { FiChevronDown, FiMenu, FiSearch, FiUser, FiX } from 'react-icons/fi';
+import { FiChevronDown, FiMenu, FiSearch, FiUser, FiX } from '@icons';
 import styled from 'styled-components';
 import { useBrandTheme } from '../themes/theme-provider';
 import BrandDropdownSelector from './BrandDropdownSelector';

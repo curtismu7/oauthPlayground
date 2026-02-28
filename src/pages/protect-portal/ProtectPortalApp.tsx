@@ -10,7 +10,7 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiAlertTriangle, FiCheckCircle, FiLoader, FiShield, FiX } from 'react-icons/fi';
+import { FiAlertTriangle, FiCheckCircle, FiLoader, FiShield, FiX } from '@icons';
 import { WorkerTokenSectionV8 } from '@/v8/components/WorkerTokenSectionV8';
 import AmericanAirlinesHero from './components/AmericanAirlinesHero';
 import BankOfAmericaHero from './components/BankOfAmericaHero';

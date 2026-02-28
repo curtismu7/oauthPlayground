@@ -8,7 +8,7 @@ import {
 	FiServer,
 	FiTrash,
 	FiTrash2
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 
 interface ResourceParameterInputProps {

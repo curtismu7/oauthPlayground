@@ -7,7 +7,7 @@
  */
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { FiSearch, FiX } from 'react-icons/fi';
+import { FiSearch, FiX } from '@icons';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
 import { AppDiscoveryServiceV8 } from '@/v8/services/appDiscoveryServiceV8';

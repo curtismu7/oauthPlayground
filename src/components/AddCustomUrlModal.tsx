@@ -6,7 +6,7 @@
  */
 
 import React, { useState } from 'react';
-import { FiPlus, FiX } from 'react-icons/fi';
+import { FiPlus, FiX } from '@icons';
 import styled from 'styled-components';
 
 const ModalOverlay = styled.div<{ $isOpen: boolean }>`

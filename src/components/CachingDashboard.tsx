@@ -8,7 +8,7 @@ import {
 	FiTrash,
 	FiTrash2,
 	FiXCircle
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { useServiceWorker } from '../hooks/useServiceWorker';
 import { logger } from '../utils/logger';

@@ -13,7 +13,7 @@ import {
 	FiLock,
 	FiShield,
 	FiUsers,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 
 const VisualizerContainer = styled.div`

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FiCode, FiPlay } from 'react-icons/fi';
+import { FiCode, FiPlay } from '@icons';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../components/Card';
 import InteractiveTutorial from '../components/InteractiveTutorial';

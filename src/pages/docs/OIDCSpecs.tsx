@@ -1,4 +1,4 @@
-import { FiCode, FiExternalLink, FiShield, FiUsers } from 'react-icons/fi';
+import { FiCode, FiExternalLink, FiShield, FiUsers } from '@icons';
 import styled from 'styled-components';
 import { SpecCard } from '../../components/SpecCard';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';

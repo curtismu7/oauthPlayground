@@ -25,7 +25,7 @@ import {
 	FiTool,
 	FiUser,
 	FiZap
-} from 'react-icons/fi';
+} from '@icons';
 import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { themeService } from '../services/themeService';

@@ -1,6 +1,6 @@
 // src/components/PingOneApplicationConfig.tsx
 import React, { useEffect, useMemo, useState } from 'react';
-import { FiCheck, FiGlobe, FiInfo, FiKey, FiSave, FiSettings, FiShield } from 'react-icons/fi';
+import { FiCheck, FiGlobe, FiInfo, FiKey, FiSave, FiSettings, FiShield } from '@icons';
 import styled from 'styled-components';
 import { DPoPStatus } from '../services/dpopService';
 import { ColoredUrlDisplay } from './ColoredUrlDisplay';

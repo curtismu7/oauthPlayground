@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FiCheckCircle, FiGlobe, FiRefreshCw, FiServer, FiX, FiXCircle } from 'react-icons/fi';
+import { FiCheckCircle, FiGlobe, FiRefreshCw, FiServer, FiX, FiXCircle } from '@icons';
 import styled from 'styled-components';
 
 interface ServerStatusModalProps {

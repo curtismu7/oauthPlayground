@@ -14,7 +14,7 @@
  */
 
 import { useState } from 'react';
-import { FiCheckCircle, FiShield } from 'react-icons/fi';
+import { FiCheckCircle, FiShield } from '@icons';
 import styled from 'styled-components';
 import { useOIDCCompliantAuthorizationCodeFlow } from '../../hooks/useOIDCCompliantAuthorizationCodeFlow';
 

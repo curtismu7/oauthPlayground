@@ -7,7 +7,7 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiArrowRight, FiCheck, FiKey, FiMail, FiPlus, FiSmartphone } from 'react-icons/fi';
+import { FiArrowRight, FiCheck, FiKey, FiMail, FiPlus, FiSmartphone } from '@icons';
 import { Button } from '@/v8/components/Button';
 import { EmptyState } from '@/v8/components/EmptyState';
 import { LoadingSpinner } from '@/v8/components/LoadingSpinner';

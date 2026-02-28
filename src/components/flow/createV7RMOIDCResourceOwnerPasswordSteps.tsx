@@ -1,6 +1,6 @@
 // src/components/flow/createV7RMOIDCResourceOwnerPasswordSteps.tsx - V7RM (Mock because PingOne doesn't support this flow)
 
-import { FiAlertTriangle, FiKey, FiLock, FiRefreshCw, FiShield, FiUser } from 'react-icons/fi';
+import { FiAlertTriangle, FiKey, FiLock, FiRefreshCw, FiShield, FiUser } from '@icons';
 import type { V7RMOIDCResourceOwnerPasswordController } from '../../hooks/useV7RMOIDCResourceOwnerPasswordController';
 import type { EnhancedFlowStep } from '../EnhancedStepFlowV2';
 import { InfoBox } from '../steps/CommonSteps';

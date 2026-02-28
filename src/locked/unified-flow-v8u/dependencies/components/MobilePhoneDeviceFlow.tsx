@@ -3,7 +3,7 @@
 
 import { QRCodeSVG } from 'qrcode.react';
 import React, { useEffect, useState } from 'react';
-import { FiCheckCircle, FiCopy, FiExternalLink } from 'react-icons/fi';
+import { FiCheckCircle, FiCopy, FiExternalLink } from '@icons';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';

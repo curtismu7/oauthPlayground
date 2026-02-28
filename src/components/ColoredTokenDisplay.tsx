@@ -1,6 +1,6 @@
 // src/components/ColoredTokenDisplay.tsx
 import React, { useState } from 'react';
-import { FiExternalLink, FiInfo } from 'react-icons/fi';
+import { FiExternalLink, FiInfo } from '@icons';
 import styled from 'styled-components';
 import { CopyButtonService } from '../services/copyButtonService';
 

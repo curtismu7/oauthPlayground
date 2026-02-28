@@ -23,7 +23,7 @@ import {
 	FiSearch,
 	FiUpload,
 	FiX,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { useAutoEnvironmentId } from '../../hooks/useAutoEnvironmentId';
 import 'prismjs/themes/prism.css';

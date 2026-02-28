@@ -12,7 +12,7 @@ import {
 	FiExternalLink,
 	FiUser,
 	FiXCircle,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import {
 	DeviceFlowState,

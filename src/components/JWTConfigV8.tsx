@@ -12,7 +12,7 @@ import {
 	FiEyeOff,
 	FiKey,
 	FiRefreshCw,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import {
 	type ClientSecretJWTConfig,

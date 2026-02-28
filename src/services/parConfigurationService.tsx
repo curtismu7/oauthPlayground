@@ -3,7 +3,7 @@
 // Reusable service for configuring PAR authorization request parameters
 
 import React, { useCallback, useState } from 'react';
-import { FiCheckCircle, FiShield } from 'react-icons/fi';
+import { FiCheckCircle, FiShield } from '@icons';
 import styled from 'styled-components';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 import { CollapsibleHeader } from './collapsibleHeaderService';
