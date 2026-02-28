@@ -19,8 +19,9 @@ import V7StepperService from '../services/v7StepperService';
 import { credentialManager } from '../utils/credentialManager';
 import { getOAuthTokens } from '../utils/tokenStorage';
 import { v4ToastManager } from '../utils/v4ToastMessages';
-import { getAnyWorkerToken } from '../utils/workerTokenDetection';
+import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import WorkerTokenStatusDisplayV8 from '../v8/components/WorkerTokenStatusDisplayV8';
+import { WorkerTokenModal } from '../components/WorkerTokenModal';
 
 type CredentialsState = {
 	environmentId: string;
@@ -266,25 +267,13 @@ const OrganizationLicensingV2: React.FC = () => {
 		scopes: 'openid profile email',
 	});
 
-	// Get access token from all possible sources
-	const getAccessToken = (): string | null => {
-		// Use global worker token detection
-		const globalToken = getAnyWorkerToken();
-		if (globalToken) {
-			console.log('[OrganizationLicensing] ✅ Valid worker token found');
-			return globalToken;
-		}
-
-		// Don't use fallback tokens for organization licensing - they might not have the right scopes
-		// and could cause 401 errors
-		console.warn(
-			'[OrganizationLicensing] ⚠️ No valid worker token found. Please generate a new token with required scopes (p1:read:organization p1:read:licensing).'
-		);
-		return null;
-	};
+	// Use global worker token hook for unified token management
+	const globalTokenStatus = useGlobalWorkerToken({ autoFetch: false }); // Don't auto-fetch, user controls this
+	const hasWorkerToken = globalTokenStatus.isValid;
 
 	// Track if we've initialized to prevent auto-advance after user clicks reset
 	const [hasInitialized, setHasInitialized] = useState(false);
+	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 
 	// Global floating stepper
 	const { registerSteps, setCurrentStep: setStepperStep } = usePageStepper();
@@ -313,12 +302,11 @@ const OrganizationLicensingV2: React.FC = () => {
 		if (hasInitialized) return;
 
 		const loadAllTokens = () => {
-			// Use global worker token detection (checks all possible sources)
+			// Use global worker token hook data
 			try {
-				const workerToken = getAnyWorkerToken();
-				if (workerToken) {
-					setStoredTokens({ access_token: workerToken });
-					return { access_token: workerToken };
+				if (globalTokenStatus.isValid && globalTokenStatus.token) {
+					setStoredTokens({ access_token: globalTokenStatus.token });
+					return { access_token: globalTokenStatus.token };
 				}
 			} catch (e) {
 				console.warn('[OrganizationLicensing] Error loading worker token:', e);
@@ -376,7 +364,7 @@ const OrganizationLicensingV2: React.FC = () => {
 		};
 
 		initializeFlow();
-	}, [hasInitialized]);
+	}, [hasInitialized, globalTokenStatus.isValid, globalTokenStatus.token]);
 
 	// Update environment ID when worker token is updated
 	useEffect(() => {
@@ -436,11 +424,8 @@ const OrganizationLicensingV2: React.FC = () => {
 	};
 
 	const fetchOrganizationInfo = async () => {
-		// Use global worker token
-		const globalToken = getAnyWorkerToken();
-		const tokenCheck = globalToken ? { token: globalToken, isValid: true } : null;
-
-		if (!tokenCheck || !tokenCheck.isValid || !tokenCheck.token) {
+		// Use global worker token from hook
+		if (!globalTokenStatus.isValid || !globalTokenStatus.token) {
 			const errorMsg =
 				'No valid worker token available. Please click "Get Worker Token" to generate one with the required scopes (p1:read:organization p1:read:licensing).';
 			setError(errorMsg);
@@ -448,7 +433,7 @@ const OrganizationLicensingV2: React.FC = () => {
 			return;
 		}
 
-		const accessToken = tokenCheck.token;
+		const accessToken = globalTokenStatus.token;
 
 		if (!organizationId.trim()) {
 			setError('Please enter an Organization ID.');
@@ -500,12 +485,11 @@ const OrganizationLicensingV2: React.FC = () => {
 	};
 
 	const _fetchAllLicenses = async () => {
-		const accessToken = getAccessToken();
-		if (!accessToken) return;
+		if (!globalTokenStatus.isValid || !globalTokenStatus.token) return;
 
 		setIsFetchingAllLicenses(true);
 		try {
-			const licenses = await getAllLicenses(accessToken, organizationId.trim() || undefined);
+			const licenses = await getAllLicenses(globalTokenStatus.token, organizationId.trim() || undefined);
 			setAllLicenses(licenses);
 			v4ToastManager.showSuccess(`Successfully fetched ${licenses.length} licenses`);
 		} catch (err) {
@@ -518,8 +502,6 @@ const OrganizationLicensingV2: React.FC = () => {
 	};
 
 	const renderStep = () => {
-		const workerToken = getAccessToken();
-		const hasWorkerToken = Boolean(workerToken);
 		// Combined step: Get Worker Token + Get License Information
 		return (
 			<div style={styles.stepContainer}>
@@ -552,8 +534,28 @@ const OrganizationLicensingV2: React.FC = () => {
 							</p>
 						</div>
 
-						<WorkerTokenStatusDisplayV8 mode="detailed" showRefresh={true} />
-					</div>
+						<WorkerTokenStatusDisplayV8 mode="detailed" showRefresh={true} />							<div style={{ marginTop: '1rem' }}>
+								<button
+									type="button"
+									onClick={() => setShowWorkerTokenModal(true)}
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										gap: '0.5rem',
+										padding: '0.625rem 1.25rem',
+										background: '#ef4444',
+										color: 'white',
+										border: 'none',
+										borderRadius: '0.5rem',
+										fontSize: '0.875rem',
+										fontWeight: 600,
+										cursor: 'pointer',
+									}}
+								>
+									<FiKey />
+									Get Worker Token
+								</button>
+							</div>					</div>
 				</CollapsibleHeader>
 
 				<div style={{ marginBottom: '1rem' }}>
@@ -587,9 +589,10 @@ const OrganizationLicensingV2: React.FC = () => {
 						disabled={isBusy || !hasWorkerToken}
 					/>
 					<div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-						<Button
-							$variant="primary"
+						<button
+							type="button"
 							onClick={fetchOrganizationInfo}
+							style={styles.button(true, isBusy || !hasWorkerToken || !organizationId.trim())}
 							disabled={isBusy || !hasWorkerToken || !organizationId.trim()}
 							id="fetch-organization-info-button"
 						>
@@ -597,7 +600,7 @@ const OrganizationLicensingV2: React.FC = () => {
 								style={{ animation: isFetchingOrgInfo ? 'spin 1s linear infinite' : 'none' }}
 							/>
 							{isFetchingOrgInfo ? 'Loading...' : 'Get Organization Info'}
-						</Button>
+						</button>
 					</div>
 					{error && (
 						<div style={styles.errorMessage}>
@@ -903,6 +906,16 @@ const OrganizationLicensingV2: React.FC = () => {
 					</StepperHeaderRight>
 				</StepperHeader>
 				{renderStep()}
+				{showWorkerTokenModal && (
+					<WorkerTokenModal
+						isOpen={showWorkerTokenModal}
+						onClose={() => setShowWorkerTokenModal(false)}
+						onContinue={() => {
+							setShowWorkerTokenModal(false);
+							window.dispatchEvent(new Event('workerTokenUpdated'));
+						}}
+					/>
+				)}
 				<StepNavigationButtons
 					currentStep={currentStep}
 					totalSteps={STEP_METADATA.length}
