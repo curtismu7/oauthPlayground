@@ -5,10 +5,12 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiArrowRight,
+	FiBriefcase,
 	FiCheckCircle,
 	FiChevronDown,
 	FiCode,
 	FiCopy,
+	FiCpu,
 	FiExternalLink,
 	FiGlobe,
 	FiInfo,
@@ -613,6 +615,223 @@ const TroubleshootingTable = styled.table`
 	}
 `;
 
+// Static scenarios data - moved outside component to prevent infinite re-renders
+const scenarios = {
+	delegation: {
+		icon: <FiUsers />,
+		title: 'User Delegation',
+		description: 'Exchange user token for service-specific token with reduced scope',
+		useCase: 'User authorizes app to call downstream service on their behalf',
+		grantType: 'urn:ietf:params:oauth:grant-type:token-exchange',
+		subjectTokenType: 'urn:ietf:params:oauth:token-type:access_token',
+		requestedTokenType: 'urn:ietf:params:oauth:token-type:access_token',
+		audience: 'https://api.salesforce.com',
+		scope: 'read:profile read:contacts',
+		color: '#3b82f6',
+		originalToken:
+			'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyXzEyMyIsInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwgcmVhZDpjb250YWN0cyByZWFkOmNhbGVuZGFyIHdyaXRlOmRhdGEiLCJhdWQiOiJteS13ZWItYXBwIiwiaXNzIjoiaHR0cHM6Ly9hdXRoLnBpbmdvbmUuY29tIiwiZXhwIjoxNzI5NjM5NDQ3fQ...',
+		availableScopes: [
+			{ name: 'read:profile', description: 'Read user profile information', category: 'user' },
+			{ name: 'read:contacts', description: 'Read user contacts from CRM', category: 'user' },
+			{ name: 'write:contacts', description: 'Create/update contacts in CRM', category: 'user' },
+			{ name: 'read:calendar', description: 'Read user calendar events', category: 'user' },
+			{
+				name: 'read:opportunities',
+				description: 'Read sales opportunities',
+				category: 'business',
+			},
+			{
+				name: 'offline_access',
+				description: 'Access data when user is offline',
+				category: 'system',
+			},
+		],
+		defaultClaims: '{"id_token":{"email":{"essential":true},"name":{"essential":true}}}',
+		defaultAuthDetails:
+			'[{"type":"crm_access","actions":["read"],"resources":["contacts","opportunities"]}]',
+	},
+	impersonation: {
+		icon: <FiShield />,
+		title: 'Service Impersonation',
+		description: 'Service acts on behalf of user with limited permissions',
+		useCase: 'Backend service needs to call API as if it were the user',
+		grantType: 'urn:ietf:params:oauth:grant-type:token-exchange',
+		subjectTokenType: 'urn:ietf:params:oauth:token-type:access_token',
+		requestedTokenType: 'urn:ietf:params:oauth:token-type:access_token',
+		audience: 'https://api.internal.company.com',
+		scope: 'impersonate:user audit:read',
+		color: '#f59e0b',
+		originalToken:
+			'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbl91c2VyIiwic2NvcGUiOiJhZG1pbjpmdWxsIGltcGVyc29uYXRlOnVzZXIgYXVkaXQ6cmVhZCBhdWRpdDp3cml0ZSIsImF1ZCI6ImFkbWluLWRhc2hib2FyZCIsImlzcyI6Imh0dHBzOi8vYXV0aC5waW5nb25lLmNvbSIsImV4cCI6MTcyOTYzOTQ0N30...',
+		availableScopes: [
+			{
+				name: 'impersonate:user',
+				description: 'Act on behalf of the user',
+				category: 'delegation',
+			},
+			{
+				name: 'audit:read',
+				description: 'Read audit logs and compliance data',
+				category: 'compliance',
+			},
+			{ name: 'audit:write', description: 'Write audit entries', category: 'compliance' },
+			{ name: 'admin:limited', description: 'Limited administrative access', category: 'admin' },
+			{ name: 'system:monitor', description: 'System monitoring access', category: 'system' },
+			{ name: 'logs:read', description: 'Read system logs', category: 'system' },
+		],
+		defaultClaims:
+			'{"id_token":{"sub":{"essential":true},"auth_method":{"essential":true},"impersonator":{"essential":true}}}',
+		defaultAuthDetails:
+			'[{"type":"impersonation","actor":"service_account","target":"user","permissions":["audit:read","admin:limited"]}]',
+	},
+	audienceRestriction: {
+		icon: <FiLock />,
+		title: 'Audience Restriction',
+		description: 'Exchange token for one with restricted audience (downscoped)',
+		useCase: 'Frontend needs token with limited access to specific microservice',
+		grantType: 'urn:ietf:params:oauth:grant-type:token-exchange',
+		subjectTokenType: 'urn:ietf:params:oauth:token-type:access_token',
+		requestedTokenType: 'urn:ietf:params:oauth:token-type:access_token',
+		audience: 'https://payments.api.company.com',
+		scope: 'payments:read payments:write',
+		color: '#10b981',
+		originalToken:
+			'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyX2FjY291bnQiLCJzY29wZSI6ImFkbWluOmZ1bGwgcGF5bWVudHM6cmVhZCBwYXltZW50czp3cml0ZSBhdWRpdDpyZWFkIGF1ZGl0OndyaXRlIiwiYXVkIjoibWFpbi1hcHAiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20iLCJleHAiOjE3Mjk2Mzk0NDd9...',
+		availableScopes: [
+			{ name: 'payments:read', description: 'Read payment data', category: 'financial' },
+			{ name: 'payments:write', description: 'Create/update payments', category: 'financial' },
+			{ name: 'payments:refund', description: 'Process refunds', category: 'financial' },
+			{ name: 'transactions:read', description: 'Read transaction history', category: 'financial' },
+			{
+				name: 'reports:generate',
+				description: 'Generate financial reports',
+				category: 'reporting',
+			},
+			{ name: 'compliance:read', description: 'Access compliance data', category: 'compliance' },
+		],
+		defaultClaims:
+			'{"access_control":{"audience":["payments.api.company.com"],"restrictions":["ip_whitelist"]}}',
+		defaultAuthDetails:
+			'[{"type":"access_control","audience":"payments.api.company.com","restrictions":["ip_whitelist","rate_limit"]}]',
+	},
+	domainDelegation: {
+		icon: <FiGlobe />,
+		title: 'Cross-Domain Delegation',
+		description: 'Exchange token for access to resources in another domain',
+		useCase: 'Partner application needs access to user data across organizational boundaries',
+		grantType: 'urn:ietf:params:oauth:grant-type:token-exchange',
+		subjectTokenType: 'urn:ietf:params:oauth:token-type:access_token',
+		requestedTokenType: 'urn:ietf:params:oauth:token-type:access_token',
+		audience: 'https://partner-api.external-org.com',
+		scope: 'user:profile data:read analytics:view',
+		color: '#8b5cf6',
+		originalToken:
+			'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyX2RvbWFpbiIsInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwgZG9tYWluOmRlbGVnYXRlIGRhdGE6cmVhZCBhbmFseXRpY3M6dmlldyIsImF1ZCI6Im9yZy1tYWluLWFwcCIsImlzcyI6Imh0dHBzOi8vYXV0aC5waW5nb25lLmNvbSIsImV4cCI6MTcyOTYzOTQ0N30...',
+		availableScopes: [
+			{ name: 'user:profile', description: 'Access user profile data', category: 'user' },
+			{ name: 'data:read', description: 'Read shared data', category: 'data' },
+			{ name: 'analytics:view', description: 'View analytics reports', category: 'analytics' },
+			{ name: 'reports:export', description: 'Export shared reports', category: 'reporting' },
+			{
+				name: 'audit:trail',
+				description: 'Access audit trail for cross-domain access',
+				category: 'compliance',
+			},
+		],
+		defaultClaims:
+			'{"domain_delegation":{"source_domain":"my-org.com","target_domain":"partner-org.com","permissions":["read","view"]}}',
+		defaultAuthDetails:
+			'[{"type":"domain_delegation","source":"my-org.com","target":"partner-org.com","access_level":"limited"}]',
+	},
+	onBehalfOfClient: {
+		icon: <FiBriefcase />,
+		title: 'On-Behalf-Of Client',
+		description: 'Service exchanges user token to act as client on behalf of user',
+		useCase: 'Middleware service calls downstream API using client credentials with user context',
+		grantType: 'urn:ietf:params:oauth:grant-type:token-exchange',
+		subjectTokenType: 'urn:ietf:params:oauth:token-type:access_token',
+		requestedTokenType: 'urn:ietf:params:oauth:token-type:access_token',
+		audience: 'https://downstream-api.service.com',
+		scope: 'client:access user:context',
+		color: '#f97316',
+		originalToken:
+			'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyX2NsaWVudCIsInNjb3BlIjoiY2xpZW50OmFjY2VzcyB1c2VyOmNvbnRleHQgYXBpOmNhbGwgZGVidWc6dHJhY2UiLCJhdWQiOiJtaWRkbGV3YXJlLXNlcnZpY2UiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20iLCJleHAiOjE3Mjk2Mzk0NDd9...',
+		availableScopes: [
+			{ name: 'client:access', description: 'Client-level API access', category: 'client' },
+			{ name: 'user:context', description: 'User context preservation', category: 'user' },
+			{ name: 'api:call', description: 'Make API calls on behalf', category: 'api' },
+			{ name: 'debug:trace', description: 'Debug tracing enabled', category: 'system' },
+			{
+				name: 'metrics:collect',
+				description: 'Collect performance metrics',
+				category: 'monitoring',
+			},
+		],
+		defaultClaims:
+			'{"client_delegation":{"client_id":"middleware-service","acting_on_behalf_of":"user_123","delegation_scope":["api:call","user:context"]}}',
+		defaultAuthDetails:
+			'[{"type":"client_delegation","client_id":"middleware-service","user_context":"preserved","permissions":["api:call","user:context"]}]',
+	},
+	deviceToToken: {
+		icon: <FiCpu />,
+		title: 'Device-to-Token Exchange',
+		description: 'Exchange device grant token for access token with different permissions',
+		useCase: 'IoT device exchanges limited token for broader API access',
+		grantType: 'urn:ietf:params:oauth:grant-type:token-exchange',
+		subjectTokenType: 'urn:ietf:params:oauth:token-type:access_token',
+		requestedTokenType: 'urn:ietf:params:oauth:token-type:access_token',
+		audience: 'https://iot-platform.company.com',
+		scope: 'device:control data:upload telemetry:send',
+		color: '#06b6d4',
+		originalToken:
+			'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkZXZpY2VfNzg5Iiwic2NvcGUiOiJkZXZpY2U6bGltaXRlZCBkYXRhOnJlYWQgdGVsZW1ldHJ5OnNlbmQiLCJhdWQiOiJpb3QtcGxhdGZvcm0iLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20iLCJleHAiOjE3Mjk2Mzk0NDd9...',
+		availableScopes: [
+			{ name: 'device:control', description: 'Control device operations', category: 'device' },
+			{ name: 'data:upload', description: 'Upload sensor data', category: 'data' },
+			{ name: 'telemetry:send', description: 'Send telemetry data', category: 'telemetry' },
+			{ name: 'firmware:update', description: 'Update device firmware', category: 'maintenance' },
+			{ name: 'status:report', description: 'Report device status', category: 'monitoring' },
+		],
+		defaultClaims:
+			'{"device_info":{"device_id":"device_789","type":"sensor","firmware":"v2.1.3","location":"facility_a"}}',
+		defaultAuthDetails:
+			'[{"type":"device_access","device_id":"device_789","capabilities":["control","upload","telemetry"]}]',
+	},
+	bankingIntegration: {
+		icon: <FiDollarSign />,
+		title: 'Banking API Integration',
+		description: 'Exchange token for banking API access with compliance requirements',
+		useCase: 'FinTech application needs secure access to banking services with audit trail',
+		grantType: 'urn:ietf:params:oauth:grant-type:token-exchange',
+		subjectTokenType: 'urn:ietf:params:oauth:token-type:access_token',
+		requestedTokenType: 'urn:ietf:params:oauth:token-type:access_token',
+		audience: 'https://banking-api.secure-bank.com',
+		scope: 'accounts:read transactions:read payments:initiate compliance:report',
+		color: '#059669',
+		originalToken:
+			'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmaW50ZWNoX2NsaWVudCIsInNjb3BlIjoiYWNjb3VudHM6cmVhZCB0cmFuc2FjdGlvbnM6cmVhZCBwYXltZW50czppbml0aWF0ZSBjb21wbGlhbmNlOnJlcG9ydCIsImF1ZCI6ImJhbmtpbmctZ2F0ZXdheSIsImlzcyI6Imh0dHBzOi8vYXV0aC5waW5nb25lLmNvbSIsImV4cCI6MTcyOTYzOTQ0N30...',
+		availableScopes: [
+			{ name: 'accounts:read', description: 'Read account information', category: 'accounts' },
+			{
+				name: 'transactions:read',
+				description: 'Read transaction history',
+				category: 'transactions',
+			},
+			{ name: 'payments:initiate', description: 'Initiate payments', category: 'payments' },
+			{
+				name: 'compliance:report',
+				description: 'Generate compliance reports',
+				category: 'compliance',
+			},
+			{ name: 'audit:trail', description: 'Access audit trail', category: 'compliance' },
+		],
+		defaultClaims:
+			'{"banking_context":{"client_type":"finTech","compliance_level":"PCI_DSS","audit_required":true,"jurisdiction":"US"}}',
+		defaultAuthDetails:
+			'[{"type":"banking_access","institution":"CBA","services":["MCP","transactions"],"compliance_level":"PCI_DSS"}]',
+	},
+};
+
 // Enhanced component with detailed flow implementation
 const V8MTokenExchange: React.FC = () => {
 	usePageScroll({ pageName: 'V8M Token Exchange Flow', force: true });
@@ -648,151 +867,7 @@ const V8MTokenExchange: React.FC = () => {
 		audience: '',
 		claims: '',
 		authorizationDetails: '',
-		includeRefreshToken: false,
 	});
-
-	const scenarios = {
-		delegation: {
-			icon: <FiUsers />,
-			title: 'User Delegation',
-			description: 'Exchange user token for service-specific token with reduced scope',
-			useCase: 'User authorizes app to call downstream service on their behalf',
-			grantType: 'urn:ietf:params:oauth:grant-type:token-exchange',
-			subjectTokenType: 'urn:ietf:params:oauth:token-type:access_token',
-			requestedTokenType: 'urn:ietf:params:oauth:token-type:access_token',
-			audience: 'https://api.salesforce.com',
-			scope: 'read:profile read:contacts',
-			color: '#3b82f6',
-			originalToken:
-				'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyXzEyMyIsInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwgcmVhZDpjb250YWN0cyByZWFkOmNhbGVuZGFyIHdyaXRlOmRhdGEiLCJhdWQiOiJteS13ZWItYXBwIiwiaXNzIjoiaHR0cHM6Ly9hdXRoLnBpbmdvbmUuY29tIiwiZXhwIjoxNzI5NjM5NDQ3fQ...',
-			availableScopes: [
-				{ name: 'read:profile', description: 'Read user profile information', category: 'user' },
-				{ name: 'read:contacts', description: 'Read user contacts from CRM', category: 'user' },
-				{ name: 'write:contacts', description: 'Create/update contacts in CRM', category: 'user' },
-				{ name: 'read:calendar', description: 'Read user calendar events', category: 'user' },
-				{
-					name: 'read:opportunities',
-					description: 'Read sales opportunities',
-					category: 'business',
-				},
-				{
-					name: 'offline_access',
-					description: 'Access data when user is offline',
-					category: 'system',
-				},
-			],
-			defaultClaims: '{"id_token":{"email":{"essential":true},"name":{"essential":true}}}',
-			defaultAuthDetails:
-				'[{"type":"crm_access","actions":["read"],"resources":["contacts","opportunities"]}]',
-		},
-		impersonation: {
-			icon: <FiShield />,
-			title: 'Service Impersonation',
-			description: 'Service acts on behalf of user with limited permissions',
-			useCase: 'Backend service needs to call API as if it were the user',
-			grantType: 'urn:ietf:params:oauth:grant-type:token-exchange',
-			subjectTokenType: 'urn:ietf:params:oauth:token-type:access_token',
-			requestedTokenType: 'urn:ietf:params:oauth:token-type:access_token',
-			audience: 'https://api.internal.company.com',
-			scope: 'impersonate:user audit:read',
-			color: '#f59e0b',
-			originalToken:
-				'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbl91c2VyIiwic2NvcGUiOiJhZG1pbjpmdWxsIGltcGVyc29uYXRlOnVzZXIgYXVkaXQ6cmVhZCBhdWRpdDp3cml0ZSIsImF1ZCI6ImFkbWluLWRhc2hib2FyZCIsImlzcyI6Imh0dHBzOi8vYXV0aC5waW5nb25lLmNvbSIsImV4cCI6MTcyOTYzOTQ0N30...',
-			availableScopes: [
-				{
-					name: 'impersonate:user',
-					description: 'Act on behalf of the user',
-					category: 'delegation',
-				},
-				{
-					name: 'audit:read',
-					description: 'Read audit logs and compliance data',
-					category: 'compliance',
-				},
-				{ name: 'audit:write', description: 'Write audit entries', category: 'compliance' },
-				{ name: 'admin:limited', description: 'Limited administrative access', category: 'admin' },
-				{
-					name: 'reports:generate',
-					description: 'Generate compliance reports',
-					category: 'business',
-				},
-			],
-			defaultClaims: '{"userinfo":{"sub":{"essential":true},"roles":{"essential":true}}}',
-			defaultAuthDetails:
-				'[{"type":"impersonation","target_user":"user_123","permissions":["audit:read"]}]',
-		},
-		'scope-reduction': {
-			icon: <FiLock />,
-			title: 'Scope Reduction',
-			description: 'Reduce token scope for principle of least privilege',
-			useCase: 'Limit permissions when calling specific microservices',
-			grantType: 'urn:ietf:params:oauth:grant-type:token-exchange',
-			subjectTokenType: 'urn:ietf:params:oauth:token-type:access_token',
-			requestedTokenType: 'urn:ietf:params:oauth:token-type:access_token',
-			audience: 'https://api.reporting.service.com',
-			scope: 'read:reports',
-			color: '#22c55e',
-			originalToken:
-				'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJwb3dlcl91c2VyIiwic2NvcGUiOiJyZWFkOnJlcG9ydHMgd3JpdGU6cmVwb3J0cyBkZWxldGU6ZGF0YSBhZG1pbjphY2Nlc3MgcmVhZDpwcml2YXRlIHdyaXRlOnByaXZhdGUiLCJhdWQiOiJmdWxsLWFjY2Vzcy1hcHAiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20iLCJleHAiOjE3Mjk2Mzk0NDd9...',
-			availableScopes: [
-				{ name: 'read:reports', description: 'Read generated reports only', category: 'reports' },
-				{ name: 'read:public', description: 'Read public information', category: 'public' },
-				{ name: 'write:reports', description: 'Create and modify reports', category: 'reports' },
-				{ name: 'delete:reports', description: 'Delete reports', category: 'reports' },
-				{ name: 'admin:reports', description: 'Administrative report access', category: 'admin' },
-			],
-			defaultClaims: '{"id_token":{"department":{"essential":true}}}',
-			defaultAuthDetails: '[{"type":"data_access","classification":"public","actions":["read"]}]',
-		},
-		'audience-restriction': {
-			icon: <FiServer />,
-			title: 'CBA MCP/A2A Scenario',
-			description: 'Create audience-specific tokens for CBA MCP/A2A communication',
-			useCase: 'Generate tokens specifically for CBA MCP/A2A scenarios with scope reduction',
-			grantType: 'urn:ietf:params:oauth:grant-type:token-exchange',
-			subjectTokenType: 'urn:ietf:params:oauth:token-type:access_token',
-			requestedTokenType: 'urn:ietf:params:oauth:token-type:access_token',
-			audience: 'https://mcp.cba.com.au',
-			scope: 'mcp:read banking:transactions',
-			color: '#7c3aed',
-			originalToken:
-				'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiYW5raW5nX2FwcCIsInNjb3BlIjoibWNwOnJlYWQgbWNwOndyaXRlIGEyYTpjb21tdW5pY2F0ZSBiYW5raW5nOmZ1bGwgcGF5bWVudHM6d3JpdGUgYWNjb3VudHM6d3JpdGUgdHJhbnNhY3Rpb25zOnJlYWQiLCJhdWQiOiJiYW5raW5nLXBsYXRmb3JtIiwiaXNzIjoiaHR0cHM6Ly9hdXRoLnBpbmdvbmUuY29tIiwiZXhwIjoxNzI5NjM5NDQ3fQ...',
-			availableScopes: [
-				{ name: 'mcp:read', description: 'Read MCP data and configurations', category: 'mcp' },
-				{ name: 'mcp:write', description: 'Write MCP data and configurations', category: 'mcp' },
-				{
-					name: 'banking:transactions',
-					description: 'Access transaction data',
-					category: 'banking',
-				},
-				{
-					name: 'banking:accounts',
-					description: 'Access account information',
-					category: 'banking',
-				},
-				{
-					name: 'payments:initiate',
-					description: 'Initiate payment transactions',
-					category: 'payments',
-				},
-				{ name: 'payments:status', description: 'Check payment status', category: 'payments' },
-				{
-					name: 'a2a:communicate',
-					description: 'Application-to-application communication',
-					category: 'system',
-				},
-				{
-					name: 'compliance:audit',
-					description: 'Compliance and audit access',
-					category: 'compliance',
-				},
-			],
-			defaultClaims:
-				'{"id_token":{"institution_id":{"essential":true},"regulatory_scope":{"essential":true}}}',
-			defaultAuthDetails:
-				'[{"type":"banking_access","institution":"CBA","services":["MCP","transactions"],"compliance_level":"PCI_DSS"}]',
-		},
-	};
 
 	const toggleSection = useCallback((section: string) => {
 		setCollapsedSections((prev) => ({
@@ -811,7 +886,7 @@ const V8MTokenExchange: React.FC = () => {
 			claims: scenarios[selectedScenario].defaultClaims,
 			authorizationDetails: scenarios[selectedScenario].defaultAuthDetails,
 		}));
-	}, [selectedScenario, scenarios]);
+	}, [selectedScenario]);
 
 	const handleScenarioChange = useCallback(
 		(scenario: TokenExchangeScenario) => {
@@ -833,7 +908,7 @@ const V8MTokenExchange: React.FC = () => {
 			}));
 			v4ToastManager.showSuccess(`Selected ${scenarios[scenario].title} scenario`);
 		},
-		[scenarios]
+		[selectedScenario]
 	);
 
 	const handleScopeToggle = useCallback((scopeName: string) => {
@@ -959,7 +1034,7 @@ const V8MTokenExchange: React.FC = () => {
 		v4ToastManager.showSuccess(
 			`Token exchange completed! Reduced scope by ${mockExchangedToken.exchange_metadata.scope_reduction.reduction_percentage}%`
 		);
-	}, [selectedScenario, selectedScopes, exchangeParams, scenarios]);
+	}, [selectedScenario, exchangeParams.audience, selectedScopes, exchangeParams]);
 
 	const currentScenario = scenarios[selectedScenario];
 

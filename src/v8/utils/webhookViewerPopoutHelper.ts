@@ -40,8 +40,9 @@ export function openWebhookViewerPopout(): void {
 }
 
 /**
- * Returns true when the current page is the webhook viewer popout.
+ * Returns true when the current page is either the webhook viewer popout
+ * or the regular webhook viewer page — both should render without the sidebar.
  */
 export function isWebhookPopout(): boolean {
-	return window.location.pathname.includes('/pingone-webhook-viewer-popout');
+	return window.location.pathname.includes('/pingone-webhook-viewer');
 }

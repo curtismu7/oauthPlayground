@@ -1,4 +1,4 @@
-// src/pages/flows/OIDCHybridFlowV7.tsx
+// src/pages/flows/v9/OIDCHybridFlowV9.tsx
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
 	FiAlertCircle,
@@ -13,20 +13,23 @@ import {
 	FiRefreshCw,
 	FiShield,
 } from 'react-icons/fi';
-import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
-import { LearningTooltip } from '../../components/LearningTooltip';
-import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
-import { StepNavigationButtons } from '../../components/StepNavigationButtons';
-import TokenIntrospect from '../../components/TokenIntrospect';
-import { useCredentialBackup } from '../../hooks/useCredentialBackup';
-import { useHybridFlowControllerV7 } from '../../hooks/useHybridFlowControllerV7';
-import { usePageScroll } from '../../hooks/usePageScroll';
-import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
-import { CopyButtonService } from '../../services/copyButtonService';
-import { FlowCompletionConfigs, FlowCompletionService } from '../../services/flowCompletionService';
-import { FlowCredentialService } from '../../services/flowCredentialService';
-import { FlowHeader } from '../../services/flowHeaderService';
-import { FlowUIService } from '../../services/flowUIService';
+import ColoredUrlDisplay from '../../../components/ColoredUrlDisplay';
+import { LearningTooltip } from '../../../components/LearningTooltip';
+import SecurityFeaturesDemo from '../../../components/SecurityFeaturesDemo';
+import { StepNavigationButtons } from '../../../components/StepNavigationButtons';
+import TokenIntrospect from '../../../components/TokenIntrospect';
+import { useCredentialBackup } from '../../../hooks/useCredentialBackup';
+import { useHybridFlowControllerV9 } from '../../../hooks/useHybridFlowControllerV9';
+import { usePageScroll } from '../../../hooks/usePageScroll';
+import ComprehensiveCredentialsService from '../../../services/comprehensiveCredentialsService';
+import { CopyButtonService } from '../../../services/copyButtonService';
+import {
+	FlowCompletionConfigs,
+	FlowCompletionService,
+} from '../../../services/flowCompletionService';
+import { FlowCredentialService } from '../../../services/flowCredentialService';
+import { FlowHeader } from '../../../services/flowHeaderService';
+import { FlowUIService } from '../../../services/flowUIService';
 import {
 	HybridFlowCollapsibleSectionsManager,
 	HybridFlowDefaults,
@@ -34,15 +37,12 @@ import {
 	HybridFlowResponseTypeManager,
 	HybridFlowTokenProcessor,
 	log,
-} from '../../services/hybridFlowSharedService';
-import type { V7FlowName } from '../../services/sharedService';
-// Import V7 Shared Service for compliance features
-import { V7SharedService } from '../../services/sharedService';
-import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
-import { checkCredentialsAndWarn } from '../../utils/credentialsWarningService';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
+} from '../../../services/hybridFlowSharedService';
+import { UnifiedTokenDisplayService } from '../../../services/unifiedTokenDisplayService';
+import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningService';
+import { v4ToastManager } from '../../../utils/v4ToastMessages';
 
-import { STEP_METADATA } from './config/OIDCHybridFlowV7.config';
+import { STEP_METADATA } from '../config/OIDCHybridFlowV9.config';
 
 const {
 	Container,
@@ -82,7 +82,7 @@ const VariantTitle = FlowUIService.getVariantTitle?.();
 const VariantDescription = FlowUIService.getVariantDescription?.();
 
 type CredentialsUpdater = Parameters<
-	ReturnType<typeof useHybridFlowControllerV7>['setCredentials']
+	ReturnType<typeof useHybridFlowControllerV9>['setCredentials']
 >[0];
 
 const HYBRID_VARIANTS: Array<{
@@ -231,19 +231,10 @@ const HYBRID_VARIANTS: Array<{
 	},
 ];
 
-const OIDCHybridFlowV7: React.FC = () => {
-	usePageScroll({ pageName: 'OIDC Hybrid Flow V7', force: true });
+const OIDCHybridFlowV9: React.FC = () => {
+	usePageScroll({ pageName: 'OIDC Hybrid Flow V9', force: true });
 
-	// Initialize V7 compliance features
-	const flowName: V7FlowName = 'oidc-hybrid-v7';
-	const v7FlowConfig = V7SharedService.initializeFlow(flowName, {
-		enableIDTokenValidation: true,
-		enableParameterValidation: true,
-		enableErrorHandling: true,
-		enableSecurityHeaders: true,
-	});
-
-	const controller = useHybridFlowControllerV7({
+	const controller = useHybridFlowControllerV9({
 		enableDebugger: true,
 	});
 
@@ -264,95 +255,10 @@ const OIDCHybridFlowV7: React.FC = () => {
 	const [_isExchanging, setIsExchanging] = useState(false);
 	const [workerToken, setWorkerToken] = useState<string>('');
 
-	// V7 compliance state
-	const [_complianceStatus, _setComplianceStatus] = useState(v7FlowConfig.compliance);
-	const [_validationResults, setValidationResults] = useState<{
-		isValid: boolean;
-		errors: string[];
-	} | null>(null);
-	const [_errorStats, _setErrorStats] = useState(
-		V7SharedService.ErrorHandling.getErrorStatistics()
-	);
-
 	const toggleSection = useCallback(
 		HybridFlowCollapsibleSectionsManager.createToggleHandler(setCollapsedSections),
 		[]
 	);
-
-	// V7 compliance functions
-	const _validateHybridParameters = useCallback((parameters: Record<string, unknown>) => {
-		const validation = V7SharedService.ParameterValidation.validateFlowParameters(
-			flowName,
-			parameters
-		);
-		setValidationResults(validation);
-
-		if (!validation.isValid) {
-			const errorResponse = V7SharedService.ErrorHandling.createScenarioError('invalid_request', {
-				flowName,
-				step: 'hybrid_authorization_request',
-				operation: 'parameter_validation',
-				timestamp: Date.now(),
-			});
-			v4ToastManager.showError(`Parameter validation failed: ${validation.errors.join(', ')}`);
-			return { success: false, error: errorResponse };
-		}
-
-		v4ToastManager.showSuccess('Parameter validation successful');
-		return { success: true, validation };
-	}, []);
-
-	const _validateIDToken = useCallback(
-		async (
-			idToken: string,
-			expectedIssuer: string,
-			expectedAudience: string,
-			expectedNonce?: string
-		) => {
-			try {
-				const validation = await V7SharedService.IDTokenValidation.validateIDToken(
-					idToken,
-					expectedIssuer,
-					expectedAudience,
-					expectedNonce,
-					undefined, // jwksUri - would be provided in real implementation
-					flowName
-				);
-
-				if (!validation.isValid) {
-					const errorResponse = V7SharedService.ErrorHandling.createScenarioError('invalid_token', {
-						flowName,
-						step: 'id_token_validation',
-						operation: 'token_validation',
-						timestamp: Date.now(),
-					});
-					v4ToastManager.showError(`ID token validation failed: ${validation.errors.join(', ')}`);
-					return { success: false, error: errorResponse, validation };
-				}
-
-				v4ToastManager.showSuccess('ID token validation successful');
-				return { success: true, validation };
-			} catch (error) {
-				const errorResponse = V7SharedService.ErrorHandling.handleOIDCError(error, {
-					flowName,
-					step: 'id_token_validation',
-					operation: 'token_validation',
-					timestamp: Date.now(),
-				});
-				v4ToastManager.showError(`ID token validation error: ${errorResponse.error_description}`);
-				return { success: false, error: errorResponse };
-			}
-		},
-		[]
-	);
-
-	const _getSecurityHeaders = useCallback(() => {
-		return V7SharedService.SecurityHeaders.getSecurityHeaders(flowName);
-	}, []);
-
-	const _getComplianceScore = useCallback(() => {
-		return V7SharedService.SpecificationCompliance.checkFlowCompliance(flowName);
-	}, []);
 
 	useEffect(() => {
 		setSelectedVariant(controller.flowVariant);
@@ -369,7 +275,7 @@ const OIDCHybridFlowV7: React.FC = () => {
 		}
 	}, [controller.credentials?.environmentId]);
 
-	// Ensure OIDC Hybrid Flow V7 uses its own credential storage
+	// Ensure OIDC Hybrid Flow V9 uses its own credential storage
 	useEffect(() => {
 		// Save current credentials to flow-specific storage
 		if (
@@ -542,7 +448,7 @@ const OIDCHybridFlowV7: React.FC = () => {
 		setCollapsedSections(HybridFlowCollapsibleSectionsManager.getDefaultState());
 		setSelectedVariant('code-id-token');
 
-		// Clear OIDC Hybrid Flow V7-specific storage with error handling
+		// Clear OIDC Hybrid Flow V9-specific storage with error handling
 		try {
 			FlowCredentialService.clearFlowState('hybrid-flow-v7');
 			console.log('🔧 [OIDC Hybrid V7] Cleared flow-specific storage');
@@ -1483,4 +1389,4 @@ const OIDCHybridFlowV7: React.FC = () => {
 	);
 };
 
-export default OIDCHybridFlowV7;
+export default OIDCHybridFlowV9;
