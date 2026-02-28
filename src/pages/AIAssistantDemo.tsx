@@ -1,398 +1,403 @@
 import React from 'react';
 import { FiBook, FiMessageCircle, FiSearch, FiZap } from 'react-icons/fi';
-import styled from 'styled-components';
+
+const styles = {
+	container: {
+		maxWidth: '1200px',
+		margin: '0 auto',
+		padding: '40px 20px',
+	} as React.CSSProperties,
+
+	header: {
+		textAlign: 'center' as const,
+		marginBottom: '60px',
+	} as React.CSSProperties,
+
+	title: {
+		fontSize: '48px',
+		marginBottom: '16px',
+		background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+		WebkitBackgroundClip: 'text',
+		WebkitTextFillColor: 'transparent',
+		backgroundClip: 'text',
+	} as React.CSSProperties,
+
+	subtitle: {
+		fontSize: '20px',
+		color: '#666',
+	} as React.CSSProperties,
+
+	content: {
+		display: 'flex',
+		flexDirection: 'column' as const,
+		gap: '60px',
+	} as React.CSSProperties,
+
+	section: {
+		background: 'white',
+		borderRadius: '16px',
+		padding: '40px',
+		boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+	} as React.CSSProperties,
+
+	sectionTitle: {
+		display: 'flex',
+		alignItems: 'center',
+		gap: '12px',
+		fontSize: '28px',
+		marginBottom: '24px',
+		color: '#333',
+	} as React.CSSProperties,
+
+	description: {
+		fontSize: '16px',
+		lineHeight: '1.6',
+		color: '#666',
+		marginBottom: '24px',
+	} as React.CSSProperties,
+
+	featureList: {
+		display: 'flex',
+		flexDirection: 'column' as const,
+		gap: '16px',
+	} as React.CSSProperties,
+
+	featureItem: {
+		display: 'flex',
+		alignItems: 'flex-start',
+		gap: '16px',
+		padding: '16px',
+		background: '#f8f9fa',
+		borderRadius: '12px',
+	} as React.CSSProperties,
+
+	icon: {
+		fontSize: '24px',
+		flexShrink: 0,
+	} as React.CSSProperties,
+
+	featureText: {
+		fontSize: '16px',
+		lineHeight: '1.5',
+		color: '#333',
+	} as React.CSSProperties,
+
+	stepList: {
+		display: 'flex',
+		flexDirection: 'column' as const,
+		gap: '24px',
+	} as React.CSSProperties,
+
+	step: {
+		display: 'flex',
+		gap: '20px',
+	} as React.CSSProperties,
+
+	stepNumber: {
+		width: '40px',
+		height: '40px',
+		borderRadius: '50%',
+		background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+		color: 'white',
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'center',
+		fontWeight: 600,
+		fontSize: '18px',
+		flexShrink: 0,
+	} as React.CSSProperties,
+
+	stepContent: {
+		flex: 1,
+	} as React.CSSProperties,
+
+	stepTitle: {
+		fontSize: '18px',
+		marginBottom: '8px',
+		color: '#333',
+	} as React.CSSProperties,
+
+	stepDescription: {
+		fontSize: '15px',
+		lineHeight: '1.6',
+		color: '#666',
+	} as React.CSSProperties,
+
+	purpleText: {
+		color: '#667eea',
+		fontWeight: 600,
+	} as React.CSSProperties,
+
+	examplesGrid: {
+		display: 'grid',
+		gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+		gap: '24px',
+	} as React.CSSProperties,
+
+	exampleCard: {
+		padding: '24px',
+		background: '#f8f9fa',
+		borderRadius: '12px',
+		borderLeft: '4px solid #667eea',
+	} as React.CSSProperties,
+
+	exampleCategory: {
+		fontWeight: 600,
+		fontSize: '14px',
+		color: '#667eea',
+		textTransform: 'uppercase' as const,
+		letterSpacing: '0.5px',
+		marginBottom: '16px',
+	} as React.CSSProperties,
+
+	exampleQuestion: {
+		fontSize: '14px',
+		color: '#333',
+		padding: '8px 0',
+		fontStyle: 'italic' as const,
+	} as React.CSSProperties,
+
+	searchableContent: {
+		display: 'grid',
+		gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+		gap: '24px',
+	} as React.CSSProperties,
+
+	contentCard: {
+		padding: '24px',
+		background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
+		borderRadius: '12px',
+		textAlign: 'center' as const,
+	} as React.CSSProperties,
+
+	contentIcon: {
+		fontSize: '48px',
+		marginBottom: '16px',
+	} as React.CSSProperties,
+
+	contentTitle: {
+		fontSize: '20px',
+		marginBottom: '12px',
+		color: '#333',
+	} as React.CSSProperties,
+
+	contentDescription: {
+		fontSize: '14px',
+		lineHeight: '1.6',
+		color: '#666',
+	} as React.CSSProperties,
+
+	callToAction: {
+		textAlign: 'center' as const,
+		padding: '60px 40px',
+		background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+		borderRadius: '16px',
+		color: 'white',
+	} as React.CSSProperties,
+
+	ctaTitle: {
+		fontSize: '36px',
+		marginBottom: '16px',
+	} as React.CSSProperties,
+
+	ctaDescription: {
+		fontSize: '18px',
+		marginBottom: '32px',
+		opacity: 0.9,
+	} as React.CSSProperties,
+
+	ctaIcon: {
+		animation: 'bounce 2s infinite',
+	} as React.CSSProperties,
+};
 
 const AIAssistantDemo: React.FC = () => {
 	return (
-		<Container>
-			<Header>
-				<Title>🤖 AI Assistant</Title>
-				<Subtitle>Your intelligent guide to OAuth & OIDC</Subtitle>
-			</Header>
+		<div style={styles.container}>
+			<style>{`
+				@keyframes bounce {
+					0%, 100% { transform: translateY(0); }
+					50% { transform: translateY(-10px); }
+				}
+			`}</style>
+			<div style={styles.header}>
+				<h1 style={styles.title}>🤖 AI Assistant</h1>
+				<p style={styles.subtitle}>Your intelligent guide to OAuth &amp; OIDC</p>
+			</div>
 
-			<Content>
-				<Section>
-					<SectionTitle>
+			<div style={styles.content}>
+				<section style={styles.section}>
+					<h2 style={styles.sectionTitle}>
 						<FiMessageCircle size={24} />
 						What is the AI Assistant?
-					</SectionTitle>
-					<Description>
+					</h2>
+					<p style={styles.description}>
 						The AI Assistant is an intelligent chatbot built into the OAuth Playground that helps
 						you:
-					</Description>
-					<FeatureList>
-						<FeatureItem>
-							<Icon>🔍</Icon>
-							<FeatureText>
+					</p>
+					<div style={styles.featureList}>
+						<div style={styles.featureItem}>
+							<div style={styles.icon}>🔍</div>
+							<div style={styles.featureText}>
 								<strong>Find the right OAuth flow</strong> for your application type
-							</FeatureText>
-						</FeatureItem>
-						<FeatureItem>
-							<Icon>💡</Icon>
-							<FeatureText>
+							</div>
+						</div>
+						<div style={styles.featureItem}>
+							<div style={styles.icon}>💡</div>
+							<div style={styles.featureText}>
 								<strong>Understand concepts</strong> like PKCE, scopes, and tokens
-							</FeatureText>
-						</FeatureItem>
-						<FeatureItem>
-							<Icon>🎯</Icon>
-							<FeatureText>
+							</div>
+						</div>
+						<div style={styles.featureItem}>
+							<div style={styles.icon}>🎯</div>
+							<div style={styles.featureText}>
 								<strong>Navigate quickly</strong> to relevant documentation and features
-							</FeatureText>
-						</FeatureItem>
-						<FeatureItem>
-							<Icon>🔧</Icon>
-							<FeatureText>
+							</div>
+						</div>
+						<div style={styles.featureItem}>
+							<div style={styles.icon}>🔧</div>
+							<div style={styles.featureText}>
 								<strong>Troubleshoot issues</strong> with helpful guidance
-							</FeatureText>
-						</FeatureItem>
-					</FeatureList>
-				</Section>
+							</div>
+						</div>
+					</div>
+				</section>
 
-				<Section>
-					<SectionTitle>
+				<section style={styles.section}>
+					<h2 style={styles.sectionTitle}>
 						<FiSearch size={24} />
 						How to Use It
-					</SectionTitle>
-					<StepList>
-						<Step>
-							<StepNumber>1</StepNumber>
-							<StepContent>
-								<StepTitle>Open the Assistant</StepTitle>
-								<StepDescription>
-									Look for the <PurpleText>purple floating chat button</PurpleText> in the
-									bottom-right corner of any page
-								</StepDescription>
-							</StepContent>
-						</Step>
-						<Step>
-							<StepNumber>2</StepNumber>
-							<StepContent>
-								<StepTitle>Ask Your Question</StepTitle>
-								<StepDescription>
+					</h2>
+					<div style={styles.stepList}>
+						<div style={styles.step}>
+							<div style={styles.stepNumber}>1</div>
+							<div style={styles.stepContent}>
+								<h3 style={styles.stepTitle}>Open the Assistant</h3>
+								<p style={styles.stepDescription}>
+									Look for the <span style={styles.purpleText}>purple floating chat button</span> in
+									the bottom-right corner of any page
+								</p>
+							</div>
+						</div>
+						<div style={styles.step}>
+							<div style={styles.stepNumber}>2</div>
+							<div style={styles.stepContent}>
+								<h3 style={styles.stepTitle}>Ask Your Question</h3>
+								<p style={styles.stepDescription}>
 									Type any question about OAuth, OIDC, or the playground features
-								</StepDescription>
-							</StepContent>
-						</Step>
-						<Step>
-							<StepNumber>3</StepNumber>
-							<StepContent>
-								<StepTitle>Get Instant Answers</StepTitle>
-								<StepDescription>
+								</p>
+							</div>
+						</div>
+						<div style={styles.step}>
+							<div style={styles.stepNumber}>3</div>
+							<div style={styles.stepContent}>
+								<h3 style={styles.stepTitle}>Get Instant Answers</h3>
+								<p style={styles.stepDescription}>
 									Receive helpful answers with links to relevant resources
-								</StepDescription>
-							</StepContent>
-						</Step>
-						<Step>
-							<StepNumber>4</StepNumber>
-							<StepContent>
-								<StepTitle>Navigate Directly</StepTitle>
-								<StepDescription>
+								</p>
+							</div>
+						</div>
+						<div style={styles.step}>
+							<div style={styles.stepNumber}>4</div>
+							<div style={styles.stepContent}>
+								<h3 style={styles.stepTitle}>Navigate Directly</h3>
+								<p style={styles.stepDescription}>
 									Click on suggested links to jump to flows, features, or documentation
-								</StepDescription>
-							</StepContent>
-						</Step>
-					</StepList>
-				</Section>
+								</p>
+							</div>
+						</div>
+					</div>
+				</section>
 
-				<Section>
-					<SectionTitle>
+				<section style={styles.section}>
+					<h2 style={styles.sectionTitle}>
 						<FiZap size={24} />
 						Example Questions
-					</SectionTitle>
-					<ExamplesGrid>
-						<ExampleCard>
-							<ExampleCategory>Flow Selection</ExampleCategory>
-							<ExampleQuestion>"Which flow should I use for my mobile app?"</ExampleQuestion>
-							<ExampleQuestion>"How do I test device flows?"</ExampleQuestion>
-							<ExampleQuestion>"What's the best flow for backend services?"</ExampleQuestion>
-						</ExampleCard>
-						<ExampleCard>
-							<ExampleCategory>Configuration</ExampleCategory>
-							<ExampleQuestion>"How do I configure Authorization Code flow?"</ExampleQuestion>
-							<ExampleQuestion>"How do I set up redirect URIs?"</ExampleQuestion>
-							<ExampleQuestion>"What credentials do I need?"</ExampleQuestion>
-						</ExampleCard>
-						<ExampleCard>
-							<ExampleCategory>Concepts</ExampleCategory>
-							<ExampleQuestion>"What is PKCE?"</ExampleQuestion>
-							<ExampleQuestion>"What's the difference between OAuth and OIDC?"</ExampleQuestion>
-							<ExampleQuestion>"Explain scopes and claims"</ExampleQuestion>
-						</ExampleCard>
-						<ExampleCard>
-							<ExampleCategory>Troubleshooting</ExampleCategory>
-							<ExampleQuestion>"Redirect URI mismatch error"</ExampleQuestion>
-							<ExampleQuestion>"How do I decode a JWT token?"</ExampleQuestion>
-							<ExampleQuestion>"Token validation failed"</ExampleQuestion>
-						</ExampleCard>
-					</ExamplesGrid>
-				</Section>
+					</h2>
+					<div style={styles.examplesGrid}>
+						<div style={styles.exampleCard}>
+							<div style={styles.exampleCategory}>Flow Selection</div>
+							<div style={styles.exampleQuestion}>
+								💬 &ldquo;Which flow should I use for my mobile app?&rdquo;
+							</div>
+							<div style={styles.exampleQuestion}>💬 &ldquo;How do I test device flows?&rdquo;</div>
+							<div style={styles.exampleQuestion}>
+								💬 &ldquo;What&apos;s the best flow for backend services?&rdquo;
+							</div>
+						</div>
+						<div style={styles.exampleCard}>
+							<div style={styles.exampleCategory}>Configuration</div>
+							<div style={styles.exampleQuestion}>
+								💬 &ldquo;How do I configure Authorization Code flow?&rdquo;
+							</div>
+							<div style={styles.exampleQuestion}>
+								💬 &ldquo;How do I set up redirect URIs?&rdquo;
+							</div>
+							<div style={styles.exampleQuestion}>💬 &ldquo;What credentials do I need?&rdquo;</div>
+						</div>
+						<div style={styles.exampleCard}>
+							<div style={styles.exampleCategory}>Concepts</div>
+							<div style={styles.exampleQuestion}>💬 &ldquo;What is PKCE?&rdquo;</div>
+							<div style={styles.exampleQuestion}>
+								💬 &ldquo;What&apos;s the difference between OAuth and OIDC?&rdquo;
+							</div>
+							<div style={styles.exampleQuestion}>💬 &ldquo;Explain scopes and claims&rdquo;</div>
+						</div>
+						<div style={styles.exampleCard}>
+							<div style={styles.exampleCategory}>Troubleshooting</div>
+							<div style={styles.exampleQuestion}>💬 &ldquo;Redirect URI mismatch error&rdquo;</div>
+							<div style={styles.exampleQuestion}>
+								💬 &ldquo;How do I decode a JWT token?&rdquo;
+							</div>
+							<div style={styles.exampleQuestion}>💬 &ldquo;Token validation failed&rdquo;</div>
+						</div>
+					</div>
+				</section>
 
-				<Section>
-					<SectionTitle>
+				<section style={styles.section}>
+					<h2 style={styles.sectionTitle}>
 						<FiBook size={24} />
 						What It Can Search
-					</SectionTitle>
-					<SearchableContent>
-						<ContentCard>
-							<ContentIcon>🔄</ContentIcon>
-							<ContentTitle>15+ OAuth Flows</ContentTitle>
-							<ContentDescription>
+					</h2>
+					<div style={styles.searchableContent}>
+						<div style={styles.contentCard}>
+							<div style={styles.contentIcon}>🔄</div>
+							<h3 style={styles.contentTitle}>15+ OAuth Flows</h3>
+							<p style={styles.contentDescription}>
 								Authorization Code, Client Credentials, Device Code, Implicit, JWT Bearer, CIBA, and
 								more
-							</ContentDescription>
-						</ContentCard>
-						<ContentCard>
-							<ContentIcon>⚡</ContentIcon>
-							<ContentTitle>12+ Features</ContentTitle>
-							<ContentDescription>
+							</p>
+						</div>
+						<div style={styles.contentCard}>
+							<div style={styles.contentIcon}>⚡</div>
+							<h3 style={styles.contentTitle}>12+ Features</h3>
+							<p style={styles.contentDescription}>
 								PKCE, Token Inspector, Code Generator, MFA, Password Reset, Session Management, and
 								more
-							</ContentDescription>
-						</ContentCard>
-						<ContentCard>
-							<ContentIcon>📖</ContentIcon>
-							<ContentTitle>Documentation</ContentTitle>
-							<ContentDescription>
+							</p>
+						</div>
+						<div style={styles.contentCard}>
+							<div style={styles.contentIcon}>📖</div>
+							<h3 style={styles.contentTitle}>Documentation</h3>
+							<p style={styles.contentDescription}>
 								Setup guides, security best practices, troubleshooting, and PingOne configuration
-							</ContentDescription>
-						</ContentCard>
-					</SearchableContent>
-				</Section>
+							</p>
+						</div>
+					</div>
+				</section>
 
-				<CallToAction>
-					<CTATitle>Try It Now!</CTATitle>
-					<CTADescription>
+				<div style={styles.callToAction}>
+					<h2 style={styles.ctaTitle}>Try It Now!</h2>
+					<p style={styles.ctaDescription}>
 						Look for the purple chat button in the bottom-right corner and start asking questions.
-					</CTADescription>
-					<CTAIcon>
+					</p>
+					<div style={styles.ctaIcon}>
 						<FiMessageCircle size={48} />
-					</CTAIcon>
-				</CallToAction>
-			</Content>
-		</Container>
+					</div>
+				</div>
+			</div>
+		</div>
 	);
 };
-
-// Styled Components
-const Container = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 40px 20px;
-`;
-
-const Header = styled.div`
-  text-align: center;
-  margin-bottom: 60px;
-`;
-
-const Title = styled.h1`
-  font-size: 48px;
-  margin-bottom: 16px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-`;
-
-const Subtitle = styled.p`
-  font-size: 20px;
-  color: #666;
-`;
-
-const Content = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 60px;
-`;
-
-const Section = styled.section`
-  background: white;
-  border-radius: 16px;
-  padding: 40px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-`;
-
-const SectionTitle = styled.h2`
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 28px;
-  margin-bottom: 24px;
-  color: #333;
-`;
-
-const Description = styled.p`
-  font-size: 16px;
-  line-height: 1.6;
-  color: #666;
-  margin-bottom: 24px;
-`;
-
-const FeatureList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-`;
-
-const FeatureItem = styled.div`
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-  padding: 16px;
-  background: #f8f9fa;
-  border-radius: 12px;
-`;
-
-const Icon = styled.div`
-  font-size: 24px;
-  flex-shrink: 0;
-`;
-
-const FeatureText = styled.div`
-  font-size: 16px;
-  line-height: 1.5;
-  color: #333;
-`;
-
-const StepList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-`;
-
-const Step = styled.div`
-  display: flex;
-  gap: 20px;
-`;
-
-const StepNumber = styled.div`
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  font-size: 18px;
-  flex-shrink: 0;
-`;
-
-const StepContent = styled.div`
-  flex: 1;
-`;
-
-const StepTitle = styled.h3`
-  font-size: 18px;
-  margin-bottom: 8px;
-  color: #333;
-`;
-
-const StepDescription = styled.p`
-  font-size: 15px;
-  line-height: 1.6;
-  color: #666;
-`;
-
-const PurpleText = styled.span`
-  color: #667eea;
-  font-weight: 600;
-`;
-
-const ExamplesGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 24px;
-`;
-
-const ExampleCard = styled.div`
-  padding: 24px;
-  background: #f8f9fa;
-  border-radius: 12px;
-  border-left: 4px solid #667eea;
-`;
-
-const ExampleCategory = styled.div`
-  font-weight: 600;
-  font-size: 14px;
-  color: #667eea;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 16px;
-`;
-
-const ExampleQuestion = styled.div`
-  font-size: 14px;
-  color: #333;
-  padding: 8px 0;
-  font-style: italic;
-  
-  &:before {
-    content: '💬 ';
-  }
-`;
-
-const SearchableContent = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 24px;
-`;
-
-const ContentCard = styled.div`
-  padding: 24px;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border-radius: 12px;
-  text-align: center;
-`;
-
-const ContentIcon = styled.div`
-  font-size: 48px;
-  margin-bottom: 16px;
-`;
-
-const ContentTitle = styled.h3`
-  font-size: 20px;
-  margin-bottom: 12px;
-  color: #333;
-`;
-
-const ContentDescription = styled.p`
-  font-size: 14px;
-  line-height: 1.6;
-  color: #666;
-`;
-
-const CallToAction = styled.div`
-  text-align: center;
-  padding: 60px 40px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 16px;
-  color: white;
-`;
-
-const CTATitle = styled.h2`
-  font-size: 36px;
-  margin-bottom: 16px;
-`;
-
-const CTADescription = styled.p`
-  font-size: 18px;
-  margin-bottom: 32px;
-  opacity: 0.9;
-`;
-
-const CTAIcon = styled.div`
-  animation: bounce 2s infinite;
-
-  @keyframes bounce {
-    0%, 100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(-10px);
-    }
-  }
-`;
 
 export default AIAssistantDemo;

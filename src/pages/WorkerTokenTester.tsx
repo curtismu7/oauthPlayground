@@ -9,7 +9,6 @@ import {
 	FiUser,
 	FiXCircle,
 } from 'react-icons/fi';
-import styled from 'styled-components';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
@@ -46,6 +45,251 @@ interface EnvironmentData {
 		name?: string;
 	};
 }
+
+const styles = {
+	container: {
+		width: '100%',
+		maxWidth: '100%',
+		padding: '2rem',
+		boxSizing: 'border-box',
+		overflowX: 'auto',
+		overflowY: 'auto',
+		minWidth: 0,
+	} as React.CSSProperties,
+	header: {
+		marginBottom: '2rem',
+	} as React.CSSProperties,
+	title: {
+		display: 'flex',
+		alignItems: 'center',
+		gap: '1rem',
+		fontSize: '2rem',
+		fontWeight: 600,
+		color: '#1a1a1a',
+		margin: '0 0 0.5rem 0',
+	} as React.CSSProperties,
+	subtitle: {
+		color: '#666',
+		fontSize: '1rem',
+		margin: 0,
+	} as React.CSSProperties,
+	section: {
+		background: 'white',
+		borderRadius: '8px',
+		padding: '1.5rem',
+		marginBottom: '1.5rem',
+		boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+	} as React.CSSProperties,
+	sectionTitle: {
+		fontSize: '1.25rem',
+		fontWeight: 600,
+		color: '#1a1a1a',
+		margin: '0 0 1rem 0',
+	} as React.CSSProperties,
+	tokenInput: {
+		width: '100%',
+		padding: '1rem',
+		border: '2px solid #e0e0e0',
+		borderRadius: '6px',
+		fontFamily: "'Monaco', 'Menlo', 'Courier New', monospace",
+		fontSize: '0.875rem',
+		resize: 'vertical',
+	} as React.CSSProperties,
+	errorMessage: {
+		display: 'flex',
+		alignItems: 'center',
+		gap: '0.5rem',
+		color: '#d32f2f',
+		background: '#ffebee',
+		padding: '0.75rem 1rem',
+		borderRadius: '6px',
+		marginTop: '1rem',
+		fontSize: '0.875rem',
+	} as React.CSSProperties,
+	warningMessage: {
+		display: 'flex',
+		alignItems: 'center',
+		gap: '0.5rem',
+		color: '#f57c00',
+		background: '#fff3e0',
+		padding: '0.75rem 1rem',
+		borderRadius: '6px',
+		marginTop: '1rem',
+		fontSize: '0.875rem',
+	} as React.CSSProperties,
+	tokenInfo: {} as React.CSSProperties,
+	infoGrid: {
+		display: 'grid',
+		gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+		gap: '1rem',
+		marginBottom: '1.5rem',
+	} as React.CSSProperties,
+	infoCard: {
+		display: 'flex',
+		gap: '1rem',
+		padding: '1rem',
+		background: '#f5f5f5',
+		borderRadius: '6px',
+	} as React.CSSProperties,
+	infoIcon: (status: 'success' | 'error' | 'info'): React.CSSProperties => ({
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'center',
+		width: '48px',
+		height: '48px',
+		borderRadius: '50%',
+		flexShrink: 0,
+		background: status === 'success' ? '#e8f5e9' : status === 'error' ? '#ffebee' : '#e3f2fd',
+		color: status === 'success' ? '#4caf50' : status === 'error' ? '#d32f2f' : '#2196f3',
+	}),
+	infoContent: {
+		flex: 1,
+		minWidth: 0,
+	} as React.CSSProperties,
+	infoLabel: {
+		fontSize: '0.75rem',
+		color: '#666',
+		textTransform: 'uppercase',
+		letterSpacing: '0.5px',
+		marginBottom: '0.25rem',
+	} as React.CSSProperties,
+	infoValue: (status?: 'success' | 'error'): React.CSSProperties => ({
+		fontSize: '1rem',
+		fontWeight: 600,
+		color: status === 'success' ? '#4caf50' : status === 'error' ? '#d32f2f' : '#1a1a1a',
+		wordBreak: 'break-all',
+		marginBottom: '0.25rem',
+	}),
+	infoDetail: {
+		fontSize: '0.75rem',
+		color: '#999',
+	} as React.CSSProperties,
+	detailsList: {
+		display: 'flex',
+		flexDirection: 'column',
+		gap: '0.75rem',
+	} as React.CSSProperties,
+	detailsRow: {
+		display: 'flex',
+		gap: '1rem',
+		padding: '0.75rem',
+		background: '#fafafa',
+		borderRadius: '4px',
+	} as React.CSSProperties,
+	detailsLabel: {
+		fontWeight: 600,
+		color: '#666',
+		minWidth: '120px',
+		flexShrink: 0,
+	} as React.CSSProperties,
+	detailsValue: {
+		color: '#1a1a1a',
+		wordBreak: 'break-all',
+		fontFamily: "'Monaco', 'Menlo', 'Courier New', monospace",
+		fontSize: '0.875rem',
+	} as React.CSSProperties,
+	testButton: {
+		width: '100%',
+		padding: '1rem',
+		background: '#2196f3',
+		color: 'white',
+		border: 'none',
+		borderRadius: '6px',
+		fontSize: '1rem',
+		fontWeight: 600,
+		cursor: 'pointer',
+	} as React.CSSProperties,
+	testResults: {
+		marginTop: '1.5rem',
+		display: 'flex',
+		flexDirection: 'column',
+		gap: '1rem',
+	} as React.CSSProperties,
+	testResultCard: (status: 'success' | 'error' | 'warning'): React.CSSProperties => ({
+		padding: '1rem',
+		borderLeft: `4px solid ${status === 'success' ? '#4caf50' : status === 'error' ? '#d32f2f' : '#ff9800'}`,
+		background: status === 'success' ? '#f1f8f4' : status === 'error' ? '#fef5f5' : '#fff8f0',
+		borderRadius: '6px',
+	}),
+	testResultHeader: {
+		display: 'flex',
+		alignItems: 'center',
+		gap: '0.75rem',
+		marginBottom: '0.5rem',
+	} as React.CSSProperties,
+	testResultIcon: (status: 'success' | 'error' | 'warning'): React.CSSProperties => ({
+		color: status === 'success' ? '#4caf50' : status === 'error' ? '#d32f2f' : '#ff9800',
+	}),
+	testResultTitle: {
+		fontWeight: 600,
+		color: '#1a1a1a',
+		flex: 1,
+	} as React.CSSProperties,
+	statusCode: (status: 'success' | 'error' | 'warning'): React.CSSProperties => ({
+		padding: '0.25rem 0.75rem',
+		borderRadius: '4px',
+		fontSize: '0.875rem',
+		fontWeight: 600,
+		background: status === 'success' ? '#4caf50' : status === 'error' ? '#d32f2f' : '#ff9800',
+		color: 'white',
+	}),
+	testResultMessage: {
+		color: '#1a1a1a',
+		marginBottom: '0.25rem',
+	} as React.CSSProperties,
+	testResultDetails: {
+		color: '#666',
+		fontSize: '0.875rem',
+	} as React.CSSProperties,
+	environmentInfo: {
+		overflowX: 'auto',
+	} as React.CSSProperties,
+	envTable: {
+		width: '100%',
+		borderCollapse: 'collapse',
+		background: 'white',
+		borderRadius: '8px',
+		overflow: 'hidden',
+		boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+	} as React.CSSProperties,
+	envTableRow: {
+		borderBottom: '1px solid #e5e7eb',
+	} as React.CSSProperties,
+	envTableLabel: {
+		padding: '1rem 1.5rem',
+		fontWeight: 600,
+		fontSize: '0.875rem',
+		color: '#374151',
+		textTransform: 'uppercase',
+		letterSpacing: '0.5px',
+		width: '200px',
+		background: '#f3f4f6',
+		borderRight: '2px solid #e5e7eb',
+	} as React.CSSProperties,
+	envTableValue: (highlight?: boolean, mono?: boolean): React.CSSProperties => ({
+		padding: '1rem 1.5rem',
+		fontSize: highlight ? '1.25rem' : mono ? '0.875rem' : '1rem',
+		fontWeight: highlight ? 700 : 500,
+		color: highlight ? '#1f2937' : mono ? '#6b7280' : '#4b5563',
+		wordBreak: mono ? 'break-all' : 'break-word',
+		overflowWrap: 'break-word',
+		...(mono && {
+			fontFamily: "'Monaco', 'Menlo', 'Courier New', monospace",
+		}),
+	}),
+	typeBadge: (type?: string): React.CSSProperties => ({
+		display: 'inline-block',
+		padding: '0.5rem 1rem',
+		borderRadius: '6px',
+		fontWeight: 700,
+		fontSize: '0.875rem',
+		textTransform: 'uppercase',
+		letterSpacing: '1px',
+		background: type === 'PRODUCTION' ? '#dc2626' : type === 'SANDBOX' ? '#3b82f6' : '#10b981',
+		color: 'white',
+		boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+	}),
+};
 
 const WorkerTokenTester: React.FC = () => {
 	const [token, setToken] = useState('');
@@ -101,17 +345,17 @@ const WorkerTokenTester: React.FC = () => {
 					const isTokenExpired = now > decoded.exp;
 
 					if (isTokenExpired) {
-						v4ToastManager.showWarning('⚠️ Token decoded but it is EXPIRED');
+						v4ToastManager.showWarning('\u26a0\ufe0f Token decoded but it is EXPIRED');
 					} else {
-						v4ToastManager.showInfo('✓ Token decoded successfully');
+						v4ToastManager.showInfo('\u2713 Token decoded successfully');
 					}
 				} else {
-					v4ToastManager.showInfo('✓ Token decoded successfully');
+					v4ToastManager.showInfo('\u2713 Token decoded successfully');
 				}
 			} else {
 				setPayload(null);
 				setError('Invalid JWT token format');
-				v4ToastManager.showError('❌ Invalid JWT token format');
+				v4ToastManager.showError('\u274c Invalid JWT token format');
 			}
 		} else {
 			setPayload(null);
@@ -183,7 +427,7 @@ const WorkerTokenTester: React.FC = () => {
 					data: envData,
 				});
 
-				v4ToastManager.showSuccess(`✅ Token is valid! Environment: ${envData.name}`);
+				v4ToastManager.showSuccess(`\u2705 Token is valid! Environment: ${envData.name}`);
 			} else {
 				results.push({
 					test: 'Get Environment',
@@ -194,11 +438,13 @@ const WorkerTokenTester: React.FC = () => {
 				});
 
 				if (envResponse.status === 401) {
-					v4ToastManager.showError('❌ Token is invalid or expired');
+					v4ToastManager.showError('\u274c Token is invalid or expired');
 				} else if (envResponse.status === 403) {
-					v4ToastManager.showWarning('⚠️ Token lacks environment read permissions');
+					v4ToastManager.showWarning('\u26a0\ufe0f Token lacks environment read permissions');
 				} else {
-					v4ToastManager.showError(`❌ Validation failed: ${envData.message || 'Unknown error'}`);
+					v4ToastManager.showError(
+						`\u274c Validation failed: ${envData.message || 'Unknown error'}`
+					);
 				}
 			}
 
@@ -332,7 +578,7 @@ const WorkerTokenTester: React.FC = () => {
 				details: errorMessage,
 			});
 
-			v4ToastManager.showError(`❌ Network error: ${errorMessage}`);
+			v4ToastManager.showError(`\u274c Network error: ${errorMessage}`);
 		}
 
 		setTestResults(results);
@@ -357,541 +603,231 @@ const WorkerTokenTester: React.FC = () => {
 	};
 
 	return (
-		<Container>
-			<Header>
-				<Title>
+		<div style={styles.container}>
+			<div style={styles.header}>
+				<h1 style={styles.title}>
 					<FiKey size={32} />
 					Worker Token Tester
-				</Title>
-				<Subtitle>
+				</h1>
+				<p style={styles.subtitle}>
 					Paste a PingOne worker token to decode and validate it against the PingOne API
-				</Subtitle>
-			</Header>
+				</p>
+			</div>
 
-			<Section>
-				<SectionTitle>Token Input</SectionTitle>
-				<TokenInput
+			<div style={styles.section}>
+				<h2 style={styles.sectionTitle}>Token Input</h2>
+				<textarea
+					style={styles.tokenInput}
 					placeholder="Paste your PingOne worker token here (JWT format: eyJhbGc...)"
 					value={token}
 					onChange={(e) => handleTokenChange(e.target.value)}
 					rows={6}
 				/>
 				{error && (
-					<ErrorMessage>
+					<div style={styles.errorMessage}>
 						<FiXCircle /> {error}
-					</ErrorMessage>
+					</div>
 				)}
-			</Section>
+			</div>
 
 			{payload && (
 				<>
-					<Section>
-						<SectionTitle>Token Information</SectionTitle>
-						<TokenInfo>
-							<InfoGrid>
-								<InfoCard>
-									<InfoIcon status={isExpired ? 'error' : 'success'}>
+					<div style={styles.section}>
+						<h2 style={styles.sectionTitle}>Token Information</h2>
+						<div style={styles.tokenInfo}>
+							<div style={styles.infoGrid}>
+								<div style={styles.infoCard}>
+									<div style={styles.infoIcon(isExpired ? 'error' : 'success')}>
 										<FiClock size={24} />
-									</InfoIcon>
-									<InfoContent>
-										<InfoLabel>Status</InfoLabel>
-										<InfoValue status={isExpired ? 'error' : 'success'}>
+									</div>
+									<div style={styles.infoContent}>
+										<div style={styles.infoLabel}>Status</div>
+										<div style={styles.infoValue(isExpired ? 'error' : 'success')}>
 											{isExpired ? 'EXPIRED' : 'VALID'}
-										</InfoValue>
+										</div>
 										{timeRemaining !== null && (
-											<InfoDetail>
+											<div style={styles.infoDetail}>
 												{isExpired ? 'Expired ' : 'Expires in '}
 												{formatTimeRemaining(timeRemaining)}
-											</InfoDetail>
+											</div>
 										)}
-									</InfoContent>
-								</InfoCard>
+									</div>
+								</div>
 
-								<InfoCard>
-									<InfoIcon status="info">
+								<div style={styles.infoCard}>
+									<div style={styles.infoIcon('info')}>
 										<FiKey size={24} />
-									</InfoIcon>
-									<InfoContent>
-										<InfoLabel>Client ID</InfoLabel>
-										<InfoValue>{payload.client_id || 'N/A'}</InfoValue>
-										<InfoDetail>OAuth Client Identifier</InfoDetail>
-									</InfoContent>
-								</InfoCard>
+									</div>
+									<div style={styles.infoContent}>
+										<div style={styles.infoLabel}>Client ID</div>
+										<div style={styles.infoValue()}>{payload.client_id || 'N/A'}</div>
+										<div style={styles.infoDetail}>OAuth Client Identifier</div>
+									</div>
+								</div>
 
-								<InfoCard>
-									<InfoIcon status="info">
+								<div style={styles.infoCard}>
+									<div style={styles.infoIcon('info')}>
 										<FiGlobe size={24} />
-									</InfoIcon>
-									<InfoContent>
-										<InfoLabel>Environment ID</InfoLabel>
-										<InfoValue>{payload.env || 'N/A'}</InfoValue>
-										<InfoDetail>PingOne Environment</InfoDetail>
-									</InfoContent>
-								</InfoCard>
+									</div>
+									<div style={styles.infoContent}>
+										<div style={styles.infoLabel}>Environment ID</div>
+										<div style={styles.infoValue()}>{payload.env || 'N/A'}</div>
+										<div style={styles.infoDetail}>PingOne Environment</div>
+									</div>
+								</div>
 
-								<InfoCard>
-									<InfoIcon status="info">
+								<div style={styles.infoCard}>
+									<div style={styles.infoIcon('info')}>
 										<FiUser size={24} />
-									</InfoIcon>
-									<InfoContent>
-										<InfoLabel>Organization ID</InfoLabel>
-										<InfoValue>{payload.org || 'N/A'}</InfoValue>
-										<InfoDetail>PingOne Organization</InfoDetail>
-									</InfoContent>
-								</InfoCard>
-							</InfoGrid>
+									</div>
+									<div style={styles.infoContent}>
+										<div style={styles.infoLabel}>Organization ID</div>
+										<div style={styles.infoValue()}>{payload.org || 'N/A'}</div>
+										<div style={styles.infoDetail}>PingOne Organization</div>
+									</div>
+								</div>
+							</div>
 
-							<DetailsList>
-								<DetailsRow>
-									<DetailsLabel>Issued At:</DetailsLabel>
-									<DetailsValue>{payload.iat ? formatDate(payload.iat) : 'N/A'}</DetailsValue>
-								</DetailsRow>
-								<DetailsRow>
-									<DetailsLabel>Expires At:</DetailsLabel>
-									<DetailsValue>{payload.exp ? formatDate(payload.exp) : 'N/A'}</DetailsValue>
-								</DetailsRow>
-								<DetailsRow>
-									<DetailsLabel>Issuer:</DetailsLabel>
-									<DetailsValue>{payload.iss || 'N/A'}</DetailsValue>
-								</DetailsRow>
-								<DetailsRow>
-									<DetailsLabel>Audience:</DetailsLabel>
-									<DetailsValue>
+							<div style={styles.detailsList}>
+								<div style={styles.detailsRow}>
+									<div style={styles.detailsLabel}>Issued At:</div>
+									<div style={styles.detailsValue}>
+										{payload.iat ? formatDate(payload.iat) : 'N/A'}
+									</div>
+								</div>
+								<div style={styles.detailsRow}>
+									<div style={styles.detailsLabel}>Expires At:</div>
+									<div style={styles.detailsValue}>
+										{payload.exp ? formatDate(payload.exp) : 'N/A'}
+									</div>
+								</div>
+								<div style={styles.detailsRow}>
+									<div style={styles.detailsLabel}>Issuer:</div>
+									<div style={styles.detailsValue}>{payload.iss || 'N/A'}</div>
+								</div>
+								<div style={styles.detailsRow}>
+									<div style={styles.detailsLabel}>Audience:</div>
+									<div style={styles.detailsValue}>
 										{Array.isArray(payload.aud) ? payload.aud.join(', ') : payload.aud || 'N/A'}
-									</DetailsValue>
-								</DetailsRow>
+									</div>
+								</div>
 								{payload.scope && (
-									<DetailsRow>
-										<DetailsLabel>Scope:</DetailsLabel>
-										<DetailsValue>{payload.scope}</DetailsValue>
-									</DetailsRow>
+									<div style={styles.detailsRow}>
+										<div style={styles.detailsLabel}>Scope:</div>
+										<div style={styles.detailsValue}>{payload.scope}</div>
+									</div>
 								)}
-								<DetailsRow>
-									<DetailsLabel>JWT ID:</DetailsLabel>
-									<DetailsValue>{payload.jti || 'N/A'}</DetailsValue>
-								</DetailsRow>
-							</DetailsList>
-						</TokenInfo>
-					</Section>
+								<div style={styles.detailsRow}>
+									<div style={styles.detailsLabel}>JWT ID:</div>
+									<div style={styles.detailsValue}>{payload.jti || 'N/A'}</div>
+								</div>
+							</div>
+						</div>
+					</div>
 
 					{environmentData && (
-						<Section>
-							<SectionTitle>Environment Details</SectionTitle>
-							<EnvironmentInfo>
-								<EnvTable>
+						<div style={styles.section}>
+							<h2 style={styles.sectionTitle}>Environment Details</h2>
+							<div style={styles.environmentInfo}>
+								<table style={styles.envTable}>
 									<tbody>
-										<EnvTableRow>
-											<EnvTableLabel>Environment Name</EnvTableLabel>
-											<EnvTableValue highlight>{environmentData.name || 'N/A'}</EnvTableValue>
-										</EnvTableRow>
-										<EnvTableRow>
-											<EnvTableLabel>Environment Type</EnvTableLabel>
-											<EnvTableValue>
+										<tr style={styles.envTableRow}>
+											<td style={styles.envTableLabel}>Environment Name</td>
+											<td style={styles.envTableValue(true)}>{environmentData.name || 'N/A'}</td>
+										</tr>
+										<tr style={styles.envTableRow}>
+											<td style={styles.envTableLabel}>Environment Type</td>
+											<td style={styles.envTableValue()}>
 												{environmentData.type ? (
-													<TypeBadge type={environmentData.type}>{environmentData.type}</TypeBadge>
+													<span style={styles.typeBadge(environmentData.type)}>
+														{environmentData.type}
+													</span>
 												) : (
 													'N/A'
 												)}
-											</EnvTableValue>
-										</EnvTableRow>
-										<EnvTableRow>
-											<EnvTableLabel>Region</EnvTableLabel>
-											<EnvTableValue>
-												{environmentData.region === 'NA' && '🇺🇸 NA (North America)'}
-												{environmentData.region === 'EU' && '🇪🇺 EU (Europe)'}
-												{environmentData.region === 'AP' && '🌏 AP (Asia Pacific)'}
-												{environmentData.region === 'CA' && '🇨🇦 CA (Canada)'}
+											</td>
+										</tr>
+										<tr style={styles.envTableRow}>
+											<td style={styles.envTableLabel}>Region</td>
+											<td style={styles.envTableValue()}>
+												{environmentData.region === 'NA' && 'U0001f1faU0001f1f8 NA (North America)'}
+												{environmentData.region === 'EU' && 'U0001f1eaU0001f1fa EU (Europe)'}
+												{environmentData.region === 'AP' && 'U0001f30f AP (Asia Pacific)'}
+												{environmentData.region === 'CA' && 'U0001f1e8U0001f1e6 CA (Canada)'}
 												{!['NA', 'EU', 'AP', 'CA'].includes(environmentData.region || '') &&
 													(environmentData.region || 'N/A')}
-											</EnvTableValue>
-										</EnvTableRow>
+											</td>
+										</tr>
 										{environmentData.description && (
-											<EnvTableRow>
-												<EnvTableLabel>Description</EnvTableLabel>
-												<EnvTableValue>{environmentData.description}</EnvTableValue>
-											</EnvTableRow>
+											<tr style={styles.envTableRow}>
+												<td style={styles.envTableLabel}>Description</td>
+												<td style={styles.envTableValue()}>{environmentData.description}</td>
+											</tr>
 										)}
 										{environmentData.license?.name && (
-											<EnvTableRow>
-												<EnvTableLabel>License</EnvTableLabel>
-												<EnvTableValue>{environmentData.license.name}</EnvTableValue>
-											</EnvTableRow>
+											<tr style={styles.envTableRow}>
+												<td style={styles.envTableLabel}>License</td>
+												<td style={styles.envTableValue()}>{environmentData.license.name}</td>
+											</tr>
 										)}
-										<EnvTableRow>
-											<EnvTableLabel>Environment ID</EnvTableLabel>
-											<EnvTableValue mono>{payload?.env || 'N/A'}</EnvTableValue>
-										</EnvTableRow>
+										<tr style={styles.envTableRow}>
+											<td style={styles.envTableLabel}>Environment ID</td>
+											<td style={styles.envTableValue(undefined, true)}>{payload?.env || 'N/A'}</td>
+										</tr>
 									</tbody>
-								</EnvTable>
-							</EnvironmentInfo>
-						</Section>
+								</table>
+							</div>
+						</div>
 					)}
 
-					<Section>
-						<SectionTitle>API Validation</SectionTitle>
-						<TestButton onClick={testToken} disabled={isTesting || isExpired}>
+					<div style={styles.section}>
+						<h2 style={styles.sectionTitle}>API Validation</h2>
+						<button
+							type="button"
+							style={{
+								...styles.testButton,
+								...(isTesting || isExpired ? { background: '#ccc', cursor: 'not-allowed' } : {}),
+							}}
+							onClick={testToken}
+							disabled={isTesting || isExpired}
+						>
 							{isTesting ? 'Testing...' : 'Test Token Against PingOne API'}
-						</TestButton>
+						</button>
 
 						{isExpired && (
-							<WarningMessage>
+							<div style={styles.warningMessage}>
 								<FiAlertCircle /> This token is expired and will fail API validation
-							</WarningMessage>
+							</div>
 						)}
 
 						{testResults.length > 0 && (
-							<TestResults>
+							<div style={styles.testResults}>
 								{testResults.map((result, index) => (
-									<TestResultCard key={index} status={result.status}>
-										<TestResultHeader>
-											<TestResultIcon status={result.status}>
+									<div key={index} style={styles.testResultCard(result.status)}>
+										<div style={styles.testResultHeader}>
+											<div style={styles.testResultIcon(result.status)}>
 												{result.status === 'success' && <FiCheckCircle size={20} />}
 												{result.status === 'error' && <FiXCircle size={20} />}
 												{result.status === 'warning' && <FiAlertCircle size={20} />}
-											</TestResultIcon>
-											<TestResultTitle>{result.test}</TestResultTitle>
+											</div>
+											<div style={styles.testResultTitle}>{result.test}</div>
 											{result.statusCode && (
-												<StatusCode status={result.status}>{result.statusCode}</StatusCode>
+												<div style={styles.statusCode(result.status)}>{result.statusCode}</div>
 											)}
-										</TestResultHeader>
-										<TestResultMessage>{result.message}</TestResultMessage>
-										{result.details && <TestResultDetails>{result.details}</TestResultDetails>}
-									</TestResultCard>
+										</div>
+										<div style={styles.testResultMessage}>{result.message}</div>
+										{result.details && <div style={styles.testResultDetails}>{result.details}</div>}
+									</div>
 								))}
-							</TestResults>
+							</div>
 						)}
-					</Section>
+					</div>
 
 					<SuperSimpleApiDisplayV8 />
 				</>
 			)}
-		</Container>
+		</div>
 	);
 };
-
-// Styled Components
-const Container = styled.div`
-	width: 100%;
-	max-width: 100%;
-	padding: 2rem;
-	box-sizing: border-box;
-	overflow-x: auto;
-	overflow-y: auto;
-	min-width: 0; /* Allow flex items to shrink below content size */
-	
-	@media (max-width: 1024px) {
-		padding: 1rem;
-	}
-`;
-
-const Header = styled.div`
-	margin-bottom: 2rem;
-`;
-
-const Title = styled.h1`
-	display: flex;
-	align-items: center;
-	gap: 1rem;
-	font-size: 2rem;
-	font-weight: 600;
-	color: #1a1a1a;
-	margin: 0 0 0.5rem 0;
-`;
-
-const Subtitle = styled.p`
-	color: #666;
-	font-size: 1rem;
-	margin: 0;
-`;
-
-const Section = styled.div`
-	background: white;
-	border-radius: 8px;
-	padding: 1.5rem;
-	margin-bottom: 1.5rem;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-`;
-
-const SectionTitle = styled.h2`
-	font-size: 1.25rem;
-	font-weight: 600;
-	color: #1a1a1a;
-	margin: 0 0 1rem 0;
-`;
-
-const TokenInput = styled.textarea`
-	width: 100%;
-	padding: 1rem;
-	border: 2px solid #e0e0e0;
-	border-radius: 6px;
-	font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
-	font-size: 0.875rem;
-	resize: vertical;
-	transition: border-color 0.2s;
-
-	&:focus {
-		outline: none;
-		border-color: #2196f3;
-	}
-`;
-
-const ErrorMessage = styled.div`
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-	color: #d32f2f;
-	background: #ffebee;
-	padding: 0.75rem 1rem;
-	border-radius: 6px;
-	margin-top: 1rem;
-	font-size: 0.875rem;
-`;
-
-const WarningMessage = styled.div`
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-	color: #f57c00;
-	background: #fff3e0;
-	padding: 0.75rem 1rem;
-	border-radius: 6px;
-	margin-top: 1rem;
-	font-size: 0.875rem;
-`;
-
-const TokenInfo = styled.div``;
-
-const InfoGrid = styled.div`
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-	gap: 1rem;
-	margin-bottom: 1.5rem;
-	
-	@media (max-width: 768px) {
-		grid-template-columns: 1fr;
-	}
-`;
-
-const InfoCard = styled.div`
-	display: flex;
-	gap: 1rem;
-	padding: 1rem;
-	background: #f5f5f5;
-	border-radius: 6px;
-`;
-
-const InfoIcon = styled.div<{ status: 'success' | 'error' | 'info' }>`
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 48px;
-	height: 48px;
-	border-radius: 50%;
-	flex-shrink: 0;
-	background: ${(props) =>
-		props.status === 'success' ? '#e8f5e9' : props.status === 'error' ? '#ffebee' : '#e3f2fd'};
-	color: ${(props) =>
-		props.status === 'success' ? '#4caf50' : props.status === 'error' ? '#d32f2f' : '#2196f3'};
-`;
-
-const InfoContent = styled.div`
-	flex: 1;
-	min-width: 0;
-`;
-
-const InfoLabel = styled.div`
-	font-size: 0.75rem;
-	color: #666;
-	text-transform: uppercase;
-	letter-spacing: 0.5px;
-	margin-bottom: 0.25rem;
-`;
-
-const InfoValue = styled.div<{ status?: 'success' | 'error' }>`
-	font-size: 1rem;
-	font-weight: 600;
-	color: ${(props) =>
-		props.status === 'success' ? '#4caf50' : props.status === 'error' ? '#d32f2f' : '#1a1a1a'};
-	word-break: break-all;
-	margin-bottom: 0.25rem;
-`;
-
-const InfoDetail = styled.div`
-	font-size: 0.75rem;
-	color: #999;
-`;
-
-const DetailsList = styled.div`
-	display: flex;
-	flex-direction: column;
-	gap: 0.75rem;
-`;
-
-const DetailsRow = styled.div`
-	display: flex;
-	gap: 1rem;
-	padding: 0.75rem;
-	background: #fafafa;
-	border-radius: 4px;
-`;
-
-const DetailsLabel = styled.div`
-	font-weight: 600;
-	color: #666;
-	min-width: 120px;
-	flex-shrink: 0;
-`;
-
-const DetailsValue = styled.div`
-	color: #1a1a1a;
-	word-break: break-all;
-	font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
-	font-size: 0.875rem;
-`;
-
-const TestButton = styled.button`
-	width: 100%;
-	padding: 1rem;
-	background: #2196f3;
-	color: white;
-	border: none;
-	border-radius: 6px;
-	font-size: 1rem;
-	font-weight: 600;
-	cursor: pointer;
-	transition: background 0.2s;
-
-	&:hover:not(:disabled) {
-		background: #1976d2;
-	}
-
-	&:disabled {
-		background: #ccc;
-		cursor: not-allowed;
-	}
-`;
-
-const TestResults = styled.div`
-	margin-top: 1.5rem;
-	display: flex;
-	flex-direction: column;
-	gap: 1rem;
-`;
-
-const TestResultCard = styled.div<{ status: 'success' | 'error' | 'warning' }>`
-	padding: 1rem;
-	border-left: 4px solid
-		${(props) =>
-			props.status === 'success' ? '#4caf50' : props.status === 'error' ? '#d32f2f' : '#ff9800'};
-	background: ${(props) =>
-		props.status === 'success' ? '#f1f8f4' : props.status === 'error' ? '#fef5f5' : '#fff8f0'};
-	border-radius: 6px;
-`;
-
-const TestResultHeader = styled.div`
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
-	margin-bottom: 0.5rem;
-`;
-
-const TestResultIcon = styled.div<{ status: 'success' | 'error' | 'warning' }>`
-	color: ${(props) =>
-		props.status === 'success' ? '#4caf50' : props.status === 'error' ? '#d32f2f' : '#ff9800'};
-`;
-
-const TestResultTitle = styled.div`
-	font-weight: 600;
-	color: #1a1a1a;
-	flex: 1;
-`;
-
-const StatusCode = styled.div<{ status: 'success' | 'error' | 'warning' }>`
-	padding: 0.25rem 0.75rem;
-	border-radius: 4px;
-	font-size: 0.875rem;
-	font-weight: 600;
-	background: ${(props) =>
-		props.status === 'success' ? '#4caf50' : props.status === 'error' ? '#d32f2f' : '#ff9800'};
-	color: white;
-`;
-
-const TestResultMessage = styled.div`
-	color: #1a1a1a;
-	margin-bottom: 0.25rem;
-`;
-
-const TestResultDetails = styled.div`
-	color: #666;
-	font-size: 0.875rem;
-`;
-
-const EnvironmentInfo = styled.div`
-	overflow-x: auto;
-`;
-
-const EnvTable = styled.table`
-	width: 100%;
-	border-collapse: collapse;
-	background: white;
-	border-radius: 8px;
-	overflow: hidden;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-`;
-
-const EnvTableRow = styled.tr`
-	border-bottom: 1px solid #e5e7eb;
-	
-	&:last-child {
-		border-bottom: none;
-	}
-	
-	&:hover {
-		background: #f9fafb;
-	}
-`;
-
-const EnvTableLabel = styled.td`
-	padding: 1rem 1.5rem;
-	font-weight: 600;
-	font-size: 0.875rem;
-	color: #374151;
-	text-transform: uppercase;
-	letter-spacing: 0.5px;
-	width: 200px;
-	background: #f3f4f6;
-	border-right: 2px solid #e5e7eb;
-`;
-
-const EnvTableValue = styled.td<{ highlight?: boolean; mono?: boolean }>`
-	padding: 1rem 1.5rem;
-	font-size: ${(props) => (props.highlight ? '1.25rem' : '1rem')};
-	font-weight: ${(props) => (props.highlight ? '700' : '500')};
-	color: ${(props) => (props.highlight ? '#1f2937' : '#4b5563')};
-	word-break: break-word;
-	overflow-wrap: break-word;
-	${(props) =>
-		props.mono &&
-		`
-		font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
-		font-size: 0.875rem;
-		color: #6b7280;
-		word-break: break-all;
-	`}
-`;
-
-const TypeBadge = styled.span<{ type?: string }>`
-	display: inline-block;
-	padding: 0.5rem 1rem;
-	border-radius: 6px;
-	font-weight: 700;
-	font-size: 0.875rem;
-	text-transform: uppercase;
-	letter-spacing: 1px;
-	background: ${(props) =>
-		props.type === 'PRODUCTION' ? '#dc2626' : props.type === 'SANDBOX' ? '#3b82f6' : '#10b981'};
-	color: white;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-`;
 
 export default WorkerTokenTester;
