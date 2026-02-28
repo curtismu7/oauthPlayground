@@ -103,6 +103,8 @@ import { CredentialManagement } from './pages/CredentialManagement';
 import CustomDomainTestPage from './pages/CustomDomainTestPage';
 import Dashboard from './pages/Dashboard';
 import DpopAuthorizationCodeFlowV8 from './pages/DpopAuthorizationCodeFlowV8';
+// Added new migration and prompts pages
+import MigrateVscode from './pages/docs/migration/MigrateVscode';
 import OAuth2SecurityBestPractices from './pages/docs/OAuth2SecurityBestPractices.tsx';
 import OAuthForAI from './pages/docs/OAuthForAI.tsx';
 import OIDCForAI from './pages/docs/OIDCForAI.tsx';
@@ -116,6 +118,7 @@ import OIDCOverview from './pages/docs/OIDCOverviewV7.tsx';
 // import OIDCOverviewNew from './pages/docs/OIDCOverview_New';
 import OIDCSpecs from './pages/docs/OIDCSpecs.tsx';
 import PingViewOnAI from './pages/docs/PingViewOnAI.tsx';
+import PromptAll from './pages/docs/prompts/PromptAll';
 import SpiffeSpirePingOne from './pages/docs/SpiffeSpirePingOne.tsx';
 import EnvironmentIdInputDemo from './pages/EnvironmentIdInputDemo';
 import AdvancedOAuthParametersDemoFlow from './pages/flows/AdvancedOAuthParametersDemoFlow';
@@ -1104,7 +1107,7 @@ const AppRoutes: React.FC = () => {
 								<Route path="/flows/jwt-bearer-token-v7" element={<JWTBearerTokenFlowV7 />} />
 								{/* V8M Token Exchange Flow */}
 								<Route path="/flows/token-exchange-v7" element={<V8MTokenExchange />} />
-								{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
+								{/* Legacy V6 routes - redirect to V7 (latest version) */}
 								<Route
 									path="/flows/jwt-bearer-token-v6"
 									element={<Navigate to="/flows/jwt-bearer-token-v7" replace />}
@@ -1118,14 +1121,14 @@ const AppRoutes: React.FC = () => {
 									path="/flows/saml-sp-dynamic-acs-v1"
 									element={<SAMLServiceProviderFlowV1 />}
 								/>
-								{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
+								{/* Legacy V6 routes - redirect to V7 (latest version) */}
 								<Route
 									path="/flows/saml-bearer-assertion-v6"
 									element={<Navigate to="/flows/saml-bearer-assertion-v7" replace />}
 								/>
 								{/* V7 Worker Token Flow */}
 								<Route path="/flows/worker-token-v7" element={<WorkerTokenFlowV7 />} />
-								{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
+								{/* Legacy V6 routes - redirect to V7 (latest version) */}
 								<Route
 									path="/flows/worker-token-v6"
 									element={<Navigate to="/flows/worker-token-v7" replace />}
@@ -1276,6 +1279,9 @@ const AppRoutes: React.FC = () => {
 									element={<OAuth2SecurityBestPractices />}
 								/>
 								<Route path="/docs/spiffe-spire-pingone" element={<SpiffeSpirePingOne />} />
+								{/* Added new migration and prompts routes */}
+								<Route path="/docs/migration/migrate-vscode" element={<MigrateVscode />} />
+								<Route path="/docs/prompts/prompt-all" element={<PromptAll />} />
 								<Route path="/auto-discover" element={<AutoDiscover />} />
 								<Route path="/token-management" element={<TokenManagement />} />
 								<Route

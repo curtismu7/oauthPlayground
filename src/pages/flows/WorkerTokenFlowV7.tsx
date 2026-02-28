@@ -573,8 +573,8 @@ const WorkerTokenFlowV7: React.FC = () => {
 				{/* API Call Examples */}
 				<div
 					style={{
-						background: '#f0fdf4',
-						border: '1px solid #22c55e',
+						background: '#eff6ff',
+						border: '1px solid #93c5fd',
 						borderRadius: '0.75rem',
 						padding: '1.5rem',
 						marginBottom: '1.5rem',
@@ -585,7 +585,7 @@ const WorkerTokenFlowV7: React.FC = () => {
 							margin: '0 0 1rem 0',
 							fontSize: '1.125rem',
 							fontWeight: 600,
-							color: '#166534',
+							color: '#1e40af',
 						}}
 					>
 						🔧 Common Administration API Calls
@@ -598,7 +598,7 @@ const WorkerTokenFlowV7: React.FC = () => {
 								margin: '0 0 0.5rem 0',
 								fontSize: '1rem',
 								fontWeight: 600,
-								color: '#166534',
+								color: '#1e40af',
 							}}
 						>
 							📱 Get Applications
@@ -606,14 +606,14 @@ const WorkerTokenFlowV7: React.FC = () => {
 						<div
 							style={{
 								background: '#ffffff',
-								border: '1px solid #d1fae5',
+								border: '1px solid #dbeafe',
 								borderRadius: '0.5rem',
 								padding: '1rem',
 								fontFamily: 'monospace',
 								fontSize: '0.875rem',
 							}}
 						>
-							<div style={{ color: '#059669', marginBottom: '0.5rem' }}>
+							<div style={{ color: '#2563eb', marginBottom: '0.5rem' }}>
 								GET /v1/environments/{'{environmentId}'}/applications
 							</div>
 							<div style={{ color: '#6b7280' }}>
@@ -629,7 +629,7 @@ const WorkerTokenFlowV7: React.FC = () => {
 								margin: '0 0 0.5rem 0',
 								fontSize: '1rem',
 								fontWeight: 600,
-								color: '#166534',
+								color: '#1e40af',
 							}}
 						>
 							👥 Get Users
@@ -637,14 +637,14 @@ const WorkerTokenFlowV7: React.FC = () => {
 						<div
 							style={{
 								background: '#ffffff',
-								border: '1px solid #d1fae5',
+								border: '1px solid #dbeafe',
 								borderRadius: '0.5rem',
 								padding: '1rem',
 								fontFamily: 'monospace',
 								fontSize: '0.875rem',
 							}}
 						>
-							<div style={{ color: '#059669', marginBottom: '0.5rem' }}>
+							<div style={{ color: '#2563eb', marginBottom: '0.5rem' }}>
 								GET /v1/environments/{'{environmentId}'}/users
 							</div>
 							<div style={{ color: '#6b7280' }}>
@@ -660,7 +660,7 @@ const WorkerTokenFlowV7: React.FC = () => {
 								margin: '0 0 0.5rem 0',
 								fontSize: '1rem',
 								fontWeight: 600,
-								color: '#166534',
+								color: '#1e40af',
 							}}
 						>
 							🔐 Get Resources & Scopes
@@ -668,14 +668,14 @@ const WorkerTokenFlowV7: React.FC = () => {
 						<div
 							style={{
 								background: '#ffffff',
-								border: '1px solid #d1fae5',
+								border: '1px solid #dbeafe',
 								borderRadius: '0.5rem',
 								padding: '1rem',
 								fontFamily: 'monospace',
 								fontSize: '0.875rem',
 							}}
 						>
-							<div style={{ color: '#059669', marginBottom: '0.5rem' }}>
+							<div style={{ color: '#2563eb', marginBottom: '0.5rem' }}>
 								GET /v1/environments/{'{environmentId}'}/resources
 							</div>
 							<div style={{ color: '#6b7280' }}>
@@ -777,7 +777,7 @@ getApplications(environmentId, workerToken)
 				<div
 					style={{
 						background: '#f3e8ff',
-						border: '1px solid #a855f7',
+						border: '1px solid #93c5fd',
 						borderRadius: '0.75rem',
 						padding: '1.5rem',
 						marginBottom: '1.5rem',
@@ -788,7 +788,7 @@ getApplications(environmentId, workerToken)
 							margin: '0 0 1rem 0',
 							fontSize: '1.125rem',
 							fontWeight: 600,
-							color: '#7c3aed',
+							color: '#1e40af',
 						}}
 					>
 						🖥️ cURL Command Examples
@@ -797,7 +797,7 @@ getApplications(environmentId, workerToken)
 					<div
 						style={{
 							background: '#ffffff',
-							border: '1px solid #c4b5fd',
+							border: '1px solid #bfdbfe',
 							borderRadius: '0.5rem',
 							padding: '1rem',
 							fontFamily: 'monospace',
@@ -926,8 +926,8 @@ curl -X GET \\
 				{/* Best Practices */}
 				<div
 					style={{
-						background: '#ecfdf5',
-						border: '1px solid #10b981',
+						background: '#eff6ff',
+						border: '1px solid #93c5fd',
 						borderRadius: '0.75rem',
 						padding: '1.5rem',
 						marginBottom: '1.5rem',
@@ -938,12 +938,12 @@ curl -X GET \\
 							margin: '0 0 1rem 0',
 							fontSize: '1.125rem',
 							fontWeight: 600,
-							color: '#047857',
+							color: '#1e40af',
 						}}
 					>
 						✅ Best Practices for Worker Tokens
 					</h4>
-					<div style={{ fontSize: '0.875rem', color: '#047857', lineHeight: 1.6 }}>
+					<div style={{ fontSize: '0.875rem', color: '#1e3a8a', lineHeight: 1.6 }}>
 						<ul style={{ margin: 0, paddingLeft: '1.5rem' }}>
 							<li>
 								<strong>Token Security:</strong> Store worker tokens securely and never expose them
