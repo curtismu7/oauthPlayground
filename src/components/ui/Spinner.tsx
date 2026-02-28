@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiActivity, FiLoader, FiRefreshCw } from 'react-icons/fi';
+import { FiActivity, FiLoader, FiRefreshCw } from '@icons';
 
 interface SpinnerProps {
 	size?: number;

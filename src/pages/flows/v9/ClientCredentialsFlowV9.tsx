@@ -13,7 +13,7 @@ import {
 	FiRefreshCw,
 	FiSettings,
 	FiShield,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { EducationModeToggle } from '../../../components/education/EducationModeToggle';
 import { MasterEducationSection } from '../../../components/education/MasterEducationSection';

@@ -13,7 +13,7 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { FiInfo, FiUser } from 'react-icons/fi';
+import { FiInfo, FiUser } from '@icons';
 
 const MODULE_TAG = '[👤 LOGIN-HINT-V8]';
 

@@ -3,7 +3,7 @@
 
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
-import { FiAlertTriangle, FiCheckCircle, FiCopy, FiExternalLink, FiXCircle } from 'react-icons/fi';
+import { FiAlertTriangle, FiCheckCircle, FiCopy, FiExternalLink, FiXCircle } from '@icons';
 import styled from 'styled-components';
 import {
 	DeviceFlowState,

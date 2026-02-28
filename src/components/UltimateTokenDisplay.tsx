@@ -14,7 +14,7 @@ import {
 	FiTag,
 	FiUnlock,
 	FiZap,
-} from 'react-icons/fi';
+} from '@icons';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';

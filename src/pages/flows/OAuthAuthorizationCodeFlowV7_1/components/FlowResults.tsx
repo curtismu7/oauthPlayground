@@ -2,7 +2,7 @@
 // V7.1 Flow Results - Display tokens, user info, and flow results
 
 import React, { useState } from 'react';
-import { FiCheck, FiChevronRight, FiCopy, FiEye, FiEyeOff, FiRefreshCw } from 'react-icons/fi';
+import { FiCheck, FiChevronRight, FiCopy, FiEye, FiEyeOff, FiRefreshCw } from '@icons';
 import styled from 'styled-components';
 import { UI_CONSTANTS } from '../constants/uiConstants';
 import type { TokenResponse, UserInfo } from '../types/flowTypes';

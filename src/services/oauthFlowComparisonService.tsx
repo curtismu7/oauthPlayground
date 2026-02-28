@@ -8,7 +8,7 @@ import {
 	FiShield,
 	FiUsers,
 	FiXCircle,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { CollapsibleHeader } from './collapsibleHeaderService';
 

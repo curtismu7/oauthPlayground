@@ -2,7 +2,7 @@
 // V7.1 Flow Error Boundary - Graceful error handling for OAuth Authorization Code Flow
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { FiAlertTriangle, FiChevronLeft, FiHome, FiRefreshCw } from 'react-icons/fi';
+import { FiAlertTriangle, FiChevronLeft, FiHome, FiRefreshCw } from '@icons';
 import styled from 'styled-components';
 import { UI_CONSTANTS } from '../constants/uiConstants';
 

@@ -15,7 +15,7 @@
  */
 
 import React, { useState } from 'react';
-import { FiChevronDown, FiInfo } from 'react-icons/fi';
+import { FiChevronDown, FiInfo } from '@icons';
 import type { ResponseMode } from '../../services/responseModeService.ts';
 
 const MODULE_TAG = '[🔗 RESPONSE-MODE-V8]';

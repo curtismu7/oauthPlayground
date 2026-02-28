@@ -7,7 +7,7 @@ import {
 	FiEyeOff,
 	FiKey,
 	FiShield,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { JWTAuthConfig, jwtAuthService } from '../services/jwtAuthService';
 

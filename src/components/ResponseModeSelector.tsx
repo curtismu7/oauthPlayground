@@ -2,7 +2,7 @@
 // Reusable response mode selector component for OAuth/OIDC flows
 
 import React, { useEffect, useState } from 'react';
-import { FiAlertTriangle, FiChevronDown, FiInfo } from 'react-icons/fi';
+import { FiAlertTriangle, FiChevronDown, FiInfo } from '@icons';
 import styled from 'styled-components';
 import { ResponseMode, ResponseModeService } from '../services/responseModeService';
 

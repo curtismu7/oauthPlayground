@@ -2,7 +2,7 @@
 // Preset selection component for the Application Generator
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiCheck, FiInfo, FiSettings, FiStar, FiUser } from 'react-icons/fi';
+import { FiCheck, FiInfo, FiSettings, FiStar, FiUser } from '@icons';
 import styled from 'styled-components';
 import {
 	type BuilderAppType,

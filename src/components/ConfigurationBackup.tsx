@@ -5,7 +5,7 @@
  */
 
 import React, { useRef, useState } from 'react';
-import { FiAlertCircle, FiCheckCircle, FiDownload, FiFile, FiUpload } from 'react-icons/fi';
+import { FiAlertCircle, FiCheckCircle, FiDownload, FiFile, FiUpload } from '@icons';
 import styled from 'styled-components';
 import configurationBackupService, {
 	FlowConfiguration,

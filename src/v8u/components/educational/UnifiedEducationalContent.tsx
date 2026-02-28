@@ -7,7 +7,7 @@
  */
 
 import React from 'react';
-import { FiAlertTriangle, FiChevronDown, FiInfo } from 'react-icons/fi';
+import { FiAlertTriangle, FiChevronDown, FiInfo } from '@icons';
 import { useUnifiedFlowStore } from '../../services/UnifiedFlowStateManager';
 
 // Educational section styles

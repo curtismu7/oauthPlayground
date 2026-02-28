@@ -2,7 +2,7 @@
 // V7.1 Flow Navigation - Step navigation and flow control
 
 import React from 'react';
-import { FiChevronLeft, FiChevronRight, FiHome, FiRefreshCw } from 'react-icons/fi';
+import { FiChevronLeft, FiChevronRight, FiHome, FiRefreshCw } from '@icons';
 import styled from 'styled-components';
 import { STEP_METADATA } from '../constants/stepMetadata';
 import { UI_CONSTANTS } from '../constants/uiConstants';

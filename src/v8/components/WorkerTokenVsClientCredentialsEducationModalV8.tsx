@@ -20,7 +20,7 @@
  */
 
 import React from 'react';
-import { FiCheckCircle, FiInfo, FiLock, FiShield, FiX, FiXCircle } from 'react-icons/fi';
+import { FiCheckCircle, FiInfo, FiLock, FiShield, FiX, FiXCircle } from '@icons';
 import styled from 'styled-components';
 
 interface WorkerTokenVsClientCredentialsEducationModalV8Props {

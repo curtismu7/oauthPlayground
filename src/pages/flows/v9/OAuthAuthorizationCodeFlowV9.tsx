@@ -17,7 +17,7 @@ import {
 	FiSend,
 	FiSettings,
 	FiShield,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import CodeExamplesDisplay from '../../../components/CodeExamplesDisplay';
 import { EnhancedApiCallDisplay } from '../../../components/EnhancedApiCallDisplay';

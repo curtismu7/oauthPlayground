@@ -10,7 +10,7 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiAlertTriangle, FiArrowLeft, FiArrowRight, FiCheckCircle } from 'react-icons/fi';
+import { FiAlertTriangle, FiArrowLeft, FiArrowRight, FiCheckCircle } from '@icons';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 import { MFAErrorBoundary } from '@/v8/components/MFAErrorBoundary';
 // V8 UI Components

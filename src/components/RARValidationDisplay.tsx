@@ -2,7 +2,7 @@
 // RAR Validation Display with field-level validation feedback
 
 import React, { useMemo } from 'react';
-import { FiAlertCircle, FiCheckCircle, FiInfo, FiShield, FiXCircle } from 'react-icons/fi';
+import { FiAlertCircle, FiCheckCircle, FiInfo, FiShield, FiXCircle } from '@icons';
 import styled from 'styled-components';
 import RARService, { type AuthorizationDetail } from '../services/rarService';
 

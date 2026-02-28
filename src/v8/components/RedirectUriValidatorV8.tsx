@@ -10,7 +10,7 @@
  */
 
 import React, { useState } from 'react';
-import { FiAlertTriangle, FiCheck, FiCopy, FiExternalLink, FiX } from 'react-icons/fi';
+import { FiAlertTriangle, FiCheck, FiCopy, FiExternalLink, FiX } from '@icons';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const _MODULE_TAG = '[🔗 REDIRECT-URI-VALIDATOR-V8]';

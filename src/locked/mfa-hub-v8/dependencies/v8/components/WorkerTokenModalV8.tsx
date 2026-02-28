@@ -7,7 +7,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { FiDownload, FiUpload } from 'react-icons/fi';
+import { FiDownload, FiUpload } from '@icons';
 import {
 	exportWorkerTokenCredentials,
 	importCredentials,

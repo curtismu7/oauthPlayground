@@ -10,7 +10,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { FiLoader } from 'react-icons/fi';
+import { FiLoader } from '@icons';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { MFAInfoButtonV8 } from '../../components/MFAInfoButtonV8.tsx';

@@ -1,6 +1,6 @@
 // src/services/authenticationModalService.tsx
 import React, { useState } from 'react';
-import { FiCheckCircle, FiClock, FiExternalLink, FiInfo, FiShield, FiX } from 'react-icons/fi';
+import { FiCheckCircle, FiClock, FiExternalLink, FiInfo, FiShield, FiX } from '@icons';
 import styled from 'styled-components';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 import { ColoredUrlDisplay } from '../components/ColoredUrlDisplay';

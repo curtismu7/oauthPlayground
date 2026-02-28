@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiRefreshCw, FiServer } from 'react-icons/fi';
+import { FiRefreshCw, FiServer } from '@icons';
 import styled from 'styled-components';
 import {
 	type DetailedServerStatus,

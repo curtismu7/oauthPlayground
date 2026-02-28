@@ -1,5 +1,5 @@
 import React, { useEffect, useId } from 'react';
-import { FiCheck, FiCopy, FiExternalLink, FiX } from 'react-icons/fi';
+import { FiCheck, FiCopy, FiExternalLink, FiX } from '@icons';
 import styled from 'styled-components';
 import ColorCodedURL from './ColorCodedURL';
 

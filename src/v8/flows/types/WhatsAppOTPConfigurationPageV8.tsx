@@ -14,7 +14,7 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiArrowRight, FiBook, FiMessageSquare } from 'react-icons/fi';
+import { FiArrowRight, FiBook, FiMessageSquare } from '@icons';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';

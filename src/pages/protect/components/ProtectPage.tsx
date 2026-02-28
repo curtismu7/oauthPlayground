@@ -10,7 +10,7 @@
  */
 
 import React from 'react';
-import { FiAlertTriangle, FiCheckCircle, FiShield } from 'react-icons/fi';
+import { FiAlertTriangle, FiCheckCircle, FiShield } from '@icons';
 import styled from 'styled-components';
 import type {
 	EducationalContent,

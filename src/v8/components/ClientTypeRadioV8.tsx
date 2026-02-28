@@ -13,7 +13,7 @@
  */
 
 import React, { useState } from 'react';
-import { FiInfo, FiLock, FiUnlock } from 'react-icons/fi';
+import { FiInfo, FiLock, FiUnlock } from '@icons';
 
 const MODULE_TAG = '[🔓 CLIENT-TYPE-V8]';
 

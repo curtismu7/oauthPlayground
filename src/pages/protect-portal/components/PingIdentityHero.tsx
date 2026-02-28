@@ -18,7 +18,7 @@ import {
 	FiSettings,
 	FiShield,
 	FiUsers,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 
 // ============================================================================

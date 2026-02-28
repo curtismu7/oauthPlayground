@@ -23,7 +23,7 @@ import {
 	FiSettings,
 	FiShield,
 	FiX,
-} from 'react-icons/fi';
+} from '@icons';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FIDO2Service } from '../../dependencies/services/fido2Service.ts';
 import { MFAInfoButtonV8 } from '../../dependencies/v8/components/MFAInfoButtonV8.tsx';

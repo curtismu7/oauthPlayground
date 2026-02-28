@@ -11,7 +11,7 @@ import {
 	FiShield,
 	FiSmartphone,
 	FiX,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import type { DeviceType } from '../flows/shared/MFATypes';
 import { getDeviceTypeDisplay } from '../flows/shared/mfaSuccessPageServiceV8';

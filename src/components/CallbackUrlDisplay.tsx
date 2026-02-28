@@ -6,7 +6,7 @@ import {
 	FiChevronRight,
 	FiCopy,
 	FiExternalLink,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import {
 	flowRequiresRedirectUri,

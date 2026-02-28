@@ -2,7 +2,7 @@
 // Demo component showcasing the new RAR UI components
 
 import React, { useState } from 'react';
-import { FiCheckCircle, FiEye, FiSettings } from 'react-icons/fi';
+import { FiCheckCircle, FiEye, FiSettings } from '@icons';
 import styled from 'styled-components';
 import RARService, { type AuthorizationDetail } from '../services/rarService';
 import AuthorizationDetailsEditor from './AuthorizationDetailsEditor';

@@ -12,7 +12,7 @@ import {
 	FiShield,
 	FiUnlock,
 	FiZap,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import { useUnifiedFlowState } from '../services/enhancedStateManagement';

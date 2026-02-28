@@ -1,6 +1,6 @@
 // src/components/LogoutUriReference.tsx
 import React, { useState } from 'react';
-import { FiAlertTriangle, FiCheck, FiCopy, FiGlobe, FiLogOut, FiX } from 'react-icons/fi';
+import { FiAlertTriangle, FiCheck, FiCopy, FiGlobe, FiLogOut, FiX } from '@icons';
 import styled from 'styled-components';
 import { callbackUriService } from '../services/callbackUriService';
 

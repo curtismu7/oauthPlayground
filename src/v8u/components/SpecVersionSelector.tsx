@@ -7,7 +7,7 @@
  */
 
 import React, { useState } from 'react';
-import { FiHelpCircle, FiX } from 'react-icons/fi';
+import { FiHelpCircle, FiX } from '@icons';
 import { type SpecVersion, SpecVersionServiceV8 } from '@/v8/services/specVersionServiceV8';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 

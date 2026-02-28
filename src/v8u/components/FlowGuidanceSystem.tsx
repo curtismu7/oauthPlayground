@@ -8,7 +8,7 @@ import {
 	FiLock,
 	FiUsers,
 	FiZap,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { type FlowType, type SpecVersion } from '@/v8/services/specVersionServiceV8';
 

@@ -6,7 +6,7 @@ import {
 	FiDownload,
 	FiEye,
 	FiXCircle,
-} from 'react-icons/fi';
+} from '@icons';
 import { ThemeProvider } from 'styled-components';
 import {
 	ActionButton,

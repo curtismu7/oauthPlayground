@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiAlertTriangle, FiBook, FiCheck, FiInfo, FiLock, FiX } from 'react-icons/fi';
+import { FiAlertTriangle, FiBook, FiCheck, FiInfo, FiLock, FiX } from '@icons';
 import styled from 'styled-components';
 import { CollapsibleHeader, type CollapsibleHeaderConfig } from './collapsibleHeaderService';
 

@@ -19,7 +19,7 @@ import {
 	FiSettings,
 	FiShield,
 	FiUser,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
 import CallbackUrlDisplay from '../../components/CallbackUrlDisplay';

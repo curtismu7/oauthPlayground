@@ -23,7 +23,7 @@ import {
 	FiDatabase,
 	FiHardDrive,
 	FiSave,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { useEnhancedCredentialsTracking } from '../hooks/useEnhancedCredentialsTracking';
 import { EnhancedCredentialsServiceV8 } from '../services/enhancedCredentialsServiceV8';

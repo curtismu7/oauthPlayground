@@ -15,7 +15,7 @@ import {
 	FiSend,
 	FiSettings,
 	FiShield,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { useSamlSpFlowController } from '../../hooks/useSamlSpFlowController';
