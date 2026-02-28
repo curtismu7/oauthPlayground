@@ -11,11 +11,13 @@ import {
 	FiCopy,
 	FiExternalLink,
 	FiFileText,
+	FiMaximize,
 	FiMaximize2,
 	FiMove,
 	FiPrinter,
+	FiTrash,
 	FiTrash2,
-	FiXCircle,
+	FiXCircle
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';

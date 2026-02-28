@@ -14,7 +14,8 @@ import {
 	FiRefreshCw,
 	FiSettings,
 	FiShield,
-	FiTrash2,
+	FiTrash,
+	FiTrash2
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';

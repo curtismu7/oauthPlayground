@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import {
 	FiArrowRight,
+	FiBarChart,
 	FiBarChart2,
 	FiCheck,
 	FiClock,
@@ -10,7 +11,7 @@ import {
 	FiShield,
 	FiUsers,
 	FiX,
-	FiZap,
+	FiZap
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { type FlowType } from '../../v8/services/specVersionServiceV8';

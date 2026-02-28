@@ -9,8 +9,9 @@ import {
 	FiEyeOff,
 	FiInfo,
 	FiRefreshCw,
+	FiTrash,
 	FiTrash2,
-	FiX,
+	FiX
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { type TokenInfo } from '../services/tokenMonitoringService';
