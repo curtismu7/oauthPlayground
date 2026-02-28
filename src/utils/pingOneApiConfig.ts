@@ -41,4 +41,3 @@ export function getPingOneAuthBaseUrl(region: string = 'us'): string {
 	const r = (region || 'us').toLowerCase();
 	return AUTH_BY_REGION[r] ?? AUTH_BY_REGION.us;
 }
-

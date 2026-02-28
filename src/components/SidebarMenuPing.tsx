@@ -422,7 +422,7 @@ export const SidebarMenuPing: React.FC<{ dragMode?: boolean }> = ({ dragMode = f
 			saveOrder(next);
 			setDraggedItem(null);
 		},
-		[menuGroups, draggedItem, getDraggedData, saveOrder]
+		[menuGroups, getDraggedData, saveOrder]
 	);
 
 	return (
@@ -494,7 +494,7 @@ export const SidebarMenuPing: React.FC<{ dragMode?: boolean }> = ({ dragMode = f
 										onDragStart={(e) => handleDragStart(e, 'item', group.items[0].id, group.id)}
 										onDragEnd={handleDragEnd}
 										onDragOver={handleDragOver}
-									onDrop={(e) => handleDropOnItemSameGroup(e, group.id, 0)}
+										onDrop={(e) => handleDropOnItemSameGroup(e, group.id, 0)}
 									/>
 								</ul>
 							</div>
@@ -572,7 +572,7 @@ export const SidebarMenuPing: React.FC<{ dragMode?: boolean }> = ({ dragMode = f
 										onItemDragStart={(e, itemId) => handleDragStart(e, 'item', itemId, group.id)}
 										onItemDragEnd={handleDragEnd}
 										onItemDragOverHandler={handleDragOver}
-									onItemDrop={(e, gid, idx) => handleDropOnItemSameGroup(e, gid, idx)}
+										onItemDrop={(e, gid, idx) => handleDropOnItemSameGroup(e, gid, idx)}
 									/>
 								</section>
 							)}

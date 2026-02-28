@@ -15,8 +15,8 @@ import {
 	FiX,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import { useServerStatusOptional } from './ServerStatusProvider';
 import { type LogFile, LogFileService } from '../services/logFileService';
+import { useServerStatusOptional } from './ServerStatusProvider';
 
 const BACKEND_DOWN_MESSAGE =
 	'Log API not available. Start the backend server (e.g. ./run.sh) to view logs.';
@@ -553,7 +553,7 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
 		if (isOnline) {
 			loadLogContent();
 		}
-	}, [stopTailMode, loadLogContent, isOnline, selectedFile, standaloneMode]);
+	}, [stopTailMode, loadLogContent, isOnline, standaloneMode]);
 
 	// Global mouse event listeners
 	useEffect(() => {

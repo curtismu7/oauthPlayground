@@ -27,10 +27,25 @@ const API_TESTS: ApiTestSpec[] = [
 	{ method: 'GET', path: '/api/settings/custom-domain', description: 'Get saved custom domain' },
 	{ method: 'GET', path: '/api/logs/list', description: 'List available log files' },
 	{ method: 'GET', path: '/api/version', description: 'Backend version' },
-	{ method: 'GET', path: '/api/user/{username}', description: 'Get user by username', requiresParams: ['username'] },
-	{ method: 'GET', path: '/api/org/{orgId}/licensing', description: 'Organization licensing info', requiresParams: ['orgId'] },
+	{
+		method: 'GET',
+		path: '/api/user/{username}',
+		description: 'Get user by username',
+		requiresParams: ['username'],
+	},
+	{
+		method: 'GET',
+		path: '/api/org/{orgId}/licensing',
+		description: 'Organization licensing info',
+		requiresParams: ['orgId'],
+	},
 	{ method: 'GET', path: '/api/identity/metrics', description: 'Identity metrics and statistics' },
-	{ method: 'GET', path: '/api/environment/{envId}', description: 'Get environment details', requiresParams: ['envId'] },
+	{
+		method: 'GET',
+		path: '/api/environment/{envId}',
+		description: 'Get environment details',
+		requiresParams: ['envId'],
+	},
 ];
 
 interface TestResult {
@@ -47,7 +62,7 @@ export default function CustomDomainTestPage() {
 	const [testResults, setTestResults] = useState<Record<string, TestResult>>({});
 	const [testingKey, setTestingKey] = useState<string | null>(null);
 	const [collapsed, setCollapsed] = useState({ domain: false, apis: false });
-	
+
 	// State for API parameters
 	const [apiParams, setApiParams] = useState<Record<string, string>>({
 		username: '',
@@ -81,7 +96,7 @@ export default function CustomDomainTestPage() {
 		typeof customDomain === 'string' && customDomain.trim()
 			? getAppUrlForDomain(customDomain.trim())
 			: 'https://api.pingdemo.com:3000';
-	
+
 	const fullPageUrl = `${appDisplayUrl}/custom-domain-test`;
 
 	const handleSaveCustomDomain = useCallback(async () => {
@@ -111,7 +126,7 @@ export default function CustomDomainTestPage() {
 				finalPath = finalPath.replace(`{${param}}`, encodeURIComponent(value.trim()));
 			}
 		}
-		
+
 		const key = `${spec.method} ${spec.path}`;
 		setTestingKey(key);
 		setTestResults((prev) => ({ ...prev, [key]: { status: 0, statusText: '…', bodyPreview: '' } }));
@@ -151,12 +166,26 @@ export default function CustomDomainTestPage() {
 		<div className="dashboard-page">
 			{/* Full Page URL Display */}
 			<div className="section-wrap mb-3">
-				<div className="card" style={{ borderLeft: '4px solid #2563eb', backgroundColor: '#eff6ff' }}>
+				<div
+					className="card"
+					style={{ borderLeft: '4px solid #2563eb', backgroundColor: '#eff6ff' }}
+				>
 					<div className="card-body">
 						<div className="d-flex align-items-center gap-2 flex-wrap">
 							<Icon name="link" size="sm" />
-							<span className="fw-600" style={{ color: '#1e40af' }}>Current Page URL:</span>
-							<code className="fw-600" style={{ color: '#1e3a8a', fontSize: '1rem', padding: '0.25rem 0.5rem', backgroundColor: '#dbeafe', borderRadius: '4px' }}>
+							<span className="fw-600" style={{ color: '#1e40af' }}>
+								Current Page URL:
+							</span>
+							<code
+								className="fw-600"
+								style={{
+									color: '#1e3a8a',
+									fontSize: '1rem',
+									padding: '0.25rem 0.5rem',
+									backgroundColor: '#dbeafe',
+									borderRadius: '4px',
+								}}
+							>
 								{fullPageUrl}
 							</code>
 						</div>
@@ -259,10 +288,12 @@ export default function CustomDomainTestPage() {
 									className="form-control"
 									placeholder="e.g., john.doe"
 									value={apiParams.username}
-									onChange={(e) => setApiParams(prev => ({ ...prev, username: e.target.value }))}
+									onChange={(e) => setApiParams((prev) => ({ ...prev, username: e.target.value }))}
 									aria-describedby="username-hint"
 								/>
-								<small id="username-hint" className="text-muted">For /api/user/:username</small>
+								<small id="username-hint" className="text-muted">
+									For /api/user/:username
+								</small>
 							</div>
 							<div className="col-md-4">
 								<label htmlFor="param-orgId" className="form-label fw-600 text-small">
@@ -274,10 +305,12 @@ export default function CustomDomainTestPage() {
 									className="form-control"
 									placeholder="e.g., org_123456"
 									value={apiParams.orgId}
-									onChange={(e) => setApiParams(prev => ({ ...prev, orgId: e.target.value }))}
+									onChange={(e) => setApiParams((prev) => ({ ...prev, orgId: e.target.value }))}
 									aria-describedby="orgId-hint"
 								/>
-								<small id="orgId-hint" className="text-muted">For /api/org/:orgId/licensing</small>
+								<small id="orgId-hint" className="text-muted">
+									For /api/org/:orgId/licensing
+								</small>
 							</div>
 							<div className="col-md-4">
 								<label htmlFor="param-envId" className="form-label fw-600 text-small">
@@ -289,10 +322,12 @@ export default function CustomDomainTestPage() {
 									className="form-control"
 									placeholder="e.g., env_abc123"
 									value={apiParams.envId}
-									onChange={(e) => setApiParams(prev => ({ ...prev, envId: e.target.value }))}
+									onChange={(e) => setApiParams((prev) => ({ ...prev, envId: e.target.value }))}
 									aria-describedby="envId-hint"
 								/>
-								<small id="envId-hint" className="text-muted">For /api/environment/:envId</small>
+								<small id="envId-hint" className="text-muted">
+									For /api/environment/:envId
+								</small>
 							</div>
 						</div>
 					</div>
@@ -346,7 +381,7 @@ export default function CustomDomainTestPage() {
 												<button
 													type="button"
 													className="btn btn-sm btn-outline-primary"
-												onClick={() => runTest(spec, apiParams)}
+													onClick={() => runTest(spec, apiParams)}
 													disabled={isTesting}
 													aria-label={`Test ${spec.method} ${spec.path}`}
 												>

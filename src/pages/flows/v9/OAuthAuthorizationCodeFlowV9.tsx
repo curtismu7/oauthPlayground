@@ -24,7 +24,9 @@ import { EnhancedApiCallDisplay } from '../../../components/EnhancedApiCallDispl
 import EnhancedFlowInfoCard from '../../../components/EnhancedFlowInfoCard';
 import EnhancedSecurityFeaturesDemo from '../../../components/EnhancedSecurityFeaturesDemo';
 import { ExplanationHeading, ExplanationSection } from '../../../components/InfoBlocks';
-import KrogerLoginPopup, { type KrogerLoginCredentials } from '../../../components/KrogerLoginPopup';
+import KrogerLoginPopup, {
+	type KrogerLoginCredentials,
+} from '../../../components/KrogerLoginPopup';
 import LoginSuccessModal from '../../../components/LoginSuccessModal';
 import type { PingOneApplicationState } from '../../../components/PingOneApplicationConfig';
 import {
@@ -1486,7 +1488,8 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 			const tokenEndpointAuthMethod =
 				typeof controller.credentials.clientAuthMethod === 'string'
 					? controller.credentials.clientAuthMethod
-					: (controller.credentials.clientAuthMethod as { value?: string })?.value || 'client_secret_post';
+					: (controller.credentials.clientAuthMethod as { value?: string })?.value ||
+						'client_secret_post';
 
 			const flowKey = `oauth-authorization-code-v9-2-${flowVariant}`;
 			const success = comprehensiveFlowDataService.saveFlowDataComprehensive(
