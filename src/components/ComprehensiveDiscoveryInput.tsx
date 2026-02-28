@@ -11,7 +11,7 @@
  * - Generic OIDC provider URLs
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FiCheck, FiEye, FiEyeOff, FiInfo, FiSearch, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
 import {
@@ -403,16 +403,19 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 	const [lastEnvironmentId, setLastEnvironmentId] = useState<string | null>(null);
 
 	// Patience messages with different colors
-	const patienceMessages = [
-		{ text: 'Please be patient, discovering OIDC configuration...', color: '#6b7280' },
-		{ text: 'Still working, fetching endpoints from server...', color: '#3b82f6' },
-		{ text: 'Almost there, validating configuration...', color: '#10b981' },
-		{ text: 'Finalizing discovery process...', color: '#f59e0b' },
-		{ text: 'Processing OIDC metadata...', color: '#ef4444' },
-		{ text: 'Connecting to authentication server...', color: '#8b5cf6' },
-		{ text: 'Retrieving authorization endpoints...', color: '#06b6d4' },
-		{ text: 'Loading token configuration...', color: '#84cc16' },
-	];
+	const patienceMessages = useMemo(
+		() => [
+			{ text: 'Please be patient, discovering OIDC configuration...', color: '#6b7280' },
+			{ text: 'Still working, fetching endpoints from server...', color: '#3b82f6' },
+			{ text: 'Almost there, validating configuration...', color: '#10b981' },
+			{ text: 'Finalizing discovery configuration...', color: '#8b5cf6' },
+			{ text: 'Processing OIDC metadata...', color: '#ef4444' },
+			{ text: 'Connecting to authentication server...', color: '#8b5cf6' },
+			{ text: 'Retrieving authorization endpoints...', color: '#06b6d4' },
+			{ text: 'Loading token configuration...', color: '#84cc16' },
+		],
+		[]
+	);
 
 	// Cycle through patience messages every 3 seconds when modal is showing
 	useEffect(() => {

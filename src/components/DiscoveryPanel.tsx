@@ -367,7 +367,12 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 						}
 					}
 				} catch (error) {
-					logger.warn('DiscoveryPanel', 'Failed to load legacy discovery preferences', undefined, error);
+					logger.warn(
+						'DiscoveryPanel',
+						'Failed to load legacy discovery preferences',
+						undefined,
+						error
+					);
 				}
 			} catch (error) {
 				logger.error('DiscoveryPanel', 'Failed to load stored discovery preferences', error);

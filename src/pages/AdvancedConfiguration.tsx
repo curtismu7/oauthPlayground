@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
 	FiArrowLeft,
 	FiCheckCircle,
@@ -15,6 +14,7 @@ import {
 	FiShield,
 	FiTerminal,
 } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import JsonEditor from '../components/JsonEditor';
 import { usePageScroll } from '../hooks/usePageScroll';
@@ -699,7 +699,9 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 
 						{/* Save Button */}
 						<div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
-							<button							type="button"								onClick={() => {
+							<button
+								type="button"
+								onClick={() => {
 									// Save defaults
 									const scopes = Array.from(selectedScopes)
 										.concat(customScopes.filter((s) => s.trim()))
@@ -996,7 +998,9 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 										<FiSave />
 										{saved ? 'Configuration Saved!' : 'Save Configuration'}
 									</SaveButton>
-									<button									type="button"										onClick={resetToDefaults}
+									<button
+										type="button"
+										onClick={resetToDefaults}
 										style={{
 											display: 'flex',
 											alignItems: 'center',

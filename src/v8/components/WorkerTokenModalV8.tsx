@@ -485,7 +485,9 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 					console.log(`${MODULE_TAG} 🔄 Auth method mismatch — retrying with ${fallbackMethod}`);
 
 					const retryParams = new URLSearchParams(requestDetails.resolvedBody);
-					const retryHeaders: Record<string, string> = { 'Content-Type': 'application/x-www-form-urlencoded' };
+					const retryHeaders: Record<string, string> = {
+						'Content-Type': 'application/x-www-form-urlencoded',
+					};
 					if (fallbackMethod === 'client_secret_post') {
 						retryParams.set('client_secret', clientSecret.trim());
 					} else {
@@ -503,12 +505,25 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 						// Auto-fix succeeded — update auth method state and continue
 						setAuthMethod(fallbackMethod);
 						setAuthMethodError(null);
-						const autoLabel = fallbackMethod === 'client_secret_basic' ? 'Client Secret Basic' : 'Client Secret Post';
-						toastV8.success(`Auth method auto-corrected to ${autoLabel} and token generated successfully.`, { duration: 6000 });
-						try { responseData = await retryResponse.json(); } catch { responseData = null; }
+						const autoLabel =
+							fallbackMethod === 'client_secret_basic'
+								? 'Client Secret Basic'
+								: 'Client Secret Post';
+						toastV8.success(
+							`Auth method auto-corrected to ${autoLabel} and token generated successfully.`,
+							{ duration: 6000 }
+						);
+						try {
+							responseData = await retryResponse.json();
+						} catch {
+							responseData = null;
+						}
 					} else {
 						// Both methods failed — show persistent on-screen error
-						const origLabel = requestDetails.authMethod === 'client_secret_basic' ? 'Client Secret Basic' : 'Client Secret Post';
+						const origLabel =
+							requestDetails.authMethod === 'client_secret_basic'
+								? 'Client Secret Basic'
+								: 'Client Secret Post';
 						const bannerMsg =
 							`Authentication method mismatch: tried both Client Secret Basic and Client Secret Post — both rejected by PingOne. ` +
 							`In PingOne Admin → Applications → your Worker app → Configuration, set “Token Endpoint Auth Method” to match (currently "${origLabel}").`;
@@ -1367,7 +1382,10 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 											<select
 												id="authMethod"
 												value={authMethod}
-												onChange={(e) => { setAuthMethod(e.target.value as AuthMethodV8); setAuthMethodError(null); }}
+												onChange={(e) => {
+													setAuthMethod(e.target.value as AuthMethodV8);
+													setAuthMethodError(null);
+												}}
 												style={{
 													width: '100%',
 													padding: '10px 12px',
@@ -1388,12 +1406,38 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 												{AuthMethodServiceV8.getMethodConfig(authMethod).description}
 											</div>
 											{authMethodError && (
-												<div style={{ marginTop: '10px', padding: '12px 14px', background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: '6px', color: '#991b1b', fontSize: '13px', lineHeight: '1.5' }}>
+												<div
+													style={{
+														marginTop: '10px',
+														padding: '12px 14px',
+														background: '#fef2f2',
+														border: '1px solid #fca5a5',
+														borderRadius: '6px',
+														color: '#991b1b',
+														fontSize: '13px',
+														lineHeight: '1.5',
+													}}
+												>
 													<strong>⚠️ Authentication Method Mismatch</strong>
 													<br />
 													{authMethodError}
 													<br />
-													<button type="button" onClick={() => setAuthMethodError(null)} style={{ marginTop: '6px', fontSize: '12px', color: '#991b1b', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}>Dismiss</button>
+													<button
+														type="button"
+														onClick={() => setAuthMethodError(null)}
+														style={{
+															marginTop: '6px',
+															fontSize: '12px',
+															color: '#991b1b',
+															background: 'none',
+															border: 'none',
+															cursor: 'pointer',
+															padding: 0,
+															textDecoration: 'underline',
+														}}
+													>
+														Dismiss
+													</button>
 												</div>
 											)}
 										</div>

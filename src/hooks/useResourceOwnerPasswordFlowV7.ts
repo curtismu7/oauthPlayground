@@ -183,19 +183,19 @@ export const useResourceOwnerPasswordFlowV7 = ({
 				console.log('🔐 [ResourceOwnerPasswordV7] Starting authentication...');
 			}
 
-		// Prepare request body for Resource Owner Password flow
-		const requestBody = {
-			grant_type: 'password',
-			username: credentials.username,
-			password: credentials.password,
-			scope: credentials.scope,
-			client_id: credentials.clientId,
-			client_secret: credentials.clientSecret,
-		};
+			// Prepare request body for Resource Owner Password flow
+			const requestBody = {
+				grant_type: 'password',
+				username: credentials.username,
+				password: credentials.password,
+				scope: credentials.scope,
+				client_id: credentials.clientId,
+				client_secret: credentials.clientSecret,
+			};
 
-		if (enableDebugger) {
-			console.log('🔍 [ResourceOwnerPasswordV7] Token request:', {
-				url: '/api/token-exchange',
+			if (enableDebugger) {
+				console.log('🔍 [ResourceOwnerPasswordV7] Token request:', {
+					url: '/api/token-exchange',
 					grant_type: 'password',
 					username: credentials.username,
 					scope: credentials.scope,
@@ -276,8 +276,6 @@ export const useResourceOwnerPasswordFlowV7 = ({
 				console.log('👤 [ResourceOwnerPasswordV7] Fetching user info...');
 			}
 
-			
-
 			const response = await fetch(`/api/userinfo`, {
 				method: 'POST',
 				headers: {
@@ -337,8 +335,6 @@ export const useResourceOwnerPasswordFlowV7 = ({
 			if (enableDebugger) {
 				console.log('🔄 [ResourceOwnerPasswordV7] Refreshing tokens...');
 			}
-
-			
 
 			const requestBody = {
 				grant_type: 'refresh_token',

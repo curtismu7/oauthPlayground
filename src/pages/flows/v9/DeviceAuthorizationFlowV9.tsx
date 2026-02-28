@@ -1494,10 +1494,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 		enabled: true,
 	});
 
-	const {
-		validateCredentialsAndProceed,
-		CredentialValidationModal,
-	} = useV7CredentialValidation({
+	const { validateCredentialsAndProceed, CredentialValidationModal } = useV7CredentialValidation({
 		flowKey: 'device-authorization-v9',
 		credentials: deviceFlow.credentials ?? {},
 		currentStep,

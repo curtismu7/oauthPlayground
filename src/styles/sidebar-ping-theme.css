@@ -11,7 +11,7 @@
 
 /* Resizable: width/min/max come from Sidebar state (sidebar.width in localStorage) */
 .sidebar--ping {
-	background: var(--sidebar-ping-bg) !important;
+	background: var(--sidebar-ping-bg);
 	border-right: 1px solid #e5e7eb;
 }
 
@@ -64,7 +64,7 @@
 }
 
 .sidebar-ping__drop-zone--group.sidebar-ping__drop-zone--active::after {
-	content: '↓ drop here';
+	content: "↓ drop here";
 	font-size: 0.68rem;
 	font-weight: 600;
 	color: #007bff;
@@ -82,7 +82,7 @@
 }
 
 .sidebar-ping__drop-line::before {
-	content: '';
+	content: "";
 	display: block;
 	position: absolute;
 	left: 10px;
@@ -95,7 +95,7 @@
 }
 
 .sidebar-ping__drop-line::after {
-	content: '';
+	content: "";
 	display: block;
 	position: absolute;
 	left: 6px;
@@ -126,7 +126,7 @@
 }
 
 .sidebar-ping__drop-trail--active::after {
-	content: '↓';
+	content: "↓";
 	display: flex;
 	align-items: center;
 	justify-content: center;

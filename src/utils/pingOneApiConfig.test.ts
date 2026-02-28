@@ -2,14 +2,14 @@
  * Tests for PingOne API config: proxy vs direct by host (localhost vs custom domain).
  */
 
-import { afterEach, beforeEach, describe, it, expect, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
 	getPingOneAuthBaseUrl,
 	getPingOnePlatformBaseUrl,
 	shouldUsePingOneProxy,
 } from './pingOneApiConfig';
 
-const originalWindow = globalThis.window;
+const _originalWindow = globalThis.window;
 
 describe('pingOneApiConfig', () => {
 	/** Set hostname for tests (simulate location). */

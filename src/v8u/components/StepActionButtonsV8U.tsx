@@ -56,19 +56,19 @@ export const StepActionButtonsV8U: React.FC<StepActionButtonsProps> = ({
 	const _canGoPrevious = currentStep > 0;
 
 	const _handlePreviousClick = () => {
-		logger.debug(Previous button clicked`, { currentStep });
+		logger.debug('Previous button clicked', { currentStep });
 		onPrevious();
 	};
 
 	const handleNextClick = () => {
 		if (!isNextDisabled) {
-			logger.debug(Next button clicked`, { currentStep });
-		onNext();
+			logger.debug('Next button clicked', { currentStep, isLastStep });
+			onNext();
+		}
 	};
-};
 
-const _handleFinalClick = () => {
-	logger.debug(Final button clicked`, { currentStep });
+	const _handleFinalClick = () => {
+		logger.debug('Finish button clicked', { currentStep });
 		if (onFinal) {
 			onFinal();
 		}

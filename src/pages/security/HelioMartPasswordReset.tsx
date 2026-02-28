@@ -32,14 +32,14 @@ import { AuthorizationCodeConfigModal } from '../../components/AuthorizationCode
 import { PasswordSetValueTab } from '../../components/password-reset/PasswordSetValueTab';
 import { WorkerTokenDetectedBanner } from '../../components/WorkerTokenDetectedBanner';
 import { useGlobalWorkerToken } from '../../hooks/useGlobalWorkerToken';
-// import { CompactAppPickerV8U } from '../../v8u/components/CompactAppPickerV8U';
-// import { renderWorkerTokenButton } from '../../services/workerTokenUIService';
-// import type { DiscoveredApp } from '../../v8/components/AppPickerV8';
-import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
 import type { ApiCall } from '../../services/apiCallTrackerService';
 import { apiCallTrackerService } from '../../services/apiCallTrackerService';
 import { comprehensiveFlowDataService } from '../../services/comprehensiveFlowDataService';
 import { PageLayoutService } from '../../services/pageLayoutService';
+// import { CompactAppPickerV8U } from '../../v8u/components/CompactAppPickerV8U';
+// import { renderWorkerTokenButton } from '../../services/workerTokenUIService';
+// import type { DiscoveredApp } from '../../v8/components/AppPickerV8';
+import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
 import { WorkerTokenModalV8 } from '../../v8/components/WorkerTokenModalV8';
 
 // Create layout components at module level so styled.header is never created inside a hook.
@@ -2090,20 +2090,20 @@ export { changePassword, handleChangePassword };`;
 							'Refresh Worker Token'
 						)} */}
 
-{/* Worker Token Buttons */}
-					<Button
-						$variant={globalTokenStatus.isValid ? 'success' : 'danger'}
-						onClick={handleGetWorkerToken}
-					>
-						<FiKey />
-						{globalTokenStatus.isValid ? 'Worker Token Ready' : 'Get Worker Token'}
-					</Button>
-					{globalTokenStatus.isValid && (
-						<Button $variant="secondary" onClick={handleClearWorkerToken}>
-							<FiX />
-							Clear Token
+						{/* Worker Token Buttons */}
+						<Button
+							$variant={globalTokenStatus.isValid ? 'success' : 'danger'}
+							onClick={handleGetWorkerToken}
+						>
+							<FiKey />
+							{globalTokenStatus.isValid ? 'Worker Token Ready' : 'Get Worker Token'}
 						</Button>
-					)}
+						{globalTokenStatus.isValid && (
+							<Button $variant="secondary" onClick={handleClearWorkerToken}>
+								<FiX />
+								Clear Token
+							</Button>
+						)}
 
 						{/* Auth Code Client Button */}
 						<Button

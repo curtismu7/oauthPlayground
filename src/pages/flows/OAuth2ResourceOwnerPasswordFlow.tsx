@@ -325,7 +325,8 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 
 							<div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
 								<Button
-									$ variant="primary"
+									$
+									variant="primary"
 									onClick={controller.saveCredentials}
 									disabled={controller.isSavingCredentials}
 								>
@@ -364,7 +365,8 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 						</p>
 
 						<Button
-							$ variant="primary"
+							$
+							variant="primary"
 							onClick={controller.authenticateUser}
 							disabled={controller.isAuthenticating || !controller.hasCredentialsSaved}
 						>
@@ -454,7 +456,8 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 						</p>
 
 						<Button
-							$ variant="primary"
+							$
+							variant="primary"
 							onClick={controller.fetchUserInfo}
 							disabled={controller.isFetchingUserInfo || !controller.tokens}
 						>
@@ -522,7 +525,8 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 						</p>
 
 						<Button
-							$ variant="primary"
+							$
+							variant="primary"
 							onClick={controller.refreshTokens}
 							disabled={controller.isRefreshingTokens || !controller.tokens?.refresh_token}
 						>

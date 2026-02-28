@@ -309,18 +309,18 @@ export const AuthorizationUrlValidationModal: React.FC<AuthorizationUrlValidatio
 				</ModalBody>
 
 				<ModalFooter>
-				<Button $variant="secondary" onClick={onClose}>
-					Close
-				</Button>
-
-				{!isValid && onFix && (
-					<Button $variant="danger" onClick={handleFix}>
-						Fix Issues
+					<Button $variant="secondary" onClick={onClose}>
+						Close
 					</Button>
-				)}
 
-				{isValid && onProceed && (
-					<Button $variant="primary" onClick={handleProceed}>
+					{!isValid && onFix && (
+						<Button $variant="danger" onClick={handleFix}>
+							Fix Issues
+						</Button>
+					)}
+
+					{isValid && onProceed && (
+						<Button $variant="primary" onClick={handleProceed}>
 							Proceed with Authorization
 						</Button>
 					)}
@@ -412,5 +412,9 @@ export { AuthorizationUrlValidationModalService };
 
 // Global access for debugging
 if (typeof window !== 'undefined') {
-	(window as unknown as { authorizationUrlValidationModalService: typeof authorizationUrlValidationModalService }).authorizationUrlValidationModalService = authorizationUrlValidationModalService;
+	(
+		window as unknown as {
+			authorizationUrlValidationModalService: typeof authorizationUrlValidationModalService;
+		}
+	).authorizationUrlValidationModalService = authorizationUrlValidationModalService;
 }

@@ -1,6 +1,5 @@
 // src/components/OAuthErrorHelper.tsx
 import React from 'react';
-import { getAppOrigin } from '../utils/flowRedirectUriMapping';
 import {
 	FiAlertTriangle,
 	FiCheckCircle,
@@ -13,6 +12,7 @@ import {
 	FiX,
 } from 'react-icons/fi';
 import styled from 'styled-components';
+import { getAppOrigin } from '../utils/flowRedirectUriMapping';
 
 const ErrorContainer = styled.div`
   background: #fef2f2;
