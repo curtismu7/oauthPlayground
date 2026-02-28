@@ -1,7 +1,15 @@
 // src/components/ClaimsRequestBuilder.tsx
 // Advanced OIDC Claims Request Builder - Request specific claims with essential/voluntary flags
 import React, { useCallback, useMemo, useState } from 'react';
-import { FiAlertCircle, FiCheckCircle, FiCode, FiInfo, FiPlus, FiTrash2 } from 'react-icons/fi';
+import {
+	FiAlertCircle,
+	FiCheckCircle,
+	FiCode,
+	FiInfo,
+	FiPlus,
+	FiTrash,
+	FiTrash2
+} from 'react-icons/fi';
 import styled from 'styled-components';
 
 export interface ClaimRequest {

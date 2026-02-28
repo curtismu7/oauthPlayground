@@ -10,7 +10,13 @@
  */
 
 import React, { useCallback, useState } from 'react';
-import { FiAlertTriangle, FiEye, FiEyeOff, FiLock as FiLockIcon } from 'react-icons/fi';
+import {
+	FiAlertTriangle,
+	FiEye,
+	FiEyeOff,
+	FiLock as FiLockIcon,
+	FiLockIcon
+} from 'react-icons/fi';
 import styled from 'styled-components';
 import { ButtonSpinner } from '../../../components/ui/ButtonSpinner';
 import PingOneLoginService from '../services/pingOneLoginService';

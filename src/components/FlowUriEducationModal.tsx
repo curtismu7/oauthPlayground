@@ -5,8 +5,9 @@ import {
 	FiCopy,
 	FiExternalLink,
 	FiInfo,
+	FiLink,
 	FiLink2,
-	FiTarget,
+	FiTarget
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import type { FlowUriEducationEntry } from '../services/flowUriEducationService';
