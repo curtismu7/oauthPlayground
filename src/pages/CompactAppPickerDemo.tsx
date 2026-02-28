@@ -2,7 +2,7 @@
 // Demo page for testing the compact application picker with real PingOne data
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiAlertCircle, FiCheckCircle, FiKey, FiX } from 'react-icons/fi';
+import { FiAlertCircle, FiCheckCircle, FiKey, FiX } from '@icons';
 import styled from 'styled-components';
 import { CompactApplicationPicker } from '../components/CompactApplicationPicker';
 import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';

@@ -8,7 +8,7 @@ import {
 	FiServer,
 	FiShield,
 	FiX,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';

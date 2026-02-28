@@ -10,7 +10,7 @@
  */
 
 import React, { useState } from 'react';
-import { FiChevronDown } from 'react-icons/fi';
+import { FiChevronDown } from '@icons';
 import styled from 'styled-components';
 import { CompanyConfigService } from '../services/CompanyConfigService';
 import { useBrandTheme } from '../themes/theme-provider';

@@ -26,7 +26,7 @@ import {
 	FiInfo,
 	FiKey,
 	FiRefreshCw,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { CommonSpinner } from '@/components/common/CommonSpinner';
 import { useProductionSpinner } from '@/hooks/useProductionSpinner';

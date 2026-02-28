@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { FiMove, FiX } from 'react-icons/fi';
+import { FiMove, FiX } from '@icons';
 import styled from 'styled-components';
 import {
 	SIDEBAR_PING_MAX_WIDTH,

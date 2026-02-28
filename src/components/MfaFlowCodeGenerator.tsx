@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { FiCode } from 'react-icons/fi';
+import { FiCode } from '@icons';
 import styled from 'styled-components';
 import { CodeGenerationService } from '../services/codeGeneration';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';

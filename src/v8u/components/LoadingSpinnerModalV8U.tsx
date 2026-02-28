@@ -9,7 +9,7 @@
  */
 
 import React from 'react';
-import { FiLoader } from 'react-icons/fi';
+import { FiLoader } from '@icons';
 import styled from 'styled-components';
 
 interface LoadingSpinnerModalV8UProps {

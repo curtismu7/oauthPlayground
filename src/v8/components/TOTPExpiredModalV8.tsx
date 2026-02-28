@@ -9,7 +9,7 @@
  */
 
 import React, { useEffect } from 'react';
-import { FiAlertCircle, FiRefreshCw, FiX } from 'react-icons/fi';
+import { FiAlertCircle, FiRefreshCw, FiX } from '@icons';
 import styled from 'styled-components';
 import { useDraggableModal } from '@/v8/hooks/useDraggableModal';
 

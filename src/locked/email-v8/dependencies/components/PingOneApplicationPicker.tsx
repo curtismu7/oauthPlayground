@@ -8,7 +8,7 @@ import {
 	FiEye,
 	FiEyeOff,
 	FiRefreshCw,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import {
 	fetchApplications as fetchPingOneApplications,

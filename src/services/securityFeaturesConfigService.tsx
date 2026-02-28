@@ -1,6 +1,6 @@
 // src/services/securityFeaturesConfigService.tsx
 import React, { useMemo } from 'react';
-import { FiAlertTriangle, FiCheckCircle, FiInfo, FiSettings, FiShield } from 'react-icons/fi';
+import { FiAlertTriangle, FiCheckCircle, FiInfo, FiSettings, FiShield } from '@icons';
 import styled from 'styled-components';
 import type { PingOneApplicationState } from '../components/PingOneApplicationConfig';
 

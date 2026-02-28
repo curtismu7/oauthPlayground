@@ -29,7 +29,7 @@ import {
 	FiLock,
 	FiRefreshCw,
 	FiShield,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { useOAuth2CompliantAuthorizationCodeFlow } from '../../hooks/useOAuth2CompliantAuthorizationCodeFlow';
 import { v4ToastManager } from '../../utils/v4ToastMessages';

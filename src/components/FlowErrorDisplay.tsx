@@ -7,8 +7,8 @@
  */
 
 import React from 'react';
-import * as Icons from 'react-icons/fi';
-import { FiHome, FiRefreshCw, FiSettings, FiXCircle } from 'react-icons/fi';
+import * as Icons from '@icons';
+import { FiHome, FiRefreshCw, FiSettings, FiXCircle } from '@icons';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import type { ErrorTemplate } from '../constants/errorMessages';

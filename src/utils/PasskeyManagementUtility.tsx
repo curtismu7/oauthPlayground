@@ -13,7 +13,7 @@ import {
 	FiInfo,
 	FiTrash,
 	FiTrash2
-} from 'react-icons/fi';
+} from '@icons';
 
 interface PasskeyDevice {
 	id: string;

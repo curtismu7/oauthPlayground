@@ -15,7 +15,7 @@ import {
 	FiTrash,
 	FiTrash2,
 	FiUpload
-} from 'react-icons/fi';
+} from '@icons';
 import ApiCallList from '../components/ApiCallList';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';

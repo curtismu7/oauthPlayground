@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import { FiAlertTriangle, FiGlobe, FiInfo, FiShield } from 'react-icons/fi';
+import { FiAlertTriangle, FiGlobe, FiInfo, FiShield } from '@icons';
 import styled from 'styled-components';
 
 const Container = styled.div`

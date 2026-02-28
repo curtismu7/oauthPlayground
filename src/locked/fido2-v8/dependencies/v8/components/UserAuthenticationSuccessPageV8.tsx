@@ -8,7 +8,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { FiCheckCircle, FiCopy, FiShield, FiUser } from 'react-icons/fi';
+import { FiCheckCircle, FiCopy, FiShield, FiUser } from '@icons';
 import { useNavigate } from 'react-router-dom';
 import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';

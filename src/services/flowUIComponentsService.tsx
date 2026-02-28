@@ -2,7 +2,7 @@
 // Service for centralized common UI components used across all flows
 
 import React from 'react';
-import { FiAlertTriangle, FiCheckCircle, FiInfo } from 'react-icons/fi';
+import { FiAlertTriangle, FiCheckCircle, FiInfo } from '@icons';
 import styled from 'styled-components';
 
 export interface FlowUIComponentsConfig {

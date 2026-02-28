@@ -11,7 +11,7 @@
  */
 
 import React, { useState } from 'react';
-import { FiKey, FiRefreshCw } from 'react-icons/fi';
+import { FiKey, FiRefreshCw } from '@icons';
 import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';

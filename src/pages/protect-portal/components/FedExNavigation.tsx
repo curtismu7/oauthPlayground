@@ -7,7 +7,7 @@
  */
 
 import React, { useState } from 'react';
-import { FiMenu, FiSearch, FiTracking, FiX } from 'react-icons/fi';
+import { FiMenu, FiSearch, FiPackage, FiX } from '@icons';
 import styled from 'styled-components';
 import { useBrandTheme } from '../themes/theme-provider';
 
@@ -232,7 +232,7 @@ const FedExNavigation: React.FC = () => {
 								<FiSearch size={20} />
 							</SearchButton>
 							<TrackingButton>
-								<FiTracking size={16} />
+								<FiPackage size={16} />
 								Track Package
 							</TrackingButton>
 							<MobileMenuButton onClick={toggleMobileMenu}>

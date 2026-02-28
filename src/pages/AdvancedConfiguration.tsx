@@ -13,7 +13,7 @@ import {
 	FiSettings,
 	FiShield,
 	FiTerminal,
-} from 'react-icons/fi';
+} from '@icons';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import JsonEditor from '../components/JsonEditor';

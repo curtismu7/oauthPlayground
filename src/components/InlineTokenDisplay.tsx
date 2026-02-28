@@ -2,7 +2,7 @@
 // Inline Token Display Component with In-Place Decoding
 
 import React, { useState } from 'react';
-import { FiCopy, FiExternalLink, FiKey, FiShield } from 'react-icons/fi';
+import { FiCopy, FiExternalLink, FiKey, FiShield } from '@icons';
 import styled from 'styled-components';
 import TokenDisplayService, { type DecodedJWT } from '../services/tokenDisplayService';
 import { v4ToastManager } from '../utils/v4ToastMessages';

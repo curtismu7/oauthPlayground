@@ -7,7 +7,7 @@
  */
 
 import React from 'react';
-import { FiCheckCircle, FiInfo, FiKey, FiLock, FiShield, FiX, FiXCircle } from 'react-icons/fi';
+import { FiCheckCircle, FiInfo, FiKey, FiLock, FiShield, FiX, FiXCircle } from '@icons';
 import styled from 'styled-components';
 
 const MODULE_TAG = '[🔐 TOKEN-AUTH-MODAL-V8]';

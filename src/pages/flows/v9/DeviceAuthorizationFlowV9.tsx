@@ -20,7 +20,7 @@ import {
 	FiSmartphone,
 	FiX,
 	FiZap,
-} from 'react-icons/fi';
+} from '@icons';
 import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import AnalyticsDashboard from '../../../components/AnalyticsDashboard';

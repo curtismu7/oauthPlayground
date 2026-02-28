@@ -2,7 +2,7 @@
 // Modal for displaying WhatsApp MFA not enabled errors
 
 import React, { useId } from 'react';
-import { FiAlertCircle, FiExternalLink, FiInfo, FiX } from 'react-icons/fi';
+import { FiAlertCircle, FiExternalLink, FiInfo, FiX } from '@icons';
 import styled from 'styled-components';
 
 interface WhatsAppNotEnabledModalV8Props {

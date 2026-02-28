@@ -14,7 +14,7 @@ import {
 	FiKey,
 	FiRefreshCw,
 	FiShield,
-} from 'react-icons/fi';
+} from '@icons';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';

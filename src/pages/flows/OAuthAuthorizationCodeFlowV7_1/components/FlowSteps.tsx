@@ -2,7 +2,7 @@
 // V7.1 Flow Steps - Step-by-step flow execution and display
 
 import React from 'react';
-import { FiCheck, FiClock, FiPlay, FiRefreshCw } from 'react-icons/fi';
+import { FiCheck, FiClock, FiPlay, FiRefreshCw } from '@icons';
 import styled from 'styled-components';
 import { STEP_METADATA } from '../constants/stepMetadata';
 import { UI_CONSTANTS } from '../constants/uiConstants';

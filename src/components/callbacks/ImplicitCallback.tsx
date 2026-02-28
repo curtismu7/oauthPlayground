@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FiAlertTriangle, FiCheckCircle, FiLoader, FiXCircle } from 'react-icons/fi';
+import { FiAlertTriangle, FiCheckCircle, FiLoader, FiXCircle } from '@icons';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { FlowErrorConfig, FlowErrorService } from '../../services/flowErrorService';

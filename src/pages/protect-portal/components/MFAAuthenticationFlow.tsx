@@ -20,7 +20,7 @@ import {
 	FiMail,
 	FiShield,
 	FiSmartphone
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import MFAAuthenticationService from '../services/mfaAuthenticationService';
 import type {

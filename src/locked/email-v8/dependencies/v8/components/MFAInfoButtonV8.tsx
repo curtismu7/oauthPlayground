@@ -14,7 +14,7 @@
  */
 
 import React, { useMemo, useState } from 'react';
-import { FiExternalLink, FiInfo, FiX } from 'react-icons/fi';
+import { FiExternalLink, FiInfo, FiX } from '@icons';
 import { MFAEducationServiceV8 } from '../services/mfaEducationServiceV8.ts';
 
 const MODULE_TAG = '[ℹ️ MFA-INFO-BUTTON-V8]';

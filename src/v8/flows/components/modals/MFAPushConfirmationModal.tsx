@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiLoader, FiX } from 'react-icons/fi';
+import { FiLoader, FiX } from '@icons';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 import { PingIdentityLogo } from '@/v8/components/shared/PingIdentityLogo';
 

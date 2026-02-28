@@ -7,7 +7,7 @@ import {
 	FiSearch,
 	FiShield,
 	FiTrendingUp
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { Card, CardBody } from '../../components/Card';
 import { usePageScroll } from '../../hooks/usePageScroll';

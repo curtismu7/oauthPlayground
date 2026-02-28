@@ -20,7 +20,7 @@
  */
 
 import React from 'react';
-import { FiInfo } from 'react-icons/fi';
+import { FiInfo } from '@icons';
 import styled from 'styled-components';
 import { TooltipV8 } from './TooltipV8';
 

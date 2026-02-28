@@ -26,7 +26,7 @@ import {
 	FiSettings,
 	FiTrendingUp,
 	FiXCircle,
-} from 'react-icons/fi';
+} from '@icons';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';

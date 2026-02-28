@@ -1,6 +1,6 @@
 import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { FiAlertCircle, FiDownload, FiInfo, FiSend, FiUpload } from 'react-icons/fi';
+import { FiAlertCircle, FiDownload, FiInfo, FiSend, FiUpload } from '@icons';
 import styled from 'styled-components';
 import { CardBody, CardHeader } from '../../components/Card';
 import ConfigurationButton from '../../components/ConfigurationButton';

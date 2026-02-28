@@ -15,7 +15,7 @@ import {
 	FiUser,
 	FiUsers,
 	FiX,
-} from 'react-icons/fi';
+} from '@icons';
 import { useSearchParams } from 'react-router-dom';
 import { readBestEnvironmentId } from '../hooks/useAutoEnvironmentId';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';

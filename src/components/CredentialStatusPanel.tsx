@@ -9,7 +9,7 @@ import {
 	FiServer,
 	FiShield,
 	FiXCircle,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/NewAuthContext';
 import { showGlobalError, showGlobalSuccess } from '../hooks/useNotifications';

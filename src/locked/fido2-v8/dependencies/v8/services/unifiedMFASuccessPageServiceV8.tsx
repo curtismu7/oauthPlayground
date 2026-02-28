@@ -27,7 +27,7 @@ import {
 	FiInfo,
 	FiShield,
 	FiUser,
-} from 'react-icons/fi';
+} from '@icons';
 import { useNavigate } from 'react-router-dom';
 import {
 	ApiDisplayCheckbox,

@@ -7,7 +7,7 @@ import {
 	FiLock,
 	FiSmartphone,
 	FiZap,
-} from 'react-icons/fi';
+} from '@icons';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { FlowHeader } from '../services/flowHeaderService';

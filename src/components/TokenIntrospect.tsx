@@ -8,7 +8,7 @@ import {
 	FiKey,
 	FiShield,
 	FiUser,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { CalloutCard } from './InfoBlocks';

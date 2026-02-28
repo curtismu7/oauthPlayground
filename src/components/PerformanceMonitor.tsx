@@ -6,7 +6,7 @@ import {
 	FiTrendingDown,
 	FiTrendingUp,
 	FiZap,
-} from 'react-icons/fi';
+} from '@icons';
 import styled from 'styled-components';
 import { useLazyLoadingMetrics } from '../hooks/useLazyLoading';
 import { logger } from '../utils/logger';

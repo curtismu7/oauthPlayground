@@ -10,7 +10,7 @@
  */
 
 import React, { useState } from 'react';
-import { FiKey, FiX } from 'react-icons/fi';
+import { FiKey, FiX } from '@icons';
 import { Button } from '@/v8/components/Button';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { globalEnvironmentService } from '@/v8/services/globalEnvironmentService';
