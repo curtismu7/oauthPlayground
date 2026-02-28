@@ -38,7 +38,7 @@ const styles = {
 	} as React.CSSProperties,
 
 	title: {
-		color: '#333',
+		color: '#111827',
 		fontSize: '2rem',
 		fontWeight: 600,
 	} as React.CSSProperties,
@@ -50,7 +50,7 @@ const styles = {
 	} as React.CSSProperties,
 
 	button: (variant?: 'primary' | 'secondary' | 'danger'): React.CSSProperties => ({
-		background: variant === 'secondary' ? '#6c757d' : variant === 'danger' ? '#dc3545' : '#007bff',
+		background: variant === 'secondary' ? '#6b7280' : variant === 'danger' ? '#dc2626' : '#2563eb',
 		color: 'white',
 		border: 'none',
 		padding: '0.5rem 1rem',
@@ -192,12 +192,12 @@ const styles = {
 	errorMessage: {
 		textAlign: 'center',
 		padding: '2rem',
-		color: '#dc3545',
+		color: '#dc2626',
 		fontSize: '1.1rem',
 	} as React.CSSProperties,
 
 	educationalSection: {
-		background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)',
+		background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
 		borderRadius: '12px',
 		padding: '2rem',
 		marginBottom: '2rem',
@@ -268,7 +268,7 @@ const styles = {
 
 	apiEndpointsDescription: {
 		margin: '0 0 1rem 0',
-		color: '#6c757d',
+		color: '#6b7280',
 	} as React.CSSProperties,
 
 	apiEndpointsTable: {
@@ -302,12 +302,12 @@ const styles = {
 		fontWeight: 'bold',
 		color:
 			method === 'GET'
-				? '#61dafb'
+				? '#2563eb'
 				: method === 'POST'
-					? '#4caf50'
+					? '#10b981'
 					: method === 'PUT'
-						? '#ff9800'
-						: '#f44336',
+						? '#f59e0b'
+						: '#dc2626',
 	}),
 
 	apiDisplayModal: (isOpen: boolean): React.CSSProperties => ({
@@ -358,7 +358,7 @@ const styles = {
 		border: 'none',
 		fontSize: '1.5rem',
 		cursor: 'pointer',
-		color: '#6c757d',
+		color: '#6b7280',
 		padding: '0.5rem',
 		borderRadius: '4px',
 	} as React.CSSProperties,
@@ -378,8 +378,8 @@ const styles = {
 	paginationButton: (active?: boolean): React.CSSProperties => ({
 		padding: '0.5rem 1rem',
 		border: '1px solid #ddd',
-		background: active ? '#007bff' : 'white',
-		color: active ? 'white' : '#333',
+		background: active ? '#2563eb' : 'white',
+		color: active ? 'white' : '#111827',
 		borderRadius: '4px',
 		cursor: 'pointer',
 		transition: 'all 0.2s ease',
@@ -415,36 +415,6 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			return '';
 		}
 	});
-	const [_showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
-
-	// Calculate button style based on token expiration
-	const buttonStyle = useMemo(() => {
-		try {
-			const tokenData = unifiedWorkerTokenService.getTokenDataSync();
-			if (!tokenData || !tokenData.token) {
-				return { backgroundColor: '#ef4444', label: 'No Token' }; // Red - no token
-			}
-
-			if (tokenData.expiresAt) {
-				const now = Date.now();
-				const remaining = tokenData.expiresAt - now;
-				const fiveMinutesInMs = 5 * 60 * 1000;
-
-				if (remaining <= 0) {
-					return { backgroundColor: '#ef4444', label: 'Token Expired' }; // Red - expired
-				}
-
-				if (remaining < fiveMinutesInMs) {
-					return { backgroundColor: '#f59e0b', label: 'Token Expiring Soon' }; // Yellow - expiring soon
-				}
-			}
-
-			return { backgroundColor: '#10b981', label: 'Token Valid' }; // Green - valid
-		} catch {
-			return { backgroundColor: '#ef4444', label: 'No Token' }; // Red - error
-		}
-	}, []); // No dependencies - recalculates on component re-render
-
 	// Listen for token updates
 	useEffect(() => {
 		const handleTokenUpdate = async () => {
@@ -577,7 +547,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 	}, [selectedApiRegion, typeFilter, statusFilter, regionFilter, currentPage]);
 
 	// Test function to debug environment fetching
-	const testEnvironmentFetch = useCallback(async () => {
+	const _testEnvironmentFetch = useCallback(async () => {
 		console.log('[TEST] Starting environment fetch test...');
 		try {
 			const token = unifiedWorkerTokenService.getTokenDataSync()?.token;
@@ -989,63 +959,6 @@ const EnvironmentManagementPageV8: React.FC = () => {
 					</p>
 
 					<WorkerTokenSectionV8 compact />
-
-					<div
-						style={{
-							marginTop: '2rem',
-							marginBottom: '1.5rem',
-							display: 'flex',
-							gap: '1rem',
-							justifyContent: 'center',
-							flexWrap: 'wrap',
-						}}
-					>
-						<button
-							type="button"
-							onClick={testEnvironmentFetch}
-							style={{
-								padding: '1rem 1.75rem',
-								backgroundColor: '#f59e0b',
-								color: 'white',
-								border: 'none',
-								borderRadius: '0.5rem',
-								fontSize: '0.875rem',
-								fontWeight: '600',
-								cursor: 'pointer',
-								display: 'flex',
-								alignItems: 'center',
-								gap: '0.5rem',
-								transition: 'all 0.2s ease',
-								boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-							}}
-						>
-							🔍 Test Environment Fetch
-						</button>
-
-						<button
-							type="button"
-							onClick={() => setShowWorkerTokenModal(true)}
-							style={{
-								padding: '1rem 1.75rem',
-								backgroundColor: buttonStyle.backgroundColor,
-								color: 'white',
-								border: 'none',
-								borderRadius: '0.5rem',
-								fontSize: '0.875rem',
-								fontWeight: '600',
-								cursor: 'pointer',
-								display: 'flex',
-								alignItems: 'center',
-								gap: '0.5rem',
-								transition: 'all 0.2s ease',
-								boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-							}}
-							title={buttonStyle.label}
-						>
-							<FiRefreshCw size={16} />
-							Get Worker Token for Environments
-						</button>
-					</div>
 				</div>
 			</div>
 		);
@@ -1167,14 +1080,6 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			<div style={styles.header}>
 				<h1 style={styles.title}>PingOne Environment Management</h1>
 				<div style={styles.actions}>
-					<button
-						type="button"
-						style={styles.button('secondary')}
-						onClick={() => setShowWorkerTokenModal(true)}
-					>
-						<FiRefreshCw />
-						Worker Token
-					</button>
 					<button type="button" style={styles.button()} onClick={handleRefresh}>
 						<FiRefreshCw />
 						Refresh
@@ -1622,10 +1527,10 @@ const EnvironmentManagementPageV8: React.FC = () => {
 						style={{
 							...styles.button(),
 							backgroundColor: hasUnsavedChanges
-								? '#dc3545'
+								? '#dc2626'
 								: editName.trim()
-									? '#28a745'
-									: '#6c757d',
+									? '#2563eb'
+									: '#6b7280',
 							color: '#fff',
 							opacity: editName.trim() ? 1 : 0.6,
 							cursor: editName.trim() ? 'pointer' : 'not-allowed',
