@@ -13,7 +13,6 @@ import './styles/button-text-white-enforcement.css'; // CRITICAL: Ensures all bu
 import { lazy, Suspense } from 'react';
 import CodeExamplesDemo from './components/CodeExamplesDemo';
 import CredentialSetupModal from './components/CredentialSetupModal';
-import FloatingPrompts from './components/FloatingPrompts';
 import { FloatingLogToggle } from './components/FloatingLogToggle';
 import { FloatingLogViewer } from './components/FloatingLogViewer';
 import { WorkerTokenModal } from './components/WorkerTokenModal';
@@ -131,6 +130,7 @@ import DPoPFlow from './pages/flows/DPoPFlow';
 import IDTokensFlow from './pages/flows/IDTokensFlow';
 // ImplicitFlowV7 archived — route redirects to v9
 import JWTBearerFlow from './pages/flows/JWTBearerFlow';
+import JWTBearerTokenFlow from './pages/flows/JWTBearerTokenFlow';
 import JWTBearerTokenFlowV7 from './pages/flows/JWTBearerTokenFlowV7';
 import KrogerGroceryStoreMFA from './pages/flows/KrogerGroceryStoreMFA';
 import MFAFlow from './pages/flows/MFAFlow';
@@ -142,7 +142,6 @@ import OAuthImplicitFlowCompletion from './pages/flows/OAuthImplicitFlowCompleti
 import OAuthROPCFlowV7 from './pages/flows/OAuthROPCFlowV7';
 import OIDCCompliantAuthorizationCodeFlow from './pages/flows/OIDCCompliantAuthorizationCodeFlow';
 import OIDCHybridFlowV7 from './pages/flows/OIDCHybridFlowV7';
-import OIDCHybridFlowV9 from './pages/flows/v9/OIDCHybridFlowV9';
 import PARFlow from './pages/flows/PARFlow';
 import PARFlowV7 from './pages/flows/PARFlowV7';
 import PingOneCompleteMFAFlowV7 from './pages/flows/PingOneCompleteMFAFlowV7';
@@ -163,7 +162,12 @@ import V7RMOIDCResourceOwnerPasswordFlow from './pages/flows/V7RMOIDCResourceOwn
 import ClientCredentialsFlowV9 from './pages/flows/v9/ClientCredentialsFlowV9';
 import DeviceAuthorizationFlowV9 from './pages/flows/v9/DeviceAuthorizationFlowV9';
 import ImplicitFlowV9 from './pages/flows/v9/ImplicitFlowV9';
+import JWTBearerTokenFlowV9 from './pages/flows/v9/JWTBearerTokenFlowV9';
 import OAuthAuthorizationCodeFlowV9 from './pages/flows/v9/OAuthAuthorizationCodeFlowV9';
+import OAuthAuthorizationCodeFlowV9_Condensed from './pages/flows/v9/OAuthAuthorizationCodeFlowV9_Condensed';
+import OIDCHybridFlowV9 from './pages/flows/v9/OIDCHybridFlowV9';
+import RARFlowV9 from './pages/flows/v9/RARFlowV9';
+import SAMLBearerAssertionFlowV9 from './pages/flows/v9/SAMLBearerAssertionFlowV9';
 import WorkerTokenFlowV7 from './pages/flows/WorkerTokenFlowV7';
 // import InteractiveTutorials from './pages/InteractiveTutorials'; // Removed - unused tutorial feature
 import JWKSTroubleshooting from './pages/JWKSTroubleshooting';
@@ -186,7 +190,6 @@ import PingOneSessionsAPI from './pages/PingOneSessionsAPI';
 import PingOneUserProfile from './pages/PingOneUserProfile';
 import PingOneWebhookViewer from './pages/PingOneWebhookViewer';
 import { PostmanCollectionGenerator } from './pages/PostmanCollectionGenerator';
-import { PostmanCollectionGenerator as PostmanCollectionGeneratorV9 } from './pages/v9/PostmanCollectionGeneratorV9';
 import SDKSampleApp from './pages/SDKSampleApp';
 import ServiceTestRunner from './pages/ServiceTestRunner';
 import JWTExamples from './pages/sdk-examples/JWTExamples';
@@ -198,6 +201,7 @@ import TestDemo from './pages/TestDemo';
 import TokenManagement from './pages/TokenManagement';
 import UltimateTokenDisplayDemo from './pages/UltimateTokenDisplayDemo';
 import URLDecoder from './pages/URLDecoder';
+import { PostmanCollectionGenerator as PostmanCollectionGeneratorV9 } from './pages/v9/PostmanCollectionGeneratorV9';
 import { FIDO2SampleApp } from './samples/p1mfa/fido2/FIDO2SampleApp';
 import { IntegratedMFASample } from './samples/p1mfa/IntegratedMFASample';
 import { SMSSampleApp } from './samples/p1mfa/sms/SMSSampleApp';
@@ -655,18 +659,6 @@ const AppRoutes: React.FC = () => {
 									element={<Navigate to="/flows/oauth-authorization-code-v9" replace />}
 								/>
 								<Route
-									path="/flows/oauth-authorization-code-v7-2"
-									element={<Navigate to="/flows/oauth-authorization-code-v9" replace />}
-								/>
-								<Route
-									path="/flows/oauth-authorization-code-v9"
-									element={<OAuthAuthorizationCodeFlowV9 />}
-								/>
-								<Route
-									path="/flows/oauth-authorization-code-v8"
-									element={<OAuthAuthorizationCodeFlowV8 />}
-								/>
-								<Route
 									path="/flows/dpop-authorization-code-v8"
 									element={
 										<React.Suspense fallback={<div>Loading...</div>}>
@@ -771,23 +763,9 @@ const AppRoutes: React.FC = () => {
 									path="/flows/oauth-authorization-code-v7-condensed-mock"
 									element={<V7RMOAuthAuthorizationCodeFlow_Condensed />}
 								/>
-								<Route path="/flows/v7rm-condensed-mock" element={<V7RMCondensedMock />} />
-								{/* V7RM Mock Flows (Flows not supported by PingOne) */}
 								<Route
-									path="/flows/v7rm-oidc-ropc"
+									path="/flows/mock-oidc-ropc"
 									element={<V7RMOIDCResourceOwnerPasswordFlow />}
-								/>
-								{/* Token Management Flows */}
-								<Route path="/flows/token-revocation" element={<TokenRevocationFlow />} />
-								<Route path="/flows/token-introspection" element={<TokenIntrospectionFlow />} />
-								{/* V7 Mock Educational Flow Routes */}
-								<Route
-									path="/v7/oauth/authorization-code"
-									element={
-										<Suspense fallback={<div>Loading...</div>}>
-											<V7MOAuthAuthCode oidc={false} title="V7M OAuth Authorization Code" />
-										</Suspense>
-									}
 								/>
 								<Route
 									path="/v7/oidc/authorization-code"
@@ -1110,6 +1088,8 @@ const AppRoutes: React.FC = () => {
 								/>
 								{/* V7 JWT Bearer Token Flow */}
 								<Route path="/flows/jwt-bearer-token-v7" element={<JWTBearerTokenFlowV7 />} />
+								{/* V9 JWT Bearer Token Flow */}
+								<Route path="/flows/jwt-bearer-token-v9" element={<JWTBearerTokenFlowV9 />} />
 								{/* V8M Token Exchange Flow */}
 								<Route path="/flows/token-exchange-v7" element={<V8MTokenExchange />} />
 								{/* Legacy V6 routes - redirect to V7 (latest version) */}
@@ -1121,6 +1101,11 @@ const AppRoutes: React.FC = () => {
 								<Route
 									path="/flows/saml-bearer-assertion-v7"
 									element={<SAMLBearerAssertionFlowV7 />}
+								/>
+								{/* V9 SAML Bearer Assertion Flow */}
+								<Route
+									path="/flows/saml-bearer-assertion-v9"
+									element={<SAMLBearerAssertionFlowV9 />}
 								/>
 								<Route
 									path="/flows/saml-sp-dynamic-acs-v1"
@@ -1154,6 +1139,16 @@ const AppRoutes: React.FC = () => {
 								<Route path="/flows/oidc-hybrid-v7" element={<OIDCHybridFlowV7 />} />
 								{/* V9 OIDC Hybrid Flow */}
 								<Route path="/flows/oidc-hybrid-v9" element={<OIDCHybridFlowV9 />} />
+								{/* V9 Authorization Code Flow */}
+								<Route
+									path="/flows/oauth-authorization-code-v9"
+									element={<OAuthAuthorizationCodeFlowV9 />}
+								/>
+								{/* V9 Authorization Code Flow - Condensed */}
+								<Route
+									path="/flows/oauth-authorization-code-v9-condensed"
+									element={<OAuthAuthorizationCodeFlowV9_Condensed />}
+								/>
 								{/* V8 OIDC Hybrid Flow */}
 								<Route path="/flows/hybrid-v8" element={<OIDCHybridFlowV8 />} />
 								{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
@@ -1190,7 +1185,7 @@ const AppRoutes: React.FC = () => {
 									element={<Navigate to="/flows/redirectless-v9-real" replace />}
 								/>
 								<Route path="/flows/par" element={<PARFlow />} />
-								<Route path="/flows-old/jwt-bearer" element={<JWTBearerFlow />} />
+								<Route path="/flows-old/jwt-bearer" element={<JWTBearerTokenFlow />} />
 								{/* Unsupported by PingOne flows */}
 								<Route
 									path="/oauth/resource-owner-password"
@@ -1237,6 +1232,8 @@ const AppRoutes: React.FC = () => {
 								<Route path="/p1auth-callback" element={<PingOneAuthenticationCallback />} />
 								{/* V7 RAR Flow */}
 								<Route path="/flows/rar-v7" element={<RARFlowV7 />} />
+								{/* V9 RAR Flow */}
+								<Route path="/flows/rar-v9" element={<RARFlowV9 />} />
 								{/* DPoP Flow (Educational/Mock) */}
 								<Route path="/flows/dpop" element={<DPoPFlow />} />
 								{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
@@ -1747,9 +1744,6 @@ function AppContent() {
 
 			{!isStandaloneLogViewerRoute && (
 				<>
-					{/* Floating Prompts Button */}
-					<FloatingPrompts />
-
 					{/* Floating Log Viewer */}
 					<FloatingLogViewer
 						isOpen={isFloatingLogViewerOpen}
