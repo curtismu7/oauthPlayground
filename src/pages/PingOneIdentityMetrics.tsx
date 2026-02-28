@@ -8,390 +8,258 @@ import {
 	FiAlertCircle,
 	FiBarChart2,
 	FiCalendar,
-	FiCheckCircle,
 	FiClock,
 	FiDatabase,
 	FiInfo,
-	FiKey,
 	FiRefreshCw,
 	FiShield,
-	FiX,
 } from 'react-icons/fi';
-import styled from 'styled-components';
 import JSONHighlighter, { type JSONData } from '../components/JSONHighlighter';
-import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { apiRequestModalService } from '../services/apiRequestModalService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { ShowTokenConfigCheckboxV8 } from '../v8/components/ShowTokenConfigCheckboxV8';
 import { SilentApiConfigCheckboxV8 } from '../v8/components/SilentApiConfigCheckboxV8';
-import { WorkerTokenModalV8 } from '../v8/components/WorkerTokenModalV8';
+import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
 
-const PageContainer = styled.div`
-	max-width: 90rem;
-	margin: 0 auto;
-	padding: 2rem 1.5rem 4rem;
-	display: flex;
-	flex-direction: column;
-	gap: 1.75rem;
-`;
+const styles = {
+	pageContainer: {
+		maxWidth: '90rem',
+		margin: '0 auto',
+		padding: '2rem 1.5rem 4rem',
+		display: 'flex' as const,
+		flexDirection: 'column' as const,
+		gap: '1.75rem',
+	},
+	headerCard: {
+		display: 'flex' as const,
+		flexDirection: 'column' as const,
+		gap: '1rem',
+		padding: '1.75rem',
+		borderRadius: '1rem',
+		background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)',
+		border: '1px solid rgba(59, 130, 246, 0.2)',
+	},
+	titleRow: {
+		display: 'flex' as const,
+		alignItems: 'center' as const,
+		gap: '0.75rem',
+		color: '#ffffff',
+	},
+	title: {
+		margin: 0,
+		fontSize: '1.75rem',
+		fontWeight: 700,
+		color: '#ffffff',
+	},
+	subtitle: {
+		margin: 0,
+		color: '#bfdbfe',
+		maxWidth: '720px',
+		lineHeight: 1.6,
+	},
+	layoutGrid: {
+		display: 'grid' as const,
+		gridTemplateColumns: '360px 1fr',
+		gap: '1.75rem',
+	},
+	card: {
+		background: '#ffffff',
+		borderRadius: '1rem',
+		border: '1px solid #e2e8f0',
+		boxShadow: '0 10px 30px -12px rgba(15, 23, 42, 0.18)',
+		overflow: 'hidden' as const,
+		padding: '1.5rem',
+		display: 'flex' as const,
+		flexDirection: 'column' as const,
+		gap: '1.25rem',
+	},
+	sectionTitle: {
+		margin: 0,
+		display: 'flex' as const,
+		alignItems: 'center' as const,
+		gap: '0.5rem',
+		fontSize: '1.1rem',
+		fontWeight: 600,
+		color: '#0f172a',
+	},
+	fieldGroup: {
+		display: 'flex' as const,
+		flexDirection: 'column' as const,
+		gap: '0.5rem',
+	},
+	label: {
+		fontWeight: 600,
+		fontSize: '0.85rem',
+		color: '#334155',
+		display: 'flex' as const,
+		alignItems: 'center' as const,
+		gap: '0.35rem',
+	},
+	input: {
+		width: '100%',
+		padding: '0.75rem 0.85rem',
+		borderRadius: '0.75rem',
+		border: '1px solid #cbd5f5',
+		background: '#f8fafc',
+		fontSize: '0.92rem',
+	},
+	select: {
+		width: '100%',
+		padding: '0.75rem 0.85rem',
+		borderRadius: '0.75rem',
+		border: '1px solid #cbd5f5',
+		background: '#f8fafc',
+		fontSize: '0.92rem',
+		cursor: 'pointer' as const,
+	},
+	hint: {
+		margin: 0,
+		fontSize: '0.8rem',
+		color: '#64748b',
+	},
+	buttonRow: {
+		display: 'flex' as const,
+		flexWrap: 'wrap' as const,
+		gap: '0.75rem',
+	},
+	primaryButton: {
+		border: 'none',
+		borderRadius: '0.75rem',
+		padding: '0.85rem 1.35rem',
+		background: '#2563eb',
+		color: 'white',
+		fontWeight: 600,
+		display: 'inline-flex' as const,
+		alignItems: 'center' as const,
+		gap: '0.5rem',
+		cursor: 'pointer' as const,
+	},
+	dangerButton: {
+		border: 'none',
+		borderRadius: '0.75rem',
+		padding: '0.85rem 1.35rem',
+		background: '#ef4444',
+		color: 'white',
+		fontWeight: 600,
+		display: 'inline-flex' as const,
+		alignItems: 'center' as const,
+		gap: '0.5rem',
+		cursor: 'pointer' as const,
+	},
+	secondaryButton: {
+		border: '1px solid #cbd5f5',
+		borderRadius: '0.75rem',
+		padding: '0.85rem 1.35rem',
+		background: 'white',
+		color: '#1e293b',
+		fontWeight: 600,
+		display: 'inline-flex' as const,
+		alignItems: 'center' as const,
+		gap: '0.5rem',
+		cursor: 'pointer' as const,
+	},
+	warningBanner: {
+		padding: '1rem 1.25rem',
+		borderRadius: '0.85rem',
+		border: '2px solid #fbbf24',
+		background: '#fef3c7',
+		color: '#92400e',
+		display: 'flex' as const,
+		flexDirection: 'column' as const,
+		gap: '0.5rem',
+		marginBottom: '1rem',
+	},
+	resultContainer: {
+		display: 'flex' as const,
+		flexDirection: 'column' as const,
+		gap: '1rem',
+	},
+	emptyState: {
+		padding: '2rem',
+		borderRadius: '1rem',
+		border: '1px dashed #cbd5f5',
+		background: '#f8fafc',
+		color: '#475569',
+		display: 'flex' as const,
+		flexDirection: 'column' as const,
+		alignItems: 'center' as const,
+		gap: '0.75rem',
+	},
+	errorBanner: {
+		padding: '1rem 1.25rem',
+		borderRadius: '0.85rem',
+		border: '1px solid #fecaca',
+		background: '#fef2f2',
+		color: '#b91c1c',
+		display: 'flex' as const,
+		alignItems: 'flex-start' as const,
+		gap: '0.75rem',
+	},
+	permissionsModalOverlay: {
+		position: 'fixed' as const,
+		inset: 0,
+		background: 'rgba(0, 0, 0, 0.6)',
+		display: 'flex' as const,
+		alignItems: 'center' as const,
+		justifyContent: 'center' as const,
+		zIndex: 10000,
+		backdropFilter: 'blur(4px)',
+	},
+	permissionsModalContent: {
+		background: 'white',
+		borderRadius: '0.75rem',
+		padding: '1.25rem 1.5rem',
+		maxWidth: '800px',
+		width: 'calc(100vw - 4rem)',
+		margin: '1rem',
+		boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+		border: '3px solid #dc2626',
+		maxHeight: 'calc(100vh - 4rem)',
+		overflowY: 'auto' as const,
+	},
+	permissionsModalTitle: {
+		fontSize: '1.1rem',
+		fontWeight: 700,
+		color: '#1f2937',
+		margin: '0 0 0.65rem 0',
+		display: 'flex' as const,
+		alignItems: 'center' as const,
+		gap: '0.5rem',
+	},
+	permissionsModalMessage: {
+		fontSize: '0.8rem',
+		color: '#374151',
+		lineHeight: 1.35,
+		margin: '0 0 0.65rem 0',
+	},
+	permissionsModalInstructions: {
+		fontSize: '0.75rem',
+		color: '#374151',
+		lineHeight: 1.35,
+		margin: '0 0 0.75rem 0',
+		padding: '0.75rem',
+		background: '#f3f4f6',
+		borderRadius: '0.5rem',
+		borderLeft: '4px solid #dc2626',
+	},
+	permissionsModalActions: {
+		display: 'flex' as const,
+		justifyContent: 'flex-end' as const,
+		gap: '0.75rem',
+	},
+	permissionsModalButton: {
+		padding: '0.55rem 1.25rem',
+		background: '#3b82f6',
+		color: 'white',
+		border: 'none',
+		borderRadius: '0.5rem',
+		fontSize: '0.85rem',
+		fontWeight: 600,
+		cursor: 'pointer' as const,
+	},
+};
 
-const HeaderCard = styled.div`
-	display: flex;
-	flex-direction: column;
-	gap: 1rem;
-	padding: 1.75rem;
-	border-radius: 1rem;
-	background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(59, 130, 246, 0.04));
-	border: 1px solid rgba(59, 130, 246, 0.2);
-`;
-
-const TitleRow = styled.div`
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
-	color: #1d4ed8;
-`;
-
-const Title = styled.h1`
-	margin: 0;
-	font-size: 1.75rem;
-	font-weight: 700;
-`;
-
-const Subtitle = styled.p`
-	margin: 0;
-	color: #1e40af;
-	max-width: 720px;
-	line-height: 1.6;
-`;
-
-const LayoutGrid = styled.div`
-	display: grid;
-	grid-template-columns: 360px 1fr;
-	gap: 1.75rem;
-
-	@media (max-width: 1080px) {
-		grid-template-columns: 1fr;
-	}
-`;
-
-const Card = styled.div`
-	background: #ffffff;
-	border-radius: 1rem;
-	border: 1px solid #e2e8f0;
-	box-shadow: 0 10px 30px -12px rgba(15, 23, 42, 0.18);
-	overflow: hidden;
-	padding: 1.5rem;
-	display: flex;
-	flex-direction: column;
-	gap: 1.25rem;
-`;
-
-const SectionTitle = styled.h2`
-	margin: 0;
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-	font-size: 1.1rem;
-	font-weight: 600;
-	color: #0f172a;
-`;
-
-const FieldGroup = styled.div`
-	display: flex;
-	flex-direction: column;
-	gap: 0.5rem;
-`;
-
-const Label = styled.label`
-	font-weight: 600;
-	font-size: 0.85rem;
-	color: #334155;
-	display: flex;
-	align-items: center;
-	gap: 0.35rem;
-`;
-
-const Input = styled.input<{ $hasError?: boolean }>`
-	width: 100%;
-	padding: 0.75rem 0.85rem;
-	border-radius: 0.75rem;
-	border: 1px solid ${({ $hasError }) => ($hasError ? '#f87171' : '#cbd5f5')};
-	background: #f8fafc;
-	transition: all 0.2s ease;
-	font-size: 0.92rem;
-
-	&:focus {
-		outline: none;
-		border-color: ${({ $hasError }) => ($hasError ? '#ef4444' : '#3b82f6')};
-		box-shadow: 0 0 0 3px ${({ $hasError }) => ($hasError ? 'rgba(248, 113, 113, 0.35)' : 'rgba(59, 130, 246, 0.2)')};
-	}
-`;
-
-const Select = styled.select`
-	width: 100%;
-	padding: 0.75rem 0.85rem;
-	border-radius: 0.75rem;
-	border: 1px solid #cbd5f5;
-	background: #f8fafc;
-	transition: all 0.2s ease;
-	font-size: 0.92rem;
-	cursor: pointer;
-
-	&:focus {
-		outline: none;
-		border-color: #3b82f6;
-		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-	}
-`;
-
-const Hint = styled.p`
-	margin: 0;
-	font-size: 0.8rem;
-	color: #64748b;
-`;
-
-const ButtonRow = styled.div`
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.75rem;
-`;
-
-const PrimaryButton = styled.button<{ disabled?: boolean }>`
-	border: none;
-	border-radius: 0.75rem;
-	padding: 0.85rem 1.35rem;
-	background: ${({ disabled }) => (disabled ? '#cbd5f5' : '#2563eb')};
-	color: white;
-	font-weight: 600;
-	display: inline-flex;
-	align-items: center;
-	gap: 0.5rem;
-	cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
-	transition: transform 0.15s ease, box-shadow 0.15s ease;
-
-	&:hover {
-		transform: ${({ disabled }) => (disabled ? 'none' : 'translateY(-1px)')};
-		box-shadow: ${({ disabled }) => (disabled ? 'none' : '0 10px 22px -12px rgba(37, 99, 235, 0.65)')};
-	}
-
-	.spin {
-		animation: spin 1s linear infinite;
-	}
-
-	@keyframes spin {
-		from {
-			transform: rotate(0deg);
-		}
-		to {
-			transform: rotate(360deg);
-		}
-	}
-`;
-
-const DangerButton = styled.button`
-	border: none;
-	border-radius: 0.75rem;
-	padding: 0.85rem 1.35rem;
-	background: #ef4444;
-	color: white;
-	font-weight: 600;
-	display: inline-flex;
-	align-items: center;
-	gap: 0.5rem;
-	cursor: pointer;
-	transition: transform 0.15s ease, box-shadow 0.15s ease;
-
-	&:hover {
-		transform: translateY(-1px);
-		box-shadow: 0 10px 22px -12px rgba(239, 68, 68, 0.65);
-		background: #dc2626;
-	}
-
-	&:active {
-		transform: translateY(0);
-	}
-`;
-
-const SecondaryButton = styled.button`
-	border: 1px solid #cbd5f5;
-	border-radius: 0.75rem;
-	padding: 0.85rem 1.35rem;
-	background: white;
-	color: #1e293b;
-	font-weight: 600;
-	display: inline-flex;
-	align-items: center;
-	gap: 0.5rem;
-	cursor: pointer;
-	transition: background 0.15s ease, color 0.15s ease;
-
-	&:hover {
-		background: #f8fafc;
-		color: #1d4ed8;
-	}
-
-	.spin {
-		animation: spin 1s linear infinite;
-	}
-
-	@keyframes spin {
-		from {
-			transform: rotate(0deg);
-		}
-		to {
-			transform: rotate(360deg);
-		}
-	}
-`;
-
-const WarningBanner = styled.div`
-	padding: 1rem 1.25rem;
-	border-radius: 0.85rem;
-	border: 2px solid #fbbf24;
-	background: #fef3c7;
-	color: #92400e;
-	display: flex;
-	flex-direction: column;
-	gap: 0.5rem;
-	margin-bottom: 1rem;
-`;
-
-const ResultContainer = styled.div`
-	display: flex;
-	flex-direction: column;
-	gap: 1rem;
-`;
-
-const EmptyState = styled.div`
-	padding: 2rem;
-	border-radius: 1rem;
-	border: 1px dashed #cbd5f5;
-	background: #f8fafc;
-	color: #475569;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 0.75rem;
-`;
-
-const ErrorBanner = styled.div`
-	padding: 1rem 1.25rem;
-	border-radius: 0.85rem;
-	border: 1px solid #fecaca;
-	background: #fef2f2;
-	color: #b91c1c;
-	display: flex;
-	align-items: flex-start;
-	gap: 0.75rem;
-`;
-
-const PermissionsModalOverlay = styled.div`
-	position: fixed;
-	inset: 0;
-	background: rgba(0, 0, 0, 0.6);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	z-index: 10000;
-	backdrop-filter: blur(4px);
-`;
-
-const PermissionsModalContent = styled.div`
-	background: white;
-	border-radius: 0.75rem;
-	padding: 1.25rem 1.5rem;
-	max-width: 800px;
-	width: calc(100vw - 4rem);
-	margin: 1rem;
-	box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-	border: 3px solid #dc2626;
-	max-height: calc(100vh - 4rem);
-	overflow-y: auto;
-`;
-
-const PermissionsModalTitle = styled.h2`
-	font-size: 1.1rem;
-	font-weight: 700;
-	color: #1f2937;
-	margin: 0 0 0.65rem 0;
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-`;
-
-const PermissionsModalMessage = styled.p`
-	font-size: 0.8rem;
-	color: #374151;
-	line-height: 1.35;
-	margin: 0 0 0.65rem 0;
-`;
-
-const PermissionsModalInstructions = styled.div`
-	font-size: 0.75rem;
-	color: #374151;
-	line-height: 1.35;
-	margin: 0 0 0.75rem 0;
-	padding: 0.75rem;
-	background: #f3f4f6;
-	border-radius: 0.5rem;
-	border-left: 4px solid #dc2626;
-
-	strong {
-		color: #1f2937;
-		display: block;
-		margin-bottom: 0.4rem;
-		font-size: 0.8rem;
-	}
-
-	ul {
-		margin: 0;
-		padding-left: 1.25rem;
-	}
-
-	li {
-		margin-bottom: 0.25rem;
-	}
-
-	code {
-		background: #1f2937;
-		color: #f59e0b;
-		padding: 0.15rem 0.35rem;
-		border-radius: 0.25rem;
-		font-family: 'Monaco', 'Courier New', monospace;
-		font-size: 0.7rem;
-		font-weight: 600;
-	}
-`;
-
-const PermissionsModalActions = styled.div`
-	display: flex;
-	justify-content: flex-end;
-	gap: 0.75rem;
-`;
-
-const PermissionsModalButton = styled.button`
-	padding: 0.55rem 1.25rem;
-	background: #3b82f6;
-	color: white;
-	border: none;
-	border-radius: 0.5rem;
-	font-size: 0.85rem;
-	font-weight: 600;
-	cursor: pointer;
-	transition: all 200ms ease;
-
-	&:hover {
-		background: #2563eb;
-		transform: translateY(-1px);
-		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-	}
-
-	&:active {
-		transform: translateY(0);
-	}
-`;
 
 interface ActiveIdentityCount {
 	startDate: string;
@@ -440,20 +308,8 @@ const PingOneIdentityMetrics: React.FC = () => {
 	const globalTokenStatus = useGlobalWorkerToken();
 	const workerToken = globalTokenStatus.token || '';
 	const hasWorkerToken = globalTokenStatus.isValid;
-	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 
 	const resetDates = () => setDateRange(defaultDateRange());
-
-	// Get worker token using credentials on the page
-	const handleGetWorkerToken = useCallback(() => {
-		if (hasWorkerToken) {
-			v4ToastManager.showInfo(
-				'Worker token already available. Opening modal in case you want to refresh it.'
-			);
-		}
-		setError(null);
-		setShowWorkerTokenModal(true);
-	}, [hasWorkerToken]);
 
 	// Clear the worker token (clears unified worker token)
 	const handleClearWorkerToken = useCallback(() => {
@@ -717,18 +573,18 @@ const PingOneIdentityMetrics: React.FC = () => {
 	}, [activeIdentityCounts, samplingPeriod]);
 
 	return (
-		<PageContainer>
-			<HeaderCard>
-				<TitleRow>
+		<div style={styles.pageContainer}>
+			<div style={styles.headerCard}>
+				<div style={styles.titleRow}>
 					<FiBarChart2 size={24} />
-					<Title>PingOne Identity Counts</Title>
-				</TitleRow>
-				<Subtitle>
+					<h1 style={styles.title}>PingOne Identity Counts</h1>
+				</div>
+				<p style={styles.subtitle}>
 					Query PingOne active identity counts with time-series data and sampling periods. Requires{' '}
 					<strong>Identity Data Admin</strong> role.
-				</Subtitle>
+				</p>
 				{!hasWorkerToken && (
-					<WarningBanner>
+					<div style={styles.warningBanner}>
 						<div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
 							<FiAlertCircle size={20} style={{ marginTop: '0.1rem', flexShrink: 0 }} />
 							<div style={{ flex: 1 }}>
@@ -738,32 +594,17 @@ const PingOneIdentityMetrics: React.FC = () => {
 								</p>
 							</div>
 						</div>
-					</WarningBanner>
+					</div>
 				)}
-			</HeaderCard>
+			</div>
 
-			<LayoutGrid>
-				<Card>
-					<SectionTitle>
+			<div style={styles.layoutGrid}>
+				<div style={styles.card}>
+					<h2 style={styles.sectionTitle}>
 						<FiShield /> Authentication & Worker Token
-					</SectionTitle>
+					</h2>
 
-					{hasWorkerToken ? (
-						<WorkerTokenDetectedBanner token={workerToken} tokenExpiryKey="unified_worker_token" />
-					) : (
-						<WarningBanner style={{ marginBottom: '1rem' }}>
-							<div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-								<FiAlertCircle size={18} style={{ marginTop: '0.1rem', flexShrink: 0 }} />
-								<div style={{ flex: 1 }}>
-									<strong>No Worker Token Found</strong>
-									<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
-										Click the button below to open the Worker Token modal and generate a token with
-										the required credentials.
-									</p>
-								</div>
-							</div>
-						</WarningBanner>
-					)}
+					<WorkerTokenSectionV8 compact />
 
 					{/* Configuration Checkboxes */}
 					<div
@@ -777,43 +618,17 @@ const PingOneIdentityMetrics: React.FC = () => {
 						<SilentApiConfigCheckboxV8 />
 						<ShowTokenConfigCheckboxV8 />
 					</div>
+				</div>
 
-					<ButtonRow>
-						<PrimaryButton
-							onClick={handleGetWorkerToken}
-							type="button"
-							style={{
-								background: hasWorkerToken ? '#9ca3af' : undefined,
-								cursor: 'pointer',
-								color: 'white',
-							}}
-						>
-							{hasWorkerToken ? (
-								<>
-									<FiCheckCircle /> Worker Token Ready
-								</>
-							) : (
-								<>
-									<FiKey /> Get Worker Token
-								</>
-							)}
-						</PrimaryButton>
-						{hasWorkerToken && (
-							<DangerButton onClick={handleClearWorkerToken} type="button">
-								<FiX /> Clear Token
-							</DangerButton>
-						)}
-					</ButtonRow>
-				</Card>
-
-				<Card>
-					<SectionTitle>
+				<div style={styles.card}>
+					<h2 style={styles.sectionTitle}>
 						<FiCalendar /> Metrics Configuration
-					</SectionTitle>
+					</h2>
 
-					<FieldGroup>
-						<Label>Endpoint Type</Label>
-						<Select
+					<div style={styles.fieldGroup}>
+						<label style={styles.label}>Endpoint Type</label>
+						<select
+							style={styles.select}
 							value={endpointType}
 							onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
 								setEndpointType(e.target.value as EndpointType)
@@ -822,27 +637,29 @@ const PingOneIdentityMetrics: React.FC = () => {
 							<option value="byDateRange">By Date Range</option>
 							<option value="byLicense">By License</option>
 							<option value="simple">Simple (No Filters)</option>
-						</Select>
-						<Hint>
+						</select>
+						<p style={styles.hint}>
 							{endpointType === 'byDateRange' && 'Filter by date range and sampling period'}
 							{endpointType === 'byLicense' && 'Filter by license ID and sampling period'}
 							{endpointType === 'simple' && 'Get recent counts without filters'}
-						</Hint>
-					</FieldGroup>
+						</p>
+					</div>
 
 					{endpointType === 'byDateRange' && (
 						<>
-							<FieldGroup>
-								<Label>Start date</Label>
-								<Input
+							<div style={styles.fieldGroup}>
+								<label style={styles.label}>Start date</label>
+								<input
+									style={styles.input}
 									type="date"
 									value={start}
 									onChange={(e) => setDateRange((prev) => ({ ...prev, start: e.target.value }))}
 								/>
-							</FieldGroup>
-							<FieldGroup>
-								<Label>Sampling Period</Label>
-								<Select
+							</div>
+							<div style={styles.fieldGroup}>
+								<label style={styles.label}>Sampling Period</label>
+								<select
+									style={styles.select}
 									value={samplingPeriod}
 									onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
 										setSamplingPeriod(e.target.value)
@@ -851,27 +668,29 @@ const PingOneIdentityMetrics: React.FC = () => {
 									<option value="1">1 hour (hourly)</option>
 									<option value="24">24 hours (daily)</option>
 									<option value="168">168 hours (weekly)</option>
-								</Select>
-								<Hint>Time interval for data points in the time-series response.</Hint>
-							</FieldGroup>
+								</select>
+								<p style={styles.hint}>Time interval for data points in the time-series response.</p>
+							</div>
 						</>
 					)}
 
 					{endpointType === 'byLicense' && (
 						<>
-							<FieldGroup>
-								<Label>License ID</Label>
-								<Input
+							<div style={styles.fieldGroup}>
+								<label style={styles.label}>License ID</label>
+								<input
+									style={styles.input}
 									type="text"
 									value={licenseId}
 									onChange={(e) => setLicenseId(e.target.value)}
 									placeholder="Enter license ID"
 								/>
-								<Hint>License ID to filter identity counts by.</Hint>
-							</FieldGroup>
-							<FieldGroup>
-								<Label>Sampling Period</Label>
-								<Select
+								<p style={styles.hint}>License ID to filter identity counts by.</p>
+							</div>
+							<div style={styles.fieldGroup}>
+								<label style={styles.label}>Sampling Period</label>
+								<select
+									style={styles.select}
 									value={samplingPeriod}
 									onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
 										setSamplingPeriod(e.target.value)
@@ -880,63 +699,72 @@ const PingOneIdentityMetrics: React.FC = () => {
 									<option value="1">1 hour (hourly)</option>
 									<option value="24">24 hours (daily)</option>
 									<option value="168">168 hours (weekly)</option>
-								</Select>
-								<Hint>Time interval for data points in the time-series response.</Hint>
-							</FieldGroup>
+								</select>
+								<p style={styles.hint}>Time interval for data points in the time-series response.</p>
+							</div>
 						</>
 					)}
 
 					{endpointType === 'simple' && (
-						<FieldGroup>
-							<Label>Limit</Label>
-							<Input
+						<div style={styles.fieldGroup}>
+							<label style={styles.label}>Limit</label>
+							<input
+								style={{ ...styles.input, background: '#f1f5f9', cursor: 'not-allowed' }}
 								type="number"
 								value="100"
 								readOnly
-								style={{ background: '#f1f5f9', cursor: 'not-allowed' }}
 							/>
-							<Hint>Returns up to 100 most recent data points.</Hint>
-						</FieldGroup>
+							<p style={styles.hint}>Returns up to 100 most recent data points.</p>
+						</div>
 					)}
 
-					<ButtonRow>
-						<PrimaryButton onClick={handleFetch} disabled={!hasWorkerToken || loading}>
+					<div style={styles.buttonRow}>
+						<button
+							style={{
+								...styles.primaryButton,
+								...(!hasWorkerToken || loading ? { background: '#cbd5f5', cursor: 'not-allowed' } : {}),
+							}}
+							type="button"
+							onClick={handleFetch}
+							disabled={!hasWorkerToken || loading}
+						>
 							{loading ? (
 								<>
-									<FiRefreshCw className="spin" /> Fetching…
+									<FiRefreshCw style={{ animation: 'spin 1s linear infinite' }} /> Fetching…
 								</>
 							) : (
 								<>
 									<FiBarChart2 /> Retrieve counts
 								</>
 							)}
-						</PrimaryButton>
+						</button>
 
-						<SecondaryButton type="button" onClick={resetDates}>
+						<button type="button" style={styles.secondaryButton} onClick={resetDates}>
 							<FiClock /> Reset dates
-						</SecondaryButton>
-					</ButtonRow>
+						</button>
+					</div>
 
 					{error && (
-						<ErrorBanner>
+						<div style={styles.errorBanner}>
 							<FiInfo size={18} style={{ marginTop: '0.2rem' }} />
 							<span>{error}</span>
-						</ErrorBanner>
+						</div>
 					)}
 
-					<ResultContainer>
+					<div style={styles.resultContainer}>
 						{metrics ? (
 							<>
 								{summary && (
-									<Card
+									<div
 										style={{
+											...styles.card,
 											border: '1px solid #10b981',
 											background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)',
 										}}
 									>
-										<SectionTitle>
+										<h2 style={styles.sectionTitle}>
 											<FiBarChart2 /> Summary Statistics
-										</SectionTitle>
+										</h2>
 										<div
 											style={{
 												display: 'grid',
@@ -1056,21 +884,22 @@ const PingOneIdentityMetrics: React.FC = () => {
 											</div>
 										</div>
 										{lastUpdated && (
-											<Hint
+											<p
 												style={{
+													...styles.hint,
 													marginTop: '1rem',
 													paddingTop: '1rem',
 													borderTop: '1px solid #d1fae5',
 												}}
 											>
 												Last updated: {new Date(lastUpdated).toLocaleString()}
-											</Hint>
+											</p>
 										)}
-									</Card>
+									</div>
 								)}
 
-								<Card style={{ border: '1px solid #dbeafe', background: '#ffffff' }}>
-									<SectionTitle>
+								<div style={{ ...styles.card, border: '1px solid #dbeafe', background: '#ffffff' }}>
+									<h2 style={styles.sectionTitle}>
 										<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1 }}>
 											<FiDatabase /> Full API Response
 										</div>
@@ -1120,7 +949,7 @@ const PingOneIdentityMetrics: React.FC = () => {
 												</button>
 											</div>
 										)}
-									</SectionTitle>
+									</h2>
 									{formattedMetrics && (
 										<div style={{ maxHeight: '600px', overflow: 'auto' }}>
 											{showRawJson ? (
@@ -1145,55 +974,33 @@ const PingOneIdentityMetrics: React.FC = () => {
 											)}
 										</div>
 									)}
-								</Card>
+								</div>
 							</>
 						) : (
-							<EmptyState>
+							<div style={styles.emptyState}>
 								<FiBarChart2 size={22} />
 								<span>Run the request to see active identity counts returned by PingOne.</span>
-							</EmptyState>
+							</div>
 						)}
-					</ResultContainer>
-				</Card>
-			</LayoutGrid>
-			<WorkerTokenModalV8
-				isOpen={showWorkerTokenModal}
-				onClose={() => setShowWorkerTokenModal(false)}
-				onTokenGenerated={() => {
-					// Token generated, the global hook will automatically update
-					setShowWorkerTokenModal(false);
-					v4ToastManager.showSuccess(
-						'Worker token generated successfully. Ready to query metrics.'
-					);
-				}}
-				environmentId={(() => {
-					try {
-						const stored = localStorage.getItem('unified_worker_token');
-						if (stored) {
-							const data = JSON.parse(stored);
-							return data.credentials?.environmentId || '';
-						}
-					} catch (error) {
-						console.log('Failed to load environment ID from unified worker token:', error);
-					}
-					return '';
-				})()}
-			/>
+					</div>
+				</div>
+			</div>
 
 			{/* Permissions Error Modal */}
 			{showPermissionsErrorModal && (
-				<PermissionsModalOverlay onClick={() => setShowPermissionsErrorModal(false)}>
-					<PermissionsModalContent onClick={(e) => e.stopPropagation()}>
-						<PermissionsModalTitle>
+				<div style={styles.permissionsModalOverlay} onClick={() => setShowPermissionsErrorModal(false)}>
+					<div style={styles.permissionsModalContent} onClick={(e) => e.stopPropagation()}>
+						<h2 style={styles.permissionsModalTitle}>
 							<FiAlertCircle size={24} style={{ color: '#dc2626' }} />
 							403 Forbidden - Missing Roles
-						</PermissionsModalTitle>
-						<PermissionsModalMessage>
+						</h2>
+						<p style={styles.permissionsModalMessage}>
 							<strong>⚠️ The Metrics API uses ROLES, not scopes!</strong> Your Worker App needs a
 							role assigned at the <strong>Environment</strong> level.
-						</PermissionsModalMessage>
-						<PermissionsModalMessage
+						</p>
+						<p
 							style={{
+								...styles.permissionsModalMessage,
 								marginTop: '0.5rem',
 								padding: '0.5rem',
 								background: '#fef3c7',
@@ -1204,8 +1011,8 @@ const PingOneIdentityMetrics: React.FC = () => {
 						>
 							💡 <strong>Tip:</strong> After assigning a role, you must generate a{' '}
 							<strong>NEW</strong> worker token to pick up the permissions.
-						</PermissionsModalMessage>
-						<PermissionsModalInstructions>
+						</p>
+						<div style={styles.permissionsModalInstructions}>
 							<strong>🔧 Fix in PingOne Admin Console:</strong>
 							<ol style={{ marginLeft: '1.25rem', marginTop: '0.35rem' }}>
 								<li>
@@ -1249,16 +1056,20 @@ const PingOneIdentityMetrics: React.FC = () => {
 								<li>Click "Get Worker Token" (scopes don't matter for metrics)</li>
 								<li>Retry "Fetch Total Identity Counts"</li>
 							</ol>
-						</PermissionsModalInstructions>
-						<PermissionsModalActions>
-							<PermissionsModalButton onClick={() => setShowPermissionsErrorModal(false)}>
+						</div>
+						<div style={styles.permissionsModalActions}>
+							<button
+								type="button"
+								style={styles.permissionsModalButton}
+								onClick={() => setShowPermissionsErrorModal(false)}
+							>
 								Close
-							</PermissionsModalButton>
-						</PermissionsModalActions>
-					</PermissionsModalContent>
-				</PermissionsModalOverlay>
+							</button>
+						</div>
+					</div>
+				</div>
 			)}
-		</PageContainer>
+		</div>
 	);
 };
 
