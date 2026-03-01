@@ -196,9 +196,14 @@ const SidebarSearch: React.FC<SidebarSearchProps> = ({
 				<SearchInput
 					ref={inputRef}
 					type="text"
-					placeholder={`${placeholder} (⌘K, Enter to search)`}
+					placeholder={`${placeholder} (⌘K)`}
 					value={displayQuery}
-					onChange={(e) => setDisplayQuery(e.target.value)}
+					onChange={(e) => {
+						const val = e.target.value;
+						setDisplayQuery(val);
+						setActiveQuery(val);
+						onSearch(val);
+					}}
 					onKeyDown={handleKeyDown}
 					onBlur={handleBlur}
 				/>

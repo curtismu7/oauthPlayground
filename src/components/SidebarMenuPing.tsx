@@ -291,7 +291,7 @@ function GroupContent({
 	);
 }
 
-export const SidebarMenuPing: React.FC<{ dragMode?: boolean }> = ({ dragMode = false }) => {
+export const SidebarMenuPing: React.FC<{ dragMode?: boolean; searchQuery?: string }> = ({ dragMode = false, searchQuery = '' }) => {
 	const { pathname, search } = useLocation();
 	const [menuGroups, setMenuGroups] = useState<SidebarMenuGroup[]>(getInitialGroups);
 	const [openGroups, setOpenGroups] = useState<Set<string>>(() => {
@@ -424,6 +424,55 @@ export const SidebarMenuPing: React.FC<{ dragMode?: boolean }> = ({ dragMode = f
 		},
 		[menuGroups, getDraggedData, saveOrder]
 	);
+
+	// Search mode: flat filtered list across all groups
+	if (searchQuery.trim()) {
+		const q = searchQuery.toLowerCase();
+		const results: Array<{ item: SidebarMenuItem; groupLabel: string }> = [];
+		for (const group of menuGroups) {
+			const allItems = [
+				...group.items,
+				...(group.subGroups?.flatMap((sg) => sg.items) ?? []),
+			];
+			for (const item of allItems) {
+				if (item.label.toLowerCase().includes(q) || item.path.toLowerCase().includes(q)) {
+					results.push({ item, groupLabel: group.label });
+				}
+			}
+		}
+		return (
+			<nav className="sidebar-ping__nav" aria-label="Main navigation">
+				{results.length === 0 ? (
+					<div style={{ padding: '1rem', color: '#6b7280', fontSize: '0.875rem', textAlign: 'center' }}>
+						No results for "{searchQuery}"
+					</div>
+				) : (
+					<ul className="sidebar-ping__group-items" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+						{results.map(({ item, groupLabel }) => (
+							<li key={item.id}>
+								<Link
+									to={item.path}
+									className={`sidebar-ping__item ${
+										isActive(item.path, pathname, search)
+											? 'sidebar-ping__item--active'
+											: ''
+									}`}
+								>
+									<span className="sidebar-ping__item-icon" aria-hidden>
+										<Icon name={DEFAULT_ITEM_ICON} size="sm" />
+									</span>
+									<span style={{ flex: 1, minWidth: 0 }}>
+										<span className="sidebar-ping__item-label" style={{ display: 'block' }}>{item.label}</span>
+										<span style={{ fontSize: '0.7rem', color: '#9ca3af', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{groupLabel}</span>
+									</span>
+								</Link>
+							</li>
+						))}
+					</ul>
+				)}
+			</nav>
+		);
+	}
 
 	return (
 		<nav className="sidebar-ping__nav" aria-label="Main navigation">
