@@ -1,10 +1,16 @@
 // src/components/AuthorizationCodeConfigModal.tsx
 // Simple modal for configuring Authorization Code flow credentials
 
-import { FiInfo, FiSave } from '@icons';
+import { FiDownload, FiInfo, FiSave, FiUpload } from '@icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { comprehensiveFlowDataService } from '../services/comprehensiveFlowDataService';
+import {
+	exportAuthzCredentials,
+	importCredentials,
+	triggerFileImport,
+	type AuthzCredentials,
+} from '../services/credentialExportImportService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { DraggableModal } from './DraggableModal';
 import type { StepCredentials } from './steps/CommonSteps';
@@ -203,6 +209,74 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 		}
 	};
 
+	const handleExport = () => {
+		try {
+			if (!credentials.environmentId || !credentials.clientId || !credentials.clientSecret) {
+				v4ToastManager.showError('Please fill in all required fields before exporting');
+				return;
+			}
+
+			const authzCredentials: AuthzCredentials = {
+				environmentId: credentials.environmentId,
+				clientId: credentials.clientId,
+				clientSecret: credentials.clientSecret,
+				redirectUri: credentials.redirectUri || 'https://localhost:3000/callback',
+				scopes: typeof credentials.scopes === 'string' 
+					? credentials.scopes.split(/\s+/).filter(Boolean)
+					: credentials.scopes || ['openid', 'profile', 'email'],
+			};
+
+			exportAuthzCredentials(authzCredentials);
+			v4ToastManager.showSuccess('Authorization Code credentials exported successfully!');
+		} catch (error) {
+			console.error('[AuthorizationCodeConfigModal] Export error:', error);
+			v4ToastManager.showError(
+				error instanceof Error ? error.message : 'Failed to export credentials'
+			);
+		}
+	};
+
+	const handleImport = () => {
+		triggerFileImport(async (file) => {
+			try {
+				const imported = await importCredentials(file);
+
+				if (imported.authz) {
+					const authz = imported.authz;
+					const updatedCredentials = {
+						environmentId: authz.environmentId || credentials.environmentId || '',
+						clientId: authz.clientId || credentials.clientId,
+						clientSecret: authz.clientSecret || credentials.clientSecret,
+						redirectUri: authz.redirectUri || credentials.redirectUri,
+						scopes: authz.scopes ? authz.scopes.join(' ') : (credentials.scopes || ''),
+					};
+
+					setCredentials(updatedCredentials);
+
+					// Also save to flow-specific storage
+					const credentialsToSave = {
+						...updatedCredentials,
+						scopes: authz.scopes || ['openid', 'profile', 'email'],
+						lastUpdated: Date.now(),
+					};
+
+					comprehensiveFlowDataService.saveFlowCredentialsIsolated(flowType, credentialsToSave);
+
+					v4ToastManager.showSuccess('Authorization Code credentials imported successfully!');
+				} else {
+					v4ToastManager.showError(
+						'The selected file does not contain Authorization Code credentials'
+					);
+				}
+			} catch (error) {
+				console.error('[AuthorizationCodeConfigModal] Import error:', error);
+				v4ToastManager.showError(
+					error instanceof Error ? error.message : 'Failed to import credentials'
+				);
+			}
+		});
+	};
+
 	return (
 		<DraggableModal
 			isOpen={isOpen}
@@ -276,6 +350,90 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 					/>
 				</FormField>
 			</FormSection>
+
+			{/* Import/Export buttons */}
+			<div style={{ 
+				display: 'flex', 
+				justifyContent: 'center', 
+				gap: '8px', 
+				marginTop: '1rem',
+				marginBottom: '1rem'
+			}}>
+				<button
+					type="button"
+					onClick={handleExport}
+					onFocus={(e) => {
+						e.currentTarget.style.background = '#f3f4f6';
+						e.currentTarget.style.borderColor = '#9ca3af';
+					}}
+					onBlur={(e) => {
+						e.currentTarget.style.background = '#f9fafb';
+						e.currentTarget.style.borderColor = '#d1d5db';
+					}}
+					style={{
+						display: 'flex',
+						alignItems: 'center',
+						gap: '6px',
+						padding: '8px 16px',
+						border: '1px solid #d1d5db',
+						borderRadius: '6px',
+						background: '#f9fafb',
+						color: '#374151',
+						fontSize: '0.875rem',
+						cursor: 'pointer',
+						transition: 'all 0.2s',
+					}}
+					onMouseOver={(e) => {
+						e.currentTarget.style.background = '#f3f4f6';
+						e.currentTarget.style.borderColor = '#9ca3af';
+					}}
+					onMouseOut={(e) => {
+						e.currentTarget.style.background = '#f9fafb';
+						e.currentTarget.style.borderColor = '#d1d5db';
+					}}
+					title="Export credentials to JSON file"
+				>
+					<FiDownload size={14} />
+					Export
+				</button>
+				<button
+					type="button"
+					onClick={handleImport}
+					onFocus={(e) => {
+						e.currentTarget.style.background = '#f3f4f6';
+						e.currentTarget.style.borderColor = '#9ca3af';
+					}}
+					onBlur={(e) => {
+						e.currentTarget.style.background = '#f9fafb';
+						e.currentTarget.style.borderColor = '#d1d5db';
+					}}
+					style={{
+						display: 'flex',
+						alignItems: 'center',
+						gap: '6px',
+						padding: '8px 16px',
+						border: '1px solid #d1d5db',
+						borderRadius: '6px',
+						background: '#f9fafb',
+						color: '#374151',
+						fontSize: '0.875rem',
+						cursor: 'pointer',
+						transition: 'all 0.2s',
+					}}
+					onMouseOver={(e) => {
+						e.currentTarget.style.background = '#f3f4f6';
+						e.currentTarget.style.borderColor = '#9ca3af';
+					}}
+					onMouseOut={(e) => {
+						e.currentTarget.style.background = '#f9fafb';
+						e.currentTarget.style.borderColor = '#d1d5db';
+					}}
+					title="Import credentials from JSON file"
+				>
+					<FiUpload size={14} />
+					Import
+				</button>
+			</div>
 
 			<ButtonGroup>
 				<ActionButton $variant="secondary" onClick={onClose} disabled={isSaving}>
