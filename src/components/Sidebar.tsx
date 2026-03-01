@@ -272,16 +272,23 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 				</div>
 
 				{USE_PING_MENU ? (
-					<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '8px' }}>
-						<DragModeToggle
-							onClick={toggleDragDropMode}
-							title={isDragDropMode ? 'Switch to standard menu' : 'Enable drag & drop to reorder'}
-							$isActive={isDragDropMode}
-						>
-							<FiMove size={14} />
-							{isDragDropMode ? 'Drag mode' : 'Reorder'}
-						</DragModeToggle>
-					</div>
+					<>
+						<SidebarSearch
+							onSearch={handleSearch}
+							placeholder="Search flows and pages..."
+							activeSearchQuery={searchQuery}
+						/>
+						<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '8px' }}>
+							<DragModeToggle
+								onClick={toggleDragDropMode}
+								title={isDragDropMode ? 'Switch to standard menu' : 'Enable drag & drop to reorder'}
+								$isActive={isDragDropMode}
+							>
+								<FiMove size={14} />
+								{isDragDropMode ? 'Drag mode' : 'Reorder'}
+							</DragModeToggle>
+						</div>
+					</>
 				) : (
 					<>
 						<SidebarSearch
@@ -309,7 +316,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
 			<div style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
 				{USE_PING_MENU ? (
-					<SidebarMenuPing dragMode={isDragDropMode} />
+				<SidebarMenuPing dragMode={isDragDropMode} searchQuery={searchQuery} />
 				) : (
 					<DragDropSidebar
 						dragMode={isDragDropMode}
