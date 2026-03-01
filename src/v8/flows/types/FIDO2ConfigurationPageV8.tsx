@@ -33,6 +33,7 @@ import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8
 import { UserLoginModalV8 } from '@/v8/components/UserLoginModalV8';
 import { UserLoginSectionV8 } from '@/v8/components/UserLoginSectionV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
@@ -466,6 +467,11 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 			<MFANavigationV8 currentPage="registration" showBackToMain={true} />
 
 			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
+
+			<WorkerTokenExpiryBannerV8
+				onFixToken={() => setShowWorkerTokenModal(true)}
+				marginBottom="24px"
+			/>
 
 			<div
 				style={{
