@@ -5,7 +5,12 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { Icon } from '../components/Icon/Icon';
-import { useServerStatusOptional } from '../components/ServerStatusProvider';
+import { useServerStatus } from '../components/ServerStatusProvider';
+import {
+	checkWorkerTokenStatusSync,
+	type TokenStatusInfo,
+} from '../v8/services/workerTokenStatusServiceV8';
+import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
 import { useNotifications } from '../contexts/NotificationSystem';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import {
@@ -14,6 +19,8 @@ import {
 	getDomainFromIndexedDB,
 	saveCustomDomain,
 } from '../services/customDomainService';
+import { WorkerTokenModalV8 } from '../v8/components/WorkerTokenModalV8';
+import { handleShowWorkerTokenModal } from '../v8/utils/workerTokenModalHelperV8';
 import '../styles/dashboard.css';
 
 interface ApiTestSpec {
@@ -35,7 +42,7 @@ const API_TESTS: ApiTestSpec[] = [
 		path: '/api/pingone/user/{userId}',
 		description: 'Get user by user ID (PingOne API)',
 		requiresParams: ['userId'],
-		queryParams: ['environmentId', 'accessToken'],
+		queryParams: ['accessToken'],
 	},
 	{
 		method: 'POST',
@@ -66,20 +73,50 @@ export default function CustomDomainTestPage() {
 	const [testResults, setTestResults] = useState<Record<string, TestResult>>({});
 	const [testingKey, setTestingKey] = useState<string | null>(null);
 	const [collapsed, setCollapsed] = useState({ domain: false, apis: false });
+	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
+
+	// Worker token status — refreshed on mount and on workerTokenUpdated events
+	const [tokenStatus, setTokenStatus] = useState<TokenStatusInfo>(() =>
+		checkWorkerTokenStatusSync()
+	);
 
 	// State for API parameters — keyed by param name, shared across cards
 	const [apiParams, setApiParams] = useState<Record<string, string>>({
 		userId: '',
 		identifier: '', // username, email, or user ID for POST /api/pingone/users/lookup
-		environmentId: '',
 		accessToken: '', // worker token
+		environmentId: '', // pre-populated from stored credentials
 	});
 
 	const { showWarning } = useNotifications();
-	const { isOnline } = useServerStatusOptional();
+	const serverStatus = useServerStatus();
+
+	// Load stored worker token + environmentId on mount; keep in sync with events
+	useEffect(() => {
+		const syncToken = async () => {
+			const status = checkWorkerTokenStatusSync();
+			setTokenStatus(status);
+			// Auto-fill access token + environmentId from stored credentials
+			const creds = await workerTokenServiceV8.loadCredentials();
+			const token = await workerTokenServiceV8.getToken();
+			setApiParams((prev) => ({
+				...prev,
+				accessToken: token ?? prev.accessToken,
+				environmentId: creds?.environmentId ?? prev.environmentId,
+			}));
+		};
+		syncToken();
+		window.addEventListener('workerTokenUpdated', syncToken);
+		return () => window.removeEventListener('workerTokenUpdated', syncToken);
+	}, []);
+
+	// Handler for worker token modal
+	const handleWorkerTokenClick = useCallback(async () => {
+		await handleShowWorkerTokenModal(setShowWorkerTokenModal);
+	}, []);
 
 	useEffect(() => {
-		if (!isOnline) {
+		if (!serverStatus.isOnline) {
 			getDomainFromIndexedDB().then((idb) => {
 				if (idb) {
 					setCustomDomain(idb);
@@ -96,7 +133,7 @@ export default function CustomDomainTestPage() {
 			return;
 		}
 		getCustomDomain().then(setCustomDomain);
-	}, [isOnline]);
+	}, [serverStatus.isOnline]);
 
 	const appDisplayUrl =
 		typeof customDomain === 'string' && customDomain.trim()
@@ -199,7 +236,135 @@ export default function CustomDomainTestPage() {
 
 	return (
 		<div className="dashboard-page">
-			{/* Full Page URL Display */}
+			{/* ── Top Status Bar: Backend + Worker Token + Environment ID ── */}
+			<div className="section-wrap mb-3">
+				<div className="card" style={{ borderLeft: '4px solid #1d4ed8' }}>
+					<div className="card-body py-3">
+						<p
+							className="fw-600 mb-2 text-small"
+							style={{ color: '#1e40af', textTransform: 'uppercase', letterSpacing: '0.05em' }}
+						>
+							Backend &amp; Worker Token Status
+						</p>
+						<div className="d-flex flex-wrap gap-4 align-items-start">
+							{/* Server status */}
+							<div className="d-flex flex-column gap-1">
+								<span className="text-small fw-600 text-muted">Backend</span>
+								<div className="d-flex align-items-center gap-2">
+									{serverStatus.isChecking ? (
+										<span className="badge" style={{ backgroundColor: '#f59e0b' }}>
+											Checking…
+										</span>
+									) : serverStatus.isOnline ? (
+										<>
+											<span className="badge bg-success">Online</span>
+											{serverStatus.lastChecked && (
+												<span className="text-muted" style={{ fontSize: '0.75rem' }}>
+													{serverStatus.lastChecked.toLocaleTimeString()}
+												</span>
+											)}
+										</>
+									) : (
+										<>
+											<span className="badge bg-danger">Offline</span>
+											<button
+												type="button"
+												className="btn btn-sm btn-outline-secondary"
+												style={{ padding: '0 0.4rem', fontSize: '0.75rem' }}
+												onClick={serverStatus.checkHealth}
+												disabled={serverStatus.isChecking}
+											>
+												Retry
+											</button>
+										</>
+									)}
+								</div>
+							</div>
+
+							{/* Token status */}
+							<div className="d-flex flex-column gap-1">
+								<span className="text-small fw-600 text-muted">Worker Token</span>
+								<div className="d-flex align-items-center gap-2 flex-wrap">
+									<span
+										className="badge"
+										style={{
+											backgroundColor:
+												tokenStatus.status === 'valid'
+													? '#16a34a'
+													: tokenStatus.status === 'expiring-soon'
+														? '#d97706'
+														: '#dc2626',
+										}}
+									>
+										{tokenStatus.status === 'valid'
+											? `Valid · ${tokenStatus.minutesRemaining ?? 0}m left`
+											: tokenStatus.status === 'expiring-soon'
+												? `Expiring · ${tokenStatus.minutesRemaining ?? 0}m left`
+												: tokenStatus.status === 'expired'
+													? 'Expired'
+													: 'No token'}
+									</span>
+									<button
+										type="button"
+										className="btn btn-sm btn-outline-primary"
+										onClick={handleWorkerTokenClick}
+										title="Get or refresh worker token"
+									>
+										<Icon name="key" size="sm" />
+										{tokenStatus.isValid ? ' Refresh' : ' Get Token'}
+									</button>
+								</div>
+							</div>
+
+							{/* Environment ID */}
+							<div className="d-flex flex-column gap-1" style={{ flex: 1, minWidth: '220px', maxWidth: '380px' }}>
+								<label
+									htmlFor="top-env-id"
+									className="text-small fw-600 text-muted mb-0"
+								>
+									Environment ID
+								</label>
+								<input
+									id="top-env-id"
+									type="text"
+									className="form-control form-control-sm"
+									placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+									value={apiParams.environmentId ?? ''}
+									onChange={(e) =>
+										setApiParams((prev) => ({ ...prev, environmentId: e.target.value }))
+									}
+								/>
+							</div>
+
+							{/* Worker token (masked) */}
+							<div className="d-flex flex-column gap-1" style={{ flex: 2, minWidth: '260px' }}>
+								<label
+									htmlFor="top-access-token"
+									className="text-small fw-600 text-muted mb-0"
+								>
+									Worker Token (Bearer)
+								</label>
+								<input
+									id="top-access-token"
+									type="password"
+									className="form-control form-control-sm"
+									placeholder="Auto-filled when you Get Token above"
+									value={apiParams.accessToken ?? ''}
+									onChange={(e) =>
+										setApiParams((prev) => ({ ...prev, accessToken: e.target.value }))
+									}
+								/>
+							</div>
+						</div>
+
+						{!serverStatus.isOnline && !serverStatus.isChecking && serverStatus.error && (
+							<div className="mt-2 text-small" style={{ color: '#dc2626' }}>
+								<strong>Error:</strong> {serverStatus.error}
+							</div>
+						)}
+					</div>
+				</div>
+			</div>
 			<div className="section-wrap mb-3">
 				<div
 					className="card"
@@ -313,54 +478,7 @@ export default function CustomDomainTestPage() {
 					onToggle={() => setCollapsed((c) => ({ ...c, apis: !c.apis }))}
 				>
 					<div className="card-body card-body--lg">
-						{!isOnline && (
-							<p className="text-warning mb-3">
-								Backend may be offline. Start with <code>./run.sh</code> then retry.
-							</p>
-						)}
 						<div className="d-flex flex-column gap-3">
-							{/* Shared credentials used by PingOne API cards */}
-							<div
-								className="card"
-								style={{ borderLeft: '4px solid #9333ea', backgroundColor: '#faf5ff' }}
-							>
-								<div className="card-body">
-									<p className="fw-600 mb-2" style={{ color: '#7e22ce', fontSize: '0.875rem' }}>
-										Shared PingOne credentials (used by all PingOne API tests below)
-									</p>
-									<div className="d-flex flex-wrap gap-3">
-										{[
-											{
-												key: 'environmentId',
-												label: 'Environment ID',
-												placeholder: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
-											},
-											{
-												key: 'accessToken',
-												label: 'Worker Token',
-												placeholder: 'Paste worker token (Bearer)',
-											},
-										].map(({ key, label, placeholder }) => (
-											<div
-												key={key}
-												className="d-flex flex-column gap-1"
-												style={{ flex: 1, minWidth: '240px' }}
-											>
-												<label className="text-small fw-600 text-muted mb-0">{label}</label>
-												<input
-													type={key === 'accessToken' ? 'password' : 'text'}
-													className="form-control form-control-sm"
-													placeholder={placeholder}
-													value={apiParams[key] ?? ''}
-													onChange={(e) =>
-														setApiParams((prev) => ({ ...prev, [key]: e.target.value }))
-													}
-												/>
-											</div>
-										))}
-									</div>
-								</div>
-							</div>
 							{API_TESTS.map((spec) => {
 								const key = `${spec.method} ${spec.path}`;
 								const result = testResults[key];
@@ -493,6 +611,21 @@ export default function CustomDomainTestPage() {
 					</div>
 				</CollapsibleHeader>
 			</div>
+
+			{/* Worker Token Modal */}
+			<WorkerTokenModalV8
+				isOpen={showWorkerTokenModal}
+				onClose={() => setShowWorkerTokenModal(false)}
+				onTokenGenerated={async (token) => {
+					const creds = await workerTokenServiceV8.loadCredentials();
+					setApiParams((prev) => ({
+						...prev,
+						accessToken: token,
+						environmentId: creds?.environmentId ?? prev.environmentId,
+					}));
+					setTokenStatus(checkWorkerTokenStatusSync());
+				}}
+			/>
 		</div>
 	);
 }
