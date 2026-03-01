@@ -275,15 +275,16 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		};
 	});
 
-	// Use worker token status service for token status
-	const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
+	// Worker token status - real React state so listeners can trigger re-renders
+	const [tokenStatus, setTokenStatusState] = useState<TokenStatusInfo>(() =>
+		WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync()
+	);
 
-	// Note: setTokenStatus is no longer needed as the worker token status service manages token status internally
-	// Keeping this as a no-op for backward compatibility with existing code
-	const setTokenStatus = async (_status: TokenStatusInfo | Promise<TokenStatusInfo>) => {
-		// No-op: Token status is now managed by WorkerTokenStatusServiceV8
-		// The service automatically updates token status when the token changes
-	};
+	// Stable setter that resolves Promise<TokenStatusInfo> or plain TokenStatusInfo
+	const setTokenStatus = useCallback(async (status: TokenStatusInfo | Promise<TokenStatusInfo>) => {
+		const resolved = await status;
+		setTokenStatusState(resolved);
+	}, []);
 
 	// Listen for unified worker token updates
 	useEffect(() => {
