@@ -1344,7 +1344,7 @@ const PingOneUserProfile: React.FC = () => {
 		} finally {
 			setIsResolvingUser(false);
 		}
-	}, [accessToken, environmentId, userIdentifier, fetchUserProfile, globalTokenStatus.isValid]);
+	}, [accessToken, environmentId, userIdentifier, fetchUserProfile, globalTokenStatus?.isValid]);
 
 	const handleLoadComparisonUser = useCallback(async () => {
 		if (!accessToken) {
@@ -1352,7 +1352,7 @@ const PingOneUserProfile: React.FC = () => {
 			return;
 		}
 
-		if (!globalTokenStatus.isValid) {
+		if (!globalTokenStatus?.isValid) {
 			v4ToastManager.showError(
 				'Worker token expired. Generate a new worker token to compare access.'
 			);
@@ -1422,7 +1422,7 @@ const PingOneUserProfile: React.FC = () => {
 		} finally {
 			setIsComparisonLoading(false);
 		}
-	}, [accessToken, environmentId, compareIdentifier, fetchUserBundle, globalTokenStatus.isValid]);
+	}, [accessToken, environmentId, compareIdentifier, fetchUserBundle, globalTokenStatus?.isValid]);
 
 	const handleClearComparison = useCallback(() => {
 		setComparisonProfile(null);
