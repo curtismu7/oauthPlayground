@@ -166,7 +166,12 @@ export default defineConfig(({ mode }) => {
 			// Disable HMR when VITE_HMR_HOST is set OR when using a custom HTTPS cert (custom domain)
 			// to avoid "WebSocket connection to wss://api.pingdemo.com:3000 failed" console errors.
 			// The app works fine without HMR; hot reload only available on localhost without custom cert.
-			hmr: (env.VITE_HMR_HOST || httpsOptions) ? false : { port: 3000, host: 'localhost', clientPort: 3000 },
+			hmr: {
+				// Disable HMR for custom domains or HTTPS to prevent WebSocket errors
+				port: (env.VITE_HMR_HOST || httpsOptions) ? undefined : 3000,
+				host: (env.VITE_HMR_HOST || httpsOptions) ? undefined : 'localhost',
+				clientPort: (env.VITE_HMR_HOST || httpsOptions) ? undefined : 3000,
+			},
 			logLevel: 'warn', // Reduce Vite connection logs (suppresses "connecting..." and "connected" messages)
 			// Disable certificate verification for localhost development
 			proxy: {
