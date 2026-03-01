@@ -44,7 +44,7 @@ import {
 	SpecVersionServiceV8,
 } from '@/v8/services/specVersionServiceV8';
 import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
-import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { WorkerTokenStatusServiceV8, type TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { reloadCredentialsAfterReset } from '@/v8u/services/credentialReloadServiceV8U';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
@@ -537,6 +537,9 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	// Worker token status section collapsed state - collapsed by default
 	const [isWorkerTokenStatusCollapsed, setIsWorkerTokenStatusCollapsed] = useState(true);
 
+	// Worker token warning — shown when token is invalid/expired before an API call
+	const [workerTokenWarning, setWorkerTokenWarning] = useState<TokenStatusInfo | null>(null);
+
 	// Worker token configuration is handled internally by SilentApiConfigCheckboxV8 and ShowTokenConfigCheckboxV8
 
 	// Advanced features state
@@ -745,10 +748,11 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				return;
 			}
 
-			// Check worker token status
+			// Check worker token status BEFORE sending the token
 			const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 			if (!tokenStatus.isValid) {
 				setAppConfig(null);
+				setWorkerTokenWarning(tokenStatus);
 				return;
 			}
 
@@ -756,8 +760,12 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			const token = await unifiedWorkerTokenService.getToken();
 			if (!token) {
 				setAppConfig(null);
+				setWorkerTokenWarning({ status: 'missing', message: 'No worker token found', isValid: false });
 				return;
 			}
+
+			// Token looks valid locally — clear any stale warning
+			setWorkerTokenWarning(null);
 
 			try {
 				const config = await ConfigCheckerServiceV8.fetchAppConfig(
@@ -774,9 +782,18 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				} else {
 					setAppConfig(null);
 				}
-			} catch (error) {
+			} catch (error: unknown) {
 				logger.error(`Error fetching app config:`, error);
 				setAppConfig(null);
+				// Surface 401/403 — token was rejected by PingOne API
+				const msg = error instanceof Error ? error.message : String(error);
+				if (msg.includes('401') || msg.includes('403') || msg.toLowerCase().includes('unauthorized')) {
+					setWorkerTokenWarning({
+						status: 'expired',
+						message: 'Worker token rejected by PingOne (401 Unauthorized). Please refresh the token.',
+						isValid: false,
+					});
+				}
 			}
 		};
 
@@ -828,6 +845,12 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				environmentId: credentials.environmentId,
 				clientId: credentials.clientId,
 			});
+
+			// Re-check status — clear warning if the new token is valid
+			const refreshedStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
+			if (refreshedStatus.isValid) {
+				setWorkerTokenWarning(null);
+			}
 
 			// Re-fetch app configuration to reflect worker token status
 			if (credentials.environmentId && credentials.clientId) {
@@ -1720,6 +1743,104 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 	return (
 		<MobileResponsiveWrapper>
+			{/* Worker Token Warning Banner — shown when token is invalid or rejected before an API call */}
+			{workerTokenWarning && (
+				<div
+					style={{
+						background: workerTokenWarning.status === 'expired' || workerTokenWarning.status === 'missing' ? '#fef2f2' : '#fffbeb',
+						border: `1px solid ${
+							workerTokenWarning.status === 'expired' || workerTokenWarning.status === 'missing'
+								? '#fca5a5'
+								: '#fcd34d'
+						}`,
+						borderLeft: `4px solid ${
+							workerTokenWarning.status === 'expired' || workerTokenWarning.status === 'missing'
+								? '#ef4444'
+								: '#f59e0b'
+						}`,
+						borderRadius: '8px',
+						padding: '12px 16px',
+						marginBottom: '16px',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'space-between',
+						gap: '12px',
+						flexWrap: 'wrap',
+					}}
+				>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1 }}>
+						<span style={{ fontSize: '20px' }}>
+							{workerTokenWarning.status === 'expiring-soon' ? '⚠️' : '🔴'}
+						</span>
+						<div>
+							<div style={{ fontWeight: '600', color: '#1e293b', fontSize: '14px' }}>
+								Worker Token{' '}
+								{workerTokenWarning.status === 'expired'
+									? 'Expired'
+									: workerTokenWarning.status === 'missing'
+										? 'Missing'
+										: 'Expiring Soon'}
+								{' '}— API calls will fail until you refresh it.
+							</div>
+							<div style={{ color: '#64748b', fontSize: '13px', marginTop: '2px' }}>
+								{workerTokenWarning.message}
+								{workerTokenWarning.minutesRemaining !== undefined && workerTokenWarning.minutesRemaining > 0
+									? ` · ${workerTokenWarning.minutesRemaining} min remaining`
+									: ''}
+							</div>
+						</div>
+					</div>
+					<div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexShrink: 0 }}>
+						<button
+							type="button"
+							onClick={async () => {
+								const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+								await handleShowWorkerTokenModal(
+									() => {},
+									undefined,
+									undefined,
+									undefined,
+									true // forceShowModal
+								);
+							}}
+							style={{
+								padding: '7px 16px',
+								background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+								color: 'white',
+								border: 'none',
+								borderRadius: '6px',
+								cursor: 'pointer',
+								fontWeight: '600',
+								fontSize: '13px',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '6px',
+								whiteSpace: 'nowrap',
+							}}
+						>
+							🔑 Fix Token
+						</button>
+						<button
+							type="button"
+							onClick={() => setWorkerTokenWarning(null)}
+							style={{
+								padding: '7px 10px',
+								background: 'transparent',
+								color: '#94a3b8',
+								border: '1px solid #e2e8f0',
+								borderRadius: '6px',
+								cursor: 'pointer',
+								fontSize: '14px',
+								lineHeight: 1,
+							}}
+							title="Dismiss"
+						>
+							✕
+						</button>
+					</div>
+				</div>
+			)}
+
 			{/* Header with Flow Step Breadcrumbs at Top */}
 			<PageHeaderV8
 				title="🎯 Unified OAuth/OIDC Flow"
