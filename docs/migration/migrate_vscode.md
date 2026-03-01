@@ -84,7 +84,85 @@ background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
 
 ---
 
-## 🚨 Common Errors You WILL Encounter
+## � Toast Replacement (MANDATORY)
+
+All toast-based notifications must be replaced with context-aware feedback patterns. **Do not use toasts unless explicitly justified.**
+
+### Core Principles
+
+1. **Anchor feedback to context.** Notifications must appear near the UI element or workflow that triggered them.
+2. **Ephemeral feedback is only acceptable for non-critical, non-blocking events.**
+3. **Errors must be actionable and specific.** Users should never have to guess what failed or what to do next.
+4. **Critical system state changes must persist.**
+5. **Avoid modal interruptions unless absolutely necessary.**
+
+### Replacement Decision Framework
+
+Classify the original toast intent, then apply the matching pattern:
+
+#### ✅ Success Confirmation
+Replace toast with one of:
+- Inline confirmation message near the triggering element
+- Button state transition: `Save` → `Saved ✓`
+- Contextual success banner within the active view
+
+#### ❌ Validation Error
+Replace with:
+- Field-level validation messages + error borders/icons
+- Scroll-to-first-error behavior
+- Optional form-level error summary banner
+
+**Never use global notifications for validation errors.**
+
+#### ⚠️ System Warning / Account State / Permissions
+Replace with:
+- Persistent top-of-page alert banner (info / warning / critical severity)
+- Optional CTA button + dismiss control
+- Banner must remain until resolved or dismissed
+
+#### ↩️ Reversible Action (Undo Pattern)
+Replace with:
+- Snackbar — persistent, anchored, 6–10 second duration
+- Prominent "Undo" action with accessible focus handling
+- **Do not auto-dismiss in under 5 seconds**
+
+#### 📋 Multi-Step or Complex State Changes
+Replace with:
+- Inline expandable section
+- Side panel / drawer
+- Contextual detail view
+
+### Accessibility Requirements
+
+All replacements must:
+- Support screen readers (ARIA live regions where needed)
+- Meet contrast requirements
+- Not rely solely on color for meaning
+- Preserve keyboard navigation
+
+### Implementation Constraints
+
+- Do not introduce new notification systems unless necessary — prefer extending existing components.
+- Avoid breaking API contracts.
+- If a change affects shared services or other modules, flag it before implementation.
+
+### Output Requirements (When Replacing a Toast)
+
+1. Identify the original use case.
+2. Justify the selected replacement pattern.
+3. Specify: component used, placement, dismiss behavior, duration (if applicable).
+4. Note any side effects on existing flows.
+
+### ❌ Explicit Prohibition
+
+- Do NOT replace toast with another transient overlay by default.
+- Do NOT hide errors in global notification layers.
+- Do NOT introduce silent failures.
+- Do NOT make critical alerts auto-dismiss.
+
+---
+
+## �🚨 Common Errors You WILL Encounter
 
 ### Error 1: Wrong Import Path Depth
 **Symptom:**
