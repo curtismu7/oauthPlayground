@@ -931,7 +931,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 	}, [selectedEnvironments]);
 
 	if (globalTokenStatus.isLoading) {
-		return <div style={styles.loadingMessage}>Initializing global worker token...</div>;
+		return <div style={styles.loadingMessage}>Initializing MasterFlow API authentication...</div>;
 	}
 
 	// Show worker token UI when token is not available
@@ -939,7 +939,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 		return (
 			<div style={styles.container}>
 				<div style={styles.header}>
-					<h1>Environment Management</h1>
+					<h1>MasterFlow API - Environment Management</h1>
 				</div>
 
 				<div
@@ -952,10 +952,13 @@ const EnvironmentManagementPageV8: React.FC = () => {
 						marginBottom: '2rem',
 					}}
 				>
-					<h3 style={{ color: '#1f2937', marginBottom: '1rem' }}>Worker Token Required</h3>
+					<h3 style={{ color: '#1f2937', marginBottom: '1rem' }}>
+						Enterprise Authentication Required
+					</h3>
 					<p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
-						A valid worker token is required to access and manage PingOne environments. Please
-						generate a worker token to continue.
+						MasterFlow API requires a valid worker token for secure environment management. Generate
+						your enterprise credentials to access comprehensive environment controls, monitoring
+						tools, and API integration capabilities.
 					</p>
 
 					<WorkerTokenSectionV8 compact />
@@ -965,7 +968,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 	}
 
 	if (loading && environments.length === 0) {
-		return <div style={styles.loadingMessage}>Loading environments...</div>;
+		return <div style={styles.loadingMessage}>Loading MasterFlow API environments...</div>;
 	}
 
 	if (envError) {
@@ -977,32 +980,36 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			<div style={styles.educationalSection}>
 				<div style={styles.educationalHeader}>
 					<FiBook size={24} />
-					<h2 style={styles.educationalTitle}>PingOne Environments API</h2>
+					<h2 style={styles.educationalTitle}>MasterFlow API - PingOne Environments</h2>
 				</div>
 				<div style={styles.educationalContent}>
 					<div style={styles.educationalCard}>
 						<h3 style={styles.educationalCardTitle}>
 							<FiInfo />
-							What are Environments?
+							Enterprise Environment Management
 						</h3>
 						<div style={styles.educationalCardText}>
-							Every organization contains at least one environment resource. Environments are the
-							primary subdivision of an organization and contain the core resources on which all
-							identity services are built. They can be based on region or used to segregate
-							operations by functionality, staging, or configurations.
+							Environments are the foundation of your PingOne identity infrastructure. Each
+							environment provides isolated spaces for different operational contexts - from
+							development and testing to production deployments. MasterFlow API gives you complete
+							control over environment lifecycle, configuration, and monitoring with
+							enterprise-grade security and reliability.
 						</div>
 					</div>
 					<div style={styles.educationalCard}>
 						<h3 style={styles.educationalCardTitle}>
 							<FiShield />
-							Environment Types
+							Production-Ready Environment Types
 						</h3>
 						<div style={styles.educationalCardText}>
-							<strong>PRODUCTION:</strong> Contains actual business identities. Requires non-Trial
-							license. Cannot be immediately deleted - must go through soft delete state.
+							<strong>PRODUCTION:</strong> Mission-critical environments for live business
+							operations. Features advanced security controls, compliance monitoring, and guaranteed
+							service availability. Requires enterprise license and follows strict deletion policies
+							for data protection.
 							<br />
-							<strong>SANDBOX:</strong> Temporary configurations for testing. Can be deleted
-							immediately. Cannot be restored once deleted.
+							<strong>SANDBOX:</strong> Flexible development environments for testing and
+							innovation. Perfect for API integration testing, feature validation, and team
+							collaboration. Instant provisioning and cleanup for rapid development cycles.
 						</div>
 					</div>
 				</div>
@@ -1012,10 +1019,11 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			<div style={styles.apiEndpointsSection}>
 				<h3 style={styles.apiEndpointsHeader}>
 					<FiCode />
-					Supported API Endpoints
+					Enterprise API Operations
 				</h3>
 				<p style={styles.apiEndpointsDescription}>
-					All environment management operations are supported and tracked:
+					MasterFlow API provides comprehensive environment management capabilities with full audit
+					trails and enterprise-grade security:
 				</p>
 				<div style={styles.apiEndpointsTable}>
 					<a
@@ -1078,7 +1086,11 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			</div>
 
 			<div style={styles.header}>
-				<h1 style={styles.title}>PingOne Environment Management</h1>
+				<h1 style={styles.title}>MasterFlow API - Environment Management</h1>
+				<p style={{ color: '#6b7280', fontSize: '1.1rem', marginBottom: '1rem' }}>
+					Manage your PingOne environments with comprehensive tools for monitoring, configuration,
+					and API integration
+				</p>
 				<div style={styles.actions}>
 					<button type="button" style={styles.button()} onClick={handleRefresh}>
 						<FiRefreshCw />
