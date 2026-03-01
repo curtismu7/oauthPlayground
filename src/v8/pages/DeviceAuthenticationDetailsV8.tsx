@@ -19,6 +19,8 @@ import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import workerTokenServiceV8 from '@/v8/services/workerTokenServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
 
 interface DeviceAuthenticationRecord {
 	success?: boolean;
@@ -132,6 +134,7 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 	const [result, setResult] = useState<DeviceAuthenticationRecord | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [hasWorkerToken, setHasWorkerToken] = useState(false);
+	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 
 	useEffect(() => {
 		let isMounted = true;
@@ -260,6 +263,10 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 
 	return (
 		<div style={{ minHeight: '100vh', background: '#f9fafb', paddingBottom: '80px' }}>
+			<WorkerTokenExpiryBannerV8
+				onFixToken={() => setShowWorkerTokenModal(true)}
+				marginBottom="24px"
+			/>
 			<MFAHeaderV8
 				title="Device Authentication Record"
 				description="Inspect the PingOne MFA device authentication immediately after initialization."
@@ -780,6 +787,10 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 					{renderJson(result?.response)}
 				</section>
 			</div>
+			<WorkerTokenModalV8
+				isOpen={showWorkerTokenModal}
+				onClose={() => setShowWorkerTokenModal(false)}
+			/>
 		</div>
 	);
 };
