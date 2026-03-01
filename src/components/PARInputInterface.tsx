@@ -1,5 +1,5 @@
 // src/components/PARInputInterface.tsx
-import React, { useEffect, useState } from 'react';
+
 import {
 	FiAlertCircle,
 	FiArrowRight,
@@ -14,6 +14,7 @@ import {
 	FiSettings,
 	FiShield,
 } from '@icons';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 interface PARInputInterfaceProps {

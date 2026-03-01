@@ -1,8 +1,8 @@
 // src/pages/flows/OAuthAuthorizationCodeFlowV7_1/components/FlowHeader.tsx
 // V7.1 Flow Header - Header component with variant selector and flow information
 
-import React from 'react';
 import { FiChevronDown, FiInfo } from '@icons';
+import React from 'react';
 import styled from 'styled-components';
 import { UI_CONSTANTS } from '../constants/uiConstants';
 import type { FlowVariant } from '../types/flowTypes';

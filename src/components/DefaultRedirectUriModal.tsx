@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
 import { FiCheck, FiCopy, FiExternalLink, FiX } from '@icons';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { copyToClipboard } from '../utils/clipboard';
 

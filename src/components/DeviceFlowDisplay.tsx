@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
 import { FiCopy, FiExternalLink, FiGrid, FiRefreshCw, FiXCircle } from '@icons';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';

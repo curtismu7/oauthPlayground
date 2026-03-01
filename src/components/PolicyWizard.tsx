@@ -4,7 +4,6 @@
  * Guides users through selecting PingOne app + policy settings based on risk posture
  */
 
-import React, { useCallback, useMemo, useState } from 'react';
 import {
 	FiAlertTriangle,
 	FiCheckCircle,
@@ -16,6 +15,7 @@ import {
 	FiUsers,
 	FiWifi,
 } from '@icons';
+import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
 type AnswerValue =

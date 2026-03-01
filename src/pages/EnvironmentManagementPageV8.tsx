@@ -1,21 +1,19 @@
 // src/pages/EnvironmentManagementPageV8.tsx
 // V8 Environment Management Page - Main dashboard for PingOne environment management
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
 	FiBook,
 	FiCode,
 	FiDownload,
-	FiEdit,
 	FiEdit2,
 	FiInfo,
 	FiPlus,
 	FiRefreshCw,
 	FiShield,
-	FiTrash,
 	FiTrash2,
-	FiUpload
+	FiUpload,
 } from '@icons';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import ApiCallList from '../components/ApiCallList';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';

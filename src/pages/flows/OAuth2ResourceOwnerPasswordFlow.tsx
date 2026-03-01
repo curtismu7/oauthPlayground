@@ -1,5 +1,3 @@
-import type React from 'react';
-import { useEffect, useState } from 'react';
 import {
 	FiAlertTriangle,
 	FiCheckCircle,
@@ -11,6 +9,8 @@ import {
 	FiRefreshCw,
 	FiUser,
 } from '@icons';
+import type React from 'react';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import CollapsibleSection from '../../components/CollapsibleSection';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';

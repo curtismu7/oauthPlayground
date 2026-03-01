@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import {
 	FiArrowRight,
 	FiCheck,
@@ -13,6 +12,7 @@ import {
 	FiShield,
 	FiUsers,
 } from '@icons';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../components/Card';
 import CollapsibleSection from '../components/CollapsibleSection';

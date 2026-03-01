@@ -1,5 +1,5 @@
 // src/components/EnhancedSecurityFeaturesDemo.tsx
-import React, { useCallback, useMemo, useState } from 'react';
+
 import {
 	FiClock,
 	FiDownload,
@@ -10,10 +10,10 @@ import {
 	FiPlay,
 	FiSettings,
 	FiShield,
-	FiTrash,
 	FiTrash2,
-	FiX
+	FiX,
 } from '@icons';
+import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';
 import {

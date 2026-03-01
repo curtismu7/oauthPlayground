@@ -5,8 +5,8 @@
  * @version 1.0.0
  */
 
-import React, { useState } from 'react';
 import { FiTerminal } from '@icons';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 const ToggleButton = styled.button<{ $isOpen: boolean }>`

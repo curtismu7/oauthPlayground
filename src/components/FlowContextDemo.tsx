@@ -1,16 +1,15 @@
 // src/components/FlowContextDemo.tsx
 // Demo component showcasing FlowContextService functionality
 
-import React, { useEffect, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiArrowRight,
 	FiCheckCircle,
 	FiRefreshCw,
 	FiSettings,
-	FiTrash,
-	FiTrash2
+	FiTrash2,
 } from '@icons';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import FlowContextService, { type FlowContext } from '../services/flowContextService';
 import FlowContextUtils from '../services/flowContextUtils';

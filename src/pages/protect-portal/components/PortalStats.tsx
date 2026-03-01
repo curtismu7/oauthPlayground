@@ -9,8 +9,8 @@
  * for low risk score scenarios before proceeding to success page.
  */
 
-import React, { useEffect } from 'react';
 import { FiActivity, FiCheckCircle, FiClock, FiMapPin } from '@icons';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import type {
 	EducationalContent,

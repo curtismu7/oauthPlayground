@@ -9,8 +9,8 @@
  * OAuth 2.0 resources, scopes, and resource attributes.
  */
 
-import React, { useState } from 'react';
 import { FiBook, FiCode, FiExternalLink, FiInfo, FiKey, FiLayers, FiShield } from '@icons';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 const MODULE_TAG = '[📚 RESOURCES-API-V8]';

@@ -13,12 +13,8 @@
  * - Event system for configuration updates
  */
 
+import { FiLoader, FiTrash2 } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
-import {
-	FiLoader,
-	FiTrash,
-	FiTrash2
-} from '@icons';
 import styled from 'styled-components';
 import { useWorkerTokenConfigV8 } from '@/v8/hooks/useSilentApiConfigV8';
 import { AppDiscoveryModalV8U } from '../../v8u/components/AppDiscoveryModalV8U';

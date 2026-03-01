@@ -5,17 +5,8 @@
  * @version 1.0.0
  */
 
+import { FiDownload, FiExternalLink, FiMaximize2, FiMinimize2, FiRefreshCw, FiX } from '@icons';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import {
-	FiDownload,
-	FiExternalLink,
-	FiMaximize,
-	FiMaximize2,
-	FiMinimize,
-	FiMinimize2,
-	FiRefreshCw,
-	FiX
-} from '@icons';
 import styled from 'styled-components';
 import { type LogFile, LogFileService } from '../services/logFileService';
 import { useServerStatusOptional } from './ServerStatusProvider';

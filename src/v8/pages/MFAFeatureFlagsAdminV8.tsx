@@ -6,8 +6,8 @@
  * @since 2026-01-29
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
 import { FiArrowLeft, FiFlag, FiRefreshCw, FiToggleLeft, FiToggleRight } from '@icons';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
 	type MFAFeatureFlag,

@@ -1,13 +1,5 @@
+import { FiArrowRight, FiBook, FiCheckCircle, FiGlobe, FiKey, FiShield, FiUsers } from '@icons';
 import React from 'react';
-import {
-	FiArrowRight,
-	FiBook,
-	FiCheckCircle,
-	FiGlobe,
-	FiKey,
-	FiShield,
-	FiUsers,
-} from '@icons';
 import styled from 'styled-components';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { FlowHeader } from '../services/flowHeaderService';

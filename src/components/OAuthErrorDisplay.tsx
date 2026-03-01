@@ -1,8 +1,8 @@
 // src/components/OAuthErrorDisplay.tsx
 // Reusable OAuth Error Display Component for consistent error presentation across all flows
 
-import React from 'react';
 import { FiAlertTriangle, FiExternalLink, FiRefreshCw, FiX } from '@icons';
+import React from 'react';
 import { OAuthErrorDetails } from '../services/oauthErrorHandlingService';
 
 interface OAuthErrorDisplayProps {

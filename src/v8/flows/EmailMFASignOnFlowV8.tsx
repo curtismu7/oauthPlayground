@@ -13,7 +13,6 @@
  * 6. Exchange authorization code for tokens
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiCheckCircle,
@@ -26,6 +25,7 @@ import {
 	FiShield,
 	FiUser,
 } from '@icons';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { readBestEnvironmentId } from '@/hooks/useAutoEnvironmentId';

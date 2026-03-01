@@ -1,15 +1,7 @@
 // src/components/EnhancedFlowInfoCard.tsx - Enhanced flow information card with comprehensive details
 
+import { FiChevronDown, FiExternalLink, FiInfo, FiServer, FiShield, FiUsers, FiZap } from '@icons';
 import React, { useEffect, useState } from 'react';
-import {
-	FiChevronDown,
-	FiExternalLink,
-	FiInfo,
-	FiServer,
-	FiShield,
-	FiUsers,
-	FiZap,
-} from '@icons';
 import styled from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';
 import { FlowInfoCardData, FlowInfoService } from '../services/FlowInfoService';

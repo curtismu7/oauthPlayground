@@ -11,8 +11,8 @@
  * - Uses real PingOne APIs (no mocks)
  */
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FiBook, FiChevronDown, FiPackage } from '@icons';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { EducationModeToggle } from '@/components/education/EducationModeToggle';
 import { MasterEducationSection } from '@/components/education/MasterEducationSection';

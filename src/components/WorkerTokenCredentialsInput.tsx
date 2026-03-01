@@ -2,7 +2,6 @@
 // Worker Token Credentials Input Component - Specialized UI for PingOne Worker Token configuration
 // Provides a clean, focused interface for machine-to-machine authentication setup
 
-import React, { useCallback, useEffect, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiCheckCircle,
@@ -15,6 +14,7 @@ import {
 	FiRefreshCw,
 	FiSave,
 } from '@icons';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
 	type WorkerTokenCredentials,

@@ -19,8 +19,8 @@
  * />
  */
 
-import React from 'react';
 import { FiCheckCircle, FiInfo, FiLock, FiShield, FiX, FiXCircle } from '@icons';
+import React from 'react';
 import styled from 'styled-components';
 
 interface WorkerTokenVsClientCredentialsEducationModalV8Props {

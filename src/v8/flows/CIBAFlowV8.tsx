@@ -16,7 +16,6 @@
  * <CIBAFlowV8 />
  */
 
-import React, { useEffect, useState } from 'react';
 import {
 	FiActivity,
 	FiAlertTriangle,
@@ -29,6 +28,7 @@ import {
 	FiX,
 	FiZap,
 } from '@icons';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { CommonSpinner } from '@/components/common/CommonSpinner';

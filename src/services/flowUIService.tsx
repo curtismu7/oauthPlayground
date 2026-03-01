@@ -2,8 +2,8 @@
 // Comprehensive UI component library for V5 flows
 // Consolidates all common UI patterns from OAuth flows
 
-import React from 'react';
 import { FiAlertCircle, FiAlertTriangle, FiCheckCircle, FiInfo } from '@icons';
+import React from 'react';
 import styled from 'styled-components';
 
 import { CollapsibleIcon } from '../components/CollapsibleIcon';

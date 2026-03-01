@@ -28,9 +28,9 @@ const WorkerActions: React.FC<{
 	</div>
 );
 
+import { FiArrowRight, FiEye, FiEyeOff, FiKey, FiSettings, FiShield, FiX } from '@icons';
 // src/pages/ClientGenerator.tsx
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiArrowRight, FiEye, FiEyeOff, FiKey, FiSettings, FiShield, FiX } from '@icons';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import ColoredUrlDisplay from '../components/ColoredUrlDisplay';

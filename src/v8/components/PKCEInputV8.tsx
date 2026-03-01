@@ -13,8 +13,8 @@
  * />
  */
 
-import React, { useState } from 'react';
 import { FiAlertTriangle, FiChevronDown, FiInfo } from '@icons';
+import React, { useState } from 'react';
 
 const MODULE_TAG = '[🔐 PKCE-V8]';
 

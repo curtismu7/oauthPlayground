@@ -1,6 +1,7 @@
 // src/pages/AuthorizationCallback.tsx
-import React, { useEffect, useState } from 'react';
+
 import { FiAlertCircle, FiCheckCircle } from '@icons';
+import React, { useEffect, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 
 // Animation for loading spinner

@@ -6,8 +6,8 @@
  * @since 2026-01-29
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
 import { FiArrowRight, FiCheck, FiKey, FiMail, FiPlus, FiSmartphone } from '@icons';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/v8/components/Button';
 import { EmptyState } from '@/v8/components/EmptyState';
 import { LoadingSpinner } from '@/v8/components/LoadingSpinner';

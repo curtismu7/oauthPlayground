@@ -32,8 +32,9 @@
 //    - Authorization URL should only contain request_uri (no other params)
 //    - Check PAR service logs for request generation errors
 //
-import React, { useCallback, useEffect } from 'react';
+
 import { FiCheckCircle, FiInfo, FiLock, FiSettings } from '@icons';
+import React, { useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 import { CommonSpinner } from '../../../components/common/CommonSpinner';
 import { LearningTooltip } from '../../../components/LearningTooltip';

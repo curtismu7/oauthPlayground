@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import {
 	FiAlertTriangle,
 	FiCheck,
@@ -7,6 +6,7 @@ import {
 	FiCopy,
 	FiExternalLink,
 } from '@icons';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import {
 	flowRequiresRedirectUri,

@@ -1,4 +1,3 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiCheckCircle,
@@ -14,6 +13,7 @@ import {
 	FiSettings,
 	FiTerminal,
 } from '@icons';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import packageJson from '../../package.json';
 import ConfigurationURIChecker from '../components/ConfigurationURIChecker';
 import PingOneApplicationConfig, {

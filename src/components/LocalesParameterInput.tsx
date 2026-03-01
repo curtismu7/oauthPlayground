@@ -1,7 +1,8 @@
 // src/components/LocalesParameterInput.tsx
 // UI and Claims Locales Parameter Input - Internationalization support
-import React from 'react';
+
 import { FiGlobe, FiInfo } from '@icons';
+import React from 'react';
 import styled from 'styled-components';
 
 type LocalesType = 'ui' | 'claims';

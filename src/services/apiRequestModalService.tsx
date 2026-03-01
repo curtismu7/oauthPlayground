@@ -1,7 +1,6 @@
 // src/services/apiRequestModalService.tsx
 // Unified educational modal service for all API requests (OAuth, PingOne Management API, etc.)
 
-import React, { useCallback, useState } from 'react';
 import {
 	FiCheck,
 	FiCode,
@@ -15,6 +14,7 @@ import {
 	FiShield,
 	FiX,
 } from '@icons';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { ColoredUrlDisplay } from '../components/ColoredUrlDisplay';
 import { v4ToastManager } from '../utils/v4ToastMessages';

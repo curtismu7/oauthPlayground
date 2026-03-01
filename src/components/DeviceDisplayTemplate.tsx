@@ -1,9 +1,9 @@
 // src/components/DeviceDisplayTemplate.tsx
 // Standardized Device Display Template - Based on Airport Kiosk Layout
 
+import { FiCopy, FiExternalLink } from '@icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
-import { FiCopy, FiExternalLink } from '@icons';
 import styled from 'styled-components';
 
 // Main Device Container

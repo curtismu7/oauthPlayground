@@ -9,8 +9,8 @@
  * Following SWE-15 principles for reusable validation components
  */
 
-import React, { useState } from 'react';
 import { FiAlertTriangle, FiCheck, FiCopy, FiExternalLink, FiX } from '@icons';
+import React, { useState } from 'react';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const _MODULE_TAG = '[🔗 REDIRECT-URI-VALIDATOR-V8]';

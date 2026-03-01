@@ -10,15 +10,8 @@
  * - Transaction approval flow configuration
  */
 
+import { FiCheckCircle, FiChevronDown, FiChevronUp, FiCopy, FiKey, FiSettings } from '@icons';
 import React, { useState } from 'react';
-import {
-	FiCheckCircle,
-	FiChevronDown,
-	FiChevronUp,
-	FiCopy,
-	FiKey,
-	FiSettings,
-} from '@icons';
 import styled from 'styled-components';
 import {
 	KeyPair,

@@ -319,31 +319,48 @@ export default function CustomDomainTestPage() {
 							</p>
 						)}
 						<div className="d-flex flex-column gap-3">
-						{/* Shared credentials used by PingOne API cards */}
-						<div className="card" style={{ borderLeft: '4px solid #9333ea', backgroundColor: '#faf5ff' }}>
-							<div className="card-body">
-								<p className="fw-600 mb-2" style={{ color: '#7e22ce', fontSize: '0.875rem' }}>
-									Shared PingOne credentials (used by all PingOne API tests below)
-								</p>
-								<div className="d-flex flex-wrap gap-3">
-									{[
-										{ key: 'environmentId', label: 'Environment ID', placeholder: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' },
-										{ key: 'accessToken', label: 'Worker Token', placeholder: 'Paste worker token (Bearer)' },
-									].map(({ key, label, placeholder }) => (
-										<div key={key} className="d-flex flex-column gap-1" style={{ flex: 1, minWidth: '240px' }}>
-											<label className="text-small fw-600 text-muted mb-0">{label}</label>
-											<input
-												type={key === 'accessToken' ? 'password' : 'text'}
-												className="form-control form-control-sm"
-												placeholder={placeholder}
-												value={apiParams[key] ?? ''}
-												onChange={(e) => setApiParams((prev) => ({ ...prev, [key]: e.target.value }))}
-										/>
-										</div>
-									))}
+							{/* Shared credentials used by PingOne API cards */}
+							<div
+								className="card"
+								style={{ borderLeft: '4px solid #9333ea', backgroundColor: '#faf5ff' }}
+							>
+								<div className="card-body">
+									<p className="fw-600 mb-2" style={{ color: '#7e22ce', fontSize: '0.875rem' }}>
+										Shared PingOne credentials (used by all PingOne API tests below)
+									</p>
+									<div className="d-flex flex-wrap gap-3">
+										{[
+											{
+												key: 'environmentId',
+												label: 'Environment ID',
+												placeholder: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
+											},
+											{
+												key: 'accessToken',
+												label: 'Worker Token',
+												placeholder: 'Paste worker token (Bearer)',
+											},
+										].map(({ key, label, placeholder }) => (
+											<div
+												key={key}
+												className="d-flex flex-column gap-1"
+												style={{ flex: 1, minWidth: '240px' }}
+											>
+												<label className="text-small fw-600 text-muted mb-0">{label}</label>
+												<input
+													type={key === 'accessToken' ? 'password' : 'text'}
+													className="form-control form-control-sm"
+													placeholder={placeholder}
+													value={apiParams[key] ?? ''}
+													onChange={(e) =>
+														setApiParams((prev) => ({ ...prev, [key]: e.target.value }))
+													}
+												/>
+											</div>
+										))}
+									</div>
 								</div>
 							</div>
-						</div>
 							{API_TESTS.map((spec) => {
 								const key = `${spec.method} ${spec.path}`;
 								const result = testResults[key];
@@ -402,7 +419,9 @@ export default function CustomDomainTestPage() {
 																		htmlFor={`body-param-${key}-${param}`}
 																		className="text-small fw-600 text-muted mb-0"
 																	>
-																		{param === 'identifier' ? 'identifier (username / email / userId)' : param}
+																		{param === 'identifier'
+																			? 'identifier (username / email / userId)'
+																			: param}
 																	</label>
 																	<input
 																		id={`body-param-${key}-${param}`}

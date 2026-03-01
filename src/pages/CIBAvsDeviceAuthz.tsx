@@ -1,5 +1,5 @@
 // src/pages/CIBAvsDeviceAuthz.tsx - CIBA vs Device Authorization Comparison Guide
-import React from 'react';
+
 import {
 	FiAlertCircle,
 	FiBook,
@@ -12,6 +12,7 @@ import {
 	FiSettings,
 	FiSmartphone,
 } from '@icons';
+import React from 'react';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../components/Card';
 import { showFlowSuccess } from '../components/CentralizedSuccessMessage';

@@ -1,16 +1,8 @@
 // src/pages/flows/v9/OAuthAuthorizationCodeFlowV9_Condensed.tsx
 // V9 Condensed Authorization Code Flow - Enhanced Architecture with V9 Standards
 
+import { FiBook, FiCheckCircle, FiChevronDown, FiKey, FiSettings, FiTarget, FiZap } from '@icons';
 import React, { useCallback, useState } from 'react';
-import {
-	FiBook,
-	FiCheckCircle,
-	FiChevronDown,
-	FiKey,
-	FiSettings,
-	FiTarget,
-	FiZap,
-} from '@icons';
 import styled from 'styled-components';
 import { StandardizedCredentialExportImport } from '../../../components/StandardizedCredentialExportImport';
 import UltimateTokenDisplay from '../../../components/UltimateTokenDisplay';

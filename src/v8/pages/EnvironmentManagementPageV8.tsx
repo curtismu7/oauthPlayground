@@ -1,11 +1,9 @@
 // src/v8/pages/EnvironmentManagementPageV8.tsx
 // PingOne Environment Management Page V8 - Main dashboard for managing environments
 
-import React, { useCallback, useEffect, useState } from 'react';
 import {
 	FiActivity,
 	FiDatabase,
-	FiEdit,
 	FiEdit3,
 	FiEye,
 	FiFilter,
@@ -15,9 +13,9 @@ import {
 	FiSearch,
 	FiServer,
 	FiSettings,
-	FiTrash,
-	FiTrash2
+	FiTrash2,
 } from '@icons';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
 	type EnvironmentListOptions,

@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from 'react';
 import {
 	FiActivity,
 	FiAlertTriangle,
@@ -9,10 +8,10 @@ import {
 	FiEyeOff,
 	FiInfo,
 	FiRefreshCw,
-	FiTrash,
 	FiTrash2,
-	FiX
+	FiX,
 } from '@icons';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { type TokenInfo } from '../services/tokenMonitoringService';
 

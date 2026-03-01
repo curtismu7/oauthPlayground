@@ -1,19 +1,16 @@
 // src/components/StepNavigationButtons.tsx
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
 	FiArrowLeft,
 	FiArrowRight,
 	FiCheckCircle,
-	FiMaximize,
 	FiMaximize2,
-	FiMinimize,
 	FiMinimize2,
 	FiMove,
 	FiSkipBack,
-	FiTrash,
-	FiTrash2
+	FiTrash2,
 } from '@icons';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 export interface StepNavigationButtonsProps {

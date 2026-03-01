@@ -8,7 +8,6 @@
  * Universal hero section that adapts to different company styles and provides authentic industry experiences.
  */
 
-import React from 'react';
 import {
 	FiArrowRight,
 	FiAward,
@@ -26,6 +25,7 @@ import {
 	FiTrendingUp,
 	FiUsers,
 } from '@icons';
+import React from 'react';
 import styled from 'styled-components';
 import type { CorporatePortalConfig } from '../../types/CorporatePortalConfig';
 

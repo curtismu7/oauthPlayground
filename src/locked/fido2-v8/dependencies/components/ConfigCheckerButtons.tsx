@@ -1,7 +1,6 @@
 // src/components/ConfigCheckerButtons.tsx
 // Config Checker component for comparing form data against live PingOne applications
 
-import React, { useMemo, useState } from 'react';
 import {
 	FiAlertTriangle,
 	FiCheckCircle,
@@ -13,6 +12,7 @@ import {
 	FiSave,
 	FiX,
 } from '@icons';
+import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { ConfigComparisonService, ConfigDiffResult } from '../services/configComparisonService';
 import { pingOneAppCreationService } from '../services/pingOneAppCreationService';

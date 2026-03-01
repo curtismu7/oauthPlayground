@@ -1,14 +1,8 @@
 // src/components/EnhancedAuthContextDemo.tsx
 // Demo showing how flows can use the enhanced NewAuthContext
 
+import { FiAlertCircle, FiArrowRight, FiCheckCircle, FiRefreshCw, FiSettings } from '@icons';
 import React, { useEffect, useState } from 'react';
-import {
-	FiAlertCircle,
-	FiArrowRight,
-	FiCheckCircle,
-	FiRefreshCw,
-	FiSettings,
-} from '@icons';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/NewAuthContext';
 

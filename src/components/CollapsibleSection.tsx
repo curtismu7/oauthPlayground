@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
 import { FiChevronDown } from '@icons';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 interface CollapsibleSectionProps {

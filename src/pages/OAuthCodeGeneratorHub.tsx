@@ -8,8 +8,8 @@
  * - Inline Code Examples
  */
 
-import React from 'react';
 import { FiBook, FiCode, FiShield, FiZap } from '@icons';
+import React from 'react';
 import styled from 'styled-components';
 import LiveRFCExplorer from '../components/LiveRFCExplorer';
 import RealWorldScenarioBuilder from '../components/RealWorldScenarioBuilder';

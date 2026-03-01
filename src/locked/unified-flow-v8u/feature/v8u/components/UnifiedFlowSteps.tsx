@@ -16,7 +16,6 @@
  * Use the mock ROPC flow instead.
  */
 
-import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiArrowRight,
@@ -29,6 +28,7 @@ import {
 	FiKey,
 	FiShield,
 } from '@icons';
+import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { ColoredUrlDisplay } from '@/components/ColoredUrlDisplay';

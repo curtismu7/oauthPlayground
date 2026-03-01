@@ -9,8 +9,8 @@
  * that matches the actual AA.com website design and functionality.
  */
 
-import React, { useState } from 'react';
 import { FiChevronDown, FiMenu, FiSearch, FiUser, FiX } from '@icons';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useBrandTheme } from '../themes/theme-provider';
 import BrandDropdownSelector from './BrandDropdownSelector';

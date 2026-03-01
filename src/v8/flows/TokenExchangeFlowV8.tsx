@@ -2,7 +2,6 @@
 // V8 OAuth 2.0 Token Exchange Flow - RFC 8693 Implementation for A2A Security
 // Phase 1: Same environment only, admin enablement required
 
-import React, { useCallback, useEffect, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiCheckCircle,
@@ -14,6 +13,7 @@ import {
 	FiUsers,
 	FiZap,
 } from '@icons';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { CommonSpinner } from '../../components/common/CommonSpinner';
 import { ButtonSpinner } from '../../components/ui/ButtonSpinner';

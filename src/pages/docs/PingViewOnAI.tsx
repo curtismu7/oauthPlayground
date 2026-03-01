@@ -1,4 +1,3 @@
-import React from 'react';
 import {
 	FiAlertTriangle,
 	FiBookOpen,
@@ -12,6 +11,7 @@ import {
 	FiUsers,
 	FiZap,
 } from '@icons';
+import React from 'react';
 import styled from 'styled-components';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';

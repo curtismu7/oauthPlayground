@@ -1,5 +1,5 @@
-import React from 'react';
 import { FiAlertTriangle, FiBookOpen, FiExternalLink, FiShield, FiTool } from '@icons';
+import React from 'react';
 import styled from 'styled-components';
 
 // Simple container for testing

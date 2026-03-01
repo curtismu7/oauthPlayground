@@ -1,6 +1,7 @@
 // src/v7m/pages/V7MSettings.tsx
-import React, { useEffect, useState } from 'react';
+
 import { FiPackage } from '@icons';
+import React, { useEffect, useState } from 'react';
 import { isV7MEnabled, setV7MMode } from '../mode';
 
 const V7MSettings: React.FC = () => {

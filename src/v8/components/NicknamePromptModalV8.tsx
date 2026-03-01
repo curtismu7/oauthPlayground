@@ -1,8 +1,8 @@
 // src/v8/components/NicknamePromptModalV8.tsx
 // Modal for prompting user to set device nickname after pairing
 
-import React, { useEffect, useId, useState } from 'react';
 import { FiCheck, FiInfo, FiX } from '@icons';
+import React, { useEffect, useId, useState } from 'react';
 import styled from 'styled-components';
 
 interface NicknamePromptModalV8Props {

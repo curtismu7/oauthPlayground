@@ -13,7 +13,6 @@
  * - Compact and detailed view modes
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
 import {
 	FiCopy,
 	FiEye,
@@ -22,10 +21,10 @@ import {
 	FiKey,
 	FiRefreshCw,
 	FiShield,
-	FiTrash,
 	FiTrash2,
-	FiUser
+	FiUser,
 } from '@icons';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled, { css, keyframes } from 'styled-components';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';

@@ -1,8 +1,8 @@
 // src/components/FlowConfigurationTable.tsx
 // Comprehensive table showing configuration requirements for all OAuth/OIDC flows
 
-import React from 'react';
 import { FiAlertTriangle, FiCheck, FiX } from '@icons';
+import React from 'react';
 import styled from 'styled-components';
 
 const TableContainer = styled.div`

@@ -11,7 +11,6 @@
  * - Configuration before device registration
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
 import {
 	FiArrowRight,
 	FiBook,
@@ -24,6 +23,7 @@ import {
 	FiShield,
 	FiX,
 } from '@icons';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FIDO2Service } from '../../dependencies/services/fido2Service.ts';
 import { MFAInfoButtonV8 } from '../../dependencies/v8/components/MFAInfoButtonV8.tsx';

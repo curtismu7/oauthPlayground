@@ -1,8 +1,6 @@
 // src/components/MCPServerDeviceFlow.tsx
 // MCP Server Style Device Authorization Flow Interface
 
-import { QRCodeSVG } from 'qrcode.react';
-import React from 'react';
 import {
 	FiAlertTriangle,
 	FiCheckCircle,
@@ -13,6 +11,8 @@ import {
 	FiServer,
 	FiXCircle,
 } from '@icons';
+import { QRCodeSVG } from 'qrcode.react';
+import React from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';

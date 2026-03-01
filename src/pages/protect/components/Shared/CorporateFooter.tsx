@@ -8,7 +8,6 @@
  * Professional footer with industry-specific links and company information.
  */
 
-import React from 'react';
 import {
 	FiFacebook,
 	FiInstagram,
@@ -19,6 +18,7 @@ import {
 	FiTwitter,
 	FiYoutube,
 } from '@icons';
+import React from 'react';
 import styled from 'styled-components';
 import type { CorporatePortalConfig } from '../../types/CorporatePortalConfig';
 

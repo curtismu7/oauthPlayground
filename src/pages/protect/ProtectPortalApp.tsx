@@ -9,8 +9,8 @@
  * risk-based authentication with custom login, MFA integration, and OIDC token display.
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
 import { FiAlertTriangle, FiCheckCircle, FiLoader, FiShield, FiX } from '@icons';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import { WorkerTokenStatusDisplayV8 } from '@/v8/components/WorkerTokenStatusDisplayV8';

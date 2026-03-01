@@ -3,7 +3,6 @@
 // Uses response_mode=pi.flow for server-to-server token exchange
 // Enhanced with fresh PKCE generation and improved error handling
 
-import React, { useCallback, useEffect, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiCheckCircle,
@@ -15,6 +14,7 @@ import {
 	FiRefreshCw,
 	FiShield,
 } from '@icons';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';

@@ -1,8 +1,8 @@
 // src/pages/flows/PingOnePARFlowV7.tsx
 // V7.0.0 PingOne PAR (Pushed Authorization Request) Flow - Enhanced Service Architecture with Modern UI/UX
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FiCheckCircle, FiEye, FiEyeOff, FiShield } from '@icons';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { AuthorizationDetailsEditor } from '../../components/AuthorizationDetailsEditor';

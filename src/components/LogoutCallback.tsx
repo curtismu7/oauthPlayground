@@ -1,8 +1,8 @@
 // src/components/LogoutCallback.tsx
 // Component to handle OIDC logout callback redirects
 
-import React, { useEffect, useState } from 'react';
 import { FiCheckCircle, FiLogIn } from '@icons';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { logger } from '../utils/logger';

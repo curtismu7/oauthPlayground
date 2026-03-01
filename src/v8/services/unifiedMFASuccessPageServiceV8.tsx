@@ -16,7 +16,6 @@
  * - FIDO policy information (if applicable)
  */
 
-import React, { useEffect, useState } from 'react';
 import {
 	FiBook,
 	FiCheck,
@@ -28,6 +27,7 @@ import {
 	FiShield,
 	FiUser,
 } from '@icons';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
 	ApiDisplayCheckbox,

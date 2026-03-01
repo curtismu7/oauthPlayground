@@ -1,7 +1,7 @@
 // src/components/PingOneAppConfig.tsx - Reusable PingOne Application Configuration Component
 
-import React, { useCallback, useEffect, useState } from 'react';
 import { FiChevronDown, FiSettings } from '@icons';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 

@@ -6,8 +6,8 @@
  * @since 2026-02-13
  */
 
+import { FiMenu, FiPackage, FiSearch, FiX } from '@icons';
 import React, { useState } from 'react';
-import { FiMenu, FiSearch, FiPackage, FiX } from '@icons';
 import styled from 'styled-components';
 import { useBrandTheme } from '../themes/theme-provider';
 

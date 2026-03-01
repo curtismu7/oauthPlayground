@@ -10,8 +10,8 @@
  * - Just Unified (all, OAuth 2.0 Authorization Framework (RFC 6749), OpenID Connect Core 1.0, OAuth 2.1 Authorization Framework (draft), or combinations)
  */
 
-import React, { useRef, useState } from 'react';
 import { FiChevronDown, FiChevronRight, FiDownload, FiPackage } from '@icons';
+import React, { useRef, useState } from 'react';
 import { usePageScroll } from '@/hooks/usePageScroll';
 import {
 	COLLECTION_VERSION,

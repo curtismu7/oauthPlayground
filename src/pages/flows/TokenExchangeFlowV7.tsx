@@ -1,7 +1,6 @@
 // src/pages/flows/TokenExchangeFlowV7.tsx
 // V7 OAuth 2.0 Token Exchange Flow - RFC 8693 Implementation for A2A Security
 
-import React, { useCallback, useEffect, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiArrowRight,
@@ -21,6 +20,7 @@ import {
 	FiUsers,
 	FiZap,
 } from '@icons';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import EnhancedApiCallDisplay from '../../components/EnhancedApiCallDisplay';
 import { LearningTooltip } from '../../components/LearningTooltip';

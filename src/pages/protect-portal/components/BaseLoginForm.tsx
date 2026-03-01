@@ -13,14 +13,8 @@
  * All company-specific forms should use this component, not duplicate the fields.
  */
 
+import { FiAlertTriangle, FiEye, FiEyeOff, FiLock as FiLockIcon, FiUser } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
-import {
-	FiAlertTriangle,
-	FiEye,
-	FiEyeOff,
-	FiLock as FiLockIcon,
-	FiUser
-} from '@icons';
 import styled from 'styled-components';
 import { ButtonSpinner } from '../../../components/ui/ButtonSpinner';
 import PingOneLoginService from '../services/pingOneLoginService';

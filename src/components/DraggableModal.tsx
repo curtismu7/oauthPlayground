@@ -1,15 +1,8 @@
 // src/components/DraggableModal.tsx
 // Reusable draggable and collapsible modal component
 
+import { FiMaximize2, FiMinimize2, FiMove, FiX } from '@icons';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import {
-	FiMaximize,
-	FiMaximize2,
-	FiMinimize,
-	FiMinimize2,
-	FiMove,
-	FiX
-} from '@icons';
 import styled from 'styled-components';
 
 // Styled components

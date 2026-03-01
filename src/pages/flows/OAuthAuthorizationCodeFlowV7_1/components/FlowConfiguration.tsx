@@ -1,8 +1,8 @@
 // src/pages/flows/OAuthAuthorizationCodeFlowV7_1/components/FlowConfiguration.tsx
 // V7.1 Flow Configuration - Configuration section for credentials and settings
 
-import React, { useState } from 'react';
 import { FiChevronRight, FiInfo, FiRefreshCw, FiSave } from '@icons';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import type { PingOneApplicationState } from '../../../components/PingOneApplicationConfig';
 import { FLOW_CONSTANTS } from '../constants/flowConstants';

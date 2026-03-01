@@ -10,7 +10,6 @@
  * OAuth Authorization Code Flow stepper and makes them configurable.
  */
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
 	FiArrowLeft,
 	FiArrowRight,
@@ -20,6 +19,7 @@ import {
 	FiMove,
 	FiTrash2,
 } from '@icons';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 export interface FloatingStepperStep {

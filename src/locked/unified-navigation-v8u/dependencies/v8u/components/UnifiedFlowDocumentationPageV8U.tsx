@@ -7,7 +7,6 @@
  * Displays API calls, JSON bodies, and allows download as PDF/MD
  */
 
-import React, { useMemo, useState } from 'react';
 import {
 	FiChevronDown,
 	FiChevronUp,
@@ -17,6 +16,7 @@ import {
 	FiInfo,
 	FiPackage,
 } from '@icons';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
 	apiCallTrackerService,

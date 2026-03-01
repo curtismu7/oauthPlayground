@@ -6,9 +6,9 @@
  * Used in callback pages and major error states.
  */
 
-import React from 'react';
 import * as Icons from '@icons';
 import { FiHome, FiRefreshCw, FiSettings, FiXCircle } from '@icons';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import type { ErrorTemplate } from '../constants/errorMessages';

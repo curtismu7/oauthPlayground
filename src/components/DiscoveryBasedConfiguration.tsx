@@ -7,8 +7,8 @@
  * credentials, and all endpoints are automatically discovered.
  */
 
-import React, { useCallback, useEffect, useId, useState } from 'react';
 import { FiAlertCircle, FiCopy, FiRefreshCw, FiSave } from '@icons';
+import React, { useCallback, useEffect, useId, useState } from 'react';
 import styled from 'styled-components';
 import { showGlobalError, showGlobalSuccess } from '../hooks/useNotifications';
 import type { DiscoveryResult } from '../services/oidcDiscoveryService';

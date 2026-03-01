@@ -1,15 +1,8 @@
 // src/components/QRCodeServiceDemo.tsx
 // Demo component showcasing QRCodeService functionality
 
+import { FiAlertCircle, FiCheckCircle, FiCopy, FiKey, FiRefreshCw, FiSettings } from '@icons';
 import React, { useState } from 'react';
-import {
-	FiAlertCircle,
-	FiCheckCircle,
-	FiCopy,
-	FiKey,
-	FiRefreshCw,
-	FiSettings,
-} from '@icons';
 import styled from 'styled-components';
 import QRCodeService, { type QRCodeResult, type TOTPConfig } from '../services/qrCodeService';
 

@@ -8,8 +8,8 @@
  * Universal navigation component that adapts to different company styles.
  */
 
-import React, { useState } from 'react';
 import { FiChevronDown, FiMenu, FiSearch } from '@icons';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import type { CorporatePortalConfig } from '../../types/CorporatePortalConfig';
 import BrandDropdownSelector from '../BrandDropdownSelector';

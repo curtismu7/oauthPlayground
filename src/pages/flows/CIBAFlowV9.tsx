@@ -24,8 +24,8 @@
  * <CIBAFlowV9 />
  */
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { FiAlertTriangle, FiCheckCircle, FiClock, FiCopy, FiX } from '@icons';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';

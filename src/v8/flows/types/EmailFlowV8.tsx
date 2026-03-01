@@ -5,8 +5,8 @@
  * @version 8.2.0
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
 import { FiMail, FiX } from '@icons';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';

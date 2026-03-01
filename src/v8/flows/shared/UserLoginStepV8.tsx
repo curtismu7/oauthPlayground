@@ -5,8 +5,8 @@
  * @version 8.1.0
  */
 
-import React from 'react';
 import { FiExternalLink, FiKey, FiShield } from '@icons';
+import React from 'react';
 import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';
 
 const MODULE_TAG = '[🔐 USER-LOGIN-STEP-V8]';

@@ -1,12 +1,4 @@
-import {
-	FiAlertCircle,
-	FiGitBranch,
-	FiGlobe,
-	FiLayers,
-	FiLink,
-	FiShield,
-	FiUsers,
-} from '@icons';
+import { FiAlertCircle, FiGitBranch, FiGlobe, FiLayers, FiLink, FiShield, FiUsers } from '@icons';
 import styled from 'styled-components';
 import { Card, CardBody } from '../components/Card';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';

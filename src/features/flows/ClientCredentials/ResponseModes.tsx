@@ -1,8 +1,8 @@
 // src/features/flows/ClientCredentials/ResponseModes.tsx
 // Client Credentials flow doesn't use browser redirect response modes - show learn-only notice
 
-import React from 'react';
 import { FiExternalLink, FiInfo } from '@icons';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 

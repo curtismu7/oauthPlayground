@@ -2,8 +2,8 @@
 // Kroger Grocery Store Mockup - Real-world MFA authentication experience
 // This page demonstrates PingOne MFA in a realistic grocery store website context
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { FiHeart, FiLock, FiSearch, FiShoppingCart, FiUser } from '@icons';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { ApiCallTable } from '../../components/ApiCallTable';
 import { AuthorizationCodeConfigModal } from '../../components/AuthorizationCodeConfigModal';

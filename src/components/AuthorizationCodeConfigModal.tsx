@@ -1,8 +1,8 @@
 // src/components/AuthorizationCodeConfigModal.tsx
 // Simple modal for configuring Authorization Code flow credentials
 
-import React, { useEffect, useState } from 'react';
 import { FiInfo, FiSave } from '@icons';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { comprehensiveFlowDataService } from '../services/comprehensiveFlowDataService';
 import { v4ToastManager } from '../utils/v4ToastMessages';

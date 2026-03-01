@@ -2,16 +2,9 @@
 // VIZIO Smart TV Style Device Authorization Flow Interface
 // Designed to look like actual VIZIO V-Series 4K TV
 
+import { FiAlertTriangle, FiCheckCircle, FiCopy, FiExternalLink, FiPlay, FiXCircle } from '@icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
-import {
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiCopy,
-	FiExternalLink,
-	FiPlay,
-	FiXCircle,
-} from '@icons';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';

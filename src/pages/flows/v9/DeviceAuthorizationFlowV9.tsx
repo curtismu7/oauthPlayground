@@ -1,9 +1,6 @@
 // src/pages/flows/DeviceAuthorizationFlowV9_New.tsx
 // V7 Unified OAuth/OIDC Device Authorization Grant (RFC 8628) - Complete Implementation
 
-import { BarChart3, Play } from 'lucide-react';
-import { QRCodeSVG } from 'qrcode.react';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiAlertTriangle,
@@ -21,6 +18,9 @@ import {
 	FiX,
 	FiZap,
 } from '@icons';
+import { BarChart3, Play } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import AnalyticsDashboard from '../../../components/AnalyticsDashboard';

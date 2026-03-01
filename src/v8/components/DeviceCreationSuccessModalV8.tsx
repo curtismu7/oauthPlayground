@@ -1,7 +1,6 @@
 // src/v8/components/DeviceCreationSuccessModalV8.tsx
 // Device Creation Success Modal - Shows device info for all flow types
 
-import React from 'react';
 import {
 	FiCheckCircle,
 	FiKey,
@@ -12,6 +11,7 @@ import {
 	FiSmartphone,
 	FiX,
 } from '@icons';
+import React from 'react';
 import styled from 'styled-components';
 import type { DeviceType } from '../flows/shared/MFATypes';
 import { getDeviceTypeDisplay } from '../flows/shared/mfaSuccessPageServiceV8';

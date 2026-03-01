@@ -1,6 +1,7 @@
 // src/pages/flows/components/OAuthImplicitFlowStep0.tsx
-import React from 'react';
+
 import { FiAlertCircle, FiInfo, FiSettings, FiShield } from '@icons';
+import React from 'react';
 import { CredentialsInput } from '../../../components/CredentialsInput';
 import EnvironmentIdInput from '../../../components/EnvironmentIdInput';
 import PingOneApplicationConfig, {

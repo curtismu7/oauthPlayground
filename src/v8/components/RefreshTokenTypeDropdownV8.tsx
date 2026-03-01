@@ -19,8 +19,8 @@
  * />
  */
 
-import React from 'react';
 import { FiInfo } from '@icons';
+import React from 'react';
 import styled from 'styled-components';
 import { TooltipV8 } from './TooltipV8';
 

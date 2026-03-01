@@ -17,7 +17,6 @@
  * <OIDCHybridFlowV8 />
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
 import {
 	FiAlertTriangle,
 	FiCheckCircle,
@@ -27,6 +26,7 @@ import {
 	FiKey,
 	FiRefreshCw,
 } from '@icons';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { CommonSpinner } from '@/components/common/CommonSpinner';
 import { useProductionSpinner } from '@/hooks/useProductionSpinner';

@@ -9,8 +9,8 @@
  * their actual online banking portal with proper branding and customer focus.
  */
 
-import React from 'react';
 import { FiDollarSign, FiLock, FiShield, FiUser } from '@icons';
+import React from 'react';
 import styled from 'styled-components';
 import { useBrandTheme } from '../themes/theme-provider';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';

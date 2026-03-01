@@ -5,8 +5,8 @@
  * @version 1.0.0
  */
 
-import React from 'react';
 import { FiAlertTriangle, FiGlobe, FiInfo, FiShield } from '@icons';
+import React from 'react';
 import styled from 'styled-components';
 
 const Container = styled.div`

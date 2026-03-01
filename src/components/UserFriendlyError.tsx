@@ -1,5 +1,5 @@
-import React from 'react';
 import { FiAlertCircle, FiHome, FiRefreshCw } from '@icons';
+import React from 'react';
 import styled from 'styled-components';
 
 interface UserFriendlyErrorProps {

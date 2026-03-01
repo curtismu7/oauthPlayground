@@ -22,8 +22,8 @@
  * />
  */
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FiChevronDown, FiChevronUp } from '@icons';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import { MFADocumentationPageV8 } from '@/v8/components/MFADocumentationPageV8';

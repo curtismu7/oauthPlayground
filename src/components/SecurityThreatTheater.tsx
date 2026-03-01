@@ -4,7 +4,6 @@
  * Interactive attack simulations showing what happens when security parameters are missing
  */
 
-import React, { useCallback, useState } from 'react';
 import {
 	FiAlertTriangle,
 	FiCheckCircle,
@@ -16,6 +15,7 @@ import {
 	FiUser,
 	FiXCircle,
 } from '@icons';
+import React, { useCallback, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 

@@ -1,8 +1,8 @@
 // src/pages/learn/ResponseModesLearnPage.tsx
 // Standalone learn page for Response Modes with editable inputs and presets
 
-import React, { useCallback, useState } from 'react';
 import { FiAlertTriangle, FiCheckCircle, FiInfo, FiShield } from '@icons';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import ResponseModeExamples, {
 	type ResponseModeExample,

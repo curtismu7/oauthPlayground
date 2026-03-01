@@ -9,8 +9,8 @@
  * risk scores before allowing access to the protected resource.
  */
 
-import React from 'react';
 import { FiAlertTriangle, FiCheckCircle, FiShield } from '@icons';
+import React from 'react';
 import styled from 'styled-components';
 import type {
 	EducationalContent,

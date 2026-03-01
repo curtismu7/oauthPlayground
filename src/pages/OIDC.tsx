@@ -1,13 +1,5 @@
+import { FiCode, FiExternalLink, FiKey, FiLayers, FiLock, FiSmartphone, FiZap } from '@icons';
 import React from 'react';
-import {
-	FiCode,
-	FiExternalLink,
-	FiKey,
-	FiLayers,
-	FiLock,
-	FiSmartphone,
-	FiZap,
-} from '@icons';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { FlowHeader } from '../services/flowHeaderService';

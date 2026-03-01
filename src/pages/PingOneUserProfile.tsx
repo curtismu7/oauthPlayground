@@ -3,7 +3,6 @@
 // Cache bust: 2025-02-17-11:32
 // PingOne User Profile Page - Display detailed user information using real PingOne APIs
 
-import React, { useCallback, useEffect, useState } from 'react';
 import {
 	FiAlertTriangle,
 	FiCalendar,
@@ -16,6 +15,7 @@ import {
 	FiUsers,
 	FiX,
 } from '@icons';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { readBestEnvironmentId } from '../hooks/useAutoEnvironmentId';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';

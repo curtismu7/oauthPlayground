@@ -1,8 +1,8 @@
 // src/pages/flows/OAuthAuthorizationCodeFlowV7_1/OAuthAuthorizationCodeFlowV7_1.tsx
 // V7.1 Main Container - Orchestrates all refactored components
 
-import React, { useCallback, useEffect, useState } from 'react';
 import { FiBook, FiCheckCircle, FiChevronDown, FiSettings } from '@icons';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import type { PingOneApplicationState } from '../../../components/PingOneApplicationConfig';
 import { StepNavigationButtons } from '../../../components/StepNavigationButtons';

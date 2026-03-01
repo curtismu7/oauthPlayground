@@ -1,8 +1,8 @@
 // src/pages/flows/OAuthAuthorizationCodeFlowV7_1/components/FlowSteps.tsx
 // V7.1 Flow Steps - Step-by-step flow execution and display
 
-import React from 'react';
 import { FiCheck, FiClock, FiPlay, FiRefreshCw } from '@icons';
+import React from 'react';
 import styled from 'styled-components';
 import { STEP_METADATA } from '../constants/stepMetadata';
 import { UI_CONSTANTS } from '../constants/uiConstants';

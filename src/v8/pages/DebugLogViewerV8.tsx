@@ -5,7 +5,6 @@
  * @version 9.3.6
  */
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
 	FiDatabase,
 	FiDownload,
@@ -14,9 +13,9 @@ import {
 	FiEyeOff,
 	FiFile,
 	FiRefreshCw,
-	FiTrash,
-	FiTrash2
+	FiTrash2,
 } from '@icons';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { type LogFile, LogFileService } from '@/services/logFileService';
 import {
 	PageHeaderGradients,

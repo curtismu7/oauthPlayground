@@ -1,8 +1,8 @@
 // src/components/EnhancedFlowWalkthrough.tsx
 // Enhanced FlowWalkthrough component using the FlowWalkthroughService
 
-import React, { useState } from 'react';
 import { FiChevronDown, FiGlobe } from '@icons';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { FlowWalkthroughConfig, FlowWalkthroughService } from '../services/FlowWalkthroughService';
 

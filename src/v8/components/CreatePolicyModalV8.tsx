@@ -5,8 +5,8 @@
  * @version 8.0.0
  */
 
-import React, { useEffect, useRef, useState } from 'react';
 import { FiX } from '@icons';
+import React, { useEffect, useRef, useState } from 'react';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const MODULE_TAG = '[📝 CREATE-POLICY-MODAL-V8]';

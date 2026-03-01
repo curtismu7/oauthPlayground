@@ -10,8 +10,8 @@
  */
 const SERVICE_VERSION = '2.0.0';
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FiCheckCircle, FiKey, FiSettings } from '@icons';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import ClientAuthMethodSelector from '../components/ClientAuthMethodSelector';
 import ComprehensiveDiscoveryInput from '../components/ComprehensiveDiscoveryInput';
