@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import {
 	FiArrowLeft,
 	FiArrowRight,
@@ -10,6 +9,7 @@ import {
 	FiUser,
 	FiX,
 } from '@icons';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from './Card';

@@ -14,7 +14,6 @@
  * - Multiple display modes (compact, detailed, minimal)
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
 import {
 	FiActivity,
 	FiAlertCircle,
@@ -34,6 +33,7 @@ import {
 	FiTrendingUp,
 	FiZap,
 } from '@icons';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled, { css, keyframes } from 'styled-components';
 import type {
 	UnifiedWorkerTokenCredentials,

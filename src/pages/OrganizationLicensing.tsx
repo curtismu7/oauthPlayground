@@ -1,8 +1,8 @@
 // src/pages/OrganizationLicensing.tsx
 // Organization Licensing: Get Worker Token & License Information
 
-import React, { useEffect, useState } from 'react';
 import { FiAlertTriangle, FiInfo, FiKey, FiRefreshCw, FiShield } from '@icons';
+import React, { useEffect, useState } from 'react';
 import { StepNavigationButtons } from '../components/StepNavigationButtons';
 import { WorkerTokenModal } from '../components/WorkerTokenModal';
 import { usePageStepper } from '../contexts/FloatingStepperContext';

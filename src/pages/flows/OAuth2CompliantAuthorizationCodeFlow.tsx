@@ -14,7 +14,6 @@
  * - Step-by-step guidance with validation
  */
 
-import { useCallback, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiAlertTriangle,
@@ -30,6 +29,7 @@ import {
 	FiRefreshCw,
 	FiShield,
 } from '@icons';
+import { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { useOAuth2CompliantAuthorizationCodeFlow } from '../../hooks/useOAuth2CompliantAuthorizationCodeFlow';
 import { v4ToastManager } from '../../utils/v4ToastMessages';

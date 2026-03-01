@@ -1,8 +1,8 @@
 // src/components/PresetSelector.tsx
 // Preset selection component for the Application Generator
 
-import React, { useCallback, useEffect, useState } from 'react';
 import { FiCheck, FiInfo, FiSettings, FiStar, FiUser } from '@icons';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
 	type BuilderAppType,

@@ -1,5 +1,5 @@
-import React from 'react';
 import { FiLoader, FiShield, FiUsers, FiZap } from '@icons';
+import React from 'react';
 import styled, { css, keyframes } from 'styled-components';
 
 // Loading animation

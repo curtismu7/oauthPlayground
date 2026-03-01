@@ -2,7 +2,6 @@
 // Interactive configuration management component
 // Allows developers to view, edit, and validate flow configurations
 
-import React, { useCallback, useEffect, useState } from 'react';
 import {
 	FiAlertTriangle,
 	FiCheckCircle,
@@ -13,6 +12,7 @@ import {
 	FiUpload,
 	FiZap,
 } from '@icons';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
 	BaseFlowConfig,

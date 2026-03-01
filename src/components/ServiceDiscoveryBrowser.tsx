@@ -2,8 +2,8 @@
 // Interactive service discovery and browsing component
 // Helps developers find and understand available services
 
-import React, { useCallback, useMemo, useState } from 'react';
 import { FiBook, FiCode, FiGitBranch, FiInfo, FiSearch } from '@icons';
+import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import {
 	FlowType,

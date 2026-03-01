@@ -1,7 +1,6 @@
 // src/pages/flows/RARFlowV7.tsx
 // V7 RAR (Rich Authorization Requests) Flow with Enhanced Architecture
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
 	FiArrowRight,
 	FiCheckCircle,
@@ -11,6 +10,7 @@ import {
 	FiSettings,
 	FiShield,
 } from '@icons';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { LearningTooltip } from '../../components/LearningTooltip';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';

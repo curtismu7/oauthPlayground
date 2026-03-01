@@ -1,5 +1,5 @@
-import { Component, ErrorInfo, ReactNode } from 'react';
 import { FiAlertTriangle, FiMail, FiRefreshCw, FiSettings } from '@icons';
+import { Component, ErrorInfo, ReactNode } from 'react';
 import styled from 'styled-components';
 import {
 	ErrorHandlingService,

@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
 import { FiAlertCircle } from '@icons';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
 import CallbackUrlDisplay from '../../components/CallbackUrlDisplay';

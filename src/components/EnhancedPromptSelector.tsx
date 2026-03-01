@@ -1,7 +1,8 @@
 // src/components/EnhancedPromptSelector.tsx
 // Enhanced OIDC Prompt Parameter Selector with multiple values
-import React from 'react';
+
 import { FiCheck, FiInfo, FiShield, FiUser, FiUsers } from '@icons';
+import React from 'react';
 import styled from 'styled-components';
 
 export type PromptValue = 'none' | 'login' | 'consent' | 'select_account';

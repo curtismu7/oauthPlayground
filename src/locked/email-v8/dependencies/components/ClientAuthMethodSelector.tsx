@@ -1,8 +1,8 @@
 // src/components/ClientAuthMethodSelector.tsx
 // Token Endpoint Authentication Method Selector for OAuth/OIDC flows
 
-import React from 'react';
 import { FiInfo, FiShield } from '@icons';
+import React from 'react';
 import styled from 'styled-components';
 import { ClientAuthMethod, getAuthMethodSecurityLevel } from '../utils/clientAuthentication';
 

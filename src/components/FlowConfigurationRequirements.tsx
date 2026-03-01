@@ -1,8 +1,8 @@
 // src/components/FlowConfigurationRequirements.tsx
 // Displays PingOne application configuration requirements for each OAuth/OIDC flow
 
-import React, { useState } from 'react';
 import { FiAlertTriangle, FiCheck, FiChevronDown, FiInfo, FiX } from '@icons';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 interface FlowConfigRequirement {

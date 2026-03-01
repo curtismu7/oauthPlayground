@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import {
 	FiAlertTriangle,
 	FiCheckCircle,
@@ -10,6 +9,7 @@ import {
 	FiTrendingUp,
 	FiXCircle,
 } from '@icons';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
 import { useSecurityAnalytics } from '../hooks/useSecurityAnalytics';

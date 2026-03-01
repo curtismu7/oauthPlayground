@@ -1,4 +1,3 @@
-import React from 'react';
 import {
 	FiAlertTriangle,
 	FiBook,
@@ -15,6 +14,7 @@ import {
 	FiShield,
 	FiUsers,
 } from '@icons';
+import React from 'react';
 import styled from 'styled-components';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { FlowHeader } from '../../services/flowHeaderService';

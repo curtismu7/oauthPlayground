@@ -1,7 +1,6 @@
 // src/pages/PingAIResources.tsx
 // Ping Identity AI Resources - Comprehensive collection of AI-related documentation and resources
 
-import React from 'react';
 import {
 	FiBookOpen,
 	FiCode,
@@ -13,6 +12,7 @@ import {
 	FiTool,
 	FiUsers,
 } from '@icons';
+import React from 'react';
 import styled from 'styled-components';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';

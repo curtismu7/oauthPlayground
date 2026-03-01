@@ -1,6 +1,5 @@
 // src/components/CredentialStatusPanel.tsx
-import type React from 'react';
-import { useCallback, useEffect, useState } from 'react';
+
 import {
 	FiAlertTriangle,
 	FiCheckCircle,
@@ -10,6 +9,8 @@ import {
 	FiShield,
 	FiXCircle,
 } from '@icons';
+import type React from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/NewAuthContext';
 import { showGlobalError, showGlobalSuccess } from '../hooks/useNotifications';

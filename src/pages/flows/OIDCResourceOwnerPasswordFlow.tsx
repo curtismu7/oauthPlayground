@@ -1,6 +1,6 @@
+import { FiAlertTriangle, FiCheckCircle, FiInfo, FiShield, FiUser, FiX } from '@icons';
 import type React from 'react';
 import { useEffect } from 'react';
-import { FiAlertTriangle, FiCheckCircle, FiInfo, FiShield, FiUser, FiX } from '@icons';
 import styled from 'styled-components';
 import CollapsibleSection from '../../components/CollapsibleSection';
 

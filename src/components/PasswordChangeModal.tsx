@@ -4,8 +4,8 @@
  * @version 1.0.0
  */
 
-import React, { useState } from 'react';
 import { FiAlertCircle, FiEye, FiEyeOff, FiLock, FiX } from '@icons';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 const ModalOverlay = styled.div`

@@ -1,12 +1,5 @@
+import { FiAlertTriangle, FiCheckCircle, FiCopy, FiDownload, FiEye, FiXCircle } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
-import {
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiCopy,
-	FiDownload,
-	FiEye,
-	FiXCircle,
-} from '@icons';
 import { ThemeProvider } from 'styled-components';
 import {
 	ActionButton,

@@ -1,5 +1,3 @@
-import type React from 'react';
-import { useEffect, useId, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiCheck,
@@ -12,6 +10,8 @@ import {
 	FiSettings,
 	FiX,
 } from '@icons';
+import type React from 'react';
+import { useEffect, useId, useState } from 'react';
 import styled from 'styled-components';
 import { discoveryService, type OpenIDConfiguration } from '../services/discoveryService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';

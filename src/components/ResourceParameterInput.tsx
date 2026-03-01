@@ -1,14 +1,8 @@
 // src/components/ResourceParameterInput.tsx
 // OAuth/OIDC Resource Parameter Input - RFC 8707 Resource Indicators
+
+import { FiInfo, FiMove, FiPlus, FiServer, FiTrash2 } from '@icons';
 import React, { useState } from 'react';
-import {
-	FiInfo,
-	FiMove,
-	FiPlus,
-	FiServer,
-	FiTrash,
-	FiTrash2
-} from '@icons';
 import styled from 'styled-components';
 
 interface ResourceParameterInputProps {

@@ -4,8 +4,8 @@
  * Provides UI for exporting and importing flow configurations
  */
 
-import React, { useRef, useState } from 'react';
 import { FiAlertCircle, FiCheckCircle, FiDownload, FiFile, FiUpload } from '@icons';
+import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import configurationBackupService, {
 	FlowConfiguration,

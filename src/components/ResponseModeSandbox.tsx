@@ -4,15 +4,8 @@
  * Visualizes how authorization responses travel for query, fragment, form_post, and PingOne redirectless
  */
 
+import { FiActivity, FiGitBranch, FiInfo, FiNavigation, FiShare2 } from '@icons';
 import React, { useMemo, useState } from 'react';
-import {
-	FiActivity,
-	FiGitBranch,
-	FiInfo,
-	FiNavigation,
-	FiShare,
-	FiShare2
-} from '@icons';
 import styled from 'styled-components';
 
 type ResponseMode = 'query' | 'fragment' | 'form_post' | 'pi.flow';

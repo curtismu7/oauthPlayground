@@ -3,18 +3,17 @@
 // Updated with unified worker token management
 // Cache bust: 2025-02-17-11:32
 
-import React, { useCallback, useMemo, useState } from 'react';
 import {
 	FiAlertCircle,
-	FiBarChart,
 	FiBarChart2,
 	FiCalendar,
 	FiClock,
 	FiDatabase,
 	FiInfo,
 	FiRefreshCw,
-	FiShield
+	FiShield,
 } from '@icons';
+import React, { useCallback, useMemo, useState } from 'react';
 import JSONHighlighter, { type JSONData } from '../components/JSONHighlighter';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { apiRequestModalService } from '../services/apiRequestModalService';

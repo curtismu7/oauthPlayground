@@ -5,8 +5,8 @@
  * @version 8.2.0
  */
 
-import React, { useCallback, useMemo, useState } from 'react';
 import { FiMail, FiShield, FiX } from '@icons';
+import React, { useCallback, useMemo, useState } from 'react';
 import { CountryCodePickerV8 } from '@/v8/components/CountryCodePickerV8';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';

@@ -1,5 +1,5 @@
-import React, { useCallback, useState } from 'react';
 import { FiCheckCircle, FiChevronDown, FiCopy, FiEye, FiShield } from '@icons';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';
 import { themeService } from '../services/themeService';

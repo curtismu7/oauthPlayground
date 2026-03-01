@@ -9,7 +9,6 @@
  * showing progress and educational content about risk-based authentication.
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
 import {
 	FiAlertTriangle,
 	FiArrowRight,
@@ -19,6 +18,7 @@ import {
 	FiShield,
 	FiXCircle,
 } from '@icons';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import { workerTokenManager } from '@/services/workerTokenManager';

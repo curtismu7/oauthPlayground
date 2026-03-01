@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
 import { FiCopy, FiEye, FiEyeOff } from '@icons';
+import React, { useState } from 'react';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 
 interface TokenDisplayV8Props {

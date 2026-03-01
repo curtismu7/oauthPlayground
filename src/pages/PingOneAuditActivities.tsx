@@ -2,11 +2,9 @@
 // Visual explorer for PingOne Audit Activities API
 // Cache bust: 2025-02-17-11:32viewer with filtering - matching Identity Metrics page design
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
 	FiActivity,
 	FiAlertCircle,
-	FiBarChart,
 	FiBarChart2,
 	FiCheck,
 	FiCheckCircle,
@@ -21,8 +19,9 @@ import {
 	FiServer,
 	FiShield,
 	FiUser,
-	FiX
+	FiX,
 } from '@icons';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import ApiCallList from '../components/ApiCallList';
 import JSONHighlighter, { type JSONData } from '../components/JSONHighlighter';
 import { readBestEnvironmentId } from '../hooks/useAutoEnvironmentId';

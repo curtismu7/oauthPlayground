@@ -1,10 +1,8 @@
-import React, { useEffect, useState } from 'react';
 import {
 	FiAlertTriangle,
 	FiBook,
 	FiBookOpen,
 	FiChevronDown,
-	FiChevronRight,
 	FiClock,
 	FiCode,
 	FiCpu,
@@ -24,8 +22,9 @@ import {
 	FiShield,
 	FiTool,
 	FiUser,
-	FiZap
+	FiZap,
 } from '@icons';
+import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { themeService } from '../services/themeService';

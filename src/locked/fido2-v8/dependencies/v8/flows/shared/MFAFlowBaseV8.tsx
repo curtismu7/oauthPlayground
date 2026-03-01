@@ -5,8 +5,8 @@
  * @version 8.1.0
  */
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { FiX } from '@icons';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { usePageScroll } from '@/hooks/usePageScroll';

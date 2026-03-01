@@ -5,8 +5,8 @@
  * Provides references to key PingOne documentation for users
  */
 
-import React, { useState } from 'react';
 import { FiBook, FiChevronDown, FiChevronUp, FiExternalLink } from '@icons';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 const DocsContainer = styled.div`

@@ -1,12 +1,5 @@
+import { FiCheckCircle, FiChevronDown, FiCopy, FiExternalLink, FiEye, FiUser } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
-import {
-	FiCheckCircle,
-	FiChevronDown,
-	FiCopy,
-	FiExternalLink,
-	FiEye,
-	FiUser,
-} from '@icons';
 import styled, { keyframes } from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';
 import { v4ToastManager } from '../utils/v4ToastMessages';

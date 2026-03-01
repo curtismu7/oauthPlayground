@@ -4,7 +4,6 @@
  * Pre-built OAuth scenarios with auto-populated parameters and generated code
  */
 
-import React, { useCallback, useState } from 'react';
 import {
 	FiCheckCircle,
 	FiCode,
@@ -16,6 +15,7 @@ import {
 	FiShoppingCart,
 	FiSmartphone,
 } from '@icons';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 

@@ -1,7 +1,6 @@
 // src/pages/flows/OAuthROPCFlowV7.tsx
 // V7 implementation: Enhanced ROPC flow with improved UI and functionality
 
-import React, { useEffect, useState } from 'react';
 import {
 	FiBook,
 	FiCheckCircle,
@@ -14,6 +13,7 @@ import {
 	FiSave,
 	FiUser,
 } from '@icons';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';

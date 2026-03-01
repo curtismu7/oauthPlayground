@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
 import { FiChevronDown, FiChevronUp } from '@icons';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
 

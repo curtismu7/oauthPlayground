@@ -1,12 +1,5 @@
+import { FiAlertTriangle, FiArrowRight, FiCheckCircle, FiCode, FiSearch, FiShield } from '@icons';
 import React, { useCallback, useMemo, useState } from 'react';
-import {
-	FiAlertTriangle,
-	FiArrowRight,
-	FiCheckCircle,
-	FiCode,
-	FiSearch,
-	FiShield,
-} from '@icons';
 import styled from 'styled-components';
 import { Card, CardBody } from '../../components/Card';
 import { usePageScroll } from '../../hooks/usePageScroll';

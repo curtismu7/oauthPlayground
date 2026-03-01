@@ -1,5 +1,5 @@
-import React from 'react';
 import { FiCopy } from '@icons';
+import React from 'react';
 import styled from 'styled-components';
 import { logger } from '../../utils/logger';
 

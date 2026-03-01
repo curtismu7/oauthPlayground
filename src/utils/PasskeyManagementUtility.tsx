@@ -5,15 +5,8 @@
  * @version 1.0.0
  */
 
+import { FiCheckCircle, FiCopy, FiExternalLink, FiInfo, FiTrash2 } from '@icons';
 import React, { useEffect, useState } from 'react';
-import {
-	FiCheckCircle,
-	FiCopy,
-	FiExternalLink,
-	FiInfo,
-	FiTrash,
-	FiTrash2
-} from '@icons';
 
 interface PasskeyDevice {
 	id: string;

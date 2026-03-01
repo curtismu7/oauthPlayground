@@ -13,8 +13,8 @@
  * <MFAInfoButtonV8 contentKey="device.enrollment" displayMode="modal" />
  */
 
-import React, { useMemo, useState } from 'react';
 import { FiExternalLink, FiInfo, FiX } from '@icons';
+import React, { useMemo, useState } from 'react';
 import { MFAEducationServiceV8 } from '@/v8/services/mfaEducationServiceV8';
 
 const MODULE_TAG = '[ℹ️ MFA-INFO-BUTTON-V8]';

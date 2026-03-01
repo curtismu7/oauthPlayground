@@ -1,6 +1,6 @@
 // src/pages/flows/OAuthAuthorizationCodeFlowV9.tsx
 // V7.2 OAuth Authorization Code Flow - Original V7 UI with minimal architectural improvements
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
+
 import {
 	FiAlertCircle,
 	FiArrowRight,
@@ -18,6 +18,7 @@ import {
 	FiSettings,
 	FiShield,
 } from '@icons';
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import CodeExamplesDisplay from '../../../components/CodeExamplesDisplay';
 import { EnhancedApiCallDisplay } from '../../../components/EnhancedApiCallDisplay';

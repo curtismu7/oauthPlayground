@@ -9,8 +9,8 @@
  * with support for different display modes (full, compact, hidden).
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
 import { FiBook, FiChevronRight, FiInfo, FiShield } from '@icons';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
 	type EducationMode,

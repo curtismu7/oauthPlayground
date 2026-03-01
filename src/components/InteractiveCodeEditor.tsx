@@ -1,6 +1,6 @@
+import { FiCheck, FiCode, FiCopy, FiDownload, FiMoon, FiRefreshCw, FiSun } from '@icons';
 import Editor from '@monaco-editor/react';
 import React, { useRef, useState } from 'react';
-import { FiCheck, FiCode, FiCopy, FiDownload, FiMoon, FiRefreshCw, FiSun } from '@icons';
 import styled from 'styled-components';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import ConfirmationModal from './ConfirmationModal';
