@@ -7,9 +7,25 @@ Your highest priority is minimizing regressions and reducing blast radius.
 
 ---
 
-## RECENT FIXES APPLIED - v9.12.03
+## RECENT FIXES APPLIED - v9.12.05
 
-### React Hooks Order Violation Fix
+### Authorization Code Import/Export Functionality - v9.12.04
+**Issue**: Authorization Code flow lacked import/export capabilities unlike Worker Token service
+**Solution**: Added full import/export functionality to AuthorizationCodeConfigModal:
+- Export Authorization Code credentials to JSON file
+- Import credentials from JSON with automatic form population
+- Consistent UX pattern with Worker Token service
+- Full validation and error handling
+
+### Unified MFA Environment ID Auto-Load - v9.12.05
+**Issue**: Unified MFA page required manual Environment ID entry even when already available
+**Solution**: Enhanced UnifiedMFARegistrationFlowV8_Legacy.tsx:
+- Auto-loads Environment ID from globalEnvironmentService
+- Shows read-only display with "✓ Auto-loaded" indicator
+- Added Clear button for user control
+- Maintains accessibility compliance
+
+### React Hooks Order Violation Fix - v9.12.03
 **Issue**: PingOneUserProfile.tsx had React Hooks order violation causing `Cannot read properties of undefined (reading 'length')` errors
 **Root Cause**: `useCallback` dependency arrays included `globalTokenStatus.isValid` which could be undefined during initial render
 **Solution**: 
@@ -17,7 +33,7 @@ Your highest priority is minimizing regressions and reducing blast radius.
 - Added optional chaining in function bodies: `if (!globalTokenStatus?.isValid)`
 - This prevents undefined values from being passed to React's dependency comparison
 
-### WebSocket Connection Error Fix  
+### WebSocket Connection Error Fix - v9.12.03
 **Issue**: `WebSocket connection to 'wss://api.pingdemo.com:3000/?token=8zAc33BfP9wV' failed` in browser console
 **Root Cause**: Vite HMR WebSocket trying to connect to custom domain with SSL certificate issues
 **Solution**: Enhanced vite.config.ts HMR configuration to properly disable HMR for custom domains:
@@ -31,10 +47,13 @@ hmr: {
 ```
 
 ### Key Technical Notes
+- **Credential Management**: Consistent import/export patterns across all auth flows
+- **Auto-Load Pattern**: Leverage global services for automatic credential detection
 - **Hook Order**: Always ensure hooks are called in consistent order - no conditional hooks
 - **Dependency Arrays**: Use optional chaining for potentially undefined dependencies
 - **WebSocket HMR**: Disable when using custom domains/HTTPS to prevent SSL errors
 - **Error Prevention**: Proactively handle undefined values in React hook dependencies
+- **Accessibility**: Full keyboard navigation and screen reader support for all UI components
 
 ---
 

@@ -494,21 +494,97 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 						>
 							Environment ID
 						</label>
-						<input
-							id="env-id"
-							type="text"
-							value={environmentId}
-							onChange={(e) => setEnvironmentId(e.target.value)}
-							placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-							style={{
-								width: '100%',
-								padding: '10px 12px',
-								border: '1px solid #d1d5db',
-								borderRadius: '6px',
-								fontSize: '14px',
-								boxSizing: 'border-box',
-							}}
-						/>
+						{environmentId ? (
+							<div
+								style={{
+									padding: '10px 12px',
+									border: '1px solid #d1d5db',
+									borderRadius: '6px',
+									fontSize: '14px',
+									backgroundColor: '#f9fafb',
+									color: '#374151',
+									boxSizing: 'border-box',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'space-between',
+								}}
+							>
+								<span
+									style={{
+										flex: 1,
+										overflow: 'hidden',
+										textOverflow: 'ellipsis',
+										whiteSpace: 'nowrap',
+									}}
+								>
+									{environmentId}
+								</span>
+								<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+									<span
+										style={{
+											fontSize: '12px',
+											color: '#6b7280',
+											fontWeight: 'normal',
+										}}
+									>
+										✓ Auto-loaded
+									</span>
+									<button
+										type="button"
+										onClick={() => {
+											setEnvironmentId('');
+											globalEnvironmentService.setEnvironmentId('');
+											localStorage.removeItem('mfa_environmentId');
+										}}
+										style={{
+											padding: '4px 8px',
+											border: '1px solid #d1d5db',
+											borderRadius: '4px',
+											background: '#ffffff',
+											color: '#6b7280',
+											fontSize: '12px',
+											cursor: 'pointer',
+											transition: 'all 0.2s',
+										}}
+										onFocus={(e) => {
+											e.currentTarget.style.background = '#f3f4f6';
+											e.currentTarget.style.borderColor = '#9ca3af';
+										}}
+										onBlur={(e) => {
+											e.currentTarget.style.background = '#ffffff';
+											e.currentTarget.style.borderColor = '#d1d5db';
+										}}
+										onMouseOver={(e) => {
+											e.currentTarget.style.background = '#f3f4f6';
+											e.currentTarget.style.borderColor = '#9ca3af';
+										}}
+										onMouseOut={(e) => {
+											e.currentTarget.style.background = '#ffffff';
+											e.currentTarget.style.borderColor = '#d1d5db';
+										}}
+										title="Clear environment ID"
+									>
+										Clear
+									</button>
+								</div>
+							</div>
+						) : (
+							<input
+								id="env-id"
+								type="text"
+								value={environmentId}
+								onChange={(e) => setEnvironmentId(e.target.value)}
+								placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+								style={{
+									width: '100%',
+									padding: '10px 12px',
+									border: '1px solid #d1d5db',
+									borderRadius: '6px',
+									fontSize: '14px',
+									boxSizing: 'border-box',
+								}}
+							/>
+						)}
 					</div>
 
 					{/* SQLite Database Stats */}
