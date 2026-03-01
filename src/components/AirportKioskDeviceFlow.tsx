@@ -2,8 +2,6 @@
 // Airport Check-in Kiosk Style Device Authorization Flow Interface
 // Designed to look like CLEAR/TSA biometric kiosks
 
-import { QRCodeSVG } from 'qrcode.react';
-import React from 'react';
 import {
 	FiAlertTriangle,
 	FiCamera,
@@ -13,6 +11,8 @@ import {
 	FiUser,
 	FiXCircle,
 } from '@icons';
+import { QRCodeSVG } from 'qrcode.react';
+import React from 'react';
 import styled from 'styled-components';
 import {
 	DeviceFlowState,

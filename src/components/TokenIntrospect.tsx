@@ -1,14 +1,7 @@
 // src/components/TokenIntrospect.tsx
+
+import { FiCheckCircle, FiChevronDown, FiCopy, FiEye, FiKey, FiShield, FiUser } from '@icons';
 import React, { useCallback, useState } from 'react';
-import {
-	FiCheckCircle,
-	FiChevronDown,
-	FiCopy,
-	FiEye,
-	FiKey,
-	FiShield,
-	FiUser,
-} from '@icons';
 import styled from 'styled-components';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { CalloutCard } from './InfoBlocks';

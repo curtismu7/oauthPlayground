@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from 'react';
 import {
 	FiActivity,
 	FiClock,
@@ -8,6 +7,7 @@ import {
 	FiTrendingUp,
 	FiZap,
 } from '@icons';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { PerformanceMonitor } from '../components/PerformanceMonitor';
 import { useLazyLoadingMetrics } from '../hooks/useLazyLoading';

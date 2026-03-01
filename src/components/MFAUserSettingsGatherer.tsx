@@ -1,7 +1,6 @@
 // src/components/MFAUserSettingsGatherer.tsx
 // Modern MFA User Settings Component with username input and MFA policy selection
 
-import React, { useCallback, useEffect, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiCheck,
@@ -14,6 +13,7 @@ import {
 	FiSmartphone,
 	FiUser,
 } from '@icons';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ClientCredentialsTokenRequest } from '../services/clientCredentialsSharedService';
 import { workerTokenCredentialsService } from '../services/workerTokenCredentialsService';

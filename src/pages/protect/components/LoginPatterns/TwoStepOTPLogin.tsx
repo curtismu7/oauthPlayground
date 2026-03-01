@@ -8,8 +8,8 @@
  * Two-step OTP login flow for PingIdentity pattern.
  */
 
-import React, { useState } from 'react';
 import { FiArrowRight, FiLock, FiMail } from '@icons';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import type { CorporatePortalConfig } from '../../types/CorporatePortalConfig';
 

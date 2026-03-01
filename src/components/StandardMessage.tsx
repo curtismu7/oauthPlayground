@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
 import { FiAlertCircle, FiAlertTriangle, FiCheckCircle, FiInfo } from '@icons';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
 export type MessageType = 'success' | 'error' | 'warning' | 'info';

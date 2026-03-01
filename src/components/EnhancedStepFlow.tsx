@@ -1,5 +1,5 @@
 // src/components/EnhancedStepFlow.tsx
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+
 import {
 	FiCheck,
 	FiChevronLeft,
@@ -13,6 +13,7 @@ import {
 	FiSkipForward,
 	FiX,
 } from '@icons';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { logger } from '../utils/logger';
 import '../styles/enhanced-flow.css';

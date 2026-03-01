@@ -1,7 +1,6 @@
 // src/components/AdvancedSecuritySettingsMock.tsx
 // Mock component to demonstrate the Advanced Security Settings service
 
-import React, { useEffect, useState } from 'react';
 import {
 	FiAlertTriangle,
 	FiCheck,
@@ -11,6 +10,7 @@ import {
 	FiRefreshCw,
 	FiShield,
 } from '@icons';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
 	type AdvancedSecuritySettings,

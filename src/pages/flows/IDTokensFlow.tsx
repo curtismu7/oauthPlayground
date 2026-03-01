@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
 import { FiAlertCircle, FiCheckCircle, FiKey, FiShield } from '@icons';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { CardBody, CardHeader } from '../../components/Card';
 import ConfigurationButton from '../../components/ConfigurationButton';

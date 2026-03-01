@@ -1,17 +1,8 @@
 // src/components/AuthorizationDetailsEditor.tsx
 // Enhanced Authorization Details Editor with JSON editor and real-time validation
 
+import { FiAlertCircle, FiCheckCircle, FiCode, FiEdit3, FiPlus, FiTrash2 } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
-import {
-	FiAlertCircle,
-	FiCheckCircle,
-	FiCode,
-	FiEdit,
-	FiEdit3,
-	FiPlus,
-	FiTrash,
-	FiTrash2
-} from '@icons';
 import styled from 'styled-components';
 import RARService, {
 	type AuthorizationDetail,

@@ -1,6 +1,7 @@
 // src/components/AuthorizationCodeModal.tsx
-import React, { useEffect, useState } from 'react';
+
 import { FiCheck, FiCopy, FiExternalLink, FiX } from '@icons';
+import React, { useEffect, useState } from 'react';
 import styled, { css, keyframes } from 'styled-components';
 
 // Animation for success checkmark

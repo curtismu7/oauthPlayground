@@ -1,6 +1,5 @@
 // src/components/AuthorizationUrlExplainer.tsx - Interactive popup explaining authorization URL parameters
 
-import React from 'react';
 import {
 	FiCopy,
 	FiExternalLink,
@@ -12,6 +11,7 @@ import {
 	FiUser,
 	FiX,
 } from '@icons';
+import React from 'react';
 import styled from 'styled-components';
 
 interface AuthorizationUrlExplainerProps {

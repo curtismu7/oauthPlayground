@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
 import { FiChevronDown, FiChevronUp, FiCopy, FiExternalLink } from '@icons';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { logger } from '../utils/logger';
 import { PingOneErrorInterpreter } from '../utils/pingoneErrorInterpreter';

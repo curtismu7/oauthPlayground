@@ -6,7 +6,6 @@
  * @since 2026-02-05
  */
 
-import React, { useCallback, useMemo } from 'react';
 import {
 	FiBook,
 	FiCheckCircle,
@@ -18,6 +17,7 @@ import {
 	FiShield,
 	FiUser,
 } from '@icons';
+import React, { useCallback, useMemo } from 'react';
 import styled from 'styled-components';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { type FlowType, type SpecVersion } from '@/v8/services/specVersionServiceV8';

@@ -1,7 +1,6 @@
 // src/pages/ApplicationGenerator.tsx
 // Application creation page - handles app type selection and configuration
 
-import React, { useCallback, useEffect, useState } from 'react';
 import {
 	FiArrowLeft,
 	FiChevronLeft,
@@ -15,6 +14,7 @@ import {
 	FiShield,
 	FiSmartphone,
 } from '@icons';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { ConfigCheckerButtons } from '../components/ConfigCheckerButtons';

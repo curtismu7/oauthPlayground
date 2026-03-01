@@ -1,7 +1,8 @@
 // src/pages/UltimateTokenDisplayDemo.tsx
 // Demo page showcasing the UltimateTokenDisplay component
-import React, { useState } from 'react';
+
 import { FiRefreshCw, FiSettings, FiZap } from '@icons';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import UltimateTokenDisplay from '../components/UltimateTokenDisplay';
 import { v4ToastManager } from '../utils/v4ToastMessages';

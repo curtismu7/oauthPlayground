@@ -14,8 +14,8 @@
  * - Token refresh and validation
  */
 
-import React, { useEffect, useState } from 'react';
 import { FiCode, FiShield } from '@icons';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
 	ApiDisplayCheckbox,

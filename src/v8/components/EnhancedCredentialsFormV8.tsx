@@ -14,7 +14,6 @@
  * - Storage backend status display
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
 import {
 	FiActivity,
 	FiAlertTriangle,
@@ -24,6 +23,7 @@ import {
 	FiHardDrive,
 	FiSave,
 } from '@icons';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useEnhancedCredentialsTracking } from '../hooks/useEnhancedCredentialsTracking';
 import { EnhancedCredentialsServiceV8 } from '../services/enhancedCredentialsServiceV8';

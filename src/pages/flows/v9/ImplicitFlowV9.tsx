@@ -1,7 +1,6 @@
 // src/pages/flows/ImplicitFlowV9.tsx
 // Unified OAuth/OIDC Implicit Flow V9 - Single implementation supporting both variants
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiAlertTriangle,
@@ -13,6 +12,7 @@ import {
 	FiInfo,
 	FiShield,
 } from '@icons';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import ColoredUrlDisplay from '../../../components/ColoredUrlDisplay';

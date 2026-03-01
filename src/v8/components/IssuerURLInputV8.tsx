@@ -13,8 +13,8 @@
  * />
  */
 
-import React, { useState } from 'react';
 import { FiInfo } from '@icons';
+import React, { useState } from 'react';
 
 const MODULE_TAG = '[🌐 ISSUER-URL-V8]';
 

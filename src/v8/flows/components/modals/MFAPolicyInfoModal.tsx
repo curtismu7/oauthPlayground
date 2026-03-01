@@ -9,8 +9,8 @@
  * Extracted from MFAAuthenticationMainPageV8.tsx lines 6296-6450
  */
 
-import React from 'react';
 import { FiX } from '@icons';
+import React from 'react';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 
 export interface MFAPolicyInfoModalProps {

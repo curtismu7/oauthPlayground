@@ -1,8 +1,8 @@
 // src/pages/flows/V7RMOIDCResourceOwnerPasswordFlowEnhanced.tsx
 // Enhanced V7RM OIDC Resource Owner Password Flow - Uses real services where possible
 
-import React, { useMemo } from 'react';
 import { FiAlertTriangle, FiInfo, FiLock, FiShield, FiUser } from '@icons';
+import React, { useMemo } from 'react';
 import CollapsibleSection from '../../components/CollapsibleSection';
 import { FlowConfiguration } from '../../components/FlowConfiguration';
 import createV7RMOIDCResourceOwnerPasswordEnhancedSteps from '../../components/flow/createV7RMOIDCResourceOwnerPasswordEnhancedSteps';

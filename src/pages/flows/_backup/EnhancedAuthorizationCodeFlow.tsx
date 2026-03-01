@@ -1,15 +1,8 @@
 // src/pages/flows/EnhancedAuthorizationCodeFlow.tsx
+
+import { FiAlertTriangle, FiCheck, FiEye, FiLock, FiRefreshCw, FiSave, FiSettings } from '@icons';
 import type React from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-	FiAlertTriangle,
-	FiCheck,
-	FiEye,
-	FiLock,
-	FiRefreshCw,
-	FiSave,
-	FiSettings,
-} from '@icons';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import ConfigurationStatus from '../../components/ConfigurationStatus';

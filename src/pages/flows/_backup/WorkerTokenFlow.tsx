@@ -1,12 +1,5 @@
+import { FiAlertCircle, FiCheckCircle, FiKey, FiPlay, FiRefreshCw, FiServer } from '@icons';
 import { useState } from 'react';
-import {
-	FiAlertCircle,
-	FiCheckCircle,
-	FiKey,
-	FiPlay,
-	FiRefreshCw,
-	FiServer
-} from '@icons';
 import styled from 'styled-components';
 import Card from '../../components/Card';
 import { useAuth } from '../../contexts/NewAuthContext';
