@@ -28,6 +28,8 @@ import {
 	SuperSimpleApiDisplayV8,
 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenSectionV8 } from '@/v8/components/WorkerTokenSectionV8';
+import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
 import type { DeviceAuthenticationPolicy } from '@/v8/flows/shared/MFATypes';
 import { useUserSearch } from '@/v8/hooks/useUserSearch';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
@@ -199,8 +201,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 
 	// Reactive worker token status via global hook
 	const tokenStatus = useGlobalWorkerToken();
-
-	// User search functionality for username dropdown
+        const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const {
 		users,
 		isLoading: isLoadingUsers,
@@ -544,6 +545,10 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 
 	return (
 		<div style={{ padding: '40px', maxWidth: '1000px', margin: '0 auto' }}>
+			<WorkerTokenExpiryBannerV8
+				onFixToken={() => setShowWorkerTokenModal(true)}
+				marginBottom="24px"
+			/>
 			{/* Header */}
 			<div
 				style={{
@@ -1334,7 +1339,10 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 			</div>
 
 			<SuperSimpleApiDisplayV8 flowFilter="mfa" reserveSpace={true} />
-		</div>
+                        <WorkerTokenModalV8
+                                isOpen={showWorkerTokenModal}
+                                onClose={() => setShowWorkerTokenModal(false)}
+                        />
 	);
 };
 

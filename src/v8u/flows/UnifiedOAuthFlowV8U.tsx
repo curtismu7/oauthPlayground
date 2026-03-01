@@ -17,8 +17,8 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { EducationModeToggle } from '@/components/education/EducationModeToggle';
 import { MasterEducationSection } from '@/components/education/MasterEducationSection';
 import { StandardizedCredentialExportImport } from '@/components/StandardizedCredentialExportImport';
-import { usePageScroll } from '@/hooks/usePageScroll';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
+import { usePageScroll } from '@/hooks/usePageScroll';
 import {
 	downloadPostmanCollectionWithEnvironment,
 	generateCompletePostmanCollection,
@@ -44,7 +44,10 @@ import {
 	SpecVersionServiceV8,
 } from '@/v8/services/specVersionServiceV8';
 import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
-import { WorkerTokenStatusServiceV8, type TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
+import {
+	type TokenStatusInfo,
+	WorkerTokenStatusServiceV8,
+} from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { reloadCredentialsAfterReset } from '@/v8u/services/credentialReloadServiceV8U';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
@@ -754,10 +757,10 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			// Check worker token status BEFORE sending the token
 			if (!globalTokenStatus.isValid) {
 				setAppConfig(null);
-				setWorkerTokenWarning({ 
-					status: 'valid', 
-					message: 'Worker token is invalid or expired', 
-					isValid: false 
+				setWorkerTokenWarning({
+					status: 'valid',
+					message: 'Worker token is invalid or expired',
+					isValid: false,
 				});
 				return;
 			}
@@ -766,7 +769,11 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			const token = globalTokenStatus.token;
 			if (!token) {
 				setAppConfig(null);
-				setWorkerTokenWarning({ status: 'missing', message: 'No worker token found', isValid: false });
+				setWorkerTokenWarning({
+					status: 'missing',
+					message: 'No worker token found',
+					isValid: false,
+				});
 				return;
 			}
 
@@ -793,10 +800,15 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				setAppConfig(null);
 				// Surface 401/403 — token was rejected by PingOne API
 				const msg = error instanceof Error ? error.message : String(error);
-				if (msg.includes('401') || msg.includes('403') || msg.toLowerCase().includes('unauthorized')) {
+				if (
+					msg.includes('401') ||
+					msg.includes('403') ||
+					msg.toLowerCase().includes('unauthorized')
+				) {
 					setWorkerTokenWarning({
 						status: 'expired',
-						message: 'Worker token rejected by PingOne (401 Unauthorized). Please refresh the token.',
+						message:
+							'Worker token rejected by PingOne (401 Unauthorized). Please refresh the token.',
 						isValid: false,
 					});
 				}
@@ -804,7 +816,12 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		};
 
 		fetchAppConfig();
-	}, [credentials.environmentId, credentials.clientId, globalTokenStatus.isValid, globalTokenStatus.token]);
+	}, [
+		credentials.environmentId,
+		credentials.clientId,
+		globalTokenStatus.isValid,
+		globalTokenStatus.token,
+	]);
 
 	// Listen for environment ID updates
 	useEffect(() => {
@@ -840,6 +857,21 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
 		return () => window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
 	}, [credentials.environmentId]);
+
+	// Proactively check worker token status on mount and every 60s
+	useEffect(() => {
+		const checkAndSetWarning = () => {
+			const s = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
+			if (!s.isValid) {
+				setWorkerTokenWarning(s);
+			} else {
+				setWorkerTokenWarning(null);
+			}
+		};
+		checkAndSetWarning();
+		const id = setInterval(checkAndSetWarning, 60_000);
+		return () => clearInterval(id);
+	}, []); // eslint-disable-line react-hooks/exhaustive-deps
 
 	// Listen for worker token updates
 	useEffect(() => {
@@ -1060,14 +1092,15 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				// Load flow-specific credentials with SQLite backup (does not depend on worker token)
 				// Enhanced 4-layer storage: Memory → localStorage → IndexedDB → SQLite backup
 				const environmentId = EnvironmentIdServiceV8.getEnvironmentId();
-				const flowSpecific = (await UnifiedOAuthCredentialsServiceV8U.loadCredentials(flowKey, {
-					environmentId,
-					enableBackup: !!environmentId,
-				}).catch((err) => {
-					logger.warn(`Error loading flow-specific credentials with SQLite backup`, err);
-					// Fallback to existing service
-					return CredentialsServiceV8.loadCredentialsWithBackup(flowKey, config);
-				})) ?? {};
+				const flowSpecific =
+					(await UnifiedOAuthCredentialsServiceV8U.loadCredentials(flowKey, {
+						environmentId,
+						enableBackup: !!environmentId,
+					}).catch((err) => {
+						logger.warn(`Error loading flow-specific credentials with SQLite backup`, err);
+						// Fallback to existing service
+						return CredentialsServiceV8.loadCredentialsWithBackup(flowKey, config);
+					})) ?? {};
 
 				// Load shared credentials with SQLite backup (environmentId, clientId, clientSecret, etc.)
 				const shared =
@@ -1078,7 +1111,9 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						logger.warn(`Error loading shared credentials with SQLite backup`, err);
 						// Fallback to existing service
 						return SharedCredentialsServiceV8.loadSharedCredentials();
-					})) || SharedCredentialsServiceV8.loadSharedCredentialsSync() || {};
+					})) ||
+					SharedCredentialsServiceV8.loadSharedCredentialsSync() ||
+					{};
 
 				// Get stored environment ID from global service
 				const storedEnvId = EnvironmentIdServiceV8.getEnvironmentId();
@@ -1753,7 +1788,10 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			{workerTokenWarning && (
 				<div
 					style={{
-						background: workerTokenWarning.status === 'expired' || workerTokenWarning.status === 'missing' ? '#fef2f2' : '#fffbeb',
+						background:
+							workerTokenWarning.status === 'expired' || workerTokenWarning.status === 'missing'
+								? '#fef2f2'
+								: '#fffbeb',
 						border: `1px solid ${
 							workerTokenWarning.status === 'expired' || workerTokenWarning.status === 'missing'
 								? '#fca5a5'
@@ -1785,12 +1823,13 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 									? 'Expired'
 									: workerTokenWarning.status === 'missing'
 										? 'Missing'
-										: 'Expiring Soon'}
-								{' '}— API calls will fail until you refresh it.
+										: 'Expiring Soon'}{' '}
+								— API calls will fail until you refresh it.
 							</div>
 							<div style={{ color: '#64748b', fontSize: '13px', marginTop: '2px' }}>
 								{workerTokenWarning.message}
-								{workerTokenWarning.minutesRemaining !== undefined && workerTokenWarning.minutesRemaining > 0
+								{workerTokenWarning.minutesRemaining !== undefined &&
+								workerTokenWarning.minutesRemaining > 0
 									? ` · ${workerTokenWarning.minutesRemaining} min remaining`
 									: ''}
 							</div>
@@ -1800,7 +1839,9 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						<button
 							type="button"
 							onClick={async () => {
-								const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+								const { handleShowWorkerTokenModal } = await import(
+									'@/v8/utils/workerTokenModalHelperV8'
+								);
 								await handleShowWorkerTokenModal(
 									() => {},
 									undefined,
@@ -2472,7 +2513,8 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						</div>
 
 						{/* Enhanced Toggle Icon */}
-						<span
+						<button
+							type="button"
 							style={{
 								display: 'inline-flex',
 								alignItems: 'center',
@@ -2517,7 +2559,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 									filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))',
 								}}
 							/>
-						</span>
+						</button>
 					</button>
 				)}
 
