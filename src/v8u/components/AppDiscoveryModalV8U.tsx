@@ -238,10 +238,10 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 					onClick={(e) => e.stopPropagation()}
 					style={{
 						background: 'white',
-						borderRadius: '12px',
+						borderRadius: '10px',
 						width: '90%',
-						maxWidth: '700px',
-						maxHeight: '80vh',
+						maxWidth: '640px',
+						maxHeight: '85vh',
 						overflow: 'auto',
 						boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
 						zIndex: 1001,
@@ -250,7 +250,7 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 					{/* Header */}
 					<div
 						style={{
-							padding: '20px 24px',
+							padding: '11px 16px',
 							borderBottom: '1px solid #e5e7eb',
 							display: 'flex',
 							alignItems: 'center',
@@ -260,7 +260,7 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 						<h2
 							style={{
 								margin: 0,
-								fontSize: '20px',
+								fontSize: '16px',
 								fontWeight: '600',
 								color: '#1f2937',
 							}}
@@ -273,10 +273,10 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 							style={{
 								background: 'none',
 								border: 'none',
-								fontSize: '24px',
+								fontSize: '20px',
 								cursor: 'pointer',
 								color: '#6b7280',
-								padding: '4px 8px',
+								padding: '2px 6px',
 								lineHeight: 1,
 							}}
 						>
@@ -285,24 +285,24 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 					</div>
 
 					{/* Content */}
-					<div style={{ padding: '24px' }}>
+					<div style={{ padding: '12px 16px' }}>
 						{/* Flow Type Display */}
 						{(flowType || specVersion) && (
 							<div
 								style={{
-									padding: '16px',
-									marginBottom: '20px',
-									background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-									borderRadius: '8px',
+										padding: '9px 14px',
+										marginBottom: '10px',
+										background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+										borderRadius: '6px',
 									textAlign: 'center',
 								}}
 							>
 								<div
 									style={{
-										fontSize: '16px',
+										fontSize: '12px',
 										fontWeight: '700',
 										color: 'white',
-										marginBottom: '4px',
+										marginBottom: '2px',
 										textTransform: 'uppercase',
 										letterSpacing: '0.5px',
 									}}
@@ -314,7 +314,7 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 								</div>
 								<div
 									style={{
-										fontSize: '14px',
+										fontSize: '12px',
 										color: 'rgba(255, 255, 255, 0.9)',
 										fontWeight: '500',
 									}}
@@ -333,16 +333,16 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 						{/* Token Status */}
 						<div
 							style={{
-								padding: '12px 16px',
-								marginBottom: '20px',
+									padding: '7px 12px',
+									marginBottom: '10px',
 								background: globalTokenStatus.isLoading
 									? '#f3f4f6'
 									: globalTokenStatus.isValid
 										? '#d1fae5'
 										: '#fee2e2',
 								border: `1px solid ${globalTokenStatus.isLoading ? '#d1d5db' : globalTokenStatus.isValid ? '#6ee7b7' : '#fca5a5'}`,
-								borderRadius: '8px',
-								fontSize: '14px',
+									borderRadius: '6px',
+									fontSize: '12px',
 								color: globalTokenStatus.isLoading
 									? '#6b7280'
 									: globalTokenStatus.isValid
@@ -360,15 +360,15 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 						</div>
 
 						{/* Environment ID */}
-						<div style={{ marginBottom: '20px' }}>
+							<div style={{ marginBottom: '10px' }}>
 							<label
 								htmlFor="environment-id-input"
 								style={{
 									display: 'block',
-									fontSize: '14px',
-									fontWeight: '600',
-									color: '#1f2937',
-									marginBottom: '8px',
+										fontSize: '12px',
+										fontWeight: '600',
+										color: '#374151',
+										marginBottom: '4px',
 								}}
 							>
 								Environment ID <span style={{ color: '#ef4444' }}>*</span>
@@ -380,10 +380,10 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 								readOnly
 								style={{
 									width: '100%',
-									padding: '10px 12px',
+									padding: '7px 10px',
 									border: '1px solid #d1d5db',
 									borderRadius: '6px',
-									fontSize: '14px',
+									fontSize: '13px',
 									background: '#f9fafb',
 									color: '#6b7280',
 								}}
@@ -397,8 +397,8 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 							disabled={isLoading || !environmentId.trim() || !globalTokenStatus.isValid}
 							style={{
 								width: '100%',
-								padding: '12px 16px',
-								marginBottom: '20px',
+								padding: '9px 14px',
+								marginBottom: '10px',
 								background:
 									isLoading || !environmentId.trim() || !globalTokenStatus.isValid
 										? '#9ca3af'
@@ -406,7 +406,7 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 								color: 'white',
 								border: 'none',
 								borderRadius: '6px',
-								fontSize: '14px',
+								fontSize: '13px',
 								fontWeight: '600',
 								cursor:
 									isLoading || !environmentId.trim() || !globalTokenStatus.isValid
@@ -420,19 +420,7 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 
 						{/* Search Field */}
 						{apps.length > 0 && (
-							<div style={{ marginBottom: '16px' }}>
-								<label
-									htmlFor="search-apps-input"
-									style={{
-										display: 'block',
-										fontSize: '14px',
-										fontWeight: '600',
-										color: '#1f2937',
-										marginBottom: '8px',
-									}}
-								>
-									🔍 Search Applications
-								</label>
+							<div style={{ marginBottom: '8px' }}>
 								<input
 									id="search-apps-input"
 									type="text"
@@ -444,10 +432,10 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 									placeholder="Search by name, description, or ID..."
 									style={{
 										width: '100%',
-										padding: '10px 12px',
+										padding: '7px 10px',
 										border: '1px solid #d1d5db',
 										borderRadius: '6px',
-										fontSize: '14px',
+										fontSize: '13px',
 										background: 'white',
 										color: '#1f2937',
 									}}
@@ -459,10 +447,10 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 						{isLoading && (
 							<div
 								style={{
-									padding: '40px',
+									padding: '20px',
 									textAlign: 'center',
 									color: '#6b7280',
-									fontSize: '14px',
+									fontSize: '13px',
 								}}
 							>
 								🔄 Discovering applications...
@@ -474,11 +462,11 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 								{filteredApps.length === 0 && searchQuery.trim() && (
 									<div
 										style={{
-											padding: '20px',
-											textAlign: 'center',
-											color: '#6b7280',
-											fontSize: '14px',
-											marginBottom: '16px',
+												padding: '10px',
+												textAlign: 'center',
+												color: '#6b7280',
+												fontSize: '13px',
+												marginBottom: '8px',
 											background: '#f9fafb',
 											borderRadius: '6px',
 											border: '1px solid #e5e7eb',
@@ -491,10 +479,10 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 									<div
 										style={{
 											border: '1px solid #e5e7eb',
-											borderRadius: '8px',
-											maxHeight: '400px',
+											borderRadius: '6px',
+											maxHeight: '300px',
 											overflow: 'auto',
-											marginBottom: '16px',
+											marginBottom: '10px',
 										}}
 									>
 										{filteredApps.map((app) => (
@@ -502,14 +490,14 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 												key={app.id}
 												onClick={() => handleSelectApp(app)}
 												style={{
-													padding: '16px',
+													padding: '8px 12px',
 													borderBottom: '1px solid #e5e7eb',
 													cursor: 'pointer',
 													background: selectedAppId === app.id ? '#eff6ff' : 'white',
 													borderLeft:
 														selectedAppId === app.id
-															? '4px solid #3b82f6'
-															: '4px solid transparent',
+																	? '3px solid #3b82f6'
+																	: '3px solid transparent',
 													transition: 'background 0.2s ease',
 												}}
 												onMouseEnter={(e) => {
@@ -526,20 +514,20 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 												<div
 													style={{
 														fontWeight: '600',
-														fontSize: '16px',
+														fontSize: '13px',
 														color: '#1f2937',
-														marginBottom: '6px',
+														marginBottom: '2px',
 														wordBreak: 'break-word',
 														display: 'flex',
 														alignItems: 'center',
-														gap: '8px',
+														gap: '5px',
 													}}
 												>
 													{app.name}
 													{selectedAppId === app.id && (
 														<span
 															style={{
-																fontSize: '12px',
+																fontSize: '11px',
 																color: '#3b82f6',
 																fontWeight: '500',
 															}}
@@ -551,9 +539,9 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 												{app.description && (
 													<div
 														style={{
-															fontSize: '14px',
+															fontSize: '11px',
 															color: '#6b7280',
-															marginBottom: '8px',
+															marginBottom: '2px',
 															wordBreak: 'break-word',
 														}}
 													>
@@ -562,9 +550,9 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 												)}
 												<div
 													style={{
-														fontSize: '12px',
+														fontSize: '11px',
 														color: '#9ca3af',
-														marginBottom: '4px',
+														marginBottom: '2px',
 														wordBreak: 'break-all',
 													}}
 												>
@@ -573,9 +561,9 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 												{app.redirectUris && app.redirectUris.length > 0 && (
 													<div
 														style={{
-															fontSize: '12px',
+															fontSize: '11px',
 															color: '#6b7280',
-															marginTop: '4px',
+															marginTop: '2px',
 														}}
 													>
 														Redirect URIs: {app.redirectUris.length}
@@ -591,12 +579,12 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 									<>
 										<div
 											style={{
-												padding: '12px 16px',
-												marginBottom: '12px',
+												padding: '7px 10px',
+												marginBottom: '8px',
 												background: '#fef3c7',
 												border: '1px solid #fcd34d',
 												borderRadius: '6px',
-												fontSize: '13px',
+												fontSize: '12px',
 												color: '#92400e',
 											}}
 										>
@@ -608,15 +596,15 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 											onClick={handleApplyToCredentials}
 											style={{
 												width: '100%',
-												padding: '12px 16px',
+												padding: '9px 14px',
 												background: '#10b981',
 												color: 'white',
 												border: 'none',
 												borderRadius: '6px',
-												fontSize: '14px',
+												fontSize: '13px',
 												fontWeight: '600',
 												cursor: 'pointer',
-												transition: 'background 0.2s ease',
+												transition: 'background  0.15s ease',
 											}}
 											onMouseEnter={(e) => {
 												e.currentTarget.style.background = '#059669';
@@ -638,10 +626,10 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 							globalTokenStatus.isValid && (
 								<div
 									style={{
-										padding: '40px',
+										padding: '20px',
 										textAlign: 'center',
 										color: '#6b7280',
-										fontSize: '14px',
+										fontSize: '13px',
 									}}
 								>
 									No applications found. Make sure you have a valid Environment ID and worker token.
