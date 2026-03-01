@@ -28,6 +28,8 @@ import { usePageScroll } from '../../hooks/usePageScroll';
 import type { EnhancedApiCallData } from '../../services/enhancedApiCallDisplayService';
 import { FlowUIService } from '../../services/flowUIService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
+import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
+import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 
 type TokenExchangeScenario =
 	| 'delegation'
@@ -615,6 +617,7 @@ const TroubleshootingTable = styled.table`
 const TokenExchangeFlowV7Enhanced: React.FC = () => {
 	usePageScroll({ pageName: 'Token Exchange Flow V7', force: true });
 
+	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [selectedScenario, setSelectedScenario] =
 		useState<TokenExchangeScenario>('audience-restriction');
 	const [_currentStep, setCurrentStep] = useState(0);
@@ -3029,6 +3032,7 @@ function TokenExchangeComponent() {
 
 	return (
 		<Container>
+			<WorkerTokenExpiryBannerV8 onFixToken={() => setShowWorkerTokenModal(true)} marginBottom="24px" />
 			<ContentWrapper>
 				<MainCard>
 					<Header>
@@ -3431,6 +3435,7 @@ function TokenExchangeComponent() {
 					</ContentSection>
 				</MainCard>
 			</ContentWrapper>
+			<WorkerTokenModalV8 isOpen={showWorkerTokenModal} onClose={() => setShowWorkerTokenModal(false)} />
 		</Container>
 	);
 };

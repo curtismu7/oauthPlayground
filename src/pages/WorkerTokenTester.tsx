@@ -5,6 +5,8 @@ import React, { useState } from 'react';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
+import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 
 interface TokenPayload {
 	client_id?: string;
@@ -285,6 +287,7 @@ const styles = {
 };
 
 const WorkerTokenTester: React.FC = () => {
+	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [token, setToken] = useState('');
 	const [payload, setPayload] = useState<TokenPayload | null>(null);
 	const [isExpired, setIsExpired] = useState(false);
@@ -597,6 +600,7 @@ const WorkerTokenTester: React.FC = () => {
 
 	return (
 		<div style={styles.container}>
+			<WorkerTokenExpiryBannerV8 onFixToken={() => setShowWorkerTokenModal(true)} marginBottom="24px" />
 			<div style={styles.header}>
 				<h1 style={styles.title}>
 					<FiKey size={32} />
@@ -819,8 +823,6 @@ const WorkerTokenTester: React.FC = () => {
 					<SuperSimpleApiDisplayV8 />
 				</>
 			)}
-		</div>
-	);
-};
+                        <WorkerTokenModalV8 isOpen={showWorkerTokenModal} onClose={() => setShowWorkerTokenModal(false)} />
 
 export default WorkerTokenTester;
