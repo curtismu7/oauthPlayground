@@ -1344,7 +1344,7 @@ const PingOneUserProfile: React.FC = () => {
 		} finally {
 			setIsResolvingUser(false);
 		}
-	}, [accessToken, environmentId, userIdentifier, fetchUserProfile, globalTokenStatus?.isValid]);
+	}, [accessToken, environmentId, userIdentifier, fetchUserProfile]);
 
 	const handleLoadComparisonUser = useCallback(async () => {
 		if (!accessToken) {
@@ -1422,7 +1422,7 @@ const PingOneUserProfile: React.FC = () => {
 		} finally {
 			setIsComparisonLoading(false);
 		}
-	}, [accessToken, environmentId, compareIdentifier, fetchUserBundle, globalTokenStatus?.isValid]);
+	}, [accessToken, environmentId, compareIdentifier, fetchUserBundle]);
 
 	const handleClearComparison = useCallback(() => {
 		setComparisonProfile(null);
