@@ -1,7 +1,7 @@
 // src/components/FlowWalkthrough.tsx
 
-import { useState } from 'react';
 import { FiChevronDown, FiGlobe } from '@icons';
+import { useState } from 'react';
 import styled from 'styled-components';
 import { themeService } from '../services/themeService';
 

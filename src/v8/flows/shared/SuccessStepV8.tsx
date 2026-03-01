@@ -5,15 +5,8 @@
  * @version 8.1.0
  */
 
+import { FiCheckCircle, FiCpu, FiDownload, FiExternalLink, FiRefreshCw, FiShield } from '@icons';
 import React from 'react';
-import {
-	FiCheckCircle,
-	FiCpu,
-	FiDownload,
-	FiExternalLink,
-	FiRefreshCw,
-	FiShield,
-} from '@icons';
 import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';
 
 const MODULE_TAG = '[✅ SUCCESS-STEP-V8]';

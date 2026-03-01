@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiArrowDown,
@@ -14,6 +13,7 @@ import {
 	FiShield,
 	FiUser,
 } from '@icons';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 interface FlowStep {

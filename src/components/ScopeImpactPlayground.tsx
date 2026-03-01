@@ -4,7 +4,6 @@
  * Interactive explorer showing how OAuth/OIDC scopes translate to real permissions and APIs
  */
 
-import React, { useCallback, useMemo, useState } from 'react';
 import {
 	FiAlertTriangle,
 	FiChevronRight,
@@ -14,6 +13,7 @@ import {
 	FiTarget,
 	FiUserCheck,
 } from '@icons';
+import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 

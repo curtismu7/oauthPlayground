@@ -9,7 +9,6 @@
  * including device selection and authentication methods.
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
 import {
 	FiAlertTriangle,
 	FiBook,
@@ -19,8 +18,9 @@ import {
 	FiLock,
 	FiMail,
 	FiShield,
-	FiSmartphone
+	FiSmartphone,
 } from '@icons';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import MFAAuthenticationService from '../services/mfaAuthenticationService';
 import type {

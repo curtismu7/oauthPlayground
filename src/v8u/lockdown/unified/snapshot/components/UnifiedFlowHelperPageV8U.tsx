@@ -11,8 +11,8 @@
  * - PingOne-specific implementations and requirements
  */
 
-import React from 'react';
 import { FiArrowLeft, FiBook, FiCheckCircle, FiInfo, FiShield } from '@icons';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import {

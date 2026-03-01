@@ -5,8 +5,8 @@
  * @version 9.1.0
  */
 
-import React from 'react';
 import { FiInbox } from '@icons';
+import React from 'react';
 import { colors, spacing, typography } from '@/v8/design/tokens';
 import { Button } from './Button';
 

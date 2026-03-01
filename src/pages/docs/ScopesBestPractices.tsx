@@ -1,4 +1,3 @@
-import React from 'react';
 import {
 	FiAlertTriangle,
 	FiArrowRight,
@@ -11,6 +10,7 @@ import {
 	FiUsers,
 	FiXCircle,
 } from '@icons';
+import React from 'react';
 import styled from 'styled-components';
 import { PageLayoutService } from '../../services/pageLayoutService';
 

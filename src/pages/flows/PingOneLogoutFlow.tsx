@@ -12,9 +12,9 @@
  * - Code examples for implementation
  */
 
+import { FiCopy, FiExternalLink, FiInfo, FiLogOut } from '@icons';
 import type React from 'react';
 import { useCallback, useState } from 'react';
-import { FiCopy, FiExternalLink, FiInfo, FiLogOut } from '@icons';
 import styled from 'styled-components';
 import { ColoredUrlDisplay } from '../../components/ColoredUrlDisplay';
 import FlowCredentials from '../../components/FlowCredentials';

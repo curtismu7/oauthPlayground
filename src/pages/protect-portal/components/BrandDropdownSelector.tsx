@@ -9,8 +9,8 @@
  * corporate brand themes in the Protect Portal with company logos.
  */
 
-import React, { useEffect, useRef, useState } from 'react';
 import { FiCheck, FiChevronDown } from '@icons';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useBrandTheme } from '../themes/theme-provider';
 import TextLogo from './TextLogo';

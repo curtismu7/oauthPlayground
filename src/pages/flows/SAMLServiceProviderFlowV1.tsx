@@ -2,7 +2,6 @@
 // SAML 2.0 Service Provider Flow with Dynamic ACS URL Support
 // Demonstrates PingOne's new "Always accept ACS URL in signed SAML 2.0 AuthnRequest" feature
 
-import React, { useCallback, useEffect, useState } from 'react';
 import {
 	FiAlertTriangle,
 	FiCheckCircle,
@@ -16,6 +15,7 @@ import {
 	FiSettings,
 	FiShield,
 } from '@icons';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { useSamlSpFlowController } from '../../hooks/useSamlSpFlowController';

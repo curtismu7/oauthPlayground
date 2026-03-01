@@ -4,7 +4,6 @@
  * @description Displays PingOne MFA device authentication status after initialization
  */
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
 	FiAlertTriangle,
 	FiArrowLeft,
@@ -14,6 +13,7 @@ import {
 	FiRefreshCw,
 	FiShield,
 } from '@icons';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';

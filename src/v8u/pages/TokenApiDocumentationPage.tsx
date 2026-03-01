@@ -1,13 +1,5 @@
+import { FiCheck, FiClock, FiCode, FiCopy, FiExternalLink, FiRefreshCw, FiSearch } from '@icons';
 import React, { useEffect, useState } from 'react';
-import {
-	FiCheck,
-	FiClock,
-	FiCode,
-	FiCopy,
-	FiExternalLink,
-	FiRefreshCw,
-	FiSearch,
-} from '@icons';
 import styled from 'styled-components';
 import { apiCallTrackerService } from '../../services/apiCallTrackerService';
 import { type ApiCall, TokenMonitoringService } from '../services/tokenMonitoringService';

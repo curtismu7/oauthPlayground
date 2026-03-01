@@ -7,16 +7,8 @@
  * feedback on discovery status.
  */
 
+import { FiAlertCircle, FiCheck, FiEye, FiEyeOff, FiGlobe, FiLoader, FiRefreshCw } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
-import {
-	FiAlertCircle,
-	FiCheck,
-	FiEye,
-	FiEyeOff,
-	FiGlobe,
-	FiLoader,
-	FiRefreshCw,
-} from '@icons';
 import styled from 'styled-components';
 import { type DiscoveryResult, oidcDiscoveryService } from '../services/oidcDiscoveryService';
 

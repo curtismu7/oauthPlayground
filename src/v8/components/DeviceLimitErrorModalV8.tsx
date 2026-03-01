@@ -6,13 +6,8 @@
  * @since 2026-02-06
  */
 
+import { FiAlertTriangle, FiExternalLink, FiTrash2 } from '@icons';
 import React from 'react';
-import {
-	FiAlertTriangle,
-	FiExternalLink,
-	FiTrash,
-	FiTrash2
-} from '@icons';
 
 const MODULE_TAG = '[🚫 DEVICE-LIMIT-MODAL-V8]';
 

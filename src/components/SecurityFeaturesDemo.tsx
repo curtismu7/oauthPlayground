@@ -1,5 +1,5 @@
 // src/components/SecurityFeaturesDemo.tsx
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+
 import {
 	FiAlertTriangle,
 	FiCheckCircle,
@@ -15,10 +15,10 @@ import {
 	FiPlus,
 	FiRefreshCw,
 	FiShield,
-	FiTrash,
 	FiTrash2,
-	FiX
+	FiX,
 } from '@icons';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';
 import { showGlobalSuccess } from '../hooks/useNotifications';

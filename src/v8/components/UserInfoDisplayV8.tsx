@@ -6,8 +6,8 @@
  * @since 2025-01-25
  */
 
-import React from 'react';
 import { FiUser } from '@icons';
+import React from 'react';
 
 interface UserInfoDisplayV8Props {
 	username?: string;

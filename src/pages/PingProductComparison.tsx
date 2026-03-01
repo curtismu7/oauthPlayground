@@ -1,8 +1,8 @@
 // src/pages/PingProductComparison.tsx
 // Comparison of OAuth/OIDC features across Ping products
 
-import React, { useState } from 'react';
 import { FiAlertCircle, FiCheckCircle, FiInfo, FiXCircle } from '@icons';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 interface FeatureSupport {

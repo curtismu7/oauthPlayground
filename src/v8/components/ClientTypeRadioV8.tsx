@@ -12,8 +12,8 @@
  * />
  */
 
-import React, { useState } from 'react';
 import { FiInfo, FiLock, FiUnlock } from '@icons';
+import React, { useState } from 'react';
 
 const MODULE_TAG = '[🔓 CLIENT-TYPE-V8]';
 

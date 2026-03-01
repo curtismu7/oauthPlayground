@@ -10,8 +10,8 @@
  * functionality that was previously scattered across MFAConfigurationStepV8.
  */
 
-import React, { useState } from 'react';
 import { FiKey, FiRefreshCw } from '@icons';
+import React, { useState } from 'react';
 import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';

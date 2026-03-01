@@ -20,8 +20,8 @@
  * />
  */
 
-import React from 'react';
 import { FiCheckCircle, FiInfo, FiX, FiXCircle } from '@icons';
+import React from 'react';
 import { TokenOperationsServiceV8 } from '@/v8/services/tokenOperationsServiceV8';
 
 interface TokenOperationsEducationModalV8Props {

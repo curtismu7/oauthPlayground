@@ -1,7 +1,6 @@
 // src/pages/flows/ClientCredentialsFlowV9.tsx
 // V7.0.0 OAuth 2.0 Client Credentials Flow - Complete V7 Implementation with Step Numbers
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiCheckCircle,
@@ -14,6 +13,7 @@ import {
 	FiSettings,
 	FiShield,
 } from '@icons';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { EducationModeToggle } from '../../../components/education/EducationModeToggle';
 import { MasterEducationSection } from '../../../components/education/MasterEducationSection';

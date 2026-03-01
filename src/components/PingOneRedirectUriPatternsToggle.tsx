@@ -1,6 +1,7 @@
 // src/components/PingOneRedirectUriPatternsToggle.tsx
-import React from 'react';
+
 import { FiGlobe } from '@icons';
+import React from 'react';
 import styled from 'styled-components';
 import { pingOneConfigService } from '../services/pingoneConfigService';
 

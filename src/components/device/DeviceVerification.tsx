@@ -1,7 +1,7 @@
 // Device verification component for OIDC Device Code flow
 
-import React, { useCallback, useEffect, useState } from 'react';
 import { FiClock, FiCopy, FiExternalLink, FiMonitor, FiSmartphone } from '@icons';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { formatUserCode } from '../../utils/deviceCode';
 import { logger } from '../../utils/logger';

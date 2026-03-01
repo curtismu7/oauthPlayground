@@ -1,6 +1,7 @@
 // src/services/v7m/ui/V7MCollapsibleHeader.tsx
-import React, { useState } from 'react';
+
 import { FiPackage } from '@icons';
+import React, { useState } from 'react';
 
 type Theme = 'orange' | 'blue' | 'yellow' | 'green' | 'highlight';
 

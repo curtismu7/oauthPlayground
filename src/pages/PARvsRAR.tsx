@@ -1,15 +1,7 @@
 // src/pages/PARvsRAR.tsx - PAR vs RAR Comparison and Examples
+
+import { FiBook, FiCheck, FiCode, FiCopy, FiInfo, FiSend, FiSettings, FiShield } from '@icons';
 import React from 'react';
-import {
-	FiBook,
-	FiCheck,
-	FiCode,
-	FiCopy,
-	FiInfo,
-	FiSend,
-	FiSettings,
-	FiShield,
-} from '@icons';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../components/Card';
 import { showFlowSuccess } from '../components/CentralizedSuccessMessage';

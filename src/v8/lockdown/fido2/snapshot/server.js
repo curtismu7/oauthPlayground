@@ -14460,7 +14460,8 @@ app.post('/api/pingone/mfa/reports/create-sms-devices-report', async (req, res) 
  * API Reference: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#get-get-report-results---entries-in-response
  * Retrieves report results when entries are in the response
  */
-app.post('/api/pingone/mfa/reports/get-report-results', async (req, res) => {
+app.post('/api/pingone/mfa/reports/get-report-results', async (req, res) =>
+{
 	try {
 		const { environmentId, reportId, workerToken } = req.body;
 		if (!environmentId || !reportId || !workerToken) {
@@ -14560,7 +14561,8 @@ app.post('/api/pingone/mfa/reports/get-report-results', async (req, res) => {
 		console.error('[MFA Reports] Get report results error:', error);
 		res.status(500).json({ error: 'Failed to get report results', message: error.message });
 	}
-});
+}
+)
 
 /**
  * Create Report of MFA-Enabled Devices - Results in File
@@ -14568,7 +14570,8 @@ app.post('/api/pingone/mfa/reports/get-report-results', async (req, res) => {
  * API Reference: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-create-report-of-mfa-enabled-devices---results-in-file
  * Creates a report of MFA-enabled devices with results stored in a file (requires polling)
  */
-app.post('/api/pingone/mfa/reports/create-mfa-enabled-devices-report', async (req, res) => {
+app.post('/api/pingone/mfa/reports/create-mfa-enabled-devices-report', async (req, res) =>
+{
 	try {
 		const {
 			environmentId,
@@ -14713,10 +14716,12 @@ app.post('/api/pingone/mfa/reports/create-mfa-enabled-devices-report', async (re
 			.status(500)
 			.json({ error: 'Failed to create MFA-enabled devices report', message: error.message });
 	}
-});
+}
+)
 
 // Get Device Authentication Reports
-app.post('/api/pingone/mfa/device-authentication-reports', async (req, res) => {
+app.post('/api/pingone/mfa/device-authentication-reports', async (req, res) =>
+{
 	try {
 		const { environmentId, queryParams, workerToken } = req.body;
 		if (!environmentId || !workerToken) {
@@ -14791,7 +14796,8 @@ app.post('/api/pingone/mfa/device-authentication-reports', async (req, res) => {
 			.status(500)
 			.json({ error: 'Failed to get device authentication reports', message: error.message });
 	}
-});
+}
+)
 
 // Get FIDO2 Device Reports
 app.post('/api/pingone/mfa/fido2-device-reports', async (req, res) => {

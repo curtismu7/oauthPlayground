@@ -2,7 +2,6 @@
 // Visual indicator component showing what each OAuth step demonstrates
 // Helps users understand what they're learning at each stage
 
-import React from 'react';
 import {
 	FiBook,
 	FiCheckCircle,
@@ -13,6 +12,7 @@ import {
 	FiShield,
 	FiUser,
 } from '@icons';
+import React from 'react';
 import styled from 'styled-components';
 
 export type StepType =

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
 import { FiCheck, FiCopy, FiEye, FiEyeOff } from '@icons';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
 

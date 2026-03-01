@@ -9,8 +9,8 @@
  * and educational content about risk-based authentication.
  */
 
-import React from 'react';
 import { FiArrowRight, FiCheckCircle, FiLock, FiShield, FiUser } from '@icons';
+import React from 'react';
 import styled from 'styled-components';
 import type { EducationalContent } from '../types/protectPortal.types';
 import CompanySelector from './CompanySelector';

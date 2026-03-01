@@ -18,7 +18,6 @@
  * - Dashboard features (device list, policy summary)
  */
 
-import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiCheck,
@@ -30,10 +29,10 @@ import {
 	FiPhone,
 	FiPlus,
 	FiShield,
-	FiTrash,
 	FiTrash2,
-	FiX
+	FiX,
 } from '@icons';
+import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { usePageScroll } from '@/hooks/usePageScroll';

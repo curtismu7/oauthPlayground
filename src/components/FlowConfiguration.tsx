@@ -1,6 +1,6 @@
+import { FiCheck, FiChevronDown, FiCopy, FiSave, FiSettings } from '@icons';
 import type React from 'react';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
-import { FiCheck, FiChevronDown, FiCopy, FiSave, FiSettings } from '@icons';
 import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
 import { themeService } from '../services/themeService';

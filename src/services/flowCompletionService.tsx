@@ -6,8 +6,8 @@
  * Includes success confirmation, summary of completed steps, and next steps guidance.
  */
 
-import React from 'react';
 import { FiCheckCircle, FiInfo, FiRefreshCw, FiZap } from '@icons';
+import React from 'react';
 import styled from 'styled-components';
 
 export interface FlowCompletionStep {

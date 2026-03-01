@@ -1,5 +1,5 @@
 // src/pages/CredentialManagement.tsx
-import React, { useCallback, useEffect, useState } from 'react';
+
 import {
 	FiAlertCircle,
 	FiCheckCircle,
@@ -12,12 +12,12 @@ import {
 	FiKey,
 	FiRefreshCw,
 	FiShield,
-	FiTrash,
 	FiTrash2,
 	FiUpload,
 	FiUser,
-	FiXCircle
+	FiXCircle,
 } from '@icons';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import ConfirmationModal from '../components/ConfirmationModal';
 import { credentialStorageManager } from '../services/credentialStorageManager';

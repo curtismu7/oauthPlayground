@@ -1,5 +1,5 @@
-import React from 'react';
 import { FiKey, FiX } from '@icons';
+import React from 'react';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 import { PingIdentityLogo } from '@/v8/components/shared/PingIdentityLogo';
 

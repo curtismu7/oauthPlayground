@@ -5,8 +5,8 @@
  * @version 9.1.0
  */
 
-import React from 'react';
 import { FiAlertCircle, FiCheck } from '@icons';
+import React from 'react';
 import { borderRadius, colors, spacing, transitions, typography } from '@/v8/design/tokens';
 
 interface FormInputProps {

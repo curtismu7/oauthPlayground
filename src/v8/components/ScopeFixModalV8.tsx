@@ -6,8 +6,8 @@
  * @since 2024-11-16
  */
 
-import React, { useState } from 'react';
 import { FiCheck, FiCopy, FiExternalLink, FiX } from '@icons';
+import React, { useState } from 'react';
 import {
 	ClientCredentialsIntegrationServiceV8,
 	type ScopeFixResult,
