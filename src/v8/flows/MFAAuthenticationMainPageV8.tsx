@@ -1013,6 +1013,22 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		return () => window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
 	}, [credentials.environmentId]);
 
+	// Subscribe to environment service changes and keep credentials.environmentId in sync
+	useEffect(() => {
+		const unsubscribe = environmentService.subscribe((env) => {
+			const envId = env?.environmentId || '';
+			if (envId) {
+				setCredentials((prev) => ({ ...prev, environmentId: envId }));
+			}
+		});
+		// Also sync immediately in case the environment was loaded before this effect ran
+		const currentEnvId = environmentService.getEnvironmentId();
+		if (currentEnvId) {
+			setCredentials((prev) => ({ ...prev, environmentId: currentEnvId }));
+		}
+		return unsubscribe;
+	}, []);
+
 	// Extract allowed device types from policy (shared function)
 	const extractAllowedDeviceTypes = useCallback(
 		(policy: DeviceAuthenticationPolicy): DeviceType[] => {
@@ -2485,34 +2501,32 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 										}}
 									>
 										Environment ID
+										<span
+											style={{
+												marginLeft: '6px',
+												fontSize: '11px',
+												fontWeight: '400',
+												color: '#6b7280',
+											}}
+										>
+											(from storage)
+										</span>
 									</label>
 									<input
 										id="environment-id"
 										type="text"
 										value={credentials.environmentId}
-										onChange={(e) => {
-											const updated = { ...credentials, environmentId: e.target.value };
-											setCredentials(updated);
-											const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
-												flowKey: FLOW_KEY,
-												flowType: 'oidc',
-												includeClientSecret: false,
-												includeRedirectUri: false,
-												includeLogoutUri: false,
-												includeScopes: false,
-											});
-											CredentialsServiceV8.saveCredentials(FLOW_KEY, {
-												...stored,
-												environmentId: e.target.value,
-											});
-										}}
-										placeholder="Enter environment ID"
+										readOnly
+										placeholder="Auto-loaded from storage"
 										style={{
 											width: '100%',
 											padding: '8px 12px',
 											border: '1px solid #d1d5db',
 											borderRadius: '6px',
 											fontSize: '14px',
+											background: '#f9fafb',
+											color: credentials.environmentId ? '#374151' : '#9ca3af',
+											cursor: 'default',
 										}}
 									/>
 								</div>
