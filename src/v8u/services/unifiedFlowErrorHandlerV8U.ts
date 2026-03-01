@@ -17,8 +17,6 @@ import type { FlowType } from '@/v8/services/specVersionServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { UnifiedFlowLoggerService } from './unifiedFlowLoggerServiceV8U';
 
-const _MODULE_TAG = '[🛡️ UNIFIED-FLOW-ERROR-HANDLER-V8U]';
-
 export type ErrorCategory =
 	| 'authentication'
 	| 'validation'
@@ -306,9 +304,6 @@ export class UnifiedFlowErrorHandler {
 				(typeof errorBody.error_description === 'string' ? errorBody.error_description : '') ||
 				errorText;
 
-			const _errorCode =
-				(typeof errorBody.error === 'string' ? errorBody.error : '') || response.status.toString();
-
 			return UnifiedFlowErrorHandler.parsePingOneError(new Error(errorMessage));
 		} catch (parseError) {
 			return {
@@ -445,7 +440,7 @@ export class UnifiedFlowErrorHandler {
 	/**
 	 * Get recovery suggestion for error
 	 */
-	static getRecoverySuggestion(error: unknown, _context: ErrorContext = {}): string | undefined {
+	static getRecoverySuggestion(error: unknown): string | undefined {
 		const parsedError = UnifiedFlowErrorHandler.parsePingOneError(error);
 		return parsedError.recoverySuggestion;
 	}
