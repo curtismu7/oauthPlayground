@@ -18,6 +18,7 @@ import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
 import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8'; // NEW - Enhanced UI service
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';
@@ -729,6 +730,10 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 
 	return (
 		<>
+			<WorkerTokenExpiryBannerV8
+				onFixToken={() => setShowWorkerTokenModal(true)}
+				marginBottom="24px"
+			/>
 			<style>{`
 				@keyframes spin {
 					from { transform: rotate(0deg); }
