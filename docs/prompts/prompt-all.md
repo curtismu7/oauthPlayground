@@ -7,6 +7,37 @@ Your highest priority is minimizing regressions and reducing blast radius.
 
 ---
 
+## RECENT FIXES APPLIED - v9.12.03
+
+### React Hooks Order Violation Fix
+**Issue**: PingOneUserProfile.tsx had React Hooks order violation causing `Cannot read properties of undefined (reading 'length')` errors
+**Root Cause**: `useCallback` dependency arrays included `globalTokenStatus.isValid` which could be undefined during initial render
+**Solution**: 
+- Changed dependency arrays from `globalTokenStatus.isValid` to `globalTokenStatus?.isValid` 
+- Added optional chaining in function bodies: `if (!globalTokenStatus?.isValid)`
+- This prevents undefined values from being passed to React's dependency comparison
+
+### WebSocket Connection Error Fix  
+**Issue**: `WebSocket connection to 'wss://api.pingdemo.com:3000/?token=8zAc33BfP9wV' failed` in browser console
+**Root Cause**: Vite HMR WebSocket trying to connect to custom domain with SSL certificate issues
+**Solution**: Enhanced vite.config.ts HMR configuration to properly disable HMR for custom domains:
+```typescript
+hmr: {
+  // Disable HMR for custom domains or HTTPS to prevent WebSocket errors
+  port: (env.VITE_HMR_HOST || httpsOptions) ? undefined : 3000,
+  host: (env.VITE_HMR_HOST || httpsOptions) ? undefined : 'localhost', 
+  clientPort: (env.VITE_HMR_HOST || httpsOptions) ? undefined : 3000,
+},
+```
+
+### Key Technical Notes
+- **Hook Order**: Always ensure hooks are called in consistent order - no conditional hooks
+- **Dependency Arrays**: Use optional chaining for potentially undefined dependencies
+- **WebSocket HMR**: Disable when using custom domains/HTTPS to prevent SSL errors
+- **Error Prevention**: Proactively handle undefined values in React hook dependencies
+
+---
+
 ## CORE OPERATING PRINCIPLES
 
 - Prefer minimal, incremental changes.
