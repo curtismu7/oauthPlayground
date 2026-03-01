@@ -243,8 +243,6 @@ import MFADeviceCreateDemoV8 from './v8/pages/MFADeviceCreateDemoV8';
 import { MFAFeatureFlagsAdminV8 } from './v8/pages/MFAFeatureFlagsAdminV8';
 import { MobileRegistrationDocsPageV8 } from './v8/pages/MobileRegistrationDocsPageV8';
 import UnifiedCredentialsMockupV8 from './v8/pages/UnifiedCredentialsMockupV8';
-import { isPopoutWindow } from './v8/utils/debugLogViewerPopoutHelperV8';
-import { isPopoutWindow as isWebhookPopoutWindow } from './v8/utils/webhookViewerPopoutHelper';
 import V8MTokenExchange from './v8m/pages/V8MTokenExchange';
 import CallbackHandlerV8U from './v8u/components/CallbackHandlerV8U';
 import UnifiedFlowErrorBoundary from './v8u/components/UnifiedFlowErrorBoundary';
@@ -408,6 +406,9 @@ function NotFoundRedirect() {
 }
 
 const AppRoutes: React.FC = () => {
+	const { pathname } = useLocation();
+	const isDebugPopout = pathname === '/v8/debug-logs-popout';
+	const isWebhookPopout = pathname === '/pingone-webhook-viewer-popout';
 	const [sidebarOpen, setSidebarOpen] = useState(true);
 	const [sidebarWidth, setSidebarWidth] = useState(() => {
 		try {
@@ -568,13 +569,13 @@ const AppRoutes: React.FC = () => {
 		<>
 			<GlobalErrorDisplay />
 			<RouteRestorer />
-			{isPopoutWindow() ? (
+			{isDebugPopout ? (
 				// Debug log viewer popout - render without layout
 				<Routes>
 					<Route path="/v8/debug-logs-popout" element={<DebugLogViewerPopoutV8 />} />
 					<Route path="*" element={<Navigate to="/v8/debug-logs-popout" replace />} />
 				</Routes>
-			) : isWebhookPopoutWindow() ? (
+			) : isWebhookPopout ? (
 				// Webhook popout window only - render without sidebar layout
 				<Routes>
 					<Route path="/pingone-webhook-viewer-popout" element={<PingOneWebhookViewer />} />
