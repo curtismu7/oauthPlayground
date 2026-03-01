@@ -14,7 +14,7 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
-// import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8'; // Removed
+import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
@@ -732,8 +732,9 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 		<>
 			<WorkerTokenExpiryBannerV8
 				onFixToken={() => setShowWorkerTokenModal(true)}
-				marginBottom="24px"
+				marginBottom="0"
 			/>
+			<WorkerTokenStatusDisplayV8 mode="detailed" showRefresh={true} />
 			<style>{`
 				@keyframes spin {
 					from { transform: rotate(0deg); }
