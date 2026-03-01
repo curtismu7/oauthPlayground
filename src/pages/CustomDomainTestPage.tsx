@@ -22,6 +22,7 @@ interface ApiTestSpec {
 	description: string;
 	requiresParams?: string[]; // path params e.g., ['userId']
 	queryParams?: string[]; // query string params e.g., ['environmentId', 'accessToken']
+	bodyParams?: string[]; // POST body params e.g., ['environmentId', 'accessToken', 'identifier']
 }
 
 const API_TESTS: ApiTestSpec[] = [
@@ -37,12 +38,11 @@ const API_TESTS: ApiTestSpec[] = [
 		queryParams: ['environmentId', 'accessToken'],
 	},
 	{
-		method: 'GET',
-		path: '/api/pingone/user/by-username/{username}',
+		method: 'POST',
+		path: '/api/pingone/users/lookup',
 		description:
-			'Get user ID by username — returns id, username, email (use result in other calls)',
-		requiresParams: ['username'],
-		queryParams: ['environmentId', 'accessToken'],
+			'Look up user by username, email, or ID — uses POST /api/pingone/users/lookup (the real MFA flow endpoint)',
+		bodyParams: ['environmentId', 'accessToken', 'identifier'],
 	},
 	{ method: 'GET', path: '/api/pingone/api-calls', description: 'Recent PingOne API call log' },
 	{
@@ -70,9 +70,9 @@ export default function CustomDomainTestPage() {
 	// State for API parameters — keyed by param name, shared across cards
 	const [apiParams, setApiParams] = useState<Record<string, string>>({
 		userId: '',
-		username: '',
+		identifier: '', // username, email, or user ID for POST /api/pingone/users/lookup
 		environmentId: '',
-		accessToken: '',
+		accessToken: '', // worker token
 	});
 
 	const { showWarning } = useNotifications();
@@ -143,6 +143,20 @@ export default function CustomDomainTestPage() {
 				if (qs) finalPath = `${finalPath}?${qs}`;
 			}
 
+			// Build POST body if needed
+			const fetchInit: RequestInit = { method: spec.method };
+			if (spec.bodyParams && spec.bodyParams.length > 0 && spec.method === 'POST') {
+				const missing = spec.bodyParams.filter((p) => !params[p]?.trim());
+				if (missing.length > 0) {
+					showWarning(`Please fill in: ${missing.join(', ')}`, { duration: 4000 });
+					return;
+				}
+				const body: Record<string, string> = {};
+				for (const p of spec.bodyParams) body[p] = params[p].trim();
+				fetchInit.headers = { 'Content-Type': 'application/json' };
+				fetchInit.body = JSON.stringify(body);
+			}
+
 			const key = `${spec.method} ${spec.path}`;
 			setTestingKey(key);
 			setTestResults((prev) => ({
@@ -150,7 +164,7 @@ export default function CustomDomainTestPage() {
 				[key]: { status: 0, statusText: '…', bodyPreview: '' },
 			}));
 			try {
-				const res = await fetch(finalPath, { method: spec.method });
+				const res = await fetch(finalPath, fetchInit);
 				let bodyPreview = '';
 				try {
 					const text = await res.text();
@@ -305,6 +319,31 @@ export default function CustomDomainTestPage() {
 							</p>
 						)}
 						<div className="d-flex flex-column gap-3">
+						{/* Shared credentials used by PingOne API cards */}
+						<div className="card" style={{ borderLeft: '4px solid #9333ea', backgroundColor: '#faf5ff' }}>
+							<div className="card-body">
+								<p className="fw-600 mb-2" style={{ color: '#7e22ce', fontSize: '0.875rem' }}>
+									Shared PingOne credentials (used by all PingOne API tests below)
+								</p>
+								<div className="d-flex flex-wrap gap-3">
+									{[
+										{ key: 'environmentId', label: 'Environment ID', placeholder: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' },
+										{ key: 'accessToken', label: 'Worker Token', placeholder: 'Paste worker token (Bearer)' },
+									].map(({ key, label, placeholder }) => (
+										<div key={key} className="d-flex flex-column gap-1" style={{ flex: 1, minWidth: '240px' }}>
+											<label className="text-small fw-600 text-muted mb-0">{label}</label>
+											<input
+												type={key === 'accessToken' ? 'password' : 'text'}
+												className="form-control form-control-sm"
+												placeholder={placeholder}
+												value={apiParams[key] ?? ''}
+												onChange={(e) => setApiParams((prev) => ({ ...prev, [key]: e.target.value }))}
+										/>
+										</div>
+									))}
+								</div>
+							</div>
+						</div>
 							{API_TESTS.map((spec) => {
 								const key = `${spec.method} ${spec.path}`;
 								const result = testResults[key];
@@ -314,7 +353,7 @@ export default function CustomDomainTestPage() {
 										key={key}
 										className="card"
 										style={{
-											borderLeft: `4px solid ${spec.requiresParams ? '#2563eb' : '#e5e7eb'}`,
+											borderLeft: `4px solid ${spec.bodyParams ? '#7c3aed' : spec.requiresParams ? '#2563eb' : '#e5e7eb'}`,
 										}}
 									>
 										<div className="card-body d-flex flex-wrap align-items-center gap-2 justify-content-between">
@@ -351,6 +390,33 @@ export default function CustomDomainTestPage() {
 																/>
 															</div>
 														))}
+													</div>
+												)}
+												{spec.bodyParams && (
+													<div className="d-flex flex-wrap gap-2 mt-2">
+														{spec.bodyParams
+															.filter((p) => !['environmentId', 'accessToken'].includes(p))
+															.map((param) => (
+																<div key={param} className="d-flex flex-column gap-1">
+																	<label
+																		htmlFor={`body-param-${key}-${param}`}
+																		className="text-small fw-600 text-muted mb-0"
+																	>
+																		{param === 'identifier' ? 'identifier (username / email / userId)' : param}
+																	</label>
+																	<input
+																		id={`body-param-${key}-${param}`}
+																		type="text"
+																		className="form-control form-control-sm"
+																		placeholder="username, email, or user ID"
+																		value={apiParams[param] ?? ''}
+																		onChange={(e) =>
+																			setApiParams((prev) => ({ ...prev, [param]: e.target.value }))
+																		}
+																		style={{ minWidth: '220px', maxWidth: '360px' }}
+																	/>
+																</div>
+															))}
 													</div>
 												)}
 											</div>
