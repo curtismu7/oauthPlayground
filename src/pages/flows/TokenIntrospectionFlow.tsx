@@ -10,6 +10,8 @@ import {
 	TokenManagementService,
 } from '../../services/tokenManagementService';
 import { logger } from '../../utils/logger';
+import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
+import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 
 const FlowContainer = styled.div`
   max-width: 1200px;
@@ -258,6 +260,7 @@ interface TokenIntrospectionFlowProps {
 }
 
 const TokenIntrospectionFlow: React.FC<TokenIntrospectionFlowProps> = ({ credentials }) => {
+	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [currentStep, setCurrentStep] = useState(0);
 	const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 	const [activeTab, setActiveTab] = useState<
@@ -691,6 +694,7 @@ console.log('Token validation result:', validation);`,
 
 	return (
 		<FlowContainer>
+			<WorkerTokenExpiryBannerV8 onFixToken={() => setShowWorkerTokenModal(true)} marginBottom="24px" />
 			<FlowTitle>Token Introspection Flow</FlowTitle>
 			<FlowDescription>
 				This flow demonstrates token introspection operations to get detailed information about
@@ -1032,7 +1036,7 @@ console.log('Token validation result:', validation);`,
 					Introspect Token
 				</Button>
 			</FormContainer>
-		</FlowContainer>
+                        <WorkerTokenModalV8 isOpen={showWorkerTokenModal} onClose={() => setShowWorkerTokenModal(false)} />
 	);
 };
 
