@@ -62,6 +62,7 @@ import {
 import { UserSearchDropdownV8 } from '@/v8/components/UserSearchDropdownV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
+import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
 import type { DeviceAuthenticationPolicy, DeviceType } from '@/v8/flows/shared/MFATypes';
 // import { useActionButton } from '@/v8/hooks/useActionButton'; // Unused - available if needed
 import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
@@ -1777,6 +1778,11 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 				{/* Education Mode Toggle */}
 				<EducationModeToggle variant="buttons" />
+
+				<WorkerTokenExpiryBannerV8
+					onFixToken={() => setShowWorkerTokenModal(true)}
+					marginBottom="24px"
+				/>
 
 				{/* 2. Worker Token Configuration - Collapsible */}
 				<div
