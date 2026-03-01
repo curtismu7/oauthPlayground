@@ -1,14 +1,41 @@
 /**
- * Custom domain service: persist app URL (e.g. api.pingdemo.com) in IndexedDB and SQLite (via API).
+ * Custom domain service: persist app URL in IndexedDB and SQLite (via API).
  * Dashboard reads/writes here; app uses getAppUrl() for display and redirect after save.
+ *
+ * Domain resolution order:
+ *   1. In-memory cache (set by initDomainCache / saveCustomDomain)
+ *   2. IndexedDB
+ *   3. Backend API (SQLite)
+ *   4. VITE_APP_DOMAIN env variable
+ *   5. Built-in default (api.pingone.com)
  */
 
 const STORAGE_KEY = 'custom_domain';
-const DEFAULT_DOMAIN = 'api.pingdemo.com';
+const DEFAULT_DOMAIN = 'api.pingone.com';
 const IDB_NAME = 'oauth_playground_app_config';
 const IDB_STORE = 'settings';
 const API_GET = '/api/settings/custom-domain';
 const API_POST = '/api/settings/custom-domain';
+
+// ─── In-memory sync cache ───────────────────────────────────────────────────
+// Set once by initDomainCache() at startup, and kept current by saveCustomDomain().
+let _cachedDomain: string | null = null;
+
+/** Sync getter — returns the cached domain (null if initDomainCache not yet called). */
+export function getCachedDomain(): string | null {
+	return _cachedDomain;
+}
+
+/**
+ * Load the effective domain from storage (IndexedDB → API → env → default) and
+ * cache it so that synchronous callers like getBaseUrl() can use it immediately.
+ * Call once during app startup (main.tsx) before rendering.
+ */
+export async function initDomainCache(): Promise<string> {
+	const domain = await getCustomDomain();
+	_cachedDomain = domain;
+	return domain;
+}
 
 function openDB(): Promise<IDBDatabase> {
 	return new Promise((resolve, reject) => {
@@ -115,22 +142,44 @@ function normalizeDomain(domain: string): string {
 	);
 }
 
-/** Get the effective custom domain: IndexedDB → API → env → default. */
+/** Get the effective custom domain: IndexedDB → API → VITE_APP_DOMAIN → VITE_PUBLIC_APP_URL → default. Keeps sync cache warm. */
 export async function getCustomDomain(): Promise<string> {
 	const fromIdb = await getDomainFromIndexedDB();
-	if (fromIdb) return fromIdb;
+	if (fromIdb) {
+		_cachedDomain = fromIdb;
+		return fromIdb;
+	}
 	const fromApi = await getDomainFromApi();
 	if (fromApi && fromApi !== DEFAULT_DOMAIN) {
 		await setDomainInIndexedDB(fromApi);
+		_cachedDomain = fromApi;
 		return fromApi;
 	}
-	const env = (import.meta.env.VITE_PUBLIC_APP_URL as string) || '';
-	const fromEnv = env
+	// Check VITE_APP_DOMAIN (set in .env.local to canonical public domain, e.g. https://api.pingone.com)
+	const appDomainEnv = (import.meta.env.VITE_APP_DOMAIN as string | undefined)?.trim();
+	if (appDomainEnv) {
+		const stripped = appDomainEnv
+			.replace(/^https?:\/\//i, '')
+			.split('/')[0]
+			.split(':')[0]
+			.trim();
+		if (stripped) {
+			_cachedDomain = stripped;
+			return stripped;
+		}
+	}
+	// Legacy env fallback
+	const legacyEnv = (import.meta.env.VITE_PUBLIC_APP_URL as string) || '';
+	const fromLegacyEnv = legacyEnv
 		.replace(/^https?:\/\//i, '')
 		.split('/')[0]
 		.split(':')[0]
 		.trim();
-	if (fromEnv) return fromEnv;
+	if (fromLegacyEnv) {
+		_cachedDomain = fromLegacyEnv;
+		return fromLegacyEnv;
+	}
+	_cachedDomain = DEFAULT_DOMAIN;
 	return DEFAULT_DOMAIN;
 }
 
@@ -150,12 +199,13 @@ export async function getAppUrl(): Promise<string> {
 }
 
 /**
- * Save custom domain to both SQLite (API) and IndexedDB; then return the new app URL.
- * Caller can redirect to that URL so the app "uses" the new domain.
+ * Save custom domain to SQLite (API), IndexedDB, and the in-memory cache;
+ * then return the new app URL. Caller can redirect to that URL.
  */
 export async function saveCustomDomain(domain: string): Promise<string> {
 	const normalized = normalizeDomain(domain);
 	await setDomainInApi(normalized);
 	await setDomainInIndexedDB(normalized);
+	_cachedDomain = normalized; // keep sync cache current
 	return getAppUrlForDomain(normalized);
 }
