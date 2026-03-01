@@ -5,9 +5,10 @@
  * @version 8.0.0
  */
 
-import { FiChevronDown, FiSearch, FiX } from '@icons';
+import { FiAlertTriangle, FiChevronDown, FiKey, FiSearch, FiX } from '@icons';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
+import { checkWorkerTokenStatusSync } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const _MODULE_TAG = '[👤 USER-SEARCH-DROPDOWN-V8]';
@@ -26,6 +27,7 @@ interface UserSearchDropdownV8Props {
 	disabled?: boolean;
 	id?: string;
 	autoLoad?: boolean; // New prop to control automatic loading
+	onGetToken?: () => void; // Callback to open the worker token modal
 }
 
 export const UserSearchDropdownV8: React.FC<UserSearchDropdownV8Props> = ({
@@ -36,6 +38,7 @@ export const UserSearchDropdownV8: React.FC<UserSearchDropdownV8Props> = ({
 	disabled = false,
 	id,
 	autoLoad = true, // Default to true for backward compatibility
+	onGetToken,
 }) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const [searchTerm, setSearchTerm] = useState('');
@@ -45,6 +48,28 @@ export const UserSearchDropdownV8: React.FC<UserSearchDropdownV8Props> = ({
 	const [offset, setOffset] = useState(0);
 	const [selectedUser, setSelectedUser] = useState<User | null>(null);
 	const [error, setError] = useState<string | null>(null);
+	const [tokenMissing, setTokenMissing] = useState(false);
+
+	// Check token status on mount and whenever the dropdown would be used
+	useEffect(() => {
+		const status = checkWorkerTokenStatusSync();
+		setTokenMissing(!status.isValid);
+	}, []);
+
+	// Re-check token status when worker token is updated
+	useEffect(() => {
+		const handleTokenUpdate = () => {
+			const status = checkWorkerTokenStatusSync();
+			setTokenMissing(!status.isValid);
+			if (status.isValid) {
+				// Token is now valid — reset error and reload users if env is available
+				setError(null);
+				setUsers([]);
+			}
+		};
+		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
+		return () => window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
+	}, []);
 
 	const dropdownRef = useRef<HTMLDivElement>(null);
 	const searchInputRef = useRef<HTMLInputElement>(null);
@@ -79,8 +104,18 @@ export const UserSearchDropdownV8: React.FC<UserSearchDropdownV8Props> = ({
 				setHasMore(result.hasMore);
 			} catch (err) {
 				const errorMessage = err instanceof Error ? err.message : 'Failed to load users';
-				setError(errorMessage);
-				toastV8.error(`Failed to load users: ${errorMessage}`);
+				const isTokenError =
+					errorMessage.toLowerCase().includes('worker token') ||
+					errorMessage.toLowerCase().includes('not available') ||
+					errorMessage.toLowerCase().includes('authenticate first');
+				if (isTokenError) {
+					setTokenMissing(true);
+					setError('Worker token required');
+					// Don't toast — the inline prompt handles it
+				} else {
+					setError(errorMessage);
+					toastV8.error(`Failed to load users: ${errorMessage}`);
+				}
 				setUsers([]);
 				setHasMore(false);
 			} finally {
@@ -173,6 +208,51 @@ export const UserSearchDropdownV8: React.FC<UserSearchDropdownV8Props> = ({
 
 	return (
 		<div ref={dropdownRef} style={{ position: 'relative', width: '100%' }}>
+			{/* Worker token warning banner */}
+			{tokenMissing && (
+				<div
+					style={{
+						display: 'flex',
+						alignItems: 'center',
+						gap: '8px',
+						padding: '8px 12px',
+						marginBottom: '6px',
+						background: '#fef3c7',
+						border: '1px solid #f59e0b',
+						borderRadius: '6px',
+						fontSize: '13px',
+						color: '#92400e',
+					}}
+				>
+					<FiAlertTriangle size={14} style={{ flexShrink: 0, color: '#d97706' }} />
+					<span style={{ flex: 1 }}>
+						Worker token missing or expired — user search unavailable.
+					</span>
+					{onGetToken ? (
+						<button
+							type="button"
+							onClick={onGetToken}
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: '4px',
+								padding: '4px 10px',
+								border: '1px solid #d97706',
+								borderRadius: '4px',
+								background: '#fffbeb',
+								color: '#92400e',
+								fontSize: '12px',
+								fontWeight: '600',
+								cursor: 'pointer',
+								whiteSpace: 'nowrap',
+							}}
+						>
+							<FiKey size={12} />
+							Get Token
+						</button>
+					) : null}
+				</div>
+			)}
 			{/* Main input/button */}
 			<div
 				style={{
@@ -187,20 +267,20 @@ export const UserSearchDropdownV8: React.FC<UserSearchDropdownV8Props> = ({
 					type="text"
 					value={displayValue}
 					readOnly
-					onClick={() => !disabled && setIsOpen(!isOpen)}
-					onFocus={() => !disabled && setIsOpen(true)}
-					placeholder={placeholder}
-					disabled={disabled}
+					onClick={() => !disabled && !tokenMissing && setIsOpen(!isOpen)}
+					onFocus={() => !disabled && !tokenMissing && setIsOpen(true)}
+					placeholder={tokenMissing ? 'Worker token required' : placeholder}
+					disabled={disabled || tokenMissing}
 					style={{
 						width: '100%',
 						padding: '10px 12px',
 						paddingRight: value ? '70px' : '40px',
-						border: '1px solid #d1d5db',
+						border: tokenMissing ? '1px solid #f59e0b' : '1px solid #d1d5db',
 						borderRadius: '6px',
 						fontSize: '14px',
-						cursor: disabled ? 'not-allowed' : 'pointer',
-						background: disabled ? '#f3f4f6' : 'white',
-						color: disabled ? '#9ca3af' : '#111827',
+						cursor: disabled || tokenMissing ? 'not-allowed' : 'pointer',
+						background: disabled || tokenMissing ? '#fef9ee' : 'white',
+						color: disabled || tokenMissing ? '#9ca3af' : '#111827',
 					}}
 				/>
 				<div

@@ -4509,6 +4509,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											}}
 											placeholder="Search for a user..."
 											disabled={!credentials.environmentId}
+											onGetToken={() => setShowWorkerTokenModal(true)}
 										/>
 										<button
 											type="button"
