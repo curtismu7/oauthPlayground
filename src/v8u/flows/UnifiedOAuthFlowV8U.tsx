@@ -1031,14 +1031,14 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				// Load flow-specific credentials with SQLite backup (does not depend on worker token)
 				// Enhanced 4-layer storage: Memory → localStorage → IndexedDB → SQLite backup
 				const environmentId = EnvironmentIdServiceV8.getEnvironmentId();
-				const flowSpecific = await UnifiedOAuthCredentialsServiceV8U.loadCredentials(flowKey, {
+				const flowSpecific = (await UnifiedOAuthCredentialsServiceV8U.loadCredentials(flowKey, {
 					environmentId,
 					enableBackup: !!environmentId,
 				}).catch((err) => {
 					logger.warn(`Error loading flow-specific credentials with SQLite backup`, err);
 					// Fallback to existing service
 					return CredentialsServiceV8.loadCredentialsWithBackup(flowKey, config);
-				});
+				})) ?? {};
 
 				// Load shared credentials with SQLite backup (environmentId, clientId, clientSecret, etc.)
 				const shared =
@@ -1049,7 +1049,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						logger.warn(`Error loading shared credentials with SQLite backup`, err);
 						// Fallback to existing service
 						return SharedCredentialsServiceV8.loadSharedCredentials();
-					})) || SharedCredentialsServiceV8.loadSharedCredentialsSync();
+					})) || SharedCredentialsServiceV8.loadSharedCredentialsSync() || {};
 
 				// Get stored environment ID from global service
 				const storedEnvId = EnvironmentIdServiceV8.getEnvironmentId();
