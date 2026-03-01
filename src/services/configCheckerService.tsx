@@ -1,8 +1,8 @@
 // src/services/configCheckerService.tsx
 // Service wrapper for ConfigCheckerButtons that adds collapsible header
 
-import React from 'react';
 import { FiSettings } from '@icons';
+import React from 'react';
 import { ConfigCheckerButtons } from '../components/ConfigCheckerButtons';
 import { CollapsibleHeader } from './collapsibleHeaderService';
 

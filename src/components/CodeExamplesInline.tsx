@@ -1,7 +1,7 @@
 // src/components/CodeExamplesInline.tsx
 
-import React, { useMemo, useState } from 'react';
 import { FiCheck, FiChevronDown, FiCode, FiCopy } from '@icons';
+import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import {
 	CodeExample,

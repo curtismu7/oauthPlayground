@@ -13,14 +13,8 @@
  * - Shows device count before deletion
  */
 
+import { FiAlertCircle, FiLoader, FiTrash2, FiX } from '@icons';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {
-	FiAlertCircle,
-	FiLoader,
-	FiTrash,
-	FiTrash2,
-	FiX
-} from '@icons';
 import { useLocation } from 'react-router-dom';
 import { readBestEnvironmentId } from '@/hooks/useAutoEnvironmentId';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';

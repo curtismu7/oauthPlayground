@@ -23,8 +23,8 @@
  * />
  */
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FiChevronDown, FiChevronUp, FiEye, FiEyeOff, FiInfo } from '@icons';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DraggableModal } from '@/components/DraggableModal';
 import { JWTConfigV8 } from '@/components/JWTConfigV8';
 import type { ResponseMode } from '@/services/responseModeService';

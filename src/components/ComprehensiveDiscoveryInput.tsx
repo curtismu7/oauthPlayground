@@ -11,8 +11,8 @@
  * - Generic OIDC provider URLs
  */
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FiCheck, FiEye, FiEyeOff, FiInfo, FiSearch, FiX } from '@icons';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import {
 	comprehensiveDiscoveryService,

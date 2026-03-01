@@ -9,13 +9,8 @@
  * their actual login experience with distinctive button styling and brand colors.
  */
 
+import { FiAlertTriangle, FiEye, FiEyeOff, FiLock as FiLockIcon } from '@icons';
 import React, { useCallback, useState } from 'react';
-import {
-	FiAlertTriangle,
-	FiEye,
-	FiEyeOff,
-	FiLock as FiLockIcon
-} from '@icons';
 import styled from 'styled-components';
 import { ButtonSpinner } from '../../../components/ui/ButtonSpinner';
 import PingOneLoginService from '../services/pingOneLoginService';

@@ -1,6 +1,5 @@
 // Worker Token Display component for token visualization and management
 
-import React, { useCallback, useEffect, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiCheck,
@@ -11,6 +10,7 @@ import {
 	FiRefreshCw,
 	FiShield,
 } from '@icons';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
 	JWTPayload,

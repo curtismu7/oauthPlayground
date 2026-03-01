@@ -2,7 +2,6 @@
 // V8 JWT Configuration Component - Clean UI matching V8 style
 // Supports both Client Secret JWT and Private Key JWT configuration and generation
 
-import React, { useState } from 'react';
 import {
 	FiAlertCircle,
 	FiCheckCircle,
@@ -13,6 +12,7 @@ import {
 	FiKey,
 	FiRefreshCw,
 } from '@icons';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import {
 	type ClientSecretJWTConfig,

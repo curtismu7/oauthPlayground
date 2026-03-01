@@ -4,16 +4,8 @@
  * Shows before/after comparisons of OAuth parameter effects
  */
 
+import { FiAlertCircle, FiCheckCircle, FiClock, FiGlobe, FiLock, FiShield, FiUsers } from '@icons';
 import React, { useState } from 'react';
-import {
-	FiAlertCircle,
-	FiCheckCircle,
-	FiClock,
-	FiGlobe,
-	FiLock,
-	FiShield,
-	FiUsers,
-} from '@icons';
 import styled from 'styled-components';
 
 const VisualizerContainer = styled.div`

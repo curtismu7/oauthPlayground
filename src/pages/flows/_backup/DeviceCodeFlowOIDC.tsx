@@ -1,8 +1,8 @@
 // OIDC Device Code Flow implementation following V3 patterns
 
+import { FiCheckCircle, FiClock, FiGlobe, FiRefreshCw, FiSettings, FiShield } from '@icons';
 import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
-import { FiCheckCircle, FiClock, FiGlobe, FiRefreshCw, FiSettings, FiShield } from '@icons';
 import styled from 'styled-components';
 
 import DevicePolling from '../../components/device/DevicePolling';

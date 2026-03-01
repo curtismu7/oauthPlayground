@@ -8,8 +8,8 @@
  * Used for showing loading states during API calls and async operations.
  */
 
-import React from 'react';
 import { FiLoader } from '@icons';
+import React from 'react';
 import styled from 'styled-components';
 
 interface LoadingSpinnerModalV8UProps {

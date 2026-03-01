@@ -6,8 +6,8 @@
  * @since 2024-11-16
  */
 
-import React, { useState } from 'react';
 import { FiHelpCircle, FiX } from '@icons';
+import React, { useState } from 'react';
 import { type SpecVersion, SpecVersionServiceV8 } from '../../v8/services/specVersionServiceV8.ts';
 
 const MODULE_TAG = '[📋 SPEC-VERSION-SELECTOR-V8U]';

@@ -1,5 +1,5 @@
-import React, { useCallback } from 'react';
 import { FiArrowLeft, FiArrowRight, FiPlay, FiRotateCcw } from '@icons';
+import React, { useCallback } from 'react';
 import styled from 'styled-components';
 
 const FlowContainer = styled.div`

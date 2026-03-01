@@ -15,12 +15,8 @@
  * <MFAHubV8 />
  */
 
+import { FiPackage, FiTrash2 } from '@icons';
 import React, { lazy, Suspense, useEffect, useState } from 'react';
-import {
-	FiPackage,
-	FiTrash,
-	FiTrash2
-} from '@icons';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { usePageScroll } from '@/hooks/usePageScroll';

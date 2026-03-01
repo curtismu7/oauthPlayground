@@ -1,8 +1,8 @@
 // src/pages/flows/OAuthAuthorizationCodeFlowV7_1/components/FlowNavigation.tsx
 // V7.1 Flow Navigation - Step navigation and flow control
 
-import React from 'react';
 import { FiChevronLeft, FiChevronRight, FiHome, FiRefreshCw } from '@icons';
+import React from 'react';
 import styled from 'styled-components';
 import { STEP_METADATA } from '../constants/stepMetadata';
 import { UI_CONSTANTS } from '../constants/uiConstants';

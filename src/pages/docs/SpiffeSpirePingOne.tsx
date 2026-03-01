@@ -1,7 +1,6 @@
 // src/pages/docs/SpiffeSpirePingOne.tsx
 // SPIFFE/SPIRE Education Page - Integration with PingOne SSO
 
-import React from 'react';
 import {
 	FiAlertTriangle,
 	FiArrowRight,
@@ -16,6 +15,7 @@ import {
 	FiUsers,
 	FiZap,
 } from '@icons';
+import React from 'react';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../../components/Card';
 

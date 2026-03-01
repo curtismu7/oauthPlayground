@@ -9,8 +9,8 @@
  * when environment variables are not available or need to be updated.
  */
 
-import React, { useEffect, useState } from 'react';
 import { FiAlertTriangle, FiInfo, FiSave, FiX } from '@icons';
+import React, { useEffect, useState } from 'react';
 import { useProtectPortal } from '../contexts/ProtectPortalContext';
 import { useTheme } from '../contexts/ThemeContext';
 

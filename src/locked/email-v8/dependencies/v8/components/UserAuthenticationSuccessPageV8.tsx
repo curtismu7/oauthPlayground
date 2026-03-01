@@ -7,8 +7,8 @@
  * Shows user information and session details after OAuth login
  */
 
-import React, { useEffect, useState } from 'react';
 import { FiCheckCircle, FiCopy, FiShield, FiUser } from '@icons';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TokenDisplayServiceV8 } from '../services/tokenDisplayServiceV8.ts';
 import { toastV8 } from '../utils/toastNotificationsV8.ts';

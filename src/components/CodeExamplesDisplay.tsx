@@ -1,7 +1,7 @@
 // src/components/CodeExamplesDisplay.tsx
 
-import React, { useMemo, useState } from 'react';
 import { FiCheck, FiCode, FiCopy, FiDownload } from '@icons';
+import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import {
 	CodeExample,

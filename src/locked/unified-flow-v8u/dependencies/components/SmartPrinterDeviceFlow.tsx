@@ -1,8 +1,6 @@
 // src/components/SmartPrinterDeviceFlow.tsx
 // Smart Printer Style Device Authorization Flow Interface
 
-import { QRCodeSVG } from 'qrcode.react';
-import React from 'react';
 import {
 	FiAlertTriangle,
 	FiArrowLeft,
@@ -11,14 +9,14 @@ import {
 	FiCopy,
 	FiExternalLink,
 	FiFileText,
-	FiMaximize,
 	FiMaximize2,
 	FiMove,
 	FiPrinter,
-	FiTrash,
 	FiTrash2,
-	FiXCircle
+	FiXCircle,
 } from '@icons';
+import { QRCodeSVG } from 'qrcode.react';
+import React from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';
