@@ -9,8 +9,8 @@
  * due to NO_USABLE_DEVICES errors, showing which devices are unavailable and why.
  */
 
-import React from 'react';
 import { FiAlertCircle, FiRefreshCw, FiUnlock, FiX } from '@icons';
+import React from 'react';
 
 export interface UnavailableDevice {
 	id: string;

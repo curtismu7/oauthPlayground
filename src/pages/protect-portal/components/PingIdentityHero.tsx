@@ -9,16 +9,8 @@
  * identity and access management capabilities with enterprise security features.
  */
 
+import { FiArrowRight, FiDatabase, FiKey, FiLock, FiSettings, FiShield, FiUsers } from '@icons';
 import React from 'react';
-import {
-	FiArrowRight,
-	FiDatabase,
-	FiKey,
-	FiLock,
-	FiSettings,
-	FiShield,
-	FiUsers,
-} from '@icons';
 import styled from 'styled-components';
 
 // ============================================================================

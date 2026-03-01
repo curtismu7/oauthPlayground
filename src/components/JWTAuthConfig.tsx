@@ -1,13 +1,5 @@
+import { FiAlertCircle, FiCheckCircle, FiCopy, FiEye, FiEyeOff, FiKey, FiShield } from '@icons';
 import React, { useEffect, useState } from 'react';
-import {
-	FiAlertCircle,
-	FiCheckCircle,
-	FiCopy,
-	FiEye,
-	FiEyeOff,
-	FiKey,
-	FiShield,
-} from '@icons';
 import styled from 'styled-components';
 import { JWTAuthConfig, jwtAuthService } from '../services/jwtAuthService';
 

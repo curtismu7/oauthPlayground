@@ -5,15 +5,8 @@
  * @version 8.0.0
  */
 
+import { FiAlertCircle, FiArrowLeft, FiInfo, FiTrash2, FiX } from '@icons';
 import React, { useEffect, useId, useState } from 'react';
-import {
-	FiAlertCircle,
-	FiArrowLeft,
-	FiInfo,
-	FiTrash,
-	FiTrash2,
-	FiX
-} from '@icons';
 import styled from 'styled-components';
 import { useDraggableModal } from '@/v8/hooks/useDraggableModal';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';

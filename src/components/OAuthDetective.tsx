@@ -4,8 +4,8 @@
  * Analyzes real OAuth URLs from any provider and explains every parameter
  */
 
-import React, { useCallback, useState } from 'react';
 import { FiCheckCircle, FiCopy, FiInfo, FiSearch } from '@icons';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 

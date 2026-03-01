@@ -1,8 +1,6 @@
 // src/pages/security/HelioMartPasswordReset.tsx
 // HelioMart Password Reset Demo - Real-world password management interface
 
-import Prism from 'prismjs';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiBook,
@@ -24,6 +22,8 @@ import {
 	FiUpload,
 	FiX,
 } from '@icons';
+import Prism from 'prismjs';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useAutoEnvironmentId } from '../../hooks/useAutoEnvironmentId';
 import 'prismjs/themes/prism.css';

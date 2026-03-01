@@ -8,8 +8,8 @@
  * and download documentation as PDF or Markdown.
  */
 
-import React, { useState } from 'react';
 import { FiBook, FiDownload, FiFileText, FiX } from '@icons';
+import React, { useState } from 'react';
 import type { DeviceType } from '../flows/shared/MFATypes';
 import {
 	downloadAsMarkdown,

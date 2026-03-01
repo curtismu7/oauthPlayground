@@ -1,4 +1,3 @@
-import React, { useEffect, useRef, useState } from 'react';
 import {
 	FiAlertTriangle,
 	FiCheck,
@@ -14,9 +13,9 @@ import {
 	FiRefreshCw,
 	FiSettings,
 	FiShield,
-	FiTrash,
-	FiTrash2
+	FiTrash2,
 } from '@icons';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import { StandardModalSpinner, useStandardSpinner } from '../../components/ui/StandardSpinner';

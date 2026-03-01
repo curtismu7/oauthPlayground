@@ -5,8 +5,8 @@
  * @since 2024-11-19
  */
 
-import React, { useState } from 'react';
 import { FiPlus, FiX } from '@icons';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 const ModalOverlay = styled.div<{ $isOpen: boolean }>`

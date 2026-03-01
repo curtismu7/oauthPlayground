@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import {
 	FiAlertTriangle,
 	FiCheckCircle,
@@ -7,6 +6,7 @@ import {
 	FiToggleRight,
 	FiX,
 } from '@icons';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../components/Card';
 

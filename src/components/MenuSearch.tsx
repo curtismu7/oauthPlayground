@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
 import { FiSearch, FiX } from '@icons';
+import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
 const SearchContainer = styled.div`

@@ -1,6 +1,7 @@
 // src/components/InlineFlowError.tsx
-import React from 'react';
+
 import { FiAlertTriangle, FiInfo, FiSettings } from '@icons';
+import React from 'react';
 import styled from 'styled-components';
 import { ERROR_MESSAGES, ErrorCategory } from '../constants/errorMessages';
 import { OAuthErrorHelper } from './OAuthErrorHelper';

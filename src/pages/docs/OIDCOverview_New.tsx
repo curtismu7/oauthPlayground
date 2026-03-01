@@ -1,4 +1,3 @@
-import React, { useCallback, useMemo, useState } from 'react';
 import {
 	FiAlertTriangle,
 	FiArrowRight,
@@ -6,8 +5,9 @@ import {
 	FiCode,
 	FiSearch,
 	FiShield,
-	FiTrendingUp
+	FiTrendingUp,
 } from '@icons';
+import React, { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardBody } from '../../components/Card';
 import { usePageScroll } from '../../hooks/usePageScroll';

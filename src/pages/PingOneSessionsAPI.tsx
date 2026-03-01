@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import {
 	FiClock,
 	FiCode,
@@ -10,10 +9,10 @@ import {
 	FiPlay,
 	FiRefreshCw,
 	FiShield,
-	FiTrash,
 	FiTrash2,
-	FiUsers
+	FiUsers,
 } from '@icons';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../components/Card';
 import CollapsibleSection from '../components/CollapsibleSection';

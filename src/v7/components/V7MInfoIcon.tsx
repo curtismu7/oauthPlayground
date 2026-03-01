@@ -1,6 +1,7 @@
 // src/v7m/ui/V7MInfoIcon.tsx
-import React from 'react';
+
 import { FiInfo } from '@icons';
+import React from 'react';
 
 type Props = {
 	label: string; // aria-label

@@ -5,8 +5,8 @@
  * @version 8.2.0
  */
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FiShield } from '@icons';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FIDO2Service } from '@/services/fido2Service';
 import { FIDODeviceExistsModalV8 } from '@/v8/components/FIDODeviceExistsModalV8';

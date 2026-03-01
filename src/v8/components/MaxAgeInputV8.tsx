@@ -12,8 +12,8 @@
  * />
  */
 
-import React, { useState } from 'react';
 import { FiClock, FiInfo } from '@icons';
+import React, { useState } from 'react';
 
 const MODULE_TAG = '[⏱️ MAX-AGE-V8]';
 

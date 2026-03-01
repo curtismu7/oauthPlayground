@@ -6,8 +6,8 @@
  * @since 2025-01-XX
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
 import { FiArrowLeft, FiCheck, FiInfo, FiRefreshCw } from '@icons';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { usePageScroll } from '@/hooks/usePageScroll';
 import { CreatePolicyModalV8 } from '@/v8/components/CreatePolicyModalV8';

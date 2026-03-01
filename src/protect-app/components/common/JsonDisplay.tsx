@@ -11,8 +11,8 @@
  * - Dependency Inversion: Depends on theme abstraction, not concrete implementation
  */
 
-import React, { useState } from 'react';
 import { FiCheck, FiChevronDown, FiChevronRight, FiCopy } from '@icons';
+import React, { useState } from 'react';
 import { useTheme } from '../../contexts/ThemeContext';
 
 interface JsonDisplayProps {

@@ -1,9 +1,9 @@
 // src/components/AppleTVDeviceFlow.tsx
 // Apple TV Style Device Authorization Flow Interface
 
+import { FiAlertTriangle, FiCheckCircle, FiCopy, FiExternalLink, FiXCircle } from '@icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
-import { FiAlertTriangle, FiCheckCircle, FiCopy, FiExternalLink, FiXCircle } from '@icons';
 import styled from 'styled-components';
 import {
 	DeviceFlowState,

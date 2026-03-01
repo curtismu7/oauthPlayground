@@ -2,7 +2,6 @@
 // PingOne MFA Flow following Workflow Library Steps 11-20
 // Based on: https://apidocs.pingidentity.com/pingone/workflow-library/v1/api/#put-step-11-enable-user-mfa
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
 	FiCheckCircle,
 	FiInfo,
@@ -15,6 +14,7 @@ import {
 	FiSmartphone,
 	FiUser,
 } from '@icons';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import JSONHighlighter, { type JSONData } from '../../components/JSONHighlighter';
 import PhoneNumberInput from '../../components/PhoneNumberInput';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';

@@ -9,8 +9,8 @@
  * Replaces the old UserCacheProgressV8 component that used IndexedDB.
  */
 
-import React from 'react';
 import { FiDatabase, FiRefreshCw } from '@icons';
+import React from 'react';
 import { useSQLiteStats } from '@/v8/hooks/useSQLiteStats';
 
 interface SQLiteStatsDisplayV8Props {

@@ -1,6 +1,7 @@
 // src/v7m/pages/V7MDeviceAuthorization.tsx
-import React, { useState } from 'react';
+
 import { FiBook, FiCheck, FiCopy, FiSmartphone } from '@icons';
+import React, { useState } from 'react';
 import {
 	requestDeviceAuthorization,
 	type V7MDeviceAuthorizationResponse,
