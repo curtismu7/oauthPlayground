@@ -22,6 +22,7 @@ import {
 	SuperSimpleApiDisplayV8,
 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
 import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import {
@@ -222,6 +223,10 @@ const TokenStatusPageV8U: React.FC = () => {
 	return (
 		<>
 			<PageContainer>
+				<WorkerTokenExpiryBannerV8
+					onFixToken={() => setShowWorkerTokenModal(true)}
+					marginBottom="24px"
+				/>
 				{/* Modal Spinners for Token Status Operations */}
 				<StandardModalSpinner
 					show={statusSpinner.isLoading}

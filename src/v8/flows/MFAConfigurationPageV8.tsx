@@ -26,6 +26,8 @@ import { MFAServiceV8, type MFASettings } from '@/v8/services/mfaServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import WorkerTokenStatusServiceV8 from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
 
 const MODULE_TAG = '[⚙️ MFA-CONFIG-PAGE-V8]';
 
@@ -45,6 +47,7 @@ export const MFAConfigurationPageV8: React.FC = () => {
 	const [_hasChanges, setHasChanges] = useState(false);
 	const [_isSaving, setIsSaving] = useState(false);
 	const [_isRefreshingToken, setIsRefreshingToken] = useState(false);
+	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 
 	// PingOne MFA Settings state
 	const [pingOneSettings, setPingOneSettings] = useState<MFASettings | null>(null);
@@ -587,6 +590,10 @@ export const MFAConfigurationPageV8: React.FC = () => {
 				transition: 'padding-bottom 0.3s ease',
 			}}
 		>
+			<WorkerTokenExpiryBannerV8
+				onFixToken={() => setShowWorkerTokenModal(true)}
+				marginBottom="24px"
+			/>
 			<MFANavigationV8 currentPage="settings" showBackToMain={true} />
 
 			{/* Back Button */}
@@ -1731,6 +1738,10 @@ export const MFAConfigurationPageV8: React.FC = () => {
 				}}
 				onSave={handleCreatePolicy}
 				isSaving={isCreatingPolicy}
+			/>
+			<WorkerTokenModalV8
+				isOpen={showWorkerTokenModal}
+				onClose={() => setShowWorkerTokenModal(false)}
 			/>
 		</div>
 	);
