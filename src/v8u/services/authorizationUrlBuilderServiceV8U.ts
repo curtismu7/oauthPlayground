@@ -9,13 +9,10 @@
  * across implicit, oauth-authz, and hybrid flows.
  */
 
-import type { ResponseMode } from '@/services/responseModeService';
 import { RedirectUriServiceV8 } from '@/v8/services/redirectUriServiceV8';
 import type { FlowType, SpecVersion } from '@/v8/services/specVersionServiceV8';
 import type { UnifiedFlowCredentials } from './unifiedFlowIntegrationV8U';
 import { UnifiedFlowLoggerService } from './unifiedFlowLoggerServiceV8U';
-
-const _MODULE_TAG = '[🔗 AUTHORIZATION-URL-BUILDER-V8U]';
 
 export interface AuthorizationUrlParams {
 	specVersion: SpecVersion;

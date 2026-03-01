@@ -13,6 +13,8 @@ import deviceCreateDemoServiceV8 from '@/v8/services/deviceCreateDemoServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import workerTokenServiceV8 from '@/v8/services/workerTokenServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
 
 const DEFAULT_SMS_BODY = JSON.stringify(
 	{
@@ -72,6 +74,7 @@ export const MFADeviceCreateDemoV8: React.FC = () => {
 	const [username, setUsername] = useState('');
 	const [userId, setUserId] = useState('');
 	const [savedWorkerToken, setSavedWorkerToken] = useState('');
+	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [workerTokenOverride, setWorkerTokenOverride] = useState('');
 	const [smsBody, setSmsBody] = useState(DEFAULT_SMS_BODY);
 	const [emailBody, setEmailBody] = useState(DEFAULT_EMAIL_BODY);
@@ -223,6 +226,10 @@ export const MFADeviceCreateDemoV8: React.FC = () => {
 
 	return (
 		<div style={{ minHeight: '100vh', background: '#f3f4f6', paddingBottom: '80px' }}>
+			<WorkerTokenExpiryBannerV8
+				onFixToken={() => setShowWorkerTokenModal(true)}
+				marginBottom="24px"
+			/>
 			<MFAHeaderV8
 				title="Create Device Playground"
 				description="Craft custom PingOne Create Device requests for SMS and Email with editable JSON bodies."
@@ -617,6 +624,10 @@ export const MFADeviceCreateDemoV8: React.FC = () => {
 			</div>
 
 			<SimplePingOneApiDisplayV8 />
+			<WorkerTokenModalV8
+				isOpen={showWorkerTokenModal}
+				onClose={() => setShowWorkerTokenModal(false)}
+			/>
 		</div>
 	);
 };

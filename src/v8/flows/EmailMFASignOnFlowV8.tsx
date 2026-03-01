@@ -37,6 +37,8 @@ import { EmailMFASignOnFlowServiceV8 } from '@/v8/services/emailMfaSignOnFlowSer
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { ButtonSpinner } from '../../components/ui/ButtonSpinner';
+import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
 
 const MODULE_TAG = '[📧 EMAIL-MFA-SIGNON-FLOW-V8]';
 
@@ -298,6 +300,7 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 	// Credentials state
 	const [environmentId, setEnvironmentId] = useState(() => readBestEnvironmentId());
 	const [workerToken, setWorkerToken] = useState('');
+	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 
 	// Current step tracking
 	const [currentStep, setCurrentStep] = useState(0);
@@ -821,6 +824,10 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 
 	return (
 		<div className="email-mfa-signon-flow-v8">
+			<WorkerTokenExpiryBannerV8
+				onFixToken={() => setShowWorkerTokenModal(true)}
+				marginBottom="24px"
+			/>
 			<MFAHeaderV8
 				title="Email MFA Sign-On Flow"
 				description="Complete workflow for Email MFA authentication with sign-on policies"
@@ -1205,6 +1212,10 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 					</StepContent>
 				</StepSection>
 			</Container>
+			<WorkerTokenModalV8
+				isOpen={showWorkerTokenModal}
+				onClose={() => setShowWorkerTokenModal(false)}
+			/>
 		</div>
 	);
 };
