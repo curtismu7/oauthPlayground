@@ -676,7 +676,23 @@ const PingOneUserProfile: React.FC = () => {
 	// Always show user selector initially - user must explicitly load the profile
 	const [showUserSelector, setShowUserSelector] = useState(true);
 
-	// Start over function - resets all user-specific state
+	const [showServerErrorModal, setShowServerErrorModal] = useState(false);
+	const [_savedWorkerCredentials, setSavedWorkerCredentials] = useState(() =>
+		credentialManager.getAllCredentials()
+	);
+	const [identifierError, setIdentifierError] = useState<string | null>(null);
+	const [isResolvingUser, setIsResolvingUser] = useState(false);
+	const [compareIdentifier, setCompareIdentifier] = useState('');
+	const [comparisonResolvedId, setComparisonResolvedId] = useState('');
+	const [comparisonProfile, setComparisonProfile] = useState<PingOneUserProfileData | null>(null);
+	const [comparisonGroups, setComparisonGroups] = useState<PingOneUserGroup[]>([]);
+	const [comparisonRoles, setComparisonRoles] = useState<PingOneUserRole[]>([]);
+	const [comparisonMfaStatus, setComparisonMfaStatus] = useState<PingOneMfaStatus>(null);
+	const [comparisonConsents, setComparisonConsents] = useState<PingOneConsentRecord[]>([]);
+	const [isComparisonLoading, setIsComparisonLoading] = useState(false);
+	const [comparisonError, setComparisonError] = useState<string | null>(null);
+
+	// Start over function — all useState declarations must be above this
 	const handleStartOver = useCallback(() => {
 		setUserProfile(null);
 		setUserGroups([]);
@@ -702,22 +718,6 @@ const PingOneUserProfile: React.FC = () => {
 		setComparisonError(null);
 		setIsComparisonLoading(false);
 	}, []);
-
-	const [showServerErrorModal, setShowServerErrorModal] = useState(false);
-	const [_savedWorkerCredentials, setSavedWorkerCredentials] = useState(() =>
-		credentialManager.getAllCredentials()
-	);
-	const [identifierError, setIdentifierError] = useState<string | null>(null);
-	const [isResolvingUser, setIsResolvingUser] = useState(false);
-	const [compareIdentifier, setCompareIdentifier] = useState('');
-	const [comparisonResolvedId, setComparisonResolvedId] = useState('');
-	const [comparisonProfile, setComparisonProfile] = useState<PingOneUserProfileData | null>(null);
-	const [comparisonGroups, setComparisonGroups] = useState<PingOneUserGroup[]>([]);
-	const [comparisonRoles, setComparisonRoles] = useState<PingOneUserRole[]>([]);
-	const [comparisonMfaStatus, setComparisonMfaStatus] = useState<PingOneMfaStatus>(null);
-	const [comparisonConsents, setComparisonConsents] = useState<PingOneConsentRecord[]>([]);
-	const [isComparisonLoading, setIsComparisonLoading] = useState(false);
-	const [comparisonError, setComparisonError] = useState<string | null>(null);
 
 	const fetchUserBundle = useCallback(
 		async (targetUserId: string): Promise<UserDataBundle> => {
