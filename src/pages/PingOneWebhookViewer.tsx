@@ -30,7 +30,7 @@ import { v4ToastManager } from '../utils/v4ToastMessages';
 import { getAnyWorkerToken } from '../utils/workerTokenDetection';
 import { SuperSimpleApiDisplayV8 } from '../v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
-import { isWebhookPopout, openWebhookViewerPopout } from '../v8/utils/webhookViewerPopoutHelper';
+import { isPopoutWindow, openWebhookViewerPopout } from '../v8/utils/webhookViewerPopoutHelper';
 
 const styles = {
 	container: {
@@ -1157,7 +1157,7 @@ const PingOneWebhookViewer: React.FC = () => {
 							<FiServer size={28} />
 							<h1 style={styles.title}>PingOne Webhook Management</h1>
 						</div>
-						{!isWebhookPopout() && (
+						{!isPopoutWindow() && (
 							<button
 								type="button"
 								onClick={openWebhookViewerPopout}
