@@ -1,7 +1,7 @@
 // src/pages/TestAuthzCodePKCE.tsx
 // Authorization Code + PKCE Test Page
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { comprehensiveFlowDataService } from '../services/comprehensiveFlowDataService';
 import { generateCodeChallenge, generateCodeVerifier } from '../utils/oauth';
@@ -182,19 +182,30 @@ const TestAuthzCodePKCE: React.FC = () => {
 	});
 
 	const [logs, setLogs] = useState<Array<{ message: string; type: string; timestamp: string }>>([]);
-	const [pkceData, setPkceData] = useState<any>(null);
+	const [pkceData, setPkceData] = useState<Record<string, unknown> | null>(null);
 	const [authUrl, setAuthUrl] = useState('');
 	const [authCode, setAuthCode] = useState('');
-	const [tokenData, setTokenData] = useState<any>(null);
-	const [results, setResults] = useState<any>(null);
+	const [tokenData, setTokenData] = useState<Record<string, unknown> | null>(null);
+	const [results, setResults] = useState<Record<string, unknown> | null>(null);
 	const [initialized, setInitialized] = useState(false);
 	const [autoExchange, setAutoExchange] = useState(false);
 	const [autoExchangeEnabled, setAutoExchangeEnabled] = useState(true);
 
-	const log = (message: string, type: string = 'info') => {
+	const log = useCallback((message: string, type: string = 'info') => {
 		const timestamp = new Date().toLocaleTimeString();
 		setLogs((prev) => [...prev, { message, type, timestamp }]);
-	};
+	}, []);
+
+	const updateResults = useCallback((tokens: Record<string, unknown>) => {
+		setResults({
+			pkceGeneration: !!pkceData,
+			pkceStorage: !!localStorage.getItem(`${FLOW_KEY}_pkce`),
+			pkceInExchange: true,
+			tokenReceipt: !!tokens.access_token,
+			idToken: !!tokens.id_token,
+			refreshToken: !!tokens.refresh_token,
+		});
+	}, [pkceData]);
 
 	useEffect(() => {
 		if (initialized) return; // Prevent re-running
@@ -331,8 +342,8 @@ const TestAuthzCodePKCE: React.FC = () => {
 						log(`❌ Token exchange failed: ${response.status}`, 'error');
 						log(`   ${error}`, 'error');
 					}
-				} catch (error: any) {
-					log(`❌ Error exchanging code: ${error.message}`, 'error');
+				} catch (error: unknown) {
+					log(`❌ Error exchanging code: ${(error as Error).message}`, 'error');
 				}
 			})();
 		}
@@ -378,8 +389,8 @@ const TestAuthzCodePKCE: React.FC = () => {
 			log(`   Code Verifier: ${verifier.substring(0, 20)}... (${verifier.length} chars)`, 'info');
 			log(`   Code Challenge: ${challenge.substring(0, 20)}...`, 'info');
 			log(`   Challenge Method: S256`, 'info');
-		} catch (error: any) {
-			log(`❌ PKCE generation failed: ${error.message}`, 'error');
+		} catch (error: unknown) {
+			log(`❌ PKCE generation failed: ${(error as Error).message}`, 'error');
 		}
 	};
 
@@ -471,20 +482,9 @@ const TestAuthzCodePKCE: React.FC = () => {
 				log(`❌ Token exchange failed: ${response.status}`, 'error');
 				log(`   ${error}`, 'error');
 			}
-		} catch (error: any) {
-			log(`❌ Error exchanging code: ${error.message}`, 'error');
+		} catch (error: unknown) {
+			log(`❌ Error exchanging code: ${(error as Error).message}`, 'error');
 		}
-	};
-
-	const updateResults = (tokens: any) => {
-		setResults({
-			pkceGeneration: !!pkceData,
-			pkceStorage: !!localStorage.getItem(`${FLOW_KEY}_pkce`),
-			pkceInExchange: true,
-			tokenReceipt: !!tokens.access_token,
-			idToken: !!tokens.id_token,
-			refreshToken: !!tokens.refresh_token,
-		});
 	};
 
 	const handleVerifyPKCE = () => {
