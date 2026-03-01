@@ -14,7 +14,7 @@ import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { SuccessMessage } from '@/v8/components/shared/MessageBoxV8';
-// import { WorkerTokenStatusDisplayV8 } from '@/v8/components/WorkerTokenStatusDisplayV8'; // Removed
+import { WorkerTokenStatusDisplayV8 } from '@/v8/components/WorkerTokenStatusDisplayV8';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
@@ -834,7 +834,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 						<div
 							style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}
 						>
-							{/* Worker Token Status Display - Removed */}
+							<WorkerTokenStatusDisplayV8 mode="detailed" showRefresh={true} />
 
 							<button
 								type="button"
