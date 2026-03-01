@@ -33,8 +33,6 @@ export interface TokenStatusInfo {
 
 import { logger } from './unifiedFlowLoggerServiceV8U';
 
-const _MODULE_TAG = '[🔧 WORKER-TOKEN-STATUS-V8U]';
-
 // Status types for consistent typing
 export type WorkerTokenStatusType = 'valid' | 'invalid' | 'warning';
 
