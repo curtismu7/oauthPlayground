@@ -206,7 +206,7 @@ interface TestResult {
 	testName: string;
 	passed: boolean;
 	error?: string;
-	details?: any;
+	details?: Record<string, unknown>;
 }
 
 interface TestResults {
