@@ -1,5 +1,5 @@
 // src/services/pkceService.tsx
-import React, { useCallback, useState } from 'react';
+
 import {
 	FiCheck,
 	FiExternalLink,
@@ -10,6 +10,7 @@ import {
 	FiRefreshCw,
 	FiShield,
 } from '@icons';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import ColoredUrlDisplay from '../components/ColoredUrlDisplay';
 import { generateCodeChallenge, generateCodeVerifier } from '../utils/oauth';

@@ -8,8 +8,8 @@
  * Authentic embedded login form that matches real Bank of America online banking experience.
  */
 
-import React, { useState } from 'react';
 import { FiEye, FiEyeOff, FiKey, FiLock, FiShield, FiUser } from '@icons';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import type { CorporatePortalConfig } from '../../types/CorporatePortalConfig';
 

@@ -1,15 +1,7 @@
 // src/components/ColoredUrlDisplay.tsx
+
+import { FiCode, FiEdit2, FiExternalLink, FiEye, FiInfo, FiSave, FiX } from '@icons';
 import React, { useState } from 'react';
-import {
-	FiCode,
-	FiEdit,
-	FiEdit2,
-	FiExternalLink,
-	FiEye,
-	FiInfo,
-	FiSave,
-	FiX
-} from '@icons';
 import styled from 'styled-components';
 import { CopyButtonService } from '../services/copyButtonService';
 

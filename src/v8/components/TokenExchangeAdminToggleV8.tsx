@@ -1,7 +1,6 @@
 // src/v8/components/TokenExchangeAdminToggleV8.tsx
 // Token Exchange Phase 1 - Admin-only toggle component
 
-import React, { useEffect, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiCheckCircle,
@@ -10,6 +9,7 @@ import {
 	FiToggleLeft,
 	FiToggleRight,
 } from '@icons';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { GlobalEnvironmentService } from '../services/globalEnvironmentService';
 import { TokenExchangeConfigServiceV8 } from '../services/tokenExchangeConfigServiceV8';

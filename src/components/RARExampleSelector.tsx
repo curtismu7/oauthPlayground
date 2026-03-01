@@ -1,8 +1,8 @@
 // src/components/RARExampleSelector.tsx
 // RAR Example Selector with pre-built templates including customer_information
 
-import React, { useState } from 'react';
 import { FiCheckCircle, FiChevronDown, FiChevronUp, FiCode, FiCopy, FiEye } from '@icons';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import RARService, { type AuthorizationDetail } from '../services/rarService';
 

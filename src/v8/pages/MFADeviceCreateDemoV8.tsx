@@ -4,15 +4,8 @@
  * @description Interactive page for crafting PingOne Create Device requests with editable JSON.
  */
 
+import { FiAlertTriangle, FiCheckCircle, FiMail, FiPhone, FiRefreshCw, FiUser } from '@icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiMail,
-	FiPhone,
-	FiRefreshCw,
-	FiUser,
-} from '@icons';
 import { readBestEnvironmentId } from '@/hooks/useAutoEnvironmentId';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import SimplePingOneApiDisplayV8 from '@/v8/components/SimplePingOneApiDisplayV8';

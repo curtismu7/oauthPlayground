@@ -1,5 +1,5 @@
-import React from 'react';
 import { FiBook, FiMessageCircle, FiSearch, FiZap } from '@icons';
+import React from 'react';
 
 const styles = {
 	container: {

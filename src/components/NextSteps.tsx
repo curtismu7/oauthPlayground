@@ -1,5 +1,5 @@
-import React from 'react';
 import { FiCheckCircle } from '@icons';
+import React from 'react';
 import styled from 'styled-components';
 
 const NextStepsList = styled.div`

@@ -1,7 +1,6 @@
 // src/pages/flows/v9/RARFlowV9.tsx
 // V9 RAR (Rich Authorization Requests) Flow with Enhanced Architecture
 
-import React, { useCallback, useState } from 'react';
 import {
 	FiArrowRight,
 	FiCheckCircle,
@@ -11,6 +10,7 @@ import {
 	FiRefreshCw,
 	FiSettings,
 } from '@icons';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { StandardizedCredentialExportImport } from '../../../components/StandardizedCredentialExportImport';
 import { StepNavigationButtons } from '../../../components/StepNavigationButtons';
@@ -329,12 +329,15 @@ const RARFlowV9: React.FC = () => {
 	}, [authorizationCode, generateRARAuthorizationDetails]);
 
 	// Handle input changes
-	const handleConfigChange = useCallback((field: keyof typeof rarConfig, value: string | number | boolean) => {
-		setRarConfig((prev) => ({
-			...prev,
-			[field]: value,
-		}));
-	}, []);
+	const handleConfigChange = useCallback(
+		(field: keyof typeof rarConfig, value: string | number | boolean) => {
+			setRarConfig((prev) => ({
+				...prev,
+				[field]: value,
+			}));
+		},
+		[]
+	);
 
 	// Handle array field changes (actions, locations, etc.)
 	const handleArrayFieldChange = useCallback((field: keyof typeof rarConfig, value: string) => {
@@ -628,7 +631,9 @@ const RARFlowV9: React.FC = () => {
 										marginBottom: '1rem',
 									}}
 								>
-									{isLoading ? 'Exchanging Token...' : (
+									{isLoading ? (
+										'Exchanging Token...'
+									) : (
 										<>
 											<FiRefreshCw /> Exchange Authorization Code for Tokens
 										</>

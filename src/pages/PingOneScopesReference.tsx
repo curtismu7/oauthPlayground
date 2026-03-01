@@ -1,7 +1,6 @@
 // src/pages/PingOneScopesReference.tsx
 // Educational reference page for PingOne OAuth 2.0 and OIDC scopes
 
-import React from 'react';
 import {
 	FiBook,
 	FiCheck,
@@ -15,6 +14,7 @@ import {
 	FiShield,
 	FiUser,
 } from '@icons';
+import React from 'react';
 import styled from 'styled-components';
 
 const PageContainer = styled.div`

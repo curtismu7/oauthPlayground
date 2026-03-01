@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import {
 	FiAward,
 	FiCheckCircle,
@@ -10,6 +9,7 @@ import {
 	FiUsers,
 	FiZap,
 } from '@icons';
+import React, { useState } from 'react';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { FlowUIService } from '../services/flowUIService';
 

@@ -6,17 +6,8 @@
  * @since 2026-02-15
  */
 
+import { FiAlertCircle, FiCheck, FiEye, FiImage, FiPlus, FiSave, FiUpload, FiX } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
-import {
-	FiAlertCircle,
-	FiCheck,
-	FiEye,
-	FiImage,
-	FiPlus,
-	FiSave,
-	FiUpload,
-	FiX,
-} from '@icons';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { v4ToastManager } from '../../../utils/v4ToastMessages';

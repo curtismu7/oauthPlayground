@@ -1,15 +1,7 @@
 // src/v7m/pages/V7MROPC.tsx
+
+import { FiAlertTriangle, FiCheck, FiCopy, FiEye, FiEyeOff, FiKey, FiLock, FiUser } from '@icons';
 import React, { useMemo, useState } from 'react';
-import {
-	FiAlertTriangle,
-	FiCheck,
-	FiCopy,
-	FiEye,
-	FiEyeOff,
-	FiKey,
-	FiLock,
-	FiUser,
-} from '@icons';
 import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 import {
 	introspectToken,

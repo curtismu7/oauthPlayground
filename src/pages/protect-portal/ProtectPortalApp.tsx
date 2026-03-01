@@ -9,8 +9,8 @@
  * risk-based authentication with custom login, MFA integration, and OIDC token display.
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
 import { FiAlertTriangle, FiCheckCircle, FiLoader, FiShield, FiX } from '@icons';
+import React, { useCallback, useEffect, useState } from 'react';
 import { WorkerTokenSectionV8 } from '@/v8/components/WorkerTokenSectionV8';
 import AmericanAirlinesHero from './components/AmericanAirlinesHero';
 import BankOfAmericaHero from './components/BankOfAmericaHero';

@@ -9,8 +9,8 @@
  * their actual login page layout with navigation, hero content, and login integration.
  */
 
-import React from 'react';
 import { FiCheckCircle, FiDollarSign, FiHeart, FiShield, FiSmile } from '@icons';
+import React from 'react';
 import styled from 'styled-components';
 import { useBrandTheme } from '../themes/theme-provider';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';

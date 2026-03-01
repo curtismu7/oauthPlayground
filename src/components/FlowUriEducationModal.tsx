@@ -1,14 +1,13 @@
-import React, { useMemo } from 'react';
 import {
 	FiBookOpen,
 	FiCheckCircle,
 	FiCopy,
 	FiExternalLink,
 	FiInfo,
-	FiLink,
 	FiLink2,
-	FiTarget
+	FiTarget,
 } from '@icons';
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import type { FlowUriEducationEntry } from '../services/flowUriEducationService';
 import { flowUriEducationService } from '../services/flowUriEducationService';

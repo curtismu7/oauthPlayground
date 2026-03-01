@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
 import { FiSettings } from '@icons';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { getDefaultConfig } from '../utils/flowConfigDefaults';
 import { type FlowConfig, FlowConfiguration } from './FlowConfiguration';

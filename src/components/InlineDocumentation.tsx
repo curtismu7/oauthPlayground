@@ -1,14 +1,7 @@
 // src/components/InlineDocumentation.tsx - Enhanced inline documentation
 
+import { FiBook, FiChevronDown, FiChevronRight, FiCode, FiExternalLink, FiInfo } from '@icons';
 import React, { useState } from 'react';
-import {
-	FiBook,
-	FiChevronDown,
-	FiChevronRight,
-	FiCode,
-	FiExternalLink,
-	FiInfo,
-} from '@icons';
 import styled from 'styled-components';
 
 const DocContainer = styled.div`

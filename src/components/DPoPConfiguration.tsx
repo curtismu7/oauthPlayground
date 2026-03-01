@@ -4,8 +4,8 @@
  * Provides UI for configuring and managing DPoP (Demonstration of Proof of Possession)
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
 import { FiAlertCircle, FiInfo, FiKey, FiRefreshCw, FiShield } from '@icons';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { type DPoPConfig, DPoPService, DPoPStatus } from '../services/dpopService';
 import { v4ToastManager } from '../utils/v4ToastMessages';

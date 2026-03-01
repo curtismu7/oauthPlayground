@@ -7,7 +7,6 @@
  * Displays API calls, JSON bodies, rules, and allows download as PDF/MD
  */
 
-import React, { useState } from 'react';
 import {
 	FiBook,
 	FiChevronDown,
@@ -18,6 +17,7 @@ import {
 	FiInfo,
 	FiPackage,
 } from '@icons';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
 	downloadPostmanCollectionWithEnvironment,

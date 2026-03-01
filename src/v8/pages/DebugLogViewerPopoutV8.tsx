@@ -5,17 +5,8 @@
  * @version 9.9.6
  */
 
+import { FiDatabase, FiDownload, FiEye, FiEyeOff, FiFile, FiRefreshCw, FiTrash2 } from '@icons';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import {
-	FiDatabase,
-	FiDownload,
-	FiEye,
-	FiEyeOff,
-	FiFile,
-	FiRefreshCw,
-	FiTrash,
-	FiTrash2
-} from '@icons';
 import { type LogFile, LogFileService } from '@/services/logFileService';
 // PageHeaderV8 removed - using compact inline header for space efficiency
 import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';

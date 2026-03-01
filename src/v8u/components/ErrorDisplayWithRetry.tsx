@@ -12,8 +12,8 @@
  * - Suggested fixes from OAuth error codes service
  */
 
-import React, { useState } from 'react';
 import { FiAlertCircle, FiExternalLink } from '@icons';
+import React, { useState } from 'react';
 import { OAuthErrorCodesServiceV8 } from '@/v8/services/oauthErrorCodesServiceV8';
 
 const _MODULE_TAG = '[❌ ERROR-DISPLAY-V8U]';

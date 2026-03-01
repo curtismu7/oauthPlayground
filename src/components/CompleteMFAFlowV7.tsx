@@ -2,7 +2,6 @@
 // Modern V7 MFA Flow - Complete PingOne MFA implementation with modern V7 UI
 // Implements the full 8-step specification with real API integration
 
-import React, { useCallback, useEffect, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiAlertTriangle,
@@ -21,6 +20,7 @@ import {
 	FiSmartphone,
 	FiZap,
 } from '@icons';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import EnhancedFlowInfoCard from '../components/EnhancedFlowInfoCard';
 import { StepNavigationButtons } from '../components/StepNavigationButtons';

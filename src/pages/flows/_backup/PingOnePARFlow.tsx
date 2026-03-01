@@ -1,5 +1,3 @@
-import type React from 'react';
-import { useEffect, useState } from 'react';
 import {
 	FiCheckCircle,
 	FiClock,
@@ -11,6 +9,8 @@ import {
 	FiShield,
 	FiXCircle,
 } from '@icons';
+import type React from 'react';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../../components/Card';
 import PageTitle from '../../components/PageTitle';

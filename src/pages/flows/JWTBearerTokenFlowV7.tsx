@@ -1,7 +1,6 @@
 // src/pages/flows/JWTBearerTokenFlowV7.tsx
 // OAuth 2.0 JWT Bearer Token Flow (RFC 7523) - V7 Service Architecture
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiAlertTriangle,
@@ -14,6 +13,7 @@ import {
 	FiRefreshCw,
 	FiShield,
 } from '@icons';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { readBestEnvironmentId } from '../../hooks/useAutoEnvironmentId';

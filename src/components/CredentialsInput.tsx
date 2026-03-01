@@ -1,13 +1,7 @@
 // src/components/CredentialsInput.tsx
+
+import { FiChevronDown, FiChevronRight, FiEye, FiEyeOff, FiGlobe, FiSettings } from '@icons';
 import { useState } from 'react';
-import {
-	FiChevronDown,
-	FiChevronRight,
-	FiEye,
-	FiEyeOff,
-	FiGlobe,
-	FiSettings,
-} from '@icons';
 import styled, { createGlobalStyle } from 'styled-components';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 import { callbackUriService } from '../services/callbackUriService';

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
 import { FiEye, FiEyeOff } from '@icons';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { jwtGenerator } from '../utils/jwtGenerator';
 import JWKSConverter from './JWKSConverter';

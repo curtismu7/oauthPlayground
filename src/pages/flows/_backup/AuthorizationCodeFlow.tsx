@@ -1,6 +1,5 @@
 // src/pages/flows/EnhancedAuthorizationCodeFlowV2.tsx - Enhanced with complete UI design implementation
-import type React from 'react';
-import { useCallback, useEffect, useState } from 'react';
+
 import {
 	FiAlertTriangle,
 	FiCheckCircle,
@@ -20,6 +19,8 @@ import {
 	FiShield,
 	FiUser,
 } from '@icons';
+import type React from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
 import CallbackUrlDisplay from '../../components/CallbackUrlDisplay';

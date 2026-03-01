@@ -1,10 +1,4 @@
-import {
-	FiAlertTriangle,
-	FiArrowRight,
-	FiExternalLink,
-	FiLayers,
-	FiTrendingUp,
-} from '@icons';
+import { FiAlertTriangle, FiArrowRight, FiExternalLink, FiLayers, FiTrendingUp } from '@icons';
 import styled from 'styled-components';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import PageLayoutService from '../services/pageLayoutService';

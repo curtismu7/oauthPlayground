@@ -9,8 +9,8 @@
  * This component reuses SMS patterns but uses WHATSAPP device type.
  */
 
-import React, { useCallback, useState } from 'react';
 import { FiShield, FiX } from '@icons';
+import React, { useCallback, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { CountryCodePickerV8 } from '@/v8/components/CountryCodePickerV8';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';

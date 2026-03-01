@@ -2,7 +2,6 @@
 // DPoP (Demonstration of Proof-of-Possession) Flow - Educational/Mock Implementation
 // RFC 9449 - OAuth 2.0 Demonstrating Proof of Possession (DPoP)
 
-import React, { useCallback, useEffect, useState } from 'react';
 import {
 	FiAlertTriangle,
 	FiBook,
@@ -15,6 +14,7 @@ import {
 	FiSend,
 	FiShield,
 } from '@icons';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardBody } from '../../components/Card';
 import { showFlowSuccess } from '../../components/CentralizedSuccessMessage';

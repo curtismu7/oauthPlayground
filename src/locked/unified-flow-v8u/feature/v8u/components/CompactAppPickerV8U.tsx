@@ -6,8 +6,8 @@
  * @since 2024-11-16
  */
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { FiSearch, FiX } from '@icons';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import type { DiscoveredApp } from '../../../dependencies/v8/components/AppPickerV8.tsx';
 import { AppDiscoveryServiceV8 } from '../../../dependencies/v8/services/appDiscoveryServiceV8.ts';
 import { workerTokenServiceV8 } from '../../../dependencies/v8/services/workerTokenServiceV8.ts';

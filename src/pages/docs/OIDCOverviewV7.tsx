@@ -1,7 +1,6 @@
 // src/pages/docs/OIDCOverviewV7.tsx
 // V7 OIDC Overview with Enhanced Architecture
 
-import React, { useCallback, useState } from 'react';
 import {
 	FiArrowRight,
 	FiCheckCircle,
@@ -17,6 +16,7 @@ import {
 	FiUsers,
 	FiZap,
 } from '@icons';
+import React, { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { usePageScroll } from '../../hooks/usePageScroll';

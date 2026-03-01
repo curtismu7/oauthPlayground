@@ -1,8 +1,6 @@
 // src/components/POSTerminalDeviceFlow.tsx
 // POS Terminal Style Device Authorization Flow Interface
 
-import { QRCodeSVG } from 'qrcode.react';
-import React from 'react';
 import {
 	FiAlertTriangle,
 	FiCheckCircle,
@@ -15,6 +13,8 @@ import {
 	FiX,
 	FiXCircle,
 } from '@icons';
+import { QRCodeSVG } from 'qrcode.react';
+import React from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';

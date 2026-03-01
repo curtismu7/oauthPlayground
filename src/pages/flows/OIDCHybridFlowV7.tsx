@@ -1,5 +1,5 @@
 // src/pages/flows/OIDCHybridFlowV7.tsx
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+
 import {
 	FiAlertCircle,
 	FiAlertTriangle,
@@ -13,6 +13,7 @@ import {
 	FiRefreshCw,
 	FiShield,
 } from '@icons';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 import { LearningTooltip } from '../../components/LearningTooltip';
 import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';

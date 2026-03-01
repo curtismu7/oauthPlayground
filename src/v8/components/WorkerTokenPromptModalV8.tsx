@@ -5,8 +5,8 @@
  * @version 8.0.0
  */
 
-import React from 'react';
 import { FiAlertTriangle, FiX } from '@icons';
+import React from 'react';
 import { PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
 
 const _MODULE_TAG = '[🔑 WORKER-TOKEN-PROMPT-MODAL-V8]';

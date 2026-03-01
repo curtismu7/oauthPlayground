@@ -1,9 +1,9 @@
 // src/components/TOTPQRCodeModal.tsx
 // TOTP QR Code Modal for Authenticator App Setup
 
+import { FiCheck, FiCopy, FiEye, FiEyeOff, FiKey, FiSmartphone, FiX } from '@icons';
 import { QRCodeSVG } from 'qrcode.react';
 import React, { useEffect, useState } from 'react';
-import { FiCheck, FiCopy, FiEye, FiEyeOff, FiKey, FiSmartphone, FiX } from '@icons';
 import { QRCodeService, TOTPConfig } from '../services/qrCodeService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 

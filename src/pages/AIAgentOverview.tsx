@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
 	FiAlertTriangle,
 	FiCheckCircle,
@@ -11,6 +10,7 @@ import {
 	FiX,
 	FiZap,
 } from '@icons';
+import { useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardBody } from '../components/Card';
 import { CollapsibleHeader as V6CollapsibleHeader } from '../services/collapsibleHeaderService';

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
 import { FiCheck, FiCopy } from '@icons';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 

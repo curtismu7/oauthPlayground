@@ -6,8 +6,8 @@
  * @since 2024-11-19
  */
 
-import React from 'react';
 import { FiAlertTriangle, FiCheckCircle, FiGlobe, FiSettings, FiX } from '@icons';
+import React from 'react';
 import styled from 'styled-components';
 
 const ModalOverlay = styled.div`

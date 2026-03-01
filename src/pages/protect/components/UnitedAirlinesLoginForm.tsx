@@ -9,7 +9,6 @@
  * their actual login experience: first email/mileage plus/phone number, then password.
  */
 
-import React, { useCallback, useState } from 'react';
 import {
 	FiAlertTriangle,
 	FiArrowRight,
@@ -17,8 +16,9 @@ import {
 	FiEyeOff,
 	FiLock as FiLockIcon,
 	FiPhone,
-	FiUser
+	FiUser,
 } from '@icons';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { ButtonSpinner } from '../../../components/ui/ButtonSpinner';
 import PingOneLoginService from '../services/pingOneLoginService';

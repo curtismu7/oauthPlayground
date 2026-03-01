@@ -2,8 +2,8 @@
 // PAR (Pushed Authorization Request) Configuration Service
 // Reusable service for configuring PAR authorization request parameters
 
-import React, { useCallback, useState } from 'react';
 import { FiCheckCircle, FiShield } from '@icons';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 import { CollapsibleHeader } from './collapsibleHeaderService';

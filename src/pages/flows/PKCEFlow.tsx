@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
 import { FiAlertCircle, FiShield } from '@icons';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import CallbackUrlDisplay from '../../components/CallbackUrlDisplay';
 import { CardBody, CardHeader } from '../../components/Card';

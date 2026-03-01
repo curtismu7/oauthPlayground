@@ -13,8 +13,8 @@
  * - at_hash and c_hash validation
  */
 
-import { useState } from 'react';
 import { FiCheckCircle, FiShield } from '@icons';
+import { useState } from 'react';
 import styled from 'styled-components';
 import { useOIDCCompliantAuthorizationCodeFlow } from '../../hooks/useOIDCCompliantAuthorizationCodeFlow';
 

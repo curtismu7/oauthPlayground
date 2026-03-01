@@ -16,11 +16,9 @@
  * ========================================================================
  */
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
 	FiActivity,
 	FiAlertTriangle,
-	FiBarChart,
 	FiBarChart2,
 	FiBook,
 	FiBookOpen,
@@ -47,13 +45,13 @@ import {
 	FiShoppingCart,
 	FiSmartphone,
 	FiTool,
-	FiTrash,
 	FiTrash2,
 	FiUser,
 	FiUsers,
 	FiX,
-	FiZap
+	FiZap,
 } from '@icons';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { v4ToastManager } from '../utils/v4ToastMessages';

@@ -4,7 +4,6 @@
  * Interactive OAuth/OIDC specification browser with real examples
  */
 
-import React, { useCallback, useState } from 'react';
 import {
 	FiBook,
 	FiCheckCircle,
@@ -17,6 +16,7 @@ import {
 	FiSearch,
 	FiTool,
 } from '@icons';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 

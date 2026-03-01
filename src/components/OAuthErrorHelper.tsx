@@ -1,5 +1,5 @@
 // src/components/OAuthErrorHelper.tsx
-import React from 'react';
+
 import {
 	FiAlertTriangle,
 	FiCheckCircle,
@@ -11,6 +11,7 @@ import {
 	FiShield,
 	FiX,
 } from '@icons';
+import React from 'react';
 import styled from 'styled-components';
 import { getAppOrigin } from '../utils/flowRedirectUriMapping';
 
