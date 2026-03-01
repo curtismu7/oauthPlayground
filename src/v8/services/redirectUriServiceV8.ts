@@ -8,6 +8,8 @@
  * Based on V7's comprehensive flowRedirectUriMapping with V8 enhancements
  */
 
+import { getCachedDomain } from '@/services/customDomainService';
+
 const MODULE_TAG = '[🔗 REDIRECT-URI-V8]';
 
 export interface FlowRedirectUriConfig {
@@ -157,19 +159,30 @@ export const FLOW_REDIRECT_URI_MAPPING_V8: FlowRedirectUriConfig[] = [
 ];
 
 /**
- * Get the base URL for the application
- * Prefers VITE_APP_DOMAIN env variable so redirect URIs use the canonical
- * public domain (e.g. api.pingone.com) rather than the dev-server hostname.
+ * Get the base URL for the application.
+ *
+ * Priority:
+ *   1. Domain stored in IndexedDB/SQLite (loaded via initDomainCache at startup)
+ *      — uses stored hostname but preserves the current browser port so the
+ *        redirect URI matches the registered PingOne callback exactly.
+ *   2. VITE_APP_DOMAIN env variable (includes scheme; set in .env.local)
+ *   3. window.location (verbatim — dev/fallback)
  */
 export const getBaseUrl = (): string => {
-	const envDomain = (import.meta.env.VITE_APP_DOMAIN as string | undefined)?.trim();
-	if (envDomain) {
-		return envDomain.replace(/\/$/, '');
-	}
 	if (typeof window !== 'undefined') {
+		const cachedHostname = getCachedDomain(); // e.g. 'api.pingone.com'
+		if (cachedHostname) {
+			const port = window.location.port;
+			const portStr = port ? `:${port}` : '';
+			return `${window.location.protocol}//${cachedHostname}${portStr}`;
+		}
+		const envDomain = (import.meta.env.VITE_APP_DOMAIN as string | undefined)?.trim();
+		if (envDomain) return envDomain.replace(/\/$/, '');
 		return `${window.location.protocol}//${window.location.host}`;
 	}
-	return 'http://localhost:3000';
+	// SSR / test context
+	const envDomain = (import.meta.env.VITE_APP_DOMAIN as string | undefined)?.trim();
+	return envDomain ? envDomain.replace(/\/$/, '') : 'https://api.pingone.com:3000';
 };
 
 /**
