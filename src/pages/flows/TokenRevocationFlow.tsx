@@ -6,6 +6,8 @@ import JSONHighlighter from '../../components/JSONHighlighter';
 import { StepByStepFlow } from '../../components/StepByStepFlow';
 import { TokenManagementService } from '../../services/tokenManagementService';
 import { logger } from '../../utils/logger';
+import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
+import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 
 const FlowContainer = styled.div`
   max-width: 1200px;
@@ -263,6 +265,7 @@ interface TokenRevocationFlowProps {
 }
 
 const TokenRevocationFlow: React.FC<TokenRevocationFlowProps> = ({ credentials }) => {
+	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [currentStep, setCurrentStep] = useState(0);
 	const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 	const [activeTab, setActiveTab] = useState<'access_token' | 'refresh_token' | 'bulk_revocation'>(
@@ -636,6 +639,7 @@ cleanupAfterRevocation(revocationResult);`,
 
 	return (
 		<FlowContainer>
+			<WorkerTokenExpiryBannerV8 onFixToken={() => setShowWorkerTokenModal(true)} marginBottom="24px" />
 			<FlowTitle>Token Revocation Flow</FlowTitle>
 			<FlowDescription>
 				This flow demonstrates token revocation operations to invalidate access tokens and refresh
@@ -891,7 +895,7 @@ cleanupAfterRevocation(revocationResult);`,
 					{activeTab === 'bulk_revocation' ? 'Revoke All Tokens' : 'Revoke Token'}
 				</Button>
 			</FormContainer>
-		</FlowContainer>
+                        <WorkerTokenModalV8 isOpen={showWorkerTokenModal} onClose={() => setShowWorkerTokenModal(false)} />
 	);
 };
 

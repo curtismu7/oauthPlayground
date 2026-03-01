@@ -13,6 +13,8 @@ import {
 } from '../../services/tokenManagementService';
 import { logger } from '../../utils/logger';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
+import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
+import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 
 const FlowContainer = styled.div`
   max-width: 1200px;
@@ -273,6 +275,7 @@ interface TokenManagementFlowProps {
 }
 
 const TokenManagementFlow: React.FC<TokenManagementFlowProps> = ({ credentials }) => {
+	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [currentStep, setCurrentStep] = useState(0);
 	const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 	const [activeTab, setActiveTab] = useState<'exchange' | 'refresh' | 'introspect' | 'revoke'>(
@@ -673,6 +676,7 @@ if (introspectionResponse) {
 
 	return (
 		<FlowContainer>
+			<WorkerTokenExpiryBannerV8 onFixToken={() => setShowWorkerTokenModal(true)} marginBottom="24px" />
 			<FlowTitle>Token Management Flow</FlowTitle>
 			<FlowDescription>
 				This flow demonstrates comprehensive token management operations including token exchange,
@@ -988,7 +992,7 @@ if (introspectionResponse) {
 								: 'Token Revocation'}
 				</Button>
 			</FormContainer>
-		</FlowContainer>
+                        <WorkerTokenModalV8 isOpen={showWorkerTokenModal} onClose={() => setShowWorkerTokenModal(false)} />
 	);
 };
 

@@ -181,7 +181,7 @@ export class AuthorizationUrlBuilderService {
 	 * Build authorization URL for implicit flow
 	 */
 	private static buildImplicitUrl(params: AuthorizationUrlParams): AuthorizationUrlResult {
-		const { credentials, pkceCodes, state, nonce } = params;
+		const { credentials, state, nonce } = params;
 
 		// Get correct redirect URI
 		const redirectUri = AuthorizationUrlBuilderService.getRedirectUri('implicit', credentials);
