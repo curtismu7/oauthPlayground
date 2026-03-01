@@ -18,12 +18,12 @@ import { EducationModeToggle } from '@/components/education/EducationModeToggle'
 import { MasterEducationSection } from '@/components/education/MasterEducationSection';
 import { StandardizedCredentialExportImport } from '@/components/StandardizedCredentialExportImport';
 import { usePageScroll } from '@/hooks/usePageScroll';
+import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import {
 	downloadPostmanCollectionWithEnvironment,
 	generateCompletePostmanCollection,
 	generateComprehensiveUnifiedPostmanCollection,
 } from '@/services/postmanCollectionGeneratorV8';
-import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import { ShowTokenConfigCheckboxV8 } from '@/v8/components/ShowTokenConfigCheckboxV8';
 import { SilentApiConfigCheckboxV8 } from '@/v8/components/SilentApiConfigCheckboxV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
@@ -107,6 +107,9 @@ const safeLogAnalytics = async (
 export const UnifiedOAuthFlowV8U: React.FC = () => {
 	// Scroll to top on page load for better UX
 	usePageScroll({ pageName: 'Unified OAuth Flow V8U', force: true });
+
+	// Use unified global worker token hook for token management
+	const globalTokenStatus = useGlobalWorkerToken();
 
 	// Extract flow type and step from URL parameters
 	// URL format: /v8u/unified/:flowType/:step
@@ -749,15 +752,18 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			}
 
 			// Check worker token status BEFORE sending the token
-			const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
-			if (!tokenStatus.isValid) {
+			if (!globalTokenStatus.isValid) {
 				setAppConfig(null);
-				setWorkerTokenWarning(tokenStatus);
+				setWorkerTokenWarning({ 
+					status: 'valid', 
+					message: 'Worker token is invalid or expired', 
+					isValid: false 
+				});
 				return;
 			}
 
-			// Get the actual token from the service
-			const token = await unifiedWorkerTokenService.getToken();
+			// Get the actual token from the global hook
+			const token = globalTokenStatus.token;
 			if (!token) {
 				setAppConfig(null);
 				setWorkerTokenWarning({ status: 'missing', message: 'No worker token found', isValid: false });
@@ -798,7 +804,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		};
 
 		fetchAppConfig();
-	}, [credentials.environmentId, credentials.clientId]);
+	}, [credentials.environmentId, credentials.clientId, globalTokenStatus.isValid, globalTokenStatus.token]);
 
 	// Listen for environment ID updates
 	useEffect(() => {
