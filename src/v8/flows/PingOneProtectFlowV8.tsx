@@ -30,6 +30,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
 import { type Credentials, CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import uiNotificationServiceV8 from '@/v8/services/uiNotificationServiceV8';
@@ -1363,6 +1364,10 @@ await updateRiskEvaluation(registrationRisk.id, 'SUCCESS');`}
 
 	return (
 		<>
+			<WorkerTokenExpiryBannerV8
+				onFixToken={() => setShowWorkerTokenModal(true)}
+				marginBottom="24px"
+			/>
 			{/* Modal Spinners for PingOne Protect Operations */}
 			<StandardModalSpinner
 				show={riskPoliciesSpinner.isLoading}
