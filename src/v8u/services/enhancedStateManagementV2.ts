@@ -86,6 +86,7 @@ function unifiedFlowReducer(state: UnifiedFlowState, action: UnifiedFlowAction):
 			};
 		}
 		case 'DELETE_FLOW': {
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			const { [action.payload]: deleted, ...newFlows } = state.flows;
 			return {
 				...state,
