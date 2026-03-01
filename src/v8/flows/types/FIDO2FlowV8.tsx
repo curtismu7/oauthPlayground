@@ -27,6 +27,7 @@ import { ValidationServiceV8 } from '@/v8/services/validationServiceV8';
 import { WebAuthnAuthenticationServiceV8 } from '@/v8/services/webAuthnAuthenticationServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
 import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8';
 import { useMFALoadingStateManager } from '@/v8/utils/loadingStateManagerV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
@@ -783,6 +784,10 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 
 			return (
 				<div className="step-content">
+					<WorkerTokenExpiryBannerV8
+						onFixToken={() => props.setShowWorkerTokenModal(true)}
+						marginBottom="24px"
+					/>
 					<h2>
 						Configure MFA Settings
 						<MFAInfoButtonV8 contentKey="device.enrollment" displayMode="modal" />
