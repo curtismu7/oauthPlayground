@@ -13,7 +13,6 @@ import {
 	AppDiscoveryServiceV8,
 	type DiscoveredApplication,
 } from '@/v8/services/appDiscoveryServiceV8';
-import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const MODULE_TAG = '[🔍 APP-DISCOVERY-MODAL-V8U]';
@@ -336,27 +335,27 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 							style={{
 								padding: '12px 16px',
 								marginBottom: '20px',
-								background:
-									globalTokenStatus.status === 'valid'
+								background: globalTokenStatus.isLoading
+									? '#f3f4f6'
+									: globalTokenStatus.isValid
 										? '#d1fae5'
-										: globalTokenStatus.status === 'expiring-soon'
-											? '#fef3c7'
-											: '#fee2e2',
-								border: `1px solid ${WorkerTokenStatusServiceV8.getStatusColor(globalTokenStatus.status)}`,
+										: '#fee2e2',
+								border: `1px solid ${globalTokenStatus.isLoading ? '#d1d5db' : globalTokenStatus.isValid ? '#6ee7b7' : '#fca5a5'}`,
 								borderRadius: '8px',
 								fontSize: '14px',
-								color:
-									globalTokenStatus.status === 'valid'
+								color: globalTokenStatus.isLoading
+									? '#6b7280'
+									: globalTokenStatus.isValid
 										? '#065f46'
-										: globalTokenStatus.status === 'expiring-soon'
-											? '#92400e'
-											: '#991b1b',
+										: '#991b1b',
 								display: 'flex',
 								alignItems: 'center',
 								gap: '8px',
 							}}
 						>
-							<span>{WorkerTokenStatusServiceV8.getStatusIcon(globalTokenStatus.status)}</span>
+							<span>
+								{globalTokenStatus.isLoading ? '⏳' : globalTokenStatus.isValid ? '✅' : '⚠️'}
+							</span>
 							<span>{globalTokenStatus.message}</span>
 						</div>
 

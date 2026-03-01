@@ -35,6 +35,7 @@ import { SilentApiConfigCheckboxV8 } from '@/v8/components/SilentApiConfigCheckb
 import { SQLiteStatsDisplayV8 } from '@/v8/components/SQLiteStatsDisplayV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { UserLoginModalV8 } from '@/v8/components/UserLoginModalV8';
+import { UserSearchDropdownV8 } from '@/v8/components/UserSearchDropdownV8';
 import { WorkerTokenSectionV8 } from '@/v8/components/WorkerTokenSectionV8';
 import { getDeviceConfig } from '@/v8/config/deviceFlowConfigs';
 import type { DeviceConfigKey, DeviceRegistrationResult } from '@/v8/config/deviceFlowConfigTypes';
@@ -585,6 +586,30 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 								}}
 							/>
 						)}
+					</div>
+
+					{/* Username Dropdown */}
+					<div style={{ marginBottom: '20px' }}>
+						<label
+							htmlFor="username-dropdown"
+							style={{
+								display: 'block',
+								fontSize: '14px',
+								fontWeight: '600',
+								color: '#374151',
+								marginBottom: '8px',
+							}}
+						>
+							Username
+						</label>
+						<UserSearchDropdownV8
+							id="username-dropdown"
+							environmentId={environmentId}
+							value={username}
+							onChange={setUsername}
+							placeholder="Search for a user..."
+							disabled={!environmentId}
+						/>
 					</div>
 
 					{/* SQLite Database Stats */}
