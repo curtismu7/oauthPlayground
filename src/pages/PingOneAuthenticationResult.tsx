@@ -214,7 +214,7 @@ const PingOneAuthenticationResult: React.FC = () => {
 	const [showSuccessModal, setShowSuccessModal] = useState(false);
 	const [modalShownRef] = useState<{ current: boolean }>({ current: false });
 	const [_flowLogCollapsed, setFlowLogCollapsed] = useState(true);
-	const [flowLog, setFlowLog] = useState<any[] | null>(null);
+	const [flowLog, setFlowLog] = useState<Array<Record<string, unknown>> | null>(null);
 
 	// V7 Stepper components
 	const {
