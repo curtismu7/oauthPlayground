@@ -40,8 +40,17 @@ export function openWebhookViewerPopout(): void {
 }
 
 /**
- * Returns true when the current page is either the webhook viewer popout
- * or the regular webhook viewer page — both should render without the sidebar.
+ * Returns true when the current page is the dedicated popout window
+ * (/pingone-webhook-viewer-popout). Used to hide the "Popout" button
+ * so users don't try to open a popout from within the popout.
+ */
+export function isPopoutWindow(): boolean {
+	return window.location.pathname.includes('/pingone-webhook-viewer-popout');
+}
+
+/**
+ * Returns true when the current page is either the webhook viewer or the
+ * popout — both render without the main app sidebar/layout.
  */
 export function isWebhookPopout(): boolean {
 	return window.location.pathname.includes('/pingone-webhook-viewer');
