@@ -1,6 +1,6 @@
 // src/components/UltimateTokenDisplay.tsx
 // Ultimate Token Display Component - Combines all the best features
-import React, { useMemo, useState } from 'react';
+
 import {
 	FiAlertCircle,
 	FiCheck,
@@ -15,6 +15,7 @@ import {
 	FiUnlock,
 	FiZap,
 } from '@icons';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';

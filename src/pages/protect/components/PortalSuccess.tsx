@@ -9,8 +9,8 @@
  * risk evaluation summary, and OIDC token display.
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
 import { FiCheckCircle, FiCopy, FiEye, FiEyeOff, FiInfo, FiLogOut, FiShield } from '@icons';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import TokenUtilityService, { type TokenValidationResult } from '../services/tokenUtilityService';
 import type {

@@ -1,4 +1,3 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
 	FiCheck,
 	FiCheckCircle,
@@ -8,6 +7,7 @@ import {
 	FiEye,
 	FiEyeOff,
 } from '@icons';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';

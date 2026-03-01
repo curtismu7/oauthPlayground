@@ -11,8 +11,8 @@
  * - Dependency Inversion: Depends on UserService abstraction
  */
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { FiChevronDown, FiUser } from '@icons';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useTheme } from '../contexts/ThemeContext';
 import { userService } from '../services/UserService';

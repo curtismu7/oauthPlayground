@@ -6,8 +6,8 @@
  * is not applicable to the current OAuth/OIDC flow type.
  */
 
-import React from 'react';
 import { FiInfo } from '@icons';
+import React from 'react';
 import styled from 'styled-components';
 
 export interface HiddenFieldExplanationProps {

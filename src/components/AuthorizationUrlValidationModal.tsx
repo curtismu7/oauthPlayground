@@ -1,5 +1,5 @@
-import React from 'react';
 import { FiAlertTriangle, FiCheckCircle, FiExternalLink, FiX } from '@icons';
+import React from 'react';
 import styled from 'styled-components';
 
 interface ValidationResult {

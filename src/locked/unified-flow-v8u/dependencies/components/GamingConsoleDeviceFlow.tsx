@@ -1,8 +1,6 @@
 // src/components/GamingConsoleDeviceFlow.tsx
 // Gaming Console Style Device Authorization Flow Interface
 
-import { QRCodeSVG } from 'qrcode.react';
-import React from 'react';
 import {
 	FiAlertTriangle,
 	FiCheckCircle,
@@ -12,6 +10,8 @@ import {
 	FiTv,
 	FiXCircle,
 } from '@icons';
+import { QRCodeSVG } from 'qrcode.react';
+import React from 'react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';

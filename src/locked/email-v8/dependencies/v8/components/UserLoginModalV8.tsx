@@ -9,8 +9,8 @@
  * to obtain an access token that can be used as a "User Token" in MFA flows.
  */
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { FiEye, FiEyeOff, FiInfo } from '@icons';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { CompactAppPickerV8U } from '../../v8u/components/CompactAppPickerV8U.tsx';
 import { AppDiscoveryServiceV8 } from '../services/appDiscoveryServiceV8.ts';

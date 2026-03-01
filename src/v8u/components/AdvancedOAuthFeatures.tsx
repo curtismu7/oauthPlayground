@@ -1,14 +1,5 @@
+import { FiCheck, FiChevronDown, FiInfo, FiKey, FiLock, FiServer, FiShield, FiX } from '@icons';
 import React, { useEffect, useState } from 'react';
-import {
-	FiCheck,
-	FiChevronDown,
-	FiInfo,
-	FiKey,
-	FiLock,
-	FiServer,
-	FiShield,
-	FiX,
-} from '@icons';
 import styled from 'styled-components';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';

@@ -13,8 +13,8 @@
  * - Expiry time formatting
  */
 
-import React, { useState } from 'react';
 import { FiCheck, FiCode, FiCopy, FiKey } from '@icons';
+import React, { useState } from 'react';
 import { type DecodedJWT, TokenDisplayServiceV8 } from '../../v8/services/tokenDisplayServiceV8.ts';
 
 const _MODULE_TAG = '[🎫 TOKEN-DISPLAY-V8U]';

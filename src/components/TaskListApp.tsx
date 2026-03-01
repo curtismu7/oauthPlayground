@@ -1,15 +1,5 @@
+import { FiCalendar, FiCheckCircle, FiClock, FiEdit3, FiInbox, FiPlus, FiTrash2 } from '@icons';
 import React, { useEffect, useMemo, useState } from 'react';
-import {
-	FiCalendar,
-	FiCheckCircle,
-	FiClock,
-	FiEdit,
-	FiEdit3,
-	FiInbox,
-	FiPlus,
-	FiTrash,
-	FiTrash2
-} from '@icons';
 import styled from 'styled-components';
 
 const Page = styled.div`

@@ -2,8 +2,8 @@
 // Learning Mode Tooltip Component - Explains OAuth concepts inline
 // Used throughout flows to help users understand OAuth/OIDC concepts
 
-import React, { useEffect, useRef, useState } from 'react';
 import { FiAlertCircle, FiBook, FiCheckCircle, FiInfo, FiShield } from '@icons';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 export type TooltipVariant = 'info' | 'learning' | 'warning' | 'success' | 'security';

@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
 import { FiBook, FiChevronLeft, FiPackage, FiShield } from '@icons';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import LoginSuccessModal from '../components/LoginSuccessModal';

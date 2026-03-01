@@ -6,8 +6,8 @@
  * @since 2024-11-16
  */
 
-import React, { useState } from 'react';
 import { FiInfo } from '@icons';
+import React, { useState } from 'react';
 
 export interface TooltipV8Props {
 	title: string;

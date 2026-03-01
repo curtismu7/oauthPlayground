@@ -1,8 +1,8 @@
 // src/pages/AdvancedSecuritySettingsDemo.tsx
 // Demo page to showcase the Advanced Security Settings service
 
-import React from 'react';
 import { FiArrowLeft, FiExternalLink } from '@icons';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import AdvancedSecuritySettingsMock from '../components/AdvancedSecuritySettingsMock';

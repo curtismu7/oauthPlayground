@@ -1,5 +1,5 @@
 // src/components/EnhancedStepFlowV2.tsx - Enhanced with new design system
-import React, { useCallback, useEffect, useState } from 'react';
+
 import {
 	FiAlertCircle,
 	FiCheck,
@@ -18,6 +18,7 @@ import {
 	FiXCircle,
 	FiZap,
 } from '@icons';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { logger } from '../utils/logger';
 import '../styles/enhanced-flow.css';

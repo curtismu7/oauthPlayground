@@ -12,17 +12,8 @@
  * - Open/Closed: Extensible for new user operations
  */
 
+import { FiAlertTriangle, FiEdit2, FiPlus, FiTrash2, FiUser, FiX } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
-import {
-	FiAlertTriangle,
-	FiEdit,
-	FiEdit2,
-	FiPlus,
-	FiTrash,
-	FiTrash2,
-	FiUser,
-	FiX
-} from '@icons';
 import styled from 'styled-components';
 import { PageApiInfo } from '../components/common/PageApiInfo';
 import { UserSearchDropdown } from '../components/UserSearchDropdown';

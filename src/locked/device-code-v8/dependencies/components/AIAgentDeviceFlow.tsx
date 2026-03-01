@@ -1,8 +1,6 @@
 // src/components/AIAgentDeviceFlow.tsx
 // AI Agent Style Device Authorization Flow Interface
 
-import { QRCodeSVG } from 'qrcode.react';
-import React from 'react';
 import {
 	FiActivity,
 	FiAlertTriangle,
@@ -15,6 +13,8 @@ import {
 	FiUpload,
 	FiXCircle,
 } from '@icons';
+import { QRCodeSVG } from 'qrcode.react';
+import React from 'react';
 import styled from 'styled-components';
 import {
 	DeviceFlowState,

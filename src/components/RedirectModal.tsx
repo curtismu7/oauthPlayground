@@ -1,6 +1,7 @@
 // src/components/RedirectModal.tsx
-import React, { useEffect, useState } from 'react';
+
 import { FiCheck, FiClock, FiExternalLink, FiX } from '@icons';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import ColoredUrlDisplay from './ColoredUrlDisplay';
 

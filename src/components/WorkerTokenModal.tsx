@@ -1,7 +1,6 @@
 // src/components/WorkerTokenModal.tsx
 // Modal for configuring worker token when not available
 
-import React, { useEffect, useState } from 'react';
 import {
 	FiAlertTriangle,
 	FiExternalLink,
@@ -12,6 +11,7 @@ import {
 	FiRefreshCw,
 	FiSave,
 } from '@icons';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useNotifications } from '../hooks/useNotifications';

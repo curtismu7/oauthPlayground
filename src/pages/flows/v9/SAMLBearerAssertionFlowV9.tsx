@@ -1,7 +1,6 @@
 // src/pages/flows/SAMLBearerAssertionFlowV9.tsx
 // OAuth 2.0 SAML Bearer Assertion Flow (RFC 7522) - V9
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
 	FiAlertTriangle,
 	FiCheckCircle,
@@ -16,6 +15,7 @@ import {
 	FiSettings,
 	FiUsers,
 } from '@icons';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { usePageScroll } from '../../../hooks/usePageScroll';
 import { CollapsibleHeader } from '../../../services/collapsibleHeaderService';

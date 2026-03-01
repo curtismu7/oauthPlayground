@@ -1,8 +1,8 @@
 // src/services/flowUIComponentsService.tsx
 // Service for centralized common UI components used across all flows
 
-import React from 'react';
 import { FiAlertTriangle, FiCheckCircle, FiInfo } from '@icons';
+import React from 'react';
 import styled from 'styled-components';
 
 export interface FlowUIComponentsConfig {

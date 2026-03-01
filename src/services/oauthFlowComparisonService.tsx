@@ -1,14 +1,7 @@
 // src/services/oauthFlowComparisonService.tsx
 // Service for displaying OAuth flow comparisons with collapsible headers
 
-import {
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiGlobe,
-	FiShield,
-	FiUsers,
-	FiXCircle,
-} from '@icons';
+import { FiAlertTriangle, FiCheckCircle, FiGlobe, FiShield, FiUsers, FiXCircle } from '@icons';
 import styled from 'styled-components';
 import { CollapsibleHeader } from './collapsibleHeaderService';
 

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
 import { FiAlertCircle, FiCheck, FiCopy, FiEye, FiKey, FiRefreshCw, FiTool } from '@icons';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { generateCodeChallenge, generateRandomString } from '../utils/oauth';
 import { Card, CardBody, CardHeader } from './Card';

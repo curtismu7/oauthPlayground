@@ -1,7 +1,6 @@
 // src/pages/PingOneWebhookViewer.tsx
 // PingOne Webhook Viewer - Real-time webhook event monitoring and subscription management
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
 	FiActivity,
 	FiAlertCircle,
@@ -18,10 +17,10 @@ import {
 	FiRefreshCw,
 	FiServer,
 	FiTag,
-	FiTrash,
 	FiTrash2,
-	FiX
+	FiX,
 } from '@icons';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ApiCallList from '../components/ApiCallList';
 import { readBestEnvironmentId } from '../hooks/useAutoEnvironmentId';

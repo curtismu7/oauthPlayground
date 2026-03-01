@@ -1,5 +1,3 @@
-import type React from 'react';
-import { useState } from 'react';
 import {
 	FiAlertTriangle,
 	FiCheckCircle,
@@ -12,6 +10,8 @@ import {
 	FiUser,
 	FiXCircle,
 } from '@icons';
+import type React from 'react';
+import { useState } from 'react';
 import styled from 'styled-components';
 import { CardBody, CardHeader } from '../../components/Card';
 import { SpecCard } from '../../components/SpecCard';

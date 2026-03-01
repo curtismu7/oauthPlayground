@@ -1,8 +1,8 @@
 // src/examples/MFASetupWithQRCode.tsx
 // Example MFA setup flow using QRCodeService
 
-import React, { useCallback, useState } from 'react';
 import { FiCheckCircle, FiCopy, FiRefreshCw, FiSmartphone } from '@icons';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import QRCodeService, { type QRCodeResult } from '../services/qrCodeService';
 

@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import {
 	FiCheckCircle,
 	FiChevronDown,
@@ -12,6 +11,7 @@ import {
 	FiUser,
 	FiXCircle,
 } from '@icons';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 interface IDTokenEducationSectionProps {

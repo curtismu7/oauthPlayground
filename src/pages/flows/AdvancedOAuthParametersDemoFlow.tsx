@@ -13,7 +13,6 @@
  * - Educational content for each parameter
  */
 
-import React, { useCallback, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiBook,
@@ -23,6 +22,7 @@ import {
 	FiPackage,
 	FiSettings,
 } from '@icons';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import AudienceParameterInput from '../../components/AudienceParameterInput';
 // Import components

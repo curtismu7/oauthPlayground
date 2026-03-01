@@ -1,8 +1,8 @@
 // src/components/DynamicHeaderExample.tsx
 // Example component demonstrating dynamic header colors based on security features
 
-import React, { useState } from 'react';
 import { FiGlobe, FiKey, FiSettings, FiShield } from '@icons';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { createSecurityFeaturesConfig, FlowHeader } from '../services/flowHeaderService';
 
