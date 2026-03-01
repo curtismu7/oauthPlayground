@@ -158,8 +158,14 @@ export const FLOW_REDIRECT_URI_MAPPING_V8: FlowRedirectUriConfig[] = [
 
 /**
  * Get the base URL for the application
+ * Prefers VITE_APP_DOMAIN env variable so redirect URIs use the canonical
+ * public domain (e.g. api.pingone.com) rather than the dev-server hostname.
  */
 export const getBaseUrl = (): string => {
+	const envDomain = (import.meta.env.VITE_APP_DOMAIN as string | undefined)?.trim();
+	if (envDomain) {
+		return envDomain.replace(/\/$/, '');
+	}
 	if (typeof window !== 'undefined') {
 		return `${window.location.protocol}//${window.location.host}`;
 	}
