@@ -96,7 +96,6 @@ const saveFlowDataComprehensive = (
 };
 
 import { FlowCompletionConfigs } from '../../../services/flowCompletionService';
-import ModalPresentationService from '../../../services/modalPresentationService';
 import { OAuthFlowComparisonService } from '../../../services/oauthFlowComparisonService';
 import { oidcDiscoveryService } from '../../../services/oidcDiscoveryService';
 // V9 wrapper services
@@ -106,6 +105,7 @@ import V9FlowCompletionService from '../../../services/v9/v9FlowCompletionServic
 import V9FlowHeader from '../../../services/v9/v9FlowHeaderService';
 // Get shared UI components from FlowUIService (to be migrated)
 import V9FlowUIService from '../../../services/v9/v9FlowUIService';
+import V9ModalPresentationService from '../../../services/v9/v9ModalPresentationService';
 import V9UnifiedTokenDisplayService from '../../../services/v9/v9UnifiedTokenDisplayService';
 
 // Styled Components
@@ -450,18 +450,7 @@ VqP0nwBzB8vAUQYXfmgKx8TqhJDH4YXNqkLVqaP8QvL5KqU0fNgF3qJF5UxXqL9v
 BQYXvH7GvJqF0Q1lXxS7Y5TqL9XJKqH/GUjQqQsqR4zK3mDvW+pX8vN0jkz5EqDn
 VqP0nwBzB8vAUQYXfmgKx8TqhJDH4YXNqkLVqaP8QvL5KqU0fNgF3qJF5UxXqL9v
 BQYXGvH7GvJqF0Q1lXxS7Y5TqL9XJKqH/GUjQqQsqR4zK3mDvW+pX8vN0jkz5EqD
-nVqP0nwBzB8vAUQYXfmgKx8TqhJDH4YXNqkLVqaP8QvL5KqU0fNgF3qJF5UxXqL9
-vBQYXGvH7GvJqF0Q1lXxS7Y5TqL9XJAgMBAAECggEAEqDnVqP0nwBzB8vAUQYXfm
-gKx8TqhJDH4YXNqkLVqaP8QvL5KqU0fNgF3qJF5UxXqL9vBQYXGvH7GvJqF0Q1lX
-xS7Y5TqL9XJKqH/GUjQqQsqR4zK3mDvW+pX8vN0jkz5EqDnVqP0nwBzB8vAUQYXf
-mgKx8TqhJDH4YXNqkLVqaP8QvL5KqU0fNgF3qJF5UxXqL9vBQYXGvH7GvJqF0Q1l
-XxS7Y5TqL9XJKqH/GUjQqQsqR4zK3mDvW+pX8vN0jkz5EqDnVqP0nwBzB8vAUQYX
-fmgKx8TqhJDH4YXNqkLVqaP8QvL5KqU0fNgF3qJF5UxXqL9vBQYXGvH7GvJqF0Q1
-lXxS7Y5TqL9XJKqH/GUjQqQsqR4zK3mDvW+pX8vN0jkz5EqDnVqP0nwBzB8vAUQY
-XfmgKx8TqhJDH4YXNqkLVqaQKBgQDx8vN0jkz5EqDnVqP0nwBzB8vAUQYXfmgKx8
-TqhJDH4YXNqkLVqaP8QvL5KqU0fNgF3qJF5UxXqL9vBQYXGvH7GvJqF0Q1lXxS7Y
-5TqL9XJKqH/GUjQqQsqR4zK3mDvW+pX8vN0jkz5EqDnVqP0nwBzB8vAUQYXfmgKx
-8TqhJDH4YXNqkLVqaP8QvL5KqU0fQKBgQDSOmfEXamplE7IvQZD0JqH/GUjQqQsq
+nVqP0nwBzB8vAUQYXfmgKx8TqhJDH4YXNqkLVqaP8QvL5KqU0fQKBgQDSOmfEXamplE7IvQZD0JqH/GUjQqQsq
 R4zK3mDvW+pX8vN0jkz5EqDnVqP0nwBzB8vAUQYXfmgKx8TqhJDH4YXNqkLVqaP8
 QvL5KqU0fNgF3qJF5UxXqL9vBQYXGvH7GvJqF0Q1lXxS7Y5TqL9XJKqH/GUjQqQs
 qR4zK3mDvW+pX8vN0jkz5EqDnVqP0nwBzB8vAUQYXfmgKx8TqhJDH4YXNqkLVqaP
@@ -488,8 +477,6 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxrx+xryahdENZV8Uu2OU
 cwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGF7x+
 xryahdENZV8Uu2OU6i/VySqh/xlI0KkLKkeMyt5g71vqV/LzdI5M+RKg51aj9J8A
 cwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
-+xryahdENZV8Uu2OU6i/VySqh/xlI0KkLKkeMyt5g71vqV/LzdI5M+RKg51aj9J8
-AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 +xryahdENZV8Uu2OU6i/VyQIDAQAB
 -----END PUBLIC KEY-----`;
 
@@ -1647,7 +1634,7 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 				isFirstStep={currentStep === 0}
 			/>
 
-			<ModalPresentationService
+			<V9ModalPresentationService
 				isOpen={showMissingCredentialsModal}
 				onClose={() => setShowMissingCredentialsModal(false)}
 				title="Credentials required"
@@ -1673,10 +1660,10 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 						))}
 					</ul>
 				)}
-			</ModalPresentationService>
+			</V9ModalPresentationService>
 
 			{/* JWT Generation Validation Modal */}
-			<ModalPresentationService
+			<V9ModalPresentationService
 				isOpen={showMissingJWTFieldsModal}
 				onClose={() => setShowMissingJWTFieldsModal(false)}
 				title="JWT Generation Requirements"
@@ -1702,7 +1689,7 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 						))}
 					</ul>
 				)}
-			</ModalPresentationService>
+			</V9ModalPresentationService>
 		</Container>
 	);
 };
