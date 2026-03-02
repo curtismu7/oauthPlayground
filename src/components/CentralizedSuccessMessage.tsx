@@ -378,7 +378,6 @@ export const showFlowSuccess = (text: string, subtitle?: string, autoCloseMs?: n
 };
 
 export const showFlowError = (summary: string, details?: string) => {
-	const _message = details ? `${summary}\n${details}` : summary;
 	addMessage({ text: summary, isError: true, html: buildErrorBlocks(summary, details) });
 };
 

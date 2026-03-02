@@ -11,6 +11,7 @@
 import { FiLock, FiX } from '@icons';
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { UserSearchDropdownV8 } from '../../../../v8/components/UserSearchDropdownV8';
 import type { CorporatePortalConfig } from '../../types/CorporatePortalConfig';
 
 // ============================================================================
@@ -131,13 +132,14 @@ interface DropdownLoginProps {
 	onClose: () => void;
 	onSubmit: (credentials: { username: string; password: string }) => void;
 	config: CorporatePortalConfig;
+	environmentId: string;
 }
 
 // ============================================================================
 // MAIN COMPONENT
 // ============================================================================
 
-const DropdownLogin: React.FC<DropdownLoginProps> = ({ isOpen, onClose, onSubmit, config }) => {
+const DropdownLogin: React.FC<DropdownLoginProps> = ({ isOpen, onClose, onSubmit, config, environmentId }) => {
 	const dropdownRef = useRef<HTMLDivElement>(null);
 	const [formData, setFormData] = useState({
 		username: '',
@@ -169,7 +171,9 @@ const DropdownLogin: React.FC<DropdownLoginProps> = ({ isOpen, onClose, onSubmit
 
 	// Handle input changes
 	const handleInputChange = (field: string, value: string) => {
-		setFormData((prev) => ({ ...prev, [field]: value }));
+		if (field === 'password') {
+			setFormData((prev) => ({ ...prev, [field]: value }));
+		}
 	};
 
 	const brandColor = config.branding.colors.primary;
@@ -193,14 +197,18 @@ const DropdownLogin: React.FC<DropdownLoginProps> = ({ isOpen, onClose, onSubmit
 						<InputLabel htmlFor="username">
 							{config.content.customerTerminology ? 'Customer ID' : 'Employee ID'}
 						</InputLabel>
-						<Input
+						<UserSearchDropdownV8
 							id="username"
-							type="text"
+							environmentId={environmentId}
 							value={formData.username}
-							onChange={(e) => handleInputChange('username', e.target.value)}
-							placeholder={`Enter your ${config.content.customerTerminology ? 'customer' : 'employee'} ID`}
-							required
-							$brandColor={brandColor}
+							onChange={(username) => {
+								setFormData((prev) => ({ ...prev, username }));
+							}}
+							placeholder={`Search for ${config.content.customerTerminology ? 'customer' : 'employee'} ID...`}
+							onGetToken={() => {
+								// Could show inline error or toast for token requirement
+								console.log('Worker token required for user search');
+							}}
 						/>
 					</InputGroup>
 
