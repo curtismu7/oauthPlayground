@@ -32,13 +32,13 @@ import { readBestEnvironmentId } from '@/hooks/useAutoEnvironmentId';
 import { usePageScroll } from '@/hooks/usePageScroll';
 import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
+import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
+import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EmailMFASignOnFlowServiceV8 } from '@/v8/services/emailMfaSignOnFlowServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { ButtonSpinner } from '../../components/ui/ButtonSpinner';
-import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
-import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
 
 const MODULE_TAG = '[📧 EMAIL-MFA-SIGNON-FLOW-V8]';
 

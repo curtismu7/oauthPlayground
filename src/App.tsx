@@ -586,7 +586,7 @@ const AppRoutes: React.FC = () => {
 				<AppContainer>
 					<Navbar toggleSidebar={toggleSidebar} sidebarOpen={sidebarOpen} />
 					<Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-					<ContentColumn>
+					<ContentColumn data-content-column>
 						<MainContent $sidebarWidth={sidebarWidth}>
 							<Routes>
 								<Route path="/login" element={<Login />} />
