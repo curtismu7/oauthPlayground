@@ -98,8 +98,7 @@ export function getFeatureConfiguration(featureId: string): FeatureConfiguration
 export function generateChangeDescriptions(
 	featureId: string,
 	featureName: string,
-	isEnabling: boolean,
-	_appName: string
+	isEnabling: boolean
 ): { pingOneChanges: string[]; appChanges: string[] } {
 	const config = getFeatureConfiguration(featureId);
 

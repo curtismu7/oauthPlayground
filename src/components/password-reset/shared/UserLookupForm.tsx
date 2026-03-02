@@ -2,13 +2,11 @@
 // Shared user lookup form component used across password reset tabs
 
 import React, { useEffect, useState } from 'react';
-import { FiSearch } from '../../../services/commonImportsService';
+import { UserSearchDropdownV8 } from '../../../v8/components/UserSearchDropdownV8';
 import {
 	Button,
 	FormGroup,
-	Input,
 	Label,
-	SpinningIcon,
 	UserAvatar,
 	UserCard,
 	UserInfo,
@@ -31,7 +29,7 @@ export const UserLookupForm: React.FC<UserLookupFormProps> = ({
 	label = 'Username, Email, or User ID',
 }) => {
 	const [identifier, setIdentifier] = useState('');
-	const { user, loading, lookupUser, resetUser } = useUserLookup(environmentId, workerToken);
+	const { user, resetUser } = useUserLookup(environmentId, workerToken);
 
 	// Debug logging
 	React.useEffect(() => {
@@ -41,11 +39,6 @@ export const UserLookupForm: React.FC<UserLookupFormProps> = ({
 			hasOnUserFound: !!onUserFound,
 		});
 	}, [environmentId, workerToken, onUserFound]);
-
-	const handleLookup = async () => {
-		await lookupUser(identifier);
-		// Note: user state will be updated by the hook, onUserFound will be called via useEffect
-	};
 
 	const handleReset = () => {
 		setIdentifier('');
@@ -94,17 +87,17 @@ export const UserLookupForm: React.FC<UserLookupFormProps> = ({
 			<FormGroup>
 				<Label>{label}</Label>
 				<div style={{ display: 'flex', gap: '0.5rem' }}>
-					<Input
-						type="text"
-						placeholder={placeholder}
+					<UserSearchDropdownV8
+						environmentId={environmentId}
 						value={identifier}
-						onChange={(e) => setIdentifier(e.target.value)}
-						onKeyPress={(e) => e.key === 'Enter' && handleLookup()}
+						onChange={(username) => {
+							setIdentifier(username);
+						}}
+						placeholder={placeholder}
+						onGetToken={() => {
+							console.log('Worker token required for user search in password reset');
+						}}
 					/>
-					<Button onClick={handleLookup} disabled={loading || !identifier}>
-						{loading ? <SpinningIcon /> : <FiSearch />}
-						Lookup
-					</Button>
 					{user && (
 						<Button $variant="secondary" onClick={handleReset}>
 							Clear
