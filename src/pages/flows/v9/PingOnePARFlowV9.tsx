@@ -1,7 +1,7 @@
 // src/pages/flows/v9/PingOnePARFlowV9.tsx
 // V9.0.0 PingOne PAR (Pushed Authorization Request) Flow - Modern V9 Architecture
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { AuthorizationDetailsEditor } from '../../components/AuthorizationDetailsEditor';
 import ColoredTokenDisplay from '../../components/ColoredTokenDisplay';
@@ -81,7 +81,7 @@ const PingOnePARFlowV9: React.FC = () => {
 		return 'oidc';
 	};
 
-	const [selectedVariant, setSelectedVariant] = useState<'oauth' | 'oidc'(getDefaultVariant());
+	const [selectedVariant, setSelectedVariant] = (useState < 'oauth') | 'oidc'(getDefaultVariant());
 
 	// Initialize authorization code flow controller with V9 settings
 	// Use dedicated PAR flow key to ensure separate storage
@@ -90,7 +90,7 @@ const PingOnePARFlowV9: React.FC = () => {
 		defaultFlowVariant: selectedVariant,
 	});
 
-	const [parConfig, setParConfig] = useState<PARConfiguration>(() =>
+	const [_parConfig, setParConfig] = useState<PARConfiguration>(() =>
 		PARConfigurationServiceUtils.getDefaultConfig()
 	);
 
@@ -174,10 +174,10 @@ const PingOnePARFlowV9: React.FC = () => {
 		try {
 			const codes = PKCEServiceUtils.generatePKCECodes();
 			setPkceCodes(codes);
-			
+
 			// Store PKCE codes for PAR flow
 			PKCEStorageServiceV8U.storePKCECodes('pingone-par-flow-v9', codes);
-			
+
 			messagingService.showSuccessBanner('PKCE codes generated successfully');
 			console.log('✅ [PAR V9] PKCE codes generated:', {
 				codeChallengeLength: codes.codeChallenge.length,
@@ -223,13 +223,13 @@ const PingOnePARFlowV9: React.FC = () => {
 		setParConfig(PARConfigurationServiceUtils.getDefaultConfig());
 		setAuthorizationDetails([cloneAuthorizationDetail(RAR_TEMPLATES.customerInformation)]);
 		setPkceCodes(null);
-		
+
 		// Clear PKCE storage
 		PKCEStorageServiceV8U.clearPKCECodes('pingone-par-flow-v9');
-		
+
 		// Reset controller
 		controller.reset();
-		
+
 		messagingService.showSuccessBanner('Flow restarted successfully');
 		console.log('🔄 [PAR V9] Flow restarted');
 	}, [controller, messagingService]);
@@ -267,15 +267,32 @@ const PingOnePARFlowV9: React.FC = () => {
 			case 0:
 				return (
 					<div style={{ padding: '2rem' }}>
-						<h3 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '1rem', color: '#1f2937' }}>
+						<h3
+							style={{
+								fontSize: '1.5rem',
+								fontWeight: '600',
+								marginBottom: '1rem',
+								color: '#1f2937',
+							}}
+						>
 							Setup & Credentials
 						</h3>
 						<p style={{ marginBottom: '2rem', color: '#6b7280' }}>
 							Configure your PingOne environment and application settings for the PAR flow.
 						</p>
-						
+
 						{/* Variant Selector */}
-						<div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', padding: '1.5rem', background: '#f8fafc', borderRadius: '0.75rem', border: '1px solid #e2e8f0' }}>
+						<div
+							style={{
+								display: 'flex',
+								gap: '1rem',
+								marginBottom: '2rem',
+								padding: '1.5rem',
+								background: '#f8fafc',
+								borderRadius: '0.75rem',
+								border: '1px solid #e2e8f0',
+							}}
+						>
 							<button
 								onClick={() => setSelectedVariant('oauth')}
 								style={{
@@ -327,7 +344,14 @@ const PingOnePARFlowV9: React.FC = () => {
 			case 1:
 				return (
 					<div style={{ padding: '2rem' }}>
-						<h3 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '1rem', color: '#1f2937' }}>
+						<h3
+							style={{
+								fontSize: '1.5rem',
+								fontWeight: '600',
+								marginBottom: '1rem',
+								color: '#1f2937',
+							}}
+						>
 							PKCE Generation
 						</h3>
 						<p style={{ marginBottom: '2rem', color: '#6b7280' }}>
@@ -335,37 +359,103 @@ const PingOnePARFlowV9: React.FC = () => {
 						</p>
 
 						{pkceCodes ? (
-							<div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '0.75rem', padding: '1.5rem' }}>
-								<h4 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '1rem', color: '#1f2937' }}>
+							<div
+								style={{
+									background: '#f8fafc',
+									border: '1px solid #e2e8f0',
+									borderRadius: '0.75rem',
+									padding: '1.5rem',
+								}}
+							>
+								<h4
+									style={{
+										fontSize: '1.1rem',
+										fontWeight: '600',
+										marginBottom: '1rem',
+										color: '#1f2937',
+									}}
+								>
 									Generated PKCE Codes
 								</h4>
 								<div style={{ marginBottom: '1rem' }}>
-									<label style={{ display: 'block', fontWeight: '500', marginBottom: '0.5rem', color: '#374151' }}>
+									<label
+										style={{
+											display: 'block',
+											fontWeight: '500',
+											marginBottom: '0.5rem',
+											color: '#374151',
+										}}
+									>
 										Code Challenge:
 									</label>
-									<code style={{ background: '#f3f4f6', padding: '0.5rem', borderRadius: '0.25rem', fontSize: '0.875rem', wordBreak: 'break-all' }}>
+									<code
+										style={{
+											background: '#f3f4f6',
+											padding: '0.5rem',
+											borderRadius: '0.25rem',
+											fontSize: '0.875rem',
+											wordBreak: 'break-all',
+										}}
+									>
 										{pkceCodes.codeChallenge}
 									</code>
 								</div>
 								<div style={{ marginBottom: '1rem' }}>
-									<label style={{ display: 'block', fontWeight: '500', marginBottom: '0.5rem', color: '#374151' }}>
+									<label
+										style={{
+											display: 'block',
+											fontWeight: '500',
+											marginBottom: '0.5rem',
+											color: '#374151',
+										}}
+									>
 										Code Verifier:
 									</label>
-									<code style={{ background: '#f3f4f6', padding: '0.5rem', borderRadius: '0.25rem', fontSize: '0.875rem', wordBreak: 'break-all' }}>
+									<code
+										style={{
+											background: '#f3f4f6',
+											padding: '0.5rem',
+											borderRadius: '0.25rem',
+											fontSize: '0.875rem',
+											wordBreak: 'break-all',
+										}}
+									>
 										{pkceCodes.codeVerifier}
 									</code>
 								</div>
 								<div style={{ marginBottom: '1rem' }}>
-									<label style={{ display: 'block', fontWeight: '500', marginBottom: '0.5rem', color: '#374151' }}>
+									<label
+										style={{
+											display: 'block',
+											fontWeight: '500',
+											marginBottom: '0.5rem',
+											color: '#374151',
+										}}
+									>
 										Code Challenge Method:
 									</label>
-									<code style={{ background: '#f3f4f6', padding: '0.5rem', borderRadius: '0.25rem', fontSize: '0.875rem' }}>
+									<code
+										style={{
+											background: '#f3f4f6',
+											padding: '0.5rem',
+											borderRadius: '0.25rem',
+											fontSize: '0.875rem',
+										}}
+									>
 										{pkceCodes.codeChallengeMethod}
 									</code>
 								</div>
 							</div>
 						) : (
-							<div style={{ textAlign: 'center', padding: '3rem', background: '#f8fafc', borderRadius: '0.75rem', border: '1px solid #e2e8f0' }}>
+							<div
+								style={{
+									textAlign: 'center',
+									padding: '3rem',
+									background: '#f8fafc',
+									borderRadius: '0.75rem',
+									border: '1px solid #e2e8f0',
+								}}
+							>
 								<p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
 									No PKCE codes generated yet. Generate them to proceed with the PAR flow.
 								</p>
@@ -391,22 +481,53 @@ const PingOnePARFlowV9: React.FC = () => {
 			case 2:
 				return (
 					<div style={{ padding: '2rem' }}>
-						<h3 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '1rem', color: '#1f2937' }}>
+						<h3
+							style={{
+								fontSize: '1.5rem',
+								fontWeight: '600',
+								marginBottom: '1rem',
+								color: '#1f2937',
+							}}
+						>
 							Push Authorization Request
 						</h3>
 						<p style={{ marginBottom: '2rem', color: '#6b7280' }}>
 							Send authorization request to PAR endpoint with all parameters.
 						</p>
 
-						<div style={{ background: '#fef3c7', border: '1px solid #f59e0b', borderRadius: '0.5rem', padding: '1rem', marginBottom: '2rem' }}>
+						<div
+							style={{
+								background: '#fef3c7',
+								border: '1px solid #f59e0b',
+								borderRadius: '0.5rem',
+								padding: '1rem',
+								marginBottom: '2rem',
+							}}
+						>
 							<p style={{ margin: 0, color: '#92400e', fontSize: '0.875rem' }}>
-								⚠️ <strong>Note:</strong> PAR functionality requires backend implementation. This is a demonstration of the UI flow.
+								⚠️ <strong>Note:</strong> PAR functionality requires backend implementation. This is
+								a demonstration of the UI flow.
 							</p>
 						</div>
 
 						{/* PAR Configuration */}
-						<div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '0.75rem', padding: '1.5rem', marginBottom: '2rem' }}>
-							<h4 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '1rem', color: '#1f2937' }}>
+						<div
+							style={{
+								background: '#f8fafc',
+								border: '1px solid #e2e8f0',
+								borderRadius: '0.75rem',
+								padding: '1.5rem',
+								marginBottom: '2rem',
+							}}
+						>
+							<h4
+								style={{
+									fontSize: '1.1rem',
+									fontWeight: '600',
+									marginBottom: '1rem',
+									color: '#1f2937',
+								}}
+							>
 								PAR Configuration
 							</h4>
 							<div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
@@ -414,20 +535,32 @@ const PingOnePARFlowV9: React.FC = () => {
 									<strong>Client ID:</strong> {controller.credentials?.clientId || 'Not configured'}
 								</div>
 								<div style={{ marginBottom: '0.5rem' }}>
-									<strong>Redirect URI:</strong> {controller.credentials?.redirectUri || 'https://localhost:3000/par-callback'}
+									<strong>Redirect URI:</strong>{' '}
+									{controller.credentials?.redirectUri || 'https://localhost:3000/par-callback'}
 								</div>
 								<div style={{ marginBottom: '0.5rem' }}>
-									<strong>Scopes:</strong> {Array.isArray(controller.credentials?.scopes) ? controller.credentials.scopes.join(', ') : controller.credentials?.scopes || 'Not configured'}
+									<strong>Scopes:</strong>{' '}
+									{Array.isArray(controller.credentials?.scopes)
+										? controller.credentials.scopes.join(', ')
+										: controller.credentials?.scopes || 'Not configured'}
 								</div>
 								<div style={{ marginBottom: '0.5rem' }}>
-									<strong>PKCE Code Challenge:</strong> {pkceCodes?.codeChallenge || 'Not generated'}
+									<strong>PKCE Code Challenge:</strong>{' '}
+									{pkceCodes?.codeChallenge || 'Not generated'}
 								</div>
 							</div>
 						</div>
 
 						{/* Authorization Details */}
 						<div>
-							<h4 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '1rem', color: '#1f2937' }}>
+							<h4
+								style={{
+									fontSize: '1.1rem',
+									fontWeight: '600',
+									marginBottom: '1rem',
+									color: '#1f2937',
+								}}
+							>
 								Authorization Details (Optional)
 							</h4>
 							<AuthorizationDetailsEditor
@@ -441,23 +574,55 @@ const PingOnePARFlowV9: React.FC = () => {
 			case 3:
 				return (
 					<div style={{ padding: '2rem' }}>
-						<h3 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '1rem', color: '#1f2937' }}>
+						<h3
+							style={{
+								fontSize: '1.5rem',
+								fontWeight: '600',
+								marginBottom: '1rem',
+								color: '#1f2937',
+							}}
+						>
 							User Authentication
 						</h3>
 						<p style={{ marginBottom: '2rem', color: '#6b7280' }}>
 							Complete authorization using the request_uri from PAR response.
 						</p>
 
-						<div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '0.75rem', padding: '1.5rem' }}>
-							<h4 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '1rem', color: '#1f2937' }}>
+						<div
+							style={{
+								background: '#f8fafc',
+								border: '1px solid #e2e8f0',
+								borderRadius: '0.75rem',
+								padding: '1.5rem',
+							}}
+						>
+							<h4
+								style={{
+									fontSize: '1.1rem',
+									fontWeight: '600',
+									marginBottom: '1rem',
+									color: '#1f2937',
+								}}
+							>
 								Authentication URL
 							</h4>
 							<p style={{ color: '#6b7280', marginBottom: '1rem' }}>
-								After successful PAR request, you'll receive a request_uri to use for user authentication.
+								After successful PAR request, you'll receive a request_uri to use for user
+								authentication.
 							</p>
-							<div style={{ background: '#f3f4f6', padding: '1rem', borderRadius: '0.5rem', fontFamily: 'monospace', fontSize: '0.875rem' }}>
-								https://auth.pingone.com/{controller.credentials?.environmentId}/as/authorize?<br/>
-								request_uri=urn:pingone:par:request_uri:xxx<br/>
+							<div
+								style={{
+									background: '#f3f4f6',
+									padding: '1rem',
+									borderRadius: '0.5rem',
+									fontFamily: 'monospace',
+									fontSize: '0.875rem',
+								}}
+							>
+								https://auth.pingone.com/{controller.credentials?.environmentId}/as/authorize?
+								<br />
+								request_uri=urn:pingone:par:request_uri:xxx
+								<br />
 								client_id={controller.credentials?.clientId}
 							</div>
 						</div>
@@ -467,23 +632,55 @@ const PingOnePARFlowV9: React.FC = () => {
 			case 4:
 				return (
 					<div style={{ padding: '2rem' }}>
-						<h3 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '1rem', color: '#1f2937' }}>
+						<h3
+							style={{
+								fontSize: '1.5rem',
+								fontWeight: '600',
+								marginBottom: '1rem',
+								color: '#1f2937',
+							}}
+						>
 							Authorization Response
 						</h3>
 						<p style={{ marginBottom: '2rem', color: '#6b7280' }}>
 							Handle the authorization callback and extract authorization code.
 						</p>
 
-						<div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '0.75rem', padding: '1.5rem' }}>
-							<h4 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '1rem', color: '#1f2937' }}>
+						<div
+							style={{
+								background: '#f8fafc',
+								border: '1px solid #e2e8f0',
+								borderRadius: '0.75rem',
+								padding: '1.5rem',
+							}}
+						>
+							<h4
+								style={{
+									fontSize: '1.1rem',
+									fontWeight: '600',
+									marginBottom: '1rem',
+									color: '#1f2937',
+								}}
+							>
 								Callback Parameters
 							</h4>
 							<p style={{ color: '#6b7280', marginBottom: '1rem' }}>
-								The authorization server will redirect to your callback URL with the following parameters:
+								The authorization server will redirect to your callback URL with the following
+								parameters:
 							</p>
-							<div style={{ background: '#f3f4f6', padding: '1rem', borderRadius: '0.5rem', fontFamily: 'monospace', fontSize: '0.875rem' }}>
-								https://localhost:3000/par-callback?<br/>
-								code=authorization_code_here<br/>
+							<div
+								style={{
+									background: '#f3f4f6',
+									padding: '1rem',
+									borderRadius: '0.5rem',
+									fontFamily: 'monospace',
+									fontSize: '0.875rem',
+								}}
+							>
+								https://localhost:3000/par-callback?
+								<br />
+								code=authorization_code_here
+								<br />
 								state=your_state_parameter
 							</div>
 						</div>
@@ -493,27 +690,65 @@ const PingOnePARFlowV9: React.FC = () => {
 			case 5:
 				return (
 					<div style={{ padding: '2rem' }}>
-						<h3 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '1rem', color: '#1f2937' }}>
+						<h3
+							style={{
+								fontSize: '1.5rem',
+								fontWeight: '600',
+								marginBottom: '1rem',
+								color: '#1f2937',
+							}}
+						>
 							Token Exchange
 						</h3>
 						<p style={{ marginBottom: '2rem', color: '#6b7280' }}>
 							Exchange authorization code for access tokens.
 						</p>
 
-						<div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '0.75rem', padding: '1.5rem' }}>
-							<h4 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '1rem', color: '#1f2937' }}>
+						<div
+							style={{
+								background: '#f8fafc',
+								border: '1px solid #e2e8f0',
+								borderRadius: '0.75rem',
+								padding: '1.5rem',
+							}}
+						>
+							<h4
+								style={{
+									fontSize: '1.1rem',
+									fontWeight: '600',
+									marginBottom: '1rem',
+									color: '#1f2937',
+								}}
+							>
 								Token Request
 							</h4>
 							<p style={{ color: '#6b7280', marginBottom: '1rem' }}>
 								Exchange the authorization code for tokens using the token endpoint:
 							</p>
-							<div style={{ background: '#f3f4f6', padding: '1rem', borderRadius: '0.5rem', fontFamily: 'monospace', fontSize: '0.875rem' }}>
-								POST https://auth.pingone.com/{controller.credentials?.environmentId}/as/oauth2/token<br/><br/>
-								Content-Type: application/x-www-form-urlencoded<br/><br/>
-								grant_type=authorization_code<br/>
-								code=authorization_code_here<br/>
-								redirect_uri=https://localhost:3000/par-callback<br/>
-								client_id={controller.credentials?.clientId}<br/>
+							<div
+								style={{
+									background: '#f3f4f6',
+									padding: '1rem',
+									borderRadius: '0.5rem',
+									fontFamily: 'monospace',
+									fontSize: '0.875rem',
+								}}
+							>
+								POST https://auth.pingone.com/{controller.credentials?.environmentId}
+								/as/oauth2/token
+								<br />
+								<br />
+								Content-Type: application/x-www-form-urlencoded
+								<br />
+								<br />
+								grant_type=authorization_code
+								<br />
+								code=authorization_code_here
+								<br />
+								redirect_uri=https://localhost:3000/par-callback
+								<br />
+								client_id={controller.credentials?.clientId}
+								<br />
 								code_verifier={pkceCodes?.codeVerifier}
 							</div>
 						</div>
@@ -523,7 +758,14 @@ const PingOnePARFlowV9: React.FC = () => {
 			case 6:
 				return (
 					<div style={{ padding: '2rem' }}>
-						<h3 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '1rem', color: '#1f2937' }}>
+						<h3
+							style={{
+								fontSize: '1.5rem',
+								fontWeight: '600',
+								marginBottom: '1rem',
+								color: '#1f2937',
+							}}
+						>
 							Token Management
 						</h3>
 						<p style={{ marginBottom: '2rem', color: '#6b7280' }}>
@@ -542,7 +784,15 @@ const PingOnePARFlowV9: React.FC = () => {
 								/>
 							</div>
 						) : (
-							<div style={{ textAlign: 'center', padding: '3rem', background: '#f8fafc', borderRadius: '0.75rem', border: '1px solid #e2e8f0' }}>
+							<div
+								style={{
+									textAlign: 'center',
+									padding: '3rem',
+									background: '#f8fafc',
+									borderRadius: '0.75rem',
+									border: '1px solid #e2e8f0',
+								}}
+							>
 								<p style={{ color: '#6b7280' }}>
 									No tokens available. Complete the token exchange step first.
 								</p>
@@ -554,19 +804,42 @@ const PingOnePARFlowV9: React.FC = () => {
 			case 7:
 				return (
 					<div style={{ padding: '2rem' }}>
-						<h3 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '1rem', color: '#1f2937' }}>
+						<h3
+							style={{
+								fontSize: '1.5rem',
+								fontWeight: '600',
+								marginBottom: '1rem',
+								color: '#1f2937',
+							}}
+						>
 							Flow Complete
 						</h3>
 						<p style={{ marginBottom: '2rem', color: '#6b7280' }}>
 							Review the completed PAR flow and next steps.
 						</p>
 
-						<div style={{ background: '#dcfce7', border: '1px solid #16a34a', borderRadius: '0.75rem', padding: '1.5rem', marginBottom: '2rem' }}>
-							<h4 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '1rem', color: '#166534' }}>
+						<div
+							style={{
+								background: '#dcfce7',
+								border: '1px solid #16a34a',
+								borderRadius: '0.75rem',
+								padding: '1.5rem',
+								marginBottom: '2rem',
+							}}
+						>
+							<h4
+								style={{
+									fontSize: '1.1rem',
+									fontWeight: '600',
+									marginBottom: '1rem',
+									color: '#166534',
+								}}
+							>
 								✅ PAR Flow Completed Successfully
 							</h4>
 							<p style={{ color: '#166534', marginBottom: '1rem' }}>
-								You have successfully completed the PingOne PAR (Pushed Authorization Request) flow using the V9 architecture.
+								You have successfully completed the PingOne PAR (Pushed Authorization Request) flow
+								using the V9 architecture.
 							</p>
 							<ul style={{ color: '#166534', paddingLeft: '1.5rem', margin: 0 }}>
 								<li>✅ Credentials configured</li>
@@ -578,8 +851,22 @@ const PingOnePARFlowV9: React.FC = () => {
 							</ul>
 						</div>
 
-						<div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '0.75rem', padding: '1.5rem' }}>
-							<h4 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '1rem', color: '#1f2937' }}>
+						<div
+							style={{
+								background: '#f8fafc',
+								border: '1px solid #e2e8f0',
+								borderRadius: '0.75rem',
+								padding: '1.5rem',
+							}}
+						>
+							<h4
+								style={{
+									fontSize: '1.1rem',
+									fontWeight: '600',
+									marginBottom: '1rem',
+									color: '#1f2937',
+								}}
+							>
 								Next Steps
 							</h4>
 							<ul style={{ color: '#6b7280', paddingLeft: '1.5rem' }}>
@@ -601,11 +888,23 @@ const PingOnePARFlowV9: React.FC = () => {
 	return (
 		<div style={{ minHeight: '100vh', background: '#f9fafb' }}>
 			{/* Header */}
-			<div style={{ background: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)', color: 'white', padding: '2rem' }}>
+			<div
+				style={{
+					background: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)',
+					color: 'white',
+					padding: '2rem',
+				}}
+			>
 				<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
 					<div>
 						<h1 style={{ fontSize: '2rem', fontWeight: '700', margin: 0 }}>PingOne PAR Flow</h1>
-						<p style={{ fontSize: '1rem', color: 'rgba(255, 255, 255, 0.85)', margin: '0.5rem 0 0 0' }}>
+						<p
+							style={{
+								fontSize: '1rem',
+								color: 'rgba(255, 255, 255, 0.85)',
+								margin: '0.5rem 0 0 0',
+							}}
+						>
 							Pushed Authorization Request - V9 Architecture
 						</p>
 					</div>
@@ -613,7 +912,13 @@ const PingOnePARFlowV9: React.FC = () => {
 						<div style={{ fontSize: '2.5rem', fontWeight: '700', lineHeight: '1' }}>
 							{currentStep + 1}
 						</div>
-						<div style={{ fontSize: '0.875rem', color: 'rgba(255, 255, 255, 0.75)', letterSpacing: '0.05em' }}>
+						<div
+							style={{
+								fontSize: '0.875rem',
+								color: 'rgba(255, 255, 255, 0.75)',
+								letterSpacing: '0.05em',
+							}}
+						>
 							of {STEP_METADATA.length}
 						</div>
 					</div>
@@ -622,7 +927,14 @@ const PingOnePARFlowV9: React.FC = () => {
 
 			{/* Progress Steps */}
 			<div style={{ padding: '2rem', background: 'white', borderBottom: '1px solid #e5e7eb' }}>
-				<div style={{ display: 'flex', justifyContent: 'space-between', maxWidth: '1200px', margin: '0 auto' }}>
+				<div
+					style={{
+						display: 'flex',
+						justifyContent: 'space-between',
+						maxWidth: '1200px',
+						margin: '0 auto',
+					}}
+				>
 					{STEP_METADATA.map((step, index) => (
 						<div
 							key={index}
@@ -651,7 +963,14 @@ const PingOnePARFlowV9: React.FC = () => {
 							>
 								{index + 1}
 							</div>
-							<div style={{ fontSize: '0.75rem', color: '#374151', maxWidth: '8rem', margin: '0 auto' }}>
+							<div
+								style={{
+									fontSize: '0.75rem',
+									color: '#374151',
+									maxWidth: '8rem',
+									margin: '0 auto',
+								}}
+							>
 								{step.title}
 							</div>
 						</div>
@@ -661,9 +980,19 @@ const PingOnePARFlowV9: React.FC = () => {
 
 			{/* Main Content */}
 			<div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>
-				<div style={{ background: 'white', borderRadius: '1rem', boxShadow: '0 20px 40px rgba(15, 23, 42, 0.1)', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+				<div
+					style={{
+						background: 'white',
+						borderRadius: '1rem',
+						boxShadow: '0 20px 40px rgba(15, 23, 42, 0.1)',
+						border: '1px solid #e2e8f0',
+						overflow: 'hidden',
+					}}
+				>
 					{/* Step Header */}
-					<div style={{ background: '#f8fafc', padding: '1.5rem', borderBottom: '1px solid #e5e7eb' }}>
+					<div
+						style={{ background: '#f8fafc', padding: '1.5rem', borderBottom: '1px solid #e5e7eb' }}
+					>
 						<h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#1f2937', margin: 0 }}>
 							{STEP_METADATA[currentStep].title}
 						</h2>
@@ -676,7 +1005,15 @@ const PingOnePARFlowV9: React.FC = () => {
 					{renderStepContent()}
 
 					{/* Navigation Buttons */}
-					<div style={{ padding: '1.5rem', borderTop: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+					<div
+						style={{
+							padding: '1.5rem',
+							borderTop: '1px solid #e5e7eb',
+							display: 'flex',
+							justifyContent: 'space-between',
+							alignItems: 'center',
+						}}
+					>
 						<div>
 							{currentStep > 0 && (
 								<button
