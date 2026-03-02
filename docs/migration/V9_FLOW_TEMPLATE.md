@@ -262,7 +262,36 @@ const MyMFAFlowV9: React.FC = () => (
 - [ ] V8 services use `@/v8/...` alias (not relative)
 - [ ] `toastV8` used (not `v4ToastManager`)
 - [ ] `WorkerTokenSectionV8` uses named export destructuring (if applicable)
+- [ ] `usePageScroll()` called — scroll-to-top works (root cause fixed in `scrollManager.ts` + `App.tsx`)
 - [ ] Route added to `src/App.tsx`
 - [ ] Sidebar entry added to `src/config/sidebarMenuConfig.ts`
 - [ ] TypeScript: no `any` types for API responses (use type guards or proper interfaces)
+- [ ] Biome lint passes: `npx biome lint src/pages/flows/v9`
+- [ ] ESLint passes: `npx eslint src/pages/flows/v9 --ext .ts,.tsx`
 - [ ] Build passes: `npm run build` — no type errors
+
+---
+
+## Status Indicator Colors (Approved Exception)
+
+Flow page **headers must be blue**. But components that display live token/connection state **may** use Green / Amber / Red:
+
+| Status | Hex | When |
+|--------|-----|------|
+| Valid / success | `#10b981` (emerald green) | Token present and not expiring soon |
+| Warning | `#f59e0b` (amber) | Token expires in < 5 minutes |
+| Invalid / error | `#ef4444` / `#dc2626` (red) | No token, expired, or auth failed |
+
+```tsx
+// ✅ Correct pattern — status indicator colors
+const statusColors = {
+  valid:   '#10b981',
+  warning: '#f59e0b',
+  invalid: '#ef4444',
+} as const;
+```
+
+This exception applies **only** to status indicators, badges, and health displays.  
+It does **not** apply to headers, action buttons, or general UI chrome.
+
+See also: `src/v8/components/WorkerTokenStatusDisplayV8.tsx` — reference implementation.
