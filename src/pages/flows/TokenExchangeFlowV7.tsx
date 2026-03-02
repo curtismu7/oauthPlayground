@@ -20,16 +20,16 @@ import {
 	FiUsers,
 	FiZap,
 } from '@icons';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
+import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
+import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import EnhancedApiCallDisplay from '../../components/EnhancedApiCallDisplay';
 import { LearningTooltip } from '../../components/LearningTooltip';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import type { EnhancedApiCallData } from '../../services/enhancedApiCallDisplayService';
 import { FlowUIService } from '../../services/flowUIService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
-import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 
 type TokenExchangeScenario =
 	| 'delegation'
@@ -652,7 +652,7 @@ const TokenExchangeFlowV7Enhanced: React.FC = () => {
 		includeRefreshToken: false,
 	});
 
-	const scenarios = {
+	const scenarios = useMemo(() => ({
 		delegation: {
 			icon: <FiUsers />,
 			title: 'User Delegation',
@@ -793,7 +793,7 @@ const TokenExchangeFlowV7Enhanced: React.FC = () => {
 			defaultAuthDetails:
 				'[{"type":"banking_access","institution":"CBA","services":["MCP","transactions"],"compliance_level":"PCI_DSS"}]',
 		},
-	};
+	}), []);
 
 	const toggleSection = useCallback((section: string) => {
 		setCollapsedSections((prev) => ({
@@ -3032,7 +3032,10 @@ function TokenExchangeComponent() {
 
 	return (
 		<Container>
-			<WorkerTokenExpiryBannerV8 onFixToken={() => setShowWorkerTokenModal(true)} marginBottom="24px" />
+			<WorkerTokenExpiryBannerV8
+				onFixToken={() => setShowWorkerTokenModal(true)}
+				marginBottom="24px"
+			/>
 			<ContentWrapper>
 				<MainCard>
 					<Header>
@@ -3435,7 +3438,10 @@ function TokenExchangeComponent() {
 					</ContentSection>
 				</MainCard>
 			</ContentWrapper>
-			<WorkerTokenModalV8 isOpen={showWorkerTokenModal} onClose={() => setShowWorkerTokenModal(false)} />
+			<WorkerTokenModalV8
+				isOpen={showWorkerTokenModal}
+				onClose={() => setShowWorkerTokenModal(false)}
+			/>
 		</Container>
 	);
 };
