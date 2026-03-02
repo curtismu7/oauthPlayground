@@ -96,10 +96,6 @@ const saveFlowDataComprehensive = (
 };
 
 import { FlowCompletionConfigs } from '../../../services/flowCompletionService';
-// Import V9 service architecture components (to be migrated)
-import { FlowHeader } from '../../../services/flowHeaderService';
-// Get shared UI components from FlowUIService (to be migrated)
-import { FlowUIService } from '../../../services/flowUIService';
 import ModalPresentationService from '../../../services/modalPresentationService';
 import { OAuthFlowComparisonService } from '../../../services/oauthFlowComparisonService';
 import { oidcDiscoveryService } from '../../../services/oidcDiscoveryService';
@@ -107,6 +103,10 @@ import { UnifiedTokenDisplayService } from '../../../services/unifiedTokenDispla
 // V9 wrapper services
 import V9ComprehensiveCredentialsService from '../../../services/v9/v9ComprehensiveCredentialsService';
 import V9FlowCompletionService from '../../../services/v9/v9FlowCompletionService';
+// Import V9 service architecture components (to be migrated)
+import V9FlowHeader from '../../../services/v9/v9FlowHeaderService';
+// Get shared UI components from FlowUIService (to be migrated)
+import V9FlowUIService from '../../../services/v9/v9FlowUIService';
 
 // Styled Components
 const SectionDivider = styled.div`
@@ -240,7 +240,7 @@ const JWTBearerTokenFlowV9: React.FC = () => {
 		ParameterLabel,
 		ParameterValue,
 		HelperText,
-	} = FlowUIService.getFlowUIComponents();
+	} = V9FlowUIService.getFlowUIComponents();
 
 	// Scroll management
 	usePageScroll();
@@ -1576,7 +1576,7 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 	// Main render
 	return (
 		<Container>
-			<FlowHeader flowId="jwt-bearer-token-v7" />
+			<V9FlowHeader flowId="jwt-bearer-token-v7" />
 
 			<ContentWrapper>
 				{/* Mock Implementation Warning */}
