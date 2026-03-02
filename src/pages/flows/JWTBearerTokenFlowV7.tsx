@@ -21,6 +21,7 @@ import { usePageScroll } from '../../hooks/usePageScroll';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 // Import V9 services for migration
 import { v9MessagingService } from '../../services/v9/V9MessagingService';
+import { V9FlowCredentialService } from '../../services/v9/core/V9FlowCredentialService';
 import type { StepCredentials } from '../../services/flowCredentialService';
 
 // Built-in copy function to replace CopyButtonService
@@ -51,6 +52,35 @@ const checkMissingFields = (
 		missingFields,
 		canProceed: missingFields.length === 0
 	};
+};
+
+// Wrapper functions to replace comprehensiveFlowDataService using V9FlowCredentialService
+const loadFlowDataComprehensive = (options: { flowKey: string; useSharedEnvironment?: boolean; useSharedDiscovery?: boolean }) => {
+	const v9Credentials = V9FlowCredentialService.load();
+	
+	return {
+		flowCredentials: {
+			clientId: v9Credentials.clientId,
+			scopes: v9Credentials.scopes,
+		},
+		sharedEnvironment: v9Credentials.environmentId ? {
+			environmentId: v9Credentials.environmentId,
+			region: 'us',
+			issuerUrl: `https://auth.pingone.com/${v9Credentials.environmentId}`,
+		} : undefined,
+		sharedDiscovery: undefined, // V9 doesn't have discovery storage yet
+	};
+};
+
+const saveFlowDataComprehensive = (flowKey: string, data: any) => {
+	const v9Data: any = {};
+	
+	if (data.flowCredentials?.clientId) v9Data.clientId = data.flowCredentials.clientId;
+	if (data.flowCredentials?.scopes) v9Data.scopes = data.flowCredentials.scopes;
+	if (data.sharedEnvironment?.environmentId) v9Data.environmentId = data.sharedEnvironment.environmentId;
+	
+	V9FlowCredentialService.save(v9Data);
+	return true;
 };
 // Import V6 service architecture components (to be migrated)
 import { FlowHeader } from '../../services/flowHeaderService';
@@ -266,7 +296,7 @@ const JWTBearerTokenFlowV7: React.FC = () => {
 		const loadCredentials = async () => {
 			console.log('🔄 [JWTBearerTokenFlowV7] Loading credentials with comprehensive service...');
 
-			const flowData = comprehensiveFlowDataService.loadFlowDataComprehensive({
+			const flowData = loadFlowDataComprehensive({
 				flowKey: FLOW_KEY,
 				useSharedEnvironment: true,
 				useSharedDiscovery: true,
@@ -305,7 +335,7 @@ const JWTBearerTokenFlowV7: React.FC = () => {
 			};
 
 			// Save to comprehensive service with complete isolation
-			const success = comprehensiveFlowDataService.saveFlowDataComprehensive(FLOW_KEY, {
+			const success = saveFlowDataComprehensive(FLOW_KEY, {
 				...(environmentId && {
 					sharedEnvironment: {
 						environmentId,
