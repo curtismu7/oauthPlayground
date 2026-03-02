@@ -22,6 +22,36 @@ import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 // Import V9 services for migration
 import { v9MessagingService } from '../../services/v9/V9MessagingService';
 import type { StepCredentials } from '../../services/flowCredentialService';
+
+// Built-in copy function to replace CopyButtonService
+const copyToClipboard = async (text: string): Promise<void> => {
+	try {
+		await navigator.clipboard.writeText(text);
+		v9MessagingService.showSuccess('Copied to clipboard!');
+	} catch (err) {
+		console.error('Failed to copy text: ', err);
+		v9MessagingService.showError('Failed to copy to clipboard');
+	}
+};
+
+// Built-in validation function to replace CredentialGuardService
+const checkMissingFields = (
+	credentials: Record<string, unknown>,
+	options: { requiredFields: string[]; fieldLabels: Record<string, string> }
+) => {
+	const missingFields: string[] = [];
+	
+	for (const field of options.requiredFields) {
+		if (!credentials[field] || (typeof credentials[field] === 'string' && credentials[field].trim() === '')) {
+			missingFields.push(options.fieldLabels[field] || field);
+		}
+	}
+	
+	return {
+		missingFields,
+		canProceed: missingFields.length === 0
+	};
+};
 // Import V6 service architecture components (to be migrated)
 import { FlowHeader } from '../../services/flowHeaderService';
 // Get shared UI components from FlowUIService (to be migrated)
@@ -610,7 +640,7 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 				clientId,
 			};
 
-			const { missingFields, canProceed } = CredentialGuardService.checkMissingFields(
+			const { missingFields, canProceed } = checkMissingFields(
 				credentials as Record<string, unknown>,
 				{
 					requiredFields: ['environmentId', 'clientId'],
@@ -1410,7 +1440,7 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 											<div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
 												<Button
 													onClick={() =>
-														CopyButtonService.copyToClipboard(tokenResponse.access_token)
+														copyToClipboard(tokenResponse.access_token)
 													}
 													$variant="secondary"
 												>
@@ -1418,7 +1448,7 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 												</Button>
 												<Button
 													onClick={() =>
-														CopyButtonService.copyToClipboard(
+														copyToClipboard(
 															JSON.stringify(tokenResponse, null, 2)
 														)
 													}
