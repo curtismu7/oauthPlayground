@@ -147,7 +147,7 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 
 	// Save credentials when they change
 	useEffect(() => {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		// biome-ignore lint/suspicious/noExplicitAny: CredentialsServiceV8 requires any type
 		CredentialsServiceV8.saveCredentials(FLOW_KEY, credentials as any);
 
 		if (credentials.environmentId) {
@@ -950,11 +950,11 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 												const isFirst = originalIndex === 0;
 												const isLast = originalIndex === devices.length - 1;
 												const isDefault = devices[0]?.id === device.id;
-												// biome-ignore lint/a11y/noStaticElementInteractions: DragDrop library handles accessibility
-// biome-ignore lint/a11y/useKeyWithClickEvents: DragDrop library handles keyboard events
 												return (
 													<Draggable key={device.id} draggableId={String(device.id)} index={index}>
 														{(draggableProvided, snapshot) => (
+															// biome-ignore lint/a11y/noStaticElementInteractions: DragDrop library handles accessibility
+															// biome-ignore lint/a11y/useKeyWithClickEvents: DragDrop library handles keyboard events
 															<div
 																ref={draggableProvided.innerRef}
 																{...draggableProvided.draggableProps}
