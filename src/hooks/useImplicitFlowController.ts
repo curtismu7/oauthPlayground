@@ -5,15 +5,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { StepCredentials } from '../components/steps/CommonSteps';
 import { ImplicitFlowSharedService } from '../services/implicitFlowSharedService';
+import type { OAuthTokenResponse } from '../types/storage';
 import { trackTokenOperation } from '../utils/activityTracker';
 import { getCallbackUrlForFlow } from '../utils/callbackUrls';
 import type { PermanentCredentials } from '../utils/credentialManager';
-import type { OAuthTokenResponse } from '../types/storage';
-import type { OAuthTokens } from '../utils/tokenStorage';
 import { credentialManager } from '../utils/credentialManager';
 import { enhancedDebugger } from '../utils/enhancedDebug';
 import { useFlowStepManager } from '../utils/flowStepSystem';
 import { safeJsonParse } from '../utils/secureJson';
+import type { OAuthTokens } from '../utils/tokenStorage';
 import { storeOAuthTokens } from '../utils/tokenStorage';
 import { showGlobalError, showGlobalSuccess } from './useNotifications';
 import { useAuthorizationFlowScroll } from './usePageScroll';
@@ -133,7 +133,7 @@ const getDefaultConfig = (): FlowConfig => ({
 	customParams: {},
 });
 
-const loadStoredConfig = (storageKey: string, _variant: FlowVariant): FlowConfig => {
+const loadStoredConfig = (storageKey: string): FlowConfig => {
 	if (typeof window === 'undefined') {
 		return getDefaultConfig();
 	}
@@ -304,7 +304,7 @@ export const useImplicitFlowController = (
 	);
 
 	const [flowConfig, setFlowConfig] = useState<FlowConfig>(() =>
-		loadStoredConfig(configStorageKey, options.defaultFlowVariant ?? 'oidc')
+		loadStoredConfig(configStorageKey)
 	);
 
 	const [nonce, setNonce] = useState<string>(() => {
@@ -587,7 +587,7 @@ export const useImplicitFlowController = (
 
 				setTokens(tokenData);
 
-			// Store tokens (cast to compatible type)
+				// Store tokens (cast to compatible type)
 				storeOAuthTokens({
 					...tokenData,
 					token_type: tokenData.token_type || 'Bearer',
@@ -760,11 +760,18 @@ export const useImplicitFlowController = (
 			if (credentials.userInfoEndpoint) {
 				authzPayload.userInfoEndpoint = credentials.userInfoEndpoint;
 			}
-			if ((credentials as StepCredentials & { tokenEndpointAuthMethod?: string | undefined }).tokenEndpointAuthMethod || 
-				(credentials as StepCredentials & { authMethod?: { value?: string | undefined } }).authMethod?.value) {
+			if (
+				(credentials as StepCredentials & { tokenEndpointAuthMethod?: string | undefined })
+					.tokenEndpointAuthMethod ||
+				(credentials as StepCredentials & { authMethod?: { value?: string | undefined } })
+					.authMethod?.value
+			) {
 				authzPayload.tokenAuthMethod =
-					(credentials as StepCredentials & { tokenEndpointAuthMethod?: string | undefined }).tokenEndpointAuthMethod || 
-					(credentials as StepCredentials & { authMethod?: { value?: string | undefined } }).authMethod?.value;
+					(credentials as StepCredentials & { tokenEndpointAuthMethod?: string | undefined })
+						.tokenEndpointAuthMethod ||
+					(credentials as StepCredentials & { authMethod?: { value?: string | undefined } })
+						.authMethod?.value ||
+					'';
 			}
 
 			credentialManager.saveAuthzFlowCredentials(authzPayload);
@@ -848,6 +855,7 @@ export const useImplicitFlowController = (
 		credentials.authorizationEndpoint,
 		credentials.tokenEndpoint,
 		credentials.userInfoEndpoint,
+		credentials,
 	]);
 
 	// Load saved credentials on mount
@@ -883,6 +891,7 @@ export const useImplicitFlowController = (
 			credentials.authorizationEndpoint,
 			credentials.tokenEndpoint,
 			credentials.userInfoEndpoint,
+			credentials,
 		]
 	);
 
