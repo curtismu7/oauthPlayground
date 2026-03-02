@@ -181,8 +181,8 @@ export const NewMFAFlowV8: React.FC<NewMFAFlowV8Props> = ({ deviceType }) => {
 		return false;
 	}, []);
 
-	// biome-ignore lint/suspicious/noExplicitAny: Navigation parameter unused
 	const validateStep0 = React.useCallback(
+		// biome-ignore lint/suspicious/noExplicitAny: Navigation parameter unused
 		(credentials: MFACredentials, _tokenStatus: TokenStatusInfo, _nav: any) => {
 			// FIXED: Always do a FRESH check of worker token status
 			// The tokenStatus parameter from React state can be stale
