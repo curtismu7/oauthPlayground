@@ -13,7 +13,59 @@ This document tracks all issues encountered during the V7→V9 migration to prev
 
 ---
 
-## 📋 ISSUE CATEGORIES & RESOLUTIONS
+## � CRITICAL ISSUE: MESSAGING SYSTEM MIGRATION VIOLATION
+
+### **Issue: Custom V9 Messaging Service Creation**
+**Date**: March 2, 2026  
+**Severity**: 🚨 **CRITICAL** - Migration Plan Violation  
+**Category**: Architecture/Compliance
+
+#### **Problem**
+During JWTBearerTokenFlowV9 migration, a custom `v9MessagingService` was created instead of using the established **Modern Messaging** from `toastNotificationsV8`. This violated the documented migration plan and created a non-standard messaging system.
+
+#### **Root Cause**
+- ❌ **Did not consult migration documentation** before creating messaging service
+- ❌ **Ignored established V8→V9 migration patterns**
+- ❌ **Created duplicate functionality** instead of using existing V8 utilities
+- ❌ **Violated WINDSURF_CONTRACTS Modern Messaging requirements**
+
+#### **Impact Assessment**
+- **V9 Services**: 7+ V9 wrapper services were using the custom service
+- **V7 Flow**: JWTBearerTokenFlowV7 was importing the deleted V9 service
+- **Build Impact**: Would cause build failures and runtime errors
+- **Migration Compliance**: Violated established migration standards
+
+#### **Resolution Applied**
+1. **🗑️ Removed Custom Service**: Deleted `src/services/v9/V9MessagingService.ts`
+2. **📚 Updated All References**: Fixed 7+ V9 services to use proper Modern Messaging
+3. **🔄 Fixed Method Names**: 
+   - `v9MessagingService.showWarning()` → `toastV8.warning()`
+   - `v9MessagingService.showSuccess()` → `toastV8.success()`
+   - `v9MessagingService.showError()` → `toastV8.error()`
+   - `v9MessagingService.showInfo()` → `toastV8.info()`
+4. **🔧 Fixed V7 Flow**: Reverted JWTBearerTokenFlowV7 to use `v4ToastManager`
+5. **📖 Documentation Updated**: Added this issue to prevent recurrence
+
+#### **Prevention Measures**
+```typescript
+// ❌ NEVER DO THIS - Custom V9 messaging
+import { v9MessagingService } from './V9MessagingService';
+v9MessagingService.showSuccess('message');
+
+// ✅ ALWAYS DO THIS - Modern Messaging from V8
+import { ToastNotificationsV8 as toastV8 } from '../../v8/utils/toastNotificationsV8';
+toastV8.success('message');
+```
+
+#### **Compliance Requirements**
+- **MUST** use `src/v8/utils/toastNotificationsV8` for all V9 messaging
+- **MUST** follow established V8→V9 migration patterns
+- **MUST** consult `A-Migration/V9_MIGRATION_TODOS_CONSISTENT_QG_SERVICES_MSGAPI_WINDSURF_CONTRACTS.md`
+- **NEVER** create custom V9 messaging services
+
+---
+
+## �📋 ISSUE CATEGORIES & RESOLUTIONS
 
 ### 🚫 **TypeScript/Linting Issues**
 
