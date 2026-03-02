@@ -13,10 +13,11 @@
  * All company-specific forms should use this component, not duplicate the fields.
  */
 
-import { FiAlertTriangle, FiEye, FiEyeOff, FiLock as FiLockIcon, FiUser } from '@icons';
+import { FiAlertTriangle, FiEye, FiEyeOff, FiLock as FiLockIcon } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ButtonSpinner } from '../../../components/ui/ButtonSpinner';
+import { UserSearchDropdownV8 } from '../../../v8/components/UserSearchDropdownV8';
 import PingOneLoginService from '../services/pingOneLoginService';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
 
@@ -63,11 +64,11 @@ const InputIcon = styled.div`
 `;
 
 const StyledInput = styled.input.withConfig({
-	shouldForwardProp: (prop) => !['hasIcon', 'hasToggle'].includes(prop),
-})<{ hasIcon: boolean; hasToggle: boolean }>`
+	shouldForwardProp: (prop) => !['hasToggle'].includes(prop),
+})<{ hasToggle: boolean }>`
   width: 100%;
   padding: ${(props) => {
-		const leftPadding = props.hasIcon ? '3rem' : '1rem';
+		const leftPadding = '1rem';
 		const rightPadding = props.hasToggle ? '3rem' : '1rem';
 		return `0.75rem ${rightPadding} 0.75rem ${leftPadding}`;
 	}};
@@ -221,10 +222,12 @@ export const BaseLoginForm: React.FC<BaseLoginFormProps> = ({
 	const handleInputChange = useCallback(
 		(e: React.ChangeEvent<HTMLInputElement>) => {
 			const { name, value } = e.target;
-			setFormData((prev) => ({
-				...prev,
-				[name]: value,
-			}));
+			if (name === 'password') {
+				setFormData((prev) => ({
+					...prev,
+					[name]: value,
+				}));
+			}
 
 			// Clear error when user starts typing
 			if (error) {
@@ -373,26 +376,24 @@ export const BaseLoginForm: React.FC<BaseLoginFormProps> = ({
 				{/* Username Field */}
 				<InputGroup>
 					<InputLabel htmlFor="username">Username or Email</InputLabel>
-					<InputWrapper>
-						{showIcons && (
-							<InputIcon>
-								<FiUser />
-							</InputIcon>
-						)}
-						<StyledInput
-							id="username"
-							name="username"
-							type="text"
-							placeholder="Enter your username or email"
-							value={formData.username}
-							onChange={handleInputChange}
-							hasIcon={showIcons}
-							hasToggle={false}
-							required
-							disabled={isLoading}
-							autoComplete="username"
-						/>
-					</InputWrapper>
+					<UserSearchDropdownV8
+						id="username"
+						environmentId={environmentId}
+						value={formData.username}
+						onChange={(username) => {
+							setFormData((prev) => ({ ...prev, username }));
+							// Clear error when user selects a username
+							if (error) {
+								setError(null);
+							}
+						}}
+						placeholder="Search for a user..."
+						disabled={isLoading}
+						onGetToken={() => {
+							// Show error message to guide user to get worker token
+							setError('Worker token required. Please configure worker token to search users.');
+						}}
+					/>
 				</InputGroup>
 
 				{/* Password Field */}
@@ -411,7 +412,6 @@ export const BaseLoginForm: React.FC<BaseLoginFormProps> = ({
 							placeholder="Enter your password"
 							value={formData.password}
 							onChange={handleInputChange}
-							hasIcon={showIcons}
 							hasToggle={true}
 							required
 							disabled={isLoading}
