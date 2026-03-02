@@ -1973,7 +1973,9 @@ const generateUseCasesItems = (
 					});
 				}
 			} else if (Array.isArray(obj)) {
-				obj.forEach((item, index) => findVariables(item, `${path}[${index}]`));
+				obj.forEach((item, index) => {
+					findVariables(item, `${path}[${index}]`);
+				});
 			} else if (obj && typeof obj === 'object') {
 				Object.entries(obj).forEach(([key, value]) => {
 					findVariables(value, path ? `${path}.${key}` : key);
