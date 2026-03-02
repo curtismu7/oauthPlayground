@@ -374,7 +374,30 @@ const V9[ComponentName]: React.FC<V9Props> = (props) => {
 - UI/Fallback: 1 issue ✅
 - Documentation: 1 issue ✅
 
-### **Total Issues Resolved**: 14/14 (100%)
+### **Total Issues Resolved**: 16/16 (100%)
+
+---
+
+## ✅ FLOW MIGRATIONS COMPLETED *(March 2, 2026)*
+
+| Flow | File | Status | Notes |
+|------|------|--------|-------|
+| Token Exchange V7→V9 | `src/pages/flows/v9/TokenExchangeFlowV9.tsx` | ✅ Done | 5-step wizard, Modern Messaging, 0 errors |
+
+### **Issues Encountered During Flow Migrations**
+
+#### **Issue 15: Unclosed JSX container tags (search-and-replace artefact)**
+**Date**: March 2, 2026 | **Severity**: 🔴 Blocking (tsc --noEmit failed)
+- `<WorkerTokenModalV8 />` placed outside the JSX return tree in 4 files
+- Files: `TokenIntrospectionFlow`, `TokenManagementFlow`, `TokenRevocationFlow`, `WorkerTokenTester`
+- Fix: Add `</FlowContainer>` (or `</div>`) before `);` and ensure modal is the last child inside the container
+- See `CRITICAL_RUNTIME_ISSUES_TRACKING.md` Issue #6 for full pattern
+
+#### **Issue 16: Incomplete `useCallback` dependency arrays**
+**Date**: March 2, 2026 | **Severity**: 🟠 Lint error
+- `performTokenExchange` in `TokenExchangeFlowV9.tsx` missing `exchangeParams.requestedTokenType` dep
+- Spurious `useEffect([currentStep])` for scroll — replaced by inlining into nav handlers
+- See `CRITICAL_RUNTIME_ISSUES_TRACKING.md` Issue #7 for full pattern
 
 ---
 
@@ -397,6 +420,6 @@ const V9[ComponentName]: React.FC<V9Props> = (props) => {
 
 ---
 
-**Last Updated**: 2026-03-02
-**Migration Status**: ✅ COMPLETE
-**Next Migration**: Use this log to avoid repeating these 14 resolved issues
+**Last Updated**: 2026-03-02 *(Issues 15–16 added; Token Exchange V9 flow complete)*
+**Migration Status**: ✅ SERVICES COMPLETE | 🔄 FLOWS IN PROGRESS
+**Next Migration**: PingOne PAR → V9 | Use this log to avoid repeating these 16 resolved issues
