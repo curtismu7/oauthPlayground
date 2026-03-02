@@ -3,10 +3,10 @@
 import { FiAlertCircle, FiCheckCircle, FiClock, FiGlobe, FiKey, FiUser, FiXCircle } from '@icons';
 import React, { useState } from 'react';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
-import { apiCallTrackerService } from '../services/apiCallTrackerService';
-import { v4ToastManager } from '../utils/v4ToastMessages';
 import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { apiCallTrackerService } from '../services/apiCallTrackerService';
+import { v4ToastManager } from '../utils/v4ToastMessages';
 
 interface TokenPayload {
 	client_id?: string;
@@ -286,7 +286,7 @@ const styles = {
 	}),
 };
 
-const WorkerTokenTester: React.FC = () => {
+const _WorkerTokenTester: React.FC = () => {
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [token, setToken] = useState('');
 	const [payload, setPayload] = useState<TokenPayload | null>(null);
@@ -823,6 +823,9 @@ const WorkerTokenTester: React.FC = () => {
 					<SuperSimpleApiDisplayV8 />
 				</>
 			)}
-                        <WorkerTokenModalV8 isOpen={showWorkerTokenModal} onClose={() => setShowWorkerTokenModal(false)} />
+		<WorkerTokenModalV8 isOpen={showWorkerTokenModal} onClose={() => setShowWorkerTokenModal(false)} />
+		</div>
+	);
+};
 
 export default WorkerTokenTester;
