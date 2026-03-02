@@ -28,6 +28,7 @@ import {
 	FiCode,
 	FiCpu,
 	FiDatabase,
+	FiExternalLink,
 	FiEye,
 	FiFileText,
 	FiGitBranch,
@@ -35,7 +36,6 @@ import {
 	FiLayers,
 	FiLock,
 	FiLogOut,
-	FiExternalLink,
 	FiMove,
 	FiPackage,
 	FiRefreshCw,
@@ -55,8 +55,8 @@ import {
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { openWebhookViewerPopout } from '../v8/utils/webhookViewerPopoutHelper';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+import { openWebhookViewerPopout } from '../v8/utils/webhookViewerPopoutHelper';
 
 const ColoredIcon = styled.div<{ $color: string }>`
 	color: ${(props) => props.$color};
@@ -3035,7 +3035,10 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 																<button
 																	type="button"
 																	title="Open Webhook Viewer in popout window"
-																	onClick={(e) => { e.stopPropagation(); openWebhookViewerPopout(); }}
+																	onClick={(e) => {
+																		e.stopPropagation();
+																		openWebhookViewerPopout();
+																	}}
 																	style={{
 																		display: 'flex',
 																		alignItems: 'center',
@@ -3047,8 +3050,16 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 																		color: '#94a3b8',
 																		flexShrink: 0,
 																	}}
-																	onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = '#06b6d4'; (e.currentTarget as HTMLButtonElement).style.background = 'rgba(6,182,212,0.1)'; }}
-																	onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = '#94a3b8'; (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
+																	onMouseEnter={(e) => {
+																		(e.currentTarget as HTMLButtonElement).style.color = '#06b6d4';
+																		(e.currentTarget as HTMLButtonElement).style.background =
+																			'rgba(6,182,212,0.1)';
+																	}}
+																	onMouseLeave={(e) => {
+																		(e.currentTarget as HTMLButtonElement).style.color = '#94a3b8';
+																		(e.currentTarget as HTMLButtonElement).style.background =
+																			'transparent';
+																	}}
 																>
 																	<FiExternalLink size={12} />
 																</button>
@@ -3367,7 +3378,10 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 												<button
 													type="button"
 													title="Open Webhook Viewer in popout window"
-													onClick={(e) => { e.stopPropagation(); openWebhookViewerPopout(); }}
+													onClick={(e) => {
+														e.stopPropagation();
+														openWebhookViewerPopout();
+													}}
 													style={{
 														display: 'flex',
 														alignItems: 'center',
@@ -3379,8 +3393,15 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 														color: '#94a3b8',
 														flexShrink: 0,
 													}}
-													onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = '#06b6d4'; (e.currentTarget as HTMLButtonElement).style.background = 'rgba(6,182,212,0.1)'; }}
-													onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = '#94a3b8'; (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
+													onMouseEnter={(e) => {
+														(e.currentTarget as HTMLButtonElement).style.color = '#06b6d4';
+														(e.currentTarget as HTMLButtonElement).style.background =
+															'rgba(6,182,212,0.1)';
+													}}
+													onMouseLeave={(e) => {
+														(e.currentTarget as HTMLButtonElement).style.color = '#94a3b8';
+														(e.currentTarget as HTMLButtonElement).style.background = 'transparent';
+													}}
 												>
 													<FiExternalLink size={12} />
 												</button>

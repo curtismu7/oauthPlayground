@@ -15,6 +15,8 @@ import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { MFAUserDisplayV8 } from '@/v8/components/MFAUserDisplayV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
+import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
+import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
 import type { DeviceAuthenticationPolicy } from '@/v8/flows/shared/MFATypes';
 import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
@@ -26,8 +28,6 @@ import { MFAServiceV8, type MFASettings } from '@/v8/services/mfaServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import WorkerTokenStatusServiceV8 from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
-import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
 
 const MODULE_TAG = '[⚙️ MFA-CONFIG-PAGE-V8]';
 

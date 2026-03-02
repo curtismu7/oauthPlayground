@@ -1,14 +1,17 @@
 // src/services/v9/v9OAuthFlowComparisonService.tsx
 // V9 Wrapper for OAuthFlowComparisonService - Modern Messaging Compliant
 
+import React from 'react';
+// Import Modern Messaging (V9) - proper migration to non-toast messaging
+import { modernMessaging } from '../../components/v9/V9ModernMessagingComponents';
 import { OAuthFlowComparisonService } from '../oauthFlowComparisonService';
-// Import Modern Messaging (V8) - established migration pattern
-import { ToastNotificationsV8 as toastV8 } from '../../v8/utils/toastNotificationsV8';
 
 // V9 Wrapper Service - wraps original with Modern Messaging
 const V9OAuthFlowComparisonService = {
 	// Wrapper for getComparisonTable with V9 error handling
-	getComparisonTable(options: { highlightFlow?: 'jwt' | 'saml'; collapsed?: boolean } = {}) {
+	getComparisonTable(
+		options: { highlightFlow?: 'jwt' | 'saml'; collapsed?: boolean } = {}
+	): React.ReactElement {
 		try {
 			// Add V9 logging for comparison table usage
 			console.log(
@@ -21,7 +24,11 @@ const V9OAuthFlowComparisonService = {
 			// Add V9-specific error boundary wrapper
 			return <div data-v9-flow-comparison={options.highlightFlow || 'default'}>{result}</div>;
 		} catch (error) {
-			toastV8.error('Failed to generate flow comparison table');
+			modernMessaging.showCriticalError({
+				title: 'Comparison Failed',
+				message: 'Failed to generate flow comparison table',
+				contactSupport: false,
+			});
 			console.error('Flow comparison error:', error);
 
 			// Return fallback error display
@@ -54,13 +61,21 @@ const V9OAuthFlowComparisonService = {
 	validateFlowComparison(highlightFlow?: 'jwt' | 'saml'): boolean {
 		try {
 			if (highlightFlow && !['jwt', 'saml'].includes(highlightFlow)) {
-				toastV8.error('Invalid flow type for comparison');
+				modernMessaging.showCriticalError({
+					title: 'Invalid Flow Type',
+					message: 'Invalid flow type for comparison',
+					contactSupport: false,
+				});
 				return false;
 			}
 
 			return true;
 		} catch (error) {
-			toastV8.error('Flow comparison validation failed');
+			modernMessaging.showCriticalError({
+				title: 'Validation Failed',
+				message: 'Flow comparison validation failed',
+				contactSupport: false,
+			});
 			console.error('Flow validation error:', error);
 			return false;
 		}

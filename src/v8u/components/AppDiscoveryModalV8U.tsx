@@ -290,10 +290,10 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 						{(flowType || specVersion) && (
 							<div
 								style={{
-										padding: '9px 14px',
-										marginBottom: '10px',
-										background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-										borderRadius: '6px',
+									padding: '9px 14px',
+									marginBottom: '10px',
+									background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+									borderRadius: '6px',
 									textAlign: 'center',
 								}}
 							>
@@ -333,16 +333,16 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 						{/* Token Status */}
 						<div
 							style={{
-									padding: '7px 12px',
-									marginBottom: '10px',
+								padding: '7px 12px',
+								marginBottom: '10px',
 								background: globalTokenStatus.isLoading
 									? '#f3f4f6'
 									: globalTokenStatus.isValid
 										? '#d1fae5'
 										: '#fee2e2',
 								border: `1px solid ${globalTokenStatus.isLoading ? '#d1d5db' : globalTokenStatus.isValid ? '#6ee7b7' : '#fca5a5'}`,
-									borderRadius: '6px',
-									fontSize: '12px',
+								borderRadius: '6px',
+								fontSize: '12px',
 								color: globalTokenStatus.isLoading
 									? '#6b7280'
 									: globalTokenStatus.isValid
@@ -360,15 +360,15 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 						</div>
 
 						{/* Environment ID */}
-							<div style={{ marginBottom: '10px' }}>
+						<div style={{ marginBottom: '10px' }}>
 							<label
 								htmlFor="environment-id-input"
 								style={{
 									display: 'block',
-										fontSize: '12px',
-										fontWeight: '600',
-										color: '#374151',
-										marginBottom: '4px',
+									fontSize: '12px',
+									fontWeight: '600',
+									color: '#374151',
+									marginBottom: '4px',
 								}}
 							>
 								Environment ID <span style={{ color: '#ef4444' }}>*</span>
@@ -462,11 +462,11 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 								{filteredApps.length === 0 && searchQuery.trim() && (
 									<div
 										style={{
-												padding: '10px',
-												textAlign: 'center',
-												color: '#6b7280',
-												fontSize: '13px',
-												marginBottom: '8px',
+											padding: '10px',
+											textAlign: 'center',
+											color: '#6b7280',
+											fontSize: '13px',
+											marginBottom: '8px',
 											background: '#f9fafb',
 											borderRadius: '6px',
 											border: '1px solid #e5e7eb',
@@ -496,8 +496,8 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 													background: selectedAppId === app.id ? '#eff6ff' : 'white',
 													borderLeft:
 														selectedAppId === app.id
-																	? '3px solid #3b82f6'
-																	: '3px solid transparent',
+															? '3px solid #3b82f6'
+															: '3px solid transparent',
 													transition: 'background 0.2s ease',
 												}}
 												onMouseEnter={(e) => {
