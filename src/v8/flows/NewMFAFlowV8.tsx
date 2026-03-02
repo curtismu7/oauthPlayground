@@ -6,10 +6,7 @@
  */
 
 import React from 'react';
-import {
-	type TokenStatusInfo,
-	WorkerTokenStatusServiceV8,
-} from '../services/workerTokenStatusServiceV8';
+import { type TokenStatusInfo, WorkerTokenStatusServiceV8 } from '../services/workerTokenStatusServiceV8';
 import { DeviceConfigKey } from './config/deviceFlowConfigTypes';
 import { APIDocsStepV8 } from './shared/APIDocsStepV8';
 import type { MFAFlowBaseRenderProps } from './shared/MFAFlowBaseV8';
@@ -181,6 +178,7 @@ export const NewMFAFlowV8: React.FC<NewMFAFlowV8Props> = ({ deviceType }) => {
 		return false;
 	}, []);
 
+	// biome-ignore lint/suspicious/noExplicitAny: Navigation parameter unused
 	const validateStep0 = React.useCallback(
 		(credentials: MFACredentials, _tokenStatus: TokenStatusInfo, _nav: any) => {
 			// FIXED: Always do a FRESH check of worker token status
