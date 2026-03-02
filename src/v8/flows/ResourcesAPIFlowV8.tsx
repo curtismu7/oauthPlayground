@@ -879,7 +879,7 @@ Attributes:
 								<li>Select your resource → "Attributes" tab</li>
 								<li>Click "Add Attribute"</li>
 								<li>
-									Enter name and value (use <code>${'${user.fieldName}'}</code> syntax)
+									Enter name and value (use <code>${user.fieldName}</code> syntax)
 								</li>
 								<li>Test and see the claim in your access token!</li>
 							</ol>
@@ -1377,7 +1377,7 @@ POST /resources/{resourceId}/attributes
 						<li>Click "Attribute Mapping" tab</li>
 						<li>Click "Add Attribute"</li>
 						<li>
-							Enter claim name and map to user attribute: <code>${'${user.fieldName}'}</code>
+							Enter claim name and map to user attribute: <code>${user.fieldName}</code>
 						</li>
 						<li>Save and test your OAuth flow</li>
 					</StepList>
@@ -1389,7 +1389,7 @@ POST /resources/{resourceId}/attributes
 						<li>Click "Attributes" tab</li>
 						<li>Click "Add Attribute"</li>
 						<li>
-							Enter attribute name and value: <code>${'${user.fieldName}'}</code>
+							Enter attribute name and value: <code>${user.fieldName}</code>
 						</li>
 						<li>Save and test your OAuth flow</li>
 					</StepList>
