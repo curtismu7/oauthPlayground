@@ -220,6 +220,7 @@ project/
 - Granular ADR system: COMPLETED ✅
 - Test migration validation: IN PROGRESS 🔄
 - Command execution fix: COMPLETED ✅
+- Service usage tracking: COMPLETED ✅
 
 ### **Key Insights**
 - V7 flows are now 100% clean and ready for migration
@@ -228,12 +229,14 @@ project/
 - Granular memory approach needed for large app
 - Modern Messaging service created for V9
 - Command execution issues resolved with Biome config
+- Service tracking system enables archival decisions
 
 ### **Next Session Priorities**
 1. Execute V7→V9 migration (JWTBearerTokenFlowV7)
 2. Complete V9 service equivalents
-3. Update memory.md with progress
+3. Update service tracking with migration progress
 4. Validate migration approach
+5. Begin archival of unused services
 3. Archive completed work
 4. Plan next phase
 
