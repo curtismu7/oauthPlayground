@@ -371,21 +371,6 @@ export const SecurityDashboardPage: React.FC = () => {
 		return new Date(timestamp).toLocaleString();
 	};
 
-	const _getSeverityColor = (severity: string) => {
-		switch (severity) {
-			case 'critical':
-				return '#dc2626';
-			case 'high':
-				return '#ef4444';
-			case 'medium':
-				return '#f59e0b';
-			case 'low':
-				return '#3b82f6';
-			default:
-				return '#64748b';
-		}
-	};
-
 	const auditLogs = securityService.getAuditLogs(20);
 
 	return (
