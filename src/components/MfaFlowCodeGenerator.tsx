@@ -94,7 +94,6 @@ export const MfaFlowCodeGenerator: React.FC<MfaFlowCodeGeneratorProps> = ({
 		clientId,
 		redirectUri,
 		userId,
-		flowSteps.forEach,
 	]);
 
 	// Get initial code for authorization step

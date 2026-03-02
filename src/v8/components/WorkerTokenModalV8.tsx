@@ -198,7 +198,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 			async () => {
 				if (!environmentId.trim() || !clientId.trim() || !clientSecret.trim()) {
 					toastV8.error('Please fill in all required fields');
-					throw new Error('Please fill in all required fields');
+					return; // Early return instead of throwing
 				}
 
 				const normalizedScopes = scopeInput

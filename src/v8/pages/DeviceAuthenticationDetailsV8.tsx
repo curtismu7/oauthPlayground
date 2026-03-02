@@ -16,11 +16,11 @@ import {
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
+import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
+import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import workerTokenServiceV8 from '@/v8/services/workerTokenServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
-import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
 
 interface DeviceAuthenticationRecord {
 	success?: boolean;

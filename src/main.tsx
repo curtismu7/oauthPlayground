@@ -7,8 +7,8 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 import App from './App';
-import { EducationPreferenceService } from './services/educationPreferenceService';
 import { initDomainCache } from './services/customDomainService';
+import { EducationPreferenceService } from './services/educationPreferenceService';
 import { GlobalStyle, theme } from './styles/global';
 
 // Make React available globally for vendor bundles and any scripts that might need it
@@ -71,20 +71,22 @@ if (!root) throw new Error('Root element not found');
 // Warm the domain cache from IndexedDB/SQLite before first render so that
 // synchronous callers like getBaseUrl() / getRedirectUriForFlow() already have
 // the correct stored domain available.
-initDomainCache().catch(() => {
-	// Non-fatal: app still renders with the VITE_APP_DOMAIN / window.location fallback
-}).finally(() => {
-	ReactDOM.createRoot(root).render(
-		<BrowserRouter
-			future={{
-				v7_startTransition: true,
-				v7_relativeSplatPath: true,
-			}}
-		>
-			<ThemeProvider theme={theme}>
-				<GlobalStyle />
-				<App />
-			</ThemeProvider>
-		</BrowserRouter>
-	);
-});
+initDomainCache()
+	.catch(() => {
+		// Non-fatal: app still renders with the VITE_APP_DOMAIN / window.location fallback
+	})
+	.finally(() => {
+		ReactDOM.createRoot(root).render(
+			<BrowserRouter
+				future={{
+					v7_startTransition: true,
+					v7_relativeSplatPath: true,
+				}}
+			>
+				<ThemeProvider theme={theme}>
+					<GlobalStyle />
+					<App />
+				</ThemeProvider>
+			</BrowserRouter>
+		);
+	});
