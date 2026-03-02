@@ -293,10 +293,19 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 		};
 	});
 
+	// Token Response Interface
+	interface TokenResponse {
+		access_token: string;
+		token_type: string;
+		expires_in: number;
+		scope?: string;
+		info?: string;
+	}
+
 	// Generated SAML Assertion
 	const [generatedSAML, setGeneratedSAML] = useState('');
 	const [showDecodedSAML, setShowDecodedSAML] = useState(false);
-	const [tokenResponse, setTokenResponse] = useState<any>(null);
+	const [tokenResponse, setTokenResponse] = useState<TokenResponse | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
 
 	const normalizeAttributes = useCallback(
