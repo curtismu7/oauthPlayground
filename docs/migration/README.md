@@ -40,6 +40,7 @@ These are the current, actively maintained guides for the ongoing V7/V8 → V9 m
 | [JWKS_MIGRATION_GUIDE.md](./JWKS_MIGRATION_GUIDE.md) | JWKS endpoint migration |
 | [STORAGE_MIGRATION_PROJECT_INVENTORY.md](./STORAGE_MIGRATION_PROJECT_INVENTORY.md) | Storage system migration inventory |
 | [migrate_error_handlers.md](./migrate_error_handlers.md) | Error handler migration script (partial — WhatsAppFlowV8 in progress) |
+| [../implementation/toast-replace.md](../implementation/toast-replace.md) | **Toast replacement UX directive** — replaces all toast notifications with context-aware patterns (inline confirmation, field validation, persistent banner, snackbar with undo). Referenced in `migrate_vscode.md` and `migrate_cursor.md`. |
 
 ---
 

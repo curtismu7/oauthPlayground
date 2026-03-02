@@ -174,6 +174,144 @@ See [migrate_vscode.md § Priority 1 V8 Services Migration Progress](./migrate_v
 
 ---
 
+## � Existing V9 Flows — Spec Compliance Audit (March 2, 2026)
+
+Audited against: migrate_vscode.md color standards, toast rules, programming patterns, and V9_FLOW_TEMPLATE.md spec.
+
+> **Key for issues below:**
+> - 🔴 = functional bug or broken behavior
+> - 🟠 = spec violation (wrong system, wrong color)
+> - 🟡 = missing feature or improvement
+> - ✅ = compliant
+
+### Quick Reference Matrix
+
+| File | Toast | Header Color | FlowUIService | usePageScroll | EducationMode | `../../../v8/` alias issue | useEffect cleanups |
+|---|---|---|---|---|---|---|---|
+| `ClientCredentialsFlowV9` | 🟠 v4 | 🟠 Green | ✅ partial | ✅ | ✅ | — | 🔴 0/3 |
+| `DeviceAuthorizationFlowV9` | 🟠 v4 | 🟠 Mixed¹ | ✅ partial | ✅ | 🟡 Missing | — | 🔴 2/13 |
+| `ImplicitFlowV9` | 🟠 v4 | ✅ Blue | ✅ partial | ✅ | ✅ | — | 🔴 0/10 |
+| `JWTBearerTokenFlowV9` | 🟠 v4 | ✅ from FUS² | ✅ full | ✅ | 🟡 Missing | — | 🔴 0/3 |
+| `OAuthAuthorizationCodeFlowV9` | 🟠 v4 | ✅ Blue | ✅ partial | ✅ | 🟡 Missing | — | 🔴 1/15 |
+| `OAuthAuthorizationCodeFlowV9_Condensed` | ✅ toastV8 | ✅ Blue | 🟡 own Container | ✅ | 🟡 Missing | 🟠 Error 7 | ✅ 0/0 |
+| `OIDCHybridFlowV9` | 🟠 v4 | ✅ from FUS² | ✅ full | ✅ | 🟡 Missing | — | 🔴 0/7 |
+| `RARFlowV9` | 🟠 mixed³ | ✅ Blue | ✅ full | ✅ | 🟡 Missing | 🟠 Error 7 | ✅ 0/0 |
+| `SAMLBearerAssertionFlowV9` | 🟠 v4 | ✅ from FUS² | ✅ full | ✅ | 🟡 Missing | — | 🔴 0/3 |
+
+> ¹ DeviceAuth has two variants: `oidc` = blue, `oauth` = green — `oauth` variant is non-compliant  
+> ² Header color via `FlowUIService.getFlowUIComponents()` StepHeader — compliant if FlowUIService uses spec blue  
+> ³ RARFlowV9 imports both `toastV8` ✅ and `v4ToastManager` ❌ — v4 import needs removal  
+
+---
+
+### Per-File Fix Lists
+
+#### `ClientCredentialsFlowV9.tsx`
+- [ ] 🟠 Fix file header comment — says "V7.0.0 OAuth 2.0 Client Credentials Flow - Complete V7 Implementation" (line 2)
+- [ ] 🟠 Update header gradient: `#16a34a → #2563eb`, `#15803d → #1e40af`
+- [ ] 🟠 Replace `v4ToastManager` with `toastV8` (import + all call sites)
+- [ ] 🔴 Add `AbortController` + `return () => controller.abort()` to 3 `useEffect` blocks
+- [ ] 🟡 Replace inline `StepHeader` styled-component with `FlowUIService.getFlowUIComponents()` StepHeader (or keep own but fix color)
+
+#### `DeviceAuthorizationFlowV9.tsx`
+- [ ] 🟠 Replace `v4ToastManager` with `toastV8`
+- [ ] 🟠 Fix `oauth` variant header color: `#16a34a → #2563eb`, `#15803d → #1e40af` (line ~82-83)
+- [ ] 🟠 Fix `oidc` variant to use exact spec blue: `#3b82f6 → #2563eb`, `#1d4ed8 → #1e40af` (line ~82)
+- [ ] 🔴 Add cleanup to 11 `useEffect` blocks that lack `return () =>` (13 effects, only 2 cleaned up)
+- [ ] 🟡 Add `EducationModeToggle`
+
+#### `ImplicitFlowV9.tsx`
+- [ ] 🟠 Replace `v4ToastManager` with `toastV8`
+- [ ] 🔴 Add cleanup to 10 `useEffect` blocks that lack `return () =>`
+
+#### `JWTBearerTokenFlowV9.tsx`
+- [ ] 🟠 Replace `v4ToastManager` with `toastV8`
+- [ ] 🔴 Add cleanup to 3 `useEffect` blocks that lack `return () =>`
+- [ ] 🟡 Add `EducationModeToggle`
+
+#### `OAuthAuthorizationCodeFlowV9.tsx`
+- [ ] 🟠 Replace `v4ToastManager` with `toastV8`
+- [ ] 🔴 Add cleanup to 14 `useEffect` blocks that lack `return () =>` (15 effects, only 1 with cleanup)
+- [ ] 🟡 Add `EducationModeToggle`
+
+#### `OAuthAuthorizationCodeFlowV9_Condensed.tsx`
+- [ ] 🟠 Fix Error 7 import: `'../../../v8/components/WorkerTokenStatusDisplayV8'` → `'@/v8/components/WorkerTokenStatusDisplayV8'` (line 13)
+- [ ] 🟠 Fix Error 7 import: `'../../../v8/utils/toastNotificationsV8'` → `'@/v8/utils/toastNotificationsV8'` (line 14)
+- [ ] 🟡 Replace own `Container = styled.div` with `FlowUIService.getContainer()` for layout consistency
+- [ ] 🟡 Add `EducationModeToggle`
+
+#### `OIDCHybridFlowV9.tsx`
+- [ ] 🟠 Replace `v4ToastManager` with `toastV8`
+- [ ] 🔴 Add cleanup to 7 `useEffect` blocks that lack `return () =>`
+- [ ] 🟡 Add `EducationModeToggle`
+
+#### `RARFlowV9.tsx`
+- [ ] 🟠 Remove `v4ToastManager` import — `toastV8` is already imported and used; remove old import and any remaining v4 call sites
+- [ ] 🟠 Fix Error 7 import: `'../../../v8/components/WorkerTokenStatusDisplayV8'` → `'@/v8/components/WorkerTokenStatusDisplayV8'` (line 22)
+- [ ] 🟠 Fix Error 7 import: `'../../../v8/utils/toastNotificationsV8'` → `'@/v8/utils/toastNotificationsV8'` (line 23)
+- [ ] 🟡 Add `EducationModeToggle`
+
+#### `SAMLBearerAssertionFlowV9.tsx`
+- [ ] 🟠 Replace `v4ToastManager` with `toastV8`
+- [ ] 🔴 Add cleanup to 3 `useEffect` blocks that lack `return () =>`
+- [ ] 🟡 Add `EducationModeToggle`
+
+---
+
+### Batch Fix Commands (Toast — Run Per File)
+
+```bash
+# Replace toast calls in a V9 file. Run once per file, then manually add toastV8 import.
+FILE="src/pages/flows/v9/ClientCredentialsFlowV9.tsx"  # change per file
+
+sed -i '' "s/v4ToastManager\.showSuccess(/toastV8.success(/g" "$FILE"
+sed -i '' "s/v4ToastManager\.showError(/toastV8.error(/g" "$FILE"
+sed -i '' "s/v4ToastManager\.showWarning(/toastV8.warning(/g" "$FILE"
+sed -i '' "s/v4ToastManager\.showInfo(/toastV8.info(/g" "$FILE"
+# Then: remove v4ToastManager import line, add: import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+```
+
+```bash
+# Fix Error 7 (relative v8 imports) in Condensed and RAR:
+for f in src/pages/flows/v9/OAuthAuthorizationCodeFlowV9_Condensed.tsx src/pages/flows/v9/RARFlowV9.tsx; do
+  sed -i '' "s|from '../../../v8/|from '@/v8/|g" "$f"
+done
+```
+
+---
+
+## �🔧 Code Quality (From Programming Patterns Audit — Mar 2, 2026)
+
+> Full details in [`migrate_vscode.md` → `🔬 Programming Patterns`](./migrate_vscode.md)
+
+### 🔴 P1 — Must Fix Before/During Migration
+
+- [ ] **V9 toast system migration** — 8 of 9 V9 flows still using `v4ToastManager`; replace with `toastV8`
+  - [ ] `OIDCHybridFlowV9.tsx`
+  - [ ] `DeviceAuthorizationFlowV9.tsx`
+  - [ ] `ImplicitFlowV9.tsx`
+  - [ ] `SAMLBearerAssertionFlowV9.tsx`
+  - [ ] `ClientCredentialsFlowV9.tsx`
+  - [ ] `RARFlowV9.tsx`
+  - [ ] `OAuthAuthorizationCodeFlowV9.tsx`
+  - [ ] `JWTBearerTokenFlowV9.tsx`
+- [ ] **Dead `_setIsLoading` state** — `TokenExchangeFlowV8.tsx` line 250; `isLoading` never updates because `useProductionSpinner` owns it now
+- [ ] **`useEffect` async without `AbortController`** — apply to Token Exchange V8, all MFA flows; prevents state update on unmounted component
+
+### 🟠 P2 — Fix When Touching Each File
+
+- [ ] **Unsafe error casting** — replace `err as SomeErrorClass` with `instanceof` type guards (`TokenExchangeFlowV8.tsx` and others)
+- [ ] **`useState<any>` in V7 flows** — replace with typed state before copying to V9 (`TokenExchangeFlowV7.tsx` L1697 and others)
+- [ ] **Spinner objects in `useCallback`/`useEffect` deps** — verify `useProductionSpinner` stability; if new ref each render, remove from deps with a comment
+
+### 💡 P3 — Improve When Refactoring
+
+- [ ] **Add `usePageScroll`** to all V8 flows being migrated to V9 (V7 had it, V8 dropped it)
+- [ ] **Switch V8 `Container` → `FlowUIService.getContainer()`** when placing V8 flows in V9 folder
+- [ ] **Replace `console.log` with `debugLog` pattern** in any services created or touched during migration
+
+---
+
 ## ✅ Completed (for reference)
 
 | Item | Date |

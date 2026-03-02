@@ -318,9 +318,48 @@ background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
 
 **❌ FORBIDDEN COLORS:**
 - Purple (#8b5cf6, #7c3aed, #6d28d9, etc.)
-- Green (except success states: #10b981)
-- Orange (except warnings: #f59e0b)
-- Any color not listed above
+- Green (except status indicators — see below)
+- Orange/Amber (except status indicators — see below)
+- Any color not listed in the approved sets above
+
+---
+
+### ✅ Status Indicator Colors (Approved Exception)
+
+Status indicator components — token displays, connection badges, health checks, progress states — **may use** Green / Amber / Red to communicate live state. This is an approved exception to the blue-only rule.
+
+| Status | Meaning | Color Name | Hex | When to use |
+|--------|---------|-----------|-----|-------------|
+| Valid | Token present / connected / OK | Emerald green | `#10b981` | Token is active and not expiring soon |
+| Warning | Token expiring soon | Amber / yellow | `#f59e0b` | Token expires in < 5 minutes |
+| Invalid | No token / auth failed / disconnected | Red | `#ef4444` / `#dc2626` | Token absent, expired, or auth error |
+
+**Scope — this exception applies ONLY to:**
+- Token status displays (`WorkerTokenStatusDisplayV8`, similar components)
+- Connection status badges
+- Health indicator dots and icons
+- Any component whose purpose is to show live valid/warning/error state
+
+**This exception does NOT apply to:**
+- Flow page headers (must stay blue or red per the gradient rules above)
+- Buttons that perform actions (must use blue or neutral styles)
+- General UI chrome, cards, or section titles
+
+```tsx
+// ✅ Correct — status indicator using approved exception colors
+const statusColor = {
+  valid:   '#10b981', // emerald green — token present
+  warning: '#f59e0b', // amber        — expires in < 5 min
+  invalid: '#ef4444', // red          — no token / failed
+};
+
+// ❌ Wrong — using status colors in a flow page header
+background: 'linear-gradient(135deg, #10b981, #059669)' // never green headers
+```
+
+**Reference implementation:** [`src/v8/components/WorkerTokenStatusDisplayV8.tsx`](../../src/v8/components/WorkerTokenStatusDisplayV8.tsx)
+
+---
 
 **Reference Pages:**
 - ✅ [CustomDomainTestPage.tsx](../../src/pages/CustomDomainTestPage.tsx) - Approved blue/red palette
@@ -333,6 +372,8 @@ background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
 ## � Toast Replacement (MANDATORY)
 
 All toast-based notifications must be replaced with context-aware feedback patterns. **Do not use toasts unless explicitly justified.**
+
+> 📄 **Source doc:** [`docs/implementation/toast-replace.md`](../implementation/toast-replace.md) — the full UX directive with all replacement patterns, rationale, and accessibility requirements. The sections below are a migration-focused summary.
 
 ### Core Principles
 
@@ -788,9 +829,24 @@ dispatch({ type: 'RESET' });
 
 ---
 
-### 💡 P3 — `usePageScroll` Missing in V8 Flows
+### 💡 P3 — `usePageScroll` Missing in V8 Flows + Root Cause of All Scroll Failures
 
 **Found in:** V7 flows use `usePageScroll` for scroll-to-top and focus management on step changes. V8 flows dropped it.
+
+> **⚠️ Root Cause — Why scroll-to-top failed on every page:**
+> The app layout in `App.tsx` wraps all route content in `ContentColumn` — a `styled.div` with  
+> `height: 100vh; overflow-y: auto;`. **That div is the real scroll container, not `window`.**  
+> Every previous attempt (`window.scrollTo(0,0)`, `document.documentElement.scrollTop = 0`,  
+> `document.body.scrollTop = 0`) targeted `window`, which never overflows in this layout and  
+> simply ignored all scroll calls.
+>
+> **✅ Permanent fix already applied (do not revert):**
+> - `src/App.tsx` — `<ContentColumn>` now has `data-content-column` attribute
+> - `src/utils/scrollManager.ts` — `scrollToTop()` now calls  
+>   `document.querySelector('[data-content-column]')?.scrollTop = 0`  
+>   and falls back to `window` only when the container isn't in the DOM (tests/SSR)
+>
+> All flows that call `usePageScroll()` or `scrollToTop()` now work correctly with no further changes.
 
 ```tsx
 // V7 pattern — present in TokenExchangeFlowV7.tsx
@@ -1196,6 +1252,25 @@ Visit the new route and verify:
 ---
 
 ## 🔍 Post-Migration Validation
+
+### Lint After Each Flow Migration
+
+Run these after every V9 flow is created or updated — catches syntax and import errors before they reach the build:
+
+```bash
+# V9 flows only (Biome — primary linter)
+npx biome lint src/pages/flows/v9
+
+# V9 flows only (ESLint — secondary linter, catches React/hooks rules)
+npx eslint src/pages/flows/v9 --ext .ts,.tsx
+
+# V8 source only (when you touch anything under src/v8/)
+npx biome lint src/v8
+npx eslint src/v8 --ext .ts,.tsx
+
+# Full type-check across the whole project
+npm run type-check
+```
 
 ### Import Resolution Check
 
@@ -1685,6 +1760,18 @@ sed -i '' 's/V7/V9/g' "$FLOW"
 
 # Verify
 npx tsc --noEmit "$FLOW"
+
+# ── Lint after each migration ────────────────────────────────────────
+# V9 flows only
+npx biome lint src/pages/flows/v9
+npx eslint src/pages/flows/v9 --ext .ts,.tsx
+
+# V8 source only
+npx biome lint src/v8
+npx eslint src/v8 --ext .ts,.tsx
+
+# Full type-check (whole project — fastest way to catch cross-file errors)
+npm run type-check
 
 # Test
 npm run dev

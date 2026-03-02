@@ -236,12 +236,64 @@ After copying and fixing imports:
 # 1. Check no remaining V8-internal relative service/util imports
 grep "from '\.\./services/\|from '\.\./utils/\|from '\.\./hooks/\|from '\.\./types/" src/pages/flows/v9/YourFlowV9.tsx
 
-# 2. TypeScript compile check
-npx tsc --noEmit
+# 2. Lint V9 flows only (Biome)
+npx biome lint src/pages/flows/v9
 
-# 3. Check Vite resolves all imports
+# 3. Lint V9 flows only (ESLint)
+npx eslint src/pages/flows/v9 --ext .ts,.tsx
+
+# 4. TypeScript compile check (whole project — catches cross-file type errors)
+npm run type-check
+
+# 5. Check Vite resolves all imports
 npm run dev -- --force
 ```
+
+To lint V8 source after touching V8 files:
+```bash
+npx biome lint src/v8
+npx eslint src/v8 --ext .ts,.tsx
+```
+
+---
+
+## Scroll-to-Top: Add `usePageScroll` (V8 → V9)
+
+V8 flows do **not** call `usePageScroll`. When you copy a V8 flow into V9, add it:
+
+```tsx
+import { usePageScroll } from '../../../hooks/usePageScroll';
+
+// Inside the component:
+const { scrollToTop } = usePageScroll();
+
+// Call on scenario/step changes so users return to the top:
+const handleScenarioChange = useCallback((scenario: string) => {
+  setSelectedScenario(scenario as SomeScenario);
+  scrollToTop();
+}, [scrollToTop]);
+```
+
+> **Why this works now (root cause resolved):**  
+> The layout in `App.tsx` uses `ContentColumn` (a div with `height: 100vh; overflow-y: auto`).  
+> Previously all scroll attempts targeted `window`, which never actually scrolls in this layout.  
+> `App.tsx` now has `<ContentColumn data-content-column>` and `scrollManager.ts` targets that  
+> element directly. `usePageScroll()` / `scrollToTop()` will work on **every page** after this fix.
+
+---
+
+## Status Indicator Colors (Approved Exception to Blue-Only Rule)
+
+When migrating V8 components that show live token / connection state, **keep** the Green / Amber / Red colors — they are an approved exception:
+
+| State | Hex | Meaning |
+|-------|-----|---------|
+| Valid | `#10b981` | Token present, not expiring soon |
+| Warning | `#f59e0b` | Token expires in < 5 min |
+| Invalid | `#ef4444` / `#dc2626` | No token or auth failed |
+
+This exception applies **only** to status indicator components (token displays, health badges).  
+Flow page **headers must stay blue** (`#2563eb` / `#1e40af`).
 
 ---
 
