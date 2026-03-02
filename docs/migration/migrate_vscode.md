@@ -11,6 +11,9 @@
 **Before migrating any flow, read:**
 - [V9 Migration Lessons Learned](./V9_MIGRATION_LESSONS_LEARNED.md) - All errors discovered and solutions
 - [V7 to V9 Migration Guide](./V7_TO_V9_MIGRATION_GUIDE.md) - Original migration plan
+- [V7 to V8/V9 Upgrade Targets](./V7_TO_V8_UPGRADE_TARGETS.md) - Priority list of 18 V7 apps still in sidebar + service dependency analysis
+
+> **Note:** There is no separate V8→V9 migration doc. V8 flows live in `src/v8/flows/` and are migrated to V9 using this guide — the [V8 Architecture Reference](#️-v8-architecture-reference) section below covers V8-specific import patterns.
 
 This guide combines the migration workflow with lessons learned from the first production V7→V9 migration to help you avoid common pitfalls.
 
@@ -20,19 +23,163 @@ This guide combines the migration workflow with lessons learned from the first p
 
 ### What You're Migrating
 - **From:** V7 OAuth/OIDC flows in `src/pages/flows/`
+- **From:** V8 feature module in `src/v8/`
 - **To:** V9 flows in `src/pages/flows/v9/` subdirectory
 
 ### Why V9?
 - ✅ Modern credential validation
 - ✅ Better error handling
 - ✅ Improved state management
-- ✅ Version-specific services (no V7 dependencies)
+- ✅ Version-specific services (no V7/V8 dependencies)
 
 ### Success Metrics (First Session)
 - **Time:** 2 days (vs 6-week estimate = **21x faster**)
 - **Files Created:** 8 (4 flows + 2 services + 2 tests)
 - **Import Errors Fixed:** 7 distinct types
 - **Final Status:** All flows compile and run successfully ✅
+
+---
+
+## 🏗️ V8 Architecture Reference
+
+V8 is a **self-contained feature module** at `src/v8/`. Unlike V7 which scattered files across `src/pages/flows/`, `src/services/`, etc., V8 uses a monorepo-style layout:
+
+```
+src/v8/
+├── components/          # ~80 UI components (WorkerTokenSectionV8, MFA*, etc.)
+├── services/            # ~60 services (all OAuth/MFA/worker token logic)
+│   ├── auth/            # tokenGatewayV8.ts
+│   └── __tests__/       # service unit tests
+├── flows/               # ~20 full flow pages (V8 OAuth/MFA flows)
+│   ├── shared/          # shared flow utilities
+│   ├── components/      # flow-local components
+│   ├── controllers/     # flow controllers
+│   ├── hooks/           # flow-scoped hooks
+│   └── unified/         # unified MFA flow helpers
+├── pages/               # ~15 standalone utility pages
+├── hooks/               # ~20 shared hooks (useWorkerToken, useMFADevices, etc.)
+├── utils/               # ~20 utils (toastNotificationsV8, analytics, etc.)
+├── styles/              # designTokens.ts, styleUtils.ts, STYLE_GUIDE.md
+├── constants/           # pingIdentityColors.ts, uiStandardsV8.ts
+├── types/               # shared TypeScript interfaces
+└── design/              # tokens.ts
+```
+
+### V8 Flows Catalog
+
+| Flow File | Route / Purpose |
+|---|---|
+| `ImplicitFlowV8.tsx` | OAuth 2.0 Implicit |
+| `OAuthAuthorizationCodeFlowV8.tsx` | Auth Code + PKCE |
+| `OIDCHybridFlowV8.tsx` | OIDC Hybrid |
+| `CIBAFlowV8.tsx` | CIBA (backchannel auth) |
+| `TokenExchangeFlowV8.tsx` | Token Exchange RFC 8693 |
+| `ResourcesAPIFlowV8.tsx` | Resource Indicators |
+| `PingOnePARFlowV8/` | Pushed Authorization Requests |
+| `PingOneProtectFlowV8.tsx` | PingOne Protect |
+| `MFAFlowV8.tsx` | MFA base flow |
+| `MFAAuthenticationMainPageV8.tsx` | MFA authentication |
+| `MFAConfigurationPageV8.tsx` | MFA setup/config |
+| `MFADeviceManagementFlowV8.tsx` | Device management |
+| `MFADeviceOrderingFlowV8.tsx` | Device ordering |
+| `EmailMFASignOnFlowV8.tsx` | Email MFA sign-on |
+| `CompleteMFAFlowV8.tsx` | Full MFA lifecycle |
+| `NewMFAFlowV8.tsx` | New MFA enrollment |
+| `MFASettingsV8.tsx` | MFA settings page |
+| `MFAReportingFlowV8.tsx` | MFA reporting |
+
+### Key V8 Services
+
+| Service | Purpose | Import Count |
+|---|---|---|
+| `workerTokenStatusServiceV8` | Worker token status/display | ~107 |
+| `specVersionServiceV8` | OAuth spec version detection | ~86 |
+| `mfaServiceV8` | MFA orchestration | ~75 |
+| `workerTokenServiceV8` | Worker token lifecycle | ~70 |
+| `credentialsServiceV8` | Credential management | ~70 |
+| `oauthIntegrationServiceV8` | OAuth flow integration | — |
+| `environmentIdServiceV8` | Environment ID resolution | — |
+| `validationServiceV8` | Input validation | — |
+| `storageServiceV8` | Dual storage (IndexedDB+SQLite) | — |
+| `uiNotificationServiceV8` | Notification management | — |
+
+### Key V8 Components Commonly Used Outside V8
+
+```typescript
+// Worker token display + controls (most common)
+import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
+
+// Worker token modal (get/set token)
+import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+
+// Token expiry warning banner
+import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
+
+// Worker token status badge
+import { WorkerTokenStatusDisplayV8 } from '@/v8/components/WorkerTokenStatusDisplayV8';
+
+// API call display (shows request/response)
+import { SuperSimpleApiDisplayV8 } from '../v8/components/SuperSimpleApiDisplayV8';
+
+// User search dropdown (auto-populates from PingOne)
+import { UserSearchDropdownV8 } from '../../v8/components/UserSearchDropdownV8';
+
+// Silent API config checkbox
+import { SilentApiConfigCheckboxV8 } from '../v8/components/SilentApiConfigCheckboxV8';
+
+// Toast notifications (V8 style)
+import { toastV8 } from '../../../v8/utils/toastNotificationsV8';
+```
+
+### V8 Import Path Conventions
+
+The correct import path **depends on where the consuming file lives**:
+
+| Consuming file location | Import V8 component as |
+|---|---|
+| `src/pages/SomePage.tsx` | `'../v8/components/...'` or `'@/v8/components/...'` |
+| `src/pages/flows/SomeFlow.tsx` | `'../../v8/components/...'` or `'@/v8/...'` |
+| `src/pages/flows/v9/SomeFlowV9.tsx` | `'../../../v8/components/...'` or `'@/v8/...'` |
+| `src/v8/flows/SomeFlowV8.tsx` | `'../components/...'` (within V8) |
+| `src/v8/services/someService.ts` | `'../utils/...'` (within V8) |
+
+**Prefer the `@/v8/...` alias** when available — it works everywhere and never needs depth adjustment:
+```typescript
+// ✅ Alias — path-depth independent
+import { WorkerTokenSectionV8 } from '@/v8/components/WorkerTokenSectionV8';
+
+// ⚠️ Relative — must match exact depth
+import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
+```
+
+### V8 → V9 Migration: Import Depth Differences
+
+When migrating a **V8 flow** (lives in `src/v8/flows/`) to V9 (lives in `src/pages/flows/v9/`), the import depths change significantly:
+
+```bash
+# Within V8 flow (src/v8/flows/MyFlowV8.tsx)
+from '../services/workerTokenServiceV8'   # 1 level up
+from '../components/WorkerTokenSectionV8' # 1 level up
+from '../hooks/useWorkerToken'            # 1 level up
+
+# Same imports in V9 (src/pages/flows/v9/MyFlowV9.tsx)
+from '../../../v8/services/workerTokenServiceV8'   # 3 levels + v8/
+from '../../../v8/components/WorkerTokenSectionV8' # 3 levels + v8/
+# OR use the alias (preferred):
+from '@/v8/services/workerTokenServiceV8'
+from '@/v8/components/WorkerTokenSectionV8'
+```
+
+**Bulk fix V8 internal imports when putting into V9:**
+```bash
+FLOW="src/pages/flows/v9/MyFlowV9.tsx"
+
+# V8 internal imports → either alias or full relative path
+sed -i '' "s|from '../services/|from '@/v8/services/|g" "$FLOW"
+sed -i '' "s|from '../components/|from '@/v8/components/|g" "$FLOW"
+sed -i '' "s|from '../hooks/|from '@/v8/hooks/|g" "$FLOW"
+sed -i '' "s|from '../utils/|from '@/v8/utils/|g" "$FLOW"
+```
 
 ---
 
@@ -250,6 +397,41 @@ const data = JSON.parse(stored);
 
 **Why:** Pages should use `unifiedWorkerTokenService` for consistent worker token management, dual storage (IndexedDB + SQLite), and event-driven updates.
 
+### Error 7: V8 Internal Import Used Outside V8
+**Symptom:**
+```
+Failed to resolve import "../services/workerTokenServiceV8"
+```
+
+**Why:** File was copied from `src/v8/flows/` without updating the single-level V8-internal imports. From `src/pages/flows/v9/`, V8 modules are 3+ levels away.
+
+**Fix:**
+```bash
+FLOW="src/pages/flows/v9/MyFlowV9.tsx"
+
+# Replace V8-internal single-slash imports with alias
+sed -i '' "s|from '../services/|from '@/v8/services/|g" "$FLOW"
+sed -i '' "s|from '../components/|from '@/v8/components/|g" "$FLOW"
+sed -i '' "s|from '../hooks/|from '@/v8/hooks/|g" "$FLOW"
+sed -i '' "s|from '../utils/|from '@/v8/utils/|g" "$FLOW"
+```
+
+### Error 8: Wrong V8 Component Reference (WorkerTokenSectionV8)
+**Symptom:**
+```
+Module '"../v8/components/WorkerTokenSectionV8"' has no exported member...
+```
+
+**Why:** `WorkerTokenSectionV8` has a named export. Confirm from `src/v8/components/WorkerTokenSectionV8.tsx`.
+
+**Fix:**
+```typescript
+// ✅ Correct named import
+import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
+// ✅ OR via alias
+import { WorkerTokenSectionV8 } from '@/v8/components/WorkerTokenSectionV8';
+```
+
 **Fix:**
 ```bash
 # Check if page uses localStorage for worker tokens
@@ -278,6 +460,16 @@ sed -i '' "s/localStorage.removeItem('unified_worker_token');/unifiedWorkerToken
 ---
 
 ## 📋 Pre-Migration Checklist
+
+### Identify Source Version
+
+Before running any checks, confirm whether you are migrating a **V7 flow** or a **V8 flow**:
+
+| Source | File Location | Import depth to V9 |
+|---|---|---|
+| **V7 flow** | `src/pages/flows/v7/` | `../../` → `../../../` |
+| **V8 flow** | `src/v8/flows/` | `../` (V8-internal) → `@/v8/...` (alias) |
+| **V8 page** | `src/v8/pages/` | `../` (V8-internal) → `@/v8/...` (alias) |
 
 **Run BEFORE starting each flow migration:**
 
@@ -339,11 +531,19 @@ FLOW_NAME="ImplicitFlowV7" ./scripts/pre-migration-check.sh
 
 ## 🛠️ Step-by-Step Migration Workflow
 
+> **Migrating a V8 flow?** V8 flows live in `src/v8/flows/` and use V8-internal single-level imports. When placing them into `src/pages/flows/v9/`, use the `@/v8/...` alias instead of rewriting relative paths. See [V8 Architecture Reference](#-v8-architecture-reference) and [Error 7](#error-7-v8-internal-import-used-outside-v8) for details.
+
 ### Step 1: Create V9 Service Classes (If Needed)
 
-**Check if services need V9 versions:**
+**Check if V7 services need V9 versions:**
 ```bash
 grep -o "V7[A-Za-z]*Service" src/pages/flows/v7/YourFlowV7.tsx | sort -u
+```
+
+**Check if V8 services need V9 wrapping:**
+```bash
+grep -o "[A-Za-z]*ServiceV8" src/v8/flows/YourFlowV8.tsx | sort -u
+# Most V8 services can be imported directly via @/v8/services/ — no copy needed
 ```
 
 **If you see `v7CredentialValidationService`:**
@@ -585,7 +785,42 @@ diff -u src/pages/flows/v7/YourFlowV7.tsx src/pages/flows/v9/YourFlowV9.tsx | le
 
 ## 📚 Reference: Files Modified in First Session
 
-### Services Created
+### V8 Module Structure (Key Files)
+
+**Components (import via `@/v8/components/...`):**
+- `WorkerTokenSectionV8` — token status + Get/Update/Clear UI, most pages use this
+- `WorkerTokenModalV8` — modal to acquire/update worker token
+- `WorkerTokenExpiryBannerV8` — expiry warning banner
+- `WorkerTokenStatusDisplayV8` — compact token status badge
+- `SuperSimpleApiDisplayV8` — request/response display for API calls
+- `UserSearchDropdownV8` — PingOne user search/auto-populate
+- `SilentApiConfigCheckboxV8` / `ShowTokenConfigCheckboxV8` — flow config controls
+
+**Services (import via `@/v8/services/...`):**
+- `workerTokenServiceV8` — token acquire/refresh/clear lifecycle
+- `workerTokenStatusServiceV8` — token status polling + events
+- `credentialsServiceV8` / `enhancedCredentialsServiceV8` — credential storage
+- `specVersionServiceV8` — OAuth spec version detection
+- `mfaServiceV8` — MFA orchestration
+- `validationServiceV8` — input/credential validation
+- `storageServiceV8` — dual storage (IndexedDB + SQLite)
+- `oauthIntegrationServiceV8` — OAuth flow coordination
+- `environmentIdServiceV8` — environment ID resolution
+
+**Hooks (import via `@/v8/hooks/...`):**
+- `useWorkerToken` — subscribe to worker token state
+- `useMFADevices` — MFA device list management
+- `useMFAAuthentication` — MFA auth state machine
+- `useStepNavigationV8` — flow step navigation
+- `useCibaFlowV8` / `useHybridFlowV8` — flow-specific hooks
+
+**Utils (import via `@/v8/utils/...`):**
+- `toastNotificationsV8` — V8-style toasts (use sparingly per toast replacement guide)
+- `analyticsLoggerV8` — analytics/event logging
+- `webhookViewerPopoutHelper` — popout window utilities
+- `unifiedErrorHandlerV8` — centralized error handling
+
+### Services Created (V9 Session)
 1. `src/services/v9/v9CredentialValidationService.tsx` (474 lines)
 2. `src/services/implicitFlowSharedService.ts` - Added `ImplicitFlowV9Helpers` class
 
@@ -768,6 +1003,7 @@ curl -o src/styles/vendor/end-user-nano.css "https://assets.pingone.com/ux/end-u
 
 - [V9 Migration Lessons Learned](./V9_MIGRATION_LESSONS_LEARNED.md) - Complete error catalog
 - [V7 to V9 Migration Guide](./V7_TO_V9_MIGRATION_GUIDE.md) - Original plan
+- [V7 to V8/V9 Upgrade Targets](./V7_TO_V8_UPGRADE_TARGETS.md) - Priority inventory: 18 sidebar V7 apps, service dependency analysis, CRITICAL/High/Medium/Low priority tiers
 - [UI & Icon Migration Guide](./migrate_cursor.md) - Bootstrap/Nano/MDI icon migration (VS Code edition)
 - [Icon Migration Complete](./ICON_MIGRATION_COMPLETE.md) - Icon font setup
 - [Complete Icon List](./COMPLETE_ICON_LIST.md) - All 34 icons
@@ -1009,6 +1245,6 @@ npm run dev
 
 ---
 
-**Last Updated:** February 28, 2026  
+**Last Updated:** March 2, 2026  
 **Status:** Production Ready ✅  
-**Next Migration:** Follow this guide for remaining V7 flows
+**Next Migration:** Follow this guide for remaining V7 and V8 flows
