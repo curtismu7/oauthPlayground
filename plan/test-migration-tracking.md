@@ -26,7 +26,7 @@ Validate our comprehensive migration plan by upgrading 1 app from each version (
 - **Planning**: ✅ Complete
 - **V7 Analysis**: ✅ Complete (12 services identified)
 - **V9 Service Mapping**: 🔄 In Progress
-- **V9 Messaging Service**: ✅ Created (`src/services/v9/V9MessagingService.ts`)
+- **V9MessagingService**: ✅ Created (`src/services/v9/V9MessagingService.ts`)
 - **Migration Execution**: ⏳ Not Started
 - **Testing**: ⏳ Not Started V7 services with V9
 - [ ] **Modern Messaging**: Replace v4ToastManager
@@ -108,15 +108,17 @@ rg -n "import.*Service" src/pages/flows/JWTBearerTokenFlowV7.tsx
 ```
 
 #### **2. V9 Service Mapping** ⏳
-- [ ] Map ComprehensiveCredentialsService → V9CredentialService
-- [ ] Map CredentialGuardService → V9CredentialValidationService
-- [ ] Map UnifiedTokenDisplayService → V9TokenService
-- [ ] Map v4ToastManager → Modern Messaging
+- [x] Map ComprehensiveCredentialsService → V9CredentialService
+- [x] Map CredentialGuardService → V9CredentialValidationService
+- [x] Map UnifiedTokenDisplayService → V9TokenService
+- [x] Map v4ToastManager → V9MessagingService ✅ CREATED
+- [ ] Create missing V9 service equivalents
 
 #### **3. Code Migration** ⏳
 - [ ] Update import statements
 - [ ] Replace service calls
 - [ ] Update prop interfaces
+- [ ] Integrate V9MessagingService to replace v4ToastManager
 - [ ] Add error handling with Modern Messaging
 
 #### **4. Testing** ⏳
