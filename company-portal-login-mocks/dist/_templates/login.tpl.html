@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en" data-company="__COMPANY__">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Log in (Mock)</title>
+  <link rel="stylesheet" href="__SHARED__theme.css" />
+  <style>
+    .login-wrap{
+      min-height:calc(100vh - 70px);
+      display:grid;
+      place-items:center;
+      padding:34px 14px;
+      background:
+        radial-gradient(900px 520px at 30% 20%, rgba(255,255,255,.18), rgba(255,255,255,0) 60%),
+        radial-gradient(900px 520px at 70% 60%, rgba(27,45,191,.18), rgba(27,45,191,0) 55%),
+        linear-gradient(180deg, rgba(0,0,0,.02), rgba(0,0,0,.0));
+    }
+    .login-card{ width:min(420px, 92vw); }
+    .login-card .card__pad{ padding:22px; }
+    .login-title{
+      margin:0 0 6px;
+      font-size:26px;
+      letter-spacing:-.02em;
+    }
+    .login-sub{
+      margin:0 0 14px;
+      color:var(--muted);
+      font-size:13px;
+      font-weight:700;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container header__inner">
+      <div class="brand"><span class="logo" data-logo></span></div>
+      <nav class="nav" aria-label="Utility">
+        <a href="../index.html?company=__COMPANY__">Back to portal</a>
+        <select class="select" data-company-select aria-label="Company"></select>
+      </nav>
+    </div>
+  </header>
+
+  <main class="login-wrap">
+    <section class="card login-card" aria-label="Log in">
+      <div class="card__pad">
+        <h1 class="login-title" data-login-title>Log in</h1>
+        <p class="login-sub">Securely access your account.</p>
+
+        <form class="form" action="#" method="post">
+          <label for="u">User ID / Email</label>
+          <input id="u" class="input" autocomplete="username" />
+          <label for="p">Password</label>
+          <input id="p" class="input" type="password" autocomplete="current-password" />
+          <div class="form__row">
+            <label style="display:flex;align-items:center;gap:8px;font-weight:800;font-size:13px;">
+              <input type="checkbox" /> Remember me
+            </label>
+            <a class="small" href="#">Forgot password?</a>
+          </div>
+          <div class="actions" style="margin-top:14px;">
+            <button class="btn btn-primary" type="submit">Log in</button>
+            <button class="btn btn-outline" type="button">Create account</button>
+          </div>
+          <p class="small" style="margin:14px 0 0;">
+            Need help? <a href="#">Contact support</a>
+          </p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      © __YEAR__ Demo login. Not affiliated with the referenced brand.
+    </div>
+  </footer>
+
+  <script src="__SHARED__app.js"></script>
+</body>
+</html>

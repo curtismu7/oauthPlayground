@@ -3,7 +3,8 @@
 
 import React from 'react';
 import ModalPresentationService from '../modalPresentationService';
-import { v9MessagingService } from './V9MessagingService';
+// Import Modern Messaging (V8) - established migration pattern
+import { ToastNotificationsV8 as toastV8 } from '../../v8/utils/toastNotificationsV8';
 
 // ModalActionDescriptor interface (copied from original for type safety)
 interface ModalActionDescriptor {
@@ -33,9 +34,9 @@ const V9ModalPresentationService: React.FC<V9ModalPresentationServiceProps> = (p
 			onClick: () => {
 				try {
 					action.onClick();
-					v9MessagingService.showSuccess(`Action completed: ${action.label}`);
+					toastV8.success(`Action completed: ${action.label}`);
 				} catch (error) {
-					v9MessagingService.showError(`Failed to execute action: ${action.label}`);
+					toastV8.error(`Failed to execute action: ${action.label}`);
 					console.error('Modal action error:', error);
 				}
 			},
@@ -48,7 +49,7 @@ const V9ModalPresentationService: React.FC<V9ModalPresentationServiceProps> = (p
 			props.onClose();
 			// Don't show message on close - it's expected behavior
 		} catch (error) {
-			v9MessagingService.showError('Failed to close modal');
+			toastV8.error('Failed to close modal');
 			console.error('Modal close error:', error);
 		}
 	};
@@ -61,7 +62,7 @@ const V9ModalPresentationService: React.FC<V9ModalPresentationServiceProps> = (p
 			</div>
 		);
 	} catch (error) {
-		v9MessagingService.showError('Failed to render modal');
+		toastV8.error('Failed to render modal');
 		console.error('Modal render error:', error);
 
 		// Return fallback error modal

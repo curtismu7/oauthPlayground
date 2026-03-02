@@ -1,0 +1,16 @@
+{
+	"projectId": "prj_jS9FATtnBaw5Mj9HvxHOy9AAAfVD",
+	"orgId": "team_4RYzrc057fVFj3pNZSMQTlaS",
+	"projectName": "oauth-playground",
+	"settings": {
+		"createdAt": 1756662567124,
+		"framework": "vite",
+		"devCommand": null,
+		"installCommand": null,
+		"buildCommand": null,
+		"outputDirectory": null,
+		"rootDirectory": null,
+		"directoryListing": false,
+		"nodeVersion": "22.x"
+	}
+}

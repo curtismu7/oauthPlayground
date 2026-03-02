@@ -2,14 +2,15 @@
 // V9 Wrapper for FlowHeaderService - Modern Messaging Compliant
 
 import React from 'react';
-import { FlowHeader, FlowHeaderConfig, getFlowConfig } from '../flowHeaderService';
-import { v9MessagingService } from './V9MessagingService';
+import { FlowHeaderService } from '../flowHeaderService';
+// Import Modern Messaging (V8) - established migration pattern
+import { ToastNotificationsV8 as toastV8 } from '../../v8/utils/toastNotificationsV8';
 
 // V9 Wrapper Component
 export interface V9FlowHeaderProps {
 	flowId?: string;
 	flowType?: string;
-	customConfig?: Partial<FlowHeaderConfig>;
+	customConfig?: Partial<FlowHeaderService.FlowHeaderConfig>;
 }
 
 const V9FlowHeader: React.FC<V9FlowHeaderProps> = (props) => {
@@ -17,7 +18,7 @@ const V9FlowHeader: React.FC<V9FlowHeaderProps> = (props) => {
 	React.useEffect(() => {
 		const configKey = props.flowId || props.flowType;
 		if (!configKey) {
-			v9MessagingService.showWarning('FlowHeader: No flowId or flowType provided');
+			toastV8.warning('FlowHeader: No flowId or flowType provided');
 		}
 	}, [props.flowId, props.flowType]);
 
@@ -25,7 +26,7 @@ const V9FlowHeader: React.FC<V9FlowHeaderProps> = (props) => {
 	try {
 		return <FlowHeader {...props} />;
 	} catch (error) {
-		v9MessagingService.showError('Failed to render flow header');
+		toastV8.error('Failed to render flow header');
 		console.error('FlowHeader error:', error);
 		return (
 			<div
@@ -48,7 +49,7 @@ export const getV9FlowConfig = (flowId: string): FlowHeaderConfig | null => {
 	try {
 		return getFlowConfig(flowId);
 	} catch (error) {
-		v9MessagingService.showError(`Failed to get flow config for ${flowId}`);
+		toastV8.error(`Failed to get flow config for ${flowId}`);
 		console.error('Get flow config error:', error);
 		return null;
 	}

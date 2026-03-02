@@ -3,7 +3,8 @@
 
 import React from 'react';
 import { FlowCompletionConfig, FlowCompletionService } from '../flowCompletionService';
-import { v9MessagingService } from './V9MessagingService';
+// Import Modern Messaging (V8) - established migration pattern
+import { ToastNotificationsV8 as toastV8 } from '../../v8/utils/toastNotificationsV8';
 
 // V9 Wrapper Component
 export interface V9FlowCompletionProps {
@@ -18,10 +19,10 @@ const V9FlowCompletionService: React.FC<V9FlowCompletionProps> = (props) => {
 		...props.config,
 		onStartNewFlow: () => {
 			try {
-				v9MessagingService.showInfo('Starting new flow...');
+				toastV8.info('Starting new flow...');
 				props.config.onStartNewFlow();
 			} catch (error) {
-				v9MessagingService.showError('Failed to start new flow');
+				toastV8.error('Failed to start new flow');
 				console.error('Start new flow error:', error);
 			}
 		},
@@ -32,7 +33,7 @@ const V9FlowCompletionService: React.FC<V9FlowCompletionProps> = (props) => {
 		try {
 			props.onToggleCollapsed?.();
 		} catch (error) {
-			v9MessagingService.showError('Failed to toggle completion section');
+			toastV8.error('Failed to toggle completion section');
 			console.error('Toggle collapsed error:', error);
 		}
 	};
