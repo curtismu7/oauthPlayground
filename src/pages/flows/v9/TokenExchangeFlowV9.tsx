@@ -245,18 +245,21 @@ const TokenExchangeFlowV9: React.FC = () => {
 	const goToNextStep = useCallback(() => {
 		if (currentStep < STEP_METADATA.length - 1) {
 			setCurrentStep((prev) => prev + 1);
+			window.scrollTo({ top: 0, behavior: 'smooth' });
 		}
 	}, [currentStep]);
 
 	const goToPreviousStep = useCallback(() => {
 		if (currentStep > 0) {
 			setCurrentStep((prev) => prev - 1);
+			window.scrollTo({ top: 0, behavior: 'smooth' });
 		}
 	}, [currentStep]);
 
 	const goToStep = useCallback((step: number) => {
 		if (step >= 0 && step < STEP_METADATA.length) {
 			setCurrentStep(step);
+			window.scrollTo({ top: 0, behavior: 'smooth' });
 		}
 	}, []);
 
@@ -301,13 +304,7 @@ const TokenExchangeFlowV9: React.FC = () => {
 			setIsLoading(false);
 			modernMessaging.hideWaitScreen();
 		}
-	}, [exchangeParams.audience, selectedScopes]);
-
-	// Step navigation
-	React.useEffect(() => {
-		// Scroll to top on step change
-		window.scrollTo({ top: 0, behavior: 'smooth' });
-	}, [currentStep]);
+	}, [exchangeParams.audience, exchangeParams.requestedTokenType, selectedScopes]);
 
 	// Handle scenario selection
 	const handleScenarioSelect = useCallback((scenario: TokenExchangeScenario) => {
