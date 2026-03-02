@@ -99,7 +99,6 @@ import { FlowCompletionConfigs } from '../../../services/flowCompletionService';
 import ModalPresentationService from '../../../services/modalPresentationService';
 import { OAuthFlowComparisonService } from '../../../services/oauthFlowComparisonService';
 import { oidcDiscoveryService } from '../../../services/oidcDiscoveryService';
-import { UnifiedTokenDisplayService } from '../../../services/unifiedTokenDisplayService';
 // V9 wrapper services
 import V9ComprehensiveCredentialsService from '../../../services/v9/v9ComprehensiveCredentialsService';
 import V9FlowCompletionService from '../../../services/v9/v9FlowCompletionService';
@@ -107,6 +106,7 @@ import V9FlowCompletionService from '../../../services/v9/v9FlowCompletionServic
 import V9FlowHeader from '../../../services/v9/v9FlowHeaderService';
 // Get shared UI components from FlowUIService (to be migrated)
 import V9FlowUIService from '../../../services/v9/v9FlowUIService';
+import V9UnifiedTokenDisplayService from '../../../services/v9/v9UnifiedTokenDisplayService';
 
 // Styled Components
 const SectionDivider = styled.div`
@@ -1186,7 +1186,7 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 						</CollapsibleHeader>
 
 						{generatedJWT &&
-							UnifiedTokenDisplayService.showTokens(
+							V9UnifiedTokenDisplayService.showTokens(
 								{ access_token: generatedJWT }, // Pass JWT as access_token
 								'oauth',
 								'jwt-bearer-v6',
@@ -1507,7 +1507,7 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 								</CollapsibleSection>
 
 								{/* Access Token Display with Decode */}
-								{UnifiedTokenDisplayService.showTokens(
+								{V9UnifiedTokenDisplayService.showTokens(
 									tokenResponse, // Pass full token response
 									'oauth',
 									'jwt-bearer-v6',
