@@ -2,9 +2,9 @@
 // V9 Wrapper for ComprehensiveCredentialsService - Modern Messaging Compliant
 
 import React from 'react';
+// Import Modern Messaging (V9) - proper migration to non-toast messaging
+import { modernMessaging } from '../../components/v9/V9ModernMessagingComponents';
 import ComprehensiveCredentialsService from '../comprehensiveCredentialsService';
-// Import Modern Messaging (V8) - established migration pattern
-import { ToastNotificationsV8 as toastV8 } from '../../v8/utils/toastNotificationsV8';
 
 // V9 Wrapper Component
 export interface V9ComprehensiveCredentialsProps {
@@ -19,10 +19,18 @@ const V9ComprehensiveCredentialsService: React.FC<V9ComprehensiveCredentialsProp
 	// Wrap discovery callback with Modern Messaging
 	const handleDiscoveryComplete = (result: unknown) => {
 		try {
-			toastV8.success('Discovery completed successfully!');
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Discovery completed successfully!',
+				duration: 4000,
+			});
 			props.onDiscoveryComplete?.(result);
 		} catch (error) {
-			toastV8.error('Discovery completed but callback failed');
+			modernMessaging.showCriticalError({
+				title: 'Discovery Callback Failed',
+				message: 'Discovery completed but callback failed',
+				contactSupport: false,
+			});
 			console.error('Discovery callback error:', error);
 		}
 	};
@@ -32,7 +40,11 @@ const V9ComprehensiveCredentialsService: React.FC<V9ComprehensiveCredentialsProp
 		try {
 			props.onCredentialsChange?.(credentials);
 		} catch (error) {
-			toastV8.error('Failed to update credentials');
+			modernMessaging.showCriticalError({
+				title: 'Credentials Update Failed',
+				message: 'Failed to update credentials',
+				contactSupport: false,
+			});
 			console.error('Credentials change error:', error);
 		}
 	};
@@ -40,10 +52,18 @@ const V9ComprehensiveCredentialsService: React.FC<V9ComprehensiveCredentialsProp
 	// Wrap save with Modern Messaging
 	const handleSaveCredentials = () => {
 		try {
-			toastV8.success('Credentials saved successfully!');
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Credentials saved successfully!',
+				duration: 3000,
+			});
 			props.onSaveCredentials?.();
 		} catch (error) {
-			toastV8.error('Failed to save credentials');
+			modernMessaging.showCriticalError({
+				title: 'Credentials Save Failed',
+				message: 'Failed to save credentials',
+				contactSupport: false,
+			});
 			console.error('Save credentials error:', error);
 		}
 	};
