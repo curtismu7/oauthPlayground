@@ -164,6 +164,20 @@ function MenuItemLink({
 				<Icon name={DEFAULT_ITEM_ICON} size="sm" />
 			</span>
 			<span className="sidebar-ping__item-label">{item.label}</span>
+			{item.migratedToV9 && (
+				<span 
+					role="img"
+					aria-label="Migrated to V9"
+					title="Migrated to V9"
+					style={{
+						color: '#fbbf24',
+						fontSize: '0.875rem',
+						marginLeft: '0.25rem',
+					}}
+				>
+					★
+				</span>
+			)}
 		</Link>
 	);
 	const handleDragOver = (e: React.DragEvent) => {
@@ -291,7 +305,10 @@ function GroupContent({
 	);
 }
 
-export const SidebarMenuPing: React.FC<{ dragMode?: boolean; searchQuery?: string }> = ({ dragMode = false, searchQuery = '' }) => {
+export const SidebarMenuPing: React.FC<{ dragMode?: boolean; searchQuery?: string }> = ({
+	dragMode = false,
+	searchQuery = '',
+}) => {
 	const { pathname, search } = useLocation();
 	const [menuGroups, setMenuGroups] = useState<SidebarMenuGroup[]>(getInitialGroups);
 	const [openGroups, setOpenGroups] = useState<Set<string>>(() => {
@@ -430,10 +447,7 @@ export const SidebarMenuPing: React.FC<{ dragMode?: boolean; searchQuery?: strin
 		const q = searchQuery.toLowerCase();
 		const results: Array<{ item: SidebarMenuItem; groupLabel: string }> = [];
 		for (const group of menuGroups) {
-			const allItems = [
-				...group.items,
-				...(group.subGroups?.flatMap((sg) => sg.items) ?? []),
-			];
+			const allItems = [...group.items, ...(group.subGroups?.flatMap((sg) => sg.items) ?? [])];
 			for (const item of allItems) {
 				if (item.label.toLowerCase().includes(q) || item.path.toLowerCase().includes(q)) {
 					results.push({ item, groupLabel: group.label });
@@ -443,27 +457,43 @@ export const SidebarMenuPing: React.FC<{ dragMode?: boolean; searchQuery?: strin
 		return (
 			<nav className="sidebar-ping__nav" aria-label="Main navigation">
 				{results.length === 0 ? (
-					<div style={{ padding: '1rem', color: '#6b7280', fontSize: '0.875rem', textAlign: 'center' }}>
+					<div
+						style={{ padding: '1rem', color: '#6b7280', fontSize: '0.875rem', textAlign: 'center' }}
+					>
 						No results for "{searchQuery}"
 					</div>
 				) : (
-					<ul className="sidebar-ping__group-items" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+					<ul
+						className="sidebar-ping__group-items"
+						style={{ listStyle: 'none', margin: 0, padding: 0 }}
+					>
 						{results.map(({ item, groupLabel }) => (
 							<li key={item.id}>
 								<Link
 									to={item.path}
 									className={`sidebar-ping__item ${
-										isActive(item.path, pathname, search)
-											? 'sidebar-ping__item--active'
-											: ''
+										isActive(item.path, pathname, search) ? 'sidebar-ping__item--active' : ''
 									}`}
 								>
 									<span className="sidebar-ping__item-icon" aria-hidden>
 										<Icon name={DEFAULT_ITEM_ICON} size="sm" />
 									</span>
 									<span style={{ flex: 1, minWidth: 0 }}>
-										<span className="sidebar-ping__item-label" style={{ display: 'block' }}>{item.label}</span>
-										<span style={{ fontSize: '0.7rem', color: '#9ca3af', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{groupLabel}</span>
+										<span className="sidebar-ping__item-label" style={{ display: 'block' }}>
+											{item.label}
+										</span>
+										<span
+											style={{
+												fontSize: '0.7rem',
+												color: '#9ca3af',
+												display: 'block',
+												overflow: 'hidden',
+												textOverflow: 'ellipsis',
+												whiteSpace: 'nowrap',
+											}}
+										>
+											{groupLabel}
+										</span>
 									</span>
 								</Link>
 							</li>

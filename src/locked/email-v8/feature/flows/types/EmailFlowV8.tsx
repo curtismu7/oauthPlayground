@@ -2129,7 +2129,6 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 			step2ModalDrag.modalPosition.y,
 			step2ModalDrag.modalRef,
 			step2ModalDrag.modalStyle,
-			PingIdentityLogo,
 		]
 	);
 

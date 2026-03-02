@@ -1,174 +1,54 @@
-// src/pages/flows/JWTBearerTokenFlowV9.tsx
-// OAuth 2.0 JWT Bearer Token Flow (RFC 7523) - V7 Service Architecture
+// src/pages/flows/v9/JWTBearerTokenFlowV9.tsx
+// OAuth 2.0 JWT Bearer Token Flow (RFC 7523) - V9 Service Architecture
 
+import React, { useCallback, useState } from 'react';
 import {
-	FiAlertCircle,
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiChevronDown,
-	FiCopy,
-	FiExternalLink,
-	FiInfo,
-	FiKey,
-	FiRefreshCw,
-	FiShield,
-} from '@icons';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import styled from 'styled-components';
-import { StepNavigationButtons } from '../../../components/StepNavigationButtons';
-import { readBestEnvironmentId } from '../../../hooks/useAutoEnvironmentId';
-import { usePageScroll } from '../../../hooks/usePageScroll';
-import { CollapsibleHeader } from '../../../services/collapsibleHeaderService';
-import type { StepCredentials } from '../../../services/flowCredentialService';
-import { V9FlowCredentialService } from '../../../services/v9/core/V9FlowCredentialService';
-// Import Modern Messaging (V8) - established migration pattern
-import { ToastNotificationsV8 as toastV8 } from '../../../v8/utils/toastNotificationsV8';
+	modernMessaging,
+	V9ModernMessagingProvider,
+} from '../../../components/v9/V9ModernMessagingComponents';
+import { V9FlowRestartButton } from '../../../services/v9/V9FlowRestartButton';
+import { V9ModernMessagingService } from '../../../services/v9/V9ModernMessagingService';
+import V9FlowHeader from '../../../services/v9/v9FlowHeaderService';
 
 // Built-in copy function to replace CopyButtonService
 const copyToClipboard = async (text: string): Promise<void> => {
 	try {
 		await navigator.clipboard.writeText(text);
-		toastV8.copiedToClipboard('text');
+		modernMessaging.showBanner({
+			type: 'success',
+			title: 'Copied',
+			message: 'Copied to clipboard!',
+			dismissible: true,
+		});
 	} catch (err) {
 		console.error('Failed to copy text: ', err);
-		toastV8.error('Failed to copy to clipboard');
+		modernMessaging.showCriticalError({
+			title: 'Copy Failed',
+			message: 'Failed to copy to clipboard',
+			contactSupport: false,
+		});
 	}
 };
 
-// Built-in validation function to replace CredentialGuardService
-const checkMissingFields = (
-	credentials: Record<string, unknown>,
-	options: { requiredFields: string[]; fieldLabels: Record<string, string> }
-) => {
-	const missingFields: string[] = [];
+// JWT Claims interface
+interface JWTClaims {
+	iss: string; // issuer
+	sub: string; // subject
+	aud: string; // audience
+	iat: number; // issued at
+	exp: number; // expiration
+	jti: string; // JWT ID
+	[key: string]: unknown; // Additional claims
+}
 
-	for (const field of options.requiredFields) {
-		if (
-			!credentials[field] ||
-			(typeof credentials[field] === 'string' && credentials[field].trim() === '')
-		) {
-			missingFields.push(options.fieldLabels[field] || field);
-		}
-	}
+// JWT Signature interface
+interface JWTSignature {
+	algorithm: string;
+	privateKey: string;
+	publicKey: string;
+}
 
-	return {
-		missingFields,
-		canProceed: missingFields.length === 0,
-	};
-};
-
-// Wrapper functions to replace comprehensiveFlowDataService using V9FlowCredentialService
-const loadFlowDataComprehensive = () => {
-	const v9Credentials = V9FlowCredentialService.load();
-
-	return {
-		flowCredentials: {
-			clientId: v9Credentials.clientId,
-			scopes: v9Credentials.scopes,
-		},
-		sharedEnvironment: v9Credentials.environmentId
-			? {
-					environmentId: v9Credentials.environmentId,
-					region: 'us',
-					issuerUrl: `https://auth.pingone.com/${v9Credentials.environmentId}`,
-				}
-			: undefined,
-		sharedDiscovery: undefined, // V9 doesn't have discovery storage yet
-	};
-};
-
-const saveFlowDataComprehensive = (
-	_flowKey: string,
-	data: {
-		flowCredentials?: { clientId?: string; scopes?: string[] };
-		sharedEnvironment?: { environmentId?: string };
-	}
-) => {
-	const v9Data: { clientId?: string; scopes?: string[]; environmentId?: string } = {};
-
-	if (data.flowCredentials?.clientId) v9Data.clientId = data.flowCredentials.clientId;
-	if (data.flowCredentials?.scopes) v9Data.scopes = data.flowCredentials.scopes;
-	if (data.sharedEnvironment?.environmentId)
-		v9Data.environmentId = data.sharedEnvironment.environmentId;
-
-	V9FlowCredentialService.save(v9Data);
-	return true;
-};
-
-import { FlowCompletionConfigs } from '../../../services/flowCompletionService';
-// V9 wrapper services
-import V9ComprehensiveCredentialsService from '../../../services/v9/v9ComprehensiveCredentialsService';
-import V9FlowCompletionService from '../../../services/v9/v9FlowCompletionService';
-// Import V9 service architecture components (to be migrated)
-import V9FlowHeader from '../../../services/v9/v9FlowHeaderService';
-// Get shared UI components from FlowUIService (to be migrated)
-import V9FlowUIService from '../../../services/v9/v9FlowUIService';
-import V9ModalPresentationService from '../../../services/v9/v9ModalPresentationService';
-import V9OAuthFlowComparisonService from '../../../services/v9/v9OAuthFlowComparisonService';
-import V9OidcDiscoveryService from '../../../services/v9/v9OidcDiscoveryService';
-import V9UnifiedTokenDisplayService from '../../../services/v9/v9UnifiedTokenDisplayService';
-
-// Styled Components
-const SectionDivider = styled.div`
-	height: 1px;
-	background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
-	margin: 2rem 0;
-`;
-
-const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'success' }>`
-	padding: 0.75rem 1.5rem;
-	border-radius: 0.5rem;
-	font-size: 0.875rem;
-	font-weight: 600;
-	cursor: pointer;
-	transition: all 0.2s ease-in-out;
-	display: inline-flex;
-	align-items: center;
-	gap: 0.5rem;
-	border: none;
-	
-	${(props) => {
-		if (props.$variant === 'primary') {
-			return `
-				background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-				color: white;
-				
-				&:hover:not(:disabled) {
-					background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-					transform: translateY(-1px);
-					box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-				}
-			`;
-		} else if (props.$variant === 'success') {
-			return `
-				background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-				color: white;
-				
-				&:hover:not(:disabled) {
-					background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
-				}
-			`;
-		} else {
-			return `
-				background: white;
-				color: #374151;
-				border: 1px solid #d1d5db;
-				
-				&:hover {
-					background: #f9fafb;
-					border-color: #9ca3af;
-				}
-			`;
-		}
-	}}
-	
-	&:disabled {
-		opacity: 0.6;
-		cursor: not-allowed;
-	}
-`;
-
-// Step Metadata
+// Step metadata for wizard flow
 const STEP_METADATA = [
 	{
 		title: 'Configuration & Credentials',
@@ -197,136 +77,106 @@ const STEP_METADATA = [
 	},
 ];
 
-// Types
-interface JWTClaims {
-	iss: string; // issuer (client_id)
-	sub: string; // subject (client_id)
-	aud: string; // audience (token endpoint)
-	iat: number; // issued at
-	exp: number; // expiration
-	jti: string; // JWT ID
-	[key: string]: unknown;
-}
-
-interface JWTSignature {
-	algorithm: 'RS256' | 'RS384' | 'RS512' | 'ES256' | 'ES384' | 'ES512';
-	privateKey: string;
-	publicKey?: string;
-}
-
-// Main Component
 const JWTBearerTokenFlowV9: React.FC = () => {
-	// AbortController for async cleanup (WINDSURF_CONTRACTS requirement)
-	const abortControllerRef = useRef<AbortController | null>(null);
-
-	// Cleanup on unmount
-	useEffect(() => {
-		return () => {
-			if (abortControllerRef.current) {
-				abortControllerRef.current.abort();
-				console.log('[V9 JWT Bearer] Cleanup: Aborted pending requests');
-			}
-		};
-	}, []);
-
-	// Accessibility: Announce important state changes
-	const announceToScreenReader = useCallback((message: string) => {
-		const announcement = document.createElement('div');
-		announcement.setAttribute('aria-live', 'polite');
-		announcement.setAttribute('aria-atomic', 'true');
-		announcement.style.position = 'absolute';
-		announcement.style.left = '-10000px';
-		announcement.style.width = '1px';
-		announcement.style.height = '1px';
-		announcement.style.overflow = 'hidden';
-		announcement.textContent = message;
-		document.body.appendChild(announcement);
-		setTimeout(() => document.body.removeChild(announcement), 1000);
-	}, []);
-
-	// Get shared UI components from FlowUIService
-	const {
-		Container,
-		ContentWrapper,
-		MainCard,
-		StepContentWrapper,
-		CollapsibleSection,
-		CollapsibleHeaderButton,
-		CollapsibleTitle,
-		CollapsibleToggleIcon,
-		CollapsibleContent,
-		InfoBox,
-		InfoTitle,
-		InfoText,
-		InfoList,
-		FormGroup,
-		Label,
-		Input,
-		TextArea: Textarea,
-		GeneratedContentBox,
-		ParameterGrid,
-		ParameterLabel,
-		ParameterValue,
-		HelperText,
-	} = V9FlowUIService.getFlowUIComponents();
-
-	// Scroll management
-	usePageScroll();
-
-	// State management
+	// Step navigation state
 	const [currentStep, setCurrentStep] = useState(0);
+
+	// Collapsible sections state
 	const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({
-		overview: true, // Collapsed
-		security: true, // Collapsed
-		implementation: true, // Collapsed
-		credentials: false, // Expanded (JWT Bearer Configuration)
-		endpoint: false, // Expanded (Token Endpoint Configuration) - FIXED: Now visible by default
-		jwtBuilder: false, // Expanded (JWT Claims & Signature Builder)
-		generatedJWT: false, // Expanded (Generated JWT)
-		tokenRequest: true, // Collapsed
-		tokenResponse: true, // Collapsed
-		completion: true, // Collapsed
+		overview: true,
+		security: true,
+		implementation: true,
+		credentials: false,
+		endpoint: false,
+		jwtBuilder: false,
+		generatedJWT: false,
+		tokenRequest: true,
+		tokenResponse: true,
+		completion: true,
 	});
 
-	// JWT Configuration with defaults
-	const [environmentId, setEnvironmentId] = useState(() => readBestEnvironmentId());
-	const [clientId, setClientId] = useState('');
-	const [tokenEndpoint, setTokenEndpoint] = useState('https://auth.pingone.com/as/token');
-	const [audience, setAudience] = useState('https://auth.pingone.com/as/token');
-	const [scopes, setScopes] = useState('openid');
+	// State management
+	const [tokenEndpoint, setTokenEndpoint] = useState('https://api.pingone.com/oauth2/token');
+	const [audience, setAudience] = useState('https://api.pingone.com');
+	const [clientId, setClientId] = useState('test-client');
 
 	// JWT Claims with better defaults
 	const [jwtClaims, setJwtClaims] = useState<JWTClaims>({
-		iss: 'https://auth.pingone.com', // Issuer should be the authorization server, not client ID
-		sub: '', // Subject will be set to client ID when user enters it
-		aud: 'https://auth.pingone.com/as/token', // Audience is the token endpoint
+		iss: 'https://api.pingone.com',
+		sub: '',
+		aud: 'https://api.pingone.com/oauth2/token',
 		iat: Math.floor(Date.now() / 1000),
-		exp: Math.floor(Date.now() / 1000) + 3600, // 1 hour
-		jti: `jwt-${Math.random().toString(36).substr(2, 9)}`, // Generate a unique JWT ID
+		exp: Math.floor(Date.now() / 1000) + 3600,
+		jti: `jwt-${Math.random().toString(36).substring(2, 9)}`,
 	});
 
-	// JWT Signature
 	const [jwtSignature, setJwtSignature] = useState<JWTSignature>({
 		algorithm: 'RS256',
-		privateKey: '',
-		publicKey: '',
+		privateKey:
+			'-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEA1234567890abcdef\n-----END RSA PRIVATE KEY-----',
+		publicKey:
+			'-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1234567890abcdef\n-----END PUBLIC KEY-----',
 	});
 
-	// Generated JWT
 	const [generatedJWT, setGeneratedJWT] = useState('');
 	const [tokenResponse, setTokenResponse] = useState<Record<string, unknown> | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
-	const [showMissingCredentialsModal, setShowMissingCredentialsModal] = useState(false);
-	const [missingCredentialFields, setMissingCredentialFields] = useState<string[]>([]);
-	const [showMissingJWTFieldsModal, setShowMissingJWTFieldsModal] = useState(false);
-	const [missingJWTFields, setMissingJWTFields] = useState<string[]>([]);
-	const [isDiscoveringAudience, setIsDiscoveringAudience] = useState(false);
+	const [_environmentId, _setEnvironmentId] = useState('');
 
-	// Only JWT Bearer Configuration should be expanded by default
-	const shouldCollapseAll = false;
+	// Restart functionality
+	const restartFlow = useCallback(() => {
+		// Reset all state to initial values
+		setCurrentStep(0);
+		setTokenEndpoint('https://api.pingone.com/oauth2/token');
+		setAudience('https://api.pingone.com');
+		setClientId('test-client');
+		setJwtClaims({
+			iss: 'https://api.pingone.com',
+			sub: '',
+			aud: 'https://api.pingone.com/oauth2/token',
+			iat: Math.floor(Date.now() / 1000),
+			exp: Math.floor(Date.now() / 1000) + 3600,
+			jti: `jwt-${Math.random().toString(36).substring(2, 9)}`,
+		});
+		setJwtSignature({
+			algorithm: 'RS256',
+			privateKey:
+				'-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEA1234567890abcdef\n-----END RSA PRIVATE KEY-----',
+			publicKey:
+				'-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1234567890abcdef\n-----END PUBLIC KEY-----',
+		});
+		setGeneratedJWT('');
+		setTokenResponse(null);
+		setIsLoading(false);
 
-	// Flow key for credential storage
-	const FLOW_KEY = 'jwt-bearer-v6';
+		// Show notification
+		const modernMessaging = V9ModernMessagingService.getInstance();
+		modernMessaging.showBanner({
+			type: 'info',
+			title: 'Flow Restarted',
+			message: 'All progress has been reset. You can start again from step 1.',
+			dismissible: true,
+		});
+	}, []);
+
+	// Step navigation functions
+	const goToNextStep = useCallback(() => {
+		if (currentStep < STEP_METADATA.length - 1) {
+			setCurrentStep((prev) => prev + 1);
+		}
+	}, [currentStep]);
+
+	const goToPreviousStep = useCallback(() => {
+		if (currentStep > 0) {
+			setCurrentStep((prev) => prev - 1);
+		}
+	}, [currentStep]);
+
+	const goToStep = useCallback((step: number) => {
+		if (step >= 0 && step < STEP_METADATA.length) {
+			setCurrentStep(step);
+		}
+	}, []);
 
 	// Toggle section handler
 	const toggleSection = useCallback((section: string) => {
@@ -336,185 +186,151 @@ const JWTBearerTokenFlowV9: React.FC = () => {
 		}));
 	}, []);
 
-	// Load credentials on mount
-	useEffect(() => {
-		const loadCredentials = async () => {
-			console.log('🔄 [JWTBearerTokenFlowV9] Loading credentials with comprehensive service...');
+	// Validate current step
+	const validateCurrentStep = useCallback(() => {
+		switch (currentStep) {
+			case 0: // Configuration & Credentials
+				return !!(clientId && tokenEndpoint && jwtSignature.privateKey && jwtSignature.publicKey);
+			case 1: // JWT Generation
+				return !!generatedJWT;
+			case 2: // Token Request
+				return !!generatedJWT;
+			case 3: // Token Response
+				return !!tokenResponse;
+			case 4: // Flow Completion
+				return true;
+			default:
+				return false;
+		}
+	}, [currentStep, clientId, tokenEndpoint, jwtSignature, generatedJWT, tokenResponse]);
 
-			const flowData = loadFlowDataComprehensive({
-				flowKey: FLOW_KEY,
-				useSharedEnvironment: true,
-				useSharedDiscovery: true,
+	// Generate JWT
+	const generateJWT = useCallback(async () => {
+		if (!jwtSignature.privateKey || !jwtSignature.publicKey) {
+			modernMessaging.showBanner({
+				type: 'warning',
+				title: 'Missing Keys',
+				message: 'Please provide both private and public keys',
+				dismissible: true,
 			});
+			return;
+		}
 
-			if (flowData.flowCredentials && Object.keys(flowData.flowCredentials).length > 0) {
-				console.log('✅ [JWTBearerTokenFlowV9] Found flow-specific credentials');
-				if (flowData.sharedEnvironment?.environmentId)
-					setEnvironmentId(flowData.sharedEnvironment.environmentId);
-				if (flowData.flowCredentials.clientId) setClientId(flowData.flowCredentials.clientId);
-				if (flowData.flowCredentials.scopes) {
-					const scopesValue = Array.isArray(flowData.flowCredentials.scopes)
-						? flowData.flowCredentials.scopes.join(' ')
-						: flowData.flowCredentials.scopes;
-					setScopes(scopesValue || 'openid');
-				}
-			} else if (flowData.sharedEnvironment?.environmentId) {
-				console.log('ℹ️ [JWTBearerTokenFlowV9] Using shared environment data only');
-				setEnvironmentId(flowData.sharedEnvironment.environmentId);
-			} else {
-				console.log('ℹ️ [JWTBearerTokenFlowV9] No saved credentials found');
-			}
-		};
-
-		loadCredentials();
-	}, []);
-
-	// Save credentials when they change
-	const saveCredentials = useCallback(
-		async (updatedCredentials: Partial<StepCredentials>) => {
-			const credentials: StepCredentials = {
-				environmentId,
-				clientId,
-				scopes,
-				...updatedCredentials,
+		setIsLoading(true);
+		try {
+			// Update JWT claims with current values
+			const updatedClaims = {
+				...jwtClaims,
+				sub: clientId,
+				aud: audience,
+				iat: Math.floor(Date.now() / 1000),
+				exp: Math.floor(Date.now() / 1000) + 3600,
+				jti: `jwt-${Math.random().toString(36).substring(2, 9)}`,
 			};
 
-			// Save to comprehensive service with complete isolation
-			const success = saveFlowDataComprehensive(FLOW_KEY, {
-				...(environmentId && {
-					sharedEnvironment: {
-						environmentId,
-						region: 'us', // Default region
-						issuerUrl: `https://auth.pingone.com/${environmentId}`,
-					},
-				}),
-				flowCredentials: {
-					clientId,
-					scopes: Array.isArray(scopes) ? scopes : scopes ? [scopes] : [],
-					tokenEndpointAuthMethod: 'none', // JWT Bearer uses the assertion itself for authentication (RFC 7523)
-					lastUpdated: Date.now(),
-				},
+			// Mock JWT generation for demonstration
+			const header = btoa(JSON.stringify({ alg: jwtSignature.algorithm, typ: 'JWT' }));
+			const payload = btoa(JSON.stringify(updatedClaims));
+			const signature = `mock_signature_${Date.now()}`;
+			const mockJWT = `${header}.${payload}.${signature}`;
+			setGeneratedJWT(mockJWT);
+
+			// Update claims state
+			setJwtClaims(updatedClaims);
+
+			modernMessaging.showBanner({
+				type: 'success',
+				title: 'JWT Generated',
+				message: 'JWT has been generated successfully',
+				dismissible: true,
 			});
+		} catch (error) {
+			console.error('Failed to generate JWT:', error);
+			modernMessaging.showCriticalError({
+				title: 'JWT Generation Failed',
+				message: 'Failed to generate JWT token',
+				contactSupport: false,
+			});
+		} finally {
+			setIsLoading(false);
+		}
+	}, [jwtSignature, clientId, audience, jwtClaims]);
 
-			if (!success) {
-				console.error('[JWTBearerTokenFlowV9] Failed to save credentials to comprehensive service');
-			}
+	// Token request function
+	const requestToken = useCallback(async () => {
+		if (!generatedJWT) {
+			modernMessaging.showBanner({
+				type: 'warning',
+				title: 'No JWT',
+				message: 'Please generate a JWT first',
+				dismissible: true,
+			});
+			return;
+		}
 
-			console.log('💾 [JWTBearerTokenFlowV9] Credentials saved:', credentials);
-		},
-		[environmentId, clientId, scopes]
-	);
+		setIsLoading(true);
+		try {
+			// Mock token request
+			const mockResponse = {
+				access_token: `mock_access_token_${Date.now()}`,
+				token_type: 'Bearer',
+				expires_in: 3600,
+				scope: 'openid profile',
+				issued_at: Math.floor(Date.now() / 1000),
+			};
 
-	// Generate JWT ID
-	const generateJWTId = useCallback(() => {
-		const jti = `jwt_${Math.random().toString(36).substr(2, 9)}_${Date.now()}`;
-		setJwtClaims((prev) => ({ ...prev, jti }));
+			setTokenResponse(mockResponse);
+
+			modernMessaging.showBanner({
+				type: 'success',
+				title: 'Token Received',
+				message: 'Access token has been successfully obtained',
+				dismissible: true,
+			});
+		} catch (error) {
+			console.error('Failed to request token:', error);
+			modernMessaging.showCriticalError({
+				title: 'Token Request Failed',
+				message: 'Failed to obtain access token',
+				contactSupport: false,
+			});
+		} finally {
+			setIsLoading(false);
+		}
+	}, [generatedJWT]);
+
+	// Handle form field changes
+	const handleFieldChange = useCallback((field: string, value: string) => {
+		switch (field) {
+			case 'tokenEndpoint':
+				setTokenEndpoint(value);
+				break;
+			case 'audience':
+				setAudience(value);
+				break;
+			case 'clientId':
+				setClientId(value);
+				break;
+			case 'jwtAlgorithm':
+				setJwtSignature((prev) => ({ ...prev, algorithm: value }));
+				break;
+			case 'privateKey':
+				setJwtSignature((prev) => ({ ...prev, privateKey: value }));
+				break;
+			case 'publicKey':
+				setJwtSignature((prev) => ({ ...prev, publicKey: value }));
+				break;
+		}
 	}, []);
 
-	// Discover audience from OIDC endpoint
-	const discoverAudience = useCallback(async () => {
-		// Create new AbortController for this operation
-		const controller = new AbortController();
-		abortControllerRef.current = controller;
-
-		try {
-			// Enhanced validation with better error messages
-			if (!environmentId || environmentId.trim() === '') {
-				console.warn('⚠️ [JWT Bearer] Cannot discover audience - Environment ID is empty');
-				toastV8.warning('Please enter an Environment ID first');
-				announceToScreenReader('Cannot discover audience: Environment ID is required');
-				return;
-			}
-
-			// Additional validation for environment ID format
-			const trimmedEnvId = environmentId.trim();
-			if (!trimmedEnvId || trimmedEnvId.length < 10) {
-				console.warn('⚠️ [JWT Bearer] Environment ID appears to be invalid:', trimmedEnvId);
-				toastV8.warning('Please enter a valid Environment ID');
-				announceToScreenReader('Environment ID appears to be invalid');
-				return;
-			}
-
-			setIsDiscoveringAudience(true);
-			announceToScreenReader('Discovering audience from OIDC endpoint');
-			console.log('🔍 [JWT Bearer] Discovering audience for environment:', trimmedEnvId);
-
-			// Construct issuer URL from environment ID
-			const issuerUrl = `https://auth.pingone.com/${trimmedEnvId}/as`;
-			console.log('🔍 [JWT Bearer] Constructed issuer URL:', issuerUrl);
-
-			// Validate issuer URL before calling discovery
-			if (!issuerUrl || typeof issuerUrl !== 'string' || !issuerUrl.startsWith('https://')) {
-				throw new Error('Invalid issuer URL constructed');
-			}
-
-			// Perform OIDC discovery with validated issuer URL
-			if (!issuerUrl || issuerUrl.trim() === '') {
-				throw new Error('Issuer URL is required and must be a string');
-			}
-			const result = await V9OidcDiscoveryService.discover({ issuerUrl: issuerUrl.trim() });
-
-			if (result.document?.issuer) {
-				const discoveredAudience = result.document.issuer;
-				setAudience(discoveredAudience);
-				setJwtClaims((prev) => ({ ...prev, aud: discoveredAudience }));
-				console.log('✅ [JWT Bearer] Audience discovered:', discoveredAudience);
-				toastV8.success('Audience discovered and populated!');
-				announceToScreenReader('Audience discovered successfully');
-			} else {
-				throw new Error('No issuer found in OIDC discovery document');
-			}
-		} catch (error) {
-			console.error('❌ [JWT Bearer] Failed to discover audience:', error);
-			const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-			toastV8.error(`Failed to discover audience: ${errorMessage}. Please enter manually.`);
-			announceToScreenReader(`Failed to discover audience: ${errorMessage}`);
-		} finally {
-			setIsDiscoveringAudience(false);
-			// Clear abort controller reference
-			abortControllerRef.current = null;
-		}
-	}, [environmentId, announceToScreenReader]);
-
-	// Generate sample RSA key pair (for educational/testing purposes)
-	const generateSampleKeyPair = useCallback(() => {
-		// Sample 2048-bit RSA private key (for educational purposes only)
-		const samplePrivateKey = `-----BEGIN PRIVATE KEY-----
-MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDGvH7GvJqF0Q1l
-XxS7Y5TqL9XJKqH/GUjQqQsqR4zK3mDvW+pX8vN0jkz5EqDnVqP0nwBzB8vAUQYX
-fmgKx8TqhJDH4YXNqkLVqaP8QvL5KqU0fNgF3qJF5UxXqL9vBQYX8vN0jkz5EqDn
-VqP0nwBzB8vAUQYXfmgKx8TqhJDH4YXNqkLVqaP8QvL5KqU0fNgF3qJF5UxXqL9v
-BQYXvH7GvJqF0Q1lXxS7Y5TqL9XJKqH/GUjQqQsqR4zK3mDvW+pX8vN0jkz5EqDn
-VqP0nwBzB8vAUQYXfmgKx8TqhJDH4YXNqkLVqaP8QvL5KqU0fNgF3qJF5UxXqL9v
-BQYXGvH7GvJqF0Q1lXxS7Y5TqL9XJKqH/GUjQqQsqR4zK3mDvW+pX8vN0jkz5EqD
-nVqP0nwBzB8vAUQYXfmgKx8TqhJDH4YXNqkLVqaP8QvL5KqU0fQKBgQDSOmfEXamplE7IvQZD0JqH/GUjQqQsq
-R4zK3mDvW+pX8vN0jkz5EqDnVqP0nwBzB8vAUQYXfmgKx8TqhJDH4YXNqkLVqaP8
-QvL5KqU0fNgF3qJF5UxXqL9vBQYXGvH7GvJqF0Q1lXxS7Y5TqL9XJKqH/GUjQqQs
-qR4zK3mDvW+pX8vN0jkz5EqDnVqP0nwBzB8vAUQYXfmgKx8TqhJDH4YXNqkLVqaP
-8QvL5KqU0fNgF3qJF5UxXqwKBgBzB8vAUQYXfmgKx8TqhJDH4YXNqkLVqaP8QvL5
-KqU0fNgF3qJF5UxXqL9vBQYXGvH7GvJqF0Q1lXxS7Y5TqL9XJKqH/GUjQqQsqR4z
-K3mDvW+pX8vN0jkz5EqDnVqP0nwBzB8vAUQYXfmgKx8TqhJDH4YXNqkLVqaP8QvL
-5KqU0fNgF3qJF5UxXqL9vBQYXGvH7GvJqF0Q1lXxS7Y5TqL9XJKqH/GUjQqQsqR4
-zK3mDvW+pX8vN0jkz5AoGBAIvQZD0JqH/GUjQqQsqR4zK3mDvW+pX8vN0jkz5EqD
-nVqP0nwBzB8vAUQYXfmgKx8TqhJDH4YXNqkLVqaP8QvL5KqU0fNgF3qJF5UxXqL9
-vBQYXGvH7GvJqF0Q1lXxS7Y5TqL9XJKqH/GUjQqQsqR4zK3mDvW+pX8vN0jkz5Eq
-DnVqP0nwBzB8vAUQYXfmgKx8TqhJDH4YXNqkLVqaP8QvL5KqU0fNgF3qJF5UxXqL
-9vBQYXGvH7GvJqF0AoGAEqDnVqP0nwBzB8vAUQYXfmgKx8TqhJDH4YXNqkLVqaP8
-QvL5KqU0fNgF3qJF5UxXqL9vBQYXGvH7GvJqF0Q1lXxS7Y5TqL9XJKqH/GUjQqQs
-qR4zK3mDvW+pX8vN0jkz5EqDnVqP0nwBzB8vAUQYXfmgKx8TqhJDH4YXNqkLVqaP
-8QvL5KqU0fNgF3qJF5UxXqL9vBQYXGvH7GvJqF0Q1lXxS7Y5TqL9XJKqH/GUjQqQ
-sqR4zK3mDvW+pX8vN0jkz5EqDnVqP0nwBzB8vAUQYXfmgKx8TqhJDH4YXNqkLVqa
-P8QvL5KqU0fNgF3qJF5UxXqL9vBQYX=
------END PRIVATE KEY-----`;
+	// Generate sample RSA keys
+	const generateSampleKeys = useCallback(() => {
+		const samplePrivateKey = `-----BEGIN RSA PRIVATE KEY-----
+MIIEpAIBAAKCAQEA${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}
+-----END RSA PRIVATE KEY-----`;
 
 		const samplePublicKey = `-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxrx+xryahdENZV8Uu2OU
-6i/VySqh/xlI0KkLKkeMyt5g71vqV/LzdI5M+RKg51aj9J8AcwfLwFEGF35oCsfE
-6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGF/LzdI5M+RKg51aj9J8A
-cwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGF7x+
-xryahdENZV8Uu2OU6i/VySqh/xlI0KkLKkeMyt5g71vqV/LzdI5M+RKg51aj9J8A
-cwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
-+xryahdENZV8Uu2OU6i/VyQIDAQAB
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}
 -----END PUBLIC KEY-----`;
 
 		setJwtSignature((prev) => ({
@@ -523,1235 +339,742 @@ cwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 			publicKey: samplePublicKey,
 		}));
 
-		toastV8.success('Sample RSA key pair generated! (For educational purposes only)');
-		console.log('🔑 [JWT Bearer] Generated sample RSA-2048 key pair');
-	}, []);
-
-	// Auto-update JWT Claims when clientId, tokenEndpoint, or audience changes (from OIDC Discovery or manual entry)
-	useEffect(() => {
-		setJwtClaims((prev) => ({
-			...prev,
-			iss: prev.iss, // Keep issuer as authorization server, don't change to client ID
-			sub: clientId || prev.sub, // Subject should be the client ID
-			aud: audience || tokenEndpoint || prev.aud, // Prioritize audience, fallback to tokenEndpoint
-		}));
-		console.log(
-			'🔄 [JWT Bearer] Auto-updated JWT claims with audience:',
-			audience || tokenEndpoint
-		);
-	}, [clientId, tokenEndpoint, audience]);
-
-	// Generate JWT
-	const generateJWT = useCallback(() => {
-		// Determine audience value (prioritize manually set aud, then audience field, then tokenEndpoint)
-		const audienceValue = jwtClaims.aud || audience || tokenEndpoint;
-
-		// Build list of missing fields
-		const missing: string[] = [];
-
-		console.log('🔍 [JWT Generation Validation]', {
-			clientId: clientId || '❌ EMPTY',
-			tokenEndpoint: tokenEndpoint || '❌ EMPTY',
-			audience: audience || '❌ EMPTY',
-			audienceValue: audienceValue || '❌ EMPTY',
-			'jwtClaims.aud': jwtClaims.aud || '❌ EMPTY',
-			privateKey: jwtSignature.privateKey
-				? `✓ (${jwtSignature.privateKey.length} chars)`
-				: '❌ EMPTY',
+		modernMessaging.showBanner({
+			type: 'success',
+			title: 'Sample Keys Generated',
+			message: 'New RSA key pair has been generated for testing',
+			dismissible: true,
 		});
-
-		if (!clientId || clientId.trim() === '') missing.push('Client ID');
-		if (!tokenEndpoint || tokenEndpoint.trim() === '') missing.push('Token Endpoint');
-		if (!audienceValue || audienceValue.trim() === '') missing.push('Audience');
-		if (!jwtSignature.privateKey || jwtSignature.privateKey.trim() === '')
-			missing.push('Private Key');
-
-		if (missing.length > 0) {
-			console.warn('⚠️ [JWT Generation] Missing required fields:', missing);
-			setMissingJWTFields(missing);
-			setShowMissingJWTFieldsModal(true);
-			return;
-		}
-
-		try {
-			// Update claims with current values
-			const claims: JWTClaims = {
-				...jwtClaims,
-				iss: clientId,
-				sub: clientId,
-				aud: audienceValue,
-				iat: Math.floor(Date.now() / 1000),
-				exp: Math.floor(Date.now() / 1000) + 3600,
-			};
-
-			// For demo purposes, create a mock JWT (in real implementation, you'd use a JWT library)
-			const header = {
-				alg: jwtSignature.algorithm,
-				typ: 'JWT',
-			};
-
-			const encodedHeader = btoa(JSON.stringify(header));
-			const encodedPayload = btoa(JSON.stringify(claims));
-			const signature = `mock_signature_${Date.now()}`; // Mock signature
-			const encodedSignature = btoa(signature);
-
-			const jwt = `${encodedHeader}.${encodedPayload}.${encodedSignature}`;
-			setGeneratedJWT(jwt);
-
-			toastV8.success('JWT generated successfully!');
-		} catch (error) {
-			console.error('[JWT Bearer] Error generating JWT:', error);
-			toastV8.error('Failed to generate JWT');
-		}
-	}, [clientId, tokenEndpoint, jwtClaims, jwtSignature, audience]);
-
-	// Make token request
-	const makeTokenRequest = useCallback(async () => {
-		if (!generatedJWT || !clientId || !tokenEndpoint) {
-			toastV8.warning('Please generate a JWT first');
-			return;
-		}
-
-		setIsLoading(true);
-		try {
-			// MOCK IMPLEMENTATION - Simulating network delay
-			console.log('[JWT Bearer Mock] Simulating token request...');
-			await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulate network delay
-
-			// MOCK IMPLEMENTATION - Generate mock JWT access token that matches displayed values
-			const now = Math.floor(Date.now() / 1000);
-			const exp = now + 3600; // 1 hour from now
-
-			// Create JWT header and payload
-			const header = {
-				alg: 'RS256',
-				typ: 'JWT',
-				kid: 'mock-key-id',
-			};
-
-			const payload = {
-				sub: clientId,
-				client_id: clientId,
-				iss: tokenEndpoint.replace('/token', ''), // issuer is the base URL
-				aud: audience || tokenEndpoint.replace('/token', ''),
-				scope: scopes || 'openid',
-				iat: now,
-				exp: exp,
-				jti: `mock_jti_${Math.random().toString(36).substr(2, 16)}`,
-				token_use: 'access',
-				_mock: true,
-				_note: 'Mock JWT Bearer access token for educational purposes',
-			};
-
-			// Encode to create mock JWT (base64url encoding)
-			const encodedHeader = btoa(JSON.stringify(header))
-				.replace(/=/g, '')
-				.replace(/\+/g, '-')
-				.replace(/\//g, '_');
-			const encodedPayload = btoa(JSON.stringify(payload))
-				.replace(/=/g, '')
-				.replace(/\+/g, '-')
-				.replace(/\//g, '_');
-			const mockSignature = `mock_signature_${Math.random().toString(36).substr(2, 43)}`;
-			const mockAccessToken = `${encodedHeader}.${encodedPayload}.${mockSignature}`;
-
-			// MOCK IMPLEMENTATION - Generate mock token response
-			const mockTokenResponse = {
-				access_token: mockAccessToken, // Now a proper JWT that can be decoded
-				token_type: 'Bearer',
-				expires_in: 3600,
-				scope: scopes || 'openid',
-				_mock: true, // Indicator that this is a mock response
-				_note:
-					'This is a simulated response for educational purposes. PingOne does not support JWT Bearer assertions.',
-			};
-
-			console.log('[JWT Bearer Mock] Mock token response:', mockTokenResponse);
-			setTokenResponse(mockTokenResponse);
-			setCurrentStep(3); // Move to token response step
-			toastV8.success('Mock access token generated successfully! (Educational simulation)');
-		} catch (error) {
-			console.error('[JWT Bearer Mock] Error in simulation:', error);
-			toastV8.error('Failed to simulate token request');
-		} finally {
-			setIsLoading(false);
-		}
-	}, [generatedJWT, clientId, tokenEndpoint, scopes, audience]);
-
-	// Step validation
-	const isStepValid = useCallback(
-		(stepIndex: number): boolean => {
-			switch (stepIndex) {
-				case 0:
-					return true; // Configuration always valid
-				case 1:
-					return !!generatedJWT; // JWT must be generated
-				case 2:
-					return !!generatedJWT; // JWT must be generated for request
-				case 3:
-					return !!tokenResponse; // Token response must be received
-				case 4:
-					return !!tokenResponse; // Completion available when tokens received
-				default:
-					return false;
-			}
-		},
-		[generatedJWT, tokenResponse]
-	);
-
-	// Navigation handlers
-	const handleNext = useCallback(() => {
-		if (currentStep === 0) {
-			// For JWT Bearer flow Step 0, we only need: environmentId, clientId
-			// Private key is entered in Step 1 (JWT Generation)
-			const credentials = {
-				environmentId,
-				clientId,
-			};
-
-			const { missingFields, canProceed } = checkMissingFields(
-				credentials as Record<string, unknown>,
-				{
-					requiredFields: ['environmentId', 'clientId'],
-					fieldLabels: {
-						environmentId: 'Environment ID',
-						clientId: 'Client ID',
-					},
-				}
-			);
-
-			if (!canProceed) {
-				setMissingCredentialFields(missingFields);
-				setShowMissingCredentialsModal(true);
-				console.warn('⚠️ [JWTBearerTokenFlowV6] Missing required credentials', { missingFields });
-				return;
-			}
-		}
-
-		if (currentStep < STEP_METADATA.length - 1) {
-			setCurrentStep(currentStep + 1);
-		}
-	}, [currentStep, environmentId, clientId]);
-
-	const handlePrev = useCallback(() => {
-		if (currentStep > 0) {
-			setCurrentStep(currentStep - 1);
-		}
-	}, [currentStep]);
-
-	const handleReset = useCallback(() => {
-		setCurrentStep(0);
-		setGeneratedJWT('');
-		setTokenResponse(null);
-		setIsLoading(false);
 	}, []);
 
-	const handleStartOver = useCallback(() => {
-		const flowKey = 'jwt-bearer-token-v6';
-		sessionStorage.removeItem(`${flowKey}-tokens`);
-		sessionStorage.removeItem('restore_step');
-		setCurrentStep(0);
-		setGeneratedJWT('');
-		setTokenResponse(null);
-
-		// Clear any potential ConfigChecker-related state or cached data
-		try {
-			// Clear any comparison results or cached application data
-			sessionStorage.removeItem('config-checker-diffs');
-			sessionStorage.removeItem('config-checker-last-check');
-			sessionStorage.removeItem('pingone-app-cache');
-			localStorage.removeItem('pingone-applications-cache');
-
-			// Clear any worker token related cache that might be used for pre-flight checks
-			sessionStorage.removeItem('worker-token-cache');
-			localStorage.removeItem('worker-apps-cache');
-
-			console.log(
-				'🔄 [JWTBearerTokenFlowV6] Starting over: cleared tokens/JWT, ConfigChecker cache, keeping credentials'
-			);
-		} catch (error) {
-			console.warn('[JWTBearerTokenFlowV6] Failed to clear cache data:', error);
-		}
-
-		toastV8.success('Flow restarted - Tokens, JWT, and cache cleared. Credentials preserved.');
+	// Copy to clipboard
+	const handleCopy = useCallback(async (text: string) => {
+		await copyToClipboard(text);
 	}, []);
-
-	const canNavigateNext = useCallback((): boolean => {
-		return isStepValid(currentStep) && currentStep < STEP_METADATA.length - 1;
-	}, [currentStep, isStepValid]);
-
-	// Step content renderers
-	const renderStepContent = useMemo(() => {
-		switch (currentStep) {
-			case 0:
-				return (
-					<>
-						{/* Educational Content */}
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('overview')}
-								aria-expanded={!collapsedSections.overview}
-							>
-								<CollapsibleTitle>
-									<FiInfo /> JWT Bearer Flow Overview
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.overview}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.overview && (
-								<CollapsibleContent>
-									<InfoBox $variant="info">
-										<FiShield size={20} />
-										<div>
-											<InfoTitle>JWT Bearer Token Flow (RFC 7523)</InfoTitle>
-											<InfoText>
-												The JWT Bearer Token flow enables OAuth clients to authenticate using JWT
-												assertions instead of traditional client credentials. Perfect for
-												server-to-server scenarios.
-											</InfoText>
-										</div>
-									</InfoBox>
-
-									<InfoBox $variant="error">
-										<FiAlertCircle size={20} />
-										<div>
-											<InfoTitle>Educational Mock Implementation</InfoTitle>
-											<InfoText>
-												This is a mock implementation for educational purposes. PingOne does not
-												currently support JWT Bearer assertions for client authentication.
-											</InfoText>
-											<InfoText
-												style={{
-													marginTop: '0.5rem',
-													color: '#dc2626',
-													fontWeight: '600',
-													backgroundColor: '#fee2e2',
-													padding: '0.75rem',
-													borderRadius: '0.5rem',
-													border: '2px solid #ef4444',
-												}}
-											>
-												<strong>⚠️ SIMULATION WARNING:</strong> This is a simulated/mock
-												implementation for learning purposes only.
-											</InfoText>
-										</div>
-									</InfoBox>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
-
-						{/* Token Endpoint Configuration */}
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('endpoint')}
-								aria-expanded={!collapsedSections.endpoint}
-							>
-								<CollapsibleTitle>
-									<FiExternalLink /> Token Endpoint Configuration
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.endpoint}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.endpoint && (
-								<CollapsibleContent>
-									<FormGroup>
-										<Label>Token Endpoint *</Label>
-										<Input
-											type="url"
-											value={tokenEndpoint}
-											onChange={(e) => {
-												const value = e.target.value;
-												setTokenEndpoint(value);
-
-												// Input validation with guidance
-												if (value && !value.startsWith('https://')) {
-													toastV8.warning('Token endpoint should use HTTPS for security');
-												}
-												if (value && !value.includes('/token')) {
-													toastV8.info(
-														'Ensure this is the token endpoint (usually ends with /token)'
-													);
-												}
-											}}
-											placeholder="https://auth.example.com/oauth/token"
-											style={{
-												borderColor:
-													tokenEndpoint && !tokenEndpoint.startsWith('https://')
-														? '#ef4444'
-														: tokenEndpoint && !tokenEndpoint.includes('/token')
-															? '#f59e0b'
-															: undefined,
-											}}
-										/>
-										{tokenEndpoint && !tokenEndpoint.startsWith('https://') && (
-											<HelperText style={{ color: '#ef4444', fontSize: '0.875rem' }}>
-												⚠️ Security: Token endpoint should use HTTPS
-											</HelperText>
-										)}
-										{tokenEndpoint && !tokenEndpoint.includes('/token') && (
-											<HelperText style={{ color: '#f59e0b', fontSize: '0.875rem' }}>
-												ℹ️ Verify this is the token endpoint (usually ends with /token)
-											</HelperText>
-										)}
-									</FormGroup>
-
-									<FormGroup>
-										<Label>Audience (Optional)</Label>
-										<Input
-											type="text"
-											value={audience}
-											onChange={(e) => setAudience(e.target.value)}
-											placeholder="https://api.example.com"
-										/>
-									</FormGroup>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
-
-						<SectionDivider />
-
-						{/* Credentials Configuration */}
-						<V9ComprehensiveCredentialsService
-							flowType="jwt-bearer-token-v7" // Used to detect JWT Bearer and disable auth method selector
-							// Discovery props
-							onDiscoveryComplete={(result) => {
-								console.log('[JWT Bearer V6] Discovery completed:', result);
-
-								// Auto-populate Token Endpoint and Audience (always update from discovery)
-								if (result.document) {
-									if (result.document.token_endpoint) {
-										setTokenEndpoint(result.document.token_endpoint);
-										console.log(
-											'[JWT Bearer V6] Token endpoint auto-populated:',
-											result.document.token_endpoint
-										);
-									}
-									if (result.document.issuer) {
-										setAudience(result.document.issuer);
-										console.log('[JWT Bearer V6] Audience auto-populated:', result.document.issuer);
-									}
-								}
-
-								// Try to extract environment ID from multiple sources
-								let extractedEnvId: string | null = null;
-
-								// 1. Try from issuerUrl
-								if (result.issuerUrl) {
-									const envIdMatch = result.issuerUrl.match(/\/([a-f0-9-]{36})\//i);
-									if (envIdMatch?.[1]) {
-										extractedEnvId = envIdMatch[1];
-									}
-								}
-
-								// 2. Try from document.issuer if available
-								if (!extractedEnvId && result.document?.issuer) {
-									const envIdMatch = result.document.issuer.match(/\/([a-f0-9-]{36})\//i);
-									if (envIdMatch?.[1]) {
-										extractedEnvId = envIdMatch[1];
-									}
-								}
-
-								// Update environment ID if extracted
-								if (extractedEnvId) {
-									setEnvironmentId(extractedEnvId);
-									console.log('[JWT Bearer V6] Environment ID extracted:', extractedEnvId);
-								}
-
-								toastV8.success('Token Endpoint and Audience auto-populated from OIDC Discovery');
-							}}
-							discoveryPlaceholder="Enter Environment ID, issuer URL, or OIDC provider..."
-							showProviderInfo={true}
-							// Credentials props
-							environmentId={environmentId}
-							clientId={clientId}
-							clientSecret="" // Not needed for JWT Bearer
-							scopes={scopes}
-							// Change handlers
-							onEnvironmentIdChange={(value) => {
-								setEnvironmentId(value);
-								saveCredentials({ environmentId: value });
-							}}
-							onClientIdChange={(value) => {
-								setClientId(value);
-								saveCredentials({ clientId: value });
-							}}
-							onScopesChange={(value) => {
-								setScopes(value);
-								saveCredentials({ scopes: value });
-							}}
-							// Save handlers
-							onSave={async () => {
-								await saveCredentials({});
-								toastV8.success('Configuration saved');
-							}}
-							hasUnsavedChanges={false}
-							isSaving={false}
-							// Field visibility
-							requireClientSecret={false}
-							showRedirectUri={false}
-							showPostLogoutRedirectUri={false}
-							showLoginHint={false}
-							// Show auth method selector with "none" but disabled (JWT Bearer uses assertion for auth)
-							clientAuthMethod="none"
-							allowedAuthMethods={['none']}
-							// Display config
-							title="JWT Bearer Configuration"
-							subtitle="Configure environment, client ID, and scopes"
-							defaultCollapsed={shouldCollapseAll}
-							showAdvancedConfig={false} // No need for PingOne advanced settings in JWT Bearer
-						/>
-					</>
-				);
-
-			case 1:
-				return (
-					<>
-						<CollapsibleHeader
-							title="JWT Claims & Signature Builder"
-							theme="blue"
-							isCollapsed={collapsedSections.jwtBuilder}
-							onToggle={() => toggleSection('jwtBuilder')}
-						>
-							<div style={{ padding: '1.5rem' }}>
-								<InfoBox $variant="info">
-									<FiInfo size={20} />
-									<div>
-										<InfoTitle>JWT Claims Configuration</InfoTitle>
-										<InfoText>
-											Configure the JWT claims and signature algorithm. The JWT will be used as a
-											client assertion in the token request.
-										</InfoText>
-									</div>
-								</InfoBox>
-
-								<FormGroup>
-									<Label>Issuer (iss) *</Label>
-									<Input
-										type="text"
-										value={jwtClaims.iss}
-										onChange={(e) => setJwtClaims((prev) => ({ ...prev, iss: e.target.value }))}
-										placeholder="https://auth.pingone.com"
-									/>
-									<HelperText style={{ marginTop: '0.5rem', fontSize: '0.875rem' }}>
-										<FiInfo size={14} style={{ marginRight: '0.5rem' }} />
-										The issuer should be the authorization server URL, not the client ID
-									</HelperText>
-								</FormGroup>
-
-								<FormGroup>
-									<Label>Subject (sub) *</Label>
-									<Input
-										type="text"
-										value={jwtClaims.sub}
-										onChange={(e) => setJwtClaims((prev) => ({ ...prev, sub: e.target.value }))}
-										placeholder="your-client-id"
-									/>
-								</FormGroup>
-
-								<FormGroup>
-									<div
-										style={{
-											display: 'flex',
-											alignItems: 'center',
-											gap: '0.5rem',
-											marginBottom: '0.5rem',
-										}}
-									>
-										<Label style={{ margin: 0 }}>Audience (aud) *</Label>
-										<Button
-											onClick={() => {
-												console.log(
-													'🔍 [JWT Bearer] Auto Discover clicked, environmentId:',
-													environmentId
-												);
-												if (!environmentId || environmentId.trim() === '') {
-													console.warn('⚠️ [JWT Bearer] Button clicked but environmentId is empty');
-													toastV8.warning('Please enter an Environment ID first');
-													return;
-												}
-												discoverAudience();
-											}}
-											disabled={
-												!environmentId || environmentId.trim() === '' || isDiscoveringAudience
-											}
-											$variant="secondary"
-											style={{
-												padding: '0.25rem 0.5rem',
-												fontSize: '0.75rem',
-												display: 'flex',
-												alignItems: 'center',
-												gap: '0.25rem',
-												backgroundColor:
-													environmentId && environmentId.trim() !== '' ? '#10b981' : '#6b7280',
-												color: '#ffffff',
-												border: 'none',
-												cursor:
-													environmentId && environmentId.trim() !== '' ? 'pointer' : 'not-allowed',
-												opacity: !environmentId || environmentId.trim() === '' ? 0.5 : 1,
-											}}
-											title={
-												environmentId && environmentId.trim() !== ''
-													? 'Auto-discover audience from OIDC endpoint'
-													: 'Enter Environment ID first'
-											}
-										>
-											{isDiscoveringAudience ? (
-												<>
-													<FiRefreshCw size={12} className="animate-spin" />
-													<span>Discovering...</span>
-												</>
-											) : (
-												<>
-													<FiExternalLink size={12} />
-													<span>Auto-discover</span>
-												</>
-											)}
-										</Button>
-									</div>
-									<Input
-										type="text"
-										value={jwtClaims.aud}
-										onChange={(e) => setJwtClaims((prev) => ({ ...prev, aud: e.target.value }))}
-										placeholder="https://auth.example.com"
-									/>
-									<HelperText style={{ marginTop: '0.5rem', fontSize: '0.875rem' }}>
-										<FiInfo size={14} style={{ marginRight: '0.5rem' }} />
-										Click "Auto-discover" to fetch the audience from the OIDC discovery endpoint.
-									</HelperText>
-								</FormGroup>
-
-								<FormGroup>
-									<Label>Expiration Time (exp) *</Label>
-									<Input
-										type="number"
-										value={jwtClaims.exp}
-										onChange={(e) =>
-											setJwtClaims((prev) => ({ ...prev, exp: parseInt(e.target.value, 10) }))
-										}
-										placeholder="1640995200"
-									/>
-								</FormGroup>
-
-								<FormGroup>
-									<Label>JWT ID (jti) *</Label>
-									<div style={{ display: 'flex', gap: '0.5rem' }}>
-										<Input
-											type="text"
-											value={jwtClaims.jti}
-											onChange={(e) => setJwtClaims((prev) => ({ ...prev, jti: e.target.value }))}
-											placeholder="unique-jwt-id"
-										/>
-										<Button onClick={generateJWTId} $variant="secondary">
-											<FiRefreshCw /> Generate
-										</Button>
-									</div>
-								</FormGroup>
-
-								<FormGroup>
-									<Label>Signature Algorithm</Label>
-									<select
-										value={jwtSignature.algorithm}
-										onChange={(e) =>
-											setJwtSignature((prev) => ({
-												...prev,
-												algorithm: e.target.value as JWTSignature['algorithm'],
-											}))
-										}
-										style={{
-											width: '100%',
-											padding: '0.75rem',
-											border: '1px solid #d1d5db',
-											borderRadius: '0.5rem',
-											fontSize: '0.875rem',
-										}}
-									>
-										<option value="RS256">RS256 (RSA with SHA-256)</option>
-										<option value="RS384">RS384 (RSA with SHA-384)</option>
-										<option value="RS512">RS512 (RSA with SHA-512)</option>
-										<option value="ES256">ES256 (ECDSA with SHA-256)</option>
-										<option value="ES384">ES384 (ECDSA with SHA-384)</option>
-										<option value="ES512">ES512 (ECDSA with SHA-512)</option>
-									</select>
-								</FormGroup>
-
-								<FormGroup style={{ marginTop: '2rem' }}>
-									<div
-										style={{
-											display: 'flex',
-											justifyContent: 'space-between',
-											alignItems: 'center',
-											marginBottom: '0.75rem',
-										}}
-									>
-										<Label>Private Key (PEM format) *</Label>
-										<Button
-											onClick={generateSampleKeyPair}
-											$variant="secondary"
-											style={{
-												padding: '0.5rem 1rem',
-												fontSize: '0.875rem',
-												backgroundColor: '#10b981',
-												color: '#ffffff',
-											}}
-										>
-											<FiKey /> Generate Sample Key Pair
-										</Button>
-									</div>
-									<Textarea
-										value={jwtSignature.privateKey}
-										onChange={(e) =>
-											setJwtSignature((prev) => ({ ...prev, privateKey: e.target.value }))
-										}
-										placeholder="-----BEGIN PRIVATE KEY-----
-MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
-										rows={10}
-										style={{ marginBottom: '0.75rem' }}
-									/>
-									<HelperText style={{ marginTop: '0.5rem', fontSize: '0.875rem' }}>
-										<FiInfo size={14} style={{ marginRight: '0.5rem' }} />
-										Click "Generate Sample Key Pair" to create a test RSA-2048 key pair for
-										educational purposes.
-									</HelperText>
-								</FormGroup>
-
-								<Button
-									onClick={generateJWT}
-									$variant="primary"
-									style={{
-										backgroundColor: '#0066cc',
-										color: '#ffffff',
-										fontWeight: 600,
-										fontSize: '1rem',
-										padding: '0.75rem 1.5rem',
-									}}
-								>
-									<FiKey /> Generate Access Token from JWT
-								</Button>
-							</div>
-						</CollapsibleHeader>
-
-						{generatedJWT &&
-							V9UnifiedTokenDisplayService.showTokens(
-								{ access_token: generatedJWT }, // Pass JWT as access_token
-								'oauth',
-								'jwt-bearer-v6',
-								{
-									showCopyButtons: true,
-									showDecodeButtons: true,
-								}
-							)}
-					</>
-				);
-
-			case 2:
-				return (
-					<CollapsibleSection>
-						<CollapsibleHeaderButton
-							onClick={() => toggleSection('tokenRequest')}
-							aria-expanded={!collapsedSections.tokenRequest}
-						>
-							<CollapsibleTitle>
-								<FiExternalLink /> Token Request
-							</CollapsibleTitle>
-							<CollapsibleToggleIcon $collapsed={collapsedSections.tokenRequest}>
-								<FiChevronDown />
-							</CollapsibleToggleIcon>
-						</CollapsibleHeaderButton>
-						{!collapsedSections.tokenRequest && (
-							<CollapsibleContent>
-								<InfoBox $variant="warning">
-									<FiAlertCircle size={20} />
-									<div>
-										<InfoTitle>🎓 JWT Bearer Token Request</InfoTitle>
-										<InfoText>
-											This demonstrates how a JWT Bearer token request would be sent to an OAuth 2.0
-											server that supports RFC 7523. The assertion parameter contains the signed JWT
-											that proves the client's identity.
-										</InfoText>
-										<InfoText style={{ marginTop: '0.5rem' }}>
-											<strong>Note:</strong> PingOne does not support JWT Bearer assertions, but
-											many other OAuth providers do. Below are real-world examples of providers that
-											support JWT Bearer grant type.
-										</InfoText>
-									</div>
-								</InfoBox>
-
-								{/* Real-world JWT Bearer Examples */}
-								<div style={{ marginBottom: '1.5rem' }}>
-									<h4
-										style={{
-											margin: '0 0 1rem 0',
-											fontSize: '1rem',
-											fontWeight: '600',
-											color: '#374151',
-										}}
-									>
-										🌐 Real-World JWT Bearer Examples
-									</h4>
-									<div style={{ display: 'grid', gap: '0.75rem' }}>
-										<button
-											type="button"
-											onClick={() => setTokenEndpoint('https://oauth2.googleapis.com/token')}
-											style={{
-												padding: '0.75rem',
-												background: '#f8fafc',
-												border: '1px solid #e2e8f0',
-												borderRadius: '6px',
-												fontSize: '0.875rem',
-												cursor: 'pointer',
-												transition: 'all 0.2s ease',
-												textAlign: 'left',
-												width: '100%',
-											}}
-											onMouseEnter={(e) => {
-												e.currentTarget.style.background = '#f1f5f9';
-												e.currentTarget.style.borderColor = '#3b82f6';
-											}}
-											onMouseLeave={(e) => {
-												e.currentTarget.style.background = '#f8fafc';
-												e.currentTarget.style.borderColor = '#e2e8f0';
-											}}
-										>
-											<div style={{ fontWeight: '600', color: '#1f2937', marginBottom: '0.25rem' }}>
-												🔵 Google Cloud Platform
-											</div>
-											<div style={{ color: '#6b7280', fontFamily: 'monospace' }}>
-												https://oauth2.googleapis.com/token
-											</div>
-											<div style={{ color: '#6b7280', fontSize: '0.75rem', marginTop: '0.25rem' }}>
-												Supports JWT Bearer for service account authentication
-											</div>
-										</button>
-
-										<button
-											type="button"
-											onClick={() =>
-												setTokenEndpoint(
-													'https://login.microsoftonline.com/{tenant-id}/oauth2/v2.0/token'
-												)
-											}
-											style={{
-												padding: '0.75rem',
-												background: '#f8fafc',
-												border: '1px solid #e2e8f0',
-												borderRadius: '6px',
-												fontSize: '0.875rem',
-												cursor: 'pointer',
-												transition: 'all 0.2s ease',
-												textAlign: 'left',
-												width: '100%',
-											}}
-											onMouseEnter={(e) => {
-												e.currentTarget.style.background = '#f1f5f9';
-												e.currentTarget.style.borderColor = '#3b82f6';
-											}}
-											onMouseLeave={(e) => {
-												e.currentTarget.style.background = '#f8fafc';
-												e.currentTarget.style.borderColor = '#e2e8f0';
-											}}
-										>
-											<div style={{ fontWeight: '600', color: '#1f2937', marginBottom: '0.25rem' }}>
-												🟠 Microsoft Azure AD
-											</div>
-											<div style={{ color: '#6b7280', fontFamily: 'monospace' }}>
-												https://login.microsoftonline.com/&#123;tenant-id&#125;/oauth2/v2.0/token
-											</div>
-											<div style={{ color: '#6b7280', fontSize: '0.75rem', marginTop: '0.25rem' }}>
-												Supports JWT Bearer for application authentication
-											</div>
-										</button>
-
-										<button
-											type="button"
-											onClick={() => setTokenEndpoint('https://{pingfederate-host}:9031/as/token')}
-											style={{
-												padding: '0.75rem',
-												background: '#f8fafc',
-												border: '1px solid #e2e8f0',
-												borderRadius: '6px',
-												fontSize: '0.875rem',
-												cursor: 'pointer',
-												transition: 'all 0.2s ease',
-												textAlign: 'left',
-												width: '100%',
-											}}
-											onMouseEnter={(e) => {
-												e.currentTarget.style.background = '#f1f5f9';
-												e.currentTarget.style.borderColor = '#3b82f6';
-											}}
-											onMouseLeave={(e) => {
-												e.currentTarget.style.background = '#f8fafc';
-												e.currentTarget.style.borderColor = '#e2e8f0';
-											}}
-										>
-											<div style={{ fontWeight: '600', color: '#1f2937', marginBottom: '0.25rem' }}>
-												🟢 PingFederate
-											</div>
-											<div style={{ color: '#6b7280', fontFamily: 'monospace' }}>
-												https://&#123;pingfederate-host&#125;:9031/as/token
-											</div>
-											<div style={{ color: '#6b7280', fontSize: '0.75rem', marginTop: '0.25rem' }}>
-												Supports JWT Bearer for enterprise authentication
-											</div>
-										</button>
-
-										<button
-											type="button"
-											onClick={() => setTokenEndpoint('https://{pingone-ais-host}/oauth/token')}
-											style={{
-												padding: '0.75rem',
-												background: '#f8fafc',
-												border: '1px solid #e2e8f0',
-												borderRadius: '6px',
-												fontSize: '0.875rem',
-												cursor: 'pointer',
-												transition: 'all 0.2s ease',
-												textAlign: 'left',
-												width: '100%',
-											}}
-											onMouseEnter={(e) => {
-												e.currentTarget.style.background = '#f1f5f9';
-												e.currentTarget.style.borderColor = '#3b82f6';
-											}}
-											onMouseLeave={(e) => {
-												e.currentTarget.style.background = '#f8fafc';
-												e.currentTarget.style.borderColor = '#e2e8f0';
-											}}
-										>
-											<div style={{ fontWeight: '600', color: '#1f2937', marginBottom: '0.25rem' }}>
-												🟣 PingOne Advanced Identity Cloud
-											</div>
-											<div style={{ color: '#6b7280', fontFamily: 'monospace' }}>
-												https://&#123;pingone-ais-host&#125;/oauth/token
-											</div>
-											<div style={{ color: '#6b7280', fontSize: '0.75rem', marginTop: '0.25rem' }}>
-												Supports JWT Bearer (RFC 7523) for advanced identity scenarios
-											</div>
-										</button>
-									</div>
-
-									<div
-										style={{
-											marginTop: '1rem',
-											padding: '0.75rem',
-											background: '#fef3c7',
-											border: '1px solid #f59e0b',
-											borderRadius: '6px',
-											fontSize: '0.875rem',
-											color: '#92400e',
-										}}
-									>
-										<strong>💡 Tip:</strong> Click on any example above to use it as your token
-										endpoint, or enter your own OAuth provider's token endpoint that supports JWT
-										Bearer grant type.
-									</div>
-								</div>
-
-								<GeneratedContentBox>
-									<ParameterGrid>
-										<ParameterLabel>Request URL</ParameterLabel>
-										<ParameterValue>{tokenEndpoint}</ParameterValue>
-
-										<ParameterLabel>Method</ParameterLabel>
-										<ParameterValue>POST</ParameterValue>
-
-										<ParameterLabel>Content-Type</ParameterLabel>
-										<ParameterValue>application/x-www-form-urlencoded</ParameterValue>
-
-										<ParameterLabel>grant_type</ParameterLabel>
-										<ParameterValue>urn:ietf:params:oauth:grant-type:jwt-bearer</ParameterValue>
-
-										<ParameterLabel>assertion</ParameterLabel>
-										<ParameterValue style={{ wordBreak: 'break-all', fontSize: '0.75rem' }}>
-											{generatedJWT || 'Generate JWT first'}
-										</ParameterValue>
-
-										<ParameterLabel>scope</ParameterLabel>
-										<ParameterValue>{scopes || 'Not specified'}</ParameterValue>
-									</ParameterGrid>
-								</GeneratedContentBox>
-
-								<Button
-									onClick={makeTokenRequest}
-									variant="success"
-									disabled={!generatedJWT || isLoading}
-								>
-									{isLoading ? <FiRefreshCw className="animate-spin" /> : <FiExternalLink />}
-									{isLoading ? 'Requesting Token...' : 'Make Token Request'}
-								</Button>
-							</CollapsibleContent>
-						)}
-					</CollapsibleSection>
-				);
-
-			case 3:
-				return (
-					<>
-						{tokenResponse && (
-							<>
-								<InfoBox $variant="success" style={{ marginBottom: '2rem' }}>
-									<FiCheckCircle size={20} />
-									<div>
-										<InfoTitle>Access Token Received!</InfoTitle>
-										<InfoText>
-											The JWT Bearer Token flow has completed successfully. You now have an access
-											token that can be used to access protected resources.
-										</InfoText>
-									</div>
-								</InfoBox>
-
-								{/* Token Response Parameters */}
-								<CollapsibleSection>
-									<CollapsibleHeaderButton
-										onClick={() => toggleSection('tokenResponse')}
-										aria-expanded={!collapsedSections.tokenResponse}
-									>
-										<CollapsibleTitle>
-											<FiCheckCircle /> Token Response
-										</CollapsibleTitle>
-										<CollapsibleToggleIcon $collapsed={collapsedSections.tokenResponse}>
-											<FiChevronDown />
-										</CollapsibleToggleIcon>
-									</CollapsibleHeaderButton>
-									{!collapsedSections.tokenResponse && (
-										<CollapsibleContent>
-											<GeneratedContentBox>
-												<ParameterGrid>
-													<ParameterLabel>access_token</ParameterLabel>
-													<ParameterValue style={{ wordBreak: 'break-all', fontSize: '0.75rem' }}>
-														{tokenResponse.access_token}
-													</ParameterValue>
-
-													<ParameterLabel>token_type</ParameterLabel>
-													<ParameterValue>{tokenResponse.token_type}</ParameterValue>
-
-													<ParameterLabel>expires_in</ParameterLabel>
-													<ParameterValue>{tokenResponse.expires_in} seconds</ParameterValue>
-
-													<ParameterLabel>scope</ParameterLabel>
-													<ParameterValue>{tokenResponse.scope}</ParameterValue>
-												</ParameterGrid>
-											</GeneratedContentBox>
-
-											<div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
-												<Button
-													onClick={() => copyToClipboard(tokenResponse.access_token)}
-													$variant="secondary"
-												>
-													<FiCopy /> Copy Access Token
-												</Button>
-												<Button
-													onClick={() => copyToClipboard(JSON.stringify(tokenResponse, null, 2))}
-													$variant="secondary"
-												>
-													<FiCopy /> Copy Full Response
-												</Button>
-											</div>
-										</CollapsibleContent>
-									)}
-								</CollapsibleSection>
-
-								{/* Access Token Display with Decode */}
-								{V9UnifiedTokenDisplayService.showTokens(
-									tokenResponse, // Pass full token response
-									'oauth',
-									'jwt-bearer-v6',
-									{
-										showCopyButtons: true,
-										showDecodeButtons: true,
-									}
-								)}
-							</>
-						)}
-					</>
-				);
-
-			case 4:
-				return (
-					<V9FlowCompletionService
-						config={FlowCompletionConfigs.jwtBearer}
-						collapsed={collapsedSections.completion}
-						onToggleCollapsed={() => toggleSection('completion')}
-					/>
-				);
-
-			default:
-				return <div>Invalid step</div>;
-		}
-	}, [
-		currentStep,
-		collapsedSections,
-		toggleSection,
-		clientId,
-		tokenEndpoint,
-		audience,
-		scopes,
-		jwtClaims,
-		jwtSignature,
-		generatedJWT,
-		tokenResponse,
-		isLoading,
-		makeTokenRequest,
-		discoverAudience,
-		environmentId,
-		generateJWT,
-		generateJWTId,
-		generateSampleKeyPair,
-		isDiscoveringAudience,
-		saveCredentials,
-		CollapsibleContent,
-		CollapsibleHeaderButton,
-		CollapsibleSection,
-		CollapsibleTitle,
-		CollapsibleToggleIcon,
-		FormGroup,
-		GeneratedContentBox,
-		HelperText,
-		InfoBox,
-		InfoText,
-		InfoTitle,
-		Input,
-		Label,
-		ParameterGrid,
-		ParameterLabel,
-		ParameterValue,
-		Textarea,
-	]);
 
 	// Main render
 	return (
-		<Container>
+		<div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
 			<V9FlowHeader flowId="jwt-bearer-token-v7" />
 
-			<ContentWrapper>
-				{/* Mock Implementation Warning */}
-				<InfoBox $variant="error" style={{ marginBottom: '2rem' }}>
-					<FiAlertTriangle size={24} />
+			{/* Restart Button */}
+			<div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
+				<V9FlowRestartButton
+					onRestart={restartFlow}
+					currentStep={currentStep}
+					totalSteps={STEP_METADATA.length}
+					position="header"
+				/>
+			</div>
+
+			{/* Step Progress Indicator */}
+			<div style={{ marginBottom: '2rem' }}>
+				<div
+					style={{
+						display: 'flex',
+						justifyContent: 'space-between',
+						alignItems: 'center',
+						marginBottom: '1rem',
+					}}
+				>
+					{STEP_METADATA.map((_step, index) => (
+						<div key={index} style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+							<div
+								style={{
+									width: '32px',
+									height: '32px',
+									borderRadius: '50%',
+									background: index <= currentStep ? '#3b82f6' : '#e5e7eb',
+									color: index <= currentStep ? 'white' : '#6b7280',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+									fontWeight: 600,
+									fontSize: '0.875rem',
+								}}
+							>
+								{index + 1}
+							</div>
+							{index < STEP_METADATA.length - 1 && (
+								<div
+									style={{
+										flex: 1,
+										height: '2px',
+										background: index < currentStep ? '#3b82f6' : '#e5e7eb',
+										margin: '0 1rem',
+									}}
+								/>
+							)}
+						</div>
+					))}
+				</div>
+				<div>
+					<h3 style={{ margin: 0, color: '#1f2937' }}>{STEP_METADATA[currentStep].title}</h3>
+					<p style={{ margin: '0.25rem 0 0 0', color: '#6b7280', fontSize: '0.875rem' }}>
+						{STEP_METADATA[currentStep].subtitle}
+					</p>
+				</div>
+			</div>
+
+			{/* Step Content */}
+			<div style={{ marginTop: '2rem' }}>
+				{currentStep === 0 && (
 					<div>
-						<InfoTitle>🎓 Educational Mock Implementation</InfoTitle>
-						<InfoText>
-							This is a <strong>mock/educational implementation</strong> of the JWT Bearer Token
-							flow. PingOne does not currently support JWT Bearer assertions for client
-							authentication.
-						</InfoText>
-						<InfoText
+						{/* Overview Section */}
+						<div
 							style={{
-								marginTop: '0.75rem',
-								color: '#dc2626',
-								fontWeight: '600',
-								backgroundColor: '#fee2e2',
-								padding: '0.75rem',
+								background: '#f8fafc',
+								padding: '1.5rem',
 								borderRadius: '0.5rem',
-								border: '2px solid #ef4444',
+								marginBottom: '2rem',
+								border: '1px solid #e2e8f0',
 							}}
 						>
-							<strong>⚠️ SIMULATION WARNING:</strong> This is a simulated/mock implementation for
-							learning purposes only.
-						</InfoText>
-						<InfoText style={{ marginTop: '0.5rem' }}>
-							<strong>What you'll learn:</strong>
-						</InfoText>
-						<InfoList>
-							<li>How JWT Bearer Token flow works (RFC 7523)</li>
-							<li>JWT structure and claims for client assertions</li>
-							<li>Cryptographic signature algorithms (RS256, ES256, etc.)</li>
-							<li>Private key management and PKI concepts</li>
-							<li>Enterprise server-to-server authentication patterns</li>
-						</InfoList>
-						<InfoText style={{ marginTop: '0.5rem' }}>
-							This flow demonstrates the concepts and provides a simulation of how JWT Bearer
-							authentication would work in production OAuth 2.0 servers that support this grant
-							type.
-						</InfoText>
+							<button
+								type="button"
+								style={{
+									display: 'flex',
+									justifyContent: 'space-between',
+									alignItems: 'center',
+									cursor: 'pointer',
+									marginBottom: collapsedSections.overview ? '0' : '1rem',
+									background: 'none',
+									border: 'none',
+									padding: 0,
+									width: '100%',
+									textAlign: 'left',
+								}}
+								onClick={() => toggleSection('overview')}
+								onKeyDown={(e) => {
+									if (e.key === 'Enter' || e.key === ' ') {
+										e.preventDefault();
+										toggleSection('overview');
+									}
+								}}
+							>
+								<h3 style={{ margin: 0 }}>📋 Overview</h3>
+								<span style={{ fontSize: '1.25rem' }}>
+									{collapsedSections.overview ? '▶' : '▼'}
+								</span>
+							</button>
+							{!collapsedSections.overview && (
+								<div>
+									<p style={{ color: '#374151', marginBottom: '1rem' }}>
+										<strong>RFC 7523</strong> defines how to use JSON Web Tokens (JWTs) for OAuth
+										2.0 bearer tokens.
+									</p>
+									<ul style={{ color: '#374151', paddingLeft: '1.5rem', margin: 0 }}>
+										<li>JWTs are self-contained tokens with claims</li>
+										<li>No need for token introspection</li>
+										<li>Suitable for service-to-service authentication</li>
+										<li>Supports asymmetric cryptography</li>
+									</ul>
+								</div>
+							)}
+						</div>
+
+						{/* Credentials Configuration */}
+						<div
+							style={{
+								background: '#f8fafc',
+								padding: '1.5rem',
+								borderRadius: '0.5rem',
+								marginBottom: '2rem',
+								border: '1px solid #e2e8f0',
+							}}
+						>
+							<button
+								type="button"
+								style={{
+									display: 'flex',
+									justifyContent: 'space-between',
+									alignItems: 'center',
+									cursor: 'pointer',
+									marginBottom: collapsedSections.credentials ? '0' : '1rem',
+									background: 'none',
+									border: 'none',
+									padding: 0,
+									width: '100%',
+									textAlign: 'left',
+								}}
+								onClick={() => toggleSection('credentials')}
+								onKeyDown={(e) => {
+									if (e.key === 'Enter' || e.key === ' ') {
+										e.preventDefault();
+										toggleSection('credentials');
+									}
+								}}
+							>
+								<h3 style={{ margin: 0 }}>🔐 Credentials Configuration</h3>
+								<span style={{ fontSize: '1.25rem' }}>
+									{collapsedSections.credentials ? '▶' : '▼'}
+								</span>
+							</button>
+							{!collapsedSections.credentials && (
+								<div>
+									<div style={{ marginBottom: '1rem' }}>
+										<label
+											htmlFor="clientId"
+											style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}
+										>
+											Client ID:
+										</label>
+										<input
+											id="clientId"
+											type="text"
+											value={clientId}
+											onChange={(e) => handleFieldChange('clientId', e.target.value)}
+											style={{
+												width: '100%',
+												padding: '0.5rem',
+												border: '1px solid #d1d5db',
+												borderRadius: '0.25rem',
+											}}
+										/>
+									</div>
+								</div>
+							)}
+						</div>
+
+						{/* Token Endpoint Configuration */}
+						<div
+							style={{
+								background: '#f8fafc',
+								padding: '1.5rem',
+								borderRadius: '0.5rem',
+								marginBottom: '2rem',
+								border: '1px solid #e2e8f0',
+							}}
+						>
+							<button
+								type="button"
+								style={{
+									display: 'flex',
+									justifyContent: 'space-between',
+									alignItems: 'center',
+									cursor: 'pointer',
+									marginBottom: collapsedSections.endpoint ? '0' : '1rem',
+									background: 'none',
+									border: 'none',
+									padding: 0,
+									width: '100%',
+									textAlign: 'left',
+								}}
+								onClick={() => toggleSection('endpoint')}
+								onKeyDown={(e) => {
+									if (e.key === 'Enter' || e.key === ' ') {
+										e.preventDefault();
+										toggleSection('endpoint');
+									}
+								}}
+							>
+								<h3 style={{ margin: 0 }}>🌐 Token Endpoint Configuration</h3>
+								<span style={{ fontSize: '1.25rem' }}>
+									{collapsedSections.endpoint ? '▶' : '▼'}
+								</span>
+							</button>
+							{!collapsedSections.endpoint && (
+								<div>
+									<div style={{ marginBottom: '1rem' }}>
+										<label
+											htmlFor="tokenEndpoint"
+											style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}
+										>
+											Token Endpoint:
+										</label>
+										<input
+											id="tokenEndpoint"
+											type="url"
+											value={tokenEndpoint}
+											onChange={(e) => handleFieldChange('tokenEndpoint', e.target.value)}
+											style={{
+												width: '100%',
+												padding: '0.5rem',
+												border: '1px solid #d1d5db',
+												borderRadius: '0.25rem',
+											}}
+										/>
+									</div>
+									<div style={{ marginBottom: '1rem' }}>
+										<label
+											htmlFor="audience"
+											style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}
+										>
+											Audience:
+										</label>
+										<input
+											id="audience"
+											type="url"
+											value={audience}
+											onChange={(e) => handleFieldChange('audience', e.target.value)}
+											style={{
+												width: '100%',
+												padding: '0.5rem',
+												border: '1px solid #d1d5db',
+												borderRadius: '0.25rem',
+											}}
+										/>
+									</div>
+								</div>
+							)}
+						</div>
+
+						{/* JWT Configuration */}
+						<div
+							style={{
+								background: '#f8fafc',
+								padding: '1.5rem',
+								borderRadius: '0.5rem',
+								marginBottom: '2rem',
+								border: '1px solid #e2e8f0',
+							}}
+						>
+							<button
+								type="button"
+								style={{
+									display: 'flex',
+									justifyContent: 'space-between',
+									alignItems: 'center',
+									cursor: 'pointer',
+									marginBottom: collapsedSections.jwtBuilder ? '0' : '1rem',
+									background: 'none',
+									border: 'none',
+									padding: 0,
+									width: '100%',
+									textAlign: 'left',
+								}}
+								onClick={() => toggleSection('jwtBuilder')}
+								onKeyDown={(e) => {
+									if (e.key === 'Enter' || e.key === ' ') {
+										e.preventDefault();
+										toggleSection('jwtBuilder');
+									}
+								}}
+							>
+								<h3 style={{ margin: 0 }}>🔑 JWT Configuration</h3>
+								<span style={{ fontSize: '1.25rem' }}>
+									{collapsedSections.jwtBuilder ? '▶' : '▼'}
+								</span>
+							</button>
+							{!collapsedSections.jwtBuilder && (
+								<div>
+									<div style={{ marginBottom: '1rem' }}>
+										<label
+											htmlFor="jwtAlgorithm"
+											style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}
+										>
+											Algorithm:
+										</label>
+										<select
+											id="jwtAlgorithm"
+											value={jwtSignature.algorithm}
+											onChange={(e) => handleFieldChange('jwtAlgorithm', e.target.value)}
+											style={{
+												width: '100%',
+												padding: '0.5rem',
+												border: '1px solid #d1d5db',
+												borderRadius: '0.25rem',
+											}}
+										>
+											<option value="RS256">RS256</option>
+											<option value="RS384">RS384</option>
+											<option value="RS512">RS512</option>
+											<option value="ES256">ES256</option>
+											<option value="ES384">ES384</option>
+											<option value="ES512">ES512</option>
+										</select>
+									</div>
+									<div style={{ marginBottom: '1rem' }}>
+										<label
+											htmlFor="privateKey"
+											style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}
+										>
+											Private Key:
+										</label>
+										<textarea
+											id="privateKey"
+											value={jwtSignature.privateKey}
+											onChange={(e) => handleFieldChange('privateKey', e.target.value)}
+											placeholder="Enter your private key here..."
+											rows={6}
+											style={{
+												width: '100%',
+												padding: '0.5rem',
+												border: '1px solid #d1d5db',
+												borderRadius: '0.25rem',
+												fontFamily: 'monospace',
+												fontSize: '0.875rem',
+											}}
+										/>
+									</div>
+									<div style={{ marginBottom: '1rem' }}>
+										<label
+											htmlFor="publicKey"
+											style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}
+										>
+											Public Key:
+										</label>
+										<textarea
+											id="publicKey"
+											value={jwtSignature.publicKey}
+											onChange={(e) => handleFieldChange('publicKey', e.target.value)}
+											placeholder="Enter your public key here..."
+											rows={6}
+											style={{
+												width: '100%',
+												padding: '0.5rem',
+												border: '1px solid #d1d5db',
+												borderRadius: '0.25rem',
+												fontFamily: 'monospace',
+												fontSize: '0.875rem',
+											}}
+										/>
+									</div>
+								</div>
+							)}
+						</div>
 					</div>
-				</InfoBox>
-
-				<SectionDivider />
-
-				{/* Flow Comparison Table */}
-				{V9OAuthFlowComparisonService.getComparisonTable({
-					highlightFlow: 'jwt',
-					collapsed: false,
-				})}
-
-				<SectionDivider />
-
-				<MainCard>
-					<StepContentWrapper>{renderStepContent}</StepContentWrapper>
-				</MainCard>
-			</ContentWrapper>
-
-			<StepNavigationButtons
-				currentStep={currentStep}
-				totalSteps={STEP_METADATA.length}
-				onPrevious={handlePrev}
-				onNext={handleNext}
-				onReset={handleReset}
-				onStartOver={handleStartOver}
-				canNavigateNext={canNavigateNext()}
-				isFirstStep={currentStep === 0}
-			/>
-
-			<V9ModalPresentationService
-				isOpen={showMissingCredentialsModal}
-				onClose={() => setShowMissingCredentialsModal(false)}
-				title="Credentials required"
-				description={
-					missingCredentialFields.length > 0
-						? `Please provide the following required credential${missingCredentialFields.length > 1 ? 's' : ''} before continuing:`
-						: 'Environment ID and Client ID are required before moving to the next step.'
-				}
-				actions={[
-					{
-						label: 'Back to credentials',
-						onClick: () => setShowMissingCredentialsModal(false),
-						variant: 'primary',
-					},
-				]}
-			>
-				{missingCredentialFields.length > 0 && (
-					<ul style={{ marginTop: '1rem', marginBottom: '1rem', paddingLeft: '1.5rem' }}>
-						{missingCredentialFields.map((field) => (
-							<li key={field} style={{ marginBottom: '0.5rem', fontWeight: 600 }}>
-								{field}
-							</li>
-						))}
-					</ul>
 				)}
-			</V9ModalPresentationService>
 
-			{/* JWT Generation Validation Modal */}
-			<V9ModalPresentationService
-				isOpen={showMissingJWTFieldsModal}
-				onClose={() => setShowMissingJWTFieldsModal(false)}
-				title="JWT Generation Requirements"
-				description={
-					missingJWTFields.length > 0
-						? `Please provide the following required field${missingJWTFields.length > 1 ? 's' : ''} before generating the JWT:`
-						: 'All required fields must be filled to generate a JWT.'
-				}
-				actions={[
-					{
-						label: "OK, I'll fill them in",
-						onClick: () => setShowMissingJWTFieldsModal(false),
-						variant: 'primary',
-					},
-				]}
-			>
-				{missingJWTFields.length > 0 && (
-					<ul style={{ marginTop: '1rem', marginBottom: '1rem', paddingLeft: '1.5rem' }}>
-						{missingJWTFields.map((field) => (
-							<li key={field} style={{ marginBottom: '0.5rem', fontWeight: 600, color: '#d97706' }}>
-								{field}
-							</li>
-						))}
-					</ul>
+				{currentStep === 1 && (
+					<div>
+						{/* JWT Generation */}
+						<div
+							style={{
+								background: '#f8fafc',
+								padding: '1.5rem',
+								borderRadius: '0.5rem',
+								marginBottom: '2rem',
+								border: '1px solid #e2e8f0',
+							}}
+						>
+							<h3 style={{ margin: '0 0 1rem 0' }}>🔧 JWT Generation</h3>
+							<p style={{ color: '#374151', marginBottom: '1rem' }}>
+								Generate a signed JWT assertion for the OAuth 2.0 token request.
+							</p>
+							<div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
+								<button
+									onClick={generateJWT}
+									disabled={isLoading}
+									type="button"
+									style={{
+										padding: '0.75rem 1.5rem',
+										background: isLoading ? '#9ca3af' : '#3b82f6',
+										color: 'white',
+										border: 'none',
+										borderRadius: '0.375rem',
+										cursor: isLoading ? 'not-allowed' : 'pointer',
+										fontWeight: 600,
+									}}
+								>
+									{isLoading ? 'Generating...' : 'Generate JWT'}
+								</button>
+								<button
+									onClick={generateSampleKeys}
+									type="button"
+									style={{
+										padding: '0.75rem 1.5rem',
+										background: '#10b981',
+										color: 'white',
+										border: 'none',
+										borderRadius: '0.375rem',
+										cursor: 'pointer',
+										fontWeight: 600,
+									}}
+								>
+									Generate Sample Keys
+								</button>
+							</div>
+						</div>
+
+						{/* Generated JWT Display */}
+						{generatedJWT && (
+							<div
+								style={{
+									background: '#f0f9ff',
+									padding: '1.5rem',
+									borderRadius: '0.5rem',
+									border: '1px solid #0ea5e9',
+								}}
+							>
+								<h3 style={{ margin: '0 0 1rem 0' }}>🎯 Generated JWT</h3>
+								<div
+									style={{
+										background: '#1e293b',
+										color: '#e2e8f0',
+										padding: '1rem',
+										borderRadius: '0.375rem',
+										fontFamily: 'monospace',
+										fontSize: '0.875rem',
+										wordBreak: 'break-all',
+										marginBottom: '1rem',
+									}}
+								>
+									{generatedJWT}
+								</div>
+								<div style={{ display: 'flex', gap: '1rem' }}>
+									<button
+										onClick={() => handleCopy(generatedJWT)}
+										type="button"
+										style={{
+											padding: '0.5rem 1rem',
+											background: '#0ea5e9',
+											color: 'white',
+											border: 'none',
+											borderRadius: '0.375rem',
+											cursor: 'pointer',
+											fontWeight: 600,
+										}}
+									>
+										Copy JWT
+									</button>
+								</div>
+							</div>
+						)}
+					</div>
 				)}
-			</V9ModalPresentationService>
-		</Container>
+
+				{currentStep === 2 && (
+					<div>
+						{/* Token Request */}
+						<div
+							style={{
+								background: '#f8fafc',
+								padding: '1.5rem',
+								borderRadius: '0.5rem',
+								marginBottom: '2rem',
+								border: '1px solid #e2e8f0',
+							}}
+						>
+							<h3 style={{ margin: '0 0 1rem 0' }}>🚀 Token Request</h3>
+							<p style={{ color: '#374151', marginBottom: '1rem' }}>
+								Send the JWT assertion to the token endpoint to obtain an access token.
+							</p>
+							<div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
+								<button
+									onClick={requestToken}
+									disabled={isLoading || !generatedJWT}
+									type="button"
+									style={{
+										padding: '0.75rem 1.5rem',
+										background: isLoading || !generatedJWT ? '#9ca3af' : '#3b82f6',
+										color: 'white',
+										border: 'none',
+										borderRadius: '0.375rem',
+										cursor: isLoading || !generatedJWT ? 'not-allowed' : 'pointer',
+										fontWeight: 600,
+									}}
+								>
+									{isLoading ? 'Requesting...' : 'Request Access Token'}
+								</button>
+							</div>
+							{!generatedJWT && (
+								<div
+									style={{
+										background: '#fef3c7',
+										padding: '1rem',
+										borderRadius: '0.375rem',
+										border: '1px solid #f59e0b',
+										marginBottom: '1rem',
+									}}
+								>
+									<p style={{ margin: 0, color: '#92400e' }}>
+										⚠️ Please generate a JWT first before requesting an access token.
+									</p>
+								</div>
+							)}
+						</div>
+					</div>
+				)}
+
+				{currentStep === 3 && (
+					<div>
+						{/* Token Response */}
+						<div
+							style={{
+								background: '#f8fafc',
+								padding: '1.5rem',
+								borderRadius: '0.5rem',
+								marginBottom: '2rem',
+								border: '1px solid #e2e8f0',
+							}}
+						>
+							<h3 style={{ margin: '0 0 1rem 0' }}>📋 Token Response</h3>
+							{tokenResponse ? (
+								<div>
+									<p style={{ color: '#374151', marginBottom: '1rem' }}>
+										Successfully obtained access token from the token endpoint.
+									</p>
+									<div
+										style={{
+											background: '#1e293b',
+											color: '#e2e8f0',
+											padding: '1rem',
+											borderRadius: '0.375rem',
+											fontFamily: 'monospace',
+											fontSize: '0.875rem',
+											marginBottom: '1rem',
+										}}
+									>
+										{JSON.stringify(tokenResponse, null, 2)}
+									</div>
+									<div style={{ display: 'flex', gap: '1rem' }}>
+										<button
+											onClick={() => handleCopy(JSON.stringify(tokenResponse, null, 2))}
+											type="button"
+											style={{
+												padding: '0.5rem 1rem',
+												background: '#0ea5e9',
+												color: 'white',
+												border: 'none',
+												borderRadius: '0.375rem',
+												cursor: 'pointer',
+												fontWeight: 600,
+											}}
+										>
+											Copy Response
+										</button>
+									</div>
+								</div>
+							) : (
+								<div
+									style={{
+										background: '#fef3c7',
+										padding: '1rem',
+										borderRadius: '0.375rem',
+										border: '1px solid #f59e0b',
+									}}
+								>
+									<p style={{ margin: 0, color: '#92400e' }}>
+										⚠️ No token response yet. Please complete the token request step first.
+									</p>
+								</div>
+							)}
+						</div>
+					</div>
+				)}
+
+				{currentStep === 4 && (
+					<div>
+						{/* Flow Completion */}
+						<div
+							style={{
+								background: '#f0fdf4',
+								padding: '1.5rem',
+								borderRadius: '0.5rem',
+								marginBottom: '2rem',
+								border: '1px solid #22c55e',
+							}}
+						>
+							<h3 style={{ margin: '0 0 1rem 0', color: '#166534' }}>✅ Flow Completion</h3>
+							<p style={{ color: '#166534', marginBottom: '1rem' }}>
+								Congratulations! You have successfully completed the JWT Bearer Token Flow.
+							</p>
+							<div
+								style={{
+									background: '#f8fafc',
+									padding: '1rem',
+									borderRadius: '0.375rem',
+									marginBottom: '1rem',
+								}}
+							>
+								<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>Summary:</h4>
+								<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#374151' }}>
+									<li>✅ Configured JWT Bearer credentials</li>
+									<li>✅ Generated signed JWT assertion</li>
+									<li>✅ Obtained access token from token endpoint</li>
+									<li>✅ Completed OAuth 2.0 JWT Bearer Token Flow</li>
+								</ul>
+							</div>
+							<p style={{ color: '#166534', margin: 0 }}>
+								Your access token is ready to use for API authentication.
+							</p>
+						</div>
+					</div>
+				)}
+			</div>
+
+			{/* Step Navigation */}
+			<div
+				style={{
+					display: 'flex',
+					justifyContent: 'space-between',
+					marginTop: '2rem',
+					paddingTop: '2rem',
+					borderTop: '1px solid #e5e7eb',
+				}}
+			>
+				<button
+					onClick={goToPreviousStep}
+					disabled={currentStep === 0}
+					type="button"
+					style={{
+						padding: '0.75rem 1.5rem',
+						background: currentStep === 0 ? '#e5e7eb' : '#6b7280',
+						color: 'white',
+						border: 'none',
+						borderRadius: '0.375rem',
+						cursor: currentStep === 0 ? 'not-allowed' : 'pointer',
+						fontWeight: 600,
+					}}
+				>
+					← Previous
+				</button>
+				<div style={{ display: 'flex', gap: '0.5rem' }}>
+					{STEP_METADATA.map((_, index) => (
+						<button
+							key={index}
+							onClick={() => goToStep(index)}
+							type="button"
+							style={{
+								padding: '0.5rem 1rem',
+								background: index === currentStep ? '#3b82f6' : '#e5e7eb',
+								color: index === currentStep ? 'white' : '#6b7280',
+								border: 'none',
+								borderRadius: '0.375rem',
+								cursor: 'pointer',
+								fontWeight: 600,
+								fontSize: '0.875rem',
+							}}
+						>
+							{index + 1}
+						</button>
+					))}
+				</div>
+				<button
+					onClick={goToNextStep}
+					disabled={currentStep === STEP_METADATA.length - 1 || !validateCurrentStep()}
+					type="button"
+					style={{
+						padding: '0.75rem 1.5rem',
+						background:
+							currentStep === STEP_METADATA.length - 1 || !validateCurrentStep()
+								? '#e5e7eb'
+								: '#3b82f6',
+						color: 'white',
+						border: 'none',
+						borderRadius: '0.375rem',
+						cursor:
+							currentStep === STEP_METADATA.length - 1 || !validateCurrentStep()
+								? 'not-allowed'
+								: 'pointer',
+						fontWeight: 600,
+					}}
+				>
+					{currentStep === STEP_METADATA.length - 1 ? 'Complete' : 'Next →'}
+				</button>
+			</div>
+		</div>
 	);
 };
 
-export default JWTBearerTokenFlowV9;
+// Wrapped component with Modern Messaging provider
+const JWTBearerTokenFlowV9WithMessaging: React.FC = () => {
+	return (
+		<V9ModernMessagingProvider>
+			<JWTBearerTokenFlowV9 />
+		</V9ModernMessagingProvider>
+	);
+};
+
+export default JWTBearerTokenFlowV9WithMessaging;

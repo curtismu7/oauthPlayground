@@ -2,15 +2,15 @@
 // V9 Wrapper for FlowHeaderService - Modern Messaging Compliant
 
 import React from 'react';
-import { FlowHeaderService } from '../flowHeaderService';
-// Import Modern Messaging (V8) - established migration pattern
-import { ToastNotificationsV8 as toastV8 } from '../../v8/utils/toastNotificationsV8';
+// Import Modern Messaging (V9) - proper migration to non-toast messaging
+import { modernMessaging } from '../../components/v9/V9ModernMessagingComponents';
+import { FlowHeader, FlowHeaderConfig, getFlowConfig } from '../flowHeaderService';
 
 // V9 Wrapper Component
 export interface V9FlowHeaderProps {
 	flowId?: string;
 	flowType?: string;
-	customConfig?: Partial<FlowHeaderService.FlowHeaderConfig>;
+	customConfig?: Partial<FlowHeaderConfig>;
 }
 
 const V9FlowHeader: React.FC<V9FlowHeaderProps> = (props) => {
@@ -18,7 +18,12 @@ const V9FlowHeader: React.FC<V9FlowHeaderProps> = (props) => {
 	React.useEffect(() => {
 		const configKey = props.flowId || props.flowType;
 		if (!configKey) {
-			toastV8.warning('FlowHeader: No flowId or flowType provided');
+			modernMessaging.showBanner({
+				type: 'warning',
+				title: 'Missing Configuration',
+				message: 'FlowHeader: No flowId or flowType provided',
+				dismissible: true,
+			});
 		}
 	}, [props.flowId, props.flowType]);
 
@@ -26,7 +31,11 @@ const V9FlowHeader: React.FC<V9FlowHeaderProps> = (props) => {
 	try {
 		return <FlowHeader {...props} />;
 	} catch (error) {
-		toastV8.error('Failed to render flow header');
+		modernMessaging.showCriticalError({
+			title: 'Header Render Failed',
+			message: 'Failed to render flow header',
+			contactSupport: false,
+		});
 		console.error('FlowHeader error:', error);
 		return (
 			<div
@@ -49,7 +58,11 @@ export const getV9FlowConfig = (flowId: string): FlowHeaderConfig | null => {
 	try {
 		return getFlowConfig(flowId);
 	} catch (error) {
-		toastV8.error(`Failed to get flow config for ${flowId}`);
+		modernMessaging.showCriticalError({
+			title: 'Flow Config Failed',
+			message: `Failed to get flow config for ${flowId}`,
+			contactSupport: false,
+		});
 		console.error('Get flow config error:', error);
 		return null;
 	}

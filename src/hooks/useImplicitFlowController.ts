@@ -8,6 +8,8 @@ import { ImplicitFlowSharedService } from '../services/implicitFlowSharedService
 import { trackTokenOperation } from '../utils/activityTracker';
 import { getCallbackUrlForFlow } from '../utils/callbackUrls';
 import type { PermanentCredentials } from '../utils/credentialManager';
+import type { OAuthTokenResponse } from '../types/storage';
+import type { OAuthTokens } from '../utils/tokenStorage';
 import { credentialManager } from '../utils/credentialManager';
 import { enhancedDebugger } from '../utils/enhancedDebug';
 import { useFlowStepManager } from '../utils/flowStepSystem';
@@ -254,7 +256,9 @@ export const loadInitialCredentials = (variant: FlowVariant, flowKey?: string): 
 		ca: 'auth.pingone.ca',
 		na: 'auth.pingone.com',
 	};
-	const domain = regionDomains[loaded.region || 'us'] || 'auth.pingone.com';
+	// Add region to credentials if it exists in permanent credentials
+	const region = (loaded as PermanentCredentials & { region?: string | undefined }).region ?? 'us';
+	const domain = regionDomains[region] || 'auth.pingone.com';
 
 	return {
 		environmentId: urlEnv || loaded.environmentId || '',
@@ -265,12 +269,11 @@ export const loadInitialCredentials = (variant: FlowVariant, flowKey?: string): 
 		scopes: mergedScopes,
 		responseType: variant === 'oidc' ? 'id_token token' : 'token',
 		grantType: '',
-		region: loaded.region || 'us',
 		issuerUrl: loaded.environmentId ? `https://${domain}/${loaded.environmentId}` : '',
 		authorizationEndpoint: resolveAuthEndpoint({
 			environmentId: urlEnv || loaded.environmentId || '',
 			authorizationEndpoint: loaded.authEndpoint,
-			region: loaded.region,
+			region: (loaded as PermanentCredentials & { region?: string }).region,
 		} as StepCredentials),
 		userInfoEndpoint:
 			loaded.userInfoEndpoint ||
@@ -341,7 +344,7 @@ export const useImplicitFlowController = (
 	const originalCredentialsRef = useRef<StepCredentials | null>(null);
 	const popupRef = useRef<Window | null>(null);
 
-	useAuthorizationFlowScroll('Implicit Flow V5');
+	useAuthorizationFlowScroll();
 
 	const stepManager = useFlowStepManager({
 		flowType: 'implicit',
@@ -584,11 +587,12 @@ export const useImplicitFlowController = (
 
 				setTokens(tokenData);
 
-				// Store tokens (cast to compatible type)
+			// Store tokens (cast to compatible type)
 				storeOAuthTokens({
 					...tokenData,
 					token_type: tokenData.token_type || 'Bearer',
-				} as any);
+					expires_in: tokenData.expires_in || 3600,
+				} as OAuthTokenResponse as unknown as OAuthTokens);
 
 				saveStepResult('receive-tokens', {
 					...tokenData,
@@ -729,7 +733,7 @@ export const useImplicitFlowController = (
 
 			console.log('📤 [useImplicitFlowController] Saving to credentialManager:', credsToSave);
 			const saveResult = await credentialManager.saveImplicitFlowCredentials(
-				credsToSave as any,
+				credsToSave as Partial<PermanentCredentials>,
 				flowVariant
 			);
 
@@ -739,7 +743,7 @@ export const useImplicitFlowController = (
 
 			// Also save to authz flow credentials for callback compatibility
 			const authzPayload: Partial<PermanentCredentials> = {
-				environmentId: credentials.environmentId,
+				environmentId: credentials.environmentId || '',
 				clientId: credentials.clientId,
 				redirectUri: credentials.redirectUri,
 				scopes: normalizedScopes,
@@ -756,9 +760,11 @@ export const useImplicitFlowController = (
 			if (credentials.userInfoEndpoint) {
 				authzPayload.userInfoEndpoint = credentials.userInfoEndpoint;
 			}
-			if (credentials.tokenEndpointAuthMethod || credentials.authMethod?.value) {
+			if ((credentials as StepCredentials & { tokenEndpointAuthMethod?: string | undefined }).tokenEndpointAuthMethod || 
+				(credentials as StepCredentials & { authMethod?: { value?: string | undefined } }).authMethod?.value) {
 				authzPayload.tokenAuthMethod =
-					credentials.tokenEndpointAuthMethod || credentials.authMethod?.value;
+					(credentials as StepCredentials & { tokenEndpointAuthMethod?: string | undefined }).tokenEndpointAuthMethod || 
+					(credentials as StepCredentials & { authMethod?: { value?: string | undefined } }).authMethod?.value;
 			}
 
 			credentialManager.saveAuthzFlowCredentials(authzPayload);
@@ -817,6 +823,7 @@ export const useImplicitFlowController = (
 	}, [clearStepResults, saveStepResult, stopPopupWatch]);
 
 	// Track credential changes
+	// Track unsaved changes using string comparison for stability
 	useEffect(() => {
 		if (!originalCredentialsRef.current) {
 			originalCredentialsRef.current = credentials;
@@ -826,7 +833,22 @@ export const useImplicitFlowController = (
 		const hasChanges =
 			JSON.stringify(credentials) !== JSON.stringify(originalCredentialsRef.current);
 		setHasUnsavedCredentialChanges(hasChanges);
-	}, [credentials]);
+		// Use specific credential fields instead of the entire object to prevent infinite loops
+	}, [
+		credentials.environmentId,
+		credentials.clientId,
+		credentials.clientSecret,
+		credentials.redirectUri,
+		credentials.scope,
+		credentials.scopes,
+		credentials.responseType,
+		credentials.grantType,
+		credentials.clientAuthMethod,
+		credentials.loginHint,
+		credentials.authorizationEndpoint,
+		credentials.tokenEndpoint,
+		credentials.userInfoEndpoint,
+	]);
 
 	// Load saved credentials on mount
 	useEffect(() => {
@@ -835,7 +857,7 @@ export const useImplicitFlowController = (
 			if (saved.environmentId && saved.clientId) {
 				setHasCredentialsSaved(true);
 			}
-		} catch (_error) {
+		} catch {
 			setHasCredentialsSaved(false);
 		}
 	}, [flowVariant]);
@@ -861,7 +883,6 @@ export const useImplicitFlowController = (
 			credentials.authorizationEndpoint,
 			credentials.tokenEndpoint,
 			credentials.userInfoEndpoint,
-			credentials,
 		]
 	);
 

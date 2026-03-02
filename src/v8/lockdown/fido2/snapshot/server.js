@@ -14800,7 +14800,8 @@ app.post('/api/pingone/mfa/device-authentication-reports', async (req, res) =>
 )
 
 // Get FIDO2 Device Reports
-app.post('/api/pingone/mfa/fido2-device-reports', async (req, res) => {
+app.post('/api/pingone/mfa/fido2-device-reports', async (req, res) =>
+{
 	try {
 		const { environmentId, queryParams, workerToken } = req.body;
 		if (!environmentId || !workerToken) {
@@ -14873,10 +14874,12 @@ app.post('/api/pingone/mfa/fido2-device-reports', async (req, res) => {
 		console.error('[MFA FIDO2 Device Reports] Error:', error);
 		res.status(500).json({ error: 'Failed to get FIDO2 device reports', message: error.message });
 	}
-});
+}
+)
 
 // Initialize Device Authentication (API Server Endpoint - for existing devices)
-app.post('/api/pingone/mfa/initialize-device-authentication', async (req, res) => {
+app.post('/api/pingone/mfa/initialize-device-authentication', async (req, res) =>
+{
 	try {
 		const {
 			environmentId,
@@ -15149,7 +15152,8 @@ app.post('/api/pingone/mfa/initialize-device-authentication', async (req, res) =
 			.status(500)
 			.json({ error: 'Failed to initialize device authentication', message: error.message });
 	}
-});
+}
+)
 
 // ============================================================================
 // OATH TOKEN MANAGEMENT ENDPOINTS
