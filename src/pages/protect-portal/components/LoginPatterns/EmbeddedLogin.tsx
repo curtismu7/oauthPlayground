@@ -8,9 +8,10 @@
  * Authentic embedded login form that matches real Bank of America online banking experience.
  */
 
-import { FiEye, FiEyeOff, FiKey, FiLock, FiShield, FiUser } from '@icons';
+import { FiEye, FiEyeOff, FiKey, FiLock, FiShield } from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { UserSearchDropdownV8 } from '../../../../v8/components/UserSearchDropdownV8';
 import type { CorporatePortalConfig } from '../../types/CorporatePortalConfig';
 
 // ============================================================================
@@ -296,7 +297,8 @@ const HelpLink = styled.a<{ $brandColor: string }>`
 const EmbeddedLogin: React.FC<{
 	onSubmit: (credentials: { username: string; password: string }) => void;
 	config: CorporatePortalConfig;
-}> = ({ onSubmit, config }) => {
+	environmentId: string;
+}> = ({ onSubmit, config, environmentId }) => {
 	const [formData, setFormData] = useState({
 		username: '',
 		password: '',
@@ -319,7 +321,9 @@ const EmbeddedLogin: React.FC<{
 	};
 
 	const handleInputChange = (field: string, value: string | boolean) => {
-		setFormData((prev) => ({ ...prev, [field]: value }));
+		if (field !== 'username') {
+			setFormData((prev) => ({ ...prev, [field]: value }));
+		}
 	};
 
 	return (
@@ -339,19 +343,18 @@ const EmbeddedLogin: React.FC<{
 			<LoginForm onSubmit={handleSubmit}>
 				<InputGroup>
 					<InputLabel htmlFor="username">Online ID</InputLabel>
-					<InputWrapper>
-						<InputIcon>
-							<FiUser size={16} />
-						</InputIcon>
-						<Input
-							id="username"
-							type="text"
-							placeholder="Enter your Online ID"
-							value={formData.username}
-							onChange={(e) => handleInputChange('username', e.target.value)}
-							required
-						/>
-					</InputWrapper>
+					<UserSearchDropdownV8
+						id="username"
+						environmentId={environmentId}
+						value={formData.username}
+						onChange={(username) => {
+							setFormData((prev) => ({ ...prev, username }));
+						}}
+						placeholder="Search for Online ID..."
+						onGetToken={() => {
+							console.log('Worker token required for user search');
+						}}
+					/>
 				</InputGroup>
 
 				<InputGroup>
