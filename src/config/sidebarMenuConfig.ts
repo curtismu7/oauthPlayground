@@ -17,6 +17,7 @@ export interface SidebarMenuItem {
 	id: string;
 	path: string;
 	label: string;
+	migratedToV9?: boolean;
 }
 
 export interface SidebarMenuGroup {
@@ -37,11 +38,12 @@ export function itemIdFromPath(path: string): string {
 }
 
 /** Build items with ids from path/label pairs. */
-function items(entries: Array<[path: string, label: string]>, prefix = ''): SidebarMenuItem[] {
-	return entries.map(([path, label]) => ({
+function items(entries: Array<[path: string, label: string, migratedToV9?: boolean]>, prefix = ''): SidebarMenuItem[] {
+	return entries.map(([path, label, migratedToV9]) => ({
 		id: prefix ? `${prefix}-${itemIdFromPath(path)}` : itemIdFromPath(path),
 		path,
 		label,
+		...(migratedToV9 !== undefined && { migratedToV9 }),
 	}));
 }
 
@@ -87,20 +89,18 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 			['/v8u/token-monitoring', 'Token Monitoring Dashboard'],
 			['/v8u/enhanced-state-management', 'Enhanced State Management (V2)'],
 			['/protect-portal', 'Protect Portal App'],
-			['/flows/token-exchange-v7', 'Token Exchange (V8M)'],
+			['/flows/token-exchange-v9', 'Token Exchange (V9)', true],
 		]),
 	},
 	{
 		id: 'oauth-flows',
 		label: 'OAuth 2.0 Flows',
 		items: items([
-			['/flows/oauth-authorization-code-v9', 'Authorization Code (V9)'],
-			['/flows/oauth-authorization-code-v9-condensed', 'Authorization Code Condensed (V9)'],
-			['/flows/implicit-v9', 'Implicit Flow (V9)'],
-			['/flows/device-authorization-v9', 'Device Authorization (V9)'],
-			['/flows/client-credentials-v9', 'Client Credentials (V9)'],
-			['/flows/oauth-authorization-code-v8', 'Authorization Code (V8)'],
-			['/flows/implicit-v8', 'Implicit Flow (V8)'],
+			['/flows/oauth-authorization-code-v9', 'Authorization Code (V9)', true],
+			['/flows/oauth-authorization-code-v9-condensed', 'Authorization Code Condensed (V9)', true],
+			['/flows/implicit-v9', 'Implicit Flow (V9)', true],
+			['/flows/device-authorization-v9', 'Device Authorization (V9)', true],
+			['/flows/client-credentials-v9', 'Client Credentials (V9)', true],
 			['/flows/dpop-authorization-code-v8', 'DPoP Authorization Code (V8)'],
 		]),
 	},
@@ -108,11 +108,10 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 		id: 'oidc-flows',
 		label: 'OpenID Connect',
 		items: items([
-			['/flows/oauth-authorization-code-v9', 'Authorization Code (V9)'],
-			['/flows/implicit-v9?variant=oidc', 'Implicit Flow (V9)'],
-			['/flows/device-authorization-v9?variant=oidc', 'Device Authorization (V9 – OIDC)'],
-			['/flows/oidc-hybrid-v9', 'Hybrid Flow (V9)'],
-			['/flows/ciba-v9', 'CIBA Flow (V9)'],
+			['/flows/implicit-v9?variant=oidc', 'Implicit Flow (V9)', true],
+			['/flows/device-authorization-v9?variant=oidc', 'Device Authorization (V9 – OIDC)', true],
+			['/flows/oidc-hybrid-v9', 'Hybrid Flow (V9)', true],
+			['/flows/ciba-v9', 'CIBA Flow (V9)', true],
 		]),
 	},
 	{
@@ -174,8 +173,8 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 				label: 'OAuth Mock Flows',
 				items: items(
 					[
-						['/flows/jwt-bearer-token-v9', 'JWT Bearer Token (V9)'],
-						['/flows/saml-bearer-assertion-v9', 'SAML Bearer Assertion (V9)'],
+						['/flows/jwt-bearer-token-v9', 'JWT Bearer Token (V9)', true],
+						['/flows/saml-bearer-assertion-v9', 'SAML Bearer Assertion (V9)', true],
 						['/flows/oauth-ropc-v7', 'Resource Owner Password (V7)'],
 						['/flows/oauth2-resource-owner-password', 'OAuth2 ROPC (Legacy)'],
 						['/flows/mock-oidc-ropc', 'Mock OIDC ROPC'],
@@ -191,7 +190,7 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 				items: items(
 					[
 						['/flows/dpop', 'DPoP (Educational/Mock)'],
-						['/flows/rar-v9', 'RAR Flow (V9)'],
+						['/flows/rar-v9', 'RAR Flow (V9)', true],
 						['/flows/saml-sp-dynamic-acs-v1', 'SAML Service Provider (V1)'],
 					],
 					'advanced-mock'
