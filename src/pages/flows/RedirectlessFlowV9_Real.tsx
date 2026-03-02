@@ -17,6 +17,7 @@ import {
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { UserSearchDropdownV8 } from '../../v8/components/UserSearchDropdownV8';
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
@@ -1190,18 +1191,17 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 									>
 										Username or Email
 									</label>
-									<input
+									<UserSearchDropdownV8
 										id="v9-username-input"
-										type="text"
-										placeholder="Enter your username"
-										style={{
-											width: '100%',
-											padding: '0.75rem',
-											border: '1px solid #d1d5db',
-											borderRadius: '0.5rem',
-											fontSize: '1rem',
+										environmentId={controller.credentials.environmentId || ''}
+										value={loginCredentials.username}
+										onChange={(username) => {
+											setLoginCredentials((prev) => ({ ...prev, username }));
 										}}
-										disabled
+										placeholder="Search for username..."
+										onGetToken={() => {
+											console.log('Worker token required for user search in RedirectlessFlow V9');
+										}}
 									/>
 								</div>
 
