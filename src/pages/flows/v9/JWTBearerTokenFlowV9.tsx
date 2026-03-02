@@ -96,8 +96,6 @@ const saveFlowDataComprehensive = (
 };
 
 import { FlowCompletionConfigs } from '../../../services/flowCompletionService';
-import { OAuthFlowComparisonService } from '../../../services/oauthFlowComparisonService';
-import { oidcDiscoveryService } from '../../../services/oidcDiscoveryService';
 // V9 wrapper services
 import V9ComprehensiveCredentialsService from '../../../services/v9/v9ComprehensiveCredentialsService';
 import V9FlowCompletionService from '../../../services/v9/v9FlowCompletionService';
@@ -106,6 +104,8 @@ import V9FlowHeader from '../../../services/v9/v9FlowHeaderService';
 // Get shared UI components from FlowUIService (to be migrated)
 import V9FlowUIService from '../../../services/v9/v9FlowUIService';
 import V9ModalPresentationService from '../../../services/v9/v9ModalPresentationService';
+import V9OAuthFlowComparisonService from '../../../services/v9/v9OAuthFlowComparisonService';
+import V9OidcDiscoveryService from '../../../services/v9/v9OidcDiscoveryService';
 import V9UnifiedTokenDisplayService from '../../../services/v9/v9UnifiedTokenDisplayService';
 
 // Styled Components
@@ -417,7 +417,7 @@ const JWTBearerTokenFlowV9: React.FC = () => {
 			if (!issuerUrl || issuerUrl.trim() === '') {
 				throw new Error('Issuer URL is required and must be a string');
 			}
-			const result = await oidcDiscoveryService.discover({ issuerUrl: issuerUrl.trim() });
+			const result = await V9OidcDiscoveryService.discover({ issuerUrl: issuerUrl.trim() });
 
 			if (result.document?.issuer) {
 				const discoveredAudience = result.document.issuer;
@@ -1611,7 +1611,7 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 				<SectionDivider />
 
 				{/* Flow Comparison Table */}
-				{OAuthFlowComparisonService.getComparisonTable({
+				{V9OAuthFlowComparisonService.getComparisonTable({
 					highlightFlow: 'jwt',
 					collapsed: false,
 				})}
