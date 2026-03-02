@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en" data-company="__COMPANY__">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Portal (Mock)</title>
+  <link rel="stylesheet" href="__SHARED__theme.css" />
+</head>
+<body>
+  <header class="header">
+    <div class="container header__inner">
+      <div class="brand">
+        <span class="logo" data-logo></span>
+      </div>
+
+      <nav class="nav" aria-label="Primary">
+        <a href="#flights">Flights</a>
+        <a href="#hotels">Hotels</a>
+        <a href="#help">Help</a>
+        <a href="#support">Support</a>
+        <button class="btn btn-outline" data-open-login type="button">Log in</button>
+        <select class="select" data-company-select aria-label="Company"></select>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero__grid">
+        <div>
+          <h1 class="hero__title" data-hero-title>Welcome</h1>
+          <p class="hero__sub" data-hero-sub></p>
+
+          <div class="actions">
+            <button class="btn btn-primary" type="button">Search</button>
+            <button class="btn btn-outline" type="button">Manage trips</button>
+            <button class="btn btn-outline" type="button">Check in</button>
+          </div>
+        </div>
+
+        <aside class="card" aria-label="Deal">
+          <div class="card__pad">
+            <div class="small">Featured</div>
+            <h2 style="margin:6px 0 6px; font-size:18px; letter-spacing:-.01em;">Member-only offers</h2>
+            <p class="small" style="margin:0 0 12px;">Log in to view personalized deals and saved travelers.</p>
+            <button class="btn btn-primary" data-open-login type="button">Sign in</button>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="container portal-grid" aria-label="Search">
+      <div class="panel">
+        <div class="tabs" role="tablist" aria-label="Booking">
+          <button class="tab" aria-selected="true" type="button">Book</button>
+          <button class="tab" aria-selected="false" type="button">My trips</button>
+          <button class="tab" aria-selected="false" type="button">Status</button>
+        </div>
+        <div class="panel__body">
+          <div class="two-col">
+            <div>
+              <label class="small" for="from" style="display:block;margin-bottom:6px;">From</label>
+              <input id="from" class="input" placeholder="City or airport" />
+            </div>
+            <div>
+              <label class="small" for="to" style="display:block;margin-bottom:6px;">To</label>
+              <input id="to" class="input" placeholder="City or airport" />
+            </div>
+            <div>
+              <label class="small" for="depart" style="display:block;margin-bottom:6px;">Depart</label>
+              <input id="depart" class="input" placeholder="MM/DD" />
+            </div>
+            <div>
+              <label class="small" for="return" style="display:block;margin-bottom:6px;">Return</label>
+              <input id="return" class="input" placeholder="MM/DD" />
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn btn-primary" type="button">Search flights</button>
+            <button class="btn btn-outline" type="button">Add travelers</button>
+            <button class="btn btn-outline" type="button">Advanced search</button>
+          </div>
+
+          <p class="small" style="margin:12px 0 0;">This is a UI mock used for product demos/testing.</p>
+        </div>
+      </div>
+
+      <aside class="panel">
+        <div class="panel__head">Quick links</div>
+        <div class="panel__body">
+          <div class="small" style="margin-bottom:10px;">Account</div>
+          <div style="display:grid; gap:10px;">
+            <a href="#" data-open-login>Sign in</a>
+            <a href="#">Create account</a>
+            <a href="#">Forgot username/password</a>
+          </div>
+
+          <hr style="border:0;border-top:1px solid rgba(0,0,0,.06);margin:16px 0" />
+
+          <div class="small" style="margin-bottom:10px;">Travel tools</div>
+          <div style="display:grid; gap:10px;">
+            <a href="#">Flight status</a>
+            <a href="#">Baggage</a>
+            <a href="#">Check-in</a>
+          </div>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      © __YEAR__ Demo portal. Not affiliated with the referenced brand.
+    </div>
+  </footer>
+
+  <div class="scrim" aria-hidden="true"></div>
+  <section class="modal" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Log in">
+    <div class="modal__bar">
+      <div class="logo" data-logo></div>
+      <button class="close" type="button" data-close-login aria-label="Close">
+        <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="modal__body">
+      <h2 class="modal__title" data-login-title>Log in</h2>
+      <form class="form" action="#" method="post">
+        <label for="username">Username / Account</label>
+        <input id="username" class="input" autocomplete="username" />
+        <label for="password">Password</label>
+        <input id="password" class="input" type="password" autocomplete="current-password" />
+        <div class="form__row">
+          <label style="display:flex;align-items:center;gap:8px;font-weight:800;font-size:13px;">
+            <input type="checkbox" /> Remember me
+          </label>
+          <a class="small" href="#">Forgot?</a>
+        </div>
+        <div class="actions" style="margin-top:14px;">
+          <button class="btn btn-primary" type="submit">Log in</button>
+          <button class="btn btn-outline" type="button">Create account</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <script src="__SHARED__app.js"></script>
+</body>
+</html>

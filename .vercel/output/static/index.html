@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PingOne OAuth 2.0 & OIDC Playground</title>
+  
+  <!-- Prevent autofill and extension noise -->
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="autocomplete" content="off">
+  <meta name="autofill" content="off">
+  
+  <!-- Disable password managers and autofill extensions -->
+  <meta name="password-manager" content="disabled">
+  <meta name="bitwarden" content="disabled">
+  <meta name="1password" content="disabled">
+  <meta name="lastpass" content="disabled">
+  <meta name="dashlane" content="disabled">
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  
+  <style>
+    /* Immediate spinner background - prevents white screen flash */
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: none; /* Force transparent background */
+      background-color: transparent;
+    }
+    
+    #root {
+      width: 100%;
+      height: 100%;
+    }
+    
+    /* Prevent autofill styling and extension noise */
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus,
+    input:-webkit-autofill:active {
+      -webkit-box-shadow: 0 0 0 30px white inset;
+      -webkit-text-fill-color: inherit;
+    }
+    
+    /* Hide autofill icons and suggestions */
+    input::-webkit-credentials-auto-fill-button {
+      display: none;
+    }
+    
+    /* Prevent extension overlays */
+    [data-bitwarden-watching] {
+      display: none;
+    }
+    
+    /* Disable autofill on all inputs */
+    input, textarea, select {
+      autocomplete: off;
+      data-form-type: other;
+    }
+  </style>
+  <script type="module" crossorigin src="/assets/index-5qlVH-9F.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/vendor-CvVeuJe7.js">
+  <link rel="modulepreload" crossorigin href="/assets/react-vendor-HWZo9XlX.js">
+  <link rel="modulepreload" crossorigin href="/assets/styled-vendor-DGSsHzxd.js">
+  <link rel="modulepreload" crossorigin href="/assets/v8-utils-BU6AoW1l.js">
+  <link rel="modulepreload" crossorigin href="/assets/components-token-uXxDPBqK.js">
+  <link rel="modulepreload" crossorigin href="/assets/components-oauth-authorize-sao_-EgS.js">
+  <link rel="modulepreload" crossorigin href="/assets/components-oauth-discovery-DYbdhNwI.js">
+  <link rel="modulepreload" crossorigin href="/assets/components-oauth-par-B-NhQsyD.js">
+  <link rel="modulepreload" crossorigin href="/assets/oauth-flows-implicit-BlAJpg9o.js">
+  <link rel="modulepreload" crossorigin href="/assets/pages-docs-nYnYMLbe.js">
+  <link rel="modulepreload" crossorigin href="/assets/oauth-flows-par-DTJ0aZ64.js">
+  <link rel="modulepreload" crossorigin href="/assets/components-steps-BQ6HbS5x.js">
+  <link rel="modulepreload" crossorigin href="/assets/components-flow-BH3Bx-YA.js">
+  <link rel="modulepreload" crossorigin href="/assets/oauth-flows-BoQiEZ27.js">
+  <link rel="modulepreload" crossorigin href="/assets/oauth-flows-authcode-ltS0AxHA.js">
+  <link rel="modulepreload" crossorigin href="/assets/pages-pingone-BLdy8FiO.js">
+  <link rel="modulepreload" crossorigin href="/assets/components-ui-DbX9aVva.js">
+  <link rel="modulepreload" crossorigin href="/assets/pages-DE-6TDOE.js">
+  <link rel="modulepreload" crossorigin href="/assets/pages-ai-D2KhTcan.js">
+  <link rel="modulepreload" crossorigin href="/assets/components-oauth-client-BhjYl9xl.js">
+  <link rel="modulepreload" crossorigin href="/assets/oauth-flows-device-CMULWbHZ.js">
+  <link rel="modulepreload" crossorigin href="/assets/components-flow-core-y1x-SJYd.js">
+  <link rel="modulepreload" crossorigin href="/assets/v8u-components-COnDGHJS.js">
+  <link rel="modulepreload" crossorigin href="/assets/v8-hooks-B7CjPGrP.js">
+  <link rel="modulepreload" crossorigin href="/assets/v8-flows-CbgB_G0p.js">
+  <link rel="modulepreload" crossorigin href="/assets/v8-components-8swtZwHb.js">
+  <link rel="modulepreload" crossorigin href="/assets/v8-services-DHsPM8a2.js">
+  <link rel="modulepreload" crossorigin href="/assets/v8u-services-CviCpCEt.js">
+  <link rel="modulepreload" crossorigin href="/assets/components-oauth-qq-maH2w.js">
+  <link rel="modulepreload" crossorigin href="/assets/components-credentials-T7jmF3zx.js">
+  <link rel="modulepreload" crossorigin href="/assets/utils-lzKqcxFi.js">
+  <link rel="modulepreload" crossorigin href="/assets/pages-oauth-BFK4NAhI.js">
+  <link rel="modulepreload" crossorigin href="/assets/oauth-flows-token-D--ffiwQ.js">
+  <link rel="modulepreload" crossorigin href="/assets/oauth-flows-jwt-lPhKTkSD.js">
+  <link rel="modulepreload" crossorigin href="/assets/oauth-flows-userinfo-09E7sYS1.js">
+  <link rel="modulepreload" crossorigin href="/assets/pages-token-Do7n_76G.js">
+  <link rel="modulepreload" crossorigin href="/assets/pages-learn-BO-sUMQC.js">
+  <link rel="modulepreload" crossorigin href="/assets/components-password-reset-BIeiPLwA.js">
+  <link rel="modulepreload" crossorigin href="/assets/pages-security-CBr7neb4.js">
+  <link rel="stylesheet" crossorigin href="/assets/vendor-54DrP_uy.css">
+  <link rel="stylesheet" crossorigin href="/assets/components-flow-core-DEegsKK7.css">
+  <link rel="stylesheet" crossorigin href="/assets/v8-flows-Bwbl_h2s.css">
+  <link rel="stylesheet" crossorigin href="/assets/index-SYBLrViu.css">
+<link rel="manifest" href="/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/registerSW.js"></script></head>
+<body>
+  <!-- Modal spinner - shows before React loads to prevent white screen -->
+  <div id="initial-spinner" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; z-index: 99999; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; backdrop-filter: blur(4px);">
+    <div style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); padding: 2rem 3rem; border-radius: 1rem; text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); border: 1px solid #e5e7eb; max-width: 400px; width: 90%;">
+      <div style="font-size: 48px; margin-bottom: 16px; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));">🔐</div>
+      <h1 style="color: #1f2937; font-size: 24px; font-weight: 600; margin: 0 0 8px 0;">OAuth Playground</h1>
+      <p style="color: #6b7280; font-size: 14px; margin: 0 0 24px 0;">Initializing application...</p>
+      <div style="display: flex; justify-content: center;">
+        <div style="width: 40px; height: 40px; border: 4px solid #e5e7eb; border-top-color: #3b82f6; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+      </div>
+    </div>
+  </div>
+  <style>
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+  <div id="root"></div>
+  <script>
+    // Capture OAuth callback code immediately on page load (before React mounts)
+    (() => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code');
+      const state = urlParams.get('state');
+      const error = urlParams.get('error');
+      const hasUserLoginState = sessionStorage.getItem('user_login_state_v8');
+      const mfaOAuthCallbackReturn = sessionStorage.getItem('mfa_oauth_callback_return');
+      
+      if (code || error) {
+        // Analytics logging disabled - server not running
+        // Uncomment below if analytics server at 127.0.0.1:7242 is available
+        /*
+        fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            location: 'index.html:inline-script',
+            message: 'OAuth callback detected on page load (before React)',
+            data: {
+              hasCode: !!code,
+              hasError: !!error,
+              hasState: !!state,
+              hasUserLoginState: !!hasUserLoginState,
+              mfaOAuthCallbackReturn,
+              pathname: window.location.pathname,
+              fullUrl: window.location.href,
+              search: window.location.search
+            },
+            timestamp: Date.now(),
+            sessionId: 'debug-session',
+            runId: 'run3',
+            hypothesisId: 'F'
+          })
+        }).catch(() => {});
+        */
+      }
+    })();
+  </script>
+  <script>
+    // Remove initial spinner once React has loaded
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const spinner = document.getElementById('initial-spinner');
+        if (spinner) {
+          spinner.style.opacity = '0';
+          spinner.style.transition = 'opacity 0.3s ease-out';
+          setTimeout(() => {
+            spinner.remove();
+          }, 300);
+        }
+      }, 100);
+    });
+  </script>
+  
+  <script>
+    // Disable autofill and extension noise
+    document.addEventListener('DOMContentLoaded', () => {
+      // Disable autofill on all form elements
+      const inputs = document.querySelectorAll('input, textarea, select');
+      inputs.forEach(input => {
+        input.setAttribute('autocomplete', 'off');
+        input.setAttribute('data-form-type', 'other');
+        input.setAttribute('data-lpignore', 'true');
+        input.setAttribute('data-1p-ignore', 'true');
+        input.setAttribute('data-bwignore', 'true');
+      });
+      
+      // Prevent extension injection
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if (mutation.type === 'childList') {
+            mutation.addedNodes.forEach((node) => {
+              if (node.nodeType === 1) { // Element node
+                // Remove extension overlays
+                if (node.hasAttribute && (
+                  node.hasAttribute('data-bitwarden-watching') ||
+                  node.hasAttribute('data-1password') ||
+                  node.hasAttribute('data-lastpass') ||
+                  node.hasAttribute('data-dashlane')
+                )) {
+                  node.remove();
+                }
+              }
+            });
+          }
+        });
+      });
+      
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true
+      });
+    });
+  </script>
+</body>
+</html>
+

@@ -2,7 +2,8 @@
 // V9 Wrapper for UnifiedTokenDisplayService - Modern Messaging Compliant
 
 import { UnifiedTokenDisplayService } from '../unifiedTokenDisplayService';
-import { v9MessagingService } from './V9MessagingService';
+// Import Modern Messaging (V8) - established migration pattern
+import { ToastNotificationsV8 as toastV8 } from '../../v8/utils/toastNotificationsV8';
 
 // TokenResponse interface (copied from original for type safety)
 interface TokenResponse {
@@ -35,7 +36,7 @@ const V9UnifiedTokenDisplayService = {
 			// Add V9-specific error boundary wrapper
 			return <div data-v9-token-display={flowKey}>{result}</div>;
 		} catch (error) {
-			v9MessagingService.showError('Failed to display tokens');
+			toastV8.error('Failed to display tokens');
 			console.error('Token display error:', error);
 
 			// Return fallback error display
@@ -65,18 +66,18 @@ const V9UnifiedTokenDisplayService = {
 	validateTokenDisplay(tokens: unknown): boolean {
 		try {
 			if (!tokens) {
-				v9MessagingService.showWarning('No tokens to display');
+				toastV8.warning('No tokens to display');
 				return false;
 			}
 
 			if (typeof tokens !== 'object') {
-				v9MessagingService.showError('Invalid token format');
+				toastV8.error('Invalid token format');
 				return false;
 			}
 
 			return true;
 		} catch (error) {
-			v9MessagingService.showError('Token validation failed');
+			toastV8.error('Token validation failed');
 			console.error('Token validation error:', error);
 			return false;
 		}
