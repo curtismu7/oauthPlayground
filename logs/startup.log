@@ -1,0 +1,156 @@
+=== MasterFlow API Startup - Wed Feb 25 10:58:50 CST 2026 ===
+Script: /Users/cmuir/P1Import-apps/oauth-playground/scripts/development/run.sh
+Arguments: 
+Working Directory: /Users/cmuir/P1Import-apps/oauth-playground
+
+[10:58:50] 🚀 Starting MasterFlow API startup sequence
+[10:58:50] 📁 Changed to project directory: /Users/cmuir/P1Import-apps/oauth-playground
+[10:58:51] ✅ Requirements check completed
+[10:58:55] 🌐 Custom domain setup completed
+[10:58:55] 🔒 Lockdown verification completed
+[10:59:01] 🧹 Existing servers terminated
+[10:59:02] 🔧 Backend server started
+=== MasterFlow API Startup - Wed Feb 25 11:57:33 CST 2026 ===
+Script: /Users/cmuir/P1Import-apps/oauth-playground/scripts/development/run.sh
+Arguments: 
+Working Directory: /Users/cmuir/P1Import-apps/oauth-playground
+
+[11:57:33] 🚀 Starting MasterFlow API startup sequence
+[11:57:33] 📁 Changed to project directory: /Users/cmuir/P1Import-apps/oauth-playground
+[11:57:34] ✅ Requirements check completed
+[11:57:36] 🌐 Custom domain setup completed
+[11:57:36] 🔒 Lockdown verification completed
+[11:57:41] 🧹 Existing servers terminated
+[11:57:43] 🔧 Backend server started
+[11:57:47] 🌐 Frontend server started
+[11:57:48] ✅ Health checks completed
+[11:57:48] 🎉 MasterFlow API startup completed successfully!
+[11:57:48] 📊 Overall Status: success
+=== Startup Complete ===
+
+=== MasterFlow API Startup - Wed Feb 25 14:03:50 CST 2026 ===
+Script: /Users/cmuir/P1Import-apps/oauth-playground/scripts/development/run.sh
+Arguments: 
+Working Directory: /Users/cmuir/P1Import-apps/oauth-playground
+
+[14:03:50] 🚀 Starting MasterFlow API startup sequence
+[14:03:50] 📁 Changed to project directory: /Users/cmuir/P1Import-apps/oauth-playground
+[14:03:51] ✅ Requirements check completed
+[14:04:00] 🌐 Custom domain setup completed
+[14:04:00] 🔒 Lockdown verification completed
+[14:04:03] 🧹 Existing servers terminated
+[14:04:05] 🔧 Backend server started
+[14:04:08] 🌐 Frontend server started
+[14:04:09] ✅ Health checks completed
+[14:04:09] 🎉 MasterFlow API startup completed successfully!
+[14:04:09] 📊 Overall Status: success
+=== Startup Complete ===
+
+=== MasterFlow API Startup - Wed Feb 25 14:19:43 CST 2026 ===
+Script: /Users/cmuir/P1Import-apps/oauth-playground/scripts/development/run.sh
+Arguments: 
+Working Directory: /Users/cmuir/P1Import-apps/oauth-playground
+
+[14:19:43] 🚀 Starting MasterFlow API startup sequence
+[14:19:43] 📁 Changed to project directory: /Users/cmuir/P1Import-apps/oauth-playground
+[14:19:43] ✅ Requirements check completed
+[14:20:46] 🌐 Custom domain setup completed
+[14:20:46] 🔒 Lockdown verification completed
+[14:20:51] 🧹 Existing servers terminated
+[14:20:52] 🔧 Backend server started
+[14:20:55] 🌐 Frontend server started
+[14:20:56] ✅ Health checks completed
+[14:20:56] 🎉 MasterFlow API startup completed successfully!
+[14:20:56] 📊 Overall Status: success
+=== Startup Complete ===
+
+=== MasterFlow API Startup - Wed Feb 25 15:21:25 CST 2026 ===
+Script: /Users/cmuir/P1Import-apps/oauth-playground/scripts/development/run.sh
+Arguments: 
+Working Directory: /Users/cmuir/P1Import-apps/oauth-playground
+
+[15:21:25] 🚀 Starting MasterFlow API startup sequence
+[15:21:25] 📁 Changed to project directory: /Users/cmuir/P1Import-apps/oauth-playground
+[15:21:26] ✅ Requirements check completed
+[15:21:27] 🌐 Custom domain setup completed
+[15:21:27] 🔒 Lockdown verification completed
+[15:21:32] 🧹 Existing servers terminated
+[15:21:33] 🔧 Backend server started
+[15:21:36] 🌐 Frontend server started
+[15:21:36] ✅ Health checks completed
+[15:21:36] 🎉 MasterFlow API startup completed successfully!
+[15:21:37] 📊 Overall Status: success
+=== Startup Complete ===
+
+=== MasterFlow API Startup - Wed Feb 25 15:53:16 CST 2026 ===
+Script: /Users/cmuir/P1Import-apps/oauth-playground/scripts/development/run.sh
+Arguments: 
+Working Directory: /Users/cmuir/P1Import-apps/oauth-playground
+
+[15:53:16] 🚀 Starting MasterFlow API startup sequence
+[15:53:16] 📁 Changed to project directory: /Users/cmuir/P1Import-apps/oauth-playground
+[15:53:16] ✅ Requirements check completed
+[15:53:17] 🌐 Custom domain setup completed
+[15:53:17] 🔒 Lockdown verification completed
+[15:53:20] 🧹 Existing servers terminated
+[15:53:22] 🔧 Backend server started
+[15:53:26] 🌐 Frontend server started
+[15:53:27] ✅ Health checks completed
+[15:53:27] 🎉 MasterFlow API startup completed successfully!
+[15:53:27] 📊 Overall Status: success
+=== Startup Complete ===
+
+=== MasterFlow API Startup - Wed Feb 25 15:55:05 CST 2026 ===
+Script: /Users/cmuir/P1Import-apps/oauth-playground/scripts/development/run.sh
+Arguments: 
+Working Directory: /Users/cmuir/P1Import-apps/oauth-playground
+
+[15:55:05] 🚀 Starting MasterFlow API startup sequence
+[15:55:05] 📁 Changed to project directory: /Users/cmuir/P1Import-apps/oauth-playground
+[15:55:06] ✅ Requirements check completed
+[15:55:06] 🌐 Custom domain setup completed
+[15:55:06] 🔒 Lockdown verification completed
+[15:55:11] 🧹 Existing servers terminated
+[15:55:12] 🔧 Backend server started
+[15:55:15] 🌐 Frontend server started
+[15:55:16] ✅ Health checks completed
+[15:55:16] 🎉 MasterFlow API startup completed successfully!
+[15:55:16] 📊 Overall Status: success
+=== Startup Complete ===
+
+=== MasterFlow API Startup - Wed Feb 25 22:14:24 CST 2026 ===
+Script: /Users/cmuir/P1Import-apps/oauth-playground/scripts/development/run.sh
+Arguments: 
+Working Directory: /Users/cmuir/P1Import-apps/oauth-playground
+
+[22:14:25] 🚀 Starting MasterFlow API startup sequence
+[22:14:25] 📁 Changed to project directory: /Users/cmuir/P1Import-apps/oauth-playground
+[22:14:25] ✅ Requirements check completed
+[22:14:26] 🌐 Custom domain setup completed
+[22:14:26] 🔒 Lockdown verification completed
+[22:14:31] 🧹 Existing servers terminated
+[22:14:32] 🔧 Backend server started
+[22:14:37] 🌐 Frontend server started
+[22:14:38] ✅ Health checks completed
+[22:14:39] 🎉 MasterFlow API startup completed successfully!
+[22:14:39] 📊 Overall Status: success
+=== Startup Complete ===
+
+=== MasterFlow API Startup - Wed Feb 25 22:16:22 CST 2026 ===
+Script: /Users/cmuir/P1Import-apps/oauth-playground/scripts/development/run.sh
+Arguments: 
+Working Directory: /Users/cmuir/P1Import-apps/oauth-playground
+
+[22:16:22] 🚀 Starting MasterFlow API startup sequence
+[22:16:22] 📁 Changed to project directory: /Users/cmuir/P1Import-apps/oauth-playground
+[22:16:23] ✅ Requirements check completed
+[22:16:26] 🌐 Custom domain setup completed
+[22:16:26] 🔒 Lockdown verification completed
+[22:16:31] 🧹 Existing servers terminated
+[22:16:32] 🔧 Backend server started
+[22:16:37] 🌐 Frontend server started
+[22:16:38] ✅ Health checks completed
+[22:16:38] 🎉 MasterFlow API startup completed successfully!
+[22:16:38] 📊 Overall Status: success
+=== Startup Complete ===
+
