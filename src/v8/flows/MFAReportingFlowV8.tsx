@@ -21,8 +21,8 @@ import React, { useEffect, useState } from 'react';
 import { usePageScroll } from '@/hooks/usePageScroll';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
-import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
+import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
@@ -586,6 +586,7 @@ export const MFAReportingFlowV8: React.FC = () => {
 					>
 						<div>
 							<label
+								htmlFor="environment-id-input"
 								style={{
 									display: 'block',
 									fontSize: '14px',
@@ -597,6 +598,7 @@ export const MFAReportingFlowV8: React.FC = () => {
 								Environment ID <span style={{ color: '#dc2626' }}>*</span>
 							</label>
 							<input
+								id="environment-id-input"
 								type="text"
 								value={credentials.environmentId}
 								onChange={(e) =>
