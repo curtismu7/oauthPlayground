@@ -6,11 +6,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Icon } from '../components/Icon/Icon';
 import { useServerStatus } from '../components/ServerStatusProvider';
-import {
-	checkWorkerTokenStatusSync,
-	type TokenStatusInfo,
-} from '../v8/services/workerTokenStatusServiceV8';
-import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
 import { useNotifications } from '../contexts/NotificationSystem';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import {
@@ -20,6 +15,11 @@ import {
 	saveCustomDomain,
 } from '../services/customDomainService';
 import { WorkerTokenModalV8 } from '../v8/components/WorkerTokenModalV8';
+import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
+import {
+	checkWorkerTokenStatusSync,
+	type TokenStatusInfo,
+} from '../v8/services/workerTokenStatusServiceV8';
 import { handleShowWorkerTokenModal } from '../v8/utils/workerTokenModalHelperV8';
 import '../styles/dashboard.css';
 
@@ -317,11 +317,11 @@ export default function CustomDomainTestPage() {
 							</div>
 
 							{/* Environment ID */}
-							<div className="d-flex flex-column gap-1" style={{ flex: 1, minWidth: '220px', maxWidth: '380px' }}>
-								<label
-									htmlFor="top-env-id"
-									className="text-small fw-600 text-muted mb-0"
-								>
+							<div
+								className="d-flex flex-column gap-1"
+								style={{ flex: 1, minWidth: '220px', maxWidth: '380px' }}
+							>
+								<label htmlFor="top-env-id" className="text-small fw-600 text-muted mb-0">
 									Environment ID
 								</label>
 								<input
@@ -338,10 +338,7 @@ export default function CustomDomainTestPage() {
 
 							{/* Worker token (masked) */}
 							<div className="d-flex flex-column gap-1" style={{ flex: 2, minWidth: '260px' }}>
-								<label
-									htmlFor="top-access-token"
-									className="text-small fw-600 text-muted mb-0"
-								>
+								<label htmlFor="top-access-token" className="text-small fw-600 text-muted mb-0">
 									Worker Token (Bearer)
 								</label>
 								<input

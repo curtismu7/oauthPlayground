@@ -19,10 +19,10 @@ import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { readBestEnvironmentId } from '../../hooks/useAutoEnvironmentId';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
+import type { StepCredentials } from '../../services/flowCredentialService';
+import { V9FlowCredentialService } from '../../services/v9/core/V9FlowCredentialService';
 // Import V9 services for migration
 import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { V9FlowCredentialService } from '../../services/v9/core/V9FlowCredentialService';
-import type { StepCredentials } from '../../services/flowCredentialService';
 
 // Built-in copy function to replace CopyButtonService
 const copyToClipboard = async (text: string): Promise<void> => {
@@ -41,47 +41,58 @@ const checkMissingFields = (
 	options: { requiredFields: string[]; fieldLabels: Record<string, string> }
 ) => {
 	const missingFields: string[] = [];
-	
+
 	for (const field of options.requiredFields) {
-		if (!credentials[field] || (typeof credentials[field] === 'string' && credentials[field].trim() === '')) {
+		if (
+			!credentials[field] ||
+			(typeof credentials[field] === 'string' && credentials[field].trim() === '')
+		) {
 			missingFields.push(options.fieldLabels[field] || field);
 		}
 	}
-	
+
 	return {
 		missingFields,
-		canProceed: missingFields.length === 0
+		canProceed: missingFields.length === 0,
 	};
 };
 
 // Wrapper functions to replace comprehensiveFlowDataService using V9FlowCredentialService
-const loadFlowDataComprehensive = (options: { flowKey: string; useSharedEnvironment?: boolean; useSharedDiscovery?: boolean }) => {
+const loadFlowDataComprehensive = (_options: {
+	flowKey: string;
+	useSharedEnvironment?: boolean;
+	useSharedDiscovery?: boolean;
+}) => {
 	const v9Credentials = V9FlowCredentialService.load();
-	
+
 	return {
 		flowCredentials: {
 			clientId: v9Credentials.clientId,
 			scopes: v9Credentials.scopes,
 		},
-		sharedEnvironment: v9Credentials.environmentId ? {
-			environmentId: v9Credentials.environmentId,
-			region: 'us',
-			issuerUrl: `https://auth.pingone.com/${v9Credentials.environmentId}`,
-		} : undefined,
+		sharedEnvironment: v9Credentials.environmentId
+			? {
+					environmentId: v9Credentials.environmentId,
+					region: 'us',
+					issuerUrl: `https://auth.pingone.com/${v9Credentials.environmentId}`,
+				}
+			: undefined,
 		sharedDiscovery: undefined, // V9 doesn't have discovery storage yet
 	};
 };
 
-const saveFlowDataComprehensive = (flowKey: string, data: any) => {
+const saveFlowDataComprehensive = (_flowKey: string, data: any) => {
 	const v9Data: any = {};
-	
+
 	if (data.flowCredentials?.clientId) v9Data.clientId = data.flowCredentials.clientId;
 	if (data.flowCredentials?.scopes) v9Data.scopes = data.flowCredentials.scopes;
-	if (data.sharedEnvironment?.environmentId) v9Data.environmentId = data.sharedEnvironment.environmentId;
-	
+	if (data.sharedEnvironment?.environmentId)
+		v9Data.environmentId = data.sharedEnvironment.environmentId;
+
 	V9FlowCredentialService.save(v9Data);
 	return true;
 };
+
 // Import V6 service architecture components (to be migrated)
 import { FlowHeader } from '../../services/flowHeaderService';
 // Get shared UI components from FlowUIService (to be migrated)
@@ -734,7 +745,9 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 			console.warn('[JWTBearerTokenFlowV6] Failed to clear cache data:', error);
 		}
 
-		v4ToastManager.showSuccess('Flow restarted - Tokens, JWT, and cache cleared. Credentials preserved.');
+		v4ToastManager.showSuccess(
+			'Flow restarted - Tokens, JWT, and cache cleared. Credentials preserved.'
+		);
 	}, []);
 
 	const canNavigateNext = useCallback((): boolean => {
@@ -1469,19 +1482,13 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 
 											<div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
 												<Button
-													onClick={() =>
-														copyToClipboard(tokenResponse.access_token)
-													}
+													onClick={() => copyToClipboard(tokenResponse.access_token)}
 													$variant="secondary"
 												>
 													<FiCopy /> Copy Access Token
 												</Button>
 												<Button
-													onClick={() =>
-														copyToClipboard(
-															JSON.stringify(tokenResponse, null, 2)
-														)
-													}
+													onClick={() => copyToClipboard(JSON.stringify(tokenResponse, null, 2))}
 													$variant="secondary"
 												>
 													<FiCopy /> Copy Full Response
@@ -1539,23 +1546,6 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 		generateSampleKeyPair,
 		isDiscoveringAudience,
 		saveCredentials,
-		CollapsibleContent,
-		CollapsibleHeaderButton,
-		CollapsibleSection,
-		CollapsibleTitle,
-		CollapsibleToggleIcon,
-		FormGroup,
-		GeneratedContentBox,
-		HelperText,
-		InfoBox,
-		InfoText,
-		InfoTitle,
-		Input,
-		Label,
-		ParameterGrid,
-		ParameterLabel,
-		ParameterValue,
-		Textarea,
 	]);
 
 	// Main render

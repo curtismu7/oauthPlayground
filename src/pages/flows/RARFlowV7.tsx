@@ -300,7 +300,7 @@ const RARFlowV7: React.FC = () => {
 			}
 		},
 		// biome-ignore lint/correctness/useExhaustiveDependencies: rarExamples is stable
-		[rarExamples]
+		[]
 	);
 
 	// Load credentials on mount
@@ -1492,8 +1492,6 @@ const RARFlowV7: React.FC = () => {
 		applyRarExample,
 		saveCredentials,
 		selectedExample,
-		// biome-ignore lint/correctness/useExhaustiveDependencies: rarExamples is stable
-		rarExamples,
 	]);
 
 	// Main render

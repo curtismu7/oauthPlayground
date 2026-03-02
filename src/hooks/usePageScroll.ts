@@ -17,7 +17,7 @@ export interface PageScrollOptions {
  * UNIVERSAL: Use this on ALL pages for consistent behavior
  */
 export const usePageScroll = (options: PageScrollOptions = {}) => {
-	const { pageName, force = true, delay = 0 } = options; // Default force = true
+	const { force = true, delay = 0 } = options; // Default force = true
 
 	useEffect(() => {
 		// Immediate scroll
@@ -54,7 +54,7 @@ export const usePageScroll = (options: PageScrollOptions = {}) => {
  * Hook specifically for Authorization flow pages
  * Always returns to top after any action
  */
-export const useAuthorizationFlowScroll = (_flowName: string) => {
+export const useAuthorizationFlowScroll = () => {
 	useEffect(() => {
 		scrollToTop({ force: true, delay: 100 });
 	}, []);
@@ -77,7 +77,7 @@ export const useAuthorizationFlowScroll = (_flowName: string) => {
  * Hook for Token Management and similar pages
  * Always starts at top, provides action callbacks
  */
-export const useTokenPageScroll = (_pageName: string) => {
+export const useTokenPageScroll = () => {
 	useEffect(() => {
 		// More aggressive scroll for token pages
 		setTimeout(() => {
