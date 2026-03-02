@@ -9,6 +9,7 @@
 			"**/*.json",
 			"plan/**/*",
 			"docs/**/*",
+			"memory.md",
 			"!src/styles/icons.css",
 			"!AI Ping",
 			"!pingone-mcp-server",
