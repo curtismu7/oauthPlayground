@@ -3,9 +3,19 @@
 ## Issue Summary
 This document tracks critical runtime errors that have been identified and fixed to prevent recurrence during migrations and development.
 
+| # | Issue | Status | Date |
+|---|-------|--------|------|
+| 1 | WorkerTokenModalV8 validation throws in async handler | ✅ FIXED | Mar 2, 2026 |
+| 2 | PingOneUserProfile hooks order violation (50+ hooks) | 🔴 OPEN | Mar 2, 2026 |
+| 3 | DeviceAuthorizationFlowV9 null reference on credentials | ✅ FIXED | Mar 2, 2026 |
+| 4 | CIBAFlowV9 missing import (useCibaFlowV8Enhanced) | ✅ FIXED | Mar 2, 2026 |
+| 5 | useImplicitFlowController infinite loop (whole-object dep) | ✅ FIXED | Mar 2, 2026 |
+| 6 | Unclosed JSX container tags in 4 flow files | ✅ FIXED | Mar 2, 2026 |
+| 7 | Incomplete useCallback dep arrays in TokenExchangeFlowV9 | ✅ FIXED | Mar 2, 2026 |
+
 ---
 
-## 1. WorkerTokenModalV8 Validation Error
+## 1. WorkerTokenModalV8 Validation Error *(March 2, 2026 — FIXED)*
 
 ### **Error Description**
 ```
@@ -43,7 +53,7 @@ if (!environmentId.trim() || !clientId.trim() || !clientSecret.trim()) {
 
 ---
 
-## 2. PingOneUserProfile Hooks Order Violation
+## 2. PingOneUserProfile Hooks Order Violation *(March 2, 2026 — OPEN: strategy documented, fix not yet applied)*
 
 ### **Error Description**
 ```
@@ -76,7 +86,7 @@ The component has too many hooks (50+ useState calls) and the order is changing 
 
 ---
 
-## 3. DeviceAuthorizationFlowV9 Null Reference Error
+## 3. DeviceAuthorizationFlowV9 Null Reference Error *(March 2, 2026 — FIXED)*
 
 ### **Error Description**
 ```
@@ -109,7 +119,7 @@ deviceFlow.credentials?.clientId,
 
 ---
 
-## 4. CIBAFlowV9 Import Error
+## 4. CIBAFlowV9 Import Error *(March 2, 2026 — FIXED)*
 
 ### **Error Description**
 ```
@@ -137,7 +147,7 @@ import { useCibaFlowV8Enhanced } from '@/v8/hooks/useCibaFlowV8Enhanced';
 
 ---
 
-## 5. useImplicitFlowController Infinite Loop
+## 5. useImplicitFlowController Infinite Loop *(March 2, 2026 — FIXED)*
 
 ### **Error Description**
 ```
@@ -262,8 +272,6 @@ useEffect(() => {
     setCredentials(updateCredentials(memoizedValue));
 }, [memoizedValue]);
 ```
-
----
 
 ---
 
