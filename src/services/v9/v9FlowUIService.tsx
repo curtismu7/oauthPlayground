@@ -1,22 +1,26 @@
 // src/services/v9/v9FlowUIService.tsx
 // V9 Wrapper for FlowUIService - Modern Messaging Compliant
 
+import React from 'react';
+// Import Modern Messaging (V9) - proper migration to non-toast messaging
+import { modernMessaging } from '../../components/v9/V9ModernMessagingComponents';
 import { FlowUIService } from '../flowUIService';
-import { V9FlowCredentialService } from './core/V9FlowCredentialService';
-// Import Modern Messaging (V8) - established migration pattern
-import { ToastNotificationsV8 as toastV8 } from '../../v8/utils/toastNotificationsV8';
 
 // V9 Wrapper Service - wraps original with Modern Messaging
 const V9FlowUIService = {
 	// Wrapper for getFlowUIComponents with V9 error handling
-	getFlowUIComponents() {
+	getFlowUIComponents(): ReturnType<typeof FlowUIService.getFlowUIComponents> {
 		try {
 			const components = FlowUIService.getFlowUIComponents();
 			return components;
 		} catch (error) {
-			toastV8.error('Failed to load flow UI components');
+			modernMessaging.showCriticalError({
+				title: 'UI Components Failed',
+				message: 'Failed to load flow UI components',
+				contactSupport: false,
+			});
 			console.error('FlowUI components error:', error);
-			// Return minimal fallback components
+			// Return minimal fallback components with proper typing
 			return {
 				Container: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 				ContentWrapper: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
@@ -53,7 +57,7 @@ const V9FlowUIService = {
 				Label: ({ children, ...props }: React.HTMLAttributes<HTMLSpanElement>) => (
 					<span {...props}>{children}</span>
 				),
-			} as ReturnType<typeof FlowUIService.getFlowUIComponents>;
+			} as unknown as ReturnType<typeof FlowUIService.getFlowUIComponents>;
 		}
 	},
 

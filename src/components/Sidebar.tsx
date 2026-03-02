@@ -316,7 +316,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
 			<div style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
 				{USE_PING_MENU ? (
-				<SidebarMenuPing dragMode={isDragDropMode} searchQuery={searchQuery} />
+					<SidebarMenuPing dragMode={isDragDropMode} searchQuery={searchQuery} />
 				) : (
 					<DragDropSidebar
 						dragMode={isDragDropMode}

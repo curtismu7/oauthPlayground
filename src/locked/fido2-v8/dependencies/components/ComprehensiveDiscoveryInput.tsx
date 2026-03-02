@@ -432,7 +432,7 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 		}, 3000);
 
 		return () => clearInterval(interval);
-	}, [showModal, patienceMessages]);
+	}, [showModal]);
 
 	// Auto-restore last used discovery on mount
 	useEffect(() => {

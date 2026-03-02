@@ -11370,7 +11370,6 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							await PKCEStorageServiceV8U.clearPKCECodes(flowKey);
 							// Also clear from flowState by creating new state without PKCE properties
 							setFlowState((prev) => {
-								 
 								const {
 									codeVerifier: _codeVerifier,
 									codeChallenge: _codeChallenge,

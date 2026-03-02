@@ -6,10 +6,10 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { comprehensiveFlowDataService } from '../services/comprehensiveFlowDataService';
 import {
+	type AuthzCredentials,
 	exportAuthzCredentials,
 	importCredentials,
 	triggerFileImport,
-	type AuthzCredentials,
 } from '../services/credentialExportImportService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { DraggableModal } from './DraggableModal';
@@ -221,9 +221,10 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 				clientId: credentials.clientId,
 				clientSecret: credentials.clientSecret,
 				redirectUri: credentials.redirectUri || 'https://localhost:3000/callback',
-				scopes: typeof credentials.scopes === 'string' 
-					? credentials.scopes.split(/\s+/).filter(Boolean)
-					: credentials.scopes || ['openid', 'profile', 'email'],
+				scopes:
+					typeof credentials.scopes === 'string'
+						? credentials.scopes.split(/\s+/).filter(Boolean)
+						: credentials.scopes || ['openid', 'profile', 'email'],
 			};
 
 			exportAuthzCredentials(authzCredentials);
@@ -248,7 +249,7 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 						clientId: authz.clientId || credentials.clientId,
 						clientSecret: authz.clientSecret || credentials.clientSecret,
 						redirectUri: authz.redirectUri || credentials.redirectUri,
-						scopes: authz.scopes ? authz.scopes.join(' ') : (credentials.scopes || ''),
+						scopes: authz.scopes ? authz.scopes.join(' ') : credentials.scopes || '',
 					};
 
 					setCredentials(updatedCredentials);
@@ -352,13 +353,15 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 			</FormSection>
 
 			{/* Import/Export buttons */}
-			<div style={{ 
-				display: 'flex', 
-				justifyContent: 'center', 
-				gap: '8px', 
-				marginTop: '1rem',
-				marginBottom: '1rem'
-			}}>
+			<div
+				style={{
+					display: 'flex',
+					justifyContent: 'center',
+					gap: '8px',
+					marginTop: '1rem',
+					marginBottom: '1rem',
+				}}
+			>
 				<button
 					type="button"
 					onClick={handleExport}
