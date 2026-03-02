@@ -143,6 +143,7 @@ const UserManagementPage: React.FC = () => {
 					</p>
 				</div>
 				<button
+					type="button"
 					onClick={handleCreateUser}
 					style={{
 						padding: '0.75rem 1.5rem',
@@ -178,6 +179,7 @@ const UserManagementPage: React.FC = () => {
 			>
 				<div style={{ flex: 1, minWidth: '200px' }}>
 					<label
+						htmlFor="user-search-dropdown"
 						style={{
 							display: 'block',
 							fontSize: '0.875rem',
@@ -189,6 +191,7 @@ const UserManagementPage: React.FC = () => {
 						Search Users
 					</label>
 					<UserSearchDropdownV8
+						id="user-search-dropdown"
 						environmentId={environmentId}
 						value={searchTerm}
 						onChange={setSearchTerm}
@@ -200,6 +203,7 @@ const UserManagementPage: React.FC = () => {
 				</div>
 				<div style={{ flex: 1, minWidth: '200px' }}>
 					<label
+						htmlFor="status-filter-select"
 						style={{
 							display: 'block',
 							fontSize: '0.875rem',
@@ -211,6 +215,7 @@ const UserManagementPage: React.FC = () => {
 						Status Filter
 					</label>
 					<select
+						id="status-filter-select"
 						value={statusFilter}
 						onChange={(e) => setStatusFilter(e.target.value)}
 						style={{
@@ -384,6 +389,7 @@ const UserManagementPage: React.FC = () => {
 							{/* Action Buttons */}
 							<div style={{ display: 'flex', gap: '0.5rem' }}>
 								<button
+									type="button"
 									onClick={() => handleEditUser(user)}
 									title="Edit User"
 									style={{
@@ -401,6 +407,7 @@ const UserManagementPage: React.FC = () => {
 									<FiEdit2 />
 								</button>
 								<button
+									type="button"
 									onClick={() => handleDeleteUser(user)}
 									title="Delete User"
 									style={{
