@@ -265,9 +265,102 @@ useEffect(() => {
 
 ---
 
+---
+
+## 6. Unclosed JSX Container Tags in Flow Files *(March 2, 2026 — FIXED)*
+
+### **Error Description**
+```
+error TS17008: JSX element 'FlowContainer' has no corresponding closing tag.
+error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+error TS1005: '</' expected.
+```
+Affected 4 files — 13 TypeScript errors total blocking `tsc --noEmit`.
+
+### **Root Cause**
+`<WorkerTokenModalV8 />` was pasted **outside** the return's JSX tree — placed after `</FormContainer>` but before the outer container-closing tag. The outer `</FlowContainer>` (or `</div>`) and the `);` / `};` closes were either missing or never written.
+
+### **Locations Fixed**
+| File | Missing tag | Commit |
+|------|------------|--------|
+| `src/pages/flows/TokenIntrospectionFlow.tsx` | `</FlowContainer>` before `);` | `9276d70` |
+| `src/pages/flows/TokenManagementFlow.tsx` | `</FlowContainer>` before `);` | `9276d70` |
+| `src/pages/flows/TokenRevocationFlow.tsx` | `</FlowContainer>` before `);` | `9276d70` |
+| `src/pages/WorkerTokenTester.tsx` | `</div>`, `);`, `};` — component fully unclosed | `9276d70` |
+
+### **Fix Pattern**
+```tsx
+// ❌ Before — WorkerTokenModalV8 placed outside the return tree:
+			</FormContainer>
+                        <WorkerTokenModalV8 ... />
+	);
+};
+
+// ✅ After — modal inside container, container properly closed:
+			</FormContainer>
+			<WorkerTokenModalV8 ... />
+		</FlowContainer>
+	);
+};
+```
+
+### **Prevention**
+- Always ensure `<WorkerTokenModalV8 />` is placed as the **last child inside** the outer container, not after `</FormContainer>`.
+- `tsc --noEmit` catches this immediately — run it before every commit.
+- Use a scaffold script to generate the component shell so the closing structure is never missing.
+
+---
+
+## 7. React Hook Dependency Errors in V9 Flow Files *(March 2, 2026 — FIXED)*
+
+### **Error Description**
+```
+useCallback hook does not specify its dependency on exchangeParams.requestedTokenType.
+useEffect hook specifies more dependencies than necessary: currentStep.
+```
+
+### **Root Cause**
+1. `performTokenExchange` used `exchangeParams.requestedTokenType` in its body but the dep array only listed `exchangeParams.audience`.
+2. A `useEffect(() => { window.scrollTo(...) }, [currentStep])` triggered scroll on step change, but `currentStep` is a value used only to trigger the effect — linter flagged it correctly as an unnecessary trigger dep when the real fix is to inline the scroll into the navigation handlers.
+
+### **Location Fixed**
+- **File**: `src/pages/flows/v9/TokenExchangeFlowV9.tsx`
+- **Commit**: `f6f451d`
+
+### **Fix Pattern**
+```tsx
+// ❌ Before — missing dep + useEffect trigger pattern:
+const performTokenExchange = useCallback(async () => {
+    // uses exchangeParams.requestedTokenType
+}, [exchangeParams.audience, selectedScopes]); // missing dep!
+
+React.useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}, [currentStep]); // useEffect just to trigger on nav
+
+// ✅ After — complete dep array + inline scroll in handlers:
+const performTokenExchange = useCallback(async () => {
+    // uses exchangeParams.requestedTokenType
+}, [exchangeParams.audience, exchangeParams.requestedTokenType, selectedScopes]);
+
+const goToNextStep = useCallback(() => {
+    if (currentStep < STEP_METADATA.length - 1) {
+        setCurrentStep((prev) => prev + 1);
+        window.scrollTo({ top: 0, behavior: 'smooth' }); // inline
+    }
+}, [currentStep]);
+```
+
+### **Prevention**
+- When a `useCallback`/`useMemo` accesses a nested property (`object.property`), add **that specific property** to deps, not just the parent object.
+- Prefer inlining side effects (scroll, focus) into event handlers over `useEffect` triggers when they logically belong to the action.
+- `biome check` or ESLint `react-hooks/exhaustive-deps` catches both patterns — run before every commit.
+
+---
+
 ## Version Information
 - **Document Created**: March 2, 2026
-- **Last Updated**: March 2, 2026
+- **Last Updated**: March 2, 2026 *(Issues 6–7 added)*
 - **App Version**: 9.12.10
 - **Status**: Active Tracking
 
@@ -277,3 +370,8 @@ useEffect(() => {
 - `src/pages/flows/v9/DeviceAuthorizationFlowV9.tsx`
 - `src/pages/flows/CIBAFlowV9.tsx`
 - `src/hooks/useImplicitFlowController.ts`
+- `src/pages/flows/TokenIntrospectionFlow.tsx`
+- `src/pages/flows/TokenManagementFlow.tsx`
+- `src/pages/flows/TokenRevocationFlow.tsx`
+- `src/pages/WorkerTokenTester.tsx`
+- `src/pages/flows/v9/TokenExchangeFlowV9.tsx`
