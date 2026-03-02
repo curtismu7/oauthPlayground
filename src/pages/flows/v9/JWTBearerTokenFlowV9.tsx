@@ -1,5 +1,5 @@
 // src/pages/flows/JWTBearerTokenFlowV9.tsx
-// OAuth 2.0 JWT Bearer Token Flow (RFC 7523) - V9 Service Architecture
+// OAuth 2.0 JWT Bearer Token Flow (RFC 7523) - V7 Service Architecture
 
 import {
 	FiAlertCircle,
@@ -19,25 +19,94 @@ import { StepNavigationButtons } from '../../../components/StepNavigationButtons
 import { readBestEnvironmentId } from '../../../hooks/useAutoEnvironmentId';
 import { usePageScroll } from '../../../hooks/usePageScroll';
 import { CollapsibleHeader } from '../../../services/collapsibleHeaderService';
-// Import V6 UI components
-import ComprehensiveCredentialsService from '../../../services/comprehensiveCredentialsService';
-import { comprehensiveFlowDataService } from '../../../services/comprehensiveFlowDataService';
-import { CopyButtonService } from '../../../services/copyButtonService';
-import { CredentialGuardService } from '../../../services/credentialGuardService';
-import {
-	FlowCompletionConfigs,
-	FlowCompletionService,
-} from '../../../services/flowCompletionService';
 import type { StepCredentials } from '../../../services/flowCredentialService';
-// Import V6 service architecture components
+import { V9FlowCredentialService } from '../../../services/v9/core/V9FlowCredentialService';
+// Import V9 services for migration
+import { v9MessagingService } from '../../../services/v9/V9MessagingService';
+
+// Built-in copy function to replace CopyButtonService
+const copyToClipboard = async (text: string): Promise<void> => {
+	try {
+		await navigator.clipboard.writeText(text);
+		v9MessagingService.showSuccess('Copied to clipboard!');
+	} catch (err) {
+		console.error('Failed to copy text: ', err);
+		v9MessagingService.showError('Failed to copy to clipboard');
+	}
+};
+
+// Built-in validation function to replace CredentialGuardService
+const checkMissingFields = (
+	credentials: Record<string, unknown>,
+	options: { requiredFields: string[]; fieldLabels: Record<string, string> }
+) => {
+	const missingFields: string[] = [];
+
+	for (const field of options.requiredFields) {
+		if (
+			!credentials[field] ||
+			(typeof credentials[field] === 'string' && credentials[field].trim() === '')
+		) {
+			missingFields.push(options.fieldLabels[field] || field);
+		}
+	}
+
+	return {
+		missingFields,
+		canProceed: missingFields.length === 0,
+	};
+};
+
+// Wrapper functions to replace comprehensiveFlowDataService using V9FlowCredentialService
+const loadFlowDataComprehensive = (_options: {
+	flowKey: string;
+	useSharedEnvironment?: boolean;
+	useSharedDiscovery?: boolean;
+}) => {
+	const v9Credentials = V9FlowCredentialService.load();
+
+	return {
+		flowCredentials: {
+			clientId: v9Credentials.clientId,
+			scopes: v9Credentials.scopes,
+		},
+		sharedEnvironment: v9Credentials.environmentId
+			? {
+					environmentId: v9Credentials.environmentId,
+					region: 'us',
+					issuerUrl: `https://auth.pingone.com/${v9Credentials.environmentId}`,
+				}
+			: undefined,
+		sharedDiscovery: undefined, // V9 doesn't have discovery storage yet
+	};
+};
+
+const saveFlowDataComprehensive = (
+	_flowKey: string,
+	data: {
+		flowCredentials?: { clientId?: string; scopes?: string[] };
+		sharedEnvironment?: { environmentId?: string };
+	}
+) => {
+	const v9Data: { clientId?: string; scopes?: string[]; environmentId?: string } = {};
+
+	if (data.flowCredentials?.clientId) v9Data.clientId = data.flowCredentials.clientId;
+	if (data.flowCredentials?.scopes) v9Data.scopes = data.flowCredentials.scopes;
+	if (data.sharedEnvironment?.environmentId)
+		v9Data.environmentId = data.sharedEnvironment.environmentId;
+
+	V9FlowCredentialService.save(v9Data);
+	return true;
+};
+
+// Import V6 service architecture components (to be migrated)
 import { FlowHeader } from '../../../services/flowHeaderService';
-// Get shared UI components from FlowUIService
+// Get shared UI components from FlowUIService (to be migrated)
 import { FlowUIService } from '../../../services/flowUIService';
 import ModalPresentationService from '../../../services/modalPresentationService';
 import { OAuthFlowComparisonService } from '../../../services/oauthFlowComparisonService';
 import { oidcDiscoveryService } from '../../../services/oidcDiscoveryService';
 import { UnifiedTokenDisplayService } from '../../../services/unifiedTokenDisplayService';
-import { v4ToastManager } from '../../../utils/v4ToastMessages';
 
 // Styled Components
 const SectionDivider = styled.div`
@@ -244,7 +313,7 @@ const JWTBearerTokenFlowV9: React.FC = () => {
 		const loadCredentials = async () => {
 			console.log('🔄 [JWTBearerTokenFlowV9] Loading credentials with comprehensive service...');
 
-			const flowData = comprehensiveFlowDataService.loadFlowDataComprehensive({
+			const flowData = loadFlowDataComprehensive({
 				flowKey: FLOW_KEY,
 				useSharedEnvironment: true,
 				useSharedDiscovery: true,
@@ -283,7 +352,7 @@ const JWTBearerTokenFlowV9: React.FC = () => {
 			};
 
 			// Save to comprehensive service with complete isolation
-			const success = comprehensiveFlowDataService.saveFlowDataComprehensive(FLOW_KEY, {
+			const success = saveFlowDataComprehensive(FLOW_KEY, {
 				...(environmentId && {
 					sharedEnvironment: {
 						environmentId,
@@ -318,26 +387,26 @@ const JWTBearerTokenFlowV9: React.FC = () => {
 	const discoverAudience = useCallback(async () => {
 		// Enhanced validation with better error messages
 		if (!environmentId || environmentId.trim() === '') {
-			console.warn('⚠️ [JWT Bearer V9] Cannot discover audience - Environment ID is empty');
-			v4ToastManager.showWarning('Please enter an Environment ID first');
+			console.warn('⚠️ [JWT Bearer] Cannot discover audience - Environment ID is empty');
+			v9MessagingService.showWarning('Please enter an Environment ID first');
 			return;
 		}
 
 		// Additional validation for environment ID format
 		const trimmedEnvId = environmentId.trim();
 		if (!trimmedEnvId || trimmedEnvId.length < 10) {
-			console.warn('⚠️ [JWT Bearer V9] Environment ID appears to be invalid:', trimmedEnvId);
-			v4ToastManager.showWarning('Please enter a valid Environment ID');
+			console.warn('⚠️ [JWT Bearer] Environment ID appears to be invalid:', trimmedEnvId);
+			v9MessagingService.showWarning('Please enter a valid Environment ID');
 			return;
 		}
 
 		setIsDiscoveringAudience(true);
 		try {
-			console.log('🔍 [JWT Bearer V9] Discovering audience for environment:', trimmedEnvId);
+			console.log('🔍 [JWT Bearer] Discovering audience for environment:', trimmedEnvId);
 
 			// Construct issuer URL from environment ID
 			const issuerUrl = `https://auth.pingone.com/${trimmedEnvId}/as`;
-			console.log('🔍 [JWT Bearer V9] Constructed issuer URL:', issuerUrl);
+			console.log('🔍 [JWT Bearer] Constructed issuer URL:', issuerUrl);
 
 			// Validate issuer URL before calling discovery
 			if (!issuerUrl || typeof issuerUrl !== 'string' || !issuerUrl.startsWith('https://')) {
@@ -354,15 +423,15 @@ const JWTBearerTokenFlowV9: React.FC = () => {
 				const discoveredAudience = result.document.issuer;
 				setAudience(discoveredAudience);
 				setJwtClaims((prev) => ({ ...prev, aud: discoveredAudience }));
-				console.log('✅ [JWT Bearer V9] Audience discovered:', discoveredAudience);
-				v4ToastManager.showSuccess('Audience discovered and populated!');
+				console.log('✅ [JWT Bearer] Audience discovered:', discoveredAudience);
+				v9MessagingService.showSuccess('Audience discovered and populated!');
 			} else {
 				throw new Error('No issuer found in OIDC discovery document');
 			}
 		} catch (error) {
-			console.error('❌ [JWT Bearer V9] Failed to discover audience:', error);
+			console.error('❌ [JWT Bearer] Failed to discover audience:', error);
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-			v4ToastManager.showError(
+			v9MessagingService.showError(
 				`Failed to discover audience: ${errorMessage}. Please enter manually.`
 			);
 		} finally {
@@ -430,8 +499,10 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 			publicKey: samplePublicKey,
 		}));
 
-		v4ToastManager.showSuccess('Sample RSA key pair generated! (For educational purposes only)');
-		console.log('🔑 [JWT Bearer V9] Generated sample RSA-2048 key pair');
+		v9MessagingService.showSuccess(
+			'Sample RSA key pair generated! (For educational purposes only)'
+		);
+		console.log('🔑 [JWT Bearer] Generated sample RSA-2048 key pair');
 	}, []);
 
 	// Auto-update JWT Claims when clientId, tokenEndpoint, or audience changes (from OIDC Discovery or manual entry)
@@ -443,7 +514,7 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 			aud: audience || tokenEndpoint || prev.aud, // Prioritize audience, fallback to tokenEndpoint
 		}));
 		console.log(
-			'🔄 [JWT Bearer V9] Auto-updated JWT claims with audience:',
+			'🔄 [JWT Bearer] Auto-updated JWT claims with audience:',
 			audience || tokenEndpoint
 		);
 	}, [clientId, tokenEndpoint, audience]);
@@ -505,17 +576,17 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 			const jwt = `${encodedHeader}.${encodedPayload}.${encodedSignature}`;
 			setGeneratedJWT(jwt);
 
-			v4ToastManager.showSuccess('JWT generated successfully!');
+			v9MessagingService.showSuccess('JWT generated successfully!');
 		} catch (error) {
-			console.error('[JWT Bearer V9] Error generating JWT:', error);
-			v4ToastManager.showError('Failed to generate JWT');
+			console.error('[JWT Bearer] Error generating JWT:', error);
+			v9MessagingService.showError('Failed to generate JWT');
 		}
 	}, [clientId, tokenEndpoint, jwtClaims, jwtSignature, audience]);
 
 	// Make token request
 	const makeTokenRequest = useCallback(async () => {
 		if (!generatedJWT || !clientId || !tokenEndpoint) {
-			v4ToastManager.showWarning('Please generate a JWT first');
+			v9MessagingService.showWarning('Please generate a JWT first');
 			return;
 		}
 
@@ -576,12 +647,12 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 			console.log('[JWT Bearer Mock] Mock token response:', mockTokenResponse);
 			setTokenResponse(mockTokenResponse);
 			setCurrentStep(3); // Move to token response step
-			v4ToastManager.showSuccess(
+			v9MessagingService.showSuccess(
 				'Mock access token generated successfully! (Educational simulation)'
 			);
 		} catch (error) {
 			console.error('[JWT Bearer Mock] Error in simulation:', error);
-			v4ToastManager.showError('Failed to simulate token request');
+			v9MessagingService.showError('Failed to simulate token request');
 		} finally {
 			setIsLoading(false);
 		}
@@ -618,7 +689,7 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 				clientId,
 			};
 
-			const { missingFields, canProceed } = CredentialGuardService.checkMissingFields(
+			const { missingFields, canProceed } = checkMissingFields(
 				credentials as Record<string, unknown>,
 				{
 					requiredFields: ['environmentId', 'clientId'],
@@ -682,9 +753,9 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 			console.warn('[JWTBearerTokenFlowV6] Failed to clear cache data:', error);
 		}
 
-		v4ToastManager.showSuccess('Flow restarted', {
-			description: 'Tokens, JWT, and cache cleared. Credentials preserved.',
-		});
+		v9MessagingService.showSuccess(
+			'Flow restarted - Tokens, JWT, and cache cleared. Credentials preserved.'
+		);
 	}, []);
 
 	const canNavigateNext = useCallback((): boolean => {
@@ -839,7 +910,7 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 									console.log('[JWT Bearer V6] Environment ID extracted:', extractedEnvId);
 								}
 
-								v4ToastManager.showSuccess(
+								v9MessagingService.showSuccess(
 									'Token Endpoint and Audience auto-populated from OIDC Discovery'
 								);
 							}}
@@ -866,7 +937,7 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 							// Save handlers
 							onSave={async () => {
 								await saveCredentials({});
-								v4ToastManager.showSuccess('Configuration saved');
+								v9MessagingService.showSuccess('Configuration saved');
 							}}
 							hasUnsavedChanges={false}
 							isSaving={false}
@@ -945,14 +1016,12 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 										<Button
 											onClick={() => {
 												console.log(
-													'🔍 [JWT Bearer V9] Auto Discover clicked, environmentId:',
+													'🔍 [JWT Bearer] Auto Discover clicked, environmentId:',
 													environmentId
 												);
 												if (!environmentId || environmentId.trim() === '') {
-													console.warn(
-														'⚠️ [JWT Bearer V9] Button clicked but environmentId is empty'
-													);
-													v4ToastManager.showWarning('Please enter an Environment ID first');
+													console.warn('⚠️ [JWT Bearer] Button clicked but environmentId is empty');
+													v9MessagingService.showWarning('Please enter an Environment ID first');
 													return;
 												}
 												discoverAudience();
@@ -1421,19 +1490,13 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 
 											<div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
 												<Button
-													onClick={() =>
-														CopyButtonService.copyToClipboard(tokenResponse.access_token)
-													}
+													onClick={() => copyToClipboard(tokenResponse.access_token)}
 													$variant="secondary"
 												>
 													<FiCopy /> Copy Access Token
 												</Button>
 												<Button
-													onClick={() =>
-														CopyButtonService.copyToClipboard(
-															JSON.stringify(tokenResponse, null, 2)
-														)
-													}
+													onClick={() => copyToClipboard(JSON.stringify(tokenResponse, null, 2))}
 													$variant="secondary"
 												>
 													<FiCopy /> Copy Full Response
