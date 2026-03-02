@@ -1,13 +1,13 @@
 import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
+import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import FlowCredentials from '../../components/FlowCredentials';
 import JSONHighlighter from '../../components/JSONHighlighter';
 import { StepByStepFlow } from '../../components/StepByStepFlow';
 import { TokenManagementService } from '../../services/tokenManagementService';
 import { logger } from '../../utils/logger';
-import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
-import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 
 const FlowContainer = styled.div`
   max-width: 1200px;
@@ -264,7 +264,7 @@ interface TokenRevocationFlowProps {
 	};
 }
 
-const TokenRevocationFlow: React.FC<TokenRevocationFlowProps> = ({ credentials }) => {
+const _TokenRevocationFlow: React.FC<TokenRevocationFlowProps> = ({ credentials }) => {
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [currentStep, setCurrentStep] = useState(0);
 	const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -895,7 +895,8 @@ cleanupAfterRevocation(revocationResult);`,
 					{activeTab === 'bulk_revocation' ? 'Revoke All Tokens' : 'Revoke Token'}
 				</Button>
 			</FormContainer>
-                        <WorkerTokenModalV8 isOpen={showWorkerTokenModal} onClose={() => setShowWorkerTokenModal(false)} />
+			<WorkerTokenModalV8 isOpen={showWorkerTokenModal} onClose={() => setShowWorkerTokenModal(false)} />
+		</FlowContainer>
 	);
 };
 
