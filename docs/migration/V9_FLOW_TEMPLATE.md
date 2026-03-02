@@ -3,8 +3,10 @@
 **Last Updated:** March 2, 2026  
 **Scope:** Template patterns for creating new V9 flows at `src/pages/flows/v9/`  
 **Prerequisites:**
-- [migrate_vscode.md](./migrate_vscode.md) — core migration guide
+- [migrate_vscode.md](./migrate_vscode.md) — core migration guide (includes `🔬 Programming Patterns & Code Quality` section)
 - [V8_FLOW_MIGRATION_GUIDE.md](./V8_FLOW_MIGRATION_GUIDE.md) — import patterns
+
+> ⚠️ **Important:** The existing V9 flows in `src/pages/flows/v9/` currently use `v4ToastManager` (the old V7 toast system). New flows **must** use `toastV8`. See the Toast section below and the Programming Patterns audit in `migrate_vscode.md`.
 
 ---
 
