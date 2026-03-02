@@ -558,7 +558,354 @@ sed -i '' "s/localStorage.removeItem('unified_worker_token');/unifiedWorkerToken
 
 ---
 
-## 📋 Pre-Migration Checklist
+## � Programming Patterns & Code Quality (V7/V8 → V9)
+
+Findings from auditing real V7 and V8 source files (`TokenExchangeFlowV7.tsx`, `TokenExchangeFlowV8.tsx`, `credentialsServiceV8.ts`, `useWorkerToken.ts`, existing V9 flows). Apply these when migrating or writing new V9 code.
+
+---
+
+### ⚠️ P1 — Dead State Variables (Breaks Spinner Logic)
+
+**Found in:** `TokenExchangeFlowV8.tsx` line 250
+
+```tsx
+// ❌ BAD — _setIsLoading is never called; isLoading is always false
+const [isLoading, _setIsLoading] = useState(false);
+```
+
+This happens when a flow was refactored to use `useProductionSpinner` (which manages its own loading state) but the original `useState` was left in. Any UI that reads `isLoading` will never show a loading state.
+
+**Fix:** Remove the dead pair entirely and read loading state from the spinner:
+
+```tsx
+// ✅ GOOD — spinner owns loading state
+const tokenExchangeSpinner = useProductionSpinner('token-exchange');
+
+// In JSX:
+{tokenExchangeSpinner.isLoading && <ButtonSpinner />}
+```
+
+**When migrating:** If the V7 source has `setIsLoading(true/false)` calls throughout, replace them with `someSpinner.withSpinner(async () => { ... })` wrapping the async block.
+
+---
+
+### ⚠️ P1 — `useEffect` Async Without Cleanup / `AbortController`
+
+**Found in:** `TokenExchangeFlowV8.tsx` — `useEffect` with async `checkAdminEnablement` has no cleanup. `useWorkerToken.ts` handles this correctly (has `return () => clearInterval(interval)`).
+
+**Risk:** If the user navigates away before the async call resolves, React tries to call `setState` on an unmounted component. This throws a warning in React 17 and can silently corrupt state in React 18's concurrent mode.
+
+```tsx
+// ❌ BAD — no cleanup, no abort
+useEffect(() => {
+  const check = async () => {
+    const enabled = await TokenExchangeConfigServiceV8.isEnabled(envId);
+    setIsAdminEnabled(enabled);  // fires even if unmounted
+  };
+  check();
+}, [envId]);
+
+// ✅ GOOD — AbortController pattern
+useEffect(() => {
+  const controller = new AbortController();
+
+  const check = async () => {
+    try {
+      const enabled = await TokenExchangeConfigServiceV8.isEnabled(envId);
+      if (!controller.signal.aborted) {
+        setIsAdminEnabled(enabled);
+      }
+    } catch (err) {
+      if (!controller.signal.aborted) {
+        setError(/* ... */);
+      }
+    }
+  };
+
+  check();
+  return () => controller.abort();
+}, [envId]);
+```
+
+**Also apply to:** Any `useEffect` that calls an API and sets state — TokenExchangeFlowV8, all MFA flows, PAR flow on mount.
+
+---
+
+### ⚠️ P1 — V9 Flows Still Using `v4ToastManager` (Should Be `toastV8`)
+
+**Found in:** 8 out of 9 current V9 flows at `src/pages/flows/v9/`:
+- `OIDCHybridFlowV9.tsx`, `DeviceAuthorizationFlowV9.tsx`, `ImplicitFlowV9.tsx`
+- `SAMLBearerAssertionFlowV9.tsx`, `ClientCredentialsFlowV9.tsx`, `RARFlowV9.tsx`
+- `OAuthAuthorizationCodeFlowV9.tsx`, `JWTBearerTokenFlowV9.tsx`
+
+These were migrated from V7 but the toast system was not updated.
+
+**Fix per file:**
+```bash
+# In each V9 flow file:
+sed -i '' "s/import { v4ToastManager } from '.*v4ToastMessages';//" "$FLOW"
+sed -i '' "s/v4ToastManager.showSuccess(/toastV8.success(/g" "$FLOW"
+sed -i '' "s/v4ToastManager.showError(/toastV8.error(/g" "$FLOW"
+sed -i '' "s/v4ToastManager.showWarning(/toastV8.warning(/g" "$FLOW"
+sed -i '' "s/v4ToastManager.showInfo(/toastV8.info(/g" "$FLOW"
+# Then add the import at the top:
+# import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+```
+
+> See the `Toast Replacement (MANDATORY)` section above for full decision framework.
+
+---
+
+### ⚠️ P2 — Unsafe Error Casting (Use Type Guard Instead)
+
+**Found in:** `TokenExchangeFlowV8.tsx` — `const tokenError = err as TokenExchangeError`
+
+TypeScript's `catch` block types `err` as `unknown`. Casting with `as` bypasses the type system — if the thrown value is a plain `Error` or a network error object, the cast will silently give you incorrect `.message` or `.type` access.
+
+```tsx
+// ❌ BAD — cast bypasses type checking
+} catch (err) {
+  const tokenError = err as TokenExchangeError;
+  toastV8.error(tokenError.message);  // could be undefined if err is a plain Error
+}
+
+// ✅ GOOD — type guard checks before casting
+} catch (err) {
+  if (err instanceof TokenExchangeError) {
+    setError(err);
+    toastV8.error(err.message);
+  } else {
+    const message = err instanceof Error ? err.message : 'Unexpected error';
+    toastV8.error(`Token exchange failed: ${message}`);
+  }
+}
+```
+
+**Exception:** The `TokenExchangeError` class is a real class with `instanceof` support — use it. For plain API errors that are not class instances, use `err instanceof Error` as the guard and access `.message`.
+
+---
+
+### ⚠️ P2 — `useState<any>` in V7 Flows (Carry-Forward Risk)
+
+**Found in:** `TokenExchangeFlowV7.tsx` line 1697 — `const [result, setResult] = useState<any>(null)`
+
+When copied to V9, these lose all type safety for API responses. TypeScript will not catch if you access a property that doesn't exist on the response.
+
+```tsx
+// ❌ BAD — copied from V7
+const [result, setResult] = useState<any>(null);
+
+// ✅ GOOD — use the real type or a discriminated union
+type FlowResult = TokenExchangeResponse | null;
+const [result, setResult] = useState<FlowResult>(null);
+
+// If the type isn't defined yet, create a minimal interface:
+interface TokenResult {
+  access_token: string;
+  token_type: string;
+  expires_in?: number;
+  scope?: string;
+}
+const [result, setResult] = useState<TokenResult | null>(null);
+```
+
+---
+
+### ⚠️ P2 — Spinner Objects in `useCallback` / `useEffect` Deps
+
+**Found in:** `TokenExchangeFlowV8.tsx` — `adminCheckSpinner` and `tokenExchangeSpinner` are in `useCallback` and `useEffect` dependency arrays.
+
+`useProductionSpinner` may return a new object reference each render. Including it in deps arrays can:
+- Cause `useEffect` to re-run on every render (infinite loop risk)
+- Cause `useCallback` to recreate its function unnecessarily
+
+```tsx
+// ⚠️ RISKY — spinner in useEffect deps
+useEffect(() => {
+  checkAdminEnablement();
+}, [currentEnvironmentId, adminCheckSpinner]);  // ← spinner here
+
+// ✅ SAFER — check if useProductionSpinner is stable (memoized internally)
+// If not stable, extract the spinner method with useCallback first:
+const doAdminCheck = useCallback(
+  () => adminCheckSpinner.withSpinner(check, 'Checking...'),
+  // intentionally omit adminCheckSpinner if it changes identity each render
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  [currentEnvironmentId]
+);
+
+useEffect(() => {
+  doAdminCheck();
+}, [doAdminCheck]);
+```
+
+**Action:** Verify whether `useProductionSpinner` is stable (memoized with `useRef` internally). If it's not, omit it from deps with a comment explaining why.
+
+---
+
+### 💡 P3 — `useReducer` for Flows With 8+ State Variables
+
+**Found across all flows:** V8 and V7 flows each have 10–15 `useState` calls managing related form/flow state. This scatters initialization logic and makes reset difficult.
+
+For flows with form fields + loading state + error + result (common pattern in MFA, PAR, Token Exchange), `useReducer` centralizes logic:
+
+```tsx
+// ❌ Scattered (current pattern — 10+ useState calls)
+const [subjectToken, setSubjectToken] = useState('');
+const [subjectTokenType, setSubjectTokenType] = useState('urn:...');
+const [requestedTokenType, setRequestedTokenType] = useState('urn:...');
+const [scope, setScope] = useState('read');
+const [actorToken, setActorToken] = useState('');
+const [result, setResult] = useState<TokenExchangeResponse | null>(null);
+const [error, setError] = useState<TokenExchangeError | null>(null);
+const [isAdminEnabled, setIsAdminEnabled] = useState(false);
+
+// ✅ Centralized — easier reset, clearer state transitions
+interface TokenExchangeState {
+  subjectToken: string;
+  subjectTokenType: string;
+  requestedTokenType: string;
+  scope: string;
+  actorToken: string;
+  result: TokenExchangeResponse | null;
+  error: TokenExchangeError | null;
+  isAdminEnabled: boolean;
+}
+
+type TokenExchangeAction =
+  | { type: 'SET_FIELD'; field: keyof TokenExchangeState; value: string }
+  | { type: 'SET_RESULT'; result: TokenExchangeResponse }
+  | { type: 'SET_ERROR'; error: TokenExchangeError }
+  | { type: 'RESET' };
+
+const [state, dispatch] = useReducer(reducer, initialState);
+
+// Reset the entire form in one line:
+dispatch({ type: 'RESET' });
+```
+
+> **Note:** Not required for simple flows (ROPC, Client Credentials). Most beneficial for: Token Exchange, MFA flows, PAR.
+
+---
+
+### 💡 P3 — `usePageScroll` Missing in V8 Flows
+
+**Found in:** V7 flows use `usePageScroll` for scroll-to-top and focus management on step changes. V8 flows dropped it.
+
+```tsx
+// V7 pattern — present in TokenExchangeFlowV7.tsx
+import { usePageScroll } from '../../hooks/usePageScroll';
+// Called on scenario change or step change to scroll user to top
+
+// V8 pattern — NOT present in TokenExchangeFlowV8.tsx
+// Users don't get automatic scroll-to-top on step changes
+```
+
+When copying V8 flows to V9, add `usePageScroll` back:
+
+```tsx
+import { usePageScroll } from '../../../hooks/usePageScroll';
+
+// In the component:
+const { scrollToTop } = usePageScroll();
+
+// Call on significant state transitions:
+const handleScenarioChange = useCallback((scenario: string) => {
+  setSelectedScenario(scenario as TokenExchangeScenario);
+  scrollToTop();
+}, [scrollToTop]);
+```
+
+---
+
+### 💡 P3 — V8 Flows Define Own `Container` (Should Use `FlowUIService` in V9)
+
+**Found in:** V8 flows each define their own `const Container = styled.div\`` with inline max-width/padding. V9 flows in `src/pages/flows/v9/` all use `FlowUIService.getContainer()`.
+
+When migrating a V8 flow to V9:
+
+```tsx
+// ❌ V8 pattern — inline styled Container (don't keep this in V9)
+const Container = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+`;
+
+// ✅ V9 pattern — shared Container from FlowUIService
+import FlowUIService from '../../../services/flowUIService';  // 3-level depth
+const Container = FlowUIService.getContainer();
+const ContentWrapper = FlowUIService.getContentWrapper();
+```
+
+This ensures consistent layout across all V9 flows and makes global layout changes (e.g., max-width adjustments) apply everywhere.
+
+---
+
+### 💡 P3 — Service Debug Logging Pattern (Keep During Migration)
+
+**Found in:** `credentialsServiceV8.ts` uses a clean pattern worth preserving:
+
+```ts
+// ✅ Good pattern — flag-gated debug logging
+const ENABLE_CREDENTIALS_DEBUG_LOGGING = false;
+
+const debugLog = (...args: unknown[]): void => {
+  if (!ENABLE_CREDENTIALS_DEBUG_LOGGING) return;
+  console.log(...args);
+};
+```
+
+This is zero-cost in production (dead code eliminated by bundler when flag is `false`) but can be flipped to `true` locally to trace issues. Use `MODULE_TAG` prefix for grepping:
+
+```ts
+const MODULE_TAG = '[💾 MY-SERVICE-V9]';
+debugLog(`${MODULE_TAG} Loaded credentials`, { flowKey });
+```
+
+> When creating V9 services, include this pattern from the start — do not use bare `console.log` in service code. `console.error` is acceptable for real errors.
+
+---
+
+### 💡 P4 — Hardcoded Color Values in Styled-Components
+
+**Pattern across all V7 and V8 flows:** Color values are repeated inline in styled-components across 70+ files (`#7c3aed`, `#2563eb`, `#ef4444`, etc.).
+
+This is a **low priority** quality issue (not a bug) but creates migration friction. If a color standard changes, every file needs updating.
+
+**Recommendation for V9 migrations:** When writing new styled-components, reference the color standard table in this doc (`UI COLOR STANDARDS` section) and consider extracting to file-level constants if a color is used 3+ times in one file:
+
+```tsx
+// At the top of the flow file:
+const FLOW_COLOR = '#2563eb' as const;       // primary blue for V9 flows
+const FLOW_COLOR_DARK = '#1e40af' as const;  // gradient end
+
+const FlowHeader = styled.div`
+  background: linear-gradient(135deg, ${FLOW_COLOR} 0%, ${FLOW_COLOR_DARK} 100%);
+`;
+```
+
+---
+
+### Checklist: Apply These Patterns When Migrating
+
+| # | Issue | Impact | File(s) Found | Status |
+|---|---|---|---|---|
+| P1 | Dead `_setIsLoading` state variable | Silent loading bug | `TokenExchangeFlowV8.tsx` L250 | ❌ Open |
+| P1 | `useEffect` async without `AbortController` | State-on-unmount warning | Token Exchange V8, MFA flows | ❌ Open |
+| P1 | V9 flows using `v4ToastManager` | Wrong toast system in V9 | 8 of 9 V9 flows (see list above) | ❌ Open |
+| P2 | `err as SomeError` cast instead of type guard | Runtime crash risk | `TokenExchangeFlowV8.tsx` | ❌ Open |
+| P2 | `useState<any>` in V7 flows | Carry-forward type loss | `TokenExchangeFlowV7.tsx` L1697 | ❌ Open |
+| P2 | Spinner in `useCallback`/`useEffect` deps | Re-render loop risk | `TokenExchangeFlowV8.tsx` | ⚠️ Monitor |
+| P3 | 10+ `useState` calls → `useReducer` | Maintainability | All major flows | 💡 Improve |
+| P3 | `usePageScroll` dropped in V8 | UX regression | All V8 flows | ❌ Open |
+| P3 | V8's own `Container` vs `FlowUIService` | Layout inconsistency | All V8 flows copied to V9 | ❌ Open |
+| P3 | Bare `console.log` in services | Debug noise in prod | Multiple V7 services | 💡 Improve |
+| P4 | Hardcoded color strings in styled-components | Maintenance friction | All files | 💡 Long-term |
+
+---
+
+## �📋 Pre-Migration Checklist
 
 ### Identify Source Version
 

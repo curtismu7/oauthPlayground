@@ -189,6 +189,7 @@ const V9_SPEC_CONFIGS: Record<V9SpecVersion, V9SpecConfig> = {
 	},
 };
 
+// biome-ignore lint/complexity/noStaticOnlyClass: This is a service class with static methods
 export class V9SpecVersionService {
 	/**
 	 * Get available flows for a spec version
