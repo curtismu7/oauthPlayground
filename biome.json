@@ -10,6 +10,7 @@
 			"plan/**/*",
 			"docs/**/*",
 			"memory.md",
+			"COMMAND_EXECUTION_FIX.md",
 			"!src/styles/icons.css",
 			"!AI Ping",
 			"!pingone-mcp-server",
