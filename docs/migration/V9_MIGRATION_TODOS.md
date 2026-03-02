@@ -1,25 +1,28 @@
 # V9 Migration — Remaining TODOs
 
-**Last Updated:** March 2, 2026  
+**Last Updated:** March 2, 2026 — Token Exchange V9 ✅  
 **Reference:** [migrate_vscode.md](./migrate_vscode.md) — full migration guide  
 **Inventory:** See [migrate_vscode.md § V9 Migration Inventory](./migrate_vscode.md#-v9-migration-inventory-march-2-2026) for completed work
 
 ---
 
-## 🔴 CRITICAL — Flow Migrations
+## ✅ COMPLETED — Token Exchange V7 → V9 *(March 2, 2026)*
 
 ### Token Exchange V7 → V9
-- **Sidebar label:** Token Exchange (V8M)
-- **Current route:** `/flows/token-exchange-v7`
-- **V8 source:** `src/v8/flows/TokenExchangeFlowV8.tsx`
-- **Target route:** `/flows/token-exchange-v9`
-- **Complexity:** High — RFC 8693 token exchange, uses `tokenExchangeServiceV8`, `tokenExchangeConfigServiceV8`
-- [ ] Run pre-migration check script against V8 source
-- [ ] Create `src/pages/flows/v9/TokenExchangeFlowV9.tsx`
-- [ ] Fix imports (V8-internal `../` → `@/v8/...`)
-- [ ] Add route to `App.tsx`
-- [ ] Update sidebar entry: replace V7 route with V9
-- [ ] Test token exchange flow end-to-end
+- **Route:** `/flows/token-exchange-v9` ✅
+- **File:** `src/pages/flows/v9/TokenExchangeFlowV9.tsx` ✅
+- **Lint:** 0 errors, 0 warnings ✅
+- **TypeScript:** 0 errors ✅
+- **Sidebar:** Token Exchange (V9) ✅
+- [x] Created `src/pages/flows/v9/TokenExchangeFlowV9.tsx` — 5-step wizard (scenario → config → subject token → exchange → results)
+- [x] V9 Modern Messaging (wait screen + banners) — no toast, no console.error
+- [x] Route registered in `App.tsx`
+- [x] Sidebar updated to V9 route
+- [x] Fixed React hook dep warnings (requestedTokenType dep + scroll-on-step pattern)
+
+---
+
+## 🔴 CRITICAL — Flow Migrations
 
 ---
 
