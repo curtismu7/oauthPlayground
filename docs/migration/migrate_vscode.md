@@ -6,7 +6,106 @@
 
 ---
 
-## 📖 CRITICAL: Read Before Starting
+## � V9 Migration Inventory (March 2, 2026)
+
+### ✅ Migrated to V9
+
+| Flow | V9 File | Route | Notes |
+|---|---|---|---|
+| Authorization Code + PKCE | `v9/OAuthAuthorizationCodeFlowV9.tsx` | `/flows/oauth-authorization-code-v9` | V7 route redirects → V9 |
+| Authorization Code Condensed | `v9/OAuthAuthorizationCodeFlowV9_Condensed.tsx` | `/flows/oauth-authorization-code-v9-condensed` | |
+| Implicit Flow (OAuth + OIDC) | `v9/ImplicitFlowV9.tsx` | `/flows/implicit-v9` | V7 route redirects → V9 |
+| Device Authorization (OAuth + OIDC) | `v9/DeviceAuthorizationFlowV9.tsx` | `/flows/device-authorization-v9` | V7 route redirects → V9 |
+| Client Credentials | `v9/ClientCredentialsFlowV9.tsx` | `/flows/client-credentials-v9` | V7 route redirects → V9 |
+| OIDC Hybrid | `v9/OIDCHybridFlowV9.tsx` | `/flows/oidc-hybrid-v9` | V7 **still also in sidebar** |
+| JWT Bearer Token | `v9/JWTBearerTokenFlowV9.tsx` | `/flows/jwt-bearer-token-v9` | V7 **still also in sidebar** |
+| SAML Bearer Assertion | `v9/SAMLBearerAssertionFlowV9.tsx` | `/flows/saml-bearer-assertion-v9` | V7 **still also in sidebar** |
+| RAR Flow | `v9/RARFlowV9.tsx` | `/flows/rar-v9` | V7 **still also in sidebar** |
+| CIBA | `pages/flows/CIBAFlowV9.tsx` | `/flows/ciba-v9` | Not in `v9/` subdir |
+| Redirectless | `pages/flows/RedirectlessFlowV9_Real.tsx` | `/flows/redirectless-v7-real` (shared route) | Not in `v9/` subdir |
+
+### ❌ Not Yet Migrated to V9 (Still V7 in Sidebar)
+
+| Flow | Current Route | Priority | V8 Equivalent? | Notes |
+|---|---|---|---|---|
+| Token Exchange | `/flows/token-exchange-v7` | **CRITICAL** | Labeled "V8M" in sidebar | Complex RFC 8693 flow |
+| PingOne PAR | `/flows/pingone-par-v7` | High | `PingOnePARFlowV8` in `v8/flows/` | PAR + PKCE |
+| PingOne MFA | `/flows/pingone-complete-mfa-v7` | High | `CompleteMFAFlowV8.tsx` in `v8/flows/` | Complex MFA lifecycle |
+| PingOne MFA Workflow Library | `/flows/pingone-mfa-workflow-library-v7` | High | `MFAFlowV8.tsx` in `v8/flows/` | |
+| Worker Token | `/flows/worker-token-v7` | High | `WorkerTokenFlowV7` | Token acquisition flow |
+| ROPC | `/flows/oauth-ropc-v7` | Medium | — | Deprecated by OAuth 2.1 |
+| Auth Code Condensed (Mock) | `/flows/oauth-authorization-code-v7-condensed-mock` | Low | — | Educational mock |
+| V7 Condensed Prototype | `/flows/v7-condensed-mock` | Low | — | Prototype only |
+
+### ⚠️ V8 Flows in Sidebar (Not V9)
+
+These are V8-native flows with no V9 equivalent yet:
+
+| Flow | Route | File |
+|---|---|---|
+| Authorization Code V8 | `/flows/oauth-authorization-code-v8` | `v8/flows/OAuthAuthorizationCodeFlowV8.tsx` |
+| Implicit Flow V8 | `/flows/implicit-v8` | `v8/flows/ImplicitFlowV8.tsx` |
+| DPoP Authorization Code V8 | `/flows/dpop-authorization-code-v8` | — |
+
+### 🧹 Cleanup Done (March 2, 2026)
+
+Removed duplicate V7 sidebar entries from `sidebarMenuConfig.ts` — V9 is now the only entry for these flows:
+
+- ~~`/flows/oidc-hybrid-v7`~~ → `/flows/oidc-hybrid-v9` ✅
+- ~~`/flows/jwt-bearer-token-v7`~~ → `/flows/jwt-bearer-token-v9` ✅
+- ~~`/flows/saml-bearer-assertion-v7`~~ → `/flows/saml-bearer-assertion-v9` ✅
+- ~~`/flows/rar-v7`~~ → `/flows/rar-v9` ✅
+
+### 📌 Remaining Migration TODOs
+
+**High Priority — V8 source exists, ready to migrate:**
+- [ ] Token Exchange V7 (`/flows/token-exchange-v7`, labeled "V8M") → V9 (source: `v8/flows/TokenExchangeFlowV8.tsx`)
+- [ ] PingOne PAR V7 → V9 (source: `v8/flows/PingOnePARFlowV8/`)
+- [ ] PingOne MFA V7 → V9 (source: `v8/flows/CompleteMFAFlowV8.tsx`)
+- [ ] PingOne MFA Workflow Library V7 → V9 (source: `v8/flows/MFAFlowV8.tsx`)
+- [ ] Worker Token V7 → V9
+
+**Medium Priority:**
+- [ ] ROPC V7 → V9 (note: deprecated by OAuth 2.1 — consider educational-only status)
+
+**Low Priority / Prototype:**
+- [ ] Auth Code Condensed (Mock) V7 — evaluate if V9 condensed already covers this
+- [ ] V7 Condensed Prototype — evaluate for removal
+
+**V8 flows without V9 equivalent:**
+- [ ] Authorization Code V8 (`/flows/oauth-authorization-code-v8`) → V9
+- [ ] Implicit Flow V8 (`/flows/implicit-v8`) → V9
+- [ ] DPoP Authorization Code V8 (`/flows/dpop-authorization-code-v8`) → V9
+
+**V9 services still needed (per Priority 1 plan):**
+- [ ] `mfaServiceV8` → V9MFAService (High complexity)
+- [ ] `workerTokenServiceV8` → V9TokenService
+- [ ] `credentialsServiceV8` → V9CredentialService (High complexity)
+- [ ] `unifiedFlowLoggerServiceV8` → V9LoggingService
+
+### V9 Services Created
+
+| Service | File |
+|---|---|
+| Credential validation | `services/v9/v9CredentialValidationService.tsx` |
+| Worker token status | `services/v9/V9WorkerTokenStatusService.ts` |
+| Spec version | `services/v9/V9SpecVersionService.ts` |
+| Token service | `services/v9/V9TokenService.ts` |
+| Authorize service | `services/v9/V9AuthorizeService.ts` |
+| Device authorization | `services/v9/V9DeviceAuthorizationService.ts` |
+| Introspection | `services/v9/V9IntrospectionService.ts` |
+| User info | `services/v9/V9UserInfoService.ts` |
+| PKCE generation | `services/v9/core/V9PKCEGenerationService.ts` |
+| OAuth error handling | `services/v9/core/V9OAuthErrorHandlingService.ts` |
+| Flow credential service | `services/v9/core/V9FlowCredentialService.ts` |
+| Credentials service | `services/v9/credentialsServiceV9.ts` |
+| Environment ID | `services/v9/environmentIdServiceV9.ts` |
+| Postman generator | `services/v9/postmanCollectionGeneratorV9.ts` |
+| V8→V9 adapter | `services/v9/V8ToV9WorkerTokenStatusAdapter.ts` |
+
+---
+
+## �📖 CRITICAL: Read Before Starting
 
 **Before migrating any flow, read:**
 - [V9 Migration Lessons Learned](./V9_MIGRATION_LESSONS_LEARNED.md) - All errors discovered and solutions
@@ -1001,6 +1100,7 @@ curl -o src/styles/vendor/end-user-nano.css "https://assets.pingone.com/ux/end-u
 
 ## 🔗 Additional Resources
 
+- [**V9 Migration TODOs**](./V9_MIGRATION_TODOS.md) - Actionable checklist for all remaining flow + service migrations
 - [V9 Migration Lessons Learned](./V9_MIGRATION_LESSONS_LEARNED.md) - Complete error catalog
 - [V7 to V9 Migration Guide](./V7_TO_V9_MIGRATION_GUIDE.md) - Original plan
 - [V7 to V8/V9 Upgrade Targets](./V7_TO_V8_UPGRADE_TARGETS.md) - Priority inventory: 18 sidebar V7 apps, service dependency analysis, CRITICAL/High/Medium/Low priority tiers
