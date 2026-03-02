@@ -2,9 +2,9 @@
 // V9 Wrapper for FlowCompletionService - Modern Messaging Compliant
 
 import React from 'react';
+// Import Modern Messaging (V9) - proper migration to non-toast messaging
+import { modernMessaging } from '../../components/v9/V9ModernMessagingComponents';
 import { FlowCompletionConfig, FlowCompletionService } from '../flowCompletionService';
-// Import Modern Messaging (V8) - established migration pattern
-import { ToastNotificationsV8 as toastV8 } from '../../v8/utils/toastNotificationsV8';
 
 // V9 Wrapper Component
 export interface V9FlowCompletionProps {
@@ -19,10 +19,18 @@ const V9FlowCompletionService: React.FC<V9FlowCompletionProps> = (props) => {
 		...props.config,
 		onStartNewFlow: () => {
 			try {
-				toastV8.info('Starting new flow...');
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: 'Starting new flow...',
+					duration: 3000,
+				});
 				props.config.onStartNewFlow();
 			} catch (error) {
-				toastV8.error('Failed to start new flow');
+				modernMessaging.showCriticalError({
+					title: 'Flow Start Failed',
+					message: 'Failed to start new flow',
+					contactSupport: false,
+				});
 				console.error('Start new flow error:', error);
 			}
 		},
@@ -33,7 +41,11 @@ const V9FlowCompletionService: React.FC<V9FlowCompletionProps> = (props) => {
 		try {
 			props.onToggleCollapsed?.();
 		} catch (error) {
-			toastV8.error('Failed to toggle completion section');
+			modernMessaging.showCriticalError({
+				title: 'Toggle Failed',
+				message: 'Failed to toggle completion section',
+				contactSupport: false,
+			});
 			console.error('Toggle collapsed error:', error);
 		}
 	};

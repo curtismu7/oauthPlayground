@@ -164,6 +164,7 @@ import OAuthAuthorizationCodeFlowV9_Condensed from './pages/flows/v9/OAuthAuthor
 import OIDCHybridFlowV9 from './pages/flows/v9/OIDCHybridFlowV9';
 import RARFlowV9 from './pages/flows/v9/RARFlowV9';
 import SAMLBearerAssertionFlowV9 from './pages/flows/v9/SAMLBearerAssertionFlowV9';
+import TokenExchangeFlowV9 from './pages/flows/v9/TokenExchangeFlowV9';
 import WorkerTokenFlowV7 from './pages/flows/WorkerTokenFlowV7';
 // import InteractiveTutorials from './pages/InteractiveTutorials'; // Removed - unused tutorial feature
 import JWKSTroubleshooting from './pages/JWKSTroubleshooting';
@@ -1085,6 +1086,8 @@ const AppRoutes: React.FC = () => {
 								<Route path="/flows/jwt-bearer-token-v7" element={<JWTBearerTokenFlowV7 />} />
 								{/* V9 JWT Bearer Token Flow */}
 								<Route path="/flows/jwt-bearer-token-v9" element={<JWTBearerTokenFlowV9 />} />
+								{/* V9 Token Exchange Flow */}
+								<Route path="/flows/token-exchange-v9" element={<TokenExchangeFlowV9 />} />
 								{/* V8M Token Exchange Flow */}
 								<Route path="/flows/token-exchange-v7" element={<V8MTokenExchange />} />
 								{/* Legacy V6 routes - redirect to V7 (latest version) */}

@@ -8,8 +8,8 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-	type TokenStatusInfo,
 	checkWorkerTokenStatusSync,
+	type TokenStatusInfo,
 } from '@/v8/services/workerTokenStatusServiceV8';
 
 export interface WorkerTokenExpiryBannerV8Props {
@@ -53,7 +53,7 @@ export const WorkerTokenExpiryBannerV8: React.FC<WorkerTokenExpiryBannerV8Props>
 	if (status.status === 'valid' || dismissed) return null;
 
 	const isExpired = status.status === 'expired' || status.status === 'missing';
-	const isExpiringSoon = status.status === 'expiring-soon';
+	const _isExpiringSoon = status.status === 'expiring-soon';
 
 	const colors = isExpired
 		? {

@@ -1,9 +1,9 @@
 // src/services/v9/v9OidcDiscoveryService.ts
 // V9 Wrapper for oidcDiscoveryService - Modern Messaging Compliant
 
+// Import Modern Messaging (V9) - proper migration to non-toast messaging
+import { modernMessaging } from '../../components/v9/V9ModernMessagingComponents';
 import { type OIDCDiscoveryDocument, oidcDiscoveryService } from '../oidcDiscoveryService';
-// Import Modern Messaging (V8) - established migration pattern
-import { ToastNotificationsV8 as toastV8 } from '../../v8/utils/toastNotificationsV8';
 
 // V9 Wrapper Service - wraps original with Modern Messaging
 const V9OidcDiscoveryService = {
@@ -12,27 +12,47 @@ const V9OidcDiscoveryService = {
 		try {
 			// Add V9 logging for discovery attempt
 			console.log(`[V9 OIDC Discovery] Starting discovery for: ${config.issuerUrl}`);
-			toastV8.info('Discovering OIDC endpoints...');
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Discovering OIDC endpoints...',
+				duration: 5000,
+			});
 
 			// Wrap the original service with error handling
 			const result = await oidcDiscoveryService.discover(config);
 
 			if (result.success) {
 				if (result.cached) {
-					toastV8.success('OIDC endpoints loaded from cache');
+					modernMessaging.showFooterMessage({
+						type: 'info',
+						message: 'OIDC endpoints loaded from cache',
+						duration: 4000,
+					});
 				} else {
-					toastV8.success('OIDC endpoints discovered successfully');
+					modernMessaging.showFooterMessage({
+						type: 'info',
+						message: 'OIDC endpoints discovered successfully',
+						duration: 4000,
+					});
 				}
 				console.log(`[V9 OIDC Discovery] Discovery successful for: ${result.issuerUrl}`);
 			} else {
-				toastV8.error(`Discovery failed: ${result.error}`);
+				modernMessaging.showCriticalError({
+					title: 'Discovery Failed',
+					message: `Discovery failed: ${result.error}`,
+					contactSupport: false,
+				});
 				console.error('[V9 OIDC Discovery] Discovery failed:', result.error);
 			}
 
 			return result;
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown discovery error';
-			toastV8.error(`Discovery error: ${errorMessage}`);
+			modernMessaging.showCriticalError({
+				title: 'Discovery Error',
+				message: `Discovery error: ${errorMessage}`,
+				contactSupport: false,
+			});
 			console.error('[V9 OIDC Discovery] Discovery error:', error);
 
 			return {
@@ -49,7 +69,11 @@ const V9OidcDiscoveryService = {
 			console.log(`[V9 OIDC Discovery] Extracted environment ID: ${result}`);
 			return result;
 		} catch (error) {
-			toastV8.error('Failed to extract environment ID from issuer URL');
+			modernMessaging.showCriticalError({
+				title: 'Environment ID Extraction Failed',
+				message: 'Failed to extract environment ID from issuer URL',
+				contactSupport: false,
+			});
 			console.error('[V9 OIDC Discovery] Environment ID extraction error:', error);
 			return null;
 		}
@@ -72,7 +96,11 @@ const V9OidcDiscoveryService = {
 			console.log(`[V9 OIDC Discovery] Converted discovery document to credentials`);
 			return result;
 		} catch (error) {
-			toastV8.error('Failed to convert discovery document to credentials');
+			modernMessaging.showCriticalError({
+				title: 'Credentials Conversion Failed',
+				message: 'Failed to convert discovery document to credentials',
+				contactSupport: false,
+			});
 			console.error('[V9 OIDC Discovery] Credentials conversion error:', error);
 			return null;
 		}
@@ -82,10 +110,18 @@ const V9OidcDiscoveryService = {
 	clearCache(): void {
 		try {
 			oidcDiscoveryService.clearCache();
-			toastV8.info('Discovery cache cleared');
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Discovery cache cleared',
+				duration: 3000,
+			});
 			console.log('[V9 OIDC Discovery] Cache cleared');
 		} catch (error) {
-			toastV8.error('Failed to clear discovery cache');
+			modernMessaging.showCriticalError({
+				title: 'Cache Clear Failed',
+				message: 'Failed to clear discovery cache',
+				contactSupport: false,
+			});
 			console.error('[V9 OIDC Discovery] Cache clear error:', error);
 		}
 	},
@@ -97,7 +133,11 @@ const V9OidcDiscoveryService = {
 			console.log(`[V9 OIDC Discovery] Cache stats: ${result.size} entries`);
 			return result;
 		} catch (error) {
-			toastV8.error('Failed to get cache statistics');
+			modernMessaging.showCriticalError({
+				title: 'Cache Stats Failed',
+				message: 'Failed to get cache statistics',
+				contactSupport: false,
+			});
 			console.error('[V9 OIDC Discovery] Cache stats error:', error);
 			return { size: 0, entries: [] };
 		}
@@ -112,7 +152,11 @@ const V9OidcDiscoveryService = {
 	validateIssuerUrl(issuerUrl: string): boolean {
 		try {
 			if (!issuerUrl || typeof issuerUrl !== 'string') {
-				toastV8.error('Invalid issuer URL provided');
+				modernMessaging.showCriticalError({
+					title: 'Invalid Issuer URL',
+					message: 'Invalid issuer URL provided',
+					contactSupport: false,
+				});
 				return false;
 			}
 
@@ -121,11 +165,19 @@ const V9OidcDiscoveryService = {
 				new URL(issuerUrl);
 				return true;
 			} catch {
-				toastV8.error('Invalid URL format for issuer');
+				modernMessaging.showCriticalError({
+					title: 'Invalid URL Format',
+					message: 'Invalid URL format for issuer',
+					contactSupport: false,
+				});
 				return false;
 			}
 		} catch (error) {
-			toastV8.error('Issuer URL validation failed');
+			modernMessaging.showCriticalError({
+				title: 'URL Validation Failed',
+				message: 'Issuer URL validation failed',
+				contactSupport: false,
+			});
 			console.error('[V9 OIDC Discovery] URL validation error:', error);
 			return false;
 		}

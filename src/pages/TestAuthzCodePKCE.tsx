@@ -196,16 +196,19 @@ const TestAuthzCodePKCE: React.FC = () => {
 		setLogs((prev) => [...prev, { message, type, timestamp }]);
 	}, []);
 
-	const updateResults = useCallback((tokens: Record<string, unknown>) => {
-		setResults({
-			pkceGeneration: !!pkceData,
-			pkceStorage: !!localStorage.getItem(`${FLOW_KEY}_pkce`),
-			pkceInExchange: true,
-			tokenReceipt: !!tokens.access_token,
-			idToken: !!tokens.id_token,
-			refreshToken: !!tokens.refresh_token,
-		});
-	}, [pkceData]);
+	const updateResults = useCallback(
+		(tokens: Record<string, unknown>) => {
+			setResults({
+				pkceGeneration: !!pkceData,
+				pkceStorage: !!localStorage.getItem(`${FLOW_KEY}_pkce`),
+				pkceInExchange: true,
+				tokenReceipt: !!tokens.access_token,
+				idToken: !!tokens.id_token,
+				refreshToken: !!tokens.refresh_token,
+			});
+		},
+		[pkceData]
+	);
 
 	useEffect(() => {
 		if (initialized) return; // Prevent re-running

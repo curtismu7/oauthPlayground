@@ -311,7 +311,7 @@ import { UserSearchDropdownV8 } from '../../v8/components/UserSearchDropdownV8';
 import { SilentApiConfigCheckboxV8 } from '../v8/components/SilentApiConfigCheckboxV8';
 
 // Messaging (Modern)
-import { messaging } from '../../../v8/utils/toastNotificationsV8';
+import { V9ModernMessagingProvider, useModernMessaging } from '../../../components/v9/V9ModernMessagingComponents';
 ```
 
 ### V8 Import Path Conventions

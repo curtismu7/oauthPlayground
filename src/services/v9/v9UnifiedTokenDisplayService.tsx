@@ -1,9 +1,10 @@
 // src/services/v9/v9UnifiedTokenDisplayService.tsx
 // V9 Wrapper for UnifiedTokenDisplayService - Modern Messaging Compliant
 
+import React from 'react';
+// Import Modern Messaging (V9) - proper migration to non-toast messaging
+import { modernMessaging } from '../../components/v9/V9ModernMessagingComponents';
 import { UnifiedTokenDisplayService } from '../unifiedTokenDisplayService';
-// Import Modern Messaging (V8) - established migration pattern
-import { ToastNotificationsV8 as toastV8 } from '../../v8/utils/toastNotificationsV8';
 
 // TokenResponse interface (copied from original for type safety)
 interface TokenResponse {
@@ -25,7 +26,7 @@ const V9UnifiedTokenDisplayService = {
 			showDecodeButtons?: boolean;
 			className?: string;
 		}
-	) {
+	): React.ReactElement {
 		try {
 			// Add V9 logging for token display
 			console.log(`[V9 TokenDisplay] Showing tokens for flow: ${flowKey}`);
@@ -36,7 +37,11 @@ const V9UnifiedTokenDisplayService = {
 			// Add V9-specific error boundary wrapper
 			return <div data-v9-token-display={flowKey}>{result}</div>;
 		} catch (error) {
-			toastV8.error('Failed to display tokens');
+			modernMessaging.showCriticalError({
+				title: 'Token Display Failed',
+				message: 'Failed to display tokens',
+				contactSupport: false,
+			});
 			console.error('Token display error:', error);
 
 			// Return fallback error display
@@ -66,18 +71,31 @@ const V9UnifiedTokenDisplayService = {
 	validateTokenDisplay(tokens: unknown): boolean {
 		try {
 			if (!tokens) {
-				toastV8.warning('No tokens to display');
+				modernMessaging.showBanner({
+					type: 'warning',
+					title: 'No Tokens',
+					message: 'No tokens to display',
+					dismissible: true,
+				});
 				return false;
 			}
 
 			if (typeof tokens !== 'object') {
-				toastV8.error('Invalid token format');
+				modernMessaging.showCriticalError({
+					title: 'Invalid Token Format',
+					message: 'Invalid token format',
+					contactSupport: false,
+				});
 				return false;
 			}
 
 			return true;
 		} catch (error) {
-			toastV8.error('Token validation failed');
+			modernMessaging.showCriticalError({
+				title: 'Token Validation Failed',
+				message: 'Token validation failed',
+				contactSupport: false,
+			});
 			console.error('Token validation error:', error);
 			return false;
 		}

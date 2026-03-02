@@ -1219,11 +1219,11 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 					stepId: 'token-exchange',
 					operation: 'pollForTokens',
 					credentials: {
-						hasClientId: !!deviceFlow.credentials.clientId,
-						hasClientSecret: !!deviceFlow.credentials.clientSecret,
-						hasEnvironmentId: !!deviceFlow.credentials.environmentId,
-						hasRedirectUri: !!deviceFlow.credentials.redirectUri,
-						hasScope: !!deviceFlow.credentials.scopes,
+						hasClientId: !!deviceFlow.credentials?.clientId,
+						hasClientSecret: !!deviceFlow.credentials?.clientSecret,
+						hasEnvironmentId: !!deviceFlow.credentials?.environmentId,
+						hasRedirectUri: !!deviceFlow.credentials?.redirectUri,
+						hasScope: !!deviceFlow.credentials?.scopes,
 					},
 					metadata: {
 						deviceCode: deviceFlow.deviceCodeData?.device_code ? 'present' : 'missing',
@@ -1247,11 +1247,11 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 		deviceFlow.pollingStatus.error,
 		deviceFlow.deviceCodeData?.device_code,
 		selectedVariant,
-		deviceFlow.credentials.clientId,
-		deviceFlow.credentials.clientSecret,
-		deviceFlow.credentials.environmentId,
-		deviceFlow.credentials.redirectUri,
-		deviceFlow.credentials.scopes,
+		deviceFlow.credentials?.clientId,
+		deviceFlow.credentials?.clientSecret,
+		deviceFlow.credentials?.environmentId,
+		deviceFlow.credentials?.redirectUri,
+		deviceFlow.credentials?.scopes,
 		// Note: Removed credential dependencies to prevent infinite loop
 		// The credentials are only used for hasXXX checks in parsedError metadata
 		// and don't affect the core error parsing logic

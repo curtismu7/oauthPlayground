@@ -2,9 +2,9 @@
 // V9 Wrapper for ModalPresentationService - Modern Messaging Compliant
 
 import React from 'react';
+// Import Modern Messaging (V9) - proper migration to non-toast messaging
+import { modernMessaging } from '../../components/v9/V9ModernMessagingComponents';
 import ModalPresentationService from '../modalPresentationService';
-// Import Modern Messaging (V8) - established migration pattern
-import { ToastNotificationsV8 as toastV8 } from '../../v8/utils/toastNotificationsV8';
 
 // ModalActionDescriptor interface (copied from original for type safety)
 interface ModalActionDescriptor {
@@ -34,9 +34,17 @@ const V9ModalPresentationService: React.FC<V9ModalPresentationServiceProps> = (p
 			onClick: () => {
 				try {
 					action.onClick();
-					toastV8.success(`Action completed: ${action.label}`);
+					modernMessaging.showFooterMessage({
+						type: 'info',
+						message: `Action completed: ${action.label}`,
+						duration: 3000,
+					});
 				} catch (error) {
-					toastV8.error(`Failed to execute action: ${action.label}`);
+					modernMessaging.showCriticalError({
+						title: 'Action Failed',
+						message: `Failed to execute action: ${action.label}`,
+						contactSupport: false,
+					});
 					console.error('Modal action error:', error);
 				}
 			},
@@ -49,7 +57,11 @@ const V9ModalPresentationService: React.FC<V9ModalPresentationServiceProps> = (p
 			props.onClose();
 			// Don't show message on close - it's expected behavior
 		} catch (error) {
-			toastV8.error('Failed to close modal');
+			modernMessaging.showCriticalError({
+				title: 'Modal Close Failed',
+				message: 'Failed to close modal',
+				contactSupport: false,
+			});
 			console.error('Modal close error:', error);
 		}
 	};
@@ -62,7 +74,11 @@ const V9ModalPresentationService: React.FC<V9ModalPresentationServiceProps> = (p
 			</div>
 		);
 	} catch (error) {
-		toastV8.error('Failed to render modal');
+		modernMessaging.showCriticalError({
+			title: 'Modal Render Failed',
+			message: 'Failed to render modal',
+			contactSupport: false,
+		});
 		console.error('Modal render error:', error);
 
 		// Return fallback error modal

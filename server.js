@@ -761,6 +761,8 @@ app.use(
 			'https://localhost:3000',
 			'http://localhost:3001',
 			'https://localhost:3001',
+			'https://api.pingdemo.com:3000',
+			'http://api.pingdemo.com:3000',
 		],
 		credentials: true,
 		methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -778,7 +780,7 @@ app.use((_req, res, next) => {
 			"style-src 'self' 'unsafe-inline'; " +
 			"font-src 'self' data:; " +
 			"img-src 'self' data:; " +
-			"connect-src 'self' http://localhost:3000 http://localhost:3001 https://localhost:3000 https://localhost:3001 wss://localhost:3000 wss://localhost:3001; " +
+			"connect-src 'self' http://localhost:3000 http://localhost:3001 https://localhost:3000 https://localhost:3001 https://api.pingdemo.com:3000 http://api.pingdemo.com:3000 wss://localhost:3000 wss://localhost:3001; " +
 			"frame-ancestors 'none'; " +
 			"base-uri 'self'"
 	);
@@ -20064,6 +20066,22 @@ const certs = getCertPaths();
 // Server variable declarations
 let httpsServer;
 let httpServer;
+
+// Helper function to get the correct server URL based on the request
+function getServerUrl(req) {
+	const proto = req.protocol;
+	const host = req.get('host');
+	const baseUrl = `${proto}://${host}`;
+	console.log(`🔗 Server URL: ${baseUrl}`);
+	return baseUrl;
+}
+
+// Helper function to get server URL for console messages (uses actual server protocol)
+function getServerConsoleUrl() {
+	const protocol = USE_HTTPS ? 'https' : 'http';
+	const host = process.env.HOST || 'localhost';
+	return `${protocol}://${host}:${PORT}`;
+}
 
 // Start HTTPS server on PORT if certificates are available
 if (certs) {

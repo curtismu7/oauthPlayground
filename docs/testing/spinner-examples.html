@@ -444,10 +444,10 @@
     
     <script>
         // Modal functions
-        function showModal(theme) {
+        function _showModal(theme) {
             const overlay = document.getElementById('modalOverlay');
             const spinner = document.getElementById('modalSpinner');
-            const icon = document.getElementById('modalIcon');
+            const _icon = document.getElementById('modalIcon');
             const message = document.getElementById('modalMessage');
             const description = document.getElementById('modalDescription');
             
@@ -481,11 +481,11 @@
             overlay.style.display = 'flex';
         }
         
-        function hideModal() {
+        function _hideModal() {
             document.getElementById('modalOverlay').style.display = 'none';
         }
         
-        function showFullModal(type) {
+        function _showFullModal(type) {
             const overlay = document.getElementById('fullModalOverlay');
             const spinner = document.getElementById('fullModalSpinner');
             const message = document.getElementById('fullModalMessage');

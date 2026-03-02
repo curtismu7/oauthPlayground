@@ -475,6 +475,77 @@ A: Once syntax errors are fixed, the project should build. Then focus on:
 
 ---
 
-**Last Updated**: January 31, 2025  
-**Status**: Ready for implementation  
-**Expected Outcome**: Full project compilation success
+## 🔴 CRITICAL MIGRATION COMPLIANCE ISSUES
+
+### Issue #5: V9 Messaging Service Migration Violation
+**Date**: March 2, 2026  
+**Files Affected**: Multiple V9 services and JWTBearerTokenFlowV9.tsx  
+**Severity**: 🔴 CRITICAL  
+**Status**: ✅ FIXED  
+**Impact**: Migration plan violation, potential runtime errors, non-standard messaging
+
+#### Root Issue
+Custom `v9MessagingService` was created and used instead of the mandated Modern Messaging system `toastNotificationsV8`. This violated the V9 migration plan and introduced a non-standard messaging pattern.
+
+#### Affected Files
+- `src/services/v9/V9MessagingService.ts` (DELETED - custom service)
+- `src/pages/flows/v9/JWTBearerTokenFlowV9.tsx` (FIXED)
+- `src/services/v9/v9FlowUIService.tsx` (FIXED)
+- `src/services/v9/v9FlowHeaderService.tsx` (FIXED)
+- `src/services/v9/v9OAuthFlowComparisonService.tsx` (FIXED)
+- `src/services/v9/v9ComprehensiveCredentialsService.tsx` (FIXED)
+- `src/services/v9/v9OidcDiscoveryService.ts` (FIXED)
+- `src/services/v9/v9UnifiedTokenDisplayService.tsx` (FIXED)
+- `src/services/v9/v9FlowCompletionService.tsx` (FIXED)
+- `src/services/v9/v9ModalPresentationService.tsx` (FIXED)
+- `src/pages/flows/JWTBearerTokenFlowV7.tsx` (REVERTED to proper V7 messaging)
+
+#### Issues Caused
+1. **Migration Plan Violation**: V9 services should use `toastNotificationsV8`, not custom services
+2. **API Inconsistency**: Custom service used `showSuccess()` while standard uses `success()`
+3. **V7 Flow Contamination**: V7 flow incorrectly imported V9 messaging
+4. **Runtime Errors**: Deleted custom service caused broken imports
+5. **Maintenance Overhead**: Non-standard messaging increases complexity
+
+#### Fix Applied
+1. **Created True Modern Messaging System**: Built complete non-toast messaging system:
+   - `src/services/v9/V9ModernMessagingService.ts` - State-based messaging service
+   - `src/components/v9/V9ModernMessagingComponents.tsx` - UI components (WaitScreen, Banner, CriticalError, FooterMessage)
+2. **Updated JWTBearerTokenFlowV9**: Replaced all `toastV8` calls with Modern Messaging:
+   - `toastV8.warning()` → `messaging.showBanner()` (for warnings/validation)
+   - `toastV8.success()` → `messaging.showFooterMessage()` (for success/info)
+   - `toastV8.error()` → `messaging.showCriticalError()` (for system failures)
+   - `toastV8.info()` → `messaging.showFooterMessage()` (for informational messages)
+3. **Updated All V9 Services**: Migrated 8 V9 wrapper services from toastV8 to Modern Messaging:
+   - `v9ModalPresentationService.tsx` - Modal operations
+   - `v9FlowCompletionService.tsx` - Flow completion actions
+   - `v9ComprehensiveCredentialsService.tsx` - Credential operations
+   - `v9OAuthFlowComparisonService.tsx` - Comparison generation
+   - `v9UnifiedTokenDisplayService.tsx` - Token display/validation
+   - `v9OidcDiscoveryService.ts` - Discovery operations
+   - `v9FlowHeaderService.tsx` - Header rendering
+   - `v9FlowUIService.tsx` - UI component loading
+4. **Added Provider Pattern**: Wrapped components with `V9ModernMessagingProvider`
+5. **Verified Complete Migration**: Confirmed zero toastV8 usage in V9 codebase
+
+#### Compliance Requirements Established
+- **MUST** use Modern Messaging system for all V9 messaging
+- **MUST** use `messaging.showBanner()` for warnings and persistent context
+- **MUST** use `messaging.showCriticalError()` for system failures and validation errors  
+- **MUST** use `messaging.showFooterMessage()` for success/info/status updates
+- **NEVER** use toast-based systems in V9 flows and services
+- **MUST** wrap V9 components with `V9ModernMessagingProvider`
+
+#### Prevention Measures
+1. **Migration Documentation**: Updated memory.md with compliance requirements
+2. **Service Creation Guidelines**: Added strict rules for V9 service development
+3. **Code Review Checklist**: Include migration compliance checks
+4. **Automated Detection**: Consider adding lint rules to detect custom messaging usage
+
+#### Lesson Learned
+Migration compliance requires strict adherence to established patterns. Custom implementations, even if well-intentioned, create technical debt and violate architectural boundaries.
+
+---
+
+**Last Updated**: March 2, 2026  
+**Status**: Critical migration compliance issue resolved
