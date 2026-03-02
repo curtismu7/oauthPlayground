@@ -6,11 +6,15 @@
  */
 
 import React from 'react';
-import { WorkerTokenStatusServiceV8 } from '../services/workerTokenStatusServiceV8';
+import {
+	type TokenStatusInfo,
+	WorkerTokenStatusServiceV8,
+} from '../services/workerTokenStatusServiceV8';
 import { DeviceConfigKey } from './config/deviceFlowConfigTypes';
 import { APIDocsStepV8 } from './shared/APIDocsStepV8';
 import type { MFAFlowBaseRenderProps } from './shared/MFAFlowBaseV8';
 import { MFAFlowBaseV8 } from './shared/MFAFlowBaseV8';
+import type { MFACredentials } from './shared/MFATypes';
 import { SuccessStepV8 } from './shared/SuccessStepV8';
 import { UserLoginStepV8 } from './shared/UserLoginStepV8';
 import { UnifiedActivationStep } from './unified/components/UnifiedActivationStep';
@@ -177,32 +181,35 @@ export const NewMFAFlowV8: React.FC<NewMFAFlowV8Props> = ({ deviceType }) => {
 		return false;
 	}, []);
 
-	const validateStep0 = React.useCallback((credentials: any, _tokenStatus: any, _nav: any) => {
-		// FIXED: Always do a FRESH check of worker token status
-		// The tokenStatus parameter from React state can be stale
-		const freshTokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
+	const validateStep0 = React.useCallback(
+		(credentials: MFACredentials, _tokenStatus: TokenStatusInfo, _nav: any) => {
+			// FIXED: Always do a FRESH check of worker token status
+			// The tokenStatus parameter from React state can be stale
+			const freshTokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 
-		if (!freshTokenStatus.isValid) {
-			console.warn(
-				`${MODULE_TAG} Step 0 validation failed: Invalid or expired worker token (fresh check)`
-			);
-			return false;
-		}
+			if (!freshTokenStatus.isValid) {
+				console.warn(
+					`${MODULE_TAG} Step 0 validation failed: Invalid or expired worker token (fresh check)`
+				);
+				return false;
+			}
 
-		// Check required configuration
-		const hasEnvironmentId = credentials.environmentId?.trim();
-		const hasUsername = credentials.username?.trim();
+			// Check required configuration
+			const hasEnvironmentId = credentials.environmentId?.trim();
+			const hasUsername = credentials.username?.trim();
 
-		console.log(`${MODULE_TAG} Validating step 0:`, {
-			hasEnvironmentId,
-			hasUsername,
-			tokenValid: freshTokenStatus.isValid,
-			tokenType: credentials.tokenType,
-			hasUserToken: !!credentials.userToken,
-		});
+			console.log(`${MODULE_TAG} Validating step 0:`, {
+				hasEnvironmentId,
+				hasUsername,
+				tokenValid: freshTokenStatus.isValid,
+				tokenType: credentials.tokenType,
+				hasUserToken: !!credentials.userToken,
+			});
 
-		return hasEnvironmentId && hasUsername;
-	}, []);
+			return hasEnvironmentId && hasUsername;
+		},
+		[]
+	);
 
 	return (
 		<div style={{ minHeight: '100vh', background: '#f8fafc' }}>
