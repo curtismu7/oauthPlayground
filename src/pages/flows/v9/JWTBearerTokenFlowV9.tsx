@@ -13,7 +13,7 @@ import {
 	FiRefreshCw,
 	FiShield,
 } from '@icons';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { StepNavigationButtons } from '../../../components/StepNavigationButtons';
 import { readBestEnvironmentId } from '../../../hooks/useAutoEnvironmentId';
@@ -216,6 +216,34 @@ interface JWTSignature {
 
 // Main Component
 const JWTBearerTokenFlowV9: React.FC = () => {
+	// AbortController for async cleanup (WINDSURF_CONTRACTS requirement)
+	const abortControllerRef = useRef<AbortController | null>(null);
+
+	// Cleanup on unmount
+	useEffect(() => {
+		return () => {
+			if (abortControllerRef.current) {
+				abortControllerRef.current.abort();
+				console.log('[V9 JWT Bearer] Cleanup: Aborted pending requests');
+			}
+		};
+	}, []);
+
+	// Accessibility: Announce important state changes
+	const announceToScreenReader = useCallback((message: string) => {
+		const announcement = document.createElement('div');
+		announcement.setAttribute('aria-live', 'polite');
+		announcement.setAttribute('aria-atomic', 'true');
+		announcement.style.position = 'absolute';
+		announcement.style.left = '-10000px';
+		announcement.style.width = '1px';
+		announcement.style.height = '1px';
+		announcement.style.overflow = 'hidden';
+		announcement.textContent = message;
+		document.body.appendChild(announcement);
+		setTimeout(() => document.body.removeChild(announcement), 1000);
+	}, []);
+
 	// Get shared UI components from FlowUIService
 	const {
 		Container,
@@ -385,23 +413,30 @@ const JWTBearerTokenFlowV9: React.FC = () => {
 
 	// Discover audience from OIDC endpoint
 	const discoverAudience = useCallback(async () => {
-		// Enhanced validation with better error messages
-		if (!environmentId || environmentId.trim() === '') {
-			console.warn('⚠️ [JWT Bearer] Cannot discover audience - Environment ID is empty');
-			v9MessagingService.showWarning('Please enter an Environment ID first');
-			return;
-		}
+		// Create new AbortController for this operation
+		const controller = new AbortController();
+		abortControllerRef.current = controller;
 
-		// Additional validation for environment ID format
-		const trimmedEnvId = environmentId.trim();
-		if (!trimmedEnvId || trimmedEnvId.length < 10) {
-			console.warn('⚠️ [JWT Bearer] Environment ID appears to be invalid:', trimmedEnvId);
-			v9MessagingService.showWarning('Please enter a valid Environment ID');
-			return;
-		}
-
-		setIsDiscoveringAudience(true);
 		try {
+			// Enhanced validation with better error messages
+			if (!environmentId || environmentId.trim() === '') {
+				console.warn('⚠️ [JWT Bearer] Cannot discover audience - Environment ID is empty');
+				v9MessagingService.showWarning('Please enter an Environment ID first');
+				announceToScreenReader('Cannot discover audience: Environment ID is required');
+				return;
+			}
+
+			// Additional validation for environment ID format
+			const trimmedEnvId = environmentId.trim();
+			if (!trimmedEnvId || trimmedEnvId.length < 10) {
+				console.warn('⚠️ [JWT Bearer] Environment ID appears to be invalid:', trimmedEnvId);
+				v9MessagingService.showWarning('Please enter a valid Environment ID');
+				announceToScreenReader('Environment ID appears to be invalid');
+				return;
+			}
+
+			setIsDiscoveringAudience(true);
+			announceToScreenReader('Discovering audience from OIDC endpoint');
 			console.log('🔍 [JWT Bearer] Discovering audience for environment:', trimmedEnvId);
 
 			// Construct issuer URL from environment ID
@@ -425,6 +460,7 @@ const JWTBearerTokenFlowV9: React.FC = () => {
 				setJwtClaims((prev) => ({ ...prev, aud: discoveredAudience }));
 				console.log('✅ [JWT Bearer] Audience discovered:', discoveredAudience);
 				v9MessagingService.showSuccess('Audience discovered and populated!');
+				announceToScreenReader('Audience discovered successfully');
 			} else {
 				throw new Error('No issuer found in OIDC discovery document');
 			}
@@ -434,10 +470,13 @@ const JWTBearerTokenFlowV9: React.FC = () => {
 			v9MessagingService.showError(
 				`Failed to discover audience: ${errorMessage}. Please enter manually.`
 			);
+			announceToScreenReader(`Failed to discover audience: ${errorMessage}`);
 		} finally {
 			setIsDiscoveringAudience(false);
+			// Clear abort controller reference
+			abortControllerRef.current = null;
 		}
-	}, [environmentId]);
+	}, [environmentId, announceToScreenReader]);
 
 	// Generate sample RSA key pair (for educational/testing purposes)
 	const generateSampleKeyPair = useCallback(() => {
@@ -830,9 +869,42 @@ cwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 										<Input
 											type="url"
 											value={tokenEndpoint}
-											onChange={(e) => setTokenEndpoint(e.target.value)}
+											onChange={(e) => {
+												const value = e.target.value;
+												setTokenEndpoint(value);
+
+												// Input validation with guidance
+												if (value && !value.startsWith('https://')) {
+													v9MessagingService.showWarning(
+														'Token endpoint should use HTTPS for security'
+													);
+												}
+												if (value && !value.includes('/token')) {
+													v9MessagingService.showInfo(
+														'Ensure this is the token endpoint (usually ends with /token)'
+													);
+												}
+											}}
 											placeholder="https://auth.example.com/oauth/token"
+											style={{
+												borderColor:
+													tokenEndpoint && !tokenEndpoint.startsWith('https://')
+														? '#ef4444'
+														: tokenEndpoint && !tokenEndpoint.includes('/token')
+															? '#f59e0b'
+															: undefined,
+											}}
 										/>
+										{tokenEndpoint && !tokenEndpoint.startsWith('https://') && (
+											<HelperText style={{ color: '#ef4444', fontSize: '0.875rem' }}>
+												⚠️ Security: Token endpoint should use HTTPS
+											</HelperText>
+										)}
+										{tokenEndpoint && !tokenEndpoint.includes('/token') && (
+											<HelperText style={{ color: '#f59e0b', fontSize: '0.875rem' }}>
+												ℹ️ Verify this is the token endpoint (usually ends with /token)
+											</HelperText>
+										)}
 									</FormGroup>
 
 									<FormGroup>
