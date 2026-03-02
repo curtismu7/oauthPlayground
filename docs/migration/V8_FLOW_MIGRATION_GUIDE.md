@@ -6,6 +6,8 @@
 > The [V9_MIGRATION_LESSONS_LEARNED.md](./V9_MIGRATION_LESSONS_LEARNED.md) covers V7→V9 pitfalls.  
 > This doc covers the **different patterns** you encounter when the source is a V8 flow in `src/v8/flows/`.
 
+> ⚠️ **Also read:** [`migrate_vscode.md` → `🔬 Programming Patterns & Code Quality`](./migrate_vscode.md) — covers dead state variables, missing `AbortController` cleanup, unsafe error casting, and other code quality issues found via audit of real V7/V8 source files.
+
 ---
 
 ## V8 vs V7 — Key Structural Differences
