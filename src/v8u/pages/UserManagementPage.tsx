@@ -6,285 +6,11 @@
  * @since 2026-02-12
  */
 
-import { FiEdit2, FiPlus, FiTrash2, FiUser } from '@icons';
-import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
+import { FiEdit2, FiPlus, FiTrash2 } from '@icons';
+import React, { useCallback, useEffect, useState } from 'react';
 import { UserSearchDropdownV8 } from '../../v8/components/UserSearchDropdownV8';
 import { EnvironmentIdServiceV8 } from '../../v8/services/environmentIdServiceV8';
 import { useTheme } from '../contexts/ThemeContext';
-
-// ============================================================================
-// STYLED COMPONENTS
-// ============================================================================
-
-const PageContainer = styled.div`
-	display: flex;
-	flex-direction: column;
-	gap: 1.5rem;
-`;
-
-const PageHeader = styled.div`
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	gap: 1rem;
-`;
-
-const PageTitle = styled.h1<{ theme: any }>`
-	font-size: 2rem;
-	font-weight: 700;
-	color: ${({ theme }) => theme.colors.text};
-	margin: 0;
-`;
-
-const PageDescription = styled.p<{ theme: any }>`
-	color: ${({ theme }) => theme.colors.textSecondary};
-	margin: 0;
-`;
-
-const ActionButton = styled.button<{ theme: any; variant?: 'primary' | 'secondary' | 'danger' }>`
-	padding: 0.75rem 1.5rem;
-	border-radius: 8px;
-	font-weight: 600;
-	font-size: 0.875rem;
-	border: none;
-	cursor: pointer;
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-	transition: all 0.3s ease;
-
-	${({ variant = 'primary', theme }) => {
-		switch (variant) {
-			case 'primary':
-				return `
-					background: ${theme.colors.primary};
-					color: white;
-					&:hover {
-						background: ${theme.colors.primaryDark || theme.colors.primary};
-					}
-				`;
-			case 'secondary':
-				return `
-					background: ${theme.colors.surface};
-					color: ${theme.colors.text};
-					border: 1px solid ${theme.colors.border};
-					&:hover {
-						background: ${theme.colors.surfaceHover || theme.colors.surface};
-					}
-				`;
-			case 'danger':
-				return `
-					background: #ef4444;
-					color: white;
-					&:hover {
-						background: #dc2626;
-					}
-				`;
-			default:
-				return '';
-		}
-	}}
-`;
-
-const SearchSection = styled.div<{ theme: any }>`
-	background: ${({ theme }) => theme.colors.surface};
-	border: 1px solid ${({ theme }) => theme.colors.border};
-	border-radius: 8px;
-	padding: 1.5rem;
-	display: flex;
-	gap: 1rem;
-	align-items: flex-end;
-	flex-wrap: wrap;
-`;
-
-const SearchField = styled.div`
-	flex: 1;
-	min-width: 200px;
-`;
-
-const SearchLabel = styled.label<{ theme: any }>`
-	display: block;
-	font-size: 0.875rem;
-	font-weight: 600;
-	color: ${({ theme }) => theme.colors.text};
-	margin-bottom: 0.5rem;
-`;
-
-const SearchSelect = styled.select<{ theme: any }>`
-	width: 100%;
-	padding: 0.75rem;
-	background: ${({ theme }) => theme.colors.background};
-	border: 1px solid ${({ theme }) => theme.colors.border};
-	border-radius: 8px;
-	font-size: 0.875rem;
-	color: ${({ theme }) => theme.colors.text};
-`;
-
-const UserTable = styled.div<{ theme: any }>`
-	background: ${({ theme }) => theme.colors.surface};
-	border: 1px solid ${({ theme }) => theme.colors.border};
-	border-radius: 8px;
-	overflow: hidden;
-`;
-
-const TableHeader = styled.div<{ theme: any }>`
-	background: ${({ theme }) => theme.colors.primaryLight};
-	padding: 1rem;
-	display: grid;
-	grid-template-columns: 2fr 1fr 1fr 1fr 1fr 120px;
-	gap: 1rem;
-	font-weight: 600;
-	color: ${({ theme }) => theme.colors.text};
-	border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-`;
-
-const TableRow = styled.div<{ theme: any }>`
-	padding: 1rem;
-	display: grid;
-	grid-template-columns: 2fr 1fr 1fr 1fr 1fr 120px;
-	gap: 1rem;
-	align-items: center;
-	border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-	transition: background-color 0.3s ease;
-
-	&:hover {
-		background: ${({ theme }) => theme.colors.surfaceHover || theme.colors.surface};
-	}
-
-	&:last-child {
-		border-bottom: none;
-	}
-`;
-
-const UserCell = styled.div`
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
-	flex-shrink: 0;
-	min-width: 0;
-`;
-
-const UserAvatar = styled.div<{ theme: any }>`
-	width: 32px;
-	height: 32px;
-	border-radius: 50%;
-	background: ${({ theme }) => theme.colors.primary};
-	color: white;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-weight: 600;
-	font-size: 0.875rem;
-	flex-shrink: 0;
-`;
-
-const UserInfo = styled.div`
-	flex: 1;
-	min-width: 0;
-`;
-
-const UserName = styled.div<{ theme: any }>`
-	font-weight: 600;
-	color: ${({ theme }) => theme.colors.text};
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	font-size: 0.875rem;
-`;
-
-const UserEmail = styled.div<{ theme: any }>`
-	color: ${({ theme }) => theme.colors.textSecondary};
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	font-size: 0.875rem;
-`;
-
-const StatusBadge = styled.span<{ theme: any; status: string }>`
-	padding: 0.25rem 0.75rem;
-	border-radius: 9999px;
-	font-size: 0.75rem;
-	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: 0.025em;
-
-	${({ status, theme }) => {
-		switch (status) {
-			case 'active':
-				return `
-					background: #10b981;
-					color: white;
-				`;
-			case 'inactive':
-				return `
-					background: #6b7280;
-					color: white;
-				`;
-			case 'pending':
-				return `
-					background: #f59e0b;
-					color: white;
-				`;
-			default:
-				return `
-					background: ${theme.colors.border};
-					color: ${theme.colors.text};
-				`;
-		}
-	}}
-`;
-
-const ActionButtons = styled.div`
-	display: flex;
-	gap: 0.5rem;
-`;
-
-const IconButton = styled.button<{ theme: any; variant?: 'edit' | 'delete' }>`
-	padding: 0.5rem;
-	border-radius: 6px;
-	border: none;
-	cursor: pointer;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	transition: all 0.2s ease;
-
-	${({ variant = 'edit', theme }) => {
-		switch (variant) {
-			case 'edit':
-				return `
-					background: ${theme.colors.primary};
-					color: white;
-					&:hover {
-						background: ${theme.colors.primaryDark || theme.colors.primary};
-					}
-				`;
-			case 'delete':
-				return `
-					background: #ef4444;
-					color: white;
-					&:hover {
-						background: #dc2626;
-					}
-				`;
-			default:
-				return '';
-		}
-	}}
-`;
-
-const EmptyState = styled.div<{ theme: any }>`
-	text-align: center;
-	padding: 3rem;
-	color: ${({ theme }) => theme.colors.textSecondary};
-`;
-
-const LoadingState = styled.div<{ theme: any }>`
-	text-align: center;
-	padding: 3rem;
-	color: ${({ theme }) => theme.colors.textSecondary};
-`;
 
 // ============================================================================
 // TYPES
@@ -310,10 +36,6 @@ const UserManagementPage: React.FC = () => {
 	const [searchTerm, setSearchTerm] = useState('');
 	const [statusFilter, setStatusFilter] = useState<string>('all');
 	const [environmentId, setEnvironmentId] = useState<string>('');
-	const [_showCreateModal, setShowCreateModal] = useState(false);
-	const [_showEditModal, setShowEditModal] = useState(false);
-	const [_showDeleteModal, setShowDeleteModal] = useState(false);
-	const [_selectedUser, setSelectedUser] = useState<User | null>(null);
 
 	// Load environment ID
 	useEffect(() => {
@@ -322,7 +44,7 @@ const UserManagementPage: React.FC = () => {
 	}, []);
 
 	// Load users
-	const loadUsers = async () => {
+	const loadUsers = useCallback(async () => {
 		try {
 			setLoading(true);
 			// TODO: Implement actual user loading
@@ -334,16 +56,16 @@ const UserManagementPage: React.FC = () => {
 		} finally {
 			setLoading(false);
 		}
-	};
+	}, []);
 
 	// Load roles and statuses
-	const loadRoles = async () => {
+	const loadRoles = useCallback(async () => {
 		// TODO: Implement role loading
-	};
+	}, []);
 
-	const loadStatuses = async () => {
+	const loadStatuses = useCallback(async () => {
 		// TODO: Implement status loading
-	};
+	}, []);
 
 	useEffect(() => {
 		loadUsers();
@@ -360,120 +82,347 @@ const UserManagementPage: React.FC = () => {
 		return matchesSearch && matchesStatus;
 	});
 
-	// Handle user actions
+	// Event handlers
 	const handleCreateUser = () => {
-		setShowCreateModal(true);
+		// TODO: Implement create user modal
+		console.log('Create user clicked');
 	};
 
 	const handleEditUser = (user: User) => {
-		setSelectedUser(user);
-		setShowEditModal(true);
+		// TODO: Implement edit user modal
+		console.log('Edit user:', user);
 	};
 
 	const handleDeleteUser = (user: User) => {
-		setSelectedUser(user);
-		setShowDeleteModal(true);
+		// TODO: Implement delete user modal
+		console.log('Delete user:', user);
+	};
+
+	// Helper functions
+	const getStatusColor = (status: string) => {
+		switch (status) {
+			case 'active':
+				return theme.currentTheme.colors.success;
+			case 'inactive':
+				return theme.currentTheme.colors.error;
+			case 'pending':
+				return theme.currentTheme.colors.warning;
+			default:
+				return theme.currentTheme.colors.primary;
+		}
+	};
+
+	const getInitials = (username: string) => {
+		return username.slice(0, 2).toUpperCase();
 	};
 
 	return (
-		<PageContainer>
-			<PageHeader>
+		<div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+			{/* Page Header */}
+			<div
+				style={{
+					display: 'flex',
+					justifyContent: 'space-between',
+					alignItems: 'center',
+					gap: '1rem',
+				}}
+			>
 				<div>
-					<PageTitle theme={theme}>User Management</PageTitle>
-					<PageDescription theme={theme}>
-						Manage user accounts, permissions, and access controls
-					</PageDescription>
+					<h1
+						style={{
+							fontSize: '2rem',
+							fontWeight: '700',
+							color: theme.currentTheme.colors.text,
+							margin: 0,
+						}}
+					>
+						User Management
+					</h1>
+					<p style={{ color: theme.currentTheme.colors.secondary, margin: 0 }}>
+						Manage application users and their permissions
+					</p>
 				</div>
-				<ActionButton variant="primary" onClick={handleCreateUser}>
+				<button
+					onClick={handleCreateUser}
+					style={{
+						padding: '0.75rem 1.5rem',
+						borderRadius: '8px',
+						fontWeight: '600',
+						fontSize: '0.875rem',
+						border: 'none',
+						cursor: 'pointer',
+						display: 'flex',
+						alignItems: 'center',
+						gap: '0.5rem',
+						background: theme.currentTheme.colors.primary,
+						color: 'white',
+					}}
+				>
 					<FiPlus />
 					Add User
-				</ActionButton>
-			</PageHeader>
+				</button>
+			</div>
 
-			<SearchSection>
-				<SearchField>
-					<SearchLabel theme={theme}>Search Users</SearchLabel>
+			{/* Search Section */}
+			<div
+				style={{
+					background: theme.currentTheme.colors.surface,
+					border: `1px solid ${theme.currentTheme.colors.primary}`,
+					borderRadius: '8px',
+					padding: '1.5rem',
+					display: 'flex',
+					gap: '1rem',
+					alignItems: 'flex-end',
+					flexWrap: 'wrap',
+				}}
+			>
+				<div style={{ flex: 1, minWidth: '200px' }}>
+					<label
+						style={{
+							display: 'block',
+							fontSize: '0.875rem',
+							fontWeight: '600',
+							color: theme.currentTheme.colors.text,
+							marginBottom: '0.5rem',
+						}}
+					>
+						Search Users
+					</label>
 					<UserSearchDropdownV8
 						environmentId={environmentId}
 						value={searchTerm}
-						onChange={(username) => {
-							setSearchTerm(username);
-						}}
+						onChange={setSearchTerm}
 						placeholder="Search by username or email..."
 						onGetToken={() => {
 							console.log('Worker token required for user search in UserManagementPage');
 						}}
 					/>
-				</SearchField>
-				<SearchField>
-					<SearchLabel theme={theme}>Status Filter</SearchLabel>
-					<SearchSelect value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+				</div>
+				<div style={{ flex: 1, minWidth: '200px' }}>
+					<label
+						style={{
+							display: 'block',
+							fontSize: '0.875rem',
+							fontWeight: '600',
+							color: theme.currentTheme.colors.text,
+							marginBottom: '0.5rem',
+						}}
+					>
+						Status Filter
+					</label>
+					<select
+						value={statusFilter}
+						onChange={(e) => setStatusFilter(e.target.value)}
+						style={{
+							width: '100%',
+							padding: '0.75rem',
+							background: theme.currentTheme.colors.background,
+							border: `1px solid ${theme.currentTheme.colors.primary}`,
+							borderRadius: '8px',
+							fontSize: '0.875rem',
+							color: theme.currentTheme.colors.text,
+						}}
+					>
 						<option value="all">All Status</option>
 						<option value="active">Active</option>
 						<option value="inactive">Inactive</option>
 						<option value="pending">Pending</option>
-					</SearchSelect>
-				</SearchField>
-			</SearchSection>
+					</select>
+				</div>
+			</div>
 
-			<UserTable>
-				<TableHeader>
+			{/* User Table */}
+			<div
+				style={{
+					background: theme.currentTheme.colors.surface,
+					border: `1px solid ${theme.currentTheme.colors.primary}`,
+					borderRadius: '8px',
+					overflow: 'hidden',
+				}}
+			>
+				{/* Table Header */}
+				<div
+					style={{
+						background: theme.currentTheme.colors.primary,
+						padding: '1rem',
+						display: 'grid',
+						gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr 120px',
+						gap: '1rem',
+						fontWeight: '600',
+						color: theme.currentTheme.colors.text,
+						borderBottom: `1px solid ${theme.currentTheme.colors.primary}`,
+					}}
+				>
 					<div>User</div>
 					<div>Status</div>
-					<div>Role</div>
 					<div>Created</div>
 					<div>Last Login</div>
+					<div>Role</div>
 					<div>Actions</div>
-				</TableHeader>
+				</div>
+
 				{loading ? (
-					<LoadingState theme={theme}>Loading users...</LoadingState>
+					<div
+						style={{
+							textAlign: 'center',
+							padding: '3rem',
+							color: theme.currentTheme.colors.secondary,
+						}}
+					>
+						Loading users...
+					</div>
 				) : filteredUsers.length === 0 ? (
-					<EmptyState theme={theme}>
-						<FiUser size={48} style={{ marginBottom: '1rem' }} />
-						<h3>No users found</h3>
-						<p>
-							{searchTerm || statusFilter !== 'all'
-								? 'Try adjusting your search or filter criteria'
-								: 'Get started by adding your first user'}
-						</p>
-					</EmptyState>
+					<div
+						style={{
+							textAlign: 'center',
+							padding: '3rem',
+							color: theme.currentTheme.colors.secondary,
+						}}
+					>
+						{searchTerm || statusFilter !== 'all'
+							? 'No users found matching your criteria.'
+							: 'No users found.'}
+					</div>
 				) : (
 					filteredUsers.map((user) => (
-						<TableRow key={user.id}>
-							<UserCell>
-								<UserAvatar theme={theme}>{user.username.charAt(0).toUpperCase()}</UserAvatar>
-								<UserInfo>
-									<UserName theme={theme}>{user.username}</UserName>
-									<UserEmail theme={theme}>{user.email}</UserEmail>
-								</UserInfo>
-							</UserCell>
-							<div>
-								<StatusBadge theme={theme} status={user.status}>
-									{user.status}
-								</StatusBadge>
-							</div>
-							<div>Admin</div>
-							<div>{new Date(user.createdAt).toLocaleDateString()}</div>
-							<div>{user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never'}</div>
-							<ActionButtons>
-								<IconButton variant="edit" onClick={() => handleEditUser(user)} title="Edit user">
-									<FiEdit2 size={16} />
-								</IconButton>
-								<IconButton
-									variant="delete"
-									onClick={() => handleDeleteUser(user)}
-									title="Delete user"
+						<div
+							key={user.id}
+							style={{
+								padding: '1rem',
+								display: 'grid',
+								gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr 120px',
+								gap: '1rem',
+								alignItems: 'center',
+								borderBottom: `1px solid ${theme.currentTheme.colors.primary}`,
+							}}
+						>
+							{/* User Cell */}
+							<div
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.75rem',
+									flexShrink: 0,
+									minWidth: 0,
+								}}
+							>
+								<div
+									style={{
+										width: '32px',
+										height: '32px',
+										borderRadius: '50%',
+										background: theme.currentTheme.colors.primary,
+										color: 'white',
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'center',
+										fontWeight: '600',
+										fontSize: '0.875rem',
+										flexShrink: 0,
+									}}
 								>
-									<FiTrash2 size={16} />
-								</IconButton>
-							</ActionButtons>
-						</TableRow>
+									{getInitials(user.username)}
+								</div>
+								<div style={{ flex: 1, minWidth: 0 }}>
+									<div
+										style={{
+											fontWeight: '600',
+											color: theme.currentTheme.colors.text,
+											whiteSpace: 'nowrap',
+											overflow: 'hidden',
+											textOverflow: 'ellipsis',
+											fontSize: '0.875rem',
+										}}
+									>
+										{user.username}
+									</div>
+									<div
+										style={{
+											color: theme.currentTheme.colors.secondary,
+											whiteSpace: 'nowrap',
+											overflow: 'hidden',
+											textOverflow: 'ellipsis',
+											fontSize: '0.875rem',
+										}}
+									>
+										{user.email}
+									</div>
+								</div>
+							</div>
+
+							{/* Status Badge */}
+							<span
+								style={{
+									padding: '0.25rem 0.75rem',
+									borderRadius: '9999px',
+									fontSize: '0.75rem',
+									fontWeight: '600',
+									textTransform: 'uppercase',
+									letterSpacing: '0.025em',
+									background: getStatusColor(user.status),
+									color: 'white',
+								}}
+							>
+								{user.status}
+							</span>
+
+							{/* Created Date */}
+							<div style={{ color: theme.currentTheme.colors.text, fontSize: '0.875rem' }}>
+								{new Date(user.createdAt).toLocaleDateString()}
+							</div>
+
+							{/* Last Login */}
+							<div style={{ color: theme.currentTheme.colors.text, fontSize: '0.875rem' }}>
+								{user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never'}
+							</div>
+
+							{/* Role */}
+							<div style={{ color: theme.currentTheme.colors.text, fontSize: '0.875rem' }}>
+								User
+							</div>
+
+							{/* Action Buttons */}
+							<div style={{ display: 'flex', gap: '0.5rem' }}>
+								<button
+									onClick={() => handleEditUser(user)}
+									title="Edit User"
+									style={{
+										padding: '0.5rem',
+										borderRadius: '6px',
+										border: 'none',
+										cursor: 'pointer',
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'center',
+										background: theme.currentTheme.colors.primary,
+										color: 'white',
+									}}
+								>
+									<FiEdit2 />
+								</button>
+								<button
+									onClick={() => handleDeleteUser(user)}
+									title="Delete User"
+									style={{
+										padding: '0.5rem',
+										borderRadius: '6px',
+										border: 'none',
+										cursor: 'pointer',
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'center',
+										background: '#ef4444',
+										color: 'white',
+									}}
+								>
+									<FiTrash2 />
+								</button>
+							</div>
+						</div>
 					))
 				)}
-			</UserTable>
-
-			{/* TODO: Add Create/Edit/Delete Modals */}
-		</PageContainer>
+			</div>
+		</div>
 	);
 };
 

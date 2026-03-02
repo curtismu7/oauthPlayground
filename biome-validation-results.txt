@@ -1,5 +1,5 @@
 Username Dropdown Consolidation - Biome Validation Results
-Generated: Mon Mar  2 04:28:39 CST 2026
+Generated: Mon Mar  2 04:37:15 CST 2026
 =================================================
 
 
@@ -11,7 +11,7 @@ Checked 1 file in 11ms. No fixes applied.
 
 📁 Component: src/pages/protect-portal/components/LoginPatterns/DropdownLogin.tsx
 ----------------------------------------
-Checked 1 file in 9ms. Fixed 1 file.
+Checked 1 file in 8ms. No fixes applied.
 ✅ Status: PASSED
 
 
@@ -23,347 +23,132 @@ Checked 1 file in 9ms. No fixes applied.
 
 📁 Component: src/components/password-reset/shared/UserLookupForm.tsx
 ----------------------------------------
-Checked 1 file in 8ms. No fixes applied.
+Checked 1 file in 9ms. No fixes applied.
 ✅ Status: PASSED
 
 
 📁 Component: src/pages/flows/RedirectlessFlowV9_Real.tsx
 ----------------------------------------
-src/pages/flows/RedirectlessFlowV9_Real.tsx:1023:28 lint/correctness/useExhaustiveDependencies  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  ! This hook does not specify its dependency on loginCredentials.username.
-  
-    1022 │ 	// Render step content (V9 pattern)
-  > 1023 │ 	const renderStepContent = useCallback((): React.ReactNode => {
-         │ 	                          ^^^^^^^^^^^
-    1024 │ 		switch (currentStep) {
-    1025 │ 			case 0:
-  
-  i This dependency is being used here, but is not specified in the hook dependency list.
-  
-    1195 │ 										id="v9-username-input"
-    1196 │ 										environmentId={controller.credentials.environmentId || ''}
-  > 1197 │ 										value={loginCredentials.username}
-         │ 										       ^^^^^^^^^^^^^^^^^^^^^^^^^
-    1198 │ 										onChange={(username) => {
-    1199 │ 											setLoginCredentials((prev) => ({ ...prev, username }));
-  
-  i React relies on hook dependencies to determine when to re-compute Effects.
-    Failing to specify dependencies can result in Effects not updating correctly when state changes.
-    These "stale closures" are a common source of surprising bugs.
-  
-  i Unsafe fix: Add the missing dependency to the list.
-  
-    1673 1673 │   		}
-    1674 1674 │   	}, [
-    1675      │ - → → currentStep,
-    1676      │ - → → controller,
-    1677      │ - → → handleGeneratePkce,
-    1678      │ - → → handleGenerateAuthUrl,
-    1679      │ - → → handleOpenAuthUrl,
-    1680      │ - → → navigateToTokenManagement,
-    1681      │ - → → checkHasPkceCodes,
-    1682      │ - → → handleStartRedirectlessFlow,
-    1683      │ - → → isAuthenticating,
-    1684      │ - → → isLoading,
-         1675 │ + → → currentStep,·
-         1676 │ + → → controller,·
-         1677 │ + → → handleGeneratePkce,·
-         1678 │ + → → handleGenerateAuthUrl,·
-         1679 │ + → → handleOpenAuthUrl,·
-         1680 │ + → → navigateToTokenManagement,·
-         1681 │ + → → checkHasPkceCodes,·
-         1682 │ + → → handleStartRedirectlessFlow,·
-         1683 │ + → → isAuthenticating,·
-         1684 │ + → → isLoading,·loginCredentials.username
-    1685 1685 │   	]);
-    1686 1686 │   
-  
-
-Skipped 1 suggested fixes.
-If you wish to apply the suggested (unsafe) fixes, use the command biome check --write --unsafe
-
-Checked 1 file in 48ms. Fixed 1 file.
-Found 1 warning.
+Checked 1 file in 35ms. No fixes applied.
 ✅ Status: PASSED
 
 
 📁 Component: src/v8u/pages/UserManagementPage.tsx
 ----------------------------------------
-src/v8u/pages/UserManagementPage.tsx:33:38 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+src/v8u/pages/UserManagementPage.tsx:180:6 lint/a11y/noLabelWithoutControl ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  ! Unexpected any. Specify a different type.
+  × A form label must be associated with an input.
   
-    31 │ `;
-    32 │ 
-  > 33 │ const PageTitle = styled.h1<{ theme: any }>`
-       │                                      ^^^
-    34 │ 	font-size: 2rem;
-    35 │ 	font-weight: 700;
+    178 │ 			>
+    179 │ 				<div style={{ flex: 1, minWidth: '200px' }}>
+  > 180 │ 					<label
+        │ 					^^^^^^
+  > 181 │ 						style={{
+         ...
+  > 189 │ 						Search Users
+  > 190 │ 					</label>
+        │ 					^^^^^^^^
+    191 │ 					<UserSearchDropdownV8
+    192 │ 						environmentId={environmentId}
   
-  i any disables many type checking rules. Its use should be avoided.
-  
-
-src/v8u/pages/UserManagementPage.tsx:40:43 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  ! Unexpected any. Specify a different type.
-  
-    38 │ `;
-    39 │ 
-  > 40 │ const PageDescription = styled.p<{ theme: any }>`
-       │                                           ^^^
-    41 │ 	color: ${({ theme }) => theme.colors.textSecondary};
-    42 │ 	margin: 0;
-  
-  i any disables many type checking rules. Its use should be avoided.
+  i Consider adding a `for` or `htmlFor` attribute to the label element or moving the input element to inside the label element.
   
 
-src/v8u/pages/UserManagementPage.tsx:45:45 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+src/v8u/pages/UserManagementPage.tsx:202:6 lint/a11y/noLabelWithoutControl ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  ! Unexpected any. Specify a different type.
+  × A form label must be associated with an input.
   
-    43 │ `;
-    44 │ 
-  > 45 │ const ActionButton = styled.button<{ theme: any; variant?: 'primary' | 'secondary' | 'danger' }>`
-       │                                             ^^^
-    46 │ 	padding: 0.75rem 1.5rem;
-    47 │ 	border-radius: 8px;
+    200 │ 				</div>
+    201 │ 				<div style={{ flex: 1, minWidth: '200px' }}>
+  > 202 │ 					<label
+        │ 					^^^^^^
+  > 203 │ 						style={{
+         ...
+  > 211 │ 						Status Filter
+  > 212 │ 					</label>
+        │ 					^^^^^^^^
+    213 │ 					<select
+    214 │ 						value={statusFilter}
   
-  i any disables many type checking rules. Its use should be avoided.
-  
-
-src/v8u/pages/UserManagementPage.tsx:90:43 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  ! Unexpected any. Specify a different type.
-  
-    88 │ `;
-    89 │ 
-  > 90 │ const SearchSection = styled.div<{ theme: any }>`
-       │                                           ^^^
-    91 │ 	background: ${({ theme }) => theme.colors.surface};
-    92 │ 	border: 1px solid ${({ theme }) => theme.colors.border};
-  
-  i any disables many type checking rules. Its use should be avoided.
+  i Consider adding a `for` or `htmlFor` attribute to the label element or moving the input element to inside the label element.
   
 
-src/v8u/pages/UserManagementPage.tsx:106:43 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+src/v8u/pages/UserManagementPage.tsx:145:5 lint/a11y/useButtonType ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  ! Unexpected any. Specify a different type.
+  × Provide an explicit type prop for the button element.
   
-    104 │ `;
-    105 │ 
-  > 106 │ const SearchLabel = styled.label<{ theme: any }>`
-        │                                           ^^^
-    107 │ 	display: block;
-    108 │ 	font-size: 0.875rem;
+    143 │ 					</p>
+    144 │ 				</div>
+  > 145 │ 				<button
+        │ 				^^^^^^^
+  > 146 │ 					onClick={handleCreateUser}
+         ...
+  > 159 │ 					}}
+  > 160 │ 				>
+        │ 				^
+    161 │ 					<FiPlus />
+    162 │ 					Add User
   
-  i any disables many type checking rules. Its use should be avoided.
+  i The default type of a button is submit, which causes the submission of a form when placed inside a `form` element. This is likely not the behaviour that you want inside a React application.
   
-
-src/v8u/pages/UserManagementPage.tsx:114:45 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  ! Unexpected any. Specify a different type.
-  
-    112 │ `;
-    113 │ 
-  > 114 │ const SearchSelect = styled.select<{ theme: any }>`
-        │                                             ^^^
-    115 │ 	width: 100%;
-    116 │ 	padding: 0.75rem;
-  
-  i any disables many type checking rules. Its use should be avoided.
+  i Allowed button types are: submit, button or reset
   
 
-src/v8u/pages/UserManagementPage.tsx:124:39 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+src/v8u/pages/UserManagementPage.tsx:386:9 lint/a11y/useButtonType ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  ! Unexpected any. Specify a different type.
+  × Provide an explicit type prop for the button element.
   
-    122 │ `;
-    123 │ 
-  > 124 │ const UserTable = styled.div<{ theme: any }>`
-        │                                       ^^^
-    125 │ 	background: ${({ theme }) => theme.colors.surface};
-    126 │ 	border: 1px solid ${({ theme }) => theme.colors.border};
+    384 │ 							{/* Action Buttons */}
+    385 │ 							<div style={{ display: 'flex', gap: '0.5rem' }}>
+  > 386 │ 								<button
+        │ 								^^^^^^^
+  > 387 │ 									onClick={() => handleEditUser(user)}
+         ...
+  > 399 │ 									}}
+  > 400 │ 								>
+        │ 								^
+    401 │ 									<FiEdit2 />
+    402 │ 								</button>
   
-  i any disables many type checking rules. Its use should be avoided.
+  i The default type of a button is submit, which causes the submission of a form when placed inside a `form` element. This is likely not the behaviour that you want inside a React application.
   
-
-src/v8u/pages/UserManagementPage.tsx:131:41 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  ! Unexpected any. Specify a different type.
-  
-    129 │ `;
-    130 │ 
-  > 131 │ const TableHeader = styled.div<{ theme: any }>`
-        │                                         ^^^
-    132 │ 	background: ${({ theme }) => theme.colors.primaryLight};
-    133 │ 	padding: 1rem;
-  
-  i any disables many type checking rules. Its use should be avoided.
+  i Allowed button types are: submit, button or reset
   
 
-src/v8u/pages/UserManagementPage.tsx:142:38 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+src/v8u/pages/UserManagementPage.tsx:403:9 lint/a11y/useButtonType ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  ! Unexpected any. Specify a different type.
+  × Provide an explicit type prop for the button element.
   
-    140 │ `;
-    141 │ 
-  > 142 │ const TableRow = styled.div<{ theme: any }>`
-        │                                      ^^^
-    143 │ 	padding: 1rem;
-    144 │ 	display: grid;
+    401 │ 									<FiEdit2 />
+    402 │ 								</button>
+  > 403 │ 								<button
+        │ 								^^^^^^^
+  > 404 │ 									onClick={() => handleDeleteUser(user)}
+         ...
+  > 416 │ 									}}
+  > 417 │ 								>
+        │ 								^
+    418 │ 									<FiTrash2 />
+    419 │ 								</button>
   
-  i any disables many type checking rules. Its use should be avoided.
+  i The default type of a button is submit, which causes the submission of a form when placed inside a `form` element. This is likely not the behaviour that you want inside a React application.
   
-
-src/v8u/pages/UserManagementPage.tsx:168:40 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  ! Unexpected any. Specify a different type.
-  
-    166 │ `;
-    167 │ 
-  > 168 │ const UserAvatar = styled.div<{ theme: any }>`
-        │                                        ^^^
-    169 │ 	width: 32px;
-    170 │ 	height: 32px;
-  
-  i any disables many type checking rules. Its use should be avoided.
-  
-
-src/v8u/pages/UserManagementPage.tsx:187:38 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  ! Unexpected any. Specify a different type.
-  
-    185 │ `;
-    186 │ 
-  > 187 │ const UserName = styled.div<{ theme: any }>`
-        │                                      ^^^
-    188 │ 	font-weight: 600;
-    189 │ 	color: ${({ theme }) => theme.colors.text};
-  
-  i any disables many type checking rules. Its use should be avoided.
-  
-
-src/v8u/pages/UserManagementPage.tsx:196:39 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  ! Unexpected any. Specify a different type.
-  
-    194 │ `;
-    195 │ 
-  > 196 │ const UserEmail = styled.div<{ theme: any }>`
-        │                                       ^^^
-    197 │ 	color: ${({ theme }) => theme.colors.textSecondary};
-    198 │ 	white-space: nowrap;
-  
-  i any disables many type checking rules. Its use should be avoided.
-  
-
-src/v8u/pages/UserManagementPage.tsx:204:42 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  ! Unexpected any. Specify a different type.
-  
-    202 │ `;
-    203 │ 
-  > 204 │ const StatusBadge = styled.span<{ theme: any; status: string }>`
-        │                                          ^^^
-    205 │ 	padding: 0.25rem 0.75rem;
-    206 │ 	border-radius: 9999px;
-  
-  i any disables many type checking rules. Its use should be avoided.
-  
-
-src/v8u/pages/UserManagementPage.tsx:243:43 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  ! Unexpected any. Specify a different type.
-  
-    241 │ `;
-    242 │ 
-  > 243 │ const IconButton = styled.button<{ theme: any; variant?: 'edit' | 'delete' }>`
-        │                                           ^^^
-    244 │ 	padding: 0.5rem;
-    245 │ 	border-radius: 6px;
-  
-  i any disables many type checking rules. Its use should be avoided.
-  
-
-src/v8u/pages/UserManagementPage.tsx:277:40 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  ! Unexpected any. Specify a different type.
-  
-    275 │ `;
-    276 │ 
-  > 277 │ const EmptyState = styled.div<{ theme: any }>`
-        │                                        ^^^
-    278 │ 	text-align: center;
-    279 │ 	padding: 3rem;
-  
-  i any disables many type checking rules. Its use should be avoided.
-  
-
-src/v8u/pages/UserManagementPage.tsx:283:42 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  ! Unexpected any. Specify a different type.
-  
-    281 │ `;
-    282 │ 
-  > 283 │ const LoadingState = styled.div<{ theme: any }>`
-        │                                          ^^^
-    284 │ 	text-align: center;
-    285 │ 	padding: 3rem;
-  
-  i any disables many type checking rules. Its use should be avoided.
-  
-
-src/v8u/pages/UserManagementPage.tsx:352:6 lint/correctness/useExhaustiveDependencies ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  ! loadRoles changes on every re-render and should not be used as a hook dependency.
-  
-    350 │ 		loadRoles();
-    351 │ 		loadStatuses();
-  > 352 │ 	}, [loadRoles, loadStatuses, loadUsers]);
-        │ 	    ^^^^^^^^^
-    353 │ 
-    354 │ 	// Filter users
-  
-  i To fix this, wrap the definition of loadRoles in its own useCallback() hook.
-  
-
-src/v8u/pages/UserManagementPage.tsx:352:17 lint/correctness/useExhaustiveDependencies ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  ! loadStatuses changes on every re-render and should not be used as a hook dependency.
-  
-    350 │ 		loadRoles();
-    351 │ 		loadStatuses();
-  > 352 │ 	}, [loadRoles, loadStatuses, loadUsers]);
-        │ 	               ^^^^^^^^^^^^
-    353 │ 
-    354 │ 	// Filter users
-  
-  i To fix this, wrap the definition of loadStatuses in its own useCallback() hook.
-  
-
-src/v8u/pages/UserManagementPage.tsx:352:31 lint/correctness/useExhaustiveDependencies ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  ! loadUsers changes on every re-render and should not be used as a hook dependency.
-  
-    350 │ 		loadRoles();
-    351 │ 		loadStatuses();
-  > 352 │ 	}, [loadRoles, loadStatuses, loadUsers]);
-        │ 	                             ^^^^^^^^^
-    353 │ 
-    354 │ 	// Filter users
-  
-  i To fix this, wrap the definition of loadUsers in its own useCallback() hook.
+  i Allowed button types are: submit, button or reset
   
 
 Checked 1 file in 12ms. No fixes applied.
-Found 19 warnings.
-✅ Status: PASSED
+Found 5 errors.
+check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Some errors were emitted while applying fixes.
+  
+
+❌ Status: ISSUES FOUND
 
 
 📁 Component: src/v8/components/UserSearchDropdownV8.tsx
 ----------------------------------------
-Checked 1 file in 13ms. No fixes applied.
+Checked 1 file in 14ms. No fixes applied.
 ✅ Status: PASSED
 
 
@@ -373,331 +158,117 @@ Checked 1 file in 13ms. No fixes applied.
 
 🔄 Running combined check on all components...
 
-src/pages/flows/RedirectlessFlowV9_Real.tsx:1023:28 lint/correctness/useExhaustiveDependencies  FIXABLE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+src/v8u/pages/UserManagementPage.tsx:180:6 lint/a11y/noLabelWithoutControl ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  ! This hook does not specify its dependency on loginCredentials.username.
+  × A form label must be associated with an input.
   
-    1022 │ 	// Render step content (V9 pattern)
-  > 1023 │ 	const renderStepContent = useCallback((): React.ReactNode => {
-         │ 	                          ^^^^^^^^^^^
-    1024 │ 		switch (currentStep) {
-    1025 │ 			case 0:
+    178 │ 			>
+    179 │ 				<div style={{ flex: 1, minWidth: '200px' }}>
+  > 180 │ 					<label
+        │ 					^^^^^^
+  > 181 │ 						style={{
+         ...
+  > 189 │ 						Search Users
+  > 190 │ 					</label>
+        │ 					^^^^^^^^
+    191 │ 					<UserSearchDropdownV8
+    192 │ 						environmentId={environmentId}
   
-  i This dependency is being used here, but is not specified in the hook dependency list.
-  
-    1195 │ 										id="v9-username-input"
-    1196 │ 										environmentId={controller.credentials.environmentId || ''}
-  > 1197 │ 										value={loginCredentials.username}
-         │ 										       ^^^^^^^^^^^^^^^^^^^^^^^^^
-    1198 │ 										onChange={(username) => {
-    1199 │ 											setLoginCredentials((prev) => ({ ...prev, username }));
-  
-  i React relies on hook dependencies to determine when to re-compute Effects.
-    Failing to specify dependencies can result in Effects not updating correctly when state changes.
-    These "stale closures" are a common source of surprising bugs.
-  
-  i Unsafe fix: Add the missing dependency to the list.
-  
-    1673 1673 │   		}
-    1674 1674 │   	}, [
-    1675      │ - → → currentStep,
-    1676      │ - → → controller,
-    1677      │ - → → handleGeneratePkce,
-    1678      │ - → → handleGenerateAuthUrl,
-    1679      │ - → → handleOpenAuthUrl,
-    1680      │ - → → navigateToTokenManagement,
-    1681      │ - → → checkHasPkceCodes,
-    1682      │ - → → handleStartRedirectlessFlow,
-    1683      │ - → → isAuthenticating,
-    1684      │ - → → isLoading,
-         1675 │ + → → currentStep,·
-         1676 │ + → → controller,·
-         1677 │ + → → handleGeneratePkce,·
-         1678 │ + → → handleGenerateAuthUrl,·
-         1679 │ + → → handleOpenAuthUrl,·
-         1680 │ + → → navigateToTokenManagement,·
-         1681 │ + → → checkHasPkceCodes,·
-         1682 │ + → → handleStartRedirectlessFlow,·
-         1683 │ + → → isAuthenticating,·
-         1684 │ + → → isLoading,·loginCredentials.username
-    1685 1685 │   	]);
-    1686 1686 │   
+  i Consider adding a `for` or `htmlFor` attribute to the label element or moving the input element to inside the label element.
   
 
-src/v8u/pages/UserManagementPage.tsx:33:38 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+src/v8u/pages/UserManagementPage.tsx:202:6 lint/a11y/noLabelWithoutControl ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  ! Unexpected any. Specify a different type.
+  × A form label must be associated with an input.
   
-    31 │ `;
-    32 │ 
-  > 33 │ const PageTitle = styled.h1<{ theme: any }>`
-       │                                      ^^^
-    34 │ 	font-size: 2rem;
-    35 │ 	font-weight: 700;
+    200 │ 				</div>
+    201 │ 				<div style={{ flex: 1, minWidth: '200px' }}>
+  > 202 │ 					<label
+        │ 					^^^^^^
+  > 203 │ 						style={{
+         ...
+  > 211 │ 						Status Filter
+  > 212 │ 					</label>
+        │ 					^^^^^^^^
+    213 │ 					<select
+    214 │ 						value={statusFilter}
   
-  i any disables many type checking rules. Its use should be avoided.
-  
-
-src/v8u/pages/UserManagementPage.tsx:40:43 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  ! Unexpected any. Specify a different type.
-  
-    38 │ `;
-    39 │ 
-  > 40 │ const PageDescription = styled.p<{ theme: any }>`
-       │                                           ^^^
-    41 │ 	color: ${({ theme }) => theme.colors.textSecondary};
-    42 │ 	margin: 0;
-  
-  i any disables many type checking rules. Its use should be avoided.
+  i Consider adding a `for` or `htmlFor` attribute to the label element or moving the input element to inside the label element.
   
 
-src/v8u/pages/UserManagementPage.tsx:45:45 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+src/v8u/pages/UserManagementPage.tsx:145:5 lint/a11y/useButtonType ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  ! Unexpected any. Specify a different type.
+  × Provide an explicit type prop for the button element.
   
-    43 │ `;
-    44 │ 
-  > 45 │ const ActionButton = styled.button<{ theme: any; variant?: 'primary' | 'secondary' | 'danger' }>`
-       │                                             ^^^
-    46 │ 	padding: 0.75rem 1.5rem;
-    47 │ 	border-radius: 8px;
+    143 │ 					</p>
+    144 │ 				</div>
+  > 145 │ 				<button
+        │ 				^^^^^^^
+  > 146 │ 					onClick={handleCreateUser}
+         ...
+  > 159 │ 					}}
+  > 160 │ 				>
+        │ 				^
+    161 │ 					<FiPlus />
+    162 │ 					Add User
   
-  i any disables many type checking rules. Its use should be avoided.
+  i The default type of a button is submit, which causes the submission of a form when placed inside a `form` element. This is likely not the behaviour that you want inside a React application.
   
-
-src/v8u/pages/UserManagementPage.tsx:90:43 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  ! Unexpected any. Specify a different type.
-  
-    88 │ `;
-    89 │ 
-  > 90 │ const SearchSection = styled.div<{ theme: any }>`
-       │                                           ^^^
-    91 │ 	background: ${({ theme }) => theme.colors.surface};
-    92 │ 	border: 1px solid ${({ theme }) => theme.colors.border};
-  
-  i any disables many type checking rules. Its use should be avoided.
+  i Allowed button types are: submit, button or reset
   
 
-src/v8u/pages/UserManagementPage.tsx:106:43 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+src/v8u/pages/UserManagementPage.tsx:386:9 lint/a11y/useButtonType ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  ! Unexpected any. Specify a different type.
+  × Provide an explicit type prop for the button element.
   
-    104 │ `;
-    105 │ 
-  > 106 │ const SearchLabel = styled.label<{ theme: any }>`
-        │                                           ^^^
-    107 │ 	display: block;
-    108 │ 	font-size: 0.875rem;
+    384 │ 							{/* Action Buttons */}
+    385 │ 							<div style={{ display: 'flex', gap: '0.5rem' }}>
+  > 386 │ 								<button
+        │ 								^^^^^^^
+  > 387 │ 									onClick={() => handleEditUser(user)}
+         ...
+  > 399 │ 									}}
+  > 400 │ 								>
+        │ 								^
+    401 │ 									<FiEdit2 />
+    402 │ 								</button>
   
-  i any disables many type checking rules. Its use should be avoided.
+  i The default type of a button is submit, which causes the submission of a form when placed inside a `form` element. This is likely not the behaviour that you want inside a React application.
   
-
-src/v8u/pages/UserManagementPage.tsx:114:45 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  ! Unexpected any. Specify a different type.
-  
-    112 │ `;
-    113 │ 
-  > 114 │ const SearchSelect = styled.select<{ theme: any }>`
-        │                                             ^^^
-    115 │ 	width: 100%;
-    116 │ 	padding: 0.75rem;
-  
-  i any disables many type checking rules. Its use should be avoided.
+  i Allowed button types are: submit, button or reset
   
 
-src/v8u/pages/UserManagementPage.tsx:124:39 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+src/v8u/pages/UserManagementPage.tsx:403:9 lint/a11y/useButtonType ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  ! Unexpected any. Specify a different type.
+  × Provide an explicit type prop for the button element.
   
-    122 │ `;
-    123 │ 
-  > 124 │ const UserTable = styled.div<{ theme: any }>`
-        │                                       ^^^
-    125 │ 	background: ${({ theme }) => theme.colors.surface};
-    126 │ 	border: 1px solid ${({ theme }) => theme.colors.border};
+    401 │ 									<FiEdit2 />
+    402 │ 								</button>
+  > 403 │ 								<button
+        │ 								^^^^^^^
+  > 404 │ 									onClick={() => handleDeleteUser(user)}
+         ...
+  > 416 │ 									}}
+  > 417 │ 								>
+        │ 								^
+    418 │ 									<FiTrash2 />
+    419 │ 								</button>
   
-  i any disables many type checking rules. Its use should be avoided.
+  i The default type of a button is submit, which causes the submission of a form when placed inside a `form` element. This is likely not the behaviour that you want inside a React application.
   
-
-src/v8u/pages/UserManagementPage.tsx:131:41 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  ! Unexpected any. Specify a different type.
-  
-    129 │ `;
-    130 │ 
-  > 131 │ const TableHeader = styled.div<{ theme: any }>`
-        │                                         ^^^
-    132 │ 	background: ${({ theme }) => theme.colors.primaryLight};
-    133 │ 	padding: 1rem;
-  
-  i any disables many type checking rules. Its use should be avoided.
+  i Allowed button types are: submit, button or reset
   
 
-src/v8u/pages/UserManagementPage.tsx:142:38 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Checked 7 files in 37ms. No fixes applied.
+Found 5 errors.
+check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  ! Unexpected any. Specify a different type.
-  
-    140 │ `;
-    141 │ 
-  > 142 │ const TableRow = styled.div<{ theme: any }>`
-        │                                      ^^^
-    143 │ 	padding: 1rem;
-    144 │ 	display: grid;
-  
-  i any disables many type checking rules. Its use should be avoided.
+  × Some errors were emitted while applying fixes.
   
 
-src/v8u/pages/UserManagementPage.tsx:168:40 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  ! Unexpected any. Specify a different type.
-  
-    166 │ `;
-    167 │ 
-  > 168 │ const UserAvatar = styled.div<{ theme: any }>`
-        │                                        ^^^
-    169 │ 	width: 32px;
-    170 │ 	height: 32px;
-  
-  i any disables many type checking rules. Its use should be avoided.
-  
-
-src/v8u/pages/UserManagementPage.tsx:187:38 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  ! Unexpected any. Specify a different type.
-  
-    185 │ `;
-    186 │ 
-  > 187 │ const UserName = styled.div<{ theme: any }>`
-        │                                      ^^^
-    188 │ 	font-weight: 600;
-    189 │ 	color: ${({ theme }) => theme.colors.text};
-  
-  i any disables many type checking rules. Its use should be avoided.
-  
-
-src/v8u/pages/UserManagementPage.tsx:196:39 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  ! Unexpected any. Specify a different type.
-  
-    194 │ `;
-    195 │ 
-  > 196 │ const UserEmail = styled.div<{ theme: any }>`
-        │                                       ^^^
-    197 │ 	color: ${({ theme }) => theme.colors.textSecondary};
-    198 │ 	white-space: nowrap;
-  
-  i any disables many type checking rules. Its use should be avoided.
-  
-
-src/v8u/pages/UserManagementPage.tsx:204:42 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  ! Unexpected any. Specify a different type.
-  
-    202 │ `;
-    203 │ 
-  > 204 │ const StatusBadge = styled.span<{ theme: any; status: string }>`
-        │                                          ^^^
-    205 │ 	padding: 0.25rem 0.75rem;
-    206 │ 	border-radius: 9999px;
-  
-  i any disables many type checking rules. Its use should be avoided.
-  
-
-src/v8u/pages/UserManagementPage.tsx:243:43 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  ! Unexpected any. Specify a different type.
-  
-    241 │ `;
-    242 │ 
-  > 243 │ const IconButton = styled.button<{ theme: any; variant?: 'edit' | 'delete' }>`
-        │                                           ^^^
-    244 │ 	padding: 0.5rem;
-    245 │ 	border-radius: 6px;
-  
-  i any disables many type checking rules. Its use should be avoided.
-  
-
-src/v8u/pages/UserManagementPage.tsx:277:40 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  ! Unexpected any. Specify a different type.
-  
-    275 │ `;
-    276 │ 
-  > 277 │ const EmptyState = styled.div<{ theme: any }>`
-        │                                        ^^^
-    278 │ 	text-align: center;
-    279 │ 	padding: 3rem;
-  
-  i any disables many type checking rules. Its use should be avoided.
-  
-
-src/v8u/pages/UserManagementPage.tsx:283:42 lint/suspicious/noExplicitAny ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  ! Unexpected any. Specify a different type.
-  
-    281 │ `;
-    282 │ 
-  > 283 │ const LoadingState = styled.div<{ theme: any }>`
-        │                                          ^^^
-    284 │ 	text-align: center;
-    285 │ 	padding: 3rem;
-  
-  i any disables many type checking rules. Its use should be avoided.
-  
-
-src/v8u/pages/UserManagementPage.tsx:352:6 lint/correctness/useExhaustiveDependencies ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  ! loadRoles changes on every re-render and should not be used as a hook dependency.
-  
-    350 │ 		loadRoles();
-    351 │ 		loadStatuses();
-  > 352 │ 	}, [loadRoles, loadStatuses, loadUsers]);
-        │ 	    ^^^^^^^^^
-    353 │ 
-    354 │ 	// Filter users
-  
-  i To fix this, wrap the definition of loadRoles in its own useCallback() hook.
-  
-
-src/v8u/pages/UserManagementPage.tsx:352:17 lint/correctness/useExhaustiveDependencies ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  ! loadStatuses changes on every re-render and should not be used as a hook dependency.
-  
-    350 │ 		loadRoles();
-    351 │ 		loadStatuses();
-  > 352 │ 	}, [loadRoles, loadStatuses, loadUsers]);
-        │ 	               ^^^^^^^^^^^^
-    353 │ 
-    354 │ 	// Filter users
-  
-  i To fix this, wrap the definition of loadStatuses in its own useCallback() hook.
-  
-
-src/v8u/pages/UserManagementPage.tsx:352:31 lint/correctness/useExhaustiveDependencies ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  ! loadUsers changes on every re-render and should not be used as a hook dependency.
-  
-    350 │ 		loadRoles();
-    351 │ 		loadStatuses();
-  > 352 │ 	}, [loadRoles, loadStatuses, loadUsers]);
-        │ 	                             ^^^^^^^^^
-    353 │ 
-    354 │ 	// Filter users
-  
-  i To fix this, wrap the definition of loadUsers in its own useCallback() hook.
-  
-
-Skipped 1 suggested fixes.
-If you wish to apply the suggested (unsafe) fixes, use the command biome check --write --unsafe
-
-Checked 7 files in 41ms. No fixes applied.
-Found 20 warnings.
-✅ Combined Status: ALL PASSED
+❌ Combined Status: ISSUES FOUND
 
 =================================================
 🎯 Username Dropdown Consolidation - Biome Validation Complete
-📅 Completed: Mon Mar  2 04:28:46 CST 2026
+📅 Completed: Mon Mar  2 04:37:21 CST 2026
 📁 Results saved to: biome-validation-results.txt
