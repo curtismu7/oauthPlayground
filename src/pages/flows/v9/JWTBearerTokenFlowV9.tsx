@@ -58,11 +58,7 @@ const checkMissingFields = (
 };
 
 // Wrapper functions to replace comprehensiveFlowDataService using V9FlowCredentialService
-const loadFlowDataComprehensive = (_options: {
-	flowKey: string;
-	useSharedEnvironment?: boolean;
-	useSharedDiscovery?: boolean;
-}) => {
+const loadFlowDataComprehensive = () => {
 	const v9Credentials = V9FlowCredentialService.load();
 
 	return {
@@ -99,7 +95,8 @@ const saveFlowDataComprehensive = (
 	return true;
 };
 
-// Import V6 service architecture components (to be migrated)
+import { FlowCompletionConfigs } from '../../../services/flowCompletionService';
+// Import V9 service architecture components (to be migrated)
 import { FlowHeader } from '../../../services/flowHeaderService';
 // Get shared UI components from FlowUIService (to be migrated)
 import { FlowUIService } from '../../../services/flowUIService';
@@ -107,6 +104,9 @@ import ModalPresentationService from '../../../services/modalPresentationService
 import { OAuthFlowComparisonService } from '../../../services/oauthFlowComparisonService';
 import { oidcDiscoveryService } from '../../../services/oidcDiscoveryService';
 import { UnifiedTokenDisplayService } from '../../../services/unifiedTokenDisplayService';
+// V9 wrapper services
+import V9ComprehensiveCredentialsService from '../../../services/v9/v9ComprehensiveCredentialsService';
+import V9FlowCompletionService from '../../../services/v9/v9FlowCompletionService';
 
 // Styled Components
 const SectionDivider = styled.div`
@@ -864,7 +864,7 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 						<SectionDivider />
 
 						{/* Credentials Configuration */}
-						<ComprehensiveCredentialsService
+						<V9ComprehensiveCredentialsService
 							flowType="jwt-bearer-token-v7" // Used to detect JWT Bearer and disable auth method selector
 							// Discovery props
 							onDiscoveryComplete={(result) => {
@@ -1523,7 +1523,7 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 
 			case 4:
 				return (
-					<FlowCompletionService
+					<V9FlowCompletionService
 						config={FlowCompletionConfigs.jwtBearer}
 						collapsed={collapsedSections.completion}
 						onToggleCollapsed={() => toggleSection('completion')}
