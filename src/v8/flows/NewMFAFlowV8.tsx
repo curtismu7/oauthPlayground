@@ -6,7 +6,10 @@
  */
 
 import React from 'react';
-import { type TokenStatusInfo, WorkerTokenStatusServiceV8 } from '../services/workerTokenStatusServiceV8';
+import {
+	type TokenStatusInfo,
+	WorkerTokenStatusServiceV8,
+} from '../services/workerTokenStatusServiceV8';
 import { DeviceConfigKey } from './config/deviceFlowConfigTypes';
 import { APIDocsStepV8 } from './shared/APIDocsStepV8';
 import type { MFAFlowBaseRenderProps } from './shared/MFAFlowBaseV8';
