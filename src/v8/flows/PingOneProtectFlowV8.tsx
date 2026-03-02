@@ -577,7 +577,7 @@ export const PingOneProtectFlowV8: React.FC = () => {
 							marginBottom: '8px',
 						}}
 					>
-						<label style={{ fontWeight: '600' }}>Worker Token Status</label>
+						<div style={{ fontWeight: '600' }}>Worker Token Status</div>
 						<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
 							{tokenStatus.isValid ? (
 								<FiCheckCircle color="#10b981" size={16} />
