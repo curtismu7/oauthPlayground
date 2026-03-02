@@ -359,11 +359,6 @@ const InteractionType = styled.div`
   margin-bottom: 0.5rem;
 `;
 
-const _ApiInteractionType = styled(InteractionType)`
-  background: #dbeafe;
-  color: #1e40af;
-`;
-
 const RedirectInteractionType = styled(InteractionType)`
   background: #fef3c7;
   color: #92400e;
