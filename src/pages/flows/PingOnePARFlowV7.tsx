@@ -1290,6 +1290,7 @@ const PingOnePARFlowV7: React.FC = () => {
 								<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
 									<strong style={{ fontSize: '0.875rem' }}>Worker Token:</strong>
 									<button
+										type="submit"
 										onClick={() => setShowWorkerToken(!showWorkerToken)}
 										style={{
 											background: 'none',
@@ -1654,6 +1655,7 @@ code_challenge_method=S256
 							)}
 
 						<button
+							type="submit"
 							onClick={async () => {
 								const maxRetries = 3;
 								const retryDelay = 1000; // 1 second
@@ -2123,10 +2125,14 @@ password=[your-password]`}
 
 								<div style={{ display: 'grid', gap: '1rem', marginBottom: '1rem' }}>
 									<div>
-										<label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+										<label
+											htmlFor="username-input"
+											style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}
+										>
 											Username
 										</label>
 										<input
+											id="username-input"
 											type="text"
 											value={loginCredentials.username}
 											onChange={(e) =>
@@ -2144,10 +2150,14 @@ password=[your-password]`}
 									</div>
 
 									<div>
-										<label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+										<label
+											htmlFor="password-input"
+											style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}
+										>
 											Password
 										</label>
 										<input
+											id="password-input"
 											type="password"
 											value={loginCredentials.password}
 											onChange={(e) =>
@@ -2166,6 +2176,7 @@ password=[your-password]`}
 								</div>
 
 								<button
+									type="submit"
 									onClick={async () => {
 										if (!loginCredentials.username || !loginCredentials.password) {
 											v4ToastManager.showError('Please enter both username and password');
@@ -2219,7 +2230,7 @@ password=[your-password]`}
 											}
 
 											// Check if response is HTML (login page) or JSON
-											const contentType = authResponse.headers.get('content-type');
+											const contentType: string | null = authResponse.headers.get('content-type');
 											console.log('🔐 [PAR V7] Response content-type:', contentType);
 
 											if (contentType?.includes('text/html')) {
@@ -2242,7 +2253,7 @@ password=[your-password]`}
 											}
 
 											// Try to parse as JSON
-											let authData;
+											let authData: unknown;
 											try {
 												authData = await authResponse.json();
 												console.log('🔐 [PAR V7] Authorization response:', authData);
@@ -2417,6 +2428,7 @@ password=[your-password]`}
 
 						<div style={{ display: 'flex', justifyContent: 'center' }}>
 							<button
+								type="button"
 								onClick={async () => {
 									// Exchange authorization code for tokens
 									if (!controller.authCode) {
@@ -2492,6 +2504,7 @@ password=[your-password]`}
 						<p>Introspect and manage the received tokens.</p>
 
 						<button
+							type="button"
 							onClick={() => {
 								// For demo purposes, simulate token introspection
 								const mockIntrospection = {
