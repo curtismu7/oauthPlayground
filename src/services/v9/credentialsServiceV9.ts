@@ -71,6 +71,7 @@ const ensureMigration = async (): Promise<void> => {
 // CREDENTIALS SERVICE CLASS (Compatibility Layer)
 // ============================================================================
 
+// biome-ignore lint/complexity/noStaticOnlyClass: This is a service class with static methods
 export class CredentialsServiceV8 {
 	private static readonly STORAGE_PREFIX = 'v8_credentials_';
 
