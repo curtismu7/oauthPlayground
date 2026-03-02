@@ -296,7 +296,7 @@ const SAMLBearerAssertionFlowV7: React.FC = () => {
 	// Generated SAML Assertion
 	const [generatedSAML, setGeneratedSAML] = useState('');
 	const [showDecodedSAML, setShowDecodedSAML] = useState(false);
-	const [tokenResponse, setTokenResponse] = useState<any>(null);
+	const [tokenResponse, setTokenResponse] = useState<Record<string, unknown> | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
 
 	const normalizeAttributes = useCallback(
