@@ -1682,6 +1682,7 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 		handleStartRedirectlessFlow,
 		isAuthenticating,
 		isLoading,
+		loginCredentials.username,
 	]);
 
 	return (
