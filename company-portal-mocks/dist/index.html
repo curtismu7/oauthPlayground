@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en" data-company="pingidentity">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Company Portal UI Mocks</title>
+  <link rel="stylesheet" href="../shared/theme.css" />
+  <style>
+    .grid{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:22px;
+      padding:28px 0 36px;
+      align-items:start;
+    }
+    .kpi{
+      display:grid;
+      gap:10px;
+      padding:18px;
+      border-radius:16px;
+      background:rgba(255,255,255,.55);
+      border:1px solid rgba(0,0,0,.08);
+    }
+    .kpi strong{font-size:14px}
+    .kpi span{color:var(--muted); font-weight:700; font-size:12px}
+    @media (max-width: 900px){ .grid{grid-template-columns:1fr} }
+  </style>
+  <link rel="stylesheet" href="../shared/brand-overrides.css" />
+</head>
+<body>
+  <header class="header">
+    <div class="container header__inner">
+      <div class="brand"><span class="logo" data-logo></span></div>
+      <nav class="nav">
+        <a href="#" style="pointer-events:none;opacity:.65;">UI Mock Pack</a>
+        <select class="select" data-company-select aria-label="Company"></select>
+        <a class="btn btn-outline" id="portalLink" href="./portal.html?company=pingidentity">Open portal</a>
+        <a class="btn btn-primary" id="loginLink" href="./login.html?company=pingidentity">Open login</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div class="hero__grid">
+        <div>
+          <h1 class="hero__title">Config-driven company themes</h1>
+          <p class="hero__sub">
+            Pick a company from the dropdown. Links update automatically. Add a new company by editing
+            <code>shared/companies.json</code> (colors + logo + mode). No code changes required.
+          </p>
+
+          <div class="actions">
+            <a class="btn btn-primary" href="./portal.html?company=pingidentity">View portal</a>
+            <a class="btn btn-outline" href="./login.html?company=pingidentity">View login</a>
+          </div>
+        </div>
+
+        <aside class="kpi" aria-label="How to add a company">
+          <strong>To add a new company later</strong>
+          <span>1) Add an entry in <code>shared/companies.json</code></span>
+          <span>2) Provide palette + logoSvg + loginMode ("page" or "modal")</span>
+          <span>3) The dropdown and pages update automatically</span>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">© 2026 UI mock pack.</div>
+  </footer>
+
+  <script>
+    (function(){
+      const portal = document.getElementById('portalLink');
+      const login = document.getElementById('loginLink');
+      const sel = document.querySelector('[data-company-select]');
+      function sync(){
+        const id = sel?.value || 'pingidentity';
+        portal.href = `./portal.html?company=${id}`;
+        login.href = `./login.html?company=${id}`;
+      }
+      document.addEventListener('change', (e)=>{ if(e.target === sel) sync(); });
+      document.addEventListener('DOMContentLoaded', sync);
+    })();
+  </script>
+
+  <script src="../shared/app.js"></script>
+</body>
+</html>
