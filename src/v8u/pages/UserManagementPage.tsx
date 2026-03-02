@@ -9,7 +9,8 @@
 import { FiEdit2, FiPlus, FiTrash2, FiUser } from '@icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { UserSearchDropdown } from '../../protect-app/components/UserSearchDropdown';
+import { UserSearchDropdownV8 } from '../../v8/components/UserSearchDropdownV8';
+import { EnvironmentIdServiceV8 } from '../../v8/services/environmentIdServiceV8';
 import { useTheme } from '../contexts/ThemeContext';
 
 // ============================================================================
@@ -308,10 +309,17 @@ const UserManagementPage: React.FC = () => {
 	const [loading, setLoading] = useState(true);
 	const [searchTerm, setSearchTerm] = useState('');
 	const [statusFilter, setStatusFilter] = useState<string>('all');
+	const [environmentId, setEnvironmentId] = useState<string>('');
 	const [_showCreateModal, setShowCreateModal] = useState(false);
 	const [_showEditModal, setShowEditModal] = useState(false);
 	const [_showDeleteModal, setShowDeleteModal] = useState(false);
 	const [_selectedUser, setSelectedUser] = useState<User | null>(null);
+
+	// Load environment ID
+	useEffect(() => {
+		const envId = EnvironmentIdServiceV8.getEnvironmentId();
+		setEnvironmentId(envId || '');
+	}, []);
 
 	// Load users
 	const loadUsers = async () => {
@@ -385,13 +393,16 @@ const UserManagementPage: React.FC = () => {
 			<SearchSection>
 				<SearchField>
 					<SearchLabel theme={theme}>Search Users</SearchLabel>
-					<UserSearchDropdown
-						onUserSelect={(user) => {
-							if (user) {
-								setSearchTerm(user.username || user.email);
-							}
+					<UserSearchDropdownV8
+						environmentId={environmentId}
+						value={searchTerm}
+						onChange={(username) => {
+							setSearchTerm(username);
 						}}
 						placeholder="Search by username or email..."
+						onGetToken={() => {
+							console.log('Worker token required for user search in UserManagementPage');
+						}}
 					/>
 				</SearchField>
 				<SearchField>
