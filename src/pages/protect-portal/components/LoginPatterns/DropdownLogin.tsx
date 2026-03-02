@@ -139,7 +139,13 @@ interface DropdownLoginProps {
 // MAIN COMPONENT
 // ============================================================================
 
-const DropdownLogin: React.FC<DropdownLoginProps> = ({ isOpen, onClose, onSubmit, config, environmentId }) => {
+const DropdownLogin: React.FC<DropdownLoginProps> = ({
+	isOpen,
+	onClose,
+	onSubmit,
+	config,
+	environmentId,
+}) => {
 	const dropdownRef = useRef<HTMLDivElement>(null);
 	const [formData, setFormData] = useState({
 		username: '',
