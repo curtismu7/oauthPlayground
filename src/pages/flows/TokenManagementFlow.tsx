@@ -1,6 +1,8 @@
 import type React from 'react';
 import { useCallback, useState } from 'react';
 import styled from 'styled-components';
+import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
+import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import FlowCredentials from '../../components/FlowCredentials';
 import JSONHighlighter from '../../components/JSONHighlighter';
 import { StepByStepFlow } from '../../components/StepByStepFlow';
@@ -13,8 +15,6 @@ import {
 } from '../../services/tokenManagementService';
 import { logger } from '../../utils/logger';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
-import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
-import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 
 const FlowContainer = styled.div`
   max-width: 1200px;
@@ -274,7 +274,7 @@ interface TokenManagementFlowProps {
 	};
 }
 
-const TokenManagementFlow: React.FC<TokenManagementFlowProps> = ({ credentials }) => {
+const _TokenManagementFlow: React.FC<TokenManagementFlowProps> = ({ credentials }) => {
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [currentStep, setCurrentStep] = useState(0);
 	const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -992,7 +992,8 @@ if (introspectionResponse) {
 								: 'Token Revocation'}
 				</Button>
 			</FormContainer>
-                        <WorkerTokenModalV8 isOpen={showWorkerTokenModal} onClose={() => setShowWorkerTokenModal(false)} />
+			<WorkerTokenModalV8 isOpen={showWorkerTokenModal} onClose={() => setShowWorkerTokenModal(false)} />
+		</FlowContainer>
 	);
 };
 
