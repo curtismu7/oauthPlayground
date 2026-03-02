@@ -102,13 +102,6 @@ const StyledSectionDivider = styled.div`
 const WorkerTokenFlowV7: React.FC = () => {
 	usePageScroll({ pageName: 'WorkerTokenFlowV7', force: true });
 	// Check credentials on mount and show warning if missing
-	useEffect(() => {
-		checkCredentialsAndWarn(controller.credentials, {
-			flowName: 'Worker Token Flow',
-			requiredFields: ['environmentId', 'clientId', 'clientSecret'],
-			showToast: true,
-		});
-	}, [controller.credentials]); // Only run once on mount
 	const navigate = useNavigate();
 
 	// Initialize controller with default scopes for worker tokens
@@ -117,10 +110,18 @@ const WorkerTokenFlowV7: React.FC = () => {
 		defaultFlowVariant: 'worker',
 	});
 
+	useEffect(() => {
+		checkCredentialsAndWarn(controller.credentials, {
+			flowName: 'Worker Token Flow',
+			requiredFields: ['environmentId', 'clientId', 'clientSecret'],
+			showToast: true,
+		});
+	}, [controller.credentials]); // Only run once on mount
+
 	// Local state for credentials
 	const [credentials, setCredentials] = useState(controller.credentials);
 	const [currentStep, setCurrentStep] = useState(0);
-	const [_errorDetails, setErrorDetails] = useState<any>(null);
+	const [_errorDetails, setErrorDetails] = useState<Record<string, unknown> | null>(null);
 	const [workerToken, setWorkerToken] = useState(localStorage.getItem('worker_token') || '');
 
 	// Debug logging for credentials being passed to ComprehensiveCredentialsService
