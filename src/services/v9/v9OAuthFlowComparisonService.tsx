@@ -2,7 +2,8 @@
 // V9 Wrapper for OAuthFlowComparisonService - Modern Messaging Compliant
 
 import { OAuthFlowComparisonService } from '../oauthFlowComparisonService';
-import { v9MessagingService } from './V9MessagingService';
+// Import Modern Messaging (V8) - established migration pattern
+import { ToastNotificationsV8 as toastV8 } from '../../v8/utils/toastNotificationsV8';
 
 // V9 Wrapper Service - wraps original with Modern Messaging
 const V9OAuthFlowComparisonService = {
@@ -20,7 +21,7 @@ const V9OAuthFlowComparisonService = {
 			// Add V9-specific error boundary wrapper
 			return <div data-v9-flow-comparison={options.highlightFlow || 'default'}>{result}</div>;
 		} catch (error) {
-			v9MessagingService.showError('Failed to generate flow comparison table');
+			toastV8.error('Failed to generate flow comparison table');
 			console.error('Flow comparison error:', error);
 
 			// Return fallback error display
@@ -53,13 +54,13 @@ const V9OAuthFlowComparisonService = {
 	validateFlowComparison(highlightFlow?: 'jwt' | 'saml'): boolean {
 		try {
 			if (highlightFlow && !['jwt', 'saml'].includes(highlightFlow)) {
-				v9MessagingService.showError('Invalid flow type for comparison');
+				toastV8.error('Invalid flow type for comparison');
 				return false;
 			}
 
 			return true;
 		} catch (error) {
-			v9MessagingService.showError('Flow comparison validation failed');
+			toastV8.error('Flow comparison validation failed');
 			console.error('Flow validation error:', error);
 			return false;
 		}

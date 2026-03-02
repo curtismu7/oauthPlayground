@@ -2,7 +2,9 @@
 // V9 Wrapper for FlowUIService - Modern Messaging Compliant
 
 import { FlowUIService } from '../flowUIService';
-import { v9MessagingService } from './V9MessagingService';
+import { V9FlowCredentialService } from './core/V9FlowCredentialService';
+// Import Modern Messaging (V8) - established migration pattern
+import { ToastNotificationsV8 as toastV8 } from '../../v8/utils/toastNotificationsV8';
 
 // V9 Wrapper Service - wraps original with Modern Messaging
 const V9FlowUIService = {
@@ -12,7 +14,7 @@ const V9FlowUIService = {
 			const components = FlowUIService.getFlowUIComponents();
 			return components;
 		} catch (error) {
-			v9MessagingService.showError('Failed to load flow UI components');
+			toastV8.error('Failed to load flow UI components');
 			console.error('FlowUI components error:', error);
 			// Return minimal fallback components
 			return {

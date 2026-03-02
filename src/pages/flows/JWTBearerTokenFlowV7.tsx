@@ -20,7 +20,7 @@ import { readBestEnvironmentId } from '../../hooks/useAutoEnvironmentId';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 // Import V9 services for migration
-import { v9MessagingService } from '../../services/v9/V9MessagingService';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { V9FlowCredentialService } from '../../services/v9/core/V9FlowCredentialService';
 import type { StepCredentials } from '../../services/flowCredentialService';
 
@@ -28,10 +28,10 @@ import type { StepCredentials } from '../../services/flowCredentialService';
 const copyToClipboard = async (text: string): Promise<void> => {
 	try {
 		await navigator.clipboard.writeText(text);
-		v9MessagingService.showSuccess('Copied to clipboard!');
+		v4ToastManager.showSuccess('Copied to clipboard!');
 	} catch (err) {
 		console.error('Failed to copy text: ', err);
-		v9MessagingService.showError('Failed to copy to clipboard');
+		v4ToastManager.showError('Failed to copy to clipboard');
 	}
 };
 
@@ -371,7 +371,7 @@ const JWTBearerTokenFlowV7: React.FC = () => {
 		// Enhanced validation with better error messages
 		if (!environmentId || environmentId.trim() === '') {
 			console.warn('⚠️ [JWT Bearer] Cannot discover audience - Environment ID is empty');
-			v9MessagingService.showWarning('Please enter an Environment ID first');
+			v4ToastManager.showWarning('Please enter an Environment ID first');
 			return;
 		}
 
@@ -379,7 +379,7 @@ const JWTBearerTokenFlowV7: React.FC = () => {
 		const trimmedEnvId = environmentId.trim();
 		if (!trimmedEnvId || trimmedEnvId.length < 10) {
 			console.warn('⚠️ [JWT Bearer] Environment ID appears to be invalid:', trimmedEnvId);
-			v9MessagingService.showWarning('Please enter a valid Environment ID');
+			v4ToastManager.showWarning('Please enter a valid Environment ID');
 			return;
 		}
 
@@ -407,14 +407,14 @@ const JWTBearerTokenFlowV7: React.FC = () => {
 				setAudience(discoveredAudience);
 				setJwtClaims((prev) => ({ ...prev, aud: discoveredAudience }));
 				console.log('✅ [JWT Bearer] Audience discovered:', discoveredAudience);
-				v9MessagingService.showSuccess('Audience discovered and populated!');
+				v4ToastManager.showSuccess('Audience discovered and populated!');
 			} else {
 				throw new Error('No issuer found in OIDC discovery document');
 			}
 		} catch (error) {
 			console.error('❌ [JWT Bearer] Failed to discover audience:', error);
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-			v9MessagingService.showError(
+			v4ToastManager.showError(
 				`Failed to discover audience: ${errorMessage}. Please enter manually.`
 			);
 		} finally {
@@ -482,7 +482,7 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 			publicKey: samplePublicKey,
 		}));
 
-		v9MessagingService.showSuccess('Sample RSA key pair generated! (For educational purposes only)');
+		v4ToastManager.showSuccess('Sample RSA key pair generated! (For educational purposes only)');
 		console.log('🔑 [JWT Bearer] Generated sample RSA-2048 key pair');
 	}, []);
 
@@ -557,17 +557,17 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 			const jwt = `${encodedHeader}.${encodedPayload}.${encodedSignature}`;
 			setGeneratedJWT(jwt);
 
-			v9MessagingService.showSuccess('JWT generated successfully!');
+			v4ToastManager.showSuccess('JWT generated successfully!');
 		} catch (error) {
 			console.error('[JWT Bearer] Error generating JWT:', error);
-			v9MessagingService.showError('Failed to generate JWT');
+			v4ToastManager.showError('Failed to generate JWT');
 		}
 	}, [clientId, tokenEndpoint, jwtClaims, jwtSignature, audience]);
 
 	// Make token request
 	const makeTokenRequest = useCallback(async () => {
 		if (!generatedJWT || !clientId || !tokenEndpoint) {
-			v9MessagingService.showWarning('Please generate a JWT first');
+			v4ToastManager.showWarning('Please generate a JWT first');
 			return;
 		}
 
@@ -628,12 +628,12 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 			console.log('[JWT Bearer Mock] Mock token response:', mockTokenResponse);
 			setTokenResponse(mockTokenResponse);
 			setCurrentStep(3); // Move to token response step
-			v9MessagingService.showSuccess(
+			v4ToastManager.showSuccess(
 				'Mock access token generated successfully! (Educational simulation)'
 			);
 		} catch (error) {
 			console.error('[JWT Bearer Mock] Error in simulation:', error);
-			v9MessagingService.showError('Failed to simulate token request');
+			v4ToastManager.showError('Failed to simulate token request');
 		} finally {
 			setIsLoading(false);
 		}
@@ -734,7 +734,7 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 			console.warn('[JWTBearerTokenFlowV6] Failed to clear cache data:', error);
 		}
 
-		v9MessagingService.showSuccess('Flow restarted - Tokens, JWT, and cache cleared. Credentials preserved.');
+		v4ToastManager.showSuccess('Flow restarted - Tokens, JWT, and cache cleared. Credentials preserved.');
 	}, []);
 
 	const canNavigateNext = useCallback((): boolean => {
@@ -889,7 +889,7 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 									console.log('[JWT Bearer V6] Environment ID extracted:', extractedEnvId);
 								}
 
-								v9MessagingService.showSuccess(
+								v4ToastManager.showSuccess(
 									'Token Endpoint and Audience auto-populated from OIDC Discovery'
 								);
 							}}
@@ -916,7 +916,7 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 							// Save handlers
 							onSave={async () => {
 								await saveCredentials({});
-								v9MessagingService.showSuccess('Configuration saved');
+								v4ToastManager.showSuccess('Configuration saved');
 							}}
 							hasUnsavedChanges={false}
 							isSaving={false}
@@ -1000,7 +1000,7 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 												);
 												if (!environmentId || environmentId.trim() === '') {
 													console.warn('⚠️ [JWT Bearer] Button clicked but environmentId is empty');
-													v9MessagingService.showWarning('Please enter an Environment ID first');
+													v4ToastManager.showWarning('Please enter an Environment ID first');
 													return;
 												}
 												discoverAudience();

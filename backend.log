@@ -1,0 +1,22 @@
+[dotenv@17.3.1] injecting env (29) from .env -- tip: 🤖 agentic secret storage: https://dotenvx.com/as2
+🚀 Starting OAuth Playground Backend Server...
+📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+📝 Authz redirect logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/authz-redirects.log
+📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log (consolidated)
+📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+💾 User database service initialized
+[🔐 CREDENTIALS-SQLITE-API] API endpoints registered
+🔐 Using custom domain certificates from env: /Users/cmuir/P1Import-apps/oauth-playground/certs/api.pingdemo.com.crt
+🔐 OAuth Playground Backend Server running on port 3001 (HTTPS)
+📡 Health check: https://localhost:3001/api/health
+🔐 Token exchange: https://localhost:3001/api/token-exchange
+👤 UserInfo: https://localhost:3001/api/userinfo
+🔌 Device UserInfo: https://localhost:3001/api/device-userinfo
+✅ Token validation: https://localhost:3001/api/validate-token
+🌐 HTTPS Server listening on: { address: '0.0.0.0', family: 'IPv4', port: 3001 }
+[💾 BACKUP-DB] Backup tables created
+[💾 BACKUP-DB] Backup database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/backups.db
+[💾 USER-DB] Tables created successfully
+[💾 USER-DB] Indexes created successfully
+[💾 USER-DB] Database initialized at /Users/cmuir/P1Import-apps/oauth-playground/src/server/data/users.db

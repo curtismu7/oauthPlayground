@@ -3,7 +3,8 @@
 
 import React from 'react';
 import ComprehensiveCredentialsService from '../comprehensiveCredentialsService';
-import { v9MessagingService } from './V9MessagingService';
+// Import Modern Messaging (V8) - established migration pattern
+import { ToastNotificationsV8 as toastV8 } from '../../v8/utils/toastNotificationsV8';
 
 // V9 Wrapper Component
 export interface V9ComprehensiveCredentialsProps {
@@ -18,10 +19,10 @@ const V9ComprehensiveCredentialsService: React.FC<V9ComprehensiveCredentialsProp
 	// Wrap discovery callback with Modern Messaging
 	const handleDiscoveryComplete = (result: unknown) => {
 		try {
-			v9MessagingService.showSuccess('Discovery completed successfully!');
+			toastV8.success('Discovery completed successfully!');
 			props.onDiscoveryComplete?.(result);
 		} catch (error) {
-			v9MessagingService.showError('Discovery completed but callback failed');
+			toastV8.error('Discovery completed but callback failed');
 			console.error('Discovery callback error:', error);
 		}
 	};
@@ -31,7 +32,7 @@ const V9ComprehensiveCredentialsService: React.FC<V9ComprehensiveCredentialsProp
 		try {
 			props.onCredentialsChange?.(credentials);
 		} catch (error) {
-			v9MessagingService.showError('Failed to update credentials');
+			toastV8.error('Failed to update credentials');
 			console.error('Credentials change error:', error);
 		}
 	};
@@ -39,10 +40,10 @@ const V9ComprehensiveCredentialsService: React.FC<V9ComprehensiveCredentialsProp
 	// Wrap save with Modern Messaging
 	const handleSaveCredentials = () => {
 		try {
-			v9MessagingService.showSuccess('Credentials saved successfully!');
+			toastV8.success('Credentials saved successfully!');
 			props.onSaveCredentials?.();
 		} catch (error) {
-			v9MessagingService.showError('Failed to save credentials');
+			toastV8.error('Failed to save credentials');
 			console.error('Save credentials error:', error);
 		}
 	};
