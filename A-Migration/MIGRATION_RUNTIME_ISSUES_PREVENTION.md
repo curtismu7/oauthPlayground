@@ -5,7 +5,65 @@ This guide documents critical runtime issues that have been identified and fixed
 
 ---
 
-## 🚨 Critical Issues to Check Before Migration
+## � MOST CRITICAL: Vite import-analysis vs TSC baseUrl — Silent Compile-Pass / Runtime-Fail
+
+**Added:** March 2026. This issue wasted significant debugging time and must be checked on every new V9 file.
+
+### The Problem
+
+`tsconfig.json` has `"baseUrl": "."`. This means TypeScript resolves `../../services/foo` and `../../../services/foo` **identically** — both map to `src/services/foo` when the compiler's root is the project root. So `tsc --noEmit` passes with **zero errors** even when import paths are wrong.
+
+**Vite's `plugin:vite:import-analysis` resolves imports relative to the actual file location on disk**, ignoring `baseUrl`. So in `src/pages/flows/v9/MyFlowV9.tsx`, the import `../../services/myService` resolves to the non-existent path `src/pages/services/myService` — and the page crashes on first navigation.
+
+### Symptom
+```
+[vite] Internal server error: Failed to resolve import "../../services/myService"
+  from src/pages/flows/v9/MyFlowV9.tsx. Does the file 'src/pages/services/myService' exist?
+```
+
+### What Makes This Dangerous
+
+| Tool | Catches this bug? |
+|---|---|
+| `tsc --noEmit` | ❌ No — baseUrl masks it |
+| VSCode "Go to Definition" | ❌ No — uses tsconfig resolution |
+| ESLint import plugin | ❌ No — not configured for this |
+| Vite dev server (browser) | ✅ Yes — crashes immediately on page load |
+| Running `tsc --strict` | ❌ Still no |
+
+**You will not see this bug until you actually navigate to the page in the running dev server.**
+
+### Prevention Checklist
+
+- [ ] After creating any new V9 file, immediately navigate to it in the running Vite dev server
+- [ ] Check the browser console — any `Failed to resolve import` error points to this issue
+- [ ] Use the path depth table below as a reference before saving:
+
+| File in | Importing from | Correct prefix |
+|---|---|---|
+| `src/pages/flows/v9/` | `src/services/` | `../../../services/` |
+| `src/pages/flows/v9/` | `src/utils/` | `../../../utils/` |
+| `src/pages/flows/v9/` | `src/hooks/` | `../../../hooks/` |
+| `src/pages/flows/v9/` | `src/components/` | `../../../components/` |
+| `src/pages/flows/v9/` | `src/pages/flows/config/` | `../config/` |
+| `src/pages/flows/v9/` | `src/pages/flows/shared/` | `../shared/` |
+
+### Bulk Fix (Python — more reliable than sed on this codebase)
+```python
+import re, pathlib
+p = pathlib.Path('src/pages/flows/v9/YourFlowV9.tsx')
+content = p.read_text()
+content = re.sub(
+    r"from '../../(services|utils|hooks|components|config)/",
+    lambda m: f"from '../../../{m.group(1)}/",
+    content
+)
+p.write_text(content)
+```
+
+---
+
+## �🚨 Critical Issues to Check Before Migration
 
 ### 1. **Null Reference Errors**
 **Pattern**: `Cannot read properties of null (reading 'property')`
