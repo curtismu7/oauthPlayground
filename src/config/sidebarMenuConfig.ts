@@ -233,6 +233,44 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 		]),
 	},
 	{
+		id: 'review',
+		label: 'Review - New Apps',
+		items: items([
+			// Essential User-Facing Tools
+			['/configuration', 'Configuration Management'],
+			['/credential-management', 'Credential Management'],
+			['/advanced-configuration', 'Advanced Configuration'],
+			['/service-test-runner', 'Service Test Runner'],
+			['/pingone-authentication', 'PingOne Authentication'],
+			['/pingone-authentication/result', 'Auth Results'],
+			['/sdk-sample-app', 'SDK Sample App'],
+			['/postman-collection-generator-v9', 'Postman Generator V9'],
+
+			// Documentation & Education
+			['/documentation', 'Documentation Hub'],
+			['/documentation/oidc-overview', 'OIDC Overview'],
+			['/comprehensive-oauth-education', 'OAuth Education'],
+			['/about', 'About Page'],
+			['/oauth-2-1', 'OAuth 2.1 Specification'],
+			['/oidc', 'OIDC Information'],
+			['/oidc-session-management', 'OIDC Session Management'],
+
+			// AI & Modern Features
+			['/ai-agent-overview', 'AI Agent Overview'],
+			['/ai-glossary', 'AI Glossary'],
+			['/ai-identity-architectures', 'AI Identity Architectures'],
+
+			// Development Tools
+			['/code-examples', 'Code Examples'],
+			['/worker-token-tester', 'Worker Token Tester'],
+			['/advanced-security-settings', 'Advanced Security Settings'],
+			['/advanced-security-settings-comparison', 'Security Settings Comparison'],
+
+			// Configuration
+			['/admin/create-company', 'Admin - Create Company'],
+		]),
+	},
+	{
 		id: 'documentation-reference',
 		label: 'Documentation & Reference',
 		items: items([
@@ -240,12 +278,9 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 			['/ciba-vs-device-authz', 'CIBA vs Device Authorization Guide'],
 			['/pingone-mock-features', 'Mock & Educational Features'],
 			['/pingone-scopes-reference', 'OAuth Scopes Reference'],
-			['/documentation/oidc-overview', 'OIDC Overview'],
 			['/docs/oidc-specs', 'OIDC Specifications'],
 			['/docs/oauth2-security-best-practices', 'OAuth 2.0 Security Best Practices'],
 			['/docs/spiffe-spire-pingone', 'SPIFFE/SPIRE with PingOne'],
-			['/oauth-2-1', 'OAuth 2.1'],
-			['/oidc-session-management', 'OIDC Session Management'],
 			['/pingone-sessions-api', 'PingOne Sessions API'],
 		]),
 	},
