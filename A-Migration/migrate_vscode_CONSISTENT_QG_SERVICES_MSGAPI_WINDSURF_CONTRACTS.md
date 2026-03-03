@@ -137,7 +137,67 @@ When changing or introducing anything in `src/services/**` (or adding logic that
 **PR checklist**
 - [ ] Services changes reviewed against `V7_V8_V9_SERVICES_CONTRACTS_UPDATED.md` (no accidental contract breaks)
 
-## � V9 Migration Inventory (March 2, 2026)
+### Credential Storage & App Discovery (MANDATORY for every V9 flow migration)
+
+**Every V9 flow that asks for OAuth credentials MUST use the 4-layer storage system and MUST offer the app picker.**
+
+#### Credential storage gate
+
+- [ ] **All credential reads/writes use `V9CredentialStorageService`** (`src/services/v9/V9CredentialStorageService.ts`)
+  - ❌ **Forbidden**: `window.localStorage.getItem/setItem` directly in flows
+  - ❌ **Forbidden**: `V9FlowCredentialService` (localStorage-only, has 3 missing layers)
+  - ✅ **Required**: `V9CredentialStorageService.load(flowKey)` / `.save(flowKey, creds)` / `.clear(flowKey)`
+  - Storage key pattern: `v9:<flow-name>` e.g. `v9:token-exchange`, `v9:client-credentials`
+
+- [ ] **Credentials initialize from storage on mount** — `loadSync()` for sync-render, then `load()` async to hydrate IndexedDB/SQLite layers
+
+#### App picker gate
+
+- [ ] **Every flow with an `environmentId` input has an app picker** (`CompactAppPickerV8U` or `AppDiscoveryModalV8U`)
+  - App picker uses `V9AppDiscoveryService.discoverApplications(environmentId, workerToken)`
+  - Selecting an app calls `V9AppDiscoveryService.applyAppConfig(app)` and merges into form state
+  - Worker token for picker comes from `useGlobalWorkerToken()` hook
+
+#### Quick integration reference
+
+```tsx
+// 1. On mount — load saved credentials
+useEffect(() => {
+  const synced = V9CredentialStorageService.loadSync('v9:my-flow');
+  if (synced) setFlowParams(prev => ({ ...prev, ...synced }));
+  V9CredentialStorageService.load('v9:my-flow').then(creds => {
+    if (creds) setFlowParams(prev => ({ ...prev, ...creds }));
+  });
+}, []);
+
+// 2. On save — persist credentials
+const handleSave = async () => {
+  await V9CredentialStorageService.save('v9:my-flow', {
+    clientId, clientSecret, redirectUri, scope
+  }, { environmentId });
+};
+
+// 3. App picker integration
+<CompactAppPickerV8U
+  environmentId={flowParams.environmentId}
+  onAppSelected={(app) => {
+    const creds = V9AppDiscoveryService.applyAppConfig(app);
+    setFlowParams(prev => ({ ...prev, ...creds }));
+  }}
+/>
+```
+
+#### Compliance audit checklist per flow
+
+When migrating or auditing a V9 flow, verify:
+
+- [ ] `V9CredentialStorageService` imported and used for all credential reads/writes
+- [ ] `V9AppDiscoveryService` imported and called by the app picker
+- [ ] `CompactAppPickerV8U` (or `AppDiscoveryModalV8U`) present in credentials section
+- [ ] Worker token picker uses `useGlobalWorkerToken()` — not inline localStorage reads
+- [ ] All 13 existing V9 flows audited *(status tracked in `A-Migration/CURRENT_MIGRATION_TRACKING_100_CLEAN.md`)*
+
+## 🗂️ V9 Migration Inventory (March 2, 2026)
 
 ### ✅ Migrated to V9
 
