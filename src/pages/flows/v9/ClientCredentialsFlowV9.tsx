@@ -27,8 +27,11 @@ import { CopyButtonService } from '../../../services/copyButtonService';
 import { FlowCredentialService } from '../../../services/flowCredentialService';
 import FlowUIService from '../../../services/flowUIService';
 import { UnifiedTokenDisplayService } from '../../../services/unifiedTokenDisplayService';
+import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningService';
-import { v4ToastManager } from '../../../utils/v4ToastMessages';
+import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
+import { toastV8 } from '../../../v8/utils/toastNotificationsV8';
+import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 
 // Get UI components from FlowUIService
 const Container = FlowUIService.getContainer();
@@ -300,6 +303,23 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 	}, [controller.credentials]);
 
 	// Use credential backup hook for automatic backup and restoration
+	const handleCcAppSelected = useCallback(
+		(app: DiscoveredApp) => {
+			const updated = { ...controller.credentials, clientId: app.id };
+			controller.setCredentials(updated);
+			V9CredentialStorageService.save(
+				'v9:client-credentials',
+				{
+					clientId: app.id,
+					clientSecret: updated.clientSecret,
+					environmentId: updated.environmentId,
+				},
+				updated.environmentId ? { environmentId: updated.environmentId } : {}
+			);
+		},
+		[controller]
+	);
+
 	const { clearBackup } = useCredentialBackup({
 		flowKey: 'client-credentials-v9',
 		credentials: controller.credentials,
@@ -336,7 +356,7 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 			console.log('🔧 [Client Credentials V7] Cleared flow-specific storage');
 		} catch (error) {
 			console.error('[Client Credentials V7] Failed to clear flow state:', error);
-			v4ToastManager.showError('Failed to clear flow state. Please refresh the page.');
+			toastV8.error('Failed to clear flow state. Please refresh the page.');
 		}
 
 		// Clear any potential ConfigChecker-related state or cached data
@@ -448,7 +468,7 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 			}).catch((error) => {
 				console.error('[Client Credentials V7] Failed to save credentials to V7 storage:', error);
 				// Show user-friendly error message
-				v4ToastManager.showError('Failed to save credentials. Please try again.');
+				toastV8.error('Failed to save credentials. Please try again.');
 			});
 		}
 	}, [controller.credentials]);
@@ -470,6 +490,10 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 						</CollapsibleHeaderButton>
 						{!collapsedSections.credentials && (
 							<CollapsibleContent>
+								<CompactAppPickerV8U
+									environmentId={controller.credentials.environmentId ?? ''}
+									onAppSelected={handleCcAppSelected}
+								/>
 								<ComprehensiveCredentialsService
 									flowType="client-credentials"
 									onCredentialsChange={(credentials) => {
@@ -1043,7 +1067,7 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 			default:
 				return <div>Step not implemented</div>;
 		}
-	}, [currentStep, collapsedSections, controller, toggleSection]);
+	}, [currentStep, collapsedSections, controller, toggleSection, handleCcAppSelected]);
 
 	return (
 		<Container>

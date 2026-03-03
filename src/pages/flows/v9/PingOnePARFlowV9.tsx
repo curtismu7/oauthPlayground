@@ -15,8 +15,11 @@ import {
 import { PKCEServiceUtils } from '../../services/pkceService';
 import { type AuthorizationDetail, RARService } from '../../services/rarService';
 import { V9FlowCredentialService } from '../../services/v9/core/V9FlowCredentialService';
+import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
 import { V9FlowRestartButton } from '../../services/v9/V9FlowRestartButton';
 import { V9ModernMessagingService } from '../../services/v9/V9ModernMessagingService';
+import type { DiscoveredApp } from '../../v8/components/AppPickerV8';
+import { CompactAppPickerV8U } from '../../v8u/components/CompactAppPickerV8U';
 import { PKCEStorageServiceV8U } from '../../v8u/services/pkceStorageServiceV8U';
 
 // Step metadata for V9
@@ -103,6 +106,23 @@ const PingOnePARFlowV9: React.FC = () => {
 	}, []);
 
 	// Override redirect URI for PAR flows to use par-callback
+	const handleParAppSelected = useCallback(
+		(app: DiscoveredApp) => {
+			const updated = { ...controller.credentials, clientId: app.id };
+			controller.setCredentials(updated);
+			V9CredentialStorageService.save(
+				'v9:pingone-par',
+				{
+					clientId: app.id,
+					clientSecret: updated.clientSecret,
+					environmentId: updated.environmentId,
+				},
+				updated.environmentId ? { environmentId: updated.environmentId } : {}
+			);
+		},
+		[controller]
+	);
+
 	useEffect(() => {
 		if (
 			controller.credentials &&
@@ -294,6 +314,7 @@ const PingOnePARFlowV9: React.FC = () => {
 							}}
 						>
 							<button
+								type="button"
 								onClick={() => setSelectedVariant('oauth')}
 								style={{
 									flex: 1,
@@ -311,6 +332,7 @@ const PingOnePARFlowV9: React.FC = () => {
 								<div style={{ fontSize: '0.875rem', opacity: 0.8 }}>Standard OAuth flow</div>
 							</button>
 							<button
+								type="button"
 								onClick={() => setSelectedVariant('oidc')}
 								style={{
 									flex: 1,
@@ -330,6 +352,10 @@ const PingOnePARFlowV9: React.FC = () => {
 						</div>
 
 						{/* Credentials Input */}
+						<CompactAppPickerV8U
+							environmentId={controller.credentials.environmentId ?? ''}
+							onAppSelected={handleParAppSelected}
+						/>
 						<V9FlowCredentialService
 							flowKey="pingone-par-flow-v9"
 							onCredentialsChange={(credentials) => {
@@ -378,7 +404,7 @@ const PingOnePARFlowV9: React.FC = () => {
 									Generated PKCE Codes
 								</h4>
 								<div style={{ marginBottom: '1rem' }}>
-									<label
+									<div
 										style={{
 											display: 'block',
 											fontWeight: '500',
@@ -387,7 +413,7 @@ const PingOnePARFlowV9: React.FC = () => {
 										}}
 									>
 										Code Challenge:
-									</label>
+									</div>
 									<code
 										style={{
 											background: '#f3f4f6',
@@ -401,7 +427,7 @@ const PingOnePARFlowV9: React.FC = () => {
 									</code>
 								</div>
 								<div style={{ marginBottom: '1rem' }}>
-									<label
+									<div
 										style={{
 											display: 'block',
 											fontWeight: '500',
@@ -410,7 +436,7 @@ const PingOnePARFlowV9: React.FC = () => {
 										}}
 									>
 										Code Verifier:
-									</label>
+									</div>
 									<code
 										style={{
 											background: '#f3f4f6',
@@ -424,7 +450,7 @@ const PingOnePARFlowV9: React.FC = () => {
 									</code>
 								</div>
 								<div style={{ marginBottom: '1rem' }}>
-									<label
+									<div
 										style={{
 											display: 'block',
 											fontWeight: '500',
@@ -433,7 +459,7 @@ const PingOnePARFlowV9: React.FC = () => {
 										}}
 									>
 										Code Challenge Method:
-									</label>
+									</div>
 									<code
 										style={{
 											background: '#f3f4f6',
@@ -460,6 +486,7 @@ const PingOnePARFlowV9: React.FC = () => {
 									No PKCE codes generated yet. Generate them to proceed with the PAR flow.
 								</p>
 								<button
+									type="button"
 									onClick={generatePKCE}
 									style={{
 										background: '#16a34a',
@@ -936,15 +963,25 @@ const PingOnePARFlowV9: React.FC = () => {
 					}}
 				>
 					{STEP_METADATA.map((step, index) => (
-						<div
+						<button
 							key={index}
+							type="button"
 							style={{
 								flex: 1,
 								textAlign: 'center',
 								position: 'relative',
 								cursor: 'pointer',
+								background: 'none',
+								border: 'none',
+								padding: 0,
 							}}
 							onClick={() => handleStepSelect(index)}
+							onKeyDown={(e) => {
+								if (e.key === 'Enter' || e.key === ' ') {
+									e.preventDefault();
+									handleStepSelect(index);
+								}
+							}}
 						>
 							<div
 								style={{
@@ -973,7 +1010,7 @@ const PingOnePARFlowV9: React.FC = () => {
 							>
 								{step.title}
 							</div>
-						</div>
+						</button>
 					))}
 				</div>
 			</div>
@@ -1017,6 +1054,7 @@ const PingOnePARFlowV9: React.FC = () => {
 						<div>
 							{currentStep > 0 && (
 								<button
+									type="button"
 									onClick={handlePreviousStep}
 									style={{
 										background: '#f3f4f6',
@@ -1036,6 +1074,7 @@ const PingOnePARFlowV9: React.FC = () => {
 							<V9FlowRestartButton onRestart={handleRestartFlow} />
 							{currentStep < STEP_METADATA.length - 1 && (
 								<button
+									type="button"
 									onClick={handleNextStepWithValidation}
 									style={{
 										background: '#16a34a',

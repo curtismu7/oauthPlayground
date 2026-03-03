@@ -1,7 +1,7 @@
 // src/pages/flows/v9/JWTBearerTokenFlowV9.tsx
 // OAuth 2.0 JWT Bearer Token Flow (RFC 7523) - V9 Service Architecture
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
 	modernMessaging,
 	V9ModernMessagingProvider,
@@ -9,6 +9,9 @@ import {
 import { V9FlowRestartButton } from '../../../services/v9/V9FlowRestartButton';
 import { V9ModernMessagingService } from '../../../services/v9/V9ModernMessagingService';
 import V9FlowHeader from '../../../services/v9/v9FlowHeaderService';
+import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
+import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
+import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 
 // Built-in copy function to replace CopyButtonService
 const copyToClipboard = async (text: string): Promise<void> => {
@@ -121,7 +124,39 @@ const JWTBearerTokenFlowV9: React.FC = () => {
 	const [generatedJWT, setGeneratedJWT] = useState('');
 	const [tokenResponse, setTokenResponse] = useState<Record<string, unknown> | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
-	const [_environmentId, _setEnvironmentId] = useState('');
+	const [environmentId, setEnvironmentId] = useState('');
+
+	// Load stored credentials on mount
+	useEffect(() => {
+		const synced = V9CredentialStorageService.loadSync('v9:jwt-bearer');
+		if (synced) {
+			if (synced.clientId) setClientId(synced.clientId);
+			if (synced.environmentId) setEnvironmentId(synced.environmentId);
+		}
+		V9CredentialStorageService.load('v9:jwt-bearer').then((creds) => {
+			if (creds?.clientId) setClientId(creds.clientId);
+			if (creds?.environmentId) setEnvironmentId(creds.environmentId);
+		});
+	}, []);
+
+	const saveJwtCredentials = useCallback(
+		(cId: string, envId: string) => {
+			V9CredentialStorageService.save(
+				'v9:jwt-bearer',
+				{ clientId: cId, environmentId: envId },
+				envId ? { environmentId: envId } : {}
+			);
+		},
+		[]
+	);
+
+	const handleJwtAppSelected = useCallback(
+		(app: DiscoveredApp) => {
+			setClientId(app.id);
+			saveJwtCredentials(app.id, environmentId);
+		},
+		[environmentId, saveJwtCredentials]
+	);
 
 	// Restart functionality
 	const restartFlow = useCallback(() => {
@@ -512,6 +547,10 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 							</button>
 							{!collapsedSections.credentials && (
 								<div>
+									<CompactAppPickerV8U
+										environmentId={environmentId}
+										onAppSelected={handleJwtAppSelected}
+									/>
 									<div style={{ marginBottom: '1rem' }}>
 										<label
 											htmlFor="clientId"

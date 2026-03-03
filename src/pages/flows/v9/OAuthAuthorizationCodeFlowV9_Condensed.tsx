@@ -2,16 +2,18 @@
 // V9 Condensed Authorization Code Flow - Enhanced Architecture with V9 Standards
 
 import { FiBook, FiCheckCircle, FiChevronDown, FiKey, FiSettings, FiTarget, FiZap } from '@icons';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { StandardizedCredentialExportImport } from '../../../components/StandardizedCredentialExportImport';
 import UltimateTokenDisplay from '../../../components/UltimateTokenDisplay';
 import { usePageScroll } from '../../../hooks/usePageScroll';
 // V9 specific imports
-import { V9FlowCredentialService } from '../../../services/v9/core/V9FlowCredentialService';
+import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import { EnvironmentIdServiceV8 } from '../../../services/v9/environmentIdServiceV9';
-import WorkerTokenStatusDisplayV8 from '../../../v8/components/WorkerTokenStatusDisplayV8';
-import { toastV8 } from '../../../v8/utils/toastNotificationsV8';
+import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
+import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
+import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
 
 // V9 Color Standards - Approved Colors Only: Red, Blue, Black, White
 const V9_COLORS = {
@@ -220,7 +222,7 @@ const OAuthAuthorizationCodeFlowV9_Condensed: React.FC = () => {
 	usePageScroll({ pageName: 'OAuth Authorization Code Flow V9 Condensed', force: true });
 
 	// V9 Credential management
-	const [credentials, _setCredentials] = useState(() => V9FlowCredentialService.load());
+	const [credentials, _setCredentials] = useState(() => V9CredentialStorageService.loadSync('v9:auth-code-condensed') ?? {});
 	const [environmentId, setEnvironmentId] = useState(() =>
 		EnvironmentIdServiceV8.getEnvironmentId()
 	);
@@ -274,6 +276,36 @@ const OAuthAuthorizationCodeFlowV9_Condensed: React.FC = () => {
 			}));
 		},
 		[]
+	);
+
+	useEffect(() => {
+		V9CredentialStorageService.load('v9:auth-code-condensed').then((creds) => {
+			if (creds?.environmentId) setEnvironmentId(creds.environmentId);
+			if (creds?.clientId) setMockCredentials((prev) => ({ ...prev, clientId: creds.clientId ?? prev.clientId }));
+			if (creds?.clientSecret) setMockCredentials((prev) => ({ ...prev, clientSecret: creds.clientSecret ?? prev.clientSecret }));
+		});
+	}, []);
+
+	const saveCondensedCredentials = useCallback(
+		(clientId: string, clientSecret: string, envId: string) => {
+			V9CredentialStorageService.save(
+				'v9:auth-code-condensed',
+				{ clientId, clientSecret, environmentId: envId },
+				envId ? { environmentId: envId } : {}
+			);
+		},
+		[]
+	);
+
+	const handleCondensedAppSelected = useCallback(
+		(app: DiscoveredApp) => {
+			setMockCredentials((prev) => {
+				const updated = { ...prev, clientId: app.id };
+				saveCondensedCredentials(app.id, prev.clientSecret, environmentId);
+				return updated;
+			});
+		},
+		[environmentId, saveCondensedCredentials]
 	);
 
 	const handleVariantChange = useCallback((variant: 'oauth' | 'oidc') => {
@@ -417,6 +449,10 @@ const OAuthAuthorizationCodeFlowV9_Condensed: React.FC = () => {
 					/>
 				</SectionHeader>
 				<SectionContent $show={expandedSections.configuration}>
+					<CompactAppPickerV8U
+						environmentId={environmentId}
+						onAppSelected={handleCondensedAppSelected}
+					/>
 					<MockCredentialsForm>
 						<FormGroup>
 							<Label>Environment ID</Label>
