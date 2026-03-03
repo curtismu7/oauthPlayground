@@ -6,12 +6,12 @@
 
 import { authorizeIssueCode } from '../V7MAuthorizeService';
 import { V7MStateStore } from '../V7MStateStore';
-import { computePkceS256 } from '../V7MTokenGenerator';
+import { computePkceS256 } from '../V7MTokenService';
 import { tokenExchangeAuthorizationCode } from '../V7MTokenService';
 
 describe('V7MTokenService', () => {
 	beforeEach(() => {
-		V7MStateStore.clear();
+		V7MStateStore.clearAll();
 	});
 
 	describe('tokenExchangeAuthorizationCode - PKCE validation', () => {
@@ -28,11 +28,11 @@ describe('V7MTokenService', () => {
 				userEmail: 'user@example.com',
 			};
 			const res = authorizeIssueCode(req, Math.floor(Date.now() / 1000), 300);
-			if (res.type !== 'success') throw new Error('Failed to issue code');
+			if (res.type !== 'redirect') throw new Error('Failed to issue code');
 
 			const tokenReq = {
 				grant_type: 'authorization_code' as const,
-				code: new URL(res.url).searchParams.get('code') || '',
+				code: new URL(res.url, 'https://mock.issuer').searchParams.get('code') || '',
 				redirect_uri: '/callback',
 				client_id: 'test-client',
 				code_verifier: codeVerifier,
@@ -64,11 +64,11 @@ describe('V7MTokenService', () => {
 				userEmail: 'user@example.com',
 			};
 			const res = authorizeIssueCode(req, Math.floor(Date.now() / 1000), 300);
-			if (res.type !== 'success') throw new Error('Failed to issue code');
+			if (res.type !== 'redirect') throw new Error('Failed to issue code');
 
 			const tokenReq = {
 				grant_type: 'authorization_code' as const,
-				code: new URL(res.url).searchParams.get('code') || '',
+				code: new URL(res.url, 'https://mock.issuer').searchParams.get('code') || '',
 				redirect_uri: '/callback',
 				client_id: 'test-client',
 				code_verifier: wrongVerifier,
@@ -98,11 +98,11 @@ describe('V7MTokenService', () => {
 				userEmail: 'user@example.com',
 			};
 			const res = authorizeIssueCode(req, Math.floor(Date.now() / 1000), 300);
-			if (res.type !== 'success') throw new Error('Failed to issue code');
+			if (res.type !== 'redirect') throw new Error('Failed to issue code');
 
 			const tokenReq = {
 				grant_type: 'authorization_code' as const,
-				code: new URL(res.url).searchParams.get('code') || '',
+				code: new URL(res.url, 'https://mock.issuer').searchParams.get('code') || '',
 				redirect_uri: '/callback',
 				client_id: 'test-client',
 				code_verifier: codeVerifier,
@@ -131,11 +131,11 @@ describe('V7MTokenService', () => {
 				userEmail: 'user@example.com',
 			};
 			const res = authorizeIssueCode(req, Math.floor(Date.now() / 1000), 300);
-			if (res.type !== 'success') throw new Error('Failed to issue code');
+			if (res.type !== 'redirect') throw new Error('Failed to issue code');
 
 			const tokenReq = {
 				grant_type: 'authorization_code' as const,
-				code: new URL(res.url).searchParams.get('code') || '',
+				code: new URL(res.url, 'https://mock.issuer').searchParams.get('code') || '',
 				redirect_uri: '/callback',
 				client_id: 'test-client',
 				client_secret: 'secret',
@@ -161,11 +161,11 @@ describe('V7MTokenService', () => {
 				userEmail: 'user@example.com',
 			};
 			const res = authorizeIssueCode(req, Math.floor(Date.now() / 1000), 300);
-			if (res.type !== 'success') throw new Error('Failed to issue code');
+			if (res.type !== 'redirect') throw new Error('Failed to issue code');
 
 			const tokenReq = {
 				grant_type: 'authorization_code' as const,
-				code: new URL(res.url).searchParams.get('code') || '',
+				code: new URL(res.url, 'https://mock.issuer').searchParams.get('code') || '',
 				redirect_uri: '/callback',
 				client_id: 'test-client',
 				client_secret: 'wrong-secret',
@@ -214,11 +214,11 @@ describe('V7MTokenService', () => {
 			};
 			const pastTime = Math.floor(Date.now() / 1000) - 400;
 			const res = authorizeIssueCode(req, pastTime, 300);
-			if (res.type !== 'success') throw new Error('Failed to issue code');
+			if (res.type !== 'redirect') throw new Error('Failed to issue code');
 
 			const tokenReq = {
 				grant_type: 'authorization_code' as const,
-				code: new URL(res.url).searchParams.get('code') || '',
+				code: new URL(res.url, 'https://mock.issuer').searchParams.get('code') || '',
 				redirect_uri: '/callback',
 				client_id: 'test-client',
 				client_secret: 'secret',
@@ -244,8 +244,8 @@ describe('V7MTokenService', () => {
 				userEmail: 'user@example.com',
 			};
 			const res = authorizeIssueCode(req, Math.floor(Date.now() / 1000), 300);
-			if (res.type !== 'success') throw new Error('Failed to issue code');
-			const code = new URL(res.url).searchParams.get('code') || '';
+			if (res.type !== 'redirect') throw new Error('Failed to issue code');
+			const code = new URL(res.url, 'https://mock.issuer').searchParams.get('code') || '';
 
 			const tokenReq1 = {
 				grant_type: 'authorization_code' as const,
