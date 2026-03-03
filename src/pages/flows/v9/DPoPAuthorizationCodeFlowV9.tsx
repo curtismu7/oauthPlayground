@@ -6,7 +6,18 @@ import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 
 // V9 Flow Components
-const { Container, StepHeader, Button } = V9FlowUIService.getFlowUIComponents();
+const {
+	Container,
+	StepHeader,
+	StepHeaderLeft,
+	StepHeaderRight,
+	VersionBadge,
+	StepHeaderTitle,
+	StepHeaderSubtitle,
+	StepNumber,
+	StepTotal,
+	Button,
+} = V9FlowUIService.getFlowUIComponents();
 
 // Mock DPoP server implementation
 class MockDpopServer {
@@ -323,10 +334,10 @@ const DPoPAuthorizationCodeFlowV9: React.FC = () => {
 		(app: DiscoveredApp) => {
 			handleParamsChange({
 				clientId: app.id,
-				environmentId: app.environment?.id ?? '',
+				environmentId: params.environmentId || app.id, // Use app.id as fallback
 			});
 		},
-		[handleParamsChange]
+		[handleParamsChange, params.environmentId]
 	);
 
 	const steps = [
@@ -342,20 +353,29 @@ const DPoPAuthorizationCodeFlowV9: React.FC = () => {
 
 	return (
 		<Container>
-			<StepHeader
-				title="DPoP Authorization Code Flow"
-				subtitle="OAuth 2.0 Demonstrating Proof of Possession (RFC 9449)"
-				currentStep={params.currentStep}
-				totalSteps={steps.length}
-				steps={steps}
-			/>
+			<StepHeader>
+				<StepHeaderLeft>
+					<VersionBadge>V9</VersionBadge>
+					<StepHeaderTitle>DPoP Authorization Code Flow</StepHeaderTitle>
+					<StepHeaderSubtitle>
+						OAuth 2.0 Demonstrating Proof of Possession (RFC 9449)
+					</StepHeaderSubtitle>
+				</StepHeaderLeft>
+				<StepHeaderRight>
+					<StepNumber>{String(params.currentStep + 1).padStart(2, '0')}</StepNumber>
+					<StepTotal>of {String(steps.length).padStart(2, '0')}</StepTotal>
+				</StepHeaderRight>
+			</StepHeader>
 
 			<div>
 				{/* Credentials Panel */}
 				<div style={{ marginBottom: '2rem' }}>
 					<h3 style={{ color: '#1e40af', marginBottom: '1rem' }}>Credentials Configuration</h3>
 
-					<CompactAppPickerV8U onAppSelected={handleAppSelected} />
+					<CompactAppPickerV8U
+						environmentId={params.environmentId}
+						onAppSelected={handleAppSelected}
+					/>
 
 					<div style={{ display: 'grid', gap: '1rem', marginTop: '1rem' }}>
 						<div>
