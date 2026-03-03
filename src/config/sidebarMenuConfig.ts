@@ -122,7 +122,7 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 		label: 'PingOne Flows',
 		items: items([
 			['/flows/pingone-par-v9', 'Pushed Authorization Request (V9)', true],
-			['/flows/redirectless-v7-real', 'Redirectless Flow (V7)'],
+			['/flows/redirectless-v9-real', 'Redirectless Flow (V9)', true],
 			['/flows/pingone-mfa-workflow-library-v9', 'PingOne MFA Workflow Library (V9)', true],
 			['/flows/kroger-grocery-store-mfa', 'Kroger Grocery Store MFA'],
 			['/pingone-authentication', 'PingOne Authentication'],
@@ -180,8 +180,6 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 						['/flows/oauth-ropc-v9', 'Resource Owner Password (V9)', true],
 						['/flows/oauth2-resource-owner-password', 'OAuth2 ROPC (Legacy)'],
 						['/flows/mock-oidc-ropc', 'Mock OIDC ROPC'],
-						['/flows/oauth-authorization-code-v7-condensed-mock', 'Auth Code Condensed (Mock)'],
-						['/flows/v7-condensed-mock', 'V7 Condensed (Prototype)'],
 					],
 					'oauth-mock'
 				),
