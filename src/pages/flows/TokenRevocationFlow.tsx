@@ -264,7 +264,7 @@ interface TokenRevocationFlowProps {
 	};
 }
 
-const _TokenRevocationFlow: React.FC<TokenRevocationFlowProps> = ({ credentials }) => {
+const TokenRevocationFlow: React.FC<TokenRevocationFlowProps> = ({ credentials }) => {
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [currentStep, setCurrentStep] = useState(0);
 	const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
