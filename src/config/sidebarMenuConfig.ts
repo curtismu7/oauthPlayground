@@ -38,7 +38,10 @@ export function itemIdFromPath(path: string): string {
 }
 
 /** Build items with ids from path/label pairs. */
-function items(entries: Array<[path: string, label: string, migratedToV9?: boolean]>, prefix = ''): SidebarMenuItem[] {
+function items(
+	entries: Array<[path: string, label: string, migratedToV9?: boolean]>,
+	prefix = ''
+): SidebarMenuItem[] {
 	return entries.map(([path, label, migratedToV9]) => ({
 		id: prefix ? `${prefix}-${itemIdFromPath(path)}` : itemIdFromPath(path),
 		path,
@@ -101,7 +104,6 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 			['/flows/implicit-v9', 'Implicit Flow (V9)', true],
 			['/flows/device-authorization-v9', 'Device Authorization (V9)', true],
 			['/flows/client-credentials-v9', 'Client Credentials (V9)', true],
-			['/flows/dpop-authorization-code-v8', 'DPoP Authorization Code (V8)'],
 			['/flows/dpop-authorization-code-v9', 'DPoP Authorization Code (V9)', true],
 		]),
 	},
@@ -130,7 +132,7 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 		id: 'tokens-session',
 		label: 'Tokens & Session',
 		items: items([
-				['/flows/worker-token-v9', 'Worker Token (V9)', true],
+			['/flows/worker-token-v9', 'Worker Token (V9)', true],
 			['/worker-token-tester', 'Worker Token Check'],
 			['/token-management', 'Token Management'],
 			['/flows/token-introspection', 'Token Introspection'],
