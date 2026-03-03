@@ -117,12 +117,14 @@ await V9CredentialStorageService.save('v9:flow-name', creds, { environmentId });
 
 ## 🟡 Medium Priority — Flow Migrations
 
-### ROPC V7 → V9 (or deprecate)
-- **Current route:** `/flows/oauth-ropc-v7`
-- **Note:** ROPC is deprecated in OAuth 2.1. Decision needed: migrate as educational-only or remove entirely.
-- [ ] **Decision:** Keep as educational mock or remove from sidebar?
-- [ ] If keeping: create `src/pages/flows/v9/OAuthROPCFlowV9.tsx`
-- [ ] If removing: redirect V7 route to a deprecation notice page
+### ~~ROPC V7 → V9~~ ✅ COMPLETED Mar 2, 2026
+- **Route:** `/flows/oauth-ropc-v9`
+- **File:** `src/pages/flows/v9/OAuthROPCFlowV9.tsx` (pre-existing V9-compliant file)
+- **Note:** Kept as educational — ROPC is deprecated in OAuth 2.1 but valuable for learning
+- [x] `OAuthROPCFlowV9.tsx` already existed with V9CredentialStorageService + CompactAppPickerV8U
+- [x] Added `/flows/oauth-ropc-v9` route to `App.tsx`
+- [x] V7 route redirects to V9; all V6 legacy redirects updated to point to V9
+- [x] Sidebar updated: `/flows/oauth-ropc-v9` (marked V9)
 
 ---
 
@@ -414,6 +416,8 @@ done
 | `specVersionServiceV8` → `V9SpecVersionService` | Feb 28, 2026 |
 | Remove duplicate V7 sidebar entries (Hybrid, JWT, SAML, RAR) | Mar 2, 2026 |
 | Token Exchange V7 → V9 | Mar 2, 2026 |
+| Redirect all V7 routes to V9 (JWT Bearer, Token Exchange, SAML, OIDC Hybrid, RAR, ROPC, PAR) | Mar 2, 2026 |
+| Add ROPC V9 route (`/flows/oauth-ropc-v9`) | Mar 2, 2026 |
 | Create `V9CredentialStorageService` (4-layer storage wrapper) | Mar 2, 2026 |
 | Create `V9AppDiscoveryService` (worker token app discovery wrapper) | Mar 2, 2026 |
 | Add mandatory credential storage + app picker quality gate to migration guide | Mar 2, 2026 |
