@@ -831,6 +831,7 @@ export const useImplicitFlowController = (
 
 	// Track credential changes
 	// Track unsaved changes using string comparison for stability
+	// biome-ignore lint/correctness/useExhaustiveDependencies: intentional — using specific fields to prevent infinite loop; credentials object itself is NOT in deps
 	useEffect(() => {
 		if (!originalCredentialsRef.current) {
 			originalCredentialsRef.current = credentials;
