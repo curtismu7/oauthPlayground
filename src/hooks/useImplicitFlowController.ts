@@ -855,7 +855,6 @@ export const useImplicitFlowController = (
 		credentials.authorizationEndpoint,
 		credentials.tokenEndpoint,
 		credentials.userInfoEndpoint,
-		credentials,
 	]);
 
 	// Load saved credentials on mount
