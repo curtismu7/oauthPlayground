@@ -1,7 +1,7 @@
 // src/pages/flows/V7RMOIDCResourceOwnerPasswordFlow.tsx - Enhanced with Real Services
 
 import { FiAlertTriangle, FiLock, FiShield, FiUser } from '@icons';
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import CollapsibleSection from '../../components/CollapsibleSection';
 import EnhancedStepFlowV2 from '../../components/EnhancedStepFlowV2';
 import { FlowConfiguration } from '../../components/FlowConfiguration';
@@ -10,6 +10,9 @@ import FlowTemplate from '../../components/flow/FlowTemplate';
 import InlineDocumentation, { QuickReference } from '../../components/InlineDocumentation';
 import { InfoBox } from '../../components/steps/CommonSteps';
 import { useV7RMOIDCResourceOwnerPasswordController } from '../../hooks/useV7RMOIDCResourceOwnerPasswordController';
+import type { DiscoveredApp } from '../../services/v9/V9AppDiscoveryService';
+import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
+import CompactAppPickerV8U from '../../v8u/components/CompactAppPickerV8U';
 
 const V7RMOIDCResourceOwnerPasswordFlow: React.FC = () => {
 	const controller = useV7RMOIDCResourceOwnerPasswordController({
@@ -17,6 +20,16 @@ const V7RMOIDCResourceOwnerPasswordFlow: React.FC = () => {
 		defaultFlowVariant: 'oidc',
 		enableDebugger: true,
 	});
+
+	const v9Storage = V9CredentialStorageService.getInstance();
+
+	const handleAppSelected = useCallback(
+		(app: DiscoveredApp) => {
+			controller.setCredentials({ ...controller.credentials, clientId: app.clientId });
+			void v9Storage.save('v7rm-oidc-ropc', { clientId: app.clientId });
+		},
+		[controller, v9Storage]
+	);
 
 	const steps = useMemo(
 		() => createV7RMOIDCResourceOwnerPasswordSteps({ controller }),
@@ -142,6 +155,8 @@ const V7RMOIDCResourceOwnerPasswordFlow: React.FC = () => {
 			highlights={highlights}
 			education={education}
 		>
+			<CompactAppPickerV8U onAppSelected={handleAppSelected} />
+
 			<FlowConfiguration
 				config={controller.flowConfig}
 				onConfigChange={controller.handleFlowConfigChange}
