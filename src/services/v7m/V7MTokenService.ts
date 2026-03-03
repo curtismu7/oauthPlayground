@@ -522,7 +522,7 @@ function validateClientAuth(
 	return false;
 }
 
-function computePkceS256(verifier: string): string {
+export function computePkceS256(verifier: string): string {
 	// Educational deterministic stand-in for SHA-256 + base64url: base64url(stableHash)
 	return toB64Url(stableHash(verifier));
 }
