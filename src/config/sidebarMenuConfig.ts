@@ -175,7 +175,7 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 					[
 						['/flows/jwt-bearer-token-v9', 'JWT Bearer Token (V9)', true],
 						['/flows/saml-bearer-assertion-v9', 'SAML Bearer Assertion (V9)', true],
-						['/flows/oauth-ropc-v7', 'Resource Owner Password (V7)'],
+						['/flows/oauth-ropc-v9', 'Resource Owner Password (V9)', true],
 						['/flows/oauth2-resource-owner-password', 'OAuth2 ROPC (Legacy)'],
 						['/flows/mock-oidc-ropc', 'Mock OIDC ROPC'],
 						['/flows/oauth-authorization-code-v7-condensed-mock', 'Auth Code Condensed (Mock)'],
