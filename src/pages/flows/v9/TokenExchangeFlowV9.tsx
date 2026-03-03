@@ -1,11 +1,14 @@
 // src/pages/flows/v9/TokenExchangeFlowV9.tsx
 // OAuth 2.0 Token Exchange Flow - RFC 8693 Implementation for A2A Security - V9
 
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { getButtonStyles } from '../../../services/v9/V9ColorStandards';
+import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import { V9FlowRestartButton } from '../../../services/v9/V9FlowRestartButton';
 import { V9ModernMessagingService } from '../../../services/v9/V9ModernMessagingService';
 import V9FlowHeader from '../../../services/v9/v9FlowHeaderService';
+import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
+import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 
 // Types
 type TokenExchangeScenario =
@@ -23,6 +26,10 @@ interface TokenExchangeParams {
 	claims: string;
 	authorizationDetails: string;
 	includeRefreshToken: boolean;
+	// Credential fields — persisted via V9CredentialStorageService
+	environmentId: string;
+	clientId: string;
+	clientSecret: string;
 }
 
 interface ScopeOption {
@@ -93,7 +100,66 @@ const TokenExchangeFlowV9: React.FC = () => {
 		claims: '',
 		authorizationDetails: '',
 		includeRefreshToken: false,
+		environmentId: '',
+		clientId: '',
+		clientSecret: '',
 	});
+
+	// ── Credential storage ───────────────────────────────────────────────────
+	// Load persisted credentials on mount (sync first, then full 4-layer load)
+	useEffect(() => {
+		const synced = V9CredentialStorageService.loadSync('v9:token-exchange');
+		if (synced) {
+			setExchangeParams((prev) => ({
+				...prev,
+				...(synced.clientId && { clientId: synced.clientId }),
+				...(synced.clientSecret && { clientSecret: synced.clientSecret }),
+				...(synced.redirectUri && { audience: synced.redirectUri }),
+			}));
+			if (synced.environmentId) {
+				setExchangeParams((prev) => ({ ...prev, environmentId: synced.environmentId ?? '' }));
+			}
+		}
+		V9CredentialStorageService.load('v9:token-exchange').then((creds) => {
+			if (creds) {
+				setExchangeParams((prev) => ({
+					...prev,
+					...(creds.clientId && { clientId: creds.clientId }),
+					...(creds.clientSecret && { clientSecret: creds.clientSecret }),
+					...(creds.environmentId && { environmentId: creds.environmentId }),
+				}));
+			}
+		});
+	}, []);
+
+	// Save credential fields whenever they change
+	const saveCredentials = useCallback((params: TokenExchangeParams) => {
+		V9CredentialStorageService.save(
+			'v9:token-exchange',
+			{
+				clientId: params.clientId,
+				clientSecret: params.clientSecret,
+				environmentId: params.environmentId,
+			},
+			{ ...(params.environmentId ? { environmentId: params.environmentId } : {}) }
+		);
+	}, []);
+
+	// Auto-fill from app picker
+	const handleAppSelected = useCallback(
+		(app: DiscoveredApp) => {
+			setExchangeParams((prev) => {
+				const updated = {
+					...prev,
+					clientId: app.id,
+					...(app.redirectUris?.[0] && { audience: app.redirectUris[0] }),
+				};
+				saveCredentials(updated);
+				return updated;
+			});
+		},
+		[saveCredentials]
+	);
 
 	// Scenarios configuration
 	const scenarios = useMemo<Record<TokenExchangeScenario, Scenario>>(
@@ -435,6 +501,135 @@ const TokenExchangeFlowV9: React.FC = () => {
 						<h3 style={{ margin: '0 0 1rem 0', color: '#1f2937' }}>
 							Configure Exchange Parameters
 						</h3>
+						{/* ── Connection Settings (persisted via V9CredentialStorageService) ── */}
+						<div
+							style={{
+								marginBottom: '1.5rem',
+								padding: '1.25rem',
+								border: '1px solid #e5e7eb',
+								borderRadius: '0.75rem',
+								background: '#f8fafc',
+							}}
+						>
+							<div
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'space-between',
+									marginBottom: '1rem',
+								}}
+							>
+								<h4 style={{ margin: 0, color: '#1f2937', fontSize: '0.9375rem' }}>
+									🔒 Connection Settings
+								</h4>
+								<CompactAppPickerV8U
+									environmentId={exchangeParams.environmentId}
+									onAppSelected={handleAppSelected}
+								/>
+							</div>
+							<div style={{ display: 'grid', gap: '0.75rem' }}>
+								<div>
+									<label
+										htmlFor="env-id-input"
+										style={{
+											display: 'block',
+											marginBottom: '0.375rem',
+											fontWeight: 600,
+											color: '#374151',
+											fontSize: '0.875rem',
+										}}
+									>
+										Environment ID
+									</label>
+									<input
+										id="env-id-input"
+										type="text"
+										value={exchangeParams.environmentId}
+										onChange={(e) => {
+											const updated = { ...exchangeParams, environmentId: e.target.value };
+											setExchangeParams(updated);
+											saveCredentials(updated);
+										}}
+										placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+										style={{
+											width: '100%',
+											padding: '0.625rem',
+											border: '1px solid #d1d5db',
+											borderRadius: '0.375rem',
+											fontSize: '0.875rem',
+											background: '#ffffff',
+										}}
+									/>
+								</div>
+								<div>
+									<label
+										htmlFor="client-id-input"
+										style={{
+											display: 'block',
+											marginBottom: '0.375rem',
+											fontWeight: 600,
+											color: '#374151',
+											fontSize: '0.875rem',
+										}}
+									>
+										Client ID
+									</label>
+									<input
+										id="client-id-input"
+										type="text"
+										value={exchangeParams.clientId}
+										onChange={(e) => {
+											const updated = { ...exchangeParams, clientId: e.target.value };
+											setExchangeParams(updated);
+											saveCredentials(updated);
+										}}
+										placeholder="Enter client ID (auto-filled by app picker)"
+										style={{
+											width: '100%',
+											padding: '0.625rem',
+											border: '1px solid #d1d5db',
+											borderRadius: '0.375rem',
+											fontSize: '0.875rem',
+											background: '#ffffff',
+										}}
+									/>
+								</div>
+								<div>
+									<label
+										htmlFor="client-secret-input"
+										style={{
+											display: 'block',
+											marginBottom: '0.375rem',
+											fontWeight: 600,
+											color: '#374151',
+											fontSize: '0.875rem',
+										}}
+									>
+										Client Secret
+									</label>
+									<input
+										id="client-secret-input"
+										type="password"
+										value={exchangeParams.clientSecret}
+										onChange={(e) => {
+											const updated = { ...exchangeParams, clientSecret: e.target.value };
+											setExchangeParams(updated);
+											saveCredentials(updated);
+										}}
+										placeholder="Enter client secret"
+										style={{
+											width: '100%',
+											padding: '0.625rem',
+											border: '1px solid #d1d5db',
+											borderRadius: '0.375rem',
+											fontSize: '0.875rem',
+											background: '#ffffff',
+										}}
+									/>
+								</div>
+							</div>
+						</div>
+						{/* ── Exchange Parameters ── */}
 						<div style={{ display: 'grid', gap: '1rem' }}>
 							<div>
 								<label
