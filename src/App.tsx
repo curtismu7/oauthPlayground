@@ -146,7 +146,7 @@ import PARFlowV7 from './pages/flows/PARFlowV7';
 import PingOneCompleteMFAFlowV7 from './pages/flows/PingOneCompleteMFAFlowV7';
 import PingOneLogoutFlow from './pages/flows/PingOneLogoutFlow';
 import PingOneMFAWorkflowLibraryV7 from './pages/flows/PingOneMFAWorkflowLibraryV7';
-import PingOnePARFlowV7 from './pages/flows/PingOnePARFlowV7';
+import PingOnePARFlowV9 from './pages/flows/v9/PingOnePARFlowV9';
 import RARFlowV7 from './pages/flows/RARFlowV7';
 import RedirectlessFlowV9_Real from './pages/flows/RedirectlessFlowV9_Real';
 import SAMLBearerAssertionFlowV7 from './pages/flows/SAMLBearerAssertionFlowV7';
@@ -1197,13 +1197,15 @@ const AppRoutes: React.FC = () => {
 									path="/oidc/resource-owner-password"
 									element={<Navigate to="/flows/oauth-ropc-v7" replace />}
 								/>
-								{/* V7 PingOne PAR Flow */}
-								<Route path="/flows/pingone-par-v7" element={<PingOnePARFlowV7 />} />
+								{/* V7 PingOne PAR Flow — redirect to V9 */}
+								<Route path="/flows/pingone-par-v7" element={<Navigate to="/flows/pingone-par-v9" replace />} />
+								{/* V9 PingOne PAR Flow */}
+								<Route path="/flows/pingone-par-v9" element={<PingOnePARFlowV9 />} />
 								<Route path="/flows/par-v7" element={<PARFlowV7 />} />
-								{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
+								{/* Legacy V6 routes - redirect to V9 */}
 								<Route
 									path="/flows/pingone-par-v6"
-									element={<Navigate to="/flows/pingone-par-v7" replace />}
+									element={<Navigate to="/flows/pingone-par-v9" replace />}
 								/>
 								{/* V7 PingOne MFA Flow */}
 								<Route
