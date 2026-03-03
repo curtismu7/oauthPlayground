@@ -104,6 +104,7 @@ import { CredentialManagement } from './pages/CredentialManagement';
 import CustomDomainTestPage from './pages/CustomDomainTestPage';
 import Dashboard from './pages/Dashboard';
 import DpopAuthorizationCodeFlowV8 from './pages/DpopAuthorizationCodeFlowV8';
+import DPoPAuthorizationCodeFlowV9 from './pages/flows/v9/DPoPAuthorizationCodeFlowV9';
 // Added new migration and prompts pages
 import MigrateVscode from './pages/docs/migration/MigrateVscode';
 import OAuth2SecurityBestPractices from './pages/docs/OAuth2SecurityBestPractices.tsx';
@@ -143,9 +144,8 @@ import OIDCCompliantAuthorizationCodeFlow from './pages/flows/OIDCCompliantAutho
 import OIDCHybridFlowV7 from './pages/flows/OIDCHybridFlowV7';
 import PARFlow from './pages/flows/PARFlow';
 import PARFlowV7 from './pages/flows/PARFlowV7';
-import PingOneCompleteMFAFlowV7 from './pages/flows/PingOneCompleteMFAFlowV7';
 import PingOneLogoutFlow from './pages/flows/PingOneLogoutFlow';
-import PingOneMFAWorkflowLibraryV7 from './pages/flows/PingOneMFAWorkflowLibraryV7';
+import MFAWorkflowLibraryFlowV9 from './pages/flows/v9/MFAWorkflowLibraryFlowV9';
 import PingOnePARFlowV9 from './pages/flows/v9/PingOnePARFlowV9';
 import RARFlowV7 from './pages/flows/RARFlowV7';
 import RedirectlessFlowV9_Real from './pages/flows/RedirectlessFlowV9_Real';
@@ -660,6 +660,14 @@ const AppRoutes: React.FC = () => {
 									element={
 										<React.Suspense fallback={<div>Loading...</div>}>
 											<DpopAuthorizationCodeFlowV8 />
+										</React.Suspense>
+									}
+								/>
+								<Route
+									path="/flows/dpop-authorization-code-v9"
+									element={
+										<React.Suspense fallback={<div>Loading...</div>}>
+											<DPoPAuthorizationCodeFlowV9 />
 										</React.Suspense>
 									}
 								/>
@@ -1207,20 +1215,25 @@ const AppRoutes: React.FC = () => {
 									path="/flows/pingone-par-v6"
 									element={<Navigate to="/flows/pingone-par-v9" replace />}
 								/>
-								{/* V7 PingOne MFA Flow */}
+								{/* V9 PingOne MFA Flow - replaces V7 */}
+								<Route
+									path="/flows/pingone-mfa-workflow-library-v9"
+									element={<MFAWorkflowLibraryFlowV9 />}
+								/>
+								{/* V7 routes → redirect to V9 */}
 								<Route
 									path="/flows/pingone-complete-mfa-v7"
-									element={<PingOneCompleteMFAFlowV7 />}
+									element={<Navigate to="/flows/pingone-mfa-workflow-library-v9" replace />}
 								/>
 								<Route
 									path="/flows/pingone-mfa-workflow-library-v7"
-									element={<PingOneMFAWorkflowLibraryV7 />}
+									element={<Navigate to="/flows/pingone-mfa-workflow-library-v9" replace />}
 								/>
 								<Route path="/flows/kroger-grocery-store-mfa" element={<KrogerGroceryStoreMFA />} />
 								{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
 								<Route
 									path="/flows/pingone-mfa-v6"
-									element={<Navigate to="/flows/pingone-complete-mfa-v7" replace />}
+									element={<Navigate to="/flows/pingone-mfa-workflow-library-v9" replace />}
 								/>
 								<Route path="/pingone-authentication" element={<PingOneAuthentication />} />
 								<Route
