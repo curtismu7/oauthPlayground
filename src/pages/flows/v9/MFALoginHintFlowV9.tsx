@@ -8,6 +8,9 @@ import {
 	V9ModernMessagingService,
 } from '../../../services/v9/V9ModernMessagingService';
 import V9FlowHeader from '../../../services/v9/v9FlowHeaderService';
+import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
+import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
+import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 
 // Types
 interface MFALoginHintConfig {
@@ -96,6 +99,41 @@ const MFALoginHintFlowV9: React.FC = () => {
 		phoneNumber: '',
 		email: '',
 	});
+
+	// Load stored credentials on mount
+	useEffect(() => {
+		const synced = V9CredentialStorageService.loadSync('v9:mfa-login-hint');
+		if (synced) {
+			setMfaConfig((prev) => ({
+				...prev,
+				...(synced.clientId ? { clientId: synced.clientId } : {}),
+				...(synced.clientSecret ? { clientSecret: synced.clientSecret } : {}),
+				...(synced.environmentId ? { environmentId: synced.environmentId } : {}),
+			}));
+		}
+		V9CredentialStorageService.load('v9:mfa-login-hint').then((creds) => {
+			if (creds) setMfaConfig((prev) => ({ ...prev, ...creds }));
+		});
+	}, []);
+
+	const saveCredentials = useCallback((config: MFALoginHintConfig) => {
+		V9CredentialStorageService.save(
+			'v9:mfa-login-hint',
+			{ clientId: config.clientId, clientSecret: config.clientSecret, environmentId: config.environmentId },
+			config.environmentId ? { environmentId: config.environmentId } : {}
+		);
+	}, []);
+
+	const handleAppSelected = useCallback(
+		(app: DiscoveredApp) => {
+			setMfaConfig((prev) => {
+				const updated = { ...prev, clientId: app.id };
+				saveCredentials(updated);
+				return updated;
+			});
+		},
+		[saveCredentials]
+	);
 
 	// Token and response states
 	const [loginHintToken, setLoginHintToken] = useState<LoginHintTokenResponse | null>(null);
@@ -304,6 +342,11 @@ const MFALoginHintFlowV9: React.FC = () => {
 						<p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
 							Configure the MFA login hint parameters for authentication.
 						</p>
+
+						<CompactAppPickerV8U
+							environmentId={mfaConfig.environmentId}
+							onAppSelected={handleAppSelected}
+						/>
 
 						<div style={{ display: 'grid', gap: '1rem', marginBottom: '1.5rem' }}>
 							<div>
