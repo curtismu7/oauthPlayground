@@ -168,8 +168,13 @@ const ToggleInput = styled.input`
 
 const FormGrid = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 2fr 1fr;
   gap: 0.75rem;
+  
+  .environment-id-field {
+    grid-column: 1 / -1;
+    max-width: 100%;
+  }
   
   .client-secret-field {
     grid-column: 1 / -1;
@@ -672,7 +677,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 					)}
 
 					<FormGrid>
-						<div>
+						<div className="environment-id-field">
 							<Label htmlFor="environmentId">Environment ID</Label>
 							<InputContainer>
 								<Input
