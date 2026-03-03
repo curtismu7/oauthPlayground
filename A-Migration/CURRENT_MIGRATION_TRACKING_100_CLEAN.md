@@ -232,9 +232,9 @@ Services created: `V9CredentialStorageService` + `V9AppDiscoveryService` (commit
 | PingOnePARFlowV9.tsx | ❌ | ❌ | Needs update |
 | RARFlowV9.tsx | ❌ | ❌ | Needs update |
 | SAMLBearerAssertionFlowV9.tsx | ❌ | ❌ | Needs update |
-| TokenExchangeFlowV9.tsx | ❌ | ❌ | Needs update |
+| TokenExchangeFlowV9.tsx | ✅ (`050dace`) | ✅ (`050dace`) |
 
-**Progress: 0/13 storage compliant — 0/13 app picker present**
+**Progress: 1/13 storage compliant — 1/13 app picker present**
 
 ### **What To Do When Migrating Each Flow**
 

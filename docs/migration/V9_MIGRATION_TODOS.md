@@ -42,7 +42,7 @@
 | PingOnePARFlowV9 | ❌ | ❌ |
 | RARFlowV9 | ❌ | ❌ |
 | SAMLBearerAssertionFlowV9 | ❌ | ❌ |
-| TokenExchangeFlowV9 | ❌ | ❌ |
+| TokenExchangeFlowV9 | ✅ | ✅ |
 
 **Quick integration (copy into each flow):**
 ```tsx
@@ -344,8 +344,8 @@ Audited against: migrate_vscode.md color standards, toast rules, programming pat
 - [ ] Audit for `useEffect` missing cleanups
 
 #### `TokenExchangeFlowV9.tsx`
-- [ ] 🔴 Add `V9CredentialStorageService` — replace localStorage reads/writes (`v9:token-exchange`)
-- [ ] 🔴 Add `CompactAppPickerV8U` to credentials panel — wire to `V9AppDiscoveryService.applyAppConfig()`
+- [x] 🔴 Add `V9CredentialStorageService` — replace localStorage reads/writes (`v9:token-exchange`) ✅ *commit `050dace`*
+- [x] 🔴 Add `CompactAppPickerV8U` to credentials panel — wire to `applyAppConfig()` ✅ *commit `050dace`*
 - Hook dep errors: ✅ Fixed (commit `f6f451d`)
 ---
 
