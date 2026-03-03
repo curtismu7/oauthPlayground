@@ -1,6 +1,7 @@
 // src/hooks/useV7RMOIDCResourceOwnerPasswordController.ts - Enhanced with Real Services
 
 import React, { useCallback, useState } from 'react';
+import { V9CredentialStorageService } from '../services/v9/V9CredentialStorageService';
 import { useFlowStepManager } from '../utils/flowStepSystem';
 import { generateMockIdToken } from '../utils/mockOAuth';
 import { v4ToastManager } from '../utils/v4ToastMessages';
@@ -69,7 +70,7 @@ export interface V7RMOIDCResourceOwnerPasswordController {
 	stepManager: ReturnType<typeof useFlowStepManager>;
 	persistKey: string;
 	hasStepResult: (stepKey: string) => boolean;
-	saveStepResult: (stepKey: string, result: any) => void;
+	saveStepResult: (stepKey: string, result: unknown) => void;
 }
 
 interface UseV7RMOIDCResourceOwnerPasswordControllerParams {
@@ -124,7 +125,12 @@ export const useV7RMOIDCResourceOwnerPasswordController = ({
 	});
 
 	// Step results storage
-	const [stepResults, setStepResults] = useState<Record<string, any>>({});
+	const [stepResults, setStepResults] = useState<Record<string, unknown>>({});
+
+	// Declare saveStepResult early so it can be used in authenticateUser's deps array
+	const saveStepResult = useCallback((stepKey: string, result: unknown) => {
+		setStepResults((prev) => ({ ...prev, [stepKey]: result }));
+	}, []);
 
 	// Save credentials
 	const saveCredentials = useCallback(async () => {
@@ -135,6 +141,10 @@ export const useV7RMOIDCResourceOwnerPasswordController = ({
 
 			// Save to localStorage for persistence (using v7rm: prefix for isolation)
 			localStorage.setItem(`${persistKey}-credentials`, JSON.stringify(credentials));
+
+			// Sync clientId to V9CredentialStorageService for cross-flow app picker consistency
+			const v9Storage = V9CredentialStorageService.getInstance();
+			void v9Storage.save('v7rm-oidc-ropc', { clientId: credentials.clientId });
 
 			setHasCredentialsSaved(true);
 			setHasUnsavedCredentialChanges(false);
@@ -366,16 +376,16 @@ export const useV7RMOIDCResourceOwnerPasswordController = ({
 		[stepResults]
 	);
 
-	const saveStepResult = useCallback((stepKey: string, result: any) => {
-		setStepResults((prev) => ({ ...prev, [stepKey]: result }));
-	}, []);
-
-	// Load saved credentials on mount
+	// Load saved credentials on mount, overlay V9CredentialStorageService clientId if present
 	React.useEffect(() => {
 		const parsed = safeLocalStorageParse<V7RMCredentials | null>(`${persistKey}-credentials`, null);
+		const v9Storage = V9CredentialStorageService.getInstance();
+		const v9saved = v9Storage.loadSync('v7rm-oidc-ropc');
 		if (parsed) {
-			setCredentials(parsed);
+			setCredentials({ ...parsed, ...(v9saved?.clientId ? { clientId: v9saved.clientId } : {}) });
 			setHasCredentialsSaved(true);
+		} else if (v9saved?.clientId) {
+			setCredentials((prev) => ({ ...prev, clientId: v9saved.clientId as string }));
 		}
 	}, [persistKey]);
 
