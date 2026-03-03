@@ -639,7 +639,10 @@ cleanupAfterRevocation(revocationResult);`,
 
 	return (
 		<FlowContainer>
-			<WorkerTokenExpiryBannerV8 onFixToken={() => setShowWorkerTokenModal(true)} marginBottom="24px" />
+			<WorkerTokenExpiryBannerV8
+				onFixToken={() => setShowWorkerTokenModal(true)}
+				marginBottom="24px"
+			/>
 			<FlowTitle>Token Revocation Flow</FlowTitle>
 			<FlowDescription>
 				This flow demonstrates token revocation operations to invalidate access tokens and refresh
@@ -895,7 +898,10 @@ cleanupAfterRevocation(revocationResult);`,
 					{activeTab === 'bulk_revocation' ? 'Revoke All Tokens' : 'Revoke Token'}
 				</Button>
 			</FormContainer>
-			<WorkerTokenModalV8 isOpen={showWorkerTokenModal} onClose={() => setShowWorkerTokenModal(false)} />
+			<WorkerTokenModalV8
+				isOpen={showWorkerTokenModal}
+				onClose={() => setShowWorkerTokenModal(false)}
+			/>
 		</FlowContainer>
 	);
 };

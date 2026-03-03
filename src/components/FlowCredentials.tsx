@@ -424,7 +424,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 				logger.config('FlowCredentials', `Loading credentials for flow: ${flowType}`);
 
 				// Load credentials from appropriate storage based on flow type
-				let flowCredentials: any = {};
+				let flowCredentials: Record<string, unknown> = {};
 
 				if (flowType === 'implicit') {
 					flowCredentials = credentialManager.loadImplicitFlowCredentials();
