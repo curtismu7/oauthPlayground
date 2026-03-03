@@ -130,8 +130,8 @@ import CIBAFlowV9 from './pages/flows/CIBAFlowV9';
 import DPoPFlow from './pages/flows/DPoPFlow';
 import IDTokensFlow from './pages/flows/IDTokensFlow';
 // ImplicitFlowV7 archived — route redirects to v9
+// JWTBearerTokenFlowV7 archived — route redirects to v9
 import JWTBearerFlow from './pages/flows/JWTBearerFlow';
-import JWTBearerTokenFlowV7 from './pages/flows/JWTBearerTokenFlowV7';
 import KrogerGroceryStoreMFA from './pages/flows/KrogerGroceryStoreMFA';
 import MFAFlow from './pages/flows/MFAFlow';
 import OAuth2CompliantAuthorizationCodeFlow from './pages/flows/OAuth2CompliantAuthorizationCodeFlow';
@@ -139,17 +139,17 @@ import OAuth2ResourceOwnerPasswordFlow from './pages/flows/OAuth2ResourceOwnerPa
 // OAuthAuthorizationCodeFlowV7 archived — route redirects to v9
 // OAuthAuthorizationCodeFlowV7_2 archived — route redirects to v9
 import OAuthImplicitFlowCompletion from './pages/flows/OAuthImplicitFlowCompletion';
-import OAuthROPCFlowV7 from './pages/flows/OAuthROPCFlowV7';
+// OAuthROPCFlowV7 archived — route redirects to v9
+// OIDCHybridFlowV7 archived — route redirects to v9
+// PARFlowV7 archived — route redirects to pingone-par-v9
 import OIDCCompliantAuthorizationCodeFlow from './pages/flows/OIDCCompliantAuthorizationCodeFlow';
-import OIDCHybridFlowV7 from './pages/flows/OIDCHybridFlowV7';
 import PARFlow from './pages/flows/PARFlow';
-import PARFlowV7 from './pages/flows/PARFlowV7';
 import PingOneLogoutFlow from './pages/flows/PingOneLogoutFlow';
 import MFAWorkflowLibraryFlowV9 from './pages/flows/v9/MFAWorkflowLibraryFlowV9';
 import PingOnePARFlowV9 from './pages/flows/v9/PingOnePARFlowV9';
-import RARFlowV7 from './pages/flows/RARFlowV7';
+// RARFlowV7 archived — route redirects to v9
+// SAMLBearerAssertionFlowV7 archived — route redirects to v9
 import RedirectlessFlowV9_Real from './pages/flows/RedirectlessFlowV9_Real';
-import SAMLBearerAssertionFlowV7 from './pages/flows/SAMLBearerAssertionFlowV7';
 import SAMLServiceProviderFlowV1 from './pages/flows/SAMLServiceProviderFlowV1';
 import TokenRevocationFlow from './pages/flows/TokenRevocationFlow';
 import UserInfoFlow from './pages/flows/UserInfoFlow';
@@ -162,6 +162,7 @@ import ImplicitFlowV9 from './pages/flows/v9/ImplicitFlowV9';
 import JWTBearerTokenFlowV9 from './pages/flows/v9/JWTBearerTokenFlowV9';
 import OAuthAuthorizationCodeFlowV9 from './pages/flows/v9/OAuthAuthorizationCodeFlowV9';
 import OAuthAuthorizationCodeFlowV9_Condensed from './pages/flows/v9/OAuthAuthorizationCodeFlowV9_Condensed';
+import OAuthROPCFlowV9 from './pages/flows/v9/OAuthROPCFlowV9';
 import OIDCHybridFlowV9 from './pages/flows/v9/OIDCHybridFlowV9';
 import RARFlowV9 from './pages/flows/v9/RARFlowV9';
 import SAMLBearerAssertionFlowV9 from './pages/flows/v9/SAMLBearerAssertionFlowV9';
@@ -245,7 +246,7 @@ import MFADeviceCreateDemoV8 from './v8/pages/MFADeviceCreateDemoV8';
 import { MFAFeatureFlagsAdminV8 } from './v8/pages/MFAFeatureFlagsAdminV8';
 import { MobileRegistrationDocsPageV8 } from './v8/pages/MobileRegistrationDocsPageV8';
 import UnifiedCredentialsMockupV8 from './v8/pages/UnifiedCredentialsMockupV8';
-import V8MTokenExchange from './v8m/pages/V8MTokenExchange';
+// V8MTokenExchange archived — token-exchange-v7 route now redirects to v9
 import CallbackHandlerV8U from './v8u/components/CallbackHandlerV8U';
 import UnifiedFlowErrorBoundary from './v8u/components/UnifiedFlowErrorBoundary';
 
@@ -1093,22 +1094,22 @@ const AppRoutes: React.FC = () => {
 									element={<Navigate to="/flows/device-authorization-v9" replace />}
 								/>
 								{/* V7 JWT Bearer Token Flow */}
-								<Route path="/flows/jwt-bearer-token-v7" element={<JWTBearerTokenFlowV7 />} />
+								<Route path="/flows/jwt-bearer-token-v7" element={<Navigate to="/flows/jwt-bearer-token-v9" replace />} />
 								{/* V9 JWT Bearer Token Flow */}
 								<Route path="/flows/jwt-bearer-token-v9" element={<JWTBearerTokenFlowV9 />} />
 								{/* V9 Token Exchange Flow */}
 								<Route path="/flows/token-exchange-v9" element={<TokenExchangeFlowV9 />} />
 								{/* V8M Token Exchange Flow */}
-								<Route path="/flows/token-exchange-v7" element={<V8MTokenExchange />} />
+								<Route path="/flows/token-exchange-v7" element={<Navigate to="/flows/token-exchange-v9" replace />} />
 								{/* Legacy V6 routes - redirect to V7 (latest version) */}
 								<Route
 									path="/flows/jwt-bearer-token-v6"
-									element={<Navigate to="/flows/jwt-bearer-token-v7" replace />}
+									element={<Navigate to="/flows/jwt-bearer-token-v9" replace />}
 								/>
 								{/* V7 SAML Bearer Assertion Flow */}
 								<Route
 									path="/flows/saml-bearer-assertion-v7"
-									element={<SAMLBearerAssertionFlowV7 />}
+									element={<Navigate to="/flows/saml-bearer-assertion-v9" replace />}
 								/>
 								{/* V9 SAML Bearer Assertion Flow */}
 								<Route
@@ -1122,7 +1123,7 @@ const AppRoutes: React.FC = () => {
 								{/* Legacy V6 routes - redirect to V7 (latest version) */}
 								<Route
 									path="/flows/saml-bearer-assertion-v6"
-									element={<Navigate to="/flows/saml-bearer-assertion-v7" replace />}
+									element={<Navigate to="/flows/saml-bearer-assertion-v9" replace />}
 								/>
 								{/* V7 Worker Token Flow — redirect to V9 */}
 								<Route path="/flows/worker-token-v7" element={<Navigate to="/flows/worker-token-v9" replace />} />
@@ -1146,7 +1147,7 @@ const AppRoutes: React.FC = () => {
 									element={<Navigate to="/flows/client-credentials-v9" replace />}
 								/>
 								{/* V7 OIDC Hybrid Flow */}
-								<Route path="/flows/oidc-hybrid-v7" element={<OIDCHybridFlowV7 />} />
+								<Route path="/flows/oidc-hybrid-v7" element={<Navigate to="/flows/oidc-hybrid-v9" replace />} />
 								{/* V9 OIDC Hybrid Flow */}
 								<Route path="/flows/oidc-hybrid-v9" element={<OIDCHybridFlowV9 />} />
 								{/* V9 Authorization Code Flow */}
@@ -1164,7 +1165,7 @@ const AppRoutes: React.FC = () => {
 								{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
 								<Route
 									path="/flows/oidc-hybrid-v6"
-									element={<Navigate to="/flows/oidc-hybrid-v7" replace />}
+									element={<Navigate to="/flows/oidc-hybrid-v9" replace />}
 								/>
 								{/* V8 CIBA Flow */}
 								<Route path="/flows/ciba-v8" element={<CIBAFlowV8 />} />
@@ -1199,17 +1200,17 @@ const AppRoutes: React.FC = () => {
 								{/* Unsupported by PingOne flows */}
 								<Route
 									path="/oauth/resource-owner-password"
-									element={<Navigate to="/flows/oauth-ropc-v7" replace />}
+									element={<Navigate to="/flows/oauth-ropc-v9" replace />}
 								/>
 								<Route
 									path="/oidc/resource-owner-password"
-									element={<Navigate to="/flows/oauth-ropc-v7" replace />}
+									element={<Navigate to="/flows/oauth-ropc-v9" replace />}
 								/>
 								{/* V7 PingOne PAR Flow — redirect to V9 */}
 								<Route path="/flows/pingone-par-v7" element={<Navigate to="/flows/pingone-par-v9" replace />} />
 								{/* V9 PingOne PAR Flow */}
 								<Route path="/flows/pingone-par-v9" element={<PingOnePARFlowV9 />} />
-								<Route path="/flows/par-v7" element={<PARFlowV7 />} />
+								<Route path="/flows/par-v7" element={<Navigate to="/flows/pingone-par-v9" replace />} />
 								{/* Legacy V6 routes - redirect to V9 */}
 								<Route
 									path="/flows/pingone-par-v6"
@@ -1248,18 +1249,20 @@ const AppRoutes: React.FC = () => {
 								<Route path="/p1-callback" element={<PingOneAuthenticationCallback />} />
 								<Route path="/p1auth-callback" element={<PingOneAuthenticationCallback />} />
 								{/* V7 RAR Flow */}
-								<Route path="/flows/rar-v7" element={<RARFlowV7 />} />
+								<Route path="/flows/rar-v7" element={<Navigate to="/flows/rar-v9" replace />} />
 								{/* V9 RAR Flow */}
 								<Route path="/flows/rar-v9" element={<RARFlowV9 />} />
 								{/* DPoP Flow (Educational/Mock) */}
 								<Route path="/flows/dpop" element={<DPoPFlow />} />
 								{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
-								<Route path="/flows/rar-v6" element={<Navigate to="/flows/rar-v7" replace />} />
+								<Route path="/flows/rar-v6" element={<Navigate to="/flows/rar-v9" replace />} />
 								<Route
 									path="/flows/oauth2-resource-owner-password"
 									element={<OAuth2ResourceOwnerPasswordFlow />}
 								/>
-								<Route path="/flows/oauth-ropc-v7" element={<OAuthROPCFlowV7 />} />
+								<Route path="/flows/oauth-ropc-v7" element={<Navigate to="/flows/oauth-ropc-v9" replace />} />
+							{/* V9 ROPC Flow */}
+							<Route path="/flows/oauth-ropc-v9" element={<OAuthROPCFlowV9 />} />
 								{/* Test MFA Flow */}
 								<Route path="/mfa-test" element={<MFAFlow />} />
 								{/* Legacy /oidc routes - Keep utility pages and unsupported flows */}
@@ -1268,7 +1271,7 @@ const AppRoutes: React.FC = () => {
 									<Route path="id-tokens" element={<IDTokensFlow />} />
 									<Route
 										path="resource-owner-password"
-										element={<Navigate to="/flows/oauth-ropc-v7" replace />}
+										element={<Navigate to="/flows/oauth-ropc-v9" replace />}
 									/>
 									<Route path="jwt-bearer" element={<JWTBearerFlow />} />
 								</Route>
