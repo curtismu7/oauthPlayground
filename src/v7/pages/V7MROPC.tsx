@@ -1,7 +1,7 @@
 // src/v7m/pages/V7MROPC.tsx
 
 import { FiAlertTriangle, FiCheck, FiCopy, FiEye, FiEyeOff, FiKey, FiLock, FiUser } from '@icons';
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 import {
 	introspectToken,
@@ -12,6 +12,8 @@ import {
 	getUserInfoFromAccessToken,
 	type V7MUserInfo,
 } from '../../services/v7m/V7MUserInfoService';
+import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
+import { CompactAppPickerV8U } from '../../v8u/components/CompactAppPickerV8U';
 import { V7MHelpModal } from '../components/V7MHelpModal';
 import { V7MInfoIcon } from '../components/V7MInfoIcon';
 import { V7MJwtInspectorModal } from '../components/V7MJwtInspectorModal';
@@ -47,6 +49,16 @@ export const V7MROPC: React.FC<Props> = ({
 	const [showUserInfoHelp, setShowUserInfoHelp] = useState(false);
 	const [showIntrospectionHelp, setShowIntrospectionHelp] = useState(false);
 	const [copiedRequestUrl, setCopiedRequestUrl] = useState(false);
+
+	useEffect(() => {
+		const saved = V9CredentialStorageService.loadSync('v7m-ropc');
+		if (saved.clientId) setClientId(saved.clientId);
+	}, []);
+
+	const handleAppSelected = useCallback((app: { id: string; name: string }) => {
+		setClientId(app.id);
+		V9CredentialStorageService.save('v7m-ropc', { clientId: app.id });
+	}, []);
 
 	/**
 	 * Generate token endpoint URL for ROPC flow
@@ -183,6 +195,7 @@ export const V7MROPC: React.FC<Props> = ({
 					Authorization Code Flow with PKCE instead. This flow is included for educational purposes
 					to understand why it was deprecated.
 					<button
+						type="button"
 						onClick={() => setShowDeprecationHelp(true)}
 						style={{
 							marginLeft: 8,
@@ -215,6 +228,7 @@ export const V7MROPC: React.FC<Props> = ({
 			<h1 style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
 				<FiUser /> {title}
 			</h1>
+			<CompactAppPickerV8U onAppSelected={handleAppSelected} />
 
 			<div
 				style={{
@@ -227,6 +241,7 @@ export const V7MROPC: React.FC<Props> = ({
 				}}
 			>
 				<button
+					type="button"
 					onClick={() => {
 						setVariant('oauth');
 						setScope('read write');
@@ -245,6 +260,7 @@ export const V7MROPC: React.FC<Props> = ({
 					OAuth 2.0
 				</button>
 				<button
+					type="button"
 					onClick={() => {
 						setVariant('oidc');
 						setScope('openid profile email offline_access');
@@ -421,6 +437,7 @@ export const V7MROPC: React.FC<Props> = ({
 										POST Request Body (application/x-www-form-urlencoded)
 									</h4>
 									<button
+										type="button"
 										onClick={handleCopyRequestUrl}
 										style={{
 											display: 'flex',
@@ -479,7 +496,7 @@ export const V7MROPC: React.FC<Props> = ({
 						</div>
 					)}
 
-					<button onClick={handleRequestToken} style={primaryBtn}>
+					<button type="button" onClick={handleRequestToken} style={primaryBtn}>
 						Request Access Token
 					</button>
 					{tokenResponse && (
@@ -490,18 +507,22 @@ export const V7MROPC: React.FC<Props> = ({
 							</div>
 							{accessToken && (
 								<div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
-									<button onClick={() => setShowAccessModal(true)} style={secondaryBtn}>
+									<button
+										type="button"
+										onClick={() => setShowAccessModal(true)}
+										style={secondaryBtn}
+									>
 										Inspect Access Token
 									</button>
 									{idToken && (
-										<button onClick={() => setShowIdModal(true)} style={secondaryBtn}>
+										<button type="button" onClick={() => setShowIdModal(true)} style={secondaryBtn}>
 											Inspect ID Token
 										</button>
 									)}
-									<button onClick={handleIntrospect} style={secondaryBtn}>
+									<button type="button" onClick={handleIntrospect} style={secondaryBtn}>
 										Introspect Token
 									</button>
-									<button onClick={handleUserInfo} style={secondaryBtn}>
+									<button type="button" onClick={handleUserInfo} style={secondaryBtn}>
 										Call UserInfo
 										<V7MInfoIcon
 											label=""
