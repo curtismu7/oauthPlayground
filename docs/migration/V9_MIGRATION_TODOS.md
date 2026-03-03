@@ -109,15 +109,19 @@ await V9CredentialStorageService.save('v9:flow-name', creds, { environmentId });
 - [ ] Add route to `App.tsx`
 - [ ] Replace `/flows/pingone-mfa-workflow-library-v7` in `sidebarMenuConfig.ts`
 
-### Worker Token V7 → V9
-- **Current route:** `/flows/worker-token-v7`
-- **V8 source:** `src/pages/flows/WorkerTokenFlowV7.tsx` (no V8 equivalent — build V9 from scratch)
-- **Target route:** `/flows/worker-token-v9`
-- [ ] Review V7 source and plan V9 structure
-- [ ] Migrate to `unifiedWorkerTokenService` (see Error 6 in migration guide)
-- [ ] Create `src/pages/flows/v9/WorkerTokenFlowV9.tsx`
-- [ ] Add route to `App.tsx`
-- [ ] Replace `/flows/worker-token-v7` in `sidebarMenuConfig.ts`
+### ~~Worker Token V7 → V9~~ ✅ COMPLETED Mar 2, 2026
+- **Route:** `/flows/worker-token-v9`
+- **File:** `src/pages/flows/v9/WorkerTokenFlowV9.tsx`
+- **Commit:** `483feb62b`
+- [x] Review V7 source and plan V9 structure
+- [x] Create `src/pages/flows/v9/WorkerTokenFlowV9.tsx`
+- [x] Add route to `App.tsx` (V7/V6 redirect → V9)
+- [x] Sidebar already had V9 entry in `sidebarMenuConfig.ts`
+- [x] V9CredentialStorageService (4-layer, key `v9:worker-token`)
+- [x] CompactAppPickerV8U + handleWorkerTokenAppSelected
+- [x] toastV8 replaces v4ToastManager
+- [x] getAnyWorkerToken() + storage event listener
+- [x] flowHeaderService: added `worker-token-v9` FLOW_CONFIG
 
 ---
 
