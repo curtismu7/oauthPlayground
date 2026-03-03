@@ -1054,3 +1054,165 @@ The V7 equivalents used plain slugs like `'worker-token'` or `'auth-code'`. The 
 **Session Appended:** March 2026  
 **Session Focus:** V7 route retirement, MFA + PAR + ROPC + remaining flows wired to V9  
 **All V7 routes now → V9 redirects. Migration 100% complete.**
+
+---
+
+## Session — March 3, 2026: V7M Mock Flow Upgrade + Testing
+
+**Focus:** Expose V7M flows in sidebar; wire V9CredentialStorageService + CompactAppPickerV8U; write service + component tests.  
+**Result:** 41/41 tests passing (16 service + 25 component), all 6 V7M pages biome clean.
+
+---
+
+### L11 — V7M Files Had Widespread Pre-existing `any` Types
+
+**Problem:** `V7MOAuthAuthCode` and `V7MImplicitFlow` used `useState<any>(null)` for `tokenResponse`, `userinfoResponse`, `introspectionResponse`. These passed review because they predated strict biome rules.
+
+**Fix:** Import and use the specific V7M service types: `V7MTokenSuccess`, `V7MUserInfo`, `V7MIntrospectionResponse`. They were already exported from the services.
+
+**Prevention:** When migrating legacy files, run `biome check` before wiring anything. Pre-existing violations appear immediately — fix them as part of the upgrade, not after.
+
+---
+
+### L12 — `responseType as any` Needed a Specific Union Literal Cast
+
+**Problem:** `V7MAuthorizeRequest.response_type` is a narrow union literal (`'code' | 'id_token token' | 'token' | ...`). Casting a `useMemo` return value as `any` suppressed the error but hid the type mismatch.
+
+**Fix:**  
+- `V7MOAuthAuthCode`: `responseType as 'code'` (always returns `'code'`)  
+- `V7MImplicitFlow`: `responseType as 'id_token token' | 'token'` (matches the two possible values from the memo)
+
+**Prevention:** Never cast to `any` to satisfy a narrow union. Use the exact literal subset the function can return.
+
+---
+
+### L13 — All V7M Buttons Missing `type="button"` (39 Total)
+
+**Problem:** Every `<button onClick={...}>` across all V7M page files was missing `type="button"`. Biome `lint/a11y/useButtonType` flagged them all. The V7M codebase predated this rule.
+
+**Fix:** Python line-by-line replacement handles single-line `<button onClick=...>` — replaces `<button ` → `<button type="button" `. Multi-line buttons (spread across 2+ lines) require the write-to-file `str.replace()` approach with the exact multi-line pattern.
+
+**Prevention:** When migrating any pre-V8 file, always run `biome check` first to get the full error list before applying wiring patches.
+
+---
+
+### L14 — Multi-line Buttons Can't Be Fixed by Line-by-Line Python
+
+**Problem:** The simple Python fix `line.replace('<button ', '<button type="button" ')` only works when `<button ` and `onClick` are on the same line. Multi-line buttons:
+```tsx
+<button
+  onClick={() => ...}
+```
+don't match because `<button` is alone on its line with no space after it.
+
+**Fix:** Use `content.find()` to inspect the raw surrounding context, then `str.replace()` on the full multi-line matched string.
+
+**Prevention:** After the single-line pass, always re-run `biome check` to catch remaining multi-line button violations.
+
+---
+
+### L15 — `<label>` Without Associated Control is a Biome Violation
+
+**Problem:** In `V7MImplicitFlow`, a `<label>` was used as a visual grouping wrapper (no `<input>` or `<select>` inside). Biome flags this as `lint/a11y/noLabelWithoutControl`.
+
+**Fix:** Replace the `<label>` wrapper with a `<div>`. Preserve all inner styles.
+
+**Prevention:** `<label>` is semantically for form controls only. Use `<div>` for display grouping.
+
+---
+
+### L16 — `vi.mock()` Variables Need `vi.hoisted()` to Avoid Hoisting Error
+
+**Problem:** In Vitest component tests, `vi.mock('...', () => ({ loadSync: mockLoadSync }))` where `mockLoadSync` is declared in module scope throws:  
+`ReferenceError: Cannot access 'mockLoadSync' before initialization`  
+because `vi.mock()` is hoisted to the top of the file before the variable is defined.
+
+**Fix:**
+```ts
+const { mockLoadSync, mockSave } = vi.hoisted(() => ({
+  mockLoadSync: vi.fn().mockReturnValue({}),
+  mockSave: vi.fn(),
+}));
+vi.mock('../../services/v9/V9CredentialStorageService', () => ({
+  V9CredentialStorageService: { loadSync: mockLoadSync, save: mockSave },
+}));
+```
+
+**Prevention:** Any variable referenced inside a `vi.mock()` factory must be defined in `vi.hoisted()`. This applies to all Vitest component tests for V7M and V9 flows.
+
+---
+
+### L17 — `vitest.config.ts` Does NOT Inherit Vite Aliases
+
+**Problem:** `vitest.config.ts` had no `resolve.alias` block. Tests importing `@icons` or `@/...` failed with module not found errors, even though `vite.config.ts` had the aliases defined.
+
+**Fix:** Add explicit `resolve.alias` to `vitest.config.ts`:
+```ts
+resolve: {
+  alias: {
+    '@icons': '/path/to/icons/index.ts',
+    '@': '/path/to/src',
+  },
+},
+```
+
+**Prevention:** Always check `vitest.config.ts` for `resolve.alias` when setting up tests for any new directory. Vite and Vitest configs are independent.
+
+---
+
+### L18 — Import Depth Differs Between `v7/pages/` and `v9/pages/`
+
+**Problem:** `ColoredUrlDisplay` and other shared components require different import depths depending on where the test file lives:
+- From `src/pages/flows/v9/` → `'../../../components/ColoredUrlDisplay'`  
+- From `src/v7/pages/` → `'../../components/ColoredUrlDisplay'`
+
+Test file for `V7MOAuthAuthCode.tsx` initially used `../../../` (copied from a V9 test), which caused module not found errors.
+
+**Fix:** Always compute relative path from the test file's actual location, not from a reference test.
+
+**Prevention:** When copying test boilerplate from V9 to V7M (or vice versa), update ALL import paths. Do a `dirname` audit before writing the first test.
+
+---
+
+### L19 — `V7MAuthorizeService` Returns `type: 'redirect'`, Not `type: 'success'`
+
+**Problem:** Service tests checking `expect(res.type).toBe('success')` all failed. The actual `authorizeIssueCode()` return union is `{ type: 'redirect', url: string } | { type: 'error', ... }` — there is no `'success'` variant.
+
+**Fix:** Change assertions to `expect(res.type).toBe('redirect')` and access `res.url` accordingly.
+
+**Prevention:** Before writing assertions, log the actual return value in a test once to confirm the union variants. Don't assume `'success'` — read the service's return type.
+
+---
+
+### L20 — `new URL(relativePath)` Throws; Always Provide a Base
+
+**Problem:** V7M tests constructing `new URL(res.url)` with relative URLs like `'/callback?code=...'` threw `TypeError: Invalid URL` because `new URL()` requires an absolute URL or a base.
+
+**Fix:** `new URL(res.url, 'http://localhost')` — the base is discarded when parsing params, but prevents the throw.
+
+**Prevention:** All V7M mock redirect URLs are relative (`/callback?...`). Always use `new URL(path, 'http://localhost')` when parsing search params in tests.
+
+---
+
+### L21 — `computePkceS256` Must Be Exported to Be Tested
+
+**Problem:** `V7MTokenService.ts` used `computePkceS256` internally but didn't export it. Tests that needed to verify PKCE behavior couldn't import it.
+
+**Fix:** Add `export` to the function declaration in `V7MTokenService.ts` and update the import in the test to come from `V7MTokenService` (not `V7MTokenGenerator` where it was originally).
+
+**Prevention:** Any utility function that needs to be verified in unit tests must be exported. Internal-only functions that aren't worth testing separately can stay private.
+
+---
+
+### V7M Testing Summary
+
+| Test suite | File | Tests | Status |
+|---|---|---|---|
+| V7MTokenService | `src/services/v7m/__tests__/V7MTokenService.test.ts` | 9 | ✅ |
+| V7MTokenGenerator | `src/services/v7m/__tests__/V7MTokenGenerator.test.ts` | 7 | ✅ |
+| V7MClientCredentials render | component test | 5 | ✅ |
+| V7MROPC render | component test | 5 | ✅ |
+| V7MOAuthAuthCode render | component test | 5 | ✅ |
+| V7MDeviceAuthorization render | component test | 5 | ✅ |
+| V7MImplicitFlow render | component test | 5 | ✅ |
+| **Total** | | **41** | **✅ 41/41** |
