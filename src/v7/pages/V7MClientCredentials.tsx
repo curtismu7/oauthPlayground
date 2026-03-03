@@ -1,7 +1,7 @@
 // src/v7m/pages/V7MClientCredentials.tsx
 
 import { FiBook, FiKey } from '@icons';
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
 	introspectToken,
 	type V7MIntrospectionResponse,
@@ -14,6 +14,8 @@ import {
 	getUserInfoFromAccessToken,
 	type V7MUserInfo,
 } from '../../services/v7m/V7MUserInfoService';
+import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
+import { CompactAppPickerV8U } from '../../v8u/components/CompactAppPickerV8U';
 import { V7MHelpModal } from '../components/V7MHelpModal';
 import { V7MInfoIcon } from '../components/V7MInfoIcon';
 import { V7MJwtInspectorModal } from '../components/V7MJwtInspectorModal';
@@ -32,6 +34,16 @@ export const V7MClientCredentials: React.FC = () => {
 	const [showScopesHelp, setShowScopesHelp] = useState(false);
 	const [showClientAuthHelp, setShowClientAuthHelp] = useState(false);
 	const [showIntrospectionHelp, setShowIntrospectionHelp] = useState(false);
+
+	useEffect(() => {
+		const saved = V9CredentialStorageService.loadSync('v7m-client-credentials');
+		if (saved.clientId) setClientId(saved.clientId);
+	}, []);
+
+	const handleAppSelected = useCallback((app: { id: string; name: string }) => {
+		setClientId(app.id);
+		V9CredentialStorageService.save('v7m-client-credentials', { clientId: app.id });
+	}, []);
 
 	function handleRequestToken() {
 		const res = tokenExchangeClientCredentials({
@@ -91,6 +103,7 @@ export const V7MClientCredentials: React.FC = () => {
 			<h1 style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
 				<FiKey /> V7M Client Credentials
 			</h1>
+			<CompactAppPickerV8U onAppSelected={handleAppSelected} />
 
 			<section style={{ marginTop: 16, border: '1px solid #e5e7eb', borderRadius: 8 }}>
 				<header
@@ -157,7 +170,7 @@ export const V7MClientCredentials: React.FC = () => {
 							/>
 						</label>
 					</div>
-					<button onClick={handleRequestToken} style={primaryBtn}>
+					<button type="button" onClick={handleRequestToken} style={primaryBtn}>
 						Request Access Token
 					</button>
 					{tokenResponse && (
@@ -168,13 +181,17 @@ export const V7MClientCredentials: React.FC = () => {
 							</div>
 							{accessToken && (
 								<div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-									<button onClick={() => setShowAccessModal(true)} style={secondaryBtn}>
+									<button
+										type="button"
+										onClick={() => setShowAccessModal(true)}
+										style={secondaryBtn}
+									>
 										Inspect Access Token
 									</button>
-									<button onClick={handleIntrospect} style={secondaryBtn}>
+									<button type="button" onClick={handleIntrospect} style={secondaryBtn}>
 										Introspect Token
 									</button>
-									<button onClick={handleUserInfo} style={secondaryBtn}>
+									<button type="button" onClick={handleUserInfo} style={secondaryBtn}>
 										Call UserInfo (Note: May not work for client_credentials tokens)
 									</button>
 								</div>
