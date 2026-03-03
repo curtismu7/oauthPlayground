@@ -10,7 +10,7 @@ import {
 	FiRefreshCw,
 	FiSettings,
 } from '@icons';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { StandardizedCredentialExportImport } from '../../../components/StandardizedCredentialExportImport';
 import { StepNavigationButtons } from '../../../components/StepNavigationButtons';
@@ -21,6 +21,9 @@ import { V9FlowCredentialService } from '../../../services/v9/core/V9FlowCredent
 import { EnvironmentIdServiceV8 } from '../../../services/v9/environmentIdServiceV9';
 import WorkerTokenStatusDisplayV8 from '../../../v8/components/WorkerTokenStatusDisplayV8';
 import { toastV8 } from '../../../v8/utils/toastNotificationsV8';
+import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
+import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
+import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 
 const {
 	Container,
@@ -236,6 +239,38 @@ const RARFlowV9: React.FC = () => {
 	const [isLoading, setIsLoading] = useState(false);
 	const [errors, setErrors] = useState<string[]>([]);
 
+	// Load stored credentials on mount
+	useEffect(() => {
+		const synced = V9CredentialStorageService.loadSync('v9:rar');
+		if (synced) {
+			if (synced.environmentId) setEnvironmentId(synced.environmentId);
+			if (synced.clientId) setRarConfig((prev) => ({ ...prev, clientId: synced.clientId ?? prev.clientId }));
+		}
+		V9CredentialStorageService.load('v9:rar').then((creds) => {
+			if (creds?.environmentId) setEnvironmentId(creds.environmentId);
+			if (creds?.clientId) setRarConfig((prev) => ({ ...prev, clientId: creds.clientId ?? prev.clientId }));
+		});
+	}, []);
+
+	const saveRarCredentials = useCallback(
+		(clientId: string, envId: string) => {
+			V9CredentialStorageService.save(
+				'v9:rar',
+				{ clientId, environmentId: envId },
+				envId ? { environmentId: envId } : {}
+			);
+		},
+		[]
+	);
+
+	const handleRarAppSelected = useCallback(
+		(app: DiscoveredApp) => {
+			setRarConfig((prev) => ({ ...prev, clientId: app.id }));
+			saveRarCredentials(app.id, environmentId);
+		},
+		[environmentId, saveRarCredentials]
+	);
+
 	// Toggle collapsible sections
 	const toggleSection = useCallback((section: string) => {
 		setCollapsedSections((prev) => ({
@@ -319,10 +354,10 @@ const RARFlowV9: React.FC = () => {
 			};
 
 			setTokens(mockTokens);
-			v4ToastManager.success('Token exchange completed successfully');
+			toastV8.success('Token exchange completed successfully');
 		} catch (_error) {
 			setErrors(['Token exchange failed. Please try again.']);
-			v4ToastManager.error('Token exchange failed');
+			toastV8.error('Token exchange failed');
 		} finally {
 			setIsLoading(false);
 		}
@@ -419,6 +454,10 @@ const RARFlowV9: React.FC = () => {
 						</CollapsibleHeaderButton>
 						{!collapsedSections.configuration && (
 							<CollapsibleContent>
+								<CompactAppPickerV8U
+									environmentId={environmentId}
+									onAppSelected={handleRarAppSelected}
+								/>
 								<ResponsiveFormGrid>
 									<FormGroup>
 										<Label>Environment ID</Label>
