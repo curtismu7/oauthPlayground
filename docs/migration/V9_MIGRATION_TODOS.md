@@ -1,6 +1,6 @@
 # V9 Migration — Remaining TODOs
 
-**Last Updated:** March 2, 2026 — Token Exchange V9 ✅  
+**Last Updated:** March 2, 2026 — Credential storage & app picker mandatory gate added  
 **Reference:** [migrate_vscode.md](./migrate_vscode.md) — full migration guide  
 **Inventory:** See [migrate_vscode.md § V9 Migration Inventory](./migrate_vscode.md#-v9-migration-inventory-march-2-2026) for completed work
 
@@ -22,7 +22,55 @@
 
 ---
 
-## 🔴 CRITICAL — Flow Migrations
+## 🔴 CRITICAL — Credential Storage & App Discovery Compliance *(0/13 flows compliant)*
+
+**Mandatory gate** added March 2, 2026. Every V9 flow MUST use `V9CredentialStorageService` (4-layer storage) and `CompactAppPickerV8U` (app picker). Failing either check blocks merge.
+
+**Services created:** `src/services/v9/V9CredentialStorageService.ts` + `src/services/v9/V9AppDiscoveryService.ts` (commit `fcbb580`)
+
+| Flow | 4-Layer Storage | App Picker |
+|------|:--------------:|:----------:|
+| ClientCredentialsFlowV9 | ❌ | ❌ |
+| DeviceAuthorizationFlowV9 | ❌ | ❌ |
+| ImplicitFlowV9 | ❌ | ❌ |
+| JWTBearerTokenFlowV9 | ❌ | ❌ |
+| MFALoginHintFlowV9 | ❌ | ❌ |
+| OAuthAuthorizationCodeFlowV9 | ❌ | ❌ |
+| OAuthAuthorizationCodeFlowV9_Condensed | ❌ | ❌ |
+| OAuthROPCFlowV9 | ❌ | ❌ |
+| OIDCHybridFlowV9 | ❌ | ❌ |
+| PingOnePARFlowV9 | ❌ | ❌ |
+| RARFlowV9 | ❌ | ❌ |
+| SAMLBearerAssertionFlowV9 | ❌ | ❌ |
+| TokenExchangeFlowV9 | ❌ | ❌ |
+
+**Quick integration (copy into each flow):**
+```tsx
+import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
+import { V9AppDiscoveryService } from '../../../services/v9/V9AppDiscoveryService';
+import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
+
+// On mount
+useEffect(() => {
+  const synced = V9CredentialStorageService.loadSync('v9:flow-name');
+  if (synced) setParams(p => ({ ...p, ...synced }));
+  V9CredentialStorageService.load('v9:flow-name').then(c => {
+    if (c) setParams(p => ({ ...p, ...c }));
+  });
+}, []);
+
+// On save
+await V9CredentialStorageService.save('v9:flow-name', creds, { environmentId });
+
+// In credentials panel
+<CompactAppPickerV8U
+  environmentId={params.environmentId}
+  onAppSelected={(app) => {
+    const creds = V9AppDiscoveryService.applyAppConfig(app);
+    setParams(p => ({ ...p, ...creds }));
+  }}
+/>
+```
 
 ---
 
@@ -210,55 +258,95 @@ Audited against: migrate_vscode.md color standards, toast rules, programming pat
 ### Per-File Fix Lists
 
 #### `ClientCredentialsFlowV9.tsx`
-- [ ] 🟠 Fix file header comment — says "V7.0.0 OAuth 2.0 Client Credentials Flow - Complete V7 Implementation" (line 2)
+- [ ] � Add `V9CredentialStorageService` — replace localStorage reads/writes with `load`/`save`/`loadSync` (`v9:client-credentials`)
+- [ ] 🔴 Add `CompactAppPickerV8U` to credentials panel — wire to `V9AppDiscoveryService.applyAppConfig()`
+- [ ] �🟠 Fix file header comment — says "V7.0.0 OAuth 2.0 Client Credentials Flow - Complete V7 Implementation" (line 2)
 - [ ] 🟠 Update header gradient: `#16a34a → #2563eb`, `#15803d → #1e40af`
 - [ ] 🟠 Replace `v4ToastManager` with `toastV8` (import + all call sites)
 - [ ] 🔴 Add `AbortController` + `return () => controller.abort()` to 3 `useEffect` blocks
 - [ ] 🟡 Replace inline `StepHeader` styled-component with `FlowUIService.getFlowUIComponents()` StepHeader (or keep own but fix color)
 
 #### `DeviceAuthorizationFlowV9.tsx`
-- [ ] 🟠 Replace `v4ToastManager` with `toastV8`
+- [ ] � Add `V9CredentialStorageService` — replace localStorage reads/writes (`v9:device-authorization`)
+- [ ] 🔴 Add `CompactAppPickerV8U` to credentials panel — wire to `V9AppDiscoveryService.applyAppConfig()`
+- [ ] �🟠 Replace `v4ToastManager` with `toastV8`
 - [ ] 🟠 Fix `oauth` variant header color: `#16a34a → #2563eb`, `#15803d → #1e40af` (line ~82-83)
 - [ ] 🟠 Fix `oidc` variant to use exact spec blue: `#3b82f6 → #2563eb`, `#1d4ed8 → #1e40af` (line ~82)
 - [ ] 🔴 Add cleanup to 11 `useEffect` blocks that lack `return () =>` (13 effects, only 2 cleaned up)
 - [ ] 🟡 Add `EducationModeToggle`
 
 #### `ImplicitFlowV9.tsx`
-- [ ] 🟠 Replace `v4ToastManager` with `toastV8`
+- [ ] � Add `V9CredentialStorageService` — replace localStorage reads/writes (`v9:implicit`)
+- [ ] 🔴 Add `CompactAppPickerV8U` to credentials panel — wire to `V9AppDiscoveryService.applyAppConfig()`
+- [ ] �🟠 Replace `v4ToastManager` with `toastV8`
 - [ ] 🔴 Add cleanup to 10 `useEffect` blocks that lack `return () =>`
 
 #### `JWTBearerTokenFlowV9.tsx`
-- [ ] 🟠 Replace `v4ToastManager` with `toastV8`
+- [ ] � Add `V9CredentialStorageService` — replace localStorage reads/writes (`v9:jwt-bearer`)
+- [ ] 🔴 Add `CompactAppPickerV8U` to credentials panel — wire to `V9AppDiscoveryService.applyAppConfig()`
+- [ ] �🟠 Replace `v4ToastManager` with `toastV8`
 - [ ] 🔴 Add cleanup to 3 `useEffect` blocks that lack `return () =>`
 - [ ] 🟡 Add `EducationModeToggle`
 
 #### `OAuthAuthorizationCodeFlowV9.tsx`
-- [ ] 🟠 Replace `v4ToastManager` with `toastV8`
+- [ ] � Add `V9CredentialStorageService` — replace localStorage reads/writes (`v9:auth-code`)
+- [ ] 🔴 Add `CompactAppPickerV8U` to credentials panel — wire to `V9AppDiscoveryService.applyAppConfig()`
+- [ ] �🟠 Replace `v4ToastManager` with `toastV8`
 - [ ] 🔴 Add cleanup to 14 `useEffect` blocks that lack `return () =>` (15 effects, only 1 with cleanup)
 - [ ] 🟡 Add `EducationModeToggle`
 
 #### `OAuthAuthorizationCodeFlowV9_Condensed.tsx`
-- [ ] 🟠 Fix Error 7 import: `'../../../v8/components/WorkerTokenStatusDisplayV8'` → `'@/v8/components/WorkerTokenStatusDisplayV8'` (line 13)
+- [ ] � Add `V9CredentialStorageService` — replace localStorage reads/writes (`v9:auth-code-condensed`)
+- [ ] 🔴 Add `CompactAppPickerV8U` to credentials panel — wire to `V9AppDiscoveryService.applyAppConfig()`
+- [ ] �🟠 Fix Error 7 import: `'../../../v8/components/WorkerTokenStatusDisplayV8'` → `'@/v8/components/WorkerTokenStatusDisplayV8'` (line 13)
 - [ ] 🟠 Fix Error 7 import: `'../../../v8/utils/toastNotificationsV8'` → `'@/v8/utils/toastNotificationsV8'` (line 14)
 - [ ] 🟡 Replace own `Container = styled.div` with `FlowUIService.getContainer()` for layout consistency
 - [ ] 🟡 Add `EducationModeToggle`
 
 #### `OIDCHybridFlowV9.tsx`
-- [ ] 🟠 Replace `v4ToastManager` with `toastV8`
+- [ ] � Add `V9CredentialStorageService` — replace localStorage reads/writes (`v9:oidc-hybrid`)
+- [ ] 🔴 Add `CompactAppPickerV8U` to credentials panel — wire to `V9AppDiscoveryService.applyAppConfig()`
+- [ ] �🟠 Replace `v4ToastManager` with `toastV8`
 - [ ] 🔴 Add cleanup to 7 `useEffect` blocks that lack `return () =>`
 - [ ] 🟡 Add `EducationModeToggle`
 
 #### `RARFlowV9.tsx`
-- [ ] 🟠 Remove `v4ToastManager` import — `toastV8` is already imported and used; remove old import and any remaining v4 call sites
+- [ ] � Add `V9CredentialStorageService` — replace localStorage reads/writes (`v9:rar`)
+- [ ] 🔴 Add `CompactAppPickerV8U` to credentials panel — wire to `V9AppDiscoveryService.applyAppConfig()`
+- [ ] �🟠 Remove `v4ToastManager` import — `toastV8` is already imported and used; remove old import and any remaining v4 call sites
 - [ ] 🟠 Fix Error 7 import: `'../../../v8/components/WorkerTokenStatusDisplayV8'` → `'@/v8/components/WorkerTokenStatusDisplayV8'` (line 22)
 - [ ] 🟠 Fix Error 7 import: `'../../../v8/utils/toastNotificationsV8'` → `'@/v8/utils/toastNotificationsV8'` (line 23)
 - [ ] 🟡 Add `EducationModeToggle`
 
 #### `SAMLBearerAssertionFlowV9.tsx`
-- [ ] 🟠 Replace `v4ToastManager` with `toastV8`
+- [ ] � Add `V9CredentialStorageService` — replace localStorage reads/writes (`v9:saml-bearer`)
+- [ ] 🔴 Add `CompactAppPickerV8U` to credentials panel — wire to `V9AppDiscoveryService.applyAppConfig()`
+- [ ] �🟠 Replace `v4ToastManager` with `toastV8`
 - [ ] 🔴 Add cleanup to 3 `useEffect` blocks that lack `return () =>`
 - [ ] 🟡 Add `EducationModeToggle`
+#### `MFALoginHintFlowV9.tsx`
+- [ ] 🔴 Add `V9CredentialStorageService` — replace localStorage reads/writes (`v9:mfa-login-hint`)
+- [ ] 🔴 Add `CompactAppPickerV8U` to credentials panel — wire to `V9AppDiscoveryService.applyAppConfig()`
+- [ ] Audit for `v4ToastManager` usage — replace with `toastV8`
+- [ ] Audit for `useEffect` missing `return () =>` cleanups
 
+#### `OAuthROPCFlowV9.tsx`
+- [ ] 🔴 Add `V9CredentialStorageService` — replace localStorage reads/writes (`v9:ropc`)
+- [ ] 🔴 Add `CompactAppPickerV8U` to credentials panel — wire to `V9AppDiscoveryService.applyAppConfig()`
+- [ ] Audit for `v4ToastManager` usage — replace with `toastV8`
+- [ ] Audit for `useEffect` missing cleanups
+- [ ] 🟡 Decision: keep as educational-only (deprioritize over other flows)
+
+#### `PingOnePARFlowV9.tsx`
+- [ ] 🔴 Add `V9CredentialStorageService` — replace localStorage reads/writes (`v9:pingone-par`)
+- [ ] 🔴 Add `CompactAppPickerV8U` to credentials panel — wire to `V9AppDiscoveryService.applyAppConfig()`
+- [ ] Audit for `v4ToastManager` usage — replace with `toastV8`
+- [ ] Audit for `useEffect` missing cleanups
+
+#### `TokenExchangeFlowV9.tsx`
+- [ ] 🔴 Add `V9CredentialStorageService` — replace localStorage reads/writes (`v9:token-exchange`)
+- [ ] 🔴 Add `CompactAppPickerV8U` to credentials panel — wire to `V9AppDiscoveryService.applyAppConfig()`
+- Hook dep errors: ✅ Fixed (commit `f6f451d`)
 ---
 
 ### Batch Fix Commands (Toast — Run Per File)
@@ -331,3 +419,7 @@ done
 | `workerTokenStatusServiceV8` → `V9WorkerTokenStatusService` | Feb 28, 2026 |
 | `specVersionServiceV8` → `V9SpecVersionService` | Feb 28, 2026 |
 | Remove duplicate V7 sidebar entries (Hybrid, JWT, SAML, RAR) | Mar 2, 2026 |
+| Token Exchange V7 → V9 | Mar 2, 2026 |
+| Create `V9CredentialStorageService` (4-layer storage wrapper) | Mar 2, 2026 |
+| Create `V9AppDiscoveryService` (worker token app discovery wrapper) | Mar 2, 2026 |
+| Add mandatory credential storage + app picker quality gate to migration guide | Mar 2, 2026 |
