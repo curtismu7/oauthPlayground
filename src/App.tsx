@@ -151,6 +151,7 @@ import RARFlowV7 from './pages/flows/RARFlowV7';
 import RedirectlessFlowV9_Real from './pages/flows/RedirectlessFlowV9_Real';
 import SAMLBearerAssertionFlowV7 from './pages/flows/SAMLBearerAssertionFlowV7';
 import SAMLServiceProviderFlowV1 from './pages/flows/SAMLServiceProviderFlowV1';
+import TokenRevocationFlow from './pages/flows/TokenRevocationFlow';
 import UserInfoFlow from './pages/flows/UserInfoFlow';
 import UserInfoPostFlow from './pages/flows/UserInfoPostFlow';
 import V7RMOAuthAuthorizationCodeFlow_Condensed from './pages/flows/V7RMOAuthAuthorizationCodeFlow_Condensed';
@@ -165,7 +166,7 @@ import OIDCHybridFlowV9 from './pages/flows/v9/OIDCHybridFlowV9';
 import RARFlowV9 from './pages/flows/v9/RARFlowV9';
 import SAMLBearerAssertionFlowV9 from './pages/flows/v9/SAMLBearerAssertionFlowV9';
 import TokenExchangeFlowV9 from './pages/flows/v9/TokenExchangeFlowV9';
-import WorkerTokenFlowV7 from './pages/flows/WorkerTokenFlowV7';
+import WorkerTokenFlowV9 from './pages/flows/v9/WorkerTokenFlowV9';
 // import InteractiveTutorials from './pages/InteractiveTutorials'; // Removed - unused tutorial feature
 import JWKSTroubleshooting from './pages/JWKSTroubleshooting';
 import ResponseModesLearnPage from './pages/learn/ResponseModesLearnPage';
@@ -828,6 +829,7 @@ const AppRoutes: React.FC = () => {
 									}
 								/>
 								<Route path="/flows/userinfo" element={<UserInfoPostFlow />} />
+								<Route path="/flows/token-revocation" element={<TokenRevocationFlow />} />
 								<Route path="/flows/pingone-logout" element={<PingOneLogoutFlow />} />
 								{/* RFC 6749 Compliant OAuth 2.0 Authorization Code Flow */}
 								<Route
@@ -1114,12 +1116,14 @@ const AppRoutes: React.FC = () => {
 									path="/flows/saml-bearer-assertion-v6"
 									element={<Navigate to="/flows/saml-bearer-assertion-v7" replace />}
 								/>
-								{/* V7 Worker Token Flow */}
-								<Route path="/flows/worker-token-v7" element={<WorkerTokenFlowV7 />} />
-								{/* Legacy V6 routes - redirect to V7 (latest version) */}
+								{/* V7 Worker Token Flow — redirect to V9 */}
+								<Route path="/flows/worker-token-v7" element={<Navigate to="/flows/worker-token-v9" replace />} />
+								{/* V9 Worker Token Flow */}
+								<Route path="/flows/worker-token-v9" element={<WorkerTokenFlowV9 />} />
+								{/* Legacy V6 routes - redirect to V9 */}
 								<Route
 									path="/flows/worker-token-v6"
-									element={<Navigate to="/flows/worker-token-v7" replace />}
+									element={<Navigate to="/flows/worker-token-v9" replace />}
 								/>
 								{/* V7 Client Credentials Flow — redirected to V9 */}
 								<Route
