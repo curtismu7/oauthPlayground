@@ -76,16 +76,13 @@ await V9CredentialStorageService.save('v9:flow-name', creds, { environmentId });
 
 ## 🟠 High Priority — Flow Migrations
 
-### PingOne PAR V7 → V9
-- **Current route:** `/flows/pingone-par-v7`
-- **V8 source:** `src/v8/flows/PingOnePARFlowV8/` (directory)
-- **Target route:** `/flows/pingone-par-v9`
-- [ ] Run pre-migration check on V8 source
-- [ ] Create `src/pages/flows/v9/PingOnePARFlowV9.tsx`
-- [ ] Fix V8-internal imports → `@/v8/...`
-- [ ] Add route to `App.tsx`
-- [ ] Replace `/flows/pingone-par-v7` in `sidebarMenuConfig.ts`
-- [ ] Test PAR + PKCE flow
+### ~~PingOne PAR V7 → V9~~ ✅ COMPLETED Mar 2, 2026
+- **Route:** `/flows/pingone-par-v9`
+- **File:** `src/pages/flows/v9/PingOnePARFlowV9.tsx` (pre-existing V9-compliant file)
+- [x] `PingOnePARFlowV9.tsx` already had V9CredentialStorageService + CompactAppPickerV8U
+- [x] Added route to `App.tsx` (V7/V6 redirect → V9)
+- [x] Updated `sidebarMenuConfig.ts`: `/flows/pingone-par-v9`
+- [x] Added `pingone-par-v9` FLOW_CONFIG to `flowHeaderService.tsx`
 
 ### PingOne MFA V7 → V9
 - **Current route:** `/flows/pingone-complete-mfa-v7`
