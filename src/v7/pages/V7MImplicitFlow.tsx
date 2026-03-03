@@ -1,10 +1,18 @@
 // src/v7m/pages/V7MImplicitFlow.tsx
 
 import { FiAlertTriangle, FiBook, FiKey, FiSend, FiShield } from '@icons';
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { authorizeIssueCode, V7MAuthorizeRequest } from '../../services/v7m/V7MAuthorizeService';
-import { introspectToken } from '../../services/v7m/V7MIntrospectionService';
-import { getUserInfoFromAccessToken } from '../../services/v7m/V7MUserInfoService';
+import {
+	introspectToken,
+	type V7MIntrospectionResponse,
+} from '../../services/v7m/V7MIntrospectionService';
+import {
+	getUserInfoFromAccessToken,
+	type V7MUserInfo,
+} from '../../services/v7m/V7MUserInfoService';
+import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
+import { CompactAppPickerV8U } from '../../v8u/components/CompactAppPickerV8U';
 import { V7MHelpModal } from '../components/V7MHelpModal';
 import { V7MInfoIcon } from '../components/V7MInfoIcon';
 import { V7MJwtInspectorModal } from '../components/V7MJwtInspectorModal';
@@ -43,8 +51,19 @@ export const V7MImplicitFlow: React.FC<Props> = ({
 	const [showStateHelp, setShowStateHelp] = useState(false);
 	const [showNonceHelp, setShowNonceHelp] = useState(false);
 	const [showDeprecationHelp, setShowDeprecationHelp] = useState(false);
-	const [userinfoResponse, setUserinfoResponse] = useState<any>(null);
-	const [introspectionResponse, setIntrospectionResponse] = useState<any>(null);
+	const [userinfoResponse, setUserinfoResponse] = useState<V7MUserInfo | null>(null);
+	const [introspectionResponse, setIntrospectionResponse] =
+		useState<V7MIntrospectionResponse | null>(null);
+
+	useEffect(() => {
+		const saved = V9CredentialStorageService.loadSync('v7m-implicit');
+		if (saved.clientId) setClientId(saved.clientId);
+	}, []);
+
+	const handleAppSelected = useCallback((app: { id: string; name: string }) => {
+		setClientId(app.id);
+		V9CredentialStorageService.save('v7m-implicit', { clientId: app.id });
+	}, []);
 
 	const responseType = useMemo(() => {
 		if (variant === 'oidc') return 'id_token token';
@@ -53,7 +72,7 @@ export const V7MImplicitFlow: React.FC<Props> = ({
 
 	function handleBuildAuthorize() {
 		const req: V7MAuthorizeRequest = {
-			response_type: responseType as any,
+			response_type: responseType as 'id_token token' | 'token',
 			client_id: clientId,
 			redirect_uri: redirectUri,
 			scope,
@@ -148,6 +167,7 @@ export const V7MImplicitFlow: React.FC<Props> = ({
 					instead. This flow is included for educational purposes to understand why it was
 					deprecated.
 					<button
+						type="button"
 						onClick={() => setShowDeprecationHelp(true)}
 						style={{
 							marginLeft: 8,
@@ -180,6 +200,7 @@ export const V7MImplicitFlow: React.FC<Props> = ({
 			<h1 style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
 				<FiKey /> {title}
 			</h1>
+			<CompactAppPickerV8U onAppSelected={handleAppSelected} />
 
 			<div
 				style={{
@@ -192,6 +213,7 @@ export const V7MImplicitFlow: React.FC<Props> = ({
 				}}
 			>
 				<button
+					type="button"
 					onClick={() => {
 						setVariant('oauth');
 						setScope('read write');
@@ -210,6 +232,7 @@ export const V7MImplicitFlow: React.FC<Props> = ({
 					OAuth 2.0
 				</button>
 				<button
+					type="button"
 					onClick={() => {
 						setVariant('oidc');
 						setScope('openid profile email');
@@ -323,7 +346,7 @@ export const V7MImplicitFlow: React.FC<Props> = ({
 						</label>
 					</div>
 					<div style={{ marginTop: 12 }}>
-						<label>
+						<div>
 							<div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
 								<strong>Response Type:</strong>
 								<code style={{ padding: '4px 8px', background: '#f3f4f6', borderRadius: 4 }}>
@@ -335,9 +358,9 @@ export const V7MImplicitFlow: React.FC<Props> = ({
 									? "OIDC returns 'id_token token' (both ID token and access token in fragment)"
 									: "OAuth returns 'token' (access token in fragment)"}
 							</small>
-						</label>
+						</div>
 					</div>
-					<button onClick={handleBuildAuthorize} style={buttonStyle}>
+					<button type="button" onClick={handleBuildAuthorize} style={buttonStyle}>
 						<FiSend /> Build Authorization URL
 					</button>
 					{authorizationUrl && (
@@ -350,6 +373,7 @@ export const V7MImplicitFlow: React.FC<Props> = ({
 									style={{ ...inputStyle, fontFamily: 'monospace', fontSize: 12 }}
 								/>
 								<button
+									type="button"
 									onClick={() => navigator.clipboard.writeText(authorizationUrl)}
 									style={smallButtonStyle}
 								>
@@ -402,7 +426,11 @@ export const V7MImplicitFlow: React.FC<Props> = ({
 								<label>
 									<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
 										<strong>Access Token:</strong>
-										<button onClick={() => setShowAccessModal(true)} style={smallButtonStyle}>
+										<button
+											type="button"
+											onClick={() => setShowAccessModal(true)}
+											style={smallButtonStyle}
+										>
 											Inspect JWT
 										</button>
 									</div>
@@ -412,6 +440,7 @@ export const V7MImplicitFlow: React.FC<Props> = ({
 										style={{ ...inputStyle, fontFamily: 'monospace', fontSize: 11, minHeight: 60 }}
 									/>
 									<button
+										type="button"
 										onClick={() => navigator.clipboard.writeText(accessToken)}
 										style={smallButtonStyle}
 									>
@@ -425,7 +454,11 @@ export const V7MImplicitFlow: React.FC<Props> = ({
 								<label>
 									<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
 										<strong>ID Token (OIDC):</strong>
-										<button onClick={() => setShowIdModal(true)} style={smallButtonStyle}>
+										<button
+											type="button"
+											onClick={() => setShowIdModal(true)}
+											style={smallButtonStyle}
+										>
 											Inspect JWT
 										</button>
 									</div>
@@ -435,6 +468,7 @@ export const V7MImplicitFlow: React.FC<Props> = ({
 										style={{ ...inputStyle, fontFamily: 'monospace', fontSize: 11, minHeight: 60 }}
 									/>
 									<button
+										type="button"
 										onClick={() => navigator.clipboard.writeText(idToken)}
 										style={smallButtonStyle}
 									>
@@ -477,7 +511,7 @@ export const V7MImplicitFlow: React.FC<Props> = ({
 					</header>
 					<div style={{ padding: 12 }}>
 						<div style={{ display: 'flex', gap: 8 }}>
-							<button onClick={handleUserInfo} style={buttonStyle}>
+							<button type="button" onClick={handleUserInfo} style={buttonStyle}>
 								Call UserInfo Endpoint
 								<V7MInfoIcon
 									label=""
@@ -485,7 +519,7 @@ export const V7MImplicitFlow: React.FC<Props> = ({
 									onClick={() => setShowUserInfoHelp(true)}
 								/>
 							</button>
-							<button onClick={handleIntrospect} style={buttonStyle}>
+							<button type="button" onClick={handleIntrospect} style={buttonStyle}>
 								Introspect Token
 								<V7MInfoIcon
 									label=""
