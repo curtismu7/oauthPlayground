@@ -396,6 +396,14 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		icon: '🔒',
 		version: 'V7',
 	},
+	'pingone-par-v9': {
+		flowType: 'pingone',
+		title: 'PAR (Pushed Authorization Requests) Flow V9',
+		subtitle:
+			'🔒 V9: RFC 9126 Pushed Authorization Requests with 4-layer credential storage, CompactAppPicker, and enhanced security. Pushes authorization parameters via secure back-channel POST before redirecting.',
+		icon: '🔒',
+		version: 'V9',
+	},
 	'rar-flow-v5': {
 		flowType: 'pingone',
 		title: 'RAR (Rich Authorization Requests) Flow - Fine-Grained Permissions',
