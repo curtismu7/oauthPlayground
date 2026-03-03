@@ -22,26 +22,26 @@
 
 ---
 
-## 🔴 CRITICAL — Credential Storage & App Discovery Compliance *(0/13 flows compliant)*
+## ✅ COMPLETED — Credential Storage & App Discovery Compliance *(13/13 flows compliant — March 2, 2026)*
 
-**Mandatory gate** added March 2, 2026. Every V9 flow MUST use `V9CredentialStorageService` (4-layer storage) and `CompactAppPickerV8U` (app picker). Failing either check blocks merge.
+**Mandatory gate** added March 2, 2026. Every V9 flow uses `V9CredentialStorageService` (4-layer storage) and `CompactAppPickerV8U` (app picker). All 13 flows verified: 0 TypeScript errors, 0 biome warnings. Commit: `13f2f22e2`.
 
-**Services created:** `src/services/v9/V9CredentialStorageService.ts` + `src/services/v9/V9AppDiscoveryService.ts` (commit `fcbb580`)
+**Services:** `src/services/v9/V9CredentialStorageService.ts` + `src/services/v9/V9AppDiscoveryService.ts` (commit `fcbb580`)
 
 | Flow | 4-Layer Storage | App Picker |
 |------|:--------------:|:----------:|
-| ClientCredentialsFlowV9 | ❌ | ❌ |
-| DeviceAuthorizationFlowV9 | ❌ | ❌ |
-| ImplicitFlowV9 | ❌ | ❌ |
-| JWTBearerTokenFlowV9 | ❌ | ❌ |
-| MFALoginHintFlowV9 | ❌ | ❌ |
-| OAuthAuthorizationCodeFlowV9 | ❌ | ❌ |
-| OAuthAuthorizationCodeFlowV9_Condensed | ❌ | ❌ |
-| OAuthROPCFlowV9 | ❌ | ❌ |
-| OIDCHybridFlowV9 | ❌ | ❌ |
-| PingOnePARFlowV9 | ❌ | ❌ |
-| RARFlowV9 | ❌ | ❌ |
-| SAMLBearerAssertionFlowV9 | ❌ | ❌ |
+| ClientCredentialsFlowV9 | ✅ | ✅ |
+| DeviceAuthorizationFlowV9 | ✅ | ✅ |
+| ImplicitFlowV9 | ✅ | ✅ |
+| JWTBearerTokenFlowV9 | ✅ | ✅ |
+| MFALoginHintFlowV9 | ✅ | ✅ |
+| OAuthAuthorizationCodeFlowV9 | ✅ | ✅ |
+| OAuthAuthorizationCodeFlowV9_Condensed | ✅ | ✅ |
+| OAuthROPCFlowV9 | ✅ | ✅ |
+| OIDCHybridFlowV9 | ✅ | ✅ |
+| PingOnePARFlowV9 | ✅ | ✅ |
+| RARFlowV9 | ✅ | ✅ |
+| SAMLBearerAssertionFlowV9 | ✅ | ✅ |
 | TokenExchangeFlowV9 | ✅ | ✅ |
 
 **Quick integration (copy into each flow):**
