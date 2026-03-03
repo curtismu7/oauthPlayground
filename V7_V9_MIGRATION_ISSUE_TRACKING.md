@@ -401,8 +401,9 @@ const V9[ComponentName]: React.FC<V9Props> = (props) => {
 - Service Integration: 2 issues ✅
 - UI/Fallback: 1 issue ✅
 - Documentation: 1 issue ✅
+- Architecture Gap: 1 issue 🔴
 
-### **Total Issues Resolved**: 16/16 (100%)
+### **Total Issues Resolved**: 16/17 (94%) — Issue 17 OPEN
 
 ---
 
@@ -427,9 +428,16 @@ const V9[ComponentName]: React.FC<V9Props> = (props) => {
 - Spurious `useEffect([currentStep])` for scroll — replaced by inlining into nav handlers
 - See `CRITICAL_RUNTIME_ISSUES_TRACKING.md` Issue #7 for full pattern
 
----
+#### **Issue 17: V9 flows missing 4-layer credential storage and app picker**
+**Date**: March 2, 2026 | **Severity**: 🔴 Architecture gap (all 13 V9 flows affected)
+- All 13 V9 flows use direct `localStorage` or `V9FlowCredentialService` (localStorage-only)
+- Correct service: `V9CredentialStorageService` (4-layer: Memory → localStorage → IndexedDB → SQLite)
+- App picker (`CompactAppPickerV8U` + `V9AppDiscoveryService`) absent in all 13 flows
+- Services created at `src/services/v9/V9CredentialStorageService.ts` and `src/services/v9/V9AppDiscoveryService.ts` (commit `fcbb580`)
+- Mandatory quality gate added to migration guide — see `A-Migration/migrate_vscode_…md` § "Credential Storage & App Discovery"
+- See `CRITICAL_RUNTIME_ISSUES_TRACKING.md` Issue #8 for full audit table
 
-## 🔮 **FUTURE MIGRATION GUIDELINES**
+---
 
 ### **Avoid These Issues**
 1. **Always check export type** (default vs named)
@@ -448,6 +456,6 @@ const V9[ComponentName]: React.FC<V9Props> = (props) => {
 
 ---
 
-**Last Updated**: 2026-03-02 *(Issues 15–16 added; Token Exchange V9 flow complete)*
+**Last Updated**: 2026-03-02 *(Issue 17 added — credential storage/app picker architecture gap)*
 **Migration Status**: ✅ SERVICES COMPLETE | 🔄 FLOWS IN PROGRESS
-**Next Migration**: PingOne PAR → V9 | Use this log to avoid repeating these 16 resolved issues
+**Next Migration**: PingOne PAR → V9 | Use this log to avoid repeating these issues

@@ -12,6 +12,7 @@ This document tracks critical runtime errors that have been identified and fixed
 | 5 | useImplicitFlowController infinite loop (whole-object dep) | ✅ FIXED | Mar 2, 2026 |
 | 6 | Unclosed JSX container tags in 4 flow files | ✅ FIXED | Mar 2, 2026 |
 | 7 | Incomplete useCallback dep arrays in TokenExchangeFlowV9 | ✅ FIXED | Mar 2, 2026 |
+| 8 | All 13 V9 flows use localStorage-only storage (missing 3 layers + app picker) | 🔴 OPEN | Mar 2, 2026 |
 
 ---
 
@@ -366,9 +367,88 @@ const goToNextStep = useCallback(() => {
 
 ---
 
+## 8. V9 Flows Using localStorage-Only Storage *(March 2, 2026 — OPEN)*
+
+### **Status**: 🔴 OPEN — services created, flows not yet updated
+
+### **Problem**
+All 13 V9 flows (`src/pages/flows/v9/`) store credentials using direct `localStorage` calls or the old `V9FlowCredentialService` (also localStorage-only). This means:
+- Credentials are **not persisted to IndexedDB** (lost on storage clear)
+- Credentials are **not backed up to SQLite** (no cross-device recovery)
+- **Memory cache layer** missing (unnecessary re-reads on every render)
+- **App picker absent**: no flow offers worker-token-driven app discovery to auto-fill credentials
+
+### **Root Cause**
+The new 4-layer storage system (`UnifiedOAuthCredentialsServiceV8U`) and the app discovery service (`AppDiscoveryServiceV8`) existed in the v8/v8u layer but were never wired into the V9 migration template. The V9 flows were built following the old V7 pattern of direct localStorage access.
+
+### **Current Compliance Audit (March 2, 2026)**
+
+| Flow | Storage Compliant | App Picker |
+|------|:---:|:---:|
+| ClientCredentialsFlowV9 | ❌ | ❌ |
+| DeviceAuthorizationFlowV9 | ❌ | ❌ |
+| ImplicitFlowV9 | ❌ | ❌ |
+| JWTBearerTokenFlowV9 | ❌ | ❌ |
+| MFALoginHintFlowV9 | ❌ | ❌ |
+| OAuthAuthorizationCodeFlowV9 | ❌ | ❌ |
+| OAuthAuthorizationCodeFlowV9_Condensed | ❌ | ❌ |
+| OAuthROPCFlowV9 | ❌ | ❌ |
+| OIDCHybridFlowV9 | ❌ | ❌ |
+| PingOnePARFlowV9 | ❌ | ❌ |
+| RARFlowV9 | ❌ | ❌ |
+| SAMLBearerAssertionFlowV9 | ❌ | ❌ |
+| TokenExchangeFlowV9 | ❌ | ❌ |
+
+### **Fix Pattern**
+
+Services now exist — every flow needs to be updated:
+
+```tsx
+// ✅ Credential storage — use V9CredentialStorageService
+import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
+import { V9AppDiscoveryService } from '../../../services/v9/V9AppDiscoveryService';
+import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
+
+// On mount:
+useEffect(() => {
+  const synced = V9CredentialStorageService.loadSync('v9:my-flow');
+  if (synced) setParams(prev => ({ ...prev, ...synced }));
+  V9CredentialStorageService.load('v9:my-flow').then(creds => {
+    if (creds) setParams(prev => ({ ...prev, ...creds }));
+  });
+}, []);
+
+// On form save:
+await V9CredentialStorageService.save('v9:my-flow', { clientId, clientSecret, redirectUri, scope }, { environmentId });
+
+// App picker in credentials panel:
+<CompactAppPickerV8U
+  environmentId={params.environmentId}
+  onAppSelected={(app) => {
+    const creds = V9AppDiscoveryService.applyAppConfig(app);
+    setParams(prev => ({ ...prev, ...creds }));
+  }}
+/>
+```
+
+### **Services Created**
+- `src/services/v9/V9CredentialStorageService.ts` — 4-layer wrapper, committed `fcbb580`
+- `src/services/v9/V9AppDiscoveryService.ts` — app discovery wrapper, committed `fcbb580`
+
+### **Migration Gate**
+This is now a **mandatory quality gate** in the migration guide:
+`A-Migration/migrate_vscode_CONSISTENT_QG_SERVICES_MSGAPI_WINDSURF_CONTRACTS.md`
+§ "Credential Storage & App Discovery (MANDATORY for every V9 flow migration)"
+
+### **Prevention**
+- The mandatory gate checklist in the migration guide **blocks** merging any new or updated V9 flow until both boxes are checked
+- `V9FlowCredentialService` should be removed once all flows are migrated
+
+---
+
 ## Version Information
 - **Document Created**: March 2, 2026
-- **Last Updated**: March 2, 2026 *(Issues 6–7 added)*
+- **Last Updated**: March 2, 2026 *(Issues 6–8 added)*
 - **App Version**: 9.12.10
 - **Status**: Active Tracking
 
@@ -383,3 +463,8 @@ const goToNextStep = useCallback(() => {
 - `src/pages/flows/TokenRevocationFlow.tsx`
 - `src/pages/WorkerTokenTester.tsx`
 - `src/pages/flows/v9/TokenExchangeFlowV9.tsx`
+- `src/services/v9/V9CredentialStorageService.ts` *(new — Issue #8)*
+- `src/services/v9/V9AppDiscoveryService.ts` *(new — Issue #8)*
+- `src/v8u/services/unifiedOAuthCredentialsServiceV8U.ts` *(4-layer storage backend)*
+- `src/v8/services/appDiscoveryServiceV8.ts` *(app discovery backend)*
+- `src/v8u/components/CompactAppPickerV8U.tsx` *(app picker UI)*
