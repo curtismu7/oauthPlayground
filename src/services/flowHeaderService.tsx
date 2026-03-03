@@ -412,6 +412,14 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		icon: '📊',
 		version: 'V5',
 	},
+	'pingone-mfa-workflow-library-v9': {
+		flowType: 'pingone',
+		title: 'PingOne MFA Workflow Library (V9) — Steps 11-20',
+		subtitle:
+			'🔐 V9: Authorization Code Flow with SMS-based MFA following PingOne Workflow Library Steps 11-20. 4-layer credential storage, CompactAppPicker, V9CredentialStorageService, no WorkerTokenModal.',
+		icon: '🔐',
+		version: 'V9',
+	},
 	'pingone-complete-mfa-v7': {
 		flowType: 'pingone',
 		title: 'PingOne Complete MFA Flow V7',

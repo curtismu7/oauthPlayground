@@ -102,6 +102,7 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 			['/flows/device-authorization-v9', 'Device Authorization (V9)', true],
 			['/flows/client-credentials-v9', 'Client Credentials (V9)', true],
 			['/flows/dpop-authorization-code-v8', 'DPoP Authorization Code (V8)'],
+			['/flows/dpop-authorization-code-v9', 'DPoP Authorization Code (V9)', true],
 		]),
 	},
 	{
@@ -120,8 +121,7 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 		items: items([
 			['/flows/pingone-par-v9', 'Pushed Authorization Request (V9)', true],
 			['/flows/redirectless-v7-real', 'Redirectless Flow (V7)'],
-			['/flows/pingone-complete-mfa-v7', 'PingOne MFA (V7)'],
-			['/flows/pingone-mfa-workflow-library-v7', 'PingOne MFA Workflow Library (V7)'],
+			['/flows/pingone-mfa-workflow-library-v9', 'PingOne MFA Workflow Library (V9)', true],
 			['/flows/kroger-grocery-store-mfa', 'Kroger Grocery Store MFA'],
 			['/pingone-authentication', 'PingOne Authentication'],
 		]),

@@ -84,27 +84,20 @@ await V9CredentialStorageService.save('v9:flow-name', creds, { environmentId });
 - [x] Updated `sidebarMenuConfig.ts`: `/flows/pingone-par-v9`
 - [x] Added `pingone-par-v9` FLOW_CONFIG to `flowHeaderService.tsx`
 
-### PingOne MFA V7 → V9
-- **Current route:** `/flows/pingone-complete-mfa-v7`
-- **V8 source:** `src/v8/flows/CompleteMFAFlowV8.tsx`
-- **Target route:** `/flows/pingone-complete-mfa-v9`
-- **Complexity:** High — full MFA lifecycle, depends on `mfaServiceV8`, `mfaAuthenticationServiceV8`, `mfaConfigurationServiceV8`
-- [ ] Run pre-migration check on V8 source
-- [ ] Create `src/pages/flows/v9/PingOneCompleteMFAFlowV9.tsx`
-- [ ] Fix V8-internal imports → `@/v8/...`
-- [ ] Add route to `App.tsx`
-- [ ] Replace `/flows/pingone-complete-mfa-v7` in `sidebarMenuConfig.ts`
-- [ ] Test full MFA enrollment + authentication
+### ~~PingOne MFA V7 → V9~~ ✅ COMPLETED (merged into Workflow Library)
+- **Merged:** Both `pingone-complete-mfa-v7` and `pingone-mfa-workflow-library-v7` redirect to `/flows/pingone-mfa-workflow-library-v9`
+- **File:** `src/pages/flows/v9/MFAWorkflowLibraryFlowV9.tsx`
+- [x] Routed V7 redirects → V9 in App.tsx
+- [x] Updated sidebar to `pingone-mfa-workflow-library-v9`
 
-### PingOne MFA Workflow Library V7 → V9
-- **Current route:** `/flows/pingone-mfa-workflow-library-v7`
-- **V8 source:** `src/v8/flows/MFAFlowV8.tsx`
-- **Target route:** `/flows/pingone-mfa-workflow-library-v9`
-- [ ] Run pre-migration check on V8 source
-- [ ] Create `src/pages/flows/v9/MFAFlowV9.tsx`
-- [ ] Fix V8-internal imports → `@/v8/...`
-- [ ] Add route to `App.tsx`
-- [ ] Replace `/flows/pingone-mfa-workflow-library-v7` in `sidebarMenuConfig.ts`
+### ~~PingOne MFA Workflow Library V7 → V9~~ ✅ COMPLETED
+- **Route:** `/flows/pingone-mfa-workflow-library-v9`
+- **File:** `src/pages/flows/v9/MFAWorkflowLibraryFlowV9.tsx`
+- **Changes:** V9CredentialStorageService, CompactAppPickerV8U, toastV8, getAnyWorkerToken, no WorkerTokenModal
+- [x] Created `src/pages/flows/v9/MFAWorkflowLibraryFlowV9.tsx`
+- [x] Added `pingone-mfa-workflow-library-v9` FLOW_CONFIG to `flowHeaderService.tsx`
+- [x] Added route + V7 redirects to `App.tsx`
+- [x] Replaced both V7 sidebar entries with V9 `sidebarMenuConfig.ts`
 
 ### ~~Worker Token V7 → V9~~ ✅ COMPLETED Mar 2, 2026
 - **Route:** `/flows/worker-token-v9`
