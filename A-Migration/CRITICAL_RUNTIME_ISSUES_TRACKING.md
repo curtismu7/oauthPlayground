@@ -397,7 +397,7 @@ The new 4-layer storage system (`UnifiedOAuthCredentialsServiceV8U`) and the app
 | PingOnePARFlowV9 | ❌ | ❌ |
 | RARFlowV9 | ❌ | ❌ |
 | SAMLBearerAssertionFlowV9 | ❌ | ❌ |
-| TokenExchangeFlowV9 | ❌ | ❌ |
+| TokenExchangeFlowV9 | ✅ (`050dace`) | ✅ (`050dace`) |
 
 ### **Fix Pattern**
 
