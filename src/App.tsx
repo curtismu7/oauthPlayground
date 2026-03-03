@@ -150,7 +150,6 @@ import SAMLServiceProviderFlowV1 from './pages/flows/SAMLServiceProviderFlowV1';
 import TokenRevocationFlow from './pages/flows/TokenRevocationFlow';
 import UserInfoFlow from './pages/flows/UserInfoFlow';
 import UserInfoPostFlow from './pages/flows/UserInfoPostFlow';
-import V7RMOAuthAuthorizationCodeFlow_Condensed from './pages/flows/V7RMOAuthAuthorizationCodeFlow_Condensed';
 import V7RMOIDCResourceOwnerPasswordFlow from './pages/flows/V7RMOIDCResourceOwnerPasswordFlow';
 import ClientCredentialsFlowV9 from './pages/flows/v9/ClientCredentialsFlowV9';
 import DeviceAuthorizationFlowV9 from './pages/flows/v9/DeviceAuthorizationFlowV9';
@@ -762,7 +761,7 @@ const AppRoutes: React.FC = () => {
 								<Route path="/v8/protect" element={<PingOneProtectFlowV8 />} />
 								<Route
 									path="/flows/oauth-authorization-code-v7-condensed-mock"
-									element={<V7RMOAuthAuthorizationCodeFlow_Condensed />}
+									element={<Navigate to="/flows/oauth-authorization-code-v9-condensed" replace />}
 								/>
 								<Route
 									path="/flows/mock-oidc-ropc"
@@ -1200,6 +1199,10 @@ const AppRoutes: React.FC = () => {
 								/>
 								<Route
 									path="/flows/redirectless-v6-real"
+									element={<Navigate to="/flows/redirectless-v9-real" replace />}
+								/>
+								<Route
+									path="/flows/redirectless-v7-real"
 									element={<Navigate to="/flows/redirectless-v9-real" replace />}
 								/>
 								<Route path="/flows/par" element={<PARFlow />} />
