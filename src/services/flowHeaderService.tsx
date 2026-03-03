@@ -364,6 +364,14 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		icon: '⚙️',
 		version: 'V7',
 	},
+	'worker-token-v9': {
+		flowType: 'pingone',
+		title: 'Worker Token Flow (V9) - Administrative API Access',
+		subtitle:
+			'🚀 V9: PingOne worker token flow with 4-layer credential storage, CompactAppPicker, and machine-to-machine authentication for PingOne Management APIs.',
+		icon: '⚙️',
+		version: 'V9',
+	},
 	'redirectless-v7': {
 		flowType: 'oauth',
 		title: 'Redirectless Flow (V7) - Enhanced Server-to-Server Authentication',
