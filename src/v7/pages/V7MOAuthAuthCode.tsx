@@ -1,12 +1,24 @@
 // src/v7m/pages/V7MOAuthAuthCode.tsx
 
 import { FiBook, FiKey, FiSend } from '@icons';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { V7MPKCEGenerationService } from '../../services/v7m/core/V7MPKCEGenerationService';
 import { authorizeIssueCode, V7MAuthorizeRequest } from '../../services/v7m/V7MAuthorizeService';
-import { introspectToken } from '../../services/v7m/V7MIntrospectionService';
-import { tokenExchangeAuthorizationCode } from '../../services/v7m/V7MTokenService';
-import { getUserInfoFromAccessToken } from '../../services/v7m/V7MUserInfoService';
+import {
+	introspectToken,
+	type V7MIntrospectionResponse,
+} from '../../services/v7m/V7MIntrospectionService';
+import {
+	tokenExchangeAuthorizationCode,
+	type V7MTokenError,
+	type V7MTokenSuccess,
+} from '../../services/v7m/V7MTokenService';
+import {
+	getUserInfoFromAccessToken,
+	type V7MUserInfo,
+} from '../../services/v7m/V7MUserInfoService';
+import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
+import { CompactAppPickerV8U } from '../../v8u/components/CompactAppPickerV8U';
 import { PKCEStorageServiceV8U } from '../../v8u/services/pkceStorageServiceV8U';
 import { V7MHelpModal } from '../components/V7MHelpModal';
 import { V7MInfoIcon } from '../components/V7MInfoIcon';
@@ -42,7 +54,7 @@ export const V7MOAuthAuthCode: React.FC<Props> = ({
 	const [expectedSecret, setExpectedSecret] = useState('topsecret');
 	const [authorizationUrl, setAuthorizationUrl] = useState('');
 	const [code, setCode] = useState('');
-	const [tokenResponse, setTokenResponse] = useState<any>(null);
+	const [tokenResponse, setTokenResponse] = useState<V7MTokenSuccess | V7MTokenError | null>(null);
 	const [showIdModal, setShowIdModal] = useState(false);
 	const [showAccessModal, setShowAccessModal] = useState(false);
 	const [showPkceHelp, setShowPkceHelp] = useState(false);
@@ -53,10 +65,21 @@ export const V7MOAuthAuthCode: React.FC<Props> = ({
 	const [showIntrospectionHelp, setShowIntrospectionHelp] = useState(false);
 	const [showStateHelp, setShowStateHelp] = useState(false);
 	const [showNonceHelp, setShowNonceHelp] = useState(false);
-	const [userinfoResponse, setUserinfoResponse] = useState<any>(null);
-	const [introspectionResponse, setIntrospectionResponse] = useState<any>(null);
+	const [userinfoResponse, setUserinfoResponse] = useState<V7MUserInfo | null>(null);
+	const [introspectionResponse, setIntrospectionResponse] =
+		useState<V7MIntrospectionResponse | null>(null);
 
 	const responseType = useMemo(() => 'code', []);
+
+	useEffect(() => {
+		const saved = V9CredentialStorageService.loadSync('v7m-auth-code');
+		if (saved.clientId) setClientId(saved.clientId);
+	}, []);
+
+	const handleAppSelected = useCallback((app: { id: string; name: string }) => {
+		setClientId(app.id);
+		V9CredentialStorageService.save('v7m-auth-code', { clientId: app.id });
+	}, []);
 
 	// Persist PKCE codes to bulletproof storage whenever they change
 	useEffect(() => {
@@ -91,7 +114,7 @@ export const V7MOAuthAuthCode: React.FC<Props> = ({
 		}
 
 		const req: V7MAuthorizeRequest = {
-			response_type: responseType as any,
+			response_type: responseType as 'code',
 			client_id: clientId,
 			redirect_uri: redirectUri,
 			scope,
@@ -134,8 +157,9 @@ export const V7MOAuthAuthCode: React.FC<Props> = ({
 		setTokenResponse(res);
 	}
 
-	const idToken = tokenResponse?.id_token;
-	const accessToken = tokenResponse?.access_token;
+	const idToken = tokenResponse && 'id_token' in tokenResponse ? tokenResponse.id_token : undefined;
+	const accessToken =
+		tokenResponse && 'access_token' in tokenResponse ? tokenResponse.access_token : undefined;
 
 	function handleUserInfo() {
 		if (!accessToken) {
@@ -175,6 +199,7 @@ export const V7MOAuthAuthCode: React.FC<Props> = ({
 			<h1 style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
 				<FiKey /> {title}
 			</h1>
+			<CompactAppPickerV8U onAppSelected={handleAppSelected} />
 
 			<section style={{ marginTop: 16, border: '1px solid #e5e7eb', borderRadius: 8 }}>
 				<header
@@ -257,7 +282,7 @@ export const V7MOAuthAuthCode: React.FC<Props> = ({
 							Code Challenge Method
 							<select
 								value={codeChallengeMethod}
-								onChange={(e) => setCodeChallengeMethod(e.target.value as any)}
+								onChange={(e) => setCodeChallengeMethod(e.target.value as 'S256' | 'plain')}
 								style={inputStyle}
 							>
 								<option value="S256">S256</option>
@@ -307,7 +332,7 @@ export const V7MOAuthAuthCode: React.FC<Props> = ({
 						</label>
 					</div>
 					<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-						<button onClick={handleBuildAuthorize} style={primaryBtn}>
+						<button type="button" onClick={handleBuildAuthorize} style={primaryBtn}>
 							Build & Issue Code
 						</button>
 						<V7MInfoIcon
@@ -347,7 +372,7 @@ export const V7MOAuthAuthCode: React.FC<Props> = ({
 					<FiSend /> Exchange Token
 				</header>
 				<div style={{ padding: 12 }}>
-					<button onClick={handleExchangeToken} style={primaryBtn}>
+					<button type="button" onClick={handleExchangeToken} style={primaryBtn}>
 						Exchange Code for Tokens
 					</button>
 					{tokenResponse && (
@@ -358,22 +383,26 @@ export const V7MOAuthAuthCode: React.FC<Props> = ({
 							<pre style={preJson}>{JSON.stringify(tokenResponse, null, 2)}</pre>
 							<div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
 								{idToken && (
-									<button onClick={() => setShowIdModal(true)} style={secondaryBtn}>
+									<button type="button" onClick={() => setShowIdModal(true)} style={secondaryBtn}>
 										Inspect ID Token
 									</button>
 								)}
 								{accessToken && (
-									<button onClick={() => setShowAccessModal(true)} style={secondaryBtn}>
+									<button
+										type="button"
+										onClick={() => setShowAccessModal(true)}
+										style={secondaryBtn}
+									>
 										Inspect Access Token
 									</button>
 								)}
 								{accessToken && (
-									<button onClick={handleUserInfo} style={secondaryBtn}>
+									<button type="button" onClick={handleUserInfo} style={secondaryBtn}>
 										Call UserInfo
 									</button>
 								)}
 								{accessToken && (
-									<button onClick={handleIntrospect} style={secondaryBtn}>
+									<button type="button" onClick={handleIntrospect} style={secondaryBtn}>
 										Introspect Token
 									</button>
 								)}
