@@ -3,24 +3,24 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { AuthorizationDetailsEditor } from '../../components/AuthorizationDetailsEditor';
-import ColoredTokenDisplay from '../../components/ColoredTokenDisplay';
-import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
-import { usePageScroll } from '../../hooks/usePageScroll';
-import { comprehensiveFlowDataService } from '../../services/comprehensiveFlowDataService';
+import { AuthorizationDetailsEditor } from '../../../components/AuthorizationDetailsEditor';
+import ColoredTokenDisplay from '../../../components/ColoredTokenDisplay';
+import { useAuthorizationCodeFlowController } from '../../../hooks/useAuthorizationCodeFlowController';
+import { usePageScroll } from '../../../hooks/usePageScroll';
+import { comprehensiveFlowDataService } from '../../../services/comprehensiveFlowDataService';
 import {
 	type PARConfiguration,
 	PARConfigurationServiceUtils,
-} from '../../services/parConfigurationService';
-import { PKCEServiceUtils } from '../../services/pkceService';
-import { type AuthorizationDetail, RARService } from '../../services/rarService';
-import { V9FlowCredentialService } from '../../services/v9/core/V9FlowCredentialService';
-import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
-import { V9FlowRestartButton } from '../../services/v9/V9FlowRestartButton';
-import { V9ModernMessagingService } from '../../services/v9/V9ModernMessagingService';
-import type { DiscoveredApp } from '../../v8/components/AppPickerV8';
-import { CompactAppPickerV8U } from '../../v8u/components/CompactAppPickerV8U';
-import { PKCEStorageServiceV8U } from '../../v8u/services/pkceStorageServiceV8U';
+} from '../../../services/parConfigurationService';
+import { PKCEServiceUtils } from '../../../services/pkceService';
+import { type AuthorizationDetail, RARService } from '../../../services/rarService';
+import { V9FlowCredentialService } from '../../../services/v9/core/V9FlowCredentialService';
+import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
+import { V9FlowRestartButton } from '../../../services/v9/V9FlowRestartButton';
+import { V9ModernMessagingService } from '../../../services/v9/V9ModernMessagingService';
+import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
+import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
+import { PKCEStorageServiceV8U } from '../../../v8u/services/pkceStorageServiceV8U';
 
 // Step metadata for V9
 const STEP_METADATA = [
