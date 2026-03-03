@@ -118,7 +118,7 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 		id: 'pingone-flows',
 		label: 'PingOne Flows',
 		items: items([
-			['/flows/pingone-par-v7', 'Pushed Authorization Request (V7)'],
+			['/flows/pingone-par-v9', 'Pushed Authorization Request (V9)', true],
 			['/flows/redirectless-v7-real', 'Redirectless Flow (V7)'],
 			['/flows/pingone-complete-mfa-v7', 'PingOne MFA (V7)'],
 			['/flows/pingone-mfa-workflow-library-v7', 'PingOne MFA Workflow Library (V7)'],
@@ -130,7 +130,7 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 		id: 'tokens-session',
 		label: 'Tokens & Session',
 		items: items([
-			['/flows/worker-token-v7', 'Worker Token (V7)'],
+				['/flows/worker-token-v9', 'Worker Token (V9)', true],
 			['/worker-token-tester', 'Worker Token Check'],
 			['/token-management', 'Token Management'],
 			['/flows/token-introspection', 'Token Introspection'],
