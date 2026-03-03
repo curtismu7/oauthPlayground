@@ -305,6 +305,58 @@ See `/A-Migration/TEMPLATES/` directory for standardized templates.
 
 ---
 
+## 📝 **RULE: DOCUMENT LESSONS LEARNED AFTER EVERY SESSION**
+
+After completing any migration work (even a partial session), **capture what you learned** in `A-Migration/V9_MIGRATION_LESSONS_LEARNED.md`.
+
+### Mandatory captures:
+- Any bug that required more than 10 minutes to diagnose
+- Any pattern that changed between V7/V8 and V9 (API names, callback props, etc.)
+- Any tool or process that saved time (or wasted it)
+- Any silent failure mode (things tsc passes but break at runtime)
+
+### Format:
+```
+### L[N] — Short title
+**Problem:** what happened
+**Fix:** what resolved it
+**Prevention:** how to avoid it next time
+```
+
+**Why this matters:** The same bugs will recur across 16+ flow files. A 2-minute write-up prevents a 30-minute debug next time.
+
+---
+
+## 🧪 **RULE: RUN BIOME ON EVERY CHANGED FILE BEFORE COMMITTING**
+
+After editing any `.tsx` / `.ts` file, run:
+
+```bash
+node_modules/.bin/biome check <file1> <file2> ...
+```
+
+Fix all errors. For warnings that are intentionally suppressed (e.g. partial dep arrays preventing infinite loops), add a `biome-ignore` comment with a reason.
+
+### Auto-fix safe issues:
+```bash
+node_modules/.bin/biome check --write <file>
+```
+
+### After all files are clean:
+```bash
+node_modules/.bin/biome check --write --unsafe <file>   # only if needed
+```
+
+### What to never commit:
+- `any` types — replace with `Record<string, unknown>`, a proper interface, or `unknown`
+- Unused variables or parameters — prefix with `_` if intentional, remove if not
+- Unsorted imports — auto-fixed by `--write`
+- Long JSX lines that biome wants to break — auto-fixed by `--write`
+
+**biome clean = commit ready. biome dirty = do not commit.**
+
+---
+
 **RULE STATUS:** 🔴 **IMMEDIATE IMPLEMENTATION REQUIRED**  
 **COMPLIANCE:** 100% **MANDATORY**  
 **EXCEPTIONS:** **NONE ALLOWED**  
