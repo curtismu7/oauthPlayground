@@ -16,6 +16,9 @@ import {
 	V9ModernMessagingService,
 } from '../../../services/v9/V9ModernMessagingService';
 import V9FlowHeader from '../../../services/v9/v9FlowHeaderService';
+import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
+import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
+import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 
 // Types
 interface ROPCConfig {
@@ -83,6 +86,41 @@ const OAuthROPCFlowV9: React.FC = () => {
 		password: '',
 		scope: 'openid profile email',
 	});
+
+	// Load stored credentials on mount
+	useEffect(() => {
+		const synced = V9CredentialStorageService.loadSync('v9:ropc');
+		if (synced) {
+			setRopcConfig((prev) => ({
+				...prev,
+				...(synced.clientId ? { clientId: synced.clientId } : {}),
+				...(synced.clientSecret ? { clientSecret: synced.clientSecret } : {}),
+				...(synced.environmentId ? { environmentId: synced.environmentId } : {}),
+			}));
+		}
+		V9CredentialStorageService.load('v9:ropc').then((creds) => {
+			if (creds) setRopcConfig((prev) => ({ ...prev, ...creds }));
+		});
+	}, []);
+
+	const saveRopcCredentials = useCallback((config: ROPCConfig) => {
+		V9CredentialStorageService.save(
+			'v9:ropc',
+			{ clientId: config.clientId, clientSecret: config.clientSecret, environmentId: config.environmentId },
+			config.environmentId ? { environmentId: config.environmentId } : {}
+		);
+	}, []);
+
+	const handleRopcAppSelected = useCallback(
+		(app: DiscoveredApp) => {
+			setRopcConfig((prev) => {
+				const updated = { ...prev, clientId: app.id };
+				saveRopcCredentials(updated);
+				return updated;
+			});
+		},
+		[saveRopcCredentials]
+	);
 
 	// Token and response states
 	const [tokenResponse, setTokenResponse] = useState<TokenResponse | null>(null);
@@ -313,6 +351,11 @@ const OAuthROPCFlowV9: React.FC = () => {
 						<p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
 							Configure the OAuth Resource Owner Password Credentials parameters.
 						</p>
+
+						<CompactAppPickerV8U
+							environmentId={ropcConfig.environmentId}
+							onAppSelected={handleRopcAppSelected}
+						/>
 
 						<div style={{ display: 'grid', gap: '1rem', marginBottom: '1.5rem' }}>
 							<div>

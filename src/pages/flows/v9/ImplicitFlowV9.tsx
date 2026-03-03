@@ -53,8 +53,11 @@ import {
 } from '../../../services/oauthErrorHandlingService';
 import { oidcDiscoveryService } from '../../../services/oidcDiscoveryService';
 import { UnifiedTokenDisplayService } from '../../../services/unifiedTokenDisplayService';
+import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningService';
-import { v4ToastManager } from '../../../utils/v4ToastMessages';
+import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
+import { toastV8 } from '../../../v8/utils/toastNotificationsV8';
+import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 
 // Get UI components
 const {
@@ -224,6 +227,24 @@ const ImplicitFlowV9: React.FC = () => {
 		console.log('[ImplicitFlowV9] Initial credentials from controller:', initialCreds);
 		return initialCreds;
 	});
+
+	const handleImplicitAppSelected = useCallback(
+		(app: DiscoveredApp) => {
+			const updated = { ...credentials, clientId: app.id };
+			setCredentials(updated);
+			controller.setCredentials(updated);
+			V9CredentialStorageService.save(
+				'v9:implicit',
+				{
+					clientId: app.id,
+					clientSecret: updated.clientSecret,
+					environmentId: updated.environmentId,
+				},
+				updated.environmentId ? { environmentId: updated.environmentId } : {}
+			);
+		},
+		[credentials, controller]
+	);
 
 	const [currentStep, setCurrentStep] = useState(0);
 	const [errorDetails, setErrorDetails] = useState<OAuthErrorDetails | null>(null);
@@ -471,7 +492,7 @@ const ImplicitFlowV9: React.FC = () => {
 				responseType: variant === 'oidc' ? 'id_token token' : 'token',
 			}));
 
-			v4ToastManager.showSuccess(`Switched to ${variant.toUpperCase()} Implicit Flow variant`);
+			toastV8.success(`Switched to ${variant.toUpperCase()} Implicit Flow variant`);
 		},
 		[controller]
 	);
@@ -568,6 +589,10 @@ const ImplicitFlowV9: React.FC = () => {
 				</CollapsibleSection>
 
 				{/* Credentials section using ComprehensiveCredentialsService */}
+				<CompactAppPickerV8U
+					environmentId={credentials.environmentId || ''}
+					onAppSelected={handleImplicitAppSelected}
+				/>
 				<ComprehensiveCredentialsService
 					// Flow identification
 					flowType={`implicit-${selectedVariant}-v7`}
@@ -643,7 +668,7 @@ const ImplicitFlowV9: React.FC = () => {
 							filteredScopes = scopeArray.filter((scope) => scope !== 'offline_access').join(' ');
 
 							// Show warning to user
-							v4ToastManager.showWarning(
+							toastV8.warning(
 								'offline_access removed - Implicit Flow never provides refresh tokens',
 								{
 									description:
@@ -700,7 +725,7 @@ const ImplicitFlowV9: React.FC = () => {
 
 							// Also save using controller for backward compatibility
 							await controller.saveCredentials();
-							v4ToastManager.showSuccess('Credentials saved successfully!');
+							toastV8.success('Credentials saved successfully!');
 							// Clear any previous error details on success
 							setErrorDetails(null);
 						} catch (error) {
@@ -724,7 +749,7 @@ const ImplicitFlowV9: React.FC = () => {
 								},
 							});
 
-							v4ToastManager.showError(errorDetails.message);
+							toastV8.error(errorDetails.message);
 							setErrorDetails(errorDetails);
 						}
 					}}
@@ -843,15 +868,15 @@ const ImplicitFlowV9: React.FC = () => {
 									hasSecret: !!result.app.clientSecret,
 								});
 
-								v4ToastManager.showSuccess(
+								toastV8.success(
 									`Application "${result.app.name}" created successfully! Credentials updated and saved.`
 								);
 							} else {
-								v4ToastManager.showError(`Failed to create application: ${result.error}`);
+								toastV8.error(`Failed to create application: ${result.error}`);
 							}
 						} catch (error) {
 							console.error('[Implicit Flow V9] Failed to create PingOne application:', error);
-							v4ToastManager.showError(
+							toastV8.error(
 								`Failed to create application: ${error instanceof Error ? error.message : 'Unknown error'}`
 							);
 						}
@@ -863,7 +888,15 @@ const ImplicitFlowV9: React.FC = () => {
 				/>
 			</>
 		);
-	}, [selectedVariant, collapsedSections, toggleSection, credentials, controller, workerToken]);
+	}, [
+		selectedVariant,
+		collapsedSections,
+		toggleSection,
+		credentials,
+		controller,
+		workerToken,
+		handleImplicitAppSelected,
+	]);
 
 	const renderStepContent = useMemo(() => {
 		const tokens = controller.tokens;
