@@ -26,7 +26,10 @@ import { oidcDiscoveryService } from '../../../services/oidcDiscoveryService';
 import SAMLAssertionService from '../../../services/samlAssertionService';
 import { UnifiedTokenDisplayService } from '../../../services/unifiedTokenDisplayService';
 import { credentialManager } from '../../../utils/credentialManager';
-import { v4ToastManager } from '../../../utils/v4ToastMessages';
+import { toastV8 } from '../../../v8/utils/toastNotificationsV8';
+import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
+import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
+import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 
 // Get UI components from FlowUIService
 const Container = FlowUIService.getContainer();
@@ -271,6 +274,38 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 	);
 	const [identityProvider, setIdentityProvider] = useState('Mock Identity Provider Co.');
 
+	// Load stored credentials on mount
+	useEffect(() => {
+		const synced = V9CredentialStorageService.loadSync('v9:saml-bearer');
+		if (synced) {
+			if (synced.clientId) setClientId(synced.clientId);
+			if (synced.environmentId) setEnvironmentId(synced.environmentId);
+		}
+		V9CredentialStorageService.load('v9:saml-bearer').then((creds) => {
+			if (creds?.clientId) setClientId(creds.clientId);
+			if (creds?.environmentId) setEnvironmentId(creds.environmentId);
+		});
+	}, []);
+
+	const saveSamlCredentials = useCallback(
+		(cId: string, envId: string) => {
+			V9CredentialStorageService.save(
+				'v9:saml-bearer',
+				{ clientId: cId, environmentId: envId },
+				envId ? { environmentId: envId } : {}
+			);
+		},
+		[]
+	);
+
+	const handleSamlAppSelected = useCallback(
+		(app: DiscoveredApp) => {
+			setClientId(app.id);
+			saveSamlCredentials(app.id, environmentId);
+		},
+		[environmentId, saveSamlCredentials]
+	);
+
 	// SAML Assertion
 	const [samlAssertion, setSamlAssertion] = useState<SAMLAssertion>(() => {
 		const now = new Date();
@@ -356,15 +391,15 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 
 	const copyToClipboard = useCallback(async (text: string, label: string) => {
 		if (!text) {
-			v4ToastManager.showWarning(`No ${label} available to copy.`);
+			toastV8.warning(`No ${label} available to copy.`);
 			return;
 		}
 		try {
 			await navigator.clipboard.writeText(text);
-			v4ToastManager.showSuccess(`${label} copied to clipboard.`);
+			toastV8.success(`${label} copied to clipboard.`);
 		} catch (error) {
 			console.error('[SAML Bearer V9] Failed to copy to clipboard:', error);
-			v4ToastManager.showError(`Unable to copy ${label}.`);
+			toastV8.error(`Unable to copy ${label}.`);
 		}
 	}, []);
 
@@ -402,7 +437,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 						}));
 						console.log('[SAML Bearer V9] Issuer and Audience auto-populated:', issuer);
 					}
-					v4ToastManager.showSuccess(
+					toastV8.success(
 						'Endpoints and SAML fields auto-populated from OIDC Discovery'
 					);
 				}
@@ -456,7 +491,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 
 		const validation = SAMLAssertionService.validateConfiguration(config);
 		if (!validation.isValid) {
-			v4ToastManager.showWarning(
+			toastV8.warning(
 				`Please fill in all required fields: ${validation.errors.join(', ')}`
 			);
 			return;
@@ -465,10 +500,10 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 		try {
 			const mockSAML = SAMLAssertionService.generateSAMLAssertion(config);
 			setGeneratedSAML(mockSAML);
-			v4ToastManager.showSuccess('SAML Assertion generated successfully!');
+			toastV8.success('SAML Assertion generated successfully!');
 		} catch (error) {
 			console.error('[SAML Bearer V9] Error generating SAML assertion:', error);
-			v4ToastManager.showError('Failed to generate SAML assertion');
+			toastV8.error('Failed to generate SAML assertion');
 		}
 	}, [clientId, tokenEndpoint, identityProvider, samlAssertion]);
 
@@ -514,7 +549,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 						attributes: {},
 					});
 				}
-				v4ToastManager.showSuccess('SAML configuration loaded from saved settings');
+				toastV8.success('SAML configuration loaded from saved settings');
 			}
 		} catch (error) {
 			console.error('[SAML Bearer V9] Error loading configuration:', error);
@@ -561,7 +596,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 	// Make token request
 	const makeTokenRequest = useCallback(async () => {
 		if (!generatedSAML || !clientId || !tokenEndpoint) {
-			v4ToastManager.showWarning('Please generate a SAML assertion first');
+			toastV8.warning('Please generate a SAML assertion first');
 			return;
 		}
 
@@ -650,12 +685,12 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 
 			console.log('[SAML Bearer Mock] Mock token response:', mockTokenResponse);
 			setTokenResponse(mockTokenResponse);
-			v4ToastManager.showSuccess(
+			toastV8.success(
 				'Mock access token generated successfully! (Educational simulation)'
 			);
 		} catch (error) {
 			console.error('[SAML Bearer Mock] Error in simulation:', error);
-			v4ToastManager.showError('Failed to simulate token request');
+			toastV8.error('Failed to simulate token request');
 		} finally {
 			setIsLoading(false);
 		}
@@ -670,6 +705,10 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 				defaultCollapsed={collapsedSections.credentials}
 				showArrow={true}
 			>
+				<CompactAppPickerV8U
+					environmentId={environmentId}
+					onAppSelected={handleSamlAppSelected}
+				/>
 				<FormGroup>
 					<Label>Environment ID *</Label>
 					<Input
@@ -994,7 +1033,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 								onClick={() => {
 									const formatted = SAMLAssertionService.formatSAMLForDisplay(generatedSAML);
 									console.log('[SAML Bearer V9] Formatted SAML:', formatted);
-									v4ToastManager.showSuccess('SAML assertion formatted for display');
+									toastV8.success('SAML assertion formatted for display');
 								}}
 								$variant="secondary"
 							>

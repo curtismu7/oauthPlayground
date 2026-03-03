@@ -66,11 +66,14 @@ import {
 	IntrospectionApiCallData,
 	TokenIntrospectionService,
 } from '../../../services/tokenIntrospectionService';
+import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 // V9 credential validation is not used in this flow yet
 import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningService';
 import { storeFlowNavigationState } from '../../../utils/flowNavigation';
 import { logger } from '../../../utils/logger';
-import { v4ToastManager } from '../../../utils/v4ToastMessages';
+import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
+import { toastV8 } from '../../../v8/utils/toastNotificationsV8';
+import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 
 // Get UI components from FlowUIService
 const FlowContainer = FlowUIService.getContainer();
@@ -1005,6 +1008,20 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 
 	const deviceFlow = useDeviceAuthorizationFlow();
 
+	const handleDeviceAppSelected = useCallback(
+		(app: DiscoveredApp) => {
+			const current = deviceFlow.credentials ?? { clientId: '', clientSecret: '', redirectUri: '' };
+			const updated = { ...current, clientId: app.id };
+			deviceFlow.setCredentials(updated);
+			V9CredentialStorageService.save(
+				'v9:device-authorization',
+				{ clientId: app.id, environmentId: current.environmentId },
+				current.environmentId ? { environmentId: current.environmentId } : {}
+			);
+		},
+		[deviceFlow]
+	);
+
 	const ensureCredentials = useCallback(
 		(updates: Partial<DeviceAuthCredentials>) => {
 			const current = deviceFlow.credentials ?? {
@@ -1062,9 +1079,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 				scopes: updatedScopes,
 			});
 
-			v4ToastManager.showSuccess(
-				`Switched to ${variant.toUpperCase()} Device Authorization variant`
-			);
+			toastV8.success(`Switched to ${variant.toUpperCase()} Device Authorization variant`);
 		},
 		[deviceFlow.credentials, ensureCredentials]
 	);
@@ -1349,7 +1364,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 	const handleCopy = useCallback((text: string, label: string) => {
 		navigator.clipboard.writeText(text);
 		setCopiedField(label);
-		v4ToastManager.showSuccess(`${label} copied to clipboard!`);
+		toastV8.success(`${label} copied to clipboard!`);
 		setTimeout(() => setCopiedField(null), 2000);
 	}, []);
 
@@ -1468,13 +1483,13 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 					console.error(
 						'[Device Authorization V7] Failed to save credentials to comprehensive service'
 					);
-					v4ToastManager.showError('Failed to save credentials. Please try again.');
+					toastV8.error('Failed to save credentials. Please try again.');
 				} else {
 					console.log('✅ [Device Authorization V7] Credentials saved successfully');
 				}
 			} catch (error) {
 				console.error('[Device Authorization V7] Failed to save credentials:', error);
-				v4ToastManager.showError('Failed to save credentials. Please try again.');
+				toastV8.error('Failed to save credentials. Please try again.');
 			}
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1685,7 +1700,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 			console.log('🔧 [Device Authorization V7] Cleared flow-specific storage');
 		} catch (error) {
 			console.error('[Device Authorization V7] Failed to clear flow state:', error);
-			v4ToastManager.showError('Failed to clear flow state. Please refresh the page.');
+			toastV8.error('Failed to clear flow state. Please refresh the page.');
 		}
 
 		// Clear credential backup when flow is reset
@@ -1778,7 +1793,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 				setHasScrolledToTV(true);
 			}
 
-			v4ToastManager.showSuccess(
+			toastV8.success(
 				`${deviceConfig.emoji} Authorization successful! Check out your ${deviceConfig.name} display below!`
 			);
 		}
@@ -1795,7 +1810,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 						block: 'center',
 					});
 					setHasScrolledToTV(true);
-					v4ToastManager.showSuccess(`👇 Check out your ${deviceConfig.name} display below!`);
+					toastV8.success(`👇 Check out your ${deviceConfig.name} display below!`);
 				}
 			}, 20000); // 20 seconds
 
@@ -3024,6 +3039,10 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 			/>
 
 			{/* V6 Comprehensive Credentials Service */}
+			<CompactAppPickerV8U
+				environmentId={deviceFlow.credentials?.environmentId ?? ''}
+				onAppSelected={handleDeviceAppSelected}
+			/>
 			<ComprehensiveCredentialsService
 				flowType="device-authorization-v6"
 				// Discovery props
@@ -3036,7 +3055,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 							ensureCredentials({ environmentId: extractedEnvId });
 							console.log('[Device Authz V6] Auto-extracted Environment ID:', extractedEnvId);
 							if (extractedEnvId && (deviceFlow.credentials?.clientId || '')) {
-								v4ToastManager.showSuccess('Credentials auto-saved from discovery');
+								toastV8.success('Credentials auto-saved from discovery');
 							}
 						}
 					}
@@ -3055,13 +3074,13 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 				onEnvironmentIdChange={(newEnvId) => {
 					ensureCredentials({ environmentId: newEnvId });
 					if (newEnvId.trim() && (deviceFlow.credentials?.clientId || '').trim()) {
-						v4ToastManager.showSuccess('Credentials auto-saved');
+						toastV8.success('Credentials auto-saved');
 					}
 				}}
 				onClientIdChange={(newClientId) => {
 					ensureCredentials({ clientId: newClientId });
 					if ((deviceFlow.credentials?.environmentId || '').trim() && newClientId.trim()) {
-						v4ToastManager.showSuccess('Credentials auto-saved');
+						toastV8.success('Credentials auto-saved');
 					}
 				}}
 				onClientSecretChange={(newClientSecret) => {
@@ -3074,9 +3093,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 						// OIDC MUST include 'openid' scope per OpenID Connect Core 1.0 spec
 						if (!newScopes.includes('openid')) {
 							finalScopes = `openid ${newScopes}`.trim();
-							v4ToastManager.showWarning(
-								'Added "openid" scope (required by OpenID Connect specification)'
-							);
+							toastV8.warning('Added "openid" scope (required by OpenID Connect specification)');
 						}
 					} else {
 						// PingOne requires 'openid' scope even for OAuth 2.0 flows (non-standard)
@@ -3130,7 +3147,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 						}
 					} catch (error) {
 						console.error('[Device Authz V7] Failed to save credentials:', error);
-						v4ToastManager.showError('Failed to save credentials');
+						toastV8.error('Failed to save credentials');
 					}
 				}}
 				hasUnsavedChanges={false}
@@ -3145,7 +3162,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 				onPingOneAppStateChange={setPingOneConfig}
 				onPingOneSave={() => {
 					console.log('[Device Authz V6] PingOne config saved:', pingOneConfig);
-					v4ToastManager.showSuccess('PingOne configuration saved successfully!');
+					toastV8.success('PingOne configuration saved successfully!');
 				}}
 				hasUnsavedPingOneChanges={false}
 				isSavingPingOne={false}

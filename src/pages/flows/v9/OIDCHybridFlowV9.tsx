@@ -40,8 +40,11 @@ import {
 	log,
 } from '../../../services/hybridFlowSharedService';
 import { UnifiedTokenDisplayService } from '../../../services/unifiedTokenDisplayService';
+import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningService';
-import { v4ToastManager } from '../../../utils/v4ToastMessages';
+import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
+import { toastV8 } from '../../../v8/utils/toastNotificationsV8';
+import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 
 import { STEP_METADATA } from '../config/OIDCHybridFlowV9.config';
 
@@ -296,12 +299,29 @@ const OIDCHybridFlowV9: React.FC = () => {
 			}).catch((error) => {
 				console.error('[OIDC Hybrid V7] Failed to save credentials to V7 storage:', error);
 				// Show user-friendly error message
-				v4ToastManager.showError('Failed to save credentials. Please try again.');
+				toastV8.error('Failed to save credentials. Please try again.');
 			});
 		}
 	}, [controller.credentials]);
 
 	// Use credential backup hook for automatic backup and restoration
+	const handleHybridAppSelected = useCallback(
+		(app: DiscoveredApp) => {
+			const updated = { ...controller.credentials, clientId: app.id };
+			controller.setCredentials(updated);
+			V9CredentialStorageService.save(
+				'v9:oidc-hybrid',
+				{
+					clientId: app.id,
+					clientSecret: updated.clientSecret,
+					environmentId: updated.environmentId,
+				},
+				updated.environmentId ? { environmentId: updated.environmentId } : {}
+			);
+		},
+		[controller]
+	);
+
 	const { clearBackup } = useCredentialBackup({
 		flowKey: 'hybrid-flow-v7',
 		credentials: controller.credentials,
@@ -358,7 +378,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 
 	const handleGenerateAuthorizationUrl = useCallback(async () => {
 		if (!controller.credentials) {
-			v4ToastManager.showError('Configure credentials before generating the authorization URL.');
+			toastV8.error('Configure credentials before generating the authorization URL.');
 			return;
 		}
 
@@ -376,18 +396,16 @@ const OIDCHybridFlowV9: React.FC = () => {
 
 			const url = controller.generateAuthorizationUrl();
 			if (!url) {
-				v4ToastManager.showError(
-					'Unable to generate authorization URL. Check required parameters.'
-				);
+				toastV8.error('Unable to generate authorization URL. Check required parameters.');
 				return;
 			}
 
 			log.info('Authorization URL generated', { url });
 			setCurrentStep(2);
-			v4ToastManager.showSuccess('Authorization URL generated');
+			toastV8.success('Authorization URL generated');
 		} catch (error) {
 			console.error('[OIDCHybridFlowV7] Failed to generate authorization URL', error);
-			v4ToastManager.showError('Authorization URL generation failed');
+			toastV8.error('Authorization URL generation failed');
 		} finally {
 			controller.setIsLoading(false);
 		}
@@ -395,7 +413,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 
 	const handleRedirectAuthorization = useCallback(() => {
 		if (!controller.authorizationUrl) {
-			v4ToastManager.showError('Generate the authorization URL before redirecting.');
+			toastV8.error('Generate the authorization URL before redirecting.');
 			return;
 		}
 
@@ -424,9 +442,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 	const handleExchangeCode = useCallback(async () => {
 		const code = controller.tokens?.code;
 		if (!code) {
-			v4ToastManager.showError(
-				'No authorization code available. Complete the authorization step first.'
-			);
+			toastV8.error('No authorization code available. Complete the authorization step first.');
 			return;
 		}
 
@@ -435,7 +451,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 			const exchanged = await controller.exchangeCodeForTokens(code);
 			controller.setTokens(exchanged);
 			setCurrentStep(4);
-			v4ToastManager.showSuccess('Authorization code exchanged for tokens');
+			toastV8.success('Authorization code exchanged for tokens');
 		} catch (error) {
 			console.error('[OIDCHybridFlowV7] Token exchange failed', error);
 		} finally {
@@ -455,7 +471,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 			console.log('🔧 [OIDC Hybrid V7] Cleared flow-specific storage');
 		} catch (error) {
 			console.error('[OIDC Hybrid V7] Failed to clear flow state:', error);
-			v4ToastManager.showError('Failed to clear flow state. Please refresh the page.');
+			toastV8.error('Failed to clear flow state. Please refresh the page.');
 		}
 
 		// Clear credential backup when flow is reset
@@ -538,7 +554,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 
 	const handleNextStep = useCallback(() => {
 		if (!canNavigateNext()) {
-			v4ToastManager.showError('Complete the required actions before continuing to the next step.');
+			toastV8.error('Complete the required actions before continuing to the next step.');
 			return;
 		}
 		setCurrentStep((prev) => Math.min(prev + 1, STEP_METADATA.length - 1));
@@ -678,6 +694,10 @@ const OIDCHybridFlowV9: React.FC = () => {
 					)}
 				</CollapsibleSection>
 
+				<CompactAppPickerV8U
+					environmentId={controller.credentials?.environmentId ?? ''}
+					onAppSelected={handleHybridAppSelected}
+				/>
 				<ComprehensiveCredentialsService
 					flowType="oidc-hybrid-v7"
 					environmentId={controller.credentials?.environmentId ?? ''}
