@@ -196,6 +196,21 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 					'advanced-mock'
 				),
 			},
+			{
+				id: 'v7m-mock-server-flows',
+				label: 'V7 Mock Server Flows',
+				items: items(
+					[
+						['/v7/oidc/authorization-code', 'Auth Code (V7 Mock)'],
+						['/v7/oauth/device-authorization', 'Device Authorization (V7 Mock)'],
+						['/v7/oauth/client-credentials', 'Client Credentials (V7 Mock)'],
+						['/v7/oauth/implicit', 'Implicit Flow (V7 Mock)'],
+						['/v7/oauth/ropc', 'ROPC (V7 Mock)'],
+						['/v7/settings', 'V7 Mock Settings'],
+					],
+					'v7m-mock'
+				),
+			},
 		],
 	},
 	{
