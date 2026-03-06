@@ -16,6 +16,7 @@
 | Dead flow files archived | ✅ **DONE** | 31 files + 5 dirs → `archive/dead-flows/` (commit `8b442f165`) |
 | V9 flows: `V9CredentialStorageService` | ✅ **DONE** | All 16 V9 flows have it |
 | V9 flows: `CompactAppPickerV8U` | ✅ **DONE** | All 16 V9 flows have it |
+| App Lookup Service (`CompactAppPickerV8U`) — all credential flows | 🔄 **IN PROGRESS** | All flows with credentials must use the app picker so users can auto-apply credentials. V9 flows (v9/) 16/16 done. Remaining: 2 V9 flows outside v9/ (CIBAFlowV9, RedirectlessFlowV9_Real) + 13 non-V9 flows. See [APP_PICKER_MIGRATION_REPORT.md](./APP_PICKER_MIGRATION_REPORT.md) |
 | V9 flows: zero `toastV8` calls | ✅ **DONE** | 0 actual calls (comments only) |
 | V9 flows: `console.error/warn` | ✅ **DONE** | 0 violations in all V9 flows — WorkerTokenFlowV9 1 occurrence exempt (inside `<pre>` tag). CIBAFlowV9 + RedirectlessFlowV9_Real (13 violations) fixed commit `8eb74df06` |
 | V9 services: `console.error/warn` | ✅ **DONE** | 48 violations removed across 13 service files (commit `d2948f543`) — 2 false positives skipped (postmanCollectionGeneratorV9 template strings, credentialsServiceV9 JSDoc) |
@@ -376,6 +377,17 @@ echo "📋 See: A-Migration/V9_CREDENTIAL_FLOW_APP_LOOKUP_SERVICE_REPORT.md"
 
 # NEW: Check Biome compliance in V9 flows
 npx biome check src/pages/flows/v9/ --max-diagnostics 5
+
+# NEW: Check for infinite loop patterns in V9 flows
+echo "🔍 INFINITE LOOP DETECTION - V9 FLOWS:"
+echo "📋 See: A-Migration/INFINITE_LOOP_DETECTION_AND_PREVENTION.md"
+
+# Automated infinite loop detection
+for file in src/pages/flows/v9/*.tsx; do
+  if grep -q "setCredentials" "$file" && grep -q "controller\.credentials.*\]" "$file"; then
+    echo "🚨 POTENTIAL INFINITE LOOP: $(basename $file)"
+  fi
+done
 ```
 
 ---
