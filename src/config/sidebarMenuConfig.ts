@@ -274,6 +274,7 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 			['/docs/oidc-for-ai', 'OIDC for AI'],
 			['/docs/oauth-for-ai', 'OAuth for AI'],
 			['/docs/ping-view-on-ai', 'PingOne AI Perspective'],
+			['/docs/ai-agent-auth-draft', 'AI Agent Auth (IETF Draft)'],
 		]),
 	},
 	{
