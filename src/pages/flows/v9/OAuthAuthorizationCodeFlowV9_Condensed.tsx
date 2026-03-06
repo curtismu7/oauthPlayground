@@ -4,16 +4,16 @@
 import { FiBook, FiCheckCircle, FiChevronDown, FiKey, FiSettings, FiTarget, FiZap } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
+import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
 import { StandardizedCredentialExportImport } from '../../../components/StandardizedCredentialExportImport';
 import UltimateTokenDisplay from '../../../components/UltimateTokenDisplay';
 import { usePageScroll } from '../../../hooks/usePageScroll';
+import { EnvironmentIdServiceV8 } from '../../../services/v9/environmentIdServiceV9';
 // V9 specific imports
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
-import { EnvironmentIdServiceV8 } from '../../../services/v9/environmentIdServiceV9';
-import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
-import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
 
 // V9 Color Standards - Approved Colors Only: Red, Blue, Black, White
 const V9_COLORS = {
@@ -222,7 +222,9 @@ const OAuthAuthorizationCodeFlowV9_Condensed: React.FC = () => {
 	usePageScroll({ pageName: 'OAuth Authorization Code Flow V9 Condensed', force: true });
 
 	// V9 Credential management
-	const [credentials, _setCredentials] = useState(() => V9CredentialStorageService.loadSync('v9:auth-code-condensed') ?? {});
+	const [credentials, _setCredentials] = useState(
+		() => V9CredentialStorageService.loadSync('v9:auth-code-condensed') ?? {}
+	);
 	const [environmentId, setEnvironmentId] = useState(() =>
 		EnvironmentIdServiceV8.getEnvironmentId()
 	);
@@ -264,7 +266,11 @@ const OAuthAuthorizationCodeFlowV9_Condensed: React.FC = () => {
 		setTimeout(() => {
 			setHasTokens(true);
 			setExpandedSections((prev) => ({ ...prev, results: true }));
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Authorization flow completed successfully!', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Authorization flow completed successfully!',
+				duration: 3000,
+			});
 		}, 2000);
 	}, []);
 
@@ -281,8 +287,13 @@ const OAuthAuthorizationCodeFlowV9_Condensed: React.FC = () => {
 	useEffect(() => {
 		V9CredentialStorageService.load('v9:auth-code-condensed').then((creds) => {
 			if (creds?.environmentId) setEnvironmentId(creds.environmentId);
-			if (creds?.clientId) setMockCredentials((prev) => ({ ...prev, clientId: creds.clientId ?? prev.clientId }));
-			if (creds?.clientSecret) setMockCredentials((prev) => ({ ...prev, clientSecret: creds.clientSecret ?? prev.clientSecret }));
+			if (creds?.clientId)
+				setMockCredentials((prev) => ({ ...prev, clientId: creds.clientId ?? prev.clientId }));
+			if (creds?.clientSecret)
+				setMockCredentials((prev) => ({
+					...prev,
+					clientSecret: creds.clientSecret ?? prev.clientSecret,
+				}));
 		});
 	}, []);
 
@@ -672,7 +683,11 @@ const OAuthAuthorizationCodeFlowV9_Condensed: React.FC = () => {
 							if (importedCredentials.scope) {
 								handleCredentialChange('scope', importedCredentials.scope);
 							}
-							modernMessaging.showFooterMessage({ type: 'info', message: 'Credentials imported successfully', duration: 3000 });
+							modernMessaging.showFooterMessage({
+								type: 'info',
+								message: 'Credentials imported successfully',
+								duration: 3000,
+							});
 						}}
 					/>
 				</SectionContent>

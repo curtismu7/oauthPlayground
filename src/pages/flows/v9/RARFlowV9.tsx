@@ -12,6 +12,7 @@ import {
 } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { StandardizedCredentialExportImport } from '../../../components/StandardizedCredentialExportImport';
 import { StepNavigationButtons } from '../../../components/StepNavigationButtons';
 import { usePageScroll } from '../../../hooks/usePageScroll';
@@ -19,11 +20,10 @@ import { usePageScroll } from '../../../hooks/usePageScroll';
 import { FlowUIService } from '../../../services/flowUIService.tsx';
 import { V9FlowCredentialService } from '../../../services/v9/core/V9FlowCredentialService';
 import { EnvironmentIdServiceV8 } from '../../../services/v9/environmentIdServiceV9';
-import WorkerTokenStatusDisplayV8 from '../../../v8/components/WorkerTokenStatusDisplayV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
-import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
+import WorkerTokenStatusDisplayV8 from '../../../v8/components/WorkerTokenStatusDisplayV8';
+import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 
 const {
 	Container,
@@ -244,24 +244,23 @@ const RARFlowV9: React.FC = () => {
 		const synced = V9CredentialStorageService.loadSync('v9:rar');
 		if (synced) {
 			if (synced.environmentId) setEnvironmentId(synced.environmentId);
-			if (synced.clientId) setRarConfig((prev) => ({ ...prev, clientId: synced.clientId ?? prev.clientId }));
+			if (synced.clientId)
+				setRarConfig((prev) => ({ ...prev, clientId: synced.clientId ?? prev.clientId }));
 		}
 		V9CredentialStorageService.load('v9:rar').then((creds) => {
 			if (creds?.environmentId) setEnvironmentId(creds.environmentId);
-			if (creds?.clientId) setRarConfig((prev) => ({ ...prev, clientId: creds.clientId ?? prev.clientId }));
+			if (creds?.clientId)
+				setRarConfig((prev) => ({ ...prev, clientId: creds.clientId ?? prev.clientId }));
 		});
 	}, []);
 
-	const saveRarCredentials = useCallback(
-		(clientId: string, envId: string) => {
-			V9CredentialStorageService.save(
-				'v9:rar',
-				{ clientId, environmentId: envId },
-				envId ? { environmentId: envId } : {}
-			);
-		},
-		[]
-	);
+	const saveRarCredentials = useCallback((clientId: string, envId: string) => {
+		V9CredentialStorageService.save(
+			'v9:rar',
+			{ clientId, environmentId: envId },
+			envId ? { environmentId: envId } : {}
+		);
+	}, []);
 
 	const handleRarAppSelected = useCallback(
 		(app: DiscoveredApp) => {
@@ -354,10 +353,19 @@ const RARFlowV9: React.FC = () => {
 			};
 
 			setTokens(mockTokens);
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Token exchange completed successfully', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Token exchange completed successfully',
+				duration: 3000,
+			});
 		} catch (_error) {
 			setErrors(['Token exchange failed. Please try again.']);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Token exchange failed', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Token exchange failed',
+				dismissible: true,
+			});
 		} finally {
 			setIsLoading(false);
 		}
@@ -1016,7 +1024,11 @@ const RARFlowV9: React.FC = () => {
 								if (importedCredentials.redirectUri) {
 									handleConfigChange('redirectUri', importedCredentials.redirectUri);
 								}
-								modernMessaging.showFooterMessage({ type: 'info', message: 'Credentials imported successfully', duration: 3000 });
+								modernMessaging.showFooterMessage({
+									type: 'info',
+									message: 'Credentials imported successfully',
+									duration: 3000,
+								});
 							}}
 						/>
 					</StepContentWrapper>

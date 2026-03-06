@@ -5,6 +5,7 @@ import { FiAlertCircle, FiCheckCircle, FiKey, FiShield } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import FlowSequenceDisplay from '../../../components/FlowSequenceDisplay';
 import {
 	ResultsSection as ImportedResultsSection,
@@ -24,7 +25,6 @@ import { workerTokenDiscoveryService } from '../../../services/workerTokenDiscov
 import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningService';
 import { getAnyWorkerToken } from '../../../utils/workerTokenDetection';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 
 const Container = styled.div`
@@ -131,7 +131,11 @@ const WorkerTokenFlowV9: React.FC = () => {
 		try {
 			await controller.requestToken();
 			setWorkerToken(getAnyWorkerToken() ?? '');
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Worker token generated successfully!', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Worker token generated successfully!',
+				duration: 3000,
+			});
 			setCurrentStep(1);
 		} catch (_error) {
 			const errorDetails = OAuthErrorHandlingService.parseOAuthError(_error, {
@@ -144,7 +148,12 @@ const WorkerTokenFlowV9: React.FC = () => {
 					hasEnvironmentId: !!controller.credentials.environmentId,
 				},
 			});
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorDetails.message, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: errorDetails.message,
+				dismissible: true,
+			});
 		}
 	}, [controller]);
 
@@ -164,9 +173,18 @@ const WorkerTokenFlowV9: React.FC = () => {
 			} catch {
 				// non-fatal
 			}
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Worker Token Flow reset successfully', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Worker Token Flow reset successfully',
+				duration: 3000,
+			});
 		} catch {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to reset flow. Please refresh the page.', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to reset flow. Please refresh the page.',
+				dismissible: true,
+			});
 		}
 	}, [controller]);
 
@@ -231,7 +249,11 @@ const WorkerTokenFlowV9: React.FC = () => {
 								? { environmentId: controller.credentials.environmentId }
 								: {}
 						);
-						modernMessaging.showFooterMessage({ type: 'info', message: 'Credentials saved successfully!', duration: 3000 });
+						modernMessaging.showFooterMessage({
+							type: 'info',
+							message: 'Credentials saved successfully!',
+							duration: 3000,
+						});
 					} catch (_error) {
 						const errorDetails = OAuthErrorHandlingService.parseOAuthError(_error, {
 							flowType: 'client_credentials',
@@ -243,7 +265,12 @@ const WorkerTokenFlowV9: React.FC = () => {
 								hasEnvironmentId: !!controller.credentials.environmentId,
 							},
 						});
-						modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorDetails.message, dismissible: true });
+						modernMessaging.showBanner({
+							type: 'error',
+							title: 'Error',
+							message: errorDetails.message,
+							dismissible: true,
+						});
 					}
 				}}
 				onDiscoveryComplete={async (result) => {
@@ -285,7 +312,11 @@ const WorkerTokenFlowV9: React.FC = () => {
 											{ ...updatedCredentials } as StepCredentials,
 											{ environmentId: updatedCredentials.environmentId }
 										);
-										modernMessaging.showFooterMessage({ type: 'info', message: 'Credentials auto-saved after OIDC discovery', duration: 3000 });
+										modernMessaging.showFooterMessage({
+											type: 'info',
+											message: 'Credentials auto-saved after OIDC discovery',
+											duration: 3000,
+										});
 									}
 								}
 							}

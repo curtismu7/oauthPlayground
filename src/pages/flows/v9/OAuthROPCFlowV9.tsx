@@ -10,15 +10,15 @@ import {
 	getStepStyles,
 	V9_COLORS,
 } from '../../../services/v9/V9ColorStandards';
+import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import { V9FlowRestartButton } from '../../../services/v9/V9FlowRestartButton';
 import {
 	MessageState,
 	V9ModernMessagingService,
 } from '../../../services/v9/V9ModernMessagingService';
 import V9FlowHeader from '../../../services/v9/v9FlowHeaderService';
-import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
-import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
+import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 
 // Types
 interface ROPCConfig {
@@ -106,7 +106,11 @@ const OAuthROPCFlowV9: React.FC = () => {
 	const saveRopcCredentials = useCallback((config: ROPCConfig) => {
 		V9CredentialStorageService.save(
 			'v9:ropc',
-			{ clientId: config.clientId, clientSecret: config.clientSecret, environmentId: config.environmentId },
+			{
+				clientId: config.clientId,
+				clientSecret: config.clientSecret,
+				environmentId: config.environmentId,
+			},
 			config.environmentId ? { environmentId: config.environmentId } : {}
 		);
 	}, []);
