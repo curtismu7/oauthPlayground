@@ -1,6 +1,7 @@
 import { FiAlertTriangle, FiCheckCircle, FiRefreshCw, FiWifiOff } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled, { css, keyframes } from 'styled-components';
+import { logger } from '../utils/logger';
 
 const pulse = keyframes`
   0% { opacity: 1; }
@@ -216,7 +217,7 @@ const ServerHealthCheck: React.FC<ServerHealthCheckProps> = ({ onDismiss }) => {
 				setStatus('offline');
 			}
 		} catch (error) {
-			console.warn('Server health check failed:', error);
+			logger.warn('ServerHealthCheck', 'Server health check failed:', { error });
 			setStatus('offline');
 			setRetryCount((prev) => prev + 1);
 		}

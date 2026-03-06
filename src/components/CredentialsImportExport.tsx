@@ -6,9 +6,12 @@
  * @since 2026-03-06
  */
 
-import React, { useRef } from 'react';
 import { FiDownload, FiUpload } from '@icons';
-import { credentialsImportExportService, type ImportExportOptions } from '@/services/credentialsImportExportService';
+import React, { useRef } from 'react';
+import {
+	credentialsImportExportService,
+	type ImportExportOptions,
+} from '@/services/credentialsImportExportService';
 
 export interface CredentialsImportExportProps {
 	credentials: Record<string, any>;
@@ -22,7 +25,7 @@ export interface CredentialsImportExportProps {
 
 /**
  * Standardized credentials import/export component
- * 
+ *
  * Usage:
  * ```tsx
  * <CredentialsImportExport

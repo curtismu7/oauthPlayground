@@ -4,6 +4,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { formatTimeRemaining } from '../services/tokenExpirationService';
+import { logger } from '../utils/logger';
 import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
 
 type StatusVariant = 'success' | 'warning' | 'danger';
@@ -87,7 +88,12 @@ export const WorkerTokenStatusLabel: React.FC<WorkerTokenStatusLabelProps> = ({
 					setTokenState({ tokenValue: '', expiresAtValue: undefined });
 				}
 			} catch (error) {
-				console.error('[WorkerTokenStatusLabel] Failed to load token state:', error);
+				logger.error(
+					'WorkerTokenStatusLabel',
+					'[WorkerTokenStatusLabel] Failed to load token state:',
+					undefined,
+					error as Error
+				);
 				setTokenState({ tokenValue: '', expiresAtValue: undefined });
 			}
 		};

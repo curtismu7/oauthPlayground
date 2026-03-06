@@ -27,6 +27,7 @@ import {
 	generateClientSecret,
 	generateRSAKeyPair,
 } from '../utils/keyGeneration';
+import { logger } from '../utils/logger';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
 const MODULE_TAG = '[🔐 JWT-CONFIG-V8]';
@@ -266,7 +267,7 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 			}
 		} catch (error) {
 			v4ToastManager.showError('Failed to generate client secret');
-			console.error('Secret generation error:', error);
+			logger.error('JWTConfigV8', 'Secret generation error:', undefined, error as Error);
 		} finally {
 			setIsGeneratingKey(false);
 		}
@@ -290,7 +291,7 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 			}
 		} catch (error) {
 			v4ToastManager.showError('Failed to generate RSA key pair');
-			console.error('Key generation error:', error);
+			logger.error('JWTConfigV8', 'Key generation error:', undefined, error as Error);
 		} finally {
 			setIsGeneratingKey(false);
 		}

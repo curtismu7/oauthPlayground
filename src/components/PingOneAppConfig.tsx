@@ -3,6 +3,7 @@
 import { FiChevronDown, FiSettings } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../utils/logger';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
 const CollapsibleSection = styled.div`
@@ -249,7 +250,12 @@ export const PingOneAppConfig: React.FC<PingOneAppConfigProps> = ({
 				const parsed = JSON.parse(savedConfig);
 				setConfig((prev) => ({ ...prev, ...parsed }));
 			} catch (err) {
-				console.error('Failed to load saved configuration:', err);
+				logger.error(
+					'PingOneAppConfig',
+					'Failed to load saved configuration:',
+					undefined,
+					err as Error
+				);
 			}
 		}
 	}, [storageKey]);

@@ -12,6 +12,7 @@ import {
 import { readPasswordState, unlockPassword } from '../../../services/passwordResetService';
 import { lookupPingOneUser } from '../../../services/pingOneUserProfileService';
 import { UserComparisonDisplay, type UserState } from '../../../services/userComparisonService';
+import { logger } from '../../../utils/logger';
 import { v4ToastManager } from '../../../utils/v4ToastMessages';
 import { PasswordOperationSuccessModal } from '../shared/PasswordOperationSuccessModal';
 import { PasswordResetErrorInfo } from '../shared/PasswordResetErrorModal';
@@ -113,7 +114,9 @@ export const UnlockPasswordTab: React.FC<UnlockPasswordTabProps> = ({
 			}
 
 			const errorMsg = result.errorDescription || result.error || 'Password unlock failed';
-			console.error('[UnlockPasswordTab] Unlock failed:', errorMsg);
+			logger.error('UnlockPasswordTab', '[UnlockPasswordTab] Unlock failed:', {
+				message: errorMsg,
+			});
 			raiseError({
 				title: 'Password Unlock Failed',
 				message: errorMsg,
@@ -122,7 +125,12 @@ export const UnlockPasswordTab: React.FC<UnlockPasswordTabProps> = ({
 			});
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Password unlock failed';
-			console.error('[UnlockPasswordTab] Unlock error:', error);
+			logger.error(
+				'UnlockPasswordTab',
+				'[UnlockPasswordTab] Unlock error:',
+				undefined,
+				error as Error
+			);
 			raiseError({
 				title: 'Password Unlock Failed',
 				message: errorMessage,

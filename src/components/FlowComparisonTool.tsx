@@ -18,6 +18,7 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { credentialManager } from '../utils/credentialManager';
+import { logger } from '../utils/logger';
 import { Card, CardBody, CardHeader } from './Card';
 
 interface FlowComparison {
@@ -543,7 +544,12 @@ const FlowComparisonTool: React.FC = () => {
 
 			return flow.route;
 		} catch (error) {
-			console.error('Error generating flow URL with credentials:', error);
+			logger.error(
+				'FlowComparisonTool',
+				'Error generating flow URL with credentials:',
+				undefined,
+				error as Error
+			);
 			// Fallback to dashboard if there's an error
 			return '/dashboard';
 		}

@@ -147,13 +147,7 @@ const AuthzCallback: React.FC = () => {
 
 					if (implicitError) {
 						// DEBUG: Enhanced error logging with full URL details
-						console.error('🔴 [AuthzCallback] Implicit flow returned error parameters:', {
-							error: implicitError,
-							errorDescription: implicitErrorDescription,
-							fullUrl: urlObj.href,
-							hash: urlObj.hash,
-							search: urlObj.search,
-						});
+						// Removed duplicate console.error (logger.error below captures this)
 
 						logger.error('AuthzCallback', 'Implicit flow returned error parameters', {
 							error: implicitError,
@@ -210,7 +204,12 @@ const AuthzCallback: React.FC = () => {
 						rawFlowContext: flowContext,
 					});
 				} catch (e) {
-					console.error(' [AuthzCallback] Flow context parsing failed:', e);
+					logger.error(
+						'AuthzCallback',
+						' [AuthzCallback] Flow context parsing failed:',
+						undefined,
+						e as Error
+					);
 					console.log(' [AuthzCallback] Raw flowContext string:', flowContext);
 
 					// Try to detect flow type from URL or other means
@@ -246,7 +245,12 @@ const AuthzCallback: React.FC = () => {
 					const errorDescription = urlParams.get('error_description');
 
 					if (error) {
-						console.error(' [AuthzCallback] Authorization error in popup:', error);
+						logger.error(
+							'AuthzCallback',
+							' [AuthzCallback] Authorization error in popup:',
+							undefined,
+							error as Error
+						);
 						setStatus('error');
 						setMessage(`Authorization failed: ${errorDescription || error}`);
 
@@ -289,7 +293,10 @@ const AuthzCallback: React.FC = () => {
 						}, 1000);
 						return;
 					} else {
-						console.error(' [AuthzCallback] Missing code or state in popup callback');
+						logger.error(
+							'AuthzCallback',
+							' [AuthzCallback] Missing code or state in popup callback'
+						);
 						setStatus('error');
 						setMessage('Authorization failed: Missing authorization code');
 
@@ -338,7 +345,12 @@ const AuthzCallback: React.FC = () => {
 							const error = urlParams.get('error');
 
 							if (error) {
-								console.error(' [AuthzCallback] OAuth V3 authorization error:', error);
+								logger.error(
+									'AuthzCallback',
+									' [AuthzCallback] OAuth V3 authorization error:',
+									undefined,
+									error as Error
+								);
 								setStatus('error');
 								setMessage(`Authorization failed: ${urlParams.get('error_description') || error}`);
 								// Redirect back to OAuth V3 flow with error
@@ -376,7 +388,12 @@ const AuthzCallback: React.FC = () => {
 							const error = urlParams.get('error');
 
 							if (error) {
-								console.error(' [AuthzCallback] V5 authorization error:', error);
+								logger.error(
+									'AuthzCallback',
+									' [AuthzCallback] V5 authorization error:',
+									undefined,
+									error as Error
+								);
 								setStatus('error');
 								// Determine correct V5 flow based on context
 								const isOIDCFlow = context?.flow === 'oidc-authorization-code-v5';
@@ -425,7 +442,12 @@ const AuthzCallback: React.FC = () => {
 							const error = urlParams.get('error');
 
 							if (error) {
-								console.error(' [AuthzCallback] V7 authorization error:', error);
+								logger.error(
+									'AuthzCallback',
+									' [AuthzCallback] V7 authorization error:',
+									undefined,
+									error as Error
+								);
 								setStatus('error');
 								// Determine correct V7 flow based on context
 								const isV7_2 =
@@ -508,7 +530,12 @@ const AuthzCallback: React.FC = () => {
 							});
 
 							if (error) {
-								console.error(' [AuthzCallback] MFA authorization error:', error);
+								logger.error(
+									'AuthzCallback',
+									' [AuthzCallback] MFA authorization error:',
+									undefined,
+									error as Error
+								);
 								setStatus('error');
 								setMessage(`Authorization failed: ${urlParams.get('error_description') || error}`);
 								// Redirect back to MFA flow with error
@@ -539,7 +566,10 @@ const AuthzCallback: React.FC = () => {
 								}, 1500);
 								return;
 							} else {
-								console.error(' [AuthzCallback] Missing code or state in MFA callback');
+								logger.error(
+									'AuthzCallback',
+									' [AuthzCallback] Missing code or state in MFA callback'
+								);
 								setStatus('error');
 								setMessage('Authorization failed: Missing authorization code');
 								return;
@@ -569,20 +599,24 @@ const AuthzCallback: React.FC = () => {
 								const errorDescription = urlParams.get('error_description');
 								const allParams = Object.fromEntries(urlParams.entries());
 
-								console.error(' [AuthzCallback] Authorization error in V3 full redirect:', {
-									error,
-									errorDescription,
-									fullUrl: currentUrl,
-									allParams,
-									flowContext: context,
-									sessionStorageKeys: Object.keys(sessionStorage),
-									relevantSessionData: {
-										flowContext: sessionStorage.getItem('flowContext'),
-										codeVerifier: sessionStorage.getItem('oidc_v3_code_verifier'),
-										state: sessionStorage.getItem('oidc_v3_state'),
-										redirectUri: sessionStorage.getItem('oidc_v3_redirect_uri'),
-									},
-								});
+								logger.error(
+									'AuthzCallback',
+									' [AuthzCallback] Authorization error in V3 full redirect:',
+									{
+										error,
+										errorDescription,
+										fullUrl: currentUrl,
+										allParams,
+										flowContext: context,
+										sessionStorageKeys: Object.keys(sessionStorage),
+										relevantSessionData: {
+											flowContext: sessionStorage.getItem('flowContext'),
+											codeVerifier: sessionStorage.getItem('oidc_v3_code_verifier'),
+											state: sessionStorage.getItem('oidc_v3_state'),
+											redirectUri: sessionStorage.getItem('oidc_v3_redirect_uri'),
+										},
+									}
+								);
 
 								setStatus('error');
 								setMessage(`Authorization failed: ${errorDescription || error}`);
@@ -672,14 +706,19 @@ Check your PingOne application configuration and ensure all parameters match exa
 								}, 1500);
 								return;
 							} else {
-								console.error(' [AuthzCallback] Missing code or state in V3 full redirect');
+								logger.error(
+									'AuthzCallback',
+									' [AuthzCallback] Missing code or state in V3 full redirect'
+								);
 								setStatus('error');
 								setMessage('Authorization failed: Missing authorization code');
 								return;
 							}
 						}
 					} catch (e) {
-						console.warn('Failed to parse flow context in AuthzCallback:', e);
+						logger.warn('AuthzCallback', 'Failed to parse flow context in AuthzCallback:', {
+							error: e,
+						});
 					}
 				}
 

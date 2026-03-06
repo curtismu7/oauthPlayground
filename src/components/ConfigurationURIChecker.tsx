@@ -6,6 +6,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { callbackUriService } from '../services/callbackUriService';
 import { fetchApplications } from '../services/pingOneApplicationService';
+import { logger } from '../utils/logger';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
 import { WorkerTokenModal } from './WorkerTokenModal';
@@ -233,7 +234,12 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 					setRetrievedWorkerToken('');
 				}
 			} catch (error) {
-				console.error('[Config URI Checker] Failed to check worker token:', error);
+				logger.error(
+					'ConfigurationURIChecker',
+					'[Config URI Checker] Failed to check worker token:',
+					undefined,
+					error as Error
+				);
 				setRetrievedWorkerToken('');
 			}
 		};
@@ -314,7 +320,12 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 				);
 			}
 		} catch (err) {
-			console.error('[ConfigurationURIChecker] Error checking URIs:', err);
+			logger.error(
+				'ConfigurationURIChecker',
+				'[ConfigurationURIChecker] Error checking URIs:',
+				undefined,
+				err as Error
+			);
 			setError(err instanceof Error ? err.message : 'Failed to check URIs');
 			setRedirectURIStatus((prev) => ({ ...prev, isChecking: false }));
 			setLogoutURIStatus((prev) => ({ ...prev, isChecking: false }));

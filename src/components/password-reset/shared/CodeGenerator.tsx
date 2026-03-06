@@ -14,6 +14,7 @@ import {
 	FiCopy,
 	styled,
 } from '../../../services/commonImportsService';
+import { logger } from '../../../utils/logger';
 import { v4ToastManager } from '../../../utils/v4ToastMessages';
 
 const CodeGeneratorSection = styled.div`
@@ -177,7 +178,7 @@ export const CodeGenerator: React.FC<CodeGeneratorProps> = ({ code, onGenerate }
 			v4ToastManager.showSuccess('Code copied to clipboard!');
 			setTimeout(() => setCopied(false), 2000);
 		} catch (error) {
-			console.error('Failed to copy code:', error);
+			logger.error('CodeGenerator', 'Failed to copy code:', undefined, error as Error);
 			v4ToastManager.showError('Failed to copy code to clipboard');
 		}
 	};

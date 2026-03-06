@@ -16,6 +16,7 @@ import {
 	CodeExamplesService,
 	SupportedLanguage,
 } from '../services/codeExamplesService';
+import { logger } from '../utils/logger';
 
 // VS Code-inspired color scheme
 const vscodeColors = {
@@ -357,7 +358,7 @@ export const VSCodeCodeDisplay: React.FC<VSCodeCodeDisplayProps> = ({
 			setCopiedCode(code);
 			setTimeout(() => setCopiedCode(null), 2000);
 		} catch (err) {
-			console.error('Failed to copy code:', err);
+			logger.error('VSCodeCodeDisplay', 'Failed to copy code:', undefined, err as Error);
 		}
 	};
 

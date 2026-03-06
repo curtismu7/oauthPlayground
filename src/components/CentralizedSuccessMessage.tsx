@@ -3,6 +3,7 @@
 import { FiAlertCircle, FiCheckCircle, FiX } from '@icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../utils/logger';
 
 /**
  * Centralized success and error message system
@@ -271,7 +272,8 @@ export const CentralizedSuccessMessage: React.FC = () => {
 
 	useEffect(() => {
 		if (hasPrimaryToastInstance) {
-			console.warn(
+			logger.warn(
+				'CentralizedSuccessMessage',
 				'Multiple CentralizedSuccessMessage instances detected. Additional instances will be inactive.'
 			);
 			return;

@@ -17,6 +17,7 @@ import styled from 'styled-components';
 import { useNotifications } from '../hooks/useNotifications';
 import { showTokenSuccessMessage } from '../services/tokenExpirationService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
+import { logger } from '../utils/logger';
 import { trackedFetch } from '../utils/trackedFetch';
 import { DraggableModal } from './DraggableModal';
 import { StandardizedCredentialExportImport } from './StandardizedCredentialExportImport';
@@ -358,7 +359,12 @@ export const WorkerTokenModal: React.FC<Props> = ({
 						}
 					}
 				} catch (error) {
-					console.error('[WorkerTokenModal] Failed to load saved credentials:', error);
+					logger.error(
+						'WorkerTokenModal',
+						'[WorkerTokenModal] Failed to load saved credentials:',
+						undefined,
+						error as Error
+					);
 				}
 			};
 			loadSavedCredentials();
@@ -455,9 +461,10 @@ export const WorkerTokenModal: React.FC<Props> = ({
 							);
 
 							if (!isValidEnvId) {
-								console.error(
+								logger.error(
+									'WorkerTokenModal',
 									'[WorkerTokenModal] ❌ Saved environment ID is invalid (not UUID format):',
-									savedEnvId
+									{ savedEnvId }
 								);
 								// Don't use invalid saved credentials
 								return;
@@ -516,14 +523,20 @@ export const WorkerTokenModal: React.FC<Props> = ({
 									environmentId: propEnvId,
 								}));
 							} else if (propEnvId) {
-								console.warn(
+								logger.warn(
+									'WorkerTokenModal',
 									'[WorkerTokenModal] ⚠️ Ignoring invalid environmentId prop (not UUID format):',
-									propEnvId
+									{ propEnvId }
 								);
 							}
 						}
 					} catch (error) {
-						console.error('[WorkerTokenModal] Failed to load saved credentials:', error);
+						logger.error(
+							'WorkerTokenModal',
+							'[WorkerTokenModal] Failed to load saved credentials:',
+							undefined,
+							error as Error
+						);
 					}
 				};
 				loadSavedCredentials();
@@ -547,9 +560,10 @@ export const WorkerTokenModal: React.FC<Props> = ({
 					return prev; // Keep existing valid environment ID
 				});
 			} else {
-				console.warn(
+				logger.warn(
+					'WorkerTokenModal',
 					'[WorkerTokenModal] ⚠️ Ignoring invalid environmentId prop (not UUID format):',
-					trimmedEnvId
+					{ trimmedEnvId }
 				);
 			}
 		}
@@ -707,7 +721,12 @@ export const WorkerTokenModal: React.FC<Props> = ({
 		try {
 			await unifiedWorkerTokenService.saveCredentials(credentialsToSave);
 		} catch (error) {
-			console.error('[WorkerTokenModal] Failed to save credentials:', error);
+			logger.error(
+				'WorkerTokenModal',
+				'[WorkerTokenModal] Failed to save credentials:',
+				undefined,
+				error as Error
+			);
 			showError('Failed to save credentials');
 			return;
 		}
@@ -797,13 +816,19 @@ export const WorkerTokenModal: React.FC<Props> = ({
 					'[WorkerTokenModal] ✅ Credentials saved automatically before token generation'
 				);
 			} catch (error) {
-				console.warn(
+				logger.warn(
+					'WorkerTokenModal',
 					'[WorkerTokenModal] ⚠️ Failed to save credentials, but continuing with token generation',
-					error
+					{ error }
 				);
 			}
 		} catch (error) {
-			console.error('[WorkerTokenModal] Error saving credentials:', error);
+			logger.error(
+				'WorkerTokenModal',
+				'[WorkerTokenModal] Error saving credentials:',
+				undefined,
+				error as Error
+			);
 			// Continue with token generation even if save fails
 		}
 
@@ -846,9 +871,10 @@ export const WorkerTokenModal: React.FC<Props> = ({
 		// Validate that environmentId looks like a UUID (not a user ID)
 		const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 		if (!uuidRegex.test(effectiveEnvironmentId)) {
-			console.error(
+			logger.error(
+				'WorkerTokenModal',
 				'[WorkerTokenModal] ❌ Environment ID does not look like a valid UUID:',
-				effectiveEnvironmentId
+				{ effectiveEnvironmentId }
 			);
 			showError(
 				`Invalid Environment ID format. Expected UUID format, got: ${effectiveEnvironmentId.substring(0, 20)}...`
@@ -1113,7 +1139,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 					environmentId?.trim() ||
 					workerCredentials.environmentId.trim();
 
-				console.error('[WorkerTokenModal] ❌ TOKEN REQUEST FAILED:', {
+				logger.error('WorkerTokenModal', '[WorkerTokenModal] ❌ TOKEN REQUEST FAILED:', {
 					status: response.status,
 					statusText: response.statusText,
 					endpoint: tokenEndpoint,
@@ -1130,7 +1156,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 				});
 
 				// Log detailed error information for debugging
-				console.error('[WorkerTokenModal] Error Details:', {
+				logger.error('WorkerTokenModal', '[WorkerTokenModal] Error Details:', {
 					errorType: errorData.error,
 					errorDescription: errorData.error_description,
 					errorUri: errorData.error_uri,
@@ -1224,11 +1250,15 @@ export const WorkerTokenModal: React.FC<Props> = ({
 				);
 
 				if (missingScopes.length > 0) {
-					console.warn('[WorkerTokenModal] ⚠️ Some requested scopes may not have been granted:', {
-						requested: requestedScopes,
-						granted: grantedScopes,
-						missing: missingScopes,
-					});
+					logger.warn(
+						'WorkerTokenModal',
+						'[WorkerTokenModal] ⚠️ Some requested scopes may not have been granted:',
+						{
+							requested: requestedScopes,
+							granted: grantedScopes,
+							missing: missingScopes,
+						}
+					);
 
 					// For Identity Metrics, remind about role requirements (not scope requirements)
 					if (flowType === 'pingone-identity-metrics') {
@@ -1289,7 +1319,12 @@ export const WorkerTokenModal: React.FC<Props> = ({
 				await unifiedWorkerTokenService.saveToken(tokenData.access_token, expiresAt);
 			} catch (error) {
 				persistedViaService = false;
-				console.error('[WorkerTokenModal] Failed to persist worker token via service:', error);
+				logger.error(
+					'WorkerTokenModal',
+					'[WorkerTokenModal] Failed to persist worker token via service:',
+					undefined,
+					error as Error
+				);
 			}
 
 			// Also save to legacy key for backward compatibility
@@ -1318,7 +1353,8 @@ export const WorkerTokenModal: React.FC<Props> = ({
 					},
 				});
 			} else {
-				console.warn(
+				logger.warn(
+					'WorkerTokenModal',
 					'[WorkerTokenModal] Token saved to legacy storage only; V8 service persistence failed.'
 				);
 			}
@@ -1343,7 +1379,12 @@ export const WorkerTokenModal: React.FC<Props> = ({
 			showTokenSuccessMessage(expiresIn);
 			setShowTokenGenerated(true); // Show success state with option to get another token
 		} catch (error) {
-			console.error('Worker token generation failed:', error);
+			logger.error(
+				'WorkerTokenModal',
+				'Worker token generation failed:',
+				undefined,
+				error as Error
+			);
 			showError(
 				`Failed to generate worker token: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);

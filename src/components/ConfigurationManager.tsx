@@ -23,6 +23,7 @@ import {
 	FlowSpecificConfig,
 	FlowType,
 } from '../services/enhancedConfigurationService';
+import { logger } from '../utils/logger';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -351,7 +352,12 @@ const ConfigurationManager: React.FC<ConfigurationManagerProps> = ({
 
 			setHasUnsavedChanges(false);
 		} catch (error) {
-			console.error('Failed to load configuration:', error);
+			logger.error(
+				'ConfigurationManager',
+				'Failed to load configuration:',
+				undefined,
+				error as Error
+			);
 		} finally {
 			setIsLoading(false);
 		}
@@ -397,7 +403,12 @@ const ConfigurationManager: React.FC<ConfigurationManagerProps> = ({
 			setHasUnsavedChanges(false);
 			console.log('Configuration saved successfully');
 		} catch (error) {
-			console.error('Failed to save configuration:', error);
+			logger.error(
+				'ConfigurationManager',
+				'Failed to save configuration:',
+				undefined,
+				error as Error
+			);
 		}
 	}, [config, selectedFlowType, selectedEnvironment]);
 
@@ -447,7 +458,12 @@ const ConfigurationManager: React.FC<ConfigurationManagerProps> = ({
 						);
 					}
 				} catch (error) {
-					console.error('Failed to import configuration:', error);
+					logger.error(
+						'ConfigurationManager',
+						'Failed to import configuration:',
+						undefined,
+						error as Error
+					);
 					alert('Failed to import configuration. Please check the file format.');
 				}
 			};
@@ -506,7 +522,12 @@ const ConfigurationManager: React.FC<ConfigurationManagerProps> = ({
 						try {
 							handleConfigChange(field, JSON.parse(e.target.value) as BaseFlowConfig[K]);
 						} catch (error) {
-							console.error('Invalid JSON input:', error);
+							logger.error(
+								'ConfigurationManager',
+								'Invalid JSON input:',
+								undefined,
+								error as Error
+							);
 						}
 					}}
 				/>

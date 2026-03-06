@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { JWKSResponse, jwksService } from '../services/jwksService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
+import { logger } from '../utils/logger';
 
 const ViewerContainer = styled.div`
   background: white;
@@ -328,7 +329,12 @@ const JWKSViewer: React.FC = () => {
 					setEnvironmentId(credentials.environmentId);
 				}
 			} catch (error) {
-				console.error('Failed to update environment ID from worker token:', error);
+				logger.error(
+					'JWKSViewer',
+					'Failed to update environment ID from worker token:',
+					undefined,
+					error as Error
+				);
 			}
 		};
 

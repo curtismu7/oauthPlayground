@@ -3,6 +3,7 @@
 import { FiCheckCircle, FiChevronDown, FiCopy, FiEye, FiKey, FiShield, FiUser } from '@icons';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../utils/logger';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { CalloutCard } from './InfoBlocks';
 import NextSteps from './NextSteps';
@@ -426,7 +427,7 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 			setIntrospectionResults(results);
 			v4ToastManager.showSuccess('Token introspection completed successfully!');
 		} catch (error) {
-			console.error('Token introspection error:', error);
+			logger.error('TokenIntrospect', 'Token introspection error:', undefined, error as Error);
 			v4ToastManager.showError('Token introspection failed. Please try again.');
 		} finally {
 			setIsIntrospecting(false);

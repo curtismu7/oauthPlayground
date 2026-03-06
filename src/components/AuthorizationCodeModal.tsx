@@ -3,6 +3,7 @@
 import { FiCheck, FiCopy, FiExternalLink, FiX } from '@icons';
 import React, { useEffect, useState } from 'react';
 import styled, { css, keyframes } from 'styled-components';
+import { logger } from '../utils/logger';
 
 // Animation for success checkmark
 const checkmarkAnimation = keyframes`
@@ -276,7 +277,12 @@ export const AuthorizationCodeModal: React.FC<AuthorizationCodeModalProps> = ({
 			setTimeout(() => setCopied(false), 2000);
 			console.log('🔍 [AuthCodeModal] Authorization code copied to clipboard');
 		} catch (err) {
-			console.error('🔍 [AuthCodeModal] Failed to copy authorization code:', err);
+			logger.error(
+				'AuthorizationCodeModal',
+				'🔍 [AuthCodeModal] Failed to copy authorization code:',
+				undefined,
+				err as Error
+			);
 		}
 	};
 

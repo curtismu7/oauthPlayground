@@ -12,6 +12,7 @@ import {
 } from '@icons';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../utils/logger';
 
 export interface StepNavigationButtonsProps {
 	currentStep: number;
@@ -271,7 +272,11 @@ export const StepNavigationButtons = ({
 			const saved = localStorage.getItem('stepper-compact-mode');
 			return saved === 'true';
 		} catch (e) {
-			console.warn('[StepNavigationButtons] Failed to load compact mode from localStorage:', e);
+			logger.warn(
+				'StepNavigationButtons',
+				'[StepNavigationButtons] Failed to load compact mode from localStorage:',
+				{ error: e }
+			);
 			return false;
 		}
 	});
@@ -308,7 +313,11 @@ export const StepNavigationButtons = ({
 			localStorage.setItem('stepper-compact-mode', isCompact.toString());
 			console.log('[StepNavigationButtons] Saved compact mode to localStorage:', isCompact);
 		} catch (e) {
-			console.warn('[StepNavigationButtons] Failed to save compact mode to localStorage:', e);
+			logger.warn(
+				'StepNavigationButtons',
+				'[StepNavigationButtons] Failed to save compact mode to localStorage:',
+				{ error: e }
+			);
 		}
 	}, [isCompact]);
 

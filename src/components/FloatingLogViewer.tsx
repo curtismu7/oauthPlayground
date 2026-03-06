@@ -9,6 +9,7 @@ import { FiDownload, FiExternalLink, FiMaximize2, FiMinimize2, FiRefreshCw, FiX 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { type LogFile, LogFileService } from '../services/logFileService';
+import { logger } from '../utils/logger';
 import { useServerStatusOptional } from './ServerStatusProvider';
 
 const BACKEND_DOWN_MESSAGE =
@@ -312,7 +313,12 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
 		} catch (err) {
 			const msg = err instanceof Error ? err.message : '';
 			if (!msg.includes('Log API not available')) {
-				console.error('[FloatingLogViewer] Failed to load files:', err);
+				logger.error(
+					'FloatingLogViewer',
+					'[FloatingLogViewer] Failed to load files:',
+					undefined,
+					err as Error
+				);
 			}
 			setError(msg || 'Failed to load log files');
 		}
@@ -360,19 +366,29 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
 								setLogContent((prev) => prev + data.content);
 							}
 						} catch (error) {
-							console.error('[FloatingLogViewer] Failed to parse tail data:', error);
+							logger.error(
+								'FloatingLogViewer',
+								'[FloatingLogViewer] Failed to parse tail data:',
+								undefined,
+								error as Error
+							);
 						}
 					};
 
 					eventSource.onerror = () => {
-						console.error('[FloatingLogViewer] Tail stream error');
+						logger.error('FloatingLogViewer', '[FloatingLogViewer] Tail stream error');
 						setIsTailMode(false);
 						eventSourceRef.current = null;
 					};
 
 					setIsTailMode(true);
 				} catch (error) {
-					console.error('[FloatingLogViewer] Failed to start tail mode:', error);
+					logger.error(
+						'FloatingLogViewer',
+						'[FloatingLogViewer] Failed to start tail mode:',
+						undefined,
+						error as Error
+					);
 					setError('Failed to start tail mode');
 				}
 			}

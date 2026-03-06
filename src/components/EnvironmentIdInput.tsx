@@ -13,6 +13,7 @@ import {
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { type DiscoveryResult, oidcDiscoveryService } from '../services/oidcDiscoveryService';
+import { logger } from '../utils/logger';
 
 interface EnvironmentIdInputProps {
 	onDiscoveryComplete?: (result: DiscoveryResult) => void;
@@ -462,7 +463,12 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 					});
 				}
 			} catch (err) {
-				console.error('Failed to load saved OIDC discovery config:', err);
+				logger.error(
+					'EnvironmentIdInput',
+					'Failed to load saved OIDC discovery config:',
+					undefined,
+					err as Error
+				);
 			}
 		}
 	}, []);
@@ -530,7 +536,7 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 			setCopied(true);
 			setTimeout(() => setCopied(false), 2000);
 		} catch (err) {
-			console.error('Failed to copy issuer URL:', err);
+			logger.error('EnvironmentIdInput', 'Failed to copy issuer URL:', undefined, err as Error);
 		}
 	};
 
@@ -555,7 +561,12 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 			// Reset saved state after 3 seconds
 			setTimeout(() => setIsSaved(false), 3000);
 		} catch (err) {
-			console.error('Failed to save OIDC discovery configuration:', err);
+			logger.error(
+				'EnvironmentIdInput',
+				'Failed to save OIDC discovery configuration:',
+				undefined,
+				err as Error
+			);
 			setError('Failed to save configuration');
 		}
 	}, [discoveryResult, environmentId, selectedRegion, issuerUrl]);
@@ -589,7 +600,12 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 				setIsApplying(false);
 			}, 3000);
 		} catch (err) {
-			console.error('Failed to save and apply OIDC discovery configuration:', err);
+			logger.error(
+				'EnvironmentIdInput',
+				'Failed to save and apply OIDC discovery configuration:',
+				undefined,
+				err as Error
+			);
 			setError('Failed to save and apply configuration');
 			setIsApplying(false);
 		}

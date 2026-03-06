@@ -2,6 +2,7 @@ import { FiCheck, FiCopy, FiExternalLink, FiX } from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { copyToClipboard } from '../utils/clipboard';
+import { logger } from '../utils/logger';
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -246,7 +247,12 @@ const DefaultRedirectUriModal: React.FC<DefaultRedirectUriModalProps> = ({
 			setCopied(true);
 			setTimeout(() => setCopied(false), 2000);
 		} catch (error) {
-			console.error('Failed to copy redirect URI:', error);
+			logger.error(
+				'DefaultRedirectUriModal',
+				'Failed to copy redirect URI:',
+				undefined,
+				error as Error
+			);
 		}
 	};
 

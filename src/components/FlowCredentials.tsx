@@ -493,7 +493,12 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 					additionalScopes: parsed.additionalScopes || '',
 				};
 			} catch (error) {
-				console.error('Failed to parse global config:', error);
+				logger.error(
+					'FlowCredentials',
+					'Failed to parse global config:',
+					undefined,
+					error as Error
+				);
 			}
 		}
 

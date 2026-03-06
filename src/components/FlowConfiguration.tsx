@@ -4,6 +4,7 @@ import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
 import { themeService } from '../services/themeService';
+import { logger } from '../utils/logger';
 import { Card, CardBody, CardHeader } from './Card';
 import StandardMessage from './StandardMessage';
 
@@ -545,7 +546,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 				announce(`${field} copied to clipboard`);
 				window.setTimeout(() => setCopiedField(null), 2000);
 			} catch (error) {
-				console.error('Failed to copy to clipboard', error);
+				logger.error('FlowConfiguration', 'Failed to copy to clipboard', undefined, error as Error);
 			}
 		},
 		[announce]
@@ -595,7 +596,7 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 				saveTimeoutRef.current = null;
 			}, SAVE_FEEDBACK_TIMEOUT_MS);
 		} catch (error) {
-			console.error('Failed to save configuration:', error);
+			logger.error('FlowConfiguration', 'Failed to save configuration:', undefined, error as Error);
 			announce('Failed to save configuration');
 		} finally {
 			setIsSaving(false);

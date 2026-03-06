@@ -9,6 +9,7 @@ import {
 } from '../services/credentialExportImportService';
 import { loadFlowCredentials, saveFlowCredentials } from '../services/flowCredentialService';
 import { credentialManager } from '../utils/credentialManager';
+import { logger } from '../utils/logger';
 import StandardMessage from './StandardMessage';
 
 const ModalOverlay = styled.div`
@@ -304,7 +305,12 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 			);
 			setFormData(newFormData);
 		} catch (error) {
-			console.error(' [CredentialSetupModal] Failed to load from environment variables:', error);
+			logger.error(
+				'CredentialSetupModal',
+				' [CredentialSetupModal] Failed to load from environment variables:',
+				undefined,
+				error as Error
+			);
 			// Keep the default form data if environment loading fails
 		}
 	}, []);
@@ -442,7 +448,12 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 						setHasBeenSaved(false);
 					}
 				} catch (error) {
-					console.error(' [CredentialSetupModal] Error loading existing credentials:', error);
+					logger.error(
+						'CredentialSetupModal',
+						' [CredentialSetupModal] Error loading existing credentials:',
+						undefined,
+						error as Error
+					);
 				}
 			};
 
@@ -633,7 +644,12 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 				onClose();
 			}, 1500);
 		} catch (error) {
-			console.error('Failed to save configuration:', error);
+			logger.error(
+				'CredentialSetupModal',
+				'Failed to save configuration:',
+				undefined,
+				error as Error
+			);
 			setSaveStatus({
 				type: 'danger',
 				title: 'Configuration failed',
@@ -676,7 +692,12 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 				message: 'Your credentials have been exported to a JSON file.',
 			});
 		} catch (error) {
-			console.error('[CredentialSetupModal] Export error:', error);
+			logger.error(
+				'CredentialSetupModal',
+				'[CredentialSetupModal] Export error:',
+				undefined,
+				error as Error
+			);
 			setSaveStatus({
 				type: 'danger',
 				title: 'Export failed',
@@ -720,7 +741,12 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 					});
 				}
 			} catch (error) {
-				console.error('[CredentialSetupModal] Import error:', error);
+				logger.error(
+					'CredentialSetupModal',
+					'[CredentialSetupModal] Import error:',
+					undefined,
+					error as Error
+				);
 				setSaveStatus({
 					type: 'danger',
 					title: 'Import failed',

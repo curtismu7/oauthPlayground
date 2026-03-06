@@ -55,6 +55,7 @@ import {
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { logger } from '../utils/logger';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { openWebhookViewerPopout } from '../v8/utils/webhookViewerPopoutHelper';
 
@@ -378,7 +379,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 
 				// Removed toast to prevent setState during render
 			} catch (error) {
-				console.warn('❌ Failed to save menu layout:', error);
+				logger.warn('DragDropSidebar', '❌ Failed to save menu layout:', { error });
 				// Removed toast to prevent setState during render
 			}
 		},
@@ -2173,7 +2174,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				console.log('🔄 Restoring menu layout from localStorage');
 				return restoreMenuGroups(serializedGroups, defaultGroups);
 			} catch (error) {
-				console.warn('Failed to parse saved menu order:', error);
+				logger.warn('DragDropSidebar', 'Failed to parse saved menu order:', { error });
 			}
 		}
 
@@ -2200,7 +2201,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 
 			// Removed toast to prevent setState during render
 		} catch (error) {
-			console.warn('❌ Failed to save menu layout:', error);
+			logger.warn('DragDropSidebar', '❌ Failed to save menu layout:', { error });
 			setSaveButtonState('default');
 			// Removed toast to prevent setState during render
 		}
@@ -2215,7 +2216,10 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 					const seenIds = new Set<string>();
 					const uniqueItems = group.items.filter((item) => {
 						if (seenIds.has(item.id)) {
-							console.warn(`[DragDropSidebar] Removing duplicate menu item: ${item.id}`);
+							logger.warn(
+								'DragDropSidebar',
+								`[DragDropSidebar] Removing duplicate menu item: ${item.id}`
+							);
 							return false;
 						}
 						seenIds.add(item.id);
@@ -2238,7 +2242,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 			// Ensure menu version is also saved when menu is modified
 			localStorage.setItem('simpleDragDropSidebar.menuVersion', '2.2');
 		} catch (error) {
-			console.warn('❌ Failed to persist menu layout:', error);
+			logger.warn('DragDropSidebar', '❌ Failed to persist menu layout:', { error });
 		}
 	}, [menuGroups, createSerializableGroups]);
 
@@ -2474,7 +2478,9 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				return data;
 			}
 		} catch (err) {
-			console.warn('Failed to parse drag data from dataTransfer:', err);
+			logger.warn('DragDropSidebar', 'Failed to parse drag data from dataTransfer:', {
+				error: err,
+			});
 		}
 
 		return null;

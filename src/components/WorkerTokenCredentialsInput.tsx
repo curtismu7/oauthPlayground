@@ -21,6 +21,7 @@ import {
 	type WorkerTokenValidationResult,
 	workerTokenCredentialsService,
 } from '../services/workerTokenCredentialsService';
+import { logger } from '../utils/logger';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
 interface WorkerTokenCredentialsInputProps {
@@ -362,7 +363,12 @@ export const WorkerTokenCredentialsInput: React.FC<WorkerTokenCredentialsInputPr
 				v4ToastManager.showError('Failed to save credentials');
 			}
 		} catch (error) {
-			console.error('[WorkerTokenCredentialsInput] Save failed:', error);
+			logger.error(
+				'WorkerTokenCredentialsInput',
+				'[WorkerTokenCredentialsInput] Save failed:',
+				undefined,
+				error as Error
+			);
 			v4ToastManager.showError('Failed to save credentials');
 		}
 	}, [credentials, validation, isSaving, onSave]);

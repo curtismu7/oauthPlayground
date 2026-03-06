@@ -4,6 +4,7 @@
 import { FiAlertCircle, FiCheckCircle, FiKey, FiMonitor, FiShield, FiX } from '@icons';
 import React, { useEffect, useState } from 'react';
 import { FIDO2Config, FIDO2Service } from '../services/fido2Service';
+import { logger } from '../utils/logger';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
 interface FIDO2RegistrationModalProps {
@@ -96,7 +97,12 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 				throw new Error(result.error || 'Registration failed');
 			}
 		} catch (error: any) {
-			console.error('❌ [FIDO2 Registration] Registration failed:', error);
+			logger.error(
+				'FIDO2RegistrationModal',
+				'❌ [FIDO2 Registration] Registration failed:',
+				undefined,
+				error as Error
+			);
 			setError(error.message || 'Registration failed');
 			v4ToastManager.showError(error.message || 'Failed to register passkey');
 		} finally {

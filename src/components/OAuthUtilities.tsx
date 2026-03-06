@@ -1,6 +1,7 @@
 import { FiAlertCircle, FiCheck, FiCopy, FiEye, FiKey, FiRefreshCw, FiTool } from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../utils/logger';
 import { generateCodeChallenge, generateRandomString } from '../utils/oauth';
 import { Card, CardBody, CardHeader } from './Card';
 
@@ -197,11 +198,11 @@ const OAuthUtilities: React.FC = () => {
 			});
 			return parsed;
 		} catch (e) {
-			console.error(
+			logger.error(
+				'OAuthUtilities',
 				' [JWT Decoder] Error parsing JWT part:',
-				e,
-				'Part:',
-				`${part.substring(0, 20)}...`
+				{ part: `${part.substring(0, 20)}...` },
+				e as Error
 			);
 			return null;
 		}
@@ -248,7 +249,12 @@ const OAuthUtilities: React.FC = () => {
 			setDecodedJwt({ header, payload });
 			setJwtError(''); // Clear any previous errors
 		} catch (error) {
-			console.error(' [JWT Decoder] Error in handleDecodeJWT:', error);
+			logger.error(
+				'OAuthUtilities',
+				' [JWT Decoder] Error in handleDecodeJWT:',
+				undefined,
+				error as Error
+			);
 			setJwtError(`Failed to decode JWT: ${(error as Error).message}`);
 			setDecodedJwt(null);
 		}
@@ -278,7 +284,7 @@ const OAuthUtilities: React.FC = () => {
 			setCopiedField(field);
 			setTimeout(() => setCopiedField(null), 2000);
 		} catch (error) {
-			console.error('Failed to copy:', error);
+			logger.error('OAuthUtilities', 'Failed to copy:', undefined, error as Error);
 		}
 	};
 

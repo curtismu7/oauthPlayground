@@ -470,7 +470,12 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 				v4ToastManager.showError('networkError');
 			}
 		} catch (error) {
-			console.error(' [DiscoveryPanel] Discovery failed:', error);
+			logger.error(
+				'DiscoveryPanel',
+				' [DiscoveryPanel] Discovery failed:',
+				undefined,
+				error as Error
+			);
 			v4ToastManager.showError('networkError');
 			setStatus({
 				type: 'error',
@@ -508,7 +513,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 			v4ToastManager.showCopySuccess(field);
 			setTimeout(() => setCopiedField(null), 2000);
 		} catch (error) {
-			console.error('Failed to copy:', error);
+			logger.error('DiscoveryPanel', 'Failed to copy:', undefined, error as Error);
 			v4ToastManager.showCopyError(field);
 		}
 	};

@@ -2,6 +2,7 @@ import { FiCheck, FiCode, FiSettings, FiSun, FiX } from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';
+import { logger } from '../utils/logger';
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -257,7 +258,7 @@ export const UISettingsModal: React.FC<UISettingsModalProps> = ({ isOpen, onClos
 			setSaveStatus('saved');
 			setTimeout(() => setSaveStatus('idle'), 2000);
 		} catch (error) {
-			console.error('Failed to save settings:', error);
+			logger.error('UISettingsModal', 'Failed to save settings:', undefined, error as Error);
 			setSaveStatus('idle');
 		}
 	};
