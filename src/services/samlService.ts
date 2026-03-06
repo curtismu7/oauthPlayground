@@ -1,4 +1,5 @@
 // src/services/samlService.ts
+import { failFrom, ok, type ServiceResult } from '../standards/types';
 /**
  * SAML 2.0 Service Provider Service
  *
@@ -65,7 +66,7 @@ class SAMLService {
 	async processAuthnRequest(
 		authnRequestXml: string,
 		spConfig: SAMLApplicationConfig
-	): Promise<AuthnRequestProcessingResult> {
+	): Promise<ServiceResult<AuthnRequestProcessingResult>> {
 		try {
 			// Parse the AuthnRequest XML
 			const parsedRequest = this.parseAuthnRequestXml(authnRequestXml);
@@ -76,14 +77,9 @@ class SAMLService {
 			// Validate ACS URL according to PingOne's new feature
 			const validation = this.validateAcsUrl(parsedRequest, spConfig);
 
-			return {
-				parsedRequest,
-				validation,
-			};
+			return ok({ parsedRequest, validation });
 		} catch (error) {
-			throw new Error(
-				`Failed to process AuthnRequest: ${error instanceof Error ? error.message : 'Unknown error'}`
-			);
+			return failFrom<AuthnRequestProcessingResult>('SAML_AUTHN_REQUEST_FAILED', error);
 		}
 	}
 
