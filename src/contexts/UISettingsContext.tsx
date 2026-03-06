@@ -6,6 +6,7 @@ import React, {
 	useEffect,
 	useState,
 } from 'react';
+import { logger } from '../utils/logger';
 
 export interface UISettings {
 	// Existing settings
@@ -115,7 +116,7 @@ export const UISettingsProvider: React.FC<UISettingsProviderProps> = ({ children
 				// Apply theme settings immediately
 				applyThemeSettings(mergedSettings);
 			} catch (error) {
-				console.error('[UISettings] Failed to load settings:', error);
+				logger.error('UISettings', 'Failed to load settings', undefined, error as Error);
 				setSettings(DEFAULT_UI_SETTINGS);
 			}
 		};
@@ -154,7 +155,7 @@ export const UISettingsProvider: React.FC<UISettingsProviderProps> = ({ children
 					})
 				);
 			} catch (error) {
-				console.error('[UISettings] Failed to save settings:', error);
+				logger.error('UISettings', 'Failed to save settings', undefined, error as Error);
 			}
 
 			return newSettings;
@@ -176,7 +177,7 @@ export const UISettingsProvider: React.FC<UISettingsProviderProps> = ({ children
 				})
 			);
 		} catch (error) {
-			console.error('[UISettings] Failed to reset settings:', error);
+			logger.error('UISettings', 'Failed to reset settings', undefined, error as Error);
 		}
 	};
 
@@ -200,7 +201,7 @@ export const UISettingsProvider: React.FC<UISettingsProviderProps> = ({ children
 				})
 			);
 		} catch (error) {
-			console.error('[UISettings] Failed to save settings:', error);
+			logger.error('UISettings', 'Failed to save settings', undefined, error as Error);
 			throw error;
 		}
 	};
