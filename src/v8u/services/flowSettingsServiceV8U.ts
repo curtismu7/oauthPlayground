@@ -28,6 +28,7 @@
  */
 
 import type { FlowType, SpecVersion } from '@/v8/services/specVersionServiceV8';
+import { logger } from '../../utils/logger';
 
 const MODULE_TAG = '[⚙️ FLOW-SETTINGS-V8U]';
 
@@ -63,7 +64,7 @@ export function loadSettings(flowType: FlowType): FlowSettings | null {
 		console.log(`${MODULE_TAG} Loaded settings for flow`, { flowType, settings });
 		return settings;
 	} catch (err) {
-		console.error(`${MODULE_TAG} Error loading settings for flow`, { flowType, err });
+		logger.error('FlowSettingsServiceV8U', `Error loading settings for flow`, { flowType, err });
 		return null;
 	}
 }
@@ -90,7 +91,7 @@ export function saveSettings(flowType: FlowType, settings: Partial<FlowSettings>
 		localStorage.setItem(key, JSON.stringify(updated));
 		console.log(`${MODULE_TAG} Saved settings for flow`, { flowType, updated });
 	} catch (err) {
-		console.error(`${MODULE_TAG} Error saving settings for flow`, { flowType, err });
+		logger.error('FlowSettingsServiceV8U', `Error saving settings for flow`, { flowType, err });
 	}
 }
 
@@ -140,7 +141,7 @@ export function clearSettings(flowType: FlowType): void {
 		localStorage.removeItem(key);
 		console.log(`${MODULE_TAG} Cleared settings for flow`, { flowType });
 	} catch (err) {
-		console.error(`${MODULE_TAG} Error clearing settings for flow`, { flowType, err });
+		logger.error('FlowSettingsServiceV8U', `Error clearing settings for flow`, { flowType, err });
 	}
 }
 
