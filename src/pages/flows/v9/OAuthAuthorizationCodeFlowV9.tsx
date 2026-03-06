@@ -21,6 +21,8 @@ import {
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { logger } from '../../../services/loggingService';
+import { secureLog, secureErrorLog } from '../../../utils/secureLogging';
 import CodeExamplesDisplay from '../../../components/CodeExamplesDisplay';
 import { EnhancedApiCallDisplay } from '../../../components/EnhancedApiCallDisplay';
 import EnhancedFlowInfoCard from '../../../components/EnhancedFlowInfoCard';
@@ -744,7 +746,7 @@ const _VariantToggleButton = styled.button<{ $active: boolean }>`
 `;
 
 const OAuthAuthorizationCodeFlowV9: React.FC = () => {
-	console.log('🚀 [OAuthAuthorizationCodeFlowV9] V7.2 Flow loaded!', {
+	logger.info('OAuthAuthorizationCodeFlowV9', 'V7.2 Flow loaded!', {
 		url: window.location.href,
 		search: window.location.search,
 		timestamp: new Date().toISOString(),
@@ -800,7 +802,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 
 			// Only sync if credentials have actually changed
 			if (credentialsHash !== lastSyncedCredentials) {
-				console.log('💾 [V7.2] Syncing credentials to comprehensive service...');
+				logger.info('OAuthAuthorizationCodeFlowV9', 'Syncing credentials to comprehensive service');
 				try {
 					comprehensiveFlowDataService.saveFlowCredentialsIsolated(
 						'oauth-authorization-code-v9',
@@ -808,9 +810,9 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 						{ backupToEnv: true }
 					);
 					setLastSyncedCredentials(credentialsHash);
-					console.log('✅ [V7.2] Credentials synced to comprehensive service');
+					logger.info('OAuthAuthorizationCodeFlowV9', 'Credentials synced to comprehensive service');
 				} catch (error) {
-					console.error('❌ [V7.2] Failed to sync credentials:', error);
+					logger.error('OAuthAuthorizationCodeFlowV9', 'Failed to sync credentials', error);
 				}
 			}
 		}
@@ -859,10 +861,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 			FlowCredentialService.loadSharedCredentials(`oauth-authorization-code-v9-${nextVariant}`)
 				.then((reloadedCredentials) => {
 					if (reloadedCredentials && Object.keys(reloadedCredentials).length > 0) {
-						console.log(
-							`[V7 AuthZ] Loading saved ${nextVariant.toUpperCase()} credentials:`,
-							reloadedCredentials
-						);
+						logger.info('OAuthAuthorizationCodeFlowV9', `Loading saved ${nextVariant.toUpperCase()} credentials`, reloadedCredentials);
 						controller.setCredentials({
 							...controller.credentials,
 							...reloadedCredentials,
@@ -870,7 +869,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 					}
 				})
 				.catch((error) => {
-					console.warn('[V7 AuthZ] Failed to load shared credentials:', error);
+					logger.warn('OAuthAuthorizationCodeFlowV9', 'Failed to load shared credentials', error);
 				});
 
 			// PingOne requires openid scope for both OAuth and OIDC variants
@@ -897,7 +896,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 
 			// Restore PKCE codes and auth state to prevent mismatch errors
 			if (currentPkceCodes.codeVerifier && currentPkceCodes.codeChallenge) {
-				console.log(`[V7 AuthZ] Preserving PKCE codes during variant switch`);
+				logger.info('OAuthAuthorizationCodeFlowV9', 'Preserving PKCE codes during variant switch');
 				controller.setPkceCodes(currentPkceCodes);
 			}
 
@@ -958,7 +957,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 		const flowId = FlowStorageService.getFlowId('oauth-authorization-code-v9') ?? 'oauth-authz-v7';
 		const saved = FlowStorageService.AdvancedParameters.get(flowId);
 		if (saved) {
-			console.log('[OAuth AuthZ V7] Loading saved advanced parameters:', saved);
+			logger.info('OAuthAuthorizationCodeFlowV9', 'Loading saved advanced parameters', saved);
 			setAudience(saved.audience || '');
 			setResources(saved.resources || []);
 			setPromptValues(saved.promptValues || []);
@@ -973,11 +972,11 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 			try {
 				const parsedPkce = JSON.parse(storedPkce);
 				if (parsedPkce.codeVerifier && parsedPkce.codeChallenge) {
-					console.log('[V7 AuthZ] Restoring PKCE codes from session storage');
+					logger.info('OAuthAuthorizationCodeFlowV9', 'Restoring PKCE codes from session storage');
 					controller.setPkceCodes(parsedPkce);
 				}
 			} catch (error) {
-				console.warn('[V7 AuthZ] Failed to parse stored PKCE codes:', error);
+				logger.warn('OAuthAuthorizationCodeFlowV9', 'Failed to parse stored PKCE codes', error);
 			}
 		}
 	}, [controller.persistKey, controller.pkceCodes, controller.setPkceCodes]);
@@ -985,10 +984,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 	// Update flow config when advanced parameters change
 	useEffect(() => {
 		if (audience || promptValues.length > 0) {
-			console.log('[OAuth AuthZ V6] Updating flow config with advanced parameters:', {
-				audience,
-				promptValues,
-			});
+			logger.info('OAuthAuthorizationCodeFlowV9', 'Updating flow config with advanced parameters', { audience, promptValues });
 			// Note: Resources are not sent for PingOne flows as they're not reliably supported
 			controller.setFlowConfig({
 				...controller.flowConfig,
@@ -1005,11 +1001,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 
 	// Save advanced parameters
 	const _handleSaveAdvancedParams = useCallback(async () => {
-		console.log('💾 [OAuth AuthZ V6] Saving advanced parameters:', {
-			audience,
-			resources,
-			promptValues,
-		});
+		logger.info('OAuthAuthorizationCodeFlowV9', 'Saving advanced parameters', { audience, resources, promptValues });
 
 		const flowId = FlowStorageService.getFlowId('oauth-authorization-code-v9') ?? 'oauth-authz-v7';
 		FlowStorageService.AdvancedParameters.set(flowId, {
@@ -1035,20 +1027,20 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 		if (controller.authUrl) {
 			const urlParams = new URLSearchParams(controller.authUrl.split('?')[1] || '');
 			const claimsParam = urlParams.get('claims');
-			console.log('🌐 [OAuth AuthZ V6] ===== URL THAT WILL BE SENT TO PINGONE =====');
-			console.log('🌐 Full URL:', controller.authUrl);
-			console.log('🌐 Audience:', urlParams.get('audience') || 'Not included');
-			console.log('🌐 Prompt:', urlParams.get('prompt') || 'Not included');
-			console.log('🌐 Claims (raw):', claimsParam || 'Not included');
+			logger.info('OAuthAuthorizationCodeFlowV9', '===== URL THAT WILL BE SENT TO PINGONE =====');
+			logger.info('OAuthAuthorizationCodeFlowV9', 'Full URL', { url: controller.authUrl });
+			logger.info('OAuthAuthorizationCodeFlowV9', 'Audience', { audience: urlParams.get('audience') || 'Not included' });
+			logger.info('OAuthAuthorizationCodeFlowV9', 'Prompt', { prompt: urlParams.get('prompt') || 'Not included' });
+			logger.info('OAuthAuthorizationCodeFlowV9', 'Claims (raw)', { claims: claimsParam || 'Not included' });
 			if (claimsParam) {
 				try {
-					console.log('🌐 Claims (decoded):', JSON.parse(claimsParam));
+					logger.info('OAuthAuthorizationCodeFlowV9', 'Claims (decoded)', { claims: JSON.parse(claimsParam) });
 				} catch (e) {
-					console.log('🌐 Claims (decode failed):', e);
+					logger.error('OAuthAuthorizationCodeFlowV9', 'Claims (decode failed)', { error: e });
 				}
 			}
-			console.log('🌐 Resources:', 'Not included (PingOne does not support RFC 8707)');
-			console.log('🌐 =============================================');
+			logger.info('OAuthAuthorizationCodeFlowV9', 'Resources', { resources: 'Not included (PingOne does not support RFC 8707)' });
+			logger.info('OAuthAuthorizationCodeFlowV9', '=============================================');
 		}
 
 		// Hide the saved indicator after 3 seconds
@@ -1088,19 +1080,13 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 
 		// Restore tokenEndpointAuthMethod from flowConfig or flowCredentials
 		if (flowData.flowConfig?.tokenEndpointAuthMethod) {
-			console.log(
-				'✅ [V7.2] Restoring tokenEndpointAuthMethod from flowConfig:',
-				flowData.flowConfig.tokenEndpointAuthMethod
-			);
+			logger.info('OAuthAuthorizationCodeFlowV9', 'Restoring tokenEndpointAuthMethod from flowConfig', { method: flowData.flowConfig.tokenEndpointAuthMethod });
 			controller.setCredentials({
 				...controller.credentials,
 				clientAuthMethod: flowData.flowConfig.tokenEndpointAuthMethod as string,
 			});
 		} else if (flowData.flowCredentials?.tokenEndpointAuthMethod) {
-			console.log(
-				'✅ [V7.2] Restoring tokenEndpointAuthMethod from flowCredentials:',
-				flowData.flowCredentials.tokenEndpointAuthMethod
-			);
+			logger.info('OAuthAuthorizationCodeFlowV9', 'Restoring tokenEndpointAuthMethod from flowCredentials', { method: flowData.flowCredentials.tokenEndpointAuthMethod });
 			controller.setCredentials({
 				...controller.credentials,
 				clientAuthMethod: flowData.flowCredentials.tokenEndpointAuthMethod as string,
@@ -1141,7 +1127,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 	}, [controller.credentials, controller.setCredentials]); // Only run once on mount
 
 	// Debug: Always log the current authorization code state
-	console.log('🔍 [AuthorizationCodeFlowV5] Current controller.authCode:', {
+	logger.info('OAuthAuthorizationCodeFlowV9', 'Current controller.authCode', {
 		hasAuthCode: !!controller.authCode,
 		authCodeLength: controller.authCode?.length || 0,
 		authCodePreview: controller.authCode ? `${controller.authCode.substring(0, 10)}...` : 'Not set',
@@ -1234,7 +1220,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 				controller.credentials?.clientSecret &&
 				controller.credentials?.environmentId;
 
-			console.log('🔍 [AuthorizationCodeFlowV5] Credential validation:', {
+			logger.info('OAuthAuthorizationCodeFlowV9', 'Credential validation', {
 				hasClientId: !!controller.credentials?.clientId,
 				hasClientSecret: !!controller.credentials?.clientSecret,
 				hasEnvironmentId: !!controller.credentials?.environmentId,

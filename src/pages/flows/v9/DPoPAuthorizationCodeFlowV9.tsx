@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import type React from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { usePageScroll } from '../../../hooks/usePageScroll';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import V9FlowUIService from '../../../services/v9/v9FlowUIService';
