@@ -10,6 +10,7 @@
  */
 
 import React from 'react';
+import { logger } from '../utils/logger';
 
 export interface EnvironmentConfig {
 	environmentId: string;
@@ -308,7 +309,12 @@ class EnvironmentService {
 		try {
 			localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.currentEnvironment));
 		} catch (error) {
-			console.warn('[EnvironmentService] Failed to save to localStorage:', error);
+			logger.warn(
+				'EnvironmentService',
+				'[EnvironmentService] Failed to save to localStorage:',
+				undefined,
+				error as Error
+			);
 		}
 	}
 
@@ -320,7 +326,12 @@ class EnvironmentService {
 				this.currentEnvironment = parsed;
 			}
 		} catch (error) {
-			console.warn('[EnvironmentService] Failed to load from localStorage:', error);
+			logger.warn(
+				'EnvironmentService',
+				'[EnvironmentService] Failed to load from localStorage:',
+				undefined,
+				error as Error
+			);
 			this.currentEnvironment = null;
 		}
 	}
@@ -330,7 +341,12 @@ class EnvironmentService {
 			try {
 				listener(this.currentEnvironment);
 			} catch (error) {
-				console.warn('[EnvironmentService] Error in listener:', error);
+				logger.warn(
+					'EnvironmentService',
+					'[EnvironmentService] Error in listener:',
+					undefined,
+					error as Error
+				);
 			}
 		});
 	}
