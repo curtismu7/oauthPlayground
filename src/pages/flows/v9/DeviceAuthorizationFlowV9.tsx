@@ -3097,9 +3097,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 						// PingOne requires 'openid' scope even for OAuth 2.0 flows (non-standard)
 						if (!newScopes.includes('openid')) {
 							finalScopes = `openid ${newScopes}`.trim();
-							v4ToastManager.showInfo(
-								'Added "openid" scope (required by PingOne for all flows, including OAuth 2.0)'
-							);
+							modernMessaging.showFooterMessage({ type: 'info', message: 'Added "openid" scope (required by PingOne for all flows, including OAuth 2.0)', duration: 4000 });
 						}
 					}
 
