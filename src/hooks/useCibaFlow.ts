@@ -1,8 +1,8 @@
 // src/hooks/useCibaFlow.ts
 // OIDC Client Initiated Backchannel Authentication (CIBA) V5 flow logic
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { v4ToastManager } from '../utils/v4ToastMessages';
 import { logger } from '../utils/logger';
+import { v4ToastManager } from '../utils/v4ToastMessages';
 
 export type CibaAuthMethod = 'client_secret_post' | 'client_secret_basic';
 

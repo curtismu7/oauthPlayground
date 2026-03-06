@@ -13,8 +13,8 @@
 import { FiKey, FiRefreshCw } from '@icons';
 import React, { useState } from 'react';
 import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
-import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { handleShowWorkerTokenModal } from '@/v8/utils/workerTokenModalHelperV8';
 import { WorkerTokenModalV8 } from './WorkerTokenModalV8';
 import { WorkerTokenStatusDisplayV8 } from './WorkerTokenStatusDisplayV8';
@@ -77,10 +77,19 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 			if (onTokenUpdated && newStatus.isValid && newStatus.token) {
 				onTokenUpdated(newStatus.token);
 			}
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Worker token status refreshed', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Worker token status refreshed',
+				duration: 3000,
+			});
 		} catch (error) {
 			console.error(MODULE_TAG, 'Error refreshing worker token:', error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to refresh worker token', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to refresh worker token',
+				dismissible: true,
+			});
 		} finally {
 			setIsRefreshing(false);
 		}
@@ -90,10 +99,19 @@ export const WorkerTokenSectionV8: React.FC<WorkerTokenSectionV8Props> = ({
 		try {
 			await unifiedWorkerTokenService.clearToken();
 			window.dispatchEvent(new Event('workerTokenUpdated'));
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Worker token cleared', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Worker token cleared',
+				duration: 3000,
+			});
 		} catch (error) {
 			console.error(MODULE_TAG, 'Error clearing worker token:', error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to clear worker token', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to clear worker token',
+				dismissible: true,
+			});
 		}
 	};
 

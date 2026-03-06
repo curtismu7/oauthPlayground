@@ -7,12 +7,12 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CountryCodePickerV8 } from '@/v8/components/CountryCodePickerV8';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { type DeviceType, type MFACredentials, type MFAState } from '@/v8/flows/shared/MFATypes';
 import { type DeviceRegistrationResult, MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { validateAndNormalizePhone } from '@/v8/utils/phoneValidationV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const MODULE_TAG = '[🔧 MFA-DEVICE-REGISTRATION-V8]';
 
@@ -133,7 +133,12 @@ export const MFADeviceRegistrationV8: React.FC<MFADeviceRegistrationV8Props> = (
 		}
 
 		if (!credentials.environmentId?.trim() || !credentials.username?.trim()) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Environment ID and username are required', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Environment ID and username are required',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -158,17 +163,30 @@ export const MFADeviceRegistrationV8: React.FC<MFADeviceRegistrationV8Props> = (
 
 			if (result.status === 'ACTIVATION_REQUIRED') {
 				setCurrentStep('verify');
-				modernMessaging.showFooterMessage({ type: 'info', message: result.message || 'Device registered successfully. Please verify with OTP.', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: result.message || 'Device registered successfully. Please verify with OTP.',
+					duration: 3000,
+				});
 			} else {
 				setCurrentStep('success');
 				onComplete(result.deviceId);
-				modernMessaging.showFooterMessage({ type: 'info', message: result.message || 'Device registered and activated successfully!', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: result.message || 'Device registered and activated successfully!',
+					duration: 3000,
+				});
 			}
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 			console.error(`${MODULE_TAG} Registration failed`, error);
 			setValidationErrors([errorMessage]);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Registration failed: ${errorMessage}`, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: `Registration failed: ${errorMessage}`,
+				dismissible: true,
+			});
 		} finally {
 			setIsLoading?.(false);
 		}
@@ -180,7 +198,12 @@ export const MFADeviceRegistrationV8: React.FC<MFADeviceRegistrationV8Props> = (
 			!credentials.environmentId?.trim() ||
 			!credentials.username?.trim()
 		) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Missing required information for device activation', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Missing required information for device activation',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -205,7 +228,12 @@ export const MFADeviceRegistrationV8: React.FC<MFADeviceRegistrationV8Props> = (
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 			console.error(`${MODULE_TAG} Registration completion failed`, error);
 			setValidationErrors([errorMessage]);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Device activation failed: ${errorMessage}`, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: `Device activation failed: ${errorMessage}`,
+				dismissible: true,
+			});
 		} finally {
 			setIsLoading?.(false);
 		}

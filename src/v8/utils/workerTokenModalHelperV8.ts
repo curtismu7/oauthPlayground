@@ -9,6 +9,7 @@
  * Do NOT add direct token fetch logic here - use tokenGatewayV8 instead.
  */
 
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { tokenGatewayV8 } from '@/v8/services/auth/tokenGatewayV8';
 import { WorkerTokenConfigServiceV8 } from '@/v8/services/workerTokenConfigServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
@@ -16,7 +17,6 @@ import {
 	type TokenStatusInfo,
 	WorkerTokenStatusServiceV8,
 } from '@/v8/services/workerTokenStatusServiceV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const MODULE_TAG = '[🔑 WORKER-TOKEN-MODAL-HELPER-V8]';
 
@@ -96,7 +96,11 @@ async function attemptSilentTokenRetrieval(
 
 		if (result.success) {
 			console.log(`${MODULE_TAG} Token automatically fetched via tokenGatewayV8`);
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Worker token automatically retrieved!', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Worker token automatically retrieved!',
+				duration: 3000,
+			});
 			return true;
 		}
 
@@ -109,11 +113,27 @@ async function attemptSilentTokenRetrieval(
 			);
 
 			if (result.error.code === 'NO_CREDENTIALS') {
-				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Silent API retrieval requires saved credentials. Click "Get Worker Token" to configure.', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'warning',
+					title: 'Warning',
+					message:
+						'Silent API retrieval requires saved credentials. Click "Get Worker Token" to configure.',
+					dismissible: true,
+				});
 			} else if (result.error.code === 'TIMEOUT') {
-				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Token retrieval timed out. Please try again.', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'warning',
+					title: 'Warning',
+					message: 'Token retrieval timed out. Please try again.',
+					dismissible: true,
+				});
 			} else if (result.error.code === 'NETWORK_ERROR') {
-				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Network error during token retrieval. Check your connection.', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'warning',
+					title: 'Warning',
+					message: 'Network error during token retrieval. Check your connection.',
+					dismissible: true,
+				});
 			}
 			// Other errors are handled silently - user can click button to get details
 		}

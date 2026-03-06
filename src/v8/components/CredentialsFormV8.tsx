@@ -24,6 +24,7 @@
  */
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { AppPickerV8, type DiscoveredApp } from '@/v8/components/AppPickerV8';
 import {
 	OidcDiscoveryModalV8,
@@ -41,7 +42,6 @@ import {
 } from '@/v8/services/specVersionServiceV8';
 import { TooltipContentServiceV8 } from '@/v8/services/tooltipContentServiceV8';
 import { UnifiedFlowOptionsServiceV8 } from '@/v8/services/unifiedFlowOptionsServiceV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 type ClientType = 'public' | 'confidential';
 type AppType = 'web' | 'spa' | 'mobile' | 'desktop' | 'cli' | 'm2m' | 'backend';
@@ -197,7 +197,12 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 
 	const handleDiscovery = useCallback(async () => {
 		if (!discoveryInput.trim()) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter an issuer URL or environment ID', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please enter an issuer URL or environment ID',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -213,11 +218,21 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 				onDiscoveryComplete?.(result.data);
 			} else {
 				console.error(`${MODULE_TAG} Discovery failed`, result.error);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: result.error || 'Discovery failed', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: result.error || 'Discovery failed',
+					dismissible: true,
+				});
 			}
 		} catch (error) {
 			console.error(`${MODULE_TAG} Discovery error`, error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Discovery failed - check the issuer URL', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Discovery failed - check the issuer URL',
+				dismissible: true,
+			});
 		} finally {
 			setIsDiscovering(false);
 		}
@@ -232,7 +247,11 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 				scopes: result.scopesSupported?.join(' ') || credentials.scopes,
 			};
 			onChange(updated);
-			modernMessaging.showFooterMessage({ type: 'info', message: 'OIDC configuration applied!', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'OIDC configuration applied!',
+				duration: 3000,
+			});
 			setDiscoveryInput('');
 		},
 		[credentials, onChange]
@@ -458,7 +477,11 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 												checked={specVersion === spec.type}
 												onChange={(e) => {
 													setSpecVersion(e.target.value as SpecVersion);
-													modernMessaging.showFooterMessage({ type: 'info', message: `${spec.label} selected`, duration: 3000 });
+													modernMessaging.showFooterMessage({
+														type: 'info',
+														message: `${spec.label} selected`,
+														duration: 3000,
+													});
 												}}
 												style={{ cursor: 'pointer' }}
 											/>
@@ -662,7 +685,11 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 											onChange={(e) => {
 												setUseRedirectless(e.target.checked);
 												if (e.target.checked) {
-													modernMessaging.showFooterMessage({ type: 'info', message: 'Redirectless mode enabled - no redirect URI needed', duration: 3000 });
+													modernMessaging.showFooterMessage({
+														type: 'info',
+														message: 'Redirectless mode enabled - no redirect URI needed',
+														duration: 3000,
+													});
 												}
 											}}
 											style={{ cursor: 'pointer' }}
@@ -822,7 +849,11 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 												onChange={(e) => {
 													setUsePKCE(e.target.checked);
 													if (e.target.checked) {
-														modernMessaging.showFooterMessage({ type: 'info', message: 'PKCE enabled - using public client configuration', duration: 3000 });
+														modernMessaging.showFooterMessage({
+															type: 'info',
+															message: 'PKCE enabled - using public client configuration',
+															duration: 3000,
+														});
 													}
 												}}
 												style={{ cursor: 'pointer' }}
@@ -997,7 +1028,11 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 							type="button"
 							className="btn-save"
 							onClick={() => {
-								modernMessaging.showFooterMessage({ type: 'info', message: 'Credentials saved successfully', duration: 3000 });
+								modernMessaging.showFooterMessage({
+									type: 'info',
+									message: 'Credentials saved successfully',
+									duration: 3000,
+								});
 								console.log(`${MODULE_TAG} Credentials saved`, { flowKey });
 							}}
 						>
