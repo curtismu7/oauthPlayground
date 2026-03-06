@@ -1,6 +1,7 @@
 // src/services/pingOneUserProfileService.ts
 // Helper utilities for resolving PingOne users by identifier (ID, username, email)
 
+import { logger } from '../utils/logger';
 import { trackedFetch } from '../utils/trackedFetch';
 
 export type LookupMatchType = 'id' | 'username' | 'email';
@@ -31,23 +32,29 @@ export const lookupPingOneUser = async ({
 }: LookupPingOneUserParams): Promise<LookupPingOneUserResult> => {
 	// Validate inputs before making the request
 	if (!environmentId || environmentId.trim() === '') {
-		console.error('[lookupPingOneUser] ❌ Missing environmentId:', {
-			environmentId: environmentId || '(empty)',
-			type: typeof environmentId,
+		logger.error('PingOneUserProfileService', '[lookupPingOneUser] ❌ Missing environmentId:', {
+			arg0: {
+				environmentId: environmentId || '(empty)',
+				type: typeof environmentId,
+			},
 		});
 		throw new Error('Environment ID is required');
 	}
 	if (!accessToken || accessToken.trim() === '') {
-		console.error('[lookupPingOneUser] ❌ Missing accessToken:', {
-			hasToken: !!accessToken,
-			tokenLength: accessToken ? accessToken.length : 0,
+		logger.error('PingOneUserProfileService', '[lookupPingOneUser] ❌ Missing accessToken:', {
+			arg0: {
+				hasToken: !!accessToken,
+				tokenLength: accessToken ? accessToken.length : 0,
+			},
 		});
 		throw new Error('Access token is required');
 	}
 	if (!identifier || identifier.trim() === '') {
-		console.error('[lookupPingOneUser] ❌ Missing identifier:', {
-			identifier: identifier || '(empty)',
-			type: typeof identifier,
+		logger.error('PingOneUserProfileService', '[lookupPingOneUser] ❌ Missing identifier:', {
+			arg0: {
+				identifier: identifier || '(empty)',
+				type: typeof identifier,
+			},
 		});
 		throw new Error('User identifier is required');
 	}
@@ -57,11 +64,13 @@ export const lookupPingOneUser = async ({
 	// but we show the base users endpoint to represent the PingOne Users API
 	const actualPingOneUrl = `/pingone-api/v1/environments/${encodeURIComponent(environmentId)}/users`;
 
-	console.log('[lookupPingOneUser] 📤 Sending user lookup request:', {
-		environmentId: `${environmentId.substring(0, 20)}...`,
-		accessToken: `${accessToken.substring(0, 20)}...`,
-		identifier: identifier.substring(0, 30),
-		actualPingOneUrl,
+	logger.info('PingOneUserProfileService', '[lookupPingOneUser] 📤 Sending user lookup request:', {
+		arg0: {
+			environmentId: `${environmentId.substring(0, 20)}...`,
+			accessToken: `${accessToken.substring(0, 20)}...`,
+			identifier: identifier.substring(0, 30),
+			actualPingOneUrl,
+		},
 	});
 
 	const response = await trackedFetch('/api/pingone/users/lookup', {
