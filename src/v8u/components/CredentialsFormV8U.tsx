@@ -36,8 +36,8 @@ import { type DisplayMode, DisplayModeDropdownV8 } from '@/v8/components/Display
 import { IssuerURLInputV8 } from '@/v8/components/IssuerURLInputV8';
 import { LoginHintInputV8 } from '@/v8/components/LoginHintInputV8';
 import { MaxAgeInputV8 } from '@/v8/components/MaxAgeInputV8';
-import {
 import { logger } from '../../utils/logger';
+import {
 	OidcDiscoveryModalV8,
 	type OidcDiscoveryResult,
 } from '@/v8/components/OidcDiscoveryModalV8';
