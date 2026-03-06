@@ -2,6 +2,7 @@
 // Token Introspection Flow state management and logic
 
 import { useCallback, useState } from 'react';
+import { logger } from '../utils/logger';
 
 export interface TokenIntrospectionConfig {
 	environmentId: string;
@@ -98,12 +99,12 @@ export const useTokenIntrospectionFlowController =
 				const result: TokenIntrospectionResult = await response.json();
 				setIntrospectionResult(result);
 
-				console.log(`${LOG_PREFIX} [SUCCESS] Token introspection completed:`, result);
+				logger.success('useTokenIntrospectionFlowController', 'Token introspection completed', result);
 				return result;
 			} catch (err) {
 				const errorMessage = err instanceof Error ? err.message : 'Token introspection failed';
 				setError(errorMessage);
-				console.error(`${LOG_PREFIX} [ERROR] Token introspection failed:`, err);
+				logger.error('useTokenIntrospectionFlowController', 'Token introspection failed', undefined, err instanceof Error ? err : undefined);
 				throw err;
 			} finally {
 				setIsRequesting(false);

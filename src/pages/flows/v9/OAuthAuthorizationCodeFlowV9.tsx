@@ -235,26 +235,7 @@ const CollapsibleSection = styled.section`
 	box-shadow: 0 10px 20px rgba(15, 23, 42, 0.05);
 `;
 
-const _Section = styled.section`
-	border: 1px solid #e2e8f0;
-	border-radius: 0.75rem;
-	margin-bottom: 1.5rem;
-	background-color: #ffffff;
-	box-shadow: 0 10px 20px rgba(15, 23, 42, 0.05);
-	overflow: hidden;
-`;
 
-const _SectionHeader = styled.div`
-	background: #f8fafc;
-	color: #374151;
-	padding: 1.25rem 1.75rem;
-	font-weight: 600;
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 0.75rem;
-	line-height: 1.35;
-`;
 
 const CollapsibleHeaderButton = styled.button<{ $collapsed?: boolean }>`
 	display: flex;
@@ -278,15 +259,6 @@ const CollapsibleHeaderButton = styled.button<{ $collapsed?: boolean }>`
 	}
 `;
 
-// Theme-specific header variants (all using approved blue palette)
-const _OrangeHeaderButton = styled(CollapsibleHeaderButton)`
-	background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-	color: #1e3a8a;
-	
-	&:hover {
-		background: linear-gradient(135deg, #bfdbfe 0%, #93c5fd 100%);
-	}
-`;
 
 const BlueHeaderButton = styled(CollapsibleHeaderButton)`
 	background: linear-gradient(135deg, #bfdbfe 0%, #60a5fa 100%);
@@ -410,37 +382,7 @@ const InfoList = styled.ul`
 	padding-left: 1.5rem;
 `;
 
-const _FlowSuitability = styled.div`
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-	gap: 1rem;
-	margin: 1.5rem 0 0;
-`;
 
-const _SuitabilityCard = styled.div<{ $variant: 'success' | 'warning' | 'danger' }>`
-	border-radius: 1rem;
-	padding: 1.25rem;
-	border: 2px solid
-		${({ $variant }) => {
-			if ($variant === 'success') return '#34d399';
-			if ($variant === 'warning') return '#fbbf24';
-			return '#f87171';
-		}};
-	background:
-		${({ $variant }) => {
-			if ($variant === 'success') return '#dcfce7';
-			if ($variant === 'warning') return '#fef3c7';
-			return '#fee2e2';
-		}};
-	color: #1f2937;
-	box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
-
-	ul {
-		margin: 0.75rem 0 0;
-		padding-left: 1.25rem;
-		line-height: 1.6;
-	}
-`;
 
 const GeneratedContentBox = styled.div`
 	background-color: #dcfce7;
@@ -497,66 +439,7 @@ const ActionRow = styled.div`
 	margin-top: 1.5rem;
 `;
 
-const _SaveAdvancedParamsButton = styled.button`
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	gap: 0.75rem;
-	padding: 1rem 2rem;
-	font-size: 1rem;
-	font-weight: 600;
-	color: #ffffff;
-	background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-	border: none;
-	border-radius: 0.75rem;
-	cursor: pointer;
-	transition: all 0.2s;
-	box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-	margin-top: 2rem;
 
-	&:hover {
-		transform: translateY(-2px);
-		box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
-	}
-
-	&:active {
-		transform: translateY(0);
-	}
-
-	svg {
-		font-size: 1.25rem;
-	}
-`;
-
-const _SavedAdvancedParamsIndicator = styled.div`
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: 0.5rem;
-	padding: 1rem;
-	background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-	border: 2px solid #34d399;
-	border-radius: 0.75rem;
-	color: #065f46;
-	font-weight: 600;
-	margin-top: 1rem;
-	animation: slideIn 0.3s ease-out;
-
-	svg {
-		font-size: 1.25rem;
-	}
-
-	@keyframes slideIn {
-		from {
-			opacity: 0;
-			transform: translateY(-10px);
-		}
-		to {
-			opacity: 1;
-			transform: translateY(0);
-		}
-	}
-`;
 
 const Button = styled.button<{
 	$variant?: 'primary' | 'success' | 'secondary' | 'danger' | 'outline';
@@ -716,32 +599,7 @@ const EmptyText = styled.p`
 	margin-bottom: 1rem;
 `;
 
-const _VariantToggleContainer = styled.div`
-	display: inline-flex;
-	border-radius: 9999px;
-	border: 1px solid #d1d5db;
-	background: #f8fafc;
-	overflow: hidden;
-	margin: 1.5rem 0;
-`;
 
-const _VariantToggleButton = styled.button<{ $active: boolean }>`
-	appearance: none;
-	border: none;
-	padding: 0.65rem 1.4rem;
-	font-weight: 600;
-	font-size: 0.9rem;
-	cursor: pointer;
-	background: ${({ $active }) => ($active ? 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)' : 'transparent')};
-	color: ${({ $active }) => ($active ? '#ffffff' : '#1f2937')};
-	transition: background 0.2s ease, color 0.2s ease;
-	min-width: 140px;
-	outline: none;
-
-	&:hover {
-		background: ${({ $active }) => ($active ? 'linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%)' : '#e5e7eb')};
-	}
-`;
 
 const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 	logger.info('OAuthAuthorizationCodeFlowV9', 'V7.2 Flow loaded!', {
@@ -823,7 +681,6 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 		AuthorizationCodeSharedService.StepRestoration.getInitialStep()
 	);
 	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>(DEFAULT_APP_CONFIG);
-	const [_emptyRequiredFields, setEmptyRequiredFields] = useState<Set<string>>(new Set());
 	const [collapsedSections, setCollapsedSections] = useState(
 		AuthorizationCodeSharedService.CollapsibleSections.getDefaultState()
 	);
@@ -832,7 +689,6 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 	// Prevent the login success modal from reopening repeatedly for the same auth code
 	const loginModalGuardRef = useRef<string | null>(null);
 	const [localAuthCode, setLocalAuthCode] = useState<string | null>(null);
-	const [_copiedField, setCopiedField] = useState<string | null>(null);
 	const [flowVariant, setFlowVariant] = useState<'oauth' | 'oidc'>(controller.flowVariant);
 
 	useEffect(() => {
@@ -950,8 +806,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 	const [audience, setAudience] = useState<string>('');
 	const [resources, setResources] = useState<string[]>([]);
 	const [promptValues, setPromptValues] = useState<string[]>([]);
-	const [_isSavedAdvancedParams, setIsSavedAdvancedParams] = useState(false);
-
+	
 	// V7.2 addition: optional redirectless (pi.flow) execution inline
 	const [useRedirectless, setUseRedirectless] = useState(false);
 	const [customLoginOpen, setCustomLoginOpen] = useState(false);
@@ -1007,70 +862,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 		controller.setFlowConfig,
 	]);
 
-	// Save advanced parameters
-	const _handleSaveAdvancedParams = useCallback(async () => {
-		logger.info('OAuthAuthorizationCodeFlowV9', 'Saving advanced parameters', {
-			audience,
-			resources,
-			promptValues,
-		});
-
-		const flowId = FlowStorageService.getFlowId('oauth-authorization-code-v9') ?? 'oauth-authz-v7';
-		FlowStorageService.AdvancedParameters.set(flowId, {
-			audience,
-			resources,
-			promptValues,
-		});
-		setIsSavedAdvancedParams(true);
-		modernMessaging.showFooterMessage({
-			type: 'info',
-			message: 'Advanced parameters saved! Regenerating authorization URL...',
-			duration: 3000,
-		});
-
-		// Regenerate authorization URL with new parameters
-		await AuthorizationCodeSharedService.Authorization.generateAuthUrl(
-			flowVariant,
-			controller.credentials,
-			controller
-		);
-
-		// Log what will actually be sent to PingOne
-		if (controller.authUrl) {
-			const urlParams = new URLSearchParams(controller.authUrl.split('?')[1] || '');
-			const claimsParam = urlParams.get('claims');
-			logger.info('OAuthAuthorizationCodeFlowV9', '===== URL THAT WILL BE SENT TO PINGONE =====');
-			logger.info('OAuthAuthorizationCodeFlowV9', 'Full URL', { url: controller.authUrl });
-			logger.info('OAuthAuthorizationCodeFlowV9', 'Audience', {
-				audience: urlParams.get('audience') || 'Not included',
-			});
-			logger.info('OAuthAuthorizationCodeFlowV9', 'Prompt', {
-				prompt: urlParams.get('prompt') || 'Not included',
-			});
-			logger.info('OAuthAuthorizationCodeFlowV9', 'Claims (raw)', {
-				claims: claimsParam || 'Not included',
-			});
-			if (claimsParam) {
-				try {
-					logger.info('OAuthAuthorizationCodeFlowV9', 'Claims (decoded)', {
-						claims: JSON.parse(claimsParam),
-					});
-				} catch (e) {
-					logger.error('OAuthAuthorizationCodeFlowV9', 'Claims (decode failed)', { error: e });
-				}
-			}
-			logger.info('OAuthAuthorizationCodeFlowV9', 'Resources', {
-				resources: 'Not included (PingOne does not support RFC 8707)',
-			});
-			logger.info('OAuthAuthorizationCodeFlowV9', '=============================================');
-		}
-
-		// Hide the saved indicator after 3 seconds
-		setTimeout(() => {
-			setIsSavedAdvancedParams(false);
-		}, 3000);
-	}, [audience, resources, promptValues, controller, flowVariant]);
-
+	
 	// Scroll to top on step change
 	useEffect(() => {
 		AuthorizationCodeSharedService.StepRestoration.scrollToTopOnStepChange();
@@ -1447,30 +1239,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 	// 	return getFlowSequence('authorization-code');
 	// }, []);
 
-	const _stepCompletions = useMemo<StepCompletionState>(
-		() => ({
-			0: controller.hasStepResult('setup-credentials') || controller.hasCredentialsSaved,
-			1: controller.hasStepResult('generate-pkce') || Boolean(controller.pkceCodes.codeVerifier),
-			2: controller.hasStepResult('build-auth-url') || Boolean(controller.authUrl),
-			3: controller.hasStepResult('handle-callback') || Boolean(controller.authCode),
-			4: controller.hasStepResult('exchange-tokens') || Boolean(controller.tokens),
-			5: controller.hasStepResult('validate-tokens') || Boolean(controller.userInfo),
-			6: Boolean(controller.tokens?.access_token), // Token introspection available
-			7:
-				controller.hasStepResult('refresh-token-exchange') ||
-				Boolean(controller.tokens && controller.userInfo),
-		}),
-		[
-			controller.authCode,
-			controller.authUrl,
-			controller.hasCredentialsSaved,
-			controller.hasStepResult,
-			controller.pkceCodes.codeVerifier,
-			controller.tokens,
-			controller.userInfo,
-		]
-	);
-
+	
 	const toggleSection =
 		AuthorizationCodeSharedService.CollapsibleSections.createToggleHandler(setCollapsedSections);
 
@@ -1569,39 +1338,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 						'client_secret_post';
 
 			const flowKey = `oauth-authorization-code-v9-2-${flowVariant}`;
-			const _success = comprehensiveFlowDataService.saveFlowDataComprehensive(
-				flowKey,
-				{
-					...(controller.credentials.environmentId && {
-						sharedEnvironment: {
-							environmentId: controller.credentials.environmentId,
-							region: 'us',
-							issuerUrl: `https://auth.pingone.com/${controller.credentials.environmentId}`,
-						},
-					}),
-					flowCredentials: {
-						clientId: controller.credentials.clientId,
-						clientSecret: controller.credentials.clientSecret,
-						redirectUri: controller.credentials.redirectUri,
-						scopes: Array.isArray(controller.credentials.scopes)
-							? controller.credentials.scopes
-							: typeof controller.credentials.scopes === 'string'
-								? controller.credentials.scopes.split(/\s+/).filter(Boolean)
-								: [],
-						tokenEndpointAuthMethod: tokenEndpointAuthMethod,
-						lastUpdated: Date.now(),
-					},
-					flowConfig: {
-						flowVariant: flowVariant,
-						responseType: controller.credentials.responseType || controller.flowConfig.responseType,
-						grantType: controller.credentials.grantType || controller.flowConfig.grantType,
-						tokenEndpointAuthMethod: tokenEndpointAuthMethod,
-						lastUpdated: Date.now(),
-					},
-				},
-				{ showToast: false }
-			);
-
+			
 			modernMessaging.showFooterMessage({
 				type: 'info',
 				message: 'Configuration saved successfully!',
@@ -2238,38 +1975,9 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 		}
 	}, [controller]);
 
-	const _handleCopy = useCallback((text: string, label: string) => {
-		navigator.clipboard
-			.writeText(text)
-			.then(() =>
-				modernMessaging.showFooterMessage({
-					type: 'info',
-					message: `${label} copied to clipboard!`,
-					duration: 3000,
-				})
-			)
-			.catch(() =>
-				modernMessaging.showBanner({
-					type: 'error',
-					title: 'Error',
-					message: `Failed to copy ${label}`,
-					dismissible: true,
-				})
-			);
-		setCopiedField(label);
-		setTimeout(() => setCopiedField(null), 1000);
-	}, []);
-
+	
 	// Extract x5t parameter from JWT header
-	const _getX5tParameter = useCallback((token: string) => {
-		try {
-			const header = decodeJWTHeader(token);
-			return header.x5t || header['x5t#S256'] || null;
-		} catch (_error) {
-			return null;
-		}
-	}, []);
-
+	
 	const navigateToTokenManagement = useCallback(() => {
 		AuthorizationCodeSharedService.TokenManagement.navigateToTokenManagement(
 			flowVariant,
@@ -2296,32 +2004,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 		window.open('/token-management', '_blank');
 	}, [controller.tokens, controller.credentials, currentStep, flowVariant]);
 
-	const _navigateToTokenManagementWithRefreshToken = useCallback(() => {
-		AuthorizationCodeSharedService.TokenManagement.navigateToTokenManagement(
-			flowVariant,
-			controller.tokens,
-			controller.credentials,
-			currentStep
-		);
-
-		// Additional component-specific logic for refresh token
-		if (controller.tokens?.refresh_token) {
-			// Use localStorage for cross-tab communication
-			localStorage.setItem('token_to_analyze', controller.tokens.refresh_token);
-			localStorage.setItem('token_type', 'refresh');
-			localStorage.setItem('flow_source', 'oauth-authorization-code-v9');
-			logger.info(
-				'OAuthAuthorizationCodeFlowV9',
-				'Passing refresh token to Token Management via localStorage'
-			);
-		}
-
-		// Store flow navigation state for back navigation
-		storeFlowNavigationState('oauth-authorization-code-v9', currentStep, 'oauth');
-
-		window.open('/token-management', '_blank');
-	}, [controller.tokens, controller.credentials, currentStep, flowVariant]);
-
+	
 	const handleResetFlow = useCallback(() => {
 		controller.resetFlow();
 		setCurrentStep(0);
@@ -2495,14 +2178,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 		controller,
 	]);
 
-	const _handlePrev = useCallback(() => {
-		if (currentStep <= 0) {
-			return;
-		}
-		const previous = currentStep - 1;
-		setCurrentStep(previous);
-	}, [currentStep]);
-
+	
 	// Handle next button click with feedback even when disabled
 	const handleNextClick = useCallback(() => {
 		logger.info('OAuthAuthorizationCodeFlowV9', 'Next button clicked');
@@ -2520,25 +2196,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 		handleNext();
 	}, [canNavigateNext, handleNext]);
 
-	// Determine if tokens should be displayed (only show if they were exchanged for the current auth code)
-	const _shouldDisplayTokens = useMemo(() => {
-		// Don't show tokens if we don't have any
-		if (!controller.tokens?.access_token) {
-			return false;
-		}
-
-		// Don't show tokens if we have an auth code but haven't exchanged it yet
-		// (This prevents showing stale tokens from a previous run)
-		if (controller.authCode || localAuthCode) {
-			// Check if the token exchange step result exists for this session
-			const hasExchangedThisSession = controller.hasStepResult('exchange-tokens');
-			return hasExchangedThisSession;
-		}
-
-		// If no auth code, we can show tokens (user might be on a later step)
-		return true;
-	}, [controller.tokens, controller.authCode, localAuthCode, controller.hasStepResult]);
-
+	
 	const renderStepContent = useMemo(() => {
 		const credentials = controller.credentials;
 		const authCode = controller.authCode;

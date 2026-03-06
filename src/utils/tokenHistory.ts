@@ -1,3 +1,4 @@
+import { logger } from './logger';
 /**
  * Token History Storage Utility
  * Tracks all tokens received from different OAuth flows
@@ -44,7 +45,7 @@ export const getTokenHistory = (): TokenHistory => {
 			return history;
 		}
 	} catch (error) {
-		console.error(' [TokenHistory] Error retrieving token history:', error);
+		logger.error('TokenHistory', 'Error retrieving token history:', undefined, error as Error);
 	}
 
 	return {
@@ -120,7 +121,7 @@ export const addTokenToHistory = (
 
 		return true;
 	} catch (error) {
-		console.error(' [TokenHistory] Error adding token to history:', error);
+		logger.error('TokenHistory', 'Error adding token to history:', undefined, error as Error);
 		return false;
 	}
 };
@@ -134,7 +135,7 @@ export const clearTokenHistory = (): boolean => {
 		console.log(' [TokenHistory] Cleared all token history');
 		return true;
 	} catch (error) {
-		console.error(' [TokenHistory] Error clearing token history:', error);
+		logger.error('TokenHistory', 'Error clearing token history:', undefined, error as Error);
 		return false;
 	}
 };
@@ -163,7 +164,7 @@ export const removeTokenFromHistory = (entryId: string): boolean => {
 
 		return false;
 	} catch (error) {
-		console.error(' [TokenHistory] Error removing token from history:', error);
+		logger.error('TokenHistory', 'Error removing token from history:', undefined, error as Error);
 		return false;
 	}
 };

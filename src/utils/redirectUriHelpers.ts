@@ -1,3 +1,4 @@
+import { logger } from './logger';
 // src/utils/redirectUriHelpers.ts
 // Utility functions to ensure redirect_uri consistency between authorization request and token exchange
 
@@ -21,10 +22,15 @@ export function storeRedirectUriFromAuthUrl(authUrl: string, flowKey: string): s
 			return redirectUri;
 		}
 
-		console.warn(`⚠️ [RedirectURI] No redirect_uri found in auth URL for ${flowKey}`);
+		logger.warn('RedirectURI', `No redirect_uri found in auth URL for ${flowKey}`);
 		return null;
 	} catch (error) {
-		console.error('[RedirectURI] Failed to extract redirect_uri from auth URL:', error);
+		logger.error(
+			'RedirectURI',
+			'Failed to extract redirect_uri from auth URL:',
+			undefined,
+			error as Error
+		);
 		return null;
 	}
 }
@@ -47,11 +53,11 @@ export function getStoredRedirectUri(flowKey: string, fallback?: string): string
 	}
 
 	if (fallback) {
-		console.warn(`⚠️ [RedirectURI] No stored value for ${flowKey}, using fallback: ${fallback}`);
+		logger.warn('RedirectURI', `No stored value for ${flowKey}, using fallback: ${fallback}`);
 		return fallback;
 	}
 
-	console.error(`❌ [RedirectURI] No stored or fallback value for ${flowKey}`);
+	logger.error('RedirectURI', `No stored or fallback value for ${flowKey}`);
 	return '';
 }
 
@@ -83,7 +89,7 @@ export function redirectUrisMatch(uri1: string, uri2: string): boolean {
 	const match = normalize(uri1) === normalize(uri2);
 
 	if (!match) {
-		console.warn('⚠️ [RedirectURI] Mismatch detected:', {
+		logger.warn('RedirectURI', 'Mismatch detected:', {
 			uri1: normalize(uri1),
 			uri2: normalize(uri2),
 		});
@@ -113,7 +119,7 @@ export function auditRedirectUri(phase: string, redirectUri: string, flowKey: st
 	if (phase === 'token-exchange') {
 		const stored = getStoredRedirectUri(flowKey);
 		if (stored && !redirectUrisMatch(stored, redirectUri)) {
-			console.error('❌ [RedirectURI] MISMATCH DETECTED:', {
+			logger.error('RedirectURI', 'MISMATCH DETECTED:', {
 				storedInAuth: stored,
 				usedInExchange: redirectUri,
 				willFail: true,
