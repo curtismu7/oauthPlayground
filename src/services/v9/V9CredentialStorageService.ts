@@ -23,6 +23,17 @@ import {
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 /**
+ * Serializable menu group structure for sidebar persistence
+ */
+export interface SerializableMenuGroup {
+	id: string;
+	label: string;
+	isOpen: boolean;
+	items: Array<{ id: string; path: string; label: string }>;
+	subGroups?: Array<SerializableMenuGroup>;
+}
+
+/**
  * Canonical credential shape shared by all V9 flows.
  * All fields are optional — flows only fill what they need.
  */
@@ -47,6 +58,11 @@ export interface V9FlowCredentials {
 	accessToken?: string;
 	refreshToken?: string;
 	idToken?: string;
+
+	// UI Configuration (for sidebar menu and other UI state)
+	version?: string;
+	menuOrder?: SerializableMenuGroup[]; // Serialized menu groups for sidebar
+	uiState?: Record<string, unknown>; // Generic UI state storage
 
 	// Flow metadata
 	flowType?: string;

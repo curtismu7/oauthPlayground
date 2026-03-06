@@ -2,9 +2,12 @@ import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
+import { CompactAppPickerV9 } from '../../components/CompactAppPickerV9';
 import FlowCredentials from '../../components/FlowCredentials';
 import { StepByStepFlow } from '../../components/StepByStepFlow';
 import { type PARAuthMethod, type PARResponse } from '../../services/parService';
+import type { V9DiscoveredApp } from '../../services/v9/V9AppDiscoveryService';
+import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
 import { logger } from '../../utils/logger';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
 
@@ -284,6 +287,36 @@ const PARFlow: React.FC<PARFlowProps> = ({ credentials }) => {
 		keyId: '',
 		jwksUri: '',
 	});
+
+	// Handle app selection from CompactAppPickerV9
+	const handleAppSelected = useCallback((app: V9DiscoveredApp) => {
+		setFormData((prev) => ({
+			...prev,
+			clientId: app.clientId,
+		}));
+	}, []);
+
+	// Load credentials from V9 storage on mount
+	useEffect(() => {
+		const savedCredentials = V9CredentialStorageService.loadSync('par-flow');
+		if (savedCredentials && Object.keys(savedCredentials).length > 0) {
+			setFormData((prev) => ({
+				...prev,
+				clientId: savedCredentials.clientId || prev.clientId,
+				clientSecret: savedCredentials.clientSecret || prev.clientSecret,
+				environmentId: savedCredentials.environmentId || prev.environmentId,
+			}));
+		}
+	}, []);
+
+	// Save credentials to V9 storage whenever they change
+	useEffect(() => {
+		V9CredentialStorageService.save('par-flow', {
+			clientId: formData.clientId,
+			clientSecret: formData.clientSecret,
+			environmentId: formData.environmentId,
+		});
+	}, [formData.clientId, formData.clientSecret, formData.environmentId]);
 	const [response, setResponse] = useState<Record<string, unknown> | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [parResponse, setParResponse] = useState<PARResponse | null>(null);
@@ -701,6 +734,13 @@ if (tokenResponse.ok) {
 					</a>
 				</p>
 			</InfoContainer>
+
+			{/* App Picker for Quick Configuration */}
+			<CompactAppPickerV9
+				environmentId={formData.environmentId ?? ''}
+				onAppSelected={handleAppSelected}
+				grantType="authorization_code"
+			/>
 
 			<FlowCredentials
 				flowType="par"
