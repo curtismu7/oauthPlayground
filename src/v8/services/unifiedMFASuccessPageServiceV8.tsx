@@ -1773,6 +1773,65 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 				)}
 			</div>
 
+			{/* Flow Completion Summary */}
+			<div
+				style={{
+					background: '#f0fdf4',
+					border: '1px solid #86efac',
+					borderRadius: '0.5rem',
+					padding: '1.5rem',
+					marginTop: '2rem',
+				}}
+			>
+				<h3
+					style={{
+						margin: '0 0 1rem 0',
+						color: '#16a34a',
+						fontSize: '1.25rem',
+						fontWeight: 600,
+					}}
+				>
+					🎉 MFA {flowType === 'registration' ? 'Registration' : 'Authentication'} Flow Complete
+				</h3>
+				<div
+					style={{
+						background: 'white',
+						borderRadius: '0.375rem',
+						padding: '1rem',
+						marginBottom: '1rem',
+					}}
+				>
+					<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>
+						Achievements:
+					</h4>
+					<ul style={{ margin: '0', paddingLeft: '1.5rem', color: '#4b5563' }}>
+						<li>✅ {deviceTypeDisplay} device {flowType === 'registration' ? 'registered' : 'authenticated'} successfully</li>
+						<li>✅ Device status: {deviceStatus}</li>
+						<li>✅ {username ? `User ${username} verified` : 'User verification completed'}</li>
+						<li>✅ {flowType === 'registration' ? 'MFA device enrollment' : 'MFA authentication'} completed</li>
+					</ul>
+				</div>
+				<div
+					style={{
+						background: 'white',
+						borderRadius: '0.375rem',
+						padding: '1rem',
+					}}
+				>
+					<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>
+						Flow Summary:
+					</h4>
+					<div style={{ fontSize: '0.875rem', color: '#4b5563' }}>
+						<p><strong>Device Type:</strong> {deviceTypeDisplay}</p>
+						<p><strong>Device ID:</strong> {deviceId}</p>
+						<p><strong>Flow Type:</strong> {flowType === 'registration' ? 'Device Registration' : 'Device Authentication'}</p>
+						{contactInfo && <p><strong>Contact:</strong> {contactLabel} - {contactInfo}</p>}
+						{deviceNickname && <p><strong>Device Name:</strong> {deviceNickname}</p>}
+						<p><strong>Completion Time:</strong> {new Date(timestamp || Date.now()).toLocaleString()}</p>
+					</div>
+				</div>
+			</div>
+
 			{/* API Display Toggle - Bottom */}
 			<div style={{ marginTop: '48px', display: 'flex', justifyContent: 'flex-end' }}>
 				<ApiDisplayCheckbox />
