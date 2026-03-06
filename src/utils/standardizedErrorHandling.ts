@@ -1,3 +1,4 @@
+import { logger } from './logger';
 // src/utils/standardizedErrorHandling.ts
 // Standardized error handling for all OAuth/OIDC flows
 
@@ -151,7 +152,7 @@ export class StandardizedErrorHandler {
 		];
 
 		if (!validErrorCodes.includes(response.error)) {
-			console.warn(`Invalid error code: ${response.error}`);
+			logger.warn('StandardizedErrorHandling', `Invalid error code: ${response.error}`);
 		}
 
 		return true;
@@ -220,7 +221,7 @@ export class StandardizedErrorHandler {
 
 		// Log to console in development
 		if (process.env.NODE_ENV === 'development') {
-			console.error('OAuth/OIDC Error:', {
+			logger.error('StandardizedErrorHandling', 'OAuth/OIDC Error:', {
 				error: errorDetails.error,
 				description: errorDetails.error_description,
 				flow: errorDetails.flow_name,

@@ -1,3 +1,4 @@
+import { logger } from './logger';
 import { oauthStorage } from './storage';
 
 interface PingOneSessionConfig {
@@ -55,7 +56,7 @@ class PingOneSessionManager {
 			const data = await response.json();
 			return data?.active === true;
 		} catch (error) {
-			console.error('Session check failed:', error);
+			logger.error('PingOneSession', 'Session check failed:', undefined, error as Error);
 			return false;
 		}
 	}
@@ -99,7 +100,12 @@ class PingOneSessionManager {
 			}
 			return false;
 		} catch (error) {
-			console.error('Failed to configure session lifetime:', error);
+			logger.error(
+				'PingOneSession',
+				'Failed to configure session lifetime:',
+				undefined,
+				error as Error
+			);
 			return false;
 		}
 	}
@@ -125,7 +131,7 @@ class PingOneSessionManager {
 
 			return await response.json();
 		} catch (error) {
-			console.error('Failed to get session info:', error);
+			logger.error('PingOneSession', 'Failed to get session info:', undefined, error as Error);
 			throw error;
 		}
 	}

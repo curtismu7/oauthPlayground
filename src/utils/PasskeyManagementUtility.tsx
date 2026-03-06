@@ -7,6 +7,7 @@
 
 import { FiCheckCircle, FiCopy, FiExternalLink, FiInfo, FiTrash2 } from '@icons';
 import React, { useEffect, useState } from 'react';
+import { logger } from './logger';
 
 interface PasskeyDevice {
 	id: string;
@@ -84,7 +85,7 @@ export const PasskeyManagementUtility: React.FC<PasskeyManagementUtilityProps> =
 
 			setDevices(enrichedDevices);
 		} catch (err) {
-			console.error('Failed to load devices:', err);
+			logger.error('PasskeyManagement', 'Failed to load devices:', undefined, err as Error);
 			setError(err instanceof Error ? err.message : 'Failed to load devices');
 		} finally {
 			setLoading(false);
@@ -103,7 +104,7 @@ export const PasskeyManagementUtility: React.FC<PasskeyManagementUtilityProps> =
 			setCopiedField(fieldName);
 			setTimeout(() => setCopiedField(null), 2000);
 		} catch (err) {
-			console.error('Failed to copy:', err);
+			logger.error('PasskeyManagement', 'Failed to copy:', undefined, err as Error);
 		}
 	};
 
@@ -148,7 +149,12 @@ export const PasskeyManagementUtility: React.FC<PasskeyManagementUtilityProps> =
 					rpId,
 				});
 			} catch (signalError) {
-				console.warn('⚠️ Failed to signal Chrome about deleted credential:', signalError);
+				logger.warn(
+					'PasskeyManagement',
+					'Failed to signal Chrome about deleted credential:',
+					undefined,
+					signalError as Error
+				);
 				// Don't throw - this is best effort, deletion from server is what matters
 			}
 		} else {
@@ -194,7 +200,12 @@ export const PasskeyManagementUtility: React.FC<PasskeyManagementUtilityProps> =
 					rpId,
 				});
 			} catch (signalError) {
-				console.warn('⚠️ Failed to signal Chrome with accepted credentials:', signalError);
+				logger.warn(
+					'PasskeyManagement',
+					'Failed to signal Chrome with accepted credentials:',
+					undefined,
+					signalError as Error
+				);
 			}
 		}
 	};
@@ -257,7 +268,7 @@ export const PasskeyManagementUtility: React.FC<PasskeyManagementUtilityProps> =
 
 			onDeviceDeleted?.();
 		} catch (err) {
-			console.error('Failed to delete device:', err);
+			logger.error('PasskeyManagement', 'Failed to delete device:', undefined, err as Error);
 			alert(`Failed to delete device: ${err instanceof Error ? err.message : 'Unknown error'}`);
 		}
 	};

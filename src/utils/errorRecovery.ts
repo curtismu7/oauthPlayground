@@ -1,3 +1,4 @@
+import { logger } from './logger';
 // src/utils/errorRecovery.ts - Enhanced Error Handling and Recovery System
 
 export interface ErrorRecoveryConfig {
@@ -52,7 +53,7 @@ export class EnhancedErrorRecovery {
 		retryFunction?: () => Promise<void>
 	): Promise<void> {
 		const errorInfo = this.categorizeError(error);
-		console.error(' [ErrorRecovery] Error occurred:', {
+		logger.error('ErrorRecovery', 'Error occurred:', {
 			error: errorInfo,
 			context,
 			retryCount: this.retryCount,
@@ -292,7 +293,7 @@ export class EnhancedErrorRecovery {
 					this.retryCount = 0; // Reset on success
 					resolve();
 				} catch (retryError) {
-					console.error(' [ErrorRecovery] Retry failed:', retryError);
+					logger.error('ErrorRecovery', 'Retry failed:', undefined, retryError as Error);
 					if (this.retryCount < this.config.maxRetries) {
 						await this.attemptRetry(retryFunction, errorInfo);
 					}

@@ -1,5 +1,6 @@
 // src/utils/advancedOIDC.ts - Advanced OIDC features beyond Core 1.0
 
+import { logger } from './logger';
 import { generateCodeVerifier } from './oauth';
 
 /**
@@ -87,7 +88,7 @@ export const fetchOIDCDiscovery = async (issuer: string): Promise<OIDCDiscoveryD
 
 		return discovery;
 	} catch (error) {
-		console.error(' [AdvancedOIDC] Discovery failed:', error);
+		logger.error('AdvancedOIDC', 'Discovery failed:', undefined, error as Error);
 		throw new Error(
 			`Failed to fetch OIDC discovery document: ${error instanceof Error ? error.message : String(error)}`
 		);
@@ -187,7 +188,7 @@ export const checkSessionStatus = async (
 			document.body.appendChild(iframe);
 		});
 	} catch (error) {
-		console.error(' [AdvancedOIDC] Session check failed:', error);
+		logger.error('AdvancedOIDC', 'Session check failed:', undefined, error as Error);
 		return 'error';
 	}
 };

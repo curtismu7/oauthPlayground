@@ -2,6 +2,7 @@
 // Service to show warning toasts when flows start without credentials
 
 import React from 'react';
+import { logger } from './logger';
 import { v4ToastManager } from './v4ToastMessages';
 
 export interface CredentialsCheck {
@@ -47,7 +48,7 @@ export function checkCredentialsAndWarn(
 			`⚠️ ${flowName}: Please fill in your credentials (${missingFieldsText}) to continue`
 		);
 
-		console.warn(`[CredentialsWarning] ${flowName} started without credentials:`, {
+		logger.warn('CredentialsWarning', `${flowName} started without credentials:`, {
 			missingFields,
 			credentials: {
 				hasEnvironmentId: !!normalizedCredentials.environmentId,
