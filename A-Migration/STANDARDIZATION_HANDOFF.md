@@ -16,7 +16,9 @@
 | Dead flow files archived | ✅ **DONE** | 31 files + 5 dirs → `archive/dead-flows/` (commit `8b442f165`) |
 | V9 flows: `V9CredentialStorageService` | ✅ **DONE** | All 16 V9 flows have it |
 | V9 flows: `CompactAppPickerV8U` | ✅ **DONE** | All 16 V9 flows have it |
-| App Lookup Service (`CompactAppPickerV8U`) — all credential flows | 🔄 **IN PROGRESS** | All flows with credentials must use the app picker so users can auto-apply credentials. V9 flows (v9/) 16/16 done. Remaining: 2 V9 flows outside v9/ (CIBAFlowV9, RedirectlessFlowV9_Real) + 13 non-V9 flows. See [APP_PICKER_MIGRATION_REPORT.md](./APP_PICKER_MIGRATION_REPORT.md) |
+| App Lookup Service (`CompactAppPickerV8U`) — all credential flows | 🔄 **IN PROGRESS** | All flows with credentials must use the app picker so users can auto-apply credentials. V9 flows (v9/) 16/16 done. Remaining: 2 V9 flows outside v9/ (CIBAFlowV9, RedirectlessFlowV9_Real) + 10 non-V9 flows. See [APP_PICKER_MIGRATION_REPORT.md](./APP_PICKER_MIGRATION_REPORT.md) |
+| **NEW: Credentials Import/Export Service** | ✅ **DONE** | Standardized service created: `credentialsImportExportService.ts` + `CredentialsImportExport.tsx` component. 3/13 non-V9 flows have it. See [CREDENTIALS_IMPORT_EXPORT_INVENTORY.md](./CREDENTIALS_IMPORT_EXPORT_INVENTORY.md) |
+| **NEW: CompactAppPickerV8U → V9 Migration** | ✅ **DONE** | Migrated to `CompactAppPickerV9` with V9 standardization, enhanced features, and improved TypeScript. See [COMPACT_APP_PICKER_V9_MIGRATION.md](./COMPACT_APP_PICKER_V9_MIGRATION.md) |
 | V9 flows: zero `toastV8` calls | ✅ **DONE** | 0 actual calls (comments only) |
 | V9 flows: `console.error/warn` | ✅ **DONE** | 0 violations in all V9 flows — WorkerTokenFlowV9 1 occurrence exempt (inside `<pre>` tag). CIBAFlowV9 + RedirectlessFlowV9_Real (13 violations) fixed commit `8eb74df06` |
 | V9 services: `console.error/warn` | ✅ **DONE** | 48 violations removed across 13 service files (commit `d2948f543`) — 2 false positives skipped (postmanCollectionGeneratorV9 template strings, credentialsServiceV9 JSDoc) |
@@ -59,6 +61,98 @@ Every V9 flow **must** have all of:
 2. `CompactAppPickerV8U` — app selection UI
 3. `modernMessaging` — user notifications (no `console.error`/`warn` for errors)
 4. Zero `v4ToastManager` or `toastV8` direct calls
+
+---
+
+## 2.1. V9 Storage Service Requirements - MANDATORY
+
+### **🚨 CRITICAL: All Apps Must Save Everything Using V9 Storage**
+
+**Every application, flow, and component MUST use `V9CredentialStorageService` to persist:**
+
+#### **Required Data Persistence**
+1. **All Tokens** - Access tokens, refresh tokens, ID tokens, device codes
+2. **All Credentials** - Client IDs, client secrets, environment IDs, API keys
+3. **All UI Entries** - Form inputs, user selections, configuration preferences
+4. **All App State** - Selected applications, grant types, flow configurations
+
+#### **User Experience Goal: ZERO RE-TYPING**
+- **Objective**: Users should never have to retype information they've already entered
+- **Implementation**: Every field value must be automatically restored on page load
+- **Persistence**: Data survives page refreshes, browser restarts, and sessions
+- **Portability**: Users can export/import their complete configuration
+
+#### **V9 Storage Service Features**
+```typescript
+// REQUIRED: Load saved data on component mount
+useEffect(() => {
+  const saved = V9CredentialStorageService.loadSync(flowKey);
+  if (saved.clientId) setClientId(saved.clientId);
+  if (saved.environmentId) setEnvironmentId(saved.environmentId);
+  if (saved.scopes) setScopes(saved.scopes);
+  // Restore ALL user inputs
+}, []);
+
+// REQUIRED: Save data on every change
+const handleClientIdChange = (value: string) => {
+  setClientId(value);
+  V9CredentialStorageService.save(flowKey, { 
+    clientId: value,
+    environmentId,
+    scopes,
+    // Save ALL current state
+  });
+};
+```
+
+#### **UnifiedCredentialManagerV9 Integration**
+- **App Selection**: Automatically saves selected application credentials
+- **Import/Export**: Users can backup and restore complete configurations
+- **Cross-Flow**: Same credentials available across all flows
+- **Zero Typing**: One-time setup, automatic persistence
+
+#### **Implementation Checklist**
+- [ ] **Load on Mount**: Every form field populated from V9 storage
+- [ ] **Save on Change**: Every user input immediately persisted
+- [ ] **Complete Coverage**: No field left without persistence
+- [ ] **Import/Export**: Users can backup/restore configurations
+- [ ] **Cross-Session**: Data survives browser restarts
+- [ ] **Error Recovery**: Graceful handling of corrupted storage
+
+#### **Quality Gates**
+```bash
+# Verify all flows use V9CredentialStorageService
+for f in src/pages/flows/v9/*.tsx; do
+  grep -q "V9CredentialStorageService" "$f" || echo "MISSING STORAGE: $(basename $f)"
+done
+
+# Verify all V7M flows use V9CredentialStorageService  
+for f in src/v7/pages/V7M*.tsx; do
+  grep -q "V9CredentialStorageService" "$f" || echo "MISSING STORAGE: $(basename $f)"
+done
+```
+
+#### **Migration Pattern for Legacy Flows**
+```typescript
+// BEFORE: No persistence
+const [clientId, setClientId] = useState('default-client');
+
+// AFTER: Full V9 persistence
+const flowKey = 'flow-name';
+useEffect(() => {
+  const saved = V9CredentialStorageService.loadSync(flowKey);
+  if (saved.clientId) setClientId(saved.clientId);
+  // Restore ALL fields
+}, []);
+
+const handleClientIdChange = (value: string) => {
+  setClientId(value);
+  V9CredentialStorageService.save(flowKey, { clientId: value });
+  // Save ALL changes
+};
+```
+
+**🎯 RESULT: Users enter information once, it's available everywhere, forever.**
 
 ---
 
@@ -183,6 +277,81 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 ```
 
 > **All V9 flow `console.error`/`console.warn` violations are eliminated.** `WorkerTokenFlowV9.tsx` has 1 occurrence inside a `<pre>` template string (code sample display) — **exempt**. `CIBAFlowV9.tsx` (9 fixed) and `RedirectlessFlowV9_Real.tsx` (4 fixed) committed `8eb74df06`.
+
+---
+
+## 5. Credentials Import/Export Service — ✅ STANDARDIZED
+
+All flows with credentials should use the standardized import/export service for consistent user experience.
+
+### Service and Component
+
+- **Service**: `src/services/credentialsImportExportService.ts`
+- **Component**: `src/components/CredentialsImportExport.tsx`
+- **Version**: 9.0.0
+
+### Standard Implementation Pattern
+
+```tsx
+import { CredentialsImportExport } from '@/components/CredentialsImportExport';
+
+// In your component render
+<CredentialsImportExport
+  credentials={credentials}
+  options={{
+    flowType: 'your-flow-type',
+    appName: 'Your Flow Name',
+    onImportSuccess: (creds) => setCredentials(creds),
+    onImportError: (error) => console.error(error),
+  }}
+/>
+```
+
+### Advanced Usage (Custom Handlers)
+
+```tsx
+import { credentialsImportExportService } from '@/services/credentialsImportExportService';
+
+const handleExport = credentialsImportExportService.createExportHandler(credentials, options);
+const handleImport = credentialsImportExportService.createImportHandler(options);
+```
+
+### File Format Standard
+
+Export creates JSON with this structure:
+```json
+{
+  "_meta": {
+    "flowType": "oauth-authorization-code",
+    "exportedAt": "2026-03-06T12:00:00.000Z",
+    "version": "9.0.0",
+    "appName": "OAuth Authorization Code Flow"
+  },
+  "credentials": {
+    "environmentId": "...",
+    "clientId": "...",
+    "clientSecret": "...",
+    "...": "other flow-specific fields"
+  }
+}
+```
+
+### Implementation Status
+
+| Category | Status | Details |
+|---|---|---|
+| V9 Flows | ✅ Complete | All 16 V9 flows use `ComprehensiveCredentialsService` |
+| Non-V9 Flows | 🔄 In Progress | 3/13 have standardized import/export, 10 remaining |
+| Other Apps | ✅ Complete | ApplicationGenerator, HelioMartPasswordReset, etc. |
+
+**See**: `CREDENTIALS_IMPORT_EXPORT_INVENTORY.md` for complete inventory and implementation priority.
+
+### Required Imports
+
+```typescript
+import { CredentialsImportExport } from '@/components/CredentialsImportExport';
+import { credentialsImportExportService } from '@/services/credentialsImportExportService';
+```
 
 ---
 
@@ -316,7 +485,51 @@ a67ea5f5d  Route all v4ToastManager calls through modernMessaging
 
 ---
 
-## 11. Comprehensive Documentation Ecosystem
+## 11. Component V9 Migration Standards
+
+### ✅ COMPLETED: CompactAppPickerV8U → CompactAppPickerV9
+
+**Status**: ✅ **COMPLETE** - March 6, 2026  
+**File**: `src/components/CompactAppPickerV9.tsx`  
+**Guide**: [COMPACT_APP_PICKER_V9_MIGRATION.md](./COMPACT_APP_PICKER_V9_MIGRATION.md)
+
+#### Key V9 Standardizations Applied:
+- **V9 Services**: Uses `V9AppDiscoveryService` and `V9WorkerTokenStatusService`
+- **Enhanced Types**: `V9DiscoveredApp` with grant type filtering and additional metadata
+- **V9 Design Standards**: V9 color palette, spacing system, and 0.15s transitions
+- **Improved Error Handling**: Structured result objects with proper error messages
+- **Enhanced Features**: Grant type filtering, compact mode, manual disable override
+
+#### Breaking changes:
+- Import path: `@/components/CompactAppPickerV9` (not `@/v8u/components/CompactAppPickerV8U`)
+- Type: `V9DiscoveredApp` (not `DiscoveredApp`)
+- Property: `app.clientId` (not `app.id`)
+- Service methods: Structured result objects (not direct arrays)
+
+#### Migration pattern:
+```typescript
+// Before (V8U)
+<CompactAppPickerV8U
+  environmentId={env}
+  onAppSelected={(app) => setClientId(app.id)}
+/>
+
+// After (V9)
+<UnifiedCredentialManagerV9
+  environmentId={env}
+  flowKey="v9:flow-key"
+  credentials={credentials}
+  importExportOptions={options}
+  onAppSelected={handleAppSelected}
+  grantType="authorization_code"
+  showAppPicker={true}
+  showImportExport={true}
+/>
+```
+
+---
+
+## 12. Comprehensive Documentation Ecosystem
 
 ### **Standards Guides** (NEW)
 - **[Logging Implementation Plan](../docs/standards/logging-implementation-plan.md)** - 5-week phased approach, 1,367 console statements

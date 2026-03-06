@@ -1,9 +1,12 @@
 import type React from 'react';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { CompactAppPickerV9 } from '../../components/CompactAppPickerV9';
 import FlowCredentials from '../../components/FlowCredentials';
 import JSONHighlighter from '../../components/JSONHighlighter';
 import { StepByStepFlow } from '../../components/StepByStepFlow';
+import type { V9DiscoveredApp } from '../../services/v9/V9AppDiscoveryService';
+import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
 import { logger } from '../../utils/logger';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
 
@@ -231,6 +234,38 @@ const MFAFlow: React.FC<MFAFlowProps> = ({ credentials }) => {
 	const [error, setError] = useState<string | null>(null);
 	const [mfaStep, setMfaStep] = useState<'select' | 'verify' | 'complete'>('select');
 	const [mfaCode, setMfaCode] = useState('');
+
+	// Handle app selection from CompactAppPickerV9
+	const handleAppSelected = useCallback((app: V9DiscoveredApp) => {
+		setFormData((prev) => ({
+			...prev,
+			clientId: app.clientId,
+		}));
+	}, []);
+
+	// Load credentials from V9 storage on mount
+	useEffect(() => {
+		const savedCredentials = V9CredentialStorageService.loadSync('mfa-flow');
+		if (savedCredentials && Object.keys(savedCredentials).length > 0) {
+			setFormData((prev) => ({
+				...prev,
+				clientId: savedCredentials.clientId || prev.clientId,
+				clientSecret: savedCredentials.clientSecret || prev.clientSecret,
+				environmentId: savedCredentials.environmentId || prev.environmentId,
+				redirectUri: savedCredentials.redirectUri || prev.redirectUri,
+			}));
+		}
+	}, []);
+
+	// Save credentials to V9 storage whenever they change
+	useEffect(() => {
+		V9CredentialStorageService.save('mfa-flow', {
+			clientId: formData.clientId,
+			clientSecret: formData.clientSecret,
+			environmentId: formData.environmentId,
+			redirectUri: formData.redirectUri,
+		});
+	}, [formData.clientId, formData.clientSecret, formData.environmentId, formData.redirectUri]);
 
 	const mfaOptions = [
 		{
@@ -709,6 +744,13 @@ if (tokenResponse.ok) {
 					availability, verification, and secure token exchange.
 				</p>
 			</WarningContainer>
+
+			{/* App Picker for Quick Configuration */}
+			<CompactAppPickerV9
+				environmentId={formData.environmentId ?? ''}
+				onAppSelected={handleAppSelected}
+				grantType="authorization_code"
+			/>
 
 			<FlowCredentials
 				flowType="mfa"

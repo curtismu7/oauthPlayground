@@ -10,16 +10,19 @@ import {
 	FiUser,
 	FiXCircle,
 } from '@icons';
-import type React from 'react';
+import React, { useCallback } from 'react';
 import { useState } from 'react';
 import styled from 'styled-components';
 import { CardBody, CardHeader } from '../../components/Card';
+import { CompactAppPickerV9 } from '../../components/CompactAppPickerV9';
 import { SpecCard } from '../../components/SpecCard';
 import { TokenSurface } from '../../components/TokenSurface';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { logger } from '../../utils/logger';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
+import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
+import type { V9DiscoveredApp } from '../../services/v9/V9AppDiscoveryService';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -200,16 +203,29 @@ const JWTBearerFlow: React.FC = () => {
 	const [accessToken, setAccessToken] = useState('');
 	const [tokenResponse, setTokenResponse] = useState<any>(null);
 	const [error, setError] = useState<string | null>(null);
+	const [stepStatus, setStepStatus] = useState<Record<number, 'pending' | 'active' | 'completed' | 'error'>>(
+		{
+			1: 'active',
+			2: 'pending',
+			3: 'pending',
+			4: 'pending',
+		}
+	);
 
-	// Step status tracking
-	const [stepStatus, setStepStatus] = useState<
-		Record<number, 'pending' | 'active' | 'completed' | 'error'>
-	>({
-		1: 'active',
-		2: 'pending',
-		3: 'pending',
-		4: 'pending',
-	});
+	// Handle app selection from CompactAppPickerV9
+	const handleAppSelected = useCallback(
+		(app: V9DiscoveredApp) => {
+			// Use V9 credential storage to update the configuration
+			V9CredentialStorageService.save(
+				'v9:jwt-bearer',
+				{ clientId: app.clientId, environmentId: config?.environmentId || '' },
+				{ environmentId: config?.environmentId || '' }
+			);
+			v4ToastManager.showSuccess(`Selected app: ${app.name}`);
+			logger.info('JWTBearerFlow', 'App selected', { appName: app.name, clientId: app.clientId });
+		},
+		[config?.environmentId]
+	);
 
 	const steps = [
 		{
@@ -592,6 +608,47 @@ const JWTBearerFlow: React.FC = () => {
 					</CardBody>
 				</FlowSection>
 			)}
+
+			{/* Configuration Section */}
+			<FlowSection>
+				<CardHeader>
+					<h2>PingOne Configuration</h2>
+				</CardHeader>
+				<CardBody>
+					<div style={{ marginBottom: '1rem' }}>
+						<CompactAppPickerV9
+							environmentId={config?.environmentId || ''}
+							onAppSelected={handleAppSelected}
+							grantType="urn:ietf:params:oauth:grant-type:jwt-bearer"
+							compact={false}
+						/>
+					</div>
+					<div
+						style={{
+							background: '#f8fafc',
+							border: '1px solid #e2e8f0',
+							borderRadius: '0.5rem',
+							padding: '1rem',
+							marginBottom: '1rem',
+						}}
+					>
+						<h4 style={{ margin: '0 0 0.5rem 0', color: '#374151', fontSize: '0.9rem' }}>
+							Current Configuration:
+						</h4>
+						<div style={{ display: 'grid', gap: '0.5rem', fontSize: '0.875rem' }}>
+							<div>
+								<strong>Environment ID:</strong> {config?.environmentId || 'Not set'}
+							</div>
+							<div>
+								<strong>Client ID:</strong> {config?.clientId || 'Not set'}
+							</div>
+							<div>
+								<strong>Client Secret:</strong> {config?.clientSecret ? '••••••••' : 'Not set'}
+							</div>
+						</div>
+					</div>
+				</CardBody>
+			</FlowSection>
 
 			{/* Step-by-Step Flow */}
 			<FlowSection>
