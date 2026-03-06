@@ -2114,7 +2114,9 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 	}, [controller]);
 
 	const _handleCopy = useCallback((text: string, label: string) => {
-		v4ToastManager.handleCopyOperation(text, label);
+		navigator.clipboard.writeText(text)
+			.then(() => modernMessaging.showFooterMessage({ type: 'info', message: `${label} copied to clipboard!`, duration: 3000 }))
+			.catch(() => modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to copy ${label}`, dismissible: true }));
 		setCopiedField(label);
 		setTimeout(() => setCopiedField(null), 1000);
 	}, []);
