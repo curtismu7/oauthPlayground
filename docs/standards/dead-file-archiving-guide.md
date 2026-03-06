@@ -276,6 +276,15 @@ For each archived file, include:
 4. **Best Practices**: Refine based on experience
 5. **Team Training**: Ensure team follows standards
 
+## 📚 Related Documentation
+
+- [Gold Star Migration Indicator Guide](./gold-star-migration-indicator-guide.md)
+- [Version Management Standardization Guide](./version-management-standardization-guide.md)
+- [Logging Implementation Plan](./logging-implementation-plan.md)
+- [V9 Modern Messaging Migration Guide](./v9-modern-messaging-migration-guide.md)
+- [Ping UI Standardization Guide](./ping-ui-standardization-guide.md)
+- [Messaging System Standardization](./messaging-system-standardization.md)
+
 ---
 
 **Guide Created**: March 6, 2026  

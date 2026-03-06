@@ -14,7 +14,8 @@ import {
 	FiSmartphone,
 	FiUser,
 } from '@icons';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import type React from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import JSONHighlighter, { type JSONData } from '../../../components/JSONHighlighter';
