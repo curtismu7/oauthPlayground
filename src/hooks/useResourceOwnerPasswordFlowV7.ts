@@ -4,6 +4,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { credentialManager } from '../utils/credentialManager';
 import { useFlowStepManager } from '../utils/flowStepSystem';
+import { logger } from '../utils/logger';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
 export interface ResourceOwnerPasswordCredentials {
@@ -73,7 +74,6 @@ interface UseResourceOwnerPasswordFlowV7Params {
 
 export const useResourceOwnerPasswordFlowV7 = ({
 	flowKey,
-	enableDebugger = false,
 }: UseResourceOwnerPasswordFlowV7Params): ResourceOwnerPasswordFlowV7Controller => {
 	const persistKey = `resource-owner-password-v7-${flowKey}`;
 
@@ -119,9 +119,7 @@ export const useResourceOwnerPasswordFlowV7 = ({
 	const saveCredentials = useCallback(async () => {
 		setIsSavingCredentials(true);
 		try {
-			if (enableDebugger) {
-				console.log('💾 [ResourceOwnerPasswordV7] Saving credentials...');
-			}
+			logger.debug('useResourceOwnerPasswordFlowV7', 'Saving credentials...');
 
 			// Map ResourceOwnerPasswordCredentials to PermanentCredentials format
 			const mappedCredentials = {
@@ -144,9 +142,7 @@ export const useResourceOwnerPasswordFlowV7 = ({
 			window.dispatchEvent(new CustomEvent('pingone-config-changed'));
 			window.dispatchEvent(new CustomEvent('permanent-credentials-changed'));
 
-			if (enableDebugger) {
-				console.log('✅ [ResourceOwnerPasswordV7] Credentials saved successfully');
-			}
+			logger.debug('useResourceOwnerPasswordFlowV7', 'Credentials saved successfully');
 
 			saveStepResult('save-credentials', {
 				saved: true,
@@ -155,14 +151,19 @@ export const useResourceOwnerPasswordFlowV7 = ({
 
 			v4ToastManager.showSuccess('Configuration saved successfully.');
 		} catch (error) {
-			console.error('❌ [ResourceOwnerPasswordV7] Save credentials failed:', error);
+			logger.error(
+				'useResourceOwnerPasswordFlowV7',
+				'Save credentials failed',
+				undefined,
+				error instanceof Error ? error : new Error(String(error))
+			);
 			v4ToastManager.showError('Failed to save configuration', {
 				error: error instanceof Error ? error.message : 'Unknown error',
 			});
 		} finally {
 			setIsSavingCredentials(false);
 		}
-	}, [credentials, enableDebugger, saveStepResult]);
+	}, [credentials, saveStepResult]);
 
 	// Authenticate user using Resource Owner Password flow
 	const authenticateUser = useCallback(async () => {
@@ -179,9 +180,7 @@ export const useResourceOwnerPasswordFlowV7 = ({
 
 		setIsAuthenticating(true);
 		try {
-			if (enableDebugger) {
-				console.log('🔐 [ResourceOwnerPasswordV7] Starting authentication...');
-			}
+			logger.debug('useResourceOwnerPasswordFlowV7', 'Starting authentication...');
 
 			// Prepare request body for Resource Owner Password flow
 			const requestBody = {
@@ -193,14 +192,12 @@ export const useResourceOwnerPasswordFlowV7 = ({
 				client_secret: credentials.clientSecret,
 			};
 
-			if (enableDebugger) {
-				console.log('🔍 [ResourceOwnerPasswordV7] Token request:', {
-					url: '/api/token-exchange',
-					grant_type: 'password',
-					username: credentials.username,
-					scope: credentials.scope,
-				});
-			}
+			logger.debug('useResourceOwnerPasswordFlowV7', 'Token request:', {
+				url: '/api/token-exchange',
+				grant_type: 'password',
+				username: credentials.username,
+				scope: credentials.scope,
+			});
 
 			const response = await fetch(`/api/token-exchange`, {
 				method: 'POST',
@@ -224,14 +221,12 @@ export const useResourceOwnerPasswordFlowV7 = ({
 
 			const tokenData: ResourceOwnerPasswordTokens = await response.json();
 
-			if (enableDebugger) {
-				console.log('🎫 [ResourceOwnerPasswordV7] Tokens received:', {
-					hasAccessToken: !!tokenData.access_token,
-					hasRefreshToken: !!tokenData.refresh_token,
-					expiresIn: tokenData.expires_in,
-					scope: tokenData.scope,
-				});
-			}
+			logger.debug('useResourceOwnerPasswordFlowV7', 'Tokens received:', {
+				hasAccessToken: !!tokenData.access_token,
+				hasRefreshToken: !!tokenData.refresh_token,
+				expiresIn: tokenData.expires_in,
+				scope: tokenData.scope,
+			});
 
 			setTokens(tokenData);
 
@@ -248,7 +243,12 @@ export const useResourceOwnerPasswordFlowV7 = ({
 			// Auto-advance to next step
 			stepManager.setStep(stepManager.currentStepIndex + 1, 'authentication completed');
 		} catch (error) {
-			console.error('[ResourceOwnerPasswordV7] Authentication failed:', error);
+			logger.error(
+				'useResourceOwnerPasswordFlowV7',
+				'Authentication failed',
+				undefined,
+				error instanceof Error ? error : new Error(String(error))
+			);
 			v4ToastManager.showError('Authentication failed', {
 				error: error instanceof Error ? error.message : 'Unknown error',
 			});
@@ -261,7 +261,7 @@ export const useResourceOwnerPasswordFlowV7 = ({
 		} finally {
 			setIsAuthenticating(false);
 		}
-	}, [credentials, stepManager, enableDebugger, saveStepResult]);
+	}, [credentials, stepManager, saveStepResult]);
 
 	// Fetch user info using access token
 	const fetchUserInfo = useCallback(async () => {
@@ -272,9 +272,7 @@ export const useResourceOwnerPasswordFlowV7 = ({
 
 		setIsFetchingUserInfo(true);
 		try {
-			if (enableDebugger) {
-				console.log('👤 [ResourceOwnerPasswordV7] Fetching user info...');
-			}
+			logger.debug('useResourceOwnerPasswordFlowV7', 'Fetching user info...');
 
 			const response = await fetch(`/api/userinfo`, {
 				method: 'POST',
@@ -294,9 +292,7 @@ export const useResourceOwnerPasswordFlowV7 = ({
 
 			const userData: ResourceOwnerPasswordUserInfo = await response.json();
 
-			if (enableDebugger) {
-				console.log('👤 [ResourceOwnerPasswordV7] User info received:', userData);
-			}
+			logger.debug('useResourceOwnerPasswordFlowV7', 'User info received:', userData);
 
 			setUserInfo(userData);
 
@@ -308,7 +304,12 @@ export const useResourceOwnerPasswordFlowV7 = ({
 
 			v4ToastManager.showSuccess('User information fetched successfully.');
 		} catch (error) {
-			console.error('[ResourceOwnerPasswordV7] User info fetch failed:', error);
+			logger.error(
+				'useResourceOwnerPasswordFlowV7',
+				'User info fetch failed',
+				undefined,
+				error instanceof Error ? error : new Error(String(error))
+			);
 			v4ToastManager.showError('Failed to fetch user information', {
 				error: error instanceof Error ? error.message : 'Unknown error',
 			});
@@ -321,7 +322,7 @@ export const useResourceOwnerPasswordFlowV7 = ({
 		} finally {
 			setIsFetchingUserInfo(false);
 		}
-	}, [tokens, credentials.environmentId, enableDebugger, saveStepResult]);
+	}, [tokens, credentials.environmentId, saveStepResult]);
 
 	// Refresh tokens using refresh token
 	const refreshTokens = useCallback(async () => {
@@ -332,9 +333,7 @@ export const useResourceOwnerPasswordFlowV7 = ({
 
 		setIsRefreshingTokens(true);
 		try {
-			if (enableDebugger) {
-				console.log('🔄 [ResourceOwnerPasswordV7] Refreshing tokens...');
-			}
+			logger.debug('useResourceOwnerPasswordFlowV7', 'Refreshing tokens...');
 
 			const requestBody = {
 				grant_type: 'refresh_token',
@@ -365,13 +364,11 @@ export const useResourceOwnerPasswordFlowV7 = ({
 
 			const newTokens: ResourceOwnerPasswordTokens = await response.json();
 
-			if (enableDebugger) {
-				console.log('🔄 [ResourceOwnerPasswordV7] Tokens refreshed:', {
-					hasAccessToken: !!newTokens.access_token,
-					hasRefreshToken: !!newTokens.refresh_token,
-					expiresIn: newTokens.expires_in,
-				});
-			}
+			logger.debug('useResourceOwnerPasswordFlowV7', 'Tokens refreshed:', {
+				hasAccessToken: !!newTokens.access_token,
+				hasRefreshToken: !!newTokens.refresh_token,
+				expiresIn: newTokens.expires_in,
+			});
 
 			setRefreshedTokens(newTokens);
 
@@ -384,7 +381,12 @@ export const useResourceOwnerPasswordFlowV7 = ({
 
 			v4ToastManager.showSuccess('Tokens refreshed successfully.');
 		} catch (error) {
-			console.error('[ResourceOwnerPasswordV7] Token refresh failed:', error);
+			logger.error(
+				'useResourceOwnerPasswordFlowV7',
+				'Token refresh failed',
+				undefined,
+				error instanceof Error ? error : new Error(String(error))
+			);
 			v4ToastManager.showError('Failed to refresh tokens', {
 				error: error instanceof Error ? error.message : 'Unknown error',
 			});
@@ -397,7 +399,7 @@ export const useResourceOwnerPasswordFlowV7 = ({
 		} finally {
 			setIsRefreshingTokens(false);
 		}
-	}, [tokens, credentials, enableDebugger, saveStepResult]);
+	}, [tokens, credentials, saveStepResult]);
 
 	// Reset flow
 	const resetFlow = useCallback(() => {
@@ -428,11 +430,10 @@ export const useResourceOwnerPasswordFlowV7 = ({
 					if (parsed.environmentId && parsed.clientId) {
 						setCredentials(parsed);
 						setHasCredentialsSaved(true);
-						if (enableDebugger) {
-							console.log(
-								'🔄 [ResourceOwnerPasswordV7] Loaded saved credentials from sessionStorage'
-							);
-						}
+						logger.debug(
+							'useResourceOwnerPasswordFlowV7',
+							'Loaded saved credentials from sessionStorage'
+						);
 						return;
 					}
 				}
@@ -457,19 +458,23 @@ export const useResourceOwnerPasswordFlowV7 = ({
 					}));
 					setHasCredentialsSaved(true);
 
-					if (enableDebugger) {
-						console.log(
-							'🔄 [ResourceOwnerPasswordV7] Loaded saved credentials from credentialManager'
-						);
-					}
+					logger.debug(
+						'useResourceOwnerPasswordFlowV7',
+						'Loaded saved credentials from credentialManager'
+					);
 				}
 			} catch (error) {
-				console.error('Failed to load saved credentials:', error);
+				logger.error(
+					'useResourceOwnerPasswordFlowV7',
+					'Failed to load saved credentials',
+					undefined,
+					error instanceof Error ? error : new Error(String(error))
+				);
 			}
 		};
 
 		loadCredentials();
-	}, [enableDebugger]);
+	}, []);
 
 	return {
 		credentials,
