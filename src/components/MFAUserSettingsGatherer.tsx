@@ -17,6 +17,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ClientCredentialsTokenRequest } from '../services/clientCredentialsSharedService';
 import { workerTokenCredentialsService } from '../services/workerTokenCredentialsService';
+import { logger } from '../utils/logger';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
 // Types
@@ -491,7 +492,12 @@ export const MFAUserSettingsGatherer: React.FC<Props> = ({
 			onWorkerTokenObtained(tokenData.access_token);
 			v4ToastManager.showSuccess('Worker token obtained successfully!');
 		} catch (error) {
-			console.error('Failed to get worker token:', error);
+			logger.error(
+				'MFAUserSettingsGatherer',
+				'Failed to get worker token:',
+				undefined,
+				error as Error
+			);
 			v4ToastManager.showError('Failed to obtain worker token. Please check your credentials.');
 		} finally {
 			setIsGettingWorkerToken(false);

@@ -11,6 +11,7 @@ import {
 	importCredentials,
 	triggerFileImport,
 } from '../services/credentialExportImportService';
+import { logger } from '../utils/logger';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { DraggableModal } from './DraggableModal';
 import type { StepCredentials } from './steps/CommonSteps';
@@ -202,7 +203,12 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 				v4ToastManager.showError('Failed to save credentials');
 			}
 		} catch (error) {
-			console.error('[AuthorizationCodeConfigModal] Error saving credentials:', error);
+			logger.error(
+				'AuthorizationCodeConfigModal',
+				'[AuthorizationCodeConfigModal] Error saving credentials:',
+				undefined,
+				error as Error
+			);
 			v4ToastManager.showError('Error saving credentials');
 		} finally {
 			setIsSaving(false);
@@ -230,7 +236,12 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 			exportAuthzCredentials(authzCredentials);
 			v4ToastManager.showSuccess('Authorization Code credentials exported successfully!');
 		} catch (error) {
-			console.error('[AuthorizationCodeConfigModal] Export error:', error);
+			logger.error(
+				'AuthorizationCodeConfigModal',
+				'[AuthorizationCodeConfigModal] Export error:',
+				undefined,
+				error as Error
+			);
 			v4ToastManager.showError(
 				error instanceof Error ? error.message : 'Failed to export credentials'
 			);
@@ -270,7 +281,12 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 					);
 				}
 			} catch (error) {
-				console.error('[AuthorizationCodeConfigModal] Import error:', error);
+				logger.error(
+					'AuthorizationCodeConfigModal',
+					'[AuthorizationCodeConfigModal] Import error:',
+					undefined,
+					error as Error
+				);
 				v4ToastManager.showError(
 					error instanceof Error ? error.message : 'Failed to import credentials'
 				);
