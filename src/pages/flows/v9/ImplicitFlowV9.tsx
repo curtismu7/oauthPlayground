@@ -57,6 +57,8 @@ import { oidcDiscoveryService } from '../../../services/oidcDiscoveryService';
 import { UnifiedTokenDisplayService } from '../../../services/unifiedTokenDisplayService';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningService';
+import { logger } from '../../../services/loggingService';
+import { secureLog, secureErrorLog } from '../../../utils/secureLogging';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 
@@ -225,7 +227,7 @@ const ImplicitFlowV9: React.FC = () => {
 			grantType: '',
 			clientAuthMethod: 'none',
 		};
-		console.log('[ImplicitFlowV9] Initial credentials from controller:', initialCreds);
+		logger.info('ImplicitFlowV9', 'Initial credentials from controller', { initialCreds });
 		return initialCreds;
 	});
 
@@ -259,7 +261,7 @@ const ImplicitFlowV9: React.FC = () => {
 		const tokenFromLocation = location.state?.workerToken;
 		if (tokenFromLocation) {
 			setWorkerToken(tokenFromLocation);
-			console.log('[ImplicitFlowV9] Worker token loaded from location state');
+			logger.info('ImplicitFlowV9', 'Worker token loaded from location state');
 			return;
 		}
 
@@ -269,19 +271,19 @@ const ImplicitFlowV9: React.FC = () => {
 
 		if (savedToken && savedEnv) {
 			setWorkerToken(savedToken);
-			console.log('[ImplicitFlowV9] Worker token loaded from localStorage');
+			logger.info('ImplicitFlowV9', 'Worker token loaded from localStorage');
 		} else {
-			console.log('[ImplicitFlowV9] No worker token found in location state or localStorage');
+			logger.info('ImplicitFlowV9', 'No worker token found in location state or localStorage');
 		}
 	}, [location.state]);
 
 	// Process tokens from URL fragment on mount or when tokens change
 	useEffect(() => {
 		const hash = window.location.hash;
-		console.log('[ImplicitFlowV9] Checking for tokens in URL fragment on mount:', hash);
+		logger.info('ImplicitFlowV9', 'Checking for tokens in URL fragment on mount', { hash });
 
 		if (hash?.includes('access_token') && !controller.tokens) {
-			console.log('[ImplicitFlowV9] Found tokens in URL fragment, processing...');
+			logger.info('ImplicitFlowV9', 'Found tokens in URL fragment, processing');
 			controller.setTokensFromFragment(hash);
 			// Clean up URL
 			window.history.replaceState({}, '', window.location.pathname);
@@ -291,7 +293,7 @@ const ImplicitFlowV9: React.FC = () => {
 	// Handle token reception and step advancement
 	useEffect(() => {
 		if (controller.tokens && currentStep < 2) {
-			console.log('[ImplicitFlowV9] Tokens received, advancing to step 2');
+			logger.info('ImplicitFlowV9', 'Tokens received, advancing to step 2');
 			setCurrentStep(2);
 		}
 	}, [controller.tokens, currentStep]);
@@ -306,8 +308,8 @@ const ImplicitFlowV9: React.FC = () => {
 				controller.credentials.scope !== credentials.scope ||
 				controller.credentials.scopes !== credentials.scopes)
 		) {
-			console.log('[ImplicitFlowV9] Syncing credentials from controller:', controller.credentials);
-			console.log('[ImplicitFlowV9] Current local credentials:', credentials);
+			logger.info('ImplicitFlowV9', 'Syncing credentials from controller', { controllerCredentials: controller.credentials });
+			logger.info('ImplicitFlowV9', 'Current local credentials', { credentials });
 			setCredentials(controller.credentials);
 		}
 	}, [controller.credentials, credentials]); // Removed credentials dependencies to prevent infinite loop
@@ -315,7 +317,7 @@ const ImplicitFlowV9: React.FC = () => {
 	// Load credentials on mount using V7 standardized storage
 	useEffect(() => {
 		const loadCredentials = async () => {
-			console.log('[ImplicitFlowV9] Loading credentials on mount...');
+			logger.info('ImplicitFlowV9', 'Loading credentials on mount');
 
 			try {
 				// Try V7 standardized storage first
@@ -326,7 +328,7 @@ const ImplicitFlowV9: React.FC = () => {
 				});
 
 				if (flowData.flowCredentials && Object.keys(flowData.flowCredentials).length > 0) {
-					console.log('✅ [ImplicitFlowV9] Found flow-specific credentials');
+					logger.info('ImplicitFlowV9', 'Found flow-specific credentials');
 					const updatedCredentials = {
 						environmentId: flowData.sharedEnvironment?.environmentId || '',
 						clientId: flowData.flowCredentials.clientId,
@@ -338,7 +340,7 @@ const ImplicitFlowV9: React.FC = () => {
 					setCredentials(updatedCredentials);
 					controller.setCredentials(updatedCredentials);
 				} else if (flowData.sharedEnvironment?.environmentId) {
-					console.log('ℹ️ [ImplicitFlowV9] Using shared environment data only');
+					logger.info('ImplicitFlowV9', 'Using shared environment data only');
 					const updatedCredentials = {
 						...controller.credentials,
 						environmentId: flowData.sharedEnvironment.environmentId,
@@ -346,7 +348,7 @@ const ImplicitFlowV9: React.FC = () => {
 					setCredentials(updatedCredentials);
 					controller.setCredentials(updatedCredentials);
 				} else {
-					console.log('ℹ️ [ImplicitFlowV9] No saved credentials found, using defaults');
+					logger.info('ImplicitFlowV9', 'No saved credentials found, using defaults');
 					const initialCredentials = loadInitialCredentials(selectedVariant, 'implicit-flow-v7');
 					setCredentials(initialCredentials);
 					controller.setCredentials(initialCredentials);
@@ -371,7 +373,7 @@ const ImplicitFlowV9: React.FC = () => {
 		const reloadedCredentials = loadInitialCredentials(selectedVariant, 'implicit-v9');
 		controller.setCredentials(reloadedCredentials);
 		setCredentials(reloadedCredentials);
-		console.log('[ImplicitFlowV9] Variant changed, reloaded credentials:', reloadedCredentials);
+		logger.info('ImplicitFlowV9', 'Variant changed, reloaded credentials', { reloadedCredentials });
 	}, [selectedVariant, controller.setFlowVariant, controller.setCredentials]);
 
 	// Sync credentials with variant
@@ -392,7 +394,7 @@ const ImplicitFlowV9: React.FC = () => {
 			controller.credentials &&
 			(controller.credentials.environmentId || controller.credentials.clientId)
 		) {
-			console.log('🔧 [Implicit V7] Saving credentials to flow-specific storage:', {
+			logger.info('ImplicitFlowV9', 'Saving credentials to flow-specific storage', {
 				flowKey: 'implicit-v9',
 				environmentId: controller.credentials.environmentId,
 				clientId: `${controller.credentials.clientId?.substring(0, 8)}...`,
@@ -612,13 +614,13 @@ const ImplicitFlowV9: React.FC = () => {
 						const updated = { ...credentials, environmentId: value };
 						setCredentials(updated);
 						controller.setCredentials(updated); // Sync with controller
-						console.log('[Implicit Flow V9] Environment ID updated:', value);
+						logger.info('ImplicitFlowV9', 'Environment ID updated', { value });
 					}}
 					onClientIdChange={(value) => {
 						const updated = { ...credentials, clientId: value };
 						setCredentials(updated);
 						controller.setCredentials(updated); // Sync with controller
-						console.log('[Implicit Flow V9] Client ID updated:', value);
+						logger.info('ImplicitFlowV9', 'Client ID updated', { value });
 					}}
 					onClientSecretChange={(value) => {
 						const updated = { ...credentials, clientSecret: value };
@@ -628,13 +630,10 @@ const ImplicitFlowV9: React.FC = () => {
 					onRedirectUriChange={(value) => {
 						const updated = { ...credentials, redirectUri: value };
 						setCredentials(updated);
-						console.log('[ImplicitFlowV9] Setting controller credentials:', updated);
+						logger.info('ImplicitFlowV9', 'Setting controller credentials', { updated });
 						controller.setCredentials(updated); // Sync with controller immediately
-						console.log(
-							'[ImplicitFlowV9] Controller credentials after set:',
-							controller.credentials
-						);
-						console.log('[Implicit Flow V9] Redirect URI updated:', value);
+						logger.info('ImplicitFlowV9', 'Controller credentials after set', { controllerCredentials: controller.credentials });
+						logger.info('ImplicitFlowV9', 'Redirect URI updated', { value });
 						// Auto-save redirect URI to persist across refreshes
 						comprehensiveFlowDataService.saveFlowDataComprehensive('implicit-flow-v7', {
 							flowCredentials: {
@@ -650,7 +649,7 @@ const ImplicitFlowV9: React.FC = () => {
 						controller
 							.saveCredentials()
 							.then(() => {
-								console.log('[Implicit Flow V9] Redirect URI auto-saved to controller');
+								logger.info('ImplicitFlowV9', 'Redirect URI auto-saved to controller');
 							})
 							.catch((_err: unknown) => {
 								// Background auto-save — non-critical
@@ -673,15 +672,13 @@ const ImplicitFlowV9: React.FC = () => {
 								dismissible: true,
 							});
 
-							console.log(
-								'[Implicit Flow V9] Removed offline_access scope - Implicit flow never provides refresh tokens'
-							);
+							logger.info('ImplicitFlowV9', 'Removed offline_access scope - Implicit flow never provides refresh tokens');
 						}
 
 						const updated = { ...credentials, scope: filteredScopes, scopes: filteredScopes };
 						setCredentials(updated);
 						controller.setCredentials(updated); // Sync with controller
-						console.log('[Implicit Flow V9] Scopes updated:', filteredScopes);
+						logger.info('ImplicitFlowV9', 'Scopes updated', { filteredScopes });
 					}}
 					onLoginHintChange={(value) => {
 						const updated = { ...credentials, loginHint: value };
@@ -758,14 +755,14 @@ const ImplicitFlowV9: React.FC = () => {
 					}}
 					// Discovery handler
 					onDiscoveryComplete={(result) => {
-						console.log('[Implicit Flow V9] OIDC Discovery completed:', result);
+							logger.info('ImplicitFlowV9', 'OIDC Discovery completed', { result });
 						// Extract environment ID from issuer URL using the standard service
 						if (result.issuerUrl) {
 							const extractedEnvId = oidcDiscoveryService.extractEnvironmentId(result.issuerUrl);
 							if (extractedEnvId) {
 								const updated = { ...credentials, environmentId: extractedEnvId };
 								setCredentials(updated);
-								console.log('[Implicit Flow V9] Auto-extracted Environment ID:', extractedEnvId);
+								logger.info('ImplicitFlowV9', 'Auto-extracted Environment ID', { extractedEnvId });
 							}
 						}
 					}}
@@ -866,7 +863,7 @@ const ImplicitFlowV9: React.FC = () => {
 								// Save credentials to persist across refreshes
 								await controller.saveCredentials();
 
-								console.log('[Implicit Flow V9] Updated credentials with new app details:', {
+								logger.info('ImplicitFlowV9', 'Updated credentials with new app details', {
 									clientId: result.app.clientId,
 									hasSecret: !!result.app.clientSecret,
 								});
@@ -1930,9 +1927,7 @@ const ImplicitFlowV9: React.FC = () => {
 										sessionStorage.removeItem('worker-token-cache');
 										localStorage.removeItem('worker-apps-cache');
 
-										console.log(
-											'🔄 [Implicit V7] Start New Flow: cleared ConfigChecker and pre-flight cache data'
-										);
+										logger.info('ImplicitFlowV9', 'Start New Flow: cleared ConfigChecker and pre-flight cache data');
 									} catch (_error) {
 										// Background cache clear — non-critical
 									}
@@ -2095,7 +2090,7 @@ const ImplicitFlowV9: React.FC = () => {
 
 						// Clear Implicit Flow V9-specific storage
 						FlowCredentialService.clearFlowState('implicit-v9');
-						console.log('🔧 [Implicit V7] Cleared flow-specific storage');
+						logger.info('ImplicitFlowV9', 'Cleared flow-specific storage');
 
 						// Clear any potential ConfigChecker-related state or cached data
 						try {
@@ -2109,9 +2104,7 @@ const ImplicitFlowV9: React.FC = () => {
 							sessionStorage.removeItem('worker-token-cache');
 							localStorage.removeItem('worker-apps-cache');
 
-							console.log(
-								'🔄 [Implicit V7] Reset: cleared ConfigChecker and pre-flight cache data'
-							);
+							logger.info('ImplicitFlowV9', 'Reset: cleared ConfigChecker and pre-flight cache data');
 						} catch (_error) {
 							// Background cache clear — non-critical
 						}
