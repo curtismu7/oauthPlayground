@@ -192,7 +192,7 @@ export async function validateIdToken(
 		};
 	} catch (error) {
 		const errorMessage = error instanceof Error ? error.message : 'Unknown validation error';
-		console.error(' [ImplicitFlowSecurity] ID token validation error:', errorMessage);
+		logger.error('ImplicitFlowSecurity', 'ID token validation error:', { errorMessage });
 		logger.error('ImplicitFlowSecurity', 'ID token validation error', { error: errorMessage });
 
 		return { success: false, error: errorMessage };

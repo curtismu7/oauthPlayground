@@ -1,5 +1,6 @@
 // JWT Generation Utilities for PingOne Auth API
 import { jwtDecode } from 'jwt-decode';
+import { logger } from './logger';
 
 export interface JWTPayload {
 	iss?: string; // Issuer
@@ -263,7 +264,7 @@ class JWTGenerator {
 		try {
 			return jwtDecode(token);
 		} catch (error) {
-			console.error('Failed to decode JWT:', error);
+			logger.error('JWTGenerator', 'Failed to decode JWT:', undefined, error as Error);
 			return null;
 		}
 	}
