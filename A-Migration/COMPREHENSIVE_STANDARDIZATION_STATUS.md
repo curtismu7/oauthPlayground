@@ -292,8 +292,8 @@ Target: 95% complete by end of Month 2
 ## 🎯 NEXT STEPS
 
 ### **IMMEDIATE (This Week)**
-1. **Add `CompactAppPickerV8U` to 15 remaining credential flows** — see [APP_PICKER_MIGRATION_REPORT.md](./APP_PICKER_MIGRATION_REPORT.md): start with CIBAFlowV9 + RedirectlessFlowV9_Real (V9 priority), then non-V9 flows
-2. **Remove floating `StepNavigationButtons`** from remaining 7 V9 flows (OIDCHybridFlowV9, DeviceAuthorizationFlowV9, MFAWorkflowLibraryFlowV9, ClientCredentialsFlowV9, WorkerTokenFlowV9, RARFlowV9, RedirectlessFlowV9_Real) — done for OAuthAuthorizationCodeFlowV9, ImplicitFlowV9
+1. ~~**Add `CompactAppPickerV8U` to 15 remaining credential flows**~~ ✅ **COMPLETED** - All CompactAppPickerV9 migrations done (see migration reports)
+2. ~~**Remove floating `StepNavigationButtons`** from remaining 7 V9 flows~~ ✅ **COMPLETED** - All StepNavigationButtons removed from V9 flows
 3. **Execute Phase 1** of logging implementation plan
 4. **Fix TypeScript errors** in V9 flows
 5. **Update standardized apps** with proper logging
