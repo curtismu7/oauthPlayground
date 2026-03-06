@@ -1,6 +1,7 @@
 // src/services/workerTokenDiscoveryService.ts
 // Comprehensive OIDC Discovery Service for Worker Token Flows
 
+import { failFrom, ok, type ServiceResult } from '../standards/types';
 import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
 import { ComprehensiveDiscoveryService } from './comprehensiveDiscoveryService';
@@ -25,9 +26,8 @@ interface WorkerTokenDiscoveryDocument {
 	response_types_supported?: string[];
 }
 
-export interface WorkerTokenDiscoveryResult {
-	success: boolean;
-	environmentId?: string;
+export interface WorkerTokenDiscoveryData {
+	environmentId: string;
 	issuerUrl?: string;
 	tokenEndpoint?: string;
 	introspectionEndpoint?: string;
@@ -36,21 +36,28 @@ export interface WorkerTokenDiscoveryResult {
 	scopes?: string[];
 	supportedGrantTypes?: string[];
 	supportedResponseTypes?: string[];
-	error?: string;
-	cached?: boolean;
+	cached: boolean;
 	discoveryDocument?: WorkerTokenDiscoveryDocument;
 }
 
+/** @deprecated Use ServiceResult<WorkerTokenDiscoveryData> */
+export type WorkerTokenDiscoveryResult = ServiceResult<WorkerTokenDiscoveryData>;
+
 class WorkerTokenDiscoveryService {
 	private comprehensiveDiscovery = new ComprehensiveDiscoveryService();
-	private cache = new Map<string, { result: WorkerTokenDiscoveryResult; timestamp: number }>();
+	private cache = new Map<
+		string,
+		{ result: ServiceResult<WorkerTokenDiscoveryData>; timestamp: number }
+	>();
 	private readonly DEFAULT_TIMEOUT = 15000; // 15 seconds
 	private readonly DEFAULT_CACHE_TIMEOUT = 3600000; // 1 hour
 
 	/**
 	 * Discover OIDC configuration for Worker Token flows
 	 */
-	async discover(config: WorkerTokenDiscoveryConfig): Promise<WorkerTokenDiscoveryResult> {
+	async discover(
+		config: WorkerTokenDiscoveryConfig
+	): Promise<ServiceResult<WorkerTokenDiscoveryData>> {
 		try {
 			const {
 				environmentId,
@@ -66,14 +73,14 @@ class WorkerTokenDiscoveryService {
 
 			// Check cache first if enabled
 			if (enableCaching) {
-				const cached = this.getCachedResult(cacheKey);
-				if (cached) {
+				const cachedResult = this.getCachedResult(cacheKey);
+				if (cachedResult) {
 					logger.info('WorkerTokenDiscovery', 'Using cached discovery result', {
 						environmentId,
 						region,
 						cached: true,
 					});
-					return cached;
+					return cachedResult;
 				}
 			}
 
@@ -100,8 +107,7 @@ class WorkerTokenDiscoveryService {
 			// Extract worker token specific endpoints and configuration
 			const document = discoveryResult.document as WorkerTokenDiscoveryDocument;
 
-			const result: WorkerTokenDiscoveryResult = {
-				success: true,
+			const data: WorkerTokenDiscoveryData = {
 				environmentId,
 				issuerUrl: document.issuer,
 				tokenEndpoint: document.token_endpoint,
@@ -114,6 +120,7 @@ class WorkerTokenDiscoveryService {
 				discoveryDocument: document,
 				cached: discoveryResult.cached || false,
 			};
+			const result = ok(data);
 
 			// Cache the result if caching is enabled
 			if (enableCaching) {
@@ -125,14 +132,14 @@ class WorkerTokenDiscoveryService {
 
 			// Auto-update credentials if clientId and clientSecret are provided
 			if (clientId && clientSecret) {
-				await this.updateCredentialsFromDiscovery(result, clientId, clientSecret);
+				await this.updateCredentialsFromDiscovery(data, clientId, clientSecret);
 			}
 
 			logger.success('WorkerTokenDiscovery', 'OIDC discovery completed successfully', {
 				environmentId,
-				issuerUrl: result.issuerUrl,
-				tokenEndpoint: result.tokenEndpoint,
-				scopes: result.scopes,
+				issuerUrl: data.issuerUrl,
+				tokenEndpoint: data.tokenEndpoint,
+				scopes: data.scopes,
 			});
 
 			return result;
@@ -143,11 +150,7 @@ class WorkerTokenDiscoveryService {
 				error: error instanceof Error ? error.message : 'Unknown error',
 			});
 
-			return {
-				success: false,
-				error: error instanceof Error ? error.message : 'Discovery failed',
-				environmentId: config.environmentId,
-			};
+			return failFrom<WorkerTokenDiscoveryData>('WORKER_TOKEN_DISCOVERY_FAILED', error);
 		}
 	}
 
@@ -180,19 +183,15 @@ class WorkerTokenDiscoveryService {
 	 * Update credentials from discovery result
 	 */
 	private async updateCredentialsFromDiscovery(
-		result: WorkerTokenDiscoveryResult,
+		data: WorkerTokenDiscoveryData,
 		clientId: string,
 		clientSecret: string
 	): Promise<void> {
 		try {
-			if (!result.issuerUrl) return;
+			if (!data.issuerUrl) return;
 
 			// Use credential manager to update credentials
-			await credentialManager.discoverAndUpdateCredentials(
-				result.issuerUrl,
-				clientId,
-				clientSecret
-			);
+			await credentialManager.discoverAndUpdateCredentials(data.issuerUrl, clientId, clientSecret);
 
 			logger.info('WorkerTokenDiscovery', 'Credentials updated from discovery');
 		} catch (error) {
@@ -205,7 +204,7 @@ class WorkerTokenDiscoveryService {
 	/**
 	 * Get cached discovery result
 	 */
-	private getCachedResult(cacheKey: string): WorkerTokenDiscoveryResult | null {
+	private getCachedResult(cacheKey: string): ServiceResult<WorkerTokenDiscoveryData> | null {
 		const cached = this.cache.get(cacheKey);
 		if (!cached) return null;
 
