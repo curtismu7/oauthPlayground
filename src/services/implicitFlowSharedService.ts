@@ -13,6 +13,7 @@ import { storeFlowNavigationState } from '../utils/flowNavigation';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { validateForStep } from './credentialsValidationService';
 import { FlowRedirectUriService } from './flowRedirectUriService';
+import { logger } from '../utils/logger';
 
 export type ImplicitFlowVariant = 'oauth' | 'oidc';
 
@@ -152,7 +153,7 @@ export class ImplicitFlowToastManager {
 	 * Show error toast for credentials save failure
 	 */
 	static showCredentialsSaveFailed(error?: Error): void {
-		console.error('[ImplicitFlowToastManager] Failed to save credentials:', error);
+		logger.error('ImplicitFlowSharedService', 'Failed to save credentials', undefined, error as Error);
 		v4ToastManager.showError('Failed to save credentials');
 	}
 
@@ -167,7 +168,7 @@ export class ImplicitFlowToastManager {
 	 * Show error toast for redirect URI save failure
 	 */
 	static showRedirectUriSaveFailed(error?: Error): void {
-		console.error('[ImplicitFlowToastManager] Failed to save redirect URI:', error);
+		logger.error('ImplicitFlowSharedService', 'Failed to save redirect URI', undefined, error as Error);
 		v4ToastManager.showError('Failed to save redirect URI');
 	}
 
@@ -399,7 +400,7 @@ export class ImplicitFlowCredentialsHandlers {
 				await controller.saveCredentials();
 				ImplicitFlowToastManager.showCredentialsSaved();
 			} catch (error) {
-				console.error(`[${variant.toUpperCase()} Implicit V5] Failed to save credentials:`, error);
+				logger.error('ImplicitFlowSharedService', 'Failed to save credentials', undefined, error as Error);
 				ImplicitFlowToastManager.showCredentialsSaveFailed(error as Error);
 			}
 		};
@@ -473,10 +474,7 @@ export class ImplicitFlowAuthorizationManager {
 			ImplicitFlowToastManager.showAuthUrlGenerated();
 			return true;
 		} catch (error) {
-			console.error(
-				`[${variant.toUpperCase()}ImplicitFlowV5] Failed to generate authorization URL:`,
-				error
-			);
+			logger.error('ImplicitFlowSharedService', 'Failed to generate authorization URL', undefined, error as Error);
 			ImplicitFlowToastManager.showAuthUrlGenerationFailed(error);
 			return false;
 		}

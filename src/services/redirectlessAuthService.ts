@@ -3,6 +3,7 @@
 // Based on working implementations in PingOneAuthentication.tsx and RedirectlessFlowV7_Real.tsx
 
 import { v4ToastManager } from '../utils/v4ToastMessages';
+import { logger } from '../utils/logger';
 
 export interface RedirectlessAuthCredentials {
 	environmentId: string;
@@ -93,7 +94,7 @@ export class RedirectlessAuthService {
 			};
 			sessionStorage.setItem(`${storagePrefix}_pending_resume`, JSON.stringify(next));
 		} catch (error) {
-			console.warn('[RedirectlessAuthService] Failed to update pending resume data', error);
+			logger.warn('RedirectlessAuthService', 'Failed to update pending resume data', undefined, error as Error);
 		}
 	}
 
@@ -192,7 +193,7 @@ export class RedirectlessAuthService {
 
 		if (!response.ok) {
 			const errorText = await response.text();
-			console.error(`[RedirectlessAuthService] 🐛 DEBUG - Authorization failed:`, {
+			logger.error('RedirectlessAuthService', 'DEBUG - Authorization failed', {
 				status: response.status,
 				statusText: response.statusText,
 				responseText: errorText,
@@ -241,9 +242,7 @@ export class RedirectlessAuthService {
 			};
 			sessionStorage.setItem(`${storagePrefix}_pending_resume`, JSON.stringify(pendingResumeData));
 		} else {
-			console.warn(
-				`[RedirectlessAuthService] Missing flowId or resumeUrl - cannot store resume data`
-			);
+			logger.warn('RedirectlessAuthService', 'Missing flowId or resumeUrl - cannot store resume data');
 		}
 
 		return flowData;
@@ -374,7 +373,7 @@ export class RedirectlessAuthService {
 		// Get pending resume data
 		const pendingResumeRaw = sessionStorage.getItem(`${storagePrefix}_pending_resume`);
 		if (!pendingResumeRaw) {
-			console.warn(`[RedirectlessAuthService] No pending resume data found for ${storagePrefix}`);
+			logger.warn('RedirectlessAuthService', 'No pending resume data found for ...');
 			return null;
 		}
 
@@ -389,7 +388,7 @@ export class RedirectlessAuthService {
 		try {
 			resumeData = JSON.parse(pendingResumeRaw);
 		} catch (error) {
-			console.error(`[RedirectlessAuthService] Failed to parse pending resume data:`, error);
+			logger.error('RedirectlessAuthService', 'Failed to parse pending resume data', undefined, error as Error);
 			sessionStorage.removeItem(`${storagePrefix}_pending_resume`);
 			return null;
 		}
@@ -405,10 +404,8 @@ export class RedirectlessAuthService {
 
 		// CRITICAL: Validate sessionId exists before resume (matches PingOneAuthentication pattern)
 		if (!resumeData.sessionId) {
-			console.error(`[RedirectlessAuthService] ❌ Missing sessionId before resume step. Aborting.`);
-			console.error(
-				`[RedirectlessAuthService] Backend must manage PingOne cookies server-side and return _sessionId.`
-			);
+			logger.error('RedirectlessAuthService', 'Missing sessionId before resume step. Aborting.');
+			logger.error('RedirectlessAuthService', 'Backend must manage PingOne cookies server-side and return _sessionId.');
 			throw new Error('PingOne session context is missing. Please restart the redirectless flow.');
 		}
 
@@ -440,7 +437,7 @@ export class RedirectlessAuthService {
 
 		if (!response.ok) {
 			const errorText = await response.text();
-			console.error(`[RedirectlessAuthService] 🐛 DEBUG - Resume failed:`, {
+			logger.error('RedirectlessAuthService', 'DEBUG - Resume failed', {
 				status: response.status,
 				statusText: response.statusText,
 				responseText: errorText,
@@ -575,7 +572,7 @@ export class RedirectlessAuthService {
 							hasAuthorizeResponse: !!flowData?.authorizeResponse,
 						});
 					} catch (extractError) {
-						console.warn(`[RedirectlessAuthService] Failed to parse extracted JSON:`, extractError);
+						logger.warn('RedirectlessAuthService', 'Failed to parse extracted JSON', undefined, extractError as Error);
 					}
 				} else {
 					console.log(
@@ -602,7 +599,7 @@ export class RedirectlessAuthService {
 							}
 						);
 					} catch (extractError) {
-						console.warn(`[RedirectlessAuthService] Fallback extraction failed:`, extractError);
+						logger.warn('RedirectlessAuthService', 'Fallback extraction failed', undefined, extractError as Error);
 					}
 				}
 			}
@@ -671,7 +668,7 @@ export class RedirectlessAuthService {
 				keys: Object.keys(flowData),
 			});
 		} catch (error) {
-			console.error(`[RedirectlessAuthService] Error extracting code from page JSON:`, error);
+			logger.error('RedirectlessAuthService', 'Error extracting code from page JSON', undefined, error as Error);
 		}
 
 		return null;
@@ -760,7 +757,7 @@ export class RedirectlessAuthService {
 			);
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			console.error(`[RedirectlessAuthService] Flow failed:`, errorMessage);
+			logger.error('RedirectlessAuthService', 'Flow failed', { errorMessage });
 
 			if (config.onError) {
 				config.onError(error instanceof Error ? error : new Error(errorMessage));
@@ -800,7 +797,7 @@ export class RedirectlessAuthService {
 		try {
 			return await RedirectlessAuthService.resumeFlow(config);
 		} catch (error) {
-			console.error(`[RedirectlessAuthService] Resume failed:`, error);
+			logger.error('RedirectlessAuthService', 'Resume failed', undefined, error as Error);
 
 			// Fallback: try to extract from page JSON
 			const extracted = RedirectlessAuthService.extractCodeFromPageJson(flowKey);
