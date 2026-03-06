@@ -2,7 +2,8 @@
 // V9 PingOne Worker Token Flow — Client Credentials grant for machine-to-machine API access
 
 import { FiAlertCircle, FiCheckCircle, FiKey, FiShield } from '@icons';
-import React, { useCallback, useEffect, useState } from 'react';
+import type React from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';

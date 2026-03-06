@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { usePageScroll } from '../../../hooks/usePageScroll';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import {
-	MessageState,
+	type MessageState,
 	V9ModernMessagingService,
 } from '../../../services/v9/V9ModernMessagingService';
 import V9FlowHeader from '../../../services/v9/v9FlowHeaderService';

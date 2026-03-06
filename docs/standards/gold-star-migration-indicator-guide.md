@@ -292,6 +292,9 @@ docs/standards/gold-star-migration-indicator-guide.md
 - [Ping UI Standardization Guide](./ping-ui-standardization-guide.md)
 - [Application Migration Checklist](./application-migration-checklist.md)
 - [Sidebar Configuration Reference](../config/sidebarMenuConfig.ts)
+- [Logging Implementation Plan](./logging-implementation-plan.md)
+- [Version Management Standardization Guide](./version-management-standardization-guide.md)
+- [Dead File Archiving Guide](./dead-file-archiving-guide.md)
 
 ---
 
