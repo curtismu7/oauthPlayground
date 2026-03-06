@@ -9,6 +9,7 @@ import {
 	type ConfigurationPreset,
 	presetManagerService,
 } from '../services/presetManagerService';
+import { logger } from '../utils/logger';
 import { performAutoMigration } from '../utils/presetMigration';
 
 const Container = styled.div`
@@ -291,14 +292,21 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
 			// Perform auto-migration if needed
 			const migrationResult = performAutoMigration();
 			if (!migrationResult.success) {
-				console.warn('[PresetSelector] Migration warnings:', migrationResult.warnings);
+				logger.warn('PresetSelector', '[PresetSelector] Migration warnings:', {
+					warnings: migrationResult.warnings,
+				});
 			}
 
 			// Load all presets
 			const allPresets = presetManagerService.getAllPresets();
 			setPresets(allPresets);
 		} catch (error) {
-			console.error('[PresetSelector] Failed to load presets:', error);
+			logger.error(
+				'PresetSelector',
+				'[PresetSelector] Failed to load presets:',
+				undefined,
+				error as Error
+			);
 		} finally {
 			setLoading(false);
 		}

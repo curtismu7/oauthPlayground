@@ -11,6 +11,7 @@ import {
 } from '../services/exportImportService';
 import type { BuilderAppType, FormDataState } from '../services/presetManagerService';
 import { FileDropHandler, validateFile } from '../utils/fileHandling';
+import { logger } from '../utils/logger';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
 const Container = styled.div`
@@ -309,7 +310,7 @@ export const ExportImportPanel: React.FC<ExportImportPanelProps> = ({
 				);
 			}
 		} catch (error) {
-			console.error('[ExportImport] Import failed:', error);
+			logger.error('ExportImportPanel', '[ExportImport] Import failed:', undefined, error as Error);
 			setDropError(error instanceof Error ? error.message : 'Import failed');
 		} finally {
 			setIsProcessing(false);
@@ -348,7 +349,7 @@ export const ExportImportPanel: React.FC<ExportImportPanelProps> = ({
 			exportUtils.quickExport(formData, appType, formData.name || 'app-config');
 			v4ToastManager.showSuccess('Configuration exported successfully!');
 		} catch (error) {
-			console.error('[ExportImport] Export failed:', error);
+			logger.error('ExportImportPanel', '[ExportImport] Export failed:', undefined, error as Error);
 			v4ToastManager.showError('Failed to export configuration');
 		}
 	}, [formData, appType]);

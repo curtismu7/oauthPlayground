@@ -6,6 +6,7 @@ import {
 	PARConfigurationService,
 	PARConfigurationServiceUtils,
 } from '../services/parConfigurationService';
+import { logger } from '../utils/logger';
 
 interface PARConfigurationExampleProps {
 	flowType?: string;
@@ -29,7 +30,9 @@ const PARConfigurationExample: React.FC<PARConfigurationExampleProps> = ({
 		// Validate configuration
 		const validation = PARConfigurationServiceUtils.validateConfig(newConfig);
 		if (!validation.isValid) {
-			console.warn('PAR Configuration validation errors:', validation.errors);
+			logger.warn('PARConfigurationExample', 'PAR Configuration validation errors:', {
+				errors: validation.errors,
+			});
 		}
 	};
 

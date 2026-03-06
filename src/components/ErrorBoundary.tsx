@@ -6,6 +6,7 @@ import {
 	ErrorResponse,
 	RecoveryOption,
 } from '../services/errorHandlingService';
+import { logger } from '../utils/logger';
 
 const ErrorContainer = styled.div`
   display: flex;
@@ -150,7 +151,7 @@ class ErrorBoundary extends Component<Props, State> {
 
 	override componentDidCatch(error: Error, errorInfo: ErrorInfo) {
 		// Log additional error context
-		console.error('[ErrorBoundary] Caught error:', {
+		logger.error('ErrorBoundary', '[ErrorBoundary] Caught error:', {
 			error,
 			errorInfo,
 			componentStack: errorInfo.componentStack,
@@ -196,7 +197,12 @@ class ErrorBoundary extends Component<Props, State> {
 						this.resetError();
 					})
 					.catch((recoveryError) => {
-						console.error('[ErrorBoundary] Recovery action failed:', recoveryError);
+						logger.error(
+							'ErrorBoundary',
+							'[ErrorBoundary] Recovery action failed:',
+							undefined,
+							recoveryError as Error
+						);
 						// Could show additional error message here
 					});
 			} else {
@@ -204,7 +210,12 @@ class ErrorBoundary extends Component<Props, State> {
 				this.resetError();
 			}
 		} catch (error) {
-			console.error('[ErrorBoundary] Recovery action threw error:', error);
+			logger.error(
+				'ErrorBoundary',
+				'[ErrorBoundary] Recovery action threw error:',
+				undefined,
+				error as Error
+			);
 			// Could show additional error message here
 		}
 	};

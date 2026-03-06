@@ -4,7 +4,7 @@
  * @description V9 unified credential management component combining App Picker and Import/Export
  * @version 9.0.0
  * @since 2026-03-06
- * 
+ *
  * Combines CompactAppPickerV9 and CredentialsImportExport into a single, collapsible
  * component for easier maintenance and consistent user experience across all flows.
  */
@@ -12,11 +12,18 @@
 import { FiChevronDown, FiChevronUp, FiDownload, FiSearch, FiUpload } from '@icons';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
+import {
+	credentialsImportExportService,
+	type ImportExportOptions,
+} from '@/services/credentialsImportExportService';
 import type { V9DiscoveredApp } from '@/services/v9/V9AppDiscoveryService';
 import { V9AppDiscoveryService } from '@/services/v9/V9AppDiscoveryService';
-import { V9WorkerTokenStatusService, type V9TokenStatusInfo } from '@/services/v9/V9WorkerTokenStatusService';
-import { credentialsImportExportService, type ImportExportOptions } from '@/services/credentialsImportExportService';
 import { V9CredentialStorageService } from '@/services/v9/V9CredentialStorageService';
+import {
+	type V9TokenStatusInfo,
+	V9WorkerTokenStatusService,
+} from '@/services/v9/V9WorkerTokenStatusService';
+import { logger } from '../utils/logger';
 
 const _MODULE_TAG = '[🔧 UNIFIED-CREDENTIAL-MANAGER-V9]';
 
@@ -97,13 +104,11 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'outli
 	align-items: center;
 	gap: 0.375rem;
 	padding: 0.5rem 0.75rem;
-	border: 1px solid ${({ $variant }) => 
-		$variant === 'primary' ? '#3b82f6' : 
-		$variant === 'secondary' ? '#6b7280' : '#d1d5db'};
+	border: 1px solid ${({ $variant }) =>
+		$variant === 'primary' ? '#3b82f6' : $variant === 'secondary' ? '#6b7280' : '#d1d5db'};
 	border-radius: 0.375rem;
 	background: ${({ $variant }) =>
-		$variant === 'primary' ? '#3b82f6' :
-		$variant === 'secondary' ? '#6b7280' : '#ffffff'};
+		$variant === 'primary' ? '#3b82f6' : $variant === 'secondary' ? '#6b7280' : '#ffffff'};
 	color: ${({ $variant }) =>
 		$variant === 'primary' || $variant === 'secondary' ? '#ffffff' : '#374151'};
 	font-size: 0.875rem;
@@ -113,8 +118,7 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'outli
 
 	&:hover {
 		background: ${({ $variant }) =>
-			$variant === 'primary' ? '#2563eb' :
-			$variant === 'secondary' ? '#4b5563' : '#f9fafb'};
+			$variant === 'primary' ? '#2563eb' : $variant === 'secondary' ? '#4b5563' : '#f9fafb'};
 		transform: translateY(-1px);
 		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 	}
@@ -182,9 +186,13 @@ const StatusMessage = styled.div<{ $type?: 'info' | 'success' | 'warning' | 'err
 	font-size: 0.875rem;
 	margin-top: 0.5rem;
 	background: ${({ $type }) =>
-		$type === 'success' ? '#10b981' :
-		$type === 'warning' ? '#f59e0b' :
-		$type === 'error' ? '#ef4444' : '#3b82f6'};
+		$type === 'success'
+			? '#10b981'
+			: $type === 'warning'
+				? '#f59e0b'
+				: $type === 'error'
+					? '#ef4444'
+					: '#3b82f6'};
 	color: #ffffff;
 `;
 
@@ -205,10 +213,10 @@ export interface UnifiedCredentialManagerV9Props {
 
 /**
  * V9 unified credential management component
- * 
+ *
  * Combines app discovery and credential import/export into a single,
  * collapsible component for consistent user experience across all flows.
- * 
+ *
  * @param environmentId - PingOne environment ID
  * @param flowKey - Flow key for V9 credential storage
  * @param credentials - Current credentials object
@@ -239,7 +247,10 @@ export const UnifiedCredentialManagerV9: React.FC<UnifiedCredentialManagerV9Prop
 	const [searchQuery, setSearchQuery] = useState('');
 	const [discoveredApps, setDiscoveredApps] = useState<V9DiscoveredApp[]>([]);
 	const [tokenStatus, setTokenStatus] = useState<V9TokenStatusInfo | null>(null);
-	const [statusMessage, setStatusMessage] = useState<{ type: 'info' | 'success' | 'warning' | 'error'; text: string } | null>(null);
+	const [statusMessage, setStatusMessage] = useState<{
+		type: 'info' | 'success' | 'warning' | 'error';
+		text: string;
+	} | null>(null);
 
 	const importFileRef = useRef<HTMLInputElement>(null);
 
@@ -255,7 +266,7 @@ export const UnifiedCredentialManagerV9: React.FC<UnifiedCredentialManagerV9Prop
 	// Handle app discovery
 	const handleDiscover = async () => {
 		if (!environmentId || !tokenStatus?.isValid) {
-			console.warn(_MODULE_TAG, 'Worker token required for app discovery');
+			logger.warn(_MODULE_TAG, 'Worker token required for app discovery');
 			return;
 		}
 
@@ -263,19 +274,22 @@ export const UnifiedCredentialManagerV9: React.FC<UnifiedCredentialManagerV9Prop
 		setStatusMessage({ type: 'info', text: 'Discovering applications...' });
 
 		try {
-			const result = await V9AppDiscoveryService.discoverApplications(environmentId, tokenStatus.token || '');
-			const filteredApps = grantType 
+			const result = await V9AppDiscoveryService.discoverApplications(
+				environmentId,
+				tokenStatus.token || ''
+			);
+			const filteredApps = grantType
 				? V9AppDiscoveryService.getAppsByGrantType(result.apps, grantType)
 				: result.apps;
 
 			setDiscoveredApps(filteredApps);
 			setStatusMessage(null);
-			
+
 			if (filteredApps.length === 0) {
 				setStatusMessage({ type: 'warning', text: 'No applications found for this grant type' });
 			}
 		} catch (error) {
-			console.error(_MODULE_TAG, 'App discovery failed:', error);
+			logger.error(_MODULE_TAG, 'App discovery failed:', undefined, error as Error);
 			setStatusMessage({ type: 'error', text: 'Failed to discover applications' });
 		} finally {
 			setIsSearching(false);
@@ -313,12 +327,13 @@ export const UnifiedCredentialManagerV9: React.FC<UnifiedCredentialManagerV9Prop
 	// Filter apps based on search query
 	const filteredApps = useMemo(() => {
 		if (!searchQuery) return discoveredApps;
-		
+
 		const query = searchQuery.toLowerCase();
-		return discoveredApps.filter(app =>
-			app.name.toLowerCase().includes(query) ||
-			app.clientId.toLowerCase().includes(query) ||
-			app.description?.toLowerCase().includes(query)
+		return discoveredApps.filter(
+			(app) =>
+				app.name.toLowerCase().includes(query) ||
+				app.clientId.toLowerCase().includes(query) ||
+				app.description?.toLowerCase().includes(query)
 		);
 	}, [discoveredApps, searchQuery]);
 
@@ -349,7 +364,7 @@ export const UnifiedCredentialManagerV9: React.FC<UnifiedCredentialManagerV9Prop
 					{showAppPicker && (
 						<Section>
 							<SectionTitle>Application Discovery</SectionTitle>
-							
+
 							<ButtonGroup>
 								<ActionButton
 									$variant="primary"
@@ -359,12 +374,9 @@ export const UnifiedCredentialManagerV9: React.FC<UnifiedCredentialManagerV9Prop
 									<FiSearch size={14} />
 									{isSearching ? 'Discovering...' : 'Discover Apps'}
 								</ActionButton>
-								
+
 								{searchQuery && (
-									<ActionButton
-										$variant="outline"
-										onClick={() => setSearchQuery('')}
-									>
+									<ActionButton $variant="outline" onClick={() => setSearchQuery('')}>
 										Clear Search
 									</ActionButton>
 								)}
@@ -391,9 +403,7 @@ export const UnifiedCredentialManagerV9: React.FC<UnifiedCredentialManagerV9Prop
 							)}
 
 							{statusMessage && (
-								<StatusMessage $type={statusMessage.type}>
-									{statusMessage.text}
-								</StatusMessage>
+								<StatusMessage $type={statusMessage.type}>{statusMessage.text}</StatusMessage>
 							)}
 						</Section>
 					)}
@@ -401,7 +411,7 @@ export const UnifiedCredentialManagerV9: React.FC<UnifiedCredentialManagerV9Prop
 					{showImportExport && (
 						<Section>
 							<SectionTitle>Import/Export Credentials</SectionTitle>
-							
+
 							<ButtonGroup>
 								<input
 									ref={importFileRef}
@@ -410,7 +420,7 @@ export const UnifiedCredentialManagerV9: React.FC<UnifiedCredentialManagerV9Prop
 									onChange={handleImport}
 									style={{ display: 'none' }}
 								/>
-								
+
 								<ActionButton
 									$variant="secondary"
 									onClick={() => importFileRef.current?.click()}
@@ -419,7 +429,7 @@ export const UnifiedCredentialManagerV9: React.FC<UnifiedCredentialManagerV9Prop
 									<FiUpload size={14} />
 									Import
 								</ActionButton>
-								
+
 								<ActionButton
 									$variant="secondary"
 									onClick={handleExport}

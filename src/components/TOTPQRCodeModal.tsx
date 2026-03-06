@@ -5,6 +5,7 @@ import { FiCheck, FiCopy, FiEye, FiEyeOff, FiKey, FiSmartphone, FiX } from '@ico
 import { QRCodeSVG } from 'qrcode.react';
 import React, { useEffect, useState } from 'react';
 import { QRCodeService, TOTPConfig } from '../services/qrCodeService';
+import { logger } from '../utils/logger';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
 interface TOTPQRCodeModalProps {
@@ -55,7 +56,12 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 
 			console.log(`🔐 [TOTP QR Code] Generated TOTP configuration for ${config.accountName}`);
 		} catch (error) {
-			console.error('❌ [TOTP QR Code] Failed to generate TOTP config:', error);
+			logger.error(
+				'TOTPQRCodeModal',
+				'❌ [TOTP QR Code] Failed to generate TOTP config:',
+				undefined,
+				error as Error
+			);
 			v4ToastManager.showError('Failed to generate TOTP configuration');
 		} finally {
 			setIsGenerating(false);
@@ -80,7 +86,12 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 			// Reset copied state after 2 seconds
 			setTimeout(() => setCopied(false), 2000);
 		} catch (error) {
-			console.error('❌ [TOTP QR Code] Failed to copy secret:', error);
+			logger.error(
+				'TOTPQRCodeModal',
+				'❌ [TOTP QR Code] Failed to copy secret:',
+				undefined,
+				error as Error
+			);
 			v4ToastManager.showError('Failed to copy secret key');
 		}
 	};

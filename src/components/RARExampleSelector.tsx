@@ -5,6 +5,7 @@ import { FiCheckCircle, FiChevronDown, FiChevronUp, FiCode, FiCopy, FiEye } from
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import RARService, { type AuthorizationDetail } from '../services/rarService';
+import { logger } from '../utils/logger';
 
 interface RARExampleSelectorProps {
 	onSelectExample: (details: AuthorizationDetail[]) => void;
@@ -281,7 +282,7 @@ export const RARExampleSelector: React.FC<RARExampleSelectorProps> = ({
 			await navigator.clipboard.writeText(JSON.stringify(details, null, 2));
 			// Could add a toast notification here
 		} catch (error) {
-			console.warn('Failed to copy to clipboard:', error);
+			logger.warn('RARExampleSelector', 'Failed to copy to clipboard:', { error });
 		}
 	};
 

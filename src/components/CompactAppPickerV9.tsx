@@ -4,7 +4,7 @@
  * @description V9 standardized compact app picker component
  * @version 9.0.0
  * @since 2026-03-06
- * 
+ *
  * Migrated from CompactAppPickerV8U with V9 standardization:
  * - Uses V9AppDiscoveryService for app discovery
  * - Uses V9WorkerTokenStatusService for token status
@@ -19,8 +19,12 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import type { V9DiscoveredApp } from '@/services/v9/V9AppDiscoveryService';
 import { V9AppDiscoveryService } from '@/services/v9/V9AppDiscoveryService';
-import { V9WorkerTokenStatusService, type V9TokenStatusInfo } from '@/services/v9/V9WorkerTokenStatusService';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import {
+	type V9TokenStatusInfo,
+	V9WorkerTokenStatusService,
+} from '@/services/v9/V9WorkerTokenStatusService';
+import { logger } from '../utils/logger';
 
 const _MODULE_TAG = '[🔍 COMPACT-APP-PICKER-V9]';
 
@@ -34,10 +38,10 @@ interface CompactAppPickerV9Props {
 
 /**
  * V9 standardized compact app picker component
- * 
+ *
  * Provides a search button that expands to show discovered PingOne applications.
  * Uses V9 services for consistent behavior and follows V9 design standards.
- * 
+ *
  * @param environmentId - PingOne environment ID
  * @param onAppSelected - Callback when app is selected
  * @param grantType - Optional filter for specific OAuth grant types
@@ -140,21 +144,21 @@ export const CompactAppPickerV9: React.FC<CompactAppPickerV9Props> = ({
 
 	const handleDiscover = async () => {
 		if (!environmentId.trim()) {
-			modernMessaging.showBanner({ 
-				type: 'error', 
-				title: 'Error', 
-				message: 'Environment ID is required', 
-				dismissible: true 
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Environment ID is required',
+				dismissible: true,
 			});
 			return;
 		}
 
 		if (!hasWorkerToken) {
-			modernMessaging.showBanner({ 
-				type: 'error', 
-				title: 'Error', 
-				message: 'Worker token required - please generate one first', 
-				dismissible: true 
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Worker token required - please generate one first',
+				dismissible: true,
 			});
 			return;
 		}
@@ -162,39 +166,37 @@ export const CompactAppPickerV9: React.FC<CompactAppPickerV9Props> = ({
 		setIsLoading(true);
 		try {
 			// Use V9AppDiscoveryService for consistent behavior
-			const result = await V9AppDiscoveryService.discoverApplications(
-				environmentId,
-				workerToken
-			);
+			const result = await V9AppDiscoveryService.discoverApplications(environmentId, workerToken);
 
 			if (result.success && result.apps.length > 0) {
 				setApps(result.apps);
 				setHasDiscovered(true);
 				setShowDropdown(true);
-				modernMessaging.showFooterMessage({ 
-					type: 'info', 
-					message: `Found ${result.apps.length} application(s)`, 
-					duration: 3000 
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: `Found ${result.apps.length} application(s)`,
+					duration: 3000,
 				});
 			} else {
-				modernMessaging.showBanner({ 
-					type: 'error', 
-					title: 'Error', 
-					message: result.error || 'No applications found', 
-					dismissible: true 
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: result.error || 'No applications found',
+					dismissible: true,
 				});
 				setApps([]);
 				setHasDiscovered(false);
 			}
 		} catch (error) {
-			console.error(`${_MODULE_TAG} Discovery error:`, error);
-			modernMessaging.showBanner({ 
-				type: 'error', 
-				title: 'Error', 
-				message: error instanceof Error
-					? error.message
-					: 'Failed to discover applications - check worker token', 
-				dismissible: true 
+			logger.error(_MODULE_TAG, 'Discovery error:', undefined, error as Error);
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message:
+					error instanceof Error
+						? error.message
+						: 'Failed to discover applications - check worker token',
+				dismissible: true,
 			});
 			setHasDiscovered(false);
 		} finally {
@@ -218,10 +220,10 @@ export const CompactAppPickerV9: React.FC<CompactAppPickerV9Props> = ({
 		setShowDropdown(false);
 		setShowSearch(false);
 		setSearchQuery('');
-		modernMessaging.showFooterMessage({ 
-			type: 'info', 
-			message: `Selected: ${app.name}`, 
-			duration: 3000 
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message: `Selected: ${app.name}`,
+			duration: 3000,
 		});
 	};
 
@@ -245,11 +247,16 @@ export const CompactAppPickerV9: React.FC<CompactAppPickerV9Props> = ({
 	// V9 spacing standards
 	const getV9Spacing = (size: 'xs' | 'sm' | 'md' | 'lg') => {
 		switch (size) {
-			case 'xs': return '4px';
-			case 'sm': return '8px';
-			case 'md': return '12px';
-			case 'lg': return '16px';
-			default: return '8px';
+			case 'xs':
+				return '4px';
+			case 'sm':
+				return '8px';
+			case 'md':
+				return '12px';
+			case 'lg':
+				return '16px';
+			default:
+				return '8px';
 		}
 	};
 
@@ -304,7 +311,7 @@ export const CompactAppPickerV9: React.FC<CompactAppPickerV9Props> = ({
 		<div ref={dropdownRef} style={{ position: 'relative', display: 'inline-block' }}>
 			{/* Search Icon Button (compact) */}
 			{!showSearch && (
-				<div 
+				<div
 					style={{ position: 'relative', display: 'inline-block' }}
 					onMouseEnter={(e) => {
 						const tooltip = e.currentTarget.querySelector('.app-search-tooltip');

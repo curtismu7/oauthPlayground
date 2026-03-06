@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';
 import { FlowInfoCardData, FlowInfoService } from '../services/FlowInfoService';
+import { logger } from '../utils/logger';
 
 const CardContainer = styled.div<{ $colorScheme?: string; $fontSize?: string }>`
 	background: ${({ $colorScheme }) => {
@@ -268,7 +269,7 @@ const EnhancedFlowInfoCard: React.FC<EnhancedFlowInfoCardProps> = ({
 
 	useEffect(() => {
 		if (!flowType) {
-			console.warn('EnhancedFlowInfoCard: flowType is undefined or empty');
+			logger.warn('EnhancedFlowInfoCard', 'EnhancedFlowInfoCard: flowType is undefined or empty');
 			setFlowInfoCard(null);
 			return;
 		}

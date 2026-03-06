@@ -4,6 +4,7 @@ import { Alert, Button, Card, Spinner } from 'react-bootstrap';
 import { FaArrowDown, FaArrowUp, FaGripVertical, FaSave, FaTimes } from 'react-icons/fa';
 import useMFADeviceOrder from '../../hooks/useMFADeviceOrder';
 import { useMFADevices } from '../../hooks/useMFADevices';
+import { logger } from '../../utils/logger';
 
 interface MFADeviceOrderManagerProps {
 	accessToken: string;
@@ -62,7 +63,12 @@ const MFADeviceOrderManager: React.FC<MFADeviceOrderManagerProps> = ({
 			onOrderUpdated?.();
 		} catch (err) {
 			setError('Failed to update device order. Please try again.');
-			console.error('Error updating device order:', err);
+			logger.error(
+				'MFADeviceOrderManager',
+				'Error updating device order:',
+				undefined,
+				err as Error
+			);
 		}
 	};
 

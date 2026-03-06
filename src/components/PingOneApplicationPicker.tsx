@@ -15,6 +15,7 @@ import {
 	fetchApplications as fetchPingOneApplications,
 	type PingOneApplication,
 } from '../services/pingOneApplicationService';
+import { logger } from '../utils/logger';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
 export interface PingOneApplicationPickerProps {
@@ -315,7 +316,12 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 			setSuccess(`Found ${apps.length} applications`);
 			if (apps.length === 0) setError('No applications found in this environment');
 		} catch (err) {
-			console.error('[PingOneApplicationPicker] Error fetching applications:', err);
+			logger.error(
+				'PingOneApplicationPicker',
+				'[PingOneApplicationPicker] Error fetching applications:',
+				undefined,
+				err as Error
+			);
 			setError(err instanceof Error ? err.message : 'Failed to fetch applications');
 		} finally {
 			setLoading(false);

@@ -136,7 +136,7 @@ const ImplicitCallback: React.FC = () => {
 					setError(errorMsg);
 
 					// DEBUG: Enhanced error logging with full URL details
-					console.error('🔴 [ImplicitCallback] Implicit grant error:', {
+					logger.error('ImplicitCallback', '🔴 [ImplicitCallback] Implicit grant error:', {
 						error,
 						errorDescription,
 						fullUrl: window.location.href,
@@ -211,7 +211,12 @@ const ImplicitCallback: React.FC = () => {
 								navigate(`/flows/implicit-v8?step=TOKENS#${fragment}`);
 							}, 1500);
 						} catch (parseError) {
-							console.error('[ImplicitCallback] Failed to parse V8 flow context:', parseError);
+							logger.error(
+								'ImplicitCallback',
+								'[ImplicitCallback] Failed to parse V8 flow context:',
+								undefined,
+								parseError as Error
+							);
 							// Fall through to legacy handling
 							setStatus('warning');
 							setMessage('Implicit grant received (could not parse flow context)');

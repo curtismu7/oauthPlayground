@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';
 import { showGlobalError, showGlobalSuccess } from '../hooks/useNotifications';
+import { logger } from '../utils/logger';
 
 // Styled Components
 const Card = styled.div`
@@ -200,7 +201,12 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 			console.log('✅ [ConfigurationSummaryCard] Export completed successfully');
 			showGlobalSuccess('Configuration exported successfully!');
 		} catch (error) {
-			console.error('❌ [ConfigurationSummaryCard] Export failed:', error);
+			logger.error(
+				'ConfigurationSummaryCard',
+				'❌ [ConfigurationSummaryCard] Export failed:',
+				undefined,
+				error as Error
+			);
 			showGlobalError('Failed to export configuration');
 		}
 	};
@@ -233,7 +239,12 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 							delete importedConfig.isEncrypted;
 							console.log('✅ [ConfigurationSummaryCard] Client secret decrypted successfully');
 						} catch (error) {
-							console.error('❌ [ConfigurationSummaryCard] Failed to decrypt secret:', error);
+							logger.error(
+								'ConfigurationSummaryCard',
+								'❌ [ConfigurationSummaryCard] Failed to decrypt secret:',
+								undefined,
+								error as Error
+							);
 							showGlobalError('Failed to decrypt the imported configuration');
 							return;
 						}
@@ -243,13 +254,23 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 					onLoadConfiguration?.(importedConfig);
 					showGlobalSuccess('Configuration imported successfully!');
 				} catch (error) {
-					console.error('❌ [ConfigurationSummaryCard] Import processing failed:', error);
+					logger.error(
+						'ConfigurationSummaryCard',
+						'❌ [ConfigurationSummaryCard] Import processing failed:',
+						undefined,
+						error as Error
+					);
 					showGlobalError('Failed to process imported configuration');
 				}
 			};
 			input.click();
 		} catch (error) {
-			console.error('❌ [ConfigurationSummaryCard] Import failed:', error);
+			logger.error(
+				'ConfigurationSummaryCard',
+				'❌ [ConfigurationSummaryCard] Import failed:',
+				undefined,
+				error as Error
+			);
 			showGlobalError('Failed to import configuration');
 		}
 	};

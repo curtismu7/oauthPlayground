@@ -13,6 +13,7 @@ import {
 } from '@icons';
 import React from 'react';
 import styled from 'styled-components';
+import { logger } from '../utils/logger';
 
 interface AuthorizationUrlExplainerProps {
 	authUrl: string;
@@ -250,7 +251,12 @@ const copyToClipboard = async (text: string, label: string) => {
 		// You could add a toast notification here
 		console.log(`${label} copied to clipboard`);
 	} catch (err) {
-		console.error('Failed to copy to clipboard:', err);
+		logger.error(
+			'AuthorizationUrlExplainer',
+			'Failed to copy to clipboard:',
+			undefined,
+			err as Error
+		);
 	}
 };
 
@@ -399,7 +405,12 @@ const parseAuthorizationUrl = (url: string): UrlParameter[] => {
 
 		return parameters;
 	} catch (error) {
-		console.error('Error parsing authorization URL:', error);
+		logger.error(
+			'AuthorizationUrlExplainer',
+			'Error parsing authorization URL:',
+			undefined,
+			error as Error
+		);
 		return [];
 	}
 };
