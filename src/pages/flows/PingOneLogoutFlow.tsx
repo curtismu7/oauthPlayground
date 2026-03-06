@@ -17,6 +17,7 @@ import type React from 'react';
 import { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { ColoredUrlDisplay } from '../../components/ColoredUrlDisplay';
+import { CredentialsImportExport } from '../../components/CredentialsImportExport';
 import FlowCredentials from '../../components/FlowCredentials';
 import JSONHighlighter from '../../components/JSONHighlighter';
 import { StepByStepFlow } from '../../components/StepByStepFlow';
@@ -573,6 +574,17 @@ if (idToken) {
 						clientSecret: newCredentials.clientSecret || prev.clientSecret,
 						environmentId: newCredentials.environmentId || prev.environmentId,
 					}));
+				}}
+			/>
+
+			<CredentialsImportExport
+				credentials={{ clientId: formData.clientId, environmentId: formData.environmentId }}
+				options={{
+					flowType: 'pingone-logout',
+					appName: 'PingOne Logout Flow',
+					onImportSuccess: (creds) => {
+						setFormData((prev) => ({ ...prev, ...creds }));
+					},
 				}}
 			/>
 
