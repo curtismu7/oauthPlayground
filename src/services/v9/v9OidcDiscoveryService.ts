@@ -42,7 +42,7 @@ const V9OidcDiscoveryService = {
 					message: `Discovery failed: ${result.error}`,
 					contactSupport: false,
 				});
-				console.error('[V9 OIDC Discovery] Discovery failed:', result.error);
+
 			}
 
 			return result;
@@ -53,7 +53,6 @@ const V9OidcDiscoveryService = {
 				message: `Discovery error: ${errorMessage}`,
 				contactSupport: false,
 			});
-			console.error('[V9 OIDC Discovery] Discovery error:', error);
 
 			return {
 				success: false,
@@ -74,7 +73,6 @@ const V9OidcDiscoveryService = {
 				message: 'Failed to extract environment ID from issuer URL',
 				contactSupport: false,
 			});
-			console.error('[V9 OIDC Discovery] Environment ID extraction error:', error);
 			return null;
 		}
 	},
@@ -101,7 +99,6 @@ const V9OidcDiscoveryService = {
 				message: 'Failed to convert discovery document to credentials',
 				contactSupport: false,
 			});
-			console.error('[V9 OIDC Discovery] Credentials conversion error:', error);
 			return null;
 		}
 	},
@@ -122,7 +119,6 @@ const V9OidcDiscoveryService = {
 				message: 'Failed to clear discovery cache',
 				contactSupport: false,
 			});
-			console.error('[V9 OIDC Discovery] Cache clear error:', error);
 		}
 	},
 
@@ -138,7 +134,6 @@ const V9OidcDiscoveryService = {
 				message: 'Failed to get cache statistics',
 				contactSupport: false,
 			});
-			console.error('[V9 OIDC Discovery] Cache stats error:', error);
 			return { size: 0, entries: [] };
 		}
 	},
@@ -178,7 +173,6 @@ const V9OidcDiscoveryService = {
 				message: 'Issuer URL validation failed',
 				contactSupport: false,
 			});
-			console.error('[V9 OIDC Discovery] URL validation error:', error);
 			return false;
 		}
 	},
