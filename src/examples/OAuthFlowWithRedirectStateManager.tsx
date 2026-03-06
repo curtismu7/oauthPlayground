@@ -6,6 +6,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import FlowContextService from '../services/flowContextService';
 import RedirectStateManager, { type FlowState } from '../services/redirectStateManager';
+import { logger } from '../utils/logger';
 
 const Container = styled.div`
   max-width: 800px;
@@ -184,7 +185,12 @@ export const OAuthFlowWithRedirectStateManager: React.FC = () => {
 
 			RedirectStateManager.preserveFlowState(flowId, updatedFlowState);
 		} catch (error) {
-			console.error('Token exchange failed:', error);
+			logger.error(
+				'OAuthFlowWithRedirectStateManager',
+				'Token exchange failed:',
+				undefined,
+				error as Error
+			);
 		}
 	}, [credentials, authCode, flowId]);
 

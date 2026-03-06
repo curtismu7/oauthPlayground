@@ -40,6 +40,7 @@ import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { FlowHeader } from '../services/flowHeaderService';
 import TokenDisplayService from '../services/tokenDisplayService';
+import { logger } from '../utils/logger';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
 const Container = styled.div`
@@ -440,7 +441,12 @@ const ClientGenerator: React.FC = () => {
 					}
 				}
 			} catch (error) {
-				console.error('[App Generator] Failed to load credentials:', error);
+				logger.error(
+					'ClientGenerator',
+					'[App Generator] Failed to load credentials:',
+					undefined,
+					error as Error
+				);
 			}
 		};
 
@@ -463,7 +469,9 @@ const ClientGenerator: React.FC = () => {
 			// Basic validation: environment IDs are typically UUID format (36 chars with dashes)
 			// Client IDs are much longer base64-like strings
 			if (envId.length > 50 || !envId.match(/^[a-zA-Z0-9-]+$/)) {
-				console.warn('[App Generator] Environment ID looks suspicious:', envId);
+				logger.warn('ClientGenerator', '[App Generator] Environment ID looks suspicious:', {
+					envId,
+				});
 				throw new Error('Invalid Environment ID format. Please check your credentials.');
 			}
 
@@ -508,7 +516,10 @@ const ClientGenerator: React.FC = () => {
 
 			if (!response.ok) {
 				const errorText = await response.text();
-				console.error('[App Generator] Token request failed:', response.status, errorText);
+				logger.error('ClientGenerator', '[App Generator] Token request failed:', {
+					status: response.status,
+					errorText,
+				});
 				throw new Error(
 					`Token request failed: ${response.status} - ${errorText.substring(0, 100)}`
 				);
@@ -523,7 +534,12 @@ const ClientGenerator: React.FC = () => {
 			console.log('[App Generator] Worker token managed by unified service');
 			return workerToken;
 		} catch (error) {
-			console.error('[App Generator] Failed to get worker token:', error);
+			logger.error(
+				'ClientGenerator',
+				'[App Generator] Failed to get worker token:',
+				undefined,
+				error as Error
+			);
 			setTokenError(error instanceof Error ? error.message : 'Failed to get token');
 		} finally {
 			setIsGettingToken(false);
@@ -554,7 +570,12 @@ const ClientGenerator: React.FC = () => {
 			await getWorkerTokenSilently(workerCredentials);
 			v4ToastManager.showSuccess('Worker token obtained and saved!');
 		} catch (error) {
-			console.error('[App Generator] Failed to save and get token:', error);
+			logger.error(
+				'ClientGenerator',
+				'[App Generator] Failed to save and get token:',
+				undefined,
+				error as Error
+			);
 			v4ToastManager.showError(
 				error instanceof Error ? error.message : 'Failed to obtain worker token'
 			);

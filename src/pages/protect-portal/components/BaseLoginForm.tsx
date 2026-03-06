@@ -17,6 +17,7 @@ import { FiAlertTriangle, FiEye, FiEyeOff, FiLock as FiLockIcon } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ButtonSpinner } from '../../../components/ui/ButtonSpinner';
+import { logger } from '../../../utils/logger';
 import { UserSearchDropdownV8 } from '../../../v8/components/UserSearchDropdownV8';
 import PingOneLoginService from '../services/pingOneLoginService';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
@@ -300,7 +301,9 @@ export const BaseLoginForm: React.FC<BaseLoginFormProps> = ({
 
 				if (!credsResponse.success) {
 					const errorDetails = credsResponse.error?.details || {};
-					console.error('[🔐 BASE-LOGIN] Credential submission failed:', errorDetails);
+					logger.error('BaseLoginForm', '[🔐 BASE-LOGIN] Credential submission failed:', {
+						errorDetails,
+					});
 
 					if (credsResponse.error?.code === 'INVALID_CREDENTIALS') {
 						throw new Error(
@@ -343,7 +346,12 @@ export const BaseLoginForm: React.FC<BaseLoginFormProps> = ({
 
 				onLoginSuccess(userContext, loginContext);
 			} catch (err) {
-				console.error('[🔐 BASE-LOGIN] Authentication error:', err);
+				logger.error(
+					'BaseLoginForm',
+					'[🔐 BASE-LOGIN] Authentication error:',
+					undefined,
+					err as Error
+				);
 				const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
 				setError(errorMessage);
 				onError({

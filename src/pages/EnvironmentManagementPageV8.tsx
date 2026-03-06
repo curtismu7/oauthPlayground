@@ -19,6 +19,7 @@ import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import EnvironmentServiceV8, { PingOneEnvironment } from '../services/environmentServiceV8';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
+import { logger } from '../utils/logger';
 import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
 
 const styles = {
@@ -425,9 +426,11 @@ const EnvironmentManagementPageV8: React.FC = () => {
 				setWorkerToken(token);
 				// Note: workerTokenExpiresAt is managed by WorkerTokenDetectedBanner component
 			} catch (error) {
-				console.error(
+				logger.error(
+					'EnvironmentManagementPageV8',
 					'[EnvironmentManagementPageV8] Failed to get token from unifiedWorkerTokenService:',
-					error
+					undefined,
+					error as Error
 				);
 				setWorkerToken('');
 			}
@@ -513,7 +516,11 @@ const EnvironmentManagementPageV8: React.FC = () => {
 					return;
 				}
 			} catch (error) {
-				console.warn('[ENV-MGMT] Failed to load settings from localStorage', error);
+				logger.warn(
+					'EnvironmentManagementPageV8',
+					'[ENV-MGMT] Failed to load settings from localStorage',
+					{ error }
+				);
 			}
 		};
 
@@ -537,7 +544,11 @@ const EnvironmentManagementPageV8: React.FC = () => {
 				localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
 				console.log('[ENV-MGMT] ✅ Settings saved to localStorage');
 			} catch (error) {
-				console.warn('[ENV-MGMT] Failed to save settings to localStorage', error);
+				logger.warn(
+					'EnvironmentManagementPageV8',
+					'[ENV-MGMT] Failed to save settings to localStorage',
+					{ error }
+				);
 			}
 		};
 
@@ -552,7 +563,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 		try {
 			const token = unifiedWorkerTokenService.getTokenDataSync()?.token;
 			if (!token) {
-				console.error('[TEST] No token available');
+				logger.error('EnvironmentManagementPageV8', '[TEST] No token available');
 				return;
 			}
 
@@ -560,7 +571,7 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			const data = await response.json();
 			console.log('[TEST] Response:', data);
 		} catch (error) {
-			console.error('[TEST] Error:', error);
+			logger.error('EnvironmentManagementPageV8', '[TEST] Error:', undefined, error as Error);
 		}
 	}, []);
 
@@ -695,11 +706,15 @@ const EnvironmentManagementPageV8: React.FC = () => {
 
 			console.log('[EnvironmentManagementPageV8] ✅ Successfully loaded environments');
 		} catch (err) {
-			console.error('[EnvironmentManagementPageV8] 💥 Failed to fetch environments:', {
-				error: err,
-				message: err instanceof Error ? err.message : 'Unknown error',
-				stack: err instanceof Error ? err.stack : undefined,
-			});
+			logger.error(
+				'EnvironmentManagementPageV8',
+				'[EnvironmentManagementPageV8] 💥 Failed to fetch environments:',
+				{
+					error: err,
+					message: err instanceof Error ? err.message : 'Unknown error',
+					stack: err instanceof Error ? err.stack : undefined,
+				}
+			);
 
 			const errorMessage = err instanceof Error ? err.message : 'Failed to fetch environments';
 			setEnvError(errorMessage);
@@ -785,7 +800,12 @@ const EnvironmentManagementPageV8: React.FC = () => {
 			document.body.removeChild(link);
 			URL.revokeObjectURL(url);
 		} catch (error) {
-			console.error('Failed to export environments:', error);
+			logger.error(
+				'EnvironmentManagementPageV8',
+				'Failed to export environments:',
+				undefined,
+				error as Error
+			);
 			setEnvError('Failed to export environments');
 		}
 	};

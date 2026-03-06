@@ -18,6 +18,7 @@ import { Card, CardBody, CardHeader } from '../components/Card';
 import CollapsibleSection from '../components/CollapsibleSection';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import PageLayoutService from '../services/pageLayoutService';
+import { logger } from '../utils/logger';
 
 // White background container with better spacing
 const WhiteContainer = styled.div`
@@ -383,7 +384,7 @@ const OIDCSessionManagement = () => {
 			setCopiedCode(id);
 			setTimeout(() => setCopiedCode(null), 2000);
 		} catch (err) {
-			console.error('Failed to copy text: ', err);
+			logger.error('OIDCSessionManagement', 'Failed to copy text: ', undefined, err as Error);
 		}
 	};
 
@@ -1571,10 +1572,10 @@ async function sendBackchannelLogout(rpEndpoint, logoutToken) {
     if (response.ok) {
       console.log('Back-channel logout successful');
     } else {
-      console.error('Back-channel logout failed:', response.status);
+      logger.error('OIDCSessionManagement', 'Back-channel logout failed:', { status: response.status });
     }
   } catch (error) {
-    console.error('Back-channel logout error:', error);
+    logger.error('OIDCSessionManagement', 'Back-channel logout error:', undefined, error as Error);
   }
 }
 
@@ -1603,7 +1604,7 @@ app.post('/backchannel_logout', async (req, res) => {
     
     res.status(200).send('OK');
   } catch (error) {
-    console.error('Back-channel logout error:', error);
+    logger.error('OIDCSessionManagement', 'Back-channel logout error:', undefined, error as Error);
     res.status(400).send('Invalid logout token');
   }
 });`,
@@ -2314,7 +2315,7 @@ class SessionMonitor {
           this.handleSessionExpired();
         }
       } catch (error) {
-        console.error('Session monitoring error:', error);
+        logger.error('OIDCSessionManagement', 'Session monitoring error:', undefined, error as Error);
       }
     }, this.interval);
   }
@@ -2490,7 +2491,7 @@ if (returnedState === storedState) {
   // Show confirmation message
   console.log('User logged out successfully');
 } else {
-  console.error('Logout state mismatch - possible CSRF attack');
+  logger.error('OIDCSessionManagement', 'Logout state mismatch - possible CSRF attack');
 }`,
 											'pingone-rp-initiated-logout'
 										)}
@@ -2632,7 +2633,7 @@ app.get('/logout', (req, res) => {
   // Terminate user session using session ID (sid)
   req.session.destroy((err) => {
     if (err) {
-      console.error('Error destroying session:', err);
+      logger.error('OIDCSessionManagement', 'Error destroying session:', undefined, err as Error);
       return res.status(500).send('Logout failed');
     }
     
@@ -2825,7 +2826,7 @@ app.post('/backchannel_logout', async (req, res) => {
       audience: process.env.PINGONE_CLIENT_ID,
     }, (err, decoded) => {
       if (err) {
-        console.error('Logout token verification failed:', err);
+        logger.error('OIDCSessionManagement', 'Logout token verification failed:', undefined, err as Error);
         return res.status(400).json({ error: 'Invalid logout token' });
       }
       
@@ -2847,7 +2848,7 @@ app.post('/backchannel_logout', async (req, res) => {
       res.status(200).send('OK');
     });
   } catch (error) {
-    console.error('Back-channel logout error:', error);
+    logger.error('OIDCSessionManagement', 'Back-channel logout error:', undefined, error as Error);
     // Still return 200 OK to prevent PingOne from retrying
     res.status(200).send('OK');
   }

@@ -3,6 +3,7 @@
 import { FiAlertCircle, FiCheckCircle } from '@icons';
 import React, { useEffect, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
+import { logger } from '../utils/logger';
 
 // Animation for loading spinner
 const spin = keyframes`
@@ -118,7 +119,12 @@ const AuthorizationCallback: React.FC = () => {
 				window.opener.localStorage.setItem('callback_page_loaded', JSON.stringify(testFlag));
 			}
 		} catch (err) {
-			console.error('Failed to set callback_page_loaded flag:', err);
+			logger.error(
+				'AuthorizationCallback',
+				'Failed to set callback_page_loaded flag:',
+				undefined,
+				err as Error
+			);
 		}
 
 		const handleCallback = () => {
@@ -156,7 +162,12 @@ const AuthorizationCallback: React.FC = () => {
 				storageToUse.setItem('callback_debug_info', JSON.stringify(debugInfo));
 				console.log('✅ [AuthCallback] Debug info saved to localStorage');
 			} catch (err) {
-				console.error('❌ [AuthCallback] Failed to save debug info:', err);
+				logger.error(
+					'AuthorizationCallback',
+					'❌ [AuthCallback] Failed to save debug info:',
+					undefined,
+					err as Error
+				);
 			}
 
 			console.log('🔄 [AuthCallback] ===== URL PARAMETER ANALYSIS =====');
@@ -182,7 +193,10 @@ const AuthorizationCallback: React.FC = () => {
 
 			// Handle authorization error
 			if (errorParam) {
-				console.error('❌ [AuthCallback] Authorization error:', errorParam, errorDescription);
+				logger.error('AuthorizationCallback', '❌ [AuthCallback] Authorization error:', {
+					errorParam,
+					errorDescription,
+				});
 				setError(`${errorParam}: ${errorDescription || 'Unknown error'}`);
 				setStatus('error');
 				return;
@@ -364,12 +378,16 @@ const AuthorizationCallback: React.FC = () => {
 					}, 3000);
 				}
 			} else {
-				console.error('❌ [AuthCallback] ===== NO AUTHORIZATION CODE FOUND =====');
-				console.error('❌ [AuthCallback] URL search params:', window.location.search);
-				console.error(
-					'❌ [AuthCallback] All URL params:',
-					Object.fromEntries(new URLSearchParams(window.location.search).entries())
+				logger.error(
+					'AuthorizationCallback',
+					'❌ [AuthCallback] ===== NO AUTHORIZATION CODE FOUND ====='
 				);
+				logger.error('AuthorizationCallback', '❌ [AuthCallback] URL search params:', {
+					search: window.location.search,
+				});
+				logger.error('AuthorizationCallback', '❌ [AuthCallback] All URL params:', {
+					params: Object.fromEntries(new URLSearchParams(window.location.search).entries()),
+				});
 				setError('No authorization code received from PingOne');
 				setStatus('error');
 			}

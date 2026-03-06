@@ -387,472 +387,428 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 			<div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
 				<V9FlowHeader flowId="jwt-bearer-token-v7" />
 
-			{/* Restart Button */}
-			<div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
-				<V9FlowRestartButton
-					onRestart={restartFlow}
-					currentStep={currentStep}
-					totalSteps={STEP_METADATA.length}
-					position="header"
-				/>
-			</div>
+				{/* Restart Button */}
+				<div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
+					<V9FlowRestartButton
+						onRestart={restartFlow}
+						currentStep={currentStep}
+						totalSteps={STEP_METADATA.length}
+						position="header"
+					/>
+				</div>
 
-			{/* Step Progress Indicator */}
-			<div style={{ marginBottom: '2rem' }}>
-				<div
-					style={{
-						display: 'flex',
-						justifyContent: 'space-between',
-						alignItems: 'center',
-						marginBottom: '1rem',
-					}}
-				>
-					{STEP_METADATA.map((_step, index) => (
-						<div key={index} style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
-							<div
-								style={{
-									width: '32px',
-									height: '32px',
-									borderRadius: '50%',
-									background: index <= currentStep ? '#3b82f6' : '#e5e7eb',
-									color: index <= currentStep ? 'white' : '#6b7280',
-									display: 'flex',
-									alignItems: 'center',
-									justifyContent: 'center',
-									fontWeight: 600,
-									fontSize: '0.875rem',
-								}}
-							>
-								{index + 1}
-							</div>
-							{index < STEP_METADATA.length - 1 && (
+				{/* Step Progress Indicator */}
+				<div style={{ marginBottom: '2rem' }}>
+					<div
+						style={{
+							display: 'flex',
+							justifyContent: 'space-between',
+							alignItems: 'center',
+							marginBottom: '1rem',
+						}}
+					>
+						{STEP_METADATA.map((_step, index) => (
+							<div key={index} style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
 								<div
 									style={{
-										flex: 1,
-										height: '2px',
-										background: index < currentStep ? '#3b82f6' : '#e5e7eb',
-										margin: '0 1rem',
+										width: '32px',
+										height: '32px',
+										borderRadius: '50%',
+										background: index <= currentStep ? '#3b82f6' : '#e5e7eb',
+										color: index <= currentStep ? 'white' : '#6b7280',
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'center',
+										fontWeight: 600,
+										fontSize: '0.875rem',
 									}}
-								/>
-							)}
-						</div>
-					))}
-				</div>
-				<div>
-					<h3 style={{ margin: 0, color: '#1f2937' }}>{STEP_METADATA[currentStep].title}</h3>
-					<p style={{ margin: '0.25rem 0 0 0', color: '#6b7280', fontSize: '0.875rem' }}>
-						{STEP_METADATA[currentStep].subtitle}
-					</p>
-				</div>
-			</div>
-
-			{/* Step Content */}
-			<div style={{ marginTop: '2rem' }}>
-				{currentStep === 0 && (
-					<div>
-						{/* Overview Section */}
-						<div
-							style={{
-								background: '#f8fafc',
-								padding: '1.5rem',
-								borderRadius: '0.5rem',
-								marginBottom: '2rem',
-								border: '1px solid #e2e8f0',
-							}}
-						>
-							<button
-								type="button"
-								style={{
-									display: 'flex',
-									justifyContent: 'space-between',
-									alignItems: 'center',
-									cursor: 'pointer',
-									marginBottom: collapsedSections.overview ? '0' : '1rem',
-									background: 'none',
-									border: 'none',
-									padding: 0,
-									width: '100%',
-									textAlign: 'left',
-								}}
-								onClick={() => toggleSection('overview')}
-								onKeyDown={(e) => {
-									if (e.key === 'Enter' || e.key === ' ') {
-										e.preventDefault();
-										toggleSection('overview');
-									}
-								}}
-							>
-								<h3 style={{ margin: 0 }}>📋 Overview</h3>
-								<span style={{ fontSize: '1.25rem' }}>
-									{collapsedSections.overview ? '▶' : '▼'}
-								</span>
-							</button>
-							{!collapsedSections.overview && (
-								<div>
-									<p style={{ color: '#374151', marginBottom: '1rem' }}>
-										<strong>RFC 7523</strong> defines how to use JSON Web Tokens (JWTs) for OAuth
-										2.0 bearer tokens.
-									</p>
-									<ul style={{ color: '#374151', paddingLeft: '1.5rem', margin: 0 }}>
-										<li>JWTs are self-contained tokens with claims</li>
-										<li>No need for token introspection</li>
-										<li>Suitable for service-to-service authentication</li>
-										<li>Supports asymmetric cryptography</li>
-									</ul>
+								>
+									{index + 1}
 								</div>
-							)}
-						</div>
-
-						{/* Credentials Configuration */}
-						<div
-							style={{
-								background: '#f8fafc',
-								padding: '1.5rem',
-								borderRadius: '0.5rem',
-								marginBottom: '2rem',
-								border: '1px solid #e2e8f0',
-							}}
-						>
-							<button
-								type="button"
-								style={{
-									display: 'flex',
-									justifyContent: 'space-between',
-									alignItems: 'center',
-									cursor: 'pointer',
-									marginBottom: collapsedSections.credentials ? '0' : '1rem',
-									background: 'none',
-									border: 'none',
-									padding: 0,
-									width: '100%',
-									textAlign: 'left',
-								}}
-								onClick={() => toggleSection('credentials')}
-								onKeyDown={(e) => {
-									if (e.key === 'Enter' || e.key === ' ') {
-										e.preventDefault();
-										toggleSection('credentials');
-									}
-								}}
-							>
-								<h3 style={{ margin: 0 }}>🔐 Credentials Configuration</h3>
-								<span style={{ fontSize: '1.25rem' }}>
-									{collapsedSections.credentials ? '▶' : '▼'}
-								</span>
-							</button>
-							{!collapsedSections.credentials && (
-								<div>
-									<CompactAppPickerV8U
-										environmentId={environmentId}
-										onAppSelected={handleJwtAppSelected}
+								{index < STEP_METADATA.length - 1 && (
+									<div
+										style={{
+											flex: 1,
+											height: '2px',
+											background: index < currentStep ? '#3b82f6' : '#e5e7eb',
+											margin: '0 1rem',
+										}}
 									/>
-									<div style={{ marginBottom: '1rem' }}>
-										<label
-											htmlFor="clientId"
-											style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}
-										>
-											Client ID:
-										</label>
-										<input
-											id="clientId"
-											type="text"
-											value={clientId}
-											onChange={(e) => handleFieldChange('clientId', e.target.value)}
-											style={{
-												width: '100%',
-												padding: '0.5rem',
-												border: '1px solid #d1d5db',
-												borderRadius: '0.25rem',
-											}}
-										/>
-									</div>
-								</div>
-							)}
-						</div>
-
-						{/* Token Endpoint Configuration */}
-						<div
-							style={{
-								background: '#f8fafc',
-								padding: '1.5rem',
-								borderRadius: '0.5rem',
-								marginBottom: '2rem',
-								border: '1px solid #e2e8f0',
-							}}
-						>
-							<button
-								type="button"
-								style={{
-									display: 'flex',
-									justifyContent: 'space-between',
-									alignItems: 'center',
-									cursor: 'pointer',
-									marginBottom: collapsedSections.endpoint ? '0' : '1rem',
-									background: 'none',
-									border: 'none',
-									padding: 0,
-									width: '100%',
-									textAlign: 'left',
-								}}
-								onClick={() => toggleSection('endpoint')}
-								onKeyDown={(e) => {
-									if (e.key === 'Enter' || e.key === ' ') {
-										e.preventDefault();
-										toggleSection('endpoint');
-									}
-								}}
-							>
-								<h3 style={{ margin: 0 }}>🌐 Token Endpoint Configuration</h3>
-								<span style={{ fontSize: '1.25rem' }}>
-									{collapsedSections.endpoint ? '▶' : '▼'}
-								</span>
-							</button>
-							{!collapsedSections.endpoint && (
-								<div>
-									<div style={{ marginBottom: '1rem' }}>
-										<label
-											htmlFor="tokenEndpoint"
-											style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}
-										>
-											Token Endpoint:
-										</label>
-										<input
-											id="tokenEndpoint"
-											type="url"
-											value={tokenEndpoint}
-											onChange={(e) => handleFieldChange('tokenEndpoint', e.target.value)}
-											style={{
-												width: '100%',
-												padding: '0.5rem',
-												border: '1px solid #d1d5db',
-												borderRadius: '0.25rem',
-											}}
-										/>
-									</div>
-									<div style={{ marginBottom: '1rem' }}>
-										<label
-											htmlFor="audience"
-											style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}
-										>
-											Audience:
-										</label>
-										<input
-											id="audience"
-											type="url"
-											value={audience}
-											onChange={(e) => handleFieldChange('audience', e.target.value)}
-											style={{
-												width: '100%',
-												padding: '0.5rem',
-												border: '1px solid #d1d5db',
-												borderRadius: '0.25rem',
-											}}
-										/>
-									</div>
-								</div>
-							)}
-						</div>
-
-						{/* JWT Configuration */}
-						<div
-							style={{
-								background: '#f8fafc',
-								padding: '1.5rem',
-								borderRadius: '0.5rem',
-								marginBottom: '2rem',
-								border: '1px solid #e2e8f0',
-							}}
-						>
-							<button
-								type="button"
-								style={{
-									display: 'flex',
-									justifyContent: 'space-between',
-									alignItems: 'center',
-									cursor: 'pointer',
-									marginBottom: collapsedSections.jwtBuilder ? '0' : '1rem',
-									background: 'none',
-									border: 'none',
-									padding: 0,
-									width: '100%',
-									textAlign: 'left',
-								}}
-								onClick={() => toggleSection('jwtBuilder')}
-								onKeyDown={(e) => {
-									if (e.key === 'Enter' || e.key === ' ') {
-										e.preventDefault();
-										toggleSection('jwtBuilder');
-									}
-								}}
-							>
-								<h3 style={{ margin: 0 }}>🔑 JWT Configuration</h3>
-								<span style={{ fontSize: '1.25rem' }}>
-									{collapsedSections.jwtBuilder ? '▶' : '▼'}
-								</span>
-							</button>
-							{!collapsedSections.jwtBuilder && (
-								<div>
-									<div style={{ marginBottom: '1rem' }}>
-										<label
-											htmlFor="jwtAlgorithm"
-											style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}
-										>
-											Algorithm:
-										</label>
-										<select
-											id="jwtAlgorithm"
-											value={jwtSignature.algorithm}
-											onChange={(e) => handleFieldChange('jwtAlgorithm', e.target.value)}
-											style={{
-												width: '100%',
-												padding: '0.5rem',
-												border: '1px solid #d1d5db',
-												borderRadius: '0.25rem',
-											}}
-										>
-											<option value="RS256">RS256</option>
-											<option value="RS384">RS384</option>
-											<option value="RS512">RS512</option>
-											<option value="ES256">ES256</option>
-											<option value="ES384">ES384</option>
-											<option value="ES512">ES512</option>
-										</select>
-									</div>
-									<div style={{ marginBottom: '1rem' }}>
-										<label
-											htmlFor="privateKey"
-											style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}
-										>
-											Private Key:
-										</label>
-										<textarea
-											id="privateKey"
-											value={jwtSignature.privateKey}
-											onChange={(e) => handleFieldChange('privateKey', e.target.value)}
-											placeholder="Enter your private key here..."
-											rows={6}
-											style={{
-												width: '100%',
-												padding: '0.5rem',
-												border: '1px solid #d1d5db',
-												borderRadius: '0.25rem',
-												fontFamily: 'monospace',
-												fontSize: '0.875rem',
-											}}
-										/>
-									</div>
-									<div style={{ marginBottom: '1rem' }}>
-										<label
-											htmlFor="publicKey"
-											style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}
-										>
-											Public Key:
-										</label>
-										<textarea
-											id="publicKey"
-											value={jwtSignature.publicKey}
-											onChange={(e) => handleFieldChange('publicKey', e.target.value)}
-											placeholder="Enter your public key here..."
-											rows={6}
-											style={{
-												width: '100%',
-												padding: '0.5rem',
-												border: '1px solid #d1d5db',
-												borderRadius: '0.25rem',
-												fontFamily: 'monospace',
-												fontSize: '0.875rem',
-											}}
-										/>
-									</div>
-								</div>
-							)}
-						</div>
-					</div>
-				)}
-
-				{currentStep === 1 && (
-					<div>
-						{/* JWT Generation */}
-						<div
-							style={{
-								background: '#f8fafc',
-								padding: '1.5rem',
-								borderRadius: '0.5rem',
-								marginBottom: '2rem',
-								border: '1px solid #e2e8f0',
-							}}
-						>
-							<h3 style={{ margin: '0 0 1rem 0' }}>🔧 JWT Generation</h3>
-							<p style={{ color: '#374151', marginBottom: '1rem' }}>
-								Generate a signed JWT assertion for the OAuth 2.0 token request.
-							</p>
-							<div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
-								<button
-									onClick={generateJWT}
-									disabled={isLoading}
-									type="button"
-									style={{
-										padding: '0.75rem 1.5rem',
-										background: isLoading ? '#9ca3af' : '#3b82f6',
-										color: 'white',
-										border: 'none',
-										borderRadius: '0.375rem',
-										cursor: isLoading ? 'not-allowed' : 'pointer',
-										fontWeight: 600,
-									}}
-								>
-									{isLoading ? 'Generating...' : 'Generate JWT'}
-								</button>
-								<button
-									onClick={generateSampleKeys}
-									type="button"
-									style={{
-										padding: '0.75rem 1.5rem',
-										background: '#10b981',
-										color: 'white',
-										border: 'none',
-										borderRadius: '0.375rem',
-										cursor: 'pointer',
-										fontWeight: 600,
-									}}
-								>
-									Generate Sample Keys
-								</button>
+								)}
 							</div>
-						</div>
+						))}
+					</div>
+					<div>
+						<h3 style={{ margin: 0, color: '#1f2937' }}>{STEP_METADATA[currentStep].title}</h3>
+						<p style={{ margin: '0.25rem 0 0 0', color: '#6b7280', fontSize: '0.875rem' }}>
+							{STEP_METADATA[currentStep].subtitle}
+						</p>
+					</div>
+				</div>
 
-						{/* Generated JWT Display */}
-						{generatedJWT && (
+				{/* Step Content */}
+				<div style={{ marginTop: '2rem' }}>
+					{currentStep === 0 && (
+						<div>
+							{/* Overview Section */}
 							<div
 								style={{
-									background: '#f0f9ff',
+									background: '#f8fafc',
 									padding: '1.5rem',
 									borderRadius: '0.5rem',
-									border: '1px solid #0ea5e9',
+									marginBottom: '2rem',
+									border: '1px solid #e2e8f0',
 								}}
 							>
-								<h3 style={{ margin: '0 0 1rem 0' }}>🎯 Generated JWT</h3>
-								<div
+								<button
+									type="button"
 									style={{
-										background: '#1e293b',
-										color: '#e2e8f0',
-										padding: '1rem',
-										borderRadius: '0.375rem',
-										fontFamily: 'monospace',
-										fontSize: '0.875rem',
-										wordBreak: 'break-all',
-										marginBottom: '1rem',
+										display: 'flex',
+										justifyContent: 'space-between',
+										alignItems: 'center',
+										cursor: 'pointer',
+										marginBottom: collapsedSections.overview ? '0' : '1rem',
+										background: 'none',
+										border: 'none',
+										padding: 0,
+										width: '100%',
+										textAlign: 'left',
+									}}
+									onClick={() => toggleSection('overview')}
+									onKeyDown={(e) => {
+										if (e.key === 'Enter' || e.key === ' ') {
+											e.preventDefault();
+											toggleSection('overview');
+										}
 									}}
 								>
-									{generatedJWT}
-								</div>
-								<div style={{ display: 'flex', gap: '1rem' }}>
+									<h3 style={{ margin: 0 }}>📋 Overview</h3>
+									<span style={{ fontSize: '1.25rem' }}>
+										{collapsedSections.overview ? '▶' : '▼'}
+									</span>
+								</button>
+								{!collapsedSections.overview && (
+									<div>
+										<p style={{ color: '#374151', marginBottom: '1rem' }}>
+											<strong>RFC 7523</strong> defines how to use JSON Web Tokens (JWTs) for OAuth
+											2.0 bearer tokens.
+										</p>
+										<ul style={{ color: '#374151', paddingLeft: '1.5rem', margin: 0 }}>
+											<li>JWTs are self-contained tokens with claims</li>
+											<li>No need for token introspection</li>
+											<li>Suitable for service-to-service authentication</li>
+											<li>Supports asymmetric cryptography</li>
+										</ul>
+									</div>
+								)}
+							</div>
+
+							{/* Credentials Configuration */}
+							<div
+								style={{
+									background: '#f8fafc',
+									padding: '1.5rem',
+									borderRadius: '0.5rem',
+									marginBottom: '2rem',
+									border: '1px solid #e2e8f0',
+								}}
+							>
+								<button
+									type="button"
+									style={{
+										display: 'flex',
+										justifyContent: 'space-between',
+										alignItems: 'center',
+										cursor: 'pointer',
+										marginBottom: collapsedSections.credentials ? '0' : '1rem',
+										background: 'none',
+										border: 'none',
+										padding: 0,
+										width: '100%',
+										textAlign: 'left',
+									}}
+									onClick={() => toggleSection('credentials')}
+									onKeyDown={(e) => {
+										if (e.key === 'Enter' || e.key === ' ') {
+											e.preventDefault();
+											toggleSection('credentials');
+										}
+									}}
+								>
+									<h3 style={{ margin: 0 }}>🔐 Credentials Configuration</h3>
+									<span style={{ fontSize: '1.25rem' }}>
+										{collapsedSections.credentials ? '▶' : '▼'}
+									</span>
+								</button>
+								{!collapsedSections.credentials && (
+									<div>
+										<CompactAppPickerV8U
+											environmentId={environmentId}
+											onAppSelected={handleJwtAppSelected}
+										/>
+										<div style={{ marginBottom: '1rem' }}>
+											<label
+												htmlFor="clientId"
+												style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}
+											>
+												Client ID:
+											</label>
+											<input
+												id="clientId"
+												type="text"
+												value={clientId}
+												onChange={(e) => handleFieldChange('clientId', e.target.value)}
+												style={{
+													width: '100%',
+													padding: '0.5rem',
+													border: '1px solid #d1d5db',
+													borderRadius: '0.25rem',
+												}}
+											/>
+										</div>
+									</div>
+								)}
+							</div>
+
+							{/* Token Endpoint Configuration */}
+							<div
+								style={{
+									background: '#f8fafc',
+									padding: '1.5rem',
+									borderRadius: '0.5rem',
+									marginBottom: '2rem',
+									border: '1px solid #e2e8f0',
+								}}
+							>
+								<button
+									type="button"
+									style={{
+										display: 'flex',
+										justifyContent: 'space-between',
+										alignItems: 'center',
+										cursor: 'pointer',
+										marginBottom: collapsedSections.endpoint ? '0' : '1rem',
+										background: 'none',
+										border: 'none',
+										padding: 0,
+										width: '100%',
+										textAlign: 'left',
+									}}
+									onClick={() => toggleSection('endpoint')}
+									onKeyDown={(e) => {
+										if (e.key === 'Enter' || e.key === ' ') {
+											e.preventDefault();
+											toggleSection('endpoint');
+										}
+									}}
+								>
+									<h3 style={{ margin: 0 }}>🌐 Token Endpoint Configuration</h3>
+									<span style={{ fontSize: '1.25rem' }}>
+										{collapsedSections.endpoint ? '▶' : '▼'}
+									</span>
+								</button>
+								{!collapsedSections.endpoint && (
+									<div>
+										<div style={{ marginBottom: '1rem' }}>
+											<label
+												htmlFor="tokenEndpoint"
+												style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}
+											>
+												Token Endpoint:
+											</label>
+											<input
+												id="tokenEndpoint"
+												type="url"
+												value={tokenEndpoint}
+												onChange={(e) => handleFieldChange('tokenEndpoint', e.target.value)}
+												style={{
+													width: '100%',
+													padding: '0.5rem',
+													border: '1px solid #d1d5db',
+													borderRadius: '0.25rem',
+												}}
+											/>
+										</div>
+										<div style={{ marginBottom: '1rem' }}>
+											<label
+												htmlFor="audience"
+												style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}
+											>
+												Audience:
+											</label>
+											<input
+												id="audience"
+												type="url"
+												value={audience}
+												onChange={(e) => handleFieldChange('audience', e.target.value)}
+												style={{
+													width: '100%',
+													padding: '0.5rem',
+													border: '1px solid #d1d5db',
+													borderRadius: '0.25rem',
+												}}
+											/>
+										</div>
+									</div>
+								)}
+							</div>
+
+							{/* JWT Configuration */}
+							<div
+								style={{
+									background: '#f8fafc',
+									padding: '1.5rem',
+									borderRadius: '0.5rem',
+									marginBottom: '2rem',
+									border: '1px solid #e2e8f0',
+								}}
+							>
+								<button
+									type="button"
+									style={{
+										display: 'flex',
+										justifyContent: 'space-between',
+										alignItems: 'center',
+										cursor: 'pointer',
+										marginBottom: collapsedSections.jwtBuilder ? '0' : '1rem',
+										background: 'none',
+										border: 'none',
+										padding: 0,
+										width: '100%',
+										textAlign: 'left',
+									}}
+									onClick={() => toggleSection('jwtBuilder')}
+									onKeyDown={(e) => {
+										if (e.key === 'Enter' || e.key === ' ') {
+											e.preventDefault();
+											toggleSection('jwtBuilder');
+										}
+									}}
+								>
+									<h3 style={{ margin: 0 }}>🔑 JWT Configuration</h3>
+									<span style={{ fontSize: '1.25rem' }}>
+										{collapsedSections.jwtBuilder ? '▶' : '▼'}
+									</span>
+								</button>
+								{!collapsedSections.jwtBuilder && (
+									<div>
+										<div style={{ marginBottom: '1rem' }}>
+											<label
+												htmlFor="jwtAlgorithm"
+												style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}
+											>
+												Algorithm:
+											</label>
+											<select
+												id="jwtAlgorithm"
+												value={jwtSignature.algorithm}
+												onChange={(e) => handleFieldChange('jwtAlgorithm', e.target.value)}
+												style={{
+													width: '100%',
+													padding: '0.5rem',
+													border: '1px solid #d1d5db',
+													borderRadius: '0.25rem',
+												}}
+											>
+												<option value="RS256">RS256</option>
+												<option value="RS384">RS384</option>
+												<option value="RS512">RS512</option>
+												<option value="ES256">ES256</option>
+												<option value="ES384">ES384</option>
+												<option value="ES512">ES512</option>
+											</select>
+										</div>
+										<div style={{ marginBottom: '1rem' }}>
+											<label
+												htmlFor="privateKey"
+												style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}
+											>
+												Private Key:
+											</label>
+											<textarea
+												id="privateKey"
+												value={jwtSignature.privateKey}
+												onChange={(e) => handleFieldChange('privateKey', e.target.value)}
+												placeholder="Enter your private key here..."
+												rows={6}
+												style={{
+													width: '100%',
+													padding: '0.5rem',
+													border: '1px solid #d1d5db',
+													borderRadius: '0.25rem',
+													fontFamily: 'monospace',
+													fontSize: '0.875rem',
+												}}
+											/>
+										</div>
+										<div style={{ marginBottom: '1rem' }}>
+											<label
+												htmlFor="publicKey"
+												style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}
+											>
+												Public Key:
+											</label>
+											<textarea
+												id="publicKey"
+												value={jwtSignature.publicKey}
+												onChange={(e) => handleFieldChange('publicKey', e.target.value)}
+												placeholder="Enter your public key here..."
+												rows={6}
+												style={{
+													width: '100%',
+													padding: '0.5rem',
+													border: '1px solid #d1d5db',
+													borderRadius: '0.25rem',
+													fontFamily: 'monospace',
+													fontSize: '0.875rem',
+												}}
+											/>
+										</div>
+									</div>
+								)}
+							</div>
+						</div>
+					)}
+
+					{currentStep === 1 && (
+						<div>
+							{/* JWT Generation */}
+							<div
+								style={{
+									background: '#f8fafc',
+									padding: '1.5rem',
+									borderRadius: '0.5rem',
+									marginBottom: '2rem',
+									border: '1px solid #e2e8f0',
+								}}
+							>
+								<h3 style={{ margin: '0 0 1rem 0' }}>🔧 JWT Generation</h3>
+								<p style={{ color: '#374151', marginBottom: '1rem' }}>
+									Generate a signed JWT assertion for the OAuth 2.0 token request.
+								</p>
+								<div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
 									<button
-										onClick={() => handleCopy(generatedJWT)}
+										onClick={generateJWT}
+										disabled={isLoading}
 										type="button"
 										style={{
-											padding: '0.5rem 1rem',
-											background: '#0ea5e9',
+											padding: '0.75rem 1.5rem',
+											background: isLoading ? '#9ca3af' : '#3b82f6',
+											color: 'white',
+											border: 'none',
+											borderRadius: '0.375rem',
+											cursor: isLoading ? 'not-allowed' : 'pointer',
+											fontWeight: 600,
+										}}
+									>
+										{isLoading ? 'Generating...' : 'Generate JWT'}
+									</button>
+									<button
+										onClick={generateSampleKeys}
+										type="button"
+										style={{
+											padding: '0.75rem 1.5rem',
+											background: '#10b981',
 											color: 'white',
 											border: 'none',
 											borderRadius: '0.375rem',
@@ -860,85 +816,22 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 											fontWeight: 600,
 										}}
 									>
-										Copy JWT
+										Generate Sample Keys
 									</button>
 								</div>
 							</div>
-						)}
-					</div>
-				)}
 
-				{currentStep === 2 && (
-					<div>
-						{/* Token Request */}
-						<div
-							style={{
-								background: '#f8fafc',
-								padding: '1.5rem',
-								borderRadius: '0.5rem',
-								marginBottom: '2rem',
-								border: '1px solid #e2e8f0',
-							}}
-						>
-							<h3 style={{ margin: '0 0 1rem 0' }}>🚀 Token Request</h3>
-							<p style={{ color: '#374151', marginBottom: '1rem' }}>
-								Send the JWT assertion to the token endpoint to obtain an access token.
-							</p>
-							<div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
-								<button
-									onClick={requestToken}
-									disabled={isLoading || !generatedJWT}
-									type="button"
-									style={{
-										padding: '0.75rem 1.5rem',
-										background: isLoading || !generatedJWT ? '#9ca3af' : '#3b82f6',
-										color: 'white',
-										border: 'none',
-										borderRadius: '0.375rem',
-										cursor: isLoading || !generatedJWT ? 'not-allowed' : 'pointer',
-										fontWeight: 600,
-									}}
-								>
-									{isLoading ? 'Requesting...' : 'Request Access Token'}
-								</button>
-							</div>
-							{!generatedJWT && (
+							{/* Generated JWT Display */}
+							{generatedJWT && (
 								<div
 									style={{
-										background: '#fef3c7',
-										padding: '1rem',
-										borderRadius: '0.375rem',
-										border: '1px solid #f59e0b',
-										marginBottom: '1rem',
+										background: '#f0f9ff',
+										padding: '1.5rem',
+										borderRadius: '0.5rem',
+										border: '1px solid #0ea5e9',
 									}}
 								>
-									<p style={{ margin: 0, color: '#92400e' }}>
-										⚠️ Please generate a JWT first before requesting an access token.
-									</p>
-								</div>
-							)}
-						</div>
-					</div>
-				)}
-
-				{currentStep === 3 && (
-					<div>
-						{/* Token Response */}
-						<div
-							style={{
-								background: '#f8fafc',
-								padding: '1.5rem',
-								borderRadius: '0.5rem',
-								marginBottom: '2rem',
-								border: '1px solid #e2e8f0',
-							}}
-						>
-							<h3 style={{ margin: '0 0 1rem 0' }}>📋 Token Response</h3>
-							{tokenResponse ? (
-								<div>
-									<p style={{ color: '#374151', marginBottom: '1rem' }}>
-										Successfully obtained access token from the token endpoint.
-									</p>
+									<h3 style={{ margin: '0 0 1rem 0' }}>🎯 Generated JWT</h3>
 									<div
 										style={{
 											background: '#1e293b',
@@ -947,14 +840,15 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 											borderRadius: '0.375rem',
 											fontFamily: 'monospace',
 											fontSize: '0.875rem',
+											wordBreak: 'break-all',
 											marginBottom: '1rem',
 										}}
 									>
-										{JSON.stringify(tokenResponse, null, 2)}
+										{generatedJWT}
 									</div>
 									<div style={{ display: 'flex', gap: '1rem' }}>
 										<button
-											onClick={() => handleCopy(JSON.stringify(tokenResponse, null, 2))}
+											onClick={() => handleCopy(generatedJWT)}
 											type="button"
 											style={{
 												padding: '0.5rem 1rem',
@@ -966,204 +860,311 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 												fontWeight: 600,
 											}}
 										>
-											Copy Response
+											Copy JWT
 										</button>
 									</div>
 								</div>
-							) : (
-								<div
-									style={{
-										background: '#fef3c7',
-										padding: '1rem',
-										borderRadius: '0.375rem',
-										border: '1px solid #f59e0b',
-									}}
-								>
-									<p style={{ margin: 0, color: '#92400e' }}>
-										⚠️ No token response yet. Please complete the token request step first.
-									</p>
-								</div>
 							)}
 						</div>
-					</div>
-				)}
+					)}
 
-				{currentStep === 4 && (
-					<div>
-						{/* Flow Completion */}
-						<div
-							style={{
-								background: '#f0fdf4',
-								padding: '1.5rem',
-								borderRadius: '0.5rem',
-								marginBottom: '2rem',
-								border: '1px solid #22c55e',
-							}}
-						>
-							<h3 style={{ margin: '0 0 1rem 0', color: '#166534' }}>✅ Flow Completion</h3>
-							<p style={{ color: '#166534', marginBottom: '1rem' }}>
-								Congratulations! You have successfully completed the JWT Bearer Token Flow.
-							</p>
+					{currentStep === 2 && (
+						<div>
+							{/* Token Request */}
 							<div
 								style={{
 									background: '#f8fafc',
-									padding: '1rem',
-									borderRadius: '0.375rem',
-									marginBottom: '1rem',
+									padding: '1.5rem',
+									borderRadius: '0.5rem',
+									marginBottom: '2rem',
+									border: '1px solid #e2e8f0',
 								}}
 							>
-								<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>Summary:</h4>
-								<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#374151' }}>
-									<li>✅ Configured JWT Bearer credentials</li>
-									<li>✅ Generated signed JWT assertion</li>
-									<li>✅ Obtained access token from token endpoint</li>
-									<li>✅ Completed OAuth 2.0 JWT Bearer Token Flow</li>
-								</ul>
+								<h3 style={{ margin: '0 0 1rem 0' }}>🚀 Token Request</h3>
+								<p style={{ color: '#374151', marginBottom: '1rem' }}>
+									Send the JWT assertion to the token endpoint to obtain an access token.
+								</p>
+								<div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
+									<button
+										onClick={requestToken}
+										disabled={isLoading || !generatedJWT}
+										type="button"
+										style={{
+											padding: '0.75rem 1.5rem',
+											background: isLoading || !generatedJWT ? '#9ca3af' : '#3b82f6',
+											color: 'white',
+											border: 'none',
+											borderRadius: '0.375rem',
+											cursor: isLoading || !generatedJWT ? 'not-allowed' : 'pointer',
+											fontWeight: 600,
+										}}
+									>
+										{isLoading ? 'Requesting...' : 'Request Access Token'}
+									</button>
+								</div>
+								{!generatedJWT && (
+									<div
+										style={{
+											background: '#fef3c7',
+											padding: '1rem',
+											borderRadius: '0.375rem',
+											border: '1px solid #f59e0b',
+											marginBottom: '1rem',
+										}}
+									>
+										<p style={{ margin: 0, color: '#92400e' }}>
+											⚠️ Please generate a JWT first before requesting an access token.
+										</p>
+									</div>
+								)}
 							</div>
-							<p style={{ color: '#166534', margin: 0 }}>
-								Your access token is ready to use for API authentication.
-							</p>
 						</div>
-					</div>
-				)}
-			</div>
+					)}
 
-			{/* Step Navigation */}
-			<div
-				style={{
-					display: 'flex',
-					justifyContent: 'space-between',
-					marginTop: '2rem',
-					paddingTop: '2rem',
-					borderTop: '1px solid #e5e7eb',
-				}}
-			>
-				<button
-					onClick={goToPreviousStep}
-					disabled={currentStep === 0}
-					type="button"
-					style={{
-						padding: '0.75rem 1.5rem',
-						background: currentStep === 0 ? '#e5e7eb' : '#6b7280',
-						color: 'white',
-						border: 'none',
-						borderRadius: '0.375rem',
-						cursor: currentStep === 0 ? 'not-allowed' : 'pointer',
-						fontWeight: 600,
-					}}
-				>
-					← Previous
-				</button>
-				<div style={{ display: 'flex', gap: '0.5rem' }}>
-					{STEP_METADATA.map((_, index) => (
-						<button
-							key={index}
-							onClick={() => goToStep(index)}
-							type="button"
-							style={{
-								padding: '0.5rem 1rem',
-								background: index === currentStep ? '#3b82f6' : '#e5e7eb',
-								color: index === currentStep ? 'white' : '#6b7280',
-								border: 'none',
-								borderRadius: '0.375rem',
-								cursor: 'pointer',
-								fontWeight: 600,
-								fontSize: '0.875rem',
-							}}
-						>
-							{index + 1}
-						</button>
-					))}
+					{currentStep === 3 && (
+						<div>
+							{/* Token Response */}
+							<div
+								style={{
+									background: '#f8fafc',
+									padding: '1.5rem',
+									borderRadius: '0.5rem',
+									marginBottom: '2rem',
+									border: '1px solid #e2e8f0',
+								}}
+							>
+								<h3 style={{ margin: '0 0 1rem 0' }}>📋 Token Response</h3>
+								{tokenResponse ? (
+									<div>
+										<p style={{ color: '#374151', marginBottom: '1rem' }}>
+											Successfully obtained access token from the token endpoint.
+										</p>
+										<div
+											style={{
+												background: '#1e293b',
+												color: '#e2e8f0',
+												padding: '1rem',
+												borderRadius: '0.375rem',
+												fontFamily: 'monospace',
+												fontSize: '0.875rem',
+												marginBottom: '1rem',
+											}}
+										>
+											{JSON.stringify(tokenResponse, null, 2)}
+										</div>
+										<div style={{ display: 'flex', gap: '1rem' }}>
+											<button
+												onClick={() => handleCopy(JSON.stringify(tokenResponse, null, 2))}
+												type="button"
+												style={{
+													padding: '0.5rem 1rem',
+													background: '#0ea5e9',
+													color: 'white',
+													border: 'none',
+													borderRadius: '0.375rem',
+													cursor: 'pointer',
+													fontWeight: 600,
+												}}
+											>
+												Copy Response
+											</button>
+										</div>
+									</div>
+								) : (
+									<div
+										style={{
+											background: '#fef3c7',
+											padding: '1rem',
+											borderRadius: '0.375rem',
+											border: '1px solid #f59e0b',
+										}}
+									>
+										<p style={{ margin: 0, color: '#92400e' }}>
+											⚠️ No token response yet. Please complete the token request step first.
+										</p>
+									</div>
+								)}
+							</div>
+						</div>
+					)}
+
+					{currentStep === 4 && (
+						<div>
+							{/* Flow Completion */}
+							<div
+								style={{
+									background: '#f0fdf4',
+									padding: '1.5rem',
+									borderRadius: '0.5rem',
+									marginBottom: '2rem',
+									border: '1px solid #22c55e',
+								}}
+							>
+								<h3 style={{ margin: '0 0 1rem 0', color: '#166534' }}>✅ Flow Completion</h3>
+								<p style={{ color: '#166534', marginBottom: '1rem' }}>
+									Congratulations! You have successfully completed the JWT Bearer Token Flow.
+								</p>
+								<div
+									style={{
+										background: '#f8fafc',
+										padding: '1rem',
+										borderRadius: '0.375rem',
+										marginBottom: '1rem',
+									}}
+								>
+									<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>Summary:</h4>
+									<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#374151' }}>
+										<li>✅ Configured JWT Bearer credentials</li>
+										<li>✅ Generated signed JWT assertion</li>
+										<li>✅ Obtained access token from token endpoint</li>
+										<li>✅ Completed OAuth 2.0 JWT Bearer Token Flow</li>
+									</ul>
+								</div>
+								<p style={{ color: '#166534', margin: 0 }}>
+									Your access token is ready to use for API authentication.
+								</p>
+							</div>
+						</div>
+					)}
 				</div>
-				<button
-					onClick={goToNextStep}
-					disabled={currentStep === STEP_METADATA.length - 1 || !validateCurrentStep()}
-					type="button"
-					style={{
-						padding: '0.75rem 1.5rem',
-						background:
-							currentStep === STEP_METADATA.length - 1 || !validateCurrentStep()
-								? '#e5e7eb'
-								: '#3b82f6',
-						color: 'white',
-						border: 'none',
-						borderRadius: '0.375rem',
-						cursor:
-							currentStep === STEP_METADATA.length - 1 || !validateCurrentStep()
-								? 'not-allowed'
-								: 'pointer',
-						fontWeight: 600,
-					}}
-				>
-					{currentStep === STEP_METADATA.length - 1 ? 'Complete' : 'Next →'}
-				</button>
-			</div>
 
-			{/* Flow Completion Summary */}
-			{currentStep === STEP_METADATA.length - 1 && (
+				{/* Step Navigation */}
 				<div
 					style={{
-						background: '#f0fdf4',
-						border: '1px solid #86efac',
-						borderRadius: '0.5rem',
-						padding: '1.5rem',
+						display: 'flex',
+						justifyContent: 'space-between',
 						marginTop: '2rem',
+						paddingTop: '2rem',
+						borderTop: '1px solid #e5e7eb',
 					}}
 				>
-					<h3
+					<button
+						onClick={goToPreviousStep}
+						disabled={currentStep === 0}
+						type="button"
 						style={{
-							margin: '0 0 1rem 0',
-							color: '#16a34a',
-							fontSize: '1.25rem',
+							padding: '0.75rem 1.5rem',
+							background: currentStep === 0 ? '#e5e7eb' : '#6b7280',
+							color: 'white',
+							border: 'none',
+							borderRadius: '0.375rem',
+							cursor: currentStep === 0 ? 'not-allowed' : 'pointer',
 							fontWeight: 600,
 						}}
 					>
-						🎉 Flow Completion Summary
-					</h3>
-					<div
+						← Previous
+					</button>
+					<div style={{ display: 'flex', gap: '0.5rem' }}>
+						{STEP_METADATA.map((_, index) => (
+							<button
+								key={index}
+								onClick={() => goToStep(index)}
+								type="button"
+								style={{
+									padding: '0.5rem 1rem',
+									background: index === currentStep ? '#3b82f6' : '#e5e7eb',
+									color: index === currentStep ? 'white' : '#6b7280',
+									border: 'none',
+									borderRadius: '0.375rem',
+									cursor: 'pointer',
+									fontWeight: 600,
+									fontSize: '0.875rem',
+								}}
+							>
+								{index + 1}
+							</button>
+						))}
+					</div>
+					<button
+						onClick={goToNextStep}
+						disabled={currentStep === STEP_METADATA.length - 1 || !validateCurrentStep()}
+						type="button"
 						style={{
-							background: 'white',
+							padding: '0.75rem 1.5rem',
+							background:
+								currentStep === STEP_METADATA.length - 1 || !validateCurrentStep()
+									? '#e5e7eb'
+									: '#3b82f6',
+							color: 'white',
+							border: 'none',
 							borderRadius: '0.375rem',
-							padding: '1rem',
-							marginBottom: '1rem',
+							cursor:
+								currentStep === STEP_METADATA.length - 1 || !validateCurrentStep()
+									? 'not-allowed'
+									: 'pointer',
+							fontWeight: 600,
 						}}
 					>
-						<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>
-							Achievements:
-						</h4>
-						<ul style={{ margin: '0', paddingLeft: '1.5rem', color: '#4b5563' }}>
-							<li>✅ JWT Bearer Token configuration completed</li>
-							<li>✅ Token request successfully executed</li>
-							<li>✅ Access token obtained and validated</li>
-							<li>✅ Flow steps: {STEP_METADATA.length} completed</li>
-						</ul>
-					</div>
-					{tokenResponse && (
+						{currentStep === STEP_METADATA.length - 1 ? 'Complete' : 'Next →'}
+					</button>
+				</div>
+
+				{/* Flow Completion Summary */}
+				{currentStep === STEP_METADATA.length - 1 && (
+					<div
+						style={{
+							background: '#f0fdf4',
+							border: '1px solid #86efac',
+							borderRadius: '0.5rem',
+							padding: '1.5rem',
+							marginTop: '2rem',
+						}}
+					>
+						<h3
+							style={{
+								margin: '0 0 1rem 0',
+								color: '#16a34a',
+								fontSize: '1.25rem',
+								fontWeight: 600,
+							}}
+						>
+							🎉 Flow Completion Summary
+						</h3>
 						<div
 							style={{
 								background: 'white',
 								borderRadius: '0.375rem',
 								padding: '1rem',
+								marginBottom: '1rem',
 							}}
 						>
-							<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>
-								Token Details:
-							</h4>
-							<div style={{ fontSize: '0.875rem', color: '#4b5563' }}>
-								<p><strong>Type:</strong> {tokenResponse.token_type}</p>
-								<p><strong>Expires In:</strong> {tokenResponse.expires_in} seconds</p>
-								{tokenResponse.scope && (
-									<p><strong>Scope:</strong> {tokenResponse.scope}</p>
-								)}
-							</div>
+							<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>Achievements:</h4>
+							<ul style={{ margin: '0', paddingLeft: '1.5rem', color: '#4b5563' }}>
+								<li>✅ JWT Bearer Token configuration completed</li>
+								<li>✅ Token request successfully executed</li>
+								<li>✅ Access token obtained and validated</li>
+								<li>✅ Flow steps: {STEP_METADATA.length} completed</li>
+							</ul>
 						</div>
-					)}
-				</div>
-			)}
+						{tokenResponse && (
+							<div
+								style={{
+									background: 'white',
+									borderRadius: '0.375rem',
+									padding: '1rem',
+								}}
+							>
+								<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>Token Details:</h4>
+								<div style={{ fontSize: '0.875rem', color: '#4b5563' }}>
+									<p>
+										<strong>Type:</strong> {tokenResponse.token_type}
+									</p>
+									<p>
+										<strong>Expires In:</strong> {tokenResponse.expires_in} seconds
+									</p>
+									{tokenResponse.scope && (
+										<p>
+											<strong>Scope:</strong> {tokenResponse.scope}
+										</p>
+									)}
+								</div>
+							</div>
+						)}
+					</div>
+				)}
 			</div>
 		</V9ModernMessagingProvider>
 	);
 };
 
 export default JWTBearerTokenFlowV9;
-

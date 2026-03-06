@@ -31,6 +31,7 @@ import {
 } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../utils/logger';
 
 // Styled components
 const Container = styled.div`
@@ -460,7 +461,12 @@ const DpopAuthorizationCodeFlowV8: React.FC = () => {
 			setCurrentStep(1);
 		} catch (err) {
 			setError('Failed to generate key pair');
-			console.error('Key pair generation error:', err);
+			logger.error(
+				'DpopAuthorizationCodeFlowV8',
+				'Key pair generation error:',
+				undefined,
+				err as Error
+			);
 		}
 	}, [mockServer]);
 
@@ -476,7 +482,12 @@ const DpopAuthorizationCodeFlowV8: React.FC = () => {
 			setCurrentStep(2);
 		} catch (err) {
 			setError('Failed to create DPoP proof');
-			console.error('DPoP proof creation error:', err);
+			logger.error(
+				'DpopAuthorizationCodeFlowV8',
+				'DPoP proof creation error:',
+				undefined,
+				err as Error
+			);
 		}
 	}, [keyPair, mockServer]);
 
@@ -489,7 +500,12 @@ const DpopAuthorizationCodeFlowV8: React.FC = () => {
 			setCurrentStep(3);
 		} catch (err) {
 			setError('Failed to get authorization code');
-			console.error('Authorization code error:', err);
+			logger.error(
+				'DpopAuthorizationCodeFlowV8',
+				'Authorization code error:',
+				undefined,
+				err as Error
+			);
 		}
 	}, [mockServer]);
 
@@ -508,7 +524,7 @@ const DpopAuthorizationCodeFlowV8: React.FC = () => {
 			setCurrentStep(4);
 		} catch (err) {
 			setError('Failed to exchange code for token');
-			console.error('Token exchange error:', err);
+			logger.error('DpopAuthorizationCodeFlowV8', 'Token exchange error:', undefined, err as Error);
 		} finally {
 			setIsLoading(false);
 		}
@@ -538,7 +554,7 @@ const DpopAuthorizationCodeFlowV8: React.FC = () => {
 			}
 		} catch (err) {
 			setError('Failed to use token with DPoP proof');
-			console.error('Token usage error:', err);
+			logger.error('DpopAuthorizationCodeFlowV8', 'Token usage error:', undefined, err as Error);
 		} finally {
 			setIsLoading(false);
 		}

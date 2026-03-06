@@ -21,6 +21,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import ConfirmationModal from '../components/ConfirmationModal';
 import { credentialStorageManager } from '../services/credentialStorageManager';
+import { logger } from '../utils/logger';
 // import { FlowHeader } from '../services/flowHeaderService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
@@ -282,7 +283,12 @@ export const CredentialManagement: React.FC = () => {
 
 			setFlows(flowInfos);
 		} catch (error) {
-			console.error('[CredentialManagement] Failed to load credentials:', error);
+			logger.error(
+				'CredentialManagement',
+				'[CredentialManagement] Failed to load credentials:',
+				undefined,
+				error as Error
+			);
 			v4ToastManager.showError('Failed to load credential information');
 		} finally {
 			setLoading(false);
@@ -328,7 +334,12 @@ export const CredentialManagement: React.FC = () => {
 
 			v4ToastManager.showSuccess('Credentials exported successfully');
 		} catch (error) {
-			console.error('[CredentialManagement] Export failed:', error);
+			logger.error(
+				'CredentialManagement',
+				'[CredentialManagement] Export failed:',
+				undefined,
+				error as Error
+			);
 			v4ToastManager.showError('Failed to export credentials');
 		}
 	};
@@ -370,7 +381,12 @@ export const CredentialManagement: React.FC = () => {
 			// Reload credentials to show updated state
 			await loadFlowCredentials();
 		} catch (error) {
-			console.error('[CredentialManagement] Import failed:', error);
+			logger.error(
+				'CredentialManagement',
+				'[CredentialManagement] Import failed:',
+				undefined,
+				error as Error
+			);
 			v4ToastManager.showError('Failed to import credentials. Please check the file format.');
 		}
 
@@ -393,9 +409,11 @@ export const CredentialManagement: React.FC = () => {
 				`[${new Date().toISOString()}] [🧩 UI-NOTIFICATIONS] All credentials cleared successfully. Count: ${clearedCount}`
 			);
 		} catch (error) {
-			console.error(
+			logger.error(
+				'CredentialManagement',
 				`[${new Date().toISOString()}] [⚠️ ERROR-HANDLER] Failed to clear all credentials:`,
-				error
+				undefined,
+				error as Error
 			);
 			v4ToastManager.showError('Failed to clear all credentials');
 		} finally {

@@ -14,6 +14,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import { WorkerTokenStatusDisplayV8 } from '@/v8/components/WorkerTokenStatusDisplayV8';
+import { logger } from '../../utils/logger';
 import AmericanAirlinesHero from './components/AmericanAirlinesHero';
 import BankOfAmericaHero from './components/BankOfAmericaHero';
 import CompanyHeader from './components/CompanyHeader';
@@ -423,7 +424,12 @@ const ProtectPortalApp: React.FC<ProtectPortalAppProps> = ({
 	}, []);
 
 	const handleError = useCallback((error: PortalError) => {
-		console.error('[🚀 PROTECT-PORTAL] Error occurred:', error);
+		logger.error(
+			'ProtectPortalApp',
+			'[🚀 PROTECT-PORTAL] Error occurred:',
+			undefined,
+			error as Error
+		);
 		setPortalState((prev) => ({
 			...prev,
 			currentStep: 'error',

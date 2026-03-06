@@ -15,6 +15,7 @@
 import { FiAlertTriangle, FiEdit2, FiPlus, FiTrash2, FiUser, FiX } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../../utils/logger';
 import { PageApiInfo } from '../components/common/PageApiInfo';
 import { UserSearchDropdown } from '../components/UserSearchDropdown';
 import { useTheme } from '../contexts/ThemeContext';
@@ -473,7 +474,7 @@ export const UserManagementPage: React.FC<UserManagementPageProps> = () => {
 			});
 			setUsers(result.users);
 		} catch (error) {
-			console.error('Error loading users:', error);
+			logger.error('UserManagementPage', 'Error loading users:', undefined, error as Error);
 		} finally {
 			setIsLoading(false);
 		}
@@ -484,7 +485,7 @@ export const UserManagementPage: React.FC<UserManagementPageProps> = () => {
 			const roles = await userService.getRoles();
 			setRoles(roles);
 		} catch (error) {
-			console.error('Error loading roles:', error);
+			logger.error('UserManagementPage', 'Error loading roles:', undefined, error as Error);
 		}
 	}, []);
 
@@ -493,7 +494,7 @@ export const UserManagementPage: React.FC<UserManagementPageProps> = () => {
 			const statuses = await userService.getStatuses();
 			setStatuses(statuses);
 		} catch (error) {
-			console.error('Error loading statuses:', error);
+			logger.error('UserManagementPage', 'Error loading statuses:', undefined, error as Error);
 		}
 	}, []);
 
@@ -504,7 +505,7 @@ export const UserManagementPage: React.FC<UserManagementPageProps> = () => {
 			setShowCreateModal(false);
 			resetForm();
 		} catch (error) {
-			console.error('Error creating user:', error);
+			logger.error('UserManagementPage', 'Error creating user:', undefined, error as Error);
 		}
 	}, [formData, resetForm]);
 
@@ -525,7 +526,7 @@ export const UserManagementPage: React.FC<UserManagementPageProps> = () => {
 			setShowEditModal(false);
 			resetForm();
 		} catch (error) {
-			console.error('Error updating user:', error);
+			logger.error('UserManagementPage', 'Error updating user:', undefined, error as Error);
 		}
 	}, [selectedUser, formData, resetForm]);
 
@@ -538,7 +539,7 @@ export const UserManagementPage: React.FC<UserManagementPageProps> = () => {
 			setShowDeleteModal(false);
 			setSelectedUser(null);
 		} catch (error) {
-			console.error('Error deleting user:', error);
+			logger.error('UserManagementPage', 'Error deleting user:', undefined, error as Error);
 		}
 	}, [selectedUser]);
 

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-
+import { logger } from '../utils/logger';
 import { APP_VERSION } from '../version';
 
 // Define the schema for environment variables
@@ -55,14 +55,14 @@ const parseEnv = (): EnvConfig => {
 		return envSchema.parse(envVars);
 	} catch (error) {
 		if (error instanceof z.ZodError) {
-			console.error(' Invalid environment variables:');
+			logger.error('config', ' Invalid environment variables:');
 			error.issues.forEach((issue) => {
-				console.error(`  - ${issue.path.join('.')}: ${issue.message}`);
+				logger.error('config', `  - ${issue.path.join('.')}: ${issue.message}`);
 			});
 		} else if (error instanceof Error) {
-			console.error(' Failed to parse environment variables:', error.message);
+			logger.error('config', ' Failed to parse environment variables:', { message: error.message });
 		} else {
-			console.error(' Failed to parse environment variables: Unknown error');
+			logger.error('config', ' Failed to parse environment variables: Unknown error');
 		}
 		throw new Error('Invalid environment variables');
 	}
@@ -144,7 +144,7 @@ export const getConfigValue = <T>(path: string, defaultValue: T): T => {
 		path.includes('constructor') ||
 		path.includes('prototype')
 	) {
-		console.warn(' [Security] Blocked potentially dangerous config path:', path);
+		logger.warn('config', ' [Security] Blocked potentially dangerous config path:', { path });
 		return defaultValue;
 	}
 
@@ -158,7 +158,7 @@ export const getConfigValue = <T>(path: string, defaultValue: T): T => {
 
 		// Additional security check for each key
 		if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
-			console.warn(' [Security] Blocked prototype pollution attempt:', key);
+			logger.warn('config', ' [Security] Blocked prototype pollution attempt:', { key });
 			return defaultValue;
 		}
 

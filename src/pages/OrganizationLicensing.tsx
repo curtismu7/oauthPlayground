@@ -19,6 +19,7 @@ import PageLayoutService from '../services/pageLayoutService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import V7StepperService from '../services/v7StepperService';
 import { credentialManager } from '../utils/credentialManager';
+import { logger } from '../utils/logger';
 import { getOAuthTokens } from '../utils/tokenStorage';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import WorkerTokenStatusDisplayV8 from '../v8/components/WorkerTokenStatusDisplayV8';
@@ -254,7 +255,11 @@ const OrganizationLicensingV2: React.FC = () => {
 		try {
 			return localStorage.getItem(ORGANIZATION_ID_STORAGE_KEY) || '';
 		} catch (error) {
-			console.warn('[OrganizationLicensing] Unable to load stored organization ID:', error);
+			logger.warn(
+				'OrganizationLicensing',
+				'[OrganizationLicensing] Unable to load stored organization ID:',
+				{ error }
+			);
 			return '';
 		}
 	});
@@ -309,7 +314,11 @@ const OrganizationLicensingV2: React.FC = () => {
 					return { access_token: globalTokenStatus.token };
 				}
 			} catch (e) {
-				console.warn('[OrganizationLicensing] Error loading worker token:', e);
+				logger.warn(
+					'OrganizationLicensing',
+					'[OrganizationLicensing] Error loading worker token:',
+					{ error: e }
+				);
 			}
 
 			// Check secure storage (fallback)
@@ -419,7 +428,11 @@ const OrganizationLicensingV2: React.FC = () => {
 				localStorage.removeItem(ORGANIZATION_ID_STORAGE_KEY);
 			}
 		} catch (error) {
-			console.warn('[OrganizationLicensing] Unable to persist organization ID:', error);
+			logger.warn(
+				'OrganizationLicensing',
+				'[OrganizationLicensing] Unable to persist organization ID:',
+				{ error }
+			);
 		}
 	};
 
@@ -463,11 +476,19 @@ const OrganizationLicensingV2: React.FC = () => {
 				v4ToastManager.showError(
 					'Failed to fetch organization information. Check the error message for details.'
 				);
-				console.error('[OrganizationLicensing] getOrganizationLicensingInfo returned null');
+				logger.error(
+					'OrganizationLicensing',
+					'[OrganizationLicensing] getOrganizationLicensingInfo returned null'
+				);
 			}
 		} catch (err) {
 			const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
-			console.error('[OrganizationLicensing] Error fetching organization info:', err);
+			logger.error(
+				'OrganizationLicensing',
+				'[OrganizationLicensing] Error fetching organization info:',
+				undefined,
+				err as Error
+			);
 
 			// Check if it's a 401 error
 			if (errorMessage.includes('401') || errorMessage.includes('Unauthorized')) {

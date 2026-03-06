@@ -7,6 +7,7 @@ import { Card, CardBody, CardHeader } from '../components/Card';
 import { showFlowSuccess } from '../components/CentralizedSuccessMessage';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { copyToClipboard } from '../utils/clipboard';
+import { logger } from '../utils/logger';
 
 const Container = styled.div`
   max-width: 1400px;
@@ -479,7 +480,7 @@ async function pushAuthorizationRequest(config) {
       throw new Error(\`PAR failed: \${result.error} - \${result.error_description}\`);
     }
   } catch (error) {
-    console.error('PAR error:', error);
+    logger.error('PARvsRAR', 'PAR error:', undefined, error as Error);
     throw error;
   }
 }
@@ -560,7 +561,7 @@ async function pushAuthorizationRequest(config) {
       throw new Error(\`PAR failed: \${result.error} - \${result.error_description}\`);
     }
   } catch (error) {
-    console.error('PAR error:', error);
+    logger.error('PARvsRAR', 'PAR error:', undefined, error as Error);
     throw error;
   }
 }
@@ -1214,7 +1215,7 @@ async function pushPARWithRAR(config, authorizationDetails) {
       throw new Error(\`PAR + RAR failed: \${result.error} - \${result.error_description}\`);
     }
   } catch (error) {
-    console.error('PAR + RAR error:', error);
+    logger.error('PARvsRAR', 'PAR + RAR error:', undefined, error as Error);
     throw error;
   }
 }
@@ -1310,7 +1311,7 @@ async function pushPARWithRAR(config, authorizationDetails) {
       throw new Error(\`PAR + RAR failed: \${result.error} - \${result.error_description}\`);
     }
   } catch (error) {
-    console.error('PAR + RAR error:', error);
+    logger.error('PARvsRAR', 'PAR + RAR error:', undefined, error as Error);
     throw error;
   }
 }

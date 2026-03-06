@@ -144,39 +144,39 @@ const V7RMOIDCResourceOwnerPasswordFlow: React.FC = () => {
 	return (
 		<div className="end-user-nano">
 			<FlowTemplate
-			title="Enhanced OIDC Resource Owner Password Flow"
-			subtitle="Real API Integration with OIDC Extensions"
-			description="Learn how the OIDC Resource Owner Password flow would work through this educational simulation. Understand the security risks and see why modern alternatives are preferred."
-			badge={
-				<span>
-					<FiLock /> Enhanced - Real API + OIDC
-				</span>
-			}
-			highlights={highlights}
-			education={education}
-		>
-			<CompactAppPickerV8U onAppSelected={handleAppSelected} />
+				title="Enhanced OIDC Resource Owner Password Flow"
+				subtitle="Real API Integration with OIDC Extensions"
+				description="Learn how the OIDC Resource Owner Password flow would work through this educational simulation. Understand the security risks and see why modern alternatives are preferred."
+				badge={
+					<span>
+						<FiLock /> Enhanced - Real API + OIDC
+					</span>
+				}
+				highlights={highlights}
+				education={education}
+			>
+				<CompactAppPickerV8U onAppSelected={handleAppSelected} />
 
-			<FlowConfiguration
-				config={controller.flowConfig}
-				onConfigChange={controller.handleFlowConfigChange}
-				flowType="v7rm-oidc-resource-owner-password"
-				isConfigured={controller.hasCredentialsSaved}
-				initialExpanded={false}
-				title="V7RM OIDC Configuration"
-				subtitle="Configure mock credentials for educational purposes. No real authentication occurs."
-			/>
+				<FlowConfiguration
+					config={controller.flowConfig}
+					onConfigChange={controller.handleFlowConfigChange}
+					flowType="v7rm-oidc-resource-owner-password"
+					isConfigured={controller.hasCredentialsSaved}
+					initialExpanded={false}
+					title="V7RM OIDC Configuration"
+					subtitle="Configure mock credentials for educational purposes. No real authentication occurs."
+				/>
 
-			<EnhancedStepFlowV2
-				title="V7RM OIDC Resource Owner Password Flow"
-				steps={steps}
-				persistKey={`${controller.persistKey}-enhanced-flow`}
-				autoAdvance
-				allowStepJumping
-				initialStepIndex={controller.stepManager.currentStepIndex}
-				onStepChange={(index) => controller.stepManager.setStep(index)}
-			/>
-		</FlowTemplate>
+				<EnhancedStepFlowV2
+					title="V7RM OIDC Resource Owner Password Flow"
+					steps={steps}
+					persistKey={`${controller.persistKey}-enhanced-flow`}
+					autoAdvance
+					allowStepJumping
+					initialStepIndex={controller.stepManager.currentStepIndex}
+					onStepChange={(index) => controller.stepManager.setStep(index)}
+				/>
+			</FlowTemplate>
 		</div>
 	);
 };

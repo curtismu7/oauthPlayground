@@ -6,6 +6,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import ClientCredentialManager from '../../components/ClientCredentialManager';
 import { useCredentialStoreV8 } from '../../hooks/useCredentialStoreV8';
+import { logger } from '../../utils/logger';
 import {
 	buildPingOneImplicitAuthUrl,
 	generateNonce,
@@ -318,7 +319,7 @@ const ImplicitFlowTest: React.FC = () => {
 				error: error instanceof Error ? error.message : 'Unknown error',
 				duration,
 			});
-			console.error('❌ URL generation failed:', error);
+			logger.error('ImplicitFlowTest', '❌ URL generation failed:', undefined, error as Error);
 			return null;
 		}
 	}, [config, addResult]);
@@ -401,7 +402,7 @@ const ImplicitFlowTest: React.FC = () => {
 				error: error instanceof Error ? error.message : 'Unknown error',
 				duration,
 			});
-			console.error('❌ Fragment parsing failed:', error);
+			logger.error('ImplicitFlowTest', '❌ Fragment parsing failed:', undefined, error as Error);
 			return null;
 		}
 	}, [config.responseType, testFragment, addResult]);
@@ -500,7 +501,7 @@ const ImplicitFlowTest: React.FC = () => {
 				error: error instanceof Error ? error.message : 'Unknown error',
 				duration,
 			});
-			console.error('❌ Token validation failed:', error);
+			logger.error('ImplicitFlowTest', '❌ Token validation failed:', undefined, error as Error);
 			return null;
 		}
 	}, [parsedTokens, config.responseType, addResult]);

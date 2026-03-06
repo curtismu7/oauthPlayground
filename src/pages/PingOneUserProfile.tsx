@@ -16,8 +16,8 @@ import {
 	FiX,
 } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
-import styled from 'styled-components';
 import { useSearchParams } from 'react-router-dom';
+import styled from 'styled-components';
 import { readBestEnvironmentId } from '../hooks/useAutoEnvironmentId';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { usePageScroll } from '../hooks/usePageScroll';
@@ -202,6 +202,7 @@ interface PingOneMfaDetails {
 type PingOneMfaStatus = PingOneMfaDetails | null;
 
 import type { CSSProperties } from 'react';
+import { logger } from '../utils/logger';
 
 const styles: Record<string, CSSProperties> = {
 	pageContainer: {
@@ -1117,7 +1118,12 @@ const PingOneUserProfile: React.FC = () => {
 					);
 				}
 			} catch (additionalError) {
-				console.error('Failed to fetch additional user data:', additionalError);
+				logger.error(
+					'PingOneUserProfile',
+					'Failed to fetch additional user data:',
+					undefined,
+					additionalError as Error
+				);
 			}
 
 			return {
@@ -1155,7 +1161,12 @@ const PingOneUserProfile: React.FC = () => {
 				setMfaStatus(bundle.mfa);
 				setUserConsents(bundle.consents);
 			} catch (err: unknown) {
-				console.error('Failed to fetch user profile:', err);
+				logger.error(
+					'PingOneUserProfile',
+					'Failed to fetch user profile:',
+					undefined,
+					err as Error
+				);
 				const status = (err as { status?: number })?.status;
 				const message = err instanceof Error ? err.message : 'Failed to load user profile';
 				if (status === 401 || message === 'Worker token unauthorized') {
@@ -1222,7 +1233,12 @@ const PingOneUserProfile: React.FC = () => {
 				}
 			})
 			.catch((err) => {
-				console.error('[Population] Failed to fetch population details:', err);
+				logger.error(
+					'PingOneUserProfile',
+					'[Population] Failed to fetch population details:',
+					undefined,
+					err as Error
+				);
 			});
 	}, [userProfile?.population, environmentId, accessToken]);
 
@@ -1281,7 +1297,12 @@ const PingOneUserProfile: React.FC = () => {
 				}
 			})
 			.catch((err) => {
-				console.error('[Comparison Population] Failed to fetch population details:', err);
+				logger.error(
+					'PingOneUserProfile',
+					'[Comparison Population] Failed to fetch population details:',
+					undefined,
+					err as Error
+				);
 			});
 	}, [comparisonProfile?.population, environmentId, accessToken]);
 
@@ -1360,7 +1381,9 @@ const PingOneUserProfile: React.FC = () => {
 					localStorage.setItem(USER_IDENTIFIER_STORAGE_KEY, finalIdentifier);
 				}
 			} catch (storageError) {
-				console.warn('Unable to persist credentials to localStorage:', storageError);
+				logger.warn('PingOneUserProfile', 'Unable to persist credentials to localStorage:', {
+					error: storageError,
+				});
 			}
 			setShowUserSelector(false);
 			await fetchUserProfile(resolvedId);
@@ -1663,7 +1686,11 @@ const PingOneUserProfile: React.FC = () => {
 										localStorage.removeItem(USER_IDENTIFIER_STORAGE_KEY);
 									}
 								} catch (storageError) {
-									console.warn('Unable to persist user identifier to localStorage:', storageError);
+									logger.warn(
+										'PingOneUserProfile',
+										'Unable to persist user identifier to localStorage:',
+										{ error: storageError }
+									);
 								}
 							}}
 							placeholder="Search for a user by ID, username, or email..."
@@ -2150,13 +2177,21 @@ const PingOneUserProfile: React.FC = () => {
 				<Container>
 					<Title>PingOne User Profile</Title>
 					<Subtitle>View detailed user information using real PingOne APIs</Subtitle>
-					
+
 					<div>
 						<h3>User Information</h3>
-						<p><strong>Name:</strong> {userProfile.name || 'N/A'}</p>
-						<p><strong>Email:</strong> {userProfile.email || 'N/A'}</p>
-						<p><strong>Username:</strong> {userProfile.username || 'N/A'}</p>
-						<p><strong>ID:</strong> {userProfile.id || 'N/A'}</p>
+						<p>
+							<strong>Name:</strong> {userProfile.name || 'N/A'}
+						</p>
+						<p>
+							<strong>Email:</strong> {userProfile.email || 'N/A'}
+						</p>
+						<p>
+							<strong>Username:</strong> {userProfile.username || 'N/A'}
+						</p>
+						<p>
+							<strong>ID:</strong> {userProfile.id || 'N/A'}
+						</p>
 					</div>
 
 					<div style={{ marginTop: '2rem' }}>

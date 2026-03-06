@@ -556,7 +556,7 @@ if (verificationResponse.ok) {
   console.log('MFA verification successful:', verificationResult);
   // Continue with token exchange
 } else {
-  console.error('MFA verification failed:', verificationResult);
+  logger.error('MFAFlow', 'MFA verification failed:', { verificationResult });
 }`,
 			execute: async () => {
 				logger.info('MFAFlow', 'Verifying MFA code with PingOne MFA API', {

@@ -22,13 +22,14 @@ import {
 	FiX,
 } from '@icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import ApiCallList from '../components/ApiCallList';
 import JSONHighlighter, { type JSONData } from '../components/JSONHighlighter';
 import { readBestEnvironmentId } from '../hooks/useAutoEnvironmentId';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import { apiRequestModalService } from '../services/apiRequestModalService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { logger } from '../utils/logger';
 import { ShowTokenConfigCheckboxV8 } from '../v8/components/ShowTokenConfigCheckboxV8';
 import { SilentApiConfigCheckboxV8 } from '../v8/components/SilentApiConfigCheckboxV8';
 import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
@@ -481,7 +482,11 @@ const PingOneAuditActivities: React.FC = () => {
 	const handleClearWorkerToken = () => {
 		unifiedWorkerTokenService.clearToken();
 		setWorkerToken('');
-		modernMessaging.showFooterMessage({ type: 'info', message: 'Worker token cleared successfully.', duration: 3000 });
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message: 'Worker token cleared successfully.',
+			duration: 3000,
+		});
 		// Trigger page reload to reset state
 		window.location.reload();
 	};
@@ -660,9 +665,18 @@ const PingOneAuditActivities: React.FC = () => {
 				headers: Object.fromEntries(response.headers.entries()),
 			});
 
-			modernMessaging.showFooterMessage({ type: 'info', message: `Retrieved ${retrievedCount} audit ${retrievedCount === 1 ? 'activity' : 'activities'}`, duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: `Retrieved ${retrievedCount} audit ${retrievedCount === 1 ? 'activity' : 'activities'}`,
+				duration: 3000,
+			});
 		} catch (err) {
-			console.error('[Audit Activities] Fetch failed:', err);
+			logger.error(
+				'PingOneAuditActivities',
+				'[Audit Activities] Fetch failed:',
+				undefined,
+				err as Error
+			);
 			setActivities([]);
 			setTotalCount(0);
 			setAuditResponse(null);
@@ -876,7 +890,11 @@ const PingOneAuditActivities: React.FC = () => {
 		if (selectedActivity) {
 			navigator.clipboard.writeText(JSON.stringify(selectedActivity, null, 2));
 			setCopiedJson(true);
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Activity JSON copied to clipboard', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Activity JSON copied to clipboard',
+				duration: 3000,
+			});
 			setTimeout(() => setCopiedJson(false), 2000);
 		}
 	};

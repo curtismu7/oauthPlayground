@@ -54,7 +54,7 @@ function items(
 
 /** Apply version badges to menu items based on migration status */
 function applyVersionBadges(items: SidebarMenuItem[]): SidebarMenuItem[] {
-	return items.map(item => {
+	return items.map((item) => {
 		// Apply 'updated' badge to specific recently standardized apps
 		const recentlyUpdatedApps = [
 			'/flows/kroger-grocery-store-mfa',
@@ -64,7 +64,7 @@ function applyVersionBadges(items: SidebarMenuItem[]): SidebarMenuItem[] {
 			'/credential-management',
 			'/postman-collection-generator-v9',
 		];
-		
+
 		if (recentlyUpdatedApps.includes(item.path)) {
 			// Use applyUpdatedBadge for recently updated apps
 			return {
@@ -76,23 +76,23 @@ function applyVersionBadges(items: SidebarMenuItem[]): SidebarMenuItem[] {
 				},
 			};
 		}
-		
+
 		return autoApplyVersionBadge(item);
 	});
 }
 
 /** Apply version badges to menu groups recursively */
 function applyVersionBadgesToGroups(groups: SidebarMenuGroup[]): SidebarMenuGroup[] {
-	return groups.map(group => {
+	return groups.map((group) => {
 		const updatedGroup: SidebarMenuGroup = {
 			...group,
 			items: applyVersionBadges(group.items),
 		};
-		
+
 		if (group.subGroups) {
 			updatedGroup.subGroups = applyVersionBadgesToGroups(group.subGroups);
 		}
-		
+
 		return updatedGroup;
 	});
 }

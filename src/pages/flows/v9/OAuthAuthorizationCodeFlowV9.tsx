@@ -21,7 +21,6 @@ import {
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-import { logger } from '../../../services/loggingService';
 import CodeExamplesDisplay from '../../../components/CodeExamplesDisplay';
 import { EnhancedApiCallDisplay } from '../../../components/EnhancedApiCallDisplay';
 import EnhancedFlowInfoCard from '../../../components/EnhancedFlowInfoCard';
@@ -56,6 +55,7 @@ import FlowCredentialService from '../../../services/flowCredentialService';
 import { FlowHeader } from '../../../services/flowHeaderService';
 import FlowStorageService from '../../../services/flowStorageService';
 import FlowUIService from '../../../services/flowUIService';
+import { logger } from '../../../services/loggingService';
 import { oidcDiscoveryService } from '../../../services/oidcDiscoveryService';
 import { PKCEGenerationService } from '../../../services/pkceGenerationService';
 import { themeService } from '../../../services/themeService';
@@ -235,8 +235,6 @@ const CollapsibleSection = styled.section`
 	box-shadow: 0 10px 20px rgba(15, 23, 42, 0.05);
 `;
 
-
-
 const CollapsibleHeaderButton = styled.button<{ $collapsed?: boolean }>`
 	display: flex;
 	align-items: center;
@@ -258,7 +256,6 @@ const CollapsibleHeaderButton = styled.button<{ $collapsed?: boolean }>`
 		background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
 	}
 `;
-
 
 const BlueHeaderButton = styled(CollapsibleHeaderButton)`
 	background: linear-gradient(135deg, #bfdbfe 0%, #60a5fa 100%);
@@ -382,8 +379,6 @@ const InfoList = styled.ul`
 	padding-left: 1.5rem;
 `;
 
-
-
 const GeneratedContentBox = styled.div`
 	background-color: #dcfce7;
 	border: 1px solid #22c55e;
@@ -438,8 +433,6 @@ const ActionRow = styled.div`
 	align-items: center;
 	margin-top: 1.5rem;
 `;
-
-
 
 const Button = styled.button<{
 	$variant?: 'primary' | 'success' | 'secondary' | 'danger' | 'outline';
@@ -598,8 +591,6 @@ const EmptyText = styled.p`
 	color: #166534;
 	margin-bottom: 1rem;
 `;
-
-
 
 const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 	logger.info('OAuthAuthorizationCodeFlowV9', 'V7.2 Flow loaded!', {
@@ -806,7 +797,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 	const [audience, setAudience] = useState<string>('');
 	const [resources, setResources] = useState<string[]>([]);
 	const [promptValues, setPromptValues] = useState<string[]>([]);
-	
+
 	// V7.2 addition: optional redirectless (pi.flow) execution inline
 	const [useRedirectless, setUseRedirectless] = useState(false);
 	const [customLoginOpen, setCustomLoginOpen] = useState(false);
@@ -862,7 +853,6 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 		controller.setFlowConfig,
 	]);
 
-	
 	// Scroll to top on step change
 	useEffect(() => {
 		AuthorizationCodeSharedService.StepRestoration.scrollToTopOnStepChange();
@@ -1239,7 +1229,6 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 	// 	return getFlowSequence('authorization-code');
 	// }, []);
 
-	
 	const toggleSection =
 		AuthorizationCodeSharedService.CollapsibleSections.createToggleHandler(setCollapsedSections);
 
@@ -1338,7 +1327,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 						'client_secret_post';
 
 			const flowKey = `oauth-authorization-code-v9-2-${flowVariant}`;
-			
+
 			modernMessaging.showFooterMessage({
 				type: 'info',
 				message: 'Configuration saved successfully!',
@@ -1975,9 +1964,8 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 		}
 	}, [controller]);
 
-	
 	// Extract x5t parameter from JWT header
-	
+
 	const navigateToTokenManagement = useCallback(() => {
 		AuthorizationCodeSharedService.TokenManagement.navigateToTokenManagement(
 			flowVariant,
@@ -2004,7 +1992,6 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 		window.open('/token-management', '_blank');
 	}, [controller.tokens, controller.credentials, currentStep, flowVariant]);
 
-	
 	const handleResetFlow = useCallback(() => {
 		controller.resetFlow();
 		setCurrentStep(0);
@@ -2178,7 +2165,6 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 		controller,
 	]);
 
-	
 	// Handle next button click with feedback even when disabled
 	const handleNextClick = useCallback(() => {
 		logger.info('OAuthAuthorizationCodeFlowV9', 'Next button clicked');
@@ -2196,7 +2182,6 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 		handleNext();
 	}, [canNavigateNext, handleNext]);
 
-	
 	const renderStepContent = useMemo(() => {
 		const credentials = controller.credentials;
 		const authCode = controller.authCode;

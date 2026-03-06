@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { logger } from '../../utils/logger';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
 import { PageApiInfo } from '../components/common/PageApiInfo';
 import { useRisk } from '../contexts/RiskContext';
@@ -41,7 +42,7 @@ export const RiskEvaluationPage: React.FC = () => {
 
 			await evaluateRisk('user-123', context);
 		} catch (error) {
-			console.error('Risk evaluation failed:', error);
+			logger.error('RiskEvaluationPage', 'Risk evaluation failed:', undefined, error as Error);
 		} finally {
 			setIsEvaluating(false);
 		}

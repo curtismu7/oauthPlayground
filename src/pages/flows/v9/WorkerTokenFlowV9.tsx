@@ -127,9 +127,6 @@ const WorkerTokenFlowV9: React.FC = () => {
 		[controller]
 	);
 
-	
-	
-	
 	// Step 0 — Credentials
 	const renderStep0 = () => (
 		<StepContainer>

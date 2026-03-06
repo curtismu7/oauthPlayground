@@ -12,6 +12,7 @@
 import { FiCheckCircle, FiCopy, FiEye, FiEyeOff, FiInfo, FiLogOut, FiShield } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../../../utils/logger';
 import TokenUtilityService, { type TokenValidationResult } from '../services/tokenUtilityService';
 import type {
 	EducationalContent,
@@ -475,7 +476,7 @@ const PortalSuccess: React.FC<PortalSuccessProps> = ({
 			setCopiedToken(tokenType);
 			setTimeout(() => setCopiedToken(null), 2000);
 		} catch (err) {
-			console.error('Failed to copy token:', err);
+			logger.error('PortalSuccess', 'Failed to copy token:', undefined, err as Error);
 		}
 	}, []);
 

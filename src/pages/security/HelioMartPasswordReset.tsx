@@ -67,6 +67,7 @@ import {
 	unlockPassword,
 } from '../../services/passwordResetService';
 import { lookupPingOneUser } from '../../services/pingOneUserProfileService';
+import { logger } from '../../utils/logger';
 import { trackedFetch } from '../../utils/trackedFetch';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
@@ -926,7 +927,12 @@ const HelioMartPasswordReset: React.FC = () => {
 									username: payload.preferred_username || loginUsername,
 								});
 							} catch (e) {
-								console.error('Failed to parse ID token:', e);
+								logger.error(
+									'HelioMartPasswordReset',
+									'Failed to parse ID token:',
+									undefined,
+									e as Error
+								);
 							}
 						}
 
@@ -948,7 +954,12 @@ const HelioMartPasswordReset: React.FC = () => {
 				throw new Error('Login timeout - please try again');
 			}
 		} catch (error) {
-			console.error('[PasswordReset] Login failed:', error);
+			logger.error(
+				'HelioMartPasswordReset',
+				'[PasswordReset] Login failed:',
+				undefined,
+				error as Error
+			);
 			v4ToastManager.showError(error instanceof Error ? error.message : 'Login failed');
 		} finally {
 			setIsLoggingIn(false);
@@ -962,7 +973,7 @@ const HelioMartPasswordReset: React.FC = () => {
 
 		// Log for debugging if environment ID is missing
 		if (!effectiveEnvId || effectiveEnvId.trim() === '') {
-			console.warn('[HelioMartPasswordReset] ⚠️ No environment ID found:', {
+			logger.warn('HelioMartPasswordReset', '[HelioMartPasswordReset] ⚠️ No environment ID found:', {
 				sharedEnvId: sharedEnv?.environmentId || '(empty)',
 				stateEnvId: environmentId || '(empty)',
 				effectiveEnvId: effectiveEnvId || '(empty)',
@@ -982,7 +993,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
-			console.error('[HelioMartPasswordReset] ❌ Missing worker token:', {
+			logger.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing worker token:', {
 				globalToken: globalTokenStatus.token ? 'present' : 'missing',
 				localToken: globalTokenStatus.token ? 'present' : 'missing',
 			});
@@ -990,12 +1001,16 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
-			console.error('[HelioMartPasswordReset] ❌ Missing environment ID:', {
-				sharedEnvId:
-					comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
-				stateEnvId: environmentId || '(empty)',
-				effectiveEnvId: effectiveEnvironmentId || '(empty)',
-			});
+			logger.error(
+				'HelioMartPasswordReset',
+				'[HelioMartPasswordReset] ❌ Missing environment ID:',
+				{
+					sharedEnvId:
+						comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
+					stateEnvId: environmentId || '(empty)',
+					effectiveEnvId: effectiveEnvironmentId || '(empty)',
+				}
+			);
 			v4ToastManager.showError('Environment ID is required. Please configure it first.');
 			return;
 		}
@@ -1100,7 +1115,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
-			console.error('[HelioMartPasswordReset] ❌ Missing worker token:', {
+			logger.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing worker token:', {
 				globalToken: globalTokenStatus.token ? 'present' : 'missing',
 				localToken: globalTokenStatus.token ? 'present' : 'missing',
 			});
@@ -1108,12 +1123,16 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
-			console.error('[HelioMartPasswordReset] ❌ Missing environment ID:', {
-				sharedEnvId:
-					comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
-				stateEnvId: environmentId || '(empty)',
-				effectiveEnvId: effectiveEnvironmentId || '(empty)',
-			});
+			logger.error(
+				'HelioMartPasswordReset',
+				'[HelioMartPasswordReset] ❌ Missing environment ID:',
+				{
+					sharedEnvId:
+						comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
+					stateEnvId: environmentId || '(empty)',
+					effectiveEnvId: effectiveEnvironmentId || '(empty)',
+				}
+			);
 			v4ToastManager.showError('Environment ID is required. Please configure it first.');
 			return;
 		}
@@ -1225,7 +1244,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
-			console.error('[HelioMartPasswordReset] ❌ Missing worker token:', {
+			logger.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing worker token:', {
 				globalToken: globalTokenStatus.token ? 'present' : 'missing',
 				localToken: globalTokenStatus.token ? 'present' : 'missing',
 			});
@@ -1233,12 +1252,16 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
-			console.error('[HelioMartPasswordReset] ❌ Missing environment ID:', {
-				sharedEnvId:
-					comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
-				stateEnvId: environmentId || '(empty)',
-				effectiveEnvId: effectiveEnvironmentId || '(empty)',
-			});
+			logger.error(
+				'HelioMartPasswordReset',
+				'[HelioMartPasswordReset] ❌ Missing environment ID:',
+				{
+					sharedEnvId:
+						comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
+					stateEnvId: environmentId || '(empty)',
+					effectiveEnvId: effectiveEnvironmentId || '(empty)',
+				}
+			);
 			v4ToastManager.showError('Environment ID is required. Please configure it first.');
 			return;
 		}
@@ -1309,7 +1332,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
-			console.error('[HelioMartPasswordReset] ❌ Missing worker token:', {
+			logger.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing worker token:', {
 				globalToken: globalTokenStatus.token ? 'present' : 'missing',
 				localToken: globalTokenStatus.token ? 'present' : 'missing',
 			});
@@ -1317,12 +1340,16 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
-			console.error('[HelioMartPasswordReset] ❌ Missing environment ID:', {
-				sharedEnvId:
-					comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
-				stateEnvId: environmentId || '(empty)',
-				effectiveEnvId: effectiveEnvironmentId || '(empty)',
-			});
+			logger.error(
+				'HelioMartPasswordReset',
+				'[HelioMartPasswordReset] ❌ Missing environment ID:',
+				{
+					sharedEnvId:
+						comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
+					stateEnvId: environmentId || '(empty)',
+					effectiveEnvId: effectiveEnvironmentId || '(empty)',
+				}
+			);
 			v4ToastManager.showError('Environment ID is required. Please configure it first.');
 			return;
 		}
@@ -1383,7 +1410,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
-			console.error('[HelioMartPasswordReset] ❌ Missing worker token:', {
+			logger.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing worker token:', {
 				globalToken: globalTokenStatus.token ? 'present' : 'missing',
 				localToken: globalTokenStatus.token ? 'present' : 'missing',
 			});
@@ -1391,12 +1418,16 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
-			console.error('[HelioMartPasswordReset] ❌ Missing environment ID:', {
-				sharedEnvId:
-					comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
-				stateEnvId: environmentId || '(empty)',
-				effectiveEnvId: effectiveEnvironmentId || '(empty)',
-			});
+			logger.error(
+				'HelioMartPasswordReset',
+				'[HelioMartPasswordReset] ❌ Missing environment ID:',
+				{
+					sharedEnvId:
+						comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
+					stateEnvId: environmentId || '(empty)',
+					effectiveEnvId: effectiveEnvironmentId || '(empty)',
+				}
+			);
 			v4ToastManager.showError('Environment ID is required. Please configure it first.');
 			return;
 		}
@@ -1459,7 +1490,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
-			console.error('[HelioMartPasswordReset] ❌ Missing worker token:', {
+			logger.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing worker token:', {
 				globalToken: globalTokenStatus.token ? 'present' : 'missing',
 				localToken: globalTokenStatus.token ? 'present' : 'missing',
 			});
@@ -1467,12 +1498,16 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
-			console.error('[HelioMartPasswordReset] ❌ Missing environment ID:', {
-				sharedEnvId:
-					comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
-				stateEnvId: environmentId || '(empty)',
-				effectiveEnvId: effectiveEnvironmentId || '(empty)',
-			});
+			logger.error(
+				'HelioMartPasswordReset',
+				'[HelioMartPasswordReset] ❌ Missing environment ID:',
+				{
+					sharedEnvId:
+						comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
+					stateEnvId: environmentId || '(empty)',
+					effectiveEnvId: effectiveEnvironmentId || '(empty)',
+				}
+			);
 			v4ToastManager.showError('Environment ID is required. Please configure it first.');
 			return;
 		}
@@ -1552,7 +1587,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
-			console.error('[HelioMartPasswordReset] ❌ Missing worker token:', {
+			logger.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing worker token:', {
 				globalToken: globalTokenStatus.token ? 'present' : 'missing',
 				localToken: globalTokenStatus.token ? 'present' : 'missing',
 			});
@@ -1560,12 +1595,16 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
-			console.error('[HelioMartPasswordReset] ❌ Missing environment ID:', {
-				sharedEnvId:
-					comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
-				stateEnvId: environmentId || '(empty)',
-				effectiveEnvId: effectiveEnvironmentId || '(empty)',
-			});
+			logger.error(
+				'HelioMartPasswordReset',
+				'[HelioMartPasswordReset] ❌ Missing environment ID:',
+				{
+					sharedEnvId:
+						comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
+					stateEnvId: environmentId || '(empty)',
+					effectiveEnvId: effectiveEnvironmentId || '(empty)',
+				}
+			);
 			v4ToastManager.showError('Environment ID is required. Please configure it first.');
 			return;
 		}
@@ -1645,7 +1684,7 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
-			console.error('[HelioMartPasswordReset] ❌ Missing worker token:', {
+			logger.error('HelioMartPasswordReset', '[HelioMartPasswordReset] ❌ Missing worker token:', {
 				globalToken: globalTokenStatus.token ? 'present' : 'missing',
 				localToken: globalTokenStatus.token ? 'present' : 'missing',
 			});
@@ -1653,12 +1692,16 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
-			console.error('[HelioMartPasswordReset] ❌ Missing environment ID:', {
-				sharedEnvId:
-					comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
-				stateEnvId: environmentId || '(empty)',
-				effectiveEnvId: effectiveEnvironmentId || '(empty)',
-			});
+			logger.error(
+				'HelioMartPasswordReset',
+				'[HelioMartPasswordReset] ❌ Missing environment ID:',
+				{
+					sharedEnvId:
+						comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
+					stateEnvId: environmentId || '(empty)',
+					effectiveEnvId: effectiveEnvironmentId || '(empty)',
+				}
+			);
 			v4ToastManager.showError('Environment ID is required. Please configure it first.');
 			return;
 		}
@@ -1812,7 +1855,7 @@ async function handlePasswordRecovery(userId, recoveryCode, newPassword) {
     
     return result;
   } catch (error) {
-    console.error('Password recovery error:', error);
+    logger.error('HelioMartPasswordReset', 'Password recovery error:', undefined, error as Error);
     throw error;
   }
 }
@@ -1878,7 +1921,7 @@ async function handleForcePasswordChange(userId) {
     console.log('Password change forced:', result);
     return result;
   } catch (error) {
-    console.error('Force password change error:', error);
+    logger.error('HelioMartPasswordReset', 'Force password change error:', undefined, error as Error);
     throw error;
   }
 }
@@ -1954,7 +1997,7 @@ async function handleChangePassword(userId, accessToken, oldPassword, newPasswor
     console.log('Password changed:', result);
     return result;
   } catch (error) {
-    console.error('Change password error:', error);
+    logger.error('HelioMartPasswordReset', 'Change password error:', undefined, error as Error);
     throw error;
   }
 }
@@ -1972,7 +2015,7 @@ export { changePassword, handleChangePassword };`;
 			v4ToastManager.showSuccess('Code copied to clipboard!');
 			setTimeout(() => setCopied(false), 2000);
 		} catch (error) {
-			console.error('Failed to copy code:', error);
+			logger.error('HelioMartPasswordReset', 'Failed to copy code:', undefined, error as Error);
 			v4ToastManager.showError('Failed to copy code to clipboard');
 		}
 	}, []);

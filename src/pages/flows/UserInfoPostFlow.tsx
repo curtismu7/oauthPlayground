@@ -306,7 +306,7 @@ try {
     throw new Error(\`UserInfo request failed: \${response.status} - \${error}\`);
   }
 } catch (error) {
-  console.error('UserInfo error:', error);
+  logger.error('UserInfoPostFlow', 'UserInfo error:', undefined, error as Error);
   throw error;
 }`,
 			execute: async () => {
@@ -390,7 +390,7 @@ if (userInfo) {
   const missingClaims = requiredClaims.filter(claim => !userInfo[claim]);
   
   if (missingClaims.length > 0) {
-    console.warn('Missing required claims:', missingClaims);
+    logger.warn('UserInfoPostFlow', 'Missing required claims:', { claims: missingClaims });
   }
   
   // Extract user information
@@ -438,19 +438,19 @@ if (userInfo) {
 			code: `// Handle UserInfo Errors
 const handleUserInfoError = (error) => {
   if (error.status === 401) {
-    console.error('Unauthorized: Invalid or expired access token');
+    logger.error('UserInfoPostFlow', 'Unauthorized: Invalid or expired access token');
     // Redirect to re-authentication
     window.location.href = '/login';
   } else if (error.status === 403) {
-    console.error('Forbidden: Insufficient scope or permissions');
+    logger.error('UserInfoPostFlow', 'Forbidden: Insufficient scope or permissions');
     // Request additional scopes
     requestAdditionalScopes();
   } else if (error.status === 429) {
-    console.error('Rate limited: Too many requests');
+    logger.error('UserInfoPostFlow', 'Rate limited: Too many requests');
     // Implement exponential backoff
     setTimeout(() => retryUserInfoRequest(), 5000);
   } else {
-    console.error('UserInfo request failed:', error);
+    logger.error('UserInfoPostFlow', 'UserInfo request failed:', undefined, error as Error);
     // Show user-friendly error message
     showErrorMessage('Failed to retrieve user information. Please try again.');
   }
@@ -470,7 +470,7 @@ const retryUserInfoRequest = async (retryCount = 0) => {
       }
     }, delay);
   } else {
-    console.error('Max retries exceeded for UserInfo request');
+    logger.error('UserInfoPostFlow', 'Max retries exceeded for UserInfo request');
   }
 };`,
 			execute: async () => {

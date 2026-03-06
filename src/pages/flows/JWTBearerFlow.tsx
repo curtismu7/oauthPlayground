@@ -10,8 +10,7 @@ import {
 	FiUser,
 	FiXCircle,
 } from '@icons';
-import React, { useCallback } from 'react';
-import { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { CardBody, CardHeader } from '../../components/Card';
 import { CompactAppPickerV9 } from '../../components/CompactAppPickerV9';
@@ -20,10 +19,10 @@ import { SpecCard } from '../../components/SpecCard';
 import { TokenSurface } from '../../components/TokenSurface';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { FlowHeader } from '../../services/flowHeaderService';
+import type { V9DiscoveredApp } from '../../services/v9/V9AppDiscoveryService';
+import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
 import { logger } from '../../utils/logger';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
-import type { V9DiscoveredApp } from '../../services/v9/V9AppDiscoveryService';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -204,14 +203,14 @@ const JWTBearerFlow: React.FC = () => {
 	const [accessToken, setAccessToken] = useState('');
 	const [tokenResponse, setTokenResponse] = useState<any>(null);
 	const [error, setError] = useState<string | null>(null);
-	const [stepStatus, setStepStatus] = useState<Record<number, 'pending' | 'active' | 'completed' | 'error'>>(
-		{
-			1: 'active',
-			2: 'pending',
-			3: 'pending',
-			4: 'pending',
-		}
-	);
+	const [stepStatus, setStepStatus] = useState<
+		Record<number, 'pending' | 'active' | 'completed' | 'error'>
+	>({
+		1: 'active',
+		2: 'pending',
+		3: 'pending',
+		4: 'pending',
+	});
 
 	// Handle app selection from CompactAppPickerV9
 	const handleAppSelected = useCallback(
@@ -636,11 +635,17 @@ const JWTBearerFlow: React.FC = () => {
 							onImportSuccess: (creds) => {
 								V9CredentialStorageService.save(
 									'v9:jwt-bearer',
-									{ clientId: creds.clientId, clientSecret: creds.clientSecret, environmentId: creds.environmentId },
+									{
+										clientId: creds.clientId,
+										clientSecret: creds.clientSecret,
+										environmentId: creds.environmentId,
+									},
 									{ environmentId: creds.environmentId || '' }
 								);
 								window.dispatchEvent(new Event('pingone-config-changed'));
-								logger.info('JWTBearerFlow', 'Credentials imported', { environmentId: creds.environmentId });
+								logger.info('JWTBearerFlow', 'Credentials imported', {
+									environmentId: creds.environmentId,
+								});
 							},
 						}}
 					/>
