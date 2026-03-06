@@ -8,6 +8,7 @@
 
 import React from 'react';
 import { StepCredentials } from '../types/v4FlowTemplate';
+import { logger } from '../utils/logger';
 
 // Unified logging format: [🔑 CLIENT-CREDS-V6]
 const LOG_PREFIX = '[🔑 CLIENT-CREDS-V6]';
@@ -15,19 +16,35 @@ const LOG_PREFIX = '[🔑 CLIENT-CREDS-V6]';
 const log = {
 	info: (message: string, ...args: unknown[]) => {
 		const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
-		console.log(`${timestamp} ${LOG_PREFIX} [INFO]`, message, ...args);
+		logger.info(
+			'ClientCredentialsSharedService',
+			`${timestamp} ${LOG_PREFIX} [INFO] ${message}`,
+			args.length ? { args } : undefined
+		);
 	},
 	warn: (message: string, ...args: unknown[]) => {
 		const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
-		console.warn(`${timestamp} ${LOG_PREFIX} [WARN]`, message, ...args);
+		logger.warn(
+			'ClientCredentialsSharedService',
+			`${timestamp} ${LOG_PREFIX} [WARN] ${message}`,
+			args.length ? { args } : undefined
+		);
 	},
 	error: (message: string, ...args: unknown[]) => {
 		const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
-		console.error(`${timestamp} ${LOG_PREFIX} [ERROR]`, message, ...args);
+		logger.error(
+			'ClientCredentialsSharedService',
+			`${timestamp} ${LOG_PREFIX} [ERROR] ${message}`,
+			args.length ? { args } : undefined
+		);
 	},
 	success: (message: string, ...args: unknown[]) => {
 		const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
-		console.log(`${timestamp} ${LOG_PREFIX} [SUCCESS]`, message, ...args);
+		logger.info(
+			'ClientCredentialsSharedService',
+			`${timestamp} ${LOG_PREFIX} [SUCCESS] ${message}`,
+			args.length ? { args } : undefined
+		);
 	},
 };
 

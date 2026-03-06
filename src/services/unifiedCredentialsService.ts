@@ -5,6 +5,7 @@
  * to work with the V8U unified credentials service.
  */
 
+import { logger } from '../utils/logger';
 import { UnifiedOAuthCredentialsServiceV8U } from '../v8u/services/unifiedOAuthCredentialsServiceV8U';
 
 export interface CredentialsStorageOptions {
@@ -50,7 +51,12 @@ class UnifiedCredentialsServiceAdapter {
 				...(options.environmentId && { environmentId: options.environmentId }),
 			});
 		} catch (error) {
-			console.error('Failed to store credentials:', error);
+			logger.error(
+				'UnifiedCredentialsService',
+				'Failed to store credentials:',
+				undefined,
+				error as Error
+			);
 			throw error;
 		}
 	}
@@ -71,7 +77,12 @@ class UnifiedCredentialsServiceAdapter {
 			// Type cast to match expected interface
 			return credentials as OAuthCredentials | null;
 		} catch (error) {
-			console.error('Failed to load credentials:', error);
+			logger.error(
+				'UnifiedCredentialsService',
+				'Failed to load credentials:',
+				undefined,
+				error as Error
+			);
 			return null;
 		}
 	}
@@ -86,7 +97,12 @@ class UnifiedCredentialsServiceAdapter {
 				...(options.environmentId && { environmentId: options.environmentId }),
 			});
 		} catch (error) {
-			console.error('Failed to clear credentials:', error);
+			logger.error(
+				'UnifiedCredentialsService',
+				'Failed to clear credentials:',
+				undefined,
+				error as Error
+			);
 			throw error;
 		}
 	}

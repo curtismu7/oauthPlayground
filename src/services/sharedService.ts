@@ -15,6 +15,7 @@
  */
 
 import { type IDTokenValidationResult, IDTokenValidationService } from '../utils/idTokenValidation';
+import { logger } from '../utils/logger';
 import {
 	type ParameterValidationResult,
 	ParameterValidationService,
@@ -32,19 +33,35 @@ const LOG_PREFIX = '[🔧 V7-SHARED]';
 const log = {
 	info: (message: string, ...args: unknown[]) => {
 		const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
-		console.log(`${timestamp} ${LOG_PREFIX} [INFO]`, message, ...args);
+		logger.info(
+			'SharedService',
+			`${timestamp} ${LOG_PREFIX} [INFO] ${message}`,
+			args.length ? { args } : undefined
+		);
 	},
 	warn: (message: string, ...args: unknown[]) => {
 		const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
-		console.warn(`${timestamp} ${LOG_PREFIX} [WARN]`, message, ...args);
+		logger.warn(
+			'SharedService',
+			`${timestamp} ${LOG_PREFIX} [WARN] ${message}`,
+			args.length ? { args } : undefined
+		);
 	},
 	error: (message: string, ...args: unknown[]) => {
 		const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
-		console.error(`${timestamp} ${LOG_PREFIX} [ERROR]`, message, ...args);
+		logger.error(
+			'SharedService',
+			`${timestamp} ${LOG_PREFIX} [ERROR] ${message}`,
+			args.length ? { args } : undefined
+		);
 	},
 	success: (message: string, ...args: unknown[]) => {
 		const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
-		console.log(`${timestamp} ${LOG_PREFIX} [SUCCESS]`, message, ...args);
+		logger.info(
+			'SharedService',
+			`${timestamp} ${LOG_PREFIX} [SUCCESS] ${message}`,
+			args.length ? { args } : undefined
+		);
 	},
 };
 

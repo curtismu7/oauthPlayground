@@ -8,6 +8,7 @@
 
 import React from 'react';
 import type { StepCredentials } from '../components/steps/CommonSteps';
+import { logger } from '../utils/logger';
 import { FlowRedirectUriService } from './flowRedirectUriService';
 
 // Unified logging format: [🔀 HYBRID-V6]
@@ -16,19 +17,35 @@ const LOG_PREFIX = '[🔀 HYBRID-V6]';
 const log = {
 	info: (message: string, ...args: unknown[]) => {
 		const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
-		console.log(`${timestamp} ${LOG_PREFIX} [INFO]`, message, ...args);
+		logger.info(
+			'HybridFlowSharedService',
+			`${timestamp} ${LOG_PREFIX} [INFO] ${message}`,
+			args.length ? { args } : undefined
+		);
 	},
 	warn: (message: string, ...args: unknown[]) => {
 		const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
-		console.warn(`${timestamp} ${LOG_PREFIX} [WARN]`, message, ...args);
+		logger.warn(
+			'HybridFlowSharedService',
+			`${timestamp} ${LOG_PREFIX} [WARN] ${message}`,
+			args.length ? { args } : undefined
+		);
 	},
 	error: (message: string, ...args: unknown[]) => {
 		const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
-		console.error(`${timestamp} ${LOG_PREFIX} [ERROR]`, message, ...args);
+		logger.error(
+			'HybridFlowSharedService',
+			`${timestamp} ${LOG_PREFIX} [ERROR] ${message}`,
+			args.length ? { args } : undefined
+		);
 	},
 	success: (message: string, ...args: unknown[]) => {
 		const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
-		console.log(`${timestamp} ${LOG_PREFIX} [SUCCESS]`, message, ...args);
+		logger.info(
+			'HybridFlowSharedService',
+			`${timestamp} ${LOG_PREFIX} [SUCCESS] ${message}`,
+			args.length ? { args } : undefined
+		);
 	},
 };
 

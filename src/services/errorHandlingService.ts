@@ -428,7 +428,7 @@ export class ErrorHandlingService {
 			context: flowError.context,
 		};
 
-		console.error('[ErrorHandlingService]', logData);
+		logger.error('ErrorHandlingService', '[ErrorHandlingService]', { arg0: logData });
 
 		// Could also send to external logging service
 		// this.sendToExternalLogger(logData);
@@ -459,7 +459,10 @@ export class ErrorHandlingService {
 
 		// Send to error tracking service
 		// this.errorTracker.captureException(flowError.originalError, { extra: errorReport });
-		console.warn('[ErrorReporting]', 'Error reported:', errorReport);
+		logger.warn('ErrorHandlingService', '[ErrorReporting]', {
+			arg0: 'Error reported:',
+			arg1: errorReport,
+		});
 	}
 
 	/**
