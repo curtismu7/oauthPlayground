@@ -69,17 +69,17 @@ const ExternalLink = styled.a`
   }
 `;
 
-const OIDCSpecs = () => {
-	const pageConfig = {
-		flowType: 'documentation' as const,
-		theme: 'blue' as const,
-		maxWidth: '1200px',
-		showHeader: false, // We handle the header manually with FlowHeader
-		showFooter: false,
-		responsive: true,
-	};
-	const { PageContainer, ContentWrapper } = PageLayoutService.createPageLayout(pageConfig);
+const pageConfig = {
+	flowType: 'documentation' as const,
+	theme: 'blue' as const,
+	maxWidth: '1200px',
+	showHeader: false, // We handle the header manually with FlowHeader
+	showFooter: false,
+	responsive: true,
+};
+const { PageContainer, ContentWrapper } = PageLayoutService.createPageLayout(pageConfig);
 
+const OIDCSpecs = () => {
 	return (
 		<PageContainer>
 			<ContentWrapper>
