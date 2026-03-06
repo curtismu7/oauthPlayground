@@ -12,7 +12,7 @@ import {
 	ClientCredentialsIntegrationServiceV8,
 	type ScopeFixResult,
 } from '../services/clientCredentialsIntegrationServiceV8';
-import { toastV8 } from '../utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 interface ScopeFixModalV8Props {
 	isOpen: boolean;
@@ -57,14 +57,14 @@ export const ScopeFixModalV8: React.FC<ScopeFixModalV8Props> = ({
 	const handleApplyFix = () => {
 		if (fixResult && onApplyFix) {
 			onApplyFix(fixResult.fixedScopes);
-			toastV8.success('Scopes updated successfully!');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'Scopes updated successfully!', duration: 3000 });
 			onClose();
 		}
 	};
 
 	const handleCopyScopes = (scopes: string) => {
 		navigator.clipboard.writeText(scopes).then(() => {
-			toastV8.success('Scopes copied to clipboard!');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'Scopes copied to clipboard!', duration: 3000 });
 		});
 	};
 

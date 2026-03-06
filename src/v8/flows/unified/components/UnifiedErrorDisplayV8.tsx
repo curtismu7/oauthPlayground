@@ -16,7 +16,7 @@ import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { globalEnvironmentService } from '@/v8/services/globalEnvironmentService';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { colors, spacing } from '@/v8/styles/designTokens';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const MODULE_TAG = '[🚨 UNIFIED-ERROR-DISPLAY-V8]';
 
@@ -81,7 +81,7 @@ export const UnifiedErrorDisplayV8: React.FC<UnifiedErrorDisplayV8Props> = ({
 			);
 		} catch (error) {
 			console.error(`${MODULE_TAG} Error opening worker token modal:`, error);
-			toastV8.error('Failed to open worker token modal');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to open worker token modal', dismissible: true });
 		} finally {
 			setIsGettingWorkerToken(false);
 		}
@@ -92,7 +92,7 @@ export const UnifiedErrorDisplayV8: React.FC<UnifiedErrorDisplayV8Props> = ({
 		// Check token status after modal closes
 		const tokenStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 		if (tokenStatus.isValid) {
-			toastV8.success('Worker token configured successfully!');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'Worker token configured successfully!', duration: 3000 });
 			// Auto-dismiss error if token is now valid
 			if (onDismiss) {
 				onDismiss();

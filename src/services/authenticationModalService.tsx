@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 import { ColoredUrlDisplay } from '../components/ColoredUrlDisplay';
 import PARInputInterface from '../components/PARInputInterface';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 // Modern styled components with professional design
 const ModalOverlay = styled.div<{ $isOpen: boolean }>`
@@ -471,14 +471,10 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 			setParGeneratedUrl(generatedUrl);
 			setShowPARInput(false);
 
-			v4ToastManager.showSuccess('PAR Authorization URL Generated', {
-				description: 'Authorization URL with PAR request_uri has been generated successfully.',
-			});
+			modernMessaging.showFooterMessage({ type: 'info', message: 'PAR Authorization URL Generated', duration: 3000 });
 		} catch (error) {
 			console.error('Error generating PAR URL:', error);
-			v4ToastManager.showError('Failed to Generate PAR URL', {
-				description: 'There was an error generating the authorization URL with PAR data.',
-			});
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to Generate PAR URL', dismissible: true });
 		}
 	};
 
@@ -508,7 +504,7 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 
 		// Validate URL before proceeding
 		if (!isValidUrl(urlToUse)) {
-			v4ToastManager.showError('Invalid authorization URL. Please check the URL and try again.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Invalid authorization URL. Please check the URL and try again.', dismissible: true });
 			return;
 		}
 
@@ -555,7 +551,7 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 						console.log('🔌 [AuthModal] Stopped monitoring popup');
 					}, 30000);
 
-					v4ToastManager.showSuccess('Authentication popup opened successfully!');
+					modernMessaging.showFooterMessage({ type: 'info', message: 'Authentication popup opened successfully!', duration: 3000 });
 
 					// Close modal immediately
 					onClose();
@@ -567,7 +563,7 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 					console.log('🔧 [AuthModal] Popup still open after callback?', !popup.closed);
 				} else {
 					console.error('❌ [AuthModal] Popup blocked by browser');
-					v4ToastManager.showError('Popup blocked! Please allow popups for this site.');
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Popup blocked! Please allow popups for this site.', dismissible: true });
 				}
 			} else {
 				// Redirect current tab
@@ -576,7 +572,7 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 			}
 		} catch (error) {
 			console.error('❌ [AuthModal] Failed to open authentication:', error);
-			v4ToastManager.showError('Failed to open authentication. Please try again.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to open authentication. Please try again.', dismissible: true });
 		}
 
 		// Close modal after redirect
@@ -796,7 +792,7 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 													onClick={() => {
 														if (isValidUrl(editedUrl)) {
 															navigator.clipboard.writeText(editedUrl);
-															v4ToastManager.showSuccess('URL copied to clipboard!');
+															modernMessaging.showFooterMessage({ type: 'info', message: 'URL copied to clipboard!', duration: 3000 });
 														}
 													}}
 													disabled={!isValidUrl(editedUrl)}

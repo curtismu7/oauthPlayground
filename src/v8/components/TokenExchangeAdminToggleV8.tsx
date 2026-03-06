@@ -13,7 +13,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { GlobalEnvironmentService } from '../services/globalEnvironmentService';
 import { TokenExchangeConfigServiceV8 } from '../services/tokenExchangeConfigServiceV8';
-import { toastV8 } from '../utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const MODULE_TAG = '[TokenExchangeAdminToggleV8]';
 
@@ -176,7 +176,7 @@ export const TokenExchangeAdminToggleV8: React.FC<TokenExchangeAdminToggleV8Prop
 				onConfigChange?.(enabled);
 			} catch (error) {
 				console.error(`${MODULE_TAG} Error loading configuration:`, error);
-				toastV8.error('Failed to load Token Exchange configuration');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to load Token Exchange configuration', dismissible: true });
 			} finally {
 				setIsLoading(false);
 			}
@@ -195,14 +195,14 @@ export const TokenExchangeAdminToggleV8: React.FC<TokenExchangeAdminToggleV8Prop
 					currentEnvironmentId,
 					'admin-user' // TODO: Get actual admin user ID
 				);
-				toastV8.success('Token Exchange enabled successfully');
+				modernMessaging.showFooterMessage({ type: 'info', message: 'Token Exchange enabled successfully', duration: 3000 });
 			} else {
 				// Disable Token Exchange
 				await TokenExchangeConfigServiceV8.disableTokenExchange(
 					currentEnvironmentId,
 					'admin-user' // TODO: Get actual admin user ID
 				);
-				toastV8.success('Token Exchange disabled successfully');
+				modernMessaging.showFooterMessage({ type: 'info', message: 'Token Exchange disabled successfully', duration: 3000 });
 			}
 
 			setIsEnabled(newEnabled);
@@ -213,7 +213,7 @@ export const TokenExchangeAdminToggleV8: React.FC<TokenExchangeAdminToggleV8Prop
 			setCurrentConfig(config);
 		} catch (error) {
 			console.error(`${MODULE_TAG} Error toggling Token Exchange:`, error);
-			toastV8.error('Failed to update Token Exchange configuration');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to update Token Exchange configuration', dismissible: true });
 		} finally {
 			setIsLoading(false);
 		}

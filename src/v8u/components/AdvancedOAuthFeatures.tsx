@@ -1,7 +1,7 @@
 import { FiCheck, FiChevronDown, FiInfo, FiKey, FiLock, FiServer, FiShield, FiX } from '@icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import { PingOneClientServiceV8U } from '../services/pingOneClientServiceV8U';
 import FeatureEnableConfirmationModal from './FeatureEnableConfirmationModal';
@@ -428,17 +428,15 @@ export const AdvancedOAuthFeatures: React.FC<AdvancedOAuthFeaturesProps> = ({
 				onFeatureToggle?.(pendingFeature.id, !feature.enabled);
 
 				// Show success message
-				toastV8.success(
-					pendingFeature.isEnabling
+				modernMessaging.showFooterMessage({ type: 'info', message: pendingFeature.isEnabling
 						? `${pendingFeature.name} enabled successfully!`
-						: `${pendingFeature.name} disabled successfully!`
-				);
+						: `${pendingFeature.name} disabled successfully!`, duration: 3000 });
 			} else {
-				toastV8.error(`Failed to update ${pendingFeature.name}: ${result.error}`);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to update ${pendingFeature.name}: ${result.error}`, dismissible: true });
 			}
 		} catch (error) {
 			logger.error('Failed to toggle feature:', error);
-			toastV8.error(`Failed to update ${pendingFeature.name}`);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to update ${pendingFeature.name}`, dismissible: true });
 		} finally {
 			setIsUpdating(false);
 			setShowModal(false);

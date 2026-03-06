@@ -9,19 +9,19 @@
  * All V8 code should use these methods for consistent user feedback.
  *
  * @example
- * import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+ * import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
  *
  * // Success notification
- * toastV8.success('Credentials saved successfully');
+ * modernMessaging.showFooterMessage({ type: 'info', message: 'Credentials saved successfully', duration: 3000 });
  *
  * // Error notification
- * toastV8.error('Failed to generate authorization URL');
+ * modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to generate authorization URL', dismissible: true });
  *
  * // Warning notification
- * toastV8.warning('Please fill in all required fields');
+ * modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Please fill in all required fields', dismissible: true });
  *
  * // Info notification
- * toastV8.info('Authorization URL copied to clipboard');
+ * modernMessaging.showFooterMessage({ type: 'info', message: 'Authorization URL copied to clipboard', duration: 3000 });
  */
 
 import { v4ToastManager } from '@/utils/v4ToastMessages';
@@ -38,7 +38,7 @@ export class ToastNotificationsV8 {
 	 * @param message - Success message to display
 	 * @param options - Optional configuration
 	 * @example
-	 * toastV8.success('Configuration saved successfully');
+	 * modernMessaging.showFooterMessage({ type: 'info', message: 'Configuration saved successfully', duration: 3000 });
 	 */
 	static success(message: string, options?: { duration?: number }): void {
 		console.log(`${ToastNotificationsV8.MODULE_TAG} Success:`, message);
@@ -77,7 +77,7 @@ export class ToastNotificationsV8 {
 	 * @param message - Error message to display (will be truncated if too long)
 	 * @param options - Optional configuration
 	 * @example
-	 * toastV8.error('Failed to validate credentials');
+	 * modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to validate credentials', dismissible: true });
 	 */
 	static error(message: string, _options?: { duration?: number }): void {
 		console.log(`${ToastNotificationsV8.MODULE_TAG} Error:`, message);
@@ -90,7 +90,7 @@ export class ToastNotificationsV8 {
 	 * @param message - Warning message to display
 	 * @param options - Optional configuration
 	 * @example
-	 * toastV8.warning('Please fill in all required fields');
+	 * modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Please fill in all required fields', dismissible: true });
 	 */
 	static warning(message: string, _options?: { duration?: number }): void {
 		console.log(`${ToastNotificationsV8.MODULE_TAG} Warning:`, message);
@@ -102,7 +102,7 @@ export class ToastNotificationsV8 {
 	 * @param message - Info message to display
 	 * @param options - Optional configuration
 	 * @example
-	 * toastV8.info('Authorization URL copied to clipboard');
+	 * modernMessaging.showFooterMessage({ type: 'info', message: 'Authorization URL copied to clipboard', duration: 3000 });
 	 */
 	static info(message: string, _options?: { duration?: number }): void {
 		console.log(`${ToastNotificationsV8.MODULE_TAG} Info:`, message);
@@ -113,7 +113,7 @@ export class ToastNotificationsV8 {
 	 * Show copy success notification
 	 * @param itemName - Name of item copied
 	 * @example
-	 * toastV8.copiedToClipboard('Authorization URL');
+	 * modernMessaging.showFooterMessage({ type: 'info', message: 'Copied to clipboard', duration: 3000 });
 	 */
 	static copiedToClipboard(itemName: string): void {
 		ToastNotificationsV8.success(`${itemName} copied to clipboard`);
@@ -123,7 +123,7 @@ export class ToastNotificationsV8 {
 	 * Show validation error notification
 	 * @param fields - Array of field names that failed validation
 	 * @example
-	 * toastV8.validationError(['Client ID', 'Redirect URI']);
+	 * modernMessaging.showBanner({ type: 'error', title: 'Validation Error', message: 'Validation failed', dismissible: true });
 	 */
 	static validationError(fields: string[]): void {
 		const fieldList = fields.join(', ');
@@ -134,7 +134,7 @@ export class ToastNotificationsV8 {
 	 * Show network error notification
 	 * @param operation - Name of operation that failed
 	 * @example
-	 * toastV8.networkError('token exchange');
+	 * modernMessaging.showBanner({ type: 'error', title: 'Network Error', message: 'A network error occurred', dismissible: true });
 	 */
 	static networkError(operation: string): void {
 		ToastNotificationsV8.error(`Network error during ${operation}. Please check your connection.`);
@@ -144,7 +144,7 @@ export class ToastNotificationsV8 {
 	 * Show step completion notification
 	 * @param stepNumber - Step number completed
 	 * @example
-	 * toastV8.stepCompleted(1);
+	 * modernMessaging.showFooterMessage({ type: 'info', message: `Step ${1} completed`, duration: 3000 });
 	 */
 	static stepCompleted(stepNumber: number): void {
 		ToastNotificationsV8.success(`Step ${stepNumber} completed`);
@@ -153,7 +153,7 @@ export class ToastNotificationsV8 {
 	/**
 	 * Show flow completion notification
 	 * @example
-	 * toastV8.flowCompleted();
+	 * modernMessaging.showFooterMessage({ type: 'info', message: 'Flow completed successfully', duration: 3000 });
 	 */
 	static flowCompleted(): void {
 		ToastNotificationsV8.success('🎉 OAuth Flow Complete!', { duration: 8000 });
@@ -163,7 +163,7 @@ export class ToastNotificationsV8 {
 	 * Show loading/processing notification
 	 * @param operation - Name of operation in progress
 	 * @example
-	 * toastV8.processing('Exchanging authorization code for tokens');
+	 * modernMessaging.showFooterMessage({ type: 'info', message: `${'Exchanging authorization code for tokens'}…`, duration: 3000 });
 	 */
 	static processing(operation: string): void {
 		ToastNotificationsV8.info(`${operation}...`);
@@ -172,7 +172,7 @@ export class ToastNotificationsV8 {
 	/**
 	 * Show credentials saved notification
 	 * @example
-	 * toastV8.credentialsSaved();
+	 * modernMessaging.showFooterMessage({ type: 'info', message: 'Credentials saved successfully', duration: 3000 });
 	 */
 	static credentialsSaved(): void {
 		ToastNotificationsV8.success('Credentials saved successfully');
@@ -181,7 +181,7 @@ export class ToastNotificationsV8 {
 	/**
 	 * Show credentials loaded notification
 	 * @example
-	 * toastV8.credentialsLoaded();
+	 * modernMessaging.showFooterMessage({ type: 'info', message: 'Credentials loaded successfully', duration: 3000 });
 	 */
 	static credentialsLoaded(): void {
 		ToastNotificationsV8.success('Credentials loaded successfully');
@@ -190,7 +190,7 @@ export class ToastNotificationsV8 {
 	/**
 	 * Show PKCE generated notification
 	 * @example
-	 * toastV8.pkceGenerated();
+	 * modernMessaging.showFooterMessage({ type: 'info', message: 'PKCE parameters generated', duration: 3000 });
 	 */
 	static pkceGenerated(): void {
 		ToastNotificationsV8.success('PKCE parameters generated successfully');
@@ -199,7 +199,7 @@ export class ToastNotificationsV8 {
 	/**
 	 * Show authorization URL generated notification
 	 * @example
-	 * toastV8.authUrlGenerated();
+	 * modernMessaging.showFooterMessage({ type: 'info', message: 'Authorization URL generated', duration: 3000 });
 	 */
 	static authUrlGenerated(): void {
 		ToastNotificationsV8.success('Authorization URL generated successfully');
@@ -208,7 +208,7 @@ export class ToastNotificationsV8 {
 	/**
 	 * Show token exchange success notification
 	 * @example
-	 * toastV8.tokenExchangeSuccess();
+	 * modernMessaging.showFooterMessage({ type: 'info', message: 'Tokens exchanged successfully', duration: 3000 });
 	 */
 	static tokenExchangeSuccess(): void {
 		ToastNotificationsV8.success('Tokens exchanged successfully');
@@ -217,7 +217,7 @@ export class ToastNotificationsV8 {
 	/**
 	 * Show token introspection success notification
 	 * @example
-	 * toastV8.tokenIntrospectionSuccess();
+	 * modernMessaging.showFooterMessage({ type: 'info', message: 'Token introspection completed successfully', duration: 3000 });
 	 */
 	static tokenIntrospectionSuccess(): void {
 		ToastNotificationsV8.success('Token introspection completed successfully');
@@ -226,7 +226,7 @@ export class ToastNotificationsV8 {
 	/**
 	 * Show user info fetched notification
 	 * @example
-	 * toastV8.userInfoFetched();
+	 * modernMessaging.showFooterMessage({ type: 'info', message: 'User information retrieved successfully', duration: 3000 });
 	 */
 	static userInfoFetched(): void {
 		ToastNotificationsV8.success('User information retrieved successfully');
@@ -235,7 +235,7 @@ export class ToastNotificationsV8 {
 	/**
 	 * Show app discovery success notification
 	 * @example
-	 * toastV8.appDiscoverySuccess();
+	 * modernMessaging.showFooterMessage({ type: 'info', message: 'Application discovered successfully', duration: 3000 });
 	 */
 	static appDiscoverySuccess(): void {
 		ToastNotificationsV8.success('Application discovered successfully');
@@ -244,7 +244,7 @@ export class ToastNotificationsV8 {
 	/**
 	 * Show configuration checked notification
 	 * @example
-	 * toastV8.configurationChecked();
+	 * modernMessaging.showFooterMessage({ type: 'info', message: 'Configuration check completed', duration: 3000 });
 	 */
 	static configurationChecked(): void {
 		ToastNotificationsV8.success('Configuration check completed');
@@ -253,7 +253,7 @@ export class ToastNotificationsV8 {
 	/**
 	 * Show flow reset notification
 	 * @example
-	 * toastV8.flowReset();
+	 * modernMessaging.showFooterMessage({ type: 'info', message: 'Flow reset', duration: 3000 });
 	 */
 	static flowReset(): void {
 		ToastNotificationsV8.success('Flow reset. Tokens cleared, credentials preserved.');
@@ -263,7 +263,7 @@ export class ToastNotificationsV8 {
 	 * Show scope required warning
 	 * @param scope - Scope name that was added
 	 * @example
-	 * toastV8.scopeRequired('openid');
+	 * modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Required scope is missing', dismissible: true });
 	 */
 	static scopeRequired(scope: string): void {
 		ToastNotificationsV8.warning(`Added required "${scope}" scope for compliance`);
@@ -272,7 +272,7 @@ export class ToastNotificationsV8 {
 	/**
 	 * Show discovery endpoint notification
 	 * @example
-	 * toastV8.discoveryEndpointLoaded();
+	 * modernMessaging.showFooterMessage({ type: 'info', message: 'Discovery endpoint loaded', duration: 3000 });
 	 */
 	static discoveryEndpointLoaded(): void {
 		ToastNotificationsV8.success('Discovery endpoint loaded successfully');
@@ -281,7 +281,7 @@ export class ToastNotificationsV8 {
 	/**
 	 * Show environment ID extracted notification
 	 * @example
-	 * toastV8.environmentIdExtracted();
+	 * modernMessaging.showFooterMessage({ type: 'info', message: 'Environment ID extracted', duration: 3000 });
 	 */
 	static environmentIdExtracted(): void {
 		ToastNotificationsV8.success('Environment ID extracted from discovery');
@@ -292,7 +292,7 @@ export class ToastNotificationsV8 {
 	 * @param message - Primary message
 	 * @param detail - Optional detail information
 	 * @example
-	 * toastV8.formattedSuccess('Device registered', 'SMS device is now active');
+	 * modernMessaging.showFooterMessage({ type: 'info', message: 'Device registered', duration: 3000 });
 	 */
 	static formattedSuccess(message: string, detail?: string): void {
 		const formattedMessage = detail
@@ -306,7 +306,7 @@ export class ToastNotificationsV8 {
 	 * @param message - Primary error message
 	 * @param detail - Optional detail information
 	 * @example
-	 * toastV8.formattedError('Registration failed', 'Device limit exceeded');
+	 * modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Registration failed', dismissible: true });
 	 */
 	static formattedError(message: string, detail?: string): void {
 		const formattedMessage = detail
@@ -320,7 +320,7 @@ export class ToastNotificationsV8 {
 	 * @param message - Primary warning message
 	 * @param detail - Optional detail information
 	 * @example
-	 * toastV8.formattedWarning('Policy required', 'Device authentication policy must be selected');
+	 * modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Policy required', dismissible: true });
 	 */
 	static formattedWarning(message: string, detail?: string): void {
 		const formattedMessage = detail
@@ -334,7 +334,7 @@ export class ToastNotificationsV8 {
 	 * @param message - Primary info message
 	 * @param detail - Optional detail information
 	 * @example
-	 * toastV8.formattedInfo('Token loaded', 'User token retrieved from OAuth login');
+	 * modernMessaging.showFooterMessage({ type: 'info', message: 'Token loaded', duration: 3000 });
 	 */
 	static formattedInfo(message: string, detail?: string): void {
 		const formattedMessage = detail
@@ -348,7 +348,7 @@ export class ToastNotificationsV8 {
 	 * @param deviceType - Type of MFA device (SMS, Email, WhatsApp, etc.)
 	 * @param status - Device status (ACTIVE, ACTIVATION_REQUIRED, etc.)
 	 * @example
-	 * toastV8.mfaDeviceRegistered('SMS', 'ACTIVE');
+	 * modernMessaging.showFooterMessage({ type: 'info', message: 'MFA device registered successfully', duration: 3000 });
 	 */
 	static mfaDeviceRegistered(deviceType: string, status?: string): void {
 		const message = `${deviceType} device registered successfully`;
@@ -361,7 +361,7 @@ export class ToastNotificationsV8 {
 	 * @param deviceType - Type of MFA device used
 	 * @param username - Username that authenticated
 	 * @example
-	 * toastV8.mfaAuthenticationSuccess('SMS', 'john.doe@example.com');
+	 * modernMessaging.showFooterMessage({ type: 'info', message: 'MFA authentication successful', duration: 3000 });
 	 */
 	static mfaAuthenticationSuccess(deviceType: string, username?: string): void {
 		const message = `${deviceType} authentication successful`;
@@ -374,7 +374,7 @@ export class ToastNotificationsV8 {
 	 * @param operation - Type of operation (registration, authentication, etc.)
 	 * @param reason - Reason for failure
 	 * @example
-	 * toastV8.mfaOperationError('registration', 'Device limit exceeded');
+	 * modernMessaging.showBanner({ type: 'error', title: 'MFA Error', message: 'registration', dismissible: true });
 	 */
 	static mfaOperationError(operation: string, reason: string): void {
 		const message = `MFA ${operation} failed`;
@@ -387,7 +387,7 @@ export class ToastNotificationsV8 {
 	 * @param operation - Type of operation (credentials saved, flow completed, etc.)
 	 * @param detail - Additional detail about the operation
 	 * @example
-	 * toastV8.unifiedFlowSuccess('Credentials saved', 'OAuth 2.0 configuration stored');
+	 * modernMessaging.showFooterMessage({ type: 'info', message: 'Credentials saved', duration: 3000 });
 	 */
 	static unifiedFlowSuccess(operation: string, detail?: string): void {
 		const message = `Unified flow: ${operation}`;
@@ -399,7 +399,7 @@ export class ToastNotificationsV8 {
 	 * @param operation - Type of operation (token exchange, authorization, etc.)
 	 * @param reason - Reason for failure
 	 * @example
-	 * toastV8.unifiedFlowError('Token exchange', 'Invalid authorization code');
+	 * modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Token exchange', dismissible: true });
 	 */
 	static unifiedFlowError(operation: string, reason: string): void {
 		const message = `Unified flow: ${operation} failed`;

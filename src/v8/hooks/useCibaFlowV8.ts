@@ -27,7 +27,7 @@ import {
 	type CibaStatus,
 	type CibaTokens,
 } from '@/v8/services/cibaServiceV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const MODULE_TAG = '[🔐 CIBA-FLOW-V8]';
 
@@ -115,7 +115,7 @@ export const useCibaFlowV8 = (): UseCibaFlowV8Return => {
 			if (!validation.valid) {
 				const errorMessage = validation.errors.join(', ');
 				console.error(`${MODULE_TAG} Validation failed:`, validation.errors);
-				toastV8.error(`Validation failed: ${errorMessage}`);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Validation failed: ${errorMessage}`, dismissible: true });
 				setState((prev) => ({ ...prev, error: errorMessage, status: 'error' }));
 				return null;
 			}
@@ -149,7 +149,7 @@ export const useCibaFlowV8 = (): UseCibaFlowV8Return => {
 					authRequest: null,
 				}));
 
-				toastV8.error(`Failed to initiate CIBA authentication: ${errorMessage}`);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to initiate CIBA authentication: ${errorMessage}`, dismissible: true });
 				return null;
 			}
 		},
@@ -177,17 +177,17 @@ export const useCibaFlowV8 = (): UseCibaFlowV8Return => {
 				// Handle different statuses
 				switch (result.status) {
 					case 'approved':
-						toastV8.success('CIBA authentication completed successfully!');
+						modernMessaging.showFooterMessage({ type: 'info', message: 'CIBA authentication completed successfully!', duration: 3000 });
 						console.log(`${MODULE_TAG} CIBA authentication completed successfully`);
 						break;
 					case 'denied':
-						toastV8.error('Authentication denied by user');
+						modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Authentication denied by user', dismissible: true });
 						break;
 					case 'expired':
-						toastV8.error('Authentication request has expired');
+						modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Authentication request has expired', dismissible: true });
 						break;
 					case 'error':
-						toastV8.error(result.error_description || 'An error occurred during authentication');
+						modernMessaging.showBanner({ type: 'error', title: 'Error', message: result.error_description || 'An error occurred during authentication', dismissible: true });
 						break;
 					case 'pending':
 						// Continue polling - update interval if provided
@@ -209,7 +209,7 @@ export const useCibaFlowV8 = (): UseCibaFlowV8Return => {
 					status: 'error',
 				}));
 
-				toastV8.error(`Error during token polling: ${errorMessage}`);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Error during token polling: ${errorMessage}`, dismissible: true });
 			}
 		},
 		[]
@@ -261,7 +261,7 @@ export const useCibaFlowV8 = (): UseCibaFlowV8Return => {
 						error: 'Maximum polling time exceeded',
 						status: 'error',
 					}));
-					toastV8.error('Authentication request timed out');
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Authentication request timed out', dismissible: true });
 					return;
 				}
 

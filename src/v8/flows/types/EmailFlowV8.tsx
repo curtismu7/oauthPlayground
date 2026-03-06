@@ -18,7 +18,7 @@ import { ValidationServiceV8 } from '@/v8/services/validationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { UnifiedFlowLoggerService } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import { DeviceCreationSuccessModalV8 } from '../../components/DeviceCreationSuccessModalV8';
@@ -188,19 +188,19 @@ const EmailDeviceSelectionStep: React.FC<DeviceSelectionStepProps & { isConfigur
 				case 'COMPLETED':
 					nav.markStepComplete();
 					nav.goToStep(3);
-					toastV8.success('Authentication successful!');
+					modernMessaging.showFooterMessage({ type: 'info', message: 'Authentication successful!', duration: 3000 });
 					break;
 				case 'OTP_REQUIRED':
 					updateOtpState({ otpSent: true, sendRetryCount: 0, sendError: null });
 					nav.markStepComplete();
 					nav.goToStep(3);
-					toastV8.success('OTP sent to your email. Proceed to validate the code.');
+					modernMessaging.showFooterMessage({ type: 'info', message: 'OTP sent to your email. Proceed to validate the code.', duration: 3000 });
 					break;
 				case 'SELECTION_REQUIRED':
 					nav.setValidationErrors([
 						'Multiple devices require selection. Please choose the specific device to authenticate.',
 					]);
-					toastV8.warning('Please select a specific device');
+					modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Please select a specific device', dismissible: true });
 					break;
 				default:
 					updateOtpState({
@@ -210,7 +210,7 @@ const EmailDeviceSelectionStep: React.FC<DeviceSelectionStepProps & { isConfigur
 					});
 					nav.markStepComplete();
 					nav.goToStep(3);
-					toastV8.success('Device selected for authentication. Follow the next step to continue.');
+					modernMessaging.showFooterMessage({ type: 'info', message: 'Device selected for authentication. Follow the next step to continue.', duration: 3000 });
 			}
 		} catch (error) {
 			UnifiedFlowErrorHandler.handleError(
@@ -1171,13 +1171,13 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 				if (!credentials.email?.trim()) {
 					const errorMsg = 'Email address is required. Please enter a valid email address.';
 					nav.setValidationErrors([errorMsg]);
-					toastV8.error(errorMsg);
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMsg, dismissible: true });
 					return;
 				}
 				if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(credentials.email)) {
 					const errorMsg = 'Please enter a valid email address format.';
 					nav.setValidationErrors([errorMsg]);
-					toastV8.error(errorMsg);
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMsg, dismissible: true });
 					return;
 				}
 				// Get selected policy to check policy settings
@@ -1190,7 +1190,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 					nav.setValidationErrors([
 						'Device pairing is disabled for the selected Device Authentication Policy. Please select a different policy or contact your administrator.',
 					]);
-					toastV8.error('Device pairing is disabled for this policy');
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Device pairing is disabled for this policy', dismissible: true });
 					return;
 				}
 
@@ -1305,7 +1305,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 						// Auto-advance removed - user must manually click "Next" button
 						// User controls navigation to validation step
 
-						toastV8.success('Email device registered! OTP has been sent automatically.');
+						modernMessaging.showFooterMessage({ type: 'info', message: 'Email device registered! OTP has been sent automatically.', duration: 3000 });
 
 						// Show device creation success modal
 						const resultUserId = (result as { userId?: string }).userId;
@@ -1367,9 +1367,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 						// Close the registration modal - success screen will be shown by renderStep2Register
 						setShowModal(false);
 						// Stay on step 2 to show success screen (don't navigate away)
-						toastV8.success(
-							'Email device registered successfully! Device is ready to use (ACTIVE status).'
-						);
+						modernMessaging.showFooterMessage({ type: 'info', message: 'Email device registered successfully! Device is ready to use (ACTIVE status).', duration: 3000 });
 
 						// Show device creation success modal
 						const deviceInfo2: {
@@ -1420,7 +1418,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 						);
 						nav.markStepComplete();
 						nav.goToStep(4);
-						toastV8.success('Email device registered successfully!');
+						modernMessaging.showFooterMessage({ type: 'info', message: 'Email device registered successfully!', duration: 3000 });
 					}
 				} catch (error) {
 					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -1442,10 +1440,10 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 					if (isDeviceLimitError) {
 						setShowDeviceLimitModal(true);
 						nav.setValidationErrors([formattedError.userFriendlyMessage]);
-						toastV8.mfaOperationError('registration', formattedError.userFriendlyMessage);
+						modernMessaging.showBanner({ type: 'error', title: 'MFA Error', message: 'registration', dismissible: true });
 					} else {
 						nav.setValidationErrors([formattedError.userFriendlyMessage]);
-						toastV8.mfaOperationError('registration', formattedError.userFriendlyMessage);
+						modernMessaging.showBanner({ type: 'error', title: 'MFA Error', message: 'registration', dismissible: true });
 					}
 				} finally {
 					setIsLoading(false);
@@ -2616,7 +2614,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 
 													nav.markStepComplete();
 													nav.goToStep(3);
-													toastV8.success('Device activated successfully!');
+													modernMessaging.showFooterMessage({ type: 'info', message: 'Device activated successfully!', duration: 3000 });
 												} catch (error) {
 													const parsed = UnifiedFlowErrorHandler.handleError(
 														error,
@@ -2732,7 +2730,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 													region: credentials.region,
 													customDomain: credentials.customDomain,
 												});
-												toastV8.success('OTP code resent successfully!');
+												modernMessaging.showFooterMessage({ type: 'info', message: 'OTP code resent successfully!', duration: 3000 });
 											}
 											// For registration flow with ACTIVATION_REQUIRED devices, use resendPairingCode
 											else if (
@@ -2746,7 +2744,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 													region: credentials.region,
 													customDomain: credentials.customDomain,
 												});
-												toastV8.success('OTP code resent successfully!');
+												modernMessaging.showFooterMessage({ type: 'info', message: 'OTP code resent successfully!', duration: 3000 });
 											}
 											// For registration flow with ACTIVE devices, re-initialize device authentication
 											else if (mfaState.deviceId) {
@@ -2760,13 +2758,13 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 													deviceAuthId: authResult.authenticationId,
 													nextStep: authResult.nextStep ?? authResult.status,
 												}));
-												toastV8.success('OTP code resent successfully!');
+												modernMessaging.showFooterMessage({ type: 'info', message: 'OTP code resent successfully!', duration: 3000 });
 											} else {
 												throw new Error('Device ID is required to resend OTP');
 											}
 										} catch (error) {
 											const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-											toastV8.error(`Failed to resend OTP: ${errorMessage}`);
+											modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to resend OTP: ${errorMessage}`, dismissible: true });
 										} finally {
 											setIsLoading(false);
 										}

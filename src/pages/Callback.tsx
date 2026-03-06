@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/NewAuthContext';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const CallbackContainer = styled.div`
   display: flex;
@@ -185,7 +185,7 @@ const Callback = () => {
 						}, 1000);
 						setStatus('error');
 						setError(errorMessage);
-						v4ToastManager.showError('networkError');
+						modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Network error occurred', dismissible: true });
 						return;
 					}
 
@@ -267,7 +267,7 @@ const Callback = () => {
 				const errorMessage =
 					err instanceof Error ? err.message : 'An error occurred during authentication';
 				setError(errorMessage);
-				v4ToastManager.showError('networkError');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Network error occurred', dismissible: true });
 			}
 		};
 

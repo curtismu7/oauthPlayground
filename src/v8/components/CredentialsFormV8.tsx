@@ -41,7 +41,7 @@ import {
 } from '@/v8/services/specVersionServiceV8';
 import { TooltipContentServiceV8 } from '@/v8/services/tooltipContentServiceV8';
 import { UnifiedFlowOptionsServiceV8 } from '@/v8/services/unifiedFlowOptionsServiceV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 type ClientType = 'public' | 'confidential';
 type AppType = 'web' | 'spa' | 'mobile' | 'desktop' | 'cli' | 'm2m' | 'backend';
@@ -197,7 +197,7 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 
 	const handleDiscovery = useCallback(async () => {
 		if (!discoveryInput.trim()) {
-			toastV8.error('Please enter an issuer URL or environment ID');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter an issuer URL or environment ID', dismissible: true });
 			return;
 		}
 
@@ -213,11 +213,11 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 				onDiscoveryComplete?.(result.data);
 			} else {
 				console.error(`${MODULE_TAG} Discovery failed`, result.error);
-				toastV8.error(result.error || 'Discovery failed');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: result.error || 'Discovery failed', dismissible: true });
 			}
 		} catch (error) {
 			console.error(`${MODULE_TAG} Discovery error`, error);
-			toastV8.error('Discovery failed - check the issuer URL');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Discovery failed - check the issuer URL', dismissible: true });
 		} finally {
 			setIsDiscovering(false);
 		}
@@ -232,7 +232,7 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 				scopes: result.scopesSupported?.join(' ') || credentials.scopes,
 			};
 			onChange(updated);
-			toastV8.success('OIDC configuration applied!');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'OIDC configuration applied!', duration: 3000 });
 			setDiscoveryInput('');
 		},
 		[credentials, onChange]
@@ -458,7 +458,7 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 												checked={specVersion === spec.type}
 												onChange={(e) => {
 													setSpecVersion(e.target.value as SpecVersion);
-													toastV8.info(`${spec.label} selected`);
+													modernMessaging.showFooterMessage({ type: 'info', message: `${spec.label} selected`, duration: 3000 });
 												}}
 												style={{ cursor: 'pointer' }}
 											/>
@@ -662,7 +662,7 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 											onChange={(e) => {
 												setUseRedirectless(e.target.checked);
 												if (e.target.checked) {
-													toastV8.info('Redirectless mode enabled - no redirect URI needed');
+													modernMessaging.showFooterMessage({ type: 'info', message: 'Redirectless mode enabled - no redirect URI needed', duration: 3000 });
 												}
 											}}
 											style={{ cursor: 'pointer' }}
@@ -822,7 +822,7 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 												onChange={(e) => {
 													setUsePKCE(e.target.checked);
 													if (e.target.checked) {
-														toastV8.info('PKCE enabled - using public client configuration');
+														modernMessaging.showFooterMessage({ type: 'info', message: 'PKCE enabled - using public client configuration', duration: 3000 });
 													}
 												}}
 												style={{ cursor: 'pointer' }}
@@ -997,7 +997,7 @@ export const CredentialsFormV8: React.FC<CredentialsFormV8Props> = ({
 							type="button"
 							className="btn-save"
 							onClick={() => {
-								toastV8.credentialsSaved();
+								modernMessaging.showFooterMessage({ type: 'info', message: 'Credentials saved successfully', duration: 3000 });
 								console.log(`${MODULE_TAG} Credentials saved`, { flowKey });
 							}}
 						>

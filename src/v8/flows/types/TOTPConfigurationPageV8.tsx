@@ -23,7 +23,7 @@ import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationService
 import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
 import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationServiceV8';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import type { DeviceAuthenticationPolicy, MFACredentials } from '../shared/MFATypes';
 
 const _MODULE_TAG = '[🔐 TOTP-CONFIG-V8]';
@@ -169,7 +169,7 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 					tokenType: 'user' as const,
 				}));
 
-				toastV8.success('Authentication successful! You can now proceed.');
+				modernMessaging.showFooterMessage({ type: 'info', message: 'Authentication successful! You can now proceed.', duration: 3000 });
 			} catch (error) {
 				console.error(`[🔐 TOTP-CONFIG-V8] Failed to exchange code for tokens`, error);
 				const errorMessage =
@@ -177,9 +177,9 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 						? error.message
 						: 'Failed to exchange authorization code for tokens';
 				if (errorMessage.includes('invalid_grant') || errorMessage.includes('expired')) {
-					toastV8.error('Authorization code expired or already used. Please try logging in again.');
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Authorization code expired or already used. Please try logging in again.', dismissible: true });
 				} else {
-					toastV8.error(errorMessage);
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
 				}
 
 				sessionStorage.removeItem('user_login_state_v8');
@@ -210,12 +210,12 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 	// Handle proceed to registration
 	const handleProceedToRegistration = useCallback(() => {
 		if (!credentials.environmentId || !credentials.clientId) {
-			toastV8.error('Please configure environment settings first');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please configure environment settings first', dismissible: true });
 			return;
 		}
 
 		if (!credentials.deviceAuthenticationPolicyId) {
-			toastV8.error('Please select a device authentication policy');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please select a device authentication policy', dismissible: true });
 			return;
 		}
 
@@ -369,7 +369,7 @@ const DeviceAuthenticationPolicySelector: React.FC<{
 				setPolicies(availablePolicies);
 			} catch (error) {
 				console.error('Failed to load device authentication policies:', error);
-				toastV8.error('Failed to load policies');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to load policies', dismissible: true });
 			} finally {
 				setLoading(false);
 			}

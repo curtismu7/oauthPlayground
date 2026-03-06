@@ -48,7 +48,7 @@ import {
 	type TokenStatusInfo,
 	WorkerTokenStatusServiceV8,
 } from '@/v8/services/workerTokenStatusServiceV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { reloadCredentialsAfterReset } from '@/v8u/services/credentialReloadServiceV8U';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import { AdvancedOAuthFeatures } from '../components/AdvancedOAuthFeatures';
@@ -1517,13 +1517,13 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				// Update last saved reference to prevent duplicate saves
 				lastSavedCredsRef.current = JSON.stringify(credentials);
 
-				toastV8.unifiedFlowSuccess('Credentials saved', 'OAuth configuration stored successfully');
+				modernMessaging.showFooterMessage({ type: 'info', message: 'Credentials saved', duration: 3000 });
 			} else {
-				toastV8.warning('No credentials to save');
+				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'No credentials to save', dismissible: true });
 			}
 		} catch (error) {
 			logger.error(`Error manually saving credentials:`, error);
-			toastV8.unifiedFlowError('Credentials save', 'Failed to store OAuth configuration');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Credentials save', dismissible: true });
 		}
 	}, [credentials, flowKey]);
 
@@ -1535,7 +1535,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		if (currentStep < totalSteps - 1) {
 			navigateToStep(currentStep + 1);
 		} else {
-			toastV8.info('Already on the last step');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'Already on the last step', duration: 3000 });
 		}
 	}, [currentStep, getTotalSteps, navigateToStep]);
 
@@ -1659,7 +1659,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				logger.error(`❌ No compatible spec version found for flow type`, {
 					newFlowType,
 				});
-				toastV8.error(`${newFlowType} flow is not supported. Please select a different flow type.`);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `${newFlowType} flow is not supported. Please select a different flow type.`, dismissible: true });
 				return;
 			}
 		}
@@ -1971,9 +1971,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 								filename,
 								'PingOne Unified Flows Environment'
 							);
-							toastV8.success(
-								'Postman collection and environment downloaded! Import both into Postman to test all Unified flows.'
-							);
+							modernMessaging.showFooterMessage({ type: 'info', message: 'Postman collection and environment downloaded! Import both into Postman to test all Unified flows.', duration: 3000 });
 						}}
 						style={{
 							display: 'flex',
@@ -2029,9 +2027,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 								filename,
 								'PingOne Complete Collection Environment'
 							);
-							toastV8.success(
-								'Complete Postman collection (Unified + MFA) downloaded! Import both files into Postman.'
-							);
+							modernMessaging.showFooterMessage({ type: 'info', message: 'Complete Postman collection (Unified + MFA) downloaded! Import both files into Postman.', duration: 3000 });
 						}}
 						style={{
 							display: 'flex',

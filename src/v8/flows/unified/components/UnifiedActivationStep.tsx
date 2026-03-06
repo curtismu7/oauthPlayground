@@ -29,7 +29,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import React, { useCallback, useEffect, useState } from 'react';
 import type { DeviceFlowConfig } from '@/v8/config/deviceFlowConfigTypes';
 import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { UnifiedOTPActivationTemplate } from './UnifiedOTPActivationTemplate';
 
 const MODULE_TAG = '[🔐 UNIFIED-ACTIVATION-STEP]';
@@ -225,7 +225,7 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 			}));
 
 			// Show success toast
-			toastV8.success(`${config.displayName} device activated successfully`);
+			modernMessaging.showFooterMessage({ type: 'info', message: `${config.displayName} device activated successfully`, duration: 3000 });
 
 			// Mark step as complete
 			nav.markStepComplete();
@@ -248,7 +248,7 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 			nav.setValidationErrors([errorMessage]);
 
 			// Show error toast
-			toastV8.error(errorMessage);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
 
 			// Clear OTP input after failed attempt
 			setOtp('');
@@ -283,7 +283,7 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 			console.log(`${MODULE_TAG} Pairing code resent successfully`);
 
 			// Show success toast
-			toastV8.success(`New ${config.displayName} verification code sent`);
+			modernMessaging.showFooterMessage({ type: 'info', message: `New ${config.displayName} verification code sent`, duration: 3000 });
 
 			// Clear previous OTP and error
 			setOtp('');
@@ -296,7 +296,7 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 			setOtpError(errorMessage);
 
 			// Show error toast
-			toastV8.error(errorMessage);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
 
 			// Reset cooldown on error
 			setCanResend(true);
@@ -444,7 +444,7 @@ export const UnifiedActivationStep: React.FC<UnifiedActivationStepProps> = ({
 											type="button"
 											onClick={() => {
 												navigator.clipboard.writeText(mfaState.totpSecret || '');
-												toastV8.success('Secret copied to clipboard');
+												modernMessaging.showFooterMessage({ type: 'info', message: 'Secret copied to clipboard', duration: 3000 });
 											}}
 											style={{
 												marginTop: '8px',

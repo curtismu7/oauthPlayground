@@ -29,7 +29,7 @@ import {
 	type CibaStatus,
 	type CibaTokens,
 } from '@/v8/services/cibaServiceV8Enhanced';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const MODULE_TAG = '[🔐 CIBA-FLOW-V8-ENHANCED]';
 
@@ -160,7 +160,7 @@ export const useCibaFlowV8Enhanced = (): UseCibaFlowV8EnhancedState &
 					setTokenDeliveryMode('push');
 				}
 
-				toastV8.success('CIBA discovery metadata loaded successfully');
+				modernMessaging.showFooterMessage({ type: 'info', message: 'CIBA discovery metadata loaded successfully', duration: 3000 });
 				console.log(`${MODULE_TAG} Discovery metadata loaded:`, {
 					supportedModes: metadata.backchannel_token_delivery_modes_supported,
 					userCodeSupported: metadata.backchannel_user_code_parameter_supported,
@@ -170,7 +170,7 @@ export const useCibaFlowV8Enhanced = (): UseCibaFlowV8EnhancedState &
 				const errorMessage =
 					err instanceof Error ? err.message : 'Failed to load discovery metadata';
 				setDiscoveryError(errorMessage);
-				toastV8.error(errorMessage);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
 				console.error(`${MODULE_TAG} Failed to load discovery metadata:`, err);
 			} finally {
 				setIsLoadingDiscovery(false);
@@ -217,7 +217,7 @@ export const useCibaFlowV8Enhanced = (): UseCibaFlowV8EnhancedState &
 					setPollingInterval(authReq.interval);
 				}
 
-				toastV8.success('CIBA authentication request initiated');
+				modernMessaging.showFooterMessage({ type: 'info', message: 'CIBA authentication request initiated', duration: 3000 });
 				console.log(`${MODULE_TAG} Authentication initiated:`, {
 					authReqId: `${authReq.auth_req_id.substring(0, 20)}...`,
 					expiresIn: authReq.expires_in,
@@ -231,7 +231,7 @@ export const useCibaFlowV8Enhanced = (): UseCibaFlowV8EnhancedState &
 					err instanceof Error ? err.message : 'Failed to initiate authentication';
 				setError(errorMessage);
 				setStatus('error');
-				toastV8.error(errorMessage);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
 				console.error(`${MODULE_TAG} Failed to initiate authentication:`, err);
 				throw err;
 			} finally {
@@ -264,16 +264,16 @@ export const useCibaFlowV8Enhanced = (): UseCibaFlowV8EnhancedState &
 
 				if (result.status === 'approved' && result.tokens) {
 					setTokens(result.tokens);
-					toastV8.success('CIBA authentication completed successfully!');
+					modernMessaging.showFooterMessage({ type: 'info', message: 'CIBA authentication completed successfully!', duration: 3000 });
 				} else if (result.status === 'denied') {
-					toastV8.error('Authentication denied by user');
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Authentication denied by user', dismissible: true });
 				} else if (result.status === 'expired') {
-					toastV8.error('Authentication request expired');
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Authentication request expired', dismissible: true });
 				} else if (result.error === 'slow_down') {
 					// Update polling interval if server requested slower polling
 					if (result.interval && result.interval > pollingInterval) {
 						setPollingInterval(result.interval);
-						toastV8.warning(`Polling interval increased to ${result.interval} seconds`);
+						modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: `Polling interval increased to ${result.interval} seconds`, dismissible: true });
 					}
 				}
 
@@ -282,7 +282,7 @@ export const useCibaFlowV8Enhanced = (): UseCibaFlowV8EnhancedState &
 				const errorMessage = err instanceof Error ? err.message : 'Polling failed';
 				setError(errorMessage);
 				setStatus('error');
-				toastV8.error(errorMessage);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
 				console.error(`${MODULE_TAG} Polling failed:`, err);
 
 				return {
@@ -348,7 +348,7 @@ export const useCibaFlowV8Enhanced = (): UseCibaFlowV8EnhancedState &
 
 				// Max retries reached
 				console.warn(`${MODULE_TAG} Maximum polling attempts reached`);
-				toastV8.warning('Maximum polling time reached. Please try again.');
+				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Maximum polling time reached. Please try again.', dismissible: true });
 
 				return {
 					status: 'expired',

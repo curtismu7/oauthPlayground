@@ -43,7 +43,7 @@ import { UnifiedTokenDisplayService } from '../../../services/unifiedTokenDispla
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningService';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
-import { toastV8 } from '../../../v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 
 import { STEP_METADATA } from '../config/OIDCHybridFlowV9.config';
@@ -299,7 +299,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 			}).catch((error) => {
 				console.error('[OIDC Hybrid V7] Failed to save credentials to V7 storage:', error);
 				// Show user-friendly error message
-				toastV8.error('Failed to save credentials. Please try again.');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save credentials. Please try again.', dismissible: true });
 			});
 		}
 	}, [controller.credentials]);
@@ -378,7 +378,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 
 	const handleGenerateAuthorizationUrl = useCallback(async () => {
 		if (!controller.credentials) {
-			toastV8.error('Configure credentials before generating the authorization URL.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Configure credentials before generating the authorization URL.', dismissible: true });
 			return;
 		}
 
@@ -396,16 +396,16 @@ const OIDCHybridFlowV9: React.FC = () => {
 
 			const url = controller.generateAuthorizationUrl();
 			if (!url) {
-				toastV8.error('Unable to generate authorization URL. Check required parameters.');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Unable to generate authorization URL. Check required parameters.', dismissible: true });
 				return;
 			}
 
 			log.info('Authorization URL generated', { url });
 			setCurrentStep(2);
-			toastV8.success('Authorization URL generated');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'Authorization URL generated', duration: 3000 });
 		} catch (error) {
 			console.error('[OIDCHybridFlowV7] Failed to generate authorization URL', error);
-			toastV8.error('Authorization URL generation failed');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Authorization URL generation failed', dismissible: true });
 		} finally {
 			controller.setIsLoading(false);
 		}
@@ -413,7 +413,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 
 	const handleRedirectAuthorization = useCallback(() => {
 		if (!controller.authorizationUrl) {
-			toastV8.error('Generate the authorization URL before redirecting.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Generate the authorization URL before redirecting.', dismissible: true });
 			return;
 		}
 
@@ -442,7 +442,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 	const handleExchangeCode = useCallback(async () => {
 		const code = controller.tokens?.code;
 		if (!code) {
-			toastV8.error('No authorization code available. Complete the authorization step first.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'No authorization code available. Complete the authorization step first.', dismissible: true });
 			return;
 		}
 
@@ -451,7 +451,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 			const exchanged = await controller.exchangeCodeForTokens(code);
 			controller.setTokens(exchanged);
 			setCurrentStep(4);
-			toastV8.success('Authorization code exchanged for tokens');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'Authorization code exchanged for tokens', duration: 3000 });
 		} catch (error) {
 			console.error('[OIDCHybridFlowV7] Token exchange failed', error);
 		} finally {
@@ -471,7 +471,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 			console.log('🔧 [OIDC Hybrid V7] Cleared flow-specific storage');
 		} catch (error) {
 			console.error('[OIDC Hybrid V7] Failed to clear flow state:', error);
-			toastV8.error('Failed to clear flow state. Please refresh the page.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to clear flow state. Please refresh the page.', dismissible: true });
 		}
 
 		// Clear credential backup when flow is reset
@@ -554,7 +554,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 
 	const handleNextStep = useCallback(() => {
 		if (!canNavigateNext()) {
-			toastV8.error('Complete the required actions before continuing to the next step.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Complete the required actions before continuing to the next step.', dismissible: true });
 			return;
 		}
 		setCurrentStep((prev) => Math.min(prev + 1, STEP_METADATA.length - 1));

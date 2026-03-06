@@ -32,7 +32,7 @@ import { CommonSpinner } from '@/components/common/CommonSpinner';
 import { useProductionSpinner } from '@/hooks/useProductionSpinner';
 import { useHybridFlowV8 } from '@/v8/hooks/useHybridFlowV8';
 import type { HybridFlowCredentials } from '@/v8/services/hybridFlowIntegrationServiceV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 // V8 styled components (following V8 patterns)
 const Container = styled.div`
@@ -353,7 +353,7 @@ const OIDCHybridFlowV8: React.FC = () => {
 	// Save credentials
 	const saveCredentials = useCallback(() => {
 		if (!formData.environmentId || !formData.clientId) {
-			toastV8.error('Environment ID and Client ID are required');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Environment ID and Client ID are required', dismissible: true });
 			return;
 		}
 
@@ -370,13 +370,13 @@ const OIDCHybridFlowV8: React.FC = () => {
 		};
 
 		hybridFlow.saveCredentials(credentials);
-		toastV8.success('Credentials saved successfully');
+		modernMessaging.showFooterMessage({ type: 'info', message: 'Credentials saved successfully', duration: 3000 });
 	}, [formData, hybridFlow]);
 
 	// Generate authorization URL
 	const handleGenerateUrl = useCallback(async () => {
 		if (!formData.environmentId || !formData.clientId) {
-			toastV8.error('Please configure credentials first');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please configure credentials first', dismissible: true });
 			return;
 		}
 
@@ -412,10 +412,10 @@ const OIDCHybridFlowV8: React.FC = () => {
 		navigator.clipboard
 			.writeText(text)
 			.then(() => {
-				toastV8.success('Copied to clipboard');
+				modernMessaging.showFooterMessage({ type: 'info', message: 'Copied to clipboard', duration: 3000 });
 			})
 			.catch(() => {
-				toastV8.error('Failed to copy');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to copy', dismissible: true });
 			});
 	}, []);
 

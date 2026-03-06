@@ -7,7 +7,7 @@
 
 import { FiX } from '@icons';
 import React, { useEffect, useRef, useState } from 'react';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const MODULE_TAG = '[📝 CREATE-POLICY-MODAL-V8]';
 
@@ -54,7 +54,7 @@ export const CreatePolicyModalV8: React.FC<CreatePolicyModalV8Props> = ({
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		if (!policyName.trim()) {
-			toastV8.error('Policy name is required');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Policy name is required', dismissible: true });
 			return;
 		}
 		try {

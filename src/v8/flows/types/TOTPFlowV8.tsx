@@ -35,7 +35,7 @@ import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { useMFALoadingStateManager } from '@/v8/utils/loadingStateManagerV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { MFADeviceSelector } from '../components/MFADeviceSelector';
 import { MFAOTPInput } from '../components/MFAOTPInput';
 import { MFAFlowControllerFactory } from '../factories/MFAFlowControllerFactory';
@@ -725,7 +725,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 			props.nav.markStepComplete();
 			props.nav.goToStep(4);
 
-			toastV8.success('TOTP device activated successfully!');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'TOTP device activated successfully!', duration: 3000 });
 
 			// Success page will render automatically when:
 			// 1. deviceStatus is ACTIVE
@@ -749,7 +749,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 					: errorMessage;
 
 			setActivationError(normalizedError);
-			toastV8.error(`Activation failed: ${normalizedError}`);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Activation failed: ${normalizedError}`, dismissible: true });
 
 			// Clear OTP input so user can try again
 			setActivationOtp('');
@@ -1156,7 +1156,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 					(d: Record<string, unknown>) => d.id === deviceSelection.selectedExistingDevice
 				);
 				if (!device) {
-					toastV8.error('Device not found');
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Device not found', dismissible: true });
 					return;
 				}
 
@@ -1181,17 +1181,15 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 					if (authResult.nextStep === 'COMPLETED') {
 						nav.markStepComplete();
 						nav.goToStep(4);
-						toastV8.success('Authentication successful!');
+						modernMessaging.showFooterMessage({ type: 'info', message: 'Authentication successful!', duration: 3000 });
 					} else if (authResult.nextStep === 'OTP_REQUIRED') {
 						nav.markStepComplete();
 						nav.goToStep(4);
-						toastV8.success(
-							'Device selected. Please enter the TOTP code from your authenticator app.'
-						);
+						modernMessaging.showFooterMessage({ type: 'info', message: 'Device selected. Please enter the TOTP code from your authenticator app.', duration: 3000 });
 					} else {
 						nav.markStepComplete();
 						nav.goToStep(4);
-						toastV8.success('Device selected successfully!');
+						modernMessaging.showFooterMessage({ type: 'info', message: 'Device selected successfully!', duration: 3000 });
 					}
 				} catch (error) {
 					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -1219,7 +1217,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 							deviceType: 'TOTP',
 						});
 						nav.setValidationErrors([formattedError.userFriendlyMessage]);
-						toastV8.error(`Authentication failed: ${formattedError.userFriendlyMessage}`);
+						modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Authentication failed: ${formattedError.userFriendlyMessage}`, dismissible: true });
 					}
 				} finally {
 					setIsLoading(false);
@@ -1335,7 +1333,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 					nav.setValidationErrors([
 						'Device pairing is disabled for the selected Device Authentication Policy. Please select a different policy or contact your administrator.',
 					]);
-					toastV8.error('Device pairing is disabled for this policy');
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Device pairing is disabled for this policy', dismissible: true });
 					return;
 				}
 
@@ -1556,7 +1554,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 					setTimeout(() => {
 						nav.goToStep(3);
 					}, 50);
-					toastV8.info('Device registered. Scan the QR code to complete setup.');
+					modernMessaging.showFooterMessage({ type: 'info', message: 'Device registered. Scan the QR code to complete setup.', duration: 3000 });
 				} catch (error) {
 					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 					const isDeviceLimitError =
@@ -1571,14 +1569,14 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 							deviceType: 'TOTP',
 						});
 						nav.setValidationErrors([formattedError.userFriendlyMessage]);
-						toastV8.error('Device limit exceeded. Please delete an existing device first.');
+						modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Device limit exceeded. Please delete an existing device first.', dismissible: true });
 					} else {
 						const formattedError = ValidationServiceV8.formatMFAError(error as Error, {
 							operation: 'register',
 							deviceType: 'TOTP',
 						});
 						nav.setValidationErrors([formattedError.userFriendlyMessage]);
-						toastV8.error(`Registration failed: ${formattedError.userFriendlyMessage}`);
+						modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Registration failed: ${formattedError.userFriendlyMessage}`, dismissible: true });
 					}
 				} finally {
 					setIsLoading(false);
@@ -2585,9 +2583,9 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 													if (success) {
 														setSecretCopied(true);
 														setTimeout(() => setSecretCopied(false), 2000);
-														toastV8.success('Secret copied to clipboard!');
+														modernMessaging.showFooterMessage({ type: 'info', message: 'Secret copied to clipboard!', duration: 3000 });
 													} else {
-														toastV8.error('Failed to copy secret');
+														modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to copy secret', dismissible: true });
 													}
 												}}
 												style={{
@@ -2750,7 +2748,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 															!credentials.username ||
 															!credentials.environmentId
 														) {
-															toastV8.error('Missing device information. Cannot delete device.');
+															modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Missing device information. Cannot delete device.', dismissible: true });
 															return;
 														}
 
@@ -2778,9 +2776,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 																deviceId: mfaState.deviceId,
 															});
 
-															toastV8.success(
-																'Device deleted successfully. You can now register a new device.'
-															);
+															modernMessaging.showFooterMessage({ type: 'info', message: 'Device deleted successfully. You can now register a new device.', duration: 3000 });
 
 															// Clear device state to allow new registration
 															setMfaState((prev) => ({
@@ -2806,9 +2802,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 															nav.goToStep(2);
 														} catch (error) {
 															console.error(`${MODULE_TAG} Failed to delete device:`, error);
-															toastV8.error(
-																`Failed to delete device: ${error instanceof Error ? error.message : 'Unknown error'}`
-															);
+															modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to delete device: ${error instanceof Error ? error.message : 'Unknown error'}`, dismissible: true });
 														} finally {
 															setIsLoading(false);
 														}
@@ -3319,7 +3313,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 											nav.setValidationErrors([
 												'Missing required configuration. Please ensure Environment ID, Username, and Worker Token are set.',
 											]);
-											toastV8.error('Cannot validate OTP: Missing required configuration');
+											modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Cannot validate OTP: Missing required configuration', dismissible: true });
 											return;
 										}
 
@@ -3384,7 +3378,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 												validationAttempts: validationState.validationAttempts + 1,
 												lastValidationError: normalizedError,
 											});
-											toastV8.error(`Validation failed: ${normalizedError}`);
+											modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Validation failed: ${normalizedError}`, dismissible: true });
 											setIsLoading(false);
 										}
 									}}
@@ -3945,7 +3939,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 								...currentCredentials,
 								deviceId: currentMfaState.deviceId,
 							} as SendOTPParams);
-							toastV8.success('Expired device deleted. Please register a new device.');
+							modernMessaging.showFooterMessage({ type: 'info', message: 'Expired device deleted. Please register a new device.', duration: 3000 });
 							setShowExpiredModal(false);
 							// Clear expired secret/keyUri
 							setTotpSecret('');
@@ -3965,7 +3959,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 							navigateToMfaHubWithCleanup(navigate);
 						} catch (error) {
 							console.error(`${MODULE_TAG} Failed to delete expired device:`, error);
-							toastV8.error('Failed to delete expired device. Please try again.');
+							modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to delete expired device. Please try again.', dismissible: true });
 						}
 					}
 				}}

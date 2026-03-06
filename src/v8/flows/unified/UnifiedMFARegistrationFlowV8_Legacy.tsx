@@ -49,7 +49,7 @@ import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServi
 import type { MFAFeatureFlag } from '@/v8/services/mfaFeatureFlagsV8';
 import { MFAFeatureFlagsV8 } from '@/v8/services/mfaFeatureFlagsV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { usePageStepper } from '../../../contexts/FloatingStepperContext';
 import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBaseV8';
 import type { MFACredentials, MFAState } from '../shared/MFATypes';
@@ -272,7 +272,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 
 		const policyId = selectedPolicy?.id;
 		if (!policyId) {
-			toastV8.error('Please select an MFA Policy first');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please select an MFA Policy first', dismissible: true });
 			return;
 		}
 
@@ -308,23 +308,21 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 			if (status === 'OTP_REQUIRED' || nextStep === 'OTP_REQUIRED' || hasOtpLink) {
 				console.log(`${MODULE_TAG} Opening OTP modal for device:`, device.type);
 				setShowOTPModal(true);
-				toastV8.success(`Verification code sent to your ${device.type} device`);
+				modernMessaging.showFooterMessage({ type: 'info', message: `Verification code sent to your ${device.type} device`, duration: 3000 });
 			} else if (status === 'ASSERTION_REQUIRED' || nextStep === 'ASSERTION_REQUIRED') {
 				console.log(`${MODULE_TAG} FIDO2 assertion required`);
-				toastV8.info(
-					'FIDO2 authentication required. Please use /v8/mfa-hub for FIDO2 authentication.'
-				);
+				modernMessaging.showFooterMessage({ type: 'info', message: 'FIDO2 authentication required. Please use /v8/mfa-hub for FIDO2 authentication.', duration: 3000 });
 				setFlowMode(null);
 			} else if (
 				status === 'PUSH_CONFIRMATION_REQUIRED' ||
 				nextStep === 'PUSH_CONFIRMATION_REQUIRED'
 			) {
 				console.log(`${MODULE_TAG} Push confirmation required`);
-				toastV8.success('Push notification sent! Please approve on your mobile device.');
-				toastV8.info('Complete authentication at /v8/mfa-hub for push polling.');
+				modernMessaging.showFooterMessage({ type: 'info', message: 'Push notification sent! Please approve on your mobile device.', duration: 3000 });
+				modernMessaging.showFooterMessage({ type: 'info', message: 'Complete authentication at /v8/mfa-hub for push polling.', duration: 3000 });
 				setFlowMode(null);
 			} else if (status === 'COMPLETED') {
-				toastV8.success('Authentication completed successfully!');
+				modernMessaging.showFooterMessage({ type: 'info', message: 'Authentication completed successfully!', duration: 3000 });
 				setFlowMode(null);
 			} else if (
 				status === 'DEVICE_SELECTION_REQUIRED' ||
@@ -339,7 +337,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 					nextStep,
 					response,
 				});
-				toastV8.info(`Authentication status: ${status || nextStep || 'UNKNOWN'}`);
+				modernMessaging.showFooterMessage({ type: 'info', message: `Authentication status: ${status || nextStep || 'UNKNOWN'}`, duration: 3000 });
 				// Stay in authentication flow so user can try another device
 			}
 		} catch (error) {
@@ -377,7 +375,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 				errorMessage += 'Unknown error';
 			}
 
-			toastV8.error(errorMessage, { duration: 8000 });
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
 			// Do NOT set flowMode(null) - keep user in authentication flow so they can retry or select another device
 		}
 	};
@@ -385,12 +383,12 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 	// Handle OTP verification
 	const handleVerifyOTP = async () => {
 		if (!authenticationId || !selectedAuthDevice) {
-			toastV8.error('Authentication session not found');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Authentication session not found', dismissible: true });
 			return;
 		}
 
 		if (otpCode.length !== 6) {
-			toastV8.error('Please enter a 6-digit code');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter a 6-digit code', dismissible: true });
 			return;
 		}
 
@@ -418,18 +416,16 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 			const result = await response.json();
 
 			if (result.status === 'COMPLETED' || result.status === 'completed') {
-				toastV8.success('✅ Authentication completed successfully!');
+				modernMessaging.showFooterMessage({ type: 'info', message: '✅ Authentication completed successfully!', duration: 3000 });
 				setShowOTPModal(false);
 				setFlowMode(null);
 				setOtpCode('');
 			} else {
-				toastV8.error('Invalid code. Please try again.');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Invalid code. Please try again.', dismissible: true });
 			}
 		} catch (error) {
 			console.error(`${MODULE_TAG} OTP verification failed:`, error);
-			toastV8.error(
-				`Verification failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Verification failed: ${error instanceof Error ? error.message : 'Unknown error'}`, dismissible: true });
 		}
 	};
 
@@ -1156,7 +1152,7 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 									onClick={async () => {
 										if (!selectedAuthDevice || !authenticationId) return;
 										try {
-											toastV8.info('Resending verification code...');
+											modernMessaging.showFooterMessage({ type: 'info', message: 'Resending verification code...', duration: 3000 });
 											// Re-initialize authentication to resend code
 											const response =
 												await MfaAuthenticationServiceV8.initializeDeviceAuthentication({
@@ -1167,12 +1163,12 @@ const DeviceTypeSelectionScreen: React.FC<DeviceTypeSelectionScreenProps> = ({
 													region: 'na',
 												});
 											if (response.status?.toUpperCase() === 'OTP_REQUIRED') {
-												toastV8.success('New code sent to your device!');
+												modernMessaging.showFooterMessage({ type: 'info', message: 'New code sent to your device!', duration: 3000 });
 												setAuthenticationId(response.id);
 												setOtpCode('');
 											}
 										} catch (error) {
-											toastV8.error('Failed to resend code');
+											modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to resend code', dismissible: true });
 											console.error('Resend error:', error);
 										}
 									}}
@@ -1988,7 +1984,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 						console.log(
 							'[UNIFIED-FLOW] FIDO2 device fully registered with credentials - proceeding to next step'
 						);
-						toastV8.success(`${config.displayName} device registered successfully!`);
+						modernMessaging.showFooterMessage({ type: 'info', message: `${config.displayName} device registered successfully!`, duration: 3000 });
 
 						// For Admin Flow, skip User Login step and go to Device Selection (Step 2)
 						// For User Flow, go to User Login step (Step 1)
@@ -2002,9 +1998,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 						console.log(
 							'[UNIFIED-FLOW] FIDO2 device created - user must complete biometric authentication'
 						);
-						toastV8.info(
-							'Device created. Please complete the biometric authentication prompt below.'
-						);
+						modernMessaging.showFooterMessage({ type: 'info', message: 'Device created. Please complete the biometric authentication prompt below.', duration: 3000 });
 						// DO NOT call nav.goToNext() - let user interact with WebAuthn on registration step
 						return;
 					}
@@ -2020,9 +2014,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 					console.log(
 						'[UNIFIED-FLOW] Admin flow or ACTIVE status - proceeding to show QR without OTP requirement'
 					);
-					toastV8.success(
-						`${config.displayName} device registered successfully!${flowType === 'admin-active' || flowType === 'admin-activation' ? ' Device is ready to use.' : ''}`
-					);
+					modernMessaging.showFooterMessage({ type: 'info', message: `${config.displayName} device registered successfully!${flowType === 'admin-active' || flowType === 'admin-activation' ? ' Device is ready to use.' : ''}`, duration: 3000 });
 					// For Admin Flow, skip User Login step and go to Device Selection (Step 2)
 					// For User Flow, go to User Login step (Step 1)
 					if (flowType === 'admin-active' || flowType === 'admin-activation') {
@@ -2033,9 +2025,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 				} else if (result.status === 'ACTIVATION_REQUIRED') {
 					// Device requires activation - PingOne automatically sends OTP
 					// This applies to both admin_activation_required and user flow
-					toastV8.success(
-						`${config.displayName} device registered! OTP has been sent automatically.`
-					);
+					modernMessaging.showFooterMessage({ type: 'info', message: `${config.displayName} device registered! OTP has been sent automatically.`, duration: 3000 });
 					// For Admin Flow, skip User Login step and go to Device Selection (Step 2)
 					// For User Flow, go to User Login step (Step 1)
 					if (flowType === 'admin-activation') {
@@ -2057,12 +2047,9 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 
 				// Check if error is due to too many devices
 				if (errorMessage.includes('Too many devices')) {
-					toastV8.error(
-						`${errorMessage}\n\nℹ️ You can manage your devices at:\nhttps://localhost:3000/v8/delete-all-devices`,
-						{ duration: 8000 }
-					);
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: `${errorMessage}\n\nℹ️ You can manage your devices at:\nhttps://localhost:3000/v8/delete-all-devices`, dismissible: true });
 				} else {
-					toastV8.error(errorMessage);
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
 				}
 			} finally {
 				props.setIsLoading(false);
@@ -2114,9 +2101,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 					hasFields: !!pending.fields,
 				});
 
-				toastV8.success('✅ Authentication successful! Your user token is ready.', {
-					duration: 4000,
-				});
+				modernMessaging.showFooterMessage({ type: 'info', message: '✅ Authentication successful! Your user token is ready.', duration: 4000 });
 
 				// Close login modal and show success page
 				setShowUserLoginModal(false);
@@ -2186,10 +2171,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 
 				// Show the user login modal
 				setShowUserLoginModal(true);
-				toastV8.info(
-					'🔐 User Flow requires PingOne authentication. Please complete the login to continue with device registration.',
-					{ duration: 6000 }
-				);
+				modernMessaging.showFooterMessage({ type: 'info', message: '🔐 User Flow requires PingOne authentication. Please complete the login to continue with device registration.', duration: 3000 });
 				return;
 			}
 
@@ -2480,7 +2462,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 											type="button"
 											onClick={() => {
 												navigator.clipboard.writeText(usernameFromToken);
-												toastV8.success('Username copied to clipboard!');
+												modernMessaging.showFooterMessage({ type: 'info', message: 'Username copied to clipboard!', duration: 3000 });
 											}}
 											style={{
 												padding: '8px 16px',
@@ -2531,7 +2513,7 @@ const UnifiedMFARegistrationFlowContent: React.FC<
 								type="button"
 								onClick={() => {
 									navigator.clipboard.writeText(userTokenForDisplay);
-									toastV8.success('Token copied to clipboard!');
+									modernMessaging.showFooterMessage({ type: 'info', message: 'Token copied to clipboard!', duration: 3000 });
 								}}
 								style={{
 									padding: '8px 16px',

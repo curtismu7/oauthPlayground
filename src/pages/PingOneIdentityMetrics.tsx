@@ -17,7 +17,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import JSONHighlighter, { type JSONData } from '../components/JSONHighlighter';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { apiRequestModalService } from '../services/apiRequestModalService';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { ShowTokenConfigCheckboxV8 } from '../v8/components/ShowTokenConfigCheckboxV8';
 import { SilentApiConfigCheckboxV8 } from '../v8/components/SilentApiConfigCheckboxV8';
 import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
@@ -314,7 +314,7 @@ const PingOneIdentityMetrics: React.FC = () => {
 	const _handleClearWorkerToken = useCallback(() => {
 		// Clear unified worker token
 		localStorage.removeItem('unified_worker_token');
-		v4ToastManager.showSuccess('Worker token cleared successfully.');
+		modernMessaging.showFooterMessage({ type: 'info', message: 'Worker token cleared successfully.', duration: 3000 });
 		// Trigger page reload to reset state
 		window.location.reload();
 	}, []);
@@ -393,7 +393,7 @@ const PingOneIdentityMetrics: React.FC = () => {
 			const data: IdentityCountResponse = await response.json();
 			setMetrics(data);
 			setLastUpdated(new Date().toISOString());
-			v4ToastManager.showSuccess('Identity metrics retrieved successfully!');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'Identity metrics retrieved successfully!', duration: 3000 });
 		} catch (err) {
 			console.error('[PingOne Identity Metrics] Fetch failed:', err);
 			setMetrics(null);

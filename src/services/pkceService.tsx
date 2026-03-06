@@ -14,7 +14,7 @@ import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import ColoredUrlDisplay from '../components/ColoredUrlDisplay';
 import { generateCodeChallenge, generateCodeVerifier } from '../utils/oauth';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CopyButtonVariants } from './copyButtonService';
 
 export interface PKCECodes {
@@ -411,10 +411,10 @@ export const PKCEService: React.FC<PKCEServiceProps> = ({
 			onChange(newCodes);
 			onGenerate?.();
 
-			v4ToastManager.showSuccess('PKCE codes generated successfully!');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'PKCE codes generated successfully!', duration: 3000 });
 		} catch (error) {
 			console.error('PKCE generation failed:', error);
-			v4ToastManager.showError('Failed to generate PKCE codes');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to generate PKCE codes', dismissible: true });
 		} finally {
 			setIsLocalGenerating(false);
 		}

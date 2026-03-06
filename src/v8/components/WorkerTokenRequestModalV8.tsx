@@ -331,11 +331,11 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 												);
 												await workerTokenServiceV8.saveToken(generatedToken);
 												const { toastV8 } = await import('@/v8/utils/toastNotificationsV8');
-												toastV8.success('Token saved successfully!');
+												modernMessaging.showFooterMessage({ type: 'info', message: 'Token saved successfully!', duration: 3000 });
 											} catch (error) {
 												console.error('[WorkerTokenRequestModal] Failed to save token:', error);
 												const { toastV8 } = await import('@/v8/utils/toastNotificationsV8');
-												toastV8.error('Failed to save token');
+												modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save token', dismissible: true });
 											}
 										}
 									}}
