@@ -1236,9 +1236,6 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 			});
 
 			if (!hasRequiredCredentials) {
-				console.warn(
-					'⚠️ [AuthorizationCodeFlowV5] Credentials not available yet - may need to load from storage'
-				);
 				console.log(
 					'⚠️ [AuthorizationCodeFlowV5] Waiting 500ms for credentials to load, then re-checking...'
 				);
@@ -1258,7 +1255,6 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 					});
 
 					if (!retryHasRequiredCredentials) {
-						console.error('🚨 [AuthorizationCodeFlowV5] Missing required credentials after retry');
 						modernMessaging.showBanner({
 							type: 'error',
 							title: 'Error',
@@ -1557,19 +1553,12 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 				{ showToast: false }
 			);
 
-			if (!success) {
-				console.error(
-					'🔧 [handleSaveConfiguration] Failed to save to comprehensiveFlowDataService'
-				);
-			}
-
 			modernMessaging.showFooterMessage({
 				type: 'info',
 				message: 'Configuration saved successfully!',
 				duration: 3000,
 			});
 		} catch (error) {
-			console.error('🔧 [handleSaveConfiguration] Save failed:', error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1681,9 +1670,6 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 
 			// Safety check: only run redirectless if explicitly enabled
 			if (!useRedirectless) {
-				console.warn(
-					'🚨 [Redirectless] Attempted to run redirectless flow but useRedirectless is false'
-				);
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
@@ -1750,7 +1736,6 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 
 				if (!step1.ok) {
 					const errorText = await step1.text();
-					console.error('🚨 [Redirectless] Step 1 failed:', step1.status, errorText);
 					throw new Error(`Authorize failed (${step1.status}): ${errorText}`);
 				}
 				const step1Json = await step1.json();
@@ -1783,7 +1768,6 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 
 				if (!step2.ok) {
 					const errorText = await step2.text();
-					console.error('🚨 [Redirectless] Step 2 failed:', step2.status, errorText);
 					throw new Error(`Credential check failed (${step2.status}): ${errorText}`);
 				}
 				const step2Json = await step2.json();
@@ -1816,7 +1800,6 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 
 				if (!step3.ok) {
 					const errorText = await step3.text();
-					console.error('🚨 [Redirectless] Step 3 failed:', step3.status, errorText);
 					throw new Error(`Resume failed (${step3.status}): ${errorText}`);
 				}
 				const step3Json = await step3.json();
@@ -1824,7 +1807,6 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 				const authorizationCode =
 					(step3Json.code as string) || (step3Json?.authorizeResponse?.code as string);
 				if (!authorizationCode) {
-					console.error('🚨 [Redirectless] No authorization code in response:', step3Json);
 					throw new Error('No authorization code returned by resume');
 				}
 				console.log(
@@ -1860,7 +1842,6 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 
 				if (!tokenResp.ok) {
 					const errorText = await tokenResp.text();
-					console.error('🚨 [Redirectless] Step 4 failed:', tokenResp.status, errorText);
 					throw new Error(`Token exchange failed (${tokenResp.status}): ${errorText}`);
 				}
 				const tokens = await tokenResp.json();
@@ -1917,20 +1898,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 					duration: 3000,
 				});
 			} catch (e) {
-				console.error('🚨 [Redirectless] Full error details:', e);
-				console.error(
-					'🚨 [Redirectless] Error stack:',
-					e instanceof Error ? e.stack : 'No stack trace'
-				);
-				console.error(
-					'🚨 [Redirectless] Error message:',
-					e instanceof Error ? e.message : 'Unknown error'
-				);
-				console.error('🚨 [Redirectless] Error type:', typeof e);
-				console.error('🚨 [Redirectless] Error constructor:', e?.constructor?.name);
-
 				const errorMessage = e instanceof Error ? e.message : 'Redirectless flow failed';
-				console.error('🚨 [Redirectless] Showing toast with message:', errorMessage);
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
@@ -1981,10 +1949,6 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 		if (!normalizedCredentials.environmentId) missingFields.push('Environment ID');
 
 		if (missingFields.length > 0) {
-			console.error('🚨 [TokenExchange] Missing required credentials:', {
-				normalizedCredentials,
-				missingFields,
-			});
 			controller.setCredentials(normalizedCredentials);
 			setCredentials(normalizedCredentials);
 			modernMessaging.showBanner({
@@ -2059,8 +2023,6 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 				duration: 3000,
 			});
 		} catch (error) {
-			console.error('[AuthorizationCodeFlowV5] Token exchange failed:', error);
-
 			// Update API call with error response
 			const errorApiCall: EnhancedApiCallData = {
 				...tokenExchangeApiCallData,
@@ -2232,8 +2194,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 		try {
 			const header = decodeJWTHeader(token);
 			return header.x5t || header['x5t#S256'] || null;
-		} catch (error) {
-			console.warn('[AuthorizationCodeFlowV5] Failed to decode JWT header for x5t:', error);
+		} catch (_error) {
 			return null;
 		}
 	}, []);

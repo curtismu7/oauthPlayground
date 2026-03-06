@@ -1493,9 +1493,6 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 				);
 
 				if (!success) {
-					console.error(
-						'[Device Authorization V7] Failed to save credentials to comprehensive service'
-					);
 					modernMessaging.showBanner({
 						type: 'error',
 						title: 'Error',
@@ -1506,7 +1503,6 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 					console.log('✅ [Device Authorization V7] Credentials saved successfully');
 				}
 			} catch (error) {
-				console.error('[Device Authorization V7] Failed to save credentials:', error);
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
@@ -1713,8 +1709,8 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 			console.log(
 				'🔄 [DeviceAuthorizationFlowV9] Reset: cleared ConfigChecker and pre-flight cache data'
 			);
-		} catch (error) {
-			console.warn('[DeviceAuthorizationFlowV9] Failed to clear cache data:', error);
+		} catch (_error) {
+			// Background cache clear — non-critical
 		}
 
 		// Clear Device Authorization Flow V9-specific storage with error handling
@@ -1722,7 +1718,6 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 			FlowCredentialService.clearFlowState('device-authorization-v9');
 			console.log('🔧 [Device Authorization V7] Cleared flow-specific storage');
 		} catch (error) {
-			console.error('[Device Authorization V7] Failed to clear flow state:', error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1735,8 +1730,8 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 		try {
 			clearBackup();
 			console.log('🔧 [Device Authorization V7] Cleared credential backup');
-		} catch (error) {
-			console.error('[Device Authorization V7] Failed to clear credential backup:', error);
+		} catch (_error) {
+			// Background credential backup clear — non-critical
 		}
 	}, [deviceFlow, clearBackup]);
 
@@ -3200,7 +3195,6 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 							}
 						}
 					} catch (error) {
-						console.error('[Device Authz V7] Failed to save credentials:', error);
 						modernMessaging.showBanner({
 							type: 'error',
 							title: 'Error',

@@ -297,8 +297,6 @@ const OIDCHybridFlowV9: React.FC = () => {
 			FlowCredentialService.saveFlowCredentials('hybrid-flow-v7', controller.credentials, {
 				showToast: false,
 			}).catch((error) => {
-				console.error('[OIDC Hybrid V7] Failed to save credentials to V7 storage:', error);
-				// Show user-friendly error message
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
@@ -423,7 +421,6 @@ const OIDCHybridFlowV9: React.FC = () => {
 				duration: 3000,
 			});
 		} catch (error) {
-			console.error('[OIDCHybridFlowV7] Failed to generate authorization URL', error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -491,7 +488,12 @@ const OIDCHybridFlowV9: React.FC = () => {
 				duration: 3000,
 			});
 		} catch (error) {
-			console.error('[OIDCHybridFlowV7] Token exchange failed', error);
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: error instanceof Error ? error.message : 'Token exchange failed. Please try again.',
+				dismissible: true,
+			});
 		} finally {
 			setIsExchanging(false);
 		}
@@ -508,7 +510,6 @@ const OIDCHybridFlowV9: React.FC = () => {
 			FlowCredentialService.clearFlowState('hybrid-flow-v7');
 			console.log('🔧 [OIDC Hybrid V7] Cleared flow-specific storage');
 		} catch (error) {
-			console.error('[OIDC Hybrid V7] Failed to clear flow state:', error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -521,8 +522,8 @@ const OIDCHybridFlowV9: React.FC = () => {
 		try {
 			clearBackup();
 			console.log('🔧 [OIDC Hybrid V7] Cleared credential backup');
-		} catch (error) {
-			console.error('[OIDC Hybrid V7] Failed to clear credential backup:', error);
+		} catch (_error) {
+			// Background credential backup clear — non-critical
 		}
 	}, [controller, clearBackup]);
 

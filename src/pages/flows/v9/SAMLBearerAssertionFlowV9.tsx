@@ -366,8 +366,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 			return typeof window !== 'undefined' && window.btoa
 				? window.btoa(generatedSAML)
 				: btoa(generatedSAML);
-		} catch (error) {
-			console.error('[SAML Bearer V9] Failed to encode SAML assertion to Base64:', error);
+		} catch (_error) {
 			return '';
 		}
 	}, [generatedSAML]);
@@ -380,8 +379,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 			return typeof window !== 'undefined' && window.atob
 				? window.atob(base64SAML)
 				: atob(base64SAML);
-		} catch (error) {
-			console.error('[SAML Bearer V9] Failed to decode Base64 SAML assertion:', error);
+		} catch (_error) {
 			return '';
 		}
 	}, [showDecodedSAML, base64SAML]);
@@ -404,7 +402,6 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 				duration: 3000,
 			});
 		} catch (error) {
-			console.error('[SAML Bearer V9] Failed to copy to clipboard:', error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -454,9 +451,8 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 						duration: 3000,
 					});
 				}
-			} catch (error) {
-				console.warn('[SAML Bearer V9] OIDC Discovery failed:', error);
-				// Don't show error toast - user can manually enter endpoints
+			} catch (_error) {
+				// OIDC Discovery failed — user can manually enter endpoints
 			}
 		};
 
@@ -522,7 +518,6 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 				duration: 3000,
 			});
 		} catch (error) {
-			console.error('[SAML Bearer V9] Error generating SAML assertion:', error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -544,8 +539,8 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 
 		try {
 			await SAMLAssertionService.saveConfiguration(config);
-		} catch (error) {
-			console.error('[SAML Bearer V9] Error saving configuration:', error);
+		} catch (_error) {
+			// Background config save — non-critical
 		}
 	}, [clientId, tokenEndpoint, identityProvider, samlAssertion]);
 
@@ -580,8 +575,8 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 					duration: 3000,
 				});
 			}
-		} catch (error) {
-			console.error('[SAML Bearer V9] Error loading configuration:', error);
+		} catch (_error) {
+			// Config load — non-critical
 		}
 	}, [normalizeAttributes]);
 
@@ -612,8 +607,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 
 				// Then load SAML-specific configuration (will override if exists)
 				loadSAMLConfiguration();
-			} catch (error) {
-				console.error('[SAML Bearer V9] Error loading credentials:', error);
+			} catch (_error) {
 				// Fallback to SAML-specific configuration only
 				loadSAMLConfiguration();
 			}
@@ -725,7 +719,6 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 				duration: 3000,
 			});
 		} catch (error) {
-			console.error('[SAML Bearer Mock] Error in simulation:', error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
