@@ -18,7 +18,6 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import ColoredUrlDisplay from '../../../components/ColoredUrlDisplay';
 import { LearningTooltip } from '../../../components/LearningTooltip';
 import SecurityFeaturesDemo from '../../../components/SecurityFeaturesDemo';
-import { StepNavigationButtons } from '../../../components/StepNavigationButtons';
 import TokenIntrospect from '../../../components/TokenIntrospect';
 import { useCredentialBackup } from '../../../hooks/useCredentialBackup';
 import { useHybridFlowControllerV9 } from '../../../hooks/useHybridFlowControllerV9';
@@ -1444,18 +1443,6 @@ const OIDCHybridFlowV9: React.FC = () => {
 					{renderStepContent}
 				</MainCard>
 
-				<StepNavigationButtons
-					currentStep={currentStep}
-					totalSteps={STEP_METADATA.length}
-					onPrevious={handlePreviousStep}
-					onNext={handleNextStep}
-					onReset={handleReset}
-					canNavigateNext={canNavigateNext()}
-					isFirstStep={currentStep === 0}
-					nextButtonText="Next"
-					disabledMessage={getStepValidationMessage(currentStep)}
-					stepRequirements={STEP_METADATA.map((s) => s.description ?? '')}
-				/>
 			</ContentWrapper>
 		</Container>
 	);
