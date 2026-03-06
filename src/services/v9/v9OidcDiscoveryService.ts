@@ -3,6 +3,7 @@
 
 // Import Modern Messaging (V9) - proper migration to non-toast messaging
 import { modernMessaging } from '../../components/v9/V9ModernMessagingComponents';
+import { logger } from '../../utils/logger';
 import { type OIDCDiscoveryDocument, oidcDiscoveryService } from '../oidcDiscoveryService';
 
 // V9 Wrapper Service - wraps original with Modern Messaging
@@ -11,7 +12,7 @@ const V9OidcDiscoveryService = {
 	async discover(config: { issuerUrl: string; timeout?: number; cacheTimeout?: number }) {
 		try {
 			// Add V9 logging for discovery attempt
-			console.log(`[V9 OIDC Discovery] Starting discovery for: ${config.issuerUrl}`);
+			logger.info('V9OidcDiscovery', 'Starting discovery', { issuerUrl: config.issuerUrl });
 			modernMessaging.showFooterMessage({
 				type: 'info',
 				message: 'Discovering OIDC endpoints...',
@@ -35,14 +36,13 @@ const V9OidcDiscoveryService = {
 						duration: 4000,
 					});
 				}
-				console.log(`[V9 OIDC Discovery] Discovery successful for: ${result.issuerUrl}`);
+				logger.info('V9OidcDiscovery', 'Discovery successful', { issuerUrl: result.issuerUrl });
 			} else {
 				modernMessaging.showCriticalError({
 					title: 'Discovery Failed',
 					message: `Discovery failed: ${result.error}`,
 					contactSupport: false,
 				});
-
 			}
 
 			return result;
@@ -65,9 +65,9 @@ const V9OidcDiscoveryService = {
 	extractEnvironmentId(issuerUrl: string): string | null {
 		try {
 			const result = oidcDiscoveryService.extractEnvironmentId(issuerUrl);
-			console.log(`[V9 OIDC Discovery] Extracted environment ID: ${result}`);
+			logger.info('V9OidcDiscovery', 'Extracted environment ID', { result });
 			return result;
-		} catch (error) {
+		} catch (_error) {
 			modernMessaging.showCriticalError({
 				title: 'Environment ID Extraction Failed',
 				message: 'Failed to extract environment ID from issuer URL',
@@ -91,9 +91,9 @@ const V9OidcDiscoveryService = {
 				clientSecret,
 				redirectUri
 			);
-			console.log(`[V9 OIDC Discovery] Converted discovery document to credentials`);
+			logger.info('V9OidcDiscovery', 'Converted discovery document to credentials');
 			return result;
-		} catch (error) {
+		} catch (_error) {
 			modernMessaging.showCriticalError({
 				title: 'Credentials Conversion Failed',
 				message: 'Failed to convert discovery document to credentials',
@@ -112,8 +112,8 @@ const V9OidcDiscoveryService = {
 				message: 'Discovery cache cleared',
 				duration: 3000,
 			});
-			console.log('[V9 OIDC Discovery] Cache cleared');
-		} catch (error) {
+			logger.info('V9OidcDiscovery', 'Cache cleared');
+		} catch (_error) {
 			modernMessaging.showCriticalError({
 				title: 'Cache Clear Failed',
 				message: 'Failed to clear discovery cache',
@@ -126,9 +126,9 @@ const V9OidcDiscoveryService = {
 	getCacheStats() {
 		try {
 			const result = oidcDiscoveryService.getCacheStats();
-			console.log(`[V9 OIDC Discovery] Cache stats: ${result.size} entries`);
+			logger.info('V9OidcDiscovery', 'Cache stats', { size: result.size });
 			return result;
-		} catch (error) {
+		} catch (_error) {
 			modernMessaging.showCriticalError({
 				title: 'Cache Stats Failed',
 				message: 'Failed to get cache statistics',
@@ -140,7 +140,7 @@ const V9OidcDiscoveryService = {
 
 	// Add V9-specific logging for discovery operations
 	logDiscoveryOperation(operation: string, details?: unknown) {
-		console.log(`[V9 OIDC Discovery] ${operation}`, details);
+		logger.info('V9OidcDiscovery', operation, details as Record<string, unknown> | undefined);
 	},
 
 	// Add V9 validation helper
@@ -167,7 +167,7 @@ const V9OidcDiscoveryService = {
 				});
 				return false;
 			}
-		} catch (error) {
+		} catch (_error) {
 			modernMessaging.showCriticalError({
 				title: 'URL Validation Failed',
 				message: 'Issuer URL validation failed',

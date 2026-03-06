@@ -9,8 +9,10 @@
  * Once saved, it's automatically used across all flows.
  */
 
-const MODULE_TAG = '[🌍 ENVIRONMENT-ID-SERVICE-V8]';
+const MODULE_TAG = 'EnvironmentIdServiceV8';
 const STORAGE_KEY = 'v8:global_environment_id';
+
+import { logger } from '../../utils/logger';
 
 declare global {
 	interface Window {
@@ -29,15 +31,13 @@ export class EnvironmentIdServiceV8 {
 		try {
 			const stored = localStorage.getItem(STORAGE_KEY);
 			if (stored) {
-				// Only log if debug mode is enabled or if this is the first call
 				if (typeof window !== 'undefined' && !window.__envIdLogged) {
-					console.log(`${MODULE_TAG} Retrieved stored environment ID`);
+					logger.info(MODULE_TAG, 'Retrieved stored environment ID');
 					window.__envIdLogged = true;
 				}
 				return stored;
 			}
-		} catch (error) {
-		}
+		} catch (_error) {}
 		return '';
 	}
 
@@ -55,7 +55,7 @@ export class EnvironmentIdServiceV8 {
 		if (typeof window !== 'undefined') {
 			window.resetEnvironmentIdLogging = () => {
 				EnvironmentIdServiceV8.resetLoggingState();
-				console.log('🔧 Environment ID logging state reset');
+				logger.info(MODULE_TAG, 'Logging state reset');
 			};
 		}
 	}
@@ -72,15 +72,14 @@ export class EnvironmentIdServiceV8 {
 		try {
 			const trimmed = environmentId.trim();
 			localStorage.setItem(STORAGE_KEY, trimmed);
-			console.log(`${MODULE_TAG} Saved environment ID`);
+			logger.info(MODULE_TAG, 'Saved environment ID');
 
 			// Add to history (new feature)
 			EnvironmentIdServiceV8.addToHistory(trimmed);
 
 			// Dispatch event so components can react
 			window.dispatchEvent(new Event('environmentIdUpdated'));
-		} catch (error) {
-		}
+		} catch (_error) {}
 	}
 
 	/**
@@ -89,10 +88,9 @@ export class EnvironmentIdServiceV8 {
 	static clearEnvironmentId(): void {
 		try {
 			localStorage.removeItem(STORAGE_KEY);
-			console.log(`${MODULE_TAG} Cleared environment ID`);
+			logger.info(MODULE_TAG, 'Cleared environment ID');
 			window.dispatchEvent(new Event('environmentIdUpdated'));
-		} catch (error) {
-		}
+		} catch (_error) {}
 	}
 
 	/**
@@ -186,7 +184,7 @@ export class EnvironmentIdServiceV8 {
 
 			const ids = JSON.parse(history) as string[];
 			return ids.slice(0, limit);
-		} catch (error) {
+		} catch (_error) {
 			return [];
 		}
 	}
@@ -208,7 +206,7 @@ export class EnvironmentIdServiceV8 {
 			const updated = [envId, ...filtered].slice(0, 10);
 
 			localStorage.setItem('v8:env_id_history', JSON.stringify(updated));
-			console.log(`${MODULE_TAG} Added to history (total: ${updated.length})`);
+			logger.info(MODULE_TAG, 'Added to history', { total: updated.length });
 		} catch {
 			// Silent fail - history is not critical
 		}
@@ -220,9 +218,8 @@ export class EnvironmentIdServiceV8 {
 	static clearHistory(): void {
 		try {
 			localStorage.removeItem('v8:env_id_history');
-			console.log(`${MODULE_TAG} Cleared environment ID history`);
-		} catch (error) {
-		}
+			logger.info(MODULE_TAG, 'Cleared environment ID history');
+		} catch (_error) {}
 	}
 
 	/**
