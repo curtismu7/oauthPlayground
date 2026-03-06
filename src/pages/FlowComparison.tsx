@@ -3,11 +3,6 @@ import { FlowComparisonTool } from '../components/FlowComparisonTool';
 import { usePageScroll } from '../hooks/usePageScroll';
 import PageLayoutService from '../services/pageLayoutService';
 
-const FlowComparison: React.FC = () => {
-	usePageScroll({ pageName: 'Flow Comparison', force: true });
-
-	// Use V6 pageLayoutService for consistent dimensions and FlowHeader integration
-
 // Layout components at module scope — styled-components v6 calls useContext
 // internally when creating styled components; must not run inside a component.
 const pageConfig = {

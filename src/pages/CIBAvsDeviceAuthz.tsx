@@ -197,16 +197,6 @@ const UseCaseCard = styled(Card)`
   border-left: 4px solid #10b981;
 `;
 
-const CIBAvsDeviceAuthz: React.FC = () => {
-	usePageScroll({ pageName: 'CIBA vs Device Authorization', force: true });
-
-	const handleCopyCode = (code: string, description: string) => {
-		copyToClipboard(code);
-		showFlowSuccess(`Copied ${description} to clipboard`);
-	};
-
-	// Use PageLayoutService for consistent layout and FlowHeader integration
-
 // Layout components at module scope — styled-components v6 calls useContext
 // internally when creating styled components; must not run inside a component.
 const pageConfig = {
