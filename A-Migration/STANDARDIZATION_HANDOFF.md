@@ -1,6 +1,6 @@
 # Standardization Handoff — OAuth Playground V9
 
-**Last updated:** March 6, 2026 — HEAD at `8eb74df06`  
+**Last updated:** March 6, 2026 — HEAD at `8a0efe7df`  
 **Prepared for:** Any programmer picking up this work  
 **Branch:** `main` — **always `git fetch && git status` before starting work**
 
@@ -17,15 +17,71 @@
 | V9 flows: `V9CredentialStorageService` | ✅ **DONE** | All 16 V9 flows have it |
 | V9 flows: `CompactAppPickerV8U` | ✅ **DONE** | All 16 V9 flows have it |
 | App Lookup Service (`CompactAppPickerV8U`) — all credential flows | ✅ **DONE** | All flows with credentials now use CompactAppPickerV9 with V9 standardization. See [COMPACT_APP_PICKER_V9_COMPLETE_MIGRATION_REPORT.md](./COMPACT_APP_PICKER_V9_COMPLETE_MIGRATION_REPORT.md) |
-| **NEW: Credentials Import/Export Service** | ✅ **DONE** | Standardized service created: `credentialsImportExportService.ts` + `CredentialsImportExport.tsx` component. 3/13 non-V9 flows have it. See [CREDENTIALS_IMPORT_EXPORT_INVENTORY.md](./CREDENTIALS_IMPORT_EXPORT_INVENTORY.md) |
-| **NEW: CompactAppPickerV8U → V9 Migration** | ✅ **DONE** | Migrated to `CompactAppPickerV9` with V9 standardization, enhanced features, and improved TypeScript. See [COMPACT_APP_PICKER_V9_MIGRATION.md](./COMPACT_APP_PICKER_V9_MIGRATION.md) |
+| **Credentials Import/Export Service** | ✅ **DONE** | Standardized service created: `credentialsImportExportService.ts` + `CredentialsImportExport.tsx` component. 3/13 non-V9 flows have it. See [CREDENTIALS_IMPORT_EXPORT_INVENTORY.md](./CREDENTIALS_IMPORT_EXPORT_INVENTORY.md) |
+| **CompactAppPickerV8U → V9 Migration** | ✅ **DONE** | Migrated to `CompactAppPickerV9` with V9 standardization, enhanced features, and improved TypeScript. See [COMPACT_APP_PICKER_V9_MIGRATION.md](./COMPACT_APP_PICKER_V9_MIGRATION.md) |
 | V9 flows: zero `toastV8` calls | ✅ **DONE** | 0 actual calls (comments only) |
 | V9 flows: `console.error/warn` | ✅ **DONE** | 0 violations in all V9 flows — WorkerTokenFlowV9 1 occurrence exempt (inside `<pre>` tag). CIBAFlowV9 + RedirectlessFlowV9_Real (13 violations) fixed commit `8eb74df06` |
 | V9 services: `console.error/warn` | ✅ **DONE** | 48 violations removed across 13 service files (commit `d2948f543`) — 2 false positives skipped (postmanCollectionGeneratorV9 template strings, credentialsServiceV9 JSDoc) |
 | Non-V9 flow files: `console.error/warn` | ✅ **DONE** | 26 violations removed across 6 files: DPoPFlow, IDTokensFlow, PARFlow, SAMLServiceProviderFlowV1, UserInfoFlow, KrogerGroceryStoreMFA (commit `ac7089a02`) — 4 false positives skipped (MFAFlow + PingOneLogoutFlow template strings) |
 | Floating `StepNavigationButtons` removal | ✅ **DONE** | Remove draggable fixed-position stepper widget from all V9 flows — COMPLETED: All 6 V9 flows cleaned (OIDCHybridFlowV9, DeviceAuthorizationFlowV9, MFAWorkflowLibraryFlowV9, ClientCredentialsFlowV9, WorkerTokenFlowV9, RARFlowV9) + CIBAFlowV9, RedirectlessFlowV9_Real |
-| **NEW: Logging Implementation Plan** | ✅ **DONE** | Comprehensive 5-week plan created (see docs/standards/logging-implementation-plan.md) |
-| **NEW: Comprehensive Status Assessment** | ✅ **DONE** | Complete technical debt analysis (see COMPREHENSIVE_STANDARDIZATION_STATUS.md) |
+| **Logging Implementation Plan** | ✅ **DONE** | Comprehensive 5-week plan created (see docs/standards/logging-implementation-plan.md) |
+| **Comprehensive Status Assessment** | ✅ **DONE** | Complete technical debt analysis (see COMPREHENSIVE_STANDARDIZATION_STATUS.md) |
+| **`console.*` → `logger` migration (services)** | ✅ **DONE** | ~615 calls replaced across 90+ service files in 6 batches (commits `7f2b2603`→`8a0efe7`). See table below. |
+
+---
+
+## Logger Migration Summary (March 2026)
+
+All `console.*` calls in `src/services/` have been replaced with structured `logger.*` calls. The only remaining console calls are **intentional policy exceptions**.
+
+### Completed batches
+
+| Commit | Files | Calls | Description |
+|---|---|---|---|
+| `7f2b2603` | 18 | 161 | Utility/infra services (callbackUri, logFile, networkStatus, tokenExpiration, etc.) |
+| `402c7a69e` | 17 | 179 | Mid-size services (CommonSpinner, environmentV8, comprehensiveDiscovery, credentialBackup, fido2, workerToken*, etc.) |
+| `7767ab2` | 25 | 70 | Small services (1–5 calls each: credentialsImportExport, sharedService, rarService, etc.) |
+| `4cbf05b` | 1 | 2 | `codeExamplesService.ts` (58 template-literal calls left intentionally) |
+| `5a4cd25` | 1 | 55 | `comprehensiveFlowDataService.ts` (incl. `console.group`/`groupEnd` removed) |
+| `1315774` | 20 | 59 | `.tsx` service files (20 files, all small call counts) |
+| `8a0efe7` | 1 | 71 | `comprehensiveCredentialsService.tsx` |
+
+### Intentional policy exceptions (do NOT migrate these)
+
+| File | Reason |
+|---|---|
+| `src/services/loggingService.ts` | IS the logger output sink — console calls are intentional |
+| `src/services/config.ts` | Startup validation — runs before logger initialises |
+| `src/services/codeGeneration/**` (10 files) | All console calls are inside template literal strings (generated code examples) |
+| `src/services/postmanCollectionGeneratorV8.ts` | All 675 calls are embedded Postman test script strings |
+| `src/services/configurationManagerCLI.js` | Node CLI tool — console IS the output mechanism |
+| `src/services/configurationManagerDemo.js` | Ditto |
+| `src/services/serviceDiscoveryCLI.js` | Ditto |
+
+### Auth-path services — deferred (programmer review required)
+
+These 7 files contain active authentication logic. They were **deliberately skipped** to avoid breaking auth flows. A programmer familiar with the auth code should migrate them.
+
+| File | Calls | Notes |
+|---|---|---|
+| `flowCredentialService.ts` | 53 | Core credential storage |
+| `passwordResetService.ts` | 44 | MFA/password reset flow |
+| `redirectlessAuthService.ts` | 41 | Redirectless auth |
+| `authorizationCodeSharedService.ts` | 33 | Shared auth code service |
+| `flowCredentialIsolationService.ts` | 33 | Per-flow credential isolation |
+| `pingOneMfaService.ts` | 27 | PingOne MFA integration |
+| `implicitFlowSharedService.ts` | 23 | Implicit flow shared code |
+
+### Logger API (for migrating the remaining files above)
+
+```ts
+import { logger } from '../utils/logger'; // adjust relative depth for v9/
+
+logger.info('ServiceName', 'Human-readable message');
+logger.warn('ServiceName', 'Something unexpected', { contextData });
+logger.error('ServiceName', 'Operation failed', undefined, error);
+logger.debug('ServiceName', 'Detailed trace', { payload });
+```
 
 ---
 
