@@ -1214,7 +1214,7 @@ deviceFlowAuth()
     saveToDeviceStorage(tokens);
   })
   .catch(error => {
-    console.error('❌ Authorization failed:', error.message);
+    logger.error('RealWorldScenarioBuilder', '❌ Authorization failed:', { message: error.message });
   });`,
 			python: `# IoT Device / Smart TV OAuth (Device Flow)
 import requests
@@ -1294,6 +1294,7 @@ import java.net.http.*;
 import java.net.URI;
 import java.util.Map;
 import com.google.gson.Gson;
+import { logger } from '../utils/logger';
 
 public class DeviceFlowAuth {
     private String envId;

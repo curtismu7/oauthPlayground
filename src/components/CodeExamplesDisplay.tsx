@@ -9,6 +9,7 @@ import {
 	CodeExamplesService,
 	SupportedLanguage,
 } from '../services/codeExamplesService';
+import { logger } from '../utils/logger';
 
 interface CodeExamplesDisplayProps {
 	flowType: string;
@@ -237,7 +238,7 @@ export const CodeExamplesDisplay: React.FC<CodeExamplesDisplayProps> = ({
 			setCopiedCode(code);
 			setTimeout(() => setCopiedCode(null), 2000);
 		} catch (err) {
-			console.error('Failed to copy code:', err);
+			logger.error('CodeExamplesDisplay', 'Failed to copy code:', undefined, err as Error);
 		}
 	};
 

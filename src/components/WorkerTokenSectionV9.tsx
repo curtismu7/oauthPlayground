@@ -137,18 +137,10 @@ const Btn = styled.button<{ $variant: 'primary' | 'danger' | 'success' }>`
 	transition: background 0.15s, transform 0.1s;
 	color: white;
 	background: ${({ $variant }) =>
-		$variant === 'primary'
-			? '#2563eb'
-			: $variant === 'success'
-				? '#10b981'
-				: '#ef4444'};
+		$variant === 'primary' ? '#2563eb' : $variant === 'success' ? '#10b981' : '#ef4444'};
 	&:hover {
 		background: ${({ $variant }) =>
-			$variant === 'primary'
-				? '#1d4ed8'
-				: $variant === 'success'
-					? '#059669'
-					: '#dc2626'};
+			$variant === 'primary' ? '#1d4ed8' : $variant === 'success' ? '#059669' : '#dc2626'};
 		transform: translateY(-1px);
 	}
 	&:active {
@@ -194,7 +186,9 @@ export const WorkerTokenSectionV9: React.FC<WorkerTokenSectionV9Props> = ({
 	// Initial check + listen for global updates
 	useEffect(() => {
 		updateStatus();
-		const handler = () => { void updateStatus(); };
+		const handler = () => {
+			void updateStatus();
+		};
 		window.addEventListener('workerTokenUpdated', handler);
 		return () => window.removeEventListener('workerTokenUpdated', handler);
 	}, [updateStatus]);
@@ -210,9 +204,18 @@ export const WorkerTokenSectionV9: React.FC<WorkerTokenSectionV9Props> = ({
 		setIsRefreshing(true);
 		try {
 			await updateStatus();
-			modernMessaging.showFooterMessage({ type: 'status', message: 'Worker token status refreshed', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'Worker token status refreshed',
+				duration: 3000,
+			});
 		} catch {
-			modernMessaging.showBanner({ type: 'error', title: 'Refresh failed', message: 'Failed to refresh worker token status', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Refresh failed',
+				message: 'Failed to refresh worker token status',
+				dismissible: true,
+			});
 		} finally {
 			setIsRefreshing(false);
 		}
@@ -222,17 +225,27 @@ export const WorkerTokenSectionV9: React.FC<WorkerTokenSectionV9Props> = ({
 		try {
 			await unifiedWorkerTokenService.clearToken();
 			window.dispatchEvent(new Event('workerTokenUpdated'));
-			modernMessaging.showFooterMessage({ type: 'status', message: 'Worker token cleared', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'Worker token cleared',
+				duration: 3000,
+			});
 		} catch {
-			modernMessaging.showBanner({ type: 'error', title: 'Clear failed', message: 'Failed to clear worker token', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Clear failed',
+				message: 'Failed to clear worker token',
+				dismissible: true,
+			});
 		}
 	};
 
-	const expiryLabel = tokenStatus.minutesRemaining !== undefined
-		? tokenStatus.minutesRemaining > 60
-			? `Expires in ${Math.floor(tokenStatus.minutesRemaining / 60)}h ${tokenStatus.minutesRemaining % 60}m`
-			: `Expires in ${tokenStatus.minutesRemaining}m`
-		: null;
+	const expiryLabel =
+		tokenStatus.minutesRemaining !== undefined
+			? tokenStatus.minutesRemaining > 60
+				? `Expires in ${Math.floor(tokenStatus.minutesRemaining / 60)}h ${tokenStatus.minutesRemaining % 60}m`
+				: `Expires in ${tokenStatus.minutesRemaining}m`
+			: null;
 
 	return (
 		<>
@@ -254,23 +267,33 @@ export const WorkerTokenSectionV9: React.FC<WorkerTokenSectionV9Props> = ({
 					<div>
 						<StatusText $valid={tokenStatus.isValid}>
 							{tokenStatus.isValid ? (
-								<><FiCheckCircle size={12} style={{ marginRight: 4, verticalAlign: 'middle' }} />Active</>
+								<>
+									<FiCheckCircle size={12} style={{ marginRight: 4, verticalAlign: 'middle' }} />
+									Active
+								</>
 							) : (
-								<><FiAlertCircle size={12} style={{ marginRight: 4, verticalAlign: 'middle' }} />Not configured</>
+								<>
+									<FiAlertCircle size={12} style={{ marginRight: 4, verticalAlign: 'middle' }} />
+									Not configured
+								</>
 							)}
 						</StatusText>
-						{!tokenStatus.isValid && (
-							<StatusSub>{tokenStatus.message}</StatusSub>
-						)}
-						{tokenStatus.isValid && expiryLabel && (
-							<ExpiryText>{expiryLabel}</ExpiryText>
-						)}
+						{!tokenStatus.isValid && <StatusSub>{tokenStatus.message}</StatusSub>}
+						{tokenStatus.isValid && expiryLabel && <ExpiryText>{expiryLabel}</ExpiryText>}
 						{tokenStatus.isValid && tokenStatus.environmentId && (
 							<ExpiryText>Env: {tokenStatus.environmentId}</ExpiryText>
 						)}
 					</div>
-					<RefreshBtn type="button" onClick={() => void handleRefresh()} disabled={isRefreshing} title="Refresh status">
-						<FiRefreshCw size={12} style={{ animation: isRefreshing ? 'spin 1s linear infinite' : 'none' }} />
+					<RefreshBtn
+						type="button"
+						onClick={() => void handleRefresh()}
+						disabled={isRefreshing}
+						title="Refresh status"
+					>
+						<FiRefreshCw
+							size={12}
+							style={{ animation: isRefreshing ? 'spin 1s linear infinite' : 'none' }}
+						/>
 						Refresh
 					</RefreshBtn>
 				</StatusBox>

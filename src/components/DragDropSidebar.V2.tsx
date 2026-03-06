@@ -53,9 +53,13 @@ import {
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import {
+	type SerializableMenuGroup,
+	V9CredentialStorageService,
+} from '../services/v9/V9CredentialStorageService';
+import { logger } from '../utils/logger';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import MenuVersionBadge from './MenuVersionBadge';
-import { V9CredentialStorageService, type SerializableMenuGroup } from '../services/v9/V9CredentialStorageService';
 
 const ColoredIcon = styled.div<{ $color: string }>`
 	color: ${(props) => props.$color};
@@ -369,7 +373,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 
 				// Removed toast to prevent setState during render
 			} catch (error) {
-				console.warn('❌ Failed to save menu layout:', error);
+				logger.warn('DragDropSidebar', '❌ Failed to save menu layout:', { error });
 				// Removed toast to prevent setState during render
 			}
 		},
@@ -1980,26 +1984,26 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 
 		// V9 Storage keys for sidebar menu persistence
 		const SIDEBAR_STORAGE_KEY = 'sidebar-menu-configuration';
-		
+
 		// Menu structure version - increment when menu structure changes significantly
 		const MENU_VERSION = '2.6'; // Moved SDK Examples to Production menu group
-		
+
 		// Try to restore from V9 storage
 		const savedSidebarData = V9CredentialStorageService.loadSync(SIDEBAR_STORAGE_KEY);
 		const savedVersion = savedSidebarData?.version;
-		
+
 		// If version changed, clear old menu layout and use new structure
 		if (savedVersion !== MENU_VERSION) {
 			console.log('🔄 Menu version changed, using default structure');
-			V9CredentialStorageService.save(SIDEBAR_STORAGE_KEY, { 
+			V9CredentialStorageService.save(SIDEBAR_STORAGE_KEY, {
 				version: MENU_VERSION,
-				menuOrder: null 
+				menuOrder: null,
 			});
-			
+
 			// Clear old localStorage data if exists
 			localStorage.removeItem('simpleDragDropSidebar.menuOrder');
 			localStorage.removeItem('simpleDragDropSidebar.menuVersion');
-			
+
 			return defaultGroups;
 		}
 
@@ -2010,7 +2014,9 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				console.log('🔄 Restoring menu layout from V9 storage');
 				return restoreMenuGroups(serializedGroups, defaultGroups);
 			} catch (error) {
-				console.warn('Failed to parse saved menu order from V9 storage:', error);
+				logger.warn('DragDropSidebar', 'Failed to parse saved menu order from V9 storage:', {
+					error,
+				});
 			}
 		}
 
@@ -2021,20 +2027,22 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				const serializedGroups = JSON.parse(savedOrder);
 				console.log('🔄 Migrating menu layout from localStorage to V9 storage');
 				const restoredGroups = restoreMenuGroups(serializedGroups, defaultGroups);
-				
+
 				// Save to V9 storage after successful migration
 				V9CredentialStorageService.save(SIDEBAR_STORAGE_KEY, {
 					version: MENU_VERSION,
-					menuOrder: createSerializableGroups(restoredGroups)
+					menuOrder: createSerializableGroups(restoredGroups),
 				});
-				
+
 				// Clear old localStorage data
 				localStorage.removeItem('simpleDragDropSidebar.menuOrder');
 				localStorage.removeItem('simpleDragDropSidebar.menuVersion');
-				
+
 				return restoredGroups;
 			} catch (error) {
-				console.warn('Failed to migrate saved menu order from localStorage:', error);
+				logger.warn('DragDropSidebar', 'Failed to migrate saved menu order from localStorage:', {
+					error,
+				});
 			}
 		}
 
@@ -2050,13 +2058,13 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 			const serializable = createSerializableGroups(menuGroups);
 			localStorage.setItem('simpleDragDropSidebar.menuOrder', JSON.stringify(serializable));
 			localStorage.setItem('simpleDragDropSidebar.menuVersion', '2.2');
-			
+
 			// Also save to V9 storage for consistency
 			V9CredentialStorageService.save('sidebar-menu-configuration', {
 				version: '2.6',
-				menuOrder: serializable
+				menuOrder: serializable,
 			});
-			
+
 			console.log('💾 Menu layout saved to both localStorage and V9 storage:', serializable);
 
 			setSaveButtonState('saved');
@@ -2068,7 +2076,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 
 			// Removed toast to prevent setState during render
 		} catch (error) {
-			console.warn('❌ Failed to save menu layout:', error);
+			logger.warn('DragDropSidebar', '❌ Failed to save menu layout:', { error });
 			setSaveButtonState('default');
 			// Removed toast to prevent setState during render
 		}
@@ -2083,7 +2091,10 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 					const seenIds = new Set<string>();
 					const uniqueItems = group.items.filter((item) => {
 						if (seenIds.has(item.id)) {
-							console.warn(`[DragDropSidebar] Removing duplicate menu item: ${item.id}`);
+							logger.warn(
+								'DragDropSidebar',
+								`[DragDropSidebar] Removing duplicate menu item: ${item.id}`
+							);
 							return false;
 						}
 						seenIds.add(item.id);
@@ -2102,16 +2113,16 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 			const deduplicatedGroups = deduplicateGroups(menuGroups);
 
 			const serializable = createSerializableGroups(deduplicatedGroups);
-			
+
 			// Save to V9 storage
 			V9CredentialStorageService.save('sidebar-menu-configuration', {
 				version: '2.6',
-				menuOrder: serializable
+				menuOrder: serializable,
 			});
-			
+
 			console.log('💾 Menu layout saved to V9 storage');
 		} catch (error) {
-			console.warn('❌ Failed to persist menu layout:', error);
+			logger.warn('DragDropSidebar', '❌ Failed to persist menu layout:', { error });
 		}
 	}, [menuGroups, createSerializableGroups]);
 
@@ -2347,7 +2358,9 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				return data;
 			}
 		} catch (err) {
-			console.warn('Failed to parse drag data from dataTransfer:', err);
+			logger.warn('DragDropSidebar', 'Failed to parse drag data from dataTransfer:', {
+				error: err,
+			});
 		}
 
 		return null;

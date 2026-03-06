@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { copyToClipboard } from '../utils/clipboard';
 import { credentialManager } from '../utils/credentialManager';
+import { logger } from '../utils/logger';
 
 const Container = styled.div`
   background: #fef3c7;
@@ -226,7 +227,7 @@ const PingOneConfigSection: React.FC<PingOneConfigSectionProps> = ({
 			setCopied(true);
 			setTimeout(() => setCopied(false), 2000);
 		} catch (error) {
-			console.error('Failed to copy URL:', error);
+			logger.error('PingOneConfigSection', 'Failed to copy URL:', undefined, error as Error);
 		}
 	};
 

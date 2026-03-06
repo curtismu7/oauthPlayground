@@ -16,6 +16,7 @@ import {
 } from '@icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../utils/logger';
 
 interface PARInputInterfaceProps {
 	onPARDataSubmit: (parData: PARInputData) => void;
@@ -497,7 +498,7 @@ const PARInputInterface: React.FC<PARInputInterfaceProps> = ({
 			setCopiedText(label);
 			setTimeout(() => setCopiedText(''), 2000);
 		} catch (err) {
-			console.error('Failed to copy text: ', err);
+			logger.error('PARInputInterface', 'Failed to copy text: ', undefined, err as Error);
 		}
 	};
 

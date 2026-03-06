@@ -6,6 +6,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { setPasswordValue as setPasswordValueService } from '../../services/passwordResetService';
 import { lookupPingOneUser } from '../../services/pingOneUserProfileService';
+import { logger } from '../../utils/logger';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const HELIOMART_ACCENT_START = '#F59E0B';
@@ -262,7 +263,12 @@ export const PasswordSetValueTab: React.FC<PasswordSetValueTabProps> = ({
 				);
 			}
 		} catch (error) {
-			console.error('[PasswordSetValueTab] Lookup error:', error);
+			logger.error(
+				'PasswordSetValueTab',
+				'[PasswordSetValueTab] Lookup error:',
+				undefined,
+				error as Error
+			);
 			const errorMessage = error instanceof Error ? error.message : 'Failed to lookup user';
 			v4ToastManager.showError(
 				`${errorMessage}. Make sure the worker token has p1:read:user scope.`
