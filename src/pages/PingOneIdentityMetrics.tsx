@@ -14,10 +14,11 @@ import {
 	FiShield,
 } from '@icons';
 import React, { useCallback, useMemo, useState } from 'react';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import JSONHighlighter, { type JSONData } from '../components/JSONHighlighter';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
 import { apiRequestModalService } from '../services/apiRequestModalService';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { logger } from '../utils/logger';
 import { ShowTokenConfigCheckboxV8 } from '../v8/components/ShowTokenConfigCheckboxV8';
 import { SilentApiConfigCheckboxV8 } from '../v8/components/SilentApiConfigCheckboxV8';
 import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
@@ -314,7 +315,11 @@ const PingOneIdentityMetrics: React.FC = () => {
 	const _handleClearWorkerToken = useCallback(() => {
 		// Clear unified worker token
 		localStorage.removeItem('unified_worker_token');
-		modernMessaging.showFooterMessage({ type: 'info', message: 'Worker token cleared successfully.', duration: 3000 });
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message: 'Worker token cleared successfully.',
+			duration: 3000,
+		});
 		// Trigger page reload to reset state
 		window.location.reload();
 	}, []);
@@ -393,9 +398,18 @@ const PingOneIdentityMetrics: React.FC = () => {
 			const data: IdentityCountResponse = await response.json();
 			setMetrics(data);
 			setLastUpdated(new Date().toISOString());
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Identity metrics retrieved successfully!', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Identity metrics retrieved successfully!',
+				duration: 3000,
+			});
 		} catch (err) {
-			console.error('[PingOne Identity Metrics] Fetch failed:', err);
+			logger.error(
+				'PingOneIdentityMetrics',
+				'[PingOne Identity Metrics] Fetch failed:',
+				undefined,
+				err as Error
+			);
 			setMetrics(null);
 			setLastUpdated(null);
 			// Don't show error message for permissions errors as we show a modal instead

@@ -673,7 +673,11 @@ cleanupAfterRevocation(revocationResult);`,
 			/>
 
 			<CredentialsImportExport
-				credentials={{ clientId: formData.clientId, clientSecret: formData.clientSecret, environmentId: formData.environmentId }}
+				credentials={{
+					clientId: formData.clientId,
+					clientSecret: formData.clientSecret,
+					environmentId: formData.environmentId,
+				}}
 				options={{
 					flowType: 'token-revocation',
 					appName: 'Token Revocation Flow',

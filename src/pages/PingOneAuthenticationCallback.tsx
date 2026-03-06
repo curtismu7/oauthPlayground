@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { logger } from '../utils/logger';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { PKCEStorageServiceV8U } from '../v8u/services/pkceStorageServiceV8U';
 import {
@@ -157,11 +158,15 @@ const PingOneAuthenticationCallback: React.FC = () => {
 
 		if (!response.ok) {
 			const errorText = await response.text();
-			console.error('[PingOneAuthenticationCallback] Token exchange error:', {
-				status: response.status,
-				statusText: response.statusText,
-				errorText,
-			});
+			logger.error(
+				'PingOneAuthenticationCallback',
+				'[PingOneAuthenticationCallback] Token exchange error:',
+				{
+					status: response.status,
+					statusText: response.statusText,
+					errorText,
+				}
+			);
 			throw new Error(`Token exchange failed: ${response.status} ${response.statusText}`);
 		}
 
@@ -193,9 +198,10 @@ const PingOneAuthenticationCallback: React.FC = () => {
 
 		// Clean up PKCE data from all storage locations
 		PKCEStorageServiceV8U.clearPKCECodes(flowKeyRedirect).catch((err) => {
-			console.warn(
+			logger.warn(
+				'PingOneAuthenticationCallback',
 				'[PingOneAuthenticationCallback] Failed to clear PKCE codes from bulletproof storage:',
-				err
+				{ error: err }
 			);
 		});
 		sessionStorage.removeItem('pkce_code_verifier');
@@ -225,7 +231,11 @@ const PingOneAuthenticationCallback: React.FC = () => {
 				} as PlaygroundResult['config'];
 			}
 		} catch (error) {
-			console.warn('[PingOneAuthenticationCallback] Failed to load config:', error);
+			logger.warn(
+				'PingOneAuthenticationCallback',
+				'[PingOneAuthenticationCallback] Failed to load config:',
+				{ error }
+			);
 		}
 		return DEFAULT_CONFIG;
 	}, []);
@@ -303,7 +313,8 @@ const PingOneAuthenticationCallback: React.FC = () => {
 					};
 					// Only use context if it's for redirect mode (not redirectless)
 					if (parsedContext.mode && parsedContext.mode !== 'redirect') {
-						console.warn(
+						logger.warn(
+							'PingOneAuthenticationCallback',
 							'[PingOneAuthenticationCallback] Flow context is not for redirect mode, ignoring'
 						);
 						flowContext = null;
@@ -315,7 +326,8 @@ const PingOneAuthenticationCallback: React.FC = () => {
 							(flowContext.returnPath === '/dashboard' ||
 								!flowContext.returnPath.startsWith('/pingone-authentication'))
 						) {
-							console.warn(
+							logger.warn(
+								'PingOneAuthenticationCallback',
 								'[PingOneAuthenticationCallback] Flow context has invalid returnPath, clearing it:',
 								{
 									invalidReturnPath: flowContext.returnPath,
@@ -326,7 +338,11 @@ const PingOneAuthenticationCallback: React.FC = () => {
 						console.log('[PingOneAuthenticationCallback] Parsed flow context:', flowContext);
 					}
 				} catch (err) {
-					console.warn('[PingOneAuthenticationCallback] Failed to parse flow context:', err);
+					logger.warn(
+						'PingOneAuthenticationCallback',
+						'[PingOneAuthenticationCallback] Failed to parse flow context:',
+						{ error: err }
+					);
 				}
 			}
 
@@ -461,7 +477,8 @@ const PingOneAuthenticationCallback: React.FC = () => {
 						targetPath.startsWith('/dashboard') ||
 						!targetPath.startsWith('/pingone-authentication')
 					) {
-						console.warn(
+						logger.warn(
+							'PingOneAuthenticationCallback',
 							'[PingOneAuthenticationCallback] Invalid returnPath detected, using PingOne result page:',
 							{
 								invalidPath: targetPath,
@@ -473,7 +490,8 @@ const PingOneAuthenticationCallback: React.FC = () => {
 
 					// Final safety check - ensure we never navigate to dashboard
 					if (targetPath === '/dashboard' || targetPath.startsWith('/dashboard/')) {
-						console.error(
+						logger.error(
+							'PingOneAuthenticationCallback',
 							'[PingOneAuthenticationCallback] CRITICAL: Attempted dashboard redirect blocked (auth code flow)!',
 							{
 								attemptedPath: targetPath,
@@ -493,7 +511,12 @@ const PingOneAuthenticationCallback: React.FC = () => {
 					navigate(targetPath);
 					return;
 				} catch (tokenError) {
-					console.error('[PingOneAuthenticationCallback] Token exchange failed:', tokenError);
+					logger.error(
+						'PingOneAuthenticationCallback',
+						'[PingOneAuthenticationCallback] Token exchange failed:',
+						undefined,
+						tokenError as Error
+					);
 					v4ToastManager.showError('Failed to exchange authorization code for tokens.');
 					setError(
 						`Token exchange failed: ${tokenError instanceof Error ? tokenError.message : 'Unknown error'}`
@@ -556,7 +579,11 @@ const PingOneAuthenticationCallback: React.FC = () => {
 						console.log('[PingOneAuthenticationCallback] No valid opener found');
 					}
 				} catch (error) {
-					console.warn('[PingOneAuthenticationCallback] Failed to post result to opener:', error);
+					logger.warn(
+						'PingOneAuthenticationCallback',
+						'[PingOneAuthenticationCallback] Failed to post result to opener:',
+						{ error }
+					);
 				}
 				setIsProcessing(false);
 				console.log('[PingOneAuthenticationCallback] Closing popup window');
@@ -589,7 +616,11 @@ const PingOneAuthenticationCallback: React.FC = () => {
 						);
 						console.log('[PingOneAuthenticationCallback] Message sent to parent window');
 					} catch (error) {
-						console.warn('[PingOneAuthenticationCallback] Failed to post result to parent:', error);
+						logger.warn(
+							'PingOneAuthenticationCallback',
+							'[PingOneAuthenticationCallback] Failed to post result to parent:',
+							{ error }
+						);
 					}
 				}
 			}
@@ -608,7 +639,8 @@ const PingOneAuthenticationCallback: React.FC = () => {
 					!targetPath.startsWith('/flows/oauth-authorization-code-v7') &&
 					!targetPath.startsWith('/flows/device-authorization-v7'))
 			) {
-				console.warn(
+				logger.warn(
+					'PingOneAuthenticationCallback',
 					'[PingOneAuthenticationCallback] Invalid returnPath detected, using PingOne result page:',
 					{
 						invalidPath: targetPath,
@@ -621,7 +653,8 @@ const PingOneAuthenticationCallback: React.FC = () => {
 
 			// Final safety check - ensure we never navigate to dashboard
 			if (targetPath === '/dashboard' || targetPath.startsWith('/dashboard/')) {
-				console.error(
+				logger.error(
+					'PingOneAuthenticationCallback',
 					'[PingOneAuthenticationCallback] CRITICAL: Attempted dashboard redirect blocked!',
 					{
 						attemptedPath: targetPath,

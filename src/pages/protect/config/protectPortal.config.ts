@@ -9,6 +9,7 @@
  * including risk policies, MFA settings, token configuration, and UI settings.
  */
 
+import { logger } from '../../../utils/logger';
 import type { MFADevice, ProtectPortalConfig, RiskThresholds } from '../types/protectPortal.types';
 
 // ============================================================================
@@ -420,7 +421,7 @@ export const validateConfig = (config: ProtectPortalConfig): boolean => {
 
 		return true;
 	} catch (error) {
-		console.error('Configuration validation failed:', error);
+		logger.error('protectPortal', 'Configuration validation failed:', undefined, error as Error);
 		return false;
 	}
 };

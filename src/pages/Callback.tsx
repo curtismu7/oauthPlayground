@@ -2,8 +2,9 @@ import { FiAlertCircle, FiCheckCircle, FiLoader } from '@icons';
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { useAuth } from '../contexts/NewAuthContext';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { useAuth } from '../contexts/NewAuthContext';
+import { logger } from '../utils/logger';
 
 const CallbackContainer = styled.div`
   display: flex;
@@ -135,11 +136,10 @@ const Callback = () => {
 
 				// Check for error in the URL (e.g., user denied permission)
 				if (urlParams.error) {
-					console.error(
-						' [Callback] OAuth error in URL:',
-						urlParams.error,
-						urlParams.error_description
-					);
+					logger.error('Callback', ' [Callback] OAuth error in URL:', {
+						error: urlParams.error,
+						errorDescription: urlParams.error_description,
+					});
 					let errorMessage = urlParams.error_description || 'Authorization failed';
 
 					// Handle PingOne-specific errors with user-friendly messages
@@ -185,7 +185,12 @@ const Callback = () => {
 						}, 1000);
 						setStatus('error');
 						setError(errorMessage);
-						modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Network error occurred', dismissible: true });
+						modernMessaging.showBanner({
+							type: 'error',
+							title: 'Error',
+							message: 'Network error occurred',
+							dismissible: true,
+						});
 						return;
 					}
 
@@ -194,8 +199,10 @@ const Callback = () => {
 
 				// Check if we have the required parameters
 				if (!urlParams.code) {
-					console.error(' [Callback] No authorization code in URL parameters');
-					console.error(' [Callback] Available parameters:', Object.keys(urlParams));
+					logger.error('Callback', ' [Callback] No authorization code in URL parameters');
+					logger.error('Callback', ' [Callback] Available parameters:', {
+						params: Object.keys(urlParams),
+					});
 
 					// If we're on the callback page but have no OAuth parameters, this might be a direct navigation
 					if (Object.keys(urlParams).length === 0) {
@@ -262,12 +269,17 @@ const Callback = () => {
 					navigate(redirectUrl, { replace: true });
 				}, 1500);
 			} catch (err) {
-				console.error(' [Callback] OAuth callback error:', err);
+				logger.error('Callback', ' [Callback] OAuth callback error:', undefined, err as Error);
 				setStatus('error');
 				const errorMessage =
 					err instanceof Error ? err.message : 'An error occurred during authentication';
 				setError(errorMessage);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Network error occurred', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'Network error occurred',
+					dismissible: true,
+				});
 			}
 		};
 

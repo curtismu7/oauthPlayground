@@ -43,7 +43,8 @@ import { v4ToastManager } from '../utils/v4ToastMessages';
 import '../utils/testPresets'; // Auto-run preset tests in development
 import '../utils/testExportImport'; // Auto-run export/import tests in development
 import '../utils/testAppGeneratorTokenDisplay'; // Auto-run token display tests in development
-import '../utils/testConfigChecker'; // Auto-run config checker tests in development
+import '../utils/testConfigChecker';
+import { logger } from '../utils/logger'; // Auto-run config checker tests in development
 
 const Container = styled.div`
   max-width: 1200px;
@@ -589,7 +590,7 @@ const ApplicationGenerator: React.FC = () => {
 		try {
 			localStorage.setItem('app-generator-current-step', currentStep.toString());
 		} catch (error) {
-			console.warn('Failed to save current step:', error);
+			logger.warn('ApplicationGenerator', 'Failed to save current step:', { error });
 		}
 	}, [currentStep]);
 
@@ -636,7 +637,11 @@ const ApplicationGenerator: React.FC = () => {
 				console.log('[ApplicationGenerator] No tokens found to clear');
 			}
 		} else {
-			console.error('[ApplicationGenerator] Token clearing completed with errors:', result.errors);
+			logger.error(
+				'ApplicationGenerator',
+				'[ApplicationGenerator] Token clearing completed with errors:',
+				{ errors: result.errors }
+			);
 			v4ToastManager.showError('⚠️ Some tokens could not be cleared');
 		}
 
@@ -655,7 +660,9 @@ const ApplicationGenerator: React.FC = () => {
 
 			console.log('[ApplicationGenerator] Additional token cleanup completed');
 		} catch (error) {
-			console.warn('[ApplicationGenerator] Additional cleanup warning:', error);
+			logger.warn('ApplicationGenerator', '[ApplicationGenerator] Additional cleanup warning:', {
+				error,
+			});
 		}
 	}, []);
 
@@ -705,7 +712,11 @@ const ApplicationGenerator: React.FC = () => {
 				}
 			}
 		} catch (error) {
-			console.warn('[ApplicationGenerator] Failed to load saved configuration:', error);
+			logger.warn(
+				'ApplicationGenerator',
+				'[ApplicationGenerator] Failed to load saved configuration:',
+				{ error }
+			);
 		}
 	}, []);
 
@@ -722,7 +733,12 @@ const ApplicationGenerator: React.FC = () => {
 			v4ToastManager.showSuccess('Application configuration saved');
 			setTimeout(() => setIsSavedIndicator(false), 3000);
 		} catch (error) {
-			console.error('[ApplicationGenerator] Failed to save configuration:', error);
+			logger.error(
+				'ApplicationGenerator',
+				'[ApplicationGenerator] Failed to save configuration:',
+				undefined,
+				error as Error
+			);
 			v4ToastManager.showError('Failed to save configuration');
 		}
 	}, [formData, selectedAppType]);
@@ -738,7 +754,12 @@ const ApplicationGenerator: React.FC = () => {
 			setCurrentStep(1);
 			v4ToastManager.showSuccess('Saved configuration cleared');
 		} catch (error) {
-			console.error('[ApplicationGenerator] Failed to clear saved configuration:', error);
+			logger.error(
+				'ApplicationGenerator',
+				'[ApplicationGenerator] Failed to clear saved configuration:',
+				undefined,
+				error as Error
+			);
 			v4ToastManager.showError('Failed to clear configuration');
 		}
 	}, []);
@@ -939,7 +960,12 @@ const ApplicationGenerator: React.FC = () => {
 				v4ToastManager.showError('Failed to apply preset');
 			}
 		} catch (error) {
-			console.error('[ApplicationGenerator] Failed to apply preset:', error);
+			logger.error(
+				'ApplicationGenerator',
+				'[ApplicationGenerator] Failed to apply preset:',
+				undefined,
+				error as Error
+			);
 			v4ToastManager.showError('Failed to apply preset');
 		}
 	};
@@ -1002,7 +1028,12 @@ const ApplicationGenerator: React.FC = () => {
 				v4ToastManager.showSuccess(`Preset "${savedPreset.name}" created successfully!`);
 			}
 		} catch (error) {
-			console.error('[ApplicationGenerator] Failed to save preset:', error);
+			logger.error(
+				'ApplicationGenerator',
+				'[ApplicationGenerator] Failed to save preset:',
+				undefined,
+				error as Error
+			);
 			v4ToastManager.showError('Failed to save preset');
 		}
 	};
@@ -1021,7 +1052,12 @@ const ApplicationGenerator: React.FC = () => {
 				`Configuration "${metadata?.name || 'imported'}" applied successfully!`
 			);
 		} catch (error) {
-			console.error('[ApplicationGenerator] Failed to apply imported configuration:', error);
+			logger.error(
+				'ApplicationGenerator',
+				'[ApplicationGenerator] Failed to apply imported configuration:',
+				undefined,
+				error as Error
+			);
 			v4ToastManager.showError('Failed to apply imported configuration');
 		}
 	};
@@ -1501,7 +1537,12 @@ const ApplicationGenerator: React.FC = () => {
 				v4ToastManager.showError(`Failed to create application: ${result.error}`);
 			}
 		} catch (error) {
-			console.error('[ApplicationGenerator] Application creation failed:', error);
+			logger.error(
+				'ApplicationGenerator',
+				'[ApplicationGenerator] Application creation failed:',
+				undefined,
+				error as Error
+			);
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
 			setCreationResult({
 				success: false,

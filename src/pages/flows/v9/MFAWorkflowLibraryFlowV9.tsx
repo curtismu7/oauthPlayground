@@ -642,7 +642,6 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 		}
 	}, [authorizationCode, credentials]);
 
-	
 	// Step validation
 	const isStepValid = useCallback(
 		(step: number): boolean => {

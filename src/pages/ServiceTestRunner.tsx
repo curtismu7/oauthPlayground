@@ -9,6 +9,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { comprehensiveFlowDataServiceTest } from '../utils/comprehensiveFlowDataServiceTest';
+import { logger } from '../utils/logger';
 
 const TestRunnerContainer = styled.div`
   padding: 20px;
@@ -273,7 +274,7 @@ export const ServiceTestRunner: React.FC = () => {
 				results,
 			});
 		} catch (error) {
-			console.error('Test runner error:', error);
+			logger.error('ServiceTestRunner', 'Test runner error:', undefined, error as Error);
 		} finally {
 			// Restore console
 			console.log = originalLog;

@@ -20,6 +20,7 @@ import CollapsibleSection from '../components/CollapsibleSection';
 import { ColoredJsonDisplay } from '../components/ColoredJsonDisplay';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import PageLayoutService from '../services/pageLayoutService';
+import { logger } from '../utils/logger';
 import { SuperSimpleApiDisplayV8 } from '../v8/components/SuperSimpleApiDisplayV8';
 
 const WhiteContainer = styled.div`
@@ -1219,7 +1220,7 @@ try {
   await revokeSession('env-123', 'user-456', 'session-789', 'access-token');
   console.log('User has been logged out of that session');
 } catch (error) {
-  console.error('Failed to revoke session:', error);
+  logger.error('PingOneSessionsAPI', 'Failed to revoke session:', undefined, error as Error);
 }`,
 										'example-revoke-session-js'
 									)}

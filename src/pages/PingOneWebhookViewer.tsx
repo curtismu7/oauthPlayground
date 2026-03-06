@@ -25,6 +25,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import ApiCallList from '../components/ApiCallList';
 import { readBestEnvironmentId } from '../hooks/useAutoEnvironmentId';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
+import { logger } from '../utils/logger';
 import { secureLog } from '../utils/secureLogging';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { getAnyWorkerToken } from '../utils/workerTokenDetection';
@@ -648,7 +649,8 @@ const PingOneWebhookViewer: React.FC = () => {
 			if (!response.ok) {
 				// Provide helpful error message for 404 (server might need restart)
 				if (response.status === 404) {
-					console.warn(
+					logger.warn(
+						'PingOneWebhookViewer',
 						'[Webhook Viewer] Subscriptions endpoint not found (404). Backend server may need restart.'
 					);
 					throw new Error(
@@ -657,7 +659,8 @@ const PingOneWebhookViewer: React.FC = () => {
 				}
 				// Provide helpful error message for 403 (permissions issue)
 				if (response.status === 403) {
-					console.warn(
+					logger.warn(
+						'PingOneWebhookViewer',
 						'[Webhook Viewer] Permission denied (403). Worker token may lack required scopes.'
 					);
 					throw new Error(
@@ -666,7 +669,10 @@ const PingOneWebhookViewer: React.FC = () => {
 				}
 				// Check for HTML response (indicates auth error)
 				if (typeof responseData === 'string' && responseData.includes('<html>')) {
-					console.warn('[Webhook Viewer] Received HTML response - likely authentication error');
+					logger.warn(
+						'PingOneWebhookViewer',
+						'[Webhook Viewer] Received HTML response - likely authentication error'
+					);
 					if (responseData.includes('Error. Page cannot be displayed')) {
 						throw new Error(
 							'PingOne API access denied. This usually means:\n\n' +
@@ -690,7 +696,12 @@ const PingOneWebhookViewer: React.FC = () => {
 			console.log(`[Webhook Viewer] Loaded ${subscriptionsList.length} subscriptions`);
 			v4ToastManager.showSuccess(`Loaded ${subscriptionsList.length} webhook subscriptions`);
 		} catch (error) {
-			console.error('[Webhook Viewer] Error fetching subscriptions:', error);
+			logger.error(
+				'PingOneWebhookViewer',
+				'[Webhook Viewer] Error fetching subscriptions:',
+				undefined,
+				error as Error
+			);
 			v4ToastManager.showError(
 				error instanceof Error ? error.message : 'Failed to load webhook subscriptions'
 			);
@@ -706,7 +717,8 @@ const PingOneWebhookViewer: React.FC = () => {
 			if (!response.ok) {
 				// Don't show error for 404 if endpoint doesn't exist yet (server might need restart)
 				if (response.status === 404) {
-					console.warn(
+					logger.warn(
+						'PingOneWebhookViewer',
 						'[Webhook Viewer] Events endpoint not found (404). Server may need restart.'
 					);
 					return;
@@ -741,9 +753,16 @@ const PingOneWebhookViewer: React.FC = () => {
 		} catch (error) {
 			// Only log error, don't show toast for 404s (endpoint might not be available)
 			if (error instanceof Error && error.message.includes('404')) {
-				console.warn('[Webhook Viewer] Events endpoint not available:', error.message);
+				logger.warn('PingOneWebhookViewer', '[Webhook Viewer] Events endpoint not available:', {
+					message: error.message,
+				});
 			} else {
-				console.error('[Webhook Viewer] Error fetching events:', error);
+				logger.error(
+					'PingOneWebhookViewer',
+					'[Webhook Viewer] Error fetching events:',
+					undefined,
+					error as Error
+				);
 				v4ToastManager.showError('Failed to load webhook events');
 			}
 		}
@@ -802,7 +821,12 @@ const PingOneWebhookViewer: React.FC = () => {
 			v4ToastManager.showSuccess('Webhook history cleared');
 			secureLog('PingOneWebhookViewer', 'Cleared webhook history');
 		} catch (error) {
-			console.error('[Webhook Viewer] Error clearing events:', error);
+			logger.error(
+				'PingOneWebhookViewer',
+				'[Webhook Viewer] Error clearing events:',
+				undefined,
+				error as Error
+			);
 			v4ToastManager.showError('Failed to clear webhook events');
 		}
 	}, []);
@@ -896,7 +920,12 @@ const PingOneWebhookViewer: React.FC = () => {
 			});
 			await fetchSubscriptions();
 		} catch (error) {
-			console.error('[Webhook Viewer] Error creating subscription:', error);
+			logger.error(
+				'PingOneWebhookViewer',
+				'[Webhook Viewer] Error creating subscription:',
+				undefined,
+				error as Error
+			);
 			v4ToastManager.showError(
 				error instanceof Error ? error.message : 'Failed to create webhook subscription'
 			);
@@ -984,7 +1013,12 @@ const PingOneWebhookViewer: React.FC = () => {
 				});
 				await fetchSubscriptions();
 			} catch (error) {
-				console.error('[Webhook Viewer] Error updating subscription:', error);
+				logger.error(
+					'PingOneWebhookViewer',
+					'[Webhook Viewer] Error updating subscription:',
+					undefined,
+					error as Error
+				);
 				v4ToastManager.showError(
 					error instanceof Error ? error.message : 'Failed to update webhook subscription'
 				);
@@ -1043,7 +1077,12 @@ const PingOneWebhookViewer: React.FC = () => {
 				v4ToastManager.showSuccess('Webhook subscription deleted successfully');
 				await fetchSubscriptions();
 			} catch (error) {
-				console.error('[Webhook Viewer] Error deleting subscription:', error);
+				logger.error(
+					'PingOneWebhookViewer',
+					'[Webhook Viewer] Error deleting subscription:',
+					undefined,
+					error as Error
+				);
 				v4ToastManager.showError(
 					error instanceof Error ? error.message : 'Failed to delete webhook subscription'
 				);
