@@ -15,6 +15,7 @@ import {
 } from '@icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { EducationModeToggle } from '../../../components/education/EducationModeToggle';
 import { MasterEducationSection } from '../../../components/education/MasterEducationSection';
 import { LearningTooltip } from '../../../components/LearningTooltip';
@@ -30,7 +31,6 @@ import { UnifiedTokenDisplayService } from '../../../services/unifiedTokenDispla
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningService';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 
 // Get UI components from FlowUIService
@@ -356,7 +356,12 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 			console.log('🔧 [Client Credentials V7] Cleared flow-specific storage');
 		} catch (error) {
 			console.error('[Client Credentials V7] Failed to clear flow state:', error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to clear flow state. Please refresh the page.', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to clear flow state. Please refresh the page.',
+				dismissible: true,
+			});
 		}
 
 		// Clear any potential ConfigChecker-related state or cached data
@@ -468,7 +473,12 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 			}).catch((error) => {
 				console.error('[Client Credentials V7] Failed to save credentials to V7 storage:', error);
 				// Show user-friendly error message
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save credentials. Please try again.', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'Failed to save credentials. Please try again.',
+					dismissible: true,
+				});
 			});
 		}
 	}, [controller.credentials]);

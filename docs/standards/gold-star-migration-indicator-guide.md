@@ -65,6 +65,14 @@ An application receives the gold star when it meets **ALL** of these criteria:
 - **Lint**: No blocking lint errors
 - **TypeScript**: Proper type safety
 - **Performance**: No performance regressions
+- **Logging**: Proper logging implementation with security compliance
+
+#### 5. ✅ Logging Standards (NEW)
+- **API Calls**: All external API calls logged with sanitized data
+- **User Actions**: Significant user interactions logged with context
+- **System Events**: Component lifecycle and state changes logged
+- **Security**: Sensitive data properly masked in all logs
+- **Error Handling**: Comprehensive error logging with context
 
 ## 📋 Implementation Checklist
 
@@ -86,7 +94,15 @@ An application receives the gold star when it meets **ALL** of these criteria:
 - [ ] Replace with MDI CSS icons or remove icons entirely
 - [ ] Test icon display and accessibility
 
-#### Phase 4: Sidebar Configuration Update
+#### Phase 4: Logging Implementation (NEW)
+- [ ] Import required logging services (`logger`, `secureLog`)
+- [ ] Add API call logging with URL sanitization
+- [ ] Add user action logging with context
+- [ ] Add component lifecycle logging
+- [ ] Add comprehensive error logging
+- [ ] Verify no sensitive data exposure in logs
+
+#### Phase 5: Sidebar Configuration Update
 - [ ] Add `true` parameter to menu item in `sidebarMenuConfig.ts`
 - [ ] Verify gold star appears in sidebar
 - [ ] Test navigation and functionality
@@ -97,6 +113,10 @@ An application receives the gold star when it meets **ALL** of these criteria:
 - [ ] Gold star displays in sidebar
 - [ ] No lint errors blocking functionality
 - [ ] Performance maintained
+- [ ] Logging implemented correctly (NEW)
+- [ ] No sensitive data in logs (NEW)
+- [ ] API calls properly logged (NEW)
+- [ ] Error handling comprehensive (NEW)
 
 ## 🎨 Visual Design Specifications
 
