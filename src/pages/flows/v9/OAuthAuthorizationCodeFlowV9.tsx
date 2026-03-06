@@ -39,7 +39,6 @@ import {
 	ResultsSection,
 	SectionDivider,
 } from '../../../components/ResultsPanel';
-import { StepNavigationButtons } from '../../../components/StepNavigationButtons';
 import type { StepCredentials } from '../../../components/steps/CommonSteps';
 import TokenIntrospect from '../../../components/TokenIntrospect';
 import { useAuthorizationCodeFlowController } from '../../../hooks/useAuthorizationCodeFlowController';
@@ -3835,18 +3834,6 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 					<StepContentWrapper>{renderStepContent}</StepContentWrapper>
 				</MainCard>
 			</ContentWrapper>
-
-			<StepNavigationButtons
-				currentStep={currentStep}
-				totalSteps={STEP_METADATA.length}
-				onPrevious={handlePrev}
-				onReset={handleResetFlow}
-				onNext={handleNextClick}
-				canNavigateNext={canNavigateNext()}
-				isFirstStep={currentStep === 0}
-				nextButtonText={isStepValid(currentStep) ? 'Next' : 'Complete above action'}
-				disabledMessage="Complete the action above to continue"
-			/>
 
 			{AuthenticationModalService.showModal(
 				showRedirectModal,
