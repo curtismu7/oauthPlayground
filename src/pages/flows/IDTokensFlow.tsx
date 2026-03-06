@@ -320,8 +320,7 @@ const parseJwt = (token: string) => {
 		);
 
 		return JSON.parse(jsonPayload);
-	} catch (error) {
-		console.error('Failed to parse JWT:', error);
+	} catch {
 		return null;
 	}
 };
@@ -380,14 +379,14 @@ const IDTokensFlow = () => {
 							setIdToken(parsed.id_token);
 							return;
 						}
-					} catch (e) {
-						console.warn(' [IDTokensFlow] Failed to parse localStorage tokens:', e);
+					} catch {
+						// Silent fail — malformed token in localStorage
 					}
 				}
 
 				console.log(' [IDTokensFlow] No ID token found in storage');
-			} catch (error) {
-				console.error(' [IDTokensFlow] Error loading stored ID token:', error);
+			} catch {
+				// Silently ignore storage read errors
 			}
 		};
 
@@ -463,7 +462,6 @@ const IDTokensFlow = () => {
 			setCurrentStep(4);
 			setDemoStatus('success');
 		} catch (err) {
-			console.error('ID Token flow failed:', err);
 			setError('Failed to process ID token. Please check your configuration.');
 			setDemoStatus('error');
 		}

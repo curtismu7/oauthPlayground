@@ -876,7 +876,6 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 
 			setUserInfo(data as UserInfo);
 		} catch (error) {
-			console.error('[Kroger] Failed to fetch user profile:', error);
 			setUserInfoError(error instanceof Error ? error.message : 'Failed to fetch user profile');
 			setUserInfo(null);
 		} finally {
@@ -943,8 +942,8 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 					setDeviceId(smsDevices[0].id);
 				}
 			}
-		} catch (error) {
-			console.error('[Kroger] Failed to fetch devices:', error);
+		} catch {
+			// Background device fetch — UI shows empty device list
 		}
 	}, [credentials.environmentId, userId, workerToken]);
 
@@ -962,12 +961,6 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 
 		// Validate credentials before making API call
 		if (!credentials.environmentId || !credentials.clientId || !credentials.clientSecret) {
-			console.error('[Kroger] Missing credentials:', {
-				hasEnvironmentId: !!credentials.environmentId,
-				hasClientId: !!credentials.clientId,
-				hasClientSecret: !!credentials.clientSecret,
-				credentials,
-			});
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1057,7 +1050,6 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 			});
 			setIsLoading(false);
 		} catch (error) {
-			console.error('[Kroger] Login failed:', error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1121,7 +1113,6 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 					throw new Error(data.error_description || data.error || 'Failed to enable MFA device');
 				}
 			} catch (error) {
-				console.error('[Kroger] Device enablement failed:', error);
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
@@ -1181,7 +1172,6 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 				throw new Error(data.error_description || data.error || 'Failed to register device');
 			}
 		} catch (error) {
-			console.error('[Kroger] Device registration failed:', error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1276,7 +1266,6 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 			});
 			setIsLoading(false);
 		} catch (error) {
-			console.error('[Kroger] MFA verification failed:', error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',

@@ -285,10 +285,7 @@ const DPoPFlow: React.FC = () => {
 	const [isCreatingProof, setIsCreatingProof] = useState(false);
 
 	useEffect(() => {
-		// Check browser support
-		if (!DPoPStatus.isSupported()) {
-			console.warn('DPoP not supported in this browser');
-		}
+		// Check browser support — unsupported state handled by DPoPStatus.isSupported() in render
 	}, []);
 
 	const handleCopyCode = (code: string, description: string) => {
@@ -307,7 +304,6 @@ const DPoPFlow: React.FC = () => {
 			setProof(null); // Clear previous proof
 			showFlowSuccess('DPoP key pair generated successfully');
 		} catch (error) {
-			console.error('Failed to generate key pair:', error);
 			showFlowSuccess('Failed to generate key pair', 'error');
 		} finally {
 			setIsGenerating(false);
@@ -326,7 +322,6 @@ const DPoPFlow: React.FC = () => {
 			setProof(newProof);
 			showFlowSuccess('DPoP proof created successfully');
 		} catch (error) {
-			console.error('Failed to create proof:', error);
 			showFlowSuccess('Failed to create DPoP proof', 'error');
 		} finally {
 			setIsCreatingProof(false);
