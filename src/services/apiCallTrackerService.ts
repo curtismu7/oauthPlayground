@@ -46,16 +46,22 @@ class ApiCallTrackerService {
 			call.url?.includes('select-device') ||
 			call.url?.includes('validate-otp')
 		) {
-			console.log('[ApiCallTrackerService] Tracking API call with headers:', {
-				id,
-				url: call.url,
-				method: call.method,
-				hasHeaders: !!call.headers,
-				headersType: typeof call.headers,
-				headersKeys: call.headers ? Object.keys(call.headers) : [],
-				headers: call.headers,
-				headersCount: call.headers ? Object.keys(call.headers).length : 0,
-			});
+			logger.info(
+				'ApiCallTrackerService',
+				'[ApiCallTrackerService] Tracking API call with headers:',
+				{
+					arg0: {
+						id,
+						url: call.url,
+						method: call.method,
+						hasHeaders: !!call.headers,
+						headersType: typeof call.headers,
+						headersKeys: call.headers ? Object.keys(call.headers) : [],
+						headers: call.headers,
+						headersCount: call.headers ? Object.keys(call.headers).length : 0,
+					},
+				}
+			);
 		}
 		// #endregion
 
