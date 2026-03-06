@@ -25,7 +25,7 @@ const V9FlowCompletionService: React.FC<V9FlowCompletionProps> = (props) => {
 					duration: 3000,
 				});
 				props.config.onStartNewFlow();
-			} catch (error) {
+			} catch (_error) {
 				modernMessaging.showCriticalError({
 					title: 'Flow Start Failed',
 					message: 'Failed to start new flow',
@@ -39,7 +39,7 @@ const V9FlowCompletionService: React.FC<V9FlowCompletionProps> = (props) => {
 	const handleToggleCollapsed = () => {
 		try {
 			props.onToggleCollapsed?.();
-		} catch (error) {
+		} catch (_error) {
 			modernMessaging.showCriticalError({
 				title: 'Toggle Failed',
 				message: 'Failed to toggle completion section',
