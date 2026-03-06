@@ -102,9 +102,14 @@ export const useGlobalWorkerToken = (
 			if (isNotConfigured) {
 				logger.debug('useGlobalWorkerToken', 'Worker Token not configured (optional)');
 			} else {
-				logger.error('useGlobalWorkerToken', 'Failed to get token', {
-					errorType: error instanceof Error ? error.constructor?.name : undefined,
-				}, error instanceof Error ? error : undefined);
+				logger.error(
+					'useGlobalWorkerToken',
+					'Failed to get token',
+					{
+						errorType: error instanceof Error ? error.constructor?.name : undefined,
+					},
+					error instanceof Error ? error : undefined
+				);
 			}
 
 			setStatus({

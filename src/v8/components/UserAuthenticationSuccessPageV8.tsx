@@ -10,8 +10,8 @@
 import { FiCheckCircle, FiCopy, FiShield, FiUser } from '@icons';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
 
 export interface UserInfo {
 	sub?: string;
@@ -337,10 +337,19 @@ export const UserAuthenticationSuccessPageV8: React.FC<UserAuthenticationSuccess
 										);
 										if (success) {
 											setTokenCopied(true);
-											modernMessaging.showFooterMessage({ type: 'info', message: 'Access token copied to clipboard!', duration: 3000 });
+											modernMessaging.showFooterMessage({
+												type: 'info',
+												message: 'Access token copied to clipboard!',
+												duration: 3000,
+											});
 											setTimeout(() => setTokenCopied(false), 2000);
 										} else {
-											modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to copy access token', dismissible: true });
+											modernMessaging.showBanner({
+												type: 'error',
+												title: 'Error',
+												message: 'Failed to copy access token',
+												dismissible: true,
+											});
 										}
 									}}
 									style={{
@@ -398,7 +407,12 @@ export const UserAuthenticationSuccessPageV8: React.FC<UserAuthenticationSuccess
 											const payload = JSON.stringify(decoded.payload, null, 2);
 											alert(`Token Payload:\n\n${payload}`);
 										} else {
-											modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to decode token', dismissible: true });
+											modernMessaging.showBanner({
+												type: 'error',
+												title: 'Error',
+												message: 'Failed to decode token',
+												dismissible: true,
+											});
 										}
 									}}
 									style={{
@@ -571,9 +585,18 @@ export const UserAuthenticationSuccessPageV8: React.FC<UserAuthenticationSuccess
 											'ID Token'
 										);
 										if (success) {
-											modernMessaging.showFooterMessage({ type: 'info', message: 'ID token copied to clipboard!', duration: 3000 });
+											modernMessaging.showFooterMessage({
+												type: 'info',
+												message: 'ID token copied to clipboard!',
+												duration: 3000,
+											});
 										} else {
-											modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to copy ID token', dismissible: true });
+											modernMessaging.showBanner({
+												type: 'error',
+												title: 'Error',
+												message: 'Failed to copy ID token',
+												dismissible: true,
+											});
 										}
 									}}
 									style={{
@@ -627,7 +650,12 @@ export const UserAuthenticationSuccessPageV8: React.FC<UserAuthenticationSuccess
 											const payload = JSON.stringify(decoded.payload, null, 2);
 											alert(`ID Token Payload:\n\n${payload}`);
 										} else {
-											modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to decode ID token', dismissible: true });
+											modernMessaging.showBanner({
+												type: 'error',
+												title: 'Error',
+												message: 'Failed to decode ID token',
+												dismissible: true,
+											});
 										}
 									}}
 									style={{

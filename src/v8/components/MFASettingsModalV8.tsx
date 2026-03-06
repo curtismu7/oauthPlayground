@@ -1,8 +1,8 @@
 import { FiSettings, FiX } from '@icons';
 import React, { useEffect, useState } from 'react';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { useDraggableModal } from '@/v8/hooks/useDraggableModal';
 import { MFAServiceV8, type MFASettings } from '@/v8/services/mfaServiceV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 interface MFASettingsModalV8Props {
 	isOpen: boolean;
@@ -57,7 +57,12 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 			setSettings(data);
 		} catch (error) {
 			console.error('Failed to fetch MFA settings', error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to fetch MFA settings', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to fetch MFA settings',
+				dismissible: true,
+			});
 		} finally {
 			setIsLoading(false);
 		}
@@ -67,11 +72,20 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 		setIsSaving(true);
 		try {
 			await MFAServiceV8.updateMFASettings(environmentId, settings);
-			modernMessaging.showFooterMessage({ type: 'info', message: 'MFA settings updated successfully', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'MFA settings updated successfully',
+				duration: 3000,
+			});
 			onClose();
 		} catch (error) {
 			console.error('Failed to update MFA settings', error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to update MFA settings', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to update MFA settings',
+				dismissible: true,
+			});
 		} finally {
 			setIsSaving(false);
 		}

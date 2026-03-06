@@ -584,9 +584,7 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 							marginBottom: '1rem',
 						}}
 					>
-						<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>
-							Achievements:
-						</h4>
+						<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>Achievements:</h4>
 						<ul style={{ margin: '0', paddingLeft: '1.5rem', color: '#4b5563' }}>
 							<li>✅ Authorization code obtained successfully</li>
 							<li>✅ PKCE challenge verified</li>
@@ -601,14 +599,22 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 							padding: '1rem',
 						}}
 					>
-						<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>
-							Token Summary:
-						</h4>
+						<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>Token Summary:</h4>
 						<div style={{ fontSize: '0.875rem', color: '#4b5563' }}>
-							<p><strong>Access Token:</strong> {authState.tokens.accessToken ? '✅ Obtained' : '❌ Missing'}</p>
-							<p><strong>ID Token:</strong> {authState.tokens.idToken ? '✅ Obtained' : '❌ Missing'}</p>
-							<p><strong>Refresh Token:</strong> {authState.tokens.refreshToken ? '✅ Obtained' : '❌ Missing'}</p>
-							<p><strong>Flow Type:</strong> OAuth 2.0 Authorization Code with PKCE</p>
+							<p>
+								<strong>Access Token:</strong>{' '}
+								{authState.tokens.accessToken ? '✅ Obtained' : '❌ Missing'}
+							</p>
+							<p>
+								<strong>ID Token:</strong> {authState.tokens.idToken ? '✅ Obtained' : '❌ Missing'}
+							</p>
+							<p>
+								<strong>Refresh Token:</strong>{' '}
+								{authState.tokens.refreshToken ? '✅ Obtained' : '❌ Missing'}
+							</p>
+							<p>
+								<strong>Flow Type:</strong> OAuth 2.0 Authorization Code with PKCE
+							</p>
 						</div>
 					</div>
 				</div>

@@ -7,10 +7,10 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { AppDiscoveryServiceV8 } from '@/v8/services/appDiscoveryServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { ConfirmModalV8 } from './ConfirmModalV8';
 import { WorkerTokenModalV8 } from './WorkerTokenModalV8';
 
@@ -94,7 +94,11 @@ export const AppPickerV8: React.FC<AppPickerV8Props> = ({ environmentId, onAppSe
 		const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 		setTokenStatus(newStatus);
 		setShowConfirmModal(false);
-		modernMessaging.showFooterMessage({ type: 'info', message: 'Worker token removed', duration: 3000 });
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message: 'Worker token removed',
+			duration: 3000,
+		});
 	};
 
 	const handleWorkerTokenGenerated = () => {
@@ -102,7 +106,11 @@ export const AppPickerV8: React.FC<AppPickerV8Props> = ({ environmentId, onAppSe
 		window.dispatchEvent(new Event('workerTokenUpdated'));
 		const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 		setTokenStatus(newStatus);
-		modernMessaging.showFooterMessage({ type: 'info', message: 'Worker token generated and saved!', duration: 3000 });
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message: 'Worker token generated and saved!',
+			duration: 3000,
+		});
 	};
 
 	const handleDiscover = async () => {
@@ -113,14 +121,24 @@ export const AppPickerV8: React.FC<AppPickerV8Props> = ({ environmentId, onAppSe
 		});
 
 		if (!environmentId.trim()) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter an Environment ID first', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please enter an Environment ID first',
+				dismissible: true,
+			});
 			return;
 		}
 
 		// Check token status
 		if (!tokenStatus.isValid) {
 			console.log(`${MODULE_TAG} Token not valid, showing error`);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: tokenStatus.message, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: tokenStatus.message,
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -131,7 +149,12 @@ export const AppPickerV8: React.FC<AppPickerV8Props> = ({ environmentId, onAppSe
 			// Get worker token directly from global service
 			const workerToken = await workerTokenServiceV8.getToken();
 			if (!workerToken) {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Worker token required - please generate one first', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'Worker token required - please generate one first',
+					dismissible: true,
+				});
 				setIsLoading(false);
 				return;
 			}
@@ -146,16 +169,31 @@ export const AppPickerV8: React.FC<AppPickerV8Props> = ({ environmentId, onAppSe
 				console.log(`${MODULE_TAG} Found ${discovered.length} apps`, discovered);
 				setApps(discovered);
 				setShowResults(true);
-				modernMessaging.showFooterMessage({ type: 'info', message: `Found ${discovered.length} application(s)`, duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: `Found ${discovered.length} application(s)`,
+					duration: 3000,
+				});
 			} else {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'No applications found in this environment', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'No applications found in this environment',
+					dismissible: true,
+				});
 				setApps([]);
 			}
 		} catch (error) {
 			console.error(`${MODULE_TAG} Discovery error`, error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error
-					? error.message
-					: 'Failed to discover applications - check worker token', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message:
+					error instanceof Error
+						? error.message
+						: 'Failed to discover applications - check worker token',
+				dismissible: true,
+			});
 		} finally {
 			setIsLoading(false);
 		}
@@ -167,7 +205,11 @@ export const AppPickerV8: React.FC<AppPickerV8Props> = ({ environmentId, onAppSe
 		setShowResults(false);
 		setApps([]);
 		setSelectedAppId(null);
-		modernMessaging.showFooterMessage({ type: 'info', message: `Selected: ${app.name}`, duration: 3000 });
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message: `Selected: ${app.name}`,
+			duration: 3000,
+		});
 	};
 
 	// Debug: Log button state

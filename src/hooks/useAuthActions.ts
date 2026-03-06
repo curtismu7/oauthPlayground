@@ -430,7 +430,11 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 				FlowContextUtils.emergencyCleanup();
 				console.log(' [NewAuthContext] Flow context cleaned up during logout');
 			} catch (flowCleanupError) {
-				logger.warn('useAuthActions', 'Failed to cleanup flow context during logout', flowCleanupError);
+				logger.warn(
+					'useAuthActions',
+					'Failed to cleanup flow context during logout',
+					flowCleanupError
+				);
 			}
 
 			updateState({
@@ -521,7 +525,11 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 							return { success: true };
 						}
 					} catch (flowParsingError) {
-						logger.warn('useAuthActions', 'Failed to parse flow context, continuing with standard callback handling', flowParsingError);
+						logger.warn(
+							'useAuthActions',
+							'Failed to parse flow context, continuing with standard callback handling',
+							flowParsingError
+						);
 					}
 				}
 
@@ -587,7 +595,11 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 								);
 							}
 						} catch (flowParsingError) {
-							logger.warn('useAuthActions', 'Failed to parse flow context for credentials', flowParsingError);
+							logger.warn(
+								'useAuthActions',
+								'Failed to parse flow context for credentials',
+								flowParsingError
+							);
 						}
 					}
 
@@ -725,7 +737,10 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 							tokenSaveError instanceof Error ? tokenSaveError : undefined
 						);
 						// Continue with flow even if save fails - tokens are still in tokenData
-						logger.warn('useAuthActions', 'Token save failed, but continuing with token exchange result');
+						logger.warn(
+							'useAuthActions',
+							'Token save failed, but continuing with token exchange result'
+						);
 					}
 
 					const tokens = getStoredTokens() || tokenData;
@@ -870,12 +885,20 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 									note: 'redirect_uri removed per PingOne pi.flow specification',
 								});
 							} catch (urlError) {
-								logger.warn('useAuthActions', 'Failed to modify URL for redirectless mode', urlError);
+								logger.warn(
+									'useAuthActions',
+									'Failed to modify URL for redirectless mode',
+									urlError
+								);
 							}
 						}
 					}
 				} catch (flowParsingError) {
-					logger.warn('useAuthActions', 'Failed to parse flow context for redirectless mode', flowParsingError);
+					logger.warn(
+						'useAuthActions',
+						'Failed to parse flow context for redirectless mode',
+						flowParsingError
+					);
 				}
 			}
 

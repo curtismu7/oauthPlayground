@@ -14,6 +14,7 @@ import { FiArrowRight, FiBook, FiClock } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
@@ -23,7 +24,6 @@ import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationService
 import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
 import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationServiceV8';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import type { DeviceAuthenticationPolicy, MFACredentials } from '../shared/MFATypes';
 
 const _MODULE_TAG = '[🔐 TOTP-CONFIG-V8]';
@@ -169,7 +169,11 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 					tokenType: 'user' as const,
 				}));
 
-				modernMessaging.showFooterMessage({ type: 'info', message: 'Authentication successful! You can now proceed.', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: 'Authentication successful! You can now proceed.',
+					duration: 3000,
+				});
 			} catch (error) {
 				console.error(`[🔐 TOTP-CONFIG-V8] Failed to exchange code for tokens`, error);
 				const errorMessage =
@@ -177,9 +181,19 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 						? error.message
 						: 'Failed to exchange authorization code for tokens';
 				if (errorMessage.includes('invalid_grant') || errorMessage.includes('expired')) {
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Authorization code expired or already used. Please try logging in again.', dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: 'Authorization code expired or already used. Please try logging in again.',
+						dismissible: true,
+					});
 				} else {
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: errorMessage,
+						dismissible: true,
+					});
 				}
 
 				sessionStorage.removeItem('user_login_state_v8');
@@ -210,12 +224,22 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 	// Handle proceed to registration
 	const handleProceedToRegistration = useCallback(() => {
 		if (!credentials.environmentId || !credentials.clientId) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please configure environment settings first', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please configure environment settings first',
+				dismissible: true,
+			});
 			return;
 		}
 
 		if (!credentials.deviceAuthenticationPolicyId) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please select a device authentication policy', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please select a device authentication policy',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -369,7 +393,12 @@ const DeviceAuthenticationPolicySelector: React.FC<{
 				setPolicies(availablePolicies);
 			} catch (error) {
 				console.error('Failed to load device authentication policies:', error);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to load policies', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'Failed to load policies',
+					dismissible: true,
+				});
 			} finally {
 				setLoading(false);
 			}

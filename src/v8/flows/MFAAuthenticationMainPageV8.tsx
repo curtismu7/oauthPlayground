@@ -47,6 +47,7 @@ import {
 	generateCompletePostmanCollection,
 	generateComprehensiveMFAPostmanCollection,
 } from '@/services/postmanCollectionGeneratorV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { oauthStorage } from '@/utils/storage';
 import { ConfirmModalV8 } from '@/v8/components/ConfirmModalV8';
 import { DeviceFailureModalV8, UnavailableDevice } from '@/v8/components/DeviceFailureModalV8';
@@ -76,7 +77,6 @@ import {
 	type TokenStatusInfo,
 	WorkerTokenStatusServiceV8,
 } from '@/v8/services/workerTokenStatusServiceV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { ReturnTargetServiceV8U } from '@/v8u/services/returnTargetServiceV8U';
 import { CommonSpinner } from '../../components/common/CommonSpinner';
 import { useProductionSpinner } from '../../hooks/useProductionSpinner';
@@ -550,7 +550,11 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 								const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 								setTokenStatus(newStatus);
 
-								modernMessaging.showFooterMessage({ type: 'info', message: 'Worker token automatically refreshed!', duration: 3000 });
+								modernMessaging.showFooterMessage({
+									type: 'info',
+									message: 'Worker token automatically refreshed!',
+									duration: 3000,
+								});
 								return; // Success, exit retry loop
 							}
 						}
@@ -578,7 +582,12 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						`${MODULE_TAG} ❌ Worker token auto-refresh failed after ${retryAttempts} attempts:`,
 						lastError.message
 					);
-					modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: `Worker token auto-refresh failed. Token expires in ${timeRemainingSeconds} seconds.`, dismissible: true });
+					modernMessaging.showBanner({
+						type: 'warning',
+						title: 'Warning',
+						message: `Worker token auto-refresh failed. Token expires in ${timeRemainingSeconds} seconds.`,
+						dismissible: true,
+					});
 				}
 			} catch (error) {
 				console.error(`${MODULE_TAG} Error in auto-refresh check:`, error);
@@ -1107,7 +1116,11 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				// Extract and log allowed device types for both authentication and registration
 				const allowedTypes = extractAllowedDeviceTypes(updatedPolicy);
 
-				modernMessaging.showFooterMessage({ type: 'info', message: `Selected policy: ${updatedPolicy.name} (${allowedTypes.length} device type${allowedTypes.length !== 1 ? 's' : ''} allowed)`, duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: `Selected policy: ${updatedPolicy.name} (${allowedTypes.length} device type${allowedTypes.length !== 1 ? 's' : ''} allowed)`,
+					duration: 3000,
+				});
 			}
 		},
 		[credentials, extractAllowedDeviceTypes, loadPolicies]
@@ -1116,17 +1129,32 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	// Handle Username-less FIDO2 Authentication
 	const handleUsernamelessFIDO2 = useCallback(async () => {
 		if (!tokenStatus.isValid) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please configure worker token first', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please configure worker token first',
+				dismissible: true,
+			});
 			return;
 		}
 
 		if (!credentials.environmentId) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please configure environment ID first', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please configure environment ID first',
+				dismissible: true,
+			});
 			return;
 		}
 
 		if (!credentials.deviceAuthenticationPolicyId) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please select an MFA Policy first', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please select an MFA Policy first',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -1144,7 +1172,11 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 			if (authResult.success) {
 				// Authentication successful!
-				modernMessaging.showFooterMessage({ type: 'info', message: `Authenticated successfully as ${authResult.username || authResult.userId}`, duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: `Authenticated successfully as ${authResult.username || authResult.userId}`,
+					duration: 3000,
+				});
 
 				// Update auth state with successful authentication
 				setAuthState((prev) => ({
@@ -1173,12 +1205,21 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				// Registration requires username because PingOne needs to identify/create the user
 				setIsPasskeyRegistrationMode(true);
 				setShowUsernameDecisionModal(true);
-				modernMessaging.showFooterMessage({ type: 'info', message: 'No passkey found. Please enter your username to register a new passkey.', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: 'No passkey found. Please enter your username to register a new passkey.',
+					duration: 3000,
+				});
 				return;
 			}
 
 			// Other error - show error message
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: authResult.error || 'Authentication failed', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: authResult.error || 'Authentication failed',
+				dismissible: true,
+			});
 		} catch (error) {
 			console.error(`${MODULE_TAG} Usernameless FIDO2 failed:`, error);
 
@@ -1189,7 +1230,12 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				return;
 			}
 
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Usernameless authentication failed', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: error instanceof Error ? error.message : 'Usernameless authentication failed',
+				dismissible: true,
+			});
 		} finally {
 			setAuthState((prev) => ({ ...prev, isLoading: false }));
 		}
@@ -1203,17 +1249,32 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	// Handle Authorization API Call (Browser-based OAuth)
 	const handleAuthorizationApi = useCallback(async () => {
 		if (!tokenStatus.isValid) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please configure worker token first', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please configure worker token first',
+				dismissible: true,
+			});
 			return;
 		}
 
 		if (!credentials.environmentId) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please configure environment ID first', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please configure environment ID first',
+				dismissible: true,
+			});
 			return;
 		}
 
 		if (!credentials.clientId) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please configure client ID first', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please configure client ID first',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -1290,7 +1351,11 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				})
 			);
 
-			modernMessaging.showFooterMessage({ type: 'info', message: '🔐 Opening authorization page...', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: '🔐 Opening authorization page...',
+				duration: 3000,
+			});
 
 			// Open in same window for better UX
 			window.location.href = authorizationUrl;
@@ -1299,7 +1364,12 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			const errorMessage =
 				error instanceof Error ? error.message : 'Failed to initiate authorization';
 			setAuthorizationError(errorMessage);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Authorization failed: ${errorMessage}`, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: `Authorization failed: ${errorMessage}`,
+				dismissible: true,
+			});
 		} finally {
 			setIsAuthorizing(false);
 		}
@@ -1329,19 +1399,34 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 		if (!tokenStatus.isValid) {
 			console.warn(`${MODULE_TAG} ❌ Worker token invalid - cannot start authentication`);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please configure worker token first', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please configure worker token first',
+				dismissible: true,
+			});
 			return;
 		}
 
 		if (!credentials.environmentId) {
 			console.warn(`${MODULE_TAG} ❌ Environment ID missing - cannot start authentication`);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please configure environment ID first', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please configure environment ID first',
+				dismissible: true,
+			});
 			return;
 		}
 
 		if (!credentials.deviceAuthenticationPolicyId) {
 			console.warn(`${MODULE_TAG} ❌ Policy ID missing - cannot start authentication`);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please select an MFA Policy first', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please select an MFA Policy first',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -1476,7 +1561,13 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			// Validate that we got an authenticationId from the response
 			if (!response.id) {
 				console.error(`${MODULE_TAG} Authentication initialized but no ID in response:`, response);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to initialize authentication: No authentication ID received from PingOne', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message:
+						'Failed to initialize authentication: No authentication ID received from PingOne',
+					dismissible: true,
+				});
 				setAuthState((prev) => ({ ...prev, isLoading: false }));
 				return;
 			}
@@ -1523,20 +1614,32 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				// Device selection is needed - the UI will show the device list automatically
 				// based on authState.showDeviceSelection being true
 				console.log(`${MODULE_TAG} 🔄 Device selection required, showing device list`);
-				modernMessaging.showFooterMessage({ type: 'info', message: 'Please select a device to continue', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: 'Please select a device to continue',
+					duration: 3000,
+				});
 			} else if (needsOTP) {
 				console.log(`${MODULE_TAG} 🔢 OTP required, showing OTP modal`);
 				setShowOTPModal(true);
 			} else if (needsPush) {
 				console.log(`${MODULE_TAG} 📱 Push confirmation required, showing push modal`);
 				setShowPushModal(true);
-				modernMessaging.showFooterMessage({ type: 'info', message: 'Please approve the sign-in on your phone.', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: 'Please approve the sign-in on your phone.',
+					duration: 3000,
+				});
 			} else if (needsAssertion) {
 				console.log(`${MODULE_TAG} 🔑 FIDO2 assertion required, showing FIDO2 modal`);
 				setShowFIDO2Modal(true);
 			} else if (status === 'COMPLETED') {
 				console.log(`${MODULE_TAG} ✅ Authentication already completed, navigating to success`);
-				modernMessaging.showFooterMessage({ type: 'info', message: 'Authentication completed successfully!', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: 'Authentication completed successfully!',
+					duration: 3000,
+				});
 				// FOOLPROOF: Auto-advance to success page if authentication is already completed
 				setTimeout(() => {
 					window.location.href = '/v8/mfa/authentication/success';
@@ -1548,7 +1651,11 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					nextStep,
 					deviceCount: authDevices.length,
 				});
-				modernMessaging.showFooterMessage({ type: 'info', message: 'Authentication started successfully', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: 'Authentication started successfully',
+					duration: 3000,
+				});
 
 				// Fallback: If we have devices, show device selection. Otherwise, show success.
 				setTimeout(() => {
@@ -1572,7 +1679,12 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				return;
 			}
 
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Failed to start authentication', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: error instanceof Error ? error.message : 'Failed to start authentication',
+				dismissible: true,
+			});
 			setAuthState((prev) => ({ ...prev, isLoading: false }));
 			setLoadingMessage('');
 		}
@@ -1626,7 +1738,11 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					});
 
 					if (logoutResult.success) {
-						modernMessaging.showFooterMessage({ type: 'info', message: 'PingOne session logout initiated in a new tab', duration: 3000 });
+						modernMessaging.showFooterMessage({
+							type: 'info',
+							message: 'PingOne session logout initiated in a new tab',
+							duration: 3000,
+						});
 					} else {
 						console.warn('[MFA-AUTHN-MAIN-V8] PingOne logout failed:', logoutResult.error);
 					}
@@ -1666,10 +1782,19 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				console.warn('[MFA-AUTHN-MAIN-V8] Could not clear user token from credentials:', error);
 			}
 
-			modernMessaging.showFooterMessage({ type: 'info', message: 'All tokens cleared successfully!', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'All tokens cleared successfully!',
+				duration: 3000,
+			});
 		} catch (error) {
 			console.error('[MFA-AUTHN-MAIN-V8] Failed to clear tokens:', error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to clear tokens. Please try again.', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to clear tokens. Please try again.',
+				dismissible: true,
+			});
 		} finally {
 			// Ensure spinner shows for minimum time
 			const elapsed = Date.now() - startTime;
@@ -1944,7 +2069,11 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 														detail: { workerToken: config.workerToken },
 													})
 												);
-												modernMessaging.showFooterMessage({ type: 'info', message: `Silent API Token Retrieval set to: ${newValue}`, duration: 3000 });
+												modernMessaging.showFooterMessage({
+													type: 'info',
+													message: `Silent API Token Retrieval set to: ${newValue}`,
+													duration: 3000,
+												});
 
 												// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 												if (newValue) {
@@ -2018,7 +2147,11 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 														detail: { workerToken: config.workerToken },
 													})
 												);
-												modernMessaging.showFooterMessage({ type: 'info', message: `Show Token After Generation set to: ${newValue}`, duration: 3000 });
+												modernMessaging.showFooterMessage({
+													type: 'info',
+													message: `Show Token After Generation set to: ${newValue}`,
+													duration: 3000,
+												});
 											}}
 											style={{
 												width: '20px',
@@ -2323,7 +2456,12 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									filename,
 									'PingOne MFA Flows Environment'
 								);
-								modernMessaging.showFooterMessage({ type: 'info', message: 'Postman collection and environment downloaded! Import both into Postman to test all MFA flows.', duration: 3000 });
+								modernMessaging.showFooterMessage({
+									type: 'info',
+									message:
+										'Postman collection and environment downloaded! Import both into Postman to test all MFA flows.',
+									duration: 3000,
+								});
 							}}
 							spinnerSize={16}
 							spinnerPosition="left"
@@ -2379,7 +2517,12 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									filename,
 									'PingOne Complete Collection Environment'
 								);
-								modernMessaging.showFooterMessage({ type: 'info', message: 'Complete Postman collection (Unified + MFA) downloaded! Import both files into Postman.', duration: 3000 });
+								modernMessaging.showFooterMessage({
+									type: 'info',
+									message:
+										'Complete Postman collection (Unified + MFA) downloaded! Import both files into Postman.',
+									duration: 3000,
+								});
 							}}
 							spinnerSize={16}
 							spinnerPosition="left"
@@ -3644,13 +3787,22 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											username: usernameInput.trim(),
 										});
 										setUserDevices(devices);
-										modernMessaging.showFooterMessage({ type: 'info', message: 'Devices refreshed', duration: 3000 });
+										modernMessaging.showFooterMessage({
+											type: 'info',
+											message: 'Devices refreshed',
+											duration: 3000,
+										});
 									} catch (error) {
 										console.error(`${MODULE_TAG} Failed to refresh devices:`, error);
 										setDevicesError(
 											error instanceof Error ? error.message : 'Failed to load devices'
 										);
-										modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to refresh devices', dismissible: true });
+										modernMessaging.showBanner({
+											type: 'error',
+											title: 'Error',
+											message: 'Failed to refresh devices',
+											dismissible: true,
+										});
 									} finally {
 										setIsLoadingDevices(false);
 									}
@@ -3718,22 +3870,42 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 										onClick={async () => {
 											// Start authentication with this specific device (for all device types)
 											if (!tokenStatus.isValid) {
-												modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please configure worker token first', dismissible: true });
+												modernMessaging.showBanner({
+													type: 'error',
+													title: 'Error',
+													message: 'Please configure worker token first',
+													dismissible: true,
+												});
 												return;
 											}
 
 											if (!credentials.environmentId) {
-												modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please configure environment ID first', dismissible: true });
+												modernMessaging.showBanner({
+													type: 'error',
+													title: 'Error',
+													message: 'Please configure environment ID first',
+													dismissible: true,
+												});
 												return;
 											}
 
 											if (!credentials.deviceAuthenticationPolicyId) {
-												modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please select an MFA Policy first', dismissible: true });
+												modernMessaging.showBanner({
+													type: 'error',
+													title: 'Error',
+													message: 'Please select an MFA Policy first',
+													dismissible: true,
+												});
 												return;
 											}
 
 											if (!usernameInput.trim()) {
-												modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter a username first', dismissible: true });
+												modernMessaging.showBanner({
+													type: 'error',
+													title: 'Error',
+													message: 'Please enter a username first',
+													dismissible: true,
+												});
 												return;
 											}
 
@@ -3798,7 +3970,11 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 												// Handle next step based on device type and response
 												if (status === 'OTP_REQUIRED' || nextStep === 'OTP_REQUIRED') {
 													setShowOTPModal(true);
-													modernMessaging.showFooterMessage({ type: 'info', message: 'OTP has been sent. Please check your device.', duration: 3000 });
+													modernMessaging.showFooterMessage({
+														type: 'info',
+														message: 'OTP has been sent. Please check your device.',
+														duration: 3000,
+													});
 												} else if (needsAssertion) {
 													const deviceType = (device.type as string)?.toUpperCase() || '';
 													if (deviceType === 'FIDO2') {
@@ -3814,32 +3990,71 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 																	_links: links,
 																}
 															);
-															modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'PingOne did not provide a WebAuthn challenge for this FIDO2 authentication. Please try again or use another factor.', dismissible: true });
+															modernMessaging.showBanner({
+																type: 'error',
+																title: 'Error',
+																message:
+																	'PingOne did not provide a WebAuthn challenge for this FIDO2 authentication. Please try again or use another factor.',
+																dismissible: true,
+															});
 														} else {
 															setShowFIDO2Modal(true);
-															modernMessaging.showFooterMessage({ type: 'info', message: 'Please complete WebAuthn authentication.', duration: 3000 });
+															modernMessaging.showFooterMessage({
+																type: 'info',
+																message: 'Please complete WebAuthn authentication.',
+																duration: 3000,
+															});
 														}
 													} else {
-														modernMessaging.showBanner({ type: 'error', title: 'Error', message: `ASSERTION_REQUIRED only applies to FIDO2 devices, but selected device is ${deviceType}`, dismissible: true });
+														modernMessaging.showBanner({
+															type: 'error',
+															title: 'Error',
+															message: `ASSERTION_REQUIRED only applies to FIDO2 devices, but selected device is ${deviceType}`,
+															dismissible: true,
+														});
 													}
 												} else if (needsPush) {
 													setShowPushModal(true);
-													modernMessaging.showFooterMessage({ type: 'info', message: 'Please approve the sign-in on your phone.', duration: 3000 });
+													modernMessaging.showFooterMessage({
+														type: 'info',
+														message: 'Please approve the sign-in on your phone.',
+														duration: 3000,
+													});
 													// Polling is handled by useEffect when showPushModal is true
 												} else if (status === 'COMPLETED') {
-													modernMessaging.showFooterMessage({ type: 'info', message: 'Authentication completed successfully!', duration: 3000 });
+													modernMessaging.showFooterMessage({
+														type: 'info',
+														message: 'Authentication completed successfully!',
+														duration: 3000,
+													});
 												} else if (needsDeviceSelection) {
 													setShowDeviceSelectionModal(true);
-													modernMessaging.showFooterMessage({ type: 'info', message: 'Please select a device to continue', duration: 3000 });
+													modernMessaging.showFooterMessage({
+														type: 'info',
+														message: 'Please select a device to continue',
+														duration: 3000,
+													});
 												} else {
-													modernMessaging.showFooterMessage({ type: 'info', message: 'Authentication started successfully', duration: 3000 });
+													modernMessaging.showFooterMessage({
+														type: 'info',
+														message: 'Authentication started successfully',
+														duration: 3000,
+													});
 												}
 											} catch (error) {
 												console.error(
 													`${MODULE_TAG} Failed to start authentication with device:`,
 													error
 												);
-												modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Failed to start authentication', dismissible: true });
+												modernMessaging.showBanner({
+													type: 'error',
+													title: 'Error',
+													message:
+														error instanceof Error
+															? error.message
+															: 'Failed to start authentication',
+													dismissible: true,
+												});
 												setAuthState((prev) => ({ ...prev, isLoading: false }));
 											}
 										}}
@@ -3964,7 +4179,12 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									type="button"
 									onClick={async () => {
 										if (!authState.authenticationId || !authState.userId) {
-											modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Authentication session not found', dismissible: true });
+											modernMessaging.showBanner({
+												type: 'error',
+												title: 'Error',
+												message: 'Authentication session not found',
+												dismissible: true,
+											});
 											return;
 										}
 
@@ -3998,7 +4218,11 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											// Handle next step
 											if (status === 'OTP_REQUIRED' || nextStep === 'OTP_REQUIRED') {
 												setShowOTPModal(true);
-												modernMessaging.showFooterMessage({ type: 'info', message: 'OTP has been sent', duration: 3000 });
+												modernMessaging.showFooterMessage({
+													type: 'info',
+													message: 'OTP has been sent',
+													duration: 3000,
+												});
 											} else if (
 												status === 'ASSERTION_REQUIRED' ||
 												nextStep === 'ASSERTION_REQUIRED'
@@ -4007,11 +4231,20 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											} else if (status === 'PUSH_CONFIRMATION_REQUIRED') {
 												setShowPushModal(true);
 											} else if (status === 'COMPLETED') {
-												modernMessaging.showFooterMessage({ type: 'info', message: 'Authentication completed!', duration: 3000 });
+												modernMessaging.showFooterMessage({
+													type: 'info',
+													message: 'Authentication completed!',
+													duration: 3000,
+												});
 											}
 										} catch (error) {
 											console.error(`${MODULE_TAG} Failed to select device:`, error);
-											modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Failed to select device', dismissible: true });
+											modernMessaging.showBanner({
+												type: 'error',
+												title: 'Error',
+												message: error instanceof Error ? error.message : 'Failed to select device',
+												dismissible: true,
+											});
 											setAuthState((prev) => ({ ...prev, isLoading: false }));
 										}
 									}}
@@ -4502,7 +4735,12 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											type="button"
 											onClick={async () => {
 												if (!usernameInput.trim()) {
-													modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Please enter a username', dismissible: true });
+													modernMessaging.showBanner({
+														type: 'warning',
+														title: 'Warning',
+														message: 'Please enter a username',
+														dismissible: true,
+													});
 													return;
 												}
 
@@ -4524,7 +4762,12 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 														});
 
 														if (result.success) {
-															modernMessaging.showFooterMessage({ type: 'info', message: 'Passkey registered successfully! You can now use it for username-less authentication.', duration: 3000 });
+															modernMessaging.showFooterMessage({
+																type: 'info',
+																message:
+																	'Passkey registered successfully! You can now use it for username-less authentication.',
+																duration: 3000,
+															});
 															setIsPasskeyRegistrationMode(false);
 															// Optionally, immediately try authentication with the new passkey
 															// For now, just show success
@@ -4535,7 +4778,12 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 																setUnavailableDevices(result.unavailableDevices || []);
 																setShowDeviceFailureModal(true);
 															} else {
-																modernMessaging.showBanner({ type: 'error', title: 'Error', message: result.error || 'Failed to register passkey', dismissible: true });
+																modernMessaging.showBanner({
+																	type: 'error',
+																	title: 'Error',
+																	message: result.error || 'Failed to register passkey',
+																	dismissible: true,
+																});
 															}
 														}
 													} catch (error) {
@@ -4547,7 +4795,15 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 															return;
 														}
 
-														modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Failed to register passkey', dismissible: true });
+														modernMessaging.showBanner({
+															type: 'error',
+															title: 'Error',
+															message:
+																error instanceof Error
+																	? error.message
+																	: 'Failed to register passkey',
+															dismissible: true,
+														});
 													} finally {
 														setAuthState((prev) => ({ ...prev, isLoading: false }));
 													}
@@ -4978,7 +5234,12 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 															// Validate deviceId
 															if (!deviceId || deviceId.trim() === '') {
 																console.error(`${MODULE_TAG} Invalid deviceId:`, deviceId);
-																modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Device ID is missing or invalid', dismissible: true });
+																modernMessaging.showBanner({
+																	type: 'error',
+																	title: 'Error',
+																	message: 'Device ID is missing or invalid',
+																	dismissible: true,
+																});
 																return;
 															}
 
@@ -4995,7 +5256,12 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 																		authStateDeviceIds: authState.devices.map((d) => d.id),
 																	}
 																);
-																modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Selected device not found', dismissible: true });
+																modernMessaging.showBanner({
+																	type: 'error',
+																	title: 'Error',
+																	message: 'Selected device not found',
+																	dismissible: true,
+																});
 																return;
 															}
 
@@ -5005,13 +5271,24 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 															// Validate required fields
 															if (!authState.authenticationId) {
 																console.error(`${MODULE_TAG} Missing authenticationId`);
-																modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Authentication session not found. Please start authentication again.', dismissible: true });
+																modernMessaging.showBanner({
+																	type: 'error',
+																	title: 'Error',
+																	message:
+																		'Authentication session not found. Please start authentication again.',
+																	dismissible: true,
+																});
 																return;
 															}
 
 															if (!usernameInput.trim()) {
 																console.error(`${MODULE_TAG} Missing username`);
-																modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Username is required', dismissible: true });
+																modernMessaging.showBanner({
+																	type: 'error',
+																	title: 'Error',
+																	message: 'Username is required',
+																	dismissible: true,
+																});
 																return;
 															}
 
@@ -5192,7 +5469,11 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 																		_links: { ...prev._links, ...links },
 																	}));
 																	setShowDeviceSelectionModal(false);
-																	modernMessaging.showFooterMessage({ type: 'info', message: 'Authentication completed successfully!', duration: 3000 });
+																	modernMessaging.showFooterMessage({
+																		type: 'info',
+																		message: 'Authentication completed successfully!',
+																		duration: 3000,
+																	});
 																	return;
 																}
 
@@ -5223,7 +5504,11 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 																// Handle next step based on device type and response
 																if (status === 'OTP_REQUIRED' || nextStep === 'OTP_REQUIRED') {
 																	setShowOTPModal(true);
-																	modernMessaging.showFooterMessage({ type: 'info', message: 'OTP has been sent. Please check your device.', duration: 3000 });
+																	modernMessaging.showFooterMessage({
+																		type: 'info',
+																		message: 'OTP has been sent. Please check your device.',
+																		duration: 3000,
+																	});
 																} else if (
 																	status === 'ASSERTION_REQUIRED' ||
 																	nextStep === 'ASSERTION_REQUIRED'
@@ -5248,7 +5533,13 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 																					_links: data._links,
 																				}
 																			);
-																			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'PingOne did not provide a WebAuthn challenge for this FIDO2 authentication. Please try again or use another factor.', dismissible: true });
+																			modernMessaging.showBanner({
+																				type: 'error',
+																				title: 'Error',
+																				message:
+																					'PingOne did not provide a WebAuthn challenge for this FIDO2 authentication. Please try again or use another factor.',
+																				dismissible: true,
+																			});
 																		} else {
 																			// Store publicKeyCredentialRequestOptions in auth state if available
 																			if (publicKeyOptions) {
@@ -5258,21 +5549,42 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 																				}));
 																			}
 																			setShowFIDO2Modal(true);
-																			modernMessaging.showFooterMessage({ type: 'info', message: 'Please complete WebAuthn authentication.', duration: 3000 });
+																			modernMessaging.showFooterMessage({
+																				type: 'info',
+																				message: 'Please complete WebAuthn authentication.',
+																				duration: 3000,
+																			});
 																		}
 																	} else {
-																		modernMessaging.showBanner({ type: 'error', title: 'Error', message: `ASSERTION_REQUIRED only applies to FIDO2 devices, but selected device is ${deviceType}`, dismissible: true });
+																		modernMessaging.showBanner({
+																			type: 'error',
+																			title: 'Error',
+																			message: `ASSERTION_REQUIRED only applies to FIDO2 devices, but selected device is ${deviceType}`,
+																			dismissible: true,
+																		});
 																	}
 																} else if (
 																	status === 'PUSH_CONFIRMATION_REQUIRED' ||
 																	nextStep === 'PUSH_CONFIRMATION_REQUIRED'
 																) {
 																	setShowPushModal(true);
-																	modernMessaging.showFooterMessage({ type: 'info', message: 'Please approve the sign-in on your phone.', duration: 3000 });
+																	modernMessaging.showFooterMessage({
+																		type: 'info',
+																		message: 'Please approve the sign-in on your phone.',
+																		duration: 3000,
+																	});
 																} else if (status === 'COMPLETED') {
-																	modernMessaging.showFooterMessage({ type: 'info', message: 'Authentication completed successfully!', duration: 3000 });
+																	modernMessaging.showFooterMessage({
+																		type: 'info',
+																		message: 'Authentication completed successfully!',
+																		duration: 3000,
+																	});
 																} else {
-																	modernMessaging.showFooterMessage({ type: 'info', message: 'Device selected successfully', duration: 3000 });
+																	modernMessaging.showFooterMessage({
+																		type: 'info',
+																		message: 'Device selected successfully',
+																		duration: 3000,
+																	});
 																}
 															} catch (error) {
 																console.error(`${MODULE_TAG} Failed to select device:`, error);
@@ -5298,11 +5610,22 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 																			? { coolDownExpiresAt: errorWithCode.coolDownExpiresAt }
 																			: {}),
 																	});
-																	modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: errorMessage, dismissible: true });
+																	modernMessaging.showBanner({
+																		type: 'warning',
+																		title: 'Warning',
+																		message: errorMessage,
+																		dismissible: true,
+																	});
 																} else {
-																	modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error
-																			? error.message
-																			: 'Failed to select device', dismissible: true });
+																	modernMessaging.showBanner({
+																		type: 'error',
+																		title: 'Error',
+																		message:
+																			error instanceof Error
+																				? error.message
+																				: 'Failed to select device',
+																		dismissible: true,
+																	});
 																}
 																setAuthState((prev) => ({ ...prev, isLoading: false }));
 															}
@@ -5363,7 +5686,12 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 															// Validate deviceId
 															if (!deviceId || deviceId.trim() === '') {
 																console.error(`${MODULE_TAG} Invalid deviceId:`, deviceId);
-																modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Device ID is missing or invalid', dismissible: true });
+																modernMessaging.showBanner({
+																	type: 'error',
+																	title: 'Error',
+																	message: 'Device ID is missing or invalid',
+																	dismissible: true,
+																});
 																return;
 															}
 
@@ -5380,7 +5708,12 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 																		authStateDeviceIds: authState.devices.map((d) => d.id),
 																	}
 																);
-																modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Selected device not found', dismissible: true });
+																modernMessaging.showBanner({
+																	type: 'error',
+																	title: 'Error',
+																	message: 'Selected device not found',
+																	dismissible: true,
+																});
 																return;
 															}
 
@@ -5390,18 +5723,35 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 															// Validate required fields
 															if (!authState.authenticationId) {
 																console.error(`${MODULE_TAG} Missing authenticationId`);
-																modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Authentication session not found. Please start authentication again.', dismissible: true });
+																modernMessaging.showBanner({
+																	type: 'error',
+																	title: 'Error',
+																	message:
+																		'Authentication session not found. Please start authentication again.',
+																	dismissible: true,
+																});
 																return;
 															}
 
 															if (!usernameInput.trim()) {
 																console.error(`${MODULE_TAG} Missing username`);
-																modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Username is required', dismissible: true });
+																modernMessaging.showBanner({
+																	type: 'error',
+																	title: 'Error',
+																	message: 'Username is required',
+																	dismissible: true,
+																});
 																return;
 															}
 
 															// Note: Activation required devices cannot be used for authentication
-															modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'This device requires activation before it can be used for authentication. Please activate it first.', dismissible: true });
+															modernMessaging.showBanner({
+																type: 'warning',
+																title: 'Warning',
+																message:
+																	'This device requires activation before it can be used for authentication. Please activate it first.',
+																dismissible: true,
+															});
 															setShowDeviceSelectionModal(false);
 														}}
 														onSelectNew={() => {
@@ -5989,7 +6339,11 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							}
 
 							if (success) {
-								modernMessaging.showFooterMessage({ type: 'info', message: 'New verification code has been sent. Please check your device.', duration: 3000 });
+								modernMessaging.showFooterMessage({
+									type: 'info',
+									message: 'New verification code has been sent. Please check your device.',
+									duration: 3000,
+								});
 							} else {
 								throw new Error('Failed to resend OTP - all strategies exhausted');
 							}
@@ -6015,12 +6369,22 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 										? { coolDownExpiresAt: errorWithCode.coolDownExpiresAt }
 										: {}),
 								});
-								modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: errorMessage, dismissible: true });
+								modernMessaging.showBanner({
+									type: 'warning',
+									title: 'Warning',
+									message: errorMessage,
+									dismissible: true,
+								});
 							} else {
 								const errorMessage =
 									error instanceof Error ? error.message : 'Failed to resend code';
 								setOtpError(errorMessage);
-								modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to resend code: ${errorMessage}`, dismissible: true });
+								modernMessaging.showBanner({
+									type: 'error',
+									title: 'Error',
+									message: `Failed to resend code: ${errorMessage}`,
+									dismissible: true,
+								});
 							}
 						} finally {
 							setIsValidatingOTP(false);

@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { ButtonSpinner } from '@/components/ui';
 import { usePageScroll } from '@/hooks/usePageScroll';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
@@ -17,7 +18,6 @@ import {
 	type TokenStatusInfo,
 	WorkerTokenStatusServiceV8,
 } from '@/v8/services/workerTokenStatusServiceV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const MODULE_TAG = '[📋 DEVICE-ORDER-FLOW-V8]';
 const FLOW_KEY = 'mfa-device-order-v8';
@@ -179,7 +179,11 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 				// #region agent log
 				// #endregion
 				setTokenStatus(newStatus);
-				modernMessaging.showFooterMessage({ type: 'info', message: 'Worker token removed', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: 'Worker token removed',
+					duration: 3000,
+				});
 			}
 		} else {
 			// Use helper to check silentApiRetrieval before showing modal
@@ -199,7 +203,11 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 	const handleWorkerTokenGenerated = () => {
 		window.dispatchEvent(new Event('workerTokenUpdated'));
 		setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync());
-		modernMessaging.showFooterMessage({ type: 'info', message: 'Worker token generated and saved!', duration: 3000 });
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message: 'Worker token generated and saved!',
+			duration: 3000,
+		});
 	};
 
 	const canLoad =
@@ -207,15 +215,30 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 
 	const handleLoadDevices = async () => {
 		if (!credentials.environmentId?.trim()) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Environment ID is required', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Environment ID is required',
+				dismissible: true,
+			});
 			return;
 		}
 		if (!credentials.username?.trim()) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Username is required', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Username is required',
+				dismissible: true,
+			});
 			return;
 		}
 		if (!tokenStatus.isValid) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Worker token is required', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Worker token is required',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -228,11 +251,20 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 			});
 			setDevices((result || []) as Device[]);
 			setIsReady(true);
-			modernMessaging.showFooterMessage({ type: 'info', message: `Loaded ${Array.isArray(result) ? result.length : 0} devices`, duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: `Loaded ${Array.isArray(result) ? result.length : 0} devices`,
+				duration: 3000,
+			});
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to load devices`, error);
 			setLoadError(error instanceof Error ? error.message : 'Failed to load devices from PingOne');
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to load devices: ${error instanceof Error ? error.message : 'Unknown error'}`, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: `Failed to load devices: ${error instanceof Error ? error.message : 'Unknown error'}`,
+				dismissible: true,
+			});
 		} finally {
 			setIsLoadingDevices(false);
 		}
@@ -250,7 +282,11 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 				typeFilter,
 				statusFilter,
 			});
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Clear filters to change device ordering', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Clear filters to change device ordering',
+				duration: 3000,
+			});
 			return;
 		}
 
@@ -297,18 +333,32 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 
 	const handleSetAsDefault = async (deviceId: string) => {
 		if (!credentials.environmentId?.trim() || !credentials.username?.trim()) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Environment ID and username are required', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Environment ID and username are required',
+				dismissible: true,
+			});
 			return;
 		}
 
 		const deviceIndex = devices.findIndex((d) => d.id === deviceId);
 		if (deviceIndex === -1) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Device not found', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Device not found',
+				dismissible: true,
+			});
 			return;
 		}
 
 		if (deviceIndex === 0) {
-			modernMessaging.showFooterMessage({ type: 'info', message: 'This device is already the default', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'This device is already the default',
+				duration: 3000,
+			});
 			return;
 		}
 
@@ -343,10 +393,19 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 				user.id,
 				deviceIds
 			);
-			modernMessaging.showFooterMessage({ type: 'info', message: `"${deviceToMove.type}" set as default device`, duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: `"${deviceToMove.type}" set as default device`,
+				duration: 3000,
+			});
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to set default device:`, error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Failed to set default device', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: error instanceof Error ? error.message : 'Failed to set default device',
+				dismissible: true,
+			});
 			// Revert on error
 			setDevices(devices);
 		} finally {
@@ -356,11 +415,20 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 
 	const handleSaveOrder = async () => {
 		if (devices.length <= 1) {
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Add more than one device to change ordering', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Add more than one device to change ordering',
+				duration: 3000,
+			});
 			return;
 		}
 		if (!credentials.environmentId?.trim() || !credentials.username?.trim()) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Environment ID and username are required', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Environment ID and username are required',
+				dismissible: true,
+			});
 			return;
 		}
 		setIsSavingOrder(true);
@@ -394,10 +462,19 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 				user.id,
 				deviceIds
 			);
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Device order updated successfully', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Device order updated successfully',
+				duration: 3000,
+			});
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to save device order`, error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to save device order: ${error instanceof Error ? error.message : 'Unknown error'}`, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: `Failed to save device order: ${error instanceof Error ? error.message : 'Unknown error'}`,
+				dismissible: true,
+			});
 		} finally {
 			setIsSavingOrder(false);
 		}
@@ -405,7 +482,12 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 
 	const handleRemoveOrder = async () => {
 		if (!credentials.environmentId?.trim() || !credentials.username?.trim()) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Environment ID and username are required', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Environment ID and username are required',
+				dismissible: true,
+			});
 			return;
 		}
 		setIsRemovingOrder(true);
@@ -415,10 +497,19 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 				credentials.username.trim()
 			);
 			await MFAServiceV8.removeUserMfaDeviceOrder(credentials.environmentId.trim(), user.id);
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Device ordering removed successfully', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Device ordering removed successfully',
+				duration: 3000,
+			});
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to remove device order`, error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to remove device order: ${error instanceof Error ? error.message : 'Unknown error'}`, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: `Failed to remove device order: ${error instanceof Error ? error.message : 'Unknown error'}`,
+				dismissible: true,
+			});
 		} finally {
 			setIsRemovingOrder(false);
 		}
@@ -580,7 +671,11 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 													detail: { workerToken: config.workerToken },
 												})
 											);
-											modernMessaging.showFooterMessage({ type: 'info', message: `Silent API Token Retrieval set to: ${newValue}`, duration: 3000 });
+											modernMessaging.showFooterMessage({
+												type: 'info',
+												message: `Silent API Token Retrieval set to: ${newValue}`,
+												duration: 3000,
+											});
 
 											// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 											if (newValue) {
@@ -655,7 +750,11 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 													detail: { workerToken: config.workerToken },
 												})
 											);
-											modernMessaging.showFooterMessage({ type: 'info', message: `Show Token After Generation set to: ${newValue}`, duration: 3000 });
+											modernMessaging.showFooterMessage({
+												type: 'info',
+												message: `Show Token After Generation set to: ${newValue}`,
+												duration: 3000,
+											});
 										}}
 										style={{
 											width: '20px',

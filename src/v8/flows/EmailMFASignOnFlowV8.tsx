@@ -31,13 +31,13 @@ import styled from 'styled-components';
 import { readBestEnvironmentId } from '@/hooks/useAutoEnvironmentId';
 import { usePageScroll } from '@/hooks/usePageScroll';
 import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EmailMFASignOnFlowServiceV8 } from '@/v8/services/emailMfaSignOnFlowServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { ButtonSpinner } from '../../components/ui/ButtonSpinner';
 
 const MODULE_TAG = '[📧 EMAIL-MFA-SIGNON-FLOW-V8]';
@@ -399,7 +399,12 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 				try {
 					const status = await unifiedWorkerTokenService.getStatus();
 					if (!status.tokenValid) {
-						modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Worker token is expired or invalid. Please generate a new token.', dismissible: true });
+						modernMessaging.showBanner({
+							type: 'warning',
+							title: 'Warning',
+							message: 'Worker token is expired or invalid. Please generate a new token.',
+							dismissible: true,
+						});
 					}
 				} catch (error) {
 					console.error(`${MODULE_TAG} Error checking token status:`, error);
@@ -430,7 +435,12 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 	// Step 0: Create Application with Resource Grants
 	const handleStep0 = useCallback(async () => {
 		if (!environmentId) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please configure Environment ID first', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please configure Environment ID first',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -480,18 +490,32 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 			}
 
 			updateStepState(0, { status: 'success', result: appResult });
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Application created successfully', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Application created successfully',
+				duration: 3000,
+			});
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Failed to create application';
 			updateStepState(0, { status: 'error', error: errorMessage });
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: errorMessage,
+				dismissible: true,
+			});
 		}
 	}, [environmentId, appName, redirectUri, updateStepState]);
 
 	// Step 1: Create Sign-On Policy with Email MFA Action
 	const handleStep1 = useCallback(async () => {
 		if (!environmentId || !applicationData.id) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please complete Step 0 first', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please complete Step 0 first',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -528,19 +552,33 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 
 			updateStepState(1, { status: 'success', result: policyResult });
 			setCurrentStep(2);
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Sign-on policy created and assigned successfully', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Sign-on policy created and assigned successfully',
+				duration: 3000,
+			});
 		} catch (error) {
 			const errorMessage =
 				error instanceof Error ? error.message : 'Failed to create sign-on policy';
 			updateStepState(1, { status: 'error', error: errorMessage });
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: errorMessage,
+				dismissible: true,
+			});
 		}
 	}, [environmentId, applicationData, updateStepState]);
 
 	// Step 2: Create User and Enable MFA
 	const handleStep2 = useCallback(async () => {
 		if (!environmentId) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please configure Environment ID first', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please configure Environment ID first',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -581,18 +619,32 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 
 			updateStepState(2, { status: 'success', result: userResult });
 			setCurrentStep(3);
-			modernMessaging.showFooterMessage({ type: 'info', message: 'User created and MFA enabled successfully', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'User created and MFA enabled successfully',
+				duration: 3000,
+			});
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Failed to create user';
 			updateStepState(2, { status: 'error', error: errorMessage });
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: errorMessage,
+				dismissible: true,
+			});
 		}
 	}, [environmentId, username, userEmail, password, updateStepState]);
 
 	// Step 3: Create Device Authentication Policy and Register Email Device
 	const handleStep3 = useCallback(async () => {
 		if (!environmentId || !userData.id) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please complete Step 2 first', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please complete Step 2 first',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -624,21 +676,35 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 
 			updateStepState(3, { status: 'success', result: deviceResult });
 			setCurrentStep(4);
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Email device registered successfully! Device is ready to use (ACTIVE status).', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Email device registered successfully! Device is ready to use (ACTIVE status).',
+				duration: 3000,
+			});
 		} catch (error) {
 			const errorMessage =
 				error instanceof Error
 					? error.message
 					: 'Failed to create device policy or register device';
 			updateStepState(3, { status: 'error', error: errorMessage });
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: errorMessage,
+				dismissible: true,
+			});
 		}
 	}, [environmentId, userData, deviceEmail, updateStepState]);
 
 	// Step 4: Initiate Authorization Request and Flow APIs
 	const handleStep4 = useCallback(async () => {
 		if (!environmentId || !applicationData.clientId) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please complete Step 0 first', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please complete Step 0 first',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -674,19 +740,33 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 
 			updateStepState(4, { status: 'success', result: authResult });
 			setCurrentStep(5);
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Authorization initiated successfully', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Authorization initiated successfully',
+				duration: 3000,
+			});
 		} catch (error) {
 			const errorMessage =
 				error instanceof Error ? error.message : 'Failed to initiate authorization';
 			updateStepState(4, { status: 'error', error: errorMessage });
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: errorMessage,
+				dismissible: true,
+			});
 		}
 	}, [environmentId, applicationData, redirectUri, updateStepState]);
 
 	// Step 5: Complete MFA Action (User Lookup + OTP Validation)
 	const handleStep5 = useCallback(async () => {
 		if (!environmentId || (!flowData.id && !flowData.flowId)) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please complete Step 4 first', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please complete Step 4 first',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -727,18 +807,32 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 
 			updateStepState(5, { status: 'success', result: lookupResult });
 			setCurrentStep(6);
-			modernMessaging.showFooterMessage({ type: 'info', message: 'MFA action completed successfully', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'MFA action completed successfully',
+				duration: 3000,
+			});
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Failed to complete MFA action';
 			updateStepState(5, { status: 'error', error: errorMessage });
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: errorMessage,
+				dismissible: true,
+			});
 		}
 	}, [environmentId, flowData, username, password, otpCode, updateStepState]);
 
 	// Step 6: Resume Flow and Exchange Auth Code for Token
 	const handleStep6 = useCallback(async () => {
 		if (!environmentId || (!flowData.id && !flowData.flowId)) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please complete Step 5 first', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please complete Step 5 first',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -785,12 +879,21 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 			setTokenData(tokenResult);
 
 			updateStepState(6, { status: 'success', result: tokenResult });
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Authorization code exchanged for token successfully', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Authorization code exchanged for token successfully',
+				duration: 3000,
+			});
 		} catch (error) {
 			const errorMessage =
 				error instanceof Error ? error.message : 'Failed to resume flow or exchange code';
 			updateStepState(6, { status: 'error', error: errorMessage });
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: errorMessage,
+				dismissible: true,
+			});
 		}
 	}, [environmentId, flowData, applicationData, redirectUri, updateStepState]);
 

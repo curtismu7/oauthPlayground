@@ -16,8 +16,8 @@ import {
 } from '@icons';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { ColoredUrlDisplay } from '../components/ColoredUrlDisplay';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { ColoredUrlDisplay } from '../components/ColoredUrlDisplay';
 
 // ============================================================================
 // TYPES
@@ -481,7 +481,11 @@ const ApiRequestModal: React.FC<ApiRequestModalProps> = ({ isOpen, config, onClo
 		const curlCommand = generateCurlCommand();
 		navigator.clipboard.writeText(curlCommand);
 		setCopiedCurl(true);
-		modernMessaging.showFooterMessage({ type: 'info', message: 'cURL command copied to clipboard', duration: 3000 });
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message: 'cURL command copied to clipboard',
+			duration: 3000,
+		});
 		setTimeout(() => setCopiedCurl(false), 2000);
 	};
 

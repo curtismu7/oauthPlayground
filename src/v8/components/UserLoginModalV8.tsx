@@ -12,6 +12,7 @@
 import { FiDownload, FiEye, FiEyeOff, FiInfo, FiUpload } from '@icons';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { safeGetUserInfo } from '@/utils/authUtils';
 import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
 import { RedirectUriValidatorV8 } from '@/v8/components/RedirectUriValidatorV8';
@@ -32,7 +33,6 @@ import {
 import { useRedirectURIRouting } from '@/v8/services/redirectURIRoutingServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CompactAppPickerV8U } from '@/v8u/components/CompactAppPickerV8U';
 import {
 	type SessionInfo,
@@ -221,7 +221,12 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 	// Pre-flight validation function
 	const handlePreFlightValidation = async () => {
 		if (!environmentId.trim() || !clientId.trim()) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter Environment ID and Client ID first', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please enter Environment ID and Client ID first',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -239,7 +244,12 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 		try {
 			const workerToken = await workerTokenServiceV8.getToken();
 			if (!workerToken) {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Worker token required for pre-flight validation', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'Worker token required for pre-flight validation',
+					dismissible: true,
+				});
 				setIsValidating(false);
 				return;
 			}
@@ -305,11 +315,25 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			});
 
 			if (errors.length === 0 && warnings.length === 0) {
-				modernMessaging.showFooterMessage({ type: 'info', message: '✅ Pre-flight validation passed!', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: '✅ Pre-flight validation passed!',
+					duration: 3000,
+				});
 			} else if (errors.length === 0) {
-				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: `⚠️ Validation passed with ${warnings.length} warning(s)`, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'warning',
+					title: 'Warning',
+					message: `⚠️ Validation passed with ${warnings.length} warning(s)`,
+					dismissible: true,
+				});
 			} else {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `❌ Validation failed with ${errors.length} error(s)`, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: `❌ Validation failed with ${errors.length} error(s)`,
+					dismissible: true,
+				});
 			}
 		} catch (error) {
 			console.error(`${MODULE_TAG} Pre-flight validation error:`, error);
@@ -322,7 +346,12 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			// Create informative toast message
 			const shortError = error instanceof Error ? error.message : 'Unknown error';
 			const toastMessage = `Pre-flight validation failed: ${shortError.substring(0, 80)}${shortError.length > 80 ? '...' : ''}`;
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: toastMessage, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: toastMessage,
+				dismissible: true,
+			});
 		} finally {
 			setIsValidating(false);
 		}
@@ -472,7 +501,11 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 	const handleTokenReceived = useCallback(
 		(token: string) => {
 			onTokenReceived?.(token);
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Access token received successfully!', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Access token received successfully!',
+				duration: 3000,
+			});
 			// Don't auto-close modal - let parent component decide when to close
 		},
 		[onTokenReceived]
@@ -550,7 +583,12 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			// Validate state if we have both stored state and URL state
 			if (state && storedState !== state) {
 				console.warn(`${MODULE_TAG} State mismatch - possible CSRF attack`);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Security validation failed. Please try again.', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'Security validation failed. Please try again.',
+					dismissible: true,
+				});
 				sessionStorage.removeItem('user_login_state_v8');
 				sessionStorage.removeItem('user_login_code_verifier_v8');
 				sessionStorage.removeItem('user_login_credentials_temp_v8');
@@ -600,7 +638,12 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				sessionStorage.removeItem('user_login_state_v8');
 
 				if (!storedCodeVerifier || !storedCredentials) {
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Missing PKCE verifier or credentials. Please try logging in again.', dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: 'Missing PKCE verifier or credentials. Please try logging in again.',
+						dismissible: true,
+					});
 					sessionStorage.removeItem('user_login_state_v8');
 					sessionStorage.removeItem('user_login_code_verifier_v8');
 					sessionStorage.removeItem('user_login_credentials_temp_v8');
@@ -839,7 +882,11 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					if (isMfaFlow && onTokenReceived) {
 						// MFA flow: Don't show success page, just pass token and let parent handle
 						onTokenReceived(tokenResponse.access_token);
-						modernMessaging.showFooterMessage({ type: 'info', message: 'Access token received successfully!', duration: 3000 });
+						modernMessaging.showFooterMessage({
+							type: 'info',
+							message: 'Access token received successfully!',
+							duration: 3000,
+						});
 					} else {
 						// Non-MFA flow: Show success page
 						// CRITICAL: Mark success page as set BEFORE calling onTokenReceived
@@ -850,7 +897,11 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 						// The modal will close when user clicks "Continue" on the success page
 						onTokenReceived?.(tokenResponse.access_token);
 
-						modernMessaging.showFooterMessage({ type: 'info', message: 'Access token received successfully!', duration: 3000 });
+						modernMessaging.showFooterMessage({
+							type: 'info',
+							message: 'Access token received successfully!',
+							duration: 3000,
+						});
 					}
 				} catch (error) {
 					console.error(`${MODULE_TAG} Failed to exchange code for tokens`, error);
@@ -864,9 +915,19 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 							? error.message
 							: 'Failed to exchange authorization code for tokens';
 					if (errorMessage.includes('invalid_grant') || errorMessage.includes('expired')) {
-						modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Authorization code expired or already used. Please try logging in again.', dismissible: true });
+						modernMessaging.showBanner({
+							type: 'error',
+							title: 'Error',
+							message: 'Authorization code expired or already used. Please try logging in again.',
+							dismissible: true,
+						});
 					} else {
-						modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
+						modernMessaging.showBanner({
+							type: 'error',
+							title: 'Error',
+							message: errorMessage,
+							dismissible: true,
+						});
 					}
 
 					// Clean up session storage
@@ -881,7 +942,12 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				}
 			} else if (error && storedState) {
 				const errorDescription = searchParams.get('error_description') || '';
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Login failed: ${error}${errorDescription ? ` - ${errorDescription}` : ''}`, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: `Login failed: ${error}${errorDescription ? ` - ${errorDescription}` : ''}`,
+					dismissible: true,
+				});
 				// Clean up session storage
 				sessionStorage.removeItem('user_login_state_v8');
 				sessionStorage.removeItem('user_login_code_verifier_v8');
@@ -1180,16 +1246,30 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 						});
 
 						if (result.success) {
-							modernMessaging.showFooterMessage({ type: 'info', message: `Redirect URI updated in PingOne application: ${newUri}`, duration: 3000 });
+							modernMessaging.showFooterMessage({
+								type: 'info',
+								message: `Redirect URI updated in PingOne application: ${newUri}`,
+								duration: 3000,
+							});
 						} else {
-							modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: `Failed to update PingOne app: ${result.error || 'Unknown error'}. Please add ${newUri} manually.`, dismissible: true });
+							modernMessaging.showBanner({
+								type: 'warning',
+								title: 'Warning',
+								message: `Failed to update PingOne app: ${result.error || 'Unknown error'}. Please add ${newUri} manually.`,
+								dismissible: true,
+							});
 							console.error(`${MODULE_TAG} Failed to update PingOne app`, result.error);
 						}
 						setIsUpdatingApp(false);
 					}
 				} catch (error) {
 					console.error(`${MODULE_TAG} Error updating PingOne app redirect URI`, error);
-					modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: `Could not automatically update PingOne app. Please add ${newRedirectUri.trim()} manually to your application's redirect URIs.`, dismissible: true });
+					modernMessaging.showBanner({
+						type: 'warning',
+						title: 'Warning',
+						message: `Could not automatically update PingOne app. Please add ${newRedirectUri.trim()} manually to your application's redirect URIs.`,
+						dismissible: true,
+					});
 					setIsUpdatingApp(false);
 				}
 			}
@@ -1203,7 +1283,12 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 	// Handle export configuration
 	const handleExportConfiguration = useCallback(() => {
 		if (!environmentId.trim() || !clientId.trim() || !clientSecret.trim() || !redirectUri.trim()) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please fill in all required fields before exporting', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please fill in all required fields before exporting',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -1251,10 +1336,19 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			// Set the last exported file name
 			setLastFileName(fileName);
 
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Configuration exported successfully!', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Configuration exported successfully!',
+				duration: 3000,
+			});
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to export configuration:`, error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to export configuration', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to export configuration',
+				dismissible: true,
+			});
 		}
 	}, [environmentId, clientId, clientSecret, redirectUri, scopes, authMethod, isMfaFlow]);
 
@@ -1273,7 +1367,12 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 				// Validate basic structure
 				if (!data.configuration) {
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Invalid configuration file format', dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: 'Invalid configuration file format',
+						dismissible: true,
+					});
 					return;
 				}
 
@@ -1290,10 +1389,19 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				// Set the last imported file name
 				setLastFileName(file.name);
 
-				modernMessaging.showFooterMessage({ type: 'info', message: 'Configuration imported successfully!', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: 'Configuration imported successfully!',
+					duration: 3000,
+				});
 			} catch (error) {
 				console.error(`${MODULE_TAG} Failed to import configuration:`, error);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to import configuration. Please check the file format.', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'Failed to import configuration. Please check the file format.',
+					dismissible: true,
+				});
 			}
 		};
 		input.click();
@@ -1302,7 +1410,12 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 	// Handle saving credentials without logging in
 	const handleSaveCredentials = useCallback(() => {
 		if (!environmentId.trim() || !clientId.trim() || !clientSecret.trim() || !redirectUri.trim()) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please fill in all required fields before saving', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please fill in all required fields before saving',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -1324,7 +1437,11 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				tokenEndpointAuthMethod: authMethod,
 			};
 			CredentialsServiceV8.saveCredentials(FLOW_KEY, credsToSave);
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Credentials saved successfully!', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Credentials saved successfully!',
+				duration: 3000,
+			});
 
 			// Notify parent that credentials were saved (so it can refresh/update state)
 			onCredentialsSaved?.();
@@ -1332,7 +1449,12 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			// Modal stays open so user can continue editing or login
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to save credentials:`, error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save credentials. Please try again.', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to save credentials. Please try again.',
+				dismissible: true,
+			});
 		} finally {
 			setIsSaving(false);
 		}
@@ -1349,7 +1471,12 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 	const handleLogin = async () => {
 		if (!environmentId.trim() || !clientId.trim() || !clientSecret.trim() || !redirectUri.trim()) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please fill in all required fields', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please fill in all required fields',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -1514,7 +1641,11 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			}
 
 			setIsRedirecting(true);
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Redirecting to PingOne for authentication...', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Redirecting to PingOne for authentication...',
+				duration: 3000,
+			});
 
 			MFARedirectUriServiceV8.logDebugEvent(
 				'USER_LOGIN',
@@ -1530,7 +1661,12 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			window.location.href = authorizationUrl;
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to generate authorization URL`, error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Failed to start login flow', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: error instanceof Error ? error.message : 'Failed to start login flow',
+				dismissible: true,
+			});
 			setIsRedirecting(false);
 		}
 	};
@@ -1850,7 +1986,11 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 																	);
 																if (fetchedApp?.clientSecret) {
 																	appWithSecret = fetchedApp;
-																	modernMessaging.showFooterMessage({ type: 'info', message: 'Application secret retrieved from PingOne', duration: 3000 });
+																	modernMessaging.showFooterMessage({
+																		type: 'info',
+																		message: 'Application secret retrieved from PingOne',
+																		duration: 3000,
+																	});
 																}
 															}
 														} catch (error) {
@@ -1896,10 +2036,19 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 														}
 													}
 
-													modernMessaging.showFooterMessage({ type: 'info', message: `Application "${app.name}" loaded`, duration: 3000 });
+													modernMessaging.showFooterMessage({
+														type: 'info',
+														message: `Application "${app.name}" loaded`,
+														duration: 3000,
+													});
 												} catch (error) {
 													console.error(`${MODULE_TAG} Error applying app selection:`, error);
-													modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to load application details', dismissible: true });
+													modernMessaging.showBanner({
+														type: 'error',
+														title: 'Error',
+														message: 'Failed to load application details',
+														dismissible: true,
+													});
 												}
 											}}
 										/>
@@ -2301,7 +2450,11 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 												detail: { workerToken: config.workerToken },
 											})
 										);
-										modernMessaging.showFooterMessage({ type: 'info', message: `Silent API Token Retrieval set to: ${newValue}`, duration: 3000 });
+										modernMessaging.showFooterMessage({
+											type: 'info',
+											message: `Silent API Token Retrieval set to: ${newValue}`,
+											duration: 3000,
+										});
 									}}
 									style={{
 										width: '20px',
@@ -2353,7 +2506,11 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 												detail: { workerToken: config.workerToken },
 											})
 										);
-										modernMessaging.showFooterMessage({ type: 'info', message: `Show Token After Generation set to: ${newValue}`, duration: 3000 });
+										modernMessaging.showFooterMessage({
+											type: 'info',
+											message: `Show Token After Generation set to: ${newValue}`,
+											duration: 3000,
+										});
 									}}
 									style={{
 										width: '20px',

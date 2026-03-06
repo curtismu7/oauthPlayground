@@ -17,8 +17,8 @@
  * const tokens = await service.pollForTokens(authRequest.auth_req_id);
  */
 
-import { pingOneFetch } from '@/utils/pingOneFetch';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { pingOneFetch } from '@/utils/pingOneFetch';
 
 const MODULE_TAG = '[🔐 CIBA-SERVICE-V8]';
 
@@ -128,11 +128,20 @@ export const CibaServiceV8 = {
 				interval: authRequest.interval,
 			});
 
-			modernMessaging.showFooterMessage({ type: 'info', message: 'CIBA authentication request initiated successfully', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'CIBA authentication request initiated successfully',
+				duration: 3000,
+			});
 			return authRequest;
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to initiate CIBA authentication:`, error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to initiate CIBA authentication: ${error instanceof Error ? error.message : 'Unknown error'}`, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: `Failed to initiate CIBA authentication: ${error instanceof Error ? error.message : 'Unknown error'}`,
+				dismissible: true,
+			});
 			throw error;
 		}
 	},
@@ -223,7 +232,11 @@ export const CibaServiceV8 = {
 
 			// Success - tokens issued
 			console.log(`${MODULE_TAG} CIBA tokens received successfully`);
-			modernMessaging.showFooterMessage({ type: 'info', message: 'CIBA authentication completed successfully', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'CIBA authentication completed successfully',
+				duration: 3000,
+			});
 
 			return {
 				status: 'approved',

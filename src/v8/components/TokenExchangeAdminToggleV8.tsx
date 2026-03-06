@@ -11,9 +11,9 @@ import {
 } from '@icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { GlobalEnvironmentService } from '../services/globalEnvironmentService';
 import { TokenExchangeConfigServiceV8 } from '../services/tokenExchangeConfigServiceV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const MODULE_TAG = '[TokenExchangeAdminToggleV8]';
 
@@ -176,7 +176,12 @@ export const TokenExchangeAdminToggleV8: React.FC<TokenExchangeAdminToggleV8Prop
 				onConfigChange?.(enabled);
 			} catch (error) {
 				console.error(`${MODULE_TAG} Error loading configuration:`, error);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to load Token Exchange configuration', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'Failed to load Token Exchange configuration',
+					dismissible: true,
+				});
 			} finally {
 				setIsLoading(false);
 			}
@@ -195,14 +200,22 @@ export const TokenExchangeAdminToggleV8: React.FC<TokenExchangeAdminToggleV8Prop
 					currentEnvironmentId,
 					'admin-user' // TODO: Get actual admin user ID
 				);
-				modernMessaging.showFooterMessage({ type: 'info', message: 'Token Exchange enabled successfully', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: 'Token Exchange enabled successfully',
+					duration: 3000,
+				});
 			} else {
 				// Disable Token Exchange
 				await TokenExchangeConfigServiceV8.disableTokenExchange(
 					currentEnvironmentId,
 					'admin-user' // TODO: Get actual admin user ID
 				);
-				modernMessaging.showFooterMessage({ type: 'info', message: 'Token Exchange disabled successfully', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: 'Token Exchange disabled successfully',
+					duration: 3000,
+				});
 			}
 
 			setIsEnabled(newEnabled);
@@ -213,7 +226,12 @@ export const TokenExchangeAdminToggleV8: React.FC<TokenExchangeAdminToggleV8Prop
 			setCurrentConfig(config);
 		} catch (error) {
 			console.error(`${MODULE_TAG} Error toggling Token Exchange:`, error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to update Token Exchange configuration', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to update Token Exchange configuration',
+				dismissible: true,
+			});
 		} finally {
 			setIsLoading(false);
 		}

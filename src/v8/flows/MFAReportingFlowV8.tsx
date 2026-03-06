@@ -19,6 +19,7 @@
 import { FiPackage } from '@icons';
 import React, { useEffect, useState } from 'react';
 import { usePageScroll } from '@/hooks/usePageScroll';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
@@ -33,7 +34,6 @@ import {
 	type TokenStatusInfo,
 	WorkerTokenStatusServiceV8,
 } from '@/v8/services/workerTokenStatusServiceV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CommonSpinner } from '../../components/common/CommonSpinner';
 import { ButtonSpinner } from '../../components/ui/ButtonSpinner';
 import { useProductionSpinner } from '../../hooks/useProductionSpinner';
@@ -403,7 +403,11 @@ export const MFAReportingFlowV8: React.FC = () => {
 				window.dispatchEvent(new Event('workerTokenUpdated'));
 				const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 				setTokenStatus(newStatus);
-				modernMessaging.showFooterMessage({ type: 'info', message: 'Worker token removed', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: 'Worker token removed',
+					duration: 3000,
+				});
 			}
 		} else {
 			const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
@@ -420,20 +424,39 @@ export const MFAReportingFlowV8: React.FC = () => {
 	const handleWorkerTokenGenerated = () => {
 		window.dispatchEvent(new Event('workerTokenUpdated'));
 		setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync());
-		modernMessaging.showFooterMessage({ type: 'info', message: 'Worker token generated and saved!', duration: 3000 });
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message: 'Worker token generated and saved!',
+			duration: 3000,
+		});
 	};
 
 	const _loadReports = async () => {
 		if (!credentials.environmentId?.trim()) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Environment ID is required', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Environment ID is required',
+				dismissible: true,
+			});
 			return;
 		}
 		if (!tokenStatus.isValid) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Worker token is required', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Worker token is required',
+				dismissible: true,
+			});
 			return;
 		}
 		if (needsUsername && !username.trim()) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Username is required for this report type', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Username is required for this report type',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -518,10 +541,19 @@ export const MFAReportingFlowV8: React.FC = () => {
 				}
 
 				setReports(result);
-				modernMessaging.showFooterMessage({ type: 'info', message: `Loaded ${result.length} report records`, duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: `Loaded ${result.length} report records`,
+					duration: 3000,
+				});
 			} catch (error) {
 				console.error(`${MODULE_TAG} Failed to load reports`, error);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to load reports. Please check your credentials and try again.', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'Failed to load reports. Please check your credentials and try again.',
+					dismissible: true,
+				});
 			} finally {
 				setIsLoading(false);
 			}
