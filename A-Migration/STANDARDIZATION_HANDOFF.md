@@ -1,6 +1,6 @@
 # Standardization Handoff — OAuth Playground V9
 
-**Last updated:** March 6, 2026 — HEAD at `97b7e8dbc`  
+**Last updated:** March 6, 2026 — HEAD at `c47de279a`  
 **Prepared for:** Any programmer picking up this work  
 **Branch:** `main` — **always `git fetch && git status` before starting work**
 
