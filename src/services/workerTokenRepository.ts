@@ -7,6 +7,7 @@
  * and handles data transformation between different formats.
  */
 
+import { logger } from '../utils/logger';
 import { unifiedStorageManager } from './unifiedStorageManager';
 import type {
 	UnifiedWorkerTokenCredentials,
@@ -47,7 +48,7 @@ export class WorkerTokenRepository {
 	 * Save worker token credentials
 	 */
 	async saveCredentials(credentials: UnifiedWorkerTokenCredentials): Promise<void> {
-		console.log(`${MODULE_TAG} Saving credentials...`);
+		logger.info('WorkerTokenRepository', `${MODULE_TAG} Saving credentials...`);
 
 		const data = {
 			credentials,
@@ -55,14 +56,14 @@ export class WorkerTokenRepository {
 		};
 
 		await unifiedStorageManager.save(CREDENTIALS_KEY, data);
-		console.log(`${MODULE_TAG} ✅ Credentials saved`);
+		logger.info('WorkerTokenRepository', `${MODULE_TAG} ✅ Credentials saved`);
 	}
 
 	/**
 	 * Load worker token credentials
 	 */
 	async loadCredentials(): Promise<UnifiedWorkerTokenCredentials | null> {
-		console.log(`${MODULE_TAG} Loading credentials...`);
+		logger.info('WorkerTokenRepository', `${MODULE_TAG} Loading credentials...`);
 
 		try {
 			const data = await unifiedStorageManager.load<{
@@ -71,14 +72,19 @@ export class WorkerTokenRepository {
 			}>(CREDENTIALS_KEY);
 
 			if (data?.credentials) {
-				console.log(`${MODULE_TAG} ✅ Credentials loaded`);
+				logger.info('WorkerTokenRepository', `${MODULE_TAG} ✅ Credentials loaded`);
 				return data.credentials;
 			}
 
-			console.log(`${MODULE_TAG} ❌ No credentials found`);
+			logger.info('WorkerTokenRepository', `${MODULE_TAG} ❌ No credentials found`);
 			return null;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to load credentials:`, error);
+			logger.error(
+				'WorkerTokenRepository',
+				`${MODULE_TAG} Failed to load credentials:`,
+				undefined,
+				error as Error
+			);
 			return null;
 		}
 	}
@@ -87,15 +93,17 @@ export class WorkerTokenRepository {
 	 * Save worker token with metadata
 	 */
 	async saveToken(token: string, metadata?: Partial<TokenMetadata>): Promise<void> {
-		console.log(`${MODULE_TAG} Saving token...`);
+		logger.info('WorkerTokenRepository', `${MODULE_TAG} Saving token...`);
 
 		// DEBUG: Log the token being saved
-		console.log(`${MODULE_TAG} 🔍 DEBUG - Saving token:`, {
-			hasToken: !!token,
-			tokenLength: token?.length || 0,
-			tokenPrefix: token ? `${token.substring(0, 50)}...` : 'none',
-			isUrlParams: token?.includes('query_parameters=') || token?.includes('response_type='),
-			isValidAccessToken: !!token?.match(/^[A-Za-z0-9\-_]+$/),
+		logger.info('WorkerTokenRepository', `${MODULE_TAG} 🔍 DEBUG - Saving token:`, {
+			arg0: {
+				hasToken: !!token,
+				tokenLength: token?.length || 0,
+				tokenPrefix: token ? `${token.substring(0, 50)}...` : 'none',
+				isUrlParams: token?.includes('query_parameters=') || token?.includes('response_type='),
+				isValidAccessToken: !!token?.match(/^[A-Za-z0-9\-_]+$/),
+			},
 		});
 
 		const credentials = await this.loadCredentials();
@@ -111,27 +119,32 @@ export class WorkerTokenRepository {
 		};
 
 		await unifiedStorageManager.save(TOKEN_KEY, tokenData);
-		console.log(`${MODULE_TAG} ✅ Token saved`);
+		logger.info('WorkerTokenRepository', `${MODULE_TAG} ✅ Token saved`);
 	}
 
 	/**
 	 * Load worker token data
 	 */
 	async loadTokenData(): Promise<UnifiedWorkerTokenData | null> {
-		console.log(`${MODULE_TAG} Loading token data...`);
+		logger.info('WorkerTokenRepository', `${MODULE_TAG} Loading token data...`);
 
 		try {
 			const data = await unifiedStorageManager.load<UnifiedWorkerTokenData>(TOKEN_KEY);
 
 			if (data?.token) {
-				console.log(`${MODULE_TAG} ✅ Token data loaded`);
+				logger.info('WorkerTokenRepository', `${MODULE_TAG} ✅ Token data loaded`);
 				return data;
 			}
 
-			console.log(`${MODULE_TAG} ❌ No token found`);
+			logger.info('WorkerTokenRepository', `${MODULE_TAG} ❌ No token found`);
 			return null;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to load token data:`, error);
+			logger.error(
+				'WorkerTokenRepository',
+				`${MODULE_TAG} Failed to load token data:`,
+				undefined,
+				error as Error
+			);
 			return null;
 		}
 	}
@@ -145,18 +158,20 @@ export class WorkerTokenRepository {
 		if (!data) return null;
 
 		// DEBUG: Log the actual token being retrieved
-		console.log(`${MODULE_TAG} 🔍 DEBUG - Retrieved token:`, {
-			hasToken: !!data.token,
-			tokenLength: data.token?.length || 0,
-			tokenPrefix: data.token ? `${data.token.substring(0, 50)}...` : 'none',
-			isUrlParams:
-				data.token?.includes('query_parameters=') || data.token?.includes('response_type='),
-			expiresAt: data.expiresAt ? new Date(data.expiresAt).toISOString() : 'none',
+		logger.info('WorkerTokenRepository', `${MODULE_TAG} 🔍 DEBUG - Retrieved token:`, {
+			arg0: {
+				hasToken: !!data.token,
+				tokenLength: data.token?.length || 0,
+				tokenPrefix: data.token ? `${data.token.substring(0, 50)}...` : 'none',
+				isUrlParams:
+					data.token?.includes('query_parameters=') || data.token?.includes('response_type='),
+				expiresAt: data.expiresAt ? new Date(data.expiresAt).toISOString() : 'none',
+			},
 		});
 
 		// Check expiration
 		if (data.expiresAt && Date.now() > data.expiresAt) {
-			console.log(`${MODULE_TAG} Token expired, clearing`);
+			logger.info('WorkerTokenRepository', `${MODULE_TAG} Token expired, clearing`);
 			await this.clearToken();
 			return null;
 		}
@@ -201,23 +216,23 @@ export class WorkerTokenRepository {
 	 * Clear credentials
 	 */
 	async clearCredentials(): Promise<void> {
-		console.log(`${MODULE_TAG} Clearing credentials...`);
+		logger.info('WorkerTokenRepository', `${MODULE_TAG} Clearing credentials...`);
 
 		await unifiedStorageManager.clear(CREDENTIALS_KEY);
 		await this.clearToken(); // Also clear token when credentials are cleared
 
-		console.log(`${MODULE_TAG} ✅ Credentials cleared`);
+		logger.info('WorkerTokenRepository', `${MODULE_TAG} ✅ Credentials cleared`);
 	}
 
 	/**
 	 * Clear only the token (keep credentials)
 	 */
 	async clearToken(): Promise<void> {
-		console.log(`${MODULE_TAG} Clearing token...`);
+		logger.info('WorkerTokenRepository', `${MODULE_TAG} Clearing token...`);
 
 		await unifiedStorageManager.clear(TOKEN_KEY);
 
-		console.log(`${MODULE_TAG} ✅ Token cleared`);
+		logger.info('WorkerTokenRepository', `${MODULE_TAG} ✅ Token cleared`);
 	}
 
 	/**
@@ -257,19 +272,26 @@ export class WorkerTokenRepository {
 			'worker_credentials',
 		];
 
-		console.log(`${MODULE_TAG} Checking ${legacyKeys.length} legacy keys...`);
+		logger.info(
+			'WorkerTokenRepository',
+			`${MODULE_TAG} Checking ${legacyKeys.length} legacy keys...`
+		);
 
 		for (const key of legacyKeys) {
 			try {
 				const stored = localStorage.getItem(key);
-				console.log(`${MODULE_TAG} Legacy key ${key}:`, { hasData: !!stored });
+				logger.info('WorkerTokenRepository', `${MODULE_TAG} Legacy key ${key}:`, {
+					arg0: { hasData: !!stored },
+				});
 
 				if (stored) {
 					const legacyData = JSON.parse(stored);
-					console.log(`${MODULE_TAG} 📦 Found legacy data in ${key}:`, {
-						hasEnvironmentId: !!legacyData.environmentId || !!legacyData.environment_id,
-						hasClientId: !!legacyData.clientId || !!legacyData.client_id,
-						hasClientSecret: !!legacyData.clientSecret || !!legacyData.client_secret,
+					logger.info('WorkerTokenRepository', `${MODULE_TAG} 📦 Found legacy data in ${key}:`, {
+						arg0: {
+							hasEnvironmentId: !!legacyData.environmentId || !!legacyData.environment_id,
+							hasClientId: !!legacyData.clientId || !!legacyData.client_id,
+							hasClientSecret: !!legacyData.clientSecret || !!legacyData.client_secret,
+						},
 					});
 
 					// Convert to unified format
@@ -295,24 +317,33 @@ export class WorkerTokenRepository {
 						!unifiedCredentials.clientId ||
 						!unifiedCredentials.clientSecret
 					) {
-						console.warn(`${MODULE_TAG} ⚠️ Legacy data missing required fields, skipping`, {
-							key,
-							hasEnvironmentId: !!unifiedCredentials.environmentId,
-							hasClientId: !!unifiedCredentials.clientId,
-							hasClientSecret: !!unifiedCredentials.clientSecret,
-						});
+						logger.warn(
+							'WorkerTokenRepository',
+							`${MODULE_TAG} ⚠️ Legacy data missing required fields, skipping`,
+							{
+								arg0: {
+									key,
+									hasEnvironmentId: !!unifiedCredentials.environmentId,
+									hasClientId: !!unifiedCredentials.clientId,
+									hasClientSecret: !!unifiedCredentials.clientSecret,
+								},
+							}
+						);
 						continue;
 					}
 
 					// Save in unified format
 					await this.saveCredentials(unifiedCredentials);
 
-					console.log(
+					logger.info(
+						'WorkerTokenRepository',
 						`${MODULE_TAG} 🔄 Successfully migrated credentials from legacy key: ${key}`,
 						{
-							environmentId: `${unifiedCredentials.environmentId?.substring(0, 8)}...`,
-							clientId: `${unifiedCredentials.clientId?.substring(0, 8)}...`,
-							hasClientSecret: !!unifiedCredentials.clientSecret,
+							arg0: {
+								environmentId: `${unifiedCredentials.environmentId?.substring(0, 8)}...`,
+								clientId: `${unifiedCredentials.clientId?.substring(0, 8)}...`,
+								hasClientSecret: !!unifiedCredentials.clientSecret,
+							},
 						}
 					);
 
@@ -322,11 +353,19 @@ export class WorkerTokenRepository {
 					return unifiedCredentials;
 				}
 			} catch (error) {
-				console.warn(`${MODULE_TAG} ⚠️ Failed to migrate from legacy key ${key}:`, error);
+				logger.warn(
+					'WorkerTokenRepository',
+					`${MODULE_TAG} ⚠️ Failed to migrate from legacy key ${key}:`,
+					undefined,
+					error as Error
+				);
 			}
 		}
 
-		console.log(`${MODULE_TAG} ❌ No valid legacy credentials found for migration`);
+		logger.info(
+			'WorkerTokenRepository',
+			`${MODULE_TAG} ❌ No valid legacy credentials found for migration`
+		);
 		return null;
 	}
 }

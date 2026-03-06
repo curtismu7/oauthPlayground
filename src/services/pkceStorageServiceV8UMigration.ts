@@ -1,6 +1,7 @@
 // src/services/pkceStorageServiceV8UMigration.ts
 // Migration layer for PKCEStorageServiceV8U to unified storage
 
+import { logger } from '../utils/logger';
 import type { V8UPKCECodes } from './unifiedTokenStorageService';
 import { unifiedTokenStorage } from './unifiedTokenStorageService';
 
@@ -25,10 +26,12 @@ export class PKCEStorageServiceV8UMigration {
 				PKCEStorageServiceV8UMigration.getV8UPKCEKeysFromStorage('sessionStorage');
 			const allKeys = [...new Set([...localStorageKeys, ...sessionStorageKeys])];
 
-			console.log(`${MODULE_TAG} Starting PKCE migration`, {
-				localStorageKeys: localStorageKeys.length,
-				sessionStorageKeys: sessionStorageKeys.length,
-				totalKeys: allKeys.length,
+			logger.info('PkceStorageServiceV8Migration', `${MODULE_TAG} Starting PKCE migration`, {
+				arg0: {
+					localStorageKeys: localStorageKeys.length,
+					sessionStorageKeys: sessionStorageKeys.length,
+					totalKeys: allKeys.length,
+				},
 			});
 
 			for (const flowKey of allKeys) {
@@ -38,16 +41,18 @@ export class PKCEStorageServiceV8UMigration {
 				} catch (error) {
 					const errorMsg = `Failed to migrate PKCE key ${flowKey}: ${error}`;
 					results.errors.push(errorMsg);
-					console.error(`${MODULE_TAG} ${errorMsg}`);
+					logger.error('PkceStorageServiceV8Migration', `${MODULE_TAG} ${errorMsg}`);
 				}
 			}
 
-			console.log(`${MODULE_TAG} PKCE migration completed`, results);
+			logger.info('PkceStorageServiceV8Migration', `${MODULE_TAG} PKCE migration completed`, {
+				arg0: results,
+			});
 			return results;
 		} catch (error) {
 			const errorMsg = `PKCE migration failed: ${error}`;
 			results.errors.push(errorMsg);
-			console.error(`${MODULE_TAG} ${errorMsg}`);
+			logger.error('PkceStorageServiceV8Migration', `${MODULE_TAG} ${errorMsg}`);
 			return results;
 		}
 	}
@@ -86,10 +91,12 @@ export class PKCEStorageServiceV8UMigration {
 				sessionStorage.removeItem('v8u_pkce_codes');
 			}
 
-			console.log(`${MODULE_TAG} Migrated PKCE key`, {
-				flowKey,
-				source,
-				challengeMethod: pkceData.codeChallengeMethod,
+			logger.info('PkceStorageServiceV8Migration', `${MODULE_TAG} Migrated PKCE key`, {
+				arg0: {
+					flowKey,
+					source,
+					challengeMethod: pkceData.codeChallengeMethod,
+				},
 			});
 		} catch (error) {
 			throw new Error(`Failed to parse or migrate PKCE data for key ${flowKey}: ${error}`);
