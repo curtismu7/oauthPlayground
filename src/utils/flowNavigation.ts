@@ -1,3 +1,4 @@
+import { logger } from './logger';
 // src/utils/flowNavigation.ts
 // Utility for handling flow navigation and step restoration
 
@@ -87,7 +88,7 @@ export const getFlowNavigationState = (): FlowNavigationState | null => {
 
 		return navigationState;
 	} catch (error) {
-		console.error('🔗 [FlowNavigation] Error parsing navigation state:', error);
+		logger.error('FlowNavigation', 'Error parsing navigation state:', undefined, error as Error);
 		return null;
 	}
 };
@@ -122,7 +123,7 @@ export const navigateBackToFlow = (navigate: (path: string) => void): boolean =>
 	const navigationState = getFlowNavigationState();
 
 	if (!navigationState) {
-		console.warn('🔗 [FlowNavigation] No navigation state found');
+		logger.warn('FlowNavigation', 'No navigation state found');
 		return false;
 	}
 

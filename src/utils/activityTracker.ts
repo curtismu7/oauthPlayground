@@ -1,3 +1,4 @@
+import { logger } from './logger';
 // Activity tracking utility for dashboard
 export interface ActivityItem {
 	id: string;
@@ -23,7 +24,7 @@ export const trackActivity = (activity: Omit<ActivityItem, 'id' | 'timestamp'>):
 		const updatedActivities = [newActivity, ...existingActivities].slice(0, MAX_ACTIVITIES);
 		localStorage.setItem(ACTIVITY_KEY, JSON.stringify(updatedActivities));
 	} catch (error) {
-		console.error('Failed to track activity:', error);
+		logger.error('ActivityTracker', 'Failed to track activity:', undefined, error as Error);
 	}
 };
 
@@ -35,7 +36,7 @@ export const getRecentActivity = (): ActivityItem[] => {
 		const activities = JSON.parse(stored);
 		return Array.isArray(activities) ? activities : [];
 	} catch (error) {
-		console.error('Failed to get recent activity:', error);
+		logger.error('ActivityTracker', 'Failed to get recent activity:', undefined, error as Error);
 		return [];
 	}
 };
@@ -44,7 +45,7 @@ export const clearActivity = (): void => {
 	try {
 		localStorage.removeItem(ACTIVITY_KEY);
 	} catch (error) {
-		console.error('Failed to clear activity:', error);
+		logger.error('ActivityTracker', 'Failed to clear activity:', undefined, error as Error);
 	}
 };
 
