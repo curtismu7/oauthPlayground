@@ -1,3 +1,5 @@
+import { logger } from './logger';
+
 // Types
 interface JwtPayload {
 	exp?: number;
@@ -50,7 +52,7 @@ const utils = {
 			);
 			return JSON.parse(jsonPayload);
 		} catch (error) {
-			console.error('Error decoding JWT:', error);
+			logger.error('Crypto', 'Error decoding JWT:', undefined, error as Error);
 			return null;
 		}
 	},
@@ -72,37 +74,37 @@ const utils = {
 
 			// Check expiration
 			if (decoded.exp === undefined || decoded.exp < now) {
-				console.error('Token expired or missing expiration');
+				logger.error('Crypto', 'Token expired or missing expiration');
 				return false;
 			}
 
 			// Check issuer
 			if (decoded.iss !== issuer) {
-				console.error('Invalid issuer');
+				logger.error('Crypto', 'Invalid issuer');
 				return false;
 			}
 
 			// Check audience
 			if (decoded.aud !== clientId) {
-				console.error('Invalid audience');
+				logger.error('Crypto', 'Invalid audience');
 				return false;
 			}
 
 			// Check nonce
 			if (nonce && decoded.nonce !== nonce) {
-				console.error('Invalid nonce');
+				logger.error('Crypto', 'Invalid nonce');
 				return false;
 			}
 
 			// Check issued at time
 			if (decoded.iat === undefined || decoded.iat > now) {
-				console.error('Token issued in the future or missing issued at time');
+				logger.error('Crypto', 'Token issued in the future or missing issued at time');
 				return false;
 			}
 
 			return true;
 		} catch (error) {
-			console.error('Token validation error:', error);
+			logger.error('Crypto', 'Token validation error:', undefined, error as Error);
 			return false;
 		}
 	},

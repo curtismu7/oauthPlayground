@@ -4,6 +4,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { workerTokenManager } from '../services/workerTokenManager';
+import { logger } from '../utils/logger';
 
 export interface GlobalWorkerTokenStatus {
 	token: string | null;
@@ -71,7 +72,7 @@ export const useGlobalWorkerToken = (
 
 			// Debug localStorage before attempting to get token
 			const storedToken = localStorage.getItem('unified_worker_token');
-			console.log('[useGlobalWorkerToken] 🔍 Debug - Stored token in localStorage:', {
+			logger.debug('useGlobalWorkerToken', 'Stored token in localStorage', {
 				hasToken: !!storedToken,
 				tokenLength: storedToken?.length || 0,
 				tokenPreview: storedToken ? `${storedToken.substring(0, 100)}...` : 'none',
@@ -79,7 +80,7 @@ export const useGlobalWorkerToken = (
 
 			const token = await workerTokenManager.getWorkerToken();
 
-			console.log('[useGlobalWorkerToken] ✅ Token retrieved successfully:', {
+			logger.info('useGlobalWorkerToken', 'Token retrieved successfully', {
 				hasToken: !!token,
 				tokenLength: token?.length || 0,
 				tokenPrefix: token ? `${token.substring(0, 20)}...` : 'none',
@@ -99,13 +100,11 @@ export const useGlobalWorkerToken = (
 
 			// Expected when user hasn't set up worker token; avoid noisy error log
 			if (isNotConfigured) {
-				console.debug('[useGlobalWorkerToken] Worker Token not configured (optional).');
+				logger.debug('useGlobalWorkerToken', 'Worker Token not configured (optional)');
 			} else {
-				console.error('[useGlobalWorkerToken] ❌ Failed to get token:', {
-					error: errorMessage,
-					errorType: error?.constructor?.name,
-					stack: error instanceof Error ? error.stack : undefined,
-				});
+				logger.error('useGlobalWorkerToken', 'Failed to get token', {
+					errorType: error instanceof Error ? error.constructor?.name : undefined,
+				}, error instanceof Error ? error : undefined);
 			}
 
 			setStatus({

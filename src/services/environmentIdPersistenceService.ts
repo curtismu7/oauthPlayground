@@ -1,6 +1,8 @@
 // Environment ID Persistence Service
 // Manages saving/loading Environment ID to/from .env file
 
+import { logger } from '../utils/logger';
+
 interface EnvironmentIdConfig {
 	environmentId: string;
 	lastUpdated: number;

@@ -401,7 +401,7 @@ const ImplicitFlowV9: React.FC = () => {
 			});
 
 			// Save to comprehensive service with complete isolation
-			const _success = comprehensiveFlowDataService.saveFlowDataComprehensive('implicit-flow-v7', {
+			comprehensiveFlowDataService.saveFlowDataComprehensive('implicit-flow-v7', {
 				sharedEnvironment: controller.credentials.environmentId
 					? {
 							environmentId: controller.credentials.environmentId,
@@ -411,12 +411,8 @@ const ImplicitFlowV9: React.FC = () => {
 					: undefined,
 				flowCredentials: {
 					clientId: controller.credentials.clientId,
-					clientSecret: controller.credentials.clientSecret,
 					redirectUri: controller.credentials.redirectUri,
 					scopes: controller.credentials.scopes,
-					logoutUrl: controller.credentials.logoutUrl,
-					loginHint: controller.credentials.loginHint,
-					tokenEndpointAuthMethod: 'client_secret_basic',
 					lastUpdated: Date.now(),
 				},
 			});
@@ -440,37 +436,9 @@ const ImplicitFlowV9: React.FC = () => {
 			requiredFields: ['environmentId', 'clientId'],
 			showToast: true,
 		});
-	}, [credentials, selectedVariant.toUpperCase]); // Only run once on mount
+	}, [credentials, selectedVariant]);
 
-	// V7 Enhanced step validation
-	const _isStepValid = (step: number): boolean => {
-		switch (step) {
-			case 0:
-				// Step 0: Must have valid credentials
-				return !!(credentials.environmentId && credentials.clientId);
-			case 1:
-				// Step 1: Must have valid redirect URI
-				return !!credentials.redirectUri;
-			case 2:
-				// Step 2: Must have generated authorization URL
-				return !!controller.authUrl;
-			case 3:
-				// Step 3: Must have tokens from callback
-				return !!(
-					controller.tokens?.access_token ||
-					(controller.tokens as Record<string, unknown>)?.accessToken
-				);
-			case 4:
-				// Step 4: Must have completed token introspection
-				return !!(
-					controller.tokens?.access_token ||
-					(controller.tokens as Record<string, unknown>)?.accessToken
-				);
-			default:
-				return true; // Other steps are always valid
-		}
-	};
-
+	
 	const toggleSection =
 		ImplicitFlowSharedService.CollapsibleSections.createToggleHandler(setCollapsedSections);
 
@@ -523,7 +491,6 @@ const ImplicitFlowV9: React.FC = () => {
 		const metadata = ImplicitFlowV9Helpers.getFlowMetadata(selectedVariant);
 		const educationalContent = ImplicitFlowV9Helpers.getEducationalContent(selectedVariant);
 		const flowDiagram = ImplicitFlowV9Helpers.getFlowDiagram(selectedVariant);
-		const _requirements = ImplicitFlowV9Helpers.getRequirements(selectedVariant);
 
 		return (
 			<>
