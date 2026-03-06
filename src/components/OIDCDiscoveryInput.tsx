@@ -438,23 +438,18 @@ const OIDCDiscoveryInput: React.FC<OIDCDiscoveryInputProps> = ({
 		setShowResults(false);
 
 		try {
-			console.log('[OIDC Discovery Input] Starting discovery for URL:', issuerUrl.trim());
 			const result = await oidcDiscoveryService.discover({ issuerUrl: issuerUrl.trim() });
 			setDiscoveryResult(result);
 
-			if (result.success && result.document) {
+			if (result.success) {
 				onDiscoveryComplete?.(result);
 			} else {
-				setError(result.error || 'Discovery failed');
+				setError(result.error?.message || 'Discovery failed');
 			}
 		} catch (err) {
 			const errorMessage = err instanceof Error ? err.message : 'Discovery failed';
 			console.error('[OIDC Discovery Input] Discovery failed:', errorMessage);
 			setError(errorMessage);
-			setDiscoveryResult({
-				success: false,
-				error: errorMessage,
-			});
 		} finally {
 			setIsDiscovering(false);
 		}
@@ -509,7 +504,7 @@ const OIDCDiscoveryInput: React.FC<OIDCDiscoveryInputProps> = ({
 					<FiCheck />
 					<StatusText>
 						Successfully discovered OIDC endpoints
-						{discoveryResult.cached && ' (cached)'}
+						{discoveryResult.data?.cached && ' (cached)'}
 					</StatusText>
 				</StatusContainer>
 			);
@@ -519,7 +514,7 @@ const OIDCDiscoveryInput: React.FC<OIDCDiscoveryInputProps> = ({
 			return (
 				<StatusContainer type="error">
 					<FiAlertCircle />
-					<StatusText>Discovery failed: {discoveryResult.error}</StatusText>
+					<StatusText>Discovery failed: {discoveryResult.error?.message}</StatusText>
 				</StatusContainer>
 			);
 		}
@@ -528,11 +523,11 @@ const OIDCDiscoveryInput: React.FC<OIDCDiscoveryInputProps> = ({
 	};
 
 	const renderEndpoints = () => {
-		if (!discoveryResult?.success || !discoveryResult.document) {
+		if (!discoveryResult?.success) {
 			return null;
 		}
 
-		const doc = discoveryResult.document;
+		const doc = discoveryResult.data;
 		const endpoints = [
 			{ label: 'Authorization', url: doc.authorization_endpoint },
 			{ label: 'Token', url: doc.token_endpoint },
@@ -637,7 +632,7 @@ const OIDCDiscoveryInput: React.FC<OIDCDiscoveryInputProps> = ({
 			{renderStatus()}
 
 			{/* Results Toggle Button - Only show if we have results */}
-			{discoveryResult?.success && discoveryResult.document && (
+			{discoveryResult?.success && discoveryResult.data && (
 				<ResultsToggleContainer>
 					<ResultsToggleButton onClick={() => setShowResults(!showResults)}>
 						{showResults ? <FiEyeOff size={16} /> : <FiEye size={16} />}
