@@ -1121,7 +1121,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 				};
 				controller.setCredentials(updatedCredentials);
 			} catch (error) {
-				console.warn('[AuthorizationCodeFlowV5] Failed to parse stored PingOne config:', error);
+				logger.warn('OAuthAuthorizationCodeFlowV9', 'Failed to parse stored PingOne config', error);
 			}
 		}
 	}, [controller.credentials, controller.setCredentials]); // Only run once on mount
@@ -1139,7 +1139,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 	// Handle successful authorization code reception
 	const handleAuthCodeSuccess = useCallback((code: string) => {
 		// Show success modal (guarded so it only shows once per auth code)
-		console.log('🟢 [AuthorizationCodeFlowV5] Opening LoginSuccessModal');
+		logger.info('OAuthAuthorizationCodeFlowV9', 'Opening LoginSuccessModal');
 		if (
 			loginModalGuardRef.current !== code &&
 			sessionStorage.getItem('v7_2_login_modal_dismissed') !== 'true'
@@ -1174,7 +1174,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 		const sessionAuthCode =
 			sessionStorage.getItem('oauth_auth_code') || sessionStorage.getItem('oauth_v7_auth_code');
 
-		console.log('🚀 [AuthorizationCodeFlowV5] Initialization check:', {
+		logger.info('OAuthAuthorizationCodeFlowV9', 'Initialization check', {
 			hasCode: !!authCode,
 			hasError: !!error,
 			hasUrlStep: !!urlStep,
@@ -1186,13 +1186,14 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 
 		// Handle OAuth errors first
 		if (error) {
-			console.error('[AuthorizationCodeFlowV5] OAuth error in URL:', error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
 				message: `OAuth Error: ${error}`,
 				dismissible: true,
 			});
+		logger.error('OAuthAuthorizationCodeFlowV9', 'OAuth error in URL', { error });
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `OAuth Error: ${error}`, dismissible: true });
 			// Clear URL parameters and reset to step 0
 			window.history.replaceState({}, '', window.location.pathname);
 			setCurrentStep(0);
@@ -1203,7 +1204,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 		// Handle OAuth callback with authorization code - PRIORITY 1
 		const finalAuthCode = authCode || sessionAuthCode;
 		if (finalAuthCode) {
-			console.log('🎉 [AuthorizationCodeFlowV5] Authorization code found!', {
+			logger.info('OAuthAuthorizationCodeFlowV9', 'Authorization code found', {
 				source: authCode ? 'URL' : 'sessionStorage',
 				code: `${finalAuthCode.substring(0, 10)}...`,
 			});
