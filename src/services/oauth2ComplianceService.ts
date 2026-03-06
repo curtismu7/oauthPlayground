@@ -122,7 +122,8 @@ export class OAuth2ComplianceService {
 			return Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('');
 		} else {
 			// Fallback for environments without Web Crypto API
-			console.warn(
+			logger.warn(
+				'OAuth2ComplianceService',
 				'[OAuth2ComplianceService] Web Crypto API not available, using Math.random fallback'
 			);
 			let result = '';
@@ -162,7 +163,10 @@ export class OAuth2ComplianceService {
 				}
 				return result === 0;
 			} catch (_error) {
-				console.warn('[OAuth2ComplianceService] Crypto.subtle comparison failed, using fallback');
+				logger.warn(
+					'OAuth2ComplianceService',
+					'[OAuth2ComplianceService] Crypto.subtle comparison failed, using fallback'
+				);
 			}
 		}
 
@@ -576,7 +580,12 @@ export class OAuth2ComplianceService {
 				codeChallengeMethod: 'S256',
 			};
 		} catch (error) {
-			console.error('[OAuth2ComplianceService] PKCE generation failed:', error);
+			logger.error(
+				'OAuth2ComplianceService',
+				'[OAuth2ComplianceService] PKCE generation failed:',
+				undefined,
+				error as Error
+			);
 			throw new Error('Failed to generate secure PKCE codes');
 		}
 	}
@@ -618,7 +627,10 @@ export class OAuth2ComplianceService {
 			return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 		} else {
 			// Fallback - generate a valid base64url string for testing
-			console.warn('[OAuth2ComplianceService] Web Crypto API not available, using fallback');
+			logger.warn(
+				'OAuth2ComplianceService',
+				'[OAuth2ComplianceService] Web Crypto API not available, using fallback'
+			);
 
 			// Generate a 43-character base64url string (typical for SHA256 hash)
 			const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';

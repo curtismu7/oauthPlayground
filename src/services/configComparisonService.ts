@@ -2,6 +2,7 @@
 // PingOne Configuration Comparison Service for diffing form data against live applications
 
 import { createPingOneClient } from '../utils/apiClient';
+import { logger } from '../utils/logger';
 
 export interface ConfigDiffResult {
 	hasDiffs: boolean;
@@ -122,7 +123,12 @@ export class ConfigComparisonService {
 				normalizedDesired,
 			};
 		} catch (error) {
-			console.error('[ConfigComparisonService] Error comparing configuration:', error);
+			logger.error(
+				'ConfigComparisonService',
+				'[ConfigComparisonService] Error comparing configuration:',
+				undefined,
+				error as Error
+			);
 			throw new Error(
 				`Failed to compare configuration: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);
@@ -303,7 +309,11 @@ export class ConfigComparisonService {
 	private flowTypeUsesResponseTypes(flowType?: string): boolean {
 		if (!flowType) return true; // Default to true for unknown flows
 
-		console.log('[CONFIG-COMPARISON] Checking if flow type uses response types:', flowType);
+		logger.info(
+			'ConfigComparisonService',
+			'[CONFIG-COMPARISON] Checking if flow type uses response types:',
+			{ arg0: flowType }
+		);
 
 		const noResponseTypeFlows = [
 			'client-credentials',
@@ -318,7 +328,9 @@ export class ConfigComparisonService {
 		];
 
 		const result = !noResponseTypeFlows.some((type) => flowType.toLowerCase().includes(type));
-		console.log('[CONFIG-COMPARISON] Flow type uses response types:', result);
+		logger.info('ConfigComparisonService', '[CONFIG-COMPARISON] Flow type uses response types:', {
+			arg0: result,
+		});
 		return result;
 	}
 

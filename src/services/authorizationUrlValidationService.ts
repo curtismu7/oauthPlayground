@@ -1,6 +1,7 @@
 // src/services/authorizationUrlValidationService.ts
 // Comprehensive service for validating OAuth/OIDC authorization URLs before sending
 
+import { logger } from '../utils/logger';
 import { requiresOpenIdScope, validateScopesForFlow } from './flowScopeMappingService';
 
 export interface UrlValidationResult {
@@ -175,7 +176,10 @@ class AuthorizationUrlValidationService {
 
 		// PingOne redirectless flow uses response_mode=pi.flow
 		if (responseMode === 'pi.flow') {
-			console.log('🔍 [URL Validation] Detected PingOne redirectless flow (response_mode=pi.flow)');
+			logger.info(
+				'AuthorizationUrlValidationService',
+				'🔍 [URL Validation] Detected PingOne redirectless flow (response_mode=pi.flow)'
+			);
 			return 'authorization-code'; // Still authorization code flow, just redirectless mode
 		}
 
@@ -246,7 +250,8 @@ class AuthorizationUrlValidationService {
 
 		// Log redirectless flow detection
 		if (isRedirectlessFlow) {
-			console.log(
+			logger.info(
+				'AuthorizationUrlValidationService',
 				'🔍 [URL Validation] Redirectless flow detected (response_mode=pi.flow), redirect_uri not required'
 			);
 			result.warnings.push(
