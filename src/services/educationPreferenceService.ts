@@ -43,7 +43,12 @@ export class EducationPreferenceService {
 				}
 			}
 		} catch (error) {
-			console.warn('[EducationPreferenceService] Failed to load preference, using default:', error);
+			logger.warn(
+				'EducationPreferenceService',
+				'[EducationPreferenceService] Failed to load preference, using default:',
+				undefined,
+				error as Error
+			);
 		}
 		return DEFAULT_MODE;
 	}
@@ -63,7 +68,11 @@ export class EducationPreferenceService {
 	 */
 	static setEducationMode(mode: EducationMode): void {
 		if (!EducationPreferenceService.isValidMode(mode)) {
-			console.warn('[EducationPreferenceService] Invalid education mode:', mode);
+			logger.warn(
+				'EducationPreferenceService',
+				'[EducationPreferenceService] Invalid education mode:',
+				{ arg0: mode }
+			);
 			return;
 		}
 
@@ -73,7 +82,11 @@ export class EducationPreferenceService {
 				lastUpdated: Date.now(),
 			};
 			localStorage.setItem(STORAGE_KEY, JSON.stringify(preference));
-			console.log('[EducationPreferenceService] Education mode updated to:', mode);
+			logger.info(
+				'EducationPreferenceService',
+				'[EducationPreferenceService] Education mode updated to:',
+				{ arg0: mode }
+			);
 
 			// Dispatch storage event to notify other components
 			window.dispatchEvent(
@@ -84,7 +97,12 @@ export class EducationPreferenceService {
 				})
 			);
 		} catch (error) {
-			console.error('[EducationPreferenceService] Failed to save preference:', error);
+			logger.error(
+				'EducationPreferenceService',
+				'[EducationPreferenceService] Failed to save preference:',
+				undefined,
+				error as Error
+			);
 		}
 	}
 
@@ -103,7 +121,12 @@ export class EducationPreferenceService {
 				}
 			}
 		} catch (error) {
-			console.warn('[EducationPreferenceService] Failed to load preference:', error);
+			logger.warn(
+				'EducationPreferenceService',
+				'[EducationPreferenceService] Failed to load preference:',
+				undefined,
+				error as Error
+			);
 		}
 		return null;
 	}
@@ -114,9 +137,17 @@ export class EducationPreferenceService {
 	static clearPreference(): void {
 		try {
 			localStorage.removeItem(STORAGE_KEY);
-			console.log('[EducationPreferenceService] Preference cleared, using default mode');
+			logger.info(
+				'EducationPreferenceService',
+				'[EducationPreferenceService] Preference cleared, using default mode'
+			);
 		} catch (error) {
-			console.error('[EducationPreferenceService] Failed to clear preference:', error);
+			logger.error(
+				'EducationPreferenceService',
+				'[EducationPreferenceService] Failed to clear preference:',
+				undefined,
+				error as Error
+			);
 		}
 	}
 
