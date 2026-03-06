@@ -1239,16 +1239,16 @@ class CredentialManager {
 
 			const discoveryResult = await oidcDiscoveryService.discover({ issuerUrl });
 
-			if (!discoveryResult.success || !discoveryResult.document) {
+			if (!discoveryResult.success) {
 				return {
 					success: false,
-					error: discoveryResult.error || 'Discovery failed',
+					error: discoveryResult.error.message || 'Discovery failed',
 				};
 			}
 
 			// Convert discovery document to credentials
 			const credentials = oidcDiscoveryService.documentToCredentials(
-				discoveryResult.document,
+				discoveryResult.data,
 				clientId,
 				clientSecret,
 				redirectUri

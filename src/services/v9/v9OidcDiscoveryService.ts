@@ -23,7 +23,7 @@ const V9OidcDiscoveryService = {
 			const result = await oidcDiscoveryService.discover(config);
 
 			if (result.success) {
-				if (result.cached) {
+				if (result.data.cached) {
 					modernMessaging.showFooterMessage({
 						type: 'info',
 						message: 'OIDC endpoints loaded from cache',
@@ -36,11 +36,13 @@ const V9OidcDiscoveryService = {
 						duration: 4000,
 					});
 				}
-				logger.info('V9OidcDiscovery', 'Discovery successful', { issuerUrl: result.issuerUrl });
+				logger.info('V9OidcDiscovery', 'Discovery successful', {
+					issuerUrl: result.data.issuerUrl,
+				});
 			} else {
 				modernMessaging.showCriticalError({
 					title: 'Discovery Failed',
-					message: `Discovery failed: ${result.error}`,
+					message: `Discovery failed: ${result.error.message}`,
 					contactSupport: false,
 				});
 			}
@@ -54,10 +56,7 @@ const V9OidcDiscoveryService = {
 				contactSupport: false,
 			});
 
-			return {
-				success: false,
-				error: errorMessage,
-			};
+			return { success: false, error: { code: 'OIDC_DISCOVERY_FAILED', message: errorMessage } };
 		}
 	},
 
