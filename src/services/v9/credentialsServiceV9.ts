@@ -85,7 +85,6 @@ export class CredentialsServiceV8 {
 	static getSmartDefaults(flowKey: string): Credentials {
 		const config = FLOW_FIELD_CONFIG[flowKey];
 		if (!config) {
-			console.warn(`${MODULE_TAG} Unknown flow key, using generic defaults`, { flowKey });
 			return CredentialsServiceV8.getDefaultCredentials(flowKey, {
 				flowKey,
 				flowType: 'oauth',
@@ -150,7 +149,6 @@ export class CredentialsServiceV8 {
 	static async loadWithAppDiscovery(flowKey: string, appConfig: AppConfig): Promise<Credentials> {
 		const config = FLOW_FIELD_CONFIG[flowKey];
 		if (!config) {
-			console.warn(`${MODULE_TAG} Unknown flow key, loading without app discovery`, { flowKey });
 			return CredentialsServiceV8.loadCredentials(flowKey, {
 				flowKey,
 				flowType: 'oauth',
@@ -261,10 +259,6 @@ export class CredentialsServiceV8 {
 				return stored;
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error loading credentials from unified storage`, {
-				flowKey,
-				error,
-			});
 		}
 
 		return CredentialsServiceV8.getDefaultCredentials(flowKey, config);
@@ -290,7 +284,6 @@ export class CredentialsServiceV8 {
 				return stored;
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} ❌ Error loading from unified storage`, { flowKey, error });
 		}
 
 		debugLog(`${MODULE_TAG} ⚠️ No credentials found, using defaults`, { flowKey });
@@ -340,10 +333,6 @@ export class CredentialsServiceV8 {
 
 			debugLog(`${MODULE_TAG} ✅ Credentials saved to unified storage`, { flowKey });
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error saving credentials to unified storage`, {
-				flowKey,
-				error,
-			});
 		}
 	}
 
@@ -359,10 +348,6 @@ export class CredentialsServiceV8 {
 			await unifiedTokenStorage.clearV8Credentials(flowKey);
 			debugLog(`${MODULE_TAG} Credentials cleared from unified storage`, { flowKey });
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error clearing credentials from unified storage`, {
-				flowKey,
-				error,
-			});
 		}
 	}
 
@@ -501,7 +486,6 @@ export class CredentialsServiceV8 {
 			}
 			return parsed;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error importing credentials`, { error });
 			throw new Error(
 				`Failed to import credentials: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);
@@ -595,7 +579,6 @@ export class CredentialsServiceV8 {
 			await ensureMigration();
 			return await unifiedTokenStorage.getV8CredentialsSummary(flowKey);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to get credentials summary`, { flowKey, error });
 			return 'Error loading credentials';
 		}
 	}

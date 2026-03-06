@@ -19,7 +19,6 @@ const V9FlowUIService = {
 				message: 'Failed to load flow UI components',
 				contactSupport: false,
 			});
-			console.error('FlowUI components error:', error);
 			// Return minimal fallback components with proper typing
 			return {
 				Container: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,

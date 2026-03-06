@@ -45,7 +45,6 @@ const V9ModalPresentationService: React.FC<V9ModalPresentationServiceProps> = (p
 						message: `Failed to execute action: ${action.label}`,
 						contactSupport: false,
 					});
-					console.error('Modal action error:', error);
 				}
 			},
 			variant: action.variant || ('primary' as const),
@@ -62,7 +61,6 @@ const V9ModalPresentationService: React.FC<V9ModalPresentationServiceProps> = (p
 				message: 'Failed to close modal',
 				contactSupport: false,
 			});
-			console.error('Modal close error:', error);
 		}
 	};
 
@@ -79,7 +77,6 @@ const V9ModalPresentationService: React.FC<V9ModalPresentationServiceProps> = (p
 			message: 'Failed to render modal',
 			contactSupport: false,
 		});
-		console.error('Modal render error:', error);
 
 		// Return fallback error modal
 		return (

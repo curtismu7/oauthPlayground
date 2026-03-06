@@ -42,7 +42,6 @@ const V9UnifiedTokenDisplayService = {
 				message: 'Failed to display tokens',
 				contactSupport: false,
 			});
-			console.error('Token display error:', error);
 
 			// Return fallback error display
 			return (
@@ -96,7 +95,6 @@ const V9UnifiedTokenDisplayService = {
 				message: 'Token validation failed',
 				contactSupport: false,
 			});
-			console.error('Token validation error:', error);
 			return false;
 		}
 	},

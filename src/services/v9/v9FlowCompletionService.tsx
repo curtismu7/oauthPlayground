@@ -31,7 +31,6 @@ const V9FlowCompletionService: React.FC<V9FlowCompletionProps> = (props) => {
 					message: 'Failed to start new flow',
 					contactSupport: false,
 				});
-				console.error('Start new flow error:', error);
 			}
 		},
 	};
@@ -46,7 +45,6 @@ const V9FlowCompletionService: React.FC<V9FlowCompletionProps> = (props) => {
 				message: 'Failed to toggle completion section',
 				contactSupport: false,
 			});
-			console.error('Toggle collapsed error:', error);
 		}
 	};
 

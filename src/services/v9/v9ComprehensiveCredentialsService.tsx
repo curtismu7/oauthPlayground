@@ -31,7 +31,6 @@ const V9ComprehensiveCredentialsService: React.FC<V9ComprehensiveCredentialsProp
 				message: 'Discovery completed but callback failed',
 				contactSupport: false,
 			});
-			console.error('Discovery callback error:', error);
 		}
 	};
 
@@ -45,7 +44,6 @@ const V9ComprehensiveCredentialsService: React.FC<V9ComprehensiveCredentialsProp
 				message: 'Failed to update credentials',
 				contactSupport: false,
 			});
-			console.error('Credentials change error:', error);
 		}
 	};
 
@@ -64,7 +62,6 @@ const V9ComprehensiveCredentialsService: React.FC<V9ComprehensiveCredentialsProp
 				message: 'Failed to save credentials',
 				contactSupport: false,
 			});
-			console.error('Save credentials error:', error);
 		}
 	};
 
