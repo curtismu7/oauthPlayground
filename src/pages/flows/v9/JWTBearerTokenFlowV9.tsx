@@ -80,6 +80,7 @@ const STEP_METADATA = [
 	},
 ];
 
+// Main component with Modern Messaging provider
 const JWTBearerTokenFlowV9: React.FC = () => {
 	// Step navigation state
 	const [currentStep, setCurrentStep] = useState(0);
@@ -98,12 +99,10 @@ const JWTBearerTokenFlowV9: React.FC = () => {
 		completion: true,
 	});
 
-	// State management
+	// JWT configuration state
 	const [tokenEndpoint, setTokenEndpoint] = useState('https://api.pingone.com/oauth2/token');
 	const [audience, setAudience] = useState('https://api.pingone.com');
 	const [clientId, setClientId] = useState('test-client');
-
-	// JWT Claims with better defaults
 	const [jwtClaims, setJwtClaims] = useState<JWTClaims>({
 		iss: 'https://api.pingone.com',
 		sub: '',
@@ -112,7 +111,6 @@ const JWTBearerTokenFlowV9: React.FC = () => {
 		exp: Math.floor(Date.now() / 1000) + 3600,
 		jti: `jwt-${Math.random().toString(36).substring(2, 9)}`,
 	});
-
 	const [jwtSignature, setJwtSignature] = useState<JWTSignature>({
 		algorithm: 'RS256',
 		privateKey:
@@ -120,13 +118,14 @@ const JWTBearerTokenFlowV9: React.FC = () => {
 		publicKey:
 			'-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1234567890abcdef\n-----END PUBLIC KEY-----',
 	});
-
 	const [generatedJWT, setGeneratedJWT] = useState('');
-	const [tokenResponse, setTokenResponse] = useState<Record<string, unknown> | null>(null);
+	const [tokenResponse, setTokenResponse] = useState<any>(null);
 	const [isLoading, setIsLoading] = useState(false);
+
+	// Environment ID from URL params or storage
 	const [environmentId, setEnvironmentId] = useState('');
 
-	// Load stored credentials on mount
+	// Initialize environment ID credentials on mount
 	useEffect(() => {
 		const synced = V9CredentialStorageService.loadSync('v9:jwt-bearer');
 		if (synced) {
@@ -382,10 +381,11 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 		await copyToClipboard(text);
 	}, []);
 
-	// Main render
+	// Render component
 	return (
-		<div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
-			<V9FlowHeader flowId="jwt-bearer-token-v7" />
+		<V9ModernMessagingProvider>
+			<div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
+				<V9FlowHeader flowId="jwt-bearer-token-v7" />
 
 			{/* Restart Button */}
 			<div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
@@ -1098,17 +1098,10 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 					{currentStep === STEP_METADATA.length - 1 ? 'Complete' : 'Next →'}
 				</button>
 			</div>
-		</div>
-	);
-};
-
-// Wrapped component with Modern Messaging provider
-const JWTBearerTokenFlowV9WithMessaging: React.FC = () => {
-	return (
-		<V9ModernMessagingProvider>
-			<JWTBearerTokenFlowV9 />
+			</div>
 		</V9ModernMessagingProvider>
 	);
 };
 
-export default JWTBearerTokenFlowV9WithMessaging;
+export default JWTBearerTokenFlowV9;
+
