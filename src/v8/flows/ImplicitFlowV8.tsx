@@ -558,6 +558,65 @@ export const ImplicitFlowV8: React.FC = () => {
 					)}
 				</div>
 			)}
+
+			{/* Flow Completion Summary */}
+			{nav.currentStep === 3 && flowState.accessToken && (
+				<div
+					style={{
+						background: '#f0fdf4',
+						border: '1px solid #86efac',
+						borderRadius: '0.5rem',
+						padding: '1.5rem',
+						marginTop: '2rem',
+					}}
+				>
+					<h3
+						style={{
+							margin: '0 0 1rem 0',
+							color: '#16a34a',
+							fontSize: '1.25rem',
+							fontWeight: 600,
+						}}
+					>
+						🎉 OAuth Implicit Flow Complete
+					</h3>
+					<div
+						style={{
+							background: 'white',
+							borderRadius: '0.375rem',
+							padding: '1rem',
+							marginBottom: '1rem',
+						}}
+					>
+						<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>
+							Achievements:
+						</h4>
+						<ul style={{ margin: '0', paddingLeft: '1.5rem', color: '#4b5563' }}>
+							<li>✅ Authorization URL generated successfully</li>
+							<li>✅ User authentication completed</li>
+							<li>✅ Tokens extracted from URL fragment</li>
+							<li>✅ All 4 flow steps completed</li>
+						</ul>
+					</div>
+					<div
+						style={{
+							background: 'white',
+							borderRadius: '0.375rem',
+							padding: '1rem',
+						}}
+					>
+						<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>
+							Token Summary:
+						</h4>
+						<div style={{ fontSize: '0.875rem', color: '#4b5563' }}>
+							<p><strong>Access Token:</strong> {flowState.accessToken ? '✅ Obtained' : '❌ Missing'}</p>
+							<p><strong>ID Token:</strong> {flowState.idToken ? '✅ Obtained' : '❌ Missing'}</p>
+							<p><strong>State Parameter:</strong> {flowState.state ? '✅ Verified' : '❌ Missing'}</p>
+							<p><strong>Flow Type:</strong> OAuth 2.0 Implicit Flow</p>
+						</div>
+					</div>
+				</div>
+			)}
 		</div>
 	);
 
