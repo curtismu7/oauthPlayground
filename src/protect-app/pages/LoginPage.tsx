@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserSearchDropdownV8 } from '@/v8/components/UserSearchDropdownV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { logger } from '../../utils/logger';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
 import { PageApiInfo } from '../components/common/PageApiInfo';
 import { useAuth } from '../contexts/AuthContext';
@@ -83,7 +84,7 @@ export const LoginPage: React.FC = () => {
 			});
 			navigate('/dashboard');
 		} catch (error) {
-			console.error('Login failed:', error);
+			logger.error('LoginPage', 'Login failed:', undefined, error as Error);
 			setErrors({
 				general: 'Login failed. Please check your credentials and try again.',
 			});

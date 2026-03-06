@@ -9,9 +9,9 @@ import PageTitle from '../../components/PageTitle';
 import { type FlowStep, StepByStepFlow } from '../../components/StepByStepFlow';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { usePageScroll } from '../../hooks/usePageScroll';
-import { getOAuthTokens } from '../../utils/tokenStorage';
-import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
 import type { V9DiscoveredApp } from '../../services/v9/V9AppDiscoveryService';
+import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
+import { getOAuthTokens } from '../../utils/tokenStorage';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -645,7 +645,8 @@ console.log('ID token is valid!');`,
 					>
 						<strong>Current Configuration:</strong>
 						<div style={{ marginTop: '0.5rem' }}>
-							Environment ID: {config?.environmentId || 'Not set'}<br />
+							Environment ID: {config?.environmentId || 'Not set'}
+							<br />
 							Client ID: {config?.clientId || 'Not set'}
 						</div>
 					</div>

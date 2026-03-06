@@ -1,3 +1,5 @@
+import { logger } from '../../utils/logger';
+
 /**
  * @file UserService.ts
  * @module protect-app/services
@@ -236,7 +238,7 @@ class UserService {
 				limit,
 			};
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error searching users:`, error);
+			logger.error(MODULE_TAG, 'Error searching users:', undefined, error as Error);
 			throw new Error('Failed to search users');
 		}
 	}
@@ -250,7 +252,7 @@ class UserService {
 			const user = this.users.find((u) => u.id === id);
 			return user || null;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error getting user by ID:`, error);
+			logger.error(MODULE_TAG, 'Error getting user by ID:', undefined, error as Error);
 			throw new Error('Failed to get user');
 		}
 	}
@@ -282,7 +284,7 @@ class UserService {
 			this.users.push(newUser);
 			return newUser;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error creating user:`, error);
+			logger.error(MODULE_TAG, 'Error creating user:', undefined, error as Error);
 			throw error;
 		}
 	}
@@ -315,7 +317,7 @@ class UserService {
 			this.users[userIndex] = updatedUser;
 			return updatedUser;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error updating user:`, error);
+			logger.error(MODULE_TAG, 'Error updating user:', undefined, error as Error);
 			throw error;
 		}
 	}
@@ -334,7 +336,7 @@ class UserService {
 
 			this.users.splice(userIndex, 1);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error deleting user:`, error);
+			logger.error(MODULE_TAG, 'Error deleting user:', undefined, error as Error);
 			throw error;
 		}
 	}
@@ -347,7 +349,7 @@ class UserService {
 		try {
 			return [...this.roles];
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error getting roles:`, error);
+			logger.error(MODULE_TAG, 'Error getting roles:', undefined, error as Error);
 			throw new Error('Failed to get roles');
 		}
 	}
@@ -360,7 +362,7 @@ class UserService {
 		try {
 			return [...this.statuses];
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error getting statuses:`, error);
+			logger.error(MODULE_TAG, 'Error getting statuses:', undefined, error as Error);
 			throw new Error('Failed to get statuses');
 		}
 	}

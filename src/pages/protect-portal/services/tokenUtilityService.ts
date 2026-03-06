@@ -8,6 +8,7 @@
  * This service provides utilities for parsing and validating OIDC tokens.
  */
 
+import { logger } from '../../../utils/logger';
 import type { TokenSet } from '../types/protectPortal.types';
 
 // ============================================================================
@@ -95,7 +96,12 @@ class TokenUtilityService {
 
 			return JSON.parse(jsonPayload);
 		} catch (error) {
-			console.error('[🔐 TOKEN-UTILITY] Failed to parse JWT:', error);
+			logger.error(
+				'tokenUtilityService',
+				'[🔐 TOKEN-UTILITY] Failed to parse JWT:',
+				undefined,
+				error as Error
+			);
 			return null;
 		}
 	}

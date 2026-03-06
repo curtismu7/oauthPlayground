@@ -7,6 +7,7 @@ import {
 	formatBytes,
 	formatUptime,
 } from '../services/serverHealthService';
+import { logger } from '../utils/logger';
 
 const PageContainer = styled.div`
 	max-width: 1200px;
@@ -157,7 +158,7 @@ const ApiStatusPage: React.FC = () => {
 			setServers(updatedServers);
 			setLastRefresh(new Date());
 		} catch (err) {
-			console.error('Failed to fetch server health data:', err);
+			logger.error('ApiStatusPage', 'Failed to fetch server health data:', undefined, err as Error);
 		} finally {
 			setLoading(false);
 		}

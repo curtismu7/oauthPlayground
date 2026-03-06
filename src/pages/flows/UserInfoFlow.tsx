@@ -2,6 +2,9 @@ import { FiAlertCircle, FiDownload, FiInfo, FiSend, FiUpload } from '@icons';
 import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
+import { CompactAppPickerV8U } from '@/v8u/components/CompactAppPickerV8U';
 import { CardBody, CardHeader } from '../../components/Card';
 import ConfigurationButton from '../../components/ConfigurationButton';
 import FlowCredentials from '../../components/FlowCredentials';
@@ -12,9 +15,6 @@ import { FlowHeader } from '../../services/flowHeaderService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import type { UserInfo as OIDCUserInfo } from '../../types/oauth';
 import { isTokenExpired } from '../../utils/oauth';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
-import { CompactAppPickerV8U } from '@/v8u/components/CompactAppPickerV8U';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -477,9 +477,18 @@ const UserInfoFlow: React.FC = () => {
 			a.download = 'userinfo-config.json';
 			a.click();
 			URL.revokeObjectURL(url);
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Config exported successfully', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Config exported successfully',
+				duration: 3000,
+			});
 		} catch (err) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to export config', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to export config',
+				dismissible: true,
+			});
 		}
 	}, []);
 
@@ -494,10 +503,19 @@ const UserInfoFlow: React.FC = () => {
 				const { _meta: _m, ...configData } = imported;
 				localStorage.setItem('pingone_config', JSON.stringify(configData));
 				window.dispatchEvent(new StorageEvent('storage', { key: 'pingone_config' }));
-				modernMessaging.showFooterMessage({ type: 'info', message: 'Config imported — reloading...', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: 'Config imported — reloading...',
+					duration: 3000,
+				});
 				setTimeout(() => window.location.reload(), 800);
 			} catch (err) {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Invalid config file — must be valid JSON', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'Invalid config file — must be valid JSON',
+					dismissible: true,
+				});
 			}
 		};
 		reader.readAsText(file);
@@ -512,15 +530,15 @@ const UserInfoFlow: React.FC = () => {
 			...config,
 			clientId: app.id, // Use app.id as clientId (standard pattern)
 		};
-		
+
 		// Save to localStorage and trigger storage event
 		localStorage.setItem('pingone_config', JSON.stringify(updatedConfig));
 		window.dispatchEvent(new StorageEvent('storage', { key: 'pingone_config' }));
-		
-		modernMessaging.showFooterMessage({ 
-			type: 'info', 
-			message: `App "${app.name}" selected - Client ID updated`, 
-			duration: 3000 
+
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message: `App "${app.name}" selected - Client ID updated`,
+			duration: 3000,
 		});
 	};
 
@@ -605,7 +623,11 @@ const UserInfoFlow: React.FC = () => {
 			await navigator.clipboard.writeText(text);
 			// You could add a toast notification here
 		} catch {
-			modernMessaging.showBanner({ type: 'error', message: 'Failed to copy to clipboard', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				message: 'Failed to copy to clipboard',
+				dismissible: true,
+			});
 		}
 	};
 
@@ -1256,7 +1278,12 @@ console.log('Welcome, ' + user.name + '!');`,
 													'Token expired check:',
 													tokens?.access_token ? isTokenExpired(tokens.access_token) : 'No token'
 												);
-												modernMessaging.showFooterMessage({ type: 'info', message: 'Debug information logged to browser console - check developer tools', duration: 3000 });
+												modernMessaging.showFooterMessage({
+													type: 'info',
+													message:
+														'Debug information logged to browser console - check developer tools',
+													duration: 3000,
+												});
 											}}
 											style={{
 												padding: '8px 16px',

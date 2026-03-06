@@ -7,6 +7,7 @@ import styled from 'styled-components';
 import ClientCredentialManager from '../../components/ClientCredentialManager';
 import { useCredentialStoreV8 } from '../../hooks/useCredentialStoreV8';
 import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
+import { logger } from '../../utils/logger';
 import WorkerTokenStatusDisplayV8 from '../../v8/components/WorkerTokenStatusDisplayV8';
 
 // Test Configuration Interface
@@ -365,7 +366,12 @@ const PingOneApiTest: React.FC = () => {
 				error: error instanceof Error ? error.message : 'Unknown error',
 				duration,
 			});
-			console.error('❌ Authorization URL generation failed:', error);
+			logger.error(
+				'PingOneApiTest',
+				'❌ Authorization URL generation failed:',
+				undefined,
+				error as Error
+			);
 			return null;
 		}
 	}, [config, addResult]);
@@ -425,7 +431,7 @@ const PingOneApiTest: React.FC = () => {
 				if (response.ok) {
 					console.log('✅ Token exchange successful:', responseData);
 				} else {
-					console.error('❌ Token exchange failed:', responseData);
+					logger.error('PingOneApiTest', '❌ Token exchange failed:', { responseData });
 				}
 
 				return responseData;
@@ -439,7 +445,7 @@ const PingOneApiTest: React.FC = () => {
 					error: error instanceof Error ? error.message : 'Unknown error',
 					duration,
 				});
-				console.error('❌ Token exchange failed:', error);
+				logger.error('PingOneApiTest', '❌ Token exchange failed:', undefined, error as Error);
 				return null;
 			}
 		},
@@ -501,7 +507,12 @@ const PingOneApiTest: React.FC = () => {
 					error: error instanceof Error ? error.message : 'Unknown error',
 					duration,
 				});
-				console.error('❌ Implicit token parsing failed:', error);
+				logger.error(
+					'PingOneApiTest',
+					'❌ Implicit token parsing failed:',
+					undefined,
+					error as Error
+				);
 				return null;
 			}
 		},
@@ -777,7 +788,7 @@ const PingOneApiTest: React.FC = () => {
 
 			console.log('✅ All PingOne API tests completed!');
 		} catch (error) {
-			console.error('❌ Test suite failed:', error);
+			logger.error('PingOneApiTest', '❌ Test suite failed:', undefined, error as Error);
 		} finally {
 			setIsRunning(false);
 		}

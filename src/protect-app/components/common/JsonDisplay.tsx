@@ -13,6 +13,7 @@
 
 import { FiCheck, FiChevronDown, FiChevronRight, FiCopy } from '@icons';
 import React, { useState } from 'react';
+import { logger } from '../../../utils/logger';
 import { useTheme } from '../../contexts/ThemeContext';
 
 interface JsonDisplayProps {
@@ -53,7 +54,7 @@ export const JsonDisplay: React.FC<JsonDisplayProps> = ({
 			setCopied(true);
 			setTimeout(() => setCopied(false), 2000);
 		} catch (error) {
-			console.error('Failed to copy JSON:', error);
+			logger.error('JsonDisplay', 'Failed to copy JSON:', undefined, error as Error);
 		}
 	};
 

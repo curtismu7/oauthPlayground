@@ -1631,7 +1631,7 @@ app.post('/api/token-exchange', async (req, res) => {
     const responseData = await response.json();
 
     if (!response.ok) {
-      console.error('❌ [Server] PingOne error:', responseData);
+      logger.error('V8MTokenExchange', '❌ [Server] PingOne error:', { responseData });
       return res.status(response.status).json(responseData);
     }
 
@@ -1647,7 +1647,7 @@ app.post('/api/token-exchange', async (req, res) => {
     res.json(enrichedResponse);
 
   } catch (error) {
-    console.error('💥 [Server] Token exchange error:', error);
+    logger.error('V8MTokenExchange', '💥 [Server] Token exchange error:', undefined, error as Error);
     res.status(500).json({
       error: 'server_error',
       error_description: 'Internal server error during token exchange'
@@ -1757,6 +1757,7 @@ ${
 						</h4>
 						<CodeBlock>{`// TokenExchangeComponent.tsx (React)
 import React, { useState } from "react";
+import { logger } from '../../utils/logger';
 
 function TokenExchangeComponent() {
   const [exchangeState, setExchangeState] = useState({

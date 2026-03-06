@@ -979,9 +979,7 @@ const OAuthROPCFlowV9: React.FC = () => {
 								marginBottom: '1rem',
 							}}
 						>
-							<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>
-								Achievements:
-							</h4>
+							<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>Achievements:</h4>
 							<ul style={{ margin: '0', paddingLeft: '1.5rem', color: '#4b5563' }}>
 								<li>✅ Resource Owner credentials configured</li>
 								<li>✅ OAuth ROPC request completed</li>
@@ -997,13 +995,17 @@ const OAuthROPCFlowV9: React.FC = () => {
 									padding: '1rem',
 								}}
 							>
-								<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>
-									Token Details:
-								</h4>
+								<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>Token Details:</h4>
 								<div style={{ fontSize: '0.875rem', color: '#4b5563' }}>
-									<p><strong>Token Type:</strong> {tokenResponse.token_type}</p>
-									<p><strong>Expires In:</strong> {tokenResponse.expires_in} seconds</p>
-									<p><strong>Scope:</strong> {tokenResponse.scope}</p>
+									<p>
+										<strong>Token Type:</strong> {tokenResponse.token_type}
+									</p>
+									<p>
+										<strong>Expires In:</strong> {tokenResponse.expires_in} seconds
+									</p>
+									<p>
+										<strong>Scope:</strong> {tokenResponse.scope}
+									</p>
 								</div>
 							</div>
 						)}
@@ -1015,4 +1017,3 @@ const OAuthROPCFlowV9: React.FC = () => {
 };
 
 export default OAuthROPCFlowV9;
-

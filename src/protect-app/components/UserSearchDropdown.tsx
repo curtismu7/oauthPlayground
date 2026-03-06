@@ -14,6 +14,7 @@
 import { FiChevronDown, FiUser } from '@icons';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../../utils/logger';
 import { useTheme } from '../contexts/ThemeContext';
 import { userService } from '../services/UserService';
 
@@ -280,7 +281,7 @@ export const UserSearchDropdown: React.FC<UserSearchDropdownProps> = ({
 			setHasMore(result.hasMore);
 			setOffset(startOffset + result.limit);
 		} catch (error) {
-			console.error('Error searching users:', error);
+			logger.error('UserSearchDropdown', 'Error searching users:', undefined, error as Error);
 			if (startOffset === 0) {
 				setUsers([]);
 			}
