@@ -17,7 +17,7 @@
 | V9 flows: `V9CredentialStorageService` | ✅ **DONE** | All 16 V9 flows have it |
 | V9 flows: `CompactAppPickerV8U` | ✅ **DONE** | All 16 V9 flows have it |
 | V9 flows: zero `toastV8` calls | ✅ **DONE** | 0 actual calls (comments only) |
-| V9 flows: `console.error/warn` | ✅ **DONE** | 0 violations in all V9 flows (commit `a362778e8`) — WorkerTokenFlowV9 1 occurrence exempt (inside `<pre>` tag) |
+| V9 flows: `console.error/warn` | ✅ **DONE** | 0 violations in all V9 flows — WorkerTokenFlowV9 1 occurrence exempt (inside `<pre>` tag). CIBAFlowV9 + RedirectlessFlowV9_Real (13 violations) fixed commit `HEAD` |
 | V9 services: `console.error/warn` | ✅ **DONE** | 48 violations removed across 13 service files (commit `d2948f543`) — 2 false positives skipped (postmanCollectionGeneratorV9 template strings, credentialsServiceV9 JSDoc) |
 | **NEW: Logging Implementation Plan** | ✅ **DONE** | Comprehensive 5-week plan created (see docs/standards/logging-implementation-plan.md) |
 | **NEW: Comprehensive Status Assessment** | ✅ **DONE** | Complete technical debt analysis (see COMPREHENSIVE_STANDARDIZATION_STATUS.md) |
