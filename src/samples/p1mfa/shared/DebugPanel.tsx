@@ -6,6 +6,7 @@
  */
 
 import React, { useState } from 'react';
+import { logger } from '../../../utils/logger';
 
 interface DebugPanelProps {
 	request?: {
@@ -61,7 +62,7 @@ export const DebugPanel: React.FC<DebugPanelProps> = ({
 				setCopied((prev) => ({ ...prev, [key]: false }));
 			}, 2000);
 		} catch (error) {
-			console.error('Failed to copy:', error);
+			logger.error('DebugPanel', 'Failed to copy:', undefined, error);
 		}
 	};
 

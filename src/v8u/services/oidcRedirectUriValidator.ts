@@ -1,3 +1,4 @@
+import { logger } from '../../utils/logger';
 /**
  * OIDC Redirect URI Validation Service
  * Validates redirect URIs against PingOne client configuration
@@ -25,7 +26,7 @@ export const OIDCRedirectUriValidator = {
 			);
 
 			if (!response.ok) {
-				console.error('Failed to fetch client configuration');
+				logger.error('OidcRedirectUriValidator', 'Failed to fetch client configuration');
 				return false;
 			}
 
@@ -34,7 +35,7 @@ export const OIDCRedirectUriValidator = {
 
 			return validRedirectUris.includes(redirectUri);
 		} catch (error) {
-			console.error('Error validating redirect URI:', error);
+			logger.error('OidcRedirectUriValidator', 'Error validating redirect URI:', undefined, error);
 			return false;
 		}
 	},
