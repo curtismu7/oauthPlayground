@@ -17,6 +17,7 @@ import {
 } from '@icons';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { usePageScroll } from '../../../hooks/usePageScroll';
 import { CollapsibleHeader } from '../../../services/collapsibleHeaderService';
 import { FlowCompletionService } from '../../../services/flowCompletionService';
@@ -25,11 +26,10 @@ import { FlowUIService } from '../../../services/flowUIService';
 import { oidcDiscoveryService } from '../../../services/oidcDiscoveryService';
 import SAMLAssertionService from '../../../services/samlAssertionService';
 import { UnifiedTokenDisplayService } from '../../../services/unifiedTokenDisplayService';
-import { credentialManager } from '../../../utils/credentialManager';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
-import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
+import { credentialManager } from '../../../utils/credentialManager';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
+import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 
 // Get UI components from FlowUIService
 const Container = FlowUIService.getContainer();
@@ -287,16 +287,13 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 		});
 	}, []);
 
-	const saveSamlCredentials = useCallback(
-		(cId: string, envId: string) => {
-			V9CredentialStorageService.save(
-				'v9:saml-bearer',
-				{ clientId: cId, environmentId: envId },
-				envId ? { environmentId: envId } : {}
-			);
-		},
-		[]
-	);
+	const saveSamlCredentials = useCallback((cId: string, envId: string) => {
+		V9CredentialStorageService.save(
+			'v9:saml-bearer',
+			{ clientId: cId, environmentId: envId },
+			envId ? { environmentId: envId } : {}
+		);
+	}, []);
 
 	const handleSamlAppSelected = useCallback(
 		(app: DiscoveredApp) => {
@@ -391,15 +388,29 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 
 	const copyToClipboard = useCallback(async (text: string, label: string) => {
 		if (!text) {
-			modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: `No ${label} available to copy.`, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'warning',
+				title: 'Warning',
+				message: `No ${label} available to copy.`,
+				dismissible: true,
+			});
 			return;
 		}
 		try {
 			await navigator.clipboard.writeText(text);
-			modernMessaging.showFooterMessage({ type: 'info', message: `${label} copied to clipboard.`, duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: `${label} copied to clipboard.`,
+				duration: 3000,
+			});
 		} catch (error) {
 			console.error('[SAML Bearer V9] Failed to copy to clipboard:', error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Unable to copy ${label}.`, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: `Unable to copy ${label}.`,
+				dismissible: true,
+			});
 		}
 	}, []);
 
@@ -437,7 +448,11 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 						}));
 						console.log('[SAML Bearer V9] Issuer and Audience auto-populated:', issuer);
 					}
-					modernMessaging.showFooterMessage({ type: 'info', message: 'Endpoints and SAML fields auto-populated from OIDC Discovery', duration: 3000 });
+					modernMessaging.showFooterMessage({
+						type: 'info',
+						message: 'Endpoints and SAML fields auto-populated from OIDC Discovery',
+						duration: 3000,
+					});
 				}
 			} catch (error) {
 				console.warn('[SAML Bearer V9] OIDC Discovery failed:', error);
@@ -489,17 +504,31 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 
 		const validation = SAMLAssertionService.validateConfiguration(config);
 		if (!validation.isValid) {
-			modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: `Please fill in all required fields: ${validation.errors.join(', ')}`, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'warning',
+				title: 'Warning',
+				message: `Please fill in all required fields: ${validation.errors.join(', ')}`,
+				dismissible: true,
+			});
 			return;
 		}
 
 		try {
 			const mockSAML = SAMLAssertionService.generateSAMLAssertion(config);
 			setGeneratedSAML(mockSAML);
-			modernMessaging.showFooterMessage({ type: 'info', message: 'SAML Assertion generated successfully!', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'SAML Assertion generated successfully!',
+				duration: 3000,
+			});
 		} catch (error) {
 			console.error('[SAML Bearer V9] Error generating SAML assertion:', error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to generate SAML assertion', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to generate SAML assertion',
+				dismissible: true,
+			});
 		}
 	}, [clientId, tokenEndpoint, identityProvider, samlAssertion]);
 
@@ -545,7 +574,11 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 						attributes: {},
 					});
 				}
-				modernMessaging.showFooterMessage({ type: 'info', message: 'SAML configuration loaded from saved settings', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: 'SAML configuration loaded from saved settings',
+					duration: 3000,
+				});
 			}
 		} catch (error) {
 			console.error('[SAML Bearer V9] Error loading configuration:', error);
@@ -592,7 +625,12 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 	// Make token request
 	const makeTokenRequest = useCallback(async () => {
 		if (!generatedSAML || !clientId || !tokenEndpoint) {
-			modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Please generate a SAML assertion first', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'warning',
+				title: 'Warning',
+				message: 'Please generate a SAML assertion first',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -681,10 +719,19 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 
 			console.log('[SAML Bearer Mock] Mock token response:', mockTokenResponse);
 			setTokenResponse(mockTokenResponse);
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Mock access token generated successfully! (Educational simulation)', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Mock access token generated successfully! (Educational simulation)',
+				duration: 3000,
+			});
 		} catch (error) {
 			console.error('[SAML Bearer Mock] Error in simulation:', error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to simulate token request', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to simulate token request',
+				dismissible: true,
+			});
 		} finally {
 			setIsLoading(false);
 		}
@@ -699,10 +746,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 				defaultCollapsed={collapsedSections.credentials}
 				showArrow={true}
 			>
-				<CompactAppPickerV8U
-					environmentId={environmentId}
-					onAppSelected={handleSamlAppSelected}
-				/>
+				<CompactAppPickerV8U environmentId={environmentId} onAppSelected={handleSamlAppSelected} />
 				<FormGroup>
 					<Label>Environment ID *</Label>
 					<Input
@@ -1027,7 +1071,11 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 								onClick={() => {
 									const formatted = SAMLAssertionService.formatSAMLForDisplay(generatedSAML);
 									console.log('[SAML Bearer V9] Formatted SAML:', formatted);
-									modernMessaging.showFooterMessage({ type: 'info', message: 'SAML assertion formatted for display', duration: 3000 });
+									modernMessaging.showFooterMessage({
+										type: 'info',
+										message: 'SAML assertion formatted for display',
+										duration: 3000,
+									});
 								}}
 								$variant="secondary"
 							>

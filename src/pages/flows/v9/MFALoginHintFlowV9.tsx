@@ -3,14 +3,14 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { usePageScroll } from '../../../hooks/usePageScroll';
+import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import {
 	MessageState,
 	V9ModernMessagingService,
 } from '../../../services/v9/V9ModernMessagingService';
 import V9FlowHeader from '../../../services/v9/v9FlowHeaderService';
-import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
-import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
+import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 
 // Types
 interface MFALoginHintConfig {
@@ -119,7 +119,11 @@ const MFALoginHintFlowV9: React.FC = () => {
 	const saveCredentials = useCallback((config: MFALoginHintConfig) => {
 		V9CredentialStorageService.save(
 			'v9:mfa-login-hint',
-			{ clientId: config.clientId, clientSecret: config.clientSecret, environmentId: config.environmentId },
+			{
+				clientId: config.clientId,
+				clientSecret: config.clientSecret,
+				environmentId: config.environmentId,
+			},
 			config.environmentId ? { environmentId: config.environmentId } : {}
 		);
 	}, []);

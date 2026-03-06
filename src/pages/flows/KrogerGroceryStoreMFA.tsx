@@ -5,6 +5,7 @@
 // No React Icons import - using MDI icons instead
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { ApiCallTable } from '../../components/ApiCallTable';
 import { AuthorizationCodeConfigModal } from '../../components/AuthorizationCodeConfigModal';
 import type { StepCredentials } from '../../components/steps/CommonSteps';
@@ -18,7 +19,6 @@ import { getValidWorkerToken } from '../../services/tokenExpirationService';
 import { workerTokenCredentialsService } from '../../services/workerTokenCredentialsService';
 import type { UserInfo } from '../../types/oauth';
 import { trackedFetch } from '../../utils/trackedFetch';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 // Kroger Brand Colors
 const KROGER_BLUE = '#0058A8';
@@ -951,7 +951,12 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 	// Step 12-17: Complete MFA Login Flow (Authorization Code Flow - no worker token needed)
 	const completeMFALogin = useCallback(async () => {
 		if (!username || !password) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter username and password', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please enter username and password',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -963,7 +968,13 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 				hasClientSecret: !!credentials.clientSecret,
 				credentials,
 			});
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please configure application credentials first. Click "Configure Application Credentials" below the login form.', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message:
+					'Please configure application credentials first. Click "Configure Application Credentials" below the login form.',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -1039,11 +1050,20 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 			// Show MFA challenge
 			setShowMFAChallenge(true);
 			setLoginStep('mfa');
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Please check your phone for the verification code', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Please check your phone for the verification code',
+				duration: 3000,
+			});
 			setIsLoading(false);
 		} catch (error) {
 			console.error('[Kroger] Login failed:', error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Login failed', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: error instanceof Error ? error.message : 'Login failed',
+				dismissible: true,
+			});
 			setIsLoading(false);
 		}
 	}, [credentials, username, password]);
@@ -1065,7 +1085,12 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 	const enableMFADevice = useCallback(
 		async (deviceId: string): Promise<boolean> => {
 			if (!credentials.environmentId || !userId || !workerToken) {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Missing required parameters for device enablement', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'Missing required parameters for device enablement',
+					dismissible: true,
+				});
 				return false;
 			}
 
@@ -1086,14 +1111,23 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 
 				const data = await response.json();
 				if (response.ok) {
-					modernMessaging.showFooterMessage({ type: 'info', message: 'MFA device enabled successfully', duration: 3000 });
+					modernMessaging.showFooterMessage({
+						type: 'info',
+						message: 'MFA device enabled successfully',
+						duration: 3000,
+					});
 					return true;
 				} else {
 					throw new Error(data.error_description || data.error || 'Failed to enable MFA device');
 				}
 			} catch (error) {
 				console.error('[Kroger] Device enablement failed:', error);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Failed to enable MFA device', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: error instanceof Error ? error.message : 'Failed to enable MFA device',
+					dismissible: true,
+				});
 				return false;
 			}
 		},
@@ -1103,7 +1137,12 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 	// Step 11: Register Mobile Phone Device
 	const registerMobilePhone = useCallback(async () => {
 		if (!credentials.environmentId || !userId || !phoneNumber || !workerToken) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please provide all required information', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please provide all required information',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -1143,7 +1182,12 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 			}
 		} catch (error) {
 			console.error('[Kroger] Device registration failed:', error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Failed to register device', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: error instanceof Error ? error.message : 'Failed to register device',
+				dismissible: true,
+			});
 			setIsLoading(false);
 		}
 	}, [credentials.environmentId, userId, phoneNumber, workerToken, enableMFADevice]);
@@ -1151,7 +1195,12 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 	// Step 15-17: Complete MFA and Get Tokens
 	const verifyMFACode = useCallback(async () => {
 		if (!flowId || !mfaCode || !credentials.environmentId) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter the verification code', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please enter the verification code',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -1220,11 +1269,20 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 			setIsAuthenticated(true);
 			setShowMFAChallenge(false);
 			setLoginStep('success');
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Login successful! Welcome to Kroger.', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Login successful! Welcome to Kroger.',
+				duration: 3000,
+			});
 			setIsLoading(false);
 		} catch (error) {
 			console.error('[Kroger] MFA verification failed:', error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Verification failed', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: error instanceof Error ? error.message : 'Verification failed',
+				dismissible: true,
+			});
 			setIsLoading(false);
 		}
 	}, [flowId, mfaCode, credentials]);
@@ -1232,7 +1290,12 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 	// Handle login - check if device setup is needed first
 	const handleLogin = async () => {
 		if (!username || !password) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter username and password', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please enter username and password',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -1270,7 +1333,12 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 	// Handle device setup completion
 	const _handleDeviceSetupComplete = async () => {
 		if (!phoneNumber) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter a phone number', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please enter a phone number',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -1280,7 +1348,12 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 	// Handle MFA code submission
 	const handleMFASubmit = async () => {
 		if (!mfaCode || mfaCode.length !== 6) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter a valid 6-digit code', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please enter a valid 6-digit code',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -1290,17 +1363,6 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 	// Show login page first if not authenticated
 	if (!isAuthenticated) {
 		return (
-			<ModalOverlay $isOpen={showLoginModal} onClick={() => {}}>
-				<LoginModal onClick={(e) => e.stopPropagation()}>
-					<ModalHeader>
-						<h2>Kroger MFA Login</h2>
-						<button
-							onClick={() => setShowLoginModal(false)}
-							style={{
-								background: 'none',
-								border: 'none',
-								fontSize: '1.5rem',
-								cursor: 'pointer',
 								color: '#666',
 								padding: '0.25rem',
 								display: 'flex',
@@ -1318,7 +1380,14 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 					</div>
 
 					<div style={{ marginBottom: '1rem' }}>
-						<label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#374151' }}>
+						<label
+							style={{
+								display: 'block',
+								marginBottom: '0.5rem',
+								fontWeight: '600',
+								color: '#374151',
+							}}
+						>
 							Username
 						</label>
 						<input
@@ -1339,7 +1408,14 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 					</div>
 
 					<div style={{ marginBottom: '1rem' }}>
-						<label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#374151' }}>
+						<label
+							style={{
+								display: 'block',
+								marginBottom: '0.5rem',
+								fontWeight: '600',
+								color: '#374151',
+							}}
+						>
 							Password
 						</label>
 						<input
@@ -1399,7 +1475,8 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 
 					<MFAChallengeContent>
 						<p style={{ color: '#4b5563', lineHeight: '1.6', marginBottom: '1.5rem' }}>
-							We've sent a 6-digit verification code to your registered device. Please enter it below to continue.
+							We've sent a 6-digit verification code to your registered device. Please enter it
+							below to continue.
 						</p>
 
 						<input
@@ -1429,109 +1506,109 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 		);
 	}
 
-	// Show setup modal if credentials are not configured  
+	// Show setup modal if credentials are not configured
 	if (showSetupModal) {
 		return (
 			<ModalOverlay $isOpen={showSetupModal} onClick={() => {}}>
-					<LoginModal onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px' }}>
-						<ModalHeader>
-							<h2>Configuration Required</h2>
-							<button
-								onClick={() => setShowSetupModal(false)}
-								style={{
-									background: 'none',
-									border: 'none',
-									fontSize: '1.5rem',
-									cursor: 'pointer',
-									color: '#666',
-									padding: '0.25rem',
-									display: 'flex',
-									alignItems: 'center',
-								}}
-							>
-								×
-							</button>
-						</ModalHeader>
+				<LoginModal onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px' }}>
+					<ModalHeader>
+						<h2>Configuration Required</h2>
+						<button
+							onClick={() => setShowSetupModal(false)}
+							style={{
+								background: 'none',
+								border: 'none',
+								fontSize: '1.5rem',
+								cursor: 'pointer',
+								color: '#666',
+								padding: '0.25rem',
+								display: 'flex',
+								alignItems: 'center',
+							}}
+						>
+							×
+						</button>
+					</ModalHeader>
 
-						<div style={{ marginBottom: '1.5rem' }}>
-							<p style={{ color: '#4b5563', lineHeight: '1.6', marginBottom: '1rem' }}>
-								The Kroger Grocery Store MFA flow requires authorization code credentials to be
-								configured. Please configure your PingOne authorization code client credentials to
-								continue.
-							</p>
-							<p style={{ color: '#6b7280', fontSize: '0.875rem', lineHeight: '1.5' }}>
-								You'll need:
-							</p>
-							<ul
-								style={{
-									color: '#6b7280',
-									fontSize: '0.875rem',
-									lineHeight: '1.8',
-									marginLeft: '1.5rem',
-									marginTop: '0.5rem',
-								}}
-							>
-								<li>Environment ID</li>
-								<li>Client ID</li>
-								<li>Client Secret</li>
-								<li>Redirect URI (optional)</li>
-								<li>Scopes (optional)</li>
-							</ul>
-						</div>
+					<div style={{ marginBottom: '1.5rem' }}>
+						<p style={{ color: '#4b5563', lineHeight: '1.6', marginBottom: '1rem' }}>
+							The Kroger Grocery Store MFA flow requires authorization code credentials to be
+							configured. Please configure your PingOne authorization code client credentials to
+							continue.
+						</p>
+						<p style={{ color: '#6b7280', fontSize: '0.875rem', lineHeight: '1.5' }}>
+							You'll need:
+						</p>
+						<ul
+							style={{
+								color: '#6b7280',
+								fontSize: '0.875rem',
+								lineHeight: '1.8',
+								marginLeft: '1.5rem',
+								marginTop: '0.5rem',
+							}}
+						>
+							<li>Environment ID</li>
+							<li>Client ID</li>
+							<li>Client Secret</li>
+							<li>Redirect URI (optional)</li>
+							<li>Scopes (optional)</li>
+						</ul>
+					</div>
 
-						<div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
-							<button
-								onClick={() => setShowSetupModal(false)}
-								style={{
-									padding: '0.75rem 1.5rem',
-									background: 'transparent',
-									color: KROGER_BLUE,
-									border: `2px solid ${KROGER_BLUE}`,
-									borderRadius: '8px',
-									fontSize: '1rem',
-									fontWeight: 600,
-									cursor: 'pointer',
-									transition: 'background 0.2s, color 0.2s',
-								}}
-								onMouseEnter={(e) => {
-									e.currentTarget.style.background = KROGER_BLUE;
-									e.currentTarget.style.color = 'white';
-								}}
-								onMouseLeave={(e) => {
-									e.currentTarget.style.background = 'transparent';
-									e.currentTarget.style.color = KROGER_BLUE;
-								}}
-							>
-								Cancel
-							</button>
-							<button
-								onClick={() => {
-									setShowSetupModal(false);
-									setShowAuthzConfigModal(true);
-								}}
-								style={{
-									padding: '0.75rem 1.5rem',
-									background: KROGER_BLUE,
-									color: 'white',
-									border: 'none',
-									borderRadius: '8px',
-									fontSize: '1rem',
-									fontWeight: 600,
-									cursor: 'pointer',
-									transition: 'opacity 0.2s',
-								}}
-								onMouseEnter={(e) => {
-									e.currentTarget.style.opacity = '0.9';
-								}}
-								onMouseLeave={(e) => {
-									e.currentTarget.style.opacity = '1';
-								}}
-							>
-								Configure Authorization Code Client
-							</button>
-						</div>
-					</LoginModal>
-				</ModalOverlay>
+					<div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+						<button
+							onClick={() => setShowSetupModal(false)}
+							style={{
+								padding: '0.75rem 1.5rem',
+								background: 'transparent',
+								color: KROGER_BLUE,
+								border: `2px solid ${KROGER_BLUE}`,
+								borderRadius: '8px',
+								fontSize: '1rem',
+								fontWeight: 600,
+								cursor: 'pointer',
+								transition: 'background 0.2s, color 0.2s',
+							}}
+							onMouseEnter={(e) => {
+								e.currentTarget.style.background = KROGER_BLUE;
+								e.currentTarget.style.color = 'white';
+							}}
+							onMouseLeave={(e) => {
+								e.currentTarget.style.background = 'transparent';
+								e.currentTarget.style.color = KROGER_BLUE;
+							}}
+						>
+							Cancel
+						</button>
+						<button
+							onClick={() => {
+								setShowSetupModal(false);
+								setShowAuthzConfigModal(true);
+							}}
+							style={{
+								padding: '0.75rem 1.5rem',
+								background: KROGER_BLUE,
+								color: 'white',
+								border: 'none',
+								borderRadius: '8px',
+								fontSize: '1rem',
+								fontWeight: 600,
+								cursor: 'pointer',
+								transition: 'opacity 0.2s',
+							}}
+							onMouseEnter={(e) => {
+								e.currentTarget.style.opacity = '0.9';
+							}}
+							onMouseLeave={(e) => {
+								e.currentTarget.style.opacity = '1';
+							}}
+						>
+							Configure Authorization Code Client
+						</button>
+					</div>
+				</LoginModal>
+			</ModalOverlay>
 		);
 	}
 
@@ -1539,47 +1616,47 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 	if (showAuthzConfigModal) {
 		return (
 			<AuthorizationCodeConfigModal
-					isOpen={showAuthzConfigModal}
-					onClose={() => {
-						setShowAuthzConfigModal(false);
+				isOpen={showAuthzConfigModal}
+				onClose={() => {
+					setShowAuthzConfigModal(false);
 
-						// Reload saved credentials after modal closes
-						const FLOW_KEY = 'kroger-grocery-store-mfa';
-						const saved = comprehensiveFlowDataService.loadFlowCredentialsIsolated(FLOW_KEY);
+					// Reload saved credentials after modal closes
+					const FLOW_KEY = 'kroger-grocery-store-mfa';
+					const saved = comprehensiveFlowDataService.loadFlowCredentialsIsolated(FLOW_KEY);
 
-						if (saved?.environmentId && saved.clientId && saved.clientSecret) {
-							console.log(
-								'✅ [KrogerGroceryStoreMFA] Credentials found after save, updating state...'
-							);
-							setCredentials({
-								environmentId: saved.environmentId || '',
-								clientId: saved.clientId || '',
-								clientSecret: saved.clientSecret || '',
-								redirectUri: saved.redirectUri || 'https://localhost:3000/callback',
-								scopes: Array.isArray(saved.scopes)
-									? saved.scopes.join(' ')
-									: saved.scopes || 'openid profile email consents',
-							});
-							// Close setup modal if it was open
-							setShowSetupModal(false);
-						}
-					}}
-					flowType="kroger-grocery-store-mfa"
-					initialCredentials={credentials}
-					onCredentialsSaved={(savedCredentials) => {
-						// Update credentials state immediately
-						// onClose callback will reload from storage to ensure consistency
-						setCredentials(savedCredentials);
-						// Close setup modal if credentials are now complete
-						if (
-							savedCredentials.environmentId &&
-							savedCredentials.clientId &&
-							savedCredentials.clientSecret
-						) {
-							setShowSetupModal(false);
-						}
-					}}
-				/>
+					if (saved?.environmentId && saved.clientId && saved.clientSecret) {
+						console.log(
+							'✅ [KrogerGroceryStoreMFA] Credentials found after save, updating state...'
+						);
+						setCredentials({
+							environmentId: saved.environmentId || '',
+							clientId: saved.clientId || '',
+							clientSecret: saved.clientSecret || '',
+							redirectUri: saved.redirectUri || 'https://localhost:3000/callback',
+							scopes: Array.isArray(saved.scopes)
+								? saved.scopes.join(' ')
+								: saved.scopes || 'openid profile email consents',
+						});
+						// Close setup modal if it was open
+						setShowSetupModal(false);
+					}
+				}}
+				flowType="kroger-grocery-store-mfa"
+				initialCredentials={credentials}
+				onCredentialsSaved={(savedCredentials) => {
+					// Update credentials state immediately
+					// onClose callback will reload from storage to ensure consistency
+					setCredentials(savedCredentials);
+					// Close setup modal if credentials are now complete
+					if (
+						savedCredentials.environmentId &&
+						savedCredentials.clientId &&
+						savedCredentials.clientSecret
+					) {
+						setShowSetupModal(false);
+					}
+				}}
+			/>
 		);
 	}
 
