@@ -1,6 +1,7 @@
 // src/services/storageServiceV8Migration.ts
 // Migration layer for StorageServiceV8 to unified storage
 
+import { logger } from '../utils/logger';
 import { unifiedTokenStorage } from './unifiedTokenStorageService';
 
 const MODULE_TAG = '[🔄 STORAGE-V8-MIGRATION]';
@@ -20,7 +21,9 @@ export class StorageServiceV8Migration {
 			// Get all V8-prefixed keys from localStorage
 			const v8Keys = StorageServiceV8Migration.getV8LocalStorageKeys();
 
-			console.log(`${MODULE_TAG} Starting migration`, { keyCount: v8Keys.length });
+			logger.info('StorageServiceV8Migration', `${MODULE_TAG} Starting migration`, {
+				arg0: { keyCount: v8Keys.length },
+			});
 
 			for (const key of v8Keys) {
 				try {
@@ -29,16 +32,18 @@ export class StorageServiceV8Migration {
 				} catch (error) {
 					const errorMsg = `Failed to migrate key ${key}: ${error}`;
 					results.errors.push(errorMsg);
-					console.error(`${MODULE_TAG} ${errorMsg}`);
+					logger.error('StorageServiceV8Migration', `${MODULE_TAG} ${errorMsg}`);
 				}
 			}
 
-			console.log(`${MODULE_TAG} Migration completed`, results);
+			logger.info('StorageServiceV8Migration', `${MODULE_TAG} Migration completed`, {
+				arg0: results,
+			});
 			return results;
 		} catch (error) {
 			const errorMsg = `Migration failed: ${error}`;
 			results.errors.push(errorMsg);
-			console.error(`${MODULE_TAG} ${errorMsg}`);
+			logger.error('StorageServiceV8Migration', `${MODULE_TAG} ${errorMsg}`);
 			return results;
 		}
 	}
@@ -65,7 +70,9 @@ export class StorageServiceV8Migration {
 			// Remove from localStorage after successful migration
 			localStorage.removeItem(key);
 
-			console.log(`${MODULE_TAG} Migrated key`, { key, version, flowKey });
+			logger.info('StorageServiceV8Migration', `${MODULE_TAG} Migrated key`, {
+				arg0: { key, version, flowKey },
+			});
 		} catch (error) {
 			throw new Error(`Failed to parse or migrate data for key ${key}: ${error}`);
 		}
