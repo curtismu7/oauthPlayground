@@ -92,20 +92,20 @@ const IntroSection = styled.div`
   }
 `;
 
+const pageConfig = {
+	flowType: 'documentation' as const,
+	theme: 'blue' as const,
+	maxWidth: '72rem',
+	showHeader: true,
+	showFooter: false,
+	responsive: true,
+	flowId: 'user-guides-overview',
+};
+
+const { PageContainer, ContentWrapper } = PageLayoutService.createPageLayout(pageConfig);
+
 const UserGuidesOverview = () => {
 	usePageScroll({ pageName: 'User Guides Overview', force: true });
-
-	const pageConfig = {
-		flowType: 'documentation' as const,
-		theme: 'blue' as const,
-		maxWidth: '72rem',
-		showHeader: true,
-		showFooter: false,
-		responsive: true,
-		flowId: 'user-guides-overview',
-	};
-
-	const { PageContainer, ContentWrapper } = PageLayoutService.createPageLayout(pageConfig);
 
 	return (
 		<PageContainer>
