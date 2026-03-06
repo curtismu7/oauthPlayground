@@ -2,6 +2,7 @@
 // Password Reset Service for PingOne Platform API
 
 import { trackedFetch } from '../utils/trackedFetch';
+import { logger } from '../utils/logger';
 
 export enum PasswordOperationType {
 	RECOVER = 'recover',
@@ -77,7 +78,7 @@ export async function sendRecoveryCode(
 		const data = await response.json();
 
 		if (!response.ok) {
-			console.error('[🔐 PASSWORD] Failed to send recovery code:', data);
+			logger.error('PasswordResetService', 'Failed to send recovery code', { data });
 			return {
 				success: false,
 				error: data.error || 'unknown_error',
@@ -91,7 +92,7 @@ export async function sendRecoveryCode(
 			message: data.message || 'Recovery code sent successfully',
 		};
 	} catch (error) {
-		console.error('[🔐 PASSWORD] Error sending recovery code:', error);
+		logger.error('PasswordResetService', 'Error sending recovery code', undefined, error as Error);
 		return {
 			success: false,
 			error: 'network_error',
@@ -136,7 +137,7 @@ export async function recoverPassword(
 		const data = await response.json();
 
 		if (!response.ok) {
-			console.error('[🔐 PASSWORD] Password recovery failed:', data);
+			logger.error('PasswordResetService', 'Password recovery failed', { data });
 			return {
 				success: false,
 				error: data.error || 'unknown_error',
@@ -152,7 +153,7 @@ export async function recoverPassword(
 			timestamp: new Date().toISOString(),
 		};
 	} catch (error) {
-		console.error('[🔐 PASSWORD] Error recovering password:', error);
+		logger.error('PasswordResetService', 'Error recovering password', undefined, error as Error);
 		return {
 			success: false,
 			error: 'network_error',
@@ -193,7 +194,7 @@ export async function forcePasswordChange(
 		const data = await response.json();
 
 		if (!response.ok) {
-			console.error('[🔐 PASSWORD] Force password change failed:', data);
+			logger.error('PasswordResetService', 'Force password change failed', { data });
 			return {
 				success: false,
 				error: data.error || 'unknown_error',
@@ -209,7 +210,7 @@ export async function forcePasswordChange(
 			timestamp: new Date().toISOString(),
 		};
 	} catch (error) {
-		console.error('[🔐 PASSWORD] Error forcing password change:', error);
+		logger.error('PasswordResetService', 'Error forcing password change', undefined, error as Error);
 		return {
 			success: false,
 			error: 'network_error',
@@ -254,7 +255,7 @@ export async function changePassword(
 		const data = await response.json();
 
 		if (!response.ok) {
-			console.error('[🔐 PASSWORD] Password change failed:', data);
+			logger.error('PasswordResetService', 'Password change failed', { data });
 			return {
 				success: false,
 				error: data.error || 'unknown_error',
@@ -270,7 +271,7 @@ export async function changePassword(
 			timestamp: new Date().toISOString(),
 		};
 	} catch (error) {
-		console.error('[🔐 PASSWORD] Error changing password:', error);
+		logger.error('PasswordResetService', 'Error changing password', undefined, error as Error);
 		return {
 			success: false,
 			error: 'network_error',
@@ -313,7 +314,7 @@ export async function checkPassword(
 		const data = await response.json();
 
 		if (!response.ok) {
-			console.error('[🔐 PASSWORD] Password check failed:', data);
+			logger.error('PasswordResetService', 'Password check failed', { data });
 			return {
 				success: false,
 				error: data.error || 'unknown_error',
@@ -328,7 +329,7 @@ export async function checkPassword(
 			timestamp: new Date().toISOString(),
 		};
 	} catch (error) {
-		console.error('[🔐 PASSWORD] Error checking password:', error);
+		logger.error('PasswordResetService', 'Error checking password', undefined, error as Error);
 		return {
 			success: false,
 			error: 'network_error',
@@ -369,7 +370,7 @@ export async function unlockPassword(
 		const data = await response.json();
 
 		if (!response.ok) {
-			console.error('[🔐 PASSWORD] Password unlock failed:', data);
+			logger.error('PasswordResetService', 'Password unlock failed', { data });
 			return {
 				success: false,
 				error: data.error || 'unknown_error',
@@ -385,7 +386,7 @@ export async function unlockPassword(
 			timestamp: new Date().toISOString(),
 		};
 	} catch (error) {
-		console.error('[🔐 PASSWORD] Error unlocking password:', error);
+		logger.error('PasswordResetService', 'Error unlocking password', undefined, error as Error);
 		return {
 			success: false,
 			error: 'network_error',
@@ -429,7 +430,7 @@ export async function readPasswordState(
 		const data = await response.json();
 
 		if (!response.ok) {
-			console.error('[🔐 PASSWORD] Failed to read password state:', data);
+			logger.error('PasswordResetService', 'Failed to read password state', { data });
 			return {
 				success: false,
 				error: data.error || 'unknown_error',
@@ -443,7 +444,7 @@ export async function readPasswordState(
 			passwordState: data.passwordState,
 		};
 	} catch (error) {
-		console.error('[🔐 PASSWORD] Error reading password state:', error);
+		logger.error('PasswordResetService', 'Error reading password state', undefined, error as Error);
 		return {
 			success: false,
 			error: 'network_error',
@@ -489,7 +490,7 @@ export async function setPasswordAdmin(
 		const data = await response.json();
 
 		if (!response.ok) {
-			console.error('[🔐 PASSWORD] Admin password set failed:', data);
+			logger.error('PasswordResetService', 'Admin password set failed', { data });
 			return {
 				success: false,
 				error: data.error || 'unknown_error',
@@ -505,7 +506,7 @@ export async function setPasswordAdmin(
 			timestamp: new Date().toISOString(),
 		};
 	} catch (error) {
-		console.error('[🔐 PASSWORD] Error setting password (admin):', error);
+		logger.error('PasswordResetService', 'Error setting password (admin)', undefined, error as Error);
 		return {
 			success: false,
 			error: 'network_error',
@@ -551,7 +552,7 @@ export async function setPassword(
 		const data = await response.json();
 
 		if (!response.ok) {
-			console.error('[🔐 PASSWORD] Password set failed:', data);
+			logger.error('PasswordResetService', 'Password set failed', { data });
 			return {
 				success: false,
 				error: data.error || 'unknown_error',
@@ -567,7 +568,7 @@ export async function setPassword(
 			timestamp: new Date().toISOString(),
 		};
 	} catch (error) {
-		console.error('[🔐 PASSWORD] Error setting password:', error);
+		logger.error('PasswordResetService', 'Error setting password', undefined, error as Error);
 		return {
 			success: false,
 			error: 'network_error',
@@ -613,7 +614,7 @@ export async function setPasswordValue(
 		const data = await response.json();
 
 		if (!response.ok) {
-			console.error('[🔐 PASSWORD] Password value set failed:', data);
+			logger.error('PasswordResetService', 'Password value set failed', { data });
 			return {
 				success: false,
 				error: data.error || 'unknown_error',
@@ -629,7 +630,7 @@ export async function setPasswordValue(
 			timestamp: new Date().toISOString(),
 		};
 	} catch (error) {
-		console.error('[🔐 PASSWORD] Error setting password value:', error);
+		logger.error('PasswordResetService', 'Error setting password value', undefined, error as Error);
 		return {
 			success: false,
 			error: 'network_error',
@@ -677,7 +678,7 @@ export async function setPasswordLdapGateway(
 		const data = await response.json();
 
 		if (!response.ok) {
-			console.error('[🔐 PASSWORD] LDAP Gateway password set failed:', data);
+			logger.error('PasswordResetService', 'LDAP Gateway password set failed', { data });
 			return {
 				success: false,
 				error: data.error || 'unknown_error',
@@ -694,7 +695,7 @@ export async function setPasswordLdapGateway(
 			timestamp: new Date().toISOString(),
 		};
 	} catch (error) {
-		console.error('[🔐 PASSWORD] Error setting password via LDAP Gateway:', error);
+		logger.error('PasswordResetService', 'Error setting password via LDAP Gateway', undefined, error as Error);
 		return {
 			success: false,
 			error: 'network_error',
