@@ -612,7 +612,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 				if (!config?.clientId || !config?.environmentId) {
 					const errorMessage =
 						'Configuration required. Please configure your PingOne settings first.';
-					console.error(' [NewAuthContext] Missing configuration:', {
+					logger.error('NewAuthContext', 'Missing configuration', {
 						hasClientId: !!config?.clientId,
 						hasEnvironmentId: !!config?.environmentId,
 						config,
@@ -748,7 +748,7 @@ To set up PingOne authentication:
 You can find these values in your PingOne Admin Console under Applications.
 Note: The Authorization Endpoint will be automatically constructed from your Environment ID.`;
 
-					console.error(' [NewAuthContext] Configuration error:', errorMessage);
+					logger.error('NewAuthContext', 'Configuration error', { message: errorMessage });
 					throw new Error(errorMessage);
 				}
 
@@ -839,8 +839,8 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 				// Return the URL for modal display instead of direct redirect
 				return { success: true, redirectUrl: authUrl.toString() };
 			} catch (error) {
-				console.error(' [NewAuthContext] Login error:', error);
-				console.error(' [NewAuthContext] Error details:', {
+				logger.error('NewAuthContext', 'Login error', undefined, error as Error);
+				logger.error('NewAuthContext', 'Error details', {
 					message: error instanceof Error ? error.message : 'Unknown error',
 					stack: error instanceof Error ? error.stack : undefined,
 					error,
@@ -872,9 +872,11 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 				FlowContextUtils.emergencyCleanup();
 				console.log(' [NewAuthContext] Flow context cleaned up during logout');
 			} catch (flowCleanupError) {
-				console.warn(
-					' [NewAuthContext] Failed to cleanup flow context during logout:',
-					flowCleanupError
+				logger.warn(
+					'NewAuthContext',
+					'Failed to cleanup flow context during logout',
+					undefined,
+					flowCleanupError as Error
 				);
 			}
 
@@ -982,7 +984,12 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 							return { success: true, redirectUrl: returnPath };
 						}
 					} catch (err) {
-						console.warn(' [NewAuthContext] Failed to parse flow context for V6 detection:', err);
+						logger.warn(
+							'NewAuthContext',
+							'Failed to parse flow context for V6 detection',
+							undefined,
+							err as Error
+						);
 					}
 				}
 
@@ -1093,7 +1100,12 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 							console.log(' [NewAuthContext] No redirectUri in flow context');
 						}
 					} catch (error) {
-						console.warn('Failed to parse flow context for redirect URI:', error);
+						logger.warn(
+							'NewAuthContext',
+							'Failed to parse flow context for redirect URI',
+							undefined,
+							error as Error
+						);
 					}
 				} else {
 					console.log(
@@ -1148,7 +1160,12 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 							' [NewAuthContext] Generated fallback code_verifier and stored in sessionStorage'
 						);
 					} catch (error) {
-						console.error(' [NewAuthContext] Failed to generate fallback code_verifier:', error);
+						logger.error(
+							'NewAuthContext',
+							'Failed to generate fallback code_verifier',
+							undefined,
+							error as Error
+						);
 					}
 				}
 
@@ -1191,7 +1208,12 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 							});
 						}
 					} catch (error) {
-						console.warn(' [NewAuthContext] Failed to parse flow context for credentials:', error);
+						logger.warn(
+							'NewAuthContext',
+							'Failed to parse flow context for credentials',
+							undefined,
+							error as Error
+						);
 					}
 				}
 
@@ -1228,13 +1250,18 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 							hasEnvironmentId: !!environmentId,
 						});
 					} catch (error) {
-						console.error(' [NewAuthContext] Failed to load fallback credentials:', error);
+						logger.error(
+							'NewAuthContext',
+							'Failed to load fallback credentials',
+							undefined,
+							error as Error
+						);
 					}
 				}
 
 				// CRITICAL VALIDATION - Ensure we have valid credentials
 				if (!clientId || clientId.trim() === '') {
-					console.error(' [NewAuthContext] CRITICAL: clientId is empty!', {
+					logger.error('NewAuthContext', 'CRITICAL: clientId is empty', {
 						clientId,
 						environmentId,
 						redirectUri,
@@ -1255,7 +1282,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 				}
 
 				if (!environmentId || environmentId.trim() === '') {
-					console.error(' [NewAuthContext] CRITICAL: environmentId is empty!', {
+					logger.error('NewAuthContext', 'CRITICAL: environmentId is empty', {
 						clientId,
 						environmentId,
 						redirectUri,
@@ -1266,7 +1293,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 				}
 
 				if (!redirectUri || redirectUri.trim() === '') {
-					console.error(' [NewAuthContext] CRITICAL: redirectUri is empty!', {
+					logger.error('NewAuthContext', 'CRITICAL: redirectUri is empty', {
 						clientId,
 						environmentId,
 						redirectUri,
@@ -1514,10 +1541,9 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 
 				// FINAL VALIDATION - Last chance to catch empty values
 				if (requestBody.client_id === '' || !requestBody.client_id) {
-					console.error(
-						' [NewAuthContext] CRITICAL: Request body has empty client_id!',
-						requestBody
-					);
+					logger.error('NewAuthContext', 'CRITICAL: Request body has empty client_id', {
+						requestBody,
+					});
 					throw new Error(
 						'CRITICAL ERROR: Request body contains empty client_id. This should never happen.'
 					);
@@ -1525,19 +1551,20 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 
 				// Additional validation for required fields
 				if (!requestBody.redirect_uri || requestBody.redirect_uri.trim() === '') {
-					console.error(' [NewAuthContext] Missing redirect_uri in token exchange request');
+					logger.error('NewAuthContext', 'Missing redirect_uri in token exchange request');
 					throw new Error('Missing redirect URI. Please configure your OAuth settings.');
 				}
 
 				if (!requestBody.environment_id || requestBody.environment_id.trim() === '') {
-					console.error(' [NewAuthContext] Missing environment_id in token exchange request');
+					logger.error('NewAuthContext', 'Missing environment_id in token exchange request');
 					throw new Error('Missing environment ID. Please configure your PingOne environment.');
 				}
 
 				// Check if we have PKCE codes when needed
 				if (requestBody.code_verifier && requestBody.code_verifier.trim() === '') {
-					console.warn(
-						' [NewAuthContext] Empty code_verifier provided - this may cause PKCE mismatch'
+					logger.warn(
+						'NewAuthContext',
+						'Empty code_verifier provided - this may cause PKCE mismatch'
 					);
 				}
 
@@ -1579,7 +1606,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 						parsedError = { error: 'unknown', error_description: errorText };
 					}
 
-					console.error(' [NewAuthContext] Token exchange failed:', {
+					logger.error('NewAuthContext', 'Token exchange failed', {
 						status: tokenResponse.status,
 						statusText: tokenResponse.statusText,
 						errorText,
@@ -1719,16 +1746,17 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 							hasFlowState: !!redirectResult.flowState,
 						});
 					} else {
-						console.warn(
-							' [NewAuthContext] FlowContextService redirect failed:',
-							redirectResult.error
-						);
+						logger.warn('NewAuthContext', 'FlowContextService redirect failed', {
+							message: redirectResult.error,
+						});
 						redirectUrl = '/dashboard'; // Safe fallback
 					}
 				} catch (flowContextError) {
-					console.error(
-						' [NewAuthContext] FlowContextService error, falling back to legacy logic:',
-						flowContextError
+					logger.error(
+						'NewAuthContext',
+						'FlowContextService error, falling back to legacy logic',
+						undefined,
+						flowContextError as Error
 					);
 
 					// Fallback to legacy flow context handling for backward compatibility
@@ -1736,14 +1764,17 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 						try {
 							// SECURITY: Validate JSON input before parsing to prevent XSS
 							if (typeof flowContext !== 'string' || flowContext.length > 10000) {
-								console.warn(' [Security] Invalid flow context format or size');
+								logger.warn('NewAuthContext', '[Security] Invalid flow context format or size');
 								redirectUrl = '/dashboard';
 							} else if (
 								flowContext.includes('<script') ||
 								flowContext.includes('javascript:') ||
 								flowContext.includes('data:')
 							) {
-								console.warn(' [Security] Blocked potentially dangerous flow context content');
+								logger.warn(
+									'NewAuthContext',
+									'[Security] Blocked potentially dangerous flow context content'
+								);
 								redirectUrl = '/dashboard';
 							} else {
 								const parsedContext = safeJsonParse(flowContext);
@@ -1772,7 +1803,12 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 							// Clean up flow context
 							sessionStorage.removeItem('flowContext');
 						} catch (error) {
-							console.warn('Failed to parse flow context (fallback):', error);
+							logger.warn(
+								'NewAuthContext',
+								'Failed to parse flow context (fallback)',
+								undefined,
+								error as Error
+							);
 							redirectUrl = '/dashboard';
 						}
 					} else {
@@ -1851,12 +1887,12 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 				const newConfig = await loadConfiguration();
 				setState((prev) => ({ ...prev, config: newConfig }));
 			} else {
-				console.error(' [NewAuthContext] Failed to save V7 credentials');
+				logger.error('NewAuthContext', 'Failed to save V7 credentials');
 			}
 
 			return success;
 		} catch (error) {
-			console.error(' [NewAuthContext] Error saving V7 credentials:', error);
+			logger.error('NewAuthContext', 'Error saving V7 credentials', undefined, error as Error);
 			return false;
 		}
 	}, []);
@@ -1882,7 +1918,12 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 					additionalParams
 				);
 			} catch (error) {
-				console.error(' [NewAuthContext] Failed to initialize flow context:', error);
+				logger.error(
+					'NewAuthContext',
+					'Failed to initialize flow context',
+					undefined,
+					error as Error
+				);
 				throw error;
 			}
 		},
@@ -1894,7 +1935,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 			try {
 				return FlowContextUtils.updateFlowStep(flowId, newStep, flowState);
 			} catch (error) {
-				console.error(' [NewAuthContext] Failed to update flow step:', error);
+				logger.error('NewAuthContext', 'Failed to update flow step', undefined, error as Error);
 				return false;
 			}
 		},
@@ -1905,7 +1946,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 		try {
 			FlowContextUtils.completeFlow(flowId);
 		} catch (error) {
-			console.error(' [NewAuthContext] Failed to complete flow:', error);
+			logger.error('NewAuthContext', 'Failed to complete flow', undefined, error as Error);
 		}
 	}, []);
 
@@ -1913,7 +1954,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 		try {
 			return FlowContextUtils.getCurrentFlow();
 		} catch (error) {
-			console.error(' [NewAuthContext] Failed to get current flow:', error);
+			logger.error('NewAuthContext', 'Failed to get current flow', undefined, error as Error);
 			return null;
 		}
 	}, []);
