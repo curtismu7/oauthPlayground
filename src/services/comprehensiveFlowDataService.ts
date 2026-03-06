@@ -14,6 +14,7 @@
 
 import { StepCredentials } from '../components/steps/CommonSteps';
 import { showGlobalError, showGlobalSuccess } from '../hooks/useNotifications';
+import { logger } from '../utils/logger';
 import { OIDCDiscoveryDocument } from './comprehensiveDiscoveryService';
 
 // ============================================
@@ -147,8 +148,8 @@ class ComprehensiveFlowDataService {
 	 */
 	saveSharedEnvironment(data: Partial<SharedEnvironmentData>): boolean {
 		try {
-			console.group(`🌐 [SHARED DATA] Saving environment data`);
-			console.log(`📋 Environment Data:`, data);
+			logger.debug('ComprehensiveFlowDataService', `🌐 [SHARED DATA] Saving environment data`);
+			logger.debug('ComprehensiveFlowDataService', `📋 Environment Data:`, data);
 
 			const existing = this.loadSharedEnvironment();
 			const updated: SharedEnvironmentData = {
@@ -159,8 +160,7 @@ class ComprehensiveFlowDataService {
 			};
 
 			localStorage.setItem(this.SHARED_ENVIRONMENT_KEY, JSON.stringify(updated));
-			console.log(`✅ Saved shared environment data:`, updated);
-			console.groupEnd();
+			logger.debug('ComprehensiveFlowDataService', `✅ Saved shared environment data:`, updated);
 
 			// Cascade: sync environmentId to dual-store (IndexedDB + SQLite + localStorage)
 			if (updated.environmentId) {
@@ -173,7 +173,12 @@ class ComprehensiveFlowDataService {
 
 			return true;
 		} catch (error) {
-			console.error(`❌ Failed to save shared environment data:`, error);
+			logger.error(
+				'ComprehensiveFlowDataService',
+				`❌ Failed to save shared environment data:`,
+				undefined,
+				error
+			);
 			return false;
 		}
 	}
@@ -186,7 +191,12 @@ class ComprehensiveFlowDataService {
 			const data = localStorage.getItem(this.SHARED_ENVIRONMENT_KEY);
 			return data ? JSON.parse(data) : null;
 		} catch (error) {
-			console.error(`❌ Failed to load shared environment data:`, error);
+			logger.error(
+				'ComprehensiveFlowDataService',
+				`❌ Failed to load shared environment data:`,
+				undefined,
+				error
+			);
 			return null;
 		}
 	}
@@ -197,16 +207,23 @@ class ComprehensiveFlowDataService {
 	 */
 	saveSharedDiscovery(data: SharedDiscoveryData): boolean {
 		try {
-			console.group(`🌐 [SHARED DATA] Saving discovery data`);
-			console.log(`📋 Discovery Data:`, data);
+			logger.debug('ComprehensiveFlowDataService', `🌐 [SHARED DATA] Saving discovery data`);
+			logger.debug('ComprehensiveFlowDataService', `📋 Discovery Data:`, data);
 
 			localStorage.setItem(this.SHARED_DISCOVERY_KEY, JSON.stringify(data));
-			console.log(`✅ Saved shared discovery data for environment: ${data.environmentId}`);
-			console.groupEnd();
+			logger.debug(
+				'ComprehensiveFlowDataService',
+				`✅ Saved shared discovery data for environment: ${data.environmentId}`
+			);
 
 			return true;
 		} catch (error) {
-			console.error(`❌ Failed to save shared discovery data:`, error);
+			logger.error(
+				'ComprehensiveFlowDataService',
+				`❌ Failed to save shared discovery data:`,
+				undefined,
+				error
+			);
 			return false;
 		}
 	}
@@ -219,7 +236,12 @@ class ComprehensiveFlowDataService {
 			const data = localStorage.getItem(this.SHARED_DISCOVERY_KEY);
 			return data ? JSON.parse(data) : null;
 		} catch (error) {
-			console.error(`❌ Failed to load shared discovery data:`, error);
+			logger.error(
+				'ComprehensiveFlowDataService',
+				`❌ Failed to load shared discovery data:`,
+				undefined,
+				error
+			);
 			return null;
 		}
 	}
@@ -249,7 +271,12 @@ class ComprehensiveFlowDataService {
 			localStorage.setItem(this.SHARED_GLOBAL_CONFIG_KEY, JSON.stringify(updated));
 			return true;
 		} catch (error) {
-			console.error(`❌ Failed to save shared global config:`, error);
+			logger.error(
+				'ComprehensiveFlowDataService',
+				`❌ Failed to save shared global config:`,
+				undefined,
+				error
+			);
 			return false;
 		}
 	}
@@ -262,7 +289,12 @@ class ComprehensiveFlowDataService {
 			const data = localStorage.getItem(this.SHARED_GLOBAL_CONFIG_KEY);
 			return data ? JSON.parse(data) : null;
 		} catch (error) {
-			console.error(`❌ Failed to load shared global config:`, error);
+			logger.error(
+				'ComprehensiveFlowDataService',
+				`❌ Failed to load shared global config:`,
+				undefined,
+				error
+			);
 			return null;
 		}
 	}
@@ -292,9 +324,12 @@ class ComprehensiveFlowDataService {
 		options: { showToast?: boolean } = { showToast: true }
 	): boolean {
 		try {
-			console.group(`🔒 [FLOW DATA] Saving data for flow: ${flowKey}`);
-			console.log(`📋 Flow Key: ${flowKey}`);
-			console.log(`📋 Data:`, data);
+			logger.debug(
+				'ComprehensiveFlowDataService',
+				`🔒 [FLOW DATA] Saving data for flow: ${flowKey}`
+			);
+			logger.debug('ComprehensiveFlowDataService', `📋 Flow Key: ${flowKey}`);
+			logger.debug('ComprehensiveFlowDataService', `📋 Data:`, data);
 
 			const storageKey = this.getFlowStorageKey(flowKey);
 			const existing = this.loadFlowData(flowKey);
@@ -321,8 +356,7 @@ class ComprehensiveFlowDataService {
 			};
 
 			localStorage.setItem(storageKey, JSON.stringify(updated));
-			console.log(`✅ Saved flow-specific data: ${storageKey}`);
-			console.groupEnd();
+			logger.debug('ComprehensiveFlowDataService', `✅ Saved flow-specific data: ${storageKey}`);
 
 			if (options.showToast) {
 				showGlobalSuccess(`Flow data saved for ${flowKey}`);
@@ -330,7 +364,12 @@ class ComprehensiveFlowDataService {
 
 			return true;
 		} catch (error) {
-			console.error(`❌ Failed to save flow data for ${flowKey}:`, error);
+			logger.error(
+				'ComprehensiveFlowDataService',
+				`❌ Failed to save flow data for ${flowKey}:`,
+				undefined,
+				error
+			);
 			if (options.showToast) {
 				showGlobalError(`Failed to save flow data for ${flowKey}`);
 			}
@@ -354,7 +393,12 @@ class ComprehensiveFlowDataService {
 			const data = localStorage.getItem(storageKey);
 			return data ? JSON.parse(data) : null;
 		} catch (error) {
-			console.error(`❌ Failed to load flow data for ${flowKey}:`, error);
+			logger.error(
+				'ComprehensiveFlowDataService',
+				`❌ Failed to load flow data for ${flowKey}:`,
+				undefined,
+				error
+			);
 			return null;
 		}
 	}
@@ -370,10 +414,16 @@ class ComprehensiveFlowDataService {
 	loadFlowDataComprehensive(config: FlowDataConfig): FlowDataResult {
 		const { flowKey, useSharedEnvironment = true, useSharedDiscovery = true } = config;
 
-		console.group(`🔍 [COMPREHENSIVE FLOW DATA] Loading data for flow: ${flowKey}`);
-		console.log(`📋 Flow Key: ${flowKey}`);
-		console.log(`📋 Use Shared Environment: ${useSharedEnvironment}`);
-		console.log(`📋 Use Shared Discovery: ${useSharedDiscovery}`);
+		logger.debug(
+			'ComprehensiveFlowDataService',
+			`🔍 [COMPREHENSIVE FLOW DATA] Loading data for flow: ${flowKey}`
+		);
+		logger.debug('ComprehensiveFlowDataService', `📋 Flow Key: ${flowKey}`);
+		logger.debug(
+			'ComprehensiveFlowDataService',
+			`📋 Use Shared Environment: ${useSharedEnvironment}`
+		);
+		logger.debug('ComprehensiveFlowDataService', `📋 Use Shared Discovery: ${useSharedDiscovery}`);
 
 		// Load shared data
 		const sharedEnvironment = useSharedEnvironment ? this.loadSharedEnvironment() : null;
@@ -412,8 +462,7 @@ class ComprehensiveFlowDataService {
 			credentialSource,
 		};
 
-		console.log(`📋 Result:`, result);
-		console.groupEnd();
+		logger.debug('ComprehensiveFlowDataService', `📋 Result:`, result);
 
 		return result;
 	}
@@ -437,9 +486,12 @@ class ComprehensiveFlowDataService {
 		options: { showToast?: boolean } = { showToast: true }
 	): boolean {
 		try {
-			console.group(`💾 [COMPREHENSIVE FLOW DATA] Saving data for flow: ${flowKey}`);
-			console.log(`📋 Flow Key: ${flowKey}`);
-			console.log(`📋 Data:`, data);
+			logger.debug(
+				'ComprehensiveFlowDataService',
+				`💾 [COMPREHENSIVE FLOW DATA] Saving data for flow: ${flowKey}`
+			);
+			logger.debug('ComprehensiveFlowDataService', `📋 Flow Key: ${flowKey}`);
+			logger.debug('ComprehensiveFlowDataService', `📋 Data:`, data);
 
 			let success = true;
 
@@ -474,12 +526,16 @@ class ComprehensiveFlowDataService {
 				}
 			}
 
-			console.log(`📋 Overall Success: ${success}`);
-			console.groupEnd();
+			logger.debug('ComprehensiveFlowDataService', `📋 Overall Success: ${success}`);
 
 			return success;
 		} catch (error) {
-			console.error(`❌ Failed to save comprehensive flow data for ${flowKey}:`, error);
+			logger.error(
+				'ComprehensiveFlowDataService',
+				`❌ Failed to save comprehensive flow data for ${flowKey}:`,
+				undefined,
+				error
+			);
 			if (options.showToast) {
 				showGlobalError(`Failed to save flow data for ${flowKey}`);
 			}
@@ -499,7 +555,12 @@ class ComprehensiveFlowDataService {
 			const data = localStorage.getItem(this.SHARED_USER_SESSION_KEY);
 			return data ? JSON.parse(data) : null;
 		} catch (error) {
-			console.error(`❌ Failed to load shared user session:`, error);
+			logger.error(
+				'ComprehensiveFlowDataService',
+				`❌ Failed to load shared user session:`,
+				undefined,
+				error
+			);
 			return null;
 		}
 	}
@@ -511,10 +572,15 @@ class ComprehensiveFlowDataService {
 		try {
 			const storageKey = this.getFlowStorageKey(flowKey);
 			localStorage.removeItem(storageKey);
-			console.log(`🗑️ Cleared flow data for: ${flowKey}`);
+			logger.debug('ComprehensiveFlowDataService', `🗑️ Cleared flow data for: ${flowKey}`);
 			return true;
 		} catch (error) {
-			console.error(`❌ Failed to clear flow data for ${flowKey}:`, error);
+			logger.error(
+				'ComprehensiveFlowDataService',
+				`❌ Failed to clear flow data for ${flowKey}:`,
+				undefined,
+				error
+			);
 			return false;
 		}
 	}
@@ -528,10 +594,15 @@ class ComprehensiveFlowDataService {
 			localStorage.removeItem(this.SHARED_DISCOVERY_KEY);
 			localStorage.removeItem(this.SHARED_GLOBAL_CONFIG_KEY);
 			localStorage.removeItem(this.SHARED_USER_SESSION_KEY);
-			console.log(`🗑️ Cleared all shared data`);
+			logger.debug('ComprehensiveFlowDataService', `🗑️ Cleared all shared data`);
 			return true;
 		} catch (error) {
-			console.error(`❌ Failed to clear shared data:`, error);
+			logger.error(
+				'ComprehensiveFlowDataService',
+				`❌ Failed to clear shared data:`,
+				undefined,
+				error
+			);
 			return false;
 		}
 	}
@@ -552,7 +623,7 @@ class ComprehensiveFlowDataService {
 			'pingone-par-flow-v7',
 		];
 
-		console.group(`🔍 [COMPREHENSIVE AUDIT] Auditing all V7 flows`);
+		logger.debug('ComprehensiveFlowDataService', `🔍 [COMPREHENSIVE AUDIT] Auditing all V7 flows`);
 
 		const results: Record<string, FlowDataResult> = {};
 
@@ -566,7 +637,11 @@ class ComprehensiveFlowDataService {
 			.map(([flowKey, _]) => flowKey);
 
 		if (flowsUsingSharedEnvironment.length > 0) {
-			console.log(`🌐 Flows using shared environment data:`, flowsUsingSharedEnvironment);
+			logger.debug(
+				'ComprehensiveFlowDataService',
+				`🌐 Flows using shared environment data:`,
+				flowsUsingSharedEnvironment
+			);
 		}
 
 		// Detect flows with flow-specific credentials
@@ -574,9 +649,11 @@ class ComprehensiveFlowDataService {
 			.filter(([_, result]) => result.credentialSource === 'flow-specific')
 			.map(([flowKey, _]) => flowKey);
 
-		console.log(`🔒 Flows with flow-specific credentials:`, flowsWithFlowCredentials);
-
-		console.groupEnd();
+		logger.debug(
+			'ComprehensiveFlowDataService',
+			`🔒 Flows with flow-specific credentials:`,
+			flowsWithFlowCredentials
+		);
 
 		return results;
 	}
@@ -595,9 +672,12 @@ class ComprehensiveFlowDataService {
 		const flowKeys = this.getAllFlowStorageKeys();
 		flowKeys.forEach((key) => {
 			localStorage.removeItem(key);
-			console.log(`🗑️ Cleared: ${key}`);
+			logger.debug('ComprehensiveFlowDataService', `🗑️ Cleared: ${key}`);
 		});
-		console.log(`✅ Cleared ${flowKeys.length} flow-specific data stores`);
+		logger.debug(
+			'ComprehensiveFlowDataService',
+			`✅ Cleared ${flowKeys.length} flow-specific data stores`
+		);
 	}
 
 	// ============================================
@@ -617,10 +697,13 @@ class ComprehensiveFlowDataService {
 		} = { showToast: true, backupToEnv: false }
 	): boolean {
 		try {
-			console.group(`🔒 [CREDENTIAL ISOLATION] Saving isolated credentials for flow: ${flowKey}`);
-			console.log(`📋 Flow Key: ${flowKey}`);
-			console.log(`📋 Credentials:`, credentials);
-			console.log(`📋 Backup to .env: ${options.backupToEnv}`);
+			logger.debug(
+				'ComprehensiveFlowDataService',
+				`🔒 [CREDENTIAL ISOLATION] Saving isolated credentials for flow: ${flowKey}`
+			);
+			logger.debug('ComprehensiveFlowDataService', `📋 Flow Key: ${flowKey}`);
+			logger.debug('ComprehensiveFlowDataService', `📋 Credentials:`, credentials);
+			logger.debug('ComprehensiveFlowDataService', `📋 Backup to .env: ${options.backupToEnv}`);
 
 			// Save to flow-specific storage (ALWAYS isolated)
 			const success = this.saveFlowData(
@@ -645,12 +728,16 @@ class ComprehensiveFlowDataService {
 				showGlobalError(`Failed to save credentials for ${flowKey}`);
 			}
 
-			console.log(`📋 Save Success: ${success}`);
-			console.groupEnd();
+			logger.debug('ComprehensiveFlowDataService', `📋 Save Success: ${success}`);
 
 			return success;
 		} catch (error) {
-			console.error(`❌ Failed to save isolated credentials for ${flowKey}:`, error);
+			logger.error(
+				'ComprehensiveFlowDataService',
+				`❌ Failed to save isolated credentials for ${flowKey}:`,
+				undefined,
+				error
+			);
 			if (options.showToast) {
 				showGlobalError(`Failed to save credentials for ${flowKey}`);
 			}
@@ -664,24 +751,37 @@ class ComprehensiveFlowDataService {
 	 */
 	loadFlowCredentialsIsolated(flowKey: string): FlowSpecificCredentials | null {
 		try {
-			console.group(`🔒 [CREDENTIAL ISOLATION] Loading isolated credentials for flow: ${flowKey}`);
-			console.log(`📋 Flow Key: ${flowKey}`);
+			logger.debug(
+				'ComprehensiveFlowDataService',
+				`🔒 [CREDENTIAL ISOLATION] Loading isolated credentials for flow: ${flowKey}`
+			);
+			logger.debug('ComprehensiveFlowDataService', `📋 Flow Key: ${flowKey}`);
 
 			const flowData = this.loadFlowData(flowKey);
 			const credentials = flowData?.credentials || null;
 
 			if (credentials) {
-				console.log(`✅ Found isolated credentials for ${flowKey}`);
+				logger.debug(
+					'ComprehensiveFlowDataService',
+					`✅ Found isolated credentials for ${flowKey}`
+				);
 			} else {
-				console.log(`📋 No isolated credentials found for ${flowKey}`);
+				logger.debug(
+					'ComprehensiveFlowDataService',
+					`📋 No isolated credentials found for ${flowKey}`
+				);
 			}
 
-			console.log(`📋 Credentials:`, credentials);
-			console.groupEnd();
+			logger.debug('ComprehensiveFlowDataService', `📋 Credentials:`, credentials);
 
 			return credentials;
 		} catch (error) {
-			console.error(`❌ Failed to load isolated credentials for ${flowKey}:`, error);
+			logger.error(
+				'ComprehensiveFlowDataService',
+				`❌ Failed to load isolated credentials for ${flowKey}:`,
+				undefined,
+				error
+			);
 			return null;
 		}
 	}
@@ -691,13 +791,19 @@ class ComprehensiveFlowDataService {
 	 */
 	private backupCredentialsToEnv(flowKey: string, credentials: FlowSpecificCredentials): void {
 		try {
-			console.group(`💾 [ENV BACKUP] Backing up credentials for flow: ${flowKey}`);
+			logger.debug(
+				'ComprehensiveFlowDataService',
+				`💾 [ENV BACKUP] Backing up credentials for flow: ${flowKey}`
+			);
 
 			const envContent = this.generateEnvContent(flowKey, credentials);
 
 			// Log .env content to console instead of auto-downloading
 			// Users can manually copy this if needed
-			console.log(`📋 .env backup content for ${flowKey}:\n\n${envContent}\n`);
+			logger.debug(
+				'ComprehensiveFlowDataService',
+				`📋 .env backup content for ${flowKey}:\n\n${envContent}\n`
+			);
 
 			// NOTE: Auto-download disabled to prevent unwanted file downloads on page load
 			// If you want to download, uncomment the code below:
@@ -713,10 +819,17 @@ class ComprehensiveFlowDataService {
 			URL.revokeObjectURL(url);
 			*/
 
-			console.log(`✅ Credentials backed up to console for ${flowKey}`);
-			console.groupEnd();
+			logger.debug(
+				'ComprehensiveFlowDataService',
+				`✅ Credentials backed up to console for ${flowKey}`
+			);
 		} catch (error) {
-			console.error(`❌ Failed to backup credentials to .env for ${flowKey}:`, error);
+			logger.error(
+				'ComprehensiveFlowDataService',
+				`❌ Failed to backup credentials to .env for ${flowKey}:`,
+				undefined,
+				error
+			);
 		}
 	}
 
@@ -759,7 +872,10 @@ ${Object.entries(credentials.additionalParams || {})
 	 */
 	restoreCredentialsFromEnv(flowKey: string, envContent: string): boolean {
 		try {
-			console.group(`🔄 [ENV RESTORE] Restoring credentials for flow: ${flowKey}`);
+			logger.debug(
+				'ComprehensiveFlowDataService',
+				`🔄 [ENV RESTORE] Restoring credentials for flow: ${flowKey}`
+			);
 
 			const credentials = this.parseEnvContent(flowKey, envContent);
 
@@ -769,18 +885,23 @@ ${Object.entries(credentials.additionalParams || {})
 					backupToEnv: false,
 				});
 
-				console.log(`📋 Restore Success: ${success}`);
-				console.groupEnd();
+				logger.debug('ComprehensiveFlowDataService', `📋 Restore Success: ${success}`);
 
 				return success;
 			} else {
-				console.error(`❌ Failed to parse .env content for ${flowKey}`);
-				console.groupEnd();
+				logger.error(
+					'ComprehensiveFlowDataService',
+					`❌ Failed to parse .env content for ${flowKey}`
+				);
 				return false;
 			}
 		} catch (error) {
-			console.error(`❌ Failed to restore credentials from .env for ${flowKey}:`, error);
-			console.groupEnd();
+			logger.error(
+				'ComprehensiveFlowDataService',
+				`❌ Failed to restore credentials from .env for ${flowKey}:`,
+				undefined,
+				error
+			);
 			return false;
 		}
 	}
@@ -838,7 +959,7 @@ ${Object.entries(credentials.additionalParams || {})
 
 			// Validate required fields
 			if (!credentials.clientId || !credentials.clientSecret || !credentials.redirectUri) {
-				console.error(`❌ Missing required credential fields`);
+				logger.error('ComprehensiveFlowDataService', `❌ Missing required credential fields`);
 				return null;
 			}
 
@@ -854,7 +975,12 @@ ${Object.entries(credentials.additionalParams || {})
 				lastUpdated: Date.now(),
 			};
 		} catch (error) {
-			console.error(`❌ Failed to parse .env content:`, error);
+			logger.error(
+				'ComprehensiveFlowDataService',
+				`❌ Failed to parse .env content:`,
+				undefined,
+				error
+			);
 			return null;
 		}
 	}
@@ -863,7 +989,8 @@ ${Object.entries(credentials.additionalParams || {})
 	 * Test credential isolation between flows
 	 */
 	testCredentialIsolation(flow1Key: string, flow2Key: string): boolean {
-		console.group(
+		logger.debug(
+			'ComprehensiveFlowDataService',
 			`🧪 [ISOLATION TEST] Testing credential isolation between ${flow1Key} and ${flow2Key}`
 		);
 
@@ -878,17 +1005,26 @@ ${Object.entries(credentials.additionalParams || {})
 			flow1Creds.clientId !== flow2Creds.clientId ||
 			flow1Creds.clientSecret !== flow2Creds.clientSecret;
 
-		console.log(`📋 Flow 1 (${flow1Key}) credentials:`, flow1Creds);
-		console.log(`📋 Flow 2 (${flow2Key}) credentials:`, flow2Creds);
-		console.log(`📋 Isolated: ${isIsolated}`);
+		logger.debug(
+			'ComprehensiveFlowDataService',
+			`📋 Flow 1 (${flow1Key}) credentials:`,
+			flow1Creds
+		);
+		logger.debug(
+			'ComprehensiveFlowDataService',
+			`📋 Flow 2 (${flow2Key}) credentials:`,
+			flow2Creds
+		);
+		logger.debug('ComprehensiveFlowDataService', `📋 Isolated: ${isIsolated}`);
 
 		if (!isIsolated) {
-			console.warn(`🚨 CREDENTIAL BLEEDING DETECTED! Flows are sharing credentials`);
+			logger.warn(
+				'ComprehensiveFlowDataService',
+				`🚨 CREDENTIAL BLEEDING DETECTED! Flows are sharing credentials`
+			);
 		} else {
-			console.log(`✅ Credentials are properly isolated`);
+			logger.debug('ComprehensiveFlowDataService', `✅ Credentials are properly isolated`);
 		}
-
-		console.groupEnd();
 
 		return isIsolated;
 	}
