@@ -49,13 +49,16 @@ export class RoutePersistenceService {
 	static saveCurrentRoute(path: string): void {
 		// Don't save excluded routes
 		if (RoutePersistenceService.isExcludedRoute(path)) {
-			console.log(`🚫 [RoutePersistence] Not saving excluded route: ${path}`);
+			logger.info(
+				'RoutePersistenceService',
+				`🚫 [RoutePersistence] Not saving excluded route: ${path}`
+			);
 			return;
 		}
 
 		// Don't save the root path
 		if (path === '/' || path === '') {
-			console.log(`🚫 [RoutePersistence] Not saving root path`);
+			logger.info('RoutePersistenceService', `🚫 [RoutePersistence] Not saving root path`);
 			return;
 		}
 
@@ -63,7 +66,12 @@ export class RoutePersistenceService {
 			localStorage.setItem(LAST_ROUTE_KEY, path);
 			localStorage.setItem(LAST_ROUTE_TIMESTAMP_KEY, Date.now().toString());
 		} catch (error) {
-			console.warn('[RoutePersistence] Failed to save route:', error);
+			logger.warn(
+				'RoutePersistenceService',
+				'[RoutePersistence] Failed to save route:',
+				undefined,
+				error as Error
+			);
 		}
 	}
 
@@ -76,22 +84,36 @@ export class RoutePersistenceService {
 			const timestamp = localStorage.getItem(LAST_ROUTE_TIMESTAMP_KEY);
 
 			if (!savedRoute || !timestamp) {
-				console.log(`📍 [RoutePersistence] No saved route, using default: ${DEFAULT_ROUTE}`);
+				logger.info(
+					'RoutePersistenceService',
+					`📍 [RoutePersistence] No saved route, using default: ${DEFAULT_ROUTE}`
+				);
 				return DEFAULT_ROUTE;
 			}
 
 			// Check if route is expired
 			const age = Date.now() - parseInt(timestamp, 10);
 			if (age > ROUTE_EXPIRY_MS) {
-				console.log(`⏰ [RoutePersistence] Saved route expired, using default: ${DEFAULT_ROUTE}`);
+				logger.info(
+					'RoutePersistenceService',
+					`⏰ [RoutePersistence] Saved route expired, using default: ${DEFAULT_ROUTE}`
+				);
 				RoutePersistenceService.clearSavedRoute();
 				return DEFAULT_ROUTE;
 			}
 
-			console.log(`✅ [RoutePersistence] Restoring last route: ${savedRoute}`);
+			logger.info(
+				'RoutePersistenceService',
+				`✅ [RoutePersistence] Restoring last route: ${savedRoute}`
+			);
 			return savedRoute;
 		} catch (error) {
-			console.warn('[RoutePersistence] Failed to get last route:', error);
+			logger.warn(
+				'RoutePersistenceService',
+				'[RoutePersistence] Failed to get last route:',
+				undefined,
+				error as Error
+			);
 			return DEFAULT_ROUTE;
 		}
 	}
@@ -103,9 +125,14 @@ export class RoutePersistenceService {
 		try {
 			localStorage.removeItem(LAST_ROUTE_KEY);
 			localStorage.removeItem(LAST_ROUTE_TIMESTAMP_KEY);
-			console.log(`🗑️ [RoutePersistence] Cleared saved route`);
+			logger.info('RoutePersistenceService', `🗑️ [RoutePersistence] Cleared saved route`);
 		} catch (error) {
-			console.warn('[RoutePersistence] Failed to clear saved route:', error);
+			logger.warn(
+				'RoutePersistenceService',
+				'[RoutePersistence] Failed to clear saved route:',
+				undefined,
+				error as Error
+			);
 		}
 	}
 

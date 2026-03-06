@@ -48,8 +48,8 @@ class FlowTrackingService {
 	 */
 	setCurrentFlow(context: FlowContext): boolean {
 		try {
-			console.group(`🔄 [FlowTracking] Setting current flow`);
-			console.log(`📋 Flow Context:`, context);
+			logger.debug('FlowTrackingService', `🔄 [FlowTracking] Setting current flow`);
+			logger.info('FlowTrackingService', `📋 Flow Context:`, { arg0: context });
 
 			// Store current flow
 			sessionStorage.setItem(this.CURRENT_FLOW_KEY, JSON.stringify(context));
@@ -57,12 +57,19 @@ class FlowTrackingService {
 			// Add to history
 			this.addToHistory(context);
 
-			console.log(`✅ Current flow set: ${context.flowKey} (${context.flowName})`);
-			console.groupEnd();
+			logger.info(
+				'FlowTrackingService',
+				`✅ Current flow set: ${context.flowKey} (${context.flowName})`
+			);
 
 			return true;
 		} catch (error) {
-			console.error(`❌ Failed to set current flow:`, error);
+			logger.error(
+				'FlowTrackingService',
+				`❌ Failed to set current flow:`,
+				undefined,
+				error as Error
+			);
 			return false;
 		}
 	}
@@ -76,10 +83,15 @@ class FlowTrackingService {
 			if (!stored) return null;
 
 			const context = JSON.parse(stored);
-			console.log(`🔍 [FlowTracking] Current flow:`, context);
+			logger.info('FlowTrackingService', `🔍 [FlowTracking] Current flow:`, { arg0: context });
 			return context;
 		} catch (error) {
-			console.error(`❌ Failed to get current flow:`, error);
+			logger.error(
+				'FlowTrackingService',
+				`❌ Failed to get current flow:`,
+				undefined,
+				error as Error
+			);
 			return null;
 		}
 	}
@@ -90,10 +102,15 @@ class FlowTrackingService {
 	clearCurrentFlow(): boolean {
 		try {
 			sessionStorage.removeItem(this.CURRENT_FLOW_KEY);
-			console.log(`🧹 [FlowTracking] Current flow cleared`);
+			logger.info('FlowTrackingService', `🧹 [FlowTracking] Current flow cleared`);
 			return true;
 		} catch (error) {
-			console.error(`❌ Failed to clear current flow:`, error);
+			logger.error(
+				'FlowTrackingService',
+				`❌ Failed to clear current flow:`,
+				undefined,
+				error as Error
+			);
 			return false;
 		}
 	}
@@ -103,8 +120,8 @@ class FlowTrackingService {
 	 */
 	trackFlowError(errorContext: FlowErrorContext): boolean {
 		try {
-			console.group(`🚨 [FlowTracking] Tracking flow error`);
-			console.log(`📋 Error Context:`, errorContext);
+			logger.debug('FlowTrackingService', `🚨 [FlowTracking] Tracking flow error`);
+			logger.info('FlowTrackingService', `📋 Error Context:`, { arg0: errorContext });
 
 			// Store error context
 			const errorKey = `pingone_flow_error_${Date.now()}`;
@@ -121,12 +138,19 @@ class FlowTrackingService {
 				sessionStorage.setItem(this.CURRENT_FLOW_KEY, JSON.stringify(enhancedFlow));
 			}
 
-			console.log(`✅ Flow error tracked: ${errorContext.errorType} in ${errorContext.flowKey}`);
-			console.groupEnd();
+			logger.info(
+				'FlowTrackingService',
+				`✅ Flow error tracked: ${errorContext.errorType} in ${errorContext.flowKey}`
+			);
 
 			return true;
 		} catch (error) {
-			console.error(`❌ Failed to track flow error:`, error);
+			logger.error(
+				'FlowTrackingService',
+				`❌ Failed to track flow error:`,
+				undefined,
+				error as Error
+			);
 			return false;
 		}
 	}
@@ -148,10 +172,15 @@ class FlowTrackingService {
 				returnUrl += `?step=${currentFlow.currentStep}`;
 			}
 
-			console.log(`🔗 [FlowTracking] Return URL: ${returnUrl}`);
+			logger.info('FlowTrackingService', `🔗 [FlowTracking] Return URL: ${returnUrl}`);
 			return returnUrl;
 		} catch (error) {
-			console.error(`❌ Failed to get flow return URL:`, error);
+			logger.error(
+				'FlowTrackingService',
+				`❌ Failed to get flow return URL:`,
+				undefined,
+				error as Error
+			);
 			return null;
 		}
 	}
@@ -163,15 +192,20 @@ class FlowTrackingService {
 		try {
 			const returnUrl = this.getFlowReturnUrl();
 			if (!returnUrl) {
-				console.warn(`⚠️ [FlowTracking] No return URL available`);
+				logger.warn('FlowTrackingService', `⚠️ [FlowTracking] No return URL available`);
 				return false;
 			}
 
-			console.log(`🔄 [FlowTracking] Returning to flow: ${returnUrl}`);
+			logger.info('FlowTrackingService', `🔄 [FlowTracking] Returning to flow: ${returnUrl}`);
 			window.location.href = returnUrl;
 			return true;
 		} catch (error) {
-			console.error(`❌ Failed to return to current flow:`, error);
+			logger.error(
+				'FlowTrackingService',
+				`❌ Failed to return to current flow:`,
+				undefined,
+				error as Error
+			);
 			return false;
 		}
 	}
@@ -185,7 +219,12 @@ class FlowTrackingService {
 			const newHistory = [context, ...history].slice(0, this.MAX_HISTORY_SIZE);
 			sessionStorage.setItem(this.FLOW_HISTORY_KEY, JSON.stringify(newHistory));
 		} catch (error) {
-			console.error(`❌ Failed to add to flow history:`, error);
+			logger.error(
+				'FlowTrackingService',
+				`❌ Failed to add to flow history:`,
+				undefined,
+				error as Error
+			);
 		}
 	}
 
@@ -199,7 +238,12 @@ class FlowTrackingService {
 
 			return JSON.parse(stored);
 		} catch (error) {
-			console.error(`❌ Failed to get flow history:`, error);
+			logger.error(
+				'FlowTrackingService',
+				`❌ Failed to get flow history:`,
+				undefined,
+				error as Error
+			);
 			return [];
 		}
 	}
@@ -210,10 +254,15 @@ class FlowTrackingService {
 	clearFlowHistory(): boolean {
 		try {
 			sessionStorage.removeItem(this.FLOW_HISTORY_KEY);
-			console.log(`🧹 [FlowTracking] Flow history cleared`);
+			logger.info('FlowTrackingService', `🧹 [FlowTracking] Flow history cleared`);
 			return true;
 		} catch (error) {
-			console.error(`❌ Failed to clear flow history:`, error);
+			logger.error(
+				'FlowTrackingService',
+				`❌ Failed to clear flow history:`,
+				undefined,
+				error as Error
+			);
 			return false;
 		}
 	}
@@ -242,7 +291,12 @@ class FlowTrackingService {
 				lastError,
 			};
 		} catch (error) {
-			console.error(`❌ Failed to get flow stats:`, error);
+			logger.error(
+				'FlowTrackingService',
+				`❌ Failed to get flow stats:`,
+				undefined,
+				error as Error
+			);
 			return { totalFlows: 0, currentFlow: null, lastError: null };
 		}
 	}
