@@ -1,6 +1,6 @@
 # Standardization Handoff — OAuth Playground V9
 
-**Last updated:** March 6, 2026 — counts from `a362778e8` (HEAD)  
+**Last updated:** March 6, 2026 — HEAD at `8eb74df06`  
 **Prepared for:** Any programmer picking up this work  
 **Branch:** `main` — **always `git fetch && git status` before starting work**
 
@@ -17,7 +17,7 @@
 | V9 flows: `V9CredentialStorageService` | ✅ **DONE** | All 16 V9 flows have it |
 | V9 flows: `CompactAppPickerV8U` | ✅ **DONE** | All 16 V9 flows have it |
 | V9 flows: zero `toastV8` calls | ✅ **DONE** | 0 actual calls (comments only) |
-| V9 flows: `console.error/warn` | ✅ **DONE** | 0 violations in all V9 flows — WorkerTokenFlowV9 1 occurrence exempt (inside `<pre>` tag). CIBAFlowV9 + RedirectlessFlowV9_Real (13 violations) fixed commit `HEAD` |
+| V9 flows: `console.error/warn` | ✅ **DONE** | 0 violations in all V9 flows — WorkerTokenFlowV9 1 occurrence exempt (inside `<pre>` tag). CIBAFlowV9 + RedirectlessFlowV9_Real (13 violations) fixed commit `8eb74df06` |
 | V9 services: `console.error/warn` | ✅ **DONE** | 48 violations removed across 13 service files (commit `d2948f543`) — 2 false positives skipped (postmanCollectionGeneratorV9 template strings, credentialsServiceV9 JSDoc) |
 | **NEW: Logging Implementation Plan** | ✅ **DONE** | Comprehensive 5-week plan created (see docs/standards/logging-implementation-plan.md) |
 | **NEW: Comprehensive Status Assessment** | ✅ **DONE** | Complete technical debt analysis (see COMPREHENSIVE_STANDARDIZATION_STATUS.md) |
@@ -79,6 +79,8 @@ Every V9 flow **must** have all of:
 | `OIDCHybridFlowV9.tsx` | ✅ | ✅ | 0 | ✅ Fully clean (commit `a362778e8`) |
 | `ClientCredentialsFlowV9.tsx` | ✅ | ✅ | 0 | ✅ Fully clean (commit `a362778e8`) |
 | `JWTBearerTokenFlowV9.tsx` | ✅ | ✅ | 0 | ✅ Fully clean (commit `a362778e8`) |
+| `CIBAFlowV9.tsx` | — | — | 0 | ✅ Fully clean (commit `8eb74df06`) |
+| `RedirectlessFlowV9_Real.tsx` | — | — | 0 | ✅ Fully clean (commit `8eb74df06`) |
 
 > **Before starting any file**: run `git fetch origin && git status` and `grep -c 'console\.' src/pages/flows/v9/<filename>.tsx` to get fresh counts. The full 5-week phased plan is at [`docs/standards/logging-implementation-plan.md`](../docs/standards/logging-implementation-plan.md).
 
@@ -91,10 +93,10 @@ Every V9 flow **must** have all of:
 **Scope**: 1,367 console statements across 65 files
 **Timeline**: 5 weeks (phased approach)
 
-#### **Phase 1: V9 Flows (Week 1)** ✅ COMPLETE
-- **Result**: 0 `console.error`/`warn` violations in all 7 V9 flows (down from 221 → 54 → 0)
-- **Commit**: `a362778e8` — patterns: redundant-before-modernMessaging removed, background ops silenced, OIDC Hybrid token exchange got new showBanner
-- **Remaining**: V9 services (Phase 2), see row above
+#### **Phase 1: V9 Flows + V9 Services** ✅ COMPLETE
+- **Result**: 0 `console.error`/`warn` violations in all V9 flows and all V9 services
+- **Commits**: `a362778e8` (flows), `d2948f543` (services), `8eb74df06` (CIBAFlowV9 + RedirectlessFlowV9_Real)
+- **Remaining**: Legacy flows/components (Phase 2+)
 
 #### **Required Import (add to top of file):**
 ```typescript
@@ -172,17 +174,7 @@ If the catch block is for a background save (user doesn't need to know), **remov
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 ```
 
-### Priority order (verified `7bab18dad`, March 6, 2026):
-
-1. **`OAuthAuthorizationCodeFlowV9.tsx`** — 19 violations ← most critical flow
-2. **`SAMLBearerAssertionFlowV9.tsx`** — 9 violations
-3. **`ImplicitFlowV9.tsx`** — 7 violations
-4. **`DeviceAuthorizationFlowV9.tsx`** — 6 violations
-5. **`OIDCHybridFlowV9.tsx`** — 5 violations
-6. **`ClientCredentialsFlowV9.tsx`** — 4 violations
-7. **`JWTBearerTokenFlowV9.tsx`** — 3 violations
-
-> **Total: 54 violations in 7 files** (down from 221). `WorkerTokenFlowV9.tsx` has 1 `console.error` inside a `<pre>` template literal (code sample display) — **exempt**. `PingOnePARFlowV9.tsx` is fully clean ✅.
+> **All V9 flow `console.error`/`console.warn` violations are eliminated.** `WorkerTokenFlowV9.tsx` has 1 occurrence inside a `<pre>` template string (code sample display) — **exempt**. `CIBAFlowV9.tsx` (9 fixed) and `RedirectlessFlowV9_Real.tsx` (4 fixed) committed `8eb74df06`.
 
 ---
 
