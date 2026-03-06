@@ -6,6 +6,8 @@ import type {
 	WorkerTokenCredentials,
 	WorkerTokenStatus,
 } from '../types/credentials';
+import { logger } from '../utils/logger';
+
 import { workerTokenRepository } from './workerTokenRepository';
 
 /**
@@ -54,12 +56,12 @@ export class WorkerTokenManager {
 	 * @throws Error if credentials not configured or fetch fails
 	 */
 	async getWorkerToken(): Promise<string> {
-		console.log(`🎫 [WorkerTokenManager] Getting worker token...`);
+		logger.info('WorkerTokenManager', `🎫 [WorkerTokenManager] Getting worker token...`);
 
 		// Check if we have a valid cached token
 		if (this.tokenCache && this.isTokenValid(this.tokenCache)) {
 			const expiresIn = this.getTokenExpiresIn(this.tokenCache);
-			console.log(`✅ Using cached token (expires in ${expiresIn}s)`);
+			logger.info('WorkerTokenManager', `✅ Using cached token (expires in ${expiresIn}s)`);
 			return this.tokenCache.access_token;
 		}
 
@@ -67,13 +69,13 @@ export class WorkerTokenManager {
 		const storedToken = await this.loadStoredToken();
 		if (storedToken && this.isTokenValid(storedToken)) {
 			const expiresIn = this.getTokenExpiresIn(storedToken);
-			console.log(`✅ Using stored token (expires in ${expiresIn}s)`);
+			logger.info('WorkerTokenManager', `✅ Using stored token (expires in ${expiresIn}s)`);
 			this.tokenCache = storedToken;
 			return storedToken.access_token;
 		}
 
 		// Need to fetch a new token
-		console.log(`🔄 Token expired or missing, fetching new token...`);
+		logger.info('WorkerTokenManager', `🔄 Token expired or missing, fetching new token...`);
 		return await this.fetchNewToken();
 	}
 
@@ -101,7 +103,7 @@ export class WorkerTokenManager {
 	 * @param credentials - Worker Token credentials to save
 	 */
 	async saveCredentials(credentials: WorkerTokenCredentials): Promise<void> {
-		console.log(`💾 [WorkerTokenManager] Saving Worker Token credentials`);
+		logger.info('WorkerTokenManager', `💾 [WorkerTokenManager] Saving Worker Token credentials`);
 
 		await workerTokenRepository.saveCredentials(credentials);
 
@@ -109,7 +111,7 @@ export class WorkerTokenManager {
 		this.tokenCache = null;
 		await this.clearStoredToken();
 
-		console.log(`✅ Worker Token credentials saved`);
+		logger.info('WorkerTokenManager', `✅ Worker Token credentials saved`);
 	}
 
 	/**
@@ -138,7 +140,7 @@ export class WorkerTokenManager {
 	 * @returns New access token string
 	 */
 	async refreshToken(): Promise<string> {
-		console.log(`🔄 [WorkerTokenManager] Manual token refresh requested`);
+		logger.info('WorkerTokenManager', `🔄 [WorkerTokenManager] Manual token refresh requested`);
 		this.tokenCache = null;
 		return await this.fetchNewToken();
 	}
@@ -147,7 +149,7 @@ export class WorkerTokenManager {
 	 * Invalidate the current token
 	 */
 	invalidateToken(): void {
-		console.log(`🗑️ [WorkerTokenManager] Invalidating token`);
+		logger.info('WorkerTokenManager', `🗑️ [WorkerTokenManager] Invalidating token`);
 		this.tokenCache = null;
 	}
 
@@ -155,10 +157,10 @@ export class WorkerTokenManager {
 	 * Clear Worker Token credentials and token
 	 */
 	async clearAll(): Promise<void> {
-		console.log(`🗑️ [WorkerTokenManager] Clearing all Worker Token data`);
+		logger.info('WorkerTokenManager', `🗑️ [WorkerTokenManager] Clearing all Worker Token data`);
 		this.tokenCache = null;
 		await workerTokenRepository.clearCredentials();
-		console.log(`✅ Cleared all Worker Token data`);
+		logger.info('WorkerTokenManager', `✅ Cleared all Worker Token data`);
 	}
 
 	// ============================================
@@ -171,7 +173,7 @@ export class WorkerTokenManager {
 	private async fetchNewToken(): Promise<string> {
 		// Prevent concurrent fetches
 		if (this.fetchPromise) {
-			console.log(`⏳ Token fetch already in progress, waiting...`);
+			logger.info('WorkerTokenManager', `⏳ Token fetch already in progress, waiting...`);
 			const token = await this.fetchPromise;
 			return token.access_token;
 		}
@@ -200,7 +202,7 @@ export class WorkerTokenManager {
 
 		for (let attempt = 1; attempt <= maxRetries; attempt++) {
 			try {
-				console.log(`🔄 Token fetch attempt ${attempt}/${maxRetries}`);
+				logger.info('WorkerTokenManager', `🔄 Token fetch attempt ${attempt}/${maxRetries}`);
 
 				const response = await fetch(credentials.tokenEndpoint, {
 					method: 'POST',
@@ -233,7 +235,10 @@ export class WorkerTokenManager {
 				this.tokenCache = token;
 				await this.saveToken(token);
 
-				console.log(`✅ Token fetched successfully (expires in ${tokenData.expires_in}s)`);
+				logger.info(
+					'WorkerTokenManager',
+					`✅ Token fetched successfully (expires in ${tokenData.expires_in}s)`
+				);
 
 				// Broadcast token refresh event
 				this.broadcastTokenRefresh(token);
@@ -241,12 +246,17 @@ export class WorkerTokenManager {
 				return token;
 			} catch (error) {
 				lastError = error as Error;
-				console.error(`❌ Token fetch attempt ${attempt} failed:`, error);
+				logger.error(
+					'WorkerTokenManager',
+					`❌ Token fetch attempt ${attempt} failed:`,
+					undefined,
+					error as Error
+				);
 
 				if (attempt < maxRetries) {
 					// Exponential backoff: 1s, 2s, 4s
 					const delay = 2 ** (attempt - 1) * 1000;
-					console.log(`⏳ Retrying in ${delay}ms...`);
+					logger.info('WorkerTokenManager', `⏳ Retrying in ${delay}ms...`);
 					await new Promise((resolve) => setTimeout(resolve, delay));
 				}
 			}

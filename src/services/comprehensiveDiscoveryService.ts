@@ -17,6 +17,7 @@
  * - Bulletproof discovery with retries and fallbacks
  */
 
+import { logger } from '../utils/logger';
 import { bulletproofDiscovery } from './bulletproofDiscoveryService';
 
 export interface OIDCDiscoveryDocument {
@@ -79,7 +80,11 @@ export class ComprehensiveDiscoveryService {
 			// Check cache first
 			const cached = this.getCachedDocument(issuerUrl, cacheTimeout);
 			if (cached) {
-				console.log('[Comprehensive Discovery] Using cached document for:', issuerUrl);
+				logger.info(
+					'ComprehensiveDiscoveryService',
+					'[Comprehensive Discovery] Using cached document for:',
+					{ arg0: issuerUrl }
+				);
 				return {
 					success: true,
 					document: cached,
@@ -98,7 +103,11 @@ export class ComprehensiveDiscoveryService {
 			// Cache the document
 			this.cacheDocument(issuerUrl, document);
 
-			console.log('[Comprehensive Discovery] Successfully discovered endpoints for:', issuerUrl);
+			logger.info(
+				'ComprehensiveDiscoveryService',
+				'[Comprehensive Discovery] Successfully discovered endpoints for:',
+				{ arg0: issuerUrl }
+			);
 			return {
 				success: true,
 				document,
@@ -107,7 +116,12 @@ export class ComprehensiveDiscoveryService {
 				cached: false,
 			};
 		} catch (error) {
-			console.error('[Comprehensive Discovery] Discovery failed:', error);
+			logger.error(
+				'ComprehensiveDiscoveryService',
+				'[Comprehensive Discovery] Discovery failed:',
+				undefined,
+				error as Error
+			);
 			return {
 				success: false,
 				error: error instanceof Error ? error.message : 'Unknown discovery error',
@@ -244,7 +258,11 @@ export class ComprehensiveDiscoveryService {
 			? issuerUrl
 			: `${issuerUrl.replace(/\/$/, '')}/.well-known/openid_configuration`;
 
-		console.log('[Comprehensive Discovery] Fetching discovery document:', discoveryUrl);
+		logger.info(
+			'ComprehensiveDiscoveryService',
+			'[Comprehensive Discovery] Fetching discovery document:',
+			{ arg0: discoveryUrl }
+		);
 
 		// For PingOne URLs, use bulletproof discovery service
 		if (issuerUrl.includes('pingone.com')) {
@@ -255,8 +273,13 @@ export class ComprehensiveDiscoveryService {
 			if (envMatch) {
 				const environmentId = envMatch[1];
 
-				console.log('[Comprehensive Discovery] Using bulletproof discovery for PingOne');
-				console.log('[Comprehensive Discovery] Environment ID:', environmentId);
+				logger.info(
+					'ComprehensiveDiscoveryService',
+					'[Comprehensive Discovery] Using bulletproof discovery for PingOne'
+				);
+				logger.info('ComprehensiveDiscoveryService', '[Comprehensive Discovery] Environment ID:', {
+					arg0: environmentId,
+				});
 
 				const result = await bulletproofDiscovery.discover(environmentId, 'na');
 
@@ -317,7 +340,11 @@ export class ComprehensiveDiscoveryService {
 
 		// Validate issuer matches
 		if (document.issuer !== issuerUrl) {
-			console.warn('[Comprehensive Discovery] Issuer mismatch:', document.issuer, 'vs', issuerUrl);
+			logger.warn('ComprehensiveDiscoveryService', '[Comprehensive Discovery] Issuer mismatch:', {
+				arg0: document.issuer,
+				arg1: 'vs',
+				arg2: issuerUrl,
+			});
 		}
 	}
 

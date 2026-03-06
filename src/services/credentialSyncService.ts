@@ -2,6 +2,7 @@
 // Cross-tab credential synchronization service
 
 import { credentialManager } from '../utils/credentialManager';
+import { logger } from '../utils/logger';
 import { FlowCredentialService } from './flowCredentialService';
 
 export interface CredentialSyncEvent {
@@ -55,7 +56,10 @@ class CredentialSyncService {
 		);
 
 		this.isInitialized = true;
-		console.log('🔄 [CredentialSyncService] Initialized cross-tab credential synchronization');
+		logger.info(
+			'CredentialSyncService',
+			'🔄 [CredentialSyncService] Initialized cross-tab credential synchronization'
+		);
 	}
 
 	/**
@@ -90,17 +94,28 @@ class CredentialSyncService {
 				timestamp,
 			};
 
-			console.log('🔄 [CredentialSyncService] Detected credential change from other tab:', {
-				key: event.key,
-				eventType,
-				flowKey,
-				hasCredentials: !!(credentials.environmentId || credentials.clientId),
-			});
+			logger.info(
+				'CredentialSyncService',
+				'🔄 [CredentialSyncService] Detected credential change from other tab:',
+				{
+					arg0: {
+						key: event.key,
+						eventType,
+						flowKey,
+						hasCredentials: !!(credentials.environmentId || credentials.clientId),
+					},
+				}
+			);
 
 			// Notify all listeners
 			this.notifyListeners(syncEvent);
 		} catch (error) {
-			console.error('❌ [CredentialSyncService] Failed to parse credential change event:', error);
+			logger.error(
+				'CredentialSyncService',
+				'❌ [CredentialSyncService] Failed to parse credential change event:',
+				undefined,
+				error as Error
+			);
 		}
 	}
 
@@ -110,7 +125,8 @@ class CredentialSyncService {
 	private handleConfigCredentialsChanged(event: CustomEvent): void {
 		// ✅ ADD NULL CHECKING
 		if (!event.detail || !event.detail.credentials) {
-			console.warn(
+			logger.warn(
+				'CredentialSyncService',
 				'[CredentialSyncService] handleConfigCredentialsChanged: event.detail or credentials is null'
 			);
 			return;
@@ -129,7 +145,8 @@ class CredentialSyncService {
 	private handlePermanentCredentialsChanged(event: CustomEvent): void {
 		// ✅ ADD NULL CHECKING
 		if (!event.detail || !event.detail.credentials) {
-			console.warn(
+			logger.warn(
+				'CredentialSyncService',
 				'[CredentialSyncService] handlePermanentCredentialsChanged: event.detail or credentials is null'
 			);
 			return;
@@ -148,7 +165,8 @@ class CredentialSyncService {
 	private handleAuthzCredentialsChanged(event: CustomEvent): void {
 		// ✅ ADD NULL CHECKING
 		if (!event.detail || !event.detail.credentials) {
-			console.warn(
+			logger.warn(
+				'CredentialSyncService',
 				'[CredentialSyncService] handleAuthzCredentialsChanged: event.detail or credentials is null'
 			);
 			return;
@@ -168,7 +186,8 @@ class CredentialSyncService {
 	private handleImplicitCredentialsChanged(event: CustomEvent): void {
 		// ✅ ADD NULL CHECKING
 		if (!event.detail || !event.detail.credentials) {
-			console.warn(
+			logger.warn(
+				'CredentialSyncService',
 				'[CredentialSyncService] handleImplicitCredentialsChanged: event.detail or credentials is null'
 			);
 			return;
@@ -188,7 +207,8 @@ class CredentialSyncService {
 	private handleWorkerCredentialsChanged(event: CustomEvent): void {
 		// ✅ ADD NULL CHECKING
 		if (!event.detail || !event.detail.credentials) {
-			console.warn(
+			logger.warn(
+				'CredentialSyncService',
 				'[CredentialSyncService] handleWorkerCredentialsChanged: event.detail or credentials is null'
 			);
 			return;
@@ -208,7 +228,8 @@ class CredentialSyncService {
 	private handleDeviceCredentialsChanged(event: CustomEvent): void {
 		// ✅ ADD NULL CHECKING
 		if (!event.detail || !event.detail.credentials) {
-			console.warn(
+			logger.warn(
+				'CredentialSyncService',
 				'[CredentialSyncService] handleDeviceCredentialsChanged: event.detail or credentials is null'
 			);
 			return;
@@ -228,7 +249,8 @@ class CredentialSyncService {
 	private handleHybridCredentialsChanged(event: CustomEvent): void {
 		// ✅ ADD NULL CHECKING
 		if (!event.detail || !event.detail.credentials) {
-			console.warn(
+			logger.warn(
+				'CredentialSyncService',
 				'[CredentialSyncService] handleHybridCredentialsChanged: event.detail or credentials is null'
 			);
 			return;
@@ -253,7 +275,12 @@ class CredentialSyncService {
 				try {
 					listener(event);
 				} catch (error) {
-					console.error('❌ [CredentialSyncService] Error in credential change listener:', error);
+					logger.error(
+						'CredentialSyncService',
+						'❌ [CredentialSyncService] Error in credential change listener:',
+						undefined,
+						error as Error
+					);
 				}
 			});
 		}
@@ -266,9 +293,11 @@ class CredentialSyncService {
 					try {
 						listener(event);
 					} catch (error) {
-						console.error(
+						logger.error(
+							'CredentialSyncService',
 							'❌ [CredentialSyncService] Error in flow credential change listener:',
-							error
+							undefined,
+							error as Error
 						);
 					}
 				});
@@ -286,7 +315,10 @@ class CredentialSyncService {
 
 		this.listeners.get(flowKey)!.add(listener);
 
-		console.log(`🔄 [CredentialSyncService] Subscribed to credential changes for flow: ${flowKey}`);
+		logger.info(
+			'CredentialSyncService',
+			`🔄 [CredentialSyncService] Subscribed to credential changes for flow: ${flowKey}`
+		);
 
 		// Return unsubscribe function
 		return () => {
@@ -297,7 +329,8 @@ class CredentialSyncService {
 					this.listeners.delete(flowKey);
 				}
 			}
-			console.log(
+			logger.info(
+				'CredentialSyncService',
 				`🔄 [CredentialSyncService] Unsubscribed from credential changes for flow: ${flowKey}`
 			);
 		};
@@ -308,7 +341,10 @@ class CredentialSyncService {
 	 */
 	async refreshFlowCredentials(flowKey: string): Promise<any> {
 		try {
-			console.log(`🔄 [CredentialSyncService] Refreshing credentials for flow: ${flowKey}`);
+			logger.info(
+				'CredentialSyncService',
+				`🔄 [CredentialSyncService] Refreshing credentials for flow: ${flowKey}`
+			);
 
 			const { credentials } = await FlowCredentialService.loadFlowCredentials({
 				flowKey,
@@ -317,9 +353,11 @@ class CredentialSyncService {
 
 			return credentials;
 		} catch (error) {
-			console.error(
+			logger.error(
+				'CredentialSyncService',
 				`❌ [CredentialSyncService] Failed to refresh credentials for flow ${flowKey}:`,
-				error
+				undefined,
+				error as Error
 			);
 			return null;
 		}
@@ -368,7 +406,10 @@ class CredentialSyncService {
 
 		this.listeners.clear();
 		this.isInitialized = false;
-		console.log('🔄 [CredentialSyncService] Cleaned up credential synchronization');
+		logger.info(
+			'CredentialSyncService',
+			'🔄 [CredentialSyncService] Cleaned up credential synchronization'
+		);
 	}
 }
 

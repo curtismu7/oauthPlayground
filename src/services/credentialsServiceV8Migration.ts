@@ -1,6 +1,7 @@
 // src/services/credentialsServiceV8Migration.ts
 // Migration layer for CredentialsServiceV8 to unified storage
 
+import { logger } from '../utils/logger';
 import type { V8Credentials } from './unifiedTokenStorageService';
 import { unifiedTokenStorage } from './unifiedTokenStorageService';
 
@@ -21,7 +22,9 @@ export class CredentialsServiceV8Migration {
 			// Get all V8 credentials keys from localStorage
 			const v8Keys = CredentialsServiceV8Migration.getV8CredentialsKeys();
 
-			console.log(`${MODULE_TAG} Starting credentials migration`, { keyCount: v8Keys.length });
+			logger.info('CredentialsServiceV8Migration', `${MODULE_TAG} Starting credentials migration`, {
+				arg0: { keyCount: v8Keys.length },
+			});
 
 			for (const key of v8Keys) {
 				try {
@@ -30,16 +33,20 @@ export class CredentialsServiceV8Migration {
 				} catch (error) {
 					const errorMsg = `Failed to migrate credentials key ${key}: ${error}`;
 					results.errors.push(errorMsg);
-					console.error(`${MODULE_TAG} ${errorMsg}`);
+					logger.error('CredentialsServiceV8Migration', `${MODULE_TAG} ${errorMsg}`);
 				}
 			}
 
-			console.log(`${MODULE_TAG} Credentials migration completed`, results);
+			logger.info(
+				'CredentialsServiceV8Migration',
+				`${MODULE_TAG} Credentials migration completed`,
+				{ arg0: results }
+			);
 			return results;
 		} catch (error) {
 			const errorMsg = `Credentials migration failed: ${error}`;
 			results.errors.push(errorMsg);
-			console.error(`${MODULE_TAG} ${errorMsg}`);
+			logger.error('CredentialsServiceV8Migration', `${MODULE_TAG} ${errorMsg}`);
 			return results;
 		}
 	}
@@ -64,9 +71,11 @@ export class CredentialsServiceV8Migration {
 			// Remove from localStorage after successful migration
 			localStorage.removeItem(storageKey);
 
-			console.log(`${MODULE_TAG} Migrated credentials key`, {
-				flowKey,
-				environmentId: credentials.environmentId,
+			logger.info('CredentialsServiceV8Migration', `${MODULE_TAG} Migrated credentials key`, {
+				arg0: {
+					flowKey,
+					environmentId: credentials.environmentId,
+				},
 			});
 		} catch (error) {
 			throw new Error(`Failed to parse or migrate credentials for key ${flowKey}: ${error}`);

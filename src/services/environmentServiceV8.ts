@@ -1,6 +1,7 @@
 // src/services/environmentServiceV8.ts
 // V8 Environment Management Service for PingOne Environment CRUD operations
 
+import { logger } from '../utils/logger';
 import { pingOneFetch } from '../utils/pingOneFetch';
 
 export interface PingOneEnvironment {
@@ -115,11 +116,13 @@ const EnvironmentServiceV8 = {
 		accessToken?: string,
 		region?: string
 	): Promise<EnvironmentListResponse> {
-		console.log('[EnvironmentServiceV8] 🚀 getEnvironments called with:', {
-			filters,
-			hasAccessToken: !!accessToken,
-			tokenLength: accessToken?.length || 0,
-			region,
+		logger.info('EnvironmentServiceV8', '[EnvironmentServiceV8] 🚀 getEnvironments called with:', {
+			arg0: {
+				filters,
+				hasAccessToken: !!accessToken,
+				tokenLength: accessToken?.length || 0,
+				region,
+			},
 		});
 
 		const params = new URLSearchParams();
@@ -158,40 +161,51 @@ const EnvironmentServiceV8 = {
 		}
 
 		const url = `${EnvironmentServiceV8.BASE_PATH}?${params.toString()}`;
-		console.log('[EnvironmentServiceV8] 📡 Making fetch request to:', {
-			url: url.replace(/accessToken=[^&]+/, 'accessToken=***REDACTED***'),
-			method: 'GET',
+		logger.info('EnvironmentServiceV8', '[EnvironmentServiceV8] 📡 Making fetch request to:', {
+			arg0: {
+				url: url.replace(/accessToken=[^&]+/, 'accessToken=***REDACTED***'),
+				method: 'GET',
+			},
 		});
 
 		try {
 			const response = await pingOneFetch(url);
-			console.log('[EnvironmentServiceV8] 📦 Received response:', {
-				status: response.status,
-				statusText: response.statusText,
-				ok: response.ok,
-				headers: Object.fromEntries(response.headers.entries()),
+			logger.info('EnvironmentServiceV8', '[EnvironmentServiceV8] 📦 Received response:', {
+				arg0: {
+					status: response.status,
+					statusText: response.statusText,
+					ok: response.ok,
+					headers: Object.fromEntries(response.headers.entries()),
+				},
 			});
 
 			const data = await response.json();
-			console.log('[EnvironmentServiceV8] 📊 Parsed response data:', {
-				hasData: !!data,
-				hasEnvironments: !!data?.environments,
-				environmentsCount: data?.environments?.length || 0,
-				totalCount: data?.totalCount,
-				fullData: JSON.stringify(data, null, 2),
-				dataKeys: Object.keys(data || {}),
-				environmentsType: typeof data?.environments,
-				environmentsIsArray: Array.isArray(data?.environments),
+			logger.info('EnvironmentServiceV8', '[EnvironmentServiceV8] 📊 Parsed response data:', {
+				arg0: {
+					hasData: !!data,
+					hasEnvironments: !!data?.environments,
+					environmentsCount: data?.environments?.length || 0,
+					totalCount: data?.totalCount,
+					fullData: JSON.stringify(data, null, 2),
+					dataKeys: Object.keys(data || {}),
+					environmentsType: typeof data?.environments,
+					environmentsIsArray: Array.isArray(data?.environments),
+				},
 			});
 
-			console.log('[EnvironmentServiceV8] 📈 getEnvironments completed successfully');
+			logger.info(
+				'EnvironmentServiceV8',
+				'[EnvironmentServiceV8] 📈 getEnvironments completed successfully'
+			);
 
 			return data as EnvironmentListResponse;
 		} catch (error) {
-			console.error('[EnvironmentServiceV8] 💥 Error in getEnvironments:', {
-				error,
-				message: error instanceof Error ? error.message : 'Unknown error',
-				stack: error instanceof Error ? error.stack : undefined,
+			logger.error('EnvironmentServiceV8', '[EnvironmentServiceV8] 💥 Error in getEnvironments:', {
+				arg0: {
+					error,
+					message: error instanceof Error ? error.message : 'Unknown error',
+					stack: error instanceof Error ? error.stack : undefined,
+				},
 			});
 			throw error;
 		}

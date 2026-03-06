@@ -2,6 +2,7 @@
 // V7 Credential Backup Service - Saves non-sensitive credentials to .env files for fallback
 
 import { StepCredentials } from '../components/steps/CommonSteps';
+import { logger } from '../utils/logger';
 
 export interface CredentialBackupConfig {
 	flowKey: string;
@@ -66,15 +67,26 @@ class CredentialBackupService {
 				localStorage.setItem(this.BACKUP_KEY, JSON.stringify(existingBackup));
 			}
 
-			console.log(`🔧 [CredentialBackup] Saved backup for flow: ${flowKey}`, {
-				flowKey,
-				hasEnvironmentId: !!credentials.environmentId,
-				hasClientId: !!credentials.clientId,
-				hasRedirectUri: !!credentials.redirectUri,
-				scopes: credentials.scopes?.length || 0,
-			});
+			logger.info(
+				'CredentialBackupService',
+				`🔧 [CredentialBackup] Saved backup for flow: ${flowKey}`,
+				{
+					arg0: {
+						flowKey,
+						hasEnvironmentId: !!credentials.environmentId,
+						hasClientId: !!credentials.clientId,
+						hasRedirectUri: !!credentials.redirectUri,
+						scopes: credentials.scopes?.length || 0,
+					},
+				}
+			);
 		} catch (error) {
-			console.error('🔧 [CredentialBackup] Failed to save backup:', error);
+			logger.error(
+				'CredentialBackupService',
+				'🔧 [CredentialBackup] Failed to save backup:',
+				undefined,
+				error as Error
+			);
 		}
 	}
 
@@ -86,7 +98,12 @@ class CredentialBackupService {
 			const backup = this.getCredentialBackup();
 			return backup[flowKey] || null;
 		} catch (error) {
-			console.error('🔧 [CredentialBackup] Failed to load backup:', error);
+			logger.error(
+				'CredentialBackupService',
+				'🔧 [CredentialBackup] Failed to load backup:',
+				undefined,
+				error as Error
+			);
 			return null;
 		}
 	}
@@ -99,7 +116,12 @@ class CredentialBackupService {
 			const backupData = localStorage.getItem(this.BACKUP_KEY);
 			return backupData ? JSON.parse(backupData) : {};
 		} catch (error) {
-			console.error('🔧 [CredentialBackup] Failed to parse backup data:', error);
+			logger.error(
+				'CredentialBackupService',
+				'🔧 [CredentialBackup] Failed to parse backup data:',
+				undefined,
+				error as Error
+			);
 			return {};
 		}
 	}
@@ -113,9 +135,17 @@ class CredentialBackupService {
 			delete backup[flowKey];
 			localStorage.setItem(this.BACKUP_KEY, JSON.stringify(backup));
 
-			console.log(`🔧 [CredentialBackup] Cleared backup for flow: ${flowKey}`);
+			logger.info(
+				'CredentialBackupService',
+				`🔧 [CredentialBackup] Cleared backup for flow: ${flowKey}`
+			);
 		} catch (error) {
-			console.error('🔧 [CredentialBackup] Failed to clear backup:', error);
+			logger.error(
+				'CredentialBackupService',
+				'🔧 [CredentialBackup] Failed to clear backup:',
+				undefined,
+				error as Error
+			);
 		}
 	}
 
@@ -125,9 +155,17 @@ class CredentialBackupService {
 	clearAllBackups(): void {
 		try {
 			localStorage.removeItem(this.BACKUP_KEY);
-			console.log('🔧 [CredentialBackup] Cleared all credential backups');
+			logger.info(
+				'CredentialBackupService',
+				'🔧 [CredentialBackup] Cleared all credential backups'
+			);
 		} catch (error) {
-			console.error('🔧 [CredentialBackup] Failed to clear all backups:', error);
+			logger.error(
+				'CredentialBackupService',
+				'🔧 [CredentialBackup] Failed to clear all backups:',
+				undefined,
+				error as Error
+			);
 		}
 	}
 
@@ -196,9 +234,17 @@ class CredentialBackupService {
 			document.body.removeChild(link);
 			URL.revokeObjectURL(url);
 
-			console.log('🔧 [CredentialBackup] Downloaded .env file with credential backup');
+			logger.info(
+				'CredentialBackupService',
+				'🔧 [CredentialBackup] Downloaded .env file with credential backup'
+			);
 		} catch (error) {
-			console.error('🔧 [CredentialBackup] Failed to download .env file:', error);
+			logger.error(
+				'CredentialBackupService',
+				'🔧 [CredentialBackup] Failed to download .env file:',
+				undefined,
+				error as Error
+			);
 		}
 	}
 
@@ -221,10 +267,16 @@ class CredentialBackupService {
 		if (backup.scopes) restoredCredentials.scopes = backup.scopes;
 		if (backup.responseType) restoredCredentials.responseType = backup.responseType;
 
-		console.log(`🔧 [CredentialBackup] Restored credentials for flow: ${flowKey}`, {
-			flowKey,
-			restoredFields: Object.keys(restoredCredentials),
-		});
+		logger.info(
+			'CredentialBackupService',
+			`🔧 [CredentialBackup] Restored credentials for flow: ${flowKey}`,
+			{
+				arg0: {
+					flowKey,
+					restoredFields: Object.keys(restoredCredentials),
+				},
+			}
+		);
 
 		return restoredCredentials;
 	}
