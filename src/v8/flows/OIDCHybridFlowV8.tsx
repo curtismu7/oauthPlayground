@@ -633,6 +633,65 @@ const OIDCHybridFlowV8: React.FC = () => {
 						<FiRefreshCw /> Start New Flow
 					</Button>
 				</ActionRow>
+
+				{/* Flow Completion Summary */}
+				{hybridFlow.currentStep === 3 && allTokens && (
+					<div
+						style={{
+							background: '#f0fdf4',
+							border: '1px solid #86efac',
+							borderRadius: '0.5rem',
+							padding: '1.5rem',
+							marginTop: '2rem',
+						}}
+					>
+						<h3
+							style={{
+								margin: '0 0 1rem 0',
+								color: '#16a34a',
+								fontSize: '1.25rem',
+								fontWeight: 600,
+							}}
+						>
+							🎉 OIDC Hybrid Flow Complete
+						</h3>
+						<div
+							style={{
+								background: 'white',
+								borderRadius: '0.375rem',
+								padding: '1rem',
+								marginBottom: '1rem',
+							}}
+						>
+							<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>
+								Achievements:
+							</h4>
+							<ul style={{ margin: '0', paddingLeft: '1.5rem', color: '#4b5563' }}>
+								<li>✅ Hybrid variant selected successfully</li>
+								<li>✅ Authorization code and tokens obtained</li>
+								<li>✅ Token processing completed</li>
+								<li>✅ All 4 flow steps completed</li>
+							</ul>
+						</div>
+						<div
+							style={{
+								background: 'white',
+								borderRadius: '0.375rem',
+								padding: '1rem',
+							}}
+						>
+							<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>
+								Hybrid Flow Summary:
+							</h4>
+							<div style={{ fontSize: '0.875rem', color: '#4b5563' }}>
+								<p><strong>Flow Type:</strong> OIDC Hybrid Flow</p>
+								<p><strong>Variant:</strong> {hybridFlow.selectedVariant || 'Standard'}</p>
+								<p><strong>Tokens Received:</strong> {Object.keys(allTokens).length} types</p>
+								<p><strong>Authorization Code:</strong> {allTokens.authorizationCode ? '✅ Obtained' : '❌ Missing'}</p>
+							</div>
+						</div>
+					</div>
+				)}
 			</>
 		);
 	};
