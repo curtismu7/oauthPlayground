@@ -19,6 +19,7 @@
 | V9 flows: zero `toastV8` calls | ✅ **DONE** | 0 actual calls (comments only) |
 | V9 flows: `console.error/warn` | ✅ **DONE** | 0 violations in all V9 flows — WorkerTokenFlowV9 1 occurrence exempt (inside `<pre>` tag). CIBAFlowV9 + RedirectlessFlowV9_Real (13 violations) fixed commit `8eb74df06` |
 | V9 services: `console.error/warn` | ✅ **DONE** | 48 violations removed across 13 service files (commit `d2948f543`) — 2 false positives skipped (postmanCollectionGeneratorV9 template strings, credentialsServiceV9 JSDoc) |
+| Non-V9 flow files: `console.error/warn` | ✅ **DONE** | 26 violations removed across 6 files: DPoPFlow, IDTokensFlow, PARFlow, SAMLServiceProviderFlowV1, UserInfoFlow, KrogerGroceryStoreMFA (commit `ac7089a02`) — 4 false positives skipped (MFAFlow + PingOneLogoutFlow template strings) |
 | **NEW: Logging Implementation Plan** | ✅ **DONE** | Comprehensive 5-week plan created (see docs/standards/logging-implementation-plan.md) |
 | **NEW: Comprehensive Status Assessment** | ✅ **DONE** | Complete technical debt analysis (see COMPREHENSIVE_STANDARDIZATION_STATUS.md) |
 
@@ -96,7 +97,12 @@ Every V9 flow **must** have all of:
 #### **Phase 1: V9 Flows + V9 Services** ✅ COMPLETE
 - **Result**: 0 `console.error`/`warn` violations in all V9 flows and all V9 services
 - **Commits**: `a362778e8` (flows), `d2948f543` (services), `8eb74df06` (CIBAFlowV9 + RedirectlessFlowV9_Real)
-- **Remaining**: Legacy flows/components (Phase 2+)
+
+#### **Phase 2: Non-V9 Flow Files** ✅ COMPLETE
+- **Result**: 0 `console.error`/`warn` violations in all non-V9 flow files (DPoPFlow, IDTokensFlow, PARFlow, SAMLServiceProviderFlowV1, UserInfoFlow, KrogerGroceryStoreMFA)
+- **Commit**: `ac7089a02`
+- **4 false positives skipped**: MFAFlow L524 + PingOneLogoutFlow L329/L381/L420 (all inside template string `code:` properties)
+- **Remaining**: `src/hooks/` (28 files), components, contexts, other services
 
 #### **Required Import (add to top of file):**
 ```typescript
