@@ -91,17 +91,6 @@ export const V9checkWorkerTokenStatus = async (): Promise<V9TokenStatusInfo> => 
 		const isExpired = now >= tokenExpiresAt;
 		const minutesRemaining = Math.max(0, Math.floor((tokenExpiresAt - now) / 60000));
 
-		// Enhanced debugging for expired tokens
-		if (isExpired) {
-			console.warn('[V9-WORKER-TOKEN-STATUS] Token expired:', {
-				now: new Date(now).toISOString(),
-				expiresAt: new Date(tokenExpiresAt).toISOString(),
-				minutesOverdue: Math.floor((now - tokenExpiresAt) / 60000),
-				tokenLength: token.length,
-				environmentId,
-				region,
-			});
-		}
 
 		let tokenStatus: V9TokenStatus = 'valid';
 		let message = 'Worker token is valid and ready to use.';
@@ -127,7 +116,6 @@ export const V9checkWorkerTokenStatus = async (): Promise<V9TokenStatusInfo> => 
 		if (region) result.region = region;
 		return result;
 	} catch (error) {
-		console.error('[V9-WORKER-TOKEN-STATUS] Error checking worker token status:', error);
 		return {
 			status: 'missing',
 			message: 'Error checking worker token status. Please try again.',
@@ -198,7 +186,6 @@ export const V9checkWorkerTokenStatusSync = (): V9TokenStatusInfo => {
 		if (region) result.region = region;
 		return result;
 	} catch (error) {
-		console.error('[V9-WORKER-TOKEN-STATUS] Error checking worker token status (sync):', error);
 		return {
 			status: 'missing',
 			message: 'Error checking worker token status.',
