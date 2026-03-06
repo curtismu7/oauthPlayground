@@ -12,14 +12,14 @@ import {
 import type React from 'react';
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
+import { CompactAppPickerV8U } from '@/v8u/components/CompactAppPickerV8U';
 import CollapsibleSection from '../../components/CollapsibleSection';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useResourceOwnerPasswordFlowV7 } from '../../hooks/useResourceOwnerPasswordFlowV7';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
-import { CompactAppPickerV8U } from '@/v8u/components/CompactAppPickerV8U';
 import { UserSearchDropdownV8 } from '../../v8/components/UserSearchDropdownV8';
 
 const PageContainer = styled.div`
@@ -229,7 +229,11 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 
 	const _copyToClipboard = (text: string, label: string) => {
 		navigator.clipboard.writeText(text);
-		modernMessaging.showFooterMessage({ type: 'info', message: `${label} copied to clipboard`, duration: 3000 });
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message: `${label} copied to clipboard`,
+			duration: 3000,
+		});
 	};
 
 	const renderStepContent = () => {
