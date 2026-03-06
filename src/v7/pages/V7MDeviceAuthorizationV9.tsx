@@ -2,6 +2,7 @@
 
 import { FiBook, FiCheck, FiCopy, FiSmartphone } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
+import { UnifiedCredentialManagerV9 } from '../../components/UnifiedCredentialManagerV9';
 import {
 	requestDeviceAuthorization,
 	type V7MDeviceAuthorizationResponse,
@@ -17,7 +18,6 @@ import {
 	type V7MUserInfo,
 } from '../../services/v7m/V7MUserInfoService';
 import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
-import { CompactAppPickerV8U } from '../../v8u/components/CompactAppPickerV8U';
 import { V7MHelpModal } from '../components/V7MHelpModal';
 import { V7MInfoIcon } from '../components/V7MInfoIcon';
 import { V7MJwtInspectorModal } from '../components/V7MJwtInspectorModal';
@@ -48,9 +48,9 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 		if (saved.clientId) setClientId(saved.clientId);
 	}, []);
 
-	const handleAppSelected = useCallback((app: { id: string; name: string }) => {
-		setClientId(app.id);
-		V9CredentialStorageService.save('v7m-device-authorization', { clientId: app.id });
+	const handleAppSelected = useCallback((app: { clientId: string; name: string }) => {
+		setClientId(app.clientId);
+		V9CredentialStorageService.save('v7m-device-authorization', { clientId: app.clientId });
 	}, []);
 
 	function handleRequestDeviceAuth() {
@@ -163,7 +163,20 @@ export const V7MDeviceAuthorizationV9: React.FC = () => {
 			<h1 style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
 				<FiSmartphone /> V7M Device Authorization
 			</h1>
-			<CompactAppPickerV8U onAppSelected={handleAppSelected} />
+			<UnifiedCredentialManagerV9
+				environmentId="v7m-mock"
+				flowKey="v7m-device-authorization"
+				credentials={{ clientId }}
+				importExportOptions={{
+					flowType: 'v7m-device-authorization',
+					appName: 'V7M Device Authorization',
+					description: 'V7M Mock Device Authorization Flow (RFC 8628)',
+				}}
+				onAppSelected={handleAppSelected}
+				grantType="urn:ietf:params:oauth:grant-type:device_code"
+				showAppPicker={true}
+				showImportExport={true}
+			/>
 
 			<section style={{ marginTop: 16, border: '1px solid #e5e7eb', borderRadius: 8 }}>
 				<header
