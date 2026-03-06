@@ -30,8 +30,8 @@ export interface ConfigurationChange {
 	type: 'pingone' | 'application';
 	description: string;
 	field?: string;
-	oldValue?: any;
-	newValue?: any;
+	oldValue?: unknown;
+	newValue?: unknown;
 }
 
 // Update result

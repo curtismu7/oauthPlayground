@@ -267,7 +267,12 @@ export const useSamlSpFlowController = (): SamlSpFlowController => {
 				);
 				return true;
 			} catch (error) {
-				logger.error('useSamlSpFlowController', 'Failed to save PingOne admin credentials', undefined, error as Error);
+				logger.error(
+					'useSamlSpFlowController',
+					'Failed to save PingOne admin credentials',
+					undefined,
+					error as Error
+				);
 				return false;
 			}
 		},
@@ -310,7 +315,12 @@ export const useSamlSpFlowController = (): SamlSpFlowController => {
 				}
 				return updatedApp;
 			} catch (error) {
-				logger.error('useSamlSpFlowController', 'Failed to sync dynamic ACS toggle', undefined, error as Error);
+				logger.error(
+					'useSamlSpFlowController',
+					'Failed to sync dynamic ACS toggle',
+					undefined,
+					error as Error
+				);
 				return null;
 			}
 		},
@@ -340,7 +350,12 @@ export const useSamlSpFlowController = (): SamlSpFlowController => {
 				}
 				return app;
 			} catch (error) {
-				logger.error('useSamlSpFlowController', 'Failed to fetch PingOne application', undefined, error as Error);
+				logger.error(
+					'useSamlSpFlowController',
+					'Failed to fetch PingOne application',
+					undefined,
+					error as Error
+				);
 				return null;
 			}
 		},

@@ -42,8 +42,8 @@ describe('API Environment Config Endpoint', () => {
     process.env.PINGONE_ENVIRONMENT_ID = 'test-env-123';
     process.env.PINGONE_CLIENT_ID = 'test-client-456';
     process.env.PINGONE_CLIENT_SECRET = 'test-secret-789';
-    process.env.PINGONE_REDIRECT_URI = 'https://example.com/callback'\;
-    process.env.PINGONE_API_URL = 'https://test.pingone.com'\;
+    process.env.PINGONE_REDIRECT_URI = 'https://example.com/callback';
+    process.env.PINGONE_API_URL = 'https://test.pingone.com';
 
     const response = await request(app)
       .get('/api/env-config')

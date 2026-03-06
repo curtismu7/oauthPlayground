@@ -29,6 +29,7 @@ import { DraggableModal } from '@/components/DraggableModal';
 import { JWTConfigV8 } from '@/components/JWTConfigV8';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import type { ResponseMode } from '@/services/responseModeService';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
 import { ClientTypeRadioV8 } from '@/v8/components/ClientTypeRadioV8';
 import { type DisplayMode, DisplayModeDropdownV8 } from '@/v8/components/DisplayModeDropdownV8';
@@ -72,7 +73,6 @@ import { TooltipContentServiceV8 } from '@/v8/services/tooltipContentServiceV8';
 import { UnifiedFlowOptionsServiceV8 } from '@/v8/services/unifiedFlowOptionsServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { analytics } from '@/v8/utils/analyticsV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { AppDiscoveryModalV8U } from './AppDiscoveryModalV8U';
 
 type ClientType = 'public' | 'confidential';
@@ -1606,7 +1606,11 @@ Why it matters: Backend services communicate server-to-server without user conte
 							) {
 								appWithSecret = fetchedApp;
 								console.log(`${MODULE_TAG} ✅ Application secret fetched successfully`);
-								modernMessaging.showFooterMessage({ type: 'info', message: 'Application secret retrieved from PingOne', duration: 3000 });
+								modernMessaging.showFooterMessage({
+									type: 'info',
+									message: 'Application secret retrieved from PingOne',
+									duration: 3000,
+								});
 							} else {
 								console.log(`${MODULE_TAG} Application secret not returned from API or is empty`, {
 									hasClientSecret: 'clientSecret' in fetchedApp,
@@ -1873,7 +1877,11 @@ Why it matters: Backend services communicate server-to-server without user conte
 			});
 			// #endregion
 			onChange(updated);
-			modernMessaging.showFooterMessage({ type: 'info', message: `Applied settings from ${app.name}`, duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: `Applied settings from ${app.name}`,
+				duration: 3000,
+			});
 		},
 		[credentials, onChange, flowKey]
 	);
@@ -1883,7 +1891,12 @@ Why it matters: Backend services communicate server-to-server without user conte
 		const inputToUse = discoveryInput.trim() || credentials.environmentId?.trim() || '';
 
 		if (!inputToUse) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter an issuer URL or environment ID in the General section', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please enter an issuer URL or environment ID in the General section',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -1902,11 +1915,21 @@ Why it matters: Backend services communicate server-to-server without user conte
 				onDiscoveryComplete?.(result.data);
 			} else {
 				console.error(`${MODULE_TAG} Discovery failed`, result.error);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: result.error || 'Discovery failed', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: result.error || 'Discovery failed',
+					dismissible: true,
+				});
 			}
 		} catch (error) {
 			console.error(`${MODULE_TAG} Discovery error`, error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Discovery failed - check the issuer URL', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Discovery failed - check the issuer URL',
+				dismissible: true,
+			});
 		} finally {
 			setIsDiscovering(false);
 		}
@@ -1921,7 +1944,11 @@ Why it matters: Backend services communicate server-to-server without user conte
 				scopes: result.scopesSupported?.join(' ') || credentials.scopes,
 			};
 			onChange(updated);
-			modernMessaging.showFooterMessage({ type: 'info', message: 'OIDC configuration applied!', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'OIDC configuration applied!',
+				duration: 3000,
+			});
 			setDiscoveryInput('');
 		},
 		[credentials, onChange]
@@ -1980,7 +2007,11 @@ Why it matters: Backend services communicate server-to-server without user conte
 												console.log(`${MODULE_TAG} Client type changed to ${type}`);
 												setClientType(type);
 												handleChange('clientType', type);
-												modernMessaging.showFooterMessage({ type: 'info', message: `Client type set to: ${type === 'public' ? 'Public Client' : 'Confidential Client'}`, duration: 3000 });
+												modernMessaging.showFooterMessage({
+													type: 'info',
+													message: `Client type set to: ${type === 'public' ? 'Public Client' : 'Confidential Client'}`,
+													duration: 3000,
+												});
 											}}
 										/>
 									</div>
@@ -2240,7 +2271,11 @@ Why it matters: Backend services communicate server-to-server without user conte
 																detail: { workerToken: config.workerToken },
 															})
 														);
-														modernMessaging.showFooterMessage({ type: 'info', message: `Silent API Token Retrieval set to: ${newValue}`, duration: 3000 });
+														modernMessaging.showFooterMessage({
+															type: 'info',
+															message: `Silent API Token Retrieval set to: ${newValue}`,
+															duration: 3000,
+														});
 
 														// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 														if (newValue) {
@@ -2316,7 +2351,11 @@ Why it matters: Backend services communicate server-to-server without user conte
 																detail: { workerToken: config.workerToken },
 															})
 														);
-														modernMessaging.showFooterMessage({ type: 'info', message: `Show Token After Generation set to: ${newValue}`, duration: 3000 });
+														modernMessaging.showFooterMessage({
+															type: 'info',
+															message: `Show Token After Generation set to: ${newValue}`,
+															duration: 3000,
+														});
 													}}
 													style={{
 														width: '20px',
@@ -3398,7 +3437,11 @@ Why it matters: Backend services communicate server-to-server without user conte
 													form_post: 'Form POST',
 													'pi.flow': 'Redirectless (PingOne)',
 												};
-												modernMessaging.showFooterMessage({ type: 'info', message: `Response mode set to: ${modeNames[mode]}`, duration: 3000 });
+												modernMessaging.showFooterMessage({
+													type: 'info',
+													message: `Response mode set to: ${modeNames[mode]}`,
+													duration: 3000,
+												});
 											}}
 											flowType={
 												flowType === 'oauth-authz'
@@ -4478,7 +4521,11 @@ Why it matters: Backend services communicate server-to-server without user conte
 																	scopesArray.length > 0
 																		? [...scopesArray, 'offline_access'].join(' ')
 																		: 'offline_access';
-																modernMessaging.showFooterMessage({ type: 'info', message: 'Added offline_access scope to request refresh token', duration: 3000 });
+																modernMessaging.showFooterMessage({
+																	type: 'info',
+																	message: 'Added offline_access scope to request refresh token',
+																	duration: 3000,
+																});
 															}
 														} else {
 															// Disabling: remove offline_access if present
@@ -4490,7 +4537,11 @@ Why it matters: Backend services communicate server-to-server without user conte
 																	updatedCredentials.scopes = scopesArray
 																		.filter((s) => s !== 'offline_access')
 																		.join(' ');
-																	modernMessaging.showFooterMessage({ type: 'info', message: 'Removed offline_access scope', duration: 3000 });
+																	modernMessaging.showFooterMessage({
+																		type: 'info',
+																		message: 'Removed offline_access scope',
+																		duration: 3000,
+																	});
 																}
 															}
 														}
@@ -4681,7 +4732,11 @@ Why it matters: Backend services communicate server-to-server without user conte
 														REQUIRED: 'Required (Any Method)',
 														S256_REQUIRED: 'Required (S256 Only)',
 													};
-													modernMessaging.showFooterMessage({ type: 'info', message: `PKCE set to: ${modeNames[mode]}`, duration: 3000 });
+													modernMessaging.showFooterMessage({
+														type: 'info',
+														message: `PKCE set to: ${modeNames[mode]}`,
+														duration: 3000,
+													});
 												}}
 												clientType={clientType}
 												flowType={flowType}
@@ -4779,9 +4834,13 @@ Why it matters: Backend services communicate server-to-server without user conte
 															const newValue = e.target.checked;
 															setUsePAR(newValue);
 															handleChange('usePAR', newValue);
-															modernMessaging.showFooterMessage({ type: 'info', message: newValue
+															modernMessaging.showFooterMessage({
+																type: 'info',
+																message: newValue
 																	? 'PAR (Pushed Authorization Requests) enabled'
-																	: 'PAR disabled', duration: 3000 });
+																	: 'PAR disabled',
+																duration: 3000,
+															});
 														}}
 														style={{
 															width: '18px',
@@ -4963,7 +5022,11 @@ Why it matters: Backend services communicate server-to-server without user conte
 																? `${hours}h ${mins}m`
 																: `${hours} hour${hours > 1 ? 's' : ''}`;
 														};
-														modernMessaging.showFooterMessage({ type: 'info', message: `Max authentication age set to: ${formatDuration(value)}`, duration: 3000 });
+														modernMessaging.showFooterMessage({
+															type: 'info',
+															message: `Max authentication age set to: ${formatDuration(value)}`,
+															duration: 3000,
+														});
 													}
 												}}
 											/>
@@ -4986,7 +5049,11 @@ Why it matters: Backend services communicate server-to-server without user conte
 															touch: 'Touch Interface',
 															wap: 'WAP Interface',
 														};
-														modernMessaging.showFooterMessage({ type: 'info', message: `Display mode set to: ${modeNames[value]}`, duration: 3000 });
+														modernMessaging.showFooterMessage({
+															type: 'info',
+															message: `Display mode set to: ${modeNames[value]}`,
+															duration: 3000,
+														});
 													}
 												}}
 											/>
@@ -5061,7 +5128,11 @@ Why it matters: Backend services communicate server-to-server without user conte
 								type="button"
 								className="btn-save"
 								onClick={() => {
-									modernMessaging.showFooterMessage({ type: 'info', message: 'Credentials saved successfully', duration: 3000 });
+									modernMessaging.showFooterMessage({
+										type: 'info',
+										message: 'Credentials saved successfully',
+										duration: 3000,
+									});
 									console.log(`${MODULE_TAG} Credentials saved`, { flowKey });
 								}}
 							>
@@ -5101,7 +5172,11 @@ Why it matters: Backend services communicate server-to-server without user conte
 											window.dispatchEvent(new Event('workerTokenUpdated'));
 											const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 											setTokenStatus(newStatus);
-											modernMessaging.showFooterMessage({ type: 'info', message: 'Worker token generated and saved!', duration: 3000 });
+											modernMessaging.showFooterMessage({
+												type: 'info',
+												message: 'Worker token generated and saved!',
+												duration: 3000,
+											});
 										}}
 										environmentId={credentials.environmentId}
 										showTokenOnly={showTokenOnly}
@@ -5119,7 +5194,11 @@ Why it matters: Backend services communicate server-to-server without user conte
 											window.dispatchEvent(new Event('workerTokenUpdated'));
 											const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 											setTokenStatus(newStatus);
-											modernMessaging.showFooterMessage({ type: 'info', message: 'Worker token generated and saved!', duration: 3000 });
+											modernMessaging.showFooterMessage({
+												type: 'info',
+												message: 'Worker token generated and saved!',
+												duration: 3000,
+											});
 										}}
 										environmentId={credentials.environmentId}
 									/>
@@ -6144,7 +6223,11 @@ Why it matters: Backend services communicate server-to-server without user conte
 									onJWTGenerated={(jwt, result) => {
 										if (result.success && result.jwt) {
 											console.log(`${MODULE_TAG} Client Secret JWT generated:`, jwt);
-											modernMessaging.showFooterMessage({ type: 'info', message: 'JWT generated successfully!', duration: 3000 });
+											modernMessaging.showFooterMessage({
+												type: 'info',
+												message: 'JWT generated successfully!',
+												duration: 3000,
+											});
 										}
 									}}
 								/>
@@ -6256,7 +6339,11 @@ Why it matters: Backend services communicate server-to-server without user conte
 									onJWTGenerated={(jwt, result) => {
 										if (result.success && result.jwt) {
 											console.log(`${MODULE_TAG} Private Key JWT generated:`, jwt);
-											modernMessaging.showFooterMessage({ type: 'info', message: 'JWT generated successfully!', duration: 3000 });
+											modernMessaging.showFooterMessage({
+												type: 'info',
+												message: 'JWT generated successfully!',
+												duration: 3000,
+											});
 											// Note: The private key should be saved separately in the credentials form
 											// The JWT is generated fresh for each token request, not stored
 										}
@@ -6271,7 +6358,11 @@ Why it matters: Backend services communicate server-to-server without user conte
 										if (keyId) {
 											handleChange('keyId', keyId);
 										}
-										modernMessaging.showFooterMessage({ type: 'info', message: 'Private key generated and saved to credentials!', duration: 3000 });
+										modernMessaging.showFooterMessage({
+											type: 'info',
+											message: 'Private key generated and saved to credentials!',
+											duration: 3000,
+										});
 									}}
 								/>
 								<div

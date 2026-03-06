@@ -10,10 +10,10 @@ import { useCallback, useState } from 'react';
 import type { PingOneApplicationState } from '../components/PingOneApplicationConfig';
 import type { StepCredentials } from '../components/steps/CommonSteps';
 import { storeFlowNavigationState } from '../utils/flowNavigation';
+import { logger } from '../utils/logger';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { validateForStep } from './credentialsValidationService';
 import { FlowRedirectUriService } from './flowRedirectUriService';
-import { logger } from '../utils/logger';
 
 export type ImplicitFlowVariant = 'oauth' | 'oidc';
 
@@ -153,7 +153,12 @@ export class ImplicitFlowToastManager {
 	 * Show error toast for credentials save failure
 	 */
 	static showCredentialsSaveFailed(error?: Error): void {
-		logger.error('ImplicitFlowSharedService', 'Failed to save credentials', undefined, error as Error);
+		logger.error(
+			'ImplicitFlowSharedService',
+			'Failed to save credentials',
+			undefined,
+			error as Error
+		);
 		v4ToastManager.showError('Failed to save credentials');
 	}
 
@@ -168,7 +173,12 @@ export class ImplicitFlowToastManager {
 	 * Show error toast for redirect URI save failure
 	 */
 	static showRedirectUriSaveFailed(error?: Error): void {
-		logger.error('ImplicitFlowSharedService', 'Failed to save redirect URI', undefined, error as Error);
+		logger.error(
+			'ImplicitFlowSharedService',
+			'Failed to save redirect URI',
+			undefined,
+			error as Error
+		);
 		v4ToastManager.showError('Failed to save redirect URI');
 	}
 
@@ -400,7 +410,12 @@ export class ImplicitFlowCredentialsHandlers {
 				await controller.saveCredentials();
 				ImplicitFlowToastManager.showCredentialsSaved();
 			} catch (error) {
-				logger.error('ImplicitFlowSharedService', 'Failed to save credentials', undefined, error as Error);
+				logger.error(
+					'ImplicitFlowSharedService',
+					'Failed to save credentials',
+					undefined,
+					error as Error
+				);
 				ImplicitFlowToastManager.showCredentialsSaveFailed(error as Error);
 			}
 		};
@@ -474,7 +489,12 @@ export class ImplicitFlowAuthorizationManager {
 			ImplicitFlowToastManager.showAuthUrlGenerated();
 			return true;
 		} catch (error) {
-			logger.error('ImplicitFlowSharedService', 'Failed to generate authorization URL', undefined, error as Error);
+			logger.error(
+				'ImplicitFlowSharedService',
+				'Failed to generate authorization URL',
+				undefined,
+				error as Error
+			);
 			ImplicitFlowToastManager.showAuthUrlGenerationFailed(error);
 			return false;
 		}

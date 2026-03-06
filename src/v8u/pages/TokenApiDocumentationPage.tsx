@@ -366,7 +366,7 @@ const RedirectInteractionType = styled(InteractionType)`
 
 export const TokenApiDocumentationPage: React.FC = () => {
 	const [apiCalls, setApiCalls] = useState<ApiCall[]>([]);
-	const [redirects, setRedirects] = useState<any[]>([]);
+	const [redirects, setRedirects] = useState<unknown[]>([]);
 	const [searchTerm, setSearchTerm] = useState('');
 	const [filterType, setFilterType] = useState<string>('all');
 	const [expandedCalls, setExpandedCalls] = useState<Set<string>>(new Set());

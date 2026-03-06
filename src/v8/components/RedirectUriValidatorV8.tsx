@@ -69,12 +69,21 @@ export const RedirectUriValidatorV8: React.FC<RedirectUriValidatorV8Props> = ({
 		try {
 			await navigator.clipboard.writeText(uri);
 			setCopiedUri(uri);
-			modernMessaging.showFooterMessage({ type: 'info', message: `${type === 'current' ? 'Current' : 'Suggested'} URI copied to clipboard`, duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: `${type === 'current' ? 'Current' : 'Suggested'} URI copied to clipboard`,
+				duration: 3000,
+			});
 
 			// Clear copied state after 2 seconds
 			setTimeout(() => setCopiedUri(null), 2000);
 		} catch (_error) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to copy URI to clipboard', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to copy URI to clipboard',
+				dismissible: true,
+			});
 		}
 	};
 
@@ -82,7 +91,11 @@ export const RedirectUriValidatorV8: React.FC<RedirectUriValidatorV8Props> = ({
 	const applySuggestedUri = () => {
 		if (suggestedUri && onUriChange) {
 			onUriChange(suggestedUri);
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Applied suggested redirect URI', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Applied suggested redirect URI',
+				duration: 3000,
+			});
 		}
 	};
 

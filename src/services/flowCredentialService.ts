@@ -6,9 +6,9 @@ import type { StepCredentials } from '../components/steps/CommonSteps';
 import { showGlobalError, showGlobalSuccess } from '../hooks/useNotifications';
 import type { AllCredentials } from '../utils/credentialManager';
 import { credentialManager } from '../utils/credentialManager';
+import { logger } from '../utils/logger';
 import { safeJsonParse } from '../utils/secureJson';
 import { flowCredentialIsolationService } from './flowCredentialIsolationService';
-import { logger } from '../utils/logger';
 
 export interface FlowCredentialConfig {
 	flowKey: string; // Unique key for this flow (e.g., 'client-credentials-v6', 'oidc-hybrid-v6')
@@ -113,7 +113,12 @@ export const loadSharedCredentials = async (
 		);
 		return null;
 	} catch (error) {
-		logger.error('FlowCredentialService', 'Failed to load shared credentials', undefined, error as Error);
+		logger.error(
+			'FlowCredentialService',
+			'Failed to load shared credentials',
+			undefined,
+			error as Error
+		);
 		return null;
 	}
 };
@@ -232,7 +237,12 @@ export const saveSharedCredentials = async (
 
 		return true;
 	} catch (error) {
-		logger.error('FlowCredentialService', 'Failed to save shared credentials', undefined, error as Error);
+		logger.error(
+			'FlowCredentialService',
+			'Failed to save shared credentials',
+			undefined,
+			error as Error
+		);
 		if (options.showToast) {
 			showGlobalError('Failed to save credentials');
 		}
@@ -322,7 +332,12 @@ export const saveFlowCredentials = async <T = unknown>(
 
 		return success;
 	} catch (error) {
-		logger.error('FlowCredentialService', 'Failed to save flow credentials', undefined, error as Error);
+		logger.error(
+			'FlowCredentialService',
+			'Failed to save flow credentials',
+			undefined,
+			error as Error
+		);
 		if (options.showToast) {
 			showGlobalError('Failed to save credentials');
 		}
@@ -471,7 +486,12 @@ export const saveFlowCredentialsIsolated = async <T = unknown>(
 
 		return success;
 	} catch (error) {
-		logger.error('FlowCredentialService', 'Failed to save isolated credentials', undefined, error as Error);
+		logger.error(
+			'FlowCredentialService',
+			'Failed to save isolated credentials',
+			undefined,
+			error as Error
+		);
 		if (options.showToast) {
 			showGlobalError('Failed to save credentials');
 		}
@@ -536,7 +556,12 @@ export const clearSharedCredentials = async (flowKey: string): Promise<boolean> 
 		console.log(`[FlowCredentialService:${flowKey}] Cleared shared credentials`);
 		return true;
 	} catch (error) {
-		logger.error('FlowCredentialService', 'Failed to clear shared credentials', undefined, error as Error);
+		logger.error(
+			'FlowCredentialService',
+			'Failed to clear shared credentials',
+			undefined,
+			error as Error
+		);
 		return false;
 	}
 };
@@ -551,7 +576,12 @@ export const clearAllFlowData = async (flowKey: string): Promise<boolean> => {
 		console.log(`[FlowCredentialService:${flowKey}] Cleared all flow data`);
 		return true;
 	} catch (error) {
-		logger.error('FlowCredentialService', 'Failed to clear all flow data', undefined, error as Error);
+		logger.error(
+			'FlowCredentialService',
+			'Failed to clear all flow data',
+			undefined,
+			error as Error
+		);
 		return false;
 	}
 };

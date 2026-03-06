@@ -5,12 +5,12 @@
  * @version 8.2.0
  */
 
+// Note: FIDO2Service is not used here - we use PingOne's publicKeyCredentialCreationOptions instead
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import type { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import type { RegisterDeviceParams } from '@/v8/services/mfaServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
-// Note: FIDO2Service is not used here - we use PingOne's publicKeyCredentialCreationOptions instead
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import type { MFACredentials } from '../shared/MFATypes';
 import { type FlowControllerCallbacks, MFAFlowController } from './MFAFlowController';
 
@@ -429,7 +429,11 @@ export class FIDO2FlowController extends MFAFlowController {
 			},
 		});
 
-		modernMessaging.showFooterMessage({ type: 'info', message: 'FIDO2 device registered and activated successfully!', duration: 3000 });
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message: 'FIDO2 device registered and activated successfully!',
+			duration: 3000,
+		});
 
 		// Per fido2-2.md: PingOne marks device ACTIVE after successful WebAuthn validation
 		// You do NOT need to manually set ACTIVATION_CREATED status

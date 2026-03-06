@@ -46,10 +46,19 @@ export const UserLoginSectionV8: React.FC<UserLoginSectionV8Props> = ({
 			if (onTokenUpdated && userToken) {
 				onTokenUpdated(userToken);
 			}
-			modernMessaging.showFooterMessage({ type: 'info', message: 'User token status refreshed', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'User token status refreshed',
+				duration: 3000,
+			});
 		} catch (error) {
 			console.error(MODULE_TAG, 'Error refreshing user token:', error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to refresh user token', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to refresh user token',
+				dismissible: true,
+			});
 		} finally {
 			setIsRefreshing(false);
 		}
@@ -65,10 +74,19 @@ export const UserLoginSectionV8: React.FC<UserLoginSectionV8Props> = ({
 			if (authContext.logout) {
 				await authContext.logout();
 			}
-			modernMessaging.showFooterMessage({ type: 'info', message: 'User logged out successfully', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'User logged out successfully',
+				duration: 3000,
+			});
 		} catch (error) {
 			console.error(MODULE_TAG, 'Error logging out user:', error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to log out user', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to log out user',
+				dismissible: true,
+			});
 		}
 	};
 

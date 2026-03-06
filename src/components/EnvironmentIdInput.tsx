@@ -418,12 +418,12 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 	initialEnvironmentId = '',
 	className,
 	disabled = false,
-	showSuggestions = true,
+	_showSuggestions = true,
 	autoDiscover = false,
-	region = 'us',
+	_region = 'us',
 }) => {
 	const [environmentId, setEnvironmentId] = useState(initialEnvironmentId);
-	const [selectedRegion, setSelectedRegion] = useState<'us' | 'eu' | 'ap' | 'ca'>(region);
+	const [selectedRegion, setSelectedRegion] = useState<'us' | 'eu' | 'ap' | 'ca'>(_region);
 	const [isDiscovering, setIsDiscovering] = useState(false);
 	const [discoveryResult, setDiscoveryResult] = useState<DiscoveryResult | null>(null);
 	const [error, setError] = useState<string | null>(null);

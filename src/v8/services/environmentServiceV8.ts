@@ -113,7 +113,12 @@ class EnvironmentServiceV8 {
 			return mockResponse;
 		} catch (error) {
 			console.error(`${this.MODULE_TAG} ❌ Failed to fetch environments:`, error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to fetch environments', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to fetch environments',
+				dismissible: true,
+			});
 			throw error;
 		}
 	}
@@ -162,7 +167,12 @@ class EnvironmentServiceV8 {
 			apiCallTrackerService.addApiCall(apiCall);
 
 			console.error(`${this.MODULE_TAG} ❌ Failed to fetch environment ${id}:`, error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to fetch environment: ${id}`, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: `Failed to fetch environment: ${id}`,
+				dismissible: true,
+			});
 			throw error;
 		}
 	}
@@ -202,7 +212,11 @@ class EnvironmentServiceV8 {
 			console.log(
 				`${this.MODULE_TAG} ✅ Successfully created environment: ${mockEnvironment.name}`
 			);
-			modernMessaging.showFooterMessage({ type: 'info', message: `Environment "${mockEnvironment.name}" created successfully`, duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: `Environment "${mockEnvironment.name}" created successfully`,
+				duration: 3000,
+			});
 			return mockEnvironment;
 		} catch (error) {
 			apiCall.status = 'error';
@@ -212,7 +226,12 @@ class EnvironmentServiceV8 {
 			apiCallTrackerService.addApiCall(apiCall);
 
 			console.error(`${this.MODULE_TAG} ❌ Failed to create environment:`, error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to create environment', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to create environment',
+				dismissible: true,
+			});
 			throw error;
 		}
 	}
@@ -255,7 +274,11 @@ class EnvironmentServiceV8 {
 			console.log(
 				`${this.MODULE_TAG} ✅ Successfully updated environment: ${mockEnvironment.name}`
 			);
-			modernMessaging.showFooterMessage({ type: 'info', message: `Environment "${mockEnvironment.name}" updated successfully`, duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: `Environment "${mockEnvironment.name}" updated successfully`,
+				duration: 3000,
+			});
 			return mockEnvironment;
 		} catch (error) {
 			apiCall.status = 'error';
@@ -265,7 +288,12 @@ class EnvironmentServiceV8 {
 			apiCallTrackerService.addApiCall(apiCall);
 
 			console.error(`${this.MODULE_TAG} ❌ Failed to update environment ${id}:`, error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to update environment: ${id}`, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: `Failed to update environment: ${id}`,
+				dismissible: true,
+			});
 			throw error;
 		}
 	}
@@ -306,7 +334,11 @@ class EnvironmentServiceV8 {
 			apiCallTrackerService.addApiCall(apiCall);
 
 			console.log(`${this.MODULE_TAG} ✅ Successfully updated environment status to: ${status}`);
-			modernMessaging.showFooterMessage({ type: 'info', message: `Environment status updated to "${status}"`, duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: `Environment status updated to "${status}"`,
+				duration: 3000,
+			});
 			return mockEnvironment;
 		} catch (error) {
 			apiCall.status = 'error';
@@ -316,7 +348,12 @@ class EnvironmentServiceV8 {
 			apiCallTrackerService.addApiCall(apiCall);
 
 			console.error(`${this.MODULE_TAG} ❌ Failed to update environment status ${id}:`, error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to update environment status: ${status}`, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: `Failed to update environment status: ${status}`,
+				dismissible: true,
+			});
 			throw error;
 		}
 	}
@@ -353,7 +390,11 @@ class EnvironmentServiceV8 {
 			apiCallTrackerService.addApiCall(apiCall);
 
 			console.log(`${this.MODULE_TAG} ✅ Successfully deleted environment: ${id}`);
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Environment deleted successfully', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Environment deleted successfully',
+				duration: 3000,
+			});
 		} catch (error) {
 			apiCall.status = 'error';
 			apiCall.duration = Date.now() - startTime;
@@ -362,7 +403,12 @@ class EnvironmentServiceV8 {
 			apiCallTrackerService.addApiCall(apiCall);
 
 			console.error(`${this.MODULE_TAG} ❌ Failed to delete environment ${id}:`, error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to delete environment: ${id}`, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: `Failed to delete environment: ${id}`,
+				dismissible: true,
+			});
 			throw error;
 		}
 	}

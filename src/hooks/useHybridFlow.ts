@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { credentialManager } from '../utils/credentialManager';
-import { v4ToastManager } from '../utils/v4ToastMessages';
 import { logger } from '../utils/logger';
+import { v4ToastManager } from '../utils/v4ToastMessages';
 
 // logging handled via logger utility
 
@@ -238,7 +238,12 @@ export const useHybridFlow = (): HybridFlowState => {
 				v4ToastManager.showSuccess('Authorization code exchanged successfully!');
 			} catch (err: any) {
 				const errorMsg = err.message || 'Failed to exchange authorization code';
-				logger.error('useHybridFlow', 'Code exchange failed', undefined, err instanceof Error ? err : undefined);
+				logger.error(
+					'useHybridFlow',
+					'Code exchange failed',
+					undefined,
+					err instanceof Error ? err : undefined
+				);
 				setError(errorMsg);
 				v4ToastManager.showError(errorMsg);
 				throw err;

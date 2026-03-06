@@ -57,7 +57,12 @@ export const unifiedErrorHandlerV8 = {
 			// Import toast dynamically to avoid circular dependencies
 			import('@/v8/utils/toastNotificationsV8')
 				.then(({ toastV8 }) => {
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: `${context.component}: ${finalMessage}`, dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: `${context.component}: ${finalMessage}`,
+						dismissible: true,
+					});
 				})
 				.catch(() => {
 					// Fallback if toast import fails
@@ -123,7 +128,12 @@ export const unifiedErrorHandlerV8 = {
 		// Show validation feedback
 		import('@/v8/utils/toastNotificationsV8')
 			.then(({ toastV8 }) => {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Validation failed: ${errorMessage}`, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: `Validation failed: ${errorMessage}`,
+					dismissible: true,
+				});
 			})
 			.catch(() => {
 				console.error(`${MODULE_TAG} Failed to show validation toast`);

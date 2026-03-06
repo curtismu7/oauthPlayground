@@ -7,6 +7,7 @@
 import { FiAlertTriangle, FiCheckCircle, FiMail, FiPhone, FiRefreshCw, FiUser } from '@icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { readBestEnvironmentId } from '@/hooks/useAutoEnvironmentId';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import SimplePingOneApiDisplayV8 from '@/v8/components/SimplePingOneApiDisplayV8';
 import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
@@ -14,7 +15,6 @@ import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import deviceCreateDemoServiceV8 from '@/v8/services/deviceCreateDemoServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import workerTokenServiceV8 from '@/v8/services/workerTokenServiceV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const DEFAULT_SMS_BODY = JSON.stringify(
 	{
@@ -157,11 +157,20 @@ export const MFADeviceCreateDemoV8: React.FC = () => {
 		try {
 			const user = await MFAServiceV8.lookupUserByUsername(environmentId.trim(), username.trim());
 			setUserId(user.id);
-			modernMessaging.showFooterMessage({ type: 'info', message: `User found: ${user.username}`, duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: `User found: ${user.username}`,
+				duration: 3000,
+			});
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Failed to lookup user';
 			setLookupError(message);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: message, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: message,
+				dismissible: true,
+			});
 		} finally {
 			setIsLookingUpUser(false);
 		}
@@ -173,7 +182,12 @@ export const MFADeviceCreateDemoV8: React.FC = () => {
 			const token = resolveToken();
 			if (!environmentId.trim() || !userId.trim() || !token) {
 				setRequestError('Environment ID, User ID, and Worker Token are required.');
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Missing environment ID, user ID, or worker token.', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'Missing environment ID, user ID, or worker token.',
+					dismissible: true,
+				});
 				return;
 			}
 
@@ -197,7 +211,12 @@ export const MFADeviceCreateDemoV8: React.FC = () => {
 			} catch (error) {
 				const message = error instanceof Error ? error.message : 'Invalid JSON payload.';
 				setRequestError(message);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: message, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: message,
+					dismissible: true,
+				});
 				return;
 			}
 
@@ -212,11 +231,20 @@ export const MFADeviceCreateDemoV8: React.FC = () => {
 				});
 				setLastResponse(response);
 				setLastResponseType(type);
-				modernMessaging.showFooterMessage({ type: 'info', message: `${type} device created successfully.`, duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: `${type} device created successfully.`,
+					duration: 3000,
+				});
 			} catch (error) {
 				const message = error instanceof Error ? error.message : 'Create Device failed.';
 				setRequestError(message);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: message, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: message,
+					dismissible: true,
+				});
 			} finally {
 				setLoading(false);
 			}

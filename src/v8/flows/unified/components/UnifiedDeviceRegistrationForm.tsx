@@ -12,6 +12,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import FIDO2RegistrationModal from '@/components/FIDO2RegistrationModal';
 import { StandardizedCredentialExportImport } from '@/components/StandardizedCredentialExportImport';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { Button } from '@/v8/components/Button';
 import { PageTransition } from '@/v8/components/PageTransition';
 import type { SearchableDropdownOption } from '@/v8/components/SearchableDropdownV8';
@@ -22,7 +23,6 @@ import { useUserSearch } from '@/v8/hooks/useUserSearch';
 import { useWorkerToken } from '@/v8/hooks/useWorkerToken';
 import type { TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 import { colors, spacing } from '@/v8/styles/designTokens';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { APIComparisonModal } from './APIComparisonModal';
 import { DynamicFormRenderer } from './DynamicFormRenderer';
 import '../UnifiedMFAFlow.css';
@@ -205,7 +205,12 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 
 		// Check worker token status
 		if (!tokenStatus.isValid) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Worker token is invalid or expired. Please refresh the worker token.', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Worker token is invalid or expired. Please refresh the worker token.',
+				dismissible: true,
+			});
 			console.log('🔍 [FORM DEBUG] Token invalid, blocking submission');
 			return;
 		}
@@ -240,7 +245,11 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 	const handleFido2Success = useCallback(
 		(credentialId: string, publicKey: string) => {
 			console.log(`${MODULE_TAG} FIDO2 registration successful`, { credentialId });
-			modernMessaging.showFooterMessage({ type: 'info', message: 'FIDO2 device registered successfully!', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'FIDO2 device registered successfully!',
+				duration: 3000,
+			});
 			setShowFido2Modal(false);
 
 			// Update device fields with FIDO2 data
@@ -834,21 +843,34 @@ export const UnifiedDeviceRegistrationForm: React.FC<UnifiedDeviceRegistrationFo
 						}}
 						onExport={() => {
 							console.log(`${MODULE_TAG} MFA credentials exported`);
-							modernMessaging.showFooterMessage({ type: 'info', message: 'MFA credentials exported successfully', duration: 3000 });
+							modernMessaging.showFooterMessage({
+								type: 'info',
+								message: 'MFA credentials exported successfully',
+								duration: 3000,
+							});
 						}}
 						onImport={(imported) => {
 							console.log(`${MODULE_TAG} MFA credentials imported`, {
 								importedApp: imported.appName,
 								importedType: imported.appType,
 							});
-							modernMessaging.showFooterMessage({ type: 'info', message: 'MFA credentials imported successfully', duration: 3000 });
+							modernMessaging.showFooterMessage({
+								type: 'info',
+								message: 'MFA credentials imported successfully',
+								duration: 3000,
+							});
 							// Note: Form will need to be refreshed to show imported credentials
 						}}
 						onError={(error) => {
 							console.error(`${MODULE_TAG} Credential export/import failed`, {
 								error: error.message,
 							});
-							modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to export/import credentials: ${error.message}`, dismissible: true });
+							modernMessaging.showBanner({
+								type: 'error',
+								title: 'Error',
+								message: `Failed to export/import credentials: ${error.message}`,
+								dismissible: true,
+							});
 						}}
 					/>
 				</div>

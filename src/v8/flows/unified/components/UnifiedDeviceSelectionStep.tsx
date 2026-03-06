@@ -23,10 +23,10 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import type { DeviceFlowConfig } from '@/v8/config/deviceFlowConfigTypes';
 import type { MFAFlowController } from '@/v8/flows/controllers/MFAFlowController';
 import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { unifiedErrorHandlerV8 } from '@/v8/utils/unifiedErrorHandlerV8';
 
 const MODULE_TAG = '[🔍 UNIFIED-DEVICE-SELECTION-STEP]';
@@ -113,7 +113,11 @@ export const UnifiedDeviceSelectionStep: React.FC<UnifiedDeviceSelectionStepProp
 
 			// If no devices, show info toast
 			if (devices.length === 0) {
-				modernMessaging.showFooterMessage({ type: 'info', message: `No existing ${config.displayName} devices found. Register a new device to continue.`, duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: `No existing ${config.displayName} devices found. Register a new device to continue.`,
+					duration: 3000,
+				});
 			}
 		} catch (error: unknown) {
 			// Use standardized error handling
@@ -130,7 +134,12 @@ export const UnifiedDeviceSelectionStep: React.FC<UnifiedDeviceSelectionStepProp
 			setLoadError(errorMessage);
 
 			// Show error toast
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: errorMessage,
+				dismissible: true,
+			});
 		} finally {
 			setIsLoading(false);
 		}
@@ -162,13 +171,23 @@ export const UnifiedDeviceSelectionStep: React.FC<UnifiedDeviceSelectionStepProp
 	 */
 	const handleUseSelectedDevice = useCallback(() => {
 		if (!selectedDeviceId) {
-			modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Please select a device first', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'warning',
+				title: 'Warning',
+				message: 'Please select a device first',
+				dismissible: true,
+			});
 			return;
 		}
 
 		const device = existingDevices.find((d) => d.id === selectedDeviceId);
 		if (!device) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Selected device not found', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Selected device not found',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -183,7 +202,11 @@ export const UnifiedDeviceSelectionStep: React.FC<UnifiedDeviceSelectionStepProp
 		}));
 
 		// Show success toast
-		modernMessaging.showFooterMessage({ type: 'info', message: `Using existing ${config.displayName} device`, duration: 3000 });
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message: `Using existing ${config.displayName} device`,
+			duration: 3000,
+		});
 
 		// Mark step as complete
 		nav.markStepComplete();

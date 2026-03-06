@@ -3,7 +3,7 @@
 // and automatically normalizes its re-exports so they match the actual
 // exports of their source modules.
 
-/* eslint-disable no-console */
+ 
 const fs = require('node:fs');
 const path = require('node:path');
 const ts = require('typescript');

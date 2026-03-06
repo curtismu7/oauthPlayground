@@ -14,6 +14,7 @@
 
 import { FiAlertCircle, FiArrowRight, FiCheck } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { Button } from '@/v8/components/Button';
 import { FormInput } from '@/v8/components/FormInput';
 import { LoadingSpinner } from '@/v8/components/LoadingSpinner';
@@ -24,7 +25,6 @@ import { borderRadius, colors, spacing, typography } from '@/v8/design/tokens';
 import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
 import { useFormValidation } from '@/v8/hooks/useFormValidation';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const MODULE_TAG = '[⚙️ UNIFIED-CONFIG-MODERN]';
 
@@ -108,13 +108,23 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 
 		// Validate form
 		if (!validateAll()) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please fix the validation errors', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please fix the validation errors',
+				dismissible: true,
+			});
 			return;
 		}
 
 		// Check global configuration
 		if (!isConfigured) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please configure Environment ID and Worker Token first', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please configure Environment ID and Worker Token first',
+				dismissible: true,
+			});
 			nav.setValidationErrors(['Global configuration incomplete']);
 			return;
 		}
@@ -208,12 +218,20 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 				 */
 				if (result.status === 'ACTIVE' && selectedFlowType === 'admin-active') {
 					console.log(`${MODULE_TAG} Admin Active flow: Skipping activation, going to success`);
-					modernMessaging.showFooterMessage({ type: 'info', message: `${config.displayName} device registered successfully! Device is ready to use.`, duration: 3000 });
+					modernMessaging.showFooterMessage({
+						type: 'info',
+						message: `${config.displayName} device registered successfully! Device is ready to use.`,
+						duration: 3000,
+					});
 					nav.goToStep(2); // Skip activation, go to success
 				} else {
 					// ACTIVATION_REQUIRED or User Flow - MUST go through activation
 					console.log(`${MODULE_TAG} Activation required: Going to activation step`);
-					modernMessaging.showFooterMessage({ type: 'info', message: `${config.displayName} device registered! ${result.status === 'ACTIVATION_REQUIRED' ? 'OTP has been sent automatically.' : 'Please complete activation.'}`, duration: 3000 });
+					modernMessaging.showFooterMessage({
+						type: 'info',
+						message: `${config.displayName} device registered! ${result.status === 'ACTIVATION_REQUIRED' ? 'OTP has been sent automatically.' : 'Please complete activation.'}`,
+						duration: 3000,
+					});
 					nav.goToNext(); // Go to activation step
 				}
 			} else {
@@ -226,12 +244,21 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 				// Navigate to next step (device selection/registration form)
 				nav.goToNext();
 
-				modernMessaging.showFooterMessage({ type: 'info', message: 'Configuration saved', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: 'Configuration saved',
+					duration: 3000,
+				});
 			}
 		} catch (error) {
 			console.error(`${MODULE_TAG} Error:`, error);
 			const errorMessage = error instanceof Error ? error.message : 'Failed to process request';
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: errorMessage,
+				dismissible: true,
+			});
 			nav.setValidationErrors([errorMessage]);
 		} finally {
 			setIsSubmitting(false);
@@ -288,7 +315,11 @@ export const UnifiedConfigurationStepModern: React.FC<UnifiedConfigurationStepPr
 							size="lg"
 							onClick={() => {
 								// Navigate to settings or show configuration modal
-								modernMessaging.showFooterMessage({ type: 'info', message: 'Please configure global settings in the admin panel', duration: 3000 });
+								modernMessaging.showFooterMessage({
+									type: 'info',
+									message: 'Please configure global settings in the admin panel',
+									duration: 3000,
+								});
 							}}
 						>
 							Configure Settings

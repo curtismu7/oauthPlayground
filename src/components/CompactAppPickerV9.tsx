@@ -135,7 +135,7 @@ export const CompactAppPickerV9: React.FC<CompactAppPickerV9Props> = ({
 				(app) =>
 					app.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
 					app.clientId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-					(app.description && app.description.toLowerCase().includes(searchQuery.toLowerCase()))
+					app.description?.toLowerCase().includes(searchQuery.toLowerCase())
 			);
 		}
 

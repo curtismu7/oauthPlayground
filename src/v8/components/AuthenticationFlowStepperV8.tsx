@@ -14,6 +14,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { MFADeviceLimitModalV8 } from '@/v8/components/MFADeviceLimitModalV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { MFASettingsModalV8 } from '@/v8/components/MFASettingsModalV8';
@@ -32,7 +33,6 @@ import type {
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const MODULE_TAG = '[🔐 AUTHENTICATION-STEPPER-V8]';
 const FLOW_KEY = 'mfa-authentication-flow-v8';
@@ -217,7 +217,11 @@ export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Pr
 
 			// Handle OAuth callback processing
 			if (credentials.userToken?.trim()) {
-				modernMessaging.showFooterMessage({ type: 'info', message: '🔄 Returning to Device Selection after authentication...', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: '🔄 Returning to Device Selection after authentication...',
+					duration: 3000,
+				});
 				setTimeout(() => {
 					nav.goToStep(2); // Go to Step 2 (Device Selection) for Authentication
 				}, 500);

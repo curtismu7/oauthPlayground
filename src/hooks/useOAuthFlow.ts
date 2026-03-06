@@ -147,7 +147,12 @@ const useOAuthFlow = (flowType = 'authorization_code'): OAuthFlowReturn => {
 		} catch (error) {
 			const errorMessage =
 				error instanceof Error ? error.message : 'Failed to initialize OAuth flow';
-			logger.error('useOAuthFlow', 'Error initializing OAuth flow', undefined, error instanceof Error ? error : undefined);
+			logger.error(
+				'useOAuthFlow',
+				'Error initializing OAuth flow',
+				undefined,
+				error instanceof Error ? error : undefined
+			);
 			setState((prev) => ({
 				...prev,
 				error: errorMessage,
@@ -312,7 +317,12 @@ const useOAuthFlow = (flowType = 'authorization_code'): OAuthFlowReturn => {
 					return;
 				}
 			} catch (error) {
-				logger.error('useOAuthFlow', 'Error handling OAuth callback', undefined, error instanceof Error ? error : undefined);
+				logger.error(
+					'useOAuthFlow',
+					'Error handling OAuth callback',
+					undefined,
+					error instanceof Error ? error : undefined
+				);
 				const errorMessage =
 					error instanceof Error ? error.message : 'Failed to handle OAuth callback';
 				setState((prev) => ({

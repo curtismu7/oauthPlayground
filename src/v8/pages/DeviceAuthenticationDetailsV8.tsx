@@ -15,12 +15,12 @@ import {
 } from '@icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import workerTokenServiceV8 from '@/v8/services/workerTokenServiceV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 interface DeviceAuthenticationRecord {
 	success?: boolean;
@@ -187,13 +187,22 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 
 				setResult(response);
 				if (!options?.suppressToast) {
-					modernMessaging.showFooterMessage({ type: 'info', message: 'Device authentication record retrieved successfully.', duration: 3000 });
+					modernMessaging.showFooterMessage({
+						type: 'info',
+						message: 'Device authentication record retrieved successfully.',
+						duration: 3000,
+					});
 				}
 			} catch (err) {
 				const message = err instanceof Error ? err.message : 'Unknown error';
 				console.error(`${MODULE_TAG} Failed to read device authentication`, err);
 				setError(message);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to fetch device authentication: ${message}`, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: `Failed to fetch device authentication: ${message}`,
+					dismissible: true,
+				});
 			} finally {
 				setIsLoading(false);
 			}

@@ -103,7 +103,12 @@ export const useUserInfoFlowController = (): UseUserInfoFlowControllerReturn => 
 		} catch (err) {
 			const errorMessage = err instanceof Error ? err.message : 'UserInfo request failed';
 			setError(errorMessage);
-			logger.error('useUserInfoFlowController', 'UserInfo request failed', undefined, err instanceof Error ? err : undefined);
+			logger.error(
+				'useUserInfoFlowController',
+				'UserInfo request failed',
+				undefined,
+				err instanceof Error ? err : undefined
+			);
 			throw err;
 		} finally {
 			setIsRequesting(false);

@@ -9,7 +9,7 @@
 import React from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 
-type DashboardPageProps = {};
+type DashboardPageProps = Record<string, never>;
 
 export const DashboardPage: React.FC<DashboardPageProps> = () => {
 	const { currentTheme } = useTheme();

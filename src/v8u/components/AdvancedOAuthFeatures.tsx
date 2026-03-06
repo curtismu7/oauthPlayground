@@ -428,15 +428,29 @@ export const AdvancedOAuthFeatures: React.FC<AdvancedOAuthFeaturesProps> = ({
 				onFeatureToggle?.(pendingFeature.id, !feature.enabled);
 
 				// Show success message
-				modernMessaging.showFooterMessage({ type: 'info', message: pendingFeature.isEnabling
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: pendingFeature.isEnabling
 						? `${pendingFeature.name} enabled successfully!`
-						: `${pendingFeature.name} disabled successfully!`, duration: 3000 });
+						: `${pendingFeature.name} disabled successfully!`,
+					duration: 3000,
+				});
 			} else {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to update ${pendingFeature.name}: ${result.error}`, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: `Failed to update ${pendingFeature.name}: ${result.error}`,
+					dismissible: true,
+				});
 			}
 		} catch (error) {
 			logger.error('Failed to toggle feature:', error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to update ${pendingFeature.name}`, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: `Failed to update ${pendingFeature.name}`,
+				dismissible: true,
+			});
 		} finally {
 			setIsUpdating(false);
 			setShowModal(false);

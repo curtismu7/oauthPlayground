@@ -10,13 +10,13 @@ import { credentialManager } from '../utils/credentialManager';
 import { enhancedDebugger } from '../utils/enhancedDebug';
 import { getDefaultConfig } from '../utils/flowConfigDefaults';
 import { useFlowStepManager } from '../utils/flowStepSystem';
+import { logger } from '../utils/logger';
 import { safeJsonParse } from '../utils/secureJson';
 import { storeOAuthTokens } from '../utils/tokenStorage';
 import type { TokenIntrospectionResponse, WorkerTokenResponse } from '../utils/workerToken';
 import { requestClientCredentialsToken } from '../utils/workerToken';
 import { showGlobalError, showGlobalSuccess } from './useNotifications';
 import { useAuthorizationFlowScroll } from './usePageScroll';
-import { logger } from '../utils/logger';
 
 export interface WorkerTokenFlowControllerOptions {
 	flowKey?: string;
@@ -92,7 +92,9 @@ const loadInitialCredentials = (): StepCredentials => {
 			return { ...createEmptyCredentials(), ...stored };
 		}
 	} catch (error) {
-		logger.warn('useWorkerTokenFlowController', 'Failed to load stored credentials', { detail: String(error) });
+		logger.warn('useWorkerTokenFlowController', 'Failed to load stored credentials', {
+			detail: String(error),
+		});
 	}
 	return createEmptyCredentials();
 };
@@ -106,7 +108,9 @@ const loadStoredConfig = (storageKey: string, defaultConfig: FlowConfig): FlowCo
 			return { ...defaultConfig, ...parsed };
 		}
 	} catch (error) {
-		logger.warn('useWorkerTokenFlowController', 'Failed to parse stored config', { detail: String(error) });
+		logger.warn('useWorkerTokenFlowController', 'Failed to parse stored config', {
+			detail: String(error),
+		});
 	}
 	return defaultConfig;
 };
@@ -252,7 +256,12 @@ export const useWorkerTokenFlowController = (
 					console.log('ℹ️ [useWorkerTokenFlowController] No saved credentials found');
 				}
 			} catch (error) {
-				logger.error('useWorkerTokenFlowController', 'Failed to load credentials', undefined, error as Error);
+				logger.error(
+					'useWorkerTokenFlowController',
+					'Failed to load credentials',
+					undefined,
+					error as Error
+				);
 			}
 		};
 
@@ -339,7 +348,12 @@ export const useWorkerTokenFlowController = (
 
 			console.log('✅ [useWorkerTokenFlowController] Token request completed successfully');
 		} catch (error) {
-			logger.error('useWorkerTokenFlowController', 'Token request failed', undefined, error as Error);
+			logger.error(
+				'useWorkerTokenFlowController',
+				'Token request failed',
+				undefined,
+				error as Error
+			);
 			enhancedDebugger.logError('worker-token-request', error);
 
 			const errorMessage =
@@ -401,7 +415,12 @@ export const useWorkerTokenFlowController = (
 
 			console.log('✅ [useWorkerTokenFlowController] Token introspection completed successfully');
 		} catch (error) {
-			logger.error('useWorkerTokenFlowController', 'Token introspection failed', undefined, error as Error);
+			logger.error(
+				'useWorkerTokenFlowController',
+				'Token introspection failed',
+				undefined,
+				error as Error
+			);
 			enhancedDebugger.logError('token-introspection', error);
 
 			const errorMessage = error instanceof Error ? error.message : 'Failed to introspect token';
@@ -467,7 +486,11 @@ export const useWorkerTokenFlowController = (
 						'✅ [useWorkerTokenFlowController] Also saved to worker_credentials localStorage'
 					);
 				} catch (error) {
-					logger.warn('useWorkerTokenFlowController', 'Failed to save to worker_credentials localStorage', { detail: String(error) });
+					logger.warn(
+						'useWorkerTokenFlowController',
+						'Failed to save to worker_credentials localStorage',
+						{ detail: String(error) }
+					);
 				}
 
 				setHasCredentialsSaved(true);
@@ -485,7 +508,12 @@ export const useWorkerTokenFlowController = (
 				throw new Error('Failed to save credentials via FlowCredentialService');
 			}
 		} catch (error) {
-			logger.error('useWorkerTokenFlowController', 'Failed to save credentials', undefined, error as Error);
+			logger.error(
+				'useWorkerTokenFlowController',
+				'Failed to save credentials',
+				undefined,
+				error as Error
+			);
 			showGlobalError(
 				`Failed to save credentials: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);

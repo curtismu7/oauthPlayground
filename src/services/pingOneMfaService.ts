@@ -1,8 +1,8 @@
 // src/services/pingOneMfaService.ts
 // Real PingOne MFA API Service Implementation with QR Code Integration
 
-import QRCodeService, { type QRCodeResult, type TOTPConfig } from './qrCodeService';
 import { logger } from '../utils/logger';
+import QRCodeService, { type QRCodeResult, type TOTPConfig } from './qrCodeService';
 
 export interface MfaDevice {
 	id: string;
@@ -118,7 +118,12 @@ export class PingOneMfaService {
 				nickname: device.nickname || device.deviceName || `${device.type} Device`,
 			}));
 		} catch (error) {
-			logger.error('PingOneMfaService', 'Failed to get registered devices', undefined, error as Error);
+			logger.error(
+				'PingOneMfaService',
+				'Failed to get registered devices',
+				undefined,
+				error as Error
+			);
 			throw new Error(
 				`Failed to retrieve MFA devices: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);
@@ -206,7 +211,12 @@ export class PingOneMfaService {
 					});
 					device.nickname = config.nickname;
 				} catch (updateError) {
-					logger.warn('PingOneMfaService', 'Failed to update device nickname', undefined, updateError as Error);
+					logger.warn(
+						'PingOneMfaService',
+						'Failed to update device nickname',
+						undefined,
+						updateError as Error
+					);
 				}
 			}
 
@@ -716,7 +726,12 @@ export class PingOneMfaService {
 
 			return qrResult;
 		} catch (error) {
-			logger.error('PingOneMfaService', 'Failed to generate device QR code', undefined, error as Error);
+			logger.error(
+				'PingOneMfaService',
+				'Failed to generate device QR code',
+				undefined,
+				error as Error
+			);
 			throw new Error(
 				`QR code generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);
@@ -797,7 +812,12 @@ export class PingOneMfaService {
 						];
 					}
 				} catch (qrError) {
-					logger.warn('PingOneMfaService', 'QR code generation failed, providing manual setup only', undefined, qrError as Error);
+					logger.warn(
+						'PingOneMfaService',
+						'QR code generation failed, providing manual setup only',
+						undefined,
+						qrError as Error
+					);
 
 					// Fallback to manual entry only
 					if (device.secret || device.pairingKey) {
@@ -865,7 +885,12 @@ export class PingOneMfaService {
 
 			return setupData;
 		} catch (error) {
-			logger.error('PingOneMfaService', 'Failed to get device setup data', undefined, error as Error);
+			logger.error(
+				'PingOneMfaService',
+				'Failed to get device setup data',
+				undefined,
+				error as Error
+			);
 			throw new Error(
 				`Setup data generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);
@@ -895,7 +920,12 @@ export class PingOneMfaService {
 					});
 					device.deviceName = options.deviceName;
 				} catch (updateError) {
-					logger.warn('PingOneMfaService', 'Failed to update device name', undefined, updateError as Error);
+					logger.warn(
+						'PingOneMfaService',
+						'Failed to update device name',
+						undefined,
+						updateError as Error
+					);
 				}
 			}
 
@@ -911,7 +941,12 @@ export class PingOneMfaService {
 
 			return setupData;
 		} catch (error) {
-			logger.error('PingOneMfaService', 'Failed to create TOTP device with QR code', undefined, error as Error);
+			logger.error(
+				'PingOneMfaService',
+				'Failed to create TOTP device with QR code',
+				undefined,
+				error as Error
+			);
 			throw new Error(
 				`TOTP device creation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);

@@ -13,8 +13,8 @@
  * - Error recovery suggestions
  */
 
-import type { FlowType } from '@/v8/services/specVersionServiceV8';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import type { FlowType } from '@/v8/services/specVersionServiceV8';
 import { UnifiedFlowLoggerService } from './unifiedFlowLoggerServiceV8U';
 
 export type ErrorCategory =
@@ -354,10 +354,20 @@ export class UnifiedFlowErrorHandler {
 		if (showToast && UnifiedFlowErrorHandler.shouldShowError(errorKey)) {
 			if (recoveryAction) {
 				// Show toast with recovery action button
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: parsedError.userFriendlyMessage, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: parsedError.userFriendlyMessage,
+					dismissible: true,
+				});
 				// Note: Toast action buttons would need to be added to toastV8 service
 			} else {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: parsedError.userFriendlyMessage, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: parsedError.userFriendlyMessage,
+					dismissible: true,
+				});
 			}
 		}
 
@@ -402,7 +412,12 @@ export class UnifiedFlowErrorHandler {
 
 		// Show toast notification
 		if (showToast) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: parsedError.userFriendlyMessage, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: parsedError.userFriendlyMessage,
+				dismissible: true,
+			});
 		}
 
 		// Set validation errors if callback provided
@@ -429,7 +444,12 @@ export class UnifiedFlowErrorHandler {
 		UnifiedFlowLoggerService.warn(`Validation Error: ${message}`, context);
 
 		if (showToast) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: message, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: message,
+				dismissible: true,
+			});
 		}
 
 		if (setValidationErrors) {
@@ -524,7 +544,12 @@ export class UnifiedFlowErrorHandler {
 
 			if (showToast) {
 				const parsedError = UnifiedFlowErrorHandler.parsePingOneError(error);
-				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: parsedError.userFriendlyMessage, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'warning',
+					title: 'Warning',
+					message: parsedError.userFriendlyMessage,
+					dismissible: true,
+				});
 			}
 
 			return defaultValue;

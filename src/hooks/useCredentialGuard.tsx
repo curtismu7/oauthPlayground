@@ -43,9 +43,13 @@ export const useCredentialGuard = (
 			if (!canProceed) {
 				setMissingCredentialFields(missingFields);
 				setShowMissingCredentialsModal(true);
-				logger.warn('useCredentialGuardx', `🚫 [${flowName}] Blocked navigation due to missing required credentials`, {
-					missingFields,
-				});
+				logger.warn(
+					'useCredentialGuardx',
+					`🚫 [${flowName}] Blocked navigation due to missing required credentials`,
+					{
+						missingFields,
+					}
+				);
 				return;
 			}
 

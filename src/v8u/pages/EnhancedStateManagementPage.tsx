@@ -556,7 +556,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 							try {
 								const service = TokenMonitoringService.getInstance();
 								const tokens = service.getAllTokens();
-								return tokens.filter((t: any) => t.type === 'worker_token').length;
+								return tokens.filter((t: { type: string }) => t.type === 'worker_token').length;
 							} catch {
 								return 0;
 							}
@@ -574,7 +574,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 							try {
 								const service = TokenMonitoringService.getInstance();
 								const tokens = service.getAllTokens();
-								return tokens.filter((t: any) => t.type === 'access_token').length;
+								return tokens.filter((t: { type: string }) => t.type === 'access_token').length;
 							} catch {
 								return 0;
 							}
@@ -592,7 +592,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 							try {
 								const service = TokenMonitoringService.getInstance();
 								const tokens = service.getAllTokens();
-								return tokens.filter((t: any) => t.type === 'refresh_token').length;
+								return tokens.filter((t: { type: string }) => t.type === 'refresh_token').length;
 							} catch {
 								return 0;
 							}
@@ -610,7 +610,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 							try {
 								const service = TokenMonitoringService.getInstance();
 								const tokens = service.getAllTokens();
-								return tokens.filter((t: any) => t.type === 'id_token').length;
+								return tokens.filter((t: { type: string }) => t.type === 'id_token').length;
 							} catch {
 								return 0;
 							}

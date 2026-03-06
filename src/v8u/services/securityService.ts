@@ -33,7 +33,7 @@ export interface SecurityMetrics {
 
 export class SecurityService {
 	private static instance: SecurityService;
-	private auditLogs: any[] = [];
+	private auditLogs: unknown[] = [];
 	private lastScan: SecurityScan | null = null;
 	private metrics: SecurityMetrics;
 
@@ -326,7 +326,7 @@ export class SecurityService {
 		return { ...this.metrics, lastScan: this.lastScan };
 	}
 
-	getAuditLogs(limit: number = 50): any[] {
+	getAuditLogs(limit: number = 50): unknown[] {
 		return this.auditLogs.slice(-limit);
 	}
 

@@ -6,11 +6,15 @@
  */
 
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ─── Mock CompactAppPickerV8U ─────────────────────────────────────────────────
 vi.mock('../../../v8u/components/CompactAppPickerV8U', () => ({
-	CompactAppPickerV8U: ({ onAppSelected }: { onAppSelected: (app: { id: string; name: string }) => void }) => (
+	CompactAppPickerV8U: ({
+		onAppSelected,
+	}: {
+		onAppSelected: (app: { id: string; name: string }) => void;
+	}) => (
 		<button
 			type="button"
 			data-testid="mock-app-picker"
@@ -43,7 +47,13 @@ vi.mock('../../../services/v7m/V7MStateStore', () => ({
 		redeemAuthorizationCode: vi.fn().mockReturnValue(null),
 		storeToken: vi.fn(),
 		getToken: vi.fn().mockReturnValue(null),
-		storeDeviceCode: vi.fn().mockReturnValue({ device_code: 'dev-code', user_code: 'USER-CODE', verification_uri: '/activate', expires_in: 300, interval: 5 }),
+		storeDeviceCode: vi.fn().mockReturnValue({
+			device_code: 'dev-code',
+			user_code: 'USER-CODE',
+			verification_uri: '/activate',
+			expires_in: 300,
+			interval: 5,
+		}),
 		getDeviceCode: vi.fn().mockReturnValue(null),
 		approveDeviceCode: vi.fn().mockReturnValue(null),
 		cleanupExpired: vi.fn(),
@@ -51,10 +61,21 @@ vi.mock('../../../services/v7m/V7MStateStore', () => ({
 }));
 
 vi.mock('../../../services/v7m/V7MTokenService', () => ({
-	tokenExchangeClientCredentials: vi.fn().mockReturnValue({ access_token: 'mock-at', token_type: 'Bearer', expires_in: 3600, scope: 'read write' }),
-	tokenExchangeAuthorizationCode: vi.fn().mockReturnValue({ access_token: 'mock-at', token_type: 'Bearer', expires_in: 900 }),
-	tokenExchangePassword: vi.fn().mockReturnValue({ access_token: 'mock-at', token_type: 'Bearer', expires_in: 3600 }),
-	tokenExchangeDeviceCode: vi.fn().mockReturnValue({ access_token: 'mock-at', token_type: 'Bearer', expires_in: 3600 }),
+	tokenExchangeClientCredentials: vi.fn().mockReturnValue({
+		access_token: 'mock-at',
+		token_type: 'Bearer',
+		expires_in: 3600,
+		scope: 'read write',
+	}),
+	tokenExchangeAuthorizationCode: vi
+		.fn()
+		.mockReturnValue({ access_token: 'mock-at', token_type: 'Bearer', expires_in: 900 }),
+	tokenExchangePassword: vi
+		.fn()
+		.mockReturnValue({ access_token: 'mock-at', token_type: 'Bearer', expires_in: 3600 }),
+	tokenExchangeDeviceCode: vi
+		.fn()
+		.mockReturnValue({ access_token: 'mock-at', token_type: 'Bearer', expires_in: 3600 }),
 }));
 
 vi.mock('../../../services/v7m/V7MAuthorizeService', () => ({
@@ -62,17 +83,23 @@ vi.mock('../../../services/v7m/V7MAuthorizeService', () => ({
 }));
 
 vi.mock('../../../services/v7m/V7MUserInfoService', () => ({
-	getUserInfoFromAccessToken: vi.fn().mockReturnValue({ sub: 'user-123', email: 'test@example.com' }),
+	getUserInfoFromAccessToken: vi
+		.fn()
+		.mockReturnValue({ sub: 'user-123', email: 'test@example.com' }),
 }));
 
 vi.mock('../../../services/v7m/V7MIntrospectionService', () => ({
-	introspectToken: vi.fn().mockReturnValue({ active: true, client_id: 'v7m-client', scope: 'read write' }),
+	introspectToken: vi
+		.fn()
+		.mockReturnValue({ active: true, client_id: 'v7m-client', scope: 'read write' }),
 }));
 
 vi.mock('../../../services/v7m/core/V7MPKCEGenerationService', () => ({
 	V7MPKCEGenerationService: {
 		generateCodeVerifier: vi.fn().mockReturnValue('mock-verifier'),
-		generateCodeChallenge: vi.fn().mockResolvedValue({ codeChallenge: 'mock-challenge', codeChallengeMethod: 'S256' }),
+		generateCodeChallenge: vi
+			.fn()
+			.mockResolvedValue({ codeChallenge: 'mock-challenge', codeChallengeMethod: 'S256' }),
 	},
 }));
 
@@ -89,10 +116,10 @@ vi.mock('../../../components/ColoredUrlDisplay', () => ({
 
 // ─── Import pages after mocks ─────────────────────────────────────────────────
 import { V7MClientCredentials } from '../V7MClientCredentials';
-import { V7MROPC } from '../V7MROPC';
-import { V7MOAuthAuthCode } from '../V7MOAuthAuthCode';
 import { V7MDeviceAuthorization } from '../V7MDeviceAuthorization';
 import { V7MImplicitFlow } from '../V7MImplicitFlow';
+import { V7MOAuthAuthCode } from '../V7MOAuthAuthCode';
+import { V7MROPC } from '../V7MROPC';
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
@@ -131,7 +158,9 @@ describe('V7M Page Components — V9 Wiring', () => {
 			render(<V7MClientCredentials />);
 			fireEvent.click(screen.getByTestId('mock-app-picker'));
 			await waitFor(() => {
-				expect(mockSave).toHaveBeenCalledWith('v7m-client-credentials', { clientId: 'test-client-id' });
+				expect(mockSave).toHaveBeenCalledWith('v7m-client-credentials', {
+					clientId: 'test-client-id',
+				});
 			});
 			expect(screen.getAllByDisplayValue('test-client-id')[0]).toBeInTheDocument();
 		});
@@ -228,7 +257,9 @@ describe('V7M Page Components — V9 Wiring', () => {
 			render(<V7MDeviceAuthorization />);
 			fireEvent.click(screen.getByTestId('mock-app-picker'));
 			await waitFor(() => {
-				expect(mockSave).toHaveBeenCalledWith('v7m-device-authorization', { clientId: 'test-client-id' });
+				expect(mockSave).toHaveBeenCalledWith('v7m-device-authorization', {
+					clientId: 'test-client-id',
+				});
 			});
 		});
 	});
