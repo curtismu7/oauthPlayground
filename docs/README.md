@@ -2,7 +2,29 @@
 
 This directory contains comprehensive documentation for the OAuth Playground application, organized by category for easy navigation and maintenance.
 
-## 📁 Folder Structure
+## � **Core Documentation** (NEW v9.15.2)
+
+### 🚀 **[API Documentation](./API_DOCUMENTATION.md)**
+Comprehensive API reference and interactive testing guide
+- **Authentication Endpoints**: Authorization, token exchange, introspection
+- **User Information**: UserInfo endpoint and JWKS discovery
+- **Validation Services**: Complete validation API reference
+- **Performance Monitoring**: Core Web Vitals tracking and bundle analysis
+- **Security Considerations**: Token storage, CSRF protection, PKCE implementation
+
+### 🛠️ **[Developer Guide](./DEVELOPER_GUIDE.md)**
+Complete developer onboarding and contribution guide
+- **Architecture Overview**: V8 architecture and project structure
+- **Development Workflow**: Feature development, testing, and deployment
+- **Code Standards**: TypeScript guidelines, component patterns, service patterns
+- **Performance Optimization**: Lazy loading, memoization, bundle optimization
+- **Security Best Practices**: Token security, input validation, CSRF protection
+- **Testing Strategy**: Unit tests, integration tests, performance testing
+- **Continuous Integration**: Pre-commit hooks, GitHub Actions, release process
+
+---
+
+## �📁 Folder Structure
 
 ### 🌊 **`flows/`** - Flow Documentation
 All OAuth/OIDC flow implementations, versions, and configurations
@@ -29,7 +51,7 @@ Version migration and upgrade documentation
 - **Legacy Upgrades**: Historical upgrade paths
 - **Breaking Changes**: Documentation of breaking changes
 
-### � **`user-guides/`** - User Documentation
+### 👥 **`user-guides/`** - User Documentation
 End-user guides and tutorials
 - **Quick Start**: Getting started guides
 - **How-To Guides**: Step-by-step tutorials
