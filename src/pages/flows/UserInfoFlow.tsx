@@ -14,32 +14,13 @@ import { usePageScroll } from '../../hooks/usePageScroll';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import type { UserInfo as OIDCUserInfo } from '../../types/oauth';
+import { logger } from '../../utils/logger';
 import { isTokenExpired } from '../../utils/oauth';
 
 const Container = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   padding: 1.5rem;
-`;
-
-const _Header = styled.div`
-  margin-bottom: 2rem;
-
-  h1 {
-    font-size: 2.5rem;
-    font-weight: 600;
-    color: ${({ theme }) => theme.colors.gray900};
-    margin-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  p {
-    color: ${({ theme }) => theme.colors.gray600};
-    font-size: 1.1rem;
-    line-height: 1.6;
-  }
 `;
 
 const FlowOverview = styled.div`
@@ -104,84 +85,6 @@ const DemoSection = styled.div`
   margin-bottom: 2rem;
 `;
 
-const _DemoControls = styled.div`
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
-`;
-
-const _DemoButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  text-decoration: none;
-
-  ${({ variant }) =>
-		variant === 'primary'
-			? `
-        background-color: #3b82f6;
-        color: white;
-        &:hover:not(:disabled) {
-          background-color: #2563eb;
-        }
-        &:disabled {
-          background-color: #9ca3af;
-          cursor: not-allowed;
-        }
-      `
-			: `
-        background-color: #f3f4f6;
-        color: #374151;
-        &:hover:not(:disabled) {
-          background-color: #e5e7eb;
-        }
-        &:disabled {
-          background-color: #f3f4f6;
-          color: #9ca3af;
-          cursor: not-allowed;
-        }
-      `}
-`;
-
-const _StatusIndicator = styled.div<{ className?: string }>`
-  padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-
-  &.idle {
-    background-color: #f3f4f6;
-    color: #6b7280;
-  }
-
-  &.loading {
-    background-color: #dbeafe;
-    color: #1e40af;
-  }
-
-  &.success {
-    background-color: #d1fae5;
-    color: #065f46;
-  }
-
-  &.error {
-    background-color: #fee2e2;
-    color: #991b1b;
-  }
-`;
-
 const ErrorMessage = styled.div`
   background-color: #fee2e2;
   border: 1px solid #fecaca;
@@ -196,46 +99,6 @@ const ErrorMessage = styled.div`
   svg {
     flex-shink: 0;
     margin-top: 0.1rem;
-  }
-`;
-
-const _ResponseBox = styled.div<{
-	$backgroundColor?: string;
-	$borderColor?: string;
-}>`
-  margin: 1rem 0;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  border: 1px solid ${({ $borderColor }) => $borderColor || '#374151'};
-  background-color: ${({ $backgroundColor }) => $backgroundColor || '#1f2937'};
-  font-family: monospace;
-  font-size: 0.875rem;
-  line-height: 1.4;
-  white-space: pre-wrap;
-  word-break: break-all;
-  overflow: visible;
-  max-width: 100%;
-  color: #f9fafb;
-
-  h4 {
-    margin: 0 0 0.5rem 0;
-    font-family: inherit;
-    font-size: 1rem;
-    font-weight: 600;
-    color: #f9fafb;
-  }
-
-  pre {
-    margin: 0;
-    background: none;
-    padding: 0;
-    font-family: inherit;
-    font-size: inherit;
-    line-height: inherit;
-    white-space: pre-wrap;
-    word-break: break-all;
-    overflow: visible;
-    color: #f9fafb;
   }
 `;
 
@@ -351,50 +214,16 @@ const UserInfoFlow: React.FC = () => {
 
 	usePageScroll();
 
-	// Debug logging
-	console.log(' [UserInfoFlow] Config:', config);
-	console.log(' [UserInfoFlow] Tokens:', tokens);
-	console.log(' [UserInfoFlow] Tokens type:', typeof tokens);
-	console.log(' [UserInfoFlow] Tokens keys:', tokens ? Object.keys(tokens) : 'NO_TOKENS');
-	console.log(
-		' [UserInfoFlow] localStorage pingone_config:',
-		localStorage.getItem('pingone_config')
-	);
-	console.log(' [UserInfoFlow] localStorage oauth_tokens:', localStorage.getItem('oauth_tokens'));
-	console.log(' [UserInfoFlow] localStorage access_token:', localStorage.getItem('access_token'));
-	console.log(
-		' [UserInfoFlow] localStorage pingone_playground_tokens:',
-		localStorage.getItem('pingone_playground_tokens')
-	);
-	console.log(' [UserInfoFlow] All localStorage keys:', Object.keys(localStorage));
-	console.log(' [UserInfoFlow] Config check result:', {
-		hasConfig: !!config,
-		configKeys: config ? Object.keys(config) : 'NO_CONFIG',
-		configDetails: config
-			? {
-					clientId: config.pingone.clientId,
-					environmentId: config.pingone.environmentId,
-					userInfoEndpoint: config.pingone.userInfoEndpoint,
-				}
-			: 'NO_CONFIG',
-	});
+	// Token and config available via useAuth() hook
 
 	// Check if tokens exist in any form
 	const hasTokens = tokens?.access_token;
-	console.log(' [UserInfoFlow] Has tokens:', hasTokens);
-	console.log(' [UserInfoFlow] Token check:', {
-		tokensExist: !!tokens,
-		accessTokenExists: !!tokens?.access_token,
-		tokenExpired: tokens?.access_token ? isTokenExpired(tokens.access_token) : 'N/A',
-	});
 
 	// Enhanced token detection and loading system
 	const [localTokens, setLocalTokens] = useState<OAuthTokens | null>(null);
 
 	// Function to scan localStorage for tokens
 	const scanForTokens = useCallback(() => {
-		console.log(' [UserInfoFlow] Scanning localStorage for tokens...');
-
 		const possibleTokenKeys = [
 			'pingone_playground_tokens', // Official storage key
 			'oauth_tokens', // Alternative key
@@ -415,7 +244,6 @@ const UserInfoFlow: React.FC = () => {
 					}
 
 					if (parsedTokens.access_token) {
-						console.log(` [UserInfoFlow] Found tokens in localStorage key '${key}':`, parsedTokens);
 						setLocalTokens(parsedTokens);
 
 						// Also update the auth context if it doesn't have tokens
@@ -430,7 +258,6 @@ const UserInfoFlow: React.FC = () => {
 			}
 		}
 
-		console.log(' [UserInfoFlow] No tokens found in localStorage');
 		setLocalTokens(null);
 		return null;
 	}, [tokens, updateTokens]);
@@ -444,7 +271,6 @@ const UserInfoFlow: React.FC = () => {
 	useEffect(() => {
 		const handleStorageChange = (e: StorageEvent) => {
 			if (e.key?.includes('token') || e.key === 'pingone_playground_tokens') {
-				console.log(' [UserInfoFlow] Storage changed, rescanning for tokens:', e.key);
 				scanForTokens();
 			}
 		};
@@ -455,7 +281,6 @@ const UserInfoFlow: React.FC = () => {
 
 	// Function to manually refresh tokens
 	const refreshTokens = useCallback(() => {
-		console.log(' [UserInfoFlow] Manually refreshing tokens...');
 		scanForTokens();
 	}, [scanForTokens]);
 
@@ -641,7 +466,6 @@ const UserInfoFlow: React.FC = () => {
 		setExecutedSteps(new Set());
 		setStepsWithResults([]);
 		setStepsWithResults([...steps]); // Initialize with copy of steps
-		console.log(' [UserInfoFlow] Starting UserInfo flow...');
 	};
 
 	const resetDemo = () => {
@@ -713,10 +537,7 @@ const accessToken = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...';
 							}));
 							setExecutedSteps((prev) => new Set(prev).add(0));
 
-							console.log(
-								' [UserInfoFlow] Access token validated:',
-								`${availableTokens.access_token.substring(0, 20)}...`
-							);
+							logger.debug('UserInfoFlow', ' [UserInfoFlow] Access token validated');
 							return result;
 						},
 					},
@@ -791,11 +612,6 @@ const headers = {
 				}));
 				setExecutedSteps((prev) => new Set(prev).add(useAuthentication ? 1 : 0));
 
-				console.log(' [UserInfoFlow] UserInfo request prepared:', {
-					url: userInfoUrl,
-					method: 'GET',
-					authenticated: useAuthentication,
-				});
 				return result;
 			},
 		},
@@ -894,7 +710,7 @@ const userInfo = await response.json();`,
 					}));
 					setExecutedSteps((prev) => new Set(prev).add(stepIndex));
 
-					console.log(' [UserInfoFlow] UserInfo API call successful:', userInfoData);
+					logger.info('UserInfoFlow', ' [UserInfoFlow] UserInfo API call successful');
 					return result;
 				} catch (error: unknown) {
 					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -955,7 +771,7 @@ console.log('Welcome, ' + user.name + '!');`,
 				setExecutedSteps((prev) => new Set(prev).add(3));
 				setDemoStatus('success');
 
-				console.log(' [UserInfoFlow] User information processed successfully:', userInfo);
+				logger.info('UserInfoFlow', ' [UserInfoFlow] User information processed successfully');
 				return result;
 			},
 		},
@@ -973,12 +789,7 @@ console.log('Welcome, ' + user.name + '!');`,
 				}}
 			/>
 
-			<FlowCredentials
-				flowType="userinfo"
-				onCredentialsChange={(credentials) => {
-					console.log('UserInfo flow credentials updated:', credentials);
-				}}
-			/>
+			<FlowCredentials flowType="userinfo" onCredentialsChange={(credentials) => {}} />
 
 			{/* Config import/export */}
 			<div
@@ -1159,7 +970,6 @@ console.log('Welcome, ' + user.name + '!');`,
 							<br />
 							<button
 								onClick={() => {
-									console.log(' [UserInfoFlow] Manual refresh button clicked');
 									window.location.reload();
 								}}
 								style={{
@@ -1271,13 +1081,13 @@ console.log('Welcome, ' + user.name + '!');`,
 										</button>
 										<button
 											onClick={() => {
-												console.log(' [UserInfoFlow] Debug info:');
-												console.log('Config:', config);
-												console.log('Tokens:', tokens);
-												console.log(
-													'Token expired check:',
-													tokens?.access_token ? isTokenExpired(tokens.access_token) : 'No token'
-												);
+												logger.debug('UserInfoFlow', 'Debug info', {
+													config,
+													tokens,
+													tokenExpired: tokens?.access_token
+														? isTokenExpired(tokens.access_token)
+														: 'No token',
+												});
 												modernMessaging.showFooterMessage({
 													type: 'info',
 													message:
@@ -1314,9 +1124,7 @@ console.log('Welcome, ' + user.name + '!');`,
 										<button
 											onClick={() => {
 												// Force refresh the page to reload auth context
-												console.log(
-													' [UserInfoFlow] Force refreshing page to reload auth context...'
-												);
+
 												window.location.reload();
 											}}
 											style={{
