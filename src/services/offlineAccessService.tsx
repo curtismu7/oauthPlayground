@@ -3,6 +3,7 @@
 
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../utils/logger';
 
 export type OfflineAccessSettings = {
 	refreshGrantEnabled: boolean;
@@ -69,7 +70,12 @@ const loadSettings = (storageKey: string = DEFAULT_STORAGE_KEY): OfflineAccessSe
 					: DEFAULT_SETTINGS.offlineAccessAllowed,
 		};
 	} catch (error) {
-		console.error('[OfflineAccessService] Failed to load settings', error);
+		logger.error(
+			'OfflineAccessService',
+			'[OfflineAccessService] Failed to load settings',
+			undefined,
+			error
+		);
 		return { ...DEFAULT_SETTINGS };
 	}
 };
@@ -88,7 +94,12 @@ const saveSettings = (
 	try {
 		window.localStorage.setItem(storageKey, JSON.stringify(settings));
 	} catch (error) {
-		console.error('[OfflineAccessService] Failed to persist settings', error);
+		logger.error(
+			'OfflineAccessService',
+			'[OfflineAccessService] Failed to persist settings',
+			undefined,
+			error
+		);
 	}
 };
 

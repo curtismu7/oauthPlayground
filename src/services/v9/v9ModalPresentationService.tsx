@@ -4,6 +4,7 @@
 import React from 'react';
 // Import Modern Messaging (V9) - proper migration to non-toast messaging
 import { modernMessaging } from '../../components/v9/V9ModernMessagingComponents';
+import { logger } from '../../utils/logger';
 import ModalPresentationService from '../modalPresentationService';
 
 // ModalActionDescriptor interface (copied from original for type safety)
@@ -39,7 +40,7 @@ const V9ModalPresentationService: React.FC<V9ModalPresentationServiceProps> = (p
 						message: `Action completed: ${action.label}`,
 						duration: 3000,
 					});
-				} catch (error) {
+				} catch (_error) {
 					modernMessaging.showCriticalError({
 						title: 'Action Failed',
 						message: `Failed to execute action: ${action.label}`,
@@ -55,7 +56,7 @@ const V9ModalPresentationService: React.FC<V9ModalPresentationServiceProps> = (p
 		try {
 			props.onClose();
 			// Don't show message on close - it's expected behavior
-		} catch (error) {
+		} catch (_error) {
 			modernMessaging.showCriticalError({
 				title: 'Modal Close Failed',
 				message: 'Failed to close modal',
@@ -71,7 +72,7 @@ const V9ModalPresentationService: React.FC<V9ModalPresentationServiceProps> = (p
 				<ModalPresentationService {...props} actions={wrappedActions} onClose={handleClose} />
 			</div>
 		);
-	} catch (error) {
+	} catch (_error) {
 		modernMessaging.showCriticalError({
 			title: 'Modal Render Failed',
 			message: 'Failed to render modal',
@@ -123,7 +124,11 @@ const V9ModalPresentationService: React.FC<V9ModalPresentationServiceProps> = (p
 // Add V9-specific logging for modal operations
 const V9ModalService = {
 	logModalOperation(operation: string, title: string, details?: unknown) {
-		console.log(`[V9 ModalService] ${operation} for modal: ${title}`, details);
+		logger.debug(
+			'V9ModalPresentationService',
+			`[V9 ModalService] ${operation} for modal: ${title}`,
+			details
+		);
 	},
 
 	// Helper to create standard modal actions
