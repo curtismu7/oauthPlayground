@@ -15,7 +15,6 @@ import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { StandardizedCredentialExportImport } from '../../../components/StandardizedCredentialExportImport';
-import { StepNavigationButtons } from '../../../components/StepNavigationButtons';
 import { usePageScroll } from '../../../hooks/usePageScroll';
 // V9 specific imports
 import { FlowUIService } from '../../../services/flowUIService.tsx';
@@ -906,25 +905,6 @@ const RARFlowV9: React.FC = () => {
 
 						<SectionDivider />
 
-						{/* Navigation */}
-						<StepNavigationButtons
-							currentStep={currentStep}
-							totalSteps={STEP_METADATA.length}
-							onNext={nextStep}
-							onPrevious={prevStep}
-							onGoToStep={goToStep}
-							canGoNext={currentStep < STEP_METADATA.length - 1}
-							canGoPrevious={currentStep > 0}
-							nextLabel={currentStep === STEP_METADATA.length - 1 ? 'Complete' : 'Next Step'}
-							previousLabel="Previous Step"
-							style={{
-								nextButtonBackgroundColor: V9_COLORS.PRIMARY_BLUE,
-								nextButtonColor: V9_COLORS.WHITE,
-								previousButtonBackgroundColor: V9_COLORS.WHITE,
-								previousButtonColor: V9_COLORS.PRIMARY_BLUE,
-								previousButtonBorderColor: V9_COLORS.PRIMARY_BLUE,
-							}}
-						/>
 					</StepContentWrapper>
 				</ResponsiveMainCard>
 

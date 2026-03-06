@@ -17,6 +17,10 @@ import {
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { CompactAppPickerV9 } from '@/components/CompactAppPickerV9';
+import type { V9DiscoveredApp } from '@/services/v9/V9AppDiscoveryService';
+import { V9CredentialStorageService } from '@/services/v9/V9CredentialStorageService';
+import { v4ToastManager } from '@/utils/v4ToastMessages';
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
@@ -38,7 +42,6 @@ import { FlowHeader } from '../../services/flowHeaderService';
 import { FlowStorageService } from '../../services/flowStorageService';
 import { FlowUIService } from '../../services/flowUIService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { UserSearchDropdownV8 } from '../../v8/components/UserSearchDropdownV8';
 import { PKCEStorageServiceV8U } from '../../v8u/services/pkceStorageServiceV8U';
 
@@ -988,6 +991,17 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 		navigate('/token-management');
 	}, [controller.tokens, navigate]);
 
+	// Handle app selection from CompactAppPickerV9
+	const handleAppSelected = useCallback(
+		(app: V9DiscoveredApp) => {
+			controller.setCredentials({
+				...controller.credentials,
+				clientId: app.clientId,
+			});
+		},
+		[controller]
+	);
+
 	// Response type enforcement
 	useEffect(() => {
 		if (!controller.credentials) {
@@ -1318,6 +1332,13 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 								</div>
 							</div>
 						</div>
+
+						{/* App Picker for Quick Configuration */}
+						<CompactAppPickerV9
+							environmentId={controller.credentials.environmentId ?? ''}
+							onAppSelected={handleAppSelected}
+							grantType="authorization_code"
+						/>
 
 						<ComprehensiveCredentialsService
 							credentials={controller.credentials}

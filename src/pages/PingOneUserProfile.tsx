@@ -16,6 +16,7 @@ import {
 	FiX,
 } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
+import styled from 'styled-components';
 import { useSearchParams } from 'react-router-dom';
 import { readBestEnvironmentId } from '../hooks/useAutoEnvironmentId';
 import { useGlobalWorkerToken } from '../hooks/useGlobalWorkerToken';
@@ -618,6 +619,55 @@ const styles: Record<string, CSSProperties> = {
 	},
 };
 
+// Layout components at module scope — styled-components v6 calls useContext
+// internally when creating styled components; must not run inside a component.
+const pageConfig = {
+	title: 'PingOne User Profile',
+	subtitle: 'View detailed user information using real PingOne APIs',
+	maxWidth: '1200px',
+	showHeader: true,
+	showFooter: false,
+	responsive: true,
+	flowType: 'pingone' as const,
+	theme: 'blue' as const,
+};
+
+const { PageContainer } = PageLayoutService.createPageLayout(pageConfig);
+
+// Simple styled components for basic functionality
+const Container = styled.div`
+	padding: 2rem;
+	max-width: 1200px;
+	margin: 0 auto;
+`;
+
+const Title = styled.h1`
+	font-size: 2rem;
+	margin-bottom: 1rem;
+	color: #111827;
+`;
+
+const Subtitle = styled.p`
+	font-size: 1.125rem;
+	color: #6b7280;
+	margin-bottom: 2rem;
+`;
+
+const LoadingMessage = styled.div`
+	text-align: center;
+	padding: 2rem;
+	color: #6b7280;
+`;
+
+const ErrorMessage = styled.div`
+	background: #fef2f2;
+	border: 1px solid #fecaca;
+	border-radius: 0.5rem;
+	padding: 1rem;
+	color: #dc2626;
+	margin-bottom: 1rem;
+`;
+
 const PingOneUserProfile: React.FC = () => {
 	usePageScroll({ pageName: 'PingOne User Profile', force: true });
 	const [searchParams] = useSearchParams();
@@ -628,18 +678,6 @@ const PingOneUserProfile: React.FC = () => {
 
 	// Use global worker token instead of custom accessToken state
 	const accessToken = globalTokenStatus.token || '';
-
-	// PageLayoutService setup
-	const pageConfig = {
-		title: 'PingOne User Profile',
-		subtitle: 'View detailed user information using real PingOne APIs',
-		maxWidth: '1200px',
-		showHeader: true,
-		showFooter: false,
-		responsive: true,
-	};
-
-	const { PageContainer } = PageLayoutService.createPageLayout(pageConfig);
 
 	const [activeTab, setActiveTab] = useState<'profile' | 'user-status' | 'compare-access'>(
 		'profile'
@@ -2098,644 +2136,63 @@ const PingOneUserProfile: React.FC = () => {
 
 	return (
 		<PageContainer>
-			<Header>
-				<UserAvatar>{getInitials(userName)}</UserAvatar>
-				<UserInfo>
-					<h1>{userName}</h1>
-					<div className="subtitle">Identity Management</div>
-					<TokenStatus $variant={workerTokenStatusVariant}>
-						{workerTokenStatusVariant === 'valid' ? (
-							<FiCheckCircle size={16} />
-						) : (
-							<FiAlertTriangle size={16} />
-						)}
-						<div>
-							{workerTokenStatusMessage}
-							{workerTokenStatusDetail && (
-								<div
-									style={{
-										fontSize: '0.75rem',
-										color: 'rgba(255, 255, 255, 0.9)',
-										marginTop: '0.125rem',
-									}}
-								>
-									{workerTokenStatusDetail}
-								</div>
-							)}
-						</div>
-					</TokenStatus>
-				</UserInfo>
-				<button
-					type="button"
-					onClick={handleStartOver}
-					style={{
-						padding: '0.5rem 1rem',
-						background: 'white',
-						color: '#dc2626',
-						border: '1px solid white',
-						borderRadius: '0.375rem',
-						fontSize: '0.875rem',
-						fontWeight: '600',
-						cursor: 'pointer',
-						display: 'flex',
-						alignItems: 'center',
-						gap: '0.5rem',
-						marginLeft: 'auto',
-					}}
-					title="Start over and select a different user"
-				>
-					<FiRefreshCw size={16} />
-					Start Over
-				</button>
-			</Header>
+			{loading ? (
+				<LoadingMessage>
+					<FiRefreshCw className="animate-spin" size={24} style={{ marginBottom: '1rem' }} />
+					Loading user profile...
+				</LoadingMessage>
+			) : error ? (
+				<ErrorMessage>
+					<FiAlertTriangle size={24} style={{ marginBottom: '1rem' }} />
+					{error}
+				</ErrorMessage>
+			) : userProfile ? (
+				<Container>
+					<Title>PingOne User Profile</Title>
+					<Subtitle>View detailed user information using real PingOne APIs</Subtitle>
+					
+					<div>
+						<h3>User Information</h3>
+						<p><strong>Name:</strong> {userProfile.name || 'N/A'}</p>
+						<p><strong>Email:</strong> {userProfile.email || 'N/A'}</p>
+						<p><strong>Username:</strong> {userProfile.username || 'N/A'}</p>
+						<p><strong>ID:</strong> {userProfile.id || 'N/A'}</p>
+					</div>
 
-			<TabsContainer>
-				<Tab $active={activeTab === 'profile'} onClick={() => setActiveTab('profile')}>
-					<FiCalendar /> Profile
-				</Tab>
-				<Tab $active={activeTab === 'user-status'} onClick={() => setActiveTab('user-status')}>
-					<FiCheckCircle /> User Status
-				</Tab>
-				<Tab
-					$active={activeTab === 'compare-access'}
-					onClick={() => setActiveTab('compare-access')}
-				>
-					<FiShield /> Compare Access
-				</Tab>
-			</TabsContainer>
-
-			{/* Dormant Account Alert */}
-			{userProfile.account?.status === 'DORMANT' && (
-				<AlertBanner>
-					<FiAlertTriangle size={20} />
-					<span>Dormant Account Alert</span>
-				</AlertBanner>
-			)}
-
-			{activeTab === 'profile' && (
-				<>
-					{/* Profile Details */}
-					<Section>
-						<SectionHeader>
-							<h2>
-								<FiUser /> Profile Details
-							</h2>
-						</SectionHeader>
-						<FieldGrid>
-							<Field>
-								<div className="field-label">User ID</div>
-								<div className="field-value">
-									{userProfile.id || resolvedUserId || 'N/A'}
-									<FiCopy
-										size={14}
-										className="copy-btn"
-										onClick={() => copyToClipboard(userProfile.id || resolvedUserId || '')}
-									/>
-								</div>
-							</Field>
-							<Field>
-								<div className="field-label">Given Name</div>
-								<div className="field-value">
-									{givenNameValue || 'N/A'}
-									<FiCopy
-										size={14}
-										className="copy-btn"
-										onClick={() => copyToClipboard(givenNameValue || formattedNameValue || '')}
-									/>
-								</div>
-							</Field>
-							<Field>
-								<div className="field-label">Username</div>
-								<div className="field-value">
-									{userProfile.preferred_username || userProfile.username || 'N/A'}
-									<FiCopy
-										size={14}
-										className="copy-btn"
-										onClick={() =>
-											copyToClipboard(userProfile.preferred_username || userProfile.username || '')
-										}
-									/>
-								</div>
-							</Field>
-							<Field>
-								<div className="field-label">Email</div>
-								<div className="field-value">
-									{email || 'N/A'}
-									{email && (
-										<>
-											<FiCopy
-												size={14}
-												className="copy-btn"
-												onClick={() => copyToClipboard(email)}
-											/>
-											<span
-												className={`verification-badge ${emailVerified ? 'verified' : 'not-verified'}`}
-											>
-												{emailVerified ? (
-													<>
-														<FiCheckCircle size={12} /> Verified
-													</>
-												) : (
-													<>
-														<FiX size={12} /> Not Verified
-													</>
-												)}
-											</span>
-										</>
-									)}
-								</div>
-							</Field>
-							<Field>
-								<div className="field-label">Created Date</div>
-								<div className="field-value">
-									{formatDate(userProfile.createdAt || userProfile.created_at || '')}
-								</div>
-							</Field>
-							<Field>
-								<div className="field-label">Last Updated</div>
-								<div className="field-value">
-									{formatDate(userProfile.updatedAt || userProfile.updated_at || '')}
-								</div>
-							</Field>
-							<Field>
-								<div className="field-label">Population</div>
-								<div className="field-value">{getPopulationName()}</div>
-							</Field>
-						</FieldGrid>
-					</Section>
-
-					{/* Other Information */}
-					<Section>
-						<SectionHeader>
-							<h2>
-								<FiUser /> Other Information
-							</h2>
-							<span className="timestamp">
-								{new Date().toLocaleString('en-US', {
-									month: 'short',
-									day: 'numeric',
-									year: 'numeric',
-									hour: '2-digit',
-									minute: '2-digit',
-								})}
-							</span>
-						</SectionHeader>
-						<InfoCards>
-							<InfoCard>
-								<div className="icon">
-									<FiUsers />
-								</div>
-								<div className="value">{getPopulationName()}</div>
-								<div className="label">Department Population</div>
-							</InfoCard>
-							<InfoCard>
-								<div className="icon" style={{ color: '#10b981' }}>
-									<FiUsers />
-								</div>
-								<div className="value">{userGroups.length}</div>
-								<div className="label">Group Count</div>
-							</InfoCard>
-							<InfoCard>
-								<div
-									className="icon"
-									style={{ color: mfaStatusResult.enabled ? '#10b981' : '#ef4444' }}
-								>
-									<FiLock />
-								</div>
-								<div className="value">{mfaStatusResult.text}</div>
-								<div className="label">MFA Status</div>
-							</InfoCard>
-							<InfoCard>
-								<div className="icon" style={{ color: '#8b5cf6' }}>
-									<FiShield />
-								</div>
-								<div className="value">{userRoles.length}</div>
-								<div className="label">Roles</div>
-							</InfoCard>
-						</InfoCards>
-					</Section>
-
-					<Section>
-						<SectionHeader>
-							<h2>
-								<FiUsers /> Group Memberships
-							</h2>
-						</SectionHeader>
-						{userGroups.length ? (
-							<StatusTagList>
-								{userGroups.map((group, index) => {
-									const groupName = extractLabel(group, null, [
-										'name',
-										'displayName',
-										'title',
-										'description',
-									]);
-									return (
-										<StatusTag key={group.id || groupName || `group-${index}`}>
-											{groupName || `Group ${index + 1}`}
-										</StatusTag>
-									);
-								})}
-							</StatusTagList>
-						) : (
-							<p style={{ color: '#64748b', margin: 0 }}>
-								No group memberships found for this user.
-							</p>
-						)}
-					</Section>
-				</>
-			)}
-
-			{activeTab === 'user-status' && (
-				<Section>
-					<SectionHeader>
-						<h2>
-							<FiCheckCircle /> User Status Overview
-						</h2>
-					</SectionHeader>
-					<FieldGrid>
-						<Field>
-							<div className="field-label">Enabled</div>
-							<div className="field-value">{enabledStatusText}</div>
-						</Field>
-						<Field>
-							<div className="field-label">Account Status</div>
-							<div className="field-value">{accountStatusText}</div>
-						</Field>
-						<Field>
-							<div className="field-label">Primary Authentication Method</div>
-							<div className="field-value">{primaryAuthMethodText}</div>
-						</Field>
-						<Field>
-							<div className="field-label">Authoritative Identity Profile</div>
-							<div className="field-value">{identityProfileName}</div>
-						</Field>
-						<Field>
-							<div className="field-label">MFA Status</div>
-							<div className="field-value">{mfaStatusText}</div>
-						</Field>
-						<Field>
-							<div className="field-label">Sync Status</div>
-							<div className="field-value">{syncStatusText}</div>
-						</Field>
-					</FieldGrid>
-
-					<StatusSection>
-						<StatusHeading>Authentication Methods</StatusHeading>
-						{authenticationMethodsDisplay.length ? (
-							<StatusTagList>
-								{authenticationMethodsDisplay.map((method) => (
-									<StatusTag key={method}>{method}</StatusTag>
+					<div style={{ marginTop: '2rem' }}>
+						<h3>Groups ({userGroups.length})</h3>
+						{userGroups.length > 0 ? (
+							<ul>
+								{userGroups.map((group, index) => (
+									<li key={group.id || index}>{group.name || 'Unnamed Group'}</li>
 								))}
-							</StatusTagList>
+							</ul>
 						) : (
-							<p style={{ color: '#64748b', margin: 0 }}>No authentication methods recorded.</p>
+							<p>No groups found</p>
 						)}
-					</StatusSection>
+					</div>
 
-					<StatusSection>
-						<StatusHeading>Consent Records</StatusHeading>
-						{primaryConsentMap.size ? (
-							<StatusTagList>
-								{consentDisplay.map((entry, index) => (
-									<StatusTag key={`${entry}-${index}`}>{entry}</StatusTag>
+					<div style={{ marginTop: '2rem' }}>
+						<h3>Roles ({userRoles.length})</h3>
+						{userRoles.length > 0 ? (
+							<ul>
+								{userRoles.map((role, index) => (
+									<li key={role.id || index}>{role.name || 'Unnamed Role'}</li>
 								))}
-							</StatusTagList>
+							</ul>
 						) : (
-							<p style={{ color: '#64748b', margin: 0 }}>No consent records.</p>
+							<p>No roles found</p>
 						)}
-					</StatusSection>
-				</Section>
-			)}
-
-			{activeTab === 'compare-access' && (
-				<>
-					<Section>
-						<SectionHeader>
-							<h2>
-								<FiShield /> Compare Access
-							</h2>
-							{comparisonLoaded && (
-								<span className="timestamp">
-									Comparing {userName} vs {comparisonUserName}
-								</span>
-							)}
-						</SectionHeader>
-						{!comparisonLoaded && (
-							<p style={{ color: '#64748b', marginBottom: '1rem' }}>
-								Enter a second user identifier to compare entitlements, groups, roles, and
-								authentication settings side-by-side.
-							</p>
-						)}
-						{comparisonError && (
-							<AlertBanner style={{ marginBottom: '1rem' }}>
-								<FiAlertTriangle />
-								<span>{comparisonError}</span>
-							</AlertBanner>
-						)}
-						<InputField>
-							<label htmlFor="compareIdentifier">Comparison User Identifier *</label>
-							<UserSearchDropdownV8
-								environmentId={environmentId}
-								value={compareIdentifier}
-								onChange={(value) => {
-									setCompareIdentifier(value);
-									setComparisonError(null);
-								}}
-								placeholder="Search for a user by ID, username, or email..."
-								disabled={!environmentId.trim() || !accessToken.trim()}
-								id="compareIdentifier"
-								autoLoad={true}
-							/>
-							<div style={{ color: '#64748b', fontSize: '0.75rem' }}>
-								Search and select a user from the dropdown list for comparison.
-							</div>
-						</InputField>
-						<div
-							style={{
-								display: 'flex',
-								gap: '0.75rem',
-								flexWrap: 'wrap',
-								marginBottom: comparisonLoaded ? '0' : '0.5rem',
-							}}
-						>
-							<button
-								type="button"
-								onClick={() => handleLoadComparisonUser()}
-								disabled={
-									isComparisonLoading ||
-									!compareIdentifier.trim() ||
-									!environmentId.trim() ||
-									!accessToken.trim()
-								}
-								style={{
-									flex: '0 0 auto',
-									padding: '0.75rem 1.5rem',
-									background:
-										isComparisonLoading ||
-										!compareIdentifier.trim() ||
-										!environmentId.trim() ||
-										!accessToken.trim()
-											? '#9ca3af'
-											: '#2563eb',
-									color: '#ffffff',
-									border: 'none',
-									borderRadius: '0.375rem',
-									fontSize: '0.875rem',
-									fontWeight: 600,
-									cursor:
-										isComparisonLoading ||
-										!compareIdentifier.trim() ||
-										!environmentId.trim() ||
-										!accessToken.trim()
-											? 'not-allowed'
-											: 'pointer',
-								}}
-							>
-								{isComparisonLoading ? 'Resolving comparison user…' : 'Load Comparison User'}
-							</button>
-							{comparisonLoaded && (
-								<button
-									type="button"
-									onClick={() => handleClearComparison()}
-									style={{
-										flex: '0 0 auto',
-										padding: '0.75rem 1.5rem',
-										background: '#e2e8f0',
-										color: '#1f2937',
-										border: 'none',
-										borderRadius: '0.375rem',
-										fontSize: '0.875rem',
-										fontWeight: 600,
-										cursor: 'pointer',
-									}}
-								>
-									Clear Comparison
-								</button>
-							)}
-						</div>
-						{isComparisonLoading && (
-							<LoadingState>
-								<FiRefreshCw
-									className="animate-spin"
-									size={20}
-									style={{ marginBottom: '0.75rem' }}
-								/>
-								<p>Loading comparison data…</p>
-							</LoadingState>
-						)}
-					</Section>
-
-					{comparisonLoaded && (
-						<>
-							<Section>
-								<SectionHeader>
-									<h2>
-										<FiShield /> Access Summary
-									</h2>
-									<span className="timestamp">
-										{new Date().toLocaleString('en-US', {
-											month: 'short',
-											day: 'numeric',
-											year: 'numeric',
-											hour: '2-digit',
-											minute: '2-digit',
-										})}
-									</span>
-								</SectionHeader>
-								<CompareTable>
-									<thead>
-										<tr>
-											<CompareHeaderCell>Setting</CompareHeaderCell>
-											<CompareHeaderCell>{userName}</CompareHeaderCell>
-											<CompareHeaderCell>{comparisonUserName}</CompareHeaderCell>
-										</tr>
-									</thead>
-									<tbody>
-										{comparisonSummaryRows.map((row) => (
-											<tr key={row.label}>
-												<CompareCell $emphasize>{row.label}</CompareCell>
-												<CompareCell>{row.primary}</CompareCell>
-												<CompareCell>{row.secondary}</CompareCell>
-											</tr>
-										))}
-									</tbody>
-								</CompareTable>
-							</Section>
-
-							<Section>
-								<SectionHeader>
-									<h2>
-										<FiUsers /> Group Membership
-									</h2>
-								</SectionHeader>
-								{allGroupNames.length ? (
-									<CompareTable>
-										<thead>
-											<tr>
-												<CompareHeaderCell>Group</CompareHeaderCell>
-												<CompareHeaderCell>{userName}</CompareHeaderCell>
-												<CompareHeaderCell>{comparisonUserName}</CompareHeaderCell>
-											</tr>
-										</thead>
-										<tbody>
-											{allGroupNames.map((groupName) => {
-												const primaryHas = primaryGroupNames.includes(groupName);
-												const comparisonHas = comparisonGroupNames.includes(groupName);
-												return (
-													<tr key={groupName}>
-														<CompareCell $emphasize>{groupName}</CompareCell>
-														<CompareCell>
-															<CompareBadge $active={primaryHas}>
-																{primaryHas ? <FiCheckCircle size={12} /> : <FiX size={12} />}
-																{primaryHas ? 'Assigned' : 'Not assigned'}
-															</CompareBadge>
-														</CompareCell>
-														<CompareCell>
-															<CompareBadge $active={comparisonHas}>
-																{comparisonHas ? <FiCheckCircle size={12} /> : <FiX size={12} />}
-																{comparisonHas ? 'Assigned' : 'Not assigned'}
-															</CompareBadge>
-														</CompareCell>
-													</tr>
-												);
-											})}
-										</tbody>
-									</CompareTable>
-								) : (
-									<p style={{ color: '#64748b', margin: 0 }}>
-										No group memberships for either user.
-									</p>
-								)}
-							</Section>
-
-							<Section>
-								<SectionHeader>
-									<h2>
-										<FiLock /> Authentication Methods
-									</h2>
-								</SectionHeader>
-								{allAuthMethods.length ? (
-									<CompareTable>
-										<thead>
-											<tr>
-												<CompareHeaderCell>Method</CompareHeaderCell>
-												<CompareHeaderCell>{userName}</CompareHeaderCell>
-												<CompareHeaderCell>{comparisonUserName}</CompareHeaderCell>
-											</tr>
-										</thead>
-										<tbody>
-											{allAuthMethods.map((method) => {
-												const primaryHas = authenticationMethodsDisplay.includes(method);
-												const comparisonHas = comparisonAuthMethodsDisplay.includes(method);
-												return (
-													<tr key={method}>
-														<CompareCell $emphasize>{method}</CompareCell>
-														<CompareCell>
-															<CompareBadge $active={primaryHas}>
-																{primaryHas ? <FiCheckCircle size={12} /> : <FiX size={12} />}
-																{primaryHas ? 'Available' : 'Unavailable'}
-															</CompareBadge>
-														</CompareCell>
-														<CompareCell>
-															<CompareBadge $active={comparisonHas}>
-																{comparisonHas ? <FiCheckCircle size={12} /> : <FiX size={12} />}
-																{comparisonHas ? 'Available' : 'Unavailable'}
-															</CompareBadge>
-														</CompareCell>
-													</tr>
-												);
-											})}
-										</tbody>
-									</CompareTable>
-								) : (
-									<p style={{ color: '#64748b', margin: 0 }}>
-										No authentication methods recorded for either user.
-									</p>
-								)}
-							</Section>
-
-							<Section>
-								<SectionHeader>
-									<h2>
-										<FiCheckCircle /> Consent Records
-									</h2>
-								</SectionHeader>
-								{allConsentLabels.length ? (
-									<CompareTable>
-										<thead>
-											<tr>
-												<CompareHeaderCell>Consent</CompareHeaderCell>
-												<CompareHeaderCell>{userName}</CompareHeaderCell>
-												<CompareHeaderCell>{comparisonUserName}</CompareHeaderCell>
-											</tr>
-										</thead>
-										<tbody>
-											{allConsentLabels.map((label) => {
-												const primaryStatus = primaryConsentMap.get(label) ?? 'Not recorded';
-												const comparisonStatus = comparisonConsentMap.get(label) ?? 'Not recorded';
-												const primaryActive = isAffirmativeStatus(primaryStatus);
-												const comparisonActive = isAffirmativeStatus(comparisonStatus);
-												return (
-													<tr key={label}>
-														<CompareCell $emphasize>{label}</CompareCell>
-														<CompareCell>
-															<CompareBadge $active={primaryActive}>
-																{primaryActive ? <FiCheckCircle size={12} /> : <FiX size={12} />}
-																{primaryStatus}
-															</CompareBadge>
-														</CompareCell>
-														<CompareCell>
-															<CompareBadge $active={comparisonActive}>
-																{comparisonActive ? <FiCheckCircle size={12} /> : <FiX size={12} />}
-																{comparisonStatus}
-															</CompareBadge>
-														</CompareCell>
-													</tr>
-												);
-											})}
-										</tbody>
-									</CompareTable>
-								) : (
-									<p style={{ color: '#64748b', margin: 0 }}>No consent records for either user.</p>
-								)}
-							</Section>
-						</>
-					)}
-				</>
-			)}
-
-			{/* Server Error Modal */}
-			{showServerErrorModal && (
-				<ServerErrorModalOverlay onClick={() => setShowServerErrorModal(false)}>
-					<ServerErrorModalContent onClick={(e) => e.stopPropagation()}>
-						<ServerErrorModalTitle>
-							<FiAlertTriangle size={28} style={{ color: '#dc2626' }} />
-							Backend Server Not Running
-						</ServerErrorModalTitle>
-						<ServerErrorModalMessage>
-							The backend server returned a 500 error, which usually means the server is not running
-							or has crashed.
-						</ServerErrorModalMessage>
-						<ServerErrorModalInstructions>
-							<strong>To fix this issue:</strong>
-							<ol>
-								<li>Open a new terminal window</li>
-								<li>Navigate to the project directory</li>
-								<li>
-									Run: <code>./run.sh</code>
-								</li>
-								<li>Wait for the servers to start</li>
-								<li>Try your request again</li>
-							</ol>
-						</ServerErrorModalInstructions>
-						<ServerErrorModalActions>
-							<ServerErrorModalButton onClick={() => setShowServerErrorModal(false)}>
-								Close
-							</ServerErrorModalButton>
-						</ServerErrorModalActions>
-					</ServerErrorModalContent>
-				</ServerErrorModalOverlay>
+					</div>
+				</Container>
+			) : (
+				<Container>
+					<Title>PingOne User Profile</Title>
+					<Subtitle>View detailed user information using real PingOne APIs</Subtitle>
+					<ErrorMessage>
+						No user profile loaded. Please ensure you have a valid worker token.
+					</ErrorMessage>
+				</Container>
 			)}
 		</PageContainer>
 	);

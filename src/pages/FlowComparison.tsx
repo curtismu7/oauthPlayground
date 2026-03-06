@@ -7,6 +7,29 @@ const FlowComparison: React.FC = () => {
 	usePageScroll({ pageName: 'Flow Comparison', force: true });
 
 	// Use V6 pageLayoutService for consistent dimensions and FlowHeader integration
+
+// Layout components at module scope — styled-components v6 calls useContext
+// internally when creating styled components; must not run inside a component.
+const pageConfig = {
+	flowType: 'documentation' as const,
+	theme: 'blue' as const,
+	maxWidth: '72rem', // Wider for flow comparison (1152px)
+	showHeader: true,
+	showFooter: false,
+	responsive: true,
+	flowId: 'flow-comparison', // Enables FlowHeader integration
+};
+
+const {
+	PageContainer,
+	ContentWrapper,
+	FlowHeader: LayoutFlowHeader,
+} = PageLayoutService.createPageLayout(pageConfig);
+
+const FlowComparison: React.FC = () => {
+	usePageScroll({ pageName: 'Flow Comparison', force: true });
+
+	// Use V6 pageLayoutService for consistent dimensions and FlowHeader integration
 	const pageConfig = {
 		flowType: 'documentation' as const,
 		theme: 'blue' as const,

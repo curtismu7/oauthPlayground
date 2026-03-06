@@ -22,6 +22,8 @@ import { V9ModernMessagingService } from '../../../services/v9/V9ModernMessaging
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 import { PKCEStorageServiceV8U } from '../../../v8u/services/pkceStorageServiceV8U';
+import { logger } from '../../../services/loggingService';
+import { secureLog, secureErrorLog } from '../../../utils/secureLogging';
 
 // Step metadata for V9
 const STEP_METADATA = [
@@ -129,7 +131,7 @@ const PingOnePARFlowV9: React.FC = () => {
 			controller.credentials &&
 			controller.credentials.redirectUri !== 'https://localhost:3000/par-callback'
 		) {
-			console.log('🔧 [PAR V9] Overriding redirect URI for PAR flow:', {
+			logger.info('PingOnePARFlowV9', 'Overriding redirect URI for PAR flow', {
 				from: controller.credentials.redirectUri,
 				to: 'https://localhost:3000/par-callback',
 			});
@@ -138,7 +140,7 @@ const PingOnePARFlowV9: React.FC = () => {
 				redirectUri: 'https://localhost:3000/par-callback',
 			});
 		}
-	}, [controller.credentials, controller.setCredentials]);
+	}, [selectedVariant]); // Only run when variant changes
 
 	// Ensure PAR flow uses its own credential storage
 	useEffect(() => {
@@ -147,7 +149,7 @@ const PingOnePARFlowV9: React.FC = () => {
 			controller.credentials &&
 			(controller.credentials.environmentId || controller.credentials.clientId)
 		) {
-			console.log('🔧 [PAR V9] Saving credentials to PAR-specific storage:', {
+			logger.info('PingOnePARFlowV9', 'Saving credentials to PAR-specific storage', {
 				flowKey: 'pingone-par-flow-v9',
 				environmentId: controller.credentials.environmentId,
 				clientId: `${controller.credentials.clientId?.substring(0, 8)}...`,
@@ -181,7 +183,7 @@ const PingOnePARFlowV9: React.FC = () => {
 			);
 
 			if (success) {
-				console.log('✅ [PAR V9] Credentials saved successfully to PAR-specific storage');
+				logger.info('PingOnePARFlowV9', 'Credentials saved successfully to PAR-specific storage');
 			}
 		}
 	}, [controller.credentials]);
@@ -198,7 +200,7 @@ const PingOnePARFlowV9: React.FC = () => {
 			PKCEStorageServiceV8U.storePKCECodes('pingone-par-flow-v9', codes);
 
 			messagingService.showSuccessBanner('PKCE codes generated successfully');
-			console.log('✅ [PAR V9] PKCE codes generated:', {
+			logger.info('PingOnePARFlowV9', 'PKCE codes generated', {
 				codeChallengeLength: codes.codeChallenge.length,
 				codeVerifierLength: codes.codeVerifier.length,
 			});
@@ -212,7 +214,7 @@ const PingOnePARFlowV9: React.FC = () => {
 		const storedCodes = PKCEStorageServiceV8U.getStoredPKCECodes('pingone-par-flow-v9');
 		if (storedCodes) {
 			setPkceCodes(storedCodes);
-			console.log('📦 [PAR V9] Loaded stored PKCE codes');
+			logger.info('PingOnePARFlowV9', 'Loaded stored PKCE codes');
 		}
 	}, []);
 
@@ -249,7 +251,7 @@ const PingOnePARFlowV9: React.FC = () => {
 		controller.reset();
 
 		messagingService.showSuccessBanner('Flow restarted successfully');
-		console.log('🔄 [PAR V9] Flow restarted');
+		logger.info('PingOnePARFlowV9', 'Flow restarted');
 	}, [controller, messagingService]);
 
 	// Validate step before proceeding

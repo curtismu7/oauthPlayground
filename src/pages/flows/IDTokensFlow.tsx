@@ -1,7 +1,8 @@
 import { FiAlertCircle, FiCheckCircle, FiKey, FiShield } from '@icons';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { CardBody, CardHeader } from '../../components/Card';
+import { CompactAppPickerV9 } from '../../components/CompactAppPickerV9';
 import ConfigurationButton from '../../components/ConfigurationButton';
 import FlowCredentials from '../../components/FlowCredentials';
 import PageTitle from '../../components/PageTitle';
@@ -9,6 +10,8 @@ import { type FlowStep, StepByStepFlow } from '../../components/StepByStepFlow';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { getOAuthTokens } from '../../utils/tokenStorage';
+import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
+import type { V9DiscoveredApp } from '../../services/v9/V9AppDiscoveryService';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -334,6 +337,20 @@ const IDTokensFlow = () => {
 	const [validationResults, setValidationResults] = useState(null);
 	const [error, setError] = useState(null);
 
+	// Handle app selection from CompactAppPickerV9
+	const handleAppSelected = useCallback(
+		(app: V9DiscoveredApp) => {
+			// Use V9 credential storage to update the configuration
+			V9CredentialStorageService.save(
+				'v9:id-tokens',
+				{ clientId: app.clientId, environmentId: config?.environmentId || '' },
+				{ environmentId: config?.environmentId || '' }
+			);
+			console.log(`IDTokensFlow: Selected app: ${app.name}`);
+		},
+		[config?.environmentId]
+	);
+
 	// Track execution results for each step
 	const [_stepResults, setStepResults] = useState<Record<number, unknown>>({});
 	const [_executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
@@ -602,6 +619,38 @@ console.log('ID token is valid!');`,
 				}
 				subtitle="Learn how to handle and validate OpenID Connect ID tokens with real JWT parsing and cryptographic verification."
 			/>
+
+			{/* App Picker Section */}
+			<div style={{ marginBottom: '2rem' }}>
+				<CardHeader>
+					<h3>PingOne Application Selection</h3>
+				</CardHeader>
+				<CardBody>
+					<div style={{ marginBottom: '1rem' }}>
+						<CompactAppPickerV9
+							environmentId={config?.environmentId || ''}
+							onAppSelected={handleAppSelected}
+							grantType="authorization_code"
+							compact={false}
+						/>
+					</div>
+					<div
+						style={{
+							background: '#f8fafc',
+							border: '1px solid #e2e8f0',
+							borderRadius: '0.5rem',
+							padding: '1rem',
+							fontSize: '0.875rem',
+						}}
+					>
+						<strong>Current Configuration:</strong>
+						<div style={{ marginTop: '0.5rem' }}>
+							Environment ID: {config?.environmentId || 'Not set'}<br />
+							Client ID: {config?.clientId || 'Not set'}
+						</div>
+					</div>
+				</CardBody>
+			</div>
 
 			<FlowCredentials
 				flowType="id_tokens"

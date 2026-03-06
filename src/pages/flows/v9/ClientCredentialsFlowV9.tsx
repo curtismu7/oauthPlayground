@@ -33,6 +33,7 @@ import { V9CredentialStorageService } from '../../../services/v9/V9CredentialSto
 import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningService';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
+import { logger } from '../../../utils/logger';
 
 // Get UI components from FlowUIService
 const Container = FlowUIService.getContainer();
@@ -354,7 +355,7 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 		// Clear Client Credentials Flow V9-specific storage with error handling
 		try {
 			FlowCredentialService.clearFlowState('client-credentials-v9');
-			console.log('🔧 [Client Credentials V7] Cleared flow-specific storage');
+			logger.info('ClientCredentialsFlowV9', 'Cleared flow-specific storage');
 		} catch (error) {
 			modernMessaging.showBanner({
 				type: 'error',
@@ -376,9 +377,7 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 			sessionStorage.removeItem('worker-token-cache');
 			localStorage.removeItem('worker-apps-cache');
 
-			console.log(
-				'🔄 [Client Credentials V7] Reset: cleared ConfigChecker and pre-flight cache data'
-			);
+			logger.info('ClientCredentialsFlowV9', 'Reset: cleared ConfigChecker and pre-flight cache data');
 		} catch (_error) {
 			// Background cache clear — non-critical
 		}
@@ -386,7 +385,7 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 		// Clear credential backup when flow is reset
 		try {
 			clearBackup();
-			console.log('🔧 [Client Credentials V7] Cleared credential backup');
+			logger.info('ClientCredentialsFlowV9', 'Cleared credential backup');
 		} catch (_error) {
 			// Background credential backup clear — non-critical
 		}
@@ -460,7 +459,7 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 			controller.credentials &&
 			(controller.credentials.environmentId || controller.credentials.clientId)
 		) {
-			console.log('🔧 [Client Credentials V7] Saving credentials to flow-specific storage:', {
+			logger.info('ClientCredentialsFlowV9', 'Saving credentials to flow-specific storage', {
 				flowKey: 'client-credentials-v9',
 				environmentId: controller.credentials.environmentId,
 				clientId: `${controller.credentials.clientId?.substring(0, 8)}...`,
@@ -634,9 +633,7 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 												: 'secondary'
 										}
 										onClick={() => {
-											console.log(
-												'[ClientCredentials V7] Setting auth method to client_secret_post'
-											);
+											logger.info('ClientCredentialsFlowV9', 'Setting auth method to client_secret_post');
 											controller.setCredentials({
 												...controller.credentials,
 												clientAuthMethod: 'client_secret_post',
@@ -660,9 +657,7 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 												: 'secondary'
 										}
 										onClick={() => {
-											console.log(
-												'[ClientCredentials V7] Setting auth method to client_secret_basic'
-											);
+											logger.info('ClientCredentialsFlowV9', 'Setting auth method to client_secret_basic');
 											controller.setCredentials({
 												...controller.credentials,
 												clientAuthMethod: 'client_secret_basic',

@@ -27,10 +27,12 @@
 import { FiAlertTriangle, FiCheckCircle, FiClock, FiCopy, FiX } from '@icons';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-
+import { CompactAppPickerV9 } from '@/components/CompactAppPickerV9';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 import { Button } from '@/components/ui/button';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
+import type { V9DiscoveredApp } from '@/services/v9/V9AppDiscoveryService';
+import { V9CredentialStorageService } from '@/services/v9/V9CredentialStorageService';
 import { v4ToastManager } from '@/utils/v4ToastMessages';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import { WorkerTokenStatusDisplayV8 } from '@/v8/components/WorkerTokenStatusDisplayV8';
@@ -307,6 +309,30 @@ const CIBAFlowV9: React.FC = () => {
 		}
 	}, []);
 
+	// Load credentials from V9 storage on mount
+	useEffect(() => {
+		const savedCredentials = V9CredentialStorageService.loadSync(FLOW_KEY);
+		if (savedCredentials && Object.keys(savedCredentials).length > 0) {
+			setCredentials((prev) => ({
+				...prev,
+				environmentId: savedCredentials.environmentId || prev.environmentId,
+				clientId: savedCredentials.clientId || prev.clientId,
+				clientSecret: savedCredentials.clientSecret || prev.clientSecret,
+				scope: savedCredentials.scope || prev.scope,
+			}));
+		}
+	}, []);
+
+	// Save credentials to V9 storage whenever they change
+	useEffect(() => {
+		V9CredentialStorageService.save(FLOW_KEY, {
+			environmentId: credentials.environmentId,
+			clientId: credentials.clientId,
+			clientSecret: credentials.clientSecret,
+			scope: credentials.scope,
+		});
+	}, [credentials]);
+
 	// Load discovery metadata when environment changes (with rate limiting and caching)
 	const loadDiscoveryMetadataWithRetry = useCallback(
 		async (envId: string) => {
@@ -402,6 +428,16 @@ const CIBAFlowV9: React.FC = () => {
 	const handleInputChange = (field: keyof CibaCredentials, value: string) => {
 		setCredentials((prev) => ({ ...prev, [field]: value }));
 	};
+
+	// Handle app selection from CompactAppPickerV9
+	const handleAppSelected = useCallback((app: V9DiscoveredApp) => {
+		setCredentials((prev) => ({
+			...prev,
+			environmentId: app.environmentId,
+			clientId: app.clientId,
+			clientSecret: app.clientSecret || '',
+		}));
+	}, []);
 
 	// Generate login hint token
 	const generateLoginHintToken = async () => {
@@ -534,6 +570,13 @@ const CIBAFlowV9: React.FC = () => {
 			{/* Configuration Card */}
 			<Card>
 				<CardTitle>🔐 CIBA Configuration</CardTitle>
+
+				{/* App Picker for Quick Configuration */}
+				<CompactAppPickerV9
+					environmentId={credentials.environmentId ?? ''}
+					onAppSelected={handleAppSelected}
+					grantType="ciba"
+				/>
 
 				{/* Basic Configuration */}
 				<FormGroup>

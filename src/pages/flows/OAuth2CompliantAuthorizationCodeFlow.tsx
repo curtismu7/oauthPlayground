@@ -29,9 +29,12 @@ import {
 	FiRefreshCw,
 	FiShield,
 } from '@icons';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { CompactAppPickerV9 } from '../../components/CompactAppPickerV9';
 import { useOAuth2CompliantAuthorizationCodeFlow } from '../../hooks/useOAuth2CompliantAuthorizationCodeFlow';
+import type { V9DiscoveredApp } from '../../services/v9/V9AppDiscoveryService';
+import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 // Styled Components
@@ -390,6 +393,43 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 		}
 	}, [flowState.authorizationUrl]);
 
+	// Handle app selection from CompactAppPickerV9
+	const handleAppSelected = useCallback(
+		(app: V9DiscoveredApp) => {
+			flowActions.setCredentials({
+				...flowState.credentials,
+				clientId: app.clientId,
+			});
+		},
+		[flowState.credentials, flowActions]
+	);
+
+	// Load credentials from V9 storage on mount
+	useEffect(() => {
+		const savedCredentials = V9CredentialStorageService.loadSync('oauth2-compliant-auth-code');
+		if (savedCredentials && Object.keys(savedCredentials).length > 0) {
+			flowActions.setCredentials({
+				...flowState.credentials,
+				clientId: savedCredentials.clientId || flowState.credentials.clientId,
+				clientSecret: savedCredentials.clientSecret || flowState.credentials.clientSecret,
+				environmentId: savedCredentials.environmentId || flowState.credentials.environmentId,
+				redirectUri: savedCredentials.redirectUri || flowState.credentials.redirectUri,
+				scope: savedCredentials.scope || flowState.credentials.scope,
+			});
+		}
+	}, []);
+
+	// Save credentials to V9 storage whenever they change
+	useEffect(() => {
+		V9CredentialStorageService.save('oauth2-compliant-auth-code', {
+			clientId: flowState.credentials.clientId,
+			clientSecret: flowState.credentials.clientSecret,
+			environmentId: flowState.credentials.environmentId,
+			redirectUri: flowState.credentials.redirectUri,
+			scope: flowState.credentials.scope,
+		});
+	}, [flowState.credentials]);
+
 	return (
 		<Container>
 			<ContentWrapper>
@@ -442,6 +482,13 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 													according to RFC 6749 specifications.
 												</p>
 											</InfoBox>
+
+											{/* App Picker for Quick Configuration */}
+											<CompactAppPickerV9
+												environmentId={flowState.credentials.environmentId ?? ''}
+												onAppSelected={handleAppSelected}
+												grantType="authorization_code"
+											/>
 
 											<FormGroup>
 												<Label>Environment ID *</Label>

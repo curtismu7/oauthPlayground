@@ -55,6 +55,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import MenuVersionBadge from './MenuVersionBadge';
+import { V9CredentialStorageService, type SerializableMenuGroup } from '../services/v9/V9CredentialStorageService';
 
 const ColoredIcon = styled.div<{ $color: string }>`
 	color: ${(props) => props.$color};
@@ -179,17 +180,9 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 	};
 
 	// Helper functions for persistence
-	type SerializableGroup = {
-		id: string;
-		label: string;
-		isOpen: boolean;
-		items: Array<{ id: string; path: string; label: string }>;
-		subGroups?: Array<SerializableGroup>;
-	};
-
-	const createSerializableGroups = (groups: MenuGroup[]): SerializableGroup[] => {
+	const createSerializableGroups = (groups: MenuGroup[]): SerializableMenuGroup[] => {
 		return groups.map((group) => {
-			const result: SerializableGroup = {
+			const result: SerializableMenuGroup = {
 				id: group.id,
 				label: group.label,
 				isOpen: group.isOpen,
@@ -1985,26 +1978,63 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 			},
 		];
 
+		// V9 Storage keys for sidebar menu persistence
+		const SIDEBAR_STORAGE_KEY = 'sidebar-menu-configuration';
+		
 		// Menu structure version - increment when menu structure changes significantly
 		const MENU_VERSION = '2.6'; // Moved SDK Examples to Production menu group
-		const savedVersion = localStorage.getItem('simpleDragDropSidebar.menuVersion');
-
+		
+		// Try to restore from V9 storage
+		const savedSidebarData = V9CredentialStorageService.loadSync(SIDEBAR_STORAGE_KEY);
+		const savedVersion = savedSidebarData?.version;
+		
 		// If version changed, clear old menu layout and use new structure
 		if (savedVersion !== MENU_VERSION) {
+			console.log('🔄 Menu version changed, using default structure');
+			V9CredentialStorageService.save(SIDEBAR_STORAGE_KEY, { 
+				version: MENU_VERSION,
+				menuOrder: null 
+			});
+			
+			// Clear old localStorage data if exists
 			localStorage.removeItem('simpleDragDropSidebar.menuOrder');
-			localStorage.setItem('simpleDragDropSidebar.menuVersion', MENU_VERSION);
+			localStorage.removeItem('simpleDragDropSidebar.menuVersion');
+			
 			return defaultGroups;
 		}
 
-		// Try to restore from localStorage
+		// Try to restore from V9 storage
+		if (savedSidebarData?.menuOrder) {
+			try {
+				const serializedGroups = savedSidebarData.menuOrder;
+				console.log('🔄 Restoring menu layout from V9 storage');
+				return restoreMenuGroups(serializedGroups, defaultGroups);
+			} catch (error) {
+				console.warn('Failed to parse saved menu order from V9 storage:', error);
+			}
+		}
+
+		// Fallback: try to migrate from localStorage
 		const savedOrder = localStorage.getItem('simpleDragDropSidebar.menuOrder');
 		if (savedOrder) {
 			try {
 				const serializedGroups = JSON.parse(savedOrder);
-				console.log('🔄 Restoring menu layout from localStorage');
-				return restoreMenuGroups(serializedGroups, defaultGroups);
+				console.log('🔄 Migrating menu layout from localStorage to V9 storage');
+				const restoredGroups = restoreMenuGroups(serializedGroups, defaultGroups);
+				
+				// Save to V9 storage after successful migration
+				V9CredentialStorageService.save(SIDEBAR_STORAGE_KEY, {
+					version: MENU_VERSION,
+					menuOrder: createSerializableGroups(restoredGroups)
+				});
+				
+				// Clear old localStorage data
+				localStorage.removeItem('simpleDragDropSidebar.menuOrder');
+				localStorage.removeItem('simpleDragDropSidebar.menuVersion');
+				
+				return restoredGroups;
 			} catch (error) {
-				console.warn('Failed to parse saved menu order:', error);
+				console.warn('Failed to migrate saved menu order from localStorage:', error);
 			}
 		}
 
@@ -2016,11 +2046,18 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 		setSaveButtonState('saving');
 
 		try {
-			// Save to localStorage directly
+			// Save to localStorage directly (for manual save)
 			const serializable = createSerializableGroups(menuGroups);
 			localStorage.setItem('simpleDragDropSidebar.menuOrder', JSON.stringify(serializable));
 			localStorage.setItem('simpleDragDropSidebar.menuVersion', '2.2');
-			console.log('💾 Menu layout saved to localStorage:', serializable);
+			
+			// Also save to V9 storage for consistency
+			V9CredentialStorageService.save('sidebar-menu-configuration', {
+				version: '2.6',
+				menuOrder: serializable
+			});
+			
+			console.log('💾 Menu layout saved to both localStorage and V9 storage:', serializable);
 
 			setSaveButtonState('saved');
 
@@ -2065,9 +2102,14 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 			const deduplicatedGroups = deduplicateGroups(menuGroups);
 
 			const serializable = createSerializableGroups(deduplicatedGroups);
-			localStorage.setItem('simpleDragDropSidebar.menuOrder', JSON.stringify(serializable));
-			// Ensure menu version is also saved when menu is modified
-			localStorage.setItem('simpleDragDropSidebar.menuVersion', '2.2');
+			
+			// Save to V9 storage
+			V9CredentialStorageService.save('sidebar-menu-configuration', {
+				version: '2.6',
+				menuOrder: serializable
+			});
+			
+			console.log('💾 Menu layout saved to V9 storage');
 		} catch (error) {
 			console.warn('❌ Failed to persist menu layout:', error);
 		}
@@ -2610,9 +2652,9 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							<div style={{ fontSize: '0.875rem', color: '#166534', marginTop: '0.25rem' }}>
 								Drag items to reorder • Green zones show drop areas
 							</div>
-							{localStorage.getItem('simpleDragDropSidebar.menuOrder') && (
+							{V9CredentialStorageService.loadSync('sidebar-menu-configuration').menuOrder && (
 								<div style={{ fontSize: '0.875rem', color: '#059669', marginTop: '0.25rem' }}>
-									✅ Custom layout loaded from storage
+									✅ Custom layout loaded from V9 storage
 								</div>
 							)}
 						</div>
