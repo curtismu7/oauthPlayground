@@ -358,22 +358,22 @@ const WarningCard = styled(Card)`
   background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
 `;
 
+// Use V6 pageLayoutService for consistent dimensions and FlowHeader integration
+const pageConfig = {
+	flowType: 'documentation' as const,
+	theme: 'blue' as const,
+	maxWidth: '72rem', // Wider for session management content (1152px)
+	showHeader: true,
+	showFooter: false,
+	responsive: true,
+	flowId: 'oidc-session-management', // Enables FlowHeader integration
+	padding: '100px 0 6rem', // Top padding accounts for fixed Navbar (80px) + spacing
+};
+
+const { PageContainer, ContentWrapper, PageHeader } =
+	PageLayoutService.createPageLayout(pageConfig);
+
 const OIDCSessionManagement = () => {
-	// Use V6 pageLayoutService for consistent dimensions and FlowHeader integration
-	const pageConfig = {
-		flowType: 'documentation' as const,
-		theme: 'blue' as const,
-		maxWidth: '72rem', // Wider for session management content (1152px)
-		showHeader: true,
-		showFooter: false,
-		responsive: true,
-		flowId: 'oidc-session-management', // Enables FlowHeader integration
-		padding: '100px 0 6rem', // Top padding accounts for fixed Navbar (80px) + spacing
-	};
-
-	const { PageContainer, ContentWrapper, PageHeader } =
-		PageLayoutService.createPageLayout(pageConfig);
-
 	const [activeDemo, setActiveDemo] = useState<string | null>(null);
 	const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
