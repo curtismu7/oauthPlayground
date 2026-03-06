@@ -6,6 +6,7 @@
  */
 
 import { FLOW_REDIRECT_URI_MAPPING } from '../utils/flowRedirectUriMapping';
+import { logger } from '../utils/logger';
 
 const OVERRIDE_STORAGE_KEY = 'callback_uri_overrides';
 
@@ -165,7 +166,12 @@ class CallbackUriService {
 				this.callbackOverrides = parsed;
 			}
 		} catch (error) {
-			console.error('[CallbackUriService] Failed to load overrides:', error);
+			logger.error(
+				'CallbackUriService',
+				'[CallbackUriService] Failed to load overrides:',
+				undefined,
+				error as Error
+			);
 			this.callbackOverrides = {};
 		}
 	}

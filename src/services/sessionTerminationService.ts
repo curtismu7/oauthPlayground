@@ -84,7 +84,12 @@ const extractUserIdFromIdToken = (idToken?: MaybeString): string | null => {
 		const payload = JSON.parse(payloadJson) as { sub?: string };
 		return payload?.sub ?? null;
 	} catch (error) {
-		console.warn('[sessionTerminationService] Failed to parse ID token payload', error);
+		logger.warn(
+			'SessionTerminationService',
+			'[sessionTerminationService] Failed to parse ID token payload',
+			undefined,
+			error as Error
+		);
 		return null;
 	}
 };
@@ -151,7 +156,12 @@ const resolveLogoutUrl = (
 
 		return url.toString();
 	} catch (error) {
-		console.warn('[sessionTerminationService] Failed to build logout URL', error);
+		logger.warn(
+			'SessionTerminationService',
+			'[sessionTerminationService] Failed to build logout URL',
+			undefined,
+			error as Error
+		);
 		return null;
 	}
 };

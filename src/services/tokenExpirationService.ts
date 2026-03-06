@@ -1,6 +1,7 @@
 // src/services/tokenExpirationService.ts
 // Unified service for checking worker token expiration and showing appropriate messages
 
+import { logger } from '../utils/logger';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
 export interface TokenExpirationInfo {
@@ -59,7 +60,12 @@ export const checkTokenExpiration = (
 			expiresAtFormatted: new Date(expiresAt).toLocaleString(),
 		};
 	} catch (error) {
-		console.warn('[TokenExpirationService] Error checking token expiration:', error);
+		logger.warn(
+			'TokenExpirationService',
+			'[TokenExpirationService] Error checking token expiration:',
+			undefined,
+			error as Error
+		);
 		return null;
 	}
 };
@@ -137,7 +143,12 @@ export const getValidWorkerToken = (
 			expirationInfo,
 		};
 	} catch (error) {
-		console.error('[TokenExpirationService] Error getting valid worker token:', error);
+		logger.error(
+			'TokenExpirationService',
+			'[TokenExpirationService] Error getting valid worker token:',
+			undefined,
+			error as Error
+		);
 		return {
 			isValid: false,
 			token: null,

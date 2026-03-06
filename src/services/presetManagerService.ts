@@ -814,7 +814,12 @@ class PresetManagerServiceImpl implements PresetManagerService {
 			const presets = JSON.parse(stored) as ConfigurationPreset[];
 			return Array.isArray(presets) ? presets : [];
 		} catch (error) {
-			console.warn('[PresetManager] Failed to load custom presets:', error);
+			logger.warn(
+				'PresetManagerService',
+				'[PresetManager] Failed to load custom presets:',
+				undefined,
+				error as Error
+			);
 			return [];
 		}
 	}
@@ -859,7 +864,12 @@ class PresetManagerServiceImpl implements PresetManagerService {
 				);
 				return updatedPreset;
 			} catch (error) {
-				console.error('[PresetManager] Failed to update custom preset:', error);
+				logger.error(
+					'PresetManagerService',
+					'[PresetManager] Failed to update custom preset:',
+					undefined,
+					error as Error
+				);
 				throw new Error('Failed to update custom preset');
 			}
 		} else {
@@ -886,7 +896,12 @@ class PresetManagerServiceImpl implements PresetManagerService {
 				);
 				return newPreset;
 			} catch (error) {
-				console.error('[PresetManager] Failed to save custom preset:', error);
+				logger.error(
+					'PresetManagerService',
+					'[PresetManager] Failed to save custom preset:',
+					undefined,
+					error as Error
+				);
 				throw new Error('Failed to save custom preset');
 			}
 		}
@@ -907,7 +922,12 @@ class PresetManagerServiceImpl implements PresetManagerService {
 			);
 			return true;
 		} catch (error) {
-			console.error('[PresetManager] Failed to delete custom preset:', error);
+			logger.error(
+				'PresetManagerService',
+				'[PresetManager] Failed to delete custom preset:',
+				undefined,
+				error as Error
+			);
 			return false;
 		}
 	}
@@ -942,7 +962,12 @@ class PresetManagerServiceImpl implements PresetManagerService {
 			);
 			return updatedPreset;
 		} catch (error) {
-			console.error('[PresetManager] Failed to update custom preset:', error);
+			logger.error(
+				'PresetManagerService',
+				'[PresetManager] Failed to update custom preset:',
+				undefined,
+				error as Error
+			);
 			return null;
 		}
 	}
