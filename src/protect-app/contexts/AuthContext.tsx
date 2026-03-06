@@ -6,6 +6,7 @@ import React, {
 	useEffect,
 	useReducer,
 } from 'react';
+import { logger } from '../../utils/logger';
 
 // Auth Types
 export interface User {
@@ -276,7 +277,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 						dispatch({ type: 'LOGOUT' });
 					}
 				} catch (error) {
-					console.error('Failed to validate saved token:', error);
+					logger.error('AuthContext', 'Failed to validate saved token:', undefined, error as Error);
 					dispatch({ type: 'LOGOUT' });
 				} finally {
 					dispatch({ type: 'SET_LOADING', payload: false });
@@ -404,7 +405,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 				logout();
 			}
 		} catch (error) {
-			console.error('Failed to check auth status:', error);
+			logger.error('AuthContext', 'Failed to check auth status:', undefined, error as Error);
 			logout();
 		} finally {
 			dispatch({ type: 'SET_LOADING', payload: false });

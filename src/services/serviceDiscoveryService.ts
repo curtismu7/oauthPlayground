@@ -1,3 +1,4 @@
+import { logger } from '../utils/logger';
 // src/services/serviceDiscoveryService.ts
 // Service discovery and registry system for OAuth flows
 // Helps developers find appropriate services for their implementations
@@ -289,7 +290,7 @@ try {
   showToast(errorResponse.userMessage);
   
   // Log technical details
-  console.error('Error:', errorResponse.technicalMessage);
+  logger.error('serviceDiscoveryService', 'Error:', { message: errorResponse.technicalMessage });
 }
           `,
 					complexity: 'basic',

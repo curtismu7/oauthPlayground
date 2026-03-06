@@ -11,6 +11,7 @@
 
 import { FiAlertTriangle, FiInfo, FiSave, FiX } from '@icons';
 import React, { useEffect, useState } from 'react';
+import { logger } from '../../utils/logger';
 import { useProtectPortal } from '../contexts/ProtectPortalContext';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -89,7 +90,12 @@ export const ProtectPortalConfigModal: React.FC<ProtectPortalConfigModalProps> =
 			onConfigurationSaved?.(config);
 			onClose();
 		} catch (error) {
-			console.error('Failed to save configuration:', error);
+			logger.error(
+				'ProtectPortalConfigModal',
+				'Failed to save configuration:',
+				undefined,
+				error as Error
+			);
 			setError('Failed to save configuration. Please try again.');
 		} finally {
 			setIsSaving(false);

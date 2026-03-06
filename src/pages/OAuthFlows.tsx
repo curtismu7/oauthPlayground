@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../components/Card';
 import { useAuth } from '../contexts/NewAuthContext';
 import type { OAuthFlow } from '../types/oauthFlows';
+import { logger } from '../utils/logger';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
 const FlowsContainer = styled.div`
@@ -739,7 +740,7 @@ const OAuthFlows = () => {
 				});
 			}, 2000);
 		} catch (error) {
-			console.error('Demo failed:', error);
+			logger.error('OAuthFlows', 'Demo failed:', undefined, error as Error);
 			setDemoStatus('error');
 		}
 	};

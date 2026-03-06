@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { InteractiveCodeEditor } from '../components/InteractiveCodeEditor';
+import { logger } from '../utils/logger';
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -171,7 +172,7 @@ async function initiateAuthorizationFlow() {
     window.location.href = authUrl.toString();
     
   } catch (error) {
-    console.error('Authorization flow failed:', error);
+    logger.error('CodeEditorDemo', 'Authorization flow failed:', undefined, error as Error);
     throw error;
   }
 }

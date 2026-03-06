@@ -6,6 +6,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import ClientCredentialManager from '../../components/ClientCredentialManager';
 import { useCredentialStoreV8 } from '../../hooks/useCredentialStoreV8';
+import { logger } from '../../utils/logger';
 
 // PAR Test Configuration
 interface PARTestConfig {
@@ -349,7 +350,7 @@ const PARTest: React.FC = () => {
 				console.log('✅ PAR request successful, got request_uri:', responseData.request_uri);
 				return responseData.request_uri;
 			} else {
-				console.error('❌ PAR request failed:', responseData);
+				logger.error('PARTest', '❌ PAR request failed:', { responseData });
 				return null;
 			}
 		} catch (error) {
@@ -362,7 +363,7 @@ const PARTest: React.FC = () => {
 				error: error instanceof Error ? error.message : 'Unknown error',
 				duration,
 			});
-			console.error('❌ PAR request failed:', error);
+			logger.error('PARTest', '❌ PAR request failed:', undefined, error as Error);
 			return null;
 		}
 	}, [config, addResult]);
@@ -420,7 +421,12 @@ const PARTest: React.FC = () => {
 					error: error instanceof Error ? error.message : 'Unknown error',
 					duration,
 				});
-				console.error('❌ Authorization URL generation failed:', error);
+				logger.error(
+					'PARTest',
+					'❌ Authorization URL generation failed:',
+					undefined,
+					error as Error
+				);
 				return null;
 			}
 		},
@@ -480,7 +486,7 @@ const PARTest: React.FC = () => {
 				error: error instanceof Error ? error.message : 'Unknown error',
 				duration,
 			});
-			console.error('❌ Full PAR flow test failed:', error);
+			logger.error('PARTest', '❌ Full PAR flow test failed:', undefined, error as Error);
 			return null;
 		}
 	}, [config, testPARRequest, testAuthorizationUrl, addResult]);

@@ -327,7 +327,7 @@ const result = await pingOneLogoutService.logout({
 if (result.success) {
   console.log('Logout initiated:', result.message);
 } else {
-  console.error('Logout failed:', result.error);
+  logger.error('PingOneLogoutFlow', 'Logout failed:', { error: result.error });
 }`,
 			execute: async () => {
 				logger.info('PingOneLogoutFlow', 'Initiating logout');
@@ -379,7 +379,7 @@ const returnedState = urlParams.get('state');
 const storedState = sessionStorage.getItem('logout_state');
 
 if (returnedState !== storedState) {
-  console.error('Logout state mismatch - possible CSRF attack');
+  logger.error('PingOneLogoutFlow', 'Logout state mismatch - possible CSRF attack');
   return;
 }
 
@@ -418,7 +418,7 @@ window.location.href = '/login'; // or show logout confirmation`,
 // Check if user is still authenticated
 const idToken = localStorage.getItem('id_token');
 if (idToken) {
-  console.warn('ID token still exists - logout may not have completed');
+  logger.warn('PingOneLogoutFlow', 'ID token still exists - logout may not have completed');
 } else {
   console.log('✅ Logout successful - all tokens cleared');
 }

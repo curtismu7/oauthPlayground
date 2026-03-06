@@ -4,10 +4,10 @@
 import { FiAlertCircle, FiCheckCircle, FiKey, FiX } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CompactApplicationPicker } from '../components/CompactApplicationPicker';
 import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
 import { WorkerTokenModal } from '../components/WorkerTokenModal';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { getAnyWorkerToken } from '../utils/workerTokenDetection';
 
 const PageContainer = styled.div`
@@ -217,7 +217,11 @@ const CompactAppPickerDemo: React.FC = () => {
 		localStorage.removeItem('pingone_worker_token');
 		setWorkerToken('');
 		setSelectedApp(null);
-		modernMessaging.showFooterMessage({ type: 'info', message: 'Worker token cleared successfully.', duration: 3000 });
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message: 'Worker token cleared successfully.',
+			duration: 3000,
+		});
 	}, []);
 
 	const handleGetWorkerToken = useCallback(() => {

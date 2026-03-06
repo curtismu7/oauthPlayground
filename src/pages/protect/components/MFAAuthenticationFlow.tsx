@@ -22,6 +22,7 @@ import {
 } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../../../utils/logger';
 import MFAAuthenticationService from '../services/mfaAuthenticationService';
 import type {
 	EducationalContent,
@@ -354,7 +355,12 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 				console.log('[🔐 MFA-AUTHENTICATION] Loaded devices:', devicesResponse.data.devices.length);
 			}
 		} catch (err) {
-			console.error('[🔐 MFA-AUTHENTICATION] Failed to load devices:', err);
+			logger.error(
+				'MFAAuthenticationFlow',
+				'[🔐 MFA-AUTHENTICATION] Failed to load devices:',
+				undefined,
+				err as Error
+			);
 
 			const errorMessage = err instanceof Error ? err.message : 'Failed to load MFA devices';
 			setError(errorMessage);
@@ -474,7 +480,12 @@ const MFAAuthenticationFlow: React.FC<MFAAuthenticationFlowProps> = ({
 				throw new Error('Authentication completed but no tokens received');
 			}
 		} catch (err) {
-			console.error('[🔐 MFA-AUTHENTICATION] Authentication failed:', err);
+			logger.error(
+				'MFAAuthenticationFlow',
+				'[🔐 MFA-AUTHENTICATION] Authentication failed:',
+				undefined,
+				err as Error
+			);
 
 			const errorMessage = err instanceof Error ? err.message : 'MFA authentication failed';
 			setError(errorMessage);

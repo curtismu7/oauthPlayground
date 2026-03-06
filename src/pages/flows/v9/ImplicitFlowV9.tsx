@@ -438,7 +438,6 @@ const ImplicitFlowV9: React.FC = () => {
 		});
 	}, [credentials, selectedVariant]);
 
-	
 	const toggleSection =
 		ImplicitFlowSharedService.CollapsibleSections.createToggleHandler(setCollapsedSections);
 

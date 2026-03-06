@@ -1,4 +1,5 @@
 import React, { createContext, ReactNode, useContext, useReducer } from 'react';
+import { logger } from '../../utils/logger';
 
 // Risk Evaluation Types
 export interface RiskScore {
@@ -516,7 +517,7 @@ export const RiskProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 			const history = await RiskEvaluationService.getEvaluationHistory(userId, limit);
 			return history;
 		} catch (error) {
-			console.error('Failed to fetch evaluation history:', error);
+			logger.error('RiskContext', 'Failed to fetch evaluation history:', undefined, error as Error);
 			return [];
 		}
 	};

@@ -6,6 +6,7 @@ import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8
 import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
+import { logger } from '../utils/logger';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
 interface TokenPayload {
@@ -319,7 +320,7 @@ const _WorkerTokenTester: React.FC = () => {
 
 			return decoded;
 		} catch (err) {
-			console.error('Failed to decode token:', err);
+			logger.error('WorkerTokenTester', 'Failed to decode token:', undefined, err as Error);
 			return null;
 		}
 	};
@@ -600,7 +601,10 @@ const _WorkerTokenTester: React.FC = () => {
 
 	return (
 		<div style={styles.container}>
-			<WorkerTokenExpiryBannerV8 onFixToken={() => setShowWorkerTokenModal(true)} marginBottom="24px" />
+			<WorkerTokenExpiryBannerV8
+				onFixToken={() => setShowWorkerTokenModal(true)}
+				marginBottom="24px"
+			/>
 			<div style={styles.header}>
 				<h1 style={styles.title}>
 					<FiKey size={32} />
@@ -823,7 +827,10 @@ const _WorkerTokenTester: React.FC = () => {
 					<SuperSimpleApiDisplayV8 />
 				</>
 			)}
-		<WorkerTokenModalV8 isOpen={showWorkerTokenModal} onClose={() => setShowWorkerTokenModal(false)} />
+			<WorkerTokenModalV8
+				isOpen={showWorkerTokenModal}
+				onClose={() => setShowWorkerTokenModal(false)}
+			/>
 		</div>
 	);
 };
