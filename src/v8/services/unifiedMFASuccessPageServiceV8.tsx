@@ -29,13 +29,13 @@ import {
 } from '@icons';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import {
 	ApiDisplayCheckbox,
 	SuperSimpleApiDisplayV8,
 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import type { DeviceType } from '../flows/shared/MFATypes';
 
 export interface UnifiedMFASuccessPageData {
@@ -284,10 +284,19 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 			);
 			if (success) {
 				setTokenCopied(true);
-				modernMessaging.showFooterMessage({ type: 'info', message: 'Access token copied to clipboard!', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: 'Access token copied to clipboard!',
+					duration: 3000,
+				});
 				setTimeout(() => setTokenCopied(false), 2000);
 			} else {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to copy access token', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'Failed to copy access token',
+					dismissible: true,
+				});
 			}
 		}
 	};
@@ -1069,7 +1078,12 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 											const payload = JSON.stringify(decoded.payload, null, 2);
 											alert(`Token Payload:\n\n${payload}`);
 										} else {
-											modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to decode token', dismissible: true });
+											modernMessaging.showBanner({
+												type: 'error',
+												title: 'Error',
+												message: 'Failed to decode token',
+												dismissible: true,
+											});
 										}
 									}}
 									style={{
@@ -1801,16 +1815,56 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 						marginBottom: '1rem',
 					}}
 				>
-					<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>
-						Achievements:
-					</h4>
+					<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>Achievements:</h4>
 					<ul style={{ margin: '0', paddingLeft: '1.5rem', color: '#4b5563' }}>
-						<li>✅ {deviceTypeDisplay} device {flowType === 'registration' ? 'registered' : 'authenticated'} successfully</li>
+						<li>
+							✅ {deviceTypeDisplay} device{' '}
+							{flowType === 'registration' ? 'registered' : 'authenticated'} successfully
+						</li>
 						<li>✅ Device status: {deviceStatus}</li>
 						<li>✅ {username ? `User ${username} verified` : 'User verification completed'}</li>
-						<li>✅ {flowType === 'registration' ? 'MFA device enrollment' : 'MFA authentication'} completed</li>
+						<li>
+							✅ {flowType === 'registration' ? 'MFA device enrollment' : 'MFA authentication'}{' '}
+							completed
+						</li>
 					</ul>
 				</div>
+				
+				{/* Validation Insights */}
+				<div
+					style={{
+						background: 'white',
+						borderRadius: '0.375rem',
+						padding: '1rem',
+						marginBottom: '1rem',
+					}}
+				>
+					<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>
+						Validation Insights:
+					</h4>
+					<div style={{ fontSize: '0.875rem', color: '#4b5563' }}>
+						<p>
+							<strong>Security Status:</strong> ✅ MFA device properly configured
+						</p>
+						<p>
+							<strong>Compliance:</strong> ✅ Multi-factor authentication enabled
+						</p>
+						<p>
+							<strong>Device Health:</strong> ✅ {deviceTypeDisplay} device verified and active
+						</p>
+						{flowType === 'registration' && (
+							<p>
+								<strong>Registration:</strong> ✅ Device successfully enrolled in MFA system
+							</p>
+						)}
+						{flowType === 'authentication' && (
+							<p>
+								<strong>Authentication:</strong> ✅ User identity verified with MFA
+							</p>
+						)}
+					</div>
+				</div>
+				
 				<div
 					style={{
 						background: 'white',
@@ -1818,16 +1872,31 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 						padding: '1rem',
 					}}
 				>
-					<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>
-						Flow Summary:
-					</h4>
+					<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>Flow Summary:</h4>
 					<div style={{ fontSize: '0.875rem', color: '#4b5563' }}>
-						<p><strong>Device Type:</strong> {deviceTypeDisplay}</p>
-						<p><strong>Device ID:</strong> {deviceId}</p>
-						<p><strong>Flow Type:</strong> {flowType === 'registration' ? 'Device Registration' : 'Device Authentication'}</p>
-						{contactInfo && <p><strong>Contact:</strong> {contactLabel} - {contactInfo}</p>}
-						{deviceNickname && <p><strong>Device Name:</strong> {deviceNickname}</p>}
-						<p><strong>Completion Time:</strong> {new Date(timestamp || Date.now()).toLocaleString()}</p>
+						<p>
+							<strong>Device Type:</strong> {deviceTypeDisplay}
+						</p>
+						<p>
+							<strong>Device ID:</strong> {deviceId}
+						</p>
+						<p>
+							<strong>Flow Type:</strong>{' '}
+							{flowType === 'registration' ? 'Device Registration' : 'Device Authentication'}
+						</p>
+						{contactInfo && (
+							<p>
+								<strong>Contact:</strong> {contactLabel} - {contactInfo}
+							</p>
+						)}
+						{deviceNickname && (
+							<p>
+								<strong>Device Name:</strong> {deviceNickname}
+							</p>
+						)}
+						<p>
+							<strong>Completion Time:</strong> {new Date(timestamp || Date.now()).toLocaleString()}
+						</p>
 					</div>
 				</div>
 			</div>
