@@ -18,6 +18,8 @@ import { useResourceOwnerPasswordFlowV7 } from '../../hooks/useResourceOwnerPass
 import { FlowHeader } from '../../services/flowHeaderService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
+import { CompactAppPickerV8U } from '@/v8u/components/CompactAppPickerV8U';
 import { UserSearchDropdownV8 } from '../../v8/components/UserSearchDropdownV8';
 
 const PageContainer = styled.div`
@@ -215,6 +217,16 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 		});
 	};
 
+	// Handle app selection from CompactAppPickerV8U
+	const handleAppSelected = (app: DiscoveredApp) => {
+		controller.setCredentials({
+			...controller.credentials,
+			environmentId: app.environmentId,
+			clientId: app.clientId,
+			clientSecret: app.clientSecret || '',
+		});
+	};
+
 	const _copyToClipboard = (text: string, label: string) => {
 		navigator.clipboard.writeText(text);
 		modernMessaging.showFooterMessage({ type: 'info', message: `${label} copied to clipboard`, duration: 3000 });
@@ -236,6 +248,13 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 							<FiKey />
 							PingOne Configuration
 						</h3>
+
+						{/* App Picker for Quick Configuration */}
+						<CompactAppPickerV8U
+							environmentId={controller.credentials.environmentId || ''}
+							onAppSelected={handleAppSelected}
+						/>
+
 						<form>
 							<FormGroup>
 								<FormLabel>Environment ID</FormLabel>

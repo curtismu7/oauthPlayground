@@ -297,6 +297,52 @@ Flow page **headers must stay blue** (`#2563eb` / `#1e40af`).
 
 ---
 
+## 🔐 Credentials Import/Export Service (NEW - March 2026)
+
+**Status:** ✅ **STANDARDIZED** - Service and component available
+
+### Overview
+All flows with credentials should use the standardized import/export service for consistent user experience.
+
+### Service Location
+- **Service**: `src/services/credentialsImportExportService.ts`
+- **Component**: `src/components/CredentialsImportExport.tsx`
+- **Version**: 9.0.0
+
+### Implementation Pattern for V8 → V9 Migration
+When migrating V8 flows to V9, add credentials import/export near credential inputs:
+
+```tsx
+import { CredentialsImportExport } from '@/components/CredentialsImportExport';
+
+// Add near credential inputs
+<CredentialsImportExport
+  credentials={credentials}
+  options={{
+    flowType: 'your-flow-type',
+    appName: 'Your Flow Name',
+    onImportSuccess: (creds) => setCredentials(creds),
+    onImportError: (error) => console.error(error),
+  }}
+/>
+```
+
+### File Format
+Export creates JSON with standardized structure including flow type, version, and metadata.
+
+### Implementation Status
+- ✅ V9 Flows: All 16 use `ComprehensiveCredentialsService`
+- 🔄 Non-V9 Flows: 3/13 have standardized import/export
+- 📋 **See**: `CREDENTIALS_IMPORT_EXPORT_INVENTORY.md` for complete inventory
+
+### Required Imports
+```typescript
+import { CredentialsImportExport } from '@/components/CredentialsImportExport';
+import { credentialsImportExportService } from '@/services/credentialsImportExportService';
+```
+
+---
+
 ## Reference: Flow-by-Flow Import Fix Commands
 
 ### Token Exchange
