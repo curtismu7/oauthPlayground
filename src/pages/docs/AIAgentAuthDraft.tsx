@@ -170,7 +170,6 @@ const { PageContainer, ContentWrapper, PageHeader } = PageLayoutService.createPa
 	showHeader: true,
 	showFooter: false,
 	responsive: true,
-	flowId: 'ai-agent-auth-draft',
 });
 
 const AIAgentAuthDraft: React.FC = () => {

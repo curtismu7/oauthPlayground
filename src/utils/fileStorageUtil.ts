@@ -1,3 +1,4 @@
+import { logger } from './logger';
 // src/utils/fileStorageUtil.ts
 // File storage utility for credential persistence across hard restarts
 
@@ -74,7 +75,12 @@ export class FileStorageUtil {
 					throw new Error(result.error || 'Backend save failed');
 				}
 			} catch (apiError) {
-				console.warn(`[FileStorage] Backend unavailable, using localStorage:`, apiError);
+				logger.warn(
+					'FileStorage',
+					'Backend unavailable, using localStorage:',
+					undefined,
+					apiError as Error
+				);
 
 				// Use localStorage as fallback storage
 				const key = FileStorageUtil.getStorageKey(options);
@@ -84,7 +90,7 @@ export class FileStorageUtil {
 				return { success: true };
 			}
 		} catch (error) {
-			console.error(`❌ [FileStorage] Failed to save:`, error);
+			logger.error('FileStorage', 'Failed to save:', undefined, error as Error);
 			return {
 				success: false,
 				error: error instanceof Error ? error.message : 'Unknown error',
@@ -128,7 +134,12 @@ export class FileStorageUtil {
 					throw new Error(result.error || 'Backend load failed');
 				}
 			} catch (apiError) {
-				console.warn(`[FileStorage] Backend unavailable, using localStorage:`, apiError);
+				logger.warn(
+					'FileStorage',
+					'Backend unavailable, using localStorage:',
+					undefined,
+					apiError as Error
+				);
 
 				// Use localStorage as fallback storage
 				const key = FileStorageUtil.getStorageKey(options);
@@ -148,7 +159,7 @@ export class FileStorageUtil {
 				};
 			}
 		} catch (error) {
-			console.error(`❌ [FileStorage] Failed to load:`, error);
+			logger.error('FileStorage', 'Failed to load:', undefined, error as Error);
 			return {
 				success: false,
 				error: error instanceof Error ? error.message : 'Unknown error',
@@ -173,7 +184,7 @@ export class FileStorageUtil {
 				success: true,
 			};
 		} catch (error) {
-			console.error(`❌ [FileStorage] Failed to delete:`, error);
+			logger.error('FileStorage', 'Failed to delete:', undefined, error as Error);
 			return {
 				success: false,
 				error: error instanceof Error ? error.message : 'Unknown error',

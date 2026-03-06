@@ -2,6 +2,7 @@
 // Token Revocation Flow state management and logic
 
 import { useCallback, useState } from 'react';
+import { logger } from '../utils/logger';
 
 export interface TokenRevocationConfig {
 	environmentId: string;
@@ -114,12 +115,12 @@ export const useTokenRevocationFlowController = (): UseTokenRevocationFlowContro
 			};
 
 			setTokens(result);
-			console.log(`${LOG_PREFIX} [SUCCESS] Token revocation completed:`, result);
+			logger.success('useTokenRevocationFlowController', 'Token revocation completed', result);
 			return result;
 		} catch (err) {
 			const errorMessage = err instanceof Error ? err.message : 'Token revocation failed';
 			setError(errorMessage);
-			console.error(`${LOG_PREFIX} [ERROR] Token revocation failed:`, err);
+			logger.error('useTokenRevocationFlowController', 'Token revocation failed', undefined, err instanceof Error ? err : undefined);
 			throw err;
 		} finally {
 			setIsRequesting(false);
