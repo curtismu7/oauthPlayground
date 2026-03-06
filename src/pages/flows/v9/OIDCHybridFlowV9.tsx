@@ -560,13 +560,10 @@ const OIDCHybridFlowV9: React.FC = () => {
 		[controller]
 	);
 
-	
 	const canNavigateNext = useCallback(() => {
 		return currentStep < STEP_METADATA.length - 1 && isStepValid(currentStep);
 	}, [currentStep, isStepValid]);
 
-	
-	
 	const renderedTokens = useMemo(() => {
 		if (!controller.tokens) {
 			return null;

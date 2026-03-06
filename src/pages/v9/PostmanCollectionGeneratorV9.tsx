@@ -12,6 +12,7 @@
 
 import { FiChevronDown, FiChevronRight, FiDownload, FiPackage } from '@icons';
 import React, { useRef, useState } from 'react';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { V9FlowCredentialService } from '../../services/v9/core/V9FlowCredentialService';
 import { EnvironmentIdServiceV8 } from '../../services/v9/environmentIdServiceV9';
@@ -33,7 +34,7 @@ import {
 	type V9SpecVersion,
 	V9SpecVersionService,
 } from '../../services/v9/V9SpecVersionService';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { logger } from '../../utils/logger';
 
 const MODULE_TAG = '[📦 POSTMAN-COLLECTION-GENERATOR]';
 
@@ -427,11 +428,21 @@ export const PostmanCollectionGenerator: React.FC = () => {
 					}, 3000);
 				}, 300);
 
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `${firstBlankField.label} is required. Please fill in this field.`, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: `${firstBlankField.label} is required. Please fill in this field.`,
+					dismissible: true,
+				});
 				return false;
 			} else {
 				// If we can't find the input, at least show the error
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `${firstBlankField.label} is required. Please fill in this field.`, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: `${firstBlankField.label} is required. Please fill in this field.`,
+					dismissible: true,
+				});
 				return false;
 			}
 		}
@@ -1093,25 +1104,46 @@ export const PostmanCollectionGenerator: React.FC = () => {
 	// Generate and download collection
 	const handleGenerateCollection = async () => {
 		if (!includeUnified && !includeMFA && !includeUseCases) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please select at least one collection type (Use Cases, Unified, or MFA)', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please select at least one collection type (Use Cases, Unified, or MFA)',
+				dismissible: true,
+			});
 			return;
 		}
 
 		// Validate Unified selection if included
 		if (includeUnified && !includeOAuth20 && !includeOAuth21 && !includeOIDC) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please select at least one Unified spec version (OAuth 2.0 Authorization Framework (RFC 6749), OpenID Connect Core 1.0, or OAuth 2.1 Authorization Framework (draft))', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message:
+					'Please select at least one Unified spec version (OAuth 2.0 Authorization Framework (RFC 6749), OpenID Connect Core 1.0, or OAuth 2.1 Authorization Framework (draft))',
+				dismissible: true,
+			});
 			return;
 		}
 
 		// Validate MFA selection if included
 		if (includeMFA && selectedDeviceTypes.size === 0) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please select at least one MFA device type', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please select at least one MFA device type',
+				dismissible: true,
+			});
 			return;
 		}
 
 		// Validate Use Cases selection if included
 		if (includeUseCases && selectedUseCases.size === 0) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please select at least one Use Case', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please select at least one Use Case',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -1126,7 +1158,12 @@ export const PostmanCollectionGenerator: React.FC = () => {
 			const collection = generateCollectionBasedOnSelections(credentials);
 
 			if (!collection) {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to generate collection. Please check your selections.', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'Failed to generate collection. Please check your selections.',
+					dismissible: true,
+				});
 				return;
 			}
 
@@ -1137,10 +1174,19 @@ export const PostmanCollectionGenerator: React.FC = () => {
 			// Download
 			downloadPostmanCollectionWithEnvironment(collection, filename, environmentName);
 
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Postman collection and environment downloaded! Import both files into Postman.', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Postman collection and environment downloaded! Import both files into Postman.',
+				duration: 3000,
+			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error generating collection:`, error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to generate Postman collection. Please try again.', dismissible: true });
+			logger.error(MODULE_TAG, 'Error generating collection:', undefined, error as Error);
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to generate Postman collection. Please try again.',
+				dismissible: true,
+			});
 		} finally {
 			setIsGenerating(false);
 		}
@@ -1149,22 +1195,43 @@ export const PostmanCollectionGenerator: React.FC = () => {
 	// Download only the collection file (without environment)
 	const handleDownloadCollectionOnly = async () => {
 		if (!includeUnified && !includeMFA && !includeUseCases) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please select at least one collection type (Use Cases, Unified, or MFA)', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please select at least one collection type (Use Cases, Unified, or MFA)',
+				dismissible: true,
+			});
 			return;
 		}
 
 		if (includeUnified && !includeOAuth20 && !includeOAuth21 && !includeOIDC) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please select at least one Unified spec version (OAuth 2.0 Authorization Framework (RFC 6749), OpenID Connect Core 1.0, or OAuth 2.1 Authorization Framework (draft))', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message:
+					'Please select at least one Unified spec version (OAuth 2.0 Authorization Framework (RFC 6749), OpenID Connect Core 1.0, or OAuth 2.1 Authorization Framework (draft))',
+				dismissible: true,
+			});
 			return;
 		}
 
 		if (includeMFA && selectedDeviceTypes.size === 0) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please select at least one MFA device type', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please select at least one MFA device type',
+				dismissible: true,
+			});
 			return;
 		}
 
 		if (includeUseCases && selectedUseCases.size === 0) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please select at least one Use Case', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please select at least one Use Case',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -1179,7 +1246,12 @@ export const PostmanCollectionGenerator: React.FC = () => {
 			const collection = generateCollectionBasedOnSelections(credentials);
 
 			if (!collection) {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to generate collection. Please check your selections.', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'Failed to generate collection. Please check your selections.',
+					dismissible: true,
+				});
 				return;
 			}
 
@@ -1189,10 +1261,19 @@ export const PostmanCollectionGenerator: React.FC = () => {
 			// Download only the collection file
 			downloadPostmanCollection(collection, filename);
 
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Postman collection downloaded! Import into Postman to use the collection.', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Postman collection downloaded! Import into Postman to use the collection.',
+				duration: 3000,
+			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error generating collection:`, error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to generate Postman collection. Please try again.', dismissible: true });
+			logger.error(MODULE_TAG, 'Error generating collection:', undefined, error as Error);
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to generate Postman collection. Please try again.',
+				dismissible: true,
+			});
 		} finally {
 			setIsGenerating(false);
 		}
@@ -1201,22 +1282,43 @@ export const PostmanCollectionGenerator: React.FC = () => {
 	// Download only the environment/variables file
 	const handleDownloadVariables = async () => {
 		if (!includeUnified && !includeMFA && !includeUseCases) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please select at least one collection type (Use Cases, Unified, or MFA)', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please select at least one collection type (Use Cases, Unified, or MFA)',
+				dismissible: true,
+			});
 			return;
 		}
 
 		if (includeUnified && !includeOAuth20 && !includeOAuth21 && !includeOIDC) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please select at least one Unified spec version (OAuth 2.0 Authorization Framework (RFC 6749), OpenID Connect Core 1.0, or OAuth 2.1 Authorization Framework (draft))', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message:
+					'Please select at least one Unified spec version (OAuth 2.0 Authorization Framework (RFC 6749), OpenID Connect Core 1.0, or OAuth 2.1 Authorization Framework (draft))',
+				dismissible: true,
+			});
 			return;
 		}
 
 		if (includeMFA && selectedDeviceTypes.size === 0) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please select at least one MFA device type', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please select at least one MFA device type',
+				dismissible: true,
+			});
 			return;
 		}
 
 		if (includeUseCases && selectedUseCases.size === 0) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please select at least one Use Case', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please select at least one Use Case',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -1231,7 +1333,12 @@ export const PostmanCollectionGenerator: React.FC = () => {
 			const collection = generateCollectionBasedOnSelections(credentials);
 
 			if (!collection) {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to generate environment. Please check your selections.', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'Failed to generate environment. Please check your selections.',
+					dismissible: true,
+				});
 				return;
 			}
 
@@ -1244,10 +1351,20 @@ export const PostmanCollectionGenerator: React.FC = () => {
 			const environment = generatePostmanEnvironment(collection, environmentName);
 			downloadPostmanEnvironment(environment, filename);
 
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Postman environment/variables file downloaded! Import into Postman to use the variables.', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message:
+					'Postman environment/variables file downloaded! Import into Postman to use the variables.',
+				duration: 3000,
+			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error generating environment:`, error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to generate Postman environment. Please try again.', dismissible: true });
+			logger.error(MODULE_TAG, 'Error generating environment:', undefined, error as Error);
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to generate Postman environment. Please try again.',
+				dismissible: true,
+			});
 		} finally {
 			setIsGenerating(false);
 		}
@@ -1269,10 +1386,19 @@ export const PostmanCollectionGenerator: React.FC = () => {
 			const filename = `pingone-mfa-all-${date}-collection.json`;
 			const environmentName = `${collection.info.name} Environment`;
 			downloadPostmanCollectionWithEnvironment(collection, filename, environmentName);
-			modernMessaging.showFooterMessage({ type: 'info', message: 'MFA Flows Postman collection downloaded!', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'MFA Flows Postman collection downloaded!',
+				duration: 3000,
+			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error downloading MFA collection:`, error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to download MFA collection. Please try again.', dismissible: true });
+			logger.error(MODULE_TAG, 'Error downloading MFA collection:', undefined, error as Error);
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to download MFA collection. Please try again.',
+				dismissible: true,
+			});
 		} finally {
 			setIsGenerating(false);
 		}
@@ -1291,10 +1417,19 @@ export const PostmanCollectionGenerator: React.FC = () => {
 			const filename = `pingone-complete-unified-mfa-${date}-collection.json`;
 			const environmentName = `${collection.info.name} Environment`;
 			downloadPostmanCollectionWithEnvironment(collection, filename, environmentName);
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Complete Collection downloaded!', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Complete Collection downloaded!',
+				duration: 3000,
+			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error downloading complete collection:`, error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to download complete collection. Please try again.', dismissible: true });
+			logger.error(MODULE_TAG, 'Error downloading complete collection:', undefined, error as Error);
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to download complete collection. Please try again.',
+				dismissible: true,
+			});
 		} finally {
 			setIsGenerating(false);
 		}

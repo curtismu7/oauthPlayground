@@ -452,7 +452,7 @@ const AdvancedConfiguration = () => {
 			setCopiedText(label);
 			setTimeout(() => setCopiedText(''), 2000);
 		} catch (err) {
-			console.error('Failed to copy text: ', err);
+			logger.error('AdvancedConfiguration', 'Failed to copy text: ', undefined, err as Error);
 		}
 	};
 

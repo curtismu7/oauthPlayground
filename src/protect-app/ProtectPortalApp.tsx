@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { logger } from '../utils/logger';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { LoadingSpinner } from './components/common/LoadingSpinner';
 import { ProtectedRoute } from './components/common/ProtectedRoute';
@@ -10,10 +11,8 @@ import { AuthProvider } from './contexts/AuthContext';
 import { ProtectPortalProvider } from './contexts/ProtectPortalContext';
 import { RiskProvider } from './contexts/RiskContext';
 import { ThemeProvider } from './contexts/ThemeContext';
-
 import { AuthLayout } from './layouts/AuthLayout';
 import { MainLayout } from './layouts/MainLayout';
-
 import { DashboardPage } from './pages/DashboardPage';
 import { LoginPage } from './pages/LoginPage';
 import { ReportsPage } from './pages/ReportsPage';
@@ -57,7 +56,12 @@ export const ProtectPortalApp: React.FC = () => {
 				await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate initialization
 				setIsLoading(false);
 			} catch (error) {
-				console.error('Failed to initialize Protect Portal:', error);
+				logger.error(
+					'ProtectPortalApp',
+					'Failed to initialize Protect Portal:',
+					undefined,
+					error as Error
+				);
 				setHasError(true);
 				setIsLoading(false);
 			}

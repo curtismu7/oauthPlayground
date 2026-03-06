@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { logger } from '../../utils/logger';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
 import { PageApiInfo } from '../components/common/PageApiInfo';
 import { QuickActions } from '../components/dashboard/QuickActions';
@@ -58,7 +59,7 @@ export const DashboardPage: React.FC = () => {
 
 				await evaluateRisk(authState.user.id, context);
 			} catch (error) {
-				console.error('Failed to load dashboard data:', error);
+				logger.error('DashboardPage', 'Failed to load dashboard data:', undefined, error as Error);
 			}
 		};
 
@@ -93,7 +94,12 @@ export const DashboardPage: React.FC = () => {
 
 			await evaluateRisk(authState.user.id, context);
 		} catch (error) {
-			console.error('Failed to refresh risk evaluation:', error);
+			logger.error(
+				'DashboardPage',
+				'Failed to refresh risk evaluation:',
+				undefined,
+				error as Error
+			);
 		} finally {
 			setIsRefreshing(false);
 		}

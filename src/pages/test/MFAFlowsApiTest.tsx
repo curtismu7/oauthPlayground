@@ -6,6 +6,7 @@ import { FiKey, FiRefreshCw, FiSmartphone, FiUser } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useCredentialStoreV8 } from '../../hooks/useCredentialStoreV8';
+import { logger } from '../../utils/logger';
 import { WorkerTokenModalV8 } from '../../v8/components/WorkerTokenModalV8';
 import { useWorkerToken } from '../../v8/hooks/useWorkerToken';
 
@@ -713,7 +714,7 @@ const MFAFlowsApiTest: React.FC = () => {
 
 			console.log('✅ MFA Flow tests completed!');
 		} catch (error) {
-			console.error('❌ MFA test suite failed:', error);
+			logger.error('MFAFlowsApiTest', '❌ MFA test suite failed:', undefined, error as Error);
 		} finally {
 			setIsRunning(false);
 		}
@@ -738,7 +739,12 @@ const MFAFlowsApiTest: React.FC = () => {
 
 			console.log('✅ Admin Authentication tests completed!');
 		} catch (error) {
-			console.error('❌ Admin Authentication test suite failed:', error);
+			logger.error(
+				'MFAFlowsApiTest',
+				'❌ Admin Authentication test suite failed:',
+				undefined,
+				error as Error
+			);
 		} finally {
 			setIsRunning(false);
 		}
