@@ -40,6 +40,7 @@ import {
 	HybridFlowTokenProcessor,
 	log,
 } from '../../../services/hybridFlowSharedService';
+import { logger } from '../../../services/loggingService';
 import { UnifiedTokenDisplayService } from '../../../services/unifiedTokenDisplayService';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningService';
@@ -275,7 +276,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 
 		if (savedToken && savedEnv === controller.credentials?.environmentId) {
 			setWorkerToken(savedToken);
-			console.log('[OIDCHybridFlowV7] Worker token loaded from localStorage');
+			logger.info('OIDCHybridFlowV9', 'Worker token loaded from localStorage');
 		}
 	}, [controller.credentials?.environmentId]);
 
@@ -286,7 +287,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 			controller.credentials &&
 			(controller.credentials.environmentId || controller.credentials.clientId)
 		) {
-			console.log('🔧 [OIDC Hybrid V7] Saving credentials to flow-specific storage:', {
+			logger.info('OIDCHybridFlowV9', 'Saving credentials to flow-specific storage', {
 				flowKey: 'hybrid-flow-v7',
 				environmentId: controller.credentials.environmentId,
 				clientId: `${controller.credentials.clientId?.substring(0, 8)}...`,
@@ -296,7 +297,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 			// Save to flow-specific storage with enhanced error handling
 			FlowCredentialService.saveFlowCredentials('hybrid-flow-v7', controller.credentials, {
 				showToast: false,
-			}).catch((error) => {
+			}).catch((_error) => {
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
@@ -355,7 +356,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 				HybridFlowDefaults.getDefaultCredentials(controller.flowVariant).scope ||
 				'openid profile email',
 		})) as CredentialsUpdater);
-	}, [controller.credentials, controller.flowVariant, controller.setCredentials]);
+	}, [controller.flowVariant, controller.credentials, controller.setCredentials]); // Only run when variant changes
 
 	const handleVariantChange = useCallback(
 		(variant: 'code-id-token' | 'code-token' | 'code-id-token-token') => {
@@ -420,7 +421,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 				message: 'Authorization URL generated',
 				duration: 3000,
 			});
-		} catch (error) {
+		} catch (_error) {
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -491,7 +492,8 @@ const OIDCHybridFlowV9: React.FC = () => {
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
-				message: error instanceof Error ? error.message : 'Token exchange failed. Please try again.',
+				message:
+					error instanceof Error ? error.message : 'Token exchange failed. Please try again.',
 				dismissible: true,
 			});
 		} finally {
@@ -508,8 +510,8 @@ const OIDCHybridFlowV9: React.FC = () => {
 		// Clear OIDC Hybrid Flow V9-specific storage with error handling
 		try {
 			FlowCredentialService.clearFlowState('hybrid-flow-v7');
-			console.log('🔧 [OIDC Hybrid V7] Cleared flow-specific storage');
-		} catch (error) {
+			logger.info('OIDCHybridFlowV9', 'Cleared flow-specific storage');
+		} catch (_error) {
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -521,7 +523,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 		// Clear credential backup when flow is reset
 		try {
 			clearBackup();
-			console.log('🔧 [OIDC Hybrid V7] Cleared credential backup');
+			logger.info('OIDCHybridFlowV9', 'Cleared credential backup');
 		} catch (_error) {
 			// Background credential backup clear — non-critical
 		}
