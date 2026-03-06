@@ -1,6 +1,6 @@
 # Standardization Handoff — OAuth Playground V9
 
-**Last updated:** March 6, 2026 — HEAD at `161344313`  
+**Last updated:** March 6, 2026 — HEAD at `8fef38895`  
 **Prepared for:** Any programmer picking up this work  
 **Branch:** `main` — **always `git fetch && git status` before starting work**
 
@@ -28,6 +28,8 @@
 | **Comprehensive Status Assessment** | ✅ **DONE** | Complete technical debt analysis (see COMPREHENSIVE_STANDARDIZATION_STATUS.md) |
 | **`console.*` → `logger` migration (services)** | ✅ **DONE** | ~615 calls replaced across 90+ service files in 6 batches (commits `7f2b2603`→`8a0efe7`). See table below. |
 | **`throw` → `ServiceResult<T>` migration (services)** | ✅ **GATE B DONE** | 4 services migrated: `parService`, `samlService`, `workerTokenDiscoveryService`, `oidcDiscoveryService`. HEAD `2497c7f7`. See table below. |
+| **V9 flows biome cleanup** | ✅ **DONE** | Unused imports/variables removed, import sort fixed, formatting applied across all 10 V9 flow files (commit `8fef388`). Remaining: 8 intentional `useExhaustiveDependencies` warnings (deps deliberately reduced to prevent infinite loops — do NOT auto-fix). |
+| **TS syntax errors (FlowComparison, CIBAvsDeviceAuthz)** | ✅ **DONE** | Removed duplicate component declarations that caused `TS1005 }` expected errors (commit `e44864d`). |
 
 ---
 
