@@ -25,6 +25,7 @@ import type { StepCredentials } from '../components/steps/CommonSteps';
 import { WorkerTokenModal } from '../components/WorkerTokenModal';
 import type { PingOneApplication } from '../services/pingOneApplicationService';
 import { ClientAuthMethod } from '../utils/clientAuthentication';
+import { logger } from '../utils/logger';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { callbackUriService } from './callbackUriService';
 // import PingOneApplicationConfig, {
@@ -113,7 +114,7 @@ export const getFlowGrantTypes = (flowType?: string): string[] => {
 
 	const normalizedFlowType = flowType.toLowerCase().replace(/[-_]/g, '-');
 
-	console.log('[CONFIG-CHECKER] getFlowGrantTypes called:', {
+	logger.debug('ComprehensiveCredentialsService', '[CONFIG-CHECKER] getFlowGrantTypes called:', {
 		flowType,
 		normalizedFlowType,
 		includesClientCredentials: normalizedFlowType.includes('client-credentials'),
@@ -125,52 +126,73 @@ export const getFlowGrantTypes = (flowType?: string): string[] => {
 		normalizedFlowType.includes('client-credentials') ||
 		normalizedFlowType.includes('client_credentials')
 	) {
-		console.log(
+		logger.debug(
+			'ComprehensiveCredentialsService',
 			'[CONFIG-CHECKER] Matched client-credentials pattern, returning client_credentials'
 		);
 		return ['client_credentials'];
 	}
 	if (normalizedFlowType.includes('worker-token') || normalizedFlowType.includes('worker_token')) {
-		console.log('[CONFIG-CHECKER] Matched worker-token pattern, returning client_credentials');
+		logger.debug(
+			'ComprehensiveCredentialsService',
+			'[CONFIG-CHECKER] Matched worker-token pattern, returning client_credentials'
+		);
 		return ['client_credentials'];
 	}
 	if (normalizedFlowType.includes('par-v7') || normalizedFlowType.includes('par_v7')) {
-		console.log('[CONFIG-CHECKER] Matched PAR V7 pattern, returning authorization_code');
+		logger.debug(
+			'ComprehensiveCredentialsService',
+			'[CONFIG-CHECKER] Matched PAR V7 pattern, returning authorization_code'
+		);
 		return ['authorization_code'];
 	}
 	if (normalizedFlowType.includes('implicit')) {
-		console.log('[CONFIG-CHECKER] Matched implicit pattern, returning implicit');
+		logger.debug(
+			'ComprehensiveCredentialsService',
+			'[CONFIG-CHECKER] Matched implicit pattern, returning implicit'
+		);
 		return ['implicit'];
 	}
 	if (
 		normalizedFlowType.includes('device') ||
 		normalizedFlowType.includes('device-authorization')
 	) {
-		console.log('[CONFIG-CHECKER] Matched device pattern, returning device_code');
+		logger.debug(
+			'ComprehensiveCredentialsService',
+			'[CONFIG-CHECKER] Matched device pattern, returning device_code'
+		);
 		return ['urn:ietf:params:oauth:grant-type:device_code'];
 	}
 	if (normalizedFlowType.includes('ciba')) {
-		console.log(
+		logger.debug(
+			'ComprehensiveCredentialsService',
 			'[CONFIG-CHECKER] Matched CIBA pattern, returning urn:openid:params:grant-type:ciba'
 		);
 		return ['urn:openid:params:grant-type:ciba']; // RFC 9436: CIBA grant type
 	}
 	if (normalizedFlowType.includes('hybrid')) {
-		console.log('[CONFIG-CHECKER] Matched hybrid pattern, returning authorization_code');
+		logger.debug(
+			'ComprehensiveCredentialsService',
+			'[CONFIG-CHECKER] Matched hybrid pattern, returning authorization_code'
+		);
 		return ['authorization_code'];
 	}
 	if (
 		normalizedFlowType.includes('authorization-code') ||
 		normalizedFlowType.includes('authorization_code')
 	) {
-		console.log(
+		logger.debug(
+			'ComprehensiveCredentialsService',
 			'[CONFIG-CHECKER] Matched authorization-code pattern, returning authorization_code'
 		);
 		return ['authorization_code'];
 	}
 
 	// Default fallback
-	console.log('[CONFIG-CHECKER] No pattern matched, returning default authorization_code');
+	logger.debug(
+		'ComprehensiveCredentialsService',
+		'[CONFIG-CHECKER] No pattern matched, returning default authorization_code'
+	);
 	return ['authorization_code'];
 };
 
@@ -504,12 +526,14 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 			const isExpired = now >= expirationTime - bufferTime;
 			if (!isExpired) {
 				const minutesRemaining = Math.floor((expirationTime - now) / 60000);
-				console.log(
+				logger.debug(
+					'ComprehensiveCredentialsService',
 					`[COMPREHENSIVE-CREDENTIALS] ✅ Worker token valid, expires in ${minutesRemaining} minutes`
 				);
 				setRetrievedWorkerToken(storedWorkerToken);
 			} else {
-				console.warn(
+				logger.warn(
+					'ComprehensiveCredentialsService',
 					`[COMPREHENSIVE-CREDENTIALS] ⚠️ Worker token EXPIRED (expired at ${new Date(expirationTime).toLocaleString()}). Clearing from storage.`
 				);
 				localStorage.removeItem('worker_token');
@@ -518,7 +542,8 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 			}
 		} else if (storedWorkerToken) {
 			// Token exists but no expiration data - assume it might be expired
-			console.warn(
+			logger.warn(
+				'ComprehensiveCredentialsService',
 				'[COMPREHENSIVE-CREDENTIALS] ⚠️ Worker token found but no expiration data - token may be expired'
 			);
 			setRetrievedWorkerToken(storedWorkerToken);
@@ -536,9 +561,17 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 					clientId: parsed.clientId || '',
 					clientSecret: parsed.clientSecret || '',
 				});
-				console.log('[COMPREHENSIVE-CREDENTIALS] Loaded worker credentials from localStorage');
+				logger.debug(
+					'ComprehensiveCredentialsService',
+					'[COMPREHENSIVE-CREDENTIALS] Loaded worker credentials from localStorage'
+				);
 			} catch (error) {
-				console.error('[COMPREHENSIVE-CREDENTIALS] Error parsing worker credentials:', error);
+				logger.error(
+					'ComprehensiveCredentialsService',
+					'[COMPREHENSIVE-CREDENTIALS] Error parsing worker credentials:',
+					undefined,
+					error
+				);
 			}
 		}
 	}, []);
@@ -559,7 +592,8 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 				e.key === 'worker_token_expires_at' ||
 				e.key === 'worker_credentials'
 			) {
-				console.log(
+				logger.debug(
+					'ComprehensiveCredentialsService',
 					'[COMPREHENSIVE-CREDENTIALS] Worker token/credentials changed in storage, re-checking'
 				);
 				checkWorkerToken();
@@ -568,7 +602,10 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 
 		// Listen for custom event when token is generated in the same tab
 		const handleWorkerTokenUpdate = () => {
-			console.log('[COMPREHENSIVE-CREDENTIALS] Worker token update event received, re-checking');
+			logger.debug(
+				'ComprehensiveCredentialsService',
+				'[COMPREHENSIVE-CREDENTIALS] Worker token update event received, re-checking'
+			);
 			checkWorkerToken();
 		};
 
@@ -768,20 +805,24 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 			clientAuthMethod: credentials?.clientAuthMethod ?? clientAuthMethod ?? 'client_secret_post',
 		};
 
-		console.log('[ComprehensiveCredentialsService] resolvedCredentials computed:', {
-			fromCredentials: {
-				clientId: credentials?.clientId,
-				clientSecret: credentials?.clientSecret ? '***HIDDEN***' : '',
-			},
-			fromProps: {
-				clientId,
-				clientSecret: clientSecret ? '***HIDDEN***' : '',
-			},
-			resolved: {
-				clientId: resolved.clientId,
-				clientSecret: resolved.clientSecret ? '***HIDDEN***' : '',
-			},
-		});
+		logger.debug(
+			'ComprehensiveCredentialsService',
+			'[ComprehensiveCredentialsService] resolvedCredentials computed:',
+			{
+				fromCredentials: {
+					clientId: credentials?.clientId,
+					clientSecret: credentials?.clientSecret ? '***HIDDEN***' : '',
+				},
+				fromProps: {
+					clientId,
+					clientSecret: clientSecret ? '***HIDDEN***' : '',
+				},
+				resolved: {
+					clientId: resolved.clientId,
+					clientSecret: resolved.clientSecret ? '***HIDDEN***' : '',
+				},
+			}
+		);
 
 		return resolved;
 	}, [
@@ -812,7 +853,8 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 		// 2. Current redirectUri doesn't match the flow-specific URI
 		// 3. We have a handler to call
 		if (flowSpecificUri && redirectUri !== flowSpecificUri) {
-			console.log(
+			logger.debug(
+				'ComprehensiveCredentialsService',
 				'🔧 [ComprehensiveCredentialsService] Flow type changed - updating redirect URI:',
 				{ flowType, from: redirectUri, to: flowSpecificUri }
 			);
@@ -882,7 +924,8 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 		// 3. We have an onChange handler to call
 		if (!redirectUri || !redirectUri.trim()) {
 			if (actualRedirectUri?.trim()) {
-				console.log(
+				logger.debug(
+					'ComprehensiveCredentialsService',
 					'🔧 [ComprehensiveCredentialsService] Initializing redirect URI with default:',
 					actualRedirectUri
 				);
@@ -957,16 +1000,24 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 
 	const applyCredentialUpdates = useCallback(
 		(updates: Partial<StepCredentials>, { shouldSave } = { shouldSave: false }) => {
-			console.log('[ComprehensiveCredentialsService] applyCredentialUpdates called:', {
-				updates,
-				shouldSave,
-			});
+			logger.debug(
+				'ComprehensiveCredentialsService',
+				'[ComprehensiveCredentialsService] applyCredentialUpdates called:',
+				{
+					updates,
+					shouldSave,
+				}
+			);
 			const merged: StepCredentials = {
 				...resolvedCredentials,
 				...updates,
 			};
 
-			console.log('[ComprehensiveCredentialsService] Merged credentials:', merged);
+			logger.debug(
+				'ComprehensiveCredentialsService',
+				'[ComprehensiveCredentialsService] Merged credentials:',
+				merged
+			);
 
 			// Persist Environment ID changes - debounced to avoid saving on every keystroke
 			// Only save when the value is complete and valid UUID format
@@ -979,7 +1030,8 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 				const isValidUUID = /^[a-f0-9-]{36}$/i.test(updates.environmentId.trim());
 
 				if (isValidUUID) {
-					console.log(
+					logger.debug(
+						'ComprehensiveCredentialsService',
 						`🔧 [EnvironmentIdPersistence] Environment ID changed: ${resolvedCredentials.environmentId} → ${updates.environmentId}`
 					);
 					// Use debounced save to avoid excessive saves
@@ -996,42 +1048,54 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 								updates.environmentId.trim(),
 								'manual'
 							);
-							console.log(`✅ [EnvironmentIdPersistence] Saved environment ID after debounce`);
+							logger.debug(
+								'ComprehensiveCredentialsService',
+								`✅ [EnvironmentIdPersistence] Saved environment ID after debounce`
+							);
 						}
 					}, 1500); // 1.5 second debounce
 				}
 			}
 
 			if (onCredentialsChange) {
-				console.log('[ComprehensiveCredentialsService] Calling onCredentialsChange with:', merged);
+				logger.debug(
+					'ComprehensiveCredentialsService',
+					'[ComprehensiveCredentialsService] Calling onCredentialsChange with:',
+					merged
+				);
 				onCredentialsChange(merged);
 			} else {
-				console.log(
+				logger.debug(
+					'ComprehensiveCredentialsService',
 					'[ComprehensiveCredentialsService] No onCredentialsChange, using individual handlers'
 				);
 				if (updates.environmentId !== undefined) {
-					console.log(
+					logger.debug(
+						'ComprehensiveCredentialsService',
 						'[ComprehensiveCredentialsService] Calling onEnvironmentIdChange with:',
 						updates.environmentId
 					);
 					onEnvironmentIdChange?.(updates.environmentId);
 				}
 				if (updates.clientId !== undefined) {
-					console.log(
+					logger.debug(
+						'ComprehensiveCredentialsService',
 						'[ComprehensiveCredentialsService] Calling onClientIdChange with:',
 						updates.clientId
 					);
 					onClientIdChange?.(updates.clientId);
 				}
 				if (updates.clientSecret !== undefined) {
-					console.log(
+					logger.debug(
+						'ComprehensiveCredentialsService',
 						'[ComprehensiveCredentialsService] Calling onClientSecretChange with:',
 						updates.clientSecret ? '***HIDDEN***' : ''
 					);
 					onClientSecretChange?.(updates.clientSecret);
 				}
 				if (updates.redirectUri !== undefined) {
-					console.log(
+					logger.debug(
+						'ComprehensiveCredentialsService',
 						'[ComprehensiveCredentialsService] Calling onRedirectUriChange with:',
 						updates.redirectUri
 					);
@@ -1039,35 +1103,40 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 				}
 				if (updates.scope !== undefined || updates.scopes !== undefined) {
 					const scopedValue = updates.scope ?? updates.scopes ?? '';
-					console.log(
+					logger.debug(
+						'ComprehensiveCredentialsService',
 						'[ComprehensiveCredentialsService] Calling onScopesChange with:',
 						scopedValue
 					);
 					onScopesChange?.(scopedValue);
 				}
 				if (updates.loginHint !== undefined) {
-					console.log(
+					logger.debug(
+						'ComprehensiveCredentialsService',
 						'[ComprehensiveCredentialsService] Calling onLoginHintChange with:',
 						updates.loginHint
 					);
 					onLoginHintChange?.(updates.loginHint);
 				}
 				if (updates.postLogoutRedirectUri !== undefined) {
-					console.log(
+					logger.debug(
+						'ComprehensiveCredentialsService',
 						'[ComprehensiveCredentialsService] Calling onPostLogoutRedirectUriChange with:',
 						updates.postLogoutRedirectUri
 					);
 					onPostLogoutRedirectUriChange?.(updates.postLogoutRedirectUri);
 				}
 				if (updates.clientAuthMethod !== undefined && onClientAuthMethodChange) {
-					console.log(
+					logger.debug(
+						'ComprehensiveCredentialsService',
 						'[ComprehensiveCredentialsService] Calling onClientAuthMethodChange with:',
 						updates.clientAuthMethod
 					);
 					onClientAuthMethodChange(updates.clientAuthMethod as ClientAuthMethod);
 				}
 				if (updates.responseType !== undefined && onResponseTypeChange) {
-					console.log(
+					logger.debug(
+						'ComprehensiveCredentialsService',
 						'[ComprehensiveCredentialsService] Calling onResponseTypeChange with:',
 						updates.responseType
 					);
@@ -1102,25 +1171,34 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 	// Handle application selection from PingOne Application Picker
 	const handleApplicationSelect = useCallback(
 		(application: PingOneApplication) => {
-			console.log('[ComprehensiveCredentialsService] Application selected:', {
-				name: application.name,
-				clientId: application.clientId,
-				hasClientSecret: !!application.clientSecret,
-				redirectUris: application.redirectUris,
-				scopes: application.scopes,
-				tokenEndpointAuthMethod: application.tokenEndpointAuthMethod,
-				type: application.type,
-			});
-			console.log(
+			logger.debug(
+				'ComprehensiveCredentialsService',
+				'[ComprehensiveCredentialsService] Application selected:',
+				{
+					name: application.name,
+					clientId: application.clientId,
+					hasClientSecret: !!application.clientSecret,
+					redirectUris: application.redirectUris,
+					scopes: application.scopes,
+					tokenEndpointAuthMethod: application.tokenEndpointAuthMethod,
+					type: application.type,
+				}
+			);
+			logger.debug(
+				'ComprehensiveCredentialsService',
 				'[ComprehensiveCredentialsService] Current resolvedCredentials:',
 				resolvedCredentials
 			);
-			console.log('[ComprehensiveCredentialsService] Available handlers:', {
-				onCredentialsChange: !!onCredentialsChange,
-				onClientIdChange: !!onClientIdChange,
-				onClientSecretChange: !!onClientSecretChange,
-				onClientAuthMethodChange: !!onClientAuthMethodChange,
-			});
+			logger.debug(
+				'ComprehensiveCredentialsService',
+				'[ComprehensiveCredentialsService] Available handlers:',
+				{
+					onCredentialsChange: !!onCredentialsChange,
+					onClientIdChange: !!onClientIdChange,
+					onClientSecretChange: !!onClientSecretChange,
+					onClientAuthMethodChange: !!onClientAuthMethodChange,
+				}
+			);
 
 			// Store the selected application to enable type-based visibility
 			setSelectedApplication(application);
@@ -1139,16 +1217,30 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 				// Don't update postLogoutRedirectUri - let user keep their flow-specific logout URI
 			};
 
-			console.log('[ComprehensiveCredentialsService] Updates to apply:', updates);
-			console.log('[ComprehensiveCredentialsService] Calling applyCredentialUpdates...');
+			logger.debug(
+				'ComprehensiveCredentialsService',
+				'[ComprehensiveCredentialsService] Updates to apply:',
+				updates
+			);
+			logger.debug(
+				'ComprehensiveCredentialsService',
+				'[ComprehensiveCredentialsService] Calling applyCredentialUpdates...'
+			);
 			applyCredentialUpdates(updates, { shouldSave: false });
-			console.log('[ComprehensiveCredentialsService] applyCredentialUpdates completed');
+			logger.debug(
+				'ComprehensiveCredentialsService',
+				'[ComprehensiveCredentialsService] applyCredentialUpdates completed'
+			);
 
 			const logoutUriInfo = application.postLogoutRedirectUris?.[0]
 				? ' (including logout URI)'
 				: '';
 			const toastMessage = `Application "${application.name}" selected${logoutUriInfo}`;
-			console.log('[ComprehensiveCredentialsService] Showing toast message:', toastMessage);
+			logger.debug(
+				'ComprehensiveCredentialsService',
+				'[ComprehensiveCredentialsService] Showing toast message:',
+				toastMessage
+			);
 
 			// Use setTimeout to avoid React warning about updating NotificationProvider during render
 			setTimeout(() => {
@@ -1224,17 +1316,20 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 
 			if (updates) {
 				const environmentIdToApply = updates.environmentId;
-				console.log(
+				logger.debug(
+					'ComprehensiveCredentialsService',
 					`[ComprehensiveCredentialsService v${SERVICE_VERSION}] Auto-populating credentials from discovery:`,
 					updates
 				);
-				console.log(
+				logger.debug(
+					'ComprehensiveCredentialsService',
 					`[ComprehensiveCredentialsService v${SERVICE_VERSION}] Environment ID to apply: ${environmentIdToApply}`
 				);
 
 				// SAFEGUARD 1: Persist Environment ID to localStorage immediately (bypasses any UI restrictions)
 				if (environmentIdToApply && environmentIdToApply.trim() !== '') {
-					console.log(
+					logger.debug(
+						'ComprehensiveCredentialsService',
 						`🔧 [EnvironmentIdPersistence] OIDC Discovery found Environment ID: ${environmentIdToApply}`
 					);
 					try {
@@ -1242,23 +1337,32 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 							environmentIdToApply.trim(),
 							'oidc_discovery'
 						);
-						console.log(
+						logger.debug(
+							'ComprehensiveCredentialsService',
 							`✅ [EnvironmentIdPersistence] Environment ID saved to persistence service`
 						);
 					} catch (error) {
-						console.error(`❌ [EnvironmentIdPersistence] Failed to save Environment ID:`, error);
+						logger.error(
+							'ComprehensiveCredentialsService',
+							`❌ [EnvironmentIdPersistence] Failed to save Environment ID:`,
+							undefined,
+							error
+						);
 					}
 				}
 
 				// SAFEGUARD 2: Apply updates through the standard update path
 				try {
 					applyCredentialUpdates(updates, { shouldSave: true });
-					console.log(
+					logger.debug(
+						'ComprehensiveCredentialsService',
 						`✅ [ComprehensiveCredentialsService] applyCredentialUpdates called successfully`
 					);
 				} catch (error) {
-					console.error(
+					logger.error(
+						'ComprehensiveCredentialsService',
 						`❌ [ComprehensiveCredentialsService] applyCredentialUpdates failed:`,
+						undefined,
 						error
 					);
 				}
@@ -1271,16 +1375,20 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 							...updates,
 							environmentId: environmentIdToApply.trim(),
 						};
-						console.log(
+						logger.debug(
+							'ComprehensiveCredentialsService',
 							`🔧 [ComprehensiveCredentialsService] Direct update via onCredentialsChange (safeguard)`
 						);
 						onCredentialsChange(mergedCredentials);
-						console.log(
+						logger.debug(
+							'ComprehensiveCredentialsService',
 							`✅ [ComprehensiveCredentialsService] Direct onCredentialsChange called successfully`
 						);
 					} catch (error) {
-						console.error(
+						logger.error(
+							'ComprehensiveCredentialsService',
 							`❌ [ComprehensiveCredentialsService] Direct onCredentialsChange failed:`,
+							undefined,
 							error
 						);
 					}
@@ -1289,16 +1397,20 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 				// SAFEGUARD 4: Direct update via onEnvironmentIdChange if available (most direct path)
 				if (environmentIdToApply && environmentIdToApply.trim() !== '' && onEnvironmentIdChange) {
 					try {
-						console.log(
+						logger.debug(
+							'ComprehensiveCredentialsService',
 							`🔧 [ComprehensiveCredentialsService] Direct update via onEnvironmentIdChange (final safeguard)`
 						);
 						onEnvironmentIdChange(environmentIdToApply.trim());
-						console.log(
+						logger.debug(
+							'ComprehensiveCredentialsService',
 							`✅ [ComprehensiveCredentialsService] Direct onEnvironmentIdChange called successfully`
 						);
 					} catch (error) {
-						console.error(
+						logger.error(
+							'ComprehensiveCredentialsService',
 							`❌ [ComprehensiveCredentialsService] Direct onEnvironmentIdChange failed:`,
+							undefined,
 							error
 						);
 					}
@@ -1308,14 +1420,22 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 				setTimeout(() => {
 					const currentEnvId = resolvedCredentials.environmentId;
 					if (environmentIdToApply && currentEnvId !== environmentIdToApply.trim()) {
-						console.warn(
+						logger.warn(
+							'ComprehensiveCredentialsService',
 							`⚠️ [ComprehensiveCredentialsService] Environment ID mismatch after OIDC discovery!`
 						);
-						console.warn(`   Expected: ${environmentIdToApply.trim()}`);
-						console.warn(`   Current: ${currentEnvId}`);
-						console.warn(`   This indicates a potential issue with credential field editability.`);
+						logger.warn(
+							'ComprehensiveCredentialsService',
+							`   Expected: ${environmentIdToApply.trim()}`
+						);
+						logger.warn('ComprehensiveCredentialsService', `   Current: ${currentEnvId}`);
+						logger.warn(
+							'ComprehensiveCredentialsService',
+							`   This indicates a potential issue with credential field editability.`
+						);
 					} else if (environmentIdToApply && currentEnvId === environmentIdToApply.trim()) {
-						console.log(
+						logger.debug(
+							'ComprehensiveCredentialsService',
 							`✅ [ComprehensiveCredentialsService] Environment ID successfully applied: ${currentEnvId}`
 						);
 					}
@@ -1534,7 +1654,11 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 								value="default"
 								onChange={(e) => {
 									// TODO: Add state management for req object policy
-									console.log('Req Object Policy changed:', e.target.value);
+									logger.debug(
+										'ComprehensiveCredentialsService',
+										'Req Object Policy changed:',
+										e.target.value
+									);
 								}}
 							>
 								<option value="default">default</option>
@@ -1562,7 +1686,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 								value=""
 								onChange={(e) => {
 									// TODO: Add state management for x5t
-									console.log('x5t changed:', e.target.value);
+									logger.debug('ComprehensiveCredentialsService', 'x5t changed:', e.target.value);
 								}}
 								style={{
 									width: '100%',
@@ -1593,7 +1717,11 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 									checked={false}
 									onChange={(e) => {
 										// TODO: Add state management for OP iframe monitoring
-										console.log('OP iframe monitoring changed:', e.target.checked);
+										logger.debug(
+											'ComprehensiveCredentialsService',
+											'OP iframe monitoring changed:',
+											e.target.checked
+										);
 									}}
 									style={{
 										width: '1rem',
@@ -1623,7 +1751,11 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 								value="openid profile email"
 								onChange={(e) => {
 									// TODO: Add state management for resource scopes
-									console.log('Resource scopes changed:', e.target.value);
+									logger.debug(
+										'ComprehensiveCredentialsService',
+										'Resource scopes changed:',
+										e.target.value
+									);
 								}}
 								style={{
 									width: '100%',
@@ -1654,7 +1786,11 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 									checked={true}
 									onChange={(e) => {
 										// TODO: Add state management for RP-initiated logout
-										console.log('RP-initiated logout changed:', e.target.checked);
+										logger.debug(
+											'ComprehensiveCredentialsService',
+											'RP-initiated logout changed:',
+											e.target.checked
+										);
 									}}
 									style={{
 										width: '1rem',
@@ -2065,16 +2201,24 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 									const saved = localStorage.getItem('worker_credentials');
 									if (saved) {
 										workerCredentials = JSON.parse(saved);
-										console.log('[CONFIG-CHECKER] Loaded worker credentials:', {
-											clientId: workerCredentials.clientId,
-											clientSecret: workerCredentials.clientSecret
-												? `${workerCredentials.clientSecret.substring(0, 10)}...`
-												: 'undefined',
-											environmentId: workerCredentials.environmentId,
-										});
+										logger.debug(
+											'ComprehensiveCredentialsService',
+											'[CONFIG-CHECKER] Loaded worker credentials:',
+											{
+												clientId: workerCredentials.clientId,
+												clientSecret: workerCredentials.clientSecret
+													? `${workerCredentials.clientSecret.substring(0, 10)}...`
+													: 'undefined',
+												environmentId: workerCredentials.environmentId,
+											}
+										);
 									}
 								} catch (error) {
-									console.warn('[CONFIG-CHECKER] Failed to load worker credentials:', error);
+									logger.warn(
+										'ComprehensiveCredentialsService',
+										'[CONFIG-CHECKER] Failed to load worker credentials:',
+										error
+									);
 								}
 
 								// Base form data - use application credentials for comparison, worker credentials for authentication
@@ -2097,22 +2241,28 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 								};
 
 								// Debug logging to see what flowType and grantTypes are being used
-								console.log('[CONFIG-CHECKER] Form data construction:', {
-									flowType,
-									grantTypes: getFlowGrantTypes(flowType),
-									responseTypes: getFlowResponseTypes(flowType),
-									clientAuthMethod,
-									resolvedCredentialsClientAuthMethod: resolvedCredentials.clientAuthMethod,
-									clientSecret: resolvedCredentials.clientSecret
-										? `${resolvedCredentials.clientSecret.substring(0, 10)}...`
-										: 'undefined',
-									baseFormData,
-									normalizedFlowType: flowType?.toLowerCase().replace(/[-_]/g, '-'),
-									includesClientCredentials: flowType?.toLowerCase().includes('client-credentials'),
-									includesClientCredentialsUnderscore: flowType
-										?.toLowerCase()
-										.includes('client_credentials'),
-								});
+								logger.debug(
+									'ComprehensiveCredentialsService',
+									'[CONFIG-CHECKER] Form data construction:',
+									{
+										flowType,
+										grantTypes: getFlowGrantTypes(flowType),
+										responseTypes: getFlowResponseTypes(flowType),
+										clientAuthMethod,
+										resolvedCredentialsClientAuthMethod: resolvedCredentials.clientAuthMethod,
+										clientSecret: resolvedCredentials.clientSecret
+											? `${resolvedCredentials.clientSecret.substring(0, 10)}...`
+											: 'undefined',
+										baseFormData,
+										normalizedFlowType: flowType?.toLowerCase().replace(/[-_]/g, '-'),
+										includesClientCredentials: flowType
+											?.toLowerCase()
+											.includes('client-credentials'),
+										includesClientCredentialsUnderscore: flowType
+											?.toLowerCase()
+											.includes('client_credentials'),
+									}
+								);
 
 								// Only include redirectUris for flows that use them
 								if (flowUsesRedirects && resolvedCredentials.redirectUri) {
@@ -2126,7 +2276,8 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 								if (normalizedFlowTypeForCiba.includes('ciba')) {
 									delete baseFormData.responseTypes;
 									delete baseFormData.redirectUris;
-									console.log(
+									logger.debug(
+										'ComprehensiveCredentialsService',
 										'[CONFIG-CHECKER] CIBA flow detected - removing responseTypes and redirectUris from comparison'
 									);
 								}
@@ -2436,7 +2587,8 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 											updates.clientSecret = result.app.clientSecret;
 										}
 
-										console.log(
+										logger.debug(
+											'ComprehensiveCredentialsService',
 											'[COMPREHENSIVE-CREDENTIALS] Updating credentials with new app details:',
 											{
 												clientId: result.app.clientId,
@@ -2458,7 +2610,12 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 									// Return the result for the modal
 									return result;
 								} catch (error) {
-									console.error('Failed to create PingOne application:', error);
+									logger.error(
+										'ComprehensiveCredentialsService',
+										'Failed to create PingOne application:',
+										undefined,
+										error
+									);
 									v4ToastManager.showError(
 										`Failed to create application: ${error instanceof Error ? error.message : 'Unknown error'}`
 									);
