@@ -1,4 +1,5 @@
 // src/services/codeExamplesService.ts
+import { logger } from '../utils/logger';
 
 export type SupportedLanguage = 'javascript' | 'typescript' | 'go' | 'ruby' | 'python' | 'ping-sdk';
 
@@ -1776,9 +1777,7 @@ export class CodeExamplesService {
 	getExamplesForStep(flowType: string, stepId: string): FlowStepCodeExamples | null {
 		const flowSteps = FLOW_STEPS[flowType as keyof typeof FLOW_STEPS];
 		if (!flowSteps || !flowSteps[stepId as keyof typeof flowSteps]) {
-			console.warn(
-				`[CodeExamplesService] No step found for flowType: ${flowType}, stepId: ${stepId}`
-			);
+			logger.warn('CodeExamplesService', 'No step found', { flowType, stepId });
 			return null;
 		}
 
@@ -2013,9 +2012,11 @@ curl -X POST \\
 			examples = [...examples, ...getPARExamples(this.config)];
 		}
 
-		console.log(
-			`[CodeExamplesService] Found ${examples.length} examples for ${flowType}/${stepId}`
-		);
+		logger.debug('CodeExamplesService', 'Found examples', {
+			count: examples.length,
+			flowType,
+			stepId,
+		});
 		return {
 			stepId: step.id,
 			stepName: step.name,
