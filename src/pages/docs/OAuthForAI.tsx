@@ -149,17 +149,17 @@ const ReferenceList = styled.ul`
   }
 `;
 
-const OAuthForAI = () => {
-	const pageConfig = {
-		flowType: 'documentation' as const,
-		theme: 'blue' as const,
-		maxWidth: '1200px',
-		showHeader: false, // We handle the header manually with FlowHeader
-		showFooter: false,
-		responsive: true,
-	};
-	const { PageContainer, ContentWrapper } = PageLayoutService.createPageLayout(pageConfig);
+const pageConfig = {
+	flowType: 'documentation' as const,
+	theme: 'blue' as const,
+	maxWidth: '1200px',
+	showHeader: false, // We handle the header manually with FlowHeader
+	showFooter: false,
+	responsive: true,
+};
+const { PageContainer, ContentWrapper } = PageLayoutService.createPageLayout(pageConfig);
 
+const OAuthForAI = () => {
 	return (
 		<PageContainer>
 			<ContentWrapper>
