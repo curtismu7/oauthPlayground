@@ -10,7 +10,7 @@ import React, { useEffect, useState } from 'react';
 import { AppDiscoveryServiceV8 } from '@/v8/services/appDiscoveryServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { ConfirmModalV8 } from './ConfirmModalV8';
 import { WorkerTokenModalV8 } from './WorkerTokenModalV8';
 
@@ -94,7 +94,7 @@ export const AppPickerV8: React.FC<AppPickerV8Props> = ({ environmentId, onAppSe
 		const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 		setTokenStatus(newStatus);
 		setShowConfirmModal(false);
-		toastV8.success('Worker token removed');
+		modernMessaging.showFooterMessage({ type: 'info', message: 'Worker token removed', duration: 3000 });
 	};
 
 	const handleWorkerTokenGenerated = () => {
@@ -102,7 +102,7 @@ export const AppPickerV8: React.FC<AppPickerV8Props> = ({ environmentId, onAppSe
 		window.dispatchEvent(new Event('workerTokenUpdated'));
 		const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 		setTokenStatus(newStatus);
-		toastV8.success('Worker token generated and saved!');
+		modernMessaging.showFooterMessage({ type: 'info', message: 'Worker token generated and saved!', duration: 3000 });
 	};
 
 	const handleDiscover = async () => {
@@ -113,14 +113,14 @@ export const AppPickerV8: React.FC<AppPickerV8Props> = ({ environmentId, onAppSe
 		});
 
 		if (!environmentId.trim()) {
-			toastV8.error('Please enter an Environment ID first');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter an Environment ID first', dismissible: true });
 			return;
 		}
 
 		// Check token status
 		if (!tokenStatus.isValid) {
 			console.log(`${MODULE_TAG} Token not valid, showing error`);
-			toastV8.error(tokenStatus.message);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: tokenStatus.message, dismissible: true });
 			return;
 		}
 
@@ -131,7 +131,7 @@ export const AppPickerV8: React.FC<AppPickerV8Props> = ({ environmentId, onAppSe
 			// Get worker token directly from global service
 			const workerToken = await workerTokenServiceV8.getToken();
 			if (!workerToken) {
-				toastV8.error('Worker token required - please generate one first');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Worker token required - please generate one first', dismissible: true });
 				setIsLoading(false);
 				return;
 			}
@@ -146,18 +146,16 @@ export const AppPickerV8: React.FC<AppPickerV8Props> = ({ environmentId, onAppSe
 				console.log(`${MODULE_TAG} Found ${discovered.length} apps`, discovered);
 				setApps(discovered);
 				setShowResults(true);
-				toastV8.success(`Found ${discovered.length} application(s)`);
+				modernMessaging.showFooterMessage({ type: 'info', message: `Found ${discovered.length} application(s)`, duration: 3000 });
 			} else {
-				toastV8.error('No applications found in this environment');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'No applications found in this environment', dismissible: true });
 				setApps([]);
 			}
 		} catch (error) {
 			console.error(`${MODULE_TAG} Discovery error`, error);
-			toastV8.error(
-				error instanceof Error
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error
 					? error.message
-					: 'Failed to discover applications - check worker token'
-			);
+					: 'Failed to discover applications - check worker token', dismissible: true });
 		} finally {
 			setIsLoading(false);
 		}
@@ -169,7 +167,7 @@ export const AppPickerV8: React.FC<AppPickerV8Props> = ({ environmentId, onAppSe
 		setShowResults(false);
 		setApps([]);
 		setSelectedAppId(null);
-		toastV8.success(`Selected: ${app.name}`);
+		modernMessaging.showFooterMessage({ type: 'info', message: `Selected: ${app.name}`, duration: 3000 });
 	};
 
 	// Debug: Log button state

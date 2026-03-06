@@ -2,7 +2,7 @@
 // Kroger Grocery Store Mockup - Real-world MFA authentication experience
 // This page demonstrates PingOne MFA in a realistic grocery store website context
 
-import { FiHeart, FiLock, FiSearch, FiShoppingCart, FiUser } from '@icons';
+// No React Icons import - using MDI icons instead
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { ApiCallTable } from '../../components/ApiCallTable';
@@ -18,7 +18,7 @@ import { getValidWorkerToken } from '../../services/tokenExpirationService';
 import { workerTokenCredentialsService } from '../../services/workerTokenCredentialsService';
 import type { UserInfo } from '../../types/oauth';
 import { trackedFetch } from '../../utils/trackedFetch';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 // Kroger Brand Colors
 const KROGER_BLUE = '#0058A8';
@@ -951,7 +951,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 	// Step 12-17: Complete MFA Login Flow (Authorization Code Flow - no worker token needed)
 	const completeMFALogin = useCallback(async () => {
 		if (!username || !password) {
-			v4ToastManager.showError('Please enter username and password');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter username and password', dismissible: true });
 			return;
 		}
 
@@ -963,9 +963,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 				hasClientSecret: !!credentials.clientSecret,
 				credentials,
 			});
-			v4ToastManager.showError(
-				'Please configure application credentials first. Click "Configure Application Credentials" below the login form.'
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please configure application credentials first. Click "Configure Application Credentials" below the login form.', dismissible: true });
 			return;
 		}
 
@@ -1041,11 +1039,11 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 			// Show MFA challenge
 			setShowMFAChallenge(true);
 			setLoginStep('mfa');
-			v4ToastManager.showInfo('Please check your phone for the verification code');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'Please check your phone for the verification code', duration: 3000 });
 			setIsLoading(false);
 		} catch (error) {
 			console.error('[Kroger] Login failed:', error);
-			v4ToastManager.showError(error instanceof Error ? error.message : 'Login failed');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Login failed', dismissible: true });
 			setIsLoading(false);
 		}
 	}, [credentials, username, password]);
@@ -1067,7 +1065,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 	const enableMFADevice = useCallback(
 		async (deviceId: string): Promise<boolean> => {
 			if (!credentials.environmentId || !userId || !workerToken) {
-				v4ToastManager.showError('Missing required parameters for device enablement');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Missing required parameters for device enablement', dismissible: true });
 				return false;
 			}
 
@@ -1088,16 +1086,14 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 
 				const data = await response.json();
 				if (response.ok) {
-					v4ToastManager.showSuccess('MFA device enabled successfully');
+					modernMessaging.showFooterMessage({ type: 'info', message: 'MFA device enabled successfully', duration: 3000 });
 					return true;
 				} else {
 					throw new Error(data.error_description || data.error || 'Failed to enable MFA device');
 				}
 			} catch (error) {
 				console.error('[Kroger] Device enablement failed:', error);
-				v4ToastManager.showError(
-					error instanceof Error ? error.message : 'Failed to enable MFA device'
-				);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Failed to enable MFA device', dismissible: true });
 				return false;
 			}
 		},
@@ -1107,7 +1103,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 	// Step 11: Register Mobile Phone Device
 	const registerMobilePhone = useCallback(async () => {
 		if (!credentials.environmentId || !userId || !phoneNumber || !workerToken) {
-			v4ToastManager.showError('Please provide all required information');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please provide all required information', dismissible: true });
 			return;
 		}
 
@@ -1147,9 +1143,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 			}
 		} catch (error) {
 			console.error('[Kroger] Device registration failed:', error);
-			v4ToastManager.showError(
-				error instanceof Error ? error.message : 'Failed to register device'
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Failed to register device', dismissible: true });
 			setIsLoading(false);
 		}
 	}, [credentials.environmentId, userId, phoneNumber, workerToken, enableMFADevice]);
@@ -1157,7 +1151,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 	// Step 15-17: Complete MFA and Get Tokens
 	const verifyMFACode = useCallback(async () => {
 		if (!flowId || !mfaCode || !credentials.environmentId) {
-			v4ToastManager.showError('Please enter the verification code');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter the verification code', dismissible: true });
 			return;
 		}
 
@@ -1226,11 +1220,11 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 			setIsAuthenticated(true);
 			setShowMFAChallenge(false);
 			setLoginStep('success');
-			v4ToastManager.showSuccess('Login successful! Welcome to Kroger.');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'Login successful! Welcome to Kroger.', duration: 3000 });
 			setIsLoading(false);
 		} catch (error) {
 			console.error('[Kroger] MFA verification failed:', error);
-			v4ToastManager.showError(error instanceof Error ? error.message : 'Verification failed');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Verification failed', dismissible: true });
 			setIsLoading(false);
 		}
 	}, [flowId, mfaCode, credentials]);
@@ -1238,7 +1232,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 	// Handle login - check if device setup is needed first
 	const handleLogin = async () => {
 		if (!username || !password) {
-			v4ToastManager.showError('Please enter username and password');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter username and password', dismissible: true });
 			return;
 		}
 
@@ -1276,7 +1270,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 	// Handle device setup completion
 	const _handleDeviceSetupComplete = async () => {
 		if (!phoneNumber) {
-			v4ToastManager.showError('Please enter a phone number');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter a phone number', dismissible: true });
 			return;
 		}
 
@@ -1286,7 +1280,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 	// Handle MFA code submission
 	const handleMFASubmit = async () => {
 		if (!mfaCode || mfaCode.length !== 6) {
-			v4ToastManager.showError('Please enter a valid 6-digit code');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter a valid 6-digit code', dismissible: true });
 			return;
 		}
 
@@ -1295,173 +1289,6 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 
 	// Show login page first if not authenticated
 	if (!isAuthenticated) {
-		return (
-			<PageContainer>
-				<Header>
-					<HeaderContent>
-						<Logo>
-							<FiShoppingCart />
-							Kroger Marketplace
-						</Logo>
-						<SearchBar>
-							<FiSearch />
-							<input
-								type="text"
-								placeholder="Search fresh groceries, bakery, and more"
-								aria-label="Search products"
-							/>
-						</SearchBar>
-						<HeaderActions>
-							<HeaderButton type="button">
-								<FiHeart />
-								<span>Favorites</span>
-							</HeaderButton>
-							<HeaderButton type="button">
-								<FiUser />
-								<span>Account</span>
-							</HeaderButton>
-						</HeaderActions>
-					</HeaderContent>
-				</Header>
-
-				<MainContent style={{ paddingTop: '2rem' }}>
-					<HeroBanner>
-						<h1>Shop Kroger with Secure MFA</h1>
-						<p>
-							Experience the enhanced PingOne MFA journey while browsing exclusive Kroger deals.
-						</p>
-					</HeroBanner>
-
-					<LoginPageContainer onClick={(e) => e.stopPropagation()}>
-						<ModalHeader>
-							<h2>Sign In to Kroger</h2>
-						</ModalHeader>
-
-						<FormGroup>
-							<label>Username</label>
-							<input
-								type="text"
-								value={username}
-								onChange={(e) => setUsername(e.target.value)}
-								placeholder="Enter your username"
-							/>
-						</FormGroup>
-
-						<FormGroup>
-							<label>Password</label>
-							<input
-								type="password"
-								value={password}
-								onChange={(e) => setPassword(e.target.value)}
-								placeholder="Enter your password"
-								onKeyDown={(e) => {
-									if (e.key === 'Enter' && !isLoading && username && password) {
-										handleLogin();
-									}
-								}}
-							/>
-						</FormGroup>
-
-						<LoginButton onClick={handleLogin} disabled={isLoading || !username || !password}>
-							{isLoading ? 'Signing In...' : 'Sign In'}
-						</LoginButton>
-
-						<div
-							style={{
-								marginTop: '1rem',
-								fontSize: '0.875rem',
-								color: '#666',
-								textAlign: 'center',
-							}}
-						>
-							<p style={{ margin: '0.5rem 0', color: '#999' }}>
-								Don't have an account?{' '}
-								<a href="#" style={{ color: KROGER_BLUE, textDecoration: 'none' }}>
-									Sign up
-								</a>
-							</p>
-							<div
-								style={{
-									display: 'flex',
-									flexDirection: 'column',
-									gap: '0.5rem',
-									alignItems: 'center',
-								}}
-							>
-								<button
-									onClick={() => {
-										setShowAuthzConfigModal(true);
-									}}
-									style={{
-										background: 'none',
-										border: 'none',
-										color: KROGER_BLUE,
-										cursor: 'pointer',
-										textDecoration: 'underline',
-										fontSize: '0.875rem',
-										marginTop: '0.5rem',
-									}}
-								>
-									Configure Authorization Code Credentials
-								</button>
-								<button
-									onClick={() => {
-										const FLOW_TYPE = 'kroger-grocery-store-mfa';
-										const tokenStorageKey = `pingone_worker_token_${FLOW_TYPE}`;
-										const tokenExpiryKey = `pingone_worker_token_expires_at_${FLOW_TYPE}`;
-
-										// Check if we already have a valid worker token
-										const tokenResult = getValidWorkerToken(tokenStorageKey, tokenExpiryKey, {
-											clearExpired: true,
-											showToast: false,
-										});
-
-										if (tokenResult.isValid && tokenResult.token) {
-											v4ToastManager.showSuccess(
-												`Worker token is valid and expires in ${tokenResult.expirationInfo?.minutesRemaining || 0} minutes`
-											);
-											setWorkerToken(tokenResult.token);
-											return;
-										}
-
-										// No valid token - show modal to configure/generate
-										setShowWorkerTokenModal(true);
-									}}
-									style={{
-										background: 'none',
-										border: 'none',
-										color: KROGER_BLUE,
-										cursor: 'pointer',
-										textDecoration: 'underline',
-										fontSize: '0.875rem',
-									}}
-								>
-									Configure Worker Token Credentials
-								</button>
-							</div>
-						</div>
-					</LoginPageContainer>
-
-					{/* API Call Table - Independent, wider container */}
-					<ApiCallTableContainer>
-						<ApiCallTable
-							apiCalls={apiCalls}
-							onClear={() => apiCallTrackerService.clearApiCalls()}
-						/>
-					</ApiCallTableContainer>
-				</MainContent>
-
-				{/* MFA Challenge Modal */}
-				<ModalOverlay $isOpen={showMFAChallenge} onClick={() => {}}>
-					<MFAChallengeModal onClick={(e) => e.stopPropagation()}>
-						<MFAChallengeContent>
-							<div className="icon">
-								<FiLock />
-							</div>
-							<h3>Verify Your Identity</h3>
-							<p>
-								We've sent a verification code to your registered device. Please enter the 6-digit
-								code to continue.
 							</p>
 							<input
 								type="text"

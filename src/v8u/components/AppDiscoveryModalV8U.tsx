@@ -13,7 +13,7 @@ import {
 	AppDiscoveryServiceV8,
 	type DiscoveredApplication,
 } from '@/v8/services/appDiscoveryServiceV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const MODULE_TAG = '[🔍 APP-DISCOVERY-MODAL-V8U]';
 
@@ -69,12 +69,12 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 	// Memoized handleDiscover to prevent infinite loops
 	const handleDiscover = useCallback(async () => {
 		if (!environmentId.trim()) {
-			toastV8.error('Please enter an Environment ID first');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter an Environment ID first', dismissible: true });
 			return;
 		}
 
 		if (!globalTokenStatus.isValid) {
-			toastV8.error(globalTokenStatus.message);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: globalTokenStatus.message, dismissible: true });
 			return;
 		}
 
@@ -83,7 +83,7 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 		try {
 			// Worker token is now managed by unified service
 			if (!hasWorkerToken) {
-				toastV8.error('Worker token required - please generate one first');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Worker token required - please generate one first', dismissible: true });
 				return;
 			}
 
@@ -99,7 +99,7 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 					token: workerToken,
 					type: typeof workerToken,
 				});
-				toastV8.error('Worker token required - please generate one first');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Worker token required - please generate one first', dismissible: true });
 				setIsLoading(false);
 				return;
 			}
@@ -122,13 +122,13 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 					})
 				);
 				setApps(mappedApps);
-				toastV8.success(`Found ${mappedApps.length} application(s)`);
+				modernMessaging.showFooterMessage({ type: 'info', message: `Found ${mappedApps.length} application(s)`, duration: 3000 });
 			} else {
-				toastV8.error('No applications found in this environment');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'No applications found in this environment', dismissible: true });
 			}
 		} catch (error) {
 			console.error(`${MODULE_TAG} Discovery error`, error);
-			toastV8.error('Failed to discover applications - check worker token');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to discover applications - check worker token', dismissible: true });
 		} finally {
 			setIsLoading(false);
 		}
@@ -147,13 +147,13 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 
 	const handleApplyToCredentials = () => {
 		if (!selectedAppId) {
-			toastV8.error('Please select an application first');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please select an application first', dismissible: true });
 			return;
 		}
 
 		const selectedApp = apps.find((app) => app.id === selectedAppId);
 		if (!selectedApp) {
-			toastV8.error('Selected application not found');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Selected application not found', dismissible: true });
 			return;
 		}
 
@@ -192,7 +192,7 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 			onAppSelected(selectedApp);
 		}
 
-		toastV8.success(`Applied settings from ${selectedApp.name}`);
+		modernMessaging.showFooterMessage({ type: 'info', message: `Applied settings from ${selectedApp.name}`, duration: 3000 });
 		onClose();
 	};
 

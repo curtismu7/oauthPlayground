@@ -11,7 +11,7 @@ import { useCallback, useEffect, useId, useState } from 'react';
 import styled from 'styled-components';
 import { FlowHeader } from '../services/flowHeaderService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -358,9 +358,9 @@ const JWKSTroubleshooting: React.FC = () => {
 	const copyToClipboard = useCallback(async (text: string, label: string) => {
 		try {
 			await navigator.clipboard.writeText(text);
-			v4ToastManager.showCopySuccess(label);
+			modernMessaging.showFooterMessage({ type: 'info', message: `${label} copied to clipboard!`, duration: 3000 });
 		} catch {
-			v4ToastManager.showCopyError(label);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to copy ${label} to clipboard`, dismissible: true });
 		}
 	}, []);
 
@@ -428,9 +428,9 @@ const JWKSTroubleshooting: React.FC = () => {
 				setCommandResults((prev) => [newResult, ...prev]);
 
 				if (status === 'success') {
-					v4ToastManager.showSuccess('JWKS command executed successfully - check results below');
+					modernMessaging.showFooterMessage({ type: 'info', message: 'JWKS command executed successfully - check results below', duration: 3000 });
 				} else {
-					v4ToastManager.showError('networkError');
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Network error occurred', dismissible: true });
 				}
 			} catch (error) {
 				const newResult: CommandResult = {
@@ -441,7 +441,7 @@ const JWKSTroubleshooting: React.FC = () => {
 				};
 
 				setCommandResults((prev) => [newResult, ...prev]);
-				v4ToastManager.showError('networkError');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Network error occurred', dismissible: true });
 			} finally {
 				setRunningCommands((prev) => {
 					const newSet = new Set(prev);

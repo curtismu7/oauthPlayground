@@ -24,7 +24,7 @@ import { workerTokenDiscoveryService } from '../../../services/workerTokenDiscov
 import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningService';
 import { getAnyWorkerToken } from '../../../utils/workerTokenDetection';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
-import { toastV8 } from '../../../v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 
 const Container = styled.div`
@@ -131,7 +131,7 @@ const WorkerTokenFlowV9: React.FC = () => {
 		try {
 			await controller.requestToken();
 			setWorkerToken(getAnyWorkerToken() ?? '');
-			toastV8.success('Worker token generated successfully!');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'Worker token generated successfully!', duration: 3000 });
 			setCurrentStep(1);
 		} catch (_error) {
 			const errorDetails = OAuthErrorHandlingService.parseOAuthError(_error, {
@@ -144,7 +144,7 @@ const WorkerTokenFlowV9: React.FC = () => {
 					hasEnvironmentId: !!controller.credentials.environmentId,
 				},
 			});
-			toastV8.error(errorDetails.message);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorDetails.message, dismissible: true });
 		}
 	}, [controller]);
 
@@ -164,9 +164,9 @@ const WorkerTokenFlowV9: React.FC = () => {
 			} catch {
 				// non-fatal
 			}
-			toastV8.success('Worker Token Flow reset successfully');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'Worker Token Flow reset successfully', duration: 3000 });
 		} catch {
-			toastV8.error('Failed to reset flow. Please refresh the page.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to reset flow. Please refresh the page.', dismissible: true });
 		}
 	}, [controller]);
 
@@ -231,7 +231,7 @@ const WorkerTokenFlowV9: React.FC = () => {
 								? { environmentId: controller.credentials.environmentId }
 								: {}
 						);
-						toastV8.success('Credentials saved successfully!');
+						modernMessaging.showFooterMessage({ type: 'info', message: 'Credentials saved successfully!', duration: 3000 });
 					} catch (_error) {
 						const errorDetails = OAuthErrorHandlingService.parseOAuthError(_error, {
 							flowType: 'client_credentials',
@@ -243,7 +243,7 @@ const WorkerTokenFlowV9: React.FC = () => {
 								hasEnvironmentId: !!controller.credentials.environmentId,
 							},
 						});
-						toastV8.error(errorDetails.message);
+						modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorDetails.message, dismissible: true });
 					}
 				}}
 				onDiscoveryComplete={async (result) => {
@@ -285,7 +285,7 @@ const WorkerTokenFlowV9: React.FC = () => {
 											{ ...updatedCredentials } as StepCredentials,
 											{ environmentId: updatedCredentials.environmentId }
 										);
-										toastV8.success('Credentials auto-saved after OIDC discovery');
+										modernMessaging.showFooterMessage({ type: 'info', message: 'Credentials auto-saved after OIDC discovery', duration: 3000 });
 									}
 								}
 							}

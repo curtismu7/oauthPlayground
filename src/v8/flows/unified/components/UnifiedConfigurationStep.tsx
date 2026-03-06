@@ -29,7 +29,7 @@ import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
 import type { TokenType } from '@/v8/flows/shared/MFATypes';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const MODULE_TAG = '[⚙️ UNIFIED-CONFIGURATION-STEP]';
 
@@ -205,7 +205,7 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 
 			// Small delay to ensure state updates propagate
 			setTimeout(() => {
-				toastV8.success('Authentication successful! Proceeding to next step...');
+				modernMessaging.showFooterMessage({ type: 'info', message: 'Authentication successful! Proceeding to next step...', duration: 3000 });
 				nav.markStepComplete();
 				nav.goToNext();
 			}, 300);
@@ -269,7 +269,7 @@ export const UnifiedConfigurationStep: React.FC<UnifiedConfigurationStepProps> =
 
 		// Validate configuration
 		if (!validateConfiguration()) {
-			toastV8.error('Please fix the configuration errors');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please fix the configuration errors', dismissible: true });
 			return;
 		}
 

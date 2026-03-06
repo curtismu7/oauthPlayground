@@ -30,7 +30,7 @@ import { UnifiedTokenDisplayService } from '../../../services/unifiedTokenDispla
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningService';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
-import { toastV8 } from '../../../v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 
 // Get UI components from FlowUIService
@@ -356,7 +356,7 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 			console.log('🔧 [Client Credentials V7] Cleared flow-specific storage');
 		} catch (error) {
 			console.error('[Client Credentials V7] Failed to clear flow state:', error);
-			toastV8.error('Failed to clear flow state. Please refresh the page.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to clear flow state. Please refresh the page.', dismissible: true });
 		}
 
 		// Clear any potential ConfigChecker-related state or cached data
@@ -468,7 +468,7 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 			}).catch((error) => {
 				console.error('[Client Credentials V7] Failed to save credentials to V7 storage:', error);
 				// Show user-friendly error message
-				toastV8.error('Failed to save credentials. Please try again.');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save credentials. Please try again.', dismissible: true });
 			});
 		}
 	}, [controller.credentials]);

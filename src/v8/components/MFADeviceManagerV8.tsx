@@ -22,7 +22,7 @@
 import { FiInfo } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { ButtonSpinner } from '../../components/ui';
 import { StandardModalSpinner, useStandardSpinner } from '../../components/ui/StandardSpinner';
 
@@ -112,7 +112,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 				},
 				onError: (error) => {
 					console.error(`${MODULE_TAG} Failed to load devices`, error);
-					toastV8.error('Failed to load devices');
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to load devices', dismissible: true });
 				},
 			}
 		);
@@ -130,18 +130,16 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 			username,
 		});
 		if (!environmentId || !username) {
-			toastV8.error('Environment ID and username are required to allow bypass');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Environment ID and username are required to allow bypass', dismissible: true });
 			return;
 		}
 		try {
 			const user = await MFAServiceV8.lookupUserByUsername(environmentId, username);
 			await MFAServiceV8.allowMfaBypass(environmentId, user.id);
-			toastV8.success('MFA bypass allowed for user');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'MFA bypass allowed for user', duration: 3000 });
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to allow MFA bypass`, error);
-			toastV8.error(
-				`Failed to allow MFA bypass: ${error instanceof Error ? error.message : 'Unknown error'}`
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to allow MFA bypass: ${error instanceof Error ? error.message : 'Unknown error'}`, dismissible: true });
 		}
 	};
 
@@ -163,10 +161,10 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 				document.execCommand('copy');
 				document.body.removeChild(textarea);
 			}
-			toastV8.success('Device ID copied to clipboard');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'Device ID copied to clipboard', duration: 3000 });
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to copy device ID`, error);
-			toastV8.error('Failed to copy device ID');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to copy device ID', dismissible: true });
 		}
 	};
 
@@ -176,26 +174,22 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 			username,
 		});
 		if (!environmentId || !username) {
-			toastV8.error('Environment ID and username are required to check bypass status');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Environment ID and username are required to check bypass status', dismissible: true });
 			return;
 		}
 		try {
 			const user = await MFAServiceV8.lookupUserByUsername(environmentId, username);
 			const status = await MFAServiceV8.checkMfaBypassStatus(environmentId, user.id);
 			setBypassStatus(status);
-			toastV8.info(
-				`MFA bypass status: ${
+			modernMessaging.showFooterMessage({ type: 'info', message: `MFA bypass status: ${
 					typeof status.enabled !== 'undefined' ? String(status.enabled) : 'see console for details'
-				}`
-			);
+				}`, duration: 3000 });
 			console.log(`${MODULE_TAG} MFA bypass status response`, status);
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to check MFA bypass status`, error);
-			toastV8.error(
-				`Failed to check MFA bypass status: ${
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to check MFA bypass status: ${
 					error instanceof Error ? error.message : 'Unknown error'
-				}`
-			);
+				}`, dismissible: true });
 		}
 	};
 
@@ -206,23 +200,21 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 			deviceCount: devices.length,
 		});
 		if (!environmentId || !username) {
-			toastV8.error('Environment ID and username are required to set device order');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Environment ID and username are required to set device order', dismissible: true });
 			return;
 		}
 		if (devices.length === 0) {
-			toastV8.error('No devices available to set order');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'No devices available to set order', dismissible: true });
 			return;
 		}
 		try {
 			const user = await MFAServiceV8.lookupUserByUsername(environmentId, username);
 			const orderedDeviceIds = devices.map((d) => d.id);
 			await MFAServiceV8.setUserMfaDeviceOrder(environmentId, user.id, orderedDeviceIds);
-			toastV8.success('Device order updated successfully');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'Device order updated successfully', duration: 3000 });
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to set device order`, error);
-			toastV8.error(
-				`Failed to set device order: ${error instanceof Error ? error.message : 'Unknown error'}`
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to set device order: ${error instanceof Error ? error.message : 'Unknown error'}`, dismissible: true });
 		}
 	};
 
@@ -232,18 +224,16 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 			username,
 		});
 		if (!environmentId || !username) {
-			toastV8.error('Environment ID and username are required to remove device order');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Environment ID and username are required to remove device order', dismissible: true });
 			return;
 		}
 		try {
 			const user = await MFAServiceV8.lookupUserByUsername(environmentId, username);
 			await MFAServiceV8.removeUserMfaDeviceOrder(environmentId, user.id);
-			toastV8.success('Device order removed successfully');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'Device order removed successfully', duration: 3000 });
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to remove device order`, error);
-			toastV8.error(
-				`Failed to remove device order: ${error instanceof Error ? error.message : 'Unknown error'}`
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to remove device order: ${error instanceof Error ? error.message : 'Unknown error'}`, dismissible: true });
 		}
 	};
 
@@ -251,7 +241,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 		await renameSpinner.executeWithSpinner(
 			async () => {
 				if (!newName.trim()) {
-					toastV8.error('Device nickname cannot be empty');
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Device nickname cannot be empty', dismissible: true });
 					throw new Error('Device nickname cannot be empty');
 				}
 
@@ -265,7 +255,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 					newName
 				);
 
-				toastV8.success('Device nickname updated successfully');
+				modernMessaging.showFooterMessage({ type: 'info', message: 'Device nickname updated successfully', duration: 3000 });
 				setEditingDeviceId(null);
 				setNewName('');
 				await loadDevices();
@@ -276,9 +266,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 				},
 				onError: (error) => {
 					console.error(`${MODULE_TAG} Failed to rename device`, error);
-					toastV8.error(
-						`Failed to rename device: ${error instanceof Error ? error.message : 'Unknown error'}`
-					);
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to rename device: ${error instanceof Error ? error.message : 'Unknown error'}`, dismissible: true });
 				},
 			}
 		);
@@ -316,13 +304,11 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 				});
 			}, 2000); // Remove highlight after 2 seconds
 
-			toastV8.success('Device blocked successfully');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'Device blocked successfully', duration: 3000 });
 			await loadDevices();
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to block device`, error);
-			toastV8.error(
-				`Failed to block device: ${error instanceof Error ? error.message : 'Unknown error'}`
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to block device: ${error instanceof Error ? error.message : 'Unknown error'}`, dismissible: true });
 		} finally {
 			setProcessingDeviceId(null);
 		}
@@ -348,13 +334,11 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 				});
 			}, 2000); // Remove highlight after 2 seconds
 
-			toastV8.success('Device unblocked successfully');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'Device unblocked successfully', duration: 3000 });
 			await loadDevices();
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to unblock device`, error);
-			toastV8.error(
-				`Failed to unblock device: ${error instanceof Error ? error.message : 'Unknown error'}`
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to unblock device: ${error instanceof Error ? error.message : 'Unknown error'}`, dismissible: true });
 		} finally {
 			setProcessingDeviceId(null);
 		}
@@ -380,13 +364,11 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 				});
 			}, 2000); // Remove highlight after 2 seconds
 
-			toastV8.success('Device unlocked successfully');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'Device unlocked successfully', duration: 3000 });
 			await loadDevices();
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to unlock device`, error);
-			toastV8.error(
-				`Failed to unlock device: ${error instanceof Error ? error.message : 'Unknown error'}`
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to unlock device: ${error instanceof Error ? error.message : 'Unknown error'}`, dismissible: true });
 		} finally {
 			setProcessingDeviceId(null);
 		}
@@ -413,13 +395,11 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 				deviceId,
 			});
 
-			toastV8.success('Device deleted successfully');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'Device deleted successfully', duration: 3000 });
 			await loadDevices();
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to delete device`, error);
-			toastV8.error(
-				`Failed to delete device: ${error instanceof Error ? error.message : 'Unknown error'}`
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to delete device: ${error instanceof Error ? error.message : 'Unknown error'}`, dismissible: true });
 		}
 	};
 
@@ -475,13 +455,11 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 				});
 			}, 2000); // Remove highlight after 2 seconds
 
-			toastV8.success('Device activated successfully using admin privileges');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'Device activated successfully using admin privileges', duration: 3000 });
 			await loadDevices();
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to activate device`, error);
-			toastV8.error(
-				`Failed to activate device: ${error instanceof Error ? error.message : 'Unknown error'}`
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to activate device: ${error instanceof Error ? error.message : 'Unknown error'}`, dismissible: true });
 		} finally {
 			setProcessingDeviceId(null);
 		}

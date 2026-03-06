@@ -20,7 +20,7 @@ import { ColoredJsonDisplay } from '../components/ColoredJsonDisplay';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import PageLayoutService from '../services/pageLayoutService';
 import { SuperSimpleApiDisplayV8 } from '../v8/components/SuperSimpleApiDisplayV8';
-import { toastV8 } from '../v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const WhiteContainer = styled.div`
 	background-color: white;
@@ -349,13 +349,13 @@ const PingOneSessionsAPI: React.FC = () => {
 			});
 
 			if (response.ok) {
-				toastV8.success(`API call successful: ${response.status} ${response.statusText}`);
+				modernMessaging.showFooterMessage({ type: 'info', message: `API call successful: ${response.status} ${response.statusText}`, duration: 3000 });
 			} else {
-				toastV8.error(`API call failed: ${response.status} ${response.statusText}`);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `API call failed: ${response.status} ${response.statusText}`, dismissible: true });
 			}
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			toastV8.error(`API call failed: ${errorMessage}`);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `API call failed: ${errorMessage}`, dismissible: true });
 			setApiResponse({
 				status: 0,
 				statusText: 'Error',

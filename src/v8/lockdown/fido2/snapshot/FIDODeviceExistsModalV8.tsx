@@ -10,7 +10,7 @@ import React, { useEffect, useId, useState } from 'react';
 import styled from 'styled-components';
 import { useDraggableModal } from '@/v8/hooks/useDraggableModal';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 interface FIDODeviceExistsModalV8Props {
 	isOpen: boolean;
@@ -257,7 +257,7 @@ export const FIDODeviceExistsModalV8: React.FC<FIDODeviceExistsModalV8Props> = (
 
 	const handleDeleteDevice = async () => {
 		if (!environmentId || !username || !deviceId) {
-			toastV8.error('Missing required information to delete device');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Missing required information to delete device', dismissible: true });
 			return;
 		}
 
@@ -282,16 +282,14 @@ export const FIDODeviceExistsModalV8: React.FC<FIDODeviceExistsModalV8Props> = (
 				deviceId,
 			});
 
-			toastV8.success('FIDO2 device deleted successfully. You can now register a new device.');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'FIDO2 device deleted successfully. You can now register a new device.', duration: 3000 });
 			onClose();
 			if (onDeviceDeleted) {
 				onDeviceDeleted();
 			}
 		} catch (error) {
 			console.error('[FIDODeviceExistsModal] Failed to delete device', error);
-			toastV8.error(
-				`Failed to delete device: ${error instanceof Error ? error.message : 'Unknown error'}`
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to delete device: ${error instanceof Error ? error.message : 'Unknown error'}`, dismissible: true });
 		} finally {
 			setIsDeleting(false);
 		}

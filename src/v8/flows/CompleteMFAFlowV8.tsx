@@ -28,7 +28,7 @@ import { useWorkerToken } from '@/v8/hooks/useWorkerToken';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 // V8 Services
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 // Extended credentials interface for the complete MFA flow
 interface CompleteMfaCredentials {
@@ -164,7 +164,7 @@ const CompleteMFAFlowV8: React.FC<CompleteMFAFlowV8Props> = ({
 				isLoading: false,
 			}));
 			onFlowError?.(error, context);
-			toastV8.error(error);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error, dismissible: true });
 		},
 		[onFlowError]
 	);
@@ -189,7 +189,7 @@ const CompleteMFAFlowV8: React.FC<CompleteMFAFlowV8Props> = ({
 				currentStep: 'device_pairing',
 			}));
 
-			toastV8.success('MFA configuration loaded');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'MFA configuration loaded', duration: 3000 });
 		} catch (error) {
 			handleError('Failed to load MFA configuration', { error });
 		}
@@ -215,7 +215,7 @@ const CompleteMFAFlowV8: React.FC<CompleteMFAFlowV8Props> = ({
 				currentStep: 'mfa_challenge',
 			}));
 
-			toastV8.success('Device paired successfully');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'Device paired successfully', duration: 3000 });
 		} catch (error) {
 			handleError('Failed to pair device', { error });
 		}
@@ -239,7 +239,7 @@ const CompleteMFAFlowV8: React.FC<CompleteMFAFlowV8Props> = ({
 				currentStep: 'completion',
 			}));
 
-			toastV8.success('MFA challenge completed');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'MFA challenge completed', duration: 3000 });
 		} catch (error) {
 			handleError('MFA challenge failed', { error });
 		}
@@ -258,7 +258,7 @@ const CompleteMFAFlowV8: React.FC<CompleteMFAFlowV8Props> = ({
 		};
 
 		onFlowComplete?.(result);
-		toastV8.success('MFA flow completed successfully');
+		modernMessaging.showFooterMessage({ type: 'info', message: 'MFA flow completed successfully', duration: 3000 });
 	}, [flowState.flowData, flowState.credentials, onFlowComplete]);
 
 	// Retry handler
@@ -271,7 +271,7 @@ const CompleteMFAFlowV8: React.FC<CompleteMFAFlowV8Props> = ({
 				isLoading: false,
 			}));
 
-			toastV8.info(`Retrying... Attempt ${flowState.retryCount + 1} of ${maxRetries}`);
+			modernMessaging.showFooterMessage({ type: 'info', message: `Retrying... Attempt ${flowState.retryCount + 1} of ${maxRetries}`, duration: 3000 });
 		} else {
 			handleError('Maximum retry attempts exceeded');
 		}
@@ -335,7 +335,7 @@ const CompleteMFAFlowV8: React.FC<CompleteMFAFlowV8Props> = ({
 										...prev,
 										currentStep: 'mfa_enrollment',
 									}));
-									toastV8.success('User credentials saved successfully');
+									modernMessaging.showFooterMessage({ type: 'info', message: 'User credentials saved successfully', duration: 3000 });
 								}}
 								environmentId={flowState.credentials.environmentId || ''}
 							/>

@@ -9,7 +9,7 @@ import { FiAlertTriangle, FiChevronDown, FiKey, FiSearch, FiX } from '@icons';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { checkWorkerTokenStatusSync } from '@/v8/services/workerTokenStatusServiceV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const _MODULE_TAG = '[👤 USER-SEARCH-DROPDOWN-V8]';
 
@@ -114,7 +114,7 @@ export const UserSearchDropdownV8: React.FC<UserSearchDropdownV8Props> = ({
 					// Don't toast — the inline prompt handles it
 				} else {
 					setError(errorMessage);
-					toastV8.error(`Failed to load users: ${errorMessage}`);
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to load users: ${errorMessage}`, dismissible: true });
 				}
 				setUsers([]);
 				setHasMore(false);

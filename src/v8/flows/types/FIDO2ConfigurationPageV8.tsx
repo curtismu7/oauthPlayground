@@ -43,7 +43,7 @@ import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import type { DeviceAuthenticationPolicy, MFACredentials } from '../shared/MFATypes';
 
 const MODULE_TAG = '[🔑 FIDO2-CONFIG-V8]';
@@ -437,12 +437,12 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 	// Handle proceed to registration
 	const handleProceedToRegistration = useCallback(() => {
 		if (!selectedFido2PolicyId) {
-			toastV8.warning('Please select a FIDO2 policy before proceeding');
+			modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Please select a FIDO2 policy before proceeding', dismissible: true });
 			return;
 		}
 
 		if (!tokenStatus.isValid) {
-			toastV8.warning('Please generate a worker token before proceeding');
+			modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Please generate a worker token before proceeding', dismissible: true });
 			return;
 		}
 
@@ -617,7 +617,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 												detail: { workerToken: config.workerToken },
 											})
 										);
-										toastV8.info(`Silent API Token Retrieval set to: ${newValue}`);
+										modernMessaging.showFooterMessage({ type: 'info', message: `Silent API Token Retrieval set to: ${newValue}`, duration: 3000 });
 
 										// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 										if (newValue) {
@@ -691,7 +691,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 												detail: { workerToken: config.workerToken },
 											})
 										);
-										toastV8.info(`Show Token After Generation set to: ${newValue}`);
+										modernMessaging.showFooterMessage({ type: 'info', message: `Show Token After Generation set to: ${newValue}`, duration: 3000 });
 									}}
 									style={{
 										width: '20px',

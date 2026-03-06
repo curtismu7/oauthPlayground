@@ -20,7 +20,7 @@ import { FlowUIService } from '../../../services/flowUIService.tsx';
 import { V9FlowCredentialService } from '../../../services/v9/core/V9FlowCredentialService';
 import { EnvironmentIdServiceV8 } from '../../../services/v9/environmentIdServiceV9';
 import WorkerTokenStatusDisplayV8 from '../../../v8/components/WorkerTokenStatusDisplayV8';
-import { toastV8 } from '../../../v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
@@ -354,10 +354,10 @@ const RARFlowV9: React.FC = () => {
 			};
 
 			setTokens(mockTokens);
-			toastV8.success('Token exchange completed successfully');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'Token exchange completed successfully', duration: 3000 });
 		} catch (_error) {
 			setErrors(['Token exchange failed. Please try again.']);
-			toastV8.error('Token exchange failed');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Token exchange failed', dismissible: true });
 		} finally {
 			setIsLoading(false);
 		}
@@ -1016,7 +1016,7 @@ const RARFlowV9: React.FC = () => {
 								if (importedCredentials.redirectUri) {
 									handleConfigChange('redirectUri', importedCredentials.redirectUri);
 								}
-								toastV8.success('Credentials imported successfully');
+								modernMessaging.showFooterMessage({ type: 'info', message: 'Credentials imported successfully', duration: 3000 });
 							}}
 						/>
 					</StepContentWrapper>

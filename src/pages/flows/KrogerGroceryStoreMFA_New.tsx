@@ -43,7 +43,7 @@ import {
 import { TokenManagementService, type TokenRequest } from '../../services/tokenManagementService';
 import V7StepperService, { StepMetadata } from '../../services/v7StepperService';
 import { generateCodeChallenge, generateCodeVerifier } from '../../utils/oauth';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { getAnyWorkerToken } from '../../utils/workerTokenDetection';
 import KrogerGroceryStoreMFA from './KrogerGroceryStoreMFA';
 import {
@@ -241,17 +241,14 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 	const previousOfflineSelectionRef = useRef<boolean>(offlineAccessEvaluation.includesOffline);
 	useEffect(() => {
 		if (offlineAccessEvaluation.includesOffline && !previousOfflineSelectionRef.current) {
-			v4ToastManager.showSuccess(offlineAccessEvaluation.addToastMessage);
+			modernMessaging.showFooterMessage({ type: 'info', message: offlineAccessEvaluation.addToastMessage, duration: 3000 });
 		}
 
 		if (!offlineAccessEvaluation.includesOffline && previousOfflineSelectionRef.current) {
 			const removalMessage = offlineAccessEvaluation.missingRequiredScope
 				? 'offline_access removed, but your PingOne application requires it for refresh tokens. Add it back before continuing.'
 				: offlineAccessEvaluation.removeToastMessage;
-			const removalToast = offlineAccessEvaluation.missingRequiredScope
-				? v4ToastManager.showWarning
-				: v4ToastManager.showInfo;
-			removalToast(removalMessage);
+			modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: offlineAccessEvaluation.missingRequiredScope ? 'offline_access removed, but your PingOne application requires it for refresh tokens. Add it back before continuing.' : offlineAccessEvaluation.removeToastMessage, dismissible: true });
 		}
 
 		previousOfflineSelectionRef.current = offlineAccessEvaluation.includesOffline;
@@ -296,22 +293,18 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 		(message: string) => {
 			const detailedMessage = formatAuthErrorMessage(message);
 			setAuthError(detailedMessage);
-			v4ToastManager.showError(message);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: message, dismissible: true });
 		},
 		[formatAuthErrorMessage]
 	);
 
 	const warnOfflineAccessUsage = useCallback(() => {
 		if (offlineAccessEvaluation.missingRequiredScope) {
-			v4ToastManager.showWarning(
-				'offline_access is required when your PingOne application lists it under Allowed Scopes. Add it in Step 0 before continuing to receive refresh tokens.'
-			);
+			modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'offline_access is required when your PingOne application lists it under Allowed Scopes. Add it in Step 0 before continuing to receive refresh tokens.', dismissible: true });
 		}
 
 		if (offlineAccessEvaluation.shouldRemoveScope && offlineAccessEvaluation.includesOffline) {
-			v4ToastManager.showInfo(
-				'PingOne issues refresh tokens automatically for this app. You can remove offline_access to reduce unnecessary consent prompts.'
-			);
+			modernMessaging.showFooterMessage({ type: 'info', message: 'PingOne issues refresh tokens automatically for this app. You can remove offline_access to reduce unnecessary consent prompts.', duration: 3000 });
 		}
 	}, [offlineAccessEvaluation]);
 
@@ -595,7 +588,7 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 					} catch (lookupError) {
 						const message =
 							lookupError instanceof Error ? lookupError.message : ERROR_MESSAGES.userLookupFailed;
-						v4ToastManager.showWarning(message);
+						modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: message, dismissible: true });
 					}
 				}
 
@@ -603,7 +596,7 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 				setSuccessMessage(SUCCESS_MESSAGES.tokenExchangeComplete);
 				setShowLoginForm(false);
 				setCurrentStep(1);
-				v4ToastManager.showSuccess(SUCCESS_MESSAGES.tokenExchangeComplete);
+				modernMessaging.showFooterMessage({ type: 'info', message: SUCCESS_MESSAGES.tokenExchangeComplete, duration: 3000 });
 				RedirectStateManager.clearFlowState(FLOW_KEY);
 				await RedirectlessAuthService.clearFlowData(FLOW_KEY);
 			} catch (error) {
@@ -712,7 +705,7 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 	const handleMfaSetup = useCallback(
 		(method: 'SMS' | 'EMAIL' | 'AUTH_APP') => {
 			if (!isReadyForMfa) {
-				v4ToastManager.showWarning(ERROR_MESSAGES.missingWorkerToken);
+				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: ERROR_MESSAGES.missingWorkerToken, dismissible: true });
 				return;
 			}
 
@@ -731,7 +724,7 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 			}
 
 			setMfaStatusMessage(message);
-			v4ToastManager.showSuccess(message);
+			modernMessaging.showFooterMessage({ type: 'info', message: message, duration: 3000 });
 			setCurrentStep(2);
 		},
 		[isReadyForMfa]
@@ -767,14 +760,14 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 		if (!authConfig.environmentId) {
 			const message = ERROR_MESSAGES.missingEnvironment;
 			setError(message);
-			v4ToastManager.showError(message);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: message, dismissible: true });
 			return;
 		}
 
 		if (!authConfig.clientId || !authConfig.clientSecret) {
 			const message = ERROR_MESSAGES.missingCredentials;
 			setError(message);
-			v4ToastManager.showError(message);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: message, dismissible: true });
 			return;
 		}
 
@@ -802,11 +795,11 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 			});
 
 			if (!authCode) {
-				v4ToastManager.showInfo('Complete the PingOne sign-on flow to continue.');
+				modernMessaging.showFooterMessage({ type: 'info', message: 'Complete the PingOne sign-on flow to continue.', duration: 3000 });
 				return;
 			}
 
-			v4ToastManager.showSuccess(SUCCESS_MESSAGES.redirectlessComplete);
+			modernMessaging.showFooterMessage({ type: 'info', message: SUCCESS_MESSAGES.redirectlessComplete, duration: 3000 });
 			setSuccessMessage(SUCCESS_MESSAGES.redirectlessComplete);
 			await finalizeAuthorization(authCode, username);
 		} catch (error: unknown) {
@@ -1394,7 +1387,7 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 									href="#"
 									onClick={(e) => {
 										e.preventDefault();
-										v4ToastManager.showInfo('🚀 Create account feature coming soon!');
+										modernMessaging.showFooterMessage({ type: 'info', message: '🚀 Create account feature coming soon!', duration: 3000 });
 									}}
 								>
 									Create an account
@@ -1404,7 +1397,7 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 									href="#"
 									onClick={(e) => {
 										e.preventDefault();
-										v4ToastManager.showInfo('🔒 Password reset coming soon!');
+										modernMessaging.showFooterMessage({ type: 'info', message: '🔒 Password reset coming soon!', duration: 3000 });
 									}}
 									style={{ fontSize: '0.85rem', marginTop: '0.5rem', display: 'inline-block' }}
 								>
@@ -1810,7 +1803,7 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 					setWorkerToken(tokenResult.isValid ? (tokenResult.token ?? null) : null);
 					setShowWorkerTokenModal(false);
 					if (tokenResult.isValid) {
-						v4ToastManager.showSuccess('Worker token loaded successfully!');
+						modernMessaging.showFooterMessage({ type: 'info', message: 'Worker token loaded successfully!', duration: 3000 });
 					}
 				}}
 				flowType={FLOW_KEY}
