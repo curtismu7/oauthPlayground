@@ -2,6 +2,7 @@
 // Enhanced configuration service for OAuth flows
 // Provides granular, dynamic configuration management with inheritance and validation
 
+import { logger } from '../utils/logger';
 import { FlowType } from './serviceDiscoveryService';
 
 // Re-export for convenience
@@ -327,9 +328,10 @@ export class EnhancedConfigurationService {
 		// Validate the final configuration
 		const validation = EnhancedConfigurationService.validateConfiguration(finalConfig);
 		if (!validation.isValid) {
-			console.warn(
+			logger.warn(
+				'EnhancedConfigurationService',
 				'[EnhancedConfigurationService] Configuration validation failed:',
-				validation.errors
+				{ arg0: validation.errors }
 			);
 		}
 

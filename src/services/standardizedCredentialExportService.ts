@@ -1,6 +1,7 @@
 // src/services/standardizedCredentialExportService.ts
 // Standardized credential export/import service for all Production apps
 
+import { logger } from '../utils/logger';
 import { exportWorkerTokenCredentials } from './credentialExportImportService';
 
 // Re-export the standardized interfaces
@@ -63,7 +64,12 @@ export function exportStandardizedCredentials(
 		document.body.removeChild(link);
 		URL.revokeObjectURL(url);
 	} catch (error) {
-		console.error('[StandardizedCredentialExport] Error exporting credentials:', error);
+		logger.error(
+			'StandardizedCredentialExportService',
+			'[StandardizedCredentialExport] Error exporting credentials:',
+			undefined,
+			error as Error
+		);
 		throw new Error('Failed to export credentials');
 	}
 }
@@ -104,7 +110,12 @@ export async function importStandardizedCredentials(
 					reject(new Error('Invalid credential file format'));
 				}
 			} catch (error) {
-				console.error('[StandardizedCredentialExport] Error parsing file:', error);
+				logger.error(
+					'StandardizedCredentialExportService',
+					'[StandardizedCredentialExport] Error parsing file:',
+					undefined,
+					error as Error
+				);
 				reject(new Error('Failed to parse credential file'));
 			}
 		};
@@ -136,7 +147,12 @@ export function createCredentialImport(
 			const credentials = await importStandardizedCredentials(file);
 			onImport(credentials);
 		} catch (error) {
-			console.error('[StandardizedCredentialExport] Import failed:', error);
+			logger.error(
+				'StandardizedCredentialExportService',
+				'[StandardizedCredentialExport] Import failed:',
+				undefined,
+				error as Error
+			);
 			if (onError) {
 				onError(error as Error);
 			}

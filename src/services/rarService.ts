@@ -2,6 +2,7 @@
 // Rich Authorization Requests (RAR) Service - RFC 9396 Compliant Implementation
 
 import { StepCredentials } from '../types/flowTypes';
+import { logger } from '../utils/logger';
 
 // RAR Types per RFC 9396
 export interface AuthorizationDetail {
@@ -330,7 +331,12 @@ export class RARService {
 					authorizationDetails = tokenResponse.authorization_details;
 				}
 			} catch (error) {
-				console.warn('Failed to parse authorization_details from token response:', error);
+				logger.warn(
+					'RarService',
+					'Failed to parse authorization_details from token response:',
+					undefined,
+					error as Error
+				);
 			}
 		}
 

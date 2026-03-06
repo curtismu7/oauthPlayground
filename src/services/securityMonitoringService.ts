@@ -11,14 +11,15 @@ export interface SecurityEvent {
 class SecurityMonitoringService {
 	static initialize() {
 		// Initialize security monitoring
-		console.log('[SecurityMonitoringService] Initialized');
+		logger.info('SecurityMonitoringService', '[SecurityMonitoringService] Initialized');
 	}
 
 	static logSecurityEvent(event: SecurityEvent) {
 		// Log security event
-		console.log(
+		logger.info(
+			'SecurityMonitoringService',
 			`[SecurityMonitoringService] ${event.level.toUpperCase()}: ${event.event}`,
-			event.details
+			{ arg0: event.details }
 		);
 	}
 }

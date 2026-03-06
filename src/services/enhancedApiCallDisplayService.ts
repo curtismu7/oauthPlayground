@@ -385,7 +385,11 @@ export class EnhancedApiCallDisplayService {
 	}> {
 		// Ensure rules is always an array
 		if (!Array.isArray(rules)) {
-			console.warn('[EnhancedApiCallDisplayService] rules is not an array:', rules);
+			logger.warn(
+				'EnhancedApiCallDisplayService',
+				'[EnhancedApiCallDisplayService] rules is not an array:',
+				{ arg0: rules }
+			);
 			rules = [];
 		}
 
@@ -418,12 +422,14 @@ export class EnhancedApiCallDisplayService {
 					? new RegExp(rule.pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')
 					: rule.pattern;
 			let match: RegExpExecArray | null;
-			while ((match = pattern.exec(remainingUrl)) !== null) {
+			match = pattern.exec(remainingUrl);
+			while (match !== null) {
 				matches.push({
 					start: match.index,
 					end: match.index + match[0].length,
 					rule,
 				});
+				match = pattern.exec(remainingUrl);
 			}
 		});
 

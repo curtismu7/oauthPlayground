@@ -6,6 +6,8 @@ import {
 	flowRequiresRedirectUri,
 	getFlowRedirectUriConfig,
 } from '../utils/flowRedirectUriMapping';
+import { logger } from '../utils/logger';
+
 import { callbackUriService } from './callbackUriService';
 
 /**
@@ -77,7 +79,12 @@ export class FlowRedirectUriService {
 			const targetBase = new URL(baseUrl, defaultUrl.origin);
 			return `${targetBase.origin}${defaultUrl.pathname}`;
 		} catch (error) {
-			console.warn('[FlowRedirectUriService] Failed to remap redirect URI base:', error);
+			logger.warn(
+				'FlowRedirectUriService',
+				'[FlowRedirectUriService] Failed to remap redirect URI base:',
+				undefined,
+				error as Error
+			);
 			return defaultUri;
 		}
 	}
@@ -106,9 +113,11 @@ export class FlowRedirectUriService {
 			const providedUrl = new URL(redirectUri, expectedUrl.origin);
 			return expectedUrl.href === providedUrl.href;
 		} catch (error) {
-			console.warn(
+			logger.warn(
+				'FlowRedirectUriService',
 				'[FlowRedirectUriService] Failed to normalise redirect URI for validation:',
-				error
+				undefined,
+				error as Error
 			);
 			return false;
 		}
@@ -163,13 +172,15 @@ export class FlowRedirectUriService {
 			baseUrl
 		);
 
-		console.log(`[FlowRedirectUriService] Flow: ${flowType}`, {
-			flowConfig: config,
-			requiresRedirectUri: config?.requiresRedirectUri || false,
-			customRedirectUri: credentials.redirectUri || 'none',
-			defaultRedirectUri: defaultUri || 'none',
-			finalRedirectUri: finalUri || 'none',
-			baseUrl: baseUrl || (typeof window !== 'undefined' ? window.location.origin : 'unknown'),
+		logger.info('FlowRedirectUriService', `[FlowRedirectUriService] Flow: ${flowType}`, {
+			arg0: {
+				flowConfig: config,
+				requiresRedirectUri: config?.requiresRedirectUri || false,
+				customRedirectUri: credentials.redirectUri || 'none',
+				defaultRedirectUri: defaultUri || 'none',
+				finalRedirectUri: finalUri || 'none',
+				baseUrl: baseUrl || (typeof window !== 'undefined' ? window.location.origin : 'unknown'),
+			},
 		});
 	}
 }

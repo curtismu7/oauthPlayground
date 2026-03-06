@@ -55,7 +55,12 @@ export function exportAuthzCredentials(credentials: AuthzCredentials): void {
 		document.body.removeChild(link);
 		URL.revokeObjectURL(url);
 	} catch (error) {
-		console.error('[CredentialExportImport] Error exporting authz credentials:', error);
+		logger.error(
+			'CredentialExportImportService',
+			'[CredentialExportImport] Error exporting authz credentials:',
+			undefined,
+			error as Error
+		);
 		throw new Error('Failed to export credentials');
 	}
 }
@@ -82,7 +87,12 @@ export function exportWorkerTokenCredentials(credentials: WorkerTokenCredentials
 		document.body.removeChild(link);
 		URL.revokeObjectURL(url);
 	} catch (error) {
-		console.error('[CredentialExportImport] Error exporting worker token credentials:', error);
+		logger.error(
+			'CredentialExportImportService',
+			'[CredentialExportImport] Error exporting worker token credentials:',
+			undefined,
+			error as Error
+		);
 		throw new Error('Failed to export credentials');
 	}
 }
@@ -137,7 +147,12 @@ export async function importCredentials(
 					workerToken: parsed.workerToken,
 				});
 			} catch (error) {
-				console.error('[CredentialExportImport] Error parsing credential file:', error);
+				logger.error(
+					'CredentialExportImportService',
+					'[CredentialExportImport] Error parsing credential file:',
+					undefined,
+					error as Error
+				);
 
 				// Provide more helpful error messages
 				const errorMessage = error instanceof Error ? error.message : String(error);

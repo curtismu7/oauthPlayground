@@ -63,7 +63,9 @@ class ConfigurationBackupService {
 		document.body.removeChild(link);
 		URL.revokeObjectURL(url);
 
-		console.log('[CONFIG-BACKUP] Configuration exported:', flowType);
+		logger.info('ConfigurationBackupService', '[CONFIG-BACKUP] Configuration exported:', {
+			arg0: flowType,
+		});
 	}
 
 	/**
@@ -83,10 +85,17 @@ class ConfigurationBackupService {
 						throw new Error('Invalid configuration file format');
 					}
 
-					console.log('[CONFIG-BACKUP] Configuration imported:', config.flowType);
+					logger.info('ConfigurationBackupService', '[CONFIG-BACKUP] Configuration imported:', {
+						arg0: config.flowType,
+					});
 					resolve(config);
 				} catch (error) {
-					console.error('[CONFIG-BACKUP] Import failed:', error);
+					logger.error(
+						'ConfigurationBackupService',
+						'[CONFIG-BACKUP] Import failed:',
+						undefined,
+						error as Error
+					);
 					reject(
 						new Error('Failed to parse configuration file. Please ensure it is a valid JSON file.')
 					);
