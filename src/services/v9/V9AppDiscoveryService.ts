@@ -18,8 +18,8 @@
 // that calls this service. See docs/migration/V9_MIGRATION_TODOS.md § Mandatory.
 
 import {
-	AppDiscoveryServiceV8,
 	type AppConfig,
+	AppDiscoveryServiceV8,
 	type DiscoveredApplication,
 } from '../../v8/services/appDiscoveryServiceV8';
 import type { V9FlowCredentials } from './V9CredentialStorageService';
@@ -95,10 +95,7 @@ export const V9AppDiscoveryService = {
 		}
 
 		try {
-			const rawApps = await AppDiscoveryServiceV8.discoverApplications(
-				environmentId,
-				workerToken
-			);
+			const rawApps = await AppDiscoveryServiceV8.discoverApplications(environmentId, workerToken);
 
 			const apps: V9DiscoveredApp[] = rawApps.map((app) => ({
 				clientId: app.id,
@@ -129,9 +126,7 @@ export const V9AppDiscoveryService = {
 		const allowedTypes = GRANT_TYPE_FILTERS[grantType];
 		if (!allowedTypes) return apps; // Unknown grant type — show all
 
-		return apps.filter(
-			(app) => app.enabled && allowedTypes.includes(app.type)
-		);
+		return apps.filter((app) => app.enabled && allowedTypes.includes(app.type));
 	},
 
 	/**
