@@ -101,6 +101,27 @@ const DraftLink = styled.a`
   }
 `;
 
+const AuthorBadge = styled.span`
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.15rem 0.4rem;
+  border-radius: 0.25rem;
+  border: 1px solid #bfdbfe;
+  margin-left: 0.4rem;
+  vertical-align: middle;
+  white-space: nowrap;
+`;
+
+const AuthorHighlight = styled.strong`
+  color: #1d4ed8;
+  background: #eff6ff;
+  padding: 0 0.3rem;
+  border-radius: 0.25rem;
+  font-weight: 700;
+`;
+
 const MetaRow = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -149,7 +170,10 @@ const AIAgentAuthDraft: React.FC = () => {
 						<span>Status: Internet-Draft (I-D Exists)</span>
 						<span>Published: 2 March 2026</span>
 						<span>Expires: 3 September 2026</span>
-						<span>Authors: Kasselman, Lombardo, Rosomakho, Campbell (Ping Identity)</span>
+						<span>
+							Authors: Kasselman, Lombardo, Rosomakho,{' '}
+							<AuthorHighlight>Brian Campbell</AuthorHighlight> (Ping Identity)
+						</span>
 					</MetaRow>
 				</Header>
 
@@ -345,7 +369,8 @@ const AIAgentAuthDraft: React.FC = () => {
 									rel="noopener noreferrer"
 								>
 									OAuth Identity &amp; Authorization Chaining Across Domains
-								</ExternalLink>
+								</ExternalLink>{' '}
+								<AuthorBadge>Brian Campbell</AuthorBadge>{' '}
 							</li>
 							<li>
 								<ExternalLink
@@ -382,7 +407,78 @@ const AIAgentAuthDraft: React.FC = () => {
 								>
 									Model Context Protocol (MCP)
 								</ExternalLink>
+							</li>{' '}
+							<li>
+								<ExternalLink
+									href="https://datatracker.ietf.org/doc/draft-ietf-wimse-wpt/"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									WIMSE Workload Proof Token (draft-ietf-wimse-wpt)
+								</ExternalLink>
+								<AuthorBadge>Brian Campbell</AuthorBadge>
 							</li>
+							<li>
+								<ExternalLink
+									href="https://datatracker.ietf.org/doc/draft-ietf-wimse-workload-creds/"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									WIMSE Workload Credentials (draft-ietf-wimse-workload-creds)
+								</ExternalLink>
+								<AuthorBadge>Brian Campbell</AuthorBadge>
+							</li>
+							<li>
+								<ExternalLink
+									href="https://datatracker.ietf.org/doc/draft-ietf-oauth-identity-assertion-authz-grant/"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									Identity Assertion JWT Authorization Grant
+								</ExternalLink>
+								<AuthorBadge>Brian Campbell</AuthorBadge>
+							</li>
+							<li>
+								<ExternalLink
+									href="https://www.rfc-editor.org/rfc/rfc8693"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									OAuth 2.0 Token Exchange (RFC 8693)
+								</ExternalLink>
+								<AuthorBadge>Brian Campbell</AuthorBadge>
+							</li>
+							<li>
+								<ExternalLink
+									href="https://www.rfc-editor.org/rfc/rfc8705"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									OAuth 2.0 Mutual-TLS Client Authentication and Certificate-Bound Access Tokens
+									(RFC 8705)
+								</ExternalLink>
+								<AuthorBadge>Brian Campbell</AuthorBadge>
+							</li>
+							<li>
+								<ExternalLink
+									href="https://www.rfc-editor.org/rfc/rfc9449"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									OAuth 2.0 Demonstrating Proof of Possession (DPoP) (RFC 9449)
+								</ExternalLink>
+								<AuthorBadge>Brian Campbell</AuthorBadge>
+							</li>
+							<li>
+								<ExternalLink
+									href="https://www.rfc-editor.org/rfc/rfc9396"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									OAuth 2.0 Rich Authorization Requests (RFC 9396)
+								</ExternalLink>
+								<AuthorBadge>Brian Campbell</AuthorBadge>
+							</li>{' '}
 						</ul>
 					</Card>
 				</CollapsibleHeader>
