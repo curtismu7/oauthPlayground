@@ -32,7 +32,7 @@ import type {
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const MODULE_TAG = '[🔐 AUTHENTICATION-STEPPER-V8]';
 const FLOW_KEY = 'mfa-authentication-flow-v8';
@@ -217,7 +217,7 @@ export const AuthenticationFlowStepperV8: React.FC<AuthenticationFlowStepperV8Pr
 
 			// Handle OAuth callback processing
 			if (credentials.userToken?.trim()) {
-				toastV8.info('🔄 Returning to Device Selection after authentication...');
+				modernMessaging.showFooterMessage({ type: 'info', message: '🔄 Returning to Device Selection after authentication...', duration: 3000 });
 				setTimeout(() => {
 					nav.goToStep(2); // Go to Step 2 (Device Selection) for Authentication
 				}, 500);

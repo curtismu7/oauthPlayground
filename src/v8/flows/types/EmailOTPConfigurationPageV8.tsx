@@ -30,7 +30,7 @@ import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationService
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
 import type { DeviceAuthenticationPolicy, MFACredentials } from '../shared/MFATypes';
@@ -183,7 +183,7 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 				tokenType: 'user' as const,
 			}));
 
-			toastV8.success('User token automatically loaded from your recent login!');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'User token automatically loaded from your recent login!', duration: 3000 });
 		}
 
 		// Reset the ref if auth token is cleared (user logged out) or if user token was manually cleared
@@ -222,7 +222,7 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 
 			if (error) {
 				const errorDescription = searchParams.get('error_description') || '';
-				toastV8.error(`Login failed: ${error}${errorDescription ? ` - ${errorDescription}` : ''}`);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Login failed: ${error}${errorDescription ? ` - ${errorDescription}` : ''}`, dismissible: true });
 				sessionStorage.removeItem('user_login_state_v8');
 				sessionStorage.removeItem('user_login_code_verifier_v8');
 				sessionStorage.removeItem('user_login_credentials_temp_v8');
@@ -235,7 +235,7 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 				// Validate state only if both storedState and state from URL exist
 				if (storedState && state && storedState !== state) {
 					console.warn(`[📧 EMAIL-CONFIG-PAGE-V8] State mismatch - possible CSRF attack`);
-					toastV8.error('Security validation failed. Please try again.');
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Security validation failed. Please try again.', dismissible: true });
 					window.history.replaceState({}, document.title, window.location.pathname);
 					return;
 				}
@@ -247,7 +247,7 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 					const storedCredentials = sessionStorage.getItem('user_login_credentials_temp_v8');
 
 					if (!storedCodeVerifier || !storedCredentials) {
-						toastV8.error('Missing PKCE verifier or credentials. Please try logging in again.');
+						modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Missing PKCE verifier or credentials. Please try logging in again.', dismissible: true });
 						sessionStorage.removeItem('user_login_state_v8');
 						sessionStorage.removeItem('user_login_code_verifier_v8');
 						sessionStorage.removeItem('user_login_credentials_temp_v8');
@@ -296,7 +296,7 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 						tokenType: 'user' as const,
 					}));
 
-					toastV8.success('User token received and saved!');
+					modernMessaging.showFooterMessage({ type: 'info', message: 'User token received and saved!', duration: 3000 });
 				} catch (error) {
 					UnifiedFlowErrorHandler.handleError(
 						error,
@@ -545,24 +545,22 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 				tokenType === 'worker' ? tokenStatus.isValid : !!credentials.userToken?.trim();
 
 			if (!credentials.deviceAuthenticationPolicyId) {
-				toastV8.warning('Please select a Device Authentication Policy before proceeding');
+				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Please select a Device Authentication Policy before proceeding', dismissible: true });
 				return;
 			}
 
 			if (!isTokenValid) {
-				toastV8.warning(
-					`Please provide a valid ${tokenType === 'worker' ? 'Worker Token' : 'User Token'} before proceeding`
-				);
+				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: `Please provide a valid ${tokenType === 'worker' ? 'Worker Token' : 'User Token'} before proceeding`, dismissible: true });
 				return;
 			}
 
 			if (!credentials.environmentId) {
-				toastV8.warning('Please enter an Environment ID before proceeding');
+				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Please enter an Environment ID before proceeding', dismissible: true });
 				return;
 			}
 
 			if (!credentials.username) {
-				toastV8.warning('Please enter a Username before proceeding');
+				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Please enter a Username before proceeding', dismissible: true });
 				return;
 			}
 
@@ -1045,7 +1043,7 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 						onTokenReceived={(token) => {
 							setCredentials((prev) => ({ ...prev, userToken: token, tokenType: 'user' }));
 							setShowUserLoginModal(false);
-							toastV8.success('User token received successfully!');
+							modernMessaging.showFooterMessage({ type: 'info', message: 'User token received successfully!', duration: 3000 });
 						}}
 						environmentId={credentials.environmentId}
 					/>

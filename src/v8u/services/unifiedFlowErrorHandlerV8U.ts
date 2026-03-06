@@ -14,7 +14,7 @@
  */
 
 import type { FlowType } from '@/v8/services/specVersionServiceV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { UnifiedFlowLoggerService } from './unifiedFlowLoggerServiceV8U';
 
 export type ErrorCategory =
@@ -354,10 +354,10 @@ export class UnifiedFlowErrorHandler {
 		if (showToast && UnifiedFlowErrorHandler.shouldShowError(errorKey)) {
 			if (recoveryAction) {
 				// Show toast with recovery action button
-				toastV8.error(parsedError.userFriendlyMessage);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: parsedError.userFriendlyMessage, dismissible: true });
 				// Note: Toast action buttons would need to be added to toastV8 service
 			} else {
-				toastV8.error(parsedError.userFriendlyMessage);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: parsedError.userFriendlyMessage, dismissible: true });
 			}
 		}
 
@@ -402,7 +402,7 @@ export class UnifiedFlowErrorHandler {
 
 		// Show toast notification
 		if (showToast) {
-			toastV8.error(parsedError.userFriendlyMessage);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: parsedError.userFriendlyMessage, dismissible: true });
 		}
 
 		// Set validation errors if callback provided
@@ -429,7 +429,7 @@ export class UnifiedFlowErrorHandler {
 		UnifiedFlowLoggerService.warn(`Validation Error: ${message}`, context);
 
 		if (showToast) {
-			toastV8.error(message);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: message, dismissible: true });
 		}
 
 		if (setValidationErrors) {
@@ -524,7 +524,7 @@ export class UnifiedFlowErrorHandler {
 
 			if (showToast) {
 				const parsedError = UnifiedFlowErrorHandler.parsePingOneError(error);
-				toastV8.warn(parsedError.userFriendlyMessage);
+				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: parsedError.userFriendlyMessage, dismissible: true });
 			}
 
 			return defaultValue;

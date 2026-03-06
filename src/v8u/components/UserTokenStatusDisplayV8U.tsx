@@ -26,7 +26,7 @@ import {
 } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled, { css, keyframes } from 'styled-components';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 
 // Flow types for dropdowns
@@ -580,9 +580,9 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 		setIsRefreshing(true);
 		try {
 			await updateTokenStatus();
-			toastV8.success('User token status refreshed');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'User token status refreshed', duration: 3000 });
 		} catch (_error) {
-			toastV8.error('Failed to refresh token status');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to refresh token status', dismissible: true });
 		} finally {
 			setTimeout(() => setIsRefreshing(false), 500);
 		}
@@ -591,9 +591,9 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 	const copyToken = async (token: string, type: string) => {
 		try {
 			await navigator.clipboard.writeText(token);
-			toastV8.success(`${type} copied to clipboard`);
+			modernMessaging.showFooterMessage({ type: 'info', message: `${type} copied to clipboard`, duration: 3000 });
 		} catch (_error) {
-			toastV8.error('Failed to copy token');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to copy token', dismissible: true });
 		}
 	};
 
@@ -652,11 +652,11 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 				}
 			}
 
-			toastV8.success(`${type.replace('_', ' ')} cleared successfully`);
+			modernMessaging.showFooterMessage({ type: 'info', message: `${type.replace('_', ' ')} cleared successfully`, duration: 3000 });
 			// Refresh the display
 			await updateTokenStatus();
 		} catch (_error) {
-			toastV8.error(`Failed to clear ${type}`);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to clear ${type}`, dismissible: true });
 		}
 	};
 

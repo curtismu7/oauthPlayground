@@ -31,7 +31,7 @@ import {
 	WorkerTokenStatusServiceV8,
 } from '@/v8/services/workerTokenStatusServiceV8';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import type { DeviceAuthenticationPolicy, DeviceType, MFACredentials, MFAState } from './MFATypes';
 
@@ -559,7 +559,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 					tokenType: 'user' as const,
 				}));
 
-				toastV8.success('User token automatically loaded from your recent login!');
+				modernMessaging.showFooterMessage({ type: 'info', message: 'User token automatically loaded from your recent login!', duration: 3000 });
 			}
 		}
 
@@ -606,7 +606,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 
 			if (receivedState !== storedState) {
 				console.error(`${MODULE_TAG} ❌ OAuth state mismatch - possible CSRF attack`);
-				toastV8.error('Security error: Invalid OAuth state. Please try again.');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Security error: Invalid OAuth state. Please try again.', dismissible: true });
 				// Clear invalid state and redirect to dashboard
 				sessionStorage.removeItem('oauth_state');
 				sessionStorage.removeItem('oauth_state_timestamp');
@@ -662,7 +662,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 		// This handles the case where user was on Step 1 (user login) before OAuth
 		// and now needs to proceed to Step 2 (device selection) per UI Contract
 		if (isOAuthCallbackReturn && credentials.userToken?.trim()) {
-			toastV8.info('🔄 Returning to Device Selection after authentication...');
+			modernMessaging.showFooterMessage({ type: 'info', message: '🔄 Returning to Device Selection after authentication...', duration: 3000 });
 
 			// Clean up the marker
 			sessionStorage.removeItem('mfa_oauth_callback_return');
@@ -806,7 +806,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 			const newStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 			setTokenStatus(newStatus);
 			nav.setValidationErrors([]);
-			toastV8.success('Worker token generated and saved!');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'Worker token generated and saved!', duration: 3000 });
 
 			await fetchDeviceAuthPolicies();
 		})();
@@ -1092,7 +1092,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 						const newStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 						setTokenStatus(newStatus);
 						nav.setValidationErrors([]);
-						toastV8.success('Worker token refreshed successfully!');
+						modernMessaging.showFooterMessage({ type: 'info', message: 'Worker token refreshed successfully!', duration: 3000 });
 
 						await fetchDeviceAuthPolicies();
 					}}
@@ -1152,11 +1152,11 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 									nav.setValidationErrors([]);
 									nav.setValidationWarnings([]);
 									nav.goToStep(1);
-									toastV8.success('Authentication canceled successfully');
+									modernMessaging.showFooterMessage({ type: 'info', message: 'Authentication canceled successfully', duration: 3000 });
 								} catch (error) {
 									const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 									console.error(`${MODULE_TAG} Failed to cancel authentication:`, error);
-									toastV8.error(`Failed to cancel authentication: ${errorMessage}`);
+									modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to cancel authentication: ${errorMessage}`, dismissible: true });
 									nav.setValidationErrors([`Failed to cancel: ${errorMessage}`]);
 								} finally {
 									setIsLoading(false);
@@ -1491,7 +1491,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 
 						// Don't close modal immediately - let user see success page and click Continue
 						// The modal will be closed when user clicks Continue on the success page
-						toastV8.success('User token received and saved!');
+						modernMessaging.showFooterMessage({ type: 'info', message: 'User token received and saved!', duration: 3000 });
 
 						// Force a re-validation check after state update
 						setTimeout(() => {

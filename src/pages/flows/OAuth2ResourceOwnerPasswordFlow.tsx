@@ -17,7 +17,7 @@ import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useResourceOwnerPasswordFlowV7 } from '../../hooks/useResourceOwnerPasswordFlowV7';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { UserSearchDropdownV8 } from '../../v8/components/UserSearchDropdownV8';
 
 const PageContainer = styled.div`
@@ -217,7 +217,7 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 
 	const _copyToClipboard = (text: string, label: string) => {
 		navigator.clipboard.writeText(text);
-		v4ToastManager.showSuccess(`${label} copied to clipboard`);
+		modernMessaging.showFooterMessage({ type: 'info', message: `${label} copied to clipboard`, duration: 3000 });
 	};
 
 	const renderStepContent = () => {
