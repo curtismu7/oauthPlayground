@@ -1,4 +1,5 @@
 // src/services/oidcDiscoveryService.ts
+import { logger } from '../utils/logger';
 /**
  * OIDC Discovery Service
  *
@@ -73,7 +74,7 @@ class OIDCDiscoveryService {
 			// Check cache first
 			const cached = this.getCachedDocument(normalizedIssuer, cacheTimeout);
 			if (cached) {
-				console.log('[OIDC Discovery] Using cached document for:', normalizedIssuer);
+				logger.info('OIDCDiscovery', 'Using cached document', { issuer: normalizedIssuer });
 				return {
 					success: true,
 					document: cached,
@@ -87,7 +88,7 @@ class OIDCDiscoveryService {
 
 			// Use backend proxy to avoid CORS issues
 			const proxyUrl = `/api/discovery?environment_id=${environmentId}&region=${region}`;
-			console.log('[OIDC Discovery] Fetching discovery document via proxy:', proxyUrl);
+			logger.info('OIDCDiscovery', 'Fetching discovery document via proxy', { proxyUrl });
 
 			// Fetch discovery document via backend proxy
 			const controller = new AbortController();
@@ -122,7 +123,9 @@ class OIDCDiscoveryService {
 			// Cache the document
 			this.cacheDocument(normalizedIssuer, document);
 
-			console.log('[OIDC Discovery] Successfully discovered endpoints for:', normalizedIssuer);
+			logger.info('OIDCDiscovery', 'Successfully discovered endpoints', {
+				issuer: normalizedIssuer,
+			});
 			return {
 				success: true,
 				document,
@@ -130,7 +133,7 @@ class OIDCDiscoveryService {
 				cached: false,
 			};
 		} catch (error) {
-			console.error('[OIDC Discovery] Discovery failed:', error);
+			logger.error('OIDCDiscovery', 'Discovery failed', undefined, error as Error);
 			return {
 				success: false,
 				error: error instanceof Error ? error.message : 'Unknown discovery error',
@@ -215,7 +218,7 @@ class OIDCDiscoveryService {
 				throw new Error('Issuer URL is required and must be a string');
 			}
 
-			console.log('[OIDC Discovery] Processing issuer URL:', issuerUrl);
+			logger.info('OIDCDiscovery', 'Processing issuer URL', { issuerUrl });
 			const url = new URL(issuerUrl);
 
 			// Validate that this is a PingOne URL
@@ -290,7 +293,7 @@ class OIDCDiscoveryService {
 	 */
 	clearCache(): void {
 		this.cache.clear();
-		console.log('[OIDC Discovery] Cache cleared');
+		logger.info('OIDCDiscovery', 'Cache cleared');
 	}
 
 	/**
@@ -328,7 +331,12 @@ class OIDCDiscoveryService {
 			// Remove trailing slash and normalize
 			return url.toString().replace(/\/$/, '');
 		} catch (error) {
-			console.error('[OIDC Discovery] Failed to normalize issuer URL:', issuerUrl, error);
+			logger.error(
+				'OIDCDiscovery',
+				'Failed to normalize issuer URL',
+				{ issuerUrl },
+				error as Error
+			);
 			throw new Error(`Invalid issuer URL: ${issuerUrl}`);
 		}
 	}
@@ -352,12 +360,10 @@ class OIDCDiscoveryService {
 
 		// Validate issuer matches (allowing for case-insensitive comparison)
 		if (document.issuer.toLowerCase() !== expectedIssuer.toLowerCase()) {
-			console.warn(
-				'[OIDC Discovery] Issuer mismatch:',
-				document.issuer,
-				'expected:',
-				expectedIssuer
-			);
+			logger.warn('OIDCDiscovery', 'Issuer mismatch', {
+				actual: document.issuer,
+				expected: expectedIssuer,
+			});
 		}
 	}
 
