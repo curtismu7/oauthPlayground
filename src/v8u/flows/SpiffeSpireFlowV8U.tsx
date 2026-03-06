@@ -1,3 +1,4 @@
+import { logger } from '../../utils/logger';
 /**
  * @file SpiffeSpireFlowV8U.tsx
  * @module v8u/flows
@@ -13,7 +14,6 @@
  */
 
 import {
-import { logger } from '../../utils/logger';
 	FiBook,
 	FiCheckCircle,
 	FiCopy,
