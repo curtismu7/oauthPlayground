@@ -2,6 +2,7 @@
 
 import { FiBook, FiKey, FiSend } from '@icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { UnifiedCredentialManagerV9 } from '../../components/UnifiedCredentialManagerV9';
 import { V7MPKCEGenerationService } from '../../services/v7m/core/V7MPKCEGenerationService';
 import { authorizeIssueCode, V7MAuthorizeRequest } from '../../services/v7m/V7MAuthorizeService';
 import {
@@ -18,7 +19,6 @@ import {
 	type V7MUserInfo,
 } from '../../services/v7m/V7MUserInfoService';
 import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
-import { CompactAppPickerV8U } from '../../v8u/components/CompactAppPickerV8U';
 import { PKCEStorageServiceV8U } from '../../v8u/services/pkceStorageServiceV8U';
 import { V7MHelpModal } from '../components/V7MHelpModal';
 import { V7MInfoIcon } from '../components/V7MInfoIcon';
@@ -76,9 +76,9 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({
 		if (saved.clientId) setClientId(saved.clientId);
 	}, []);
 
-	const handleAppSelected = useCallback((app: { id: string; name: string }) => {
-		setClientId(app.id);
-		V9CredentialStorageService.save('v7m-auth-code', { clientId: app.id });
+	const handleAppSelected = useCallback((app: { clientId: string; name: string }) => {
+		setClientId(app.clientId);
+		V9CredentialStorageService.save('v7m-auth-code', { clientId: app.clientId });
 	}, []);
 
 	// Persist PKCE codes to bulletproof storage whenever they change
@@ -199,7 +199,20 @@ export const V7MOAuthAuthCodeV9: React.FC<Props> = ({
 			<h1 style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
 				<FiKey /> {title}
 			</h1>
-			<CompactAppPickerV8U onAppSelected={handleAppSelected} />
+			<UnifiedCredentialManagerV9
+				environmentId="v7m-mock"
+				flowKey="v7m-auth-code"
+				credentials={{ clientId }}
+				importExportOptions={{
+					flowType: 'v7m-auth-code',
+					appName: 'V7M Auth Code',
+					description: 'V7M Mock OAuth Authorization Code Flow',
+				}}
+				onAppSelected={handleAppSelected}
+				grantType="authorization_code"
+				showAppPicker={true}
+				showImportExport={true}
+			/>
 
 			<section style={{ marginTop: 16, border: '1px solid #e5e7eb', borderRadius: 8 }}>
 				<header

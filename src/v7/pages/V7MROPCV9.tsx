@@ -2,8 +2,8 @@
 
 import { FiAlertTriangle, FiCheck, FiCopy, FiEye, FiEyeOff, FiKey, FiLock, FiUser } from '@icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { modernMessaging } from '../../services/v9/V9ModernMessagingService';
 import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
+import { UnifiedCredentialManagerV9 } from '../../components/UnifiedCredentialManagerV9';
 import {
 	introspectToken,
 	type V7MIntrospectionResponse,
@@ -14,7 +14,7 @@ import {
 	type V7MUserInfo,
 } from '../../services/v7m/V7MUserInfoService';
 import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
-import { CompactAppPickerV8U } from '../../v8u/components/CompactAppPickerV8U';
+import { modernMessaging } from '../../services/v9/V9ModernMessagingService';
 import { V7MHelpModal } from '../components/V7MHelpModal';
 import { V7MInfoIcon } from '../components/V7MInfoIcon';
 import { V7MJwtInspectorModal } from '../components/V7MJwtInspectorModal';
@@ -56,9 +56,9 @@ export const V7MROPCV9: React.FC<Props> = ({
 		if (saved.clientId) setClientId(saved.clientId);
 	}, []);
 
-	const handleAppSelected = useCallback((app: { id: string; name: string }) => {
-		setClientId(app.id);
-		V9CredentialStorageService.save('v7m-ropc', { clientId: app.id });
+	const handleAppSelected = useCallback((app: { clientId: string; name: string }) => {
+		setClientId(app.clientId);
+		V9CredentialStorageService.save('v7m-ropc', { clientId: app.clientId });
 	}, []);
 
 	/**
@@ -123,7 +123,10 @@ export const V7MROPCV9: React.FC<Props> = ({
 			setCopiedRequestUrl(true);
 			setTimeout(() => setCopiedRequestUrl(false), 2000);
 		} catch {
-			modernMessaging.showFooterMessage({ type: 'error', message: 'Failed to copy URL to clipboard' });
+			modernMessaging.showFooterMessage({
+				type: 'error',
+				message: 'Failed to copy URL to clipboard',
+			});
 		}
 	};
 
@@ -229,7 +232,20 @@ export const V7MROPCV9: React.FC<Props> = ({
 			<h1 style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
 				<FiUser /> {title}
 			</h1>
-			<CompactAppPickerV8U onAppSelected={handleAppSelected} />
+			<UnifiedCredentialManagerV9
+				environmentId="v7m-mock"
+				flowKey="v7m-ropc"
+				credentials={{ clientId }}
+				importExportOptions={{
+					flowType: 'v7m-ropc',
+					appName: 'V7M ROPC',
+					description: 'V7M Mock Resource Owner Password Credentials Flow',
+				}}
+				onAppSelected={handleAppSelected}
+				grantType="password"
+				showAppPicker={true}
+				showImportExport={true}
+			/>
 
 			<div
 				style={{
