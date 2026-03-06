@@ -1,8 +1,8 @@
 // src/services/passwordResetService.ts
 // Password Reset Service for PingOne Platform API
 
-import { trackedFetch } from '../utils/trackedFetch';
 import { logger } from '../utils/logger';
+import { trackedFetch } from '../utils/trackedFetch';
 
 export enum PasswordOperationType {
 	RECOVER = 'recover',
@@ -210,7 +210,12 @@ export async function forcePasswordChange(
 			timestamp: new Date().toISOString(),
 		};
 	} catch (error) {
-		logger.error('PasswordResetService', 'Error forcing password change', undefined, error as Error);
+		logger.error(
+			'PasswordResetService',
+			'Error forcing password change',
+			undefined,
+			error as Error
+		);
 		return {
 			success: false,
 			error: 'network_error',
@@ -506,7 +511,12 @@ export async function setPasswordAdmin(
 			timestamp: new Date().toISOString(),
 		};
 	} catch (error) {
-		logger.error('PasswordResetService', 'Error setting password (admin)', undefined, error as Error);
+		logger.error(
+			'PasswordResetService',
+			'Error setting password (admin)',
+			undefined,
+			error as Error
+		);
 		return {
 			success: false,
 			error: 'network_error',
@@ -695,7 +705,12 @@ export async function setPasswordLdapGateway(
 			timestamp: new Date().toISOString(),
 		};
 	} catch (error) {
-		logger.error('PasswordResetService', 'Error setting password via LDAP Gateway', undefined, error as Error);
+		logger.error(
+			'PasswordResetService',
+			'Error setting password via LDAP Gateway',
+			undefined,
+			error as Error
+		);
 		return {
 			success: false,
 			error: 'network_error',

@@ -12,12 +12,12 @@ import type { PermanentCredentials } from '../utils/credentialManager';
 import { credentialManager } from '../utils/credentialManager';
 import { enhancedDebugger } from '../utils/enhancedDebug';
 import { useFlowStepManager } from '../utils/flowStepSystem';
+import { logger } from '../utils/logger';
 import { safeJsonParse } from '../utils/secureJson';
 import type { OAuthTokens } from '../utils/tokenStorage';
 import { storeOAuthTokens } from '../utils/tokenStorage';
 import { showGlobalError, showGlobalSuccess } from './useNotifications';
 import { useAuthorizationFlowScroll } from './usePageScroll';
-import { logger } from '../utils/logger';
 
 // FlowConfig type (simplified for Implicit flow)
 interface FlowConfig {
@@ -149,7 +149,9 @@ const loadStoredConfig = (storageKey: string): FlowConfig => {
 			};
 		}
 	} catch (error) {
-		logger.warn('useImplicitFlowController', 'Failed to load stored config', { detail: String(error) });
+		logger.warn('useImplicitFlowController', 'Failed to load stored config', {
+			detail: String(error),
+		});
 	}
 
 	return getDefaultConfig();
@@ -608,7 +610,12 @@ export const useImplicitFlowController = (
 
 				console.log('✅ [useImplicitFlowController] Tokens parsed from fragment');
 			} catch (error) {
-				logger.error('useImplicitFlowController', 'Failed to parse tokens from fragment', undefined, error as Error);
+				logger.error(
+					'useImplicitFlowController',
+					'Failed to parse tokens from fragment',
+					undefined,
+					error as Error
+				);
 				showGlobalError('Failed to parse tokens from URL', {
 					description: error instanceof Error ? error.message : 'Unknown error',
 				});
@@ -666,7 +673,12 @@ export const useImplicitFlowController = (
 
 			console.log('✅ [useImplicitFlowController] User info fetched');
 		} catch (error) {
-			logger.error('useImplicitFlowController', 'Fetch user info failed', undefined, error as Error);
+			logger.error(
+				'useImplicitFlowController',
+				'Fetch user info failed',
+				undefined,
+				error as Error
+			);
 			enhancedDebugger.logError('fetch-userinfo', error as Error);
 
 			const errorMessage =
@@ -692,7 +704,10 @@ export const useImplicitFlowController = (
 			// Validate required fields before saving
 			// Only validate if we have at least one of the required fields (partial save is OK)
 			if (!credentials.environmentId && !credentials.clientId) {
-				logger.warn('useImplicitFlowController', 'No credentials to save yet (missing both environmentId and clientId)');
+				logger.warn(
+					'useImplicitFlowController',
+					'No credentials to save yet (missing both environmentId and clientId)'
+				);
 				setIsSavingCredentials(false);
 				return; // Silently skip save if no credentials are set yet
 			}
@@ -797,7 +812,12 @@ export const useImplicitFlowController = (
 			});
 			console.log('✅ [useImplicitFlowController] Credentials saved successfully');
 		} catch (error) {
-			logger.error('useImplicitFlowController', 'Save credentials failed', undefined, error as Error);
+			logger.error(
+				'useImplicitFlowController',
+				'Save credentials failed',
+				undefined,
+				error as Error
+			);
 			throw error;
 		} finally {
 			setIsSavingCredentials(false);

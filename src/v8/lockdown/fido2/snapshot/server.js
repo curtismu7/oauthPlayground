@@ -15160,7 +15160,8 @@ app.post('/api/pingone/mfa/initialize-device-authentication', async (req, res) =
 // ============================================================================
 
 // List OATH Tokens
-app.get('/api/pingone/mfa/oath-tokens', async (req, res) => {
+app.get('/api/pingone/mfa/oath-tokens', async (req, res) =>
+{
 	try {
 		const { environmentId, workerToken, region } = req.query;
 
@@ -15218,7 +15219,8 @@ app.get('/api/pingone/mfa/oath-tokens', async (req, res) => {
 		console.error('[OATH Tokens] Error:', error);
 		res.status(500).json({ error: 'Failed to list OATH tokens', message: error.message });
 	}
-});
+}
+)
 
 // Create OATH Token
 app.post('/api/pingone/mfa/oath-tokens', async (req, res) => {

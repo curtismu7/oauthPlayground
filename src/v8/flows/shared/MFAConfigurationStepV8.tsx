@@ -13,6 +13,7 @@ import { FiLoader } from '@icons';
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
 import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
@@ -20,7 +21,6 @@ import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8'; // NEW - Enhanced UI service
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';
 import type { DeviceType, TokenType } from './MFATypes';
 
@@ -851,7 +851,11 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 										const _newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 										// #region agent log
 										// #endregion
-										modernMessaging.showFooterMessage({ type: 'info', message: 'Worker token removed', duration: 3000 });
+										modernMessaging.showFooterMessage({
+											type: 'info',
+											message: 'Worker token removed',
+											duration: 3000,
+										});
 									} else {
 										// Use helper to check silentApiRetrieval before showing modal
 										// Pass current checkbox values to override config (page checkboxes take precedence)
@@ -1182,7 +1186,11 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 										const _newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 										// #region agent log
 										// #endregion
-										modernMessaging.showFooterMessage({ type: 'info', message: 'Worker token removed', duration: 3000 });
+										modernMessaging.showFooterMessage({
+											type: 'info',
+											message: 'Worker token removed',
+											duration: 3000,
+										});
 									} else {
 										// Use helper to check silentApiRetrieval before showing modal
 										// forceShowModal=true because user explicitly clicked the button - always show modal

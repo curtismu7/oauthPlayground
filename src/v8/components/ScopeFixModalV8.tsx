@@ -8,11 +8,11 @@
 
 import { FiCheck, FiCopy, FiExternalLink, FiX } from '@icons';
 import React, { useState } from 'react';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import {
 	ClientCredentialsIntegrationServiceV8,
 	type ScopeFixResult,
 } from '../services/clientCredentialsIntegrationServiceV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 interface ScopeFixModalV8Props {
 	isOpen: boolean;
@@ -57,14 +57,22 @@ export const ScopeFixModalV8: React.FC<ScopeFixModalV8Props> = ({
 	const handleApplyFix = () => {
 		if (fixResult && onApplyFix) {
 			onApplyFix(fixResult.fixedScopes);
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Scopes updated successfully!', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Scopes updated successfully!',
+				duration: 3000,
+			});
 			onClose();
 		}
 	};
 
 	const handleCopyScopes = (scopes: string) => {
 		navigator.clipboard.writeText(scopes).then(() => {
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Scopes copied to clipboard!', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Scopes copied to clipboard!',
+				duration: 3000,
+			});
 		});
 	};
 

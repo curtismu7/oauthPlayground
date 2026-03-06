@@ -44,6 +44,7 @@ import { credentialManager } from '../utils/credentialManager';
 import { enhancedDebugger } from '../utils/enhancedDebug';
 import { getDefaultConfig } from '../utils/flowConfigDefaults';
 import { useFlowStepManager } from '../utils/flowStepSystem';
+import { logger } from '../utils/logger';
 import { generateCodeChallenge, generateCodeVerifier } from '../utils/oauth';
 import {
 	auditRedirectUri,
@@ -56,7 +57,6 @@ import { rehydrateOAuthTokens, storeOAuthTokens } from '../utils/tokenStorage';
 import { usePreSendUrlValidation } from './useAuthorizationUrlValidation';
 import { showGlobalError, showGlobalSuccess } from './useNotifications';
 import { useAuthorizationFlowScroll } from './usePageScroll';
-import { logger } from '../utils/logger';
 
 type FlowVariant = 'oauth' | 'oidc' | 'hybrid';
 
@@ -498,7 +498,12 @@ export const useAuthorizationCodeFlowController = (
 					);
 				}
 			} catch (error) {
-				logger.error('useAuthorizationCodeFlowController', 'Failed to load credentials', undefined, error as Error);
+				logger.error(
+					'useAuthorizationCodeFlowController',
+					'Failed to load credentials',
+					undefined,
+					error as Error
+				);
 			}
 		};
 
@@ -766,7 +771,12 @@ export const useAuthorizationCodeFlowController = (
 
 			console.log('✅ [PKCE DEBUG] PKCE codes generated and saved to state');
 		} catch (error) {
-			logger.error('useAuthorizationCodeFlowController', 'PKCE generation failed', undefined, error as Error);
+			logger.error(
+				'useAuthorizationCodeFlowController',
+				'PKCE generation failed',
+				undefined,
+				error as Error
+			);
 			showGlobalError('PKCE generation failed', {
 				description: 'Failed to generate secure PKCE codes.',
 				meta: { source: 'generatePkceCodes' },
@@ -873,7 +883,12 @@ export const useAuthorizationCodeFlowController = (
 
 				console.log('✅ [PKCE] PKCE codes generated automatically');
 			} catch (error) {
-				logger.error('useAuthorizationCodeFlowController', 'Failed to generate PKCE codes', undefined, error as Error);
+				logger.error(
+					'useAuthorizationCodeFlowController',
+					'Failed to generate PKCE codes',
+					undefined,
+					error as Error
+				);
 				throw new Error('Failed to generate PKCE parameters. Please try again.');
 			}
 		}
@@ -913,7 +928,9 @@ export const useAuthorizationCodeFlowController = (
 				}
 			}
 		} catch (error) {
-			logger.warn('useAuthorizationCodeFlowController', 'Failed to load PingOne config', { detail: String(error) });
+			logger.warn('useAuthorizationCodeFlowController', 'Failed to load PingOne config', {
+				detail: String(error),
+			});
 		}
 
 		let url: string;
@@ -1225,10 +1242,14 @@ export const useAuthorizationCodeFlowController = (
 		// DEBUG: Validate credentials before redirecting
 		// CRITICAL: Ensure we have required credentials for callback handling
 		if (!credentials.clientId || credentials.clientId.trim() === '') {
-			logger.error('useAuthorizationCodeFlowController', '🔴 [useAuthorizationCodeFlowController] CRITICAL: clientId is empty before redirect!', {
+			logger.error(
+				'useAuthorizationCodeFlowController',
+				'🔴 [useAuthorizationCodeFlowController] CRITICAL: clientId is empty before redirect!',
+				{
 					credentials,
 					authUrl: `${authUrl.substring(0, 100)}...`,
-				});
+				}
+			);
 			showGlobalError('Client ID missing', {
 				description:
 					'Please configure your OAuth credentials before starting the authorization flow.',
@@ -1237,9 +1258,13 @@ export const useAuthorizationCodeFlowController = (
 		}
 
 		if (!credentials.environmentId || credentials.environmentId.trim() === '') {
-			logger.error('useAuthorizationCodeFlowController', '🔴 [useAuthorizationCodeFlowController] CRITICAL: environmentId is empty before redirect!', {
+			logger.error(
+				'useAuthorizationCodeFlowController',
+				'🔴 [useAuthorizationCodeFlowController] CRITICAL: environmentId is empty before redirect!',
+				{
 					credentials,
-				});
+				}
+			);
 			showGlobalError('Environment ID missing', {
 				description:
 					'Please configure your OAuth credentials before starting the authorization flow.',
@@ -1534,7 +1559,12 @@ export const useAuthorizationCodeFlowController = (
 						assertionLength: requestBody.client_assertion?.length || 0,
 					});
 				} catch (error) {
-					logger.error('useAuthorizationCodeFlowController', 'JWT generation failed', undefined, error as Error);
+					logger.error(
+						'useAuthorizationCodeFlowController',
+						'JWT generation failed',
+						undefined,
+						error as Error
+					);
 					throw new Error(
 						`JWT generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
 					);
@@ -1651,7 +1681,12 @@ export const useAuthorizationCodeFlowController = (
 			// Return the token data for immediate use
 			return tokenData;
 		} catch (error) {
-			logger.error('useAuthorizationCodeFlowController', 'Token exchange failed', undefined, error as Error);
+			logger.error(
+				'useAuthorizationCodeFlowController',
+				'Token exchange failed',
+				undefined,
+				error as Error
+			);
 
 			// Track the error for flow recovery
 			flowTrackingService.trackFlowError({
@@ -1751,7 +1786,10 @@ export const useAuthorizationCodeFlowController = (
 		}
 
 		if (!userInfoEndpoint) {
-			logger.error('useAuthorizationCodeFlowController', 'No userinfo endpoint configured and no environment ID');
+			logger.error(
+				'useAuthorizationCodeFlowController',
+				'No userinfo endpoint configured and no environment ID'
+			);
 			showGlobalError('Missing user info endpoint', {
 				description: 'Configure PingOne user info endpoint or environment ID in credentials.',
 				meta: { field: 'userInfoEndpoint' },
@@ -1785,7 +1823,12 @@ export const useAuthorizationCodeFlowController = (
 			// Don't show success message here - let the calling component handle it
 			// showGlobalSuccess('User info received', 'User information fetched successfully.');
 		} catch (error) {
-			logger.error('useAuthorizationCodeFlowController', 'User info fetch failed', undefined, error as Error);
+			logger.error(
+				'useAuthorizationCodeFlowController',
+				'User info fetch failed',
+				undefined,
+				error as Error
+			);
 			// Don't show error message here - let the calling component handle it
 			// showGlobalError('User info fetch failed', error instanceof Error ? error.message : 'Unknown error');
 			// Re-throw the error so the calling component can handle it
@@ -1912,7 +1955,12 @@ export const useAuthorizationCodeFlowController = (
 			// Don't show success message here - let the calling component handle it
 			// showGlobalSuccess('Tokens refreshed', 'Access token refreshed successfully.');
 		} catch (error) {
-			logger.error('useAuthorizationCodeFlowController', 'Token refresh failed', undefined, error as Error);
+			logger.error(
+				'useAuthorizationCodeFlowController',
+				'Token refresh failed',
+				undefined,
+				error as Error
+			);
 
 			// Track failed token refresh
 			trackTokenOperation(
@@ -1996,7 +2044,12 @@ export const useAuthorizationCodeFlowController = (
 			// Don't show success message here - let the calling component handle it
 			// showGlobalSuccess('Credentials saved', 'PingOne configuration saved successfully.');
 		} catch (error) {
-			logger.error('useAuthorizationCodeFlowController', 'Save credentials failed', undefined, error as Error);
+			logger.error(
+				'useAuthorizationCodeFlowController',
+				'Save credentials failed',
+				undefined,
+				error as Error
+			);
 			// Don't show error message here - let the calling component handle it
 			// showGlobalError('Save failed', error instanceof Error ? error.message : 'Unknown error');
 			// Re-throw the error so the calling component can handle it

@@ -2,8 +2,8 @@
 // Reusable service for PingOne redirectless authentication flows (response_mode=pi.flow)
 // Based on working implementations in PingOneAuthentication.tsx and RedirectlessFlowV7_Real.tsx
 
-import { v4ToastManager } from '../utils/v4ToastMessages';
 import { logger } from '../utils/logger';
+import { v4ToastManager } from '../utils/v4ToastMessages';
 
 export interface RedirectlessAuthCredentials {
 	environmentId: string;
@@ -94,7 +94,12 @@ export class RedirectlessAuthService {
 			};
 			sessionStorage.setItem(`${storagePrefix}_pending_resume`, JSON.stringify(next));
 		} catch (error) {
-			logger.warn('RedirectlessAuthService', 'Failed to update pending resume data', undefined, error as Error);
+			logger.warn(
+				'RedirectlessAuthService',
+				'Failed to update pending resume data',
+				undefined,
+				error as Error
+			);
 		}
 	}
 
@@ -242,7 +247,10 @@ export class RedirectlessAuthService {
 			};
 			sessionStorage.setItem(`${storagePrefix}_pending_resume`, JSON.stringify(pendingResumeData));
 		} else {
-			logger.warn('RedirectlessAuthService', 'Missing flowId or resumeUrl - cannot store resume data');
+			logger.warn(
+				'RedirectlessAuthService',
+				'Missing flowId or resumeUrl - cannot store resume data'
+			);
 		}
 
 		return flowData;
@@ -388,7 +396,12 @@ export class RedirectlessAuthService {
 		try {
 			resumeData = JSON.parse(pendingResumeRaw);
 		} catch (error) {
-			logger.error('RedirectlessAuthService', 'Failed to parse pending resume data', undefined, error as Error);
+			logger.error(
+				'RedirectlessAuthService',
+				'Failed to parse pending resume data',
+				undefined,
+				error as Error
+			);
 			sessionStorage.removeItem(`${storagePrefix}_pending_resume`);
 			return null;
 		}
@@ -405,7 +418,10 @@ export class RedirectlessAuthService {
 		// CRITICAL: Validate sessionId exists before resume (matches PingOneAuthentication pattern)
 		if (!resumeData.sessionId) {
 			logger.error('RedirectlessAuthService', 'Missing sessionId before resume step. Aborting.');
-			logger.error('RedirectlessAuthService', 'Backend must manage PingOne cookies server-side and return _sessionId.');
+			logger.error(
+				'RedirectlessAuthService',
+				'Backend must manage PingOne cookies server-side and return _sessionId.'
+			);
 			throw new Error('PingOne session context is missing. Please restart the redirectless flow.');
 		}
 
@@ -572,7 +588,12 @@ export class RedirectlessAuthService {
 							hasAuthorizeResponse: !!flowData?.authorizeResponse,
 						});
 					} catch (extractError) {
-						logger.warn('RedirectlessAuthService', 'Failed to parse extracted JSON', undefined, extractError as Error);
+						logger.warn(
+							'RedirectlessAuthService',
+							'Failed to parse extracted JSON',
+							undefined,
+							extractError as Error
+						);
 					}
 				} else {
 					console.log(
@@ -599,7 +620,12 @@ export class RedirectlessAuthService {
 							}
 						);
 					} catch (extractError) {
-						logger.warn('RedirectlessAuthService', 'Fallback extraction failed', undefined, extractError as Error);
+						logger.warn(
+							'RedirectlessAuthService',
+							'Fallback extraction failed',
+							undefined,
+							extractError as Error
+						);
 					}
 				}
 			}
@@ -668,7 +694,12 @@ export class RedirectlessAuthService {
 				keys: Object.keys(flowData),
 			});
 		} catch (error) {
-			logger.error('RedirectlessAuthService', 'Error extracting code from page JSON', undefined, error as Error);
+			logger.error(
+				'RedirectlessAuthService',
+				'Error extracting code from page JSON',
+				undefined,
+				error as Error
+			);
 		}
 
 		return null;

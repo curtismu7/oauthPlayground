@@ -12,6 +12,7 @@
 import { FiShield, FiX } from '@icons';
 import React, { useCallback, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CountryCodePickerV8 } from '@/v8/components/CountryCodePickerV8';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { NicknamePromptModalV8 } from '@/v8/components/NicknamePromptModalV8';
@@ -25,7 +26,6 @@ import { fetchPhoneFromPingOne } from '@/v8/services/phoneAutoPopulationServiceV
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { isValidPhoneFormat } from '@/v8/utils/phoneValidationV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { MFADeviceSelector } from '../components/MFADeviceSelector';
 import { MFAOTPInput } from '../components/MFAOTPInput';
@@ -167,7 +167,11 @@ const WhatsAppDeviceSelectionStep: React.FC<
 				case 'COMPLETED':
 					nav.markStepComplete();
 					nav.goToStep(5); // Go to success step (Step 5)
-					modernMessaging.showFooterMessage({ type: 'info', message: 'Authentication successful!', duration: 3000 });
+					modernMessaging.showFooterMessage({
+						type: 'info',
+						message: 'Authentication successful!',
+						duration: 3000,
+					});
 					break;
 				case 'OTP_REQUIRED':
 					// PingOne automatically sends OTP when initializeDeviceAuthentication returns OTP_REQUIRED
@@ -177,13 +181,22 @@ const WhatsAppDeviceSelectionStep: React.FC<
 					setTimeout(() => {
 						nav.goToStep(4); // Go directly to validation step (Step 4) - OTP already sent automatically
 					}, 100);
-					modernMessaging.showFooterMessage({ type: 'info', message: 'OTP sent to your WhatsApp automatically. Please enter the code.', duration: 3000 });
+					modernMessaging.showFooterMessage({
+						type: 'info',
+						message: 'OTP sent to your WhatsApp automatically. Please enter the code.',
+						duration: 3000,
+					});
 					break;
 				case 'SELECTION_REQUIRED':
 					nav.setValidationErrors([
 						'Multiple devices require selection. Please choose the specific device to authenticate.',
 					]);
-					modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Please select a specific device', dismissible: true });
+					modernMessaging.showBanner({
+						type: 'warning',
+						title: 'Warning',
+						message: 'Please select a specific device',
+						dismissible: true,
+					});
 					break;
 				default:
 					// For OTP_REQUIRED or unknown status that requires OTP, PingOne sends it automatically
@@ -197,7 +210,11 @@ const WhatsAppDeviceSelectionStep: React.FC<
 						setTimeout(() => {
 							nav.goToStep(4); // Go directly to validation step (Step 4) - OTP already sent automatically
 						}, 100);
-						modernMessaging.showFooterMessage({ type: 'info', message: 'OTP sent to your WhatsApp automatically. Please enter the code.', duration: 3000 });
+						modernMessaging.showFooterMessage({
+							type: 'info',
+							message: 'OTP sent to your WhatsApp automatically. Please enter the code.',
+							duration: 3000,
+						});
 					} else {
 						// For other cases, go to Send OTP step as fallback
 						updateOtpState({
@@ -207,7 +224,11 @@ const WhatsAppDeviceSelectionStep: React.FC<
 						});
 						nav.markStepComplete();
 						nav.goToStep(3); // Default to Send OTP step (Step 3) for manual sending
-						modernMessaging.showFooterMessage({ type: 'info', message: 'Device selected for authentication. Follow the next step to continue.', duration: 3000 });
+						modernMessaging.showFooterMessage({
+							type: 'info',
+							message: 'Device selected for authentication. Follow the next step to continue.',
+							duration: 3000,
+						});
 					}
 			}
 		} catch (error) {
@@ -1037,7 +1058,12 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 					nav.setValidationErrors([
 						`Missing required configuration: ${missingFields.join(', ')}. Please complete Step 0 configuration.`,
 					]);
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Cannot register device: ${missingFields.join(', ')} required`, dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: `Cannot register device: ${missingFields.join(', ')} required`,
+						dismissible: true,
+					});
 					return;
 				}
 
@@ -1049,20 +1075,35 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 					nav.setValidationErrors([
 						'Device pairing is disabled for the selected Device Authentication Policy. Please select a different policy or contact your administrator.',
 					]);
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Device pairing is disabled for this policy', dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: 'Device pairing is disabled for this policy',
+						dismissible: true,
+					});
 					return;
 				}
 
 				if (!credentials.phoneNumber?.trim()) {
 					const errorMsg = 'Phone number is required. Please enter a valid phone number.';
 					nav.setValidationErrors([errorMsg]);
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMsg, dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: errorMsg,
+						dismissible: true,
+					});
 					return;
 				}
 				if (!isValidPhoneFormat(credentials.phoneNumber, credentials.countryCode)) {
 					const errorMsg = 'Please enter a valid phone number format.';
 					nav.setValidationErrors([errorMsg]);
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMsg, dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: errorMsg,
+						dismissible: true,
+					});
 					return;
 				}
 				// Use the device name exactly as entered by the user
@@ -1070,7 +1111,12 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 				if (!userEnteredDeviceName) {
 					const errorMsg = 'Device name is required. Please enter a name for this device.';
 					nav.setValidationErrors([errorMsg]);
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMsg, dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: errorMsg,
+						dismissible: true,
+					});
 					return;
 				}
 
@@ -1215,7 +1261,11 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 							nav.goToStep(4); // Go directly to validation step (Step 4) - skip Send OTP step (Step 3)
 						}, 0);
 
-						modernMessaging.showFooterMessage({ type: 'info', message: 'WhatsApp device registered! OTP has been sent automatically.', duration: 3000 });
+						modernMessaging.showFooterMessage({
+							type: 'info',
+							message: 'WhatsApp device registered! OTP has been sent automatically.',
+							duration: 3000,
+						});
 					} else if (actualDeviceStatus === 'ACTIVE') {
 						// Admin flow: Device is ACTIVE, no OTP needed - show success screen
 						console.log(
@@ -1246,7 +1296,12 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 						});
 						setShowModal(false);
 
-						modernMessaging.showFooterMessage({ type: 'info', message: 'WhatsApp device registered successfully! Device is ready to use (ACTIVE status).', duration: 3000 });
+						modernMessaging.showFooterMessage({
+							type: 'info',
+							message:
+								'WhatsApp device registered successfully! Device is ready to use (ACTIVE status).',
+							duration: 3000,
+						});
 					} else {
 						// Unknown status - default behavior
 						console.warn(
@@ -1254,7 +1309,11 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 						);
 						nav.markStepComplete();
 						nav.goToStep(3);
-						modernMessaging.showFooterMessage({ type: 'info', message: 'WhatsApp device registered successfully!', duration: 3000 });
+						modernMessaging.showFooterMessage({
+							type: 'info',
+							message: 'WhatsApp device registered successfully!',
+							duration: 3000,
+						});
 					}
 				} catch (error) {
 					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -1281,14 +1340,29 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 							'WhatsApp MFA is not enabled for this environment. Please enable WhatsApp MFA in the PingOne Admin Console.',
 						]);
 						setShowWhatsAppNotEnabledModal(true);
-						modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'WhatsApp MFA is not enabled for this environment.', dismissible: true });
+						modernMessaging.showBanner({
+							type: 'error',
+							title: 'Error',
+							message: 'WhatsApp MFA is not enabled for this environment.',
+							dismissible: true,
+						});
 					} else if (isDeviceLimitError) {
 						setShowDeviceLimitModal(true);
 						nav.setValidationErrors([`Device registration failed: ${errorMessage}`]);
-						modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Device limit exceeded. Please delete an existing device first.', dismissible: true });
+						modernMessaging.showBanner({
+							type: 'error',
+							title: 'Error',
+							message: 'Device limit exceeded. Please delete an existing device first.',
+							dismissible: true,
+						});
 					} else {
 						nav.setValidationErrors([`Failed to register device: ${errorMessage}`]);
-						modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Registration failed: ${errorMessage}`, dismissible: true });
+						modernMessaging.showBanner({
+							type: 'error',
+							title: 'Error',
+							message: `Registration failed: ${errorMessage}`,
+							dismissible: true,
+						});
 					}
 				} finally {
 					setIsLoading(false);
@@ -1543,7 +1617,11 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 									},
 									nickname
 								);
-								modernMessaging.showFooterMessage({ type: 'info', message: 'Device nickname updated successfully', duration: 3000 });
+								modernMessaging.showFooterMessage({
+									type: 'info',
+									message: 'Device nickname updated successfully',
+									duration: 3000,
+								});
 								setShowNicknameModal(false);
 								setPendingDeviceId(null);
 							} finally {
@@ -2379,7 +2457,11 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 
 													nav.markStepComplete();
 													nav.goToStep(5);
-													modernMessaging.showFooterMessage({ type: 'info', message: 'Device activated successfully!', duration: 3000 });
+													modernMessaging.showFooterMessage({
+														type: 'info',
+														message: 'Device activated successfully!',
+														duration: 3000,
+													});
 												} catch (error) {
 													const errorMessage =
 														error instanceof Error ? error.message : 'Unknown error';
@@ -2387,7 +2469,12 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 													setValidationAttempts((prev) => prev + 1);
 													setLastValidationError(errorMessage);
 													nav.setValidationErrors([`Activation failed: ${errorMessage}`]);
-													modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Activation failed: ${errorMessage}`, dismissible: true });
+													modernMessaging.showBanner({
+														type: 'error',
+														title: 'Error',
+														message: `Activation failed: ${errorMessage}`,
+														dismissible: true,
+													});
 												} finally {
 													setIsLoading(false);
 												}
@@ -2485,7 +2572,11 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 													region: credentials.region,
 													customDomain: credentials.customDomain,
 												});
-												modernMessaging.showFooterMessage({ type: 'info', message: 'OTP code resent successfully!', duration: 3000 });
+												modernMessaging.showFooterMessage({
+													type: 'info',
+													message: 'OTP code resent successfully!',
+													duration: 3000,
+												});
 											}
 											// For registration flow with ACTIVATION_REQUIRED devices, use resendPairingCode
 											else if (
@@ -2499,7 +2590,11 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 													region: credentials.region,
 													customDomain: credentials.customDomain,
 												});
-												modernMessaging.showFooterMessage({ type: 'info', message: 'OTP code resent successfully!', duration: 3000 });
+												modernMessaging.showFooterMessage({
+													type: 'info',
+													message: 'OTP code resent successfully!',
+													duration: 3000,
+												});
 											}
 											// For registration flow with ACTIVE devices, re-initialize device authentication
 											else if (mfaState.deviceId) {
@@ -2513,13 +2608,22 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 													deviceAuthId: authResult.authenticationId,
 													nextStep: authResult.nextStep ?? authResult.status,
 												}));
-												modernMessaging.showFooterMessage({ type: 'info', message: 'OTP code resent successfully!', duration: 3000 });
+												modernMessaging.showFooterMessage({
+													type: 'info',
+													message: 'OTP code resent successfully!',
+													duration: 3000,
+												});
 											} else {
 												throw new Error('Device ID is required to resend OTP');
 											}
 										} catch (error) {
 											const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-											modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to resend OTP: ${errorMessage}`, dismissible: true });
+											modernMessaging.showBanner({
+												type: 'error',
+												title: 'Error',
+												message: `Failed to resend OTP: ${errorMessage}`,
+												dismissible: true,
+											});
 										} finally {
 											setIsLoading(false);
 										}

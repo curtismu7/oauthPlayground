@@ -19,6 +19,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useProductionSpinner } from '@/hooks/useProductionSpinner';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import {
 	type CibaAuthRequest,
 	type CibaCredentials,
@@ -27,7 +28,6 @@ import {
 	type CibaStatus,
 	type CibaTokens,
 } from '@/v8/services/cibaServiceV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const MODULE_TAG = '[🔐 CIBA-FLOW-V8]';
 
@@ -115,7 +115,12 @@ export const useCibaFlowV8 = (): UseCibaFlowV8Return => {
 			if (!validation.valid) {
 				const errorMessage = validation.errors.join(', ');
 				console.error(`${MODULE_TAG} Validation failed:`, validation.errors);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Validation failed: ${errorMessage}`, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: `Validation failed: ${errorMessage}`,
+					dismissible: true,
+				});
 				setState((prev) => ({ ...prev, error: errorMessage, status: 'error' }));
 				return null;
 			}
@@ -149,7 +154,12 @@ export const useCibaFlowV8 = (): UseCibaFlowV8Return => {
 					authRequest: null,
 				}));
 
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to initiate CIBA authentication: ${errorMessage}`, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: `Failed to initiate CIBA authentication: ${errorMessage}`,
+					dismissible: true,
+				});
 				return null;
 			}
 		},
@@ -177,17 +187,36 @@ export const useCibaFlowV8 = (): UseCibaFlowV8Return => {
 				// Handle different statuses
 				switch (result.status) {
 					case 'approved':
-						modernMessaging.showFooterMessage({ type: 'info', message: 'CIBA authentication completed successfully!', duration: 3000 });
+						modernMessaging.showFooterMessage({
+							type: 'info',
+							message: 'CIBA authentication completed successfully!',
+							duration: 3000,
+						});
 						console.log(`${MODULE_TAG} CIBA authentication completed successfully`);
 						break;
 					case 'denied':
-						modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Authentication denied by user', dismissible: true });
+						modernMessaging.showBanner({
+							type: 'error',
+							title: 'Error',
+							message: 'Authentication denied by user',
+							dismissible: true,
+						});
 						break;
 					case 'expired':
-						modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Authentication request has expired', dismissible: true });
+						modernMessaging.showBanner({
+							type: 'error',
+							title: 'Error',
+							message: 'Authentication request has expired',
+							dismissible: true,
+						});
 						break;
 					case 'error':
-						modernMessaging.showBanner({ type: 'error', title: 'Error', message: result.error_description || 'An error occurred during authentication', dismissible: true });
+						modernMessaging.showBanner({
+							type: 'error',
+							title: 'Error',
+							message: result.error_description || 'An error occurred during authentication',
+							dismissible: true,
+						});
 						break;
 					case 'pending':
 						// Continue polling - update interval if provided
@@ -209,7 +238,12 @@ export const useCibaFlowV8 = (): UseCibaFlowV8Return => {
 					status: 'error',
 				}));
 
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Error during token polling: ${errorMessage}`, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: `Error during token polling: ${errorMessage}`,
+					dismissible: true,
+				});
 			}
 		},
 		[]
@@ -261,7 +295,12 @@ export const useCibaFlowV8 = (): UseCibaFlowV8Return => {
 						error: 'Maximum polling time exceeded',
 						status: 'error',
 					}));
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Authentication request timed out', dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: 'Authentication request timed out',
+						dismissible: true,
+					});
 					return;
 				}
 

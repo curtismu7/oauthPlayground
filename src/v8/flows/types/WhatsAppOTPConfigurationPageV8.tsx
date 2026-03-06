@@ -17,6 +17,7 @@ import { FiArrowRight, FiBook, FiMessageSquare } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { UserLoginModalV8 } from '@/v8/components/UserLoginModalV8';
@@ -32,7 +33,6 @@ import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
 import type { DeviceAuthenticationPolicy, MFACredentials } from '../shared/MFATypes';
@@ -148,7 +148,11 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 				tokenType: 'user' as const,
 			}));
 
-			modernMessaging.showFooterMessage({ type: 'info', message: 'User token automatically loaded from your recent login!', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'User token automatically loaded from your recent login!',
+				duration: 3000,
+			});
 		} else if (isAuthenticated && authToken && !credentials.userToken) {
 			console.log(`${MODULE_TAG} ⚠️ Auth token available but not populating`, {
 				hasAutoPopulated: hasAutoPopulatedRef.current,
@@ -190,7 +194,12 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 		const processCallback = async () => {
 			if (error) {
 				const errorDescription = searchParams.get('error_description') || '';
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Login failed: ${error}${errorDescription ? ` - ${errorDescription}` : ''}`, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: `Login failed: ${error}${errorDescription ? ` - ${errorDescription}` : ''}`,
+					dismissible: true,
+				});
 				sessionStorage.removeItem('user_login_state_v8');
 				sessionStorage.removeItem('user_login_code_verifier_v8');
 				sessionStorage.removeItem('user_login_credentials_temp_v8');
@@ -203,7 +212,12 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 				// Validate state
 				if (state !== hasUserLoginState) {
 					console.warn(`${MODULE_TAG} State mismatch - possible CSRF attack`);
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Security validation failed. Please try again.', dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: 'Security validation failed. Please try again.',
+						dismissible: true,
+					});
 					window.history.replaceState({}, document.title, window.location.pathname);
 					return;
 				}
@@ -215,7 +229,12 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 					const storedCredentials = sessionStorage.getItem('user_login_credentials_temp_v8');
 
 					if (!storedCodeVerifier || !storedCredentials) {
-						modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Missing PKCE verifier or credentials. Please try logging in again.', dismissible: true });
+						modernMessaging.showBanner({
+							type: 'error',
+							title: 'Error',
+							message: 'Missing PKCE verifier or credentials. Please try logging in again.',
+							dismissible: true,
+						});
 						sessionStorage.removeItem('user_login_state_v8');
 						sessionStorage.removeItem('user_login_code_verifier_v8');
 						sessionStorage.removeItem('user_login_credentials_temp_v8');
@@ -264,7 +283,11 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 						tokenType: 'user' as const,
 					}));
 
-					modernMessaging.showFooterMessage({ type: 'info', message: 'User token received and saved!', duration: 3000 });
+					modernMessaging.showFooterMessage({
+						type: 'info',
+						message: 'User token received and saved!',
+						duration: 3000,
+					});
 				} catch (error) {
 					UnifiedFlowErrorHandler.handleError(
 						error,
@@ -513,22 +536,42 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 				tokenType === 'worker' ? tokenStatus.isValid : !!credentials.userToken?.trim();
 
 			if (!credentials.deviceAuthenticationPolicyId) {
-				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Please select a Device Authentication Policy before proceeding', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'warning',
+					title: 'Warning',
+					message: 'Please select a Device Authentication Policy before proceeding',
+					dismissible: true,
+				});
 				return;
 			}
 
 			if (!isTokenValid) {
-				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: `Please provide a valid ${tokenType === 'worker' ? 'Worker Token' : 'User Token'} before proceeding`, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'warning',
+					title: 'Warning',
+					message: `Please provide a valid ${tokenType === 'worker' ? 'Worker Token' : 'User Token'} before proceeding`,
+					dismissible: true,
+				});
 				return;
 			}
 
 			if (!credentials.environmentId) {
-				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Please enter an Environment ID before proceeding', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'warning',
+					title: 'Warning',
+					message: 'Please enter an Environment ID before proceeding',
+					dismissible: true,
+				});
 				return;
 			}
 
 			if (!credentials.username) {
-				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Please enter a Username before proceeding', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'warning',
+					title: 'Warning',
+					message: 'Please enter a Username before proceeding',
+					dismissible: true,
+				});
 				return;
 			}
 
@@ -1066,7 +1109,11 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 						onTokenReceived={(token) => {
 							setCredentials((prev) => ({ ...prev, userToken: token, tokenType: 'user' }));
 							setShowUserLoginModal(false);
-							modernMessaging.showFooterMessage({ type: 'info', message: 'User token received successfully!', duration: 3000 });
+							modernMessaging.showFooterMessage({
+								type: 'info',
+								message: 'User token received successfully!',
+								duration: 3000,
+							});
 						}}
 						environmentId={credentials.environmentId}
 					/>
