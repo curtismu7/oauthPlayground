@@ -3,6 +3,7 @@
 
 import { useCallback, useState } from 'react';
 import { lookupPingOneUser } from '../../../services/pingOneUserProfileService';
+import { logger } from '../../../utils/logger';
 import { v4ToastManager } from '../../../utils/v4ToastMessages';
 // PingOneUser type definition
 export interface PingOneUser {
@@ -32,7 +33,8 @@ export const useUserLookup = (environmentId: string, workerToken: string): UseUs
 				if (!identifier) missing.push('identifier');
 				if (!workerToken) missing.push('worker token');
 				if (!environmentId) missing.push('environment ID');
-				console.error('[useUserLookup] Missing required parameters:', missing, {
+				logger.error('useUserLookup', '[useUserLookup] Missing required parameters:', {
+					missing,
 					identifier: identifier ? `${identifier.substring(0, 10)}...` : 'empty',
 					workerToken: workerToken ? `${workerToken.substring(0, 10)}...` : 'empty',
 					environmentId: environmentId || 'empty',

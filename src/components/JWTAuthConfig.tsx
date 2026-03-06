@@ -2,6 +2,7 @@ import { FiAlertCircle, FiCheckCircle, FiCopy, FiEye, FiEyeOff, FiKey, FiShield 
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { JWTAuthConfig, jwtAuthService } from '../services/jwtAuthService';
+import { logger } from '../utils/logger';
 
 interface JWTAuthConfigProps {
 	onConfigChange: (config: JWTAuthConfig) => void;
@@ -370,7 +371,7 @@ const JWTAuthConfig: React.FC<JWTAuthConfigProps> = ({ onConfigChange, initialCo
 			setStatus({ type: 'info', message: 'Copied to clipboard!' });
 			setTimeout(() => setStatus(null), 2000);
 		} catch (error) {
-			console.error('Failed to copy:', error);
+			logger.error('JWTAuthConfig', 'Failed to copy:', undefined, error as Error);
 		}
 	};
 

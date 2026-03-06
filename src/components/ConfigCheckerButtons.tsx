@@ -818,7 +818,12 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 				// Wait a moment for the token to be generated
 				await new Promise((resolve) => setTimeout(resolve, 2000));
 			} catch (error) {
-				console.error('[CONFIG-CHECKER] Failed to refresh worker token:', error);
+				logger.error(
+					'ConfigCheckerButtons',
+					'[CONFIG-CHECKER] Failed to refresh worker token:',
+					undefined,
+					error as Error
+				);
 				v4ToastManager.showError(
 					'Failed to refresh worker token. Proceeding with existing token...'
 				);
@@ -1127,7 +1132,12 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 				v4ToastManager.showError(`Failed to update application: ${result.error}`);
 			}
 		} catch (error) {
-			console.error('[CONFIG-CHECKER] Failed to update application:', error);
+			logger.error(
+				'ConfigCheckerButtons',
+				'[CONFIG-CHECKER] Failed to update application:',
+				undefined,
+				error as Error
+			);
 			v4ToastManager.showError(
 				`Failed to update application: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);
@@ -1195,7 +1205,12 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 				throw new Error('Import configuration callback not available');
 			}
 		} catch (error) {
-			console.error('[CONFIG-CHECKER] Error updating Our App:', error);
+			logger.error(
+				'ConfigCheckerButtons',
+				'[CONFIG-CHECKER] Error updating Our App:',
+				undefined,
+				error as Error
+			);
 			v4ToastManager.showError(
 				`Failed to update Our App: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);
@@ -1267,7 +1282,12 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 
 			v4ToastManager.showSuccess('PingOne configuration exported successfully!');
 		} catch (error) {
-			console.error('[CONFIG-CHECKER] Error exporting configuration:', error);
+			logger.error(
+				'ConfigCheckerButtons',
+				'[CONFIG-CHECKER] Error exporting configuration:',
+				undefined,
+				error as Error
+			);
 			v4ToastManager.showError(
 				`Failed to export configuration: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);

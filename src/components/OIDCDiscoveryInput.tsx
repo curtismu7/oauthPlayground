@@ -11,6 +11,7 @@ import { FiAlertCircle, FiCheck, FiEye, FiEyeOff, FiGlobe, FiLoader, FiRefreshCw
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { type DiscoveryResult, oidcDiscoveryService } from '../services/oidcDiscoveryService';
+import { logger } from '../utils/logger';
 
 interface OIDCDiscoveryInputProps {
 	onDiscoveryComplete?: (result: DiscoveryResult) => void;
@@ -360,7 +361,7 @@ const OIDCDiscoveryInput: React.FC<OIDCDiscoveryInputProps> = ({
 				};
 			}
 		} catch (error) {
-			console.warn('Failed to load OIDC Discovery settings:', error);
+			logger.warn('OIDCDiscoveryInput', 'Failed to load OIDC Discovery settings:', { error });
 		}
 		return {
 			issuerUrl: initialIssuerUrl || '',
@@ -393,7 +394,7 @@ const OIDCDiscoveryInput: React.FC<OIDCDiscoveryInputProps> = ({
 		try {
 			localStorage.setItem('oidc-discovery-settings', JSON.stringify(settings));
 		} catch (error) {
-			console.warn('Failed to save OIDC Discovery settings:', error);
+			logger.warn('OIDCDiscoveryInput', 'Failed to save OIDC Discovery settings:', { error });
 		}
 	}, [issuerUrl, discoveryResult, error]);
 
@@ -408,7 +409,7 @@ const OIDCDiscoveryInput: React.FC<OIDCDiscoveryInputProps> = ({
 			setError(null);
 			setShowResults(false);
 		} catch (error) {
-			console.warn('Failed to clear OIDC Discovery settings:', error);
+			logger.warn('OIDCDiscoveryInput', 'Failed to clear OIDC Discovery settings:', { error });
 		}
 	}, [initialIssuerUrl]);
 
@@ -448,7 +449,9 @@ const OIDCDiscoveryInput: React.FC<OIDCDiscoveryInputProps> = ({
 			}
 		} catch (err) {
 			const errorMessage = err instanceof Error ? err.message : 'Discovery failed';
-			console.error('[OIDC Discovery Input] Discovery failed:', errorMessage);
+			logger.error('OIDCDiscoveryInput', '[OIDC Discovery Input] Discovery failed:', {
+				message: errorMessage,
+			});
 			setError(errorMessage);
 		} finally {
 			setIsDiscovering(false);

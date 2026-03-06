@@ -4,6 +4,7 @@ import { FiAlertTriangle, FiCheck, FiCopy, FiGlobe, FiLogOut, FiX } from '@icons
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { callbackUriService } from '../services/callbackUriService';
+import { logger } from '../utils/logger';
 
 interface LogoutUriReferenceProps {
 	isOpen: boolean;
@@ -261,7 +262,7 @@ const LogoutUriReference: React.FC<LogoutUriReferenceProps> = ({ isOpen, onClose
 				});
 			}, 2000);
 		} catch (err) {
-			console.error('Failed to copy URI:', err);
+			logger.error('LogoutUriReference', 'Failed to copy URI:', undefined, err as Error);
 		}
 	};
 
@@ -274,7 +275,7 @@ const LogoutUriReference: React.FC<LogoutUriReferenceProps> = ({ isOpen, onClose
 		try {
 			await navigator.clipboard.writeText(allUris);
 		} catch (err) {
-			console.error('Failed to copy all URIs:', err);
+			logger.error('LogoutUriReference', 'Failed to copy all URIs:', undefined, err as Error);
 		}
 	};
 

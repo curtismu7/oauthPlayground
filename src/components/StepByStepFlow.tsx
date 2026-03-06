@@ -1,6 +1,7 @@
 import { FiArrowLeft, FiArrowRight, FiPlay, FiRotateCcw } from '@icons';
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
+import { logger } from '../utils/logger';
 
 const FlowContainer = styled.div`
   margin-bottom: 1.5rem;
@@ -414,7 +415,12 @@ const StepByStepFlowComponent: React.FC<StepByStepFlowProps> = ({
 					}, 500); // Small delay to show the result before advancing
 				}
 			} catch (error) {
-				console.error(`Failed to execute step ${currentStep + 1}:`, error);
+				logger.error(
+					'StepByStepFlow',
+					`Failed to execute step ${currentStep + 1}:`,
+					undefined,
+					error as Error
+				);
 				// Call onStepResult with error if provided
 				if (onStepResult) {
 					onStepResult(currentStep, { error: error.message || 'Unknown error' });

@@ -27,6 +27,7 @@ import {
 	terminateSession as terminateSessionService,
 } from '../services/sessionTerminationService';
 import { isJWT } from '../utils/jwtDecoder';
+import { logger } from '../utils/logger';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import ConfirmationModal from './ConfirmationModal';
 
@@ -537,7 +538,8 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 					// Validate ID token before using it
 					const idToken = normalizedTokens.id_token;
 					if (idToken && !isJWT(idToken)) {
-						console.warn(
+						logger.warn(
+							'SecurityFeaturesDemo',
 							'[SecurityFeaturesDemo] Invalid ID token detected, skipping logout endpoint call'
 						);
 						v4ToastManager.showWarning(

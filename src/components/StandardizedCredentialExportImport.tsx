@@ -10,6 +10,7 @@ import {
 	type StandardizedCredentialExport,
 } from '@/services/standardizedCredentialExportService';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { logger } from '../utils/logger';
 
 // Styled components
 const ButtonContainer = styled.div`
@@ -120,17 +121,36 @@ export const StandardizedCredentialExportImport: React.FC<
 	// Handle export
 	const handleExport = () => {
 		if (!credentials) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'No credentials to export', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'No credentials to export',
+				dismissible: true,
+			});
 			return;
 		}
 
 		try {
 			exportStandardizedCredentials(appName, appType, credentials, metadata);
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Credentials exported successfully', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Credentials exported successfully',
+				duration: 3000,
+			});
 			onExport?.();
 		} catch (error) {
-			console.error('[StandardizedCredentialExportImport] Export failed:', error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to export credentials', dismissible: true });
+			logger.error(
+				'StandardizedCredentialExportImport',
+				'[StandardizedCredentialExportImport] Export failed:',
+				undefined,
+				error as Error
+			);
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to export credentials',
+				dismissible: true,
+			});
 			onError?.(error as Error);
 		}
 	};
@@ -151,16 +171,35 @@ export const StandardizedCredentialExportImport: React.FC<
 				} else if (appType === 'worker-token' && importedCredentials.appType === 'oauth') {
 					// Allow this cross-import
 				} else {
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Invalid credential type. Expected ${appType}, got ${importedCredentials.appType}`, dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: `Invalid credential type. Expected ${appType}, got ${importedCredentials.appType}`,
+						dismissible: true,
+					});
 					return;
 				}
 			}
 
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Credentials imported successfully', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Credentials imported successfully',
+				duration: 3000,
+			});
 			onImport?.(importedCredentials);
 		} catch (error) {
-			console.error('[StandardizedCredentialExportImport] Import failed:', error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to import credentials: ${(error as Error).message}`, dismissible: true });
+			logger.error(
+				'StandardizedCredentialExportImport',
+				'[StandardizedCredentialExportImport] Import failed:',
+				undefined,
+				error as Error
+			);
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: `Failed to import credentials: ${(error as Error).message}`,
+				dismissible: true,
+			});
 			onError?.(error as Error);
 		}
 
