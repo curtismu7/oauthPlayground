@@ -207,24 +207,23 @@ interface MarkdownViewerProps {
 	pageName: string;
 }
 
+const pageConfig = {
+	flowType: 'documentation' as const,
+	theme: 'blue' as const,
+	maxWidth: '72rem',
+	showHeader: true,
+	showFooter: false,
+	responsive: true,
+	flowId: 'markdown-viewer',
+};
+const { PageContainer, ContentWrapper } = PageLayoutService.createPageLayout(pageConfig);
+
 const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ markdownPath, title, pageName }) => {
 	const [content, setContent] = useState<string>('');
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 
 	usePageScroll({ pageName, force: true });
-
-	const pageConfig = {
-		flowType: 'documentation' as const,
-		theme: 'blue' as const,
-		maxWidth: '72rem',
-		showHeader: true,
-		showFooter: false,
-		responsive: true,
-		flowId: `user-guide-${pageName}`,
-	};
-
-	const { PageContainer, ContentWrapper } = PageLayoutService.createPageLayout(pageConfig);
 
 	useEffect(() => {
 		const fetchMarkdown = async () => {
