@@ -476,15 +476,22 @@ export default defineConfig(({ mode }) => {
 					},
 				},
 			},
-			chunkSizeWarningLimit: 1000, // Increase warning limit to 1MB
+			chunkSizeWarningLimit: 800, // Reduce warning limit to 800KB to encourage smaller chunks
 			target: 'esnext',
 			minify: 'terser',
 			terserOptions: {
 				compress: {
 					drop_console: mode === 'production',
 					drop_debugger: mode === 'production',
+					// Additional optimizations
+					pure_funcs: mode === 'production' ? ['console.log', 'console.info', 'console.debug'] : [],
+				},
+				mangle: {
+					safari10: true,
 				},
 			},
+			// Enable CSS code splitting
+			cssCodeSplit: true,
 		},
 	};
 });
