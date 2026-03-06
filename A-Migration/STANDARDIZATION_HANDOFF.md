@@ -1,6 +1,6 @@
 # Standardization Handoff — OAuth Playground V9
 
-**Last updated:** March 6, 2026 — HEAD at `2ba181f80`  
+**Last updated:** March 6, 2026 — HEAD at `97b7e8dbc`  
 **Prepared for:** Any programmer picking up this work  
 **Branch:** `main` — **always `git fetch && git status` before starting work**
 
@@ -42,6 +42,7 @@
 | **`console.*` → `logger` migration (src/utils/)** | ✅ **DONE** | ~215 calls across 43 files. Commits `9ade43aeb`, `fcd07bae2`. Skipped: `logger.ts` (self), `errorMonitoring.ts` (override lines), `consoleMigrationHelper.ts`, safeguard files. March 6, 2026. |
 | **`console.*` → `logger` migration (src/components/)** | ✅ **DONE** | ~160 calls across 79 files. Commit `aaaba09f1`. Skipped: `CompleteMFAFlowV7.tsx` (V7 legacy), `CredentialsImportExport.tsx` (call was inside JSDoc comment). March 6, 2026. |
 | **`console.*` → `logger` migration (src/pages/, src/services/, src/protect-app/, src/App.tsx, src/examples/, src/config/, src/v8m/)** | ✅ **DONE** | ~210 calls across 79 files. Commit `783689d15`. Skipped: `loggingService.ts` (dispatch sink), `HybridCallback.tsx` L16 (local logger fn), `postmanCollectionGeneratorV8/V9.ts` (Postman script template strings), `codeExamplesService.ts`+`codeGeneration/templates/` (code example template literals), `useErrorDiagnosis.ts` (patches `console.error`), `main.tsx` (filters third-party lib warnings). March 6, 2026. |
+| **`console.*` → `logger` migration (src/v8u/, sdk-examples, samples, performanceService)** | ✅ **DONE** | 181 violations replaced across 25 files: `src/v8u/components/` (4 files, 115 calls), `src/v8u/services/` (8 files, 32 calls), `src/v8u/pages/` (2 files, 2 calls), `src/v8u/apps/` + `flows/` (3 files, 3 calls), `sdk-examples/davinciTodoService.ts` (12), `samples/p1mfa/` (17), `performanceService.ts` (2), `OIDCExamples.tsx` (1). Commit `97b7e8dbc`. March 6, 2026. Skipped: `src/v8/` (V8 codebase — out of scope), `OAuthAuthorizationCodeFlowV7_1/` (not routed), `PARvsRAR.tsx` 4 false positives (template strings), `ServiceTestRunner.tsx` 3 intentional overrides. |
 
 ---
 
