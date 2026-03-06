@@ -5,6 +5,7 @@ import { FiDownload, FiInfo, FiRefreshCw, FiShield, FiTrash2 } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { credentialBackupService, type EnvBackupData } from '../services/credentialBackupService';
+import { logger } from '../utils/logger';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import ConfirmationModal from './ConfirmationModal';
 
@@ -186,7 +187,12 @@ export const CredentialBackupManager: React.FC<CredentialBackupManagerProps> = (
 			const data = credentialBackupService.getCredentialBackup();
 			setBackupData(data);
 		} catch (error) {
-			console.error('Failed to load backup data:', error);
+			logger.error(
+				'CredentialBackupManager',
+				'Failed to load backup data:',
+				undefined,
+				error as Error
+			);
 		} finally {
 			setIsLoading(false);
 		}

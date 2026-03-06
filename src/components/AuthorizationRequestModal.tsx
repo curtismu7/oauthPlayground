@@ -1,6 +1,7 @@
 import { FiCheck, FiCopy, FiExternalLink, FiX } from '@icons';
 import React, { useEffect, useId } from 'react';
 import styled from 'styled-components';
+import { logger } from '../utils/logger';
 import ColorCodedURL from './ColorCodedURL';
 
 interface AuthorizationRequestModalProps {
@@ -267,7 +268,7 @@ const AuthorizationRequestModal: React.FC<AuthorizationRequestModalProps> = ({
 			setCopied(true);
 			setTimeout(() => setCopied(false), 2000);
 		} catch (error) {
-			console.error('Failed to copy:', error);
+			logger.error('AuthorizationRequestModal', 'Failed to copy:', undefined, error as Error);
 		}
 	};
 

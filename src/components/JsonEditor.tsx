@@ -1,6 +1,7 @@
 import { FiCheck, FiCopy } from '@icons';
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../utils/logger';
 
 interface JsonEditorProps {
 	value: any;
@@ -113,7 +114,7 @@ const JsonEditor: React.FC<JsonEditorProps> = ({
 			setCopied(true);
 			setTimeout(() => setCopied(false), 2000);
 		} catch (err) {
-			console.error('Failed to copy JSON:', err);
+			logger.error('JsonEditor', 'Failed to copy JSON:', undefined, err as Error);
 		}
 	};
 
@@ -128,7 +129,7 @@ const JsonEditor: React.FC<JsonEditorProps> = ({
 			onChange?.(parsed);
 			setIsEditing(false);
 		} catch (err) {
-			console.error('Invalid JSON:', err);
+			logger.error('JsonEditor', 'Invalid JSON:', undefined, err as Error);
 			// Could show error message to user
 		}
 	};
