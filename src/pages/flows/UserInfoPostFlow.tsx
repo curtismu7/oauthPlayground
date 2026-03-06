@@ -372,7 +372,7 @@ try {
 					setDemoStatus('success');
 				} catch (error) {
 					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-					console.error('[UserInfoPostFlow] Error:', errorMessage);
+					logger.error('UserInfoPostFlow', 'UserInfo request failed', undefined, error as Error);
 					setError(errorMessage);
 					setDemoStatus('error');
 					throw error;
@@ -553,7 +553,7 @@ const retryUserInfoRequest = async (retryCount = 0) => {
 			setDemoStatus('success');
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			console.error('[UserInfoPostFlow] Error:', errorMessage);
+			logger.error('UserInfoPostFlow', 'UserInfo request failed', undefined, error as Error);
 			setError(errorMessage);
 			setDemoStatus('error');
 		}
