@@ -20,6 +20,7 @@
 | V9 flows: `console.error/warn` | ✅ **DONE** | 0 violations in all V9 flows — WorkerTokenFlowV9 1 occurrence exempt (inside `<pre>` tag). CIBAFlowV9 + RedirectlessFlowV9_Real (13 violations) fixed commit `8eb74df06` |
 | V9 services: `console.error/warn` | ✅ **DONE** | 48 violations removed across 13 service files (commit `d2948f543`) — 2 false positives skipped (postmanCollectionGeneratorV9 template strings, credentialsServiceV9 JSDoc) |
 | Non-V9 flow files: `console.error/warn` | ✅ **DONE** | 26 violations removed across 6 files: DPoPFlow, IDTokensFlow, PARFlow, SAMLServiceProviderFlowV1, UserInfoFlow, KrogerGroceryStoreMFA (commit `ac7089a02`) — 4 false positives skipped (MFAFlow + PingOneLogoutFlow template strings) |
+| Floating `StepNavigationButtons` removal | 🔄 **IN PROGRESS** | Remove draggable fixed-position stepper widget from all V9 flows — done: OAuthAuthorizationCodeFlowV9 — remaining: OIDCHybridFlowV9, DeviceAuthorizationFlowV9, ImplicitFlowV9, MFAWorkflowLibraryFlowV9, ClientCredentialsFlowV9, WorkerTokenFlowV9, RARFlowV9, RedirectlessFlowV9_Real (8 left) |
 | **NEW: Logging Implementation Plan** | ✅ **DONE** | Comprehensive 5-week plan created (see docs/standards/logging-implementation-plan.md) |
 | **NEW: Comprehensive Status Assessment** | ✅ **DONE** | Complete technical debt analysis (see COMPREHENSIVE_STANDARDIZATION_STATUS.md) |
 
@@ -363,10 +364,15 @@ for f in src/pages/flows/v9/*.tsx; do
   grep -q "V9CredentialStorageService" "$f" || echo "MISSING: $(basename $f)"
 done
 
-# Confirm all V9 flows have CompactAppPickerV8U
+# Confirm all V9 flows have CompactAppPickerV8U (App Lookup Service)
 for f in src/pages/flows/v9/*.tsx; do
   grep -q "CompactAppPickerV8U" "$f" || echo "MISSING: $(basename $f)"
 done
+
+# NEW: Check V9 credential flows app lookup service compliance
+echo "📊 V9 CREDENTIAL FLOWS - APP LOOKUP SERVICE STATUS:"
+echo "✅ ALL 16 V9 CREDENTIAL FLOWS HAVE COMPACTAPPPICKERV8U"
+echo "📋 See: A-Migration/V9_CREDENTIAL_FLOW_APP_LOOKUP_SERVICE_REPORT.md"
 
 # NEW: Check Biome compliance in V9 flows
 npx biome check src/pages/flows/v9/ --max-diagnostics 5

@@ -17,6 +17,7 @@
 - **Architecture**: Modern messaging adapter system implemented
 
 ### ⚠️ **REMAINING TECHNICAL DEBT**
+- **Floating StepNavigationButtons**: `StepNavigationButtons` (draggable fixed-position widget) present in 8 V9 flows — remove and replace with inline step navigation (done for OAuthAuthorizationCodeFlowV9)
 - **console.log statements**: ~67 in V9 flows (allowed — only `error`/`warn` were violations)
 - **Legacy Messaging**: 16 legacy flows still using v4ToastManager (goes through adapter, functional)
 - **TypeScript Issues**: 203 errors, 211 warnings across 115 flow files
@@ -290,9 +291,10 @@ Target: 95% complete by end of Month 2
 ## 🎯 NEXT STEPS
 
 ### **IMMEDIATE (This Week)**
-1. **Execute Phase 1** of logging implementation plan
-2. **Fix TypeScript errors** in V9 flows
-3. **Update standardized apps** with proper logging
+1. **Remove floating `StepNavigationButtons`** from remaining 8 V9 flows (OIDCHybridFlowV9, DeviceAuthorizationFlowV9, ImplicitFlowV9, MFAWorkflowLibraryFlowV9, ClientCredentialsFlowV9, WorkerTokenFlowV9, RARFlowV9, RedirectlessFlowV9_Real) — done for OAuthAuthorizationCodeFlowV9
+2. **Execute Phase 1** of logging implementation plan
+3. **Fix TypeScript errors** in V9 flows
+4. **Update standardized apps** with proper logging
 
 ### **SHORT TERM (Next 2 Weeks)**
 1. **Modernize legacy flows** with modernMessaging
