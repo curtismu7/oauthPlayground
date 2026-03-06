@@ -20,7 +20,6 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { EducationModeToggle } from '../../../components/education/EducationModeToggle';
 import { MasterEducationSection } from '../../../components/education/MasterEducationSection';
 import { LearningTooltip } from '../../../components/LearningTooltip';
-import { StepNavigationButtons } from '../../../components/StepNavigationButtons';
 import { useClientCredentialsFlowController } from '../../../hooks/useClientCredentialsFlowController';
 import { useCredentialBackup } from '../../../hooks/useCredentialBackup';
 import { usePageScroll } from '../../../hooks/usePageScroll';
@@ -1164,15 +1163,6 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 
 					<StepContent>{renderStepContent()}</StepContent>
 
-					<StepNavigationButtons
-						onNext={handleNext}
-						onPrevious={handlePrevious}
-						onReset={handleReset}
-						canNavigateNext={canNavigateNext}
-						isFirstStep={currentStep === 0}
-						nextButtonText={currentStep === STEP_METADATA.length - 1 ? 'Complete' : 'Next'}
-						disabledMessage={controller.error || getStepValidationMessage(currentStep)}
-					/>
 				</MainCard>
 			</ContentWrapper>
 		</Container>
