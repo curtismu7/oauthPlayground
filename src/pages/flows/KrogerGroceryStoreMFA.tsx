@@ -6,6 +6,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
+import { CompactAppPickerV8U } from '@/v8u/components/CompactAppPickerV8U';
 import { ApiCallTable } from '../../components/ApiCallTable';
 import { AuthorizationCodeConfigModal } from '../../components/AuthorizationCodeConfigModal';
 import type { StepCredentials } from '../../components/steps/CommonSteps';
@@ -781,6 +783,16 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 			{ showToast: false }
 		);
 	}, []);
+
+	// Handle app selection from CompactAppPickerV8U
+	const handleAppSelected = (app: DiscoveredApp) => {
+		const updatedCredentials = {
+			...credentials,
+			clientId: app.id, // Use app.id as clientId (standard pattern)
+		};
+		setCredentials(updatedCredentials);
+		handleCredentialsChange(updatedCredentials);
+	};
 
 	// Handle OIDC discovery completion - ensure environment ID is saved
 	const handleDiscoveryComplete = useCallback((result: any) => {
@@ -1736,6 +1748,12 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 								Configuration (Click to expand)
 							</summary>
 							<div style={{ marginTop: '1rem' }}>
+								{/* App Picker for Quick Configuration */}
+								<CompactAppPickerV8U
+									environmentId={credentials.environmentId || ''}
+									onAppSelected={handleAppSelected}
+								/>
+
 								<ComprehensiveCredentialsService
 									flowType="kroger-grocery-store-mfa"
 									credentials={credentials}
