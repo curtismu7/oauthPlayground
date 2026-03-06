@@ -24,7 +24,7 @@ const copyToClipboard = async (text: string): Promise<void> => {
 			message: 'Copied to clipboard!',
 			dismissible: true,
 		});
-	} catch (err) {
+	} catch (_err) {
 		modernMessaging.showCriticalError({
 			title: 'Copy Failed',
 			message: 'Failed to copy to clipboard',
@@ -276,7 +276,7 @@ const JWTBearerTokenFlowV9: React.FC = () => {
 				message: 'JWT has been generated successfully',
 				dismissible: true,
 			});
-		} catch (error) {
+		} catch (_error) {
 			modernMessaging.showCriticalError({
 				title: 'JWT Generation Failed',
 				message: 'Failed to generate JWT token',
@@ -318,7 +318,7 @@ const JWTBearerTokenFlowV9: React.FC = () => {
 				message: 'Access token has been successfully obtained',
 				dismissible: true,
 			});
-		} catch (error) {
+		} catch (_error) {
 			modernMessaging.showCriticalError({
 				title: 'Token Request Failed',
 				message: 'Failed to obtain access token',

@@ -23,7 +23,6 @@ import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 import { PKCEStorageServiceV8U } from '../../../v8u/services/pkceStorageServiceV8U';
 import { logger } from '../../../services/loggingService';
-import { secureLog, secureErrorLog } from '../../../utils/secureLogging';
 
 // Step metadata for V9
 const STEP_METADATA = [
@@ -204,7 +203,7 @@ const PingOnePARFlowV9: React.FC = () => {
 				codeChallengeLength: codes.codeChallenge.length,
 				codeVerifierLength: codes.codeVerifier.length,
 			});
-		} catch (error) {
+		} catch (_error) {
 			messagingService.showErrorBanner('Failed to generate PKCE codes');
 		}
 	}, [messagingService]);
