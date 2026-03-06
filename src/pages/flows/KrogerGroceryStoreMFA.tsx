@@ -1363,6 +1363,18 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 	// Show login page first if not authenticated
 	if (!isAuthenticated) {
 		return (
+			<ModalOverlay $isOpen={!isAuthenticated} onClick={() => {}}>
+				<LoginModal onClick={(e) => e.stopPropagation()}>
+					<ModalHeader>
+						<h2>Sign In to Kroger</h2>
+						<button
+							type="button"
+							onClick={() => window.history.back()}
+							style={{
+								background: 'none',
+								border: 'none',
+								fontSize: '1.5rem',
+								cursor: 'pointer',
 								color: '#666',
 								padding: '0.25rem',
 								display: 'flex',
