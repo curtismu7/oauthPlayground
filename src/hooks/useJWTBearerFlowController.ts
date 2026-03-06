@@ -3,8 +3,8 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { credentialManager } from '../utils/credentialManager';
-import { v4ToastManager } from '../utils/v4ToastMessages';
 import { logger } from '../utils/logger';
+import { v4ToastManager } from '../utils/v4ToastMessages';
 
 export interface JWTBearerConfig {
 	environmentId: string;
@@ -93,7 +93,12 @@ export const useJWTBearerFlowController = (): UseJWTBearerFlowControllerReturn =
 				hasPrivateKey: !!jwtBearerCredentials?.privateKey,
 			});
 		} catch (err) {
-			logger.error('useJWTBearerFlowController', `${LOG_PREFIX} Failed to load JWT Bearer Token credentials`, undefined, err as Error);
+			logger.error(
+				'useJWTBearerFlowController',
+				`${LOG_PREFIX} Failed to load JWT Bearer Token credentials`,
+				undefined,
+				err as Error
+			);
 		}
 	}, []);
 
@@ -157,7 +162,12 @@ export const useJWTBearerFlowController = (): UseJWTBearerFlowControllerReturn =
 		} catch (err) {
 			const errorMessage = err instanceof Error ? err.message : 'JWT Bearer token request failed';
 			setError(errorMessage);
-			logger.error('useJWTBearerFlowController', `${LOG_PREFIX} [MOCK ERROR] JWT Bearer token simulation failed`, undefined, err as Error);
+			logger.error(
+				'useJWTBearerFlowController',
+				`${LOG_PREFIX} [MOCK ERROR] JWT Bearer token simulation failed`,
+				undefined,
+				err as Error
+			);
 			throw err;
 		} finally {
 			setIsRequesting(false);
@@ -193,11 +203,19 @@ export const useJWTBearerFlowController = (): UseJWTBearerFlowControllerReturn =
 				console.log(`${LOG_PREFIX} Saved JWT Bearer Token credentials to flow-specific storage`);
 				return true;
 			} else {
-				logger.error('useJWTBearerFlowController', `${LOG_PREFIX} Failed to save JWT Bearer Token credentials`);
+				logger.error(
+					'useJWTBearerFlowController',
+					`${LOG_PREFIX} Failed to save JWT Bearer Token credentials`
+				);
 				return false;
 			}
 		} catch (err) {
-			logger.error('useJWTBearerFlowController', `${LOG_PREFIX} Failed to save JWT Bearer Token credentials`, undefined, err as Error);
+			logger.error(
+				'useJWTBearerFlowController',
+				`${LOG_PREFIX} Failed to save JWT Bearer Token credentials`,
+				undefined,
+				err as Error
+			);
 			return false;
 		}
 	}, [credentials]);

@@ -32,9 +32,9 @@
  */
 
 import React, { useCallback, useState } from 'react';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { Button } from '@/v8/components/Button';
 import { colors, spacing } from '@/v8/styles/designTokens';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const MODULE_TAG = '[🔐 UNIFIED-OTP-TEMPLATE]';
 
@@ -177,12 +177,22 @@ export const UnifiedOTPActivationTemplate: React.FC<UnifiedOTPActivationTemplate
 			e.preventDefault();
 
 			if (!otp || otp.length !== 6) {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter a valid 6-digit code', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'Please enter a valid 6-digit code',
+					dismissible: true,
+				});
 				return;
 			}
 
 			if (validationAttempts >= maxAttempts) {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Maximum attempts reached. Please start over.', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'Maximum attempts reached. Please start over.',
+					dismissible: true,
+				});
 				return;
 			}
 
@@ -204,10 +214,19 @@ export const UnifiedOTPActivationTemplate: React.FC<UnifiedOTPActivationTemplate
 
 		try {
 			await onResendOtp();
-			modernMessaging.showFooterMessage({ type: 'info', message: `${deviceDisplayName} code resent successfully`, duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: `${deviceDisplayName} code resent successfully`,
+				duration: 3000,
+			});
 		} catch (error) {
 			console.error(`${MODULE_TAG} Resend failed:`, error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to resend code. Please try again.', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to resend code. Please try again.',
+				dismissible: true,
+			});
 		}
 	}, [canResend, isLoading, onResendOtp, deviceDisplayName]);
 

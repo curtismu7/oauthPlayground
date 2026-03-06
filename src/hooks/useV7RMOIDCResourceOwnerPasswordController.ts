@@ -1,11 +1,11 @@
 // src/hooks/useV7RMOIDCResourceOwnerPasswordController.ts - Enhanced with Real Services
 
 import React, { useCallback, useState } from 'react';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { V9CredentialStorageService } from '../services/v9/V9CredentialStorageService';
 import { useFlowStepManager } from '../utils/flowStepSystem';
-import { generateMockIdToken } from '../utils/mockOAuth';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { logger } from '../utils/logger';
+import { generateMockIdToken } from '../utils/mockOAuth';
 
 export interface V7RMCredentials {
 	environmentId: string;
@@ -150,13 +150,22 @@ export const useV7RMOIDCResourceOwnerPasswordController = ({
 			setHasCredentialsSaved(true);
 			setHasUnsavedCredentialChanges(false);
 
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Configuration saved successfully', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Configuration saved successfully',
+				duration: 3000,
+			});
 
 			if (enableDebugger) {
 				console.log('🔐 Mock credentials saved:', credentials);
 			}
 		} catch (_error) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save mock credentials', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to save mock credentials',
+				dismissible: true,
+			});
 		} finally {
 			setIsSavingCredentials(false);
 		}
@@ -171,7 +180,12 @@ export const useV7RMOIDCResourceOwnerPasswordController = ({
 			!credentials.username ||
 			!credentials.password
 		) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'All credentials are required', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'All credentials are required',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -250,13 +264,27 @@ export const useV7RMOIDCResourceOwnerPasswordController = ({
 				realApi: true,
 			});
 
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Authentication successful! Tokens received.', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Authentication successful! Tokens received.',
+				duration: 3000,
+			});
 
 			// Auto-advance to next step
 			stepManager.setStep(stepManager.currentStepIndex + 1, 'authentication completed');
 		} catch (error) {
-			logger.error('useV7RMOIDCResourceOwnerPasswordController', 'Authentication failed', undefined, error as Error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Unknown error', dismissible: true });
+			logger.error(
+				'useV7RMOIDCResourceOwnerPasswordController',
+				'Authentication failed',
+				undefined,
+				error as Error
+			);
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: error instanceof Error ? error.message : 'Unknown error',
+				dismissible: true,
+			});
 
 			saveStepResult('authenticate-user', {
 				success: false,
@@ -272,7 +300,12 @@ export const useV7RMOIDCResourceOwnerPasswordController = ({
 	// Fetch user info using real API
 	const fetchUserInfo = useCallback(async () => {
 		if (!tokens?.access_token) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Access token is required to fetch user information', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Access token is required to fetch user information',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -303,14 +336,28 @@ export const useV7RMOIDCResourceOwnerPasswordController = ({
 
 			setUserInfo(userData);
 
-			modernMessaging.showFooterMessage({ type: 'info', message: 'User information retrieved successfully', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'User information retrieved successfully',
+				duration: 3000,
+			});
 
 			if (enableDebugger) {
 				console.log('👤 Mock user info fetched:', userData);
 			}
 		} catch (error) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Network error', dismissible: true });
-			logger.error('useV7RMOIDCResourceOwnerPasswordController', 'Mock user info fetch failed', undefined, error as Error);
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Network error',
+				dismissible: true,
+			});
+			logger.error(
+				'useV7RMOIDCResourceOwnerPasswordController',
+				'Mock user info fetch failed',
+				undefined,
+				error as Error
+			);
 		} finally {
 			setIsFetchingUserInfo(false);
 		}
@@ -319,7 +366,12 @@ export const useV7RMOIDCResourceOwnerPasswordController = ({
 	// Refresh tokens (mock implementation)
 	const refreshTokens = useCallback(async () => {
 		if (!tokens?.refresh_token) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Step error', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Step error',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -337,14 +389,28 @@ export const useV7RMOIDCResourceOwnerPasswordController = ({
 
 			setRefreshedTokens(newTokens);
 
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Tokens refreshed successfully', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Tokens refreshed successfully',
+				duration: 3000,
+			});
 
 			if (enableDebugger) {
 				console.log('🔄 Mock tokens refreshed:', newTokens);
 			}
 		} catch (error) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Network error', dismissible: true });
-			logger.error('useV7RMOIDCResourceOwnerPasswordController', 'Mock token refresh failed', undefined, error as Error);
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Network error',
+				dismissible: true,
+			});
+			logger.error(
+				'useV7RMOIDCResourceOwnerPasswordController',
+				'Mock token refresh failed',
+				undefined,
+				error as Error
+			);
 		} finally {
 			setIsRefreshingTokens(false);
 		}
@@ -362,7 +428,11 @@ export const useV7RMOIDCResourceOwnerPasswordController = ({
 		setRefreshedTokens(null);
 		setStepResults({});
 		stepManager.setStep(0, 'flow reset');
-		modernMessaging.showFooterMessage({ type: 'info', message: 'Flow reset successfully', duration: 3000 });
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message: 'Flow reset successfully',
+			duration: 3000,
+		});
 	}, [stepManager]);
 
 	// Step result management

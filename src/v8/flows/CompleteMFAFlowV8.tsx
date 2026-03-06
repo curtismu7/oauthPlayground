@@ -12,6 +12,7 @@
 import { FiAlertTriangle, FiArrowLeft, FiArrowRight, FiCheckCircle } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { MFAErrorBoundary } from '@/v8/components/MFAErrorBoundary';
 // V8 UI Components
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
@@ -22,13 +23,11 @@ import type { DeviceConfigKey } from '@/v8/config/deviceFlowConfigTypes';
 import { GlobalMFAProvider } from '@/v8/contexts/GlobalMFAContext';
 // V8 Contexts
 import { MFACredentialProvider } from '@/v8/contexts/MFACredentialContext';
-
 // V8 Hooks
 import { useWorkerToken } from '@/v8/hooks/useWorkerToken';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 // V8 Services
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 // Extended credentials interface for the complete MFA flow
 interface CompleteMfaCredentials {
@@ -164,7 +163,12 @@ const CompleteMFAFlowV8: React.FC<CompleteMFAFlowV8Props> = ({
 				isLoading: false,
 			}));
 			onFlowError?.(error, context);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: error,
+				dismissible: true,
+			});
 		},
 		[onFlowError]
 	);
@@ -189,7 +193,11 @@ const CompleteMFAFlowV8: React.FC<CompleteMFAFlowV8Props> = ({
 				currentStep: 'device_pairing',
 			}));
 
-			modernMessaging.showFooterMessage({ type: 'info', message: 'MFA configuration loaded', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'MFA configuration loaded',
+				duration: 3000,
+			});
 		} catch (error) {
 			handleError('Failed to load MFA configuration', { error });
 		}
@@ -215,7 +223,11 @@ const CompleteMFAFlowV8: React.FC<CompleteMFAFlowV8Props> = ({
 				currentStep: 'mfa_challenge',
 			}));
 
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Device paired successfully', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Device paired successfully',
+				duration: 3000,
+			});
 		} catch (error) {
 			handleError('Failed to pair device', { error });
 		}
@@ -239,7 +251,11 @@ const CompleteMFAFlowV8: React.FC<CompleteMFAFlowV8Props> = ({
 				currentStep: 'completion',
 			}));
 
-			modernMessaging.showFooterMessage({ type: 'info', message: 'MFA challenge completed', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'MFA challenge completed',
+				duration: 3000,
+			});
 		} catch (error) {
 			handleError('MFA challenge failed', { error });
 		}
@@ -258,7 +274,11 @@ const CompleteMFAFlowV8: React.FC<CompleteMFAFlowV8Props> = ({
 		};
 
 		onFlowComplete?.(result);
-		modernMessaging.showFooterMessage({ type: 'info', message: 'MFA flow completed successfully', duration: 3000 });
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message: 'MFA flow completed successfully',
+			duration: 3000,
+		});
 	}, [flowState.flowData, flowState.credentials, onFlowComplete]);
 
 	// Retry handler
@@ -271,7 +291,11 @@ const CompleteMFAFlowV8: React.FC<CompleteMFAFlowV8Props> = ({
 				isLoading: false,
 			}));
 
-			modernMessaging.showFooterMessage({ type: 'info', message: `Retrying... Attempt ${flowState.retryCount + 1} of ${maxRetries}`, duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: `Retrying... Attempt ${flowState.retryCount + 1} of ${maxRetries}`,
+				duration: 3000,
+			});
 		} else {
 			handleError('Maximum retry attempts exceeded');
 		}
@@ -335,7 +359,11 @@ const CompleteMFAFlowV8: React.FC<CompleteMFAFlowV8Props> = ({
 										...prev,
 										currentStep: 'mfa_enrollment',
 									}));
-									modernMessaging.showFooterMessage({ type: 'info', message: 'User credentials saved successfully', duration: 3000 });
+									modernMessaging.showFooterMessage({
+										type: 'info',
+										message: 'User credentials saved successfully',
+										duration: 3000,
+									});
 								}}
 								environmentId={flowState.credentials.environmentId || ''}
 							/>

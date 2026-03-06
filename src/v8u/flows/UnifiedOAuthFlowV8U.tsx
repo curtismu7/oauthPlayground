@@ -24,6 +24,7 @@ import {
 	generateCompletePostmanCollection,
 	generateComprehensiveUnifiedPostmanCollection,
 } from '@/services/postmanCollectionGeneratorV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { ShowTokenConfigCheckboxV8 } from '@/v8/components/ShowTokenConfigCheckboxV8';
 import { SilentApiConfigCheckboxV8 } from '@/v8/components/SilentApiConfigCheckboxV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
@@ -48,7 +49,6 @@ import {
 	type TokenStatusInfo,
 	WorkerTokenStatusServiceV8,
 } from '@/v8/services/workerTokenStatusServiceV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { reloadCredentialsAfterReset } from '@/v8u/services/credentialReloadServiceV8U';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 import { AdvancedOAuthFeatures } from '../components/AdvancedOAuthFeatures';
@@ -1517,13 +1517,27 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				// Update last saved reference to prevent duplicate saves
 				lastSavedCredsRef.current = JSON.stringify(credentials);
 
-				modernMessaging.showFooterMessage({ type: 'info', message: 'Credentials saved', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: 'Credentials saved',
+					duration: 3000,
+				});
 			} else {
-				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'No credentials to save', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'warning',
+					title: 'Warning',
+					message: 'No credentials to save',
+					dismissible: true,
+				});
 			}
 		} catch (error) {
 			logger.error(`Error manually saving credentials:`, error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Credentials save', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Credentials save',
+				dismissible: true,
+			});
 		}
 	}, [credentials, flowKey]);
 
@@ -1535,7 +1549,11 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		if (currentStep < totalSteps - 1) {
 			navigateToStep(currentStep + 1);
 		} else {
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Already on the last step', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Already on the last step',
+				duration: 3000,
+			});
 		}
 	}, [currentStep, getTotalSteps, navigateToStep]);
 
@@ -1659,7 +1677,12 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				logger.error(`❌ No compatible spec version found for flow type`, {
 					newFlowType,
 				});
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `${newFlowType} flow is not supported. Please select a different flow type.`, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: `${newFlowType} flow is not supported. Please select a different flow type.`,
+					dismissible: true,
+				});
 				return;
 			}
 		}
@@ -1971,7 +1994,12 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 								filename,
 								'PingOne Unified Flows Environment'
 							);
-							modernMessaging.showFooterMessage({ type: 'info', message: 'Postman collection and environment downloaded! Import both into Postman to test all Unified flows.', duration: 3000 });
+							modernMessaging.showFooterMessage({
+								type: 'info',
+								message:
+									'Postman collection and environment downloaded! Import both into Postman to test all Unified flows.',
+								duration: 3000,
+							});
 						}}
 						style={{
 							display: 'flex',
@@ -2027,7 +2055,12 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 								filename,
 								'PingOne Complete Collection Environment'
 							);
-							modernMessaging.showFooterMessage({ type: 'info', message: 'Complete Postman collection (Unified + MFA) downloaded! Import both files into Postman.', duration: 3000 });
+							modernMessaging.showFooterMessage({
+								type: 'info',
+								message:
+									'Complete Postman collection (Unified + MFA) downloaded! Import both files into Postman.',
+								duration: 3000,
+							});
 						}}
 						style={{
 							display: 'flex',

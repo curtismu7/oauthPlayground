@@ -63,7 +63,12 @@ export const useCredentialSync = (options: UseCredentialSyncOptions): UseCredent
 						: 'none',
 				});
 			} catch (error) {
-				logger.error('useCredentialSync', `[useCredentialSync:${flowKey}] Failed to load initial credentials`, undefined, error as Error);
+				logger.error(
+					'useCredentialSync',
+					`[useCredentialSync:${flowKey}] Failed to load initial credentials`,
+					undefined,
+					error as Error
+				);
 			} finally {
 				setIsLoading(false);
 			}
@@ -110,7 +115,12 @@ export const useCredentialSync = (options: UseCredentialSyncOptions): UseCredent
 					onCredentialsChanged(refreshedCredentials);
 				}
 			} catch (error) {
-				logger.error('useCredentialSync', `[useCredentialSync:${flowKey}] Failed to refresh credentials`, undefined, error as Error);
+				logger.error(
+					'useCredentialSync',
+					`[useCredentialSync:${flowKey}] Failed to refresh credentials`,
+					undefined,
+					error as Error
+				);
 			} finally {
 				setIsLoading(false);
 			}
@@ -148,7 +158,12 @@ export const useCredentialSync = (options: UseCredentialSyncOptions): UseCredent
 				onCredentialsChanged(refreshedCredentials);
 			}
 		} catch (error) {
-			logger.error('useCredentialSync', `[useCredentialSync:${flowKey}] Manual refresh failed`, undefined, error as Error);
+			logger.error(
+				'useCredentialSync',
+				`[useCredentialSync:${flowKey}] Manual refresh failed`,
+				undefined,
+				error as Error
+			);
 		} finally {
 			setIsLoading(false);
 		}

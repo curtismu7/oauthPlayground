@@ -9,8 +9,8 @@
  * and guaranteed success messages regardless of authentication method
  */
 
-import { hasPingOneSessionCookie } from '@/v8/services/fido2SessionCookieServiceV8';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { hasPingOneSessionCookie } from '@/v8/services/fido2SessionCookieServiceV8';
 
 const MODULE_TAG = '[🔐 PINGONE-AUTH-V8]';
 
@@ -154,16 +154,32 @@ export function checkPingOneAuthentication(): PingOneAuthResult {
 function showAuthenticationSuccess(result: PingOneAuthResult): void {
 	switch (result.method) {
 		case 'session_cookie':
-			modernMessaging.showFooterMessage({ type: 'info', message: '🔐 PingOne session detected! You are authenticated.', duration: 5000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: '🔐 PingOne session detected! You are authenticated.',
+				duration: 5000,
+			});
 			break;
 		case 'oauth_flow':
-			modernMessaging.showFooterMessage({ type: 'info', message: '✅ PingOne OAuth authentication successful!', duration: 5000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: '✅ PingOne OAuth authentication successful!',
+				duration: 5000,
+			});
 			break;
 		case 'implicit':
-			modernMessaging.showFooterMessage({ type: 'info', message: '🎉 PingOne implicit authentication successful!', duration: 5000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: '🎉 PingOne implicit authentication successful!',
+				duration: 5000,
+			});
 			break;
 		default:
-			modernMessaging.showFooterMessage({ type: 'info', message: '🔓 PingOne authentication completed!', duration: 5000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: '🔓 PingOne authentication completed!',
+				duration: 5000,
+			});
 			break;
 	}
 

@@ -2,8 +2,8 @@
 // Resource Owner Password Credentials Flow state management and logic
 
 import { useCallback, useState } from 'react';
-import { safeSessionStorageParse } from '../utils/secureJson';
 import { logger } from '../utils/logger';
+import { safeSessionStorageParse } from '../utils/secureJson';
 
 export interface ResourceOwnerPasswordConfig {
 	environmentId: string;
@@ -125,7 +125,12 @@ export const useResourceOwnerPasswordFlowController =
 				const errorMessage =
 					err instanceof Error ? err.message : 'Resource Owner Password token request failed';
 				setError(errorMessage);
-				logger.error('useResourceOwnerPasswordFlowController', `Resource Owner Password token request failed`, undefined, err as Error);
+				logger.error(
+					'useResourceOwnerPasswordFlowController',
+					`Resource Owner Password token request failed`,
+					undefined,
+					err as Error
+				);
 				throw err;
 			} finally {
 				setIsRequesting(false);
@@ -144,7 +149,12 @@ export const useResourceOwnerPasswordFlowController =
 
 				console.log(`${LOG_PREFIX} [SUCCESS] Credentials saved successfully`);
 			} catch (error) {
-				logger.error('useResourceOwnerPasswordFlowController', `Failed to save credentials`, undefined, error as Error);
+				logger.error(
+					'useResourceOwnerPasswordFlowController',
+					`Failed to save credentials`,
+					undefined,
+					error as Error
+				);
 				throw error;
 			}
 		}, [credentials]);

@@ -588,9 +588,7 @@ export const ImplicitFlowV8: React.FC = () => {
 							marginBottom: '1rem',
 						}}
 					>
-						<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>
-							Achievements:
-						</h4>
+						<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>Achievements:</h4>
 						<ul style={{ margin: '0', paddingLeft: '1.5rem', color: '#4b5563' }}>
 							<li>✅ Authorization URL generated successfully</li>
 							<li>✅ User authentication completed</li>
@@ -605,14 +603,21 @@ export const ImplicitFlowV8: React.FC = () => {
 							padding: '1rem',
 						}}
 					>
-						<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>
-							Token Summary:
-						</h4>
+						<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>Token Summary:</h4>
 						<div style={{ fontSize: '0.875rem', color: '#4b5563' }}>
-							<p><strong>Access Token:</strong> {flowState.accessToken ? '✅ Obtained' : '❌ Missing'}</p>
-							<p><strong>ID Token:</strong> {flowState.idToken ? '✅ Obtained' : '❌ Missing'}</p>
-							<p><strong>State Parameter:</strong> {flowState.state ? '✅ Verified' : '❌ Missing'}</p>
-							<p><strong>Flow Type:</strong> OAuth 2.0 Implicit Flow</p>
+							<p>
+								<strong>Access Token:</strong>{' '}
+								{flowState.accessToken ? '✅ Obtained' : '❌ Missing'}
+							</p>
+							<p>
+								<strong>ID Token:</strong> {flowState.idToken ? '✅ Obtained' : '❌ Missing'}
+							</p>
+							<p>
+								<strong>State Parameter:</strong> {flowState.state ? '✅ Verified' : '❌ Missing'}
+							</p>
+							<p>
+								<strong>Flow Type:</strong> OAuth 2.0 Implicit Flow
+							</p>
 						</div>
 					</div>
 				</div>

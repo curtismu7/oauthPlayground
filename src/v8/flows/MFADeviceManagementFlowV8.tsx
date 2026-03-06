@@ -19,6 +19,7 @@ import React, { useEffect, useState } from 'react';
 import { usePageScroll } from '@/hooks/usePageScroll';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { MFADeviceManagerV8 } from '@/v8/components/MFADeviceManagerV8';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
@@ -29,7 +30,6 @@ import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { ButtonSpinner } from '../../components/ui/ButtonSpinner';
 
 const MODULE_TAG = '[🔧 DEVICE-MGMT-FLOW-V8]';
@@ -291,7 +291,11 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 				window.dispatchEvent(new Event('workerTokenUpdated'));
 				// Force re-render to get updated token status from unified service
 				setShowWorkerTokenModal((prev) => !prev);
-				modernMessaging.showFooterMessage({ type: 'info', message: 'Worker token removed', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: 'Worker token removed',
+					duration: 3000,
+				});
 			}
 		} else {
 			// User explicitly clicked the button - always show modal
@@ -311,20 +315,39 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 		window.dispatchEvent(new Event('workerTokenUpdated'));
 		// Force re-render to get updated token status from unified service
 		setShowWorkerTokenModal((prev) => !prev);
-		modernMessaging.showFooterMessage({ type: 'info', message: 'Worker token generated and saved!', duration: 3000 });
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message: 'Worker token generated and saved!',
+			duration: 3000,
+		});
 	};
 
 	const handleLoadDevices = () => {
 		if (!credentials.environmentId?.trim()) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Environment ID is required', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Environment ID is required',
+				dismissible: true,
+			});
 			return;
 		}
 		if (!credentials.username?.trim()) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Username is required', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Username is required',
+				dismissible: true,
+			});
 			return;
 		}
 		if (!tokenStatus?.isValid) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Worker token is required', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Worker token is required',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -464,7 +487,11 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 													detail: { workerToken: config.workerToken },
 												})
 											);
-											modernMessaging.showFooterMessage({ type: 'info', message: `Silent API Token Retrieval set to: ${newValue}`, duration: 3000 });
+											modernMessaging.showFooterMessage({
+												type: 'info',
+												message: `Silent API Token Retrieval set to: ${newValue}`,
+												duration: 3000,
+											});
 
 											// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 											if (newValue) {
@@ -541,7 +568,11 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 													detail: { workerToken: config.workerToken },
 												})
 											);
-											modernMessaging.showFooterMessage({ type: 'info', message: `Show Token After Generation set to: ${newValue}`, duration: 3000 });
+											modernMessaging.showFooterMessage({
+												type: 'info',
+												message: `Show Token After Generation set to: ${newValue}`,
+												duration: 3000,
+											});
 										}}
 										style={{
 											width: '20px',

@@ -8,12 +8,12 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
 import {
 	AppDiscoveryServiceV8,
 	type DiscoveredApplication,
 } from '@/v8/services/appDiscoveryServiceV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const MODULE_TAG = '[🔍 APP-DISCOVERY-MODAL-V8U]';
 
@@ -69,12 +69,22 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 	// Memoized handleDiscover to prevent infinite loops
 	const handleDiscover = useCallback(async () => {
 		if (!environmentId.trim()) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter an Environment ID first', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please enter an Environment ID first',
+				dismissible: true,
+			});
 			return;
 		}
 
 		if (!globalTokenStatus.isValid) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: globalTokenStatus.message, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: globalTokenStatus.message,
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -83,7 +93,12 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 		try {
 			// Worker token is now managed by unified service
 			if (!hasWorkerToken) {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Worker token required - please generate one first', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'Worker token required - please generate one first',
+					dismissible: true,
+				});
 				return;
 			}
 
@@ -99,7 +114,12 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 					token: workerToken,
 					type: typeof workerToken,
 				});
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Worker token required - please generate one first', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'Worker token required - please generate one first',
+					dismissible: true,
+				});
 				setIsLoading(false);
 				return;
 			}
@@ -122,13 +142,27 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 					})
 				);
 				setApps(mappedApps);
-				modernMessaging.showFooterMessage({ type: 'info', message: `Found ${mappedApps.length} application(s)`, duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: `Found ${mappedApps.length} application(s)`,
+					duration: 3000,
+				});
 			} else {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'No applications found in this environment', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'No applications found in this environment',
+					dismissible: true,
+				});
 			}
 		} catch (error) {
 			console.error(`${MODULE_TAG} Discovery error`, error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to discover applications - check worker token', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to discover applications - check worker token',
+				dismissible: true,
+			});
 		} finally {
 			setIsLoading(false);
 		}
@@ -147,13 +181,23 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 
 	const handleApplyToCredentials = () => {
 		if (!selectedAppId) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please select an application first', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please select an application first',
+				dismissible: true,
+			});
 			return;
 		}
 
 		const selectedApp = apps.find((app) => app.id === selectedAppId);
 		if (!selectedApp) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Selected application not found', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Selected application not found',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -192,7 +236,11 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 			onAppSelected(selectedApp);
 		}
 
-		modernMessaging.showFooterMessage({ type: 'info', message: `Applied settings from ${selectedApp.name}`, duration: 3000 });
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message: `Applied settings from ${selectedApp.name}`,
+			duration: 3000,
+		});
 		onClose();
 	};
 

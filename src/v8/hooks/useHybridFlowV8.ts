@@ -21,6 +21,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useProductionSpinner } from '@/hooks/useProductionSpinner';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import type {
 	HybridAuthorizationUrlParams,
@@ -28,7 +29,6 @@ import type {
 	TokenResponse,
 } from '@/v8/services/hybridFlowIntegrationServiceV8';
 import { HybridFlowIntegrationServiceV8 } from '@/v8/services/hybridFlowIntegrationServiceV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 export interface HybridFlowState {
 	// Flow configuration
@@ -99,7 +99,12 @@ export const useHybridFlowV8 = (options: UseHybridFlowV8Options = {}) => {
 			setState((prev) => ({ ...prev, credentials: credentials as HybridFlowCredentials }));
 		} catch (error) {
 			console.error('[HybridFlowV8] Failed to load credentials:', error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to load credentials', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to load credentials',
+				dismissible: true,
+			});
 		}
 	}, []);
 
@@ -110,7 +115,12 @@ export const useHybridFlowV8 = (options: UseHybridFlowV8Options = {}) => {
 			setState((prev) => ({ ...prev, credentials }));
 		} catch (error) {
 			console.error('[HybridFlowV8] Failed to save credentials:', error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save credentials', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to save credentials',
+				dismissible: true,
+			});
 		}
 	}, []);
 
@@ -137,7 +147,12 @@ export const useHybridFlowV8 = (options: UseHybridFlowV8Options = {}) => {
 			return pkceCodes;
 		} catch (error) {
 			console.error('[HybridFlowV8] Failed to generate PKCE:', error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to generate PKCE codes', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to generate PKCE codes',
+				dismissible: true,
+			});
 			throw error;
 		}
 	}, []);
@@ -147,7 +162,12 @@ export const useHybridFlowV8 = (options: UseHybridFlowV8Options = {}) => {
 		async (credentials?: HybridFlowCredentials) => {
 			const creds = credentials || state.credentials;
 			if (!creds) {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Credentials required to generate authorization URL', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'Credentials required to generate authorization URL',
+					dismissible: true,
+				});
 				return null;
 			}
 
@@ -177,14 +197,23 @@ export const useHybridFlowV8 = (options: UseHybridFlowV8Options = {}) => {
 					currentStep: 1,
 				}));
 
-				modernMessaging.showFooterMessage({ type: 'info', message: 'Authorization URL generated successfully', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: 'Authorization URL generated successfully',
+					duration: 3000,
+				});
 				return authParams;
 			} catch (error) {
 				console.error('[HybridFlowV8] Failed to generate authorization URL:', error);
 				const errorMessage =
 					error instanceof Error ? error.message : 'Failed to generate authorization URL';
 				setState((prev) => ({ ...prev, error: errorMessage, isLoading: false }));
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: errorMessage,
+					dismissible: true,
+				});
 				throw error;
 			}
 		},
@@ -195,7 +224,12 @@ export const useHybridFlowV8 = (options: UseHybridFlowV8Options = {}) => {
 	const exchangeCodeForTokens = useCallback(
 		async (code: string) => {
 			if (!state.credentials || !state.pkceCodes) {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Credentials and PKCE codes required for token exchange', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'Credentials and PKCE codes required for token exchange',
+					dismissible: true,
+				});
 				return null;
 			}
 
@@ -215,14 +249,23 @@ export const useHybridFlowV8 = (options: UseHybridFlowV8Options = {}) => {
 					currentStep: 2,
 				}));
 
-				modernMessaging.showFooterMessage({ type: 'info', message: 'Authorization code exchanged successfully', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: 'Authorization code exchanged successfully',
+					duration: 3000,
+				});
 				return tokens;
 			} catch (error) {
 				console.error('[HybridFlowV8] Failed to exchange code:', error);
 				const errorMessage =
 					error instanceof Error ? error.message : 'Failed to exchange authorization code';
 				setState((prev) => ({ ...prev, error: errorMessage, isLoading: false }));
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: errorMessage,
+					dismissible: true,
+				});
 				throw error;
 			}
 		},
@@ -256,11 +299,20 @@ export const useHybridFlowV8 = (options: UseHybridFlowV8Options = {}) => {
 					currentStep: 2,
 				}));
 
-				modernMessaging.showFooterMessage({ type: 'info', message: 'Implicit tokens received from URL fragment', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: 'Implicit tokens received from URL fragment',
+					duration: 3000,
+				});
 			}
 		} catch (error) {
 			console.error('[HybridFlowV8] Failed to process URL fragment:', error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to process URL fragment', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to process URL fragment',
+				dismissible: true,
+			});
 		}
 	}, []);
 
@@ -299,7 +351,12 @@ export const useHybridFlowV8 = (options: UseHybridFlowV8Options = {}) => {
 	// Navigate to authorization URL
 	const redirectToAuthorization = useCallback(() => {
 		if (!state.authorizationUrl) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'No authorization URL available', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'No authorization URL available',
+				dismissible: true,
+			});
 			return;
 		}
 

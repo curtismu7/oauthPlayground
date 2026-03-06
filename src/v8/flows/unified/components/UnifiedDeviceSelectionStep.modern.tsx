@@ -8,6 +8,7 @@
 
 import { FiArrowRight, FiCheck, FiKey, FiMail, FiPlus, FiSmartphone } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { Button } from '@/v8/components/Button';
 import { EmptyState } from '@/v8/components/EmptyState';
 import { LoadingSpinner } from '@/v8/components/LoadingSpinner';
@@ -17,7 +18,6 @@ import { useGlobalMFA } from '@/v8/contexts/GlobalMFAContext';
 import { borderRadius, colors, spacing, typography } from '@/v8/design/tokens';
 import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
 import { unifiedFlowServiceIntegration } from '@/v8/flows/unified/services/unifiedFlowServiceIntegration';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const MODULE_TAG = '[🔍 DEVICE-SELECTION-MODERN]';
 
@@ -63,12 +63,21 @@ export const UnifiedDeviceSelectionStepModern: React.FC<UnifiedDeviceSelectionSt
 			setExistingDevices(devices as unknown as ExistingDevice[]);
 
 			if (devices.length === 0) {
-				modernMessaging.showFooterMessage({ type: 'info', message: `No existing ${config.displayName} devices found`, duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: `No existing ${config.displayName} devices found`,
+					duration: 3000,
+				});
 			}
 		} catch (error: unknown) {
 			const errorMsg = error instanceof Error ? error.message : 'Failed to load devices';
 			setLoadError(errorMsg);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMsg, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: errorMsg,
+				dismissible: true,
+			});
 		} finally {
 			setIsLoading(false);
 		}
@@ -84,7 +93,12 @@ export const UnifiedDeviceSelectionStepModern: React.FC<UnifiedDeviceSelectionSt
 
 	const handleUseDevice = useCallback(() => {
 		if (!selectedDeviceId) {
-			modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Please select a device', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'warning',
+				title: 'Warning',
+				message: 'Please select a device',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -99,7 +113,11 @@ export const UnifiedDeviceSelectionStepModern: React.FC<UnifiedDeviceSelectionSt
 
 		nav.markStepComplete();
 		nav.goToStep(3); // Skip to activation
-		modernMessaging.showFooterMessage({ type: 'info', message: `Using ${device.name || config.displayName}`, duration: 3000 });
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message: `Using ${device.name || config.displayName}`,
+			duration: 3000,
+		});
 	}, [selectedDeviceId, existingDevices, config, setMfaState, nav]);
 
 	const handleRegisterNew = useCallback(() => {
