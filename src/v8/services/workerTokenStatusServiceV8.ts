@@ -169,7 +169,7 @@ export const getStatusIcon = (status: TokenStatus): string => {
  * @example
  * const warning = await getExpirationWarning(10);
  * if (warning.isExpiringSoon) {
- *   toastV8.warn(warning.message);
+ *   modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: warning.message, dismissible: true });
  * }
  */
 export const getExpirationWarning = async (

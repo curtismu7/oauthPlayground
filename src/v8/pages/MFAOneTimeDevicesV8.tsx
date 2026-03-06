@@ -9,7 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { MFACredentials } from '@/v8/services/mfaServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const _MODULE_TAG = '[📱 MFA-ONE-TIME-V8]';
 
@@ -58,7 +58,7 @@ export default function MFAOneTimeDevicesV8() {
 
 	const handleSendOTP = async () => {
 		if (!deviceState.deviceType || !deviceState.contactValue) {
-			toastV8.error('Please select device type and enter contact information');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please select device type and enter contact information', dismissible: true });
 			return;
 		}
 
@@ -92,19 +92,17 @@ export default function MFAOneTimeDevicesV8() {
 				loading: false,
 			}));
 
-			toastV8.success(
-				`OTP sent to ${maskContact(deviceState.deviceType, deviceState.contactValue)}`
-			);
+			modernMessaging.showFooterMessage({ type: 'info', message: `OTP sent to ${maskContact(deviceState.deviceType, deviceState.contactValue)}`, duration: 3000 });
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Failed to send OTP';
 			setDeviceState((prev) => ({ ...prev, loading: false, error: errorMessage }));
-			toastV8.error(errorMessage);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
 		}
 	};
 
 	const handleValidateOTP = async () => {
 		if (!deviceState.otpCode || !deviceState.deviceAuthId) {
-			toastV8.error('Please enter the OTP code');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter the OTP code', dismissible: true });
 			return;
 		}
 
@@ -122,7 +120,7 @@ export default function MFAOneTimeDevicesV8() {
 			});
 
 			if (result.valid) {
-				toastV8.success('OTP validated successfully! One-time MFA completed.');
+				modernMessaging.showFooterMessage({ type: 'info', message: 'OTP validated successfully! One-time MFA completed.', duration: 3000 });
 				// Reset state for new attempt
 				setDeviceState({
 					deviceType: null,
@@ -142,7 +140,7 @@ export default function MFAOneTimeDevicesV8() {
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Failed to validate OTP';
 			setDeviceState((prev) => ({ ...prev, loading: false, error: errorMessage }));
-			toastV8.error(errorMessage);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
 		}
 	};
 
