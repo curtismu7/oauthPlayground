@@ -17,6 +17,7 @@ import { FlowResetServiceV8 } from '@/v8/services/flowResetServiceV8';
 import { ImplicitFlowIntegrationServiceV8 } from '@/v8/services/implicitFlowIntegrationServiceV8';
 import { RedirectlessServiceV8 } from '@/v8/services/redirectlessServiceV8';
 import { StandardModalSpinner, useStandardSpinner } from '../../components/ui/StandardSpinner';
+import { logger } from '../../utils/logger';
 import { PingOneAppConfigForm } from '../components/PingOneAppConfigForm';
 import { usePingOneAppConfig } from '../hooks/usePingOneAppConfig';
 import { ValidationServiceV8 } from '../services/validationServiceV8';
@@ -67,10 +68,10 @@ interface ImplicitFlowState {
 }
 
 export const ImplicitFlowV8: React.FC = () => {
-	console.log(`${MODULE_TAG} Initializing flow`);
+	logger.debug('ImplicitFlowV8', 'Initializing flow');
 
 	const nav = useStepNavigationV8(4, {
-		onStepChange: (step) => console.log(`${MODULE_TAG} Step changed to`, { step }),
+		onStepChange: (step) => logger.debug('ImplicitFlowV8', 'Step changed to', { step }),
 	});
 
 	const [credentials, setCredentials] = useState<Credentials>(() => {
@@ -134,7 +135,7 @@ export const ImplicitFlowV8: React.FC = () => {
 	useEffect(() => {
 		const fragment = window.location.hash.substring(1);
 		if (fragment?.includes('access_token')) {
-			console.log(`${MODULE_TAG} Tokens found in URL fragment`);
+			logger.debug('ImplicitFlowV8', 'Tokens found in URL fragment');
 			const params = new URLSearchParams(fragment);
 			const accessToken = params.get('access_token');
 			if (accessToken) {
@@ -246,10 +247,10 @@ export const ImplicitFlowV8: React.FC = () => {
 
 					await spinner.executeWithSpinner(
 						async () => {
-							console.log(
-								`${MODULE_TAG} ${useRedirectless ? 'Starting redirectless flow' : 'Generating authorization URL'}`
+							logger.debug(
+								'ImplicitFlowV8',
+								useRedirectless ? 'Starting redirectless flow' : 'Generating authorization URL'
 							);
-
 							if (!credentials.redirectUri) {
 								nav.setValidationErrors(['Redirect URI is required']);
 								throw new Error('Redirect URI is required');
@@ -280,7 +281,7 @@ export const ImplicitFlowV8: React.FC = () => {
 									username: redirectlessCredentials.username,
 									password: redirectlessCredentials.password,
 									onTokensReceived: (tokens) => {
-										console.log(`${MODULE_TAG} Received tokens via redirectless`, {
+										logger.debug('ImplicitFlowV8', 'Received tokens via redirectless', {
 											accessToken: tokens.accessToken,
 											idToken: tokens.idToken,
 										});
@@ -325,7 +326,12 @@ export const ImplicitFlowV8: React.FC = () => {
 						},
 						{
 							onError: (error) => {
-								console.error(`${MODULE_TAG} Error in step 1`, error);
+								logger.error(
+									'ImplicitFlowV8',
+									'Error in step 1',
+									undefined,
+									error instanceof Error ? error : new Error(String(error))
+								);
 								nav.setValidationErrors([
 									`Failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
 								]);
@@ -347,7 +353,7 @@ export const ImplicitFlowV8: React.FC = () => {
 						loading={false}
 						onClick={() => {
 							navigator.clipboard.writeText(flowState.authorizationUrl);
-							console.log(`${MODULE_TAG} URL copied to clipboard`);
+							logger.debug('ImplicitFlowV8', 'URL copied to clipboard');
 						}}
 						spinnerSize={12}
 						spinnerPosition="left"
@@ -401,7 +407,7 @@ export const ImplicitFlowV8: React.FC = () => {
 			<ButtonSpinner
 				loading={false}
 				onClick={() => {
-					console.log(`${MODULE_TAG} Parsing callback URL`);
+					logger.debug('ImplicitFlowV8', 'Parsing callback URL');
 					try {
 						const fragment = flowState.authorizationUrl.split('#')[1];
 						if (!fragment) {
@@ -430,7 +436,12 @@ export const ImplicitFlowV8: React.FC = () => {
 						});
 						nav.markStepComplete();
 					} catch (error) {
-						console.error(`${MODULE_TAG} Error parsing callback URL`, error);
+						logger.error(
+							'ImplicitFlowV8',
+							'Error parsing callback URL',
+							undefined,
+							error instanceof Error ? error : new Error(String(error))
+						);
 						nav.setValidationErrors([
 							`Failed to parse callback URL: ${error instanceof Error ? error.message : 'Unknown error'}`,
 						]);
@@ -461,7 +472,7 @@ export const ImplicitFlowV8: React.FC = () => {
 								loading={false}
 								onClick={() => {
 									navigator.clipboard.writeText(flowState.accessToken);
-									console.log(`${MODULE_TAG} Token copied to clipboard`);
+									logger.debug('ImplicitFlowV8', 'Token copied to clipboard');
 								}}
 								spinnerSize={12}
 								spinnerPosition="left"
@@ -477,11 +488,13 @@ export const ImplicitFlowV8: React.FC = () => {
 										const decoded = ImplicitFlowIntegrationServiceV8.decodeToken(
 											flowState.accessToken
 										);
-										console.log(`${MODULE_TAG} Decoded token:`, decoded.payload);
+										logger.debug('ImplicitFlowV8', 'Decoded token:', decoded.payload);
 									} catch (error) {
-										console.error(
-											`${MODULE_TAG} Error decoding token:`,
-											error instanceof Error ? error.message : 'Unknown error'
+										logger.error(
+											'ImplicitFlowV8',
+											'Error decoding token',
+											undefined,
+											error instanceof Error ? error : new Error(String(error))
 										);
 									}
 								}}
@@ -507,7 +520,7 @@ export const ImplicitFlowV8: React.FC = () => {
 									loading={false}
 									onClick={() => {
 										navigator.clipboard.writeText(flowState.idToken || '');
-										console.log(`${MODULE_TAG} Token copied to clipboard`);
+										logger.debug('ImplicitFlowV8', 'Token copied to clipboard');
 									}}
 									spinnerSize={12}
 									spinnerPosition="left"
@@ -523,11 +536,13 @@ export const ImplicitFlowV8: React.FC = () => {
 											const decoded = ImplicitFlowIntegrationServiceV8.decodeToken(
 												flowState.idToken || ''
 											);
-											console.log(`${MODULE_TAG} Decoded token:`, decoded.payload);
+											logger.debug('ImplicitFlowV8', 'Decoded token:', decoded.payload);
 										} catch (error) {
-											console.error(
-												`${MODULE_TAG} Error decoding token:`,
-												error instanceof Error ? error.message : 'Unknown error'
+											logger.error(
+												'ImplicitFlowV8',
+												'Error decoding token',
+												undefined,
+												error instanceof Error ? error : new Error(String(error))
 											);
 										}
 									}}
@@ -629,7 +644,7 @@ export const ImplicitFlowV8: React.FC = () => {
 						onPrevious={nav.goToPrevious}
 						onNext={nav.goToNext}
 						onFinal={() => {
-							console.log(`${MODULE_TAG} Starting new flow`);
+							logger.debug('ImplicitFlowV8', 'Starting new flow');
 							nav.reset();
 							setCredentials(CredentialsServiceV8.getSmartDefaults('implicit-flow-v8'));
 							setFlowState({
@@ -648,7 +663,7 @@ export const ImplicitFlowV8: React.FC = () => {
 					<ButtonSpinner
 						loading={false}
 						onClick={() => {
-							console.log(`${MODULE_TAG} Resetting flow`);
+							logger.debug('ImplicitFlowV8', 'Resetting flow');
 							FlowResetServiceV8.resetFlow('implicit-flow-v8');
 							// Reload credentials from storage (preserves credentials)
 							const reloaded = CredentialsServiceV8.loadCredentials('implicit-flow-v8', {
