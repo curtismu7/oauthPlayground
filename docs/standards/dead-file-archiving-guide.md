@@ -67,7 +67,8 @@ find src/ -name "*.ts" -o -name "*.tsx" | xargs grep -l "FileName" 2>/dev/null
 2. **No Dynamic Loading**: No dynamic import() statements
 3. **No Configuration Loading**: Not loaded via configuration
 4. **Duplicate Functionality**: Active files provide same functionality
-5. **Migration Complete**: Any necessary migrations completed first
+5. **Migration Complete**: Any necessary migrations completed
+6. **Logging Preserved**: Important logging patterns documented before archival
 
 ### ❌ Don't Archive When:
 1. **Active References**: Files are imported or referenced
@@ -75,6 +76,7 @@ find src/ -name "*.ts" -o -name "*.tsx" | xargs grep -l "FileName" 2>/dev/null
 3. **Configuration Based**: Loaded through configuration
 4. **Unique Functionality**: Provides features not available elsewhere
 5. **Migration Incomplete**: Required migrations not completed
+6. **Critical Logging**: Contains unique logging patterns needed for reference
 
 ## 🔄 Archival Process
 

@@ -6,12 +6,12 @@ import {
 	modernMessaging,
 	V9ModernMessagingProvider,
 } from '../../../components/v9/V9ModernMessagingComponents';
+import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import { V9FlowRestartButton } from '../../../services/v9/V9FlowRestartButton';
 import { V9ModernMessagingService } from '../../../services/v9/V9ModernMessagingService';
 import V9FlowHeader from '../../../services/v9/v9FlowHeaderService';
-import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
-import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
+import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 
 // Built-in copy function to replace CopyButtonService
 const copyToClipboard = async (text: string): Promise<void> => {
@@ -139,16 +139,13 @@ const JWTBearerTokenFlowV9: React.FC = () => {
 		});
 	}, []);
 
-	const saveJwtCredentials = useCallback(
-		(cId: string, envId: string) => {
-			V9CredentialStorageService.save(
-				'v9:jwt-bearer',
-				{ clientId: cId, environmentId: envId },
-				envId ? { environmentId: envId } : {}
-			);
-		},
-		[]
-	);
+	const saveJwtCredentials = useCallback((cId: string, envId: string) => {
+		V9CredentialStorageService.save(
+			'v9:jwt-bearer',
+			{ clientId: cId, environmentId: envId },
+			envId ? { environmentId: envId } : {}
+		);
+	}, []);
 
 	const handleJwtAppSelected = useCallback(
 		(app: DiscoveredApp) => {
