@@ -422,62 +422,6 @@ const CountdownTimer = styled.div`
 	margin: 1rem 0;
 `;
 
-const _SmartTVContainer = styled.div`
-	display: flex;
-	flex-direction: column;
-	gap: 2rem;
-	margin: 2rem 0;
-`;
-
-const _SmartTV = styled.div<{
-	$isWaiting: boolean;
-	$accentStart: string;
-	$accentEnd: string;
-}>`
-	width: 100%;
-	max-width: 900px;
-	margin: 0 auto;
-	background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-	border-radius: 1rem;
-	padding: 2rem;
-	color: #ffffff;
-	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-	position: relative;
-	overflow: visible;
-	border: 12px solid #0f172a;
-
-	&::before {
-		content: '';
-		position: absolute;
-		top: 0;
-		left: 0;
-		right: 0;
-		height: 4px;
-		background: ${({ $accentStart, $accentEnd }) =>
-			`linear-gradient(90deg, ${$accentStart} 0%, ${$accentEnd} 100%)`};
-		animation: ${({ $isWaiting }) => ($isWaiting ? 'shimmer 2s infinite' : 'none')};
-		background-size: 200% 100%;
-	}
-
-	&::after {
-		content: '';
-		position: absolute;
-		bottom: -30px;
-		left: 50%;
-		transform: translateX(-50%);
-		width: 120px;
-		height: 30px;
-		background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
-		border-radius: 0 0 12px 12px;
-		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-	}
-
-	@keyframes shimmer {
-		0% { background-position: -200% 0; }
-		100% { background-position: 200% 0; }
-	}
-`;
-
 const _TVScreen = styled.div<{ $showContent?: boolean }>`
 	background: ${({ $showContent }) =>
 		$showContent ? 'linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%)' : '#000000'};
@@ -4103,7 +4047,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 			setIntrospectionApiCall(result.apiCall);
 
 			return result.response;
-		} catch (error) {
+		} catch (_error) {
 			// Construct region-aware introspection endpoint for error
 			const regionDomains: Record<string, string> = {
 				us: 'auth.pingone.com',
