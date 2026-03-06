@@ -3,6 +3,7 @@
 
 import type { CredentialStorageConfig, FlowCredentials, StorageResult } from '../types/credentials';
 import { FileStorageUtil } from '../utils/fileStorageUtil';
+import { logger } from '../utils/logger';
 
 /**
  * Extended data types that can be stored
@@ -70,14 +71,17 @@ export class CredentialStorageManager {
 	 * @returns Storage result with credentials or null
 	 */
 	async loadFlowCredentials(flowKey: string): Promise<StorageResult<FlowCredentials>> {
-		console.group(`🔍 [CredentialStorageManager] Loading credentials for: ${flowKey}`);
+		logger.debug(
+			'CredentialStorageManager',
+			`🔍 [CredentialStorageManager] Loading credentials for: ${flowKey}`
+		);
 
 		try {
 			// 1. Check memory cache first
 			if (this.config.enableMemoryCache && this.memoryCache.has(flowKey)) {
 				const cached = this.memoryCache.get(flowKey);
-				console.log(`✅ Found in memory cache`);
-				console.groupEnd();
+				logger.info('CredentialStorageManager', `✅ Found in memory cache`);
+
 				return {
 					success: true,
 					data: cached,
@@ -93,8 +97,8 @@ export class CredentialStorageManager {
 				if (this.config.enableMemoryCache) {
 					this.memoryCache.set(flowKey, browserResult.data);
 				}
-				console.log(`✅ Found in browser storage`);
-				console.groupEnd();
+				logger.info('CredentialStorageManager', `✅ Found in browser storage`);
+
 				return browserResult;
 			}
 
@@ -107,23 +111,28 @@ export class CredentialStorageManager {
 						this.memoryCache.set(flowKey, fileResult.data);
 					}
 					this.saveToBrowser(flowKey, fileResult.data);
-					console.log(`✅ Found in file storage`);
-					console.groupEnd();
+					logger.info('CredentialStorageManager', `✅ Found in file storage`);
+
 					return fileResult;
 				}
 			}
 
 			// 4. No credentials found
-			console.log(`❌ No credentials found for ${flowKey}`);
-			console.groupEnd();
+			logger.info('CredentialStorageManager', `❌ No credentials found for ${flowKey}`);
+
 			return {
 				success: false,
 				data: null,
 				source: 'none',
 			};
 		} catch (error) {
-			console.error(`❌ Error loading credentials:`, error);
-			console.groupEnd();
+			logger.error(
+				'CredentialStorageManager',
+				`❌ Error loading credentials:`,
+				undefined,
+				error as Error
+			);
+
 			return {
 				success: false,
 				data: null,
@@ -151,7 +160,10 @@ export class CredentialStorageManager {
 		flowKey: string,
 		credentials: FlowCredentials | any
 	): Promise<StorageResult<void>> {
-		console.group(`💾 [CredentialStorageManager] Saving credentials for: ${flowKey}`);
+		logger.debug(
+			'CredentialStorageManager',
+			`💾 [CredentialStorageManager] Saving credentials for: ${flowKey}`
+		);
 
 		const results = {
 			memory: false,
@@ -170,9 +182,14 @@ export class CredentialStorageManager {
 			try {
 				this.memoryCache.set(flowKey, credentialsWithMetadata);
 				results.memory = true;
-				console.log(`✅ Saved to memory cache`);
+				logger.info('CredentialStorageManager', `✅ Saved to memory cache`);
 			} catch (error) {
-				console.error(`❌ Failed to save to memory:`, error);
+				logger.error(
+					'CredentialStorageManager',
+					`❌ Failed to save to memory:`,
+					undefined,
+					error as Error
+				);
 			}
 		}
 
@@ -180,9 +197,14 @@ export class CredentialStorageManager {
 		try {
 			this.saveToBrowser(flowKey, credentialsWithMetadata);
 			results.browser = true;
-			console.log(`✅ Saved to browser storage`);
+			logger.info('CredentialStorageManager', `✅ Saved to browser storage`);
 		} catch (error) {
-			console.error(`❌ Failed to save to browser:`, error);
+			logger.error(
+				'CredentialStorageManager',
+				`❌ Failed to save to browser:`,
+				undefined,
+				error as Error
+			);
 		}
 
 		// 3. Save to file storage
@@ -190,15 +212,19 @@ export class CredentialStorageManager {
 			try {
 				await this.saveToFile(flowKey, credentialsWithMetadata);
 				results.file = true;
-				console.log(`✅ Saved to file storage`);
+				logger.info('CredentialStorageManager', `✅ Saved to file storage`);
 			} catch (error) {
-				console.error(`❌ Failed to save to file:`, error);
+				logger.error(
+					'CredentialStorageManager',
+					`❌ Failed to save to file:`,
+					undefined,
+					error as Error
+				);
 			}
 		}
 
 		const success = results.browser || results.file;
-		console.log(`📊 Save results:`, results);
-		console.groupEnd();
+		logger.info('CredentialStorageManager', `📊 Save results:`, { data: results });
 
 		return {
 			success,
@@ -214,7 +240,10 @@ export class CredentialStorageManager {
 	 * @param flowKey - Unique identifier for the flow
 	 */
 	async clearFlowCredentials(flowKey: string): Promise<void> {
-		console.log(`🗑️ [CredentialStorageManager] Clearing credentials for: ${flowKey}`);
+		logger.info(
+			'CredentialStorageManager',
+			`🗑️ [CredentialStorageManager] Clearing credentials for: ${flowKey}`
+		);
 
 		// Clear from memory
 		this.memoryCache.delete(flowKey);
@@ -223,7 +252,12 @@ export class CredentialStorageManager {
 		try {
 			localStorage.removeItem(`flow_credentials_${flowKey}`);
 		} catch (error) {
-			console.error(`❌ Failed to clear from browser:`, error);
+			logger.error(
+				'CredentialStorageManager',
+				`❌ Failed to clear from browser:`,
+				undefined,
+				error as Error
+			);
 		}
 
 		// Clear from file
@@ -231,11 +265,16 @@ export class CredentialStorageManager {
 			try {
 				await this.deleteFile(flowKey);
 			} catch (error) {
-				console.error(`❌ Failed to delete file:`, error);
+				logger.error(
+					'CredentialStorageManager',
+					`❌ Failed to delete file:`,
+					undefined,
+					error as Error
+				);
 			}
 		}
 
-		console.log(`✅ Cleared credentials for ${flowKey}`);
+		logger.info('CredentialStorageManager', `✅ Cleared credentials for ${flowKey}`);
 	}
 
 	/**
@@ -259,7 +298,12 @@ export class CredentialStorageManager {
 				}
 			}
 		} catch (error) {
-			console.error(`❌ Failed to scan browser storage:`, error);
+			logger.error(
+				'CredentialStorageManager',
+				`❌ Failed to scan browser storage:`,
+				undefined,
+				error as Error
+			);
 		}
 
 		return Array.from(keys);
@@ -269,7 +313,10 @@ export class CredentialStorageManager {
 	 * Clear all credentials (nuclear option)
 	 */
 	async clearAll(): Promise<void> {
-		console.warn(`☢️ [CredentialStorageManager] Clearing ALL credentials`);
+		logger.warn(
+			'CredentialStorageManager',
+			`☢️ [CredentialStorageManager] Clearing ALL credentials`
+		);
 
 		// Clear memory cache
 		this.memoryCache.clear();
@@ -280,7 +327,12 @@ export class CredentialStorageManager {
 			try {
 				localStorage.removeItem(`flow_credentials_${flowKey}`);
 			} catch (error) {
-				console.error(`❌ Failed to clear ${flowKey} from browser:`, error);
+				logger.error(
+					'CredentialStorageManager',
+					`❌ Failed to clear ${flowKey} from browser:`,
+					undefined,
+					error as Error
+				);
 			}
 		}
 
@@ -290,12 +342,17 @@ export class CredentialStorageManager {
 				try {
 					await this.deleteFile(flowKey);
 				} catch (error) {
-					console.error(`❌ Failed to delete file for ${flowKey}:`, error);
+					logger.error(
+						'CredentialStorageManager',
+						`❌ Failed to delete file for ${flowKey}:`,
+						undefined,
+						error as Error
+					);
 				}
 			}
 		}
 
-		console.log(`✅ Cleared all credentials`);
+		logger.info('CredentialStorageManager', `✅ Cleared all credentials`);
 	}
 
 	// ============================================
@@ -326,7 +383,12 @@ export class CredentialStorageManager {
 				timestamp: data.savedAt,
 			};
 		} catch (error) {
-			console.error(`❌ Failed to load from browser:`, error);
+			logger.error(
+				'CredentialStorageManager',
+				`❌ Failed to load from browser:`,
+				undefined,
+				error as Error
+			);
 			return {
 				success: false,
 				data: null,
@@ -342,7 +404,9 @@ export class CredentialStorageManager {
 	private saveToBrowser(flowKey: string, credentials: any): void {
 		const key = `flow_credentials_${flowKey}`;
 		const sanitized = this.sanitizeForLogging(credentials);
-		console.log(`💾 Saving to browser storage:`, { key, credentials: sanitized });
+		logger.info('CredentialStorageManager', `💾 Saving to browser storage:`, {
+			data: { key, credentials: sanitized },
+		});
 		localStorage.setItem(key, JSON.stringify(credentials));
 	}
 
@@ -372,7 +436,12 @@ export class CredentialStorageManager {
 				timestamp: result.data.savedAt,
 			};
 		} catch (error) {
-			console.error(`❌ Failed to load from file:`, error);
+			logger.error(
+				'CredentialStorageManager',
+				`❌ Failed to load from file:`,
+				undefined,
+				error as Error
+			);
 			return {
 				success: false,
 				data: null,
@@ -447,12 +516,23 @@ export class CredentialStorageManager {
 		const key = `flow_pkce_${flowKey}`;
 		try {
 			localStorage.setItem(key, JSON.stringify(pkceCodes));
-			console.log(`✅ [CredentialStorageManager] Saved PKCE codes for ${flowKey}`, {
-				codeVerifier: `${pkceCodes.codeVerifier.substring(0, 10)}...`,
-				codeChallenge: `${pkceCodes.codeChallenge.substring(0, 10)}...`,
-			});
+			logger.info(
+				'CredentialStorageManager',
+				`✅ [CredentialStorageManager] Saved PKCE codes for ${flowKey}`,
+				{
+					data: {
+						codeVerifier: `${pkceCodes.codeVerifier.substring(0, 10)}...`,
+						codeChallenge: `${pkceCodes.codeChallenge.substring(0, 10)}...`,
+					},
+				}
+			);
 		} catch (error) {
-			console.error(`❌ Failed to save PKCE codes:`, error);
+			logger.error(
+				'CredentialStorageManager',
+				`❌ Failed to save PKCE codes:`,
+				undefined,
+				error as Error
+			);
 		}
 	}
 
@@ -464,17 +544,31 @@ export class CredentialStorageManager {
 		try {
 			const stored = localStorage.getItem(key);
 			if (!stored) {
-				console.warn(`⚠️ [CredentialStorageManager] No PKCE codes found for ${flowKey}`);
+				logger.warn(
+					'CredentialStorageManager',
+					`⚠️ [CredentialStorageManager] No PKCE codes found for ${flowKey}`
+				);
 				return null;
 			}
 			const codes = JSON.parse(stored) as PKCECodes;
-			console.log(`✅ [CredentialStorageManager] Loaded PKCE codes for ${flowKey}`, {
-				codeVerifier: `${codes.codeVerifier.substring(0, 10)}...`,
-				codeChallenge: `${codes.codeChallenge.substring(0, 10)}...`,
-			});
+			logger.info(
+				'CredentialStorageManager',
+				`✅ [CredentialStorageManager] Loaded PKCE codes for ${flowKey}`,
+				{
+					data: {
+						codeVerifier: `${codes.codeVerifier.substring(0, 10)}...`,
+						codeChallenge: `${codes.codeChallenge.substring(0, 10)}...`,
+					},
+				}
+			);
 			return codes;
 		} catch (error) {
-			console.error(`❌ Failed to load PKCE codes:`, error);
+			logger.error(
+				'CredentialStorageManager',
+				`❌ Failed to load PKCE codes:`,
+				undefined,
+				error as Error
+			);
 			return null;
 		}
 	}
@@ -486,9 +580,17 @@ export class CredentialStorageManager {
 		const key = `flow_pkce_${flowKey}`;
 		try {
 			localStorage.removeItem(key);
-			console.log(`✅ [CredentialStorageManager] Cleared PKCE codes for ${flowKey}`);
+			logger.info(
+				'CredentialStorageManager',
+				`✅ [CredentialStorageManager] Cleared PKCE codes for ${flowKey}`
+			);
 		} catch (error) {
-			console.error(`❌ Failed to clear PKCE codes:`, error);
+			logger.error(
+				'CredentialStorageManager',
+				`❌ Failed to clear PKCE codes:`,
+				undefined,
+				error as Error
+			);
 		}
 	}
 
@@ -500,9 +602,17 @@ export class CredentialStorageManager {
 		const key = `flow_state_${flowKey}`;
 		try {
 			sessionStorage.setItem(key, JSON.stringify(state));
-			console.log(`✅ [CredentialStorageManager] Saved flow state for ${flowKey}`);
+			logger.info(
+				'CredentialStorageManager',
+				`✅ [CredentialStorageManager] Saved flow state for ${flowKey}`
+			);
 		} catch (error) {
-			console.error(`❌ Failed to save flow state:`, error);
+			logger.error(
+				'CredentialStorageManager',
+				`❌ Failed to save flow state:`,
+				undefined,
+				error as Error
+			);
 		}
 	}
 
@@ -516,7 +626,12 @@ export class CredentialStorageManager {
 			if (!stored) return null;
 			return JSON.parse(stored) as FlowState;
 		} catch (error) {
-			console.error(`❌ Failed to load flow state:`, error);
+			logger.error(
+				'CredentialStorageManager',
+				`❌ Failed to load flow state:`,
+				undefined,
+				error as Error
+			);
 			return null;
 		}
 	}
@@ -528,9 +643,17 @@ export class CredentialStorageManager {
 		const key = `flow_state_${flowKey}`;
 		try {
 			sessionStorage.removeItem(key);
-			console.log(`✅ [CredentialStorageManager] Cleared flow state for ${flowKey}`);
+			logger.info(
+				'CredentialStorageManager',
+				`✅ [CredentialStorageManager] Cleared flow state for ${flowKey}`
+			);
 		} catch (error) {
-			console.error(`❌ Failed to clear flow state:`, error);
+			logger.error(
+				'CredentialStorageManager',
+				`❌ Failed to clear flow state:`,
+				undefined,
+				error as Error
+			);
 		}
 	}
 
@@ -559,7 +682,7 @@ export class CredentialStorageManager {
 
 		// Check if token is expired
 		if (data.expiresAt && Date.now() > data.expiresAt) {
-			console.log(`⏰ [CredentialStorageManager] Worker token expired`);
+			logger.info('CredentialStorageManager', `⏰ [CredentialStorageManager] Worker token expired`);
 			await this.clearFlowCredentials(flowKey);
 			return null;
 		}
@@ -609,7 +732,10 @@ export class CredentialStorageManager {
 	 * Clear all data for a specific flow (credentials, PKCE, state, etc.)
 	 */
 	async clearAllFlowData(flowKey: string): Promise<void> {
-		console.log(`🗑️ [CredentialStorageManager] Clearing all data for ${flowKey}`);
+		logger.info(
+			'CredentialStorageManager',
+			`🗑️ [CredentialStorageManager] Clearing all data for ${flowKey}`
+		);
 
 		// Clear credentials
 		await this.clearFlowCredentials(flowKey);
@@ -620,7 +746,7 @@ export class CredentialStorageManager {
 		// Clear flow state
 		this.clearFlowState(flowKey);
 
-		console.log(`✅ Cleared all data for ${flowKey}`);
+		logger.info('CredentialStorageManager', `✅ Cleared all data for ${flowKey}`);
 	}
 
 	// ============================================================================
@@ -648,10 +774,12 @@ export class CredentialStorageManager {
 
 			// Filter for credential-related keys
 			if (this.isCredentialKey(event.key)) {
-				console.log(`🔄 [CrossTabSync] Storage change detected:`, {
-					key: event.key,
-					oldValue: event.oldValue ? 'exists' : 'null',
-					newValue: event.newValue ? 'exists' : 'null',
+				logger.info('CredentialStorageManager', `🔄 [CrossTabSync] Storage change detected:`, {
+					data: {
+						key: event.key,
+						oldValue: event.oldValue ? 'exists' : 'null',
+						newValue: event.newValue ? 'exists' : 'null',
+					},
 				});
 
 				this.handleStorageChange(event.key, event.newValue);
@@ -688,7 +816,10 @@ export class CredentialStorageManager {
 				const flowKey = this.extractFlowKey(key);
 				if (flowKey) {
 					this.memoryCache.set(flowKey, data);
-					console.log(`✅ [CrossTabSync] Updated memory cache for ${flowKey}`);
+					logger.info(
+						'CredentialStorageManager',
+						`✅ [CrossTabSync] Updated memory cache for ${flowKey}`
+					);
 
 					// Notify listeners
 					this.notifyListeners(flowKey, data);
@@ -698,14 +829,22 @@ export class CredentialStorageManager {
 				const flowKey = this.extractFlowKey(key);
 				if (flowKey) {
 					this.memoryCache.delete(flowKey);
-					console.log(`🗑️ [CrossTabSync] Cleared memory cache for ${flowKey}`);
+					logger.info(
+						'CredentialStorageManager',
+						`🗑️ [CrossTabSync] Cleared memory cache for ${flowKey}`
+					);
 
 					// Notify listeners
 					this.notifyListeners(flowKey, null);
 				}
 			}
 		} catch (error) {
-			console.error('[CrossTabSync] Failed to handle storage change:', error);
+			logger.error(
+				'CredentialStorageManager',
+				'[CrossTabSync] Failed to handle storage change:',
+				undefined,
+				error as Error
+			);
 		}
 	}
 
@@ -737,7 +876,7 @@ export class CredentialStorageManager {
 		}
 
 		this.syncListeners.get(flowKey)!.add(callback);
-		console.log(`📡 [CrossTabSync] Added listener for ${flowKey}`);
+		logger.info('CredentialStorageManager', `📡 [CrossTabSync] Added listener for ${flowKey}`);
 
 		// Return unsubscribe function
 		return () => {
@@ -748,7 +887,7 @@ export class CredentialStorageManager {
 					this.syncListeners.delete(flowKey);
 				}
 			}
-			console.log(`📡 [CrossTabSync] Removed listener for ${flowKey}`);
+			logger.info('CredentialStorageManager', `📡 [CrossTabSync] Removed listener for ${flowKey}`);
 		};
 	}
 
@@ -758,12 +897,20 @@ export class CredentialStorageManager {
 	private notifyListeners(flowKey: string, data: any): void {
 		const listeners = this.syncListeners.get(flowKey);
 		if (listeners && listeners.size > 0) {
-			console.log(`📢 [CrossTabSync] Notifying ${listeners.size} listeners for ${flowKey}`);
+			logger.info(
+				'CredentialStorageManager',
+				`📢 [CrossTabSync] Notifying ${listeners.size} listeners for ${flowKey}`
+			);
 			listeners.forEach((callback) => {
 				try {
 					callback(data);
 				} catch (error) {
-					console.error('[CrossTabSync] Listener callback error:', error);
+					logger.error(
+						'CredentialStorageManager',
+						'[CrossTabSync] Listener callback error:',
+						undefined,
+						error as Error
+					);
 				}
 			});
 		}
@@ -775,7 +922,7 @@ export class CredentialStorageManager {
 	broadcastChange(flowKey: string, _data: any): void {
 		// The storage event will automatically fire in other tabs when we write to localStorage
 		// This method is here for explicit broadcasting if needed
-		console.log(`📡 [CrossTabSync] Broadcasting change for ${flowKey}`);
+		logger.info('CredentialStorageManager', `📡 [CrossTabSync] Broadcasting change for ${flowKey}`);
 	}
 
 	/**
@@ -787,7 +934,7 @@ export class CredentialStorageManager {
 			this.storageEventHandler = null;
 		}
 		this.syncListeners.clear();
-		console.log('🧹 [CrossTabSync] Cleaned up storage event listener');
+		logger.info('CredentialStorageManager', '🧹 [CrossTabSync] Cleaned up storage event listener');
 	}
 }
 
