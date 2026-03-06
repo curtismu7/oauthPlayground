@@ -4,9 +4,10 @@ import { FiCheckCircle, FiClock, FiExternalLink, FiInfo, FiShield, FiX } from '@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { ColoredUrlDisplay } from '../components/ColoredUrlDisplay';
 import PARInputInterface from '../components/PARInputInterface';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { logger } from '../utils/logger';
 
 // Modern styled components with professional design
 const ModalOverlay = styled.div<{ $isOpen: boolean }>`
@@ -471,10 +472,19 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 			setParGeneratedUrl(generatedUrl);
 			setShowPARInput(false);
 
-			modernMessaging.showFooterMessage({ type: 'info', message: 'PAR Authorization URL Generated', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'PAR Authorization URL Generated',
+				duration: 3000,
+			});
 		} catch (error) {
-			console.error('Error generating PAR URL:', error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to Generate PAR URL', dismissible: true });
+			logger.error('AuthenticationModalService', 'Error generating PAR URL:', undefined, error);
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to Generate PAR URL',
+				dismissible: true,
+			});
 		}
 	};
 
@@ -491,7 +501,7 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 	};
 
 	const handleContinue = React.useCallback(() => {
-		console.log('🚀 [AuthModal] handleContinue called');
+		logger.debug('AuthenticationModalService', '🚀 [AuthModal] handleContinue called');
 
 		// Clear any running countdown
 		if (countdownIntervalRef.current) {
@@ -504,7 +514,12 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 
 		// Validate URL before proceeding
 		if (!isValidUrl(urlToUse)) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Invalid authorization URL. Please check the URL and try again.', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Invalid authorization URL. Please check the URL and try again.',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -521,9 +536,9 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 				const left = window.screen.width / 2 - width / 2;
 				const top = window.screen.height / 2 - height / 2;
 
-				console.log('🔧 [AuthModal] Opening popup window...');
-				console.log('🔧 [AuthModal] Auth URL:', urlToUse);
-				console.log('🔧 [AuthModal] Popup name: PingOneAuth');
+				logger.debug('AuthenticationModalService', '🔧 [AuthModal] Opening popup window...');
+				logger.debug('AuthenticationModalService', '🔧 [AuthModal] Auth URL:', urlToUse);
+				logger.debug('AuthenticationModalService', '🔧 [AuthModal] Popup name: PingOneAuth');
 
 				const popup = window.open(
 					urlToUse,
@@ -532,14 +547,14 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 				);
 
 				if (popup) {
-					console.log('✅ [AuthModal] Popup opened successfully');
-					console.log('✅ [AuthModal] Popup reference:', popup);
-					console.log('✅ [AuthModal] Popup closed?', popup.closed);
+					logger.debug('AuthenticationModalService', '✅ [AuthModal] Popup opened successfully');
+					logger.debug('AuthenticationModalService', '✅ [AuthModal] Popup reference:', popup);
+					logger.debug('AuthenticationModalService', '✅ [AuthModal] Popup closed?', popup.closed);
 
 					// Monitor popup to detect if it closes unexpectedly
 					const monitorPopup = setInterval(() => {
 						if (popup.closed) {
-							console.log('❌ [AuthModal] Popup was closed!');
+							logger.debug('AuthenticationModalService', '❌ [AuthModal] Popup was closed!');
 							clearInterval(monitorPopup);
 						}
 						// Removed excessive logging to avoid performance issues
@@ -548,31 +563,60 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 					// Stop monitoring after 30 seconds
 					setTimeout(() => {
 						clearInterval(monitorPopup);
-						console.log('🔌 [AuthModal] Stopped monitoring popup');
+						logger.debug('AuthenticationModalService', '🔌 [AuthModal] Stopped monitoring popup');
 					}, 30000);
 
-					modernMessaging.showFooterMessage({ type: 'info', message: 'Authentication popup opened successfully!', duration: 3000 });
+					modernMessaging.showFooterMessage({
+						type: 'info',
+						message: 'Authentication popup opened successfully!',
+						duration: 3000,
+					});
 
 					// Close modal immediately
 					onClose();
 
 					// Call the onContinue callback if provided (but popup should stay open!)
-					console.log('🔧 [AuthModal] Calling onContinue callback...');
+					logger.debug(
+						'AuthenticationModalService',
+						'🔧 [AuthModal] Calling onContinue callback...'
+					);
 					onContinue?.();
-					console.log('🔧 [AuthModal] onContinue callback completed');
-					console.log('🔧 [AuthModal] Popup still open after callback?', !popup.closed);
+					logger.debug(
+						'AuthenticationModalService',
+						'🔧 [AuthModal] onContinue callback completed'
+					);
+					logger.debug(
+						'AuthenticationModalService',
+						'🔧 [AuthModal] Popup still open after callback?',
+						!popup.closed
+					);
 				} else {
-					console.error('❌ [AuthModal] Popup blocked by browser');
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Popup blocked! Please allow popups for this site.', dismissible: true });
+					logger.error('AuthenticationModalService', '❌ [AuthModal] Popup blocked by browser');
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: 'Popup blocked! Please allow popups for this site.',
+						dismissible: true,
+					});
 				}
 			} else {
 				// Redirect current tab
-				console.log('🔧 [AuthModal] Redirecting to:', urlToUse);
+				logger.debug('AuthenticationModalService', '🔧 [AuthModal] Redirecting to:', urlToUse);
 				window.location.href = urlToUse;
 			}
 		} catch (error) {
-			console.error('❌ [AuthModal] Failed to open authentication:', error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to open authentication. Please try again.', dismissible: true });
+			logger.error(
+				'AuthenticationModalService',
+				'❌ [AuthModal] Failed to open authentication:',
+				undefined,
+				error
+			);
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to open authentication. Please try again.',
+				dismissible: true,
+			});
 		}
 
 		// Close modal after redirect
@@ -592,7 +636,10 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 
 	// Cleanup effect - clear intervals on unmount
 	React.useEffect(() => {
-		console.log('⏰ [AuthModal] Modal opened - waiting for user action (auto-redirect disabled)');
+		logger.debug(
+			'AuthenticationModalService',
+			'⏰ [AuthModal] Modal opened - waiting for user action (auto-redirect disabled)'
+		);
 
 		if (!isOpen || !isValidUrl(authUrl)) {
 			// Clear countdown when modal closes or URL is invalid
@@ -604,15 +651,18 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 		}
 
 		// Auto-redirect disabled - user must click the button
-		console.log('⏰ [AuthModal] Auto-redirect disabled - user must click Continue button');
+		logger.debug(
+			'AuthenticationModalService',
+			'⏰ [AuthModal] Auto-redirect disabled - user must click Continue button'
+		);
 
 		// Optional: Still show a countdown for reference, but don't auto-redirect
 		// countdownIntervalRef.current = setInterval(() => {
 		// 	setCountdown((prev) => {
-		// 		console.log(`⏰ [AuthModal] Countdown: ${prev}`);
+		// 		logger.debug('AuthenticationModalService', `⏰ [AuthModal] Countdown: ${prev}`);
 		// 		if (prev <= 1) {
 		// 			// Countdown finished - trigger redirect
-		// 			console.log('⏰ [AuthModal] Countdown complete - triggering redirect');
+		// 			logger.debug('AuthenticationModalService', '⏰ [AuthModal] Countdown complete - triggering redirect');
 		// 			if (countdownIntervalRef.current) {
 		// 				clearInterval(countdownIntervalRef.current);
 		// 				countdownIntervalRef.current = null;
@@ -625,7 +675,7 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 		// }, 1000);
 
 		return () => {
-			console.log('⏰ [AuthModal] Cleaning up countdown effect');
+			logger.debug('AuthenticationModalService', '⏰ [AuthModal] Cleaning up countdown effect');
 			if (countdownIntervalRef.current) {
 				clearInterval(countdownIntervalRef.current);
 				countdownIntervalRef.current = null;
@@ -792,7 +842,11 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 													onClick={() => {
 														if (isValidUrl(editedUrl)) {
 															navigator.clipboard.writeText(editedUrl);
-															modernMessaging.showFooterMessage({ type: 'info', message: 'URL copied to clipboard!', duration: 3000 });
+															modernMessaging.showFooterMessage({
+																type: 'info',
+																message: 'URL copied to clipboard!',
+																duration: 3000,
+															});
 														}
 													}}
 													disabled={!isValidUrl(editedUrl)}

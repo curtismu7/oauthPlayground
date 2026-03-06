@@ -3,6 +3,7 @@
 import { FiAlertCircle, FiCheckCircle, FiCopy, FiKey, FiRefreshCw } from '@icons';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../utils/logger';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { UISettingsService } from './uiSettingsService';
 
@@ -234,10 +235,13 @@ export const PKCEGenerationComponent: React.FC<PKCEGenerationProps> = ({
 	const isAutoGenerateEnabled = UISettingsService.isEnabled('pkceAutoGenerate');
 
 	const handleGeneratePKCE = useCallback(async () => {
-		console.log('[PKCEGenerationService] handleGeneratePKCE called');
+		logger.debug('PKCEGenerationService', '[PKCEGenerationService] handleGeneratePKCE called');
 
 		if (!credentials.clientId || !credentials.environmentId) {
-			console.log('[PKCEGenerationService] Missing credentials, aborting');
+			logger.debug(
+				'PKCEGenerationService',
+				'[PKCEGenerationService] Missing credentials, aborting'
+			);
 			setStatus('error');
 			setStatusMessage('Missing Client ID or Environment ID. Please configure credentials first.');
 			v4ToastManager.showError(
@@ -247,29 +251,43 @@ export const PKCEGenerationComponent: React.FC<PKCEGenerationProps> = ({
 		}
 
 		if (!controller?.generatePkceCodes) {
-			console.error('[PKCEGenerationService] Controller does not have generatePkceCodes method');
+			logger.error(
+				'PKCEGenerationService',
+				'[PKCEGenerationService] Controller does not have generatePkceCodes method'
+			);
 			setStatus('error');
 			setStatusMessage('PKCE generation not available. Please check your configuration.');
 			v4ToastManager.showError('PKCE generation not available. Please check your configuration.');
 			return;
 		}
 
-		console.log('[PKCEGenerationService] Starting PKCE generation...');
+		logger.debug('PKCEGenerationService', '[PKCEGenerationService] Starting PKCE generation...');
 		setStatus('generating');
 		setStatusMessage('Generating PKCE codes...');
 		v4ToastManager.showSuccess('Generating PKCE codes...');
 
 		try {
-			console.log('[PKCEGenerationService] Calling controller.generatePkceCodes()...');
+			logger.debug(
+				'PKCEGenerationService',
+				'[PKCEGenerationService] Calling controller.generatePkceCodes()...'
+			);
 			await controller.generatePkceCodes();
-			console.log('[PKCEGenerationService] PKCE generation completed successfully');
+			logger.debug(
+				'PKCEGenerationService',
+				'[PKCEGenerationService] PKCE generation completed successfully'
+			);
 
 			setStatus('success');
 			setStatusMessage('PKCE codes generated successfully!');
 			v4ToastManager.showSuccess('PKCE codes generated!');
 			onPKCEGenerated?.();
 		} catch (error) {
-			console.error('[PKCEGenerationService] PKCE generation failed:', error);
+			logger.error(
+				'PKCEGenerationService',
+				'[PKCEGenerationService] PKCE generation failed:',
+				undefined,
+				error
+			);
 			setStatus('error');
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 			setStatusMessage(`Failed to generate PKCE codes: ${errorMessage}`);
@@ -279,14 +297,17 @@ export const PKCEGenerationComponent: React.FC<PKCEGenerationProps> = ({
 
 	// Auto-generate PKCE codes when component mounts (if enabled)
 	React.useEffect(() => {
-		console.log('[PKCEGenerationService] Auto-generation check:', {
+		logger.debug('PKCEGenerationService', '[PKCEGenerationService] Auto-generation check:', {
 			isAutoGenerateEnabled,
 			hasExistingPKCE: !!controller?.pkceCodes?.codeVerifier,
 			shouldAutoGenerate: isAutoGenerateEnabled && !controller?.pkceCodes?.codeVerifier,
 		});
 
 		if (isAutoGenerateEnabled && !controller?.pkceCodes?.codeVerifier) {
-			console.log('[PKCEGenerationService] Auto-generating PKCE codes...');
+			logger.debug(
+				'PKCEGenerationService',
+				'[PKCEGenerationService] Auto-generating PKCE codes...'
+			);
 			handleGeneratePKCE();
 		}
 	}, [isAutoGenerateEnabled, controller?.pkceCodes?.codeVerifier, handleGeneratePKCE]);
@@ -298,7 +319,7 @@ export const PKCEGenerationComponent: React.FC<PKCEGenerationProps> = ({
 			await navigator.clipboard.writeText(text);
 			v4ToastManager.showSuccess(`${label} copied to clipboard!`);
 		} catch (error) {
-			console.error('Failed to copy to clipboard:', error);
+			logger.error('PKCEGenerationService', 'Failed to copy to clipboard:', undefined, error);
 			v4ToastManager.showError('Failed to copy to clipboard');
 		}
 	};
@@ -426,7 +447,12 @@ export class PKCEGenerationService {
 			await controller.generatePkceCodes();
 			return true;
 		} catch (error) {
-			console.error('[PKCEGenerationService] Generation failed:', error);
+			logger.error(
+				'PKCEGenerationService',
+				'[PKCEGenerationService] Generation failed:',
+				undefined,
+				error
+			);
 			return false;
 		}
 	}
