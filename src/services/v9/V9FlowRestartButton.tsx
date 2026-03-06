@@ -2,6 +2,7 @@
 // Provides consistent restart functionality for all stepper flows
 
 import React from 'react';
+import { logger } from '../../utils/logger';
 
 import { getButtonStyles } from './V9ColorStandards';
 
@@ -110,11 +111,11 @@ export const useFlowRestart = (resetFunctions: (() => void)[]) => {
 				})
 				.catch(() => {
 					// Silently fail if messaging service is not available
-					console.log('Flow restarted');
+					logger.debug('V9FlowRestartButton', 'Flow restarted');
 				});
 		} catch {
 			// Silently fail if messaging service is not available
-			console.log('Flow restarted');
+			logger.debug('V9FlowRestartButton', 'Flow restarted');
 		}
 	}, [resetFunctions]);
 

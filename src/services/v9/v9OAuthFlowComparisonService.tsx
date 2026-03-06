@@ -4,6 +4,7 @@
 import React from 'react';
 // Import Modern Messaging (V9) - proper migration to non-toast messaging
 import { modernMessaging } from '../../components/v9/V9ModernMessagingComponents';
+import { logger } from '../../utils/logger';
 import { OAuthFlowComparisonService } from '../oauthFlowComparisonService';
 
 // V9 Wrapper Service - wraps original with Modern Messaging
@@ -14,7 +15,8 @@ const V9OAuthFlowComparisonService = {
 	): React.ReactElement {
 		try {
 			// Add V9 logging for comparison table usage
-			console.log(
+			logger.debug(
+				'V9OAuthFlowComparisonService',
 				`[V9 FlowComparison] Generating comparison table with highlight: ${options.highlightFlow || 'none'}`
 			);
 
@@ -23,7 +25,7 @@ const V9OAuthFlowComparisonService = {
 
 			// Add V9-specific error boundary wrapper
 			return <div data-v9-flow-comparison={options.highlightFlow || 'default'}>{result}</div>;
-		} catch (error) {
+		} catch (_error) {
 			modernMessaging.showCriticalError({
 				title: 'Comparison Failed',
 				message: 'Failed to generate flow comparison table',
@@ -53,7 +55,7 @@ const V9OAuthFlowComparisonService = {
 
 	// Add V9-specific logging for flow comparison operations
 	logComparisonOperation(operation: string, details?: unknown) {
-		console.log(`[V9 FlowComparison] ${operation}`, details);
+		logger.debug('V9OAuthFlowComparisonService', `[V9 FlowComparison] ${operation}`, details);
 	},
 
 	// Add V9 flow validation helper
@@ -69,7 +71,7 @@ const V9OAuthFlowComparisonService = {
 			}
 
 			return true;
-		} catch (error) {
+		} catch (_error) {
 			modernMessaging.showCriticalError({
 				title: 'Validation Failed',
 				message: 'Flow comparison validation failed',

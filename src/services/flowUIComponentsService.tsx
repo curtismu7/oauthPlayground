@@ -4,6 +4,7 @@
 import { FiAlertTriangle, FiCheckCircle, FiInfo } from '@icons';
 import React from 'react';
 import styled from 'styled-components';
+import { logger } from '../utils/logger';
 
 export interface FlowUIComponentsConfig {
 	theme?: 'blue' | 'green' | 'purple' | 'gray';
@@ -437,14 +438,14 @@ export class FlowUIComponentsService {
 					await navigator.clipboard.writeText(text);
 					return true;
 				} catch (error) {
-					console.error('Failed to copy to clipboard:', error);
+					logger.error('FlowUIComponentsService', 'Failed to copy to clipboard:', undefined, error);
 					return false;
 				}
 			},
 
 			showToast: (message: string, type: 'success' | 'error' | 'info' = 'info') => {
 				// This would integrate with the toast system
-				console.log(`[${type.toUpperCase()}] ${message}`);
+				logger.debug('FlowUIComponentsService', `[${type.toUpperCase()}] ${message}`);
 			},
 		};
 	}

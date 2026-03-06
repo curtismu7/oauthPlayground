@@ -4,6 +4,7 @@
 import React from 'react';
 // Import Modern Messaging (V9) - proper migration to non-toast messaging
 import { modernMessaging } from '../../components/v9/V9ModernMessagingComponents';
+import { logger } from '../../utils/logger';
 import { UnifiedTokenDisplayService } from '../unifiedTokenDisplayService';
 
 // TokenResponse interface (copied from original for type safety)
@@ -29,14 +30,17 @@ const V9UnifiedTokenDisplayService = {
 	): React.ReactElement {
 		try {
 			// Add V9 logging for token display
-			console.log(`[V9 TokenDisplay] Showing tokens for flow: ${flowKey}`);
+			logger.debug(
+				'V9UnifiedTokenDisplayService',
+				`[V9 TokenDisplay] Showing tokens for flow: ${flowKey}`
+			);
 
 			// Wrap the original service with error handling
 			const result = UnifiedTokenDisplayService.showTokens(tokens, flowType, flowKey, options);
 
 			// Add V9-specific error boundary wrapper
 			return <div data-v9-token-display={flowKey}>{result}</div>;
-		} catch (error) {
+		} catch (_error) {
 			modernMessaging.showCriticalError({
 				title: 'Token Display Failed',
 				message: 'Failed to display tokens',
@@ -63,7 +67,11 @@ const V9UnifiedTokenDisplayService = {
 
 	// Add V9-specific logging for token operations
 	logTokenOperation(operation: string, flowKey: string, details?: unknown) {
-		console.log(`[V9 TokenDisplay] ${operation} for flow: ${flowKey}`, details);
+		logger.debug(
+			'V9UnifiedTokenDisplayService',
+			`[V9 TokenDisplay] ${operation} for flow: ${flowKey}`,
+			details
+		);
 	},
 
 	// Add V9 token validation helper
@@ -89,7 +97,7 @@ const V9UnifiedTokenDisplayService = {
 			}
 
 			return true;
-		} catch (error) {
+		} catch (_error) {
 			modernMessaging.showCriticalError({
 				title: 'Token Validation Failed',
 				message: 'Token validation failed',

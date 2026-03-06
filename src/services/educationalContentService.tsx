@@ -1,6 +1,7 @@
 import { FiAlertTriangle, FiBook, FiCheck, FiInfo, FiLock, FiX } from '@icons';
 import React from 'react';
 import styled from 'styled-components';
+import { logger } from '../utils/logger';
 import { CollapsibleHeader, type CollapsibleHeaderConfig } from './collapsibleHeaderService';
 
 // Educational content types
@@ -692,7 +693,10 @@ export const EducationalContentService: React.FC<EducationalContentServiceProps>
 	const content = EDUCATIONAL_CONTENT[flowType];
 
 	if (!content) {
-		console.warn(`Educational content not found for flow type: ${flowType}`);
+		logger.warn(
+			'EducationalContentService',
+			`Educational content not found for flow type: ${flowType}`
+		);
 		return null;
 	}
 

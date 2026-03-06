@@ -35,6 +35,7 @@
  */
 
 import React, { useCallback, useState } from 'react';
+import { logger } from '../utils/logger';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { CredentialGuardService } from './credentialGuardService';
 import ModalPresentationService from './modalPresentationService';
@@ -279,7 +280,10 @@ export const useV7CredentialValidation = ({
 	const baseConfig = V7_FLOW_CONFIGS[flowKey];
 
 	if (!baseConfig) {
-		console.warn(`[V7CredentialValidation] No configuration found for flow: ${flowKey}`);
+		logger.warn(
+			'V7CredentialValidationService',
+			`[V7CredentialValidation] No configuration found for flow: ${flowKey}`
+		);
 		return {
 			showMissingCredentialsModal: false,
 			missingCredentialFields: [],
@@ -330,7 +334,8 @@ export const useV7CredentialValidation = ({
 			if (!canProceed) {
 				setMissingCredentialFields(missingFields);
 				setShowMissingCredentialsModal(true);
-				console.warn(
+				logger.warn(
+					'V7CredentialValidationService',
 					`🚫 [${config.flowName}] Blocked navigation due to missing required credentials:`,
 					{ missingFields }
 				);

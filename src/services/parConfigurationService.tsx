@@ -6,6 +6,7 @@ import { FiCheckCircle, FiShield } from '@icons';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
+import { logger } from '../utils/logger';
 import { CollapsibleHeader } from './collapsibleHeaderService';
 
 // PAR Configuration Types
@@ -514,7 +515,7 @@ export class PARConfigurationServiceUtils {
 			try {
 				config.claims = JSON.parse(params.claims);
 			} catch (_error) {
-				console.warn('Invalid claims JSON:', params.claims);
+				logger.warn('PARConfigurationService', 'Invalid claims JSON:', params.claims);
 			}
 		}
 

@@ -6,6 +6,7 @@
 import mermaid from 'mermaid';
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../utils/logger';
 
 export interface FlowDiagramConfig {
 	id: string;
@@ -516,7 +517,12 @@ export class InteractiveFlowDiagramService {
 							const { svg } = await mermaid.render(`${config.id}-diagram`, definition.diagram);
 							diagramRef.current.innerHTML = svg;
 						} catch (error) {
-							console.error('Error rendering diagram:', error);
+							logger.error(
+								'InteractiveFlowDiagramService',
+								'Error rendering diagram:',
+								undefined,
+								error
+							);
 							diagramRef.current.innerHTML = '<p>Error rendering diagram</p>';
 						}
 					}
