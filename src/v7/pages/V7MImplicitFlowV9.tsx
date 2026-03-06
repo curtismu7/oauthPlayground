@@ -1,4 +1,4 @@
-// src/v7m/pages/V7MImplicitFlow.tsx
+// src/v7/pages/V7MImplicitFlowV9.tsx
 
 import { FiAlertTriangle, FiBook, FiKey, FiSend, FiShield } from '@icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
@@ -22,7 +22,7 @@ type Props = {
 	title?: string;
 };
 
-export const V7MImplicitFlow: React.FC<Props> = ({
+export const V7MImplicitFlowV9: React.FC<Props> = ({
 	oidc = false,
 	title = 'V7M OAuth Implicit Flow',
 }) => {
@@ -779,4 +779,4 @@ const smallButtonStyle: React.CSSProperties = {
 	marginLeft: 8,
 };
 
-export default V7MImplicitFlow;
+export default V7MImplicitFlowV9;

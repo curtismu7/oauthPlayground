@@ -1,4 +1,4 @@
-// src/v7m/pages/V7MClientCredentials.tsx
+// src/v7/pages/V7MClientCredentialsV9.tsx
 
 import { FiBook, FiKey } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -20,7 +20,7 @@ import { V7MHelpModal } from '../components/V7MHelpModal';
 import { V7MInfoIcon } from '../components/V7MInfoIcon';
 import { V7MJwtInspectorModal } from '../components/V7MJwtInspectorModal';
 
-export const V7MClientCredentials: React.FC = () => {
+export const V7MClientCredentialsV9: React.FC = () => {
 	const [clientId, setClientId] = useState('v7m-client-credentials');
 	const [clientSecret, setClientSecret] = useState('topsecret');
 	const [scope, setScope] = useState('read write');
@@ -360,4 +360,4 @@ const preJson: React.CSSProperties = {
 	fontSize: 13,
 };
 
-export default V7MClientCredentials;
+export default V7MClientCredentialsV9;

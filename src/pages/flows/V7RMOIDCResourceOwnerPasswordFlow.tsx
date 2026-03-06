@@ -1,6 +1,5 @@
 // src/pages/flows/V7RMOIDCResourceOwnerPasswordFlow.tsx - Enhanced with Real Services
 
-import { FiAlertTriangle, FiLock, FiShield, FiUser } from '@icons';
 import React, { useCallback, useMemo } from 'react';
 import CollapsibleSection from '../../components/CollapsibleSection';
 import EnhancedStepFlowV2 from '../../components/EnhancedStepFlowV2';
@@ -10,7 +9,7 @@ import FlowTemplate from '../../components/flow/FlowTemplate';
 import InlineDocumentation, { QuickReference } from '../../components/InlineDocumentation';
 import { InfoBox } from '../../components/steps/CommonSteps';
 import { useV7RMOIDCResourceOwnerPasswordController } from '../../hooks/useV7RMOIDCResourceOwnerPasswordController';
-import type { DiscoveredApp } from '../../services/v9/V9AppDiscoveryService';
+import type { V9DiscoveredApp } from '../../services/v9/V9AppDiscoveryService';
 import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
 import CompactAppPickerV8U from '../../v8u/components/CompactAppPickerV8U';
 
@@ -24,7 +23,7 @@ const V7RMOIDCResourceOwnerPasswordFlow: React.FC = () => {
 	const v9Storage = V9CredentialStorageService.getInstance();
 
 	const handleAppSelected = useCallback(
-		(app: DiscoveredApp) => {
+		(app: V9DiscoveredApp) => {
 			controller.setCredentials({ ...controller.credentials, clientId: app.clientId });
 			void v9Storage.save('v7rm-oidc-ropc', { clientId: app.clientId });
 		},
@@ -143,7 +142,8 @@ const V7RMOIDCResourceOwnerPasswordFlow: React.FC = () => {
 	);
 
 	return (
-		<FlowTemplate
+		<div className="end-user-nano">
+			<FlowTemplate
 			title="Enhanced OIDC Resource Owner Password Flow"
 			subtitle="Real API Integration with OIDC Extensions"
 			description="Learn how the OIDC Resource Owner Password flow would work through this educational simulation. Understand the security risks and see why modern alternatives are preferred."
@@ -177,6 +177,7 @@ const V7RMOIDCResourceOwnerPasswordFlow: React.FC = () => {
 				onStepChange={(index) => controller.stepManager.setStep(index)}
 			/>
 		</FlowTemplate>
+		</div>
 	);
 };
 

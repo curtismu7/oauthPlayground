@@ -1,12 +1,13 @@
 // src/v7m/routes.tsx
-// Route definitions for V7M flows. Consumer should import and mount these under a
+// Route definitions for V7M flows (V9-compliant). Consumer should import and mount these under a
 // "Mock OAuth and OIDC flows" menu group.
+// NOTE: Active routes are registered in App.tsx under /v7/* paths. This file is a reference manifest.
 import React from 'react';
-import V7MClientCredentials from './pages/V7MClientCredentials';
-import V7MDeviceAuthorization from './pages/V7MDeviceAuthorization';
-import V7MImplicitFlow from './pages/V7MImplicitFlow';
-import V7MOAuthAuthCode from './pages/V7MOAuthAuthCode';
-import V7MROPC from './pages/V7MROPC';
+import V7MClientCredentialsV9 from '../v7/pages/V7MClientCredentialsV9';
+import V7MDeviceAuthorizationV9 from '../v7/pages/V7MDeviceAuthorizationV9';
+import V7MImplicitFlowV9 from '../v7/pages/V7MImplicitFlowV9';
+import V7MOAuthAuthCodeV9 from '../v7/pages/V7MOAuthAuthCodeV9';
+import V7MROPCV9 from '../v7/pages/V7MROPCV9';
 
 export type V7MRoute = {
 	path: string;
@@ -17,51 +18,51 @@ export type V7MRoute = {
 
 export const V7M_ROUTES: V7MRoute[] = [
 	{
-		path: '/v7m/oauth/authorization-code',
+		path: '/v7/oauth/authorization-code',
 		title: 'V7M OAuth Authorization Code',
-		element: <V7MOAuthAuthCode oidc={false} title="V7M OAuth Authorization Code" />,
+		element: <V7MOAuthAuthCodeV9 oidc={false} title="V7M OAuth Authorization Code" />,
 		menuGroup: 'Mock OAuth and OIDC flows',
 	},
 	{
-		path: '/v7m/oidc/authorization-code',
+		path: '/v7/oidc/authorization-code',
 		title: 'V7M OIDC Authorization Code',
-		element: <V7MOAuthAuthCode oidc={true} title="V7M OIDC Authorization Code" />,
+		element: <V7MOAuthAuthCodeV9 oidc={true} title="V7M OIDC Authorization Code" />,
 		menuGroup: 'Mock OAuth and OIDC flows',
 	},
 	{
-		path: '/v7m/oauth/device-authorization',
+		path: '/v7/oauth/device-authorization',
 		title: 'V7M Device Authorization',
-		element: <V7MDeviceAuthorization />,
+		element: <V7MDeviceAuthorizationV9 />,
 		menuGroup: 'Mock OAuth and OIDC flows',
 	},
 	{
-		path: '/v7m/oauth/client-credentials',
+		path: '/v7/oauth/client-credentials',
 		title: 'V7M Client Credentials',
-		element: <V7MClientCredentials />,
+		element: <V7MClientCredentialsV9 />,
 		menuGroup: 'Mock OAuth and OIDC flows',
 	},
 	{
-		path: '/v7m/oauth/implicit',
+		path: '/v7/oauth/implicit',
 		title: 'V7M OAuth Implicit Flow',
-		element: <V7MImplicitFlow oidc={false} title="V7M OAuth Implicit Flow" />,
+		element: <V7MImplicitFlowV9 oidc={false} title="V7M OAuth Implicit Flow" />,
 		menuGroup: 'Mock OAuth and OIDC flows',
 	},
 	{
-		path: '/v7m/oidc/implicit',
+		path: '/v7/oidc/implicit',
 		title: 'V7M OIDC Implicit Flow',
-		element: <V7MImplicitFlow oidc={true} title="V7M OIDC Implicit Flow" />,
+		element: <V7MImplicitFlowV9 oidc={true} title="V7M OIDC Implicit Flow" />,
 		menuGroup: 'Mock OAuth and OIDC flows',
 	},
 	{
-		path: '/v7m/oauth/ropc',
+		path: '/v7/oauth/ropc',
 		title: 'V7M Resource Owner Password Credentials',
-		element: <V7MROPC oidc={false} title="V7M Resource Owner Password Credentials" />,
+		element: <V7MROPCV9 oidc={false} title="V7M Resource Owner Password Credentials" />,
 		menuGroup: 'Mock OAuth and OIDC flows',
 	},
 	{
-		path: '/v7m/oidc/ropc',
+		path: '/v7/oidc/ropc',
 		title: 'V7M OIDC Resource Owner Password Credentials',
-		element: <V7MROPC oidc={true} title="V7M OIDC Resource Owner Password Credentials" />,
+		element: <V7MROPCV9 oidc={true} title="V7M OIDC Resource Owner Password Credentials" />,
 		menuGroup: 'Mock OAuth and OIDC flows',
 	},
 ];
