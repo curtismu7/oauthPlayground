@@ -4,6 +4,7 @@ import {
 	EnhancedPingOneMfaService,
 	type MfaDevice,
 } from '../../services/enhancedPingOneMfaService';
+import { logger } from '../../utils/logger';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import ConfirmationModal from '../ConfirmationModal';
 
@@ -45,7 +46,7 @@ export const MFADeviceManager: React.FC<MFADeviceManagerProps> = ({
 			const deviceList = await EnhancedPingOneMfaService.getDevices(credentials);
 			setDevices(deviceList);
 		} catch (error) {
-			console.error('Failed to load MFA devices:', error);
+			logger.error('MFADeviceManager', 'Failed to load MFA devices:', undefined, error as Error);
 			v4ToastManager.showError('Failed to load MFA devices');
 		} finally {
 			setIsLoading(false);
@@ -67,7 +68,7 @@ export const MFADeviceManager: React.FC<MFADeviceManagerProps> = ({
 				await addTotpDevice();
 			}
 		} catch (error) {
-			console.error('Failed to add device:', error);
+			logger.error('MFADeviceManager', 'Failed to add device:', undefined, error as Error);
 			v4ToastManager.showError(
 				`Failed to add device: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);
@@ -132,7 +133,7 @@ export const MFADeviceManager: React.FC<MFADeviceManagerProps> = ({
 			loadDevices();
 			onDeviceAdded?.(activeDevice);
 		} catch (error) {
-			console.error('Failed to verify device:', error);
+			logger.error('MFADeviceManager', 'Failed to verify device:', undefined, error as Error);
 			v4ToastManager.showError(
 				`Failed to verify device: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);
@@ -158,7 +159,7 @@ export const MFADeviceManager: React.FC<MFADeviceManagerProps> = ({
 				`[${new Date().toISOString()}] [🧩 UI-NOTIFICATIONS] Device removed successfully in MFADeviceManager: ${deviceToRemove}`
 			);
 		} catch (error) {
-			console.error('Failed to remove device:', error);
+			logger.error('MFADeviceManager', 'Failed to remove device:', undefined, error as Error);
 			v4ToastManager.showError(
 				`Failed to remove device: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);

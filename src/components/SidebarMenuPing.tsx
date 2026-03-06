@@ -11,6 +11,7 @@ import {
 	type SidebarMenuGroup,
 	type SidebarMenuItem,
 } from '../config/sidebarMenuConfig';
+import { logger } from '../utils/logger';
 import { Icon } from './Icon/Icon';
 import { renderVersionBadge } from './VersionBadgeService';
 
@@ -329,7 +330,7 @@ export const SidebarMenuPing: React.FC<{ dragMode?: boolean; searchQuery?: strin
 			localStorage.setItem(PING_MENU_STORAGE_KEY, JSON.stringify(serializeGroups(groups)));
 			localStorage.setItem('sidebarPing.menuVersion', PING_MENU_VERSION);
 		} catch (e) {
-			console.warn('SidebarMenuPing: failed to save order', e);
+			logger.warn('SidebarMenuPing', 'SidebarMenuPing: failed to save order', { error: e });
 		}
 	}, []);
 

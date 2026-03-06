@@ -1,6 +1,7 @@
 import { FiCheck, FiCopy } from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../utils/logger';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
 const Container = styled.div`
@@ -88,7 +89,12 @@ const SAMLAssertionDisplay: React.FC<SAMLAssertionDisplayProps> = ({
 
 			return formatted;
 		} catch (error) {
-			console.error('Error formatting SAML assertion:', error);
+			logger.error(
+				'SAMLAssertionDisplay',
+				'Error formatting SAML assertion:',
+				undefined,
+				error as Error
+			);
 			return xml; // Return original if formatting fails
 		}
 	};

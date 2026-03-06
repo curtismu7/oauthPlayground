@@ -13,6 +13,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
 import { useSecurityAnalytics } from '../hooks/useSecurityAnalytics';
+import { logger } from '../utils/logger';
 import { ComplianceStandard, SecuritySeverity } from '../utils/securityAnalytics';
 
 // Styled components
@@ -446,7 +447,12 @@ export const SecurityAnalyticsDashboard: React.FC = () => {
 				announceToScreenReader('Security analytics data refreshed successfully');
 			}, 1000);
 		} catch (error) {
-			console.error('Failed to refresh security analytics:', error);
+			logger.error(
+				'SecurityAnalyticsDashboard',
+				'Failed to refresh security analytics:',
+				undefined,
+				error as Error
+			);
 			setIsRefreshing(false);
 			announceToScreenReader('Failed to refresh security analytics data');
 		}
