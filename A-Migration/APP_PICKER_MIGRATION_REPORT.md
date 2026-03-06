@@ -1,8 +1,9 @@
-# App Lookup Service (CompactAppPickerV8U) — Migration Report
+# App Lookup Service (CompactAppPickerV9) — Migration Report
 
 **Generated**: March 6, 2026  
-**Rule**: Every flow page that collects PingOne credentials MUST include `CompactAppPickerV8U` so users can browse discovered apps and auto-apply credentials in one click.  
-**Component**: `CompactAppPickerV8U` from `src/v8u/components/CompactAppPickerV8U.tsx`
+**Updated**: March 6, 2026 - Now using V9 version  
+**Rule**: Every flow page that collects PingOne credentials MUST include `CompactAppPickerV9` so users can browse discovered apps and auto-apply credentials in one click.  
+**Component**: `CompactAppPickerV9` from `src/components/CompactAppPickerV9.tsx` (V9 Standardized)
 
 ---
 
@@ -10,15 +11,15 @@
 
 ```tsx
 // 1. Imports
-import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
-import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
+import type { V9DiscoveredApp } from '../../../services/v9/V9AppDiscoveryService';
+import { CompactAppPickerV9 } from '../../../components/CompactAppPickerV9';
 
 // 2. Callback — populates clientId (and any other relevant fields) from selected app
 const handleAppSelected = useCallback(
-  (app: DiscoveredApp) => {
+  (app: V9DiscoveredApp) => {
     setCredentials((prev) => ({
       ...prev,
-      clientId: app.id,
+      clientId: app.clientId, // Note: clientId instead of id
       // some flows also use: environmentId: app.environmentId (if available)
     }));
   },
@@ -26,43 +27,49 @@ const handleAppSelected = useCallback(
 );
 
 // 3. JSX — place inside the credentials section, above the manual credential inputs
-<CompactAppPickerV8U
+<CompactAppPickerV9
   environmentId={credentials.environmentId ?? ''}
   onAppSelected={handleAppSelected}
+  grantType="jwt-bearer"  // Optional: filter by grant type
+  compact={false}          // Optional: use compact mode
 />
 ```
 
 > **Import depth varies by location** — adjust `../../../` to match the file's depth relative to `src/`.
+> **V9 Breaking Changes**: Use `V9DiscoveredApp` type and `app.clientId` instead of `app.id`.
 
 ---
 
 ## Audit Results (March 6, 2026)
 
-### ✅ Compliant — Has `CompactAppPickerV8U`
+### ✅ Compliant — Has App Picker (Need V9 Migration)
 
-| Flow | Location |
-|---|---|
-| ClientCredentialsFlowV9.tsx | src/pages/flows/v9/ |
-| DPoPAuthorizationCodeFlowV9.tsx | src/pages/flows/v9/ |
-| DeviceAuthorizationFlowV9.tsx | src/pages/flows/v9/ |
-| ImplicitFlowV9.tsx | src/pages/flows/v9/ |
-| JWTBearerTokenFlowV9.tsx | src/pages/flows/v9/ |
-| MFALoginHintFlowV9.tsx | src/pages/flows/v9/ |
-| MFAWorkflowLibraryFlowV9.tsx | src/pages/flows/v9/ |
-| OAuthAuthorizationCodeFlowV9.tsx | src/pages/flows/v9/ |
-| OAuthAuthorizationCodeFlowV9_Condensed.tsx | src/pages/flows/v9/ |
-| OAuthROPCFlowV9.tsx | src/pages/flows/v9/ |
-| OIDCHybridFlowV9.tsx | src/pages/flows/v9/ |
-| PingOnePARFlowV9.tsx | src/pages/flows/v9/ |
-| RARFlowV9.tsx | src/pages/flows/v9/ |
-| SAMLBearerAssertionFlowV9.tsx | src/pages/flows/v9/ |
-| TokenExchangeFlowV9.tsx | src/pages/flows/v9/ |
-| WorkerTokenFlowV9.tsx | src/pages/flows/v9/ |
-| V7RMOIDCResourceOwnerPasswordFlow.tsx | src/pages/flows/ |
+| Flow | Location | Current | Needed |
+|---|---|---|---|
+| ClientCredentialsFlowV9.tsx | src/pages/flows/v9/ | CompactAppPickerV8U | → CompactAppPickerV9 |
+| DPoPAuthorizationCodeFlowV9.tsx | src/pages/flows/v9/ | CompactAppPickerV8U | → CompactAppPickerV9 |
+| DeviceAuthorizationFlowV9.tsx | src/pages/flows/v9/ | CompactAppPickerV8U | → CompactAppPickerV9 |
+| ImplicitFlowV9.tsx | src/pages/flows/v9/ | CompactAppPickerV8U | → CompactAppPickerV9 |
+| JWTBearerTokenFlowV9.tsx | src/pages/flows/v9/ | CompactAppPickerV8U | → CompactAppPickerV9 |
+| MFALoginHintFlowV9.tsx | src/pages/flows/v9/ | CompactAppPickerV8U | → CompactAppPickerV9 |
+| MFAWorkflowLibraryFlowV9.tsx | src/pages/flows/v9/ | CompactAppPickerV8U | → CompactAppPickerV9 |
+| OAuthAuthorizationCodeFlowV9.tsx | src/pages/flows/v9/ | CompactAppPickerV8U | → CompactAppPickerV9 |
+| OAuthAuthorizationCodeFlowV9_Condensed.tsx | src/pages/flows/v9/ | CompactAppPickerV8U | → CompactAppPickerV9 |
+| OAuthROPCFlowV9.tsx | src/pages/flows/v9/ | CompactAppPickerV8U | → CompactAppPickerV9 |
+| OIDCHybridFlowV9.tsx | src/pages/flows/v9/ | CompactAppPickerV8U | → CompactAppPickerV9 |
+| PingOnePARFlowV9.tsx | src/pages/flows/v9/ | CompactAppPickerV8U | → CompactAppPickerV9 |
+| RARFlowV9.tsx | src/pages/flows/v9/ | CompactAppPickerV8U | → CompactAppPickerV9 |
+| SAMLBearerAssertionFlowV9.tsx | src/pages/flows/v9/ | CompactAppPickerV8U | → CompactAppPickerV9 |
+| TokenExchangeFlowV9.tsx | src/pages/flows/v9/ | CompactAppPickerV8U | → CompactAppPickerV9 |
+| WorkerTokenFlowV9.tsx | src/pages/flows/v9/ | CompactAppPickerV8U | → CompactAppPickerV9 |
+| V7RMOIDCResourceOwnerPasswordFlow.tsx | src/pages/flows/ | CompactAppPickerV8U | → CompactAppPickerV9 |
+| OAuth2ResourceOwnerPasswordFlow.tsx | src/pages/flows/ | CompactAppPickerV8U | → CompactAppPickerV9 |
+| KrogerGroceryStoreMFA.tsx | src/pages/flows/ | CompactAppPickerV8U | → CompactAppPickerV9 |
+| UserInfoFlow.tsx | src/pages/flows/ | CompactAppPickerV8U | → CompactAppPickerV9 |
 
 ---
 
-### ❌ Non-Compliant — Needs `CompactAppPickerV8U` Added
+### ❌ Non-Compliant — Needs `CompactAppPickerV9` Added
 
 #### V9 Flows Outside `v9/` (Priority: HIGH)
 
@@ -76,20 +83,17 @@ const handleAppSelected = useCallback(
 | File | Route | Status |
 |---|---|---|
 | DPoPFlow.tsx | `/flows/dpop` | ❌ MISSING |
-| IDTokensFlow.tsx | `/flows/id-tokens` | ❌ MISSING |
-| JWTBearerFlow.tsx | `/flows/jwt-bearer` | ❌ MISSING |
-| KrogerGroceryStoreMFA.tsx | `/flows/kroger-grocery-store-mfa` | ❌ MISSING |
+| IDTokensFlow.tsx | `/flows/id-tokens` | ✅ COMPLETE - Added CompactAppPickerV9 |
+| JWTBearerFlow.tsx | `/flows/jwt-bearer` | ✅ COMPLETE - Added CompactAppPickerV9 |
 | MFAFlow.tsx | `/flows/mfa` | ❌ MISSING |
 | OAuth2CompliantAuthorizationCodeFlow.tsx | `/flows/oauth-authorization-code` | ❌ MISSING |
-| OAuth2ResourceOwnerPasswordFlow.tsx | `/flows/ropc` | ❌ MISSING |
 | PARFlow.tsx | `/flows/par` | ❌ MISSING |
 | PingOneLogoutFlow.tsx | `/flows/pingone-logout` | ❌ MISSING |
 | SAMLServiceProviderFlowV1.tsx | `/flows/saml-sp` | ❌ MISSING |
 | TokenRevocationFlow.tsx | `/flows/token-revocation` | ❌ MISSING |
-| UserInfoFlow.tsx | `/flows/userinfo` | ❌ MISSING |
 | UserInfoPostFlow.tsx | `/flows/userinfo-post` | ❌ MISSING |
 
-**Total non-compliant: 15 flows** (2 V9 + 13 non-V9)
+**Total non-compliant: 10 flows** (2 V9 + 8 non-V9)
 
 ---
 
@@ -97,10 +101,19 @@ const handleAppSelected = useCallback(
 
 Work through the list above in order (V9 first, then non-V9). For each file:
 
-- [ ] Add `import type { DiscoveredApp } from '...'` (adjust path)
-- [ ] Add `import { CompactAppPickerV8U } from '...'` (adjust path)
+### For Existing V8U Implementations (Migration to V9):
+- [ ] Update import: `import type { V9DiscoveredApp } from '../../../services/v9/V9AppDiscoveryService'`
+- [ ] Update import: `import { CompactAppPickerV9 } from '../../../components/CompactAppPickerV9'`
+- [ ] Update callback: Change `app.id` to `app.clientId`
+- [ ] Update component: Change `CompactAppPickerV8U` to `CompactAppPickerV9`
+- [ ] Add optional props: `grantType`, `compact`, `disabled` as needed
+
+### For New Implementations:
+- [ ] Add `import type { V9DiscoveredApp } from '...'` (adjust path)
+- [ ] Add `import { CompactAppPickerV9 } from '...'` (adjust path)
 - [ ] Add `handleAppSelected` callback (uses `useCallback`)
-- [ ] Render `<CompactAppPickerV8U environmentId={...} onAppSelected={handleAppSelected} />` inside credentials section
+- [ ] Add `<CompactAppPickerV9 />` component above credential inputs
+- [ ] Test app discovery and selection functionality
 - [ ] Mark row as ✅ in this doc
 
 ### V9 Flows (pages/flows/)

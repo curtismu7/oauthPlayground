@@ -373,7 +373,7 @@ const ImplicitFlowV9: React.FC = () => {
 		controller.setCredentials(reloadedCredentials);
 		setCredentials(reloadedCredentials);
 		logger.info('ImplicitFlowV9', 'Variant changed, reloaded credentials', { reloadedCredentials });
-	}, [selectedVariant, controller.setFlowVariant, controller.setCredentials]);
+	}, [selectedVariant]); // Only run when variant changes
 
 	// Sync credentials with variant
 	useEffect(() => {

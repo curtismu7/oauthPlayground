@@ -1145,7 +1145,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 		if (restoreStep) {
 			const step = parseInt(restoreStep, 10);
 			sessionStorage.removeItem('restore_step'); // Clear after use
-			console.log('🔗 [DeviceAuthorizationFlowV6] Restoring to step:', step);
+			logger.info('DeviceAuthorizationFlowV9', 'Restoring to step', { step });
 			return step;
 		}
 		return 0;
@@ -1309,7 +1309,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 	// Load credentials using V7 standardized storage
 	useEffect(() => {
 		const loadCredentials = async () => {
-			console.log('🔄 [DeviceAuth-V7] Loading credentials with comprehensive service...');
+			logger.info('DeviceAuthorizationFlowV9', 'Loading credentials with comprehensive service');
 
 			const flowData = comprehensiveFlowDataService.loadFlowDataComprehensive({
 				flowKey: 'device-authorization-v9',
@@ -1318,7 +1318,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 			});
 
 			if (flowData.flowCredentials && Object.keys(flowData.flowCredentials).length > 0) {
-				console.log('✅ [DeviceAuth-V7] Found flow-specific credentials');
+				logger.info('DeviceAuthorizationFlowV9', 'Found flow-specific credentials');
 				const updatedCredentials = {
 					environmentId: flowData.sharedEnvironment?.environmentId || '',
 					clientId: flowData.flowCredentials.clientId,
@@ -1328,13 +1328,13 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 				};
 				ensureCredentials(updatedCredentials);
 			} else if (flowData.sharedEnvironment?.environmentId) {
-				console.log('ℹ️ [DeviceAuth-V7] Using shared environment data only');
+				logger.info('DeviceAuthorizationFlowV9', 'Using shared environment data only');
 				const updatedCredentials = {
 					environmentId: flowData.sharedEnvironment.environmentId,
 				};
 				ensureCredentials(updatedCredentials);
 			} else {
-				console.log('ℹ️ [DeviceAuth-V7] No saved credentials found, using defaults');
+				logger.info('DeviceAuthorizationFlowV9', 'No saved credentials found, using defaults');
 			}
 		};
 
@@ -1382,7 +1382,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 	// Load credentials using V7 standardized storage
 	useEffect(() => {
 		const loadCredentials = async () => {
-			console.log('🔄 [DeviceAuth-V7] Loading credentials with comprehensive service...');
+			logger.info('DeviceAuthorizationFlowV9', 'Loading credentials with comprehensive service');
 
 			try {
 				const flowData = comprehensiveFlowDataService.loadFlowDataComprehensive({
@@ -1392,7 +1392,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 				});
 
 				if (flowData.flowCredentials && Object.keys(flowData.flowCredentials).length > 0) {
-					console.log('✅ [DeviceAuth-V7] Found flow-specific credentials:', {
+					logger.info('DeviceAuthorizationFlowV9', 'Found flow-specific credentials', {
 						hasClientId: !!flowData.flowCredentials.clientId,
 						hasEnvironmentId: !!flowData.sharedEnvironment?.environmentId,
 						clientIdLength: flowData.flowCredentials.clientId?.length || 0,
@@ -1409,7 +1409,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 							flowData.flowCredentials.scopes ||
 							(selectedVariant === 'oidc' ? 'openid profile email' : 'openid'),
 					};
-					console.log('🔧 [DeviceAuth-V7] Setting loaded credentials:', {
+					logger.info('DeviceAuthorizationFlowV9', 'Setting loaded credentials', {
 						environmentId: updatedCredentials.environmentId ? '***' : '',
 						clientId: updatedCredentials.clientId
 							? `${updatedCredentials.clientId.substring(0, 8)}...`
@@ -1417,13 +1417,15 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 					});
 					deviceFlow.setCredentials(updatedCredentials);
 				} else if (flowData.sharedEnvironment?.environmentId) {
-					console.log('ℹ️ [DeviceAuth-V7] Using shared environment data only');
+					logger.info('DeviceAuthorizationFlowV9', 'Using shared environment data only', {
+						environmentId: flowData.sharedEnvironment.environmentId,
+					});
 					const updatedCredentials = {
 						environmentId: flowData.sharedEnvironment.environmentId,
 					};
 					deviceFlow.setCredentials(updatedCredentials);
 				} else {
-					console.log('ℹ️ [DeviceAuth-V7] No saved credentials found, using defaults');
+					logger.info('DeviceAuthorizationFlowV9', 'No saved credentials found, using defaults');
 				}
 			} catch (error) {
 				modernMessaging.showBanner({
@@ -1446,7 +1448,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 			deviceFlow.credentials &&
 			(deviceFlow.credentials.environmentId || deviceFlow.credentials.clientId)
 		) {
-			console.log('🔧 [Device Authorization V7] Saving credentials to comprehensive service:', {
+			logger.info('DeviceAuthorizationFlowV9', 'Saving credentials to comprehensive service', {
 				flowKey: 'device-authorization-v9',
 				environmentId: deviceFlow.credentials.environmentId,
 				clientId: `${deviceFlow.credentials.clientId?.substring(0, 8)}...`,
@@ -1500,7 +1502,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 						dismissible: true,
 					});
 				} else {
-					console.log('✅ [Device Authorization V7] Credentials saved successfully');
+					logger.info('DeviceAuthorizationFlowV9', 'Credentials saved successfully');
 				}
 			} catch (error) {
 				modernMessaging.showBanner({
@@ -1558,9 +1560,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 			localStorage.setItem('token_to_analyze', deviceFlow.tokens.access_token);
 			localStorage.setItem('token_type', 'access');
 			localStorage.setItem('flow_source', 'device-authorization-v6');
-			console.log(
-				'🔍 [DeviceAuthorizationFlowV6] Passing access token to Token Management via localStorage'
-			);
+			logger.info('DeviceAuthorizationFlowV9', 'Passing access token to Token Management via localStorage');
 		}
 
 		window.location.href = '/token-management';
@@ -1584,9 +1584,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 			localStorage.setItem('token_to_analyze', deviceFlow.tokens.refresh_token);
 			localStorage.setItem('token_type', 'refresh');
 			localStorage.setItem('flow_source', 'device-authorization-v6');
-			console.log(
-				'🔍 [DeviceAuthorizationFlowV6] Passing refresh token to Token Management via localStorage'
-			);
+			logger.info('DeviceAuthorizationFlowV9', 'Passing refresh token to Token Management via localStorage');
 		}
 
 		window.location.href = '/token-management';
@@ -1706,9 +1704,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 			sessionStorage.removeItem('worker-token-cache');
 			localStorage.removeItem('worker-apps-cache');
 
-			console.log(
-				'🔄 [DeviceAuthorizationFlowV9] Reset: cleared ConfigChecker and pre-flight cache data'
-			);
+			logger.info('DeviceAuthorizationFlowV9', 'Reset: cleared ConfigChecker and pre-flight cache data');
 		} catch (_error) {
 			// Background cache clear — non-critical
 		}
@@ -1716,7 +1712,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 		// Clear Device Authorization Flow V9-specific storage with error handling
 		try {
 			FlowCredentialService.clearFlowState('device-authorization-v9');
-			console.log('🔧 [Device Authorization V7] Cleared flow-specific storage');
+			logger.info('DeviceAuthorizationFlowV9', 'Cleared flow-specific storage');
 		} catch (error) {
 			modernMessaging.showBanner({
 				type: 'error',
@@ -1729,7 +1725,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 		// Clear credential backup when flow is reset
 		try {
 			clearBackup();
-			console.log('🔧 [Device Authorization V7] Cleared credential backup');
+			logger.info('DeviceAuthorizationFlowV9', 'Cleared credential backup');
 		} catch (_error) {
 			// Background credential backup clear — non-critical
 		}
@@ -3076,13 +3072,13 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 				flowType="device-authorization-v6"
 				// Discovery props
 				onDiscoveryComplete={(result) => {
-					console.log('[Device Authz V6] Discovery completed:', result);
+					logger.info('DeviceAuthorizationFlowV9', 'Discovery completed', { result });
 					// Extract environment ID from issuer URL using the standard service
 					if (result.issuerUrl) {
 						const extractedEnvId = oidcDiscoveryService.extractEnvironmentId(result.issuerUrl);
 						if (extractedEnvId) {
 							ensureCredentials({ environmentId: extractedEnvId });
-							console.log('[Device Authz V6] Auto-extracted Environment ID:', extractedEnvId);
+							logger.info('DeviceAuthorizationFlowV9', 'Auto-extracted Environment ID', { extractedEnvId });
 							if (extractedEnvId && (deviceFlow.credentials?.clientId || '')) {
 								modernMessaging.showFooterMessage({
 									type: 'info',
@@ -3214,7 +3210,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 				pingOneAppState={pingOneConfig}
 				onPingOneAppStateChange={setPingOneConfig}
 				onPingOneSave={() => {
-					console.log('[Device Authz V6] PingOne config saved:', pingOneConfig);
+					logger.info('DeviceAuthorizationFlowV9', 'PingOne config saved', { pingOneConfig });
 					modernMessaging.showFooterMessage({
 						type: 'info',
 						message: 'PingOne configuration saved successfully!',
