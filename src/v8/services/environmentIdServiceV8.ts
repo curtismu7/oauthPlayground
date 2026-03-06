@@ -121,7 +121,7 @@ export class EnvironmentIdServiceV8 {
 	 * @example
 	 * const result = EnvironmentIdServiceV8.validateEnvironmentId(envId);
 	 * if (!result.valid) {
-	 *   toastV8.error(result.error);
+	 *   modernMessaging.showBanner({ type: 'error', title: 'Error', message: result.error, dismissible: true });
 	 * }
 	 */
 	static validateEnvironmentId(envId: string): {

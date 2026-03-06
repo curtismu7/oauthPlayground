@@ -27,7 +27,7 @@ import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationService
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import type { DeviceAuthenticationPolicy, MFACredentials } from '../shared/MFATypes';
 
@@ -160,7 +160,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 				tokenType: 'user' as const,
 			}));
 
-			toastV8.success('User token automatically loaded from your recent login!');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'User token automatically loaded from your recent login!', duration: 3000 });
 		} else if (isAuthenticated && authToken && !credentials.userToken) {
 			console.log(`[📱 SMS-CONFIG-PAGE-V8] ⚠️ Auth token available but not populating`, {
 				hasAutoPopulated: hasAutoPopulatedRef.current,
@@ -273,7 +273,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 
 			if (error) {
 				const errorDescription = searchParams.get('error_description') || '';
-				toastV8.error(`Login failed: ${error}${errorDescription ? ` - ${errorDescription}` : ''}`);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Login failed: ${error}${errorDescription ? ` - ${errorDescription}` : ''}`, dismissible: true });
 				sessionStorage.removeItem('user_login_state_v8');
 				sessionStorage.removeItem('user_login_code_verifier_v8');
 				sessionStorage.removeItem('user_login_credentials_temp_v8');
@@ -298,7 +298,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 					});
 					// #endregion
 					console.warn(`[📱 SMS-CONFIG-PAGE-V8] State mismatch - possible CSRF attack`);
-					toastV8.error('Security validation failed. Please try again.');
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Security validation failed. Please try again.', dismissible: true });
 					sessionStorage.removeItem('user_login_state_v8');
 					sessionStorage.removeItem('user_login_code_verifier_v8');
 					sessionStorage.removeItem('user_login_credentials_temp_v8');
@@ -335,7 +335,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 					// #endregion
 
 					if (!storedCodeVerifier || !storedCredentials) {
-						toastV8.error('Missing PKCE verifier or credentials. Please try logging in again.');
+						modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Missing PKCE verifier or credentials. Please try logging in again.', dismissible: true });
 						sessionStorage.removeItem('user_login_state_v8');
 						sessionStorage.removeItem('user_login_code_verifier_v8');
 						sessionStorage.removeItem('user_login_credentials_temp_v8');
@@ -413,7 +413,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 						return updated;
 					});
 
-					toastV8.success('Authentication successful! You can now proceed.');
+					modernMessaging.showFooterMessage({ type: 'info', message: 'Authentication successful! You can now proceed.', duration: 3000 });
 				} catch (error) {
 					// #region agent log
 					sendAnalyticsLog({
@@ -777,7 +777,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 
 			if (!credentials.deviceAuthenticationPolicyId) {
 				console.log(`${_MODULE_TAG} Missing deviceAuthenticationPolicyId`);
-				toastV8.warning('Please select a Device Authentication Policy before proceeding');
+				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Please select a Device Authentication Policy before proceeding', dismissible: true });
 				return;
 			}
 
@@ -785,21 +785,19 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 				console.log(
 					`${_MODULE_TAG} Invalid token - tokenType: ${tokenType}, isTokenValid: ${isTokenValid}`
 				);
-				toastV8.warning(
-					`Please provide a valid ${tokenType === 'worker' ? 'Worker Token' : 'User Token'} before proceeding`
-				);
+				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: `Please provide a valid ${tokenType === 'worker' ? 'Worker Token' : 'User Token'} before proceeding`, dismissible: true });
 				return;
 			}
 
 			if (!credentials.environmentId) {
 				console.log(`${_MODULE_TAG} Missing environmentId`);
-				toastV8.warning('Please enter an Environment ID before proceeding');
+				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Please enter an Environment ID before proceeding', dismissible: true });
 				return;
 			}
 
 			if (!credentials.username) {
 				console.log(`${_MODULE_TAG} Missing username`);
-				toastV8.warning('Please enter a Username before proceeding');
+				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Please enter a Username before proceeding', dismissible: true });
 				return;
 			}
 
@@ -1267,7 +1265,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 								return updated;
 							});
 							setShowUserLoginModal(false);
-							toastV8.success('User token received successfully!');
+							modernMessaging.showFooterMessage({ type: 'info', message: 'User token received successfully!', duration: 3000 });
 						}}
 						environmentId={credentials.environmentId}
 					/>

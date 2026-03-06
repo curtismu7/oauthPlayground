@@ -21,7 +21,7 @@ import React, { useCallback, useMemo } from 'react';
 import styled from 'styled-components';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { type FlowType, type SpecVersion } from '@/v8/services/specVersionServiceV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { type UnifiedFlowCredentials } from '../services/unifiedFlowIntegrationV8U';
 import { TokenDisplayV8U } from './TokenDisplayV8U';
 
@@ -242,7 +242,7 @@ export const UnifiedFlowSuccessStepV8U: React.FC<UnifiedFlowSuccessStepV8UProps>
 		document.body.removeChild(link);
 		URL.revokeObjectURL(url);
 
-		toastV8.success('✅ Flow data exported successfully!');
+		modernMessaging.showFooterMessage({ type: 'info', message: '✅ Flow data exported successfully!', duration: 3000 });
 	}, [flowType, specVersion, credentials, tokens, flowInfo.name]);
 
 	// Get educational content based on flow type

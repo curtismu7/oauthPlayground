@@ -15,7 +15,7 @@ import React, { useEffect, useState } from 'react';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
 // import { WorkerTokenStatusDisplayV8 } from '@/v8/components/WorkerTokenStatusDisplayV8'; // Removed
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';
 import type { DeviceType } from './MFATypes';
 
@@ -236,7 +236,7 @@ export const MFAConfigurationStepV8V2: React.FC<MFAConfigurationStepV8Props> = (
 														detail: { workerToken: config.workerToken },
 													})
 												);
-												toastV8.info(`Silent API Token Retrieval set to: ${newValue}`);
+												modernMessaging.showFooterMessage({ type: 'info', message: `Silent API Token Retrieval set to: ${newValue}`, duration: 3000 });
 											}}
 											style={{
 												width: '20px',
@@ -290,7 +290,7 @@ export const MFAConfigurationStepV8V2: React.FC<MFAConfigurationStepV8Props> = (
 														detail: { workerToken: config.workerToken },
 													})
 												);
-												toastV8.info(`Show Token at End set to: ${newValue}`);
+												modernMessaging.showFooterMessage({ type: 'info', message: `Show Token at End set to: ${newValue}`, duration: 3000 });
 											}}
 											style={{
 												width: '20px',
@@ -440,7 +440,7 @@ export const MFAConfigurationStepV8V2: React.FC<MFAConfigurationStepV8Props> = (
 										type="button"
 										onClick={() => {
 											setCredentials((prev) => ({ ...prev, userToken: '' }));
-											toastV8.success('User token cleared');
+											modernMessaging.showFooterMessage({ type: 'info', message: 'User token cleared', duration: 3000 });
 										}}
 										style={{
 											flex: '1',

@@ -11,7 +11,7 @@ import { usePageScroll } from '../../../hooks/usePageScroll';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import { EnvironmentIdServiceV8 } from '../../../services/v9/environmentIdServiceV9';
 import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
 
@@ -264,7 +264,7 @@ const OAuthAuthorizationCodeFlowV9_Condensed: React.FC = () => {
 		setTimeout(() => {
 			setHasTokens(true);
 			setExpandedSections((prev) => ({ ...prev, results: true }));
-			toastV8.success('Authorization flow completed successfully!');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'Authorization flow completed successfully!', duration: 3000 });
 		}, 2000);
 	}, []);
 
@@ -672,7 +672,7 @@ const OAuthAuthorizationCodeFlowV9_Condensed: React.FC = () => {
 							if (importedCredentials.scope) {
 								handleCredentialChange('scope', importedCredentials.scope);
 							}
-							toastV8.success('Credentials imported successfully');
+							modernMessaging.showFooterMessage({ type: 'info', message: 'Credentials imported successfully', duration: 3000 });
 						}}
 					/>
 				</SectionContent>

@@ -17,7 +17,7 @@ import { useGlobalMFA } from '@/v8/contexts/GlobalMFAContext';
 import { borderRadius, colors, spacing, typography } from '@/v8/design/tokens';
 import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
 import { unifiedFlowServiceIntegration } from '@/v8/flows/unified/services/unifiedFlowServiceIntegration';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const MODULE_TAG = '[🔍 DEVICE-SELECTION-MODERN]';
 
@@ -63,12 +63,12 @@ export const UnifiedDeviceSelectionStepModern: React.FC<UnifiedDeviceSelectionSt
 			setExistingDevices(devices as unknown as ExistingDevice[]);
 
 			if (devices.length === 0) {
-				toastV8.info(`No existing ${config.displayName} devices found`);
+				modernMessaging.showFooterMessage({ type: 'info', message: `No existing ${config.displayName} devices found`, duration: 3000 });
 			}
 		} catch (error: unknown) {
 			const errorMsg = error instanceof Error ? error.message : 'Failed to load devices';
 			setLoadError(errorMsg);
-			toastV8.error(errorMsg);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMsg, dismissible: true });
 		} finally {
 			setIsLoading(false);
 		}
@@ -84,7 +84,7 @@ export const UnifiedDeviceSelectionStepModern: React.FC<UnifiedDeviceSelectionSt
 
 	const handleUseDevice = useCallback(() => {
 		if (!selectedDeviceId) {
-			toastV8.warning('Please select a device');
+			modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Please select a device', dismissible: true });
 			return;
 		}
 
@@ -99,7 +99,7 @@ export const UnifiedDeviceSelectionStepModern: React.FC<UnifiedDeviceSelectionSt
 
 		nav.markStepComplete();
 		nav.goToStep(3); // Skip to activation
-		toastV8.success(`Using ${device.name || config.displayName}`);
+		modernMessaging.showFooterMessage({ type: 'info', message: `Using ${device.name || config.displayName}`, duration: 3000 });
 	}, [selectedDeviceId, existingDevices, config, setMfaState, nav]);
 
 	const handleRegisterNew = useCallback(() => {
