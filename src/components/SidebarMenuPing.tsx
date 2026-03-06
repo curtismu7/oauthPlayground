@@ -7,11 +7,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
-	SIDEBAR_MENU_GROUPS,
+	getSidebarMenuGroupsWithVersionBadges,
 	type SidebarMenuGroup,
 	type SidebarMenuItem,
 } from '../config/sidebarMenuConfig';
 import { Icon } from './Icon/Icon';
+import { renderVersionBadge } from './VersionBadgeService';
 
 const PING_MENU_STORAGE_KEY = 'sidebarPing.menuOrder';
 const PING_MENU_VERSION = '1';
@@ -94,14 +95,14 @@ function restoreGroups(
 function getInitialGroups(): SidebarMenuGroup[] {
 	try {
 		const version = localStorage.getItem('sidebarPing.menuVersion');
-		if (version !== PING_MENU_VERSION) return [...SIDEBAR_MENU_GROUPS];
+		if (version !== PING_MENU_VERSION) return getSidebarMenuGroupsWithVersionBadges();
 		const raw = localStorage.getItem(PING_MENU_STORAGE_KEY);
-		if (!raw) return [...SIDEBAR_MENU_GROUPS];
+		if (!raw) return getSidebarMenuGroupsWithVersionBadges();
 		const saved = JSON.parse(raw) as SerializedGroup[];
-		if (!Array.isArray(saved)) return [...SIDEBAR_MENU_GROUPS];
-		return restoreGroups(saved, SIDEBAR_MENU_GROUPS);
+		if (!Array.isArray(saved)) return getSidebarMenuGroupsWithVersionBadges();
+		return restoreGroups(saved, getSidebarMenuGroupsWithVersionBadges());
 	} catch {
-		return [...SIDEBAR_MENU_GROUPS];
+		return getSidebarMenuGroupsWithVersionBadges();
 	}
 }
 
@@ -164,20 +165,7 @@ function MenuItemLink({
 				<Icon name={DEFAULT_ITEM_ICON} size="sm" />
 			</span>
 			<span className="sidebar-ping__item-label">{item.label}</span>
-			{item.migratedToV9 && (
-				<span 
-					role="img"
-					aria-label="Migrated to V9"
-					title="Migrated to V9"
-					style={{
-						color: '#fbbf24',
-						fontSize: '0.875rem',
-						marginLeft: '0.25rem',
-					}}
-				>
-					★
-				</span>
-			)}
+			{renderVersionBadge(item)}
 		</Link>
 	);
 	const handleDragOver = (e: React.DragEvent) => {

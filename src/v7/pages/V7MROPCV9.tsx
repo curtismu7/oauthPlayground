@@ -1,7 +1,8 @@
-// src/v7m/pages/V7MROPC.tsx
+// src/v7/pages/V7MROPCV9.tsx
 
 import { FiAlertTriangle, FiCheck, FiCopy, FiEye, FiEyeOff, FiKey, FiLock, FiUser } from '@icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { modernMessaging } from '../../services/v9/V9ModernMessagingService';
 import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 import {
 	introspectToken,
@@ -23,7 +24,7 @@ type Props = {
 	title?: string;
 };
 
-export const V7MROPC: React.FC<Props> = ({
+export const V7MROPCV9: React.FC<Props> = ({
 	oidc = false,
 	title = 'V7M Resource Owner Password Credentials',
 }) => {
@@ -121,8 +122,8 @@ export const V7MROPC: React.FC<Props> = ({
 			await navigator.clipboard.writeText(tokenRequestUrl);
 			setCopiedRequestUrl(true);
 			setTimeout(() => setCopiedRequestUrl(false), 2000);
-		} catch (err) {
-			console.error('Failed to copy URL:', err);
+		} catch {
+			modernMessaging.showFooterMessage({ type: 'error', message: 'Failed to copy URL to clipboard' });
 		}
 	};
 
@@ -760,4 +761,4 @@ const preJson: React.CSSProperties = {
 	fontSize: 13,
 };
 
-export default V7MROPC;
+export default V7MROPCV9;

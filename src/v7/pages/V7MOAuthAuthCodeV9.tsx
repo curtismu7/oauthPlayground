@@ -1,4 +1,4 @@
-// src/v7m/pages/V7MOAuthAuthCode.tsx
+// src/v7/pages/V7MOAuthAuthCodeV9.tsx
 
 import { FiBook, FiKey, FiSend } from '@icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
@@ -29,7 +29,7 @@ type Props = {
 	title?: string;
 };
 
-export const V7MOAuthAuthCode: React.FC<Props> = ({
+export const V7MOAuthAuthCodeV9: React.FC<Props> = ({
 	oidc = false,
 	title = 'V7M OAuth Authorization Code',
 }) => {
@@ -646,4 +646,4 @@ const preJson: React.CSSProperties = {
 	wordBreak: 'break-word',
 };
 
-export default V7MOAuthAuthCode;
+export default V7MOAuthAuthCodeV9;

@@ -4,7 +4,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { credentialManager } from '../utils/credentialManager';
 import { useFlowStepManager } from '../utils/flowStepSystem';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 export interface V7RMCredentials {
 	environmentId: string;
@@ -155,12 +155,10 @@ export const useV7RMOIDCResourceOwnerPasswordControllerEnhanced = ({
 				console.log('✅ [V7RM-Enhanced] Credentials saved successfully');
 			}
 
-			v4ToastManager.showSuccess('Configuration saved successfully.');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'Configuration saved successfully', duration: 3000 });
 		} catch (error) {
 			console.error('❌ [V7RM-Enhanced] Save credentials failed:', error);
-			v4ToastManager.showError('Failed to save configuration', {
-				error: error instanceof Error ? error.message : 'Unknown error',
-			});
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save configuration', dismissible: true });
 		} finally {
 			setIsSavingCredentials(false);
 		}
@@ -175,7 +173,7 @@ export const useV7RMOIDCResourceOwnerPasswordControllerEnhanced = ({
 			!credentials.username ||
 			!credentials.password
 		) {
-			v4ToastManager.showError('All credentials are required for Resource Owner Password flow');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'All credentials are required for Resource Owner Password flow', dismissible: true });
 			return;
 		}
 
@@ -249,12 +247,10 @@ export const useV7RMOIDCResourceOwnerPasswordControllerEnhanced = ({
 			// Auto-advance to next step
 			stepManager.setStep(stepManager.currentStepIndex + 1, 'authentication completed');
 
-			v4ToastManager.showSuccess('Authentication successful! Tokens received.');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'Authentication successful! Tokens received.', duration: 3000 });
 		} catch (error) {
 			console.error('❌ [V7RM-Enhanced] Authentication failed:', error);
-			v4ToastManager.showError('Authentication failed', {
-				error: error instanceof Error ? error.message : 'Unknown error',
-			});
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Authentication failed', dismissible: true });
 		} finally {
 			setIsAuthenticating(false);
 		}
@@ -263,7 +259,7 @@ export const useV7RMOIDCResourceOwnerPasswordControllerEnhanced = ({
 	// Fetch user info using real API
 	const fetchUserInfo = useCallback(async () => {
 		if (!tokens?.access_token) {
-			v4ToastManager.showError('Access token is required to fetch user information');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Access token is required to fetch user information', dismissible: true });
 			return;
 		}
 
@@ -301,12 +297,10 @@ export const useV7RMOIDCResourceOwnerPasswordControllerEnhanced = ({
 			// Auto-advance to next step
 			stepManager.setStep(stepManager.currentStepIndex + 1, 'user info fetched');
 
-			v4ToastManager.showSuccess('User information retrieved successfully.');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'User information retrieved successfully.', duration: 3000 });
 		} catch (error) {
 			console.error('❌ [V7RM-Enhanced] User info fetch failed:', error);
-			v4ToastManager.showError('Failed to fetch user information', {
-				error: error instanceof Error ? error.message : 'Unknown error',
-			});
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to fetch user information', dismissible: true });
 		} finally {
 			setIsFetchingUserInfo(false);
 		}
@@ -315,7 +309,7 @@ export const useV7RMOIDCResourceOwnerPasswordControllerEnhanced = ({
 	// Refresh tokens using real API
 	const refreshTokens = useCallback(async () => {
 		if (!tokens?.refresh_token) {
-			v4ToastManager.showError('Refresh token is required to refresh access token');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Refresh token is required to refresh access token', dismissible: true });
 			return;
 		}
 
@@ -362,12 +356,10 @@ export const useV7RMOIDCResourceOwnerPasswordControllerEnhanced = ({
 			}
 
 			setRefreshedTokens(enhancedTokens);
-			v4ToastManager.showSuccess('Tokens refreshed successfully.');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'Tokens refreshed successfully.', duration: 3000 });
 		} catch (error) {
 			console.error('❌ [V7RM-Enhanced] Token refresh failed:', error);
-			v4ToastManager.showError('Failed to refresh tokens', {
-				error: error instanceof Error ? error.message : 'Unknown error',
-			});
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to refresh tokens', dismissible: true });
 		} finally {
 			setIsRefreshingTokens(false);
 		}
