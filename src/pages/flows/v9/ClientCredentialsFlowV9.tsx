@@ -356,7 +356,6 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 			FlowCredentialService.clearFlowState('client-credentials-v9');
 			console.log('🔧 [Client Credentials V7] Cleared flow-specific storage');
 		} catch (error) {
-			console.error('[Client Credentials V7] Failed to clear flow state:', error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -380,16 +379,16 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 			console.log(
 				'🔄 [Client Credentials V7] Reset: cleared ConfigChecker and pre-flight cache data'
 			);
-		} catch (error) {
-			console.warn('[Client Credentials V7] Failed to clear cache data:', error);
+		} catch (_error) {
+			// Background cache clear — non-critical
 		}
 
 		// Clear credential backup when flow is reset
 		try {
 			clearBackup();
 			console.log('🔧 [Client Credentials V7] Cleared credential backup');
-		} catch (error) {
-			console.error('[Client Credentials V7] Failed to clear credential backup:', error);
+		} catch (_error) {
+			// Background credential backup clear — non-critical
 		}
 	}, [controller, clearBackup]);
 
@@ -472,8 +471,6 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 			FlowCredentialService.saveFlowCredentials('client-credentials-v9', controller.credentials, {
 				showToast: false,
 			}).catch((error) => {
-				console.error('[Client Credentials V7] Failed to save credentials to V7 storage:', error);
-				// Show user-friendly error message
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
