@@ -293,22 +293,22 @@ const BestPracticeContent = styled.div`
   line-height: 1.6;
 `;
 
-const ScopesBestPractices: React.FC = () => {
-	const pageConfig = {
-		flowType: 'documentation' as const,
-		theme: 'blue' as const,
-		maxWidth: '1200px',
-		showHeader: true,
-		showFooter: false,
-		responsive: true,
-		flowId: 'scopes-best-practices',
-	};
-	const {
-		PageContainer,
-		ContentWrapper,
-		FlowHeader: LayoutFlowHeader,
-	} = PageLayoutService.createPageLayout(pageConfig);
+const pageConfig = {
+	flowType: 'documentation' as const,
+	theme: 'blue' as const,
+	maxWidth: '1200px',
+	showHeader: true,
+	showFooter: false,
+	responsive: true,
+	flowId: 'scopes-best-practices',
+};
+const {
+	PageContainer,
+	ContentWrapper,
+	FlowHeader: LayoutFlowHeader,
+} = PageLayoutService.createPageLayout(pageConfig);
 
+const ScopesBestPractices: React.FC = () => {
 	return (
 		<PageContainer>
 			<ContentWrapper>
