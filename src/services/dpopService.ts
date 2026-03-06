@@ -8,6 +8,7 @@
  * token replay attacks and provide proof of possession.
  */
 
+import { logger } from '../utils/logger';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
 export interface DPoPKeyPair {
@@ -86,7 +87,7 @@ export class DPoPService {
 			};
 
 			DPoPService.keyPair = keyPair;
-			console.log('🔐 [DPoP] Generated new key pair:', {
+			logger.info('DPoPService', 'Generated new key pair', {
 				algorithm: finalConfig.algorithm,
 				keyType: jwk.kty,
 				curve: jwk.crv || 'N/A',
@@ -94,7 +95,7 @@ export class DPoPService {
 
 			return keyPair;
 		} catch (error) {
-			console.error('❌ [DPoP] Failed to generate key pair:', error);
+			logger.error('DPoPService', 'Failed to generate key pair', undefined, error as Error);
 			throw new Error('Failed to generate DPoP key pair');
 		}
 	}
@@ -143,7 +144,7 @@ export class DPoPService {
 
 			const jwt = await DPoPService.signJWT(header, payload);
 
-			console.log('🔐 [DPoP] Created proof:', {
+			logger.info('DPoPService', 'Created proof', {
 				jti,
 				htm: payload.htm,
 				htu: payload.htu,
@@ -159,7 +160,7 @@ export class DPoPService {
 				htu: payload.htu,
 			};
 		} catch (error) {
-			console.error('❌ [DPoP] Failed to create proof:', error);
+			logger.error('DPoPService', 'Failed to create proof', undefined, error as Error);
 			throw new Error('Failed to create DPoP proof');
 		}
 	}
@@ -176,7 +177,7 @@ export class DPoPService {
 	 */
 	static clearKeyPair(): void {
 		DPoPService.keyPair = null;
-		console.log('🔐 [DPoP] Key pair cleared');
+		logger.info('DPoPService', 'Key pair cleared');
 	}
 
 	/**
@@ -272,7 +273,7 @@ export class DPoPHttpHelper {
 				DPoP: proof.jwt,
 			};
 		} catch (error) {
-			console.error('❌ [DPoP] Failed to add DPoP headers:', error);
+			logger.error('DPoPService', 'Failed to add DPoP headers', undefined, error as Error);
 			v4ToastManager.showError('Failed to create DPoP proof');
 			return headers;
 		}
