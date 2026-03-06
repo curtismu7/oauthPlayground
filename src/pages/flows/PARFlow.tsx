@@ -335,8 +335,7 @@ const PARFlow: React.FC<PARFlowProps> = ({ credentials }) => {
 			});
 
 			return { codeVerifier, codeChallenge };
-		} catch (error) {
-			console.error('❌ [PAR Flow] Failed to generate PKCE codes:', error);
+		} catch {
 			// Fallback to simple generation if OAuth utils fail
 			const codeVerifier =
 				Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
