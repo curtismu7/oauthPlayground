@@ -298,11 +298,12 @@ const WorkerTokenFlowV9: React.FC = () => {
 								if (comprehensiveResult.success) {
 									const updatedCredentials = {
 										...controller.credentials,
-										environmentId: comprehensiveResult.environmentId || envId,
-										tokenEndpoint: comprehensiveResult.tokenEndpoint,
-										introspectionEndpoint: comprehensiveResult.introspectionEndpoint,
-										userInfoEndpoint: comprehensiveResult.userInfoEndpoint,
-										scopes: comprehensiveResult.scopes?.join(' ') || controller.credentials.scopes,
+										environmentId: comprehensiveResult.data.environmentId || envId,
+										tokenEndpoint: comprehensiveResult.data.tokenEndpoint,
+										introspectionEndpoint: comprehensiveResult.data.introspectionEndpoint,
+										userInfoEndpoint: comprehensiveResult.data.userInfoEndpoint,
+										scopes:
+											comprehensiveResult.data.scopes?.join(' ') || controller.credentials.scopes,
 									};
 									controller.setCredentials(updatedCredentials as StepCredentials);
 									if (updatedCredentials.environmentId && updatedCredentials.clientId) {
@@ -337,7 +338,6 @@ const WorkerTokenFlowV9: React.FC = () => {
 			/>
 
 			<StyledSectionDivider />
-
 		</StepContainer>
 	);
 
@@ -380,7 +380,6 @@ const WorkerTokenFlowV9: React.FC = () => {
 				<FlowSequenceDisplay flowType="worker-token" />
 
 				<StyledSectionDivider />
-
 			</StepContainer>
 		);
 	};
@@ -662,7 +661,6 @@ curl -X GET \\
 				</div>
 
 				<StyledSectionDivider />
-
 			</StepContainer>
 		);
 	};
