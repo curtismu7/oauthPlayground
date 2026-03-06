@@ -13,6 +13,7 @@ import type { PingOneApplicationState } from '../components/PingOneApplicationCo
 import type { StepCredentials } from '../components/steps/CommonSteps';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { validateForStep } from './credentialsValidationService';
+import { logger } from '../utils/logger';
 
 export type AuthzFlowVariant = 'oauth' | 'oidc';
 
@@ -99,7 +100,7 @@ export class AuthzFlowToastManager {
 	 * Show error toast for credentials save failure
 	 */
 	static showCredentialsSaveFailed(error?: Error): void {
-		console.error('[AuthzFlowToastManager] Failed to save credentials:', error);
+		logger.error('AuthorizationCodeSharedService', 'Failed to save credentials', undefined, error as Error);
 		v4ToastManager.showError('Failed to save credentials');
 	}
 
@@ -114,7 +115,7 @@ export class AuthzFlowToastManager {
 	 * Show error toast for redirect URI save failure
 	 */
 	static showRedirectUriSaveFailed(error?: Error): void {
-		console.error('[AuthzFlowToastManager] Failed to save redirect URI:', error);
+		logger.error('AuthorizationCodeSharedService', 'Failed to save redirect URI', undefined, error as Error);
 		v4ToastManager.showError('Failed to save redirect URI');
 	}
 
@@ -129,7 +130,7 @@ export class AuthzFlowToastManager {
 	 * Show error toast for PKCE generation failure
 	 */
 	static showPKCEGenerationFailed(error?: Error): void {
-		console.error('[AuthzFlowToastManager] Failed to generate PKCE:', error);
+		logger.error('AuthorizationCodeSharedService', 'Failed to generate PKCE', undefined, error as Error);
 		v4ToastManager.showError('Failed to generate PKCE parameters');
 	}
 
@@ -166,7 +167,7 @@ export class AuthzFlowToastManager {
 	 * Show error toast for token exchange failure
 	 */
 	static showTokenExchangeFailed(error?: Error): void {
-		console.error('[AuthzFlowToastManager] Token exchange failed:', error);
+		logger.error('AuthorizationCodeSharedService', 'Token exchange failed', undefined, error as Error);
 		v4ToastManager.showError('Failed to exchange authorization code for tokens');
 	}
 
@@ -245,7 +246,7 @@ export class AuthzFlowPKCEManager {
 		}
 
 		if (!controller?.generatePkceCodes) {
-			console.error('[PKCEManager] Controller does not have generatePkceCodes method');
+			logger.error('AuthorizationCodeSharedService', 'Controller does not have generatePkceCodes method');
 			AuthzFlowToastManager.showPKCEGenerationFailed(
 				new Error('Controller missing generatePkceCodes method')
 			);
@@ -265,7 +266,7 @@ export class AuthzFlowPKCEManager {
 			console.log(`[${variant.toUpperCase()} Authz V5] PKCE parameters generated successfully`);
 			return true;
 		} catch (error) {
-			console.error('[PKCEManager] Failed to generate PKCE:', error);
+			logger.error('AuthorizationCodeSharedService', 'Failed to generate PKCE', undefined, error as Error);
 			AuthzFlowToastManager.showPKCEGenerationFailed(error as Error);
 			return false;
 		}
@@ -494,7 +495,7 @@ export class AuthzFlowCredentialsHandlers {
 				await controller.saveCredentials();
 				AuthzFlowToastManager.showCredentialsSaved();
 			} catch (error) {
-				console.error(`[${variant.toUpperCase()} Authz V5] Failed to save credentials:`, error);
+				logger.error('AuthorizationCodeSharedService', 'Failed to save credentials', undefined, error as Error);
 				AuthzFlowToastManager.showCredentialsSaveFailed(error as Error);
 			}
 		};
@@ -563,10 +564,7 @@ export class AuthzFlowAuthorizationManager {
 			AuthzFlowToastManager.showAuthUrlGenerated();
 			return true;
 		} catch (error) {
-			console.error(
-				`[${variant.toUpperCase()}AuthzFlowV5] Failed to generate authorization URL:`,
-				error
-			);
+			logger.error('AuthorizationCodeSharedService', 'Failed to generate authorization URL', undefined, error as Error);
 			AuthzFlowToastManager.showAuthUrlGenerationFailed(error);
 			return false;
 		}
@@ -630,7 +628,7 @@ export class AuthzFlowCodeProcessor {
 		const errorDescription = urlParams.get('error_description');
 
 		if (error) {
-			console.error('[CodeProcessor] OAuth error:', error, errorDescription);
+			logger.error('AuthorizationCodeSharedService', 'OAuth error', { errorDescription }, error as Error);
 			v4ToastManager.showError(`Authorization failed: ${errorDescription || error}`);
 			return { code: null, state: null, error };
 		}
@@ -669,7 +667,7 @@ export class AuthzFlowTokenExchangeManager {
 			AuthzFlowToastManager.showTokenExchangeSuccess();
 			return true;
 		} catch (error) {
-			console.error('[TokenExchangeManager] Token exchange failed:', error);
+			logger.error('AuthorizationCodeSharedService', 'Token exchange failed', undefined, error as Error);
 			AuthzFlowToastManager.showTokenExchangeFailed(error as Error);
 			return false;
 		}
@@ -891,7 +889,7 @@ export class AuthzFlowTokenManagement {
 					},
 				});
 			} catch (error) {
-				console.warn('Failed to store token in unified storage:', error);
+				logger.warn('AuthorizationCodeSharedService', 'Failed to store token in unified storage', undefined, error as Error);
 			}
 		}
 
@@ -916,7 +914,7 @@ export class AuthzFlowTokenManagement {
 					},
 				});
 			} catch (error) {
-				console.warn('Failed to store refresh token in unified storage:', error);
+				logger.warn('AuthorizationCodeSharedService', 'Failed to store refresh token in unified storage', undefined, error as Error);
 			}
 		}
 
@@ -941,7 +939,7 @@ export class AuthzFlowTokenManagement {
 					},
 				});
 			} catch (error) {
-				console.warn('Failed to store ID token in unified storage:', error);
+				logger.warn('AuthorizationCodeSharedService', 'Failed to store ID token in unified storage', undefined, error as Error);
 			}
 		}
 
