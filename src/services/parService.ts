@@ -1,4 +1,6 @@
 // src/services/parService.ts
+
+import { failFrom, ok, type ServiceResult } from '../standards/types';
 import { logger } from '../utils/logger';
 
 export interface PARRequest {
@@ -48,9 +50,13 @@ export class PARService {
 	}
 
 	/**
-	 * Generate a PAR request with the specified authentication method
+	 * Generate a PAR request with the specified authentication method.
+	 * Returns ServiceResult<PARResponse> — never throws for runtime failures.
 	 */
-	async generatePARRequest(request: PARRequest, authMethod: PARAuthMethod): Promise<PARResponse> {
+	async generatePARRequest(
+		request: PARRequest,
+		authMethod: PARAuthMethod
+	): Promise<ServiceResult<PARResponse>> {
 		logger.info('PARService', 'Generating PAR request', {
 			authMethod: authMethod.type,
 			clientId: request.clientId,
@@ -101,7 +107,12 @@ export class PARService {
 
 			if (!response.ok) {
 				const errorText = await response.text();
-				throw new Error(`PAR request failed: ${response.status} - ${errorText}`);
+				logger.error('PARService', 'PAR request failed', { status: response.status, errorText });
+				return failFrom<PARResponse>(
+					'PAR_REQUEST_FAILED',
+					`PAR request failed: ${response.status} - ${errorText}`,
+					response.status
+				);
 			}
 
 			const parResponse: PARResponse = await response.json();
@@ -111,10 +122,10 @@ export class PARService {
 				expiresIn: parResponse.expiresIn,
 			});
 
-			return parResponse;
+			return ok(parResponse);
 		} catch (error) {
 			logger.error('PARService', 'Failed to generate PAR request', undefined, error as Error);
-			throw error;
+			return failFrom<PARResponse>('PAR_REQUEST_FAILED', error);
 		}
 	}
 

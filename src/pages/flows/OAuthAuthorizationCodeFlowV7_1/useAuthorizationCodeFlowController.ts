@@ -817,9 +817,6 @@ export const useAuthorizationCodeFlowController = (
 
 		// Check if PAR (Pushed Authorization Request) is required
 		if (pingOneConfig?.requirePushedAuthorizationRequest) {
-			console.log(
-				'🔗 [useAuthorizationCodeFlowController] PAR is required, generating PAR request'
-			);
 			try {
 				// Import PAR service dynamically to avoid circular dependencies
 				const { PARService } = await import('../services/parService');
@@ -864,23 +861,25 @@ export const useAuthorizationCodeFlowController = (
 				};
 
 				// Make PAR request
-				const parResponse = await parService.generatePARRequest(parRequest, parAuthMethod);
+				const parResult = await parService.generatePARRequest(parRequest, parAuthMethod);
+
+				if (!parResult.success) {
+					showGlobalError('PAR request failed', {
+						description:
+							'Failed to generate pushed authorization request. Please check your PingOne configuration.',
+						meta: { source: 'parService.generatePARRequest', error: parResult.error.message },
+					});
+					return;
+				}
 
 				// Generate authorization URL with request_uri
-				url = parService.generateAuthorizationURL(parResponse.requestUri, {
+				url = parService.generateAuthorizationURL(parResult.data.requestUri, {
 					client_id: credentials.clientId,
 				});
-
-				console.log(
-					'🔗 [useAuthorizationCodeFlowController] Generated PAR authorization URL:',
-					url
-				);
-			} catch (error) {
-				console.error('❌ [useAuthorizationCodeFlowController] PAR request failed:', error);
-				showGlobalError('PAR request failed', {
-					description:
-						'Failed to generate pushed authorization request. Please check your PingOne configuration.',
-					meta: { source: 'parService.generatePARRequest' },
+			} catch (importError) {
+				showGlobalError('PAR service unavailable', {
+					description: 'Failed to initialize PAR service. Please try again.',
+					meta: { source: 'parService.dynamic import' },
 				});
 				return;
 			}
