@@ -31,7 +31,7 @@ import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServi
 import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8';
 import { useMFALoadingStateManager } from '@/v8/utils/loadingStateManagerV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CommonSpinner } from '../../../components/common/CommonSpinner';
 import { useProductionSpinner } from '../../../hooks/useProductionSpinner';
 import { MFADeviceSelector } from '../components/MFADeviceSelector';
@@ -852,7 +852,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 										const _newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatusSync();
 										// #region agent log
 										// #endregion
-										toastV8.success('Worker token removed');
+										modernMessaging.showFooterMessage({ type: 'info', message: 'Worker token removed', duration: 3000 });
 									} else {
 										// Use helper to check silentApiRetrieval before showing modal
 										// Pass current checkbox values to override config (page checkboxes take precedence)
@@ -1010,7 +1010,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 												detail: { workerToken: config.workerToken },
 											})
 										);
-										toastV8.info(`Silent API Token Retrieval set to: ${newValue}`);
+										modernMessaging.showFooterMessage({ type: 'info', message: `Silent API Token Retrieval set to: ${newValue}`, duration: 3000 });
 
 										// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 										if (newValue) {
@@ -1084,7 +1084,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 												detail: { workerToken: config.workerToken },
 											})
 										);
-										toastV8.info(`Show Token After Generation set to: ${newValue}`);
+										modernMessaging.showFooterMessage({ type: 'info', message: `Show Token After Generation set to: ${newValue}`, duration: 3000 });
 									}}
 									style={{
 										width: '20px',
@@ -1635,7 +1635,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 					(d: Record<string, unknown>) => d.id === deviceSelection.selectedExistingDevice
 				);
 				if (!device) {
-					toastV8.error('Device not found');
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Device not found', dismissible: true });
 					return;
 				}
 
@@ -1665,22 +1665,20 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 						// Authentication already complete
 						nav.markStepComplete();
 						nav.goToStep(3); // Go to success step
-						toastV8.success('Authentication successful!');
+						modernMessaging.showFooterMessage({ type: 'info', message: 'Authentication successful!', duration: 3000 });
 					} else if (authResult.nextStep === 'ASSERTION_REQUIRED') {
 						// For FIDO2, user needs to complete WebAuthn assertion
 						nav.markStepComplete();
 						nav.goToStep(2); // Go to WebAuthn assertion step
-						toastV8.info(
-							'Please complete WebAuthn authentication using your security key or Passkey.'
-						);
+						modernMessaging.showFooterMessage({ type: 'info', message: 'Please complete WebAuthn authentication using your security key or Passkey.', duration: 3000 });
 					} else if (authResult.nextStep === 'SELECTION_REQUIRED') {
 						// Shouldn't happen if deviceId is provided, but handle it
 						nav.setValidationErrors(['Multiple devices found. Please select a specific device.']);
-						toastV8.warning('Please select a specific device');
+						modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Please select a specific device', dismissible: true });
 					} else {
 						nav.markStepComplete();
 						nav.goToStep(2); // Default to assertion step
-						toastV8.success('Device selected successfully!');
+						modernMessaging.showFooterMessage({ type: 'info', message: 'Device selected successfully!', duration: 3000 });
 					}
 				} catch (error) {
 					console.error(`${MODULE_TAG} Failed to initialize authentication:`, error);
@@ -1689,7 +1687,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 						deviceType: 'FIDO2',
 					});
 					nav.setValidationErrors([formattedError.userFriendlyMessage]);
-					toastV8.error(`Authentication failed: ${formattedError.userFriendlyMessage}`);
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Authentication failed: ${formattedError.userFriendlyMessage}`, dismissible: true });
 				} finally {
 					setIsLoading(false);
 				}
@@ -1713,7 +1711,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 				nav.setValidationErrors([
 					'Device pairing is disabled for the selected Device Authentication Policy. Please select a different policy or contact your administrator.',
 				]);
-				toastV8.error('Device pairing is disabled for this policy');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Device pairing is disabled for this policy', dismissible: true });
 				return;
 			}
 
@@ -1878,7 +1876,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 
 				nav.markStepComplete();
 				nav.goToStep(3); // Navigate to success step
-				toastV8.success('FIDO2 device registered and activated successfully!');
+				modernMessaging.showFooterMessage({ type: 'info', message: 'FIDO2 device registered and activated successfully!', duration: 3000 });
 			} catch (error) {
 				// Normalize error to user-friendly message
 				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -2021,7 +2019,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 				}
 
 				nav.setValidationErrors([userFriendlyMessage]);
-				toastV8.error(userFriendlyMessage);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: userFriendlyMessage, dismissible: true });
 			} finally {
 				setIsLoading(false);
 				setIsRegistering(false);
@@ -2550,7 +2548,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 					if (assertionResult.status === 'COMPLETED' || assertionResult.nextStep === 'COMPLETED') {
 						nav.markStepComplete();
 						nav.goToStep(3); // Go to success step
-						toastV8.success('FIDO2 authentication successful!');
+						modernMessaging.showFooterMessage({ type: 'info', message: 'FIDO2 authentication successful!', duration: 3000 });
 					} else if (assertionResult.status === 'ASSERTION_REQUIRED') {
 						// Assertion failed, allow retry
 						throw new Error('Assertion validation failed. Please try again.');
@@ -2558,13 +2556,13 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 						// Other status, proceed to next step
 						nav.markStepComplete();
 						nav.goToStep(3);
-						toastV8.success('FIDO2 authentication completed!');
+						modernMessaging.showFooterMessage({ type: 'info', message: 'FIDO2 authentication completed!', duration: 3000 });
 					}
 				} catch (error) {
 					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 					console.error(`${MODULE_TAG} WebAuthn assertion failed:`, error);
 					setAssertionError(errorMessage);
-					toastV8.error(`Authentication failed: ${errorMessage}`);
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Authentication failed: ${errorMessage}`, dismissible: true });
 				} finally {
 					setIsAuthenticating(false);
 					setIsLoading(false);

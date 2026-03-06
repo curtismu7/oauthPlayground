@@ -67,7 +67,7 @@ import { V9CredentialStorageService } from '../../../services/v9/V9CredentialSto
 import { storeFlowNavigationState } from '../../../utils/flowNavigation';
 import { decodeJWTHeader } from '../../../utils/jwks';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
-import { toastV8 } from '../../../v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 import {
 	DEFAULT_APP_CONFIG,
@@ -902,7 +902,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 			}
 
 			// Show success message
-			toastV8.success(`Switched to ${nextVariant.toUpperCase()} variant`);
+			modernMessaging.showFooterMessage({ type: 'info', message: `Switched to ${nextVariant.toUpperCase()} variant`, duration: 3000 });
 		},
 		[controller, ensureOidcScopes]
 	);
@@ -1014,7 +1014,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 			promptValues,
 		});
 		setIsSavedAdvancedParams(true);
-		toastV8.success('Advanced parameters saved! Regenerating authorization URL...');
+		modernMessaging.showFooterMessage({ type: 'info', message: 'Advanced parameters saved! Regenerating authorization URL...', duration: 3000 });
 
 		// Regenerate authorization URL with new parameters
 		await AuthorizationCodeSharedService.Authorization.generateAuthUrl(
@@ -1153,7 +1153,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 			loginModalGuardRef.current = code;
 			setShowLoginSuccessModal(true);
 		}
-		toastV8.success('Login Successful! You have been authenticated with PingOne.');
+		modernMessaging.showFooterMessage({ type: 'info', message: 'Login Successful! You have been authenticated with PingOne.', duration: 3000 });
 		// Navigate to step 4 and persist it
 		setCurrentStep(4);
 		sessionStorage.setItem('oauth-authorization-code-v9-current-step', '4');
@@ -1189,7 +1189,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 		// Handle OAuth errors first
 		if (error) {
 			console.error('[AuthorizationCodeFlowV5] OAuth error in URL:', error);
-			toastV8.error(`OAuth Error: ${error}`);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `OAuth Error: ${error}`, dismissible: true });
 			// Clear URL parameters and reset to step 0
 			window.history.replaceState({}, '', window.location.pathname);
 			setCurrentStep(0);
@@ -1255,9 +1255,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 
 					if (!retryHasRequiredCredentials) {
 						console.error('🚨 [AuthorizationCodeFlowV5] Missing required credentials after retry');
-						toastV8.error(
-							'Missing OAuth credentials. Please configure your application settings in Step 0 before proceeding.'
-						);
+						modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Missing OAuth credentials. Please configure your application settings in Step 0 before proceeding.', dismissible: true });
 						// Clear URL parameters and reset to step 0
 						window.history.replaceState({}, '', window.location.pathname);
 						setCurrentStep(0);
@@ -1386,7 +1384,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 				loginModalGuardRef.current = controller.authCode;
 				setShowLoginSuccessModal(true);
 			}
-			toastV8.success('Login Successful! You have been authenticated with PingOne.');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'Login Successful! You have been authenticated with PingOne.', duration: 3000 });
 
 			// Navigate to the next step (Token Exchange) and persist it
 			setCurrentStep(4); // Step 4 is Token Exchange
@@ -1490,7 +1488,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 
 		if (missing.length > 0) {
 			setEmptyRequiredFields(new Set(missing.map((field) => field as string)));
-			toastV8.error('Missing required fields: Complete all required fields before saving.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Missing required fields: Complete all required fields before saving.', dismissible: true });
 			return;
 		}
 
@@ -1546,10 +1544,10 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 				);
 			}
 
-			toastV8.success('Configuration saved successfully!');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'Configuration saved successfully!', duration: 3000 });
 		} catch (error) {
 			console.error('🔧 [handleSaveConfiguration] Save failed:', error);
-			toastV8.error('Failed to save configuration. Please try again.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save configuration. Please try again.', dismissible: true });
 		}
 	}, [controller, flowVariant]);
 
@@ -1566,7 +1564,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 		});
 		setEmptyRequiredFields(new Set(['environmentId', 'clientId', 'clientSecret', 'redirectUri']));
 		sessionStorage.removeItem('oauth-authorization-code-v9-app-config');
-		toastV8.success('Configuration cleared. Enter PingOne credentials to continue.');
+		modernMessaging.showFooterMessage({ type: 'info', message: 'Configuration cleared. Enter PingOne credentials to continue.', duration: 3000 });
 	}, [controller]);
 
 	const savePingOneConfig = useCallback(
@@ -1654,9 +1652,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 				console.warn(
 					'🚨 [Redirectless] Attempted to run redirectless flow but useRedirectless is false'
 				);
-				toastV8.error(
-					'Redirectless flow is not enabled. Please check the "Use Redirectless" option.'
-				);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Redirectless flow is not enabled. Please check the "Use Redirectless" option.', dismissible: true });
 				return;
 			}
 
@@ -1684,9 +1680,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 					controller.setCredentials({ ...controller.credentials, redirectUri });
 				}
 				if (!envId || !clientId || !redirectUri || !codeChallenge) {
-					toastV8.error(
-						'Missing required config (env, client, redirectUri, PKCE). Configure Step 0/1 first.'
-					);
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Missing required config (env, client, redirectUri, PKCE). Configure Step 0/1 first.', dismissible: true });
 					return;
 				}
 
@@ -1874,7 +1868,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 					setCurrentStep(4);
 					sessionStorage.setItem('oauth-authorization-code-v9-current-step', '4');
 				}, 500);
-				toastV8.success('Redirectless flow complete: tokens received');
+				modernMessaging.showFooterMessage({ type: 'info', message: 'Redirectless flow complete: tokens received', duration: 3000 });
 			} catch (e) {
 				console.error('🚨 [Redirectless] Full error details:', e);
 				console.error(
@@ -1890,7 +1884,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 
 				const errorMessage = e instanceof Error ? e.message : 'Redirectless flow failed';
 				console.error('🚨 [Redirectless] Showing toast with message:', errorMessage);
-				toastV8.error(errorMessage);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
 			} finally {
 				setIsRedirectlessRunning(false);
 				// Make sure the popup is closed regardless of outcome
@@ -1911,9 +1905,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 	const handleExchangeTokens = useCallback(async () => {
 		const authCode = controller.authCode || localAuthCode;
 		if (!authCode) {
-			toastV8.error(
-				'Complete above action: Authorize the application first to get authorization code.'
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Complete above action: Authorize the application first to get authorization code.', dismissible: true });
 			return;
 		}
 
@@ -1937,9 +1929,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 			});
 			controller.setCredentials(normalizedCredentials);
 			setCredentials(normalizedCredentials);
-			toastV8.error(
-				`Missing OAuth credentials: ${missingFields.join(', ')}. Update Step 0 before exchanging tokens.`
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Missing OAuth credentials: ${missingFields.join(', ')}. Update Step 0 before exchanging tokens.`, dismissible: true });
 			return;
 		}
 
@@ -2000,7 +1990,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 			};
 
 			setTokenExchangeApiCall(updatedTokenExchangeApiCall);
-			toastV8.success('Tokens exchanged successfully!');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'Tokens exchanged successfully!', duration: 3000 });
 		} catch (error) {
 			console.error('[AuthorizationCodeFlowV5] Token exchange failed:', error);
 
@@ -2040,13 +2030,13 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 				}
 			}
 
-			toastV8.error(errorMessage);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
 		}
 	}, [controller, localAuthCode]);
 
 	const handleFetchUserInfo = useCallback(async () => {
 		if (!controller.tokens?.access_token) {
-			toastV8.error('Access token missing: Exchange tokens before fetching user info.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Access token missing: Exchange tokens before fetching user info.', dismissible: true });
 			return;
 		}
 
@@ -2055,10 +2045,8 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 		const hasProfileScope = currentScopes.includes('profile') || currentScopes.includes('openid');
 
 		if (!hasProfileScope) {
-			toastV8.warning(
-				'For user info to work, include "profile" scope in your configuration. Current scopes: ' +
-					currentScopes
-			);
+			modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'For user info to work, include "profile" scope in your configuration. Current scopes: ' +
+					currentScopes, dismissible: true });
 		}
 
 		// Create API call display for UserInfo request
@@ -2093,7 +2081,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 			};
 
 			setUserInfoApiCall(updatedUserInfoApiCall);
-			toastV8.success('User info fetched successfully!');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'User info fetched successfully!', duration: 3000 });
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 			let userFriendlyMessage = 'Failed to fetch user info';
@@ -2121,7 +2109,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 			};
 
 			setUserInfoApiCall(errorApiCall);
-			toastV8.error(userFriendlyMessage);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: userFriendlyMessage, dismissible: true });
 		}
 	}, [controller]);
 
@@ -2378,7 +2366,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 		console.log('🔍 [AuthorizationCodeFlowV5] Next button clicked');
 
 		if (!canNavigateNext()) {
-			toastV8.error(`Complete the action above to continue.`);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Complete the action above to continue.`, dismissible: true });
 			return;
 		}
 
@@ -2604,7 +2592,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 												scopes.unshift('openid');
 												const finalScopes = scopes.join(' ');
 												handleFieldChange('scopes', finalScopes);
-												toastV8.warning('Added required "openid" scope for PingOne compatibility');
+												modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Added required "openid" scope for PingOne compatibility', dismissible: true });
 											} else {
 												handleFieldChange('scopes', normalizedValue);
 											}
@@ -3654,11 +3642,11 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 						pingOneConfig={pingOneConfig}
 						onTerminateSession={() => {
 							console.log('🚪 Session terminated via EnhancedSecurityFeaturesDemo');
-							toastV8.success('Session termination completed.');
+							modernMessaging.showFooterMessage({ type: 'info', message: 'Session termination completed.', duration: 3000 });
 						}}
 						onRevokeTokens={() => {
 							console.log('❌ Tokens revoked via EnhancedSecurityFeaturesDemo');
-							toastV8.success('Token revocation completed.');
+							modernMessaging.showFooterMessage({ type: 'info', message: 'Token revocation completed.', duration: 3000 });
 						}}
 						flowType="oauth-authorization-code-v9"
 					/>

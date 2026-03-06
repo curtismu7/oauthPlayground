@@ -27,7 +27,7 @@ import { AuthMethodServiceV8, type AuthMethodV8 } from '@/v8/services/authMethod
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { workerTokenCacheServiceV8 } from '@/v8/services/workerTokenCacheServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { StandardModalSpinner, useStandardSpinner } from '../../components/ui/StandardSpinner';
 import { WorkerTokenRequestModalV8 } from './WorkerTokenRequestModalV8';
 
@@ -197,7 +197,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 		await generateSpinner.executeWithSpinner(
 			async () => {
 				if (!environmentId.trim() || !clientId.trim() || !clientSecret.trim()) {
-					toastV8.error('Please fill in all required fields');
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please fill in all required fields', dismissible: true });
 					return; // Early return instead of throwing
 				}
 
@@ -207,7 +207,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 					.filter(Boolean);
 
 				if (normalizedScopes.length === 0) {
-					toastV8.error('Please provide at least one scope for the worker token');
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please provide at least one scope for the worker token', dismissible: true });
 					throw new Error('Please provide at least one scope for the worker token');
 				}
 
@@ -303,7 +303,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 					// Show warnings if any
 					if (oauthConfigResult.warnings.length > 0) {
 						const warningMessage = oauthConfigResult.warnings.join('; ');
-						toastV8.warning(`Pre-flight warnings: ${warningMessage}`);
+						modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: `Pre-flight warnings: ${warningMessage}`, dismissible: true });
 					}
 				}
 
@@ -397,7 +397,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 					}
 
 					// Show error with appropriate recovery options
-					toastV8.error(errorMessage, { duration: 8000 });
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
 				},
 			}
 		);
@@ -525,10 +525,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 							fallbackMethod === 'client_secret_basic'
 								? 'Client Secret Basic'
 								: 'Client Secret Post';
-						toastV8.success(
-							`Auth method auto-corrected to ${autoLabel} and token generated successfully.`,
-							{ duration: 6000 }
-						);
+						modernMessaging.showFooterMessage({ type: 'info', message: `Auth method auto-corrected to ${autoLabel} and token generated successfully.`, duration: 6000 });
 						try {
 							responseData = await retryResponse.json();
 						} catch {
@@ -612,7 +609,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 			window.dispatchEvent(new Event('workerTokenUpdated'));
 			console.log(`${MODULE_TAG} 🔑 workerTokenUpdated event dispatched`);
 
-			toastV8.success('Worker token generated successfully!');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'Worker token generated successfully!', duration: 3000 });
 
 			onTokenGenerated?.(token);
 
@@ -656,7 +653,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 				}
 			}
 
-			toastV8.error(errorMessage, { duration: 8000 });
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
 			return null;
 		} finally {
 			setIsGenerating(false);
@@ -840,10 +837,10 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 												if (currentToken) {
 													try {
 														await unifiedWorkerTokenService.saveToken(currentToken);
-														toastV8.success('Token saved successfully!');
+														modernMessaging.showFooterMessage({ type: 'info', message: 'Token saved successfully!', duration: 3000 });
 													} catch (error) {
 														console.error(`${MODULE_TAG} Failed to save token:`, error);
-														toastV8.error('Failed to save token');
+														modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save token', dismissible: true });
 													}
 												}
 											}}
@@ -969,7 +966,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 											type="button"
 											onClick={() => {
 												navigator.clipboard.writeText(currentToken);
-												toastV8.success('Worker token copied to clipboard!');
+												modernMessaging.showFooterMessage({ type: 'info', message: 'Worker token copied to clipboard!', duration: 3000 });
 											}}
 											style={{
 												padding: '6px 12px',
@@ -1516,7 +1513,7 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 												onClick={() => {
 													try {
 														if (!environmentId.trim() || !clientId.trim() || !clientSecret.trim()) {
-															toastV8.error('Please fill in all required fields before exporting');
+															modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please fill in all required fields before exporting', dismissible: true });
 															return;
 														}
 
@@ -1543,14 +1540,12 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 														};
 
 														exportWorkerTokenCredentials(credentials);
-														toastV8.success('Worker token credentials exported successfully!');
+														modernMessaging.showFooterMessage({ type: 'info', message: 'Worker token credentials exported successfully!', duration: 3000 });
 													} catch (error) {
 														console.error(`${MODULE_TAG} Export error:`, error);
-														toastV8.error(
-															error instanceof Error
+														modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error
 																? error.message
-																: 'Failed to export credentials'
-														);
+																: 'Failed to export credentials', dismissible: true });
 													}
 												}}
 												disabled={isGenerating}
@@ -1617,19 +1612,15 @@ const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 																	await unifiedWorkerTokenService.saveCredentials(updatedCreds);
 																}
 
-																toastV8.success('Worker token credentials imported successfully!');
+																modernMessaging.showFooterMessage({ type: 'info', message: 'Worker token credentials imported successfully!', duration: 3000 });
 															} else {
-																toastV8.error(
-																	'The selected file does not contain worker token credentials'
-																);
+																modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'The selected file does not contain worker token credentials', dismissible: true });
 															}
 														} catch (error) {
 															console.error(`${MODULE_TAG} Import error:`, error);
-															toastV8.error(
-																error instanceof Error
+															modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error
 																	? error.message
-																	: 'Failed to import credentials'
-															);
+																	: 'Failed to import credentials', dismissible: true });
 														}
 													});
 												}}

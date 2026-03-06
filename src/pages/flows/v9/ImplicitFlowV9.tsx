@@ -56,7 +56,7 @@ import { UnifiedTokenDisplayService } from '../../../services/unifiedTokenDispla
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningService';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
-import { toastV8 } from '../../../v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 
 // Get UI components
@@ -492,7 +492,7 @@ const ImplicitFlowV9: React.FC = () => {
 				responseType: variant === 'oidc' ? 'id_token token' : 'token',
 			}));
 
-			toastV8.success(`Switched to ${variant.toUpperCase()} Implicit Flow variant`);
+			modernMessaging.showFooterMessage({ type: 'info', message: `Switched to ${variant.toUpperCase()} Implicit Flow variant`, duration: 3000 });
 		},
 		[controller]
 	);
@@ -668,14 +668,7 @@ const ImplicitFlowV9: React.FC = () => {
 							filteredScopes = scopeArray.filter((scope) => scope !== 'offline_access').join(' ');
 
 							// Show warning to user
-							toastV8.warning(
-								'offline_access removed - Implicit Flow never provides refresh tokens',
-								{
-									description:
-										'Use Authorization Code flow if you need refresh tokens for offline access.',
-									duration: 5000,
-								}
-							);
+							modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'offline_access removed - Implicit Flow never provides refresh tokens', dismissible: true });
 
 							console.log(
 								'[Implicit Flow V9] Removed offline_access scope - Implicit flow never provides refresh tokens'
@@ -725,7 +718,7 @@ const ImplicitFlowV9: React.FC = () => {
 
 							// Also save using controller for backward compatibility
 							await controller.saveCredentials();
-							toastV8.success('Credentials saved successfully!');
+							modernMessaging.showFooterMessage({ type: 'info', message: 'Credentials saved successfully!', duration: 3000 });
 							// Clear any previous error details on success
 							setErrorDetails(null);
 						} catch (error) {
@@ -749,7 +742,7 @@ const ImplicitFlowV9: React.FC = () => {
 								},
 							});
 
-							toastV8.error(errorDetails.message);
+							modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorDetails.message, dismissible: true });
 							setErrorDetails(errorDetails);
 						}
 					}}
@@ -868,17 +861,13 @@ const ImplicitFlowV9: React.FC = () => {
 									hasSecret: !!result.app.clientSecret,
 								});
 
-								toastV8.success(
-									`Application "${result.app.name}" created successfully! Credentials updated and saved.`
-								);
+								modernMessaging.showFooterMessage({ type: 'info', message: `Application "${result.app.name}" created successfully! Credentials updated and saved.`, duration: 3000 });
 							} else {
-								toastV8.error(`Failed to create application: ${result.error}`);
+								modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to create application: ${result.error}`, dismissible: true });
 							}
 						} catch (error) {
 							console.error('[Implicit Flow V9] Failed to create PingOne application:', error);
-							toastV8.error(
-								`Failed to create application: ${error instanceof Error ? error.message : 'Unknown error'}`
-							);
+							modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to create application: ${error instanceof Error ? error.message : 'Unknown error'}`, dismissible: true });
 						}
 					}}
 					// Config Checker - Disabled to remove pre-flight API calls

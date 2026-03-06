@@ -34,7 +34,7 @@
 import React, { useCallback, useState } from 'react';
 import { Button } from '@/v8/components/Button';
 import { colors, spacing } from '@/v8/styles/designTokens';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const MODULE_TAG = '[🔐 UNIFIED-OTP-TEMPLATE]';
 
@@ -177,12 +177,12 @@ export const UnifiedOTPActivationTemplate: React.FC<UnifiedOTPActivationTemplate
 			e.preventDefault();
 
 			if (!otp || otp.length !== 6) {
-				toastV8.error('Please enter a valid 6-digit code');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter a valid 6-digit code', dismissible: true });
 				return;
 			}
 
 			if (validationAttempts >= maxAttempts) {
-				toastV8.error('Maximum attempts reached. Please start over.');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Maximum attempts reached. Please start over.', dismissible: true });
 				return;
 			}
 
@@ -204,10 +204,10 @@ export const UnifiedOTPActivationTemplate: React.FC<UnifiedOTPActivationTemplate
 
 		try {
 			await onResendOtp();
-			toastV8.success(`${deviceDisplayName} code resent successfully`);
+			modernMessaging.showFooterMessage({ type: 'info', message: `${deviceDisplayName} code resent successfully`, duration: 3000 });
 		} catch (error) {
 			console.error(`${MODULE_TAG} Resend failed:`, error);
-			toastV8.error('Failed to resend code. Please try again.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to resend code. Please try again.', dismissible: true });
 		}
 	}, [canResend, isLoading, onResendOtp, deviceDisplayName]);
 

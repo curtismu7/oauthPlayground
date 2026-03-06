@@ -11,7 +11,7 @@
 
 import { FiAlertTriangle, FiCheck, FiCopy, FiExternalLink, FiX } from '@icons';
 import React, { useState } from 'react';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const _MODULE_TAG = '[🔗 REDIRECT-URI-VALIDATOR-V8]';
 
@@ -69,12 +69,12 @@ export const RedirectUriValidatorV8: React.FC<RedirectUriValidatorV8Props> = ({
 		try {
 			await navigator.clipboard.writeText(uri);
 			setCopiedUri(uri);
-			toastV8.success(`${type === 'current' ? 'Current' : 'Suggested'} URI copied to clipboard`);
+			modernMessaging.showFooterMessage({ type: 'info', message: `${type === 'current' ? 'Current' : 'Suggested'} URI copied to clipboard`, duration: 3000 });
 
 			// Clear copied state after 2 seconds
 			setTimeout(() => setCopiedUri(null), 2000);
 		} catch (_error) {
-			toastV8.error('Failed to copy URI to clipboard');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to copy URI to clipboard', dismissible: true });
 		}
 	};
 
@@ -82,7 +82,7 @@ export const RedirectUriValidatorV8: React.FC<RedirectUriValidatorV8Props> = ({
 	const applySuggestedUri = () => {
 		if (suggestedUri && onUriChange) {
 			onUriChange(suggestedUri);
-			toastV8.success('Applied suggested redirect URI');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'Applied suggested redirect URI', duration: 3000 });
 		}
 	};
 

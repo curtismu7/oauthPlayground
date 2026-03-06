@@ -17,7 +17,7 @@ import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { useProductionSpinner } from '../../../../hooks/useProductionSpinner';
 import type { Device } from '../../components/MFADeviceSelector';
 import type { DeviceAuthenticationPolicy } from '../../shared/MFATypes';
@@ -163,17 +163,17 @@ export const useMFAAuthentication = (
 			tokenIsValid: boolean
 		) => {
 			if (!tokenIsValid) {
-				toastV8.error('Please configure worker token first');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please configure worker token first', dismissible: true });
 				return;
 			}
 
 			if (!credentials.environmentId) {
-				toastV8.error('Please configure environment ID first');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please configure environment ID first', dismissible: true });
 				return;
 			}
 
 			if (!credentials.deviceAuthenticationPolicyId) {
-				toastV8.error('Please select an MFA Policy first');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please select an MFA Policy first', dismissible: true });
 				return;
 			}
 
@@ -289,9 +289,7 @@ export const useMFAAuthentication = (
 							`${MODULE_TAG} Authentication initialized but no ID in response:`,
 							response
 						);
-						toastV8.error(
-							'Failed to initialize authentication: No authentication ID received from PingOne'
-						);
+						modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to initialize authentication: No authentication ID received from PingOne', dismissible: true });
 						setAuthState((prev) => ({ ...prev, isLoading: false }));
 						setLoadingMessage('');
 						return;
@@ -320,13 +318,13 @@ export const useMFAAuthentication = (
 						setShowOTPModal(true);
 					} else if (needsPush) {
 						setShowPushModal(true);
-						toastV8.success('Please approve the sign-in on your phone.');
+						modernMessaging.showFooterMessage({ type: 'info', message: 'Please approve the sign-in on your phone.', duration: 3000 });
 					} else if (needsAssertion) {
 						setShowFIDO2Modal(true);
 					} else if (status === 'COMPLETED') {
-						toastV8.success('Authentication completed successfully!');
+						modernMessaging.showFooterMessage({ type: 'info', message: 'Authentication completed successfully!', duration: 3000 });
 					} else {
-						toastV8.success('Authentication started successfully');
+						modernMessaging.showFooterMessage({ type: 'info', message: 'Authentication started successfully', duration: 3000 });
 					}
 				} catch (error) {
 					console.error(`${MODULE_TAG} Failed to start authentication:`, error);
@@ -339,7 +337,7 @@ export const useMFAAuthentication = (
 						return;
 					}
 
-					toastV8.error(error instanceof Error ? error.message : 'Failed to start authentication');
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Failed to start authentication', dismissible: true });
 					setAuthState((prev) => ({ ...prev, isLoading: false }));
 					setLoadingMessage('');
 					throw error; // Re-throw to let spinner handle it

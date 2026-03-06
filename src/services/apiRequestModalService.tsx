@@ -17,7 +17,7 @@ import {
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { ColoredUrlDisplay } from '../components/ColoredUrlDisplay';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 // ============================================================================
 // TYPES
@@ -481,7 +481,7 @@ const ApiRequestModal: React.FC<ApiRequestModalProps> = ({ isOpen, config, onClo
 		const curlCommand = generateCurlCommand();
 		navigator.clipboard.writeText(curlCommand);
 		setCopiedCurl(true);
-		v4ToastManager.showSuccess('cURL command copied to clipboard');
+		modernMessaging.showFooterMessage({ type: 'info', message: 'cURL command copied to clipboard', duration: 3000 });
 		setTimeout(() => setCopiedCurl(false), 2000);
 	};
 

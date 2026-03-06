@@ -9,7 +9,7 @@ import {
 	importStandardizedCredentials,
 	type StandardizedCredentialExport,
 } from '@/services/standardizedCredentialExportService';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 // Styled components
 const ButtonContainer = styled.div`
@@ -120,17 +120,17 @@ export const StandardizedCredentialExportImport: React.FC<
 	// Handle export
 	const handleExport = () => {
 		if (!credentials) {
-			toastV8.error('No credentials to export');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'No credentials to export', dismissible: true });
 			return;
 		}
 
 		try {
 			exportStandardizedCredentials(appName, appType, credentials, metadata);
-			toastV8.success('Credentials exported successfully');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'Credentials exported successfully', duration: 3000 });
 			onExport?.();
 		} catch (error) {
 			console.error('[StandardizedCredentialExportImport] Export failed:', error);
-			toastV8.error('Failed to export credentials');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to export credentials', dismissible: true });
 			onError?.(error as Error);
 		}
 	};
@@ -151,18 +151,16 @@ export const StandardizedCredentialExportImport: React.FC<
 				} else if (appType === 'worker-token' && importedCredentials.appType === 'oauth') {
 					// Allow this cross-import
 				} else {
-					toastV8.error(
-						`Invalid credential type. Expected ${appType}, got ${importedCredentials.appType}`
-					);
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Invalid credential type. Expected ${appType}, got ${importedCredentials.appType}`, dismissible: true });
 					return;
 				}
 			}
 
-			toastV8.success('Credentials imported successfully');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'Credentials imported successfully', duration: 3000 });
 			onImport?.(importedCredentials);
 		} catch (error) {
 			console.error('[StandardizedCredentialExportImport] Import failed:', error);
-			toastV8.error(`Failed to import credentials: ${(error as Error).message}`);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to import credentials: ${(error as Error).message}`, dismissible: true });
 			onError?.(error as Error);
 		}
 

@@ -16,7 +16,7 @@ import {
 	type TokenStatusInfo,
 	WorkerTokenStatusServiceV8,
 } from '@/v8/services/workerTokenStatusServiceV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const MODULE_TAG = '[🔑 WORKER-TOKEN-MODAL-HELPER-V8]';
 
@@ -96,7 +96,7 @@ async function attemptSilentTokenRetrieval(
 
 		if (result.success) {
 			console.log(`${MODULE_TAG} Token automatically fetched via tokenGatewayV8`);
-			toastV8.success('Worker token automatically retrieved!');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'Worker token automatically retrieved!', duration: 3000 });
 			return true;
 		}
 
@@ -109,13 +109,11 @@ async function attemptSilentTokenRetrieval(
 			);
 
 			if (result.error.code === 'NO_CREDENTIALS') {
-				toastV8.warning(
-					'Silent API retrieval requires saved credentials. Click "Get Worker Token" to configure.'
-				);
+				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Silent API retrieval requires saved credentials. Click "Get Worker Token" to configure.', dismissible: true });
 			} else if (result.error.code === 'TIMEOUT') {
-				toastV8.warning('Token retrieval timed out. Please try again.');
+				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Token retrieval timed out. Please try again.', dismissible: true });
 			} else if (result.error.code === 'NETWORK_ERROR') {
-				toastV8.warning('Network error during token retrieval. Check your connection.');
+				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Network error during token retrieval. Check your connection.', dismissible: true });
 			}
 			// Other errors are handled silently - user can click button to get details
 		}

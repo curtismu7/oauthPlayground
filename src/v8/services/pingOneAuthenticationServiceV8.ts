@@ -10,7 +10,7 @@
  */
 
 import { hasPingOneSessionCookie } from '@/v8/services/fido2SessionCookieServiceV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const MODULE_TAG = '[🔐 PINGONE-AUTH-V8]';
 
@@ -154,16 +154,16 @@ export function checkPingOneAuthentication(): PingOneAuthResult {
 function showAuthenticationSuccess(result: PingOneAuthResult): void {
 	switch (result.method) {
 		case 'session_cookie':
-			toastV8.success('🔐 PingOne session detected! You are authenticated.', { duration: 5000 });
+			modernMessaging.showFooterMessage({ type: 'info', message: '🔐 PingOne session detected! You are authenticated.', duration: 5000 });
 			break;
 		case 'oauth_flow':
-			toastV8.success('✅ PingOne OAuth authentication successful!', { duration: 5000 });
+			modernMessaging.showFooterMessage({ type: 'info', message: '✅ PingOne OAuth authentication successful!', duration: 5000 });
 			break;
 		case 'implicit':
-			toastV8.success('🎉 PingOne implicit authentication successful!', { duration: 5000 });
+			modernMessaging.showFooterMessage({ type: 'info', message: '🎉 PingOne implicit authentication successful!', duration: 5000 });
 			break;
 		default:
-			toastV8.success('🔓 PingOne authentication completed!', { duration: 5000 });
+			modernMessaging.showFooterMessage({ type: 'info', message: '🔓 PingOne authentication completed!', duration: 5000 });
 			break;
 	}
 
