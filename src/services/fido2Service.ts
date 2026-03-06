@@ -103,10 +103,12 @@ export class FIDO2Service {
 				};
 			}
 
-			console.log('🔐 [FIDO2] Starting credential registration', {
-				rpId: config.rpId,
-				rpName: config.rpName,
-				userName: config.userName,
+			logger.info('Fido2Service', '🔐 [FIDO2] Starting credential registration', {
+				arg0: {
+					rpId: config.rpId,
+					rpName: config.rpName,
+					userName: config.userName,
+				},
 			});
 
 			// Convert challenge from base64 to ArrayBuffer
@@ -183,24 +185,26 @@ export class FIDO2Service {
 				clientExtensionResults: {},
 			});
 
-			console.log('✅ [FIDO2] Credential registered successfully', {
-				credentialId: `${credentialId.substring(0, 20)}...`,
-				hasPublicKey: !!publicKey,
-				hasAttestation: !!attestationObject,
-				attestationLength: attestationObject.length,
-				attestationPreview: `${attestationObject.substring(0, 50)}...`,
-				attestationIsBase64url:
-					!attestationObject.includes('+') &&
-					!attestationObject.includes('/') &&
-					!attestationObject.includes('='),
-				clientDataJSONLength: clientDataJSON.length,
-				clientDataJSONPreview: `${clientDataJSON.substring(0, 50)}...`,
-				clientDataJSONIsBase64url:
-					!clientDataJSON.includes('+') &&
-					!clientDataJSON.includes('/') &&
-					!clientDataJSON.includes('='),
-				attestationJsonLength: attestationJson.length,
-				attestationJsonPreview: `${attestationJson.substring(0, 100)}...`,
+			logger.info('Fido2Service', '✅ [FIDO2] Credential registered successfully', {
+				arg0: {
+					credentialId: `${credentialId.substring(0, 20)}...`,
+					hasPublicKey: !!publicKey,
+					hasAttestation: !!attestationObject,
+					attestationLength: attestationObject.length,
+					attestationPreview: `${attestationObject.substring(0, 50)}...`,
+					attestationIsBase64url:
+						!attestationObject.includes('+') &&
+						!attestationObject.includes('/') &&
+						!attestationObject.includes('='),
+					clientDataJSONLength: clientDataJSON.length,
+					clientDataJSONPreview: `${clientDataJSON.substring(0, 50)}...`,
+					clientDataJSONIsBase64url:
+						!clientDataJSON.includes('+') &&
+						!clientDataJSON.includes('/') &&
+						!clientDataJSON.includes('='),
+					attestationJsonLength: attestationJson.length,
+					attestationJsonPreview: `${attestationJson.substring(0, 100)}...`,
+				},
 			});
 
 			return {
@@ -213,7 +217,12 @@ export class FIDO2Service {
 				userHandle: config.userHandle,
 			};
 		} catch (error: unknown) {
-			console.error('❌ [FIDO2] Credential registration failed:', error);
+			logger.error(
+				'Fido2Service',
+				'❌ [FIDO2] Credential registration failed:',
+				undefined,
+				error as Error
+			);
 
 			let errorMessage = 'Credential registration failed';
 			if (error instanceof DOMException) {
@@ -262,9 +271,11 @@ export class FIDO2Service {
 				};
 			}
 
-			console.log('🔐 [FIDO2] Starting credential authentication', {
-				credentialId: `${credentialId.substring(0, 20)}...`,
-				rpId: rpId || FIDO2Service.DEFAULT_RP_ID,
+			logger.info('Fido2Service', '🔐 [FIDO2] Starting credential authentication', {
+				arg0: {
+					credentialId: `${credentialId.substring(0, 20)}...`,
+					rpId: rpId || FIDO2Service.DEFAULT_RP_ID,
+				},
 			});
 
 			// Convert challenge and credential ID to ArrayBuffers
@@ -305,9 +316,11 @@ export class FIDO2Service {
 				? FIDO2Service.arrayBufferToBase64(response.userHandle)
 				: undefined;
 
-			console.log('✅ [FIDO2] Credential authenticated successfully', {
-				credentialId: `${credentialId.substring(0, 20)}...`,
-				hasSignature: !!signature,
+			logger.info('Fido2Service', '✅ [FIDO2] Credential authenticated successfully', {
+				arg0: {
+					credentialId: `${credentialId.substring(0, 20)}...`,
+					hasSignature: !!signature,
+				},
 			});
 
 			return {
@@ -317,7 +330,12 @@ export class FIDO2Service {
 				...(userHandle ? { userHandle } : {}),
 			};
 		} catch (error: unknown) {
-			console.error('❌ [FIDO2] Credential authentication failed:', error);
+			logger.error(
+				'Fido2Service',
+				'❌ [FIDO2] Credential authentication failed:',
+				undefined,
+				error as Error
+			);
 
 			let errorMessage = 'Authentication failed';
 			if (error instanceof DOMException) {
