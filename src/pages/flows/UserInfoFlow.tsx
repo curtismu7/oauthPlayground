@@ -13,6 +13,8 @@ import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplaySe
 import type { UserInfo as OIDCUserInfo } from '../../types/oauth';
 import { isTokenExpired } from '../../utils/oauth';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
+import { CompactAppPickerV8U } from '@/v8u/components/CompactAppPickerV8U';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -502,6 +504,26 @@ const UserInfoFlow: React.FC = () => {
 		// Reset input so the same file can be re-imported if needed
 		e.target.value = '';
 	}, []);
+
+	// Handle app selection from CompactAppPickerV8U
+	const handleAppSelected = (app: DiscoveredApp) => {
+		// Update config with app ID as clientId
+		const updatedConfig = {
+			...config,
+			clientId: app.id, // Use app.id as clientId (standard pattern)
+		};
+		
+		// Save to localStorage and trigger storage event
+		localStorage.setItem('pingone_config', JSON.stringify(updatedConfig));
+		window.dispatchEvent(new StorageEvent('storage', { key: 'pingone_config' }));
+		
+		modernMessaging.showFooterMessage({ 
+			type: 'info', 
+			message: `App "${app.name}" selected - Client ID updated`, 
+			duration: 3000 
+		});
+	};
+
 	const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 	const [currentStep, setCurrentStep] = useState(0);
 	const [userInfo, setUserInfo] = useState<OIDCUserInfo | null>(null);
@@ -998,6 +1020,12 @@ console.log('Welcome, ' + user.name + '!');`,
 					style={{ display: 'none' }}
 				/>
 			</div>
+
+			{/* App Picker for Quick Configuration */}
+			<CompactAppPickerV8U
+				environmentId={config?.environmentId || ''}
+				onAppSelected={handleAppSelected}
+			/>
 
 			<FlowOverview>
 				<CardHeader>

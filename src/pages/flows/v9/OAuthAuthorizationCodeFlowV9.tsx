@@ -1091,7 +1091,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 				clientAuthMethod: flowData.flowCredentials.tokenEndpointAuthMethod as string,
 			});
 		}
-	}, [flowVariant, controller.credentials, controller.setCredentials]); // Run when variant changes
+	}, [flowVariant]); // Run when variant changes
 
 	// Load PingOne app config on mount
 	useEffect(() => {
@@ -1123,7 +1123,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 				logger.warn('OAuthAuthorizationCodeFlowV9', 'Failed to parse stored PingOne config', error);
 			}
 		}
-	}, [controller.credentials, controller.setCredentials]); // Only run once on mount
+	}, []); // Only run once on mount
 
 	// Debug: Always log the current authorization code state
 	logger.info('OAuthAuthorizationCodeFlowV9', 'Current controller.authCode', {
@@ -2386,7 +2386,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 			controller,
 			isStepValid,
 			() => {
-				console.log('✅ [OAuth AuthZ V6] Navigation allowed, moving to next step');
+				logger.info('OAuthAuthorizationCodeFlowV9', 'Navigation allowed, moving to next step');
 				const next = currentStep + 1;
 				setCurrentStep(next);
 			}
@@ -2413,7 +2413,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 
 	// Handle next button click with feedback even when disabled
 	const handleNextClick = useCallback(() => {
-		console.log('🔍 [AuthorizationCodeFlowV5] Next button clicked');
+		logger.info('OAuthAuthorizationCodeFlowV9', 'Next button clicked');
 
 		if (!canNavigateNext()) {
 			modernMessaging.showBanner({
@@ -2595,17 +2595,14 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 									<ComprehensiveCredentialsService
 										// Discovery props
 										onDiscoveryComplete={(result) => {
-											console.log('[OAuth Authz V6] Discovery completed:', result);
+											logger.info('OAuthAuthorizationCodeFlowV9', 'Discovery completed', { result });
 											if (result.issuerUrl) {
 												const extractedEnvId = oidcDiscoveryService.extractEnvironmentId(
 													result.issuerUrl
 												);
 												if (extractedEnvId) {
 													handleFieldChange('environmentId', extractedEnvId);
-													console.log(
-														'[OAuth Authz V6] Auto-extracted Environment ID:',
-														extractedEnvId
-													);
+													logger.info('OAuthAuthorizationCodeFlowV9', 'Auto-extracted Environment ID', { extractedEnvId });
 												}
 											}
 										}}
@@ -2861,7 +2858,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 								credentials={controller.credentials}
 								flowType="oauth"
 								onPKCEGenerated={() => {
-									console.log('[OAuth AuthZ V6] PKCE codes generated successfully');
+									logger.info('OAuthAuthorizationCodeFlowV9', 'PKCE codes generated successfully');
 								}}
 							/>
 						</ResultsSection>
@@ -3701,7 +3698,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 						credentials={controller.credentials as unknown as Record<string, unknown>}
 						pingOneConfig={pingOneConfig}
 						onTerminateSession={() => {
-							console.log('🚪 Session terminated via EnhancedSecurityFeaturesDemo');
+							logger.info('OAuthAuthorizationCodeFlowV9', 'Session terminated via EnhancedSecurityFeaturesDemo');
 							modernMessaging.showFooterMessage({
 								type: 'info',
 								message: 'Session termination completed.',
@@ -3709,7 +3706,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 							});
 						}}
 						onRevokeTokens={() => {
-							console.log('❌ Tokens revoked via EnhancedSecurityFeaturesDemo');
+							logger.info('OAuthAuthorizationCodeFlowV9', 'Tokens revoked via EnhancedSecurityFeaturesDemo');
 							modernMessaging.showFooterMessage({
 								type: 'info',
 								message: 'Token revocation completed.',
@@ -3838,13 +3835,11 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 			{AuthenticationModalService.showModal(
 				showRedirectModal,
 				() => {
-					console.log('🔧 [OAuthAuthorizationCodeFlowV6] Modal cancelled by user');
+					logger.info('OAuthAuthorizationCodeFlowV9', 'Modal cancelled by user');
 					setShowRedirectModal(false);
 				},
 				() => {
-					console.log(
-						'🔧 [OAuthAuthorizationCodeFlowV6] User confirmed - continuing to PingOne authentication'
-					);
+					logger.info('OAuthAuthorizationCodeFlowV9', 'User confirmed - continuing to PingOne authentication');
 					setShowRedirectModal(false);
 					controller.handleRedirectAuthorization();
 					// Open in new window (redirect mode)
@@ -3865,7 +3860,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 			<LoginSuccessModal
 				isOpen={showLoginSuccessModal}
 				onClose={() => {
-					console.log('🔴 [AuthorizationCodeFlowV5] Closing LoginSuccessModal', {
+					logger.info('OAuthAuthorizationCodeFlowV9', 'Closing LoginSuccessModal', {
 						currentStep,
 						hasAuthCode: !!(controller.authCode || localAuthCode),
 						storedStep: sessionStorage.getItem('oauth-authorization-code-v9-current-step'),
@@ -3873,7 +3868,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 					setShowLoginSuccessModal(false);
 					// Ensure we stay on step 4 after modal closes
 					if (currentStep !== 4) {
-						console.log('🔧 [AuthorizationCodeFlowV5] Correcting step to 4 after modal close');
+						logger.info('OAuthAuthorizationCodeFlowV9', 'Correcting step to 4 after modal close');
 						setCurrentStep(4);
 						sessionStorage.setItem('oauth-authorization-code-v9-current-step', '4');
 					}
