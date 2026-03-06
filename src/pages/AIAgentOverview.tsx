@@ -391,22 +391,22 @@ const CollapsibleContent = styled.div<{ $isOpen: boolean }>`
   transition: opacity 0.2s ease-in-out;
 `;
 
-const AIAgentOverview = () => {
-	const pageConfig = {
-		flowType: 'documentation' as const,
-		theme: 'blue' as const,
-		maxWidth: '1400px',
-		showHeader: true,
-		showFooter: false,
-		responsive: true,
-		flowId: 'ai-agent-overview',
-	};
-	const {
-		PageContainer,
-		ContentWrapper,
-		FlowHeader: LayoutFlowHeader,
-	} = PageLayoutService.createPageLayout(pageConfig);
+const pageConfig = {
+	flowType: 'documentation' as const,
+	theme: 'blue' as const,
+	maxWidth: '1400px',
+	showHeader: true,
+	showFooter: false,
+	responsive: true,
+	flowId: 'ai-agent-overview',
+};
+const {
+	PageContainer,
+	ContentWrapper,
+	FlowHeader: LayoutFlowHeader,
+} = PageLayoutService.createPageLayout(pageConfig);
 
+const AIAgentOverview = () => {
 	// State for collapsible sections (only for inner comparison table)
 	const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
 		comparisonTable: true, // Add state for the inner comparison table - expanded by default

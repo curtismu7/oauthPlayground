@@ -8,25 +8,24 @@ import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import InteractiveFlowDiagramService from '../services/interactiveFlowDiagramService';
 import PageLayoutService from '../services/pageLayoutService';
 
+const pageConfig = {
+	flowType: 'documentation' as const,
+	theme: 'blue' as const,
+	maxWidth: '72rem', // Wider for diagram content (1152px)
+	showHeader: true,
+	showFooter: false,
+	responsive: true,
+	flowId: 'interactive-diagrams', // Enables FlowHeader integration
+};
+
+const {
+	PageContainer,
+	ContentWrapper,
+	FlowHeader: LayoutFlowHeader,
+} = PageLayoutService.createPageLayout(pageConfig);
+
 const InteractiveFlowDiagram: React.FC = () => {
 	usePageScroll({ pageName: 'Interactive Diagrams', force: true });
-
-	// Use V6 pageLayoutService for consistent dimensions and FlowHeader integration
-	const pageConfig = {
-		flowType: 'documentation' as const,
-		theme: 'blue' as const,
-		maxWidth: '72rem', // Wider for diagram content (1152px)
-		showHeader: true,
-		showFooter: false,
-		responsive: true,
-		flowId: 'interactive-diagrams', // Enables FlowHeader integration
-	};
-
-	const {
-		PageContainer,
-		ContentWrapper,
-		FlowHeader: LayoutFlowHeader,
-	} = PageLayoutService.createPageLayout(pageConfig);
 
 	// Create diagram components
 	const AuthorizationCodeDiagram = InteractiveFlowDiagramService.createFlowDiagram({
