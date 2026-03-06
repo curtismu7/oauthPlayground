@@ -6,6 +6,7 @@
  */
 
 import type { CommonSpinnerConfig, CommonSpinnerState, SpinnerInstance } from '@/types/spinner';
+import { logger } from '../utils/logger';
 
 const MODULE_TAG = '[🔄 COMMON-SPINNER-SERVICE]';
 
@@ -53,10 +54,12 @@ function createInstance(
 				startTime: Date.now(),
 			};
 
-			console.log(`${MODULE_TAG} [${appId}] Spinner shown:`, {
-				message: state.message,
-				type: state.type,
-				theme: state.theme,
+			logger.info('CommonSpinnerService', `${MODULE_TAG} [${appId}] Spinner shown:`, {
+				arg0: {
+					message: state.message,
+					type: state.type,
+					theme: state.theme,
+				},
 			});
 
 			// Dispatch custom event for global listeners
@@ -70,7 +73,10 @@ function createInstance(
 		hide: () => {
 			const duration = state.startTime ? Date.now() - state.startTime : 0;
 
-			console.log(`${MODULE_TAG} [${appId}] Spinner hidden after ${duration}ms`);
+			logger.info(
+				'CommonSpinnerService',
+				`${MODULE_TAG} [${appId}] Spinner hidden after ${duration}ms`
+			);
 
 			state = { ...state, show: false };
 
@@ -85,7 +91,7 @@ function createInstance(
 		updateMessage: (message: string) => {
 			state = { ...state, message };
 
-			console.log(`${MODULE_TAG} [${appId}] Message updated: ${message}`);
+			logger.info('CommonSpinnerService', `${MODULE_TAG} [${appId}] Message updated: ${message}`);
 
 			// Dispatch custom event for global listeners
 			window.dispatchEvent(
@@ -98,7 +104,10 @@ function createInstance(
 		updateProgress: (progress: number) => {
 			state = { ...state, progress };
 
-			console.log(`${MODULE_TAG} [${appId}] Progress updated: ${progress}%`);
+			logger.info(
+				'CommonSpinnerService',
+				`${MODULE_TAG} [${appId}] Progress updated: ${progress}%`
+			);
 
 			// Dispatch custom event for global listeners
 			window.dispatchEvent(
@@ -111,7 +120,9 @@ function createInstance(
 		updateConfig: (config: Partial<CommonSpinnerConfig>) => {
 			state = { ...state, ...config };
 
-			console.log(`${MODULE_TAG} [${appId}] Config updated:`, config);
+			logger.info('CommonSpinnerService', `${MODULE_TAG} [${appId}] Config updated:`, {
+				arg0: config,
+			});
 
 			// Dispatch custom event for global listeners
 			window.dispatchEvent(
@@ -137,7 +148,10 @@ export const CommonSpinnerService = {
 		if (!instances.has(appId)) {
 			const instance = createInstance(appId, initialState);
 			instances.set(appId, instance);
-			console.log(`${MODULE_TAG} Created spinner instance for app: ${appId}`);
+			logger.info(
+				'CommonSpinnerService',
+				`${MODULE_TAG} Created spinner instance for app: ${appId}`
+			);
 		}
 
 		return instances.get(appId)!;
@@ -199,7 +213,10 @@ export const CommonSpinnerService = {
 	 * Hide all spinners (useful for navigation or cleanup)
 	 */
 	hideAllSpinners(): void {
-		console.log(`${MODULE_TAG} Hiding all spinners (${instances.size} instances)`);
+		logger.info(
+			'CommonSpinnerService',
+			`${MODULE_TAG} Hiding all spinners (${instances.size} instances)`
+		);
 
 		instances.forEach((instance) => {
 			instance.hide();
@@ -211,7 +228,9 @@ export const CommonSpinnerService = {
 	 */
 	setGlobalConfig(config: Partial<CommonSpinnerConfig>): void {
 		Object.assign(globalConfig, config);
-		console.log(`${MODULE_TAG} Global config updated:`, globalConfig);
+		logger.info('CommonSpinnerService', `${MODULE_TAG} Global config updated:`, {
+			arg0: globalConfig,
+		});
 	},
 
 	/**
@@ -227,7 +246,10 @@ export const CommonSpinnerService = {
 	removeInstance(appId: string): void {
 		if (instances.has(appId)) {
 			instances.delete(appId);
-			console.log(`${MODULE_TAG} Removed spinner instance for app: ${appId}`);
+			logger.info(
+				'CommonSpinnerService',
+				`${MODULE_TAG} Removed spinner instance for app: ${appId}`
+			);
 		}
 	},
 
@@ -235,7 +257,7 @@ export const CommonSpinnerService = {
 	 * Clear all instances (cleanup)
 	 */
 	clearAllInstances(): void {
-		console.log(`${MODULE_TAG} Clearing all spinner instances`);
+		logger.info('CommonSpinnerService', `${MODULE_TAG} Clearing all spinner instances`);
 		instances.clear();
 	},
 

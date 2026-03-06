@@ -81,7 +81,12 @@ class WorkerTokenCredentialsService {
 				region: config.region || 'us',
 			};
 		} catch (error) {
-			console.error('[WorkerTokenCredentialsService] Failed to load credentials:', error);
+			logger.error(
+				'WorkerTokenCredentialsService',
+				'[WorkerTokenCredentialsService] Failed to load credentials:',
+				undefined,
+				error as Error
+			);
 			return null;
 		}
 	}
@@ -106,14 +111,25 @@ class WorkerTokenCredentialsService {
 			};
 
 			localStorage.setItem(storageKey, JSON.stringify(config));
-			console.log('[WorkerTokenCredentialsService] Credentials saved successfully:', {
-				flowType: flowType || 'default',
-				storageKey,
-				environmentId: `${credentials.environmentId?.substring(0, 20)}...`,
-			});
+			logger.info(
+				'WorkerTokenCredentialsService',
+				'[WorkerTokenCredentialsService] Credentials saved successfully:',
+				{
+					arg0: {
+						flowType: flowType || 'default',
+						storageKey,
+						environmentId: `${credentials.environmentId?.substring(0, 20)}...`,
+					},
+				}
+			);
 			return true;
 		} catch (error) {
-			console.error('[WorkerTokenCredentialsService] Failed to save credentials:', error);
+			logger.error(
+				'WorkerTokenCredentialsService',
+				'[WorkerTokenCredentialsService] Failed to save credentials:',
+				undefined,
+				error as Error
+			);
 			return false;
 		}
 	}
@@ -195,12 +211,18 @@ class WorkerTokenCredentialsService {
 		try {
 			const storageKey = this.getStorageKey(flowType);
 			localStorage.removeItem(storageKey);
-			console.log(
+			logger.info(
+				'WorkerTokenCredentialsService',
 				'[WorkerTokenCredentialsService] Credentials cleared for flowType:',
-				flowType || 'default'
+				{ arg0: flowType || 'default' }
 			);
 		} catch (error) {
-			console.error('[WorkerTokenCredentialsService] Failed to clear credentials:', error);
+			logger.error(
+				'WorkerTokenCredentialsService',
+				'[WorkerTokenCredentialsService] Failed to clear credentials:',
+				undefined,
+				error as Error
+			);
 		}
 	}
 
@@ -226,7 +248,12 @@ class WorkerTokenCredentialsService {
 				hasCredentials: true,
 			};
 		} catch (error) {
-			console.error('[WorkerTokenCredentialsService] Failed to get metadata:', error);
+			logger.error(
+				'WorkerTokenCredentialsService',
+				'[WorkerTokenCredentialsService] Failed to get metadata:',
+				undefined,
+				error as Error
+			);
 			return { hasCredentials: false };
 		}
 	}
