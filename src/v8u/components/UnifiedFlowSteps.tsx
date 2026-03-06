@@ -1,3 +1,4 @@
+import { logger } from '../../utils/logger';
 /**
  * @file UnifiedFlowSteps.tsx
  * @module v8u/components
@@ -17,7 +18,6 @@
  */
 
 import {
-import { logger } from '../../utils/logger';
 	FiAlertCircle,
 	FiArrowRight,
 	FiBook,
