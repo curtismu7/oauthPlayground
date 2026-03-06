@@ -281,7 +281,12 @@ export class UnifiedStorageManager {
 				await this.batchWriteToStorage(operations);
 			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to flush write queue:`, error);
+			logger.error(
+				'UnifiedStorageManager',
+				`${MODULE_TAG} Failed to flush write queue:`,
+				undefined,
+				error as Error
+			);
 			// Re-queue failed operations
 			operations.forEach(([key, data]) => {
 				this.writeQueue.set(key, data);
@@ -298,7 +303,12 @@ export class UnifiedStorageManager {
 				const stored = localStorage.getItem(key);
 				return stored ? JSON.parse(stored) : null;
 			} catch (error) {
-				console.error(`${MODULE_TAG} Failed to load from localStorage:`, error);
+				logger.error(
+					'UnifiedStorageManager',
+					`${MODULE_TAG} Failed to load from localStorage:`,
+					undefined,
+					error as Error
+				);
 				return null;
 			}
 		});
@@ -312,7 +322,12 @@ export class UnifiedStorageManager {
 			try {
 				localStorage.setItem(key, JSON.stringify(data));
 			} catch (error) {
-				console.error(`${MODULE_TAG} Failed to save ${key} to localStorage:`, error);
+				logger.error(
+					'UnifiedStorageManager',
+					`${MODULE_TAG} Failed to save ${key} to localStorage:`,
+					undefined,
+					error as Error
+				);
 				throw error;
 			}
 		});
@@ -326,7 +341,12 @@ export class UnifiedStorageManager {
 			try {
 				localStorage.removeItem(key);
 			} catch (error) {
-				console.error(`${MODULE_TAG} Failed to clear ${key} from localStorage:`, error);
+				logger.error(
+					'UnifiedStorageManager',
+					`${MODULE_TAG} Failed to clear ${key} from localStorage:`,
+					undefined,
+					error as Error
+				);
 				throw error;
 			}
 		});

@@ -1,6 +1,7 @@
 // src/services/exportImportService.ts
 // Export/Import service for application configurations
 
+import { logger } from '../utils/logger';
 import { validateConfiguration } from '../utils/presetValidation';
 import type { BuilderAppType, FormDataState } from './presetManagerService';
 
@@ -71,7 +72,12 @@ class ExportImportServiceImpl implements ExportImportService {
 
 			this.downloadConfiguration(exportConfig);
 		} catch (error) {
-			console.error('[ExportImport] Failed to export configuration:', error);
+			logger.error(
+				'ExportImportService',
+				'[ExportImport] Failed to export configuration:',
+				undefined,
+				error as Error
+			);
 			throw new Error('Failed to export configuration');
 		}
 	}
@@ -117,7 +123,12 @@ class ExportImportServiceImpl implements ExportImportService {
 			// Validate configuration structure
 			return this.validateImportedConfiguration(parsedConfig);
 		} catch (error) {
-			console.error('[ExportImport] Failed to import configuration:', error);
+			logger.error(
+				'ExportImportService',
+				'[ExportImport] Failed to import configuration:',
+				undefined,
+				error as Error
+			);
 			return {
 				isValid: false,
 				errors: [`Import failed: ${error instanceof Error ? error.message : 'Unknown error'}`],
@@ -212,7 +223,12 @@ class ExportImportServiceImpl implements ExportImportService {
 			// For now, we'll throw an error to indicate it needs to be implemented
 			throw new Error('Preset export not yet implemented. Use the preset manager directly.');
 		} catch (error) {
-			console.error('[ExportImport] Failed to export preset:', error);
+			logger.error(
+				'ExportImportService',
+				'[ExportImport] Failed to export preset:',
+				undefined,
+				error as Error
+			);
 			throw error;
 		}
 	}
