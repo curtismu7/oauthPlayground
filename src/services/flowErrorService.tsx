@@ -3,6 +3,7 @@ import React from 'react';
 import { FlowErrorDisplay, FlowErrorDisplayProps } from '../components/FlowErrorDisplay';
 import { InlineFlowError, InlineFlowErrorProps } from '../components/InlineFlowError';
 import { ERROR_MESSAGES, ErrorCategory, ErrorTemplate } from '../constants/errorMessages';
+import { logger } from '../utils/logger';
 import { FlowType } from './flowStepDefinitions';
 
 /**
@@ -288,7 +289,7 @@ class FlowErrorServiceClass {
 		const correlationId = config.correlationId || this.generateCorrelationId();
 		const category = this.categorizeError(config);
 
-		console.error(`[FlowError] ${category}`, {
+		logger.error('FlowErrorService', `[FlowError] ${category}`, undefined, {
 			correlationId,
 			flowType: config.flowType,
 			flowKey: config.flowKey,
