@@ -206,6 +206,29 @@ const CIBAvsDeviceAuthz: React.FC = () => {
 	};
 
 	// Use PageLayoutService for consistent layout and FlowHeader integration
+
+// Layout components at module scope — styled-components v6 calls useContext
+// internally when creating styled components; must not run inside a component.
+const pageConfig = {
+	flowType: 'documentation' as const,
+	theme: 'blue' as const,
+	maxWidth: '1400px',
+	showHeader: false, // We handle the header manually with FlowHeader
+	showFooter: false,
+	responsive: true,
+};
+
+const { PageContainer, ContentWrapper } = PageLayoutService.createPageLayout(pageConfig);
+
+const CIBAvsDeviceAuthz: React.FC = () => {
+	usePageScroll({ pageName: 'CIBA vs Device Authorization', force: true });
+
+	const handleCopyCode = (code: string, description: string) => {
+		copyToClipboard(code);
+		showFlowSuccess(`Copied ${description} to clipboard`);
+	};
+
+	// Use PageLayoutService for consistent layout and FlowHeader integration
 	const pageConfig = {
 		flowType: 'documentation' as const,
 		theme: 'blue' as const,

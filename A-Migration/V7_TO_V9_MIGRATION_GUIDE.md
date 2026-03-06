@@ -2,6 +2,51 @@
 
 **Document Purpose:** Executable migration plan for upgrading V7 OAuth/OIDC flows to V9
 
+**🚨 CRITICAL REQUIREMENT: ZERO RE-TYPING POLICY**
+
+### **MANDATORY: All V9 Flows Must Save Everything Using V9 Storage**
+
+**EVERY V9 flow MUST implement comprehensive data persistence using `V9CredentialStorageService`:**
+
+#### **Required Data Persistence (MANDATORY)**
+1. **All Tokens** - Access tokens, refresh tokens, ID tokens, device codes
+2. **All Credentials** - Client IDs, client secrets, environment IDs, API keys  
+3. **All UI Entries** - Form inputs, user selections, configuration preferences
+4. **All App State** - Selected applications, grant types, flow configurations
+
+#### **User Experience Goal: ZERO RE-TYPING**
+- **Objective**: Users should NEVER have to retype information they've already entered
+- **Implementation**: Every field value must be automatically restored on page load
+- **Persistence**: Data survives page refreshes, browser restarts, and sessions
+- **Portability**: Users can export/import their complete configuration
+
+#### **V9 Storage Implementation Pattern**
+```typescript
+// REQUIRED: Load saved data on component mount
+useEffect(() => {
+  const saved = V9CredentialStorageService.loadSync(flowKey);
+  if (saved.clientId) setClientId(saved.clientId);
+  if (saved.environmentId) setEnvironmentId(saved.environmentId);
+  if (saved.scopes) setScopes(saved.scopes);
+  // Restore ALL user inputs - NO EXCEPTIONS
+}, []);
+
+// REQUIRED: Save data on every change
+const handleFieldChange = (field: string, value: string) => {
+  // Update state
+  setState(prev => ({ ...prev, [field]: value }));
+  // IMMEDIATELY persist to V9 storage
+  V9CredentialStorageService.save(flowKey, { 
+    ...currentState,
+    [field]: value
+  });
+};
+```
+
+**🎯 RESULT: Users enter information once, it's available everywhere, forever.**
+
+---
+
 **Migration Status:** ✅ **COMPLETE** (All V7 routes retired — March 2026)
 
 **Completion Summary:**
@@ -1076,7 +1121,53 @@ Rollback (PR 6):
 
 ---
 
-## 📋 Validation Checklist (Use for Each Flow)
+## � Credentials Import/Export Service (NEW - March 2026)
+
+**Status:** ✅ **STANDARDIZED** - Service and component available
+
+### Overview
+All flows with credentials should use the standardized import/export service for consistent user experience.
+
+### Service Location
+- **Service**: `src/services/credentialsImportExportService.ts`
+- **Component**: `src/components/CredentialsImportExport.tsx`
+- **Version**: 9.0.0
+
+### Implementation Pattern for V9 Flows
+V9 flows already have comprehensive credentials management through `ComprehensiveCredentialsService`. For non-V9 flows:
+
+```tsx
+import { CredentialsImportExport } from '@/components/CredentialsImportExport';
+
+// Add near credential inputs
+<CredentialsImportExport
+  credentials={credentials}
+  options={{
+    flowType: 'your-flow-type',
+    appName: 'Your Flow Name',
+    onImportSuccess: (creds) => setCredentials(creds),
+    onImportError: (error) => console.error(error),
+  }}
+/>
+```
+
+### File Format
+Export creates JSON with standardized structure including flow type, version, and metadata.
+
+### Implementation Status
+- ✅ V9 Flows: All 16 use `ComprehensiveCredentialsService`
+- 🔄 Non-V9 Flows: 3/13 have standardized import/export
+- 📋 **See**: `CREDENTIALS_IMPORT_EXPORT_INVENTORY.md` for complete inventory
+
+### Required Imports
+```typescript
+import { CredentialsImportExport } from '@/components/CredentialsImportExport';
+import { credentialsImportExportService } from '@/services/credentialsImportExportService';
+```
+
+---
+
+## �📋 Validation Checklist (Use for Each Flow)
 
 Before marking any PR as complete:
 
