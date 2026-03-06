@@ -29,7 +29,6 @@ import SAMLAssertionService from '../../../services/samlAssertionService';
 import { UnifiedTokenDisplayService } from '../../../services/unifiedTokenDisplayService';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import { credentialManager } from '../../../utils/credentialManager';
-import { secureErrorLog, secureLog } from '../../../utils/secureLogging';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 
@@ -403,7 +402,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 				message: `${label} copied to clipboard.`,
 				duration: 3000,
 			});
-		} catch (error) {
+		} catch (_error) {
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -525,7 +524,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 				message: 'SAML Assertion generated successfully!',
 				duration: 3000,
 			});
-		} catch (error) {
+		} catch (_error) {
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -731,7 +730,7 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 				message: 'Mock access token generated successfully! (Educational simulation)',
 				duration: 3000,
 			});
-		} catch (error) {
+		} catch (_error) {
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
