@@ -422,8 +422,8 @@ const UserInfoFlow: React.FC = () => {
 						}
 						return parsedTokens;
 					}
-				} catch (error) {
-					console.warn(` [UserInfoFlow] Failed to parse stored tokens for key '${key}':`, error);
+				} catch {
+					// Skip malformed localStorage entry
 				}
 			}
 		}
@@ -478,7 +478,6 @@ const UserInfoFlow: React.FC = () => {
 			modernMessaging.showFooterMessage({ type: 'info', message: 'Config exported successfully', duration: 3000 });
 		} catch (err) {
 			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to export config', dismissible: true });
-			console.error('[UserInfoFlow] Export error:', err);
 		}
 	}, []);
 
@@ -497,7 +496,6 @@ const UserInfoFlow: React.FC = () => {
 				setTimeout(() => window.location.reload(), 800);
 			} catch (err) {
 				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Invalid config file — must be valid JSON', dismissible: true });
-				console.error('[UserInfoFlow] Import error:', err);
 			}
 		};
 		reader.readAsText(file);
@@ -584,8 +582,8 @@ const UserInfoFlow: React.FC = () => {
 		try {
 			await navigator.clipboard.writeText(text);
 			// You could add a toast notification here
-		} catch (error) {
-			console.error('Failed to copy:', error);
+		} catch {
+			modernMessaging.showBanner({ type: 'error', message: 'Failed to copy to clipboard', dismissible: true });
 		}
 	};
 
@@ -857,7 +855,6 @@ const userInfo = await response.json();`,
 				} catch (error: unknown) {
 					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 					setError(`Failed to call UserInfo endpoint: ${errorMessage}`);
-					console.error(' [UserInfoFlow] UserInfo API call failed:', error);
 				}
 			},
 		},
