@@ -20,7 +20,6 @@ import { useNavigate } from 'react-router-dom';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import JSONHighlighter, { type JSONData } from '../../../components/JSONHighlighter';
 import PhoneNumberInput from '../../../components/PhoneNumberInput';
-import { StepNavigationButtons } from '../../../components/StepNavigationButtons';
 import type { StepCredentials } from '../../../components/steps/CommonSteps';
 import { usePageScroll } from '../../../hooks/usePageScroll';
 import { CollapsibleHeader } from '../../../services/collapsibleHeaderService';
@@ -1299,16 +1298,6 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 					<StepContentWrapper>{renderStepContent}</StepContentWrapper>
 				</MainCard>
 
-				<StepNavigationButtons
-					currentStep={currentStep}
-					totalSteps={STEP_METADATA.length}
-					onPrevious={() => setCurrentStep(Math.max(0, currentStep - 1))}
-					onNext={() => setCurrentStep(Math.min(STEP_METADATA.length - 1, currentStep + 1))}
-					onReset={handleReset}
-					canNavigateNext={isStepValid(currentStep)}
-					isFirstStep={currentStep === 0}
-					nextButtonText={isStepValid(currentStep) ? 'Next' : 'Complete current step first'}
-				/>
 			</ContentWrapper>
 		</Container>
 	);

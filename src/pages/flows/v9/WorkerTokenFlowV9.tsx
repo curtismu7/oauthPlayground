@@ -12,7 +12,6 @@ import {
 	ResultsSection as ImportedResultsSection,
 	ResultsHeading,
 } from '../../../components/ResultsPanel';
-import { StepNavigationButtons } from '../../../components/StepNavigationButtons';
 import type { StepCredentials } from '../../../components/steps/CommonSteps';
 import { usePageScroll } from '../../../hooks/usePageScroll';
 import { useWorkerTokenFlowController } from '../../../hooks/useWorkerTokenFlowController';
@@ -339,15 +338,6 @@ const WorkerTokenFlowV9: React.FC = () => {
 
 			<StyledSectionDivider />
 
-			<StepNavigationButtons
-				currentStep={0}
-				totalSteps={3}
-				onNext={handleRequestToken}
-				onPrevious={() => {}}
-				onReset={() => setCurrentStep(0)}
-				canNavigateNext={true}
-				isFirstStep={true}
-			/>
 		</StepContainer>
 	);
 
@@ -391,16 +381,6 @@ const WorkerTokenFlowV9: React.FC = () => {
 
 				<StyledSectionDivider />
 
-				<StepNavigationButtons
-					currentStep={1}
-					totalSteps={3}
-					onNext={() => setCurrentStep(2)}
-					onPrevious={() => setCurrentStep(0)}
-					onReset={handleReset}
-					canNavigateNext={true}
-					isFirstStep={false}
-					nextButtonText="Learn API Usage"
-				/>
 			</StepContainer>
 		);
 	};
@@ -683,16 +663,6 @@ curl -X GET \\
 
 				<StyledSectionDivider />
 
-				<StepNavigationButtons
-					currentStep={2}
-					totalSteps={3}
-					onNext={handleViewTokenManagement}
-					onPrevious={() => setCurrentStep(1)}
-					onReset={handleReset}
-					canNavigateNext={true}
-					isFirstStep={false}
-					nextButtonText="View Token Management"
-				/>
 			</StepContainer>
 		);
 	};
