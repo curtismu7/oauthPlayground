@@ -768,6 +768,14 @@ const AppRoutes: React.FC = () => {
 									element={<V7RMOIDCResourceOwnerPasswordFlow />}
 								/>
 								<Route
+									path="/v7/oauth/authorization-code"
+									element={
+										<Suspense fallback={<div>Loading...</div>}>
+											<V7MOAuthAuthCode oidc={false} title="V7M OAuth Authorization Code" />
+										</Suspense>
+									}
+								/>
+								<Route
 									path="/v7/oidc/authorization-code"
 									element={
 										<Suspense fallback={<div>Loading...</div>}>
