@@ -16,14 +16,14 @@
 | Dead flow files archived | ✅ **DONE** | 31 files + 5 dirs → `archive/dead-flows/` (commit `8b442f165`) |
 | V9 flows: `V9CredentialStorageService` | ✅ **DONE** | All 16 V9 flows have it |
 | V9 flows: `CompactAppPickerV8U` | ✅ **DONE** | All 16 V9 flows have it |
-| App Lookup Service (`CompactAppPickerV8U`) — all credential flows | 🔄 **IN PROGRESS** | All flows with credentials must use the app picker so users can auto-apply credentials. V9 flows (v9/) 16/16 done. Remaining: 2 V9 flows outside v9/ (CIBAFlowV9, RedirectlessFlowV9_Real) + 10 non-V9 flows. See [APP_PICKER_MIGRATION_REPORT.md](./APP_PICKER_MIGRATION_REPORT.md) |
+| App Lookup Service (`CompactAppPickerV8U`) — all credential flows | ✅ **DONE** | All flows with credentials now use CompactAppPickerV9 with V9 standardization. See [COMPACT_APP_PICKER_V9_COMPLETE_MIGRATION_REPORT.md](./COMPACT_APP_PICKER_V9_COMPLETE_MIGRATION_REPORT.md) |
 | **NEW: Credentials Import/Export Service** | ✅ **DONE** | Standardized service created: `credentialsImportExportService.ts` + `CredentialsImportExport.tsx` component. 3/13 non-V9 flows have it. See [CREDENTIALS_IMPORT_EXPORT_INVENTORY.md](./CREDENTIALS_IMPORT_EXPORT_INVENTORY.md) |
 | **NEW: CompactAppPickerV8U → V9 Migration** | ✅ **DONE** | Migrated to `CompactAppPickerV9` with V9 standardization, enhanced features, and improved TypeScript. See [COMPACT_APP_PICKER_V9_MIGRATION.md](./COMPACT_APP_PICKER_V9_MIGRATION.md) |
 | V9 flows: zero `toastV8` calls | ✅ **DONE** | 0 actual calls (comments only) |
 | V9 flows: `console.error/warn` | ✅ **DONE** | 0 violations in all V9 flows — WorkerTokenFlowV9 1 occurrence exempt (inside `<pre>` tag). CIBAFlowV9 + RedirectlessFlowV9_Real (13 violations) fixed commit `8eb74df06` |
 | V9 services: `console.error/warn` | ✅ **DONE** | 48 violations removed across 13 service files (commit `d2948f543`) — 2 false positives skipped (postmanCollectionGeneratorV9 template strings, credentialsServiceV9 JSDoc) |
 | Non-V9 flow files: `console.error/warn` | ✅ **DONE** | 26 violations removed across 6 files: DPoPFlow, IDTokensFlow, PARFlow, SAMLServiceProviderFlowV1, UserInfoFlow, KrogerGroceryStoreMFA (commit `ac7089a02`) — 4 false positives skipped (MFAFlow + PingOneLogoutFlow template strings) |
-| Floating `StepNavigationButtons` removal | 🔄 **IN PROGRESS** | Remove draggable fixed-position stepper widget from all V9 flows — done: OAuthAuthorizationCodeFlowV9, ImplicitFlowV9 — remaining: OIDCHybridFlowV9, DeviceAuthorizationFlowV9, MFAWorkflowLibraryFlowV9, ClientCredentialsFlowV9, WorkerTokenFlowV9, RARFlowV9, RedirectlessFlowV9_Real (7 left) |
+| Floating `StepNavigationButtons` removal | ✅ **DONE** | Remove draggable fixed-position stepper widget from all V9 flows — COMPLETED: All 6 V9 flows cleaned (OIDCHybridFlowV9, DeviceAuthorizationFlowV9, MFAWorkflowLibraryFlowV9, ClientCredentialsFlowV9, WorkerTokenFlowV9, RARFlowV9) + CIBAFlowV9, RedirectlessFlowV9_Real |
 | **NEW: Logging Implementation Plan** | ✅ **DONE** | Comprehensive 5-week plan created (see docs/standards/logging-implementation-plan.md) |
 | **NEW: Comprehensive Status Assessment** | ✅ **DONE** | Complete technical debt analysis (see COMPREHENSIVE_STANDARDIZATION_STATUS.md) |
 
