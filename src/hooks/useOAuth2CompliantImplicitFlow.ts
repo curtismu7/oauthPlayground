@@ -21,8 +21,8 @@ import {
 	type ImplicitTokenValidationResult,
 	implicitFlowComplianceService,
 } from '../services/implicitFlowComplianceService';
-import { v4ToastManager } from '../utils/v4ToastMessages';
 import { logger } from '../utils/logger';
+import { v4ToastManager } from '../utils/v4ToastMessages';
 
 export interface ImplicitFlowCredentials {
 	environmentId: string;

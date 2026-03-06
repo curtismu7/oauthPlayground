@@ -33,10 +33,10 @@ import styled from 'styled-components';
 
 import { CommonSpinner } from '@/components/common/CommonSpinner';
 import { useProductionSpinner } from '@/hooks/useProductionSpinner';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { useCibaFlowV8 } from '@/v8/hooks/useCibaFlowV8';
 import { type CibaCredentials, CibaServiceV8 } from '@/v8/services/cibaServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const MODULE_TAG = '[🔐 CIBA-FLOW-V8]';
 const FLOW_KEY = 'ciba-v8';
@@ -401,10 +401,19 @@ const CIBAFlowV8: React.FC = () => {
 	const saveCredentials = async () => {
 		try {
 			await CredentialsServiceV8.saveCredentials(FLOW_KEY, credentials);
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Credentials saved successfully!', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Credentials saved successfully!',
+				duration: 3000,
+			});
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to save credentials:`, error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save credentials', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to save credentials',
+				dismissible: true,
+			});
 		}
 	};
 
@@ -430,10 +439,19 @@ const CIBAFlowV8: React.FC = () => {
 	const copyToClipboard = async (text: string) => {
 		try {
 			await navigator.clipboard.writeText(text);
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Copied to clipboard!', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Copied to clipboard!',
+				duration: 3000,
+			});
 		} catch (error) {
 			console.error('Failed to copy to clipboard:', error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to copy to clipboard', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to copy to clipboard',
+				dismissible: true,
+			});
 		}
 	};
 

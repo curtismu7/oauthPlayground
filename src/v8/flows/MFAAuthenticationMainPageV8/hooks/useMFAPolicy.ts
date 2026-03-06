@@ -13,10 +13,10 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import type { TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import type { DeviceAuthenticationPolicy, DeviceType } from '../../shared/MFATypes';
 
 const MODULE_TAG = '[🔐 useMFAPolicy]';
@@ -256,7 +256,11 @@ export const useMFAPolicy = (options: UseMFAPolicyOptions): MFAPolicyHookResult 
 				// Extract and log allowed device types
 				const allowedTypes = extractAllowedDeviceTypes(updatedPolicy);
 
-				modernMessaging.showFooterMessage({ type: 'info', message: `Selected policy: ${updatedPolicy.name} (${allowedTypes.length} device type${allowedTypes.length !== 1 ? 's' : ''} allowed)`, duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: `Selected policy: ${updatedPolicy.name} (${allowedTypes.length} device type${allowedTypes.length !== 1 ? 's' : ''} allowed)`,
+					duration: 3000,
+				});
 			}
 		},
 		[extractAllowedDeviceTypes, loadPolicies]

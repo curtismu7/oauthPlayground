@@ -13,7 +13,7 @@ describe('API JWKS and Discovery Endpoints', () => {
         e: 'AQAB',
       },
     ],
-  });
+  };
 
   const mockDiscoveryConfig = {
     issuer: 'https://auth.pingone.com/test-env',
@@ -28,10 +28,11 @@ describe('API JWKS and Discovery Endpoints', () => {
     id_token_signing_alg_values_supported: ['RS256'],
     token_endpoint_auth_methods_supported: ['client_secret_basic', 'client_secret_post'],
     claims_supported: ['sub', 'iss', 'aud', 'exp', 'iat', 'auth_time'],
-  });
+  };
 
   beforeEach(() => {
     global.fetch.mockClear();
+  });
 
   test('GET /api/jwks successfully retrieves JWKS', async () => {
     global.fetch.mockResolvedValueOnce({

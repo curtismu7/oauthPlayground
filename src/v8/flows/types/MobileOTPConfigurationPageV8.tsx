@@ -14,6 +14,7 @@ import { FiArrowRight, FiBook, FiMessageSquare } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { UserLoginModalV8 } from '@/v8/components/UserLoginModalV8';
@@ -30,7 +31,6 @@ import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServi
 import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
 import type { DeviceAuthenticationPolicy, MFACredentials } from '../shared/MFATypes';
 
@@ -161,7 +161,11 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 				tokenType: 'user' as const,
 			}));
 
-			modernMessaging.showFooterMessage({ type: 'info', message: 'User token automatically loaded from your recent login!', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'User token automatically loaded from your recent login!',
+				duration: 3000,
+			});
 		} else if (isAuthenticated && authToken && !credentials.userToken) {
 			console.log(`[📱 SMS-CONFIG-PAGE-V8] ⚠️ Auth token available but not populating`, {
 				hasAutoPopulated: hasAutoPopulatedRef.current,
@@ -240,7 +244,12 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 
 			if (error) {
 				const errorDescription = searchParams.get('error_description') || '';
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Login failed: ${error}${errorDescription ? ` - ${errorDescription}` : ''}`, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: `Login failed: ${error}${errorDescription ? ` - ${errorDescription}` : ''}`,
+					dismissible: true,
+				});
 				sessionStorage.removeItem('user_login_state_v8');
 				sessionStorage.removeItem('user_login_code_verifier_v8');
 				sessionStorage.removeItem('user_login_credentials_temp_v8');
@@ -264,7 +273,12 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 					});
 					// #endregion
 					console.warn(`[📱 SMS-CONFIG-PAGE-V8] State mismatch - possible CSRF attack`);
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Security validation failed. Please try again.', dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: 'Security validation failed. Please try again.',
+						dismissible: true,
+					});
 					window.history.replaceState({}, document.title, window.location.pathname);
 					return;
 				}
@@ -291,7 +305,12 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 					// #endregion
 
 					if (!storedCodeVerifier || !storedCredentials) {
-						modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Missing PKCE verifier or credentials. Please try logging in again.', dismissible: true });
+						modernMessaging.showBanner({
+							type: 'error',
+							title: 'Error',
+							message: 'Missing PKCE verifier or credentials. Please try logging in again.',
+							dismissible: true,
+						});
 						sessionStorage.removeItem('user_login_state_v8');
 						sessionStorage.removeItem('user_login_code_verifier_v8');
 						sessionStorage.removeItem('user_login_credentials_temp_v8');
@@ -370,7 +389,11 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 						return updated;
 					});
 
-					modernMessaging.showFooterMessage({ type: 'info', message: 'Authentication successful! You can now proceed.', duration: 3000 });
+					modernMessaging.showFooterMessage({
+						type: 'info',
+						message: 'Authentication successful! You can now proceed.',
+						duration: 3000,
+					});
 				} catch (error) {
 					// #region agent log
 					sendAnalyticsLog({
@@ -390,9 +413,19 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 							? error.message
 							: 'Failed to exchange authorization code for tokens';
 					if (errorMessage.includes('invalid_grant') || errorMessage.includes('expired')) {
-						modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Authorization code expired or already used. Please try logging in again.', dismissible: true });
+						modernMessaging.showBanner({
+							type: 'error',
+							title: 'Error',
+							message: 'Authorization code expired or already used. Please try logging in again.',
+							dismissible: true,
+						});
 					} else {
-						modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
+						modernMessaging.showBanner({
+							type: 'error',
+							title: 'Error',
+							message: errorMessage,
+							dismissible: true,
+						});
 					}
 
 					sessionStorage.removeItem('user_login_state_v8');
@@ -530,7 +563,12 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 			setPoliciesError(errorMessage);
 			// Only show error toast if worker token is available (user expects it to work)
 			if (tokenStatus.isValid) {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to load policies: ${errorMessage}`, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: `Failed to load policies: ${errorMessage}`,
+					dismissible: true,
+				});
 			}
 		} finally {
 			setIsLoadingPolicies(false);
@@ -674,22 +712,42 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 						: !!credentials.userToken?.trim(); // User flow with user token
 
 			if (!credentials.deviceAuthenticationPolicyId) {
-				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Please select a Device Authentication Policy before proceeding', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'warning',
+					title: 'Warning',
+					message: 'Please select a Device Authentication Policy before proceeding',
+					dismissible: true,
+				});
 				return;
 			}
 
 			if (!isTokenValid) {
-				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: `Please provide a valid ${tokenType === 'worker' ? 'Worker Token' : 'User Token'} before proceeding`, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'warning',
+					title: 'Warning',
+					message: `Please provide a valid ${tokenType === 'worker' ? 'Worker Token' : 'User Token'} before proceeding`,
+					dismissible: true,
+				});
 				return;
 			}
 
 			if (!credentials.environmentId) {
-				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Please enter an Environment ID before proceeding', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'warning',
+					title: 'Warning',
+					message: 'Please enter an Environment ID before proceeding',
+					dismissible: true,
+				});
 				return;
 			}
 
 			if (!credentials.username) {
-				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Please enter a Username before proceeding', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'warning',
+					title: 'Warning',
+					message: 'Please enter a Username before proceeding',
+					dismissible: true,
+				});
 				return;
 			}
 
@@ -1176,7 +1234,11 @@ export const MobileOTPConfigurationPageV8: React.FC = () => {
 						onTokenReceived={(token) => {
 							setCredentials((prev) => ({ ...prev, userToken: token, tokenType: 'user' }));
 							setShowUserLoginModal(false);
-							modernMessaging.showFooterMessage({ type: 'info', message: 'User token received successfully!', duration: 3000 });
+							modernMessaging.showFooterMessage({
+								type: 'info',
+								message: 'User token received successfully!',
+								duration: 3000,
+							});
 						}}
 						environmentId={credentials.environmentId}
 					/>

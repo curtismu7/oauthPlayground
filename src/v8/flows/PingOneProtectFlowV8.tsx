@@ -28,6 +28,7 @@ import {
 } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
@@ -35,7 +36,6 @@ import { type Credentials, CredentialsServiceV8 } from '@/v8/services/credential
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import uiNotificationServiceV8 from '@/v8/services/uiNotificationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { ButtonSpinner } from '../../components/ui/ButtonSpinner';
 import { StandardModalSpinner, useStandardSpinner } from '../../components/ui/StandardSpinner';
 
@@ -660,7 +660,11 @@ export const PingOneProtectFlowV8: React.FC = () => {
 										detail: { workerToken: config.workerToken },
 									})
 								);
-								modernMessaging.showFooterMessage({ type: 'info', message: `Silent API Token Retrieval set to: ${newValue}`, duration: 3000 });
+								modernMessaging.showFooterMessage({
+									type: 'info',
+									message: `Silent API Token Retrieval set to: ${newValue}`,
+									duration: 3000,
+								});
 
 								// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 								if (newValue) {
@@ -734,7 +738,11 @@ export const PingOneProtectFlowV8: React.FC = () => {
 										detail: { workerToken: config.workerToken },
 									})
 								);
-								modernMessaging.showFooterMessage({ type: 'info', message: `Show Token After Generation set to: ${newValue}`, duration: 3000 });
+								modernMessaging.showFooterMessage({
+									type: 'info',
+									message: `Show Token After Generation set to: ${newValue}`,
+									duration: 3000,
+								});
 							}}
 							style={{
 								width: '20px',

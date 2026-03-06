@@ -40,6 +40,7 @@ import FlowSequenceDisplay from '@/components/FlowSequenceDisplay';
 import { PasswordChangeModal } from '@/components/PasswordChangeModal';
 import RedirectlessLoginModal from '@/components/RedirectlessLoginModal';
 import { type PKCECodes, PKCEService } from '@/services/pkceService';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { createModuleLogger } from '@/utils/consoleMigrationHelper';
 import { WorkerTokenVsClientCredentialsEducationModalV8 } from '@/v8/components/WorkerTokenVsClientCredentialsEducationModalV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
@@ -48,7 +49,6 @@ import { OidcDiscoveryServiceV8 } from '@/v8/services/oidcDiscoveryServiceV8';
 import { type FlowType, type SpecVersion } from '@/v8/services/specVersionServiceV8';
 import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
 import { TokenOperationsServiceV8 } from '@/v8/services/tokenOperationsServiceV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 // Create module-specific logger
 const log = createModuleLogger('src/v8u/components/UnifiedFlowSteps.tsx');
@@ -761,7 +761,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							unifiedStatus,
 						}
 					);
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Worker token is invalid or expired. Please refresh the worker token before continuing.', dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message:
+							'Worker token is invalid or expired. Please refresh the worker token before continuing.',
+						dismissible: true,
+					});
 					// Redirect to step 0 to get/refresh worker token
 					navigateToStep(0);
 				} else if (currentStep === 0 && !status.isValid) {
@@ -1227,7 +1233,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		}
 
 		// Show success toast
-		modernMessaging.showFooterMessage({ type: 'info', message: 'Flow restarted - OAuth tokens and state cleared (credentials and worker token preserved)', duration: 3000 });
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message:
+				'Flow restarted - OAuth tokens and state cleared (credentials and worker token preserved)',
+			duration: 3000,
+		});
 
 		console.log(
 			`${MODULE_TAG} Flow restarted successfully - OAuth tokens and state cleared, credentials and worker token preserved`
@@ -2017,11 +2028,24 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					setShowCallbackSuccessModal(true);
 
 					if (updates.authorizationCode && updates.tokens) {
-						modernMessaging.showFooterMessage({ type: 'info', message: '✅ Callback URL parsed automatically! Authorization code and tokens extracted.', duration: 3000 });
+						modernMessaging.showFooterMessage({
+							type: 'info',
+							message:
+								'✅ Callback URL parsed automatically! Authorization code and tokens extracted.',
+							duration: 3000,
+						});
 					} else if (updates.authorizationCode) {
-						modernMessaging.showFooterMessage({ type: 'info', message: '✅ Callback URL parsed automatically! Authorization code extracted.', duration: 3000 });
+						modernMessaging.showFooterMessage({
+							type: 'info',
+							message: '✅ Callback URL parsed automatically! Authorization code extracted.',
+							duration: 3000,
+						});
 					} else if (updates.tokens) {
-						modernMessaging.showFooterMessage({ type: 'info', message: '✅ Tokens extracted automatically!', duration: 3000 });
+						modernMessaging.showFooterMessage({
+							type: 'info',
+							message: '✅ Tokens extracted automatically!',
+							duration: 3000,
+						});
 					}
 
 					// Clean up sessionStorage
@@ -2106,7 +2130,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 					// Show success modal with callback details
 					setShowCallbackSuccessModal(true);
-					modernMessaging.showFooterMessage({ type: 'info', message: '✅ Callback URL parsed automatically! Authorization code extracted.', duration: 3000 });
+					modernMessaging.showFooterMessage({
+						type: 'info',
+						message: '✅ Callback URL parsed automatically! Authorization code extracted.',
+						duration: 3000,
+					});
 
 					// Clean up sessionStorage
 					if (callbackDataStr) {
@@ -2122,7 +2150,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						authorizationCode: callbackUrl,
 						...(detectedState ? { state: detectedState } : prev.state ? { state: prev.state } : {}),
 					}));
-					modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Callback URL detected - click "Parse Callback URL" to continue', dismissible: true });
+					modernMessaging.showBanner({
+						type: 'warning',
+						title: 'Warning',
+						message: 'Callback URL detected - click "Parse Callback URL" to continue',
+						dismissible: true,
+					});
 				}
 			} else if (!detectedCode && !hasFragment) {
 				console.log(`${MODULE_TAG} No callback data found - user will need to paste URL manually`);
@@ -2246,7 +2279,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 						if (userInfo) {
 							setFlowState((prev) => ({ ...prev, userInfo }));
-							modernMessaging.showFooterMessage({ type: 'info', message: 'User information retrieved successfully', duration: 3000 });
+							modernMessaging.showFooterMessage({
+								type: 'info',
+								message: 'User information retrieved successfully',
+								duration: 3000,
+							});
 
 							// Show success modal with user information
 							setShowUserInfoModal(true);
@@ -2268,13 +2305,26 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				}
 			}
 			nav.markStepComplete();
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Tokens exchanged successfully', duration: 3000 });
-			modernMessaging.showFooterMessage({ type: 'info', message: `Step ${2} completed`, duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Tokens exchanged successfully',
+				duration: 3000,
+			});
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: `Step ${2} completed`,
+				duration: 3000,
+			});
 		} catch (err) {
 			const message = err instanceof Error ? err.message : 'Failed to parse callback fragment';
 			setError(message);
 			setValidationErrors([message]);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: message, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: message,
+				dismissible: true,
+			});
 		} finally {
 			setIsLoading(false);
 		}
@@ -2453,7 +2503,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						}
 
 						nav.markStepComplete();
-						modernMessaging.showFooterMessage({ type: 'info', message: 'Tokens extracted automatically from URL fragment', duration: 3000 });
+						modernMessaging.showFooterMessage({
+							type: 'info',
+							message: 'Tokens extracted automatically from URL fragment',
+							duration: 3000,
+						});
 					} catch (err) {
 						console.error(`${MODULE_TAG} ❌ Failed to auto-parse fragment`, err);
 						// Fall back to manual parsing via handleParseFragment
@@ -2474,7 +2528,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							tokens,
 						}));
 						nav.markStepComplete();
-						modernMessaging.showFooterMessage({ type: 'info', message: 'Tokens restored from previous session', duration: 3000 });
+						modernMessaging.showFooterMessage({
+							type: 'info',
+							message: 'Tokens restored from previous session',
+							duration: 3000,
+						});
 					} catch (err) {
 						console.error(`${MODULE_TAG} Failed to restore tokens from sessionStorage`, err);
 					}
@@ -3261,7 +3319,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 																				onCredentialsChange(updatedCredentials);
 																			}
 
-																			modernMessaging.showFooterMessage({ type: 'info', message: `Fixed ${fixesApplied.length} error(s): ${fixesApplied.join(', ')}`, duration: 3000 });
+																			modernMessaging.showFooterMessage({
+																				type: 'info',
+																				message: `Fixed ${fixesApplied.length} error(s): ${fixesApplied.join(', ')}`,
+																				duration: 3000,
+																			});
 
 																			// Re-run validation
 																			setLoadingMessage('🔍 Re-validating configuration...');
@@ -3287,20 +3349,40 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 																			if (newValidationResult.errors.length > 0) {
 																				setValidationErrors(newValidationResult.errors);
 																				setValidationWarnings([]);
-																				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Some errors remain after fixes', dismissible: true });
+																				modernMessaging.showBanner({
+																					type: 'error',
+																					title: 'Error',
+																					message: 'Some errors remain after fixes',
+																					dismissible: true,
+																				});
 																			} else if (newValidationResult.warnings.length > 0) {
 																				setValidationWarnings(newValidationResult.warnings);
 																				setValidationErrors([]);
-																				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Pre-flight validation warnings remain', dismissible: true });
+																				modernMessaging.showBanner({
+																					type: 'warning',
+																					title: 'Warning',
+																					message: 'Pre-flight validation warnings remain',
+																					dismissible: true,
+																				});
 																			} else {
 																				setValidationWarnings([]);
 																				setValidationErrors([]);
-																				modernMessaging.showFooterMessage({ type: 'info', message: '✅ All errors fixed! Pre-flight validation passed!', duration: 3000 });
+																				modernMessaging.showFooterMessage({
+																					type: 'info',
+																					message:
+																						'✅ All errors fixed! Pre-flight validation passed!',
+																					duration: 3000,
+																				});
 																			}
 																		}
 																	} catch (error) {
 																		console.error(`${MODULE_TAG} Error fixing errors:`, error);
-																		modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to fix errors', dismissible: true });
+																		modernMessaging.showBanner({
+																			type: 'error',
+																			title: 'Error',
+																			message: 'Failed to fix errors',
+																			dismissible: true,
+																		});
 																	} finally {
 																		setIsLoading(false);
 																		setLoadingMessage('');
@@ -3476,7 +3558,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			// No need for additional save here - the service handles all 4 storage locations
 			if (pkceCodes.codeVerifier && pkceCodes.codeChallenge) {
 				nav.markStepComplete();
-				modernMessaging.showFooterMessage({ type: 'info', message: 'PKCE parameters generated successfully', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: 'PKCE parameters generated successfully',
+					duration: 3000,
+				});
 			}
 			setIsGeneratingPKCE(false);
 		};
@@ -3843,7 +3929,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				}
 
 				// Show success toast
-				modernMessaging.showFooterMessage({ type: 'info', message: '✅ Authorization code received from PingOne redirectless flow!', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: '✅ Authorization code received from PingOne redirectless flow!',
+					duration: 3000,
+				});
 
 				// Show callback success modal with authorization code (similar to normal callback flow)
 				setShowCallbackSuccessModal(true);
@@ -3867,7 +3957,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			} catch (err) {
 				const message = err instanceof Error ? err.message : 'Failed to resume redirectless flow';
 				setError(message);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: message, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: message,
+					dismissible: true,
+				});
 			} finally {
 				setIsLoading(false);
 			}
@@ -3986,7 +4081,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				// Mark this as a redirectless flow to prevent dashboard redirects
 				sessionStorage.setItem('v8u_redirectless_flow_active', 'true');
 
-				modernMessaging.showFooterMessage({ type: 'info', message: '✅ Tokens obtained successfully via redirectless authentication!', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: '✅ Tokens obtained successfully via redirectless authentication!',
+					duration: 3000,
+				});
 
 				// Navigate to tokens step
 				// Find the tokens step index (varies by flow type)
@@ -3996,7 +4095,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				const message =
 					err instanceof Error ? err.message : 'Failed to exchange authorization code for tokens';
 				setError(message);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: message, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: message,
+					dismissible: true,
+				});
 			} finally {
 				setIsLoading(false);
 				setLoadingMessage('');
@@ -4141,7 +4245,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						setShowPasswordChangeModal(true);
 						setShowRedirectlessModal(false);
 						setIsRedirectlessAuthenticating(false);
-						modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: '⚠️ Password change is required. Please update your password to continue.', dismissible: true });
+						modernMessaging.showBanner({
+							type: 'warning',
+							title: 'Warning',
+							message: '⚠️ Password change is required. Please update your password to continue.',
+							dismissible: true,
+						});
 					} else {
 						// If userId is not available, try to look it up by username
 						try {
@@ -4172,7 +4281,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									setShowPasswordChangeModal(true);
 									setShowRedirectlessModal(false);
 									setIsRedirectlessAuthenticating(false);
-									modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: '⚠️ Password change is required. Please update your password to continue.', dismissible: true });
+									modernMessaging.showBanner({
+										type: 'warning',
+										title: 'Warning',
+										message:
+											'⚠️ Password change is required. Please update your password to continue.',
+										dismissible: true,
+									});
 								} else {
 									throw new Error('User ID not found in lookup response');
 								}
@@ -4184,7 +4299,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							const errorMsg =
 								'Password change is required, but user ID could not be determined. Please contact your administrator.';
 							setRedirectlessAuthError(errorMsg);
-							modernMessaging.showBanner({ type: 'error', title: 'Error', message: `❌ ${errorMsg}`, dismissible: true });
+							modernMessaging.showBanner({
+								type: 'error',
+								title: 'Error',
+								message: `❌ ${errorMsg}`,
+								dismissible: true,
+							});
 							setIsRedirectlessAuthenticating(false);
 						}
 					}
@@ -4253,7 +4373,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						setFlowState(updatedState);
 						setShowRedirectlessModal(false);
 						setIsRedirectlessAuthenticating(false);
-						modernMessaging.showFooterMessage({ type: 'info', message: '✅ Authentication completed successfully! Tokens received.', duration: 3000 });
+						modernMessaging.showFooterMessage({
+							type: 'info',
+							message: '✅ Authentication completed successfully! Tokens received.',
+							duration: 3000,
+						});
 
 						// Navigate to tokens step
 						const tokensStepIndex = totalSteps - 2;
@@ -4277,7 +4401,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							setFlowState(updatedFlowState);
 							setShowRedirectlessModal(false);
 							setIsRedirectlessAuthenticating(false);
-							modernMessaging.showFooterMessage({ type: 'info', message: '✅ Authorization code received! Proceeding to token exchange.', duration: 3000 });
+							modernMessaging.showFooterMessage({
+								type: 'info',
+								message: '✅ Authorization code received! Proceeding to token exchange.',
+								duration: 3000,
+							});
 
 							// Navigate to callback step
 							const callbackStepIndex =
@@ -4306,7 +4434,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							);
 							setShowRedirectlessModal(false);
 							setIsRedirectlessAuthenticating(false);
-							modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: '⚠️ Flow completed but no authorization code or tokens found. Please check the response.', dismissible: true });
+							modernMessaging.showBanner({
+								type: 'warning',
+								title: 'Warning',
+								message:
+									'⚠️ Flow completed but no authorization code or tokens found. Please check the response.',
+								dismissible: true,
+							});
 						}
 					}
 				} else {
@@ -4316,7 +4450,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				const errorMessage = err instanceof Error ? err.message : 'Unknown error';
 				console.error(`${MODULE_TAG} 🔌 Failed to submit credentials:`, errorMessage);
 				setRedirectlessAuthError(errorMessage);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `❌ Authentication failed: ${errorMessage}`, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: `❌ Authentication failed: ${errorMessage}`,
+					dismissible: true,
+				});
 			} finally {
 				setIsRedirectlessAuthenticating(false);
 			}
@@ -4369,7 +4508,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					);
 				}
 
-				modernMessaging.showFooterMessage({ type: 'info', message: '✅ Password changed successfully!', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: '✅ Password changed successfully!',
+					duration: 3000,
+				});
 
 				// Close modal and clear state
 				setShowPasswordChangeModal(false);
@@ -4379,7 +4522,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				setPasswordChangeUsername(null);
 
 				// Show message to retry login
-				modernMessaging.showFooterMessage({ type: 'info', message: 'Please try signing in again with your new password.', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: 'Please try signing in again with your new password.',
+					duration: 3000,
+				});
 
 				// Re-open the login modal so user can try again
 				setShowRedirectlessModal(true);
@@ -4403,7 +4550,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 		// Ensure we have PKCE codes for redirectless flow
 		if (!flowState.codeVerifier || !flowState.codeChallenge) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'PKCE codes are required for redirectless flow. Please generate PKCE parameters first.', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message:
+					'PKCE codes are required for redirectless flow. Please generate PKCE parameters first.',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -4712,7 +4865,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				err instanceof Error ? err.message : 'Failed to start redirectless authentication';
 			setError(message);
 			setValidationErrors([message]);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: message, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: message,
+				dismissible: true,
+			});
 		} finally {
 			setIsLoading(false);
 		}
@@ -4777,7 +4935,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					'Redirect URI is required. Please go back to Step 0 and ensure the Redirect URI field is populated.';
 				setError(errorMsg);
 				setValidationErrors([errorMsg]);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMsg, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: errorMsg,
+					dismissible: true,
+				});
 				// Clear any pre-flight validation state that might have been set
 				setIsPreFlightValidating(false);
 				setPreFlightStatus('');
@@ -4795,7 +4958,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					'PKCE codes are required but missing. Please go back to Step 0 (Configuration) and generate PKCE parameters in Advanced Options.';
 				setError(errorMsg);
 				setValidationErrors([errorMsg]);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMsg, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: errorMsg,
+					dismissible: true,
+				});
 				// Clear any pre-flight validation state that might have been set
 				setIsPreFlightValidating(false);
 				setPreFlightStatus('');
@@ -4806,7 +4974,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			setIsPreFlightValidating(true);
 			setPreFlightStatus('🔍 Starting pre-flight validation...');
 			setError(null);
-			modernMessaging.showFooterMessage({ type: 'info', message: '🔍 Starting pre-flight validation...', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: '🔍 Starting pre-flight validation...',
+				duration: 3000,
+			});
 
 			let validationResult: {
 				passed: boolean;
@@ -5028,11 +5200,19 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									onCredentialsChange(updatedCredentials);
 								}
 
-								modernMessaging.showFooterMessage({ type: 'info', message: `Fixed ${fixesApplied.length} error(s): ${fixesApplied.join(', ')}`, duration: 3000 });
+								modernMessaging.showFooterMessage({
+									type: 'info',
+									message: `Fixed ${fixesApplied.length} error(s): ${fixesApplied.join(', ')}`,
+									duration: 3000,
+								});
 
 								// Re-run validation with updated credentials
 								setPreFlightStatus('🔍 Re-validating configuration...');
-								modernMessaging.showFooterMessage({ type: 'info', message: '🔍 Re-validating after fixes...', duration: 3000 });
+								modernMessaging.showFooterMessage({
+									type: 'info',
+									message: '🔍 Re-validating after fixes...',
+									duration: 3000,
+								});
 								const newValidationResult =
 									await PreFlightValidationServiceV8.validateBeforeAuthUrl({
 										specVersion,
@@ -5082,7 +5262,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 										toastMessage += ` - ${fixableCount} can be auto-fixed`;
 									}
 
-									modernMessaging.showBanner({ type: 'error', title: 'Error', message: toastMessage, dismissible: true });
+									modernMessaging.showBanner({
+										type: 'error',
+										title: 'Error',
+										message: toastMessage,
+										dismissible: true,
+									});
 									setIsPreFlightValidating(false);
 									setPreFlightStatus('');
 									setIsLoading(false);
@@ -5099,7 +5284,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									].join('\n');
 									setValidationWarnings([warningMessage]);
 									setValidationErrors([]);
-									modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Pre-flight validation warnings - check details below', dismissible: true });
+									modernMessaging.showBanner({
+										type: 'warning',
+										title: 'Warning',
+										message: 'Pre-flight validation warnings - check details below',
+										dismissible: true,
+									});
 									setIsPreFlightValidating(false);
 									setPreFlightStatus('');
 									// Continue with flow generation using updated credentials
@@ -5107,7 +5297,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									// No errors or warnings - validation passed
 									setValidationWarnings([]);
 									setValidationErrors([]);
-									modernMessaging.showFooterMessage({ type: 'info', message: `✅ Pre-flight validation passed! Fixed ${fixesApplied.length} error(s).`, duration: 3000 });
+									modernMessaging.showFooterMessage({
+										type: 'info',
+										message: `✅ Pre-flight validation passed! Fixed ${fixesApplied.length} error(s).`,
+										duration: 3000,
+									});
 									setIsPreFlightValidating(false);
 									setPreFlightStatus('');
 									// Continue with flow generation using updated credentials
@@ -5151,7 +5345,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									toastMessage += ` - ${fixableCount} can be auto-fixed`;
 								}
 
-								modernMessaging.showBanner({ type: 'error', title: 'Error', message: toastMessage, dismissible: true });
+								modernMessaging.showBanner({
+									type: 'error',
+									title: 'Error',
+									message: toastMessage,
+									dismissible: true,
+								});
 								setIsPreFlightValidating(false);
 								setPreFlightStatus('');
 								setIsLoading(false);
@@ -5197,7 +5396,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								toastMessage += ` - ${fixableCount} can be auto-fixed`;
 							}
 
-							modernMessaging.showBanner({ type: 'error', title: 'Error', message: toastMessage, dismissible: true });
+							modernMessaging.showBanner({
+								type: 'error',
+								title: 'Error',
+								message: toastMessage,
+								dismissible: true,
+							});
 							setIsPreFlightValidating(false);
 							setPreFlightStatus('');
 							setIsLoading(false);
@@ -5220,13 +5424,22 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						// Set warning (not error) - this will be displayed with orange background
 						// Don't set error state for warnings - only set validation warnings
 						setValidationWarnings([warningMessage]);
-						modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: '⚠️ Pre-flight validation warnings - check details below', dismissible: true });
+						modernMessaging.showBanner({
+							type: 'warning',
+							title: 'Warning',
+							message: '⚠️ Pre-flight validation warnings - check details below',
+							dismissible: true,
+						});
 						setIsPreFlightValidating(false);
 						setPreFlightStatus('');
 						// Continue with flow generation (don't return)
 					} else {
 						// No errors or warnings - validation passed
-						modernMessaging.showFooterMessage({ type: 'info', message: '✅ Pre-flight validation passed!', duration: 3000 });
+						modernMessaging.showFooterMessage({
+							type: 'info',
+							message: '✅ Pre-flight validation passed!',
+							duration: 3000,
+						});
 						setIsPreFlightValidating(false);
 						setPreFlightStatus('');
 						// Still show success message in validation results
@@ -5236,7 +5449,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				} else {
 					// No errors and no warnings - validation passed completely
 					console.log(`${MODULE_TAG} Pre-flight validation passed with no errors or warnings`);
-					modernMessaging.showFooterMessage({ type: 'info', message: '✅ Pre-flight validation passed!', duration: 3000 });
+					modernMessaging.showFooterMessage({
+						type: 'info',
+						message: '✅ Pre-flight validation passed!',
+						duration: 3000,
+					});
 					setValidationWarnings([]);
 					setValidationErrors([]);
 					setIsPreFlightValidating(false);
@@ -5255,9 +5472,19 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				const errorMessage =
 					validationError instanceof Error ? validationError.message : 'Unknown error';
 				if (errorMessage.includes('timed out')) {
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Pre-flight validation timed out - continuing anyway', dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: 'Pre-flight validation timed out - continuing anyway',
+						dismissible: true,
+					});
 				} else {
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Pre-flight validation encountered an error - continuing anyway', dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: 'Pre-flight validation encountered an error - continuing anyway',
+						dismissible: true,
+					});
 				}
 				// Clear spinner and continue
 				setIsPreFlightValidating(false);
@@ -5332,7 +5559,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						}
 					);
 
-					modernMessaging.showFooterMessage({ type: 'info', message: 'Authorization URL generated', duration: 3000 });
+					modernMessaging.showFooterMessage({
+						type: 'info',
+						message: 'Authorization URL generated',
+						duration: 3000,
+					});
 					setIsLoading(false);
 					// Don't make POST request yet - wait for user to click "Start Redirectless Authentication"
 					return;
@@ -5395,12 +5626,21 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				setFlowState(updatedState);
 				// DON'T auto-mark step complete - user should click "Authenticate on PingOne" first
 				// nav.markStepComplete(); // REMOVED - user should manually proceed after authentication
-				modernMessaging.showFooterMessage({ type: 'info', message: 'Authorization URL generated', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: 'Authorization URL generated',
+					duration: 3000,
+				});
 			} catch (err) {
 				const message = err instanceof Error ? err.message : 'Failed to generate authorization URL';
 				setError(message);
 				setValidationErrors([message]);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: message, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: message,
+					dismissible: true,
+				});
 			} finally {
 				// CRITICAL: Always clear all loading states in finally block
 				setIsPreFlightValidating(false);
@@ -5560,7 +5800,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 													await new Promise((resolve) => setTimeout(resolve, 500));
 													const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 													if (tokenStatus.isValid) {
-														modernMessaging.showFooterMessage({ type: 'info', message: 'Worker token retrieved successfully', duration: 3000 });
+														modernMessaging.showFooterMessage({
+															type: 'info',
+															message: 'Worker token retrieved successfully',
+															duration: 3000,
+														});
 
 														// Re-run pre-flight validation
 														setLoadingMessage('🔍 Re-validating Configuration...');
@@ -5609,7 +5853,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 															setError(errorMessage);
 															setValidationErrors([errorMessage]);
 															setValidationWarnings([]);
-															modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Pre-flight validation failed - check error details below', dismissible: true });
+															modernMessaging.showBanner({
+																type: 'error',
+																title: 'Error',
+																message: 'Pre-flight validation failed - check error details below',
+																dismissible: true,
+															});
 														} else if (newValidationResult.warnings.length > 0) {
 															const warningMessage = [
 																'🔍 Pre-flight Validation Results:',
@@ -5621,12 +5870,21 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 															].join('\n');
 															setValidationWarnings([warningMessage]);
 															setValidationErrors([]);
-															modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Pre-flight validation warnings - check details below', dismissible: true });
+															modernMessaging.showBanner({
+																type: 'warning',
+																title: 'Warning',
+																message: 'Pre-flight validation warnings - check details below',
+																dismissible: true,
+															});
 														} else {
 															// No errors or warnings - validation passed
 															setValidationWarnings([]);
 															setValidationErrors([]);
-															modernMessaging.showFooterMessage({ type: 'info', message: 'Pre-flight validation passed!', duration: 3000 });
+															modernMessaging.showFooterMessage({
+																type: 'info',
+																message: 'Pre-flight validation passed!',
+																duration: 3000,
+															});
 														}
 													} else {
 														// Token still not available - user may have cancelled modal or silent retrieval failed
@@ -5636,7 +5894,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 													}
 												} catch (error) {
 													console.error(`${MODULE_TAG} Error retrieving worker token:`, error);
-													modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to retrieve worker token. Please try again.', dismissible: true });
+													modernMessaging.showBanner({
+														type: 'error',
+														title: 'Error',
+														message: 'Failed to retrieve worker token. Please try again.',
+														dismissible: true,
+													});
 												} finally {
 													setIsLoading(false);
 													setLoadingMessage('');
@@ -6561,11 +6824,20 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 														// Clear pre-flight validation result to trigger re-validation
 														setPreFlightValidationResult(null);
 
-														modernMessaging.showFooterMessage({ type: 'info', message: `✅ Fixed ${fixesApplied.length} error(s): ${fixesApplied.join(', ')}`, duration: 3000 });
+														modernMessaging.showFooterMessage({
+															type: 'info',
+															message: `✅ Fixed ${fixesApplied.length} error(s): ${fixesApplied.join(', ')}`,
+															duration: 3000,
+														});
 													}
 												} catch (error) {
 													console.error(`${MODULE_TAG} Error fixing errors:`, error);
-													modernMessaging.showBanner({ type: 'error', title: 'Error', message: `❌ Failed to fix errors: ${error instanceof Error ? error.message : 'Unknown error'}`, dismissible: true });
+													modernMessaging.showBanner({
+														type: 'error',
+														title: 'Error',
+														message: `❌ Failed to fix errors: ${error instanceof Error ? error.message : 'Unknown error'}`,
+														dismissible: true,
+													});
 												} finally {
 													setIsLoading(false);
 													setLoadingMessage('');
@@ -6894,7 +7166,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 											if (!completedSteps.includes(currentStep)) {
 												console.log(`${MODULE_TAG} User opened PingOne - marking step complete`);
 												nav.markStepComplete();
-												modernMessaging.showFooterMessage({ type: 'info', message: "PingOne opened! Complete authentication and you'll be redirected back.", duration: 3000 });
+												modernMessaging.showFooterMessage({
+													type: 'info',
+													message:
+														"PingOne opened! Complete authentication and you'll be redirected back.",
+													duration: 3000,
+												});
 											}
 										}
 									}}
@@ -7494,7 +7771,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 										// Navigate back to authorization URL step
 										const authUrlStep = isPKCERequired ? 2 : 1;
 										navigateToStep(authUrlStep);
-										modernMessaging.showFooterMessage({ type: 'info', message: 'Navigate back to Authorization URL step and click "Generate Authorization URL" again', duration: 3000 });
+										modernMessaging.showFooterMessage({
+											type: 'info',
+											message:
+												'Navigate back to Authorization URL step and click "Generate Authorization URL" again',
+											duration: 3000,
+										});
 									}}
 									style={{
 										marginTop: '8px',
@@ -7591,9 +7873,17 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					nav.markStepComplete();
 
 					if (updates.tokens) {
-						modernMessaging.showFooterMessage({ type: 'info', message: 'Authorization code and tokens extracted successfully!', duration: 3000 });
+						modernMessaging.showFooterMessage({
+							type: 'info',
+							message: 'Authorization code and tokens extracted successfully!',
+							duration: 3000,
+						});
 					} else {
-						modernMessaging.showFooterMessage({ type: 'info', message: 'Authorization code extracted successfully!', duration: 3000 });
+						modernMessaging.showFooterMessage({
+							type: 'info',
+							message: 'Authorization code extracted successfully!',
+							duration: 3000,
+						});
 					}
 				} else {
 					// Authorization code flow only
@@ -7631,13 +7921,22 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						authorizationCode: parsed.code,
 					});
 					nav.markStepComplete();
-					modernMessaging.showFooterMessage({ type: 'info', message: 'Authorization code extracted successfully', duration: 3000 });
+					modernMessaging.showFooterMessage({
+						type: 'info',
+						message: 'Authorization code extracted successfully',
+						duration: 3000,
+					});
 				}
 			} catch (err) {
 				const message = err instanceof Error ? err.message : 'Failed to parse callback URL';
 				setError(message);
 				setValidationErrors([message]);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: message, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: message,
+					dismissible: true,
+				});
 			} finally {
 				setIsLoading(false);
 				setLoadingMessage('');
@@ -8540,7 +8839,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		setIsPreFlightValidating(true);
 		setPreFlightStatus('🔍 Starting pre-flight validation...');
 		setError(null);
-		modernMessaging.showFooterMessage({ type: 'info', message: '🔍 Starting pre-flight validation...', duration: 3000 });
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message: '🔍 Starting pre-flight validation...',
+			duration: 3000,
+		});
 
 		let validationResult: {
 			passed: boolean;
@@ -8651,7 +8954,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							onCredentialsChange(updatedCredentials);
 						}
 
-						modernMessaging.showFooterMessage({ type: 'info', message: `Fixed ${fixesApplied.length} error(s): ${fixesApplied.join(', ')}`, duration: 3000 });
+						modernMessaging.showFooterMessage({
+							type: 'info',
+							message: `Fixed ${fixesApplied.length} error(s): ${fixesApplied.join(', ')}`,
+							duration: 3000,
+						});
 
 						// Re-run validation
 						setPreFlightStatus('🔍 Re-validating configuration...');
@@ -8684,7 +8991,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						if (newOAuthConfigResult.errors.length > 0) {
 							setValidationErrors(newOAuthConfigResult.errors);
 							setValidationWarnings([]);
-							modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Some errors remain after fixes', dismissible: true });
+							modernMessaging.showBanner({
+								type: 'error',
+								title: 'Error',
+								message: 'Some errors remain after fixes',
+								dismissible: true,
+							});
 							setIsPreFlightValidating(false);
 							setPreFlightStatus('');
 							setIsLoading(false);
@@ -8693,11 +9005,20 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						} else if (newOAuthConfigResult.warnings.length > 0) {
 							setValidationWarnings(newOAuthConfigResult.warnings);
 							setValidationErrors([]);
-							modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Pre-flight validation warnings remain', dismissible: true });
+							modernMessaging.showBanner({
+								type: 'warning',
+								title: 'Warning',
+								message: 'Pre-flight validation warnings remain',
+								dismissible: true,
+							});
 						} else {
 							setValidationWarnings([]);
 							setValidationErrors([]);
-							modernMessaging.showFooterMessage({ type: 'info', message: '✅ All errors fixed! Pre-flight validation passed!', duration: 3000 });
+							modernMessaging.showFooterMessage({
+								type: 'info',
+								message: '✅ All errors fixed! Pre-flight validation passed!',
+								duration: 3000,
+							});
 						}
 					} else {
 						// User declined auto-fix
@@ -8716,7 +9037,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							toastMessage += ` (${fixableCount} could have been auto-fixed)`;
 						}
 
-						modernMessaging.showBanner({ type: 'error', title: 'Error', message: toastMessage, dismissible: true });
+						modernMessaging.showBanner({
+							type: 'error',
+							title: 'Error',
+							message: toastMessage,
+							dismissible: true,
+						});
 						setIsPreFlightValidating(false);
 						setPreFlightStatus('');
 						setIsLoading(false);
@@ -8737,7 +9063,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					}
 					toastMessage += ' - Manual fix required';
 
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: toastMessage, dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: toastMessage,
+						dismissible: true,
+					});
 					setIsPreFlightValidating(false);
 					setPreFlightStatus('');
 					setIsLoading(false);
@@ -8750,16 +9081,30 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			if (validationResult.warnings.length > 0) {
 				setValidationWarnings(validationResult.warnings);
 				setValidationErrors([]);
-				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: '⚠️ Pre-flight validation warnings - check details below', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'warning',
+					title: 'Warning',
+					message: '⚠️ Pre-flight validation warnings - check details below',
+					dismissible: true,
+				});
 			} else {
 				// No errors or warnings - validation passed
 				setValidationWarnings([]);
 				setValidationErrors([]);
-				modernMessaging.showFooterMessage({ type: 'info', message: '✅ Pre-flight validation passed!', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: '✅ Pre-flight validation passed!',
+					duration: 3000,
+				});
 			}
 		} catch (validationError) {
 			console.error(`${MODULE_TAG} ⚠️ Pre-flight validation error:`, validationError);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Pre-flight validation encountered an error - continuing anyway', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Pre-flight validation encountered an error - continuing anyway',
+				dismissible: true,
+			});
 			setValidationWarnings([]);
 			setValidationErrors([]);
 			setPreFlightValidationResult({
@@ -8848,12 +9193,21 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			}
 
 			nav.markStepComplete();
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Device authorization request successful', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Device authorization request successful',
+				duration: 3000,
+			});
 		} catch (err) {
 			const message = err instanceof Error ? err.message : 'Failed to request device authorization';
 			setError(message);
 			setValidationErrors([message]);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: message, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: message,
+				dismissible: true,
+			});
 		} finally {
 			setIsLoading(false);
 			setLoadingMessage('');
@@ -9053,7 +9407,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					? { ...prev.pollingStatus, isPolling: false }
 					: { isPolling: false, pollCount: 0 },
 			}));
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Polling stopped', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Polling stopped',
+				duration: 3000,
+			});
 		};
 
 		const handlePollForTokens = async () => {
@@ -9498,7 +9856,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								);
 								if (userInfo) {
 									setFlowState((prev) => ({ ...prev, userInfo }));
-									modernMessaging.showFooterMessage({ type: 'info', message: 'User information retrieved successfully', duration: 3000 });
+									modernMessaging.showFooterMessage({
+										type: 'info',
+										message: 'User information retrieved successfully',
+										duration: 3000,
+									});
 									setShowUserInfoModal(true);
 								} else if (tokensWithExtras.id_token) {
 									setShowUserInfoModal(true);
@@ -9513,8 +9875,16 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							setShowUserInfoModal(true);
 						}
 
-						modernMessaging.showFooterMessage({ type: 'info', message: 'Tokens exchanged successfully', duration: 3000 });
-						modernMessaging.showFooterMessage({ type: 'info', message: `Step ${2} completed`, duration: 3000 });
+						modernMessaging.showFooterMessage({
+							type: 'info',
+							message: 'Tokens exchanged successfully',
+							duration: 3000,
+						});
+						modernMessaging.showFooterMessage({
+							type: 'info',
+							message: `Step ${2} completed`,
+							duration: 3000,
+						});
 
 						// Show success modal for device code flow
 						setShowDeviceCodeSuccessModal(true);
@@ -9574,7 +9944,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						? { ...prev.pollingStatus, isPolling: false }
 						: { isPolling: false, pollCount: 0 },
 				}));
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Polling timeout - authorization not completed', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'Polling timeout - authorization not completed',
+					dismissible: true,
+				});
 				setShowPollingTimeoutModal(true);
 			};
 
@@ -9591,7 +9966,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						: { isPolling: false, pollCount: 0, error: message },
 				}));
 				setValidationErrors([message]);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: message, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: message,
+					dismissible: true,
+				});
 			});
 		};
 
@@ -9870,10 +10250,19 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									onClick={async () => {
 										try {
 											await navigator.clipboard.writeText(flowState.userCode || '');
-											modernMessaging.showFooterMessage({ type: 'info', message: 'User code copied to clipboard', duration: 3000 });
+											modernMessaging.showFooterMessage({
+												type: 'info',
+												message: 'User code copied to clipboard',
+												duration: 3000,
+											});
 											// eslint-disable-next-line @typescript-eslint/no-unused-vars
 										} catch (_err) {
-											modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to copy user code', dismissible: true });
+											modernMessaging.showBanner({
+												type: 'error',
+												title: 'Error',
+												message: 'Failed to copy user code',
+												dismissible: true,
+											});
 										}
 									}}
 									style={{
@@ -10179,7 +10568,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				setIsPreFlightValidating(true);
 				setPreFlightStatus('🔍 Starting pre-flight validation...');
 				setError(null);
-				modernMessaging.showFooterMessage({ type: 'info', message: '🔍 Starting pre-flight validation...', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: '🔍 Starting pre-flight validation...',
+					duration: 3000,
+				});
 
 				let validationResult: {
 					passed: boolean;
@@ -10343,7 +10736,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									onCredentialsChange(updatedCredentials);
 								}
 
-								modernMessaging.showFooterMessage({ type: 'info', message: `Fixed ${fixesApplied.length} error(s): ${fixesApplied.join(', ')}`, duration: 3000 });
+								modernMessaging.showFooterMessage({
+									type: 'info',
+									message: `Fixed ${fixesApplied.length} error(s): ${fixesApplied.join(', ')}`,
+									duration: 3000,
+								});
 
 								// Re-run validation
 								setPreFlightStatus('🔍 Re-validating configuration...');
@@ -10388,7 +10785,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									}
 									toastMessage += ' - Manual fix required';
 
-									modernMessaging.showBanner({ type: 'error', title: 'Error', message: toastMessage, dismissible: true });
+									modernMessaging.showBanner({
+										type: 'error',
+										title: 'Error',
+										message: toastMessage,
+										dismissible: true,
+									});
 									setIsPreFlightValidating(false);
 									setPreFlightStatus('');
 									setIsLoading(false);
@@ -10397,11 +10799,20 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								} else if (newOAuthConfigResult.warnings.length > 0) {
 									setValidationWarnings(newOAuthConfigResult.warnings);
 									setValidationErrors([]);
-									modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Pre-flight validation warnings remain', dismissible: true });
+									modernMessaging.showBanner({
+										type: 'warning',
+										title: 'Warning',
+										message: 'Pre-flight validation warnings remain',
+										dismissible: true,
+									});
 								} else {
 									setValidationWarnings([]);
 									setValidationErrors([]);
-									modernMessaging.showFooterMessage({ type: 'info', message: '✅ All errors fixed! Pre-flight validation passed!', duration: 3000 });
+									modernMessaging.showFooterMessage({
+										type: 'info',
+										message: '✅ All errors fixed! Pre-flight validation passed!',
+										duration: 3000,
+									});
 								}
 							} else {
 								// User declined auto-fix
@@ -10422,7 +10833,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									toastMessage += ` (${fixableCount} could have been auto-fixed)`;
 								}
 
-								modernMessaging.showBanner({ type: 'error', title: 'Error', message: toastMessage, dismissible: true });
+								modernMessaging.showBanner({
+									type: 'error',
+									title: 'Error',
+									message: toastMessage,
+									dismissible: true,
+								});
 								setIsPreFlightValidating(false);
 								setPreFlightStatus('');
 								setIsLoading(false);
@@ -10445,7 +10861,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							}
 							toastMessage += ' - Manual fix required';
 
-							modernMessaging.showBanner({ type: 'error', title: 'Error', message: toastMessage, dismissible: true });
+							modernMessaging.showBanner({
+								type: 'error',
+								title: 'Error',
+								message: toastMessage,
+								dismissible: true,
+							});
 							setIsPreFlightValidating(false);
 							setPreFlightStatus('');
 							setIsLoading(false);
@@ -10458,16 +10879,30 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					if (validationResult && validationResult.warnings.length > 0) {
 						setValidationWarnings(validationResult.warnings);
 						setValidationErrors([]);
-						modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: '⚠️ Pre-flight validation warnings - check details below', dismissible: true });
+						modernMessaging.showBanner({
+							type: 'warning',
+							title: 'Warning',
+							message: '⚠️ Pre-flight validation warnings - check details below',
+							dismissible: true,
+						});
 					} else {
 						// No errors or warnings - validation passed
 						setValidationWarnings([]);
 						setValidationErrors([]);
-						modernMessaging.showFooterMessage({ type: 'info', message: '✅ Pre-flight validation passed!', duration: 3000 });
+						modernMessaging.showFooterMessage({
+							type: 'info',
+							message: '✅ Pre-flight validation passed!',
+							duration: 3000,
+						});
 					}
 				} catch (validationError) {
 					console.error(`${MODULE_TAG} ⚠️ Pre-flight validation error:`, validationError);
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Pre-flight validation encountered an error - continuing anyway', dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: 'Pre-flight validation encountered an error - continuing anyway',
+						dismissible: true,
+					});
 					setValidationWarnings([]);
 					setValidationErrors([]);
 					setPreFlightValidationResult({
@@ -10523,13 +10958,26 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 				// Note: ROPC flow removed - it's not supported by PingOne
 
-				modernMessaging.showFooterMessage({ type: 'info', message: 'Tokens exchanged successfully', duration: 3000 });
-				modernMessaging.showFooterMessage({ type: 'info', message: `Step ${currentStep} completed`, duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: 'Tokens exchanged successfully',
+					duration: 3000,
+				});
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: `Step ${currentStep} completed`,
+					duration: 3000,
+				});
 			} catch (err) {
 				const message = err instanceof Error ? err.message : 'Failed to request token';
 				setError(message);
 				setValidationErrors([message]);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: message, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: message,
+					dismissible: true,
+				});
 			} finally {
 				setIsLoading(false);
 			}
@@ -11075,7 +11523,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				const errorMsg = `PKCE is ${credentials.pkceEnforcement || 'REQUIRED'} but code verifier is missing. Please go back to Step 0 (Configuration) and generate PKCE codes in Advanced Options.`;
 				setError(errorMsg);
 				setValidationErrors([errorMsg]);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMsg, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: errorMsg,
+					dismissible: true,
+				});
 				return;
 			}
 
@@ -11248,7 +11701,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						hasOfflineAccessScope: credentials.scopes?.includes('offline_access'),
 						note: 'Check that Refresh Token grant is enabled in PingOne application settings',
 					});
-					modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Refresh token not received. Ensure Refresh Token grant is enabled in PingOne and offline_access scope is in allowed scopes.', dismissible: true });
+					modernMessaging.showBanner({
+						type: 'warning',
+						title: 'Warning',
+						message:
+							'Refresh token not received. Ensure Refresh Token grant is enabled in PingOne and offline_access scope is in allowed scopes.',
+						dismissible: true,
+					});
 				}
 
 				// Filter tokens based on spec version (OAuth 2.0/2.1 should not have id_token)
@@ -11283,12 +11742,21 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 						if (userInfo) {
 							setFlowState((prev) => ({ ...prev, userInfo }));
-							modernMessaging.showFooterMessage({ type: 'info', message: 'User information retrieved successfully', duration: 3000 });
+							modernMessaging.showFooterMessage({
+								type: 'info',
+								message: 'User information retrieved successfully',
+								duration: 3000,
+							});
 
 							// Show success modal with user information
 							setShowUserInfoModal(true);
 						} else {
-							modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'UserInfo could not be fetched, but tokens were received', dismissible: true });
+							modernMessaging.showBanner({
+								type: 'warning',
+								title: 'Warning',
+								message: 'UserInfo could not be fetched, but tokens were received',
+								dismissible: true,
+							});
 
 							// Still show modal if we have ID token with user info
 							if (tokensWithExtras.id_token) {
@@ -11297,7 +11765,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						}
 					} catch (err) {
 						console.warn(`${MODULE_TAG} Failed to fetch UserInfo`, err);
-						modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'UserInfo could not be fetched, but tokens were received', dismissible: true });
+						modernMessaging.showBanner({
+							type: 'warning',
+							title: 'Warning',
+							message: 'UserInfo could not be fetched, but tokens were received',
+							dismissible: true,
+						});
 
 						// Still show modal if we have ID token with user info
 						if (tokensWithExtras.id_token) {
@@ -11308,8 +11781,16 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					// If we have ID token but no UserInfo, show modal with ID token data
 					setShowUserInfoModal(true);
 				}
-				modernMessaging.showFooterMessage({ type: 'info', message: 'Tokens exchanged successfully', duration: 3000 });
-				modernMessaging.showFooterMessage({ type: 'info', message: `Step ${3} completed`, duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: 'Tokens exchanged successfully',
+					duration: 3000,
+				});
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: `Step ${3} completed`,
+					duration: 3000,
+				});
 			} catch (err) {
 				const message = err instanceof Error ? err.message : 'Failed to exchange code for tokens';
 
@@ -11347,16 +11828,31 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					const enhancedMessage = `${message}\n\n🔧 FIX: Your authorization URL was generated with old PKCE codes using 'plain' method.\n\nPlease:\n1. Go back to Step 1 (Generate PKCE Parameters)\n2. Click "Generate PKCE Parameters" to create new codes with 'S256' method\n3. Go to Step 2 and click "Generate Authorization URL" again\n4. Complete authentication and try token exchange again\n\nNote: Old PKCE codes have been automatically cleared.`;
 					setError(enhancedMessage);
 					setValidationErrors([enhancedMessage]);
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'PKCE method mismatch - old codes cleared, please regenerate', dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: 'PKCE method mismatch - old codes cleared, please regenerate',
+						dismissible: true,
+					});
 				} else if (message.includes('code_verifier') || message.includes('PKCE')) {
 					const enhancedMessage = `${message}\n\n💡 This error means your PingOne application requires PKCE. Please:\n1. Go back to Step 0 (Configuration)\n2. Open Advanced Options\n3. Generate PKCE parameters\n4. Start the flow again from Step 1`;
 					setError(enhancedMessage);
 					setValidationErrors([enhancedMessage]);
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'PKCE required - please enable PKCE and restart the flow', dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: 'PKCE required - please enable PKCE and restart the flow',
+						dismissible: true,
+					});
 				} else {
 					setError(message);
 					setValidationErrors([message]);
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: message, dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: message,
+						dismissible: true,
+					});
 				}
 			} finally {
 				setIsLoading(false);
@@ -11462,7 +11958,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			const rules = TokenOperationsServiceV8.getOperationRules(flowType, credentials.scopes);
 			const errorMsg = `UserInfo endpoint is not available. ${rules.userInfoReason}`;
 			console.warn(`${MODULE_TAG} ${errorMsg}`);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMsg, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: errorMsg,
+				dismissible: true,
+			});
 			setUserInfoError(errorMsg);
 			return;
 		}
@@ -11478,7 +11979,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 			if (userInfo) {
 				setFlowState((prev) => ({ ...prev, userInfo }));
-				modernMessaging.showFooterMessage({ type: 'info', message: 'UserInfo fetched successfully!', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: 'UserInfo fetched successfully!',
+					duration: 3000,
+				});
 			} else {
 				throw new Error(
 					'Unable to fetch user information from the server. Please verify your access token is valid and has the required permissions.'
@@ -11487,7 +11992,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		} catch (err) {
 			const message = err instanceof Error ? err.message : 'Failed to fetch UserInfo';
 			setUserInfoError(message);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: message, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: message,
+				dismissible: true,
+			});
 		} finally {
 			setUserInfoLoading(false);
 		}
@@ -11545,7 +12055,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					errorMsg = `Access token introspection is not available for this flow. ${rules.introspectionReason}`;
 				}
 				console.warn(`${MODULE_TAG} ${errorMsg}`);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMsg, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: errorMsg,
+					dismissible: true,
+				});
 				setIntrospectionError(errorMsg);
 				return;
 			}
@@ -11555,7 +12070,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				const errorMsg =
 					'Token introspection requires client authentication. Public clients (clientAuthMethod: "none") cannot authenticate to the introspection endpoint. To use introspection, configure your application with client_secret_basic or client_secret_post authentication.';
 				console.warn(`${MODULE_TAG} ${errorMsg}`);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMsg, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: errorMsg,
+					dismissible: true,
+				});
 				setIntrospectionError(errorMsg);
 				return;
 			}
@@ -11592,7 +12112,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					tokenType,
 					tokenAvailable: !!tokenToIntrospect,
 				});
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMsg, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: errorMsg,
+					dismissible: true,
+				});
 				return;
 			}
 
@@ -11737,13 +12262,22 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 				setIntrospectionData(data);
 				setIntrospectionTokenType(tokenType);
-				modernMessaging.showFooterMessage({ type: 'info', message: `${tokenName} introspected successfully!`, duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: `${tokenName} introspected successfully!`,
+					duration: 3000,
+				});
 				console.log(`${MODULE_TAG} ========== TOKEN INTROSPECTION SUCCESS ==========`);
 			} catch (err) {
 				const message = err instanceof Error ? err.message : 'Failed to introspect token';
 				console.error(`${MODULE_TAG} Introspection error:`, err);
 				setIntrospectionError(message);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: message, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: message,
+					dismissible: true,
+				});
 				console.log(`${MODULE_TAG} ========== TOKEN INTROSPECTION FAILED ==========`);
 			} finally {
 				setIntrospectionLoading(false);
@@ -11766,12 +12300,22 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	// Handle token refresh
 	const handleRefreshToken = useCallback(async () => {
 		if (!flowState.tokens?.refreshToken) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Refresh token not available', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Refresh token not available',
+				dismissible: true,
+			});
 			return;
 		}
 
 		if (!credentials.environmentId || !credentials.clientId) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Missing credentials required for token refresh', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Missing credentials required for token refresh',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -11837,7 +12381,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				},
 			});
 
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Access token refreshed successfully!', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Access token refreshed successfully!',
+				duration: 3000,
+			});
 			console.log(`${MODULE_TAG} ✅ Token refresh successful`, {
 				hasNewAccessToken: !!newTokens.accessToken,
 				hasNewRefreshToken: !!newTokens.refreshToken,
@@ -11847,7 +12395,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			const message = error instanceof Error ? error.message : 'Failed to refresh token';
 			console.error(`${MODULE_TAG} ❌ Token refresh failed`, { error: message });
 			setRefreshError(message);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: message, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: message,
+				dismissible: true,
+			});
 		} finally {
 			setRefreshLoading(false);
 		}
@@ -14281,7 +14834,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							// Click handler that shows helpful message when blocked by missing token
 							const handleNextClick = () => {
 								if (!hasValidWorkerToken) {
-									modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Valid worker token required. Click "Get Worker Token" above to proceed.', dismissible: true });
+									modernMessaging.showBanner({
+										type: 'error',
+										title: 'Error',
+										message:
+											'Valid worker token required. Click "Get Worker Token" above to proceed.',
+										dismissible: true,
+									});
 									return;
 								}
 								nav.goToNext();
@@ -14634,7 +15193,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									}
 									toastMessage += ' - Check details below for fix options';
 
-									modernMessaging.showBanner({ type: 'error', title: 'Error', message: toastMessage, dismissible: true });
+									modernMessaging.showBanner({
+										type: 'error',
+										title: 'Error',
+										message: toastMessage,
+										dismissible: true,
+									});
 								} else if (newValidationResult.warnings.length > 0) {
 									const warningMessage = [
 										'🔍 Pre-flight Validation Results:',
@@ -14646,19 +15210,33 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									].join('\n');
 									setValidationWarnings([warningMessage]);
 									setValidationErrors([]);
-									modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Pre-flight validation warnings - check details below', dismissible: true });
+									modernMessaging.showBanner({
+										type: 'warning',
+										title: 'Warning',
+										message: 'Pre-flight validation warnings - check details below',
+										dismissible: true,
+									});
 								} else {
 									// No errors or warnings - validation passed
 									setValidationWarnings([]);
 									setValidationErrors([]);
-									modernMessaging.showFooterMessage({ type: 'info', message: 'Pre-flight validation passed!', duration: 3000 });
+									modernMessaging.showFooterMessage({
+										type: 'info',
+										message: 'Pre-flight validation passed!',
+										duration: 3000,
+									});
 								}
 							} catch (error) {
 								console.error(
 									`${MODULE_TAG} Error re-running validation after token retrieval:`,
 									error
 								);
-								modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to re-run validation. Please try again.', dismissible: true });
+								modernMessaging.showBanner({
+									type: 'error',
+									title: 'Error',
+									message: 'Failed to re-run validation. Please try again.',
+									dismissible: true,
+								});
 							} finally {
 								setIsLoading(false);
 								setLoadingMessage('');

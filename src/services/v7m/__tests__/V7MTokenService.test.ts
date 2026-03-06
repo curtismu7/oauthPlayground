@@ -6,8 +6,7 @@
 
 import { authorizeIssueCode } from '../V7MAuthorizeService';
 import { V7MStateStore } from '../V7MStateStore';
-import { computePkceS256 } from '../V7MTokenService';
-import { tokenExchangeAuthorizationCode } from '../V7MTokenService';
+import { computePkceS256, tokenExchangeAuthorizationCode } from '../V7MTokenService';
 
 describe('V7MTokenService', () => {
 	beforeEach(() => {
