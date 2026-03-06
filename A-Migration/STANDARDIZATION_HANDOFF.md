@@ -1,6 +1,6 @@
 # Standardization Handoff — OAuth Playground V9
 
-**Last updated:** March 6, 2026 — HEAD at `8a0efe7df`  
+**Last updated:** March 6, 2026 — HEAD at `161344313`  
 **Prepared for:** Any programmer picking up this work  
 **Branch:** `main` — **always `git fetch && git status` before starting work**
 
@@ -24,9 +24,10 @@
 | V9 services: `console.error/warn` | ✅ **DONE** | 48 violations removed across 13 service files (commit `d2948f543`) — 2 false positives skipped (postmanCollectionGeneratorV9 template strings, credentialsServiceV9 JSDoc) |
 | Non-V9 flow files: `console.error/warn` | ✅ **DONE** | 26 violations removed across 6 files: DPoPFlow, IDTokensFlow, PARFlow, SAMLServiceProviderFlowV1, UserInfoFlow, KrogerGroceryStoreMFA (commit `ac7089a02`) — 4 false positives skipped (MFAFlow + PingOneLogoutFlow template strings) |
 | Floating `StepNavigationButtons` removal | ✅ **DONE** | Remove draggable fixed-position stepper widget from all V9 flows — COMPLETED: All 6 V9 flows cleaned (OIDCHybridFlowV9, DeviceAuthorizationFlowV9, MFAWorkflowLibraryFlowV9, ClientCredentialsFlowV9, WorkerTokenFlowV9, RARFlowV9) + CIBAFlowV9, RedirectlessFlowV9_Real |
-| **Logging Implementation Plan** | ✅ **DONE** | Comprehensive 5-week plan created (see docs/standards/logging-implementation-plan.md) |
+| **Logging Implementation Plan** | ✅ **DONE** | Comprehensive 5-week plan created (see docs/standards/logging-implementation-plan.md) - Phase 1 (V9 flows) already completed |
 | **Comprehensive Status Assessment** | ✅ **DONE** | Complete technical debt analysis (see COMPREHENSIVE_STANDARDIZATION_STATUS.md) |
 | **`console.*` → `logger` migration (services)** | ✅ **DONE** | ~615 calls replaced across 90+ service files in 6 batches (commits `7f2b2603`→`8a0efe7`). See table below. |
+| **`throw` → `ServiceResult<T>` migration (services)** | 🔄 **IN PROGRESS** | 2 services migrated so far (`parService`, `samlService`). See table below. |
 
 ---
 
@@ -82,6 +83,47 @@ logger.warn('ServiceName', 'Something unexpected', { contextData });
 logger.error('ServiceName', 'Operation failed', undefined, error);
 logger.debug('ServiceName', 'Detailed trace', { payload });
 ```
+
+---
+
+## ServiceResult Migration Summary (March 2026)
+
+Service methods that previously `throw` on failure must return `ServiceResult<T>` instead. This makes error handling explicit and eliminates hidden try/catch dependencies across callers.
+
+**Pattern:**
+```ts
+// src/standards/types.ts
+import { ok, fail, failFrom } from '../standards/types';
+
+// Return:
+return ok(data);                                           // success
+return failFrom<T>('ERROR_CODE', error, httpStatus?);      // failure
+
+// Caller:
+const result = await myService.doSomething(...);
+if (!result.success) {
+  showError(result.error.message);
+  return;
+}
+use(result.data);
+```
+
+### Completed migrations
+
+| Commit | File | Method | Return type before → after |
+|---|---|---|---|
+| `0394f45c` | `parService.ts` | `generatePARRequest()` | `Promise<PARResponse>` → `Promise<ServiceResult<PARResponse>>` |
+| `16134431` | `samlService.ts` | `processAuthnRequest()` | `Promise<AuthnRequestProcessingResult>` → `Promise<ServiceResult<AuthnRequestProcessingResult>>` |
+
+### Services assessed — NOT migrated (reasons)
+
+| File | Reason skipped |
+|---|---|
+| `clientCredentialsSharedService.ts` | Callers in `locked/` (frozen) files — cannot update all callers |
+| `unifiedCredentialsService.ts` | Cascade through `flowStorageService.ts` — large scope, low value |
+| `sharedService.ts` (`validateIDToken`) | Auth-path — defer to auth programmer |
+| `v9/credentialsServiceV9.ts` (`importCredentials`) | Callers in `locked/` files |
+| `pkceStorageServiceV8UMigration.ts` | Throw is in a `private` method; already caught by public `migrateAll()` |
 
 ---
 
