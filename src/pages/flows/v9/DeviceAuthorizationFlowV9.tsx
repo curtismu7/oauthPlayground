@@ -422,57 +422,11 @@ const CountdownTimer = styled.div`
 	margin: 1rem 0;
 `;
 
-const _TVScreen = styled.div<{ $showContent?: boolean }>`
-	background: ${({ $showContent }) =>
-		$showContent ? 'linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%)' : '#000000'};
-	border: 2px solid #1e293b;
-	border-radius: 0.5rem;
-	padding: ${({ $showContent }) => ($showContent ? '2rem' : '3rem')};
-	margin-bottom: 1rem;
-	min-height: 350px;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	text-align: center;
-	box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
-	position: relative;
-	overflow: hidden;
-`;
-
 const TVDisplay = styled.div<{ $primaryColor: string }>`
 	font-family: 'Courier New', monospace;
 	font-size: 1.25rem;
 	color: ${({ $primaryColor }) => $primaryColor};
 	line-height: 1.8;
-`;
-
-const _TVStatusIndicator = styled.div<{
-	$active?: boolean;
-	$activeColor: string;
-	$inactiveColor: string;
-}>`
-	background-color: ${({ $active, $activeColor, $inactiveColor }) =>
-		$active ? $activeColor : $inactiveColor};
-	border-radius: 50%;
-	width: 12px;
-	height: 12px;
-	display: inline-block;
-	margin-right: 0.5rem;
-	box-shadow: 0 0 10px
-		${({ $active, $activeColor, $inactiveColor }) => ($active ? $activeColor : $inactiveColor)};
-	transition: all 0.3s ease;
-
-	${({ $active }) =>
-		$active &&
-		`
-		animation: pulse 2s infinite;
-	`}
-
-	@keyframes pulse {
-		0%, 100% { opacity: 1; }
-		50% { opacity: 0.5; }
-	}
 `;
 
 const AppGrid = styled.div`
@@ -746,51 +700,6 @@ const KioskActionRow = styled.div`
 	color: #475569;
 `;
 
-const _ScrollIndicator = styled.div`
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	margin: 1.5rem 0;
-	padding: 1rem;
-	background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-	border: 2px solid #3b82f6;
-	border-radius: 0.75rem;
-	animation: pulse 2s ease-in-out infinite;
-
-	@keyframes pulse {
-		0%, 100% {
-			transform: translateY(0);
-			opacity: 1;
-		}
-		50% {
-			transform: translateY(5px);
-			opacity: 0.8;
-		}
-	}
-`;
-
-const _ScrollText = styled.div`
-	font-size: 1rem;
-	font-weight: 600;
-	color: #1e40af;
-	margin-bottom: 0.5rem;
-`;
-
-const _ScrollArrow = styled.div`
-	font-size: 2rem;
-	color: #3b82f6;
-	animation: bounce 1.5s ease-in-out infinite;
-
-	@keyframes bounce {
-		0%, 100% {
-			transform: translateY(0);
-		}
-		50% {
-			transform: translateY(8px);
-		}
-	}
-`;
-
 const ModalOverlay = styled.div<{ $isOpen: boolean }>`
 	display: ${({ $isOpen }) => ($isOpen ? 'flex' : 'none')};
 	position: fixed;
@@ -873,17 +782,6 @@ const ModalActions = styled.div`
 	gap: 0.75rem;
 	justify-content: flex-end;
 	padding: 0 2rem 2rem 2rem;
-`;
-
-const _QRSection = styled.div`
-	width: 100%;
-	max-width: 500px;
-	margin: 0 auto;
-	background-color: #ffffff;
-	border: 2px solid #e2e8f0;
-	border-radius: 1rem;
-	padding: 2rem;
-	text-align: center;
 `;
 
 // V7 Variant Selector Components (matching authorization flow V7)
@@ -1121,7 +1019,6 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 		uiSettings: true, // Collapsed by default
 		deviceSelection: false,
 	});
-	const [_copiedField, setCopiedField] = useState<string | null>(null);
 	const [userInfo, setUserInfo] = useState<unknown>(null);
 	const [introspectionResult, setIntrospectionResult] = useState<unknown>(null);
 	const [showPollingModal, setShowPollingModal] = useState(false);
@@ -1144,10 +1041,6 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 	const [errorDetails, setErrorDetails] = useState<OAuthErrorDetails | null>(null);
 	const deviceConfig = useMemo(
 		() => deviceTypeService.getDeviceType(selectedDevice),
-		[selectedDevice]
-	);
-	const _instructionMessage = useMemo(
-		() => deviceTypeService.getInstructionMessage(selectedDevice),
 		[selectedDevice]
 	);
 	const waitingMessage = useMemo(
@@ -1218,7 +1111,6 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 		// The credentials are only used for hasXXX checks in parsedError metadata
 		// and don't affect the core error parsing logic
 	]);
-	const _deviceOptions = useMemo(() => deviceTypeService.getDeviceTypeOptions(), []);
 
 	React.useEffect(() => {
 		localStorage.setItem('device_flow_selected_device', selectedDevice);
@@ -1310,13 +1202,11 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 
 	const handleCopy = useCallback((text: string, label: string) => {
 		navigator.clipboard.writeText(text);
-		setCopiedField(label);
 		modernMessaging.showFooterMessage({
 			type: 'info',
 			message: `${label} copied to clipboard!`,
 			duration: 3000,
 		});
-		setTimeout(() => setCopiedField(null), 2000);
 	}, []);
 
 	// Note: Credential handlers are now managed by ComprehensiveCredentialsService
@@ -1682,71 +1572,6 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 			// Background credential backup clear — non-critical
 		}
 	}, [deviceFlow, clearBackup]);
-
-	// Step validation with enhanced error messages
-	const _isStepValid = useCallback(
-		(stepIndex: number): boolean => {
-			switch (stepIndex) {
-				case 0:
-					// Step 0: Introduction is always valid
-					return true;
-				case 1: {
-					// Step 1: Must have valid credentials with required fields
-					if (!deviceFlow.credentials) return false;
-					const creds = deviceFlow.credentials;
-					// Check for required fields: environmentId and clientId
-					return !!(
-						creds.environmentId &&
-						creds.environmentId.trim() !== '' &&
-						creds.clientId &&
-						creds.clientId.trim() !== ''
-					);
-				}
-				case 2:
-					// Step 2: Must have device code data
-					return !!deviceFlow.deviceCodeData;
-				case 3:
-					// Step 3: Must have tokens from successful polling
-					return !!deviceFlow.tokens;
-				case 4:
-					// Step 4: Must have tokens for introspection
-					return !!deviceFlow.tokens;
-				case 5:
-					// Step 5: Analytics & Monitoring is always valid
-					return true;
-				case 6:
-					// Step 6: Flow Complete is always valid
-					return true;
-				default:
-					return false;
-			}
-		},
-		[deviceFlow.credentials, deviceFlow.deviceCodeData, deviceFlow.tokens]
-	);
-
-	// Get step validation error message
-	const _getStepValidationMessage = useCallback(
-		(stepIndex: number): string => {
-			switch (stepIndex) {
-				case 1:
-					if (!deviceFlow.credentials)
-						return 'Credentials are required. Please configure your environment and client settings.';
-					return '';
-				case 2:
-					if (!deviceFlow.deviceCodeData)
-						return 'Device code is required. Please request a device code first.';
-					return '';
-				case 3:
-				case 4:
-					if (!deviceFlow.tokens)
-						return 'Tokens are required. Please complete the device authorization process first.';
-					return '';
-				default:
-					return '';
-			}
-		},
-		[deviceFlow]
-	);
 
 	// Don't auto-advance - let user see the TV update and click Next manually
 	// This provides better educational experience to see the full authorization flow
@@ -3514,27 +3339,6 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 		</>
 	);
 
-	const _handleOpenOnThisDevice = useCallback(() => {
-		if (!deviceFlow.deviceCodeData) {
-			return;
-		}
-
-		setSelectedDevice('smartphone');
-		setCollapsedSections((prev) => ({ ...prev, deviceSelection: false }));
-
-		setTimeout(() => {
-			const tvElement = document.querySelector('[data-tv-display]');
-			if (tvElement) {
-				tvElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-			}
-		}, 150);
-
-		const targetUrl =
-			deviceFlow.deviceCodeData.verification_uri_complete ||
-			deviceFlow.deviceCodeData.verification_uri;
-		window.open(targetUrl, '_blank');
-	}, [deviceFlow.deviceCodeData]);
-
 	const renderGenericSuccessContent = () => (
 		<>
 			<div
@@ -3710,206 +3514,6 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 			</div>
 		</>
 	);
-
-	const _renderDeviceSuccessContent = () => {
-		switch (selectedDevice) {
-			case 'gaming-console':
-				return (
-					<ConsoleLayout>
-						<ConsoleTopBar>
-							<span>PlaySphere Network</span>
-							<span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-								Signed In
-								<StatusDot $active={true} />
-							</span>
-						</ConsoleTopBar>
-						<ConsoleHero>
-							<ConsoleHeroTitle>Welcome back, Demo Player</ConsoleHeroTitle>
-							<ConsoleHeroSubtitle>
-								Your {deviceConfig.brandName} services are connected.
-							</ConsoleHeroSubtitle>
-							<ConsoleHintRow>
-								<span>✓ Cloud saves synced</span>
-								<span>✓ Friends list updated</span>
-							</ConsoleHintRow>
-						</ConsoleHero>
-						<ConsoleTileGrid>
-							<ConsoleTile $featured>
-								<ConsoleTileBadge>Featured</ConsoleTileBadge>
-								<ConsoleTileTitle>Cosmic Drift 2</ConsoleTileTitle>
-								<ConsoleTileMeta>Continue campaign • 78%</ConsoleTileMeta>
-							</ConsoleTile>
-							<ConsoleTile>
-								<ConsoleTileTitle>Arcade</ConsoleTileTitle>
-								<ConsoleTileMeta>Multiplayer lobbies online</ConsoleTileMeta>
-							</ConsoleTile>
-							<ConsoleTile>
-								<ConsoleTileTitle>Store</ConsoleTileTitle>
-								<ConsoleTileMeta>Fall sale now live</ConsoleTileMeta>
-							</ConsoleTile>
-							<ConsoleTile>
-								<ConsoleTileTitle>Media</ConsoleTileTitle>
-								<ConsoleTileMeta>Watch trailers & streams</ConsoleTileMeta>
-							</ConsoleTile>
-						</ConsoleTileGrid>
-						<ConsoleHintRow>
-							<span>Press Ⓧ to launch • Controller connected</span>
-						</ConsoleHintRow>
-					</ConsoleLayout>
-				);
-			case 'airport-kiosk':
-				return (
-					<KioskScreen>
-						<KioskHeader>
-							<KioskBranding>
-								<KioskLogo>🛫</KioskLogo>
-								{deviceConfig.brandName}
-							</KioskBranding>
-							<KioskFlightIndicator>Check-in Complete</KioskFlightIndicator>
-						</KioskHeader>
-						<KioskBody>
-							<KioskForm>
-								<KioskRow>
-									<KioskLabel>Passenger</KioskLabel>
-									<KioskValue>Demo Traveler</KioskValue>
-								</KioskRow>
-								<KioskRow>
-									<KioskLabel>Flight</KioskLabel>
-									<KioskValue>P1 204 → San Francisco</KioskValue>
-								</KioskRow>
-								<KioskRow>
-									<KioskLabel>Seat</KioskLabel>
-									<KioskValue>12A • Window</KioskValue>
-								</KioskRow>
-								<KioskRow>
-									<KioskLabel>Bags</KioskLabel>
-									<KioskValue>2 Checked • 1 Carry-on</KioskValue>
-								</KioskRow>
-							</KioskForm>
-							<KioskBoardingPass>
-								<div>
-									<KioskBoardingTitle>Boarding Group</KioskBoardingTitle>
-									<KioskBoardingValue>Sky Priority</KioskBoardingValue>
-								</div>
-								<KioskDivider />
-								<div>
-									<KioskBoardingTitle>Gate</KioskBoardingTitle>
-									<KioskBoardingValue>B12</KioskBoardingValue>
-								</div>
-								<KioskDivider />
-								<div>
-									<KioskBoardingTitle>Boarding Starts</KioskBoardingTitle>
-									<KioskBoardingValue>10:20 AM</KioskBoardingValue>
-								</div>
-								<KioskCodeBox>AUTH OK • {deviceFlow.deviceCodeData?.user_code}</KioskCodeBox>
-							</KioskBoardingPass>
-						</KioskBody>
-						<KioskActionRow>
-							<span>Bag tags printed</span>
-							<span>Proceed to security</span>
-						</KioskActionRow>
-					</KioskScreen>
-				);
-			default:
-				return renderGenericSuccessContent();
-		}
-	};
-
-	const _renderDeviceDisplay = (tokens: Record<string, unknown>) => {
-		if (tokens) {
-			return renderGenericSuccessContent();
-		}
-		return renderGenericPreAuthContent();
-	};
-
-	const _renderDevicePendingContent = () => {
-		const isPolling = deviceFlow.pollingStatus.isPolling;
-		switch (selectedDevice) {
-			case 'gaming-console':
-				return (
-					<ConsoleLayout>
-						<ConsoleTopBar>
-							<span>PlaySphere Network</span>
-							<span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-								{isPolling ? 'Connecting…' : 'Awaiting Code'}
-								<StatusDot $active={false} />
-							</span>
-						</ConsoleTopBar>
-						<ConsoleHero>
-							<ConsoleHeroTitle>Link your console</ConsoleHeroTitle>
-							<ConsoleHeroSubtitle>
-								On your phone, open {deviceFlow.deviceCodeData?.verification_uri}
-							</ConsoleHeroSubtitle>
-							<ConsoleHintRow>
-								<span>
-									Enter code • <strong>{deviceFlow.deviceCodeData?.user_code}</strong>
-								</span>
-								<span>Keep this screen open while we verify your account.</span>
-							</ConsoleHintRow>
-						</ConsoleHero>
-						<ConsoleHintRow>
-							<span>
-								{isPolling
-									? `Checking authorization every ${deviceFlow.deviceCodeData?.interval || 5}s…`
-									: 'Press Start after approval to finish linking.'}
-							</span>
-						</ConsoleHintRow>
-					</ConsoleLayout>
-				);
-			case 'airport-kiosk':
-				return (
-					<KioskScreen>
-						<KioskHeader>
-							<KioskBranding>
-								<KioskLogo>🛫</KioskLogo>
-								{deviceConfig.brandName}
-							</KioskBranding>
-							<KioskFlightIndicator>
-								{isPolling ? 'Authorizing Booking…' : 'Enter Code to Continue'}
-							</KioskFlightIndicator>
-						</KioskHeader>
-						<KioskBody>
-							<KioskForm>
-								<KioskRow>
-									<KioskLabel>Instructions</KioskLabel>
-									<KioskValue>
-										Scan QR or visit {deviceFlow.deviceCodeData?.verification_uri}
-									</KioskValue>
-								</KioskRow>
-								<KioskRow>
-									<KioskLabel>Authorization Code</KioskLabel>
-									<KioskValue>{deviceFlow.deviceCodeData?.user_code}</KioskValue>
-								</KioskRow>
-								<KioskRow>
-									<KioskLabel>Status</KioskLabel>
-									<KioskValue>
-										{isPolling ? 'Waiting for confirmation…' : 'Ready when you are'}
-									</KioskValue>
-								</KioskRow>
-							</KioskForm>
-							<KioskBoardingPass>
-								<KioskBoardingTitle>Next Steps</KioskBoardingTitle>
-								<KioskBoardingValue>
-									Confirm on your phone to generate boarding passes.
-								</KioskBoardingValue>
-								<KioskDivider />
-								<KioskCodeBox>{deviceFlow.deviceCodeData?.user_code}</KioskCodeBox>
-							</KioskBoardingPass>
-						</KioskBody>
-						<KioskActionRow>
-							<span>Need help? Flag an agent.</span>
-							<span>Printer will start automatically.</span>
-						</KioskActionRow>
-					</KioskScreen>
-				);
-			default:
-				return (
-					<TVDisplay $primaryColor={deviceConfig.color}>
-						{isPolling ? renderGenericPollingContent() : renderGenericPreAuthContent()}
-					</TVDisplay>
-				);
-		}
-	};
 
 	const renderUserAuthorization = () => (
 		<>
