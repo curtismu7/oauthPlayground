@@ -138,21 +138,21 @@ const PingOneNote = styled.div`
   }
 `;
 
+// Use V6 pageLayoutService for consistent dimensions and FlowHeader integration
+const pageConfig = {
+	flowType: 'documentation' as const,
+	theme: 'blue' as const,
+	maxWidth: '72rem', // Wider for OAuth 2.1 content (1152px)
+	showHeader: true,
+	showFooter: false,
+	responsive: true,
+	flowId: 'oauth-2-1', // Enables FlowHeader integration
+};
+
+const { PageContainer, ContentWrapper, PageHeader } =
+	PageLayoutService.createPageLayout(pageConfig);
+
 const OAuth21 = () => {
-	// Use V6 pageLayoutService for consistent dimensions and FlowHeader integration
-	const pageConfig = {
-		flowType: 'documentation' as const,
-		theme: 'blue' as const,
-		maxWidth: '72rem', // Wider for OAuth 2.1 content (1152px)
-		showHeader: true,
-		showFooter: false,
-		responsive: true,
-		flowId: 'oauth-2-1', // Enables FlowHeader integration
-	};
-
-	const { PageContainer, ContentWrapper, PageHeader } =
-		PageLayoutService.createPageLayout(pageConfig);
-
 	return (
 		<PageContainer>
 			{PageHeader ? (
