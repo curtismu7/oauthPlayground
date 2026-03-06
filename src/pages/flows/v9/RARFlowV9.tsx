@@ -202,7 +202,7 @@ const RARFlowV9: React.FC = () => {
 	usePageScroll({ pageName: 'RAR Flow V9', force: true });
 
 	// State management
-	const [currentStep, setCurrentStep] = useState(0);
+	const [currentStep] = useState(0);
 	const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({
 		overview: true,
 		configuration: false,
@@ -697,7 +697,7 @@ const RARFlowV9: React.FC = () => {
 										<ParameterGrid>
 											<ParameterLabel>Authorization Details:</ParameterLabel>
 											<ParameterValue>
-												<CodeBlock>{tokens.authorization_details}</CodeBlock>
+												<CodeBlock>{String(tokens.authorization_details || 'N/A')}</CodeBlock>
 											</ParameterValue>
 										</ParameterGrid>
 
