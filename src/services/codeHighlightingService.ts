@@ -2,6 +2,7 @@
 // Centralized service for VS Code-style code and JSON syntax highlighting
 
 import Prism from 'prismjs';
+import { logger } from '../utils/logger';
 import 'prismjs/themes/prism.css';
 import 'prismjs/components/prism-javascript';
 import 'prismjs/components/prism-typescript';
@@ -68,7 +69,12 @@ export const highlightCode = (code: string, language: SupportedLanguage = 'javas
 		}
 		return Prism.highlight(code, Prism.languages[prismLanguage], prismLanguage);
 	} catch (error) {
-		console.error(`[CodeHighlightingService] Error highlighting code:`, error);
+		logger.error(
+			'CodeHighlightingService',
+			`[CodeHighlightingService] Error highlighting code:`,
+			undefined,
+			error as Error
+		);
 		// Fallback to HTML escaping
 		return code
 			.replace(/&/g, '&amp;')
@@ -87,7 +93,12 @@ export const formatAndHighlightJSON = (data: any): string => {
 		const jsonString = JSON.stringify(data, null, 2);
 		return highlightCode(jsonString, 'json');
 	} catch (error) {
-		console.error(`[CodeHighlightingService] Error formatting JSON:`, error);
+		logger.error(
+			'CodeHighlightingService',
+			`[CodeHighlightingService] Error formatting JSON:`,
+			undefined,
+			error as Error
+		);
 		return highlightCode(String(data), 'text');
 	}
 };

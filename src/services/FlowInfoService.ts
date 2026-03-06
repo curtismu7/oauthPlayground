@@ -1,6 +1,7 @@
 // src/services/FlowInfoService.ts - Comprehensive flow information service for V5 flows
 
 import { FlowInfo } from '../components/FlowInfoCard';
+import { logger } from '../utils/logger';
 
 export interface DetailedFlowInfo extends FlowInfo {
 	// Enhanced flow information with additional details
@@ -1118,7 +1119,11 @@ const flowConfigs: Record<string, DetailedFlowInfo> = {
 const normalizeFlowKey = (flowType: string): string => {
 	// Add null/undefined check
 	if (!flowType || typeof flowType !== 'string') {
-		console.warn('FlowInfoService.normalizeFlowKey called with invalid flowType:', flowType);
+		logger.warn(
+			'FlowInfoService',
+			'FlowInfoService.normalizeFlowKey called with invalid flowType:',
+			{ arg0: flowType }
+		);
 		return 'unknown';
 	}
 
@@ -1148,7 +1153,9 @@ const normalizeFlowKey = (flowType: string): string => {
  */
 const getFlowInfo = (flowType: string): DetailedFlowInfo | null => {
 	if (!flowType || typeof flowType !== 'string') {
-		console.warn('FlowInfoService.getFlowInfo called with invalid flowType:', flowType);
+		logger.warn('FlowInfoService', 'FlowInfoService.getFlowInfo called with invalid flowType:', {
+			arg0: flowType,
+		});
 		return null;
 	}
 
@@ -1161,7 +1168,11 @@ const getFlowInfo = (flowType: string): DetailedFlowInfo | null => {
  */
 const generateFlowInfoCard = (flowType: string): FlowInfoCardData | null => {
 	if (!flowType || typeof flowType !== 'string') {
-		console.warn('FlowInfoService.generateFlowInfoCard called with invalid flowType:', flowType);
+		logger.warn(
+			'FlowInfoService',
+			'FlowInfoService.generateFlowInfoCard called with invalid flowType:',
+			{ arg0: flowType }
+		);
 		return null;
 	}
 

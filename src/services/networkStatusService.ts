@@ -24,7 +24,7 @@ class NetworkStatusService {
 			NetworkStatusService.handleOffline.bind(NetworkStatusService)
 		);
 
-		console.log('[NetworkStatusService] Initialized');
+		logger.info('NetworkStatusService', '[NetworkStatusService] Initialized');
 	}
 
 	static getNetworkStatus(): NetworkStatus {
@@ -65,7 +65,12 @@ class NetworkStatusService {
 			try {
 				listener(NetworkStatusService.currentStatus);
 			} catch (error) {
-				console.error('[NetworkStatusService] Error in status listener:', error);
+				logger.error(
+					'NetworkStatusService',
+					'[NetworkStatusService] Error in status listener:',
+					undefined,
+					error as Error
+				);
 			}
 		});
 	}
