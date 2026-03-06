@@ -1,3 +1,4 @@
+import { logger } from './logger';
 // Token source tracking utility
 export interface TokenSource {
 	source:
@@ -45,7 +46,7 @@ class TokenSourceTracker {
 
 			console.log(' [TokenSourceTracker] Stored token source:', source.source, source.description);
 		} catch (error) {
-			console.error(' [TokenSourceTracker] Error storing token source:', error);
+			logger.error('TokenSourceTracker', 'Error storing token source:', undefined, error as Error);
 		}
 	}
 
@@ -55,7 +56,7 @@ class TokenSourceTracker {
 			const stored = localStorage.getItem(this.STORAGE_KEY);
 			return stored ? JSON.parse(stored) : [];
 		} catch (error) {
-			console.error(' [TokenSourceTracker] Error getting token sources:', error);
+			logger.error('TokenSourceTracker', 'Error getting token sources:', undefined, error as Error);
 			return [];
 		}
 	}
@@ -78,7 +79,12 @@ class TokenSourceTracker {
 			localStorage.removeItem(this.STORAGE_KEY);
 			console.log(' [TokenSourceTracker] Cleared all token sources');
 		} catch (error) {
-			console.error(' [TokenSourceTracker] Error clearing token sources:', error);
+			logger.error(
+				'TokenSourceTracker',
+				'Error clearing token sources:',
+				undefined,
+				error as Error
+			);
 		}
 	}
 

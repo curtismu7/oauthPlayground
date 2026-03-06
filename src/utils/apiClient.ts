@@ -93,7 +93,7 @@ export async function makeApiRequest<T = any>(
 			const errorData = await response.json().catch(() => ({}));
 
 			// Log full error details for debugging
-			console.error('[API-CLIENT] Full error response:', {
+			logger.error('ApiClient', 'Full error response:', {
 				status: response.status,
 				statusText: response.statusText,
 				errorData: errorData,

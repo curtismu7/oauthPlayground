@@ -1,3 +1,4 @@
+import { logger } from './logger';
 // src/utils/fileHandling.ts
 // File handling utilities for import/export functionality
 
@@ -378,7 +379,12 @@ export async function processFilesInBatches<T>(
 				onProgress(Math.min(i + batchSize, files.length), files.length);
 			}
 		} catch (error) {
-			console.error(`Batch processing failed at batch starting at index ${i}:`, error);
+			logger.error(
+				'FileHandling',
+				`Batch processing failed at batch starting at index ${i}:`,
+				undefined,
+				error as Error
+			);
 			throw error;
 		}
 	}
