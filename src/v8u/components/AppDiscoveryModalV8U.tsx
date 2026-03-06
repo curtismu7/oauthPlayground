@@ -11,6 +11,7 @@ import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
 import {
+import { logger } from '../../utils/logger';
 	AppDiscoveryServiceV8,
 	type DiscoveredApplication,
 } from '@/v8/services/appDiscoveryServiceV8';
@@ -110,7 +111,7 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 			});
 
 			if (!workerToken || typeof workerToken !== 'string') {
-				console.error(`${MODULE_TAG} Invalid worker token:`, {
+				logger.error('AppDiscoveryModalV8U', `Invalid worker token:`, {
 					token: workerToken,
 					type: typeof workerToken,
 				});
@@ -156,7 +157,7 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 				});
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Discovery error`, error);
+			logger.error('AppDiscoveryModalV8U', `Discovery error`, undefined, error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
