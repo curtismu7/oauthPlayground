@@ -511,18 +511,14 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 			const result = await oidcDiscoveryService.discover({ issuerUrl: issuerUrl.trim() });
 			setDiscoveryResult(result);
 
-			if (result.success && result.document) {
+			if (result.success) {
 				onDiscoveryComplete?.(result);
 			} else {
-				setError(result.error || 'Discovery failed');
+				setError(result.error?.message || 'Discovery failed');
 			}
 		} catch (err) {
 			const errorMessage = err instanceof Error ? err.message : 'Discovery failed';
 			setError(errorMessage);
-			setDiscoveryResult({
-				success: false,
-				error: errorMessage,
-			});
 		} finally {
 			setIsDiscovering(false);
 		}
@@ -539,7 +535,7 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 	};
 
 	const handleSave = useCallback(async () => {
-		if (!discoveryResult?.success || !discoveryResult.document) {
+		if (!discoveryResult?.success) {
 			return;
 		}
 
@@ -549,7 +545,7 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 				environmentId,
 				region: selectedRegion,
 				issuerUrl,
-				discoveryResult: discoveryResult.document,
+				discoveryResult: discoveryResult.data,
 				timestamp: Date.now(),
 			};
 
@@ -565,7 +561,7 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 	}, [discoveryResult, environmentId, selectedRegion, issuerUrl]);
 
 	const handleSaveAndApply = useCallback(async () => {
-		if (!discoveryResult?.success || !discoveryResult.document) {
+		if (!discoveryResult?.success) {
 			return;
 		}
 
@@ -577,7 +573,7 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 				environmentId,
 				region: selectedRegion,
 				issuerUrl,
-				discoveryResult: discoveryResult.document,
+				discoveryResult: discoveryResult.data,
 				timestamp: Date.now(),
 			};
 
@@ -667,7 +663,7 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 					<FiCheck />
 					<StatusText>
 						Successfully discovered OIDC endpoints
-						{discoveryResult.cached && ' (cached)'}
+						{discoveryResult.data?.cached && ' (cached)'}
 					</StatusText>
 				</StatusContainer>
 			);
@@ -677,7 +673,7 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 			return (
 				<StatusContainer type="error">
 					<FiAlertCircle />
-					<StatusText>Discovery failed: {discoveryResult.error}</StatusText>
+					<StatusText>Discovery failed: {discoveryResult.error?.message}</StatusText>
 				</StatusContainer>
 			);
 		}
@@ -747,7 +743,7 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 				</div>
 			)}
 
-			{autoDiscover && discoveryResult?.success && discoveryResult.document && (
+			{autoDiscover && discoveryResult?.success && discoveryResult.data && (
 				<div style={{ marginTop: '1rem' }}>
 					{/* Discovery Results Display */}
 					<DiscoveryResultsBox>
@@ -766,28 +762,28 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 						{!isDiscoveryResultsCollapsed && (
 							<DiscoveryResultsContent>
 								<DiscoveryResultItem>
-									<strong>Issuer:</strong> {discoveryResult.document.issuer}
+									<strong>Issuer:</strong> {discoveryResult.data.issuer}
 								</DiscoveryResultItem>
 								<DiscoveryResultItem>
 									<strong>Authorization Endpoint:</strong>{' '}
-									{discoveryResult.document.authorization_endpoint}
+									{discoveryResult.data.authorization_endpoint}
 								</DiscoveryResultItem>
 								<DiscoveryResultItem>
-									<strong>Token Endpoint:</strong> {discoveryResult.document.token_endpoint}
+									<strong>Token Endpoint:</strong> {discoveryResult.data.token_endpoint}
 								</DiscoveryResultItem>
 								<DiscoveryResultItem>
-									<strong>UserInfo Endpoint:</strong> {discoveryResult.document.userinfo_endpoint}
+									<strong>UserInfo Endpoint:</strong> {discoveryResult.data.userinfo_endpoint}
 								</DiscoveryResultItem>
 								<DiscoveryResultItem>
-									<strong>JWKS URI:</strong> {discoveryResult.document.jwks_uri}
+									<strong>JWKS URI:</strong> {discoveryResult.data.jwks_uri}
 								</DiscoveryResultItem>
 								<DiscoveryResultItem>
 									<strong>Response Types Supported:</strong>{' '}
-									{discoveryResult.document.response_types_supported?.join(', ')}
+									{discoveryResult.data.response_types_supported?.join(', ')}
 								</DiscoveryResultItem>
 								<DiscoveryResultItem>
 									<strong>Scopes Supported:</strong>{' '}
-									{discoveryResult.document.scopes_supported?.join(', ')}
+									{discoveryResult.data.scopes_supported?.join(', ')}
 								</DiscoveryResultItem>
 							</DiscoveryResultsContent>
 						)}

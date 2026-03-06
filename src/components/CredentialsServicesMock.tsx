@@ -5,7 +5,11 @@ import EnvironmentIdInput from '../components/EnvironmentIdInput';
 import PingOneApplicationConfig, {
 	PingOneApplicationState,
 } from '../components/PingOneApplicationConfig';
-import { type DiscoveryResult, oidcDiscoveryService } from '../services/oidcDiscoveryService';
+import {
+	type DiscoveryData,
+	type DiscoveryResult,
+	oidcDiscoveryService,
+} from '../services/oidcDiscoveryService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
 const Container = styled.div`
@@ -113,7 +117,7 @@ const CredentialsServicesMock: React.FC = () => {
 	});
 
 	// 2. OIDC Discovery State
-	const [discoveryResult, setDiscoveryResult] = useState<DiscoveryResult['document'] | null>(null);
+	const [discoveryResult, setDiscoveryResult] = useState<DiscoveryData | null>(null);
 	const [isDiscovering, setIsDiscovering] = useState(false);
 
 	// 3. PingOne Advanced Configuration State
@@ -192,13 +196,13 @@ const CredentialsServicesMock: React.FC = () => {
 	const handleDiscoveryComplete = useCallback(
 		async (result: DiscoveryResult) => {
 			setIsDiscovering(false);
-			if (result.success && result.document) {
-				console.log('🎯 OIDC Discovery completed:', result.document);
-				setDiscoveryResult(result.document);
+			if (result.success) {
+				console.log('🎯 OIDC Discovery completed:', result.data);
+				setDiscoveryResult(result.data);
 
 				// Auto-populate environment ID if it's a PingOne issuer
-				if (result.document?.issuer) {
-					const envId = oidcDiscoveryService.extractEnvironmentId(result.document.issuer);
+				if (result.data?.issuer) {
+					const envId = oidcDiscoveryService.extractEnvironmentId(result.data.issuer);
 					if (envId) {
 						await handleFieldChange('environmentId', envId);
 						if (credentials.clientId.trim()) {
@@ -209,7 +213,7 @@ const CredentialsServicesMock: React.FC = () => {
 
 				v4ToastManager.showSuccess('OIDC Discovery completed successfully!');
 			} else {
-				v4ToastManager.showError(`OIDC Discovery failed: ${result.error}`);
+				v4ToastManager.showError(`OIDC Discovery failed: ${result.error?.message}`);
 			}
 		},
 		[credentials.clientId, handleFieldChange]
