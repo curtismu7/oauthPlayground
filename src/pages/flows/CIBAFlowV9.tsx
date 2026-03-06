@@ -324,13 +324,11 @@ const CIBAFlowV9: React.FC = () => {
 
 			// Rate limiting: wait at least 5 seconds between attempts
 			if (timeSinceLastAttempt < 5000) {
-				console.warn(`${MODULE_TAG} Rate limiting discovery metadata attempts`);
 				return;
 			}
 
 			// Don't attempt if we recently got a 429
 			if (discoveryRetryCount >= 3 && timeSinceLastAttempt < 30000) {
-				console.warn(`${MODULE_TAG} Too many failed attempts, waiting`);
 				return;
 			}
 
@@ -352,22 +350,21 @@ const CIBAFlowV9: React.FC = () => {
 				);
 			} catch (error) {
 				setDiscoveryRetryCount((prev) => prev + 1);
-				// Don't show toast for 429 errors, just log
+				// Don't show toast for 429 errors
 				if (error instanceof Error && error.message?.includes('429')) {
-					console.warn(`${MODULE_TAG} Got 429 error, will retry later`);
+					console.log(`${MODULE_TAG} Got 429 error, will retry later`);
 				} else if (
 					error instanceof Error &&
 					error.message?.includes('ERR_INSUFFICIENT_RESOURCES')
 				) {
-					console.warn(`${MODULE_TAG} Browser resource exhaustion detected, waiting before retry`);
+					console.log(`${MODULE_TAG} Browser resource exhaustion detected, waiting before retry`);
 					// Wait longer for resource exhaustion errors - use ref to manage timeout
 					discoveryRetryTimeoutRef.current = setTimeout(() => {
 						setDiscoveryRetryCount(0); // Reset retry count after waiting
 						discoveryRetryTimeoutRef.current = null;
 					}, 60000);
 				} else {
-					// Show toast for other errors
-					console.error(`${MODULE_TAG} Failed to load discovery metadata:`, error);
+					v4ToastManager.showError('Failed to load discovery metadata. Will retry.');
 				}
 			}
 		},
@@ -434,8 +431,6 @@ const CIBAFlowV9: React.FC = () => {
 
 			console.log(`${MODULE_TAG} Generated login hint token successfully`);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to generate login hint token:`, error);
-			// Show error to user
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 			v4ToastManager.showError(`Failed to generate login hint token: ${errorMessage}`);
 		}
@@ -453,7 +448,8 @@ const CIBAFlowV9: React.FC = () => {
 
 			await cibaFlow.initiateAuthentication(credentials);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to initiate authentication:`, error);
+			const errorMessage = error instanceof Error ? error.message : 'Authentication failed';
+			v4ToastManager.showError(`Failed to initiate authentication: ${errorMessage}`);
 		}
 	};
 
@@ -471,7 +467,8 @@ const CIBAFlowV9: React.FC = () => {
 				v4ToastManager.showSuccess('CIBA authentication completed successfully!');
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to poll for tokens:`, error);
+			const errorMessage = error instanceof Error ? error.message : 'Polling failed';
+			v4ToastManager.showError(`Failed to poll for tokens: ${errorMessage}`);
 		}
 	};
 
@@ -511,7 +508,6 @@ const CIBAFlowV9: React.FC = () => {
 			await getWorkerToken();
 			v4ToastManager.showSuccess('Worker token retrieved successfully');
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to get worker token:`, error);
 			v4ToastManager.showError('Failed to retrieve worker token');
 		}
 	};

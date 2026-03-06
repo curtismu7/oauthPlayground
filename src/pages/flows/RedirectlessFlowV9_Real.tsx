@@ -656,7 +656,6 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 				}
 
 				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-				console.error('🔐 [Redirectless V9] Token exchange failed:', errorMessage);
 				_setError(errorMessage);
 				v4ToastManager.showError(`❌ Token exchange failed: ${errorMessage}`);
 				setIsAuthenticating(false);
@@ -720,8 +719,6 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 				// Proceed to token exchange
 				await handleTokenExchange(authCode, pkceCodes.codeVerifier);
 			} catch (error: unknown) {
-				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-				console.error('🔐 [Redirectless V9] Failed to resume flow:', errorMessage);
 				throw error;
 			}
 		},
@@ -831,7 +828,6 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 			}
 		} catch (error: unknown) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			console.error('🔐 [Redirectless V9] Failed to submit credentials:', errorMessage);
 			_setError(errorMessage);
 			v4ToastManager.showError(`❌ Authentication failed: ${errorMessage}`);
 			setIsAuthenticating(false);
@@ -961,7 +957,6 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 			throw new Error(`Unexpected flow status: ${status || 'UNKNOWN'}`);
 		} catch (error: unknown) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			console.error('🔐 [Redirectless V9] Failed to start flow:', errorMessage);
 			_setError(errorMessage);
 			v4ToastManager.showError(`❌ Failed to start redirectless flow: ${errorMessage}`);
 			setIsLoading(false);
