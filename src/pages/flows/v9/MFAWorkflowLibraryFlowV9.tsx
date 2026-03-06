@@ -16,6 +16,7 @@ import {
 } from '@icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import JSONHighlighter, { type JSONData } from '../../../components/JSONHighlighter';
 import PhoneNumberInput from '../../../components/PhoneNumberInput';
 import { StepNavigationButtons } from '../../../components/StepNavigationButtons';
@@ -26,10 +27,9 @@ import ComprehensiveCredentialsService from '../../../services/comprehensiveCred
 import { FlowHeader } from '../../../services/flowHeaderService';
 import { FlowUIService } from '../../../services/flowUIService';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
-import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 import { getAnyWorkerToken } from '../../../utils/workerTokenDetection';
+import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
+import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 
 interface MfaDevice {
 	id: string;
@@ -97,7 +97,6 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 	});
 
 	// V9 4-layer storage: load on mount
-	// biome-ignore lint/correctness/useExhaustiveDependencies: mount-once
 	useEffect(() => {
 		const saved = V9CredentialStorageService.loadSync(V9_STORAGE_KEY);
 		if (saved && (saved.clientId || saved.environmentId)) {
@@ -123,20 +122,20 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 	}, []);
 
 	// App picker: auto-fill clientId from discovered app
-	const handleAppSelected = useCallback(
-		(app: DiscoveredApp) => {
-			setCredentials((prev) => {
-				const updated = { ...prev, clientId: app.id };
-				V9CredentialStorageService.save(
-					V9_STORAGE_KEY,
-					{ clientId: app.id, ...(updated.environmentId ? { environmentId: updated.environmentId } : {}) },
-					updated.environmentId ? { environmentId: updated.environmentId } : {}
-				);
-				return updated;
-			});
-		},
-		[]
-	);
+	const handleAppSelected = useCallback((app: DiscoveredApp) => {
+		setCredentials((prev) => {
+			const updated = { ...prev, clientId: app.id };
+			V9CredentialStorageService.save(
+				V9_STORAGE_KEY,
+				{
+					clientId: app.id,
+					...(updated.environmentId ? { environmentId: updated.environmentId } : {}),
+				},
+				updated.environmentId ? { environmentId: updated.environmentId } : {}
+			);
+			return updated;
+		});
+	}, []);
 
 	// Handle any credential field change — persist to V9 storage
 	const handleCredentialsChange = useCallback((newCredentials: StepCredentials) => {
@@ -155,7 +154,11 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 			{ ...credentials } as Record<string, string>,
 			credentials.environmentId ? { environmentId: credentials.environmentId } : {}
 		);
-		modernMessaging.showFooterMessage({ type: 'info', message: 'Credentials saved successfully!', duration: 3000 });
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message: 'Credentials saved successfully!',
+			duration: 3000,
+		});
 	}, [credentials]);
 
 	// Flow-specific state
@@ -178,7 +181,12 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 	// Fetch existing MFA devices for user
 	const handleFetchExistingDevices = useCallback(async () => {
 		if (!credentials.environmentId || !userId || !workerToken) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please provide Environment ID, User ID, and Worker Token', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please provide Environment ID, User ID, and Worker Token',
+				dismissible: true,
+			});
 			return;
 		}
 		setIsLoadingDevices(true);
@@ -194,9 +202,17 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 				);
 				setExistingDevices(smsDevices);
 				if (smsDevices.length > 0) {
-					modernMessaging.showFooterMessage({ type: 'info', message: `Found ${smsDevices.length} SMS device(s)`, duration: 3000 });
+					modernMessaging.showFooterMessage({
+						type: 'info',
+						message: `Found ${smsDevices.length} SMS device(s)`,
+						duration: 3000,
+					});
 				} else {
-					modernMessaging.showFooterMessage({ type: 'info', message: 'No SMS devices found. You can register a new one.', duration: 3000 });
+					modernMessaging.showFooterMessage({
+						type: 'info',
+						message: 'No SMS devices found. You can register a new one.',
+						duration: 3000,
+					});
 				}
 			} else {
 				setExistingDevices([]);
@@ -223,7 +239,11 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 			if (device) {
 				setDeviceId(device.id);
 				setApiResponses((prev) => ({ ...prev, 11: device as unknown as ApiResponse }));
-				modernMessaging.showFooterMessage({ type: 'info', message: 'Device selected successfully', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: 'Device selected successfully',
+					duration: 3000,
+				});
 				setCurrentStep(1);
 			}
 		},
@@ -233,11 +253,21 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 	// Step 11a: Register Mobile Phone
 	const handleRegisterMobilePhone = useCallback(async () => {
 		if (!credentials.environmentId || !userId || !phoneNumber) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please provide Environment ID, User ID, and Phone Number', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please provide Environment ID, User ID, and Phone Number',
+				dismissible: true,
+			});
 			return;
 		}
 		if (!workerToken) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Worker token is required for device registration', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Worker token is required for device registration',
+				dismissible: true,
+			});
 			return;
 		}
 		setIsLoading(true);
@@ -254,13 +284,22 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 			if (response.ok && data.id) {
 				setDeviceId(data.id);
 				setApiResponses((prev) => ({ ...prev, 11: data }));
-				modernMessaging.showFooterMessage({ type: 'info', message: 'Mobile phone registered successfully', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: 'Mobile phone registered successfully',
+					duration: 3000,
+				});
 				setCurrentStep(1);
 			} else {
 				throw new Error(data.error_description || data.error || 'Failed to register mobile phone');
 			}
 		} catch (err) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: err instanceof Error ? err.message : 'Failed to register mobile phone', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: err instanceof Error ? err.message : 'Failed to register mobile phone',
+				dismissible: true,
+			});
 		} finally {
 			setIsLoading(false);
 		}
@@ -269,11 +308,21 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 	// Step 11b: Enable User MFA
 	const handleEnableUserMFA = useCallback(async () => {
 		if (!credentials.environmentId || !userId || !deviceId) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please provide Environment ID, User ID, and Device ID', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please provide Environment ID, User ID, and Device ID',
+				dismissible: true,
+			});
 			return;
 		}
 		if (!workerToken) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Worker token is required to enable MFA device', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Worker token is required to enable MFA device',
+				dismissible: true,
+			});
 			return;
 		}
 		setIsLoading(true);
@@ -293,18 +342,27 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 					const dataObj = (data as Record<string, unknown>) || {};
 					return { ...prev, 11: { ...prev11, enabled: true, ...dataObj } as ApiResponse };
 				});
-				modernMessaging.showFooterMessage({ type: 'info', message: 'MFA device enabled successfully', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: 'MFA device enabled successfully',
+					duration: 3000,
+				});
 				setCurrentStep(2);
 			} else {
 				const errData = (data as Record<string, unknown>) || {};
 				throw new Error(
 					(errData.error_description as string) ||
-					(errData.error as string) ||
-					'Failed to enable MFA device'
+						(errData.error as string) ||
+						'Failed to enable MFA device'
 				);
 			}
 		} catch (err) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: err instanceof Error ? err.message : 'Failed to enable MFA device', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: err instanceof Error ? err.message : 'Failed to enable MFA device',
+				dismissible: true,
+			});
 		} finally {
 			setIsLoading(false);
 		}
@@ -313,7 +371,12 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 	// Step 12: Send Authorize Request
 	const handleSendAuthorizeRequest = useCallback(async () => {
 		if (!credentials.environmentId || !credentials.clientId) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please configure credentials first', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please configure credentials first',
+				dismissible: true,
+			});
 			return;
 		}
 		setIsLoading(true);
@@ -335,13 +398,22 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 			if (response.ok && data.flowId) {
 				setFlowId(data.flowId);
 				setApiResponses((prev) => ({ ...prev, 12: data }));
-				modernMessaging.showFooterMessage({ type: 'info', message: 'Authorization request sent successfully', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: 'Authorization request sent successfully',
+					duration: 3000,
+				});
 				setCurrentStep(3);
 			} else {
 				throw new Error(data.error_description || data.error || 'Failed to send authorize request');
 			}
 		} catch (err) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: err instanceof Error ? err.message : 'Failed to send authorize request', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: err instanceof Error ? err.message : 'Failed to send authorize request',
+				dismissible: true,
+			});
 		} finally {
 			setIsLoading(false);
 		}
@@ -350,7 +422,12 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 	// Step 13: Get the Flow
 	const handleGetFlow = useCallback(async () => {
 		if (!flowId || !credentials.environmentId) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Flow ID is required', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Flow ID is required',
+				dismissible: true,
+			});
 			return;
 		}
 		setIsLoading(true);
@@ -362,13 +439,22 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 			const data = await response.json();
 			if (response.ok) {
 				setApiResponses((prev) => ({ ...prev, 13: data }));
-				modernMessaging.showFooterMessage({ type: 'info', message: 'Flow retrieved successfully', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: 'Flow retrieved successfully',
+					duration: 3000,
+				});
 				setCurrentStep(4);
 			} else {
 				throw new Error(data.error_description || data.error || 'Failed to get flow');
 			}
 		} catch (err) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: err instanceof Error ? err.message : 'Failed to get flow', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: err instanceof Error ? err.message : 'Failed to get flow',
+				dismissible: true,
+			});
 		} finally {
 			setIsLoading(false);
 		}
@@ -377,7 +463,12 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 	// Step 14: Submit Login Credentials
 	const handleSubmitLoginCredentials = useCallback(async () => {
 		if (!flowId || !credentials.environmentId) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Flow ID is required', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Flow ID is required',
+				dismissible: true,
+			});
 			return;
 		}
 		setIsLoading(true);
@@ -394,7 +485,11 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 			const data = await response.json();
 			if (response.ok) {
 				setApiResponses((prev) => ({ ...prev, 14: data }));
-				modernMessaging.showFooterMessage({ type: 'info', message: 'Login credentials submitted successfully', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: 'Login credentials submitted successfully',
+					duration: 3000,
+				});
 				setCurrentStep(5);
 			} else {
 				throw new Error(
@@ -402,7 +497,12 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 				);
 			}
 		} catch (err) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: err instanceof Error ? err.message : 'Failed to submit login credentials', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: err instanceof Error ? err.message : 'Failed to submit login credentials',
+				dismissible: true,
+			});
 		} finally {
 			setIsLoading(false);
 		}
@@ -411,7 +511,12 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 	// Step 15: Submit MFA Credentials
 	const handleSubmitMFACredentials = useCallback(async () => {
 		if (!flowId || !credentials.environmentId) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Flow ID is required', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Flow ID is required',
+				dismissible: true,
+			});
 			return;
 		}
 		setIsLoading(true);
@@ -424,13 +529,22 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 			const data = await response.json();
 			if (response.ok) {
 				setApiResponses((prev) => ({ ...prev, 15: data }));
-				modernMessaging.showFooterMessage({ type: 'info', message: 'MFA credentials submitted successfully', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: 'MFA credentials submitted successfully',
+					duration: 3000,
+				});
 				setCurrentStep(6);
 			} else {
 				throw new Error(data.error_description || data.error || 'Failed to submit MFA credentials');
 			}
 		} catch (err) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: err instanceof Error ? err.message : 'Failed to submit MFA credentials', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: err instanceof Error ? err.message : 'Failed to submit MFA credentials',
+				dismissible: true,
+			});
 		} finally {
 			setIsLoading(false);
 		}
@@ -439,7 +553,12 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 	// Step 16: Call Resume Endpoint
 	const handleCallResumeEndpoint = useCallback(async () => {
 		if (!flowId || !credentials.environmentId) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Flow ID is required', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Flow ID is required',
+				dismissible: true,
+			});
 			return;
 		}
 		setIsLoading(true);
@@ -452,13 +571,22 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 			if (response.ok && data.code) {
 				setAuthorizationCode(data.code);
 				setApiResponses((prev) => ({ ...prev, 16: data }));
-				modernMessaging.showFooterMessage({ type: 'info', message: 'Authorization code received successfully', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: 'Authorization code received successfully',
+					duration: 3000,
+				});
 				setCurrentStep(7);
 			} else {
 				throw new Error(data.error_description || data.error || 'Failed to get authorization code');
 			}
 		} catch (err) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: err instanceof Error ? err.message : 'Failed to call resume endpoint', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: err instanceof Error ? err.message : 'Failed to call resume endpoint',
+				dismissible: true,
+			});
 		} finally {
 			setIsLoading(false);
 		}
@@ -467,7 +595,12 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 	// Step 17: Generate Access Token
 	const handleGenerateAccessToken = useCallback(async () => {
 		if (!authorizationCode || !credentials.environmentId || !credentials.clientId) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Authorization code and credentials are required', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Authorization code and credentials are required',
+				dismissible: true,
+			});
 			return;
 		}
 		setIsLoading(true);
@@ -488,13 +621,22 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 			if (response.ok && data.access_token) {
 				setTokens(data);
 				setApiResponses((prev) => ({ ...prev, 17: data }));
-				modernMessaging.showFooterMessage({ type: 'info', message: 'Access token generated successfully', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: 'Access token generated successfully',
+					duration: 3000,
+				});
 				setCurrentStep(8);
 			} else {
 				throw new Error(data.error_description || data.error || 'Failed to generate access token');
 			}
 		} catch (err) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: err instanceof Error ? err.message : 'Failed to generate access token', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: err instanceof Error ? err.message : 'Failed to generate access token',
+				dismissible: true,
+			});
 		} finally {
 			setIsLoading(false);
 		}
@@ -516,7 +658,11 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 		setExistingDevices([]);
 		setSelectedExistingDeviceId('');
 		setDeviceSelectionMode('select');
-		modernMessaging.showFooterMessage({ type: 'info', message: 'Flow reset successfully', duration: 3000 });
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message: 'Flow reset successfully',
+			duration: 3000,
+		});
 	}, []);
 
 	// Step validation
@@ -652,8 +798,9 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 										<div style={{ marginTop: '1.5rem', marginBottom: '1.5rem' }}>
 											<InfoTitle style={{ marginBottom: '1rem' }}>Existing SMS Devices:</InfoTitle>
 											{existingDevices.map((device) => (
-												<div
+												<button
 													key={device.id}
+													type="button"
 													onClick={() => handleSelectExistingDevice(device.id)}
 													style={{
 														padding: '1rem',
@@ -666,6 +813,8 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 														marginBottom: '0.5rem',
 														background:
 															selectedExistingDeviceId === device.id ? '#eff6ff' : '#ffffff',
+														width: '100%',
+														textAlign: 'left',
 													}}
 												>
 													<div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -683,7 +832,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 															<FiCheckCircle style={{ color: '#10b981' }} />
 														)}
 													</div>
-												</div>
+												</button>
 											))}
 										</div>
 									)}
@@ -733,15 +882,17 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 										</>
 									)}
 
-									{deviceSelectionMode === 'select' && existingDevices.length === 0 && !isLoadingDevices && (
-										<InfoBox $variant="warning">
-											<FiInfo />
-											<div>
-												<InfoTitle>No Existing Devices Found</InfoTitle>
-												<InfoText>No SMS devices found. Use "Register New" to add one.</InfoText>
-											</div>
-										</InfoBox>
-									)}
+									{deviceSelectionMode === 'select' &&
+										existingDevices.length === 0 &&
+										!isLoadingDevices && (
+											<InfoBox $variant="warning">
+												<FiInfo />
+												<div>
+													<InfoTitle>No Existing Devices Found</InfoTitle>
+													<InfoText>No SMS devices found. Use "Register New" to add one.</InfoText>
+												</div>
+											</InfoBox>
+										)}
 								</>
 							)}
 
@@ -777,19 +928,29 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 							<div>
 								<InfoTitle>Enable User MFA Device</InfoTitle>
 								<InfoText>
-									Enable the registered MFA device for the user. API: PUT
-									/environments/{'{environmentId}'}/users/{'{userId}'}/devices/{'{deviceId}'}
+									Enable the registered MFA device for the user. API: PUT /environments/
+									{'{environmentId}'}/users/{'{userId}'}/devices/{'{deviceId}'}
 								</InfoText>
 							</div>
 						</InfoBox>
 						<ParameterGrid>
 							<ParameterLabel>User ID:</ParameterLabel>
 							<ParameterValue>
-								<input type="text" value={userId} readOnly style={{ width: '100%', padding: '0.5rem', background: '#f8fafc' }} />
+								<input
+									type="text"
+									value={userId}
+									readOnly
+									style={{ width: '100%', padding: '0.5rem', background: '#f8fafc' }}
+								/>
 							</ParameterValue>
 							<ParameterLabel>Device ID:</ParameterLabel>
 							<ParameterValue>
-								<input type="text" value={deviceId} readOnly style={{ width: '100%', padding: '0.5rem', background: '#f8fafc' }} />
+								<input
+									type="text"
+									value={deviceId}
+									readOnly
+									style={{ width: '100%', padding: '0.5rem', background: '#f8fafc' }}
+								/>
 							</ParameterValue>
 						</ParameterGrid>
 						<Button onClick={handleEnableUserMFA} disabled={isLoading || !isStepValid(1)}>
@@ -802,7 +963,9 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 								<JSONHighlighter data={apiResponses[11]} />
 								<InfoBox $variant="success">
 									<FiCheckCircle />
-									<div><InfoTitle>MFA Device Enabled Successfully</InfoTitle></div>
+									<div>
+										<InfoTitle>MFA Device Enabled Successfully</InfoTitle>
+									</div>
 								</InfoBox>
 							</ResultsSection>
 						)}
@@ -838,7 +1001,10 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 								{flowId && (
 									<InfoBox $variant="success">
 										<FiCheckCircle />
-										<div><InfoTitle>Flow ID:</InfoTitle><InfoText>{flowId}</InfoText></div>
+										<div>
+											<InfoTitle>Flow ID:</InfoTitle>
+											<InfoText>{flowId}</InfoText>
+										</div>
 									</InfoBox>
 								)}
 							</ResultsSection>
@@ -888,7 +1054,9 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 							<FiInfo />
 							<div>
 								<InfoTitle>Authenticate with Username/Password</InfoTitle>
-								<InfoText>Submit user login credentials to advance the flow to the MFA challenge.</InfoText>
+								<InfoText>
+									Submit user login credentials to advance the flow to the MFA challenge.
+								</InfoText>
 							</div>
 						</InfoBox>
 						<ParameterGrid>
@@ -913,7 +1081,10 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 								/>
 							</ParameterValue>
 						</ParameterGrid>
-						<Button onClick={handleSubmitLoginCredentials} disabled={isLoading || !username || !password}>
+						<Button
+							onClick={handleSubmitLoginCredentials}
+							disabled={isLoading || !username || !password}
+						>
 							{isLoading ? <FiRefreshCw /> : <FiUser />}
 							Submit Login Credentials
 						</Button>
@@ -1018,7 +1189,9 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 							<FiInfo />
 							<div>
 								<InfoTitle>Exchange Authorization Code for Tokens</InfoTitle>
-								<InfoText>Exchange the code for access token, refresh token, and ID token.</InfoText>
+								<InfoText>
+									Exchange the code for access token, refresh token, and ID token.
+								</InfoText>
 							</div>
 						</InfoBox>
 						<Button onClick={handleGenerateAccessToken} disabled={isLoading}>

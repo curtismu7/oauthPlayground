@@ -23,6 +23,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import AnalyticsDashboard from '../../../components/AnalyticsDashboard';
 import DeviceTypeSelector from '../../../components/DeviceTypeSelector';
 import DynamicDeviceFlow from '../../../components/DynamicDeviceFlow';
@@ -72,7 +73,6 @@ import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningServic
 import { storeFlowNavigationState } from '../../../utils/flowNavigation';
 import { logger } from '../../../utils/logger';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 
 // Get UI components from FlowUIService
@@ -1079,7 +1079,11 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 				scopes: updatedScopes,
 			});
 
-			modernMessaging.showFooterMessage({ type: 'info', message: `Switched to ${variant.toUpperCase()} Device Authorization variant`, duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: `Switched to ${variant.toUpperCase()} Device Authorization variant`,
+				duration: 3000,
+			});
 		},
 		[deviceFlow.credentials, ensureCredentials]
 	);
@@ -1364,7 +1368,11 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 	const handleCopy = useCallback((text: string, label: string) => {
 		navigator.clipboard.writeText(text);
 		setCopiedField(label);
-		modernMessaging.showFooterMessage({ type: 'info', message: `${label} copied to clipboard!`, duration: 3000 });
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message: `${label} copied to clipboard!`,
+			duration: 3000,
+		});
 		setTimeout(() => setCopiedField(null), 2000);
 	}, []);
 
@@ -1483,13 +1491,23 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 					console.error(
 						'[Device Authorization V7] Failed to save credentials to comprehensive service'
 					);
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save credentials. Please try again.', dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: 'Failed to save credentials. Please try again.',
+						dismissible: true,
+					});
 				} else {
 					console.log('✅ [Device Authorization V7] Credentials saved successfully');
 				}
 			} catch (error) {
 				console.error('[Device Authorization V7] Failed to save credentials:', error);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save credentials. Please try again.', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'Failed to save credentials. Please try again.',
+					dismissible: true,
+				});
 			}
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1700,7 +1718,12 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 			console.log('🔧 [Device Authorization V7] Cleared flow-specific storage');
 		} catch (error) {
 			console.error('[Device Authorization V7] Failed to clear flow state:', error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to clear flow state. Please refresh the page.', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to clear flow state. Please refresh the page.',
+				dismissible: true,
+			});
 		}
 
 		// Clear credential backup when flow is reset
@@ -1793,7 +1816,11 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 				setHasScrolledToTV(true);
 			}
 
-			modernMessaging.showFooterMessage({ type: 'info', message: `${deviceConfig.emoji} Authorization successful! Check out your ${deviceConfig.name} display below!`, duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: `${deviceConfig.emoji} Authorization successful! Check out your ${deviceConfig.name} display below!`,
+				duration: 3000,
+			});
 		}
 	}, [deviceFlow.tokens, hasScrolledToTV, deviceConfig]);
 
@@ -1808,7 +1835,11 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 						block: 'center',
 					});
 					setHasScrolledToTV(true);
-					modernMessaging.showFooterMessage({ type: 'info', message: `👇 Check out your ${deviceConfig.name} display below!`, duration: 3000 });
+					modernMessaging.showFooterMessage({
+						type: 'info',
+						message: `👇 Check out your ${deviceConfig.name} display below!`,
+						duration: 3000,
+					});
 				}
 			}, 20000); // 20 seconds
 
@@ -3053,7 +3084,11 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 							ensureCredentials({ environmentId: extractedEnvId });
 							console.log('[Device Authz V6] Auto-extracted Environment ID:', extractedEnvId);
 							if (extractedEnvId && (deviceFlow.credentials?.clientId || '')) {
-								modernMessaging.showFooterMessage({ type: 'info', message: 'Credentials auto-saved from discovery', duration: 3000 });
+								modernMessaging.showFooterMessage({
+									type: 'info',
+									message: 'Credentials auto-saved from discovery',
+									duration: 3000,
+								});
 							}
 						}
 					}
@@ -3072,13 +3107,21 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 				onEnvironmentIdChange={(newEnvId) => {
 					ensureCredentials({ environmentId: newEnvId });
 					if (newEnvId.trim() && (deviceFlow.credentials?.clientId || '').trim()) {
-						modernMessaging.showFooterMessage({ type: 'info', message: 'Credentials auto-saved', duration: 3000 });
+						modernMessaging.showFooterMessage({
+							type: 'info',
+							message: 'Credentials auto-saved',
+							duration: 3000,
+						});
 					}
 				}}
 				onClientIdChange={(newClientId) => {
 					ensureCredentials({ clientId: newClientId });
 					if ((deviceFlow.credentials?.environmentId || '').trim() && newClientId.trim()) {
-						modernMessaging.showFooterMessage({ type: 'info', message: 'Credentials auto-saved', duration: 3000 });
+						modernMessaging.showFooterMessage({
+							type: 'info',
+							message: 'Credentials auto-saved',
+							duration: 3000,
+						});
 					}
 				}}
 				onClientSecretChange={(newClientSecret) => {
@@ -3091,13 +3134,23 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 						// OIDC MUST include 'openid' scope per OpenID Connect Core 1.0 spec
 						if (!newScopes.includes('openid')) {
 							finalScopes = `openid ${newScopes}`.trim();
-							modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Added "openid" scope (required by OpenID Connect specification)', dismissible: true });
+							modernMessaging.showBanner({
+								type: 'warning',
+								title: 'Warning',
+								message: 'Added "openid" scope (required by OpenID Connect specification)',
+								dismissible: true,
+							});
 						}
 					} else {
 						// PingOne requires 'openid' scope even for OAuth 2.0 flows (non-standard)
 						if (!newScopes.includes('openid')) {
 							finalScopes = `openid ${newScopes}`.trim();
-							modernMessaging.showFooterMessage({ type: 'info', message: 'Added "openid" scope (required by PingOne for all flows, including OAuth 2.0)', duration: 4000 });
+							modernMessaging.showFooterMessage({
+								type: 'info',
+								message:
+									'Added "openid" scope (required by PingOne for all flows, including OAuth 2.0)',
+								duration: 4000,
+							});
 						}
 					}
 
@@ -3143,7 +3196,12 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 						}
 					} catch (error) {
 						console.error('[Device Authz V7] Failed to save credentials:', error);
-						modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save credentials', dismissible: true });
+						modernMessaging.showBanner({
+							type: 'error',
+							title: 'Error',
+							message: 'Failed to save credentials',
+							dismissible: true,
+						});
 					}
 				}}
 				hasUnsavedChanges={false}
@@ -3158,7 +3216,11 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 				onPingOneAppStateChange={setPingOneConfig}
 				onPingOneSave={() => {
 					console.log('[Device Authz V6] PingOne config saved:', pingOneConfig);
-					modernMessaging.showFooterMessage({ type: 'info', message: 'PingOne configuration saved successfully!', duration: 3000 });
+					modernMessaging.showFooterMessage({
+						type: 'info',
+						message: 'PingOne configuration saved successfully!',
+						duration: 3000,
+					});
 				}}
 				hasUnsavedPingOneChanges={false}
 				isSavingPingOne={false}
