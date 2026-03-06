@@ -1,6 +1,6 @@
 # Standardization Handoff — OAuth Playground V9
 
-**Last updated:** March 6, 2026 — HEAD at `965d35fa1`  
+**Last updated:** March 6, 2026 — HEAD at `d73af171d`  
 **Prepared for:** Any programmer picking up this work  
 **Branch:** `main` — **always `git fetch && git status` before starting work**
 
@@ -38,6 +38,7 @@
 | **TS syntax errors (FlowComparison, CIBAvsDeviceAuthz)** | ✅ **DONE** | Removed duplicate component declarations that caused `TS1005 }` expected errors (commit `e44864d`). |
 | **`console.*` → `logger` migration (hooks)** | ✅ **DONE** | 133 violations removed across 16 hook files in `src/hooks/`. `useErrorDiagnosis.ts` exempt (intentionally patches `console.error`). March 6, 2026. |
 | **`console.*` → `logger` migration (auth-path services)** | ✅ **DONE** | 81 violations removed across 7 auth-path service files (commit `965d35fa1`). March 6, 2026. See table below. |
+| **`console.*` → `logger` migration (contexts)** | ✅ **DONE** | 33 violations removed across 3 context files: `NewAuthContext` (29), `UISettingsContext` (4), `NotificationSystem` (1). Commit `d73af171d`. March 6, 2026. |
 
 ---
 
