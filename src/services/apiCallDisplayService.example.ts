@@ -1,5 +1,6 @@
 // Example usage of ApiCallDisplayService
 
+import { logger } from '../utils/logger';
 import { type ApiCallData, ApiCallDisplayService } from './apiCallDisplayService';
 
 // Example API call data
@@ -30,7 +31,7 @@ const apiCall: ApiCallData = {
 
 // 1. Create a full display with curl command
 const fullDisplay = ApiCallDisplayService.createFullDisplay(apiCall);
-console.log(fullDisplay);
+logger.info('ApiCallDisplayService', fullDisplay);
 
 // Output:
 // 🚀 API Call Details
@@ -65,26 +66,26 @@ console.log(fullDisplay);
 
 // 2. Create a compact display for quick reference
 const compactDisplay = ApiCallDisplayService.createCompactDisplay(apiCall);
-console.log(compactDisplay);
+logger.info('ApiCallDisplayService', compactDisplay);
 // Output: POST https://api.pingone.com/v1/environments/{envId}/users → 201 (Duration: 245ms)
 
 // 3. Generate just the curl command
 const curlCommand = ApiCallDisplayService.generateCurlCommand(apiCall);
-console.log(curlCommand);
+logger.info('ApiCallDisplayService', curlCommand);
 
 // 4. Sanitize sensitive data before display
 const sanitizedCall = ApiCallDisplayService.sanitizeApiCall(apiCall);
 const safeDisplay = ApiCallDisplayService.createFullDisplay(sanitizedCall);
-console.log('Sanitized display:');
-console.log(safeDisplay);
+logger.info('ApiCallDisplayService', 'Sanitized display:');
+logger.info('ApiCallDisplayService', safeDisplay);
 // The Authorization header and password field will be replaced with ***REDACTED***
 
 // 5. Validate API call data
 const validation = ApiCallDisplayService.validateApiCall(apiCall);
 if (validation.isValid) {
-	console.log('API call data is valid');
+	logger.info('ApiCallDisplayService', 'API call data is valid');
 } else {
-	console.log('Validation errors:', validation.errors);
+	logger.info('ApiCallDisplayService', 'Validation errors:', { arg0: validation.errors });
 }
 
 // 6. Custom curl options
@@ -93,5 +94,5 @@ const curlWithOptions = ApiCallDisplayService.generateCurlCommand(apiCall, {
 	insecure: true,
 	includeBody: false,
 });
-console.log('cURL with options:', curlWithOptions);
+logger.info('ApiCallDisplayService', 'cURL with options:', { arg0: curlWithOptions });
 // Output: curl -v -k -X POST -H "Authorization: Bearer ..." -H "Content-Type: application/json" "https://api.pingone.com/v1/environments/{envId}/users"
