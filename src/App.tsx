@@ -15,6 +15,7 @@ import CodeExamplesDemo from './components/CodeExamplesDemo';
 import CredentialSetupModal from './components/CredentialSetupModal';
 import { FloatingLogToggle } from './components/FloatingLogToggle';
 import { FloatingLogViewer } from './components/FloatingLogViewer';
+import LoadingFallback from './components/LoadingFallback';
 import { WorkerTokenModal } from './components/WorkerTokenModal';
 import { BackendDownModalV8 } from './v8/components/BackendDownModalV8';
 import { ConfirmationModalV8 } from './v8/components/ConfirmationModalV8';
@@ -22,10 +23,40 @@ import { PromptModalV8 } from './v8/components/PromptModalV8';
 
 const CompactAppPickerDemo = lazy(() => import('./pages/CompactAppPickerDemo'));
 
+// Lazy load heavy documentation pages
+const AIAgentOverview = lazy(() => import('./pages/AIAgentOverview'));
+const AIGlossary = lazy(() => import('./pages/AIGlossary'));
+const ComprehensiveOAuthEducation = lazy(() => import('./pages/ComprehensiveOAuthEducation'));
+const CompetitiveAnalysis = lazy(() => import('./pages/CompetitiveAnalysis'));
+const AdvancedSecuritySettingsComparison = lazy(() => import('./pages/AdvancedSecuritySettingsComparison'));
+const AdvancedSecuritySettingsDemo = lazy(() => import('./pages/AdvancedSecuritySettingsDemo'));
+
+// Lazy load heavy flow pages
+const MFAFlow = lazy(() => import('./pages/flows/MFAFlow'));
+const CIBAFlowV9 = lazy(() => import('./pages/flows/CIBAFlowV9'));
+const DPoPFlow = lazy(() => import('./pages/flows/DPoPFlow'));
+const IDTokensFlow = lazy(() => import('./pages/flows/IDTokensFlow'));
+const JWTBearerFlow = lazy(() => import('./pages/flows/JWTBearerFlow'));
+const KrogerGroceryStoreMFA = lazy(() => import('./pages/flows/KrogerGroceryStoreMFA'));
+const OIDCCompliantAuthorizationCodeFlow = lazy(() => import('./pages/flows/OIDCCompliantAuthorizationCodeFlow'));
+const PARFlow = lazy(() => import('./pages/flows/PARFlow'));
+const PingOneLogoutFlow = lazy(() => import('./pages/flows/PingOneLogoutFlow'));
+
+// Lazy load heavy tool pages
+const ApplicationGenerator = lazy(() => import('./pages/ApplicationGenerator'));
+const ClientGenerator = lazy(() => import('./pages/ClientGenerator'));
+const FlowComparisonTool = lazy(() => import('./components/FlowComparisonTool'));
+const InteractiveFlowDiagram = lazy(() => import('./components/InteractiveFlowDiagram'));
+const AutoDiscover = lazy(() => import('./pages/AutoDiscover'));
+
+// Lazy load AI and advanced pages
+const AIIdentityArchitectures = lazy(() => import('./pages/AIIdentityArchitectures'));
+const OAuthCodeGeneratorHub = lazy(() => import('./pages/OAuthCodeGeneratorHub'));
+const OAuthFlowsNew = lazy(() => import('./pages/OAuthFlowsNew'));
+
+// Keep critical components eagerly loaded
 import DeviceMockFlow from './components/DeviceMockFlow';
-import FlowComparisonTool from './components/FlowComparisonTool';
 import FlowHeaderDemo from './components/FlowHeaderDemo';
-import InteractiveFlowDiagram from './components/InteractiveFlowDiagram';
 import Navbar from './components/Navbar';
 import { RouteRestorer } from './components/RouteRestorer';
 import Sidebar from './components/Sidebar';
@@ -38,15 +69,10 @@ import {
 import { useAuth } from './contexts/NewAuthContext';
 import { NotificationContainer, NotificationProvider } from './hooks/useNotifications';
 import { usePromptsShortcut } from './hooks/usePromptsShortcut';
-import AIIdentityArchitectures from './pages/AIIdentityArchitectures';
-import ApplicationGenerator from './pages/ApplicationGenerator';
 import Callback from './pages/Callback';
-import ClientGenerator from './pages/ClientGenerator';
 import Configuration from './pages/Configuration';
 import Documentation from './pages/Documentation';
 import Login from './pages/Login';
-import OAuthCodeGeneratorHub from './pages/OAuthCodeGeneratorHub';
-import OAuthFlowsNew from './pages/OAuthFlowsNew';
 import { ApiRequestModalProvider } from './services/apiRequestModalService';
 import {
 	AuthorizationUrlValidationModal,
@@ -92,14 +118,7 @@ import ServerStatusProvider from './components/ServerStatusProvider';
 import { StartupWrapper } from './components/StartupWrapper';
 import About from './pages/About';
 import AdvancedConfiguration from './pages/AdvancedConfiguration';
-import AdvancedSecuritySettingsComparison from './pages/AdvancedSecuritySettingsComparison';
-import AdvancedSecuritySettingsDemo from './pages/AdvancedSecuritySettingsDemo';
-import AIAgentOverview from './pages/AIAgentOverview';
-import AIGlossary from './pages/AIGlossary';
-import AutoDiscover from './pages/AutoDiscover';
 import CIBAvsDeviceAuthz from './pages/CIBAvsDeviceAuthz';
-import CompetitiveAnalysis from './pages/CompetitiveAnalysis';
-import ComprehensiveOAuthEducation from './pages/ComprehensiveOAuthEducation';
 import { CredentialManagement } from './pages/CredentialManagement';
 import CustomDomainTestPage from './pages/CustomDomainTestPage';
 import Dashboard from './pages/Dashboard';
@@ -123,16 +142,8 @@ import PromptAll from './pages/docs/prompts/PromptAll';
 import SpiffeSpirePingOne from './pages/docs/SpiffeSpirePingOne.tsx';
 import EnvironmentIdInputDemo from './pages/EnvironmentIdInputDemo';
 import AdvancedOAuthParametersDemoFlow from './pages/flows/AdvancedOAuthParametersDemoFlow';
-import CIBAFlowV9 from './pages/flows/CIBAFlowV9';
 // ClientCredentialsFlowV7 archived — route redirects to v9
 // DeviceAuthorizationFlowV7 archived — route redirects to v9
-import DPoPFlow from './pages/flows/DPoPFlow';
-import IDTokensFlow from './pages/flows/IDTokensFlow';
-// ImplicitFlowV7 archived — route redirects to v9
-// JWTBearerTokenFlowV7 archived — route redirects to v9
-import JWTBearerFlow from './pages/flows/JWTBearerFlow';
-import KrogerGroceryStoreMFA from './pages/flows/KrogerGroceryStoreMFA';
-import MFAFlow from './pages/flows/MFAFlow';
 import OAuth2CompliantAuthorizationCodeFlow from './pages/flows/OAuth2CompliantAuthorizationCodeFlow';
 import OAuth2ResourceOwnerPasswordFlow from './pages/flows/OAuth2ResourceOwnerPasswordFlow';
 // OAuthAuthorizationCodeFlowV7 archived — route redirects to v9
@@ -141,11 +152,6 @@ import OAuthImplicitFlowCompletion from './pages/flows/OAuthImplicitFlowCompleti
 // OAuthROPCFlowV7 archived — route redirects to v9
 // OIDCHybridFlowV7 archived — route redirects to v9
 // PARFlowV7 archived — route redirects to pingone-par-v9
-import OIDCCompliantAuthorizationCodeFlow from './pages/flows/OIDCCompliantAuthorizationCodeFlow';
-import PARFlow from './pages/flows/PARFlow';
-import PingOneLogoutFlow from './pages/flows/PingOneLogoutFlow';
-// RARFlowV7 archived — route redirects to v9
-// SAMLBearerAssertionFlowV7 archived — route redirects to v9
 import RedirectlessFlowV9_Real from './pages/flows/RedirectlessFlowV9_Real';
 import SAMLServiceProviderFlowV1 from './pages/flows/SAMLServiceProviderFlowV1';
 import TokenRevocationFlow from './pages/flows/TokenRevocationFlow';
@@ -632,9 +638,9 @@ const AppRoutes: React.FC = () => {
 								<Route path="/" element={<Navigate to="/dashboard" replace />} />
 								<Route path="/dashboard" element={<Dashboard />} />
 								<Route path="/flows" element={<OAuthFlowsNew />}>
-									<Route path="compare" element={<FlowComparisonTool />} />
-									<Route path="diagrams" element={<InteractiveFlowDiagram />} />
-									<Route path="mfa" element={<MFAFlow />} />
+									<Route path="compare" element={<Suspense fallback={<LoadingFallback message="Loading Flow Comparison..." />}><FlowComparisonTool /></Suspense>} />
+									<Route path="diagrams" element={<Suspense fallback={<LoadingFallback message="Loading Interactive Diagram..." />}><InteractiveFlowDiagram /></Suspense>} />
+									<Route path="mfa" element={<Suspense fallback={<LoadingFallback message="Loading MFA Flow..." />}><MFAFlow /></Suspense>} />
 								</Route>
 								{/* Tools & Utilities Routes */}
 								<Route path="/sdk-sample-app" element={<SDKSampleApp />} />
@@ -1293,7 +1299,7 @@ const AppRoutes: React.FC = () => {
 								{/* V9 ROPC Flow */}
 								<Route path="/flows/oauth-ropc-v9" element={<OAuthROPCFlowV9 />} />
 								{/* Test MFA Flow */}
-								<Route path="/mfa-test" element={<MFAFlow />} />
+								<Route path="/mfa-test" element={<Suspense fallback={<LoadingFallback message="Loading MFA Test..." />}><MFAFlow /></Suspense>} />
 								{/* Legacy /oidc routes - Keep utility pages and unsupported flows */}
 								<Route path="/oidc" element={<OIDC />}>
 									<Route path="userinfo" element={<UserInfoFlow />} />
@@ -1369,12 +1375,12 @@ const AppRoutes: React.FC = () => {
 								/>
 								<Route path="/device-mock-flow" element={<DeviceMockFlow />} />
 								<Route path="/documentation/oidc-overview" element={<OIDCOverview />} />
-								<Route path="/ai-glossary" element={<AIGlossary />} />
-								<Route path="/ai-agent-overview" element={<AIAgentOverview />} />
-								<Route path="/competitive-analysis" element={<CompetitiveAnalysis />} />
+								<Route path="/ai-glossary" element={<Suspense fallback={<LoadingFallback message="Loading AI Glossary..." />}><AIGlossary /></Suspense>} />
+								<Route path="/ai-agent-overview" element={<Suspense fallback={<LoadingFallback message="Loading AI Agent Overview..." />}><AIAgentOverview /></Suspense>} />
+								<Route path="/competitive-analysis" element={<Suspense fallback={<LoadingFallback message="Loading Competitive Analysis..." />}><CompetitiveAnalysis /></Suspense>} />
 								<Route
 									path="/comprehensive-oauth-education"
-									element={<ComprehensiveOAuthEducation />}
+									element={<Suspense fallback={<LoadingFallback message="Loading OAuth Education..." />}><ComprehensiveOAuthEducation /></Suspense>}
 								/>
 								{/* Protect Portal Application */}
 								<Route path="/protect-portal" element={<ProtectPortalWrapper />} />
