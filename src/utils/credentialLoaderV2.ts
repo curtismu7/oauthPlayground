@@ -3,6 +3,7 @@
 
 import type { StepCredentials } from '../components/steps/CommonSteps';
 import { credentialStorageManager } from '../services/credentialStorageManager';
+import { logger } from './logger';
 
 /**
  * Load credentials for a specific flow using the new isolated storage system
@@ -55,7 +56,7 @@ export async function saveFlowCredentialsV2(
 		return true;
 	}
 
-	console.error(`❌ Failed to save credentials:`, result.error);
+	logger.error('CredentialLoader', 'Failed to save credentials:', { error: result.error });
 	return false;
 }
 

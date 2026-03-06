@@ -7,6 +7,7 @@
 
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { backendConnectivityService } from '@/v8/services/backendConnectivityServiceV8';
+import { logger } from './logger';
 
 const DEFAULT_RETRY_STATUSES = new Set([408, 409, 425, 429, 500, 502, 503, 504]);
 
@@ -81,7 +82,12 @@ const fetchBackendCallsById = async (callId: string) => {
 			!errorMessage.includes('ERR_CONNECTION_REFUSED') &&
 			!errorMessage.includes('Failed to fetch')
 		) {
-			console.warn('[pingOneFetch] Failed to fetch backend call metadata', error);
+			logger.warn(
+				'PingOneFetch',
+				'Failed to fetch backend call metadata',
+				undefined,
+				error as Error
+			);
 		}
 		return null;
 	}
@@ -156,7 +162,12 @@ const logBackendPingOneCalls = async (response: Response) => {
 			processBackendCalls(decoded);
 			return;
 		} catch (error) {
-			console.warn('[pingOneFetch] Failed to parse inline backend call metadata', error);
+			logger.warn(
+				'PingOneFetch',
+				'Failed to parse inline backend call metadata',
+				undefined,
+				error as Error
+			);
 		}
 	}
 	const callId = response.headers.get('x-pingone-calls-id');
@@ -294,7 +305,12 @@ export async function pingOneFetch(
 				if (!backendConnectivityService.shouldShowModal()) {
 					// Only log first few failures before modal shows
 					if (backendConnectivityService.getState().consecutiveFailures === 1) {
-						console.warn('[pingOneFetch] Backend connection issue detected:', error);
+						logger.warn(
+							'PingOneFetch',
+							'Backend connection issue detected:',
+							undefined,
+							error as Error
+						);
 					}
 				}
 			}

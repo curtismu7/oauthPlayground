@@ -1,3 +1,5 @@
+import { logger } from './logger';
+
 // Browser-compatible base64 encoding/decoding
 const _base64Encode = (str: string): string => {
 	return btoa(unescape(encodeURIComponent(str)));
@@ -72,7 +74,7 @@ export const decodeJwt = (token: string | null | undefined): JwtPayload | null =
 
 		return JSON.parse(decoded);
 	} catch (error) {
-		console.error('Error decoding JWT:', error);
+		logger.error('JWT', 'Error decoding JWT:', undefined, error as Error);
 		return null;
 	}
 };
@@ -149,7 +151,7 @@ export const formatJwt = (token: string | null | undefined): FormattedJwt | null
 			signature,
 		};
 	} catch (error) {
-		console.error('Error formatting JWT:', error);
+		logger.error('JWT', 'Error formatting JWT:', undefined, error as Error);
 		return {
 			raw: token,
 			header: 'Invalid token',

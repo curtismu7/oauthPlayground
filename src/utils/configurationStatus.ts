@@ -2,6 +2,7 @@
 
 import { UnifiedTokenStorageService } from '../services/unifiedTokenStorageService';
 import { credentialManager } from './credentialManager';
+import { logger } from './logger';
 
 /**
  * Centralized configuration status logic
@@ -74,7 +75,12 @@ export const checkSavedCredentialsAsync = async (): Promise<boolean> => {
 
 		return false;
 	} catch (error) {
-		console.error('Error checking saved credentials:', error);
+		logger.error(
+			'ConfigurationStatus',
+			'Error checking saved credentials:',
+			undefined,
+			error as Error
+		);
 		return false;
 	}
 };
@@ -124,7 +130,12 @@ export const checkSavedCredentials = (): boolean => {
 		// Tokens can exist without proper environment configuration
 		return false;
 	} catch (error) {
-		console.error('Error checking saved credentials:', error);
+		logger.error(
+			'ConfigurationStatus',
+			'Error checking saved credentials:',
+			undefined,
+			error as Error
+		);
 		return false;
 	}
 };
@@ -174,7 +185,7 @@ export const getSharedConfigurationStatusAsync = async (
 			missingItems.push('Redirect URI');
 		}
 	} catch (error) {
-		console.error('Error checking missing items:', error);
+		logger.error('ConfigurationStatus', 'Error checking missing items:', undefined, error as Error);
 		missingItems.push('Configuration check failed');
 	}
 
@@ -231,7 +242,7 @@ export const getSharedConfigurationStatus = (flowType?: string): ConfigStatus =>
 			missingItems.push('Redirect URI');
 		}
 	} catch (error) {
-		console.error('Error checking missing items:', error);
+		logger.error('ConfigurationStatus', 'Error checking missing items:', undefined, error as Error);
 		missingItems.push('Configuration check failed');
 	}
 
