@@ -12,6 +12,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
 import { useAnalytics } from '../hooks/useAnalytics';
+import { logger } from '../utils/logger';
 
 // Styled components
 const DashboardContainer = styled.div`
@@ -355,7 +356,7 @@ export const AnalyticsDashboard: React.FC = () => {
 				announceToScreenReader('Analytics data refreshed successfully');
 			}, 1000);
 		} catch (error) {
-			console.error('Failed to refresh analytics:', error);
+			logger.error('AnalyticsDashboard', 'Failed to refresh analytics:', undefined, error as Error);
 			setIsRefreshing(false);
 			announceToScreenReader('Failed to refresh analytics data');
 		}

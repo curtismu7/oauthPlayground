@@ -2,6 +2,7 @@ import { FiCheck, FiCode, FiCopy, FiDownload, FiMoon, FiRefreshCw, FiSun } from 
 import Editor from '@monaco-editor/react';
 import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../utils/logger';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import ConfirmationModal from './ConfirmationModal';
 
@@ -598,7 +599,7 @@ export const InteractiveCodeEditor: React.FC<InteractiveCodeEditorProps> = ({
 			setTimeout(() => setCopied(false), 2000);
 			v4ToastManager.showSuccess('Code copied to clipboard!');
 		} catch (err) {
-			console.error('Failed to copy:', err);
+			logger.error('InteractiveCodeEditor', 'Failed to copy:', undefined, err as Error);
 			v4ToastManager.showError('Failed to copy code to clipboard');
 		}
 	};
@@ -639,7 +640,7 @@ export const InteractiveCodeEditor: React.FC<InteractiveCodeEditorProps> = ({
 			URL.revokeObjectURL(url);
 			v4ToastManager.showSuccess(`Downloaded ${filename}`);
 		} catch (err) {
-			console.error('Failed to download:', err);
+			logger.error('InteractiveCodeEditor', 'Failed to download:', undefined, err as Error);
 			v4ToastManager.showError('Failed to download file');
 		}
 	};

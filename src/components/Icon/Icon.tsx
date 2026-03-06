@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { logger } from '../../utils/logger';
 
 type IconSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 type IconTone = 'default' | 'muted' | 'danger' | 'success' | 'warning' | 'info';
@@ -50,7 +51,7 @@ export function Icon({
 	if (!decorative && !label && process.env.NODE_ENV !== 'production') {
 		// Fail fast in dev
 
-		console.error(`Icon("${name}") requires 'label' when decorative={false}`);
+		logger.error('Icon', `Icon("${name}") requires 'label' when decorative={false}`);
 	}
 
 	const classes = ['mdi', `mdi-${name}`, toneToClass[tone], className].filter(Boolean).join(' ');

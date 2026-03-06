@@ -9,6 +9,7 @@ import {
 	CodeExamplesService,
 	SupportedLanguage,
 } from '../services/codeExamplesService';
+import { logger } from '../utils/logger';
 import VSCodeCodeDisplay from './VSCodeCodeDisplay';
 
 interface CodeExamplesInlineProps {
@@ -207,7 +208,7 @@ export const CodeExamplesInline: React.FC<CodeExamplesInlineProps> = ({
 			setCopiedCode(code);
 			setTimeout(() => setCopiedCode(null), 2000);
 		} catch (err) {
-			console.error('Failed to copy code:', err);
+			logger.error('CodeExamplesInline', 'Failed to copy code:', undefined, err as Error);
 		}
 	};
 

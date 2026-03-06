@@ -8,6 +8,7 @@ import { FiAlertCircle, FiInfo, FiKey, FiRefreshCw, FiShield } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { type DPoPConfig, DPoPService, DPoPStatus } from '../services/dpopService';
+import { logger } from '../utils/logger';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
 export interface DPoPConfigurationProps {
@@ -223,7 +224,12 @@ const DPoPConfiguration: React.FC<DPoPConfigurationProps> = ({
 			refreshStatus();
 			v4ToastManager.showSuccess('DPoP key pair generated successfully');
 		} catch (error) {
-			console.error('Failed to generate DPoP key pair:', error);
+			logger.error(
+				'DPoPConfiguration',
+				'Failed to generate DPoP key pair:',
+				undefined,
+				error as Error
+			);
 			v4ToastManager.showError('Failed to generate DPoP key pair');
 		} finally {
 			setIsGenerating(false);

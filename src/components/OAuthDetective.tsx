@@ -7,6 +7,7 @@
 import { FiCheckCircle, FiCopy, FiInfo, FiSearch } from '@icons';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../utils/logger';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
 const DetectiveContainer = styled.div`
@@ -501,7 +502,12 @@ const OAuthDetective: React.FC = () => {
 
 			v4ToastManager.showSuccess(`Analyzed ${parameters.length} parameters from ${provider}`);
 		} catch (error) {
-			console.error('[OAuth Detective] Error analyzing URL:', error);
+			logger.error(
+				'OAuthDetective',
+				'[OAuth Detective] Error analyzing URL:',
+				undefined,
+				error as Error
+			);
 			v4ToastManager.showError('Invalid URL. Please paste a complete OAuth authorization URL.');
 		} finally {
 			setIsAnalyzing(false);

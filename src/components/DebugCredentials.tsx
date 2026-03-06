@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { credentialManager } from '../utils/credentialManager';
+import { logger } from '../utils/logger';
 
 const DebugContainer = styled.div`
   background: #f8f9fa;
@@ -98,7 +99,12 @@ const DebugCredentials: React.FC = () => {
 				console.log(' [DebugCredentials] Debug info created:', info);
 				setDebugInfo(info);
 			} catch (error) {
-				console.error(' [DebugCredentials] Error updating debug info:', error);
+				logger.error(
+					'DebugCredentials',
+					' [DebugCredentials] Error updating debug info:',
+					undefined,
+					error as Error
+				);
 				setDebugInfo({
 					allLocalStorageKeys: ['Error loading'],
 					pingoneKeys: [],
