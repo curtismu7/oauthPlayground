@@ -15,6 +15,7 @@
 
 import type { FlowType, SpecVersion } from '@/v8/services/specVersionServiceV8';
 import type { UnifiedFlowCredentials } from './unifiedFlowIntegrationV8U';
+import { logger } from '../../utils/logger';
 
 const MODULE_TAG = '[📊 UNIFIED-FLOW-LOGGER-V8U]';
 
@@ -188,10 +189,10 @@ export class UnifiedFlowLoggerService {
 				console.log(formattedMessage, logData || '');
 				break;
 			case 'warn':
-				console.warn(formattedMessage, logData || '');
+				logger.warn('UnifiedFlowLoggerServiceV8U', formattedMessage);
 				break;
 			case 'error':
-				console.error(formattedMessage, logData || '');
+				logger.error('UnifiedFlowLoggerServiceV8U', formattedMessage, undefined, logData || '');
 				break;
 			case 'success':
 				console.log(formattedMessage, logData || '');
