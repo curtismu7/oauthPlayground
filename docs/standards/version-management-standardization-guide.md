@@ -353,6 +353,9 @@ console.log('Version metadata:', VERSION_METADATA);
 - [V9 Modern Messaging Migration Guide](./v9-modern-messaging-migration-guide.md)
 - [Ping UI Standardization Guide](./ping-ui-standardization-guide.md)
 - [Dead File Archiving Guide](./dead-file-archiving-guide.md)
+- [Logging Implementation Plan](./logging-implementation-plan.md)
+- [Messaging System Standardization](./messaging-system-standardization.md)
+- [Messaging Implementation Guide](./messaging-implementation-guide.md)
 
 ## 🎯 Best Practices
 

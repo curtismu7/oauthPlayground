@@ -19,7 +19,8 @@ export type VersionBadgeType =
   | 'legacy'    // Legacy applications
   | 'production' // Production-ready applications
   | 'new'       // Newly created applications
-  | 'migrated'  // Recently migrated applications;
+  | 'migrated'  // Recently migrated applications
+  | 'updated'   // Updated with latest standards;
 
 export interface VersionBadgeConfig {
   type: VersionBadgeType;
@@ -83,6 +84,12 @@ const VERSION_BADGE_CONFIG = {
     label: 'MIGRATED',
     description: 'Recently Migrated',
   },
+  updated: {
+    color: '#10b981',      // Green - updated with latest standards
+    bgColor: 'rgba(16, 185, 129, 0.9)',
+    label: '✓ UPDATED',
+    description: 'Updated with Latest Standards',
+  },
 } as const;
 
 /**
@@ -94,6 +101,7 @@ export const getVersionForType = (type: VersionBadgeType): string => {
     case 'production':
     case 'new':
     case 'migrated':
+    case 'updated':
       return VERSION_METADATA.app;
     case 'v8':
       return VERSION_METADATA.mfaV8;
@@ -192,6 +200,17 @@ export const applyLegacyBadge = (item: SidebarMenuItem): VersionedMenuItem => {
   return addVersionBadge(item, {
     type: 'legacy',
     showVersion: false,
+    showBadge: true,
+  });
+};
+
+/**
+ * Apply updated badge to apps with latest standards
+ */
+export const applyUpdatedBadge = (item: SidebarMenuItem): VersionedMenuItem => {
+  return addVersionBadge(item, {
+    type: 'updated',
+    showVersion: true,
     showBadge: true,
   });
 };

@@ -613,6 +613,9 @@ const debugMessageState = () => {
 - 🔧 [Adapter Pattern Progress](./adapter-pattern-implementation-progress.md)
 - 🧪 [Testing Examples](../testing/)
 - 💬 [Team Chat] - Ask questions in development channel
+- 📋 [Logging Implementation Plan](./logging-implementation-plan.md)
+- 🌟 [Gold Star Migration Indicator Guide](./gold-star-migration-indicator-guide.md)
+- 📦 [Version Management Standardization Guide](./version-management-standardization-guide.md)
 
 ---
 
