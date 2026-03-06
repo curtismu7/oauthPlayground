@@ -27,7 +27,7 @@ import { FlowHeader } from '../../../services/flowHeaderService';
 import { FlowUIService } from '../../../services/flowUIService';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
-import { toastV8 } from '../../../v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 import { getAnyWorkerToken } from '../../../utils/workerTokenDetection';
 
@@ -155,7 +155,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 			{ ...credentials } as Record<string, string>,
 			credentials.environmentId ? { environmentId: credentials.environmentId } : {}
 		);
-		toastV8.success('Credentials saved successfully!');
+		modernMessaging.showFooterMessage({ type: 'info', message: 'Credentials saved successfully!', duration: 3000 });
 	}, [credentials]);
 
 	// Flow-specific state
@@ -178,7 +178,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 	// Fetch existing MFA devices for user
 	const handleFetchExistingDevices = useCallback(async () => {
 		if (!credentials.environmentId || !userId || !workerToken) {
-			toastV8.error('Please provide Environment ID, User ID, and Worker Token');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please provide Environment ID, User ID, and Worker Token', dismissible: true });
 			return;
 		}
 		setIsLoadingDevices(true);
@@ -194,9 +194,9 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 				);
 				setExistingDevices(smsDevices);
 				if (smsDevices.length > 0) {
-					toastV8.success(`Found ${smsDevices.length} SMS device(s)`);
+					modernMessaging.showFooterMessage({ type: 'info', message: `Found ${smsDevices.length} SMS device(s)`, duration: 3000 });
 				} else {
-					toastV8.info('No SMS devices found. You can register a new one.');
+					modernMessaging.showFooterMessage({ type: 'info', message: 'No SMS devices found. You can register a new one.', duration: 3000 });
 				}
 			} else {
 				setExistingDevices([]);
@@ -223,7 +223,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 			if (device) {
 				setDeviceId(device.id);
 				setApiResponses((prev) => ({ ...prev, 11: device as unknown as ApiResponse }));
-				toastV8.success('Device selected successfully');
+				modernMessaging.showFooterMessage({ type: 'info', message: 'Device selected successfully', duration: 3000 });
 				setCurrentStep(1);
 			}
 		},
@@ -233,11 +233,11 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 	// Step 11a: Register Mobile Phone
 	const handleRegisterMobilePhone = useCallback(async () => {
 		if (!credentials.environmentId || !userId || !phoneNumber) {
-			toastV8.error('Please provide Environment ID, User ID, and Phone Number');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please provide Environment ID, User ID, and Phone Number', dismissible: true });
 			return;
 		}
 		if (!workerToken) {
-			toastV8.error('Worker token is required for device registration');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Worker token is required for device registration', dismissible: true });
 			return;
 		}
 		setIsLoading(true);
@@ -254,13 +254,13 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 			if (response.ok && data.id) {
 				setDeviceId(data.id);
 				setApiResponses((prev) => ({ ...prev, 11: data }));
-				toastV8.success('Mobile phone registered successfully');
+				modernMessaging.showFooterMessage({ type: 'info', message: 'Mobile phone registered successfully', duration: 3000 });
 				setCurrentStep(1);
 			} else {
 				throw new Error(data.error_description || data.error || 'Failed to register mobile phone');
 			}
 		} catch (err) {
-			toastV8.error(err instanceof Error ? err.message : 'Failed to register mobile phone');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: err instanceof Error ? err.message : 'Failed to register mobile phone', dismissible: true });
 		} finally {
 			setIsLoading(false);
 		}
@@ -269,11 +269,11 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 	// Step 11b: Enable User MFA
 	const handleEnableUserMFA = useCallback(async () => {
 		if (!credentials.environmentId || !userId || !deviceId) {
-			toastV8.error('Please provide Environment ID, User ID, and Device ID');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please provide Environment ID, User ID, and Device ID', dismissible: true });
 			return;
 		}
 		if (!workerToken) {
-			toastV8.error('Worker token is required to enable MFA device');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Worker token is required to enable MFA device', dismissible: true });
 			return;
 		}
 		setIsLoading(true);
@@ -293,7 +293,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 					const dataObj = (data as Record<string, unknown>) || {};
 					return { ...prev, 11: { ...prev11, enabled: true, ...dataObj } as ApiResponse };
 				});
-				toastV8.success('MFA device enabled successfully');
+				modernMessaging.showFooterMessage({ type: 'info', message: 'MFA device enabled successfully', duration: 3000 });
 				setCurrentStep(2);
 			} else {
 				const errData = (data as Record<string, unknown>) || {};
@@ -304,7 +304,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 				);
 			}
 		} catch (err) {
-			toastV8.error(err instanceof Error ? err.message : 'Failed to enable MFA device');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: err instanceof Error ? err.message : 'Failed to enable MFA device', dismissible: true });
 		} finally {
 			setIsLoading(false);
 		}
@@ -313,7 +313,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 	// Step 12: Send Authorize Request
 	const handleSendAuthorizeRequest = useCallback(async () => {
 		if (!credentials.environmentId || !credentials.clientId) {
-			toastV8.error('Please configure credentials first');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please configure credentials first', dismissible: true });
 			return;
 		}
 		setIsLoading(true);
@@ -335,13 +335,13 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 			if (response.ok && data.flowId) {
 				setFlowId(data.flowId);
 				setApiResponses((prev) => ({ ...prev, 12: data }));
-				toastV8.success('Authorization request sent successfully');
+				modernMessaging.showFooterMessage({ type: 'info', message: 'Authorization request sent successfully', duration: 3000 });
 				setCurrentStep(3);
 			} else {
 				throw new Error(data.error_description || data.error || 'Failed to send authorize request');
 			}
 		} catch (err) {
-			toastV8.error(err instanceof Error ? err.message : 'Failed to send authorize request');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: err instanceof Error ? err.message : 'Failed to send authorize request', dismissible: true });
 		} finally {
 			setIsLoading(false);
 		}
@@ -350,7 +350,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 	// Step 13: Get the Flow
 	const handleGetFlow = useCallback(async () => {
 		if (!flowId || !credentials.environmentId) {
-			toastV8.error('Flow ID is required');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Flow ID is required', dismissible: true });
 			return;
 		}
 		setIsLoading(true);
@@ -362,13 +362,13 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 			const data = await response.json();
 			if (response.ok) {
 				setApiResponses((prev) => ({ ...prev, 13: data }));
-				toastV8.success('Flow retrieved successfully');
+				modernMessaging.showFooterMessage({ type: 'info', message: 'Flow retrieved successfully', duration: 3000 });
 				setCurrentStep(4);
 			} else {
 				throw new Error(data.error_description || data.error || 'Failed to get flow');
 			}
 		} catch (err) {
-			toastV8.error(err instanceof Error ? err.message : 'Failed to get flow');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: err instanceof Error ? err.message : 'Failed to get flow', dismissible: true });
 		} finally {
 			setIsLoading(false);
 		}
@@ -377,7 +377,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 	// Step 14: Submit Login Credentials
 	const handleSubmitLoginCredentials = useCallback(async () => {
 		if (!flowId || !credentials.environmentId) {
-			toastV8.error('Flow ID is required');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Flow ID is required', dismissible: true });
 			return;
 		}
 		setIsLoading(true);
@@ -394,7 +394,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 			const data = await response.json();
 			if (response.ok) {
 				setApiResponses((prev) => ({ ...prev, 14: data }));
-				toastV8.success('Login credentials submitted successfully');
+				modernMessaging.showFooterMessage({ type: 'info', message: 'Login credentials submitted successfully', duration: 3000 });
 				setCurrentStep(5);
 			} else {
 				throw new Error(
@@ -402,7 +402,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 				);
 			}
 		} catch (err) {
-			toastV8.error(err instanceof Error ? err.message : 'Failed to submit login credentials');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: err instanceof Error ? err.message : 'Failed to submit login credentials', dismissible: true });
 		} finally {
 			setIsLoading(false);
 		}
@@ -411,7 +411,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 	// Step 15: Submit MFA Credentials
 	const handleSubmitMFACredentials = useCallback(async () => {
 		if (!flowId || !credentials.environmentId) {
-			toastV8.error('Flow ID is required');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Flow ID is required', dismissible: true });
 			return;
 		}
 		setIsLoading(true);
@@ -424,13 +424,13 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 			const data = await response.json();
 			if (response.ok) {
 				setApiResponses((prev) => ({ ...prev, 15: data }));
-				toastV8.success('MFA credentials submitted successfully');
+				modernMessaging.showFooterMessage({ type: 'info', message: 'MFA credentials submitted successfully', duration: 3000 });
 				setCurrentStep(6);
 			} else {
 				throw new Error(data.error_description || data.error || 'Failed to submit MFA credentials');
 			}
 		} catch (err) {
-			toastV8.error(err instanceof Error ? err.message : 'Failed to submit MFA credentials');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: err instanceof Error ? err.message : 'Failed to submit MFA credentials', dismissible: true });
 		} finally {
 			setIsLoading(false);
 		}
@@ -439,7 +439,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 	// Step 16: Call Resume Endpoint
 	const handleCallResumeEndpoint = useCallback(async () => {
 		if (!flowId || !credentials.environmentId) {
-			toastV8.error('Flow ID is required');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Flow ID is required', dismissible: true });
 			return;
 		}
 		setIsLoading(true);
@@ -452,13 +452,13 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 			if (response.ok && data.code) {
 				setAuthorizationCode(data.code);
 				setApiResponses((prev) => ({ ...prev, 16: data }));
-				toastV8.success('Authorization code received successfully');
+				modernMessaging.showFooterMessage({ type: 'info', message: 'Authorization code received successfully', duration: 3000 });
 				setCurrentStep(7);
 			} else {
 				throw new Error(data.error_description || data.error || 'Failed to get authorization code');
 			}
 		} catch (err) {
-			toastV8.error(err instanceof Error ? err.message : 'Failed to call resume endpoint');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: err instanceof Error ? err.message : 'Failed to call resume endpoint', dismissible: true });
 		} finally {
 			setIsLoading(false);
 		}
@@ -467,7 +467,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 	// Step 17: Generate Access Token
 	const handleGenerateAccessToken = useCallback(async () => {
 		if (!authorizationCode || !credentials.environmentId || !credentials.clientId) {
-			toastV8.error('Authorization code and credentials are required');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Authorization code and credentials are required', dismissible: true });
 			return;
 		}
 		setIsLoading(true);
@@ -488,13 +488,13 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 			if (response.ok && data.access_token) {
 				setTokens(data);
 				setApiResponses((prev) => ({ ...prev, 17: data }));
-				toastV8.success('Access token generated successfully');
+				modernMessaging.showFooterMessage({ type: 'info', message: 'Access token generated successfully', duration: 3000 });
 				setCurrentStep(8);
 			} else {
 				throw new Error(data.error_description || data.error || 'Failed to generate access token');
 			}
 		} catch (err) {
-			toastV8.error(err instanceof Error ? err.message : 'Failed to generate access token');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: err instanceof Error ? err.message : 'Failed to generate access token', dismissible: true });
 		} finally {
 			setIsLoading(false);
 		}
@@ -516,7 +516,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 		setExistingDevices([]);
 		setSelectedExistingDeviceId('');
 		setDeviceSelectionMode('select');
-		toastV8.success('Flow reset successfully');
+		modernMessaging.showFooterMessage({ type: 'info', message: 'Flow reset successfully', duration: 3000 });
 	}, []);
 
 	// Step validation

@@ -9,7 +9,7 @@ import React, { useEffect } from 'react';
 import { CollapsibleSectionV8 } from '@/v8/components/shared/CollapsibleSectionV8';
 import { SuccessMessage } from '@/v8/components/shared/MessageBoxV8';
 import { useMFALoadingStateManager } from '@/v8/utils/loadingStateManagerV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { MFADeviceSelector } from '../components/MFADeviceSelector';
 import type { MFACredentials, MFAState } from '../shared/MFATypes';
 
@@ -160,19 +160,19 @@ export const SMSDeviceSelectionStep: React.FC<SMSDeviceSelectionStepProps> = ({
 					case 'COMPLETED':
 						nav.markStepComplete();
 						nav.goToStep(3);
-						toastV8.success('Authentication successful!');
+						modernMessaging.showFooterMessage({ type: 'info', message: 'Authentication successful!', duration: 3000 });
 						break;
 					case 'OTP_REQUIRED':
 						updateOtpState({ otpSent: true, sendRetryCount: 0, sendError: null });
 						nav.markStepComplete();
 						nav.goToStep(3);
-						toastV8.success('OTP sent to your phone. Proceed to validate the code.');
+						modernMessaging.showFooterMessage({ type: 'info', message: 'OTP sent to your phone. Proceed to validate the code.', duration: 3000 });
 						break;
 					case 'SELECTION_REQUIRED':
 						nav.setValidationErrors([
 							'Multiple devices require selection. Please choose the specific device to authenticate.',
 						]);
-						toastV8.warning('Please select a specific device');
+						modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Please select a specific device', dismissible: true });
 						break;
 					default:
 						updateOtpState({
@@ -182,18 +182,14 @@ export const SMSDeviceSelectionStep: React.FC<SMSDeviceSelectionStepProps> = ({
 						});
 						nav.markStepComplete();
 						nav.goToStep(3);
-						toastV8.success(
-							'Device selected for authentication. Follow the next step to continue.'
-						);
+						modernMessaging.showFooterMessage({ type: 'info', message: 'Device selected for authentication. Follow the next step to continue.', duration: 3000 });
 				}
 			} catch (error) {
 				console.error(`${MODULE_TAG} Failed to initialize authentication:`, error);
 				nav.setValidationErrors([
 					`Failed to authenticate: ${error instanceof Error ? error.message : 'Unknown error'}`,
 				]);
-				toastV8.error(
-					`Authentication failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-				);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Authentication failed: ${error instanceof Error ? error.message : 'Unknown error'}`, dismissible: true });
 				updateOtpState({ otpSent: false });
 			}
 		});

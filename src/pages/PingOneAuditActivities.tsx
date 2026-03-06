@@ -28,7 +28,7 @@ import { readBestEnvironmentId } from '../hooks/useAutoEnvironmentId';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import { apiRequestModalService } from '../services/apiRequestModalService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { ShowTokenConfigCheckboxV8 } from '../v8/components/ShowTokenConfigCheckboxV8';
 import { SilentApiConfigCheckboxV8 } from '../v8/components/SilentApiConfigCheckboxV8';
 import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
@@ -481,7 +481,7 @@ const PingOneAuditActivities: React.FC = () => {
 	const handleClearWorkerToken = () => {
 		unifiedWorkerTokenService.clearToken();
 		setWorkerToken('');
-		v4ToastManager.showSuccess('Worker token cleared successfully.');
+		modernMessaging.showFooterMessage({ type: 'info', message: 'Worker token cleared successfully.', duration: 3000 });
 		// Trigger page reload to reset state
 		window.location.reload();
 	};
@@ -660,9 +660,7 @@ const PingOneAuditActivities: React.FC = () => {
 				headers: Object.fromEntries(response.headers.entries()),
 			});
 
-			v4ToastManager.showSuccess(
-				`Retrieved ${retrievedCount} audit ${retrievedCount === 1 ? 'activity' : 'activities'}`
-			);
+			modernMessaging.showFooterMessage({ type: 'info', message: `Retrieved ${retrievedCount} audit ${retrievedCount === 1 ? 'activity' : 'activities'}`, duration: 3000 });
 		} catch (err) {
 			console.error('[Audit Activities] Fetch failed:', err);
 			setActivities([]);
@@ -878,7 +876,7 @@ const PingOneAuditActivities: React.FC = () => {
 		if (selectedActivity) {
 			navigator.clipboard.writeText(JSON.stringify(selectedActivity, null, 2));
 			setCopiedJson(true);
-			v4ToastManager.showSuccess('Activity JSON copied to clipboard');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'Activity JSON copied to clipboard', duration: 3000 });
 			setTimeout(() => setCopiedJson(false), 2000);
 		}
 	};

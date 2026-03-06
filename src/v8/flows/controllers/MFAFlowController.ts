@@ -10,7 +10,7 @@ import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServi
 import { MFAServiceV8, type RegisterDeviceParams } from '@/v8/services/mfaServiceV8';
 import type { TokenStatusInfo } from '@/v8/services/workerTokenStatusServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import type { DeviceType, MFACredentials, MFAState } from '../shared/MFATypes';
 
 const MODULE_TAG = '[🎮 MFA-CONTROLLER]';
@@ -271,7 +271,7 @@ export abstract class MFAFlowController {
 					...(otpCheckUrl ? { otpCheckUrl } : {}), // Only include otpCheckUrl if it exists
 				});
 				nav.markStepComplete();
-				toastV8.success('OTP sent successfully!');
+				modernMessaging.showFooterMessage({ type: 'info', message: 'OTP sent successfully!', duration: 3000 });
 			} else {
 				throw new Error(
 					'Failed to initialize device authentication - no authentication ID returned'
@@ -450,7 +450,7 @@ export abstract class MFAFlowController {
 				});
 				nav.markStepComplete();
 				nav.goToStep(4); // Navigate to success page
-				toastV8.success('OTP validated successfully!');
+				modernMessaging.showFooterMessage({ type: 'info', message: 'OTP validated successfully!', duration: 3000 });
 
 				if (this.callbacks.onOTPValidated) {
 					this.callbacks.onOTPValidated();
@@ -471,7 +471,7 @@ export abstract class MFAFlowController {
 					lastValidationError: userFriendlyError,
 				});
 				nav.setValidationErrors([userFriendlyError]);
-				toastV8.error(userFriendlyError);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: userFriendlyError, dismissible: true });
 				return false;
 			}
 		} catch (error) {
@@ -531,7 +531,7 @@ export abstract class MFAFlowController {
 		} else {
 			nav.setValidationErrors([`Failed to send OTP: ${errorMessage}`]);
 		}
-		toastV8.error(`Failed to send OTP: ${errorMessage}`);
+		modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to send OTP: ${errorMessage}`, dismissible: true });
 	}
 
 	/**
@@ -553,7 +553,7 @@ export abstract class MFAFlowController {
 		} else {
 			nav.setValidationErrors([`OTP validation failed: ${errorMessage}`]);
 		}
-		toastV8.error(`Validation failed: ${errorMessage}`);
+		modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Validation failed: ${errorMessage}`, dismissible: true });
 	}
 
 	/**
@@ -709,7 +709,7 @@ export abstract class MFAFlowController {
 			if (result.valid || result.status === 'COMPLETED') {
 				setValidationState({ validationAttempts: 0, lastValidationError: null });
 				nav.markStepComplete();
-				toastV8.success('Authentication successful!');
+				modernMessaging.showFooterMessage({ type: 'info', message: 'Authentication successful!', duration: 3000 });
 
 				if (this.callbacks.onOTPValidated) {
 					this.callbacks.onOTPValidated();
@@ -730,7 +730,7 @@ export abstract class MFAFlowController {
 					lastValidationError: userFriendlyError,
 				});
 				nav.setValidationErrors([userFriendlyError]);
-				toastV8.error(userFriendlyError);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: userFriendlyError, dismissible: true });
 				return false;
 			}
 		} catch (error) {

@@ -35,7 +35,7 @@ import {
 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import type { DeviceType } from '../flows/shared/MFATypes';
 
 export interface UnifiedMFASuccessPageData {
@@ -284,10 +284,10 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 			);
 			if (success) {
 				setTokenCopied(true);
-				toastV8.success('Access token copied to clipboard!');
+				modernMessaging.showFooterMessage({ type: 'info', message: 'Access token copied to clipboard!', duration: 3000 });
 				setTimeout(() => setTokenCopied(false), 2000);
 			} else {
-				toastV8.error('Failed to copy access token');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to copy access token', dismissible: true });
 			}
 		}
 	};
@@ -1069,7 +1069,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 											const payload = JSON.stringify(decoded.payload, null, 2);
 											alert(`Token Payload:\n\n${payload}`);
 										} else {
-											toastV8.error('Failed to decode token');
+											modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to decode token', dismissible: true });
 										}
 									}}
 									style={{

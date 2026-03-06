@@ -12,7 +12,7 @@ import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
 import { AppDiscoveryServiceV8 } from '@/v8/services/appDiscoveryServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 
 const _MODULE_TAG = '[🔍 COMPACT-APP-PICKER-V8U]';
@@ -97,12 +97,12 @@ export const CompactAppPickerV8U: React.FC<CompactAppPickerV8UProps> = ({
 
 	const handleDiscover = async () => {
 		if (!environmentId) {
-			toastV8.error('Environment ID is required');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Environment ID is required', dismissible: true });
 			return;
 		}
 
 		if (!hasWorkerToken) {
-			toastV8.error('Worker token required - please generate one first');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Worker token required - please generate one first', dismissible: true });
 			return;
 		}
 
@@ -110,7 +110,7 @@ export const CompactAppPickerV8U: React.FC<CompactAppPickerV8UProps> = ({
 		try {
 			// Worker token is now managed by unified service
 			if (!hasWorkerToken) {
-				toastV8.error('Worker token required - please generate one first');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Worker token required - please generate one first', dismissible: true });
 				setIsLoading(false);
 				return;
 			}
@@ -124,19 +124,17 @@ export const CompactAppPickerV8U: React.FC<CompactAppPickerV8UProps> = ({
 				setApps(discovered);
 				setHasDiscovered(true);
 				setShowDropdown(true);
-				toastV8.success(`Found ${discovered.length} application(s)`);
+				modernMessaging.showFooterMessage({ type: 'info', message: `Found ${discovered.length} application(s)`, duration: 3000 });
 			} else {
-				toastV8.error('No applications found');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'No applications found', dismissible: true });
 				setApps([]);
 				setHasDiscovered(false);
 			}
 		} catch (error) {
 			logger.error('Discovery error', { error });
-			toastV8.error(
-				error instanceof Error
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error
 					? error.message
-					: 'Failed to discover applications - check worker token'
-			);
+					: 'Failed to discover applications - check worker token', dismissible: true });
 			setHasDiscovered(false);
 		} finally {
 			setIsLoading(false);
@@ -159,7 +157,7 @@ export const CompactAppPickerV8U: React.FC<CompactAppPickerV8UProps> = ({
 		setShowDropdown(false);
 		setShowSearch(false);
 		setSearchQuery('');
-		toastV8.success(`Selected: ${app.name}`);
+		modernMessaging.showFooterMessage({ type: 'info', message: `Selected: ${app.name}`, duration: 3000 });
 	};
 
 	const isDisabled = isLoading || !environmentId.trim() || !tokenStatus.isValid;
