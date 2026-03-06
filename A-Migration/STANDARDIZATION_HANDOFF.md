@@ -1,6 +1,6 @@
 # Standardization Handoff — OAuth Playground V9
 
-**Last updated:** March 6, 2026 — HEAD at `d73af171d`  
+**Last updated:** March 6, 2026 — HEAD at `783689d15`  
 **Prepared for:** Any programmer picking up this work  
 **Branch:** `main` — **always `git fetch && git status` before starting work**
 
@@ -39,6 +39,9 @@
 | **`console.*` → `logger` migration (hooks)** | ✅ **DONE** | 133 violations removed across 16 hook files in `src/hooks/`. `useErrorDiagnosis.ts` exempt (intentionally patches `console.error`). March 6, 2026. |
 | **`console.*` → `logger` migration (auth-path services)** | ✅ **DONE** | 81 violations removed across 7 auth-path service files (commit `965d35fa1`). March 6, 2026. See table below. |
 | **`console.*` → `logger` migration (contexts)** | ✅ **DONE** | 33 violations removed across 3 context files: `NewAuthContext` (29), `UISettingsContext` (4), `NotificationSystem` (1). Commit `d73af171d`. March 6, 2026. |
+| **`console.*` → `logger` migration (src/utils/)** | ✅ **DONE** | ~215 calls across 43 files. Commits `9ade43aeb`, `fcd07bae2`. Skipped: `logger.ts` (self), `errorMonitoring.ts` (override lines), `consoleMigrationHelper.ts`, safeguard files. March 6, 2026. |
+| **`console.*` → `logger` migration (src/components/)** | ✅ **DONE** | ~160 calls across 79 files. Commit `aaaba09f1`. Skipped: `CompleteMFAFlowV7.tsx` (V7 legacy), `CredentialsImportExport.tsx` (call was inside JSDoc comment). March 6, 2026. |
+| **`console.*` → `logger` migration (src/pages/, src/services/, src/protect-app/, src/App.tsx, src/examples/, src/config/, src/v8m/)** | ✅ **DONE** | ~210 calls across 79 files. Commit `783689d15`. Skipped: `loggingService.ts` (dispatch sink), `HybridCallback.tsx` L16 (local logger fn), `postmanCollectionGeneratorV8/V9.ts` (Postman script template strings), `codeExamplesService.ts`+`codeGeneration/templates/` (code example template literals), `useErrorDiagnosis.ts` (patches `console.error`), `main.tsx` (filters third-party lib warnings). March 6, 2026. |
 
 ---
 
@@ -63,12 +66,17 @@ All `console.*` calls in `src/services/` have been replaced with structured `log
 | File | Reason |
 |---|---|
 | `src/services/loggingService.ts` | IS the logger output sink — console calls are intentional |
-| `src/services/config.ts` | Startup validation — runs before logger initialises |
 | `src/services/codeGeneration/**` (10 files) | All console calls are inside template literal strings (generated code examples) |
 | `src/services/postmanCollectionGeneratorV8.ts` | All 675 calls are embedded Postman test script strings |
+| `src/services/codeExamplesService.ts` | All console calls inside template literals generating code examples |
 | `src/services/configurationManagerCLI.js` | Node CLI tool — console IS the output mechanism |
 | `src/services/configurationManagerDemo.js` | Ditto |
 | `src/services/serviceDiscoveryCLI.js` | Ditto |
+| `src/utils/logger.ts` | IS the logger itself |
+| `src/utils/errorMonitoring.ts` (lines 164-165) | `console.error = override` lines — intentional monkey-patch |
+| `src/hooks/useErrorDiagnosis.ts` | Intentionally patches `console.error` as a diagnostic tool |
+| `src/pages/HybridCallback.tsx` (L16) | Local logger function that dispatches to `console.error` |
+| `src/main.tsx` | `console.warn = override` to filter noisy third-party lib warnings |
 
 ### Hooks — ✅ COMPLETE (March 6, 2026)
 
