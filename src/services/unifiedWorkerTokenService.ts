@@ -18,6 +18,7 @@
  * - Token validation and expiration handling
  */
 
+import { logger } from '../utils/logger';
 import { unifiedTokenStorage } from './unifiedTokenStorageService';
 
 declare global {
@@ -174,7 +175,12 @@ class UnifiedWorkerTokenService {
 				return data;
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to load data from storage (sync)`, error);
+			logger.error(
+				'UnifiedWorkerTokenService',
+				`${MODULE_TAG} Failed to load data from storage (sync)`,
+				undefined,
+				error as Error
+			);
 		}
 
 		return null;
@@ -222,7 +228,9 @@ class UnifiedWorkerTokenService {
 			const request = indexedDB.open(INDEXEDDB_DB_NAME, 1);
 
 			request.onerror = () => {
-				console.error(`${MODULE_TAG} Failed to open IndexedDB`, request.error);
+				logger.error('UnifiedWorkerTokenService', `${MODULE_TAG} Failed to open IndexedDB`, {
+					data: request.error,
+				});
 				reject(request.error);
 			};
 
@@ -252,7 +260,10 @@ class UnifiedWorkerTokenService {
 		// Debounce to prevent infinite loops
 		const now = Date.now();
 		if (now - this.lastSaveTime < this.SAVE_DEBOUNCE_MS) {
-			console.warn(`${MODULE_TAG} Save credentials called too frequently, skipping`);
+			logger.warn(
+				'UnifiedWorkerTokenService',
+				`${MODULE_TAG} Save credentials called too frequently, skipping`
+			);
 			return;
 		}
 		this.lastSaveTime = now;
@@ -260,7 +271,7 @@ class UnifiedWorkerTokenService {
 		// Only log if this is the first save or debug mode is enabled
 		const isFirstSave = !window.__workerTokenSaved;
 		if (isFirstSave) {
-			console.log(`${MODULE_TAG} Saving worker token credentials`);
+			logger.info('UnifiedWorkerTokenService', `${MODULE_TAG} Saving worker token credentials`);
 			window.__workerTokenSaved = true;
 		}
 
@@ -277,7 +288,12 @@ class UnifiedWorkerTokenService {
 		try {
 			localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(data));
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to save to localStorage`, error);
+			logger.error(
+				'UnifiedWorkerTokenService',
+				`${MODULE_TAG} Failed to save to localStorage`,
+				undefined,
+				error as Error
+			);
 		}
 
 		// Save to IndexedDB (backup storage)
@@ -297,7 +313,12 @@ class UnifiedWorkerTokenService {
 				request.onerror = () => reject(request.error);
 			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to save to IndexedDB`, error);
+			logger.error(
+				'UnifiedWorkerTokenService',
+				`${MODULE_TAG} Failed to save to IndexedDB`,
+				undefined,
+				error as Error
+			);
 			// Don't throw - localStorage is primary
 		}
 
@@ -323,10 +344,18 @@ class UnifiedWorkerTokenService {
 						savedAt: currentData.savedAt,
 					},
 				});
-				console.log(`${MODULE_TAG} ✅ Worker token backed up to unified storage`);
+				logger.info(
+					'UnifiedWorkerTokenService',
+					`${MODULE_TAG} ✅ Worker token backed up to unified storage`
+				);
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to backup to unified storage`, error);
+			logger.error(
+				'UnifiedWorkerTokenService',
+				`${MODULE_TAG} Failed to backup to unified storage`,
+				undefined,
+				error as Error
+			);
 			// Don't throw - local storage is primary
 		}
 
@@ -335,7 +364,12 @@ class UnifiedWorkerTokenService {
 			import('../services/environmentIdService')
 				.then(({ saveEnvironmentId }) => saveEnvironmentId(credentials.environmentId))
 				.catch((error) => {
-					console.warn(`${MODULE_TAG} Failed to sync environmentId to dual store`, error);
+					logger.warn(
+						'UnifiedWorkerTokenService',
+						`${MODULE_TAG} Failed to sync environmentId to dual store`,
+						undefined,
+						error as Error
+					);
 				});
 		}
 
@@ -353,14 +387,21 @@ class UnifiedWorkerTokenService {
 					enableBackup: true,
 					backupExpiry: 7 * 24 * 60 * 60 * 1000, // 7 days
 				});
-				console.log(`${MODULE_TAG} ✅ Worker token credentials backed up to SQLite`);
+				logger.info(
+					'UnifiedWorkerTokenService',
+					`${MODULE_TAG} ✅ Worker token credentials backed up to SQLite`
+				);
 			}
 		} catch (sqliteError) {
-			console.warn(`${MODULE_TAG} SQLite backup failed, using fallback`, sqliteError);
+			logger.warn(
+				'UnifiedWorkerTokenService',
+				`${MODULE_TAG} SQLite backup failed, using fallback`,
+				{ data: sqliteError }
+			);
 			// Don't throw - other storage methods should work
 		}
 
-		console.log(`${MODULE_TAG} ✅ Worker token credentials saved`);
+		logger.info('UnifiedWorkerTokenService', `${MODULE_TAG} ✅ Worker token credentials saved`);
 	}
 
 	/**
@@ -410,7 +451,12 @@ class UnifiedWorkerTokenService {
 				return data.credentials;
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} ❌ Failed to load from localStorage`, error);
+			logger.error(
+				'UnifiedWorkerTokenService',
+				`${MODULE_TAG} ❌ Failed to load from localStorage`,
+				undefined,
+				error as Error
+			);
 		}
 
 		// Try IndexedDB (backup)
@@ -432,14 +478,24 @@ class UnifiedWorkerTokenService {
 				try {
 					localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(data));
 				} catch (error) {
-					console.warn(`${MODULE_TAG} ⚠️ Failed to restore to localStorage`, error);
+					logger.warn(
+						'UnifiedWorkerTokenService',
+						`${MODULE_TAG} ⚠️ Failed to restore to localStorage`,
+						undefined,
+						error as Error
+					);
 				}
 				return data.credentials;
 			} else {
 				// No data in IndexedDB
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} ❌ Failed to load from IndexedDB`, error);
+			logger.error(
+				'UnifiedWorkerTokenService',
+				`${MODULE_TAG} ❌ Failed to load from IndexedDB`,
+				undefined,
+				error as Error
+			);
 		}
 
 		// Try unified storage backup
@@ -470,7 +526,12 @@ class UnifiedWorkerTokenService {
 				}
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} ❌ Failed to load from database`, error);
+			logger.error(
+				'UnifiedWorkerTokenService',
+				`${MODULE_TAG} ❌ Failed to load from database`,
+				undefined,
+				error as Error
+			);
 		}
 
 		// Try SQLite backup for server restart persistence
@@ -479,7 +540,7 @@ class UnifiedWorkerTokenService {
 			const environmentId = EnvironmentIdServiceV8.getEnvironmentId();
 
 			if (environmentId) {
-				console.log(`${MODULE_TAG} 🔍 Trying SQLite backup...`);
+				logger.info('UnifiedWorkerTokenService', `${MODULE_TAG} 🔍 Trying SQLite backup...`);
 				const { UnifiedWorkerTokenBackupServiceV8 } = await import(
 					'./unifiedWorkerTokenBackupServiceV8'
 				);
@@ -489,7 +550,10 @@ class UnifiedWorkerTokenService {
 				});
 
 				if (credentials) {
-					console.log(`${MODULE_TAG} ✅ Loaded worker token credentials from SQLite backup`);
+					logger.info(
+						'UnifiedWorkerTokenService',
+						`${MODULE_TAG} ✅ Loaded worker token credentials from SQLite backup`
+					);
 
 					// Update memory cache and localStorage
 					const data: UnifiedWorkerTokenData = {
@@ -503,16 +567,26 @@ class UnifiedWorkerTokenService {
 					try {
 						localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(data));
 					} catch (error) {
-						console.warn(`${MODULE_TAG} ⚠️ Failed to restore to localStorage`, error);
+						logger.warn(
+							'UnifiedWorkerTokenService',
+							`${MODULE_TAG} ⚠️ Failed to restore to localStorage`,
+							undefined,
+							error as Error
+						);
 					}
 
 					return credentials;
 				} else {
-					console.log(`${MODULE_TAG} ❌ No data found in SQLite backup`);
+					logger.info(
+						'UnifiedWorkerTokenService',
+						`${MODULE_TAG} ❌ No data found in SQLite backup`
+					);
 				}
 			}
 		} catch (sqliteError) {
-			console.warn(`${MODULE_TAG} SQLite backup load failed`, sqliteError);
+			logger.warn('UnifiedWorkerTokenService', `${MODULE_TAG} SQLite backup load failed`, {
+				data: sqliteError,
+			});
 		}
 
 		// Try SQLite backup for server restart persistence (NEW - before legacy migration)
@@ -521,7 +595,10 @@ class UnifiedWorkerTokenService {
 			const environmentId = EnvironmentIdServiceV8.getEnvironmentId();
 
 			if (environmentId) {
-				console.log(`${MODULE_TAG} 🔍 Trying SQLite backup for server restart persistence...`);
+				logger.info(
+					'UnifiedWorkerTokenService',
+					`${MODULE_TAG} 🔍 Trying SQLite backup for server restart persistence...`
+				);
 				const { UnifiedWorkerTokenBackupServiceV8 } = await import(
 					'./unifiedWorkerTokenBackupServiceV8'
 				);
@@ -531,12 +608,18 @@ class UnifiedWorkerTokenService {
 				});
 
 				if (credentials) {
-					console.log(`${MODULE_TAG} ✅ Loaded worker token credentials from SQLite backup`, {
-						environmentId,
-						hasClientId: !!credentials.clientId,
-						hasClientSecret: !!credentials.clientSecret,
-						hasRegion: !!credentials.region,
-					});
+					logger.info(
+						'UnifiedWorkerTokenService',
+						`${MODULE_TAG} ✅ Loaded worker token credentials from SQLite backup`,
+						{
+							data: {
+								environmentId,
+								hasClientId: !!credentials.clientId,
+								hasClientSecret: !!credentials.clientSecret,
+								hasRegion: !!credentials.region,
+							},
+						}
+					);
 
 					// Update memory cache and localStorage
 					const data: UnifiedWorkerTokenData = {
@@ -550,16 +633,25 @@ class UnifiedWorkerTokenService {
 					try {
 						localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(data));
 					} catch (restoreError) {
-						console.warn(`${MODULE_TAG} ⚠️ Failed to restore to localStorage`, restoreError);
+						logger.warn(
+							'UnifiedWorkerTokenService',
+							`${MODULE_TAG} ⚠️ Failed to restore to localStorage`,
+							{ data: restoreError }
+						);
 					}
 
 					return credentials;
 				} else {
-					console.log(`${MODULE_TAG} ❌ No SQLite backup found for environment: ${environmentId}`);
+					logger.info(
+						'UnifiedWorkerTokenService',
+						`${MODULE_TAG} ❌ No SQLite backup found for environment: ${environmentId}`
+					);
 				}
 			}
 		} catch (sqliteError) {
-			console.warn(`${MODULE_TAG} SQLite backup load failed`, sqliteError);
+			logger.warn('UnifiedWorkerTokenService', `${MODULE_TAG} SQLite backup load failed`, {
+				data: sqliteError,
+			});
 		}
 
 		// Try legacy storage keys for migration
@@ -618,7 +710,12 @@ class UnifiedWorkerTokenService {
 					return unifiedCredentials;
 				}
 			} catch (error) {
-				console.warn(`${MODULE_TAG} ⚠️ Failed to migrate from legacy key ${key}:`, error);
+				logger.warn(
+					'UnifiedWorkerTokenService',
+					`${MODULE_TAG} ⚠️ Failed to migrate from legacy key ${key}:`,
+					undefined,
+					error as Error
+				);
 			}
 		}
 
@@ -657,7 +754,12 @@ class UnifiedWorkerTokenService {
 		try {
 			localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(data));
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to save token to localStorage`, error);
+			logger.error(
+				'UnifiedWorkerTokenService',
+				`${MODULE_TAG} Failed to save token to localStorage`,
+				undefined,
+				error as Error
+			);
 		}
 
 		// Save to IndexedDB
@@ -675,13 +777,18 @@ class UnifiedWorkerTokenService {
 				request.onerror = () => reject(request.error);
 			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to save token to IndexedDB`, error);
+			logger.error(
+				'UnifiedWorkerTokenService',
+				`${MODULE_TAG} Failed to save token to IndexedDB`,
+				undefined,
+				error as Error
+			);
 		}
 
 		// Broadcast token update event
 		this.broadcastTokenUpdate(data);
 
-		console.log(`${MODULE_TAG} ✅ Worker token saved`);
+		logger.info('UnifiedWorkerTokenService', `${MODULE_TAG} ✅ Worker token saved`);
 	}
 
 	/**
@@ -695,7 +802,7 @@ class UnifiedWorkerTokenService {
 
 		// Check expiration
 		if (data.expiresAt && Date.now() > data.expiresAt) {
-			console.log(`${MODULE_TAG} Token expired, clearing`);
+			logger.info('UnifiedWorkerTokenService', `${MODULE_TAG} Token expired, clearing`);
 			await this.clearToken();
 			return null;
 		}
@@ -706,7 +813,12 @@ class UnifiedWorkerTokenService {
 		try {
 			localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(data));
 		} catch (error) {
-			console.warn(`${MODULE_TAG} Failed to update last used time`, error);
+			logger.warn(
+				'UnifiedWorkerTokenService',
+				`${MODULE_TAG} Failed to update last used time`,
+				undefined,
+				error as Error
+			);
 		}
 
 		return data.token;
@@ -844,7 +956,12 @@ class UnifiedWorkerTokenService {
 		try {
 			localStorage.removeItem(BROWSER_STORAGE_KEY);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to clear localStorage`, error);
+			logger.error(
+				'UnifiedWorkerTokenService',
+				`${MODULE_TAG} Failed to clear localStorage`,
+				undefined,
+				error as Error
+			);
 		}
 
 		// Clear IndexedDB
@@ -858,10 +975,15 @@ class UnifiedWorkerTokenService {
 				request.onerror = () => reject(request.error);
 			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to clear IndexedDB`, error);
+			logger.error(
+				'UnifiedWorkerTokenService',
+				`${MODULE_TAG} Failed to clear IndexedDB`,
+				undefined,
+				error as Error
+			);
 		}
 
-		console.log(`${MODULE_TAG} ✅ Cleared all worker token data`);
+		logger.info('UnifiedWorkerTokenService', `${MODULE_TAG} ✅ Cleared all worker token data`);
 	}
 
 	/**
@@ -885,7 +1007,12 @@ class UnifiedWorkerTokenService {
 		try {
 			localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(data));
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to clear token from localStorage`, error);
+			logger.error(
+				'UnifiedWorkerTokenService',
+				`${MODULE_TAG} Failed to clear token from localStorage`,
+				undefined,
+				error as Error
+			);
 		}
 
 		// Update IndexedDB
@@ -902,7 +1029,12 @@ class UnifiedWorkerTokenService {
 				request.onerror = () => reject(request.error);
 			});
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to clear token from IndexedDB`, error);
+			logger.error(
+				'UnifiedWorkerTokenService',
+				`${MODULE_TAG} Failed to clear token from IndexedDB`,
+				undefined,
+				error as Error
+			);
 		}
 	}
 
@@ -920,7 +1052,12 @@ class UnifiedWorkerTokenService {
 				return JSON.parse(stored) as UnifiedWorkerTokenData;
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to load data from storage`, error);
+			logger.error(
+				'UnifiedWorkerTokenService',
+				`${MODULE_TAG} Failed to load data from storage`,
+				undefined,
+				error as Error
+			);
 		}
 		return null;
 	}
@@ -1036,7 +1173,12 @@ class UnifiedWorkerTokenService {
 
 			return krpStatus;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to get KRP status:`, error);
+			logger.error(
+				'UnifiedWorkerTokenService',
+				`${MODULE_TAG} Failed to get KRP status:`,
+				undefined,
+				error as Error
+			);
 			return null;
 		}
 	}
@@ -1070,7 +1212,12 @@ class UnifiedWorkerTokenService {
 
 			return response._embedded?.keyRotationPolicies || [];
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to get KRP policies:`, error);
+			logger.error(
+				'UnifiedWorkerTokenService',
+				`${MODULE_TAG} Failed to get KRP policies:`,
+				undefined,
+				error as Error
+			);
 			return [];
 		}
 	}
@@ -1115,10 +1262,18 @@ class UnifiedWorkerTokenService {
 			credentials.useKeyRotationPolicy = true;
 			await this.saveCredentials(credentials);
 
-			console.log(`${MODULE_TAG} ✅ Updated application to use KRP: ${policyId}`);
+			logger.info(
+				'UnifiedWorkerTokenService',
+				`${MODULE_TAG} ✅ Updated application to use KRP: ${policyId}`
+			);
 			return true;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to update KRP:`, error);
+			logger.error(
+				'UnifiedWorkerTokenService',
+				`${MODULE_TAG} Failed to update KRP:`,
+				undefined,
+				error as Error
+			);
 			return false;
 		}
 	}
@@ -1189,7 +1344,12 @@ class UnifiedWorkerTokenService {
 
 			return JSON.stringify(exportData, null, 2);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to export config:`, error);
+			logger.error(
+				'UnifiedWorkerTokenService',
+				`${MODULE_TAG} Failed to export config:`,
+				undefined,
+				error as Error
+			);
 			throw error;
 		}
 	}
@@ -1228,9 +1388,17 @@ class UnifiedWorkerTokenService {
 			// Import the configuration
 			await this.saveCredentials(credentials);
 
-			console.log(`${MODULE_TAG} Successfully imported worker token configuration`);
+			logger.info(
+				'UnifiedWorkerTokenService',
+				`${MODULE_TAG} Successfully imported worker token configuration`
+			);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to import config:`, error);
+			logger.error(
+				'UnifiedWorkerTokenService',
+				`${MODULE_TAG} Failed to import config:`,
+				undefined,
+				error as Error
+			);
 			throw error;
 		}
 	}
@@ -1252,9 +1420,14 @@ class UnifiedWorkerTokenService {
 			document.body.removeChild(link);
 			URL.revokeObjectURL(url);
 
-			console.log(`${MODULE_TAG} Configuration downloaded`);
+			logger.info('UnifiedWorkerTokenService', `${MODULE_TAG} Configuration downloaded`);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to download config:`, error);
+			logger.error(
+				'UnifiedWorkerTokenService',
+				`${MODULE_TAG} Failed to download config:`,
+				undefined,
+				error as Error
+			);
 			throw error;
 		}
 	}
@@ -1279,7 +1452,7 @@ if (typeof window !== 'undefined') {
 	// Add debug helper for resetting logging state
 	window.resetWorkerTokenLogging = () => {
 		UnifiedWorkerTokenService.resetLoggingState();
-		console.log(' Worker token logging state reset');
+		logger.info('UnifiedWorkerTokenService', ' Worker token logging state reset');
 	};
 }
 
