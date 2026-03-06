@@ -2,6 +2,7 @@
 
 import { FiAlertTriangle, FiBook, FiKey, FiSend, FiShield } from '@icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { UnifiedCredentialManagerV9 } from '../../components/UnifiedCredentialManagerV9';
 import { authorizeIssueCode, V7MAuthorizeRequest } from '../../services/v7m/V7MAuthorizeService';
 import {
 	introspectToken,
@@ -12,7 +13,6 @@ import {
 	type V7MUserInfo,
 } from '../../services/v7m/V7MUserInfoService';
 import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
-import { CompactAppPickerV8U } from '../../v8u/components/CompactAppPickerV8U';
 import { V7MHelpModal } from '../components/V7MHelpModal';
 import { V7MInfoIcon } from '../components/V7MInfoIcon';
 import { V7MJwtInspectorModal } from '../components/V7MJwtInspectorModal';
@@ -60,9 +60,9 @@ export const V7MImplicitFlowV9: React.FC<Props> = ({
 		if (saved.clientId) setClientId(saved.clientId);
 	}, []);
 
-	const handleAppSelected = useCallback((app: { id: string; name: string }) => {
-		setClientId(app.id);
-		V9CredentialStorageService.save('v7m-implicit', { clientId: app.id });
+	const handleAppSelected = useCallback((app: { clientId: string; name: string }) => {
+		setClientId(app.clientId);
+		V9CredentialStorageService.save('v7m-implicit', { clientId: app.clientId });
 	}, []);
 
 	const responseType = useMemo(() => {
@@ -200,7 +200,20 @@ export const V7MImplicitFlowV9: React.FC<Props> = ({
 			<h1 style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
 				<FiKey /> {title}
 			</h1>
-			<CompactAppPickerV8U onAppSelected={handleAppSelected} />
+			<UnifiedCredentialManagerV9
+				environmentId="v7m-mock"
+				flowKey="v7m-implicit"
+				credentials={{ clientId }}
+				importExportOptions={{
+					flowType: 'v7m-implicit',
+					appName: 'V7M Implicit Flow',
+					description: 'V7M Mock OAuth Implicit Flow (deprecated)',
+				}}
+				onAppSelected={handleAppSelected}
+				grantType="implicit"
+				showAppPicker={true}
+				showImportExport={true}
+			/>
 
 			<div
 				style={{
