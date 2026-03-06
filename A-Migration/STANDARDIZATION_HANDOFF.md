@@ -1,8 +1,8 @@
 # Standardization Handoff — OAuth Playground V9
 
-**Last updated:** March 6, 2026  
+**Last updated:** March 6, 2026 — counts from `7bab18dad` (HEAD)  
 **Prepared for:** Any programmer picking up this work  
-**Branch:** `main`
+**Branch:** `main` — **always `git fetch && git status` before starting work**
 
 ---
 
@@ -17,7 +17,7 @@
 | V9 flows: `V9CredentialStorageService` | ✅ **DONE** | All 16 V9 flows have it |
 | V9 flows: `CompactAppPickerV8U` | ✅ **DONE** | All 16 V9 flows have it |
 | V9 flows: zero `toastV8` calls | ✅ **DONE** | 0 actual calls (comments only) |
-| V9 flows: `console.error/warn` | ⚠️ **IN PROGRESS** | 7 files, 55 violations remaining (down from 221 — see §2 + §4) |
+| V9 flows: `console.error/warn` | ⚠️ **IN PROGRESS** | 7 files, 54 violations remaining (down from 221 — see §2 + §4) |
 | V9 services: `console.error/warn` | ⚠️ **REMAINING** | 14 service files (see §4) |
 | **NEW: Logging Implementation Plan** | ✅ **DONE** | Comprehensive 5-week plan created (see docs/standards/logging-implementation-plan.md) |
 | **NEW: Comprehensive Status Assessment** | ✅ **DONE** | Complete technical debt analysis (see COMPREHENSIVE_STANDARDIZATION_STATUS.md) |
@@ -72,7 +72,7 @@ Every V9 flow **must** have all of:
 | `TokenExchangeFlowV9.tsx` | ✅ | ✅ | 0 | ✅ Fully clean |
 | `PingOnePARFlowV9.tsx` | ✅ | ✅ | 0 | ✅ Fully clean |
 | `WorkerTokenFlowV9.tsx` | ✅ | ✅ | 1* | *Inside `<pre>` template string — **exempt** |
-| `OAuthAuthorizationCodeFlowV9.tsx` | ✅ | ✅ | 21 | ⚠️ **HIGH PRIORITY** |
+| `OAuthAuthorizationCodeFlowV9.tsx` | ✅ | ✅ | 19 | ⚠️ **HIGH PRIORITY** |
 | `SAMLBearerAssertionFlowV9.tsx` | ✅ | ✅ | 9 | ⚠️ **Needs fix** |
 | `ImplicitFlowV9.tsx` | ✅ | ✅ | 7 | ⚠️ **Needs fix** |
 | `DeviceAuthorizationFlowV9.tsx` | ✅ | ✅ | 6 | ⚠️ **Needs fix** |
@@ -80,7 +80,7 @@ Every V9 flow **must** have all of:
 | `ClientCredentialsFlowV9.tsx` | ✅ | ✅ | 4 | ⚠️ **Needs fix** |
 | `JWTBearerTokenFlowV9.tsx` | ✅ | ✅ | 3 | ⚠️ **Needs fix** |
 
-> **Before starting**: run `grep -c 'console\.' src/pages/flows/v9/<filename>.tsx` to get fresh counts — the working copy is actively changing. The full 5-week phased plan is at [`docs/standards/logging-implementation-plan.md`](../docs/standards/logging-implementation-plan.md) (covers 1,367+ statements codebase-wide).
+> **Before starting any file**: run `git fetch origin && git status` and `grep -c 'console\.' src/pages/flows/v9/<filename>.tsx` to get fresh counts. The full 5-week phased plan is at [`docs/standards/logging-implementation-plan.md`](../docs/standards/logging-implementation-plan.md).
 
 ---
 
@@ -173,9 +173,9 @@ If the catch block is for a background save (user doesn't need to know), **remov
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 ```
 
-### Priority order (verified March 6, 2026 — working copy):
+### Priority order (verified `7bab18dad`, March 6, 2026):
 
-1. **`OAuthAuthorizationCodeFlowV9.tsx`** — 21 violations ← most critical flow
+1. **`OAuthAuthorizationCodeFlowV9.tsx`** — 19 violations ← most critical flow
 2. **`SAMLBearerAssertionFlowV9.tsx`** — 9 violations
 3. **`ImplicitFlowV9.tsx`** — 7 violations
 4. **`DeviceAuthorizationFlowV9.tsx`** — 6 violations
@@ -183,7 +183,7 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 6. **`ClientCredentialsFlowV9.tsx`** — 4 violations
 7. **`JWTBearerTokenFlowV9.tsx`** — 3 violations
 
-> **Total: 55 violations in 7 files** (down from 221). `WorkerTokenFlowV9.tsx` has 1 `console.error` inside a `<pre>` template literal (code sample display) — **exempt**. `PingOnePARFlowV9.tsx` is now fully clean ✅.
+> **Total: 54 violations in 7 files** (down from 221). `WorkerTokenFlowV9.tsx` has 1 `console.error` inside a `<pre>` template literal (code sample display) — **exempt**. `PingOnePARFlowV9.tsx` is fully clean ✅.
 
 ---
 
@@ -257,12 +257,50 @@ All 6 V7M educational mock flows in `src/v7/pages/` are fully compliant:
 
 ---
 
-## 9. Nothing Outstanding — Branch is Clean
+## 9. Coordination — Avoid Stepping on Each Other
 
-All work is committed and pushed to `origin/main`. The other programmer can pull cleanly:
-
+### Before you start any file:
 ```bash
-git pull origin main
+git fetch origin          # pull remote state
+git status                # confirm you're clean
+git log --oneline -5      # see what was recently committed
+```
+
+### Quick state check (re-run any time):
+```bash
+python3 -c "
+import re, os
+base = 'src/pages/flows/v9/'
+results = []
+for f in sorted(os.listdir(base)):
+    if f.endswith('.tsx'):
+        d = open(base+f).read()
+        n = len(re.findall(r'console\\.(error|warn)', d))
+        if n > 0:
+            results.append((n,f))
+for n,f in sorted(results, reverse=True):
+    print(f'{n:3d}  {f}')
+print('TOTAL:', sum(n for n,f in results))
+"
+```
+
+### Work assignment — update this table when you claim a file:
+
+| File | Claimed by | Started | Status |
+|---|---|---|---|
+| `OAuthAuthorizationCodeFlowV9.tsx` | *(unclaimed)* | — | 19 violations remain |
+| `SAMLBearerAssertionFlowV9.tsx` | *(unclaimed)* | — | 9 violations remain |
+| `ImplicitFlowV9.tsx` | *(unclaimed)* | — | 7 violations remain |
+| `DeviceAuthorizationFlowV9.tsx` | *(unclaimed)* | — | 6 violations remain |
+| `OIDCHybridFlowV9.tsx` | *(unclaimed)* | — | 5 violations remain |
+| `ClientCredentialsFlowV9.tsx` | *(unclaimed)* | — | 4 violations remain |
+| `JWTBearerTokenFlowV9.tsx` | *(unclaimed)* | — | 3 violations remain |
+
+> **Protocol:** Before editing a file, add your name + date to the "Claimed by" column and commit this table. When finished, mark Status as ✅ and commit. This prevents two engineers from editing the same file simultaneously.
+
+### Branch is in sync:
+```bash
+git pull origin main   # safe to run anytime — no local changes
 ```
 
 ---
