@@ -84,23 +84,20 @@ const ExternalLink = styled.a`
   }
 `;
 
-const LinkButton = styled.a`
+const DraftLink = styled.a`
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: #3b82f6;
-  color: #fff;
+  color: #3b82f6;
   text-decoration: none;
   font-weight: 600;
   font-size: 1rem;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
-  transition: background 0.2s, transform 0.2s;
   margin-top: 1.5rem;
+  transition: color 0.2s;
 
   &:hover {
-    background: #2563eb;
-    transform: translateY(-1px);
+    color: #2563eb;
+    text-decoration: underline;
   }
 `;
 
@@ -192,14 +189,14 @@ const AIAgentAuthDraft: React.FC = () => {
 							standardization.
 						</p>
 
-						<LinkButton
+						<DraftLink
 							href="https://datatracker.ietf.org/doc/draft-klrc-aiagent-auth/"
 							target="_blank"
 							rel="noopener noreferrer"
 						>
 							<FiExternalLink />
 							View Full Specification on IETF Datatracker
-						</LinkButton>
+						</DraftLink>
 					</Card>
 				</CollapsibleHeader>
 
