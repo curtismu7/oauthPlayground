@@ -25,7 +25,6 @@ import { MasterEducationSection } from '../../../components/education/MasterEduc
 import { LearningTooltip } from '../../../components/LearningTooltip';
 import OAuthErrorDisplay from '../../../components/OAuthErrorDisplay';
 import SecurityFeaturesDemo from '../../../components/SecurityFeaturesDemo';
-import { StepNavigationButtons } from '../../../components/StepNavigationButtons';
 import type { StepCredentials } from '../../../components/steps/CommonSteps';
 import { useCredentialBackup } from '../../../hooks/useCredentialBackup';
 import {
@@ -362,7 +361,7 @@ const ImplicitFlowV9: React.FC = () => {
 		};
 
 		loadCredentials();
-	}, [selectedVariant, controller.credentials, controller.setCredentials]); // Removed controller dependency to prevent infinite loop
+	}, [selectedVariant]); // Only run on mount and when variant changes
 
 	// Update controller when variant changes and reload credentials
 	useEffect(() => {
@@ -2080,44 +2079,6 @@ const ImplicitFlowV9: React.FC = () => {
 					<StepContentWrapper>{renderStepContent}</StepContentWrapper>
 				</MainCard>
 
-				<StepNavigationButtons
-					currentStep={currentStep}
-					totalSteps={STEP_METADATA.length}
-					onPrevious={() => setCurrentStep((prev) => Math.max(prev - 1, 0))}
-					onReset={() => {
-						setCurrentStep(0);
-						controller.resetFlow();
-
-						// Clear Implicit Flow V9-specific storage
-						FlowCredentialService.clearFlowState('implicit-v9');
-						logger.info('ImplicitFlowV9', 'Cleared flow-specific storage');
-
-						// Clear any potential ConfigChecker-related state or cached data
-						try {
-							// Clear any comparison results or cached application data
-							sessionStorage.removeItem('config-checker-diffs');
-							sessionStorage.removeItem('config-checker-last-check');
-							sessionStorage.removeItem('pingone-app-cache');
-							localStorage.removeItem('pingone-applications-cache');
-
-							// Clear any worker token related cache that might be used for pre-flight checks
-							sessionStorage.removeItem('worker-token-cache');
-							localStorage.removeItem('worker-apps-cache');
-
-							logger.info('ImplicitFlowV9', 'Reset: cleared ConfigChecker and pre-flight cache data');
-						} catch (_error) {
-							// Background cache clear — non-critical
-						}
-
-						// Clear credential backup when flow is reset
-						clearBackup();
-					}}
-					onNext={() => setCurrentStep((prev) => Math.min(prev + 1, STEP_METADATA.length - 1))}
-					canNavigateNext={isStepValid(currentStep)}
-					isFirstStep={currentStep === 0}
-					nextButtonText="Next"
-					disabledMessage=""
-				/>
 			</ContentWrapper>
 		</Container>
 	);

@@ -20,7 +20,7 @@
 | V9 flows: `console.error/warn` | ✅ **DONE** | 0 violations in all V9 flows — WorkerTokenFlowV9 1 occurrence exempt (inside `<pre>` tag). CIBAFlowV9 + RedirectlessFlowV9_Real (13 violations) fixed commit `8eb74df06` |
 | V9 services: `console.error/warn` | ✅ **DONE** | 48 violations removed across 13 service files (commit `d2948f543`) — 2 false positives skipped (postmanCollectionGeneratorV9 template strings, credentialsServiceV9 JSDoc) |
 | Non-V9 flow files: `console.error/warn` | ✅ **DONE** | 26 violations removed across 6 files: DPoPFlow, IDTokensFlow, PARFlow, SAMLServiceProviderFlowV1, UserInfoFlow, KrogerGroceryStoreMFA (commit `ac7089a02`) — 4 false positives skipped (MFAFlow + PingOneLogoutFlow template strings) |
-| Floating `StepNavigationButtons` removal | 🔄 **IN PROGRESS** | Remove draggable fixed-position stepper widget from all V9 flows — done: OAuthAuthorizationCodeFlowV9 — remaining: OIDCHybridFlowV9, DeviceAuthorizationFlowV9, ImplicitFlowV9, MFAWorkflowLibraryFlowV9, ClientCredentialsFlowV9, WorkerTokenFlowV9, RARFlowV9, RedirectlessFlowV9_Real (8 left) |
+| Floating `StepNavigationButtons` removal | 🔄 **IN PROGRESS** | Remove draggable fixed-position stepper widget from all V9 flows — done: OAuthAuthorizationCodeFlowV9, ImplicitFlowV9 — remaining: OIDCHybridFlowV9, DeviceAuthorizationFlowV9, MFAWorkflowLibraryFlowV9, ClientCredentialsFlowV9, WorkerTokenFlowV9, RARFlowV9, RedirectlessFlowV9_Real (7 left) |
 | **NEW: Logging Implementation Plan** | ✅ **DONE** | Comprehensive 5-week plan created (see docs/standards/logging-implementation-plan.md) |
 | **NEW: Comprehensive Status Assessment** | ✅ **DONE** | Complete technical debt analysis (see COMPREHENSIVE_STANDARDIZATION_STATUS.md) |
 
