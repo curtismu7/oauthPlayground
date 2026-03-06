@@ -9,9 +9,10 @@ import {
 } from '@icons';
 import { useCallback, useEffect, useId, useState } from 'react';
 import styled from 'styled-components';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { FlowHeader } from '../services/flowHeaderService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { logger } from '../utils/logger';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -358,9 +359,18 @@ const JWKSTroubleshooting: React.FC = () => {
 	const copyToClipboard = useCallback(async (text: string, label: string) => {
 		try {
 			await navigator.clipboard.writeText(text);
-			modernMessaging.showFooterMessage({ type: 'info', message: `${label} copied to clipboard!`, duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: `${label} copied to clipboard!`,
+				duration: 3000,
+			});
 		} catch {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to copy ${label} to clipboard`, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: `Failed to copy ${label} to clipboard`,
+				dismissible: true,
+			});
 		}
 	}, []);
 
@@ -373,7 +383,12 @@ const JWKSTroubleshooting: React.FC = () => {
 					setEnvironmentId(credentials.environmentId);
 				}
 			} catch (error) {
-				console.error('Failed to update environment ID from worker token:', error);
+				logger.error(
+					'JWKSTroubleshooting',
+					'Failed to update environment ID from worker token:',
+					undefined,
+					error as Error
+				);
 			}
 		};
 
@@ -428,9 +443,18 @@ const JWKSTroubleshooting: React.FC = () => {
 				setCommandResults((prev) => [newResult, ...prev]);
 
 				if (status === 'success') {
-					modernMessaging.showFooterMessage({ type: 'info', message: 'JWKS command executed successfully - check results below', duration: 3000 });
+					modernMessaging.showFooterMessage({
+						type: 'info',
+						message: 'JWKS command executed successfully - check results below',
+						duration: 3000,
+					});
 				} else {
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Network error occurred', dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: 'Network error occurred',
+						dismissible: true,
+					});
 				}
 			} catch (error) {
 				const newResult: CommandResult = {
@@ -441,7 +465,12 @@ const JWKSTroubleshooting: React.FC = () => {
 				};
 
 				setCommandResults((prev) => [newResult, ...prev]);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Network error occurred', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'Network error occurred',
+					dismissible: true,
+				});
 			} finally {
 				setRunningCommands((prev) => {
 					const newSet = new Set(prev);

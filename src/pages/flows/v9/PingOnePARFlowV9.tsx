@@ -9,6 +9,7 @@ import ColoredTokenDisplay from '../../../components/ColoredTokenDisplay';
 import { useAuthorizationCodeFlowController } from '../../../hooks/useAuthorizationCodeFlowController';
 import { usePageScroll } from '../../../hooks/usePageScroll';
 import { comprehensiveFlowDataService } from '../../../services/comprehensiveFlowDataService';
+import { logger } from '../../../services/loggingService';
 import {
 	type PARConfiguration,
 	PARConfigurationServiceUtils,
@@ -22,7 +23,6 @@ import { V9ModernMessagingService } from '../../../services/v9/V9ModernMessaging
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 import { PKCEStorageServiceV8U } from '../../../v8u/services/pkceStorageServiceV8U';
-import { logger } from '../../../services/loggingService';
 
 // Step metadata for V9
 const STEP_METADATA = [

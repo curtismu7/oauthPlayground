@@ -89,7 +89,7 @@ const MFALoginHintFlowV9: React.FC = () => {
 	useEffect(() => {
 		return modernMessaging.subscribe(setMessageState);
 	}, [modernMessaging]);
-	
+
 	const { scrollToTopAfterAction } = usePageScroll();
 
 	// State management
@@ -1074,9 +1074,7 @@ const MFALoginHintFlowV9: React.FC = () => {
 								marginBottom: '1rem',
 							}}
 						>
-							<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>
-								Achievements:
-							</h4>
+							<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>Achievements:</h4>
 							<ul style={{ margin: '0', paddingLeft: '1.5rem', color: '#4b5563' }}>
 								<li>✅ Login Hint Token generated</li>
 								<li>✅ MFA Authentication completed</li>
@@ -1096,10 +1094,18 @@ const MFALoginHintFlowV9: React.FC = () => {
 									Authentication Details:
 								</h4>
 								<div style={{ fontSize: '0.875rem', color: '#4b5563' }}>
-									<p><strong>Flow ID:</strong> {mfaResponse.flowId}</p>
-									<p><strong>Status:</strong> {mfaResponse.status}</p>
-									<p><strong>User ID:</strong> {mfaResponse.userId}</p>
-									<p><strong>Challenges:</strong> {mfaResponse.challenges.length} completed</p>
+									<p>
+										<strong>Flow ID:</strong> {mfaResponse.flowId}
+									</p>
+									<p>
+										<strong>Status:</strong> {mfaResponse.status}
+									</p>
+									<p>
+										<strong>User ID:</strong> {mfaResponse.userId}
+									</p>
+									<p>
+										<strong>Challenges:</strong> {mfaResponse.challenges.length} completed
+									</p>
 								</div>
 							</div>
 						)}
@@ -1111,4 +1117,3 @@ const MFALoginHintFlowV9: React.FC = () => {
 };
 
 export default MFALoginHintFlowV9;
-

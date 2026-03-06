@@ -9,6 +9,7 @@
  * server.js proxy endpoints to avoid CORS issues when calling PingOne APIs from localhost.
  */
 
+import { logger } from '../../../utils/logger';
 import type {
 	MFADevice,
 	MFADeviceType,
@@ -113,7 +114,7 @@ class MFAAuthenticationService {
 				},
 			};
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to fetch MFA devices:`, error);
+			logger.error(MODULE_TAG, 'Failed to fetch MFA devices:', undefined, error as Error);
 
 			const portalError: PortalError = {
 				code: 'MFA_DEVICES_FETCH_FAILED',
@@ -199,7 +200,7 @@ class MFAAuthenticationService {
 				},
 			};
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to initiate MFA authentication:`, error);
+			logger.error(MODULE_TAG, 'Failed to initiate MFA authentication:', undefined, error as Error);
 
 			const portalError: PortalError = {
 				code: 'MFA_INITIATION_FAILED',
@@ -271,7 +272,7 @@ class MFAAuthenticationService {
 				},
 			};
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to complete MFA authentication:`, error);
+			logger.error(MODULE_TAG, 'Failed to complete MFA authentication:', undefined, error as Error);
 
 			const portalError: PortalError = {
 				code: 'MFA_COMPLETION_FAILED',

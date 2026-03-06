@@ -9,6 +9,7 @@
  * endpoints to avoid CORS issues when calling PingOne APIs from localhost.
  */
 
+import { logger } from '../../../utils/logger';
 import type { PortalError, ServiceResponse, UserContext } from '../types/protectPortal.types';
 
 const MODULE_TAG = '[🔐 PINGONE-LOGIN-SERVICE]';
@@ -77,7 +78,7 @@ export class PingOneLoginService {
 					const errorData = await response.json();
 					errorDetails =
 						errorData.error_description || errorData.message || JSON.stringify(errorData);
-					console.error(`${MODULE_TAG} Server error details:`, errorData);
+					logger.error(MODULE_TAG, 'Server error details:', { errorData });
 				} catch (_e) {
 					// If response is not JSON, try to get text
 					try {
@@ -120,7 +121,7 @@ export class PingOneLoginService {
 				},
 			};
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to initialize embedded login:`, error);
+			logger.error(MODULE_TAG, 'Failed to initialize embedded login:', undefined, error as Error);
 
 			const portalError: PortalError = {
 				code: 'LOGIN_INIT_FAILED',
@@ -203,7 +204,7 @@ export class PingOneLoginService {
 				},
 			};
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to submit credentials:`, error);
+			logger.error(MODULE_TAG, 'Failed to submit credentials:', undefined, error as Error);
 
 			const portalError: PortalError = {
 				code: 'CREDENTIALS_FAILED',
@@ -290,7 +291,7 @@ export class PingOneLoginService {
 				},
 			};
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to resume flow:`, error);
+			logger.error(MODULE_TAG, 'Failed to resume flow:', undefined, error as Error);
 
 			const portalError: PortalError = {
 				code: 'RESUME_FAILED',
@@ -376,7 +377,7 @@ export class PingOneLoginService {
 				},
 			};
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to exchange code for tokens:`, error);
+			logger.error(MODULE_TAG, 'Failed to exchange code for tokens:', undefined, error as Error);
 
 			const portalError: PortalError = {
 				code: 'TOKEN_EXCHANGE_FAILED',
@@ -459,7 +460,7 @@ export class PingOneLoginService {
 				},
 			};
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to extract user from ID token:`, error);
+			logger.error(MODULE_TAG, 'Failed to extract user from ID token:', undefined, error as Error);
 			throw new Error('Invalid ID token format');
 		}
 	}

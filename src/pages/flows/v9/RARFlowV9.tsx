@@ -278,7 +278,6 @@ const RARFlowV9: React.FC = () => {
 		}));
 	}, []);
 
-	
 	// Generate RAR authorization details
 	const generateRARAuthorizationDetails = useCallback((): RARAuthorizationDetails => {
 		return {
@@ -886,7 +885,6 @@ const RARFlowV9: React.FC = () => {
 						{renderStepContent()}
 
 						<SectionDivider />
-
 					</StepContentWrapper>
 				</ResponsiveMainCard>
 

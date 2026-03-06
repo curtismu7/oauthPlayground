@@ -7,6 +7,7 @@ import TokenIntrospect from '../components/TokenIntrospect';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { UnifiedTokenDisplay } from '../services/unifiedTokenDisplayService';
 import V7StepperService from '../services/v7StepperService';
+import { logger } from '../utils/logger';
 import { type PlaygroundResult, RESPONSE_TYPES, RESULT_STORAGE_KEY } from './PingOneAuthentication';
 
 const Page = styled.div`
@@ -281,7 +282,11 @@ const PingOneAuthenticationResult: React.FC = () => {
 				}
 			}
 		} catch (error) {
-			console.warn('[PingOneAuthenticationResult] Failed to load result:', error);
+			logger.warn(
+				'PingOneAuthenticationResult',
+				'[PingOneAuthenticationResult] Failed to load result:',
+				{ error }
+			);
 		}
 
 		// Scroll to top when component mounts

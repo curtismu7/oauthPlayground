@@ -335,7 +335,6 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 		}));
 	}, []);
 
-	
 	// Step validation with enhanced error messages
 	const isStepValid = useCallback(
 		(step: number): boolean => {
@@ -367,7 +366,6 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 		},
 		[controller.credentials, controller.tokens]
 	);
-
 
 	// Ensure Client Credentials Flow V9 uses its own credential storage
 	useEffect(() => {

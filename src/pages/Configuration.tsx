@@ -28,6 +28,7 @@ import { credentialStorageManager } from '../services/credentialStorageManager';
 import { FlowHeader } from '../services/flowHeaderService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { credentialManager } from '../utils/credentialManager';
+import { logger } from '../utils/logger';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
 
@@ -325,7 +326,12 @@ const Configuration: React.FC = () => {
 			setUriCatalog(updatedCatalog);
 			v4ToastManager.showSuccess('Callback URIs reset to default values.');
 		} catch (error) {
-			console.error('[Configuration] Failed to reset callback URIs:', error);
+			logger.error(
+				'Configuration',
+				'[Configuration] Failed to reset callback URIs:',
+				undefined,
+				error as Error
+			);
 			v4ToastManager.showError('Unable to reset callback URIs. Check the console for details.');
 		} finally {
 			setUriSaving(false);
@@ -375,7 +381,12 @@ const Configuration: React.FC = () => {
 					: 'Callback URIs now using default values.'
 			);
 		} catch (error) {
-			console.error('[Configuration] Failed to apply callback URI overrides:', error);
+			logger.error(
+				'Configuration',
+				'[Configuration] Failed to apply callback URI overrides:',
+				undefined,
+				error as Error
+			);
 			v4ToastManager.showError('Unable to update callback URIs. Check the console for details.');
 		} finally {
 			setUriSaving(false);
@@ -460,7 +471,7 @@ const Configuration: React.FC = () => {
 					});
 				}
 			} catch (error) {
-				console.error('Failed to load credentials:', error);
+				logger.error('Configuration', 'Failed to load credentials:', undefined, error as Error);
 			}
 		};
 
@@ -479,7 +490,12 @@ const Configuration: React.FC = () => {
 					setPingOneConfig((prev) => ({ ...prev, ...savedConfig }));
 				}
 			} catch (error) {
-				console.error('Failed to load PingOne configuration:', error);
+				logger.error(
+					'Configuration',
+					'Failed to load PingOne configuration:',
+					undefined,
+					error as Error
+				);
 			}
 		};
 
@@ -500,7 +516,12 @@ const Configuration: React.FC = () => {
 			// Show success message
 			setTimeout(() => setPingOneConfigSaved(false), 3000);
 		} catch (error) {
-			console.error('Failed to save PingOne configuration:', error);
+			logger.error(
+				'Configuration',
+				'Failed to save PingOne configuration:',
+				undefined,
+				error as Error
+			);
 		}
 	};
 
@@ -510,7 +531,7 @@ const Configuration: React.FC = () => {
 			setCopiedText(label);
 			setTimeout(() => setCopiedText(''), 2000);
 		} catch (err) {
-			console.error('Failed to copy text: ', err);
+			logger.error('Configuration', 'Failed to copy text: ', undefined, err as Error);
 		}
 	};
 

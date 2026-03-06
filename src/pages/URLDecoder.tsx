@@ -15,6 +15,7 @@ import styled from 'styled-components';
 import { showFlowError, showFlowSuccess } from '../components/CentralizedSuccessMessage';
 import { FlowHeader } from '../services/flowHeaderService';
 import { copyToClipboard } from '../utils/clipboard';
+import { logger } from '../utils/logger';
 
 // Styled components
 const Container = styled.div<{ $sidebarWidth?: number }>`
@@ -350,7 +351,7 @@ const URLDecoder: React.FC = () => {
 				'The URL has been decoded and formatted for easy reading.'
 			);
 		} catch (error) {
-			console.error(' [URLDecoder] Failed to decode URL:', error);
+			logger.error('URLDecoder', ' [URLDecoder] Failed to decode URL:', undefined, error as Error);
 			showFlowError(
 				' Decode Failed',
 				error instanceof Error

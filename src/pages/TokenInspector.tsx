@@ -25,6 +25,7 @@ import {
 } from '../types/oauthErrors';
 import { defaultTheme } from '../types/token-inspector';
 import { type FormattedJwt, formatJwt, type ValidationResult, validateToken } from '../utils/jwt';
+import { logger } from '../utils/logger';
 import { oauthStorage } from '../utils/storage';
 
 interface ClaimEntry {
@@ -74,7 +75,7 @@ const TokenInspector: React.FC = () => {
 			}
 			return String(obj);
 		} catch (err) {
-			console.error('Error formatting JSON:', err);
+			logger.error('TokenInspector', 'Error formatting JSON:', undefined, err as Error);
 			return `[Error: ${err instanceof Error ? err.message : 'Unknown error formatting JSON'}]`;
 		}
 	}, []);
@@ -160,7 +161,7 @@ const TokenInspector: React.FC = () => {
 							}),
 				});
 			} catch (err) {
-				console.error('Error analyzing token:', err);
+				logger.error('TokenInspector', 'Error analyzing token:', undefined, err as Error);
 
 				const error = isTokenError(err)
 					? err
@@ -192,7 +193,7 @@ const TokenInspector: React.FC = () => {
 				return () => clearTimeout(timer);
 			})
 			.catch((err) => {
-				console.error('Failed to copy text:', err);
+				logger.error('TokenInspector', 'Failed to copy text:', undefined, err as Error);
 				// Could show a toast notification here
 			});
 	}, []);
@@ -215,7 +216,7 @@ const TokenInspector: React.FC = () => {
 				URL.revokeObjectURL(url);
 			}, 100);
 		} catch (err) {
-			console.error('Failed to download file:', err);
+			logger.error('TokenInspector', 'Failed to download file:', undefined, err as Error);
 			// Could show a toast notification here
 		}
 	}, []);
