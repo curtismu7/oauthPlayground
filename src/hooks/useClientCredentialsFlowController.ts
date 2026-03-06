@@ -10,6 +10,7 @@ import { safeLocalStorageParse } from '../utils/secureJson';
 import { storeOAuthTokens } from '../utils/tokenStorage';
 import { showGlobalError, showGlobalSuccess } from './useNotifications';
 import { useAuthorizationFlowScroll } from './usePageScroll';
+import { logger } from '../utils/logger';
 
 export type FlowVariant = 'oauth' | 'oidc';
 
@@ -185,7 +186,7 @@ const decodeJWT = (token: string): DecodedJWT | null => {
 
 		return { header, payload, signature };
 	} catch (error) {
-		console.error('Failed to decode JWT:', error);
+		logger.error('useClientCredentialsFlowController', 'Failed to decode JWT', undefined, error as Error);
 		return null;
 	}
 };
@@ -471,7 +472,7 @@ export const useClientCredentialsFlowController = (
 					clientId: loadedCreds?.clientId,
 				});
 			} catch (error) {
-				console.error('[ClientCredsController] Failed to load data:', error);
+				logger.error('useClientCredentialsFlowController', 'Failed to load data', undefined, error as Error);
 			}
 		};
 
@@ -638,7 +639,7 @@ export const useClientCredentialsFlowController = (
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
 			showGlobalError(`Token request failed: ${errorMessage}`);
-			console.error('Token request failed:', error);
+			logger.error('useClientCredentialsFlowController', 'Token request failed', undefined, error as Error);
 		} finally {
 			setIsRequesting(false);
 		}
@@ -680,7 +681,7 @@ export const useClientCredentialsFlowController = (
 			}
 		} catch (error) {
 			showGlobalError('Failed to save credentials');
-			console.error('[ClientCredsController] Save credentials error:', error);
+			logger.error('useClientCredentialsFlowController', 'Save credentials error', undefined, error as Error);
 		} finally {
 			setIsSavingCredentials(false);
 		}

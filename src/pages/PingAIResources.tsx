@@ -107,10 +107,6 @@ const Header = styled.div`
   }
 `;
 
-const PingAIResources: React.FC = () => {
-	usePageScroll({ pageName: 'Ping AI Resources', force: true });
-
-
 // Layout components at module scope — styled-components v6 calls useContext
 // internally when creating styled components; must not run inside a component.
 const pageConfig = {

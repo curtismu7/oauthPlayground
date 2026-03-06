@@ -335,64 +335,7 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 		}));
 	}, []);
 
-	const _handleNext = useCallback(() => {
-		if (currentStep < STEP_METADATA.length - 1) {
-			setCurrentStep((prev) => prev + 1);
-		}
-	}, [currentStep]);
-
-	const _handlePrevious = useCallback(() => {
-		if (currentStep > 0) {
-			setCurrentStep((prev) => prev - 1);
-		}
-	}, [currentStep]);
-
-	const _handleReset = useCallback(() => {
-		setCurrentStep(0);
-		controller.resetFlow();
-
-		// Clear Client Credentials Flow V9-specific storage with error handling
-		try {
-			FlowCredentialService.clearFlowState('client-credentials-v9');
-			logger.info('ClientCredentialsFlowV9', 'Cleared flow-specific storage');
-		} catch (_error) {
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: 'Failed to clear flow state. Please refresh the page.',
-				dismissible: true,
-			});
-		}
-
-		// Clear any potential ConfigChecker-related state or cached data
-		try {
-			// Clear any comparison results or cached application data
-			sessionStorage.removeItem('config-checker-diffs');
-			sessionStorage.removeItem('config-checker-last-check');
-			sessionStorage.removeItem('pingone-app-cache');
-			localStorage.removeItem('pingone-applications-cache');
-
-			// Clear any worker token related cache that might be used for pre-flight checks
-			sessionStorage.removeItem('worker-token-cache');
-			localStorage.removeItem('worker-apps-cache');
-
-			logger.info(
-				'ClientCredentialsFlowV9',
-				'Reset: cleared ConfigChecker and pre-flight cache data'
-			);
-		} catch (_error) {
-			// Background cache clear — non-critical
-		}
-
-		// Clear credential backup when flow is reset
-		try {
-			clearBackup();
-			logger.info('ClientCredentialsFlowV9', 'Cleared credential backup');
-		} catch (_error) {
-			// Background credential backup clear — non-critical
-		}
-	}, [controller, clearBackup]);
-
+	
 	// Step validation with enhanced error messages
 	const isStepValid = useCallback(
 		(step: number): boolean => {
@@ -425,34 +368,6 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 		[controller.credentials, controller.tokens]
 	);
 
-	// Get step validation error message
-	const _getStepValidationMessage = useCallback(
-		(step: number): string => {
-			switch (step) {
-				case 0:
-					if (!controller.credentials.environmentId) return 'Environment ID is required';
-					if (!controller.credentials.clientId) return 'Client ID is required';
-					return '';
-				case 2:
-					if (!controller.credentials.environmentId) return 'Environment ID is required';
-					if (!controller.credentials.clientId) return 'Client ID is required';
-					return '';
-				case 3:
-				case 4:
-				case 5:
-					if (!controller.tokens?.access_token)
-						return 'Access token is required. Please complete the token request first.';
-					return '';
-				default:
-					return '';
-			}
-		},
-		[controller.credentials, controller.tokens]
-	);
-
-	const _canNavigateNext = useMemo(() => {
-		return isStepValid(currentStep) && currentStep < STEP_METADATA.length - 1;
-	}, [currentStep, isStepValid]);
 
 	// Ensure Client Credentials Flow V9 uses its own credential storage
 	useEffect(() => {

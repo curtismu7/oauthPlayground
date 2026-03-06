@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { scopeValidationService } from '../services/scopeValidationService';
 import { safeLocalStorageParse } from '../utils/secureJson';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+import { logger } from '../utils/logger';
 
 export interface DeviceCodeResponse {
 	device_code: string;
@@ -100,7 +101,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 				localStorage.setItem('device_flow_credentials', JSON.stringify(creds));
 				console.log(`${LOG_PREFIX} [INFO] Credentials saved to localStorage`);
 			} catch (e) {
-				console.warn(`${LOG_PREFIX} [WARN] Failed to save credentials to localStorage:`, e);
+				logger.warn('useDeviceAuthorizationFlow', `Failed to save credentials to localStorage`, { detail: String(e) });
 			}
 		}, 500); // Wait 500ms after last keystroke before saving
 	}, []);
@@ -200,14 +201,14 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 
 		if (!credentials?.environmentId || !credentials?.clientId) {
 			const error = 'Missing credentials: environmentId and clientId are required';
-			console.error(`${LOG_PREFIX} [ERROR] ${error}`);
+			logger.error('useDeviceAuthorizationFlow', `${error}`);
 			v4ToastManager.showError('Please configure PingOne credentials first.');
 			return;
 		}
 
 		// Prevent multiple simultaneous requests
 		if (deviceCodeData && pollingStatus.status === 'polling') {
-			console.warn(`${LOG_PREFIX} [WARN] Device code request already in progress`);
+			logger.warn('useDeviceAuthorizationFlow', `Device code request already in progress`);
 			return;
 		}
 
@@ -274,7 +275,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 					errorData = { message: errorText };
 				}
 
-				console.error(`${LOG_PREFIX} [ERROR] Device code request failed:`, {
+				logger.error('useDeviceAuthorizationFlow', `Device code request failed`, {
 					status: response.status,
 					statusText: response.statusText,
 					error: errorData,
@@ -282,7 +283,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 
 				// Enhanced error logging for Device Authorization Grant setup
 				console.group('🔧 Device Authorization Grant Setup Issues');
-				console.error('Common causes of 400 errors in device code requests:');
+				logger.error('useDeviceAuthorizationFlow', 'Common causes of 400 errors in device code requests');
 				console.log('1. Application not configured for Device Authorization Grant');
 				console.log('2. Invalid client_id - check if client exists in PingOne');
 				console.log('3. Invalid environment_id - verify the environment ID is correct');
@@ -328,7 +329,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 
 			v4ToastManager.showSuccess('Device code received! Display the user code to the user.');
 		} catch (error) {
-			console.error(`${LOG_PREFIX} [ERROR] Failed to request device code:`, error);
+			logger.error('useDeviceAuthorizationFlow', `Failed to request device code`, undefined, error as Error);
 			v4ToastManager.showError(
 				error instanceof Error ? error.message : 'Failed to request device code'
 			);
@@ -339,7 +340,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 	// Poll for tokens
 	const pollForToken = useCallback(async (): Promise<boolean> => {
 		if (!deviceCodeData || !credentials) {
-			console.error(`${LOG_PREFIX} [ERROR] Cannot poll: missing device code or credentials`);
+			logger.error('useDeviceAuthorizationFlow', `Cannot poll: missing device code or credentials`);
 			return false;
 		}
 
@@ -477,7 +478,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 
 			// Only throw error for actual HTTP errors (not Device Flow specific responses)
 			if (!response.ok && !data.error) {
-				console.error(`${LOG_PREFIX} [ERROR] Token request failed:`, {
+				logger.error('useDeviceAuthorizationFlow', `Token request failed`, {
 					status: response.status,
 					statusText: response.statusText,
 					error: data,
@@ -497,9 +498,9 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 				// Validate response based on requested scopes (OAuth vs OIDC)
 				const isOIDCFlow = credentials.scopes?.includes('openid');
 				if (isOIDCFlow && !data.id_token) {
-					console.warn(`${LOG_PREFIX} [WARN] OIDC flow requested but no ID token received`);
+					logger.warn('useDeviceAuthorizationFlow', `OIDC flow requested but no ID token received`);
 				} else if (!isOIDCFlow && data.id_token) {
-					console.warn(`${LOG_PREFIX} [WARN] OAuth 2.0 flow but ID token received (unexpected)`);
+					logger.warn('useDeviceAuthorizationFlow', `OAuth 2.0 flow but ID token received (unexpected)`);
 				}
 
 				// Log flow type for debugging
@@ -524,7 +525,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 					);
 					console.log(`${LOG_PREFIX} [INFO] Tokens stored in localStorage`);
 				} catch (e) {
-					console.warn(`${LOG_PREFIX} [WARN] Failed to store tokens in localStorage:`, e);
+					logger.warn('useDeviceAuthorizationFlow', `Failed to store tokens in localStorage`, { detail: String(e) });
 				}
 
 				v4ToastManager.showSuccess('Authorization complete! Tokens received.');
@@ -533,11 +534,11 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 
 			// Handle unknown errors
 			if (data.error) {
-				console.error(`${LOG_PREFIX} [ERROR] Unknown error during polling:`, data.error);
+				logger.error('useDeviceAuthorizationFlow', `Unknown error during polling`, data.error);
 
 				// Enhanced error logging for 400 Bad Request
 				console.group('🔧 Device Authorization Error Response - Troubleshooting Guide');
-				console.error('Error Response:', data);
+				logger.error('useDeviceAuthorizationFlow', 'Error Response', data);
 				console.log('Response Status:', response.status, response.statusText);
 				console.log('Request Details:', {
 					url: tokenEndpoint,
@@ -575,11 +576,11 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 				return true; // Stop polling
 			}
 		} catch (error) {
-			console.error(`${LOG_PREFIX} [ERROR] Polling request failed:`, error);
+			logger.error('useDeviceAuthorizationFlow', `Polling request failed`, undefined, error as Error);
 
 			// Enhanced error logging for debugging
 			console.group('🔧 Device Authorization Token Exchange Error - Troubleshooting Guide');
-			console.error('Original Error:', error);
+			logger.error('useDeviceAuthorizationFlow', 'Original Error', undefined, error as Error);
 			console.log('Request Details:', {
 				url: tokenEndpoint,
 				method: 'POST',
@@ -614,13 +615,13 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 	// Start polling for tokens
 	const startPolling = useCallback(() => {
 		if (!deviceCodeData) {
-			console.error(`${LOG_PREFIX} [ERROR] Cannot start polling: no device code`);
+			logger.error('useDeviceAuthorizationFlow', `Cannot start polling: no device code`);
 			v4ToastManager.showError('No device code available. Request a device code first.');
 			return;
 		}
 
 		if (pollingStatus.isPolling || pollingIntervalRef.current) {
-			console.warn(`${LOG_PREFIX} [WARN] Polling already in progress`);
+			logger.warn('useDeviceAuthorizationFlow', `Polling already in progress`);
 			return;
 		}
 
@@ -681,7 +682,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 				stopPolling();
 			}
 		} catch (error) {
-			console.error(`${LOG_PREFIX} [ERROR] Manual refresh failed:`, error);
+			logger.error('useDeviceAuthorizationFlow', `Manual refresh failed`, undefined, error as Error);
 		}
 	}, [deviceCodeData, credentials, pollingStatus.isPolling, pollForToken, stopPolling]);
 
@@ -721,16 +722,14 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 		try {
 			localStorage.removeItem('device_flow_tokens');
 		} catch (e) {
-			console.warn(`${LOG_PREFIX} [WARN] Failed to clear tokens from localStorage:`, e);
+			logger.warn('useDeviceAuthorizationFlow', `Failed to clear tokens from localStorage`, { detail: String(e) });
 		}
 	}, []);
 
 	// Auto-stop polling if we exceed max attempts
 	useEffect(() => {
 		if (pollingStatus.attempts > pollingStatus.maxAttempts && pollingStatus.isPolling) {
-			console.warn(
-				`${LOG_PREFIX} [WARN] Auto-stopping: exceeded max attempts (${pollingStatus.attempts}/${pollingStatus.maxAttempts})`
-			);
+			logger.warn('useDeviceAuthorizationFlow', `Auto-stopping: exceeded max attempts (${pollingStatus.attempts}/${pollingStatus.maxAttempts})`);
 			stopPolling();
 			v4ToastManager.showError('Polling exceeded maximum attempts. Please start over.');
 		}

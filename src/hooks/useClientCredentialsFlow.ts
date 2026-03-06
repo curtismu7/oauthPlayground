@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { safeJsonParse } from '../utils/secureJson';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+import { logger } from '../utils/logger';
 
 export type ClientAuthMethod =
 	| 'client_secret_post'
@@ -103,7 +104,7 @@ const decodeJWT = (token: string): DecodedJWT | null => {
 	try {
 		const parts = token.split('.');
 		if (parts.length !== 3) {
-			console.warn(`${LOG_PREFIX} [WARN] Invalid JWT format`);
+			logger.warn('useClientCredentialsFlow', `Invalid JWT format`);
 			return null;
 		}
 
@@ -113,7 +114,7 @@ const decodeJWT = (token: string): DecodedJWT | null => {
 
 		return { header, payload, signature };
 	} catch (error) {
-		console.warn(`${LOG_PREFIX} [WARN] Failed to decode JWT:`, error);
+		logger.warn('useClientCredentialsFlow', `Failed to decode JWT`, { detail: String(error) });
 		return null;
 	}
 };
@@ -141,7 +142,7 @@ const generateJWTAssertion = async (
 
 	// For production: use proper JWT library (jose, jsonwebtoken)
 	// For demo: create unsigned or minimally signed JWT
-	console.warn(`${LOG_PREFIX} [WARN] JWT assertion generation requires backend implementation`);
+	logger.warn('useClientCredentialsFlow', `JWT assertion generation requires backend implementation`);
 
 	// Placeholder implementation - in production this should use proper crypto
 	const headerB64 = btoa(JSON.stringify(header))
@@ -177,7 +178,7 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 				}
 			}
 		} catch (e) {
-			console.warn(`${LOG_PREFIX} [WARN] Failed to load config from localStorage:`, e);
+			logger.warn('useClientCredentialsFlow', `Failed to load config from localStorage`, { detail: String(e) });
 		}
 	}, []);
 
@@ -200,7 +201,7 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 				}
 			}
 		} catch (e) {
-			console.warn(`${LOG_PREFIX} [WARN] Failed to load tokens from localStorage:`, e);
+			logger.warn('useClientCredentialsFlow', `Failed to load tokens from localStorage`, { detail: String(e) });
 		}
 	}, []);
 
@@ -221,7 +222,7 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 				localStorage.setItem('client_credentials_config', JSON.stringify(newConfig));
 				console.log(`${LOG_PREFIX} [INFO] Config saved to localStorage`);
 			} catch (e) {
-				console.warn(`${LOG_PREFIX} [WARN] Failed to save config to localStorage:`, e);
+				logger.warn('useClientCredentialsFlow', `Failed to save config to localStorage`, { detail: String(e) });
 			}
 		}, 500); // Wait 500ms after last keystroke before saving
 	}, []);
@@ -230,7 +231,7 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 	const requestToken = useCallback(async () => {
 		if (!config) {
 			const errorMsg = 'Configuration is required';
-			console.error(`${LOG_PREFIX} [ERROR] ${errorMsg}`);
+			logger.error('useClientCredentialsFlow', `${errorMsg}`);
 			setError(errorMsg);
 			v4ToastManager.showError(errorMsg);
 			return;
@@ -239,7 +240,7 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 		// Validate required fields
 		if (!config.clientId) {
 			const errorMsg = 'Client ID is required';
-			console.error(`${LOG_PREFIX} [ERROR] ${errorMsg}`);
+			logger.error('useClientCredentialsFlow', `${errorMsg}`);
 			setError(errorMsg);
 			v4ToastManager.showError(errorMsg);
 			return;
@@ -247,7 +248,7 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 
 		if (config.authMethod !== 'none' && !config.clientSecret && !config.jwtPrivateKey) {
 			const errorMsg = 'Client secret or private key is required for authentication';
-			console.error(`${LOG_PREFIX} [ERROR] ${errorMsg}`);
+			logger.error('useClientCredentialsFlow', `${errorMsg}`);
 			setError(errorMsg);
 			v4ToastManager.showError(errorMsg);
 			return;
@@ -327,7 +328,7 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 				case 'tls_client_auth': {
 					body.append('client_id', config.clientId);
 					console.log(`${LOG_PREFIX} [INFO] Using mTLS authentication`);
-					console.warn(`${LOG_PREFIX} [WARN] mTLS requires proper certificate configuration`);
+					logger.warn('useClientCredentialsFlow', `mTLS requires proper certificate configuration`);
 					break;
 				}
 
@@ -352,8 +353,8 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 			if (!response.ok) {
 				const errorMsg =
 					responseData.error_description || responseData.error || `HTTP ${response.status}`;
-				console.error(`${LOG_PREFIX} [ERROR] Token request failed:`, errorMsg);
-				console.error(`${LOG_PREFIX} [ERROR] Response:`, responseData);
+				logger.error('useClientCredentialsFlow', `Token request failed`, errorMsg);
+				logger.error('useClientCredentialsFlow', `Response`, responseData);
 				setError(errorMsg);
 				v4ToastManager.showError(`Token request failed: ${errorMsg}`);
 				return;
@@ -388,7 +389,7 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 				localStorage.setItem('client_credentials_tokens', JSON.stringify(tokenData));
 				console.log(`${LOG_PREFIX} [INFO] Tokens saved to localStorage`);
 			} catch (e) {
-				console.warn(`${LOG_PREFIX} [WARN] Failed to save tokens to localStorage:`, e);
+				logger.warn('useClientCredentialsFlow', `Failed to save tokens to localStorage`, { detail: String(e) });
 			}
 
 			// Store flow source for Token Management page
@@ -409,7 +410,7 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 
 				console.log(`${LOG_PREFIX} [INFO] Flow source and context saved for Token Management`);
 			} catch (e) {
-				console.warn(`${LOG_PREFIX} [WARN] Failed to save flow context:`, e);
+				logger.warn('useClientCredentialsFlow', `Failed to save flow context`, { detail: String(e) });
 			}
 
 			console.log(`${LOG_PREFIX} [INFO] ✅ Token request successful!`);
@@ -424,11 +425,11 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 					console.log(`${LOG_PREFIX} [INFO] Token request cancelled`);
 					return;
 				}
-				console.error(`${LOG_PREFIX} [ERROR] Token request failed:`, error.message);
+				logger.error('useClientCredentialsFlow', `Token request failed`, error.message);
 				setError(error.message);
 				v4ToastManager.showError(`Token request failed: ${error.message}`);
 			} else {
-				console.error(`${LOG_PREFIX} [ERROR] Unknown error:`, error);
+				logger.error('useClientCredentialsFlow', `Unknown error`, undefined, error as Error);
 				setError('Unknown error occurred');
 				v4ToastManager.showError('An unknown error occurred');
 			}
@@ -458,7 +459,7 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 			localStorage.removeItem('client_credentials_tokens');
 			console.log(`${LOG_PREFIX} [INFO] Tokens cleared from localStorage`);
 		} catch (e) {
-			console.warn(`${LOG_PREFIX} [WARN] Failed to clear tokens from localStorage:`, e);
+			logger.warn('useClientCredentialsFlow', `Failed to clear tokens from localStorage`, { detail: String(e) });
 		}
 
 		v4ToastManager.showSuccess('Flow reset');

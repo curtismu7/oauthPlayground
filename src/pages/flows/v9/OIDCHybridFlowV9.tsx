@@ -560,62 +560,13 @@ const OIDCHybridFlowV9: React.FC = () => {
 		[controller]
 	);
 
-	// Get step validation error message
-	const _getStepValidationMessage = useCallback(
-		(stepIndex: number): string => {
-			switch (stepIndex) {
-				case 0:
-					if (!controller.credentials?.environmentId) return 'Environment ID is required';
-					if (!controller.credentials?.clientId) return 'Client ID is required';
-					if (!controller.credentials?.redirectUri) return 'Redirect URI is required';
-					return '';
-				case 1:
-					if (!controller.flowVariant) return 'Flow variant must be selected';
-					return '';
-				case 2:
-					if (!controller.authorizationUrl) return 'Authorization URL must be generated';
-					return '';
-				case 3:
-					if (!controller.tokens?.code)
-						return 'Authorization code is required. Complete the authorization step first.';
-					return '';
-				case 4:
-					if (!controller.tokens?.access_token)
-						return 'Access token is required. Complete the token exchange step first.';
-					return '';
-				case 5:
-					if (!controller.tokens) return 'Tokens are required for completion';
-					return '';
-				default:
-					return '';
-			}
-		},
-		[controller]
-	);
-
+	
 	const canNavigateNext = useCallback(() => {
 		return currentStep < STEP_METADATA.length - 1 && isStepValid(currentStep);
 	}, [currentStep, isStepValid]);
 
-	const _handleNextStep = useCallback(() => {
-		if (!canNavigateNext()) {
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: 'Complete the required actions before continuing to the next step.',
-				dismissible: true,
-			});
-			return;
-		}
-		setCurrentStep((prev) => Math.min(prev + 1, STEP_METADATA.length - 1));
-		window.scrollTo({ top: 0, behavior: 'smooth' });
-	}, [canNavigateNext]);
-
-	const _handlePreviousStep = useCallback(() => {
-		setCurrentStep((prev) => Math.max(prev - 1, 0));
-		window.scrollTo({ top: 0, behavior: 'smooth' });
-	}, []);
-
+	
+	
 	const renderedTokens = useMemo(() => {
 		if (!controller.tokens) {
 			return null;

@@ -4,6 +4,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { CredentialSyncEvent, credentialSyncService } from '../services/credentialSyncService';
 import { FlowCredentialService } from '../services/flowCredentialService';
+import { logger } from '../utils/logger';
 
 export interface UseCredentialSyncOptions {
 	flowKey: string;
@@ -62,10 +63,7 @@ export const useCredentialSync = (options: UseCredentialSyncOptions): UseCredent
 						: 'none',
 				});
 			} catch (error) {
-				console.error(
-					`❌ [useCredentialSync:${flowKey}] Failed to load initial credentials:`,
-					error
-				);
+				logger.error('useCredentialSync', `[useCredentialSync:${flowKey}] Failed to load initial credentials`, undefined, error as Error);
 			} finally {
 				setIsLoading(false);
 			}
@@ -112,7 +110,7 @@ export const useCredentialSync = (options: UseCredentialSyncOptions): UseCredent
 					onCredentialsChanged(refreshedCredentials);
 				}
 			} catch (error) {
-				console.error(`❌ [useCredentialSync:${flowKey}] Failed to refresh credentials:`, error);
+				logger.error('useCredentialSync', `[useCredentialSync:${flowKey}] Failed to refresh credentials`, undefined, error as Error);
 			} finally {
 				setIsLoading(false);
 			}
@@ -150,7 +148,7 @@ export const useCredentialSync = (options: UseCredentialSyncOptions): UseCredent
 				onCredentialsChanged(refreshedCredentials);
 			}
 		} catch (error) {
-			console.error(`❌ [useCredentialSync:${flowKey}] Manual refresh failed:`, error);
+			logger.error('useCredentialSync', `[useCredentialSync:${flowKey}] Manual refresh failed`, undefined, error as Error);
 		} finally {
 			setIsLoading(false);
 		}
