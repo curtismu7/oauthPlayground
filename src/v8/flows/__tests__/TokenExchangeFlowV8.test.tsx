@@ -260,4 +260,205 @@ describe('TokenExchangeFlowV8', () => {
 		expect(scopeInput).toHaveValue('read');
 		expect(actorTokenInput).toHaveValue('');
 	});
+
+	describe('Validation Insights', () => {
+		it('should display validation insights after successful token exchange', async () => {
+			// Mock successful token exchange response
+			mockTokenExchangeService.exchangeToken.mockResolvedValue({
+				access_token: 'new-access-token',
+				token_type: 'Bearer',
+				expires_in: 3600,
+				scope: 'read write',
+			});
+
+			render(<TokenExchangeFlowV8 />);
+
+			// Fill the form and submit
+			const subjectTokenInput = screen.getByLabelText('Subject Token');
+			const subjectTokenTypeSelect = screen.getByLabelText('Subject Token Type');
+			const requestedTokenTypeSelect = screen.getByLabelText('Requested Token Type');
+			const exchangeButton = screen.getByText('Exchange Token');
+
+			fireEvent.change(subjectTokenInput, { target: { value: mockSubjectToken } });
+			fireEvent.change(subjectTokenTypeSelect, { target: { value: 'access_token' } });
+			fireEvent.change(requestedTokenTypeSelect, { target: { value: 'access_token' } });
+
+			fireEvent.click(exchangeButton);
+
+			// Wait for completion and validation insights
+			await waitFor(() => {
+				expect(screen.getByText('🎉 Token Exchange Flow Complete')).toBeInTheDocument();
+			});
+
+			// Check for validation insights section
+			expect(screen.getByText('Validation Insights:')).toBeInTheDocument();
+			expect(screen.getByText('✅ Token exchange completed securely')).toBeInTheDocument();
+			expect(screen.getByText('✅ RFC 8693 token exchange standard followed')).toBeInTheDocument();
+			expect(screen.getByText('✅ Security delegation properly configured')).toBeInTheDocument();
+			expect(screen.getByText('✅ Access token successfully validated')).toBeInTheDocument();
+		});
+
+		it('should display achievements after successful token exchange', async () => {
+			// Mock successful token exchange response
+			mockTokenExchangeService.exchangeToken.mockResolvedValue({
+				access_token: 'new-access-token',
+				token_type: 'Bearer',
+				expires_in: 3600,
+				scope: 'read write',
+			});
+
+			render(<TokenExchangeFlowV8 />);
+
+			// Fill the form and submit
+			const subjectTokenInput = screen.getByLabelText('Subject Token');
+			const subjectTokenTypeSelect = screen.getByLabelText('Subject Token Type');
+			const requestedTokenTypeSelect = screen.getByLabelText('Requested Token Type');
+			const exchangeButton = screen.getByText('Exchange Token');
+
+			fireEvent.change(subjectTokenInput, { target: { value: mockSubjectToken } });
+			fireEvent.change(subjectTokenTypeSelect, { target: { value: 'access_token' } });
+			fireEvent.change(requestedTokenTypeSelect, { target: { value: 'access_token' } });
+
+			fireEvent.click(exchangeButton);
+
+			// Wait for completion and achievements
+			await waitFor(() => {
+				expect(screen.getByText('Achievements:')).toBeInTheDocument();
+			});
+
+			// Check for achievements
+			expect(screen.getByText('✅ Token exchange request executed successfully')).toBeInTheDocument();
+			expect(screen.getByText('✅ access_token token obtained')).toBeInTheDocument();
+			expect(screen.getByText('✅ Security delegation completed')).toBeInTheDocument();
+			expect(screen.getByText('✅ RFC 8693 token exchange implemented')).toBeInTheDocument();
+		});
+
+		it('should display exchange summary after successful token exchange', async () => {
+			// Mock successful token exchange response
+			mockTokenExchangeService.exchangeToken.mockResolvedValue({
+				access_token: 'new-access-token',
+				token_type: 'Bearer',
+				expires_in: 3600,
+				scope: 'read write',
+			});
+
+			render(<TokenExchangeFlowV8 />);
+
+			// Fill the form and submit
+			const subjectTokenInput = screen.getByLabelText('Subject Token');
+			const subjectTokenTypeSelect = screen.getByLabelText('Subject Token Type');
+			const requestedTokenTypeSelect = screen.getByLabelText('Requested Token Type');
+			const exchangeButton = screen.getByText('Exchange Token');
+
+			fireEvent.change(subjectTokenInput, { target: { value: mockSubjectToken } });
+			fireEvent.change(subjectTokenTypeSelect, { target: { value: 'access_token' } });
+			fireEvent.change(requestedTokenTypeSelect, { target: { value: 'access_token' } });
+
+			fireEvent.click(exchangeButton);
+
+			// Wait for completion and exchange summary
+			await waitFor(() => {
+				expect(screen.getByText('Exchange Summary:')).toBeInTheDocument();
+			});
+
+			// Check for exchange summary details
+			expect(screen.getByText('Subject Token Type: access_token')).toBeInTheDocument();
+			expect(screen.getByText('Requested Token Type: access_token')).toBeInTheDocument();
+			expect(screen.getByText('Access Token: ✅ Obtained')).toBeInTheDocument();
+			expect(screen.getByText('Token Type: Bearer')).toBeInTheDocument();
+			expect(screen.getByText('Expires In: 3600 seconds')).toBeInTheDocument();
+			expect(screen.getByText('Scope: read write')).toBeInTheDocument();
+		});
+
+		it('should handle different token types in validation insights', async () => {
+			// Mock successful token exchange response with refresh token
+			mockTokenExchangeService.exchangeToken.mockResolvedValue({
+				access_token: 'new-access-token',
+				refresh_token: 'new-refresh-token',
+				token_type: 'Bearer',
+				expires_in: 3600,
+				scope: 'offline_access',
+			});
+
+			render(<TokenExchangeFlowV8 />);
+
+			// Fill the form and submit
+			const subjectTokenInput = screen.getByLabelText('Subject Token');
+			const subjectTokenTypeSelect = screen.getByLabelText('Subject Token Type');
+			const requestedTokenTypeSelect = screen.getByLabelText('Requested Token Type');
+			const exchangeButton = screen.getByText('Exchange Token');
+
+			fireEvent.change(subjectTokenInput, { target: { value: mockSubjectToken } });
+			fireEvent.change(subjectTokenTypeSelect, { target: { value: 'access_token' } });
+			fireEvent.change(requestedTokenTypeSelect, { target: { value: 'refresh_token' } });
+
+			fireEvent.click(exchangeButton);
+
+			// Wait for completion
+			await waitFor(() => {
+				expect(screen.getByText('🎉 Token Exchange Flow Complete')).toBeInTheDocument();
+			});
+
+			// Check for refresh token in achievements
+			expect(screen.getByText('✅ refresh_token token obtained')).toBeInTheDocument();
+		});
+
+		it('should display RFC 8693 compliance validation', async () => {
+			// Mock successful token exchange response
+			mockTokenExchangeService.exchangeToken.mockResolvedValue({
+				access_token: 'new-access-token',
+				token_type: 'Bearer',
+				expires_in: 3600,
+				scope: 'read write',
+			});
+
+			render(<TokenExchangeFlowV8 />);
+
+			// Fill the form with RFC 8693 compliant parameters
+			const subjectTokenInput = screen.getByLabelText('Subject Token');
+			const subjectTokenTypeSelect = screen.getByLabelText('Subject Token Type');
+			const requestedTokenTypeSelect = screen.getByLabelText('Requested Token Type');
+			const exchangeButton = screen.getByText('Exchange Token');
+
+			fireEvent.change(subjectTokenInput, { target: { value: mockSubjectToken } });
+			fireEvent.change(subjectTokenTypeSelect, { target: { value: 'access_token' } });
+			fireEvent.change(requestedTokenTypeSelect, { target: { value: 'access_token' } });
+
+			fireEvent.click(exchangeButton);
+
+			// Wait for completion
+			await waitFor(() => {
+				expect(screen.getByText('✅ RFC 8693 token exchange standard followed')).toBeInTheDocument();
+			});
+		});
+
+		it('should validate security delegation in completion summary', async () => {
+			// Mock successful token exchange response
+			mockTokenExchangeService.exchangeToken.mockResolvedValue({
+				access_token: 'new-access-token',
+				token_type: 'Bearer',
+				expires_in: 3600,
+				scope: 'read write',
+			});
+
+			render(<TokenExchangeFlowV8 />);
+
+			// Fill the form and submit
+			const subjectTokenInput = screen.getByLabelText('Subject Token');
+			const subjectTokenTypeSelect = screen.getByLabelText('Subject Token Type');
+			const requestedTokenTypeSelect = screen.getByLabelText('Requested Token Type');
+			const exchangeButton = screen.getByText('Exchange Token');
+
+			fireEvent.change(subjectTokenInput, { target: { value: mockSubjectToken } });
+			fireEvent.change(subjectTokenTypeSelect, { target: { value: 'access_token' } });
+			fireEvent.change(requestedTokenTypeSelect, { target: { value: 'access_token' } });
+
+			fireEvent.click(exchangeButton);
+
+			// Wait for completion
+			await waitFor(() => {
+				expect(screen.getByText('✅ Security delegation properly configured')).toBeInTheDocument();
+			});
+		});
+	});
 });
