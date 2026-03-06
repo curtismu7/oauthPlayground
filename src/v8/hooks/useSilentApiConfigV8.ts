@@ -18,7 +18,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { WorkerTokenConfigServiceV8 } from '@/v8/services/workerTokenConfigServiceV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const MODULE_TAG = '[🔕 SILENT-API-CONFIG-V8]';
 
@@ -131,11 +131,11 @@ export const useWorkerTokenConfigV8 = () => {
 				})
 			);
 
-			toastV8.info(`Silent API Token Retrieval set to: ${value}`);
+			modernMessaging.showFooterMessage({ type: 'info', message: `Silent API Token Retrieval set to: ${value}`, duration: 3000 });
 			console.log(`${MODULE_TAG} SilentApiRetrieval updated successfully`);
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to update silentApiRetrieval:`, error);
-			toastV8.error('Failed to update Silent API setting');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to update Silent API setting', dismissible: true });
 
 			// Revert local state on error
 			const serviceConfig = WorkerTokenConfigServiceV8.getConfigSync();
@@ -175,11 +175,11 @@ export const useWorkerTokenConfigV8 = () => {
 				})
 			);
 
-			toastV8.info(`Show Token After Generation set to: ${value}`);
+			modernMessaging.showFooterMessage({ type: 'info', message: `Show Token After Generation set to: ${value}`, duration: 3000 });
 			console.log(`${MODULE_TAG} ShowTokenAtEnd updated successfully`);
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to update showTokenAtEnd:`, error);
-			toastV8.error('Failed to update token display setting');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to update token display setting', dismissible: true });
 
 			// Revert local state on error
 			const serviceConfig = WorkerTokenConfigServiceV8.getConfigSync();

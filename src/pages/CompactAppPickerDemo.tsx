@@ -7,7 +7,7 @@ import styled from 'styled-components';
 import { CompactApplicationPicker } from '../components/CompactApplicationPicker';
 import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
 import { WorkerTokenModal } from '../components/WorkerTokenModal';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { getAnyWorkerToken } from '../utils/workerTokenDetection';
 
 const PageContainer = styled.div`
@@ -217,7 +217,7 @@ const CompactAppPickerDemo: React.FC = () => {
 		localStorage.removeItem('pingone_worker_token');
 		setWorkerToken('');
 		setSelectedApp(null);
-		v4ToastManager.showSuccess('Worker token cleared successfully.');
+		modernMessaging.showFooterMessage({ type: 'info', message: 'Worker token cleared successfully.', duration: 3000 });
 	}, []);
 
 	const handleGetWorkerToken = useCallback(() => {

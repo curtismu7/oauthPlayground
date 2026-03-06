@@ -13,7 +13,7 @@
 import { FiLogIn, FiRefreshCw, FiUser } from '@icons';
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/NewAuthContext';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { UserLoginModalV8 } from './UserLoginModalV8';
 
 const MODULE_TAG = '[👤 USER-LOGIN-SECTION-V8]';
@@ -46,10 +46,10 @@ export const UserLoginSectionV8: React.FC<UserLoginSectionV8Props> = ({
 			if (onTokenUpdated && userToken) {
 				onTokenUpdated(userToken);
 			}
-			toastV8.success('User token status refreshed');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'User token status refreshed', duration: 3000 });
 		} catch (error) {
 			console.error(MODULE_TAG, 'Error refreshing user token:', error);
-			toastV8.error('Failed to refresh user token');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to refresh user token', dismissible: true });
 		} finally {
 			setIsRefreshing(false);
 		}
@@ -65,10 +65,10 @@ export const UserLoginSectionV8: React.FC<UserLoginSectionV8Props> = ({
 			if (authContext.logout) {
 				await authContext.logout();
 			}
-			toastV8.success('User logged out successfully');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'User logged out successfully', duration: 3000 });
 		} catch (error) {
 			console.error(MODULE_TAG, 'Error logging out user:', error);
-			toastV8.error('Failed to log out user');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to log out user', dismissible: true });
 		}
 	};
 

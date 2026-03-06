@@ -43,7 +43,7 @@ import type {
 import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import {
 	type TokenStatusInfo,
 	WORKER_TOKEN_STATUS_STYLES,
@@ -639,10 +639,10 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 		try {
 			await updateTokenStatus();
 			setConfig(MFAConfigurationServiceV8.loadConfiguration());
-			toastV8.success('Worker token status refreshed');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'Worker token status refreshed', duration: 3000 });
 		} catch (error) {
 			console.error('[WorkerTokenStatusDisplayV8] Failed to refresh token status:', error);
-			toastV8.error('Failed to refresh token status');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to refresh token status', dismissible: true });
 		} finally {
 			setTimeout(() => setIsRefreshing(false), 500);
 		}
@@ -846,24 +846,24 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 					});
 
 					if (response.ok) {
-						toastV8.success('OAuth configuration saved to PingOne');
+						modernMessaging.showFooterMessage({ type: 'info', message: 'OAuth configuration saved to PingOne', duration: 3000 });
 					} else {
-						toastV8.warning('OAuth configuration saved locally, but failed to sync with PingOne');
+						modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'OAuth configuration saved locally, but failed to sync with PingOne', dismissible: true });
 					}
 				} catch (error) {
 					console.warn('[WorkerTokenStatusDisplayV8] Failed to sync config with PingOne:', error);
-					toastV8.warning('OAuth configuration saved locally, but failed to sync with PingOne');
+					modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'OAuth configuration saved locally, but failed to sync with PingOne', dismissible: true });
 				}
 			} else {
 				// No worker token, ask user to get one
-				toastV8.info('OAuth configuration saved locally. Get a worker token to sync with PingOne.');
+				modernMessaging.showFooterMessage({ type: 'info', message: 'OAuth configuration saved locally. Get a worker token to sync with PingOne.', duration: 3000 });
 			}
 
 			// Dispatch event to notify other components
 			window.dispatchEvent(new CustomEvent('oauthConfigurationUpdated', { detail: oauthConfig }));
 		} catch (error) {
 			console.error('[WorkerTokenStatusDisplayV8] Failed to save config:', error);
-			toastV8.error('Failed to save OAuth configuration');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save OAuth configuration', dismissible: true });
 		} finally {
 			setIsConfigLoading(false);
 			setShowConfigModal(false);

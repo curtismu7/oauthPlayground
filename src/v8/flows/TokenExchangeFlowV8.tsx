@@ -23,7 +23,7 @@ import { TokenExchangeConfigServiceV8 } from '../services/tokenExchangeConfigSer
 import { TokenExchangeServiceV8 } from '../services/tokenExchangeServiceV8';
 import type { TokenExchangeParams, TokenExchangeResponse } from '../types/tokenExchangeTypesV8';
 import { TokenExchangeError, TokenExchangeErrorType } from '../types/tokenExchangeTypesV8';
-import { toastV8 } from '../utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 type TokenExchangeScenario =
 	| 'delegation'
@@ -324,12 +324,12 @@ export const TokenExchangeFlowV8: React.FC<TokenExchangeFlowV8Props> = ({
 				const response = await TokenExchangeServiceV8.exchangeToken(params, currentEnvironmentId);
 
 				setResult(response);
-				toastV8.success('Token exchange completed successfully!');
+				modernMessaging.showFooterMessage({ type: 'info', message: 'Token exchange completed successfully!', duration: 3000 });
 				onTokenReceived?.(response);
 			} catch (err) {
 				const tokenError = err as TokenExchangeError;
 				setError(tokenError);
-				toastV8.error(`Token exchange failed: ${tokenError.message}`);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Token exchange failed: ${tokenError.message}`, dismissible: true });
 				onError?.(tokenError);
 			}
 		}, 'Exchanging tokens...');
@@ -352,10 +352,10 @@ export const TokenExchangeFlowV8: React.FC<TokenExchangeFlowV8Props> = ({
 		navigator.clipboard
 			.writeText(text)
 			.then(() => {
-				toastV8.success('Copied to clipboard!');
+				modernMessaging.showFooterMessage({ type: 'info', message: 'Copied to clipboard!', duration: 3000 });
 			})
 			.catch(() => {
-				toastV8.error('Failed to copy to clipboard');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to copy to clipboard', dismissible: true });
 			});
 	}, []);
 

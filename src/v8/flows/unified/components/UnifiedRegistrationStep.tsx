@@ -32,7 +32,7 @@ import React, { useCallback, useState } from 'react';
 import type { DeviceFlowConfig } from '@/v8/config/deviceFlowConfigTypes';
 import type { MFAFlowController } from '@/v8/flows/controllers/MFAFlowController';
 import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { type DeviceComponentProps, DeviceComponentRegistry } from './DeviceComponentRegistry';
 import { DynamicFormRenderer } from './DynamicFormRenderer';
 
@@ -189,7 +189,7 @@ export const UnifiedRegistrationStep: React.FC<UnifiedRegistrationStepProps> = (
 			}));
 
 			// Show success message
-			toastV8.success(`${config.displayName} device registered successfully!`);
+			modernMessaging.showFooterMessage({ type: 'info', message: `${config.displayName} device registered successfully!`, duration: 3000 });
 
 			// Navigate to next step (activation)
 			nav.next();
@@ -197,7 +197,7 @@ export const UnifiedRegistrationStep: React.FC<UnifiedRegistrationStepProps> = (
 			console.error(`${MODULE_TAG} Registration failed:`, error);
 			const errorMessage = error instanceof Error ? error.message : 'Registration failed';
 			setRegistrationError(errorMessage);
-			toastV8.error(`Registration failed: ${errorMessage}`);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Registration failed: ${errorMessage}`, dismissible: true });
 		} finally {
 			setIsLoading(false);
 		}

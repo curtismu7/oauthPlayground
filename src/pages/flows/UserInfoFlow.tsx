@@ -12,7 +12,7 @@ import { FlowHeader } from '../../services/flowHeaderService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import type { UserInfo as OIDCUserInfo } from '../../types/oauth';
 import { isTokenExpired } from '../../utils/oauth';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -475,9 +475,9 @@ const UserInfoFlow: React.FC = () => {
 			a.download = 'userinfo-config.json';
 			a.click();
 			URL.revokeObjectURL(url);
-			v4ToastManager.showSuccess('Config exported successfully');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'Config exported successfully', duration: 3000 });
 		} catch (err) {
-			v4ToastManager.showError('Failed to export config');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to export config', dismissible: true });
 			console.error('[UserInfoFlow] Export error:', err);
 		}
 	}, []);
@@ -493,10 +493,10 @@ const UserInfoFlow: React.FC = () => {
 				const { _meta: _m, ...configData } = imported;
 				localStorage.setItem('pingone_config', JSON.stringify(configData));
 				window.dispatchEvent(new StorageEvent('storage', { key: 'pingone_config' }));
-				v4ToastManager.showSuccess('Config imported — reloading...');
+				modernMessaging.showFooterMessage({ type: 'info', message: 'Config imported — reloading...', duration: 3000 });
 				setTimeout(() => window.location.reload(), 800);
 			} catch (err) {
-				v4ToastManager.showError('Invalid config file — must be valid JSON');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Invalid config file — must be valid JSON', dismissible: true });
 				console.error('[UserInfoFlow] Import error:', err);
 			}
 		};
@@ -1231,9 +1231,7 @@ console.log('Welcome, ' + user.name + '!');`,
 													'Token expired check:',
 													tokens?.access_token ? isTokenExpired(tokens.access_token) : 'No token'
 												);
-												v4ToastManager.showSuccess(
-													'Debug information logged to browser console - check developer tools'
-												);
+												modernMessaging.showFooterMessage({ type: 'info', message: 'Debug information logged to browser console - check developer tools', duration: 3000 });
 											}}
 											style={{
 												padding: '8px 16px',

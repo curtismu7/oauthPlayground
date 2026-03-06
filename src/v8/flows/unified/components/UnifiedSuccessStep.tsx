@@ -26,7 +26,7 @@
 import React, { useCallback, useEffect } from 'react';
 import type { DeviceFlowConfig } from '@/v8/config/deviceFlowConfigTypes';
 import type { MFAFlowBaseRenderProps } from '@/v8/flows/shared/MFAFlowBaseV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const MODULE_TAG = '[✅ UNIFIED-SUCCESS-STEP]';
 
@@ -122,7 +122,7 @@ export const UnifiedSuccessStep: React.FC<UnifiedSuccessStepProps> = ({
 	const handleRegisterAnother = useCallback(() => {
 		console.log(`${MODULE_TAG} User wants to register another device`);
 
-		toastV8.info('Starting new device registration');
+		modernMessaging.showFooterMessage({ type: 'info', message: 'Starting new device registration', duration: 3000 });
 
 		// Call callback if provided
 		if (onRegisterAnother) {
@@ -304,7 +304,7 @@ export const UnifiedSuccessStep: React.FC<UnifiedSuccessStepProps> = ({
 					type="button"
 					onClick={() => {
 						console.log(`${MODULE_TAG} User finished registration flow`);
-						toastV8.success('Registration complete!');
+						modernMessaging.showFooterMessage({ type: 'info', message: 'Registration complete!', duration: 3000 });
 					}}
 					className="btn-primary"
 				>

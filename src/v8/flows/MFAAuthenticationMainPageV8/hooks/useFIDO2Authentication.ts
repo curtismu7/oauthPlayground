@@ -13,7 +13,7 @@
  */
 
 import { useCallback, useState } from 'react';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { useProductionSpinner } from '../../../../hooks/useProductionSpinner';
 import type { UnavailableDevice } from './useMFADevices';
 
@@ -88,17 +88,17 @@ export const useFIDO2Authentication = (): FIDO2AuthenticationHookResult => {
 			onRegistrationRequired: () => void
 		) => {
 			if (!tokenIsValid) {
-				toastV8.error('Please configure worker token first');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please configure worker token first', dismissible: true });
 				return;
 			}
 
 			if (!credentials.environmentId) {
-				toastV8.error('Please configure environment ID first');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please configure environment ID first', dismissible: true });
 				return;
 			}
 
 			if (!credentials.deviceAuthenticationPolicyId) {
-				toastV8.error('Please select an MFA Policy first');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please select an MFA Policy first', dismissible: true });
 				return;
 			}
 
@@ -115,9 +115,7 @@ export const useFIDO2Authentication = (): FIDO2AuthenticationHookResult => {
 
 					if (authResult.success) {
 						// Authentication successful!
-						toastV8.success(
-							`Authenticated successfully as ${authResult.username || authResult.userId}`
-						);
+						modernMessaging.showFooterMessage({ type: 'info', message: `Authenticated successfully as ${authResult.username || authResult.userId}`, duration: 3000 });
 						return;
 					}
 
@@ -138,17 +136,15 @@ export const useFIDO2Authentication = (): FIDO2AuthenticationHookResult => {
 					if (authResult.requiresRegistration) {
 						// Show username input modal for registration
 						onRegistrationRequired();
-						toastV8.info('No passkey found. Please enter your username to register a new passkey.');
+						modernMessaging.showFooterMessage({ type: 'info', message: 'No passkey found. Please enter your username to register a new passkey.', duration: 3000 });
 						return;
 					}
 
 					// Other error - show error message
-					toastV8.error(authResult.error || 'Authentication failed');
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: authResult.error || 'Authentication failed', dismissible: true });
 				} catch (error) {
 					console.error(`${MODULE_TAG} Usernameless FIDO2 failed:`, error);
-					toastV8.error(
-						error instanceof Error ? error.message : 'Usernameless authentication failed'
-					);
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Usernameless authentication failed', dismissible: true });
 					throw error; // Re-throw to let spinner handle it
 				}
 			}, 'Authenticating with FIDO2...');

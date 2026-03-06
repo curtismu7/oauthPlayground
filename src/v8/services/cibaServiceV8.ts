@@ -18,7 +18,7 @@
  */
 
 import { pingOneFetch } from '@/utils/pingOneFetch';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const MODULE_TAG = '[🔐 CIBA-SERVICE-V8]';
 
@@ -128,13 +128,11 @@ export const CibaServiceV8 = {
 				interval: authRequest.interval,
 			});
 
-			toastV8.success('CIBA authentication request initiated successfully');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'CIBA authentication request initiated successfully', duration: 3000 });
 			return authRequest;
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to initiate CIBA authentication:`, error);
-			toastV8.error(
-				`Failed to initiate CIBA authentication: ${error instanceof Error ? error.message : 'Unknown error'}`
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to initiate CIBA authentication: ${error instanceof Error ? error.message : 'Unknown error'}`, dismissible: true });
 			throw error;
 		}
 	},
@@ -225,7 +223,7 @@ export const CibaServiceV8 = {
 
 			// Success - tokens issued
 			console.log(`${MODULE_TAG} CIBA tokens received successfully`);
-			toastV8.success('CIBA authentication completed successfully');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'CIBA authentication completed successfully', duration: 3000 });
 
 			return {
 				status: 'approved',
