@@ -98,20 +98,21 @@ const ExternalLink = styled.a`
   }
 `;
 
+const pageConfig = {
+	flowType: 'documentation' as const,
+	theme: 'blue' as const,
+	maxWidth: '1200px',
+	showHeader: true,
+	showFooter: false,
+	responsive: true,
+	flowId: 'ping-view-on-ai',
+};
+
+const { PageContainer, ContentWrapper, PageHeader } =
+	PageLayoutService.createPageLayout(pageConfig);
+
 const PingViewOnAI: React.FC = () => {
 	usePageScroll({ pageName: 'Ping View on AI', force: true });
-
-	const pageConfig = {
-		flowType: 'documentation' as const,
-		theme: 'blue' as const,
-		maxWidth: '1200px',
-		showHeader: true,
-		showFooter: false,
-		responsive: true,
-		flowId: 'ping-view-on-ai',
-	};
-	const { PageContainer, ContentWrapper, PageHeader } =
-		PageLayoutService.createPageLayout(pageConfig);
 
 	return (
 		<PageContainer>

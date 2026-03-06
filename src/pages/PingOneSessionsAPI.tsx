@@ -14,13 +14,13 @@ import {
 } from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { Card, CardBody, CardHeader } from '../components/Card';
 import CollapsibleSection from '../components/CollapsibleSection';
 import { ColoredJsonDisplay } from '../components/ColoredJsonDisplay';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import PageLayoutService from '../services/pageLayoutService';
 import { SuperSimpleApiDisplayV8 } from '../v8/components/SuperSimpleApiDisplayV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const WhiteContainer = styled.div`
 	background-color: white;
@@ -267,6 +267,18 @@ interface ApiResponse {
 	headers: Record<string, string>;
 }
 
+const pageConfig = {
+	flowType: 'documentation' as const,
+	theme: 'blue' as const,
+	maxWidth: '72rem',
+	showHeader: true,
+	showFooter: false,
+	responsive: true,
+};
+
+const { PageContainer, PageHeader, ContentWrapper } =
+	PageLayoutService.createPageLayout(pageConfig);
+
 const PingOneSessionsAPI: React.FC = () => {
 	const [copiedCode, setCopiedCode] = useState<string | null>(null);
 	const [credentials, setCredentials] = useState<SessionsApiCredentials>({
@@ -278,18 +290,6 @@ const PingOneSessionsAPI: React.FC = () => {
 	const [apiResponse, setApiResponse] = useState<ApiResponse | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
 	const [selectedEndpoint, setSelectedEndpoint] = useState<string>('read-all');
-
-	const pageConfig = {
-		flowType: 'documentation' as const,
-		theme: 'blue' as const,
-		maxWidth: '72rem',
-		showHeader: true,
-		showFooter: false,
-		responsive: true,
-	};
-
-	const { PageContainer, PageHeader, ContentWrapper } =
-		PageLayoutService.createPageLayout(pageConfig);
 
 	// API call handler
 	const handleApiCall = async (endpoint: string) => {
@@ -349,13 +349,27 @@ const PingOneSessionsAPI: React.FC = () => {
 			});
 
 			if (response.ok) {
-				modernMessaging.showFooterMessage({ type: 'info', message: `API call successful: ${response.status} ${response.statusText}`, duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: `API call successful: ${response.status} ${response.statusText}`,
+					duration: 3000,
+				});
 			} else {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `API call failed: ${response.status} ${response.statusText}`, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: `API call failed: ${response.status} ${response.statusText}`,
+					dismissible: true,
+				});
 			}
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `API call failed: ${errorMessage}`, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: `API call failed: ${errorMessage}`,
+				dismissible: true,
+			});
 			setApiResponse({
 				status: 0,
 				statusText: 'Error',
