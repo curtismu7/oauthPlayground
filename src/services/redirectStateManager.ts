@@ -1,6 +1,7 @@
 // src/services/redirectStateManager.ts
 // Redirect State Manager for preserving flow state across redirects
 
+import { logger } from '../utils/logger';
 import FlowContextService, { type FlowContext } from './flowContextService';
 
 export interface FlowState {
@@ -63,7 +64,7 @@ export class RedirectStateManager {
 			// Validate state size
 			const stateString = JSON.stringify(state);
 			if (stateString.length > RedirectStateManager.MAX_STATE_SIZE) {
-				console.warn('[RedirectStateManager] Flow state exceeds size limit');
+				logger.warn('RedirectStateManager', '[RedirectStateManager] Flow state exceeds size limit');
 				return false;
 			}
 
@@ -77,16 +78,27 @@ export class RedirectStateManager {
 			const stateKey = RedirectStateManager.getStateKey(flowId);
 			sessionStorage.setItem(stateKey, JSON.stringify(preservedState));
 
-			console.log(`[RedirectStateManager] Preserved flow state for ${flowId}:`, {
-				currentStep: state.currentStep,
-				hasCredentials: !!state.credentials,
-				hasTokens: !!state.tokens,
-				stateSize: stateString.length,
-			});
+			logger.info(
+				'RedirectStateManager',
+				`[RedirectStateManager] Preserved flow state for ${flowId}:`,
+				{
+					arg0: {
+						currentStep: state.currentStep,
+						hasCredentials: !!state.credentials,
+						hasTokens: !!state.tokens,
+						stateSize: stateString.length,
+					},
+				}
+			);
 
 			return true;
 		} catch (error) {
-			console.error('[RedirectStateManager] Failed to preserve flow state:', error);
+			logger.error(
+				'RedirectStateManager',
+				'[RedirectStateManager] Failed to preserve flow state:',
+				undefined,
+				error as Error
+			);
 			return false;
 		}
 	}
@@ -100,7 +112,10 @@ export class RedirectStateManager {
 			const stateString = sessionStorage.getItem(stateKey);
 
 			if (!stateString) {
-				console.log(`[RedirectStateManager] No preserved state found for ${flowId}`);
+				logger.info(
+					'RedirectStateManager',
+					`[RedirectStateManager] No preserved state found for ${flowId}`
+				);
 				return null;
 			}
 
@@ -111,7 +126,10 @@ export class RedirectStateManager {
 				preservedState._timestamp &&
 				Date.now() - preservedState._timestamp > RedirectStateManager.MAX_STATE_AGE_MS
 			) {
-				console.warn(`[RedirectStateManager] Preserved state for ${flowId} has expired`);
+				logger.warn(
+					'RedirectStateManager',
+					`[RedirectStateManager] Preserved state for ${flowId} has expired`
+				);
 				RedirectStateManager.clearFlowState(flowId);
 				return null;
 			}
@@ -119,16 +137,27 @@ export class RedirectStateManager {
 			// Remove internal fields
 			const { _timestamp, _flowId, ...flowState } = preservedState;
 
-			console.log(`[RedirectStateManager] Restored flow state for ${flowId}:`, {
-				currentStep: flowState.currentStep,
-				hasCredentials: !!flowState.credentials,
-				hasTokens: !!flowState.tokens,
-				age: Date.now() - (preservedState._timestamp || 0),
-			});
+			logger.info(
+				'RedirectStateManager',
+				`[RedirectStateManager] Restored flow state for ${flowId}:`,
+				{
+					arg0: {
+						currentStep: flowState.currentStep,
+						hasCredentials: !!flowState.credentials,
+						hasTokens: !!flowState.tokens,
+						age: Date.now() - (preservedState._timestamp || 0),
+					},
+				}
+			);
 
 			return flowState;
 		} catch (error) {
-			console.error('[RedirectStateManager] Failed to restore flow state:', error);
+			logger.error(
+				'RedirectStateManager',
+				'[RedirectStateManager] Failed to restore flow state:',
+				undefined,
+				error as Error
+			);
 			return null;
 		}
 	}
@@ -140,9 +169,17 @@ export class RedirectStateManager {
 		try {
 			const stateKey = RedirectStateManager.getStateKey(flowId);
 			sessionStorage.removeItem(stateKey);
-			console.log(`[RedirectStateManager] Cleared flow state for ${flowId}`);
+			logger.info(
+				'RedirectStateManager',
+				`[RedirectStateManager] Cleared flow state for ${flowId}`
+			);
 		} catch (error) {
-			console.error('[RedirectStateManager] Failed to clear flow state:', error);
+			logger.error(
+				'RedirectStateManager',
+				'[RedirectStateManager] Failed to clear flow state:',
+				undefined,
+				error as Error
+			);
 		}
 	}
 
@@ -155,7 +192,10 @@ export class RedirectStateManager {
 			const flowContext = FlowContextService.getFlowContext();
 
 			if (!flowContext) {
-				console.log('[RedirectStateManager] No flow context found for redirect return');
+				logger.info(
+					'RedirectStateManager',
+					'[RedirectStateManager] No flow context found for redirect return'
+				);
 				return {
 					success: true,
 					redirectUrl: '/dashboard',
@@ -164,7 +204,7 @@ export class RedirectStateManager {
 
 			// Validate security
 			if (!RedirectStateManager.validateRedirectSecurity(flowContext, callbackData)) {
-				console.warn('[RedirectStateManager] Security validation failed');
+				logger.warn('RedirectStateManager', '[RedirectStateManager] Security validation failed');
 				FlowContextService.clearFlowContext();
 				return {
 					success: false,
@@ -180,7 +220,9 @@ export class RedirectStateManager {
 
 			// Handle OAuth errors
 			if (callbackData.error) {
-				console.warn('[RedirectStateManager] OAuth error in callback:', callbackData.error);
+				logger.warn('RedirectStateManager', '[RedirectStateManager] OAuth error in callback:', {
+					arg0: callbackData.error,
+				});
 
 				// Build error redirect URL
 				const errorUrl = RedirectStateManager.buildErrorRedirectUrl(flowContext, callbackData);
@@ -200,10 +242,12 @@ export class RedirectStateManager {
 			RedirectStateManager.clearFlowState(flowContext.metadata?.flowId || flowContext.flowType);
 			FlowContextService.clearFlowContext();
 
-			console.log('[RedirectStateManager] Redirect return successful:', {
-				flowType: flowContext.flowType,
-				redirectUrl,
-				hasFlowState: !!flowState,
+			logger.info('RedirectStateManager', '[RedirectStateManager] Redirect return successful:', {
+				arg0: {
+					flowType: flowContext.flowType,
+					redirectUrl,
+					hasFlowState: !!flowState,
+				},
 			});
 
 			return {
@@ -212,7 +256,12 @@ export class RedirectStateManager {
 				flowState,
 			};
 		} catch (error) {
-			console.error('[RedirectStateManager] Failed to handle redirect return:', error);
+			logger.error(
+				'RedirectStateManager',
+				'[RedirectStateManager] Failed to handle redirect return:',
+				undefined,
+				error as Error
+			);
 			return {
 				success: false,
 				redirectUrl: '/dashboard',
@@ -229,7 +278,9 @@ export class RedirectStateManager {
 			// Validate flow context
 			const contextValidation = FlowContextService.validateFlowContext(context);
 			if (!contextValidation.valid) {
-				console.warn('[RedirectStateManager] Invalid flow context:', contextValidation.errors);
+				logger.warn('RedirectStateManager', '[RedirectStateManager] Invalid flow context:', {
+					arg0: contextValidation.errors,
+				});
 				return false;
 			}
 
@@ -241,7 +292,10 @@ export class RedirectStateManager {
 				const callbackString = JSON.stringify(callbackData);
 				for (const pattern of dangerousPatterns) {
 					if (pattern.test(callbackString)) {
-						console.warn('[RedirectStateManager] Dangerous pattern detected in callback data');
+						logger.warn(
+							'RedirectStateManager',
+							'[RedirectStateManager] Dangerous pattern detected in callback data'
+						);
 						return false;
 					}
 				}
@@ -249,7 +303,7 @@ export class RedirectStateManager {
 				// Validate state parameter if present
 				if (callbackData.state && typeof callbackData.state === 'string') {
 					if (callbackData.state.length > 1000) {
-						console.warn('[RedirectStateManager] State parameter too long');
+						logger.warn('RedirectStateManager', '[RedirectStateManager] State parameter too long');
 						return false;
 					}
 				}
@@ -257,7 +311,12 @@ export class RedirectStateManager {
 
 			return true;
 		} catch (error) {
-			console.error('[RedirectStateManager] Security validation error:', error);
+			logger.error(
+				'RedirectStateManager',
+				'[RedirectStateManager] Security validation error:',
+				undefined,
+				error as Error
+			);
 			return false;
 		}
 	}
@@ -297,15 +356,26 @@ export class RedirectStateManager {
 				return false;
 			}
 
-			console.log(`[RedirectStateManager] Created redirect context for ${flowType}:`, {
-				flowId,
-				currentStep,
-				returnPath,
-			});
+			logger.info(
+				'RedirectStateManager',
+				`[RedirectStateManager] Created redirect context for ${flowType}:`,
+				{
+					arg0: {
+						flowId,
+						currentStep,
+						returnPath,
+					},
+				}
+			);
 
 			return true;
 		} catch (error) {
-			console.error('[RedirectStateManager] Failed to create redirect context:', error);
+			logger.error(
+				'RedirectStateManager',
+				'[RedirectStateManager] Failed to create redirect context:',
+				undefined,
+				error as Error
+			);
 			return false;
 		}
 	}
@@ -342,14 +412,25 @@ export class RedirectStateManager {
 			// Remove expired states
 			keysToRemove.forEach((key) => {
 				sessionStorage.removeItem(key);
-				console.log(`[RedirectStateManager] Cleaned up expired state: ${key}`);
+				logger.info(
+					'RedirectStateManager',
+					`[RedirectStateManager] Cleaned up expired state: ${key}`
+				);
 			});
 
 			if (keysToRemove.length > 0) {
-				console.log(`[RedirectStateManager] Cleaned up ${keysToRemove.length} expired states`);
+				logger.info(
+					'RedirectStateManager',
+					`[RedirectStateManager] Cleaned up ${keysToRemove.length} expired states`
+				);
 			}
 		} catch (error) {
-			console.error('[RedirectStateManager] Failed to cleanup expired states:', error);
+			logger.error(
+				'RedirectStateManager',
+				'[RedirectStateManager] Failed to cleanup expired states:',
+				undefined,
+				error as Error
+			);
 		}
 	}
 
@@ -379,7 +460,12 @@ export class RedirectStateManager {
 
 			return url.pathname + url.search;
 		} catch (error) {
-			console.error('[RedirectStateManager] Failed to build success redirect URL:', error);
+			logger.error(
+				'RedirectStateManager',
+				'[RedirectStateManager] Failed to build success redirect URL:',
+				undefined,
+				error as Error
+			);
 			return context.returnPath;
 		}
 	}
@@ -401,7 +487,12 @@ export class RedirectStateManager {
 
 			return url.pathname + url.search;
 		} catch (error) {
-			console.error('[RedirectStateManager] Failed to build error redirect URL:', error);
+			logger.error(
+				'RedirectStateManager',
+				'[RedirectStateManager] Failed to build error redirect URL:',
+				undefined,
+				error as Error
+			);
 			return context.returnPath;
 		}
 	}

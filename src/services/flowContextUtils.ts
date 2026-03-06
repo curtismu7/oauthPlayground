@@ -1,6 +1,7 @@
 // src/services/flowContextUtils.ts
 // Utility functions for common flow context operations
 
+import { logger } from '../utils/logger';
 import FlowContextService from './flowContextService';
 import RedirectStateManager, { type FlowState } from './redirectStateManager';
 
@@ -45,15 +46,22 @@ export class FlowContextUtils {
 				additionalParams
 			);
 
-			console.log(`[FlowContextUtils] Initialized OAuth flow ${flowType}:`, {
-				flowId,
-				currentStep,
-				returnPath,
+			logger.info('FlowContextUtils', `[FlowContextUtils] Initialized OAuth flow ${flowType}:`, {
+				arg0: {
+					flowId,
+					currentStep,
+					returnPath,
+				},
 			});
 
 			return flowId;
 		} catch (error) {
-			console.error('[FlowContextUtils] Failed to initialize OAuth flow:', error);
+			logger.error(
+				'FlowContextUtils',
+				'[FlowContextUtils] Failed to initialize OAuth flow:',
+				undefined,
+				error as Error
+			);
 			throw error;
 		}
 	}
@@ -74,15 +82,22 @@ export class FlowContextUtils {
 			// Handle the redirect return
 			const result = RedirectStateManager.handleRedirectReturn(callbackData);
 
-			console.log('[FlowContextUtils] Handled OAuth callback:', {
-				success: result.success,
-				redirectUrl: result.redirectUrl,
-				hasFlowState: !!result.flowState,
+			logger.info('FlowContextUtils', '[FlowContextUtils] Handled OAuth callback:', {
+				arg0: {
+					success: result.success,
+					redirectUrl: result.redirectUrl,
+					hasFlowState: !!result.flowState,
+				},
 			});
 
 			return result;
 		} catch (error) {
-			console.error('[FlowContextUtils] Failed to handle OAuth callback:', error);
+			logger.error(
+				'FlowContextUtils',
+				'[FlowContextUtils] Failed to handle OAuth callback:',
+				undefined,
+				error as Error
+			);
 			return {
 				success: false,
 				redirectUrl: '/dashboard',
@@ -103,7 +118,10 @@ export class FlowContextUtils {
 			});
 
 			if (!contextUpdated) {
-				console.warn(`[FlowContextUtils] Failed to update flow context for ${flowId}`);
+				logger.warn(
+					'FlowContextUtils',
+					`[FlowContextUtils] Failed to update flow context for ${flowId}`
+				);
 				return false;
 			}
 
@@ -116,14 +134,21 @@ export class FlowContextUtils {
 				}
 			}
 
-			console.log(`[FlowContextUtils] Updated flow step for ${flowId}:`, {
-				newStep,
-				hasFlowState: !!flowState,
+			logger.info('FlowContextUtils', `[FlowContextUtils] Updated flow step for ${flowId}:`, {
+				arg0: {
+					newStep,
+					hasFlowState: !!flowState,
+				},
 			});
 
 			return true;
 		} catch (error) {
-			console.error('[FlowContextUtils] Failed to update flow step:', error);
+			logger.error(
+				'FlowContextUtils',
+				'[FlowContextUtils] Failed to update flow step:',
+				undefined,
+				error as Error
+			);
 			return false;
 		}
 	}
@@ -142,9 +167,14 @@ export class FlowContextUtils {
 			// Clean up any expired states while we're at it
 			RedirectStateManager.cleanupExpiredStates();
 
-			console.log(`[FlowContextUtils] Completed and cleaned up flow ${flowId}`);
+			logger.info('FlowContextUtils', `[FlowContextUtils] Completed and cleaned up flow ${flowId}`);
 		} catch (error) {
-			console.error('[FlowContextUtils] Failed to complete flow:', error);
+			logger.error(
+				'FlowContextUtils',
+				'[FlowContextUtils] Failed to complete flow:',
+				undefined,
+				error as Error
+			);
 		}
 	}
 
@@ -156,7 +186,12 @@ export class FlowContextUtils {
 			const context = FlowContextService.getFlowContext();
 			return context !== null;
 		} catch (error) {
-			console.error('[FlowContextUtils] Failed to check active flow:', error);
+			logger.error(
+				'FlowContextUtils',
+				'[FlowContextUtils] Failed to check active flow:',
+				undefined,
+				error as Error
+			);
 			return false;
 		}
 	}
@@ -183,7 +218,12 @@ export class FlowContextUtils {
 				age: Date.now() - context.timestamp,
 			};
 		} catch (error) {
-			console.error('[FlowContextUtils] Failed to get current flow:', error);
+			logger.error(
+				'FlowContextUtils',
+				'[FlowContextUtils] Failed to get current flow:',
+				undefined,
+				error as Error
+			);
 			return null;
 		}
 	}
@@ -214,14 +254,25 @@ export class FlowContextUtils {
 				url.searchParams.set(key, value);
 			});
 
-			console.log(`[FlowContextUtils] Built authorization URL for ${flowType}:`, {
-				flowId,
-				url: url.toString(),
-			});
+			logger.info(
+				'FlowContextUtils',
+				`[FlowContextUtils] Built authorization URL for ${flowType}:`,
+				{
+					arg0: {
+						flowId,
+						url: url.toString(),
+					},
+				}
+			);
 
 			return url.toString();
 		} catch (error) {
-			console.error('[FlowContextUtils] Failed to build authorization URL:', error);
+			logger.error(
+				'FlowContextUtils',
+				'[FlowContextUtils] Failed to build authorization URL:',
+				undefined,
+				error as Error
+			);
 
 			// Fallback to basic URL without flow context
 			const url = new URL(baseUrl);
@@ -298,7 +349,10 @@ export class FlowContextUtils {
 	 */
 	static emergencyCleanup(): void {
 		try {
-			console.warn('[FlowContextUtils] Performing emergency cleanup of all flow state');
+			logger.warn(
+				'FlowContextUtils',
+				'[FlowContextUtils] Performing emergency cleanup of all flow state'
+			);
 
 			// Clear all known flow context keys
 			const flowContextKeys = [
@@ -324,11 +378,17 @@ export class FlowContextUtils {
 				sessionStorage.removeItem(key);
 			});
 
-			console.log(
+			logger.info(
+				'FlowContextUtils',
 				`[FlowContextUtils] Emergency cleanup completed. Removed ${flowContextKeys.length + keysToRemove.length} items.`
 			);
 		} catch (error) {
-			console.error('[FlowContextUtils] Emergency cleanup failed:', error);
+			logger.error(
+				'FlowContextUtils',
+				'[FlowContextUtils] Emergency cleanup failed:',
+				undefined,
+				error as Error
+			);
 		}
 	}
 }

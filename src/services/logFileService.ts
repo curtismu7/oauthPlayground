@@ -68,7 +68,12 @@ export class LogFileService {
 			const isNetworkUnavailable =
 				msg.includes('Log API not available') || msg.includes('Failed to fetch');
 			if (!isNetworkUnavailable) {
-				console.error(`${MODULE_TAG} Failed to list log files:`, error);
+				logger.error(
+					'LogFileService',
+					`${MODULE_TAG} Failed to list log files:`,
+					undefined,
+					error as Error
+				);
 			}
 			throw error;
 		}
@@ -131,7 +136,12 @@ export class LogFileService {
 			const isNetworkUnavailable =
 				msg.includes('Log API not available') || msg.includes('Failed to fetch');
 			if (!isNetworkUnavailable) {
-				console.error(`${MODULE_TAG} Failed to read log file:`, error);
+				logger.error(
+					'LogFileService',
+					`${MODULE_TAG} Failed to read log file:`,
+					undefined,
+					error as Error
+				);
 			}
 			throw error;
 		}
@@ -145,7 +155,7 @@ export class LogFileService {
 		const apiBase = getLogsApiBase();
 		const eventSource = new EventSource(`${apiBase}/tail?${params}`);
 
-		console.log(`${MODULE_TAG} Created tail stream for: ${file}`);
+		logger.info('LogFileService', `${MODULE_TAG} Created tail stream for: ${file}`);
 
 		return eventSource;
 	}

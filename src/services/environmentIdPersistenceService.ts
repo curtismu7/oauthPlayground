@@ -34,7 +34,10 @@ class EnvironmentIdPersistenceService {
 	 */
 	saveEnvironmentId(environmentId: string, source: 'manual' | 'oidc_discovery' = 'manual'): void {
 		if (!environmentId || !environmentId.trim()) {
-			console.warn('[EnvironmentIdPersistence] Cannot save empty environment ID');
+			logger.warn(
+				'EnvironmentIdPersistenceService',
+				'[EnvironmentIdPersistence] Cannot save empty environment ID'
+			);
 			return;
 		}
 
@@ -47,11 +50,17 @@ class EnvironmentIdPersistenceService {
 		// Save to localStorage
 		try {
 			localStorage.setItem(this.STORAGE_KEY, JSON.stringify(config));
-			console.log(
+			logger.info(
+				'EnvironmentIdPersistenceService',
 				`🔧 [EnvironmentIdPersistence] Saved Environment ID: ${environmentId} (source: ${source})`
 			);
 		} catch (error) {
-			console.error('[EnvironmentIdPersistence] Failed to save to localStorage:', error);
+			logger.error(
+				'EnvironmentIdPersistenceService',
+				'[EnvironmentIdPersistence] Failed to save to localStorage:',
+				undefined,
+				error as Error
+			);
 		}
 
 		// In development, we can't directly write to .env, but we can provide instructions
@@ -67,25 +76,37 @@ class EnvironmentIdPersistenceService {
 			const stored = localStorage.getItem(this.STORAGE_KEY);
 			if (stored) {
 				const config: EnvironmentIdConfig = JSON.parse(stored);
-				console.log(
+				logger.info(
+					'EnvironmentIdPersistenceService',
 					`🔧 [EnvironmentIdPersistence] Loaded Environment ID from localStorage: ${config.environmentId}`
 				);
 				return config.environmentId;
 			}
 		} catch (error) {
-			console.error('[EnvironmentIdPersistence] Failed to load from localStorage:', error);
+			logger.error(
+				'EnvironmentIdPersistenceService',
+				'[EnvironmentIdPersistence] Failed to load from localStorage:',
+				undefined,
+				error as Error
+			);
 		}
 
 		// Fallback to environment variable (Vite/import.meta.env)
 		const envId = this.getEnvVar(this.ENV_VAR_NAME);
 		if (envId) {
-			console.log(`🔧 [EnvironmentIdPersistence] Loaded Environment ID from .env: ${envId}`);
+			logger.info(
+				'EnvironmentIdPersistenceService',
+				`🔧 [EnvironmentIdPersistence] Loaded Environment ID from .env: ${envId}`
+			);
 			// Save to localStorage for consistency
 			this.saveEnvironmentId(envId, 'env_file');
 			return envId;
 		}
 
-		console.log('[EnvironmentIdPersistence] No Environment ID found');
+		logger.info(
+			'EnvironmentIdPersistenceService',
+			'[EnvironmentIdPersistence] No Environment ID found'
+		);
 		return null;
 	}
 
@@ -99,7 +120,12 @@ class EnvironmentIdPersistenceService {
 				return JSON.parse(stored);
 			}
 		} catch (error) {
-			console.error('[EnvironmentIdPersistence] Failed to load info:', error);
+			logger.error(
+				'EnvironmentIdPersistenceService',
+				'[EnvironmentIdPersistence] Failed to load info:',
+				undefined,
+				error as Error
+			);
 		}
 		return null;
 	}
@@ -130,7 +156,7 @@ After updating .env:
 2. The Environment ID will be automatically loaded on next startup
     `;
 
-		console.log(instructions);
+		logger.info('EnvironmentIdPersistenceService', instructions);
 
 		// Show a toast notification if available
 		if (typeof window !== 'undefined' && (window as any).v4ToastManager) {
@@ -144,11 +170,21 @@ After updating .env:
 	 * Generate .env content for the current Environment ID
 	 */
 	generateEnvContent(): string {
-		console.log('[EnvironmentIdPersistenceService] Generating .env content');
+		logger.info(
+			'EnvironmentIdPersistenceService',
+			'[EnvironmentIdPersistenceService] Generating .env content'
+		);
 		const currentId = this.loadEnvironmentId();
-		console.log('[EnvironmentIdPersistenceService] Current Environment ID:', currentId);
+		logger.info(
+			'EnvironmentIdPersistenceService',
+			'[EnvironmentIdPersistenceService] Current Environment ID:',
+			{ arg0: currentId }
+		);
 		if (!currentId) {
-			console.log('[EnvironmentIdPersistenceService] No Environment ID found');
+			logger.info(
+				'EnvironmentIdPersistenceService',
+				'[EnvironmentIdPersistenceService] No Environment ID found'
+			);
 			return '# No Environment ID found\n';
 		}
 
@@ -156,7 +192,11 @@ After updating .env:
 # Last updated: ${new Date().toISOString()}
 REACT_APP_PINGONE_ENVIRONMENT_ID=${currentId}
 `;
-		console.log('[EnvironmentIdPersistenceService] Generated .env content:', content);
+		logger.info(
+			'EnvironmentIdPersistenceService',
+			'[EnvironmentIdPersistenceService] Generated .env content:',
+			{ arg0: content }
+		);
 		return content;
 	}
 
@@ -164,9 +204,16 @@ REACT_APP_PINGONE_ENVIRONMENT_ID=${currentId}
 	 * Generate .env content with newline (for appending to existing .env)
 	 */
 	generateEnvContentWithNewline(): string {
-		console.log('[EnvironmentIdPersistenceService] Generating .env content with newline');
+		logger.info(
+			'EnvironmentIdPersistenceService',
+			'[EnvironmentIdPersistenceService] Generating .env content with newline'
+		);
 		const content = this.generateEnvContent();
-		console.log('[EnvironmentIdPersistenceService] Generated .env content with newline:', content);
+		logger.info(
+			'EnvironmentIdPersistenceService',
+			'[EnvironmentIdPersistenceService] Generated .env content with newline:',
+			{ arg0: content }
+		);
 		return `${content}\n`;
 	}
 
@@ -176,9 +223,17 @@ REACT_APP_PINGONE_ENVIRONMENT_ID=${currentId}
 	clearEnvironmentId(): void {
 		try {
 			localStorage.removeItem(this.STORAGE_KEY);
-			console.log('[EnvironmentIdPersistence] Cleared Environment ID from localStorage');
+			logger.info(
+				'EnvironmentIdPersistenceService',
+				'[EnvironmentIdPersistence] Cleared Environment ID from localStorage'
+			);
 		} catch (error) {
-			console.error('[EnvironmentIdPersistence] Failed to clear:', error);
+			logger.error(
+				'EnvironmentIdPersistenceService',
+				'[EnvironmentIdPersistence] Failed to clear:',
+				undefined,
+				error as Error
+			);
 		}
 	}
 

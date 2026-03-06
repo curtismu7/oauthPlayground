@@ -36,12 +36,20 @@ class GlobalEnvironmentService {
 					this.cache = config;
 					return config;
 				} else {
-					console.warn('[GlobalEnvironment] Invalid stored config, clearing');
+					logger.warn(
+						'GlobalEnvironmentService',
+						'[GlobalEnvironment] Invalid stored config, clearing'
+					);
 					this.clearEnvironmentConfig();
 				}
 			}
 		} catch (error) {
-			console.error('[GlobalEnvironment] Failed to load config:', error);
+			logger.error(
+				'GlobalEnvironmentService',
+				'[GlobalEnvironment] Failed to load config:',
+				undefined,
+				error as Error
+			);
 			this.clearEnvironmentConfig();
 		}
 
@@ -84,13 +92,24 @@ class GlobalEnvironmentService {
 				})
 			);
 
-			console.log('[GlobalEnvironment] Updated global environment config:', {
-				environmentId: fullConfig.environmentId,
-				region: fullConfig.region,
-				source: fullConfig.source,
-			});
+			logger.info(
+				'GlobalEnvironmentService',
+				'[GlobalEnvironment] Updated global environment config:',
+				{
+					arg0: {
+						environmentId: fullConfig.environmentId,
+						region: fullConfig.region,
+						source: fullConfig.source,
+					},
+				}
+			);
 		} catch (error) {
-			console.error('[GlobalEnvironment] Failed to save config:', error);
+			logger.error(
+				'GlobalEnvironmentService',
+				'[GlobalEnvironment] Failed to save config:',
+				undefined,
+				error as Error
+			);
 			throw new Error('Failed to save global environment configuration');
 		}
 	}
@@ -123,9 +142,17 @@ class GlobalEnvironmentService {
 			// Dispatch custom event
 			window.dispatchEvent(new CustomEvent('globalEnvironmentCleared'));
 
-			console.log('[GlobalEnvironment] Cleared global environment config');
+			logger.info(
+				'GlobalEnvironmentService',
+				'[GlobalEnvironment] Cleared global environment config'
+			);
 		} catch (error) {
-			console.error('[GlobalEnvironment] Failed to clear config:', error);
+			logger.error(
+				'GlobalEnvironmentService',
+				'[GlobalEnvironment] Failed to clear config:',
+				undefined,
+				error as Error
+			);
 		}
 	}
 
@@ -146,7 +173,12 @@ class GlobalEnvironmentService {
 				return JSON.parse(stored) as GlobalEnvironmentConfig[];
 			}
 		} catch (error) {
-			console.error('[GlobalEnvironment] Failed to load history:', error);
+			logger.error(
+				'GlobalEnvironmentService',
+				'[GlobalEnvironment] Failed to load history:',
+				undefined,
+				error as Error
+			);
 		}
 		return [];
 	}
@@ -194,7 +226,12 @@ class GlobalEnvironmentService {
 						})
 					);
 				} catch (error) {
-					console.error('[GlobalEnvironment] Failed to parse storage change:', error);
+					logger.error(
+						'GlobalEnvironmentService',
+						'[GlobalEnvironment] Failed to parse storage change:',
+						undefined,
+						error as Error
+					);
 				}
 			}
 		};

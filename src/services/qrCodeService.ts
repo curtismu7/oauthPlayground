@@ -59,7 +59,8 @@ export class QRCodeService {
 			// Generate backup codes
 			const backupCodes = QRCodeService.generateBackupCodes();
 
-			console.log(
+			logger.info(
+				'QrCodeService',
 				`[QRCodeService] Generated TOTP QR code for ${config.accountName}@${config.issuer}`
 			);
 
@@ -70,7 +71,12 @@ export class QRCodeService {
 				backupCodes,
 			};
 		} catch (error) {
-			console.error('[QRCodeService] Failed to generate TOTP QR code:', error);
+			logger.error(
+				'QrCodeService',
+				'[QRCodeService] Failed to generate TOTP QR code:',
+				undefined,
+				error as Error
+			);
 			throw new Error(
 				`QR code generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);
@@ -90,10 +96,15 @@ export class QRCodeService {
 			const cleanSecret = secret.replace(/\s/g, '').toUpperCase();
 			const formatted = cleanSecret.match(/.{1,4}/g)?.join(' ') || cleanSecret;
 
-			console.log('[QRCodeService] Generated manual entry code');
+			logger.info('QrCodeService', '[QRCodeService] Generated manual entry code');
 			return formatted;
 		} catch (error) {
-			console.error('[QRCodeService] Failed to generate manual entry code:', error);
+			logger.error(
+				'QrCodeService',
+				'[QRCodeService] Failed to generate manual entry code:',
+				undefined,
+				error as Error
+			);
 			throw new Error(
 				`Manual entry code generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);
@@ -135,7 +146,8 @@ export class QRCodeService {
 				const expectedCode = QRCodeService.generateTOTPCode(secret, window, algorithm, digits);
 
 				if (expectedCode === cleanCode) {
-					console.log(
+					logger.info(
+						'QrCodeService',
 						`[QRCodeService] TOTP code validated successfully (window: ${window - currentWindow})`
 					);
 					return {
@@ -145,10 +157,15 @@ export class QRCodeService {
 				}
 			}
 
-			console.warn('[QRCodeService] TOTP code validation failed');
+			logger.warn('QrCodeService', '[QRCodeService] TOTP code validation failed');
 			return { valid: false, error: 'Invalid code or code has expired' };
 		} catch (error) {
-			console.error('[QRCodeService] TOTP validation error:', error);
+			logger.error(
+				'QrCodeService',
+				'[QRCodeService] TOTP validation error:',
+				undefined,
+				error as Error
+			);
 			return {
 				valid: false,
 				error: `Validation error: ${error instanceof Error ? error.message : 'Unknown error'}`,
@@ -179,10 +196,15 @@ export class QRCodeService {
 				}
 			}
 
-			console.log('[QRCodeService] Generated TOTP secret');
+			logger.info('QrCodeService', '[QRCodeService] Generated TOTP secret');
 			return secret;
 		} catch (error) {
-			console.error('[QRCodeService] Failed to generate TOTP secret:', error);
+			logger.error(
+				'QrCodeService',
+				'[QRCodeService] Failed to generate TOTP secret:',
+				undefined,
+				error as Error
+			);
 			throw new Error(
 				`Secret generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);
@@ -268,7 +290,12 @@ export class QRCodeService {
 
 			return dataUrl;
 		} catch (error) {
-			console.error('[QRCodeService] Failed to generate QR code data URL:', error);
+			logger.error(
+				'QrCodeService',
+				'[QRCodeService] Failed to generate QR code data URL:',
+				undefined,
+				error as Error
+			);
 
 			// Fallback: return a placeholder data URL
 			const placeholderSvg = QRCodeService.generatePlaceholderQRCode(totpUri);
@@ -391,7 +418,12 @@ export class QRCodeService {
 			const otp = code % 10 ** digits;
 			return otp.toString().padStart(digits, '0');
 		} catch (error) {
-			console.error('[QRCodeService] TOTP code generation error:', error);
+			logger.error(
+				'QrCodeService',
+				'[QRCodeService] TOTP code generation error:',
+				undefined,
+				error as Error
+			);
 			return '000000'; // Fallback
 		}
 	}
