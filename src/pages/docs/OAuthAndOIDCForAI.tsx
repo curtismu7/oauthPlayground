@@ -185,17 +185,17 @@ const SectionDivider = styled.div`
   border-radius: 2px;
 `;
 
-const OAuthAndOIDCForAI = () => {
-	const pageConfig = {
-		flowType: 'documentation' as const,
-		theme: 'blue' as const,
-		maxWidth: '1200px',
-		showHeader: false,
-		showFooter: false,
-		responsive: true,
-	};
-	const { PageContainer, ContentWrapper } = PageLayoutService.createPageLayout(pageConfig);
+const pageConfig = {
+	flowType: 'documentation' as const,
+	theme: 'blue' as const,
+	maxWidth: '1200px',
+	showHeader: false,
+	showFooter: false,
+	responsive: true,
+};
+const { PageContainer, ContentWrapper } = PageLayoutService.createPageLayout(pageConfig);
 
+const OAuthAndOIDCForAI = () => {
 	return (
 		<PageContainer>
 			<ContentWrapper>

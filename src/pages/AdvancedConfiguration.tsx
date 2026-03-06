@@ -19,6 +19,7 @@ import styled from 'styled-components';
 import JsonEditor from '../components/JsonEditor';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
+import { logger } from '../services/loggingService';
 import PageLayoutService from '../services/pageLayoutService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { credentialManager } from '../utils/credentialManager';
@@ -350,26 +351,25 @@ const STANDARD_CLAIMS = [
 	'updated_at',
 ];
 
+const pageConfig = {
+	flowType: 'documentation' as const,
+	theme: 'blue' as const,
+	maxWidth: '72rem',
+	showHeader: true,
+	showFooter: false,
+	responsive: true,
+	flowId: 'pingone-defaults',
+};
+
+const {
+	PageContainer,
+	ContentWrapper,
+	PageHeader: LayoutPageHeader,
+} = PageLayoutService.createPageLayout(pageConfig);
+
 const AdvancedConfiguration = () => {
 	const navigate = useNavigate();
 	usePageScroll({ pageName: 'Advanced Configuration', force: true });
-
-	// Use V6 pageLayoutService for consistent dimensions and FlowHeader integration
-	const pageConfig = {
-		flowType: 'documentation' as const,
-		theme: 'blue' as const,
-		maxWidth: '72rem', // Wider for advanced config (1152px)
-		showHeader: true,
-		showFooter: false,
-		responsive: true,
-		flowId: 'pingone-defaults', // Enables FlowHeader integration
-	};
-
-	const {
-		PageContainer,
-		ContentWrapper,
-		PageHeader: LayoutPageHeader,
-	} = PageLayoutService.createPageLayout(pageConfig);
 
 	// Load defaults from credentialManager
 	const currentDefaults = credentialManager.loadAuthzFlowCredentials();
@@ -386,7 +386,9 @@ const AdvancedConfiguration = () => {
 					return data.credentials.environmentId;
 				}
 			} catch (error) {
-				console.log('Failed to load environment ID from worker token:', error);
+				logger.warn('AdvancedConfiguration', 'Failed to load environment ID from worker token', {
+					error,
+				});
 			}
 		}
 
@@ -584,7 +586,9 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 					setEnvironmentId(data.credentials.environmentId);
 				}
 			} catch (error) {
-				console.log('Failed to update environment ID from worker token:', error);
+				logger.warn('AdvancedConfiguration', 'Failed to update environment ID from worker token', {
+					error,
+				});
 			}
 		};
 

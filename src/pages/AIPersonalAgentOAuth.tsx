@@ -130,19 +130,19 @@ const LinkGroup = styled.div`
 	gap: 0.75rem;
 `;
 
+const pageConfig = {
+	flowType: 'documentation' as const,
+	theme: 'blue' as const,
+	maxWidth: '1200px',
+	showHeader: true,
+	showFooter: false,
+	responsive: true,
+	flowId: 'ai-personal-agent-oauth',
+};
+
+const { PageContainer, ContentWrapper } = PageLayoutService.createPageLayout(pageConfig);
+
 const AIPersonalAgentOAuth = () => {
-	const pageConfig = {
-		flowType: 'documentation' as const,
-		theme: 'blue' as const,
-		maxWidth: '1200px',
-		showHeader: true,
-		showFooter: false,
-		responsive: true,
-		flowId: 'ai-personal-agent-oauth',
-	};
-
-	const { PageContainer, ContentWrapper } = PageLayoutService.createPageLayout(pageConfig);
-
 	return (
 		<PageContainer>
 			<ContentWrapper>

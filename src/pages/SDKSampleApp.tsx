@@ -201,25 +201,24 @@ const FeatureList = styled.ul`
   }
 `;
 
+const pageConfig = {
+	flowType: 'documentation' as const,
+	theme: 'blue' as const,
+	maxWidth: '72rem',
+	showHeader: true,
+	showFooter: false,
+	responsive: true,
+	flowId: 'sdk-sample-app',
+};
+
+const {
+	PageContainer,
+	ContentWrapper,
+	FlowHeader: LayoutFlowHeader,
+} = PageLayoutService.createPageLayout(pageConfig);
+
 const SdkSampleApp: React.FC = () => {
 	usePageScroll({ pageName: 'SDK Sample App', force: true });
-
-	// Use V6 pageLayoutService for consistent dimensions and FlowHeader integration
-	const pageConfig = {
-		flowType: 'documentation' as const,
-		theme: 'blue' as const,
-		maxWidth: '72rem', // Wider for SDK content (1152px)
-		showHeader: true,
-		showFooter: false,
-		responsive: true,
-		flowId: 'sdk-sample-app', // Enables FlowHeader integration
-	};
-
-	const {
-		PageContainer,
-		ContentWrapper,
-		FlowHeader: LayoutFlowHeader,
-	} = PageLayoutService.createPageLayout(pageConfig);
 
 	const sdks = [
 		{
