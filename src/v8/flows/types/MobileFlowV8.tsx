@@ -7,6 +7,7 @@
 
 import { FiMail, FiShield, FiX } from '@icons';
 import React, { useCallback, useMemo, useState } from 'react';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CountryCodePickerV8 } from '@/v8/components/CountryCodePickerV8';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
@@ -22,7 +23,6 @@ import { WorkerTokenUIServiceV8 } from '@/v8/services/workerTokenUIServiceV8'; /
 import { useMFALoadingStateManager } from '@/v8/utils/loadingStateManagerV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { isValidPhoneFormat, validateAndNormalizePhone } from '@/v8/utils/phoneValidationV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { type Device, MFADeviceSelector } from '../components/MFADeviceSelector';
 import { MFAOTPInput } from '../components/MFAOTPInput';
 import { getFullPhoneNumber } from '../controllers/SMSFlowController';
@@ -182,19 +182,32 @@ const MobileDeviceSelectionStep: React.FC<
 					case 'COMPLETED':
 						nav.markStepComplete();
 						nav.goToStep(4);
-						modernMessaging.showFooterMessage({ type: 'info', message: 'Authentication successful!', duration: 3000 });
+						modernMessaging.showFooterMessage({
+							type: 'info',
+							message: 'Authentication successful!',
+							duration: 3000,
+						});
 						break;
 					case 'OTP_REQUIRED':
 						updateOtpState({ otpSent: true, sendRetryCount: 0, sendError: null });
 						nav.markStepComplete();
 						nav.goToStep(3);
-						modernMessaging.showFooterMessage({ type: 'info', message: 'OTP sent to your device. Proceed to validate the code.', duration: 3000 });
+						modernMessaging.showFooterMessage({
+							type: 'info',
+							message: 'OTP sent to your device. Proceed to validate the code.',
+							duration: 3000,
+						});
 						break;
 					case 'SELECTION_REQUIRED':
 						nav.setValidationErrors([
 							'Multiple devices require selection. Please choose the specific device to authenticate.',
 						]);
-						modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Please select a specific device', dismissible: true });
+						modernMessaging.showBanner({
+							type: 'warning',
+							title: 'Warning',
+							message: 'Please select a specific device',
+							dismissible: true,
+						});
 						break;
 					default:
 						updateOtpState({
@@ -204,13 +217,22 @@ const MobileDeviceSelectionStep: React.FC<
 						});
 						nav.markStepComplete();
 						nav.goToStep(3);
-						modernMessaging.showFooterMessage({ type: 'info', message: 'Device selected for authentication. Follow the next step to continue.', duration: 3000 });
+						modernMessaging.showFooterMessage({
+							type: 'info',
+							message: 'Device selected for authentication. Follow the next step to continue.',
+							duration: 3000,
+						});
 				}
 			} catch (error) {
 				const message = error instanceof Error ? error.message : 'Unknown error';
 				console.error(`${MODULE_TAG} Failed to initialize authentication:`, error);
 				nav.setValidationErrors([`Failed to authenticate: ${message}`]);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Authentication failed: ${message}`, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: `Authentication failed: ${message}`,
+					dismissible: true,
+				});
 				updateOtpState({ otpSent: false });
 			}
 		});
@@ -1149,7 +1171,12 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 					nav.setValidationErrors([
 						`Missing required configuration: ${missingFields.join(', ')}. Please complete Step 0 configuration.`,
 					]);
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Cannot register device: ${missingFields.join(', ')} required`, dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: `Cannot register device: ${missingFields.join(', ')} required`,
+						dismissible: true,
+					});
 					return;
 				}
 
@@ -1168,7 +1195,12 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 					if (!credentials.phoneNumber?.trim()) {
 						const errorMsg = 'Phone number is required. Please enter a valid phone number.';
 						nav.setValidationErrors([errorMsg]);
-						modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMsg, dismissible: true });
+						modernMessaging.showBanner({
+							type: 'error',
+							title: 'Error',
+							message: errorMsg,
+							dismissible: true,
+						});
 						return;
 					}
 					// Use phone validation utility to handle multiple formats
@@ -1179,20 +1211,35 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 					if (!phoneValidation.isValid) {
 						const errorMsg = phoneValidation.error || 'Invalid phone number format';
 						nav.setValidationErrors([errorMsg]);
-						modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMsg, dismissible: true });
+						modernMessaging.showBanner({
+							type: 'error',
+							title: 'Error',
+							message: errorMsg,
+							dismissible: true,
+						});
 						return;
 					}
 				} else if (actualDeviceType === 'EMAIL') {
 					if (!credentials.email?.trim()) {
 						const errorMsg = 'Email address is required. Please enter a valid email address.';
 						nav.setValidationErrors([errorMsg]);
-						modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMsg, dismissible: true });
+						modernMessaging.showBanner({
+							type: 'error',
+							title: 'Error',
+							message: errorMsg,
+							dismissible: true,
+						});
 						return;
 					}
 					if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(credentials.email)) {
 						const errorMsg = 'Please enter a valid email address format.';
 						nav.setValidationErrors([errorMsg]);
-						modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMsg, dismissible: true });
+						modernMessaging.showBanner({
+							type: 'error',
+							title: 'Error',
+							message: errorMsg,
+							dismissible: true,
+						});
 						return;
 					}
 				}
@@ -1206,7 +1253,12 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 					nav.setValidationErrors([
 						'Device pairing is disabled for the selected Device Authentication Policy. Please select a different policy or contact your administrator.',
 					]);
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Device pairing is disabled for this policy', dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: 'Device pairing is disabled for this policy',
+						dismissible: true,
+					});
 					return;
 				}
 
@@ -1373,7 +1425,11 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 								: actualDeviceType === 'VOICE'
 									? 'Voice'
 									: 'SMS';
-						modernMessaging.showFooterMessage({ type: 'info', message: `${deviceTypeLabel} device registered successfully! Device is ready to use (ACTIVE status).`, duration: 3000 });
+						modernMessaging.showFooterMessage({
+							type: 'info',
+							message: `${deviceTypeLabel} device registered successfully! Device is ready to use (ACTIVE status).`,
+							duration: 3000,
+						});
 					} else if (requestedActivationRequired) {
 						// Device requires activation - PingOne automatically sends OTP when status is ACTIVATION_REQUIRED
 						// This applies to both Admin Flow (with ACTIVATION_REQUIRED selected) and User Flow (always ACTIVATION_REQUIRED)
@@ -1417,7 +1473,11 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 								: actualDeviceType === 'VOICE'
 									? 'Voice'
 									: 'SMS';
-						modernMessaging.showFooterMessage({ type: 'info', message: `${deviceTypeLabel2} device registered! OTP has been sent automatically.`, duration: 3000 });
+						modernMessaging.showFooterMessage({
+							type: 'info',
+							message: `${deviceTypeLabel2} device registered! OTP has been sent automatically.`,
+							duration: 3000,
+						});
 					} else if (requestedActive && (apiConfirmedActive || actualDeviceStatus === 'ACTIVE')) {
 						// Admin flow: Device is ACTIVE, no OTP needed - show success screen
 						// Use requested status (deviceStatus) as the source of truth, but also check API response
@@ -1462,7 +1522,11 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 								: actualDeviceType === 'VOICE'
 									? 'Voice'
 									: 'SMS';
-						modernMessaging.showFooterMessage({ type: 'info', message: `${deviceTypeLabel3} device registered successfully! Device is ready to use (ACTIVE status).`, duration: 3000 });
+						modernMessaging.showFooterMessage({
+							type: 'info',
+							message: `${deviceTypeLabel3} device registered successfully! Device is ready to use (ACTIVE status).`,
+							duration: 3000,
+						});
 					} else {
 						// Fallback: If status is unclear or unexpected
 						// This should not happen if status is being sent correctly
@@ -1501,7 +1565,11 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 									: actualDeviceType === 'VOICE'
 										? 'Voice'
 										: 'SMS';
-							modernMessaging.showFooterMessage({ type: 'info', message: `${deviceTypeLabel2} device registered! OTP has been sent automatically.`, duration: 3000 });
+							modernMessaging.showFooterMessage({
+								type: 'info',
+								message: `${deviceTypeLabel2} device registered! OTP has been sent automatically.`,
+								duration: 3000,
+							});
 						} else {
 							// Unknown status - default to OTP flow to be safe
 							console.warn(`${MODULE_TAG} Device status unclear, defaulting to OTP flow`);
@@ -1514,7 +1582,11 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 									: actualDeviceType === 'VOICE'
 										? 'Voice'
 										: 'SMS';
-							modernMessaging.showFooterMessage({ type: 'info', message: `${deviceTypeLabel5} device registered successfully!`, duration: 3000 });
+							modernMessaging.showFooterMessage({
+								type: 'info',
+								message: `${deviceTypeLabel5} device registered successfully!`,
+								duration: 3000,
+							});
 						}
 					}
 				} catch (error) {
@@ -1533,7 +1605,12 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 					if (isDeviceLimitError) {
 						setShowDeviceLimitModal(true);
 						nav.setValidationErrors([`Device registration failed: ${errorMessage}`]);
-						modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Device limit exceeded. Please delete an existing device first.', dismissible: true });
+						modernMessaging.showBanner({
+							type: 'error',
+							title: 'Error',
+							message: 'Device limit exceeded. Please delete an existing device first.',
+							dismissible: true,
+						});
 					} else if (isWorkerTokenError) {
 						// Use helper to show worker token modal (respects silent API retrieval setting)
 						const { handleShowWorkerTokenModal } = await import(
@@ -1568,10 +1645,20 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 							showTokenAtEnd
 						);
 						nav.setValidationErrors([`Registration failed: ${errorMessage}`]);
-						modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Registration failed: ${errorMessage}`, dismissible: true });
+						modernMessaging.showBanner({
+							type: 'error',
+							title: 'Error',
+							message: `Registration failed: ${errorMessage}`,
+							dismissible: true,
+						});
 					} else {
 						nav.setValidationErrors([`Failed to register device: ${errorMessage}`]);
-						modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Registration failed: ${errorMessage}`, dismissible: true });
+						modernMessaging.showBanner({
+							type: 'error',
+							title: 'Error',
+							message: `Registration failed: ${errorMessage}`,
+							dismissible: true,
+						});
 					}
 				} finally {
 					setIsLoading(false);
@@ -2486,7 +2573,12 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 					nav.setValidationErrors([
 						'Missing required configuration. Please ensure Environment ID, Username, and Worker Token are set.',
 					]);
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Cannot send OTP: Missing required configuration', dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: 'Cannot send OTP: Missing required configuration',
+						dismissible: true,
+					});
 					return;
 				}
 
@@ -3059,7 +3151,12 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 											nav.setValidationErrors([
 												'Missing required configuration. Please ensure Environment ID, Username, and Worker Token are set.',
 											]);
-											modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Cannot validate OTP: Missing required configuration', dismissible: true });
+											modernMessaging.showBanner({
+												type: 'error',
+												title: 'Error',
+												message: 'Cannot validate OTP: Missing required configuration',
+												dismissible: true,
+											});
 											return;
 										}
 
@@ -3120,7 +3217,11 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 
 												nav.markStepComplete();
 												nav.goToStep(4); // Ensure we're on step 4 to show success page
-												modernMessaging.showFooterMessage({ type: 'info', message: 'Device activated successfully!', duration: 3000 });
+												modernMessaging.showFooterMessage({
+													type: 'info',
+													message: 'Device activated successfully!',
+													duration: 3000,
+												});
 											} catch (error) {
 												const errorMessage =
 													error instanceof Error ? error.message : 'Unknown error';
@@ -3130,7 +3231,12 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 													lastValidationError: errorMessage,
 												});
 												nav.setValidationErrors([`Activation failed: ${errorMessage}`]);
-												modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Activation failed: ${errorMessage}`, dismissible: true });
+												modernMessaging.showBanner({
+													type: 'error',
+													title: 'Error',
+													message: `Activation failed: ${errorMessage}`,
+													dismissible: true,
+												});
 											} finally {
 												setIsLoading(false);
 											}
@@ -3212,7 +3318,11 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 													region: credentials.region,
 													customDomain: credentials.customDomain,
 												});
-												modernMessaging.showFooterMessage({ type: 'info', message: 'OTP code resent successfully!', duration: 3000 });
+												modernMessaging.showFooterMessage({
+													type: 'info',
+													message: 'OTP code resent successfully!',
+													duration: 3000,
+												});
 											}
 											// For registration flow with ACTIVATION_REQUIRED devices, use resendPairingCode
 											else if (
@@ -3226,7 +3336,11 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 													region: credentials.region,
 													customDomain: credentials.customDomain,
 												});
-												modernMessaging.showFooterMessage({ type: 'info', message: 'OTP code resent successfully!', duration: 3000 });
+												modernMessaging.showFooterMessage({
+													type: 'info',
+													message: 'OTP code resent successfully!',
+													duration: 3000,
+												});
 											}
 											// For registration flow with ACTIVE devices, re-initialize device authentication
 											else if (mfaState.deviceId) {
@@ -3240,13 +3354,22 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 													deviceAuthId: authResult.authenticationId,
 													nextStep: authResult.nextStep ?? authResult.status,
 												}));
-												modernMessaging.showFooterMessage({ type: 'info', message: 'OTP code resent successfully!', duration: 3000 });
+												modernMessaging.showFooterMessage({
+													type: 'info',
+													message: 'OTP code resent successfully!',
+													duration: 3000,
+												});
 											} else {
 												throw new Error('Device ID is required to resend OTP');
 											}
 										} catch (error) {
 											const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-											modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to resend OTP: ${errorMessage}`, dismissible: true });
+											modernMessaging.showBanner({
+												type: 'error',
+												title: 'Error',
+												message: `Failed to resend OTP: ${errorMessage}`,
+												dismissible: true,
+											});
 										} finally {
 											setIsLoading(false);
 										}

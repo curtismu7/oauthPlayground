@@ -20,8 +20,8 @@ import {
 import React, { useCallback, useMemo } from 'react';
 import styled from 'styled-components';
 import { useAuth } from '@/contexts/NewAuthContext';
-import { type FlowType, type SpecVersion } from '@/v8/services/specVersionServiceV8';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { type FlowType, type SpecVersion } from '@/v8/services/specVersionServiceV8';
 import { type UnifiedFlowCredentials } from '../services/unifiedFlowIntegrationV8U';
 import { TokenDisplayV8U } from './TokenDisplayV8U';
 
@@ -223,10 +223,10 @@ export const UnifiedFlowSuccessStepV8U: React.FC<UnifiedFlowSuccessStepV8UProps>
 			},
 			tokens: tokens
 				? {
-						hasAccessToken: !!(tokens as any).access_token,
-						hasRefreshToken: !!(tokens as any).refresh_token,
-						hasIdToken: !!(tokens as any).id_token,
-						tokenTypes: Object.keys(tokens).filter((key) => (tokens as any)[key]),
+						hasAccessToken: !!(tokens as Record<string, unknown>).access_token,
+						hasRefreshToken: !!(tokens as Record<string, unknown>).refresh_token,
+						hasIdToken: !!(tokens as Record<string, unknown>).id_token,
+						tokenTypes: Object.keys(tokens).filter((key) => (tokens as Record<string, unknown>)[key]),
 					}
 				: null,
 		};
@@ -242,7 +242,11 @@ export const UnifiedFlowSuccessStepV8U: React.FC<UnifiedFlowSuccessStepV8UProps>
 		document.body.removeChild(link);
 		URL.revokeObjectURL(url);
 
-		modernMessaging.showFooterMessage({ type: 'info', message: '✅ Flow data exported successfully!', duration: 3000 });
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message: '✅ Flow data exported successfully!',
+			duration: 3000,
+		});
 	}, [flowType, specVersion, credentials, tokens, flowInfo.name]);
 
 	// Get educational content based on flow type

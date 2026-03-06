@@ -120,7 +120,12 @@ export const useTokenRevocationFlowController = (): UseTokenRevocationFlowContro
 		} catch (err) {
 			const errorMessage = err instanceof Error ? err.message : 'Token revocation failed';
 			setError(errorMessage);
-			logger.error('useTokenRevocationFlowController', 'Token revocation failed', undefined, err instanceof Error ? err : undefined);
+			logger.error(
+				'useTokenRevocationFlowController',
+				'Token revocation failed',
+				undefined,
+				err instanceof Error ? err : undefined
+			);
 			throw err;
 		} finally {
 			setIsRequesting(false);

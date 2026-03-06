@@ -16,12 +16,12 @@
 import { FiLoader, FiTrash2 } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { useWorkerTokenConfigV8 } from '@/v8/hooks/useSilentApiConfigV8';
 import { AppDiscoveryModalV8U } from '../../v8u/components/AppDiscoveryModalV8U';
 import type { DiscoveredApp } from '../components/AppPickerV8';
 import { WorkerTokenModalV8 } from '../components/WorkerTokenModalV8';
 import { WorkerTokenStatusDisplayV8 } from '../components/WorkerTokenStatusDisplayV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import type { TokenStatusInfo } from './workerTokenStatusServiceV8';
 import { WorkerTokenStatusServiceV8 } from './workerTokenStatusServiceV8';
 
@@ -349,7 +349,12 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 			);
 		} catch (error) {
 			console.error('[WorkerTokenUIServiceV8] Error opening worker token modal:', error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to open worker token modal', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to open worker token modal',
+				dismissible: true,
+			});
 		} finally {
 			setIsGettingWorkerToken(false);
 		}
@@ -366,10 +371,19 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 			const clearedStatus = await WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 			setTokenStatus(clearedStatus);
 
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Worker token cleared successfully', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Worker token cleared successfully',
+				duration: 3000,
+			});
 		} catch (error) {
 			console.error('[WorkerTokenUIServiceV8] Error clearing worker token:', error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to clear worker token', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to clear worker token',
+				dismissible: true,
+			});
 		}
 	}, []);
 
@@ -381,7 +395,11 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 			// Use centralized hook to update configuration
 			updateSilentApiRetrieval(newValue);
 
-			modernMessaging.showFooterMessage({ type: 'info', message: `Silent API Token Retrieval set to: ${newValue}`, duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: `Silent API Token Retrieval set to: ${newValue}`,
+				duration: 3000,
+			});
 
 			// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 			if (newValue) {
@@ -460,8 +478,14 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 		}
 
 		if (!effectiveEnvironmentId.trim()) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Environment ID is required for app discovery. ' +
-					'Either provide it in the form or ensure your worker token contains environment ID.', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message:
+					'Environment ID is required for app discovery. ' +
+					'Either provide it in the form or ensure your worker token contains environment ID.',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -482,7 +506,11 @@ export const WorkerTokenUIServiceV8: React.FC<WorkerTokenUIServiceV8Props> = ({
 				// MFA doesn't have many credential fields to fill
 				if (app.id && onEnvironmentIdUpdate) {
 					onEnvironmentIdUpdate(app.id);
-					modernMessaging.showFooterMessage({ type: 'info', message: `Environment ID updated to: ${app.id}`, duration: 3000 });
+					modernMessaging.showFooterMessage({
+						type: 'info',
+						message: `Environment ID updated to: ${app.id}`,
+						duration: 3000,
+					});
 				}
 			} else if (context === 'unified' && onAppSelected) {
 				// For Unified context, let the parent handle full credential application

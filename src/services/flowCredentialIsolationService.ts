@@ -91,7 +91,12 @@ class FlowCredentialIsolationService {
 			console.groupEnd();
 			return true;
 		} catch (error) {
-			logger.error('FlowCredentialIsolationService', 'Failed to save credentials for ...', undefined, error as Error);
+			logger.error(
+				'FlowCredentialIsolationService',
+				'Failed to save credentials for ...',
+				undefined,
+				error as Error
+			);
 			if (options.showToast) {
 				showGlobalError(`Failed to save credentials for ${flowKey}`);
 			}
@@ -127,7 +132,12 @@ class FlowCredentialIsolationService {
 					console.log(`✅ Using flow-specific credentials from: ${flowStorageKey}`);
 				}
 			} catch (error) {
-				logger.error('FlowCredentialIsolationService', 'Failed to parse flow-specific data for ...', undefined, error as Error);
+				logger.error(
+					'FlowCredentialIsolationService',
+					'Failed to parse flow-specific data for ...',
+					undefined,
+					error as Error
+				);
 			}
 		}
 
@@ -144,7 +154,12 @@ class FlowCredentialIsolationService {
 						hasSharedCredentials = true;
 					}
 				} catch (error) {
-					logger.error('FlowCredentialIsolationService', 'Failed to parse shared data', undefined, error as Error);
+					logger.error(
+						'FlowCredentialIsolationService',
+						'Failed to parse shared data',
+						undefined,
+						error as Error
+					);
 				}
 			}
 		}
@@ -173,7 +188,12 @@ class FlowCredentialIsolationService {
 			console.log(`🗑️ [CREDENTIAL ISOLATION] Cleared credentials for flow: ${flowKey}`);
 			return true;
 		} catch (error) {
-			logger.error('FlowCredentialIsolationService', 'Failed to clear credentials for ...', undefined, error as Error);
+			logger.error(
+				'FlowCredentialIsolationService',
+				'Failed to clear credentials for ...',
+				undefined,
+				error as Error
+			);
 			return false;
 		}
 	}
@@ -227,7 +247,12 @@ class FlowCredentialIsolationService {
 
 			return true;
 		} catch (error) {
-			logger.error('FlowCredentialIsolationService', 'Failed to migrate credentials for ...', undefined, error as Error);
+			logger.error(
+				'FlowCredentialIsolationService',
+				'Failed to migrate credentials for ...',
+				undefined,
+				error as Error
+			);
 			return false;
 		}
 	}
@@ -263,7 +288,9 @@ class FlowCredentialIsolationService {
 
 		if (flowsUsingSharedFallback.length > 0) {
 			logger.warn('FlowCredentialIsolationService', 'POTENTIAL CREDENTIAL BLEEDING DETECTED!');
-			logger.warn('FlowCredentialIsolationService', 'Flows using shared fallback', { flowsUsingSharedFallback });
+			logger.warn('FlowCredentialIsolationService', 'Flows using shared fallback', {
+				flowsUsingSharedFallback,
+			});
 		} else {
 			console.log(`✅ All flows are properly isolated!`);
 		}

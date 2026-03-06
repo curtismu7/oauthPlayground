@@ -12,12 +12,12 @@
  */
 
 import { useCallback, useState } from 'react';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import {
 	PasskeyAuthOptions,
 	PasskeyRegistrationOptions,
 	PasskeyServiceV8,
 } from '@/v8/services/passkeyServiceV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 export interface UsePasskeyAuthResult {
 	isLoading: boolean;
@@ -61,14 +61,23 @@ export function usePasskeyAuth(): UsePasskeyAuthResult {
 				const errorMsg =
 					'WebAuthn is not supported in this browser. Please use a modern browser that supports passkeys.';
 				setError(errorMsg);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMsg, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: errorMsg,
+					dismissible: true,
+				});
 				return { success: false, requiresRegistration: false };
 			}
 
 			const result = await PasskeyServiceV8.authenticateUsernameless(options);
 
 			if (result.success) {
-				modernMessaging.showFooterMessage({ type: 'info', message: `Authenticated successfully as ${result.username || result.userId}`, duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: `Authenticated successfully as ${result.username || result.userId}`,
+					duration: 3000,
+				});
 				return result;
 			} else {
 				setError(result.error || 'Authentication failed');
@@ -76,14 +85,24 @@ export function usePasskeyAuth(): UsePasskeyAuthResult {
 					// Don't show error toast for "requires registration" - this is expected
 					return result;
 				} else {
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: result.error || 'Authentication failed', dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: result.error || 'Authentication failed',
+						dismissible: true,
+					});
 					return result;
 				}
 			}
 		} catch (err) {
 			const errorMsg = err instanceof Error ? err.message : 'Authentication failed';
 			setError(errorMsg);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMsg, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: errorMsg,
+				dismissible: true,
+			});
 			return { success: false, requiresRegistration: false };
 		} finally {
 			setIsLoading(false);
@@ -100,25 +119,44 @@ export function usePasskeyAuth(): UsePasskeyAuthResult {
 				const errorMsg =
 					'WebAuthn is not supported in this browser. Please use a modern browser that supports passkeys.';
 				setError(errorMsg);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMsg, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: errorMsg,
+					dismissible: true,
+				});
 				return { success: false };
 			}
 
 			const result = await PasskeyServiceV8.registerPasskey(options);
 
 			if (result.success) {
-				modernMessaging.showFooterMessage({ type: 'info', message: 'Passkey registered successfully!', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: 'Passkey registered successfully!',
+					duration: 3000,
+				});
 				return result;
 			} else {
 				const errorMsg = result.error || 'Registration failed';
 				setError(errorMsg);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMsg, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: errorMsg,
+					dismissible: true,
+				});
 				return result;
 			}
 		} catch (err) {
 			const errorMsg = err instanceof Error ? err.message : 'Registration failed';
 			setError(errorMsg);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMsg, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: errorMsg,
+				dismissible: true,
+			});
 			return { success: false };
 		} finally {
 			setIsLoading(false);
