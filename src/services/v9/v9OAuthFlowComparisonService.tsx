@@ -29,7 +29,6 @@ const V9OAuthFlowComparisonService = {
 				message: 'Failed to generate flow comparison table',
 				contactSupport: false,
 			});
-			console.error('Flow comparison error:', error);
 
 			// Return fallback error display
 			return (
@@ -76,7 +75,6 @@ const V9OAuthFlowComparisonService = {
 				message: 'Flow comparison validation failed',
 				contactSupport: false,
 			});
-			console.error('Flow validation error:', error);
 			return false;
 		}
 	},
