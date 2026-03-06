@@ -10,6 +10,7 @@
  */
 
 import { getActiveRiskThresholds } from '../../../config/protect-portal/riskPolicies.config';
+import { logger } from '../../../utils/logger';
 import type {
 	LoginContext,
 	ProtectCredentials,
@@ -112,7 +113,7 @@ export class RiskEvaluationService {
 				},
 			};
 		} catch (error) {
-			console.error(`${MODULE_TAG} Risk evaluation failed:`, error);
+			logger.error(MODULE_TAG, 'Risk evaluation failed:', undefined, error as Error);
 
 			const riskError: RiskEvaluationError = {
 				code: 'RISK_EVALUATION_FAILED',
@@ -202,7 +203,7 @@ export class RiskEvaluationService {
 				});
 			}
 		} catch (error) {
-			console.warn(`${RiskEvaluationService.MODULE_TAG} Failed to collect device payload`, error);
+			logger.warn(RiskEvaluationService.MODULE_TAG, 'Failed to collect device payload', { error });
 		}
 
 		return {
@@ -410,7 +411,7 @@ export class RiskEvaluationService {
 
 			return true;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Risk result validation failed:`, error);
+			logger.error(MODULE_TAG, 'Risk result validation failed:', undefined, error as Error);
 			return false;
 		}
 	}
