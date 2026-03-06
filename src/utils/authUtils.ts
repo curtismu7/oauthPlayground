@@ -1,11 +1,12 @@
 import { OAuthTokens, UserInfo } from '../types/storage';
+import { logger } from './logger';
 
 export const safeGetTokens = (): OAuthTokens | null => {
 	try {
 		const tokens = localStorage.getItem('auth_tokens');
 		return tokens ? JSON.parse(tokens) : null;
 	} catch (error) {
-		console.error('Error parsing auth tokens:', error);
+		logger.error('AuthUtils', 'Error parsing auth tokens:', undefined, error as Error);
 		return null;
 	}
 };
@@ -15,7 +16,7 @@ export const safeGetUserInfo = (): UserInfo | null => {
 		const user = localStorage.getItem('user_info');
 		return user ? JSON.parse(user) : null;
 	} catch (error) {
-		console.error('Error parsing user info:', error);
+		logger.error('AuthUtils', 'Error parsing user info:', undefined, error as Error);
 		return null;
 	}
 };

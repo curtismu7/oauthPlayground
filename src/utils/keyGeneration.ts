@@ -11,6 +11,8 @@
  * - Cryptographically secure random strings
  */
 
+import { logger } from './logger';
+
 const MODULE_TAG = '[🔐 KEY-GENERATION]';
 
 export interface GeneratedKeyPair {
@@ -104,7 +106,7 @@ export const generateRSAKeyPair = async (
 			algorithm: 'RS256',
 		};
 	} catch (error) {
-		console.error(`${MODULE_TAG} ❌ Failed to generate RSA key pair:`, error);
+		logger.error('KeyGeneration', 'Failed to generate RSA key pair:', undefined, error as Error);
 		throw new Error(
 			`Failed to generate RSA key pair: ${error instanceof Error ? error.message : 'Unknown error'}`
 		);
@@ -227,7 +229,7 @@ export const validatePrivateKey = (privateKey: string): boolean => {
 
 		return true;
 	} catch (error) {
-		console.error(`${MODULE_TAG} Private key validation failed:`, error);
+		logger.error('KeyGeneration', 'Private key validation failed:', undefined, error as Error);
 		return false;
 	}
 };
@@ -270,7 +272,7 @@ export const extractPublicKey = async (privateKey: string): Promise<string> => {
 
 		return publicKey;
 	} catch (error) {
-		console.error(`${MODULE_TAG} Failed to extract public key:`, error);
+		logger.error('KeyGeneration', 'Failed to extract public key:', undefined, error as Error);
 		throw new Error(
 			`Failed to extract public key: ${error instanceof Error ? error.message : 'Unknown error'}`
 		);

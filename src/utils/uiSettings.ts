@@ -5,6 +5,7 @@
 // runtime errors from stale imports.
 
 import type { UISettings } from '../contexts/UISettingsContext';
+import { logger } from './logger';
 
 const LEGACY_DEFAULTS: Pick<
 	UISettings,
@@ -60,7 +61,7 @@ const loadFromStorage = (): UISettings => {
 			...uiSettings,
 		};
 	} catch (error) {
-		console.warn('[UISettings] Failed to parse settings from storage:', error);
+		logger.warn('UISettings', 'Failed to parse settings from storage:', undefined, error as Error);
 		return LEGACY_DEFAULTS as UISettings;
 	}
 };
@@ -91,7 +92,12 @@ export const updateUISetting = <K extends keyof UISettings>(key: K, value: UISet
 		);
 		console.log(`[UISettings] Legacy update ${String(key)} ->`, value);
 	} catch (error) {
-		console.error('[UISettings] Failed to update setting from legacy utility:', error);
+		logger.error(
+			'UISettings',
+			'Failed to update setting from legacy utility:',
+			undefined,
+			error as Error
+		);
 	}
 };
 
