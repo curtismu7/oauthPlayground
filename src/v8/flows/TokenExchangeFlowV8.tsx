@@ -620,6 +620,67 @@ export const TokenExchangeFlowV8: React.FC<TokenExchangeFlowV8Props> = ({
 						</ResultSection>
 					)}
 
+					{/* Flow Completion Summary */}
+					{result && (
+						<div
+							style={{
+								background: '#f0fdf4',
+								border: '1px solid #86efac',
+								borderRadius: '0.5rem',
+								padding: '1.5rem',
+								marginTop: '2rem',
+							}}
+						>
+							<h3
+								style={{
+									margin: '0 0 1rem 0',
+									color: '#16a34a',
+									fontSize: '1.25rem',
+									fontWeight: 600,
+								}}
+							>
+								🎉 Token Exchange Flow Complete
+							</h3>
+							<div
+								style={{
+									background: 'white',
+									borderRadius: '0.375rem',
+									padding: '1rem',
+									marginBottom: '1rem',
+								}}
+							>
+								<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>
+									Achievements:
+								</h4>
+								<ul style={{ margin: '0', paddingLeft: '1.5rem', color: '#4b5563' }}>
+									<li>✅ Token exchange request executed successfully</li>
+									<li>✅ {requestedTokenType} token obtained</li>
+									<li>✅ Security delegation completed</li>
+									<li>✅ RFC 8693 token exchange implemented</li>
+								</ul>
+							</div>
+							<div
+								style={{
+									background: 'white',
+									borderRadius: '0.375rem',
+									padding: '1rem',
+								}}
+							>
+								<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>
+									Exchange Summary:
+								</h4>
+								<div style={{ fontSize: '0.875rem', color: '#4b5563' }}>
+									<p><strong>Subject Token Type:</strong> {subjectTokenType}</p>
+									<p><strong>Requested Token Type:</strong> {requestedTokenType}</p>
+									<p><strong>Access Token:</strong> {result.access_token ? '✅ Obtained' : '❌ Missing'}</p>
+									<p><strong>Token Type:</strong> {result.token_type}</p>
+									<p><strong>Expires In:</strong> {result.expires_in} seconds</p>
+									<p><strong>Scope:</strong> {result.scope}</p>
+								</div>
+							</div>
+						</div>
+					)}
+
 					{/* Errors */}
 					{error && (
 						<ErrorSection>
