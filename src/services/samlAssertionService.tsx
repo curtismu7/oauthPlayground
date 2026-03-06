@@ -1,6 +1,7 @@
 // src/services/samlAssertionService.tsx
 // SAML Assertion Service for OAuth 2.0 SAML Bearer Assertion Flow
 
+import { logger } from '../utils/logger';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
 export interface SAMLAssertionData {
@@ -116,7 +117,12 @@ export class SAMLAssertionService {
 				v4ToastManager.showSuccess('SAML configuration saved successfully!');
 				resolve();
 			} catch (error) {
-				console.error('[SAML Assertion Service] Error saving configuration:', error);
+				logger.error(
+					'SAMLAssertionService',
+					'[SAML Assertion Service] Error saving configuration:',
+					undefined,
+					error
+				);
 				v4ToastManager.showError('Failed to save SAML configuration');
 				reject(error);
 			}
@@ -136,7 +142,12 @@ export class SAMLAssertionService {
 				return configWithoutTimestamp;
 			}
 		} catch (error) {
-			console.error('[SAML Assertion Service] Error loading configuration:', error);
+			logger.error(
+				'SAMLAssertionService',
+				'[SAML Assertion Service] Error loading configuration:',
+				undefined,
+				error
+			);
 		}
 		return null;
 	}
@@ -149,7 +160,12 @@ export class SAMLAssertionService {
 			localStorage.removeItem(SAMLAssertionService.STORAGE_KEY);
 			v4ToastManager.showInfo('SAML configuration cleared');
 		} catch (error) {
-			console.error('[SAML Assertion Service] Error clearing configuration:', error);
+			logger.error(
+				'SAMLAssertionService',
+				'[SAML Assertion Service] Error clearing configuration:',
+				undefined,
+				error
+			);
 			v4ToastManager.showError('Failed to clear SAML configuration');
 		}
 	}
