@@ -323,7 +323,7 @@ export class PARService {
 		const expiresIn = response.expires_in || response.expiresIn || 600; // Default 10 minutes
 
 		if (!requestUri) {
-			console.error('PAR Response Debug:', response);
+			logger.error('PARService', 'Invalid PAR response: missing request_uri', { response });
 			throw new Error(
 				`Invalid PAR response: missing request_uri. Response: ${JSON.stringify(response)}`
 			);
