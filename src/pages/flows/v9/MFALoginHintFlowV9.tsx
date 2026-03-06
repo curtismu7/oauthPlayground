@@ -83,8 +83,14 @@ const STEP_METADATA = [
 ];
 
 const MFALoginHintFlowV9: React.FC = () => {
-	const { scrollToTopAfterAction } = usePageScroll();
+	const [messageState, setMessageState] = useState<MessageState>({});
 	const modernMessaging = V9ModernMessagingService.getInstance();
+
+	useEffect(() => {
+		return modernMessaging.subscribe(setMessageState);
+	}, [modernMessaging]);
+	
+	const { scrollToTopAfterAction } = usePageScroll();
 
 	// State management
 	const [currentStep, setCurrentStep] = useState(0);
@@ -848,6 +854,61 @@ const MFALoginHintFlowV9: React.FC = () => {
 
 	return (
 		<div>
+			{messageState.waitScreen && (
+				<div
+					style={{
+						position: 'fixed',
+						top: 0,
+						left: 0,
+						right: 0,
+						bottom: 0,
+						background: 'rgba(0, 0, 0, 0.5)',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						zIndex: 9999,
+					}}
+				>
+					<div
+						style={{
+							background: 'white',
+							padding: '2rem',
+							borderRadius: '0.5rem',
+							textAlign: 'center',
+						}}
+					>
+						<div
+							style={{
+								width: '40px',
+								height: '40px',
+								border: '4px solid #e5e7eb',
+								borderTop: '4px solid #3b82f6',
+								borderRadius: '50%',
+								animation: 'spin 1s linear infinite',
+								margin: '0 auto 1rem',
+							}}
+						/>
+						<p>{messageState.waitScreen.message}</p>
+					</div>
+				</div>
+			)}
+			{messageState.criticalError && (
+				<div
+					style={{
+						position: 'fixed',
+						top: '1rem',
+						right: '1rem',
+						background: '#ef4444',
+						color: 'white',
+						padding: '1rem',
+						borderRadius: '0.5rem',
+						zIndex: 9999,
+					}}
+				>
+					<strong>Error:</strong>
+					<p>{messageState.criticalError.message}</p>
+				</div>
+			)}
 			<V9FlowHeader
 				flowId="mfa-login-hint"
 				customConfig={{
@@ -988,91 +1049,5 @@ const MFALoginHintFlowV9: React.FC = () => {
 	);
 };
 
-// Wrapper component with modern messaging provider
-const MFALoginHintFlowV9WithMessaging: React.FC = () => {
-	const [messageState, setMessageState] = useState<MessageState>({});
-	const modernMessaging = V9ModernMessagingService.getInstance();
+export default MFALoginHintFlowV9;
 
-	useEffect(() => {
-		return modernMessaging.subscribe(setMessageState);
-	}, [modernMessaging]);
-
-	return (
-		<div>
-			{messageState.waitScreen && (
-				<div
-					style={{
-						position: 'fixed',
-						top: 0,
-						left: 0,
-						right: 0,
-						bottom: 0,
-						background: 'rgba(0, 0, 0, 0.5)',
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'center',
-						zIndex: 9999,
-					}}
-				>
-					<div
-						style={{
-							background: 'white',
-							padding: '2rem',
-							borderRadius: '0.5rem',
-							textAlign: 'center',
-						}}
-					>
-						<h3>{messageState.waitScreen.message}</h3>
-						{messageState.waitScreen.detail && <p>{messageState.waitScreen.detail}</p>}
-					</div>
-				</div>
-			)}
-			{messageState.banner && (
-				<div
-					style={{
-						position: 'fixed',
-						top: '1rem',
-						right: '1rem',
-						background:
-							messageState.banner.type === 'success'
-								? '#10b981'
-								: messageState.banner.type === 'error'
-									? '#ef4444'
-									: messageState.banner.type === 'warning'
-										? '#f59e0b'
-										: '#3b82f6',
-						color: 'white',
-						padding: '1rem',
-						borderRadius: '0.5rem',
-						maxWidth: '400px',
-						zIndex: 9998,
-					}}
-				>
-					<strong>{messageState.banner.title}</strong>
-					<p>{messageState.banner.message}</p>
-				</div>
-			)}
-			{messageState.criticalError && (
-				<div
-					style={{
-						position: 'fixed',
-						top: '1rem',
-						left: '1rem',
-						right: '1rem',
-						background: '#dc2626',
-						color: 'white',
-						padding: '1rem',
-						borderRadius: '0.5rem',
-						zIndex: 9997,
-					}}
-				>
-					<strong>{messageState.criticalError.title}</strong>
-					<p>{messageState.criticalError.message}</p>
-				</div>
-			)}
-			<MFALoginHintFlowV9 />
-		</div>
-	);
-};
-
-export default MFALoginHintFlowV9WithMessaging;
