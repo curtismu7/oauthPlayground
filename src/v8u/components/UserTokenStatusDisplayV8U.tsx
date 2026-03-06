@@ -580,9 +580,18 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 		setIsRefreshing(true);
 		try {
 			await updateTokenStatus();
-			modernMessaging.showFooterMessage({ type: 'info', message: 'User token status refreshed', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'User token status refreshed',
+				duration: 3000,
+			});
 		} catch (_error) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to refresh token status', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to refresh token status',
+				dismissible: true,
+			});
 		} finally {
 			setTimeout(() => setIsRefreshing(false), 500);
 		}
@@ -591,9 +600,18 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 	const copyToken = async (token: string, type: string) => {
 		try {
 			await navigator.clipboard.writeText(token);
-			modernMessaging.showFooterMessage({ type: 'info', message: `${type} copied to clipboard`, duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: `${type} copied to clipboard`,
+				duration: 3000,
+			});
 		} catch (_error) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to copy token', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to copy token',
+				dismissible: true,
+			});
 		}
 	};
 
@@ -652,11 +670,20 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 				}
 			}
 
-			modernMessaging.showFooterMessage({ type: 'info', message: `${type.replace('_', ' ')} cleared successfully`, duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: `${type.replace('_', ' ')} cleared successfully`,
+				duration: 3000,
+			});
 			// Refresh the display
 			await updateTokenStatus();
 		} catch (_error) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to clear ${type}`, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: `Failed to clear ${type}`,
+				dismissible: true,
+			});
 		}
 	};
 

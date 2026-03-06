@@ -30,9 +30,9 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { CommonSpinner } from '@/components/common/CommonSpinner';
 import { useProductionSpinner } from '@/hooks/useProductionSpinner';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { useHybridFlowV8 } from '@/v8/hooks/useHybridFlowV8';
 import type { HybridFlowCredentials } from '@/v8/services/hybridFlowIntegrationServiceV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 // V8 styled components (following V8 patterns)
 const Container = styled.div`
@@ -353,7 +353,12 @@ const OIDCHybridFlowV8: React.FC = () => {
 	// Save credentials
 	const saveCredentials = useCallback(() => {
 		if (!formData.environmentId || !formData.clientId) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Environment ID and Client ID are required', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Environment ID and Client ID are required',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -370,13 +375,22 @@ const OIDCHybridFlowV8: React.FC = () => {
 		};
 
 		hybridFlow.saveCredentials(credentials);
-		modernMessaging.showFooterMessage({ type: 'info', message: 'Credentials saved successfully', duration: 3000 });
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message: 'Credentials saved successfully',
+			duration: 3000,
+		});
 	}, [formData, hybridFlow]);
 
 	// Generate authorization URL
 	const handleGenerateUrl = useCallback(async () => {
 		if (!formData.environmentId || !formData.clientId) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please configure credentials first', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please configure credentials first',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -412,10 +426,19 @@ const OIDCHybridFlowV8: React.FC = () => {
 		navigator.clipboard
 			.writeText(text)
 			.then(() => {
-				modernMessaging.showFooterMessage({ type: 'info', message: 'Copied to clipboard', duration: 3000 });
+				modernMessaging.showFooterMessage({
+					type: 'info',
+					message: 'Copied to clipboard',
+					duration: 3000,
+				});
 			})
 			.catch(() => {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to copy', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'Failed to copy',
+					dismissible: true,
+				});
 			});
 	}, []);
 
@@ -663,9 +686,7 @@ const OIDCHybridFlowV8: React.FC = () => {
 								marginBottom: '1rem',
 							}}
 						>
-							<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>
-								Achievements:
-							</h4>
+							<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>Achievements:</h4>
 							<ul style={{ margin: '0', paddingLeft: '1.5rem', color: '#4b5563' }}>
 								<li>✅ Hybrid variant selected successfully</li>
 								<li>✅ Authorization code and tokens obtained</li>
@@ -680,14 +701,21 @@ const OIDCHybridFlowV8: React.FC = () => {
 								padding: '1rem',
 							}}
 						>
-							<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>
-								Hybrid Flow Summary:
-							</h4>
+							<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>Hybrid Flow Summary:</h4>
 							<div style={{ fontSize: '0.875rem', color: '#4b5563' }}>
-								<p><strong>Flow Type:</strong> OIDC Hybrid Flow</p>
-								<p><strong>Variant:</strong> {hybridFlow.selectedVariant || 'Standard'}</p>
-								<p><strong>Tokens Received:</strong> {Object.keys(allTokens).length} types</p>
-								<p><strong>Authorization Code:</strong> {allTokens.authorizationCode ? '✅ Obtained' : '❌ Missing'}</p>
+								<p>
+									<strong>Flow Type:</strong> OIDC Hybrid Flow
+								</p>
+								<p>
+									<strong>Variant:</strong> {hybridFlow.selectedVariant || 'Standard'}
+								</p>
+								<p>
+									<strong>Tokens Received:</strong> {Object.keys(allTokens).length} types
+								</p>
+								<p>
+									<strong>Authorization Code:</strong>{' '}
+									{allTokens.authorizationCode ? '✅ Obtained' : '❌ Missing'}
+								</p>
 							</div>
 						</div>
 					</div>

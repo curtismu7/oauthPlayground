@@ -6,11 +6,11 @@ import type { StepCredentials } from '../components/steps/CommonSteps';
 import { FlowCredentialService } from '../services/flowCredentialService';
 import { trackTokenOperation } from '../utils/activityTracker';
 import { useFlowStepManager } from '../utils/flowStepSystem';
+import { logger } from '../utils/logger';
 import { safeLocalStorageParse } from '../utils/secureJson';
 import { storeOAuthTokens } from '../utils/tokenStorage';
 import { showGlobalError, showGlobalSuccess } from './useNotifications';
 import { useAuthorizationFlowScroll } from './usePageScroll';
-import { logger } from '../utils/logger';
 
 export type FlowVariant = 'oauth' | 'oidc';
 
@@ -186,7 +186,12 @@ const decodeJWT = (token: string): DecodedJWT | null => {
 
 		return { header, payload, signature };
 	} catch (error) {
-		logger.error('useClientCredentialsFlowController', 'Failed to decode JWT', undefined, error as Error);
+		logger.error(
+			'useClientCredentialsFlowController',
+			'Failed to decode JWT',
+			undefined,
+			error as Error
+		);
 		return null;
 	}
 };
@@ -472,7 +477,12 @@ export const useClientCredentialsFlowController = (
 					clientId: loadedCreds?.clientId,
 				});
 			} catch (error) {
-				logger.error('useClientCredentialsFlowController', 'Failed to load data', undefined, error as Error);
+				logger.error(
+					'useClientCredentialsFlowController',
+					'Failed to load data',
+					undefined,
+					error as Error
+				);
 			}
 		};
 
@@ -639,7 +649,12 @@ export const useClientCredentialsFlowController = (
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
 			showGlobalError(`Token request failed: ${errorMessage}`);
-			logger.error('useClientCredentialsFlowController', 'Token request failed', undefined, error as Error);
+			logger.error(
+				'useClientCredentialsFlowController',
+				'Token request failed',
+				undefined,
+				error as Error
+			);
 		} finally {
 			setIsRequesting(false);
 		}
@@ -681,7 +696,12 @@ export const useClientCredentialsFlowController = (
 			}
 		} catch (error) {
 			showGlobalError('Failed to save credentials');
-			logger.error('useClientCredentialsFlowController', 'Save credentials error', undefined, error as Error);
+			logger.error(
+				'useClientCredentialsFlowController',
+				'Save credentials error',
+				undefined,
+				error as Error
+			);
 		} finally {
 			setIsSavingCredentials(false);
 		}

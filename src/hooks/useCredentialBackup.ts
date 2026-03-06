@@ -50,13 +50,17 @@ export const useCredentialBackup = ({
 		if (!normalizedCredentials.environmentId && !normalizedCredentials.clientId) {
 			const backupCredentials = credentialBackupService.restoreFromBackup(flowKey);
 			if (backupCredentials.environmentId || backupCredentials.clientId) {
-				logger.info('useCredentialBackup', `Restoring credentials from backup for flow: ${flowKey}`, {
-					flowKey,
-					hasEnvironmentId: !!backupCredentials.environmentId,
-					hasClientId: !!backupCredentials.clientId,
-					hasRedirectUri: !!backupCredentials.redirectUri,
-					scopes: backupCredentials.scopes?.length || 0,
-				});
+				logger.info(
+					'useCredentialBackup',
+					`Restoring credentials from backup for flow: ${flowKey}`,
+					{
+						flowKey,
+						hasEnvironmentId: !!backupCredentials.environmentId,
+						hasClientId: !!backupCredentials.clientId,
+						hasRedirectUri: !!backupCredentials.redirectUri,
+						scopes: backupCredentials.scopes?.length || 0,
+					}
+				);
 
 				// Update credentials with restored data
 				setCredentials({

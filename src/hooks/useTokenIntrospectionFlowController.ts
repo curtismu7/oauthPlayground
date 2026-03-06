@@ -99,12 +99,21 @@ export const useTokenIntrospectionFlowController =
 				const result: TokenIntrospectionResult = await response.json();
 				setIntrospectionResult(result);
 
-				logger.success('useTokenIntrospectionFlowController', 'Token introspection completed', result);
+				logger.success(
+					'useTokenIntrospectionFlowController',
+					'Token introspection completed',
+					result
+				);
 				return result;
 			} catch (err) {
 				const errorMessage = err instanceof Error ? err.message : 'Token introspection failed';
 				setError(errorMessage);
-				logger.error('useTokenIntrospectionFlowController', 'Token introspection failed', undefined, err instanceof Error ? err : undefined);
+				logger.error(
+					'useTokenIntrospectionFlowController',
+					'Token introspection failed',
+					undefined,
+					err instanceof Error ? err : undefined
+				);
 				throw err;
 			} finally {
 				setIsRequesting(false);

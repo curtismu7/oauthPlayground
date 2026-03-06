@@ -9,8 +9,8 @@ describe('API Token Introspection Endpoint', () => {
     token_type: 'Bearer',
     exp: 1638360000,
     iat: 1638356400,
-    sub: 'user123',
-  });
+    sub: 'user123'
+  };
 
   beforeEach(() => {
     global.fetch.mockClear();

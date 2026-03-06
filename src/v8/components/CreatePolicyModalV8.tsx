@@ -54,7 +54,12 @@ export const CreatePolicyModalV8: React.FC<CreatePolicyModalV8Props> = ({
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		if (!policyName.trim()) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Policy name is required', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Policy name is required',
+				dismissible: true,
+			});
 			return;
 		}
 		try {

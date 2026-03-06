@@ -557,7 +557,7 @@ export class TokenMonitoringService {
 	/**
 	 * Get token status based on unified token
 	 */
-	private getTokenStatus(unifiedToken: any): TokenInfo['status'] {
+	private getTokenStatus(unifiedToken: { expiresAt?: number }): TokenInfo['status'] {
 		const now = Date.now();
 		if (!unifiedToken.expiresAt) {
 			return 'active';
@@ -681,7 +681,7 @@ export class TokenMonitoringService {
 				});
 
 				// Clear existing tokens of the same type
-				this.clearTokensByType(tokenType as any);
+				this.clearTokensByType(tokenType as string);
 
 				// Add the token with appropriate metadata
 				this.addToken({

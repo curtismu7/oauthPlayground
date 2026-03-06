@@ -10,6 +10,7 @@ import { FiArrowLeft, FiCheck, FiDownload, FiInfo, FiRefreshCw, FiUpload } from 
 import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { usePageScroll } from '@/hooks/usePageScroll';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
@@ -23,7 +24,6 @@ import {
 import { MFAServiceV8, type MFASettings } from '@/v8/services/mfaServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import WorkerTokenStatusServiceV8 from '@/v8/services/workerTokenStatusServiceV8';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const MODULE_TAG = '[⚙️ MFA-CONFIG-PAGE-V8]';
 
@@ -107,7 +107,13 @@ export const MFAConfigurationPageV8: React.FC = () => {
 			setHasPingOneSettingsChanges(false);
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to load PingOne MFA settings:`, error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to load PingOne MFA settings. Please ensure you have a valid worker token.', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message:
+					'Failed to load PingOne MFA settings. Please ensure you have a valid worker token.',
+				dismissible: true,
+			});
 		} finally {
 			setIsLoadingPingOneSettings(false);
 		}
@@ -125,7 +131,13 @@ export const MFAConfigurationPageV8: React.FC = () => {
 				}
 			} catch (error) {
 				console.error(`${MODULE_TAG} Failed to load device authentication policies:`, error);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to load device authentication policies. Please ensure you have a valid worker token.', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message:
+						'Failed to load device authentication policies. Please ensure you have a valid worker token.',
+					dismissible: true,
+				});
 			} finally {
 				setIsLoadingPolicies(false);
 			}
@@ -146,7 +158,13 @@ export const MFAConfigurationPageV8: React.FC = () => {
 			setHasPolicyChanges(false);
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to load device authentication policy:`, error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to load device authentication policy. Please ensure you have a valid worker token.', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message:
+					'Failed to load device authentication policy. Please ensure you have a valid worker token.',
+				dismissible: true,
+			});
 		} finally {
 			setIsLoadingPolicy(false);
 		}
@@ -195,10 +213,19 @@ export const MFAConfigurationPageV8: React.FC = () => {
 		try {
 			await MFAServiceV8.updateMFASettings(environmentId, pingOneSettings);
 			setHasPingOneSettingsChanges(false);
-			modernMessaging.showFooterMessage({ type: 'info', message: 'PingOne MFA settings updated successfully', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'PingOne MFA settings updated successfully',
+				duration: 3000,
+			});
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to save PingOne MFA settings:`, error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Failed to update PingOne MFA settings', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: error instanceof Error ? error.message : 'Failed to update PingOne MFA settings',
+				dismissible: true,
+			});
 		} finally {
 			setIsSavingPingOneSettings(false);
 		}
@@ -267,12 +294,22 @@ export const MFAConfigurationPageV8: React.FC = () => {
 				region
 			);
 			setHasPolicyChanges(false);
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Device authentication policy updated successfully', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Device authentication policy updated successfully',
+				duration: 3000,
+			});
 			// Reload the policy to get the latest from server
 			await loadSelectedPolicy(environmentId, selectedPolicyId);
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to save device authentication policy:`, error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Failed to update device authentication policy', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message:
+					error instanceof Error ? error.message : 'Failed to update device authentication policy',
+				dismissible: true,
+			});
 		} finally {
 			setIsSavingPolicy(false);
 		}
@@ -294,11 +331,20 @@ export const MFAConfigurationPageV8: React.FC = () => {
 
 		try {
 			await MFAServiceV8.resetMFASettings(environmentId);
-			modernMessaging.showFooterMessage({ type: 'info', message: 'PingOne MFA settings reset to defaults', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'PingOne MFA settings reset to defaults',
+				duration: 3000,
+			});
 			await loadPingOneSettings(environmentId);
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to reset PingOne MFA settings:`, error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Failed to reset PingOne MFA settings', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: error instanceof Error ? error.message : 'Failed to reset PingOne MFA settings',
+				dismissible: true,
+			});
 		}
 	};
 
@@ -307,10 +353,19 @@ export const MFAConfigurationPageV8: React.FC = () => {
 		try {
 			MFAConfigurationServiceV8.saveConfiguration(config);
 			setHasChanges(false);
-			modernMessaging.showFooterMessage({ type: 'info', message: 'MFA configuration saved successfully', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'MFA configuration saved successfully',
+				duration: 3000,
+			});
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to save configuration`, error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save configuration', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to save configuration',
+				dismissible: true,
+			});
 		} finally {
 			setIsSaving(false);
 		}
@@ -327,7 +382,11 @@ export const MFAConfigurationPageV8: React.FC = () => {
 			MFAConfigurationServiceV8.resetToDefaults();
 			setConfig(MFAConfigurationServiceV8.loadConfiguration());
 			setHasChanges(false);
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Configuration reset to defaults', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Configuration reset to defaults',
+				duration: 3000,
+			});
 		}
 	};
 
@@ -336,7 +395,13 @@ export const MFAConfigurationPageV8: React.FC = () => {
 		try {
 			const credentials = await workerTokenServiceV8.loadCredentials();
 			if (!credentials) {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Worker token credentials are missing. Open the worker token modal to save them first.', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message:
+						'Worker token credentials are missing. Open the worker token modal to save them first.',
+					dismissible: true,
+				});
 				setIsRefreshingToken(false);
 				return;
 			}
@@ -351,7 +416,12 @@ export const MFAConfigurationPageV8: React.FC = () => {
 			} = credentials;
 
 			if (!environmentId || !clientId || !clientSecret) {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Saved worker token credentials are incomplete. Please re-enter them.', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'Saved worker token credentials are incomplete. Please re-enter them.',
+					dismissible: true,
+				});
 				setIsRefreshingToken(false);
 				return;
 			}
@@ -407,10 +477,19 @@ export const MFAConfigurationPageV8: React.FC = () => {
 			const timeRemainingLabel = status.minutesRemaining
 				? `${status.minutesRemaining} min remaining`
 				: status.message;
-			modernMessaging.showFooterMessage({ type: 'info', message: `Worker token refreshed successfully (${timeRemainingLabel}).`, duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: `Worker token refreshed successfully (${timeRemainingLabel}).`,
+				duration: 3000,
+			});
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to refresh worker token`, error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Failed to refresh worker token', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: error instanceof Error ? error.message : 'Failed to refresh worker token',
+				dismissible: true,
+			});
 		} finally {
 			setIsRefreshingToken(false);
 		}
@@ -428,10 +507,19 @@ export const MFAConfigurationPageV8: React.FC = () => {
 			a.click();
 			document.body.removeChild(a);
 			URL.revokeObjectURL(url);
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Configuration exported successfully', duration: 3000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Configuration exported successfully',
+				duration: 3000,
+			});
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to export configuration`, error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to export configuration', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to export configuration',
+				dismissible: true,
+			});
 		}
 	};
 
@@ -450,13 +538,27 @@ export const MFAConfigurationPageV8: React.FC = () => {
 					if (MFAConfigurationServiceV8.importConfiguration(json)) {
 						setConfig(MFAConfigurationServiceV8.loadConfiguration());
 						setHasChanges(false);
-						modernMessaging.showFooterMessage({ type: 'info', message: 'Configuration imported successfully', duration: 3000 });
+						modernMessaging.showFooterMessage({
+							type: 'info',
+							message: 'Configuration imported successfully',
+							duration: 3000,
+						});
 					} else {
-						modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to import configuration. Invalid format.', dismissible: true });
+						modernMessaging.showBanner({
+							type: 'error',
+							title: 'Error',
+							message: 'Failed to import configuration. Invalid format.',
+							dismissible: true,
+						});
 					}
 				} catch (error) {
 					console.error(`${MODULE_TAG} Failed to import configuration`, error);
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to import configuration', dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: 'Failed to import configuration',
+						dismissible: true,
+					});
 				}
 			};
 			reader.readAsText(file);
