@@ -122,6 +122,29 @@ const AuthorHighlight = styled.strong`
   font-weight: 700;
 `;
 
+const SpecGroup = styled.p`
+  margin: 1.5rem 0 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-primary);
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 0.25rem;
+
+  &:first-child {
+    margin-top: 0;
+  }
+`;
+
+const SpecList = styled.ul`
+  list-style: disc;
+  padding-left: 2rem;
+  font-size: 1rem;
+  line-height: 2;
+  margin: 0 0 0.25rem 0;
+`;
+
 const MetaRow = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -329,15 +352,8 @@ const AIAgentAuthDraft: React.FC = () => {
 					defaultCollapsed={true}
 				>
 					<Card style={{ padding: '2rem' }}>
-						<ul
-							style={{
-								listStyle: 'disc',
-								paddingLeft: '2rem',
-								fontSize: '1rem',
-								lineHeight: '2',
-								margin: 0,
-							}}
-						>
+						<SpecGroup>Foundation</SpecGroup>
+						<SpecList>
 							<li>
 								<ExternalLink
 									href="https://www.rfc-editor.org/rfc/rfc6749"
@@ -347,6 +363,10 @@ const AIAgentAuthDraft: React.FC = () => {
 									OAuth 2.0 Authorization Framework (RFC 6749)
 								</ExternalLink>
 							</li>
+						</SpecList>
+
+						<SpecGroup>Agent Workload Identity</SpecGroup>
+						<SpecList>
 							<li>
 								<ExternalLink
 									href="https://datatracker.ietf.org/doc/html/draft-ietf-wimse-arch-07"
@@ -356,70 +376,6 @@ const AIAgentAuthDraft: React.FC = () => {
 									WIMSE Architecture (draft-ietf-wimse-arch)
 								</ExternalLink>
 							</li>
-							<li>
-								<ExternalLink
-									href="https://spiffe.io/docs/latest/spiffe-about/overview/"
-									target="_blank"
-									rel="noopener noreferrer"
-								>
-									SPIFFE — Secure Production Identity Framework for Everyone
-								</ExternalLink>
-							</li>
-							<li>
-								<ExternalLink
-									href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-transaction-tokens-07"
-									target="_blank"
-									rel="noopener noreferrer"
-								>
-									Transaction Tokens (draft-ietf-oauth-transaction-tokens)
-								</ExternalLink>
-							</li>
-							<li>
-								<ExternalLink
-									href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-identity-chaining-08"
-									target="_blank"
-									rel="noopener noreferrer"
-								>
-									OAuth Identity &amp; Authorization Chaining Across Domains
-								</ExternalLink>{' '}
-								<AuthorBadge>Brian Campbell</AuthorBadge>{' '}
-							</li>
-							<li>
-								<ExternalLink
-									href="https://openid.net/specs/openid-client-initiated-backchannel-authentication-core-1_0.html"
-									target="_blank"
-									rel="noopener noreferrer"
-								>
-									OpenID Connect CIBA (Client-Initiated Backchannel Authentication)
-								</ExternalLink>
-							</li>
-							<li>
-								<ExternalLink
-									href="https://openid.net/specs/openid-sharedsignals-framework-1_0-final.html"
-									target="_blank"
-									rel="noopener noreferrer"
-								>
-									OpenID Shared Signals Framework (SSF) — CAEP &amp; RISC
-								</ExternalLink>
-							</li>
-							<li>
-								<ExternalLink
-									href="https://www.rfc-editor.org/rfc/rfc9700"
-									target="_blank"
-									rel="noopener noreferrer"
-								>
-									OAuth 2.0 Security Best Current Practice (RFC 9700)
-								</ExternalLink>
-							</li>
-							<li>
-								<ExternalLink
-									href="https://modelcontextprotocol.io/specification"
-									target="_blank"
-									rel="noopener noreferrer"
-								>
-									Model Context Protocol (MCP)
-								</ExternalLink>
-							</li>{' '}
 							<li>
 								<ExternalLink
 									href="https://datatracker.ietf.org/doc/draft-ietf-wimse-wpt/"
@@ -442,6 +398,41 @@ const AIAgentAuthDraft: React.FC = () => {
 							</li>
 							<li>
 								<ExternalLink
+									href="https://spiffe.io/docs/latest/spiffe-about/overview/"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									SPIFFE — Secure Production Identity Framework for Everyone
+								</ExternalLink>
+							</li>
+						</SpecList>
+
+						<SpecGroup>Service-to-Service Authentication</SpecGroup>
+						<SpecList>
+							<li>
+								<ExternalLink
+									href="https://www.rfc-editor.org/rfc/rfc7521"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									Assertion Framework for OAuth 2.0 Client Authentication and Authorization Grants
+									(RFC 7521)
+								</ExternalLink>
+								<AuthorBadge>Brian Campbell</AuthorBadge>
+							</li>
+							<li>
+								<ExternalLink
+									href="https://datatracker.ietf.org/doc/draft-ietf-oauth-rfc7523bis/"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									JWT Profile for OAuth 2.0 Client Authentication and Authorization Grants (RFC 7523
+									/ rfc7523bis)
+								</ExternalLink>
+								<AuthorBadge>Brian Campbell</AuthorBadge>
+							</li>
+							<li>
+								<ExternalLink
 									href="https://datatracker.ietf.org/doc/draft-ietf-oauth-identity-assertion-authz-grant/"
 									target="_blank"
 									rel="noopener noreferrer"
@@ -450,6 +441,10 @@ const AIAgentAuthDraft: React.FC = () => {
 								</ExternalLink>
 								<AuthorBadge>Brian Campbell</AuthorBadge>
 							</li>
+						</SpecList>
+
+						<SpecGroup>Authorization, Delegation &amp; Scoping</SpecGroup>
+						<SpecList>
 							<li>
 								<ExternalLink
 									href="https://www.rfc-editor.org/rfc/rfc8693"
@@ -462,22 +457,21 @@ const AIAgentAuthDraft: React.FC = () => {
 							</li>
 							<li>
 								<ExternalLink
-									href="https://www.rfc-editor.org/rfc/rfc8705"
+									href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-identity-chaining-08"
 									target="_blank"
 									rel="noopener noreferrer"
 								>
-									OAuth 2.0 Mutual-TLS Client Authentication and Certificate-Bound Access Tokens
-									(RFC 8705)
+									OAuth Identity &amp; Authorization Chaining Across Domains
 								</ExternalLink>
 								<AuthorBadge>Brian Campbell</AuthorBadge>
 							</li>
 							<li>
 								<ExternalLink
-									href="https://www.rfc-editor.org/rfc/rfc9449"
+									href="https://www.rfc-editor.org/rfc/rfc8707"
 									target="_blank"
 									rel="noopener noreferrer"
 								>
-									OAuth 2.0 Demonstrating Proof of Possession (DPoP) (RFC 9449)
+									Resource Indicators for OAuth 2.0 (RFC 8707)
 								</ExternalLink>
 								<AuthorBadge>Brian Campbell</AuthorBadge>
 							</li>
@@ -487,11 +481,137 @@ const AIAgentAuthDraft: React.FC = () => {
 									target="_blank"
 									rel="noopener noreferrer"
 								>
-									OAuth 2.0 Rich Authorization Requests (RFC 9396)
+									OAuth 2.0 Rich Authorization Requests — RAR (RFC 9396)
 								</ExternalLink>
 								<AuthorBadge>Brian Campbell</AuthorBadge>
-							</li>{' '}
-						</ul>
+							</li>
+						</SpecList>
+
+						<SpecGroup>Cryptographic Binding &amp; Proof of Possession</SpecGroup>
+						<SpecList>
+							<li>
+								<ExternalLink
+									href="https://www.rfc-editor.org/rfc/rfc8705"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									OAuth 2.0 Mutual-TLS Client Authentication and Certificate-Bound Access Tokens —
+									mTLS (RFC 8705)
+								</ExternalLink>
+								<AuthorBadge>Brian Campbell</AuthorBadge>
+							</li>
+							<li>
+								<ExternalLink
+									href="https://www.rfc-editor.org/rfc/rfc9449"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									OAuth 2.0 Demonstrating Proof of Possession — DPoP (RFC 9449)
+								</ExternalLink>
+								<AuthorBadge>Brian Campbell</AuthorBadge>
+							</li>
+							<li>
+								<ExternalLink
+									href="https://www.rfc-editor.org/rfc/rfc9126"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									OAuth 2.0 Pushed Authorization Requests — PAR (RFC 9126)
+								</ExternalLink>
+								<AuthorBadge>Brian Campbell</AuthorBadge>
+							</li>
+						</SpecList>
+
+						<SpecGroup>Risk-Adaptive &amp; Contextual Authorization</SpecGroup>
+						<SpecList>
+							<li>
+								<ExternalLink
+									href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-transaction-tokens-07"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									Transaction Tokens (draft-ietf-oauth-transaction-tokens)
+								</ExternalLink>
+							</li>
+							<li>
+								<ExternalLink
+									href="https://www.rfc-editor.org/rfc/rfc9470"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									OAuth 2.0 Step Up Authentication Challenge Protocol (RFC 9470)
+								</ExternalLink>
+								<AuthorBadge>Brian Campbell</AuthorBadge>
+							</li>
+							<li>
+								<ExternalLink
+									href="https://openid.net/specs/openid-client-initiated-backchannel-authentication-core-1_0.html"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									OpenID Connect CIBA (Client-Initiated Backchannel Authentication)
+								</ExternalLink>
+							</li>
+						</SpecList>
+
+						<SpecGroup>Verifiable Credentials &amp; Selective Disclosure</SpecGroup>
+						<SpecList>
+							<li>
+								<ExternalLink
+									href="https://www.rfc-editor.org/rfc/rfc9901"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									Selective Disclosure for JSON Web Tokens — SD-JWT (RFC 9901)
+								</ExternalLink>
+								<AuthorBadge>Brian Campbell</AuthorBadge>
+							</li>
+							<li>
+								<ExternalLink
+									href="https://datatracker.ietf.org/doc/draft-ietf-oauth-sd-jwt-vc/"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									SD-JWT-based Verifiable Credentials (draft-ietf-oauth-sd-jwt-vc)
+								</ExternalLink>
+								<AuthorBadge>Brian Campbell</AuthorBadge>
+							</li>
+						</SpecList>
+
+						<SpecGroup>Monitoring &amp; Continuous Assessment</SpecGroup>
+						<SpecList>
+							<li>
+								<ExternalLink
+									href="https://openid.net/specs/openid-sharedsignals-framework-1_0-final.html"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									OpenID Shared Signals Framework (SSF) — CAEP &amp; RISC
+								</ExternalLink>
+							</li>
+							<li>
+								<ExternalLink
+									href="https://www.rfc-editor.org/rfc/rfc9700"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									OAuth 2.0 Security Best Current Practice (RFC 9700)
+								</ExternalLink>
+							</li>
+						</SpecList>
+
+						<SpecGroup>Agent Protocols</SpecGroup>
+						<SpecList>
+							<li>
+								<ExternalLink
+									href="https://modelcontextprotocol.io/specification"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									Model Context Protocol (MCP)
+								</ExternalLink>
+							</li>
+						</SpecList>
 					</Card>
 				</CollapsibleHeader>
 
