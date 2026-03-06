@@ -1,4 +1,5 @@
 // src/services/oidcDiscoveryService.ts
+import { failFrom, ok, type ServiceResult } from '../standards/types';
 import { logger } from '../utils/logger';
 /**
  * OIDC Discovery Service
@@ -35,13 +36,17 @@ export interface OIDCDiscoveryDocument {
 	require_pushed_authorization_requests?: boolean;
 }
 
-export interface DiscoveryResult {
-	success: boolean;
-	document?: OIDCDiscoveryDocument;
-	issuerUrl?: string;
-	error?: string;
-	cached?: boolean;
-}
+/**
+ * Discovery data — all OIDC endpoint fields plus metadata fields.
+ * Returned inside ServiceResult<DiscoveryData> on success.
+ */
+export type DiscoveryData = OIDCDiscoveryDocument & {
+	issuerUrl: string;
+	cached: boolean;
+};
+
+/** @deprecated Use ServiceResult<DiscoveryData> */
+export type DiscoveryResult = ServiceResult<DiscoveryData>;
 
 export interface DiscoveryConfig {
 	issuerUrl: string;
@@ -60,7 +65,7 @@ class OIDCDiscoveryService {
 	 * @param config Discovery configuration
 	 * @returns Promise with discovery result
 	 */
-	async discover(config: DiscoveryConfig): Promise<DiscoveryResult> {
+	async discover(config: DiscoveryConfig): Promise<ServiceResult<DiscoveryData>> {
 		try {
 			const {
 				issuerUrl,
@@ -72,15 +77,10 @@ class OIDCDiscoveryService {
 			const normalizedIssuer = this.normalizeIssuerUrl(issuerUrl);
 
 			// Check cache first
-			const cached = this.getCachedDocument(normalizedIssuer, cacheTimeout);
-			if (cached) {
+			const cachedDoc = this.getCachedDocument(normalizedIssuer, cacheTimeout);
+			if (cachedDoc) {
 				logger.info('OIDCDiscovery', 'Using cached document', { issuer: normalizedIssuer });
-				return {
-					success: true,
-					document: cached,
-					issuerUrl: normalizedIssuer,
-					cached: true,
-				};
+				return ok({ ...cachedDoc, issuerUrl: normalizedIssuer, cached: true });
 			}
 
 			// Extract environment ID and region from issuer URL
@@ -126,18 +126,10 @@ class OIDCDiscoveryService {
 			logger.info('OIDCDiscovery', 'Successfully discovered endpoints', {
 				issuer: normalizedIssuer,
 			});
-			return {
-				success: true,
-				document,
-				issuerUrl: normalizedIssuer,
-				cached: false,
-			};
+			return ok({ ...document, issuerUrl: normalizedIssuer, cached: false });
 		} catch (error) {
 			logger.error('OIDCDiscovery', 'Discovery failed', undefined, error as Error);
-			return {
-				success: false,
-				error: error instanceof Error ? error.message : 'Unknown discovery error',
-			};
+			return failFrom<DiscoveryData>('OIDC_DISCOVERY_FAILED', error);
 		}
 	}
 
