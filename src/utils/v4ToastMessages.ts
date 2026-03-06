@@ -1,6 +1,6 @@
 // src/utils/v4ToastMessages.ts - Enhanced Toast Messaging for V4 Flows
 
-import { showGlobalError, showGlobalSuccess, showGlobalWarning } from '../hooks/useNotifications';
+import { modernMessaging } from '../services/v9/V9ModernMessagingService';
 import { ButtonToastScenarios } from '../types/v4FlowTemplate';
 
 // Default toast messages for V4 flows
@@ -89,16 +89,14 @@ export class V4ToastManager {
 			? this.interpolateMessage(this.messages[keyOrMessage], variables)
 			: keyOrMessage;
 
-		// Use longer duration for important success messages
 		const isImportantMessage =
 			message.includes('Flow Complete') ||
 			message.includes('Tokens received successfully') ||
 			message.includes('Configuration saved successfully') ||
 			message.includes('successfully!');
 
-		const duration = options?.duration || (isImportantMessage ? 8000 : undefined); // 8 seconds for important messages
-
-		showGlobalSuccess(message, duration ? { duration } : undefined);
+		const duration = options?.duration || (isImportantMessage ? 8000 : 3000);
+		modernMessaging.showFooterMessage({ type: 'info', message, duration });
 	}
 
 	/**
@@ -111,7 +109,7 @@ export class V4ToastManager {
 		const message = this.isPresetKey(keyOrMessage)
 			? this.interpolateMessage(this.messages[keyOrMessage], variables)
 			: keyOrMessage;
-		showGlobalError(message);
+		modernMessaging.showBanner({ type: 'error', title: 'Error', message, dismissible: true });
 	}
 
 	/**
@@ -124,7 +122,7 @@ export class V4ToastManager {
 		const message = this.isPresetKey(keyOrMessage)
 			? this.interpolateMessage(this.messages[keyOrMessage], variables)
 			: keyOrMessage;
-		showGlobalWarning(message);
+		modernMessaging.showBanner({ type: 'warning', title: 'Warning', message, dismissible: true });
 	}
 
 	/**
@@ -137,8 +135,7 @@ export class V4ToastManager {
 		const message = this.isPresetKey(keyOrMessage)
 			? this.interpolateMessage(this.messages[keyOrMessage], variables)
 			: keyOrMessage;
-		// Use showGlobalSuccess for info messages since there's no specific info toast
-		showGlobalSuccess(message);
+		modernMessaging.showFooterMessage({ type: 'info', message, duration: 3000 });
 	}
 
 	/**
