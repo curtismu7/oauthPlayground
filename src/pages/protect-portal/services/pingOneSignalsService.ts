@@ -1,3 +1,5 @@
+import { logger } from '../../../utils/logger';
+
 /**
  * @file pingOneSignalsService.ts
  * @module protect-portal/services
@@ -104,7 +106,12 @@ export class PingOneSignalsService {
 			return result;
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			console.error(`${PingOneSignalsService.MODULE_TAG} SDK initialization failed`, error);
+			logger.error(
+				PingOneSignalsService.MODULE_TAG,
+				'SDK initialization failed',
+				undefined,
+				error as Error
+			);
 
 			return {
 				success: false,
@@ -161,7 +168,12 @@ export class PingOneSignalsService {
 			return result;
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			console.error(`${PingOneSignalsService.MODULE_TAG} Failed to get device payload`, error);
+			logger.error(
+				PingOneSignalsService.MODULE_TAG,
+				'Failed to get device payload',
+				undefined,
+				error as Error
+			);
 
 			return {
 				success: false,
@@ -224,7 +236,12 @@ export class PingOneSignalsService {
 			};
 
 			script.onerror = (error) => {
-				console.error(`${PingOneSignalsService.MODULE_TAG} Failed to load SDK script`, error);
+				logger.error(
+					PingOneSignalsService.MODULE_TAG,
+					'Failed to load SDK script',
+					undefined,
+					error as Error
+				);
 				reject(new Error('Failed to load PingOne Signals SDK'));
 			};
 

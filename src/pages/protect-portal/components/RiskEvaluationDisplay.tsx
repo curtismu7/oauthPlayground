@@ -22,6 +22,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import { workerTokenManager } from '@/services/workerTokenManager';
+import { logger } from '../../../utils/logger';
 import RiskEvaluationService from '../services/riskEvaluationService';
 import type {
 	EducationalContent,
@@ -623,7 +624,12 @@ const RiskEvaluationDisplay: React.FC<RiskEvaluationDisplayProps> = ({
 			await new Promise((resolve) => setTimeout(resolve, 1000));
 			onComplete(evaluationResponse.data);
 		} catch (err) {
-			console.error('[🛡️ RISK-EVALUATION] Evaluation failed:', err);
+			logger.error(
+				'RiskEvaluationDisplay',
+				'[🛡️ RISK-EVALUATION] Evaluation failed:',
+				undefined,
+				err as Error
+			);
 
 			const errorMessage = err instanceof Error ? err.message : 'Risk evaluation failed';
 			setError(errorMessage);

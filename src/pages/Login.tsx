@@ -24,6 +24,7 @@ import { useNotifications } from '../hooks/useNotifications';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { getCallbackUrlForFlow } from '../utils/callbackUrls';
+import { logger } from '../utils/logger';
 import { EnvironmentIdServiceV8 } from '../v8/services/environmentIdServiceV8';
 import { SharedCredentialsServiceV8 } from '../v8/services/sharedCredentialsServiceV8';
 
@@ -353,7 +354,12 @@ const Login = () => {
 					return;
 				}
 			} catch (error) {
-				console.error(' [Login] Error loading V8 shared credentials:', error);
+				logger.error(
+					'Login',
+					' [Login] Error loading V8 shared credentials:',
+					undefined,
+					error as Error
+				);
 			}
 
 			// Fallback: Try sync version
@@ -375,7 +381,12 @@ const Login = () => {
 					return;
 				}
 			} catch (error) {
-				console.error(' [Login] Error loading V8 shared credentials (sync):', error);
+				logger.error(
+					'Login',
+					' [Login] Error loading V8 shared credentials (sync):',
+					undefined,
+					error as Error
+				);
 			}
 
 			console.log(' [Login] No existing credentials found in V8 storage');
@@ -454,7 +465,12 @@ const Login = () => {
 				});
 				setCredentials(parsedCredentials);
 			} catch (error) {
-				console.error(' [Login] Failed to parse saved credentials:', error);
+				logger.error(
+					'Login',
+					' [Login] Failed to parse saved credentials:',
+					undefined,
+					error as Error
+				);
 			}
 		} else {
 			console.log(' [Login] No saved credentials found in localStorage or credential manager');
@@ -467,7 +483,7 @@ const Login = () => {
 			setCopiedId(id);
 			setTimeout(() => setCopiedId(null), 2000);
 		} catch (err) {
-			console.error('Failed to copy text: ', err);
+			logger.error('Login', 'Failed to copy text: ', undefined, err as Error);
 		}
 	};
 
@@ -528,7 +544,7 @@ const Login = () => {
 			// Force a re-render to update the display with new values
 			setCredentials((prev) => ({ ...prev }));
 		} catch (error) {
-			console.error(' [Login] Failed to save credentials:', error);
+			logger.error('Login', ' [Login] Failed to save credentials:', undefined, error as Error);
 			setSaveStatus({
 				type: 'danger',
 				title: 'Error',
@@ -590,7 +606,7 @@ const Login = () => {
 			console.log(' [Login] Login function result:', result);
 
 			if (!result.success) {
-				console.error(' [Login] Login failed:', result.error);
+				logger.error('Login', ' [Login] Login failed:', { error: result.error });
 				setError(result.error || 'Login failed');
 				showError(result.error || 'Login failed. Please check your credentials and try again.');
 				setIsLoading(false);
@@ -616,8 +632,8 @@ const Login = () => {
 				setShowRedirectModal(true);
 			}
 		} catch (err) {
-			console.error(' [Login] Login error:', err);
-			console.error(' [Login] Error details:', {
+			logger.error('Login', ' [Login] Login error:', undefined, err as Error);
+			logger.error('Login', ' [Login] Error details:', {
 				message: err instanceof Error ? err.message : 'Unknown error',
 				stack: err instanceof Error ? err.stack : undefined,
 				error: err,

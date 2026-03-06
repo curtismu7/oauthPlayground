@@ -10,6 +10,7 @@
  */
 
 import type { RiskThresholds } from '../../pages/protect-portal/types/protectPortal.types';
+import { logger } from '../../utils/logger';
 
 // ============================================================================
 // DEFAULT RISK POLICIES
@@ -219,7 +220,12 @@ export function validateRiskThresholds(thresholds: RiskThresholds): boolean {
 
 		return true;
 	} catch (error) {
-		console.error('[🔧 RISK-CONFIG] Threshold validation failed:', error);
+		logger.error(
+			'riskPolicies',
+			'[🔧 RISK-CONFIG] Threshold validation failed:',
+			undefined,
+			error as Error
+		);
 		return false;
 	}
 }

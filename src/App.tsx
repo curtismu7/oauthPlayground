@@ -103,6 +103,7 @@ import ComprehensiveOAuthEducation from './pages/ComprehensiveOAuthEducation';
 import { CredentialManagement } from './pages/CredentialManagement';
 import CustomDomainTestPage from './pages/CustomDomainTestPage';
 import Dashboard from './pages/Dashboard';
+import AIAgentAuthDraft from './pages/docs/AIAgentAuthDraft';
 // Added new migration and prompts pages
 import MigrateVscode from './pages/docs/migration/MigrateVscode';
 import OAuth2SecurityBestPractices from './pages/docs/OAuth2SecurityBestPractices.tsx';
@@ -117,7 +118,6 @@ import OIDCOverview from './pages/docs/OIDCOverviewV7.tsx';
 // import OIDCOverviewTest from './pages/docs/OIDCOverview_Test';
 // import OIDCOverviewNew from './pages/docs/OIDCOverview_New';
 import OIDCSpecs from './pages/docs/OIDCSpecs.tsx';
-import AIAgentAuthDraft from './pages/docs/AIAgentAuthDraft';
 import PingViewOnAI from './pages/docs/PingViewOnAI.tsx';
 import PromptAll from './pages/docs/prompts/PromptAll';
 import SpiffeSpirePingOne from './pages/docs/SpiffeSpirePingOne.tsx';
@@ -236,6 +236,7 @@ import EnvironmentManagementPageV8 from './pages/EnvironmentManagementPageV8';
 import ProtectPortalWrapper from './pages/protect-portal/ProtectPortalWrapper';
 import { CreateCompanyPage } from './pages/protect-portal/pages/CreateCompanyPage';
 import DavinciTodoApp from './sdk-examples/davinci-todo-app/DavinciTodoApp';
+import { logger } from './utils/logger';
 import { DebugLogViewerPopoutV8 } from './v8/pages/DebugLogViewerPopoutV8';
 import DebugLogViewerV8 from './v8/pages/DebugLogViewerV8';
 import DeleteAllDevicesUtilityV8 from './v8/pages/DeleteAllDevicesUtilityV8';
@@ -551,7 +552,7 @@ const AppRoutes: React.FC = () => {
 					setShowCredentialModal(false);
 				}
 			} catch (error) {
-				console.warn(' [App] Error checking configuration:', error);
+				logger.warn('App', ' [App] Error checking configuration:', { error });
 				setShowCredentialModal(true);
 			}
 		};
@@ -1326,7 +1327,7 @@ const AppRoutes: React.FC = () => {
 								<Route path="/docs/oauth-for-ai" element={<OAuthForAI />} />
 								<Route path="/docs/oidc-for-ai" element={<OIDCForAI />} />
 								<Route path="/docs/ping-view-on-ai" element={<PingViewOnAI />} />
-							<Route path="/docs/ai-agent-auth-draft" element={<AIAgentAuthDraft />} />
+								<Route path="/docs/ai-agent-auth-draft" element={<AIAgentAuthDraft />} />
 								<Route
 									path="/docs/oauth2-security-best-practices"
 									element={<OAuth2SecurityBestPractices />}
