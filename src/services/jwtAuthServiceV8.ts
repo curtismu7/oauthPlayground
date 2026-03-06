@@ -3,6 +3,7 @@
 // Provides JWT generation for client_secret_jwt and private_key_jwt authentication methods
 
 import { createClientAssertion } from '../utils/clientAuthentication';
+import { logger } from '../utils/logger';
 
 export interface JWTConfigV8 {
 	clientId: string;
@@ -126,7 +127,7 @@ class JWTAuthServiceV8 {
 			const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
 			return payload;
 		} catch (error) {
-			console.error('Failed to decode JWT payload:', error);
+			logger.error('JwtAuthServiceV8', 'Failed to decode JWT payload:', undefined, error as Error);
 			return {};
 		}
 	}
@@ -143,7 +144,7 @@ class JWTAuthServiceV8 {
 			const header = JSON.parse(atob(parts[0].replace(/-/g, '+').replace(/_/g, '/')));
 			return header;
 		} catch (error) {
-			console.error('Failed to decode JWT header:', error);
+			logger.error('JwtAuthServiceV8', 'Failed to decode JWT header:', undefined, error as Error);
 			return { alg: 'RS256', typ: 'JWT' };
 		}
 	}

@@ -7,6 +7,7 @@
  */
 
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { logger } from '../utils/logger';
 
 export interface CredentialsConfiguration {
 	_meta: {
@@ -56,10 +57,7 @@ class CredentialsImportExportService {
 	/**
 	 * Export credentials configuration as downloadable JSON file
 	 */
-	exportCredentials(
-		credentials: Record<string, any>,
-		options: ImportExportOptions
-	): void {
+	exportCredentials(credentials: Record<string, any>, options: ImportExportOptions): void {
 		try {
 			const config: CredentialsConfiguration = {
 				_meta: {
@@ -84,8 +82,10 @@ class CredentialsImportExportService {
 			document.body.removeChild(link);
 			URL.revokeObjectURL(url);
 
-			console.log(`${this.MODULE_TAG} Credentials exported:`, options.flowType);
-			
+			logger.info('CredentialsImportExportService', `${this.MODULE_TAG} Credentials exported:`, {
+				arg0: options.flowType,
+			});
+
 			if (options.onExportSuccess) {
 				options.onExportSuccess();
 			}
@@ -96,9 +96,14 @@ class CredentialsImportExportService {
 				duration: 3000,
 			});
 		} catch (error) {
-			console.error(`${this.MODULE_TAG} Export failed:`, error);
+			logger.error(
+				'CredentialsImportExportService',
+				`${this.MODULE_TAG} Export failed:`,
+				undefined,
+				error as Error
+			);
 			const errorMessage = 'Failed to export credentials';
-			
+
 			if (options.onExportError) {
 				options.onExportError(errorMessage);
 			}
@@ -115,10 +120,7 @@ class CredentialsImportExportService {
 	/**
 	 * Import credentials from uploaded JSON file
 	 */
-	async importCredentials(
-		file: File,
-		options: ImportExportOptions
-	): Promise<any> {
+	async importCredentials(file: File, options: ImportExportOptions): Promise<any> {
 		return new Promise((resolve, reject) => {
 			const reader = new FileReader();
 
@@ -134,18 +136,26 @@ class CredentialsImportExportService {
 
 					// Validate flow type matches expected flow
 					if (config._meta.flowType !== options.flowType) {
-						throw new Error(`Invalid flow type. Expected: ${options.flowType}, Got: ${config._meta.flowType}`);
+						throw new Error(
+							`Invalid flow type. Expected: ${options.flowType}, Got: ${config._meta.flowType}`
+						);
 					}
 
 					// Validate version compatibility
 					if (!this.isVersionCompatible(config._meta.version)) {
-						throw new Error(`Incompatible version. File version: ${config._meta.version}, Current: ${this.VERSION}`);
+						throw new Error(
+							`Incompatible version. File version: ${config._meta.version}, Current: ${this.VERSION}`
+						);
 					}
 
 					const sanitizedCredentials = this.sanitizeCredentials(config.credentials);
 
-					console.log(`${this.MODULE_TAG} Credentials imported:`, config._meta.flowType);
-					
+					logger.info(
+						'CredentialsImportExportService',
+						`${this.MODULE_TAG} Credentials imported:`,
+						{ arg0: config._meta.flowType }
+					);
+
 					if (options.onImportSuccess) {
 						options.onImportSuccess(sanitizedCredentials);
 					}
@@ -158,9 +168,15 @@ class CredentialsImportExportService {
 
 					resolve(sanitizedCredentials);
 				} catch (error) {
-					console.error(`${this.MODULE_TAG} Import failed:`, error);
-					const errorMessage = error instanceof Error ? error.message : 'Failed to import credentials';
-					
+					logger.error(
+						'CredentialsImportExportService',
+						`${this.MODULE_TAG} Import failed:`,
+						undefined,
+						error as Error
+					);
+					const errorMessage =
+						error instanceof Error ? error.message : 'Failed to import credentials';
+
 					if (options.onImportError) {
 						options.onImportError(errorMessage);
 					}
@@ -178,8 +194,8 @@ class CredentialsImportExportService {
 
 			reader.onerror = () => {
 				const errorMessage = 'Failed to read file';
-				console.error(`${this.MODULE_TAG} File read error`);
-				
+				logger.error('CredentialsImportExportService', `${this.MODULE_TAG} File read error`);
+
 				if (options.onImportError) {
 					options.onImportError(errorMessage);
 				}
@@ -201,13 +217,15 @@ class CredentialsImportExportService {
 	/**
 	 * Create import handler function for React components
 	 */
-	createImportHandler(options: ImportExportOptions): (event: React.ChangeEvent<HTMLInputElement>) => void {
+	createImportHandler(
+		options: ImportExportOptions
+	): (event: React.ChangeEvent<HTMLInputElement>) => void {
 		return (event: React.ChangeEvent<HTMLInputElement>) => {
 			const file = event.target.files?.[0];
 			if (!file) return;
 
 			this.importCredentials(file, options)
-				.then((credentials) => {
+				.then((_credentials) => {
 					// Reset input to allow re-importing same file
 					event.target.value = '';
 				})
@@ -221,10 +239,7 @@ class CredentialsImportExportService {
 	/**
 	 * Create export handler function for React components
 	 */
-	createExportHandler(
-		credentials: Record<string, any>,
-		options: ImportExportOptions
-	): () => void {
+	createExportHandler(credentials: Record<string, any>, options: ImportExportOptions): () => void {
 		return () => {
 			this.exportCredentials(credentials, options);
 		};
@@ -255,7 +270,9 @@ class CredentialsImportExportService {
 					if (config._meta.flowType !== expectedFlowType) {
 						resolve({
 							valid: false,
-							errors: [`Invalid flow type. Expected: ${expectedFlowType}, Got: ${config._meta.flowType}`],
+							errors: [
+								`Invalid flow type. Expected: ${expectedFlowType}, Got: ${config._meta.flowType}`,
+							],
 						});
 						return;
 					}
@@ -264,20 +281,22 @@ class CredentialsImportExportService {
 					if (!this.isVersionCompatible(config._meta.version)) {
 						resolve({
 							valid: false,
-							errors: [`Incompatible version. File: ${config._meta.version}, Current: ${this.VERSION}`],
+							errors: [
+								`Incompatible version. File: ${config._meta.version}, Current: ${this.VERSION}`,
+							],
 						});
 						return;
 					}
 
 					// Credentials validation
 					const credentialErrors = this.validateCredentials(config.credentials);
-					
+
 					resolve({
 						valid: credentialErrors.length === 0,
 						errors: credentialErrors,
 						metadata: config._meta,
 					});
-				} catch (error) {
+				} catch (_error) {
 					resolve({
 						valid: false,
 						errors: ['Invalid JSON format'],
@@ -317,7 +336,9 @@ class CredentialsImportExportService {
 
 		// Check for at least one credential field
 		if (!credentials.environmentId && !credentials.clientId && !credentials.clientSecret) {
-			errors.push('At least one credential field (environmentId, clientId, or clientSecret) is required');
+			errors.push(
+				'At least one credential field (environmentId, clientId, or clientSecret) is required'
+			);
 		}
 
 		// Validate environmentId format if present
