@@ -1200,6 +1200,138 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				items: [],
 				subGroups: [
 					{
+						id: 'v7m-interactive-mocks',
+						label: 'V7M Interactive Mocks',
+						icon: (
+							<ColoredIcon $color="#6366f1">
+								<FiZap />
+							</ColoredIcon>
+						),
+						isOpen: false,
+						items: [
+							{
+								id: 'v7m-oauth-auth-code',
+								path: '/v7/oauth/authorization-code',
+								label: 'OAuth Auth Code (Mock)',
+								icon: (
+									<ColoredIcon $color="#6366f1">
+										<FiKey />
+									</ColoredIcon>
+								),
+								badge: (
+									<MigrationBadge title="V7M Mock: OAuth 2.0 Authorization Code with PKCE — no real API calls">
+										<FiZap />
+									</MigrationBadge>
+								),
+							},
+							{
+								id: 'v7m-oidc-auth-code',
+								path: '/v7/oidc/authorization-code',
+								label: 'OIDC Auth Code (Mock)',
+								icon: (
+									<ColoredIcon $color="#6366f1">
+										<FiKey />
+									</ColoredIcon>
+								),
+								badge: (
+									<MigrationBadge title="V7M Mock: OIDC Authorization Code with ID token — no real API calls">
+										<FiZap />
+									</MigrationBadge>
+								),
+							},
+							{
+								id: 'v7m-oauth-implicit',
+								path: '/v7/oauth/implicit',
+								label: 'OAuth Implicit (Mock)',
+								icon: (
+									<ColoredIcon $color="#6366f1">
+										<FiZap />
+									</ColoredIcon>
+								),
+								badge: (
+									<MigrationBadge title="V7M Mock: OAuth 2.0 Implicit Flow (deprecated) — no real API calls">
+										<FiZap />
+									</MigrationBadge>
+								),
+							},
+							{
+								id: 'v7m-oidc-implicit',
+								path: '/v7/oidc/implicit',
+								label: 'OIDC Implicit (Mock)',
+								icon: (
+									<ColoredIcon $color="#6366f1">
+										<FiZap />
+									</ColoredIcon>
+								),
+								badge: (
+									<MigrationBadge title="V7M Mock: OIDC Implicit Flow with ID token — no real API calls">
+										<FiZap />
+									</MigrationBadge>
+								),
+							},
+							{
+								id: 'v7m-device-authorization',
+								path: '/v7/oauth/device-authorization',
+								label: 'Device Authorization (Mock)',
+								icon: (
+									<ColoredIcon $color="#6366f1">
+										<FiSmartphone />
+									</ColoredIcon>
+								),
+								badge: (
+									<MigrationBadge title="V7M Mock: Device Authorization Flow (RFC 8628) — no real API calls">
+										<FiZap />
+									</MigrationBadge>
+								),
+							},
+							{
+								id: 'v7m-client-credentials',
+								path: '/v7/oauth/client-credentials',
+								label: 'Client Credentials (Mock)',
+								icon: (
+									<ColoredIcon $color="#6366f1">
+										<FiServer />
+									</ColoredIcon>
+								),
+								badge: (
+									<MigrationBadge title="V7M Mock: Client Credentials Flow — no real API calls">
+										<FiZap />
+									</MigrationBadge>
+								),
+							},
+							{
+								id: 'v7m-oauth-ropc',
+								path: '/v7/oauth/ropc',
+								label: 'OAuth ROPC (Mock)',
+								icon: (
+									<ColoredIcon $color="#6366f1">
+										<FiLock />
+									</ColoredIcon>
+								),
+								badge: (
+									<MigrationBadge title="V7M Mock: Resource Owner Password Credentials (deprecated) — no real API calls">
+										<FiZap />
+									</MigrationBadge>
+								),
+							},
+							{
+								id: 'v7m-oidc-ropc',
+								path: '/v7/oidc/ropc',
+								label: 'OIDC ROPC (Mock)',
+								icon: (
+									<ColoredIcon $color="#6366f1">
+										<FiLock />
+									</ColoredIcon>
+								),
+								badge: (
+									<MigrationBadge title="V7M Mock: OIDC Resource Owner Password Credentials with ID token — no real API calls">
+										<FiZap />
+									</MigrationBadge>
+								),
+							},
+						],
+					},
+					{
 						id: 'oauth-mock-flows',
 						label: 'OAuth Mock Flows',
 						icon: (
