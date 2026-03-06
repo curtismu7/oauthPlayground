@@ -141,19 +141,19 @@ const resourceLinks = [
 	},
 ];
 
+const pageConfig = {
+	flowType: 'documentation' as const,
+	theme: 'purple' as const,
+	maxWidth: '72rem',
+	showHeader: true,
+	showFooter: false,
+	responsive: true,
+};
+
+const { PageContainer, ContentWrapper, SectionContainer, ContentGrid, Spacing } =
+	PageLayoutService.createPageLayout(pageConfig);
+
 const EmergingAIStandards = () => {
-	const pageConfig = {
-		flowType: 'documentation' as const,
-		theme: 'purple' as const,
-		maxWidth: '72rem',
-		showHeader: true,
-		showFooter: false,
-		responsive: true,
-	};
-
-	const { PageContainer, ContentWrapper, SectionContainer, ContentGrid, Spacing } =
-		PageLayoutService.createPageLayout(pageConfig);
-
 	return (
 		<PageContainer>
 			<ContentWrapper>
