@@ -5,6 +5,7 @@ import { FlowCredentialService } from '../services/flowCredentialService';
 import type { PingOneAdminCredentials, PingOneSamlApp } from '../services/pingoneSamlService';
 import { pingOneSamlService } from '../services/pingoneSamlService';
 import type { SAMLApplicationConfig } from '../services/samlService';
+import { logger } from '../utils/logger';
 
 const FLOW_KEY = 'saml-sp-dynamic-acs';
 
@@ -162,7 +163,7 @@ export const useSamlSpFlowController = (): SamlSpFlowController => {
 					});
 				}
 			} catch (error) {
-				console.error('[useSamlSpFlowController] load error:', error);
+				logger.error('useSamlSpFlowController', 'load error', undefined, error as Error);
 			} finally {
 				if (active) setIsLoading(false);
 			}
@@ -214,7 +215,7 @@ export const useSamlSpFlowController = (): SamlSpFlowController => {
 
 				return success;
 			} catch (error) {
-				console.error('[useSamlSpFlowController] save error:', error);
+				logger.error('useSamlSpFlowController', 'save error', undefined, error as Error);
 				return false;
 			} finally {
 				setIsSaving(false);
@@ -243,7 +244,7 @@ export const useSamlSpFlowController = (): SamlSpFlowController => {
 	const savePingOneAdmin = useCallback(
 		async (options?: { showToast?: boolean }) => {
 			if (!pingOneAdmin) {
-				console.warn('[useSamlSpFlowController] No PingOne admin credentials to save');
+				logger.warn('useSamlSpFlowController', 'No PingOne admin credentials to save');
 				return false;
 			}
 
@@ -266,7 +267,7 @@ export const useSamlSpFlowController = (): SamlSpFlowController => {
 				);
 				return true;
 			} catch (error) {
-				console.error('[useSamlSpFlowController] Failed to save PingOne admin credentials', error);
+				logger.error('useSamlSpFlowController', 'Failed to save PingOne admin credentials', undefined, error as Error);
 				return false;
 			}
 		},
@@ -284,7 +285,7 @@ export const useSamlSpFlowController = (): SamlSpFlowController => {
 			signingCertificate?: string;
 		}) => {
 			if (!pingOneAdmin) {
-				console.warn('[useSamlSpFlowController] Missing PingOne admin credentials');
+				logger.warn('useSamlSpFlowController', 'Missing PingOne admin credentials');
 				return null;
 			}
 
@@ -309,7 +310,7 @@ export const useSamlSpFlowController = (): SamlSpFlowController => {
 				}
 				return updatedApp;
 			} catch (error) {
-				console.error('[useSamlSpFlowController] Failed to sync dynamic ACS toggle', error);
+				logger.error('useSamlSpFlowController', 'Failed to sync dynamic ACS toggle', undefined, error as Error);
 				return null;
 			}
 		},
@@ -319,7 +320,7 @@ export const useSamlSpFlowController = (): SamlSpFlowController => {
 	const fetchPingOneApplication = useCallback(
 		async (applicationId: string) => {
 			if (!pingOneAdmin) {
-				console.warn('[useSamlSpFlowController] Missing PingOne admin credentials');
+				logger.warn('useSamlSpFlowController', 'Missing PingOne admin credentials');
 				return null;
 			}
 
@@ -339,7 +340,7 @@ export const useSamlSpFlowController = (): SamlSpFlowController => {
 				}
 				return app;
 			} catch (error) {
-				console.error('[useSamlSpFlowController] Failed to fetch PingOne application', error);
+				logger.error('useSamlSpFlowController', 'Failed to fetch PingOne application', undefined, error as Error);
 				return null;
 			}
 		},

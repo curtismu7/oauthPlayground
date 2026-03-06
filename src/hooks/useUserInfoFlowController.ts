@@ -2,6 +2,7 @@
 // UserInfo Flow state management and logic
 
 import { useCallback, useState } from 'react';
+import { logger } from '../utils/logger';
 
 export interface UserInfoConfig {
 	environmentId: string;
@@ -97,12 +98,12 @@ export const useUserInfoFlowController = (): UseUserInfoFlowControllerReturn => 
 			const result: UserInfoResult = await response.json();
 			setUserInfo(result);
 
-			console.log(`${LOG_PREFIX} [SUCCESS] UserInfo fetched:`, result);
+			logger.success('useUserInfoFlowController', 'UserInfo fetched', result);
 			return result;
 		} catch (err) {
 			const errorMessage = err instanceof Error ? err.message : 'UserInfo request failed';
 			setError(errorMessage);
-			console.error(`${LOG_PREFIX} [ERROR] UserInfo request failed:`, err);
+			logger.error('useUserInfoFlowController', 'UserInfo request failed', undefined, err instanceof Error ? err : undefined);
 			throw err;
 		} finally {
 			setIsRequesting(false);

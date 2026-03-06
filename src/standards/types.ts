@@ -61,5 +61,5 @@ export function failFrom<T = never>(
 ): ServiceResult<T> {
 	const message =
 		cause instanceof Error ? cause.message : typeof cause === 'string' ? cause : 'Unknown error';
-	return fail<T>({ code, message, httpStatus, retryable: false });
+	return fail<T>({ code, message, ...(httpStatus !== undefined ? { httpStatus } : {}), retryable: false });
 }
