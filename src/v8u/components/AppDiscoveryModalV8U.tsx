@@ -10,8 +10,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
-import {
 import { logger } from '../../utils/logger';
+import {
 	AppDiscoveryServiceV8,
 	type DiscoveredApplication,
 } from '@/v8/services/appDiscoveryServiceV8';

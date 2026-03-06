@@ -14,8 +14,8 @@ import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { trackOAuthFlow } from '@/utils/activityTracker';
 import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
-import {
 import { logger } from '../../utils/logger';
+import {
 	checkPingOneAuthentication,
 	performDetailedAuthenticationCheck,
 } from '@/v8/services/pingOneAuthenticationServiceV8';
