@@ -537,20 +537,24 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 		try {
 			const result = await SAMLService.processAuthnRequest(authnRequestXml, samlConfig);
 
-			setParsedAuthnRequest(result.parsedRequest);
-			setValidationResult(result.validation);
+			if (!result.success) {
+				v4ToastManager.showError('Failed to process AuthnRequest');
+				setValidationResult({
+					isValid: false,
+					explanation: result.error.message,
+					errors: [result.error.message],
+				});
+				return;
+			}
 
-			if (result.validation.isValid) {
+			setParsedAuthnRequest(result.data.parsedRequest);
+			setValidationResult(result.data.validation);
+
+			if (result.data.validation.isValid) {
 				v4ToastManager.showSuccess('AuthnRequest processed and validated successfully!');
 			} else {
 				v4ToastManager.showError('AuthnRequest validation failed');
 			}
-		} catch (error) {
-			v4ToastManager.showError('Failed to process AuthnRequest');
-			setValidationResult({
-				isValid: false,
-				errors: [error instanceof Error ? error.message : 'Unknown error'],
-			});
 		} finally {
 			setIsProcessing(false);
 		}
