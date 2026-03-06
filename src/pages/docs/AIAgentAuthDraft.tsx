@@ -16,7 +16,7 @@ const Header = styled.div`
   h1 {
     font-size: 2.5rem;
     font-weight: 700;
-    color: #3b82f6;
+    color: var(--color-primary);
     margin-bottom: 1rem;
     display: flex;
     align-items: center;
@@ -26,7 +26,7 @@ const Header = styled.div`
 
   p {
     font-size: 1.25rem;
-    color: #6b7280;
+    color: var(--color-text-secondary);
     max-width: 800px;
     margin: 0 auto;
     line-height: 1.6;
@@ -41,14 +41,14 @@ const SectionGrid = styled.div`
 `;
 
 const SectionCard = styled.div`
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  border: 2px solid #e5e7eb;
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
   border-radius: 0.75rem;
   padding: 1.5rem;
   transition: all 0.3s ease;
 
   &:hover {
-    border-color: #3b82f6;
+    border-color: var(--color-primary);
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
   }
@@ -56,7 +56,7 @@ const SectionCard = styled.div`
   h3 {
     font-size: 1.125rem;
     font-weight: 600;
-    color: #1f2937;
+    color: var(--color-text-primary);
     margin-bottom: 0.75rem;
     display: flex;
     align-items: center;
@@ -64,7 +64,7 @@ const SectionCard = styled.div`
   }
 
   p {
-    color: #6b7280;
+    color: var(--color-text-secondary);
     line-height: 1.6;
     margin: 0;
   }
@@ -74,13 +74,13 @@ const ExternalLink = styled.a`
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  color: #3b82f6;
+  color: var(--color-primary);
   text-decoration: none;
   font-weight: 500;
   transition: color 0.2s;
 
   &:hover {
-    color: #2563eb;
+    color: var(--color-primary-dark);
   }
 `;
 
@@ -88,7 +88,7 @@ const DraftLink = styled.a`
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  color: #3b82f6;
+  color: var(--color-primary);
   text-decoration: none;
   font-weight: 600;
   font-size: 1rem;
@@ -96,27 +96,27 @@ const DraftLink = styled.a`
   transition: color 0.2s;
 
   &:hover {
-    color: #2563eb;
+    color: var(--color-primary-dark);
     text-decoration: underline;
   }
 `;
 
 const AuthorBadge = styled.span`
-  background: #eff6ff;
-  color: #1d4ed8;
+  background: var(--color-primary-bg);
+  color: var(--color-primary-text);
   font-size: 0.7rem;
   font-weight: 600;
   padding: 0.15rem 0.4rem;
   border-radius: 0.25rem;
-  border: 1px solid #bfdbfe;
+  border: 1px solid var(--color-primary-light);
   margin-left: 0.4rem;
   vertical-align: middle;
   white-space: nowrap;
 `;
 
 const AuthorHighlight = styled.strong`
-  color: #1d4ed8;
-  background: #eff6ff;
+  color: var(--color-primary-text);
+  background: var(--color-primary-bg);
   padding: 0 0.3rem;
   border-radius: 0.25rem;
   font-weight: 700;
@@ -128,13 +128,13 @@ const MetaRow = styled.div`
   gap: 1rem;
   margin-top: 1rem;
   font-size: 0.9rem;
-  color: #6b7280;
+  color: var(--color-text-secondary);
 
   span {
-    background: #f1f5f9;
+    background: var(--color-surface);
     border-radius: 0.375rem;
     padding: 0.25rem 0.75rem;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--color-border);
   }
 `;
 
@@ -186,7 +186,14 @@ const AIAgentAuthDraft: React.FC = () => {
 					defaultCollapsed={false}
 				>
 					<Card style={{ padding: '2rem' }}>
-						<p style={{ fontSize: '1.05rem', lineHeight: '1.8', color: '#374151', marginTop: 0 }}>
+						<p
+							style={{
+								fontSize: '1.05rem',
+								lineHeight: '1.8',
+								color: 'var(--color-text-primary)',
+								marginTop: 0,
+							}}
+						>
 							This Internet-Draft proposes a comprehensive model for authenticating and authorizing
 							AI agents as they interact with tools, services, large language models (LLMs), and
 							other agents. Rather than defining new protocols, the draft demonstrates how existing,
@@ -198,7 +205,12 @@ const AIAgentAuthDraft: React.FC = () => {
 							autonomously or on behalf of a human user.
 						</p>
 						<p
-							style={{ fontSize: '1.05rem', lineHeight: '1.8', color: '#374151', marginBottom: 0 }}
+							style={{
+								fontSize: '1.05rem',
+								lineHeight: '1.8',
+								color: 'var(--color-text-primary)',
+								marginBottom: 0,
+							}}
 						>
 							The draft introduces the concept of an Agent Identity Management System (AIMS) — a
 							layered stack covering agent identifiers (WIMSE/SPIFFE URIs), short-lived
@@ -485,7 +497,7 @@ const AIAgentAuthDraft: React.FC = () => {
 
 				{/* Full document link */}
 				<InfoBox style={{ marginTop: '2rem', padding: '1.5rem', textAlign: 'center' }}>
-					<p style={{ margin: '0 0 1rem 0', fontSize: '1rem', color: '#374151' }}>
+					<p style={{ margin: '0 0 1rem 0', fontSize: '1rem', color: 'var(--color-text-primary)' }}>
 						This is an individual Internet-Draft submitted to the IETF. It has no formal IETF
 						standing and may be updated or superseded at any time. Brian Campbell of Ping Identity
 						is one of the co-authors.
