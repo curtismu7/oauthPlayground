@@ -1,0 +1,33 @@
+{
+  "timestamp": "2026-03-06T20:26:34.108Z",
+  "summary": {
+    "totalFiles": 18,
+    "errors": 0,
+    "warnings": 3,
+    "info": 0
+  },
+  "results": {
+    "errors": [],
+    "warnings": [
+      {
+        "line": "Multiple",
+        "message": "Unused variables with underscore prefix: 5 matches",
+        "severity": "warning",
+        "file": "src/pages/flows/UserInfoFlow.tsx"
+      },
+      {
+        "line": "Multiple",
+        "message": "Console statements found: 30 matches",
+        "severity": "warning",
+        "file": "src/pages/flows/UserInfoFlow.tsx"
+      },
+      {
+        "line": "Multiple",
+        "message": "Unused variables with underscore prefix: 14 matches",
+        "severity": "warning",
+        "file": "src/pages/flows/v9/DeviceAuthorizationFlowV9.tsx"
+      }
+    ],
+    "info": []
+  }
+}

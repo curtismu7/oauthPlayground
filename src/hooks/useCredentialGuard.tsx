@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import type { StepCredentials } from '../components/steps/CommonSteps';
 import { CredentialGuardService } from '../services/credentialGuardService';
 import { ModalPresentationService } from '../services/modalPresentationService';
+import { logger } from '../utils/logger';
 
 export interface UseCredentialGuardOptions {
 	requiredFields: string[];
@@ -42,7 +43,7 @@ export const useCredentialGuard = (
 			if (!canProceed) {
 				setMissingCredentialFields(missingFields);
 				setShowMissingCredentialsModal(true);
-				console.warn(`🚫 [${flowName}] Blocked navigation due to missing required credentials:`, {
+				logger.warn('useCredentialGuardx', `🚫 [${flowName}] Blocked navigation due to missing required credentials`, {
 					missingFields,
 				});
 				return;

@@ -107,7 +107,7 @@ const useAuthActions = ({
 				if (!effectiveConfig?.clientId || !effectiveConfig?.environmentId) {
 					const errorMessage =
 						'Configuration required. Please configure your PingOne settings first.';
-					console.error(' [NewAuthContext] Missing configuration:', {
+					logger.error('useAuthActions', 'Missing configuration', {
 						hasClientId: !!effectiveConfig?.clientId,
 						hasEnvironmentId: !!effectiveConfig?.environmentId,
 						config: effectiveConfig,
@@ -228,7 +228,7 @@ const useAuthActions = ({
 				// Ensure authEndpoint is a valid string before using it
 				if (!authEndpoint || typeof authEndpoint !== 'string') {
 					const errorMessage = `Invalid authorization endpoint: ${authEndpoint}. Please configure your authorization endpoint or environment ID.`;
-					console.error(' [NewAuthContext] Invalid authEndpoint:', {
+					logger.error('useAuthActions', 'Invalid authEndpoint', {
 						authEndpoint,
 						effectiveConfig,
 					});
@@ -267,7 +267,7 @@ To set up PingOne authentication:
 You can find these values in your PingOne Admin Console under Applications.
 Note: The Authorization Endpoint will be automatically constructed from your Environment ID.`;
 
-					console.error(' [NewAuthContext] Configuration error:', errorMessage);
+					logger.error('useAuthActions', 'Configuration error', errorMessage);
 					throw new Error(errorMessage);
 				}
 
@@ -401,8 +401,8 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 
 				return { success: true, redirectUrl: authUrl.toString() };
 			} catch (error) {
-				console.error(' [NewAuthContext] Login error:', error);
-				console.error(' [NewAuthContext] Error details:', {
+				logger.error('useAuthActions', 'Login error', undefined, error as Error);
+				logger.error('useAuthActions', 'Error details', {
 					message: error instanceof Error ? error.message : 'Unknown error',
 					stack: error instanceof Error ? error.stack : undefined,
 					error,
@@ -430,10 +430,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 				FlowContextUtils.emergencyCleanup();
 				console.log(' [NewAuthContext] Flow context cleaned up during logout');
 			} catch (flowCleanupError) {
-				console.warn(
-					' [NewAuthContext] Failed to cleanup flow context during logout:',
-					flowCleanupError
-				);
+				logger.warn('useAuthActions', 'Failed to cleanup flow context during logout', flowCleanupError);
 			}
 
 			updateState({
@@ -524,10 +521,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 							return { success: true };
 						}
 					} catch (flowParsingError) {
-						console.warn(
-							' [NewAuthContext] Failed to parse flow context, continuing with standard callback handling',
-							flowParsingError
-						);
+						logger.warn('useAuthActions', 'Failed to parse flow context, continuing with standard callback handling', flowParsingError);
 					}
 				}
 
@@ -593,10 +587,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 								);
 							}
 						} catch (flowParsingError) {
-							console.warn(
-								'[NewAuthContext] Failed to parse flow context for credentials:',
-								flowParsingError
-							);
+							logger.warn('useAuthActions', 'Failed to parse flow context for credentials', flowParsingError);
 						}
 					}
 
@@ -734,9 +725,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 							tokenSaveError instanceof Error ? tokenSaveError : undefined
 						);
 						// Continue with flow even if save fails - tokens are still in tokenData
-						console.warn(
-							'[NewAuthContext] Token save failed, but continuing with token exchange result'
-						);
+						logger.warn('useAuthActions', 'Token save failed, but continuing with token exchange result');
 					}
 
 					const tokens = getStoredTokens() || tokenData;
@@ -826,14 +815,10 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 		});
 
 		if (!userClickedProceed) {
-			console.error(
-				'🚨 [NewAuthContext] BLOCKED: proceedWithOAuth called WITHOUT user interaction!'
-			);
-			console.error(
-				'🚨 [NewAuthContext] This should NEVER happen - modal must wait for user click'
-			);
-			console.error('🚨 [NewAuthContext] Stack trace:', new Error().stack);
-			console.error('🚨 [NewAuthContext] Current sessionStorage state:', {
+			logger.error('useAuthActions', 'BLOCKED: proceedWithOAuth called WITHOUT user interaction!');
+			logger.error('useAuthActions', 'This should NEVER happen - modal must wait for user click');
+			logger.error('useAuthActions', 'Stack trace', new Error().stack);
+			logger.error('useAuthActions', 'Current sessionStorage state', {
 				_user_clicked_proceed: sessionStorage.getItem('_user_clicked_proceed'),
 				showAuthModal: 'check App.tsx state',
 			});
@@ -885,25 +870,19 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 									note: 'redirect_uri removed per PingOne pi.flow specification',
 								});
 							} catch (urlError) {
-								console.warn(
-									'[NewAuthContext] Failed to modify URL for redirectless mode:',
-									urlError
-								);
+								logger.warn('useAuthActions', 'Failed to modify URL for redirectless mode', urlError);
 							}
 						}
 					}
 				} catch (flowParsingError) {
-					console.warn(
-						'[NewAuthContext] Failed to parse flow context for redirectless mode:',
-						flowParsingError
-					);
+					logger.warn('useAuthActions', 'Failed to parse flow context for redirectless mode', flowParsingError);
 				}
 			}
 
 			console.log('🚨 [NewAuthContext] About to redirect to:', finalAuthUrl);
 			window.location.href = finalAuthUrl;
 		} else {
-			console.error('🚨 [NewAuthContext] proceedWithOAuth called but authRequestData is null!');
+			logger.error('useAuthActions', 'proceedWithOAuth called but authRequestData is null!');
 		}
 	}, [authRequestData]);
 
@@ -968,11 +947,11 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 					const newConfig = await loadAuthConfiguration();
 					setConfig(newConfig);
 				} else {
-					console.error(' [NewAuthContext] Failed to save V7 credentials');
+					logger.error('useAuthActions', 'Failed to save V7 credentials');
 				}
 				return success;
 			} catch (error) {
-				console.error(' [NewAuthContext] Error saving V7 credentials:', error);
+				logger.error('useAuthActions', 'Error saving V7 credentials', undefined, error as Error);
 				return false;
 			}
 		},
