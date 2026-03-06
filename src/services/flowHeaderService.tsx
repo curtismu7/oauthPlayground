@@ -4,6 +4,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import packageJson from '../../package.json';
+import { logger } from '../utils/logger';
 
 export interface FlowHeaderConfig {
 	flowType: 'oauth' | 'oidc' | 'pingone' | 'documentation';
@@ -719,7 +720,7 @@ export const FlowHeader: React.FC<FlowHeaderProps> = ({ flowId, flowType, custom
 	const config = baseConfig ? { ...baseConfig, ...customConfig } : customConfig || null;
 
 	if (!config) {
-		console.warn(`No configuration found for flow ID/type: ${configKey}`);
+		logger.warn('FlowHeaderService', `No configuration found for flow ID/type: ${configKey}`);
 		return null;
 	}
 

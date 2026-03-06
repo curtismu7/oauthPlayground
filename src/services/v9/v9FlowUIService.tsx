@@ -4,6 +4,7 @@
 import React from 'react';
 // Import Modern Messaging (V9) - proper migration to non-toast messaging
 import { modernMessaging } from '../../components/v9/V9ModernMessagingComponents';
+import { logger } from '../../utils/logger';
 import { FlowUIService } from '../flowUIService';
 
 // V9 Wrapper Service - wraps original with Modern Messaging
@@ -13,7 +14,7 @@ const V9FlowUIService = {
 		try {
 			const components = FlowUIService.getFlowUIComponents();
 			return components;
-		} catch (error) {
+		} catch (_error) {
 			modernMessaging.showCriticalError({
 				title: 'UI Components Failed',
 				message: 'Failed to load flow UI components',
@@ -62,7 +63,7 @@ const V9FlowUIService = {
 
 	// Add V9-specific logging for component usage
 	logComponentUsage(componentName: string) {
-		console.log(`[V9 FlowUI] Using component: ${componentName}`);
+		logger.debug('V9FlowUIService', `[V9 FlowUI] Using component: ${componentName}`);
 	},
 };
 

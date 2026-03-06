@@ -5,6 +5,7 @@
 
 import React from 'react';
 import styled from 'styled-components';
+import { logger } from '../utils/logger';
 
 export interface IdTokenClaims {
 	iss: string; // Issuer
@@ -100,7 +101,7 @@ export class OIDCIdTokenServiceClass {
 			const decoded = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
 			return decoded as IdTokenClaims;
 		} catch (error) {
-			console.error('Failed to decode ID token:', error);
+			logger.error('OIDCIdTokenService', 'Failed to decode ID token:', undefined, error);
 			return null;
 		}
 	}

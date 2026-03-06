@@ -3,6 +3,7 @@
 import { FiExternalLink, FiKey, FiRefreshCw, FiSettings, FiShield } from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { logger } from '../utils/logger';
 import { CollapsibleHeader } from './collapsibleHeaderService';
 
 // Styled components for the UI Settings panel
@@ -327,7 +328,7 @@ export class UISettingsService {
 	static isEnabled(setting: keyof UISettings): boolean {
 		const settings = UISettingsService.getSettings();
 		const isEnabled = settings[setting];
-		console.log(`[UISettingsService] isEnabled('${setting}'):`, {
+		logger.debug('UISettingsService', `[UISettingsService] isEnabled('${setting}'):`, {
 			setting,
 			isEnabled,
 			allSettings: settings,
