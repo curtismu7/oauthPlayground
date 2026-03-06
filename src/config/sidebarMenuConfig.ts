@@ -54,7 +54,31 @@ function items(
 
 /** Apply version badges to menu items based on migration status */
 function applyVersionBadges(items: SidebarMenuItem[]): SidebarMenuItem[] {
-	return items.map(item => autoApplyVersionBadge(item));
+	return items.map(item => {
+		// Apply 'updated' badge to specific recently standardized apps
+		const recentlyUpdatedApps = [
+			'/flows/kroger-grocery-store-mfa',
+			'/jwks-troubleshooting',
+			'/flows/userinfo',
+			'/configuration',
+			'/credential-management',
+			'/postman-collection-generator-v9',
+		];
+		
+		if (recentlyUpdatedApps.includes(item.path)) {
+			// Use applyUpdatedBadge for recently updated apps
+			return {
+				...item,
+				versionBadge: {
+					type: 'updated',
+					showVersion: true,
+					showBadge: true,
+				},
+			};
+		}
+		
+		return autoApplyVersionBadge(item);
+	});
 }
 
 /** Apply version badges to menu groups recursively */
@@ -165,7 +189,7 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 			['/token-management', 'Token Management'],
 			['/flows/token-introspection', 'Token Introspection'],
 			['/flows/token-revocation', 'Token Revocation'],
-			['/flows/userinfo', 'UserInfo Flow'],
+			['/flows/userinfo', 'UserInfo Flow', true],
 			['/flows/pingone-logout', 'PingOne Logout'],
 		]),
 	},
@@ -177,7 +201,7 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 			['/oauth-code-generator-hub', 'OAuth Code Generator Hub'],
 			['/application-generator', 'Application Generator'],
 			['/client-generator', 'Client Generator'],
-			['/jwks-troubleshooting', 'JWKS Troubleshooting'],
+			['/jwks-troubleshooting', 'JWKS Troubleshooting', true],
 			['/url-decoder', 'URL Decoder'],
 			['/sdk-examples', 'SDK Examples'],
 			['/ultimate-token-display-demo', 'Ultimate Token Display'],
@@ -265,14 +289,14 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 		label: 'Review - New Apps',
 		items: items([
 			// Essential User-Facing Tools
-			['/configuration', 'Configuration Management'],
-			['/credential-management', 'Credential Management'],
+			['/configuration', 'Configuration Management', true],
+			['/credential-management', 'Credential Management', true],
 			['/advanced-configuration', 'Advanced Configuration'],
 			['/service-test-runner', 'Service Test Runner'],
 			['/pingone-authentication', 'PingOne Authentication'],
 			['/pingone-authentication/result', 'Auth Results'],
 			['/sdk-sample-app', 'SDK Sample App'],
-			['/postman-collection-generator-v9', 'Postman Generator V9'],
+			['/postman-collection-generator-v9', 'Postman Generator V9', true],
 
 			// Documentation & Education
 			['/documentation', 'Documentation Hub'],

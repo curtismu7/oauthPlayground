@@ -2,7 +2,8 @@
 // V9 Condensed Authorization Code Flow - Enhanced Architecture with V9 Standards
 
 import { FiBook, FiCheckCircle, FiChevronDown, FiKey, FiSettings, FiTarget, FiZap } from '@icons';
-import React, { useCallback, useEffect, useState } from 'react';
+import type React from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import type { DiscoveredApp } from '@/v8/components/AppPickerV8';

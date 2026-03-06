@@ -12,7 +12,8 @@ import {
 	FiInfo,
 	FiShield,
 } from '@icons';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import type React from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -49,7 +50,7 @@ import {
 	ImplicitFlowV9Helpers,
 } from '../../../services/implicitFlowSharedService';
 import {
-	OAuthErrorDetails,
+	type OAuthErrorDetails,
 	OAuthErrorHandlingService,
 } from '../../../services/oauthErrorHandlingService';
 import { oidcDiscoveryService } from '../../../services/oidcDiscoveryService';

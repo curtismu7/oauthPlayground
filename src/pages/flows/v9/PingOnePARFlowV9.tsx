@@ -1,7 +1,8 @@
 // src/pages/flows/v9/PingOnePARFlowV9.tsx
 // V9.0.0 PingOne PAR (Pushed Authorization Request) Flow - Modern V9 Architecture
 
-import React, { useCallback, useEffect, useState } from 'react';
+import type React from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { AuthorizationDetailsEditor } from '../../../components/AuthorizationDetailsEditor';
 import ColoredTokenDisplay from '../../../components/ColoredTokenDisplay';
@@ -181,9 +182,7 @@ const PingOnePARFlowV9: React.FC = () => {
 
 			if (success) {
 				console.log('✅ [PAR V9] Credentials saved successfully to PAR-specific storage');
-			} else {
-				console.warn('⚠️ [PAR V9] Failed to save credentials to PAR-specific storage');
-			}
+
 		}
 	}, [controller.credentials]);
 
@@ -204,7 +203,6 @@ const PingOnePARFlowV9: React.FC = () => {
 				codeVerifierLength: codes.codeVerifier.length,
 			});
 		} catch (error) {
-			console.error('❌ [PAR V9] Failed to generate PKCE codes:', error);
 			messagingService.showErrorBanner('Failed to generate PKCE codes');
 		}
 	}, [messagingService]);
