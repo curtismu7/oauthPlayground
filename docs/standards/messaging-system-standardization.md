@@ -523,4 +523,13 @@ modernMessaging.showFooterMessage({
 });
 ```
 
+## 📚 Related Documentation
+
+- [Logging Implementation Plan](./logging-implementation-plan.md)
+- [Gold Star Migration Indicator Guide](./gold-star-migration-indicator-guide.md)
+- [Version Management Standardization Guide](./version-management-standardization-guide.md)
+- [Dead File Archiving Guide](./dead-file-archiving-guide.md)
+- [Messaging Implementation Guide](./messaging-implementation-guide.md)
+- [V9 Modern Messaging Migration Guide](./v9-modern-messaging-migration-guide.md)
+
 This guide ensures consistent, maintainable messaging across all application versions while preserving existing functionality.

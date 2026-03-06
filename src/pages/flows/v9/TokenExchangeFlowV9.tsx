@@ -1,7 +1,8 @@
 // src/pages/flows/v9/TokenExchangeFlowV9.tsx
 // OAuth 2.0 Token Exchange Flow - RFC 8693 Implementation for A2A Security - V9
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import type React from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getButtonStyles } from '../../../services/v9/V9ColorStandards';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import { V9FlowRestartButton } from '../../../services/v9/V9FlowRestartButton';
