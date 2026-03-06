@@ -58,13 +58,13 @@ import { FlowCredentialService } from '../../../services/flowCredentialService';
 import { FlowHeader as StandardFlowHeader } from '../../../services/flowHeaderService';
 import { FlowUIService } from '../../../services/flowUIService';
 import {
-	OAuthErrorDetails,
+	type OAuthErrorDetails,
 	OAuthErrorHandlingService,
 } from '../../../services/oauthErrorHandlingService';
 import { oidcDiscoveryService } from '../../../services/oidcDiscoveryService';
 import { themeService } from '../../../services/themeService';
 import {
-	IntrospectionApiCallData,
+	type IntrospectionApiCallData,
 	TokenIntrospectionService,
 } from '../../../services/tokenIntrospectionService';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
@@ -1426,7 +1426,12 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 					console.log('ℹ️ [DeviceAuth-V7] No saved credentials found, using defaults');
 				}
 			} catch (error) {
-				console.error('[DeviceAuth-V7] Failed to load credentials:', error);
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'Failed to load saved credentials.',
+					dismissible: true,
+				});
 			}
 		};
 

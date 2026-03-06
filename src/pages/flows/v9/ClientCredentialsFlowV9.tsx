@@ -13,7 +13,8 @@ import {
 	FiSettings,
 	FiShield,
 } from '@icons';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import type React from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { EducationModeToggle } from '../../../components/education/EducationModeToggle';

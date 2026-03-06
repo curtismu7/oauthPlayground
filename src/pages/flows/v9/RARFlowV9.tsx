@@ -10,7 +10,8 @@ import {
 	FiRefreshCw,
 	FiSettings,
 } from '@icons';
-import React, { useCallback, useEffect, useState } from 'react';
+import type React from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { StandardizedCredentialExportImport } from '../../../components/StandardizedCredentialExportImport';
