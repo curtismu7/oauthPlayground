@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { CredentialsImportExport } from '../../components/CredentialsImportExport';
 import FlowCredentials from '../../components/FlowCredentials';
 import JSONHighlighter from '../../components/JSONHighlighter';
 import { StepByStepFlow } from '../../components/StepByStepFlow';
@@ -668,6 +669,17 @@ cleanupAfterRevocation(revocationResult);`,
 						clientSecret: newCredentials.clientSecret || prev.clientSecret,
 						environmentId: newCredentials.environmentId || prev.environmentId,
 					}));
+				}}
+			/>
+
+			<CredentialsImportExport
+				credentials={{ clientId: formData.clientId, clientSecret: formData.clientSecret, environmentId: formData.environmentId }}
+				options={{
+					flowType: 'token-revocation',
+					appName: 'Token Revocation Flow',
+					onImportSuccess: (creds) => {
+						setFormData((prev) => ({ ...prev, ...creds }));
+					},
 				}}
 			/>
 
