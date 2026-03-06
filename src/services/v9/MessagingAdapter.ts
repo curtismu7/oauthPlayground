@@ -188,7 +188,7 @@ function getMessagingAdapter(): IMessagingAdapter {
   }
 
   // Fallback to console (shouldn't happen in production)
-  console.warn('[MessagingAdapter] No messaging system available, using console fallback');
+  console.log('[MessagingAdapter] No messaging system available, using console fallback');
   return new ConsoleMessagingAdapter();
 }
 
@@ -201,11 +201,11 @@ class ConsoleMessagingAdapter implements IMessagingAdapter {
   }
 
   error(message: string, config?: Partial<MessageConfig>): void {
-    console.error(`❌ [ERROR] ${config?.title ? `${config.title}: ` : ''}${message}`);
+    console.log(`❌ [ERROR] ${config?.title ? `${config.title}: ` : ''}${message}`);
   }
 
   warning(message: string, config?: Partial<MessageConfig>): void {
-    console.warn(`⚠️ [WARNING] ${config?.title ? `${config.title}: ` : ''}${message}`);
+    console.log(`⚠️ [WARNING] ${config?.title ? `${config.title}: ` : ''}${message}`);
   }
 
   info(message: string, config?: Partial<MessageConfig>): void {

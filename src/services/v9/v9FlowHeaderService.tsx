@@ -36,7 +36,6 @@ const V9FlowHeader: React.FC<V9FlowHeaderProps> = (props) => {
 			message: 'Failed to render flow header',
 			contactSupport: false,
 		});
-		console.error('FlowHeader error:', error);
 		return (
 			<div
 				style={{
@@ -63,7 +62,6 @@ export const getV9FlowConfig = (flowId: string): FlowHeaderConfig | null => {
 			message: `Failed to get flow config for ${flowId}`,
 			contactSupport: false,
 		});
-		console.error('Get flow config error:', error);
 		return null;
 	}
 };

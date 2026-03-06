@@ -323,10 +323,6 @@ export const useV9CredentialValidation = ({
 			if (!canProceed) {
 				setMissingCredentialFields(missingFields);
 				setShowMissingCredentialsModal(true);
-				console.warn(
-					`🚫 [${config.flowName}] Blocked navigation due to missing required credentials:`,
-					{ missingFields }
-				);
 				onValidationFailure?.(missingFields);
 				return;
 			}
@@ -379,7 +375,6 @@ export const useV9CredentialValidation = ({
 
 	// Early return AFTER all hooks to comply with Rules of Hooks
 	if (!baseConfig) {
-		console.warn(`[V9CredentialValidation] No configuration found for flow: ${flowKey}`);
 		return {
 			showMissingCredentialsModal: false,
 			missingCredentialFields: [],
