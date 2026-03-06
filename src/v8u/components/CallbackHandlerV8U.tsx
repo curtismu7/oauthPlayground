@@ -15,6 +15,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { trackOAuthFlow } from '@/utils/activityTracker';
 import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
 import {
+import { logger } from '../../utils/logger';
 	checkPingOneAuthentication,
 	performDetailedAuthenticationCheck,
 } from '@/v8/services/pingOneAuthenticationServiceV8';
@@ -61,7 +62,7 @@ const logToDisk = (event: string, data: Record<string, unknown>) => {
 			});
 		}
 	} catch (error) {
-		console.error('Failed to log to disk:', error);
+		logger.error('CallbackHandlerV8U', 'Failed to log to disk:', undefined, error);
 	}
 };
 
@@ -319,9 +320,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 							contextReturnStep: context.returnStep,
 							contextAgeMs: contextAge,
 						});
-						console.warn(
-							`${MODULE_TAG} ⚠️ Flow context is stale (${Math.round(contextAge / 1000)}s old), removing and using fallback`
-						);
+						logger.warn('CallbackHandlerV8U', `Flow context is stale (${Math.round(contextAge / 1000)}s old), removing and using fallback`);
 						sessionStorage.removeItem(flowContextKey);
 					} else {
 						// Preserve callback parameters and add step parameter
@@ -358,7 +357,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 						return;
 					}
 				} catch (error) {
-					console.error(`${MODULE_TAG} ❌ Failed to parse flow context:`, error);
+					logger.error('CallbackHandlerV8U', `Failed to parse flow context:`, undefined, error);
 					// Remove corrupted context
 					sessionStorage.removeItem(flowContextKey);
 				}
@@ -494,7 +493,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 
 			// Validate state exists and matches
 			if (!storedState) {
-				console.error(`${MODULE_TAG} ❌ No stored state found - possible CSRF attack`);
+				logger.error('CallbackHandlerV8U', `No stored state found - possible CSRF attack`);
 				logRedirectEvent('csrf_risk_no_stored_state', {
 					hasCode: !!code,
 					hasState: !!state,
@@ -506,7 +505,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 			}
 
 			if (state !== storedState) {
-				console.error(`${MODULE_TAG} ❌ State mismatch - possible CSRF attack`);
+				logger.error('CallbackHandlerV8U', `State mismatch - possible CSRF attack`);
 				logRedirectEvent('csrf_risk_state_mismatch', {
 					hasCode: !!code,
 					hasState: !!state,
@@ -524,7 +523,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 				const maxAge = 10 * 60 * 1000; // 10 minutes
 
 				if (stateAge > maxAge) {
-					console.warn(`${MODULE_TAG} ⚠️ State is too old (${Math.round(stateAge / 1000)}s)`);
+					logger.warn('CallbackHandlerV8U', `State is too old (${Math.round(stateAge / 1000)}s)`);
 					logRedirectEvent('state_expired', {
 						hasCode: !!code,
 						hasState: !!state,
@@ -585,15 +584,9 @@ export const CallbackHandlerV8U: React.FC = () => {
 
 		// CRITICAL: Check if we got a code when we expected tokens in fragment (implicit flow)
 		if (code && state && state.includes('v8u-implicit')) {
-			console.error(
-				`${MODULE_TAG} ❌ CONFIGURATION ERROR: Received authorization code for Implicit flow!`
-			);
-			console.error(
-				`${MODULE_TAG} This means your PingOne application is not configured for Implicit flow.`
-			);
-			console.error(
-				`${MODULE_TAG} Please enable Implicit grant type in your PingOne application settings.`
-			);
+			logger.error('CallbackHandlerV8U', `CONFIGURATION ERROR: Received authorization code for Implicit flow!`);
+			logger.error('CallbackHandlerV8U', `This means your PingOne application is not configured for Implicit flow.`);
+			logger.error('CallbackHandlerV8U', `Please enable Implicit grant type in your PingOne application settings.`);
 		}
 
 		// Detect flow type from state parameter or callback data
@@ -652,7 +645,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 					flowType = detectedFlowType;
 					console.log(`${MODULE_TAG} ✅ Using detected flow type: "${flowType}"`);
 				} else {
-					console.warn(`${MODULE_TAG} ⚠️ Unknown flow type in state, using default:`, {
+					logger.warn('CallbackHandlerV8U', `Unknown flow type in state, using default:`, {
 						parts,
 						detectedFlowType,
 						defaultFlowType: flowType,
@@ -661,7 +654,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 				}
 			}
 		} else {
-			console.warn(`${MODULE_TAG} ⚠️ No v8u state prefix found, using default flow type:`, {
+			logger.warn('CallbackHandlerV8U', `No v8u state prefix found, using default flow type:`, {
 				state,
 				stateIsNull: state === null,
 				stateIsUndefined: state === undefined,
@@ -683,9 +676,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 				detectedStep = 3; // Parse callback step for hybrid
 				console.log(`${MODULE_TAG} ✅ Hybrid flow - will redirect to step 3 (parse callback)`);
 			} else {
-				console.warn(
-					`${MODULE_TAG} ⚠️ Has fragment but flow type is "${flowType}" (not implicit or hybrid)`
-				);
+				logger.warn('CallbackHandlerV8U', `Has fragment but flow type is "${flowType}" (not implicit or hybrid)`);
 			}
 		}
 

@@ -14,6 +14,7 @@ const MODULE_TAG = '[🔐 PKCE-STORAGE-V8U-MIGRATED]';
 import { PKCEStorageServiceV8UMigration } from '../../services/pkceStorageServiceV8UMigration';
 import type { V8UPKCECodes } from '../../services/unifiedTokenStorageService';
 import { unifiedTokenStorage } from '../../services/unifiedTokenStorageService';
+import { logger } from '../../utils/logger';
 
 // Re-export type for backward compatibility
 export type PKCECodes = V8UPKCECodes;
@@ -91,7 +92,7 @@ export async function savePKCECodes(
 			sessionStorage.setItem('v8u_pkce_codes', jsonData); // Legacy key for compatibility
 			console.log(`${MODULE_TAG} ✅ Saved to sessionStorage`, { flowKey });
 		} catch (err) {
-			console.error(`${MODULE_TAG} ❌ Failed to save to sessionStorage`, err);
+			logger.error('PkceStorageServiceV8U', `Failed to save to sessionStorage`, undefined, err);
 		}
 
 		// BACKUP 2: Save to localStorage (backup)
@@ -100,7 +101,7 @@ export async function savePKCECodes(
 			localStorage.setItem(`v8u_pkce_${flowKey}`, jsonData);
 			console.log(`${MODULE_TAG} ✅ Saved to localStorage (backup)`, { flowKey });
 		} catch (err) {
-			console.error(`${MODULE_TAG} ❌ Failed to save to localStorage`, err);
+			logger.error('PkceStorageServiceV8U', `Failed to save to localStorage`, undefined, err);
 		}
 
 		// BACKUP 3: Save to memory cache (fastest access)
@@ -115,7 +116,7 @@ export async function savePKCECodes(
 			locations: ['unified storage', 'sessionStorage', 'localStorage', 'memory'],
 		});
 	} catch (error) {
-		console.error(`${MODULE_TAG} Failed to save PKCE codes`, { flowKey, error });
+		logger.error('PkceStorageServiceV8U', `Failed to save PKCE codes`, { flowKey, error });
 		throw error;
 	}
 }
@@ -145,7 +146,7 @@ export async function loadPKCECodesAsync(flowKey: string): Promise<PKCECodes | n
 			return parsed;
 		}
 	} catch (err) {
-		console.error(`${MODULE_TAG} ❌ Failed to load from sessionStorage`, err);
+		logger.error('PkceStorageServiceV8U', `Failed to load from sessionStorage`, undefined, err);
 	}
 
 	// 3. Try localStorage
@@ -161,7 +162,7 @@ export async function loadPKCECodesAsync(flowKey: string): Promise<PKCECodes | n
 			return parsed;
 		}
 	} catch (err) {
-		console.error(`${MODULE_TAG} ❌ Failed to load from localStorage`, err);
+		logger.error('PkceStorageServiceV8U', `Failed to load from localStorage`, undefined, err);
 	}
 
 	// 4. Try unified storage (primary storage with fallback)
@@ -180,10 +181,10 @@ export async function loadPKCECodesAsync(flowKey: string): Promise<PKCECodes | n
 			return unifiedData;
 		}
 	} catch (err) {
-		console.error(`${MODULE_TAG} ❌ Failed to load from unified storage`, err);
+		logger.error('PkceStorageServiceV8U', `Failed to load from unified storage`, undefined, err);
 	}
 
-	console.warn(`${MODULE_TAG} ⚠️ No PKCE codes found in any storage`, { flowKey });
+	logger.warn('PkceStorageServiceV8U', `No PKCE codes found in any storage`, { flowKey });
 	return null;
 }
 
@@ -211,7 +212,7 @@ export function loadPKCECodes(flowKey: string): PKCECodes | null {
 			return parsed;
 		}
 	} catch (err) {
-		console.error(`${MODULE_TAG} ❌ Failed to load from sessionStorage`, err);
+		logger.error('PkceStorageServiceV8U', `Failed to load from sessionStorage`, undefined, err);
 	}
 
 	// 3. Try localStorage
@@ -227,13 +228,10 @@ export function loadPKCECodes(flowKey: string): PKCECodes | null {
 			return parsed;
 		}
 	} catch (err) {
-		console.error(`${MODULE_TAG} ❌ Failed to load from localStorage`, err);
+		logger.error('PkceStorageServiceV8U', `Failed to load from localStorage`, undefined, err);
 	}
 
-	console.warn(
-		`${MODULE_TAG} ⚠️ No PKCE codes found in sync storage (try async load for unified storage)`,
-		{ flowKey }
-	);
+	logger.warn('PkceStorageServiceV8U', `No PKCE codes found in sync storage (try async load for unified storage)`, { flowKey });
 	return null;
 }
 
@@ -260,7 +258,7 @@ export async function clearPKCECodes(flowKey: string): Promise<void> {
 		await ensureMigration();
 		await unifiedTokenStorage.clearV8UPKCECodes(flowKey);
 	} catch (err) {
-		console.error(`${MODULE_TAG} ❌ Failed to clear from unified storage`, err);
+		logger.error('PkceStorageServiceV8U', `Failed to clear from unified storage`, undefined, err);
 	}
 
 	console.log(`${MODULE_TAG} ✅ PKCE codes cleared from all 4 storage locations`, { flowKey });

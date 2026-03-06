@@ -11,6 +11,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { UserSearchDropdownV8 } from '../../v8/components/UserSearchDropdownV8';
 import { EnvironmentIdServiceV8 } from '../../v8/services/environmentIdServiceV8';
 import { useTheme } from '../contexts/ThemeContext';
+import { logger } from '../../utils/logger';
 
 // ============================================================================
 // TYPES
@@ -52,7 +53,7 @@ const UserManagementPage: React.FC = () => {
 			// setUsers(response.data);
 			setUsers([]);
 		} catch (error) {
-			console.error('Failed to load users:', error);
+			logger.error('UserManagementPage', 'Failed to load users:', undefined, error);
 		} finally {
 			setLoading(false);
 		}

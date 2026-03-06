@@ -1,3 +1,4 @@
+import { logger } from '../../utils/logger';
 /**
  * @file pingOneClientServiceV8U.ts
  * @module v8u/services
@@ -198,7 +199,7 @@ export async function updatePingOneClient(
 
 		return { success: true };
 	} catch (error) {
-		console.error(`${MODULE_TAG} Failed to update PingOne client:`, error);
+		logger.error('PingOneClientServiceV8U', `Failed to update PingOne client:`, undefined, error);
 		return {
 			success: false,
 			error: error instanceof Error ? error.message : 'Unknown error occurred',
@@ -232,7 +233,7 @@ export async function updateApplicationConfig(
 
 		return { success: true };
 	} catch (error) {
-		console.error(`${MODULE_TAG} Failed to update application configuration:`, error);
+		logger.error('PingOneClientServiceV8U', `Failed to update application configuration:`, undefined, error);
 		return {
 			success: false,
 			error: error instanceof Error ? error.message : 'Unknown error occurred',
@@ -314,7 +315,7 @@ export async function updateFeatureConfiguration(
 			clientId,
 		};
 	} catch (error) {
-		console.error(`${MODULE_TAG} Failed to update feature configuration:`, error);
+		logger.error('PingOneClientServiceV8U', `Failed to update feature configuration:`, undefined, error);
 		return {
 			success: false,
 			changes,

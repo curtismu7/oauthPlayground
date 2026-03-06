@@ -1,3 +1,4 @@
+import { logger } from '../../../utils/logger';
 // DaVinci Todo Service interfaces and types
 export interface DavinciTodo {
 	id: string;
@@ -95,7 +96,7 @@ export class DavinciTodoService {
 			console.log('[DavinciTodoService] ✅ Client initialized successfully');
 			return { success: true };
 		} catch (error) {
-			console.error('[DavinciTodoService] ❌ Client initialization failed:', error);
+			logger.error('DavinciTodoService', ' Client initialization failed:', undefined, error);
 			return {
 				success: false,
 				error: error instanceof Error ? error.message : 'Unknown error',
@@ -146,7 +147,7 @@ export class DavinciTodoService {
 				})
 			);
 		} catch (error) {
-			console.error('[DavinciTodoService] ❌ Failed to get flows:', error);
+			logger.error('DavinciTodoService', ' Failed to get flows:', undefined, error);
 			throw error;
 		}
 	}
@@ -191,7 +192,7 @@ export class DavinciTodoService {
 				updatedAt: new Date(execution.updatedAt),
 			};
 		} catch (error) {
-			console.error('[DavinciTodoService] ❌ Failed to start flow:', error);
+			logger.error('DavinciTodoService', ' Failed to start flow:', undefined, error);
 			throw error;
 		}
 	}
@@ -240,7 +241,7 @@ export class DavinciTodoService {
 				result: result.result,
 			};
 		} catch (error) {
-			console.error('[DavinciTodoService] ❌ Failed to submit collector:', error);
+			logger.error('DavinciTodoService', ' Failed to submit collector:', undefined, error);
 			throw error;
 		}
 	}
@@ -291,7 +292,7 @@ export class DavinciTodoService {
 				})
 			);
 		} catch (error) {
-			console.error('[DavinciTodoService] ❌ Failed to get todos:', error);
+			logger.error('DavinciTodoService', ' Failed to get todos:', undefined, error);
 			// Return empty array as fallback
 			return [];
 		}
@@ -317,7 +318,7 @@ export class DavinciTodoService {
 
 			return newTodo;
 		} catch (error) {
-			console.error('[DavinciTodoService] ❌ Failed to create todo:', error);
+			logger.error('DavinciTodoService', ' Failed to create todo:', undefined, error);
 			throw error;
 		}
 	}
@@ -344,7 +345,7 @@ export class DavinciTodoService {
 			await DavinciTodoService.saveTodos(updatedTodos);
 			return updatedTodos[todoIndex];
 		} catch (error) {
-			console.error('[DavinciTodoService] ❌ Failed to update todo:', error);
+			logger.error('DavinciTodoService', ' Failed to update todo:', undefined, error);
 			throw error;
 		}
 	}
@@ -358,7 +359,7 @@ export class DavinciTodoService {
 			const filteredTodos = todos.filter((todo) => todo.id !== id);
 			await DavinciTodoService.saveTodos(filteredTodos);
 		} catch (error) {
-			console.error('[DavinciTodoService] ❌ Failed to delete todo:', error);
+			logger.error('DavinciTodoService', ' Failed to delete todo:', undefined, error);
 			throw error;
 		}
 	}
@@ -381,7 +382,7 @@ export class DavinciTodoService {
 
 			return updatedTodo;
 		} catch (error) {
-			console.error('[DavinciTodoService] ❌ Failed to toggle todo:', error);
+			logger.error('DavinciTodoService', ' Failed to toggle todo:', undefined, error);
 			throw error;
 		}
 	}
@@ -419,7 +420,7 @@ export class DavinciTodoService {
 				throw new Error(`Failed to save todos: ${response.statusText}`);
 			}
 		} catch (error) {
-			console.error('[DavinciTodoService] ❌ Failed to save todos:', error);
+			logger.error('DavinciTodoService', ' Failed to save todos:', undefined, error);
 			throw error;
 		}
 	}
@@ -468,7 +469,7 @@ export class DavinciTodoService {
 				throw new Error('Client secret not configured for authentication');
 			}
 		} catch (error) {
-			console.error('[DavinciTodoService] ❌ Authentication failed:', error);
+			logger.error('DavinciTodoService', ' Authentication failed:', undefined, error);
 			throw new Error('Authentication failed');
 		}
 	}
@@ -498,7 +499,7 @@ export class DavinciTodoService {
 			// In production, you might want to revoke the token with PingOne
 			console.log('[DavinciTodoService] 👋 Logged out successfully');
 		} catch (error) {
-			console.error('[DavinciTodoService] ❌ Logout failed:', error);
+			logger.error('DavinciTodoService', ' Logout failed:', undefined, error);
 			throw error;
 		}
 	}

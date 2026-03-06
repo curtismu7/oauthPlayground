@@ -20,6 +20,7 @@ import { ProtectedRoute } from '../components/common/ProtectedRoute';
 import { AuthProvider } from '../contexts/AuthContext';
 import { ThemeProvider } from '../contexts/ThemeContext';
 import { UserManagementProvider } from '../contexts/UserManagementContext';
+import { logger } from '../../utils/logger';
 
 import { AuthLayout } from '../layouts/AuthLayout';
 import { MainLayout } from '../layouts/MainLayout';
@@ -60,7 +61,7 @@ export const UserManagementApp: React.FC = () => {
 				await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate initialization
 				setIsLoading(false);
 			} catch (error) {
-				console.error('Failed to initialize User Management:', error);
+				logger.error('UserManagementApp', 'Failed to initialize User Management:', undefined, error);
 				setHasError(true);
 				setIsLoading(false);
 			}

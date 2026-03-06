@@ -37,6 +37,7 @@ import { IssuerURLInputV8 } from '@/v8/components/IssuerURLInputV8';
 import { LoginHintInputV8 } from '@/v8/components/LoginHintInputV8';
 import { MaxAgeInputV8 } from '@/v8/components/MaxAgeInputV8';
 import {
+import { logger } from '../../utils/logger';
 	OidcDiscoveryModalV8,
 	type OidcDiscoveryResult,
 } from '@/v8/components/OidcDiscoveryModalV8';
@@ -644,7 +645,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 					SharedCredentialsServiceV8.saveSharedCredentialsSync(sharedCreds);
 					// Also save to disk asynchronously (non-blocking)
 					SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds).catch((err) => {
-						console.warn(`${MODULE_TAG} Background disk save failed (non-critical):`, err);
+						logger.warn('CredentialsFormV8U', `Background disk save failed (non-critical):`);
 					});
 				}
 
@@ -655,7 +656,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 					hasSharedCreds: !!(sharedCreds.environmentId || sharedCreds.clientId),
 				});
 			} catch (error) {
-				console.error(`${MODULE_TAG} Error saving credentials`, { field, flowKey, error });
+				logger.error('CredentialsFormV8U', `Error saving credentials`, { field, flowKey, error });
 			}
 
 			onChange(updated);
@@ -1195,7 +1196,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 					}
 				}
 			} catch (error) {
-				console.error(`${MODULE_TAG} Error fetching allowed scopes:`, error);
+				logger.error('CredentialsFormV8U', `Error fetching allowed scopes:`, undefined, error);
 				// Use common OIDC scopes as fallback
 				setAllowedScopes(['openid', 'profile', 'email', 'address', 'phone', 'offline_access']);
 			} finally {
@@ -1398,7 +1399,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 					authMethodSet: hasChanges && defaultAuthMethod ? updated.clientAuthMethod : 'not set',
 				});
 			} catch (error) {
-				console.error(`${MODULE_TAG} Error saving credentials after setting defaults`, {
+				logger.error('CredentialsFormV8U', `Error saving credentials after setting defaults`, {
 					flowKey,
 					error,
 				});
@@ -1624,7 +1625,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 						console.log(`${MODULE_TAG} No worker token available, using app data without secret`);
 					}
 				} catch (error) {
-					console.error(`${MODULE_TAG} Error fetching application secret`, {
+					logger.error('CredentialsFormV8U', `Error fetching application secret`, {
 						error: error instanceof Error ? error.message : String(error),
 					});
 					// Continue with app data even if secret fetch fails
@@ -1843,7 +1844,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 					SharedCredentialsServiceV8.saveSharedCredentialsSync(sharedCreds);
 					// Also save to disk asynchronously (non-blocking)
 					SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds).catch((err) => {
-						console.warn(`${MODULE_TAG} Background disk save failed (non-critical):`, err);
+						logger.warn('CredentialsFormV8U', `Background disk save failed (non-critical):`);
 					});
 				}
 
@@ -1857,7 +1858,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 					clientAuthMethod: updated.clientAuthMethod,
 				});
 			} catch (error) {
-				console.error(`${MODULE_TAG} Error saving credentials after app selection`, {
+				logger.error('CredentialsFormV8U', `Error saving credentials after app selection`, {
 					flowKey,
 					error,
 				});
@@ -1914,7 +1915,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 				setShowDiscoveryModal(true);
 				onDiscoveryComplete?.(result.data);
 			} else {
-				console.error(`${MODULE_TAG} Discovery failed`, result.error);
+				logger.error('CredentialsFormV8U', `Discovery failed`, undefined, result.error);
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
@@ -1923,7 +1924,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 				});
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Discovery error`, error);
+			logger.error('CredentialsFormV8U', `Discovery error`, undefined, error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -4562,10 +4563,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 																SharedCredentialsServiceV8.saveSharedCredentialsSync(sharedCreds);
 																SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds).catch(
 																	(err) => {
-																		console.warn(
-																			`${MODULE_TAG} Background disk save failed (non-critical):`,
-																			err
-																		);
+																		logger.warn('CredentialsFormV8U', `Background disk save failed (non-critical):`);
 																	}
 																);
 															}
@@ -4579,10 +4577,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 																}
 															);
 														} catch (error) {
-															console.error(
-																`${MODULE_TAG} ❌ Error saving credentials for refresh token toggle`,
-																{ flowKey, error }
-															);
+															logger.error('CredentialsFormV8U', `Error saving credentials for refresh token toggle`, { flowKey, error });
 														}
 
 														// SINGLE ONCHANGE: Notify parent once with all changes

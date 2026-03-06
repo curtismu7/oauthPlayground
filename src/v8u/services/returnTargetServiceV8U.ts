@@ -1,3 +1,4 @@
+import { logger } from '../../utils/logger';
 /**
  * @file returnTargetServiceV8U.ts
  * @module v8u/services
@@ -85,13 +86,13 @@ export class ReturnTargetServiceV8U {
 
 			// Validate the structure
 			if (!target.kind || !target.path || typeof target.step !== 'number') {
-				console.warn(`${MODULE_TAG} Invalid return target structure for ${kind}:`, target);
+				logger.warn('ReturnTargetServiceV8U', `Invalid return target structure for ${kind}:`);
 				return null;
 			}
 
 			return target;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to parse return target for ${kind}:`, error);
+			logger.error('ReturnTargetServiceV8U', `Failed to parse return target for ${kind}:`, undefined, error);
 			return null;
 		}
 	}

@@ -13,6 +13,7 @@
  */
 
 import {
+import { logger } from '../../utils/logger';
 	FiBook,
 	FiCheckCircle,
 	FiCopy,
@@ -1019,7 +1020,7 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 	// Step 3: Exchange for PingOne Token
 	const handleTokenExchange = () => {
 		if (!svid || !environmentId) {
-			console.error(`${MODULE_TAG} Missing required data for token exchange`);
+			logger.error('SpiffeSpireFlowV8U', `Missing required data for token exchange`);
 			return;
 		}
 

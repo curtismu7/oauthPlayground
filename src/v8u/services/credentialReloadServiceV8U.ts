@@ -21,6 +21,7 @@ import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { SharedCredentialsServiceV8 } from '@/v8/services/sharedCredentialsServiceV8';
 import type { UnifiedFlowCredentials } from '@/v8u/services/unifiedFlowIntegrationV8U';
+import { logger } from '../../utils/logger';
 
 const MODULE_TAG = '[🔄 CREDENTIAL-RELOAD-V8U]';
 
@@ -206,13 +207,13 @@ export async function reloadCredentialsAfterReset(
 				allKeys: Object.keys(parsedStored),
 			});
 		} else {
-			console.warn(`${MODULE_TAG} ⚠️ DEBUG: No data in localStorage for flowKey`, {
+			logger.warn('CredentialReloadServiceV8U', `DEBUG: No data in localStorage for flowKey`, {
 				flowKey,
 				storageKey,
 			});
 		}
 	} catch (debugError) {
-		console.warn(`${MODULE_TAG} ⚠️ DEBUG: Error checking localStorage`, {
+		logger.warn('CredentialReloadServiceV8U', `DEBUG: Error checking localStorage`, {
 			flowKey,
 			error: debugError,
 		});
@@ -253,7 +254,7 @@ export async function reloadCredentialsAfterReset(
 			const loaded = await CredentialsServiceV8.loadCredentialsWithBackup(flowKey, config);
 			flowSpecific = loaded as Record<string, unknown>;
 		} catch (error) {
-			console.warn(`${MODULE_TAG} ⚠️ Async load failed, using sync fallback`, { flowKey, error });
+			logger.warn('CredentialReloadServiceV8U', `Async load failed, using sync fallback`, { flowKey, error });
 			// Fall back to sync version
 			flowSpecific = CredentialsServiceV8.loadCredentials(flowKey, config) as Record<
 				string,
@@ -384,7 +385,7 @@ export async function reloadCredentialsAfterReset(
 
 		return merged;
 	} catch (error) {
-		console.error(`${MODULE_TAG} ❌ Error reloading credentials from storage`, {
+		logger.error('CredentialReloadServiceV8U', `Error reloading credentials from storage`, {
 			flowKey,
 			error: error instanceof Error ? error.message : String(error),
 		});
@@ -441,7 +442,7 @@ export function saveCredentialsBeforeReset(
 
 		console.log(`${MODULE_TAG} ✅ Credentials saved before reset`);
 	} catch (error) {
-		console.error(`${MODULE_TAG} ❌ Error saving credentials before reset`, {
+		logger.error('CredentialReloadServiceV8U', `Error saving credentials before reset`, {
 			flowKey,
 			error: error instanceof Error ? error.message : String(error),
 		});

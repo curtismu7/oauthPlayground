@@ -210,7 +210,7 @@ const TokenStatusPageV8U: React.FC = () => {
 
 			console.log('[TOKEN-STATUS-V8U] Worker token modal completed successfully');
 		} catch (error) {
-			console.error('[TOKEN-STATUS-V8U] Detailed error:', {
+			logger.error('TokenStatusPageV8U', ' Detailed error:', {
 				error,
 				message: error instanceof Error ? error.message : String(error),
 				stack: error instanceof Error ? error.stack : undefined,
