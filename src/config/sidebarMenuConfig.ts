@@ -4,6 +4,8 @@
  * Consumed by Sidebar + DragDropSidebar (or SidebarMenuPing) for a single place to add/remove/reorder items.
  */
 
+import { autoApplyVersionBadge } from '../components/VersionBadgeService';
+
 /** When true, app uses Ping UI sidebar (SidebarMenuPing) with fixed width. */
 export const USE_PING_MENU = true;
 
@@ -48,6 +50,32 @@ function items(
 		label,
 		...(migratedToV9 !== undefined && { migratedToV9 }),
 	}));
+}
+
+/** Apply version badges to menu items based on migration status */
+function applyVersionBadges(items: SidebarMenuItem[]): SidebarMenuItem[] {
+	return items.map(item => autoApplyVersionBadge(item));
+}
+
+/** Apply version badges to menu groups recursively */
+function applyVersionBadgesToGroups(groups: SidebarMenuGroup[]): SidebarMenuGroup[] {
+	return groups.map(group => {
+		const updatedGroup: SidebarMenuGroup = {
+			...group,
+			items: applyVersionBadges(group.items),
+		};
+		
+		if (group.subGroups) {
+			updatedGroup.subGroups = applyVersionBadgesToGroups(group.subGroups);
+		}
+		
+		return updatedGroup;
+	});
+}
+
+/** Get sidebar menu groups with version badges applied */
+export function getSidebarMenuGroupsWithVersionBadges(): SidebarMenuGroup[] {
+	return applyVersionBadgesToGroups(SIDEBAR_MENU_GROUPS);
 }
 
 /** Default menu groups in display order (Dashboard first, then Admin, PingOne Platform, etc.). */
@@ -124,7 +152,7 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 			['/flows/pingone-par-v9', 'Pushed Authorization Request (V9)', true],
 			['/flows/redirectless-v9-real', 'Redirectless Flow (V9)', true],
 			['/flows/pingone-mfa-workflow-library-v9', 'PingOne MFA Workflow Library (V9)', true],
-			['/flows/kroger-grocery-store-mfa', 'Kroger Grocery Store MFA'],
+			['/flows/kroger-grocery-store-mfa', 'Kroger Grocery Store MFA', true],
 			['/pingone-authentication', 'PingOne Authentication'],
 		]),
 	},
@@ -179,7 +207,7 @@ export const SIDEBAR_MENU_GROUPS: SidebarMenuGroup[] = [
 						['/flows/saml-bearer-assertion-v9', 'SAML Bearer Assertion (V9)', true],
 						['/flows/oauth-ropc-v9', 'Resource Owner Password (V9)', true],
 						['/flows/oauth2-resource-owner-password', 'OAuth2 ROPC (Legacy)'],
-						['/flows/mock-oidc-ropc', 'Mock OIDC ROPC'],
+						['/flows/mock-oidc-ropc', 'Mock OIDC ROPC', true],
 					],
 					'oauth-mock'
 				),

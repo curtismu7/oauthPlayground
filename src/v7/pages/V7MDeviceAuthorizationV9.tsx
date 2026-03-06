@@ -1,4 +1,4 @@
-// src/v7m/pages/V7MDeviceAuthorization.tsx
+// src/v7/pages/V7MDeviceAuthorizationV9.tsx
 
 import { FiBook, FiCheck, FiCopy, FiSmartphone } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -22,7 +22,7 @@ import { V7MHelpModal } from '../components/V7MHelpModal';
 import { V7MInfoIcon } from '../components/V7MInfoIcon';
 import { V7MJwtInspectorModal } from '../components/V7MJwtInspectorModal';
 
-export const V7MDeviceAuthorization: React.FC = () => {
+export const V7MDeviceAuthorizationV9: React.FC = () => {
 	const [clientId, setClientId] = useState('v7m-device-client');
 	const [scope, setScope] = useState('read write');
 	const [userEmail, setUserEmail] = useState('jane.doe@example.com');
@@ -567,4 +567,4 @@ const preJson: React.CSSProperties = {
 	fontSize: 13,
 };
 
-export default V7MDeviceAuthorization;
+export default V7MDeviceAuthorizationV9;

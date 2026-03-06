@@ -4,7 +4,7 @@ import React, { useCallback, useState } from 'react';
 import { V9CredentialStorageService } from '../services/v9/V9CredentialStorageService';
 import { useFlowStepManager } from '../utils/flowStepSystem';
 import { generateMockIdToken } from '../utils/mockOAuth';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 export interface V7RMCredentials {
 	environmentId: string;
@@ -149,15 +149,13 @@ export const useV7RMOIDCResourceOwnerPasswordController = ({
 			setHasCredentialsSaved(true);
 			setHasUnsavedCredentialChanges(false);
 
-			v4ToastManager.showSuccess('saveConfigurationSuccess');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'Configuration saved successfully', duration: 3000 });
 
 			if (enableDebugger) {
 				console.log('🔐 Mock credentials saved:', credentials);
 			}
 		} catch (_error) {
-			v4ToastManager.showError('saveConfigurationError', {
-				error: 'Failed to save mock credentials',
-			});
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save mock credentials', dismissible: true });
 		} finally {
 			setIsSavingCredentials(false);
 		}
@@ -172,7 +170,7 @@ export const useV7RMOIDCResourceOwnerPasswordController = ({
 			!credentials.username ||
 			!credentials.password
 		) {
-			v4ToastManager.showError('allCredentialsRequired');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'All credentials are required', dismissible: true });
 			return;
 		}
 
@@ -251,15 +249,13 @@ export const useV7RMOIDCResourceOwnerPasswordController = ({
 				realApi: true,
 			});
 
-			v4ToastManager.showSuccess('authenticationSuccess');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'Authentication successful! Tokens received.', duration: 3000 });
 
 			// Auto-advance to next step
 			stepManager.setStep(stepManager.currentStepIndex + 1, 'authentication completed');
 		} catch (error) {
 			console.error('❌ [V7RM-Enhanced] Authentication failed:', error);
-			v4ToastManager.showError('authenticationFailed', {
-				error: error instanceof Error ? error.message : 'Unknown error',
-			});
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Unknown error', dismissible: true });
 
 			saveStepResult('authenticate-user', {
 				success: false,
@@ -275,7 +271,7 @@ export const useV7RMOIDCResourceOwnerPasswordController = ({
 	// Fetch user info using real API
 	const fetchUserInfo = useCallback(async () => {
 		if (!tokens?.access_token) {
-			v4ToastManager.showError('accessTokenRequired');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Access token is required to fetch user information', dismissible: true });
 			return;
 		}
 
@@ -306,13 +302,13 @@ export const useV7RMOIDCResourceOwnerPasswordController = ({
 
 			setUserInfo(userData);
 
-			v4ToastManager.showSuccess('saveConfigurationSuccess');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'User information retrieved successfully', duration: 3000 });
 
 			if (enableDebugger) {
-				console.log('👤 Mock user info fetched:', mockUserInfo);
+				console.log('👤 Mock user info fetched:', userData);
 			}
 		} catch (error) {
-			v4ToastManager.showError('networkError');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Network error', dismissible: true });
 			console.error('Mock user info fetch failed:', error);
 		} finally {
 			setIsFetchingUserInfo(false);
@@ -322,7 +318,7 @@ export const useV7RMOIDCResourceOwnerPasswordController = ({
 	// Refresh tokens (mock implementation)
 	const refreshTokens = useCallback(async () => {
 		if (!tokens?.refresh_token) {
-			v4ToastManager.showError('stepError');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Step error', dismissible: true });
 			return;
 		}
 
@@ -340,13 +336,13 @@ export const useV7RMOIDCResourceOwnerPasswordController = ({
 
 			setRefreshedTokens(newTokens);
 
-			v4ToastManager.showSuccess('saveConfigurationSuccess');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'Tokens refreshed successfully', duration: 3000 });
 
 			if (enableDebugger) {
 				console.log('🔄 Mock tokens refreshed:', newTokens);
 			}
 		} catch (error) {
-			v4ToastManager.showError('networkError');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Network error', dismissible: true });
 			console.error('Mock token refresh failed:', error);
 		} finally {
 			setIsRefreshingTokens(false);
@@ -365,7 +361,7 @@ export const useV7RMOIDCResourceOwnerPasswordController = ({
 		setRefreshedTokens(null);
 		setStepResults({});
 		stepManager.setStep(0, 'flow reset');
-		v4ToastManager.showSuccess('saveConfigurationSuccess');
+		modernMessaging.showFooterMessage({ type: 'info', message: 'Flow reset successfully', duration: 3000 });
 	}, [stepManager]);
 
 	// Step result management

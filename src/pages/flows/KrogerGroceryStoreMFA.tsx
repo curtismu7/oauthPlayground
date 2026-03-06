@@ -1289,34 +1289,150 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 
 	// Show login page first if not authenticated
 	if (!isAuthenticated) {
-							</p>
-							<input
-								type="text"
-								maxLength={6}
-								value={mfaCode}
-								onChange={(e) => setMfaCode(e.target.value.replace(/\D/g, ''))}
-								placeholder="000000"
-								disabled={isLoading}
-								onKeyDown={(e) => {
-									if (e.key === 'Enter' && !isLoading && mfaCode.length === 6) {
-										handleMFASubmit();
-									}
-								}}
-							/>
-							<LoginButton onClick={handleMFASubmit} disabled={isLoading || mfaCode.length !== 6}>
-								{isLoading ? 'Verifying...' : 'Verify & Continue'}
-							</LoginButton>
-							{isLoading && (
-								<p style={{ marginTop: '1rem', fontSize: '0.875rem', color: '#666' }}>
-									Please wait while we verify your code...
-								</p>
-							)}
-						</MFAChallengeContent>
-					</MFAChallengeModal>
-				</ModalOverlay>
+		return (
+			<ModalOverlay $isOpen={showLoginModal} onClick={() => {}}>
+				<LoginModal onClick={(e) => e.stopPropagation()}>
+					<ModalHeader>
+						<h2>Kroger MFA Login</h2>
+						<button
+							onClick={() => setShowLoginModal(false)}
+							style={{
+								background: 'none',
+								border: 'none',
+								fontSize: '1.5rem',
+								cursor: 'pointer',
+								color: '#666',
+								padding: '0.25rem',
+								display: 'flex',
+								alignItems: 'center',
+							}}
+						>
+							×
+						</button>
+					</ModalHeader>
 
-				{/* Setup Modal - Shows when authorization code credentials are not configured */}
-				<ModalOverlay $isOpen={showSetupModal} onClick={() => {}}>
+					<div style={{ marginBottom: '1.5rem' }}>
+						<p style={{ color: '#4b5563', lineHeight: '1.6', marginBottom: '1rem' }}>
+							Enter your Kroger credentials and MFA code to access the grocery store portal.
+						</p>
+					</div>
+
+					<div style={{ marginBottom: '1rem' }}>
+						<label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#374151' }}>
+							Username
+						</label>
+						<input
+							type="text"
+							value={username}
+							onChange={(e) => setUsername(e.target.value)}
+							placeholder="Enter your username"
+							disabled={isLoading}
+							style={{
+								width: '100%',
+								padding: '0.75rem',
+								border: '2px solid #e5e7eb',
+								borderRadius: '8px',
+								fontSize: '1rem',
+								disabled: isLoading ? { opacity: 0.6, cursor: 'not-allowed' } : {},
+							}}
+						/>
+					</div>
+
+					<div style={{ marginBottom: '1rem' }}>
+						<label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#374151' }}>
+							Password
+						</label>
+						<input
+							type="password"
+							value={password}
+							onChange={(e) => setPassword(e.target.value)}
+							placeholder="Enter your password"
+							disabled={isLoading}
+							style={{
+								width: '100%',
+								padding: '0.75rem',
+								border: '2px solid #e5e7eb',
+								borderRadius: '8px',
+								fontSize: '1rem',
+								disabled: isLoading ? { opacity: 0.6, cursor: 'not-allowed' } : {},
+							}}
+						/>
+					</div>
+
+					<LoginButton onClick={handleLogin} disabled={isLoading || !username || !password}>
+						{isLoading ? 'Logging in...' : 'Login with MFA'}
+					</LoginButton>
+
+					{isLoading && (
+						<p style={{ marginTop: '1rem', fontSize: '0.875rem', color: '#666' }}>
+							Please wait while we authenticate your credentials...
+						</p>
+					)}
+				</LoginModal>
+			</ModalOverlay>
+		);
+	}
+
+	// Show MFA challenge modal if flow is initiated but not completed
+	if (showMFAChallenge && flowId && !isAuthenticated) {
+		return (
+			<ModalOverlay $isOpen={showMFAChallenge} onClick={() => {}}>
+				<MFAChallengeModal onClick={(e) => e.stopPropagation()}>
+					<ModalHeader>
+						<h2>Enter MFA Code</h2>
+						<button
+							onClick={() => setShowMFAChallenge(false)}
+							style={{
+								background: 'none',
+								border: 'none',
+								fontSize: '1.5rem',
+								cursor: 'pointer',
+								color: '#666',
+								padding: '0.25rem',
+								display: 'flex',
+								alignItems: 'center',
+							}}
+						>
+							×
+						</button>
+					</ModalHeader>
+
+					<MFAChallengeContent>
+						<p style={{ color: '#4b5563', lineHeight: '1.6', marginBottom: '1.5rem' }}>
+							We've sent a 6-digit verification code to your registered device. Please enter it below to continue.
+						</p>
+
+						<input
+							type="text"
+							maxLength={6}
+							value={mfaCode}
+							onChange={(e) => setMfaCode(e.target.value.replace(/\D/g, ''))}
+							placeholder="000000"
+							disabled={isLoading}
+							onKeyDown={(e) => {
+								if (e.key === 'Enter' && !isLoading && mfaCode.length === 6) {
+									handleMFASubmit();
+								}
+							}}
+						/>
+						<LoginButton onClick={handleMFASubmit} disabled={isLoading || mfaCode.length !== 6}>
+							{isLoading ? 'Verifying...' : 'Verify & Continue'}
+						</LoginButton>
+						{isLoading && (
+							<p style={{ marginTop: '1rem', fontSize: '0.875rem', color: '#666' }}>
+								Please wait while we verify your code...
+							</p>
+						)}
+					</MFAChallengeContent>
+				</MFAChallengeModal>
+			</ModalOverlay>
+		);
+	}
+
+	// Show setup modal if credentials are not configured  
+	if (showSetupModal) {
+		return (
+			<ModalOverlay $isOpen={showSetupModal} onClick={() => {}}>
 					<LoginModal onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px' }}>
 						<ModalHeader>
 							<h2>Configuration Required</h2>
@@ -1416,9 +1532,13 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 						</div>
 					</LoginModal>
 				</ModalOverlay>
+		);
+	}
 
-				{/* Authorization Code Config Modal */}
-				<AuthorizationCodeConfigModal
+	// Show authorization code config modal if needed
+	if (showAuthzConfigModal) {
+		return (
+			<AuthorizationCodeConfigModal
 					isOpen={showAuthzConfigModal}
 					onClose={() => {
 						setShowAuthzConfigModal(false);
@@ -1460,96 +1580,6 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 						}
 					}}
 				/>
-
-				{/* Worker Token Modal */}
-				<WorkerTokenModal
-					isOpen={showWorkerTokenModal}
-					onClose={() => {
-						setShowWorkerTokenModal(false);
-						// After worker token modal closes, check if we need to show setup modal for authz code credentials
-						setTimeout(() => {
-							const isolatedCreds =
-								comprehensiveFlowDataService.loadFlowCredentialsIsolated(FLOW_KEY);
-							if (
-								!isolatedCreds ||
-								!isolatedCreds.environmentId ||
-								!isolatedCreds.clientId ||
-								!isolatedCreds.clientSecret
-							) {
-								console.log(
-									'⚠️ [KrogerGroceryStoreMFA] Still missing authorization code credentials after worker token modal closed, showing setup modal...'
-								);
-								setShowSetupModal(true);
-							}
-						}, 200);
-					}}
-					onContinue={() => {
-						setShowWorkerTokenModal(false);
-
-						// Re-check for saved credentials and worker token after modal closes
-						const FLOW_TYPE = 'kroger-grocery-store-mfa';
-						const savedCreds = workerTokenCredentialsService.loadCredentials(FLOW_TYPE);
-
-						if (savedCreds?.environmentId && savedCreds.clientId && savedCreds.clientSecret) {
-							console.log(
-								'✅ [KrogerGroceryStoreMFA] Credentials found after save, checking for token...'
-							);
-
-							// Re-check worker token after modal closes
-							const tokenStorageKey = `pingone_worker_token_${FLOW_TYPE}`;
-							const tokenExpiryKey = `pingone_worker_token_expires_at_${FLOW_TYPE}`;
-							const tokenResult = getValidWorkerToken(tokenStorageKey, tokenExpiryKey, {
-								clearExpired: true,
-								showToast: false,
-							});
-							if (tokenResult.isValid && tokenResult.token) {
-								setWorkerToken(tokenResult.token);
-							}
-						} else {
-							console.log('⚠️ [KrogerGroceryStoreMFA] No credentials found after save');
-						}
-					}}
-					flowType="kroger-grocery-store-mfa"
-					environmentId={credentials.environmentId || ''}
-					prefillCredentials={(() => {
-						// Load saved worker token credentials (these are separate from Authorization Code credentials)
-						const savedWorkerTokenCreds = workerTokenCredentialsService.loadCredentials(
-							'kroger-grocery-store-mfa'
-						);
-
-						if (savedWorkerTokenCreds) {
-							// Use saved worker token credentials
-							let workerScopes = '';
-							if (savedWorkerTokenCreds.scopes) {
-								const savedScopes = Array.isArray(savedWorkerTokenCreds.scopes)
-									? savedWorkerTokenCreds.scopes.join(' ')
-									: savedWorkerTokenCreds.scopes;
-								const scopeArray = savedScopes.split(/\s+/).filter(Boolean);
-								workerScopes = scopeArray.length > 0 ? scopeArray[0] : '';
-							}
-
-							return {
-								environmentId: savedWorkerTokenCreds.environmentId || '',
-								clientId: savedWorkerTokenCreds.clientId || '',
-								clientSecret: savedWorkerTokenCreds.clientSecret || '',
-								region: savedWorkerTokenCreds.region || 'us',
-								scopes: workerScopes,
-								authMethod: savedWorkerTokenCreds.tokenEndpointAuthMethod || 'client_secret_post',
-							};
-						}
-
-						// No saved worker token credentials - return empty
-						return {
-							environmentId: '',
-							clientId: '',
-							clientSecret: '',
-							region: 'us',
-							scopes: '',
-							authMethod: 'client_secret_post' as const,
-						};
-					})()}
-				/>
-			</PageContainer>
 		);
 	}
 
