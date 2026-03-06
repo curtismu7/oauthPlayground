@@ -278,25 +278,7 @@ const RARFlowV9: React.FC = () => {
 		}));
 	}, []);
 
-	// Navigation functions
-	const nextStep = useCallback(() => {
-		if (currentStep < STEP_METADATA.length - 1) {
-			setCurrentStep((prev) => prev + 1);
-		}
-	}, [currentStep]);
-
-	const prevStep = useCallback(() => {
-		if (currentStep > 0) {
-			setCurrentStep((prev) => prev - 1);
-		}
-	}, [currentStep]);
-
-	const goToStep = useCallback((step: number) => {
-		if (step >= 0 && step < STEP_METADATA.length) {
-			setCurrentStep(step);
-		}
-	}, []);
-
+	
 	// Generate RAR authorization details
 	const generateRARAuthorizationDetails = useCallback((): RARAuthorizationDetails => {
 		return {
