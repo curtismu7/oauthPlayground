@@ -2828,7 +2828,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 													false // forceShowModal - don't force, use silent retrieval
 												);
 											} catch (error) {
-												console.warn('Failed to attempt silent retrieval:', error);
+												logger.warn('UnifiedOAuthFlowV8U', 'Failed to attempt silent retrieval:');
 											}
 										}
 									}}

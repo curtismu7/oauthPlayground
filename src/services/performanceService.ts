@@ -1,3 +1,4 @@
+import { logger } from '../utils/logger';
 /**
  * @file performanceService.ts
  * @module services
@@ -87,7 +88,7 @@ class PerformanceService {
       observer.observe({ type, buffered: true });
       this.observers.push(observer);
     } catch (error) {
-      console.warn(`Performance observer for ${type} not supported:`, error);
+      logger.warn('PerformanceService', `Performance observer for ${type} not supported:`);
     }
   }
 
@@ -120,7 +121,7 @@ class PerformanceService {
           return result;
         } catch (error) {
           const loadTime = performance.now() - startTime;
-          console.warn(`Chunk loading failed after ${loadTime.toFixed(2)}ms:`, error);
+          logger.warn('PerformanceService', `Chunk loading failed after ${loadTime.toFixed(2)}ms:`);
           throw error;
         }
       };
