@@ -117,6 +117,7 @@ import OIDCOverview from './pages/docs/OIDCOverviewV7.tsx';
 // import OIDCOverviewTest from './pages/docs/OIDCOverview_Test';
 // import OIDCOverviewNew from './pages/docs/OIDCOverview_New';
 import OIDCSpecs from './pages/docs/OIDCSpecs.tsx';
+import AIAgentAuthDraft from './pages/docs/AIAgentAuthDraft';
 import PingViewOnAI from './pages/docs/PingViewOnAI.tsx';
 import PromptAll from './pages/docs/prompts/PromptAll';
 import SpiffeSpirePingOne from './pages/docs/SpiffeSpirePingOne.tsx';
@@ -1325,6 +1326,7 @@ const AppRoutes: React.FC = () => {
 								<Route path="/docs/oauth-for-ai" element={<OAuthForAI />} />
 								<Route path="/docs/oidc-for-ai" element={<OIDCForAI />} />
 								<Route path="/docs/ping-view-on-ai" element={<PingViewOnAI />} />
+							<Route path="/docs/ai-agent-auth-draft" element={<AIAgentAuthDraft />} />
 								<Route
 									path="/docs/oauth2-security-best-practices"
 									element={<OAuth2SecurityBestPractices />}
