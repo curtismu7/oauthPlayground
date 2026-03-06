@@ -14,6 +14,7 @@ import React, { useState } from 'react';
 import { type Device, FIDO2Helper, type P1MFAConfig, P1MFASDK, SMSHelper } from '@/sdk/p1mfa';
 import { CredentialsForm } from './shared/CredentialsForm';
 import { DeviceList } from './shared/DeviceList';
+import { logger } from '../../utils/logger';
 
 type Tab =
 	| 'config'
@@ -86,7 +87,7 @@ export const IntegratedMFASample: React.FC = () => {
 			setConfig(sdkConfig);
 			setActiveTab('oidc-signin');
 		} catch (error) {
-			console.error('Failed to initialize SDK:', error);
+			logger.error('IntegratedMFASample', 'Failed to initialize SDK:', undefined, error);
 		}
 	};
 
@@ -135,7 +136,7 @@ export const IntegratedMFASample: React.FC = () => {
 			// Step 2: Send OTP
 			await SMSHelper.sendOTP(sdk, userContext.userId, result.deviceId);
 		} catch (error) {
-			console.error('Failed to enroll SMS device:', error);
+			logger.error('IntegratedMFASample', 'Failed to enroll SMS device:', undefined, error);
 		}
 	};
 
@@ -152,7 +153,7 @@ export const IntegratedMFASample: React.FC = () => {
 			setSmsEnrollState((prev) => ({ ...prev, step: 'success' }));
 			await loadDevices();
 		} catch (error) {
-			console.error('Failed to activate SMS device:', error);
+			logger.error('IntegratedMFASample', 'Failed to activate SMS device:', undefined, error);
 		}
 	};
 
@@ -191,7 +192,7 @@ export const IntegratedMFASample: React.FC = () => {
 				step: 'webauthn',
 			}));
 		} catch (error) {
-			console.error('Failed to enroll FIDO2 device:', error);
+			logger.error('IntegratedMFASample', 'Failed to enroll FIDO2 device:', undefined, error);
 		}
 	};
 
@@ -216,7 +217,7 @@ export const IntegratedMFASample: React.FC = () => {
 			setFido2EnrollState((prev) => ({ ...prev, step: 'success' }));
 			await loadDevices();
 		} catch (error) {
-			console.error('Failed to complete FIDO2 registration:', error);
+			logger.error('IntegratedMFASample', 'Failed to complete FIDO2 registration:', undefined, error);
 		}
 	};
 
@@ -236,7 +237,7 @@ export const IntegratedMFASample: React.FC = () => {
 				step: 'initialized',
 			}));
 		} catch (error) {
-			console.error('Failed to initialize SMS authentication:', error);
+			logger.error('IntegratedMFASample', 'Failed to initialize SMS authentication:', undefined, error);
 		}
 	};
 
@@ -251,7 +252,7 @@ export const IntegratedMFASample: React.FC = () => {
 
 			setSmsAuthState((prev) => ({ ...prev, step: 'success' }));
 		} catch (error) {
-			console.error('Failed to complete SMS authentication:', error);
+			logger.error('IntegratedMFASample', 'Failed to complete SMS authentication:', undefined, error);
 		}
 	};
 
@@ -281,7 +282,7 @@ export const IntegratedMFASample: React.FC = () => {
 				step: 'webauthn',
 			}));
 		} catch (error) {
-			console.error('Failed to initialize FIDO2 authentication:', error);
+			logger.error('IntegratedMFASample', 'Failed to initialize FIDO2 authentication:', undefined, error);
 		}
 	};
 
@@ -302,7 +303,7 @@ export const IntegratedMFASample: React.FC = () => {
 
 			setFido2AuthState((prev) => ({ ...prev, step: 'success' }));
 		} catch (error) {
-			console.error('Failed to complete FIDO2 authentication:', error);
+			logger.error('IntegratedMFASample', 'Failed to complete FIDO2 authentication:', undefined, error);
 		}
 	};
 
@@ -314,7 +315,7 @@ export const IntegratedMFASample: React.FC = () => {
 			const deviceList = await sdk.listDevices(userContext.userId);
 			setDevices(deviceList);
 		} catch (error) {
-			console.error('Failed to load devices:', error);
+			logger.error('IntegratedMFASample', 'Failed to load devices:', undefined, error);
 		} finally {
 			setLoadingDevices(false);
 		}

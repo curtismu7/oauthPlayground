@@ -11,6 +11,7 @@ import { CredentialsForm } from '../shared/CredentialsForm';
 import { DeviceList } from '../shared/DeviceList';
 import { AuthenticationFlow } from './AuthenticationFlow';
 import { RegistrationFlow } from './RegistrationFlow';
+import { logger } from '../../../utils/logger';
 
 type Tab = 'credentials' | 'registration' | 'authentication' | 'devices';
 
@@ -30,7 +31,7 @@ export const SMSSampleApp: React.FC = () => {
 			setConfig(sdkConfig);
 			setActiveTab('registration');
 		} catch (error) {
-			console.error('Failed to initialize SDK:', error);
+			logger.error('SMSSampleApp', 'Failed to initialize SDK:', undefined, error);
 		}
 	};
 
@@ -42,7 +43,7 @@ export const SMSSampleApp: React.FC = () => {
 			const deviceList = await sdk.listDevices(userId);
 			setDevices(deviceList);
 		} catch (error) {
-			console.error('Failed to load devices:', error);
+			logger.error('SMSSampleApp', 'Failed to load devices:', undefined, error);
 		} finally {
 			setLoadingDevices(false);
 		}
@@ -57,7 +58,7 @@ export const SMSSampleApp: React.FC = () => {
 			await sdk.deleteDevice(userId, deviceId);
 			await handleLoadDevices();
 		} catch (error) {
-			console.error('Failed to delete device:', error);
+			logger.error('SMSSampleApp', 'Failed to delete device:', undefined, error);
 		}
 	};
 
