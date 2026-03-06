@@ -18,6 +18,7 @@
  * - Token validation and expiration handling
  */
 
+import { failFrom, ok, type ServiceResult } from '../standards/types';
 import { logger } from '../utils/logger';
 import { unifiedTokenStorage } from './unifiedTokenStorageService';
 
@@ -256,7 +257,9 @@ class UnifiedWorkerTokenService {
 	/**
 	 * Save worker token credentials
 	 */
-	async saveCredentials(credentials: UnifiedWorkerTokenCredentials): Promise<void> {
+	async saveCredentials(
+		credentials: UnifiedWorkerTokenCredentials
+	): Promise<ServiceResult<undefined>> {
 		// Debounce to prevent infinite loops
 		const now = Date.now();
 		if (now - this.lastSaveTime < this.SAVE_DEBOUNCE_MS) {
@@ -264,7 +267,7 @@ class UnifiedWorkerTokenService {
 				'UnifiedWorkerTokenService',
 				`${MODULE_TAG} Save credentials called too frequently, skipping`
 			);
-			return;
+			return ok(undefined);
 		}
 		this.lastSaveTime = now;
 
@@ -402,12 +405,24 @@ class UnifiedWorkerTokenService {
 		}
 
 		logger.info('UnifiedWorkerTokenService', `${MODULE_TAG} ✅ Worker token credentials saved`);
+		return ok(undefined);
 	}
 
 	/**
 	 * Load worker token credentials
 	 */
-	async loadCredentials(): Promise<UnifiedWorkerTokenCredentials | null> {
+	async loadCredentials(): Promise<ServiceResult<UnifiedWorkerTokenCredentials>> {
+		const credentials = await this._loadCredentials();
+		if (credentials === null) {
+			return failFrom('CREDENTIALS_NOT_FOUND', 'No worker token credentials found');
+		}
+		return ok(credentials);
+	}
+
+	/**
+	 * Load worker token credentials (internal implementation)
+	 */
+	private async _loadCredentials(): Promise<UnifiedWorkerTokenCredentials | null> {
 		// Check if we have cached credentials that haven't expired
 		const now = Date.now();
 
