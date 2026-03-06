@@ -1,3 +1,4 @@
+import { logger } from './logger';
 // src/utils/workerTokenDetection.ts
 // Utility for detecting worker tokens across different storage keys
 
@@ -47,7 +48,7 @@ export function getAnyWorkerToken(): string | null {
 			}
 		}
 	} catch (error) {
-		console.warn('[workerTokenDetection] Error checking localStorage:', error);
+		logger.warn('WorkerTokenDetection', 'Error checking localStorage:', undefined, error as Error);
 	}
 
 	return null;
@@ -79,7 +80,7 @@ export function getAllWorkerTokenKeys(): string[] {
 				!key.includes('credentials')
 		);
 	} catch (error) {
-		console.warn('[workerTokenDetection] Error getting all keys:', error);
+		logger.warn('WorkerTokenDetection', 'Error getting all keys:', undefined, error as Error);
 		return [];
 	}
 }

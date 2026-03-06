@@ -6,6 +6,7 @@ import type {
 	ConfigurationPreset,
 	FormDataState,
 } from '../services/presetManagerService';
+import { logger } from './logger';
 
 export interface ValidationError {
 	field: string;
@@ -280,7 +281,7 @@ export function migratePreset(oldPreset: any): ConfigurationPreset | null {
 
 		return migrated;
 	} catch (error) {
-		console.error('[PresetValidation] Failed to migrate preset:', error);
+		logger.error('PresetValidation', 'Failed to migrate preset:', undefined, error as Error);
 		return null;
 	}
 }

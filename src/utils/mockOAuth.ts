@@ -1,6 +1,7 @@
 // src/utils/mockOAuth.ts - Mock OAuth utilities for educational purposes (used by V7RM flows)
 
 import type { V7RMTokens, V7RMUserInfo } from '../hooks/useV7RMOIDCResourceOwnerPasswordController';
+import { logger } from './logger';
 
 interface GenerateMockTokensParams {
 	scopes: string[];
@@ -141,7 +142,7 @@ export const decodeMockJWT = (
 
 		return { header, payload, signature };
 	} catch (error) {
-		console.error('Failed to decode mock JWT:', error);
+		logger.error('MockOAuth', 'Failed to decode mock JWT:', undefined, error as Error);
 		return null;
 	}
 };

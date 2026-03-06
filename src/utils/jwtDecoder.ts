@@ -1,3 +1,4 @@
+import { logger } from './logger';
 // src/utils/jwtDecoder.ts
 // JWT Decoder Utility for displaying decoded JWT tokens
 
@@ -35,7 +36,7 @@ export function decodeJWT(token: string): DecodedJWT | null {
 			raw: token,
 		};
 	} catch (error) {
-		console.error('Failed to decode JWT:', error);
+		logger.error('JWTDecoder', 'Failed to decode JWT:', undefined, error as Error);
 		return null;
 	}
 }
