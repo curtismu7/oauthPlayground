@@ -40,7 +40,6 @@ import PerformanceMonitor from '../../../components/PerformanceMonitor';
 import type { PingOneApplicationState } from '../../../components/PingOneApplicationConfig';
 import { ResultsHeading, ResultsSection, SectionDivider } from '../../../components/ResultsPanel';
 import SecurityAnalyticsDashboard from '../../../components/SecurityAnalyticsDashboard';
-import { StepNavigationButtons } from '../../../components/StepNavigationButtons';
 import type { StepCredentials } from '../../../components/steps/CommonSteps';
 import TokenIntrospect from '../../../components/TokenIntrospect';
 import { useUISettings } from '../../../contexts/UISettingsContext';
@@ -4372,24 +4371,6 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 				{renderStepContent()}
 
 				<CredentialValidationModal />
-
-				<StepNavigationButtons
-					currentStep={currentStep}
-					totalSteps={STEP_METADATA.length}
-					onPrevious={() => setCurrentStep((prev) => Math.max(prev - 1, 0))}
-					onReset={handleReset}
-					onNext={() =>
-						validateCredentialsAndProceed(() =>
-							setCurrentStep((prev) => Math.min(prev + 1, STEP_METADATA.length - 1))
-						)
-					}
-					canNavigateNext={isStepValid(currentStep + 1)}
-					isFirstStep={currentStep === 0}
-					nextButtonText={isStepValid(currentStep + 1) ? 'Next' : 'Complete above action'}
-					disabledMessage={
-						getStepValidationMessage(currentStep + 1) || 'Complete the action above to continue'
-					}
-				/>
 
 				<CollapsibleSection>
 					<CollapsibleHeaderButton
