@@ -120,20 +120,20 @@ const MetaRow = styled.div`
   }
 `;
 
+// Create layout components at module level — styled-components v6 calls useContext
+// internally, so createPageLayout must never run inside a component function body.
+const { PageContainer, ContentWrapper, PageHeader } = PageLayoutService.createPageLayout({
+	flowType: 'documentation' as const,
+	theme: 'blue' as const,
+	maxWidth: '1200px',
+	showHeader: true,
+	showFooter: false,
+	responsive: true,
+	flowId: 'ai-agent-auth-draft',
+});
+
 const AIAgentAuthDraft: React.FC = () => {
 	usePageScroll({ pageName: 'AI Agent Auth IETF Draft', force: true });
-
-	const pageConfig = {
-		flowType: 'documentation' as const,
-		theme: 'blue' as const,
-		maxWidth: '1200px',
-		showHeader: true,
-		showFooter: false,
-		responsive: true,
-		flowId: 'ai-agent-auth-draft',
-	};
-	const { PageContainer, ContentWrapper, PageHeader } =
-		PageLayoutService.createPageLayout(pageConfig);
 
 	return (
 		<PageContainer>
