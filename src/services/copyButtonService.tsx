@@ -4,6 +4,7 @@
 import { FiCheck, FiCopy } from '@icons';
 import React, { useCallback, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
+import { logger } from '../utils/logger';
 
 export interface CopyButtonProps {
 	text: string;
@@ -195,7 +196,7 @@ export const CopyButtonService: React.FC<CopyButtonProps> = ({
 				setShowTooltip(false);
 			}, 2000);
 		} catch (err) {
-			console.error('Failed to copy text:', err);
+			logger.error('CopyButtonService', 'Failed to copy text:', undefined, err);
 			// Fallback for older browsers
 			const textArea = document.createElement('textarea');
 			textArea.value = text;
@@ -210,7 +211,7 @@ export const CopyButtonService: React.FC<CopyButtonProps> = ({
 					setShowTooltip(false);
 				}, 2000);
 			} catch (fallbackErr) {
-				console.error('Fallback copy failed:', fallbackErr);
+				logger.error('CopyButtonService', 'Fallback copy failed:', undefined, fallbackErr);
 			}
 			document.body.removeChild(textArea);
 		}
