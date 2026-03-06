@@ -1,6 +1,6 @@
 # 📊 Comprehensive Standardization Status Report
 
-**Generated**: March 6, 2026 — updated HEAD `8eb74df06`  
+**Generated**: March 6, 2026 — updated HEAD `8a0efe7df`  
 **Scope**: All flows and applications  
 **Purpose**: Complete assessment of standardization work and remaining technical debt
 
@@ -11,18 +11,20 @@
 ### ✅ **COMPLETED STANDARDIZATION**
 - **V9 Flows**: 18/18 fully standardized (16 in `v9/` + CIBAFlowV9 + RedirectlessFlowV9_Real)
 - **V9 Services**: 0 real `console.error`/`console.warn` violations (48 removed, commit `d2948f543`)
+- **Service logger migration**: ~615 console calls replaced with structured `logger.*` across 90+ service files (7 commits, `7f2b2603`→`8a0efe7df`)
 - **Biome Compliance**: 0 errors in V9 flows
 - **Version Badges**: ✓ UPDATED badges for recent standardizations
 - **Documentation**: 7 comprehensive standards guides created
 - **Architecture**: Modern messaging adapter system implemented
+- **Dead flows archived**: 31 flow files + 5 subdirs → `archive/dead-flows/`
 
 ### ⚠️ **REMAINING TECHNICAL DEBT**
+- **Auth-path services (7 files, 254 calls)**: `flowCredentialService`, `passwordResetService`, `redirectlessAuthService`, `authorizationCodeSharedService`, `flowCredentialIsolationService`, `pingOneMfaService`, `implicitFlowSharedService` — deferred; needs programmer familiar with auth logic
+- **CLI tool services (3 files, 137 calls)**: `configurationManagerCLI.js`, `configurationManagerDemo.js`, `serviceDiscoveryCLI.js` — intentional, console IS the output mechanism
 - **App Lookup Service missing from 15 flows**: `CompactAppPickerV8U` is absent in CIBAFlowV9, RedirectlessFlowV9_Real, and 13 non-V9 credential flows — see [APP_PICKER_MIGRATION_REPORT.md](./APP_PICKER_MIGRATION_REPORT.md) for the full checklist
 - **Floating StepNavigationButtons**: `StepNavigationButtons` (draggable fixed-position widget) present in 7 V9 flows — remove and replace with inline step navigation (done for OAuthAuthorizationCodeFlowV9, ImplicitFlowV9)
-- **console.log statements**: ~67 in V9 flows (allowed — only `error`/`warn` were violations)
 - **Legacy Messaging**: 16 legacy flows still using v4ToastManager (goes through adapter, functional)
 - **TypeScript Issues**: 203 errors, 211 warnings across 115 flow files
-- **Logging Compliance**: Legacy flows have unstructured console.log (low priority)
 
 ---
 
@@ -144,8 +146,9 @@ Backup Files:       300+ statements (archived)
 |-----------|-------|--------------|------------|--------|
 | V9 Flows | 16 | 16 | 100% | ✅ DONE |
 | Standardized Apps | 6 | 6 | 100% | ✅ DONE |
+| **Service logger migration** | **~100 files** | **~90 files** | **~90%** | ✅ **MOSTLY DONE** |
+| Service logger (auth-path deferred) | 7 | 0 | 0% | ⏸️ DEFERRED |
 | Legacy Flows | 67 | 0 | 0% | 🔴 NEEDED |
-| Console Statements | 1,367 | 224 | 16% | ⚠️ IN PROGRESS |
 | Modern Messaging | 89 | 19 | 21% | ⚠️ IN PROGRESS |
 | TypeScript Clean | 115 | 16 | 14% | ⚠️ IN PROGRESS |
 
@@ -155,11 +158,11 @@ Backup Files:       300+ statements (archived)
 
 ### 🔴 **HIGH PRIORITY (Week 1-2)**
 
-#### **1. Complete V9 Logging Migration**
-- **Target**: 224 console statements in V9 flows
-- **Plan**: Follow logging-implementation-plan.md Phase 1
-- **Effort**: 1 week
-- **Impact**: Security, debugging, compliance
+#### **1. Migrate Auth-Path Services (Programmer Required)**
+- **Target**: 7 services with 254 console calls — `flowCredentialService` (53), `passwordResetService` (44), `redirectlessAuthService` (41), `authorizationCodeSharedService` (33), `flowCredentialIsolationService` (33), `pingOneMfaService` (27), `implicitFlowSharedService` (23)
+- **Why deferred**: Active auth/credential code. Mechanical replacement is risky without knowing the call intent.
+- **How**: Use same logger pattern as already migrated files — `import { logger } from '../utils/logger'`, then `logger.error('Tag', msg, undefined, err)` etc.
+- **Effort**: 1-2 days (mostly mechanical, but verify error surfaces to UI via `modernMessaging` where needed)
 
 #### **2. Fix V9 TypeScript Issues**
 - **Target**: 203 Biome errors across flows
