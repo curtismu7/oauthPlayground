@@ -642,29 +642,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 		}
 	}, [authorizationCode, credentials]);
 
-	// Full reset
-	const _handleReset = useCallback(() => {
-		setCurrentStep(0);
-		setFlowId('');
-		setAuthorizationCode('');
-		setTokens(null);
-		setApiResponses({});
-		setUserId('');
-		setUsername('');
-		setPassword('');
-		setPhoneNumber('');
-		setDeviceId('');
-		setMfaCode('');
-		setExistingDevices([]);
-		setSelectedExistingDeviceId('');
-		setDeviceSelectionMode('select');
-		modernMessaging.showFooterMessage({
-			type: 'info',
-			message: 'Flow reset successfully',
-			duration: 3000,
-		});
-	}, []);
-
+	
 	// Step validation
 	const isStepValid = useCallback(
 		(step: number): boolean => {

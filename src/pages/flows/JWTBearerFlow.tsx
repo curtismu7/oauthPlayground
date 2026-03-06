@@ -15,6 +15,7 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import { CardBody, CardHeader } from '../../components/Card';
 import { CompactAppPickerV9 } from '../../components/CompactAppPickerV9';
+import { CredentialsImportExport } from '../../components/CredentialsImportExport';
 import { SpecCard } from '../../components/SpecCard';
 import { TokenSurface } from '../../components/TokenSurface';
 import { useAuth } from '../../contexts/NewAuthContext';
@@ -623,6 +624,26 @@ const JWTBearerFlow: React.FC = () => {
 							compact={false}
 						/>
 					</div>
+					<CredentialsImportExport
+						credentials={{
+							clientId: config?.clientId || '',
+							clientSecret: config?.clientSecret || '',
+							environmentId: config?.environmentId || '',
+						}}
+						options={{
+							flowType: 'jwt-bearer',
+							appName: 'JWT Bearer Token Flow',
+							onImportSuccess: (creds) => {
+								V9CredentialStorageService.save(
+									'v9:jwt-bearer',
+									{ clientId: creds.clientId, clientSecret: creds.clientSecret, environmentId: creds.environmentId },
+									{ environmentId: creds.environmentId || '' }
+								);
+								window.dispatchEvent(new Event('pingone-config-changed'));
+								logger.info('JWTBearerFlow', 'Credentials imported', { environmentId: creds.environmentId });
+							},
+						}}
+					/>
 					<div
 						style={{
 							background: '#f8fafc',

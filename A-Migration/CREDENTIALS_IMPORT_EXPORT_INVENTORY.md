@@ -9,46 +9,65 @@ This document inventories all flows and applications that require credentials im
 - **Version**: 9.0.0
 - **Standard**: All credential flows should use this standardized service
 
+## Scope Rule
+
+> **Only active side-menu items and the services they use are in scope.**  
+> Archived flows (routes that redirect to V9), off-menu pages, and `locked/` snapshots are **out of scope** and must not be modified.
+
+The authoritative list of active menu paths is `src/config/sidebarMenuConfig.ts`.
+
+---
+
 ## Implementation Status
 
-### ✅ V9 Flows (16/16) - Already Have Import/Export
-All V9 flows have comprehensive credentials management through `ComprehensiveCredentialsService`
+### ✅ V9 Flows — All Complete
+All V9 flows on the menu have credentials management via `ComprehensiveCredentialsService` (built into the V9 standard). No further action needed here.
 
-| Flow | Status | Notes |
-|------|--------|-------|
-| `OAuthAuthorizationCodeFlowV9` | ✅ Complete | Uses ComprehensiveCredentialsService |
-| `ImplicitFlowV9` | ✅ Complete | Uses ComprehensiveCredentialsService |
-| `DeviceAuthorizationFlowV9` | ✅ Complete | Uses ComprehensiveCredentialsService |
-| `SAMLBearerAssertionFlowV9` | ✅ Complete | Uses ComprehensiveCredentialsService |
-| `PingOnePARFlowV9` | ✅ Complete | Uses ComprehensiveCredentialsService |
-| `ClientCredentialsFlowV9` | ✅ Complete | Uses ComprehensiveCredentialsService |
-| `OIDCHybridFlowV9` | ✅ Complete | Uses ComprehensiveCredentialsService |
-| `JWTBearerTokenFlowV9` | ✅ Complete | Uses ComprehensiveCredentialsService |
-| `TokenExchangeFlowV9` | ✅ Complete | Uses ComprehensiveCredentialsService |
-| `CIBAFlowV9` | ✅ Complete | Uses ComprehensiveCredentialsService |
-| `RedirectlessFlowV9_Real` | ✅ Complete | Uses ComprehensiveCredentialsService |
-| `UserInfoFlowV9` | ✅ Complete | Uses ComprehensiveCredentialsService |
-| `OAuth2ResourceOwnerPasswordFlowV9` | ✅ Complete | Uses ComprehensiveCredentialsService |
-| `DPoPFlowV9` | ✅ Complete | Uses ComprehensiveCredentialsService |
-| `PARFlowV9` | ✅ Complete | Uses ComprehensiveCredentialsService |
+| Menu Path | Flow Component | Status |
+|-----------|---------------|--------|
+| `/flows/oauth-authorization-code-v9` | `OAuthAuthorizationCodeFlowV9` | ✅ |
+| `/flows/oauth-authorization-code-v9-condensed` | `OAuthAuthorizationCodeFlowV9_Condensed` | ✅ |
+| `/flows/implicit-v9` | `ImplicitFlowV9` | ✅ |
+| `/flows/device-authorization-v9` | `DeviceAuthorizationFlowV9` | ✅ |
+| `/flows/pingone-par-v9` | `PingOnePARFlowV9` | ✅ |
+| `/flows/redirectless-v9-real` | `RedirectlessFlowV9_Real` | ✅ |
+| `/flows/worker-token-v9` | `WorkerTokenFlowV9` | ✅ |
+| `/flows/jwt-bearer-token-v9` | `JWTBearerTokenFlowV9` | ✅ |
+| `/flows/dpop-authorization-code-v9` | `DPoPAuthorizationCodeFlowV9` | ✅ |
+| `/flows/ciba-v9` | `CIBAFlowV9` | ✅ |
+| `/flows/client-credentials-v9` | `ClientCredentialsFlowV9` | ✅ |
+| `/flows/oidc-hybrid-v9` | `OIDCHybridFlowV9` | ✅ |
+| `/flows/saml-bearer-assertion-v9` | `SAMLBearerAssertionFlowV9` | ✅ |
+| `/flows/token-exchange-v9` | `TokenExchangeFlowV9` | ✅ |
+| `/flows/rar-v9` | `RARFlowV9` | ✅ |
+| `/flows/oauth-ropc-v9` | `OAuthROPCFlowV9` | ✅ |
+| `/flows/pingone-mfa-workflow-library-v9` | `MFAWorkflowLibraryFlowV9` | ✅ |
 
-### 🔄 Non-V9 Flows (13 Total) - Need Standardization
+### 🔄 Non-V9 Active Menu Flows
 
-| Flow | Current Status | Implementation Needed | Priority |
-|------|----------------|---------------------|---------|
-| `OAuth2ResourceOwnerPasswordFlow` | ✅ Complete | Already has import/export | **Low** |
-| `KrogerGroceryStoreMFA` | ✅ Complete | Already has import/export | **Low** |
-| `UserInfoFlow` | ✅ Complete | Already has import/export | **Low** |
-| `JWTBearerFlow` | ❌ Missing | Add CredentialsImportExport | **High** |
-| `DPoPFlow` | ❌ Missing | Add CredentialsImportExport | **High** |
-| `PARFlow` | ❌ Missing | Add CredentialsImportExport | **High** |
-| `PingOneLogoutFlow` | ❌ Missing | Add CredentialsImportExport | **Medium** |
-| `TokenExchangeFlow` | ❌ Missing | Add CredentialsImportExport | **High** |
-| `OIDCHybridFlowV7` | ❌ Missing | Add CredentialsImportExport | **Medium** |
-| `SAMLBearerAssertionFlowV7` | ❌ Missing | Add CredentialsImportExport | **Medium** |
-| `DeviceAuthorizationFlowV7` | ❌ Missing | Add CredentialsImportExport | **Medium** |
-| `ImplicitFlowV7` | ❌ Missing | Add CredentialsImportExport | **Medium** |
-| `OAuthAuthorizationCodeFlowV7` | ❌ Missing | Add CredentialsImportExport | **Medium** |
+| Menu Path | Flow Component | Status | Notes |
+|-----------|---------------|--------|-------|
+| `/flows/oauth2-resource-owner-password` | `OAuth2ResourceOwnerPasswordFlow` | ✅ Complete | Pre-existing import/export |
+| `/flows/kroger-grocery-store-mfa` | `KrogerGroceryStoreMFA` | ✅ Complete | Pre-existing import/export |
+| `/flows/userinfo` | `UserInfoFlow` | ✅ Complete | Pre-existing import/export |
+| `/flows/jwt-bearer` | `JWTBearerFlow` | ✅ Complete | Added March 6, 2026 |
+| `/flows/par` | `PARFlow` | ✅ Complete | Added March 6, 2026 |
+| `/flows/pingone-logout` | `PingOneLogoutFlow` | ✅ Complete | Added March 6, 2026 |
+| `/flows/dpop` | `DPoPFlow` | N/A | Pure crypto demo — no credential fields |
+| `/flows/token-revocation` | `TokenRevocationFlow` | ✅ Complete | Added March 6, 2026 |
+| `/flows/mock-oidc-ropc` | `V7RMOIDCResourceOwnerPasswordFlow` | N/A | Controller-based; uses V9CredentialStorageService directly |
+| `/flows/saml-sp-dynamic-acs-v1` | `SAMLServiceProviderFlowV1` | ⚠️ Out of scope | Legacy v4Toast-based — needs broader migration before CredentialsImportExport |
+
+### 🔄 V7 Mock Flows (active on menu at `/v7/...`)
+These are educational mock simulations using hardcoded `mock-env` / `v7m-mock` environment IDs. They do **not** connect to real PingOne and have no real credentials to import/export.
+
+| Menu Path | Component | Status |
+|-----------|-----------|--------|
+| `/v7/oidc/authorization-code` | `V7MOAuthAuthCodeV9` | N/A — mock-only, no real creds |
+| `/v7/oauth/device-authorization` | `V7MDeviceAuthorizationV9` | N/A — mock-only, no real creds |
+| `/v7/oauth/client-credentials` | `V7MClientCredentialsV9` | N/A — mock-only, no real creds |
+| `/v7/oauth/implicit` | `V7MImplicitFlowV9` | N/A — mock-only, no real creds |
+| `/v7/oauth/ropc` | `V7MROPCV9` | N/A — mock-only, no real creds |
 
 ### 📋 Other Applications with Credentials
 

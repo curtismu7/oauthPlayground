@@ -152,7 +152,6 @@ class CredentialManager {
 				};
 			}
 		} catch (error) {
-			console.error(' [CredentialManager] Failed to load config credentials:', error);
 			logger.error('CredentialManager', 'Failed to load config credentials', String(error));
 			return {
 				environmentId: '',
@@ -276,7 +275,6 @@ class CredentialManager {
 				};
 			}
 		} catch (error) {
-			console.error(' [CredentialManager] Failed to load authz flow credentials:', error);
 			logger.error('CredentialManager', 'Failed to load authz flow credentials', String(error));
 			return {
 				environmentId: '',
@@ -333,9 +331,11 @@ class CredentialManager {
 			);
 			return true;
 		} catch (error) {
-			console.error(
-				' [CredentialManager] Error saving implicit flow credentials to localStorage:',
-				error
+			logger.error(
+				'CredentialManager',
+				'Error saving implicit flow credentials to localStorage:',
+				undefined,
+				error as Error
 			);
 			return false;
 		}
@@ -402,7 +402,6 @@ class CredentialManager {
 				};
 			}
 		} catch (error) {
-			console.error(' [CredentialManager] Failed to load implicit flow credentials:', error);
 			logger.error('CredentialManager', 'Failed to load implicit flow credentials', String(error));
 			return {
 				environmentId: '',
@@ -437,7 +436,12 @@ class CredentialManager {
 
 			return true;
 		} catch (error) {
-			console.error(' [CredentialManager] Error saving hybrid flow credentials:', error);
+			logger.error(
+				'CredentialManager',
+				'Error saving hybrid flow credentials:',
+				undefined,
+				error as Error
+			);
 			return false;
 		}
 	}
@@ -476,7 +480,12 @@ class CredentialManager {
 				};
 			}
 		} catch (error) {
-			console.error(' [CredentialManager] Failed to load hybrid flow credentials:', error);
+			logger.error(
+				'CredentialManager',
+				'Failed to load hybrid flow credentials:',
+				undefined,
+				error as Error
+			);
 			return {
 				environmentId: '',
 				clientId: '',
@@ -510,7 +519,12 @@ class CredentialManager {
 
 			return true;
 		} catch (error) {
-			console.error(' [CredentialManager] Error saving worker flow credentials:', error);
+			logger.error(
+				'CredentialManager',
+				'Error saving worker flow credentials:',
+				undefined,
+				error as Error
+			);
 			return false;
 		}
 	}
@@ -554,7 +568,12 @@ class CredentialManager {
 				};
 			}
 		} catch (error) {
-			console.error(' [CredentialManager] Failed to load worker flow credentials:', error);
+			logger.error(
+				'CredentialManager',
+				'Failed to load worker flow credentials:',
+				undefined,
+				error as Error
+			);
 			return {
 				environmentId: '',
 				clientId: '',
@@ -591,7 +610,12 @@ class CredentialManager {
 
 			return true;
 		} catch (error) {
-			console.error(' [CredentialManager] Error saving device flow credentials:', error);
+			logger.error(
+				'CredentialManager',
+				'Error saving device flow credentials:',
+				undefined,
+				error as Error
+			);
 			return false;
 		}
 	}
@@ -632,7 +656,12 @@ class CredentialManager {
 				};
 			}
 		} catch (error) {
-			console.error(' [CredentialManager] Failed to load device flow credentials:', error);
+			logger.error(
+				'CredentialManager',
+				'Failed to load device flow credentials:',
+				undefined,
+				error as Error
+			);
 			return {
 				environmentId: '',
 				clientId: '',
@@ -756,7 +785,7 @@ class CredentialManager {
 		try {
 			// Test localStorage availability
 			if (typeof localStorage === 'undefined') {
-				console.error(' [CredentialManager] localStorage is not available');
+				logger.error('CredentialManager', 'localStorage is not available');
 				return false;
 			}
 
@@ -837,7 +866,6 @@ class CredentialManager {
 				};
 			}
 		} catch (error) {
-			console.error(' [CredentialManager] Failed to load permanent credentials:', error);
 			logger.error('CredentialManager', 'Failed to load permanent credentials', String(error));
 			return {
 				environmentId: '',
@@ -885,7 +913,6 @@ class CredentialManager {
 				return credentials;
 			}
 		} catch (error) {
-			console.error(' [CredentialManager] Failed to load permanent credentials:', error);
 			logger.error('CredentialManager', 'Failed to load permanent credentials', String(error));
 
 			// Final fallback to environment variables
@@ -919,7 +946,12 @@ class CredentialManager {
 				endSessionEndpoint: envConfig.endSessionEndpoint,
 			};
 		} catch (error) {
-			console.error(' [CredentialManager] Failed to load from environment variables:', error);
+			logger.error(
+				'CredentialManager',
+				'Failed to load from environment variables:',
+				undefined,
+				error as Error
+			);
 			return {
 				environmentId: '',
 				clientId: '',
@@ -937,7 +969,7 @@ class CredentialManager {
 		try {
 			// Test sessionStorage availability
 			if (typeof sessionStorage === 'undefined') {
-				console.error(' [CredentialManager] sessionStorage is not available');
+				logger.error('CredentialManager', 'sessionStorage is not available');
 				return false;
 			}
 

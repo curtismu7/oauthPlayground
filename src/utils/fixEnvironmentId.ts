@@ -1,3 +1,5 @@
+import { logger } from './logger';
+
 // src/utils/fixEnvironmentId.ts
 // Utility function to fix environment ID in localStorage
 
@@ -10,7 +12,7 @@ const _FLOW_KEY = 'heb-grocery-store-mfa';
  */
 export function fixEnvironmentIdInStorage(): void {
 	if (typeof window === 'undefined' || !window.localStorage) {
-		console.warn('[fixEnvironmentId] localStorage not available');
+		logger.warn('fixEnvironmentId', 'localStorage not available');
 		return;
 	}
 
@@ -35,7 +37,7 @@ export function fixEnvironmentIdInStorage(): void {
 			}
 		}
 	} catch (e) {
-		console.error(`Error fixing ${workerTokenKey}:`, e);
+		logger.error('fixEnvironmentId', `Error fixing ${workerTokenKey}:`, undefined, e as Error);
 	}
 
 	// Fix flow-specific data
@@ -79,7 +81,7 @@ export function fixEnvironmentIdInStorage(): void {
 			}
 		}
 	} catch (e) {
-		console.error(`Error fixing ${flowDataKey}:`, e);
+		logger.error('fixEnvironmentId', `Error fixing ${flowDataKey}:`, undefined, e as Error);
 	}
 
 	// Fix shared environment
@@ -105,7 +107,7 @@ export function fixEnvironmentIdInStorage(): void {
 			}
 		}
 	} catch (e) {
-		console.error(`Error fixing ${sharedEnvKey}:`, e);
+		logger.error('fixEnvironmentId', `Error fixing ${sharedEnvKey}:`, undefined, e as Error);
 	}
 
 	// Fix shared discovery
@@ -133,7 +135,7 @@ export function fixEnvironmentIdInStorage(): void {
 			}
 		}
 	} catch (e) {
-		console.error(`Error fixing ${sharedDiscoveryKey}:`, e);
+		logger.error('fixEnvironmentId', `Error fixing ${sharedDiscoveryKey}:`, undefined, e as Error);
 	}
 
 	// Fix environment ID persistence
@@ -154,7 +156,7 @@ export function fixEnvironmentIdInStorage(): void {
 			}
 		}
 	} catch (e) {
-		console.error(`Error fixing ${envPersistenceKey}:`, e);
+		logger.error('fixEnvironmentId', `Error fixing ${envPersistenceKey}:`, undefined, e as Error);
 	}
 
 	// Scan for any other keys that might contain wrong environment IDs

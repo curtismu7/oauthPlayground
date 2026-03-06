@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { logger } from '@/utils/logger';
 import FlowSequenceDisplay from '../../../components/FlowSequenceDisplay';
 import {
 	ResultsSection as ImportedResultsSection,
@@ -126,68 +127,9 @@ const WorkerTokenFlowV9: React.FC = () => {
 		[controller]
 	);
 
-	// Request worker token
-	const _handleRequestToken = useCallback(async () => {
-		try {
-			await controller.requestToken();
-			setWorkerToken(getAnyWorkerToken() ?? '');
-			modernMessaging.showFooterMessage({
-				type: 'info',
-				message: 'Worker token generated successfully!',
-				duration: 3000,
-			});
-			setCurrentStep(1);
-		} catch (_error) {
-			const errorDetails = OAuthErrorHandlingService.parseOAuthError(_error, {
-				flowType: 'client_credentials',
-				stepId: 'request-token',
-				operation: 'requestToken',
-				credentials: {
-					hasClientId: !!controller.credentials.clientId,
-					hasClientSecret: !!controller.credentials.clientSecret,
-					hasEnvironmentId: !!controller.credentials.environmentId,
-				},
-			});
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: errorDetails.message,
-				dismissible: true,
-			});
-		}
-	}, [controller]);
-
-	// Navigate to token management
-	const _handleViewTokenManagement = useCallback(() => {
-		navigate('/token-management');
-	}, [navigate]);
-
-	// Full reset
-	const _handleReset = useCallback(() => {
-		try {
-			controller.resetFlow();
-			setCurrentStep(0);
-			setWorkerToken('');
-			try {
-				localStorage.removeItem('worker_token');
-			} catch {
-				// non-fatal
-			}
-			modernMessaging.showFooterMessage({
-				type: 'info',
-				message: 'Worker Token Flow reset successfully',
-				duration: 3000,
-			});
-		} catch {
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: 'Failed to reset flow. Please refresh the page.',
-				dismissible: true,
-			});
-		}
-	}, [controller]);
-
+	
+	
+	
 	// Step 0 — Credentials
 	const renderStep0 = () => (
 		<StepContainer>
@@ -556,8 +498,8 @@ const WorkerTokenFlowV9: React.FC = () => {
 
 // Usage
 getApplications('${envId}', '${accessToken || '<worker-token>'}')
-  .then(apps => console.log('Applications:', apps))
-  .catch(err => console.error('Error:', err));`}</pre>
+	  .then(apps => logger.info('WorkerTokenFlowV9', 'Applications:', apps))
+	  .catch(err => logger.error('WorkerTokenFlowV9', 'Error:', err));`}</pre>
 					</div>
 				</div>
 

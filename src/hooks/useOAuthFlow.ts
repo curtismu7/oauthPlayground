@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/NewAuthContext';
 import { useNotifications } from '../contexts/NotificationContext';
 import { config } from '../services/config';
 import { generateRandomString, sha256 } from '../utils/crypto';
+import { logger } from '../utils/logger';
 
 // Types
 export interface OAuthTokens {
@@ -146,7 +147,7 @@ const useOAuthFlow = (flowType = 'authorization_code'): OAuthFlowReturn => {
 		} catch (error) {
 			const errorMessage =
 				error instanceof Error ? error.message : 'Failed to initialize OAuth flow';
-			console.error('Error initializing OAuth flow:', error);
+			logger.error('useOAuthFlow', 'Error initializing OAuth flow', undefined, error instanceof Error ? error : undefined);
 			setState((prev) => ({
 				...prev,
 				error: errorMessage,
@@ -223,7 +224,7 @@ const useOAuthFlow = (flowType = 'authorization_code'): OAuthFlowReturn => {
 							userInfo = (await userInfoResponse.json()) as UserInfo;
 						}
 					} catch (error) {
-						console.warn('Failed to fetch user info:', error);
+						logger.warn('useOAuthFlow', 'Failed to fetch user info');
 					}
 
 					// Update state with tokens and user info
@@ -311,7 +312,7 @@ const useOAuthFlow = (flowType = 'authorization_code'): OAuthFlowReturn => {
 					return;
 				}
 			} catch (error) {
-				console.error('Error handling OAuth callback:', error);
+				logger.error('useOAuthFlow', 'Error handling OAuth callback', undefined, error instanceof Error ? error : undefined);
 				const errorMessage =
 					error instanceof Error ? error.message : 'Failed to handle OAuth callback';
 				setState((prev) => ({

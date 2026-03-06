@@ -1,4 +1,6 @@
 // Enhanced Token Lifecycle Management
+
+import { logger } from './logger';
 import { OAuthTokens } from './tokenStorage';
 
 export interface TokenLifecycleInfo {
@@ -281,7 +283,7 @@ class TokenLifecycleManager {
 				lastUsed: new Date(item.lastUsed),
 			}));
 		} catch (error) {
-			console.error('Failed to get lifecycle data:', error);
+			logger.error('TokenLifecycle', 'Failed to get lifecycle data:', undefined, error as Error);
 			return [];
 		}
 	}
@@ -302,7 +304,7 @@ class TokenLifecycleManager {
 
 			localStorage.setItem(this.LIFECYCLE_KEY, JSON.stringify(lifecycleData));
 		} catch (error) {
-			console.error('Failed to update lifecycle data:', error);
+			logger.error('TokenLifecycle', 'Failed to update lifecycle data:', undefined, error as Error);
 		}
 	}
 
@@ -325,7 +327,7 @@ class TokenLifecycleManager {
 				timestamp: new Date(item.timestamp),
 			}));
 		} catch (error) {
-			console.error('Failed to get analytics data:', error);
+			logger.error('TokenLifecycle', 'Failed to get analytics data:', undefined, error as Error);
 			return [];
 		}
 	}
@@ -350,7 +352,7 @@ class TokenLifecycleManager {
 
 			localStorage.setItem(this.ANALYTICS_KEY, JSON.stringify(analyticsData));
 		} catch (error) {
-			console.error('Failed to update analytics data:', error);
+			logger.error('TokenLifecycle', 'Failed to update analytics data:', undefined, error as Error);
 		}
 	}
 }

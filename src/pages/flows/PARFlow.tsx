@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 import { CompactAppPickerV9 } from '../../components/CompactAppPickerV9';
+import { CredentialsImportExport } from '../../components/CredentialsImportExport';
 import FlowCredentials from '../../components/FlowCredentials';
 import { StepByStepFlow } from '../../components/StepByStepFlow';
 import { type PARAuthMethod, type PARResponse } from '../../services/parService';
@@ -740,6 +741,26 @@ if (tokenResponse.ok) {
 				environmentId={formData.environmentId ?? ''}
 				onAppSelected={handleAppSelected}
 				grantType="authorization_code"
+			/>
+			<CredentialsImportExport
+				credentials={{
+					clientId: formData.clientId,
+					clientSecret: formData.clientSecret,
+					environmentId: formData.environmentId,
+				}}
+				options={{
+					flowType: 'par',
+					appName: 'Pushed Authorization Request (PAR) Flow',
+					onImportSuccess: (creds) => {
+						setFormData((prev) => ({
+							...prev,
+							clientId: creds.clientId || prev.clientId,
+							clientSecret: creds.clientSecret || prev.clientSecret,
+							environmentId: creds.environmentId || prev.environmentId,
+						}));
+						logger.info('PARFlow', 'Credentials imported', { environmentId: creds.environmentId });
+					},
+				}}
 			/>
 
 			<FlowCredentials
