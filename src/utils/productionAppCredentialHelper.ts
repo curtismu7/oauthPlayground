@@ -10,6 +10,7 @@ import { UnifiedWorkerTokenBackupServiceV8 } from '@/services/unifiedWorkerToken
 import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { UnifiedOAuthCredentialsServiceV8U } from '@/v8u/services/unifiedOAuthCredentialsServiceV8U';
+import { logger } from './logger';
 
 // App type mapping for Production apps
 export const PRODUCTION_APP_CONFIGS = {
@@ -161,9 +162,11 @@ export async function saveProductionAppCredentials(
 
 		console.log(`✅ [PRODUCTION-APP] ${config.appName} credentials saved with SQLite backup`);
 	} catch (error) {
-		console.warn(
-			`⚠️ [PRODUCTION-APP] SQLite backup failed for ${config.appName}, using fallback:`,
-			error
+		logger.warn(
+			'ProductionAppCredentialHelper',
+			`SQLite backup failed for ${config.appName}, using fallback:`,
+			undefined,
+			error as Error
 		);
 		// Fallback to basic credentials service
 		CredentialsServiceV8.saveCredentials(config.flowKey, credentials);
@@ -220,9 +223,11 @@ export async function loadProductionAppCredentials(
 				return CredentialsServiceV8.loadCredentials(config.flowKey);
 		}
 	} catch (error) {
-		console.warn(
-			`⚠️ [PRODUCTION-APP] SQLite backup load failed for ${config.appName}, using fallback:`,
-			error
+		logger.warn(
+			'ProductionAppCredentialHelper',
+			`SQLite backup load failed for ${config.appName}, using fallback:`,
+			undefined,
+			error as Error
 		);
 		// Fallback to basic credentials service
 		return CredentialsServiceV8.loadCredentials(config.flowKey);
@@ -348,9 +353,11 @@ export async function exportProductionAppCredentials(
 		// Export using standardized format
 		exportStandardizedCredentials(config.appName, config.appType, credentials, metadata);
 	} catch (error) {
-		console.error(
-			`[ProductionAppCredentialHelper] Failed to export credentials for ${config.appName}:`,
-			error
+		logger.error(
+			'ProductionAppCredentialHelper',
+			`Failed to export credentials for ${config.appName}:`,
+			undefined,
+			error as Error
 		);
 		throw error;
 	}
@@ -418,9 +425,11 @@ export async function importProductionAppCredentials(
 			`[ProductionAppCredentialHelper] Successfully imported credentials for ${config.appName}`
 		);
 	} catch (error) {
-		console.error(
-			`[ProductionAppCredentialHelper] Failed to import credentials for ${config.appName}:`,
-			error
+		logger.error(
+			'ProductionAppCredentialHelper',
+			`Failed to import credentials for ${config.appName}:`,
+			undefined,
+			error as Error
 		);
 		throw error;
 	}
@@ -477,9 +486,11 @@ export async function hasProductionAppCredentials(
 				return false;
 		}
 	} catch (error) {
-		console.error(
-			`[ProductionAppCredentialHelper] Error checking credentials for ${config.appName}:`,
-			error
+		logger.error(
+			'ProductionAppCredentialHelper',
+			`Error checking credentials for ${config.appName}:`,
+			undefined,
+			error as Error
 		);
 		return false;
 	}

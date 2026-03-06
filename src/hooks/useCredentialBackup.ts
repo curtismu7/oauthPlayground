@@ -4,6 +4,7 @@
 import { useEffect } from 'react';
 import { StepCredentials } from '../components/steps/CommonSteps';
 import { credentialBackupService } from '../services/credentialBackupService';
+import { logger } from '../utils/logger';
 
 interface UseCredentialBackupProps {
 	flowKey: string;
@@ -28,7 +29,7 @@ export const useCredentialBackup = ({
 
 		// Only backup if we have meaningful credentials
 		if (credentials && (credentials.environmentId || credentials.clientId)) {
-			console.log(`🔧 [CredentialBackup] Saving backup for flow: ${flowKey}`, {
+			logger.info('useCredentialBackup', 'Saving backup for flow', {
 				flowKey,
 				hasEnvironmentId: !!credentials.environmentId,
 				hasClientId: !!credentials.clientId,
@@ -49,16 +50,13 @@ export const useCredentialBackup = ({
 		if (!normalizedCredentials.environmentId && !normalizedCredentials.clientId) {
 			const backupCredentials = credentialBackupService.restoreFromBackup(flowKey);
 			if (backupCredentials.environmentId || backupCredentials.clientId) {
-				console.log(
-					`🔧 [CredentialBackup] Restoring credentials from backup for flow: ${flowKey}`,
-					{
-						flowKey,
-						hasEnvironmentId: !!backupCredentials.environmentId,
-						hasClientId: !!backupCredentials.clientId,
-						hasRedirectUri: !!backupCredentials.redirectUri,
-						scopes: backupCredentials.scopes?.length || 0,
-					}
-				);
+				logger.info('useCredentialBackup', `Restoring credentials from backup for flow: ${flowKey}`, {
+					flowKey,
+					hasEnvironmentId: !!backupCredentials.environmentId,
+					hasClientId: !!backupCredentials.clientId,
+					hasRedirectUri: !!backupCredentials.redirectUri,
+					scopes: backupCredentials.scopes?.length || 0,
+				});
 
 				// Update credentials with restored data
 				setCredentials({
@@ -78,7 +76,7 @@ export const useCredentialBackup = ({
 	const clearBackup = () => {
 		if (enabled) {
 			credentialBackupService.clearFlowBackup(flowKey);
-			console.log(`🔧 [CredentialBackup] Cleared backup for flow: ${flowKey}`);
+			logger.info('useCredentialBackup', `Cleared backup for flow: ${flowKey}`);
 		}
 	};
 

@@ -22,6 +22,7 @@ import {
 	implicitFlowComplianceService,
 } from '../services/implicitFlowComplianceService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+import { logger } from '../utils/logger';
 
 export interface ImplicitFlowCredentials {
 	environmentId: string;
@@ -255,7 +256,7 @@ export const useOAuth2CompliantImplicitFlow = (): [ImplicitFlowState, ImplicitFl
 			sessionStorage.setItem('implicit_state', secureState);
 
 			v4ToastManager.showSuccess('Implicit flow authorization URL generated successfully');
-			console.log('[ImplicitCompliantFlow] Authorization URL generated:', {
+			logger.info('useOAuth2CompliantImplicitFlow', 'Authorization URL generated', {
 				url: authorizationUrl,
 				state: `${secureState.substring(0, 10)}...`,
 				responseType: authRequest.response_type,
@@ -323,7 +324,7 @@ export const useOAuth2CompliantImplicitFlow = (): [ImplicitFlowState, ImplicitFl
 			);
 
 			v4ToastManager.showSuccess('Implicit flow tokens received and validated successfully');
-			console.log('[ImplicitCompliantFlow] Token response processed:', {
+			logger.info('useOAuth2CompliantImplicitFlow', 'Token response processed', {
 				hasAccessToken: !!tokens.access_token,
 				hasIdToken: !!tokens.id_token,
 				tokenType: tokens.token_type,

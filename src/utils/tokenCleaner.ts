@@ -1,3 +1,4 @@
+import { logger } from './logger';
 // src/utils/tokenCleaner.ts
 // Utility for clearing all OAuth/OIDC tokens from storage
 
@@ -149,7 +150,9 @@ export function clearAllTokens(): TokenCleanupResult {
 
 		if (result.errors.length > 0) {
 			result.success = false;
-			console.warn('[TokenCleaner] Token cleanup completed with errors:', result.errors);
+			logger.warn('TokenCleaner', 'Token cleanup completed with errors:', {
+				errors: result.errors,
+			});
 		} else {
 			console.log(
 				`[TokenCleaner] Token cleanup completed successfully. Cleared ${result.clearedCount} items.`
@@ -158,7 +161,7 @@ export function clearAllTokens(): TokenCleanupResult {
 	} catch (error) {
 		result.success = false;
 		result.errors.push(`Token cleanup failed: ${error}`);
-		console.error('[TokenCleaner] Token cleanup failed:', error);
+		logger.error('TokenCleaner', 'Token cleanup failed:', undefined, error as Error);
 	}
 
 	return result;
@@ -253,7 +256,7 @@ export function hasTokensInStorage(): boolean {
 
 		return false;
 	} catch (error) {
-		console.error('[TokenCleaner] Failed to check for tokens:', error);
+		logger.error('TokenCleaner', 'Failed to check for tokens:', undefined, error as Error);
 		return false;
 	}
 }
@@ -294,7 +297,7 @@ export function getTokenCount(): number {
 
 		return count;
 	} catch (error) {
-		console.error('[TokenCleaner] Failed to count tokens:', error);
+		logger.error('TokenCleaner', 'Failed to count tokens:', undefined, error as Error);
 		return 0;
 	}
 }

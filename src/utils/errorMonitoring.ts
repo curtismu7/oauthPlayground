@@ -1,3 +1,4 @@
+import { logger } from './logger';
 // src/utils/errorMonitoring.ts
 // Comprehensive error monitoring and alerting system
 
@@ -210,9 +211,10 @@ export class ErrorMonitoring {
 		this.cleanupOldErrors();
 
 		// Log error
-		console.error(
-			`[Error Monitoring] ${errorData.level.toUpperCase()}: ${errorData.message}`,
-			errorData.context
+		logger.error(
+			'ErrorMonitoring',
+			`${errorData.level.toUpperCase()}: ${errorData.message}`,
+			errorData.context as Record<string, unknown>
 		);
 
 		// Check for immediate alerts
@@ -297,7 +299,11 @@ export class ErrorMonitoring {
 	 * Trigger immediate alert for critical errors
 	 */
 	private triggerImmediateAlert(error: ErrorEvent): void {
-		console.error(`[CRITICAL ALERT] ${error.message}`, error.context);
+		logger.error(
+			'ErrorMonitoring',
+			`[CRITICAL ALERT] ${error.message}`,
+			error.context as Record<string, unknown>
+		);
 		console.log(
 			`[${new Date().toISOString()}] [⚠️ ERROR-HANDLER] Critical error detected: ${error.message}`
 		);
@@ -310,7 +316,11 @@ export class ErrorMonitoring {
 	 * Trigger alert
 	 */
 	private triggerAlert(rule: AlertRule): void {
-		console.warn(`[ALERT] ${rule.name}: ${rule.message}`, this.metrics);
+		logger.warn(
+			'ErrorMonitoring',
+			`[ALERT] ${rule.name}: ${rule.message}`,
+			this.metrics as Record<string, unknown>
+		);
 
 		// In a real implementation, this would send alerts to monitoring systems
 		// For now, we'll log to console

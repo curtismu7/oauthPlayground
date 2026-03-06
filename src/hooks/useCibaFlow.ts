@@ -2,6 +2,7 @@
 // OIDC Client Initiated Backchannel Authentication (CIBA) V5 flow logic
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+import { logger } from '../utils/logger';
 
 export type CibaAuthMethod = 'client_secret_post' | 'client_secret_basic';
 
@@ -151,7 +152,7 @@ export const useCibaFlow = (): UseCibaFlowReturn => {
 				setStage('success');
 			}
 		} catch (loadError) {
-			console.warn(`${LOG_PREFIX} Failed to restore mock state:`, loadError);
+			logger.warn('useCibaFlow', 'Failed to restore mock state');
 		}
 
 		return () => {

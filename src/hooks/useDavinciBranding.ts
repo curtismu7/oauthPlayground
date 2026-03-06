@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { logger } from '../utils/logger';
 
 export interface DavinciBranding {
 	primaryColor?: string;
@@ -48,7 +49,7 @@ const getInitialBranding = (): DavinciBranding | null => {
 			return parsed;
 		}
 	} catch (error) {
-		console.warn('[useDavinciBranding] Failed to parse stored branding payload', error);
+		logger.warn('useDavinciBranding', 'Failed to parse stored branding payload');
 	}
 
 	return null;
@@ -87,7 +88,7 @@ export const useDavinciBranding = () => {
 			window.localStorage.setItem(BRANDING_STORAGE_KEY, JSON.stringify(enrichedPayload));
 			setBranding(enrichedPayload);
 		} catch (error) {
-			console.warn('[useDavinciBranding] Failed to persist branding payload', error);
+			logger.warn('useDavinciBranding', 'Failed to persist branding payload');
 			setBranding(enrichedPayload);
 		}
 	}, []);

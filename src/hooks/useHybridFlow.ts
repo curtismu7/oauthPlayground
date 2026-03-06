@@ -1,28 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { credentialManager } from '../utils/credentialManager';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+import { logger } from '../utils/logger';
 
-// Unified logging format: [🔀 OIDC-HYBRID]
-const LOG_PREFIX = '[🔀 OIDC-HYBRID]';
-
-const log = {
-	info: (message: string, ...args: any[]) => {
-		const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
-		console.log(`${timestamp} ${LOG_PREFIX} [INFO]`, message, ...args);
-	},
-	warn: (message: string, ...args: any[]) => {
-		const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
-		console.warn(`${timestamp} ${LOG_PREFIX} [WARN]`, message, ...args);
-	},
-	error: (message: string, ...args: any[]) => {
-		const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
-		console.error(`${timestamp} ${LOG_PREFIX} [ERROR]`, message, ...args);
-	},
-	success: (message: string, ...args: any[]) => {
-		const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
-		console.log(`${timestamp} ${LOG_PREFIX} [SUCCESS]`, message, ...args);
-	},
-};
+// logging handled via logger utility
 
 export interface HybridFlowCredentials {
 	environmentId: string;
@@ -117,13 +98,13 @@ export const useHybridFlow = (): HybridFlowState => {
 				scopes: savedCreds.scopes?.join(' ') || 'openid profile email',
 				responseType: 'code id_token', // Default to code id_token
 			});
-			log.info('Loaded saved credentials from credential manager');
+			logger.info('useHybridFlow', 'Loaded saved credentials from credential manager');
 		}
 	}, []);
 
 	const setCredentials = useCallback((creds: HybridFlowCredentials) => {
 		setCredentialsState(creds);
-		log.info('Credentials updated', {
+		logger.info('useHybridFlow', 'Credentials updated', {
 			environmentId: creds.environmentId,
 			clientId: `${creds.clientId.substring(0, 8)}...`,
 			responseType: creds.responseType,
@@ -132,7 +113,7 @@ export const useHybridFlow = (): HybridFlowState => {
 
 	const setTokens = useCallback((newTokens: HybridFlowTokens) => {
 		setTokensState(newTokens);
-		log.success('Tokens received', {
+		logger.success('useHybridFlow', 'Tokens received', {
 			hasAccessToken: !!newTokens.access_token,
 			hasIdToken: !!newTokens.id_token,
 			hasRefreshToken: !!newTokens.refresh_token,
@@ -143,7 +124,7 @@ export const useHybridFlow = (): HybridFlowState => {
 	const generateAuthorizationUrl = useCallback((): string => {
 		if (!credentials) {
 			const errorMsg = 'Cannot generate authorization URL: credentials not set';
-			log.error(errorMsg);
+			logger.error('useHybridFlow', errorMsg);
 			setError(errorMsg);
 			throw new Error(errorMsg);
 		}
@@ -177,7 +158,7 @@ export const useHybridFlow = (): HybridFlowState => {
 			const url = `${baseUrl}?${params.toString()}`;
 			setAuthorizationUrl(url);
 
-			log.info('Authorization URL generated', {
+			logger.info('useHybridFlow', 'Authorization URL generated', {
 				responseType: credentials.responseType,
 				scopes: credentials.scopes,
 				redirectUri,
@@ -186,7 +167,7 @@ export const useHybridFlow = (): HybridFlowState => {
 			return url;
 		} catch (err) {
 			const errorMsg = `Failed to generate authorization URL: ${err}`;
-			log.error(errorMsg, err);
+			logger.error('useHybridFlow', errorMsg, undefined, err instanceof Error ? err : undefined);
 			setError(errorMsg);
 			throw err;
 		}
@@ -196,7 +177,7 @@ export const useHybridFlow = (): HybridFlowState => {
 		async (code: string) => {
 			if (!credentials) {
 				const errorMsg = 'Cannot exchange code: credentials not set';
-				log.error(errorMsg);
+				logger.error('useHybridFlow', errorMsg);
 				setError(errorMsg);
 				throw new Error(errorMsg);
 			}
@@ -205,7 +186,7 @@ export const useHybridFlow = (): HybridFlowState => {
 			setError(null);
 
 			try {
-				log.info('Exchanging authorization code for tokens...');
+				logger.info('useHybridFlow', 'Exchanging authorization code for tokens...');
 
 				const tokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
 				const redirectUri = `${window.location.origin}/hybrid-callback`;
@@ -242,7 +223,7 @@ export const useHybridFlow = (): HybridFlowState => {
 
 				const tokenData = await response.json();
 
-				log.success('Code exchanged successfully', {
+				logger.success('useHybridFlow', 'Code exchanged successfully', {
 					hasAccessToken: !!tokenData.access_token,
 					hasIdToken: !!tokenData.id_token,
 					hasRefreshToken: !!tokenData.refresh_token,
@@ -257,7 +238,7 @@ export const useHybridFlow = (): HybridFlowState => {
 				v4ToastManager.showSuccess('Authorization code exchanged successfully!');
 			} catch (err: any) {
 				const errorMsg = err.message || 'Failed to exchange authorization code';
-				log.error('Code exchange failed', err);
+				logger.error('useHybridFlow', 'Code exchange failed', undefined, err instanceof Error ? err : undefined);
 				setError(errorMsg);
 				v4ToastManager.showError(errorMsg);
 				throw err;
@@ -269,7 +250,7 @@ export const useHybridFlow = (): HybridFlowState => {
 	);
 
 	const reset = useCallback(() => {
-		log.info('Resetting hybrid flow state');
+		logger.info('useHybridFlow', 'Resetting hybrid flow state');
 		setAuthorizationUrl(null);
 		setTokensState(null);
 		setState(null);

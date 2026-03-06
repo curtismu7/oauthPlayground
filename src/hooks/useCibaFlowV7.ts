@@ -3,6 +3,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+import { logger } from '../utils/logger';
 
 export type CibaAuthMethod = 'client_secret_post' | 'client_secret_basic';
 
@@ -277,7 +278,7 @@ export const useCibaFlowV7 = (options: CibaFlowV7Options) => {
 
 						if (errorCode === 'expired_token') {
 							// Request expired
-							console.error('[CIBA-V7] Request expired');
+							logger.error('useCibaFlowV7', 'Request expired');
 							if (pollingIntervalRef.current) {
 								clearInterval(pollingIntervalRef.current);
 								pollingIntervalRef.current = null;
@@ -290,7 +291,7 @@ export const useCibaFlowV7 = (options: CibaFlowV7Options) => {
 
 						if (errorCode === 'access_denied') {
 							// User denied the request
-							console.error('[CIBA-V7] Access denied by user');
+							logger.error('useCibaFlowV7', 'Access denied by user');
 							if (pollingIntervalRef.current) {
 								clearInterval(pollingIntervalRef.current);
 								pollingIntervalRef.current = null;
@@ -303,7 +304,7 @@ export const useCibaFlowV7 = (options: CibaFlowV7Options) => {
 						}
 
 						// Other errors
-						console.error('[CIBA-V7] Token polling error:', data);
+						logger.error('useCibaFlowV7', 'Token polling error', data);
 						const errorMsg = data.error_description || data.error || 'Token polling failed';
 						if (pollingIntervalRef.current) {
 							clearInterval(pollingIntervalRef.current);
@@ -344,10 +345,10 @@ export const useCibaFlowV7 = (options: CibaFlowV7Options) => {
 					stepManager.next();
 					v4ToastManager.showSuccess('CIBA authentication successful! Tokens received.');
 				} catch (err) {
-					console.error('[CIBA-V7] Polling error:', err);
+					logger.error('useCibaFlowV7', 'Polling error', undefined, err as Error);
 					// Don't stop polling on network errors - retry next interval
 					const errorMsg = err instanceof Error ? err.message : 'Polling error';
-					console.warn(`[CIBA-V7] Polling error (will retry): ${errorMsg}`);
+					logger.warn('useCibaFlowV7', `Polling error (will retry): ${errorMsg}`);
 				}
 			};
 
@@ -426,7 +427,7 @@ export const useCibaFlowV7 = (options: CibaFlowV7Options) => {
 						data = { error: 'Invalid response format', error_description: text };
 					}
 				} catch (err) {
-					console.error('[CIBA-V7] Failed to parse response:', err);
+					logger.error('useCibaFlowV7', 'Failed to parse response', undefined, err as Error);
 					data = {
 						error: 'Network error',
 						error_description: 'Failed to read response from server',
@@ -438,7 +439,7 @@ export const useCibaFlowV7 = (options: CibaFlowV7Options) => {
 						data.error_description ||
 						data.error ||
 						`Failed to initiate CIBA request (HTTP ${response.status})`;
-					console.error('[CIBA-V7] Backchannel request failed:', {
+					logger.error('useCibaFlowV7', 'Backchannel request failed', {
 						status: response.status,
 						statusText: response.statusText,
 						url: response.url,
@@ -489,7 +490,7 @@ export const useCibaFlowV7 = (options: CibaFlowV7Options) => {
 				startPolling(authRequest, config);
 			} catch (err) {
 				const errorMessage = err instanceof Error ? err.message : 'Failed to initiate CIBA request';
-				console.error('[CIBA-V7] Error initiating request:', err);
+				logger.error('useCibaFlowV7', 'Error initiating request', undefined, err as Error);
 				setError(errorMessage);
 				setStage('failed');
 				v4ToastManager.showError(errorMessage);

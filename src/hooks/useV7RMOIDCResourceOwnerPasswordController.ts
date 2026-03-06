@@ -5,6 +5,7 @@ import { V9CredentialStorageService } from '../services/v9/V9CredentialStorageSe
 import { useFlowStepManager } from '../utils/flowStepSystem';
 import { generateMockIdToken } from '../utils/mockOAuth';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { logger } from '../utils/logger';
 
 export interface V7RMCredentials {
 	environmentId: string;
@@ -254,7 +255,7 @@ export const useV7RMOIDCResourceOwnerPasswordController = ({
 			// Auto-advance to next step
 			stepManager.setStep(stepManager.currentStepIndex + 1, 'authentication completed');
 		} catch (error) {
-			console.error('❌ [V7RM-Enhanced] Authentication failed:', error);
+			logger.error('useV7RMOIDCResourceOwnerPasswordController', 'Authentication failed', undefined, error as Error);
 			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Unknown error', dismissible: true });
 
 			saveStepResult('authenticate-user', {
@@ -309,7 +310,7 @@ export const useV7RMOIDCResourceOwnerPasswordController = ({
 			}
 		} catch (error) {
 			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Network error', dismissible: true });
-			console.error('Mock user info fetch failed:', error);
+			logger.error('useV7RMOIDCResourceOwnerPasswordController', 'Mock user info fetch failed', undefined, error as Error);
 		} finally {
 			setIsFetchingUserInfo(false);
 		}
@@ -343,7 +344,7 @@ export const useV7RMOIDCResourceOwnerPasswordController = ({
 			}
 		} catch (error) {
 			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Network error', dismissible: true });
-			console.error('Mock token refresh failed:', error);
+			logger.error('useV7RMOIDCResourceOwnerPasswordController', 'Mock token refresh failed', undefined, error as Error);
 		} finally {
 			setIsRefreshingTokens(false);
 		}

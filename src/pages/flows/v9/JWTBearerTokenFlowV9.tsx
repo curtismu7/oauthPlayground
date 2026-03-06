@@ -1098,6 +1098,68 @@ MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA${Math.random().toString(36).substri
 					{currentStep === STEP_METADATA.length - 1 ? 'Complete' : 'Next →'}
 				</button>
 			</div>
+
+			{/* Flow Completion Summary */}
+			{currentStep === STEP_METADATA.length - 1 && (
+				<div
+					style={{
+						background: '#f0fdf4',
+						border: '1px solid #86efac',
+						borderRadius: '0.5rem',
+						padding: '1.5rem',
+						marginTop: '2rem',
+					}}
+				>
+					<h3
+						style={{
+							margin: '0 0 1rem 0',
+							color: '#16a34a',
+							fontSize: '1.25rem',
+							fontWeight: 600,
+						}}
+					>
+						🎉 Flow Completion Summary
+					</h3>
+					<div
+						style={{
+							background: 'white',
+							borderRadius: '0.375rem',
+							padding: '1rem',
+							marginBottom: '1rem',
+						}}
+					>
+						<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>
+							Achievements:
+						</h4>
+						<ul style={{ margin: '0', paddingLeft: '1.5rem', color: '#4b5563' }}>
+							<li>✅ JWT Bearer Token configuration completed</li>
+							<li>✅ Token request successfully executed</li>
+							<li>✅ Access token obtained and validated</li>
+							<li>✅ Flow steps: {STEP_METADATA.length} completed</li>
+						</ul>
+					</div>
+					{tokenResponse && (
+						<div
+							style={{
+								background: 'white',
+								borderRadius: '0.375rem',
+								padding: '1rem',
+							}}
+						>
+							<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>
+								Token Details:
+							</h4>
+							<div style={{ fontSize: '0.875rem', color: '#4b5563' }}>
+								<p><strong>Type:</strong> {tokenResponse.token_type}</p>
+								<p><strong>Expires In:</strong> {tokenResponse.expires_in} seconds</p>
+								{tokenResponse.scope && (
+									<p><strong>Scope:</strong> {tokenResponse.scope}</p>
+								)}
+							</div>
+						</div>
+					)}
+				</div>
+			)}
 			</div>
 		</V9ModernMessagingProvider>
 	);

@@ -2,6 +2,7 @@
 // Migration utilities for configuration presets
 
 import type { ConfigurationPreset } from '../services/presetManagerService';
+import { logger } from './logger';
 import { migratePreset, sanitizePreset, validatePreset } from './presetValidation';
 
 export interface MigrationResult {
@@ -154,7 +155,7 @@ export function createPresetBackup(): boolean {
 		console.log(`[PresetMigration] Created backup at key: ${backupKey}`);
 		return true;
 	} catch (error) {
-		console.error('[PresetMigration] Failed to create backup:', error);
+		logger.error('PresetMigration', 'Failed to create backup:', undefined, error as Error);
 		return false;
 	}
 }
@@ -166,7 +167,7 @@ export function restoreFromBackup(backupKey: string): boolean {
 	try {
 		const backup = localStorage.getItem(backupKey);
 		if (!backup) {
-			console.error('[PresetMigration] Backup not found:', backupKey);
+			logger.error('PresetMigration', 'Backup not found:', { backupKey });
 			return false;
 		}
 
@@ -174,7 +175,7 @@ export function restoreFromBackup(backupKey: string): boolean {
 		console.log(`[PresetMigration] Restored presets from backup: ${backupKey}`);
 		return true;
 	} catch (error) {
-		console.error('[PresetMigration] Failed to restore from backup:', error);
+		logger.error('PresetMigration', 'Failed to restore from backup:', undefined, error as Error);
 		return false;
 	}
 }
@@ -193,7 +194,7 @@ export function listBackups(): string[] {
 			}
 		}
 	} catch (error) {
-		console.error('[PresetMigration] Failed to list backups:', error);
+		logger.error('PresetMigration', 'Failed to list backups:', undefined, error as Error);
 	}
 
 	return backups.sort().reverse(); // Most recent first
@@ -212,7 +213,12 @@ export function cleanupOldBackups(): number {
 			localStorage.removeItem(backup);
 			deletedCount++;
 		} catch (error) {
-			console.warn(`[PresetMigration] Failed to delete backup ${backup}:`, error);
+			logger.warn(
+				'PresetMigration',
+				`Failed to delete backup ${backup}:`,
+				undefined,
+				error as Error
+			);
 		}
 	}
 

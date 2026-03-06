@@ -25,6 +25,7 @@ import {
 	type ValidationResult,
 } from '../services/oauth2ComplianceService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+import { logger } from '../utils/logger';
 
 export interface OAuth2Credentials {
 	environmentId: string;
@@ -473,7 +474,7 @@ export const useOAuth2CompliantAuthorizationCodeFlow = (): [OAuth2FlowState, OAu
 
 			const tokenValidation = oauth2ComplianceService.validateAccessToken(tokens.access_token);
 			if (!tokenValidation.valid) {
-				console.warn('[OAuth2CompliantFlow] Token validation warnings:', tokenValidation.errors);
+				logger.warn('useOAuth2CompliantAuthorizationCodeFlow', 'Token validation warnings', tokenValidation.errors);
 			}
 
 			setState((prev) => ({
@@ -530,7 +531,7 @@ export const useOAuth2CompliantAuthorizationCodeFlow = (): [OAuth2FlowState, OAu
 				'🔄 [OAuth2CompliantAuthorizationCodeFlow] Reset: cleared ConfigChecker and pre-flight cache data'
 			);
 		} catch (error) {
-			console.warn('[OAuth2CompliantAuthorizationCodeFlow] Failed to clear cache data:', error);
+			logger.warn('useOAuth2CompliantAuthorizationCodeFlow', 'Failed to clear cache data', { detail: String(error) });
 		}
 
 		v4ToastManager.showInfo('Flow reset successfully');

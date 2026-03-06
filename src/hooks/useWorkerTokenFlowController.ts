@@ -16,6 +16,7 @@ import type { TokenIntrospectionResponse, WorkerTokenResponse } from '../utils/w
 import { requestClientCredentialsToken } from '../utils/workerToken';
 import { showGlobalError, showGlobalSuccess } from './useNotifications';
 import { useAuthorizationFlowScroll } from './usePageScroll';
+import { logger } from '../utils/logger';
 
 export interface WorkerTokenFlowControllerOptions {
 	flowKey?: string;
@@ -91,7 +92,7 @@ const loadInitialCredentials = (): StepCredentials => {
 			return { ...createEmptyCredentials(), ...stored };
 		}
 	} catch (error) {
-		console.warn('[useWorkerTokenFlowController] Failed to load stored credentials:', error);
+		logger.warn('useWorkerTokenFlowController', 'Failed to load stored credentials', { detail: String(error) });
 	}
 	return createEmptyCredentials();
 };
@@ -105,7 +106,7 @@ const loadStoredConfig = (storageKey: string, defaultConfig: FlowConfig): FlowCo
 			return { ...defaultConfig, ...parsed };
 		}
 	} catch (error) {
-		console.warn('[useWorkerTokenFlowController] Failed to parse stored config:', error);
+		logger.warn('useWorkerTokenFlowController', 'Failed to parse stored config', { detail: String(error) });
 	}
 	return defaultConfig;
 };
@@ -251,7 +252,7 @@ export const useWorkerTokenFlowController = (
 					console.log('ℹ️ [useWorkerTokenFlowController] No saved credentials found');
 				}
 			} catch (error) {
-				console.error('❌ [useWorkerTokenFlowController] Failed to load credentials:', error);
+				logger.error('useWorkerTokenFlowController', 'Failed to load credentials', undefined, error as Error);
 			}
 		};
 
@@ -338,7 +339,7 @@ export const useWorkerTokenFlowController = (
 
 			console.log('✅ [useWorkerTokenFlowController] Token request completed successfully');
 		} catch (error) {
-			console.error('❌ [useWorkerTokenFlowController] Token request failed:', error);
+			logger.error('useWorkerTokenFlowController', 'Token request failed', undefined, error as Error);
 			enhancedDebugger.logError('worker-token-request', error);
 
 			const errorMessage =
@@ -400,7 +401,7 @@ export const useWorkerTokenFlowController = (
 
 			console.log('✅ [useWorkerTokenFlowController] Token introspection completed successfully');
 		} catch (error) {
-			console.error('❌ [useWorkerTokenFlowController] Token introspection failed:', error);
+			logger.error('useWorkerTokenFlowController', 'Token introspection failed', undefined, error as Error);
 			enhancedDebugger.logError('token-introspection', error);
 
 			const errorMessage = error instanceof Error ? error.message : 'Failed to introspect token';
@@ -438,10 +439,7 @@ export const useWorkerTokenFlowController = (
 				if (!credentials.clientSecret) missingFields.push('Client Secret');
 
 				const errorMessage = `Missing required fields: ${missingFields.join(', ')}. Please fill in all required fields to continue.`;
-				console.error(
-					'❌ [useWorkerTokenFlowController] Missing fields:',
-					missingFields.join(', ')
-				);
+				logger.error('useWorkerTokenFlowController', 'Missing fields', missingFields.join(', '));
 				showGlobalError(errorMessage);
 				return;
 			}
@@ -469,10 +467,7 @@ export const useWorkerTokenFlowController = (
 						'✅ [useWorkerTokenFlowController] Also saved to worker_credentials localStorage'
 					);
 				} catch (error) {
-					console.warn(
-						'⚠️ [useWorkerTokenFlowController] Failed to save to worker_credentials localStorage:',
-						error
-					);
+					logger.warn('useWorkerTokenFlowController', 'Failed to save to worker_credentials localStorage', { detail: String(error) });
 				}
 
 				setHasCredentialsSaved(true);
@@ -490,7 +485,7 @@ export const useWorkerTokenFlowController = (
 				throw new Error('Failed to save credentials via FlowCredentialService');
 			}
 		} catch (error) {
-			console.error('❌ [useWorkerTokenFlowController] Failed to save credentials:', error);
+			logger.error('useWorkerTokenFlowController', 'Failed to save credentials', undefined, error as Error);
 			showGlobalError(
 				`Failed to save credentials: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);

@@ -1,3 +1,4 @@
+import { logger } from './logger';
 // src/utils/idTokenValidation.ts
 // Comprehensive ID token validation service for OIDC flows
 
@@ -231,7 +232,7 @@ export class IDTokenValidationService {
 			// Find matching key
 			const key = jwks.keys.find((k) => k.kid === kid);
 			if (!key) {
-				console.warn('No matching key found in JWKS');
+				logger.warn('IDTokenValidation', 'No matching key found in JWKS');
 				return false;
 			}
 
@@ -240,7 +241,7 @@ export class IDTokenValidationService {
 			console.log('Signature validation would be performed here with key:', key);
 			return true;
 		} catch (error) {
-			console.error('Signature validation failed:', error);
+			logger.error('IDTokenValidation', 'Signature validation failed:', undefined, error as Error);
 			return false;
 		}
 	}
@@ -285,9 +286,10 @@ export class IDTokenValidationService {
 			}
 
 			if (!environmentId) {
-				console.warn(
-					'[ID Token Validation] Could not extract environment ID from JWKS URI, falling back to direct fetch:',
-					jwksUri
+				logger.warn(
+					'IDTokenValidation',
+					'Could not extract environment ID from JWKS URI, falling back to direct fetch:',
+					{ jwksUri }
 				);
 				// Fallback to direct fetch for non-PingOne endpoints
 				const response = await fetch(jwksUri);
@@ -320,7 +322,7 @@ export class IDTokenValidationService {
 
 			return jwks;
 		} catch (error) {
-			console.error('Failed to get JWKS:', error);
+			logger.error('IDTokenValidation', 'Failed to get JWKS:', undefined, error as Error);
 			return null;
 		}
 	}
@@ -377,7 +379,7 @@ export class IDTokenValidationService {
 
 		for (const claim of requiredClaims) {
 			if (!payload[claim]) {
-				console.error(`Missing required claim: ${claim}`);
+				logger.error('IDTokenValidation', `Missing required claim: ${claim}`);
 				return false;
 			}
 		}

@@ -423,20 +423,6 @@ export const OAuthOIDCData = {
 	},
 };
 
-// Main component with proper TypeScript typing
-const OAuthOIDCTraining: React.FC = () => {
-	const [_activeTab, _setActiveTab] = useState<string>('comparison');
-	const [expandedFlow, setExpandedFlow] = useState<string | null>(null);
-	const [searchTerm, setSearchTerm] = useState<string>('');
-	const [collapsedSections, setCollapsedSections] = useState({
-		comparison: false,
-		oauth: false,
-		oidc: false,
-		security: false,
-	});
-
-	// Use V6 pageLayoutService for consistent dimensions and FlowHeader integration
-
 // Layout components at module scope — styled-components v6 calls useContext
 // internally when creating styled components; must not run inside a component.
 const pageConfig = {
@@ -465,17 +451,6 @@ const OAuthOIDCTraining: React.FC = () => {
 		oidc: false,
 		security: false,
 	});
-
-	// Use V6 pageLayoutService for consistent dimensions and FlowHeader integration
-	const pageConfig = {
-		flowType: 'documentation' as const,
-		theme: 'blue' as const,
-		maxWidth: '72rem', // Wider for training content (1152px)
-		showHeader: true,
-		showFooter: false,
-		responsive: true,
-		flowId: 'oauth-oidc-training', // Enables FlowHeader integration
-	};
 
 	const {
 		PageContainer,
@@ -509,7 +484,7 @@ const OAuthOIDCTraining: React.FC = () => {
 		}));
 	};
 
-	const renderSupportIcon = (value: any): React.ReactNode => {
+	const renderSupportIcon = (value: { supported?: boolean; text?: string }): React.ReactNode => {
 		if (typeof value === 'object' && value.supported !== undefined) {
 			return value.supported ? (
 				<span className="flex items-center gap-2 text-green-600">
