@@ -30,9 +30,9 @@ import FlowUIService from '../../../services/flowUIService';
 import { UnifiedTokenDisplayService } from '../../../services/unifiedTokenDisplayService';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import { checkCredentialsAndWarn } from '../../../utils/credentialsWarningService';
+import { logger } from '../../../utils/logger';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
-import { logger } from '../../../utils/logger';
 
 // Get UI components from FlowUIService
 const Container = FlowUIService.getContainer();
@@ -335,19 +335,19 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 		}));
 	}, []);
 
-	const handleNext = useCallback(() => {
+	const _handleNext = useCallback(() => {
 		if (currentStep < STEP_METADATA.length - 1) {
 			setCurrentStep((prev) => prev + 1);
 		}
 	}, [currentStep]);
 
-	const handlePrevious = useCallback(() => {
+	const _handlePrevious = useCallback(() => {
 		if (currentStep > 0) {
 			setCurrentStep((prev) => prev - 1);
 		}
 	}, [currentStep]);
 
-	const handleReset = useCallback(() => {
+	const _handleReset = useCallback(() => {
 		setCurrentStep(0);
 		controller.resetFlow();
 
@@ -355,7 +355,7 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 		try {
 			FlowCredentialService.clearFlowState('client-credentials-v9');
 			logger.info('ClientCredentialsFlowV9', 'Cleared flow-specific storage');
-		} catch (error) {
+		} catch (_error) {
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -376,7 +376,10 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 			sessionStorage.removeItem('worker-token-cache');
 			localStorage.removeItem('worker-apps-cache');
 
-			logger.info('ClientCredentialsFlowV9', 'Reset: cleared ConfigChecker and pre-flight cache data');
+			logger.info(
+				'ClientCredentialsFlowV9',
+				'Reset: cleared ConfigChecker and pre-flight cache data'
+			);
 		} catch (_error) {
 			// Background cache clear — non-critical
 		}
@@ -423,7 +426,7 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 	);
 
 	// Get step validation error message
-	const getStepValidationMessage = useCallback(
+	const _getStepValidationMessage = useCallback(
 		(step: number): string => {
 			switch (step) {
 				case 0:
@@ -447,7 +450,7 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 		[controller.credentials, controller.tokens]
 	);
 
-	const canNavigateNext = useMemo(() => {
+	const _canNavigateNext = useMemo(() => {
 		return isStepValid(currentStep) && currentStep < STEP_METADATA.length - 1;
 	}, [currentStep, isStepValid]);
 
@@ -468,7 +471,7 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 			// Save to flow-specific storage with enhanced error handling
 			FlowCredentialService.saveFlowCredentials('client-credentials-v9', controller.credentials, {
 				showToast: false,
-			}).catch((error) => {
+			}).catch((_error) => {
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
@@ -632,7 +635,10 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 												: 'secondary'
 										}
 										onClick={() => {
-											logger.info('ClientCredentialsFlowV9', 'Setting auth method to client_secret_post');
+											logger.info(
+												'ClientCredentialsFlowV9',
+												'Setting auth method to client_secret_post'
+											);
 											controller.setCredentials({
 												...controller.credentials,
 												clientAuthMethod: 'client_secret_post',
@@ -656,7 +662,10 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 												: 'secondary'
 										}
 										onClick={() => {
-											logger.info('ClientCredentialsFlowV9', 'Setting auth method to client_secret_basic');
+											logger.info(
+												'ClientCredentialsFlowV9',
+												'Setting auth method to client_secret_basic'
+											);
 											controller.setCredentials({
 												...controller.credentials,
 												clientAuthMethod: 'client_secret_basic',
@@ -1162,7 +1171,6 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 					</StepHeader>
 
 					<StepContent>{renderStepContent()}</StepContent>
-
 				</MainCard>
 			</ContentWrapper>
 		</Container>

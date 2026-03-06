@@ -127,7 +127,7 @@ const WorkerTokenFlowV9: React.FC = () => {
 	);
 
 	// Request worker token
-	const handleRequestToken = useCallback(async () => {
+	const _handleRequestToken = useCallback(async () => {
 		try {
 			await controller.requestToken();
 			setWorkerToken(getAnyWorkerToken() ?? '');
@@ -158,12 +158,12 @@ const WorkerTokenFlowV9: React.FC = () => {
 	}, [controller]);
 
 	// Navigate to token management
-	const handleViewTokenManagement = useCallback(() => {
+	const _handleViewTokenManagement = useCallback(() => {
 		navigate('/token-management');
 	}, [navigate]);
 
 	// Full reset
-	const handleReset = useCallback(() => {
+	const _handleReset = useCallback(() => {
 		try {
 			controller.resetFlow();
 			setCurrentStep(0);

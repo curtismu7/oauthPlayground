@@ -643,7 +643,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 	}, [authorizationCode, credentials]);
 
 	// Full reset
-	const handleReset = useCallback(() => {
+	const _handleReset = useCallback(() => {
 		setCurrentStep(0);
 		setFlowId('');
 		setAuthorizationCode('');
@@ -1297,7 +1297,6 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 
 					<StepContentWrapper>{renderStepContent}</StepContentWrapper>
 				</MainCard>
-
 			</ContentWrapper>
 		</Container>
 	);

@@ -561,7 +561,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 	);
 
 	// Get step validation error message
-	const getStepValidationMessage = useCallback(
+	const _getStepValidationMessage = useCallback(
 		(stepIndex: number): string => {
 			switch (stepIndex) {
 				case 0:
@@ -597,7 +597,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 		return currentStep < STEP_METADATA.length - 1 && isStepValid(currentStep);
 	}, [currentStep, isStepValid]);
 
-	const handleNextStep = useCallback(() => {
+	const _handleNextStep = useCallback(() => {
 		if (!canNavigateNext()) {
 			modernMessaging.showBanner({
 				type: 'error',
@@ -611,7 +611,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 	}, [canNavigateNext]);
 
-	const handlePreviousStep = useCallback(() => {
+	const _handlePreviousStep = useCallback(() => {
 		setCurrentStep((prev) => Math.max(prev - 1, 0));
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 	}, []);
@@ -1442,7 +1442,6 @@ const OIDCHybridFlowV9: React.FC = () => {
 
 					{renderStepContent}
 				</MainCard>
-
 			</ContentWrapper>
 		</Container>
 	);

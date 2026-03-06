@@ -1426,7 +1426,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 				} else {
 					logger.info('DeviceAuthorizationFlowV9', 'No saved credentials found, using defaults');
 				}
-			} catch (error) {
+			} catch (_error) {
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
@@ -1503,7 +1503,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 				} else {
 					logger.info('DeviceAuthorizationFlowV9', 'Credentials saved successfully');
 				}
-			} catch (error) {
+			} catch (_error) {
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
@@ -1529,7 +1529,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 		enabled: true,
 	});
 
-	const { validateCredentialsAndProceed, CredentialValidationModal } = useV7CredentialValidation({
+	const { CredentialValidationModal } = useV7CredentialValidation({
 		flowKey: 'device-authorization-v9',
 		credentials: deviceFlow.credentials ?? {},
 		currentStep,
@@ -1559,7 +1559,10 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 			localStorage.setItem('token_to_analyze', deviceFlow.tokens.access_token);
 			localStorage.setItem('token_type', 'access');
 			localStorage.setItem('flow_source', 'device-authorization-v6');
-			logger.info('DeviceAuthorizationFlowV9', 'Passing access token to Token Management via localStorage');
+			logger.info(
+				'DeviceAuthorizationFlowV9',
+				'Passing access token to Token Management via localStorage'
+			);
 		}
 
 		window.location.href = '/token-management';
@@ -1583,7 +1586,10 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 			localStorage.setItem('token_to_analyze', deviceFlow.tokens.refresh_token);
 			localStorage.setItem('token_type', 'refresh');
 			localStorage.setItem('flow_source', 'device-authorization-v6');
-			logger.info('DeviceAuthorizationFlowV9', 'Passing refresh token to Token Management via localStorage');
+			logger.info(
+				'DeviceAuthorizationFlowV9',
+				'Passing refresh token to Token Management via localStorage'
+			);
 		}
 
 		window.location.href = '/token-management';
@@ -1703,7 +1709,10 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 			sessionStorage.removeItem('worker-token-cache');
 			localStorage.removeItem('worker-apps-cache');
 
-			logger.info('DeviceAuthorizationFlowV9', 'Reset: cleared ConfigChecker and pre-flight cache data');
+			logger.info(
+				'DeviceAuthorizationFlowV9',
+				'Reset: cleared ConfigChecker and pre-flight cache data'
+			);
 		} catch (_error) {
 			// Background cache clear — non-critical
 		}
@@ -1712,7 +1721,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 		try {
 			FlowCredentialService.clearFlowState('device-authorization-v9');
 			logger.info('DeviceAuthorizationFlowV9', 'Cleared flow-specific storage');
-		} catch (error) {
+		} catch (_error) {
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1731,7 +1740,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 	}, [deviceFlow, clearBackup]);
 
 	// Step validation with enhanced error messages
-	const isStepValid = useCallback(
+	const _isStepValid = useCallback(
 		(stepIndex: number): boolean => {
 			switch (stepIndex) {
 				case 0:
@@ -1772,7 +1781,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 	);
 
 	// Get step validation error message
-	const getStepValidationMessage = useCallback(
+	const _getStepValidationMessage = useCallback(
 		(stepIndex: number): string => {
 			switch (stepIndex) {
 				case 1:
@@ -3077,7 +3086,9 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 						const extractedEnvId = oidcDiscoveryService.extractEnvironmentId(result.issuerUrl);
 						if (extractedEnvId) {
 							ensureCredentials({ environmentId: extractedEnvId });
-							logger.info('DeviceAuthorizationFlowV9', 'Auto-extracted Environment ID', { extractedEnvId });
+							logger.info('DeviceAuthorizationFlowV9', 'Auto-extracted Environment ID', {
+								extractedEnvId,
+							});
 							if (extractedEnvId && (deviceFlow.credentials?.clientId || '')) {
 								modernMessaging.showFooterMessage({
 									type: 'info',
@@ -3189,7 +3200,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 								throw new Error('FlowCredentialService reported failure');
 							}
 						}
-					} catch (error) {
+					} catch (_error) {
 						modernMessaging.showBanner({
 							type: 'error',
 							title: 'Error',
