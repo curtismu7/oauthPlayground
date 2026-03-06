@@ -23,15 +23,15 @@ import { CollapsibleHeader } from '../../../services/collapsibleHeaderService';
 import { FlowCompletionService } from '../../../services/flowCompletionService';
 import { FlowHeader } from '../../../services/flowHeaderService';
 import { FlowUIService } from '../../../services/flowUIService';
+import { logger } from '../../../services/loggingService';
 import { oidcDiscoveryService } from '../../../services/oidcDiscoveryService';
 import SAMLAssertionService from '../../../services/samlAssertionService';
 import { UnifiedTokenDisplayService } from '../../../services/unifiedTokenDisplayService';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import { credentialManager } from '../../../utils/credentialManager';
+import { secureErrorLog, secureLog } from '../../../utils/secureLogging';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
-import { logger } from '../../../services/loggingService';
-import { secureLog, secureErrorLog } from '../../../utils/secureLogging';
 
 // Get UI components from FlowUIService
 const Container = FlowUIService.getContainer();
@@ -430,14 +430,18 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 			}
 
 			try {
-				logger.info('SAMLBearerAssertionFlowV9', 'Fetching OIDC Discovery for environment', { environmentId });
+				logger.info('SAMLBearerAssertionFlowV9', 'Fetching OIDC Discovery for environment', {
+					environmentId,
+				});
 				const issuerUrl = `https://auth.pingone.com/${environmentId}/as`;
 				const result = await oidcDiscoveryService.discover({ issuerUrl });
-				if (result.success && result.document) {
-					const { token_endpoint, issuer } = result.document;
+				if (result.success) {
+					const { token_endpoint, issuer } = result.data;
 					if (token_endpoint) {
 						setTokenEndpoint(token_endpoint);
-						logger.info('SAMLBearerAssertionFlowV9', 'Token endpoint auto-populated', { token_endpoint });
+						logger.info('SAMLBearerAssertionFlowV9', 'Token endpoint auto-populated', {
+							token_endpoint,
+						});
 					}
 					if (issuer) {
 						setSamlAssertion((prev) => ({
@@ -445,7 +449,9 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 							issuer,
 							audience: issuer,
 						}));
-						logger.info('SAMLBearerAssertionFlowV9', 'Issuer and Audience auto-populated', { issuer });
+						logger.info('SAMLBearerAssertionFlowV9', 'Issuer and Audience auto-populated', {
+							issuer,
+						});
 					}
 					modernMessaging.showFooterMessage({
 						type: 'info',
@@ -590,15 +596,26 @@ const SAMLBearerAssertionFlowV9: React.FC = () => {
 				const comprehensiveCredentials = credentialManager.getAllCredentials();
 
 				if (comprehensiveCredentials?.environmentId) {
-					logger.info('SAMLBearerAssertionFlowV9', 'Loading credentials from comprehensive system', { comprehensiveCredentials });
+					logger.info(
+						'SAMLBearerAssertionFlowV9',
+						'Loading credentials from comprehensive system',
+						{ comprehensiveCredentials }
+					);
 					setEnvironmentId(comprehensiveCredentials.environmentId);
 					setClientId(comprehensiveCredentials.clientId || '');
-					logger.info('SAMLBearerAssertionFlowV9', 'Comprehensive credentials loaded for mock flow');
+					logger.info(
+						'SAMLBearerAssertionFlowV9',
+						'Comprehensive credentials loaded for mock flow'
+					);
 
 					// Auto-populate token endpoint from environment ID
 					const tokenEndpointUrl = `https://auth.pingone.com/${comprehensiveCredentials.environmentId}/as/token`;
 					setTokenEndpoint(tokenEndpointUrl);
-					logger.info('SAMLBearerAssertionFlowV9', 'Token endpoint auto-populated from credentials', { tokenEndpointUrl });
+					logger.info(
+						'SAMLBearerAssertionFlowV9',
+						'Token endpoint auto-populated from credentials',
+						{ tokenEndpointUrl }
+					);
 				}
 
 				// Then load SAML-specific configuration (will override if exists)
