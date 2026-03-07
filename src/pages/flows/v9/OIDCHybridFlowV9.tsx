@@ -85,6 +85,17 @@ const VariantButton = FlowUIService.getVariantButton?.();
 const VariantTitle = FlowUIService.getVariantTitle?.();
 const VariantDescription = FlowUIService.getVariantDescription?.();
 
+/**
+ * Utility function to mask tokens for security
+ * Shows first 8 characters, masks middle, shows last 4 characters
+ */
+const maskToken = (token: string): string => {
+	if (!token || token.length <= 12) {
+		return '••••••••';
+	}
+	return `${token.slice(0, 8)}...${token.slice(-4)}`;
+};
+
 type CredentialsUpdater = Parameters<
 	ReturnType<typeof useHybridFlowControllerV9>['setCredentials']
 >[0];
@@ -1174,7 +1185,7 @@ const OIDCHybridFlowV9: React.FC = () => {
 
 								<GeneratedContentBox>
 									<GeneratedLabel>Raw Hybrid Response</GeneratedLabel>
-									<CodeBlock>{JSON.stringify(controller.tokens, null, 2)}</CodeBlock>
+									<CodeBlock>{maskToken(JSON.stringify(controller.tokens, null, 2))}</CodeBlock>
 									<ActionRow>
 										<CopyButtonService
 											text={JSON.stringify(controller.tokens, null, 2)}

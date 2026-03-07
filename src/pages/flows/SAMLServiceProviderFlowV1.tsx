@@ -300,8 +300,8 @@ interface SAMLAuthnRequest {
 	forceAuthn?: boolean;
 	isPassive?: boolean;
 	protocolBinding?: string;
-	scoping?: any;
-	extensions?: any;
+	scoping?: unknown;
+	extensions?: unknown;
 }
 
 // Main Component
@@ -374,7 +374,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 	// AuthnRequest processing
 	const [authnRequestXml, setAuthnRequestXml] = useState('');
 	const [parsedAuthnRequest, setParsedAuthnRequest] = useState<SAMLAuthnRequest | null>(null);
-	const [validationResult, setValidationResult] = useState<any>(null);
+	const [validationResult, setValidationResult] = useState<unknown>(null);
 	const [samlResponse, setSamlResponse] = useState('');
 	const [isProcessing, setIsProcessing] = useState(false);
 

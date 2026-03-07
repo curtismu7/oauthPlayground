@@ -165,7 +165,6 @@ export const useResourceOwnerPasswordFlowV7 = ({
 				type: 'error',
 				title: 'Error',
 				message: 'Failed to save configuration',
-				error: error instanceof Error ? error.message : 'Unknown error',
 				dismissible: true,
 			});
 		} finally {
@@ -266,9 +265,12 @@ export const useResourceOwnerPasswordFlowV7 = ({
 				undefined,
 				error instanceof Error ? error : new Error(String(error))
 			);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Authentication failed', {
-				error: error instanceof Error ? error.message : 'Unknown error',
-			}, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Authentication failed',
+				dismissible: true,
+			});
 
 			saveStepResult('authenticate-user', {
 				success: false,
@@ -336,9 +338,12 @@ export const useResourceOwnerPasswordFlowV7 = ({
 				undefined,
 				error instanceof Error ? error : new Error(String(error))
 			);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to fetch user information', {
-				error: error instanceof Error ? error.message : 'Unknown error',
-			}, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to fetch user information',
+				dismissible: true,
+			});
 
 			saveStepResult('fetch-user-info', {
 				success: false,

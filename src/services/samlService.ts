@@ -26,8 +26,8 @@ export interface SAMLAuthnRequest {
 	forceAuthn?: boolean;
 	isPassive?: boolean;
 	protocolBinding?: string;
-	scoping?: any;
-	extensions?: any;
+	scoping?: unknown;
+	extensions?: unknown;
 	id?: string;
 	version?: string;
 	issueInstant?: string;
@@ -337,7 +337,7 @@ class SAMLService {
 	generateSamlResponse(params: {
 		authnRequest: SAMLAuthnRequest;
 		spConfig: SAMLApplicationConfig;
-		userAttributes: Record<string, any>;
+		userAttributes: Record<string, unknown>;
 	}): string {
 		const { authnRequest, spConfig, userAttributes } = params;
 

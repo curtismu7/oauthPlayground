@@ -14,13 +14,12 @@ import {
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-import {
-	JWTPayload,
+import {formatScopes, 
+	JWTPayload,parseJWTPayload, 
 	TokenIntrospectionResponse,
-	WorkerTokenResponse,
+	WorkerTokenResponse
 } from '../../types/workerToken';
 import { logger } from '../../utils/logger';
-import { formatScopes, parseJWTPayload } from '../../types/workerToken';
 
 /**
  * Utility function to mask tokens for security
