@@ -495,6 +495,7 @@ export const FlowComparisonTool: React.FC<FlowComparisonToolProps> = ({
 			<div style={{ marginBottom: '1rem' }}>
 				<div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
 					<button
+						type="button"
 						onClick={() => setComparisonMode('detailed')}
 						style={{
 							padding: '0.5rem 1rem',
@@ -510,6 +511,7 @@ export const FlowComparisonTool: React.FC<FlowComparisonToolProps> = ({
 						Detailed View
 					</button>
 					<button
+						type="button"
 						onClick={() => setComparisonMode('matrix')}
 						style={{
 							padding: '0.5rem 1rem',
@@ -639,6 +641,7 @@ export const FlowComparisonTool: React.FC<FlowComparisonToolProps> = ({
 								</div>
 
 								<button
+									type="button"
 									onClick={() => onFlowSelect?.(flowType as FlowType)}
 									style={{
 										width: '100%',
