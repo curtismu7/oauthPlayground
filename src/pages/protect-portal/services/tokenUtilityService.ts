@@ -47,7 +47,7 @@ export interface JWTPayload {
 		country?: string;
 	};
 	updated_at?: number; // Last update time
-	[key: string]: any; // Additional claims
+	[key: string]: unknown; // Additional claims
 }
 
 export interface TokenValidationResult {
@@ -285,7 +285,7 @@ class TokenUtilityService {
 	/**
 	 * Format claim value for display
 	 */
-	static formatClaimValue(value: any): string {
+	static formatClaimValue(value: unknown): string {
 		if (value === null || value === undefined) {
 			return 'Not set';
 		}
