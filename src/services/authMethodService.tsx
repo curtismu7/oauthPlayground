@@ -1,4 +1,27 @@
-import { FiKey, FiLock, FiShield, FiZap } from '@icons';
+// MDI Icon Component for React Icons migration
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
+	icon, 
+	size = 16, 
+	className = '' 
+}) => {
+	const iconMap: Record<string, string> = {
+		'FiKey': 'mdi-key',
+		'FiLock': 'mdi-lock',
+		'FiShield': 'mdi-shield-check',
+		'FiZap': 'mdi-lightning-bolt',
+	};
+	
+	const mdiIcon = iconMap[icon] || 'mdi-help';
+	
+	return (
+		<i 
+			className={`mdi ${mdiIcon} ${className}`}
+			style={{ fontSize: `${size}px` }}
+		></i>
+	);
+};
+
+import React from 'react';
 
 export type AuthMethod =
 	| 'client_secret_basic'
@@ -85,13 +108,13 @@ export class AuthMethodService {
 	static getMethodIcon(method: AuthMethod) {
 		switch (method) {
 			case 'client_secret_basic':
-				return <FiShield />;
+				return <MDIIcon icon="FiShield" />;
 			case 'client_secret_post':
-				return <FiKey />;
+				return <MDIIcon icon="FiKey" />;
 			case 'client_secret_jwt':
-				return <FiLock />;
+				return <MDIIcon icon="FiLock" />;
 			case 'private_key_jwt':
-				return <FiZap />;
+				return <MDIIcon icon="FiZap" />;
 			default:
 				return null;
 		}

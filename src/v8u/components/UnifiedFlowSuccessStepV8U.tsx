@@ -19,13 +19,12 @@ import {
 } from '@icons';
 import React, { useCallback, useMemo } from 'react';
 import styled from 'styled-components';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { type FlowType, type SpecVersion } from '@/v8/services/specVersionServiceV8';
 import { type UnifiedFlowCredentials } from '../services/unifiedFlowIntegrationV8U';
 import { TokenDisplayV8U } from './TokenDisplayV8U';
-
-const _MODULE_TAG = '[✅ UNIFIED-FLOW-SUCCESS-V8U]';
 
 interface UnifiedFlowSuccessStepV8UProps {
 	flowType: FlowType;
@@ -44,9 +43,9 @@ const SuccessHeader = styled.div`
 	text-align: center;
 	margin-bottom: 3rem;
 	padding: 2rem;
-	background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+	background: linear-gradient(135deg, ${V9_COLORS.PRIMARY.GREEN} 0%, ${V9_COLORS.PRIMARY.GREEN_DARK} 100%);
 	border-radius: 1rem;
-	color: white;
+	color: ${V9_COLORS.TEXT.WHITE};
 `;
 
 const SuccessTitle = styled.h1`
@@ -66,19 +65,18 @@ const SuccessSubtitle = styled.p`
 `;
 
 const Section = styled.section`
-	background: white;
-	border-radius: 1rem;
+	background: ${V9_COLORS.BG.WHITE};
 	padding: 2rem;
 	margin-bottom: 2rem;
 	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-	border: 1px solid #e5e7eb;
+	border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
 `;
 
 const SectionTitle = styled.h2`
 	font-size: 1.5rem;
 	font-weight: 600;
 	margin-bottom: 1.5rem;
-	color: #1f2937;
+	color: ${V9_COLORS.TEXT.GRAY_DARK};
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -92,8 +90,8 @@ const GridContainer = styled.div`
 `;
 
 const InfoCard = styled.div`
-	background: #f9fafb;
-	border: 1px solid #e5e7eb;
+	background: ${V9_COLORS.BG.GRAY_MEDIUM};
+	border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
 	border-radius: 0.75rem;
 	padding: 1.5rem;
 `;
@@ -102,14 +100,14 @@ const InfoCardTitle = styled.h3`
 	font-size: 1.1rem;
 	font-weight: 600;
 	margin-bottom: 1rem;
-	color: #374151;
+	color: ${V9_COLORS.TEXT.GRAY_DARK};
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
 `;
 
 const InfoCardContent = styled.div`
-	color: #6b7280;
+	color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
 	line-height: 1.6;
 `;
 
@@ -123,23 +121,22 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 	cursor: pointer;
 	transition: all 0.2s ease;
 	border: none;
-	font-size: 1rem;
 
 	${({ $variant = 'primary' }) =>
 		$variant === 'primary'
 			? `
-		background: #10b981;
-		color: white;
+		background: ${V9_COLORS.PRIMARY.GREEN};
+		color: ${V9_COLORS.TEXT.WHITE};
 		&:hover {
-			background: #059669;
+			background: ${V9_COLORS.PRIMARY.GREEN_DARK};
 		}
 	`
 			: `
-		background: #f3f4f6;
-		color: #374151;
-		border: 1px solid #d1d5db;
+		background: ${V9_COLORS.TEXT.GRAY_LIGHTER};
+		color: ${V9_COLORS.TEXT.GRAY_DARK};
+		border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHT};
 		&:hover {
-			background: #e5e7eb;
+			background: ${V9_COLORS.TEXT.GRAY_LIGHTER};
 		}
 	`}
 `;
@@ -153,8 +150,8 @@ const ActionButtonsContainer = styled.div`
 `;
 
 const LearningSection = styled.div`
-	background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-	border: 1px solid #bfdbfe;
+	background: linear-gradient(135deg, ${V9_COLORS.BG.GRAY_LIGHT} 0%, #dbeafe 100%);
+	border: 1px solid ${V9_COLORS.PRIMARY.BLUE};
 	border-radius: 0.75rem;
 	padding: 1.5rem;
 	margin-top: 1rem;
@@ -164,7 +161,7 @@ const LearningTitle = styled.h3`
 	font-size: 1.1rem;
 	font-weight: 600;
 	margin-bottom: 1rem;
-	color: #1e40af;
+	color: ${V9_COLORS.PRIMARY.BLUE_DARK};
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -173,11 +170,21 @@ const LearningTitle = styled.h3`
 const LearningContent = styled.ul`
 	margin: 0;
 	padding-left: 1.5rem;
-	color: #3730a3;
+	color: ${V9_COLORS.PRIMARY.BLUE_DARK};
 	line-height: 1.6;
 
 	li {
 		margin-bottom: 0.5rem;
+	}
+
+	a {
+		color: ${V9_COLORS.PRIMARY.BLUE};
+		text-decoration: none;
+		font-weight: 500;
+
+		&:hover {
+			text-decoration: underline;
+		}
 	}
 `;
 

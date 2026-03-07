@@ -1,10 +1,33 @@
 // src/services/uiSettingsService.tsx
 
-import { FiExternalLink, FiKey, FiRefreshCw, FiSettings, FiShield } from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { logger } from '../utils/logger';
 import { CollapsibleHeader } from './collapsibleHeaderService';
+
+// MDI Icon Component for React Icons migration
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
+	icon, 
+	size = 16, 
+	className = '' 
+}) => {
+	const iconMap: Record<string, string> = {
+		'FiExternalLink': 'mdi-open-in-new',
+		'FiKey': 'mdi-key',
+		'FiRefreshCw': 'mdi-refresh',
+		'FiSettings': 'mdi-cog',
+		'FiShield': 'mdi-shield-check',
+	};
+	
+	const mdiIcon = iconMap[icon] || 'mdi-help';
+	
+	return (
+		<i 
+			className={`mdi ${mdiIcon} ${className}`}
+			style={{ fontSize: `${size}px` }}
+		></i>
+	);
+};
 
 // Styled components for the UI Settings panel
 const SettingsPanel = styled.div`
@@ -101,6 +124,16 @@ export interface UISettings {
 	devicePollingAutoScroll: boolean;
 }
 
+export interface AuthMethodConfig {
+	authMethod: string;
+	description: string;
+	requiresClientSecret: boolean;
+	securityLevel: 'low' | 'medium' | 'high';
+	useCases: string[];
+	recommended?: boolean;
+	icon?: string;
+}
+
 // Default settings
 const DEFAULT_SETTINGS: UISettings = {
 	pkceAutoGenerate: false,
@@ -151,14 +184,14 @@ const SETTINGS_CONFIG = [
 		key: 'pkceAutoGenerate' as keyof UISettings,
 		label: 'PKCE Auto-Generation',
 		description: 'Automatically generate PKCE codes when reaching Step 2',
-		icon: FiKey,
+		icon: 'FiKey',
 		flows: ['oauth-authorization-code', 'oidc-authorization-code', 'oidc-hybrid'], // Only flows that use PKCE
 	},
 	{
 		key: 'authUrlAutoGenerate' as keyof UISettings,
 		label: 'Authorization URL Auto-Generation',
 		description: 'Automatically generate authorization URL when PKCE codes are ready',
-		icon: FiExternalLink,
+		icon: 'FiExternalLink',
 		flows: [
 			'oauth-authorization-code',
 			'oidc-authorization-code',
@@ -171,14 +204,14 @@ const SETTINGS_CONFIG = [
 		key: 'tokenAutoExchange' as keyof UISettings,
 		label: 'Token Auto-Exchange',
 		description: 'Automatically exchange authorization code for tokens',
-		icon: FiShield,
+		icon: 'FiShield',
 		flows: ['oauth-authorization-code', 'oidc-authorization-code', 'oidc-hybrid'], // Only flows that exchange codes for tokens
 	},
 	{
 		key: 'stateAutoGenerate' as keyof UISettings,
 		label: 'State Auto-Generation',
 		description: 'Automatically generate state parameter for requests',
-		icon: FiRefreshCw,
+		icon: 'FiRefreshCw',
 		flows: [
 			'oauth-authorization-code',
 			'oidc-authorization-code',
@@ -191,14 +224,14 @@ const SETTINGS_CONFIG = [
 		key: 'nonceAutoGenerate' as keyof UISettings,
 		label: 'Nonce Auto-Generation',
 		description: 'Automatically generate nonce parameter for OIDC flows',
-		icon: FiRefreshCw,
+		icon: 'FiRefreshCw',
 		flows: ['oidc-authorization-code', 'oidc-hybrid', 'oidc-implicit'], // Only OIDC flows
 	},
 	{
 		key: 'redirectAutoOpen' as keyof UISettings,
 		label: 'Redirect Auto-Open',
 		description: 'Automatically open authentication modal when URL is ready',
-		icon: FiExternalLink,
+		icon: 'FiExternalLink',
 		flows: [
 			'oauth-authorization-code',
 			'oidc-authorization-code',
@@ -211,14 +244,14 @@ const SETTINGS_CONFIG = [
 		key: 'devicePollingAutoStart' as keyof UISettings,
 		label: 'Device Polling Auto-Start',
 		description: 'Automatically start polling for device authorization tokens',
-		icon: FiRefreshCw,
+		icon: 'FiRefreshCw',
 		flows: ['device-authorization'], // Only device authorization flows
 	},
 	{
 		key: 'devicePollingAutoScroll' as keyof UISettings,
 		label: 'Device Polling Auto-Scroll',
 		description: 'Automatically scroll to Smart TV display when polling starts',
-		icon: FiExternalLink,
+		icon: 'FiExternalLink',
 		flows: ['device-authorization'], // Only device authorization flows
 	},
 ];
@@ -238,14 +271,14 @@ const getFlowSpecificSettings = (flowType?: string) => {
 				key: 'devicePollingAutoStart' as keyof UISettings,
 				label: 'Device Polling Auto-Start',
 				description: 'Automatically start polling for device authorization tokens',
-				icon: FiRefreshCw,
+				icon: 'FiRefreshCw',
 				flows: ['device-authorization'],
 			},
 			{
 				key: 'devicePollingAutoScroll' as keyof UISettings,
 				label: 'Device Polling Auto-Scroll',
 				description: 'Automatically scroll to Smart TV display when polling starts',
-				icon: FiExternalLink,
+				icon: 'FiExternalLink',
 				flows: ['device-authorization'],
 			},
 		];
@@ -263,17 +296,16 @@ export const UISettingsPanel: React.FC<{ flowType?: string }> = ({ flowType }) =
 			<CollapsibleHeader
 				title="UI Behavior Settings"
 				subtitle="Configure automatic generation and user interaction behavior"
-				icon={<FiSettings size={16} />}
+				icon={<MDIIcon icon="FiSettings" size={16} />}
 				defaultCollapsed={true}
 			>
 				{getFlowSpecificSettings(flowType).map((config) => {
-					const IconComponent = config.icon;
 					return (
 						<SettingItem key={config.key}>
 							<SettingInfo>
 								<SettingLabel>
 									<SettingIcon>
-										<IconComponent size={14} />
+										<MDIIcon icon={config.icon!} />
 									</SettingIcon>
 									{config.label}
 								</SettingLabel>

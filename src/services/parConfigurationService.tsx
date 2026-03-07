@@ -3,12 +3,32 @@
 // PAR (Pushed Authorization Request) Configuration Service
 // Reusable service for configuring PAR authorization request parameters
 
-import { FiCheckCircle, FiShield } from '@icons';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 import { logger } from '../utils/logger';
 import { CollapsibleHeader } from './collapsibleHeaderService';
+
+// MDI Icon Component for React Icons migration
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
+	icon, 
+	size = 16, 
+	className = '' 
+}) => {
+	const iconMap: Record<string, string> = {
+		'FiCheckCircle': 'mdi-check-circle',
+		'FiShield': 'mdi-shield-check',
+	};
+	
+	const mdiIcon = iconMap[icon] || 'mdi-help';
+	
+	return (
+		<i 
+			className={`mdi ${mdiIcon} ${className}`}
+			style={{ fontSize: `${size}px` }}
+		></i>
+	);
+};
 
 // PAR Configuration Types
 export interface PARConfiguration {
@@ -191,7 +211,7 @@ export const PARConfigurationService: React.FC<PARConfigurationServiceProps> = (
 			try {
 				const claims = value ? JSON.parse(value) : null;
 				handleConfigChange('claims', claims);
-			} catch (_error) {
+			} catch {
 				// Invalid JSON, keep the text but don't update claims
 			}
 		},
@@ -201,13 +221,13 @@ export const PARConfigurationService: React.FC<PARConfigurationServiceProps> = (
 	return (
 		<CollapsibleHeader
 			title={title}
-			icon={<FiShield />}
+			icon={<MDIIcon icon="FiShield" />}
 			defaultCollapsed={defaultCollapsed}
 			showArrow={true}
 		>
 			{showEducationalContent && (
 				<InfoBox $variant="info">
-					<FiShield size={20} />
+					<MDIIcon icon="FiShield" size={20} />
 					<div>
 						<InfoTitle>PAR (Pushed Authorization Request) Parameters</InfoTitle>
 						<InfoText>
@@ -311,14 +331,13 @@ export const PARConfigurationService: React.FC<PARConfigurationServiceProps> = (
 					<ButtonSpinner
 						loading={false}
 						onClick={() => {
-							const minimalConfig = {
+							const minimalConfig: PARConfiguration = {
 								acrValues: '',
 								prompt: 'none',
-								maxAge: undefined,
 								uiLocales: '',
 								claims: null,
 							};
-							handleConfigChange(minimalConfig);
+							handleFullConfigChange(minimalConfig);
 						}}
 						spinnerSize={10}
 						spinnerPosition="left"
@@ -429,7 +448,7 @@ export const PARConfigurationService: React.FC<PARConfigurationServiceProps> = (
 
 			{showEducationalContent && (
 				<InfoBox $variant="success" style={{ marginTop: '1rem' }}>
-					<FiCheckCircle size={20} />
+					<MDIIcon icon="FiCheckCircle" size={20} />
 					<div>
 						<InfoTitle>PAR Security Benefits</InfoTitle>
 						<InfoText>
@@ -454,7 +473,6 @@ export class PARConfigurationServiceUtils {
 		return {
 			acrValues: '',
 			prompt: '',
-			maxAge: undefined,
 			uiLocales: '',
 			claims: null,
 		};
@@ -516,7 +534,7 @@ export class PARConfigurationServiceUtils {
 		if (params.claims) {
 			try {
 				config.claims = JSON.parse(params.claims);
-			} catch (_error) {
+			} catch {
 				logger.warn('PARConfigurationService', 'Invalid claims JSON:', params.claims);
 			}
 		}

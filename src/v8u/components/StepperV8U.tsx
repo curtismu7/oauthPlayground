@@ -7,8 +7,10 @@
  */
 
 import React from 'react';
+import { FiArrowRight } from 'react-icons/fi';
 import { type FlowType } from '@/v8/services/specVersionServiceV8';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
+import { V9_COLORS, getStepStyles } from '../../services/v9/V9ColorStandards';
 
 export interface StepperV8UProps {
 	currentStep: number;
@@ -69,12 +71,12 @@ export const StepperV8U: React.FC<StepperV8UProps> = ({
 	return (
 		<div
 			style={{
-				background: '#ffffff',
+				background: V9_COLORS.BG.WHITE,
 				borderRadius: '8px',
 				padding: '24px',
 				marginBottom: '24px',
 				boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-				border: '1px solid #e5e7eb',
+				border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
 			}}
 		>
 			{/* Step indicators */}
@@ -95,14 +97,14 @@ export const StepperV8U: React.FC<StepperV8UProps> = ({
 						left: '40px',
 						right: '40px',
 						height: '2px',
-						background: '#e5e7eb',
+						background: V9_COLORS.TEXT.GRAY_LIGHTER,
 						zIndex: 0,
 					}}
 				>
 					<div
 						style={{
 							height: '100%',
-							background: '#3b82f6',
+							background: V9_COLORS.PRIMARY.BLUE,
 							width: `${(currentStep / (totalSteps - 1)) * 100}%`,
 							transition: 'width 0.3s ease',
 						}}
@@ -135,13 +137,7 @@ export const StepperV8U: React.FC<StepperV8UProps> = ({
 									width: '40px',
 									height: '40px',
 									borderRadius: '50%',
-									border: isCurrent
-										? '3px solid #3b82f6'
-										: isCompleted
-											? '2px solid #10b981'
-											: '2px solid #d1d5db',
-									background: isCurrent ? '#3b82f6' : isCompleted ? '#10b981' : '#ffffff',
-									color: isCurrent || isCompleted ? '#ffffff' : '#6b7280',
+									...getStepStyles(isCurrent, isCompleted),
 									fontSize: '16px',
 									fontWeight: '600',
 									cursor: isClickable ? 'pointer' : 'not-allowed',

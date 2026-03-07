@@ -2,10 +2,11 @@ import React from 'react';
 import styled from 'styled-components';
 import { AnalyticsDashboard } from '../components/AnalyticsDashboard';
 import { PageTitle } from '../components/PageTitle';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const PageContainer = styled.div`
   min-height: 100vh;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background: linear-gradient(135deg, ${V9_COLORS.BG.GRAY_LIGHT} 0%, ${V9_COLORS.TEXT.GRAY_LIGHTER} 100%);
   padding: 2rem 0;
 `;
 

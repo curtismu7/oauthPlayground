@@ -1,11 +1,34 @@
 // src/services/unifiedTokenDisplayService.tsx
 
-import { FiCopy, FiExternalLink, FiEyeOff, FiInfo, FiKey } from '@icons';
 import React from 'react';
 import { type NavigateFunction, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import TokenDisplayService from './tokenDisplayService';
+
+// MDI Icon Component for React Icons migration
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
+	icon, 
+	size = 16, 
+	className = '' 
+}) => {
+	const iconMap: Record<string, string> = {
+		'FiCopy': 'mdi-content-copy',
+		'FiExternalLink': 'mdi-open-in-new',
+		'FiEyeOff': 'mdi-eye-off',
+		'FiInfo': 'mdi-information',
+		'FiKey': 'mdi-key',
+	};
+	
+	const mdiIcon = iconMap[icon] || 'mdi-help';
+	
+	return (
+		<i 
+			className={`mdi ${mdiIcon} ${className}`}
+			style={{ fontSize: `${size}px` }}
+		></i>
+	);
+};
 
 /**
  * Utility function to mask tokens for security
@@ -294,13 +317,13 @@ export const UnifiedTokenDisplay: React.FC<UnifiedTokenDisplayProps> = ({
 					<TokenActions>
 						{showDecodeButtons && (
 							<ActionButton $variant="secondary" onClick={() => handleDecodeClick(token, label)}>
-								{isDecoded ? <FiEyeOff size={14} /> : <FiKey size={14} />}
+								{isDecoded ? <MDIIcon icon="FiEyeOff" size={14} /> : <MDIIcon icon="FiKey" size={14} />}
 								{isDecoded ? 'Encode' : 'Decode'}
 							</ActionButton>
 						)}
 						{showCopyButtons && (
 							<ActionButton $variant="primary" onClick={() => handleCopy(token, label)}>
-								<FiCopy size={14} />
+								<MDIIcon icon="FiCopy" size={14} />
 								Copy
 							</ActionButton>
 						)}
@@ -308,7 +331,7 @@ export const UnifiedTokenDisplay: React.FC<UnifiedTokenDisplayProps> = ({
 							$variant="management"
 							onClick={() => handleSendToTokenManagement(token, tokenType, label, navigate)}
 						>
-							<FiExternalLink size={14} />
+							<MDIIcon icon="FiExternalLink" size={14} />
 							Token Management
 						</ActionButton>
 					</TokenActions>
@@ -325,7 +348,7 @@ export const UnifiedTokenDisplay: React.FC<UnifiedTokenDisplayProps> = ({
 					)}
 					{!isDecoded && showDecodeButtons && !TokenDisplayService.isJWT(token) && (
 						<OpaqueMessage>
-							<FiInfo size={16} style={{ marginRight: '0.5rem', verticalAlign: 'middle' }} />
+							<MDIIcon icon="FiInfo" size={16} style={{ marginRight: '0.5rem', verticalAlign: 'middle' }} />
 							{label} is opaque and cannot be decoded as JWT.
 						</OpaqueMessage>
 					)}

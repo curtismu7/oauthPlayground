@@ -111,47 +111,6 @@ const PhoneScreen = styled.div`
   }
 `;
 
-// Status Bar
-const _StatusBar = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #333333;
-`;
-
-const _StatusBarLeft = styled.div`
-  color: #ffffff;
-  font-size: 0.75rem;
-  font-weight: 600;
-`;
-
-const _StatusBarRight = styled.div`
-  display: flex;
-  gap: 0.25rem;
-  color: #ffffff;
-  font-size: 0.75rem;
-`;
-
-const _BatteryIcon = styled.div`
-  width: 20px;
-  height: 10px;
-  border: 1px solid #ffffff;
-  border-radius: 2px;
-  position: relative;
-  
-  &::after {
-    content: '';
-    position: absolute;
-    right: -3px;
-    top: 2px;
-    width: 2px;
-    height: 6px;
-    background: #ffffff;
-    border-radius: 0 1px 1px 0;
-  }
-`;
 
 // iOS 18 Status Bar Indicators
 const IOSStatusBar = styled.div`
@@ -390,11 +349,8 @@ interface MobilePhoneDeviceFlowProps {
 
 const MobilePhoneDeviceFlow: React.FC<MobilePhoneDeviceFlowProps> = ({
 	state,
-	onStateUpdate,
-	onComplete,
-	onError,
 }) => {
-	const [_currentTime, setCurrentTime] = useState(new Date());
+	const [, setCurrentTime] = useState(new Date());
 
 	useEffect(() => {
 		const timer = setInterval(() => {
@@ -408,10 +364,6 @@ const MobilePhoneDeviceFlow: React.FC<MobilePhoneDeviceFlowProps> = ({
 		logger.info('MobilePhoneDeviceFlow', 'User code copied to clipboard');
 	};
 
-	const _handleCopyVerificationUri = () => {
-		navigator.clipboard.writeText(state.verificationUri);
-		logger.info('MobilePhoneDeviceFlow', 'Verification URI copied to clipboard');
-	};
 
 	const handleOpenVerificationUri = () => {
 		window.open(state.verificationUriComplete, '_blank');

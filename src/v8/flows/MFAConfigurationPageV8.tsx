@@ -18,7 +18,6 @@ import { MFAUserDisplayV8 } from '@/v8/components/MFAUserDisplayV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
-import { PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
 import type { DeviceAuthenticationPolicy } from '@/v8/flows/shared/MFATypes';
 import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
 import {
@@ -31,22 +30,13 @@ import WorkerTokenStatusServiceV8 from '@/v8/services/workerTokenStatusServiceV8
 
 const MODULE_TAG = '[⚙️ MFA-CONFIG-PAGE-V8]';
 
-const REGION_DOMAINS: Record<'us' | 'eu' | 'ap' | 'ca', string> = {
-	us: 'auth.pingone.com',
-	eu: 'auth.pingone.eu',
-	ap: 'auth.pingone.asia',
-	ca: 'auth.pingone.ca',
-};
-
 export const MFAConfigurationPageV8: React.FC = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const [config, setConfig] = useState<MFAConfiguration>(() =>
 		MFAConfigurationServiceV8.loadConfiguration()
 	);
-	const [_hasChanges, setHasChanges] = useState(false);
-	const [_isSaving, setIsSaving] = useState(false);
-	const [_isRefreshingToken, setIsRefreshingToken] = useState(false);
+	const [, setHasChanges] = useState(false);
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 
 	// PingOne MFA Settings state
@@ -63,16 +53,16 @@ export const MFAConfigurationPageV8: React.FC = () => {
 	const { paddingBottom } = useApiDisplayPadding();
 
 	// Device Authentication Policy state
-	const [_deviceAuthPolicies, setDeviceAuthPolicies] = useState<DeviceAuthenticationPolicy[]>([]);
+	const [, setDeviceAuthPolicies] = useState<DeviceAuthenticationPolicy[]>([]);
 	const [selectedPolicyId, setSelectedPolicyId] = useState<string>('');
 	const [selectedPolicy, setSelectedPolicy] = useState<DeviceAuthenticationPolicy | null>(null);
-	const [_isLoadingPolicies, setIsLoadingPolicies] = useState(false);
-	const [_isLoadingPolicy, setIsLoadingPolicy] = useState(false);
+	const [, setIsLoadingPolicies] = useState(false);
+	const [, setIsLoadingPolicy] = useState(false);
 	const [isSavingPolicy, setIsSavingPolicy] = useState(false);
 	const [hasPolicyChanges, setHasPolicyChanges] = useState(false);
 	const [showCreatePolicyModal, setShowCreatePolicyModal] = useState(false);
-	const [_newPolicyName, setNewPolicyName] = useState('');
-	const [_newPolicyDescription, setNewPolicyDescription] = useState('');
+	const [, setNewPolicyName] = useState('');
+	const [, setNewPolicyDescription] = useState('');
 	const [isCreatingPolicy, setIsCreatingPolicy] = useState(false);
 
 	// Get return path from location state
@@ -432,223 +422,10 @@ export const MFAConfigurationPageV8: React.FC = () => {
 		}
 	};
 
-	const _handleSave = () => {
-		setIsSaving(true);
-		try {
-			MFAConfigurationServiceV8.saveConfiguration(config);
-			setHasChanges(false);
-			modernMessaging.showFooterMessage({
-				type: 'info',
-				message: 'MFA configuration saved successfully',
-				duration: 3000,
-			});
-		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to save configuration`, error);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: 'Failed to save configuration',
-				dismissible: true,
-			});
-		} finally {
-			setIsSaving(false);
-		}
-	};
 
-	const _handleReset = async () => {
-		const { uiNotificationServiceV8 } = await import('@/v8/services/uiNotificationServiceV8');
-		const confirmed = await uiNotificationServiceV8.confirm({
-			title: 'Reset Configuration',
-			message: 'Are you sure you want to reset all settings to defaults? This cannot be undone.',
-		});
 
-		if (confirmed) {
-			MFAConfigurationServiceV8.resetToDefaults();
-			setConfig(MFAConfigurationServiceV8.loadConfiguration());
-			setHasChanges(false);
-			modernMessaging.showFooterMessage({
-				type: 'info',
-				message: 'Configuration reset to defaults',
-				duration: 3000,
-			});
-		}
-	};
 
-	const _handleManualWorkerTokenRefresh = async () => {
-		setIsRefreshingToken(true);
-		try {
-			const credentials = await workerTokenServiceV8.loadCredentials();
-			if (!credentials) {
-				modernMessaging.showBanner({
-					type: 'error',
-					title: 'Error',
-					message:
-						'Worker token credentials are missing. Open the worker token modal to save them first.',
-					dismissible: true,
-				});
-				setIsRefreshingToken(false);
-				return;
-			}
 
-			const {
-				environmentId,
-				clientId,
-				clientSecret,
-				scopes,
-				region = 'us',
-				tokenEndpointAuthMethod = 'client_secret_post',
-			} = credentials;
-
-			if (!environmentId || !clientId || !clientSecret) {
-				modernMessaging.showBanner({
-					type: 'error',
-					title: 'Error',
-					message: 'Saved worker token credentials are incomplete. Please re-enter them.',
-					dismissible: true,
-				});
-				setIsRefreshingToken(false);
-				return;
-			}
-
-			const resolvedScopes = (
-				scopes?.length ? scopes : PINGONE_WORKER_MFA_SCOPE_STRING.split(/\s+/)
-			).join(' ');
-			const domain = REGION_DOMAINS[region] ?? REGION_DOMAINS.us;
-			const tokenEndpoint = `https://${domain}/${environmentId}/as/token`;
-			const params = new URLSearchParams({
-				grant_type: 'client_credentials',
-				client_id: clientId,
-				scope: resolvedScopes,
-			});
-
-			const headers: Record<string, string> = {
-				'Content-Type': 'application/x-www-form-urlencoded',
-			};
-
-			if (tokenEndpointAuthMethod === 'client_secret_basic') {
-				headers.Authorization = `Basic ${btoa(`${clientId}:${clientSecret}`)}`;
-			} else {
-				params.set('client_secret', clientSecret);
-			}
-
-			const response = await fetch(tokenEndpoint, {
-				method: 'POST',
-				headers,
-				body: params.toString(),
-			});
-
-			if (!response.ok) {
-				const errorJson = await response.json().catch(() => null);
-				const message =
-					errorJson?.error_description ||
-					errorJson?.error ||
-					response.statusText ||
-					'Unknown error refreshing worker token';
-				throw new Error(message);
-			}
-
-			const data = await response.json();
-			const token = data.access_token as string | undefined;
-			if (!token) {
-				throw new Error('Token endpoint did not return an access token');
-			}
-			const expiresAt = data.expires_in ? Date.now() + data.expires_in * 1000 : undefined;
-
-			await workerTokenServiceV8.saveToken(token, expiresAt);
-			window.dispatchEvent(new Event('workerTokenUpdated'));
-
-			const status = WorkerTokenStatusServiceV8.checkWorkerTokenStatus(token, expiresAt);
-			const timeRemainingLabel = status.minutesRemaining
-				? `${status.minutesRemaining} min remaining`
-				: status.message;
-			modernMessaging.showFooterMessage({
-				type: 'info',
-				message: `Worker token refreshed successfully (${timeRemainingLabel}).`,
-				duration: 3000,
-			});
-		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to refresh worker token`, error);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: error instanceof Error ? error.message : 'Failed to refresh worker token',
-				dismissible: true,
-			});
-		} finally {
-			setIsRefreshingToken(false);
-		}
-	};
-
-	const _handleExport = () => {
-		try {
-			const json = MFAConfigurationServiceV8.exportConfiguration();
-			const blob = new Blob([json], { type: 'application/json' });
-			const url = URL.createObjectURL(blob);
-			const a = document.createElement('a');
-			a.href = url;
-			a.download = `mfa-config-${new Date().toISOString().split('T')[0]}.json`;
-			document.body.appendChild(a);
-			a.click();
-			document.body.removeChild(a);
-			URL.revokeObjectURL(url);
-			modernMessaging.showFooterMessage({
-				type: 'info',
-				message: 'Configuration exported successfully',
-				duration: 3000,
-			});
-		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to export configuration`, error);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: 'Failed to export configuration',
-				dismissible: true,
-			});
-		}
-	};
-
-	const _handleImport = () => {
-		const input = document.createElement('input');
-		input.type = 'file';
-		input.accept = '.json';
-		input.onchange = (e) => {
-			const file = (e.target as HTMLInputElement).files?.[0];
-			if (!file) return;
-
-			const reader = new FileReader();
-			reader.onload = (event) => {
-				try {
-					const json = event.target?.result as string;
-					if (MFAConfigurationServiceV8.importConfiguration(json)) {
-						setConfig(MFAConfigurationServiceV8.loadConfiguration());
-						setHasChanges(false);
-						modernMessaging.showFooterMessage({
-							type: 'info',
-							message: 'Configuration imported successfully',
-							duration: 3000,
-						});
-					} else {
-						modernMessaging.showBanner({
-							type: 'error',
-							title: 'Error',
-							message: 'Failed to import configuration. Invalid format.',
-							dismissible: true,
-						});
-					}
-				} catch (error) {
-					console.error(`${MODULE_TAG} Failed to import configuration`, error);
-					modernMessaging.showBanner({
-						type: 'error',
-						title: 'Error',
-						message: 'Failed to import configuration',
-						dismissible: true,
-					});
-				}
-			};
-			reader.readAsText(file);
-		};
-		input.click();
-	};
 
 	const updateConfig = <K extends keyof MFAConfiguration>(key: K, value: MFAConfiguration[K]) => {
 		setConfig((prev) => ({ ...prev, [key]: value }));

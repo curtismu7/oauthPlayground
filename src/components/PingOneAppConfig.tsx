@@ -5,6 +5,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { logger } from '../utils/logger';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const CollapsibleSection = styled.div`
   margin: 1.5rem 0;
@@ -16,14 +17,14 @@ const SectionToggle = styled.div`
   justify-content: space-between;
   cursor: pointer;
   padding: 1rem;
-  background: #f1f5f9;
+  background: ${V9_COLORS.BG.GRAY_MEDIUM};
   border-radius: 8px;
-  border-left: 4px solid #3b82f6;
+  border-left: 4px solid ${V9_COLORS.PRIMARY.BLUE};
   margin-bottom: 0.5rem;
   transition: all 0.2s ease;
 
   &:hover {
-    background: #e2e8f0;
+    background: ${V9_COLORS.TEXT.GRAY_LIGHTER};
   }
 `;
 
@@ -32,18 +33,18 @@ const SectionContent = styled.div<{ $collapsed?: boolean }>`
   overflow: hidden;
   transition: max-height 0.3s ease;
   padding: ${(props) => (props.$collapsed ? '0 1rem' : '1rem')};
-  background: #f8fafc;
+  background: ${V9_COLORS.BG.GRAY_LIGHT};
   border-radius: 0 0 8px 8px;
 `;
 
 const SectionTitle = styled.h3`
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   font-weight: 600;
   margin: 0;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #1f2937;
+  color: ${V9_COLORS.TEXT.GRAY_DARK};
 `;
 
 const ConfigGrid = styled.div`
@@ -56,27 +57,28 @@ const ConfigGrid = styled.div`
 const ConfigField = styled.div`
   display: flex;
   flex-direction: column;
+  gap: 0.5rem;
 `;
 
-const Label = styled.label`
+const ConfigLabel = styled.label`
   display: block;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #374151;
+  color: ${V9_COLORS.TEXT.GRAY_DARK};
   margin-bottom: 0.5rem;
 `;
 
 const Input = styled.input`
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHT};
   border-radius: 6px;
   font-size: 0.875rem;
-  color: #1f2937;
+  color: ${V9_COLORS.TEXT.GRAY_DARK};
   
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: ${V9_COLORS.PRIMARY.BLUE};
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 `;
@@ -84,15 +86,15 @@ const Input = styled.input`
 const Select = styled.select`
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHT};
   border-radius: 6px;
   font-size: 0.875rem;
-  color: #1f2937;
-  background: white;
+  color: ${V9_COLORS.TEXT.GRAY_DARK};
+  background: ${V9_COLORS.BG.WHITE};
   
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: ${V9_COLORS.PRIMARY.BLUE};
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 `;
@@ -109,32 +111,32 @@ const CheckboxItem = styled.label`
   align-items: center;
   gap: 0.5rem;
   font-size: 0.875rem;
-  color: #374151;
+  color: ${V9_COLORS.TEXT.GRAY_DARK};
   cursor: pointer;
 `;
 
 const Checkbox = styled.input`
   width: 1rem;
   height: 1rem;
-  accent-color: #3b82f6;
+  accent-color: ${V9_COLORS.PRIMARY.BLUE};
 `;
 
 const SubSection = styled.div`
   margin: 1rem 0;
   padding: 1rem;
-  background: #ffffff;
+  background: ${V9_COLORS.BG.WHITE};
   border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
 `;
 
 const SubSectionTitle = styled.h4`
   font-size: 1rem;
   font-weight: 600;
-  color: #1f2937;
+  color: ${V9_COLORS.TEXT.GRAY_DARK};
   margin-bottom: 1rem;
 `;
 
-const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
+const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'success' }>`
   padding: 0.75rem 2rem;
   font-size: 1rem;
   font-weight: 600;
@@ -142,24 +144,33 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;
-  
+
   ${(props) =>
 		props.variant === 'primary'
 			? `
-    background: #3b82f6;
-    color: white;
+    background: ${V9_COLORS.PRIMARY.BLUE};
+    color: ${V9_COLORS.TEXT.WHITE};
     
     &:hover {
-      background: #2563eb;
+      background: ${V9_COLORS.PRIMARY.BLUE_DARK};
+    }
+  `
+			: props.variant === 'success'
+			? `
+    background: ${V9_COLORS.PRIMARY.GREEN};
+    color: ${V9_COLORS.TEXT.WHITE};
+    
+    &:hover {
+      background: ${V9_COLORS.PRIMARY.GREEN_DARK};
     }
   `
 			: `
-    background: #f3f4f6;
-    color: #374151;
-    border: 1px solid #d1d5db;
+    background: ${V9_COLORS.TEXT.GRAY_LIGHTER};
+    color: ${V9_COLORS.TEXT.GRAY_DARK};
+    border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHT};
     
     &:hover {
-      background: #e5e7eb;
+      background: ${V9_COLORS.TEXT.GRAY_LIGHTER};
     }
   `}
 `;
@@ -196,6 +207,13 @@ export interface PingOneConfig {
 	refreshTokenRollingDurationUnit: 'seconds' | 'minutes' | 'hours' | 'days';
 	refreshTokenRollingGracePeriod: number;
 }
+
+// Type for configuration values to avoid 'any' type
+type ConfigValue = 
+  | string 
+  | number 
+  | boolean 
+  | null;
 
 interface PingOneAppConfigProps {
 	onConfigChange?: (config: PingOneConfig) => void;
@@ -262,7 +280,7 @@ export const PingOneAppConfig: React.FC<PingOneAppConfigProps> = ({
 
 	// Handle configuration changes
 	const handleConfigChange = useCallback(
-		(field: string, value: any) => {
+		(field: string, value: ConfigValue) => {
 			setConfig((prev) => {
 				const newConfig = { ...prev, [field]: value };
 				onConfigChange?.(newConfig);
@@ -362,7 +380,7 @@ export const PingOneAppConfig: React.FC<PingOneAppConfigProps> = ({
 					<SubSectionTitle>Basic Settings</SubSectionTitle>
 					<ConfigGrid>
 						<ConfigField>
-							<Label>Environment ID</Label>
+							<ConfigLabel>Environment ID</ConfigLabel>
 							<Input
 								type="text"
 								placeholder="b9817c16-9910-4415-b67e-4ac687da74d9"
@@ -372,7 +390,7 @@ export const PingOneAppConfig: React.FC<PingOneAppConfigProps> = ({
 						</ConfigField>
 
 						<ConfigField>
-							<Label>Client ID</Label>
+							<ConfigLabel>Client ID</ConfigLabel>
 							<Input
 								type="text"
 								placeholder="a4f963ea-0736-456a-be72-b1fa4f63f81f"
@@ -382,7 +400,7 @@ export const PingOneAppConfig: React.FC<PingOneAppConfigProps> = ({
 						</ConfigField>
 
 						<ConfigField>
-							<Label>Client Secret</Label>
+							<ConfigLabel>Client Secret</ConfigLabel>
 							<Input
 								type="password"
 								placeholder="Your client secret"
@@ -392,7 +410,7 @@ export const PingOneAppConfig: React.FC<PingOneAppConfigProps> = ({
 						</ConfigField>
 
 						<ConfigField>
-							<Label>Redirect URI</Label>
+							<ConfigLabel>Redirect URI</ConfigLabel>
 							<Input
 								type="text"
 								placeholder="https://localhost:3000/authz-callback"
@@ -404,7 +422,7 @@ export const PingOneAppConfig: React.FC<PingOneAppConfigProps> = ({
 
 					<ConfigGrid>
 						<ConfigField>
-							<Label>Token Endpoint Authentication Method</Label>
+							<ConfigLabel>Token Endpoint Authentication Method</ConfigLabel>
 							<Select
 								value={config.tokenEndpointAuthMethod}
 								onChange={(e) => handleConfigChange('tokenEndpointAuthMethod', e.target.value)}
@@ -424,12 +442,12 @@ export const PingOneAppConfig: React.FC<PingOneAppConfigProps> = ({
 				{/* OIDC Settings */}
 				<SubSection>
 					<SubSectionTitle>OIDC Settings</SubSectionTitle>
-					<p style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '1rem' }}>
+					<p style={{ fontSize: '0.875rem', color: V9_COLORS.TEXT.GRAY_MEDIUM, marginBottom: '1rem' }}>
 						Configure OIDC settings for the application.
 					</p>
 
 					<div style={{ marginBottom: '1rem' }}>
-						<Label>Response Type</Label>
+						<ConfigLabel>Response Type</ConfigLabel>
 						<CheckboxGroup>
 							<CheckboxItem>
 								<Checkbox
@@ -459,7 +477,7 @@ export const PingOneAppConfig: React.FC<PingOneAppConfigProps> = ({
 					</div>
 
 					<div style={{ marginBottom: '1rem' }}>
-						<Label>Grant Type</Label>
+						<ConfigLabel>Grant Type</ConfigLabel>
 						<CheckboxGroup>
 							<CheckboxItem>
 								<Checkbox
@@ -522,7 +540,7 @@ export const PingOneAppConfig: React.FC<PingOneAppConfigProps> = ({
 
 					<ConfigGrid>
 						<ConfigField>
-							<Label>PKCE Enforcement</Label>
+							<ConfigLabel>PKCE Enforcement</ConfigLabel>
 							<Select
 								value={config.pkceEnforcement}
 								onChange={(e) => handleConfigChange('pkceEnforcement', e.target.value)}
@@ -536,10 +554,10 @@ export const PingOneAppConfig: React.FC<PingOneAppConfigProps> = ({
 
 					{config.grantTypes.refreshToken && (
 						<div style={{ marginTop: '1rem' }}>
-							<Label>Refresh Token Settings</Label>
+							<ConfigLabel>Refresh Token Settings</ConfigLabel>
 							<ConfigGrid>
 								<ConfigField>
-									<Label>Refresh Token Duration</Label>
+									<ConfigLabel>Refresh Token Duration</ConfigLabel>
 									<div style={{ display: 'flex', gap: '0.5rem' }}>
 										<Input
 											type="number"
@@ -568,7 +586,7 @@ export const PingOneAppConfig: React.FC<PingOneAppConfigProps> = ({
 								</ConfigField>
 
 								<ConfigField>
-									<Label>Refresh Token Rolling Duration</Label>
+									<ConfigLabel>Refresh Token Rolling Duration</ConfigLabel>
 									<div style={{ display: 'flex', gap: '0.5rem' }}>
 										<Input
 											type="number"
@@ -598,7 +616,7 @@ export const PingOneAppConfig: React.FC<PingOneAppConfigProps> = ({
 							</ConfigGrid>
 
 							<ConfigField style={{ marginTop: '1rem' }}>
-								<Label>Refresh Token Rolling Grace Period</Label>
+								<ConfigLabel>Refresh Token Rolling Grace Period</ConfigLabel>
 								<div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
 									<Input
 										type="number"
@@ -611,7 +629,7 @@ export const PingOneAppConfig: React.FC<PingOneAppConfigProps> = ({
 										}
 										style={{ width: '100px' }}
 									/>
-									<span style={{ fontSize: '0.875rem', color: '#6b7280' }}>Seconds</span>
+									<span style={{ fontSize: '0.875rem', color: V9_COLORS.TEXT.GRAY_MEDIUM }}>Seconds</span>
 								</div>
 							</ConfigField>
 						</div>

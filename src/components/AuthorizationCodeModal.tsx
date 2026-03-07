@@ -1,9 +1,31 @@
 // src/components/AuthorizationCodeModal.tsx
 
-import { FiCheck, FiCopy, FiExternalLink, FiX } from '@icons';
 import React, { useEffect, useState } from 'react';
 import styled, { css, keyframes } from 'styled-components';
 import { logger } from '../utils/logger';
+
+// MDI Icon Component for React Icons migration
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
+	icon, 
+	size = 16, 
+	className = '' 
+}) => {
+	const iconMap: Record<string, string> = {
+		'FiCheck': 'mdi-check',
+		'FiCopy': 'mdi-content-copy',
+		'FiExternalLink': 'mdi-open-in-new',
+		'FiX': 'mdi-close',
+	};
+	
+	const mdiIcon = iconMap[icon] || 'mdi-help';
+	
+	return (
+		<i 
+			className={`mdi ${mdiIcon} ${className}`}
+			style={{ fontSize: `${size}px` }}
+		></i>
+	);
+};
 
 // Animation for success checkmark
 const checkmarkAnimation = keyframes`
@@ -299,18 +321,18 @@ export const AuthorizationCodeModal: React.FC<AuthorizationCodeModalProps> = ({
 			<ModalContainer onClick={(e) => e.stopPropagation()}>
 				<ModalHeader>
 					<ModalTitle>
-						<FiExternalLink />
+						<MDIIcon icon="FiExternalLink" />
 						Authorization Successful
 					</ModalTitle>
 					<CloseButton onClick={onClose}>
-						<FiX size={20} />
+						<MDIIcon icon="FiX" size={20} />
 					</CloseButton>
 				</ModalHeader>
 
 				<ModalContent>
 					<SuccessSection>
 						<SuccessIcon>
-							<FiCheck size={40} />
+							<MDIIcon icon="FiCheck" size={40} />
 						</SuccessIcon>
 						<SuccessTitle>Welcome Back from PingOne!</SuccessTitle>
 						<SuccessMessage>
@@ -326,12 +348,12 @@ export const AuthorizationCodeModal: React.FC<AuthorizationCodeModalProps> = ({
 							<CopyButton onClick={handleCopy} $copied={copied}>
 								{copied ? (
 									<>
-										<FiCheck size={14} />
+										<MDIIcon icon="FiCheck" size={14} />
 										Copied!
 									</>
 								) : (
 									<>
-										<FiCopy size={14} />
+										<MDIIcon icon="FiCopy" size={14} />
 										Copy
 									</>
 								)}
@@ -341,7 +363,7 @@ export const AuthorizationCodeModal: React.FC<AuthorizationCodeModalProps> = ({
 
 					<InfoSection>
 						<InfoTitle>
-							<FiExternalLink />
+							<MDIIcon icon="FiExternalLink" />
 							Next Steps
 						</InfoTitle>
 						<InfoText>
@@ -354,7 +376,7 @@ export const AuthorizationCodeModal: React.FC<AuthorizationCodeModalProps> = ({
 
 				<ModalActions>
 					<ContinueButton onClick={handleContinue}>
-						<FiCheck />
+						<MDIIcon icon="FiCheck" />
 						Continue to Token Exchange
 					</ContinueButton>
 				</ModalActions>

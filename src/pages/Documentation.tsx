@@ -1,18 +1,36 @@
-import {
-	FiBookOpen,
-	FiCode,
-	FiExternalLink,
-	FiHelpCircle,
-	FiLock,
-	FiPlay,
-	FiSettings,
-	FiShield,
-	FiTool,
-} from '@icons';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
+
+// MDI Icon Component for React Icons migration
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
+	icon, 
+	size = 16, 
+	className = '' 
+}) => {
+	const iconMap: Record<string, string> = {
+		'FiBookOpen': 'mdi-book-open-page-variant',
+		'FiCode': 'mdi-code-tags',
+		'FiExternalLink': 'mdi-open-in-new',
+		'FiHelpCircle': 'mdi-help-circle',
+		'FiLock': 'mdi-lock',
+		'FiPlay': 'mdi-play',
+		'FiSettings': 'mdi-cog',
+		'FiShield': 'mdi-shield-check',
+		'FiTool': 'mdi-tools',
+	};
+	
+	const mdiIcon = iconMap[icon] || 'mdi-help';
+	
+	return (
+		<i 
+			className={`mdi ${mdiIcon} ${className}`}
+			style={{ fontSize: `${size}px` }}
+		></i>
+	);
+};
 
 const CardGrid = styled.div`
   display: grid;
@@ -22,25 +40,25 @@ const CardGrid = styled.div`
 `;
 
 const DocCard = styled(Link)`
-  background: #ffffff;
+  background: ${V9_COLORS.BG.WHITE};
   border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   padding: 24px;
   transition: transform 0.2s, box-shadow 0.2s;
   text-decoration: none;
   color: inherit;
-  border: 1px solid #e2e8f0;
+  border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
   
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    border-color: #3b82f6;
+    border-color: ${V9_COLORS.PRIMARY.BLUE};
   }
   
   h3 {
     font-size: 1.1rem;
     margin-bottom: 0.75rem;
-    color: #1f2937;
+    color: ${V9_COLORS.TEXT.GRAY_DARK};
     font-weight: 600;
     display: flex;
     align-items: center;
@@ -48,7 +66,7 @@ const DocCard = styled(Link)`
   }
   
   p {
-    color: #6b7280;
+    color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
     font-size: 0.95rem;
     line-height: 1.5;
     margin-bottom: 0;
@@ -74,8 +92,8 @@ const ExternalLink = styled.a`
 `;
 
 const CodeBlock = styled.pre`
-  background-color: #1a202c !important;
-  color: #e2e8f0 !important;
+  background-color: ${V9_COLORS.TEXT.BLACK} !important;
+  color: ${V9_COLORS.TEXT.GRAY_LIGHTER} !important;
   padding: 1rem;
   border-radius: 0.375rem;
   overflow-x: auto;
@@ -83,18 +101,18 @@ const CodeBlock = styled.pre`
   font-size: 0.875rem;
   line-height: 1.5;
   margin: 1.5rem 0;
-  border: 1px solid #2d3748 !important;
+  border: 1px solid ${V9_COLORS.TEXT.GRAY_MEDIUM} !important;
   
   code {
     font-family: inherit;
     background-color: transparent !important;
-    color: #e2e8f0 !important;
+    color: ${V9_COLORS.TEXT.GRAY_LIGHTER} !important;
     border: none !important;
   }
 `;
 
 const QuickStartBanner = styled.div`
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  background: linear-gradient(135deg, ${V9_COLORS.PRIMARY.BLUE}, ${V9_COLORS.PRIMARY.BLUE_DARK});
   color: white;
   padding: 24px;
   border-radius: 12px;
@@ -143,8 +161,8 @@ const FeatureHighlight = styled.div`
 `;
 
 const FeatureCard = styled.div`
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: ${V9_COLORS.BG.WHITE};
+  border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
   border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   padding: 24px;
@@ -152,7 +170,7 @@ const FeatureCard = styled.div`
   transition: all 0.2s;
 
   &:hover {
-    border-color: #3b82f6;
+    border-color: ${V9_COLORS.PRIMARY.BLUE};
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
@@ -169,20 +187,20 @@ const FeatureCard = styled.div`
     color: white;
   }
 
-  .tutorials { background: linear-gradient(135deg, #10b981, #059669); }
-  .flows { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
-  .security { background: linear-gradient(135deg, #f59e0b, #d97706); }
-  .tools { background: linear-gradient(135deg, #22c55e, #16a34a); }
+  .tutorials { background: linear-gradient(135deg, ${V9_COLORS.PRIMARY.GREEN}, ${V9_COLORS.PRIMARY.GREEN_DARK}); }
+  .flows { background: linear-gradient(135deg, ${V9_COLORS.PRIMARY.BLUE}, ${V9_COLORS.PRIMARY.BLUE_DARK}); }
+  .security { background: linear-gradient(135deg, ${V9_COLORS.PRIMARY.YELLOW}, ${V9_COLORS.PRIMARY.YELLOW_DARK}); }
+  .tools { background: linear-gradient(135deg, ${V9_COLORS.PRIMARY.GREEN}, ${V9_COLORS.PRIMARY.GREEN_DARK}); }
 
   h3 {
     font-size: 1.25rem;
     margin-bottom: 0.75rem;
-    color: #1f2937;
+    color: ${V9_COLORS.TEXT.GRAY_DARK};
     font-weight: 600;
   }
 
   p {
-    color: #6b7280;
+    color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
     margin-bottom: 1rem;
     line-height: 1.5;
   }
@@ -193,7 +211,7 @@ const FeatureButton = styled(Link)`
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background-color: #3b82f6;
+  background-color: ${V9_COLORS.PRIMARY.BLUE};
   color: white !important;
   text-decoration: none;
   border: 2px solid white;
@@ -204,7 +222,7 @@ const FeatureButton = styled(Link)`
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
   &:hover {
-    background-color: #2563eb;
+    background-color: ${V9_COLORS.PRIMARY.BLUE_DARK};
     color: white !important;
     border-color: white;
     transform: translateY(-1px);
@@ -228,7 +246,7 @@ const Documentation = () => {
 				maxWidth: '1200px',
 				margin: '0 auto',
 				padding: '2rem',
-				background: '#f8fafc',
+				background: V9_COLORS.BG.GRAY_LIGHT,
 				minHeight: '100vh',
 			}}
 		>
@@ -237,9 +255,9 @@ const Documentation = () => {
 				style={{
 					marginBottom: '32px',
 					padding: '24px',
-					background: 'linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)',
+					background: `linear-gradient(135deg, ${V9_COLORS.BG.GRAY_LIGHT} 0%, ${V9_COLORS.PRIMARY.BLUE} 100%)`,
 					borderRadius: '12px',
-					color: '#0c4a6e',
+					color: V9_COLORS.TEXT.GRAY_DARK,
 					position: 'relative',
 					overflow: 'hidden',
 				}}
@@ -286,7 +304,7 @@ const Documentation = () => {
 				<CollapsibleHeader
 					title="Quick Start"
 					subtitle="Jump into interactive tutorials and start learning PingOne SSO implementation"
-					icon={<FiPlay />}
+					icon={<MDIIcon icon="FiPlay" />}
 					defaultCollapsed={false}
 				>
 					<QuickStartBanner>
@@ -296,7 +314,7 @@ const Documentation = () => {
 							hands-on examples
 						</p>
 						<QuickStartButton to="/tutorials">
-							<FiPlay size={16} />
+							<MDIIcon icon="FiPlay" size={16} />
 							Start PingOne SSO Tutorials
 						</QuickStartButton>
 					</QuickStartBanner>
@@ -307,7 +325,7 @@ const Documentation = () => {
 				<CollapsibleHeader
 					title="PingOne SSO Overview"
 					subtitle="Complete guide to implementing Single Sign-On with PingOne Identity Platform"
-					icon={<FiBookOpen />}
+					icon={<MDIIcon icon="FiBookOpen" />}
 					defaultCollapsed={false}
 				>
 					<p>
@@ -319,15 +337,15 @@ const Documentation = () => {
 
 					<div
 						style={{
-							background: '#f0f9ff',
-							border: '1px solid #bae6fd',
+							background: V9_COLORS.BG.GRAY_LIGHT,
+							border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
 							borderRadius: '8px',
 							padding: '24px',
 							marginTop: '1rem',
 						}}
 					>
-						<h3 style={{ marginTop: 0, color: '#0c4a6e' }}>PingOne SSO Implementation Guide:</h3>
-						<ul style={{ marginBottom: 0, color: '#0369a1' }}>
+						<h3 style={{ marginTop: 0, color: V9_COLORS.TEXT.GRAY_DARK }}>PingOne SSO Implementation Guide:</h3>
+						<ul style={{ marginBottom: 0, color: V9_COLORS.PRIMARY.BLUE }}>
 							<li>
 								<strong>PingOne Environment Setup:</strong> Configure your PingOne environment and
 								applications
@@ -363,7 +381,7 @@ const Documentation = () => {
 				<FeatureHighlight>
 					<FeatureCard>
 						<div className="icon tutorials">
-							<FiPlay />
+							<MDIIcon icon="FiPlay" />
 						</div>
 						<h3>Interactive Tutorials</h3>
 						<p>Step-by-step guided learning with real examples and immediate feedback</p>
@@ -372,7 +390,7 @@ const Documentation = () => {
 
 					<FeatureCard>
 						<div className="icon flows">
-							<FiCode />
+							<MDIIcon icon="FiCode" />
 						</div>
 						<h3>OAuth Flows</h3>
 						<p>Explore different OAuth 2.0 grant types with live implementations</p>
@@ -381,7 +399,7 @@ const Documentation = () => {
 
 					<FeatureCard>
 						<div className="icon security">
-							<FiShield />
+							<MDIIcon icon="FiShield" />
 						</div>
 						<h3>Security Guide</h3>
 						<p>Learn security best practices and common pitfalls to avoid</p>
@@ -390,7 +408,7 @@ const Documentation = () => {
 
 					<FeatureCard>
 						<div className="icon tools">
-							<FiTool />
+							<MDIIcon icon="FiTool" />
 						</div>
 						<h3>Developer Tools</h3>
 						<p>JWT decoder, PKCE generator, and other useful OAuth utilities</p>
@@ -403,7 +421,7 @@ const Documentation = () => {
 				<CollapsibleHeader
 					title="PingOne SSO Getting Started"
 					subtitle="Essential resources for implementing PingOne Single Sign-On"
-					icon={<FiSettings />}
+					icon={<MDIIcon icon="FiSettings" />}
 					defaultCollapsed={false}
 				>
 					<p>
@@ -414,7 +432,7 @@ const Documentation = () => {
 					<CardGrid>
 						<DocCard to="/documentation/pingone-basics">
 							<h3>
-								PingOne SSO Basics <FiExternalLink size={16} />
+								PingOne SSO Basics <MDIIcon icon="FiExternalLink" size={16} />
 							</h3>
 							<p>
 								Learn the fundamental concepts of PingOne SSO, including environments, applications,
@@ -424,7 +442,7 @@ const Documentation = () => {
 
 						<DocCard to="/documentation/pingone-oidc">
 							<h3>
-								PingOne OpenID Connect <FiExternalLink size={16} />
+								PingOne OpenID Connect <MDIIcon icon="FiExternalLink" size={16} />
 							</h3>
 							<p>
 								Understand how PingOne implements OpenID Connect for enterprise SSO and user
@@ -434,7 +452,7 @@ const Documentation = () => {
 
 						<DocCard to="/documentation/pingone-setup">
 							<h3>
-								PingOne Environment Setup <FiExternalLink size={16} />
+								PingOne Environment Setup <MDIIcon icon="FiExternalLink" size={16} />
 							</h3>
 							<p>
 								Step-by-step instructions for configuring your PingOne environment, applications,
@@ -449,7 +467,7 @@ const Documentation = () => {
 				<CollapsibleHeader
 					title="PingOne SSO Flows"
 					subtitle="OAuth 2.0 and OpenID Connect flows optimized for PingOne SSO implementation"
-					icon={<FiCode />}
+					icon={<MDIIcon icon="FiCode" />}
 					defaultCollapsed={false}
 				>
 					<p>
@@ -495,7 +513,7 @@ const Documentation = () => {
 				<CollapsibleHeader
 					title="PingOne SSO Security"
 					subtitle="Security best practices and recommendations for PingOne SSO implementation"
-					icon={<FiLock />}
+					icon={<MDIIcon icon="FiLock" />}
 					defaultCollapsed={false}
 				>
 					<p>
@@ -505,14 +523,14 @@ const Documentation = () => {
 
 					<div
 						style={{
-							background: '#fef2f2',
-							border: '1px solid #fecaca',
+							background: V9_COLORS.BG.ERROR,
+							border: `1px solid ${V9_COLORS.BG.ERROR_BORDER}`,
 							borderRadius: '8px',
 							padding: '16px',
 							marginBottom: '1.5rem',
 						}}
 					>
-						<p style={{ margin: 0, color: '#dc2626', fontWeight: '500' }}>
+						<p style={{ margin: 0, color: V9_COLORS.PRIMARY.RED, fontWeight: '500' }}>
 							<strong> Security Warning:</strong> OAuth 2.0 and OpenID Connect handle sensitive
 							authentication data. Always follow these security guidelines to protect your users and
 							applications.
@@ -562,7 +580,7 @@ const validateIdToken = (idToken, clientId, issuer) => {
 				<CollapsibleHeader
 					title="Common Issues & Troubleshooting"
 					subtitle="Solutions to the most common OAuth 2.0 and OpenID Connect implementation issues"
-					icon={<FiHelpCircle />}
+					icon={<MDIIcon icon="FiHelpCircle" />}
 					defaultCollapsed={false}
 				>
 					<p>
@@ -573,14 +591,14 @@ const validateIdToken = (idToken, clientId, issuer) => {
 
 					<div
 						style={{
-							background: '#f0f9ff',
-							border: '1px solid #bae6fd',
+							background: V9_COLORS.BG.GRAY_LIGHT,
+							border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
 							borderRadius: '8px',
 							padding: '16px',
 							marginBottom: '1.5rem',
 						}}
 					>
-						<p style={{ margin: 0, color: '#0369a1', fontWeight: '500' }}>
+						<p style={{ margin: 0, color: V9_COLORS.PRIMARY.BLUE, fontWeight: '500' }}>
 							<strong> Pro Tip:</strong> Most OAuth 2.0 errors are related to configuration issues.
 							Double-check your client settings, redirect URIs, and scopes before diving into
 							complex debugging.
@@ -625,7 +643,7 @@ const validateIdToken = (idToken, clientId, issuer) => {
 				<CollapsibleHeader
 					title="PingOne SSO Resources"
 					subtitle="Additional resources and external links for PingOne SSO implementation"
-					icon={<FiExternalLink />}
+					icon={<MDIIcon icon="FiExternalLink" />}
 					defaultCollapsed={false}
 				>
 					<div style={{ marginTop: '1.5rem' }}>
@@ -639,7 +657,7 @@ const validateIdToken = (idToken, clientId, issuer) => {
 									rel="noopener noreferrer"
 								>
 									PingOne API Documentation
-									<FiExternalLink />
+									<MDIIcon icon="FiExternalLink" />
 								</ExternalLink>
 							</li>
 							<li style={{ marginBottom: '0.75rem' }}>
@@ -649,7 +667,7 @@ const validateIdToken = (idToken, clientId, issuer) => {
 									rel="noopener noreferrer"
 								>
 									PingOne SDKs
-									<FiExternalLink />
+									<MDIIcon icon="FiExternalLink" />
 								</ExternalLink>
 							</li>
 							<li style={{ marginBottom: '0.75rem' }}>
@@ -659,7 +677,7 @@ const validateIdToken = (idToken, clientId, issuer) => {
 									rel="noopener noreferrer"
 								>
 									PingOne SSO Configuration Guide
-									<FiExternalLink />
+									<MDIIcon icon="FiExternalLink" />
 								</ExternalLink>
 							</li>
 							<li style={{ marginBottom: '0.75rem' }}>
@@ -669,7 +687,7 @@ const validateIdToken = (idToken, clientId, issuer) => {
 									rel="noopener noreferrer"
 								>
 									PingOne Security Best Practices
-									<FiExternalLink />
+									<MDIIcon icon="FiExternalLink" />
 								</ExternalLink>
 							</li>
 							<li style={{ marginBottom: '0.75rem' }}>
@@ -679,7 +697,7 @@ const validateIdToken = (idToken, clientId, issuer) => {
 									rel="noopener noreferrer"
 								>
 									Identity for AI - PingOne Advanced Identity Cloud
-									<FiExternalLink />
+									<MDIIcon icon="FiExternalLink" />
 								</ExternalLink>
 							</li>
 						</ul>

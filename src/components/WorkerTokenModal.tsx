@@ -2,17 +2,34 @@
 // lint-file-disable: token-value-in-jsx
 // Modal for configuring worker token when not available
 
-import {
-	FiAlertTriangle,
-	FiExternalLink,
-	FiEye,
-	FiEyeOff,
-	FiInfo,
-	FiKey,
-	FiRefreshCw,
-	FiSave,
-} from '@icons';
 import React, { useEffect, useState } from 'react';
+
+// MDI Icon Component for React Icons migration
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
+	icon, 
+	size = 16, 
+	className = '' 
+}) => {
+	const iconMap: Record<string, string> = {
+		'FiAlertTriangle': 'mdi-alert-triangle',
+		'FiExternalLink': 'mdi-open-in-new',
+		'FiEye': 'mdi-eye',
+		'FiEyeOff': 'mdi-eye-off',
+		'FiInfo': 'mdi-information',
+		'FiKey': 'mdi-key',
+		'FiRefreshCw': 'mdi-refresh',
+		'FiSave': 'mdi-content-save',
+	};
+	
+	const mdiIcon = iconMap[icon] || 'mdi-help';
+	
+	return (
+		<i 
+			className={`mdi ${mdiIcon} ${className}`}
+			style={{ fontSize: `${size}px` }}
+		></i>
+	);
+};
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useNotifications } from '../hooks/useNotifications';
@@ -1413,10 +1430,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 				<div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
 					{!skipCredentialsStep && (
 						<InfoBox $variant="warning">
-							<FiAlertTriangle
-								size={16}
-								style={{ flexShrink: 0, color: '#f59e0b', marginTop: '0.125rem' }}
-							/>
+							<MDIIcon icon="FiAlertTriangle" size={16} style={{ flexShrink: 0, color: '#f59e0b', marginTop: '0.125rem' }} />
 							<InfoContent>
 								<InfoTitle style={{ fontSize: '0.875rem', marginBottom: '0.125rem' }}>
 									Worker Token Required
@@ -1431,14 +1445,9 @@ export const WorkerTokenModal: React.FC<Props> = ({
 					{showTokenGenerated ? (
 						<>
 							<InfoBox $variant="info">
-								<FiInfo
-									size={16}
-									style={{ flexShrink: 0, color: '#10b981', marginTop: '0.125rem' }}
-								/>
+								<MDIIcon icon="FiInfo" size={16} style={{ flexShrink: 0, color: '#10b981', marginTop: '0.125rem' }} />
 								<InfoContent>
-									<InfoTitle
-										style={{ fontSize: '0.875rem', marginBottom: '0.125rem', color: '#10b981' }}
-									>
+									<InfoTitle style={{ fontSize: '0.875rem', marginBottom: '0.125rem', color: '#10b981' }}>
 										✅ Worker Token Generated Successfully!
 									</InfoTitle>
 									<InfoText>
@@ -1453,7 +1462,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 									✓ Continue with Current Token
 								</ActionButton>
 								<ActionButton onClick={() => setShowTokenGenerated(false)}>
-									<FiRefreshCw />
+									<MDIIcon icon="FiRefreshCw" />
 									Generate Another Token
 								</ActionButton>
 								<ActionButton
@@ -1461,7 +1470,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 									onClick={handleGetWorkerToken}
 									disabled={isNavigating}
 								>
-									<FiExternalLink />
+									<MDIIcon icon="FiExternalLink" />
 									Use Client Generator
 								</ActionButton>
 							</ButtonGroup>
@@ -1469,10 +1478,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 					) : !showForm ? (
 						<>
 							<InfoBox $variant="info">
-								<FiInfo
-									size={16}
-									style={{ flexShrink: 0, color: '#3b82f6', marginTop: '0.125rem' }}
-								/>
+								<MDIIcon icon="FiInfo" size={16} style={{ flexShrink: 0, color: '#3b82f6', marginTop: '0.125rem' }} />
 								<InfoContent>
 									<InfoTitle style={{ fontSize: '0.875rem', marginBottom: '0.125rem' }}>
 										Get Worker Token
@@ -1486,11 +1492,11 @@ export const WorkerTokenModal: React.FC<Props> = ({
 
 							<ButtonGroup>
 								<ActionButton onClick={() => setShowForm(true)}>
-									<FiKey />
+									<MDIIcon icon="FiKey" />
 									Generate Worker Token Here
 								</ActionButton>
 								<ActionButton onClick={handleGetWorkerToken} disabled={isNavigating}>
-									<FiExternalLink />
+									<MDIIcon icon="FiExternalLink" />
 									Use Client Generator
 								</ActionButton>
 								<ActionButton $variant="secondary" onClick={handleContinueWithoutToken}>
@@ -1502,10 +1508,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 						<>
 							{skipCredentialsStep && (
 								<InfoBox $variant="info">
-									<FiInfo
-										size={16}
-										style={{ flexShrink: 0, color: '#3b82f6', marginTop: '0.125rem' }}
-									/>
+									<MDIIcon icon="FiInfo" size={16} style={{ flexShrink: 0, color: '#3b82f6', marginTop: '0.125rem' }} />
 									<InfoContent>
 										<InfoTitle style={{ fontSize: '0.875rem', marginBottom: '0.125rem' }}>
 											Enter Credentials
@@ -1516,10 +1519,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 							)}
 							{!skipCredentialsStep && (
 								<InfoBox $variant="info">
-									<FiInfo
-										size={16}
-										style={{ flexShrink: 0, color: '#3b82f6', marginTop: '0.125rem' }}
-									/>
+									<MDIIcon icon="FiInfo" size={16} style={{ flexShrink: 0, color: '#3b82f6', marginTop: '0.125rem' }} />
 									<InfoContent>
 										<InfoTitle style={{ fontSize: '0.875rem', marginBottom: '0.125rem' }}>
 											Enter Credentials
@@ -1595,7 +1595,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 											}
 										/>
 										<PasswordToggle onClick={() => setShowPassword(!showPassword)}>
-											{showPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+											{showPassword ? <MDIIcon icon="FiEyeOff" size={16} /> : <MDIIcon icon="FiEye" size={16} />}
 										</PasswordToggle>
 									</PasswordInput>
 								</FormField>
@@ -1672,7 +1672,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 											!workerCredentials.clientSecret
 										}
 									>
-										{isGenerating ? <LoadingSpinner /> : <FiRefreshCw />}
+										{isGenerating ? <LoadingSpinner /> : <MDIIcon icon="FiRefreshCw" />}
 										{isGenerating ? 'Generating...' : 'Generate Worker Token'}
 									</ActionButton>
 									<ActionButton
@@ -1685,7 +1685,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 											!workerCredentials.clientSecret
 										}
 									>
-										<FiSave />
+										<MDIIcon icon="FiSave" />
 										Save Credentials
 									</ActionButton>
 									<ActionButton

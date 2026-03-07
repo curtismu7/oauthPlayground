@@ -10,8 +10,7 @@ import { FiHelpCircle, FiX } from '@icons';
 import React, { useState } from 'react';
 import { type SpecVersion, SpecVersionServiceV8 } from '@/v8/services/specVersionServiceV8';
 import { logger } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
-
-const _MODULE_TAG = '[📋 SPEC-VERSION-SELECTOR-V8U]';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 export interface SpecVersionSelectorProps {
 	specVersion: SpecVersion;
@@ -115,7 +114,7 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 						display: 'block',
 						fontSize: '13px',
 						fontWeight: '600',
-						color: disabled ? '#9ca3af' : '#374151',
+						color: disabled ? V9_COLORS.TEXT.GRAY_LIGHT : V9_COLORS.TEXT.GRAY_DARK,
 					}}
 				>
 					Specification Version
@@ -125,7 +124,7 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 								marginLeft: '8px',
 								fontSize: '12px',
 								fontWeight: '400',
-								color: '#6b7280',
+								color: V9_COLORS.TEXT.GRAY_LIGHT,
 								fontStyle: 'italic',
 							}}
 							title="Specification version cannot be changed after starting the flow"
@@ -150,7 +149,7 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 						padding: '2px',
 						display: 'flex',
 						alignItems: 'center',
-						color: disabled ? '#9ca3af' : '#6b7280',
+						color: disabled ? V9_COLORS.TEXT.GRAY_LIGHT : V9_COLORS.TEXT.GRAY_MEDIUM,
 						opacity: disabled ? 0.6 : 1,
 					}}
 					title={
@@ -166,13 +165,13 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 			{showGuidance && !selectedGuidance && (
 				<div
 					style={{
-						background: '#f0f9ff',
-						border: '1px solid #bae6fd',
+						background: V9_COLORS.BG.GRAY_LIGHT,
+						border: `1px solid ${V9_COLORS.PRIMARY.BLUE}`,
 						borderRadius: '6px',
 						padding: '12px',
 						marginBottom: '12px',
 						fontSize: '13px',
-						color: '#1e40af',
+						color: V9_COLORS.PRIMARY.BLUE_DARK,
 					}}
 				>
 					<div
@@ -183,7 +182,9 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 							marginBottom: '8px',
 						}}
 					>
-						<strong style={{ color: '#1e40af' }}>📚 Choosing a Specification Version</strong>
+						<strong style={{ color: V9_COLORS.PRIMARY.BLUE_DARK }}>
+							📚 Choosing a Specification Version
+						</strong>
 						<button
 							type="button"
 							onClick={() => setShowGuidance(false)}
@@ -194,13 +195,13 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 								padding: '0',
 								display: 'flex',
 								alignItems: 'center',
-								color: '#1e40af',
+								color: V9_COLORS.PRIMARY.BLUE_DARK,
 							}}
 						>
 							<FiX size={16} />
 						</button>
 					</div>
-					<ul style={{ margin: '0', paddingLeft: '20px', color: '#1e40af' }}>
+					<ul style={{ margin: '0', paddingLeft: '20px', color: V9_COLORS.PRIMARY.BLUE_DARK }}>
 						<li>
 							<strong>OpenID Connect Core 1.0:</strong> Use when you need user authentication and
 							identity information (ID tokens, openid scope, UserInfo endpoint). Adds identity layer
@@ -218,7 +219,13 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 							2.1 (draft) baseline".
 						</li>
 					</ul>
-					<p style={{ margin: '8px 0 0 0', fontSize: '12px', color: '#1e40af' }}>
+					<p
+						style={{
+							margin: '8px 0 0 0',
+							fontSize: '12px',
+							color: V9_COLORS.PRIMARY.BLUE_DARK,
+						}}
+					>
 						Click the{' '}
 						<FiHelpCircle size={12} style={{ display: 'inline', verticalAlign: 'middle' }} /> icon
 						next to each option for detailed guidance.
@@ -227,66 +234,57 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 			)}
 
 			{showGuidance && selectedGuidance && currentGuidance && (
-				<div
-					style={{
-						background: '#fef3c7',
-						border: '1px solid #fbbf24',
-						borderRadius: '6px',
-						padding: '12px',
-						marginBottom: '12px',
-						fontSize: '13px',
-						color: '#92400e',
-					}}
-				>
-					<div
-						style={{
-							display: 'flex',
-							justifyContent: 'space-between',
-							alignItems: 'flex-start',
-							marginBottom: '8px',
-						}}
-					>
-						<strong style={{ color: '#92400e' }}>
-							📖 {SpecVersionServiceV8.getSpecLabel(selectedGuidance)} Guidance
-						</strong>
-						<button
-							type="button"
-							onClick={() => {
-								setShowGuidance(false);
-								setSelectedGuidance(null);
-							}}
-							style={{
-								background: 'none',
-								border: 'none',
-								cursor: 'pointer',
-								padding: '0',
-								display: 'flex',
-								alignItems: 'center',
-								color: '#92400e',
-							}}
-						>
-							<FiX size={16} />
-						</button>
-					</div>
-					<p style={{ margin: '0 0 8px 0', color: '#92400e' }}>{currentGuidance.description}</p>
-					<div style={{ marginBottom: '8px' }}>
-						<strong style={{ color: '#92400e', fontSize: '12px' }}>When to use:</strong>
-						<ul style={{ margin: '4px 0 0 20px', padding: 0, color: '#92400e' }}>
-							{currentGuidance.whenToUse.map((use, idx) => (
-								<li key={idx} style={{ fontSize: '12px' }}>
-									{use}
-								</li>
-							))}
-						</ul>
-					</div>
-					<div>
-						<strong style={{ color: '#92400e', fontSize: '12px' }}>Available flows:</strong>
-						<span style={{ marginLeft: '6px', fontSize: '12px' }}>
-							{currentGuidance.flows.join(', ')}
-						</span>
-					</div>
-				</div>
-			)}
+        <div
+          style={{
+            background: V9_COLORS.PRIMARY.YELLOW,
+            border: `1px solid ${V9_COLORS.PRIMARY.YELLOW_DARK}`,
+            borderRadius: '6px',
+            padding: '12px',
+            marginBottom: '12px',
+            fontSize: '13px',
+            color: V9_COLORS.TEXT.GRAY_DARK,
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-start',
+              marginBottom: '8px',
+            }}
+          >
+            <strong style={{ color: V9_COLORS.TEXT.GRAY_DARK }}>
+              📖 {SpecVersionServiceV8.getSpecLabel(selectedGuidance)} Guidance
+            </strong>
+            <button
+              type="button"
+              onClick={() => {
+                setShowGuidance(false);
+                setSelectedGuidance(null);
+              }}
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '0',
+                display: 'flex',
+                alignItems: 'center',
+                color: V9_COLORS.TEXT.GRAY_DARK,
+              }}
+            >
+              <FiX size={16} />
+            </button>
+          </div>
+          <div>
+            <strong style={{ color: V9_COLORS.TEXT.GRAY_DARK, fontSize: '12px' }}>
+              Available flows:
+            </strong>
+            <span style={{ marginLeft: '6px', fontSize: '12px' }}>
+              {currentGuidance.flows.join(', ')}
+            </span>
+          </div>
+        </div>
+      )}
 
 			<div
 				style={{

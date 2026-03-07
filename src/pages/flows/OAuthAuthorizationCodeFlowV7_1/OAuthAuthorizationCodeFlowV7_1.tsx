@@ -7,6 +7,8 @@ import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import type { PingOneApplicationState } from '../../../components/PingOneApplicationConfig';
 import { StepNavigationButtons } from '../../../components/StepNavigationButtons';
+import { RedirectUriEducationalModal } from '../../../components/RedirectUriEducationalModal';
+import { RedirectUriEducationButton } from '../../../components/RedirectUriEducationButton';
 import { FlowConfiguration } from './components/FlowConfiguration';
 import { FlowErrorWrapper } from './components/FlowErrorWrapper';
 import { FlowResults } from './components/FlowResults';
@@ -18,6 +20,7 @@ import { useCredentialPersistence } from './hooks/useCredentialPersistence';
 import { useFlowStateManagement } from './hooks/useFlowStateManagement';
 import { useFlowVariantSwitching } from './hooks/useFlowVariantSwitching';
 import { usePerformanceMonitoring } from './hooks/usePerformanceMonitoring';
+import { useRedirectUriEducation } from '../../../hooks/useRedirectUriEducation';
 import type { FlowCredentials, FlowVariant, TokenResponse, UserInfo } from './types/flowTypes';
 import { logger } from '../../../utils/logger';
 
@@ -243,6 +246,11 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
 	const credentialPersistence = useCredentialPersistence({
 		credentials: flowState.credentials,
 		onCredentialsChange: flowState.updateCredentials,
+	});
+
+	// Redirect URI educational integration
+	const redirectUriEducation = useRedirectUriEducation({
+		flowKey: FLOW_CONSTANTS.FLOW_KEY,
 	});
 
 	// Local state
@@ -472,6 +480,13 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
 										OpenID Connect
 									</VariantButton>
 								</VariantSelector>
+								<RedirectUriEducationButton 
+									flowKey={FLOW_CONSTANTS.FLOW_KEY}
+									variant="outline"
+									size="sm"
+								>
+									📚 URI Guide
+								</RedirectUriEducationButton>
 							</StepHeaderRight>
 						</StepHeader>
 
@@ -612,6 +627,13 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
 					)}
 				</ContentWrapper>
 			</Container>
+			
+			{/* Redirect URI Educational Modal */}
+			<RedirectUriEducationalModal
+				flowKey={FLOW_CONSTANTS.FLOW_KEY}
+				isOpen={redirectUriEducation.showEducationalModal}
+				onClose={redirectUriEducation.closeEducationalModal}
+			/>
 		</FlowErrorWrapper>
 	);
 };

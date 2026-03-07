@@ -1,18 +1,36 @@
-import {
-	FiAlertCircle,
-	FiCheck,
-	FiCheckCircle,
-	FiCopy,
-	FiEdit,
-	FiEye,
-	FiEyeOff,
-	FiKey,
-	FiLock,
-	FiLogIn,
-	FiSettings,
-} from '@icons';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
+
+// MDI Icon Component for React Icons migration
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
+	icon, 
+	size = 16, 
+	className = '' 
+}) => {
+	const iconMap: Record<string, string> = {
+		'FiAlertCircle': 'mdi-alert-circle',
+		'FiCheck': 'mdi-check',
+		'FiCheckCircle': 'mdi-check-circle',
+		'FiCopy': 'mdi-content-copy',
+		'FiEdit': 'mdi-pencil',
+		'FiEye': 'mdi-eye',
+		'FiEyeOff': 'mdi-eye-off',
+		'FiKey': 'mdi-key',
+		'FiLock': 'mdi-lock',
+		'FiLogIn': 'mdi-login',
+		'FiSettings': 'mdi-cog',
+	};
+	
+	const mdiIcon = iconMap[icon] || 'mdi-help';
+	
+	return (
+		<i 
+			className={`mdi ${mdiIcon} ${className}`}
+			style={{ fontSize: `${size}px` }}
+		></i>
+	);
+};
 import styled from 'styled-components';
 import packageJson from '../../package.json';
 import AuthorizationRequestModal from '../components/AuthorizationRequestModal';
@@ -649,7 +667,7 @@ const Login = () => {
 				maxWidth: '1200px',
 				margin: '0 auto',
 				padding: '2rem',
-				background: '#f8fafc',
+				background: V9_COLORS.BG.GRAY_LIGHT,
 				minHeight: '100vh',
 			}}
 		>
@@ -658,9 +676,9 @@ const Login = () => {
 				style={{
 					marginBottom: '32px',
 					padding: '24px',
-					background: 'linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)',
+					background: `linear-gradient(135deg, ${V9_COLORS.BG.GRAY_LIGHT} 0%, ${V9_COLORS.PRIMARY.BLUE} 100%)`,
 					borderRadius: '12px',
-					color: '#0c4a6e',
+					color: V9_COLORS.TEXT.GRAY_DARK,
 					position: 'relative',
 					overflow: 'hidden',
 				}}
@@ -726,7 +744,7 @@ const Login = () => {
 						<CollapsibleHeader
 							title="Step 1: Access PingOne Admin Console"
 							subtitle="Navigate to your PingOne environment and create a new application"
-							icon={<FiLogIn />}
+							icon={<MDIIcon icon="FiLogIn" />}
 							defaultCollapsed={false}
 							theme="blue"
 							variant="compact"
@@ -744,7 +762,7 @@ const Login = () => {
 										style={{
 											fontSize: '1.1rem',
 											fontWeight: '800',
-											color: '#0070CC',
+											color: V9_COLORS.PRIMARY.BLUE,
 										}}
 									>
 										+ Add Application
@@ -759,7 +777,7 @@ const Login = () => {
 						<CollapsibleHeader
 							title="Step 2: Configure Application Details"
 							subtitle="Set up basic application information and settings"
-							icon={<FiEdit />}
+							icon={<MDIIcon icon="FiEdit" />}
 							defaultCollapsed={false}
 							theme="green"
 							variant="compact"
@@ -774,7 +792,7 @@ const Login = () => {
 										style={{
 											fontWeight: '800',
 											fontSize: '1rem',
-											color: '#0070CC',
+											color: V9_COLORS.PRIMARY.BLUE,
 											marginLeft: '0.5rem',
 										}}
 									>
@@ -788,8 +806,8 @@ const Login = () => {
 											}
 											style={{
 												background: 'none',
-												border: '1px solid #0070CC',
-												color: '#0070CC',
+												border: `1px solid ${V9_COLORS.PRIMARY.BLUE}`,
+												color: V9_COLORS.PRIMARY.BLUE,
 												cursor: 'pointer',
 												padding: '0.125rem 0.25rem',
 												borderRadius: '3px',
@@ -803,7 +821,7 @@ const Login = () => {
 											}}
 											title="Copy Application Name"
 										>
-											{copiedId === 'setup-app-name' ? <FiCheck size={10} /> : <FiCopy size={10} />}
+											{copiedId === 'setup-app-name' ? <MDIIcon icon="FiCheck" size={10} /> : <MDIIcon icon="FiCopy" size={10} />}
 										</button>
 									</span>
 								</li>
@@ -819,7 +837,7 @@ const Login = () => {
 						<CollapsibleHeader
 							title="Step 3: Configure Authentication"
 							subtitle="Set up OAuth/OIDC authentication parameters"
-							icon={<FiKey />}
+							icon={<MDIIcon icon="FiKey" />}
 							defaultCollapsed={false}
 							theme="orange"
 							variant="compact"
@@ -840,13 +858,13 @@ const Login = () => {
 											justifyContent: 'center',
 											width: '20px',
 											height: '20px',
-											backgroundColor: '#0070CC',
+											backgroundColor: V9_COLORS.PRIMARY.BLUE,
 											borderRadius: '50%',
 											marginLeft: '8px',
 											color: 'white',
 										}}
 									>
-										<FiEdit size={12} />
+										<MDIIcon icon="FiEdit" size={12} />
 									</span>
 								</li>
 								<li>
@@ -861,7 +879,7 @@ const Login = () => {
 										style={{
 											fontWeight: '800',
 											fontSize: '1rem',
-											color: '#0070CC',
+											color: V9_COLORS.PRIMARY.BLUE,
 											marginLeft: '0.5rem',
 										}}
 									>
@@ -872,8 +890,8 @@ const Login = () => {
 											}
 											style={{
 												background: 'none',
-												border: '1px solid #0070CC',
-												color: '#0070CC',
+												border: `1px solid ${V9_COLORS.PRIMARY.BLUE}`,
+												color: V9_COLORS.PRIMARY.BLUE,
 												cursor: 'pointer',
 												padding: '0.125rem 0.25rem',
 												borderRadius: '3px',
@@ -888,9 +906,9 @@ const Login = () => {
 											title="Copy Redirect URI"
 										>
 											{copiedId === 'setup-redirect-uri' ? (
-												<FiCheck size={10} />
+												<MDIIcon icon="FiCheck" size={10} />
 											) : (
-												<FiCopy size={10} />
+												<MDIIcon icon="FiCopy" size={10} />
 											)}
 										</button>
 									</span>
@@ -907,7 +925,7 @@ const Login = () => {
 						<CollapsibleHeader
 							title="Step 4: Save and Get Credentials"
 							subtitle="Copy the generated credentials for use in this playground"
-							icon={<FiCopy />}
+							icon={<MDIIcon icon="FiCopy" />}
 							defaultCollapsed={false}
 							theme="purple"
 							variant="compact"
@@ -930,7 +948,7 @@ const Login = () => {
 											gap: '0.25rem',
 										}}
 									>
-										(<FiEye size={12} /> show/hide)
+										(<MDIIcon icon="FiEye" size={12} /> show/hide)
 									</span>
 								</li>
 							</ul>
@@ -957,8 +975,8 @@ const Login = () => {
 						hasExistingCredentials && (
 							<span
 								style={{
-									background: '#d4edda',
-									color: '#155724',
+									background: V9_COLORS.BG.SUCCESS,
+									color: V9_COLORS.PRIMARY.GREEN,
 									padding: '0.25rem 0.5rem',
 									borderRadius: '12px',
 									fontSize: '0.75rem',
@@ -968,13 +986,13 @@ const Login = () => {
 									gap: '0.25rem',
 								}}
 							>
-								<FiCheckCircle size={12} />
+								<MDIIcon icon="FiCheckCircle" size={12} />
 								Configured
 							</span>
 						)
 					}
 				>
-					<div style={{ padding: '1.5rem', background: '#ffffff', borderRadius: '0.5rem' }}>
+					<div style={{ padding: '1.5rem', background: V9_COLORS.BG.WHITE, borderRadius: '0.5rem' }}>
 						<h4>Configure Your PingOne Application Credentials</h4>
 
 						{redirectMessage && (
@@ -985,21 +1003,21 @@ const Login = () => {
 									borderRadius: '0.375rem',
 									backgroundColor:
 										redirectType === 'success'
-											? '#f0fdf4'
+											? V9_COLORS.BG.SUCCESS
 											: redirectType === 'error'
-												? '#fef2f2'
+												? V9_COLORS.BG.ERROR
 												: redirectType === 'warning'
-													? '#fffbeb'
-													: '#eff6ff',
-									border: `1px solid ${redirectType === 'success' ? '#bbf7d0' : redirectType === 'error' ? '#fecaca' : redirectType === 'warning' ? '#fde68a' : '#bfdbfe'}`,
+													? V9_COLORS.BG.WARNING
+													: V9_COLORS.BG.GRAY_LIGHT,
+									border: `1px solid ${redirectType === 'success' ? V9_COLORS.BG.SUCCESS_BORDER : redirectType === 'error' ? V9_COLORS.BG.ERROR_BORDER : redirectType === 'warning' ? V9_COLORS.BG.WARNING_BORDER : V9_COLORS.TEXT.GRAY_LIGHTER}`,
 									color:
 										redirectType === 'success'
-											? '#166534'
+											? V9_COLORS.PRIMARY.GREEN
 											: redirectType === 'error'
-												? '#991b1b'
+												? V9_COLORS.PRIMARY.RED
 												: redirectType === 'warning'
-													? '#92400e'
-													: '#1e40af',
+													? V9_COLORS.PRIMARY.YELLOW
+													: V9_COLORS.TEXT.GRAY_DARK,
 									display: 'flex',
 									alignItems: 'flex-start',
 								}}
@@ -1064,7 +1082,7 @@ const Login = () => {
 
 						{error && (
 							<Alert>
-								<FiAlertCircle size={20} />
+								<MDIIcon icon="FiAlertCircle" size={20} />
 								<div>{error}</div>
 							</Alert>
 						)}
@@ -1081,9 +1099,9 @@ const Login = () => {
 										padding: '1rem',
 										marginBottom: '1.5rem',
 										borderRadius: '0.375rem',
-										backgroundColor: saveStatus.type === 'success' ? '#f0fdf4' : '#fef2f2',
-										border: `1px solid ${saveStatus.type === 'success' ? '#bbf7d0' : '#fecaca'}`,
-										color: saveStatus.type === 'success' ? '#166534' : '#991b1b',
+										backgroundColor: saveStatus.type === 'success' ? V9_COLORS.BG.SUCCESS : V9_COLORS.BG.ERROR,
+										border: `1px solid ${saveStatus.type === 'success' ? V9_COLORS.BG.SUCCESS_BORDER : V9_COLORS.BG.ERROR_BORDER}`,
+										color: saveStatus.type === 'success' ? V9_COLORS.PRIMARY.GREEN : V9_COLORS.PRIMARY.RED,
 										display: 'flex',
 										alignItems: 'flex-start',
 									}}
@@ -1134,7 +1152,7 @@ const Login = () => {
 										style={{
 											width: '100%',
 											padding: '0.5rem',
-											border: '1px solid #dee2e6',
+											border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
 											borderRadius: '4px',
 											fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
 											fontSize: '0.85rem',
@@ -1146,7 +1164,7 @@ const Login = () => {
 										onClick={() => copyToClipboard(credentials.environmentId, 'env-id')}
 										title="Copy Environment ID"
 									>
-										{copiedId === 'env-id' ? <FiCheck size={16} /> : <FiCopy size={16} />}
+										{copiedId === 'env-id' ? <MDIIcon icon="FiCheck" size={16} /> : <MDIIcon icon="FiCopy" size={16} />}
 									</CopyButton>
 								</CredentialWrapper>
 							</CredentialRow>
@@ -1163,7 +1181,7 @@ const Login = () => {
 										style={{
 											width: '100%',
 											padding: '0.5rem',
-											border: '1px solid #dee2e6',
+											border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
 											borderRadius: '4px',
 											fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
 											fontSize: '0.85rem',
@@ -1175,7 +1193,7 @@ const Login = () => {
 										onClick={() => copyToClipboard(credentials.clientId, 'client-id')}
 										title="Copy Client ID"
 									>
-										{copiedId === 'client-id' ? <FiCheck size={16} /> : <FiCopy size={16} />}
+										{copiedId === 'client-id' ? <MDIIcon icon="FiCheck" size={16} /> : <MDIIcon icon="FiCopy" size={16} />}
 									</CopyButton>
 								</CredentialWrapper>
 							</CredentialRow>
@@ -1195,7 +1213,7 @@ const Login = () => {
 												width: '100%',
 												maxWidth: '610px',
 												padding: '0.5rem 3.25rem 0.5rem 0.75rem',
-												border: '1px solid #dee2e6',
+												border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
 												fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
 												fontSize: '0.875rem',
 												borderRadius: '4px',
@@ -1222,7 +1240,7 @@ const Login = () => {
 											}}
 											aria-label={showClientSecret ? 'Hide client secret' : 'Show client secret'}
 										>
-											{showClientSecret ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+											{showClientSecret ? <MDIIcon icon="FiEyeOff" size={18} /> : <MDIIcon icon="FiEye" size={18} />}
 										</button>
 									</div>
 									<CopyButton
@@ -1230,7 +1248,7 @@ const Login = () => {
 										title="Copy Client Secret"
 										style={{ marginLeft: '0.5rem' }}
 									>
-										{copiedId === 'client-secret' ? <FiCheck size={16} /> : <FiCopy size={16} />}
+										{copiedId === 'client-secret' ? <MDIIcon icon="FiCheck" size={16} /> : <MDIIcon icon="FiCopy" size={16} />}
 									</CopyButton>
 								</CredentialWrapper>
 							</CredentialRow>
@@ -1274,7 +1292,7 @@ const Login = () => {
 										style={{
 											width: '100%',
 											padding: '0.5rem',
-											border: '1px solid #dee2e6',
+											border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
 											borderRadius: '4px',
 											backgroundColor: '#f8f9fa',
 										}}
@@ -1292,7 +1310,7 @@ const Login = () => {
 									<CollapsibleHeader
 										title="HMAC Client Assertion Settings"
 										subtitle="Configure HMAC-based JWT client authentication parameters"
-										icon={<FiKey />}
+										icon={<MDIIcon icon="FiKey" />}
 										defaultCollapsed={false}
 										theme="orange"
 										variant="compact"
@@ -1317,7 +1335,7 @@ const Login = () => {
 														style={{
 															width: '100%',
 															padding: '0.5rem',
-															border: '1px solid #dee2e6',
+															border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
 															borderRadius: 4,
 															backgroundColor: '#f8f9fa',
 														}}
@@ -1349,7 +1367,7 @@ const Login = () => {
 														style={{
 															width: '100%',
 															padding: '0.5rem',
-															border: '1px solid #dee2e6',
+															border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
 															borderRadius: 4,
 															backgroundColor: '#f8f9fa',
 														}}
@@ -1367,7 +1385,7 @@ const Login = () => {
 									<CollapsibleHeader
 										title="Private Key JWT Client Assertion"
 										subtitle="Configure private key-based JWT client authentication"
-										icon={<FiLock />}
+										icon={<MDIIcon icon="FiLock" />}
 										defaultCollapsed={false}
 										theme="green"
 										variant="compact"
@@ -1392,7 +1410,7 @@ const Login = () => {
 														style={{
 															width: '100%',
 															padding: '0.5rem',
-															border: '1px solid #dee2e6',
+															border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
 															borderRadius: 4,
 															backgroundColor: '#f8f9fa',
 														}}
@@ -1423,7 +1441,7 @@ const Login = () => {
 														style={{
 															width: '100%',
 															padding: '0.5rem',
-															border: '1px solid #dee2e6',
+															border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
 															borderRadius: 4,
 															backgroundColor: '#f8f9fa',
 														}}
@@ -1451,7 +1469,7 @@ const Login = () => {
 															width: '100%',
 															minHeight: '120px',
 															padding: '0.5rem',
-															border: '1px solid #dee2e6',
+															border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
 															borderRadius: 4,
 															backgroundColor: '#f8f9fa',
 															fontFamily: 'monospace',
@@ -1480,7 +1498,7 @@ const Login = () => {
 														style={{
 															width: '100%',
 															padding: '0.5rem',
-															border: '1px solid #dee2e6',
+															border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
 															borderRadius: 4,
 															backgroundColor: '#f8f9fa',
 														}}
@@ -1504,7 +1522,7 @@ const Login = () => {
 										}
 										title="Copy Redirect URI"
 									>
-										{copiedId === 'redirect-uri' ? <FiCheck size={16} /> : <FiCopy size={16} />}
+										{copiedId === 'redirect-uri' ? <MDIIcon icon="FiCheck" size={16} /> : <MDIIcon icon="FiCopy" size={16} />}
 									</CopyButton>
 								</CredentialWrapper>
 							</CredentialRow>
@@ -1514,7 +1532,7 @@ const Login = () => {
 								<CollapsibleHeader
 									title="Advanced Configuration"
 									subtitle="Optional settings for specialized OAuth/OIDC configurations"
-									icon={<FiSettings />}
+									icon={<MDIIcon icon="FiSettings" />}
 									defaultCollapsed={true}
 									theme="purple"
 									variant="compact"
@@ -1539,7 +1557,7 @@ const Login = () => {
 													style={{
 														width: '100%',
 														padding: '0.5rem',
-														border: '1px solid #dee2e6',
+														border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
 														borderRadius: 4,
 														backgroundColor: '#ffffff',
 													}}
@@ -1572,7 +1590,7 @@ const Login = () => {
 													style={{
 														width: '100%',
 														padding: '0.5rem',
-														border: '1px solid #dee2e6',
+														border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
 														borderRadius: 4,
 														backgroundColor: '#ffffff',
 													}}
@@ -1631,7 +1649,7 @@ const Login = () => {
 													style={{
 														width: '100%',
 														padding: '0.5rem',
-														border: '1px solid #dee2e6',
+														border: `1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER}`,
 														borderRadius: 4,
 														backgroundColor: '#ffffff',
 													}}
@@ -1694,7 +1712,7 @@ const Login = () => {
 										</>
 									) : (
 										<>
-											<FiCheck />
+											<MDIIcon icon="FiCheck" />
 											Save Credentials
 										</>
 									)}
@@ -1712,7 +1730,7 @@ const Login = () => {
 										</>
 									) : (
 										<>
-											<FiLogIn />
+											<MDIIcon icon="FiLogIn" />
 											Login with PingOne
 										</>
 									)}
@@ -1728,7 +1746,7 @@ const Login = () => {
 				<CollapsibleHeader
 					title="Debug & Troubleshooting"
 					subtitle="View stored credentials and configuration for debugging purposes"
-					icon={<FiSettings />}
+					icon={<MDIIcon icon="FiSettings" />}
 					defaultCollapsed={true}
 					theme="yellow"
 					variant="default"

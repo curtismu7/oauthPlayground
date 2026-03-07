@@ -1,10 +1,30 @@
 // src/components/DeviceTypeSelector.tsx
 // Device Type Selector for V7 Device Authorization Flow
 
-import { FiSpeaker } from '@icons';
 import React from 'react';
-import { FaCar, FaTv } from 'react-icons/fa';
 import styled from 'styled-components';
+
+// MDI Icon Component for React Icons migration
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
+	icon, 
+	size = 16, 
+	className = '' 
+}) => {
+	const iconMap: Record<string, string> = {
+		'FaTv': 'mdi-television',
+		'FaCar': 'mdi-car',
+		'Speaker': 'mdi-speaker',
+	};
+	
+	const mdiIcon = iconMap[icon] || 'mdi-help';
+	
+	return (
+		<i 
+			className={`mdi ${mdiIcon} ${className}`}
+			style={{ fontSize: `${size}px` }}
+		></i>
+	);
+};
 
 const DeviceSelectorContainer = styled.div<{ $isCompact?: boolean }>`
   background: ${(props) => (props.$isCompact ? 'transparent' : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)')};
@@ -67,21 +87,21 @@ export const DEVICE_TYPES: DeviceType[] = [
 		value: 'apple-tv',
 		label: 'Apple TV',
 		description: 'Authentic Apple TV interface with tvOS design',
-		icon: FaTv,
+		icon: () => <MDIIcon icon="FaTv" size={20} />,
 		emoji: '📺',
 	},
 	{
 		value: 'tesla-car',
 		label: 'Tesla Car Display',
 		description: 'Realistic Tesla infotainment screen interface',
-		icon: FaCar,
+		icon: () => <MDIIcon icon="FaCar" size={20} />,
 		emoji: '🚗',
 	},
 	{
 		value: 'amazon-echo-show',
 		label: 'Amazon Echo Show',
 		description: 'Authentic Amazon Echo Show with Alexa interface',
-		icon: FiSpeaker,
+		icon: () => <MDIIcon icon="Speaker" size={20} />,
 		emoji: '🔊',
 	},
 ];

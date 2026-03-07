@@ -14,7 +14,7 @@ import {
 	getDomainFromIndexedDB,
 	saveCustomDomain,
 } from '../services/customDomainService';
-import { WorkerTokenModalV8 } from '../v8/components/WorkerTokenModalV8';
+import { WorkerTokenModalV9 } from '../components/WorkerTokenModalV9';
 import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
 import {
 	checkWorkerTokenStatusSync,
@@ -610,7 +610,7 @@ export default function CustomDomainTestPage() {
 			</div>
 
 			{/* Worker Token Modal */}
-			<WorkerTokenModalV8
+			<WorkerTokenModalV9
 				isOpen={showWorkerTokenModal}
 				onClose={() => setShowWorkerTokenModal(false)}
 				onTokenGenerated={async (token) => {

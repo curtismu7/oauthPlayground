@@ -42,7 +42,7 @@ import { PageLayoutService } from '../../services/pageLayoutService';
 // import { renderWorkerTokenButton } from '../../services/workerTokenUIService';
 // import type { DiscoveredApp } from '../../v8/components/AppPickerV8';
 import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
-import { WorkerTokenModalV8 } from '../../v8/components/WorkerTokenModalV8';
+import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
 
 // Create layout components at module level so styled.header is never created inside a hook.
 // styled-components v6 uses useContext internally; creating them inside useMemo violates Rules of Hooks.
@@ -4488,19 +4488,19 @@ export { changePassword, handleChangePassword };`;
 
 				{/* Mount only when open so modal hooks never run when closed (avoids hooks-order issues) */}
 				{showWorkerTokenModal && (
-					<WorkerTokenModalV8
+					<WorkerTokenModalV9
 						isOpen={true}
 						onClose={() => setShowWorkerTokenModal(false)}
 						onTokenGenerated={() => {
-							// Token is now managed by useGlobalWorkerToken hook
-							// No need to manually set state
-							modernMessaging.showFooterMessage({
-								type: 'status',
-								message: 'Worker token generated successfully',
-								duration: 4000,
-							});
+							// Re-check worker token status after generation
+							const tokenData = unifiedWorkerTokenService.getTokenDataSync();
+							if (tokenData?.token) {
+								modernMessaging.showFooterMessage({
+									type: 'info',
+									message: 'Worker token generated successfully',
+								});
+							}
 						}}
-						environmentId={environmentId}
 					/>
 				)}
 				{/* Setup Modal - Shows when authorization code credentials are not configured */}

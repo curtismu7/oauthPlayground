@@ -1,8 +1,27 @@
-import { FiSettings } from '@icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { getDefaultConfig } from '../utils/flowConfigDefaults';
 import { type FlowConfig, FlowConfiguration } from './FlowConfiguration';
+
+// MDI Icon Component for React Icons migration
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
+	icon, 
+	size = 16, 
+	className = '' 
+}) => {
+	const iconMap: Record<string, string> = {
+		'FiSettings': 'mdi-cog',
+	};
+	
+	const mdiIcon = iconMap[icon] || 'mdi-help';
+	
+	return (
+		<i 
+			className={`mdi ${mdiIcon} ${className}`}
+			style={{ fontSize: `${size}px` }}
+		></i>
+	);
+};
 
 interface ConfigurationButtonProps {
 	flowType: string;
@@ -152,7 +171,7 @@ const ConfigurationButton: React.FC<ConfigurationButtonProps> = ({
 				onClick={() => setShowModal(true)}
 				title={`Configure ${flowType} flow parameters`}
 			>
-				<FiSettings />
+				<MDIIcon icon="FiSettings" />
 				Show Configuration
 			</Button>
 

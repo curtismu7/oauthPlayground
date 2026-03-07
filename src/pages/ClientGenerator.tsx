@@ -34,6 +34,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 import ColoredUrlDisplay from '../components/ColoredUrlDisplay';
 import { CredentialsInput } from '../components/CredentialsInput';
 import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
@@ -79,13 +80,13 @@ const FormContainer = styled.div`
 	padding: 2rem;
 	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 	margin-bottom: 2rem;
-	border: 1px solid #e5e7eb;
+	border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
 `;
 
 const FormTitle = styled.h2`
 	font-size: 1.5rem;
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 1.5rem;
 	display: flex;
 	align-items: center;
@@ -101,13 +102,13 @@ const FormGroup = styled.div`
 const Label = styled.label`
 	font-size: 0.875rem;
 	font-weight: 500;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.5rem;
 `;
 
 const Select = styled.select`
 	padding: 0.75rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
 	background: white;
@@ -142,7 +143,7 @@ const Button = styled.button.withConfig({
 	`
 			: variant === 'danger'
 				? `
-		background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+		background: linear-gradient(135deg, ${V9_COLORS.PRIMARY.RED} 0%, ${V9_COLORS.PRIMARY.RED_DARK} 100%);
 		color: white;
 		box-shadow: 0 12px 28px -18px rgba(220, 38, 38, 0.55);
 		&:hover {
@@ -153,10 +154,10 @@ const Button = styled.button.withConfig({
 				: `
 		background: white;
 		color: ${theme.colors.gray700};
-		border-color: #d1d5db;
+		border-color: ${V9_COLORS.TEXT.GRAY_LIGHTER};
 		&:hover {
-			background: #f9fafb;
-			border-color: #9ca3af;
+			background: ${V9_COLORS.BG.GRAY_LIGHT};
+			border-color: ${V9_COLORS.TEXT.GRAY_LIGHT};
 		}
 	`}
 	&:disabled {
@@ -176,7 +177,7 @@ const ActionButton = styled.button`
 	cursor: pointer;
 	transition: all 0.2s;
 	border: none;
-	background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+	background: linear-gradient(135deg, ${V9_COLORS.PRIMARY.GREEN} 0%, ${V9_COLORS.PRIMARY.GREEN_DARK} 100%);
 	box-shadow: 0 12px 30px -15px rgba(22, 163, 74, 0.6);
 	color: white;
 
@@ -201,9 +202,9 @@ const LoadingSpinner = styled.div`
 	display: inline-block;
 	width: 20px;
 	height: 20px;
-	border: 2px solid #e5e7eb;
+	border: 2px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
 	border-radius: 50%;
-	border-top-color: #3b82f6;
+	border-top-color: ${V9_COLORS.PRIMARY.BLUE};
 	animation: spin 1s ease-in-out infinite;
 
 	@keyframes spin {
