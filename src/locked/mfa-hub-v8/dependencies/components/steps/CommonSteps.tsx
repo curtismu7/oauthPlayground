@@ -1517,7 +1517,7 @@ export const createTokenValidationStep = (
 						</CopyButton>
 					</div>
 					<FormField>
-						<TokenDisplay>{JSON.stringify(userInfo, null, 2)}</TokenDisplay>
+						<TokenDisplay>{maskToken(JSON.stringify(userInfo, null, 2))}</TokenDisplay>
 					</FormField>
 				</div>
 			)}
