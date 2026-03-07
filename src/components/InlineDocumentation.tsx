@@ -6,7 +6,7 @@ import styled from 'styled-components';
 
 const DocContainer = styled.div`
   margin: 1rem 0;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 8px;
   background: #f9fafb;
 `;
@@ -21,7 +21,7 @@ const DocHeader = styled.div`
   border-radius: 8px 8px 0 0;
   
   &:hover {
-    background: #e5e7eb;
+    background: V9_COLORS.TEXT.GRAY_LIGHTER;
   }
 `;
 
@@ -29,7 +29,7 @@ const DocTitle = styled.h4`
   margin: 0;
   font-size: 0.9rem;
   font-weight: 600;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const DocChevron = styled.div`
@@ -39,8 +39,8 @@ const DocChevron = styled.div`
   width: 2.25rem;
   height: 2.25rem;
   border-radius: 8px;
-  background: #eff6ff;
-  border: 2px solid #3b82f6;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border: 2px solid V9_COLORS.PRIMARY.BLUE;
   box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
   transition: all 0.2s ease;
   cursor: pointer;
@@ -48,17 +48,17 @@ const DocChevron = styled.div`
 
   svg {
     font-size: 1.25rem;
-    color: #3b82f6;
+    color: V9_COLORS.PRIMARY.BLUE;
   }
 
   &:hover {
     background: #dbeafe;
-    border-color: #1d4ed8;
+    border-color: V9_COLORS.PRIMARY.BLUE_DARK;
     transform: scale(1.1);
     box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
     
     svg {
-      color: #1d4ed8;
+      color: V9_COLORS.PRIMARY.BLUE_DARK;
     }
   }
   
@@ -88,32 +88,32 @@ const DocSectionTitle = styled.h5`
   margin: 0 0 0.5rem 0;
   font-size: 0.85rem;
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const DocText = styled.p`
   margin: 0 0 0.5rem 0;
   font-size: 0.8rem;
   line-height: 1.5;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const DocCode = styled.pre`
   background: #f3f4f6;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 4px;
   padding: 0.75rem;
   font-size: 0.75rem;
   overflow-x: auto;
   margin: 0.5rem 0;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const DocLink = styled.a`
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  color: #3b82f6;
+  color: V9_COLORS.PRIMARY.BLUE;
   text-decoration: none;
   font-size: 0.8rem;
   
@@ -194,7 +194,9 @@ export const QuickReference: React.FC<QuickReferenceProps> = ({ title, items }) 
 			<DocSectionTitle>{title}</DocSectionTitle>
 			{items.map((item, index) => (
 				<div key={index} style={{ marginBottom: '0.75rem' }}>
-					<div style={{ fontWeight: 'bold', fontSize: '0.8rem', color: '#1f2937' }}>
+					<div
+						style={{ fontWeight: 'bold', fontSize: '0.8rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}
+					>
 						{item.term}
 					</div>
 					<DocText>{item.definition}</DocText>
@@ -225,13 +227,15 @@ export const TroubleshootingGuide: React.FC<TroubleshootingGuideProps> = ({
 			<DocSectionTitle> Troubleshooting: {issue}</DocSectionTitle>
 
 			<div style={{ marginBottom: '1rem' }}>
-				<strong style={{ fontSize: '0.8rem', color: '#dc2626' }}>Symptoms:</strong>
+				<strong style={{ fontSize: '0.8rem', color: 'V9_COLORS.PRIMARY.RED_DARK' }}>
+					Symptoms:
+				</strong>
 				<ul
 					style={{
 						margin: '0.25rem 0',
 						paddingLeft: '1.5rem',
 						fontSize: '0.8rem',
-						color: '#6b7280',
+						color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 					}}
 				>
 					{symptoms && symptoms.length > 0 ? (
@@ -243,11 +247,19 @@ export const TroubleshootingGuide: React.FC<TroubleshootingGuideProps> = ({
 			</div>
 
 			<div>
-				<strong style={{ fontSize: '0.8rem', color: '#059669' }}>Solutions:</strong>
+				<strong style={{ fontSize: '0.8rem', color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>
+					Solutions:
+				</strong>
 				{solutions && solutions.length > 0 ? (
 					solutions.map((solution, index) => (
 						<div key={index} style={{ margin: '0.5rem 0' }}>
-							<div style={{ fontWeight: 'bold', fontSize: '0.8rem', color: '#1f2937' }}>
+							<div
+								style={{
+									fontWeight: 'bold',
+									fontSize: '0.8rem',
+									color: 'V9_COLORS.TEXT.GRAY_DARK',
+								}}
+							>
 								{solution.title}
 							</div>
 							<ol
@@ -255,7 +267,7 @@ export const TroubleshootingGuide: React.FC<TroubleshootingGuideProps> = ({
 									margin: '0.25rem 0',
 									paddingLeft: '1.5rem',
 									fontSize: '0.75rem',
-									color: '#6b7280',
+									color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 								}}
 							>
 								{solution.steps && solution.steps.length > 0 ? (
@@ -268,7 +280,9 @@ export const TroubleshootingGuide: React.FC<TroubleshootingGuideProps> = ({
 						</div>
 					))
 				) : (
-					<div style={{ fontSize: '0.8rem', color: '#6b7280' }}>No solutions available</div>
+					<div style={{ fontSize: '0.8rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+						No solutions available
+					</div>
 				)}
 			</div>
 		</DocSection>

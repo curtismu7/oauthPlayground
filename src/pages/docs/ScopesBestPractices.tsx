@@ -13,12 +13,13 @@ import {
 import React from 'react';
 import styled from 'styled-components';
 import { PageLayoutService } from '../../services/pageLayoutService';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 const _Container = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
-  background: #f8fafc;
+  background: V9_COLORS.BG.GRAY_LIGHT;
   min-height: 100vh;
 `;
 
@@ -59,7 +60,7 @@ const Section = styled.section`
 `;
 
 const SectionTitle = styled.h2`
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 1.8rem;
   font-weight: 600;
   margin: 0 0 1.5rem 0;
@@ -67,11 +68,11 @@ const SectionTitle = styled.h2`
   align-items: center;
   gap: 0.75rem;
   padding-bottom: 0.5rem;
-  border-bottom: 2px solid #e5e7eb;
+  border-bottom: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const SectionSubtitle = styled.h3`
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 1.4rem;
   font-weight: 600;
   margin: 2rem 0 1rem 0;
@@ -95,13 +96,13 @@ const InfoBox = styled.div<{ type: 'info' | 'warning' | 'success' | 'error' }>`
   background: ${(props) => {
 		switch (props.type) {
 			case 'info':
-				return '#eff6ff';
+				return 'V9_COLORS.BG.GRAY_LIGHT';
 			case 'warning':
-				return '#fffbeb';
+				return 'V9_COLORS.BG.WARNING';
 			case 'success':
 				return '#f0fdf4';
 			case 'error':
-				return '#fef2f2';
+				return 'V9_COLORS.BG.ERROR';
 			default:
 				return '#f9fafb';
 		}
@@ -109,15 +110,15 @@ const InfoBox = styled.div<{ type: 'info' | 'warning' | 'success' | 'error' }>`
   border-color: ${(props) => {
 		switch (props.type) {
 			case 'info':
-				return '#3b82f6';
+				return 'V9_COLORS.PRIMARY.BLUE';
 			case 'warning':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'success':
-				return '#10b981';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'error':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			default:
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 		}
 	}};
 `;
@@ -132,15 +133,15 @@ const InfoBoxIcon = styled.div<{ type: 'info' | 'warning' | 'success' | 'error' 
   color: ${(props) => {
 		switch (props.type) {
 			case 'info':
-				return '#3b82f6';
+				return 'V9_COLORS.PRIMARY.BLUE';
 			case 'warning':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'success':
-				return '#10b981';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'error':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			default:
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 		}
 	}};
   font-size: 1.25rem;
@@ -154,7 +155,7 @@ const InfoBoxText = styled.div`
 const InfoBoxTitle = styled.h4`
   margin: 0 0 0.5rem 0;
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const InfoBoxDescription = styled.p`
@@ -164,7 +165,7 @@ const InfoBoxDescription = styled.p`
 `;
 
 const CodeBlock = styled.pre`
-  background: #1f2937;
+  background: V9_COLORS.TEXT.GRAY_DARK;
   color: #f9fafb;
   padding: 1.5rem;
   border-radius: 8px;
@@ -177,7 +178,7 @@ const CodeBlock = styled.pre`
 
 const InlineCode = styled.code`
   background: #f3f4f6;
-  color: #dc2626;
+  color: V9_COLORS.PRIMARY.RED_DARK;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -196,12 +197,12 @@ const Table = styled.table`
 `;
 
 const TableHeader = styled.th`
-  background: #f8fafc;
-  color: #374151;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-weight: 600;
   padding: 1rem;
   text-align: left;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const TableCell = styled.td`
@@ -228,8 +229,8 @@ const ListItem = styled.li`
 `;
 
 const DiagramContainer = styled.div`
-  background: #f8fafc;
-  border: 2px solid #e5e7eb;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 12px;
   padding: 2rem;
   margin: 2rem 0;
@@ -237,26 +238,26 @@ const DiagramContainer = styled.div`
 `;
 
 const DiagramTitle = styled.h4`
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 1.1rem;
   font-weight: 600;
   margin: 0 0 1.5rem 0;
 `;
 
 const FlowStep = styled.div<{ $isActive?: boolean }>`
-  background: ${(props) => (props.$isActive ? '#3b82f6' : 'white')};
-  color: ${(props) => (props.$isActive ? 'white' : '#374151')};
+  background: ${(props) => (props.$isActive ? 'V9_COLORS.PRIMARY.BLUE' : 'white')};
+  color: ${(props) => (props.$isActive ? 'white' : 'V9_COLORS.TEXT.GRAY_DARK')};
   padding: 1rem 1.5rem;
   border-radius: 8px;
   margin: 0.5rem;
   display: inline-block;
-  border: 2px solid ${(props) => (props.$isActive ? '#3b82f6' : '#e5e7eb')};
+  border: 2px solid ${(props) => (props.$isActive ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
   font-weight: 500;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
 
 const FlowArrow = styled.div`
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 1.5rem;
   margin: 0 0.5rem;
   display: inline-block;
@@ -274,8 +275,8 @@ const BestPracticeCard = styled.div<{ type: 'do' | 'dont' }>`
   padding: 1.5rem;
   border-radius: 8px;
   border: 2px solid;
-  background: ${(props) => (props.type === 'do' ? '#f0fdf4' : '#fef2f2')};
-  border-color: ${(props) => (props.type === 'do' ? '#10b981' : '#ef4444')};
+  background: ${(props) => (props.type === 'do' ? '#f0fdf4' : 'V9_COLORS.BG.ERROR')};
+  border-color: ${(props) => (props.type === 'do' ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.RED')};
 `;
 
 const BestPracticeHeader = styled.div<{ type: 'do' | 'dont' }>`
@@ -283,7 +284,7 @@ const BestPracticeHeader = styled.div<{ type: 'do' | 'dont' }>`
   align-items: center;
   gap: 0.75rem;
   margin-bottom: 1rem;
-  color: ${(props) => (props.type === 'do' ? '#059669' : '#dc2626')};
+  color: ${(props) => (props.type === 'do' ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.RED_DARK')};
   font-weight: 600;
   font-size: 1.1rem;
 `;
@@ -441,7 +442,7 @@ const ScopesBestPractices: React.FC = () => {
 								<FlowArrow></FlowArrow>
 								<FlowStep>Inventory API</FlowStep>
 							</div>
-							<div style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#6b7280' }}>
+							<div style={{ marginTop: '1rem', fontSize: '0.9rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 								<strong>Scopes:</strong> <InlineCode>orders:read</InlineCode>,{' '}
 								<InlineCode>orders:write</InlineCode>, <InlineCode>inventory:read</InlineCode>
 							</div>
@@ -534,7 +535,7 @@ const ScopesBestPractices: React.FC = () => {
 								<FlowArrow></FlowArrow>
 								<FlowStep>Access Token with Elevated Permissions</FlowStep>
 							</div>
-							<div style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#6b7280' }}>
+							<div style={{ marginTop: '1rem', fontSize: '0.9rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 								<strong>Example:</strong> <InlineCode>payment:process</InlineCode> scope for payment
 								operations
 							</div>
@@ -606,7 +607,7 @@ transaction-12345`}</CodeBlock>
 								<FlowArrow></FlowArrow>
 								<FlowStep>Inventory API</FlowStep>
 							</div>
-							<div style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#6b7280' }}>
+							<div style={{ marginTop: '1rem', fontSize: '0.9rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 								<strong>Same Token:</strong> <InlineCode>orders:read</InlineCode>,{' '}
 								<InlineCode>inventory:read</InlineCode>
 							</div>
@@ -635,7 +636,7 @@ transaction-12345`}</CodeBlock>
 								<FlowArrow></FlowArrow>
 								<FlowStep>Shipping API</FlowStep>
 							</div>
-							<div style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#6b7280' }}>
+							<div style={{ marginTop: '1rem', fontSize: '0.9rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 								<strong>Original:</strong> <InlineCode>orders:read orders:write</InlineCode>
 								<br />
 								<strong>Exchanged:</strong> <InlineCode>shipping:write</InlineCode>

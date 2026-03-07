@@ -22,7 +22,7 @@ import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // Square POS Terminal Main Container - Authentic Square Design
 const POSTerminalContainer = styled.div`
-  background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%);
+  background: linear-gradient(135deg, V9_COLORS.TEXT.BLACK 0%, #1a1a1a 50%, V9_COLORS.TEXT.BLACK 100%);
   border-radius: 0.5rem;
   padding: 1rem;
   margin: 2rem 0;
@@ -36,7 +36,7 @@ const POSTerminalContainer = styled.div`
   max-width: 400px;
   margin-left: auto;
   margin-right: auto;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   
   /* Square branding */
   &::before {
@@ -67,8 +67,8 @@ const POSTerminalContainer = styled.div`
 
 // POS Header
 const POSHeader = styled.div`
-  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-  border: 2px solid #34d399;
+  background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN_DARK 0%, V9_COLORS.PRIMARY.GREEN 100%);
+  border: 2px solid V9_COLORS.PRIMARY.GREEN_LIGHT;
   border-radius: 0.75rem;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
@@ -79,7 +79,7 @@ const POSHeader = styled.div`
 const POSTitle = styled.div`
   font-size: 1.5rem;
   font-weight: 700;
-  color: #34d399;
+  color: V9_COLORS.PRIMARY.GREEN_LIGHT;
   margin-bottom: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -105,7 +105,7 @@ const PaymentStatusIndicator = styled.div<{ $active: boolean; $color: string }>`
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: ${(props) => (props.$active ? props.$color : '#374151')};
+  background: ${(props) => (props.$active ? props.$color : 'V9_COLORS.TEXT.GRAY_DARK')};
   box-shadow: ${(props) => (props.$active ? `0 0 20px ${props.$color}` : 'none')};
   animation: ${(props) => (props.$active ? 'paymentPulse 2s infinite' : 'none')};
   position: relative;
@@ -119,7 +119,7 @@ const PaymentStatusIndicator = styled.div<{ $active: boolean; $color: string }>`
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: ${(props) => (props.$active ? '#ffffff' : 'transparent')};
+    background: ${(props) => (props.$active ? 'V9_COLORS.TEXT.WHITE' : 'transparent')};
     animation: ${(props) => (props.$active ? 'innerPulse 1.5s infinite' : 'none')};
   }
   
@@ -142,8 +142,8 @@ const PaymentStatusIndicator = styled.div<{ $active: boolean; $color: string }>`
 
 // POS Display Screen
 const POSDisplayScreen = styled.div`
-  background: linear-gradient(135deg, #000000 0%, #1e293b 100%);
-  border: 3px solid #34d399;
+  background: linear-gradient(135deg, V9_COLORS.TEXT.BLACK 0%, #1e293b 100%);
+  border: 3px solid V9_COLORS.PRIMARY.GREEN_LIGHT;
   border-radius: 0.75rem;
   padding: 2rem;
   margin-bottom: 1.5rem;
@@ -155,7 +155,7 @@ const POSDisplayScreen = styled.div`
 `;
 
 const ScreenLabel = styled.div`
-  color: #34d399;
+  color: V9_COLORS.PRIMARY.GREEN_LIGHT;
   font-size: 0.875rem;
   font-weight: 600;
   margin-bottom: 1rem;
@@ -164,8 +164,8 @@ const ScreenLabel = styled.div`
 `;
 
 const UserCodeDisplay = styled.div`
-  background: #000000;
-  color: #f59e0b;
+  background: V9_COLORS.TEXT.BLACK;
+  color: V9_COLORS.PRIMARY.YELLOW;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 2.5rem;
   font-weight: 700;
@@ -173,8 +173,8 @@ const UserCodeDisplay = styled.div`
   border-radius: 0.5rem;
   margin-bottom: 1.5rem;
   letter-spacing: 0.2em;
-  text-shadow: 0 0 10px #f59e0b;
-  border: 2px solid #f59e0b;
+  text-shadow: 0 0 10px V9_COLORS.PRIMARY.YELLOW;
+  border: 2px solid V9_COLORS.PRIMARY.YELLOW;
   box-shadow: 
     inset 0 0 20px rgba(245, 158, 11, 0.2),
     0 0 20px rgba(245, 158, 11, 0.3);
@@ -183,7 +183,7 @@ const UserCodeDisplay = styled.div`
 // QR Code Section
 const QRCodeSection = styled.div`
   background: #1e293b;
-  border: 2px solid #34d399;
+  border: 2px solid V9_COLORS.PRIMARY.GREEN_LIGHT;
   border-radius: 0.75rem;
   padding: 1.5rem;
   text-align: center;
@@ -193,7 +193,7 @@ const QRCodeSection = styled.div`
 const QRCodeLabel = styled.div`
   font-size: 1rem;
   font-weight: 600;
-  color: #34d399;
+  color: V9_COLORS.PRIMARY.GREEN_LIGHT;
   margin-bottom: 1rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -219,28 +219,28 @@ const POSControlButton = styled.button<{
   background: ${(props) => {
 		switch (props.$variant) {
 			case 'primary':
-				return '#34d399';
+				return 'V9_COLORS.PRIMARY.GREEN_LIGHT';
 			case 'secondary':
-				return '#374151';
+				return 'V9_COLORS.TEXT.GRAY_DARK';
 			case 'success':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'danger':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			default:
-				return '#374151';
+				return 'V9_COLORS.TEXT.GRAY_DARK';
 		}
 	}};
   color: white;
   border: 2px solid ${(props) => {
 		switch (props.$variant) {
 			case 'primary':
-				return '#10b981';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'secondary':
 				return '#4b5563';
 			case 'success':
-				return '#d97706';
+				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
 			case 'danger':
-				return '#dc2626';
+				return 'V9_COLORS.PRIMARY.RED_DARK';
 			default:
 				return '#4b5563';
 		}
@@ -274,25 +274,25 @@ const StatusDisplay = styled.div<{ $status: string }>`
   background: ${(props) => {
 		switch (props.$status) {
 			case 'pending':
-				return 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.YELLOW 0%, V9_COLORS.PRIMARY.YELLOW_DARK 100%)';
 			case 'authorized':
-				return 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.YELLOW 0%, V9_COLORS.PRIMARY.YELLOW_DARK 100%)';
 			case 'denied':
-				return 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.RED 0%, V9_COLORS.PRIMARY.RED_DARK 100%)';
 			case 'expired':
-				return 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.TEXT.GRAY_MEDIUM 0%, #4b5563 100%)';
 			default:
-				return 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.TEXT.GRAY_MEDIUM 0%, #4b5563 100%)';
 		}
 	}};
   border: 2px solid ${(props) => {
 		switch (props.$status) {
 			case 'pending':
-				return '#d97706';
+				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
 			case 'authorized':
-				return '#d97706';
+				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
 			case 'denied':
-				return '#dc2626';
+				return 'V9_COLORS.PRIMARY.RED_DARK';
 			case 'expired':
 				return '#4b5563';
 			default:
@@ -313,7 +313,7 @@ const StatusIcon = styled.div`
 const StatusText = styled.div`
   font-size: 1.125rem;
   font-weight: 600;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   margin-bottom: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -321,16 +321,16 @@ const StatusText = styled.div`
 
 const StatusMessage = styled.div`
   font-size: 0.875rem;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
 `;
 
 // POS Base
 const POSBase = styled.div`
-  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN_DARK 0%, V9_COLORS.PRIMARY.GREEN 100%);
   height: 1.5rem;
   border-radius: 0 0 0.75rem 0.75rem;
   margin: 0 -2rem -2rem -2rem;
-  border-top: 2px solid #34d399;
+  border-top: 2px solid V9_COLORS.PRIMARY.GREEN_LIGHT;
 `;
 
 interface POSTerminalDeviceFlowProps {
@@ -410,10 +410,22 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 
 				{/* Payment Status Indicators */}
 				<PaymentStatusIndicators>
-					<PaymentStatusIndicator $active={state.status === 'pending'} $color="#f59e0b" />
-					<PaymentStatusIndicator $active={state.status === 'authorized'} $color="#f59e0b" />
-					<PaymentStatusIndicator $active={state.status === 'denied'} $color="#ef4444" />
-					<PaymentStatusIndicator $active={state.status === 'expired'} $color="#6b7280" />
+					<PaymentStatusIndicator
+						$active={state.status === 'pending'}
+						$color="V9_COLORS.PRIMARY.YELLOW"
+					/>
+					<PaymentStatusIndicator
+						$active={state.status === 'authorized'}
+						$color="V9_COLORS.PRIMARY.YELLOW"
+					/>
+					<PaymentStatusIndicator
+						$active={state.status === 'denied'}
+						$color="V9_COLORS.PRIMARY.RED"
+					/>
+					<PaymentStatusIndicator
+						$active={state.status === 'expired'}
+						$color="V9_COLORS.TEXT.GRAY_MEDIUM"
+					/>
 				</PaymentStatusIndicators>
 
 				{/* POS Display Screen */}
@@ -432,8 +444,8 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 						<QRCodeSVG
 							value={state.verificationUriComplete}
 							size={180}
-							bgColor="#ffffff"
-							fgColor="#000000"
+							bgColor="V9_COLORS.TEXT.WHITE"
+							fgColor="V9_COLORS.TEXT.BLACK"
 							level="M"
 							includeMargin={true}
 						/>
@@ -464,7 +476,8 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 				{state.status === 'authorized' && (
 					<div
 						style={{
-							background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+							background:
+								'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%)',
 							border: '3px solid #f97316',
 							borderRadius: '1rem',
 							padding: '2rem',
@@ -504,14 +517,14 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 									<div style={{ fontSize: '1.25rem', fontWeight: '700', color: '#1e293b' }}>
 										Square Point of Sale
 									</div>
-									<div style={{ fontSize: '0.875rem', color: '#64748b' }}>
+									<div style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 										Terminal #001 • Register Active
 									</div>
 								</div>
 							</div>
 							<div
 								style={{
-									background: '#10b981',
+									background: 'V9_COLORS.PRIMARY.GREEN',
 									color: 'white',
 									padding: '0.5rem 1rem',
 									borderRadius: '0.5rem',
@@ -530,7 +543,7 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 								borderRadius: '0.75rem',
 								padding: '1.5rem',
 								marginBottom: '1.5rem',
-								border: '1px solid #e2e8f0',
+								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 								boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
 							}}
 						>
@@ -561,16 +574,18 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 										justifyContent: 'space-between',
 										alignItems: 'center',
 										padding: '0.75rem',
-										background: '#f8fafc',
+										background: 'V9_COLORS.BG.GRAY_LIGHT',
 										borderRadius: '0.5rem',
-										border: '1px solid #e2e8f0',
+										border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									}}
 								>
 									<div>
 										<div style={{ fontSize: '0.875rem', fontWeight: '600', color: '#1e293b' }}>
 											Large Coffee
 										</div>
-										<div style={{ fontSize: '0.75rem', color: '#64748b' }}>Hot • Extra shot</div>
+										<div style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+											Hot • Extra shot
+										</div>
 									</div>
 									<div style={{ fontSize: '0.875rem', fontWeight: '600', color: '#1e293b' }}>
 										$4.50
@@ -583,16 +598,18 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 										justifyContent: 'space-between',
 										alignItems: 'center',
 										padding: '0.75rem',
-										background: '#f8fafc',
+										background: 'V9_COLORS.BG.GRAY_LIGHT',
 										borderRadius: '0.5rem',
-										border: '1px solid #e2e8f0',
+										border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									}}
 								>
 									<div>
 										<div style={{ fontSize: '0.875rem', fontWeight: '600', color: '#1e293b' }}>
 											Blueberry Muffin
 										</div>
-										<div style={{ fontSize: '0.75rem', color: '#64748b' }}>Fresh baked</div>
+										<div style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+											Fresh baked
+										</div>
 									</div>
 									<div style={{ fontSize: '0.875rem', fontWeight: '600', color: '#1e293b' }}>
 										$3.25
@@ -603,7 +620,7 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 							{/* Totals */}
 							<div
 								style={{
-									borderTop: '2px solid #e2e8f0',
+									borderTop: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									paddingTop: '1rem',
 								}}
 							>
@@ -615,7 +632,9 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 										marginBottom: '0.5rem',
 									}}
 								>
-									<span style={{ fontSize: '0.875rem', color: '#64748b' }}>Subtotal</span>
+									<span style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+										Subtotal
+									</span>
 									<span style={{ fontSize: '0.875rem', fontWeight: '600', color: '#1e293b' }}>
 										$7.75
 									</span>
@@ -628,7 +647,9 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 										marginBottom: '0.5rem',
 									}}
 								>
-									<span style={{ fontSize: '0.875rem', color: '#64748b' }}>Tax (8.5%)</span>
+									<span style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+										Tax (8.5%)
+									</span>
 									<span style={{ fontSize: '0.875rem', fontWeight: '600', color: '#1e293b' }}>
 										$0.66
 									</span>
@@ -661,7 +682,8 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 						>
 							<button
 								style={{
-									background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+									background:
+										'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
 									color: 'white',
 									border: 'none',
 									borderRadius: '0.75rem',
@@ -682,7 +704,8 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 
 							<button
 								style={{
-									background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+									background:
+										'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%)',
 									color: 'white',
 									border: 'none',
 									borderRadius: '0.75rem',
@@ -730,7 +753,8 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 							</button>
 							<button
 								style={{
-									background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+									background:
+										'linear-gradient(135deg, V9_COLORS.PRIMARY.RED 0%, V9_COLORS.PRIMARY.RED_DARK 100%)',
 									color: 'white',
 									border: 'none',
 									borderRadius: '0.5rem',
@@ -748,7 +772,8 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 							</button>
 							<button
 								style={{
-									background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+									background:
+										'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%)',
 									color: 'white',
 									border: 'none',
 									borderRadius: '0.5rem',
@@ -777,7 +802,7 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
 				tokens={state.tokens}
 				backgroundColor="rgba(0, 0, 0, 0.2)"
 				borderColor="#333333"
-				headerTextColor="#ffffff"
+				headerTextColor="V9_COLORS.TEXT.WHITE"
 			/>
 		</>
 	);

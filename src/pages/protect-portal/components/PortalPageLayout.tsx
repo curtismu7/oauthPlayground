@@ -12,6 +12,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import CompanyLogoHeader from './CompanyLogoHeader';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 // ============================================================================
 // STYLED COMPONENTS
@@ -20,13 +21,13 @@ import CompanyLogoHeader from './CompanyLogoHeader';
 const PageWrapper = styled.div`
   width: 100%;
   min-height: 100vh;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
 `;
 
 const PageHeader = styled.header`
   width: 100%;
   background: white;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   position: sticky;
   top: 0;

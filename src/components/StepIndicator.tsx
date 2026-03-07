@@ -48,7 +48,7 @@ const IndicatorContainer = styled.div<{ $completed?: boolean; $active?: boolean;
 	border-radius: 0.375rem;
 	background: ${(props) => {
 		if (props.$completed) return '#f0fdf4';
-		if (props.$active) return '#eff6ff';
+		if (props.$active) return 'V9_COLORS.BG.GRAY_LIGHT';
 		return '#f9fafb';
 	}};
 	border: 1px solid ${(props) => {
@@ -58,26 +58,26 @@ const IndicatorContainer = styled.div<{ $completed?: boolean; $active?: boolean;
 			case 'configuration':
 				return '#dbeafe';
 			case 'authorization':
-				return '#fef3c7';
+				return 'V9_COLORS.BG.WARNING';
 			case 'token-exchange':
 				return '#ddd6fe';
 			case 'refresh':
 				return '#fce7f3';
 			case 'user-info':
-				return '#e0f2fe';
+				return 'V9_COLORS.BG.GRAY_LIGHT';
 			case 'validation':
 				return '#fed7aa';
 			case 'completion':
-				return '#dcfce7';
+				return 'V9_COLORS.BG.SUCCESS';
 			case 'pkce':
 				return '#e0e7ff';
 			default:
-				return '#e5e7eb';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 		}
 	}};
 	color: ${(props) => {
-		if (props.$completed) return '#059669';
-		if (props.$active) return '#2563eb';
+		if (props.$completed) return 'V9_COLORS.PRIMARY.GREEN_DARK';
+		if (props.$active) return 'V9_COLORS.PRIMARY.BLUE_DARK';
 		return '#4b5563';
 	}};
 	font-size: 0.875rem;
@@ -92,13 +92,13 @@ const StepBadge = styled.div<{ $type: StepType; $completed?: boolean; $active?: 
 	height: 24px;
 	border-radius: 50%;
 	background: ${(props) => {
-		if (props.$completed) return '#10b981';
-		if (props.$active) return '#3b82f6';
+		if (props.$completed) return 'V9_COLORS.PRIMARY.GREEN';
+		if (props.$active) return 'V9_COLORS.PRIMARY.BLUE';
 		switch (props.$type) {
 			case 'configuration':
-				return '#60a5fa';
+				return 'V9_COLORS.PRIMARY.BLUE_LIGHT';
 			case 'authorization':
-				return '#fbbf24';
+				return 'V9_COLORS.PRIMARY.YELLOW_LIGHT';
 			case 'token-exchange':
 				return '#a78bfa';
 			case 'refresh':
@@ -108,11 +108,11 @@ const StepBadge = styled.div<{ $type: StepType; $completed?: boolean; $active?: 
 			case 'validation':
 				return '#fb923c';
 			case 'completion':
-				return '#34d399';
+				return 'V9_COLORS.PRIMARY.GREEN_LIGHT';
 			case 'pkce':
 				return '#818cf8';
 			default:
-				return '#9ca3af';
+				return 'V9_COLORS.TEXT.GRAY_LIGHT';
 		}
 	}};
 	color: white;
@@ -132,7 +132,7 @@ const StepLabel = styled.div`
 
 const StepDescription = styled.div`
 	font-size: 0.75rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-style: italic;
 `;
 
@@ -141,11 +141,11 @@ const LearningBadge = styled.span`
 	align-items: center;
 	gap: 0.25rem;
 	padding: 0.125rem 0.375rem;
-	background: #fef3c7;
+	background: V9_COLORS.BG.WARNING;
 	border: 1px solid #fcd34d;
 	border-radius: 0.25rem;
 	font-size: 0.7rem;
-	color: #92400e;
+	color: V9_COLORS.PRIMARY.YELLOW_DARK;
 	margin-left: 0.5rem;
 `;
 

@@ -6,8 +6,8 @@ import React from 'react';
 import styled from 'styled-components';
 
 const TableContainer = styled.div`
-	background: #ffffff;
-	border: 1px solid #e5e7eb;
+	background: V9_COLORS.TEXT.WHITE;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.75rem;
 	overflow: hidden;
 	margin: 2rem 0;
@@ -17,7 +17,7 @@ const TableContainer = styled.div`
 const TableTitle = styled.h3`
 	margin: 0;
 	padding: 1.5rem;
-	background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+	background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
 	color: white;
 	font-size: 1.25rem;
 	font-weight: 700;
@@ -30,7 +30,7 @@ const Table = styled.table`
 
 const Thead = styled.thead`
 	background: #f9fafb;
-	border-bottom: 2px solid #e5e7eb;
+	border-bottom: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const Th = styled.th`
@@ -38,7 +38,7 @@ const Th = styled.th`
 	text-align: left;
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
 `;
@@ -56,13 +56,13 @@ const Tbody = styled.tbody`
 const Td = styled.td`
 	padding: 1rem;
 	font-size: 0.875rem;
-	color: #374151;
-	border-bottom: 1px solid #e5e7eb;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const FlowName = styled.div`
 	font-weight: 600;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const StatusBadge = styled.div<{ $status: 'required' | 'optional' | 'not-used' }>`
@@ -74,9 +74,17 @@ const StatusBadge = styled.div<{ $status: 'required' | 'optional' | 'not-used' }
 	font-size: 0.75rem;
 	font-weight: 600;
 	background: ${({ $status }) =>
-		$status === 'required' ? '#fef3c7' : $status === 'not-used' ? '#d1fae5' : '#f3f4f6'};
+		$status === 'required'
+			? 'V9_COLORS.BG.WARNING'
+			: $status === 'not-used'
+				? 'V9_COLORS.BG.SUCCESS'
+				: '#f3f4f6'};
 	color: ${({ $status }) =>
-		$status === 'required' ? '#92400e' : $status === 'not-used' ? '#065f46' : '#374151'};
+		$status === 'required'
+			? 'V9_COLORS.PRIMARY.YELLOW_DARK'
+			: $status === 'not-used'
+				? 'V9_COLORS.PRIMARY.GREEN_DARK'
+				: 'V9_COLORS.TEXT.GRAY_DARK'};
 `;
 
 const CodeBadge = styled.code`
@@ -85,16 +93,16 @@ const CodeBadge = styled.code`
 	border-radius: 0.25rem;
 	font-size: 0.75rem;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-	color: #1f2937;
-	border: 1px solid #e5e7eb;
+	color: V9_COLORS.TEXT.GRAY_DARK;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const Note = styled.div`
 	padding: 1rem 1.5rem;
-	background: #f0f9ff;
-	border-top: 1px solid #bae6fd;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	font-size: 0.875rem;
-	color: #0c4a6e;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	line-height: 1.6;
 `;
 

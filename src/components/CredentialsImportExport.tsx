@@ -9,9 +9,15 @@
 import { FiDownload, FiUpload } from '@icons';
 import React, { useRef } from 'react';
 import {
-	credentialsImportExportService,
-	type ImportExportOptions,
-} from '@/services/credentialsImportExportService';
+import
+{
+	V9_COLORS;
+}
+from;
+('../services/v9/V9ColorStandards');
+credentialsImportExportService, type;
+ImportExportOptions,
+} from '@/services/credentialsImportExportService'
 
 export interface CredentialsImportExportProps {
 	credentials: Record<string, unknown>;
@@ -60,7 +66,7 @@ export const CredentialsImportExport: React.FC<CredentialsImportExportProps> = (
 		alignItems: 'center',
 		padding: compact ? '0.5rem' : '0.75rem 1rem',
 		background: '#f9fafb',
-		border: '1px solid #e5e7eb',
+		border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 		borderRadius: '0.5rem',
 		marginBottom: '1rem',
 		...style,
@@ -71,7 +77,7 @@ export const CredentialsImportExport: React.FC<CredentialsImportExportProps> = (
 		alignItems: 'center',
 		gap: '0.4rem',
 		padding: compact ? '0.3rem 0.7rem' : '0.4rem 0.9rem',
-		background: '#2563eb',
+		background: 'V9_COLORS.PRIMARY.BLUE_DARK',
 		color: 'white',
 		border: 'none',
 		borderRadius: '0.375rem',
@@ -85,13 +91,13 @@ export const CredentialsImportExport: React.FC<CredentialsImportExportProps> = (
 	const exportButtonStyle: React.CSSProperties = {
 		...buttonBaseStyle,
 		'&:hover': {
-			background: '#1d4ed8',
+			background: 'V9_COLORS.PRIMARY.BLUE_DARK',
 		},
 	};
 
 	const importButtonStyle: React.CSSProperties = {
 		...buttonBaseStyle,
-		background: '#059669',
+		background: 'V9_COLORS.PRIMARY.GREEN_DARK',
 		'&:hover': {
 			background: '#047857',
 		},
@@ -100,7 +106,9 @@ export const CredentialsImportExport: React.FC<CredentialsImportExportProps> = (
 	return (
 		<div style={containerStyle} className={className}>
 			{!compact && (
-				<span style={{ fontSize: '0.8rem', color: '#6b7280', marginRight: 'auto' }}>
+				<span
+					style={{ fontSize: '0.8rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginRight: 'auto' }}
+				>
 					Credentials
 				</span>
 			)}

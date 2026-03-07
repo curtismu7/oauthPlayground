@@ -5,9 +5,9 @@ import styled from 'styled-components';
 const Page = styled.div`
 	min-height: 100vh;
 	padding: 2.5rem clamp(1rem, 4vw, 3rem);
-	background: radial-gradient(circle at top, #eef2ff, #e0e7ff 45%, #f8fafc 100%);
+	background: radial-gradient(circle at top, #eef2ff, #e0e7ff 45%, V9_COLORS.BG.GRAY_LIGHT 100%);
 	font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-	color: #0f172a;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const AppShell = styled.div`
@@ -44,12 +44,12 @@ const Title = styled.h1`
 	font-size: clamp(2rem, 3vw, 2.5rem);
 	margin: 0;
 	font-weight: 700;
-	color: #0f172a;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const Subtitle = styled.p`
 	margin: 0;
-	color: #475569;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 1rem;
 `;
 
@@ -60,7 +60,7 @@ const GlowingBadge = styled.span`
 	padding: 0.5rem 0.85rem;
 	border-radius: 999px;
 	background: linear-gradient(120deg, rgba(59, 130, 246, 0.15), rgba(96, 165, 250, 0.3));
-	color: #1d4ed8;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
 	font-weight: 600;
 	font-size: 0.95rem;
 `;
@@ -82,14 +82,14 @@ const StatCard = styled.div`
 const StatLabel = styled.p`
 	margin: 0;
 	font-size: 0.9rem;
-	color: #475569;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const StatValue = styled.p`
 	margin: 0.15rem 0 0;
 	font-size: 2rem;
 	font-weight: 700;
-	color: #1d4ed8;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
 `;
 
 const FiltersRow = styled.div`
@@ -104,7 +104,7 @@ const FilterLabel = styled.span`
 	font-size: 0.85rem;
 	font-weight: 600;
 	letter-spacing: 0.04em;
-	color: #64748b;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	text-transform: uppercase;
 `;
 
@@ -114,7 +114,7 @@ const FilterChip = styled.button<{ $active?: boolean }>`
 	padding: 0.45rem 1.1rem;
 	font-weight: 600;
 	font-size: 0.9rem;
-	color: ${(props) => (props.$active ? '#0f172a' : '#475569')};
+	color: ${(props) => (props.$active ? 'V9_COLORS.TEXT.GRAY_DARK' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
 	background: ${(props) => (props.$active ? '#c7d2fe' : 'rgba(148, 163, 184, 0.2)')};
 	cursor: pointer;
 	transition: all 0.2s ease;
@@ -145,8 +145,8 @@ const TaskCard = styled.div<{ $status: string }>`
 	padding: 1.25rem;
 	background: ${(props) =>
 		props.$status === 'completed'
-			? 'linear-gradient(135deg, #ecfccb, #dcfce7)'
-			: 'linear-gradient(135deg, #ffffff, #eef2ff)'};
+			? 'linear-gradient(135deg, #ecfccb, V9_COLORS.BG.SUCCESS)'
+			: 'linear-gradient(135deg, V9_COLORS.TEXT.WHITE, #eef2ff)'};
 	border: 1px solid rgba(148, 163, 184, 0.25);
 	box-shadow: 0 15px 35px rgba(15, 23, 42, 0.08);
 	display: flex;
@@ -165,12 +165,12 @@ const TaskHeader = styled.div`
 const TaskTitle = styled.h3`
 	margin: 0;
 	font-size: 1.25rem;
-	color: #0f172a;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const TaskDescription = styled.p`
 	margin: 0;
-	color: #475569;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	line-height: 1.6;
 `;
 
@@ -189,7 +189,7 @@ const MetaChip = styled.span`
 	border-radius: 999px;
 	background: rgba(15, 23, 42, 0.08);
 	font-size: 0.85rem;
-	color: #0f172a;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const PriorityPill = styled.span<{ $priority: string }>`
@@ -197,10 +197,10 @@ const PriorityPill = styled.span<{ $priority: string }>`
 	border-radius: 999px;
 	font-weight: 600;
 	font-size: 0.8rem;
-	color: #0f172a;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	background: ${(props) => {
 		if (props.$priority === 'high') return '#fecdd3';
-		if (props.$priority === 'medium') return '#fde68a';
+		if (props.$priority === 'medium') return 'V9_COLORS.BG.WARNING_BORDER';
 		return '#d9f99d';
 	}};
 `;
@@ -211,7 +211,7 @@ const StatusBadge = styled.button<{ $status: string }>`
 	border: none;
 	font-weight: 600;
 	font-size: 0.85rem;
-	color: ${(props) => (props.$status === 'completed' ? '#065f46' : '#1e3a8a')};
+	color: ${(props) => (props.$status === 'completed' ? 'V9_COLORS.PRIMARY.GREEN_DARK' : '#1e3a8a')};
 	background: ${(props) =>
 		props.$status === 'completed' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(59, 130, 246, 0.25)'};
 	cursor: pointer;
@@ -232,7 +232,7 @@ const IconButton = styled.button`
 	border-radius: 12px;
 	border: 1px solid rgba(148, 163, 184, 0.4);
 	background: white;
-	color: #0f172a;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	font-size: 1rem;
 	display: flex;
 	align-items: center;
@@ -254,12 +254,12 @@ const SidePanel = styled(GlassPanel)`
 const PanelTitle = styled.h2`
 	margin: 0;
 	font-size: 1.35rem;
-	color: #0f172a;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const PanelDescription = styled.p`
 	margin: 0;
-	color: #475569;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	line-height: 1.5;
 `;
 

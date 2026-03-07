@@ -30,8 +30,8 @@ interface URIStatus {
 const Container = styled.div`
   margin: 1.5rem 0;
   padding: 1.5rem;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.75rem;
 `;
 
@@ -50,7 +50,7 @@ const Title = styled.h3`
 `;
 
 const InfoIcon = styled(FiInfo)`
-  color: #64748b;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   cursor: help;
 `;
 
@@ -61,14 +61,14 @@ const Table = styled.table`
 `;
 
 const TableHeader = styled.thead`
-  background: #ffffff;
+  background: V9_COLORS.TEXT.WHITE;
 `;
 
 const TableRow = styled.tr<{ $isEven?: boolean }>`
-  background: ${({ $isEven }) => ($isEven ? '#f8f9fa' : '#ffffff')};
+  background: ${({ $isEven }) => ($isEven ? '#f8f9fa' : 'V9_COLORS.TEXT.WHITE')};
 
   &:hover {
-    background: #f1f5f9;
+    background: V9_COLORS.BG.GRAY_MEDIUM;
   }
 `;
 
@@ -77,8 +77,8 @@ const TableBody = styled.tbody``;
 const TableCell = styled.td`
   padding: 0.75rem;
   font-size: 0.75rem;
-  color: #374151;
-  border-bottom: 1px solid #e5e7eb;
+  color: V9_COLORS.TEXT.GRAY_DARK;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const TableHeaderCell = styled.th`
@@ -86,8 +86,8 @@ const TableHeaderCell = styled.th`
   text-align: left;
   font-size: 0.875rem;
   font-weight: 700;
-  color: #374151;
-  border-bottom: 2px solid #e5e7eb;
+  color: V9_COLORS.TEXT.GRAY_DARK;
+  border-bottom: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const URICell = styled(TableCell)`
@@ -113,8 +113,8 @@ const StatusIndicator = styled.div<{ $status: boolean | null }>`
   font-size: 0.75rem;
   font-weight: 600;
   color: ${({ $status }) => {
-		if ($status === null) return '#64748b';
-		return $status ? '#059669' : '#dc2626';
+		if ($status === null) return 'V9_COLORS.TEXT.GRAY_MEDIUM';
+		return $status ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.RED_DARK';
 	}};
 `;
 
@@ -133,15 +133,15 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
   border: none;
-  background: ${({ $variant }) => ($variant === 'secondary' ? '#e5e7eb' : '#2563eb')};
-  color: ${({ $variant }) => ($variant === 'secondary' ? '#1f2937' : '#ffffff')};
+  background: ${({ $variant }) => ($variant === 'secondary' ? 'V9_COLORS.TEXT.GRAY_LIGHTER' : 'V9_COLORS.PRIMARY.BLUE_DARK')};
+  color: ${({ $variant }) => ($variant === 'secondary' ? 'V9_COLORS.TEXT.GRAY_DARK' : 'V9_COLORS.TEXT.WHITE')};
   font-weight: 600;
   cursor: pointer;
   transition: background 120ms ease;
   font-size: 0.875rem;
 
   &:hover {
-    background: ${({ $variant }) => ($variant === 'secondary' ? '#d1d5db' : '#1e40af')};
+    background: ${({ $variant }) => ($variant === 'secondary' ? 'V9_COLORS.TEXT.GRAY_LIGHTER' : 'V9_COLORS.PRIMARY.BLUE_DARK')};
   }
 
   &:disabled {
@@ -164,14 +164,14 @@ const LoadingSpinner = styled(FiRefreshCw)`
 `;
 
 const ErrorMessage = styled.div`
-  color: #dc2626;
+  color: V9_COLORS.PRIMARY.RED_DARK;
   font-size: 0.875rem;
   margin-top: 0.5rem;
 `;
 
 const HelperText = styled.p`
   margin: 0;
-  color: #64748b;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 0.875rem;
 `;
 
@@ -180,10 +180,10 @@ const CopyButton = styled.button`
   align-items: center;
   gap: 0.25rem;
   padding: 0.25rem 0.5rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.25rem;
   background: white;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   cursor: pointer;
   transition: background 120ms ease;
   font-size: 0.75rem;
@@ -191,7 +191,7 @@ const CopyButton = styled.button`
 
   &:hover {
     background: #f9fafb;
-    border-color: #9ca3af;
+    border-color: V9_COLORS.TEXT.GRAY_LIGHT;
   }
 `;
 
@@ -454,7 +454,9 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 										)}
 									</StatusIndicator>
 								) : (
-									<span style={{ color: '#9ca3af', fontSize: '0.75rem' }}>N/A</span>
+									<span style={{ color: 'V9_COLORS.TEXT.GRAY_LIGHT', fontSize: '0.75rem' }}>
+										N/A
+									</span>
 								)}
 							</StatusCell>
 						</TableRow>
@@ -463,7 +465,10 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 					{!requiresRedirectUri && (
 						<TableRow $isEven={false}>
 							<TableCell>Redirect URI</TableCell>
-							<TableCell colSpan={2} style={{ color: '#9ca3af', fontStyle: 'italic' }}>
+							<TableCell
+								colSpan={2}
+								style={{ color: 'V9_COLORS.TEXT.GRAY_LIGHT', fontStyle: 'italic' }}
+							>
 								Not used for {getFlowDisplayName()}
 							</TableCell>
 						</TableRow>
@@ -508,7 +513,9 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 										)}
 									</StatusIndicator>
 								) : (
-									<span style={{ color: '#9ca3af', fontSize: '0.75rem' }}>N/A</span>
+									<span style={{ color: 'V9_COLORS.TEXT.GRAY_LIGHT', fontSize: '0.75rem' }}>
+										N/A
+									</span>
 								)}
 							</StatusCell>
 						</TableRow>
@@ -517,7 +524,10 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 					{!requiresLogoutUri && (
 						<TableRow $isEven={true}>
 							<TableCell>Post-Logout Redirect URI</TableCell>
-							<TableCell colSpan={2} style={{ color: '#9ca3af', fontStyle: 'italic' }}>
+							<TableCell
+								colSpan={2}
+								style={{ color: 'V9_COLORS.TEXT.GRAY_LIGHT', fontStyle: 'italic' }}
+							>
 								Not used for {getFlowDisplayName()}
 							</TableCell>
 						</TableRow>
@@ -528,19 +538,38 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 			{error && <ErrorMessage>{error}</ErrorMessage>}
 
 			{/* All V7 Flow URI Reference Table */}
-			<div style={{ marginTop: '2rem', paddingTop: '2rem', borderTop: '2px solid #e5e7eb' }}>
+			<div
+				style={{
+					marginTop: '2rem',
+					paddingTop: '2rem',
+					borderTop: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+				}}
+			>
 				<div style={{ marginBottom: '1rem' }}>
-					<h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 600, color: '#374151' }}>
+					<h3
+						style={{
+							margin: 0,
+							fontSize: '1rem',
+							fontWeight: 600,
+							color: 'V9_COLORS.TEXT.GRAY_DARK',
+						}}
+					>
 						All V7 Flow URIs Reference
 					</h3>
-					<p style={{ margin: '0.25rem 0 0 0', fontSize: '0.875rem', color: '#6b7280' }}>
+					<p
+						style={{
+							margin: '0.25rem 0 0 0',
+							fontSize: '0.875rem',
+							color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+						}}
+					>
 						Complete list of redirect and logout URIs for all V7 flows
 					</p>
 					<p
 						style={{
 							margin: '0.25rem 0 0 0',
 							fontSize: '0.75rem',
-							color: '#9ca3af',
+							color: 'V9_COLORS.TEXT.GRAY_LIGHT',
 							fontStyle: 'italic',
 						}}
 					>
@@ -585,7 +614,7 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 								<TableCell style={{ textAlign: 'center' }}>
 									<FiInfo
 										size={14}
-										style={{ color: '#9ca3af', cursor: 'help' }}
+										style={{ color: 'V9_COLORS.TEXT.GRAY_LIGHT', cursor: 'help' }}
 										title={`${flowInfo.note} ${flowInfo.logoutNote}`}
 									/>
 								</TableCell>

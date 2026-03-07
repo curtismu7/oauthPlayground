@@ -151,37 +151,37 @@ const ErrorContainer = styled.div<{ severity: 'error' | 'warning' | 'info' }>`
   background-color: ${(props) => {
 		switch (props.severity) {
 			case 'error':
-				return '#fef2f2';
+				return 'V9_COLORS.BG.ERROR';
 			case 'warning':
-				return '#fffbeb';
+				return 'V9_COLORS.BG.WARNING';
 			case 'info':
-				return '#eff6ff';
+				return 'V9_COLORS.BG.GRAY_LIGHT';
 			default:
-				return '#fef2f2';
+				return 'V9_COLORS.BG.ERROR';
 		}
 	}};
   border: 1px solid ${(props) => {
 		switch (props.severity) {
 			case 'error':
-				return '#fecaca';
+				return 'V9_COLORS.BG.ERROR_BORDER';
 			case 'warning':
-				return '#fde68a';
+				return 'V9_COLORS.BG.WARNING_BORDER';
 			case 'info':
-				return '#bfdbfe';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 			default:
-				return '#fecaca';
+				return 'V9_COLORS.BG.ERROR_BORDER';
 		}
 	}};
   border-left: 4px solid ${(props) => {
 		switch (props.severity) {
 			case 'error':
-				return '#dc2626';
+				return 'V9_COLORS.PRIMARY.RED_DARK';
 			case 'warning':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'info':
-				return '#3b82f6';
+				return 'V9_COLORS.PRIMARY.BLUE';
 			default:
-				return '#dc2626';
+				return 'V9_COLORS.PRIMARY.RED_DARK';
 		}
 	}};
   border-radius: 0.5rem;
@@ -200,13 +200,13 @@ const ErrorIcon = styled.div<{ severity: 'error' | 'warning' | 'info' }>`
   color: ${(props) => {
 		switch (props.severity) {
 			case 'error':
-				return '#dc2626';
+				return 'V9_COLORS.PRIMARY.RED_DARK';
 			case 'warning':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'info':
-				return '#3b82f6';
+				return 'V9_COLORS.PRIMARY.BLUE';
 			default:
-				return '#dc2626';
+				return 'V9_COLORS.PRIMARY.RED_DARK';
 		}
 	}};
   flex-shrink: 0;
@@ -216,7 +216,7 @@ const ErrorTitle = styled.h3`
   margin: 0;
   font-size: 1rem;
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const ErrorBody = styled.div`
@@ -244,7 +244,7 @@ const SuggestionsTitle = styled.div`
   gap: 0.5rem;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.5rem;
 `;
 
@@ -280,13 +280,13 @@ const DetailsToggle = styled.button`
   border: none;
   padding: 0;
   font-size: 0.875rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   cursor: pointer;
   text-decoration: underline;
   transition: color 0.2s;
 
   &:hover {
-    color: #374151;
+    color: V9_COLORS.TEXT.GRAY_DARK;
   }
 `;
 
@@ -294,10 +294,10 @@ const DetailsContent = styled.pre`
   margin-top: 0.5rem;
   padding: 0.75rem;
   background-color: #f9fafb;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.375rem;
   font-size: 0.75rem;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   overflow-x: auto;
   white-space: pre-wrap;
   word-break: break-word;
@@ -306,7 +306,7 @@ const DetailsContent = styled.pre`
 const CorrelationId = styled.div`
   margin-top: 0.5rem;
   font-size: 0.75rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
 
   code {
     background-color: #f3f4f6;
@@ -339,23 +339,23 @@ const ActionButton = styled.button<{ variant: 'primary' | 'secondary' }>`
   ${(props) =>
 		props.variant === 'primary'
 			? `
-    background-color: #2563eb;
+    background-color: V9_COLORS.PRIMARY.BLUE_DARK;
     color: white;
-    border-color: #2563eb;
+    border-color: V9_COLORS.PRIMARY.BLUE_DARK;
 
     &:hover {
-      background-color: #1d4ed8;
-      border-color: #1d4ed8;
+      background-color: V9_COLORS.PRIMARY.BLUE_DARK;
+      border-color: V9_COLORS.PRIMARY.BLUE_DARK;
     }
   `
 			: `
     background-color: white;
-    color: #374151;
-    border-color: #d1d5db;
+    color: V9_COLORS.TEXT.GRAY_DARK;
+    border-color: V9_COLORS.TEXT.GRAY_LIGHTER;
 
     &:hover {
       background-color: #f9fafb;
-      border-color: #9ca3af;
+      border-color: V9_COLORS.TEXT.GRAY_LIGHT;
     }
   `}
 `;

@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { FiBook, FiExternalLink } from '../../../services/commonImportsService';
 
 export const Card = styled.div`
-	background: #ffffff;
+	background: V9_COLORS.TEXT.WHITE;
 	border: 1px solid #E5E7EB;
 	border-radius: 1rem;
 	padding: 2rem;
@@ -31,7 +31,7 @@ export const Alert = styled.div<{ $type: 'success' | 'error' | 'info' }>`
 		return '#3B82F6';
 	}};
 	color: ${(props) => {
-		if (props.$type === 'success') return '#166534';
+		if (props.$type === 'success') return 'V9_COLORS.PRIMARY.GREEN';
 		if (props.$type === 'error') return '#991B1B';
 		return '#1E40AF';
 	}};
@@ -55,7 +55,7 @@ export const Input = styled.input`
 	border: 1px solid #D1D5DB;
 	border-radius: 0.5rem;
 	font-size: 1rem;
-	background: #ffffff;
+	background: V9_COLORS.TEXT.WHITE;
 	color: #1F2937;
 	
 	&:focus {
@@ -88,7 +88,7 @@ export const Button = styled.button<{
 		if (props.$variant === 'secondary') {
 			return `
 				background: #F3F4F6;
-				color: #374151;
+				color: V9_COLORS.TEXT.GRAY_DARK;
 				&:hover {
 					background: #E5E7EB;
 				}
@@ -183,7 +183,7 @@ export const DocumentationLink = styled.a`
 `;
 
 export const SuccessMessage = styled.div`
-	background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+	background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%);
 	color: white;
 	padding: 2rem;
 	border-radius: 1rem;

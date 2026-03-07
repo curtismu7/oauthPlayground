@@ -62,9 +62,6 @@ const Content = styled.div`
 	padding: 2rem;
 `;
 
-
-
-
 const FeatureGrid = styled.div`
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -73,7 +70,7 @@ const FeatureGrid = styled.div`
 `;
 
 const FeatureCard = styled.div`
-	border: 1px solid #e2e8f0;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 8px;
 	padding: 1.5rem;
 	background: #fafbfc;
@@ -81,7 +78,7 @@ const FeatureCard = styled.div`
 
 const FeatureTitle = styled.div`
 	font-weight: 600;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.5rem;
 	display: flex;
 	align-items: center;
@@ -89,7 +86,7 @@ const FeatureTitle = styled.div`
 `;
 
 const FeatureDescription = styled.div`
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 0.9rem;
 	margin-bottom: 1rem;
 	line-height: 1.5;
@@ -112,49 +109,49 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'dange
 		switch ($variant) {
 			case 'primary':
 				return `
-					background: #3b82f6;
+					background: V9_COLORS.PRIMARY.BLUE;
 					color: white;
 					&:hover {
-						background: #2563eb;
+						background: V9_COLORS.PRIMARY.BLUE_DARK;
 					}
 				`;
 			case 'secondary':
 				return `
 					background: #f3f4f6;
-					color: #374151;
+					color: V9_COLORS.TEXT.GRAY_DARK;
 					&:hover {
-						background: #e5e7eb;
+						background: V9_COLORS.TEXT.GRAY_LIGHTER;
 					}
 				`;
 			case 'danger':
 				return `
-					background: #ef4444;
+					background: V9_COLORS.PRIMARY.RED;
 					color: white;
 					&:hover {
-						background: #dc2626;
+						background: V9_COLORS.PRIMARY.RED_DARK;
 					}
 				`;
 			default:
 				return `
-					background: #3b82f6;
+					background: V9_COLORS.PRIMARY.BLUE;
 					color: white;
 					&:hover {
-						background: #2563eb;
+						background: V9_COLORS.PRIMARY.BLUE_DARK;
 					}
 				`;
 		}
 	}}
 	
 	&:disabled {
-		background: #9ca3af;
-		color: #6b7280;
+		background: V9_COLORS.TEXT.GRAY_LIGHT;
+		color: V9_COLORS.TEXT.GRAY_MEDIUM;
 		cursor: not-allowed;
 	}
 `;
 
 const CodeBlock = styled.pre<{ $isVisible: boolean }>`
 	background: #1e293b;
-	color: #e2e8f0;
+	color: V9_COLORS.TEXT.GRAY_LIGHTER;
 	padding: 1rem;
 	border-radius: 6px;
 	font-family: 'Monaco', 'Menlo', monospace;
@@ -167,12 +164,9 @@ const CodeBlock = styled.pre<{ $isVisible: boolean }>`
 	min-height: 60px;
 `;
 
-
-
-
 const InfoBox = styled.div`
-	background: #eff6ff;
-	border: 1px solid #bfdbfe;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 6px;
 	padding: 1rem;
 	margin: 1rem 0;
@@ -180,7 +174,7 @@ const InfoBox = styled.div`
 
 const InfoTitle = styled.div`
 	font-weight: 600;
-	color: #1e40af;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
 	margin-bottom: 0.5rem;
 `;
 
@@ -190,13 +184,8 @@ const InfoText = styled.div`
 	line-height: 1.5;
 `;
 
-
-
-
-
-
 const TabContainer = styled.div`
-	border-bottom: 1px solid #e2e8f0;
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	margin-bottom: 2rem;
 `;
 
@@ -212,9 +201,9 @@ const Tab = styled.button<{ $active: boolean; $tabType?: string }>`
 		if (props.$active) {
 			switch (props.$tabType) {
 				case 'config':
-					return 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)'; // Blue gradient
+					return 'linear-gradient(135deg, #dbeafe 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%)'; // Blue gradient
 				case 'demo':
-					return 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)'; // Green gradient
+					return 'linear-gradient(135deg, V9_COLORS.BG.SUCCESS 0%, V9_COLORS.BG.SUCCESS_BORDER 100%)'; // Green gradient
 				case 'analysis':
 					return 'linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%)'; // Pink gradient
 				default:
@@ -227,16 +216,16 @@ const Tab = styled.button<{ $active: boolean; $tabType?: string }>`
 		if (props.$active) {
 			switch (props.$tabType) {
 				case 'config':
-					return '#1e40af'; // Dark blue
+					return 'V9_COLORS.PRIMARY.BLUE_DARK'; // Dark blue
 				case 'demo':
 					return '#047857'; // Dark green
 				case 'analysis':
 					return '#be185d'; // Dark pink
 				default:
-					return '#3b82f6';
+					return 'V9_COLORS.PRIMARY.BLUE';
 			}
 		}
-		return '#6b7280';
+		return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 	}};
 	font-weight: ${(props) => (props.$active ? '600' : '500')};
 	cursor: pointer;
@@ -244,13 +233,13 @@ const Tab = styled.button<{ $active: boolean; $tabType?: string }>`
 		if (props.$active) {
 			switch (props.$tabType) {
 				case 'config':
-					return '#3b82f6'; // Blue border
+					return 'V9_COLORS.PRIMARY.BLUE'; // Blue border
 				case 'demo':
-					return '#10b981'; // Green border
+					return 'V9_COLORS.PRIMARY.GREEN'; // Green border
 				case 'analysis':
 					return '#ec4899'; // Pink border
 				default:
-					return '#3b82f6';
+					return 'V9_COLORS.PRIMARY.BLUE';
 			}
 		}
 		return 'transparent';
@@ -263,18 +252,18 @@ const Tab = styled.button<{ $active: boolean; $tabType?: string }>`
 			if (props.$active) {
 				switch (props.$tabType) {
 					case 'config':
-						return 'linear-gradient(135deg, #bfdbfe 0%, #93c5fd 100%)'; // Darker blue
+						return 'linear-gradient(135deg, V9_COLORS.TEXT.GRAY_LIGHTER 0%, #93c5fd 100%)'; // Darker blue
 					case 'demo':
-						return 'linear-gradient(135deg, #bbf7d0 0%, #86efac 100%)'; // Darker green
+						return 'linear-gradient(135deg, V9_COLORS.BG.SUCCESS_BORDER 0%, #86efac 100%)'; // Darker green
 					case 'analysis':
 						return 'linear-gradient(135deg, #fbcfe8 0%, #f9a8d4 100%)'; // Darker pink
 					default:
 						return 'white';
 				}
 			}
-			return '#f8fafc';
+			return 'V9_COLORS.BG.GRAY_LIGHT';
 		}};
-		color: ${(props) => (props.$active ? props.color : '#374151')};
+		color: ${(props) => (props.$active ? props.color : 'V9_COLORS.TEXT.GRAY_DARK')};
 		transform: ${(props) => (props.$active ? 'translateY(-1px)' : 'none')};
 		box-shadow: ${(props) => (props.$active ? '0 4px 8px rgba(0, 0, 0, 0.15)' : '0 2px 4px rgba(0, 0, 0, 0.1)')};
 	}
@@ -309,11 +298,11 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 	// Color scheme mapping
 	const getColors = (scheme: string) => {
 		const colorMap = {
-			blue: { primary: '#3b82f6', secondary: '#1e40af' },
-			green: { primary: '#10b981', secondary: '#047857' },
+			blue: { primary: 'V9_COLORS.PRIMARY.BLUE', secondary: 'V9_COLORS.PRIMARY.BLUE_DARK' },
+			green: { primary: 'V9_COLORS.PRIMARY.GREEN', secondary: '#047857' },
 			purple: { primary: '#8b5cf6', secondary: '#6d28d9' },
-			orange: { primary: '#f59e0b', secondary: '#d97706' },
-			red: { primary: '#ef4444', secondary: '#dc2626' },
+			orange: { primary: 'V9_COLORS.PRIMARY.YELLOW', secondary: 'V9_COLORS.PRIMARY.YELLOW_DARK' },
+			red: { primary: 'V9_COLORS.PRIMARY.RED', secondary: 'V9_COLORS.PRIMARY.RED_DARK' },
 		};
 		return colorMap[scheme as keyof typeof colorMap] || colorMap.blue;
 	};
@@ -729,9 +718,9 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 						onClick={() => setShowLogoutUrl(!showLogoutUrl)}
 						$variant="primary"
 						style={{
-							background: '#3b82f6',
+							background: 'V9_COLORS.PRIMARY.BLUE',
 							color: 'white',
-							border: '1px solid #3b82f6',
+							border: '1px solid V9_COLORS.PRIMARY.BLUE',
 						}}
 					>
 						<FiEye size={16} />
@@ -740,12 +729,26 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 
 					{/* Session Termination Request URL Display */}
 					{showLogoutUrl && (
-						<InfoBox style={{ marginTop: '1rem', background: '#f8fafc', borderColor: '#cbd5e1' }}>
-							<InfoTitle style={{ color: '#475569' }}>🌐 Logout Request URL</InfoTitle>
+						<InfoBox
+							style={{
+								marginTop: '1rem',
+								background: 'V9_COLORS.BG.GRAY_LIGHT',
+								borderColor: '#cbd5e1',
+							}}
+						>
+							<InfoTitle style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+								🌐 Logout Request URL
+							</InfoTitle>
 							<CodeBlock $isVisible={true}>
 								{calculatedLogoutUrl || 'https://auth.pingone.com/{environmentId}/as/signoff'}
 							</CodeBlock>
-							<InfoText style={{ color: '#64748b', fontSize: '0.85rem', marginTop: '0.5rem' }}>
+							<InfoText
+								style={{
+									color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+									fontSize: '0.85rem',
+									marginTop: '0.5rem',
+								}}
+							>
 								<strong>Parameters:</strong>
 								<br />• id_token_hint: ID token for logout hint
 								<br />• client_id: Client identifier
@@ -954,7 +957,7 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 									style={{
 										marginLeft: '0.5rem',
 										fontSize: '0.75rem',
-										background: '#10b981',
+										background: 'V9_COLORS.PRIMARY.GREEN',
 										color: 'white',
 										padding: '0.125rem 0.375rem',
 										borderRadius: '0.25rem',

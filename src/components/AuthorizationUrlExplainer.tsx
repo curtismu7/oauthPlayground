@@ -59,7 +59,7 @@ const ModalHeader = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-radius: 12px 12px 0 0;
   color: white;
@@ -98,8 +98,8 @@ const ModalBody = styled.div`
 `;
 
 const UrlDisplay = styled.div`
-  background: #f8fafc;
-  border: 2px solid #e2e8f0;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 8px;
   padding: 1rem;
   margin-bottom: 1.5rem;
@@ -121,15 +121,15 @@ const ParameterCard = styled.div<{ $category: string }>`
   border: 2px solid ${({ $category }) => {
 		switch ($category) {
 			case 'authentication':
-				return '#3b82f6';
+				return 'V9_COLORS.PRIMARY.BLUE';
 			case 'security':
-				return '#10b981';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'flow':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'authorization':
-				return '#22c55e';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			default:
-				return '#e5e7eb';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 		}
 	}};
   border-radius: 8px;
@@ -158,9 +158,9 @@ const ParameterIcon = styled.div<{ $category: string }>`
 			case 'authentication':
 				return '#dbeafe';
 			case 'security':
-				return '#dcfce7';
+				return 'V9_COLORS.BG.SUCCESS';
 			case 'flow':
-				return '#fef3c7';
+				return 'V9_COLORS.BG.WARNING';
 			case 'authorization':
 				return '#ede9fe';
 			default:
@@ -170,15 +170,15 @@ const ParameterIcon = styled.div<{ $category: string }>`
   color: ${({ $category }) => {
 		switch ($category) {
 			case 'authentication':
-				return '#3b82f6';
+				return 'V9_COLORS.PRIMARY.BLUE';
 			case 'security':
-				return '#10b981';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'flow':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'authorization':
-				return '#22c55e';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			default:
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 		}
 	}};
   display: flex;
@@ -191,35 +191,35 @@ const ParameterName = styled.h3`
   margin: 0;
   font-size: 1.1rem;
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const ParameterValue = styled.div`
-  background: #f1f5f9;
+  background: V9_COLORS.BG.GRAY_MEDIUM;
   border: 1px solid #cbd5e1;
   border-radius: 4px;
   padding: 0.5rem;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 0.8rem;
-  color: #475569;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin-bottom: 0.75rem;
   word-break: break-all;
 `;
 
 const ParameterDescription = styled.p`
   margin: 0 0 0.5rem 0;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 0.9rem;
   line-height: 1.5;
 `;
 
 const ParameterPurpose = styled.div`
-  background: #fef3c7;
-  border: 1px solid #fbbf24;
+  background: V9_COLORS.BG.WARNING;
+  border: 1px solid V9_COLORS.PRIMARY.YELLOW_LIGHT;
   border-radius: 4px;
   padding: 0.5rem;
   font-size: 0.8rem;
-  color: #92400e;
+  color: V9_COLORS.PRIMARY.YELLOW_DARK;
   font-weight: 500;
 `;
 
@@ -227,7 +227,7 @@ const CopyUrlButton = styled.button`
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
-  background: #3b82f6;
+  background: V9_COLORS.PRIMARY.BLUE;
   color: white;
   border: none;
   border-radius: 4px;
@@ -240,7 +240,7 @@ const CopyUrlButton = styled.button`
   transition: all 0.2s;
   
   &:hover {
-    background: #2563eb;
+    background: V9_COLORS.PRIMARY.BLUE_DARK;
     transform: translateY(-1px);
   }
 `;
@@ -439,7 +439,13 @@ export const AuthorizationUrlExplainer: React.FC<AuthorizationUrlExplainerProps>
 
 				<ModalBody>
 					<div style={{ marginBottom: '1.5rem' }}>
-						<h3 style={{ margin: '0 0 0.75rem 0', color: '#374151', fontSize: '1.1rem' }}>
+						<h3
+							style={{
+								margin: '0 0 0.75rem 0',
+								color: 'V9_COLORS.TEXT.GRAY_DARK',
+								fontSize: '1.1rem',
+							}}
+						>
 							Complete Authorization URL:
 						</h3>
 						<UrlDisplay>
@@ -451,7 +457,13 @@ export const AuthorizationUrlExplainer: React.FC<AuthorizationUrlExplainerProps>
 					</div>
 
 					<div style={{ marginBottom: '1.5rem' }}>
-						<h3 style={{ margin: '0 0 1rem 0', color: '#374151', fontSize: '1.1rem' }}>
+						<h3
+							style={{
+								margin: '0 0 1rem 0',
+								color: 'V9_COLORS.TEXT.GRAY_DARK',
+								fontSize: '1.1rem',
+							}}
+						>
 							Parameter Breakdown:
 						</h3>
 						<ParameterGrid>
@@ -476,15 +488,17 @@ export const AuthorizationUrlExplainer: React.FC<AuthorizationUrlExplainerProps>
 
 					<div
 						style={{
-							background: '#f0f9ff',
+							background: 'V9_COLORS.BG.GRAY_LIGHT',
 							border: '1px solid #0ea5e9',
 							borderRadius: '8px',
 							padding: '1rem',
 							fontSize: '0.9rem',
-							color: '#0c4a6e',
+							color: 'V9_COLORS.TEXT.GRAY_DARK',
 						}}
 					>
-						<h4 style={{ margin: '0 0 0.5rem 0', color: '#0c4a6e' }}>Educational Note:</h4>
+						<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+							Educational Note:
+						</h4>
 						<p style={{ margin: 0, lineHeight: 1.5 }}>
 							This authorization URL contains all the necessary parameters for a secure OAuth 2.0
 							Authorization Code Flow with PKCE. Each parameter serves a specific security or

@@ -3,6 +3,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { FlowHeader } from '../services/flowHeaderService';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const Container = styled.div`
   max-width: 1400px;
@@ -17,7 +18,7 @@ const Header = styled.div`
   h1 {
     font-size: 3rem;
     font-weight: 700;
-    color: #1f2937;
+    color: V9_COLORS.TEXT.GRAY_DARK;
     margin-bottom: 1rem;
     display: flex;
     align-items: center;
@@ -27,7 +28,7 @@ const Header = styled.div`
 
   p {
     font-size: 1.25rem;
-    color: #6b7280;
+    color: V9_COLORS.TEXT.GRAY_MEDIUM;
     max-width: 800px;
     margin: 0 auto;
     line-height: 1.6;
@@ -46,7 +47,7 @@ const EducationCard = styled.div`
   border-radius: 1rem;
   padding: 2rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 
   &:hover {
@@ -61,7 +62,7 @@ const CardHeader = styled.div`
   h2 {
     font-size: 1.5rem;
     font-weight: 600;
-    color: #1f2937;
+    color: V9_COLORS.TEXT.GRAY_DARK;
     margin-bottom: 0.5rem;
     display: flex;
     align-items: center;
@@ -69,7 +70,7 @@ const CardHeader = styled.div`
   }
 
   p {
-    color: #6b7280;
+    color: V9_COLORS.TEXT.GRAY_MEDIUM;
     line-height: 1.6;
   }
 `;
@@ -86,7 +87,7 @@ const TopicItem = styled.li`
   gap: 0.75rem;
   padding: 0.75rem 0;
   border-bottom: 1px solid #f3f4f6;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 0.875rem;
 
   &:last-child {
@@ -94,7 +95,7 @@ const TopicItem = styled.li`
   }
 
   svg {
-    color: #10b981;
+    color: V9_COLORS.PRIMARY.GREEN;
     flex-shrink: 0;
   }
 `;
@@ -104,7 +105,7 @@ const ActionButton = styled.a`
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background-color: #3b82f6;
+  background-color: V9_COLORS.PRIMARY.BLUE;
   color: white !important;
   text-decoration: none;
   border-radius: 0.5rem;
@@ -114,13 +115,13 @@ const ActionButton = styled.a`
   margin-top: 1rem;
 
   &:hover {
-    background-color: #2563eb;
+    background-color: V9_COLORS.PRIMARY.BLUE_DARK;
     color: white !important;
   }
 `;
 
 const FlowSection = styled.div`
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
   border-radius: 1rem;
   padding: 2rem;
   margin-bottom: 2rem;
@@ -138,7 +139,7 @@ const FlowCard = styled.div`
   border-radius: 0.75rem;
   padding: 1.5rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   transition: transform 0.2s ease;
 
   &:hover {
@@ -148,12 +149,12 @@ const FlowCard = styled.div`
   h3 {
     font-size: 1.125rem;
     font-weight: 600;
-    color: #1f2937;
+    color: V9_COLORS.TEXT.GRAY_DARK;
     margin-bottom: 0.5rem;
   }
 
   p {
-    color: #6b7280;
+    color: V9_COLORS.TEXT.GRAY_MEDIUM;
     font-size: 0.875rem;
     line-height: 1.5;
     margin-bottom: 1rem;
@@ -377,32 +378,32 @@ const ComprehensiveOAuthEducation: React.FC = () => {
 				</TopicList>
 
 				<EducationCard
-					style={{ marginTop: '1rem', backgroundColor: '#fef3c7', border: '1px solid #f59e0b' }}
+					style={{ marginTop: '1rem', backgroundColor: 'V9_COLORS.BG.WARNING', border: '1px solid V9_COLORS.PRIMARY.YELLOW' }}
 				>
 					<CardHeader>
-						<h3 style={{ color: '#92400e', fontSize: '1.125rem' }}>
+						<h3 style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK', fontSize: '1.125rem' }}>
 							<FiShield />
 							Security Considerations
 						</h3>
 					</CardHeader>
 					<TopicList>
 						<TopicItem>
-							<FiCheckCircle size={16} style={{ color: '#92400e' }} />
+							<FiCheckCircle size={16} style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK' }} />
 							Only request necessary scopes for your use case
 						</TopicItem>
 						<TopicItem>
-							<FiCheckCircle size={16} style={{ color: '#92400e' }} />
+							<FiCheckCircle size={16} style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK' }} />
 							Audit access tokens for unnecessary attribute exposure
 						</TopicItem>
 						<TopicItem>
-							<FiCheckCircle size={16} style={{ color: '#92400e' }} />
+							<FiCheckCircle size={16} style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK' }} />
 							Implement client-side validation for received attributes
 						</TopicItem>
 					</TopicList>
 				</EducationCard>
 
 				<EducationCard
-					style={{ marginTop: '1rem', backgroundColor: '#f0f9ff', border: '1px solid #0ea5e9' }}
+					style={{ marginTop: '1rem', backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT', border: '1px solid #0ea5e9' }}
 				>
 					<CardHeader>
 						<h3 style={{ color: '#075985', fontSize: '1.125rem' }}>

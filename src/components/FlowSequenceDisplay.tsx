@@ -8,10 +8,10 @@ import { getFlowSequence } from '../services/flowSequenceService';
 import { themeService } from '../services/themeService';
 
 const CollapsibleSection = styled.section`
-	border: 1px solid #e2e8f0;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.75rem;
 	margin-bottom: 1.5rem;
-	background-color: #ffffff;
+	background-color: V9_COLORS.TEXT.WHITE;
 	box-shadow: 0 10px 20px rgba(15, 23, 42, 0.05);
 `;
 
@@ -31,7 +31,7 @@ const CollapsibleHeaderButton = styled.button<{ $collapsed?: boolean }>`
 	transition: background 0.2s ease;
 
 	&:hover {
-		background: linear-gradient(135deg, #dcfce7 0%, #ecfdf3 100%);
+		background: linear-gradient(135deg, V9_COLORS.BG.SUCCESS 0%, #ecfdf3 100%);
 	}
 `;
 
@@ -71,12 +71,12 @@ const CollapsibleContent = styled.div`
 `;
 
 const SequenceContainer = styled.div`
-	background: #ffffff;
-	border: 1px solid #e2e8f0;
+	background: V9_COLORS.TEXT.WHITE;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 12px;
 	padding: 2rem;
 	margin: 0;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const StepsList = styled.ol`
@@ -101,7 +101,7 @@ const StepNumber = styled.span`
 	display: inline-block;
 	width: 2rem;
 	height: 2rem;
-	background: #3b82f6;
+	background: V9_COLORS.PRIMARY.BLUE;
 	border-radius: 50%;
 	text-align: center;
 	line-height: 2rem;
@@ -121,14 +121,14 @@ const StepTitle = styled.strong`
 	display: block;
 	font-size: 1rem;
 	margin-bottom: 0.25rem;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const StepDescription = styled.span`
 	display: block;
 	font-size: 0.875rem;
 	line-height: 1.5;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	margin-bottom: 0.25rem;
 `;
 
@@ -139,25 +139,25 @@ const TechnicalDetails = styled.code`
 	border-radius: 6px;
 	font-size: 0.8125rem;
 	margin-top: 0.5rem;
-	color: #dc2626;
+	color: V9_COLORS.PRIMARY.RED_DARK;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-	border: 1px solid #e5e7eb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const ExampleDisplay = styled.div`
-	background: #fef3c7;
+	background: V9_COLORS.BG.WARNING;
 	padding: 0.75rem;
 	border-radius: 6px;
 	font-size: 0.8125rem;
 	margin-top: 0.5rem;
-	color: #92400e;
+	color: V9_COLORS.PRIMARY.YELLOW_DARK;
 	font-style: italic;
-	border-left: 3px solid #f59e0b;
+	border-left: 3px solid V9_COLORS.PRIMARY.YELLOW;
 `;
 
 const BenefitsSection = styled.div`
 	background: #f0fdf4;
-	border: 1px solid #bbf7d0;
+	border: 1px solid V9_COLORS.BG.SUCCESS_BORDER;
 	border-radius: 8px;
 	padding: 1.25rem;
 	margin-top: 1.5rem;
@@ -170,10 +170,10 @@ const BenefitsTitle = styled.h4`
 	font-size: 1rem;
 	font-weight: 600;
 	margin: 0 0 0.75rem 0;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 
 	svg {
-		color: #10b981;
+		color: V9_COLORS.PRIMARY.GREEN;
 	}
 `;
 
@@ -186,7 +186,7 @@ const BenefitsList = styled.ul`
 const BenefitItem = styled.li`
 	font-size: 0.875rem;
 	line-height: 1.6;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.5rem;
 	padding-left: 1.5rem;
 	position: relative;
@@ -199,7 +199,7 @@ const BenefitItem = styled.li`
 		content: '✓';
 		position: absolute;
 		left: 0;
-		color: #10b981;
+		color: V9_COLORS.PRIMARY.GREEN;
 		font-weight: bold;
 	}
 `;

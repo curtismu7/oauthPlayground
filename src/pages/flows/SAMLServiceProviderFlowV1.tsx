@@ -26,13 +26,14 @@ import { FlowCompletionService } from '../../services/flowCompletionService';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { samlService as SAMLService } from '../../services/samlService';
 import { logger } from '../../utils/logger';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 // Styled Components
 const Container = styled.div`
 	display: flex;
 	flex-direction: column;
 	min-height: 100vh;
-	background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
 `;
 
 const ContentWrapper = styled.div`
@@ -43,7 +44,7 @@ const ContentWrapper = styled.div`
 
 const SectionDivider = styled.div`
 	height: 1px;
-	background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
+	background: linear-gradient(90deg, transparent, V9_COLORS.TEXT.GRAY_LIGHTER, transparent);
 	margin: 2rem 0;
 `;
 
@@ -54,25 +55,25 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'warning' | 'success' | 'error'
 	background: ${(props) => {
 		switch (props.$variant) {
 			case 'warning':
-				return '#fef3c7';
+				return 'V9_COLORS.BG.WARNING';
 			case 'success':
 				return '#f0fdf4';
 			case 'error':
-				return '#fef2f2';
+				return 'V9_COLORS.BG.ERROR';
 			default:
-				return '#eff6ff';
+				return 'V9_COLORS.BG.GRAY_LIGHT';
 		}
 	}};
 	border: 1px solid ${(props) => {
 		switch (props.$variant) {
 			case 'warning':
-				return '#fbbf24';
+				return 'V9_COLORS.PRIMARY.YELLOW_LIGHT';
 			case 'success':
-				return '#bbf7d0';
+				return 'V9_COLORS.BG.SUCCESS_BORDER';
 			case 'error':
 				return '#fca5a5';
 			default:
-				return '#bfdbfe';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 		}
 	}};
 	border-radius: 0.75rem;
@@ -84,11 +85,11 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'warning' | 'success' | 'error'
 			case 'warning':
 				return '#78350f';
 			case 'success':
-				return '#065f46';
+				return 'V9_COLORS.PRIMARY.GREEN_DARK';
 			case 'error':
-				return '#991b1b';
+				return 'V9_COLORS.PRIMARY.RED_DARK';
 			default:
-				return '#1e40af';
+				return 'V9_COLORS.PRIMARY.BLUE_DARK';
 		}
 	}};
 `;
@@ -116,21 +117,21 @@ const Label = styled.label`
 	display: block;
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.5rem;
 `;
 
 const Input = styled.input`
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
 	transition: border-color 0.2s ease-in-out;
 
 	&:focus {
 		outline: none;
-		border-color: #3b82f6;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
@@ -138,7 +139,7 @@ const Input = styled.input`
 const TextArea = styled.textarea`
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid #d1d5db;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
 	font-family: monospace;
@@ -147,7 +148,7 @@ const TextArea = styled.textarea`
 
 	&:focus {
 		outline: none;
-		border-color: #3b82f6;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
@@ -157,8 +158,8 @@ const CheckboxGroup = styled.div`
 	align-items: center;
 	gap: 0.75rem;
 	padding: 1rem;
-	background: #f8fafc;
-	border: 1px solid #e2e8f0;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	margin: 1rem 0;
 `;
@@ -171,14 +172,14 @@ const Checkbox = styled.input.attrs({ type: 'checkbox' })`
 
 const CheckboxLabel = styled.label`
 	font-size: 0.875rem;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	cursor: pointer;
 	line-height: 1.4;
 `;
 
 const Helper = styled.div`
 	font-size: 0.75rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	margin-top: 0.5rem;
 	line-height: 1.4;
 `;
@@ -188,12 +189,12 @@ const TooltipIcon = styled.span`
 	align-items: center;
 	justify-content: center;
 	margin-left: 0.375rem;
-	color: #2563eb;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
 	cursor: help;
 	transition: color 0.2s ease;
 
 	&:hover {
-		color: #1d4ed8;
+		color: V9_COLORS.PRIMARY.BLUE_DARK;
 	}
 `;
 
@@ -211,35 +212,35 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'success' }>
 	${(props) =>
 		props.$variant === 'primary'
 			? `
-		background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+		background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
 		color: white;
 		border: none;
 
 		&:hover:not(:disabled) {
-			background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+			background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
 			transform: translateY(-1px);
 			box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 		}
 	`
 			: props.$variant === 'success'
 				? `
-		background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+		background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%);
 		color: white;
 		border: none;
 
 		&:hover:not(:disabled) {
-			background: linear-gradient(135deg, #059669 0%, #047857 100%);
+			background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN_DARK 0%, #047857 100%);
 			transform: translateY(-1px);
 			box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
 		}
 	`
 				: `
-		background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+		background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%);
 		color: white;
 		border: none;
 
 		&:hover:not(:disabled) {
-			background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+			background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN_DARK 0%, #15803d 100%);
 			transform: translateY(-1px);
 			box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
 		}
@@ -252,8 +253,8 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'success' }>
 `;
 
 const GeneratedContentBox = styled.div`
-	background: #f8fafc;
-	border: 1px solid #e2e8f0;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	padding: 1rem;
 	margin: 1rem 0;
@@ -269,7 +270,7 @@ const ParameterGrid = styled.div`
 const ParameterLabel = styled.div`
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const ParameterValue = styled.div`
@@ -278,7 +279,7 @@ const ParameterValue = styled.div`
 	color: #064e3b;
 	word-break: break-all;
 	background-color: #f0fdf4; /* Light green for generated content */
-	border: 1px solid #16a34a;
+	border: 1px solid V9_COLORS.PRIMARY.GREEN_DARK;
 	padding: 0.5rem;
 	border-radius: 0.25rem;
 `;
@@ -797,7 +798,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 						<InfoText>
 							Make sure these settings are in place before testing dynamic ACS URLs:
 						</InfoText>
-						<ol style={{ paddingLeft: '1.25rem', marginTop: '0.5rem', color: '#374151' }}>
+						<ol style={{ paddingLeft: '1.25rem', marginTop: '0.5rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
 							<li>
 								Enable <strong>Always accept ACS URL in signed AuthnRequest</strong> in the PingOne
 								app.
@@ -979,7 +980,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 			</div>
 
 			{!isAdminConfigured && (
-				<Helper style={{ color: '#dc2626', marginTop: '0.75rem' }}>
+				<Helper style={{ color: 'V9_COLORS.PRIMARY.RED_DARK', marginTop: '0.75rem' }}>
 					Provide all PingOne admin credentials above before attempting to load or sync the
 					application.
 				</Helper>
@@ -1147,7 +1148,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 								}}
 							>
 								<strong>Explanation:</strong>
-								<div style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: '#374151' }}>
+								<div style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
 									{validationResult.explanation}
 								</div>
 							</div>
@@ -1158,13 +1159,13 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 								style={{
 									marginTop: '1rem',
 									padding: '1rem',
-									background: '#fef2f2',
+									background: 'V9_COLORS.BG.ERROR',
 									border: '1px solid #fca5a5',
 									borderRadius: '0.25rem',
 								}}
 							>
 								<strong>Errors:</strong>
-								<ul style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: '#dc2626' }}>
+								<ul style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: 'V9_COLORS.PRIMARY.RED_DARK' }}>
 									{validationResult.errors.map((error: string, index: number) => (
 										<li key={index}>{error}</li>
 									))}
@@ -1210,7 +1211,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 							</div>
 							<pre
 								style={{
-									color: '#111827',
+									color: 'V9_COLORS.TEXT.GRAY_DARK',
 									fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
 									fontSize: '0.875rem',
 									lineHeight: '1.5',

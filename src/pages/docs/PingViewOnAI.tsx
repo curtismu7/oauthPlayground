@@ -17,6 +17,7 @@ import { usePageScroll } from '../../hooks/usePageScroll';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { FlowUIService } from '../../services/flowUIService';
 import { PageLayoutService } from '../../services/pageLayoutService';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 // Use V6 services for common components
 const Card = FlowUIService.getMainCard();
@@ -30,7 +31,7 @@ const Header = styled.div`
   h1 {
     font-size: 2.5rem;
     font-weight: 700;
-    color: #3b82f6;
+    color: V9_COLORS.PRIMARY.BLUE;
     margin-bottom: 1rem;
     display: flex;
     align-items: center;
@@ -40,7 +41,7 @@ const Header = styled.div`
 
   p {
     font-size: 1.25rem;
-    color: #6b7280;
+    color: V9_COLORS.TEXT.GRAY_MEDIUM;
     max-width: 800px;
     margin: 0 auto;
     line-height: 1.6;
@@ -55,14 +56,14 @@ const FeatureGrid = styled.div`
 `;
 
 const FeatureCard = styled.div`
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  border: 2px solid #e5e7eb;
+  background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
+  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.75rem;
   padding: 1.5rem;
   transition: all 0.3s ease;
   
   &:hover {
-    border-color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
   }
@@ -70,7 +71,7 @@ const FeatureCard = styled.div`
   h3 {
     font-size: 1.125rem;
     font-weight: 600;
-    color: #1f2937;
+    color: V9_COLORS.TEXT.GRAY_DARK;
     margin-bottom: 0.75rem;
     display: flex;
     align-items: center;
@@ -78,7 +79,7 @@ const FeatureCard = styled.div`
   }
 
   p {
-    color: #6b7280;
+    color: V9_COLORS.TEXT.GRAY_MEDIUM;
     line-height: 1.6;
     margin: 0;
   }
@@ -88,13 +89,13 @@ const ExternalLink = styled.a`
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  color: #3b82f6;
+  color: V9_COLORS.PRIMARY.BLUE;
   text-decoration: none;
   font-weight: 500;
   transition: color 0.2s;
 
   &:hover {
-    color: #2563eb;
+    color: V9_COLORS.PRIMARY.BLUE_DARK;
   }
 `;
 
@@ -137,7 +138,7 @@ const PingViewOnAI: React.FC = () => {
 					defaultCollapsed={false}
 				>
 					<Card
-						style={{ backgroundColor: '#f8fafc', border: '2px solid #3b82f6', padding: '2rem' }}
+						style={{ backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT', border: '2px solid V9_COLORS.PRIMARY.BLUE', padding: '2rem' }}
 					>
 						<ul
 							style={{
@@ -472,7 +473,7 @@ const PingViewOnAI: React.FC = () => {
 							<div
 								style={{
 									padding: '1.5rem',
-									background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
+									background: 'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.BG.GRAY_LIGHT 100%)',
 									border: '2px solid #0ea5e9',
 									borderRadius: '0.75rem',
 								}}
@@ -482,16 +483,16 @@ const PingViewOnAI: React.FC = () => {
 										fontSize: '1.125rem',
 										fontWeight: '600',
 										marginBottom: '0.5rem',
-										color: '#0369a1',
+										color: 'V9_COLORS.PRIMARY.BLUE',
 									}}
 								>
 									Phase 1: Foundation
 								</h4>
-								<p style={{ color: '#0369a1', marginBottom: '1rem' }}>
+								<p style={{ color: 'V9_COLORS.PRIMARY.BLUE', marginBottom: '1rem' }}>
 									Establish data governance, privacy controls, and baseline security measures before
 									implementing AI features.
 								</p>
-								<ul style={{ color: '#0369a1', paddingLeft: '1.25rem' }}>
+								<ul style={{ color: 'V9_COLORS.PRIMARY.BLUE', paddingLeft: '1.25rem' }}>
 									<li>Data classification and governance policies</li>
 									<li>Privacy impact assessments</li>
 									<li>Security baseline establishment</li>
@@ -502,8 +503,8 @@ const PingViewOnAI: React.FC = () => {
 							<div
 								style={{
 									padding: '1.5rem',
-									background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
-									border: '2px solid #22c55e',
+									background: 'linear-gradient(135deg, #f0fdf4 0%, V9_COLORS.BG.SUCCESS 100%)',
+									border: '2px solid V9_COLORS.PRIMARY.GREEN',
 									borderRadius: '0.75rem',
 								}}
 							>
@@ -532,8 +533,8 @@ const PingViewOnAI: React.FC = () => {
 							<div
 								style={{
 									padding: '1.5rem',
-									background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
-									border: '2px solid #f59e0b',
+									background: 'linear-gradient(135deg, V9_COLORS.BG.WARNING 0%, V9_COLORS.BG.WARNING_BORDER 100%)',
+									border: '2px solid V9_COLORS.PRIMARY.YELLOW',
 									borderRadius: '0.75rem',
 								}}
 							>
@@ -542,16 +543,16 @@ const PingViewOnAI: React.FC = () => {
 										fontSize: '1.125rem',
 										fontWeight: '600',
 										marginBottom: '0.5rem',
-										color: '#92400e',
+										color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
 									}}
 								>
 									Phase 3: Full Deployment
 								</h4>
-								<p style={{ color: '#92400e', marginBottom: '1rem' }}>
+								<p style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK', marginBottom: '1rem' }}>
 									Roll out AI capabilities across the organization with comprehensive monitoring and
 									governance.
 								</p>
-								<ul style={{ color: '#92400e', paddingLeft: '1.25rem' }}>
+								<ul style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK', paddingLeft: '1.25rem' }}>
 									<li>Enterprise-wide AI deployment</li>
 									<li>Continuous monitoring and optimization</li>
 									<li>User training and adoption</li>

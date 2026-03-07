@@ -13,8 +13,8 @@ import {
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { type DiscoveryResult, oidcDiscoveryService } from '../services/oidcDiscoveryService';
-import { logger } from '../utils/logger';
 import { V9_COLORS } from '../services/v9/V9ColorStandards';
+import { logger } from '../utils/logger';
 
 interface EnvironmentIdInputProps {
 	onDiscoveryComplete?: (result: DiscoveryResult) => void;
@@ -98,7 +98,11 @@ const Input = styled.input<{ hasError?: boolean; hasSuccess?: boolean }>`
   flex: 1;
   padding: 0.75rem;
   border: 1px solid ${(props) =>
-		props.hasError ? V9_COLORS.PRIMARY.RED_DARK : props.hasSuccess ? V9_COLORS.PRIMARY.GREEN : V9_COLORS.TEXT.GRAY_LIGHTER};
+		props.hasError
+			? V9_COLORS.PRIMARY.RED_DARK
+			: props.hasSuccess
+				? V9_COLORS.PRIMARY.GREEN
+				: V9_COLORS.TEXT.GRAY_LIGHTER};
   border-radius: 0 6px 6px 0;
   font-size: 0.875rem;
   background: ${V9_COLORS.BG.WHITE};
@@ -109,7 +113,11 @@ const Input = styled.input<{ hasError?: boolean; hasSuccess?: boolean }>`
   &:focus {
     outline: none;
     border-color: ${(props) =>
-			props.hasError ? V9_COLORS.PRIMARY.RED_DARK : props.hasSuccess ? V9_COLORS.PRIMARY.GREEN : V9_COLORS.PRIMARY.BLUE};
+			props.hasError
+				? V9_COLORS.PRIMARY.RED_DARK
+				: props.hasSuccess
+					? V9_COLORS.PRIMARY.GREEN
+					: V9_COLORS.PRIMARY.BLUE};
     box-shadow: 0 0 0 3px ${(props) =>
 			props.hasError
 				? 'rgba(239, 68, 68, 0.1)'
@@ -298,7 +306,7 @@ const StatusContainer = styled.div<{ type: 'success' | 'error' | 'info' | 'loadi
   color: ${(props) => {
 		switch (props.type) {
 			case 'success':
-				return '#166534';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'error':
 				return V9_COLORS.PRIMARY.RED;
 			case 'info':
@@ -423,12 +431,15 @@ export const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 	const [isApplying, setIsApplying] = useState(false);
 	const [isDiscoveryResultsCollapsed, setIsDiscoveryResultsCollapsed] = useState(false);
 
-	const regionUrls = useMemo(() => ({
-		us: 'https://auth.pingone.com',
-		eu: 'https://auth.pingone.eu',
-		ap: 'https://auth.pingone.asia',
-		ca: 'https://auth.pingone.ca',
-	}), []);
+	const regionUrls = useMemo(
+		() => ({
+			us: 'https://auth.pingone.com',
+			eu: 'https://auth.pingone.eu',
+			ap: 'https://auth.pingone.asia',
+			ca: 'https://auth.pingone.ca',
+		}),
+		[]
+	);
 
 	const regionLabels = {
 		us: 'US (North America)',
@@ -475,7 +486,7 @@ export const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 			onEnvironmentIdChange?.(value);
 			onIssuerUrlChange?.(value ? `${regionUrls[selectedRegion]}/${value}` : '');
 		},
-		[selectedRegion, discoveryResult, onEnvironmentIdChange, onIssuerUrlChange]
+		[selectedRegion, discoveryResult, onEnvironmentIdChange, onIssuerUrlChange, regionUrls]
 	);
 
 	const handleRegionChange = useCallback(
@@ -491,7 +502,7 @@ export const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 				setDiscoveryResult(null);
 			}
 		},
-		[environmentId, discoveryResult, onIssuerUrlChange]
+		[environmentId, discoveryResult, onIssuerUrlChange, regionUrls]
 	);
 
 	const handleDiscover = useCallback(async () => {
@@ -813,7 +824,9 @@ export const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 							disabled={isSaved || isApplying}
 							style={{
 								background: isApplying ? V9_COLORS.PRIMARY.YELLOW : V9_COLORS.PRIMARY.GREEN,
-								borderColor: isApplying ? V9_COLORS.PRIMARY.YELLOW_DARK : V9_COLORS.PRIMARY.GREEN_DARK,
+								borderColor: isApplying
+									? V9_COLORS.PRIMARY.YELLOW_DARK
+									: V9_COLORS.PRIMARY.GREEN_DARK,
 							}}
 						>
 							{isApplying ? <FiLoader className="animate-spin" size={16} /> : <FiCheck size={16} />}

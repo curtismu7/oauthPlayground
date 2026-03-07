@@ -176,7 +176,7 @@ const TokenExchangeFlowV9: React.FC = () => {
 				requestedTokenType: 'urn:ietf:params:oauth:token-type:access_token',
 				audience: 'https://api.salesforce.com',
 				scope: 'read:profile read:contacts',
-				color: '#3b82f6',
+				color: 'V9_COLORS.PRIMARY.BLUE',
 				originalToken:
 					'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyXzEyMyIsInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwgcmVhZDpjb250YWN0cyByZWFkOmNhbGVuZGFyIHdyaXRlOmRhdGEiLCJhdWQiOiJteS13ZWItYXBwIiwiaXNzIjoiaHR0cHM6Ly9hdXRoLnBpbmdvbmUuY29tIiwiZXhwIjoxNzI5NjM5NDQ3fQ...',
 				availableScopes: [
@@ -213,7 +213,7 @@ const TokenExchangeFlowV9: React.FC = () => {
 				requestedTokenType: 'urn:ietf:params:oauth:token-type:access_token',
 				audience: 'https://api.internal.company.com',
 				scope: 'impersonate:user audit:read',
-				color: '#f59e0b',
+				color: 'V9_COLORS.PRIMARY.YELLOW',
 				originalToken:
 					'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbl91c2VyIiwic2NvcGUiOiJhZG1pbjpmdWxsIGltcGVyc29uYXRlOnVzZXIgYXVkaXQ6cmVhZCBhdWRpdDp3cml0ZSIsImF1ZCI6ImFkbWluLWRhc2hib2FyZCIsImlzcyI6Imh0dHBzOi8vYXV0aC5waW5nb25lLmNvbSIsImV4cCI6MTcyOTYzOTQ0N30...',
 				availableScopes: [
@@ -244,7 +244,7 @@ const TokenExchangeFlowV9: React.FC = () => {
 				requestedTokenType: 'urn:ietf:params:oauth:token-type:access_token',
 				audience: 'https://api.payment-processor.com',
 				scope: 'payment:read payment:webhook',
-				color: '#22c55e',
+				color: 'V9_COLORS.PRIMARY.GREEN',
 				originalToken:
 					'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJtZXJjaGFudF9hcHAiLCJzY29wZSI6InBheW1lbnQ6Y3JlYXRlIHBheW1lbnQ6cmVhZCBwYXltZW50OndyaXRlIHBheW1lbnQ6cmVmdW5kIGN1c3RvbWVyOnJlYWQgY3VzdG9tZXI6d3JpdGUgcmVwb3J0czpyZWFkIGF1ZGl0OnJlYWQiLCJhdWQiOiJtZXJjaGFudC1kYXNoYm9hcmQiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20iLCJleHAiOjE3Mjk2Mzk0NDd9...',
 				availableScopes: [
@@ -420,7 +420,7 @@ const TokenExchangeFlowV9: React.FC = () => {
 			case 0: // Scenario Selection
 				return (
 					<div>
-						<h3 style={{ margin: '0 0 1rem 0', color: '#1f2937' }}>
+						<h3 style={{ margin: '0 0 1rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
 							Select Token Exchange Scenario
 						</h3>
 						<div
@@ -438,9 +438,9 @@ const TokenExchangeFlowV9: React.FC = () => {
 									type="button"
 									style={{
 										padding: '1.5rem',
-										border: `2px solid ${selectedScenario === key ? scenario.color : '#e5e7eb'}`,
+										border: `2px solid ${selectedScenario === key ? scenario.color : 'V9_COLORS.TEXT.GRAY_LIGHTER'}`,
 										borderRadius: '0.75rem',
-										background: selectedScenario === key ? '#f8fafc' : '#ffffff',
+										background: selectedScenario === key ? 'V9_COLORS.BG.GRAY_LIGHT' : 'V9_COLORS.TEXT.WHITE',
 										cursor: 'pointer',
 										transition: 'all 0.2s ease',
 										textAlign: 'left',
@@ -454,7 +454,7 @@ const TokenExchangeFlowV9: React.FC = () => {
 									}}
 									onMouseLeave={(e) => {
 										if (selectedScenario !== key) {
-											e.currentTarget.style.borderColor = '#e5e7eb';
+											e.currentTarget.style.borderColor = 'V9_COLORS.TEXT.GRAY_LIGHTER';
 											e.currentTarget.style.transform = 'translateY(0)';
 											e.currentTarget.style.boxShadow = 'none';
 										}
@@ -464,7 +464,7 @@ const TokenExchangeFlowV9: React.FC = () => {
 									<h4
 										style={{
 											margin: '0 0 0.5rem 0',
-											color: '#1f2937',
+											color: 'V9_COLORS.TEXT.GRAY_DARK',
 											fontSize: '1.125rem',
 											fontWeight: 600,
 										}}
@@ -474,7 +474,7 @@ const TokenExchangeFlowV9: React.FC = () => {
 									<p
 										style={{
 											margin: '0 0 1rem 0',
-											color: '#6b7280',
+											color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 											fontSize: '0.875rem',
 											lineHeight: '1.5',
 										}}
@@ -484,7 +484,7 @@ const TokenExchangeFlowV9: React.FC = () => {
 									<div
 										style={{
 											padding: '0.75rem',
-											backgroundColor: '#f8fafc',
+											backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT',
 											borderRadius: '0.5rem',
 											fontSize: '0.75rem',
 										}}
@@ -500,7 +500,7 @@ const TokenExchangeFlowV9: React.FC = () => {
 			case 1: // Configuration
 				return (
 					<div>
-						<h3 style={{ margin: '0 0 1rem 0', color: '#1f2937' }}>
+						<h3 style={{ margin: '0 0 1rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
 							Configure Exchange Parameters
 						</h3>
 						{/* ── Connection Settings (persisted via V9CredentialStorageService) ── */}
@@ -508,9 +508,9 @@ const TokenExchangeFlowV9: React.FC = () => {
 							style={{
 								marginBottom: '1.5rem',
 								padding: '1.25rem',
-								border: '1px solid #e5e7eb',
+								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 								borderRadius: '0.75rem',
-								background: '#f8fafc',
+								background: 'V9_COLORS.BG.GRAY_LIGHT',
 							}}
 						>
 							<div
@@ -521,7 +521,7 @@ const TokenExchangeFlowV9: React.FC = () => {
 									marginBottom: '1rem',
 								}}
 							>
-								<h4 style={{ margin: 0, color: '#1f2937', fontSize: '0.9375rem' }}>
+								<h4 style={{ margin: 0, color: 'V9_COLORS.TEXT.GRAY_DARK', fontSize: '0.9375rem' }}>
 									🔒 Connection Settings
 								</h4>
 								<CompactAppPickerV8U
@@ -537,7 +537,7 @@ const TokenExchangeFlowV9: React.FC = () => {
 											display: 'block',
 											marginBottom: '0.375rem',
 											fontWeight: 600,
-											color: '#374151',
+											color: 'V9_COLORS.TEXT.GRAY_DARK',
 											fontSize: '0.875rem',
 										}}
 									>
@@ -556,10 +556,10 @@ const TokenExchangeFlowV9: React.FC = () => {
 										style={{
 											width: '100%',
 											padding: '0.625rem',
-											border: '1px solid #d1d5db',
+											border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 											borderRadius: '0.375rem',
 											fontSize: '0.875rem',
-											background: '#ffffff',
+											background: 'V9_COLORS.TEXT.WHITE',
 										}}
 									/>
 								</div>
@@ -570,7 +570,7 @@ const TokenExchangeFlowV9: React.FC = () => {
 											display: 'block',
 											marginBottom: '0.375rem',
 											fontWeight: 600,
-											color: '#374151',
+											color: 'V9_COLORS.TEXT.GRAY_DARK',
 											fontSize: '0.875rem',
 										}}
 									>
@@ -589,10 +589,10 @@ const TokenExchangeFlowV9: React.FC = () => {
 										style={{
 											width: '100%',
 											padding: '0.625rem',
-											border: '1px solid #d1d5db',
+											border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 											borderRadius: '0.375rem',
 											fontSize: '0.875rem',
-											background: '#ffffff',
+											background: 'V9_COLORS.TEXT.WHITE',
 										}}
 									/>
 								</div>
@@ -603,7 +603,7 @@ const TokenExchangeFlowV9: React.FC = () => {
 											display: 'block',
 											marginBottom: '0.375rem',
 											fontWeight: 600,
-											color: '#374151',
+											color: 'V9_COLORS.TEXT.GRAY_DARK',
 											fontSize: '0.875rem',
 										}}
 									>
@@ -622,10 +622,10 @@ const TokenExchangeFlowV9: React.FC = () => {
 										style={{
 											width: '100%',
 											padding: '0.625rem',
-											border: '1px solid #d1d5db',
+											border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 											borderRadius: '0.375rem',
 											fontSize: '0.875rem',
-											background: '#ffffff',
+											background: 'V9_COLORS.TEXT.WHITE',
 										}}
 									/>
 								</div>
@@ -640,7 +640,7 @@ const TokenExchangeFlowV9: React.FC = () => {
 										display: 'block',
 										marginBottom: '0.5rem',
 										fontWeight: 600,
-										color: '#374151',
+										color: 'V9_COLORS.TEXT.GRAY_DARK',
 									}}
 								>
 									Audience
@@ -656,7 +656,7 @@ const TokenExchangeFlowV9: React.FC = () => {
 									style={{
 										width: '100%',
 										padding: '0.75rem',
-										border: '1px solid #d1d5db',
+										border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 										borderRadius: '0.375rem',
 										fontSize: '0.875rem',
 									}}
@@ -669,7 +669,7 @@ const TokenExchangeFlowV9: React.FC = () => {
 										display: 'block',
 										marginBottom: '0.5rem',
 										fontWeight: 600,
-										color: '#374151',
+										color: 'V9_COLORS.TEXT.GRAY_DARK',
 									}}
 								>
 									Subject Token Type
@@ -683,7 +683,7 @@ const TokenExchangeFlowV9: React.FC = () => {
 									style={{
 										width: '100%',
 										padding: '0.75rem',
-										border: '1px solid #d1d5db',
+										border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 										borderRadius: '0.375rem',
 										fontSize: '0.875rem',
 									}}
@@ -702,7 +702,7 @@ const TokenExchangeFlowV9: React.FC = () => {
 										display: 'block',
 										marginBottom: '0.5rem',
 										fontWeight: 600,
-										color: '#374151',
+										color: 'V9_COLORS.TEXT.GRAY_DARK',
 									}}
 								>
 									Requested Token Type
@@ -716,7 +716,7 @@ const TokenExchangeFlowV9: React.FC = () => {
 									style={{
 										width: '100%',
 										padding: '0.75rem',
-										border: '1px solid #d1d5db',
+										border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 										borderRadius: '0.375rem',
 										fontSize: '0.875rem',
 									}}
@@ -734,7 +734,7 @@ const TokenExchangeFlowV9: React.FC = () => {
 			case 2: // Subject Token
 				return (
 					<div>
-						<h3 style={{ margin: '0 0 1rem 0', color: '#1f2937' }}>Subject Token</h3>
+						<h3 style={{ margin: '0 0 1rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>Subject Token</h3>
 						<div>
 							<label
 								htmlFor="subject-token-textarea"
@@ -742,7 +742,7 @@ const TokenExchangeFlowV9: React.FC = () => {
 									display: 'block',
 									marginBottom: '0.5rem',
 									fontWeight: 600,
-									color: '#374151',
+									color: 'V9_COLORS.TEXT.GRAY_DARK',
 								}}
 							>
 								Token to Exchange
@@ -756,7 +756,7 @@ const TokenExchangeFlowV9: React.FC = () => {
 								style={{
 									width: '100%',
 									padding: '0.75rem',
-									border: '1px solid #d1d5db',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									borderRadius: '0.375rem',
 									fontSize: '0.875rem',
 									fontFamily: 'monospace',
@@ -767,7 +767,7 @@ const TokenExchangeFlowV9: React.FC = () => {
 								style={{
 									marginTop: '1rem',
 									padding: '1rem',
-									backgroundColor: '#f8fafc',
+									backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT',
 									borderRadius: '0.5rem',
 								}}
 							>
@@ -782,12 +782,12 @@ const TokenExchangeFlowV9: React.FC = () => {
 			case 3: // Token Exchange
 				return (
 					<div>
-						<h3 style={{ margin: '0 0 1rem 0', color: '#1f2937' }}>Execute Token Exchange</h3>
+						<h3 style={{ margin: '0 0 1rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>Execute Token Exchange</h3>
 						<div style={{ marginBottom: '2rem' }}>
-							<h4 style={{ margin: '0 0 1rem 0', color: '#374151' }}>Exchange Request Summary</h4>
+							<h4 style={{ margin: '0 0 1rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>Exchange Request Summary</h4>
 							<div
 								style={{
-									backgroundColor: '#f8fafc',
+									backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT',
 									padding: '1rem',
 									borderRadius: '0.5rem',
 									fontSize: '0.875rem',
@@ -828,13 +828,13 @@ const TokenExchangeFlowV9: React.FC = () => {
 			case 4: // Results
 				return (
 					<div>
-						<h3 style={{ margin: '0 0 1rem 0', color: '#1f2937' }}>Token Exchange Results</h3>
+						<h3 style={{ margin: '0 0 1rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>Token Exchange Results</h3>
 						{exchangedToken ? (
 							<div>
 								<div style={{ marginBottom: '2rem' }}>
-									<h4 style={{ margin: '0 0 1rem 0', color: '#374151' }}>Exchanged Token</h4>
+									<h4 style={{ margin: '0 0 1rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>Exchanged Token</h4>
 									<div
-										style={{ backgroundColor: '#f8fafc', padding: '1rem', borderRadius: '0.5rem' }}
+										style={{ backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT', padding: '1rem', borderRadius: '0.5rem' }}
 									>
 										<pre
 											style={{
@@ -878,11 +878,11 @@ const TokenExchangeFlowV9: React.FC = () => {
 								style={{
 									padding: '2rem',
 									textAlign: 'center',
-									backgroundColor: '#f8fafc',
+									backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT',
 									borderRadius: '0.5rem',
 								}}
 							>
-								<p style={{ margin: 0, color: '#6b7280' }}>
+								<p style={{ margin: 0, color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 									No token exchanged yet. Complete the previous steps to exchange your token.
 								</p>
 							</div>
@@ -933,8 +933,8 @@ const TokenExchangeFlowV9: React.FC = () => {
 										width: '32px',
 										height: '32px',
 										borderRadius: '50%',
-										background: index <= currentStep ? '#10b981' : '#e5e7eb',
-										color: index <= currentStep ? 'white' : '#6b7280',
+										background: index <= currentStep ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.TEXT.GRAY_LIGHTER',
+										color: index <= currentStep ? 'white' : 'V9_COLORS.TEXT.GRAY_MEDIUM',
 										display: 'flex',
 										alignItems: 'center',
 										justifyContent: 'center',
@@ -949,7 +949,7 @@ const TokenExchangeFlowV9: React.FC = () => {
 										style={{
 											flex: 1,
 											height: '2px',
-											background: index < currentStep ? '#10b981' : '#e5e7eb',
+											background: index < currentStep ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.TEXT.GRAY_LIGHTER',
 											margin: '0 1rem',
 										}}
 									/>
@@ -958,8 +958,8 @@ const TokenExchangeFlowV9: React.FC = () => {
 						))}
 					</div>
 					<div>
-						<h3 style={{ margin: 0, color: '#1f2937' }}>{STEP_METADATA[currentStep].title}</h3>
-						<p style={{ margin: '0.25rem 0 0 0', color: '#6b7280', fontSize: '0.875rem' }}>
+						<h3 style={{ margin: 0, color: 'V9_COLORS.TEXT.GRAY_DARK' }}>{STEP_METADATA[currentStep].title}</h3>
+						<p style={{ margin: '0.25rem 0 0 0', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.875rem' }}>
 							{STEP_METADATA[currentStep].subtitle}
 						</p>
 					</div>
@@ -976,7 +976,7 @@ const TokenExchangeFlowV9: React.FC = () => {
 						alignItems: 'center',
 						marginTop: '2rem',
 						paddingTop: '2rem',
-						borderTop: '1px solid #e5e7eb',
+						borderTop: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 					}}
 				>
 					<button
@@ -985,7 +985,7 @@ const TokenExchangeFlowV9: React.FC = () => {
 						type="button"
 						style={{
 							padding: '0.75rem 1.5rem',
-							background: currentStep === 0 ? '#e5e7eb' : '#6b7280',
+							background: currentStep === 0 ? 'V9_COLORS.TEXT.GRAY_LIGHTER' : 'V9_COLORS.TEXT.GRAY_MEDIUM',
 							color: 'white',
 							border: 'none',
 							borderRadius: '0.375rem',
@@ -1003,8 +1003,8 @@ const TokenExchangeFlowV9: React.FC = () => {
 								type="button"
 								style={{
 									padding: '0.5rem 1rem',
-									background: index === currentStep ? '#10b981' : '#e5e7eb',
-									color: index === currentStep ? 'white' : '#6b7280',
+									background: index === currentStep ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.TEXT.GRAY_LIGHTER',
+									color: index === currentStep ? 'white' : 'V9_COLORS.TEXT.GRAY_MEDIUM',
 									border: 'none',
 									borderRadius: '0.375rem',
 									cursor: 'pointer',
@@ -1024,8 +1024,8 @@ const TokenExchangeFlowV9: React.FC = () => {
 							padding: '0.75rem 1.5rem',
 							background:
 								currentStep === STEP_METADATA.length - 1 || !validateCurrentStep()
-									? '#e5e7eb'
-									: '#10b981',
+									? 'V9_COLORS.TEXT.GRAY_LIGHTER'
+									: 'V9_COLORS.PRIMARY.GREEN',
 							color: 'white',
 							border: 'none',
 							borderRadius: '0.375rem',

@@ -45,9 +45,9 @@ interface Props {
 
 // Styled Components
 const Container = styled.div`
-  background: #ffffff;
+  background: V9_COLORS.TEXT.WHITE;
   border-radius: 1rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   padding: 2rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 `;
@@ -55,7 +55,7 @@ const Container = styled.div`
 const SectionTitle = styled.h3`
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 1.5rem;
   display: flex;
   align-items: center;
@@ -77,7 +77,7 @@ const FormGroup = styled.div`
 
 const FormLabel = styled.label`
   font-weight: 500;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 0.875rem;
   display: flex;
   align-items: center;
@@ -86,20 +86,20 @@ const FormLabel = styled.label`
 
 const FormInput = styled.input`
   padding: 0.75rem 1rem;
-  border: 2px solid #e5e7eb;
+  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   font-size: 0.875rem;
   transition: all 0.2s ease;
 
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 
   &:disabled {
     background: #f9fafb;
-    color: #9ca3af;
+    color: V9_COLORS.TEXT.GRAY_LIGHT;
     cursor: not-allowed;
   }
 `;
@@ -111,9 +111,9 @@ const DropdownContainer = styled.div`
 const DropdownButton = styled.button<{ $isOpen: boolean; $hasError?: boolean }>`
   width: 100%;
   padding: 0.75rem 1rem;
-  border: 2px solid ${(props) => (props.$hasError ? '#ef4444' : '#e5e7eb')};
+  border: 2px solid ${(props) => (props.$hasError ? 'V9_COLORS.PRIMARY.RED' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
   border-radius: 0.5rem;
-  background: #ffffff;
+  background: V9_COLORS.TEXT.WHITE;
   font-size: 0.875rem;
   text-align: left;
   display: flex;
@@ -124,14 +124,14 @@ const DropdownButton = styled.button<{ $isOpen: boolean; $hasError?: boolean }>`
 
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 
   ${(props) =>
 		props.$isOpen &&
 		`
-    border-color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   `}
 `;
@@ -141,8 +141,8 @@ const DropdownMenu = styled.div<{ $isOpen: boolean }>`
   top: calc(100% + 0.5rem);
   left: 0;
   right: 0;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
+  background: V9_COLORS.TEXT.WHITE;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   z-index: 50;
@@ -174,8 +174,8 @@ const DropdownItem = styled.div<{ $selected?: boolean }>`
   ${(props) =>
 		props.$selected &&
 		`
-    background: #eff6ff;
-    border-left: 3px solid #3b82f6;
+    background: V9_COLORS.BG.GRAY_LIGHT;
+    border-left: 3px solid V9_COLORS.PRIMARY.BLUE;
   `}
 `;
 
@@ -185,7 +185,7 @@ const ItemContent = styled.div`
 
 const ItemTitle = styled.div`
   font-weight: 500;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.25rem;
   display: flex;
   align-items: center;
@@ -194,7 +194,7 @@ const ItemTitle = styled.div`
 
 const ItemDescription = styled.div`
   font-size: 0.75rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   line-height: 1.4;
 `;
 
@@ -207,7 +207,7 @@ const DeviceTags = styled.div`
 
 const DeviceTag = styled.span`
   background: #f3f4f6;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 0.625rem;
   padding: 0.125rem 0.375rem;
   border-radius: 0.25rem;
@@ -215,8 +215,8 @@ const DeviceTag = styled.span`
 `;
 
 const WorkerTokenSection = styled.div`
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.75rem;
   padding: 1.5rem;
   margin-top: 1.5rem;
@@ -231,7 +231,7 @@ const WorkerTokenHeader = styled.div`
 
 const WorkerTokenTitle = styled.div`
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -243,7 +243,7 @@ const WorkerTokenStatus = styled.div<{ $hasToken: boolean }>`
   gap: 0.5rem;
   font-size: 0.75rem;
   font-weight: 500;
-  color: ${(props) => (props.$hasToken ? '#059669' : '#d97706')};
+  color: ${(props) => (props.$hasToken ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.YELLOW_DARK')};
 `;
 
 const WorkerTokenActions = styled.div`
@@ -257,17 +257,17 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  border: 1px solid ${(props) => (props.$variant === 'primary' ? '#3b82f6' : '#d1d5db')};
+  border: 1px solid ${(props) => (props.$variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
   border-radius: 0.5rem;
   font-size: 0.75rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  background: ${(props) => (props.$variant === 'primary' ? '#3b82f6' : '#ffffff')};
-  color: ${(props) => (props.$variant === 'primary' ? '#ffffff' : '#374151')};
+  background: ${(props) => (props.$variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.WHITE')};
+  color: ${(props) => (props.$variant === 'primary' ? 'V9_COLORS.TEXT.WHITE' : 'V9_COLORS.TEXT.GRAY_DARK')};
 
   &:hover:not(:disabled) {
-    background: ${(props) => (props.$variant === 'primary' ? '#2563eb' : '#f9fafb')};
+    background: ${(props) => (props.$variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE_DARK' : '#f9fafb')};
   }
 
   &:disabled {
@@ -279,7 +279,7 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 const DeviceCreationSection = styled.div`
   margin-top: 2rem;
   padding-top: 2rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const DeviceCreationOptions = styled.div`
@@ -290,22 +290,22 @@ const DeviceCreationOptions = styled.div`
 `;
 
 const DeviceCreationCard = styled.div<{ $selected?: boolean }>`
-  border: 2px solid ${(props) => (props.$selected ? '#3b82f6' : '#e5e7eb')};
+  border: 2px solid ${(props) => (props.$selected ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
   border-radius: 0.75rem;
   padding: 1.5rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  background: ${(props) => (props.$selected ? '#eff6ff' : '#ffffff')};
+  background: ${(props) => (props.$selected ? 'V9_COLORS.BG.GRAY_LIGHT' : 'V9_COLORS.TEXT.WHITE')};
 
   &:hover {
-    border-color: #3b82f6;
-    background: #f8fafc;
+    border-color: V9_COLORS.PRIMARY.BLUE;
+    background: V9_COLORS.BG.GRAY_LIGHT;
   }
 `;
 
 const DeviceCreationTitle = styled.div`
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.5rem;
   display: flex;
   align-items: center;
@@ -314,12 +314,12 @@ const DeviceCreationTitle = styled.div`
 
 const DeviceCreationDescription = styled.div`
   font-size: 0.875rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   line-height: 1.4;
 `;
 
 const ErrorMessage = styled.div`
-  color: #dc2626;
+  color: V9_COLORS.PRIMARY.RED_DARK;
   font-size: 0.75rem;
   margin-top: 0.25rem;
   display: flex;
@@ -332,7 +332,7 @@ const LoadingSpinner = styled.div`
   width: 12px;
   height: 12px;
   border: 2px solid #f3f4f6;
-  border-top: 2px solid #3b82f6;
+  border-top: 2px solid V9_COLORS.PRIMARY.BLUE;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 
@@ -592,7 +592,9 @@ export const MFAUserSettingsGatherer: React.FC<Props> = ({
 									<ItemContent>
 										<ItemTitle>
 											{policy.name}
-											{settings.mfaPolicy === policy.id && <FiCheck color="#3b82f6" />}
+											{settings.mfaPolicy === policy.id && (
+												<FiCheck color="V9_COLORS.PRIMARY.BLUE" />
+											)}
 										</ItemTitle>
 										<ItemDescription>{policy.description}</ItemDescription>
 										<DeviceTags>
@@ -628,7 +630,13 @@ export const MFAUserSettingsGatherer: React.FC<Props> = ({
 						</WorkerTokenStatus>
 					</WorkerTokenHeader>
 
-					<div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '1rem' }}>
+					<div
+						style={{
+							fontSize: '0.875rem',
+							color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+							marginBottom: '1rem',
+						}}
+					>
 						This MFA policy requires a worker token to manage devices and policies. The worker token
 						allows administrative operations on PingOne MFA services.
 					</div>
@@ -661,7 +669,13 @@ export const MFAUserSettingsGatherer: React.FC<Props> = ({
 					</WorkerTokenActions>
 
 					{workerTokenCredentials.environmentId && (
-						<div style={{ marginTop: '1rem', fontSize: '0.75rem', color: '#6b7280' }}>
+						<div
+							style={{
+								marginTop: '1rem',
+								fontSize: '0.75rem',
+								color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+							}}
+						>
 							Using Environment: {workerTokenCredentials.environmentId}
 						</div>
 					)}
@@ -675,7 +689,13 @@ export const MFAUserSettingsGatherer: React.FC<Props> = ({
 					Device Registration Method
 				</SectionTitle>
 
-				<div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '1rem' }}>
+				<div
+					style={{
+						fontSize: '0.875rem',
+						color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+						marginBottom: '1rem',
+					}}
+				>
 					Choose how MFA devices should be registered for users
 				</div>
 

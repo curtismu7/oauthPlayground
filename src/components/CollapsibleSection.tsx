@@ -16,17 +16,17 @@ const SectionContainer = styled.div.withConfig({
 	shouldForwardProp: (prop) => prop !== 'collapsed' && prop !== '$collapsed',
 })<{ $collapsed: boolean }>`
 	margin-bottom: 2rem;
-	background: #ffffff;
+	background: V9_COLORS.TEXT.WHITE;
 	border-radius: 0.75rem;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-	border: 1px solid #e5e7eb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	overflow: hidden;
 	transition: all 0.3s ease;
 `;
 
 const SectionHeader = styled.div`
 	padding: 1.5rem;
-	background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+	background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
 	border-bottom: none;
 	cursor: pointer;
 	display: flex;
@@ -35,7 +35,7 @@ const SectionHeader = styled.div`
 	transition: background-color 0.2s ease;
 
 	&:hover {
-		background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+		background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
 	}
 `;
 
@@ -75,7 +75,7 @@ const TitleText = styled.h2`
 	margin: 0;
 	font-size: 1.25rem;
 	font-weight: 600;
-	color: #ffffff;
+	color: V9_COLORS.TEXT.WHITE;
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -89,7 +89,7 @@ const Subtitle = styled.p`
 const ChevronIcon = styled.div.withConfig({
 	shouldForwardProp: (prop) => prop !== 'collapsed' && prop !== '$collapsed',
 })<{ $collapsed: boolean }>`
-	color: #3b82f6;
+	color: V9_COLORS.PRIMARY.BLUE;
 	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
 	transition: transform 0.2s ease;
 	display: flex;
@@ -97,22 +97,22 @@ const ChevronIcon = styled.div.withConfig({
 	justify-content: center;
 	width: 32px;
 	height: 32px;
-	background-color: #ffffff;
+	background-color: V9_COLORS.TEXT.WHITE;
 	border-radius: 6px;
-	border: 2px solid #3b82f6;
+	border: 2px solid V9_COLORS.PRIMARY.BLUE;
 	transition: all 0.2s ease;
 
 	svg {
-		color: #3b82f6;
+		color: V9_COLORS.PRIMARY.BLUE;
 	}
 
 	&:hover {
 		transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')} scale(1.05);
-		border-color: #2563eb;
+		border-color: V9_COLORS.PRIMARY.BLUE_DARK;
 	}
 	&:active {
 		transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')} scale(1.05);
-		border-color: #2563eb;
+		border-color: V9_COLORS.PRIMARY.BLUE_DARK;
 	}
 `;
 

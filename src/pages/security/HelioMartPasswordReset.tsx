@@ -43,6 +43,7 @@ import { PageLayoutService } from '../../services/pageLayoutService';
 // import type { DiscoveredApp } from '../../v8/components/AppPickerV8';
 import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
 import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 // Create layout components at module level so styled.header is never created inside a hook.
 // styled-components v6 uses useContext internally; creating them inside useMemo violates Rules of Hooks.
@@ -114,7 +115,7 @@ const LoginSubtitle = styled.p`
 `;
 
 const SuccessMessage = styled.div`
-	background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+	background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%);
 	color: white;
 	padding: 2rem;
 	border-radius: 1rem;
@@ -136,7 +137,7 @@ const SuccessText = styled.p`
 `;
 
 const Card = styled.div`
-	background: #ffffff;
+	background: V9_COLORS.TEXT.WHITE;
 	border: 1px solid #E5E7EB;
 	border-radius: 1rem;
 	padding: 2rem;
@@ -176,14 +177,14 @@ const Label = styled.label`
 	display: block;
 	margin-bottom: 0.5rem;
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	font-size: 0.875rem;
 `;
 
 const Input = styled.input`
 	width: 100%;
 	padding: 0.75rem;
-	background: #ffffff;
+	background: V9_COLORS.TEXT.WHITE;
 	border: 1px solid #D1D5DB;
 	border-radius: 0.5rem;
 	color: #1F2937;
@@ -217,7 +218,7 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' | '
 		if (props.$variant === 'secondary') {
 			return `
 				background: #F3F4F6;
-				color: #374151;
+				color: V9_COLORS.TEXT.GRAY_DARK;
 				border: 1px solid #D1D5DB;
 				&:hover {
 					background: #E5E7EB;
@@ -227,7 +228,7 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' | '
 		if (props.$variant === 'danger') {
 			return `
 				background: #DC2626;
-				color: #ffffff;
+				color: V9_COLORS.TEXT.WHITE;
 				&:hover {
 					background: #B91C1C;
 				}
@@ -236,7 +237,7 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' | '
 		if (props.$variant === 'success') {
 			return `
 				background: #22C55E;
-				color: #ffffff;
+				color: V9_COLORS.TEXT.WHITE;
 				&:hover {
 					background: #16A34A;
 				}
@@ -244,7 +245,7 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' | '
 		}
 		return `
 			background: linear-gradient(135deg, ${HELIOMART_ACCENT_START} 0%, ${HELIOMART_ACCENT_END} 100%);
-			color: #ffffff;
+			color: V9_COLORS.TEXT.WHITE;
 			&:hover {
 				opacity: 0.9;
 				transform: translateY(-1px);
@@ -300,7 +301,7 @@ const StatusItem = styled.div`
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const UserCard = styled.div`
@@ -330,7 +331,7 @@ const UserAvatar = styled.div`
 	justify-content: center;
 	font-weight: 600;
 	font-size: 1.25rem;
-	color: #ffffff;
+	color: V9_COLORS.TEXT.WHITE;
 `;
 
 const ApiCallTableContainer = styled.div`
@@ -388,7 +389,7 @@ const CodeGeneratorSection = styled.div`
 `;
 
 const CodeContainer = styled.div<{ $isExpanded: boolean }>`
-	background: #ffffff;
+	background: V9_COLORS.TEXT.WHITE;
 	border: 1px solid #E5E7EB;
 	border-radius: 0.5rem;
 	margin: 1rem 0;
@@ -399,7 +400,7 @@ const CodeContainer = styled.div<{ $isExpanded: boolean }>`
 `;
 
 const CodeBlock = styled.pre`
-	background: #ffffff;
+	background: V9_COLORS.TEXT.WHITE;
 	padding: 1rem;
 	color: #1F2937;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -424,7 +425,7 @@ const CodeCollapseButton = styled.button`
 	border: 1px solid #D1D5DB;
 	border-top: none;
 	border-radius: 0 0 0.5rem 0.5rem;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	cursor: pointer;
 	font-size: 0.875rem;
 	width: 100%;
@@ -452,7 +453,7 @@ const ModalOverlay = styled.div`
 `;
 
 const ModalContent = styled.div`
-	background: #ffffff;
+	background: V9_COLORS.TEXT.WHITE;
 	border-radius: 1rem;
 	padding: 2rem;
 	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
@@ -491,7 +492,7 @@ const CodeButton = styled.button`
 	background: #F3F4F6;
 	border: 1px solid #D1D5DB;
 	border-radius: 0.5rem;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	cursor: pointer;
 	font-size: 0.875rem;
 	transition: all 0.2s;
@@ -499,7 +500,7 @@ const CodeButton = styled.button`
 	&:hover {
 		background: ${HELIOMART_ACCENT_START};
 		border-color: ${HELIOMART_ACCENT_START};
-		color: #ffffff;
+		color: V9_COLORS.TEXT.WHITE;
 	}
 
 	&:active {
@@ -4542,12 +4543,12 @@ export { changePassword, handleChangePassword };`;
 									for user authentication. Please configure your PingOne authorization code client
 									credentials to continue.
 								</p>
-								<p style={{ color: '#6b7280', fontSize: '0.875rem', lineHeight: '1.5' }}>
+								<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.875rem', lineHeight: '1.5' }}>
 									You'll need:
 								</p>
 								<ul
 									style={{
-										color: '#6b7280',
+										color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 										fontSize: '0.875rem',
 										lineHeight: '1.8',
 										marginLeft: '1.5rem',

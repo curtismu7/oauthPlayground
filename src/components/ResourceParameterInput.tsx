@@ -24,7 +24,7 @@ const Label = styled.label`
 	gap: 0.5rem;
 	font-size: 0.875rem;
 	font-weight: 500;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.5rem;
 `;
 
@@ -35,7 +35,7 @@ const LabelIcon = styled.div`
 
 const ResourceList = styled.div`
 	background: #f9fafb;
-	border: 1px solid #e5e7eb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	padding: 1rem;
 	margin-bottom: 1rem;
@@ -47,8 +47,8 @@ const ResourceItem = styled.div`
 	gap: 0.75rem;
 	margin-bottom: 0.75rem;
 	padding: 0.75rem;
-	background: #ffffff;
-	border: 1px solid #e5e7eb;
+	background: V9_COLORS.TEXT.WHITE;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	transition: all 0.2s;
 
@@ -89,7 +89,7 @@ const RemoveButton = styled.button`
 	justify-content: center;
 	width: 2rem;
 	height: 2rem;
-	color: #ef4444;
+	color: V9_COLORS.PRIMARY.RED;
 	background: transparent;
 	border: none;
 	border-radius: 0.375rem;
@@ -97,8 +97,8 @@ const RemoveButton = styled.button`
 	transition: all 0.2s;
 
 	&:hover {
-		background: #fee2e2;
-		color: #dc2626;
+		background: V9_COLORS.BG.ERROR;
+		color: V9_COLORS.PRIMARY.RED_DARK;
 	}
 
 	&:disabled {
@@ -116,7 +116,7 @@ const AddButton = styled.button`
 	padding: 0.875rem 1.25rem;
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: #ffffff;
+	color: V9_COLORS.TEXT.WHITE;
 	background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
 	border: none;
 	border-radius: 0.5rem;
@@ -163,18 +163,18 @@ const ExampleItem = styled.button<{ $isFromDiscovery?: boolean }>`
 	text-align: left;
 	padding: 0.5rem;
 	margin-bottom: 0.25rem;
-	background: ${(props) => (props.$isFromDiscovery ? '#eff6ff' : '#ffffff')};
-	border: 1px solid ${(props) => (props.$isFromDiscovery ? '#60a5fa' : '#c4b5fd')};
+	background: ${(props) => (props.$isFromDiscovery ? 'V9_COLORS.BG.GRAY_LIGHT' : 'V9_COLORS.TEXT.WHITE')};
+	border: 1px solid ${(props) => (props.$isFromDiscovery ? 'V9_COLORS.PRIMARY.BLUE_LIGHT' : '#c4b5fd')};
 	border-radius: 0.375rem;
 	font-size: 0.75rem;
 	font-family: 'Monaco', 'Menlo', monospace;
-	color: ${(props) => (props.$isFromDiscovery ? '#1e40af' : '#7c3aed')};
+	color: ${(props) => (props.$isFromDiscovery ? 'V9_COLORS.PRIMARY.BLUE_DARK' : '#7c3aed')};
 	cursor: grab;
 	transition: all 0.2s;
 
 	&:hover {
 		background: ${(props) => (props.$isFromDiscovery ? '#dbeafe' : '#faf5ff')};
-		border-color: ${(props) => (props.$isFromDiscovery ? '#3b82f6' : '#7c3aed')};
+		border-color: ${(props) => (props.$isFromDiscovery ? 'V9_COLORS.PRIMARY.BLUE' : '#7c3aed')};
 		transform: translateX(2px);
 	}
 
@@ -211,7 +211,7 @@ const DiscoveryBadge = styled.span`
 	align-items: center;
 	gap: 0.25rem;
 	padding: 0.125rem 0.375rem;
-	background: #3b82f6;
+	background: V9_COLORS.PRIMARY.BLUE;
 	color: white;
 	border-radius: 0.25rem;
 	font-size: 0.625rem;
@@ -224,31 +224,31 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'warning' }>`
 	display: flex;
 	gap: 0.75rem;
 	padding: 1rem;
-	background: ${(props) => (props.$variant === 'warning' ? '#fef3c7' : '#eff6ff')};
-	border: 1px solid ${(props) => (props.$variant === 'warning' ? '#fbbf24' : '#bfdbfe')};
+	background: ${(props) => (props.$variant === 'warning' ? 'V9_COLORS.BG.WARNING' : 'V9_COLORS.BG.GRAY_LIGHT')};
+	border: 1px solid ${(props) => (props.$variant === 'warning' ? 'V9_COLORS.PRIMARY.YELLOW_LIGHT' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
 	border-radius: 0.5rem;
 	margin-top: 1rem;
 	font-size: 0.875rem;
-	color: ${(props) => (props.$variant === 'warning' ? '#78350f' : '#1e40af')};
+	color: ${(props) => (props.$variant === 'warning' ? '#78350f' : 'V9_COLORS.PRIMARY.BLUE_DARK')};
 	line-height: 1.5;
 `;
 
 const InfoIcon = styled.div<{ $variant?: 'info' | 'warning' }>`
 	flex-shrink: 0;
 	font-size: 1.25rem;
-	color: ${(props) => (props.$variant === 'warning' ? '#f59e0b' : '#3b82f6')};
+	color: ${(props) => (props.$variant === 'warning' ? 'V9_COLORS.PRIMARY.YELLOW' : 'V9_COLORS.PRIMARY.BLUE')};
 `;
 
 const _EmptyState = styled.div`
 	text-align: center;
 	padding: 2rem 1rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-style: italic;
 `;
 
 const EducationalHeader = styled.div`
-	background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-	border: 2px solid #bae6fd;
+	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.BG.GRAY_LIGHT 100%);
+	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.75rem;
 	padding: 1.5rem;
 	margin-bottom: 1.5rem;
@@ -261,17 +261,17 @@ const EducationalTitle = styled.h3`
 	margin: 0 0 1rem 0;
 	font-size: 1.125rem;
 	font-weight: 700;
-	color: #0c4a6e;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	
 	svg {
-		color: #0284c7;
+		color: V9_COLORS.PRIMARY.BLUE;
 		font-size: 1.5rem;
 	}
 `;
 
 const EducationalContent = styled.div`
 	font-size: 0.9375rem;
-	color: #0c4a6e;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	line-height: 1.7;
 	
 	p {
@@ -293,7 +293,7 @@ const EducationalContent = styled.div`
 		border-radius: 0.25rem;
 		font-family: 'Monaco', 'Menlo', monospace;
 		font-size: 0.875rem;
-		color: #1e40af;
+		color: V9_COLORS.PRIMARY.BLUE_DARK;
 	}
 `;
 
@@ -311,15 +311,15 @@ const UseCaseList = styled.ul`
 `;
 
 const ExampleScenario = styled.div`
-	background: #fff;
-	border: 1px solid #bae6fd;
+	background: V9_COLORS.TEXT.WHITE;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	padding: 1rem;
 	margin-top: 1rem;
 	
 	strong {
 		display: block;
-		color: #0369a1;
+		color: V9_COLORS.PRIMARY.BLUE;
 		margin-bottom: 0.5rem;
 		font-size: 0.875rem;
 	}
@@ -491,7 +491,7 @@ export const ResourceParameterInput: React.FC<ResourceParameterInputProps> = ({
 							marginTop: '1rem',
 							fontSize: '0.875rem',
 							fontStyle: 'italic',
-							color: '#0369a1',
+							color: 'V9_COLORS.PRIMARY.BLUE',
 						}}
 					>
 						💡 <strong>Tip:</strong> If you're unsure, use the PingOne base URL (shown in blue
@@ -546,19 +546,19 @@ export const ResourceParameterInput: React.FC<ResourceParameterInputProps> = ({
 						width: '100%',
 						marginTop: '0.75rem',
 						padding: '0.875rem 1rem',
-						border: '2px solid #bae6fd',
+						border: '2px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 						borderRadius: '0.5rem',
 						fontSize: '0.875rem',
 						fontFamily: 'Monaco, Menlo, monospace',
-						backgroundColor: '#ffffff',
+						backgroundColor: 'V9_COLORS.TEXT.WHITE',
 						transition: 'all 0.2s',
 					}}
 					onFocus={(e) => {
-						e.target.style.borderColor = '#0284c7';
+						e.target.style.borderColor = 'V9_COLORS.PRIMARY.BLUE';
 						e.target.style.boxShadow = '0 0 0 3px rgba(2, 132, 199, 0.1)';
 					}}
 					onBlur={(e) => {
-						e.target.style.borderColor = '#bae6fd';
+						e.target.style.borderColor = 'V9_COLORS.TEXT.GRAY_LIGHTER';
 						e.target.style.boxShadow = 'none';
 					}}
 				/>
@@ -578,7 +578,9 @@ export const ResourceParameterInput: React.FC<ResourceParameterInputProps> = ({
 				<ExampleTitle>
 					Common Examples (click or drag to add):
 					{(issuer || environmentId) && (
-						<span style={{ color: '#3b82f6', fontWeight: 400, marginLeft: '0.5rem' }}>
+						<span
+							style={{ color: 'V9_COLORS.PRIMARY.BLUE', fontWeight: 400, marginLeft: '0.5rem' }}
+						>
 							✓ OIDC Discovery endpoints available
 						</span>
 					)}

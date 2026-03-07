@@ -84,7 +84,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 					badge: (
 						<span
 							style={{
-								background: '#10b981',
+								background: 'V9_COLORS.PRIMARY.GREEN',
 								color: 'white',
 								padding: '2px 6px',
 								borderRadius: '4px',
@@ -103,7 +103,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 					badge: (
 						<span
 							style={{
-								background: '#3b82f6',
+								background: 'V9_COLORS.PRIMARY.BLUE',
 								color: 'white',
 								padding: '2px 6px',
 								borderRadius: '4px',
@@ -194,10 +194,10 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				<div
 					style={{
 						padding: '0.5rem 1rem',
-						background: '#f8fafc',
-						borderBottom: '1px solid #e2e8f0',
+						background: 'V9_COLORS.BG.GRAY_LIGHT',
+						borderBottom: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 						fontSize: '0.875rem',
-						color: '#475569',
+						color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 						fontWeight: '500',
 					}}
 				>
@@ -225,8 +225,8 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							gap: '0.5rem',
 							padding: '0.75rem 1rem',
 							background: isSearchResult
-								? '#f1f5f9'
-								: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+								? 'V9_COLORS.BG.GRAY_MEDIUM'
+								: 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
 							borderRadius: '0.5rem',
 							marginBottom: '0.25rem',
 							cursor: 'pointer',
@@ -234,7 +234,9 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							boxShadow: isSearchResult ? 'none' : '0 2px 4px rgba(59, 130, 246, 0.2)',
 						}}
 					>
-						<div style={{ color: isSearchResult ? '#475569' : 'white' }}>{group.icon}</div>
+						<div style={{ color: isSearchResult ? 'V9_COLORS.TEXT.GRAY_MEDIUM' : 'white' }}>
+							{group.icon}
+						</div>
 						<span
 							style={{
 								fontWeight: '600',
@@ -249,7 +251,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							style={{
 								transform: group.isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
 								transition: 'transform 0.2s',
-								color: isSearchResult ? '#64748b' : 'white',
+								color: isSearchResult ? 'V9_COLORS.TEXT.GRAY_MEDIUM' : 'white',
 							}}
 						/>
 					</div>
@@ -259,7 +261,9 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						<div
 							style={{
 								paddingLeft: '1rem',
-								backgroundColor: isSearchResult ? '#ffffff' : '#f8fafc',
+								backgroundColor: isSearchResult
+									? 'V9_COLORS.TEXT.WHITE'
+									: 'V9_COLORS.BG.GRAY_LIGHT',
 								borderRadius: '0.5rem',
 								padding: '0.5rem',
 							}}
@@ -281,17 +285,21 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 										gap: '0.5rem',
 										padding: '0.5rem 0.75rem',
 										backgroundColor: isSearchResult
-											? '#ffffff'
+											? 'V9_COLORS.TEXT.WHITE'
 											: isActive(item.path)
-												? '#fef3c7'
+												? 'V9_COLORS.BG.WARNING'
 												: 'white',
-										color: isSearchResult ? '#000000' : isActive(item.path) ? '#d97706' : '#64748b',
+										color: isSearchResult
+											? 'V9_COLORS.TEXT.BLACK'
+											: isActive(item.path)
+												? 'V9_COLORS.PRIMARY.YELLOW_DARK'
+												: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 										borderRadius: '0.375rem',
 										border: isSearchResult
-											? '1px solid #e2e8f0'
+											? '1px solid V9_COLORS.TEXT.GRAY_LIGHTER'
 											: isActive(item.path)
-												? '3px solid #f59e0b'
-												: '1px solid #e2e8f0',
+												? '3px solid V9_COLORS.PRIMARY.YELLOW'
+												: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 										fontWeight: isActive(item.path) ? '700' : '400',
 										boxShadow: isSearchResult
 											? 'none'

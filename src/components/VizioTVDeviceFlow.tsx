@@ -12,14 +12,14 @@ import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // VIZIO TV Physical Housing
 const VizioTVContainer = styled.div`
-  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+  background: linear-gradient(135deg, V9_COLORS.TEXT.GRAY_DARK 0%, V9_COLORS.TEXT.GRAY_DARK 100%);
   border-radius: 1.5rem;
   padding: 2rem;
   margin: 2rem 0;
   box-shadow: 
     0 25px 50px rgba(0, 0, 0, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  border: 12px solid #0f172a;
+  border: 12px solid V9_COLORS.TEXT.GRAY_DARK;
   position: relative;
   max-width: 800px;
   margin-left: auto;
@@ -34,7 +34,7 @@ const VizioTVContainer = styled.div`
     transform: translateX(-50%);
     width: 200px;
     height: 40px;
-    background: linear-gradient(180deg, #0f172a 0%, #1f2937 100%);
+    background: linear-gradient(180deg, V9_COLORS.TEXT.GRAY_DARK 0%, V9_COLORS.TEXT.GRAY_DARK 100%);
     border-radius: 0 0 20px 20px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
   }
@@ -43,8 +43,8 @@ const VizioTVContainer = styled.div`
 // VIZIO TV Screen
 const TVScreen = styled.div<{ $showContent?: boolean }>`
   background: ${({ $showContent }) =>
-		$showContent ? 'linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%)' : '#000000'};
-  border: 3px solid #1f2937;
+		$showContent ? 'linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%)' : 'V9_COLORS.TEXT.BLACK'};
+  border: 3px solid V9_COLORS.TEXT.GRAY_DARK;
   border-radius: 0.75rem;
   padding: ${({ $showContent }) => ($showContent ? '2rem' : '3rem')};
   margin-bottom: 1rem;
@@ -72,13 +72,13 @@ const VizioBranding = styled.div`
 const VizioLogo = styled.div`
   font-size: 1.5rem;
   font-weight: 900;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 `;
 
 const VizioModel = styled.div`
   font-size: 0.75rem;
-  color: #9ca3af;
+  color: V9_COLORS.TEXT.GRAY_LIGHT;
   text-transform: uppercase;
   letter-spacing: 0.1em;
 `;
@@ -96,7 +96,7 @@ const StatusIndicator = styled.div<{ $active: boolean; $color: string }>`
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: ${(props) => (props.$active ? props.$color : '#6b7280')};
+  background: ${(props) => (props.$active ? props.$color : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
   box-shadow: ${(props) => (props.$active ? `0 0 12px ${props.$color}` : 'none')};
   animation: ${(props) => (props.$active ? 'pulse 2s infinite' : 'none')};
   
@@ -108,11 +108,11 @@ const StatusIndicator = styled.div<{ $active: boolean; $color: string }>`
 
 // VIZIO SmartCast Interface
 const SmartCastInterface = styled.div`
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  background: linear-gradient(135deg, #1e293b 0%, V9_COLORS.TEXT.GRAY_DARK 100%);
   border-radius: 1rem;
   padding: 2rem;
   margin: 1rem 0;
-  border: 2px solid #374151;
+  border: 2px solid V9_COLORS.TEXT.GRAY_DARK;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
 `;
 
@@ -122,13 +122,13 @@ const SmartCastHeader = styled.div`
   justify-content: space-between;
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid #374151;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const SmartCastTitle = styled.div`
   font-size: 1.25rem;
   font-weight: 700;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -138,18 +138,18 @@ const SmartCastStatus = styled.div<{ $status: string }>`
   background: ${(props) => {
 		switch (props.$status) {
 			case 'pending':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'authorized':
-				return '#10b981';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'denied':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			case 'expired':
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 			default:
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 		}
 	}};
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   padding: 0.5rem 1rem;
   border-radius: 9999px;
   font-size: 0.75rem;
@@ -175,7 +175,7 @@ const AppIcon = styled.div<{ $color: string }>`
   align-items: center;
   justify-content: center;
   font-size: 1.5rem;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   cursor: pointer;
   transition: transform 0.2s ease;
@@ -195,7 +195,7 @@ const AppLabel = styled.div`
 
 // Authorization Code Display
 const AuthCodeDisplay = styled.div`
-  background: #000000;
+  background: V9_COLORS.TEXT.BLACK;
   color: #00ff00;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 2rem;
@@ -214,31 +214,31 @@ const AuthCodeDisplay = styled.div`
 
 // QR Code Section
 const QRCodeSection = styled.div`
-  background: #ffffff;
+  background: V9_COLORS.TEXT.WHITE;
   border-radius: 0.75rem;
   padding: 1.5rem;
   text-align: center;
   margin: 1rem 0;
-  border: 2px solid #e5e7eb;
+  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const QRTitle = styled.div`
   font-size: 1rem;
   font-weight: 700;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.5rem;
 `;
 
 const QRSubtitle = styled.div`
   font-size: 0.875rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin-bottom: 1rem;
 `;
 
 const QRCodeContainer = styled.div`
   display: inline-block;
   padding: 1rem;
-  background: #ffffff;
+  background: V9_COLORS.TEXT.WHITE;
   border-radius: 0.5rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
@@ -253,8 +253,8 @@ const ActionButtons = styled.div`
 `;
 
 const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
-  background: ${(props) => (props.$variant === 'primary' ? '#3b82f6' : '#6b7280')};
-  color: #ffffff;
+  background: ${(props) => (props.$variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
+  color: V9_COLORS.TEXT.WHITE;
   border: none;
   border-radius: 0.5rem;
   padding: 0.75rem 1.25rem;
@@ -280,12 +280,12 @@ const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
 
 // Success Display
 const SuccessDisplay = styled.div`
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%);
   border-radius: 1rem;
   padding: 1.5rem;
   margin-top: 1rem;
   text-align: center;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
 `;
 
@@ -365,9 +365,9 @@ const VizioTVDeviceFlow: React.FC<VizioTVDeviceFlowProps> = ({
 		{ label: 'Hulu', icon: '📺', color: '#1ce783' },
 		{ label: 'Prime Video', icon: '📹', color: '#00a8e1' },
 		{ label: 'YouTube TV', icon: '📺', color: '#ff0000' },
-		{ label: 'Apple TV+', icon: '🍎', color: '#000000' },
+		{ label: 'Apple TV+', icon: '🍎', color: 'V9_COLORS.TEXT.BLACK' },
 		{ label: 'HBO Max', icon: '🎭', color: '#673ab7' },
-		{ label: 'SmartCast', icon: '⚙️', color: '#64748b' },
+		{ label: 'SmartCast', icon: '⚙️', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' },
 	];
 
 	return (
@@ -383,9 +383,12 @@ const VizioTVDeviceFlow: React.FC<VizioTVDeviceFlowProps> = ({
 
 					{/* Status Indicators */}
 					<StatusIndicators>
-						<StatusIndicator $active={true} $color="#10b981" />
-						<StatusIndicator $active={true} $color="#3b82f6" />
-						<StatusIndicator $active={state.status === 'authorized'} $color="#f59e0b" />
+						<StatusIndicator $active={true} $color="V9_COLORS.PRIMARY.GREEN" />
+						<StatusIndicator $active={true} $color="V9_COLORS.PRIMARY.BLUE" />
+						<StatusIndicator
+							$active={state.status === 'authorized'}
+							$color="V9_COLORS.PRIMARY.YELLOW"
+						/>
 					</StatusIndicators>
 
 					{/* SmartCast Interface */}
@@ -423,8 +426,8 @@ const VizioTVDeviceFlow: React.FC<VizioTVDeviceFlowProps> = ({
 							<QRCodeSVG
 								value={state.verificationUriComplete}
 								size={180}
-								bgColor="#ffffff"
-								fgColor="#1f2937"
+								bgColor="V9_COLORS.TEXT.WHITE"
+								fgColor="V9_COLORS.TEXT.GRAY_DARK"
 								level="H"
 								includeMargin={true}
 							/>
@@ -459,7 +462,7 @@ const VizioTVDeviceFlow: React.FC<VizioTVDeviceFlowProps> = ({
 				tokens={state.tokens}
 				backgroundColor="rgba(0, 0, 0, 0.2)"
 				borderColor="#3a3a3c"
-				headerTextColor="#ffffff"
+				headerTextColor="V9_COLORS.TEXT.WHITE"
 			/>
 		</>
 	);

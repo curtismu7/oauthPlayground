@@ -154,8 +154,8 @@ const InfoBox = styled.div`
 	display: flex;
 	gap: 0.75rem;
 	padding: 1rem;
-	background: #eff6ff;
-	border: 1px solid #bfdbfe;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 6px;
 	margin-top: 1rem;
 `;
@@ -166,12 +166,12 @@ const InfoContent = styled.div`
 
 const InfoTitle = styled.div`
 	font-weight: 600;
-	color: #1e40af;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
 	margin-bottom: 0.25rem;
 `;
 
 const InfoText = styled.div`
-	color: #1e40af;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
 	font-size: 0.875rem;
 	line-height: 1.4;
 `;
@@ -254,7 +254,7 @@ const DPoPConfiguration: React.FC<DPoPConfigurationProps> = ({
 		return (
 			<Container className={className}>
 				<Header>
-					<FiAlertCircle color="#ef4444" />
+					<FiAlertCircle color="V9_COLORS.PRIMARY.RED" />
 					<Title>DPoP Not Supported</Title>
 				</Header>
 				<Description>
@@ -268,7 +268,7 @@ const DPoPConfiguration: React.FC<DPoPConfigurationProps> = ({
 	return (
 		<Container className={className}>
 			<Header>
-				<FiShield color="#10b981" />
+				<FiShield color="V9_COLORS.PRIMARY.GREEN" />
 				<Title>DPoP (Demonstration of Proof of Possession)</Title>
 			</Header>
 
@@ -306,9 +306,9 @@ const DPoPConfiguration: React.FC<DPoPConfigurationProps> = ({
 							<StatusLabel>Browser Support:</StatusLabel>
 							<StatusValue>
 								{status.supported ? (
-									<span style={{ color: '#10b981' }}>✓ Supported</span>
+									<span style={{ color: 'V9_COLORS.PRIMARY.GREEN' }}>✓ Supported</span>
 								) : (
-									<span style={{ color: '#ef4444' }}>✗ Not Supported</span>
+									<span style={{ color: 'V9_COLORS.PRIMARY.RED' }}>✗ Not Supported</span>
 								)}
 							</StatusValue>
 						</StatusItem>
@@ -317,9 +317,9 @@ const DPoPConfiguration: React.FC<DPoPConfigurationProps> = ({
 							<StatusLabel>Key Pair:</StatusLabel>
 							<StatusValue>
 								{status.hasKeyPair ? (
-									<span style={{ color: '#10b981' }}>✓ Generated</span>
+									<span style={{ color: 'V9_COLORS.PRIMARY.GREEN' }}>✓ Generated</span>
 								) : (
-									<span style={{ color: '#f59e0b' }}>⚠ Not Generated</span>
+									<span style={{ color: 'V9_COLORS.PRIMARY.YELLOW' }}>⚠ Not Generated</span>
 								)}
 							</StatusValue>
 						</StatusItem>
@@ -351,7 +351,7 @@ const DPoPConfiguration: React.FC<DPoPConfigurationProps> = ({
 					)}
 
 					<InfoBox>
-						<FiInfo color="#1e40af" size={20} />
+						<FiInfo color="V9_COLORS.PRIMARY.BLUE_DARK" size={20} />
 						<InfoContent>
 							<InfoTitle>How DPoP Works</InfoTitle>
 							<InfoText>

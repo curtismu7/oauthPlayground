@@ -24,27 +24,27 @@ const FieldGroup = styled.label`
   flex-direction: column;
   gap: 0.35rem;
   font-size: 0.85rem;
-  color: #0f172a;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const TextInput = styled.input`
   width: 220px;
   padding: 0.55rem 0.65rem;
   border-radius: 0.5rem;
-  border: 1px solid #cbd5f5;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   font-size: 0.9rem;
-  background: #ffffff;
-  color: #0f172a;
+  background: V9_COLORS.TEXT.WHITE;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.04);
 
   &:focus {
     outline: none;
-    border-color: #2563eb;
+    border-color: V9_COLORS.PRIMARY.BLUE_DARK;
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
   }
 
   &:disabled {
-    background: #f1f5f9;
+    background: V9_COLORS.BG.GRAY_MEDIUM;
     cursor: not-allowed;
   }
 `;
@@ -53,14 +53,14 @@ const Select = styled.select`
   width: 160px;
   padding: 0.55rem 0.65rem;
   border-radius: 0.5rem;
-  border: 1px solid #cbd5f5;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   font-size: 0.9rem;
-  background: #ffffff;
-  color: #0f172a;
+  background: V9_COLORS.TEXT.WHITE;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 
   &:focus {
     outline: none;
-    border-color: #2563eb;
+    border-color: V9_COLORS.PRIMARY.BLUE_DARK;
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
   }
 `;
@@ -80,17 +80,17 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
   ${({ $variant }) =>
 		$variant === 'secondary'
 			? `
-    background: #e2e8f0;
-    color: #1f2937;
+    background: V9_COLORS.TEXT.GRAY_LIGHTER;
+    color: V9_COLORS.TEXT.GRAY_DARK;
 
     &:hover:not(:disabled) {
-      background: #cbd5f5;
+      background: V9_COLORS.TEXT.GRAY_LIGHTER;
       transform: translateY(-1px);
     }
   `
 			: `
-    background: linear-gradient(135deg, #2563eb, #1d4ed8);
-    color: #ffffff;
+    background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK, V9_COLORS.PRIMARY.BLUE_DARK);
+    color: V9_COLORS.TEXT.WHITE;
     box-shadow: 0 8px 18px -10px rgba(37, 99, 235, 0.75);
 
     &:hover:not(:disabled) {
@@ -108,7 +108,7 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 `;
 
 const TableWrapper = styled.div`
-  border: 1px solid #e2e8f0;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.75rem;
   overflow: hidden;
 `;
@@ -120,30 +120,30 @@ const Table = styled.table`
 `;
 
 const THead = styled.thead`
-  background: #f1f5f9;
+  background: V9_COLORS.BG.GRAY_MEDIUM;
 `;
 
 const TH = styled.th`
   text-align: left;
   padding: 0.65rem 0.9rem;
   font-weight: 600;
-  color: #0f172a;
-  border-bottom: 1px solid #e2e8f0;
+  color: V9_COLORS.TEXT.GRAY_DARK;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const TR = styled.tr<{ $highlight?: boolean }>`
-  background: ${({ $highlight }) => ($highlight ? 'rgba(37, 99, 235, 0.04)' : '#ffffff')};
+  background: ${({ $highlight }) => ($highlight ? 'rgba(37, 99, 235, 0.04)' : 'V9_COLORS.TEXT.WHITE')};
 
   &:nth-child(even) {
-    background: ${({ $highlight }) => ($highlight ? 'rgba(37, 99, 235, 0.08)' : '#f8fafc')};
+    background: ${({ $highlight }) => ($highlight ? 'rgba(37, 99, 235, 0.08)' : 'V9_COLORS.BG.GRAY_LIGHT')};
   }
 `;
 
 const TD = styled.td`
   padding: 0.6rem 0.9rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   vertical-align: top;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const EmptyState = styled.div`
@@ -152,7 +152,7 @@ const EmptyState = styled.div`
   flex-direction: column;
   align-items: center;
   gap: 0.65rem;
-  color: #64748b;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   text-align: center;
 `;
 
@@ -161,7 +161,7 @@ const Badge = styled.span`
   align-items: center;
   gap: 0.3rem;
   background: rgba(59, 130, 246, 0.15);
-  color: #1d4ed8;
+  color: V9_COLORS.PRIMARY.BLUE_DARK;
   border-radius: 9999px;
   padding: 0.1rem 0.6rem;
   font-size: 0.7rem;
@@ -175,7 +175,7 @@ const InlineInfo = styled.div`
   align-items: center;
   gap: 0.45rem;
   font-size: 0.8rem;
-  color: #475569;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const StatusBar = styled.div<{ $variant: 'info' | 'warning' }>`
@@ -187,7 +187,7 @@ const StatusBar = styled.div<{ $variant: 'info' | 'warning' }>`
   font-size: 0.85rem;
   background: ${({ $variant }) =>
 		$variant === 'warning' ? 'rgba(254, 215, 170, 0.45)' : 'rgba(191, 219, 254, 0.6)'};
-  color: ${({ $variant }) => ($variant === 'warning' ? '#92400e' : '#1e3a8a')};
+  color: ${({ $variant }) => ($variant === 'warning' ? 'V9_COLORS.PRIMARY.YELLOW_DARK' : '#1e3a8a')};
   border: 1px solid
     ${({ $variant }) => ($variant === 'warning' ? 'rgba(251, 191, 36, 0.5)' : 'rgba(59, 130, 246, 0.4)')};
 `;
@@ -197,13 +197,13 @@ const Paginator = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem 0.9rem;
-  background: #f8fafc;
-  border-top: 1px solid #e2e8f0;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const PaginationInfo = styled.span`
   font-size: 0.8rem;
-  color: #475569;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 type Props = {
@@ -438,8 +438,8 @@ const PingOneApplicationPickerModal: React.FC<Props> = ({
 								marginLeft: '0.75rem',
 								padding: '0.4rem 0.9rem',
 								fontSize: '0.8rem',
-								background: '#ffffff',
-								color: '#92400e',
+								background: 'V9_COLORS.TEXT.WHITE',
+								color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
 								border: '1px solid rgba(251, 191, 36, 0.5)',
 							}}
 						>
@@ -481,16 +481,24 @@ const PingOneApplicationPickerModal: React.FC<Props> = ({
 								{pagedApplications.map((app) => (
 									<TR key={app.id}>
 										<TD>
-											<div style={{ fontWeight: 600, color: '#0f172a' }}>{app.name}</div>
+											<div style={{ fontWeight: 600, color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
+												{app.name}
+											</div>
 											{app.description && (
-												<div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '0.15rem' }}>
+												<div
+													style={{
+														fontSize: '0.8rem',
+														color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+														marginTop: '0.15rem',
+													}}
+												>
 													{app.description}
 												</div>
 											)}
 										</TD>
 										<TD>
 											<InlineInfo>
-												<FiLink2 size={14} color="#2563eb" />
+												<FiLink2 size={14} color="V9_COLORS.PRIMARY.BLUE_DARK" />
 												<span style={{ fontFamily: 'Menlo, monospace', fontSize: '0.78rem' }}>
 													{app.clientId}
 												</span>
@@ -499,7 +507,7 @@ const PingOneApplicationPickerModal: React.FC<Props> = ({
 										<TD>
 											<div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
 												<Badge>{app.type || 'APP'}</Badge>
-												<div style={{ fontSize: '0.78rem', color: '#475569' }}>
+												<div style={{ fontSize: '0.78rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 													{app.grantTypes?.length
 														? app.grantTypes.join(', ')
 														: 'No grant types configured'}
@@ -507,7 +515,7 @@ const PingOneApplicationPickerModal: React.FC<Props> = ({
 											</div>
 										</TD>
 										<TD>
-											<div style={{ fontSize: '0.78rem', color: '#475569' }}>
+											<div style={{ fontSize: '0.78rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 												<div>Redirect URIs: {app.redirectUris?.length ?? 0}</div>
 												<div>Logout URIs: {app.postLogoutRedirectUris?.length ?? 0}</div>
 											</div>

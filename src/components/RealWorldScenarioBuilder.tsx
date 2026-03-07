@@ -20,16 +20,16 @@ import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const BuilderContainer = styled.div`
-	background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+	background: linear-gradient(135deg, #f0fdf4 0%, V9_COLORS.BG.SUCCESS 100%);
 	border-radius: 1rem;
 	padding: 2rem;
 	margin: 2rem 0;
-	border: 3px solid #10b981;
+	border: 3px solid V9_COLORS.PRIMARY.GREEN;
 	box-shadow: 0 8px 24px rgba(16, 185, 129, 0.2);
 `;
 
 const Title = styled.h2`
-	color: #065f46;
+	color: V9_COLORS.PRIMARY.GREEN_DARK;
 	margin: 0 0 0.5rem 0;
 	display: flex;
 	align-items: center;
@@ -53,7 +53,7 @@ const ScenarioGrid = styled.div`
 
 const ScenarioCard = styled.button<{ $selected: boolean }>`
 	background: white;
-	border: 3px solid ${({ $selected }) => ($selected ? '#10b981' : '#e5e7eb')};
+	border: 3px solid ${({ $selected }) => ($selected ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
 	border-radius: 0.75rem;
 	padding: 1.5rem;
 	cursor: pointer;
@@ -64,7 +64,7 @@ const ScenarioCard = styled.button<{ $selected: boolean }>`
 
 	&:hover {
 		transform: translateY(-4px);
-		border-color: #10b981;
+		border-color: V9_COLORS.PRIMARY.GREEN;
 		box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
 	}
 `;
@@ -90,7 +90,7 @@ const ScenarioTitle = styled.div`
 `;
 
 const ScenarioDescription = styled.div`
-	color: #64748b;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 0.95rem;
 	line-height: 1.5;
 	margin-bottom: 1rem;
@@ -104,8 +104,8 @@ const ScenarioTags = styled.div`
 
 const Tag = styled.span`
 	padding: 0.25rem 0.75rem;
-	background: #f1f5f9;
-	color: #475569;
+	background: V9_COLORS.BG.GRAY_MEDIUM;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	border-radius: 1rem;
 	font-size: 0.75rem;
 	font-weight: 600;
@@ -115,7 +115,7 @@ const ConfigPanel = styled.div`
 	background: white;
 	border-radius: 0.75rem;
 	padding: 2rem;
-	border: 2px solid #d1d5db;
+	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	margin-bottom: 2rem;
 `;
 
@@ -148,28 +148,28 @@ const Parameter = styled.div`
 	gap: 1rem;
 	align-items: center;
 	padding: 0.75rem;
-	background: #f8fafc;
+	background: V9_COLORS.BG.GRAY_LIGHT;
 	border-radius: 0.5rem;
-	border-left: 4px solid #3b82f6;
+	border-left: 4px solid V9_COLORS.PRIMARY.BLUE;
 `;
 
 const ParameterName = styled.div`
 	font-family: 'Monaco', 'Menlo', monospace;
 	font-weight: 600;
-	color: #1e40af;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
 	font-size: 0.9rem;
 `;
 
 const ParameterValue = styled.div`
 	font-family: 'Monaco', 'Menlo', monospace;
-	color: #059669;
+	color: V9_COLORS.PRIMARY.GREEN_DARK;
 	font-size: 0.875rem;
 	word-break: break-all;
 `;
 
 const WhyBox = styled.div`
-	background: #fef3c7;
-	border-left: 4px solid #f59e0b;
+	background: V9_COLORS.BG.WARNING;
+	border-left: 4px solid V9_COLORS.PRIMARY.YELLOW;
 	border-radius: 0.5rem;
 	padding: 1rem;
 	margin-top: 1rem;
@@ -177,7 +177,7 @@ const WhyBox = styled.div`
 
 const WhyTitle = styled.div`
 	font-weight: 700;
-	color: #92400e;
+	color: V9_COLORS.PRIMARY.YELLOW_DARK;
 	margin-bottom: 0.5rem;
 	display: flex;
 	align-items: center;
@@ -194,27 +194,27 @@ const CodeTabs = styled.div`
 	display: flex;
 	gap: 0.5rem;
 	margin-bottom: 1rem;
-	border-bottom: 2px solid #e5e7eb;
+	border-bottom: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const CodeTab = styled.button<{ $active: boolean }>`
 	padding: 0.75rem 1.5rem;
 	border: none;
-	background: ${({ $active }) => ($active ? '#10b981' : 'transparent')};
-	color: ${({ $active }) => ($active ? 'white' : '#64748b')};
+	background: ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.GREEN' : 'transparent')};
+	color: ${({ $active }) => ($active ? 'white' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
 	font-weight: 600;
 	cursor: pointer;
 	border-radius: 0.5rem 0.5rem 0 0;
 	transition: all 0.2s;
 
 	&:hover {
-		background: ${({ $active }) => ($active ? '#059669' : '#f1f5f9')};
+		background: ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.BG.GRAY_MEDIUM')};
 	}
 `;
 
 const CodeBlock = styled.pre`
 	background: #1e293b;
-	color: #f1f5f9;
+	color: V9_COLORS.BG.GRAY_MEDIUM;
 	padding: 1.5rem;
 	border-radius: 0.75rem;
 	overflow-x: auto;
@@ -229,7 +229,7 @@ const CopyButton = styled.button`
 	top: 1rem;
 	right: 1rem;
 	padding: 0.5rem 1rem;
-	background: #10b981;
+	background: V9_COLORS.PRIMARY.GREEN;
 	color: white;
 	border: none;
 	border-radius: 0.5rem;
@@ -241,7 +241,7 @@ const CopyButton = styled.button`
 	transition: all 0.2s;
 
 	&:hover {
-		background: #059669;
+		background: V9_COLORS.PRIMARY.GREEN_DARK;
 		transform: translateY(-2px);
 	}
 `;
@@ -264,9 +264,11 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' }>`
 	font-size: 1rem;
 	transition: all 0.2s;
 	background: ${({ variant }) =>
-		variant === 'secondary' ? 'white' : 'linear-gradient(135deg, #10b981 0%, #059669 100%)'};
-	color: ${({ variant }) => (variant === 'secondary' ? '#059669' : 'white')};
-	border: ${({ variant }) => (variant === 'secondary' ? '2px solid #10b981' : 'none')};
+		variant === 'secondary'
+			? 'white'
+			: 'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%)'};
+	color: ${({ variant }) => (variant === 'secondary' ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'white')};
+	border: ${({ variant }) => (variant === 'secondary' ? '2px solid V9_COLORS.PRIMARY.GREEN' : 'none')};
 
 	&:hover {
 		transform: translateY(-2px);
@@ -297,7 +299,8 @@ const scenarios: ScenarioConfig[] = [
 	{
 		id: 'banking-mfa',
 		icon: <FiDollarSign />,
-		iconColor: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+		iconColor:
+			'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%)',
 		title: 'Banking App with MFA',
 		description:
 			'High-security financial application requiring multi-factor authentication and recent login verification',
@@ -495,7 +498,8 @@ public class BankingOAuthConfig
 	{
 		id: 'saas-multi-tenant',
 		icon: <FiGlobe />,
-		iconColor: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+		iconColor:
+			'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
 		title: 'Multi-Tenant SaaS Platform',
 		description: 'Cloud software with multiple customer APIs requiring resource-specific tokens',
 		tags: ['SaaS', 'Multi-API', 'Resource Indicators'],
@@ -734,7 +738,8 @@ public class SaaSMultiTenantOAuth
 	{
 		id: 'mobile-ecommerce',
 		icon: <FiShoppingCart />,
-		iconColor: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+		iconColor:
+			'linear-gradient(135deg, V9_COLORS.PRIMARY.YELLOW 0%, V9_COLORS.PRIMARY.YELLOW_DARK 100%)',
 		title: 'Mobile E-Commerce App',
 		description:
 			'Native mobile shopping app requiring secure OAuth with offline access for order tracking',
@@ -1115,7 +1120,8 @@ public class MobileOAuthManager
 	{
 		id: 'iot-device',
 		icon: <FiSmartphone />,
-		iconColor: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+		iconColor:
+			'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
 		title: 'IoT Device / Smart TV',
 		description:
 			'Input-constrained device using Device Authorization Flow for browserless authentication',
@@ -1555,7 +1561,7 @@ const RealWorldScenarioBuilder: React.FC = () => {
 					<ConfigPanel>
 						<ConfigSection>
 							<SectionTitle>
-								<FiCheckCircle style={{ color: '#10b981' }} />
+								<FiCheckCircle style={{ color: 'V9_COLORS.PRIMARY.GREEN' }} />
 								Pre-Configured OAuth Parameters
 							</SectionTitle>
 							<ParameterList>
@@ -1578,7 +1584,7 @@ const RealWorldScenarioBuilder: React.FC = () => {
 
 						<ConfigSection>
 							<SectionTitle>
-								<FiExternalLink style={{ color: '#3b82f6' }} />
+								<FiExternalLink style={{ color: 'V9_COLORS.PRIMARY.BLUE' }} />
 								Industry Example
 							</SectionTitle>
 							<div
@@ -1586,8 +1592,8 @@ const RealWorldScenarioBuilder: React.FC = () => {
 									padding: '1rem',
 									background: '#dbeafe',
 									borderRadius: '0.5rem',
-									borderLeft: '4px solid #3b82f6',
-									color: '#1e40af',
+									borderLeft: '4px solid V9_COLORS.PRIMARY.BLUE',
+									color: 'V9_COLORS.PRIMARY.BLUE_DARK',
 									lineHeight: '1.6',
 								}}
 							>
@@ -1598,7 +1604,7 @@ const RealWorldScenarioBuilder: React.FC = () => {
 
 					<div>
 						<SectionTitle>
-							<FiCode style={{ color: '#059669' }} />
+							<FiCode style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK' }} />
 							Production-Ready Code
 						</SectionTitle>
 
@@ -1656,7 +1662,7 @@ const RealWorldScenarioBuilder: React.FC = () => {
 					style={{
 						textAlign: 'center',
 						padding: '3rem',
-						color: '#059669',
+						color: 'V9_COLORS.PRIMARY.GREEN_DARK',
 						fontSize: '1.1rem',
 					}}
 				>

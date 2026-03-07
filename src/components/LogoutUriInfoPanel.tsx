@@ -22,11 +22,11 @@ interface LogoutUriInfoPanelProps {
 
 const PanelContainer = styled.div<{ $compact?: boolean }>`
   padding: ${(props) => (props.$compact ? '0.75rem' : '1rem')};
-  background-color: #fef3c7;
-  border: 2px solid #f59e0b;
+  background-color: V9_COLORS.BG.WARNING;
+  border: 2px solid V9_COLORS.PRIMARY.YELLOW;
   border-radius: 0.5rem;
   font-size: 0.875rem;
-  color: #92400e;
+  color: V9_COLORS.PRIMARY.YELLOW_DARK;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   margin: ${(props) => (props.$compact ? '0.5rem 0' : '0.75rem 0')};
 `;
@@ -44,11 +44,11 @@ const Icon = styled.span<{ $compact?: boolean }>`
 
 const Title = styled.strong<{ $compact?: boolean }>`
   font-size: ${(props) => (props.$compact ? '0.875rem' : '1rem')};
-  color: #92400e;
+  color: V9_COLORS.PRIMARY.YELLOW_DARK;
 `;
 
 const UriContainer = styled.div<{ $compact?: boolean }>`
-  background-color: #eff6ff;
+  background-color: V9_COLORS.BG.GRAY_LIGHT;
   padding: ${(props) => (props.$compact ? '0.5rem' : '0.75rem')};
   border-radius: 0.375rem;
   margin-bottom: ${(props) => (props.$compact ? '0.5rem' : '0.75rem')};
@@ -57,13 +57,13 @@ const UriContainer = styled.div<{ $compact?: boolean }>`
 
 const UriLabel = styled.div<{ $compact?: boolean }>`
   font-size: ${(props) => (props.$compact ? '0.75rem' : '0.8rem')};
-  color: #1e40af;
+  color: V9_COLORS.PRIMARY.BLUE_DARK;
   margin-bottom: 0.25rem;
   font-weight: 500;
 `;
 
 const UriCode = styled.code<{ $compact?: boolean }>`
-  color: #1e40af;
+  color: V9_COLORS.PRIMARY.BLUE_DARK;
   background-color: #dbeafe;
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
@@ -75,14 +75,14 @@ const UriCode = styled.code<{ $compact?: boolean }>`
 
 const PurposeText = styled.div<{ $compact?: boolean }>`
   font-size: ${(props) => (props.$compact ? '0.75rem' : '0.8rem')};
-  color: #92400e;
+  color: V9_COLORS.PRIMARY.YELLOW_DARK;
   margin-bottom: ${(props) => (props.$compact ? '0.25rem' : '0.5rem')};
   line-height: 1.4;
 `;
 
 const WarningBox = styled.div<{ $compact?: boolean }>`
-  background-color: #fef2f2;
-  border: 1px solid #fecaca;
+  background-color: V9_COLORS.BG.ERROR;
+  border: 1px solid V9_COLORS.BG.ERROR_BORDER;
   padding: ${(props) => (props.$compact ? '0.5rem' : '0.75rem')};
   border-radius: 0.375rem;
   margin-top: ${(props) => (props.$compact ? '0.5rem' : '0.75rem')};
@@ -97,23 +97,23 @@ const WarningHeader = styled.div<{ $compact?: boolean }>`
 const WarningIcon = styled.span<{ $compact?: boolean }>`
   font-size: ${(props) => (props.$compact ? '0.875rem' : '1rem')};
   margin-right: 0.5rem;
-  color: #dc2626;
+  color: V9_COLORS.PRIMARY.RED_DARK;
 `;
 
 const WarningTitle = styled.strong<{ $compact?: boolean }>`
   font-size: ${(props) => (props.$compact ? '0.8rem' : '0.875rem')};
-  color: #dc2626;
+  color: V9_COLORS.PRIMARY.RED_DARK;
 `;
 
 const WarningText = styled.div<{ $compact?: boolean }>`
   font-size: ${(props) => (props.$compact ? '0.75rem' : '0.8rem')};
-  color: #dc2626;
+  color: V9_COLORS.PRIMARY.RED_DARK;
   line-height: 1.4;
 `;
 
 const DocBox = styled.div<{ $compact?: boolean }>`
-  background-color: #f0f9ff;
-  border: 1px solid #bae6fd;
+  background-color: V9_COLORS.BG.GRAY_LIGHT;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   padding: ${(props) => (props.$compact ? '0.5rem' : '0.75rem')};
   border-radius: 0.375rem;
   margin-top: ${(props) => (props.$compact ? '0.5rem' : '0.75rem')};
@@ -128,22 +128,22 @@ const DocHeader = styled.div<{ $compact?: boolean }>`
 const DocIcon = styled.span<{ $compact?: boolean }>`
   font-size: ${(props) => (props.$compact ? '0.875rem' : '1rem')};
   margin-right: 0.5rem;
-  color: #0369a1;
+  color: V9_COLORS.PRIMARY.BLUE;
 `;
 
 const DocTitle = styled.strong<{ $compact?: boolean }>`
   font-size: ${(props) => (props.$compact ? '0.8rem' : '0.875rem')};
-  color: #0369a1;
+  color: V9_COLORS.PRIMARY.BLUE;
 `;
 
 const DocText = styled.div<{ $compact?: boolean }>`
   font-size: ${(props) => (props.$compact ? '0.75rem' : '0.8rem')};
-  color: #0369a1;
+  color: V9_COLORS.PRIMARY.BLUE;
   line-height: 1.4;
 `;
 
 const CopyButton = styled.button`
-  background-color: #3b82f6;
+  background-color: V9_COLORS.PRIMARY.BLUE;
   color: white;
   border: none;
   padding: 0.25rem 0.5rem;
@@ -157,11 +157,11 @@ const CopyButton = styled.button`
   transition: background-color 0.2s;
 
   &:hover {
-    background-color: #2563eb;
+    background-color: V9_COLORS.PRIMARY.BLUE_DARK;
   }
 
   &:active {
-    background-color: #1d4ed8;
+    background-color: V9_COLORS.PRIMARY.BLUE_DARK;
   }
 `;
 

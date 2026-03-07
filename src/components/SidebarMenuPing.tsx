@@ -447,7 +447,12 @@ export const SidebarMenuPing: React.FC<{ dragMode?: boolean; searchQuery?: strin
 			<nav className="sidebar-ping__nav" aria-label="Main navigation">
 				{results.length === 0 ? (
 					<div
-						style={{ padding: '1rem', color: '#6b7280', fontSize: '0.875rem', textAlign: 'center' }}
+						style={{
+							padding: '1rem',
+							color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+							fontSize: '0.875rem',
+							textAlign: 'center',
+						}}
 					>
 						No results for "{searchQuery}"
 					</div>
@@ -474,7 +479,7 @@ export const SidebarMenuPing: React.FC<{ dragMode?: boolean; searchQuery?: strin
 										<span
 											style={{
 												fontSize: '0.7rem',
-												color: '#9ca3af',
+												color: 'V9_COLORS.TEXT.GRAY_LIGHT',
 												display: 'block',
 												overflow: 'hidden',
 												textOverflow: 'ellipsis',

@@ -1,3 +1,4 @@
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 /**
  * @file protectPortal.types.ts
  * @module protect-portal/types

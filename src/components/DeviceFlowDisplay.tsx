@@ -22,7 +22,7 @@ const DeviceFlowHeader = styled.div`
 
 const DeviceFlowTitle = styled.h3`
   margin: 0;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 1.25rem;
   display: flex;
   align-items: center;
@@ -40,36 +40,36 @@ const StatusBadge = styled.div<{ $status: string }>`
 		switch ($status) {
 			case 'pending':
 				return `
-          background-color: #fef3c7;
-          color: #92400e;
+          background-color: V9_COLORS.BG.WARNING;
+          color: V9_COLORS.PRIMARY.YELLOW_DARK;
         `;
 			case 'authorized':
 				return `
-          background-color: #dcfce7;
-          color: #166534;
+          background-color: V9_COLORS.BG.SUCCESS;
+          color: V9_COLORS.PRIMARY.GREEN;
         `;
 			case 'denied':
 				return `
-          background-color: #fecaca;
-          color: #991b1b;
+          background-color: V9_COLORS.BG.ERROR_BORDER;
+          color: V9_COLORS.PRIMARY.RED_DARK;
         `;
 			case 'expired':
 				return `
           background-color: #f3f4f6;
-          color: #6b7280;
+          color: V9_COLORS.TEXT.GRAY_MEDIUM;
         `;
 			default:
 				return `
           background-color: #f3f4f6;
-          color: #6b7280;
+          color: V9_COLORS.TEXT.GRAY_MEDIUM;
         `;
 		}
 	}}
 `;
 
 const UserCodeSection = styled.div`
-  background: #f8fafc;
-  border: 2px solid #e2e8f0;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   padding: 1.5rem;
   text-align: center;
@@ -78,7 +78,7 @@ const UserCodeSection = styled.div`
 
 const UserCodeLabel = styled.div`
   font-size: 0.875rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin-bottom: 0.5rem;
   font-weight: 500;
 `;
@@ -86,7 +86,7 @@ const UserCodeLabel = styled.div`
 const UserCodeValue = styled.div`
   font-size: 2rem;
   font-weight: 700;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   letter-spacing: 0.1em;
   margin-bottom: 1rem;
@@ -101,21 +101,21 @@ const VerificationSection = styled.div`
 
 const VerificationItem = styled.div`
   background: #f9fafb;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.375rem;
   padding: 1rem;
 `;
 
 const VerificationLabel = styled.div`
   font-size: 0.875rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin-bottom: 0.5rem;
   font-weight: 500;
 `;
 
 const VerificationValue = styled.div`
   font-size: 0.875rem;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   word-break: break-all;
   margin-bottom: 0.5rem;
@@ -139,27 +139,27 @@ const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'success' | '
 		switch ($variant) {
 			case 'primary':
 				return `
-          background-color: #3b82f6;
+          background-color: V9_COLORS.PRIMARY.BLUE;
           color: white;
-          &:hover { background-color: #2563eb; }
+          &:hover { background-color: V9_COLORS.PRIMARY.BLUE_DARK; }
         `;
 			case 'secondary':
 				return `
-          background-color: #6b7280;
+          background-color: V9_COLORS.TEXT.GRAY_MEDIUM;
           color: white;
           &:hover { background-color: #4b5563; }
         `;
 			case 'success':
 				return `
-          background-color: #10b981;
+          background-color: V9_COLORS.PRIMARY.GREEN;
           color: white;
-          &:hover { background-color: #059669; }
+          &:hover { background-color: V9_COLORS.PRIMARY.GREEN_DARK; }
         `;
 			case 'danger':
 				return `
-          background-color: #ef4444;
+          background-color: V9_COLORS.PRIMARY.RED;
           color: white;
-          &:hover { background-color: #dc2626; }
+          &:hover { background-color: V9_COLORS.PRIMARY.RED_DARK; }
         `;
 		}
 	}}
@@ -167,7 +167,7 @@ const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'success' | '
 
 const StatusSection = styled.div`
   background: #f9fafb;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.375rem;
   padding: 1rem;
   margin-bottom: 1rem;
@@ -175,13 +175,13 @@ const StatusSection = styled.div`
 
 const StatusMessage = styled.div`
   font-size: 0.875rem;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.5rem;
 `;
 
 const StatusDetails = styled.div`
   font-size: 0.75rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 0.5rem;
@@ -194,7 +194,7 @@ const StatusDetail = styled.div`
 
 const StatusLabel = styled.span`
   font-weight: 500;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const StatusValue = styled.span`
@@ -203,7 +203,7 @@ const StatusValue = styled.span`
 
 const QRCodeSection = styled.div`
   background: #f9fafb;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.375rem;
   padding: 1rem;
   text-align: center;
@@ -213,13 +213,13 @@ const QRCodeSection = styled.div`
 const QRCodePlaceholder = styled.div`
   width: 200px;
   height: 200px;
-  background: #e5e7eb;
+  background: V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.375rem;
   margin: 0 auto 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 0.875rem;
 `;
 
@@ -234,25 +234,25 @@ const Alert = styled.div<{ $type: 'info' | 'success' | 'warning' | 'error' }>`
 			case 'info':
 				return `
           background-color: #dbeafe;
-          color: #1e40af;
+          color: V9_COLORS.PRIMARY.BLUE_DARK;
           border: 1px solid #93c5fd;
         `;
 			case 'success':
 				return `
-          background-color: #dcfce7;
-          color: #166534;
+          background-color: V9_COLORS.BG.SUCCESS;
+          color: V9_COLORS.PRIMARY.GREEN;
           border: 1px solid #86efac;
         `;
 			case 'warning':
 				return `
-          background-color: #fef3c7;
-          color: #92400e;
-          border: 1px solid #fde68a;
+          background-color: V9_COLORS.BG.WARNING;
+          color: V9_COLORS.PRIMARY.YELLOW_DARK;
+          border: 1px solid V9_COLORS.BG.WARNING_BORDER;
         `;
 			case 'error':
 				return `
-          background-color: #fecaca;
-          color: #991b1b;
+          background-color: V9_COLORS.BG.ERROR_BORDER;
+          color: V9_COLORS.PRIMARY.RED_DARK;
           border: 1px solid #fca5a5;
         `;
 		}
@@ -265,7 +265,7 @@ const LoadingSpinner = styled.div`
   height: 1rem;
   border: 2px solid #f3f4f6;
   border-radius: 50%;
-  border-top-color: #3b82f6;
+  border-top-color: V9_COLORS.PRIMARY.BLUE;
   animation: spin 1s ease-in-out infinite;
   
   @keyframes spin {

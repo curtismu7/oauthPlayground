@@ -29,7 +29,7 @@ const PageContainer = styled.div`
 `;
 
 const HeroCard = styled.section`
-  background: linear-gradient(135deg, #1f2937 0%, #0f172a 100%);
+  background: linear-gradient(135deg, V9_COLORS.TEXT.GRAY_DARK 0%, V9_COLORS.TEXT.GRAY_DARK 100%);
   color: white;
   border-radius: 1.5rem;
   padding: 3rem;
@@ -131,13 +131,13 @@ const HighlightCard = styled.div<{ $tone: 'info' | 'success' | 'warning' | 'dang
   background: ${({ $tone }) => {
 		switch ($tone) {
 			case 'success':
-				return 'linear-gradient(135deg, #ecfdf5, #d1fae5)';
+				return 'linear-gradient(135deg, V9_COLORS.BG.SUCCESS, V9_COLORS.BG.SUCCESS)';
 			case 'warning':
-				return 'linear-gradient(135deg, #fffbeb, #fef3c7)';
+				return 'linear-gradient(135deg, V9_COLORS.BG.WARNING, V9_COLORS.BG.WARNING)';
 			case 'danger':
-				return 'linear-gradient(135deg, #fef2f2, #fee2e2)';
+				return 'linear-gradient(135deg, V9_COLORS.BG.ERROR, V9_COLORS.BG.ERROR)';
 			default:
-				return 'linear-gradient(135deg, #eff6ff, #dbeafe)';
+				return 'linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT, #dbeafe)';
 		}
 	}};
   border-radius: 1rem;
@@ -151,7 +151,7 @@ const HighlightCard = styled.div<{ $tone: 'info' | 'success' | 'warning' | 'dang
 const HighlightIcon = styled.div`
   font-size: 1.45rem;
   line-height: 1;
-  color: #1d4ed8;
+  color: V9_COLORS.PRIMARY.BLUE_DARK;
 `;
 
 const HighlightContent = styled.div`
@@ -163,7 +163,7 @@ const HighlightContent = styled.div`
     margin: 0;
     font-size: 1.05rem;
     font-weight: 600;
-    color: #0f172a;
+    color: V9_COLORS.TEXT.GRAY_DARK;
   }
 
   p {

@@ -14,6 +14,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { CompanyConfigService } from '../services/CompanyConfigService';
 import { useBrandTheme } from '../themes/theme-provider';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 // ============================================================================
 // STYLED COMPONENTS
@@ -169,7 +170,7 @@ const companies = [
 		description: 'Standard protect portal experience',
 		logo: 'P',
 		logoColor: 'white',
-		logoBg: '#3b82f6',
+		logoBg: 'V9_COLORS.PRIMARY.BLUE',
 		theme: 'default',
 	},
 	{

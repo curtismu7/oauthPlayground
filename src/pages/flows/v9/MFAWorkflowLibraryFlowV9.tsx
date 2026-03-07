@@ -30,6 +30,7 @@ import { V9CredentialStorageService } from '../../../services/v9/V9CredentialSto
 import { getAnyWorkerToken } from '../../../utils/workerTokenDetection';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 interface MfaDevice {
 	id: string;
@@ -750,8 +751,8 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 											alignItems: 'center',
 											justifyContent: 'center',
 											gap: '0.5rem',
-											backgroundColor: workerToken ? '#16a34a' : '#dc2626',
-											color: '#ffffff',
+											backgroundColor: workerToken ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.RED_DARK',
+											color: 'V9_COLORS.TEXT.WHITE',
 										}}
 									>
 										{workerToken ? <FiCheckCircle /> : <FiKey />}
@@ -783,30 +784,30 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 														padding: '1rem',
 														border:
 															selectedExistingDeviceId === device.id
-																? '2px solid #3b82f6'
-																: '1px solid #d1d5db',
+																? '2px solid V9_COLORS.PRIMARY.BLUE'
+																: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 														borderRadius: '0.5rem',
 														cursor: 'pointer',
 														marginBottom: '0.5rem',
 														background:
-															selectedExistingDeviceId === device.id ? '#eff6ff' : '#ffffff',
+															selectedExistingDeviceId === device.id ? 'V9_COLORS.BG.GRAY_LIGHT' : 'V9_COLORS.TEXT.WHITE',
 														width: '100%',
 														textAlign: 'left',
 													}}
 												>
 													<div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-														<FiSmartphone style={{ color: '#3b82f6' }} />
+														<FiSmartphone style={{ color: 'V9_COLORS.PRIMARY.BLUE' }} />
 														<div style={{ flex: 1 }}>
 															<div style={{ fontWeight: 600 }}>
 																{device.phone || device.phoneNumber || device.name || 'SMS Device'}
 															</div>
-															<div style={{ fontSize: '0.875rem', color: '#64748b' }}>
+															<div style={{ fontSize: '0.875rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 																{device.type} • {device.status ?? 'Unknown'} •{' '}
 																{device.enabled ? 'Enabled' : 'Disabled'}
 															</div>
 														</div>
 														{selectedExistingDeviceId === device.id && (
-															<FiCheckCircle style={{ color: '#10b981' }} />
+															<FiCheckCircle style={{ color: 'V9_COLORS.PRIMARY.GREEN' }} />
 														)}
 													</div>
 												</button>
@@ -818,8 +819,8 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 										<Button
 											onClick={() => setDeviceSelectionMode('select')}
 											style={{
-												background: deviceSelectionMode === 'select' ? '#3b82f6' : '#f3f4f6',
-												color: deviceSelectionMode === 'select' ? 'white' : '#374151',
+												background: deviceSelectionMode === 'select' ? 'V9_COLORS.PRIMARY.BLUE' : '#f3f4f6',
+												color: deviceSelectionMode === 'select' ? 'white' : 'V9_COLORS.TEXT.GRAY_DARK',
 											}}
 										>
 											Select Existing
@@ -827,8 +828,8 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 										<Button
 											onClick={() => setDeviceSelectionMode('register')}
 											style={{
-												background: deviceSelectionMode === 'register' ? '#3b82f6' : '#f3f4f6',
-												color: deviceSelectionMode === 'register' ? 'white' : '#374151',
+												background: deviceSelectionMode === 'register' ? 'V9_COLORS.PRIMARY.BLUE' : '#f3f4f6',
+												color: deviceSelectionMode === 'register' ? 'white' : 'V9_COLORS.TEXT.GRAY_DARK',
 											}}
 										>
 											Register New
@@ -917,7 +918,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 									type="text"
 									value={userId}
 									readOnly
-									style={{ width: '100%', padding: '0.5rem', background: '#f8fafc' }}
+									style={{ width: '100%', padding: '0.5rem', background: 'V9_COLORS.BG.GRAY_LIGHT' }}
 								/>
 							</ParameterValue>
 							<ParameterLabel>Device ID:</ParameterLabel>
@@ -926,7 +927,7 @@ const MFAWorkflowLibraryFlowV9: React.FC = () => {
 									type="text"
 									value={deviceId}
 									readOnly
-									style={{ width: '100%', padding: '0.5rem', background: '#f8fafc' }}
+									style={{ width: '100%', padding: '0.5rem', background: 'V9_COLORS.BG.GRAY_LIGHT' }}
 								/>
 							</ParameterValue>
 						</ParameterGrid>

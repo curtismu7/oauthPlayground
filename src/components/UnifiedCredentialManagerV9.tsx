@@ -29,8 +29,8 @@ const _MODULE_TAG = '[🔧 UNIFIED-CREDENTIAL-MANAGER-V9]';
 
 // Styled components
 const Container = styled.div`
-	background: #f8fafc;
-	border: 1px solid #e2e8f0;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	margin-bottom: 1.5rem;
 	overflow: hidden;
@@ -41,14 +41,14 @@ const Header = styled.div<{ $isExpanded: boolean }>`
 	align-items: center;
 	justify-content: space-between;
 	padding: 1rem;
-	background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-	border-bottom: ${({ $isExpanded }) => ($isExpanded ? '1px solid #e2e8f0' : 'none')};
+	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_MEDIUM 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
+	border-bottom: ${({ $isExpanded }) => ($isExpanded ? '1px solid V9_COLORS.TEXT.GRAY_LIGHTER' : 'none')};
 	cursor: pointer;
 	user-select: none;
 	transition: all 0.2s ease;
 
 	&:hover {
-		background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+		background: linear-gradient(135deg, V9_COLORS.TEXT.GRAY_LIGHTER 0%, #cbd5e1 100%);
 	}
 `;
 
@@ -57,7 +57,7 @@ const HeaderTitle = styled.div`
 	align-items: center;
 	gap: 0.5rem;
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const HeaderActions = styled.div`
@@ -88,7 +88,7 @@ const SectionTitle = styled.h4`
 	margin: 0 0 0.75rem 0;
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
 `;
@@ -105,12 +105,22 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'outli
 	gap: 0.375rem;
 	padding: 0.5rem 0.75rem;
 	border: 1px solid ${({ $variant }) =>
-		$variant === 'primary' ? '#3b82f6' : $variant === 'secondary' ? '#6b7280' : '#d1d5db'};
+		$variant === 'primary'
+			? 'V9_COLORS.PRIMARY.BLUE'
+			: $variant === 'secondary'
+				? 'V9_COLORS.TEXT.GRAY_MEDIUM'
+				: 'V9_COLORS.TEXT.GRAY_LIGHTER'};
 	border-radius: 0.375rem;
 	background: ${({ $variant }) =>
-		$variant === 'primary' ? '#3b82f6' : $variant === 'secondary' ? '#6b7280' : '#ffffff'};
+		$variant === 'primary'
+			? 'V9_COLORS.PRIMARY.BLUE'
+			: $variant === 'secondary'
+				? 'V9_COLORS.TEXT.GRAY_MEDIUM'
+				: 'V9_COLORS.TEXT.WHITE'};
 	color: ${({ $variant }) =>
-		$variant === 'primary' || $variant === 'secondary' ? '#ffffff' : '#374151'};
+		$variant === 'primary' || $variant === 'secondary'
+			? 'V9_COLORS.TEXT.WHITE'
+			: 'V9_COLORS.TEXT.GRAY_DARK'};
 	font-size: 0.875rem;
 	font-weight: 500;
 	cursor: pointer;
@@ -118,7 +128,11 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'outli
 
 	&:hover {
 		background: ${({ $variant }) =>
-			$variant === 'primary' ? '#2563eb' : $variant === 'secondary' ? '#4b5563' : '#f9fafb'};
+			$variant === 'primary'
+				? 'V9_COLORS.PRIMARY.BLUE_DARK'
+				: $variant === 'secondary'
+					? '#4b5563'
+					: '#f9fafb'};
 		transform: translateY(-1px);
 		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 	}
@@ -134,9 +148,9 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'outli
 const AppList = styled.div`
 	max-height: 300px;
 	overflow-y: auto;
-	border: 1px solid #e2e8f0;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.375rem;
-	background: #ffffff;
+	background: V9_COLORS.TEXT.WHITE;
 `;
 
 const AppItem = styled.button`
@@ -146,7 +160,7 @@ const AppItem = styled.button`
 	padding: 0.75rem;
 	border: none;
 	border-bottom: 1px solid #f3f4f6;
-	background: #ffffff;
+	background: V9_COLORS.TEXT.WHITE;
 	text-align: left;
 	cursor: pointer;
 	transition: all 0.2s ease;
@@ -156,12 +170,12 @@ const AppItem = styled.button`
 	}
 
 	&:hover {
-		background: #f8fafc;
+		background: V9_COLORS.BG.GRAY_LIGHT;
 		transform: translateX(2px);
 	}
 
 	&:active {
-		background: #f1f5f9;
+		background: V9_COLORS.BG.GRAY_MEDIUM;
 	}
 `;
 
@@ -171,13 +185,13 @@ const AppInfo = styled.div`
 
 const AppName = styled.div`
 	font-weight: 600;
-	color: #111827;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.25rem;
 `;
 
 const AppDetails = styled.div`
 	font-size: 0.75rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const StatusMessage = styled.div<{ $type?: 'info' | 'success' | 'warning' | 'error' }>`
@@ -187,13 +201,13 @@ const StatusMessage = styled.div<{ $type?: 'info' | 'success' | 'warning' | 'err
 	margin-top: 0.5rem;
 	background: ${({ $type }) =>
 		$type === 'success'
-			? '#10b981'
+			? 'V9_COLORS.PRIMARY.GREEN'
 			: $type === 'warning'
-				? '#f59e0b'
+				? 'V9_COLORS.PRIMARY.YELLOW'
 				: $type === 'error'
-					? '#ef4444'
-					: '#3b82f6'};
-	color: #ffffff;
+					? 'V9_COLORS.PRIMARY.RED'
+					: 'V9_COLORS.PRIMARY.BLUE'};
+	color: V9_COLORS.TEXT.WHITE;
 `;
 
 // Types
@@ -349,7 +363,7 @@ export const UnifiedCredentialManagerV9: React.FC<UnifiedCredentialManagerV9Prop
 				</HeaderTitle>
 				<HeaderActions>
 					{!isExpanded && (
-						<span style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+						<span style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 							{showAppPicker && 'App Picker'}
 							{showAppPicker && showImportExport && ' • '}
 							{showImportExport && 'Import/Export'}

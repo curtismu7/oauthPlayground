@@ -20,7 +20,7 @@ import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // MCP Server Main Container - Server/Infrastructure aesthetics
 const MCPServerContainer = styled.div`
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+  background: linear-gradient(135deg, V9_COLORS.TEXT.GRAY_DARK 0%, #1e293b 50%, #334155 100%);
   border-radius: 1rem;
   padding: 2rem;
   margin: 2rem 0;
@@ -84,7 +84,7 @@ const ServerIndicator = styled.div<{ $active: boolean; $color: string }>`
   width: 14px;
   height: 14px;
   border-radius: 3px;
-  background: ${(props) => (props.$active ? props.$color : '#374151')};
+  background: ${(props) => (props.$active ? props.$color : 'V9_COLORS.TEXT.GRAY_DARK')};
   box-shadow: ${(props) => (props.$active ? `0 0 15px ${props.$color}` : 'none')};
   animation: ${(props) => (props.$active ? 'serverBlink 2s infinite' : 'none')};
   position: relative;
@@ -98,7 +98,7 @@ const ServerIndicator = styled.div<{ $active: boolean; $color: string }>`
     width: 6px;
     height: 6px;
     border-radius: 1px;
-    background: ${(props) => (props.$active ? '#ffffff' : 'transparent')};
+    background: ${(props) => (props.$active ? 'V9_COLORS.TEXT.WHITE' : 'transparent')};
     animation: ${(props) => (props.$active ? 'innerBlink 1s infinite' : 'none')};
   }
   
@@ -121,7 +121,7 @@ const ServerIndicator = styled.div<{ $active: boolean; $color: string }>`
 
 // Server Display Screen
 const ServerDisplayScreen = styled.div`
-  background: linear-gradient(135deg, #000000 0%, #1e293b 100%);
+  background: linear-gradient(135deg, V9_COLORS.TEXT.BLACK 0%, #1e293b 100%);
   border: 3px solid #ec4899;
   border-radius: 0.75rem;
   padding: 2rem;
@@ -143,7 +143,7 @@ const ScreenLabel = styled.div`
 `;
 
 const UserCodeDisplay = styled.div`
-  background: #000000;
+  background: V9_COLORS.TEXT.BLACK;
   color: #06b6d4;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 2.5rem;
@@ -200,13 +200,13 @@ const ServerControlButton = styled.button<{
 			case 'primary':
 				return '#ec4899';
 			case 'secondary':
-				return '#374151';
+				return 'V9_COLORS.TEXT.GRAY_DARK';
 			case 'success':
 				return '#06b6d4';
 			case 'danger':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			default:
-				return '#374151';
+				return 'V9_COLORS.TEXT.GRAY_DARK';
 		}
 	}};
   color: white;
@@ -217,9 +217,9 @@ const ServerControlButton = styled.button<{
 			case 'secondary':
 				return '#4b5563';
 			case 'success':
-				return '#0891b2';
+				return 'V9_COLORS.PRIMARY.BLUE';
 			case 'danger':
-				return '#dc2626';
+				return 'V9_COLORS.PRIMARY.RED_DARK';
 			default:
 				return '#4b5563';
 		}
@@ -253,25 +253,25 @@ const StatusDisplay = styled.div<{ $status: string }>`
   background: ${(props) => {
 		switch (props.$status) {
 			case 'pending':
-				return 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.YELLOW 0%, V9_COLORS.PRIMARY.YELLOW_DARK 100%)';
 			case 'authorized':
-				return 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)';
+				return 'linear-gradient(135deg, #06b6d4 0%, V9_COLORS.PRIMARY.BLUE 100%)';
 			case 'denied':
-				return 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.RED 0%, V9_COLORS.PRIMARY.RED_DARK 100%)';
 			case 'expired':
-				return 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.TEXT.GRAY_MEDIUM 0%, #4b5563 100%)';
 			default:
-				return 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.TEXT.GRAY_MEDIUM 0%, #4b5563 100%)';
 		}
 	}};
   border: 2px solid ${(props) => {
 		switch (props.$status) {
 			case 'pending':
-				return '#d97706';
+				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
 			case 'authorized':
-				return '#0891b2';
+				return 'V9_COLORS.PRIMARY.BLUE';
 			case 'denied':
-				return '#dc2626';
+				return 'V9_COLORS.PRIMARY.RED_DARK';
 			case 'expired':
 				return '#4b5563';
 			default:
@@ -292,7 +292,7 @@ const StatusIcon = styled.div`
 const StatusText = styled.div`
   font-size: 1.125rem;
   font-weight: 600;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   margin-bottom: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -300,7 +300,7 @@ const StatusText = styled.div`
 
 const StatusMessage = styled.div`
   font-size: 0.875rem;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
 `;
 
 // Server Base
@@ -389,10 +389,13 @@ const MCPServerDeviceFlow: React.FC<MCPServerDeviceFlowProps> = ({
 
 				{/* Server Status Indicators */}
 				<ServerIndicators>
-					<ServerIndicator $active={state.status === 'pending'} $color="#f59e0b" />
+					<ServerIndicator $active={state.status === 'pending'} $color="V9_COLORS.PRIMARY.YELLOW" />
 					<ServerIndicator $active={state.status === 'authorized'} $color="#06b6d4" />
-					<ServerIndicator $active={state.status === 'denied'} $color="#ef4444" />
-					<ServerIndicator $active={state.status === 'expired'} $color="#6b7280" />
+					<ServerIndicator $active={state.status === 'denied'} $color="V9_COLORS.PRIMARY.RED" />
+					<ServerIndicator
+						$active={state.status === 'expired'}
+						$color="V9_COLORS.TEXT.GRAY_MEDIUM"
+					/>
 				</ServerIndicators>
 
 				{/* Server Display Screen */}
@@ -411,8 +414,8 @@ const MCPServerDeviceFlow: React.FC<MCPServerDeviceFlowProps> = ({
 						<QRCodeSVG
 							value={state.verificationUriComplete}
 							size={180}
-							bgColor="#ffffff"
-							fgColor="#000000"
+							bgColor="V9_COLORS.TEXT.WHITE"
+							fgColor="V9_COLORS.TEXT.BLACK"
 							level="M"
 							includeMargin={true}
 						/>
@@ -475,7 +478,7 @@ const MCPServerDeviceFlow: React.FC<MCPServerDeviceFlowProps> = ({
 			<StandardizedTokenDisplay
 				tokens={state.tokens}
 				backgroundColor="rgba(0, 0, 0, 0.4)"
-				borderColor="#374151"
+				borderColor="V9_COLORS.TEXT.GRAY_DARK"
 				headerTextColor="#06b6d4"
 			/>
 		</>

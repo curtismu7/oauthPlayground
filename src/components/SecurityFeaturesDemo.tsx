@@ -66,17 +66,17 @@ const Content = styled.div`
 
 const Section = styled.div`
 	margin-bottom: 2rem;
-	border: 1px solid #e2e8f0;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 8px;
 	overflow: hidden;
 `;
 
 const SectionHeader = styled.div`
-	background: #f8fafc;
+	background: V9_COLORS.BG.GRAY_LIGHT;
 	padding: 1rem 1.5rem;
-	border-bottom: 1px solid #e2e8f0;
+	border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -94,7 +94,7 @@ const FeatureGrid = styled.div`
 `;
 
 const FeatureCard = styled.div`
-	border: 1px solid #e2e8f0;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 8px;
 	padding: 1.5rem;
 	background: #fafbfc;
@@ -118,11 +118,11 @@ const StatusBadge = styled.span<{ $status: 'enabled' | 'required' | 'disabled' }
 	background: ${(props) => {
 		switch (props.$status) {
 			case 'enabled':
-				return '#dcfce7';
+				return 'V9_COLORS.BG.SUCCESS';
 			case 'required':
-				return '#fef3c7';
+				return 'V9_COLORS.BG.WARNING';
 			case 'disabled':
-				return '#fee2e2';
+				return 'V9_COLORS.BG.ERROR';
 			default:
 				return '#f3f4f6';
 		}
@@ -130,19 +130,19 @@ const StatusBadge = styled.span<{ $status: 'enabled' | 'required' | 'disabled' }
 	color: ${(props) => {
 		switch (props.$status) {
 			case 'enabled':
-				return '#166534';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'required':
-				return '#92400e';
+				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
 			case 'disabled':
-				return '#991b1b';
+				return 'V9_COLORS.PRIMARY.RED_DARK';
 			default:
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 		}
 	}};
 `;
 
 const FeatureDescription = styled.div`
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	font-size: 0.9rem;
 	margin-bottom: 1rem;
 `;
@@ -154,11 +154,11 @@ const Button = styled.button<{
 	background: ${(props) => {
 		switch (props.$variant) {
 			case 'danger':
-				return 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.RED 0%, V9_COLORS.PRIMARY.RED_DARK 100%)';
 			case 'secondary':
-				return 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.TEXT.GRAY_MEDIUM 0%, #4b5563 100%)';
 			default:
-				return 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)';
 		}
 	}};
 	color: white;
@@ -180,11 +180,11 @@ const Button = styled.button<{
 		background: ${(props) => {
 			switch (props.$variant) {
 				case 'danger':
-					return 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)';
+					return 'linear-gradient(135deg, V9_COLORS.PRIMARY.RED_DARK 0%, V9_COLORS.PRIMARY.RED_DARK 100%)';
 				case 'secondary':
-					return 'linear-gradient(135deg, #4b5563 0%, #374151 100%)';
+					return 'linear-gradient(135deg, #4b5563 0%, V9_COLORS.TEXT.GRAY_DARK 100%)';
 				default:
-					return 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)';
+					return 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)';
 			}
 		}};
 		transform: translateY(-2px);
@@ -201,7 +201,7 @@ const Button = styled.button<{
 
 const CodeBlock = styled.pre<{ $isVisible?: boolean }>`
 	background: #1e293b;
-	color: #e2e8f0;
+	color: V9_COLORS.TEXT.GRAY_LIGHTER;
 	padding: 1rem;
 	border-radius: 6px;
 	font-family: 'Monaco', 'Menlo', monospace;
@@ -223,26 +223,26 @@ const ParameterGrid = styled.div`
 
 const ParamLabel = styled.div`
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const ParameterLabel = styled.div`
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.5rem;
 `;
 
 const ParamValue = styled.div`
 	font-family: 'Monaco', 'Menlo', monospace;
-	background: #f1f5f9;
+	background: V9_COLORS.BG.GRAY_MEDIUM;
 	padding: 0.25rem 0.5rem;
 	border-radius: 4px;
 	word-break: break-all;
 `;
 
 const InfoBox = styled.div`
-	background: #eff6ff;
-	border: 1px solid #bfdbfe;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 6px;
 	padding: 1rem;
 	margin: 1rem 0;
@@ -250,7 +250,7 @@ const InfoBox = styled.div`
 
 const InfoTitle = styled.div`
 	font-weight: 600;
-	color: #1e40af;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
 	margin-bottom: 0.5rem;
 `;
 
@@ -261,7 +261,7 @@ const InfoText = styled.div`
 `;
 
 const CollapsibleHeader = styled.div<{ $isCollapsed: boolean }>`
-	background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+	background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
 	color: white;
 	padding: 1rem 1.5rem;
 	cursor: pointer;
@@ -272,7 +272,7 @@ const CollapsibleHeader = styled.div<{ $isCollapsed: boolean }>`
 	transition: all 0.2s ease;
 	
 	&:hover {
-		background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+		background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
 	}
 `;
 
@@ -287,7 +287,7 @@ const CollapsibleTitle = styled.h3`
 
 const CollapsibleContent = styled.div<{ $isCollapsed: boolean }>`
 	background: white;
-	border: 1px solid #e2e8f0;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-top: none;
 	border-radius: 0 0 8px 8px;
 	padding: ${(props) => (props.$isCollapsed ? '0' : '1.5rem')};
@@ -300,13 +300,13 @@ const ActionRow = styled.div`
 	text-align: center;
 	margin-top: 2rem;
 	padding-top: 2rem;
-	border-top: 1px solid #e2e8f0;
+	border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const List = styled.ul`
 	margin: 0;
 	padding-left: 1.5rem;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	font-size: 0.9rem;
 	line-height: 1.6;
 `;
@@ -332,11 +332,11 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 	// Color scheme mapping
 	const getColors = (scheme: string) => {
 		const colorMap = {
-			blue: { primary: '#3b82f6', secondary: '#1e40af' },
-			green: { primary: '#10b981', secondary: '#047857' },
+			blue: { primary: 'V9_COLORS.PRIMARY.BLUE', secondary: 'V9_COLORS.PRIMARY.BLUE_DARK' },
+			green: { primary: 'V9_COLORS.PRIMARY.GREEN', secondary: '#047857' },
 			purple: { primary: '#8b5cf6', secondary: '#6d28d9' },
-			orange: { primary: '#f59e0b', secondary: '#d97706' },
-			red: { primary: '#ef4444', secondary: '#dc2626' },
+			orange: { primary: 'V9_COLORS.PRIMARY.YELLOW', secondary: 'V9_COLORS.PRIMARY.YELLOW_DARK' },
+			red: { primary: 'V9_COLORS.PRIMARY.RED', secondary: 'V9_COLORS.PRIMARY.RED_DARK' },
 		};
 		return colorMap[scheme as keyof typeof colorMap] || colorMap.blue;
 	};
@@ -1339,9 +1339,15 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 								{/* Signature Demo Results */}
 								{signatureResults && (
 									<InfoBox
-										style={{ marginTop: '1rem', background: '#eff6ff', borderColor: '#93c5fd' }}
+										style={{
+											marginTop: '1rem',
+											background: 'V9_COLORS.BG.GRAY_LIGHT',
+											borderColor: '#93c5fd',
+										}}
 									>
-										<InfoTitle style={{ color: '#1e40af' }}>📋 Signature Demo</InfoTitle>
+										<InfoTitle style={{ color: 'V9_COLORS.PRIMARY.BLUE_DARK' }}>
+											📋 Signature Demo
+										</InfoTitle>
 										<InfoText style={{ color: '#1e3a8a', whiteSpace: 'pre-line' }}>
 											{signatureResults}
 										</InfoText>
@@ -1351,10 +1357,16 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 								{/* Signature Validation Results */}
 								{signatureValidationResults && (
 									<InfoBox
-										style={{ marginTop: '1rem', background: '#dcfce7', borderColor: '#86efac' }}
+										style={{
+											marginTop: '1rem',
+											background: 'V9_COLORS.BG.SUCCESS',
+											borderColor: '#86efac',
+										}}
 									>
-										<InfoTitle style={{ color: '#166534' }}>✅ Validation Results</InfoTitle>
-										<InfoText style={{ color: '#166534', whiteSpace: 'pre-line' }}>
+										<InfoTitle style={{ color: 'V9_COLORS.PRIMARY.GREEN' }}>
+											✅ Validation Results
+										</InfoTitle>
+										<InfoText style={{ color: 'V9_COLORS.PRIMARY.GREEN', whiteSpace: 'pre-line' }}>
 											{signatureValidationResults}
 										</InfoText>
 									</InfoBox>
@@ -1375,11 +1387,11 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 											style={{
 												marginTop: '0.5rem',
 												padding: '0.5rem',
-												background: '#fef3c7',
-												border: '1px solid #f59e0b',
+												background: 'V9_COLORS.BG.WARNING',
+												border: '1px solid V9_COLORS.PRIMARY.YELLOW',
 												borderRadius: '0.375rem',
 												fontSize: '0.8rem',
-												color: '#92400e',
+												color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
 											}}
 										>
 											💡 <strong>To enable x5t in real tokens:</strong> Configure "Include x5t
@@ -1405,8 +1417,8 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 										style={{
 											marginTop: '1.5rem',
 											padding: '1rem',
-											background: '#f8fafc',
-											border: '1px solid #e2e8f0',
+											background: 'V9_COLORS.BG.GRAY_LIGHT',
+											border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 											borderRadius: '0.5rem',
 											overflow: 'hidden',
 											wordWrap: 'break-word',
@@ -1419,7 +1431,7 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 											style={{
 												fontSize: '0.9rem',
 												fontWeight: '600',
-												color: '#374151',
+												color: 'V9_COLORS.TEXT.GRAY_DARK',
 												marginBottom: '1rem',
 												wordWrap: 'break-word',
 											}}
@@ -1429,7 +1441,7 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 												<span
 													style={{
 														fontSize: '0.8rem',
-														color: '#6b7280',
+														color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 														marginLeft: '0.5rem',
 														fontWeight: 'normal',
 													}}
@@ -1441,7 +1453,7 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 												<span
 													style={{
 														fontSize: '0.8rem',
-														color: '#16a34a',
+														color: 'V9_COLORS.PRIMARY.GREEN_DARK',
 														marginLeft: '0.5rem',
 														fontWeight: 'normal',
 													}}
@@ -1472,9 +1484,9 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 													style={{
 														fontSize: '0.85rem',
 														fontWeight: '600',
-														color: '#1f2937',
+														color: 'V9_COLORS.TEXT.GRAY_DARK',
 														marginBottom: '0.5rem',
-														borderBottom: '1px solid #d1d5db',
+														borderBottom: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 														paddingBottom: '0.25rem',
 													}}
 												>
@@ -1490,16 +1502,17 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 													}}
 												>
 													<div>
-														<span style={{ color: '#6b7280' }}>alg:</span> RS256
+														<span style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>alg:</span> RS256
 													</div>
 													<div>
-														<span style={{ color: '#6b7280' }}>typ:</span> JWT
+														<span style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>typ:</span> JWT
 													</div>
 													<div>
-														<span style={{ color: '#6b7280' }}>kid:</span> rsa-key-2024-001
+														<span style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>kid:</span>{' '}
+														rsa-key-2024-001
 													</div>
 													<div style={{ wordBreak: 'break-all', marginBottom: '0.5rem' }}>
-														<span style={{ color: '#6b7280' }}>x5t:</span>
+														<span style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>x5t:</span>
 														<div
 															style={{
 																fontSize: '0.7rem',
@@ -1516,7 +1529,7 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 														</div>
 													</div>
 													<div style={{ wordBreak: 'break-all', marginBottom: '0.5rem' }}>
-														<span style={{ color: '#6b7280' }}>x5t#S256:</span>
+														<span style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>x5t#S256:</span>
 														<div
 															style={{
 																fontSize: '0.7rem',
@@ -1546,9 +1559,9 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 													style={{
 														fontSize: '0.85rem',
 														fontWeight: '600',
-														color: '#1f2937',
+														color: 'V9_COLORS.TEXT.GRAY_DARK',
 														marginBottom: '0.5rem',
-														borderBottom: '1px solid #d1d5db',
+														borderBottom: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 														paddingBottom: '0.25rem',
 													}}
 												>
@@ -1564,7 +1577,9 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 													}}
 												>
 													<div style={{ marginBottom: '0.75rem' }}>
-														<span style={{ color: '#6b7280' }}>Thumbprint (SHA-1):</span>
+														<span style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+															Thumbprint (SHA-1):
+														</span>
 														<div
 															style={{
 																wordBreak: 'break-all',
@@ -1581,7 +1596,9 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 														</div>
 													</div>
 													<div style={{ marginBottom: '0.75rem' }}>
-														<span style={{ color: '#6b7280' }}>Thumbprint (SHA-256):</span>
+														<span style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+															Thumbprint (SHA-256):
+														</span>
 														<div
 															style={{
 																wordBreak: 'break-all',
@@ -1598,21 +1615,24 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 														</div>
 													</div>
 													<div style={{ wordBreak: 'break-word' }}>
-														<span style={{ color: '#6b7280' }}>Subject:</span> CN=auth.pingone.com
+														<span style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Subject:</span>{' '}
+														CN=auth.pingone.com
 													</div>
 													<div style={{ wordBreak: 'break-word' }}>
-														<span style={{ color: '#6b7280' }}>Issuer:</span> CN=DigiCert SHA2,
-														O=DigiCert Inc
+														<span style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Issuer:</span>{' '}
+														CN=DigiCert SHA2, O=DigiCert Inc
 													</div>
 													<div>
-														<span style={{ color: '#6b7280' }}>Valid From:</span> 2024-01-01
+														<span style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Valid From:</span>{' '}
+														2024-01-01
 													</div>
 													<div>
-														<span style={{ color: '#6b7280' }}>Valid To:</span> 2025-01-01
+														<span style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Valid To:</span>{' '}
+														2025-01-01
 													</div>
 													<div>
-														<span style={{ color: '#6b7280' }}>Status:</span>{' '}
-														<span style={{ color: '#16a34a' }}>Valid</span>
+														<span style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>Status:</span>{' '}
+														<span style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>Valid</span>
 													</div>
 												</div>
 											</div>
@@ -1622,8 +1642,8 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 											style={{
 												marginTop: '1rem',
 												padding: '0.75rem',
-												background: '#eff6ff',
-												border: '1px solid #bfdbfe',
+												background: 'V9_COLORS.BG.GRAY_LIGHT',
+												border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 												borderRadius: '0.375rem',
 												wordWrap: 'break-word',
 												overflowWrap: 'break-word',
@@ -1632,7 +1652,7 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 											<div
 												style={{
 													fontSize: '0.8rem',
-													color: '#1e40af',
+													color: 'V9_COLORS.PRIMARY.BLUE_DARK',
 													lineHeight: '1.4',
 													wordBreak: 'break-word',
 												}}
@@ -1712,14 +1732,22 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 													{x5tValue}
 													{!realX5t && (
 														<span
-															style={{ fontSize: '0.8rem', color: '#6b7280', marginLeft: '0.5rem' }}
+															style={{
+																fontSize: '0.8rem',
+																color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+																marginLeft: '0.5rem',
+															}}
 														>
 															(Demo)
 														</span>
 													)}
 													{realX5t && (
 														<span
-															style={{ fontSize: '0.8rem', color: '#16a34a', marginLeft: '0.5rem' }}
+															style={{
+																fontSize: '0.8rem',
+																color: 'V9_COLORS.PRIMARY.GREEN_DARK',
+																marginLeft: '0.5rem',
+															}}
 														>
 															(Real)
 														</span>
@@ -1762,10 +1790,16 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 								{/* Validation Results Display */}
 								{validationResults && (
 									<InfoBox
-										style={{ marginTop: '1rem', background: '#dcfce7', borderColor: '#86efac' }}
+										style={{
+											marginTop: '1rem',
+											background: 'V9_COLORS.BG.SUCCESS',
+											borderColor: '#86efac',
+										}}
 									>
-										<InfoTitle style={{ color: '#166534' }}>Validation Results</InfoTitle>
-										<InfoText style={{ color: '#166534', whiteSpace: 'pre-line' }}>
+										<InfoTitle style={{ color: 'V9_COLORS.PRIMARY.GREEN' }}>
+											Validation Results
+										</InfoTitle>
+										<InfoText style={{ color: 'V9_COLORS.PRIMARY.GREEN', whiteSpace: 'pre-line' }}>
 											{validationResults}
 										</InfoText>
 									</InfoBox>
@@ -1773,10 +1807,18 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 								{/* Expiration Results Display */}
 								{expirationResults && (
 									<InfoBox
-										style={{ marginTop: '1rem', background: '#fef3c7', borderColor: '#fcd34d' }}
+										style={{
+											marginTop: '1rem',
+											background: 'V9_COLORS.BG.WARNING',
+											borderColor: '#fcd34d',
+										}}
 									>
-										<InfoTitle style={{ color: '#92400e' }}>Expiration Check Results</InfoTitle>
-										<InfoText style={{ color: '#92400e', whiteSpace: 'pre-line' }}>
+										<InfoTitle style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK' }}>
+											Expiration Check Results
+										</InfoTitle>
+										<InfoText
+											style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK', whiteSpace: 'pre-line' }}
+										>
 											{expirationResults}
 										</InfoText>
 									</InfoBox>
@@ -1784,14 +1826,18 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 								{/* Session Results Display */}
 								{sessionResults && (
 									<InfoBox
-										style={{ marginTop: '1rem', background: '#fef2f2', borderColor: '#fecaca' }}
+										style={{
+											marginTop: '1rem',
+											background: 'V9_COLORS.BG.ERROR',
+											borderColor: 'V9_COLORS.BG.ERROR_BORDER',
+										}}
 									>
-										<InfoTitle style={{ color: '#dc2626' }}>
+										<InfoTitle style={{ color: 'V9_COLORS.PRIMARY.RED_DARK' }}>
 											🚪 Session Termination Results
 										</InfoTitle>
 										<InfoText
 											style={{
-												color: '#dc2626',
+												color: 'V9_COLORS.PRIMARY.RED_DARK',
 												whiteSpace: 'pre-line',
 												fontFamily: 'monospace',
 												fontSize: '0.875rem',
@@ -1804,12 +1850,18 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 								{/* Revoke Results Display */}
 								{revokeResults && (
 									<InfoBox
-										style={{ marginTop: '1rem', background: '#fef2f2', borderColor: '#fecaca' }}
+										style={{
+											marginTop: '1rem',
+											background: 'V9_COLORS.BG.ERROR',
+											borderColor: 'V9_COLORS.BG.ERROR_BORDER',
+										}}
 									>
-										<InfoTitle style={{ color: '#dc2626' }}>❌ Token Revocation Results</InfoTitle>
+										<InfoTitle style={{ color: 'V9_COLORS.PRIMARY.RED_DARK' }}>
+											❌ Token Revocation Results
+										</InfoTitle>
 										<InfoText
 											style={{
-												color: '#dc2626',
+												color: 'V9_COLORS.PRIMARY.RED_DARK',
 												whiteSpace: 'pre-line',
 												fontFamily: 'monospace',
 												fontSize: '0.875rem',
@@ -1894,14 +1946,24 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 								{/* Session Termination Request URL Display */}
 								{showLogoutUrl && (
 									<InfoBox
-										style={{ marginTop: '1rem', background: '#f8fafc', borderColor: '#cbd5e1' }}
+										style={{
+											marginTop: '1rem',
+											background: 'V9_COLORS.BG.GRAY_LIGHT',
+											borderColor: '#cbd5e1',
+										}}
 									>
-										<InfoTitle style={{ color: '#475569' }}>🌐 Logout Request URL</InfoTitle>
+										<InfoTitle style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+											🌐 Logout Request URL
+										</InfoTitle>
 										<CodeBlock $isVisible={true}>
 											{calculatedLogoutUrl || 'https://auth.pingone.com/{environmentId}/as/signoff'}
 										</CodeBlock>
 										<InfoText
-											style={{ color: '#64748b', fontSize: '0.85rem', marginTop: '0.5rem' }}
+											style={{
+												color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+												fontSize: '0.85rem',
+												marginTop: '0.5rem',
+											}}
 										>
 											<strong>Parameters:</strong>
 											<br />• id_token_hint: ID token for logout hint
@@ -1945,14 +2007,18 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 								{/* Session Termination Results Display */}
 								{sessionResults && (
 									<InfoBox
-										style={{ marginTop: '1rem', background: '#fef2f2', borderColor: '#fecaca' }}
+										style={{
+											marginTop: '1rem',
+											background: 'V9_COLORS.BG.ERROR',
+											borderColor: 'V9_COLORS.BG.ERROR_BORDER',
+										}}
 									>
-										<InfoTitle style={{ color: '#dc2626' }}>
+										<InfoTitle style={{ color: 'V9_COLORS.PRIMARY.RED_DARK' }}>
 											🚪 Session Termination Results
 										</InfoTitle>
 										<InfoText
 											style={{
-												color: '#dc2626',
+												color: 'V9_COLORS.PRIMARY.RED_DARK',
 												whiteSpace: 'pre-line',
 												fontFamily: 'monospace',
 												fontSize: '0.875rem',
@@ -1992,9 +2058,15 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 
 								{/* Token Revocation Request URL Display */}
 								<InfoBox
-									style={{ marginTop: '1rem', background: '#f8fafc', borderColor: '#cbd5e1' }}
+									style={{
+										marginTop: '1rem',
+										background: 'V9_COLORS.BG.GRAY_LIGHT',
+										borderColor: '#cbd5e1',
+									}}
 								>
-									<InfoTitle style={{ color: '#475569' }}>🌐 Revocation Request URL</InfoTitle>
+									<InfoTitle style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+										🌐 Revocation Request URL
+									</InfoTitle>
 									<CodeBlock $isVisible={true}>
 										{`POST ${credentials?.issuer || 'https://auth.pingone.com'}/as/revoke
 
@@ -2006,7 +2078,13 @@ Body:
 token=${tokens?.access_token || '{{accessToken}}'}
 &token_type_hint=access_token`}
 									</CodeBlock>
-									<InfoText style={{ color: '#64748b', fontSize: '0.85rem', marginTop: '0.5rem' }}>
+									<InfoText
+										style={{
+											color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+											fontSize: '0.85rem',
+											marginTop: '0.5rem',
+										}}
+									>
 										<strong>Parameters:</strong>
 										<br />• token: The token to revoke (access_token or refresh_token)
 										<br />• token_type_hint: Type of token (access_token, refresh_token, or
@@ -2019,12 +2097,18 @@ token=${tokens?.access_token || '{{accessToken}}'}
 								{/* Token Revocation Results Display */}
 								{revokeResults && (
 									<InfoBox
-										style={{ marginTop: '1rem', background: '#fef2f2', borderColor: '#fecaca' }}
+										style={{
+											marginTop: '1rem',
+											background: 'V9_COLORS.BG.ERROR',
+											borderColor: 'V9_COLORS.BG.ERROR_BORDER',
+										}}
 									>
-										<InfoTitle style={{ color: '#dc2626' }}>❌ Token Revocation Results</InfoTitle>
+										<InfoTitle style={{ color: 'V9_COLORS.PRIMARY.RED_DARK' }}>
+											❌ Token Revocation Results
+										</InfoTitle>
 										<InfoText
 											style={{
-												color: '#dc2626',
+												color: 'V9_COLORS.PRIMARY.RED_DARK',
 												whiteSpace: 'pre-line',
 												fontFamily: 'monospace',
 												fontSize: '0.875rem',
@@ -2101,7 +2185,7 @@ token=${tokens?.access_token || '{{accessToken}}'}
 													width: '100%',
 													minWidth: '250px',
 													padding: '0.5rem',
-													border: '1px solid #d1d5db',
+													border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 													borderRadius: '0.375rem',
 													background: 'white',
 													fontSize: '0.875rem',
@@ -2126,8 +2210,8 @@ token=${tokens?.access_token || '{{accessToken}}'}
 														alignItems: 'center',
 														justifyContent: 'space-between',
 														padding: '0.5rem',
-														background: '#f8fafc',
-														border: '1px solid #e2e8f0',
+														background: 'V9_COLORS.BG.GRAY_LIGHT',
+														border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 														borderRadius: '0.375rem',
 														marginBottom: '0.5rem',
 													}}
@@ -2140,7 +2224,7 @@ token=${tokens?.access_token || '{{accessToken}}'}
 														style={{
 															background: 'none',
 															border: 'none',
-															color: '#ef4444',
+															color: 'V9_COLORS.PRIMARY.RED',
 															cursor: 'pointer',
 															padding: '0.25rem',
 														}}
@@ -2163,7 +2247,7 @@ token=${tokens?.access_token || '{{accessToken}}'}
 												style={{
 													flex: 1,
 													padding: '0.5rem',
-													border: '1px solid #d1d5db',
+													border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 													borderRadius: '0.375rem',
 												}}
 											/>
@@ -2218,8 +2302,10 @@ token=${tokens?.access_token || '{{accessToken}}'}
 													alignItems: 'center',
 													justifyContent: 'space-between',
 													padding: '0.75rem',
-													background: (result.allowed as boolean) ? '#f0fdf4' : '#fef2f2',
-													border: `1px solid ${(result.allowed as boolean) ? '#bbf7d0' : '#fecaca'}`,
+													background: (result.allowed as boolean)
+														? '#f0fdf4'
+														: 'V9_COLORS.BG.ERROR',
+													border: `1px solid ${(result.allowed as boolean) ? 'V9_COLORS.BG.SUCCESS_BORDER' : 'V9_COLORS.BG.ERROR_BORDER'}`,
 													borderRadius: '0.375rem',
 													marginBottom: '0.5rem',
 												}}
@@ -2236,7 +2322,11 @@ token=${tokens?.access_token || '{{accessToken}}'}
 													</div>
 													{result.error && typeof result.error === 'string' ? (
 														<div
-															style={{ fontSize: '0.8rem', color: '#dc2626', marginTop: '0.25rem' }}
+															style={{
+																fontSize: '0.8rem',
+																color: 'V9_COLORS.PRIMARY.RED_DARK',
+																marginTop: '0.25rem',
+															}}
 														>
 															{result.error as string}
 														</div>
@@ -2244,7 +2334,9 @@ token=${tokens?.access_token || '{{accessToken}}'}
 												</div>
 												<div
 													style={{
-														color: (result.allowed as boolean) ? '#16a34a' : '#dc2626',
+														color: (result.allowed as boolean)
+															? 'V9_COLORS.PRIMARY.GREEN_DARK'
+															: 'V9_COLORS.PRIMARY.RED_DARK',
 														fontWeight: 'bold',
 													}}
 												>
@@ -2391,7 +2483,7 @@ token=${tokens?.access_token || '{{accessToken}}'}
 									whiteSpace: 'pre-line',
 									fontFamily: 'monospace',
 									fontSize: '0.875rem',
-									color: '#374151',
+									color: 'V9_COLORS.TEXT.GRAY_DARK',
 								}}
 							>
 								{securityReportResults}
@@ -2422,7 +2514,7 @@ token=${tokens?.access_token || '{{accessToken}}'}
 									whiteSpace: 'pre-line',
 									fontFamily: 'monospace',
 									fontSize: '0.875rem',
-									color: '#374151',
+									color: 'V9_COLORS.TEXT.GRAY_DARK',
 								}}
 							>
 								{securityTestResults}

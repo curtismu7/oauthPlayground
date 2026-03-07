@@ -8,13 +8,13 @@ const ErrorContainer = styled.div<{ $severity: string }>`
   border: 2px solid ${({ $severity }) => {
 		switch ($severity) {
 			case 'error':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			case 'warning':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'info':
-				return '#3b82f6';
+				return 'V9_COLORS.PRIMARY.BLUE';
 			default:
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 		}
 	}};
   border-radius: 0.5rem;
@@ -46,13 +46,13 @@ const ErrorIcon = styled.div<{ $severity: string }>`
   color: ${({ $severity }) => {
 		switch ($severity) {
 			case 'error':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			case 'warning':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'info':
-				return '#3b82f6';
+				return 'V9_COLORS.PRIMARY.BLUE';
 			default:
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 		}
 	}};
 `;
@@ -64,20 +64,20 @@ const ErrorTitle = styled.h3<{ $severity: string }>`
   color: ${({ $severity }) => {
 		switch ($severity) {
 			case 'error':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			case 'warning':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'info':
-				return '#3b82f6';
+				return 'V9_COLORS.PRIMARY.BLUE';
 			default:
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 		}
 	}};
 `;
 
 const ErrorMessage = styled.p`
   margin: 0.5rem 0;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   line-height: 1.5;
 `;
 
@@ -86,12 +86,12 @@ const ErrorSuggestion = styled.div`
   border-radius: 0.375rem;
   padding: 0.75rem;
   margin: 0.75rem 0;
-  border-left: 4px solid #3b82f6;
+  border-left: 4px solid V9_COLORS.PRIMARY.BLUE;
 `;
 
 const SuggestionLabel = styled.div`
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.25rem;
   font-size: 0.875rem;
 `;
@@ -115,15 +115,15 @@ const ToggleButton = styled.button`
   gap: 0.25rem;
   padding: 0.25rem 0.5rem;
   background: #f3f4f6;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.25rem;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 0.75rem;
   cursor: pointer;
   transition: background-color 0.2s;
 
   &:hover {
-    background: #e5e7eb;
+    background: V9_COLORS.TEXT.GRAY_LIGHTER;
   }
 `;
 
@@ -132,8 +132,8 @@ const CopyButton = styled.button`
   align-items: center;
   gap: 0.25rem;
   padding: 0.25rem 0.5rem;
-  background: #3b82f6;
-  border: 1px solid #3b82f6;
+  background: V9_COLORS.PRIMARY.BLUE;
+  border: 1px solid V9_COLORS.PRIMARY.BLUE;
   border-radius: 0.25rem;
   color: white;
   font-size: 0.75rem;
@@ -141,7 +141,7 @@ const CopyButton = styled.button`
   transition: background-color 0.2s;
 
   &:hover {
-    background: #2563eb;
+    background: V9_COLORS.PRIMARY.BLUE_DARK;
   }
 `;
 
@@ -153,7 +153,7 @@ const TechnicalDetails = styled.div<{ $isExpanded: boolean }>`
 `;
 
 const TechnicalContent = styled.pre`
-  background: #1f2937;
+  background: V9_COLORS.TEXT.GRAY_DARK;
   color: #f9fafb;
   padding: 0.75rem;
   border-radius: 0.375rem;
@@ -175,13 +175,13 @@ const CategoryBadge = styled.span<{ $category: string }>`
 			case 'configuration':
 				return '#dbeafe';
 			case 'authentication':
-				return '#fef3c7';
+				return 'V9_COLORS.BG.WARNING';
 			case 'authorization':
-				return '#fecaca';
+				return 'V9_COLORS.BG.ERROR_BORDER';
 			case 'network':
 				return '#e0e7ff';
 			case 'validation':
-				return '#d1fae5';
+				return 'V9_COLORS.BG.SUCCESS';
 			default:
 				return '#f3f4f6';
 		}
@@ -189,17 +189,17 @@ const CategoryBadge = styled.span<{ $category: string }>`
   color: ${({ $category }) => {
 		switch ($category) {
 			case 'configuration':
-				return '#1e40af';
+				return 'V9_COLORS.PRIMARY.BLUE_DARK';
 			case 'authentication':
-				return '#92400e';
+				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
 			case 'authorization':
-				return '#991b1b';
+				return 'V9_COLORS.PRIMARY.RED_DARK';
 			case 'network':
 				return '#3730a3';
 			case 'validation':
-				return '#065f46';
+				return 'V9_COLORS.PRIMARY.GREEN_DARK';
 			default:
-				return '#374151';
+				return 'V9_COLORS.TEXT.GRAY_DARK';
 		}
 	}};
   border-radius: 0.25rem;
@@ -267,7 +267,13 @@ const PingOneErrorDisplay: React.FC<PingOneErrorDisplayProps> = ({ error, onRetr
 				</CopyButton>
 
 				{onRetry && (
-					<CopyButton onClick={onRetry} style={{ background: '#10b981', borderColor: '#10b981' }}>
+					<CopyButton
+						onClick={onRetry}
+						style={{
+							background: 'V9_COLORS.PRIMARY.GREEN',
+							borderColor: 'V9_COLORS.PRIMARY.GREEN',
+						}}
+					>
 						<FiExternalLink />
 						Retry
 					</CopyButton>
@@ -276,7 +282,11 @@ const PingOneErrorDisplay: React.FC<PingOneErrorDisplayProps> = ({ error, onRetr
 				{onDismiss && (
 					<ToggleButton
 						onClick={onDismiss}
-						style={{ background: '#ef4444', color: 'white', borderColor: '#ef4444' }}
+						style={{
+							background: 'V9_COLORS.PRIMARY.RED',
+							color: 'white',
+							borderColor: 'V9_COLORS.PRIMARY.RED',
+						}}
 					>
 						Dismiss
 					</ToggleButton>

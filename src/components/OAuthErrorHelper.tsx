@@ -16,8 +16,8 @@ import styled from 'styled-components';
 import { getAppOrigin } from '../utils/flowRedirectUriMapping';
 
 const ErrorContainer = styled.div`
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+  background: V9_COLORS.BG.ERROR;
+  border: 1px solid V9_COLORS.BG.ERROR_BORDER;
   border-radius: 0.75rem;
   padding: 1.5rem;
   margin: 1rem 0;
@@ -31,12 +31,12 @@ const ErrorHeader = styled.div`
 `;
 
 const ErrorIcon = styled.div`
-  color: #dc2626;
+  color: V9_COLORS.PRIMARY.RED_DARK;
   font-size: 1.5rem;
 `;
 
 const ErrorTitle = styled.h3`
-  color: #dc2626;
+  color: V9_COLORS.PRIMARY.RED_DARK;
   font-size: 1.25rem;
   font-weight: 600;
   margin: 0;
@@ -50,14 +50,14 @@ const ErrorMessage = styled.div`
 
 const SolutionsSection = styled.div`
   background: white;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   padding: 1.25rem;
   margin-bottom: 1rem;
 `;
 
 const SolutionsTitle = styled.h4`
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 1rem;
   font-weight: 600;
   margin: 0 0 1rem 0;
@@ -71,12 +71,12 @@ const SolutionItem = styled.div`
   padding: 0.75rem;
   background: #f9fafb;
   border-radius: 0.375rem;
-  border-left: 4px solid #3b82f6;
+  border-left: 4px solid V9_COLORS.PRIMARY.BLUE;
 `;
 
 const SolutionTitle = styled.div`
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.5rem;
   display: flex;
   align-items: center;
@@ -84,7 +84,7 @@ const SolutionTitle = styled.div`
 `;
 
 const SolutionDescription = styled.div`
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 0.875rem;
   line-height: 1.5;
   margin-bottom: 0.75rem;
@@ -95,7 +95,7 @@ const ActionButton = styled.button`
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background: #3b82f6;
+  background: V9_COLORS.PRIMARY.BLUE;
   color: white;
   border: none;
   border-radius: 0.375rem;
@@ -105,17 +105,17 @@ const ActionButton = styled.button`
   transition: background-color 0.2s;
   
   &:hover {
-    background: #2563eb;
+    background: V9_COLORS.PRIMARY.BLUE_DARK;
   }
   
   &:disabled {
-    background: #9ca3af;
+    background: V9_COLORS.TEXT.GRAY_LIGHT;
     cursor: not-allowed;
   }
 `;
 
 const CodeBlock = styled.div`
-  background: #1f2937;
+  background: V9_COLORS.TEXT.GRAY_DARK;
   color: #f9fafb;
   padding: 0.75rem;
   border-radius: 0.375rem;
@@ -127,8 +127,8 @@ const CodeBlock = styled.div`
 
 const CopyButton = styled.button`
   background: none;
-  border: 1px solid #6b7280;
-  color: #6b7280;
+  border: 1px solid V9_COLORS.TEXT.GRAY_MEDIUM;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
   font-size: 0.75rem;
@@ -136,7 +136,7 @@ const CopyButton = styled.button`
   margin-left: 0.5rem;
   
   &:hover {
-    background: #374151;
+    background: V9_COLORS.TEXT.GRAY_DARK;
     color: #f9fafb;
   }
 `;
@@ -377,7 +377,9 @@ export const OAuthErrorHelper: React.FC<OAuthErrorHelperProps> = ({
 												</li>
 											))
 										) : (
-											<li style={{ color: '#6b7280' }}>No specific steps available</li>
+											<li style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
+												No specific steps available
+											</li>
 										)}
 									</ol>
 								</div>
@@ -398,7 +400,9 @@ export const OAuthErrorHelper: React.FC<OAuthErrorHelperProps> = ({
 						</SolutionItem>
 					))
 				) : (
-					<div style={{ padding: '1rem', color: '#6b7280', fontSize: '0.875rem' }}>
+					<div
+						style={{ padding: '1rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.875rem' }}
+					>
 						No specific solutions available for this error.
 					</div>
 				)}
@@ -432,7 +436,10 @@ export const OAuthErrorHelper: React.FC<OAuthErrorHelperProps> = ({
 				</ActionButton>
 
 				{onDismiss && (
-					<ActionButton onClick={onDismiss} style={{ background: '#6b7280', color: 'white' }}>
+					<ActionButton
+						onClick={onDismiss}
+						style={{ background: 'V9_COLORS.TEXT.GRAY_MEDIUM', color: 'white' }}
+					>
 						<FiX size={16} />
 						Dismiss
 					</ActionButton>

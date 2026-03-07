@@ -45,13 +45,14 @@ import '../utils/testExportImport'; // Auto-run export/import tests in developme
 import '../utils/testAppGeneratorTokenDisplay'; // Auto-run token display tests in development
 import '../utils/testConfigChecker';
 import { logger } from '../utils/logger'; // Auto-run config checker tests in development
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const Container = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   padding: 2.5rem;
   min-height: calc(100vh - 4rem);
-  background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+  background: linear-gradient(180deg, V9_COLORS.BG.GRAY_LIGHT 0%, #eef2ff 100%);
   border-radius: 1.75rem;
   box-shadow: 0 28px 80px -40px rgba(15, 23, 42, 0.38);
   position: relative;
@@ -73,7 +74,7 @@ const BackButton = styled.button`
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
   border: none;
   border-radius: 0.75rem;
   color: white;
@@ -84,7 +85,7 @@ const BackButton = styled.button`
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 
   &:hover {
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
     transform: translateY(-1px);
     box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
   }
@@ -99,7 +100,7 @@ const CardGrid = styled.div`
 `;
 
 const AppTypeCard = styled.div<{ selected: boolean }>`
-  background: linear-gradient(160deg, #ffffff 0%, #f4f7ff 100%);
+  background: linear-gradient(160deg, V9_COLORS.TEXT.WHITE 0%, #f4f7ff 100%);
   border: 2px solid ${({ selected, theme }) => (selected ? theme.colors.primary : 'rgba(148, 163, 184, 0.25)')};
   border-radius: 0.75rem;
   padding: 1.5rem;
@@ -116,20 +117,20 @@ const AppTypeCard = styled.div<{ selected: boolean }>`
 
   .icon {
     font-size: 2rem;
-    color: ${({ selected, theme }) => (selected ? theme.colors.primary : '#6b7280')};
+    color: ${({ selected, theme }) => (selected ? theme.colors.primary : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
     margin-bottom: 1rem;
   }
 
   .title {
     font-size: 1.125rem;
     font-weight: 600;
-    color: #374151;
+    color: V9_COLORS.TEXT.GRAY_DARK;
     margin-bottom: 0.5rem;
   }
 
   .description {
     font-size: 0.875rem;
-    color: #6b7280;
+    color: V9_COLORS.TEXT.GRAY_MEDIUM;
     line-height: 1.5;
   }
 `;
@@ -147,7 +148,7 @@ const FormContainer = styled.div`
 const FormTitle = styled.h2`
   font-size: 1.5rem;
   font-weight: 600;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 1.5rem;
   display: flex;
   align-items: center;
@@ -175,22 +176,22 @@ const FormGroup = styled.div`
 const Label = styled.label`
   font-size: 0.875rem;
   font-weight: 500;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.5rem;
 `;
 
 const Input = styled.input<{ $hasError?: boolean }>`
   padding: 0.75rem;
-  border: 1px solid ${({ $hasError }) => ($hasError ? '#ef4444' : 'rgba(148, 163, 184, 0.4)')};
+  border: 1px solid ${({ $hasError }) => ($hasError ? 'V9_COLORS.PRIMARY.RED' : 'rgba(148, 163, 184, 0.4)')};
   border-radius: 0.75rem;
   font-size: 0.875rem;
   transition: border-color 0.2s, box-shadow 0.2s;
-  background: ${({ $hasError }) => ($hasError ? '#fef2f2' : 'rgba(255, 255, 255, 0.92)')};
+  background: ${({ $hasError }) => ($hasError ? 'V9_COLORS.BG.ERROR' : 'rgba(255, 255, 255, 0.92)')};
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65), 0 12px 30px -22px rgba(15, 23, 42, 0.45);
 
   &:focus {
     outline: none;
-    border-color: ${({ theme, $hasError }) => ($hasError ? '#ef4444' : theme.colors.primary)};
+    border-color: ${({ theme, $hasError }) => ($hasError ? 'V9_COLORS.PRIMARY.RED' : theme.colors.primary)};
     box-shadow: ${({ $hasError }) =>
 			$hasError
 				? '0 0 0 3px rgba(239, 68, 68, 0.18), 0 20px 30px -30px rgba(239, 68, 68, 0.6)'
@@ -200,13 +201,13 @@ const Input = styled.input<{ $hasError?: boolean }>`
 
 const TextArea = styled.textarea<{ $hasError?: boolean }>`
   padding: 0.75rem;
-  border: 1px solid ${({ $hasError }) => ($hasError ? '#ef4444' : 'rgba(148, 163, 184, 0.4)')};
+  border: 1px solid ${({ $hasError }) => ($hasError ? 'V9_COLORS.PRIMARY.RED' : 'rgba(148, 163, 184, 0.4)')};
   border-radius: 0.75rem;
   font-size: 0.875rem;
   min-height: 150px;
   resize: vertical;
   transition: border-color 0.2s, box-shadow 0.2s;
-  background: ${({ $hasError }) => ($hasError ? '#fef2f2' : 'rgba(255, 255, 255, 0.92)')};
+  background: ${({ $hasError }) => ($hasError ? 'V9_COLORS.BG.ERROR' : 'rgba(255, 255, 255, 0.92)')};
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65), 0 12px 30px -22px rgba(15, 23, 42, 0.45);
 
   &:focus {
@@ -244,7 +245,7 @@ const CheckboxLabel = styled.label`
   align-items: center;
   gap: 0.5rem;
   font-size: 0.875rem;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   cursor: pointer;
 `;
 
@@ -278,11 +279,11 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' | 's
 
 		if (variant === 'danger') {
 			return `
-    background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+    background: linear-gradient(135deg, V9_COLORS.PRIMARY.RED 0%, V9_COLORS.PRIMARY.RED_DARK 100%);
     color: white;
     box-shadow: 0 15px 35px -22px rgba(239, 68, 68, 0.6);
     &:hover {
-      background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+      background: linear-gradient(135deg, V9_COLORS.PRIMARY.RED_DARK 0%, V9_COLORS.PRIMARY.RED_DARK 100%);
       transform: translateY(-1px);
       box-shadow: 0 18px 40px -24px rgba(185, 28, 28, 0.7);
     }
@@ -291,11 +292,11 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' | 's
 
 		if (variant === 'success') {
 			return `
-    background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
+    background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, #15803d 100%);
     color: white;
     box-shadow: 0 15px 35px -22px rgba(34, 197, 94, 0.6);
     &:hover {
-      background: linear-gradient(135deg, #16a34a 0%, #166534 100%);
+      background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN_DARK 0%, V9_COLORS.PRIMARY.GREEN 100%);
       transform: translateY(-1px);
       box-shadow: 0 18px 40px -24px rgba(22, 101, 52, 0.7);
     }
@@ -1335,7 +1336,7 @@ const ApplicationGenerator: React.FC = () => {
 											autoComplete="off"
 										/>
 										{validationErrors.has('name') && (
-											<div style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '0.25rem' }}>
+											<div style={{ color: 'V9_COLORS.PRIMARY.RED', fontSize: '0.75rem', marginTop: '0.25rem' }}>
 												Application name is required
 											</div>
 										)}
@@ -1398,7 +1399,7 @@ const ApplicationGenerator: React.FC = () => {
 											})()}
 										</CheckboxGroup>
 										{validationErrors.has('grantTypes') && (
-											<div style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '0.25rem' }}>
+											<div style={{ color: 'V9_COLORS.PRIMARY.RED', fontSize: '0.75rem', marginTop: '0.25rem' }}>
 												At least one grant type is required
 											</div>
 										)}
@@ -1436,7 +1437,7 @@ const ApplicationGenerator: React.FC = () => {
 											</CheckboxGroup>
 											{validationErrors.has('responseTypes') && (
 												<div
-													style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '0.25rem' }}
+													style={{ color: 'V9_COLORS.PRIMARY.RED', fontSize: '0.75rem', marginTop: '0.25rem' }}
 												>
 													At least one response type is required for this app type
 												</div>
@@ -1522,7 +1523,7 @@ const ApplicationGenerator: React.FC = () => {
 											/>
 											{validationErrors.has('redirectUris') && (
 												<div
-													style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '0.25rem' }}
+													style={{ color: 'V9_COLORS.PRIMARY.RED', fontSize: '0.75rem', marginTop: '0.25rem' }}
 												>
 													At least one redirect URI is required for this app type
 												</div>
@@ -1625,7 +1626,7 @@ const ApplicationGenerator: React.FC = () => {
 											style={{
 												fontSize: '1.125rem',
 												fontWeight: '600',
-												color: '#374151',
+												color: 'V9_COLORS.TEXT.GRAY_DARK',
 												marginBottom: '1rem',
 											}}
 										>
@@ -1720,7 +1721,7 @@ const ApplicationGenerator: React.FC = () => {
 							<FormTitle>Review Your Configuration</FormTitle>
 							<div
 								style={{
-									background: '#f8fafc',
+									background: 'V9_COLORS.BG.GRAY_LIGHT',
 									padding: '1.5rem',
 									borderRadius: '0.75rem',
 									marginBottom: '2rem',
@@ -1773,9 +1774,9 @@ const ApplicationGenerator: React.FC = () => {
 						<FormContainer>
 							<FormTitle>
 								{creationResult.success ? (
-									<span style={{ color: '#16a34a' }}>✅ Application Created Successfully!</span>
+									<span style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK' }}>✅ Application Created Successfully!</span>
 								) : (
-									<span style={{ color: '#ef4444' }}>❌ Application Creation Failed</span>
+									<span style={{ color: 'V9_COLORS.PRIMARY.RED' }}>❌ Application Creation Failed</span>
 								)}
 							</FormTitle>
 
@@ -1785,7 +1786,7 @@ const ApplicationGenerator: React.FC = () => {
 										background: '#f0fdf4',
 										padding: '1.5rem',
 										borderRadius: '0.75rem',
-										border: '1px solid #16a34a',
+										border: '1px solid V9_COLORS.PRIMARY.GREEN_DARK',
 									}}
 								>
 									<h4>Your New Application</h4>
@@ -1807,10 +1808,10 @@ const ApplicationGenerator: React.FC = () => {
 							) : (
 								<div
 									style={{
-										background: '#fef2f2',
+										background: 'V9_COLORS.BG.ERROR',
 										padding: '1.5rem',
 										borderRadius: '0.75rem',
-										border: '1px solid #ef4444',
+										border: '1px solid V9_COLORS.PRIMARY.RED',
 									}}
 								>
 									<h4>Error Details</h4>
@@ -1818,7 +1819,7 @@ const ApplicationGenerator: React.FC = () => {
 									{creationErrorDetails && (
 										<pre
 											style={{
-												background: '#fff',
+												background: 'V9_COLORS.TEXT.WHITE',
 												padding: '1rem',
 												borderRadius: '0.5rem',
 												overflow: 'auto',

@@ -40,7 +40,7 @@ const ModalContent = styled.div<{
   width: ${(props) => (props.$isMinimized ? '300px' : props.$width || 'min(800px, calc(100vw - 4rem))')};
   max-height: ${(props) => (props.$isMinimized ? 'auto' : props.$maxHeight || 'calc(100vh - 4rem)')};
   height: ${(props) => (props.$isMinimized ? 'auto' : 'auto')};
-  background: #ffffff;
+  background: V9_COLORS.TEXT.WHITE;
   border-radius: 0.75rem;
   box-shadow: 0 20px 45px rgba(15, 23, 42, 0.18);
   padding: ${(props) => (props.$isMinimized ? '0.75rem' : '0')};
@@ -79,7 +79,7 @@ const ModalHeader = styled.div<{ $isMinimized: boolean }>`
   justify-content: space-between;
   align-items: flex-start;
   gap: 1rem;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
   border-bottom: 1px solid #cbd5e1;
   margin: 0;
   padding: ${(props) => (props.$isMinimized ? '0.75rem' : '1.5rem')};
@@ -109,7 +109,7 @@ const DragHandle = styled.div`
   transition: background-color 0.2s ease;
   
   &:hover {
-    background-color: #f1f5f9;
+    background-color: V9_COLORS.BG.GRAY_MEDIUM;
   }
 `;
 
@@ -130,10 +130,10 @@ const ControlButton = styled.button`
   border-radius: 0.375rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  color: #64748b;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   
   &:hover {
-    background-color: #f1f5f9;
+    background-color: V9_COLORS.BG.GRAY_MEDIUM;
     color: #334155;
   }
   
@@ -145,7 +145,7 @@ const ControlButton = styled.button`
 const ModalTitle = styled.h3`
   font-size: 1rem;
   font-weight: 600;
-  color: #0f172a;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin: 0;
   line-height: 1.2;
 `;
@@ -358,7 +358,7 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
 							padding: '1.5rem',
 							WebkitOverflowScrolling: 'touch',
 							scrollbarWidth: 'thin',
-							scrollbarColor: '#cbd5e1 #f1f5f9',
+							scrollbarColor: '#cbd5e1 V9_COLORS.BG.GRAY_MEDIUM',
 						}}
 					>
 						{children}

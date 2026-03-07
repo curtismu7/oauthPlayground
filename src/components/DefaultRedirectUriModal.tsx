@@ -34,13 +34,13 @@ const ModalHeader = styled.div`
   align-items: center;
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const ModalTitle = styled.h2`
   font-size: 1.5rem;
   font-weight: 600;
-  color: var(--color-text-primary, #111827);
+  color: var(--color-text-primary, V9_COLORS.TEXT.GRAY_DARK);
   margin: 0;
 `;
 
@@ -50,12 +50,12 @@ const CloseButton = styled.button`
   cursor: pointer;
   padding: 0.5rem;
   border-radius: 6px;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   transition: all 0.2s ease;
 
   &:hover {
     background: #f3f4f6;
-    color: #374151;
+    color: V9_COLORS.TEXT.GRAY_DARK;
   }
 `;
 
@@ -64,8 +64,8 @@ const ModalContent = styled.div`
 `;
 
 const WarningBox = styled.div`
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 50%, #fcd34d 100%);
-  border: 1px solid #f59e0b;
+  background: linear-gradient(135deg, V9_COLORS.BG.WARNING 0%, V9_COLORS.BG.WARNING_BORDER 50%, #fcd34d 100%);
+  border: 1px solid V9_COLORS.PRIMARY.YELLOW;
   border-radius: 8px;
   padding: 1rem;
   margin-bottom: 1.5rem;
@@ -74,7 +74,7 @@ const WarningBox = styled.div`
 const WarningTitle = styled.h3`
   font-size: 1rem;
   font-weight: 600;
-  color: #92400e;
+  color: V9_COLORS.PRIMARY.YELLOW_DARK;
   margin: 0 0 0.5rem 0;
   display: flex;
   align-items: center;
@@ -82,14 +82,14 @@ const WarningTitle = styled.h3`
 `;
 
 const WarningText = styled.p`
-  color: #92400e;
+  color: V9_COLORS.PRIMARY.YELLOW_DARK;
   margin: 0;
   font-size: 0.875rem;
   line-height: 1.5;
 `;
 
 const UriContainer = styled.div`
-  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);
+  background: linear-gradient(135deg, #f0fdf4 0%, V9_COLORS.BG.SUCCESS 50%, V9_COLORS.BG.SUCCESS_BORDER 100%);
   border: 1px solid #86efac;
   border-radius: 8px;
   padding: 1rem;
@@ -100,7 +100,7 @@ const UriLabel = styled.label`
   display: block;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #166534;
+  color: V9_COLORS.PRIMARY.GREEN;
   margin-bottom: 0.5rem;
 `;
 
@@ -109,12 +109,12 @@ const UriDisplay = styled.div`
   align-items: center;
   gap: 0.5rem;
   background: white;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 6px;
   padding: 0.75rem;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 0.875rem;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   word-break: break-all;
 `;
 
@@ -122,7 +122,7 @@ const CopyButton = styled.button<{ copied: boolean }>`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background: ${(props) => (props.copied ? '#10b981' : '#3b82f6')};
+  background: ${(props) => (props.copied ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.BLUE')};
   color: white;
   border: none;
   border-radius: 6px;
@@ -134,13 +134,13 @@ const CopyButton = styled.button<{ copied: boolean }>`
   min-width: 100px;
 
   &:hover {
-    background: ${(props) => (props.copied ? '#059669' : '#2563eb')};
+    background: ${(props) => (props.copied ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.BLUE_DARK')};
   }
 `;
 
 const InstructionsBox = styled.div`
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 8px;
   padding: 1rem;
   margin-bottom: 1.5rem;
@@ -165,7 +165,7 @@ const InstructionStep = styled.div`
 `;
 
 const StepNumber = styled.div`
-  background: #3b82f6;
+  background: V9_COLORS.PRIMARY.BLUE;
   color: white;
   border-radius: 50%;
   width: 24px;
@@ -181,7 +181,7 @@ const StepNumber = styled.div`
 const StepText = styled.p`
   margin: 0;
   font-size: 0.875rem;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   line-height: 1.5;
 `;
 
@@ -190,7 +190,7 @@ const ModalFooter = styled.div`
   justify-content: flex-end;
   gap: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
@@ -205,19 +205,19 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
   ${(props) =>
 		props.variant === 'primary'
 			? `
-    background: #3b82f6;
+    background: V9_COLORS.PRIMARY.BLUE;
     color: white;
     
     &:hover {
-      background: #2563eb;
+      background: V9_COLORS.PRIMARY.BLUE_DARK;
     }
   `
 			: `
     background: #f3f4f6;
-    color: #374151;
+    color: V9_COLORS.TEXT.GRAY_DARK;
     
     &:hover {
-      background: #e5e7eb;
+      background: V9_COLORS.TEXT.GRAY_LIGHTER;
     }
   `}
 `;

@@ -19,7 +19,7 @@ const ModalOverlay = styled.div`
 
 const ModalContent = styled.div`
   background: var(--color-background, white);
-  border: 1px solid var(--color-border, #e2e8f0);
+  border: 1px solid var(--color-border, V9_COLORS.TEXT.GRAY_LIGHTER);
   border-radius: 12px;
   width: 90%;
   max-width: 600px;
@@ -33,7 +33,7 @@ const ModalHeader = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem;
-  border-bottom: 1px solid var(--color-border, #e2e8f0);
+  border-bottom: 1px solid var(--color-border, V9_COLORS.TEXT.GRAY_LIGHTER);
 `;
 
 const ModalTitle = styled.h2`
@@ -49,7 +49,7 @@ const ModalTitle = styled.h2`
 const CloseButton = styled.button`
   background: none;
   border: none;
-  color: var(--color-text-secondary, #64748b);
+  color: var(--color-text-secondary, V9_COLORS.TEXT.GRAY_MEDIUM);
   cursor: pointer;
   padding: 0.5rem;
   border-radius: 6px;
@@ -58,7 +58,7 @@ const CloseButton = styled.button`
   justify-content: center;
   
   &:hover {
-    background: var(--color-surface, #f8fafc);
+    background: var(--color-surface, V9_COLORS.BG.GRAY_LIGHT);
     color: var(--color-text-primary, #1e293b);
   }
 `;
@@ -72,8 +72,8 @@ const ModalFooter = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 1rem 1.5rem;
-  border-top: 1px solid var(--color-border, #e2e8f0);
-  background: var(--color-surface, #f8fafc);
+  border-top: 1px solid var(--color-border, V9_COLORS.TEXT.GRAY_LIGHTER);
+  background: var(--color-surface, V9_COLORS.BG.GRAY_LIGHT);
 `;
 
 const SaveButton = styled.button`
@@ -81,7 +81,7 @@ const SaveButton = styled.button`
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background: var(--color-success, #10b981);
+  background: var(--color-success, V9_COLORS.PRIMARY.GREEN);
   color: white;
   border: none;
   border-radius: 8px;
@@ -91,7 +91,7 @@ const SaveButton = styled.button`
   transition: all 0.2s ease;
   
   &:hover {
-    background: var(--color-success-dark, #059669);
+    background: var(--color-success-dark, V9_COLORS.PRIMARY.GREEN_DARK);
     transform: translateY(-1px);
   }
   
@@ -103,7 +103,7 @@ const SaveButton = styled.button`
     background: var(--color-success-dark, #047857);
     
     &:hover {
-      background: var(--color-success-darker, #065f46);
+      background: var(--color-success-darker, V9_COLORS.PRIMARY.GREEN_DARK);
     }
   }
   
@@ -120,7 +120,7 @@ const SaveButton = styled.button`
 
 const SaveStatus = styled.span`
   font-size: 0.875rem;
-  color: var(--color-text-secondary, #64748b);
+  color: var(--color-text-secondary, V9_COLORS.TEXT.GRAY_MEDIUM);
   font-style: italic;
 `;
 
@@ -147,7 +147,7 @@ const SettingRow = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 0;
-  border-bottom: 1px solid var(--color-border, #e2e8f0);
+  border-bottom: 1px solid var(--color-border, V9_COLORS.TEXT.GRAY_LIGHTER);
   
   &:last-child {
     border-bottom: none;
@@ -166,7 +166,7 @@ const SettingName = styled.span`
 `;
 
 const SettingDescription = styled.span`
-  color: var(--color-text-secondary, #64748b);
+  color: var(--color-text-secondary, V9_COLORS.TEXT.GRAY_MEDIUM);
   font-size: 0.875rem;
 `;
 
@@ -178,7 +178,7 @@ const Toggle = styled.button<{ $active: boolean }>`
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;
-  background: ${(props) => (props.$active ? 'var(--color-primary, #3b82f6)' : 'var(--color-border, #e2e8f0)')};
+  background: ${(props) => (props.$active ? 'var(--color-primary, V9_COLORS.PRIMARY.BLUE)' : 'var(--color-border, V9_COLORS.TEXT.GRAY_LIGHTER)')};
   
   &:before {
     content: '';
@@ -196,7 +196,7 @@ const Toggle = styled.button<{ $active: boolean }>`
 
 const Select = styled.select`
   padding: 0.5rem;
-  border: 1px solid var(--color-border, #e2e8f0);
+  border: 1px solid var(--color-border, V9_COLORS.TEXT.GRAY_LIGHTER);
   border-radius: 6px;
   background: var(--color-background, white);
   color: var(--color-text-primary, #1e293b);
@@ -205,7 +205,7 @@ const Select = styled.select`
   
   &:focus {
     outline: none;
-    border-color: var(--color-primary, #3b82f6);
+    border-color: var(--color-primary, V9_COLORS.PRIMARY.BLUE);
     box-shadow: 0 0 0 3px var(--color-primary-bg, #dbeafe);
   }
 `;
@@ -224,13 +224,13 @@ const ColorSchemeButton = styled.button<{ $color: string; $active: boolean }>`
   border: 2px solid ${(props) => (props.$active ? 'var(--color-text-primary, #1e293b)' : 'transparent')};
   background: ${(props) => {
 		const colors = {
-			blue: '#3b82f6',
-			green: '#22c55e',
+			blue: 'V9_COLORS.PRIMARY.BLUE',
+			green: 'V9_COLORS.PRIMARY.GREEN',
 			purple: '#8b5cf6',
 			orange: '#f97316',
-			red: '#ef4444',
+			red: 'V9_COLORS.PRIMARY.RED',
 		};
-		return colors[props.$color as keyof typeof colors] || '#3b82f6';
+		return colors[props.$color as keyof typeof colors] || 'V9_COLORS.PRIMARY.BLUE';
 	}};
   cursor: pointer;
   transition: all 0.2s ease;

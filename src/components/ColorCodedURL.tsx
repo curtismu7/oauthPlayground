@@ -19,7 +19,7 @@ const URLContainer = styled.div`
   align-items: center;
   gap: 0.5rem;
   flex-wrap: wrap;
-  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);
+  background: linear-gradient(135deg, #f0fdf4 0%, V9_COLORS.BG.SUCCESS 50%, V9_COLORS.BG.SUCCESS_BORDER 100%);
   border: 1px solid #86efac;
   border-radius: 0.5rem;
   padding: 1rem;
@@ -36,7 +36,7 @@ const URLText = styled.span`
 `;
 
 const InfoButton = styled.button`
-  background: #3b82f6;
+  background: V9_COLORS.PRIMARY.BLUE;
   color: white;
   border: none;
   border-radius: 0.25rem;
@@ -49,7 +49,7 @@ const InfoButton = styled.button`
   transition: background-color 0.2s;
 
   &:hover {
-    background: #2563eb;
+    background: V9_COLORS.PRIMARY.BLUE_DARK;
   }
 
   svg {
@@ -87,14 +87,14 @@ const ModalHeader = styled.div`
   align-items: center;
   margin-bottom: 1rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const ModalTitle = styled.h3`
   margin: 0;
   font-size: 1.125rem;
   font-weight: 600;
-  color: var(--color-text-primary, #111827);
+  color: var(--color-text-primary, V9_COLORS.TEXT.GRAY_DARK);
 `;
 
 const CloseButton = styled.button`
@@ -103,11 +103,11 @@ const CloseButton = styled.button`
   cursor: pointer;
   padding: 0.25rem;
   border-radius: 0.25rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   transition: color 0.2s;
 
   &:hover {
-    color: #374151;
+    color: V9_COLORS.TEXT.GRAY_DARK;
   }
 
   svg {
@@ -124,42 +124,42 @@ const URLPartDescription = styled.div`
 `;
 
 const URLPartDescriptionBase = styled(URLPartDescription)`
-  background: #eff6ff;
-  border-left-color: #1e40af;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border-left-color: V9_COLORS.PRIMARY.BLUE_DARK;
 `;
 
 const URLPartDescriptionQuestion = styled(URLPartDescription)`
-  background: #fef2f2;
-  border-left-color: #dc2626;
+  background: V9_COLORS.BG.ERROR;
+  border-left-color: V9_COLORS.PRIMARY.RED_DARK;
 `;
 
 const URLPartDescriptionAmpersand = styled(URLPartDescription)`
-  background: #fff7ed;
+  background: V9_COLORS.TEXT.WHITE7ed;
   border-left-color: #ea580c;
 `;
 
 const URLPartDescriptionParam = styled(URLPartDescription)`
   background: #f0fdf4;
-  border-left-color: #059669;
+  border-left-color: V9_COLORS.PRIMARY.GREEN_DARK;
 `;
 
 const URLPartDescriptionParam2 = styled(URLPartDescription)`
-  background: #fef3c7;
-  border-left-color: #d97706;
+  background: V9_COLORS.BG.WARNING;
+  border-left-color: V9_COLORS.PRIMARY.YELLOW_DARK;
 `;
 
 const URLPartDescriptionParam3 = styled(URLPartDescription)`
   background: #f0fdf4;
-  border-left-color: #16a34a;
+  border-left-color: V9_COLORS.PRIMARY.GREEN_DARK;
 `;
 
 const URLPartDescriptionEquals = styled(URLPartDescription)`
-  background: #f1f5f9;
-  border-left-color: #475569;
+  background: V9_COLORS.BG.GRAY_MEDIUM;
+  border-left-color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const URLPartDescriptionDollar = styled(URLPartDescription)`
-  background: #fef2f2;
+  background: V9_COLORS.BG.ERROR;
   border-left-color: #c2410c;
 `;
 
@@ -182,12 +182,12 @@ const URLPart = styled.span<{
 		switch (type) {
 			case 'base':
 				return `
-          color: #1e40af; /* Blue for base URL */
+          color: V9_COLORS.PRIMARY.BLUE_DARK; /* Blue for base URL */
           font-weight: 500;
         `;
 			case 'question':
 				return `
-          color: #dc2626; /* Red for ? */
+          color: V9_COLORS.PRIMARY.RED_DARK; /* Red for ? */
           font-weight: 600;
         `;
 			case 'ampersand':
@@ -202,22 +202,22 @@ const URLPart = styled.span<{
         `;
 			case 'param':
 				return `
-          color: #059669; /* Green for parameter names and values */
+          color: V9_COLORS.PRIMARY.GREEN_DARK; /* Green for parameter names and values */
           font-weight: 500;
         `;
 			case 'param2':
 				return `
-          color: #d97706; /* Amber for alternating parameters */
+          color: V9_COLORS.PRIMARY.YELLOW_DARK; /* Amber for alternating parameters */
           font-weight: 500;
         `;
 			case 'param3':
 				return `
-          color: #16a34a; /* Green for alternating parameters */
+          color: V9_COLORS.PRIMARY.GREEN_DARK; /* Green for alternating parameters */
           font-weight: 500;
         `;
 			case 'equals':
 				return `
-          color: #475569; /* Slate for equals sign */
+          color: V9_COLORS.TEXT.GRAY_MEDIUM; /* Slate for equals sign */
           font-weight: 500;
         `;
 			default:

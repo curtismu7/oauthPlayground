@@ -81,7 +81,7 @@ const UrlCode = styled.code`
 `;
 
 const CopyButton = styled.button`
-  background: #3b82f6;
+  background: V9_COLORS.PRIMARY.BLUE;
   color: white;
   border: none;
   border-radius: 6px;
@@ -95,7 +95,7 @@ const CopyButton = styled.button`
   flex-shrink: 0;
 
   &:hover {
-    background: #2563eb;
+    background: V9_COLORS.PRIMARY.BLUE_DARK;
   }
 `;
 
@@ -121,7 +121,7 @@ const PrivateKeyHeader = styled.div`
 `;
 
 const GenerateButton = styled.button<{ disabled?: boolean }>`
-  background: ${(props) => (props.disabled ? '#9ca3af' : '#10b981')};
+  background: ${(props) => (props.disabled ? 'V9_COLORS.TEXT.GRAY_LIGHT' : 'V9_COLORS.PRIMARY.GREEN')};
   color: white;
   border: none;
   border-radius: 6px;
@@ -136,7 +136,7 @@ const GenerateButton = styled.button<{ disabled?: boolean }>`
   box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
 
   &:hover {
-    background: ${(props) => (props.disabled ? '#9ca3af' : '#059669')};
+    background: ${(props) => (props.disabled ? 'V9_COLORS.TEXT.GRAY_LIGHT' : 'V9_COLORS.PRIMARY.GREEN_DARK')};
   }
 `;
 
@@ -144,19 +144,19 @@ const PrivateKeyArea = styled.textarea`
   width: 100%;
   height: 120px;
   padding: 1rem;
-  border: 2px solid #10b981;
+  border: 2px solid V9_COLORS.PRIMARY.GREEN;
   border-radius: 8px;
   font-size: 0.9rem;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   resize: vertical;
   background-color: white;
   font-weight: 500;
-  color: #065f46;
+  color: V9_COLORS.PRIMARY.GREEN_DARK;
   box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
   transition: all 0.2s ease;
 
   &:focus {
-    border-color: #059669;
+    border-color: V9_COLORS.PRIMARY.GREEN_DARK;
     box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
   }
 `;
@@ -165,7 +165,7 @@ const ToggleSecretButton = styled.button`
   position: absolute;
   right: 1rem;
   top: 1rem;
-  background: #10b981;
+  background: V9_COLORS.PRIMARY.GREEN;
   border: none;
   border-radius: 6px;
   cursor: pointer;
@@ -179,7 +179,7 @@ const ToggleSecretButton = styled.button`
   transition: all 0.2s ease;
 
   &:hover {
-    background: #059669;
+    background: V9_COLORS.PRIMARY.GREEN_DARK;
     transform: scale(1.05);
   }
 `;
@@ -192,7 +192,7 @@ const CopyPrivateKeyButton = styled.button`
   position: absolute;
   right: 3.5rem;
   top: 1rem;
-  background: #3b82f6;
+  background: V9_COLORS.PRIMARY.BLUE;
   border: none;
   border-radius: 6px;
   cursor: pointer;
@@ -206,7 +206,7 @@ const CopyPrivateKeyButton = styled.button`
   transition: all 0.2s ease;
 
   &:hover {
-    background: #2563eb;
+    background: V9_COLORS.PRIMARY.BLUE_DARK;
     transform: scale(1.05);
   }
 `;
@@ -222,12 +222,12 @@ const Helper = styled.div`
 
 const ErrorText = styled.div`
   font-size: 0.85rem;
-  color: #b91c1c;
+  color: V9_COLORS.PRIMARY.RED_DARK;
   margin-top: -0.5rem;
 `;
 
 const Label = styled.label`
-  color: #065f46;
+  color: V9_COLORS.PRIMARY.GREEN_DARK;
   font-weight: 600;
 `;
 

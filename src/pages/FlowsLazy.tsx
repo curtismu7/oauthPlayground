@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { LazyLoadingFallback } from '../components/LazyLoadingFallback';
 import { useLazyLoading, usePreloadFlows } from '../hooks/useLazyLoading';
 import { logger } from '../utils/logger';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const Page = styled.div`
   display: flex;
@@ -292,21 +293,21 @@ const FlowsLazy: React.FC = () => {
 			{error && (
 				<div
 					style={{
-						background: '#fee2e2',
-						border: '1px solid #fecaca',
+						background: 'V9_COLORS.BG.ERROR',
+						border: '1px solid V9_COLORS.BG.ERROR_BORDER',
 						borderRadius: '8px',
 						padding: '1rem',
 						marginTop: '1rem',
 					}}
 				>
-					<h4 style={{ margin: '0 0 0.5rem 0', color: '#dc2626' }}>Failed to Load Flow</h4>
+					<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.PRIMARY.RED_DARK' }}>Failed to Load Flow</h4>
 					<p style={{ margin: '0 0 1rem 0', color: '#7f1d1d' }}>{error.message}</p>
 					<button
 						type="button"
 						onClick={retry}
 						style={{
 							padding: '0.5rem 1rem',
-							background: '#dc2626',
+							background: 'V9_COLORS.PRIMARY.RED_DARK',
 							color: 'white',
 							border: 'none',
 							borderRadius: '6px',
