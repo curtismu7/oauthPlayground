@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CredentialsInput } from '../components/CredentialsInput';
 import EnvironmentIdInput from '../components/EnvironmentIdInput';
 import PingOneApplicationConfig, {
@@ -10,7 +11,6 @@ import {
 	type DiscoveryResult,
 	oidcDiscoveryService,
 } from '../services/oidcDiscoveryService';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const Container = styled.div`
   padding: 2rem;
@@ -154,7 +154,11 @@ const CredentialsServicesMock: React.FC = () => {
 			console.log('🔄 Auto-saving credentials:', credentials);
 			// Here you would call your actual save service
 			// await credentialsService.save(credentials);
-			modernMessaging.showFooterMessage({ type: 'status', message: 'Credentials auto-saved successfully!', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'Credentials auto-saved successfully!',
+				duration: 4000,
+			});
 			return true;
 		}
 		return false;
@@ -170,12 +174,20 @@ const CredentialsServicesMock: React.FC = () => {
 			if (field === 'environmentId' && value.trim() && updatedCredentials.clientId.trim()) {
 				const saved = await autoSaveCredentials();
 				if (saved) {
-					modernMessaging.showFooterMessage({ type: 'status', message: 'Auto-saved: Environment ID + Client ID combination', duration: 4000 });
+					modernMessaging.showFooterMessage({
+						type: 'status',
+						message: 'Auto-saved: Environment ID + Client ID combination',
+						duration: 4000,
+					});
 				}
 			} else if (field === 'clientId' && value.trim() && updatedCredentials.environmentId.trim()) {
 				const saved = await autoSaveCredentials();
 				if (saved) {
-					modernMessaging.showFooterMessage({ type: 'status', message: 'Auto-saved: Client ID + Environment ID combination', duration: 4000 });
+					modernMessaging.showFooterMessage({
+						type: 'status',
+						message: 'Auto-saved: Client ID + Environment ID combination',
+						duration: 4000,
+					});
 				}
 			} else if (
 				field === 'clientSecret' &&
@@ -185,7 +197,11 @@ const CredentialsServicesMock: React.FC = () => {
 			) {
 				const saved = await autoSaveCredentials();
 				if (saved) {
-					modernMessaging.showFooterMessage({ type: 'status', message: 'Auto-saved: Client Secret completed the credential set', duration: 4000 });
+					modernMessaging.showFooterMessage({
+						type: 'status',
+						message: 'Auto-saved: Client Secret completed the credential set',
+						duration: 4000,
+					});
 				}
 			}
 		},
@@ -206,14 +222,27 @@ const CredentialsServicesMock: React.FC = () => {
 					if (envId) {
 						await handleFieldChange('environmentId', envId);
 						if (credentials.clientId.trim()) {
-							modernMessaging.showFooterMessage({ type: 'status', message: 'Auto-saved: OIDC Discovery + Client ID combination', duration: 4000 });
+							modernMessaging.showFooterMessage({
+								type: 'status',
+								message: 'Auto-saved: OIDC Discovery + Client ID combination',
+								duration: 4000,
+							});
 						}
 					}
 				}
 
-				modernMessaging.showFooterMessage({ type: 'status', message: 'OIDC Discovery completed successfully!', duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: 'OIDC Discovery completed successfully!',
+					duration: 4000,
+				});
 			} else {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `OIDC Discovery failed: ${result.error?.message}`, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: `OIDC Discovery failed: ${result.error?.message}`,
+					dismissible: true,
+				});
 			}
 		},
 		[credentials.clientId, handleFieldChange]
@@ -229,7 +258,11 @@ const CredentialsServicesMock: React.FC = () => {
 			if (credentials.environmentId.trim() && credentials.clientId.trim()) {
 				const saved = await autoSaveCredentials();
 				if (saved) {
-					modernMessaging.showFooterMessage({ type: 'status', message: 'Auto-saved: PingOne configuration updated', duration: 4000 });
+					modernMessaging.showFooterMessage({
+						type: 'status',
+						message: 'Auto-saved: PingOne configuration updated',
+						duration: 4000,
+					});
 				}
 			}
 		},
@@ -239,7 +272,11 @@ const CredentialsServicesMock: React.FC = () => {
 	// Copy functionality
 	const handleCopy = useCallback((text: string, label: string) => {
 		navigator.clipboard.writeText(text);
-		modernMessaging.showFooterMessage({ type: 'status', message: `${label} copied to clipboard!`, duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'status',
+			message: `${label} copied to clipboard!`,
+			duration: 4000,
+		});
 	}, []);
 
 	return (

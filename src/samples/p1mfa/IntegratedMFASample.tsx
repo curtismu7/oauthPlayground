@@ -12,9 +12,9 @@
 
 import React, { useState } from 'react';
 import { type Device, FIDO2Helper, type P1MFAConfig, P1MFASDK, SMSHelper } from '@/sdk/p1mfa';
+import { logger } from '../../utils/logger';
 import { CredentialsForm } from './shared/CredentialsForm';
 import { DeviceList } from './shared/DeviceList';
-import { logger } from '../../utils/logger';
 
 type Tab =
 	| 'config'
@@ -217,7 +217,12 @@ export const IntegratedMFASample: React.FC = () => {
 			setFido2EnrollState((prev) => ({ ...prev, step: 'success' }));
 			await loadDevices();
 		} catch (error) {
-			logger.error('IntegratedMFASample', 'Failed to complete FIDO2 registration:', undefined, error);
+			logger.error(
+				'IntegratedMFASample',
+				'Failed to complete FIDO2 registration:',
+				undefined,
+				error
+			);
 		}
 	};
 
@@ -237,7 +242,12 @@ export const IntegratedMFASample: React.FC = () => {
 				step: 'initialized',
 			}));
 		} catch (error) {
-			logger.error('IntegratedMFASample', 'Failed to initialize SMS authentication:', undefined, error);
+			logger.error(
+				'IntegratedMFASample',
+				'Failed to initialize SMS authentication:',
+				undefined,
+				error
+			);
 		}
 	};
 
@@ -252,7 +262,12 @@ export const IntegratedMFASample: React.FC = () => {
 
 			setSmsAuthState((prev) => ({ ...prev, step: 'success' }));
 		} catch (error) {
-			logger.error('IntegratedMFASample', 'Failed to complete SMS authentication:', undefined, error);
+			logger.error(
+				'IntegratedMFASample',
+				'Failed to complete SMS authentication:',
+				undefined,
+				error
+			);
 		}
 	};
 
@@ -282,7 +297,12 @@ export const IntegratedMFASample: React.FC = () => {
 				step: 'webauthn',
 			}));
 		} catch (error) {
-			logger.error('IntegratedMFASample', 'Failed to initialize FIDO2 authentication:', undefined, error);
+			logger.error(
+				'IntegratedMFASample',
+				'Failed to initialize FIDO2 authentication:',
+				undefined,
+				error
+			);
 		}
 	};
 
@@ -303,7 +323,12 @@ export const IntegratedMFASample: React.FC = () => {
 
 			setFido2AuthState((prev) => ({ ...prev, step: 'success' }));
 		} catch (error) {
-			logger.error('IntegratedMFASample', 'Failed to complete FIDO2 authentication:', undefined, error);
+			logger.error(
+				'IntegratedMFASample',
+				'Failed to complete FIDO2 authentication:',
+				undefined,
+				error
+			);
 		}
 	};
 

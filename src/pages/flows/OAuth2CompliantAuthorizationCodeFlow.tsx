@@ -31,11 +31,11 @@ import {
 } from '@icons';
 import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CompactAppPickerV9 } from '../../components/CompactAppPickerV9';
 import { useOAuth2CompliantAuthorizationCodeFlow } from '../../hooks/useOAuth2CompliantAuthorizationCodeFlow';
 import type { V9DiscoveredApp } from '../../services/v9/V9AppDiscoveryService';
 import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 // Styled Components
 const Container = styled.div`
@@ -371,9 +371,18 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 	const copyToClipboard = useCallback(async (text: string, label: string) => {
 		try {
 			await navigator.clipboard.writeText(text);
-			modernMessaging.showFooterMessage({ type: 'status', message: `${label} copied to clipboard`, duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: `${label} copied to clipboard`,
+				duration: 4000,
+			});
 		} catch (_error) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to copy to clipboard', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to copy to clipboard',
+				dismissible: true,
+			});
 		}
 	}, []);
 

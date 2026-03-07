@@ -8,8 +8,8 @@
  * token replay attacks and provide proof of possession.
  */
 
-import { logger } from '../utils/logger';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { logger } from '../utils/logger';
 
 export interface DPoPKeyPair {
 	publicKey: CryptoKey;
@@ -274,7 +274,12 @@ export class DPoPHttpHelper {
 			};
 		} catch (error) {
 			logger.error('DPoPService', 'Failed to add DPoP headers', undefined, error as Error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to create DPoP proof', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to create DPoP proof',
+				dismissible: true,
+			});
 			return headers;
 		}
 	}

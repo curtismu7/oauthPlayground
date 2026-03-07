@@ -1,4 +1,5 @@
 import { logger } from '../../utils/logger';
+
 /**
  * @file returnTargetServiceV8U.ts
  * @module v8u/services
@@ -92,7 +93,12 @@ export class ReturnTargetServiceV8U {
 
 			return target;
 		} catch (error) {
-			logger.error('ReturnTargetServiceV8U', `Failed to parse return target for ${kind}:`, undefined, error);
+			logger.error(
+				'ReturnTargetServiceV8U',
+				`Failed to parse return target for ${kind}:`,
+				undefined,
+				error
+			);
 			return null;
 		}
 	}

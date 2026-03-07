@@ -207,7 +207,11 @@ export const UnifiedTokenDisplay: React.FC<UnifiedTokenDisplayProps> = ({
 
 	const handleDecode = (token: string, label: string) => {
 		if (!TokenDisplayService.isJWT(token)) {
-			modernMessaging.showFooterMessage({ type: 'status', message: `${label} is opaque and cannot be decoded as JWT.`, duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: `${label} is opaque and cannot be decoded as JWT.`,
+				duration: 4000,
+			});
 			return null;
 		}
 
@@ -249,7 +253,11 @@ export const UnifiedTokenDisplay: React.FC<UnifiedTokenDisplayProps> = ({
 				source: flowKey || 'unknown',
 			},
 		});
-		modernMessaging.showFooterMessage({ type: 'status', message: `${label} sent to Token Management`, duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'status',
+			message: `${label} sent to Token Management`,
+			duration: 4000,
+		});
 	};
 
 	const renderToken = (

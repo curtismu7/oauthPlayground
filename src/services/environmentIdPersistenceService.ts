@@ -1,9 +1,8 @@
 // Environment ID Persistence Service
 // Manages saving/loading Environment ID to/from .env file
 
-import { logger } from '../utils/logger';
-
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { logger } from '../utils/logger';
 
 interface EnvironmentIdConfig {
 	environmentId: string;
@@ -163,7 +162,11 @@ After updating .env:
 		logger.info('EnvironmentIdPersistenceService', instructions);
 
 		// Show a toast notification
-		modernMessaging.showFooterMessage({ type: 'info', message: 'Environment ID updated. Check console for .env update instructions.', duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message: 'Environment ID updated. Check console for .env update instructions.',
+			duration: 4000,
+		});
 	}
 
 	/**

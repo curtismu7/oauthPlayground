@@ -4,6 +4,7 @@
 import { FiDownload, FiInfo, FiSave, FiUpload } from '@icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { comprehensiveFlowDataService } from '../services/comprehensiveFlowDataService';
 import {
 	type AuthzCredentials,
@@ -12,7 +13,6 @@ import {
 	triggerFileImport,
 } from '../services/credentialExportImportService';
 import { logger } from '../utils/logger';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { DraggableModal } from './DraggableModal';
 import type { StepCredentials } from './steps/CommonSteps';
 
@@ -171,7 +171,13 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 
 	const handleSave = async () => {
 		if (!credentials.environmentId || !credentials.clientId || !credentials.clientSecret) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please fill in all required fields (Environment ID, Client ID, and Client Secret)', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message:
+					'Please fill in all required fields (Environment ID, Client ID, and Client Secret)',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -194,11 +200,20 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 			);
 
 			if (success) {
-				modernMessaging.showFooterMessage({ type: 'status', message: 'Authorization Code credentials saved successfully', duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: 'Authorization Code credentials saved successfully',
+					duration: 4000,
+				});
 				onCredentialsSaved?.(credentials);
 				onClose();
 			} else {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save credentials', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'Failed to save credentials',
+					dismissible: true,
+				});
 			}
 		} catch (error) {
 			logger.error(
@@ -207,7 +222,12 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 				undefined,
 				error as Error
 			);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Error saving credentials', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Error saving credentials',
+				dismissible: true,
+			});
 		} finally {
 			setIsSaving(false);
 		}
@@ -216,7 +236,12 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 	const handleExport = () => {
 		try {
 			if (!credentials.environmentId || !credentials.clientId || !credentials.clientSecret) {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please fill in all required fields before exporting', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'Please fill in all required fields before exporting',
+					dismissible: true,
+				});
 				return;
 			}
 
@@ -232,7 +257,11 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 			};
 
 			exportAuthzCredentials(authzCredentials);
-			modernMessaging.showFooterMessage({ type: 'status', message: 'Authorization Code credentials exported successfully!', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'Authorization Code credentials exported successfully!',
+				duration: 4000,
+			});
 		} catch (error) {
 			logger.error(
 				'AuthorizationCodeConfigModal',
@@ -240,7 +269,12 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 				undefined,
 				error as Error
 			);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Failed to export credentials', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: error instanceof Error ? error.message : 'Failed to export credentials',
+				dismissible: true,
+			});
 		}
 	};
 
@@ -270,9 +304,18 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 
 					comprehensiveFlowDataService.saveFlowCredentialsIsolated(flowType, credentialsToSave);
 
-					modernMessaging.showFooterMessage({ type: 'status', message: 'Authorization Code credentials imported successfully!', duration: 4000 });
+					modernMessaging.showFooterMessage({
+						type: 'status',
+						message: 'Authorization Code credentials imported successfully!',
+						duration: 4000,
+					});
 				} else {
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'The selected file does not contain Authorization Code credentials', dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: 'The selected file does not contain Authorization Code credentials',
+						dismissible: true,
+					});
 				}
 			} catch (error) {
 				logger.error(
@@ -281,7 +324,12 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 					undefined,
 					error as Error
 				);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Failed to import credentials', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: error instanceof Error ? error.message : 'Failed to import credentials',
+					dismissible: true,
+				});
 			}
 		});
 	};

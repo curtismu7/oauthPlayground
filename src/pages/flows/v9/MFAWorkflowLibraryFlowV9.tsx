@@ -1,6 +1,6 @@
 // src/pages/flows/v9/MFAWorkflowLibraryFlowV9.tsx
 // V9 PingOne MFA Workflow Library Flow — Steps 11-20 (Authorization Code + MFA)
-// V9 improvements: V9CredentialStorageService, CompactAppPickerV8U, toastV8, no WorkerTokenModal
+// V9 improvements: V9CredentialStorageService, CompactAppPickerV8U, modernMessaging, no WorkerTokenModal
 
 import {
 	FiCheckCircle,

@@ -14,6 +14,7 @@ import {
 } from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import {
 	type ClientSecretJWTConfig,
 	type JWTGenerationResult,
@@ -28,7 +29,6 @@ import {
 	generateRSAKeyPair,
 } from '../utils/keyGeneration';
 import { logger } from '../utils/logger';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const MODULE_TAG = '[🔐 JWT-CONFIG-V8]';
 
@@ -258,13 +258,22 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 			setClientSecret(generatedSecret.secret);
 
 			const strength = assessSecurityStrength.clientSecret(generatedSecret.secret);
-			modernMessaging.showFooterMessage({ type: 'status', message: `Client secret generated! Strength: ${strength.strength.toUpperCase()} (${strength.score}/6)`, duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: `Client secret generated! Strength: ${strength.strength.toUpperCase()} (${strength.score}/6)`,
+				duration: 4000,
+			});
 
 			if (strength.recommendations.length > 0) {
 				console.log(`${MODULE_TAG} Security recommendations:`, strength.recommendations);
 			}
 		} catch (error) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to generate client secret', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to generate client secret',
+				dismissible: true,
+			});
 			logger.error('JWTConfigV8', 'Secret generation error:', undefined, error as Error);
 		} finally {
 			setIsGeneratingKey(false);
@@ -280,15 +289,28 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 			setKeyId(generatedKeyPair.keyId);
 
 			const strength = assessSecurityStrength.keyPair(2048);
-			modernMessaging.showFooterMessage({ type: 'status', message: `RSA key pair generated! Key ID: ${generatedKeyPair.keyId}`, duration: 4000 });
-			modernMessaging.showFooterMessage({ type: 'info', message: strength.recommendation, duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: `RSA key pair generated! Key ID: ${generatedKeyPair.keyId}`,
+				duration: 4000,
+			});
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: strength.recommendation,
+				duration: 4000,
+			});
 
 			// Notify parent component if callback is provided
 			if (onPrivateKeyGenerated) {
 				onPrivateKeyGenerated(generatedKeyPair.privateKey, generatedKeyPair.keyId);
 			}
 		} catch (error) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to generate RSA key pair', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to generate RSA key pair',
+				dismissible: true,
+			});
 			logger.error('JWTConfigV8', 'Key generation error:', undefined, error as Error);
 		} finally {
 			setIsGeneratingKey(false);
@@ -304,7 +326,12 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 
 			if (type === 'client_secret_jwt') {
 				if (!clientId || !tokenEndpoint || !clientSecret) {
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please fill in all required fields', dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: 'Please fill in all required fields',
+						dismissible: true,
+					});
 					setIsGenerating(false);
 					return;
 				}
@@ -322,13 +349,24 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 				generationResult = await jwtAuthServiceV8.generateClientSecretJWT(clientSecretConfig);
 			} else {
 				if (!clientId || !tokenEndpoint || !privateKey) {
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please fill in all required fields', dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: 'Please fill in all required fields',
+						dismissible: true,
+					});
 					setIsGenerating(false);
 					return;
 				}
 
 				if (!jwtAuthServiceV8.validatePrivateKey(privateKey)) {
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Invalid private key format. Please provide a valid PEM-formatted private key.', dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message:
+							'Invalid private key format. Please provide a valid PEM-formatted private key.',
+						dismissible: true,
+					});
 					setIsGenerating(false);
 					return;
 				}
@@ -350,15 +388,29 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 			setResult(generationResult);
 
 			if (generationResult.success && generationResult.jwt) {
-				modernMessaging.showFooterMessage({ type: 'status', message: 'JWT generated successfully!', duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: 'JWT generated successfully!',
+					duration: 4000,
+				});
 				onJWTGenerated?.(generationResult.jwt, generationResult);
 			} else {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: generationResult.error || 'Failed to generate JWT', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: generationResult.error || 'Failed to generate JWT',
+					dismissible: true,
+				});
 			}
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 			setResult({ success: false, error: errorMessage });
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to generate JWT: ${errorMessage}`, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: `Failed to generate JWT: ${errorMessage}`,
+				dismissible: true,
+			});
 		} finally {
 			setIsGenerating(false);
 		}
@@ -369,9 +421,18 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 
 		try {
 			await navigator.clipboard.writeText(result.jwt);
-			modernMessaging.showFooterMessage({ type: 'status', message: 'JWT copied to clipboard', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'JWT copied to clipboard',
+				duration: 4000,
+			});
 		} catch {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to copy JWT', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to copy JWT',
+				dismissible: true,
+			});
 		}
 	};
 

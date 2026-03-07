@@ -1,4 +1,5 @@
 import { logger } from '../../utils/logger';
+
 /**
  * @file deviceAuthorizationSecurityService.ts
  * @module v8u/services
@@ -310,7 +311,10 @@ export class DeviceAuthorizationSecurityService {
 			(blockedAttempts + 1).toString()
 		);
 
-		logger.warn('DeviceAuthorizationSecurityService', `Blocked attempt recorded. Total blocked attempts: ${blockedAttempts + 1}`);
+		logger.warn(
+			'DeviceAuthorizationSecurityService',
+			`Blocked attempt recorded. Total blocked attempts: ${blockedAttempts + 1}`
+		);
 	}
 
 	/**
