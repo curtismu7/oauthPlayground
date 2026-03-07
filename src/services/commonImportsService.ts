@@ -149,7 +149,7 @@ import { CredentialsInput } from '../components/CredentialsInput';
 import { DraggableModal } from '../components/DraggableModal';
 import type { StepCredentials } from '../components/steps/CommonSteps';
 import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
-import { WorkerTokenModal } from '../components/WorkerTokenModal';
+import { WorkerTokenModalV9 } from '../components/WorkerTokenModalV9';
 import type { ClientAuthMethod } from '../utils/clientAuthentication';
 import { trackedFetch } from '../utils/trackedFetch';
 import type { CodeDisplayProps, SupportedLanguage } from './codeHighlightingService';
@@ -341,7 +341,7 @@ export {
 };
 
 export {
-	WorkerTokenModal,
+	WorkerTokenModalV9,
 	WorkerTokenDetectedBanner,
 	CredentialsInput,
 	ClientAuthMethodSelector,

@@ -25,138 +25,17 @@ export interface UserState {
 	lastSignOn?: {
 		at?: string;
 	};
-	[key: string]: any;
+	[key: string]: unknown;
 }
 
 export interface ComparisonResult {
 	field: string;
 	label: string;
-	before: any;
-	after: any;
+	before: unknown;
+	after: unknown;
 	changed: boolean;
 }
 
-const _ComparisonContainer = styled.div`
-	background: #f9fafb;
-	border: 1px solid #e5e7eb;
-	border-radius: 0.5rem;
-	padding: 1.5rem;
-	margin-top: 1.5rem;
-`;
-
-const _ComparisonTitle = styled.h3`
-	font-size: 1.125rem;
-	font-weight: 600;
-	color: #1f2937;
-	margin-bottom: 1rem;
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-`;
-
-const _ComparisonTable = styled.table`
-	width: 100%;
-	border-collapse: collapse;
-	background: white;
-	border-radius: 0.5rem;
-	overflow: hidden;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-`;
-
-const _TableHeader = styled.thead`
-	background: #f3f4f6;
-	border-bottom: 2px solid #e5e7eb;
-`;
-
-const _TableHeaderCell = styled.th`
-	padding: 0.75rem 1rem;
-	text-align: left;
-	font-size: 0.875rem;
-	font-weight: 600;
-	color: #374151;
-	text-transform: uppercase;
-	letter-spacing: 0.05em;
-`;
-
-const _TableBody = styled.tbody``;
-
-const _TableRow = styled.tr<{ $changed?: boolean }>`
-	border-bottom: 1px solid #e5e7eb;
-	background: ${(props) => (props.$changed ? '#fef3c7' : 'white')};
-	
-	&:last-child {
-		border-bottom: none;
-	}
-	
-	&:hover {
-		background: ${(props) => (props.$changed ? '#fde68a' : '#f9fafb')};
-	}
-`;
-
-const _TableCell = styled.td`
-	padding: 0.75rem 1rem;
-	font-size: 0.875rem;
-	color: #1f2937;
-`;
-
-const _FieldLabel = styled.div`
-	font-weight: 500;
-	color: #374151;
-`;
-
-const _ValueDisplay = styled.div<{ $changed?: boolean }>`
-	font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
-	font-size: 0.8125rem;
-	color: ${(props) => (props.$changed ? '#92400e' : '#6b7280')};
-	background: ${(props) => (props.$changed ? '#fef3c7' : '#f3f4f6')};
-	padding: 0.25rem 0.5rem;
-	border-radius: 0.25rem;
-	display: inline-block;
-	max-width: 100%;
-	overflow: hidden;
-	text-overflow: ellipsis;
-`;
-
-const _ChangeBadge = styled.span`
-	background: #fbbf24;
-	color: #78350f;
-	font-size: 0.75rem;
-	font-weight: 600;
-	padding: 0.25rem 0.5rem;
-	border-radius: 0.25rem;
-	margin-left: 0.5rem;
-`;
-
-const _NoChangesMessage = styled.div`
-	text-align: center;
-	padding: 2rem;
-	color: #6b7280;
-	font-style: italic;
-`;
-
-const _SummaryBox = styled.div`
-	background: #eff6ff;
-	border: 1px solid #bfdbfe;
-	border-radius: 0.5rem;
-	padding: 1rem;
-	margin-bottom: 1rem;
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
-`;
-
-const _SummaryIcon = styled.div`
-	font-size: 1.5rem;
-`;
-
-const _SummaryText = styled.div`
-	flex: 1;
-	
-	strong {
-		color: #1e40af;
-		font-weight: 600;
-	}
-`;
 
 /**
  * Compare two user states and return differences
@@ -200,14 +79,19 @@ export function compareUserStates(before: UserState, after: UserState): Comparis
 /**
  * Get nested object value by path (e.g., 'account.status')
  */
-function getNestedValue(obj: any, path: string): any {
-	return path.split('.').reduce((current, key) => current?.[key], obj);
+function getNestedValue(obj: Record<string, unknown>, path: string): unknown {
+	return path.split('.').reduce<unknown>((current, key) => {
+		if (current !== null && typeof current === 'object') {
+			return (current as Record<string, unknown>)[key];
+		}
+		return undefined;
+	}, obj);
 }
 
 /**
  * Deep equality check
  */
-function isEqual(a: any, b: any): boolean {
+function isEqual(a: unknown, b: unknown): boolean {
 	if (a === b) return true;
 	if (a == null || b == null) return false;
 	if (typeof a !== typeof b) return false;
@@ -222,7 +106,7 @@ function isEqual(a: any, b: any): boolean {
 /**
  * Format value for display
  */
-function formatValue(value: any): string {
+function formatValue(value: unknown): string {
 	if (value === undefined) return 'N/A';
 	if (value === null) return 'null';
 	if (typeof value === 'boolean') return value ? 'true' : 'false';
@@ -233,7 +117,7 @@ function formatValue(value: any): string {
 /**
  * Check if a field is a critical password status change
  */
-function isCriticalPasswordChange(field: string, value: any): boolean {
+function isCriticalPasswordChange(field: string, value: unknown): boolean {
 	return field === 'passwordState.status' && value === 'MUST_CHANGE_PASSWORD';
 }
 
@@ -541,7 +425,7 @@ export const UserComparisonDisplay: React.FC<{
 	after: UserState;
 	title?: string;
 	operationName?: string;
-}> = ({ before, after, title, operationName }) => {
+}> = ({ before, after, operationName }) => {
 	// Just render the new ChangedFieldsDisplay component
 	return <ChangedFieldsDisplay before={before} after={after} operationName={operationName} />;
 };

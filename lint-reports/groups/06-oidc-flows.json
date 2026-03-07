@@ -1,7 +1,7 @@
 {
   "group_id": "oidc-flows",
   "label": "OpenID Connect",
-  "scanned_at": "2026-03-07T18:24:39.029338+00:00",
+  "scanned_at": "2026-03-07T18:40:56.750079+00:00",
   "scanned_by": null,
   "files_scanned": [
     "src/components/AIAgentDeviceFlow.tsx",

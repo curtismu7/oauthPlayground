@@ -1,18 +1,35 @@
 // src/services/pkceService.tsx
 
-import {
-	FiCheck,
-	FiExternalLink,
-	FiEye,
-	FiEyeOff,
-	FiInfo,
-	FiKey,
-	FiRefreshCw,
-	FiShield,
-} from '@icons';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+
+// MDI Icon Component for React Icons migration
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
+	icon, 
+	size = 16, 
+	className = '' 
+}) => {
+	const iconMap: Record<string, string> = {
+		'FiCheck': 'mdi-check',
+		'FiExternalLink': 'mdi-open-in-new',
+		'FiEye': 'mdi-eye',
+		'FiEyeOff': 'mdi-eye-off',
+		'FiInfo': 'mdi-information',
+		'FiKey': 'mdi-key',
+		'FiRefreshCw': 'mdi-refresh',
+		'FiShield': 'mdi-shield-check',
+	};
+	
+	const mdiIcon = iconMap[icon] || 'mdi-help';
+	
+	return (
+		<i 
+			className={`mdi ${mdiIcon} ${className}`}
+			style={{ fontSize: `${size}px` }}
+		></i>
+	);
+};
 import ColoredUrlDisplay from '../components/ColoredUrlDisplay';
 import { logger } from '../utils/logger';
 import { generateCodeChallenge, generateCodeVerifier } from '../utils/oauth';
@@ -418,7 +435,7 @@ export const PKCEService: React.FC<PKCEServiceProps> = ({
 				duration: 3000,
 			});
 		} catch (error) {
-			logger.error('PKCEService', 'PKCE generation failed:', undefined, error);
+			logger.error('PKCEService', 'PKCE generation failed:', undefined, error as Error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -447,7 +464,7 @@ export const PKCEService: React.FC<PKCEServiceProps> = ({
 			<PKCEHeader>
 				<PKCEHeaderLeft>
 					<PKCETitle>
-						<FiShield />
+						<MDIIcon icon="FiShield" />
 						{title}
 					</PKCETitle>
 					{subtitle && <PKCESubtitle>{subtitle}</PKCESubtitle>}
@@ -457,13 +474,13 @@ export const PKCEService: React.FC<PKCEServiceProps> = ({
 			{showDetails && (
 				<EducationalSection>
 					<EducationalTitle>
-						<FiInfo />
+						<MDIIcon icon="FiInfo" />
 						What is PKCE?
 					</EducationalTitle>
 					<EducationalContent>
 						<EducationalCard>
 							<EducationalCardTitle>
-								<FiShield />
+								<MDIIcon icon="FiShield" />
 								Security Protection
 							</EducationalCardTitle>
 							<EducationalText>
@@ -473,7 +490,7 @@ export const PKCEService: React.FC<PKCEServiceProps> = ({
 						</EducationalCard>
 						<EducationalCard>
 							<EducationalCardTitle>
-								<FiKey />
+								<MDIIcon icon="FiKey" />
 								How It Works
 							</EducationalCardTitle>
 							<EducationalText>
@@ -508,7 +525,7 @@ export const PKCEService: React.FC<PKCEServiceProps> = ({
 						</>
 					) : (
 						<>
-							<FiRefreshCw />
+							<MDIIcon icon="FiRefreshCw" />
 							{value.codeVerifier && value.codeChallenge
 								? 'Regenerate PKCE Codes'
 								: 'Generate PKCE Codes'}
@@ -523,7 +540,7 @@ export const PKCEService: React.FC<PKCEServiceProps> = ({
 						<PKCEField $isSecret={true}>
 							<PKCELabel $isSecret={true}>
 								<Badge $variant="secret">
-									<FiKey />
+									<MDIIcon icon="FiKey" />
 									Secret
 								</Badge>
 								Code Verifier
@@ -539,7 +556,7 @@ export const PKCEService: React.FC<PKCEServiceProps> = ({
 									$isVisible={showCodeVerifier}
 									title={showCodeVerifier ? 'Hide code verifier' : 'Show code verifier'}
 								>
-									{showCodeVerifier ? <FiEyeOff /> : <FiEye />}
+									{showCodeVerifier ? <MDIIcon icon="FiEyeOff" /> : <MDIIcon icon="FiEye" />}
 								</ToggleButton>
 								{CopyButtonVariants.identifier(value.codeVerifier, 'Code Verifier')}
 							</PKCEValueContainer>
@@ -548,7 +565,7 @@ export const PKCEService: React.FC<PKCEServiceProps> = ({
 						<PKCEField $isSecret={false}>
 							<PKCELabel $isSecret={false}>
 								<Badge $variant="public">
-									<FiCheck />
+									<MDIIcon icon="FiCheck" />
 									Public
 								</Badge>
 								Code Challenge
@@ -562,7 +579,7 @@ export const PKCEService: React.FC<PKCEServiceProps> = ({
 
 					<SecurityInfo>
 						<SecurityTitle>
-							<FiShield />
+							<MDIIcon icon="FiShield" />
 							Security Features
 						</SecurityTitle>
 						<SecurityList>
@@ -586,7 +603,7 @@ export const PKCEService: React.FC<PKCEServiceProps> = ({
 					{authUrl && (
 						<URLSection>
 							<URLTitle>
-								<FiExternalLink />
+								<MDIIcon icon="FiExternalLink" />
 								Authorization URL with PKCE
 							</URLTitle>
 							<ColoredUrlDisplay

@@ -1,6 +1,5 @@
 // src/services/authenticationModalService.tsx
 
-import { FiCheckCircle, FiClock, FiExternalLink, FiInfo, FiShield, FiX } from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
@@ -8,6 +7,31 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { ColoredUrlDisplay } from '../components/ColoredUrlDisplay';
 import PARInputInterface from '../components/PARInputInterface';
 import { logger } from '../utils/logger';
+
+// MDI Icon Component for React Icons migration
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
+	icon, 
+	size = 16, 
+	className = '' 
+}) => {
+	const iconMap: Record<string, string> = {
+		'FiCheckCircle': 'mdi-check-circle',
+		'FiClock': 'mdi-clock',
+		'FiExternalLink': 'mdi-open-in-new',
+		'FiInfo': 'mdi-information',
+		'FiShield': 'mdi-shield-check',
+		'FiX': 'mdi-close',
+	};
+	
+	const mdiIcon = iconMap[icon] || 'mdi-help';
+	
+	return (
+		<i 
+			className={`mdi ${mdiIcon} ${className}`}
+			style={{ fontSize: `${size}px` }}
+		></i>
+	);
+};
 
 // Modern styled components with professional design
 const ModalOverlay = styled.div<{ $isOpen: boolean }>`
@@ -690,37 +714,37 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 				return {
 					title: 'OAuth 2.0 Authorization',
 					description: 'Standard OAuth 2.0 authorization flow with PKCE',
-					icon: <FiShield />,
+					icon: <MDIIcon icon="FiShield" />,
 				};
 			case 'oidc':
 				return {
 					title: 'OpenID Connect Authentication',
 					description: 'OpenID Connect authentication with identity verification',
-					icon: <FiCheckCircle />,
+					icon: <MDIIcon icon="FiCheckCircle" />,
 				};
 			case 'par':
 				return {
 					title: 'Pushed Authorization Request',
 					description: 'Enhanced security with pushed authorization parameters',
-					icon: <FiExternalLink />,
+					icon: <MDIIcon icon="FiExternalLink" />,
 				};
 			case 'rar':
 				return {
 					title: 'Rich Authorization Request',
 					description: 'Fine-grained authorization with structured permissions',
-					icon: <FiInfo />,
+					icon: <MDIIcon icon="FiInfo" />,
 				};
 			case 'redirectless':
 				return {
 					title: 'Redirectless Authentication',
 					description: 'API-driven authentication without browser redirects',
-					icon: <FiClock />,
+					icon: <MDIIcon icon="FiClock" />,
 				};
 			default:
 				return {
 					title: 'Authentication',
 					description: 'Secure authentication flow',
-					icon: <FiShield />,
+					icon: <MDIIcon icon="FiShield" />,
 				};
 		}
 	};
@@ -740,7 +764,7 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 							</HeaderText>
 						</HeaderContent>
 						<CloseButton onClick={handleCancel} title="Cancel authentication">
-							<FiX size={20} />
+							<MDIIcon icon="FiX" size={20} />
 						</CloseButton>
 					</ModalHeader>
 
@@ -755,7 +779,7 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 
 							<FlowInfo>
 								<FlowIcon>
-									<FiInfo size={16} />
+									<MDIIcon icon="FiInfo" size={12} />
 								</FlowIcon>
 								<FlowText>
 									<strong>Flow Type:</strong> {flowName} - {flowInfo.description}
@@ -764,7 +788,7 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 
 							<SecurityNotice>
 								<SecurityIcon>
-									<FiShield size={16} />
+									<MDIIcon icon="FiShield" size={16} />
 								</SecurityIcon>
 								<SecurityText>
 									<strong>Security Notice:</strong> This authentication is handled securely through
@@ -801,7 +825,7 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 										}}
 									>
 										<div style={{ color: '#d97706', flexShrink: 0 }}>
-											<FiInfo size={14} />
+											<MDIIcon icon="FiInfo" size={14} />
 										</div>
 										<div style={{ color: '#92400e', fontSize: '0.8125rem', lineHeight: '1.4' }}>
 											<strong>Authorization URL Required:</strong> Please complete the previous
@@ -866,7 +890,7 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 														gap: '0.25rem',
 													}}
 												>
-													<FiExternalLink size={11} />
+													<MDIIcon icon="FiExternalLink" size={11} />
 													Copy
 												</ButtonSpinner>
 											</div>
@@ -949,7 +973,7 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 												flexShrink: 0,
 											}}
 										>
-											<FiShield size={12} />
+											<MDIIcon icon="FiShield" size={12} />
 											Input PAR URI
 										</ButtonSpinner>
 									</div>

@@ -2,9 +2,31 @@
 // Comprehensive UI component library for V5 flows
 // Consolidates all common UI patterns from OAuth flows
 
-import { FiAlertCircle, FiAlertTriangle, FiCheckCircle, FiInfo } from '@icons';
 import React from 'react';
 import styled from 'styled-components';
+
+// MDI Icon Component for React Icons migration
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
+	icon, 
+	size = 16, 
+	className = '' 
+}) => {
+	const iconMap: Record<string, string> = {
+		'FiAlertCircle': 'mdi-alert-circle',
+		'FiAlertTriangle': 'mdi-alert-triangle',
+		'FiCheckCircle': 'mdi-check-circle',
+		'FiInfo': 'mdi-information',
+	};
+	
+	const mdiIcon = iconMap[icon] || 'mdi-help';
+	
+	return (
+		<i 
+			className={`mdi ${mdiIcon} ${className}`}
+			style={{ fontSize: `${size}px` }}
+		></i>
+	);
+};
 
 import { CollapsibleIcon } from '../components/CollapsibleIcon';
 import {
@@ -1358,10 +1380,10 @@ const InfoTextStyled = FlowUIService.getInfoText()!;
 
 export const InfoBox: React.FC<InfoBoxProps> = ({ title, children, variant = 'info', icon }) => {
 	const defaultIcons = {
-		info: <FiInfo size={20} />,
-		warning: <FiAlertTriangle size={20} />,
-		success: <FiCheckCircle size={20} />,
-		danger: <FiAlertCircle size={20} />,
+		info: <MDIIcon icon="FiInfo" size={20} />,
+		warning: <MDIIcon icon="FiAlertTriangle" size={20} />,
+		success: <MDIIcon icon="FiCheckCircle" size={20} />,
+		danger: <MDIIcon icon="FiAlertCircle" size={20} />,
 	};
 
 	return (
