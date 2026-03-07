@@ -93,55 +93,9 @@ const extractPopulation = (population: unknown): string => {
 	return 'N/A';
 };
 
-const normalizeAuthMethodValue = (input: unknown): string | null => {
-	if (!input) return null;
-	if (typeof input === 'string' && input.trim()) {
-		return input.trim();
-	}
-	if (typeof input === 'object') {
-		const candidate = extractLabel(input, '', ['name', 'displayName', 'type', 'value', 'method']);
-		return candidate || null;
-	}
-	return null;
-};
 
-const collectAuthMethods = (methods: unknown): string[] => {
-	if (!methods) return [];
-	if (Array.isArray(methods)) {
-		const values = methods
-			.map((method) => normalizeAuthMethodValue(method))
-			.filter((value): value is string => Boolean(value));
-		return Array.from(new Set(values.map((value) => value.trim())));
-	}
-	const single = normalizeAuthMethodValue(methods);
-	return single ? [single] : [];
-};
 
-const buildConsentMap = (consents: PingOneConsentRecord[]): Map<string, string> => {
-	const map = new Map<string, string>();
-	consents.forEach((consent) => {
-		const label =
-			extractLabel(consent, 'Consent', ['name', 'type', 'description', 'label']) || 'Consent';
-		const status = extractLabel(consent.status, 'unknown', ['status', 'state']) || 'unknown';
-		map.set(label, status);
-	});
-	return map;
-};
 
-const _isAffirmativeStatus = (status: string): boolean => {
-	const normalized = status.trim().toLowerCase();
-	return [
-		'granted',
-		'active',
-		'enabled',
-		'accepted',
-		'allow',
-		'allowed',
-		'approved',
-		'true',
-		'consented',
-	].includes(normalized);
-};
 
 interface PingOneUserProfileData {
 	id?: string;
@@ -669,9 +623,6 @@ const PingOneUserProfile: React.FC = () => {
 	// Use global worker token instead of custom accessToken state
 	const accessToken = globalTokenStatus.token || '';
 
-	const [_activeTab, setActiveTab] = useState<'profile' | 'user-status' | 'compare-access'>(
-		'profile'
-	);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
@@ -679,10 +630,10 @@ const PingOneUserProfile: React.FC = () => {
 	const [userProfile, setUserProfile] = useState<PingOneUserProfileData | null>(null);
 	const [userGroups, setUserGroups] = useState<PingOneUserGroup[]>([]);
 	const [userRoles, setUserRoles] = useState<PingOneUserRole[]>([]);
-	const [mfaStatus, setMfaStatus] = useState<PingOneMfaStatus>(null);
-	const [userConsents, setUserConsents] = useState<PingOneConsentRecord[]>([]);
-	const [populationDetails, setPopulationDetails] = useState<Record<string, unknown> | null>(null);
-	const [comparisonPopulationDetails, setComparisonPopulationDetails] = useState<Record<
+	const [, setMfaStatus] = useState<PingOneMfaStatus>(null);
+	const [, setUserConsents] = useState<PingOneConsentRecord[]>([]);
+	const [, setPopulationDetails] = useState<Record<string, unknown> | null>(null);
+	const [, setComparisonPopulationDetails] = useState<Record<
 		string,
 		unknown
 	> | null>(null);
@@ -704,48 +655,13 @@ const PingOneUserProfile: React.FC = () => {
 	// Always show user selector initially - user must explicitly load the profile
 	const [showUserSelector, setShowUserSelector] = useState(true);
 
-	const [_showServerErrorModal, setShowServerErrorModal] = useState(false);
-	const [_savedWorkerCredentials, setSavedWorkerCredentials] = useState(() =>
-		credentialManager.getAllCredentials()
-	);
+	const [, setShowServerErrorModal] = useState(false);
+	const [, setSavedWorkerCredentials] = useState(() =>
+            credentialManager.getAllCredentials()
+    );
 	const [identifierError, setIdentifierError] = useState<string | null>(null);
 	const [isResolvingUser, setIsResolvingUser] = useState(false);
-	const [compareIdentifier, setCompareIdentifier] = useState('');
-	const [comparisonResolvedId, setComparisonResolvedId] = useState('');
-	const [comparisonProfile, setComparisonProfile] = useState<PingOneUserProfileData | null>(null);
-	const [comparisonGroups, setComparisonGroups] = useState<PingOneUserGroup[]>([]);
-	const [comparisonRoles, setComparisonRoles] = useState<PingOneUserRole[]>([]);
-	const [comparisonMfaStatus, setComparisonMfaStatus] = useState<PingOneMfaStatus>(null);
-	const [comparisonConsents, setComparisonConsents] = useState<PingOneConsentRecord[]>([]);
-	const [_isComparisonLoading, setIsComparisonLoading] = useState(false);
-	const [_comparisonError, setComparisonError] = useState<string | null>(null);
-
-	// Start over function — all useState declarations must be above this
-	const _handleStartOver = useCallback(() => {
-		setUserProfile(null);
-		setUserGroups([]);
-		setUserRoles([]);
-		setMfaStatus(null);
-		setUserConsents([]);
-		setPopulationDetails(null);
-		setUserIdentifier('');
-		setResolvedUserId('');
-		localStorage.removeItem(USER_IDENTIFIER_STORAGE_KEY);
-		setError(null);
-		setLoading(false);
-		setShowUserSelector(true);
-		setActiveTab('profile');
-		// Clear comparison data if any
-		setComparisonProfile(null);
-		setComparisonGroups([]);
-		setComparisonRoles([]);
-		setComparisonMfaStatus(null);
-		setComparisonConsents([]);
-		setCompareIdentifier('');
-		setComparisonResolvedId('');
-		setComparisonError(null);
-		setIsComparisonLoading(false);
-	}, []);
+	const [comparisonProfile] = useState<PingOneUserProfileData | null>(null);
 
 	const fetchUserBundle = useCallback(
 		async (targetUserId: string): Promise<UserDataBundle> => {
@@ -1443,124 +1359,7 @@ const PingOneUserProfile: React.FC = () => {
 		}
 	}, [accessToken, environmentId, userIdentifier, fetchUserProfile, globalTokenStatus.isValid]);
 
-	const _handleLoadComparisonUser = useCallback(async () => {
-		if (!accessToken) {
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: 'Generate a worker token before comparing access.',
-				dismissible: true,
-			});
-			return;
-		}
 
-		if (!globalTokenStatus?.isValid) {
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: 'Worker token expired. Generate a new worker token to compare access.',
-				dismissible: true,
-			});
-			return;
-		}
-
-		if (!environmentId.trim()) {
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: 'Please provide an Environment ID',
-				dismissible: true,
-			});
-			return;
-		}
-
-		if (!compareIdentifier.trim()) {
-			const message = 'Comparison user identifier is required (user ID, username, or email).';
-			setComparisonError(message);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: message,
-				dismissible: true,
-			});
-			return;
-		}
-
-		setComparisonError(null);
-		setIsComparisonLoading(true);
-
-		const trimmedIdentifier = compareIdentifier.trim();
-		const trimmedEnvironment = environmentId.trim();
-
-		try {
-			const lookupResult = await lookupPingOneUser({
-				environmentId: trimmedEnvironment,
-				accessToken,
-				identifier: trimmedIdentifier,
-			});
-			const matchedUser = lookupResult.user as Partial<PingOneUserProfileData> | undefined;
-			const resolvedId = (matchedUser?.id as string) || trimmedIdentifier;
-			if (!resolvedId) {
-				throw new Error('Unable to find a user matching that identifier.');
-			}
-
-			const bundle = await fetchUserBundle(resolvedId);
-			setComparisonProfile(bundle.profile);
-			setComparisonResolvedId(bundle.resolvedId);
-			setComparisonGroups(bundle.groups);
-			setComparisonRoles(bundle.roles);
-			setComparisonMfaStatus(bundle.mfa);
-			setComparisonConsents(bundle.consents);
-			if (matchedUser?.preferred_username || matchedUser?.username || matchedUser?.email) {
-				setCompareIdentifier(
-					(matchedUser.preferred_username as string) ||
-						(matchedUser.username as string) ||
-						(matchedUser.email as string) ||
-						trimmedIdentifier
-				);
-			}
-			if (lookupResult.matchType) {
-				modernMessaging.showFooterMessage({
-					type: 'status',
-					message: `Comparison user matched by ${lookupResult.matchType}.`,
-					duration: 4000,
-				});
-			} else {
-				modernMessaging.showFooterMessage({
-					type: 'status',
-					message: 'Comparison user resolved successfully.',
-					duration: 4000,
-				});
-			}
-		} catch (err) {
-			// Check if this is a server error (500)
-			if (err instanceof Error && 'isServerError' in err && err.isServerError) {
-				setShowServerErrorModal(true);
-				setComparisonError('Backend server is not responding');
-			} else {
-				const message = err instanceof Error ? err.message : 'Unable to resolve comparison user.';
-				setComparisonError(message);
-				modernMessaging.showBanner({
-					type: 'error',
-					title: 'Error',
-					message: message,
-					dismissible: true,
-				});
-			}
-		} finally {
-			setIsComparisonLoading(false);
-		}
-	}, [accessToken, environmentId, compareIdentifier, fetchUserBundle, globalTokenStatus?.isValid]);
-
-	const _handleClearComparison = useCallback(() => {
-		setComparisonProfile(null);
-		setComparisonResolvedId('');
-		setComparisonGroups([]);
-		setComparisonRoles([]);
-		setComparisonMfaStatus(null);
-		setComparisonConsents([]);
-		setComparisonError(null);
-	}, []);
 
 	useEffect(() => {
 		if (showUserSelector) {
@@ -1583,46 +1382,8 @@ const PingOneUserProfile: React.FC = () => {
 		};
 	}, []);
 
-	const _copyToClipboard = (text: string) => {
-		navigator.clipboard.writeText(text);
-		modernMessaging.showFooterMessage({
-			type: 'status',
-			message: 'Copied to clipboard!',
-			duration: 4000,
-		});
-	};
 
-	const _getInitials = (nameInput: unknown): string => {
-		if (typeof nameInput !== 'string') {
-			if (nameInput && typeof nameInput === 'object') {
-				const formatted = (nameInput as { formatted?: string }).formatted;
-				if (formatted && typeof formatted === 'string') {
-					return _getInitials(formatted);
-				}
-			}
-			return 'U';
-		}
 
-		const name = nameInput.trim();
-		if (!name) return 'U';
-		const parts = name.split(' ').filter(Boolean);
-		if (parts.length >= 2) {
-			return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
-		}
-		return name.substring(0, 2).toUpperCase();
-	};
-
-	const _formatDate = (dateString: string) => {
-		if (!dateString) return 'N/A';
-		const date = new Date(dateString);
-		return date.toLocaleString('en-US', {
-			year: 'numeric',
-			month: 'short',
-			day: 'numeric',
-			hour: '2-digit',
-			minute: '2-digit',
-		});
-	};
 
 	if (loading) {
 		return (
@@ -1661,19 +1422,7 @@ const PingOneUserProfile: React.FC = () => {
 		);
 	}
 
-	// Worker token state derived from global hook
-	const hasValidWorkerToken = globalTokenStatus.isValid && !!globalTokenStatus.token;
-	const _workerTokenStatusVariant: 'valid' | 'expired' | 'missing' = hasValidWorkerToken
-		? 'valid'
-		: globalTokenStatus.token
-			? 'expired'
-			: 'missing';
-	const _workerTokenStatusMessage = hasValidWorkerToken
-		? `Worker token active. ${globalTokenStatus.message}.`
-		: globalTokenStatus.token
-			? `${globalTokenStatus.message}. Refresh before making new API calls.`
-			: globalTokenStatus.message;
-	const _workerTokenStatusDetail = '';
+    const hasValidWorkerToken = globalTokenStatus.isValid && !!globalTokenStatus.token;
 
 	if (!userProfile && showUserSelector) {
 		return (
@@ -1851,386 +1600,10 @@ const PingOneUserProfile: React.FC = () => {
 		return null;
 	}
 
-	const userName = (() => {
-		if (!userProfile) return 'User';
-		const { name } = userProfile;
-		if (typeof name === 'string') {
-			return name;
-		}
-		if (name && typeof name === 'object') {
-			const formatted = (name as { formatted?: string }).formatted;
-			if (formatted && typeof formatted === 'string') {
-				return formatted;
-			}
-			const givenName = (name as { givenName?: string }).givenName || userProfile.given_name;
-			const familyName = (name as { familyName?: string }).familyName;
-			const pieces = [givenName, familyName].filter(Boolean);
-			if (pieces.length) {
-				return pieces.join(' ');
-			}
-		}
-		return (
-			userProfile.given_name || userProfile.preferred_username || userProfile.username || 'User'
-		);
-	})();
 
-	// Get population name - use fetched details if available, otherwise extract from profile
-	const getPopulationName = (): string => {
-		if (populationDetails) {
-			const name = extractLabel(populationDetails, null, [
-				'name',
-				'displayName',
-				'title',
-				'description',
-			]);
-			if (name) return name;
-		}
-		return extractPopulation(userProfile?.population);
-	};
 
-	// Get comparison population name - use fetched details if available, otherwise extract from profile
-	const getComparisonPopulationName = (): string => {
-		if (comparisonPopulationDetails) {
-			const name = extractLabel(comparisonPopulationDetails, null, [
-				'name',
-				'displayName',
-				'title',
-				'description',
-			]);
-			if (name) return name;
-		}
-		return extractPopulation(comparisonProfile?.population);
-	};
 
-	const nameDetails =
-		userProfile?.name && typeof userProfile.name === 'object'
-			? (userProfile.name as { formatted?: string; givenName?: string; familyName?: string })
-			: null;
-	const _givenNameValue =
-		userProfile?.given_name ||
-		nameDetails?.givenName ||
-		(typeof userProfile?.name === 'string' ? userProfile?.name : '');
-	const _formattedNameValue = nameDetails?.formatted || userName;
-	const _email = (userProfile.email ?? '') as string;
-	const _emailVerified = Boolean(userProfile.email_verified);
-	const enabledStatusText =
-		userProfile.enabled === undefined ? 'Unknown' : userProfile.enabled ? 'Enabled' : 'Disabled';
-	const accountStatusText = userProfile.account?.status || enabledStatusText;
-	const syncStatusText =
-		userProfile.account?.syncState ||
-		(typeof userProfile.syncState === 'string' ? userProfile.syncState : '') ||
-		'Not available';
-	// Extract Authoritative Identity Provider/Profile - check multiple possible fields
-	const identityProfileName = (() => {
-		const authProfile = userProfile.authoritativeIdentityProfile || userProfile.identityProvider;
-		if (!authProfile) return 'Not assigned';
 
-		// Try to extract name from various field names
-		const name = extractLabel(authProfile, null, [
-			'name',
-			'displayName',
-			'description',
-			'title',
-			'type',
-		]);
-		if (name && name !== 'Not assigned') return name;
-
-		// If it's an object, check for nested properties
-		if (typeof authProfile === 'object' && authProfile !== null) {
-			const obj = authProfile as Record<string, unknown>;
-			// Check for identityProvider nested object
-			if (obj.identityProvider && typeof obj.identityProvider === 'object') {
-				const idpName = extractLabel(obj.identityProvider, null, ['name', 'displayName', 'type']);
-				if (idpName) return idpName;
-			}
-			// Check for id and use it as fallback
-			if (obj.id) return String(obj.id);
-		}
-
-		return 'Not assigned';
-	})();
-	const authenticationMethodsDisplay = collectAuthMethods(userProfile.authenticationMethods);
-	// Extract Primary Authentication Method - check multiple possible locations
-	const primaryAuthMethodText = (() => {
-		// First try primaryAuthenticationMethod field
-		const primaryMethod = normalizeAuthMethodValue(userProfile.primaryAuthenticationMethod);
-		if (primaryMethod) return primaryMethod;
-
-		// Then try authenticationMethods array
-		if (authenticationMethodsDisplay.length > 0) {
-			return authenticationMethodsDisplay[0];
-		}
-
-		// Check if there's a type or method field in the profile
-		if (userProfile && typeof userProfile === 'object') {
-			const profileObj = userProfile as Record<string, unknown>;
-			const typeMethod = normalizeAuthMethodValue(
-				profileObj.type || profileObj.method || profileObj.authenticationType
-			);
-			if (typeMethod) return typeMethod;
-		}
-
-		return 'Not set';
-	})();
-	// Determine MFA status - check mfaStatus first, then profile fields as fallback
-	const determineMfaStatus = (
-		mfa: PingOneMfaStatus | null,
-		profile: PingOneUserProfileData | null
-	): { enabled: boolean; text: string } => {
-		if (mfa?.enabled !== undefined) {
-			return {
-				enabled: mfa.enabled,
-				text: mfa.enabled
-					? mfa.status
-						? `Enabled (${mfa.status})`
-						: 'Enabled'
-					: mfa.status
-						? `Disabled (${mfa.status})`
-						: 'Disabled',
-			};
-		}
-		// Fallback: check profile for MFA-related fields
-		if (profile) {
-			const mfaEnabled = (profile as { mfaEnabled?: boolean }).mfaEnabled;
-			const mfaStatusField = (profile as { mfaStatus?: string }).mfaStatus;
-			if (mfaEnabled !== undefined) {
-				return {
-					enabled: mfaEnabled,
-					text: mfaEnabled ? 'Enabled' : 'Disabled',
-				};
-			}
-			if (mfaStatusField) {
-				const statusLower = String(mfaStatusField).toLowerCase();
-				const enabled = statusLower === 'enabled' || statusLower === 'active';
-				return {
-					enabled,
-					text: mfaStatusField,
-				};
-			}
-		}
-		return { enabled: false, text: 'Unknown' };
-	};
-
-	const mfaStatusResult = determineMfaStatus(mfaStatus, userProfile);
-	const mfaStatusText = mfaStatusResult.text;
-	const primaryConsentMap = buildConsentMap(userConsents);
-	const consentDisplay = Array.from(primaryConsentMap.entries()).map(
-		([label, status]) => `${label}: ${status}`
-	);
-
-	const _comparisonUserName = (() => {
-		if (!comparisonProfile) return 'Comparison User';
-		const { name } = comparisonProfile;
-		if (typeof name === 'string') {
-			return name;
-		}
-		if (name && typeof name === 'object') {
-			const formatted = (name as { formatted?: string }).formatted;
-			if (formatted && typeof formatted === 'string') {
-				return formatted;
-			}
-			const givenName = (name as { givenName?: string }).givenName || comparisonProfile.given_name;
-			const familyName = (name as { familyName?: string }).familyName;
-			const pieces = [givenName, familyName].filter(Boolean);
-			if (pieces.length) {
-				return pieces.join(' ');
-			}
-		}
-		return (
-			comparisonProfile.given_name ||
-			comparisonProfile.preferred_username ||
-			comparisonProfile.username ||
-			'Comparison User'
-		);
-	})();
-
-	const comparisonEnabledStatusText =
-		comparisonProfile?.enabled === undefined
-			? 'Unknown'
-			: comparisonProfile.enabled
-				? 'Enabled'
-				: 'Disabled';
-
-	const comparisonAccountStatusText =
-		comparisonProfile?.account?.status || comparisonEnabledStatusText;
-
-	const comparisonSyncStatusText =
-		comparisonProfile?.account?.syncState ||
-		(typeof comparisonProfile?.syncState === 'string' ? comparisonProfile.syncState : '') ||
-		'Not available';
-
-	// Extract Comparison Authoritative Identity Provider/Profile - same logic as primary
-	const comparisonIdentityProfileName = (() => {
-		if (!comparisonProfile) return 'Not assigned';
-		const authProfile =
-			comparisonProfile.authoritativeIdentityProfile || comparisonProfile.identityProvider;
-		if (!authProfile) return 'Not assigned';
-
-		// Try to extract name from various field names
-		const name = extractLabel(authProfile, null, [
-			'name',
-			'displayName',
-			'description',
-			'title',
-			'type',
-		]);
-		if (name && name !== 'Not assigned') return name;
-
-		// If it's an object, check for nested properties
-		if (typeof authProfile === 'object' && authProfile !== null) {
-			const obj = authProfile as Record<string, unknown>;
-			// Check for identityProvider nested object
-			if (obj.identityProvider && typeof obj.identityProvider === 'object') {
-				const idpName = extractLabel(obj.identityProvider, null, ['name', 'displayName', 'type']);
-				if (idpName) return idpName;
-			}
-			// Check for id and use it as fallback
-			if (obj.id) return String(obj.id);
-		}
-
-		return 'Not assigned';
-	})();
-
-	const comparisonAuthMethodsDisplay = collectAuthMethods(comparisonProfile?.authenticationMethods);
-	// Extract Primary Authentication Method for comparison user
-	const comparisonPrimaryAuthMethodText = (() => {
-		if (!comparisonProfile) return 'N/A';
-
-		// First try primaryAuthenticationMethod field
-		const primaryMethod = normalizeAuthMethodValue(comparisonProfile.primaryAuthenticationMethod);
-		if (primaryMethod) return primaryMethod;
-
-		// Then try authenticationMethods array
-		if (comparisonAuthMethodsDisplay.length > 0) {
-			return comparisonAuthMethodsDisplay[0];
-		}
-
-		// Check if there's a type or method field in the profile
-		if (typeof comparisonProfile === 'object') {
-			const profileObj = comparisonProfile as Record<string, unknown>;
-			const typeMethod = normalizeAuthMethodValue(
-				profileObj.type || profileObj.method || profileObj.authenticationType
-			);
-			if (typeMethod) return typeMethod;
-		}
-
-		return 'Not set';
-	})();
-
-	const comparisonMfaResult = determineMfaStatus(comparisonMfaStatus, comparisonProfile);
-	const comparisonMfaText = comparisonMfaResult.text;
-
-	const comparisonConsentMap = buildConsentMap(comparisonConsents);
-	const comparisonConsentDisplay = Array.from(comparisonConsentMap.entries()).map(
-		([label, status]) => `${label}: ${status}`
-	);
-
-	const primaryGroupNames = userGroups
-		.map((group) => extractLabel(group, null, ['name', 'displayName', 'title', 'description']))
-		.filter((name): name is string => Boolean(name?.trim()))
-		.map((name) => name.trim());
-
-	const comparisonGroupNames = comparisonGroups
-		.map((group) => extractLabel(group, null, ['name', 'displayName', 'title', 'description']))
-		.filter((name): name is string => Boolean(name?.trim()))
-		.map((name) => name.trim());
-
-	const _allGroupNames = Array.from(new Set([...primaryGroupNames, ...comparisonGroupNames])).sort(
-		(a, b) => a.localeCompare(b)
-	);
-	const _allAuthMethods = Array.from(
-		new Set([...authenticationMethodsDisplay, ...comparisonAuthMethodsDisplay])
-	).sort((a, b) => a.localeCompare(b));
-	const _allConsentLabels = Array.from(
-		new Set([...primaryConsentMap.keys(), ...comparisonConsentMap.keys()])
-	).sort((a, b) => a.localeCompare(b));
-
-	const comparisonLoaded = Boolean(comparisonProfile);
-
-	// Get username for primary and comparison users
-	const primaryUsername = userProfile?.preferred_username || userProfile?.username || 'N/A';
-	const comparisonUsername =
-		comparisonProfile?.preferred_username ||
-		comparisonProfile?.username ||
-		(comparisonLoaded ? 'N/A' : 'N/A');
-
-	const _comparisonSummaryRows = [
-		{
-			label: 'User ID',
-			primary: userProfile?.id || resolvedUserId || 'N/A',
-			secondary: comparisonProfile?.id || comparisonResolvedId || 'N/A',
-		},
-		{
-			label: 'Username',
-			primary: primaryUsername,
-			secondary: comparisonLoaded ? comparisonUsername : 'N/A',
-		},
-		{
-			label: 'Enabled',
-			primary: enabledStatusText,
-			secondary: comparisonLoaded ? comparisonEnabledStatusText : 'N/A',
-		},
-		{
-			label: 'Account Status',
-			primary: accountStatusText,
-			secondary: comparisonLoaded ? comparisonAccountStatusText : 'N/A',
-		},
-		{
-			label: 'Primary Authentication Method',
-			primary: primaryAuthMethodText,
-			secondary: comparisonLoaded ? comparisonPrimaryAuthMethodText : 'N/A',
-		},
-		{
-			label: 'Authoritative Identity Profile',
-			primary: identityProfileName,
-			secondary: comparisonLoaded ? comparisonIdentityProfileName : 'N/A',
-		},
-		{
-			label: 'MFA Status',
-			primary: mfaStatusText,
-			secondary: comparisonLoaded ? comparisonMfaText : 'N/A',
-		},
-		{
-			label: 'Sync Status',
-			primary: syncStatusText,
-			secondary: comparisonLoaded ? comparisonSyncStatusText : 'N/A',
-		},
-		{
-			label: 'Population',
-			primary: getPopulationName(),
-			secondary: comparisonLoaded ? getComparisonPopulationName() : 'N/A',
-		},
-		{
-			label: 'Group Count',
-			primary: userGroups.length.toString(),
-			secondary: comparisonLoaded ? comparisonGroups.length.toString() : 'N/A',
-		},
-		{
-			label: 'Role Count',
-			primary: userRoles.length.toString(),
-			secondary: comparisonLoaded ? comparisonRoles.length.toString() : 'N/A',
-		},
-		{
-			label: 'Authentication Methods',
-			primary: authenticationMethodsDisplay.length
-				? authenticationMethodsDisplay.join(', ')
-				: 'None',
-			secondary: comparisonLoaded
-				? comparisonAuthMethodsDisplay.length
-					? comparisonAuthMethodsDisplay.join(', ')
-					: 'None'
-				: 'N/A',
-		},
-		{
-			label: 'Consent Records',
-			primary: consentDisplay.length ? consentDisplay.join(', ') : 'None',
-			secondary: comparisonLoaded
-				? comparisonConsentDisplay.length
-					? comparisonConsentDisplay.join(', ')
-					: 'None'
-				: 'N/A',
-		},
-	];
 
 	return (
 		<PageContainer>
