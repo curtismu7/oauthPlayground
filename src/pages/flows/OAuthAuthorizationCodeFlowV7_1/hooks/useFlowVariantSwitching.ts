@@ -5,6 +5,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FLOW_CONSTANTS } from '../constants/flowConstants';
 import type { FlowCredentials, FlowVariant } from '../types/flowTypes';
 
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+
 // Mock services - these would be imported from actual services in real implementation
 const FlowCredentialService = {
 	loadSharedCredentials: async (key: string): Promise<Partial<FlowCredentials> | null> => {
@@ -109,14 +111,14 @@ export const useFlowVariantSwitching = (
 				onCredentialsChange(updatedCredentials);
 
 				// Show success message
-				v4ToastManager.showSuccess(`Switched to ${newVariant.toUpperCase()} variant`);
+				modernMessaging.showFooterMessage({ type: 'status', message: `Switched to ${newVariant.toUpperCase()} variant`, duration: 4000 });
 
 				console.log(`✅ Successfully switched to ${newVariant.toUpperCase()} variant`);
 			} catch (error) {
 				const errorMessage = `Failed to switch to ${newVariant} variant: ${error instanceof Error ? error.message : 'Unknown error'}`;
 				console.error('❌ Variant switch error:', errorMessage);
 				setSwitchError(errorMessage);
-				v4ToastManager.showError(errorMessage);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
 			} finally {
 				setIsSwitching(false);
 			}

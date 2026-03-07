@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { environmentIdPersistenceService } from '../services/environmentIdPersistenceService';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const StatusContent = styled.div`
   color: #075985;
@@ -77,7 +77,7 @@ export const EnvironmentIdPersistenceStatus: React.FC<EnvironmentIdPersistenceSt
 		console.log('[EnvironmentIdPersistenceStatus] Generated env content:', envContent);
 		navigator.clipboard.writeText(envContent).then(() => {
 			console.log('[EnvironmentIdPersistenceStatus] Copied to clipboard');
-			v4ToastManager.showSuccess('Environment content copied to clipboard!');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'Environment content copied to clipboard!', duration: 4000 });
 		});
 	};
 
@@ -87,9 +87,7 @@ export const EnvironmentIdPersistenceStatus: React.FC<EnvironmentIdPersistenceSt
 		console.log('[EnvironmentIdPersistenceStatus] Generated env content with newline:', envContent);
 		navigator.clipboard.writeText(envContent).then(() => {
 			console.log('[EnvironmentIdPersistenceStatus] Copied to clipboard with newline');
-			v4ToastManager.showSuccess(
-				'Environment content copied! Paste into your .env file on a new line.'
-			);
+			modernMessaging.showFooterMessage({ type: 'status', message: 'Environment content copied! Paste into your .env file on a new line.', duration: 4000 });
 		});
 	};
 

@@ -10,7 +10,7 @@ import { FiAlertCircle, FiCheck, FiEye, FiImage, FiPlus, FiSave, FiUpload, FiX }
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { v4ToastManager } from '../../../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CompanyConfigService } from '../services/CompanyConfigService';
 import type { CompanyConfigDraft, CompanyEditorState, Industry } from '../types/CompanyConfig';
 import { DEFAULT_COMPANY_COLORS } from '../types/CompanyConfig';
@@ -365,7 +365,7 @@ export const CreateCompanyPage: React.FC = () => {
 
 		// Show subtle feedback for important fields
 		if (field === 'name' && value.length > 0) {
-			v4ToastManager.showInfo('Company name updated');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'Company name updated', duration: 4000 });
 		}
 	}, []);
 
@@ -384,7 +384,7 @@ export const CreateCompanyPage: React.FC = () => {
 
 			// Show feedback for color changes
 			const colorName = colorField.charAt(0).toUpperCase() + colorField.slice(1);
-			v4ToastManager.showInfo(`${colorName} color updated`);
+			modernMessaging.showFooterMessage({ type: 'info', message: `${colorName} color updated`, duration: 4000 });
 		},
 		[]
 	);
@@ -409,7 +409,7 @@ export const CreateCompanyPage: React.FC = () => {
 		(assetField: keyof CompanyConfigDraft['assets'], file: File) => {
 			// Validate file size (5MB limit)
 			if (file.size > 5 * 1024 * 1024) {
-				v4ToastManager.showError('File size must be less than 5MB');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'File size must be less than 5MB', dismissible: true });
 				return;
 			}
 
@@ -423,7 +423,7 @@ export const CreateCompanyPage: React.FC = () => {
 				'image/svg+xml',
 			];
 			if (!allowedTypes.includes(file.type)) {
-				v4ToastManager.showError('Only JPG, PNG, GIF, WebP, and SVG files are allowed');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Only JPG, PNG, GIF, WebP, and SVG files are allowed', dismissible: true });
 				return;
 			}
 
@@ -433,7 +433,7 @@ export const CreateCompanyPage: React.FC = () => {
 
 			// Show success message
 			const assetName = assetField === 'logoUrl' ? 'Logo' : 'Footer image';
-			v4ToastManager.showSuccess(`${assetName} uploaded successfully`);
+			modernMessaging.showFooterMessage({ type: 'status', message: `${assetName} uploaded successfully`, duration: 4000 });
 		},
 		[handleAssetChange]
 	);
@@ -457,7 +457,7 @@ export const CreateCompanyPage: React.FC = () => {
 
 	const handleSave = useCallback(async () => {
 		if (!state.validation.isValid) {
-			v4ToastManager.showError('Please fill in all required fields');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please fill in all required fields', dismissible: true });
 			return;
 		}
 
@@ -466,14 +466,14 @@ export const CreateCompanyPage: React.FC = () => {
 		try {
 			await companyService.saveDraft(state.config);
 			setState((prev) => ({ ...prev, saveStatus: 'success' }));
-			v4ToastManager.showSuccess('Company configuration saved successfully!');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'Company configuration saved successfully!', duration: 4000 });
 		} catch (error) {
 			setState((prev) => ({
 				...prev,
 				saveStatus: 'error',
 				lastError: error instanceof Error ? error.message : 'Unknown error',
 			}));
-			v4ToastManager.showError('Failed to save configuration. Please try again.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save configuration. Please try again.', dismissible: true });
 		} finally {
 			setState((prev) => ({ ...prev, isSaving: false }));
 		}
@@ -481,7 +481,7 @@ export const CreateCompanyPage: React.FC = () => {
 
 	const handleCreate = useCallback(async () => {
 		if (!state.validation.isValid) {
-			v4ToastManager.showError('Please fill in all required fields');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please fill in all required fields', dismissible: true });
 			return;
 		}
 
@@ -494,9 +494,7 @@ export const CreateCompanyPage: React.FC = () => {
 			// Navigate to the Protect Portal with the new company
 			const companyTheme = newCompany.name.toLowerCase().replace(/\s+/g, '-');
 			console.log('Company created:', newCompany);
-			v4ToastManager.showSuccess(
-				`Perfect! The delta theme has been successfully updated with all the required properties from the BrandTheme interface. Company "${state.config.name}" created successfully! Redirecting to portal...`
-			);
+			modernMessaging.showFooterMessage({ type: 'status', message: `Perfect! The delta theme has been successfully updated with all the required properties from the BrandTheme interface. Company "${state.config.name}" created successfully! Redirecting to portal...`, duration: 4000 });
 
 			// Dispatch custom event to notify other components
 			window.dispatchEvent(
@@ -515,7 +513,7 @@ export const CreateCompanyPage: React.FC = () => {
 				createStatus: 'error',
 				lastError: error instanceof Error ? error.message : 'Unknown error',
 			}));
-			v4ToastManager.showError('Failed to create company. Please try again.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to create company. Please try again.', dismissible: true });
 		} finally {
 			setState((prev) => ({ ...prev, isCreating: false }));
 		}

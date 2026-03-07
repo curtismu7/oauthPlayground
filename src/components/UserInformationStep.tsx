@@ -2,7 +2,7 @@ import { FiCheckCircle, FiChevronDown, FiCopy, FiExternalLink, FiEye, FiUser } f
 import React, { useCallback, useEffect, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 // Keyframes for animations
 const pulse = keyframes`
@@ -243,7 +243,7 @@ const UserInformationStep: React.FC<UserInformationStepProps> = ({
 
 	const handleCopy = useCallback((text: string, label: string) => {
 		navigator.clipboard.writeText(text);
-		v4ToastManager.showSuccess(`${label} copied to clipboard`);
+		modernMessaging.showFooterMessage({ type: 'status', message: `${label} copied to clipboard`, duration: 4000 });
 	}, []);
 
 	const handleNavigateToTokenManagement = useCallback(() => {
@@ -313,13 +313,13 @@ const UserInformationStep: React.FC<UserInformationStepProps> = ({
 		setJustFetched(false);
 		try {
 			await onFetchUserInfo();
-			v4ToastManager.showSuccess('✓ User information fetched successfully!', {
+			modernMessaging.showFooterMessage({ type: 'status', message: '✓ User information fetched successfully!', {
 				description: 'Check the UserInfo Response section below',
-			});
+			}, duration: 4000 });
 			// Auto-collapse overview to focus on results
 			setCollapsedSections((prev) => ({ ...prev, userInfoOverview: true }));
 		} catch (_error) {
-			v4ToastManager.showError('Failed to fetch user information');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to fetch user information', dismissible: true });
 		} finally {
 			setIsLoading(false);
 		}

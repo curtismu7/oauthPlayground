@@ -5,7 +5,7 @@ import { FiAlertCircle, FiCheckCircle, FiKey, FiMonitor, FiShield, FiX } from '@
 import React, { useEffect, useState } from 'react';
 import { FIDO2Config, FIDO2Service } from '../services/fido2Service';
 import { logger } from '../utils/logger';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 interface FIDO2RegistrationModalProps {
 	isOpen: boolean;
@@ -51,7 +51,7 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 
 	const handleRegisterCredential = async () => {
 		if (!capabilities?.webAuthnSupported) {
-			v4ToastManager.showError('WebAuthn is not supported in this browser');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'WebAuthn is not supported in this browser', dismissible: true });
 			return;
 		}
 
@@ -91,7 +91,7 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 
 			if (result.success && result.credentialId) {
 				console.log('✅ [FIDO2 Registration] Credential registered successfully');
-				v4ToastManager.showSuccess('Passkey registered successfully!');
+				modernMessaging.showFooterMessage({ type: 'status', message: 'Passkey registered successfully!', duration: 4000 });
 				onSuccess(result.credentialId, result.publicKey || '');
 			} else {
 				throw new Error(result.error || 'Registration failed');
@@ -104,7 +104,7 @@ const FIDO2RegistrationModal: React.FC<FIDO2RegistrationModalProps> = ({
 				error as Error
 			);
 			setError(error.message || 'Registration failed');
-			v4ToastManager.showError(error.message || 'Failed to register passkey');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error.message || 'Failed to register passkey', dismissible: true });
 		} finally {
 			setIsRegistering(false);
 		}

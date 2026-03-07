@@ -4,7 +4,7 @@ import { FiCopy, FiExternalLink, FiKey, FiShield } from '@icons';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import TokenDisplayService, { type DecodedJWT } from '../services/tokenDisplayService';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 interface InlineTokenDisplayProps {
 	label: string;
@@ -284,9 +284,9 @@ export const InlineTokenDisplay: React.FC<InlineTokenDisplayProps> = ({
 		const success = await TokenDisplayService.copyToClipboard(token);
 		if (success) {
 			TokenDisplayService.logTokenCopy(tokenInfo);
-			v4ToastManager.showSuccess(`[📋 COPIED] ${label} copied`);
+			modernMessaging.showFooterMessage({ type: 'status', message: `[📋 COPIED] ${label} copied`, duration: 4000 });
 		} else {
-			v4ToastManager.showError('Failed to copy token to clipboard');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to copy token to clipboard', dismissible: true });
 		}
 	}, [token, label, tokenInfo]);
 
@@ -309,7 +309,7 @@ export const InlineTokenDisplay: React.FC<InlineTokenDisplayProps> = ({
 	const handleSendToTokenManagement = useCallback(() => {
 		// Navigate to Token Management page with token in state
 		window.location.href = `/token-management?token=${encodeURIComponent(token)}&type=${tokenType}&source=${encodeURIComponent(flowKey || 'unknown')}&label=${encodeURIComponent(label)}`;
-		v4ToastManager.showSuccess(`${label} sent to Token Management`);
+		modernMessaging.showFooterMessage({ type: 'status', message: `${label} sent to Token Management`, duration: 4000 });
 	}, [token, tokenType, flowKey, label]);
 
 	const preview = masked ? TokenDisplayService.maskToken(token) : token;

@@ -28,7 +28,7 @@ import {
 	generateRSAKeyPair,
 } from '../utils/keyGeneration';
 import { logger } from '../utils/logger';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const MODULE_TAG = '[🔐 JWT-CONFIG-V8]';
 
@@ -258,15 +258,13 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 			setClientSecret(generatedSecret.secret);
 
 			const strength = assessSecurityStrength.clientSecret(generatedSecret.secret);
-			v4ToastManager.showSuccess(
-				`Client secret generated! Strength: ${strength.strength.toUpperCase()} (${strength.score}/6)`
-			);
+			modernMessaging.showFooterMessage({ type: 'status', message: `Client secret generated! Strength: ${strength.strength.toUpperCase()} (${strength.score}/6)`, duration: 4000 });
 
 			if (strength.recommendations.length > 0) {
 				console.log(`${MODULE_TAG} Security recommendations:`, strength.recommendations);
 			}
 		} catch (error) {
-			v4ToastManager.showError('Failed to generate client secret');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to generate client secret', dismissible: true });
 			logger.error('JWTConfigV8', 'Secret generation error:', undefined, error as Error);
 		} finally {
 			setIsGeneratingKey(false);
@@ -282,15 +280,15 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 			setKeyId(generatedKeyPair.keyId);
 
 			const strength = assessSecurityStrength.keyPair(2048);
-			v4ToastManager.showSuccess(`RSA key pair generated! Key ID: ${generatedKeyPair.keyId}`);
-			v4ToastManager.showInfo(strength.recommendation);
+			modernMessaging.showFooterMessage({ type: 'status', message: `RSA key pair generated! Key ID: ${generatedKeyPair.keyId}`, duration: 4000 });
+			modernMessaging.showFooterMessage({ type: 'info', message: strength.recommendation, duration: 4000 });
 
 			// Notify parent component if callback is provided
 			if (onPrivateKeyGenerated) {
 				onPrivateKeyGenerated(generatedKeyPair.privateKey, generatedKeyPair.keyId);
 			}
 		} catch (error) {
-			v4ToastManager.showError('Failed to generate RSA key pair');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to generate RSA key pair', dismissible: true });
 			logger.error('JWTConfigV8', 'Key generation error:', undefined, error as Error);
 		} finally {
 			setIsGeneratingKey(false);
@@ -306,7 +304,7 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 
 			if (type === 'client_secret_jwt') {
 				if (!clientId || !tokenEndpoint || !clientSecret) {
-					v4ToastManager.showError('Please fill in all required fields');
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please fill in all required fields', dismissible: true });
 					setIsGenerating(false);
 					return;
 				}
@@ -324,15 +322,13 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 				generationResult = await jwtAuthServiceV8.generateClientSecretJWT(clientSecretConfig);
 			} else {
 				if (!clientId || !tokenEndpoint || !privateKey) {
-					v4ToastManager.showError('Please fill in all required fields');
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please fill in all required fields', dismissible: true });
 					setIsGenerating(false);
 					return;
 				}
 
 				if (!jwtAuthServiceV8.validatePrivateKey(privateKey)) {
-					v4ToastManager.showError(
-						'Invalid private key format. Please provide a valid PEM-formatted private key.'
-					);
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Invalid private key format. Please provide a valid PEM-formatted private key.', dismissible: true });
 					setIsGenerating(false);
 					return;
 				}
@@ -354,15 +350,15 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 			setResult(generationResult);
 
 			if (generationResult.success && generationResult.jwt) {
-				v4ToastManager.showSuccess('JWT generated successfully!');
+				modernMessaging.showFooterMessage({ type: 'status', message: 'JWT generated successfully!', duration: 4000 });
 				onJWTGenerated?.(generationResult.jwt, generationResult);
 			} else {
-				v4ToastManager.showError(generationResult.error || 'Failed to generate JWT');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: generationResult.error || 'Failed to generate JWT', dismissible: true });
 			}
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 			setResult({ success: false, error: errorMessage });
-			v4ToastManager.showError(`Failed to generate JWT: ${errorMessage}`);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to generate JWT: ${errorMessage}`, dismissible: true });
 		} finally {
 			setIsGenerating(false);
 		}
@@ -373,9 +369,9 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 
 		try {
 			await navigator.clipboard.writeText(result.jwt);
-			v4ToastManager.showSuccess('JWT copied to clipboard');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'JWT copied to clipboard', duration: 4000 });
 		} catch {
-			v4ToastManager.showError('Failed to copy JWT');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to copy JWT', dismissible: true });
 		}
 	};
 

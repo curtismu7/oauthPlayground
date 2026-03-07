@@ -12,7 +12,7 @@ import {
 	triggerFileImport,
 } from '../services/credentialExportImportService';
 import { logger } from '../utils/logger';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { DraggableModal } from './DraggableModal';
 import type { StepCredentials } from './steps/CommonSteps';
 
@@ -171,9 +171,7 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 
 	const handleSave = async () => {
 		if (!credentials.environmentId || !credentials.clientId || !credentials.clientSecret) {
-			v4ToastManager.showError(
-				'Please fill in all required fields (Environment ID, Client ID, and Client Secret)'
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please fill in all required fields (Environment ID, Client ID, and Client Secret)', dismissible: true });
 			return;
 		}
 
@@ -196,11 +194,11 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 			);
 
 			if (success) {
-				v4ToastManager.showSuccess('Authorization Code credentials saved successfully');
+				modernMessaging.showFooterMessage({ type: 'status', message: 'Authorization Code credentials saved successfully', duration: 4000 });
 				onCredentialsSaved?.(credentials);
 				onClose();
 			} else {
-				v4ToastManager.showError('Failed to save credentials');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save credentials', dismissible: true });
 			}
 		} catch (error) {
 			logger.error(
@@ -209,7 +207,7 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 				undefined,
 				error as Error
 			);
-			v4ToastManager.showError('Error saving credentials');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Error saving credentials', dismissible: true });
 		} finally {
 			setIsSaving(false);
 		}
@@ -218,7 +216,7 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 	const handleExport = () => {
 		try {
 			if (!credentials.environmentId || !credentials.clientId || !credentials.clientSecret) {
-				v4ToastManager.showError('Please fill in all required fields before exporting');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please fill in all required fields before exporting', dismissible: true });
 				return;
 			}
 
@@ -234,7 +232,7 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 			};
 
 			exportAuthzCredentials(authzCredentials);
-			v4ToastManager.showSuccess('Authorization Code credentials exported successfully!');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'Authorization Code credentials exported successfully!', duration: 4000 });
 		} catch (error) {
 			logger.error(
 				'AuthorizationCodeConfigModal',
@@ -242,9 +240,7 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 				undefined,
 				error as Error
 			);
-			v4ToastManager.showError(
-				error instanceof Error ? error.message : 'Failed to export credentials'
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Failed to export credentials', dismissible: true });
 		}
 	};
 
@@ -274,11 +270,9 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 
 					comprehensiveFlowDataService.saveFlowCredentialsIsolated(flowType, credentialsToSave);
 
-					v4ToastManager.showSuccess('Authorization Code credentials imported successfully!');
+					modernMessaging.showFooterMessage({ type: 'status', message: 'Authorization Code credentials imported successfully!', duration: 4000 });
 				} else {
-					v4ToastManager.showError(
-						'The selected file does not contain Authorization Code credentials'
-					);
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'The selected file does not contain Authorization Code credentials', dismissible: true });
 				}
 			} catch (error) {
 				logger.error(
@@ -287,9 +281,7 @@ export const AuthorizationCodeConfigModal: React.FC<AuthorizationCodeConfigModal
 					undefined,
 					error as Error
 				);
-				v4ToastManager.showError(
-					error instanceof Error ? error.message : 'Failed to import credentials'
-				);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Failed to import credentials', dismissible: true });
 			}
 		});
 	};

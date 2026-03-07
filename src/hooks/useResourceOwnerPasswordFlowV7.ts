@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { credentialManager } from '../utils/credentialManager';
 import { useFlowStepManager } from '../utils/flowStepSystem';
 import { logger } from '../utils/logger';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 export interface ResourceOwnerPasswordCredentials {
 	environmentId: string;
@@ -149,7 +149,7 @@ export const useResourceOwnerPasswordFlowV7 = ({
 				timestamp: Date.now(),
 			});
 
-			v4ToastManager.showSuccess('Configuration saved successfully.');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'Configuration saved successfully.', duration: 4000 });
 		} catch (error) {
 			logger.error(
 				'useResourceOwnerPasswordFlowV7',
@@ -157,9 +157,9 @@ export const useResourceOwnerPasswordFlowV7 = ({
 				undefined,
 				error instanceof Error ? error : new Error(String(error))
 			);
-			v4ToastManager.showError('Failed to save configuration', {
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save configuration', {
 				error: error instanceof Error ? error.message : 'Unknown error',
-			});
+			}, dismissible: true });
 		} finally {
 			setIsSavingCredentials(false);
 		}
@@ -174,7 +174,7 @@ export const useResourceOwnerPasswordFlowV7 = ({
 			!credentials.username ||
 			!credentials.password
 		) {
-			v4ToastManager.showError('All credentials are required for Resource Owner Password flow');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'All credentials are required for Resource Owner Password flow', dismissible: true });
 			return;
 		}
 
@@ -238,7 +238,7 @@ export const useResourceOwnerPasswordFlowV7 = ({
 				scope: tokenData.scope,
 			});
 
-			v4ToastManager.showSuccess('Authentication successful! Access token received.');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'Authentication successful! Access token received.', duration: 4000 });
 
 			// Auto-advance to next step
 			stepManager.setStep(stepManager.currentStepIndex + 1, 'authentication completed');
@@ -249,9 +249,9 @@ export const useResourceOwnerPasswordFlowV7 = ({
 				undefined,
 				error instanceof Error ? error : new Error(String(error))
 			);
-			v4ToastManager.showError('Authentication failed', {
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Authentication failed', {
 				error: error instanceof Error ? error.message : 'Unknown error',
-			});
+			}, dismissible: true });
 
 			saveStepResult('authenticate-user', {
 				success: false,
@@ -266,7 +266,7 @@ export const useResourceOwnerPasswordFlowV7 = ({
 	// Fetch user info using access token
 	const fetchUserInfo = useCallback(async () => {
 		if (!tokens?.access_token) {
-			v4ToastManager.showError('Access token is required to fetch user information');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Access token is required to fetch user information', dismissible: true });
 			return;
 		}
 
@@ -302,7 +302,7 @@ export const useResourceOwnerPasswordFlowV7 = ({
 				userSub: userData.sub,
 			});
 
-			v4ToastManager.showSuccess('User information fetched successfully.');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'User information fetched successfully.', duration: 4000 });
 		} catch (error) {
 			logger.error(
 				'useResourceOwnerPasswordFlowV7',
@@ -310,9 +310,9 @@ export const useResourceOwnerPasswordFlowV7 = ({
 				undefined,
 				error instanceof Error ? error : new Error(String(error))
 			);
-			v4ToastManager.showError('Failed to fetch user information', {
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to fetch user information', {
 				error: error instanceof Error ? error.message : 'Unknown error',
-			});
+			}, dismissible: true });
 
 			saveStepResult('fetch-user-info', {
 				success: false,
@@ -327,7 +327,7 @@ export const useResourceOwnerPasswordFlowV7 = ({
 	// Refresh tokens using refresh token
 	const refreshTokens = useCallback(async () => {
 		if (!tokens?.refresh_token) {
-			v4ToastManager.showError('Refresh token is required to refresh access token');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Refresh token is required to refresh access token', dismissible: true });
 			return;
 		}
 
@@ -379,7 +379,7 @@ export const useResourceOwnerPasswordFlowV7 = ({
 				expiresIn: newTokens.expires_in,
 			});
 
-			v4ToastManager.showSuccess('Tokens refreshed successfully.');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'Tokens refreshed successfully.', duration: 4000 });
 		} catch (error) {
 			logger.error(
 				'useResourceOwnerPasswordFlowV7',
@@ -387,9 +387,9 @@ export const useResourceOwnerPasswordFlowV7 = ({
 				undefined,
 				error instanceof Error ? error : new Error(String(error))
 			);
-			v4ToastManager.showError('Failed to refresh tokens', {
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to refresh tokens', {
 				error: error instanceof Error ? error.message : 'Unknown error',
-			});
+			}, dismissible: true });
 
 			saveStepResult('refresh-tokens', {
 				success: false,
@@ -408,7 +408,7 @@ export const useResourceOwnerPasswordFlowV7 = ({
 		setRefreshedTokens(null);
 		setStepResults({});
 		stepManager.setStep(0, 'flow reset');
-		v4ToastManager.showSuccess('Flow reset successfully.');
+		modernMessaging.showFooterMessage({ type: 'status', message: 'Flow reset successfully.', duration: 4000 });
 	}, [stepManager]);
 
 	// Step result management

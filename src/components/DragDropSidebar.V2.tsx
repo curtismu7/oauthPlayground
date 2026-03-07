@@ -58,7 +58,7 @@ import {
 	V9CredentialStorageService,
 } from '../services/v9/V9CredentialStorageService';
 import { logger } from '../utils/logger';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import MenuVersionBadge from './MenuVersionBadge';
 
 const ColoredIcon = styled.div<{ $color: string }>`
@@ -2484,7 +2484,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				}
 			}
 
-			v4ToastManager.showSuccess(`Moved "${sourceItem.label}" to ${targetLocation}`);
+			modernMessaging.showFooterMessage({ type: 'status', message: `Moved "${sourceItem.label}" to ${targetLocation}`, duration: 4000 });
 		}
 	};
 
@@ -2537,7 +2537,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 
 					setMenuGroups(newGroups);
 					saveWithFeedback(newGroups);
-					v4ToastManager.showSuccess(`Moved "${movedItem.label}" to end of ${targetGroup.label}`);
+					modernMessaging.showFooterMessage({ type: 'status', message: `Moved "${movedItem.label}" to end of ${targetGroup.label}`, duration: 4000 });
 
 					// Clear draggedItem after successful drop
 					setDraggedItem(null);
@@ -2561,7 +2561,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 
 			setMenuGroups(newGroups);
 			saveWithFeedback(newGroups);
-			v4ToastManager.showSuccess(`Reordered "${movedGroup.label}" section`);
+			modernMessaging.showFooterMessage({ type: 'status', message: `Reordered "${movedGroup.label}" section`, duration: 4000 });
 
 			// Clear draggedItem after successful drop
 			setDraggedItem(null);

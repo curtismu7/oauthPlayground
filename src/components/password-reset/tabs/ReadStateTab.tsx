@@ -15,7 +15,7 @@ import {
 	FiXCircle,
 } from '../../../services/commonImportsService';
 import { readPasswordState } from '../../../services/passwordResetService';
-import { v4ToastManager } from '../../../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { ColoredJsonDisplay } from '../../ColoredJsonDisplay';
 import {
 	Alert,
@@ -118,7 +118,7 @@ export const ReadStateTab: React.FC<ReadStateTabProps> = ({ environmentId, worke
 
 	const handleReadState = async () => {
 		if (!user || !user.id || !workerToken || !environmentId) {
-			v4ToastManager.showError('Please lookup a user first');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please lookup a user first', dismissible: true });
 			return;
 		}
 
@@ -127,14 +127,12 @@ export const ReadStateTab: React.FC<ReadStateTabProps> = ({ environmentId, worke
 			const result = await readPasswordState(environmentId, user.id, workerToken);
 			if (result.success && result.passwordState) {
 				setPasswordState(result.passwordState);
-				v4ToastManager.showSuccess('Password state retrieved successfully!');
+				modernMessaging.showFooterMessage({ type: 'status', message: 'Password state retrieved successfully!', duration: 4000 });
 			} else {
-				v4ToastManager.showError(result.errorDescription || 'Failed to read password state');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: result.errorDescription || 'Failed to read password state', dismissible: true });
 			}
 		} catch (error) {
-			v4ToastManager.showError(
-				error instanceof Error ? error.message : 'Failed to read password state'
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Failed to read password state', dismissible: true });
 		} finally {
 			setLoading(false);
 		}

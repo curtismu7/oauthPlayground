@@ -10,7 +10,7 @@ import {
 	FiKey,
 } from '../../../services/commonImportsService';
 import { checkPassword } from '../../../services/passwordResetService';
-import { v4ToastManager } from '../../../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { PasswordInput } from '../shared/PasswordInput';
 import { PasswordOperationSuccessModal } from '../shared/PasswordOperationSuccessModal';
 import { PasswordResetErrorInfo } from '../shared/PasswordResetErrorModal';
@@ -49,10 +49,10 @@ export const CheckPasswordTab: React.FC<CheckPasswordTabProps> = ({
 		(info: PasswordResetErrorInfo, toast: 'error' | 'warning' = 'error') => {
 			onError?.(info);
 			if (toast === 'warning') {
-				v4ToastManager.showWarning(info.message);
+				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: info.message, dismissible: true });
 				return;
 			}
-			v4ToastManager.showError(info.message);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: info.message, dismissible: true });
 		},
 		[onError]
 	);
@@ -94,7 +94,7 @@ export const CheckPasswordTab: React.FC<CheckPasswordTabProps> = ({
 
 				setResult({ valid: true, message: checkResult.message || 'Password is correct' });
 				setShowSuccessModal(true);
-				v4ToastManager.showSuccess('Password is correct');
+				modernMessaging.showFooterMessage({ type: 'status', message: 'Password is correct', duration: 4000 });
 				return;
 			}
 

@@ -16,7 +16,7 @@ import {
 } from '../../../services/passwordResetService';
 import { lookupPingOneUser } from '../../../services/pingOneUserProfileService';
 import { UserComparisonDisplay, type UserState } from '../../../services/userComparisonService';
-import { v4ToastManager } from '../../../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CodeGenerator } from '../shared/CodeGenerator';
 import { HighlightedSection } from '../shared/HighlightedSection';
 import { PasswordInput } from '../shared/PasswordInput';
@@ -66,10 +66,10 @@ export const RecoverTab: React.FC<RecoverTabProps> = ({
 		(info: PasswordResetErrorInfo) => {
 			onError?.(info);
 			if (info.severity === 'warning') {
-				v4ToastManager.showWarning(info.message);
+				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: info.message, dismissible: true });
 				return;
 			}
-			v4ToastManager.showError(info.message);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: info.message, dismissible: true });
 		},
 		[onError]
 	);
@@ -126,7 +126,7 @@ export const RecoverTab: React.FC<RecoverTabProps> = ({
 
 			if (sendResult.success) {
 				setCodeSent(true);
-				v4ToastManager.showSuccess(`Recovery code sent to ${trimmedEmail}`);
+				modernMessaging.showFooterMessage({ type: 'status', message: `Recovery code sent to ${trimmedEmail}`, duration: 4000 });
 			} else {
 				raiseError({
 					title: 'Unable to Send Recovery Code',
@@ -191,9 +191,7 @@ export const RecoverTab: React.FC<RecoverTabProps> = ({
 				setAfterState(afterUserState);
 
 				setSuccess(true);
-				v4ToastManager.showSuccess(
-					'Password recovered successfully! You can now sign in with your new password.'
-				);
+				modernMessaging.showFooterMessage({ type: 'status', message: 'Password recovered successfully! You can now sign in with your new password.', duration: 4000 });
 				setRecoveryCode('');
 				setNewPassword('');
 				setEmail('');

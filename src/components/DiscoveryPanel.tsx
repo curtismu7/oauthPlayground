@@ -17,7 +17,7 @@ import { discoveryService, type OpenIDConfiguration } from '../services/discover
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import CopyIcon from './CopyIcon';
 
 interface DiscoveryPanelProps {
@@ -422,7 +422,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 	const handleDiscover = async () => {
 		if (!environmentId.trim()) {
 			setStatus({ type: 'error', message: 'Please enter an Environment ID' });
-			v4ToastManager.showError('Please enter a valid PingOne Environment ID to discover endpoints');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter a valid PingOne Environment ID to discover endpoints', dismissible: true });
 			return;
 		}
 
@@ -431,9 +431,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 				type: 'error',
 				message: 'Invalid Environment ID format. Please enter a valid UUID.',
 			});
-			v4ToastManager.showError(
-				'Environment ID must be a valid UUID format (e.g., 12345678-1234-1234-1234-123456789abc)'
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Environment ID must be a valid UUID format (e.g., 12345678-1234-1234-1234-123456789abc)', dismissible: true });
 			return;
 		}
 
@@ -457,7 +455,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 					message:
 						'Configuration discovered successfully. Switch between Formatted and JSON views to see the response.',
 				});
-				v4ToastManager.showSuccess('saveConfigurationSuccess');
+				modernMessaging.showFooterMessage({ type: 'status', message: 'saveConfigurationSuccess', duration: 4000 });
 				logger.success('DiscoveryPanel', 'Configuration discovered successfully', {
 					environmentId,
 					issuer: result.configuration.issuer,
@@ -467,7 +465,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 					type: 'error',
 					message: result.error || 'Failed to discover configuration',
 				});
-				v4ToastManager.showError('networkError');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'networkError', dismissible: true });
 			}
 		} catch (error) {
 			logger.error(
@@ -476,7 +474,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 				undefined,
 				error as Error
 			);
-			v4ToastManager.showError('networkError');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'networkError', dismissible: true });
 			setStatus({
 				type: 'error',
 				message:
@@ -495,14 +493,14 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 				setRawJsonResponse(null);
 				setViewMode('formatted');
 
-				v4ToastManager.showSuccess('saveConfigurationSuccess');
+				modernMessaging.showFooterMessage({ type: 'status', message: 'saveConfigurationSuccess', duration: 4000 });
 				onClose();
 			} catch (error) {
-				v4ToastManager.showError('stepError');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'stepError', dismissible: true });
 				logger.error('DiscoveryPanel', 'Failed to apply configuration', error);
 			}
 		} else {
-			v4ToastManager.showError('stepError');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'stepError', dismissible: true });
 		}
 	};
 
@@ -510,11 +508,11 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 		try {
 			await navigator.clipboard.writeText(text);
 			setCopiedField(field);
-			v4ToastManager.showCopySuccess(field);
+			modernMessaging.showFooterMessage({ type: 'status', message: `${field} copied to clipboard`, duration: 4000 });
 			setTimeout(() => setCopiedField(null), 2000);
 		} catch (error) {
 			logger.error('DiscoveryPanel', 'Failed to copy:', undefined, error as Error);
-			v4ToastManager.showCopyError(field);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to copy ${field}`, dismissible: true });
 		}
 	};
 
@@ -741,7 +739,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 											setDiscoveredConfig(null);
 											setRawJsonResponse(null);
 											setViewMode('formatted');
-											v4ToastManager.showSuccess('saveConfigurationSuccess');
+											modernMessaging.showFooterMessage({ type: 'status', message: 'saveConfigurationSuccess', duration: 4000 });
 										}}
 									>
 										<FiRefreshCw />
@@ -751,7 +749,7 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 								<Button
 									variant="secondary"
 									onClick={() => {
-										v4ToastManager.showSuccess('saveConfigurationSuccess');
+										modernMessaging.showFooterMessage({ type: 'status', message: 'saveConfigurationSuccess', duration: 4000 });
 										onClose();
 									}}
 								>

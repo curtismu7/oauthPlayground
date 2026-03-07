@@ -18,6 +18,8 @@ import { useFlowVariantSwitching } from './hooks/useFlowVariantSwitching';
 import { usePerformanceMonitoring } from './hooks/usePerformanceMonitoring';
 import type { FlowCredentials, FlowVariant, TokenResponse, UserInfo } from './types/flowTypes';
 
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+
 // Mock services - these would be imported from actual services in real implementation
 const v4ToastManager = {
 	showSuccess: (message: string) => console.log('✅ Toast:', message),
@@ -287,7 +289,7 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
 				setIsLoading(false);
 				performanceMonitoring.endRender();
 
-				v4ToastManager.showInfo('Flow initialized successfully');
+				modernMessaging.showFooterMessage({ type: 'info', message: 'Flow initialized successfully', duration: 4000 });
 			} catch (error) {
 				console.error('Failed to initialize flow:', error);
 				onFlowError?.(error as Error);
@@ -319,7 +321,7 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
 			}
 			flowState.markStepCompleted(FLOW_CONSTANTS.TOTAL_STEPS - 1);
 			onFlowComplete?.(tokens, userInfo);
-			v4ToastManager.showSuccess('Flow completed successfully!');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'Flow completed successfully!', duration: 4000 });
 		},
 		[flowState, onFlowComplete]
 	);
@@ -329,7 +331,7 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
 		(error: Error) => {
 			performanceMonitoring.recordError(error);
 			onFlowError?.(error);
-			v4ToastManager.showError(`Flow error: ${error.message}`);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Flow error: ${error.message}`, dismissible: true });
 		},
 		[performanceMonitoring, onFlowError]
 	);
@@ -339,7 +341,7 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
 		(step: number) => {
 			if (flowState.canGoToStep(step)) {
 				flowState.goToStep(step);
-				v4ToastManager.showInfo(`Navigated to step ${step + 1}`);
+				modernMessaging.showFooterMessage({ type: 'info', message: `Navigated to step ${step + 1}`, duration: 4000 });
 			}
 		},
 		[flowState]
@@ -349,7 +351,7 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
 	const handleFlowReset = useCallback(() => {
 		flowState.resetFlow();
 		authCodeManagement.clearAuthCode();
-		v4ToastManager.showInfo('Flow reset successfully');
+		modernMessaging.showFooterMessage({ type: 'info', message: 'Flow reset successfully', duration: 4000 });
 	}, [flowState, authCodeManagement]);
 
 	// Handle variant change
@@ -391,14 +393,14 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
 	// Handle token refresh
 	const handleRefreshTokens = useCallback(() => {
 		// This would implement token refresh logic
-		v4ToastManager.showInfo('Token refresh not implemented yet');
+		modernMessaging.showFooterMessage({ type: 'info', message: 'Token refresh not implemented yet', duration: 4000 });
 	}, []);
 
 	// Handle clear results
 	const handleClearResults = useCallback(() => {
 		flowState.clearTokens();
 		flowState.clearUserInfo();
-		v4ToastManager.showInfo('Results cleared');
+		modernMessaging.showFooterMessage({ type: 'info', message: 'Results cleared', duration: 4000 });
 	}, [flowState]);
 
 	// Handle go home

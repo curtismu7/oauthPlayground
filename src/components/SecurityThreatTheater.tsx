@@ -17,7 +17,7 @@ import {
 } from '@icons';
 import React, { useCallback, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const TheaterContainer = styled.div`
 	background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
@@ -909,9 +909,9 @@ const SecurityThreatTheater: React.FC = () => {
 			setIsSimulating(false);
 
 			if (mode === 'protected') {
-				v4ToastManager.showSuccess('Attack blocked by security parameter!');
+				modernMessaging.showFooterMessage({ type: 'status', message: 'Attack blocked by security parameter!', duration: 4000 });
 			} else {
-				v4ToastManager.showError('Security breach demonstrated!');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Security breach demonstrated!', dismissible: true });
 			}
 		},
 		[scenario, addLog]

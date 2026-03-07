@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { logger } from './logger';
-import { v4ToastManager } from './v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 export interface CredentialsCheck {
 	environmentId?: string;
@@ -44,9 +44,7 @@ export function checkCredentialsAndWarn(
 			.map((field) => field.charAt(0).toUpperCase() + field.slice(1).replace(/([A-Z])/g, ' $1'))
 			.join(', ');
 
-		v4ToastManager.showWarning(
-			`⚠️ ${flowName}: Please fill in your credentials (${missingFieldsText}) to continue`
-		);
+		modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: `⚠️ ${flowName}: Please fill in your credentials (${missingFieldsText}) to continue`, dismissible: true });
 
 		logger.warn('CredentialsWarning', `${flowName} started without credentials:`, {
 			missingFields,

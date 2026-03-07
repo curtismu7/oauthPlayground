@@ -33,7 +33,7 @@ import { Button } from '@/components/ui/button';
 import { useGlobalWorkerToken } from '@/hooks/useGlobalWorkerToken';
 import type { V9DiscoveredApp } from '@/services/v9/V9AppDiscoveryService';
 import { V9CredentialStorageService } from '@/services/v9/V9CredentialStorageService';
-import { v4ToastManager } from '@/utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import { WorkerTokenStatusDisplayV8 } from '@/v8/components/WorkerTokenStatusDisplayV8';
 import { useCibaFlowV8Enhanced } from '@/v8/hooks/useCibaFlowV8Enhanced';
@@ -390,7 +390,7 @@ const CIBAFlowV9: React.FC = () => {
 						discoveryRetryTimeoutRef.current = null;
 					}, 60000);
 				} else {
-					v4ToastManager.showError('Failed to load discovery metadata. Will retry.');
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to load discovery metadata. Will retry.', dismissible: true });
 				}
 			}
 		},
@@ -468,7 +468,7 @@ const CIBAFlowV9: React.FC = () => {
 			console.log(`${MODULE_TAG} Generated login hint token successfully`);
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			v4ToastManager.showError(`Failed to generate login hint token: ${errorMessage}`);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to generate login hint token: ${errorMessage}`, dismissible: true });
 		}
 	};
 
@@ -478,14 +478,14 @@ const CIBAFlowV9: React.FC = () => {
 			// Validate credentials
 			const validation = CibaServiceV8Enhanced.validateCredentials(credentials);
 			if (!validation.valid) {
-				v4ToastManager.showError(`Invalid credentials: ${validation.errors.join(', ')}`);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Invalid credentials: ${validation.errors.join(', ')}`, dismissible: true });
 				return;
 			}
 
 			await cibaFlow.initiateAuthentication(credentials);
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Authentication failed';
-			v4ToastManager.showError(`Failed to initiate authentication: ${errorMessage}`);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to initiate authentication: ${errorMessage}`, dismissible: true });
 		}
 	};
 
@@ -500,11 +500,11 @@ const CIBAFlowV9: React.FC = () => {
 			);
 
 			if (result.status === 'approved' && result.tokens) {
-				v4ToastManager.showSuccess('CIBA authentication completed successfully!');
+				modernMessaging.showFooterMessage({ type: 'status', message: 'CIBA authentication completed successfully!', duration: 4000 });
 			}
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Polling failed';
-			v4ToastManager.showError(`Failed to poll for tokens: ${errorMessage}`);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to poll for tokens: ${errorMessage}`, dismissible: true });
 		}
 	};
 
@@ -513,10 +513,10 @@ const CIBAFlowV9: React.FC = () => {
 		try {
 			await navigator.clipboard.writeText(token);
 			setCopiedToken(true);
-			v4ToastManager.showSuccess('Token copied to clipboard');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'Token copied to clipboard', duration: 4000 });
 			setTimeout(() => setCopiedToken(false), 2000);
 		} catch {
-			v4ToastManager.showError('Failed to copy token');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to copy token', dismissible: true });
 		}
 	};
 
@@ -542,9 +542,9 @@ const CIBAFlowV9: React.FC = () => {
 	const handleGetWorkerToken = async () => {
 		try {
 			await getWorkerToken();
-			v4ToastManager.showSuccess('Worker token retrieved successfully');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'Worker token retrieved successfully', duration: 4000 });
 		} catch (error) {
-			v4ToastManager.showError('Failed to retrieve worker token');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to retrieve worker token', dismissible: true });
 		}
 	};
 

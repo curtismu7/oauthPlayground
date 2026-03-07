@@ -1,5 +1,5 @@
 // src/utils/reusableTokenUtils.ts
-import { v4ToastManager } from './v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 /**
  * Reusable JWT decoding utility extracted from TokenManagement
@@ -102,7 +102,10 @@ export const getTokenType = (
  * Copy token to clipboard with toast feedback
  */
 export const copyTokenToClipboard = (token: string, tokenType: string = 'Token'): void => {
-	v4ToastManager.handleCopyOperation(token, tokenType);
+	navigator.clipboard
+		.writeText(token)
+		.then(() => modernMessaging.showFooterMessage({ type: 'status', message: `${tokenType} copied to clipboard!`, duration: 4000 }))
+		.catch(() => modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to copy ${tokenType}: Unable to copy to clipboard.`, dismissible: true }));
 };
 
 /**

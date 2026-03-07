@@ -75,7 +75,7 @@ import {
 	workerTokenCredentialsService,
 } from '../services/workerTokenCredentialsService';
 import credentialManager from '../utils/credentialManager';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import OAuthErrorDisplay from './OAuthErrorDisplay';
 
 export interface CompleteMFAFlowProps {
@@ -684,17 +684,13 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 			!workerTokenCredentials.clientId ||
 			!workerTokenCredentials.clientSecret
 		) {
-			v4ToastManager.showError(
-				'Please enter Environment ID, Client ID, and Client Secret in the Worker Token Configuration section'
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter Environment ID, Client ID, and Client Secret in the Worker Token Configuration section', dismissible: true });
 			return;
 		}
 
 		// Check if clientId is accidentally the same as environmentId (common mistake)
 		if (workerTokenCredentials.clientId === workerTokenCredentials.environmentId) {
-			v4ToastManager.showError(
-				'Client ID cannot be the same as Environment ID. Please check your Worker Token credentials.'
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Client ID cannot be the same as Environment ID. Please check your Worker Token credentials.', dismissible: true });
 			return;
 		}
 
@@ -782,7 +778,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 				workerToken: tokenData.access_token,
 			}));
 
-			v4ToastManager.showSuccess('✅ Worker token obtained successfully!');
+			modernMessaging.showFooterMessage({ type: 'status', message: '✅ Worker token obtained successfully!', duration: 4000 });
 
 			// Clear any previous error details on success
 			setErrorDetails(null);
@@ -806,7 +802,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 			});
 
 			// Show the user-friendly error message
-			v4ToastManager.showError(errorDetails.message);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorDetails.message, dismissible: true });
 
 			// Store detailed error information for UI display
 			setErrorDetails(errorDetails);
@@ -842,7 +838,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 	const handlePingOneMfaResponse = useCallback(
 		async (responseType: string) => {
 			if (!credentials.environmentId || !credentials.clientId) {
-				v4ToastManager.showError('Please enter Environment ID and Client ID');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter Environment ID and Client ID', dismissible: true });
 				return;
 			}
 
@@ -884,7 +880,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					}
 				} catch (error) {
 					console.error('🔐 [MFA Flow V7] Failed to generate PKCE codes:', error);
-					v4ToastManager.showError('Failed to generate PKCE codes');
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to generate PKCE codes', dismissible: true });
 					return;
 				}
 
@@ -1013,16 +1009,14 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 				// Show appropriate message based on URL validation
 				if (isSuccess) {
-					v4ToastManager.showSuccess(
-						`✅ Authorization URL validated successfully for response=${responseType}`
-					);
+					modernMessaging.showFooterMessage({ type: 'status', message: `✅ Authorization URL validated successfully for response=${responseType}`, duration: 4000 });
 				} else {
-					v4ToastManager.showError(`❌ Authorization URL validation failed: ${errorMessage}`);
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: `❌ Authorization URL validation failed: ${errorMessage}`, dismissible: true });
 				}
 			} catch (error: unknown) {
 				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 				console.error(`❌ [MFA Flow V7] Failed to validate authorization URL:`, error);
-				v4ToastManager.showError(`Failed to validate authorization URL: ${errorMessage}`);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to validate authorization URL: ${errorMessage}`, dismissible: true });
 			} finally {
 				setIsLoading(false);
 
@@ -1055,11 +1049,11 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 			}
 
 			setHasUnsavedChanges(false);
-			v4ToastManager.showSuccess('Worker Token credentials saved successfully');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'Worker Token credentials saved successfully', duration: 4000 });
 			console.log('[CompleteMFAFlowV7] Worker Token credentials saved successfully');
 		} catch (error) {
 			console.error('[CompleteMFAFlowV7] Failed to save worker token credentials:', error);
-			v4ToastManager.showError('Failed to save worker token credentials');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save worker token credentials', dismissible: true });
 		} finally {
 			setIsSaving(false);
 		}
@@ -1112,11 +1106,11 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 			console.log('📢 [CompleteMFAFlowV7] Configuration change events dispatched');
 
 			setHasUnsavedChanges(false);
-			v4ToastManager.showSuccess('Authorization Code credentials saved successfully');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'Authorization Code credentials saved successfully', duration: 4000 });
 			console.log('[CompleteMFAFlowV7] Authorization Code credentials saved successfully');
 		} catch (error) {
 			console.error('[CompleteMFAFlowV7] Failed to save authorization code credentials:', error);
-			v4ToastManager.showError('Failed to save authorization code credentials');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save authorization code credentials', dismissible: true });
 		} finally {
 			setIsSaving(false);
 		}
@@ -1142,11 +1136,11 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 			}
 
 			setHasUnsavedChanges(false);
-			v4ToastManager.showSuccess('Credentials saved successfully');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'Credentials saved successfully', duration: 4000 });
 			console.log('[CompleteMFAFlowV7] Credentials saved successfully');
 		} catch (error) {
 			console.error('[CompleteMFAFlowV7] Failed to save credentials:', error);
-			v4ToastManager.showError('Failed to save credentials');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save credentials', dismissible: true });
 		} finally {
 			setIsSaving(false);
 		}
@@ -1241,9 +1235,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 			if (mode === 'redirectless') {
 				// For redirectless, we need username/password and use response_mode=pi.flow
 				if (!credentials.username || !credentials.password) {
-					v4ToastManager.showError(
-						'Please enter username and password for redirectless authentication'
-					);
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter username and password for redirectless authentication', dismissible: true });
 					return;
 				}
 
@@ -1294,7 +1286,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 							'🔐 [MFA Flow V7] Failed to generate PKCE codes for redirectless auth:',
 							error
 						);
-						v4ToastManager.showError('Failed to generate PKCE codes');
+						modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to generate PKCE codes', dismissible: true });
 						setIsLoading(false);
 						return;
 					}
@@ -1332,9 +1324,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					});
 
 					if (!effectiveEnvironmentId || !effectiveClientId) {
-						v4ToastManager.showError(
-							'Please enter Environment ID and Client ID in the Authorization Code Configuration section'
-						);
+						modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter Environment ID and Client ID in the Authorization Code Configuration section', dismissible: true });
 						setIsLoading(false);
 						return;
 					}
@@ -1437,9 +1427,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 					if (!response.ok) {
 						console.error(`❌ [MFA Flow V7] PingOne pi.flow request failed:`, responseData);
-						v4ToastManager.showError(
-							`Redirectless authentication failed: ${responseData.error || responseData.message || 'Unknown error'}`
-						);
+						modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Redirectless authentication failed: ${responseData.error || responseData.message || 'Unknown error'}`, dismissible: true });
 						return;
 					}
 
@@ -1485,7 +1473,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 							userId: responseData.userId,
 							user: responseData.user,
 						});
-						v4ToastManager.showSuccess('Redirectless authentication initiated successfully');
+						modernMessaging.showFooterMessage({ type: 'status', message: 'Redirectless authentication initiated successfully', duration: 4000 });
 
 						// Try to extract userId from multiple sources in the flow response
 						let extractedUserId: string | undefined;
@@ -1632,9 +1620,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 									workerToken: tokenData.access_token,
 								}));
 
-								v4ToastManager.showSuccess(
-									'✅ Worker token obtained! Ready for device registration.'
-								);
+								modernMessaging.showFooterMessage({ type: 'status', message: '✅ Worker token obtained! Ready for device registration.', duration: 4000 });
 							} else {
 								const errorData = await tokenResponse.json();
 								console.log('🔐 [MFA Flow V7] Worker token request failed:', {
@@ -1648,9 +1634,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 									basicAuthHeader: `Basic ${basicAuth.substring(0, 20)}...`,
 									requestBody: tokenRequestBody.toString(),
 								});
-								v4ToastManager.showError(
-									`Failed to get worker token: ${errorData.error_description || errorData.error || 'Unknown error'}`
-								);
+								modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to get worker token: ${errorData.error_description || errorData.error || 'Unknown error'}`, dismissible: true });
 							}
 						} catch (error) {
 							console.log('🔐 [MFA Flow V7] Worker token request failed:', error);
@@ -1719,9 +1703,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 						// Advance to device pairing step
 						setCurrentStep('device_pairing');
 						onStepChange?.('device_pairing');
-						v4ToastManager.showSuccess(
-							'✅ Redirectless authentication completed! Proceeding to device pairing.'
-						);
+						modernMessaging.showFooterMessage({ type: 'status', message: '✅ Redirectless authentication completed! Proceeding to device pairing.', duration: 4000 });
 					} else if (responseData.id && responseData.resumeUrl) {
 						// Handle PingOne flow response format with id and resumeUrl
 						console.log(`🔐 [MFA Flow V7] Received PingOne flow response:`, {
@@ -1732,7 +1714,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 							hasEmbedded: !!responseData._embedded,
 						});
 
-						v4ToastManager.showSuccess('Redirectless authentication initiated successfully');
+						modernMessaging.showFooterMessage({ type: 'status', message: 'Redirectless authentication initiated successfully', duration: 4000 });
 
 						// Store the flow information in flow context
 						setFlowContext((prev) => ({
@@ -1753,17 +1735,15 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 						// Advance directly to device pairing step for redirectless authentication
 						setCurrentStep('device_pairing');
 						onStepChange?.('device_pairing');
-						v4ToastManager.showSuccess(
-							'✅ Redirectless authentication successful! Ready for device registration.'
-						);
+						modernMessaging.showFooterMessage({ type: 'status', message: '✅ Redirectless authentication successful! Ready for device registration.', duration: 4000 });
 					} else {
 						console.warn(`⚠️ [MFA Flow V7] Unexpected pi.flow response format:`, responseData);
-						v4ToastManager.showWarning('Unexpected response format from PingOne');
+						modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Unexpected response format from PingOne', dismissible: true });
 					}
 				} catch (authError: unknown) {
 					const errorMessage = authError instanceof Error ? authError.message : 'Unknown error';
 					console.error(`❌ [MFA Flow V7] Authorization request failed:`, authError);
-					v4ToastManager.showError(`Authorization request failed: ${errorMessage}`);
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Authorization request failed: ${errorMessage}`, dismissible: true });
 					return;
 				} finally {
 					setIsLoading(false);
@@ -1818,7 +1798,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					}
 				} catch (error) {
 					console.error('🔐 [MFA Flow V7] Failed to generate PKCE codes for redirect auth:', error);
-					v4ToastManager.showError('Failed to generate PKCE codes');
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to generate PKCE codes', dismissible: true });
 					return;
 				}
 
@@ -1833,13 +1813,13 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 				// Validate PKCE codes before building URL
 				if (!codeChallenge || codeChallenge.length === 0) {
 					console.error('🔐 [MFA Flow V7] PKCE Error - codeChallenge is empty or undefined');
-					v4ToastManager.showError('Failed to generate PKCE code challenge');
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to generate PKCE code challenge', dismissible: true });
 					return;
 				}
 
 				if (!codeVerifier || codeVerifier.length === 0) {
 					console.error('🔐 [MFA Flow V7] PKCE Error - codeVerifier is empty or undefined');
-					v4ToastManager.showError('Failed to generate PKCE code verifier');
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to generate PKCE code verifier', dismissible: true });
 					return;
 				}
 
@@ -1871,9 +1851,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 				});
 
 				if (!effectiveEnvironmentId || !effectiveClientId) {
-					v4ToastManager.showError(
-						'Please enter Environment ID and Client ID in the Authorization Code Configuration section'
-					);
+					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter Environment ID and Client ID in the Authorization Code Configuration section', dismissible: true });
 					return;
 				}
 
@@ -1971,9 +1949,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 						setCurrentStep('device_pairing');
 						onStepChange?.('device_pairing');
 
-						v4ToastManager.showSuccess(
-							'✅ Authentication completed! Proceeding to device registration.'
-						);
+						modernMessaging.showFooterMessage({ type: 'status', message: '✅ Authentication completed! Proceeding to device registration.', duration: 4000 });
 					}
 				}, 1000);
 			} else {
@@ -1983,13 +1959,13 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 				// Show success modal
 				setShowSuccessModal(true);
-				v4ToastManager.showSuccess('✅ User authenticated successfully!');
+				modernMessaging.showFooterMessage({ type: 'status', message: '✅ User authenticated successfully!', duration: 4000 });
 			}
 		} catch (error: unknown) {
 			const errorMessage = error instanceof Error ? error.message : 'Authentication failed';
 			console.error('Authentication Error:', error);
 			setError(errorMessage);
-			v4ToastManager.showError(`Authentication failed: ${errorMessage}`);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Authentication failed: ${errorMessage}`, dismissible: true });
 		} finally {
 			setIsLoading(false);
 		}
@@ -2037,7 +2013,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 	// Device registration handler
 	const handleDeviceRegistration = useCallback(async () => {
 		if (!isDeviceInfoValid()) {
-			v4ToastManager.showError('Please fill in all required device information');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please fill in all required device information', dismissible: true });
 			return;
 		}
 
@@ -2080,9 +2056,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 		if (!effectiveUserId) {
 			console.error(`❌ [MFA Flow V7] No userId found in flowContext:`, flowContext);
-			v4ToastManager.showError(
-				'Please complete authentication first to get your user ID. Complete the authentication step and wait for the flow to finish before registering devices.'
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please complete authentication first to get your user ID. Complete the authentication step and wait for the flow to finish before registering devices.', dismissible: true });
 			return;
 		}
 
@@ -2228,14 +2202,12 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 			});
 			setShowDeviceRegistrationModal(true);
 
-			v4ToastManager.showSuccess(
-				`${selectedDeviceType.toUpperCase()} device registered successfully!`
-			);
+			modernMessaging.showFooterMessage({ type: 'status', message: `${selectedDeviceType.toUpperCase()} device registered successfully!`, duration: 4000 });
 			console.log(`✅ [MFA Flow V7] Device registered:`, newDevice);
 		} catch (error: unknown) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 			console.error(`❌ [MFA Flow V7] Device registration failed:`, error);
-			v4ToastManager.showError(`Device registration failed: ${errorMessage}`);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Device registration failed: ${errorMessage}`, dismissible: true });
 		} finally {
 			setIsLoading(false);
 		}
@@ -2276,9 +2248,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 	const handleContinueFromTOTPQRCode = useCallback(() => {
 		setShowTOTPQRCodeModal(false);
 		// The user has set up their authenticator app, now they can enter the verification code
-		v4ToastManager.showSuccess(
-			'Authenticator app setup complete! Now enter the 6-digit code from your app.'
-		);
+		modernMessaging.showFooterMessage({ type: 'status', message: 'Authenticator app setup complete! Now enter the 6-digit code from your app.', duration: 4000 });
 	}, []);
 
 	// FIDO2 registration modal handlers
@@ -2300,7 +2270,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
 			// Store the FIDO2 credential information
 			sessionStorage.setItem('fido2Credential', JSON.stringify({ credentialId, publicKey }));
-			v4ToastManager.showSuccess('FIDO2 passkey registered successfully!');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'FIDO2 passkey registered successfully!', duration: 4000 });
 
 			// Ensure selectedDeviceType is set to fido2 for device registration
 			if (selectedDeviceType !== 'fido2') {
@@ -2329,11 +2299,11 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					// Progress to MFA challenge step
 					setCurrentStep('mfa_challenge');
 					onStepChange?.('mfa_challenge');
-					v4ToastManager.showSuccess('✅ FIDO2 device registered! Proceeding to MFA challenge.');
+					modernMessaging.showFooterMessage({ type: 'status', message: '✅ FIDO2 device registered! Proceeding to MFA challenge.', duration: 4000 });
 				}, 1000);
 			} catch (error) {
 				console.error('❌ [MFA Flow V7] Failed to register FIDO2 device:', error);
-				v4ToastManager.showError('Failed to register FIDO2 device with PingOne');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to register FIDO2 device with PingOne', dismissible: true });
 				// Don't progress if registration failed
 			}
 		},
@@ -2344,7 +2314,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 	const initiateMfaChallenge = useCallback(
 		async (device: MfaDevice) => {
 			if (!flowContext.workerToken || !authCodeCredentials.environmentId) {
-				v4ToastManager.showError('Worker token and environment ID are required for MFA challenge');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Worker token and environment ID are required for MFA challenge', dismissible: true });
 				return;
 			}
 
@@ -2432,15 +2402,13 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 						selectedDevice: device,
 					}));
 
-					v4ToastManager.showSuccess(`MFA challenge sent to your ${device.type} device`);
+					modernMessaging.showFooterMessage({ type: 'status', message: `MFA challenge sent to your ${device.type} device`, duration: 4000 });
 				} finally {
 					window.removeEventListener('scroll', preventScroll);
 				}
 			} catch (error) {
 				console.error('❌ [MFA Flow V7] MFA challenge initiation failed:', error);
-				v4ToastManager.showError(
-					`Failed to initiate MFA challenge: ${error instanceof Error ? error.message : 'Unknown error'}`
-				);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to initiate MFA challenge: ${error instanceof Error ? error.message : 'Unknown error'}`, dismissible: true });
 			} finally {
 				setIsLoading(false);
 			}
@@ -2461,9 +2429,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 				!flowContext.workerToken ||
 				!authCodeCredentials.environmentId
 			) {
-				v4ToastManager.showError(
-					'Challenge ID, worker token, and environment ID are required for verification'
-				);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Challenge ID, worker token, and environment ID are required for verification', dismissible: true });
 				return;
 			}
 
@@ -2546,21 +2512,19 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 					}));
 
 					if (verifyData.success) {
-						v4ToastManager.showSuccess('MFA challenge completed successfully!');
+						modernMessaging.showFooterMessage({ type: 'status', message: 'MFA challenge completed successfully!', duration: 4000 });
 						// Move to token retrieval step
 						setCurrentStep('token_retrieval');
 						onStepChange?.('token_retrieval');
 					} else {
-						v4ToastManager.showError('MFA challenge verification failed. Please try again.');
+						modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'MFA challenge verification failed. Please try again.', dismissible: true });
 					}
 				} finally {
 					window.removeEventListener('scroll', preventScroll);
 				}
 			} catch (error) {
 				console.error('❌ [MFA Flow V7] MFA challenge verification failed:', error);
-				v4ToastManager.showError(
-					`Failed to verify MFA challenge: ${error instanceof Error ? error.message : 'Unknown error'}`
-				);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to verify MFA challenge: ${error instanceof Error ? error.message : 'Unknown error'}`, dismissible: true });
 			} finally {
 				setIsLoading(false);
 			}
@@ -2583,7 +2547,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 			!authCodeCredentials.clientId ||
 			!authCodeCredentials.clientSecret
 		) {
-			v4ToastManager.showError('Missing authorization code or credentials for token exchange');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Missing authorization code or credentials for token exchange', dismissible: true });
 			return;
 		}
 
@@ -2694,7 +2658,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 				tokenExchange: tokenExchangeCall,
 			}));
 
-			v4ToastManager.showSuccess('✅ Tokens retrieved successfully!');
+			modernMessaging.showFooterMessage({ type: 'status', message: '✅ Tokens retrieved successfully!', duration: 4000 });
 
 			// Move to success step
 			setCurrentStep('success');
@@ -2702,7 +2666,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 		} catch (error: unknown) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 			console.error('❌ [MFA Flow V7] Token exchange failed:', error);
-			v4ToastManager.showError(`Token exchange failed: ${errorMessage}`);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Token exchange failed: ${errorMessage}`, dismissible: true });
 		} finally {
 			setIsLoading(false);
 		}

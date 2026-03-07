@@ -9,7 +9,7 @@
  */
 
 import { logger } from '../utils/logger';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 export interface DPoPKeyPair {
 	publicKey: CryptoKey;
@@ -274,7 +274,7 @@ export class DPoPHttpHelper {
 			};
 		} catch (error) {
 			logger.error('DPoPService', 'Failed to add DPoP headers', undefined, error as Error);
-			v4ToastManager.showError('Failed to create DPoP proof');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to create DPoP proof', dismissible: true });
 			return headers;
 		}
 	}

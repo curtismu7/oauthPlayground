@@ -3,7 +3,7 @@
 import { FiCopy, FiEye, FiEyeOff, FiInfo } from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 interface Parameter {
 	label: string;
@@ -219,7 +219,7 @@ export const GeneratedParametersDisplay: React.FC<GeneratedParametersDisplayProp
 
 	const handleCopy = (value: string, label: string) => {
 		navigator.clipboard.writeText(value);
-		v4ToastManager.showSuccess(`${label} copied to clipboard!`);
+		modernMessaging.showFooterMessage({ type: 'status', message: `${label} copied to clipboard!`, duration: 4000 });
 		onCopy?.(value, label);
 	};
 

@@ -2,7 +2,7 @@ import { FiAlertCircle, FiCheckCircle, FiLoader } from '@icons';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const LOG_PREFIX = '[🔀 OIDC-HYBRID]';
 
@@ -198,7 +198,7 @@ const HybridCallback: React.FC = () => {
 
 				setStatus('success');
 				setMessage('Authorization successful! Redirecting...');
-				v4ToastManager.showSuccess('Authorization successful!');
+				modernMessaging.showFooterMessage({ type: 'status', message: 'Authorization successful!', duration: 4000 });
 
 				// Redirect to hybrid flow page
 				setTimeout(() => {
@@ -209,7 +209,7 @@ const HybridCallback: React.FC = () => {
 				setStatus('error');
 				setMessage('Authorization failed');
 				setErrorDetails(err.message || 'Unknown error occurred');
-				v4ToastManager.showError(err.message || 'Authorization failed');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: err.message || 'Authorization failed', dismissible: true });
 
 				// Redirect back to flow page after delay
 				setTimeout(() => {

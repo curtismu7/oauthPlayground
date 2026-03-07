@@ -22,7 +22,7 @@ import {
 	implicitFlowComplianceService,
 } from '../services/implicitFlowComplianceService';
 import { logger } from '../utils/logger';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 export interface ImplicitFlowCredentials {
 	environmentId: string;
@@ -200,9 +200,9 @@ export const useOAuth2CompliantImplicitFlow = (): [ImplicitFlowState, ImplicitFl
 
 		// Show validation results
 		if (isValid) {
-			v4ToastManager.showSuccess('Implicit flow configuration validated successfully');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'Implicit flow configuration validated successfully', duration: 4000 });
 		} else {
-			v4ToastManager.showError(`Configuration validation failed: ${errors.join(', ')}`);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Configuration validation failed: ${errors.join(', ')}`, dismissible: true });
 		}
 
 		warnings.forEach((warning) => {
@@ -255,7 +255,7 @@ export const useOAuth2CompliantImplicitFlow = (): [ImplicitFlowState, ImplicitFl
 			// Store state for callback validation
 			sessionStorage.setItem('implicit_state', secureState);
 
-			v4ToastManager.showSuccess('Implicit flow authorization URL generated successfully');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'Implicit flow authorization URL generated successfully', duration: 4000 });
 			logger.info('useOAuth2CompliantImplicitFlow', 'Authorization URL generated', {
 				url: authorizationUrl,
 				state: `${secureState.substring(0, 10)}...`,
@@ -265,7 +265,7 @@ export const useOAuth2CompliantImplicitFlow = (): [ImplicitFlowState, ImplicitFl
 			const errorMessage =
 				error instanceof Error ? error.message : 'Failed to generate authorization URL';
 			addError({ error: 'server_error', error_description: errorMessage });
-			v4ToastManager.showError(errorMessage);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
 		}
 	}, [state.isConfigValid, state.credentials, clearMessages, addError]);
 
@@ -323,7 +323,7 @@ export const useOAuth2CompliantImplicitFlow = (): [ImplicitFlowState, ImplicitFl
 				window.location.pathname + window.location.search
 			);
 
-			v4ToastManager.showSuccess('Implicit flow tokens received and validated successfully');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'Implicit flow tokens received and validated successfully', duration: 4000 });
 			logger.info('useOAuth2CompliantImplicitFlow', 'Token response processed', {
 				hasAccessToken: !!tokens.access_token,
 				hasIdToken: !!tokens.id_token,
@@ -336,7 +336,7 @@ export const useOAuth2CompliantImplicitFlow = (): [ImplicitFlowState, ImplicitFl
 			const errorMessage =
 				error instanceof Error ? error.message : 'Token response processing failed';
 			addError({ error: 'server_error', error_description: errorMessage });
-			v4ToastManager.showError(errorMessage);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
 		}
 	}, [state.credentials, clearMessages, addError, addWarning]);
 
@@ -355,7 +355,7 @@ export const useOAuth2CompliantImplicitFlow = (): [ImplicitFlowState, ImplicitFl
 			);
 		}
 
-		v4ToastManager.showInfo('Implicit flow reset successfully');
+		modernMessaging.showFooterMessage({ type: 'info', message: 'Implicit flow reset successfully', duration: 4000 });
 	}, []);
 
 	// Go to specific step
@@ -382,7 +382,7 @@ export const useOAuth2CompliantImplicitFlow = (): [ImplicitFlowState, ImplicitFl
 					error_description: errorDescription || undefined,
 					state: receivedState || undefined,
 				});
-				v4ToastManager.showError(`Authorization error: ${error}`);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Authorization error: ${error}`, dismissible: true });
 			} else if (params.get('access_token') || params.get('id_token')) {
 				// Auto-process token response
 				handleTokenResponse();

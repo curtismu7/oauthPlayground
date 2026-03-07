@@ -2,7 +2,7 @@
 // SAML Assertion Service for OAuth 2.0 SAML Bearer Assertion Flow
 
 import { logger } from '../utils/logger';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 export interface SAMLAssertionData {
 	issuer: string;
@@ -114,7 +114,7 @@ export class SAMLAssertionService {
 					timestamp: new Date().toISOString(),
 				};
 				localStorage.setItem(SAMLAssertionService.STORAGE_KEY, JSON.stringify(configWithTimestamp));
-				v4ToastManager.showSuccess('SAML configuration saved successfully!');
+				modernMessaging.showFooterMessage({ type: 'status', message: 'SAML configuration saved successfully!', duration: 4000 });
 				resolve();
 			} catch (error) {
 				logger.error(
@@ -123,7 +123,7 @@ export class SAMLAssertionService {
 					undefined,
 					error
 				);
-				v4ToastManager.showError('Failed to save SAML configuration');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save SAML configuration', dismissible: true });
 				reject(error);
 			}
 		});
@@ -158,7 +158,7 @@ export class SAMLAssertionService {
 	static clearConfiguration(): void {
 		try {
 			localStorage.removeItem(SAMLAssertionService.STORAGE_KEY);
-			v4ToastManager.showInfo('SAML configuration cleared');
+			modernMessaging.showFooterMessage({ type: 'info', message: 'SAML configuration cleared', duration: 4000 });
 		} catch (error) {
 			logger.error(
 				'SAMLAssertionService',
@@ -166,7 +166,7 @@ export class SAMLAssertionService {
 				undefined,
 				error
 			);
-			v4ToastManager.showError('Failed to clear SAML configuration');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to clear SAML configuration', dismissible: true });
 		}
 	}
 

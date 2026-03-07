@@ -6,7 +6,7 @@
  * to ensure required fields are filled before proceeding to next steps.
  */
 
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 export interface ValidationResult {
 	isValid: boolean;
@@ -116,7 +116,7 @@ export function validateAndNotify(
 
 	if (!result.isValid) {
 		const message = customMessage || result.errorMessage || 'Please complete all required fields';
-		v4ToastManager.showError(message);
+		modernMessaging.showBanner({ type: 'error', title: 'Error', message: message, dismissible: true });
 		return false;
 	}
 
@@ -205,7 +205,7 @@ export function canNavigateToNextStep(
 	if (!result.isValid) {
 		const stepInfo = stepName ? ` to ${stepName}` : '';
 		const message = `Cannot proceed${stepInfo}. ${result.errorMessage}`;
-		v4ToastManager.showError(message);
+		modernMessaging.showBanner({ type: 'error', title: 'Error', message: message, dismissible: true });
 		return false;
 	}
 

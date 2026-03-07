@@ -5,7 +5,7 @@ import { Card, CardBody, CardHeader } from '../components/Card';
 import { useAuth } from '../contexts/NewAuthContext';
 import type { OAuthFlow } from '../types/oauthFlows';
 import { logger } from '../utils/logger';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const FlowsContainer = styled.div`
   max-width: 1200px;
@@ -711,9 +711,7 @@ const OAuthFlows = () => {
 
 	const handleStartDemo = async () => {
 		if (!config) {
-			v4ToastManager.showError(
-				'Please configure your PingOne settings first in the Configuration page.'
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please configure your PingOne settings first in the Configuration page.', dismissible: true });
 			return;
 		}
 

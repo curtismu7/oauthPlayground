@@ -5,7 +5,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { FiCopy, FiKey } from '../services/commonImportsService';
 import { decodeJWT, isJWT } from '../utils/jwtDecoder';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { DraggableModal } from './DraggableModal';
 
 interface TokenDisplayModalProps {
@@ -201,7 +201,7 @@ export const TokenDisplayModal: React.FC<TokenDisplayModalProps> = ({
 }) => {
 	const copyToken = (token: string, label: string) => {
 		navigator.clipboard.writeText(token);
-		v4ToastManager.showSuccess(`${label} copied to clipboard`);
+		modernMessaging.showFooterMessage({ type: 'status', message: `${label} copied to clipboard`, duration: 4000 });
 	};
 
 	const renderToken = (

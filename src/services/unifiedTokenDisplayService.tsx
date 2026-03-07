@@ -4,7 +4,7 @@ import { FiCopy, FiExternalLink, FiEyeOff, FiInfo, FiKey } from '@icons';
 import React from 'react';
 import { type NavigateFunction, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import TokenDisplayService from './tokenDisplayService';
 
 // Styled components for unified token display
@@ -207,7 +207,7 @@ export const UnifiedTokenDisplay: React.FC<UnifiedTokenDisplayProps> = ({
 
 	const handleDecode = (token: string, label: string) => {
 		if (!TokenDisplayService.isJWT(token)) {
-			v4ToastManager.showSuccess(`${label} is opaque and cannot be decoded as JWT.`);
+			modernMessaging.showFooterMessage({ type: 'status', message: `${label} is opaque and cannot be decoded as JWT.`, duration: 4000 });
 			return null;
 		}
 
@@ -249,7 +249,7 @@ export const UnifiedTokenDisplay: React.FC<UnifiedTokenDisplayProps> = ({
 				source: flowKey || 'unknown',
 			},
 		});
-		v4ToastManager.showSuccess(`${label} sent to Token Management`);
+		modernMessaging.showFooterMessage({ type: 'status', message: `${label} sent to Token Management`, duration: 4000 });
 	};
 
 	const renderToken = (

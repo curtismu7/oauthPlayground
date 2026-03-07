@@ -4,7 +4,7 @@ import { FiAlertCircle, FiCheckCircle, FiCopy, FiKey, FiRefreshCw } from '@icons
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { logger } from '../utils/logger';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { UISettingsService } from './uiSettingsService';
 
 // Styled components
@@ -244,9 +244,7 @@ export const PKCEGenerationComponent: React.FC<PKCEGenerationProps> = ({
 			);
 			setStatus('error');
 			setStatusMessage('Missing Client ID or Environment ID. Please configure credentials first.');
-			v4ToastManager.showError(
-				'Missing Client ID or Environment ID. Please configure credentials first.'
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Missing Client ID or Environment ID. Please configure credentials first.', dismissible: true });
 			return;
 		}
 
@@ -257,14 +255,14 @@ export const PKCEGenerationComponent: React.FC<PKCEGenerationProps> = ({
 			);
 			setStatus('error');
 			setStatusMessage('PKCE generation not available. Please check your configuration.');
-			v4ToastManager.showError('PKCE generation not available. Please check your configuration.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'PKCE generation not available. Please check your configuration.', dismissible: true });
 			return;
 		}
 
 		logger.debug('PKCEGenerationService', '[PKCEGenerationService] Starting PKCE generation...');
 		setStatus('generating');
 		setStatusMessage('Generating PKCE codes...');
-		v4ToastManager.showSuccess('Generating PKCE codes...');
+		modernMessaging.showFooterMessage({ type: 'status', message: 'Generating PKCE codes...', duration: 4000 });
 
 		try {
 			logger.debug(
@@ -279,7 +277,7 @@ export const PKCEGenerationComponent: React.FC<PKCEGenerationProps> = ({
 
 			setStatus('success');
 			setStatusMessage('PKCE codes generated successfully!');
-			v4ToastManager.showSuccess('PKCE codes generated!');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'PKCE codes generated!', duration: 4000 });
 			onPKCEGenerated?.();
 		} catch (error) {
 			logger.error(
@@ -291,7 +289,7 @@ export const PKCEGenerationComponent: React.FC<PKCEGenerationProps> = ({
 			setStatus('error');
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 			setStatusMessage(`Failed to generate PKCE codes: ${errorMessage}`);
-			v4ToastManager.showError(`Failed to generate PKCE codes: ${errorMessage}`);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to generate PKCE codes: ${errorMessage}`, dismissible: true });
 		}
 	}, [controller, credentials.clientId, credentials.environmentId, onPKCEGenerated]);
 
@@ -317,10 +315,10 @@ export const PKCEGenerationComponent: React.FC<PKCEGenerationProps> = ({
 	const handleCopyToClipboard = async (text: string, label: string) => {
 		try {
 			await navigator.clipboard.writeText(text);
-			v4ToastManager.showSuccess(`${label} copied to clipboard!`);
+			modernMessaging.showFooterMessage({ type: 'status', message: `${label} copied to clipboard!`, duration: 4000 });
 		} catch (error) {
 			logger.error('PKCEGenerationService', 'Failed to copy to clipboard:', undefined, error);
-			v4ToastManager.showError('Failed to copy to clipboard');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to copy to clipboard', dismissible: true });
 		}
 	};
 
