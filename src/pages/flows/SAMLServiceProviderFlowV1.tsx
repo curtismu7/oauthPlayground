@@ -22,7 +22,9 @@ import { useSamlSpFlowController } from '../../hooks/useSamlSpFlowController';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { FlowCompletionService } from '../../services/flowCompletionService';
 import { FlowHeader } from '../../services/flowHeaderService';
+import { CredentialsImportExport } from '../../components/CredentialsImportExport';
 import { samlService as SAMLService } from '../../services/samlService';
+import { logger } from '../../utils/logger';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 // Styled Components
@@ -742,6 +744,26 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 					</InfoText>
 				</div>
 			</InfoBox>
+
+			<CredentialsImportExport
+				credentials={{
+					clientId: pingOneAdminCredentials.clientId,
+					clientSecret: pingOneAdminCredentials.clientSecret,
+					environmentId: pingOneAdminCredentials.environmentId,
+				}}
+				options={{
+					flowType: 'saml-sp-dynamic-acs',
+					appName: 'SAML Service Provider (V1)',
+					onImportSuccess: (creds) => {
+						setPingOneAdmin({
+							environmentId: creds.environmentId || pingOneAdminCredentials.environmentId,
+							clientId: creds.clientId || pingOneAdminCredentials.clientId,
+							clientSecret: creds.clientSecret || pingOneAdminCredentials.clientSecret,
+						});
+						logger.info('SAMLServiceProviderFlowV1', 'Credentials imported', { environmentId: creds.environmentId });
+					},
+				}}
+			/>
 
 			<FormGroup>
 				<Label>PingOne Environment ID</Label>
