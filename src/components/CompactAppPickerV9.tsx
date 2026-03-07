@@ -312,6 +312,7 @@ export const CompactAppPickerV9: React.FC<CompactAppPickerV9Props> = ({
 			{/* Search Icon Button (compact) */}
 			{!showSearch && (
 				<div
+					role="tooltip"
 					style={{ position: 'relative', display: 'inline-block' }}
 					onMouseEnter={(e) => {
 						const tooltip = e.currentTarget.querySelector('.app-search-tooltip');
