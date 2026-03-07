@@ -26,7 +26,7 @@ export interface StepConfig {
 }
 
 export interface StepValidation {
-	isStepValid: (stepIndex: number, controller: any) => boolean;
+	isStepValid: (stepIndex: number, controller: unknown) => boolean;
 	getStepRequirements: (stepIndex: number) => string[];
 }
 
@@ -38,7 +38,7 @@ export interface ValidationRule {
 	minLength?: number;
 	maxLength?: number;
 	pattern?: RegExp;
-	custom?: (value: any) => boolean;
+	custom?: (value: unknown) => boolean;
 }
 
 export interface FlowRequirements {
