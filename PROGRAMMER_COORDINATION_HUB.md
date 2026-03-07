@@ -1,8 +1,8 @@
 # 🤝 **PROGRAMMER COORDINATION HUB**
 
 **Real-time Standardization Work Coordination**  
-**Last Updated**: March 7, 2026  
-**Status**: ✅ **Lint 0 errors | v4toast migration complete in non-locked code | Warning cleanup active**
+**Last Updated**: March 7, 2026 (session 2)  
+**Status**: ✅ **Lint 0 errors | v4toast migration complete | Warning cleanup active — 1,206 non-locked warnings remaining**
 
 ---
 
@@ -15,12 +15,14 @@
 - **Runtime crash fix**: `useV7CredentialValidation` missing import in `DeviceAuthorizationFlowV9` ✅ (commit `244854128`)
 - **Sidebar width**: Doubled default 260→520px, max 700px ✅ (commit `9e5613bd0`)
 
-### **⚠️ Active Warning Backlog (as of March 7, 2026)**
+### **⚠️ Active Warning Backlog (as of March 7, 2026 — session 2)**
 | Scope | Files | Warnings |
 |-------|-------|----------|
-| Non-locked `src/` | 453 files | **~1,265** `no-unused-vars` |
-| Locked/lockdown/snapshot | 162 files | ~474 (do not edit directly) |
-| **Total** | 615 files | **~1,739** |
+| Non-locked `src/` | ~457 files | **~1,206** `no-unused-vars` |
+| Locked/lockdown/snapshot | ~162 files | ~405 (do not edit directly) |
+| **Total** | ~619 files | **~1,611** |
+
+**Cleaned this session (session 2):** 6 files, 149 warnings → 0 — see Work Log below.
 
 All remaining warnings are `@typescript-eslint/no-unused-vars` (unused styled components, params, variables).  
 Strategy: delete dead styled components, rename unused params to `_`, remove uncalled helper functions.
@@ -34,24 +36,35 @@ Strategy: delete dead styled components, rename unused params to `_`, remove unc
 **1,265 warnings across 453 non-locked files.** All are `@typescript-eslint/no-unused-vars`.  
 Focus on the highest-count files first (verified clean = 0 warnings via `npx eslint <file>`):
 
-**Top priority files (sorted by warning count):**
-| File | Warnings | Notes |
-|------|----------|-------|
-| `src/v8u/components/UnifiedFlowSteps.tsx` | 28 | Unused styled components |
-| `src/pages/flows/KrogerGroceryStoreMFA.tsx` | 25 | Unused styled components |
-| `src/pages/PingOneUserProfile.tsx` | 24 | Unused styled components |
-| `src/components/CompleteMFAFlowV7.tsx` | 22 | Unused styled components |
-| `src/components/EnhancedSecurityFeaturesDemo.tsx` | 21 | Unused styled components |
-| `src/pages/flows/v9/ImplicitFlowV9.tsx` | 20 | Unused styled components |
-| `src/templates/V7FlowTemplate.tsx` | 18 | Unused styled components |
-| `src/services/userComparisonService.tsx` | 16 | Unused vars/params |
-| `src/pages/sdk-examples/SDKExamplesHome.tsx` | 15 | Unused styled components |
-| `src/v8/flows/types/WhatsAppFlowV8.tsx` | 14 | Unused styled components |
-| `src/v8/flows/types/EmailFlowV8.tsx` | 13 | Unused styled components |
-| `src/v8/flows/MFAConfigurationPageV8.tsx` | 13 | Unused styled components |
-| `src/pages/ApplicationGenerator.tsx` | 12 | Unused styled components |
-| `src/v8u/components/UserTokenStatusDisplayV8U.tsx` | 11 | Unused styled components |
-| `src/templates/V7FlowVariants.tsx` | 11 | Unused styled components |
+**Top priority files (sorted by warning count) — updated after session 2:**
+| # | File | Warnings | Notes |
+|---|------|----------|-------|
+| 1 | `src/templates/V7FlowTemplate.tsx` | 18 | Unused styled components |
+| 2 | `src/services/userComparisonService.tsx` | 16 | Unused vars/params |
+| 3 | `src/v8u/lockdown/unified/snapshot/components/UnifiedFlowSteps.tsx` | 15 | Snapshot file |
+| 4 | `src/v8/flows/unified/UnifiedMFARegistrationFlowV8_Legacy.tsx` | 15 | Legacy flow |
+| 5 | `src/pages/sdk-examples/SDKExamplesHome.tsx` | 15 | Unused styled components |
+| 6 | `src/v8/lockdown/fido2/snapshot/MFAAuthenticationMainPageV8.tsx` | 14 | Snapshot file |
+| 7 | `src/v8/flows/types/WhatsAppFlowV8.tsx` | 14 | Unused styled components |
+| 8 | `src/v8/flows/types/EmailFlowV8.tsx` | 13 | Unused styled components |
+| 9 | `src/v8/flows/MFAConfigurationPageV8.tsx` | 13 | Unused styled components |
+| 10 | `src/pages/ApplicationGenerator.tsx` | 12 | Unused styled components |
+| 11 | `src/v8u/components/UserTokenStatusDisplayV8U.tsx` | 11 | Unused styled components |
+| 12 | `src/templates/V7FlowVariants.tsx` | 11 | Unused styled components |
+| 13 | `src/v8u/pages/EnhancedStateManagementPage.tsx` | 9 | Unused vars |
+| 14 | `src/v8/flows/unified/components/UnifiedConfigurationStep.tsx` | 9 | Unused styled components |
+| 15 | `src/v8/flows/types/SMSOTPConfigurationPageV8.tsx` | 9 | Unused styled components |
+| 16 | `src/v8/flows/types/MobileFlowV8.tsx` | 9 | Unused styled components |
+| 17 | `src/pages/flows/v9/SAMLBearerAssertionFlowV9.tsx` | 9 | Unused styled components |
+| 18 | `src/pages/flows/UserInfoFlow.tsx` | 9 | Unused styled components |
+| 19 | `src/pages/docs/OAuth2SecurityBestPractices.tsx` | 9 | Unused styled components |
+| 20 | `src/components/MobilePhoneDeviceFlow.tsx` | 9 | Unused styled components |
+
+To regenerate this list live:
+```bash
+npx eslint src/ --format compact 2>/dev/null | grep "Warning" | grep -v "locked/" \
+  | awk -F: '{print $1}' | sort | uniq -c | sort -rn | head -20
+```
 
 **Workflow for each file:**
 1. `npx eslint src/<path>/file.tsx 2>/dev/null | grep no-unused-vars` — get exact line numbers
@@ -60,10 +73,16 @@ Focus on the highest-count files first (verified clean = 0 warnings via `npx esl
 4. `npx tsc --noEmit` or check errors in VS Code
 5. Commit: `git commit --no-verify -m "fix: clear no-unused-vars in <filename>"`
 
-**Already cleaned this session:**
+**Already cleaned (all sessions — do not re-clean these):**
 - `WorkerTokenModalV8.tsx` — 54 warnings → 0 (commit `531d644c5`)
 - `ConfigCheckerButtons.tsx` — 12 warnings → 0 (commit `531d644c5`)
 - `DeviceAuthorizationFlowV9.tsx` — 40 warnings → 0 (commit `531d644c5`)
+- `src/v8u/components/UnifiedFlowSteps.tsx` — 28 warnings → 0 (commit `8d1fd5afa`)
+- `src/pages/flows/KrogerGroceryStoreMFA.tsx` — 25 warnings → 0 (commit `8d1fd5afa`)
+- `src/pages/PingOneUserProfile.tsx` — 33 warnings → 0 (commit `8d1fd5afa`)
+- `src/components/CompleteMFAFlowV7.tsx` — 22 warnings → 0 (commit `0e9517036`)
+- `src/components/EnhancedSecurityFeaturesDemo.tsx` — 21 warnings → 0 (commit `0e9517036`)
+- `src/pages/flows/v9/ImplicitFlowV9.tsx` — 20 warnings → 0 (commit `0e9517036`)
 
 ---
 
@@ -114,7 +133,7 @@ Focus on the highest-count files first (verified clean = 0 warnings via `npx esl
 ### **✅ Completed Files**
 | File | Variables (Before → After) | Session |
 |------|----------------------------|---------|
-| ImplicitFlowV9.tsx | 3 → 0 | Session 1 |
+| ImplicitFlowV9.tsx (original cleanup) | 3 → 0 | Session 1 |
 | MFAWorkflowLibraryFlowV9.tsx | 1 → 0 | Session 2 |
 | OIDCHybridFlowV9.tsx | 3 → 0 | Session 2 |
 | ClientCredentialsFlowV9.tsx | 5 → 0 | Session 2 |
@@ -123,6 +142,12 @@ Focus on the highest-count files first (verified clean = 0 warnings via `npx esl
 | WorkerTokenFlowV9.tsx | 3 → 0 | Sessions 2–4 |
 | UserInfoFlow.tsx | cleaned + 5 dead components removed | Session 5 |
 | DeviceAuthorizationFlowV9.tsx | 14 → 0 + 396 lines removed | Session 5 |
+| UnifiedFlowSteps.tsx | 28 → 0 | Session 6 (commit `8d1fd5afa`) |
+| KrogerGroceryStoreMFA.tsx | 25 → 0 | Session 6 (commit `8d1fd5afa`) |
+| PingOneUserProfile.tsx | 33 → 0 | Session 6 (commit `8d1fd5afa`) |
+| CompleteMFAFlowV7.tsx | 22 → 0 | Session 6 (commit `0e9517036`) |
+| EnhancedSecurityFeaturesDemo.tsx | 21 → 0 | Session 6 (commit `0e9517036`) |
+| ImplicitFlowV9.tsx (full cascade cleanup) | 20 → 0 | Session 6 (commit `0e9517036`) |
 
 ---
 
@@ -143,7 +168,9 @@ Pick the top file, run eslint on it, delete dead code, commit, repeat.
 ### **Reference commits**
 | What | Commit |
 |------|--------|
-| Clear no-unused-vars in WorkerTokenModalV8 / ConfigCheckerButtons / DeviceAuthorizationFlowV9 | `531d644c5` |
+| Clear no-unused-vars in CompleteMFAFlowV7 (22) / EnhancedSecurityFeaturesDemo (21) / ImplicitFlowV9 (20) | `0e9517036` |
+| Clear no-unused-vars in UnifiedFlowSteps (28) / KrogerGroceryStoreMFA (25) / PingOneUserProfile (33) | `8d1fd5afa` |
+| Clear no-unused-vars in WorkerTokenModalV8 / ConfigCheckerButtons / DeviceAuthorizationFlowV9 (54 total) | `531d644c5` |
 | console→logger in WorkerTokenStatusDisplayV8 + WorkerTokenRequestModalV8 | `f7aeb9af6` |
 | Runtime crash fix: DeviceAuthorizationFlowV9 missing import | `244854128` |
 | Sidebar width 260→520px default, max 700px | `9e5613bd0` |
