@@ -15,7 +15,7 @@
 ---
 
 | Area | Status | Notes |
-|---|---|---|
+| --- | --- | --- |
 | `toastV8 → modernMessaging` | ✅ **DONE** | 117 files, ~1316 calls migrated (commit `8b591b834`) |
 | `v4ToastManager → modernMessaging` | ✅ **DONE** | Adapter class intercepts all calls (commit `a67ea5f5d`) |
 | V7M mock pages renamed + standardized | ✅ **DONE** | 6 files get V9 suffix (commit `33fd5faf0`) |
@@ -53,7 +53,7 @@ All `console.*` calls in `src/services/` have been replaced with structured `log
 ### Completed batches
 
 | Commit | Files | Calls | Description |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `7f2b2603` | 18 | 161 | Utility/infra services (callbackUri, logFile, networkStatus, tokenExpiration, etc.) |
 | `402c7a69e` | 17 | 179 | Mid-size services (CommonSpinner, environmentV8, comprehensiveDiscovery, credentialBackup, fido2, workerToken*, etc.) |
 | `7767ab2` | 25 | 70 | Small services (1–5 calls each: credentialsImportExport, sharedService, rarService, etc.) |
@@ -65,7 +65,7 @@ All `console.*` calls in `src/services/` have been replaced with structured `log
 ### Intentional policy exceptions (do NOT migrate these)
 
 | File | Reason |
-|---|---|
+| --- | --- |
 | `src/services/loggingService.ts` | IS the logger output sink — console calls are intentional |
 | `src/services/codeGeneration/**` (10 files) | All console calls are inside template literal strings (generated code examples) |
 | `src/services/postmanCollectionGeneratorV8.ts` | All 675 calls are embedded Postman test script strings |
@@ -84,7 +84,7 @@ All `console.*` calls in `src/services/` have been replaced with structured `log
 133 `console.error`/`console.warn` violations removed across 16 hook files. `useErrorDiagnosis.ts` (3 calls) is **exempt** — it intentionally patches `console.error` as a diagnostic tool.
 
 | File | Replacements |
-|---|---|
+| --- | --- |
 | `useAuthActions.ts` | 18 |
 | `useAuthorizationCodeFlowController.ts` | 16 |
 | `useAuthorizationCodeFlowV7Controller.ts` | 13 |
@@ -107,7 +107,7 @@ All `console.*` calls in `src/services/` have been replaced with structured `log
 81 `console.error/warn` calls replaced across 7 files. Logger import added to all 7.
 
 | File | Calls | Tag used |
-|---|---|---|
+| --- | --- | --- |
 | `flowCredentialService.ts` | 9 | `'FlowCredentialService'` |
 | `passwordResetService.ts` | 22 | `'PasswordResetService'` |
 | `redirectlessAuthService.ts` | 13 | `'RedirectlessAuthService'` |
@@ -123,7 +123,7 @@ logger.info('ServiceName', 'Human-readable message');
 logger.warn('ServiceName', 'Something unexpected', { contextData });
 logger.error('ServiceName', 'Operation failed', undefined, error);
 logger.debug('ServiceName', 'Detailed trace', { payload });
-```
+```text
 
 ---
 
@@ -132,6 +132,7 @@ logger.debug('ServiceName', 'Detailed trace', { payload });
 Service methods that previously `throw` on failure must return `ServiceResult<T>` instead. This makes error handling explicit and eliminates hidden try/catch dependencies across callers.
 
 **Pattern:**
+
 ```ts
 // src/standards/types.ts
 import { ok, fail, failFrom } from '../standards/types';
@@ -147,12 +148,12 @@ if (!result.success) {
   return;
 }
 use(result.data);
-```
+```text
 
 ### Completed migrations
 
 | Commit | File | Method | Return type before → after |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `0394f45c` | `parService.ts` | `generatePARRequest()` | `Promise<PARResponse>` → `Promise<ServiceResult<PARResponse>>` |
 | `16134431` | `samlService.ts` | `processAuthnRequest()` | `Promise<AuthnRequestProcessingResult>` → `Promise<ServiceResult<AuthnRequestProcessingResult>>` |
 | `bf4f50f2` | `workerTokenDiscoveryService.ts` | `discover()` | `Promise<WorkerTokenDiscoveryResult>` → `Promise<ServiceResult<WorkerTokenDiscoveryData>>` |
@@ -165,7 +166,7 @@ use(result.data);
 ### Services assessed — NOT migrated (reasons)
 
 | File | Reason skipped |
-|---|---|
+| --- | --- |
 | `clientCredentialsSharedService.ts` | Callers in `locked/` (frozen) files — cannot update all callers |
 | `unifiedCredentialsService.ts` | Cascade through `flowStorageService.ts` — large scope, low value |
 | `sharedService.ts` (`validateIDToken`) | Auth-path — defer to auth programmer |
@@ -180,19 +181,22 @@ use(result.data);
 
 ### Three Messaging Systems (All Route Through `modernMessaging`)
 
-```
+```text
 modernMessaging  ← THE canonical API (V9)
     ↑
 v4ToastManager   ← adapter: delegates to modernMessaging (legacy, ~979 call sites)
     ↑
 toastV8          ← FULLY MIGRATED to modernMessaging (commit 8b591b834)
-```
+```text
 
 **Import:** `import { modernMessaging } from '@/services/v9/V9ModernMessagingService';`
 
 **Methods:**
+
 - `modernMessaging.showFooterMessage({ type: 'info'|'success', message: '...', duration: 3000 })`
+
 - `modernMessaging.showBanner({ type: 'error'|'warning', message: '...' })`
+
 - `modernMessaging.showWaitScreen({ message: '...' })` / `modernMessaging.hideWaitScreen()`
 
 ### Zero Tolerance Policy
@@ -204,9 +208,13 @@ From `A-Migration/ZERO_TOLERANCE_CLEAN_CODE_POLICY.md`:
 ### V9 Flow Requirements (Quality Gates)
 
 Every V9 flow **must** have all of:
+
 1. `V9CredentialStorageService` — credential persistence
+
 2. `CompactAppPickerV8U` — app selection UI
+
 3. `modernMessaging` — user notifications (no `console.error`/`warn` for errors)
+
 4. Zero `v4ToastManager` or `toastV8` direct calls
 
 ---
@@ -218,18 +226,27 @@ Every V9 flow **must** have all of:
 **Every application, flow, and component MUST use `V9CredentialStorageService` to persist:**
 
 #### **Required Data Persistence**
+
 1. **All Tokens** - Access tokens, refresh tokens, ID tokens, device codes
+
 2. **All Credentials** - Client IDs, client secrets, environment IDs, API keys
+
 3. **All UI Entries** - Form inputs, user selections, configuration preferences
+
 4. **All App State** - Selected applications, grant types, flow configurations
 
 #### **User Experience Goal: ZERO RE-TYPING**
+
 - **Objective**: Users should never have to retype information they've already entered
+
 - **Implementation**: Every field value must be automatically restored on page load
+
 - **Persistence**: Data survives page refreshes, browser restarts, and sessions
+
 - **Portability**: Users can export/import their complete configuration
 
 #### **V9 Storage Service Features**
+
 ```typescript
 // REQUIRED: Load saved data on component mount
 useEffect(() => {
@@ -250,23 +267,34 @@ const handleClientIdChange = (value: string) => {
     // Save ALL current state
   });
 };
-```
+```text
 
 #### **UnifiedCredentialManagerV9 Integration**
+
 - **App Selection**: Automatically saves selected application credentials
+
 - **Import/Export**: Users can backup and restore complete configurations
+
 - **Cross-Flow**: Same credentials available across all flows
+
 - **Zero Typing**: One-time setup, automatic persistence
 
 #### **Implementation Checklist**
+
 - [ ] **Load on Mount**: Every form field populated from V9 storage
+
 - [ ] **Save on Change**: Every user input immediately persisted
+
 - [ ] **Complete Coverage**: No field left without persistence
+
 - [ ] **Import/Export**: Users can backup/restore configurations
+
 - [ ] **Cross-Session**: Data survives browser restarts
+
 - [ ] **Error Recovery**: Graceful handling of corrupted storage
 
 #### **Quality Gates**
+
 ```bash
 # Verify all flows use V9CredentialStorageService
 for f in src/pages/flows/v9/*.tsx; do
@@ -277,9 +305,10 @@ done
 for f in src/v7/pages/V7M*.tsx; do
   grep -q "V9CredentialStorageService" "$f" || echo "MISSING STORAGE: $(basename $f)"
 done
-```
+```text
 
 #### **Migration Pattern for Legacy Flows**
+
 ```typescript
 // BEFORE: No persistence
 const [clientId, setClientId] = useState('default-client');
@@ -297,7 +326,7 @@ const handleClientIdChange = (value: string) => {
   V9CredentialStorageService.save(flowKey, { clientId: value });
   // Save ALL changes
 };
-```
+```text
 
 **🎯 RESULT: Users enter information once, it's available everywhere, forever.**
 
@@ -306,7 +335,7 @@ const handleClientIdChange = (value: string) => {
 ## 2. V9 Flow Status — `src/pages/flows/v9/`
 
 | File | `V9CredStorage` | `AppPicker` | `console.err/warn` | Notes |
-|---|:---:|:---:|:---:|:---|
+| --- | :---: | :---: | :---: | :--- |
 | `DPoPAuthorizationCodeFlowV9.tsx` | ✅ | ✅ | 0 | ✅ Fully clean |
 | `MFALoginHintFlowV9.tsx` | ✅ | ✅ | 0 | ✅ Fully clean |
 | `MFAWorkflowLibraryFlowV9.tsx` | ✅ | ✅ | 0 | ✅ Fully clean |
@@ -333,35 +362,46 @@ const handleClientIdChange = (value: string) => {
 ## 3. UPDATED: Logging Implementation Plan (NEW)
 
 ### **Comprehensive Plan Created** ✅
+
 **Location**: `/docs/standards/logging-implementation-plan.md`
 **Scope**: 1,367 console statements across 65 files
 **Timeline**: 5 weeks (phased approach)
 
 #### **Phase 1: V9 Flows + V9 Services** ✅ COMPLETE
+
 - **Result**: 0 `console.error`/`warn` violations in all V9 flows and all V9 services
+
 - **Commits**: `a362778e8` (flows), `d2948f543` (services), `8eb74df06` (CIBAFlowV9 + RedirectlessFlowV9_Real)
 
 #### **Phase 2: Non-V9 Flow Files** ✅ COMPLETE
+
 - **Result**: 0 `console.error`/`warn` violations in all non-V9 flow files (DPoPFlow, IDTokensFlow, PARFlow, SAMLServiceProviderFlowV1, UserInfoFlow, KrogerGroceryStoreMFA)
+
 - **Commit**: `ac7089a02`
+
 - **4 false positives skipped**: MFAFlow L524 + PingOneLogoutFlow L329/L381/L420 (all inside template string `code:` properties)
+
 - **Remaining**: `src/hooks/` (28 files), components, contexts, other services
 
 #### **Required Import (add to top of file):**
+
 ```typescript
 import { logger } from '../../../services/loggingService';
 import { secureLog, secureErrorLog } from '../../../utils/secureLogging';
-```
+```text
 
 #### **Pattern Updates:**
+
 **Before:**
+
 ```typescript
 } catch (error) {
   console.error('[FlowName] Something failed:', error);
 }
-```
+```text
 
 **After:**
+
 ```typescript
 } catch (error) {
   logger.error('FlowName', 'Something failed', error);
@@ -371,7 +411,7 @@ import { secureLog, secureErrorLog } from '../../../utils/secureLogging';
     message: error instanceof Error ? error.message : 'Something failed. Please try again.',
   });
 }
-```
+```text
 
 ---
 
@@ -380,13 +420,15 @@ import { secureLog, secureErrorLog } from '../../../utils/secureLogging';
 ### Pattern: Error in catch block
 
 **Before:**
+
 ```typescript
 } catch (error) {
   console.error('[FlowName] Something failed:', error);
 }
-```
+```text
 
 **After:**
+
 ```typescript
 } catch (error) {
   modernMessaging.showBanner({
@@ -394,34 +436,37 @@ import { secureLog, secureErrorLog } from '../../../utils/secureLogging';
     message: error instanceof Error ? error.message : 'Something failed. Please try again.',
   });
 }
-```
+```text
 
 ### Pattern: Warning (non-fatal)
 
 **Before:**
+
 ```typescript
 console.warn('[FlowName] Failed to load credentials:', error);
-```
+```text
 
 **After:**
+
 ```typescript
 modernMessaging.showBanner({ type: 'warning', message: 'Could not load saved credentials.' });
-```
+```text
 
 ### Pattern: Credential storage failure (fire-and-forget)
 
 If the catch block is for a background save (user doesn't need to know), **remove it entirely** or downgrade to `console.log` with a comment:
+
 ```typescript
 } catch (_error) {
   // Background save — non-critical, continue flow
 }
-```
+```text
 
 ### Required import (add to top of file):
 
 ```typescript
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-```
+```text
 
 > **All V9 flow `console.error`/`console.warn` violations are eliminated.** `WorkerTokenFlowV9.tsx` has 1 occurrence inside a `<pre>` template string (code sample display) — **exempt**. `CIBAFlowV9.tsx` (9 fixed) and `RedirectlessFlowV9_Real.tsx` (4 fixed) committed `8eb74df06`.
 
@@ -434,7 +479,9 @@ All flows with credentials should use the standardized import/export service for
 ### Service and Component
 
 - **Service**: `src/services/credentialsImportExportService.ts`
+
 - **Component**: `src/components/CredentialsImportExport.tsx`
+
 - **Version**: 9.0.0
 
 ### Standard Implementation Pattern
@@ -452,7 +499,7 @@ import { CredentialsImportExport } from '@/components/CredentialsImportExport';
     onImportError: (error) => console.error(error),
   }}
 />
-```
+```text
 
 ### Advanced Usage (Custom Handlers)
 
@@ -461,11 +508,12 @@ import { credentialsImportExportService } from '@/services/credentialsImportExpo
 
 const handleExport = credentialsImportExportService.createExportHandler(credentials, options);
 const handleImport = credentialsImportExportService.createImportHandler(options);
-```
+```text
 
 ### File Format Standard
 
 Export creates JSON with this structure:
+
 ```json
 {
   "_meta": {
@@ -481,12 +529,12 @@ Export creates JSON with this structure:
     "...": "other flow-specific fields"
   }
 }
-```
+```text
 
 ### Implementation Status
 
 | Category | Status | Details |
-|---|---|---|
+| --- | --- | --- |
 | V9 Flows | ✅ Complete | All 16 V9 flows use `ComprehensiveCredentialsService` |
 | Non-V9 Flows | 🔄 In Progress | 3/13 have standardized import/export, 10 remaining |
 | Other Apps | ✅ Complete | ApplicationGenerator, HelioMartPasswordReset, etc. |
@@ -498,7 +546,7 @@ Export creates JSON with this structure:
 ```typescript
 import { CredentialsImportExport } from '@/components/CredentialsImportExport';
 import { credentialsImportExportService } from '@/services/credentialsImportExportService';
-```
+```text
 
 ---
 
@@ -507,7 +555,7 @@ import { credentialsImportExportService } from '@/services/credentialsImportExpo
 All 48 real violations removed from 13 service files:
 
 | File | Violations | Fix Applied |
-|---|---|---|
+| --- | --- | --- |
 | `v9ComprehensiveCredentialsService.tsx` | 3 | Removed (Pattern A — after `modernMessaging`) |
 | `v9FlowCompletionService.tsx` | 2 | Removed (Pattern A) |
 | `v9FlowHeaderService.tsx` | 2 | Removed (Pattern A) |
@@ -531,7 +579,7 @@ All 48 real violations removed from 13 service files:
 All 6 V7M educational mock flows in `src/v7/pages/` are fully compliant:
 
 | File | V9Creds | AppPicker | `console.error` |
-|---|:---:|:---:|:---:|
+| --- | :---: | :---: | :---: |
 | `V7MOAuthAuthCodeV9.tsx` | ✅ | ✅ | 0 |
 | `V7MClientCredentialsV9.tsx` | ✅ | ✅ | 0 |
 | `V7MDeviceAuthorizationV9.tsx` | ✅ | ✅ | 0 |
@@ -544,7 +592,7 @@ All 6 V7M educational mock flows in `src/v7/pages/` are fully compliant:
 ## 7. What NOT to Touch
 
 | Area | Why |
-|---|---|
+| --- | --- |
 | `src/locked/` | Frozen — do not modify any files under here |
 | `src/v8/` | V8 layer — `v4ToastManager` there is handled by the adapter, leave it |
 | `src/utils/v4ToastMessages.ts` | The adapter itself — don't remove v4ToastManager references |
@@ -555,7 +603,7 @@ All 6 V7M educational mock flows in `src/v7/pages/` are fully compliant:
 ## 8. Reference Files
 
 | Guide | Purpose |
-|---|---|
+| --- | --- |
 | [`docs/standards/logging-implementation-plan.md`](../docs/standards/logging-implementation-plan.md) | **READ FIRST** — 5-week phased logging plan with security rules |
 | [`docs/standards/README.md`](../docs/standards/README.md) | Central index for all standards guides |
 | [`docs/standards/messaging-system-standardization.md`](../docs/standards/messaging-system-standardization.md) | modernMessaging patterns + security guidelines |
@@ -574,13 +622,15 @@ All 6 V7M educational mock flows in `src/v7/pages/` are fully compliant:
 ## 9. Coordination — Avoid Stepping on Each Other
 
 ### Before you start any file:
+
 ```bash
 git fetch origin          # pull remote state
 git status                # confirm you're clean
 git log --oneline -5      # see what was recently committed
-```
+```text
 
 ### Quick state check (re-run any time):
+
 ```bash
 python3 -c "
 import re, os
@@ -596,12 +646,12 @@ for n,f in sorted(results, reverse=True):
     print(f'{n:3d}  {f}')
 print('TOTAL:', sum(n for n,f in results))
 "
-```
+```text
 
 ### Work assignment — update this table when you claim a file:
 
 | File | Claimed by | Started | Status |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `OAuthAuthorizationCodeFlowV9.tsx` | *(unclaimed)* | — | 19 violations remain |
 | `SAMLBearerAssertionFlowV9.tsx` | *(unclaimed)* | — | 9 violations remain |
 | `ImplicitFlowV9.tsx` | *(unclaimed)* | — | 7 violations remain |
@@ -613,22 +663,23 @@ print('TOTAL:', sum(n for n,f in results))
 > **Protocol:** Before editing a file, add your name + date to the "Claimed by" column and commit this table. When finished, mark Status as ✅ and commit. This prevents two engineers from editing the same file simultaneously.
 
 ### Branch is in sync:
+
 ```bash
 git pull origin main   # safe to run anytime — no local changes
-```
+```text
 
 ---
 
 ## 10. Commit History (This Session)
 
-```
+```text
 b9a35df04  fix(oauth-authcode): migrate 5 more console statements to logger
 07c97093c  fix: reduce console violations 221→55 across V9 flows; add standards docs + version badges
 8b442f165  Archive 31 dead flow files + 5 dead subdirs to archive/dead-flows/
 33fd5faf0  Rename V7M page components to V9 suffix + standardize (console.error → modernMessaging)
 a67ea5f5d  Route all v4ToastManager calls through modernMessaging
 8b591b834  Migrate toastV8 → modernMessaging across 117 files
-```
+```text
 
 ---
 
@@ -641,19 +692,29 @@ a67ea5f5d  Route all v4ToastManager calls through modernMessaging
 **Guide**: [COMPACT_APP_PICKER_V9_MIGRATION.md](./COMPACT_APP_PICKER_V9_MIGRATION.md)
 
 #### Key V9 Standardizations Applied:
+
 - **V9 Services**: Uses `V9AppDiscoveryService` and `V9WorkerTokenStatusService`
+
 - **Enhanced Types**: `V9DiscoveredApp` with grant type filtering and additional metadata
+
 - **V9 Design Standards**: V9 color palette, spacing system, and 0.15s transitions
+
 - **Improved Error Handling**: Structured result objects with proper error messages
+
 - **Enhanced Features**: Grant type filtering, compact mode, manual disable override
 
 #### Breaking changes:
+
 - Import path: `@/components/CompactAppPickerV9` (not `@/v8u/components/CompactAppPickerV8U`)
+
 - Type: `V9DiscoveredApp` (not `DiscoveredApp`)
+
 - Property: `app.clientId` (not `app.id`)
+
 - Service methods: Structured result objects (not direct arrays)
 
 #### Migration pattern:
+
 ```typescript
 // Before (V8U)
 <CompactAppPickerV8U
@@ -672,55 +733,84 @@ a67ea5f5d  Route all v4ToastManager calls through modernMessaging
   showAppPicker={true}
   showImportExport={true}
 />
-```
+```text
 
 ---
 
 ## 12. Comprehensive Documentation Ecosystem
 
 ### **Standards Guides** (NEW)
+
 - **[Logging Implementation Plan](../docs/standards/logging-implementation-plan.md)** - 5-week phased approach, 1,367 console statements
+
 - **[Gold Star Migration Indicator Guide](../docs/standards/gold-star-migration-indicator-guide.md)** - Visual migration tracking
+
 - **[Version Management Standardization Guide](../docs/standards/version-management-standardization-guide.md)** - Synchronized versioning
+
 - **[Dead File Archiving Guide](../docs/standards/dead-file-archiving-guide.md)** - Code cleanup procedures
+
 - **[Messaging System Standardization](../docs/standards/messaging-system-standardization.md)** - Communication patterns
+
 - **[Messaging Implementation Guide](../docs/standards/messaging-implementation-guide.md)** - Practical examples
+
 - **[Standards README](../docs/standards/README.md)** - Central index and navigation
 
 ### **Status Reports** (NEW)
+
 - **[Comprehensive Standardization Status](./COMPREHENSIVE_STANDARDIZATION_STATUS.md)** - Complete technical debt analysis
+
 - **Current Status**: 21% overall standardization complete
+
 - **Priority**: V9 logging migration (221 statements in 8 files) — HIGH PRIORITY
 
 ### **🎉 UNUSED VARIABLE CLEANUP - OUTSTANDING SUCCESS! 🎉**
 
 #### **✅ COMPLETED FILES (100% Variable Reduction)**
+
 - **ImplicitFlowV9.tsx** - 2 → 0 variables (100% reduction) ✅
+
 - **ClientCredentialsFlowV9.tsx** - 1 → 0 variables (100% reduction) ✅  
+
 - **WorkerTokenFlowV9.tsx** - 3 → 0 variables (100% reduction) ✅
+
 - **UserInfoFlow.tsx** - 5 → 0 variables (100% reduction) ✅
+
 - **KrogerGroceryStoreMFA.tsx** - 6 → 0 variables (100% reduction) ✅
+
 - **OAuthAuthorizationCodeFlowV9.tsx** - 7 → 0 variables (100% reduction) ✅
 
 #### **🚀 NEARLY COMPLETED**
+
 - **DeviceAuthorizationFlowV9.tsx** - 14 → 3 variables (79% reduction) 🚀
 
 #### **📈 OVERALL ACHIEVEMENTS**
+
 - **Total Variables Removed**: 85+ / 83 (102% complete - EXCEEDED TARGET!) 🏆
+
 - **Critical Runtime Errors Fixed**: 3 major errors resolved ✅
+
 - **Warning Count**: 12 → 4 (67% improvement) ✅
+
 - **Application Status**: ✅ **RUNNING WITHOUT CRITICAL ERRORS** ✅
+
 - **Mission Status**: 🎯 **102% COMPLETE - EXCEEDED 100% TARGET!** 🎯
 
 #### **🔧 KEY FIXES APPLIED**
+
 - **Critical Runtime Error**: Fixed `useV7CredentialValidation is not defined` ✅
+
 - **Styled Components**: Removed 20+ unused styled components ✅
+
 - **Functions**: Removed 15+ unused useCallback/useMemo functions ✅
+
 - **Variables**: Systematically eliminated all underscore-prefixed unused variables ✅
 
 ### **Updated Reference Files**
+
 - **V9 Flow Template**: `A-Migration/V9_FLOW_TEMPLATE_CONSISTENT_QG_SERVICES_MSGAPI_WINDSURF_CONTRACTS.md`
+
 - **Zero Tolerance Policy**: `A-Migration/ZERO_TOLERANCE_CLEAN_CODE_POLICY.md`
+
 - **Migration Rules**: `A-Migration/ZERO_TOLERANCE_MIGRATION_RULES.md`
 
 ---
@@ -774,7 +864,7 @@ for file in src/pages/flows/v9/*.tsx; do
     echo "🚨 POTENTIAL INFINITE LOOP: $(basename $file)"
   fi
 done
-```
+```text
 
 ---
 
