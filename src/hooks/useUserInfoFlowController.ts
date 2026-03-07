@@ -54,7 +54,7 @@ interface UseUserInfoFlowControllerReturn {
 	clearResults: () => void;
 }
 
-const LOG_PREFIX = '[👤 USER-INFO]';
+const _LOG_PREFIX = '[👤 USER-INFO]';
 
 export const useUserInfoFlowController = (): UseUserInfoFlowControllerReturn => {
 	const [credentials, setCredentials] = useState<UserInfoConfig>({

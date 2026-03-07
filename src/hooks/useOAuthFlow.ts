@@ -228,7 +228,7 @@ const useOAuthFlow = (flowType = 'authorization_code'): OAuthFlowReturn => {
 						if (userInfoResponse.ok) {
 							userInfo = (await userInfoResponse.json()) as UserInfo;
 						}
-					} catch (error) {
+					} catch (_error) {
 						logger.warn('useOAuthFlow', 'Failed to fetch user info');
 					}
 

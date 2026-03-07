@@ -19,11 +19,7 @@ import styled from 'styled-components';
 import { Card, CardBody } from '../../components/Card';
 import { showFlowSuccess } from '../../components/CentralizedSuccessMessage';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
-import DPoPService, {
-	type DPoPKeyPair,
-	type DPoPProof,
-	DPoPStatus,
-} from '../../services/dpopService';
+import DPoPService, { type DPoPKeyPair, type DPoPProof } from '../../services/dpopService';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { copyToClipboard } from '../../utils/clipboard';
 
@@ -303,7 +299,7 @@ const DPoPFlow: React.FC = () => {
 			setKeyPair(newKeyPair);
 			setProof(null); // Clear previous proof
 			showFlowSuccess('DPoP key pair generated successfully');
-		} catch (error) {
+		} catch (_error) {
 			showFlowSuccess('Failed to generate key pair', 'error');
 		} finally {
 			setIsGenerating(false);
@@ -321,7 +317,7 @@ const DPoPFlow: React.FC = () => {
 			const newProof = await DPoPService.createProof(httpMethod, httpUri, accessToken || undefined);
 			setProof(newProof);
 			showFlowSuccess('DPoP proof created successfully');
-		} catch (error) {
+		} catch (_error) {
 			showFlowSuccess('Failed to create DPoP proof', 'error');
 		} finally {
 			setIsCreatingProof(false);

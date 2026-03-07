@@ -30,7 +30,7 @@ const V9FlowHeader: React.FC<V9FlowHeaderProps> = (props) => {
 	// Simply wrap the original FlowHeader with V9 error handling
 	try {
 		return <FlowHeader {...props} />;
-	} catch (error) {
+	} catch (_error) {
 		modernMessaging.showCriticalError({
 			title: 'Header Render Failed',
 			message: 'Failed to render flow header',
@@ -56,7 +56,7 @@ const V9FlowHeader: React.FC<V9FlowHeaderProps> = (props) => {
 export const getV9FlowConfig = (flowId: string): FlowHeaderConfig | null => {
 	try {
 		return getFlowConfig(flowId);
-	} catch (error) {
+	} catch (_error) {
 		modernMessaging.showCriticalError({
 			title: 'Flow Config Failed',
 			message: `Failed to get flow config for ${flowId}`,
