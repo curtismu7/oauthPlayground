@@ -110,7 +110,7 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 					marginBottom: '6px',
 				}}
 			>
-				<label
+				<div
 					style={{
 						display: 'block',
 						fontSize: '13px',
@@ -133,7 +133,7 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 							(Locked - flow in progress)
 						</span>
 					)}
-				</label>
+				</div>
 				<button
 					type="button"
 					onClick={() => {

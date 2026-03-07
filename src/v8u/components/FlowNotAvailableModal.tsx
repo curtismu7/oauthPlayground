@@ -120,6 +120,7 @@ export const FlowNotAvailableModal: React.FC<FlowNotAvailableModalProps> = ({
 			}}
 		>
 			<div
+				role="document"
 				style={{
 					backgroundColor: 'white',
 					borderRadius: '12px',
