@@ -130,7 +130,7 @@ const JWTBearerTokenFlowV9: React.FC = () => {
 			'-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1234567890abcdef\n-----END PUBLIC KEY-----',
 	});
 	const [generatedJWT, setGeneratedJWT] = useState('');
-	const [tokenResponse, setTokenResponse] = useState<any>(null);
+	const [tokenResponse, setTokenResponse] = useState<unknown>(null);
 	const [isLoading, setIsLoading] = useState(false);
 
 	// Environment ID from URL params or storage
