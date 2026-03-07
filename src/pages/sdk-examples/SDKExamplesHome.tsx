@@ -307,6 +307,7 @@ const SDKExamplesHome: React.FC = () => {
 				<ApiDisplayCheckbox />
 				{!hasValidToken && (
 					<button
+						type="button"
 						onClick={() => setShowWorkerTokenModal(true)}
 						style={{
 							background: '#3b82f6',

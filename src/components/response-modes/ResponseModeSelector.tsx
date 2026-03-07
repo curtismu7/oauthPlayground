@@ -419,7 +419,13 @@ const ResponseModeSelector: React.FC<ResponseModeSelectorProps> = ({
 
 	// Highlight only response_mode parameter
 	const highlightUrl = useCallback((url: string) => {
-		let highlighted = url;
+		// HTML-escape user-supplied URL content before injecting into innerHTML
+		const escaped = url
+			.replace(/&/g, '&amp;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;')
+			.replace(/"/g, '&quot;');
+		let highlighted = escaped;
 
 		// Only highlight response_mode parameter since that's what we're demonstrating
 		const responseModeRegex = /(response_mode=[^&\s]*)/g;
@@ -457,8 +463,10 @@ const ResponseModeSelector: React.FC<ResponseModeSelectorProps> = ({
 
 				case 'fragment':
 					if (responseType.includes('token')) {
+						// educational-ok: access_token is a URL parameter name in example URL, not a real token
 						return `${baseUrl}#access_token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...&token_type=Bearer&expires_in=3600&state=${state}&scope=${scope}`;
 					} else if (responseType.includes('id_token')) {
+						// educational-ok: id_token is a URL parameter name in example URL, not a real token
 						return `${baseUrl}#id_token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...&state=${state}`;
 					}
 					return `${baseUrl}#code=authorization_code_123&state=${state}`;
@@ -510,6 +518,7 @@ const ResponseModeSelector: React.FC<ResponseModeSelectorProps> = ({
 					<PreviewBlock>
 						<PreviewLabel>Authorization Request URL</PreviewLabel>
 						<PreviewContentRow>
+							{/* biome-ignore lint/security/noDangerouslySetInnerHtml: URL is HTML-escaped before highlighting */}
 							<PreviewText dangerouslySetInnerHTML={{ __html: highlightedUrl }} />
 							<CopyButtonService
 								text={authUrl}
@@ -524,6 +533,8 @@ const ResponseModeSelector: React.FC<ResponseModeSelectorProps> = ({
 					<PreviewBlock>
 						<PreviewLabel>Response Format</PreviewLabel>
 						<PreviewContentRow>
+							{' '}
+							{/* biome-ignore lint/security/noDangerouslySetInnerHtml: URL is HTML-escaped before highlighting */}{' '}
 							<PreviewText dangerouslySetInnerHTML={{ __html: highlightedResponseExample }} />
 							<CopyButtonService
 								text={responseExample}

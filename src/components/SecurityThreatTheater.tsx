@@ -631,6 +631,7 @@ if (authAge > 300) {
 					action: '😈 Injects malicious script via XSS vulnerability',
 					delay: 1500,
 				},
+				// educational-ok: action descriptions contain refresh_token as a label, not a real token value
 				{ actor: 'attacker', action: 'Copies refresh_token value from storage', delay: 2000 },
 				{ actor: 'attacker', action: 'Uses stolen refresh token on their own device', delay: 2000 },
 				{ actor: 'server', action: '✅ Issues new access tokens again and again', delay: 1500 },
@@ -651,6 +652,7 @@ if (authAge > 300) {
 					action: 'Enables PingOne refresh token rotation + reuse detection',
 					delay: 1500,
 				},
+				// educational-ok: action description contains refresh_token as a label, not a real token value
 				{ actor: 'attacker', action: '😈 Steals previous refresh_token', delay: 2000 },
 				{
 					actor: 'server',
@@ -756,6 +758,7 @@ sessionStorage.setItem('redirectless_flow', JSON.stringify({
 }));
 
 // When resuming
+// educational-ok: code example string - JSON.parse with null-safe fallback, not runtime code
 const saved = JSON.parse(sessionStorage.getItem('redirectless_flow') ?? '{}');
 if (saved.state !== returnedState) {
   throw new Error('State mismatch on resume');

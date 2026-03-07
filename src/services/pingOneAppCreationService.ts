@@ -248,6 +248,7 @@ export class PingOneAppCreationService {
 	/**
 	 * Generic app creation method
 	 */
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	private async createApp(appData: any): Promise<AppCreationResult> {
 		// Ensure protocol is always set
 		if (!appData.protocol) {
@@ -332,13 +333,16 @@ export class PingOneAppCreationService {
 	/**
 	 * Get list of applications
 	 */
-	async getApplications(limit: number = 50): Promise<any[]> {
+	async getApplications(limit: number = 50): Promise<Record<string, unknown>[]> {
 		if (!this.client) {
 			throw new Error('Service not initialized. Call initialize() first.');
 		}
 
 		try {
-			const response = await makeApiRequest<any>(this.client, `/applications?limit=${limit}`);
+			const response = await makeApiRequest<Record<string, unknown>>(
+				this.client,
+				`/applications?limit=${limit}`
+			);
 			return response._embedded?.applications || response.applications || [];
 		} catch (error) {
 			logger.error('APP-CREATION', 'Failed to get applications', error);
@@ -349,6 +353,7 @@ export class PingOneAppCreationService {
 	/**
 	 * Update an existing application
 	 */
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	async updateApplication(appId: string, updates: any): Promise<AppCreationResult> {
 		if (!this.client) {
 			const error = 'Service not initialized. Call initialize() first.';
