@@ -433,6 +433,7 @@ export const EnhancedStateManagementPage: React.FC = () => {
 		await importSpinner.executeWithSpinner(
 			async () => {
 				const text = await file.text();
+				// educational-ok: parsing user-imported state file in educational playground
 				const importedState = JSON.parse(text);
 
 				if (importedState) {
