@@ -1,4 +1,5 @@
 // src/v7/pages/V7MClientCredentialsV9.tsx
+/* eslint-disable no-alert */
 
 import { FiBook, FiKey } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';

@@ -17,12 +17,12 @@ import {
 	FiUser,
 } from '@icons';
 import styled from 'styled-components';
-import type { OAuthTokenResponse } from '../../types/storage';
-import { getAuthMethodSecurityLevel } from '../../utils/clientAuthentication';
+// import type { OAuthTokenResponse } from '../../types/storage'; // Unused
+// import { getAuthMethodSecurityLevel } from '../../utils/clientAuthentication'; // Unused
 import { copyToClipboard } from '../../utils/clipboard';
 import { ColorCodedURL } from '../ColorCodedURL';
 import type { EnhancedFlowStep } from '../EnhancedStepFlowV2';
-import type { WorkerTokenResponse } from '../worker/WorkerTokenDisplay';
+// import type { WorkerTokenResponse } from '../worker/WorkerTokenDisplay'; // Unused
 
 /**
  * Utility function to mask tokens for security
@@ -182,36 +182,6 @@ const TokenDisplay = styled.div`
     border-color: #15803d;
     background: #ecfdf5;
     box-shadow: 0 2px 6px rgba(22, 163, 74, 0.15);
-  }
-`;
-
-const _AuthButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  background: #3b82f6;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  
-  &:hover:not(:disabled) {
-    background: #2563eb;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-  }
-  
-  &:active:not(:disabled) {
-    transform: translateY(0);
-  }
-  
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
   }
 `;
 
@@ -1080,8 +1050,8 @@ export const createUserInfoStep = (
 	tokens: TokenBundle,
 	_tokenAudience: string | null,
 	getUserInfo: () => Promise<void>,
-	isGettingUserInfo: boolean = false,
-	_navigateToTokenManagement?: (tokenType: 'access' | 'id') => void
+	isGettingUserInfo: boolean = false
+	// _navigateToTokenManagement?: (tokenType: 'access' | 'id') => void // Unused parameter
 ) => ({
 	id: 'validate-tokens',
 	title: 'Validate Tokens',
@@ -1385,8 +1355,8 @@ export const createTokenValidationStep = (
 	tokens: TokenBundle,
 	userInfo: UserInfoBundle,
 	onValidateTokens?: () => Promise<void>,
-	isValidating: boolean = false,
-	_navigateToTokenManagement?: (tokenType: 'access' | 'id') => void
+	isValidating: boolean = false
+	// _navigateToTokenManagement?: (tokenType: 'access' | 'id') => void // Unused parameter
 ): EnhancedFlowStep => ({
 	id: 'validate-tokens',
 	title: 'Validate Tokens & Get User Info',
