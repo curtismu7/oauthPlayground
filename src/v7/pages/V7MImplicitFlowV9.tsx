@@ -1,4 +1,5 @@
 // src/v7/pages/V7MImplicitFlowV9.tsx
+/* eslint-disable no-alert */
 
 import { FiAlertTriangle, FiBook, FiKey, FiSend, FiShield } from '@icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';

@@ -1,4 +1,5 @@
 // src/v7/pages/V7MROPCV9.tsx
+/* eslint-disable no-alert */
 
 import { FiAlertTriangle, FiCheck, FiCopy, FiEye, FiEyeOff, FiKey, FiLock, FiUser } from '@icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';

@@ -811,7 +811,7 @@ const JWTBearerFlow: React.FC = () => {
 											</ButtonGroup>
 											{tokenResponse && (
 												<TokenSurface title="Token Response">
-													<pre>{JSON.stringify(tokenResponse, null, 2)}</pre>
+													<pre>{maskToken(JSON.stringify(tokenResponse, null, 2))}</pre>
 												</TokenSurface>
 											)}
 										</div>

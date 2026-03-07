@@ -200,7 +200,7 @@ const StatusMessage = styled.div<{ $type?: 'info' | 'success' | 'warning' | 'err
 export interface UnifiedCredentialManagerV9Props {
 	environmentId: string;
 	flowKey: string; // For V9 credential storage
-	credentials: Record<string, any>;
+	credentials: Record<string, unknown>;
 	importExportOptions: ImportExportOptions;
 	onAppSelected?: (app: V9DiscoveredApp) => void;
 	grantType?: string; // Optional filter for specific grant types
