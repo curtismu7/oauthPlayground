@@ -5,17 +5,9 @@ import { FiAlertCircle, FiCheckCircle, FiCode, FiEdit3, FiPlus, FiTrash2 } from 
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import RARService, {
-import
-{
-	V9_COLORS;
-}
-from;
-('../services/v9/V9ColorStandards');
-type AuthorizationDetail
-,
-type RARValidationResult
-,
-} from '../services/rarService'
+	type AuthorizationDetail,
+	type RARValidationResult,
+} from '../services/rarService';
 
 interface AuthorizationDetailsEditorProps {
 	authorizationDetails: AuthorizationDetail[];

@@ -18,7 +18,7 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
-import { comprehensiveTokenUIService } from '@/v8/services/comprehensiveTokenUIService';
+import { comprehensiveTokenUIService, type TokenStatus } from '@/v8/services/comprehensiveTokenUIService';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
@@ -453,7 +453,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 					UnifiedFlowErrorHandler.handleError(
 						error,
 						{
-							flowType: 'mfa' as any,
+							flowType: 'mfa',
 							deviceType: 'SMS',
 							operation: 'processCallback',
 						},
@@ -596,7 +596,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 			const parsed = UnifiedFlowErrorHandler.handleError(
 				error,
 				{
-					flowType: 'mfa' as any,
+					flowType: 'mfa',
 					deviceType: 'SMS',
 					operation: 'loadPolicies',
 				},
@@ -642,7 +642,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 		if (tokenStatus.isValid && tokenStatus.token) {
 			comprehensiveTokenUIService.setWorkerToken({
 				tokenId: tokenStatus.token,
-				status: tokenStatus.status as any,
+				status: tokenStatus.status as TokenStatus,
 				expiresAt: tokenStatus.expiresAt || null,
 				duration: tokenStatus.minutesRemaining ? `${tokenStatus.minutesRemaining} minutes` : null,
 				environment: credentials.environmentId || null,
@@ -655,7 +655,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 		if (credentials.userToken && credentials.tokenType === 'user') {
 			comprehensiveTokenUIService.setUserToken({
 				tokenId: credentials.userToken,
-				status: 'valid' as any,
+				status: 'valid' as TokenStatus,
 				expiresAt: null,
 				environment: credentials.environmentId || null,
 				lastUpdated: Date.now(),
@@ -1263,9 +1263,6 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 					(() => {
 						// Check if we should show token only (matches MFA pattern)
 						try {
-							const {
-								MFAConfigurationServiceV8,
-							} = require('@/v8/services/mfaConfigurationServiceV8');
 							const config = MFAConfigurationServiceV8.loadConfiguration();
 							const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 

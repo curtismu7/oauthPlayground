@@ -22,7 +22,12 @@ export default [
 		},
 		rules: {
 			...tsplugin.configs.recommended.rules,
-			'@typescript-eslint/no-unused-vars': 'warn',
+			'@typescript-eslint/no-unused-vars': ['warn', {
+				varsIgnorePattern: '^_',
+				argsIgnorePattern: '^_',
+				caughtErrorsIgnorePattern: '^_',
+				destructuredArrayIgnorePattern: '^_',
+			}],
 			'no-console': 'off',
 			'no-alert': 'error',
 			// Async/Promise rules to prevent syntax errors

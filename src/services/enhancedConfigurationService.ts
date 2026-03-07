@@ -92,8 +92,8 @@ export interface ConfigurationWarning {
 
 export interface ConfigurationSuggestion {
 	field: string;
-	currentValue: any;
-	suggestedValue: any;
+	currentValue: unknown;
+	suggestedValue: unknown;
 	reason: string;
 	benefit: string;
 }
@@ -635,8 +635,8 @@ export class EnhancedConfigurationService {
 		const allKeys = new Set([...Object.keys(config1), ...Object.keys(config2)]);
 
 		for (const key of allKeys) {
-			const value1 = (config1 as any)[key];
-			const value2 = (config2 as any)[key];
+			const value1 = (config1 as Record<string, unknown>)[key];
+			const value2 = (config2 as Record<string, unknown>)[key];
 
 			if (JSON.stringify(value1) !== JSON.stringify(value2)) {
 				changes.push({
@@ -656,7 +656,7 @@ export class EnhancedConfigurationService {
 		};
 	}
 
-	private static getChangeType(oldValue: any, newValue: any): 'added' | 'removed' | 'modified' {
+	private static getChangeType(oldValue: unknown, newValue: unknown): 'added' | 'removed' | 'modified' {
 		if (oldValue === undefined) return 'added';
 		if (newValue === undefined) return 'removed';
 		return 'modified';
@@ -681,8 +681,8 @@ interface ConfigurationDiff {
 
 interface ConfigurationChange {
 	field: string;
-	oldValue: any;
-	newValue: any;
+	oldValue: unknown;
+	newValue: unknown;
 	type: 'added' | 'removed' | 'modified';
 }
 
