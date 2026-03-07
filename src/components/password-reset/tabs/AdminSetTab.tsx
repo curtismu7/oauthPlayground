@@ -12,7 +12,7 @@ import {
 import { readPasswordState, setPasswordAdmin } from '../../../services/passwordResetService';
 import { lookupPingOneUser } from '../../../services/pingOneUserProfileService';
 import { UserComparisonDisplay, type UserState } from '../../../services/userComparisonService';
-import { v4ToastManager } from '../../../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { HighlightedSection } from '../shared/HighlightedSection';
 import { PasswordInput } from '../shared/PasswordInput';
 import { PasswordOptions } from '../shared/PasswordOptions';
@@ -55,10 +55,10 @@ export const AdminSetTab: React.FC<AdminSetTabProps> = ({
 		(info: PasswordResetErrorInfo) => {
 			onError?.(info);
 			if (info.severity === 'warning') {
-				v4ToastManager.showWarning(info.message);
+				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: info.message, dismissible: true });
 				return;
 			}
-			v4ToastManager.showError(info.message);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: info.message, dismissible: true });
 		},
 		[onError]
 	);
@@ -109,7 +109,7 @@ export const AdminSetTab: React.FC<AdminSetTabProps> = ({
 				const message = forceChange
 					? 'Password set successfully! User will be required to change password on next sign-on.'
 					: 'Password set successfully!';
-				v4ToastManager.showSuccess(message);
+				modernMessaging.showFooterMessage({ type: 'status', message: message, duration: 4000 });
 				setPassword('');
 				return;
 			}

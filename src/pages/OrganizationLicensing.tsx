@@ -21,7 +21,7 @@ import V7StepperService from '../services/v7StepperService';
 import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
 import { getOAuthTokens } from '../utils/tokenStorage';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import WorkerTokenStatusDisplayV8 from '../v8/components/WorkerTokenStatusDisplayV8';
 
 type CredentialsState = {
@@ -442,7 +442,7 @@ const OrganizationLicensingV2: React.FC = () => {
 			const errorMsg =
 				'No valid worker token available. Please click "Get Worker Token" to generate one with the required scopes (p1:read:organization p1:read:licensing).';
 			setError(errorMsg);
-			v4ToastManager.showError(errorMsg);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMsg, dismissible: true });
 			return;
 		}
 
@@ -450,7 +450,7 @@ const OrganizationLicensingV2: React.FC = () => {
 
 		if (!organizationId.trim()) {
 			setError('Please enter an Organization ID.');
-			v4ToastManager.showError('Please enter an Organization ID.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter an Organization ID.', dismissible: true });
 			return;
 		}
 
@@ -468,14 +468,12 @@ const OrganizationLicensingV2: React.FC = () => {
 			if (info) {
 				console.log('[OrganizationLicensing] Organization info received:', info);
 				setOrgInfo(info);
-				v4ToastManager.showSuccess('Organization licensing information loaded!');
+				modernMessaging.showFooterMessage({ type: 'status', message: 'Organization licensing information loaded!', duration: 4000 });
 			} else {
 				const errorMsg =
 					'Failed to fetch organization information. The API returned no data. This usually means:\n1. The worker token is expired or invalid\n2. The Organization ID is incorrect\n3. The worker app lacks required permissions (p1:read:organization p1:read:licensing)\n\nPlease click "Get Worker Token" to generate a new token and try again.';
 				setError(errorMsg);
-				v4ToastManager.showError(
-					'Failed to fetch organization information. Check the error message for details.'
-				);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to fetch organization information. Check the error message for details.', dismissible: true });
 				logger.error(
 					'OrganizationLicensing',
 					'[OrganizationLicensing] getOrganizationLicensingInfo returned null'
@@ -495,10 +493,10 @@ const OrganizationLicensingV2: React.FC = () => {
 				const errorMsg =
 					'Worker token is expired or invalid. Please click "Get Worker Token" to generate a new token with the required scopes (p1:read:organization p1:read:licensing).';
 				setError(errorMsg);
-				v4ToastManager.showError('Token expired or invalid. Please generate a new worker token.');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Token expired or invalid. Please generate a new worker token.', dismissible: true });
 			} else {
 				setError(errorMessage);
-				v4ToastManager.showError(`Failed to load licensing information: ${errorMessage}`);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to load licensing information: ${errorMessage}`, dismissible: true });
 			}
 		} finally {
 			setIsFetchingOrgInfo(false);
@@ -515,11 +513,11 @@ const OrganizationLicensingV2: React.FC = () => {
 				organizationId.trim() || undefined
 			);
 			setAllLicenses(licenses);
-			v4ToastManager.showSuccess(`Successfully fetched ${licenses.length} licenses`);
+			modernMessaging.showFooterMessage({ type: 'status', message: `Successfully fetched ${licenses.length} licenses`, duration: 4000 });
 		} catch (err) {
 			const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
 			setError(errorMessage);
-			v4ToastManager.showError(`Failed to fetch licenses: ${errorMessage}`);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to fetch licenses: ${errorMessage}`, dismissible: true });
 		} finally {
 			setIsFetchingAllLicenses(false);
 		}

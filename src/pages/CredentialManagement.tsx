@@ -23,7 +23,7 @@ import ConfirmationModal from '../components/ConfirmationModal';
 import { credentialStorageManager } from '../services/credentialStorageManager';
 import { logger } from '../utils/logger';
 // import { FlowHeader } from '../services/flowHeaderService';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
 
 const styles = {
@@ -289,7 +289,7 @@ export const CredentialManagement: React.FC = () => {
 				undefined,
 				error as Error
 			);
-			v4ToastManager.showError('Failed to load credential information');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to load credential information', dismissible: true });
 		} finally {
 			setLoading(false);
 		}
@@ -332,7 +332,7 @@ export const CredentialManagement: React.FC = () => {
 			document.body.removeChild(link);
 			URL.revokeObjectURL(url);
 
-			v4ToastManager.showSuccess('Credentials exported successfully');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'Credentials exported successfully', duration: 4000 });
 		} catch (error) {
 			logger.error(
 				'CredentialManagement',
@@ -340,7 +340,7 @@ export const CredentialManagement: React.FC = () => {
 				undefined,
 				error as Error
 			);
-			v4ToastManager.showError('Failed to export credentials');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to export credentials', dismissible: true });
 		}
 	};
 
@@ -376,7 +376,7 @@ export const CredentialManagement: React.FC = () => {
 				await credentialStorageManager.saveWorkerToken(importData.workerToken);
 			}
 
-			v4ToastManager.showSuccess(`Imported ${importedCount} credential sets successfully`);
+			modernMessaging.showFooterMessage({ type: 'status', message: `Imported ${importedCount} credential sets successfully`, duration: 4000 });
 
 			// Reload credentials to show updated state
 			await loadFlowCredentials();
@@ -387,7 +387,7 @@ export const CredentialManagement: React.FC = () => {
 				undefined,
 				error as Error
 			);
-			v4ToastManager.showError('Failed to import credentials. Please check the file format.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to import credentials. Please check the file format.', dismissible: true });
 		}
 
 		// Reset file input
@@ -403,7 +403,7 @@ export const CredentialManagement: React.FC = () => {
 				clearedCount++;
 			}
 			await credentialStorageManager.clearWorkerToken();
-			v4ToastManager.showSuccess(`Cleared ${clearedCount} credential sets successfully`);
+			modernMessaging.showFooterMessage({ type: 'status', message: `Cleared ${clearedCount} credential sets successfully`, duration: 4000 });
 			await loadFlowCredentials();
 			console.log(
 				`[${new Date().toISOString()}] [🧩 UI-NOTIFICATIONS] All credentials cleared successfully. Count: ${clearedCount}`
@@ -415,7 +415,7 @@ export const CredentialManagement: React.FC = () => {
 				undefined,
 				error as Error
 			);
-			v4ToastManager.showError('Failed to clear all credentials');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to clear all credentials', dismissible: true });
 		} finally {
 			setIsClearingAll(false);
 			setShowClearAllModal(false);

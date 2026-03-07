@@ -5,7 +5,7 @@ import {
 	type MfaDevice,
 } from '../../services/enhancedPingOneMfaService';
 import { logger } from '../../utils/logger';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import ConfirmationModal from '../ConfirmationModal';
 
 interface MFADeviceManagerProps {
@@ -47,7 +47,7 @@ export const MFADeviceManager: React.FC<MFADeviceManagerProps> = ({
 			setDevices(deviceList);
 		} catch (error) {
 			logger.error('MFADeviceManager', 'Failed to load MFA devices:', undefined, error as Error);
-			v4ToastManager.showError('Failed to load MFA devices');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to load MFA devices', dismissible: true });
 		} finally {
 			setIsLoading(false);
 		}
@@ -58,7 +58,7 @@ export const MFADeviceManager: React.FC<MFADeviceManagerProps> = ({
 			setIsAdding(true);
 
 			if (selectedDeviceType === 'SMS' && !phoneNumber) {
-				v4ToastManager.showError('Please enter a phone number');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please enter a phone number', dismissible: true });
 				return;
 			}
 
@@ -69,9 +69,7 @@ export const MFADeviceManager: React.FC<MFADeviceManagerProps> = ({
 			}
 		} catch (error) {
 			logger.error('MFADeviceManager', 'Failed to add device:', undefined, error as Error);
-			v4ToastManager.showError(
-				`Failed to add device: ${error instanceof Error ? error.message : 'Unknown error'}`
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to add device: ${error instanceof Error ? error.message : 'Unknown error'}`, dismissible: true });
 		} finally {
 			setIsAdding(false);
 		}
@@ -85,9 +83,7 @@ export const MFADeviceManager: React.FC<MFADeviceManagerProps> = ({
 
 		// In a real app, you would send an SMS challenge here
 		// For now, we'll just show a success message
-		v4ToastManager.showSuccess(
-			'SMS device added successfully. Please check your phone for a verification code.'
-		);
+		modernMessaging.showFooterMessage({ type: 'status', message: 'SMS device added successfully. Please check your phone for a verification code.', duration: 4000 });
 		setActiveDevice(device);
 		setShowAddModal(false);
 	};
@@ -108,9 +104,7 @@ export const MFADeviceManager: React.FC<MFADeviceManagerProps> = ({
 
 		// In a real app, you would show a modal with the QR code and secret
 		// For now, we'll just show a success message
-		v4ToastManager.showSuccess(
-			'TOTP device added. Please scan the QR code with your authenticator app.'
-		);
+		modernMessaging.showFooterMessage({ type: 'status', message: 'TOTP device added. Please scan the QR code with your authenticator app.', duration: 4000 });
 		console.log('TOTP Secret:', secret); // In a real app, show this to the user in a secure way
 		console.log('QR Code:', qrCode); // In a real app, display this image
 	};
@@ -127,16 +121,14 @@ export const MFADeviceManager: React.FC<MFADeviceManagerProps> = ({
 				verificationCode
 			);
 
-			v4ToastManager.showSuccess('Device activated successfully');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'Device activated successfully', duration: 4000 });
 			setActiveDevice(null);
 			setVerificationCode('');
 			loadDevices();
 			onDeviceAdded?.(activeDevice);
 		} catch (error) {
 			logger.error('MFADeviceManager', 'Failed to verify device:', undefined, error as Error);
-			v4ToastManager.showError(
-				`Failed to verify device: ${error instanceof Error ? error.message : 'Unknown error'}`
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to verify device: ${error instanceof Error ? error.message : 'Unknown error'}`, dismissible: true });
 		} finally {
 			setIsActivating(false);
 		}
@@ -152,7 +144,7 @@ export const MFADeviceManager: React.FC<MFADeviceManagerProps> = ({
 
 		try {
 			await EnhancedPingOneMfaService.deleteDevice(credentials, deviceToRemove);
-			v4ToastManager.showSuccess('Device removed successfully');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'Device removed successfully', duration: 4000 });
 			setDevices(devices.filter((d) => d.id !== deviceToRemove));
 			onDeviceRemoved?.(deviceToRemove);
 			console.log(
@@ -160,9 +152,7 @@ export const MFADeviceManager: React.FC<MFADeviceManagerProps> = ({
 			);
 		} catch (error) {
 			logger.error('MFADeviceManager', 'Failed to remove device:', undefined, error as Error);
-			v4ToastManager.showError(
-				`Failed to remove device: ${error instanceof Error ? error.message : 'Unknown error'}`
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to remove device: ${error instanceof Error ? error.message : 'Unknown error'}`, dismissible: true });
 		} finally {
 			setShowRemoveModal(false);
 			setDeviceToRemove(null);

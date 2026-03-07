@@ -4,7 +4,7 @@
 import { FiAlertTriangle, FiCopy, FiRefreshCw, FiServer } from '@icons';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -135,12 +135,12 @@ const WebhookReceiver: React.FC = () => {
 
 	const handleCopyUrl = () => {
 		navigator.clipboard.writeText(webhookUrl);
-		v4ToastManager.showSuccess('Webhook URL copied to clipboard');
+		modernMessaging.showFooterMessage({ type: 'status', message: 'Webhook URL copied to clipboard', duration: 4000 });
 	};
 
 	const handleClearEvents = () => {
 		setEvents([]);
-		v4ToastManager.showInfo('Webhook history cleared');
+		modernMessaging.showFooterMessage({ type: 'info', message: 'Webhook history cleared', duration: 4000 });
 	};
 
 	// This component would typically be backed by an API endpoint

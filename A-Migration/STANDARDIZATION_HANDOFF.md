@@ -23,7 +23,7 @@
 | V9 flows: `V9CredentialStorageService` | ✅ **DONE** | All 16 V9 flows have it |
 | V9 flows: `CompactAppPickerV8U` | ✅ **DONE** | All 16 V9 flows have it |
 | App Lookup Service (`CompactAppPickerV8U`) — all credential flows | ✅ **DONE** | All flows with credentials now use CompactAppPickerV9 with V9 standardization. See [COMPACT_APP_PICKER_V9_COMPLETE_MIGRATION_REPORT.md](./COMPACT_APP_PICKER_V9_COMPLETE_MIGRATION_REPORT.md) |
-| **Credentials Import/Export Service** | ✅ **DONE** | All active-menu flows covered. Added to `TokenRevocationFlow` (March 6). V7M mock flows N/A (no real creds). DPoP N/A (no creds). SAMLServiceProviderFlowV1 deferred (v4Toast-based — broader migration needed first). See [CREDENTIALS_IMPORT_EXPORT_INVENTORY.md](./CREDENTIALS_IMPORT_EXPORT_INVENTORY.md) |
+| **Credentials Import/Export Service** | ✅ **DONE** | All active-menu flows covered. Added to `TokenRevocationFlow` (March 6). V7M mock flows N/A (no real creds). DPoP N/A (no creds). SAMLServiceProviderFlowV1 ✅ complete (commit `87f5da958`). See [CREDENTIALS_IMPORT_EXPORT_INVENTORY.md](./CREDENTIALS_IMPORT_EXPORT_INVENTORY.md) |
 | **CompactAppPickerV8U → V9 Migration** | ✅ **DONE** | Migrated to `CompactAppPickerV9` with V9 standardization, enhanced features, and improved TypeScript. See [COMPACT_APP_PICKER_V9_MIGRATION.md](./COMPACT_APP_PICKER_V9_MIGRATION.md) |
 | V9 flows: zero `toastV8` calls | ✅ **DONE** | 0 actual calls (comments only) |
 | V9 flows: `console.error/warn` | ✅ **DONE** | 0 violations in all V9 flows — WorkerTokenFlowV9 1 occurrence exempt (inside `<pre>` tag). CIBAFlowV9 + RedirectlessFlowV9_Real (13 violations) fixed commit `8eb74df06` |

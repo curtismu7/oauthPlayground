@@ -22,7 +22,7 @@ import {
 	workerTokenCredentialsService,
 } from '../services/workerTokenCredentialsService';
 import { logger } from '../utils/logger';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 interface WorkerTokenCredentialsInputProps {
 	credentials: WorkerTokenCredentials;
@@ -351,7 +351,7 @@ export const WorkerTokenCredentialsInput: React.FC<WorkerTokenCredentialsInputPr
 		try {
 			const success = workerTokenCredentialsService.saveCredentials(credentials);
 			if (success) {
-				v4ToastManager.showSuccess('Worker Token credentials saved successfully');
+				modernMessaging.showFooterMessage({ type: 'status', message: 'Worker Token credentials saved successfully', duration: 4000 });
 				onSave?.();
 
 				// Show "Saved" for 10 seconds
@@ -360,7 +360,7 @@ export const WorkerTokenCredentialsInput: React.FC<WorkerTokenCredentialsInputPr
 					setIsSaved(false);
 				}, 10000);
 			} else {
-				v4ToastManager.showError('Failed to save credentials');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save credentials', dismissible: true });
 			}
 		} catch (error) {
 			logger.error(
@@ -369,7 +369,7 @@ export const WorkerTokenCredentialsInput: React.FC<WorkerTokenCredentialsInputPr
 				undefined,
 				error as Error
 			);
-			v4ToastManager.showError('Failed to save credentials');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save credentials', dismissible: true });
 		}
 	}, [credentials, validation, isSaving, onSave]);
 

@@ -30,7 +30,7 @@ import { LearningTooltip } from '../../components/LearningTooltip';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import type { EnhancedApiCallData } from '../../services/enhancedApiCallDisplayService';
 import { FlowUIService } from '../../services/flowUIService';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 type TokenExchangeScenario =
 	| 'delegation'
@@ -906,7 +906,7 @@ const V8MTokenExchange: React.FC = () => {
 			claims: scenarios[scenario].defaultClaims,
 			authorizationDetails: scenarios[scenario].defaultAuthDetails,
 		}));
-		v4ToastManager.showSuccess(`Selected ${scenarios[scenario].title} scenario`);
+		modernMessaging.showFooterMessage({ type: 'status', message: `Selected ${scenarios[scenario].title} scenario`, duration: 4000 });
 	}, []);
 
 	const handleScopeToggle = useCallback((scopeName: string) => {
@@ -928,7 +928,7 @@ const V8MTokenExchange: React.FC = () => {
 
 	const simulateTokenExchange = useCallback(async () => {
 		if (selectedScopes.length === 0) {
-			v4ToastManager.showError('Please select at least one scope for the exchanged token');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please select at least one scope for the exchanged token', dismissible: true });
 			return;
 		}
 
@@ -1029,9 +1029,7 @@ const V8MTokenExchange: React.FC = () => {
 
 		setExchangedToken(JSON.stringify(mockExchangedToken, null, 2));
 		setIsLoading(false);
-		v4ToastManager.showSuccess(
-			`Token exchange completed! Reduced scope by ${mockExchangedToken.exchange_metadata.scope_reduction.reduction_percentage}%`
-		);
+		modernMessaging.showFooterMessage({ type: 'status', message: `Token exchange completed! Reduced scope by ${mockExchangedToken.exchange_metadata.scope_reduction.reduction_percentage}%`, duration: 4000 });
 	}, [selectedScenario, exchangeParams.audience, selectedScopes, exchangeParams]);
 
 	const currentScenario = scenarios[selectedScenario];
@@ -2558,7 +2556,7 @@ function TokenExchangeComponent() {
 							// Simulate authorization request
 							const mockAuthCode = `auth_code_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 							setAuthCode(mockAuthCode);
-							v4ToastManager.showSuccess('Authorization code received!');
+							modernMessaging.showFooterMessage({ type: 'status', message: 'Authorization code received!', duration: 4000 });
 						}}
 						disabled={!!authCode}
 					>
@@ -2635,7 +2633,7 @@ function TokenExchangeComponent() {
 								$variant="secondary"
 								onClick={() => {
 									navigator.clipboard.writeText(authCode);
-									v4ToastManager.showSuccess('Authorization code copied!');
+									modernMessaging.showFooterMessage({ type: 'status', message: 'Authorization code copied!', duration: 4000 });
 								}}
 								style={{ marginTop: '0.5rem' }}
 							>
@@ -2770,9 +2768,7 @@ function TokenExchangeComponent() {
 								setSubjectToken(mockAccessToken); // This becomes the subject_token for Token Exchange
 								setIsExchangingAuthCode(false);
 
-								v4ToastManager.showSuccess(
-									'Access token received! This will be used as the subject_token for Token Exchange.'
-								);
+								modernMessaging.showFooterMessage({ type: 'status', message: 'Access token received! This will be used as the subject_token for Token Exchange.', duration: 4000 });
 							}}
 							disabled={isExchangingAuthCode || !!initialAccessToken}
 							style={{ marginTop: '1rem' }}

@@ -20,7 +20,7 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
 import TokenDisplayService from '../services/tokenDisplayService';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 interface TokenSet {
 	access_token?: string;
@@ -494,13 +494,13 @@ export const UltimateTokenDisplay: React.FC<UltimateTokenDisplayProps> = ({
 		try {
 			await navigator.clipboard.writeText(token);
 			setCopiedStates((prev) => ({ ...prev, [tokenType]: true }));
-			v4ToastManager.showSuccess(`${getTokenLabel(tokenType)} copied to clipboard`);
+			modernMessaging.showFooterMessage({ type: 'status', message: `${getTokenLabel(tokenType)} copied to clipboard`, duration: 4000 });
 
 			setTimeout(() => {
 				setCopiedStates((prev) => ({ ...prev, [tokenType]: false }));
 			}, 2000);
 		} catch (_error) {
-			v4ToastManager.showError('Failed to copy token');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to copy token', dismissible: true });
 		}
 	};
 
@@ -513,7 +513,7 @@ export const UltimateTokenDisplay: React.FC<UltimateTokenDisplayProps> = ({
 				source: flowKey || 'ultimate-token-display',
 			},
 		});
-		v4ToastManager.showSuccess(`${getTokenLabel(tokenType)} sent to Token Management`);
+		modernMessaging.showFooterMessage({ type: 'status', message: `${getTokenLabel(tokenType)} sent to Token Management`, duration: 4000 });
 	};
 
 	const renderToken = (tokenType: TokenType) => {

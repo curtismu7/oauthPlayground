@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { scopeValidationService } from '../services/scopeValidationService';
 import { logger } from '../utils/logger';
 import { safeLocalStorageParse } from '../utils/secureJson';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 export interface DeviceCodeResponse {
 	device_code: string;
@@ -204,7 +204,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 		if (!credentials?.environmentId || !credentials?.clientId) {
 			const error = 'Missing credentials: environmentId and clientId are required';
 			logger.error('useDeviceAuthorizationFlow', `${error}`);
-			v4ToastManager.showError('Please configure PingOne credentials first.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please configure PingOne credentials first.', dismissible: true });
 			return;
 		}
 
@@ -332,7 +332,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 				error: null,
 			}));
 
-			v4ToastManager.showSuccess('Device code received! Display the user code to the user.');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'Device code received! Display the user code to the user.', duration: 4000 });
 		} catch (error) {
 			logger.error(
 				'useDeviceAuthorizationFlow',
@@ -340,9 +340,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 				undefined,
 				error as Error
 			);
-			v4ToastManager.showError(
-				error instanceof Error ? error.message : 'Failed to request device code'
-			);
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Failed to request device code', dismissible: true });
 			throw error;
 		}
 	}, [credentials, deviceCodeData, pollingStatus.status]);
@@ -365,7 +363,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 				error: 'Maximum polling attempts reached. Please start over.',
 				status: 'error',
 			}));
-			v4ToastManager.showError('Maximum polling attempts reached. Please start over.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Maximum polling attempts reached. Please start over.', dismissible: true });
 			return true; // Stop polling
 		}
 
@@ -452,7 +450,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 				return false;
 			} else if (data.error === 'slow_down') {
 				console.log(`${LOG_PREFIX} [WARN] Slow down requested by server`);
-				v4ToastManager.showWarning('Server requested slower polling rate');
+				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Server requested slower polling rate', dismissible: true });
 				return false;
 			} else if (data.error === 'access_denied') {
 				console.log(`${LOG_PREFIX} [ERROR] Access denied by user`);
@@ -462,7 +460,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 					error: 'Access denied by user',
 					status: 'error',
 				}));
-				v4ToastManager.showError('Authorization denied by user.');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Authorization denied by user.', dismissible: true });
 				return true; // Stop polling
 			} else if (data.error === 'expired_token') {
 				console.log(`${LOG_PREFIX} [ERROR] Device code expired`);
@@ -472,7 +470,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 					error: 'Device code expired',
 					status: 'expired',
 				}));
-				v4ToastManager.showError('Device code expired. Please start over.');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Device code expired. Please start over.', dismissible: true });
 				return true; // Stop polling
 			} else if (data.error === 'invalid_grant') {
 				console.log(`${LOG_PREFIX} [ERROR] Invalid grant - device code may be expired or invalid`);
@@ -482,7 +480,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 					error: 'Device code expired or invalid',
 					status: 'expired',
 				}));
-				v4ToastManager.showError('Device code expired or invalid. Please start over.');
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Device code expired or invalid. Please start over.', dismissible: true });
 				return true; // Stop polling
 			}
 
@@ -543,7 +541,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 					});
 				}
 
-				v4ToastManager.showSuccess('Authorization complete! Tokens received.');
+				modernMessaging.showFooterMessage({ type: 'status', message: 'Authorization complete! Tokens received.', duration: 4000 });
 				return true;
 			}
 
@@ -585,9 +583,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 					error: data.error_description || data.error || 'Unknown error',
 					status: 'error',
 				}));
-				v4ToastManager.showError(
-					data.error_description || 'Authorization failed - check console for details'
-				);
+				modernMessaging.showBanner({ type: 'error', title: 'Error', message: data.error_description || 'Authorization failed - check console for details', dismissible: true });
 				return true; // Stop polling
 			}
 		} catch (error) {
@@ -624,7 +620,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 				error: error instanceof Error ? error.message : 'Polling failed',
 				status: 'error',
 			}));
-			v4ToastManager.showError('Failed to poll for tokens - check console for details');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to poll for tokens - check console for details', dismissible: true });
 			return true; // Stop polling
 		}
 
@@ -636,7 +632,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 	const startPolling = useCallback(() => {
 		if (!deviceCodeData) {
 			logger.error('useDeviceAuthorizationFlow', `Cannot start polling: no device code`);
-			v4ToastManager.showError('No device code available. Request a device code first.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'No device code available. Request a device code first.', dismissible: true });
 			return;
 		}
 
@@ -761,7 +757,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 				`Auto-stopping: exceeded max attempts (${pollingStatus.attempts}/${pollingStatus.maxAttempts})`
 			);
 			stopPolling();
-			v4ToastManager.showError('Polling exceeded maximum attempts. Please start over.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Polling exceeded maximum attempts. Please start over.', dismissible: true });
 		}
 	}, [pollingStatus.attempts, pollingStatus.maxAttempts, pollingStatus.isPolling, stopPolling]);
 

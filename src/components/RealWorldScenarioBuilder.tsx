@@ -17,7 +17,7 @@ import {
 } from '@icons';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const BuilderContainer = styled.div`
 	background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
@@ -1512,7 +1512,7 @@ const RealWorldScenarioBuilder: React.FC = () => {
 
 	const copyCode = useCallback((code: string) => {
 		navigator.clipboard.writeText(code);
-		v4ToastManager.showSuccess('Code copied to clipboard!');
+		modernMessaging.showFooterMessage({ type: 'status', message: 'Code copied to clipboard!', duration: 4000 });
 	}, []);
 
 	return (

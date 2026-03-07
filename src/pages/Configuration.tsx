@@ -29,7 +29,7 @@ import { FlowHeader } from '../services/flowHeaderService';
 import { unifiedWorkerTokenService } from '../services/unifiedWorkerTokenService';
 import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { WorkerTokenSectionV8 } from '../v8/components/WorkerTokenSectionV8';
 
 const styles = {
@@ -324,7 +324,7 @@ const Configuration: React.FC = () => {
 			callbackUriService.applyFlowOverrides({});
 			const updatedCatalog = callbackUriService.getRedirectUriCatalog();
 			setUriCatalog(updatedCatalog);
-			v4ToastManager.showSuccess('Callback URIs reset to default values.');
+			modernMessaging.showFooterMessage({ type: 'status', message: 'Callback URIs reset to default values.', duration: 4000 });
 		} catch (error) {
 			logger.error(
 				'Configuration',
@@ -332,7 +332,7 @@ const Configuration: React.FC = () => {
 				undefined,
 				error as Error
 			);
-			v4ToastManager.showError('Unable to reset callback URIs. Check the console for details.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Unable to reset callback URIs. Check the console for details.', dismissible: true });
 		} finally {
 			setUriSaving(false);
 		}
@@ -375,11 +375,9 @@ const Configuration: React.FC = () => {
 			setUriCatalog(updatedCatalog);
 
 			const hasOverrides = Object.keys(overrides).length > 0;
-			v4ToastManager.showSuccess(
-				hasOverrides
+			modernMessaging.showFooterMessage({ type: 'status', message: hasOverrides
 					? 'Callback URIs updated successfully.'
-					: 'Callback URIs now using default values.'
-			);
+					: 'Callback URIs now using default values.', duration: 4000 });
 		} catch (error) {
 			logger.error(
 				'Configuration',
@@ -387,7 +385,7 @@ const Configuration: React.FC = () => {
 				undefined,
 				error as Error
 			);
-			v4ToastManager.showError('Unable to update callback URIs. Check the console for details.');
+			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Unable to update callback URIs. Check the console for details.', dismissible: true });
 		} finally {
 			setUriSaving(false);
 		}
