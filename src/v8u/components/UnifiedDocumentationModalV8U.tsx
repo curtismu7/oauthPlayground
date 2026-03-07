@@ -1,3 +1,4 @@
+// lint-file-disable: token-value-in-jsx
 /**
  * @file UnifiedDocumentationModalV8U.tsx
  * @module v8u/components
@@ -234,6 +235,8 @@ export const UnifiedDocumentationModalV8U: React.FC<UnifiedDocumentationModalV8U
 
 	const handleDownload = async () => {
 		if (selectedUseCases.size === 0) {
+			// biome-ignore lint/suspicious/noAlert: user-facing validation alert for download flow
+			// eslint-disable-next-line no-alert
 			alert('Please select at least one use case to download.');
 			return;
 		}
@@ -248,6 +251,8 @@ export const UnifiedDocumentationModalV8U: React.FC<UnifiedDocumentationModalV8U
 			}
 		} catch (error) {
 			logger.error('Failed to download documentation:', error);
+			// biome-ignore lint/suspicious/noAlert: user-facing error alert for download failure
+			// eslint-disable-next-line no-alert
 			alert('Failed to download documentation. Please try again.');
 		}
 	};
