@@ -172,7 +172,8 @@ export class ConfigComparisonService {
 					pick('client_authentication_method') ??
 					// Check nested configuration objects
 					(source.configuration as Record<string, unknown> | undefined)?.tokenEndpointAuthMethod ??
-					(source.configuration as Record<string, unknown> | undefined)?.token_endpoint_auth_method ??
+					(source.configuration as Record<string, unknown> | undefined)
+						?.token_endpoint_auth_method ??
 					(source.configuration as Record<string, unknown> | undefined)?.clientAuthMethod ??
 					(source.configuration as Record<string, unknown> | undefined)?.client_auth_method ??
 					(source.settings as Record<string, unknown> | undefined)?.tokenEndpointAuthMethod ??
@@ -267,10 +268,7 @@ export class ConfigComparisonService {
 				} else if (typeof value === 'object' && value !== null) {
 					// Handle nested structure like resources with scopes
 					const obj = value as Record<string, unknown>;
-					const nestedScopes =
-						obj.scopes ||
-						obj.allowedScopes ||
-						obj.scopes_supported;
+					const nestedScopes = obj.scopes || obj.allowedScopes || obj.scopes_supported;
 					if (Array.isArray(nestedScopes)) {
 						return nestedScopes;
 					}

@@ -255,6 +255,7 @@ function isValidRedirectUri(uri: string, appType: BuilderAppType): boolean {
 /**
  * Migrates old preset format to new format
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function migratePreset(oldPreset: any): ConfigurationPreset | null {
 	try {
 		// Check if it's already in the new format
