@@ -525,6 +525,15 @@ export class HybridFlowIntegrationServiceV8 {
 				trackedHeaders.Authorization = '***REDACTED***';
 			}
 
+			const revealableHeaders: Record<string, string> = {};
+			if (headers.Authorization?.startsWith('Bearer ')) {
+				revealableHeaders['Authorization'] = headers.Authorization;
+			}
+			const revealableBody: Record<string, string> = {};
+			if (bodyParams.code) revealableBody['code'] = bodyParams.code;
+			if (bodyParams.code_verifier) revealableBody['code_verifier'] = bodyParams.code_verifier;
+			if (bodyParams.client_assertion) revealableBody['client_assertion'] = bodyParams.client_assertion;
+
 			const callId = apiCallTrackerService.trackApiCall({
 				method: 'POST',
 				url: tokenEndpoint,
@@ -549,6 +558,10 @@ export class HybridFlowIntegrationServiceV8 {
 					.replace(/client_assertion=[^&]+/, 'client_assertion=***REDACTED***'),
 				step: 'v8-hybrid-token-exchange',
 				flowType: 'oauth',
+				revealableFields: {
+					headers: Object.keys(revealableHeaders).length ? revealableHeaders : undefined,
+					bodyParams: Object.keys(revealableBody).length ? revealableBody : undefined,
+				},
 			});
 
 			const response = await pingOneFetch(tokenEndpoint, {

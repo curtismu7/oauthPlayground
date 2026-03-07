@@ -1,4 +1,4 @@
-import { FiAlertCircle, FiDownload, FiInfo, FiSend, FiUpload } from '@icons';
+import { FiAlertCircle, FiDownload, FiEye, FiEyeOff, FiInfo, FiSend, FiUpload } from '@icons';
 import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
@@ -208,6 +208,51 @@ const JsonNull = styled.span`
   color: #6b7280;
   font-style: italic;
 `;
+
+/**
+ * Renders the Authorization header with a show/hide toggle so users
+ * can inspect the Bearer token for educational purposes.
+ */
+const AuthHeaderReveal: React.FC<{ tokenValue: string }> = ({ tokenValue }) => {
+	const [revealed, setRevealed] = React.useState(false);
+	const masked = `${tokenValue.substring(0, 12)}••••••••••••${tokenValue.substring(tokenValue.length - 8)}`;
+	return (
+		<div style={{ marginLeft: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+			<span>Authorization: Bearer</span>
+			<code style={{
+				background: revealed ? '#e2e8f0' : '#fef3c7',
+				padding: '0.15rem 0.4rem',
+				borderRadius: '4px',
+				fontSize: '0.8rem',
+				wordBreak: 'break-all',
+				maxWidth: '400px',
+			}}>
+				{revealed ? tokenValue : masked}
+			</code>
+			<button
+				type="button"
+				onClick={() => setRevealed((r) => !r)}
+				style={{
+					background: 'none',
+					border: '1px solid #d1d5db',
+					borderRadius: '4px',
+					cursor: 'pointer',
+					padding: '0.1rem 0.4rem',
+					fontSize: '0.75rem',
+					color: '#6b7280',
+					display: 'inline-flex',
+					alignItems: 'center',
+					gap: '0.2rem',
+				}}
+				title={revealed ? 'Mask token' : 'Reveal full Bearer token for inspection'}
+				aria-label={revealed ? 'Mask Authorization token' : 'Reveal Authorization token'}
+			>
+				{revealed ? <FiEyeOff size={12} /> : <FiEye size={12} />}
+				{revealed ? 'mask' : 'reveal'}
+			</button>
+		</div>
+	);
+};
 
 const UserInfoFlow: React.FC = () => {
 	const { tokens, config, updateTokens } = useAuth();
@@ -1183,11 +1228,18 @@ console.log('Welcome, ' + user.name + '!');`,
 										<br />
 										<strong>Headers:</strong>
 										<br />
-										{Object.entries(requestDetails.headers).map(([key, value]) => (
-											<div key={key} style={{ marginLeft: '1rem' }}>
-												{key}: {key === 'Authorization' ? 'Bearer [REDACTED]' : value}
-											</div>
-										))}
+										{Object.entries(requestDetails.headers).map(([key, value]) => {
+											if (key === 'Authorization' && accessToken) {
+												return (
+													<AuthHeaderReveal key={key} tokenValue={accessToken} />
+												);
+											}
+											return (
+												<div key={key} style={{ marginLeft: '1rem' }}>
+													{key}: {value}
+												</div>
+											);
+										})}
 									</CodeBlock>
 								</RequestSection>
 							)}

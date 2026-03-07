@@ -547,6 +547,17 @@ export class OAuthIntegrationServiceV8 {
 				trackedHeaders.Authorization = '***REDACTED***';
 			}
 
+			// Build revealable fields so the UI can show a reveal toggle for educational inspection.
+			// We NEVER include client_secret here — only tokens/codes that are educational.
+			const revealableHeaders: Record<string, string> = {};
+			if (headers.Authorization?.startsWith('Bearer ')) {
+				revealableHeaders['Authorization'] = headers.Authorization;
+			}
+			const revealableBody: Record<string, string> = {};
+			if (bodyParams.code) revealableBody['code'] = bodyParams.code;
+			if (bodyParams.code_verifier) revealableBody['code_verifier'] = bodyParams.code_verifier;
+			if (bodyParams.client_assertion) revealableBody['client_assertion'] = bodyParams.client_assertion;
+
 			const actualPingOneUrl = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
 			const callId = apiCallTrackerService.trackApiCall({
 				method: 'POST',
@@ -572,6 +583,10 @@ export class OAuthIntegrationServiceV8 {
 					.replace(/client_assertion=[^&]+/, 'client_assertion=***REDACTED***'),
 				step: 'unified-token-exchange',
 				flowType: 'unified',
+				revealableFields: {
+					headers: Object.keys(revealableHeaders).length ? revealableHeaders : undefined,
+					bodyParams: Object.keys(revealableBody).length ? revealableBody : undefined,
+				},
 			});
 
 			const response = await pingOneFetch(tokenEndpoint, {
