@@ -1050,7 +1050,7 @@ export const createTokenExchangeStep = (
 						</CopyButton>
 					</div>
 					<FormField>
-						<TokenDisplay>{authCode}</TokenDisplay>
+						<TokenDisplay>{maskToken(authCode)}</TokenDisplay>
 					</FormField>
 				</div>
 			)}
@@ -1357,7 +1357,7 @@ export const createCallbackHandlingStep = (
 						</CopyButton>
 					</div>
 					<FormField>
-						<TokenDisplay>{authCode}</TokenDisplay>
+						<TokenDisplay>{maskToken(authCode)}</TokenDisplay>
 					</FormField>
 				</div>
 			)}

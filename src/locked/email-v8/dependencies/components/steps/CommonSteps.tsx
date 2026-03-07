@@ -1008,7 +1008,7 @@ export const createTokenExchangeStep = (
 									<FiCopy /> Copy
 								</CopyButton>
 							</div>
-							<TokenDisplay>{tokens.refresh_token}</TokenDisplay>
+							<TokenDisplay>{maskToken(tokens.refresh_token)}</TokenDisplay>
 						</FormField>
 					)}
 
