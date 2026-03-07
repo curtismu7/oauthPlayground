@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
-import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { WorkerTokenModalV9 } from '../components/WorkerTokenModalV9';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import { logger } from '../utils/logger';
 
@@ -877,9 +877,12 @@ const _WorkerTokenTester: React.FC = () => {
 					<SuperSimpleApiDisplayV8 />
 				</>
 			)}
-			<WorkerTokenModalV8
+			<WorkerTokenModalV9
 				isOpen={showWorkerTokenModal}
 				onClose={() => setShowWorkerTokenModal(false)}
+				onTokenGenerated={(token) => {
+					console.log('Worker token generated:', token);
+				}}
 			/>
 		</div>
 	);

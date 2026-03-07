@@ -67,29 +67,6 @@ const Container = styled.div`
   }
 `;
 
-const _Header = styled.div`
-  text-align: center;
-  margin-bottom: 3rem;
-
-  h1 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: ${({ theme }) => theme.colors.primary};
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-  }
-
-  p {
-    font-size: 1.25rem;
-    color: ${({ theme }) => theme.colors.gray600};
-    max-width: 800px;
-    margin: 0 auto;
-    line-height: 1.6;
-  }
-`;
 
 const BackButton = styled.button`
   display: flex;
@@ -339,55 +316,6 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' | 's
 	}}
 `;
 
-const _ButtonGroup = styled.div`
-  display: flex;
-  gap: 1rem;
-  justify-content: flex-end;
-  margin-top: 2rem;
-`;
-
-const _LoadingSpinner = styled.div`
-  width: 1rem;
-  height: 1rem;
-  border: 2px solid transparent;
-  border-top: 2px solid currentColor;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-`;
-
-const _ResultCard = styled.div<{ type: 'success' | 'error' }>`
-  background: ${({ type }) => (type === 'success' ? '#f0fdf4' : '#fef2f2')};
-  border: 1px solid ${({ type }) => (type === 'success' ? '#22c55e' : '#ef4444')};
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  margin-top: 2rem;
-`;
-
-const _ResultTitle = styled.h3<{ $type: 'success' | 'error' }>`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: ${({ $type }) => ($type === 'success' ? '#166534' : '#dc2626')};
-  margin-bottom: 1rem;
-`;
-
-const _ResultDetails = styled.div`
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  font-family: monospace;
-  font-size: 0.875rem;
-  white-space: pre-wrap;
-  word-break: break-word;
-`;
 
 type TokenEndpointMethod =
 	| 'client_secret_basic'
@@ -569,7 +497,7 @@ const ApplicationGenerator: React.FC = () => {
 	const [isCreating, setIsCreating] = useState(false);
 	const [creationResult, setCreationResult] = useState<AppCreationResult | null>(null);
 	const [creationErrorDetails, setCreationErrorDetails] = useState<unknown>(null);
-	const [_isSavedIndicator, setIsSavedIndicator] = useState(false);
+	const [, setIsSavedIndicator] = useState(false);
 	const [validationErrors, setValidationErrors] = useState<Set<string>>(new Set());
 
 	const [currentStep, setCurrentStep] = useState(1); // Always start on step 1
@@ -729,67 +657,7 @@ const ApplicationGenerator: React.FC = () => {
 		}
 	}, []);
 
-	const _handleSaveConfiguration = useCallback(() => {
-		try {
-			const payload: SavedAppConfiguration = {
-				...formData,
-				selectedAppType,
-			};
 
-			localStorage.setItem(APP_GENERATOR_STORAGE_KEY, JSON.stringify(payload));
-
-			setIsSavedIndicator(true);
-			modernMessaging.showFooterMessage({
-				type: 'status',
-				message: 'Application configuration saved',
-				duration: 4000,
-			});
-			setTimeout(() => setIsSavedIndicator(false), 3000);
-		} catch (error) {
-			logger.error(
-				'ApplicationGenerator',
-				'[ApplicationGenerator] Failed to save configuration:',
-				undefined,
-				error as Error
-			);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: 'Failed to save configuration',
-				dismissible: true,
-			});
-		}
-	}, [formData, selectedAppType]);
-
-	const _handleClearSavedConfiguration = useCallback(() => {
-		try {
-			localStorage.removeItem(APP_GENERATOR_STORAGE_KEY);
-			localStorage.removeItem('app-generator-current-step');
-			setFormData(createDefaultFormData());
-			setSelectedAppType(null);
-			setCreationResult(null);
-			setIsSavedIndicator(false);
-			setCurrentStep(1);
-			modernMessaging.showFooterMessage({
-				type: 'status',
-				message: 'Saved configuration cleared',
-				duration: 4000,
-			});
-		} catch (error) {
-			logger.error(
-				'ApplicationGenerator',
-				'[ApplicationGenerator] Failed to clear saved configuration:',
-				undefined,
-				error as Error
-			);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: 'Failed to clear configuration',
-				dismissible: true,
-			});
-		}
-	}, []);
 
 	const appTypes: {
 		type: BuilderAppType;
@@ -1011,91 +879,6 @@ const ApplicationGenerator: React.FC = () => {
 		}
 	};
 
-	const _handleSaveAsPreset = async () => {
-		if (!selectedAppType) {
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: 'Please select an application type first',
-				dismissible: true,
-			});
-			return;
-		}
-
-		const { uiNotificationServiceV8 } = await import('@/v8/services/uiNotificationServiceV8');
-
-		const presetName = await uiNotificationServiceV8.prompt({
-			title: 'Save Preset',
-			message: 'Enter a name for this preset:',
-			placeholder: 'My Custom Preset',
-			confirmText: 'Continue',
-			cancelText: 'Cancel',
-		});
-		if (!presetName?.trim()) return;
-
-		// Check if preset with this name already exists
-		const existingPresets = presetManagerService.getCustomPresets();
-		const existingPreset = existingPresets.find(
-			(p) =>
-				p.name.toLowerCase() === presetName.trim().toLowerCase() && p.appType === selectedAppType
-		);
-
-		if (existingPreset) {
-			const shouldUpdate = await uiNotificationServiceV8.confirm({
-				title: 'Preset Already Exists',
-				message: `A preset named "${presetName.trim()}" already exists for ${selectedAppType.replace(/_/g, ' ')}. Do you want to update it?`,
-				confirmText: 'Update',
-				cancelText: 'Cancel',
-				severity: 'warning',
-			});
-			if (!shouldUpdate) return;
-		}
-
-		const presetDescription =
-			(await uiNotificationServiceV8.prompt({
-				title: 'Preset Description',
-				message: 'Enter a description for this preset (optional):',
-				placeholder: 'Description...',
-				confirmText: 'Save',
-				cancelText: 'Skip',
-			})) || '';
-
-		try {
-			const savedPreset = presetManagerService.saveCustomPreset({
-				name: presetName.trim(),
-				description: presetDescription.trim(),
-				appType: selectedAppType,
-				configuration: formData,
-			});
-
-			if (existingPreset) {
-				modernMessaging.showFooterMessage({
-					type: 'status',
-					message: `Preset "${savedPreset.name}" updated successfully!`,
-					duration: 4000,
-				});
-			} else {
-				modernMessaging.showFooterMessage({
-					type: 'status',
-					message: `Preset "${savedPreset.name}" created successfully!`,
-					duration: 4000,
-				});
-			}
-		} catch (error) {
-			logger.error(
-				'ApplicationGenerator',
-				'[ApplicationGenerator] Failed to save preset:',
-				undefined,
-				error as Error
-			);
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: 'Failed to save preset',
-				dismissible: true,
-			});
-		}
-	};
 
 	const handleImportConfiguration = (
 		importedConfig: FormDataState,
@@ -1178,244 +961,6 @@ const ApplicationGenerator: React.FC = () => {
 		return errors;
 	};
 
-	const _handleCreateApp = async () => {
-		if (!selectedAppType) return;
-
-		// Validate form
-		const validationErrors = validateForm();
-		if (validationErrors.length > 0) {
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: validationErrors.join(', '),
-				dismissible: true,
-			});
-			return;
-		}
-
-		setIsCreating(true);
-		setCreationResult(null);
-
-		try {
-			// Use the Worker token passed from the previous page
-			if (!workerToken) {
-				throw new Error(
-					'No worker token available. Please go back and obtain a worker token first.'
-				);
-			}
-
-			if (!environmentId) {
-				throw new Error('Environment ID is required.');
-			}
-
-			console.log('[App Generator] Creating app with worker token in environment:', environmentId);
-
-			// Initialize the service with the worker token
-			pingOneAppCreationService.initialize(workerToken, environmentId);
-
-			// Create the app based on type
-			let result: AppCreationResult;
-
-			const baseConfig = {
-				name: formData.name,
-				description: formData.description,
-				enabled: formData.enabled,
-			};
-
-			switch (selectedAppType) {
-				case 'OIDC_WEB_APP': {
-					const payload: OIDCWebAppConfig = {
-						...baseConfig,
-						type: 'OIDC_WEB_APP',
-						redirectUris: formData.redirectUris,
-						postLogoutRedirectUris: formData.postLogoutRedirectUris,
-						grantTypes: filterAllowedValues(
-							formData.grantTypes,
-							WEB_APP_GRANT_OPTIONS,
-							'authorization_code'
-						),
-						responseTypes: filterAllowedValues(
-							formData.responseTypes,
-							RESPONSE_TYPE_OPTIONS,
-							'code'
-						),
-						tokenEndpointAuthMethod: normalizeWebAppTokenMethod(formData.tokenEndpointAuthMethod),
-						pkceEnforcement: formData.pkceEnforcement,
-						scopes: formData.scopes,
-						accessTokenValiditySeconds: 7200,
-						refreshTokenValiditySeconds: 2592000,
-						idTokenValiditySeconds: 7200,
-					};
-					result = await pingOneAppCreationService.createOIDCWebApp(payload);
-					break;
-				}
-				case 'OIDC_NATIVE_APP': {
-					const nativePayload: OIDCNativeAppConfig = {
-						...baseConfig,
-						type: 'OIDC_NATIVE_APP',
-						redirectUris: formData.redirectUris,
-						grantTypes: filterAllowedValues(
-							formData.grantTypes,
-							NATIVE_APP_GRANT_OPTIONS,
-							'authorization_code'
-						),
-						responseTypes: filterAllowedValues(
-							formData.responseTypes,
-							RESPONSE_TYPE_OPTIONS,
-							'code'
-						),
-						tokenEndpointAuthMethod: normalizeNativeTokenMethod(formData.tokenEndpointAuthMethod),
-						pkceEnforcement: formData.pkceEnforcement,
-						scopes: formData.scopes,
-						accessTokenValiditySeconds: formData.accessTokenValiditySeconds,
-						refreshTokenValiditySeconds: formData.refreshTokenValiditySeconds,
-						idTokenValiditySeconds: formData.idTokenValiditySeconds,
-					};
-					result = await pingOneAppCreationService.createOIDCNativeApp(nativePayload);
-					break;
-				}
-				case 'SINGLE_PAGE_APP': {
-					const spaPayload: SinglePageAppConfig = {
-						...baseConfig,
-						type: 'SINGLE_PAGE_APP',
-						redirectUris: formData.redirectUris,
-						grantTypes: filterAllowedValues(
-							formData.grantTypes,
-							SPA_GRANT_OPTIONS,
-							'authorization_code'
-						),
-						responseTypes: filterAllowedValues(
-							formData.responseTypes,
-							RESPONSE_TYPE_OPTIONS,
-							'code'
-						),
-						tokenEndpointAuthMethod: 'none',
-						pkceEnforcement: formData.pkceEnforcement,
-						scopes: formData.scopes,
-						accessTokenValiditySeconds: formData.accessTokenValiditySeconds,
-						refreshTokenValiditySeconds: formData.refreshTokenValiditySeconds,
-						idTokenValiditySeconds: formData.idTokenValiditySeconds,
-					};
-					result = await pingOneAppCreationService.createSinglePageApp(spaPayload);
-					break;
-				}
-				case 'WORKER': {
-					const workerPayload: WorkerAppConfig = {
-						...baseConfig,
-						type: 'WORKER',
-						grantTypes: filterAllowedValues(
-							formData.grantTypes,
-							WORKER_GRANT_OPTIONS,
-							'client_credentials'
-						),
-						tokenEndpointAuthMethod: normalizeWorkerTokenMethod(formData.tokenEndpointAuthMethod),
-						scopes: formData.scopes,
-						accessTokenValiditySeconds: formData.accessTokenValiditySeconds,
-						refreshTokenValiditySeconds: formData.refreshTokenValiditySeconds,
-					};
-					result = await pingOneAppCreationService.createWorkerApp(workerPayload);
-					break;
-				}
-				case 'SERVICE': {
-					const servicePayload: ServiceAppConfig = {
-						...baseConfig,
-						type: 'SERVICE',
-						grantTypes: filterAllowedValues(
-							formData.grantTypes,
-							SERVICE_GRANT_OPTIONS,
-							'client_credentials'
-						),
-						tokenEndpointAuthMethod: normalizeServiceTokenMethod(formData.tokenEndpointAuthMethod),
-						scopes: formData.scopes,
-						accessTokenValiditySeconds: formData.accessTokenValiditySeconds,
-						refreshTokenValiditySeconds: formData.refreshTokenValiditySeconds,
-					};
-					result = await pingOneAppCreationService.createServiceApp(servicePayload);
-					break;
-				}
-				case 'SAML_APP': {
-					// For SAML apps, we'll use OIDC Web App as the base and configure SAML-specific settings
-					const samlPayload: OIDCWebAppConfig = {
-						...baseConfig,
-						type: 'OIDC_WEB_APP', // PingOne API uses OIDC_WEB_APP as base for SAML
-						redirectUris: formData.redirectUris,
-						postLogoutRedirectUris: formData.postLogoutRedirectUris,
-						grantTypes: ['authorization_code'],
-						responseTypes: ['code'],
-						tokenEndpointAuthMethod: 'client_secret_basic',
-						pkceEnforcement: formData.pkceEnforcement,
-						scopes: formData.scopes,
-						accessTokenValiditySeconds: formData.accessTokenValiditySeconds,
-						refreshTokenValiditySeconds: formData.refreshTokenValiditySeconds,
-						idTokenValiditySeconds: formData.idTokenValiditySeconds,
-					};
-					result = await pingOneAppCreationService.createOIDCWebApp(samlPayload);
-					break;
-				}
-				default:
-					throw new Error('Unsupported application type');
-			}
-
-			setCreationResult(result);
-			setCreationErrorDetails(null);
-
-			if (result.success) {
-				modernMessaging.showFooterMessage({
-					type: 'status',
-					message: `Application "${formData.name}" created successfully!`,
-					duration: 4000,
-				});
-				// Advance to results step
-				setCurrentStep(4);
-				// DON'T reset form - keep fields on screen for user reference
-				// setFormData(createDefaultFormData()); // REMOVED - Issue #3 fix
-			} else {
-				// Check if it's a name conflict error and provide helpful message
-				const errorMsg = result.error || '';
-				if (errorMsg.includes('name already exists') || errorMsg.includes('already exists')) {
-					modernMessaging.showBanner({
-						type: 'error',
-						title: 'Error',
-						message: `Application name "${formData.name}" already exists. Please try a different name.`,
-						dismissible: true,
-					});
-				} else {
-					modernMessaging.showBanner({
-						type: 'error',
-						title: 'Error',
-						message: `Failed to create application: ${result.error}`,
-						dismissible: true,
-					});
-				}
-			}
-		} catch (error) {
-			const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-
-			// Check if it's a name conflict error in the exception
-			if (errorMessage.includes('name already exists') || errorMessage.includes('already exists')) {
-				const betterMessage = `Application name "${formData.name}" already exists. Please try a different name.`;
-				setCreationResult({ success: false, error: betterMessage });
-				setCreationErrorDetails(toErrorDetails(error));
-				modernMessaging.showBanner({
-					type: 'error',
-					title: 'Error',
-					message: betterMessage,
-					dismissible: true,
-				});
-			} else {
-				setCreationResult({ success: false, error: errorMessage });
-				setCreationErrorDetails(toErrorDetails(error));
-				modernMessaging.showBanner({
-					type: 'error',
-					title: 'Error',
-					message: errorMessage,
-					dismissible: true,
-				});
-			}
-		} finally {
-			setIsCreating(false);
-		}
-	};
 
 	const handleCreateApplication = async (modalData?: {
 		name: string;
@@ -1433,8 +978,7 @@ const ApplicationGenerator: React.FC = () => {
 			(Array.isArray(formData.redirectUris)
 				? formData.redirectUris[0]
 				: 'https://localhost:3000/callback');
-		const _tokenAuthMethod = modalData?.tokenEndpointAuthMethod || formData.tokenEndpointAuthMethod;
-
+	
 		// Validate required fields
 		if (!appName.trim()) {
 			modernMessaging.showBanner({

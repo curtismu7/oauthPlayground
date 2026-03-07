@@ -7,7 +7,6 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { StepNavigationButtons } from '../components/StepNavigationButtons';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { FlowHeader } from '../services/flowHeaderService';
@@ -37,19 +36,7 @@ const {
 	InfoTitle,
 	InfoText,
 	InfoList,
-	ActionRow,
-	Button,
-	HighlightedActionButton,
-	CodeBlock,
-	GeneratedContentBox,
-	GeneratedLabel,
-	ParameterGrid,
-	ParameterLabel,
-	ParameterValue,
-	HelperText,
 	SectionDivider,
-	ResultsSection,
-	ResultsHeading,
 } = FlowUIService.getFlowUIComponents();
 
 export interface V7FlowTemplateProps {
@@ -74,10 +61,15 @@ export interface V7FlowTemplateProps {
 	};
 }
 
+interface ValidationResults {
+	isValid: boolean;
+	errors: string[];
+	warnings: string[];
+}
+
 export const V7FlowTemplate: React.FC<V7FlowTemplateProps> = ({
 	flowName,
 	flowTitle,
-	flowSubtitle,
 	stepMetadata,
 	renderStepContent,
 	onStepChange,
@@ -96,129 +88,17 @@ export const V7FlowTemplate: React.FC<V7FlowTemplateProps> = ({
 
 	// State management
 	const [currentStep, setCurrentStep] = useState(0);
-	const [_collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
+	const [, setCollapsedSections] = useState<Record<string, boolean>>({});
 	const [complianceStatus, setComplianceStatus] = useState(v7FlowConfig.compliance);
-	const [validationResults, setValidationResults] = useState<any>(null);
+	const [validationResults, setValidationResults] = useState<ValidationResults | null>(null);
 	const [errorStats, setErrorStats] = useState(V7SharedService.ErrorHandling.getErrorStatistics());
 
 	// Page scroll management
 	usePageScroll({ pageName: flowTitle, force: true });
 
-	// V7 compliance functions
-	const _validateParameters = useCallback(
-		(parameters: Record<string, any>) => {
-			const validation = V7SharedService.ParameterValidation.validateFlowParameters(
-				flowName,
-				parameters
-			);
-			setValidationResults(validation);
-
-			if (!validation.isValid) {
-				const errorResponse = V7SharedService.ErrorHandling.createScenarioError('invalid_request', {
-					flowName,
-					step: 'parameter_validation',
-					operation: 'validation',
-					timestamp: Date.now(),
-				});
-				modernMessaging.showBanner({
-					type: 'error',
-					title: 'Error',
-					message: `Parameter validation failed: ${validation.errors.join(', ')}`,
-					dismissible: true,
-				});
-				return { success: false, error: errorResponse };
-			}
-
-			modernMessaging.showFooterMessage({
-				type: 'status',
-				message: 'Parameter validation successful',
-				duration: 4000,
-			});
-			return { success: true, validation };
-		},
-		[flowName]
-	);
-
-	const _validateIDToken = useCallback(
-		async (
-			idToken: string,
-			expectedIssuer: string,
-			expectedAudience: string,
-			expectedNonce?: string
-		) => {
-			try {
-				const validation = await V7SharedService.IDTokenValidation.validateIDToken(
-					idToken,
-					expectedIssuer,
-					expectedAudience,
-					expectedNonce,
-					undefined, // jwksUri - would be provided in real implementation
-					flowName
-				);
-
-				if (!validation.isValid) {
-					const errorResponse = V7SharedService.ErrorHandling.createScenarioError('invalid_token', {
-						flowName,
-						step: 'id_token_validation',
-						operation: 'token_validation',
-						timestamp: Date.now(),
-					});
-					modernMessaging.showBanner({
-						type: 'error',
-						title: 'Error',
-						message: `ID token validation failed: ${validation.errors.join(', ')}`,
-						dismissible: true,
-					});
-					return { success: false, error: errorResponse, validation };
-				}
-
-				modernMessaging.showFooterMessage({
-					type: 'status',
-					message: 'ID token validation successful',
-					duration: 4000,
-				});
-				return { success: true, validation };
-			} catch (error) {
-				const errorResponse = V7SharedService.ErrorHandling.handleOIDCError(error, {
-					flowName,
-					step: 'id_token_validation',
-					operation: 'token_validation',
-					timestamp: Date.now(),
-				});
-				modernMessaging.showBanner({
-					type: 'error',
-					title: 'Error',
-					message: `ID token validation error: ${errorResponse.error_description}`,
-					dismissible: true,
-				});
-				return { success: false, error: errorResponse };
-			}
-		},
-		[flowName]
-	);
-
-	const _handleError = useCallback(
-		(error: any, context?: any) => {
-			const errorResponse = V7SharedService.ErrorHandling.handleOAuthError(error, {
-				flowName,
-				step: context?.step || 'unknown',
-				operation: context?.operation || 'unknown',
-				timestamp: Date.now(),
-			});
-			modernMessaging.showBanner({
-				type: 'error',
-				title: 'Error',
-				message: `Error: ${errorResponse.error_description}`,
-				dismissible: true,
-			});
-			return errorResponse;
-		},
-		[flowName]
-	);
-
-	const _getSecurityHeaders = useCallback(() => {
-		return V7SharedService.SecurityHeaders.getSecurityHeaders(flowName);
-	}, [flowName]);
+	// V7 compliance functions (available for future use)
+	// Note: These functions are stubbed for V7 compliance features but not currently used
+	// They can be implemented when needed for full V7 compliance
 
 	const getComplianceScore = useCallback(() => {
 		return V7SharedService.SpecificationCompliance.checkFlowCompliance(flowName);

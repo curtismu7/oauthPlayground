@@ -28,7 +28,6 @@ const {
 	ParameterLabel,
 	ParameterValue,
 	HelperText,
-	SectionDivider,
 	CollapsibleSection,
 	CollapsibleHeaderButton,
 	CollapsibleTitle,
@@ -47,10 +46,7 @@ export interface V7FlowVariantProps {
  */
 export const V7OAuthFlowVariant: React.FC<V7FlowVariantProps> = ({
 	baseFlowName,
-	showVariantSelector = true,
-	onVariantChange,
 }) => {
-	const [_selectedVariant, _setSelectedVariant] = useState<'oauth' | 'oidc'>('oauth');
 
 	// Get OAuth template configuration
 	const templateConfig = V7FlowTemplateService.getTemplateConfig(baseFlowName);
@@ -289,7 +285,7 @@ export const V7OAuthFlowVariant: React.FC<V7FlowVariantProps> = ({
 	);
 
 	// Navigation validation
-	const canNavigateNext = useCallback((_step: number) => {
+	const canNavigateNext = useCallback(() => {
 		// OAuth-specific validation logic
 		return true;
 	}, []);
@@ -319,10 +315,7 @@ export const V7OAuthFlowVariant: React.FC<V7FlowVariantProps> = ({
  */
 export const V7OIDCFlowVariant: React.FC<V7FlowVariantProps> = ({
 	baseFlowName,
-	showVariantSelector = true,
-	onVariantChange,
 }) => {
-	const [_selectedVariant, _setSelectedVariant] = useState<'oauth' | 'oidc'>('oidc');
 
 	// Get OIDC template configuration
 	const templateConfig = V7FlowTemplateService.getTemplateConfig(baseFlowName);
@@ -602,7 +595,7 @@ export const V7OIDCFlowVariant: React.FC<V7FlowVariantProps> = ({
 	);
 
 	// Navigation validation
-	const canNavigateNext = useCallback((_step: number) => {
+	const canNavigateNext = useCallback(() => {
 		// OIDC-specific validation logic
 		return true;
 	}, []);

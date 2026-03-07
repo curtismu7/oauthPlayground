@@ -1,16 +1,33 @@
-import {
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiChevronDown,
-	FiChevronRight,
-	FiExternalLink,
-	FiHelpCircle,
-	FiInfo,
-	FiShield,
-} from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardBody } from './Card';
+
+// MDI Icon Component for React Icons migration
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
+	icon, 
+	size = 16, 
+	className = '' 
+}) => {
+	const iconMap: Record<string, string> = {
+		'FiAlertTriangle': 'mdi-alert-triangle',
+		'FiCheckCircle': 'mdi-check-circle',
+		'FiChevronDown': 'mdi-chevron-down',
+		'FiChevronRight': 'mdi-chevron-right',
+		'FiExternalLink': 'mdi-open-in-new',
+		'FiHelpCircle': 'mdi-help-circle',
+		'FiInfo': 'mdi-information',
+		'FiShield': 'mdi-shield-check',
+	};
+	
+	const mdiIcon = iconMap[icon] || 'mdi-help';
+	
+	return (
+		<i 
+			className={`mdi ${mdiIcon} ${className}`}
+			style={{ fontSize: `${size}px` }}
+		></i>
+	);
+};
 
 interface HelpContent {
 	whenToUse: string;
@@ -499,9 +516,9 @@ const ContextualHelp: React.FC<ContextualHelpProps> = ({ flowId }) => {
 	return (
 		<HelpContainer>
 			<HelpToggle onClick={() => setIsOpen(!isOpen)}>
-				<FiHelpCircle className="help-icon" />
+				<MDIIcon icon="FiHelpCircle" className="help-icon" />
 				<span>Need help with this flow?</span>
-				{isOpen ? <FiChevronDown /> : <FiChevronRight />}
+				{isOpen ? <MDIIcon icon="FiChevronDown" /> : <MDIIcon icon="FiChevronRight" />}
 			</HelpToggle>
 
 			<HelpPanel $isOpen={isOpen}>
@@ -509,7 +526,7 @@ const ContextualHelp: React.FC<ContextualHelpProps> = ({ flowId }) => {
 					<CardBody>
 						<HelpSection>
 							<h4>
-								<FiInfo />
+								<MDIIcon icon="FiInfo" />
 								When to use this flow
 							</h4>
 							<p>{helpContent.whenToUse}</p>
@@ -517,13 +534,13 @@ const ContextualHelp: React.FC<ContextualHelpProps> = ({ flowId }) => {
 
 						<HelpSection>
 							<h4>
-								<FiCheckCircle />
+								<MDIIcon icon="FiCheckCircle" />
 								Prerequisites
 							</h4>
 							<PrerequisitesList>
 								{helpContent.prerequisites.map((prereq, index) => (
 									<li key={index}>
-										<FiCheckCircle className="check-icon" />
+										<MDIIcon icon="FiCheckCircle" className="check-icon" />
 										{prereq}
 									</li>
 								))}
@@ -532,15 +549,15 @@ const ContextualHelp: React.FC<ContextualHelpProps> = ({ flowId }) => {
 
 						<HelpSection>
 							<h4>
-								<FiShield />
+								<MDIIcon icon="FiShield" />
 								Security considerations
 							</h4>
 							<SecurityNotes>
 								{helpContent.securityNotes.map((note, index) => (
 									<SecurityNote key={index} $type={note.type}>
-										{note.type === 'warning' && <FiAlertTriangle className="note-icon" />}
-										{note.type === 'info' && <FiInfo className="note-icon" />}
-										{note.type === 'success' && <FiCheckCircle className="note-icon" />}
+										{note.type === 'warning' && <MDIIcon icon="FiAlertTriangle" className="note-icon" />}
+										{note.type === 'info' && <MDIIcon icon="FiInfo" className="note-icon" />}
+										{note.type === 'success' && <MDIIcon icon="FiCheckCircle" className="note-icon" />}
 										{note.text}
 									</SecurityNote>
 								))}
@@ -549,7 +566,7 @@ const ContextualHelp: React.FC<ContextualHelpProps> = ({ flowId }) => {
 
 						<HelpSection>
 							<h4>
-								<FiAlertTriangle />
+								<MDIIcon icon="FiAlertTriangle" />
 								Common issues and solutions
 							</h4>
 							<CommonIssuesList>
@@ -564,13 +581,13 @@ const ContextualHelp: React.FC<ContextualHelpProps> = ({ flowId }) => {
 
 						<HelpSection>
 							<h4>
-								<FiCheckCircle />
+								<MDIIcon icon="FiCheckCircle" />
 								Best practices
 							</h4>
 							<BestPracticesList>
 								{helpContent.bestPractices.map((practice, index) => (
 									<li key={index}>
-										<FiCheckCircle className="practice-icon" />
+										<MDIIcon icon="FiCheckCircle" className="practice-icon" />
 										{practice}
 									</li>
 								))}
@@ -579,7 +596,7 @@ const ContextualHelp: React.FC<ContextualHelpProps> = ({ flowId }) => {
 
 						<HelpSection>
 							<h4>
-								<FiExternalLink />
+								<MDIIcon icon="FiExternalLink" />
 								Related flows
 							</h4>
 							<RelatedFlowsList>

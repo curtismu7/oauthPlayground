@@ -10,17 +10,34 @@
  * OAuth Authorization Code Flow stepper and makes them configurable.
  */
 
-import {
-	FiArrowLeft,
-	FiArrowRight,
-	FiCheckCircle,
-	FiMaximize2,
-	FiMinimize2,
-	FiMove,
-	FiTrash2,
-} from '@icons';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+
+// MDI Icon Component for React Icons migration
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
+	icon, 
+	size = 16, 
+	className = '' 
+}) => {
+	const iconMap: Record<string, string> = {
+		'FiArrowLeft': 'mdi-arrow-left',
+		'FiArrowRight': 'mdi-arrow-right',
+		'FiCheckCircle': 'mdi-check-circle',
+		'FiMaximize2': 'mdi-arrow-expand',
+		'FiMinimize2': 'mdi-arrow-collapse',
+		'FiMove': 'mdi-drag',
+		'FiTrash2': 'mdi-delete',
+	};
+	
+	const mdiIcon = iconMap[icon] || 'mdi-help';
+	
+	return (
+		<i 
+			className={`mdi ${mdiIcon} ${className}`}
+			style={{ fontSize: `${size}px` }}
+		></i>
+	);
+};
 
 export interface FloatingStepperStep {
 	id: string;
@@ -366,7 +383,7 @@ export const FloatingStepper: React.FC<FloatingStepperProps> = ({
 		>
 			{draggable && (
 				<DragHandle>
-					<FiMove size={16} />
+					<MDIIcon icon="FiMove" size={16} />
 				</DragHandle>
 			)}
 
@@ -399,7 +416,7 @@ export const FloatingStepper: React.FC<FloatingStepperProps> = ({
 			<NavigationButtons>
 				{!isCompact && onReset && (
 					<NavButton $variant="danger" onClick={handleReset} title="Reset flow">
-						<FiTrash2 size={16} />
+						<MDIIcon icon="FiTrash2" size={16} />
 						Reset
 					</NavButton>
 				)}
@@ -410,7 +427,7 @@ export const FloatingStepper: React.FC<FloatingStepperProps> = ({
 					$disabled={isFirstStep}
 					title="Previous step"
 				>
-					<FiArrowLeft size={16} />
+					<MDIIcon icon="FiArrowLeft" size={16} />
 					Previous
 				</NavButton>
 
@@ -420,7 +437,7 @@ export const FloatingStepper: React.FC<FloatingStepperProps> = ({
 					$disabled={!canNavigateNext && !isLastStep}
 					title={isLastStep ? 'Complete flow' : 'Next step'}
 				>
-					{isLastStep ? <FiCheckCircle size={16} /> : <FiArrowRight size={16} />}
+					{isLastStep ? <MDIIcon icon="FiCheckCircle" size={16} /> : <MDIIcon icon="FiArrowRight" size={16} />}
 					{isLastStep ? 'Complete' : 'Next'}
 				</NavButton>
 
@@ -429,7 +446,7 @@ export const FloatingStepper: React.FC<FloatingStepperProps> = ({
 						onClick={toggleCompact}
 						title={isCompact ? 'Expand stepper' : 'Compact stepper'}
 					>
-						{isCompact ? <FiMaximize2 size={16} /> : <FiMinimize2 size={16} />}
+						{isCompact ? <MDIIcon icon="FiMaximize2" size={16} /> : <MDIIcon icon="FiMinimize2" size={16} />}
 					</CompactToggle>
 				)}
 			</NavigationButtons>

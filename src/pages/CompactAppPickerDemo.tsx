@@ -7,7 +7,7 @@ import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CompactApplicationPicker } from '../components/CompactApplicationPicker';
 import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
-import { WorkerTokenModal } from '../components/WorkerTokenModal';
+import { WorkerTokenModalV9 } from '../components/WorkerTokenModalV9';
 import { getAnyWorkerToken } from '../utils/workerTokenDetection';
 
 const PageContainer = styled.div`
@@ -356,12 +356,16 @@ const CompactAppPickerDemo: React.FC = () => {
 				</SelectedAppCard>
 			)}
 
-			<WorkerTokenModal
+			<WorkerTokenModalV9
 				isOpen={showWorkerTokenModal}
 				onClose={() => setShowWorkerTokenModal(false)}
-				storageKey="worker_token"
-				expiryKey="worker_token_expires_at"
-				eventName="workerTokenUpdated"
+				onTokenGenerated={(token) => {
+					setWorkerToken(token);
+					modernMessaging.showFooterMessage({
+						type: 'success',
+						message: 'Worker token generated successfully',
+					});
+				}}
 			/>
 		</PageContainer>
 	);

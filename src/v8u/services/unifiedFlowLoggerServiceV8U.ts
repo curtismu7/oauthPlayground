@@ -14,7 +14,7 @@
  */
 
 import type { FlowType, SpecVersion } from '@/v8/services/specVersionServiceV8';
-import { logger } from '../../utils/logger';
+import { logger as baseLogger } from '../../utils/logger';
 import type { UnifiedFlowCredentials } from './unifiedFlowIntegrationV8U';
 
 const MODULE_TAG = '[📊 UNIFIED-FLOW-LOGGER-V8U]';
@@ -41,59 +41,56 @@ const getMinimumLogLevel = (): LogLevel => {
 };
 
 export interface LogContext {
-	flowType?: FlowType;
-	specVersion?: SpecVersion;
-	step?: number;
-	operation?: string;
-	credentials?: Partial<UnifiedFlowCredentials>; // Sanitized (no secrets)
+	flowType?: FlowType | undefined;
+	specVersion?: SpecVersion | undefined;
+	step?: number | undefined;
+	operation?: string | undefined;
+	credentials?: Partial<UnifiedFlowCredentials> | undefined; // Sanitized (no secrets)
 	[key: string]: unknown;
 }
 
 export interface PerformanceMetric {
 	operation: string;
 	duration: number;
-	flowType?: FlowType;
+	flowType?: FlowType | undefined;
 	timestamp: number;
 }
 
+// Private state for the service
+let performanceMetrics: PerformanceMetric[] = [];
+const maxMetrics = 100;
+let logHistory: Array<{
+	level: LogLevel;
+	message: string;
+	context: LogContext;
+	timestamp: number;
+}> = [];
+const maxHistory = 200;
+let minimumLogLevel: LogLevel = getMinimumLogLevel();
+
 /**
- * UnifiedFlowLoggerService
- *
  * Centralized logging service for Unified Flow with structured logging,
  * performance tracking, and error monitoring.
  */
-export class UnifiedFlowLoggerService {
-	private static performanceMetrics: PerformanceMetric[] = [];
-	private static maxMetrics = 100;
-	private static logHistory: Array<{
-		level: LogLevel;
-		message: string;
-		context: LogContext;
-		timestamp: number;
-	}> = [];
-	private static maxHistory = 200;
-	private static minimumLogLevel: LogLevel = getMinimumLogLevel();
-
+export const unifiedFlowLoggerService = {
 	/**
 	 * Set minimum log level (useful for debugging)
 	 */
-	static setMinimumLogLevel(level: LogLevel): void {
-		UnifiedFlowLoggerService.minimumLogLevel = level;
-	}
+	setMinimumLogLevel(level: LogLevel): void {
+		minimumLogLevel = level;
+	},
 
 	/**
 	 * Check if a log level should be output
 	 */
-	private static shouldLog(level: LogLevel): boolean {
-		return (
-			LOG_LEVEL_PRIORITY[level] >= LOG_LEVEL_PRIORITY[UnifiedFlowLoggerService.minimumLogLevel]
-		);
-	}
+	shouldLog(level: LogLevel): boolean {
+		return LOG_LEVEL_PRIORITY[level] >= LOG_LEVEL_PRIORITY[minimumLogLevel];
+	},
 
 	/**
 	 * Sanitize credentials for logging (remove secrets)
 	 */
-	private static sanitizeCredentials(
+	sanitizeCredentials(
 		credentials?: Partial<UnifiedFlowCredentials>
 	): Partial<UnifiedFlowCredentials> | undefined {
 		if (!credentials) return undefined;
@@ -106,12 +103,12 @@ export class UnifiedFlowLoggerService {
 			(sanitized as { privateKey?: string }).privateKey = '[REDACTED]';
 		}
 		return sanitized;
-	}
+	},
 
 	/**
 	 * Format log message with context
 	 */
-	private static formatMessage(level: LogLevel, message: string, context: LogContext): string {
+	formatMessage(level: LogLevel, message: string, context: LogContext): string {
 		const parts: string[] = [MODULE_TAG];
 
 		// Add level indicator
@@ -141,32 +138,32 @@ export class UnifiedFlowLoggerService {
 		parts.push(message);
 
 		return parts.join(' ');
-	}
+	},
 
 	/**
 	 * Log a message with context
 	 */
-	static log(level: LogLevel, message: string, context: LogContext = {}): void {
+	log(level: LogLevel, message: string, context: LogContext = {}): void {
 		// Check if this log level should be output
-		if (!UnifiedFlowLoggerService.shouldLog(level)) {
+		if (!unifiedFlowLoggerService.shouldLog(level)) {
 			return;
 		}
 
 		// Sanitize credentials in context
-		const sanitizedContext = {
+		const sanitizedContext: LogContext = {
 			...context,
-			credentials: UnifiedFlowLoggerService.sanitizeCredentials(context.credentials),
+			credentials: unifiedFlowLoggerService.sanitizeCredentials(context.credentials),
 		};
 
 		// Format message
-		const formattedMessage = UnifiedFlowLoggerService.formatMessage(
+		const formattedMessage = unifiedFlowLoggerService.formatMessage(
 			level,
 			message,
 			sanitizedContext
 		);
 
 		// Add to history (always track, even if not logged to console)
-		UnifiedFlowLoggerService.logHistory.push({
+		logHistory.push({
 			level,
 			message,
 			context: sanitizedContext,
@@ -174,8 +171,8 @@ export class UnifiedFlowLoggerService {
 		});
 
 		// Enforce history limit
-		if (UnifiedFlowLoggerService.logHistory.length > UnifiedFlowLoggerService.maxHistory) {
-			UnifiedFlowLoggerService.logHistory.shift();
+		if (logHistory.length > maxHistory) {
+			logHistory.shift();
 		}
 
 		// Log to console with appropriate method
@@ -183,48 +180,48 @@ export class UnifiedFlowLoggerService {
 
 		switch (level) {
 			case 'debug':
-				console.debug(formattedMessage, logData || '');
+				baseLogger.debug('UnifiedFlowLoggerServiceV8U', formattedMessage, logData || '');
 				break;
 			case 'info':
-				console.log(formattedMessage, logData || '');
+				baseLogger.info('UnifiedFlowLoggerServiceV8U', formattedMessage, logData || '');
 				break;
 			case 'warn':
-				logger.warn('UnifiedFlowLoggerServiceV8U', formattedMessage);
+				baseLogger.warn('UnifiedFlowLoggerServiceV8U', formattedMessage, logData || '');
 				break;
 			case 'error':
-				logger.error('UnifiedFlowLoggerServiceV8U', formattedMessage, undefined, logData || '');
+				baseLogger.error('UnifiedFlowLoggerServiceV8U', formattedMessage, logData || '');
 				break;
 			case 'success':
-				console.log(formattedMessage, logData || '');
+				baseLogger.info('UnifiedFlowLoggerServiceV8U', formattedMessage, logData || '');
 				break;
 		}
-	}
+	},
 
 	/**
 	 * Log debug message
 	 */
-	static debug(message: string, context: LogContext = {}): void {
-		UnifiedFlowLoggerService.log('debug', message, context);
-	}
+	debug(message: string, context: LogContext = {}): void {
+		unifiedFlowLoggerService.log('debug', message, context);
+	},
 
 	/**
 	 * Log info message
 	 */
-	static info(message: string, context: LogContext = {}): void {
-		UnifiedFlowLoggerService.log('info', message, context);
-	}
+	info(message: string, context: LogContext = {}): void {
+		unifiedFlowLoggerService.log('info', message, context);
+	},
 
 	/**
 	 * Log warning message
 	 */
-	static warn(message: string, context: LogContext = {}): void {
-		UnifiedFlowLoggerService.log('warn', message, context);
-	}
+	warn(message: string, context: LogContext = {}): void {
+		unifiedFlowLoggerService.log('warn', message, context);
+	},
 
 	/**
 	 * Log error message
 	 */
-	static error(message: string, context: LogContext = {}, error?: Error): void {
+	error(message: string, context: LogContext = {}, error?: Error): void {
 		const errorContext: LogContext = {
 			...context,
 			...(error && {
@@ -235,99 +232,96 @@ export class UnifiedFlowLoggerService {
 				},
 			}),
 		};
-		UnifiedFlowLoggerService.log('error', message, errorContext);
-	}
+		unifiedFlowLoggerService.log('error', message, errorContext);
+	},
 
 	/**
 	 * Log success message
 	 */
-	static success(message: string, context: LogContext = {}): void {
-		UnifiedFlowLoggerService.log('success', message, context);
-	}
+	success(message: string, context: LogContext = {}): void {
+		unifiedFlowLoggerService.log('success', message, context);
+	},
 
 	/**
 	 * Start performance tracking
 	 */
-	static startPerformance(operation: string, context: LogContext = {}): () => void {
+	startPerformance(operation: string, context: LogContext = {}): () => void {
 		const startTime = performance.now();
 		const flowType = context.flowType;
 
 		return () => {
 			const duration = performance.now() - startTime;
-			const metric: PerformanceMetric = {
-				operation,
-				duration,
-				flowType,
-				timestamp: Date.now(),
-			};
+		const metric: PerformanceMetric = {
+			operation,
+			duration,
+			flowType: flowType || undefined,
+			timestamp: Date.now(),
+		};
 
-			UnifiedFlowLoggerService.performanceMetrics.push(metric);
+			performanceMetrics.push(metric);
 
 			// Enforce metrics limit
-			if (
-				UnifiedFlowLoggerService.performanceMetrics.length > UnifiedFlowLoggerService.maxMetrics
-			) {
-				UnifiedFlowLoggerService.performanceMetrics.shift();
+			if (performanceMetrics.length > maxMetrics) {
+				performanceMetrics.shift();
 			}
 
 			// Log performance
-			UnifiedFlowLoggerService.debug(`Performance: ${operation}`, {
+			unifiedFlowLoggerService.debug(`Performance: ${operation}`, {
 				...context,
 				duration: `${duration.toFixed(2)}ms`,
 			});
 		};
-	}
+	},
 
 	/**
 	 * Get performance metrics
 	 */
-	static getPerformanceMetrics(): PerformanceMetric[] {
-		return [...UnifiedFlowLoggerService.performanceMetrics];
-	}
+	getPerformanceMetrics(): PerformanceMetric[] {
+		return [...performanceMetrics];
+	},
 
 	/**
 	 * Get log history
 	 */
-	static getLogHistory(): Array<{
+	getLogHistory(): Array<{
 		level: LogLevel;
 		message: string;
 		context: LogContext;
 		timestamp: number;
 	}> {
-		return [...UnifiedFlowLoggerService.logHistory];
-	}
+		return [...logHistory];
+	},
 
 	/**
 	 * Clear log history
 	 */
-	static clearHistory(): void {
-		UnifiedFlowLoggerService.logHistory = [];
-		UnifiedFlowLoggerService.performanceMetrics = [];
-	}
+	clearHistory(): void {
+		logHistory = [];
+		performanceMetrics = [];
+	},
 
 	/**
 	 * Export logs as JSON
 	 */
-	static exportLogs(): string {
+	exportLogs(): string {
 		return JSON.stringify(
 			{
-				history: UnifiedFlowLoggerService.logHistory,
-				performance: UnifiedFlowLoggerService.performanceMetrics,
+				history: logHistory,
+				performance: performanceMetrics,
 				exportedAt: new Date().toISOString(),
 			},
 			null,
 			2
 		);
-	}
-}
+	},
+};
 
 // Export singleton instance for convenience
-// biome-ignore lint/suspicious/noRedeclare: intentional re-export alias for this module's consumers
-export const logger = UnifiedFlowLoggerService;
+export const logger = unifiedFlowLoggerService;
 
 // Make available globally for debugging
 if (typeof window !== 'undefined') {
 	(
-		window as { UnifiedFlowLoggerService?: typeof UnifiedFlowLoggerService }
-	).UnifiedFlowLoggerService = UnifiedFlowLoggerService;
+		window as { UnifiedFlowLoggerService?: typeof unifiedFlowLoggerService }
+	).UnifiedFlowLoggerService = unifiedFlowLoggerService;
 }
