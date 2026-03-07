@@ -73,42 +73,6 @@ const Subtitle = styled.p`
 	line-height: 1.6;
 `;
 
-const _AppTypeCard = styled.div<{ selected: boolean }>`
-	background: white;
-	border: 2px solid ${({ selected, theme }) => (selected ? theme.colors.primary : '#e5e7eb')};
-	border-radius: 0.75rem;
-	padding: 1.5rem;
-	cursor: pointer;
-	transition: all 0.3s ease;
-	position: relative;
-
-	&:hover {
-		border-color: ${({ theme }) => theme.colors.primary};
-		transform: translateY(-2px);
-		box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-	}
-
-	.icon {
-		font-size: 2rem;
-		color: ${({ selected, theme }) => (selected ? theme.colors.primary : '#6b7280')};
-		margin-bottom: 1rem;
-	}
-
-	.title {
-		font-size: 1.125rem;
-		font-weight: 600;
-		color: #374151;
-		margin-bottom: 0.5rem;
-	}
-
-	.description {
-		color: #6b7280;
-		font-size: 0.9rem;
-		text-align: center;
-		line-height: 1.4;
-	}
-`;
-
 const FormContainer = styled.div`
 	background: white;
 	border-radius: 1rem;
