@@ -6,8 +6,8 @@ export interface IDTokenValidationResult {
 	isValid: boolean;
 	errors: string[];
 	warnings: string[];
-	claims: Record<string, any>;
-	header: Record<string, any>;
+	claims: Record<string, unknown>;
+	header: Record<string, unknown>;
 	validationDetails: {
 		signature: boolean;
 		issuer: boolean;
@@ -163,7 +163,7 @@ export class IDTokenValidationService {
 	/**
 	 * Decode JWT token
 	 */
-	private static decodeJWT(token: string): { header: any; payload: any } {
+	private static decodeJWT(token: string): { header: Record<string, unknown>; payload: Record<string, unknown> } {
 		const parts = token.split('.');
 		if (parts.length !== 3) {
 			throw new Error('Invalid JWT format');
@@ -194,7 +194,7 @@ export class IDTokenValidationService {
 	/**
 	 * Validate JWT structure
 	 */
-	private static validateJWTStructure(decoded: { header: any; payload: any }): boolean {
+	private static validateJWTStructure(decoded: { header: Record<string, unknown>; payload: Record<string, unknown> }): boolean {
 		// Check header structure
 		if (!decoded.header || typeof decoded.header !== 'object') {
 			return false;
@@ -374,7 +374,7 @@ export class IDTokenValidationService {
 	/**
 	 * Validate required claims
 	 */
-	private static validateRequiredClaims(payload: any): boolean {
+	private static validateRequiredClaims(payload: Record<string, unknown>): boolean {
 		const requiredClaims = ['iss', 'sub', 'aud', 'exp', 'iat'];
 
 		for (const claim of requiredClaims) {
@@ -390,7 +390,7 @@ export class IDTokenValidationService {
 	/**
 	 * Check for warnings
 	 */
-	private static checkForWarnings(payload: any, result: IDTokenValidationResult): void {
+	private static checkForWarnings(payload: Record<string, unknown>, result: IDTokenValidationResult): void {
 		const now = Math.floor(Date.now() / 1000);
 
 		// Check issued at time
