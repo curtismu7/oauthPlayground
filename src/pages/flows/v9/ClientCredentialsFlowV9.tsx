@@ -14,7 +14,7 @@ import {
 	FiShield,
 } from '@icons';
 import type React from 'react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { EducationModeToggle } from '../../../components/education/EducationModeToggle';
@@ -276,7 +276,7 @@ const STEP_METADATA = [
 ];
 
 const ClientCredentialsFlowV9Complete: React.FC = () => {
-	const [currentStep, setCurrentStep] = useState(0);
+	const [currentStep, _setCurrentStep] = useState(0);
 	const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({
 		credentials: false,
 		authMethod: false,
@@ -336,7 +336,7 @@ const ClientCredentialsFlowV9Complete: React.FC = () => {
 	}, []);
 
 	// Step validation with enhanced error messages
-	const isStepValid = useCallback(
+	const _isStepValid = useCallback(
 		(step: number): boolean => {
 			switch (step) {
 				case 0:

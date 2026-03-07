@@ -459,7 +459,7 @@ export class ImplicitFlowCredentialsHandlers {
 	/**
 	 * Create save credentials handler
 	 */
-	static createSaveHandler(variant: ImplicitFlowVariant, controller: ControllerLike) {
+	static createSaveHandler(_variant: ImplicitFlowVariant, controller: ControllerLike) {
 		return async () => {
 			try {
 				await controller.saveCredentials();

@@ -24,10 +24,10 @@ import { trackedFetch } from '../../utils/trackedFetch';
 
 // Kroger Brand Colors
 const KROGER_BLUE = '#0058A8';
-const KROGER_LIGHT_BLUE = '#4DA3FF';
+const _KROGER_LIGHT_BLUE = '#4DA3FF';
 const KROGER_DARK = '#0B2142';
 const KROGER_LIGHT = '#F5F7FA';
-const KROGER_RED = '#E31837'; // For accent colors
+const _KROGER_RED = '#E31837'; // For accent colors
 const KROGER_GREEN = '#00A651'; // For success states
 
 // Styled Components
@@ -37,7 +37,7 @@ const PageContainer = styled.div`
 	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
 `;
 
-const Header = styled.header`
+const _Header = styled.header`
 	background: ${KROGER_BLUE};
 	color: white;
 	padding: 1rem 2rem;
@@ -47,7 +47,7 @@ const Header = styled.header`
 	z-index: 1000;
 `;
 
-const HeaderContent = styled.div`
+const _HeaderContent = styled.div`
 	max-width: 1400px;
 	margin: 0 auto;
 	display: flex;
@@ -56,7 +56,7 @@ const HeaderContent = styled.div`
 	gap: 2rem;
 `;
 
-const Logo = styled.div`
+const _Logo = styled.div`
 	font-size: 2rem;
 	font-weight: bold;
 	letter-spacing: -0.5px;
@@ -66,7 +66,7 @@ const Logo = styled.div`
 	gap: 0.5rem;
 `;
 
-const SearchBar = styled.div`
+const _SearchBar = styled.div`
 	flex: 1;
 	max-width: 600px;
 	position: relative;
@@ -94,13 +94,13 @@ const SearchBar = styled.div`
 	}
 `;
 
-const HeaderActions = styled.div`
+const _HeaderActions = styled.div`
 	display: flex;
 	align-items: center;
 	gap: 1.5rem;
 `;
 
-const HeaderButton = styled.button`
+const _HeaderButton = styled.button`
 	background: transparent;
 	border: none;
 	color: white;
@@ -128,7 +128,7 @@ const MainContent = styled.main`
 	padding: 2rem;
 `;
 
-const HeroBanner = styled.div`
+const _HeroBanner = styled.div`
 	background: linear-gradient(135deg, ${KROGER_GREEN} 0%, ${KROGER_BLUE} 100%);
 	color: white;
 	padding: 3rem 2rem;
@@ -234,7 +234,7 @@ const LoginModal = styled.div`
 	box-shadow: 0 20px 60px rgba(0,0,0,0.3);
 `;
 
-const LoginPageContainer = styled.div`
+const _LoginPageContainer = styled.div`
 	max-width: 500px;
 	margin: 3rem auto 2rem;
 	background: white;
@@ -243,7 +243,7 @@ const LoginPageContainer = styled.div`
 	box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 `;
 
-const ApiCallTableContainer = styled.div`
+const _ApiCallTableContainer = styled.div`
 	max-width: 1400px;
 	width: 100%;
 	margin: 0 auto 2rem;
@@ -275,7 +275,7 @@ const ModalHeader = styled.div`
 	}
 `;
 
-const FormGroup = styled.div`
+const _FormGroup = styled.div`
 	margin-bottom: 1.5rem;
 	
 	label {
@@ -439,7 +439,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 	const [username, setUsername] = useState('curtis7');
 	const [password, setPassword] = useState('');
 	const [mfaCode, setMfaCode] = useState('');
-	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
+	const [_showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [showAuthzConfigModal, setShowAuthzConfigModal] = useState(false);
 	const [showSetupModal, setShowSetupModal] = useState(false);
 	const [credentials, setCredentials] = useState<StepCredentials>({
@@ -449,11 +449,11 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 		redirectUri: 'https://localhost:3000/callback',
 		scopes: 'openid profile email consents',
 	});
-	const [phoneNumber, setPhoneNumber] = useState('');
+	const [phoneNumber, _setPhoneNumber] = useState('');
 	const [mfaDevices, setMfaDevices] = useState<MfaDevice[]>([]);
-	const [selectedDevice, setSelectedDevice] = useState<string | null>(null);
+	const [_selectedDevice, setSelectedDevice] = useState<string | null>(null);
 	const [showConfig, setShowConfig] = useState(false);
-	const [_activeView, setActiveView] = useState<'profile' | 'dashboard'>('profile');
+	const [_activeView, _setActiveView] = useState<'profile' | 'dashboard'>('profile');
 	const [_userInfo, setUserInfo] = useState<UserInfo | null>(null);
 	const [_userInfoLoading, setUserInfoLoading] = useState(false);
 	const [_userInfoError, setUserInfoError] = useState<string | null>(null);
@@ -475,7 +475,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 
 	// Use refs to avoid circular dependency issues in useCallback
 	const completeMFALoginRef = useRef<(() => Promise<void>) | null>(null);
-	const loginFormRef = useRef<HTMLDivElement | null>(null);
+	const _loginFormRef = useRef<HTMLDivElement | null>(null);
 
 	useEffect(() => {
 		if (!showLoginModal) {
@@ -982,7 +982,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 	);
 
 	// Step 11: Register Mobile Phone Device
-	const registerMobilePhone = useCallback(async () => {
+	const _registerMobilePhone = useCallback(async () => {
 		if (!credentials.environmentId || !userId || !phoneNumber || !workerToken) {
 			modernMessaging.showBanner({
 				type: 'error',

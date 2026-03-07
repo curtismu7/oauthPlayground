@@ -1118,7 +1118,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 				const userInfo = responseData as Record<string, unknown>;
 				return userInfo;
-			} catch (err) {
+			} catch (_err) {
 				logger.warn('UnifiedFlowSteps', `Failed to fetch UserInfo`);
 				return null;
 			} finally {
@@ -1712,7 +1712,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						lastApiCall: Date.now(),
 					});
 					console.log(`${MODULE_TAG} Enhanced state management updated with new tokens`);
-				} catch (enhancedErr) {
+				} catch (_enhancedErr) {
 					logger.warn('UnifiedFlowSteps', `Failed to update enhanced state management`);
 				}
 			} catch (err) {
@@ -2063,7 +2063,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							url.searchParams.forEach((value, key) => {
 								allParams[key] = value;
 							});
-						} catch (err) {
+						} catch (_err) {
 							logger.warn('UnifiedFlowSteps', `Failed to parse callback URL for allParams`);
 						}
 					}
@@ -2363,7 +2363,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							// Still show modal if we have ID token with user info
 							setShowUserInfoModal(true);
 						}
-					} catch (err) {
+					} catch (_err) {
 						logger.warn('UnifiedFlowSteps', `Failed to fetch UserInfo`);
 
 						// Still show modal if we have ID token with user info
@@ -3396,7 +3396,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 																				// Also save to disk asynchronously (non-blocking)
 																				SharedCredentialsServiceV8.saveSharedCredentials(
 																					sharedCreds
-																				).catch((err) => {
+																				).catch((_err) => {
 																					logger.warn(
 																						'UnifiedFlowSteps',
 																						`Background disk save failed (non-critical):`
@@ -4762,7 +4762,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							`PAR enabled but no request_uri in authorization URL - PAR may not have been pushed during URL generation`
 						);
 					}
-				} catch (error) {
+				} catch (_error) {
 					logger.warn('UnifiedFlowSteps', `Failed to parse authorization URL for PAR request_uri:`);
 				}
 			}
@@ -5133,7 +5133,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						// Try again after silent retrieval attempt
 						await new Promise((resolve) => setTimeout(resolve, 500));
 						workerToken = await workerTokenServiceV8.getToken();
-					} catch (error) {
+					} catch (_error) {
 						logger.warn('UnifiedFlowSteps', `Silent worker token retrieval failed:`);
 						// Continue without worker token - validation will show warnings
 					}
@@ -5283,7 +5283,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									// Use sync version for immediate browser storage
 									SharedCredentialsServiceV8.saveSharedCredentialsSync(sharedCreds);
 									// Also save to disk asynchronously (non-blocking)
-									SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds).catch((err) => {
+									SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds).catch((_err) => {
 										logger.warn('UnifiedFlowSteps', `Background disk save failed (non-critical):`);
 									});
 								}
@@ -8013,7 +8013,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								}
 								updates.tokens = tokens;
 							}
-						} catch (fragmentErr) {
+						} catch (_fragmentErr) {
 							logger.warn('UnifiedFlowSteps', `Failed to parse fragment for hybrid flow`);
 						}
 					}
@@ -10097,7 +10097,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								} else if (tokensWithExtras.id_token) {
 									setShowUserInfoModal(true);
 								}
-							} catch (err) {
+							} catch (_err) {
 								logger.warn('UnifiedFlowSteps', `Failed to fetch UserInfo`);
 								if (tokensWithExtras.id_token) {
 									setShowUserInfoModal(true);
@@ -10876,7 +10876,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									tokenEndpointAuthMethod: fetchedConfig.tokenEndpointAuthMethod,
 								};
 							}
-						} catch (error) {
+						} catch (_error) {
 							logger.warn(
 								'UnifiedFlowSteps',
 								`Could not fetch app config for fixable error analysis:`
@@ -11902,7 +11902,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							};
 						}
 					}
-				} catch (configError) {
+				} catch (_configError) {
 					logger.warn(
 						'UnifiedFlowSteps',
 						`Failed to fetch app config before token exchange (continuing with current auth method):`
@@ -12020,7 +12020,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								setShowUserInfoModal(true);
 							}
 						}
-					} catch (err) {
+					} catch (_err) {
 						logger.warn('UnifiedFlowSteps', `Failed to fetch UserInfo`);
 						modernMessaging.showBanner({
 							type: 'warning',
