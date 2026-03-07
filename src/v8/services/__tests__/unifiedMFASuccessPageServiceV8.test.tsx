@@ -6,9 +6,9 @@
  * @since 2026-03-06
  */
 
-import { describe, it, expect, beforeEach } from '@jest/globals';
-import { UnifiedMFASuccessPageV8 } from '../unifiedMFASuccessPageServiceV8';
+import { beforeEach, describe, expect, it } from '@jest/globals';
 import type { UnifiedMFASuccessPageProps } from '../unifiedMFASuccessPageServiceV8';
+import { UnifiedMFASuccessPageV8 } from '../unifiedMFASuccessPageServiceV8';
 
 // Mock dependencies
 jest.mock('../../utils/logger', () => ({
@@ -29,7 +29,9 @@ jest.mock('../../services/apiDisplayServiceV8', () => ({
 }));
 
 describe('UnifiedMFASuccessPageV8', () => {
-	const createMockProps = (overrides: Partial<UnifiedMFASuccessPageProps> = {}): UnifiedMFASuccessPageProps => ({
+	const createMockProps = (
+		overrides: Partial<UnifiedMFASuccessPageProps> = {}
+	): UnifiedMFASuccessPageProps => ({
 		data: {
 			flowType: 'registration',
 			username: 'testuser@example.com',
@@ -95,8 +97,8 @@ describe('UnifiedMFASuccessPageV8', () => {
 
 		it('should handle different device types correctly', () => {
 			const deviceTypes = ['email', 'sms', 'totp', 'push', 'fido2'] as const;
-			
-			deviceTypes.forEach(deviceType => {
+
+			deviceTypes.forEach((deviceType) => {
 				const props = createMockProps({
 					data: { deviceType },
 				});
@@ -163,8 +165,8 @@ describe('UnifiedMFASuccessPageV8', () => {
 
 		it('should handle different device statuses', () => {
 			const statuses = ['ACTIVE', 'ACTIVATION_REQUIRED'] as const;
-			
-			statuses.forEach(status => {
+
+			statuses.forEach((status) => {
 				const props = createMockProps({
 					data: { adminDeviceStatus: status },
 				});
@@ -175,8 +177,8 @@ describe('UnifiedMFASuccessPageV8', () => {
 
 		it('should handle different token types', () => {
 			const tokenTypes = ['user', 'worker'] as const;
-			
-			tokenTypes.forEach(tokenType => {
+
+			tokenTypes.forEach((tokenType) => {
 				const props = createMockProps({
 					data: { tokenType },
 				});

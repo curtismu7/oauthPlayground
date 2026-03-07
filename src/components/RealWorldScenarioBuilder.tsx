@@ -1512,7 +1512,11 @@ const RealWorldScenarioBuilder: React.FC = () => {
 
 	const copyCode = useCallback((code: string) => {
 		navigator.clipboard.writeText(code);
-		modernMessaging.showFooterMessage({ type: 'status', message: 'Code copied to clipboard!', duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'status',
+			message: 'Code copied to clipboard!',
+			duration: 4000,
+		});
 	}, []);
 
 	return (

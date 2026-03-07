@@ -16,6 +16,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import {
 	type OAuth2AuthorizationRequest,
 	type OAuth2ErrorResponse,
@@ -25,7 +26,6 @@ import {
 	type ValidationResult,
 } from '../services/oauth2ComplianceService';
 import { logger } from '../utils/logger';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 export interface OAuth2Credentials {
 	environmentId: string;
@@ -214,9 +214,18 @@ export const useOAuth2CompliantAuthorizationCodeFlow = (): [OAuth2FlowState, OAu
 
 		// Show validation results
 		if (isValid) {
-			modernMessaging.showFooterMessage({ type: 'status', message: 'Configuration validated successfully', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'Configuration validated successfully',
+				duration: 4000,
+			});
 		} else {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Configuration validation failed: ${errors.join(', ')}`, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: `Configuration validation failed: ${errors.join(', ')}`,
+				dismissible: true,
+			});
 		}
 
 		warnings.forEach((warning) => {
@@ -243,7 +252,11 @@ export const useOAuth2CompliantAuthorizationCodeFlow = (): [OAuth2FlowState, OAu
 				isPkceGenerated: true,
 			}));
 
-			modernMessaging.showFooterMessage({ type: 'status', message: 'PKCE codes generated successfully', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'PKCE codes generated successfully',
+				duration: 4000,
+			});
 			console.log('[OAuth2CompliantFlow] PKCE codes generated:', {
 				codeVerifier: `${pkceCodes.codeVerifier.substring(0, 20)}...`,
 				codeChallenge: `${pkceCodes.codeChallenge.substring(0, 20)}...`,
@@ -252,7 +265,12 @@ export const useOAuth2CompliantAuthorizationCodeFlow = (): [OAuth2FlowState, OAu
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Failed to generate PKCE codes';
 			addError(oauth2ComplianceService.createErrorResponse('server_error', errorMessage));
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: errorMessage,
+				dismissible: true,
+			});
 		}
 	}, [clearMessages, addError]);
 
@@ -319,7 +337,11 @@ export const useOAuth2CompliantAuthorizationCodeFlow = (): [OAuth2FlowState, OAu
 			sessionStorage.setItem('oauth2_state', secureState);
 			sessionStorage.setItem('oauth2_code_verifier', state.pkceCodes.codeVerifier);
 
-			modernMessaging.showFooterMessage({ type: 'status', message: 'Authorization URL generated successfully', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'Authorization URL generated successfully',
+				duration: 4000,
+			});
 			console.log('[OAuth2CompliantFlow] Authorization URL generated:', {
 				url: authorizationUrl,
 				state: `${secureState.substring(0, 10)}...`,
@@ -329,7 +351,12 @@ export const useOAuth2CompliantAuthorizationCodeFlow = (): [OAuth2FlowState, OAu
 			const errorMessage =
 				error instanceof Error ? error.message : 'Failed to generate authorization URL';
 			addError(oauth2ComplianceService.createErrorResponse('server_error', errorMessage));
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: errorMessage,
+				dismissible: true,
+			});
 		}
 	}, [
 		state.isConfigValid,
@@ -367,7 +394,11 @@ export const useOAuth2CompliantAuthorizationCodeFlow = (): [OAuth2FlowState, OAu
 					currentStep: 4,
 				}));
 
-				modernMessaging.showFooterMessage({ type: 'status', message: 'Authorization callback received successfully', duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: 'Authorization callback received successfully',
+					duration: 4000,
+				});
 				console.log('[OAuth2CompliantFlow] Authorization callback processed:', {
 					code: `${code.substring(0, 20)}...`,
 					stateValid,
@@ -378,7 +409,12 @@ export const useOAuth2CompliantAuthorizationCodeFlow = (): [OAuth2FlowState, OAu
 				addError(
 					oauth2ComplianceService.createErrorResponse('access_denied', errorMessage, receivedState)
 				);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: errorMessage,
+					dismissible: true,
+				});
 			}
 		},
 		[clearMessages, addError]
@@ -492,7 +528,11 @@ export const useOAuth2CompliantAuthorizationCodeFlow = (): [OAuth2FlowState, OAu
 			sessionStorage.removeItem('oauth2_state');
 			sessionStorage.removeItem('oauth2_code_verifier');
 
-			modernMessaging.showFooterMessage({ type: 'status', message: 'Tokens exchanged successfully', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'Tokens exchanged successfully',
+				duration: 4000,
+			});
 			console.log('[OAuth2CompliantFlow] Token exchange successful:', {
 				hasAccessToken: !!tokens.access_token,
 				hasRefreshToken: !!tokens.refresh_token,
@@ -508,7 +548,12 @@ export const useOAuth2CompliantAuthorizationCodeFlow = (): [OAuth2FlowState, OAu
 				tokenErrors: [errorMessage],
 			}));
 			addError(oauth2ComplianceService.createErrorResponse('server_error', errorMessage));
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: errorMessage,
+				dismissible: true,
+			});
 		}
 	}, [state.authorizationCode, state.credentials, clearMessages, addError, addWarning]);
 
@@ -540,7 +585,11 @@ export const useOAuth2CompliantAuthorizationCodeFlow = (): [OAuth2FlowState, OAu
 			});
 		}
 
-		modernMessaging.showFooterMessage({ type: 'info', message: 'Flow reset successfully', duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message: 'Flow reset successfully',
+			duration: 4000,
+		});
 	}, []);
 
 	// Go to specific step
@@ -567,7 +616,12 @@ export const useOAuth2CompliantAuthorizationCodeFlow = (): [OAuth2FlowState, OAu
 					receivedState || undefined
 				)
 			);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Authorization error: ${error}`, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: `Authorization error: ${error}`,
+				dismissible: true,
+			});
 		} else if (code && receivedState) {
 			handleAuthorizationCallback(code, receivedState);
 

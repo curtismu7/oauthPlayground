@@ -6,208 +6,208 @@
  * @since 2026-03-06
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { performanceService } from '../performanceService';
 
 // Mock performance API
 const mockPerformance = {
-  now: vi.fn(),
-  mark: vi.fn(),
-  measure: vi.fn(),
-  getEntriesByType: vi.fn(),
-  getEntriesByName: vi.fn(),
+	now: vi.fn(),
+	mark: vi.fn(),
+	measure: vi.fn(),
+	getEntriesByType: vi.fn(),
+	getEntriesByName: vi.fn(),
 };
 
 // Mock PerformanceObserver
 const mockPerformanceObserver = vi.fn();
 
 describe('PerformanceService', () => {
-  beforeEach(() => {
-    // Reset mocks
-    vi.clearAllMocks();
-    
-    // Mock global performance
-    Object.defineProperty(global, 'performance', {
-      value: mockPerformance,
-      writable: true,
-    });
+	beforeEach(() => {
+		// Reset mocks
+		vi.clearAllMocks();
 
-    // Mock PerformanceObserver
-    global.PerformanceObserver = mockPerformanceObserver as any;
-    
-    // Reset performance service state
-    (performanceService as any).metrics = {};
-    (performanceService as any).chunkLoads = [];
-    (performanceService as any).observers = [];
-  });
+		// Mock global performance
+		Object.defineProperty(global, 'performance', {
+			value: mockPerformance,
+			writable: true,
+		});
 
-  describe('Initialization', () => {
-    it('should initialize without errors', () => {
-      expect(performanceService).toBeDefined();
-    });
+		// Mock PerformanceObserver
+		global.PerformanceObserver = mockPerformanceObserver as any;
 
-    it('should have empty metrics initially', () => {
-      const metrics = performanceService.getMetrics();
-      expect(metrics).toEqual({});
-    });
+		// Reset performance service state
+		(performanceService as any).metrics = {};
+		(performanceService as any).chunkLoads = [];
+		(performanceService as any).observers = [];
+	});
 
-    it('should have empty chunk loads initially', () => {
-      const chunkLoads = performanceService.getChunkLoads();
-      expect(chunkLoads).toEqual([]);
-    });
-  });
+	describe('Initialization', () => {
+		it('should initialize without errors', () => {
+			expect(performanceService).toBeDefined();
+		});
 
-  describe('Metrics Tracking', () => {
-    it('should track performance metrics', () => {
-      // Mock performance entries
-      mockPerformance.getEntriesByType.mockReturnValue([
-        { name: 'first-contentful-paint', startTime: 1000 },
-        { name: 'largest-contentful-paint', startTime: 2000 },
-      ]);
+		it('should have empty metrics initially', () => {
+			const metrics = performanceService.getMetrics();
+			expect(metrics).toEqual({});
+		});
 
-      // Simulate metrics being set
-      (performanceService as any).metrics = {
-        firstContentfulPaint: 1000,
-        largestContentfulPaint: 2000,
-        firstInputDelay: 50,
-        cumulativeLayoutShift: 0.1,
-      };
+		it('should have empty chunk loads initially', () => {
+			const chunkLoads = performanceService.getChunkLoads();
+			expect(chunkLoads).toEqual([]);
+		});
+	});
 
-      const metrics = performanceService.getMetrics();
-      
-      expect(metrics.firstContentfulPaint).toBe(1000);
-      expect(metrics.largestContentfulPaint).toBe(2000);
-      expect(metrics.firstInputDelay).toBe(50);
-      expect(metrics.cumulativeLayoutShift).toBe(0.1);
-    });
-  });
+	describe('Metrics Tracking', () => {
+		it('should track performance metrics', () => {
+			// Mock performance entries
+			mockPerformance.getEntriesByType.mockReturnValue([
+				{ name: 'first-contentful-paint', startTime: 1000 },
+				{ name: 'largest-contentful-paint', startTime: 2000 },
+			]);
 
-  describe('Performance Grade', () => {
-    it('should return grade A for excellent performance', () => {
-      (performanceService as any).metrics = {
-        firstContentfulPaint: 1000,
-        largestContentfulPaint: 1200,
-        firstInputDelay: 50,
-        cumulativeLayoutShift: 0.05,
-      };
+			// Simulate metrics being set
+			(performanceService as any).metrics = {
+				firstContentfulPaint: 1000,
+				largestContentfulPaint: 2000,
+				firstInputDelay: 50,
+				cumulativeLayoutShift: 0.1,
+			};
 
-      const grade = performanceService.getPerformanceGrade();
-      expect(grade).toBe('A');
-    });
+			const metrics = performanceService.getMetrics();
 
-    it('should return grade D for moderate performance', () => {
-      (performanceService as any).metrics = {
-        firstContentfulPaint: 1100,
-        largestContentfulPaint: 1300,
-        firstInputDelay: 60,
-        cumulativeLayoutShift: 0.06,
-      };
+			expect(metrics.firstContentfulPaint).toBe(1000);
+			expect(metrics.largestContentfulPaint).toBe(2000);
+			expect(metrics.firstInputDelay).toBe(50);
+			expect(metrics.cumulativeLayoutShift).toBe(0.1);
+		});
+	});
 
-      const grade = performanceService.getPerformanceGrade();
-      expect(grade).toBe('D');
-    });
+	describe('Performance Grade', () => {
+		it('should return grade A for excellent performance', () => {
+			(performanceService as any).metrics = {
+				firstContentfulPaint: 1000,
+				largestContentfulPaint: 1200,
+				firstInputDelay: 50,
+				cumulativeLayoutShift: 0.05,
+			};
 
-    it('should return grade F for poor performance', () => {
-      (performanceService as any).metrics = {
-        firstContentfulPaint: 4000,
-        largestContentfulPaint: 5000,
-        firstInputDelay: 400,
-        cumulativeLayoutShift: 0.3,
-      };
+			const grade = performanceService.getPerformanceGrade();
+			expect(grade).toBe('A');
+		});
 
-      const grade = performanceService.getPerformanceGrade();
-      expect(grade).toBe('F');
-    });
-  });
+		it('should return grade D for moderate performance', () => {
+			(performanceService as any).metrics = {
+				firstContentfulPaint: 1100,
+				largestContentfulPaint: 1300,
+				firstInputDelay: 60,
+				cumulativeLayoutShift: 0.06,
+			};
 
-  describe('Chunk Loading', () => {
-    it('should track chunk loads', () => {
-      const mockChunk = {
-        name: 'test-chunk',
-        size: 1024,
-        loadTime: 150,
-        timestamp: Date.now(),
-      };
+			const grade = performanceService.getPerformanceGrade();
+			expect(grade).toBe('D');
+		});
 
-      (performanceService as any).chunkLoads = [mockChunk];
+		it('should return grade F for poor performance', () => {
+			(performanceService as any).metrics = {
+				firstContentfulPaint: 4000,
+				largestContentfulPaint: 5000,
+				firstInputDelay: 400,
+				cumulativeLayoutShift: 0.3,
+			};
 
-      const chunkLoads = performanceService.getChunkLoads();
-      expect(chunkLoads).toHaveLength(1);
-      expect(chunkLoads[0]).toEqual(mockChunk);
-    });
+			const grade = performanceService.getPerformanceGrade();
+			expect(grade).toBe('F');
+		});
+	});
 
-    it('should calculate average chunk load time', () => {
-      const mockChunks = [
-        { name: 'chunk1', size: 1024, loadTime: 100, timestamp: Date.now() },
-        { name: 'chunk2', size: 2048, loadTime: 200, timestamp: Date.now() },
-        { name: 'chunk3', size: 512, loadTime: 150, timestamp: Date.now() },
-      ];
+	describe('Chunk Loading', () => {
+		it('should track chunk loads', () => {
+			const mockChunk = {
+				name: 'test-chunk',
+				size: 1024,
+				loadTime: 150,
+				timestamp: Date.now(),
+			};
 
-      (performanceService as any).chunkLoads = mockChunks;
+			(performanceService as any).chunkLoads = [mockChunk];
 
-      const avgTime = performanceService.getAverageChunkLoadTime();
-      expect(avgTime).toBe(150); // (100 + 200 + 150) / 3
-    });
+			const chunkLoads = performanceService.getChunkLoads();
+			expect(chunkLoads).toHaveLength(1);
+			expect(chunkLoads[0]).toEqual(mockChunk);
+		});
 
-    it('should return 0 for empty chunk loads', () => {
-      const avgTime = performanceService.getAverageChunkLoadTime();
-      expect(avgTime).toBe(0);
-    });
+		it('should calculate average chunk load time', () => {
+			const mockChunks = [
+				{ name: 'chunk1', size: 1024, loadTime: 100, timestamp: Date.now() },
+				{ name: 'chunk2', size: 2048, loadTime: 200, timestamp: Date.now() },
+				{ name: 'chunk3', size: 512, loadTime: 150, timestamp: Date.now() },
+			];
 
-    it('should get slowest chunks', () => {
-      const mockChunks = [
-        { name: 'chunk1', size: 1024, loadTime: 100, timestamp: Date.now() },
-        { name: 'chunk2', size: 2048, loadTime: 300, timestamp: Date.now() },
-        { name: 'chunk3', size: 512, loadTime: 200, timestamp: Date.now() },
-        { name: 'chunk4', size: 1024, loadTime: 250, timestamp: Date.now() },
-      ];
+			(performanceService as any).chunkLoads = mockChunks;
 
-      (performanceService as any).chunkLoads = mockChunks;
+			const avgTime = performanceService.getAverageChunkLoadTime();
+			expect(avgTime).toBe(150); // (100 + 200 + 150) / 3
+		});
 
-      const slowest = performanceService.getSlowestChunks(2);
-      expect(slowest).toHaveLength(2);
-      expect(slowest[0].name).toBe('chunk2'); // 300ms
-      expect(slowest[1].name).toBe('chunk4'); // 250ms
-    });
-  });
+		it('should return 0 for empty chunk loads', () => {
+			const avgTime = performanceService.getAverageChunkLoadTime();
+			expect(avgTime).toBe(0);
+		});
 
-  describe('Performance Check', () => {
-    it('should return true for good performance', () => {
-      (performanceService as any).metrics = {
-        firstContentfulPaint: 1500,
-        largestContentfulPaint: 2000,
-        firstInputDelay: 80,
-        cumulativeLayoutShift: 0.08,
-      };
+		it('should get slowest chunks', () => {
+			const mockChunks = [
+				{ name: 'chunk1', size: 1024, loadTime: 100, timestamp: Date.now() },
+				{ name: 'chunk2', size: 2048, loadTime: 300, timestamp: Date.now() },
+				{ name: 'chunk3', size: 512, loadTime: 200, timestamp: Date.now() },
+				{ name: 'chunk4', size: 1024, loadTime: 250, timestamp: Date.now() },
+			];
 
-      const isGood = performanceService.isPerformanceGood();
-      expect(isGood).toBe(true);
-    });
+			(performanceService as any).chunkLoads = mockChunks;
 
-    it('should return false for poor performance', () => {
-      (performanceService as any).metrics = {
-        firstContentfulPaint: 2000,
-        largestContentfulPaint: 3000,
-        firstInputDelay: 150,
-        cumulativeLayoutShift: 0.15,
-      };
+			const slowest = performanceService.getSlowestChunks(2);
+			expect(slowest).toHaveLength(2);
+			expect(slowest[0].name).toBe('chunk2'); // 300ms
+			expect(slowest[1].name).toBe('chunk4'); // 250ms
+		});
+	});
 
-      const isGood = performanceService.isPerformanceGood();
-      expect(isGood).toBe(false);
-    });
-  });
+	describe('Performance Check', () => {
+		it('should return true for good performance', () => {
+			(performanceService as any).metrics = {
+				firstContentfulPaint: 1500,
+				largestContentfulPaint: 2000,
+				firstInputDelay: 80,
+				cumulativeLayoutShift: 0.08,
+			};
 
-  describe('Cleanup', () => {
-    it('should cleanup observers', () => {
-      const mockDisconnect = vi.fn();
-      const mockObserver = { disconnect: mockDisconnect };
+			const isGood = performanceService.isPerformanceGood();
+			expect(isGood).toBe(true);
+		});
 
-      (performanceService as any).observers = [mockObserver];
+		it('should return false for poor performance', () => {
+			(performanceService as any).metrics = {
+				firstContentfulPaint: 2000,
+				largestContentfulPaint: 3000,
+				firstInputDelay: 150,
+				cumulativeLayoutShift: 0.15,
+			};
 
-      performanceService.cleanup();
+			const isGood = performanceService.isPerformanceGood();
+			expect(isGood).toBe(false);
+		});
+	});
 
-      expect(mockDisconnect).toHaveBeenCalled();
-      expect((performanceService as any).observers).toHaveLength(0);
-    });
-  });
+	describe('Cleanup', () => {
+		it('should cleanup observers', () => {
+			const mockDisconnect = vi.fn();
+			const mockObserver = { disconnect: mockDisconnect };
+
+			(performanceService as any).observers = [mockObserver];
+
+			performanceService.cleanup();
+
+			expect(mockDisconnect).toHaveBeenCalled();
+			expect((performanceService as any).observers).toHaveLength(0);
+		});
+	});
 });

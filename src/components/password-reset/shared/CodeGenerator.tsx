@@ -2,6 +2,7 @@
 // Shared code generator component for password reset tabs
 
 import React, { useState } from 'react';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import {
 	getVSCodeStyles,
 	highlightCode,
@@ -15,7 +16,6 @@ import {
 	styled,
 } from '../../../services/commonImportsService';
 import { logger } from '../../../utils/logger';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const CodeGeneratorSection = styled.div`
 	background: #F9FAFB;
@@ -175,11 +175,20 @@ export const CodeGenerator: React.FC<CodeGeneratorProps> = ({ code, onGenerate }
 		try {
 			await navigator.clipboard.writeText(code);
 			setCopied(true);
-			modernMessaging.showFooterMessage({ type: 'status', message: 'Code copied to clipboard!', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'Code copied to clipboard!',
+				duration: 4000,
+			});
 			setTimeout(() => setCopied(false), 2000);
 		} catch (error) {
 			logger.error('CodeGenerator', 'Failed to copy code:', undefined, error as Error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to copy code to clipboard', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to copy code to clipboard',
+				dismissible: true,
+			});
 		}
 	};
 

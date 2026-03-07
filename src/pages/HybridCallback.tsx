@@ -198,7 +198,11 @@ const HybridCallback: React.FC = () => {
 
 				setStatus('success');
 				setMessage('Authorization successful! Redirecting...');
-				modernMessaging.showFooterMessage({ type: 'status', message: 'Authorization successful!', duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: 'Authorization successful!',
+					duration: 4000,
+				});
 
 				// Redirect to hybrid flow page
 				setTimeout(() => {
@@ -209,7 +213,12 @@ const HybridCallback: React.FC = () => {
 				setStatus('error');
 				setMessage('Authorization failed');
 				setErrorDetails(err.message || 'Unknown error occurred');
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: err.message || 'Authorization failed', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: err.message || 'Authorization failed',
+					dismissible: true,
+				});
 
 				// Redirect back to flow page after delay
 				setTimeout(() => {

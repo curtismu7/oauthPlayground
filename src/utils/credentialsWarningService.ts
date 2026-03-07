@@ -2,8 +2,8 @@
 // Service to show warning toasts when flows start without credentials
 
 import React from 'react';
-import { logger } from './logger';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { logger } from './logger';
 
 export interface CredentialsCheck {
 	environmentId?: string;
@@ -44,7 +44,12 @@ export function checkCredentialsAndWarn(
 			.map((field) => field.charAt(0).toUpperCase() + field.slice(1).replace(/([A-Z])/g, ' $1'))
 			.join(', ');
 
-		modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: `⚠️ ${flowName}: Please fill in your credentials (${missingFieldsText}) to continue`, dismissible: true });
+		modernMessaging.showBanner({
+			type: 'warning',
+			title: 'Warning',
+			message: `⚠️ ${flowName}: Please fill in your credentials (${missingFieldsText}) to continue`,
+			dismissible: true,
+		});
 
 		logger.warn('CredentialsWarning', `${flowName} started without credentials:`, {
 			missingFields,

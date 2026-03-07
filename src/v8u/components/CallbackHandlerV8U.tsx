@@ -14,12 +14,12 @@ import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { trackOAuthFlow } from '@/utils/activityTracker';
 import { MFARedirectUriServiceV8 } from '@/v8/services/mfaRedirectUriServiceV8';
-import { logger } from '../../utils/logger';
 import {
 	checkPingOneAuthentication,
 	performDetailedAuthenticationCheck,
 } from '@/v8/services/pingOneAuthenticationServiceV8';
 import { ReturnTargetServiceV8U } from '@/v8u/services/returnTargetServiceV8U';
+import { logger } from '../../utils/logger';
 import { LoadingSpinnerModalV8U } from './LoadingSpinnerModalV8U';
 
 const MODULE_TAG = '[🔄 CALLBACK-HANDLER-V8U]';
@@ -320,7 +320,10 @@ export const CallbackHandlerV8U: React.FC = () => {
 							contextReturnStep: context.returnStep,
 							contextAgeMs: contextAge,
 						});
-						logger.warn('CallbackHandlerV8U', `Flow context is stale (${Math.round(contextAge / 1000)}s old), removing and using fallback`);
+						logger.warn(
+							'CallbackHandlerV8U',
+							`Flow context is stale (${Math.round(contextAge / 1000)}s old), removing and using fallback`
+						);
 						sessionStorage.removeItem(flowContextKey);
 					} else {
 						// Preserve callback parameters and add step parameter
@@ -584,9 +587,18 @@ export const CallbackHandlerV8U: React.FC = () => {
 
 		// CRITICAL: Check if we got a code when we expected tokens in fragment (implicit flow)
 		if (code && state && state.includes('v8u-implicit')) {
-			logger.error('CallbackHandlerV8U', `CONFIGURATION ERROR: Received authorization code for Implicit flow!`);
-			logger.error('CallbackHandlerV8U', `This means your PingOne application is not configured for Implicit flow.`);
-			logger.error('CallbackHandlerV8U', `Please enable Implicit grant type in your PingOne application settings.`);
+			logger.error(
+				'CallbackHandlerV8U',
+				`CONFIGURATION ERROR: Received authorization code for Implicit flow!`
+			);
+			logger.error(
+				'CallbackHandlerV8U',
+				`This means your PingOne application is not configured for Implicit flow.`
+			);
+			logger.error(
+				'CallbackHandlerV8U',
+				`Please enable Implicit grant type in your PingOne application settings.`
+			);
 		}
 
 		// Detect flow type from state parameter or callback data
@@ -676,7 +688,10 @@ export const CallbackHandlerV8U: React.FC = () => {
 				detectedStep = 3; // Parse callback step for hybrid
 				console.log(`${MODULE_TAG} ✅ Hybrid flow - will redirect to step 3 (parse callback)`);
 			} else {
-				logger.warn('CallbackHandlerV8U', `Has fragment but flow type is "${flowType}" (not implicit or hybrid)`);
+				logger.warn(
+					'CallbackHandlerV8U',
+					`Has fragment but flow type is "${flowType}" (not implicit or hybrid)`
+				);
 			}
 		}
 
