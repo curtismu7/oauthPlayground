@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { InteractiveCodeEditor } from '../components/InteractiveCodeEditor';
-import { logger } from '../utils/logger';
 
 const PageContainer = styled.div`
   min-height: 100vh;

@@ -585,7 +585,7 @@ const CIBAFlowV9: React.FC = () => {
 				message: 'Worker token retrieved successfully',
 				duration: 4000,
 			});
-		} catch (error) {
+		} catch (_error) {
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',

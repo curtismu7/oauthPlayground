@@ -478,7 +478,7 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 			onEnvironmentIdChange?.(value);
 			onIssuerUrlChange?.(value ? `${regionUrls[selectedRegion]}/${value}` : '');
 		},
-		[selectedRegion, discoveryResult, onEnvironmentIdChange, onIssuerUrlChange]
+		[selectedRegion, discoveryResult, onEnvironmentIdChange, onIssuerUrlChange, regionUrls]
 	);
 
 	const handleRegionChange = useCallback(
@@ -494,7 +494,7 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 				setDiscoveryResult(null);
 			}
 		},
-		[environmentId, discoveryResult, onIssuerUrlChange]
+		[environmentId, discoveryResult, onIssuerUrlChange, regionUrls]
 	);
 
 	const handleDiscover = useCallback(async () => {

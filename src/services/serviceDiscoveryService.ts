@@ -1,4 +1,3 @@
-import { logger } from '../utils/logger';
 // src/services/serviceDiscoveryService.ts
 // Service discovery and registry system for OAuth flows
 // Helps developers find appropriate services for their implementations

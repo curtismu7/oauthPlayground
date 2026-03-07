@@ -139,7 +139,7 @@ const PingOnePARFlowV9: React.FC = () => {
 				redirectUri: 'https://localhost:3000/par-callback',
 			});
 		}
-	}, [selectedVariant]); // Only run when variant changes
+	}, [controller.credentials, controller.setCredentials]); // Only run when variant changes
 
 	// Ensure PAR flow uses its own credential storage
 	useEffect(() => {

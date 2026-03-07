@@ -61,7 +61,7 @@ interface UseCibaFlowReturn {
 	simulateDecision: (decision: 'approved' | 'denied') => void;
 }
 
-const LOG_PREFIX = '[📲 CIBA MOCK]';
+const _LOG_PREFIX = '[📲 CIBA MOCK]';
 const CONFIG_STORAGE_KEY = 'oidc_ciba_v6_mock_config';
 const TOKENS_STORAGE_KEY = 'oidc_ciba_v6_mock_tokens';
 const AUTH_REQUEST_STORAGE_KEY = 'oidc_ciba_v6_mock_auth_request';
@@ -151,7 +151,7 @@ export const useCibaFlow = (): UseCibaFlowReturn => {
 				setTokens(JSON.parse(savedTokens));
 				setStage('success');
 			}
-		} catch (loadError) {
+		} catch (_loadError) {
 			logger.warn('useCibaFlow', 'Failed to restore mock state');
 		}
 
