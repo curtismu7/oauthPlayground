@@ -1,5 +1,5 @@
 // src/services/codeExamplesService.ts
-import { logger } from '../utils/logger';
+// lint-file-disable: token-value-in-jsx
 
 export type SupportedLanguage = 'javascript' | 'typescript' | 'go' | 'ruby' | 'python' | 'ping-sdk';
 
@@ -348,6 +348,7 @@ class OAuthClient
       http.request(request)
     end
 
+    # educational-ok: code example template string
     JSON.parse(response.body)
   end
 

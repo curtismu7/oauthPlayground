@@ -14,6 +14,7 @@ import { FlowSteps } from './components/FlowSteps';
 import { FLOW_CONSTANTS } from './constants/flowConstants';
 import { UI_CONSTANTS } from './constants/uiConstants';
 import { useAuthCodeManagement } from './hooks/useAuthCodeManagement';
+import { useCredentialPersistence } from './hooks/useCredentialPersistence';
 import { useFlowStateManagement } from './hooks/useFlowStateManagement';
 import { useFlowVariantSwitching } from './hooks/useFlowVariantSwitching';
 import { usePerformanceMonitoring } from './hooks/usePerformanceMonitoring';
@@ -244,6 +245,12 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
 	// State management
 	const flowState = useFlowStateManagement();
 	const authCodeManagement = useAuthCodeManagement();
+
+	// Credential persistence for NewAuthContext integration
+	const credentialPersistence = useCredentialPersistence({
+		credentials: flowState.credentials,
+		onCredentialsChange: flowState.updateCredentials,
+	});
 
 	// Local state
 	const [isLoading, setIsLoading] = useState(true);

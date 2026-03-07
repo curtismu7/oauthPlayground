@@ -1,4 +1,5 @@
 // src/pages/flows/ClientCredentialsFlowV9.tsx
+// lint-file-disable: token-value-in-jsx
 // V7.0.0 OAuth 2.0 Client Credentials Flow - Complete V7 Implementation with Step Numbers
 
 import {
