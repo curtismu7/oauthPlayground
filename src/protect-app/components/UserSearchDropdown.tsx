@@ -15,7 +15,7 @@ import { FiChevronDown, FiUser } from '@icons';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { logger } from '../../utils/logger';
-import { useTheme } from '../contexts/ThemeContext';
+import { BrandTheme, useTheme } from '../contexts/ThemeContext';
 import { userService } from '../services/UserService';
 
 // ============================================================================
@@ -27,7 +27,7 @@ const DropdownContainer = styled.div`
 	width: 100%;
 `;
 
-const DropdownTrigger = styled.button<{ theme: any }>`
+const DropdownTrigger = styled.button<{ theme: BrandTheme }>`
 	width: 100%;
 	padding: 0.75rem 1rem;
 	background: ${({ theme }) => theme.colors.surface};
@@ -58,7 +58,7 @@ const DropdownTrigger = styled.button<{ theme: any }>`
 	}
 `;
 
-const DropdownMenu = styled.div<{ theme: any }>`
+const DropdownMenu = styled.div<{ theme: BrandTheme }>`
 	position: absolute;
 	top: 100%;
 	left: 0;
@@ -73,12 +73,12 @@ const DropdownMenu = styled.div<{ theme: any }>`
 	margin-top: 0.25rem;
 `;
 
-const SearchContainer = styled.div<{ theme: any }>`
+const SearchContainer = styled.div<{ theme: BrandTheme }>`
 	padding: 0.75rem;
 	border-bottom: 1px solid ${({ theme }) => theme.colors.border};
 `;
 
-const SearchInput = styled.input<{ theme: any }>`
+const SearchInput = styled.input<{ theme: BrandTheme }>`
 	width: 100%;
 	padding: 0.5rem;
 	background: ${({ theme }) => theme.colors.background};
@@ -98,7 +98,7 @@ const UserList = styled.div`
 	overflow-y: auto;
 `;
 
-const UserItem = styled.button<{ theme: any }>`
+const UserItem = styled.button<{ theme: BrandTheme }>`
 	width: 100%;
 	padding: 0.75rem 1rem;
 	background: transparent;
@@ -120,7 +120,7 @@ const UserItem = styled.button<{ theme: any }>`
 	}
 `;
 
-const UserAvatar = styled.div<{ theme: any }>`
+const UserAvatar = styled.div<{ theme: BrandTheme }>`
 	width: 32px;
 	height: 32px;
 	border-radius: 50%;
@@ -139,7 +139,7 @@ const UserInfo = styled.div`
 	min-width: 0;
 `;
 
-const UserName = styled.div<{ theme: any }>`
+const UserName = styled.div<{ theme: BrandTheme }>`
 	font-weight: 600;
 	color: ${({ theme }) => theme.colors.text};
 	white-space: nowrap;
@@ -147,7 +147,7 @@ const UserName = styled.div<{ theme: any }>`
 	text-overflow: ellipsis;
 `;
 
-const UserEmail = styled.div<{ theme: any }>`
+const UserEmail = styled.div<{ theme: BrandTheme }>`
 	font-size: 0.75rem;
 	color: ${({ theme }) => theme.colors.textSecondary};
 	white-space: nowrap;
@@ -155,7 +155,7 @@ const UserEmail = styled.div<{ theme: any }>`
 	text-overflow: ellipsis;
 `;
 
-const LoadMoreButton = styled.button<{ theme: any }>`
+const LoadMoreButton = styled.button<{ theme: BrandTheme }>`
 	width: 100%;
 	padding: 0.75rem;
 	background: transparent;
@@ -176,13 +176,13 @@ const LoadMoreButton = styled.button<{ theme: any }>`
 	}
 `;
 
-const EmptyState = styled.div<{ theme: any }>`
+const EmptyState = styled.div<{ theme: BrandTheme }>`
 	padding: 1.5rem;
 	text-align: center;
 	color: ${({ theme }) => theme.colors.textSecondary};
 `;
 
-const LoadingState = styled.div<{ theme: any }>`
+const LoadingState = styled.div<{ theme: BrandTheme }>`
 	padding: 1.5rem;
 	text-align: center;
 	color: ${({ theme }) => theme.colors.textSecondary};
