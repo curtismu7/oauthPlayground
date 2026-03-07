@@ -226,7 +226,9 @@ export const UnifiedFlowSuccessStepV8U: React.FC<UnifiedFlowSuccessStepV8UProps>
 						hasAccessToken: !!(tokens as Record<string, unknown>).access_token,
 						hasRefreshToken: !!(tokens as Record<string, unknown>).refresh_token,
 						hasIdToken: !!(tokens as Record<string, unknown>).id_token,
-						tokenTypes: Object.keys(tokens).filter((key) => (tokens as Record<string, unknown>)[key]),
+						tokenTypes: Object.keys(tokens).filter(
+							(key) => (tokens as Record<string, unknown>)[key]
+						),
 					}
 				: null,
 		};

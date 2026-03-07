@@ -1,9 +1,9 @@
 // src/hooks/useClientCredentialsFlow.ts
 // Client Credentials Flow state management and logic (OAuth 2.0 & OIDC-compatible)
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { logger } from '../utils/logger';
 import { safeJsonParse } from '../utils/secureJson';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 export type ClientAuthMethod =
 	| 'client_secret_post'
@@ -242,7 +242,12 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 			const errorMsg = 'Configuration is required';
 			logger.error('useClientCredentialsFlow', `${errorMsg}`);
 			setError(errorMsg);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMsg, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: errorMsg,
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -251,7 +256,12 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 			const errorMsg = 'Client ID is required';
 			logger.error('useClientCredentialsFlow', `${errorMsg}`);
 			setError(errorMsg);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMsg, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: errorMsg,
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -259,7 +269,12 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 			const errorMsg = 'Client secret or private key is required for authentication';
 			logger.error('useClientCredentialsFlow', `${errorMsg}`);
 			setError(errorMsg);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMsg, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: errorMsg,
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -365,7 +380,12 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 				logger.error('useClientCredentialsFlow', `Token request failed`, errorMsg);
 				logger.error('useClientCredentialsFlow', `Response`, responseData);
 				setError(errorMsg);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Token request failed: ${errorMsg}`, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: `Token request failed: ${errorMsg}`,
+					dismissible: true,
+				});
 				return;
 			}
 
@@ -431,7 +451,11 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 			console.log(`${LOG_PREFIX} [INFO] Expires in: ${tokenData.expires_in || 'N/A'} seconds`);
 			console.log(`${LOG_PREFIX} [INFO] Scope: ${tokenData.scope || 'N/A'}`);
 
-			modernMessaging.showFooterMessage({ type: 'status', message: 'Access token received successfully!', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'Access token received successfully!',
+				duration: 4000,
+			});
 		} catch (error) {
 			if (error instanceof Error) {
 				if (error.name === 'AbortError') {
@@ -440,11 +464,21 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 				}
 				logger.error('useClientCredentialsFlow', `Token request failed`, error.message);
 				setError(error.message);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Token request failed: ${error.message}`, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: `Token request failed: ${error.message}`,
+					dismissible: true,
+				});
 			} else {
 				logger.error('useClientCredentialsFlow', `Unknown error`, undefined, error as Error);
 				setError('Unknown error occurred');
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'An unknown error occurred', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'An unknown error occurred',
+					dismissible: true,
+				});
 			}
 		} finally {
 			setIsRequesting(false);
@@ -454,12 +488,21 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 	// Introspect token (for opaque tokens or validation)
 	const introspectToken = useCallback(async () => {
 		if (!tokens || !config) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'No token available to introspect', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'No token available to introspect',
+				dismissible: true,
+			});
 			return;
 		}
 
 		console.log(`${LOG_PREFIX} [INFO] Token introspection not yet implemented`);
-		modernMessaging.showFooterMessage({ type: 'status', message: 'Navigate to Token Management page for introspection', duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'status',
+			message: 'Navigate to Token Management page for introspection',
+			duration: 4000,
+		});
 	}, [tokens, config]);
 
 	// Reset flow

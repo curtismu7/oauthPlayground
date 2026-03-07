@@ -390,7 +390,12 @@ const CIBAFlowV9: React.FC = () => {
 						discoveryRetryTimeoutRef.current = null;
 					}, 60000);
 				} else {
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to load discovery metadata. Will retry.', dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: 'Failed to load discovery metadata. Will retry.',
+						dismissible: true,
+					});
 				}
 			}
 		},
@@ -468,7 +473,12 @@ const CIBAFlowV9: React.FC = () => {
 			console.log(`${MODULE_TAG} Generated login hint token successfully`);
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to generate login hint token: ${errorMessage}`, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: `Failed to generate login hint token: ${errorMessage}`,
+				dismissible: true,
+			});
 		}
 	};
 
@@ -478,14 +488,24 @@ const CIBAFlowV9: React.FC = () => {
 			// Validate credentials
 			const validation = CibaServiceV8Enhanced.validateCredentials(credentials);
 			if (!validation.valid) {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Invalid credentials: ${validation.errors.join(', ')}`, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: `Invalid credentials: ${validation.errors.join(', ')}`,
+					dismissible: true,
+				});
 				return;
 			}
 
 			await cibaFlow.initiateAuthentication(credentials);
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Authentication failed';
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to initiate authentication: ${errorMessage}`, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: `Failed to initiate authentication: ${errorMessage}`,
+				dismissible: true,
+			});
 		}
 	};
 
@@ -500,11 +520,20 @@ const CIBAFlowV9: React.FC = () => {
 			);
 
 			if (result.status === 'approved' && result.tokens) {
-				modernMessaging.showFooterMessage({ type: 'status', message: 'CIBA authentication completed successfully!', duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: 'CIBA authentication completed successfully!',
+					duration: 4000,
+				});
 			}
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Polling failed';
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to poll for tokens: ${errorMessage}`, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: `Failed to poll for tokens: ${errorMessage}`,
+				dismissible: true,
+			});
 		}
 	};
 
@@ -513,10 +542,19 @@ const CIBAFlowV9: React.FC = () => {
 		try {
 			await navigator.clipboard.writeText(token);
 			setCopiedToken(true);
-			modernMessaging.showFooterMessage({ type: 'status', message: 'Token copied to clipboard', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'Token copied to clipboard',
+				duration: 4000,
+			});
 			setTimeout(() => setCopiedToken(false), 2000);
 		} catch {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to copy token', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to copy token',
+				dismissible: true,
+			});
 		}
 	};
 
@@ -542,9 +580,18 @@ const CIBAFlowV9: React.FC = () => {
 	const handleGetWorkerToken = async () => {
 		try {
 			await getWorkerToken();
-			modernMessaging.showFooterMessage({ type: 'status', message: 'Worker token retrieved successfully', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'Worker token retrieved successfully',
+				duration: 4000,
+			});
 		} catch (error) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to retrieve worker token', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to retrieve worker token',
+				dismissible: true,
+			});
 		}
 	};
 

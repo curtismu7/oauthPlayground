@@ -578,7 +578,11 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 				setIsLoading(false);
 				setIsAuthenticating(false);
 				setShowLoginForm(false);
-				modernMessaging.showFooterMessage({ type: 'status', message: '✅ Tokens obtained from PingOne redirectless flow! No redirects used.', duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: '✅ Tokens obtained from PingOne redirectless flow! No redirects used.',
+					duration: 4000,
+				});
 
 				// Store tokens in local state for display
 				controller.setTokens({
@@ -622,7 +626,11 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 				controller.setTokens(tokenPayload);
 
 				// Show success message explaining what happened
-				modernMessaging.showFooterMessage({ type: 'status', message: `🎉 Redirectless authentication successful! Tokens returned directly - no browser redirects!`, duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: `🎉 Redirectless authentication successful! Tokens returned directly - no browser redirects!`,
+					duration: 4000,
+				});
 			} catch (error: unknown) {
 				// Check for MUST_CHANGE_PASSWORD requirement
 				if (
@@ -656,7 +664,12 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 
 				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 				_setError(errorMessage);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `❌ Token exchange failed: ${errorMessage}`, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: `❌ Token exchange failed: ${errorMessage}`,
+					dismissible: true,
+				});
 				setIsAuthenticating(false);
 				setIsLoading(false);
 			}
@@ -828,7 +841,12 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 		} catch (error: unknown) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 			_setError(errorMessage);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `❌ Authentication failed: ${errorMessage}`, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: `❌ Authentication failed: ${errorMessage}`,
+				dismissible: true,
+			});
 			setIsAuthenticating(false);
 		}
 	}, [controller, loginCredentials, handleResumeFlow]);
@@ -957,7 +975,12 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 		} catch (error: unknown) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 			_setError(errorMessage);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `❌ Failed to start redirectless flow: ${errorMessage}`, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: `❌ Failed to start redirectless flow: ${errorMessage}`,
+				dismissible: true,
+			});
 			setIsLoading(false);
 		}
 	}, [controller, handleResumeFlow]);
@@ -1942,9 +1965,17 @@ const RedirectlessFlowV9_Real: React.FC = () => {
 							expiresIn: passwordChangeRequired.tokens.expires_in as number,
 							scope: passwordChangeRequired.tokens.scope as string,
 						});
-						modernMessaging.showFooterMessage({ type: 'status', message: '✅ Password changed successfully! Tokens received.', duration: 4000 });
+						modernMessaging.showFooterMessage({
+							type: 'status',
+							message: '✅ Password changed successfully! Tokens received.',
+							duration: 4000,
+						});
 					} else {
-						modernMessaging.showFooterMessage({ type: 'status', message: '✅ Password changed successfully! Please sign in again.', duration: 4000 });
+						modernMessaging.showFooterMessage({
+							type: 'status',
+							message: '✅ Password changed successfully! Please sign in again.',
+							duration: 4000,
+						});
 					}
 
 					// Close modal

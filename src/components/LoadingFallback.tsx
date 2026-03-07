@@ -54,29 +54,29 @@ const LoadingSubtext = styled.div`
 `;
 
 interface LoadingFallbackProps {
-  message?: string;
-  subtext?: string;
-  size?: 'small' | 'medium' | 'large';
+	message?: string;
+	subtext?: string;
+	size?: 'small' | 'medium' | 'large';
 }
 
 export const LoadingFallback: React.FC<LoadingFallbackProps> = ({
-  message = 'Loading...',
-  subtext = 'Please wait while we prepare this component',
-  size = 'medium',
+	message = 'Loading...',
+	subtext = 'Please wait while we prepare this component',
+	size = 'medium',
 }) => {
-  const spinnerSize = {
-    small: '24px',
-    medium: '40px',
-    large: '56px',
-  }[size];
+	const spinnerSize = {
+		small: '24px',
+		medium: '40px',
+		large: '56px',
+	}[size];
 
-  return (
-    <LoadingContainer>
-      <Spinner style={{ width: spinnerSize, height: spinnerSize }} />
-      <LoadingText>{message}</LoadingText>
-      {subtext && <LoadingSubtext>{subtext}</LoadingSubtext>}
-    </LoadingContainer>
-  );
+	return (
+		<LoadingContainer>
+			<Spinner style={{ width: spinnerSize, height: spinnerSize }} />
+			<LoadingText>{message}</LoadingText>
+			{subtext && <LoadingSubtext>{subtext}</LoadingSubtext>}
+		</LoadingContainer>
+	);
 };
 
 export default LoadingFallback;

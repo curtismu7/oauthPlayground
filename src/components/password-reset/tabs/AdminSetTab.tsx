@@ -2,6 +2,7 @@
 // Admin Set Password Tab Component
 
 import React from 'react';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import {
 	FiAlertCircle,
 	FiBook,
@@ -12,7 +13,6 @@ import {
 import { readPasswordState, setPasswordAdmin } from '../../../services/passwordResetService';
 import { lookupPingOneUser } from '../../../services/pingOneUserProfileService';
 import { UserComparisonDisplay, type UserState } from '../../../services/userComparisonService';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { HighlightedSection } from '../shared/HighlightedSection';
 import { PasswordInput } from '../shared/PasswordInput';
 import { PasswordOptions } from '../shared/PasswordOptions';
@@ -55,10 +55,20 @@ export const AdminSetTab: React.FC<AdminSetTabProps> = ({
 		(info: PasswordResetErrorInfo) => {
 			onError?.(info);
 			if (info.severity === 'warning') {
-				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: info.message, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'warning',
+					title: 'Warning',
+					message: info.message,
+					dismissible: true,
+				});
 				return;
 			}
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: info.message, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: info.message,
+				dismissible: true,
+			});
 		},
 		[onError]
 	);

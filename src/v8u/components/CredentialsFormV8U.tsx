@@ -36,7 +36,6 @@ import { type DisplayMode, DisplayModeDropdownV8 } from '@/v8/components/Display
 import { IssuerURLInputV8 } from '@/v8/components/IssuerURLInputV8';
 import { LoginHintInputV8 } from '@/v8/components/LoginHintInputV8';
 import { MaxAgeInputV8 } from '@/v8/components/MaxAgeInputV8';
-import { logger } from '../../utils/logger';
 import {
 	OidcDiscoveryModalV8,
 	type OidcDiscoveryResult,
@@ -74,6 +73,7 @@ import { TooltipContentServiceV8 } from '@/v8/services/tooltipContentServiceV8';
 import { UnifiedFlowOptionsServiceV8 } from '@/v8/services/unifiedFlowOptionsServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { analytics } from '@/v8/utils/analyticsV8';
+import { logger } from '../../utils/logger';
 import { AppDiscoveryModalV8U } from './AppDiscoveryModalV8U';
 
 type ClientType = 'public' | 'confidential';
@@ -4563,7 +4563,10 @@ Why it matters: Backend services communicate server-to-server without user conte
 																SharedCredentialsServiceV8.saveSharedCredentialsSync(sharedCreds);
 																SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds).catch(
 																	(err) => {
-																		logger.warn('CredentialsFormV8U', `Background disk save failed (non-critical):`);
+																		logger.warn(
+																			'CredentialsFormV8U',
+																			`Background disk save failed (non-critical):`
+																		);
 																	}
 																);
 															}
@@ -4577,7 +4580,11 @@ Why it matters: Backend services communicate server-to-server without user conte
 																}
 															);
 														} catch (error) {
-															logger.error('CredentialsFormV8U', `Error saving credentials for refresh token toggle`, { flowKey, error });
+															logger.error(
+																'CredentialsFormV8U',
+																`Error saving credentials for refresh token toggle`,
+																{ flowKey, error }
+															);
 														}
 
 														// SINGLE ONCHANGE: Notify parent once with all changes

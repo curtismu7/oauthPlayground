@@ -2,12 +2,12 @@
 
 import { FiAlertCircle, FiCheckCircle, FiClock, FiGlobe, FiKey, FiUser, FiXCircle } from '@icons';
 import React, { useState } from 'react';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import { logger } from '../utils/logger';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 interface TokenPayload {
 	client_id?: string;
@@ -342,17 +342,35 @@ const _WorkerTokenTester: React.FC = () => {
 					const isTokenExpired = now > decoded.exp;
 
 					if (isTokenExpired) {
-						modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: '\u26a0\ufe0f Token decoded but it is EXPIRED', dismissible: true });
+						modernMessaging.showBanner({
+							type: 'warning',
+							title: 'Warning',
+							message: '\u26a0\ufe0f Token decoded but it is EXPIRED',
+							dismissible: true,
+						});
 					} else {
-						modernMessaging.showFooterMessage({ type: 'info', message: '\u2713 Token decoded successfully', duration: 4000 });
+						modernMessaging.showFooterMessage({
+							type: 'info',
+							message: '\u2713 Token decoded successfully',
+							duration: 4000,
+						});
 					}
 				} else {
-					modernMessaging.showFooterMessage({ type: 'info', message: '\u2713 Token decoded successfully', duration: 4000 });
+					modernMessaging.showFooterMessage({
+						type: 'info',
+						message: '\u2713 Token decoded successfully',
+						duration: 4000,
+					});
 				}
 			} else {
 				setPayload(null);
 				setError('Invalid JWT token format');
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: '\u274c Invalid JWT token format', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: '\u274c Invalid JWT token format',
+					dismissible: true,
+				});
 			}
 		} else {
 			setPayload(null);
@@ -362,12 +380,22 @@ const _WorkerTokenTester: React.FC = () => {
 	const testToken = async () => {
 		if (!payload?.env) {
 			setError('Token must contain an environment ID (env claim)');
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Invalid token: Missing environment ID', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Invalid token: Missing environment ID',
+				dismissible: true,
+			});
 			return;
 		}
 
 		if (isExpired) {
-			modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Token is expired - validation will likely fail', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'warning',
+				title: 'Warning',
+				message: 'Token is expired - validation will likely fail',
+				dismissible: true,
+			});
 		}
 
 		setIsTesting(true);
@@ -424,7 +452,11 @@ const _WorkerTokenTester: React.FC = () => {
 					data: envData,
 				});
 
-				modernMessaging.showFooterMessage({ type: 'status', message: `\u2705 Token is valid! Environment: ${envData.name}`, duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: `\u2705 Token is valid! Environment: ${envData.name}`,
+					duration: 4000,
+				});
 			} else {
 				results.push({
 					test: 'Get Environment',
@@ -435,11 +467,26 @@ const _WorkerTokenTester: React.FC = () => {
 				});
 
 				if (envResponse.status === 401) {
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: '\u274c Token is invalid or expired', dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: '\u274c Token is invalid or expired',
+						dismissible: true,
+					});
 				} else if (envResponse.status === 403) {
-					modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: '\u26a0\ufe0f Token lacks environment read permissions', dismissible: true });
+					modernMessaging.showBanner({
+						type: 'warning',
+						title: 'Warning',
+						message: '\u26a0\ufe0f Token lacks environment read permissions',
+						dismissible: true,
+					});
 				} else {
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: `\u274c Validation failed: ${envData.message || 'Unknown error'}`, dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: `\u274c Validation failed: ${envData.message || 'Unknown error'}`,
+						dismissible: true,
+					});
 				}
 			}
 
@@ -573,7 +620,12 @@ const _WorkerTokenTester: React.FC = () => {
 				details: errorMessage,
 			});
 
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `\u274c Network error: ${errorMessage}`, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: `\u274c Network error: ${errorMessage}`,
+				dismissible: true,
+			});
 		}
 
 		setTestResults(results);

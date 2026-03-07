@@ -28,7 +28,9 @@ const AIAgentOverview = lazy(() => import('./pages/AIAgentOverview'));
 const AIGlossary = lazy(() => import('./pages/AIGlossary'));
 const ComprehensiveOAuthEducation = lazy(() => import('./pages/ComprehensiveOAuthEducation'));
 const CompetitiveAnalysis = lazy(() => import('./pages/CompetitiveAnalysis'));
-const AdvancedSecuritySettingsComparison = lazy(() => import('./pages/AdvancedSecuritySettingsComparison'));
+const AdvancedSecuritySettingsComparison = lazy(
+	() => import('./pages/AdvancedSecuritySettingsComparison')
+);
 const AdvancedSecuritySettingsDemo = lazy(() => import('./pages/AdvancedSecuritySettingsDemo'));
 
 // Lazy load heavy flow pages
@@ -38,7 +40,9 @@ const DPoPFlow = lazy(() => import('./pages/flows/DPoPFlow'));
 const IDTokensFlow = lazy(() => import('./pages/flows/IDTokensFlow'));
 const JWTBearerFlow = lazy(() => import('./pages/flows/JWTBearerFlow'));
 const KrogerGroceryStoreMFA = lazy(() => import('./pages/flows/KrogerGroceryStoreMFA'));
-const OIDCCompliantAuthorizationCodeFlow = lazy(() => import('./pages/flows/OIDCCompliantAuthorizationCodeFlow'));
+const OIDCCompliantAuthorizationCodeFlow = lazy(
+	() => import('./pages/flows/OIDCCompliantAuthorizationCodeFlow')
+);
 const PARFlow = lazy(() => import('./pages/flows/PARFlow'));
 const PingOneLogoutFlow = lazy(() => import('./pages/flows/PingOneLogoutFlow'));
 
@@ -638,9 +642,32 @@ const AppRoutes: React.FC = () => {
 								<Route path="/" element={<Navigate to="/dashboard" replace />} />
 								<Route path="/dashboard" element={<Dashboard />} />
 								<Route path="/flows" element={<OAuthFlowsNew />}>
-									<Route path="compare" element={<Suspense fallback={<LoadingFallback message="Loading Flow Comparison..." />}><FlowComparisonTool /></Suspense>} />
-									<Route path="diagrams" element={<Suspense fallback={<LoadingFallback message="Loading Interactive Diagram..." />}><InteractiveFlowDiagram /></Suspense>} />
-									<Route path="mfa" element={<Suspense fallback={<LoadingFallback message="Loading MFA Flow..." />}><MFAFlow /></Suspense>} />
+									<Route
+										path="compare"
+										element={
+											<Suspense fallback={<LoadingFallback message="Loading Flow Comparison..." />}>
+												<FlowComparisonTool />
+											</Suspense>
+										}
+									/>
+									<Route
+										path="diagrams"
+										element={
+											<Suspense
+												fallback={<LoadingFallback message="Loading Interactive Diagram..." />}
+											>
+												<InteractiveFlowDiagram />
+											</Suspense>
+										}
+									/>
+									<Route
+										path="mfa"
+										element={
+											<Suspense fallback={<LoadingFallback message="Loading MFA Flow..." />}>
+												<MFAFlow />
+											</Suspense>
+										}
+									/>
 								</Route>
 								{/* Tools & Utilities Routes */}
 								<Route path="/sdk-sample-app" element={<SDKSampleApp />} />
@@ -1299,7 +1326,14 @@ const AppRoutes: React.FC = () => {
 								{/* V9 ROPC Flow */}
 								<Route path="/flows/oauth-ropc-v9" element={<OAuthROPCFlowV9 />} />
 								{/* Test MFA Flow */}
-								<Route path="/mfa-test" element={<Suspense fallback={<LoadingFallback message="Loading MFA Test..." />}><MFAFlow /></Suspense>} />
+								<Route
+									path="/mfa-test"
+									element={
+										<Suspense fallback={<LoadingFallback message="Loading MFA Test..." />}>
+											<MFAFlow />
+										</Suspense>
+									}
+								/>
 								{/* Legacy /oidc routes - Keep utility pages and unsupported flows */}
 								<Route path="/oidc" element={<OIDC />}>
 									<Route path="userinfo" element={<UserInfoFlow />} />
@@ -1375,12 +1409,39 @@ const AppRoutes: React.FC = () => {
 								/>
 								<Route path="/device-mock-flow" element={<DeviceMockFlow />} />
 								<Route path="/documentation/oidc-overview" element={<OIDCOverview />} />
-								<Route path="/ai-glossary" element={<Suspense fallback={<LoadingFallback message="Loading AI Glossary..." />}><AIGlossary /></Suspense>} />
-								<Route path="/ai-agent-overview" element={<Suspense fallback={<LoadingFallback message="Loading AI Agent Overview..." />}><AIAgentOverview /></Suspense>} />
-								<Route path="/competitive-analysis" element={<Suspense fallback={<LoadingFallback message="Loading Competitive Analysis..." />}><CompetitiveAnalysis /></Suspense>} />
+								<Route
+									path="/ai-glossary"
+									element={
+										<Suspense fallback={<LoadingFallback message="Loading AI Glossary..." />}>
+											<AIGlossary />
+										</Suspense>
+									}
+								/>
+								<Route
+									path="/ai-agent-overview"
+									element={
+										<Suspense fallback={<LoadingFallback message="Loading AI Agent Overview..." />}>
+											<AIAgentOverview />
+										</Suspense>
+									}
+								/>
+								<Route
+									path="/competitive-analysis"
+									element={
+										<Suspense
+											fallback={<LoadingFallback message="Loading Competitive Analysis..." />}
+										>
+											<CompetitiveAnalysis />
+										</Suspense>
+									}
+								/>
 								<Route
 									path="/comprehensive-oauth-education"
-									element={<Suspense fallback={<LoadingFallback message="Loading OAuth Education..." />}><ComprehensiveOAuthEducation /></Suspense>}
+									element={
+										<Suspense fallback={<LoadingFallback message="Loading OAuth Education..." />}>
+											<ComprehensiveOAuthEducation />
+										</Suspense>
+									}
 								/>
 								{/* Protect Portal Application */}
 								<Route path="/protect-portal" element={<ProtectPortalWrapper />} />

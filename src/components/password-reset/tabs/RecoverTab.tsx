@@ -2,6 +2,7 @@
 // Recover Password Tab Component
 
 import React from 'react';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import {
 	FiAlertCircle,
 	FiBook,
@@ -16,7 +17,6 @@ import {
 } from '../../../services/passwordResetService';
 import { lookupPingOneUser } from '../../../services/pingOneUserProfileService';
 import { UserComparisonDisplay, type UserState } from '../../../services/userComparisonService';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { CodeGenerator } from '../shared/CodeGenerator';
 import { HighlightedSection } from '../shared/HighlightedSection';
 import { PasswordInput } from '../shared/PasswordInput';
@@ -66,10 +66,20 @@ export const RecoverTab: React.FC<RecoverTabProps> = ({
 		(info: PasswordResetErrorInfo) => {
 			onError?.(info);
 			if (info.severity === 'warning') {
-				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: info.message, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'warning',
+					title: 'Warning',
+					message: info.message,
+					dismissible: true,
+				});
 				return;
 			}
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: info.message, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: info.message,
+				dismissible: true,
+			});
 		},
 		[onError]
 	);
@@ -126,7 +136,11 @@ export const RecoverTab: React.FC<RecoverTabProps> = ({
 
 			if (sendResult.success) {
 				setCodeSent(true);
-				modernMessaging.showFooterMessage({ type: 'status', message: `Recovery code sent to ${trimmedEmail}`, duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: `Recovery code sent to ${trimmedEmail}`,
+					duration: 4000,
+				});
 			} else {
 				raiseError({
 					title: 'Unable to Send Recovery Code',
@@ -191,7 +205,11 @@ export const RecoverTab: React.FC<RecoverTabProps> = ({
 				setAfterState(afterUserState);
 
 				setSuccess(true);
-				modernMessaging.showFooterMessage({ type: 'status', message: 'Password recovered successfully! You can now sign in with your new password.', duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: 'Password recovered successfully! You can now sign in with your new password.',
+					duration: 4000,
+				});
 				setRecoveryCode('');
 				setNewPassword('');
 				setEmail('');

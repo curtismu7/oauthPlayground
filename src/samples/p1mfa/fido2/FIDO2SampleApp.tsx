@@ -7,11 +7,11 @@
 
 import React, { useState } from 'react';
 import { type Device, type P1MFAConfig, P1MFASDK } from '@/sdk/p1mfa';
+import { logger } from '../../../utils/logger';
 import { CredentialsForm } from '../shared/CredentialsForm';
 import { DeviceList } from '../shared/DeviceList';
 import { AuthenticationFlow } from './AuthenticationFlow';
 import { RegistrationFlow } from './RegistrationFlow';
-import { logger } from '../../../utils/logger';
 
 type Tab = 'credentials' | 'registration' | 'authentication' | 'devices';
 

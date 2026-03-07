@@ -20,6 +20,7 @@ import {
 } from '@icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { useUISettings } from '../contexts/UISettingsContext';
 import { showGlobalSuccess } from '../hooks/useNotifications';
 import {
@@ -29,7 +30,6 @@ import {
 import { isJWT } from '../utils/jwtDecoder';
 import { logger } from '../utils/logger';
 import { v4ToastManager } from '../utils/v4ToastMessages';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import ConfirmationModal from './ConfirmationModal';
 
 // Styled Components
@@ -408,7 +408,11 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 
 		// Test toast on mount
-		modernMessaging.showFooterMessage({ type: 'status', message: 'Security Features Demo loaded successfully!', duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'status',
+			message: 'Security Features Demo loaded successfully!',
+			duration: 4000,
+		});
 	}, []);
 
 	// CORS Testing State
@@ -440,7 +444,11 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 		const results =
 			'Request Parameter Signature Demo:\n\n1. Generate HMAC-SHA256 signature of request parameters\n2. Include signature in Authorization header\n3. Server validates signature before processing request\n\nThis prevents parameter tampering and ensures request authenticity.';
 		setSignatureResults(results);
-		modernMessaging.showFooterMessage({ type: 'status', message: 'Signature demo loaded - see results below', duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'status',
+			message: 'Signature demo loaded - see results below',
+			duration: 4000,
+		});
 	}, []);
 
 	const validateSignature = useCallback(() => {
@@ -451,7 +459,11 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 			const results =
 				'✅ Current request signature is valid!\n\nSignature: a1b2c3d4e5f6...\nAlgorithm: HMAC-SHA256\nStatus: Verified';
 			setSignatureValidationResults(results);
-			modernMessaging.showFooterMessage({ type: 'status', message: 'Signature validation complete - see results below', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'Signature validation complete - see results below',
+				duration: 4000,
+			});
 		}, 1000);
 	}, []);
 
@@ -473,7 +485,11 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 
 				// Also show a more prominent info message
 				setTimeout(() => {
-					modernMessaging.showFooterMessage({ type: 'status', message: `🔐 Real x5t Parameter: ${x5t}\n\nThis is extracted from your actual JWT token!`, duration: 4000 });
+					modernMessaging.showFooterMessage({
+						type: 'status',
+						message: `🔐 Real x5t Parameter: ${x5t}\n\nThis is extracted from your actual JWT token!`,
+						duration: 4000,
+					});
 				}, 2000);
 			} else {
 				// Show demo x5t value for educational purposes
@@ -490,12 +506,23 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 				modernMessaging.showFooterMessage({ type: 'status', message: message, duration: 4000 });
 			}
 		} else {
-			modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: '⚠️ No access token available.\n\nPlease complete the OAuth flow first to see real x5t values.', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'warning',
+				title: 'Warning',
+				message:
+					'⚠️ No access token available.\n\nPlease complete the OAuth flow first to see real x5t values.',
+				dismissible: true,
+			});
 		}
 	}, [tokens, getX5tParameter, x5tValue]);
 
 	const verifyCertificate = useCallback(() => {
-		modernMessaging.showFooterMessage({ type: 'status', message: '🔐 Certificate Verification:\n\n✅ Certificate is valid\n✅ Not expired\n✅ Issued by trusted CA\n✅ Key usage matches requirements\n\nCertificate thumbprint matches x5t in JWT header.', duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'status',
+			message:
+				'🔐 Certificate Verification:\n\n✅ Certificate is valid\n✅ Not expired\n✅ Issued by trusted CA\n✅ Key usage matches requirements\n\nCertificate thumbprint matches x5t in JWT header.',
+			duration: 4000,
+		});
 	}, []);
 
 	const validateAllTokens = useCallback(() => {
@@ -503,9 +530,18 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 			const results =
 				'🔍 Token Validation Results:\n\n✅ Access Token: Valid (expires in 1h 23m)\n✅ Refresh Token: Valid (expires in 30d)\n✅ ID Token: Valid (expires in 1h 23m)\n\nAll tokens have valid signatures and are not expired.';
 			setValidationResults(results);
-			modernMessaging.showFooterMessage({ type: 'status', message: 'Token validation complete - see results below', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'Token validation complete - see results below',
+				duration: 4000,
+			});
 		} else {
-			modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'No tokens available for validation. Please complete the OAuth flow first.', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'warning',
+				title: 'Warning',
+				message: 'No tokens available for validation. Please complete the OAuth flow first.',
+				dismissible: true,
+			});
 		}
 	}, [tokens]);
 
@@ -514,9 +550,18 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 			const results =
 				'⏰ Token Expiration Status:\n\nAccess Token: 1h 23m remaining\nRefresh Token: 29d 12h remaining\nID Token: 1h 23m remaining\n\nAll tokens are within acceptable expiration windows.';
 			setExpirationResults(results);
-			modernMessaging.showFooterMessage({ type: 'status', message: 'Expiration check complete - see results below', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'Expiration check complete - see results below',
+				duration: 4000,
+			});
 		} else {
-			modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'No tokens available. Please complete the OAuth flow first.', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'warning',
+				title: 'Warning',
+				message: 'No tokens available. Please complete the OAuth flow first.',
+				dismissible: true,
+			});
 		}
 	}, [tokens]);
 
@@ -535,7 +580,12 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 							'SecurityFeaturesDemo',
 							'[SecurityFeaturesDemo] Invalid ID token detected, skipping logout endpoint call'
 						);
-						modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: 'Invalid ID token detected. Session will be cleared locally only.', dismissible: true });
+						modernMessaging.showBanner({
+							type: 'warning',
+							title: 'Warning',
+							message: 'Invalid ID token detected. Session will be cleared locally only.',
+							dismissible: true,
+						});
 
 						// Clear local storage without calling logout endpoint
 						onTerminateSession?.();
@@ -557,7 +607,11 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 
 					onTerminateSession?.();
 					setSessionResults(result.summary);
-					modernMessaging.showFooterMessage({ type: 'status', message: '🚪 Session terminated! View detailed results below.', duration: 4000 });
+					modernMessaging.showFooterMessage({
+						type: 'status',
+						message: '🚪 Session terminated! View detailed results below.',
+						duration: 4000,
+					});
 				} catch (error) {
 					const errorResult = `❌ SESSION TERMINATION ERROR
 Executed: ${new Date().toLocaleString()}
@@ -577,7 +631,12 @@ ${JSON.stringify(
 Session termination may fail in demo mode due to CORS restrictions, missing management API permissions, or insufficient credentials.`;
 
 					setSessionResults(errorResult);
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: '❌ Session termination failed! View error details below.', dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: '❌ Session termination failed! View error details below.',
+						dismissible: true,
+					});
 				}
 			},
 		});
@@ -713,7 +772,11 @@ ${JSON.stringify(revocationResults, null, 2)}
 POST ${credentials?.issuer || 'https://auth.pingone.com'}/as/revoke`;
 
 					setRevokeResults(revokeResult);
-					modernMessaging.showFooterMessage({ type: 'status', message: '❌ Token revocation attempted! View detailed results below.', duration: 4000 });
+					modernMessaging.showFooterMessage({
+						type: 'status',
+						message: '❌ Token revocation attempted! View detailed results below.',
+						duration: 4000,
+					});
 				} catch (error) {
 					const errorResult = `❌ TOKEN REVOCATION ERROR
 Executed: ${new Date().toLocaleString()}
@@ -732,7 +795,12 @@ ${JSON.stringify(
 Token revocation may fail in demo mode due to CORS restrictions or missing real credentials.`;
 
 					setRevokeResults(errorResult);
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: '❌ Token revocation failed! View error details below.', dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: '❌ Token revocation failed! View error details below.',
+						dismissible: true,
+					});
 				}
 			},
 		});
@@ -780,7 +848,11 @@ Token revocation may fail in demo mode due to CORS restrictions or missing real 
 								url: response.url,
 							};
 
-							modernMessaging.showFooterMessage({ type: 'status', message: `🔄 Refresh Token Revocation Response:\n\nStatus: ${response.status} ${response.statusText}\n\nJSON Response:\n${JSON.stringify(responseData, null, 2)}\n\n✅ Refresh token invalidated\n- Access token will expire normally\n- User must re-authenticate for new tokens`, duration: 4000 });
+							modernMessaging.showFooterMessage({
+								type: 'status',
+								message: `🔄 Refresh Token Revocation Response:\n\nStatus: ${response.status} ${response.statusText}\n\nJSON Response:\n${JSON.stringify(responseData, null, 2)}\n\n✅ Refresh token invalidated\n- Access token will expire normally\n- User must re-authenticate for new tokens`,
+								duration: 4000,
+							});
 						} catch (error) {
 							revocationResponse = {
 								error: 'Network error or CORS restriction',
@@ -788,20 +860,36 @@ Token revocation may fail in demo mode due to CORS restrictions or missing real 
 								note: 'Revocation may fail due to CORS policies in demo mode',
 							};
 
-							modernMessaging.showBanner({ type: 'error', title: 'Error', message: `❌ Refresh Token Revocation Failed:\n\n${JSON.stringify(revocationResponse, null, 2)}`, dismissible: true });
+							modernMessaging.showBanner({
+								type: 'error',
+								title: 'Error',
+								message: `❌ Refresh Token Revocation Failed:\n\n${JSON.stringify(revocationResponse, null, 2)}`,
+								dismissible: true,
+							});
 						}
 					} else {
-						modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: '⚠️ Cannot revoke refresh token:\n\n- Missing refresh token, credentials, or endpoint configuration\n- Ensure you have completed an OAuth flow with refresh token scope', dismissible: true });
+						modernMessaging.showBanner({
+							type: 'warning',
+							title: 'Warning',
+							message:
+								'⚠️ Cannot revoke refresh token:\n\n- Missing refresh token, credentials, or endpoint configuration\n- Ensure you have completed an OAuth flow with refresh token scope',
+							dismissible: true,
+						});
 					}
 				} catch (error) {
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: `❌ Refresh Token Revocation Error:\n\n${JSON.stringify(
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: `❌ Refresh Token Revocation Error:\n\n${JSON.stringify(
 							{
 								message: (error as Error).message,
 								type: (error as Error).name,
 							},
 							null,
 							2
-						)}`, dismissible: true });
+						)}`,
+						dismissible: true,
+					});
 				}
 			},
 		});
@@ -858,7 +946,11 @@ Success Rate: 100%
 🎯 SECURITY SCORE: A+ (Excellent)`;
 
 		setSecurityTestResults(testResults);
-		modernMessaging.showFooterMessage({ type: 'status', message: '🧪 Security Test Suite completed! View detailed results below.', duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'status',
+			message: '🧪 Security Test Suite completed! View detailed results below.',
+			duration: 4000,
+		});
 	}, []);
 
 	// CORS Testing Functions
@@ -869,7 +961,11 @@ Success Rate: 100%
 				allowedOrigins: [...prev.allowedOrigins, prev.newOrigin.trim()],
 				newOrigin: '',
 			}));
-			modernMessaging.showFooterMessage({ type: 'status', message: `Added CORS origin: ${corsSettings.newOrigin.trim()}`, duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: `Added CORS origin: ${corsSettings.newOrigin.trim()}`,
+				duration: 4000,
+			});
 		}
 	}, [corsSettings.newOrigin]);
 
@@ -878,7 +974,11 @@ Success Rate: 100%
 			...prev,
 			allowedOrigins: prev.allowedOrigins.filter((o) => o !== origin),
 		}));
-		modernMessaging.showFooterMessage({ type: 'status', message: `Removed CORS origin: ${origin}`, duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'status',
+			message: `Removed CORS origin: ${origin}`,
+			duration: 4000,
+		});
 	}, []);
 
 	const testCorsConfiguration = useCallback(async () => {
@@ -906,12 +1006,26 @@ Success Rate: 100%
 
 			const blockedCount = results.filter((r) => !r.allowed).length;
 			if (blockedCount > 0) {
-				modernMessaging.showBanner({ type: 'warning', title: 'Warning', message: `🌐 CORS Test Complete: ${blockedCount} origins blocked by CORS policy\n\n✅ https://localhost:3000 - Allowed\n❌ https://malicious-site.com - Blocked\n✅ https://app.example.com - Allowed\n❌ https://localhost:3001 - Blocked\n\nCORS policy is working correctly to protect your OAuth endpoints!`, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'warning',
+					title: 'Warning',
+					message: `🌐 CORS Test Complete: ${blockedCount} origins blocked by CORS policy\n\n✅ https://localhost:3000 - Allowed\n❌ https://malicious-site.com - Blocked\n✅ https://app.example.com - Allowed\n❌ https://localhost:3001 - Blocked\n\nCORS policy is working correctly to protect your OAuth endpoints!`,
+					dismissible: true,
+				});
 			} else {
-				modernMessaging.showFooterMessage({ type: 'status', message: '🌐 CORS Test Complete: All test origins are allowed', duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: '🌐 CORS Test Complete: All test origins are allowed',
+					duration: 4000,
+				});
 			}
 		} catch (error) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `CORS test failed: ${(error as Error).message}`, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: `CORS test failed: ${(error as Error).message}`,
+				dismissible: true,
+			});
 		} finally {
 			setIsTestingCors(false);
 		}
@@ -919,7 +1033,13 @@ Success Rate: 100%
 
 	const demonstrateCorsError = useCallback(() => {
 		// Show error toast
-		modernMessaging.showBanner({ type: 'error', title: 'Error', message: "🚫 CORS Error Demonstration\n\nAccess to fetch at 'https://api.pingone.com/oauth/token' from origin 'https://malicious-site.com' has been blocked by CORS policy: The request client is not a secure context and the resource is in a cross-origin context.\n\nThis is exactly what CORS protection prevents!", dismissible: true });
+		modernMessaging.showBanner({
+			type: 'error',
+			title: 'Error',
+			message:
+				"🚫 CORS Error Demonstration\n\nAccess to fetch at 'https://api.pingone.com/oauth/token' from origin 'https://malicious-site.com' has been blocked by CORS policy: The request client is not a secure context and the resource is in a cross-origin context.\n\nThis is exactly what CORS protection prevents!",
+			dismissible: true,
+		});
 
 		// Also update CORS test results to show the blocked attempt
 		const demoResults = [
@@ -1149,7 +1269,11 @@ https://oauth.net/2/security-best-practices/
 https://openid.net/specs/openid-connect-core-1_0.html`;
 
 		setSecurityReportResults(report);
-		modernMessaging.showFooterMessage({ type: 'status', message: '📄 Security Report generated with real data! View results below.', duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'status',
+			message: '📄 Security Report generated with real data! View results below.',
+			duration: 4000,
+		});
 	}, [
 		tokens,
 		realX5t,
@@ -1805,7 +1929,11 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 														calculatedLogoutUrl ||
 														'https://auth.pingone.com/{environmentId}/as/signoff';
 													navigator.clipboard.writeText(logoutUrl);
-													modernMessaging.showFooterMessage({ type: 'status', message: '📋 Logout URL copied to clipboard!', duration: 4000 });
+													modernMessaging.showFooterMessage({
+														type: 'status',
+														message: '📋 Logout URL copied to clipboard!',
+														duration: 4000,
+													});
 												}}
 											>
 												<FiDownload /> Copy URL
@@ -2229,7 +2357,11 @@ token=${tokens?.access_token || '{{accessToken}}'}
 							onClick={() => {
 								setSecurityReportResults(null);
 								setSecurityTestResults(null);
-								modernMessaging.showFooterMessage({ type: 'status', message: 'Security results cleared.', duration: 4000 });
+								modernMessaging.showFooterMessage({
+									type: 'status',
+									message: 'Security results cleared.',
+									duration: 4000,
+								});
 							}}
 						>
 							<FiX /> Clear Results
