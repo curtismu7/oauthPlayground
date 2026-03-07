@@ -305,6 +305,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	onStepChange,
 	onCompletedStepsChange,
 	onFlowReset,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	appConfig: _appConfig, // Unused but kept for API compatibility
 }) => {
 	// Generate flowKey dynamically (matches parent component's logic)
@@ -432,7 +433,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	// @ts-expect-error - Reserved for future use
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const [_passwordChangeState, setPasswordChangeState] = useState<string | null>(null);
-	const [_passwordChangeUsername, setPasswordChangeUsername] = useState<string | null>(null);
+	const [, setPasswordChangeUsername] = useState<string | null>(null);
 	const [showPingOneRequestModal, setShowPingOneRequestModal] = useState(false);
 	const [pendingPingOneRequest, setPendingPingOneRequest] = useState<{
 		url: string;
@@ -638,19 +639,15 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		return initialState;
 	});
 	const [isLoading, setIsLoading] = useState(false);
-	const [_loadingMessage, setLoadingMessage] = useState('');
+	const [, setLoadingMessage] = useState('');
 	const [isPreFlightValidating, setIsPreFlightValidating] = useState(false);
 	const [preFlightStatus, setPreFlightStatus] = useState<string>('');
 
 	// Spinner loading states for core flow operations
 	const [isGeneratingAuthUrl, setIsGeneratingAuthUrl] = useState(false);
 	const [isExchangingTokens, setIsExchangingTokens] = useState(false);
-	const [_isFetchingUserInfo, setIsFetchingUserInfo] = useState(false);
+	const [, setIsFetchingUserInfo] = useState(false);
 	const [isGeneratingPKCE, setIsGeneratingPKCE] = useState(false);
-	const [_isRestartingFlow, _setIsRestartingFlow] = useState(false);
-	const [_isIntrospectingToken, _setIsIntrospectingToken] = useState(false);
-	const [_isRefreshingToken, _setIsRefreshingToken] = useState(false);
-	const [_isPollingDeviceCode, _setIsPollingDeviceCode] = useState(false);
 
 	const [error, setError] = useState<string | null>(null);
 	const [showUserInfoModal, setShowUserInfoModal] = useState(false);
@@ -1118,7 +1115,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 				const userInfo = responseData as Record<string, unknown>;
 				return userInfo;
-			} catch (_err) {
+			} catch {
 				logger.warn('UnifiedFlowSteps', `Failed to fetch UserInfo`);
 				return null;
 			} finally {
@@ -1712,7 +1709,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						lastApiCall: Date.now(),
 					});
 					console.log(`${MODULE_TAG} Enhanced state management updated with new tokens`);
-				} catch (_enhancedErr) {
+				} catch {
 					logger.warn('UnifiedFlowSteps', `Failed to update enhanced state management`);
 				}
 			} catch (err) {
@@ -2063,7 +2060,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							url.searchParams.forEach((value, key) => {
 								allParams[key] = value;
 							});
-						} catch (_err) {
+						} catch {
 							logger.warn('UnifiedFlowSteps', `Failed to parse callback URL for allParams`);
 						}
 					}
@@ -2363,7 +2360,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							// Still show modal if we have ID token with user info
 							setShowUserInfoModal(true);
 						}
-					} catch (_err) {
+					} catch {
 						logger.warn('UnifiedFlowSteps', `Failed to fetch UserInfo`);
 
 						// Still show modal if we have ID token with user info
@@ -3396,7 +3393,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 																				// Also save to disk asynchronously (non-blocking)
 																				SharedCredentialsServiceV8.saveSharedCredentials(
 																					sharedCreds
-																				).catch((_err) => {
+																				).catch(() => {
 																					logger.warn(
 																						'UnifiedFlowSteps',
 																						`Background disk save failed (non-critical):`
@@ -4762,7 +4759,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							`PAR enabled but no request_uri in authorization URL - PAR may not have been pushed during URL generation`
 						);
 					}
-				} catch (_error) {
+				} catch {
 					logger.warn('UnifiedFlowSteps', `Failed to parse authorization URL for PAR request_uri:`);
 				}
 			}
@@ -5133,7 +5130,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						// Try again after silent retrieval attempt
 						await new Promise((resolve) => setTimeout(resolve, 500));
 						workerToken = await workerTokenServiceV8.getToken();
-					} catch (_error) {
+					} catch {
 						logger.warn('UnifiedFlowSteps', `Silent worker token retrieval failed:`);
 						// Continue without worker token - validation will show warnings
 					}
@@ -5283,7 +5280,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									// Use sync version for immediate browser storage
 									SharedCredentialsServiceV8.saveSharedCredentialsSync(sharedCreds);
 									// Also save to disk asynchronously (non-blocking)
-									SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds).catch((_err) => {
+									SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds).catch(() => {
 										logger.warn('UnifiedFlowSteps', `Background disk save failed (non-critical):`);
 									});
 								}
@@ -7633,10 +7630,6 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							This is the POST request that was sent to request device authorization:
 						</p>
 						{(() => {
-							const _backendUrl =
-								process.env.NODE_ENV === 'production'
-									? 'https://oauth-playground.vercel.app'
-									: 'https://localhost:3002';
 							// Use PingOne auth proxy to avoid CORS issues
 							const deviceAuthEndpoint = `${window.location.origin}/pingone-auth/${credentials.environmentId}/as/device_authorization`;
 							const authMethod =
@@ -8013,7 +8006,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								}
 								updates.tokens = tokens;
 							}
-						} catch (_fragmentErr) {
+						} catch {
 							logger.warn('UnifiedFlowSteps', `Failed to parse fragment for hybrid flow`);
 						}
 					}
@@ -9880,8 +9873,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						responseText = await response.text();
 
 						errorData = JSON.parse(responseText);
-						// eslint-disable-next-line @typescript-eslint/no-unused-vars
-					} catch (_parseErr) {
+					} catch {
 						logger.error(
 							'UnifiedFlowSteps',
 							`Failed to parse error response:`,
@@ -10097,7 +10089,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								} else if (tokensWithExtras.id_token) {
 									setShowUserInfoModal(true);
 								}
-							} catch (_err) {
+							} catch {
 								logger.warn('UnifiedFlowSteps', `Failed to fetch UserInfo`);
 								if (tokensWithExtras.id_token) {
 									setShowUserInfoModal(true);
@@ -10497,8 +10489,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 												message: 'User code copied to clipboard',
 												duration: 3000,
 											});
-											// eslint-disable-next-line @typescript-eslint/no-unused-vars
-										} catch (_err) {
+										} catch {
 											modernMessaging.showBanner({
 												type: 'error',
 												title: 'Error',
@@ -10876,7 +10867,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									tokenEndpointAuthMethod: fetchedConfig.tokenEndpointAuthMethod,
 								};
 							}
-						} catch (_error) {
+						} catch {
 							logger.warn(
 								'UnifiedFlowSteps',
 								`Could not fetch app config for fixable error analysis:`
@@ -11902,7 +11893,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							};
 						}
 					}
-				} catch (_configError) {
+				} catch {
 					logger.warn(
 						'UnifiedFlowSteps',
 						`Failed to fetch app config before token exchange (continuing with current auth method):`
@@ -12020,7 +12011,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								setShowUserInfoModal(true);
 							}
 						}
-					} catch (_err) {
+					} catch {
 						logger.warn('UnifiedFlowSteps', `Failed to fetch UserInfo`);
 						modernMessaging.showBanner({
 							type: 'warning',
@@ -12071,7 +12062,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							// Also clear from flowState by creating new state without PKCE properties
 							setFlowState((prev) => {
 								const {
+									// eslint-disable-next-line @typescript-eslint/no-unused-vars
 									codeVerifier: _codeVerifier,
+									// eslint-disable-next-line @typescript-eslint/no-unused-vars
 									codeChallenge: _codeChallenge,
 									...rest
 								} = prev;
