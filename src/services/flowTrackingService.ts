@@ -281,8 +281,8 @@ class FlowTrackingService {
 
 			// Find last error
 			let lastError: FlowErrorContext | null = null;
-			if (currentFlow && (currentFlow as any).lastError) {
-				lastError = (currentFlow as any).lastError;
+			if (currentFlow && (currentFlow as Record<string, unknown>).lastError) {
+				lastError = (currentFlow as Record<string, unknown>).lastError as FlowErrorContext | null;
 			}
 
 			return {
@@ -307,5 +307,5 @@ export const flowTrackingService = new FlowTrackingService();
 
 // Make available globally in development
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-	(window as any).FlowTrackingService = flowTrackingService;
+	(window as Record<string, unknown>).FlowTrackingService = flowTrackingService;
 }
