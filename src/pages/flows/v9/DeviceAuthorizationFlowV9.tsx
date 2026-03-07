@@ -45,6 +45,9 @@ import type { StepCredentials } from '../../../components/steps/CommonSteps';
 import TokenIntrospect from '../../../components/TokenIntrospect';
 import { useUISettings } from '../../../contexts/UISettingsContext';
 import { useCredentialBackup } from '../../../hooks/useCredentialBackup';
+import { useRedirectUriEducation } from '../../../hooks/useRedirectUriEducation';
+import { RedirectUriEducationalModal } from '../../../components/RedirectUriEducationalModal';
+import { RedirectUriEducationButton } from '../../../components/RedirectUriEducationButton';
 import {
 	type DeviceAuthCredentials,
 	useDeviceAuthorizationFlow,
@@ -434,283 +437,6 @@ const CountdownTimer = styled.div`
 	margin: 1rem 0;
 `;
 
-const _TVDisplay = styled.div<{ $primaryColor: string }>`
-	font-family: 'Courier New', monospace;
-	font-size: 1.25rem;
-	color: ${({ $primaryColor }) => $primaryColor};
-	line-height: 1.8;
-`;
-
-const AppGrid = styled.div`
-	display: grid;
-	grid-template-columns: repeat(4, 1fr);
-	gap: 0.75rem;
-	width: 100%;
-	padding: 0.5rem;
-`;
-
-const AppIcon = styled.div<{ $color: string }>`
-	aspect-ratio: 1;
-	background: ${({ $color }) => $color};
-	border-radius: 0.5rem;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-size: 0.75rem;
-	font-weight: bold;
-	color: white;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-	cursor: pointer;
-	transition: transform 0.2s ease;
-
-	&:hover {
-		transform: scale(1.05);
-	}
-`;
-
-const WelcomeMessage = styled.div`
-	font-size: 1.5rem;
-	font-weight: 600;
-	color: #ffffff;
-	margin-bottom: 1rem;
-	text-align: center;
-`;
-
-const _ConsoleLayout = styled.div`
-	width: 100%;
-	background: radial-gradient(circle at top, rgba(59, 130, 246, 0.4), transparent 55%),
-		linear-gradient(135deg, #0f172a 0%, #1f3460 60%, #111827 100%);
-	border-radius: 1.25rem;
-	padding: 1.75rem;
-	box-shadow: inset 0 0 40px rgba(15, 23, 42, 0.6);
-	color: #e2e8f0;
-	display: flex;
-	flex-direction: column;
-	gap: 1.25rem;
-`;
-
-const _ConsoleTopBar = styled.div`
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	font-size: 0.95rem;
-	letter-spacing: 0.12em;
-	text-transform: uppercase;
-	color: #93c5fd;
-`;
-
-const _StatusDot = styled.span<{ $active?: boolean }>`
-	width: 8px;
-	height: 8px;
-	border-radius: 999px;
-	margin-left: 0.5rem;
-	background: ${({ $active }) => ($active ? '#34d399' : '#f87171')};
-	box-shadow: 0 0 10px ${({ $active }) => ($active ? '#34d399' : '#f87171')};
-`;
-
-const _ConsoleTileGrid = styled.div`
-	display: grid;
-	grid-template-columns: repeat(4, minmax(0, 1fr));
-	gap: 1rem;
-`;
-
-const _ConsoleTile = styled.div<{ $featured?: boolean }>`
-	background: ${({ $featured }) =>
-		$featured
-			? 'linear-gradient(135deg, rgba(147, 197, 253, 0.15), rgba(59, 130, 246, 0.35))'
-			: 'linear-gradient(135deg, rgba(30, 58, 138, 0.6), rgba(17, 24, 39, 0.8))'};
-	border-radius: 1rem;
-	padding: ${({ $featured }) => ($featured ? '1.5rem' : '1rem')};
-	min-height: ${({ $featured }) => ($featured ? '200px' : '110px')};
-	display: flex;
-	flex-direction: column;
-	justify-content: ${({ $featured }) => ($featured ? 'flex-end' : 'space-between')};
-	box-shadow: 0 18px 30px rgba(15, 23, 42, 0.4);
-	border: 1px solid rgba(148, 163, 184, 0.25);
-	position: relative;
-	overflow: hidden;
-`;
-
-const _ConsoleTileTitle = styled.h4`
-	margin: 0;
-	font-size: 1.1rem;
-	font-weight: 700;
-	color: #f8fafc;
-`;
-
-const _ConsoleTileMeta = styled.span`
-	font-size: 0.75rem;
-	color: rgba(148, 163, 184, 0.8);
-`;
-
-const _ConsoleTileBadge = styled.span`
-	position: absolute;
-	top: 1rem;
-	left: 1rem;
-	padding: 0.35rem 0.75rem;
-	font-size: 0.7rem;
-	letter-spacing: 0.08em;
-	text-transform: uppercase;
-	border-radius: 999px;
-	background: rgba(96, 165, 250, 0.35);
-	border: 1px solid rgba(191, 219, 254, 0.3);
-	color: #bfdbfe;
-`;
-
-const _ConsoleHero = styled.div`
-	background: linear-gradient(135deg, rgba(96, 165, 250, 0.2), rgba(30, 64, 175, 0.4));
-	border-radius: 1.25rem;
-	padding: 2rem;
-	display: flex;
-	flex-direction: column;
-	gap: 0.75rem;
-	box-shadow: inset 0 0 30px rgba(15, 23, 42, 0.6);
-`;
-
-const _ConsoleHeroTitle = styled.h3`
-	margin: 0;
-	font-size: 1.5rem;
-	font-weight: 700;
-	color: #f8fafc;
-`;
-
-const _ConsoleHeroSubtitle = styled.p`
-	margin: 0;
-	font-size: 0.95rem;
-	color: rgba(191, 219, 254, 0.85);
-`;
-
-const _ConsoleHintRow = styled.div`
-	display: flex;
-	flex-direction: column;
-	gap: 0.5rem;
-	font-size: 0.8rem;
-	color: rgba(148, 163, 184, 0.85);
-`;
-
-const _KioskScreen = styled.div`
-	width: 100%;
-	background: linear-gradient(180deg, #ffffff 0%, #e2e8f0 100%);
-	border-radius: 1.25rem;
-	padding: 2rem;
-	box-shadow: 0 30px 40px rgba(15, 23, 42, 0.1);
-	color: #1e293b;
-	display: flex;
-	flex-direction: column;
-	gap: 1.5rem;
-`;
-
-const _KioskHeader = styled.div`
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-`;
-
-const _KioskBranding = styled.div`
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
-	font-weight: 700;
-	font-size: 1.1rem;
-`;
-
-const _KioskLogo = styled.span`
-	font-size: 1.75rem;
-	line-height: 1;
-`;
-
-const _KioskFlightIndicator = styled.div`
-	font-size: 0.85rem;
-	letter-spacing: 0.12em;
-	text-transform: uppercase;
-	color: #1d4ed8;
-	background: rgba(59, 130, 246, 0.1);
-	border: 1px solid rgba(59, 130, 246, 0.2);
-	padding: 0.4rem 0.8rem;
-	border-radius: 999px;
-`;
-
-const _KioskBody = styled.div`
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-	gap: 1.5rem;
-	align-items: stretch;
-`;
-
-const _KioskForm = styled.div`
-	background: #f8fafc;
-	border-radius: 1rem;
-	padding: 1.5rem;
-	border: 1px solid #e2e8f0;
-	display: flex;
-	flex-direction: column;
-	gap: 0.75rem;
-`;
-
-const _KioskRow = styled.div`
-	display: flex;
-	justify-content: space-between;
-	font-size: 0.9rem;
-	color: #334155;
-`;
-
-const _KioskLabel = styled.span`
-	font-weight: 600;
-`;
-
-const _KioskValue = styled.span`
-	font-weight: 500;
-	color: #0f172a;
-`;
-
-const _KioskBoardingPass = styled.div`
-	background: radial-gradient(circle at top, rgba(30, 64, 175, 0.85), rgba(30, 58, 138, 0.95));
-	border-radius: 1rem;
-	padding: 1.75rem;
-	color: #e2e8f0;
-	display: flex;
-	flex-direction: column;
-	gap: 1rem;
-	position: relative;
-	box-shadow: 0 25px 35px rgba(15, 23, 42, 0.3);
-`;
-
-const _KioskBoardingTitle = styled.span`
-	font-size: 0.75rem;
-	letter-spacing: 0.12em;
-	text-transform: uppercase;
-	color: rgba(191, 219, 254, 0.75);
-`;
-
-const _KioskBoardingValue = styled.span`
-	font-size: 1.4rem;
-	font-weight: 700;
-	color: #ffffff;
-`;
-
-const _KioskDivider = styled.div`
-	height: 1px;
-	background: rgba(148, 163, 184, 0.3);
-	margin: 0.25rem 0 0.5rem;
-`;
-
-const _KioskCodeBox = styled.div`
-	margin-top: auto;
-	background: rgba(15, 23, 42, 0.4);
-	border-radius: 0.75rem;
-	padding: 0.9rem 1.1rem;
-	font-size: 1rem;
-	letter-spacing: 0.25em;
-	font-weight: 700;
-	text-align: center;
-`;
-
-const _KioskActionRow = styled.div`
-	display: flex;
-	justify-content: space-between;
-	font-size: 0.8rem;
-	color: #475569;
-`;
 
 const ModalOverlay = styled.div<{ $isOpen: boolean }>`
 	display: ${({ $isOpen }) => ($isOpen ? 'flex' : 'none')};
@@ -836,6 +562,11 @@ const VariantDescription = styled.div`
 
 const DeviceAuthorizationFlowV9: React.FC = () => {
 	const location = useLocation();
+
+	// Redirect URI educational integration
+	const redirectUriEducation = useRedirectUriEducation({
+		flowKey: 'DeviceAuthorizationFlowV9',
+	});
 
 	// Detect default variant based on navigation context
 	const getDefaultVariant = (): 'oauth' | 'oidc' => {
@@ -1272,7 +1003,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 				} else {
 					logger.info('DeviceAuthorizationFlowV9', 'No saved credentials found, using defaults');
 				}
-			} catch (_error) {
+			} catch {
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
@@ -1349,7 +1080,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 				} else {
 					logger.info('DeviceAuthorizationFlowV9', 'Credentials saved successfully');
 				}
-			} catch (_error) {
+			} catch {
 				modernMessaging.showBanner({
 					type: 'error',
 					title: 'Error',
@@ -1444,7 +1175,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 		try {
 			await deviceFlow.requestDeviceCode();
 			setCurrentStep(2); // Auto-advance to User Authorization step
-		} catch (_error) {
+		} catch {
 			// Error already handled in hook
 		}
 	}, [deviceFlow]);
@@ -1558,7 +1289,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 				'DeviceAuthorizationFlowV9',
 				'Reset: cleared ConfigChecker and pre-flight cache data'
 			);
-		} catch (_error) {
+		} catch {
 			// Background cache clear — non-critical
 		}
 
@@ -1566,7 +1297,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 		try {
 			FlowCredentialService.clearFlowState('device-authorization-v9');
 			logger.info('DeviceAuthorizationFlowV9', 'Cleared flow-specific storage');
-		} catch (_error) {
+		} catch {
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -1579,7 +1310,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 		try {
 			clearBackup();
 			logger.info('DeviceAuthorizationFlowV9', 'Cleared credential backup');
-		} catch (_error) {
+		} catch {
 			// Background credential backup clear — non-critical
 		}
 	}, [deviceFlow, clearBackup]);
@@ -2980,7 +2711,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 								throw new Error('FlowCredentialService reported failure');
 							}
 						}
-					} catch (_error) {
+					} catch {
 						modernMessaging.showBanner({
 							type: 'error',
 							title: 'Error',
@@ -3350,181 +3081,6 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 		</>
 	);
 
-	const _renderGenericSuccessContent = () => (
-		<>
-			<div
-				style={{
-					background: brandGradient,
-					padding: '0.75rem 1.5rem',
-					borderRadius: '0.5rem',
-					marginBottom: '1.5rem',
-					fontSize: '1.5rem',
-					fontWeight: 'bold',
-					color: 'white',
-					textAlign: 'center',
-					fontFamily: 'Arial, sans-serif',
-					letterSpacing: '0.1rem',
-				}}
-			>
-				{deviceConfig.brandName.toUpperCase()}
-			</div>
-			<div
-				style={{
-					fontSize: '2rem',
-					marginBottom: '1rem',
-					animation: 'fadeIn 0.5s ease',
-				}}
-			>
-				✅
-			</div>
-			<WelcomeMessage
-				style={{ fontSize: '1.5rem', marginBottom: '0.5rem', color: deviceConfig.color }}
-			>
-				{welcomeMessage}
-			</WelcomeMessage>
-			<div style={{ fontSize: '1rem', color: '#94a3b8', marginBottom: '1.5rem' }}>
-				Welcome Back, Demo User 👋
-			</div>
-			<AppGrid>
-				{deviceApps.map((app) => (
-					<AppIcon key={app.label} $color={app.color}>
-						<div style={{ fontSize: '1.5rem' }}>{app.icon}</div>
-						<div style={{ fontSize: '0.65rem', marginTop: '0.25rem' }}>{app.label}</div>
-					</AppIcon>
-				))}
-			</AppGrid>
-			<div
-				style={{
-					fontSize: '0.75rem',
-					color: deviceConfig.color,
-					marginTop: '1rem',
-					padding: '0.5rem',
-					backgroundColor: `${deviceConfig.color}1a`,
-					borderRadius: '0.5rem',
-					border: `1px solid ${deviceConfig.color}4d`,
-				}}
-			>
-				✅ Login Successful • Ready to go
-			</div>
-		</>
-	);
-
-	const _renderGenericPollingContent = () => (
-		<>
-			<div
-				style={{
-					background: brandGradient,
-					padding: '0.5rem 1rem',
-					borderRadius: '0.5rem',
-					marginBottom: '1.5rem',
-					fontSize: '1.25rem',
-					fontWeight: 'bold',
-					color: 'white',
-					fontFamily: 'Arial, sans-serif',
-					letterSpacing: '0.1rem',
-				}}
-			>
-				{deviceConfig.brandName.toUpperCase()}
-			</div>
-			<div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⏳</div>
-			<div style={{ fontSize: '1.25rem', fontWeight: '600' }}>{waitingMessage}</div>
-			<div style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>
-				AUTHORIZATION...
-			</div>
-			<div
-				style={{
-					fontSize: '0.875rem',
-					marginTop: '1rem',
-					color: '#94a3b8',
-				}}
-			>
-				Complete sign-in on your phone
-			</div>
-		</>
-	);
-
-	const _renderGenericPreAuthContent = () => (
-		<>
-			<div
-				style={{
-					background: brandGradient,
-					padding: '0.5rem 1rem',
-					borderRadius: '0.5rem',
-					marginBottom: '1rem',
-					fontSize: '1.25rem',
-					fontWeight: 'bold',
-					color: 'white',
-					fontFamily: 'Arial, sans-serif',
-					letterSpacing: '0.1rem',
-				}}
-			>
-				{deviceConfig.brandName.toUpperCase()}
-			</div>
-			<div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>{deviceConfig.icon}</div>
-			<div
-				style={{
-					fontSize: '1.25rem',
-					marginBottom: '0.5rem',
-					fontWeight: '600',
-				}}
-			>
-				Activate Your Device
-			</div>
-			<div
-				style={{
-					fontSize: '0.875rem',
-					color: '#94a3b8',
-					marginBottom: '1.5rem',
-				}}
-			>
-				Sign in to start streaming
-			</div>
-			<div
-				style={{
-					fontSize: '0.75rem',
-					color: '#64748b',
-					marginBottom: '1rem',
-				}}
-			>
-				Scan QR code or enter this code on your phone:
-			</div>
-			{deviceFlow.deviceCodeData?.verification_uri_complete && (
-				<div
-					style={{
-						display: 'flex',
-						justifyContent: 'center',
-						alignItems: 'center',
-						marginBottom: '1rem',
-						padding: '1rem',
-						backgroundColor: 'white',
-						borderRadius: '0.5rem',
-						border: `2px solid ${deviceConfig.color}`,
-					}}
-				>
-					<QRCodeSVG
-						value={deviceFlow.deviceCodeData.verification_uri_complete}
-						size={200}
-						level="M"
-						includeMargin={true}
-					/>
-				</div>
-			)}
-			<div
-				style={{
-					fontSize: '2.5rem',
-					fontWeight: 'bold',
-					letterSpacing: '0.5rem',
-					color: deviceConfig.color,
-					padding: '0.5rem 1rem',
-					backgroundColor: `${deviceConfig.color}1a`,
-					borderRadius: '0.5rem',
-					border: `1px solid ${deviceConfig.color}4d`,
-				}}
-			>
-				{deviceFlow.deviceCodeData?.user_code}
-			</div>
-		</>
-	);
 
 	const renderUserAuthorization = () => (
 		<>
@@ -3662,7 +3218,7 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 			setIntrospectionApiCall(result.apiCall);
 
 			return result.response;
-		} catch (_error) {
+		} catch {
 			// Construct region-aware introspection endpoint for error
 			const regionDomains: Record<string, string> = {
 				us: 'auth.pingone.com',
@@ -3901,6 +3457,17 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 		<FlowContainer>
 			<FlowContent>
 				<StandardFlowHeader flowId="device-authorization-v9" />
+				
+				{/* Educational URI Guide Button */}
+				<div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+					<RedirectUriEducationButton 
+						flowKey="DeviceAuthorizationFlowV9"
+						variant="outline"
+						size="sm"
+					>
+						📚 URI Guide
+					</RedirectUriEducationButton>
+				</div>
 
 				<EnhancedFlowInfoCard
 					flowType={selectedVariant === 'oidc' ? 'oidc-device-code' : 'device-code'}
@@ -4040,6 +3607,12 @@ const DeviceAuthorizationFlowV9: React.FC = () => {
 				</ModalContent>
 			</ModalOverlay>
 		</FlowContainer>
+		{/* Redirect URI Educational Modal */}
+		<RedirectUriEducationalModal
+			flowKey="DeviceAuthorizationFlowV9"
+			isOpen={redirectUriEducation.showEducationalModal}
+			onClose={redirectUriEducation.closeEducationalModal}
+		/>
 	);
 };
 
