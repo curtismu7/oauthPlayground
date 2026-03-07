@@ -70,7 +70,7 @@ python3 scripts/lint_per_group.py [options]
 
 | Flag | Description |
 |------|-------------|
-| `--list` | Print all 18 group IDs and labels with completion status |
+| `--list` | Print all 17 group IDs and labels with completion status |
 | `--group <id>` | Scan a single group (writes `lint-reports/groups/<num>-<id>.json`) |
 | `--all` | Scan every group in sidebar order |
 | `--fix` | Apply Biome `--write` auto-fixes **before** scanning |
@@ -281,9 +281,9 @@ Open the file and line number from the issue record, then make the code change.
 python3 scripts/lint_per_group.py --fix --group oauth-flows
 ```
 
-The script will automatically move resolved issues to `"status": "fixed"` on the next scan if the issue is no longer reported by the tool.
+If the underlying code problem is gone the tool will no longer report it, and the issue will be absent from the new report. **Statuses you set manually (`in_progress`, `fixed`, `waived`) are preserved across re-scans** — the script merges old statuses by issue ID. However, if the issue was re-detected (same rule + file + line) it will remain open in the new report, meaning your fix did not fully resolve it.
 
-> **Note:** The script preserves `in_progress`, `fixed`, `waived`, and `auto_fixed` statuses across re-scans. A fresh re-scan will not reset your manually-set statuses.
+> **Note:** The script does **not** automatically promote issues to `fixed` — you must either mark them fixed manually with `--update-issue` or confirm the issue no longer appears in the re-scan output.
 
 **Step 6 — Commit**
 
