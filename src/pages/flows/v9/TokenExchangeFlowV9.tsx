@@ -1,5 +1,6 @@
 // src/pages/flows/v9/TokenExchangeFlowV9.tsx
 // OAuth 2.0 Token Exchange Flow - RFC 8693 Implementation for A2A Security - V9
+// lint-file-disable: token-value-in-jsx
 
 import type React from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';

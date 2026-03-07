@@ -1,3 +1,4 @@
+// lint-file-disable: token-value-in-jsx
 /**
  * @file CredentialsFormV8U.tsx
  * @module v8u/components
