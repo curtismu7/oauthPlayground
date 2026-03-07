@@ -26,7 +26,9 @@ export function decodeJWT(token: string): DecodedJWT | null {
 		const [headerPart, payloadPart, signaturePart] = parts;
 
 		// Decode header and payload (base64url decode)
+		// educational-ok: JWT decode for educational display in UI
 		const header = JSON.parse(atob(headerPart.replace(/-/g, '+').replace(/_/g, '/')));
+		// educational-ok: JWT decode for educational display in UI
 		const payload = JSON.parse(atob(payloadPart.replace(/-/g, '+').replace(/_/g, '/')));
 
 		return {
