@@ -85,14 +85,14 @@ export const StepActionButtonsV8U: React.FC<StepActionButtonsProps> = ({
 	};
 
 	return (
-		<div
+		<fieldset
 			className={`step-action-buttons-v8 ${className}`}
 			onKeyDown={handleKeyDown}
-			role="group"
 			aria-label="Step navigation buttons"
 		>
 			{/* Previous Button */}
 			<button
+				type="button"
 				className={`btn btn-previous ${!canGoPrevious ? 'disabled' : ''}`}
 				onClick={handlePreviousClick}
 				disabled={!canGoPrevious}
@@ -106,6 +106,7 @@ export const StepActionButtonsV8U: React.FC<StepActionButtonsProps> = ({
 			{/* Next/Final Button */}
 			{isLastStep ? (
 				<button
+					type="button"
 					className="btn btn-final"
 					onClick={handleFinalClick}
 					aria-label={finalLabel}
@@ -116,6 +117,7 @@ export const StepActionButtonsV8U: React.FC<StepActionButtonsProps> = ({
 			) : (
 				<div className="next-button-wrapper">
 					<button
+						type="button"
 						className={`btn btn-next ${isNextDisabled ? 'disabled' : ''}`}
 						onClick={handleNextClick}
 						disabled={isNextDisabled}
@@ -389,7 +391,7 @@ slideUp;
 	: 200px
 }
 `}</style>
-		</div>
+		</fieldset>
 	);
 };
 
