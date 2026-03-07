@@ -24,6 +24,17 @@ import type { V9DiscoveredApp } from '../../services/v9/V9AppDiscoveryService';
 import { V9CredentialStorageService } from '../../services/v9/V9CredentialStorageService';
 import { logger } from '../../utils/logger';
 
+/**
+ * Utility function to mask tokens for security
+ * Shows first 8 characters, masks middle, shows last 4 characters
+ */
+const maskToken = (token: string): string => {
+	if (!token || token.length <= 12) {
+		return '••••••••';
+	}
+	return `${token.slice(0, 8)}...${token.slice(-4)}`;
+};
+
 const Container = styled.div`
   max-width: 1200px;
   margin: 0 auto;
@@ -780,7 +791,7 @@ const JWTBearerFlow: React.FC = () => {
 															Copy
 														</ActionButton>
 													</div>
-													<TokenDisplay>{jwtToken}</TokenDisplay>
+													<TokenDisplay>{maskToken(jwtToken)}</TokenDisplay>
 												</TokenSurface>
 											)}
 										</div>
@@ -837,7 +848,7 @@ const JWTBearerFlow: React.FC = () => {
 															Copy
 														</ActionButton>
 													</div>
-													<TokenDisplay>{accessToken}</TokenDisplay>
+													<TokenDisplay>{maskToken(accessToken)}</TokenDisplay>
 												</TokenSurface>
 											)}
 										</div>

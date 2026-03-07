@@ -871,7 +871,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		checkAndSetWarning();
 		const id = setInterval(checkAndSetWarning, 60_000);
 		return () => clearInterval(id);
-	}, []); // eslint-disable-line react-hooks/exhaustive-deps
+	}, []); // intentional: runs only on mount, interval handles refresh
 
 	// Listen for worker token updates
 	useEffect(() => {

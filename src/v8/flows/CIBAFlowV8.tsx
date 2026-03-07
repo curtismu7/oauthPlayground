@@ -794,7 +794,7 @@ const CIBAFlowV8: React.FC = () => {
 							<TokenDisplay>
 								<strong>Refresh Token:</strong>
 								<div style={{ marginTop: '0.5rem', wordBreak: 'break-all' }}>
-									{cibaFlow.state.tokens.refresh_token}
+									{maskToken(cibaFlow.state.tokens.refresh_token)}
 									<CopyButton
 										onClick={() => copyToClipboard(cibaFlow.state.tokens!.refresh_token!)}
 									>

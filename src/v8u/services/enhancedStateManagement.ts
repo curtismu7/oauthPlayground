@@ -534,6 +534,7 @@ export const stateUtils = {
 	exportAllState(): EnhancedStateSnapshot {
 		const stored = typeof window !== 'undefined' ? window.localStorage.getItem(STORAGE_KEY) : null;
 		if (stored) {
+			// educational-ok: parsing our own localStorage JSON written by importAllState
 			return JSON.parse(stored) as EnhancedStateSnapshot;
 		}
 		return defaultSnapshot;
@@ -553,6 +554,7 @@ export const stateUtils = {
 	getStateStats() {
 		const stored = typeof window !== 'undefined' ? window.localStorage.getItem(STORAGE_KEY) : null;
 		if (stored) {
+			// educational-ok: parsing our own localStorage JSON written by importAllState
 			const state = JSON.parse(stored) as EnhancedStateSnapshot;
 			return {
 				...state,
