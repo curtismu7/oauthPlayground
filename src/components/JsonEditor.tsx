@@ -4,8 +4,8 @@ import styled from 'styled-components';
 import { logger } from '../utils/logger';
 
 interface JsonEditorProps {
-	value: any;
-	onChange?: (value: any) => void;
+	value: unknown;
+	onChange?: (value: unknown) => void;
 	readOnly?: boolean;
 	height?: string;
 	scopeColors?: Record<string, string>;
@@ -151,9 +151,9 @@ const JsonEditor: React.FC<JsonEditorProps> = ({
 
 			// Find all scope values in the JSON
 			const scopeRegex = /"([^"]*scope[^"]*)"\s*:\s*"([^"]+)"/g;
-			let match;
+			let match = scopeRegex.exec(text);
 
-			while ((match = scopeRegex.exec(text)) !== null) {
+			while (match !== null) {
 				// Add text before the match
 				if (match.index > lastIndex) {
 					parts.push(text.slice(lastIndex, match.index));
@@ -181,6 +181,7 @@ const JsonEditor: React.FC<JsonEditorProps> = ({
 				parts.push('"');
 
 				lastIndex = match.index + match[0].length;
+				match = scopeRegex.exec(text);
 			}
 
 			// Add remaining text
@@ -201,6 +202,7 @@ const JsonEditor: React.FC<JsonEditorProps> = ({
 					<EditorTitle>Edit JSON Configuration</EditorTitle>
 					<div style={{ display: 'flex', gap: '0.5rem' }}>
 						<button
+							type="button"
 							onClick={handleSave}
 							style={{
 								padding: '0.5rem 0.75rem',
@@ -215,6 +217,7 @@ const JsonEditor: React.FC<JsonEditorProps> = ({
 							Save
 						</button>
 						<button
+							type="button"
 							onClick={handleCancel}
 							style={{
 								padding: '0.5rem 0.75rem',
@@ -259,6 +262,7 @@ const JsonEditor: React.FC<JsonEditorProps> = ({
 				<div style={{ display: 'flex', gap: '0.5rem' }}>
 					{!readOnly && (
 						<button
+							type="button"
 							onClick={handleEdit}
 							style={{
 								padding: '0.5rem 0.75rem',
