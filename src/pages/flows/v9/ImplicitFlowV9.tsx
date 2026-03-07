@@ -361,7 +361,7 @@ const ImplicitFlowV9: React.FC = () => {
 		};
 
 		loadCredentials();
-	}, [selectedVariant]); // Only run on mount and when variant changes
+	}, [selectedVariant, controller.credentials, controller.setCredentials]); // Only run on mount and when variant changes
 
 	// Update controller when variant changes and reload credentials
 	useEffect(() => {
@@ -373,7 +373,7 @@ const ImplicitFlowV9: React.FC = () => {
 		controller.setCredentials(reloadedCredentials);
 		setCredentials(reloadedCredentials);
 		logger.info('ImplicitFlowV9', 'Variant changed, reloaded credentials', { reloadedCredentials });
-	}, [selectedVariant]); // Only run when variant changes
+	}, [selectedVariant, controller.setCredentials, controller.setFlowVariant]); // Only run when variant changes
 
 	// Sync credentials with variant
 	useEffect(() => {

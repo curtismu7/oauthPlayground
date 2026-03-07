@@ -25,7 +25,7 @@ const V9ComprehensiveCredentialsService: React.FC<V9ComprehensiveCredentialsProp
 				duration: 4000,
 			});
 			props.onDiscoveryComplete?.(result);
-		} catch (error) {
+		} catch (_error) {
 			modernMessaging.showCriticalError({
 				title: 'Discovery Callback Failed',
 				message: 'Discovery completed but callback failed',
@@ -38,7 +38,7 @@ const V9ComprehensiveCredentialsService: React.FC<V9ComprehensiveCredentialsProp
 	const handleCredentialsChange = (credentials: unknown) => {
 		try {
 			props.onCredentialsChange?.(credentials);
-		} catch (error) {
+		} catch (_error) {
 			modernMessaging.showCriticalError({
 				title: 'Credentials Update Failed',
 				message: 'Failed to update credentials',
@@ -56,7 +56,7 @@ const V9ComprehensiveCredentialsService: React.FC<V9ComprehensiveCredentialsProp
 				duration: 3000,
 			});
 			props.onSaveCredentials?.();
-		} catch (error) {
+		} catch (_error) {
 			modernMessaging.showCriticalError({
 				title: 'Credentials Save Failed',
 				message: 'Failed to save credentials',

@@ -66,7 +66,6 @@ import {
 import { UnifiedTokenDisplayService } from '../../../services/unifiedTokenDisplayService';
 import { V9CredentialStorageService } from '../../../services/v9/V9CredentialStorageService';
 import { storeFlowNavigationState } from '../../../utils/flowNavigation';
-import { decodeJWTHeader } from '../../../utils/jwks';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 import {
@@ -795,7 +794,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 
 	// Advanced OAuth parameters
 	const [audience, setAudience] = useState<string>('');
-	const [resources, setResources] = useState<string[]>([]);
+	const [_resources, setResources] = useState<string[]>([]);
 	const [promptValues, setPromptValues] = useState<string[]>([]);
 
 	// V7.2 addition: optional redirectless (pi.flow) execution inline
@@ -904,7 +903,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 				clientAuthMethod: flowData.flowCredentials.tokenEndpointAuthMethod as string,
 			});
 		}
-	}, [flowVariant]); // Run when variant changes
+	}, [flowVariant, controller.credentials, controller.setCredentials]); // Run when variant changes
 
 	// Load PingOne app config on mount
 	useEffect(() => {
@@ -936,7 +935,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 				logger.warn('OAuthAuthorizationCodeFlowV9', 'Failed to parse stored PingOne config', error);
 			}
 		}
-	}, []); // Only run once on mount
+	}, [controller.credentials, controller.setCredentials]); // Only run once on mount
 
 	// Debug: Always log the current authorization code state
 	logger.info('OAuthAuthorizationCodeFlowV9', 'Current controller.authCode', {
@@ -1320,13 +1319,13 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 			);
 
 			// Also save to comprehensiveFlowDataService with tokenEndpointAuthMethod
-			const tokenEndpointAuthMethod =
+			const _tokenEndpointAuthMethod =
 				typeof controller.credentials.clientAuthMethod === 'string'
 					? controller.credentials.clientAuthMethod
 					: (controller.credentials.clientAuthMethod as { value?: string })?.value ||
 						'client_secret_post';
 
-			const flowKey = `oauth-authorization-code-v9-2-${flowVariant}`;
+			const _flowKey = `oauth-authorization-code-v9-2-${flowVariant}`;
 
 			modernMessaging.showFooterMessage({
 				type: 'info',
