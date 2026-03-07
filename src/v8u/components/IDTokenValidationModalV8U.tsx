@@ -84,7 +84,15 @@ export const IDTokenValidationModalV8U: React.FC<IDTokenValidationModalV8UProps>
 	if (!isOpen) return null;
 
 	return (
-		<div
+		<button
+			type="button"
+			aria-label="Close ID token validation modal"
+			onClick={onClose}
+			onKeyDown={(e) => {
+				if (e.key === 'Escape') {
+					onClose();
+				}
+			}}
 			style={{
 				position: 'fixed',
 				top: 0,
@@ -97,10 +105,14 @@ export const IDTokenValidationModalV8U: React.FC<IDTokenValidationModalV8UProps>
 				justifyContent: 'center',
 				zIndex: 9999,
 				padding: '20px',
+				border: 'none',
+				margin: 0,
+				cursor: 'pointer',
 			}}
-			onClick={onClose}
 		>
 			<div
+				role="dialog"
+				aria-modal="true"
 				style={{
 					background: '#ffffff',
 					borderRadius: '12px',
@@ -111,6 +123,11 @@ export const IDTokenValidationModalV8U: React.FC<IDTokenValidationModalV8UProps>
 					boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
 				}}
 				onClick={(e) => e.stopPropagation()}
+				onKeyDown={(e) => {
+					if (e.key === 'Escape') {
+						onClose();
+					}
+				}}
 			>
 				{/* Header */}
 				<div
@@ -133,6 +150,7 @@ export const IDTokenValidationModalV8U: React.FC<IDTokenValidationModalV8UProps>
 						</p>
 					</div>
 					<button
+						type="button"
 						onClick={onClose}
 						style={{
 							background: 'rgba(255, 255, 255, 0.2)',
@@ -442,6 +460,7 @@ export const IDTokenValidationModalV8U: React.FC<IDTokenValidationModalV8UProps>
 						}}
 					>
 						<button
+							type="button"
 							onClick={handleValidate}
 							disabled={isValidating}
 							style={{
@@ -459,6 +478,7 @@ export const IDTokenValidationModalV8U: React.FC<IDTokenValidationModalV8UProps>
 							{isValidating ? 'Validating...' : 'Validate Again'}
 						</button>
 						<button
+							type="button"
 							onClick={onClose}
 							style={{
 								padding: '10px 20px',
@@ -483,6 +503,6 @@ export const IDTokenValidationModalV8U: React.FC<IDTokenValidationModalV8UProps>
 					100% { transform: rotate(360deg); }
 				}
 			`}</style>
-		</div>
+		</button>
 	);
 };
