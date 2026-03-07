@@ -438,6 +438,7 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 	onToggleCollapsed,
 }) => {
 	const [activeTab, setActiveTab] = useState<'userinfo' | 'id_token'>('userinfo');
+	const ID_TOKEN_TAB = 'id_token' as const;
 	const [showPreview, setShowPreview] = useState(false);
 	const [draggedClaim, setDraggedClaim] = useState<string | null>(null);
 
@@ -662,7 +663,7 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 					<Tab $active={activeTab === 'userinfo'} onClick={() => setActiveTab('userinfo')}>
 						UserInfo Endpoint Claims
 					</Tab>
-					<Tab $active={activeTab === 'id_token'} onClick={() => setActiveTab('id_token')}>
+					<Tab $active={activeTab === ID_TOKEN_TAB} onClick={() => setActiveTab(ID_TOKEN_TAB)}>
 						ID Token Claims
 					</Tab>
 				</TabContainer>
