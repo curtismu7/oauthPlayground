@@ -32,7 +32,7 @@ interface UseTokenRevocationFlowControllerReturn {
 	clearResults: () => void;
 }
 
-const LOG_PREFIX = '[🔄 TOKEN-REVOCATION]';
+const _LOG_PREFIX = '[🔄 TOKEN-REVOCATION]';
 
 export const useTokenRevocationFlowController = (): UseTokenRevocationFlowControllerReturn => {
 	const [credentials, setCredentials] = useState<TokenRevocationConfig>({

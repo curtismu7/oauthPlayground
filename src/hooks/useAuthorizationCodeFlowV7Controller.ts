@@ -896,7 +896,7 @@ export const useAuthorizationCodeFlowController = (
 				url = parService.generateAuthorizationURL(parResult.data.requestUri, {
 					client_id: credentials.clientId,
 				});
-			} catch (importError) {
+			} catch (_importError) {
 				showGlobalError('PAR service unavailable', {
 					description: 'Failed to initialize PAR service. Please try again.',
 					meta: { source: 'parService.dynamic import' },

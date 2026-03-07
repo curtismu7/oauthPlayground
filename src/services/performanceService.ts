@@ -91,7 +91,7 @@ class PerformanceService {
 			});
 			observer.observe({ type, buffered: true });
 			this.observers.push(observer);
-		} catch (error) {
+		} catch (_error) {
 			logger.warn('PerformanceService', `Performance observer for ${type} not supported:`);
 		}
 	}
