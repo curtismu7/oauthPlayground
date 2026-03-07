@@ -885,7 +885,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 				});
 			}
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
+		// eslint-disable-next-line -- react-hooks/exhaustive-deps (stable refs, intentional)
 	}, [
 		flowType,
 		actualPostLogoutRedirectUri,
@@ -968,7 +968,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 				environmentIdSaveTimeoutRef.current = null;
 			}
 		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
+		// eslint-disable-next-line -- react-hooks/exhaustive-deps (stable refs, intentional)
 	}, [
 		actualRedirectUri,
 		redirectUri,
@@ -1592,8 +1592,8 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 						loginHint={resolvedCredentials.loginHint}
 						postLogoutRedirectUri={resolvedCredentials.postLogoutRedirectUri}
 						region={(resolvedCredentials.region as 'us' | 'eu' | 'ap' | 'ca') || 'us'}
-						flowKey={flowType as any}
-						responseType={resolvedCredentials.responseType as any}
+						flowKey={flowType as string}
+						responseType={resolvedCredentials.responseType as string}
 						onEnvironmentIdChange={(value) => applyCredentialUpdates({ environmentId: value })}
 						onClientIdChange={(value) => applyCredentialUpdates({ clientId: value })}
 						onClientSecretChange={(value) => applyCredentialUpdates({ clientSecret: value })}

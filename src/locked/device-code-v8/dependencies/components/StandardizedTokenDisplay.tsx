@@ -110,8 +110,8 @@ const StandardizedTokenDisplay: React.FC<StandardizedTokenDisplayProps> = ({
 							tokenType="access"
 							isOIDC={!!tokens.id_token}
 							flowKey="device-authorization"
-							defaultMasked={false}
-							allowMaskToggle={false}
+							defaultMasked={true}
+							allowMaskToggle={true}
 						/>
 					</div>
 				)}

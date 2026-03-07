@@ -16,6 +16,17 @@ import type {
 
 const MODULE_TAG = '[ WORKER-TOKEN-REPO]';
 
+/**
+ * Utility function to mask tokens for security
+ * Shows first 8 characters, masks middle, shows last 4 characters
+ */
+const maskToken = (token: string): string => {
+	if (!token || token.length <= 12) {
+		return '••••••••';
+	}
+	return `${token.slice(0, 8)}...${token.slice(-4)}`;
+};
+
 // Storage keys
 const CREDENTIALS_KEY = 'unified_worker_token_credentials';
 const TOKEN_KEY = 'unified_worker_token';
@@ -100,7 +111,7 @@ export class WorkerTokenRepository {
 			arg0: {
 				hasToken: !!token,
 				tokenLength: token?.length || 0,
-				tokenPrefix: token ? `${token.substring(0, 50)}...` : 'none',
+				tokenPrefix: token ? maskToken(token) : 'none',
 				isUrlParams: token?.includes('query_parameters=') || token?.includes('response_type='),
 				isValidAccessToken: !!token?.match(/^[A-Za-z0-9\-_]+$/),
 			},
@@ -162,7 +173,7 @@ export class WorkerTokenRepository {
 			arg0: {
 				hasToken: !!data.token,
 				tokenLength: data.token?.length || 0,
-				tokenPrefix: data.token ? `${data.token.substring(0, 50)}...` : 'none',
+				tokenPrefix: data.token ? maskToken(data.token) : 'none',
 				isUrlParams:
 					data.token?.includes('query_parameters=') || data.token?.includes('response_type='),
 				expiresAt: data.expiresAt ? new Date(data.expiresAt).toISOString() : 'none',

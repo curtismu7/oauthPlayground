@@ -269,7 +269,7 @@ export function shouldRefreshToken(
  * Parse JWT token payload (if token is JWT format)
  */
 // biome-ignore lint/suspicious/noExplicitAny: JWT payload structure is dynamic
-export function parseJWTPayload(token: string): any | null {
+export function parseJWTPayload(token: string): Record<string, unknown> | null {
 	try {
 		const parts = token.split('.');
 		if (parts.length !== 3) {
