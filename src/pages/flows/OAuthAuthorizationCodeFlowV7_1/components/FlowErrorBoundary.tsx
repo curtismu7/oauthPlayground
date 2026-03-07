@@ -5,6 +5,7 @@ import { FiAlertTriangle, FiChevronLeft, FiHome, FiRefreshCw } from '@icons';
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import styled from 'styled-components';
 import { UI_CONSTANTS } from '../constants/uiConstants';
+import { logger } from '../../../../utils/logger';
 
 interface Props {
 	children: ReactNode;
@@ -195,7 +196,7 @@ export class FlowErrorBoundary extends Component<Props, State> {
 	}
 
 	componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-		console.error('Flow Error Boundary caught an error:', error, errorInfo);
+		logger.error('Flow Error Boundary caught an error:', error, errorInfo);
 
 		this.setState({
 			error,
@@ -230,7 +231,7 @@ export class FlowErrorBoundary extends Component<Props, State> {
 			url: window.location.href,
 		};
 
-		console.error('Error logged:', errorData);
+		logger.error('Error logged:', errorData);
 
 		// Example: Send to error tracking service
 		// errorTrackingService.captureException(error, { extra: errorData });

@@ -4,6 +4,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { FLOW_CONSTANTS } from '../constants/flowConstants';
 import type { AuthCodeState } from '../types/flowTypes';
+import { logger } from '../../../../utils/logger';
 
 export const useAuthCodeManagement = () => {
 	const [authCode, setAuthCode] = useState<string | null>(null);
@@ -45,7 +46,7 @@ export const useAuthCodeManagement = () => {
 		try {
 			sessionStorage.setItem(FLOW_CONSTANTS.STORAGE_KEYS.AUTH_CODE, code);
 		} catch (error) {
-			console.warn('Failed to store auth code in session storage:', error);
+			logger.warn('Failed to store auth code in session storage:', error);
 		}
 	}, []);
 
@@ -59,7 +60,7 @@ export const useAuthCodeManagement = () => {
 		try {
 			sessionStorage.removeItem(FLOW_CONSTANTS.STORAGE_KEYS.AUTH_CODE);
 		} catch (error) {
-			console.warn('Failed to remove auth code from session storage:', error);
+			logger.warn('Failed to remove auth code from session storage:', error);
 		}
 
 		// Clean URL parameters
@@ -71,7 +72,7 @@ export const useAuthCodeManagement = () => {
 			url.searchParams.delete('error_description');
 			window.history.replaceState({}, '', url.toString());
 		} catch (error) {
-			console.warn('Failed to clean URL parameters:', error);
+			logger.warn('Failed to clean URL parameters:', error);
 		}
 	}, []);
 
@@ -130,7 +131,7 @@ export const useAuthCodeManagement = () => {
 					url.searchParams.delete('code');
 					window.history.replaceState({}, '', url.toString());
 				} catch (error) {
-					console.warn('Failed to clean URL on unmount:', error);
+					logger.warn('Failed to clean URL on unmount:', error);
 				}
 			}
 		};

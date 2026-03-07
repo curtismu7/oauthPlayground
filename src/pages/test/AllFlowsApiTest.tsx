@@ -11,6 +11,7 @@ import { useCredentialStoreV8 } from '../../hooks/useCredentialStoreV8';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
 import WorkerTokenStatusDisplayV8 from '../../v8/components/WorkerTokenStatusDisplayV8';
+import { logger } from '../../utils/logger';
 
 // Test Configuration for all flow types
 interface AllFlowsTestConfig {
@@ -553,7 +554,7 @@ const AllFlowsApiTest: React.FC = () => {
 				error: error instanceof Error ? error.message : 'Unknown error',
 				duration,
 			});
-			console.error('❌ URL generation failed:', error);
+			logger.error('❌ URL generation failed:', error);
 			return null;
 		}
 	}, [config, addResult]);
@@ -634,7 +635,7 @@ const AllFlowsApiTest: React.FC = () => {
 					error: error instanceof Error ? error.message : 'Unknown error',
 					duration,
 				});
-				console.error('❌ Token exchange failed:', error);
+				logger.error('❌ Token exchange failed:', error);
 				return null;
 			}
 		},
@@ -707,7 +708,7 @@ const AllFlowsApiTest: React.FC = () => {
 				error: error instanceof Error ? error.message : 'Unknown error',
 				duration,
 			});
-			console.error('❌ Client credentials failed:', error);
+			logger.error('❌ Client credentials failed:', error);
 			return null;
 		}
 	}, [config, addResult]);
@@ -777,7 +778,7 @@ const AllFlowsApiTest: React.FC = () => {
 				error: error instanceof Error ? error.message : 'Unknown error',
 				duration,
 			});
-			console.error('❌ Device code failed:', error);
+			logger.error('❌ Device code failed:', error);
 			return null;
 		}
 	}, [config, addResult]);
@@ -836,7 +837,7 @@ const AllFlowsApiTest: React.FC = () => {
 				error: error instanceof Error ? error.message : 'Unknown error',
 				duration,
 			});
-			console.error('❌ MFA Device Registration failed:', error);
+			logger.error('❌ MFA Device Registration failed:', error);
 			return null;
 		}
 	}, [config, addResult, getWorkerToken]);
@@ -912,7 +913,7 @@ const AllFlowsApiTest: React.FC = () => {
 				error: error instanceof Error ? error.message : 'Unknown error',
 				duration,
 			});
-			console.error('❌ MFA Authentication Challenge failed:', error);
+			logger.error('❌ MFA Authentication Challenge failed:', error);
 			return null;
 		}
 	}, [config, addResult, getWorkerToken]);
@@ -953,7 +954,7 @@ const AllFlowsApiTest: React.FC = () => {
 					break;
 			}
 		} catch (error) {
-			console.error('❌ Test suite failed:', error);
+			logger.error('❌ Test suite failed:', error);
 		} finally {
 			setIsRunning(false);
 		}

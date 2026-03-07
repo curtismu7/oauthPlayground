@@ -13,6 +13,7 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import type { PingOneApplicationState } from '../components/PingOneApplicationConfig';
 import type { StepCredentials } from '../components/steps/CommonSteps';
 import { validateForStep } from './credentialsValidationService';
+import { logger } from '../../../utils/logger';
 
 export type AuthzFlowVariant = 'oauth' | 'oidc';
 
@@ -107,7 +108,7 @@ export class AuthzFlowToastManager {
 	 * Show error toast for credentials save failure
 	 */
 	static showCredentialsSaveFailed(error?: Error): void {
-		console.error('[AuthzFlowToastManager] Failed to save credentials:', error);
+		logger.error('[AuthzFlowToastManager] Failed to save credentials:', error);
 		modernMessaging.showBanner({
 			type: 'error',
 			title: 'Error',
@@ -131,7 +132,7 @@ export class AuthzFlowToastManager {
 	 * Show error toast for redirect URI save failure
 	 */
 	static showRedirectUriSaveFailed(error?: Error): void {
-		console.error('[AuthzFlowToastManager] Failed to save redirect URI:', error);
+		logger.error('[AuthzFlowToastManager] Failed to save redirect URI:', error);
 		modernMessaging.showBanner({
 			type: 'error',
 			title: 'Error',
@@ -155,7 +156,7 @@ export class AuthzFlowToastManager {
 	 * Show error toast for PKCE generation failure
 	 */
 	static showPKCEGenerationFailed(error?: Error): void {
-		console.error('[AuthzFlowToastManager] Failed to generate PKCE:', error);
+		logger.error('[AuthzFlowToastManager] Failed to generate PKCE:', error);
 		modernMessaging.showBanner({
 			type: 'error',
 			title: 'Error',
@@ -214,7 +215,7 @@ export class AuthzFlowToastManager {
 	 * Show error toast for token exchange failure
 	 */
 	static showTokenExchangeFailed(error?: Error): void {
-		console.error('[AuthzFlowToastManager] Token exchange failed:', error);
+		logger.error('[AuthzFlowToastManager] Token exchange failed:', error);
 		modernMessaging.showBanner({
 			type: 'error',
 			title: 'Error',
@@ -328,7 +329,7 @@ export class AuthzFlowPKCEManager {
 		}
 
 		if (!controller?.generatePkceCodes) {
-			console.error('[PKCEManager] Controller does not have generatePkceCodes method');
+			logger.error('[PKCEManager] Controller does not have generatePkceCodes method');
 			AuthzFlowToastManager.showPKCEGenerationFailed(
 				new Error('Controller missing generatePkceCodes method')
 			);
@@ -348,7 +349,7 @@ export class AuthzFlowPKCEManager {
 			console.log(`[${variant.toUpperCase()} Authz V5] PKCE parameters generated successfully`);
 			return true;
 		} catch (error) {
-			console.error('[PKCEManager] Failed to generate PKCE:', error);
+			logger.error('[PKCEManager] Failed to generate PKCE:', error);
 			AuthzFlowToastManager.showPKCEGenerationFailed(error as Error);
 			return false;
 		}
@@ -577,7 +578,7 @@ export class AuthzFlowCredentialsHandlers {
 				await controller.saveCredentials();
 				AuthzFlowToastManager.showCredentialsSaved();
 			} catch (error) {
-				console.error(`[${variant.toUpperCase()} Authz V5] Failed to save credentials:`, error);
+				logger.error(`[${variant.toUpperCase()} Authz V5] Failed to save credentials:`, error);
 				AuthzFlowToastManager.showCredentialsSaveFailed(error as Error);
 			}
 		};
@@ -646,7 +647,7 @@ export class AuthzFlowAuthorizationManager {
 			AuthzFlowToastManager.showAuthUrlGenerated();
 			return true;
 		} catch (error) {
-			console.error(
+			logger.error(
 				`[${variant.toUpperCase()}AuthzFlowV5] Failed to generate authorization URL:`,
 				error
 			);
@@ -713,7 +714,7 @@ export class AuthzFlowCodeProcessor {
 		const errorDescription = urlParams.get('error_description');
 
 		if (error) {
-			console.error('[CodeProcessor] OAuth error:', error, errorDescription);
+			logger.error('[CodeProcessor] OAuth error:', error, errorDescription);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -757,7 +758,7 @@ export class AuthzFlowTokenExchangeManager {
 			AuthzFlowToastManager.showTokenExchangeSuccess();
 			return true;
 		} catch (error) {
-			console.error('[TokenExchangeManager] Token exchange failed:', error);
+			logger.error('[TokenExchangeManager] Token exchange failed:', error);
 			AuthzFlowToastManager.showTokenExchangeFailed(error as Error);
 			return false;
 		}
