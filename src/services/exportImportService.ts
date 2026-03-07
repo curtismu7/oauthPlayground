@@ -109,7 +109,7 @@ class ExportImportServiceImpl implements ExportImportService {
 			const fileContent = await this.readFileAsText(file);
 
 			// Parse JSON
-			let parsedConfig: any;
+			let parsedConfig: unknown;
 			try {
 				parsedConfig = JSON.parse(fileContent);
 			} catch (_parseError) {
@@ -140,7 +140,7 @@ class ExportImportServiceImpl implements ExportImportService {
 	/**
 	 * Validates imported configuration structure and content
 	 */
-	validateImportedConfiguration(config: any): ImportValidationResult {
+	validateImportedConfiguration(config: unknown): ImportValidationResult {
 		const errors: string[] = [];
 		const warnings: string[] = [];
 
