@@ -4,6 +4,21 @@
 import { createPingOneClient } from '../utils/apiClient';
 import { logger } from '../utils/logger';
 
+interface PingOneApplication {
+	clientId?: string;
+	id?: string;
+	scopes?: string[];
+	allowedScopes?: string[];
+	resources?: unknown;
+	_embedded?: { resources?: PingOneResource[] };
+	[key: string]: unknown;
+}
+
+interface PingOneResource {
+	scopes?: string[];
+	[key: string]: unknown;
+}
+
 export interface ConfigDiffResult {
 	hasDiffs: boolean;
 	diffs: Array<{
@@ -36,10 +51,10 @@ export class ConfigComparisonService {
 			const applicationsUrl = `/api/pingone/applications?environmentId=${this.environmentId}&clientId=${this.clientId}&clientSecret=${this.clientSecret}&workerToken=${encodeURIComponent(this.token)}&region=${this.region}&t=${timestamp}&_=${Math.random()}`;
 			const response = await fetch(applicationsUrl);
 			const responseData = await response.json();
-			const applications = responseData._embedded?.applications || [];
+			const applications: PingOneApplication[] = responseData._embedded?.applications || [];
 
 			// Find the application with matching clientId
-			const app = applications.find((app: any) => app.clientId === clientId);
+			const app = applications.find((app) => app.clientId === clientId);
 
 			if (!app) {
 				return {
@@ -68,7 +83,7 @@ export class ConfigComparisonService {
 
 					if (resourcesData._embedded?.resources) {
 						const allScopes: string[] = [];
-						resourcesData._embedded.resources.forEach((resource: any) => {
+						(resourcesData._embedded.resources as PingOneResource[]).forEach((resource) => {
 							if (resource.scopes && Array.isArray(resource.scopes)) {
 								allScopes.push(...resource.scopes);
 							}
@@ -156,14 +171,14 @@ export class ConfigComparisonService {
 					pick('clientAuthenticationMethod') ??
 					pick('client_authentication_method') ??
 					// Check nested configuration objects
-					(source as any).configuration?.tokenEndpointAuthMethod ??
-					(source as any).configuration?.token_endpoint_auth_method ??
-					(source as any).configuration?.clientAuthMethod ??
-					(source as any).configuration?.client_auth_method ??
-					(source as any).settings?.tokenEndpointAuthMethod ??
-					(source as any).settings?.token_endpoint_auth_method ??
-					(source as any).settings?.clientAuthMethod ??
-					(source as any).settings?.client_auth_method
+					(source.configuration as Record<string, unknown> | undefined)?.tokenEndpointAuthMethod ??
+					(source.configuration as Record<string, unknown> | undefined)?.token_endpoint_auth_method ??
+					(source.configuration as Record<string, unknown> | undefined)?.clientAuthMethod ??
+					(source.configuration as Record<string, unknown> | undefined)?.client_auth_method ??
+					(source.settings as Record<string, unknown> | undefined)?.tokenEndpointAuthMethod ??
+					(source.settings as Record<string, unknown> | undefined)?.token_endpoint_auth_method ??
+					(source.settings as Record<string, unknown> | undefined)?.clientAuthMethod ??
+					(source.settings as Record<string, unknown> | undefined)?.client_auth_method
 			),
 			pkceEnforcement: pick('pkceEnforcement') ?? pick('pkce_enforcement'),
 		};
@@ -251,10 +266,11 @@ export class ConfigComparisonService {
 					return scopes;
 				} else if (typeof value === 'object' && value !== null) {
 					// Handle nested structure like resources with scopes
+					const obj = value as Record<string, unknown>;
 					const nestedScopes =
-						(value as any).scopes ||
-						(value as any).allowedScopes ||
-						(value as any).scopes_supported;
+						obj.scopes ||
+						obj.allowedScopes ||
+						obj.scopes_supported;
 					if (Array.isArray(nestedScopes)) {
 						return nestedScopes;
 					}
@@ -264,11 +280,11 @@ export class ConfigComparisonService {
 
 		// Try to extract from _embedded resources if available
 		if (app._embedded && typeof app._embedded === 'object') {
-			const embedded = app._embedded as any;
+			const embedded = app._embedded;
 			if (embedded.resources && Array.isArray(embedded.resources)) {
 				// Extract scopes from resources
 				const allScopes: string[] = [];
-				embedded.resources.forEach((resource: any) => {
+				embedded.resources.forEach((resource) => {
 					if (resource.scopes && Array.isArray(resource.scopes)) {
 						allScopes.push(...resource.scopes);
 					}
