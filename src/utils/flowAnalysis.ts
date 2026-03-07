@@ -232,7 +232,6 @@ export class FlowAnalyzer {
 		const recommendations: FlowRecommendation[] = [];
 
 		for (const flowType of allFlows) {
-			const _flowData = flowAnalysisData[flowType as keyof typeof flowAnalysisData];
 			const recommendation = this.analyzeFlow(flowType);
 
 			if (this.matchesRequirements(flowType, requirements)) {
@@ -265,7 +264,7 @@ export class FlowAnalyzer {
 	}
 
 	// Generate reasons for recommendation
-	private generateReasons(_flowType: string, metrics: FlowMetrics, flowData: any): string[] {
+	private generateReasons(_flowType: string, metrics: FlowMetrics, flowData: Record<string, unknown>): string[] {
 		const reasons: string[] = [];
 
 		if (metrics.security >= 8) {
@@ -291,7 +290,7 @@ export class FlowAnalyzer {
 	}
 
 	// Generate warnings for a flow
-	private generateWarnings(flowType: string, flowData: any): string[] {
+	private generateWarnings(flowType: string, flowData: Record<string, unknown>): string[] {
 		const warnings: string[] = [];
 
 		if (flowType === 'implicit') {
@@ -314,7 +313,7 @@ export class FlowAnalyzer {
 	}
 
 	// Find best flow for a specific metric
-	private findBestFlow(flows: any[], metric: string): string {
+	private findBestFlow(flows: Record<string, unknown>[], metric: string): string {
 		if (flows.length === 0) return '';
 
 		return flows.reduce((best, current) => {
@@ -326,7 +325,7 @@ export class FlowAnalyzer {
 	}
 
 	// Generate comparison summary
-	private generateComparisonSummary(flows: any[], bestFlows: any): string {
+	private generateComparisonSummary(flows: Record<string, unknown>[], bestFlows: Record<string, unknown>): string {
 		const totalFlows = flows.length;
 		const bestOverallFlow = flows.find((f) => f.type === bestFlows.bestOverall);
 
@@ -347,7 +346,7 @@ export class FlowAnalyzer {
 	}
 
 	// Check if flow matches requirements
-	private matchesRequirements(flowType: string, requirements: any): boolean {
+	private matchesRequirements(flowType: string, requirements: Record<string, unknown>): boolean {
 		const flowData = flowAnalysisData[flowType as keyof typeof flowAnalysisData];
 
 		if (requirements.securityLevel) {
@@ -406,7 +405,7 @@ export class FlowAnalyzer {
 	}
 
 	// Get flow details
-	public getFlowDetails(flowType: string): any {
+	public getFlowDetails(flowType: string): unknown {
 		return flowAnalysisData[flowType as keyof typeof flowAnalysisData];
 	}
 }
@@ -423,7 +422,7 @@ export const compareFlows = (flowTypes: string[]): FlowComparisonResult => {
 	return flowAnalyzer.compareFlows(flowTypes);
 };
 
-export const getFlowRecommendations = (requirements: any): FlowRecommendation[] => {
+export const getFlowRecommendations = (requirements: Record<string, unknown>): FlowRecommendation[] => {
 	return flowAnalyzer.getRecommendations(requirements);
 };
 
@@ -431,7 +430,7 @@ export const getAllFlows = (): string[] => {
 	return flowAnalyzer.getAllFlows();
 };
 
-export const getFlowDetails = (flowType: string): any => {
+export const getFlowDetails = (flowType: string): unknown => {
 	return flowAnalyzer.getFlowDetails(flowType);
 };
 

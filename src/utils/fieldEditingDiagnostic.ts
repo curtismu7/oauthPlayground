@@ -102,7 +102,7 @@ class FieldEditingDiagnostic {
 		const issues: FieldEditingIssue[] = [];
 
 		// Check disabled state
-		if (element.hasAttribute('disabled') || (element as any).disabled) {
+		if (element.hasAttribute('disabled') || (element as HTMLInputElement).disabled) {
 			issues.push({
 				type: 'disabled',
 				description: 'Field is disabled',
@@ -113,7 +113,7 @@ class FieldEditingDiagnostic {
 		}
 
 		// Check readonly state
-		if (element.hasAttribute('readonly') || (element as any).readOnly) {
+		if (element.hasAttribute('readonly') || (element as HTMLInputElement).readOnly) {
 			issues.push({
 				type: 'readonly',
 				description: 'Field is readonly',
@@ -187,7 +187,7 @@ class FieldEditingDiagnostic {
 	private hasEventListeners(element: HTMLElement, eventType: string): boolean {
 		// This is a simplified check - in reality, we can't easily detect React event handlers
 		// But we can check for native event listeners
-		const events = (element as any)._events || {};
+		const events = (element as HTMLElement & { _events?: Record<string, unknown[]> })._events || {};
 		return events[eventType] && events[eventType].length > 0;
 	}
 
@@ -243,7 +243,7 @@ class FieldEditingDiagnostic {
 			// Fix disabled state
 			if (input.hasAttribute('disabled')) {
 				input.removeAttribute('disabled');
-				(input as any).disabled = false;
+				(input as HTMLInputElement).disabled = false;
 				console.log(`✅ Fixed disabled state for field ${index + 1}`);
 				fieldFixed = true;
 			}
@@ -251,7 +251,7 @@ class FieldEditingDiagnostic {
 			// Fix readonly state
 			if (input.hasAttribute('readonly')) {
 				input.removeAttribute('readonly');
-				(input as any).readOnly = false;
+				(input as HTMLInputElement).readOnly = false;
 				console.log(`✅ Fixed readonly state for field ${index + 1}`);
 				fieldFixed = true;
 			}
@@ -259,7 +259,7 @@ class FieldEditingDiagnostic {
 			// Fix CSS pointer-events
 			const computedStyle = window.getComputedStyle(input);
 			if (computedStyle.pointerEvents === 'none') {
-				(input as any).style.pointerEvents = 'auto';
+				(input as HTMLInputElement).style.pointerEvents = 'auto';
 				console.log(`✅ Fixed pointer-events for field ${index + 1}`);
 				fieldFixed = true;
 			}
@@ -307,30 +307,30 @@ class FieldEditingDiagnostic {
 		});
 
 		// Store observer for cleanup
-		(window as any).fieldEditingObserver = observer;
+		(window as Window & { fieldEditingObserver?: MutationObserver }).fieldEditingObserver = observer;
 	}
 
 	/**
 	 * Stop monitoring
 	 */
 	stopMonitoring(): void {
-		const observer = (window as any).fieldEditingObserver;
+		const observer = (window as Window & { fieldEditingObserver?: MutationObserver }).fieldEditingObserver;
 		if (observer) {
 			observer.disconnect();
-			delete (window as any).fieldEditingObserver;
+			delete (window as Window & { fieldEditingObserver?: MutationObserver }).fieldEditingObserver;
 		}
 	}
 }
 
 // Global access for debugging
 if (typeof window !== 'undefined') {
-	(window as any).FieldEditingDiagnostic = FieldEditingDiagnostic.getInstance();
+	(window as unknown as Record<string, unknown>).FieldEditingDiagnostic = FieldEditingDiagnostic.getInstance();
 
 	// Convenience functions
-	(window as any).diagnoseFields = () => FieldEditingDiagnostic.getInstance().diagnoseAllFields();
-	(window as any).fixFields = () => FieldEditingDiagnostic.getInstance().fixCommonIssues();
-	(window as any).monitorFields = () => FieldEditingDiagnostic.getInstance().startMonitoring();
-	(window as any).stopMonitorFields = () => FieldEditingDiagnostic.getInstance().stopMonitoring();
+	(window as unknown as Record<string, unknown>).diagnoseFields = () => FieldEditingDiagnostic.getInstance().diagnoseAllFields();
+	(window as unknown as Record<string, unknown>).fixFields = () => FieldEditingDiagnostic.getInstance().fixCommonIssues();
+	(window as unknown as Record<string, unknown>).monitorFields = () => FieldEditingDiagnostic.getInstance().startMonitoring();
+	(window as unknown as Record<string, unknown>).stopMonitorFields = () => FieldEditingDiagnostic.getInstance().stopMonitoring();
 }
 
 export default FieldEditingDiagnostic;

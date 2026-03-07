@@ -139,7 +139,7 @@ export const useUserBehaviorTracking = (config: UseUserBehaviorTrackingConfig = 
 
 	// Track user action
 	const handleUserAction = useCallback(
-		(action: string, element?: string, properties?: Record<string, any>) => {
+		(action: string, element?: string, properties?: Record<string, unknown>) => {
 			if (enabled && trackUserActions) {
 				trackUserAction(action, element, properties);
 
@@ -157,7 +157,7 @@ export const useUserBehaviorTracking = (config: UseUserBehaviorTrackingConfig = 
 
 	// Start flow tracking
 	const startFlowTracking = useCallback(
-		(flowType: string, properties?: Record<string, any>) => {
+		(flowType: string, properties?: Record<string, unknown>) => {
 			if (!enabled || !trackFlows) return '';
 
 			const flowId = trackFlowStart(flowType, properties);
@@ -174,7 +174,7 @@ export const useUserBehaviorTracking = (config: UseUserBehaviorTrackingConfig = 
 
 	// Track flow step
 	const trackFlowStepTracking = useCallback(
-		(flowType: string, stepName: string, properties?: Record<string, any>) => {
+		(flowType: string, stepName: string, properties?: Record<string, unknown>) => {
 			if (!enabled || !trackFlows) return '';
 
 			const flowData = flowTrackingRef.current.get(flowType);
@@ -492,56 +492,56 @@ export const useUserActionTracking = (enabled: boolean = true) => {
 	const { trackUserAction } = useUserBehaviorTracking({ enabled, trackUserActions: true });
 
 	const trackClick = useCallback(
-		(element: string, properties?: Record<string, any>) => {
+		(element: string, properties?: Record<string, unknown>) => {
 			trackUserAction('click', element, properties);
 		},
 		[trackUserAction]
 	);
 
 	const trackFormSubmit = useCallback(
-		(formName: string, properties?: Record<string, any>) => {
+		(formName: string, properties?: Record<string, unknown>) => {
 			trackUserAction('form_submit', formName, properties);
 		},
 		[trackUserAction]
 	);
 
 	const trackButtonClick = useCallback(
-		(buttonName: string, properties?: Record<string, any>) => {
+		(buttonName: string, properties?: Record<string, unknown>) => {
 			trackUserAction('button_click', buttonName, properties);
 		},
 		[trackUserAction]
 	);
 
 	const trackNavigation = useCallback(
-		(from: string, to: string, properties?: Record<string, any>) => {
+		(from: string, to: string, properties?: Record<string, unknown>) => {
 			trackUserAction('navigation', 'route', { from, to, ...properties });
 		},
 		[trackUserAction]
 	);
 
 	const trackFocus = useCallback(
-		(element: string, properties?: Record<string, any>) => {
+		(element: string, properties?: Record<string, unknown>) => {
 			trackUserAction('focus', element, properties);
 		},
 		[trackUserAction]
 	);
 
 	const trackBlur = useCallback(
-		(element: string, properties?: Record<string, any>) => {
+		(element: string, properties?: Record<string, unknown>) => {
 			trackUserAction('blur', element, properties);
 		},
 		[trackUserAction]
 	);
 
 	const trackHover = useCallback(
-		(element: string, properties?: Record<string, any>) => {
+		(element: string, properties?: Record<string, unknown>) => {
 			trackUserAction('hover', element, properties);
 		},
 		[trackUserAction]
 	);
 
 	const trackScroll = useCallback(
-		(scrollDepth: number, properties?: Record<string, any>) => {
+		(scrollDepth: number, properties?: Record<string, unknown>) => {
 			trackUserAction('scroll', 'window', { scrollDepth, ...properties });
 		},
 		[trackUserAction]
