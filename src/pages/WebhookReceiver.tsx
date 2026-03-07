@@ -237,6 +237,7 @@ const WebhookReceiver: React.FC = () => {
 					>
 						<h2 style={{ fontSize: '1.5rem', fontWeight: 700 }}>Received Events</h2>
 						<button
+							type="button"
 							onClick={handleClearEvents}
 							style={{
 								display: 'flex',

@@ -302,6 +302,7 @@ const FlowsLazy: React.FC = () => {
 					<h4 style={{ margin: '0 0 0.5rem 0', color: '#dc2626' }}>Failed to Load Flow</h4>
 					<p style={{ margin: '0 0 1rem 0', color: '#7f1d1d' }}>{error.message}</p>
 					<button
+						type="button"
 						onClick={retry}
 						style={{
 							padding: '0.5rem 1rem',
