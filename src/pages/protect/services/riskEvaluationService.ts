@@ -22,6 +22,7 @@ import type {
 	UserContext,
 } from '../types/protectPortal.types';
 import { PingOneSignalsService } from './pingOneSignalsService';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 const MODULE_TAG = '[🛡️ RISK-EVALUATION-SERVICE]';
 
@@ -340,28 +341,28 @@ export class RiskEvaluationService {
 				return {
 					title: 'Low Risk',
 					description: 'Your login appears to be from a trusted source and location.',
-					color: '#10b981', // Green
+					color: 'V9_COLORS.PRIMARY.GREEN', // Green
 					icon: '✅',
 				};
 			case 'MEDIUM':
 				return {
 					title: 'Medium Risk',
 					description: 'Additional verification is recommended to protect your account.',
-					color: '#f59e0b', // Amber
+					color: 'V9_COLORS.PRIMARY.YELLOW', // Amber
 					icon: '⚠️',
 				};
 			case 'HIGH':
 				return {
 					title: 'High Risk',
 					description: 'This login attempt shows suspicious patterns and has been blocked.',
-					color: '#ef4444', // Red
+					color: 'V9_COLORS.PRIMARY.RED', // Red
 					icon: '🚫',
 				};
 			default:
 				return {
 					title: 'Unknown Risk',
 					description: 'Risk level could not be determined.',
-					color: '#6b7280', // Gray
+					color: 'V9_COLORS.TEXT.GRAY_MEDIUM', // Gray
 					icon: '❓',
 				};
 		}

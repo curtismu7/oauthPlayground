@@ -36,21 +36,21 @@ const SelectButton = styled.button<{ $isOpen: boolean; $hasError?: boolean }>`
 	width: 100%;
 	padding: 0.75rem 1rem;
 	background: white;
-	border: 2px solid ${(props) => (props.$hasError ? '#ef4444' : props.$isOpen ? '#3b82f6' : '#e5e7eb')};
+	border: 2px solid ${(props) => (props.$hasError ? 'V9_COLORS.PRIMARY.RED' : props.$isOpen ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
 	font-weight: 500;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	cursor: pointer;
 	transition: all 0.2s ease;
 
 	&:hover {
-		border-color: ${(props) => (props.$hasError ? '#dc2626' : '#3b82f6')};
+		border-color: ${(props) => (props.$hasError ? 'V9_COLORS.PRIMARY.RED_DARK' : 'V9_COLORS.PRIMARY.BLUE')};
 	}
 
 	&:focus {
 		outline: none;
-		border-color: #3b82f6;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 `;
@@ -73,7 +73,7 @@ const ModeName = styled.span`
 const ChevronIcon = styled(FiChevronDown)<{ $isOpen: boolean }>`
 	transition: transform 0.2s ease;
 	transform: ${(props) => (props.$isOpen ? 'rotate(0deg)' : 'rotate(-90deg)')};
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const Dropdown = styled.div<{ $isOpen: boolean }>`
@@ -84,7 +84,7 @@ const Dropdown = styled.div<{ $isOpen: boolean }>`
 	z-index: 50;
 	margin-top: 0.25rem;
 	background: white;
-	border: 1px solid #e5e7eb;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 	overflow: hidden;
@@ -129,7 +129,7 @@ const OptionContent = styled.div`
 
 const OptionName = styled.div<{ $isSelected: boolean }>`
 	font-weight: ${(props) => (props.$isSelected ? 600 : 500)};
-	color: #111827;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.25rem;
 	display: flex;
 	align-items: center;
@@ -138,19 +138,19 @@ const OptionName = styled.div<{ $isSelected: boolean }>`
 
 const OptionDescription = styled.div`
 	font-size: 0.75rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	line-height: 1.4;
 	margin-bottom: 0.5rem;
 `;
 
 const OptionUseCase = styled.div`
 	font-size: 0.75rem;
-	color: #059669;
+	color: V9_COLORS.PRIMARY.GREEN_DARK;
 	font-weight: 500;
 `;
 
 const RecommendationBadge = styled.span`
-	background: #10b981;
+	background: V9_COLORS.PRIMARY.GREEN;
 	color: white;
 	font-size: 0.625rem;
 	font-weight: 600;
@@ -166,25 +166,25 @@ const CompatibilityWarning = styled.div`
 	gap: 0.5rem;
 	margin-top: 0.5rem;
 	padding: 0.5rem;
-	background: #fef3c7;
-	border: 1px solid #f59e0b;
+	background: V9_COLORS.BG.WARNING;
+	border: 1px solid V9_COLORS.PRIMARY.YELLOW;
 	border-radius: 0.375rem;
 	font-size: 0.75rem;
-	color: #92400e;
+	color: V9_COLORS.PRIMARY.YELLOW_DARK;
 `;
 
 const InfoSection = styled.div`
 	margin-top: 1rem;
 	padding: 1rem;
-	background: #f8fafc;
-	border: 1px solid #e2e8f0;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 `;
 
 const InfoTitle = styled.h4`
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.5rem;
 	display: flex;
 	align-items: center;
@@ -193,14 +193,14 @@ const InfoTitle = styled.h4`
 
 const InfoText = styled.p`
 	font-size: 0.75rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	line-height: 1.4;
 	margin-bottom: 0.75rem;
 `;
 
 const SecurityNotes = styled.ul`
 	font-size: 0.75rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	line-height: 1.4;
 	margin: 0;
 	padding-left: 1rem;
@@ -209,15 +209,15 @@ const SecurityNotes = styled.ul`
 const UrlExampleSection = styled.div`
 	margin-top: 1rem;
 	padding: 1rem;
-	background: #f8fafc;
-	border: 1px solid #e2e8f0;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 `;
 
 const UrlExampleTitle = styled.h4`
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin: 0 0 0.75rem 0;
 	display: flex;
 	align-items: center;
@@ -238,14 +238,14 @@ const UrlText = styled.code`
 	font-size: 0.75rem;
 	line-height: 1.4;
 	word-break: break-all;
-	background: #f8fafc;
+	background: V9_COLORS.BG.GRAY_LIGHT;
 	padding: 0.5rem;
 	border-radius: 0.375rem;
-	border: 1px solid #e2e8f0;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const HighlightedParam = styled.span`
-	background: #f59e0b;
+	background: V9_COLORS.PRIMARY.YELLOW;
 	color: #1e293b;
 	padding: 0.125rem 0.25rem;
 	border-radius: 0.25rem;
@@ -254,7 +254,7 @@ const HighlightedParam = styled.span`
 
 const ResponseExample = styled.div`
 	background: white;
-	border: 1px solid #f1f5f9;
+	border: 1px solid V9_COLORS.BG.GRAY_MEDIUM;
 	border-radius: 0.375rem;
 	padding: 0.75rem;
 	overflow-x: auto;
@@ -267,14 +267,14 @@ const ResponseText = styled.pre`
 	line-height: 1.4;
 	margin: 0;
 	white-space: pre-wrap;
-	background: #f8fafc;
+	background: V9_COLORS.BG.GRAY_LIGHT;
 	padding: 0.5rem;
 	border-radius: 0.375rem;
-	border: 1px solid #e2e8f0;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const CopyButton = styled.button`
-	background: #374151;
+	background: V9_COLORS.TEXT.GRAY_DARK;
 	color: white;
 	border: none;
 	border-radius: 0.25rem;

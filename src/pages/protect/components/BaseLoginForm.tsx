@@ -20,6 +20,7 @@ import { ButtonSpinner } from '../../../components/ui/ButtonSpinner';
 import { logger } from '../../../utils/logger';
 import PingOneLoginService from '../services/pingOneLoginService';
 import type { LoginContext, PortalError, UserContext } from '../types/protectPortal.types';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 // ============================================================================
 // STYLED COMPONENTS - Theme-aware using CSS variables
@@ -469,7 +470,7 @@ export const BaseLoginForm: React.FC<BaseLoginFormProps> = ({
 						maxWidth: '100%',
 						alignSelf: 'center',
 						padding: '0.875rem 1.5rem',
-						background: isLoading ? '#9ca3af' : 'var(--brand-primary)',
+						background: isLoading ? 'V9_COLORS.TEXT.GRAY_LIGHT' : 'var(--brand-primary)',
 						color: 'white',
 						border: 'none',
 						borderRadius: 'var(--brand-radius-sm)',

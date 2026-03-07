@@ -13,6 +13,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import type { CorporatePortalConfig } from '../../types/CorporatePortalConfig';
 import BrandDropdownSelector from '../BrandDropdownSelector';
+import { V9_COLORS } from '../../../../services/v9/V9ColorStandards';
 
 // ============================================================================
 // STYLED COMPONENTS
@@ -125,7 +126,7 @@ const DropdownMenu = styled.div<{ $isOpen: boolean }>`
   top: 100%;
   left: 0;
   background: white;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 8px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   min-width: 200px;
@@ -140,7 +141,7 @@ const DropdownMenu = styled.div<{ $isOpen: boolean }>`
 const DropdownItem = styled.a`
   display: block;
   padding: 0.75rem 1rem;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   text-decoration: none;
   font-size: 0.875rem;
   transition: background-color 0.2s ease;
@@ -152,7 +153,7 @@ const DropdownItem = styled.a`
   
   &:hover {
     background-color: #f9fafb;
-    color: #1f2937;
+    color: V9_COLORS.TEXT.GRAY_DARK;
   }
   
   &:first-child {

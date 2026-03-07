@@ -44,7 +44,7 @@ const ModalContent = styled.div`
 
 const ModalHeader = styled.div`
   padding: 1.5rem 1.5rem 1rem 1.5rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -54,7 +54,7 @@ const ModalTitle = styled.h2`
   margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -66,12 +66,12 @@ const CloseButton = styled.button`
   padding: 0.5rem;
   border-radius: 0.375rem;
   cursor: pointer;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   transition: all 0.2s;
 
   &:hover {
     background: #f3f4f6;
-    color: #374151;
+    color: V9_COLORS.TEXT.GRAY_DARK;
   }
 
   svg {
@@ -91,7 +91,7 @@ const ServerCard = styled.div<{ $status: 'checking' | 'online' | 'offline' }>`
 			case 'online':
 				return '#f0fdf4';
 			case 'offline':
-				return '#fef2f2';
+				return 'V9_COLORS.BG.ERROR';
 			case 'checking':
 				return '#f9fafb';
 			default:
@@ -101,13 +101,13 @@ const ServerCard = styled.div<{ $status: 'checking' | 'online' | 'offline' }>`
   border: 2px solid ${({ $status }) => {
 		switch ($status) {
 			case 'online':
-				return '#bbf7d0';
+				return 'V9_COLORS.BG.SUCCESS_BORDER';
 			case 'offline':
-				return '#fecaca';
+				return 'V9_COLORS.BG.ERROR_BORDER';
 			case 'checking':
-				return '#e5e7eb';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 			default:
-				return '#e5e7eb';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 		}
 	}};
   border-radius: 0.75rem;
@@ -133,7 +133,7 @@ const ServerName = styled.div`
   gap: 0.75rem;
   font-size: 1.125rem;
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const StatusIndicator = styled.div<{ $status: 'checking' | 'online' | 'offline' }>`
@@ -145,19 +145,19 @@ const StatusIndicator = styled.div<{ $status: 'checking' | 'online' | 'offline' 
   color: ${({ $status }) => {
 		switch ($status) {
 			case 'online':
-				return '#059669';
+				return 'V9_COLORS.PRIMARY.GREEN_DARK';
 			case 'offline':
-				return '#dc2626';
+				return 'V9_COLORS.PRIMARY.RED_DARK';
 			case 'checking':
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 			default:
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 		}
 	}};
 `;
 
 const ServerDetails = styled.div`
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 0.875rem;
   line-height: 1.5;
 `;
@@ -167,7 +167,7 @@ const RefreshButton = styled.button`
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background: #3b82f6;
+  background: V9_COLORS.PRIMARY.BLUE;
   color: white;
   border: none;
   border-radius: 0.375rem;
@@ -177,7 +177,7 @@ const RefreshButton = styled.button`
   transition: all 0.2s;
 
   &:hover:not(:disabled) {
-    background: #2563eb;
+    background: V9_COLORS.PRIMARY.BLUE_DARK;
   }
 
   &:disabled {
@@ -188,7 +188,7 @@ const RefreshButton = styled.button`
 
 const ModalFooter = styled.div`
   padding: 1rem 1.5rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
@@ -206,20 +206,20 @@ const FooterButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
   ${({ $variant = 'secondary' }) =>
 		$variant === 'primary'
 			? `
-    background: #3b82f6;
+    background: V9_COLORS.PRIMARY.BLUE;
     color: white;
 
     &:hover {
-      background: #2563eb;
+      background: V9_COLORS.PRIMARY.BLUE_DARK;
     }
   `
 			: `
     background: #f3f4f6;
-    color: #374151;
-    border: 1px solid #d1d5db;
+    color: V9_COLORS.TEXT.GRAY_DARK;
+    border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 
     &:hover {
-      background: #e5e7eb;
+      background: V9_COLORS.TEXT.GRAY_LIGHTER;
     }
   `}
 `;
@@ -307,13 +307,15 @@ const ServerStatusModal: React.FC<ServerStatusModalProps> = ({ isOpen, onClose }
 	const getStatusIcon = (status: 'checking' | 'online' | 'offline') => {
 		switch (status) {
 			case 'online':
-				return <FiCheckCircle size={20} color="#059669" />;
+				return <FiCheckCircle size={20} color="V9_COLORS.PRIMARY.GREEN_DARK" />;
 			case 'offline':
-				return <FiXCircle size={20} color="#dc2626" />;
+				return <FiXCircle size={20} color="V9_COLORS.PRIMARY.RED_DARK" />;
 			case 'checking':
-				return <FiRefreshCw size={20} color="#6b7280" className="animate-spin" />;
+				return (
+					<FiRefreshCw size={20} color="V9_COLORS.TEXT.GRAY_MEDIUM" className="animate-spin" />
+				);
 			default:
-				return <FiXCircle size={20} color="#dc2626" />;
+				return <FiXCircle size={20} color="V9_COLORS.PRIMARY.RED_DARK" />;
 		}
 	};
 
@@ -352,7 +354,7 @@ const ServerStatusModal: React.FC<ServerStatusModalProps> = ({ isOpen, onClose }
 							marginBottom: '1rem',
 						}}
 					>
-						<p style={{ margin: 0, color: '#6b7280', fontSize: '0.875rem' }}>
+						<p style={{ margin: 0, color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.875rem' }}>
 							Check the status of frontend and backend servers
 						</p>
 						<RefreshButton onClick={refreshAllServers} disabled={isRefreshing}>
@@ -388,12 +390,12 @@ const ServerStatusModal: React.FC<ServerStatusModalProps> = ({ isOpen, onClose }
 									</div>
 								)}
 								{server.error && (
-									<div style={{ color: '#dc2626', marginTop: '0.5rem' }}>
+									<div style={{ color: 'V9_COLORS.PRIMARY.RED_DARK', marginTop: '0.5rem' }}>
 										<strong>Error:</strong> {server.error}
 									</div>
 								)}
 								{server.status === 'online' && (
-									<div style={{ color: '#059669', marginTop: '0.5rem' }}>
+									<div style={{ color: 'V9_COLORS.PRIMARY.GREEN_DARK', marginTop: '0.5rem' }}>
 										<strong>Status:</strong> Server is responding normally
 									</div>
 								)}

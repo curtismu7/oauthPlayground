@@ -12,7 +12,7 @@ import { logger } from '../../utils/logger';
 const HELIOMART_ACCENT_START = '#F59E0B';
 
 const Card = styled.div`
-	background: #ffffff;
+	background: V9_COLORS.TEXT.WHITE;
 	border: 1px solid #E5E7EB;
 	border-radius: 1rem;
 	padding: 2rem;
@@ -38,7 +38,7 @@ const Alert = styled.div<{ $type: 'success' | 'error' | 'info' }>`
 		return '#3B82F6';
 	}};
 	color: ${(props) => {
-		if (props.$type === 'success') return '#166534';
+		if (props.$type === 'success') return 'V9_COLORS.PRIMARY.GREEN';
 		if (props.$type === 'error') return '#991B1B';
 		return '#1E40AF';
 	}};
@@ -52,14 +52,14 @@ const Label = styled.label`
 	display: block;
 	margin-bottom: 0.5rem;
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	font-size: 0.875rem;
 `;
 
 const Input = styled.input`
 	width: 100%;
 	padding: 0.75rem;
-	background: #ffffff;
+	background: V9_COLORS.TEXT.WHITE;
 	border: 1px solid #D1D5DB;
 	border-radius: 0.5rem;
 	color: #1F2937;
@@ -93,7 +93,7 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' | '
 		if (props.$variant === 'success') {
 			return `
 				background: #22C55E;
-				color: #ffffff;
+				color: V9_COLORS.TEXT.WHITE;
 				&:hover {
 					background: #16A34A;
 				}
@@ -101,7 +101,7 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' | '
 		}
 		return `
 			background: linear-gradient(135deg, ${HELIOMART_ACCENT_START} 0%, #F97316 100%);
-			color: #ffffff;
+			color: V9_COLORS.TEXT.WHITE;
 			&:hover {
 				opacity: 0.9;
 				transform: translateY(-1px);
@@ -144,7 +144,7 @@ const UserAvatar = styled.div`
 `;
 
 const SuccessMessage = styled.div`
-	background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+	background: linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%);
 	color: white;
 	padding: 2rem;
 	border-radius: 1rem;

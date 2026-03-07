@@ -38,7 +38,7 @@ const FloatingContainer = styled.div<{ width: number; height: number; x: number;
   width: ${(props) => props.width}px;
   height: ${(props) => props.height}px;
   background: white;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 8px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
   z-index: 9999;
@@ -52,8 +52,8 @@ const Header = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 12px 16px;
-  background: #f8fafc;
-  border-bottom: 1px solid #e5e7eb;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 8px 8px 0 0;
   cursor: move;
   user-select: none;
@@ -62,7 +62,7 @@ const Header = styled.div`
 const Title = styled.div`
   font-size: 14px;
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -75,8 +75,8 @@ const Controls = styled.div`
 `;
 
 const ControlButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
-  background: ${(props) => (props.$variant === 'primary' ? '#3b82f6' : '#f3f4f6')};
-  color: ${(props) => (props.$variant === 'primary' ? 'white' : '#374151')};
+  background: ${(props) => (props.$variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE' : '#f3f4f6')};
+  color: ${(props) => (props.$variant === 'primary' ? 'white' : 'V9_COLORS.TEXT.GRAY_DARK')};
   border: none;
   border-radius: 4px;
   padding: 6px 8px;
@@ -88,7 +88,7 @@ const ControlButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
   transition: all 0.2s;
 
   &:hover {
-    background: ${(props) => (props.$variant === 'primary' ? '#2563eb' : '#e5e7eb')};
+    background: ${(props) => (props.$variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
   }
 
   &:disabled {
@@ -115,7 +115,7 @@ const ControlsPanel = styled.div`
 
 const Select = styled.select`
   padding: 6px 8px;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 4px;
   font-size: 12px;
   background: white;
@@ -129,12 +129,12 @@ const LogContent = styled.div<{ $isMinimized: boolean }>`
   overflow: auto;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 11px;
-  color: #000000;
+  color: V9_COLORS.TEXT.BLACK;
   white-space: pre-wrap;
   word-break: break-word;
   line-height: 1.4;
   display: ${(props) => (props.$isMinimized ? 'none' : 'block')};
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const StatusIndicator = styled.div<{ $status: 'connected' | 'disconnected' | 'loading' }>`
@@ -144,13 +144,13 @@ const StatusIndicator = styled.div<{ $status: 'connected' | 'disconnected' | 'lo
   background: ${(props) => {
 		switch (props.$status) {
 			case 'connected':
-				return '#10b981';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'loading':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'disconnected':
-				return '#ef4444';
+				return 'V9_COLORS.PRIMARY.RED';
 			default:
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 		}
 	}};
 `;
@@ -161,14 +161,14 @@ const CheckboxContainer = styled.div`
   gap: 8px;
   padding: 4px 8px;
   background: #f9fafb;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s;
 
   &:hover {
     background: #f3f4f6;
-    border-color: #d1d5db;
+    border-color: V9_COLORS.TEXT.GRAY_LIGHTER;
   }
 `;
 
@@ -180,7 +180,7 @@ const CheckboxInput = styled.input`
 
 const CheckboxLabel = styled.span`
   font-size: 12px;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   user-select: none;
 `;
 
@@ -191,7 +191,7 @@ const ResizeHandle = styled.div`
   width: 20px;
   height: 20px;
   cursor: nwse-resize;
-  background: linear-gradient(135deg, transparent 50%, #d1d5db 50%);
+  background: linear-gradient(135deg, transparent 50%, V9_COLORS.TEXT.GRAY_LIGHTER 50%);
   border-radius: 0 0 0 8px;
 `;
 
@@ -246,25 +246,25 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
 			}
 
 			let prefix = '📝';
-			let textColor = '#1f2937';
+			let textColor = 'V9_COLORS.TEXT.GRAY_DARK';
 			let background = '#f9fafb';
-			let borderLeft = '#d1d5db';
+			let borderLeft = 'V9_COLORS.TEXT.GRAY_LIGHTER';
 
 			if (line.includes('ERROR') || line.includes('error')) {
 				prefix = '🔴';
-				textColor = '#991b1b';
-				background = '#fef2f2';
-				borderLeft = '#ef4444';
+				textColor = 'V9_COLORS.PRIMARY.RED_DARK';
+				background = 'V9_COLORS.BG.ERROR';
+				borderLeft = 'V9_COLORS.PRIMARY.RED';
 			} else if (line.includes('WARN') || line.includes('warn')) {
 				prefix = '🟡';
-				textColor = '#92400e';
-				background = '#fffbeb';
-				borderLeft = '#f59e0b';
+				textColor = 'V9_COLORS.PRIMARY.YELLOW_DARK';
+				background = 'V9_COLORS.BG.WARNING';
+				borderLeft = 'V9_COLORS.PRIMARY.YELLOW';
 			} else if (line.includes('INFO') || line.includes('info')) {
 				prefix = '🔵';
 				textColor = '#1e3a8a';
-				background = '#eff6ff';
-				borderLeft = '#3b82f6';
+				background = 'V9_COLORS.BG.GRAY_LIGHT';
+				borderLeft = 'V9_COLORS.PRIMARY.BLUE';
 			} else if (line.includes('DEBUG') || line.includes('debug')) {
 				prefix = '🔍';
 				textColor = '#0f766e';
@@ -289,7 +289,7 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
 					{index < lines.length - 1 && (
 						<div
 							style={{
-								borderBottom: '1px dashed #d1d5db',
+								borderBottom: '1px dashed V9_COLORS.TEXT.GRAY_LIGHTER',
 								margin: '4px 0',
 							}}
 						/>
@@ -706,12 +706,12 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
 					{error && (
 						<div
 							style={{
-								background: '#fef2f2',
-								border: '1px solid #fecaca',
+								background: 'V9_COLORS.BG.ERROR',
+								border: '1px solid V9_COLORS.BG.ERROR_BORDER',
 								borderRadius: '4px',
 								padding: '8px',
 								marginBottom: '8px',
-								color: '#991b1b',
+								color: 'V9_COLORS.PRIMARY.RED_DARK',
 								fontSize: '12px',
 							}}
 						>
@@ -724,7 +724,7 @@ export const FloatingLogViewer: React.FC<FloatingLogViewerProps> = ({
 							style={{
 								textAlign: 'center',
 								padding: '20px',
-								color: '#6b7280',
+								color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 								fontSize: '12px',
 							}}
 						>

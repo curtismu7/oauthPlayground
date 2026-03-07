@@ -10,6 +10,7 @@
 
 import type { CorporatePortalConfig } from '../types/CorporatePortalConfig';
 import type { BrandTheme } from './brand-theme.interface';
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 
 export const americanAirlinesConfig: CorporatePortalConfig = {
 	company: {
@@ -74,12 +75,12 @@ export const americanAirlinesConfig: CorporatePortalConfig = {
 			accent: '#e11d48', // American red
 			background: '#FFFFFF',
 			surface: '#FFFFFF',
-			muted: '#6b7280',
-			border: '#d1d5db',
+			muted: 'V9_COLORS.TEXT.GRAY_MEDIUM',
+			border: 'V9_COLORS.TEXT.GRAY_LIGHTER',
 			text: '#1F2937',
 			textSecondary: '#6B7280',
 			error: '#E31937',
-			success: '#059669',
+			success: 'V9_COLORS.PRIMARY.GREEN_DARK',
 			warning: '#D97706',
 			info: '#0b4aa2',
 			primaryLight: '#0056B3',
@@ -122,16 +123,16 @@ export const americanAirlinesTheme: BrandTheme = {
 	colors: {
 		primary: '#0b4aa2', // Updated to match mockup primary
 		primaryDark: '#073a80', // Updated to match mockup primaryDark
-		secondary: '#111827', // Updated to match mockup secondary
+		secondary: 'V9_COLORS.TEXT.GRAY_DARK', // Updated to match mockup secondary
 		accent: '#e11d48', // Updated to match mockup accent
-		background: '#ffffff', // Updated to match mockup bg
-		surface: '#ffffff', // Updated to match mockup surface
-		muted: '#6b7280', // Updated to match mockup muted
-		border: '#d1d5db', // Updated to match mockup border
+		background: 'V9_COLORS.TEXT.WHITE', // Updated to match mockup bg
+		surface: 'V9_COLORS.TEXT.WHITE', // Updated to match mockup surface
+		muted: 'V9_COLORS.TEXT.GRAY_MEDIUM', // Updated to match mockup muted
+		border: 'V9_COLORS.TEXT.GRAY_LIGHTER', // Updated to match mockup border
 		text: '#1F2937',
 		textSecondary: '#6B7280',
 		error: '#E31937', // Use American red for errors
-		success: '#059669',
+		success: 'V9_COLORS.PRIMARY.GREEN_DARK',
 		warning: '#D97706',
 		info: '#0b4aa2', // Use American blue for info
 		// Additional theme colors

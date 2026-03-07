@@ -9,7 +9,7 @@ import { convertPrivateKeyToJWKS, formatJWKS, isPrivateKey } from '../utils/jwks
 
 const Container = styled.div`
   background: white;
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.5rem;
   padding: 1.5rem;
   margin: 1rem 0;
@@ -17,7 +17,7 @@ const Container = styled.div`
 
 const Title = styled.h3`
   margin: 0 0 1rem 0;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 1.125rem;
   font-weight: 600;
 `;
@@ -30,14 +30,14 @@ const Label = styled.label`
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 500;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const TextArea = styled.textarea`
   width: 100%;
   min-height: 120px;
   padding: 0.75rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.375rem;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 0.875rem;
@@ -46,12 +46,12 @@ const TextArea = styled.textarea`
   
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
   
   &.error {
-    border-color: #ef4444;
+    border-color: V9_COLORS.PRIMARY.RED;
     box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
   }
 `;
@@ -59,13 +59,13 @@ const TextArea = styled.textarea`
 const Input = styled.input`
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 0.375rem;
   font-size: 0.875rem;
   
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 `;
@@ -85,25 +85,25 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
   ${({ variant = 'primary' }) =>
 		variant === 'primary'
 			? `
-    background: #3b82f6;
+    background: V9_COLORS.PRIMARY.BLUE;
     color: white;
     
     &:hover {
-      background: #2563eb;
+      background: V9_COLORS.PRIMARY.BLUE_DARK;
     }
     
     &:disabled {
-      background: #9ca3af;
+      background: V9_COLORS.TEXT.GRAY_LIGHT;
       cursor: not-allowed;
     }
   `
 			: `
     background: #f3f4f6;
-    color: #374151;
-    border: 1px solid #d1d5db;
+    color: V9_COLORS.TEXT.GRAY_DARK;
+    border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
     
     &:hover {
-      background: #e5e7eb;
+      background: V9_COLORS.TEXT.GRAY_LIGHTER;
     }
   `}
 `;
@@ -120,10 +120,10 @@ const ErrorMessage = styled.div`
   gap: 0.5rem;
   margin-top: 0.5rem;
   padding: 0.75rem;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+  background: V9_COLORS.BG.ERROR;
+  border: 1px solid V9_COLORS.BG.ERROR_BORDER;
   border-radius: 0.375rem;
-  color: #dc2626;
+  color: V9_COLORS.PRIMARY.RED_DARK;
   font-size: 0.875rem;
 `;
 
@@ -134,16 +134,16 @@ const SuccessMessage = styled.div`
   margin-top: 0.5rem;
   padding: 0.75rem;
   background: #f0fdf4;
-  border: 1px solid #bbf7d0;
+  border: 1px solid V9_COLORS.BG.SUCCESS_BORDER;
   border-radius: 0.375rem;
-  color: #16a34a;
+  color: V9_COLORS.PRIMARY.GREEN_DARK;
   font-size: 0.875rem;
 `;
 
 const HelpText = styled.div`
   margin-top: 0.5rem;
   font-size: 0.875rem;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const JWKSConverter: React.FC = () => {

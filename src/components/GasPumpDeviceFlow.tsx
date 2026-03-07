@@ -18,17 +18,17 @@ import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // Kroger Gas Pump Main Container - Red and White Design
 const GasPumpContainer = styled.div`
-  background: linear-gradient(135deg, #dc2626 0%, #ef4444 50%, #dc2626 100%);
+  background: linear-gradient(135deg, V9_COLORS.PRIMARY.RED_DARK 0%, V9_COLORS.PRIMARY.RED 50%, V9_COLORS.PRIMARY.RED_DARK 100%);
   border-radius: 0.5rem;
   padding: 1.5rem;
   margin: 2rem 0;
   box-shadow: 
     0 25px 50px rgba(0, 0, 0, 0.2),
-    0 0 0 2px #ffffff,
+    0 0 0 2px V9_COLORS.TEXT.WHITE,
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
   position: relative;
   overflow: hidden;
-  border: 3px solid #ffffff;
+  border: 3px solid V9_COLORS.TEXT.WHITE;
   
   /* Kroger pump design elements */
   &::before {
@@ -50,7 +50,7 @@ const GasPumpContainer = styled.div`
     left: 0.5rem;
     font-size: 0.875rem;
     font-weight: 800;
-    color: #ffffff;
+    color: V9_COLORS.TEXT.WHITE;
     letter-spacing: 1px;
     z-index: 2;
   }
@@ -58,13 +58,13 @@ const GasPumpContainer = styled.div`
 
 // Kroger Gas Pump Display Screen
 const TopScreen = styled.div`
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-  border: 2px solid #dc2626;
+  background: linear-gradient(135deg, V9_COLORS.TEXT.WHITE 0%, V9_COLORS.BG.GRAY_LIGHT 100%);
+  border: 2px solid V9_COLORS.PRIMARY.RED_DARK;
   border-radius: 0.25rem;
   padding: 1rem;
   margin-bottom: 1rem;
   text-align: center;
-  color: #dc2626;
+  color: V9_COLORS.PRIMARY.RED_DARK;
   font-weight: 700;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
   font-size: 0.875rem;
@@ -75,7 +75,7 @@ const TopScreen = styled.div`
 const ScreenTitle = styled.div`
   font-size: 1.25rem;
   font-weight: 800;
-  color: #dc2626;
+  color: V9_COLORS.PRIMARY.RED_DARK;
   margin-bottom: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -84,7 +84,7 @@ const ScreenTitle = styled.div`
 
 const ScreenSubtitle = styled.div`
   font-size: 1rem;
-  color: #64748b;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   margin-bottom: 1rem;
 `;
 
@@ -93,12 +93,12 @@ const EthanolLabel = styled.div`
   top: 0.5rem;
   right: 0.5rem;
   background: white;
-  color: #1e40af;
+  color: V9_COLORS.PRIMARY.BLUE_DARK;
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
   font-size: 0.75rem;
   font-weight: 600;
-  border: 1px solid #1e40af;
+  border: 1px solid V9_COLORS.PRIMARY.BLUE_DARK;
 `;
 
 // Main Control Panel - Like the keypad and card reader area
@@ -121,9 +121,9 @@ const LeftPanel = styled.div`
 `;
 
 const TransactionButton = styled.button<{ $active?: boolean }>`
-  background: ${(props) => (props.$active ? '#fbbf24' : 'rgba(255, 255, 255, 0.9)')};
-  color: ${(props) => (props.$active ? '#1e40af' : '#374151')};
-  border: 2px solid ${(props) => (props.$active ? '#f59e0b' : 'rgba(255, 255, 255, 0.3)')};
+  background: ${(props) => (props.$active ? 'V9_COLORS.PRIMARY.YELLOW_LIGHT' : 'rgba(255, 255, 255, 0.9)')};
+  color: ${(props) => (props.$active ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_DARK')};
+  border: 2px solid ${(props) => (props.$active ? 'V9_COLORS.PRIMARY.YELLOW' : 'rgba(255, 255, 255, 0.3)')};
   border-radius: 0.375rem;
   padding: 0.75rem;
   font-size: 0.875rem;
@@ -132,16 +132,16 @@ const TransactionButton = styled.button<{ $active?: boolean }>`
   transition: all 0.2s ease;
   
   &:hover {
-    background: #fbbf24;
-    color: #1e40af;
-    border-color: #f59e0b;
+    background: V9_COLORS.PRIMARY.YELLOW_LIGHT;
+    color: V9_COLORS.PRIMARY.BLUE_DARK;
+    border-color: V9_COLORS.PRIMARY.YELLOW;
   }
 `;
 
 // Center Panel - User Code Display (like the main display on a gas pump)
 const CenterPanel = styled.div`
-  background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
-  border: 3px solid #fbbf24;
+  background: linear-gradient(135deg, V9_COLORS.TEXT.GRAY_DARK 0%, V9_COLORS.TEXT.GRAY_DARK 100%);
+  border: 3px solid V9_COLORS.PRIMARY.YELLOW_LIGHT;
   border-radius: 0.75rem;
   padding: 2rem;
   text-align: center;
@@ -151,7 +151,7 @@ const CenterPanel = styled.div`
 `;
 
 const UserCodeLabel = styled.div`
-  color: #fbbf24;
+  color: V9_COLORS.PRIMARY.YELLOW_LIGHT;
   font-size: 1rem;
   font-weight: 600;
   margin-bottom: 1rem;
@@ -160,7 +160,7 @@ const UserCodeLabel = styled.div`
 `;
 
 const UserCodeDisplay = styled.div`
-  background: #000;
+  background: V9_COLORS.TEXT.BLACK;
   color: #00ff00;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 3rem;
@@ -177,8 +177,8 @@ const UserCodeDisplay = styled.div`
 `;
 
 const CopyCodeButton = styled.button`
-  background: #fbbf24;
-  color: #1e40af;
+  background: V9_COLORS.PRIMARY.YELLOW_LIGHT;
+  color: V9_COLORS.PRIMARY.BLUE_DARK;
   border: none;
   border-radius: 0.5rem;
   padding: 0.75rem 1.5rem;
@@ -191,7 +191,7 @@ const CopyCodeButton = styled.button`
   gap: 0.5rem;
   
   &:hover {
-    background: #f59e0b;
+    background: V9_COLORS.PRIMARY.YELLOW;
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   }
@@ -208,8 +208,8 @@ const RightPanel = styled.div`
 `;
 
 const CardReader = styled.div`
-  background: #374151;
-  border: 2px solid #6b7280;
+  background: V9_COLORS.TEXT.GRAY_DARK;
+  border: 2px solid V9_COLORS.TEXT.GRAY_MEDIUM;
   border-radius: 0.5rem;
   padding: 1rem;
   text-align: center;
@@ -222,14 +222,14 @@ const CardReader = styled.div`
     left: 50%;
     transform: translateX(-50%);
     font-size: 0.75rem;
-    color: #9ca3af;
+    color: V9_COLORS.TEXT.GRAY_LIGHT;
   }
 `;
 
 const CardSlot = styled.div`
   width: 100%;
   height: 2rem;
-  background: #1f2937;
+  background: V9_COLORS.TEXT.GRAY_DARK;
   border: 1px solid #4b5563;
   border-radius: 0.25rem;
   margin-bottom: 0.5rem;
@@ -241,7 +241,7 @@ const CardSlot = styled.div`
     right: 0.5rem;
     top: 50%;
     transform: translateY(-50%);
-    color: #6b7280;
+    color: V9_COLORS.TEXT.GRAY_MEDIUM;
     font-size: 1.2rem;
   }
 `;
@@ -261,21 +261,21 @@ const FuelButton = styled.button<{
   background: ${(props) => {
 		switch (props.$type) {
 			case 'regular':
-				return props.$active ? '#10b981' : '#f3f4f6';
+				return props.$active ? 'V9_COLORS.PRIMARY.GREEN' : '#f3f4f6';
 			case 'special':
-				return props.$active ? '#ef4444' : '#f3f4f6';
+				return props.$active ? 'V9_COLORS.PRIMARY.RED' : '#f3f4f6';
 			case 'super':
-				return props.$active ? '#3b82f6' : '#f3f4f6';
+				return props.$active ? 'V9_COLORS.PRIMARY.BLUE' : '#f3f4f6';
 			case 'diesel':
-				return props.$active ? '#fbbf24' : '#f3f4f6';
+				return props.$active ? 'V9_COLORS.PRIMARY.YELLOW_LIGHT' : '#f3f4f6';
 			case 'rec90':
 				return props.$active ? '#8b5cf6' : '#f3f4f6';
 			default:
 				return '#f3f4f6';
 		}
 	}};
-  color: ${(props) => (props.$active ? 'white' : '#374151')};
-  border: 2px solid ${(props) => (props.$active ? 'currentColor' : '#d1d5db')};
+  color: ${(props) => (props.$active ? 'white' : 'V9_COLORS.TEXT.GRAY_DARK')};
+  border: 2px solid ${(props) => (props.$active ? 'currentColor' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
   border-radius: 0.5rem;
   padding: 1rem;
   text-align: center;
@@ -309,7 +309,7 @@ const FuelOctane = styled.div`
 // QR Code Section - Like a display area on the pump
 const QRCodeSection = styled.div`
   background: white;
-  border: 3px solid #1e40af;
+  border: 3px solid V9_COLORS.PRIMARY.BLUE_DARK;
   border-radius: 0.75rem;
   padding: 1.5rem;
   text-align: center;
@@ -319,7 +319,7 @@ const QRCodeSection = styled.div`
 const QRCodeLabel = styled.div`
   font-size: 1rem;
   font-weight: 600;
-  color: #1e40af;
+  color: V9_COLORS.PRIMARY.BLUE_DARK;
   margin-bottom: 1rem;
   text-transform: uppercase;
 `;
@@ -335,25 +335,25 @@ const StatusDisplay = styled.div<{ $status: string }>`
   background: ${(props) => {
 		switch (props.$status) {
 			case 'pending':
-				return 'linear-gradient(135deg, #fef3c7 0%, #fbbf24 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.BG.WARNING 0%, V9_COLORS.PRIMARY.YELLOW_LIGHT 100%)';
 			case 'authorized':
-				return 'linear-gradient(135deg, #dcfce7 0%, #10b981 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.BG.SUCCESS 0%, V9_COLORS.PRIMARY.GREEN 100%)';
 			case 'denied':
-				return 'linear-gradient(135deg, #fecaca 0%, #ef4444 100%)';
+				return 'linear-gradient(135deg, V9_COLORS.BG.ERROR_BORDER 0%, V9_COLORS.PRIMARY.RED 100%)';
 			case 'expired':
-				return 'linear-gradient(135deg, #f3f4f6 0%, #6b7280 100%)';
+				return 'linear-gradient(135deg, #f3f4f6 0%, V9_COLORS.TEXT.GRAY_MEDIUM 100%)';
 			default:
-				return 'linear-gradient(135deg, #f3f4f6 0%, #6b7280 100%)';
+				return 'linear-gradient(135deg, #f3f4f6 0%, V9_COLORS.TEXT.GRAY_MEDIUM 100%)';
 		}
 	}};
   border: 2px solid ${(props) => {
 		switch (props.$status) {
 			case 'pending':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'authorized':
-				return '#059669';
+				return 'V9_COLORS.PRIMARY.GREEN_DARK';
 			case 'denied':
-				return '#dc2626';
+				return 'V9_COLORS.PRIMARY.RED_DARK';
 			case 'expired':
 				return '#4b5563';
 			default:
@@ -374,13 +374,13 @@ const StatusIcon = styled.div`
 const StatusText = styled.div`
   font-size: 1.125rem;
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin-bottom: 0.5rem;
 `;
 
 const StatusMessage = styled.div`
   font-size: 0.875rem;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 // Verification Section - Like additional controls on a gas pump
@@ -392,7 +392,7 @@ const VerificationSection = styled.div`
 `;
 
 const VerificationButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
-  background: ${(props) => (props.$variant === 'primary' ? '#1e40af' : '#6b7280')};
+  background: ${(props) => (props.$variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
   color: white;
   border: none;
   border-radius: 0.5rem;
@@ -407,7 +407,7 @@ const VerificationButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
   gap: 0.5rem;
   
   &:hover {
-    background: ${(props) => (props.$variant === 'primary' ? '#1d4ed8' : '#4b5563')};
+    background: ${(props) => (props.$variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE_DARK' : '#4b5563')};
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   }
@@ -421,13 +421,13 @@ const BrandArea = styled.div`
 
 const BrandLogo = styled.div`
   background: white;
-  color: #1e40af;
+  color: V9_COLORS.PRIMARY.BLUE_DARK;
   padding: 1rem 2rem;
   border-radius: 50%;
   font-size: 1.5rem;
   font-weight: 700;
   display: inline-block;
-  border: 3px solid #1e40af;
+  border: 3px solid V9_COLORS.PRIMARY.BLUE_DARK;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 `;
 
@@ -450,27 +450,27 @@ const _ActionButton = styled.button<{ $variant: 'primary' | 'secondary' | 'succe
 		switch ($variant) {
 			case 'primary':
 				return `
-          background: #1e40af;
+          background: V9_COLORS.PRIMARY.BLUE_DARK;
           color: white;
-          &:hover { background: #1d4ed8; transform: translateY(-1px); }
+          &:hover { background: V9_COLORS.PRIMARY.BLUE_DARK; transform: translateY(-1px); }
         `;
 			case 'secondary':
 				return `
-          background: #6b7280;
+          background: V9_COLORS.TEXT.GRAY_MEDIUM;
           color: white;
           &:hover { background: #4b5563; transform: translateY(-1px); }
         `;
 			case 'success':
 				return `
-          background: #10b981;
+          background: V9_COLORS.PRIMARY.GREEN;
           color: white;
-          &:hover { background: #059669; transform: translateY(-1px); }
+          &:hover { background: V9_COLORS.PRIMARY.GREEN_DARK; transform: translateY(-1px); }
         `;
 			case 'danger':
 				return `
-          background: #ef4444;
+          background: V9_COLORS.PRIMARY.RED;
           color: white;
-          &:hover { background: #dc2626; transform: translateY(-1px); }
+          &:hover { background: V9_COLORS.PRIMARY.RED_DARK; transform: translateY(-1px); }
         `;
 		}
 	}}
@@ -580,7 +580,9 @@ const GasPumpDeviceFlow: React.FC<GasPumpDeviceFlowProps> = ({
 					<RightPanel>
 						<CardReader>
 							<CardSlot />
-							<div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Insert your device here</div>
+							<div style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_LIGHT' }}>
+								Insert your device here
+							</div>
 						</CardReader>
 					</RightPanel>
 				</ControlPanel>
@@ -645,8 +647,8 @@ const GasPumpDeviceFlow: React.FC<GasPumpDeviceFlowProps> = ({
 						<QRCodeSVG
 							value={state.verificationUriComplete}
 							size={200}
-							bgColor="#ffffff"
-							fgColor="#000000"
+							bgColor="V9_COLORS.TEXT.WHITE"
+							fgColor="V9_COLORS.TEXT.BLACK"
 							level="M"
 							includeMargin={true}
 						/>
@@ -675,7 +677,7 @@ const GasPumpDeviceFlow: React.FC<GasPumpDeviceFlowProps> = ({
 					<div
 						style={{
 							background: 'white',
-							border: '3px solid #10b981',
+							border: '3px solid V9_COLORS.PRIMARY.GREEN',
 							borderRadius: '0.75rem',
 							padding: '1.5rem',
 							marginBottom: '1.5rem',
@@ -685,7 +687,7 @@ const GasPumpDeviceFlow: React.FC<GasPumpDeviceFlowProps> = ({
 							style={{
 								fontSize: '1.5rem',
 								fontWeight: '700',
-								color: '#10b981',
+								color: 'V9_COLORS.PRIMARY.GREEN',
 								textAlign: 'center',
 								marginBottom: '1rem',
 							}}
@@ -706,7 +708,7 @@ const GasPumpDeviceFlow: React.FC<GasPumpDeviceFlowProps> = ({
 			<StandardizedTokenDisplay
 				tokens={state.tokens}
 				backgroundColor="rgba(255, 255, 255, 0.95)"
-				borderColor="#e2e8f0"
+				borderColor="V9_COLORS.TEXT.GRAY_LIGHTER"
 				headerTextColor="#1e293b"
 			/>
 		</>

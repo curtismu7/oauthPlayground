@@ -12,6 +12,7 @@ import { FiEye, FiEyeOff, FiKey, FiLock, FiShield, FiUser } from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import type { CorporatePortalConfig } from '../../types/CorporatePortalConfig';
+import { V9_COLORS } from '../../../../services/v9/V9ColorStandards';
 
 // ============================================================================
 // STYLED COMPONENTS - Real Banking Website Design
@@ -24,7 +25,7 @@ const LoginContainer = styled.div<{ $brandColor: string }>`
   max-width: 450px;
   margin: 0 auto;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   position: relative;
 
   &::before {
@@ -68,13 +69,13 @@ const SecurityText = styled.div`
 
 const SecurityTitle = styled.div`
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 0.875rem;
   margin-bottom: 0.25rem;
 `;
 
 const SecurityMessage = styled.div`
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 0.75rem;
   line-height: 1.4;
 `;
@@ -92,7 +93,7 @@ const InputGroup = styled.div`
 const InputLabel = styled.label`
   display: block;
   font-weight: 500;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 0.875rem;
   margin-bottom: 0.5rem;
 `;
@@ -104,7 +105,7 @@ const InputWrapper = styled.div`
 const Input = styled.input<{ $brandColor?: string }>`
   width: 100%;
   padding: 0.75rem 1rem 0.75rem 2.5rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 6px;
   font-size: 1rem;
   transition: all 0.2s ease;
@@ -116,7 +117,7 @@ const Input = styled.input<{ $brandColor?: string }>`
   }
   
   &::placeholder {
-    color: #9ca3af;
+    color: V9_COLORS.TEXT.GRAY_LIGHT;
   }
 `;
 
@@ -125,7 +126,7 @@ const InputIcon = styled.div`
   left: 0.75rem;
   top: 50%;
   transform: translateY(-50%);
-  color: #9ca3af;
+  color: V9_COLORS.TEXT.GRAY_LIGHT;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -138,7 +139,7 @@ const TogglePassword = styled.button`
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   cursor: pointer;
   padding: 0.25rem;
   border-radius: 4px;
@@ -148,7 +149,7 @@ const TogglePassword = styled.button`
   
   &:hover {
     background: #f3f4f6;
-    color: #374151;
+    color: V9_COLORS.TEXT.GRAY_DARK;
   }
 `;
 
@@ -165,7 +166,7 @@ const CheckboxGroup = styled.label`
   gap: 0.5rem;
   cursor: pointer;
   font-size: 0.875rem;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const Checkbox = styled.input<{ $brandColor?: string }>`
@@ -229,14 +230,14 @@ const Divider = styled.div`
   display: flex;
   align-items: center;
   margin: 1.5rem 0;
-  color: #9ca3af;
+  color: V9_COLORS.TEXT.GRAY_LIGHT;
   font-size: 0.875rem;
 `;
 
 const DividerLine = styled.div`
   flex: 1;
   height: 1px;
-  background: #e5e7eb;
+  background: V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const DividerText = styled.span`
@@ -272,9 +273,9 @@ const AlternativeButton = styled.button<{ $brandColor: string }>`
 const HelpText = styled.div`
   margin-top: 2rem;
   padding-top: 1.5rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   text-align: center;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-size: 0.75rem;
   line-height: 1.5;
 `;

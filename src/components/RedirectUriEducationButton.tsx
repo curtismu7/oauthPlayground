@@ -22,9 +22,17 @@ export const RedirectUriEducationButton: React.FC<RedirectUriEducationButtonProp
 	const getButtonStyle = () => ({
 		padding: size === 'sm' ? '0.5rem 1rem' : size === 'lg' ? '1rem 2rem' : '0.75rem 1.5rem',
 		borderRadius: '0.5rem',
-		border: variant === 'outline' ? '1px solid #3b82f6' : 'none',
-		background: variant === 'primary' ? '#3b82f6' : variant === 'outline' ? 'transparent' : '#f3f4f6',
-		color: variant === 'primary' || variant === 'outline' ? '#ffffff' : '#1f2937',
+		border: variant === 'outline' ? '1px solid V9_COLORS.PRIMARY.BLUE' : 'none',
+		background:
+			variant === 'primary'
+				? 'V9_COLORS.PRIMARY.BLUE'
+				: variant === 'outline'
+					? 'transparent'
+					: '#f3f4f6',
+		color:
+			variant === 'primary' || variant === 'outline'
+				? 'V9_COLORS.TEXT.WHITE'
+				: 'V9_COLORS.TEXT.GRAY_DARK',
 		fontWeight: '600' as const,
 		cursor: isLoading || !flowInfo ? 'not-allowed' : 'pointer',
 		opacity: isLoading || !flowInfo ? 0.6 : 1,
@@ -37,7 +45,11 @@ export const RedirectUriEducationButton: React.FC<RedirectUriEducationButtonProp
 			onClick={openEducationalModal}
 			disabled={isLoading || !flowInfo}
 			style={getButtonStyle()}
-			title={flowInfo ? `View URI educational guide for ${flowInfo.flowName}` : 'Loading URI information...'}
+			title={
+				flowInfo
+					? `View URI educational guide for ${flowInfo.flowName}`
+					: 'Loading URI information...'
+			}
 		>
 			{isLoading ? 'Loading...' : children || '📚 URI Guide'}
 		</button>

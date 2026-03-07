@@ -55,7 +55,7 @@ const ModalHeader = styled.div`
 const ModalTitle = styled.h2`
 	font-size: 1.5rem;
 	font-weight: 600;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin: 0;
 	display: flex;
 	align-items: center;
@@ -66,14 +66,14 @@ const CloseButton = styled.button`
 	background: none;
 	border: none;
 	font-size: 1.5rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	cursor: pointer;
 	padding: 0.25rem;
 	border-radius: 0.375rem;
 	
 	&:hover {
 		background: #f3f4f6;
-		color: #374151;
+		color: V9_COLORS.TEXT.GRAY_DARK;
 	}
 `;
 
@@ -93,9 +93,9 @@ const ValidationSummary = styled.div<{ $isValid: boolean }>`
 	padding: 1rem;
 	border-radius: 0.5rem;
 	margin-bottom: 1.5rem;
-	background: ${(props) => (props.$isValid ? '#d1fae5' : '#fef2f2')};
-	border: 1px solid ${(props) => (props.$isValid ? '#a7f3d0' : '#fecaca')};
-	color: ${(props) => (props.$isValid ? '#065f46' : '#991b1b')};
+	background: ${(props) => (props.$isValid ? 'V9_COLORS.BG.SUCCESS' : 'V9_COLORS.BG.ERROR')};
+	border: 1px solid ${(props) => (props.$isValid ? '#a7f3d0' : 'V9_COLORS.BG.ERROR_BORDER')};
+	color: ${(props) => (props.$isValid ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.PRIMARY.RED_DARK')};
 	font-weight: 500;
 	display: flex;
 	align-items: center;
@@ -109,7 +109,7 @@ const IssuesList = styled.div`
 const IssuesTitle = styled.h3`
 	font-size: 1rem;
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.75rem;
 `;
 
@@ -117,9 +117,9 @@ const IssueItem = styled.div<{ $isError: boolean }>`
 	padding: 0.75rem;
 	border-radius: 0.375rem;
 	margin-bottom: 0.5rem;
-	background: ${(props) => (props.$isError ? '#fef2f2' : '#fffbeb')};
-	border-left: 4px solid ${(props) => (props.$isError ? '#ef4444' : '#f59e0b')};
-	color: ${(props) => (props.$isError ? '#991b1b' : '#92400e')};
+	background: ${(props) => (props.$isError ? 'V9_COLORS.BG.ERROR' : 'V9_COLORS.BG.WARNING')};
+	border-left: 4px solid ${(props) => (props.$isError ? 'V9_COLORS.PRIMARY.RED' : 'V9_COLORS.PRIMARY.YELLOW')};
+	color: ${(props) => (props.$isError ? 'V9_COLORS.PRIMARY.RED_DARK' : 'V9_COLORS.PRIMARY.YELLOW_DARK')};
 	font-size: 0.875rem;
 `;
 
@@ -141,19 +141,19 @@ const Button = styled.button<{ $variant: 'primary' | 'secondary' }>`
 	${(props) =>
 		props.$variant === 'primary'
 			? `
-		background: #3b82f6;
+		background: V9_COLORS.PRIMARY.BLUE;
 		color: white;
 		
 		&:hover {
-			background: #2563eb;
+			background: V9_COLORS.PRIMARY.BLUE_DARK;
 		}
 	`
 			: `
 		background: #f3f4f6;
-		color: #374151;
+		color: V9_COLORS.TEXT.GRAY_DARK;
 		
 		&:hover {
-			background: #e5e7eb;
+			background: V9_COLORS.TEXT.GRAY_LIGHTER;
 		}
 	`}
 `;
@@ -178,12 +178,12 @@ const AuthorizationUrlValidationModal: React.FC<AuthorizationUrlValidationModalP
 					<ModalTitle>
 						{hasErrors ? (
 							<>
-								<FiAlertTriangle style={{ color: '#ef4444' }} />
+								<FiAlertTriangle style={{ color: 'V9_COLORS.PRIMARY.RED' }} />
 								Authorization URL Issues
 							</>
 						) : (
 							<>
-								<FiCheckCircle style={{ color: '#10b981' }} />
+								<FiCheckCircle style={{ color: 'V9_COLORS.PRIMARY.GREEN' }} />
 								Authorization URL Validation
 							</>
 						)}
@@ -224,7 +224,7 @@ const AuthorizationUrlValidationModal: React.FC<AuthorizationUrlValidationModalP
 					<IssuesList>
 						{hasErrors && (
 							<div>
-								<IssuesTitle style={{ color: '#dc2626' }}>Errors:</IssuesTitle>
+								<IssuesTitle style={{ color: 'V9_COLORS.PRIMARY.RED_DARK' }}>Errors:</IssuesTitle>
 								{validationResult.errors.map((error, index) => (
 									<IssueItem key={index} $isError={true}>
 										{error}
@@ -235,7 +235,9 @@ const AuthorizationUrlValidationModal: React.FC<AuthorizationUrlValidationModalP
 
 						{hasWarnings && (
 							<div>
-								<IssuesTitle style={{ color: '#d97706' }}>Warnings:</IssuesTitle>
+								<IssuesTitle style={{ color: 'V9_COLORS.PRIMARY.YELLOW_DARK' }}>
+									Warnings:
+								</IssuesTitle>
 								{validationResult.warnings.map((warning, index) => (
 									<IssueItem key={index} $isError={false}>
 										{warning}

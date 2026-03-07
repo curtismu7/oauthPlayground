@@ -5,8 +5,8 @@ import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { logger } from '../utils/logger';
 
 const Container = styled.div`
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: V9_COLORS.BG.GRAY_LIGHT;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 8px;
   overflow: hidden;
   margin: 1rem 0;
@@ -18,14 +18,14 @@ const Header = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const Title = styled.h4`
   margin: 0;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #2d3748;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
 `;
 
 const Content = styled.pre`
@@ -34,7 +34,7 @@ const Content = styled.pre`
   font-family: 'Fira Code', monospace;
   font-size: 0.8125rem;
   line-height: 1.5;
-  color: #2d3748;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   background: white;
   max-height: 400px;
   overflow: auto;

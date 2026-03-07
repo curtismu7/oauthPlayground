@@ -19,7 +19,7 @@ interface ColoredUrlDisplayProps {
 
 const UrlContainer = styled.div`
 	background: #f0fdf4; /* Light green for generated content */
-	border: 1px solid #16a34a;
+	border: 1px solid V9_COLORS.PRIMARY.GREEN_DARK;
 	border-radius: 8px;
 	padding: 1rem;
 	margin: 1rem 0;
@@ -33,7 +33,7 @@ const UrlContainer = styled.div`
 const UrlLabel = styled.div`
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.75rem;
 	display: flex;
 	align-items: center;
@@ -42,7 +42,7 @@ const UrlLabel = styled.div`
 
 const UrlContent = styled.div<{ $height?: string }>`
 	background: #f0fdf4; /* Light green for generated content */
-	border: 1px solid #16a34a;
+	border: 1px solid V9_COLORS.PRIMARY.GREEN_DARK;
 	border-radius: 8px;
 	padding: 2.5rem 8rem 1rem 1rem; /* Extra space so buttons do not overlap URL text */
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -61,8 +61,8 @@ const UrlContent = styled.div<{ $height?: string }>`
 `;
 
 const EditableUrlTextarea = styled.textarea<{ $height?: string }>`
-	background: #ffffff;
-	border: 2px solid #16a34a;
+	background: V9_COLORS.TEXT.WHITE;
+	border: 2px solid V9_COLORS.PRIMARY.GREEN_DARK;
 	border-radius: 8px;
 	padding: 1rem;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -71,7 +71,7 @@ const EditableUrlTextarea = styled.textarea<{ $height?: string }>`
 	width: 100%;
 	min-height: ${({ $height }) => $height || '150px'};
 	resize: vertical;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	box-sizing: border-box;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
@@ -84,7 +84,7 @@ const EditableUrlTextarea = styled.textarea<{ $height?: string }>`
 
 const ColoredUrlText = styled.span<{ $color: string }>`
 	color: ${({ $color }) => $color};
-	font-weight: ${({ $color }) => ($color === '#1f2937' ? '600' : '400')};
+	font-weight: ${({ $color }) => ($color === 'V9_COLORS.TEXT.GRAY_DARK' ? '600' : '400')};
 `;
 
 const ActionButtons = styled.div`
@@ -101,17 +101,17 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 	gap: 0.25rem;
 	padding: 0.375rem 0.75rem;
 	border-radius: 4px;
-	border: 1px solid ${({ $variant }) => ($variant === 'primary' ? '#3b82f6' : '#d1d5db')};
-	background: ${({ $variant }) => ($variant === 'primary' ? '#3b82f6' : 'white')};
-	color: ${({ $variant }) => ($variant === 'primary' ? 'white' : '#374151')};
+	border: 1px solid ${({ $variant }) => ($variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
+	background: ${({ $variant }) => ($variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE' : 'white')};
+	color: ${({ $variant }) => ($variant === 'primary' ? 'white' : 'V9_COLORS.TEXT.GRAY_DARK')};
 	font-size: 0.75rem;
 	font-weight: 500;
 	cursor: pointer;
 	transition: all 0.2s ease;
 
 	&:hover {
-		background: ${({ $variant }) => ($variant === 'primary' ? '#2563eb' : '#f9fafb')};
-		border-color: ${({ $variant }) => ($variant === 'primary' ? '#2563eb' : '#9ca3af')};
+		background: ${({ $variant }) => ($variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE_DARK' : '#f9fafb')};
+		border-color: ${({ $variant }) => ($variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_LIGHT')};
 	}
 
 	&:active {
@@ -154,7 +154,7 @@ const InfoModalTitle = styled.h3`
 	margin: 0;
 	font-size: 1.25rem;
 	font-weight: 600;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const CloseButton = styled.button`
@@ -162,11 +162,11 @@ const CloseButton = styled.button`
 	border: none;
 	font-size: 1.5rem;
 	cursor: pointer;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	padding: 0.25rem;
 
 	&:hover {
-		color: #374151;
+		color: V9_COLORS.TEXT.GRAY_DARK;
 	}
 `;
 
@@ -178,26 +178,26 @@ const ParameterList = styled.div`
 
 const ParameterItem = styled.div`
 	padding: 1rem;
-	background: #f8fafc;
+	background: V9_COLORS.BG.GRAY_LIGHT;
 	border-radius: 8px;
-	border-left: 4px solid #3b82f6;
+	border-left: 4px solid V9_COLORS.PRIMARY.BLUE;
 `;
 
 const ParameterName = styled.div`
 	font-weight: 600;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.25rem;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 `;
 
 const ParameterDescription = styled.div`
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 0.875rem;
 	line-height: 1.5;
 `;
 
 const ParameterValue = styled.div`
-	color: #059669;
+	color: V9_COLORS.PRIMARY.GREEN_DARK;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	font-size: 0.875rem;
 	margin-top: 0.25rem;
@@ -206,23 +206,23 @@ const ParameterValue = styled.div`
 
 // Color scheme for URL parts
 const URL_COLORS = [
-	'#1f2937', // Base URL - dark gray
-	'#dc2626', // ? - red
-	'#059669', // response_type - green
+	'V9_COLORS.TEXT.GRAY_DARK', // Base URL - dark gray
+	'V9_COLORS.PRIMARY.RED_DARK', // ? - red
+	'V9_COLORS.PRIMARY.GREEN_DARK', // response_type - green
 	'#7c3aed', // client_id - purple
 	'#ea580c', // redirect_uri - orange
-	'#0891b2', // scope - cyan
+	'V9_COLORS.PRIMARY.BLUE', // scope - cyan
 	'#be123c', // state - pink
 	'#ca8a04', // code_challenge - yellow
 	'#7c2d12', // code_challenge_method - brown
-	'#1e40af', // response_mode - blue
+	'V9_COLORS.PRIMARY.BLUE_DARK', // response_mode - blue
 	'#be185d', // nonce - magenta
 	'#0f766e', // prompt - teal
-	'#92400e', // max_age - amber
+	'V9_COLORS.PRIMARY.YELLOW_DARK', // max_age - amber
 	'#7c2d12', // acr_values - brown
 	'#1e3a8a', // claims - indigo
-	'#991b1b', // ui_locales - red
-	'#0c4a6e', // id_token_hint - sky
+	'V9_COLORS.PRIMARY.RED_DARK', // ui_locales - red
+	'V9_COLORS.TEXT.GRAY_DARK', // id_token_hint - sky
 	'#581c87', // login_hint - violet
 	'#7c2d12', // hd - brown
 	'#0f766e', // include_granted_scopes - teal
@@ -388,7 +388,7 @@ export const ColoredUrlDisplay: React.FC<ColoredUrlDisplayProps> = ({
 					<span
 						style={{
 							background: '#dbeafe',
-							color: '#1e40af',
+							color: 'V9_COLORS.PRIMARY.BLUE_DARK',
 							padding: '0.25rem 0.5rem',
 							borderRadius: '0.375rem',
 							fontSize: '0.75rem',
@@ -402,8 +402,8 @@ export const ColoredUrlDisplay: React.FC<ColoredUrlDisplayProps> = ({
 				{isEditing && (
 					<span
 						style={{
-							background: '#fef3c7',
-							color: '#92400e',
+							background: 'V9_COLORS.BG.WARNING',
+							color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
 							padding: '0.25rem 0.5rem',
 							borderRadius: '0.375rem',
 							fontSize: '0.75rem',
@@ -516,7 +516,7 @@ export const ColoredUrlDisplay: React.FC<ColoredUrlDisplayProps> = ({
 						style={{
 							marginTop: '1.5rem',
 							paddingTop: '1rem',
-							borderTop: '1px solid #e5e7eb',
+							borderTop: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							textAlign: 'center',
 						}}
 					>

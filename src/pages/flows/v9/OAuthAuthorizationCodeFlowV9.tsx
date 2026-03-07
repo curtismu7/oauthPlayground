@@ -70,6 +70,7 @@ import { storeFlowNavigationState } from '../../../utils/flowNavigation';
 import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 import {
+import { V9_COLORS } from '../../../services/v9/V9ColorStandards';
 	DEFAULT_APP_CONFIG,
 	type IntroSectionKey,
 	STEP_METADATA,
@@ -82,16 +83,16 @@ const Container = FlowUIService.getContainer();
 const ContentWrapper = FlowUIService.getContentWrapper();
 
 const MainCard = styled.div`
-	background-color: #ffffff;
+	background-color: V9_COLORS.TEXT.WHITE;
 	border-radius: 1rem;
 	box-shadow: 0 20px 40px rgba(15, 23, 42, 0.1);
-	border: 1px solid #e2e8f0;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	overflow: hidden;
 `;
 
 const StepHeader = styled.div<{ $variant: 'oauth' | 'oidc' }>`
-	background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-	color: #ffffff;
+	background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
+	color: V9_COLORS.TEXT.WHITE;
 	padding: 2rem;
 	display: flex;
 	align-items: center;
@@ -107,7 +108,7 @@ const StepHeaderLeft = styled.div`
 const VersionBadge = styled.span<{ $variant: 'oauth' | 'oidc' }>`
 	align-self: flex-start;
 	background: rgba(59, 130, 246, 0.2);
-	border: 1px solid #60a5fa;
+	border: 1px solid V9_COLORS.PRIMARY.BLUE_LIGHT;
 	color: #dbeafe;
 	font-size: 0.75rem;
 	font-weight: 600;
@@ -134,7 +135,7 @@ const StepHeaderRight = styled.div`
 `;
 
 const RequirementsIndicator = styled.div`
-	background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, #dbeafe 100%);
 	border: 1px solid #93c5fd;
 	border-radius: 8px;
 	padding: 1rem;
@@ -145,7 +146,7 @@ const RequirementsIndicator = styled.div`
 `;
 
 const RequirementsIcon = styled.div`
-	color: #2563eb;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
 	font-size: 1.25rem;
 	margin-top: 0.125rem;
 	flex-shrink: 0;
@@ -157,7 +158,7 @@ const VariantSelector = styled.div`
 	gap: 1rem;
 	margin-bottom: 2rem;
 	padding: 1.5rem;
-	background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
 	border-radius: 0.75rem;
 	border: 1px solid #cbd5e1;
 `;
@@ -166,15 +167,15 @@ const VariantButton = styled.button<{ $selected: boolean }>`
 	flex: 1;
 	padding: 1rem;
 	border-radius: 0.5rem;
-	border: 2px solid ${(props) => (props.$selected ? '#3b82f6' : '#cbd5e1')};
+	border: 2px solid ${(props) => (props.$selected ? 'V9_COLORS.PRIMARY.BLUE' : '#cbd5e1')};
 	background: ${(props) => (props.$selected ? '#dbeafe' : 'white')};
-	color: ${(props) => (props.$selected ? '#1e40af' : '#475569')};
+	color: ${(props) => (props.$selected ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
 	font-weight: ${(props) => (props.$selected ? '600' : '500')};
 	transition: all 0.2s ease;
 	cursor: pointer;
 
 	&:hover {
-		border-color: #3b82f6;
+		border-color: V9_COLORS.PRIMARY.BLUE;
 		background: #dbeafe;
 	}
 `;
@@ -224,14 +225,14 @@ const StepTotal = styled.div`
 
 const StepContentWrapper = styled.div`
 	padding: 2rem;
-	background: #ffffff;
+	background: V9_COLORS.TEXT.WHITE;
 `;
 
 const CollapsibleSection = styled.section`
-	border: 1px solid #e2e8f0;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.75rem;
 	margin-bottom: 1.5rem;
-	background-color: #ffffff;
+	background-color: V9_COLORS.TEXT.WHITE;
 	box-shadow: 0 10px 20px rgba(15, 23, 42, 0.05);
 `;
 
@@ -241,7 +242,7 @@ const CollapsibleHeaderButton = styled.button<{ $collapsed?: boolean }>`
 	justify-content: space-between;
 	width: 100%;
 	padding: 1.5rem 1.75rem;
-	background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, #dbeafe 100%);
 	border: none;
 	border-radius: 0.75rem;
 	cursor: pointer;
@@ -253,44 +254,44 @@ const CollapsibleHeaderButton = styled.button<{ $collapsed?: boolean }>`
 	min-height: 72px;
 
 	&:hover {
-		background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+		background: linear-gradient(135deg, #dbeafe 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
 	}
 `;
 
 const BlueHeaderButton = styled(CollapsibleHeaderButton)`
-	background: linear-gradient(135deg, #bfdbfe 0%, #60a5fa 100%);
+	background: linear-gradient(135deg, V9_COLORS.TEXT.GRAY_LIGHTER 0%, V9_COLORS.PRIMARY.BLUE_LIGHT 100%);
 	color: #1e3a8a;
 	
 	&:hover {
-		background: linear-gradient(135deg, #93c5fd 0%, #3b82f6 100%);
+		background: linear-gradient(135deg, #93c5fd 0%, V9_COLORS.PRIMARY.BLUE 100%);
 	}
 `;
 
 const YellowHeaderButton = styled(CollapsibleHeaderButton)`
-	background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, #dbeafe 100%);
 	color: #1e3a8a;
 	
 	&:hover {
-		background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+		background: linear-gradient(135deg, #dbeafe 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
 	}
 `;
 
 const GreenHeaderButton = styled(CollapsibleHeaderButton)`
-	background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, #dbeafe 100%);
 	color: #1e3a8a;
 	
 	&:hover {
-		background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+		background: linear-gradient(135deg, #dbeafe 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
 	}
 `;
 
 const HighlightHeaderButton = styled(CollapsibleHeaderButton)`
 	background: linear-gradient(135deg, #dbeafe 0%, #93c5fd 100%);
-	color: #1e40af;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
 	box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
 	
 	&:hover {
-		background: linear-gradient(135deg, #bfdbfe 0%, #60a5fa 100%);
+		background: linear-gradient(135deg, V9_COLORS.TEXT.GRAY_LIGHTER 0%, V9_COLORS.PRIMARY.BLUE_LIGHT 100%);
 		box-shadow: 0 0 30px rgba(59, 130, 246, 0.5);
 	}
 `;
@@ -345,14 +346,14 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'warning' | 'success' }>`
 	align-items: flex-start;
 	border: 1px solid
 		${({ $variant }) => {
-			if ($variant === 'warning') return '#f59e0b';
-			if ($variant === 'success') return '#22c55e';
-			return '#3b82f6';
+			if ($variant === 'warning') return 'V9_COLORS.PRIMARY.YELLOW';
+			if ($variant === 'success') return 'V9_COLORS.PRIMARY.GREEN';
+			return 'V9_COLORS.PRIMARY.BLUE';
 		}};
 	background-color:
 		${({ $variant }) => {
-			if ($variant === 'warning') return '#fef3c7';
-			if ($variant === 'success') return '#dcfce7';
+			if ($variant === 'warning') return 'V9_COLORS.BG.WARNING';
+			if ($variant === 'success') return 'V9_COLORS.BG.SUCCESS';
 			return '#dbeafe';
 		}};
 `;
@@ -360,7 +361,7 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'warning' | 'success' }>`
 const InfoTitle = styled.h3`
 	font-size: 1rem;
 	font-weight: 600;
-	color: #0f172a;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin: 0;
 `;
 
@@ -380,8 +381,8 @@ const InfoList = styled.ul`
 `;
 
 const GeneratedContentBox = styled.div`
-	background-color: #dcfce7;
-	border: 1px solid #22c55e;
+	background-color: V9_COLORS.BG.SUCCESS;
+	border: 1px solid V9_COLORS.PRIMARY.GREEN;
 	border-radius: 0.75rem;
 	padding: 1.5rem;
 	margin: 1.5rem 0;
@@ -392,7 +393,7 @@ const GeneratedLabel = styled.div`
 	position: absolute;
 	top: -10px;
 	left: 16px;
-	background-color: #16a34a;
+	background-color: V9_COLORS.PRIMARY.GREEN_DARK;
 	color: white;
 	padding: 0.25rem 0.75rem;
 	border-radius: 9999px;
@@ -410,7 +411,7 @@ const ParameterGrid = styled.div`
 const ParameterLabel = styled.div`
 	font-size: 0.75rem;
 	font-weight: 600;
-	color: #16a34a;
+	color: V9_COLORS.PRIMARY.GREEN_DARK;
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
 `;
@@ -423,7 +424,7 @@ const ParameterValue = styled.div`
 	background-color: #f0fdf4;
 	padding: 0.5rem;
 	border-radius: 0.25rem;
-	border: 1px solid #bbf7d0;
+	border: 1px solid V9_COLORS.BG.SUCCESS_BORDER;
 `;
 
 const ActionRow = styled.div`
@@ -453,18 +454,18 @@ const Button = styled.button<{
 	${({ $variant }) =>
 		$variant === 'primary' &&
 		`
-		background-color: #22c55e;
-		color: #ffffff;
+		background-color: V9_COLORS.PRIMARY.GREEN;
+		color: V9_COLORS.TEXT.WHITE;
 		&:hover:not(:disabled) {
-			background-color: #16a34a;
+			background-color: V9_COLORS.PRIMARY.GREEN_DARK;
 		}
 	`}
 
 	${({ $variant }) =>
 		$variant === 'success' &&
 		`
-		background-color: #16a34a;
-		color: #ffffff;
+		background-color: V9_COLORS.PRIMARY.GREEN_DARK;
+		color: V9_COLORS.TEXT.WHITE;
 		&:hover:not(:disabled) {
 			background-color: #15803d;
 		}
@@ -474,19 +475,19 @@ const Button = styled.button<{
 		$variant === 'secondary' &&
 		`
 		background-color: #0ea5e9;
-		color: #ffffff;
+		color: V9_COLORS.TEXT.WHITE;
 		&:hover:not(:disabled) {
-			background-color: #0284c7;
+			background-color: V9_COLORS.PRIMARY.BLUE;
 		}
 	`}
 
 	${({ $variant }) =>
 		$variant === 'danger' &&
 		`
-		background-color: #ef4444;
-		color: #ffffff;
+		background-color: V9_COLORS.PRIMARY.RED;
+		color: V9_COLORS.TEXT.WHITE;
 		&:hover:not(:disabled) {
-			background-color: #dc2626;
+			background-color: V9_COLORS.PRIMARY.RED_DARK;
 		}
 	`}
 
@@ -495,10 +496,10 @@ const Button = styled.button<{
 		`
 		background-color: transparent;
 		color: #14532d;
-		border-color: #bbf7d0;
+		border-color: V9_COLORS.BG.SUCCESS_BORDER;
 		&:hover:not(:disabled) {
 			background-color: #f0fdf4;
-			border-color: #22c55e;
+			border-color: V9_COLORS.PRIMARY.GREEN;
 		}
 	`}
 `;
@@ -508,14 +509,14 @@ const HighlightedActionButton = styled(Button)<{ $priority: 'primary' | 'success
 	background:
 		${({ $priority }) =>
 			$priority === 'primary'
-				? 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)'
-				: 'linear-gradient(135deg, #10b981 0%, #059669 100%)'};
+				? 'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%)'
+				: 'linear-gradient(135deg, V9_COLORS.PRIMARY.GREEN 0%, V9_COLORS.PRIMARY.GREEN_DARK 100%)'};
 	box-shadow:
 		${({ $priority }) =>
 			$priority === 'primary'
 				? '0 6px 18px rgba(34, 197, 94, 0.35)'
 				: '0 6px 18px rgba(16, 185, 129, 0.35)'};
-	color: #ffffff;
+	color: V9_COLORS.TEXT.WHITE;
 	padding-right: 2.5rem;
 
 	&:hover {
@@ -536,8 +537,8 @@ const HighlightBadge = styled.span`
 	position: absolute;
 	top: -10px;
 	right: -10px;
-	background: #22c55e;
-	color: #ffffff;
+	background: V9_COLORS.PRIMARY.GREEN;
+	color: V9_COLORS.TEXT.WHITE;
 	border-radius: 9999px;
 	width: 24px;
 	height: 24px;
@@ -550,7 +551,7 @@ const HighlightBadge = styled.span`
 
 const GeneratedUrlDisplay = styled.div`
 	background-color: #ecfdf3;
-	border: 1px solid #bbf7d0;
+	border: 1px solid V9_COLORS.BG.SUCCESS_BORDER;
 	border-radius: 0.75rem;
 	padding: 1.5rem;
 	margin: 1.5rem 0;
@@ -563,7 +564,7 @@ const GeneratedUrlDisplay = styled.div`
 const EmptyState = styled.div`
 	text-align: center;
 	padding: 3rem 2rem;
-	color: #166534;
+	color: V9_COLORS.PRIMARY.GREEN;
 `;
 
 const EmptyIcon = styled.div`
@@ -576,7 +577,7 @@ const EmptyIcon = styled.div`
 	justify-content: center;
 	margin: 0 auto 1rem;
 	font-size: 1.5rem;
-	color: #16a34a;
+	color: V9_COLORS.PRIMARY.GREEN_DARK;
 `;
 
 const EmptyTitle = styled.h3`
@@ -588,7 +589,7 @@ const EmptyTitle = styled.h3`
 
 const EmptyText = styled.p`
 	font-size: 0.875rem;
-	color: #166534;
+	color: V9_COLORS.PRIMARY.GREEN;
 	margin-bottom: 1rem;
 `;
 
@@ -2263,9 +2264,9 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 										<div
 											style={{
 												padding: '1rem',
-												border: `2px solid ${flowVariant === 'oauth' ? '#3b82f6' : '#e2e8f0'}`,
+												border: `2px solid ${flowVariant === 'oauth' ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER'}`,
 												borderRadius: '0.5rem',
-												background: flowVariant === 'oauth' ? '#eff6ff' : 'white',
+												background: flowVariant === 'oauth' ? 'V9_COLORS.BG.GRAY_LIGHT' : 'white',
 											}}
 										>
 											<h4>OAuth 2.0 Mode</h4>
@@ -2282,9 +2283,9 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 										<div
 											style={{
 												padding: '1rem',
-												border: `2px solid ${flowVariant === 'oidc' ? '#3b82f6' : '#e2e8f0'}`,
+												border: `2px solid ${flowVariant === 'oidc' ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER'}`,
 												borderRadius: '0.5rem',
-												background: flowVariant === 'oidc' ? '#eff6ff' : 'white',
+												background: flowVariant === 'oidc' ? 'V9_COLORS.BG.GRAY_LIGHT' : 'white',
 											}}
 										>
 											<h4>OpenID Connect Mode</h4>
@@ -2308,7 +2309,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 							<CollapsibleHeaderButton
 								onClick={() => toggleSection('configuration')}
 								aria-expanded={!collapsedSections.configuration}
-								style={{ background: '#3b82f6', color: 'white' }}
+								style={{ background: 'V9_COLORS.PRIMARY.BLUE', color: 'white' }}
 							>
 								<CollapsibleTitle>
 									<FiSettings />
@@ -2423,15 +2424,15 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 										style={{
 											marginTop: '1rem',
 											padding: '1rem',
-											background: '#fffbeb',
-											border: '1px solid #fbbf24',
+											background: 'V9_COLORS.BG.WARNING',
+											border: '1px solid V9_COLORS.PRIMARY.YELLOW_LIGHT',
 											borderRadius: '0.5rem',
 										}}
 									>
-										<h4 style={{ margin: '0 0 0.5rem 0', color: '#92400e' }}>
+										<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.PRIMARY.YELLOW_DARK' }}>
 											💡 Advanced Options
 										</h4>
-										<p style={{ margin: 0, fontSize: '0.875rem', color: '#92400e' }}>
+										<p style={{ margin: 0, fontSize: '0.875rem', color: 'V9_COLORS.PRIMARY.YELLOW_DARK' }}>
 											PKCE, custom parameters, and response modes are auto-configured based on your
 											variant selection. Advanced OAuth parameters (audience, resources) can be
 											configured in the flow execution steps.
@@ -2695,7 +2696,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 													style={{
 														width: '100%',
 														padding: '0.5rem',
-														border: '1px solid #d1d5db',
+														border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 														borderRadius: '0.375rem',
 														fontSize: '0.875rem',
 														backgroundColor: 'white',
@@ -2708,7 +2709,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 														code id_token - Authorization Code + ID Token (OIDC hybrid)
 													</option>
 												</select>
-												<div style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: '#6b7280' }}>
+												<div style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM' }}>
 													{selectedResponseType === 'code' &&
 														'Standard OAuth 2.0 flow - get authorization code, exchange for tokens'}
 													{selectedResponseType === 'code id_token' &&
@@ -2917,7 +2918,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 											<FiExternalLink /> Redirect to PingOne
 											<HighlightBadge>2</HighlightBadge>
 										</HighlightedActionButton>
-										<span style={{ fontSize: '0.75rem', color: '#6b7280', fontStyle: 'italic' }}>
+										<span style={{ fontSize: '0.75rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontStyle: 'italic' }}>
 											(Open Authorization URL)
 										</span>
 									</div>
@@ -3062,7 +3063,7 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 															display: 'block',
 															fontSize: '0.875rem',
 															fontWeight: '600',
-															color: '#374151',
+															color: 'V9_COLORS.TEXT.GRAY_DARK',
 															marginBottom: '0.5rem',
 														}}
 													>
@@ -3082,10 +3083,10 @@ const OAuthAuthorizationCodeFlowV9: React.FC = () => {
 														style={{
 															width: '100%',
 															padding: '0.75rem',
-															border: '1px solid #d1d5db',
+															border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 															borderRadius: '0.5rem',
 															fontSize: '0.875rem',
-															backgroundColor: '#ffffff',
+															backgroundColor: 'V9_COLORS.TEXT.WHITE',
 															marginBottom: '1rem',
 														}}
 													/>

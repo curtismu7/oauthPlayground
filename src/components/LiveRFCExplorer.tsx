@@ -21,11 +21,11 @@ import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const ExplorerContainer = styled.div`
-	background: linear-gradient(135deg, #e0f2fe 0%, #bfdbfe 100%);
+	background: linear-gradient(135deg, V9_COLORS.BG.GRAY_LIGHT 0%, V9_COLORS.TEXT.GRAY_LIGHTER 100%);
 	border-radius: 1rem;
 	padding: 2rem;
 	margin: 2rem 0;
-	border: 3px solid #2563eb;
+	border: 3px solid V9_COLORS.PRIMARY.BLUE_DARK;
 	box-shadow: 0 8px 24px rgba(37, 99, 235, 0.2);
 `;
 
@@ -39,7 +39,7 @@ const Title = styled.h2`
 `;
 
 const Subtitle = styled.p`
-	color: #1d4ed8;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
 	margin: 0 0 2rem 0;
 	font-size: 1.05rem;
 	line-height: 1.6;
@@ -60,11 +60,11 @@ const DeepDiveToggle = styled.button<{ $active: boolean }>`
 	gap: 0.5rem;
 	padding: 0.75rem 1.25rem;
 	border-radius: 999px;
-	border: 2px solid ${({ $active }) => ($active ? '#1d4ed8' : '#bfdbfe')};
+	border: 2px solid ${({ $active }) => ($active ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
 	background: ${({ $active }) =>
 		$active
 			? 'linear-gradient(135deg, rgba(29, 78, 216, 0.15), rgba(37, 99, 235, 0.15))'
-			: '#ffffff'};
+			: 'V9_COLORS.TEXT.WHITE'};
 	color: #1e3a8a;
 	font-weight: 600;
 	cursor: pointer;
@@ -93,12 +93,12 @@ const SearchInput = styled.input`
 
 	&:focus {
 		outline: none;
-		border-color: #2563eb;
+		border-color: V9_COLORS.PRIMARY.BLUE_DARK;
 		box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
 	}
 
 	&::placeholder {
-		color: #3b82f6;
+		color: V9_COLORS.PRIMARY.BLUE;
 	}
 `;
 
@@ -107,7 +107,7 @@ const SearchIcon = styled.div`
 	left: 1rem;
 	top: 50%;
 	transform: translateY(-50%);
-	color: #2563eb;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
 `;
 
 const RFCGrid = styled.div`
@@ -119,7 +119,7 @@ const RFCGrid = styled.div`
 
 const RFCCard = styled.button<{ $selected: boolean }>`
 	background: white;
-	border: 2px solid ${({ $selected }) => ($selected ? '#2563eb' : '#e5e7eb')};
+	border: 2px solid ${({ $selected }) => ($selected ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
 	border-radius: 0.75rem;
 	padding: 1.25rem;
 	cursor: pointer;
@@ -130,14 +130,14 @@ const RFCCard = styled.button<{ $selected: boolean }>`
 
 	&:hover {
 		transform: translateY(-3px);
-		border-color: #2563eb;
+		border-color: V9_COLORS.PRIMARY.BLUE_DARK;
 		box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
 	}
 `;
 
 const RFCNumber = styled.div`
 	font-weight: 700;
-	color: #2563eb;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
 	font-size: 0.875rem;
 	margin-bottom: 0.5rem;
 	display: flex;
@@ -154,7 +154,7 @@ const RFCTitle = styled.div`
 `;
 
 const RFCDescription = styled.div`
-	color: #64748b;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 0.875rem;
 	line-height: 1.5;
 `;
@@ -163,7 +163,7 @@ const ContentPanel = styled.div`
 	background: white;
 	border-radius: 0.75rem;
 	padding: 2rem;
-	border: 2px solid #d1d5db;
+	border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 `;
 
 const SectionTitle = styled.h3`
@@ -180,7 +180,7 @@ const RFCMeta = styled.div`
 	display: flex;
 	gap: 1.5rem;
 	padding: 1rem;
-	background: #f8fafc;
+	background: V9_COLORS.BG.GRAY_LIGHT;
 	border-radius: 0.5rem;
 	margin-bottom: 2rem;
 	flex-wrap: wrap;
@@ -190,7 +190,7 @@ const MetaItem = styled.div`
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
-	color: #475569;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	font-size: 0.9rem;
 `;
 
@@ -218,7 +218,7 @@ const SubsectionTitle = styled.h4`
 `;
 
 const ContentText = styled.div`
-	color: #475569;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	line-height: 1.7;
 	font-size: 0.95rem;
 	margin-bottom: 1rem;
@@ -226,7 +226,7 @@ const ContentText = styled.div`
 
 const ExampleBox = styled.div`
 	background: #1e293b;
-	color: #f1f5f9;
+	color: V9_COLORS.BG.GRAY_MEDIUM;
 	padding: 1.5rem;
 	border-radius: 0.75rem;
 	font-family: 'Monaco', 'Menlo', monospace;
@@ -242,7 +242,7 @@ const CopyButton = styled.button`
 	top: 0.75rem;
 	right: 0.75rem;
 	padding: 0.5rem 0.75rem;
-	background: #2563eb;
+	background: V9_COLORS.PRIMARY.BLUE_DARK;
 	color: white;
 	border: none;
 	border-radius: 0.5rem;
@@ -255,7 +255,7 @@ const CopyButton = styled.button`
 	transition: all 0.2s;
 
 	&:hover {
-		background: #1d4ed8;
+		background: V9_COLORS.PRIMARY.BLUE_DARK;
 	}
 `;
 
@@ -265,11 +265,11 @@ const TipBox = styled.div<{ variant: 'info' | 'warning' | 'success' }>`
 	border-left: 4px solid ${({ variant }) => {
 		switch (variant) {
 			case 'info':
-				return '#3b82f6';
+				return 'V9_COLORS.PRIMARY.BLUE';
 			case 'warning':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'success':
-				return '#10b981';
+				return 'V9_COLORS.PRIMARY.GREEN';
 		}
 	}};
 	background: ${({ variant }) => {
@@ -277,19 +277,19 @@ const TipBox = styled.div<{ variant: 'info' | 'warning' | 'success' }>`
 			case 'info':
 				return '#dbeafe';
 			case 'warning':
-				return '#fef3c7';
+				return 'V9_COLORS.BG.WARNING';
 			case 'success':
-				return '#d1fae5';
+				return 'V9_COLORS.BG.SUCCESS';
 		}
 	}};
 	color: ${({ variant }) => {
 		switch (variant) {
 			case 'info':
-				return '#1e40af';
+				return 'V9_COLORS.PRIMARY.BLUE_DARK';
 			case 'warning':
-				return '#92400e';
+				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
 			case 'success':
-				return '#065f46';
+				return 'V9_COLORS.PRIMARY.GREEN_DARK';
 		}
 	}};
 	line-height: 1.6;
@@ -301,7 +301,7 @@ const LinkButton = styled.a`
 	align-items: center;
 	gap: 0.5rem;
 	padding: 0.75rem 1.5rem;
-	background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+	background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
 	color: white;
 	text-decoration: none;
 	border-radius: 0.5rem;
@@ -321,7 +321,7 @@ const InsightList = styled.ul`
 	display: flex;
 	flex-direction: column;
 	gap: 0.35rem;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const CalloutCard = styled.div`
@@ -344,12 +344,12 @@ const ToolLinkCard = styled.a`
 	display: flex;
 	flex-direction: column;
 	gap: 0.5rem;
-	background: #ffffff;
-	border: 1px solid #bfdbfe;
+	background: V9_COLORS.TEXT.WHITE;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.75rem;
 	padding: 1rem 1.25rem;
 	text-decoration: none;
-	color: #1f2937;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
 	transition: transform 0.2s, box-shadow 0.2s;
 
@@ -361,11 +361,11 @@ const ToolLinkCard = styled.a`
 
 const ToolLinkTitle = styled.div`
 	font-weight: 700;
-	color: #1d4ed8;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
 `;
 
 const ToolLinkDescription = styled.div`
-	color: #475569;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	line-height: 1.5;
 	font-size: 0.9rem;
 `;
@@ -1092,7 +1092,7 @@ const LiveRFCExplorer: React.FC = () => {
 					style={{
 						textAlign: 'center',
 						padding: '3rem',
-						color: '#1d4ed8',
+						color: 'V9_COLORS.PRIMARY.BLUE_DARK',
 						fontSize: '1.1rem',
 					}}
 				>

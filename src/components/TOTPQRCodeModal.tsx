@@ -168,7 +168,7 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 							style={{
 								width: '2.5rem',
 								height: '2.5rem',
-								backgroundColor: '#3b82f6',
+								backgroundColor: 'V9_COLORS.PRIMARY.BLUE',
 								borderRadius: '0.5rem',
 								display: 'flex',
 								alignItems: 'center',
@@ -184,7 +184,7 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 									margin: 0,
 									fontSize: '1.25rem',
 									fontWeight: 600,
-									color: '#1f2937',
+									color: 'V9_COLORS.TEXT.GRAY_DARK',
 								}}
 							>
 								Setup Authenticator App
@@ -193,7 +193,7 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 								style={{
 									margin: 0,
 									fontSize: '0.875rem',
-									color: '#6b7280',
+									color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 								}}
 							>
 								Scan QR code or enter secret manually
@@ -208,7 +208,7 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 							padding: '0.5rem',
 							borderRadius: '0.375rem',
 							cursor: 'pointer',
-							color: '#6b7280',
+							color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 							display: 'flex',
 							alignItems: 'center',
 							justifyContent: 'center',
@@ -233,8 +233,8 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 							style={{
 								width: '3rem',
 								height: '3rem',
-								border: '3px solid #e5e7eb',
-								borderTop: '3px solid #3b82f6',
+								border: '3px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+								borderTop: '3px solid V9_COLORS.PRIMARY.BLUE',
 								borderRadius: '50%',
 								animation: 'spin 1s linear infinite',
 							}}
@@ -242,7 +242,7 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 						<p
 							style={{
 								margin: 0,
-								color: '#6b7280',
+								color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 								fontSize: '0.875rem',
 							}}
 						>
@@ -255,9 +255,9 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 						<div
 							style={{
 								padding: '1rem',
-								backgroundColor: '#f0f9ff',
+								backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT',
 								borderRadius: '0.5rem',
-								border: '1px solid #bae6fd',
+								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							}}
 						>
 							<h3
@@ -265,7 +265,7 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 									margin: '0 0 0.5rem 0',
 									fontSize: '0.875rem',
 									fontWeight: 600,
-									color: '#0369a1',
+									color: 'V9_COLORS.PRIMARY.BLUE',
 								}}
 							>
 								📱 Setup Instructions
@@ -275,7 +275,7 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 									margin: 0,
 									paddingLeft: '1.25rem',
 									fontSize: '0.875rem',
-									color: '#0369a1',
+									color: 'V9_COLORS.PRIMARY.BLUE',
 									lineHeight: 1.5,
 								}}
 							>
@@ -302,7 +302,7 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 									padding: '1rem',
 									backgroundColor: 'white',
 									borderRadius: '0.5rem',
-									border: '1px solid #e5e7eb',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 									boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
 								}}
 							>
@@ -314,7 +314,7 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 								style={{
 									margin: 0,
 									fontSize: '0.75rem',
-									color: '#6b7280',
+									color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 									textAlign: 'center',
 								}}
 							>
@@ -328,7 +328,7 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 								padding: '1rem',
 								backgroundColor: '#f9fafb',
 								borderRadius: '0.5rem',
-								border: '1px solid #e5e7eb',
+								border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							}}
 						>
 							<div
@@ -344,7 +344,7 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 										margin: 0,
 										fontSize: '0.875rem',
 										fontWeight: 600,
-										color: '#374151',
+										color: 'V9_COLORS.TEXT.GRAY_DARK',
 										display: 'flex',
 										alignItems: 'center',
 										gap: '0.5rem',
@@ -361,7 +361,7 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 										padding: '0.25rem',
 										borderRadius: '0.25rem',
 										cursor: 'pointer',
-										color: '#6b7280',
+										color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 										display: 'flex',
 										alignItems: 'center',
 										justifyContent: 'center',
@@ -379,7 +379,7 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 									padding: '0.75rem',
 									backgroundColor: 'white',
 									borderRadius: '0.375rem',
-									border: '1px solid #d1d5db',
+									border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 								}}
 							>
 								<code
@@ -387,7 +387,7 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 										flex: 1,
 										fontSize: '0.875rem',
 										fontFamily: 'monospace',
-										color: showSecret ? '#1f2937' : '#6b7280',
+										color: showSecret ? 'V9_COLORS.TEXT.GRAY_DARK' : 'V9_COLORS.TEXT.GRAY_MEDIUM',
 										backgroundColor: 'transparent',
 										border: 'none',
 										outline: 'none',
@@ -399,12 +399,12 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 								<button
 									onClick={handleCopySecret}
 									style={{
-										background: copied ? '#10b981' : '#f3f4f6',
+										background: copied ? 'V9_COLORS.PRIMARY.GREEN' : '#f3f4f6',
 										border: 'none',
 										padding: '0.5rem',
 										borderRadius: '0.375rem',
 										cursor: 'pointer',
-										color: copied ? 'white' : '#6b7280',
+										color: copied ? 'white' : 'V9_COLORS.TEXT.GRAY_MEDIUM',
 										display: 'flex',
 										alignItems: 'center',
 										justifyContent: 'center',
@@ -419,7 +419,7 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 								style={{
 									margin: '0.5rem 0 0 0',
 									fontSize: '0.75rem',
-									color: '#6b7280',
+									color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 								}}
 							>
 								If you can't scan the QR code, enter this secret key manually in your authenticator
@@ -431,9 +431,9 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 						<div
 							style={{
 								padding: '1rem',
-								backgroundColor: '#fef3c7',
+								backgroundColor: 'V9_COLORS.BG.WARNING',
 								borderRadius: '0.5rem',
-								border: '1px solid #f59e0b',
+								border: '1px solid V9_COLORS.PRIMARY.YELLOW',
 							}}
 						>
 							<h4
@@ -441,7 +441,7 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 									margin: '0 0 0.5rem 0',
 									fontSize: '0.875rem',
 									fontWeight: 600,
-									color: '#92400e',
+									color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
 								}}
 							>
 								📋 Account Information
@@ -449,7 +449,7 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 							<div
 								style={{
 									fontSize: '0.75rem',
-									color: '#92400e',
+									color: 'V9_COLORS.PRIMARY.YELLOW_DARK',
 									lineHeight: 1.5,
 								}}
 							>
@@ -481,17 +481,17 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 						justifyContent: 'flex-end',
 						marginTop: '2rem',
 						paddingTop: '1.5rem',
-						borderTop: '1px solid #e5e7eb',
+						borderTop: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 					}}
 				>
 					<button
 						onClick={onClose}
 						style={{
 							padding: '0.75rem 1.5rem',
-							border: '1px solid #d1d5db',
+							border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 							borderRadius: '0.375rem',
 							backgroundColor: 'white',
-							color: '#374151',
+							color: 'V9_COLORS.TEXT.GRAY_DARK',
 							fontSize: '0.875rem',
 							fontWeight: '500',
 							cursor: 'pointer',
@@ -507,7 +507,9 @@ const TOTPQRCodeModal: React.FC<TOTPQRCodeModalProps> = ({
 							padding: '0.75rem 1.5rem',
 							border: 'none',
 							borderRadius: '0.375rem',
-							backgroundColor: isGenerating ? '#9ca3af' : '#3b82f6',
+							backgroundColor: isGenerating
+								? 'V9_COLORS.TEXT.GRAY_LIGHT'
+								: 'V9_COLORS.PRIMARY.BLUE',
 							color: 'white',
 							fontSize: '0.875rem',
 							fontWeight: '600',

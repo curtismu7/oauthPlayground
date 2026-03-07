@@ -44,7 +44,7 @@ const MonitorIcon = styled.div`
   justify-content: center;
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%);
   border-radius: 8px;
   color: white;
   font-size: 18px;
@@ -95,9 +95,9 @@ const MetricIcon = styled.div<{ trend?: 'up' | 'down' | 'neutral' }>`
   background: ${({ trend, theme }) => {
 		switch (trend) {
 			case 'up':
-				return '#dcfce7';
+				return 'V9_COLORS.BG.SUCCESS';
 			case 'down':
-				return '#fee2e2';
+				return 'V9_COLORS.BG.ERROR';
 			default:
 				return theme.colors.gray200;
 		}
@@ -105,11 +105,11 @@ const MetricIcon = styled.div<{ trend?: 'up' | 'down' | 'neutral' }>`
   color: ${({ trend }) => {
 		switch (trend) {
 			case 'up':
-				return '#16a34a';
+				return 'V9_COLORS.PRIMARY.GREEN_DARK';
 			case 'down':
-				return '#dc2626';
+				return 'V9_COLORS.PRIMARY.RED_DARK';
 			default:
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 		}
 	}};
   font-size: 12px;
@@ -228,8 +228,8 @@ export const PerformanceMonitor: React.FC = () => {
 		// Memory usage (if available)
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const memoryUsage = (performance as any).memory
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				? (performance as any).memory.usedJSHeapSize / 1024 / 1024
+			? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+				(performance as any).memory.usedJSHeapSize / 1024 / 1024
 			: 0;
 
 		// Bundle size estimation (from build output)
@@ -429,7 +429,7 @@ export const PerformanceMonitor: React.FC = () => {
 							<ChartBar
 								key={index}
 								height={data.loadTime}
-								color="#3b82f6"
+								color="V9_COLORS.PRIMARY.BLUE"
 								title={`Load Time: ${data.loadTime.toFixed(0)}ms`}
 							/>
 						))}

@@ -16,6 +16,7 @@ import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplaySe
 import type { UserInfo as OIDCUserInfo } from '../../types/oauth';
 import { logger } from '../../utils/logger';
 import { isTokenExpired } from '../../utils/oauth';
+import { V9_COLORS } from '../../services/v9/V9ColorStandards';
 
 /**
  * Utility function to mask tokens for security
@@ -97,12 +98,12 @@ const DemoSection = styled.div`
 `;
 
 const ErrorMessage = styled.div`
-  background-color: #fee2e2;
-  border: 1px solid #fecaca;
+  background-color: V9_COLORS.BG.ERROR;
+  border: 1px solid V9_COLORS.BG.ERROR_BORDER;
   border-radius: 0.375rem;
   padding: 1rem;
   margin: 1rem 0;
-  color: #991b1b;
+  color: V9_COLORS.PRIMARY.RED_DARK;
   display: flex;
   align-items: flex-start;
   gap: 0.75rem;
@@ -121,8 +122,8 @@ const RequestResponseSection = styled.div`
 `;
 
 const RequestSection = styled.div`
-  background-color: #1f2937;
-  border-bottom: 1px solid #374151;
+  background-color: V9_COLORS.TEXT.GRAY_DARK;
+  border-bottom: 1px solid V9_COLORS.TEXT.GRAY_DARK;
   padding: 1.5rem;
   color: #f9fafb;
 
@@ -138,7 +139,7 @@ const RequestSection = styled.div`
 `;
 
 const ResponseSection = styled.div`
-  background-color: #1f2937;
+  background-color: V9_COLORS.TEXT.GRAY_DARK;
   padding: 1.5rem;
   color: #f9fafb;
 
@@ -199,16 +200,16 @@ const JsonResponse = styled.div`
 `;
 
 const JsonKey = styled.span`
-  color: #059669;
+  color: V9_COLORS.PRIMARY.GREEN_DARK;
   font-weight: 600;
 `;
 
 const JsonString = styled.span`
-  color: #dc2626;
+  color: V9_COLORS.PRIMARY.RED_DARK;
 `;
 
 const JsonNumber = styled.span`
-  color: #16a34a;
+  color: V9_COLORS.PRIMARY.GREEN_DARK;
 `;
 
 const JsonBoolean = styled.span`
@@ -216,7 +217,7 @@ const JsonBoolean = styled.span`
 `;
 
 const JsonNull = styled.span`
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   font-style: italic;
 `;
 
@@ -228,7 +229,7 @@ const AuthHeaderReveal: React.FC<{ tokenValue: string }> = ({ tokenValue }) => {
 	const [revealed, setRevealed] = React.useState(false);
 	const masked = `${tokenValue.substring(0, 12)}••••••••••••${tokenValue.substring(tokenValue.length - 8)}`;
 	const codeStyle: React.CSSProperties = {
-		background: revealed ? '#e2e8f0' : '#fef3c7',
+		background: revealed ? 'V9_COLORS.TEXT.GRAY_LIGHTER' : 'V9_COLORS.BG.WARNING',
 		padding: '0.15rem 0.4rem',
 		borderRadius: '4px',
 		fontSize: '0.8rem',
@@ -237,12 +238,12 @@ const AuthHeaderReveal: React.FC<{ tokenValue: string }> = ({ tokenValue }) => {
 	};
 	const btnStyle: React.CSSProperties = {
 		background: 'none',
-		border: '1px solid #d1d5db',
+		border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 		borderRadius: '4px',
 		cursor: 'pointer',
 		padding: '0.1rem 0.4rem',
 		fontSize: '0.75rem',
-		color: '#6b7280',
+		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 		display: 'inline-flex',
 		alignItems: 'center',
 		gap: '0.2rem',
@@ -857,12 +858,12 @@ console.log('Welcome, ' + user.name + '!');`,
 					alignItems: 'center',
 					padding: '0.75rem 1rem',
 					background: '#f9fafb',
-					border: '1px solid #e5e7eb',
+					border: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 					borderRadius: '0.5rem',
 					marginBottom: '1rem',
 				}}
 			>
-				<span style={{ fontSize: '0.8rem', color: '#6b7280', marginRight: 'auto' }}>Config</span>
+				<span style={{ fontSize: '0.8rem', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginRight: 'auto' }}>Config</span>
 				<button
 					type="button"
 					onClick={handleExportConfig}
@@ -871,7 +872,7 @@ console.log('Welcome, ' + user.name + '!');`,
 						alignItems: 'center',
 						gap: '0.4rem',
 						padding: '0.4rem 0.9rem',
-						background: '#2563eb',
+						background: 'V9_COLORS.PRIMARY.BLUE_DARK',
 						color: 'white',
 						border: 'none',
 						borderRadius: '0.375rem',
@@ -892,8 +893,8 @@ console.log('Welcome, ' + user.name + '!');`,
 						gap: '0.4rem',
 						padding: '0.4rem 0.9rem',
 						background: 'white',
-						color: '#2563eb',
-						border: '1px solid #2563eb',
+						color: 'V9_COLORS.PRIMARY.BLUE_DARK',
+						border: '1px solid V9_COLORS.PRIMARY.BLUE_DARK',
 						borderRadius: '0.375rem',
 						fontSize: '0.8rem',
 						fontWeight: 600,
@@ -1055,16 +1056,16 @@ console.log('Welcome, ' + user.name + '!');`,
 									style={{
 										marginBottom: '1rem',
 										padding: '1rem',
-										backgroundColor: '#f0f9ff',
+										backgroundColor: 'V9_COLORS.BG.GRAY_LIGHT',
 										border: '2px solid #0ea5e9',
 										borderRadius: '0.5rem',
 										fontSize: '0.875rem',
 									}}
 								>
-									<h4 style={{ margin: '0 0 0.5rem 0', color: '#0c4a6e' }}>
+									<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>
 										Enhanced Token Detection System
 									</h4>
-									<div style={{ color: '#0c4a6e', lineHeight: '1.6' }}>
+									<div style={{ color: 'V9_COLORS.TEXT.GRAY_DARK', lineHeight: '1.6' }}>
 										<strong> Auth Context Tokens:</strong>{' '}
 										{tokens ? ' Available' : ' Not available'}
 										<br />
@@ -1269,7 +1270,7 @@ console.log('Welcome, ' + user.name + '!');`,
 										style={{
 											marginTop: '1rem',
 											fontSize: '0.9rem',
-											color: '#6b7280',
+											color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 										}}
 									>
 										<strong>Standard Claims:</strong>

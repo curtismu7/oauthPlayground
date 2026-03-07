@@ -12,6 +12,7 @@ import {
 import React, { useState } from 'react';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { FlowUIService } from '../services/flowUIService';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const Button = FlowUIService.getButton();
 
@@ -22,7 +23,7 @@ const styles = {
 		padding: '2rem',
 	} as React.CSSProperties,
 	heroSection: {
-		background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)',
+		background: 'linear-gradient(135deg, V9_COLORS.PRIMARY.BLUE_DARK 0%, V9_COLORS.PRIMARY.BLUE_DARK 100%)',
 		color: 'white',
 		padding: '4rem 3rem',
 		borderRadius: '1rem',
@@ -70,7 +71,7 @@ const styles = {
 		borderRadius: '1rem',
 		padding: '2rem',
 		boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-		border: `2px solid ${$featured ? '#3b82f6' : '#e5e7eb'}`,
+		border: `2px solid ${$featured ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_LIGHTER'}`,
 		position: 'relative',
 	}),
 
@@ -98,11 +99,11 @@ const styles = {
 		fontSize: '1.5rem',
 		fontWeight: 700,
 		margin: '0 0 0.5rem 0',
-		color: '#1f2937',
+		color: 'V9_COLORS.TEXT.GRAY_DARK',
 	} as React.CSSProperties,
 	providerTagline: {
 		fontSize: '1rem',
-		color: '#6b7280',
+		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 		margin: '0',
 	} as React.CSSProperties,
 	ratingContainer: {
@@ -117,15 +118,15 @@ const styles = {
 		gap: '0.25rem',
 	} as React.CSSProperties,
 	star: ($filled: boolean): React.CSSProperties => ({
-		color: $filled ? '#fbbf24' : '#d1d5db',
+		color: $filled ? 'V9_COLORS.PRIMARY.YELLOW_LIGHT' : 'V9_COLORS.TEXT.GRAY_LIGHTER',
 		fontSize: '1rem',
 	}),
 	ratingText: {
 		fontWeight: 600,
-		color: '#374151',
+		color: 'V9_COLORS.TEXT.GRAY_DARK',
 	} as React.CSSProperties,
 	pricing: {
-		background: '#f8fafc',
+		background: 'V9_COLORS.BG.GRAY_LIGHT',
 		borderRadius: '0.5rem',
 		padding: '1rem',
 		marginBottom: '1.5rem',
@@ -133,12 +134,12 @@ const styles = {
 	pricingText: {
 		fontSize: '1.25rem',
 		fontWeight: 700,
-		color: '#1f2937',
+		color: 'V9_COLORS.TEXT.GRAY_DARK',
 		marginBottom: '0.25rem',
 	} as React.CSSProperties,
 	pricingNote: {
 		fontSize: '0.875rem',
-		color: '#6b7280',
+		color: 'V9_COLORS.TEXT.GRAY_MEDIUM',
 	} as React.CSSProperties,
 	featuresList: {
 		listStyle: 'none',
@@ -151,7 +152,7 @@ const styles = {
 		gap: '0.5rem',
 		padding: '0.5rem 0',
 		fontSize: '0.875rem',
-		color: '#374151',
+		color: 'V9_COLORS.TEXT.GRAY_DARK',
 	} as React.CSSProperties,
 	prosConsContainer: {
 		display: 'grid',
@@ -160,14 +161,14 @@ const styles = {
 		marginBottom: '1.5rem',
 	} as React.CSSProperties,
 	prosConsSection: ($type: 'pros' | 'cons'): React.CSSProperties => ({
-		background: $type === 'pros' ? '#f0fdf4' : '#fef2f2',
+		background: $type === 'pros' ? '#f0fdf4' : 'V9_COLORS.BG.ERROR',
 		borderRadius: '0.5rem',
 		padding: '1rem',
 	}),
 	prosConsTitle: ($type: 'pros' | 'cons'): React.CSSProperties => ({
 		fontSize: '0.875rem',
 		fontWeight: 600,
-		color: $type === 'pros' ? '#166534' : '#dc2626',
+		color: $type === 'pros' ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.RED_DARK',
 		margin: '0 0 0.5rem 0',
 		display: 'flex',
 		alignItems: 'center',
@@ -180,7 +181,7 @@ const styles = {
 	} as React.CSSProperties,
 	prosConsItem: ($type: 'pros' | 'cons'): React.CSSProperties => ({
 		fontSize: '0.75rem',
-		color: $type === 'pros' ? '#166534' : '#dc2626',
+		color: $type === 'pros' ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.RED_DARK',
 		padding: '0.25rem 0',
 	}),
 	actionButtons: {
@@ -195,15 +196,15 @@ const styles = {
 		marginBottom: '3rem',
 	} as React.CSSProperties,
 	tableHeader: {
-		background: '#f8fafc',
+		background: 'V9_COLORS.BG.GRAY_LIGHT',
 		padding: '1.5rem',
-		borderBottom: '1px solid #e5e7eb',
+		borderBottom: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 	} as React.CSSProperties,
 	tableTitle: {
 		fontSize: '1.5rem',
 		fontWeight: 700,
 		margin: '0',
-		color: '#1f2937',
+		color: 'V9_COLORS.TEXT.GRAY_DARK',
 		display: 'flex',
 		alignItems: 'center',
 		gap: '0.75rem',
@@ -216,30 +217,30 @@ const styles = {
 		borderCollapse: 'collapse' as const,
 	} as React.CSSProperties,
 	tableHead: {
-		background: '#f8fafc',
+		background: 'V9_COLORS.BG.GRAY_LIGHT',
 	} as React.CSSProperties,
 	tableRow: {
-		borderBottom: '1px solid #e5e7eb',
+		borderBottom: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 	} as React.CSSProperties,
 	tableHeaderCell: {
 		padding: '1rem',
 		textAlign: 'left' as const,
 		fontWeight: 600,
-		color: '#374151',
-		borderRight: '1px solid #e5e7eb',
+		color: 'V9_COLORS.TEXT.GRAY_DARK',
+		borderRight: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
 		minWidth: '150px',
 	} as React.CSSProperties,
 	tableCell: {
 		padding: '1rem',
-		borderRight: '1px solid #e5e7eb',
-		color: '#374151',
+		borderRight: '1px solid V9_COLORS.TEXT.GRAY_LIGHTER',
+		color: 'V9_COLORS.TEXT.GRAY_DARK',
 	} as React.CSSProperties,
 	checkIcon: {
-		color: '#10b981',
+		color: 'V9_COLORS.PRIMARY.GREEN',
 		fontWeight: 600,
 	} as React.CSSProperties,
 	xIcon: {
-		color: '#ef4444',
+		color: 'V9_COLORS.PRIMARY.RED',
 		fontWeight: 600,
 	} as React.CSSProperties,
 };
@@ -253,7 +254,7 @@ const CompetitiveAnalysis: React.FC = () => {
 			name: 'Ping Identity',
 			tagline: 'Enterprise Identity & Access Management',
 			icon: '🏆',
-			color: '#3b82f6',
+			color: 'V9_COLORS.PRIMARY.BLUE',
 			rating: 4.5,
 			reviews: 222,
 			pricing: '$3.00/user/month',
@@ -586,7 +587,7 @@ const CompetitiveAnalysis: React.FC = () => {
 							<ul style={styles.featuresList}>
 								{provider.features.map((feature, index) => (
 									<li key={index} style={styles.featureItem}>
-										<FiCheckCircle size={16} color="#10b981" />
+										<FiCheckCircle size={16} color="V9_COLORS.PRIMARY.GREEN" />
 										{feature}
 									</li>
 								))}
@@ -743,7 +744,7 @@ const CompetitiveAnalysis: React.FC = () => {
 						<h3
 							style={{
 								margin: '0 0 1rem 0',
-								color: '#1f2937',
+								color: 'V9_COLORS.TEXT.GRAY_DARK',
 								display: 'flex',
 								alignItems: 'center',
 								gap: '0.5rem',
@@ -752,10 +753,10 @@ const CompetitiveAnalysis: React.FC = () => {
 							<FiUsers />
 							Enterprise Organizations
 						</h3>
-						<p style={{ color: '#6b7280', marginBottom: '1rem' }}>
+						<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '1rem' }}>
 							<strong>Recommended:</strong> Ping Identity, Okta, Microsoft Entra ID
 						</p>
-						<p style={{ color: '#374151', lineHeight: '1.6' }}>
+						<p style={{ color: 'V9_COLORS.TEXT.GRAY_DARK', lineHeight: '1.6' }}>
 							For large enterprises requiring comprehensive identity governance, advanced security
 							features, and seamless integration with existing enterprise systems. These providers
 							offer robust compliance features, lifecycle management, and enterprise-grade security.
@@ -773,7 +774,7 @@ const CompetitiveAnalysis: React.FC = () => {
 						<h3
 							style={{
 								margin: '0 0 1rem 0',
-								color: '#1f2937',
+								color: 'V9_COLORS.TEXT.GRAY_DARK',
 								display: 'flex',
 								alignItems: 'center',
 								gap: '0.5rem',
@@ -782,10 +783,10 @@ const CompetitiveAnalysis: React.FC = () => {
 							<FiZap />
 							Startups & SMBs
 						</h3>
-						<p style={{ color: '#6b7280', marginBottom: '1rem' }}>
+						<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '1rem' }}>
 							<strong>Recommended:</strong> Auth0, Google Identity Platform
 						</p>
-						<p style={{ color: '#374151', lineHeight: '1.6' }}>
+						<p style={{ color: 'V9_COLORS.TEXT.GRAY_DARK', lineHeight: '1.6' }}>
 							For smaller organizations needing quick setup, developer-friendly APIs, and
 							cost-effective solutions. These providers offer excellent documentation, easy
 							integration, and flexible pricing models suitable for growing businesses.
@@ -803,7 +804,7 @@ const CompetitiveAnalysis: React.FC = () => {
 						<h3
 							style={{
 								margin: '0 0 1rem 0',
-								color: '#1f2937',
+								color: 'V9_COLORS.TEXT.GRAY_DARK',
 								display: 'flex',
 								alignItems: 'center',
 								gap: '0.5rem',
@@ -812,10 +813,10 @@ const CompetitiveAnalysis: React.FC = () => {
 							<FiGlobe />
 							Cloud-Native Applications
 						</h3>
-						<p style={{ color: '#6b7280', marginBottom: '1rem' }}>
+						<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '1rem' }}>
 							<strong>Recommended:</strong> AWS IAM, Google Identity Platform, Microsoft Entra ID
 						</p>
-						<p style={{ color: '#374151', lineHeight: '1.6' }}>
+						<p style={{ color: 'V9_COLORS.TEXT.GRAY_DARK', lineHeight: '1.6' }}>
 							For applications built on specific cloud platforms, leveraging native cloud identity
 							services provides seamless integration, optimized performance, and reduced complexity
 							in cloud environments.
@@ -839,7 +840,7 @@ const CompetitiveAnalysis: React.FC = () => {
 							boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
 						}}
 					>
-						<h3 style={{ margin: '0 0 1rem 0', color: '#1f2937' }}>Pricing Summary</h3>
+						<h3 style={{ margin: '0 0 1rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>Pricing Summary</h3>
 						<div
 							style={{
 								display: 'grid',
@@ -850,13 +851,13 @@ const CompetitiveAnalysis: React.FC = () => {
 							{providers.map((provider) => (
 								<div
 									key={provider.id}
-									style={{ padding: '1rem', background: '#f8fafc', borderRadius: '0.5rem' }}
+									style={{ padding: '1rem', background: 'V9_COLORS.BG.GRAY_LIGHT', borderRadius: '0.5rem' }}
 								>
-									<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>{provider.name}</h4>
-									<p style={{ margin: '0', color: '#6b7280', fontSize: '0.875rem' }}>
+									<h4 style={{ margin: '0 0 0.5rem 0', color: 'V9_COLORS.TEXT.GRAY_DARK' }}>{provider.name}</h4>
+									<p style={{ margin: '0', color: 'V9_COLORS.TEXT.GRAY_MEDIUM', fontSize: '0.875rem' }}>
 										{provider.pricing}
 									</p>
-									<p style={{ margin: '0.25rem 0 0 0', color: '#9ca3af', fontSize: '0.75rem' }}>
+									<p style={{ margin: '0.25rem 0 0 0', color: 'V9_COLORS.TEXT.GRAY_LIGHT', fontSize: '0.75rem' }}>
 										{provider.pricingNote}
 									</p>
 								</div>

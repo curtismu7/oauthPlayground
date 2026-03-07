@@ -116,23 +116,23 @@ const DifficultyBadge = styled.span<{ $level: string }>`
 		switch ($level) {
 			case 'beginner':
 				return `
-          background-color: #dcfce7;
-          color: #166534;
+          background-color: V9_COLORS.BG.SUCCESS;
+          color: V9_COLORS.PRIMARY.GREEN;
         `;
 			case 'intermediate':
 				return `
-          background-color: #fef3c7;
-          color: #92400e;
+          background-color: V9_COLORS.BG.WARNING;
+          color: V9_COLORS.PRIMARY.YELLOW_DARK;
         `;
 			case 'advanced':
 				return `
-          background-color: #fee2e2;
-          color: #991b1b;
+          background-color: V9_COLORS.BG.ERROR;
+          color: V9_COLORS.PRIMARY.RED_DARK;
         `;
 			default:
 				return `
           background-color: #f3f4f6;
-          color: #374151;
+          color: V9_COLORS.TEXT.GRAY_DARK;
         `;
 		}
 	}}
@@ -258,23 +258,23 @@ const SecurityBadge = styled.span<{ $level: string }>`
 		switch ($level) {
 			case 'high':
 				return `
-          background-color: #dcfce7;
-          color: #166534;
+          background-color: V9_COLORS.BG.SUCCESS;
+          color: V9_COLORS.PRIMARY.GREEN;
         `;
 			case 'medium':
 				return `
-          background-color: #fef3c7;
-          color: #92400e;
+          background-color: V9_COLORS.BG.WARNING;
+          color: V9_COLORS.PRIMARY.YELLOW_DARK;
         `;
 			case 'low':
 				return `
-          background-color: #fee2e2;
-          color: #991b1b;
+          background-color: V9_COLORS.BG.ERROR;
+          color: V9_COLORS.PRIMARY.RED_DARK;
         `;
 			default:
 				return `
           background-color: #f3f4f6;
-          color: #374151;
+          color: V9_COLORS.TEXT.GRAY_DARK;
         `;
 		}
 	}}
@@ -289,7 +289,7 @@ const RecommendedBadge = styled.span`
   font-weight: 500;
   border-radius: 0.25rem;
   background-color: #dbeafe;
-  color: #1e40af;
+  color: V9_COLORS.PRIMARY.BLUE_DARK;
 `;
 
 const QuickStartSection = styled.div`
@@ -340,7 +340,7 @@ const flowCategories: FlowCategory[] = [
 		icon: <FiStar />,
 		difficulty: 'beginner',
 		useCases: ['Web Apps', 'Mobile Apps', 'SPAs', 'Server-to-Server'],
-		color: '#10b981',
+		color: 'V9_COLORS.PRIMARY.GREEN',
 		flows: [
 			{
 				id: 'authorization-code-v7',
@@ -424,7 +424,7 @@ const flowCategories: FlowCategory[] = [
 		icon: <FiTool />,
 		difficulty: 'intermediate',
 		useCases: ['IoT Devices', 'Smart TVs', 'High Security Apps'],
-		color: '#3b82f6',
+		color: 'V9_COLORS.PRIMARY.BLUE',
 		flows: [
 			{
 				id: 'hybrid',
@@ -471,7 +471,7 @@ const flowCategories: FlowCategory[] = [
 		icon: <FiAlertTriangle />,
 		difficulty: 'advanced',
 		useCases: ['Legacy Systems', 'Migration Scenarios'],
-		color: '#ef4444',
+		color: 'V9_COLORS.PRIMARY.RED',
 		flows: [
 			{
 				id: 'implicit',
@@ -494,7 +494,7 @@ const flowCategories: FlowCategory[] = [
 		icon: <FiTool />,
 		difficulty: 'intermediate',
 		useCases: ['Token Validation', 'Session Management', 'Security Auditing'],
-		color: '#22c55e',
+		color: 'V9_COLORS.PRIMARY.GREEN',
 		flows: [
 			{
 				id: 'token-management',
@@ -636,7 +636,9 @@ const FlowCategories: React.FC = () => {
 								{category.difficulty}
 							</DifficultyBadge>
 
-							<p style={{ color: '#6b7280', marginBottom: '1rem' }}>{category.description}</p>
+							<p style={{ color: 'V9_COLORS.TEXT.GRAY_MEDIUM', marginBottom: '1rem' }}>
+								{category.description}
+							</p>
 
 							<UseCasesList>
 								<h4>Best for:</h4>

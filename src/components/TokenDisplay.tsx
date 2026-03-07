@@ -28,10 +28,10 @@ const TokenHeaderMain = styled.div`
   text-align: center;
   margin-bottom: 1rem;
   padding: 1.5rem;
-  background: #f8fafc;
+  background: V9_COLORS.BG.GRAY_LIGHT;
   border-radius: 1.5rem;
-  color: #1f2937;
-  border: 1px solid #e2e8f0;
+  color: V9_COLORS.TEXT.GRAY_DARK;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.15);
 
   h3 {
@@ -40,27 +40,27 @@ const TokenHeaderMain = styled.div`
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: #0f172a;
+    color: V9_COLORS.TEXT.GRAY_DARK;
   }
 
   p {
     margin: 0.5rem 0 0 0;
     font-size: 1rem;
-    color: #475569;
+    color: V9_COLORS.TEXT.GRAY_MEDIUM;
   }
 `;
 
 const tokenBackgrounds: Record<'access' | 'id' | 'refresh' | 'info' | 'default', string> = {
-	access: '#f1f5f9',
+	access: 'V9_COLORS.BG.GRAY_MEDIUM',
 	id: '#fefce8',
-	refresh: '#ecfdf5',
-	info: '#f8fafc',
-	default: '#ffffff',
+	refresh: 'V9_COLORS.BG.SUCCESS',
+	info: 'V9_COLORS.BG.GRAY_LIGHT',
+	default: 'V9_COLORS.TEXT.WHITE',
 };
 
 const TokenSection = styled.div<{ $type?: 'access' | 'id' | 'refresh' | 'info' }>`
   background: ${({ $type }) => tokenBackgrounds[$type ?? 'default']};
-  border: 2px solid #e2e8f0;
+  border: 2px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 1.5rem;
   padding: 2.4rem;
   position: relative;
@@ -93,15 +93,15 @@ const TokenTypeLabel = styled.div<{ $type?: 'access' | 'id' | 'refresh' | 'info'
   background: ${({ $type }) => {
 		switch ($type) {
 			case 'access':
-				return '#3b82f6';
+				return 'V9_COLORS.PRIMARY.BLUE';
 			case 'id':
-				return '#f59e0b';
+				return 'V9_COLORS.PRIMARY.YELLOW';
 			case 'refresh':
-				return '#10b981';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			case 'info':
-				return '#22c55e';
+				return 'V9_COLORS.PRIMARY.GREEN';
 			default:
-				return '#6b7280';
+				return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 		}
 	}};
   color: white;
@@ -122,15 +122,15 @@ const TokenLabel = styled.h4<{ $type?: 'access' | 'id' | 'refresh' | 'info' }>`
   color: ${({ $type }) => {
 		switch ($type) {
 			case 'access':
-				return '#1e40af';
+				return 'V9_COLORS.PRIMARY.BLUE_DARK';
 			case 'id':
-				return '#d97706';
+				return 'V9_COLORS.PRIMARY.YELLOW_DARK';
 			case 'refresh':
-				return '#059669';
+				return 'V9_COLORS.PRIMARY.GREEN_DARK';
 			case 'info':
-				return '#16a34a';
+				return 'V9_COLORS.PRIMARY.GREEN_DARK';
 			default:
-				return '#374151';
+				return 'V9_COLORS.TEXT.GRAY_DARK';
 		}
 	}};
   text-transform: uppercase;
@@ -147,15 +147,15 @@ const TokenLabel = styled.h4<{ $type?: 'access' | 'id' | 'refresh' | 'info' }>`
     background: ${({ $type }) => {
 			switch ($type) {
 				case 'access':
-					return '#3b82f6';
+					return 'V9_COLORS.PRIMARY.BLUE';
 				case 'id':
-					return '#f59e0b';
+					return 'V9_COLORS.PRIMARY.YELLOW';
 				case 'refresh':
-					return '#10b981';
+					return 'V9_COLORS.PRIMARY.GREEN';
 				case 'info':
-					return '#22c55e';
+					return 'V9_COLORS.PRIMARY.GREEN';
 				default:
-					return '#6b7280';
+					return 'V9_COLORS.TEXT.GRAY_MEDIUM';
 			}
 		}};
     display: inline-block;
@@ -168,7 +168,7 @@ const TokenActions = styled.div`
 `;
 
 const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
-  background: ${({ $variant }) => ($variant === 'primary' ? '#3b82f6' : '#6b7280')};
+  background: ${({ $variant }) => ($variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
   color: white;
   border: none;
   border-radius: 0.5rem;
@@ -183,7 +183,7 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
 
   &:hover {
-    background: ${({ $variant }) => ($variant === 'primary' ? '#2563eb' : '#4b5563')};
+    background: ${({ $variant }) => ($variant === 'primary' ? 'V9_COLORS.PRIMARY.BLUE_DARK' : '#4b5563')};
     transform: translateY(-1px);
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.15);
   }
@@ -207,7 +207,7 @@ const TokenValue = styled.pre<{
   font-size: 1.08rem;
   line-height: 1.9;
   letter-spacing: 0.01em;
-  color: var(--color-text-primary, #000000);
+  color: var(--color-text-primary, V9_COLORS.TEXT.BLACK);
   background: #f0fdf4; /* Light green for generated content */
   border: 2px solid ${({ $type }) => {
 		switch ($type) {
@@ -218,7 +218,7 @@ const TokenValue = styled.pre<{
 			case 'refresh':
 				return '#6ee7b7';
 			default:
-				return '#d1d5db';
+				return 'V9_COLORS.TEXT.GRAY_LIGHTER';
 		}
 	}};
   border-radius: 1rem;
@@ -234,13 +234,13 @@ const TokenValue = styled.pre<{
   
   /* Ensure text is always visible and readable */
   &, & *, &::before, &::after {
-    color: var(--color-text-primary, #000000);
+    color: var(--color-text-primary, V9_COLORS.TEXT.BLACK);
     background-color: transparent;
   }
   
   /* Override any inherited styles */
   * {
-    color: var(--color-text-primary, #000000);
+    color: var(--color-text-primary, V9_COLORS.TEXT.BLACK);
     background-color: transparent;
   }
 `;
@@ -270,14 +270,14 @@ const InfoRow = styled.div`
 
 const InfoLabel = styled.span`
   font-weight: 600;
-  color: #16a34a;
+  color: V9_COLORS.PRIMARY.GREEN_DARK;
   font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 `;
 
 const InfoValue = styled.span`
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 0.9rem;
   font-weight: 500;
   font-family: 'SFMono-Regular', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas', 'Courier New', monospace;

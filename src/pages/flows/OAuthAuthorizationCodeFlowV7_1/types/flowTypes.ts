@@ -3,6 +3,7 @@
 
 import type { PingOneApplicationState } from '../../../components/PingOneApplicationConfig';
 import type { StepCredentials } from '../../../components/steps/CommonSteps';
+import { V9_COLORS } from '../../../../services/v9/V9ColorStandards';
 
 // Flow variant types
 export type FlowVariant = 'oauth' | 'oidc';

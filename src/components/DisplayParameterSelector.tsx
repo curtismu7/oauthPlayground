@@ -21,7 +21,7 @@ const Label = styled.label`
 	display: block;
 	font-size: 0.875rem;
 	font-weight: 500;
-	color: #374151;
+	color: V9_COLORS.TEXT.GRAY_DARK;
 	margin-bottom: 0.5rem;
 `;
 
@@ -38,14 +38,14 @@ const DisplayOption = styled.button<{ $selected: boolean }>`
 	align-items: center;
 	gap: 0.75rem;
 	padding: 1rem;
-	border: 2px solid ${(props) => (props.$selected ? '#10b981' : '#e5e7eb')};
+	border: 2px solid ${(props) => (props.$selected ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
 	border-radius: 0.5rem;
-	background: ${(props) => (props.$selected ? '#f0fdf4' : '#ffffff')};
+	background: ${(props) => (props.$selected ? '#f0fdf4' : 'V9_COLORS.TEXT.WHITE')};
 	cursor: pointer;
 	transition: all 0.2s;
 
 	&:hover {
-		border-color: ${(props) => (props.$selected ? '#10b981' : '#d1d5db')};
+		border-color: ${(props) => (props.$selected ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
 		background: ${(props) => (props.$selected ? '#f0fdf4' : '#f9fafb')};
 	}
 
@@ -57,18 +57,18 @@ const DisplayOption = styled.button<{ $selected: boolean }>`
 
 const DisplayIcon = styled.div<{ $selected: boolean }>`
 	font-size: 2rem;
-	color: ${(props) => (props.$selected ? '#10b981' : '#6b7280')};
+	color: ${(props) => (props.$selected ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
 `;
 
 const DisplayTitle = styled.div<{ $selected: boolean }>`
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: ${(props) => (props.$selected ? '#065f46' : '#374151')};
+	color: ${(props) => (props.$selected ? 'V9_COLORS.PRIMARY.GREEN_DARK' : 'V9_COLORS.TEXT.GRAY_DARK')};
 `;
 
 const DisplayDescription = styled.div`
 	font-size: 0.75rem;
-	color: #6b7280;
+	color: V9_COLORS.TEXT.GRAY_MEDIUM;
 	text-align: center;
 	line-height: 1.4;
 `;
@@ -77,18 +77,18 @@ const InfoBox = styled.div`
 	display: flex;
 	gap: 0.75rem;
 	padding: 1rem;
-	background: #eff6ff;
-	border: 1px solid #bfdbfe;
+	background: V9_COLORS.BG.GRAY_LIGHT;
+	border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
-	color: #1e40af;
+	color: V9_COLORS.PRIMARY.BLUE_DARK;
 	line-height: 1.5;
 `;
 
 const InfoIcon = styled.div`
 	flex-shrink: 0;
 	font-size: 1.25rem;
-	color: #3b82f6;
+	color: V9_COLORS.PRIMARY.BLUE;
 `;
 
 const displayModes: Array<{

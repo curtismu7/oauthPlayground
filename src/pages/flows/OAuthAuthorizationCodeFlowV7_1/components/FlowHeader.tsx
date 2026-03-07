@@ -6,6 +6,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { UI_CONSTANTS } from '../constants/uiConstants';
 import type { FlowVariant } from '../types/flowTypes';
+import { V9_COLORS } from '../../../../services/v9/V9ColorStandards';
 
 interface FlowHeaderProps {
 	flowVariant: FlowVariant;
@@ -20,7 +21,7 @@ interface FlowHeaderProps {
 
 const HeaderContainer = styled.div<{ $variant: FlowVariant }>`
   background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   padding: ${UI_CONSTANTS.HEADER.PADDING};
   display: flex;
   align-items: center;
@@ -63,7 +64,7 @@ const FlowTitle = styled.h1`
   margin: 0;
   font-size: ${UI_CONSTANTS.TYPOGRAPHY.FONT_SIZES['2XL']};
   font-weight: ${UI_CONSTANTS.HEADER.TITLE_FONT_WEIGHT};
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
 `;
 
 const FlowSubtitle = styled.p`
@@ -105,7 +106,7 @@ const CollapseButton = styled.button<{ $collapsed: boolean }>`
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 50%;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   cursor: pointer;
   transition: all ${UI_CONSTANTS.ANIMATION.DURATION_NORMAL} ${UI_CONSTANTS.ANIMATION.EASING_EASE};
   
@@ -136,10 +137,10 @@ const VariantButton = styled.button<{ $selected: boolean; $variant: FlowVariant 
   align-items: flex-start;
   gap: ${UI_CONSTANTS.SPACING.XS};
   padding: ${UI_CONSTANTS.SPACING.LG};
-  border: 2px solid ${(props) => (props.$selected ? '#3b82f6' : '#cbd5e1')};
+  border: 2px solid ${(props) => (props.$selected ? 'V9_COLORS.PRIMARY.BLUE' : '#cbd5e1')};
   border-radius: ${UI_CONSTANTS.SECTION.BORDER_RADIUS};
-  background: ${(props) => (props.$selected ? '#eff6ff' : '#ffffff')};
-  color: ${(props) => (props.$selected ? '#1e40af' : '#475569')};
+  background: ${(props) => (props.$selected ? 'V9_COLORS.BG.GRAY_LIGHT' : 'V9_COLORS.TEXT.WHITE')};
+  color: ${(props) => (props.$selected ? 'V9_COLORS.PRIMARY.BLUE_DARK' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
   font-weight: ${(props) => (props.$selected ? '600' : '500')};
   cursor: pointer;
   transition: all ${UI_CONSTANTS.ANIMATION.DURATION_NORMAL} ${UI_CONSTANTS.ANIMATION.EASING_EASE};
@@ -147,8 +148,8 @@ const VariantButton = styled.button<{ $selected: boolean; $variant: FlowVariant 
   min-width: 200px;
   
   &:hover {
-    border-color: #3b82f6;
-    background: #eff6ff;
+    border-color: V9_COLORS.PRIMARY.BLUE;
+    background: V9_COLORS.BG.GRAY_LIGHT;
     transform: ${UI_CONSTANTS.ANIMATION.TRANSFORM_SCALE_HOVER};
   }
   
@@ -166,7 +167,7 @@ const VariantTitle = styled.div`
 const VariantDescription = styled.div`
   font-size: ${UI_CONSTANTS.TYPOGRAPHY.FONT_SIZES.SM};
   opacity: 0.8;
-  color: #92400e;
+  color: V9_COLORS.PRIMARY.YELLOW_DARK;
 `;
 
 const InfoButton = styled.button`
@@ -178,7 +179,7 @@ const InfoButton = styled.button`
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 50%;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   cursor: pointer;
   transition: all ${UI_CONSTANTS.ANIMATION.DURATION_NORMAL} ${UI_CONSTANTS.ANIMATION.EASING_EASE};
   

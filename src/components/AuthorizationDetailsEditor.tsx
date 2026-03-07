@@ -5,9 +5,17 @@ import { FiAlertCircle, FiCheckCircle, FiCode, FiEdit3, FiPlus, FiTrash2 } from 
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import RARService, {
-	type AuthorizationDetail,
-	type RARValidationResult,
-} from '../services/rarService';
+import
+{
+	V9_COLORS;
+}
+from;
+('../services/v9/V9ColorStandards');
+type AuthorizationDetail
+,
+type RARValidationResult
+,
+} from '../services/rarService'
 
 interface AuthorizationDetailsEditorProps {
 	authorizationDetails: AuthorizationDetail[];
@@ -18,7 +26,7 @@ interface AuthorizationDetailsEditorProps {
 type ViewMode = 'visual' | 'json';
 
 const Container = styled.div`
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 8px;
   padding: 1.5rem;
   background: white;
@@ -34,13 +42,13 @@ const Header = styled.div`
 const Title = styled.h3`
   font-size: 1.125rem;
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   margin: 0;
 `;
 
 const ViewModeToggle = styled.div`
   display: flex;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 6px;
   overflow: hidden;
 `;
@@ -51,14 +59,14 @@ const ViewModeButton = styled.button<{ $active: boolean }>`
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
   border: none;
-  background: ${(props) => (props.$active ? '#3b82f6' : 'white')};
-  color: ${(props) => (props.$active ? 'white' : '#6b7280')};
+  background: ${(props) => (props.$active ? 'V9_COLORS.PRIMARY.BLUE' : 'white')};
+  color: ${(props) => (props.$active ? 'white' : 'V9_COLORS.TEXT.GRAY_MEDIUM')};
   font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.2s;
 
   &:hover {
-    background: ${(props) => (props.$active ? '#2563eb' : '#f9fafb')};
+    background: ${(props) => (props.$active ? 'V9_COLORS.PRIMARY.BLUE_DARK' : '#f9fafb')};
   }
 `;
 
@@ -69,9 +77,9 @@ const ValidationStatus = styled.div<{ $isValid: boolean }>`
   padding: 0.75rem;
   border-radius: 6px;
   margin-bottom: 1rem;
-  background: ${(props) => (props.$isValid ? '#f0fdf4' : '#fef2f2')};
-  border: 1px solid ${(props) => (props.$isValid ? '#bbf7d0' : '#fecaca')};
-  color: ${(props) => (props.$isValid ? '#166534' : '#991b1b')};
+  background: ${(props) => (props.$isValid ? '#f0fdf4' : 'V9_COLORS.BG.ERROR')};
+  border: 1px solid ${(props) => (props.$isValid ? 'V9_COLORS.BG.SUCCESS_BORDER' : 'V9_COLORS.BG.ERROR_BORDER')};
+  color: ${(props) => (props.$isValid ? 'V9_COLORS.PRIMARY.GREEN' : 'V9_COLORS.PRIMARY.RED_DARK')};
   font-size: 0.875rem;
 `;
 
@@ -85,7 +93,7 @@ const JsonEditor = styled.textarea`
   width: 100%;
   min-height: 200px;
   padding: 1rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 6px;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 0.875rem;
@@ -94,7 +102,7 @@ const JsonEditor = styled.textarea`
 
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 `;
@@ -106,7 +114,7 @@ const VisualEditor = styled.div`
 `;
 
 const DetailItem = styled.div`
-  border: 1px solid #e5e7eb;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 6px;
   padding: 1rem;
   background: #f9fafb;
@@ -121,7 +129,7 @@ const DetailHeader = styled.div`
 
 const DetailType = styled.div`
   font-weight: 600;
-  color: #1f2937;
+  color: V9_COLORS.TEXT.GRAY_DARK;
   font-size: 0.875rem;
 `;
 
@@ -133,13 +141,13 @@ const RemoveButton = styled.button`
   height: 32px;
   border: none;
   border-radius: 4px;
-  background: #ef4444;
+  background: V9_COLORS.PRIMARY.RED;
   color: white;
   cursor: pointer;
   transition: background-color 0.2s;
 
   &:hover {
-    background: #dc2626;
+    background: V9_COLORS.PRIMARY.RED_DARK;
   }
 `;
 
@@ -158,18 +166,18 @@ const FieldGroup = styled.div`
 const Label = styled.label`
   font-size: 0.875rem;
   font-weight: 500;
-  color: #374151;
+  color: V9_COLORS.TEXT.GRAY_DARK;
 `;
 
 const Input = styled.input`
   padding: 0.5rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid V9_COLORS.TEXT.GRAY_LIGHTER;
   border-radius: 4px;
   font-size: 0.875rem;
 
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 `;
@@ -193,22 +201,22 @@ const ArrayItemInput = styled(Input)`
 const ArrayItemRemove = styled.button`
   padding: 0.25rem;
   border: none;
-  background: #ef4444;
+  background: V9_COLORS.PRIMARY.RED;
   color: white;
   border-radius: 4px;
   cursor: pointer;
   font-size: 0.75rem;
 
   &:hover {
-    background: #dc2626;
+    background: V9_COLORS.PRIMARY.RED_DARK;
   }
 `;
 
 const AddArrayItem = styled.button`
   padding: 0.5rem;
-  border: 1px dashed #d1d5db;
+  border: 1px dashed V9_COLORS.TEXT.GRAY_LIGHTER;
   background: white;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   border-radius: 4px;
   cursor: pointer;
   font-size: 0.875rem;
@@ -217,8 +225,8 @@ const AddArrayItem = styled.button`
   gap: 0.5rem;
 
   &:hover {
-    border-color: #3b82f6;
-    color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
+    color: V9_COLORS.PRIMARY.BLUE;
   }
 `;
 
@@ -227,9 +235,9 @@ const AddDetailButton = styled.button`
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
-  border: 1px dashed #d1d5db;
+  border: 1px dashed V9_COLORS.TEXT.GRAY_LIGHTER;
   background: white;
-  color: #6b7280;
+  color: V9_COLORS.TEXT.GRAY_MEDIUM;
   border-radius: 6px;
   cursor: pointer;
   font-size: 0.875rem;
@@ -237,8 +245,8 @@ const AddDetailButton = styled.button`
   justify-content: center;
 
   &:hover {
-    border-color: #3b82f6;
-    color: #3b82f6;
+    border-color: V9_COLORS.PRIMARY.BLUE;
+    color: V9_COLORS.PRIMARY.BLUE;
   }
 `;
 

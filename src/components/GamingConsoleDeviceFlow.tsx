@@ -22,7 +22,7 @@ const GamingConsoleContainer = styled.div<{ $authorized?: boolean }>`
   background: ${({ $authorized }) =>
 		$authorized
 			? 'linear-gradient(135deg, #00ff88 0%, #00cc6a 50%, #00ff88 100%)'
-			: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)'};
+			: 'linear-gradient(135deg, V9_COLORS.TEXT.WHITE 0%, #f8f9fa 100%)'};
   border-radius: 1.5rem;
   padding: 2rem;
   margin: 2rem 0;
@@ -30,12 +30,12 @@ const GamingConsoleContainer = styled.div<{ $authorized?: boolean }>`
     0 30px 60px rgba(0, 0, 0, 0.12),
     0 0 0 1px rgba(0, 0, 0, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  border: 3px solid ${({ $authorized }) => ($authorized ? '#00ff88' : '#e5e7eb')};
+  border: 3px solid ${({ $authorized }) => ($authorized ? '#00ff88' : 'V9_COLORS.TEXT.GRAY_LIGHTER')};
   position: relative;
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;
-  color: ${({ $authorized }) => ($authorized ? '#000000' : '#1f2937')};
+  color: ${({ $authorized }) => ($authorized ? 'V9_COLORS.TEXT.BLACK' : 'V9_COLORS.TEXT.GRAY_DARK')};
   transition: all 0.3s ease;
   
   /* PS5 console styling */
@@ -62,7 +62,7 @@ const GamingConsoleContainer = styled.div<{ $authorized?: boolean }>`
     left: 1rem;
     font-size: 0.875rem;
     font-weight: 700;
-    color: ${({ $authorized }) => ($authorized ? '#000000' : '#3b82f6')};
+    color: ${({ $authorized }) => ($authorized ? 'V9_COLORS.TEXT.BLACK' : 'V9_COLORS.PRIMARY.BLUE')};
     letter-spacing: 1px;
     z-index: 2;
   }
@@ -80,7 +80,7 @@ const ConsoleHeader = styled.div<{ $authorized?: boolean }>`
   margin-bottom: 1.5rem;
   text-align: center;
   position: relative;
-  color: ${({ $authorized }) => ($authorized ? '#000000' : '#ffffff')};
+  color: ${({ $authorized }) => ($authorized ? 'V9_COLORS.TEXT.BLACK' : 'V9_COLORS.TEXT.WHITE')};
   font-weight: 600;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
   font-size: 0.875rem;
@@ -91,7 +91,7 @@ const ConsoleHeader = styled.div<{ $authorized?: boolean }>`
 const ConsoleTitle = styled.div<{ $authorized?: boolean }>`
   font-size: 1.5rem;
   font-weight: 700;
-  color: ${({ $authorized }) => ($authorized ? '#000000' : '#0096ff')};
+  color: ${({ $authorized }) => ($authorized ? 'V9_COLORS.TEXT.BLACK' : '#0096ff')};
   margin-bottom: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -102,7 +102,7 @@ const ConsoleTitle = styled.div<{ $authorized?: boolean }>`
 
 const ConsoleSubtitle = styled.div<{ $authorized?: boolean }>`
   font-size: 1rem;
-  color: ${({ $authorized }) => ($authorized ? '#000000' : '#cccccc')};
+  color: ${({ $authorized }) => ($authorized ? 'V9_COLORS.TEXT.BLACK' : '#cccccc')};
   text-transform: uppercase;
   letter-spacing: 0.05em;
   transition: all 0.3s ease;
@@ -132,7 +132,7 @@ const LEDIndicator = styled.div<{ $active: boolean; $color: string }>`
 
 // Main Display Screen
 const DisplayScreen = styled.div`
-  background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+  background: linear-gradient(135deg, V9_COLORS.TEXT.BLACK 0%, #1a1a1a 100%);
   border: 3px solid #0096ff;
   border-radius: 0.75rem;
   padding: 2rem;
@@ -154,7 +154,7 @@ const ScreenLabel = styled.div`
 `;
 
 const UserCodeDisplay = styled.div`
-  background: #000000;
+  background: V9_COLORS.TEXT.BLACK;
   color: #00ff00;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 2.5rem;
@@ -303,7 +303,7 @@ const StatusIcon = styled.div`
 const StatusText = styled.div`
   font-size: 1.125rem;
   font-weight: 600;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
   margin-bottom: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -311,7 +311,7 @@ const StatusText = styled.div`
 
 const StatusMessage = styled.div`
   font-size: 0.875rem;
-  color: #ffffff;
+  color: V9_COLORS.TEXT.WHITE;
 `;
 
 // Console Base
@@ -421,8 +421,8 @@ const GamingConsoleDeviceFlow: React.FC<GamingConsoleDeviceFlowProps> = ({
 						<QRCodeSVG
 							value={state.verificationUriComplete}
 							size={180}
-							bgColor="#ffffff"
-							fgColor="#000000"
+							bgColor="V9_COLORS.TEXT.WHITE"
+							fgColor="V9_COLORS.TEXT.BLACK"
 							level="M"
 							includeMargin={true}
 						/>
@@ -479,7 +479,7 @@ const GamingConsoleDeviceFlow: React.FC<GamingConsoleDeviceFlowProps> = ({
 						</div>
 						<div
 							style={{
-								background: '#000000',
+								background: 'V9_COLORS.TEXT.BLACK',
 								padding: '1rem',
 								borderRadius: '0.5rem',
 								border: '1px solid #333333',
@@ -497,7 +497,7 @@ const GamingConsoleDeviceFlow: React.FC<GamingConsoleDeviceFlowProps> = ({
 				tokens={state.tokens}
 				backgroundColor="rgba(0, 0, 0, 0.2)"
 				borderColor="#333333"
-				headerTextColor="#ffffff"
+				headerTextColor="V9_COLORS.TEXT.WHITE"
 			/>
 		</>
 	);
