@@ -478,7 +478,7 @@ const IDTokensFlow = () => {
 			setValidationResults(validation);
 			setCurrentStep(4);
 			setDemoStatus('success');
-		} catch (err) {
+		} catch (_err) {
 			setError('Failed to process ID token. Please check your configuration.');
 			setDemoStatus('error');
 		}

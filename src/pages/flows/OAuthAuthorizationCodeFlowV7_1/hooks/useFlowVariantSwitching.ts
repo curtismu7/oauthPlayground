@@ -25,7 +25,7 @@ const FlowCredentialService = {
 	},
 };
 
-const v4ToastManager = {
+const _v4ToastManager = {
 	showSuccess: (message: string) => {
 		console.log('✅ Toast:', message);
 	},

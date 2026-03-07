@@ -7,7 +7,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
-import { logger } from '@/utils/logger';
 import FlowSequenceDisplay from '../../../components/FlowSequenceDisplay';
 import {
 	ResultsSection as ImportedResultsSection,
@@ -73,7 +72,7 @@ const StyledSectionDivider = styled.div`
 
 const WorkerTokenFlowV9: React.FC = () => {
 	usePageScroll({ pageName: 'WorkerTokenFlowV9', force: true });
-	const navigate = useNavigate();
+	const _navigate = useNavigate();
 
 	const controller = useWorkerTokenFlowController({
 		flowKey: 'worker-token-v9',
@@ -99,7 +98,7 @@ const WorkerTokenFlowV9: React.FC = () => {
 		});
 	}, []);
 
-	const [currentStep, setCurrentStep] = useState(0);
+	const [currentStep, _setCurrentStep] = useState(0);
 	const [workerToken, setWorkerToken] = useState(() => getAnyWorkerToken() ?? '');
 
 	// Keep workerToken display in sync with storage

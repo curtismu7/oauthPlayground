@@ -73,24 +73,34 @@ export const V7OAuthFlowVariant: React.FC<V7FlowVariantProps> = ({
 	};
 
 	// Step content renderer for OAuth variant
-	const renderStepContent = useCallback((step: number) => {
-		switch (step) {
-			case 0:
-				return renderCredentialsStep();
-			case 1:
-				return renderAuthorizationStep();
-			case 2:
-				return renderCallbackStep();
-			case 3:
-				return renderTokenExchangeStep();
-			case 4:
-				return renderTokenManagementStep();
-			case 5:
-				return renderCompletionStep();
-			default:
-				return <div>Step not implemented</div>;
-		}
-	}, []);
+	const renderStepContent = useCallback(
+		(step: number) => {
+			switch (step) {
+				case 0:
+					return renderCredentialsStep();
+				case 1:
+					return renderAuthorizationStep();
+				case 2:
+					return renderCallbackStep();
+				case 3:
+					return renderTokenExchangeStep();
+				case 4:
+					return renderTokenManagementStep();
+				case 5:
+					return renderCompletionStep();
+				default:
+					return <div>Step not implemented</div>;
+			}
+		},
+		[
+			renderAuthorizationStep,
+			renderCallbackStep,
+			renderCompletionStep,
+			renderCredentialsStep,
+			renderTokenExchangeStep,
+			renderTokenManagementStep,
+		]
+	);
 
 	// Step 0: Application Configuration
 	const renderCredentialsStep = () => (
@@ -335,26 +345,37 @@ export const V7OIDCFlowVariant: React.FC<V7FlowVariantProps> = ({
 	};
 
 	// Step content renderer for OIDC variant
-	const renderStepContent = useCallback((step: number) => {
-		switch (step) {
-			case 0:
-				return renderCredentialsStep();
-			case 1:
-				return renderAuthorizationStep();
-			case 2:
-				return renderCallbackStep();
-			case 3:
-				return renderTokenExchangeStep();
-			case 4:
-				return renderIDTokenValidationStep();
-			case 5:
-				return renderUserInfoStep();
-			case 6:
-				return renderCompletionStep();
-			default:
-				return <div>Step not implemented</div>;
-		}
-	}, []);
+	const renderStepContent = useCallback(
+		(step: number) => {
+			switch (step) {
+				case 0:
+					return renderCredentialsStep();
+				case 1:
+					return renderAuthorizationStep();
+				case 2:
+					return renderCallbackStep();
+				case 3:
+					return renderTokenExchangeStep();
+				case 4:
+					return renderIDTokenValidationStep();
+				case 5:
+					return renderUserInfoStep();
+				case 6:
+					return renderCompletionStep();
+				default:
+					return <div>Step not implemented</div>;
+			}
+		},
+		[
+			renderAuthorizationStep,
+			renderCallbackStep,
+			renderCompletionStep,
+			renderCredentialsStep,
+			renderIDTokenValidationStep,
+			renderTokenExchangeStep,
+			renderUserInfoStep,
+		]
+	);
 
 	// Step 0: Application Configuration
 	const renderCredentialsStep = () => (

@@ -426,7 +426,7 @@ export default function OAuth2CompliantAuthorizationCodeFlow() {
 				scope: savedCredentials.scope || flowState.credentials.scope,
 			});
 		}
-	}, []);
+	}, [flowActions.setCredentials, flowState.credentials]);
 
 	// Save credentials to V9 storage whenever they change
 	useEffect(() => {

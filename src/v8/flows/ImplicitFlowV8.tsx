@@ -22,7 +22,7 @@ import { PingOneAppConfigForm } from '../components/PingOneAppConfigForm';
 import { usePingOneAppConfig } from '../hooks/usePingOneAppConfig';
 import { ValidationServiceV8 } from '../services/validationServiceV8';
 
-const MODULE_TAG = '[🔓 IMPLICIT-FLOW-V8]';
+const _MODULE_TAG = '[🔓 IMPLICIT-FLOW-V8]';
 const FLOW_KEY = 'implicit-flow-v8';
 
 interface Credentials {

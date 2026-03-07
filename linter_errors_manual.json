@@ -1,21 +1,63 @@
 {
-	"timestamp": "2026-03-07T12:31:41.017Z",
-	"summary": {
-		"totalFiles": 18,
-		"errors": 0,
-		"warnings": 1,
-		"info": 0
-	},
-	"results": {
-		"errors": [],
-		"warnings": [
-			{
-				"line": "Multiple",
-				"message": "Console statements found: 1 matches",
-				"severity": "warning",
-				"file": "src/pages/flows/UserInfoFlow.tsx"
-			}
-		],
-		"info": []
-	}
+  "timestamp": "2026-03-07T12:32:16.206Z",
+  "summary": {
+    "totalFiles": 18,
+    "errors": 0,
+    "warnings": 8,
+    "info": 0
+  },
+  "results": {
+    "errors": [],
+    "warnings": [
+      {
+        "line": "Multiple",
+        "message": "Unused variables with underscore prefix: 1 matches",
+        "severity": "warning",
+        "file": "src/pages/flows/UserInfoFlow.tsx"
+      },
+      {
+        "line": "Multiple",
+        "message": "Console statements found: 1 matches",
+        "severity": "warning",
+        "file": "src/pages/flows/UserInfoFlow.tsx"
+      },
+      {
+        "line": "Multiple",
+        "message": "Unused variables with underscore prefix: 14 matches",
+        "severity": "warning",
+        "file": "src/pages/flows/KrogerGroceryStoreMFA.tsx"
+      },
+      {
+        "line": "Multiple",
+        "message": "Unused variables with underscore prefix: 1 matches",
+        "severity": "warning",
+        "file": "src/pages/flows/v9/ClientCredentialsFlowV9.tsx"
+      },
+      {
+        "line": "Multiple",
+        "message": "Unused variables with underscore prefix: 32 matches",
+        "severity": "warning",
+        "file": "src/pages/flows/v9/DeviceAuthorizationFlowV9.tsx"
+      },
+      {
+        "line": "Multiple",
+        "message": "Unused variables with underscore prefix: 2 matches",
+        "severity": "warning",
+        "file": "src/pages/flows/v9/OAuthAuthorizationCodeFlowV9.tsx"
+      },
+      {
+        "line": "Multiple",
+        "message": "Unused variables with underscore prefix: 1 matches",
+        "severity": "warning",
+        "file": "src/pages/flows/v9/OIDCHybridFlowV9.tsx"
+      },
+      {
+        "line": "Multiple",
+        "message": "Unused variables with underscore prefix: 1 matches",
+        "severity": "warning",
+        "file": "src/pages/flows/v9/WorkerTokenFlowV9.tsx"
+      }
+    ],
+    "info": []
+  }
 }
