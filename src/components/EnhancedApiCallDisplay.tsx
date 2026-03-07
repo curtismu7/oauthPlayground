@@ -426,9 +426,7 @@ const MaskedRevealValue: React.FC<{ value: string; fieldKey: string }> = ({ valu
 	const [revealed, setRevealed] = React.useState(false);
 	return (
 		<span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-			<RevealableValue $revealed={revealed}>
-				{revealed ? value : maskValue(value)}
-			</RevealableValue>
+			<RevealableValue $revealed={revealed}>{revealed ? value : maskValue(value)}</RevealableValue>
 			<RevealToggleBtn
 				type="button"
 				onClick={() => setRevealed((r) => !r)}
@@ -445,8 +443,18 @@ const MaskedRevealValue: React.FC<{ value: string; fieldKey: string }> = ({ valu
 /** Renders a permanently-masked credential field (client_secret etc.) */
 const CredentialMaskedValue: React.FC = () => (
 	<span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-		<ParameterValue style={{ background: '#fee2e2', color: '#991b1b' }}>***REDACTED***</ParameterValue>
-		<span style={{ fontSize: '0.7rem', color: '#9ca3af', display: 'inline-flex', alignItems: 'center', gap: '0.2rem' }}>
+		<ParameterValue style={{ background: '#fee2e2', color: '#991b1b' }}>
+			***REDACTED***
+		</ParameterValue>
+		<span
+			style={{
+				fontSize: '0.7rem',
+				color: '#9ca3af',
+				display: 'inline-flex',
+				alignItems: 'center',
+				gap: '0.2rem',
+			}}
+		>
 			<FiLock size={11} /> credential
 		</span>
 	</span>
@@ -455,8 +463,18 @@ const CredentialMaskedValue: React.FC = () => (
 /** Renders a masked token with no reveal available (Basic auth, or service not yet wired). */
 const TokenMaskedNoReveal: React.FC = () => (
 	<span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-		<ParameterValue style={{ background: '#fef3c7', color: '#78350f' }}>••••••••masked••••••••</ParameterValue>
-		<span style={{ fontSize: '0.7rem', color: '#9ca3af', display: 'inline-flex', alignItems: 'center', gap: '0.2rem' }}>
+		<ParameterValue style={{ background: '#fef3c7', color: '#78350f' }}>
+			••••••••masked••••••••
+		</ParameterValue>
+		<span
+			style={{
+				fontSize: '0.7rem',
+				color: '#9ca3af',
+				display: 'inline-flex',
+				alignItems: 'center',
+				gap: '0.2rem',
+			}}
+		>
 			<FiLock size={11} /> token
 		</span>
 	</span>
@@ -633,13 +651,17 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 									const revealVal = apiCall.revealableFields?.queryParams?.[key];
 									return (
 										<ParameterItem key={key}>
-											<span><strong>{key}:</strong></span>
+											<span>
+												<strong>{key}:</strong>
+											</span>
 											{isRedacted(value) ? (
-												revealVal
-													? <MaskedRevealValue value={revealVal} fieldKey={key} />
-													: isCredentialField(key)
-														? <CredentialMaskedValue />
-														: <TokenMaskedNoReveal />
+												revealVal ? (
+													<MaskedRevealValue value={revealVal} fieldKey={key} />
+												) : isCredentialField(key) ? (
+													<CredentialMaskedValue />
+												) : (
+													<TokenMaskedNoReveal />
+												)
 											) : (
 												<ParameterValue>{value}</ParameterValue>
 											)}
@@ -668,13 +690,17 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 									const revealVal = apiCall.revealableFields?.headers?.[key];
 									return (
 										<ParameterItem key={key}>
-											<span><strong>{key}:</strong></span>
+											<span>
+												<strong>{key}:</strong>
+											</span>
 											{isRedacted(value) ? (
-												revealVal
-													? <MaskedRevealValue value={revealVal} fieldKey={key} />
-													: isCredentialField(key)
-														? <CredentialMaskedValue />
-														: <TokenMaskedNoReveal />
+												revealVal ? (
+													<MaskedRevealValue value={revealVal} fieldKey={key} />
+												) : isCredentialField(key) ? (
+													<CredentialMaskedValue />
+												) : (
+													<TokenMaskedNoReveal />
+												)
 											) : (
 												<ParameterValue>{value}</ParameterValue>
 											)}
@@ -714,13 +740,17 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 										const revealVal = apiCall.revealableFields?.bodyParams?.[k];
 										return (
 											<ParameterItem key={k}>
-												<span><strong>{k}=</strong></span>
+												<span>
+													<strong>{k}=</strong>
+												</span>
 												{isRedacted(v) ? (
-													revealVal
-														? <MaskedRevealValue value={revealVal} fieldKey={k} />
-														: isCredentialField(k)
-															? <CredentialMaskedValue />
-															: <TokenMaskedNoReveal />
+													revealVal ? (
+														<MaskedRevealValue value={revealVal} fieldKey={k} />
+													) : isCredentialField(k) ? (
+														<CredentialMaskedValue />
+													) : (
+														<TokenMaskedNoReveal />
+													)
 												) : (
 													<ParameterValue>{v}</ParameterValue>
 												)}
