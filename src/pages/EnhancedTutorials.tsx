@@ -298,6 +298,7 @@ const decodedPayload = JSON.parse(atob(payload));`,
 				/>
 				<div style={{ textAlign: 'center', marginTop: '2rem' }}>
 					<button
+						type="button"
 						onClick={() => setSelectedTutorial(null)}
 						style={{
 							padding: '0.75rem 1.5rem',
