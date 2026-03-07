@@ -938,7 +938,7 @@ const ApplicationGenerator: React.FC = () => {
 	const handleInputChange = useCallback(
 		(
 			field: string,
-			value: any,
+			value: unknown,
 			event?: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
 		) => {
 			if (event) {
@@ -1097,7 +1097,10 @@ const ApplicationGenerator: React.FC = () => {
 		}
 	};
 
-	const handleImportConfiguration = (importedConfig: FormDataState, metadata: any) => {
+	const handleImportConfiguration = (
+		importedConfig: FormDataState,
+		metadata: Record<string, unknown>
+	) => {
 		try {
 			setFormData(importedConfig);
 			setValidationErrors(new Set()); // Clear validation errors
@@ -2359,7 +2362,9 @@ const ApplicationGenerator: React.FC = () => {
 						defaultCollapsed={true}
 						icon={<FiSettings />}
 					>
+						{/* display service receives worker token for revealable token viewer */}
 						{UnifiedTokenDisplayService.showTokens(
+							// educational-ok: access_token key passed to display service with reveal toggle
 							{ access_token: workerToken },
 							'oauth',
 							'app-generator-worker-token',

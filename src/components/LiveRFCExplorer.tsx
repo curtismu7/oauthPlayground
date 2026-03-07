@@ -469,6 +469,7 @@ const tokens = await tokenResponse.json();
 // Use access token for API calls
 const apiResponse = await fetch('https://api.example.com/data', {
   headers: {
+    // educational-ok: access_token is a parameter name in code example string, not a real token
     'Authorization': \`Bearer \${tokens.access_token}\`,
   },
 });`,
