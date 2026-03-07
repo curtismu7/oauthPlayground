@@ -22,13 +22,17 @@ export const V7MJwtInspectorModal: React.FC<Props> = ({ open, token, onClose }) 
 			themeColor="#0ea5e9"
 		>
 			<div style={{ marginBottom: 12 }}>
-				<button style={tabBtn(tab === 'header')} onClick={() => setTab('header')}>
+				<button type="button" style={tabBtn(tab === 'header')} onClick={() => setTab('header')}>
 					Header
 				</button>
-				<button style={tabBtn(tab === 'payload')} onClick={() => setTab('payload')}>
+				<button type="button" style={tabBtn(tab === 'payload')} onClick={() => setTab('payload')}>
 					Payload
 				</button>
-				<button style={tabBtn(tab === 'signature')} onClick={() => setTab('signature')}>
+				<button
+					type="button"
+					style={tabBtn(tab === 'signature')}
+					onClick={() => setTab('signature')}
+				>
 					Signature
 				</button>
 			</div>
@@ -47,7 +51,9 @@ export const V7MJwtInspectorModal: React.FC<Props> = ({ open, token, onClose }) 
 	);
 };
 
-function decode(token: string): { header: any; payload: any; signature: string } | undefined {
+function decode(
+	token: string
+): { header: unknown; payload: unknown; signature: string } | undefined {
 	const parts = token.split('.');
 	if (parts.length !== 3) return undefined;
 	try {
@@ -79,7 +85,7 @@ const preStyle: React.CSSProperties = {
 	fontSize: 13,
 };
 
-function highlightJson(obj: any): React.ReactNode {
+function highlightJson(obj: unknown): React.ReactNode {
 	const json = JSON.stringify(obj, null, 2);
 	// simple syntax highlight: keys red, values blue
 	const html = json
@@ -88,6 +94,10 @@ function highlightJson(obj: any): React.ReactNode {
 		.replace(/>/g, '&gt;')
 		.replace(/"([^"]+)":/g, '<span style="color:#ef4444">"$1"</span>:')
 		.replace(/: (\d+|true|false|null|".*?")/g, ': <span style="color:#3b82f6">$1</span>');
+	{
+		/* biome-ignore lint/security/noDangerouslySetInnerHtml: JSON.stringify output HTML-escaped before injection */
+	}
+	// biome-ignore lint/security/noDangerouslySetInnerHtml: JSON.stringify output HTML-escaped before injection
 	return <code dangerouslySetInnerHTML={{ __html: html }} />;
 }
 

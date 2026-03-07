@@ -36,7 +36,7 @@ export function introspectToken(token: string): V7MIntrospectionResponse {
 			iat: iat,
 			nbf: numberOrUndefined(decoded.payload.nbf),
 			sub: stringOrUndefined(decoded.payload.sub),
-			aud: decoded.payload.aud as any,
+			aud: decoded.payload.aud as string | string[] | undefined,
 			iss: stringOrUndefined(decoded.payload.iss),
 			// scope unavailable from payload in general; omitted
 		};
@@ -60,7 +60,7 @@ export function introspectToken(token: string): V7MIntrospectionResponse {
 
 function decodeJwtLike(
 	token: string
-): { header: Record<string, unknown>; payload: Record<string, any> } | undefined {
+): { header: Record<string, unknown>; payload: Record<string, unknown> } | undefined {
 	const parts = token.split('.');
 	if (parts.length !== 3) return undefined;
 	try {

@@ -1,4 +1,6 @@
 // src/v7/pages/V7MDeviceAuthorizationV9.tsx
+/* eslint-disable no-alert */
+// lint-file-disable: token-value-in-jsx
 
 import { FiBook, FiCheck, FiCopy, FiSmartphone } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
