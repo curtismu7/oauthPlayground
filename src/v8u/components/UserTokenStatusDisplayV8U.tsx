@@ -20,7 +20,6 @@ import {
 	FiInfo,
 	FiKey,
 	FiRefreshCw,
-	FiShield,
 	FiTrash2,
 	FiUser,
 } from '@icons';
@@ -41,11 +40,6 @@ const FLOW_TYPES = [
 ];
 
 // Animation keyframes
-const pulse = keyframes`
-	0%, 100% { transform: scale(1); opacity: 1; }
-	50% { transform: scale(1.05); opacity: 0.9; }
-`;
-
 const glow = keyframes`
 	0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
 	50% { box-shadow: 0 0 30px rgba(59, 130, 246, 0.6); }
@@ -124,40 +118,6 @@ const TokenTitle = styled.div`
 	gap: 10px;
 `;
 
-const _TokenIcon = styled.div<{
-	$variant: 'valid' | 'invalid' | 'warning' | 'info';
-	$tokenType?: string;
-}>`
-	width: 32px;
-	height: 32px;
-	border-radius: 8px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	background: linear-gradient(135deg, 
-		${(props) =>
-			props.$variant === 'valid'
-				? '#3b82f6'
-				: props.$variant === 'warning'
-					? '#f59e0b'
-					: props.$variant === 'info'
-						? '#10b981'
-						: '#ef4444'},
-		${(props) =>
-			props.$variant === 'valid'
-				? '#2563eb'
-				: props.$variant === 'warning'
-					? '#d97706'
-					: props.$variant === 'info'
-						? '#059669'
-						: '#dc2626'});
-	box-shadow: 
-		0 2px 8px rgba(0, 0, 0, 0.15),
-		inset 0 1px 0 rgba(255, 255, 255, 0.2);
-	color: white;
-	font-size: 14px;
-	animation: ${css`${pulse} 2s ease-in-out infinite`};
-`;
 
 const TokenText = styled.div`
 	display: flex;
@@ -434,7 +394,7 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 					try {
 						const parsed = JSON.parse(callbackData);
 						accessToken = parsed.access_token || parsed.token;
-					} catch (_e) {
+					} catch {
 						// Ignore parsing errors
 					}
 				}
@@ -485,7 +445,7 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 					try {
 						const parsed = JSON.parse(callbackData);
 						idToken = parsed.id_token;
-					} catch (_e) {
+					} catch {
 						// Ignore parsing errors
 					}
 				}
@@ -536,7 +496,7 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 					try {
 						const parsed = JSON.parse(callbackData);
 						refreshToken = parsed.refresh_token;
-					} catch (_e) {
+					} catch {
 						// Ignore parsing errors
 					}
 				}
@@ -585,7 +545,7 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 				message: 'User token status refreshed',
 				duration: 3000,
 			});
-		} catch (_error) {
+		} catch {
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -605,7 +565,7 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 				message: `${type} copied to clipboard`,
 				duration: 3000,
 			});
-		} catch (_error) {
+		} catch {
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -632,7 +592,7 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 						delete parsed.access_token;
 						delete parsed.token;
 						sessionStorage.setItem('v8u_callback_data', JSON.stringify(parsed));
-					} catch (_e) {
+					} catch {
 						// Ignore parsing errors
 					}
 				}
@@ -648,7 +608,7 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 						const parsed = JSON.parse(callbackData);
 						delete parsed.id_token;
 						sessionStorage.setItem('v8u_callback_data', JSON.stringify(parsed));
-					} catch (_e) {
+					} catch {
 						// Ignore parsing errors
 					}
 				}
@@ -664,7 +624,7 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 						const parsed = JSON.parse(callbackData);
 						delete parsed.refresh_token;
 						sessionStorage.setItem('v8u_callback_data', JSON.stringify(parsed));
-					} catch (_e) {
+					} catch {
 						// Ignore parsing errors
 					}
 				}
@@ -677,7 +637,7 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 			});
 			// Refresh the display
 			await updateTokenStatus();
-		} catch (_error) {
+		} catch {
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -702,18 +662,6 @@ export const UserTokenStatusDisplayV8U: React.FC<UserTokenStatusDisplayProps> = 
 		}
 	};
 
-	const _getTokenIcon = (type: string) => {
-		switch (type) {
-			case 'access_token':
-				return <FiKey />;
-			case 'id_token':
-				return <FiUser />;
-			case 'refresh_token':
-				return <FiRefreshCw />;
-			default:
-				return <FiShield />;
-		}
-	};
 
 	const formatTimeRemaining = (expiresAt?: number) => {
 		if (!expiresAt) return 'N/A';

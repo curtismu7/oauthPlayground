@@ -1,10 +1,29 @@
 // src/services/configCheckerService.tsx
 // Service wrapper for ConfigCheckerButtons that adds collapsible header
 
-import { FiSettings } from '@icons';
 import React from 'react';
 import { ConfigCheckerButtons } from '../components/ConfigCheckerButtons';
 import { CollapsibleHeader } from './collapsibleHeaderService';
+
+// MDI Icon Component for React Icons migration
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
+	icon, 
+	size = 16, 
+	className = '' 
+}) => {
+	const iconMap: Record<string, string> = {
+		'FiSettings': 'mdi-cog',
+	};
+	
+	const mdiIcon = iconMap[icon] || 'mdi-help';
+	
+	return (
+		<i 
+			className={`mdi ${mdiIcon} ${className}`}
+			style={{ fontSize: `${size}px` }}
+		></i>
+	);
+};
 
 // Re-export the Props type for convenience
 export type ConfigCheckerServiceProps = React.ComponentProps<typeof ConfigCheckerButtons>;
@@ -27,7 +46,7 @@ export const ConfigCheckerService: React.FC<ConfigCheckerServiceProps> = (props)
 					current configuration.
 				</>
 			}
-			icon={<FiSettings />}
+			icon={<MDIIcon icon="FiSettings" />}
 			theme="orange"
 		>
 			<ConfigCheckerButtons {...props} />

@@ -1,4 +1,3 @@
-import { FiClock, FiCode, FiLock, FiPlay, FiShield, FiUser } from '@icons';
 import { useState } from 'react';
 import styled from 'styled-components';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
@@ -6,6 +5,32 @@ import { Card, CardBody, CardHeader } from '../components/Card';
 import { useAuth } from '../contexts/NewAuthContext';
 import type { OAuthFlow } from '../types/oauthFlows';
 import { logger } from '../utils/logger';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
+
+// MDI Icon Component for React Icons migration
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
+	icon, 
+	size = 16, 
+	className = '' 
+}) => {
+	const iconMap: Record<string, string> = {
+		'FiClock': 'mdi-clock',
+		'FiCode': 'mdi-code-tags',
+		'FiLock': 'mdi-lock',
+		'FiPlay': 'mdi-play',
+		'FiShield': 'mdi-shield-check',
+		'FiUser': 'mdi-account',
+	};
+	
+	const mdiIcon = iconMap[icon] || 'mdi-help';
+	
+	return (
+		<i 
+			className={`mdi ${mdiIcon} ${className}`}
+			style={{ fontSize: `${size}px` }}
+		></i>
+	);
+};
 
 const FlowsContainer = styled.div`
   max-width: 1200px;
@@ -239,19 +264,19 @@ const StepNumber = styled.div<{ $active: boolean; $completed: boolean }>`
   ${({ $active, $completed }) => {
 		if ($completed) {
 			return `
-        background-color: #22c55e;
-        color: white;
+        background-color: ${V9_COLORS.PRIMARY.GREEN};
+        color: ${V9_COLORS.TEXT.WHITE};
       `;
 		}
-		if (active) {
+		if ($active) {
 			return `
-        background-color: #3b82f6;
-        color: white;
+        background-color: ${V9_COLORS.PRIMARY.BLUE};
+        color: ${V9_COLORS.TEXT.WHITE};
       `;
 		}
 		return `
-      background-color: #e5e7eb;
-      color: #6b7280;
+      background-color: ${V9_COLORS.TEXT.GRAY_LIGHTER};
+      color: ${V9_COLORS.TEXT.GRAY_MEDIUM};
     `;
 	}}
 `;
@@ -288,7 +313,7 @@ const flows: OAuthFlow[] = [
 	{
 		id: 'authorization-code',
 		title: 'Authorization Code Flow',
-		icon: <FiCode />,
+		icon: <MDIIcon icon="FiCode" />,
 		description:
 			'The most common OAuth 2.0 flow for web applications with a server-side component.',
 		security: 'high',
@@ -343,7 +368,7 @@ https://yourapp.com/callback?code=abc123&state=xyz789`,
 	{
 		id: 'pkce',
 		title: 'PKCE Flow',
-		icon: <FiShield />,
+		icon: <MDIIcon icon="FiShield" />,
 		description: 'Authorization Code flow with Proof Key for Code Exchange for enhanced security.',
 		security: 'high',
 		recommended: true,
@@ -400,7 +425,7 @@ const codeChallenge = await generateCodeChallenge(codeVerifier);`,
 	{
 		id: 'implicit',
 		title: 'Implicit Flow',
-		icon: <FiLock />,
+		icon: <MDIIcon icon="FiLock" />,
 		description: 'Simplified flow for client-side applications (deprecated for security reasons).',
 		security: 'low',
 		recommended: false,
@@ -451,7 +476,7 @@ const accessToken = params.get('access_token');`,
 	{
 		id: 'client-credentials',
 		title: 'Client Credentials',
-		icon: <FiUser />,
+		icon: <MDIIcon icon="FiUser" />,
 		description: 'Machine-to-machine authentication without user interaction.',
 		security: 'high',
 		recommended: true,
@@ -506,7 +531,7 @@ grant_type=client_credentials&scope=api:read`,
 	{
 		id: 'device-code',
 		title: 'Device Code Flow',
-		icon: <FiClock />,
+		icon: <MDIIcon icon="FiClock" />,
 		description: 'Flow for devices with limited input capabilities (TVs, IoT devices).',
 		security: 'medium',
 		recommended: true,
@@ -574,7 +599,7 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
 	{
 		id: 'refresh-token',
 		title: 'Refresh Token Flow',
-		icon: <FiClock />,
+		icon: <MDIIcon icon="FiClock" />,
 		description: 'Use refresh tokens to obtain new access tokens without re-authentication.',
 		security: 'high',
 		recommended: true,
@@ -636,7 +661,7 @@ fetch('/api/data', {
 	{
 		id: 'password-grant',
 		title: 'Password Grant (Legacy)',
-		icon: <FiLock />,
+		icon: <MDIIcon icon="FiLock" />,
 		description:
 			'Direct username/password authentication (deprecated, use Authorization Code instead).',
 		security: 'low',
@@ -768,8 +793,8 @@ const OAuthFlows = () => {
 				<p>Interactive demonstrations of different OAuth 2.0 and OpenID Connect flows</p>
 				<div
 					style={{
-						background: '#f0f9ff',
-						border: '1px solid #0ea5e9',
+						background: V9_COLORS.BG.GRAY_LIGHT,
+						border: `1px solid ${V9_COLORS.PRIMARY.BLUE}`,
 						borderRadius: '8px',
 						padding: '1rem',
 						marginTop: '1rem',
@@ -793,7 +818,7 @@ const OAuthFlows = () => {
 
 								<FlowMeta>
 									<SecurityBadge className={getSecurityBadgeColor(flow.security)}>
-										<FiShield />
+										<MDIIcon icon="FiShield" />
 										{flow.security.toUpperCase()} Security
 									</SecurityBadge>
 								</FlowMeta>
@@ -806,7 +831,7 @@ const OAuthFlows = () => {
 											handleFlowSelect(flow);
 										}}
 									>
-										<FiPlay /> Try Demo
+										<MDIIcon icon="FiPlay" /> Try Demo
 									</FlowButton>
 								</FlowActions>
 							</CardBody>
@@ -833,7 +858,7 @@ const OAuthFlows = () => {
 								onClick={handleStartDemo}
 								disabled={demoStatus === 'loading' || !config}
 							>
-								<FiPlay /> Start Demo
+								<MDIIcon icon="FiPlay" /> Start Demo
 							</FlowButton>
 						</DemoControls>
 					</DemoHeader>

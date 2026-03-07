@@ -22,7 +22,7 @@ import {
 	SuperSimpleApiDisplayV8,
 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenExpiryBannerV8 } from '@/v8/components/WorkerTokenExpiryBannerV8';
-import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
 import WorkerTokenStatusDisplayV8 from '@/v8/components/WorkerTokenStatusDisplayV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import {
@@ -437,9 +437,12 @@ const TokenStatusPageV8U: React.FC = () => {
 
 				{/* Worker Token Modal */}
 				{showWorkerTokenModal && (
-					<WorkerTokenModalV8
+					<WorkerTokenModalV9
 						isOpen={showWorkerTokenModal}
 						onClose={() => setShowWorkerTokenModal(false)}
+						onTokenGenerated={(token) => {
+							console.log('Worker token generated for token status page:', token);
+						}}
 					/>
 				)}
 			</PageContainer>

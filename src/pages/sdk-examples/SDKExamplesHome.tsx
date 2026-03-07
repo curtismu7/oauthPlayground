@@ -12,7 +12,7 @@ import {
 	ApiDisplayCheckbox,
 	SuperSimpleApiDisplayV8,
 } from '@/v8/components/SuperSimpleApiDisplayV8';
-import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { WorkerTokenModalV9 } from '../../components/WorkerTokenModalV9';
 
 const Container = styled.div`
   padding: 2rem;
@@ -120,138 +120,6 @@ const DocumentationSection = styled.div`
   margin-top: 3rem;
 `;
 
-const _APIDisplayToggle = styled.div`
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  background: white;
-  border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  border: 1px solid #e0e0e0;
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-`;
-
-const _ToggleButton = styled.button`
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #007bff;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem;
-  border-radius: 4px;
-  transition: background-color 0.2s ease;
-  font-size: 0.9rem;
-  font-weight: 500;
-
-  &:hover {
-    background: #f0f0f0;
-  }
-`;
-
-const _APIDisplayContainer = styled.div<{ isVisible: boolean }>`
-  margin-top: 2rem;
-  display: ${(props) => (props.isVisible ? 'block' : 'none')};
-`;
-
-const _EnvironmentsSection = styled.div`
-  background: #ffffff;
-  border-radius: 8px;
-  padding: 2rem;
-  margin-bottom: 2rem;
-  border: 1px solid #e0e0e0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-`;
-
-const _EnvironmentsHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-`;
-
-const _EnvironmentsTitle = styled.h3`
-  color: #333;
-  font-size: 1.5rem;
-  margin: 0;
-`;
-
-const _RefreshButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: #28a745;
-  color: white;
-  border: none;
-  padding: 0.625rem 1.25rem;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: #218838;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
-  }
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-  }
-`;
-
-const _EnvironmentList = styled.div`
-  display: grid;
-  gap: 1rem;
-`;
-
-const _EnvironmentItem = styled.div`
-  padding: 1rem;
-  background: #f8f9fa;
-  border-radius: 6px;
-  border: 1px solid #e9ecef;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
-
-const _EnvironmentName = styled.div`
-  font-weight: 500;
-  color: #333;
-`;
-
-const _EnvironmentId = styled.div`
-  font-size: 0.875rem;
-  color: #666;
-  font-family: monospace;
-`;
-
-const _LoadingMessage = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #666;
-  font-style: italic;
-  justify-content: center;
-  padding: 2rem;
-`;
-
-const _ErrorMessage = styled.div`
-  background: #f8d7da;
-  color: #721c24;
-  padding: 1rem;
-  border-radius: 4px;
-  margin-bottom: 1rem;
-  border: 1px solid #f5c6cb;
-`;
 
 const DocumentationTitle = styled.h2`
   color: #333;
@@ -278,16 +146,10 @@ const DocumentationItem = styled.li`
   }
 `;
 
-interface Environment {
-	id: string;
-	name: string;
-	description?: string;
-}
 
 const SDKExamplesHome: React.FC = () => {
 	// Worker token management
 	const globalTokenStatus = useGlobalWorkerToken();
-	const _workerToken = globalTokenStatus.token || '';
 	const hasValidToken = globalTokenStatus.isValid;
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 
@@ -402,9 +264,12 @@ const SDKExamplesHome: React.FC = () => {
 
 			{/* Worker Token Modal */}
 			{showWorkerTokenModal && (
-				<WorkerTokenModalV8
+				<WorkerTokenModalV9
 					isOpen={showWorkerTokenModal}
 					onClose={() => setShowWorkerTokenModal(false)}
+					onTokenGenerated={(token) => {
+						console.log('Worker token generated for SDK examples:', token);
+					}}
 				/>
 			)}
 		</Container>

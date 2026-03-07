@@ -1,10 +1,33 @@
 import { DragDropContext, Draggable, Droppable, DropResult } from '@hello-pangea/dnd';
 import React, { useState } from 'react';
 import { Alert, Button, Card, Spinner } from 'react-bootstrap';
-import { FaArrowDown, FaArrowUp, FaGripVertical, FaSave, FaTimes } from 'react-icons/fa';
 import useMFADeviceOrder from '../../hooks/useMFADeviceOrder';
 import { useMFADevices } from '../../hooks/useMFADevices';
 import { logger } from '../../utils/logger';
+
+// MDI Icon Component for React Icons migration
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
+	icon, 
+	size = 16, 
+	className = '' 
+}) => {
+	const iconMap: Record<string, string> = {
+		'FaArrowDown': 'mdi-arrow-down',
+		'FaArrowUp': 'mdi-arrow-up',
+		'FaGripVertical': 'mdi-drag-vertical',
+		'FaSave': 'mdi-content-save',
+		'FaTimes': 'mdi-close',
+	};
+	
+	const mdiIcon = iconMap[icon] || 'mdi-help';
+	
+	return (
+		<i 
+			className={`mdi ${mdiIcon} ${className}`}
+			style={{ fontSize: `${size}px` }}
+		></i>
+	);
+};
 
 interface MFADeviceOrderManagerProps {
 	accessToken: string;
@@ -155,7 +178,7 @@ const MFADeviceOrderManager: React.FC<MFADeviceOrderManagerProps> = ({
 								</>
 							) : (
 								<>
-									<FaSave className="me-1" /> Save Order
+									<MDIIcon icon="FaSave" className="me-1" /> Save Order
 								</>
 							)}
 						</Button>
@@ -165,7 +188,7 @@ const MFADeviceOrderManager: React.FC<MFADeviceOrderManagerProps> = ({
 							onClick={handleCancel}
 							disabled={isUpdating}
 						>
-							<FaTimes className="me-1" /> Cancel
+							<MDIIcon icon="FaTimes" className="me-1" /> Cancel
 						</Button>
 					</div>
 				)}
@@ -195,7 +218,7 @@ const MFADeviceOrderManager: React.FC<MFADeviceOrderManagerProps> = ({
 															className="me-3 text-muted"
 															style={{ cursor: 'grab' }}
 														>
-															<FaGripVertical />
+															<MDIIcon icon="FaGripVertical" />
 														</div>
 														<div className="flex-grow-1">
 															<div className="d-flex align-items-center">
@@ -219,7 +242,7 @@ const MFADeviceOrderManager: React.FC<MFADeviceOrderManagerProps> = ({
 																	disabled={index === 0}
 																	className="me-1"
 																>
-																	<FaArrowUp />
+																	<MDIIcon icon="FaArrowUp" />
 																</Button>
 																<Button
 																	variant="outline-secondary"
@@ -227,7 +250,7 @@ const MFADeviceOrderManager: React.FC<MFADeviceOrderManagerProps> = ({
 																	onClick={() => moveDevice(index, 'down')}
 																	disabled={index === localDevices.length - 1}
 																>
-																	<FaArrowDown />
+																	<MDIIcon icon="FaArrowDown" />
 																</Button>
 															</div>
 															<div className="badge bg-light text-dark">

@@ -13,6 +13,7 @@ import { Card, CardBody } from '../components/Card';
 import { SpecCard } from '../components/SpecCard';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import PageLayoutService from '../services/pageLayoutService';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 const _Container = styled.div`
   max-width: 1400px;
@@ -164,8 +165,8 @@ const OAuth21 = () => {
 				<header
 					style={{
 						padding: '2rem',
-						background: '#1d4ed8',
-						color: 'white',
+						background: V9_COLORS.PRIMARY.BLUE_DARK,
+						color: V9_COLORS.TEXT.WHITE,
 						borderRadius: '1rem 1rem 0 0',
 					}}
 				>
@@ -193,7 +194,7 @@ const OAuth21 = () => {
 									href="https://oauth.net/2.1/"
 									target="_blank"
 									rel="noopener noreferrer"
-									style={{ color: '#3b82f6', marginLeft: '0.5rem' }}
+									style={{ color: V9_COLORS.PRIMARY.BLUE, marginLeft: '0.5rem' }}
 								>
 									View on oauth.net
 								</a>
@@ -220,15 +221,15 @@ const OAuth21 = () => {
 											marginBottom: '1rem',
 										}}
 									>
-										<FiX style={{ color: '#f59e0b', fontSize: '1.25rem' }} />
-										<span style={{ fontWeight: 600, color: '#f59e0b' }}>REMOVED</span>
+										<FiX style={{ color: V9_COLORS.PRIMARY.YELLOW, fontSize: '1.25rem' }} />
+										<span style={{ fontWeight: 600, color: V9_COLORS.PRIMARY.YELLOW }}>REMOVED</span>
 									</div>
 									<p>
 										`response_type=token` no longer appears in OAuth 2.1. Browsers should use
 										Authorization Code + PKCE, which prevents token leakage through URL fragments
 										and enables sender-constrained access tokens.
 									</p>
-									<p style={{ fontSize: '0.9rem', color: '#64748b' }}>
+									<p style={{ fontSize: '0.9rem', color: V9_COLORS.TEXT.GRAY_DARK }}>
 										Reference: draft-ietf-oauth-v2-1 §4 (Implicit grant omitted).
 									</p>
 								</SpecCard>
@@ -242,15 +243,15 @@ const OAuth21 = () => {
 											marginBottom: '1rem',
 										}}
 									>
-										<FiX style={{ color: '#f59e0b', fontSize: '1.25rem' }} />
-										<span style={{ fontWeight: 600, color: '#f59e0b' }}>REMOVED</span>
+										<FiX style={{ color: V9_COLORS.PRIMARY.YELLOW, fontSize: '1.25rem' }} />
+										<span style={{ fontWeight: 600, color: V9_COLORS.PRIMARY.YELLOW }}>REMOVED</span>
 									</div>
 									<p>
 										The password grant encouraged first-party apps to collect user credentials.
 										OAuth 2.1 removes it entirely. Modern replacements include Authorization Code +
 										PKCE or token exchange patterns for highly trusted backends.
 									</p>
-									<p style={{ fontSize: '0.9rem', color: '#64748b' }}>
+									<p style={{ fontSize: '0.9rem', color: V9_COLORS.TEXT.GRAY_DARK }}>
 										Reference: draft-ietf-oauth-v2-1 §4.3 (ROPC omitted).
 									</p>
 								</SpecCard>
@@ -264,15 +265,15 @@ const OAuth21 = () => {
 											marginBottom: '1rem',
 										}}
 									>
-										<FiShield style={{ color: '#0ea5e9', fontSize: '1.25rem' }} />
-										<span style={{ fontWeight: 600, color: '#0ea5e9' }}>ENFORCED</span>
+										<FiShield style={{ color: V9_COLORS.PRIMARY.BLUE, fontSize: '1.25rem' }} />
+										<span style={{ fontWeight: 600, color: V9_COLORS.PRIMARY.BLUE }}>ENFORCED</span>
 									</div>
 									<p>
 										Native and browser-based apps must use `https` URIs (with loopback exceptions)
 										and exact matching. Lenient schemes tolerated in early OAuth 2.0 deployments are
 										no longer acceptable.
 									</p>
-									<p style={{ fontSize: '0.9rem', color: '#64748b' }}>
+									<p style={{ fontSize: '0.9rem', color: V9_COLORS.TEXT.GRAY_DARK }}>
 										Reference: draft-ietf-oauth-v2-1 §6.1 (redirect URI requirements).
 									</p>
 								</SpecCard>
@@ -312,8 +313,8 @@ const OAuth21 = () => {
 											marginBottom: '1rem',
 										}}
 									>
-										<FiCheck style={{ color: '#10b981', fontSize: '1.25rem' }} />
-										<span style={{ fontWeight: '600', color: '#10b981' }}>REQUIRED</span>
+										<FiCheck style={{ color: V9_COLORS.PRIMARY.GREEN, fontSize: '1.25rem' }} />
+										<span style={{ fontWeight: '600', color: V9_COLORS.PRIMARY.GREEN }}>REQUIRED</span>
 									</div>
 									<p>
 										PKCE (Proof Key for Code Exchange) is now <strong>required</strong> for all
@@ -327,8 +328,8 @@ GET /authorize?
   &code_challenge_method=S256`}</pre>
 									<div
 										style={{
-											background: '#eff6ff',
-											border: '1px solid #bfdbfe',
+											background: V9_COLORS.BG.GRAY_LIGHT,
+											border: `1px solid ${V9_COLORS.PRIMARY.BLUE}`,
 											borderRadius: '0.5rem',
 											padding: '1rem',
 											margin: '1rem 0',
@@ -337,11 +338,11 @@ GET /authorize?
 											gap: '0.75rem',
 										}}
 									>
-										<FiInfo style={{ color: '#3b82f6', flexShrink: 0, marginTop: '0.1rem' }} />
+										<FiInfo style={{ color: V9_COLORS.PRIMARY.BLUE, flexShrink: 0, marginTop: '0.1rem' }} />
 										<div>
 											<h4
 												style={{
-													color: '#3b82f6',
+													color: V9_COLORS.PRIMARY.BLUE,
 													margin: '0 0 0.5rem 0',
 													fontSize: '1rem',
 													fontWeight: '600',
@@ -349,7 +350,7 @@ GET /authorize?
 											>
 												PingOne Support
 											</h4>
-											<p style={{ margin: '0', color: '#3b82f6', fontSize: '0.9rem' }}>
+											<p style={{ margin: '0', color: V9_COLORS.PRIMARY.BLUE, fontSize: '0.9rem' }}>
 												PingOne fully supports PKCE and recommends its use for all OAuth flows.
 											</p>
 										</div>
@@ -366,8 +367,8 @@ GET /authorize?
 											marginBottom: '1rem',
 										}}
 									>
-										<FiCheck style={{ color: '#10b981', fontSize: '1.25rem' }} />
-										<span style={{ fontWeight: '600', color: '#10b981' }}>REQUIRED</span>
+										<FiCheck style={{ color: V9_COLORS.PRIMARY.GREEN, fontSize: '1.25rem' }} />
+										<span style={{ fontWeight: '600', color: V9_COLORS.PRIMARY.GREEN }}>REQUIRED</span>
 									</div>
 									<p>
 										Redirect URIs must be compared using exact string matching, eliminating the
@@ -382,8 +383,8 @@ redirect_uri=https://app.example.com/callback
 // This is no longer permitted in OAuth 2.1`}</pre>
 									<div
 										style={{
-											background: '#eff6ff',
-											border: '1px solid #bfdbfe',
+											background: V9_COLORS.BG.GRAY_LIGHT,
+											border: `1px solid ${V9_COLORS.PRIMARY.BLUE}`,
 											borderRadius: '0.5rem',
 											padding: '1rem',
 											margin: '1rem 0',
@@ -392,11 +393,11 @@ redirect_uri=https://app.example.com/callback
 											gap: '0.75rem',
 										}}
 									>
-										<FiInfo style={{ color: '#3b82f6', flexShrink: 0, marginTop: '0.1rem' }} />
+										<FiInfo style={{ color: V9_COLORS.PRIMARY.BLUE, flexShrink: 0, marginTop: '0.1rem' }} />
 										<div>
 											<h4
 												style={{
-													color: '#3b82f6',
+													color: V9_COLORS.PRIMARY.BLUE,
 													margin: '0 0 0.5rem 0',
 													fontSize: '1rem',
 													fontWeight: '600',
@@ -404,7 +405,7 @@ redirect_uri=https://app.example.com/callback
 											>
 												PingOne Support
 											</h4>
-											<p style={{ margin: '0', color: '#3b82f6', fontSize: '0.9rem' }}>
+											<p style={{ margin: '0', color: V9_COLORS.PRIMARY.BLUE, fontSize: '0.9rem' }}>
 												PingOne already enforces exact redirect URI matching for security.
 											</p>
 										</div>
@@ -438,8 +439,8 @@ response_type=code
 &code_challenge_method=S256`}</pre>
 									<div
 										style={{
-											background: '#eff6ff',
-											border: '1px solid #bfdbfe',
+											background: V9_COLORS.BG.GRAY_LIGHT,
+											border: `1px solid ${V9_COLORS.PRIMARY.BLUE}`,
 											borderRadius: '0.5rem',
 											padding: '1rem',
 											margin: '1rem 0',
@@ -448,11 +449,11 @@ response_type=code
 											gap: '0.75rem',
 										}}
 									>
-										<FiInfo style={{ color: '#3b82f6', flexShrink: 0, marginTop: '0.1rem' }} />
+										<FiInfo style={{ color: V9_COLORS.PRIMARY.BLUE, flexShrink: 0, marginTop: '0.1rem' }} />
 										<div>
 											<h4
 												style={{
-													color: '#3b82f6',
+													color: V9_COLORS.PRIMARY.BLUE,
 													margin: '0 0 0.5rem 0',
 													fontSize: '1rem',
 													fontWeight: '600',
@@ -460,7 +461,7 @@ response_type=code
 											>
 												PingOne Support
 											</h4>
-											<p style={{ margin: '0', color: '#3b82f6', fontSize: '0.9rem' }}>
+											<p style={{ margin: '0', color: V9_COLORS.PRIMARY.BLUE, fontSize: '0.9rem' }}>
 												PingOne still supports Implicit flow for backward compatibility but
 												recommends using Authorization Code + PKCE.
 											</p>
@@ -492,8 +493,8 @@ response_type=code
 // Let the authorization server handle authentication`}</pre>
 									<div
 										style={{
-											background: '#eff6ff',
-											border: '1px solid #bfdbfe',
+											background: V9_COLORS.BG.GRAY_LIGHT,
+											border: `1px solid ${V9_COLORS.PRIMARY.BLUE}`,
 											borderRadius: '0.5rem',
 											padding: '1rem',
 											margin: '1rem 0',
@@ -502,11 +503,11 @@ response_type=code
 											gap: '0.75rem',
 										}}
 									>
-										<FiInfo style={{ color: '#3b82f6', flexShrink: 0, marginTop: '0.1rem' }} />
+										<FiInfo style={{ color: V9_COLORS.PRIMARY.BLUE, flexShrink: 0, marginTop: '0.1rem' }} />
 										<div>
 											<h4
 												style={{
-													color: '#3b82f6',
+													color: V9_COLORS.PRIMARY.BLUE,
 													margin: '0 0 0.5rem 0',
 													fontSize: '1rem',
 													fontWeight: '600',
@@ -514,7 +515,7 @@ response_type=code
 											>
 												PingOne Support
 											</h4>
-											<p style={{ margin: '0', color: '#3b82f6', fontSize: '0.9rem' }}>
+											<p style={{ margin: '0', color: V9_COLORS.PRIMARY.BLUE, fontSize: '0.9rem' }}>
 												PingOne still supports Password grant for legacy applications but recommends
 												migrating to Authorization Code flow.
 											</p>
@@ -532,8 +533,8 @@ response_type=code
 											marginBottom: '1rem',
 										}}
 									>
-										<FiShield style={{ color: '#3b82f6', fontSize: '1.25rem' }} />
-										<span style={{ fontWeight: '600', color: '#3b82f6' }}>IMPROVEMENT</span>
+										<FiShield style={{ color: V9_COLORS.PRIMARY.BLUE, fontSize: '1.25rem' }} />
+										<span style={{ fontWeight: '600', color: V9_COLORS.PRIMARY.BLUE }}>IMPROVEMENT</span>
 									</div>
 									<p>
 										Bearer token usage omits the use of bearer tokens in the query string of URIs,
@@ -546,8 +547,8 @@ response_type=code
 Authorization: Bearer YOUR_ACCESS_TOKEN`}</pre>
 									<div
 										style={{
-											background: '#eff6ff',
-											border: '1px solid #bfdbfe',
+											background: V9_COLORS.BG.GRAY_LIGHT,
+											border: `1px solid ${V9_COLORS.PRIMARY.BLUE}`,
 											borderRadius: '0.5rem',
 											padding: '1rem',
 											margin: '1rem 0',
@@ -556,11 +557,11 @@ Authorization: Bearer YOUR_ACCESS_TOKEN`}</pre>
 											gap: '0.75rem',
 										}}
 									>
-										<FiInfo style={{ color: '#3b82f6', flexShrink: 0, marginTop: '0.1rem' }} />
+										<FiInfo style={{ color: V9_COLORS.PRIMARY.BLUE, flexShrink: 0, marginTop: '0.1rem' }} />
 										<div>
 											<h4
 												style={{
-													color: '#3b82f6',
+													color: V9_COLORS.PRIMARY.BLUE,
 													margin: '0 0 0.5rem 0',
 													fontSize: '1rem',
 													fontWeight: '600',
@@ -568,7 +569,7 @@ Authorization: Bearer YOUR_ACCESS_TOKEN`}</pre>
 											>
 												PingOne Support
 											</h4>
-											<p style={{ margin: '0', color: '#3b82f6', fontSize: '0.9rem' }}>
+											<p style={{ margin: '0', color: V9_COLORS.PRIMARY.BLUE, fontSize: '0.9rem' }}>
 												PingOne follows OAuth 2.1 best practices for bearer token usage.
 											</p>
 										</div>
@@ -585,8 +586,8 @@ Authorization: Bearer YOUR_ACCESS_TOKEN`}</pre>
 											marginBottom: '1rem',
 										}}
 									>
-										<FiShield style={{ color: '#3b82f6', fontSize: '1.25rem' }} />
-										<span style={{ fontWeight: '600', color: '#3b82f6' }}>IMPROVEMENT</span>
+										<FiShield style={{ color: V9_COLORS.PRIMARY.BLUE, fontSize: '1.25rem' }} />
+										<span style={{ fontWeight: '600', color: V9_COLORS.PRIMARY.BLUE }}>IMPROVEMENT</span>
 									</div>
 									<p>
 										Refresh tokens for public clients must either be sender-constrained or one-time

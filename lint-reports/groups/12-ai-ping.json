@@ -1,7 +1,7 @@
 {
   "group_id": "ai-ping",
   "label": "AI - Ping",
-  "scanned_at": "2026-03-07T16:23:35.423053+00:00",
+  "scanned_at": "2026-03-07T18:41:49.353239+00:00",
   "scanned_by": null,
   "files_scanned": [
     "src/components/CollapsibleIcon.tsx",

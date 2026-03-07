@@ -10,10 +10,11 @@ import {
 	FiSave,
 	FiSearch,
 } from '@icons';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { type DiscoveryResult, oidcDiscoveryService } from '../services/oidcDiscoveryService';
 import { logger } from '../utils/logger';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 
 interface EnvironmentIdInputProps {
 	onDiscoveryComplete?: (result: DiscoveryResult) => void;
@@ -22,7 +23,6 @@ interface EnvironmentIdInputProps {
 	initialEnvironmentId?: string;
 	className?: string;
 	disabled?: boolean;
-	showSuggestions?: boolean;
 	autoDiscover?: boolean;
 	region?: 'us' | 'eu' | 'ap' | 'ca';
 }
@@ -32,8 +32,8 @@ const Container = styled.div`
   flex-direction: column;
   gap: 1rem;
   padding: 1.5rem;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: ${V9_COLORS.BG.GRAY_LIGHT};
+  border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
   border-radius: 8px;
 `;
 
@@ -44,17 +44,17 @@ const Header = styled.div`
   margin-bottom: 0.5rem;
 `;
 
-const Title = styled.h3`
+const Title = styled.h2`
   margin: 0;
   font-size: 1.125rem;
   font-weight: 600;
-  color: #000000;
+  color: ${V9_COLORS.TEXT.BLACK};
 `;
 
 const Description = styled.p`
   margin: 0 0 1rem 0;
   font-size: 0.875rem;
-  color: #000000;
+  color: ${V9_COLORS.TEXT.BLACK};
   line-height: 1.5;
 `;
 
@@ -68,7 +68,7 @@ const InputContainer = styled.div`
 const Label = styled.label`
   font-size: 0.875rem;
   font-weight: 500;
-  color: #374151;
+  color: ${V9_COLORS.TEXT.GRAY_DARK};
 `;
 
 const InputGroup = styled.div`
@@ -79,39 +79,37 @@ const InputGroup = styled.div`
 
 const RegionSelector = styled.select`
   padding: 0.75rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
   border-right: none;
   border-radius: 6px 0 0 6px;
   font-size: 0.875rem;
-  background: #ffffff;
-  color: #1f2937;
+  background: ${V9_COLORS.BG.WHITE};
+  color: ${V9_COLORS.TEXT.GRAY_DARK};
   min-width: 120px;
   
   &:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: ${V9_COLORS.PRIMARY.BLUE};
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
 `;
 
-const Input = styled.input.withConfig({
-	shouldForwardProp: (prop) => !['hasError', 'hasSuccess'].includes(prop),
-})<{ hasError?: boolean; hasSuccess?: boolean }>`
+const Input = styled.input<{ hasError?: boolean; hasSuccess?: boolean }>`
   flex: 1;
   padding: 0.75rem;
   border: 1px solid ${(props) =>
-		props.hasError ? '#ef4444' : props.hasSuccess ? '#10b981' : '#d1d5db'};
+		props.hasError ? V9_COLORS.PRIMARY.RED_DARK : props.hasSuccess ? V9_COLORS.PRIMARY.GREEN : V9_COLORS.TEXT.GRAY_LIGHTER};
   border-radius: 0 6px 6px 0;
   font-size: 0.875rem;
-  background: #ffffff;
-  color: #1f2937;
+  background: ${V9_COLORS.BG.WHITE};
+  color: ${V9_COLORS.TEXT.GRAY_DARK};
   font-family: monospace;
   transition: all 0.2s ease;
 
   &:focus {
     outline: none;
     border-color: ${(props) =>
-			props.hasError ? '#ef4444' : props.hasSuccess ? '#10b981' : '#3b82f6'};
+			props.hasError ? V9_COLORS.PRIMARY.RED_DARK : props.hasSuccess ? V9_COLORS.PRIMARY.GREEN : V9_COLORS.PRIMARY.BLUE};
     box-shadow: 0 0 0 3px ${(props) =>
 			props.hasError
 				? 'rgba(239, 68, 68, 0.1)'
@@ -121,8 +119,8 @@ const Input = styled.input.withConfig({
   }
 
   &:disabled {
-    background: #f9fafb;
-    color: #9ca3af;
+    background: ${V9_COLORS.BG.GRAY_MEDIUM};
+    color: ${V9_COLORS.TEXT.GRAY_LIGHT};
     cursor: not-allowed;
   }
 `;
@@ -133,20 +131,18 @@ const DiscoverButton = styled.button.withConfig({
   position: absolute;
   right: 0.5rem;
   padding: 0.5rem;
-  background: ${(props) => (props.isLoading ? '#f3f4f6' : '#10b981')};
-  color: ${(props) => (props.isLoading ? '#6b7280' : 'white')};
-  border: 1px solid ${(props) => (props.isLoading ? '#d1d5db' : '#059669')};
+  background: ${(props) => (props.isLoading ? V9_COLORS.TEXT.GRAY_LIGHTER : V9_COLORS.PRIMARY.GREEN)};
+  color: ${(props) => (props.isLoading ? V9_COLORS.TEXT.GRAY_MEDIUM : V9_COLORS.TEXT.WHITE)};
+  border: 1px solid ${(props) => (props.isLoading ? V9_COLORS.TEXT.GRAY_LIGHTER : V9_COLORS.PRIMARY.GREEN_DARK)};
   border-radius: 0.375rem;
   cursor: ${(props) => (props.isLoading ? 'not-allowed' : 'pointer')};
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
-  z-index: 1;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 
   &:hover:not(:disabled) {
-    background: #059669;
+    background: ${V9_COLORS.PRIMARY.GREEN_DARK};
     transform: translateY(-1px);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   }
@@ -155,7 +151,6 @@ const DiscoverButton = styled.button.withConfig({
     transform: translateY(0);
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   }
-
   &:disabled {
     cursor: not-allowed;
   }
@@ -163,9 +158,9 @@ const DiscoverButton = styled.button.withConfig({
 
 const SaveButton = styled.button<{ $isSaved?: boolean }>`
   padding: 0.5rem 1rem;
-  background: ${(props) => (props.$isSaved ? '#059669' : '#10b981')};
-  color: white;
-  border: 1px solid ${(props) => (props.$isSaved ? '#047857' : '#059669')};
+  background: ${(props) => (props.$isSaved ? V9_COLORS.PRIMARY.GREEN_DARK : V9_COLORS.PRIMARY.GREEN)};
+  color: ${V9_COLORS.TEXT.WHITE};
+  border: 1px solid ${(props) => (props.$isSaved ? '#047857' : V9_COLORS.PRIMARY.GREEN_DARK)};
   border-radius: 0.375rem;
   cursor: pointer;
   display: flex;
@@ -177,7 +172,7 @@ const SaveButton = styled.button<{ $isSaved?: boolean }>`
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 
   &:hover {
-    background: ${(props) => (props.$isSaved ? '#059669' : '#2563eb')};
+    background: ${(props) => (props.$isSaved ? V9_COLORS.PRIMARY.GREEN_DARK : V9_COLORS.PRIMARY.BLUE)};
     transform: translateY(-1px);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   }
@@ -195,8 +190,8 @@ const SaveButton = styled.button<{ $isSaved?: boolean }>`
 
 const ResetButton = styled.button`
   padding: 0.5rem 1rem;
-  background: #6b7280;
-  color: white;
+  background: ${V9_COLORS.TEXT.GRAY_MEDIUM};
+  color: ${V9_COLORS.TEXT.WHITE};
   border: 1px solid #4b5563;
   border-radius: 0.375rem;
   cursor: pointer;
@@ -235,8 +230,8 @@ const ButtonGroup = styled.div`
 
 const IssuerUrlDisplay = styled.div`
   padding: 0.75rem;
-  background: #f1f5f9;
-  border: 1px solid #cbd5e1;
+  background: ${V9_COLORS.BG.GRAY_MEDIUM};
+  border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
   border-radius: 6px;
   font-family: monospace;
   font-size: 0.875rem;
@@ -250,19 +245,19 @@ const CopyButton = styled.button`
   top: 0.5rem;
   right: 0.5rem;
   padding: 0.25rem 0.5rem;
-  background: #3b82f6;
-  color: white;
+  background: ${V9_COLORS.PRIMARY.BLUE};
+  color: ${V9_COLORS.TEXT.WHITE};
   border: none;
   border-radius: 0.25rem;
-  cursor: pointer;
   font-size: 0.75rem;
+  cursor: pointer;
   display: flex;
   align-items: center;
   gap: 0.25rem;
   transition: background-color 0.2s;
   
   &:hover {
-    background: #2563eb;
+    background: ${V9_COLORS.PRIMARY.BLUE_DARK};
   }
 `;
 
@@ -275,29 +270,29 @@ const StatusContainer = styled.div<{ type: 'success' | 'error' | 'info' | 'loadi
   background: ${(props) => {
 		switch (props.type) {
 			case 'success':
-				return '#f0fdf4';
+				return V9_COLORS.BG.SUCCESS;
 			case 'error':
-				return '#fef2f2';
+				return V9_COLORS.BG.ERROR;
 			case 'info':
-				return '#eff6ff';
+				return V9_COLORS.BG.GRAY_LIGHT;
 			case 'loading':
-				return '#f8fafc';
+				return V9_COLORS.BG.GRAY_LIGHT;
 			default:
-				return '#f8fafc';
+				return V9_COLORS.BG.GRAY_LIGHT;
 		}
 	}};
   border: 1px solid ${(props) => {
 		switch (props.type) {
 			case 'success':
-				return '#bbf7d0';
+				return V9_COLORS.BG.SUCCESS_BORDER;
 			case 'error':
-				return '#fecaca';
+				return V9_COLORS.BG.ERROR_BORDER;
 			case 'info':
-				return '#bfdbfe';
+				return V9_COLORS.PRIMARY.BLUE;
 			case 'loading':
-				return '#e2e8f0';
+				return V9_COLORS.TEXT.GRAY_LIGHTER;
 			default:
-				return '#e2e8f0';
+				return V9_COLORS.TEXT.GRAY_LIGHTER;
 		}
 	}};
   color: ${(props) => {
@@ -305,13 +300,13 @@ const StatusContainer = styled.div<{ type: 'success' | 'error' | 'info' | 'loadi
 			case 'success':
 				return '#166534';
 			case 'error':
-				return '#dc2626';
+				return V9_COLORS.PRIMARY.RED;
 			case 'info':
-				return '#1d4ed8';
+				return V9_COLORS.PRIMARY.BLUE_DARK;
 			case 'loading':
-				return '#475569';
+				return V9_COLORS.TEXT.GRAY_MEDIUM;
 			default:
-				return '#475569';
+				return V9_COLORS.TEXT.GRAY_MEDIUM;
 		}
 	}};
 `;
@@ -322,7 +317,7 @@ const StatusText = styled.div`
 `;
 
 const ErrorMessage = styled.div`
-  color: #dc2626;
+  color: ${V9_COLORS.PRIMARY.RED};
   font-size: 0.875rem;
   margin-top: 0.5rem;
 `;
@@ -332,38 +327,36 @@ const RegionInfo = styled.div`
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem;
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
+  background: ${V9_COLORS.BG.GRAY_LIGHT};
+  border: 1px solid ${V9_COLORS.PRIMARY.BLUE};
   border-radius: 0.375rem;
   font-size: 0.75rem;
-  color: #000000;
+  color: ${V9_COLORS.TEXT.BLACK};
 `;
 
 const DiscoveryResultsBox = styled.div`
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: ${V9_COLORS.BG.GRAY_LIGHT};
+  border: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
   border-radius: 8px;
   margin-bottom: 1rem;
   overflow: hidden;
 `;
 
-const DiscoveryResultsHeader = styled.button`
+const DiscoveryResultsHeader = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
   width: 100%;
   padding: 1rem;
-  background: #3b82f6;
-  color: white;
+  background: ${V9_COLORS.PRIMARY.BLUE};
+  color: ${V9_COLORS.TEXT.WHITE};
   font-weight: 600;
   font-size: 0.875rem;
-  border: none;
-  cursor: pointer;
   transition: background-color 0.2s ease;
   
   &:hover {
-    background: #2563eb;
+    background: ${V9_COLORS.PRIMARY.BLUE_DARK};
   }
 `;
 
@@ -390,7 +383,6 @@ const DiscoveryResultsContent = styled.div`
   padding: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
 `;
 
 const DiscoveryResultItem = styled.div`
@@ -401,29 +393,28 @@ const DiscoveryResultItem = styled.div`
   line-height: 1.4;
   
   strong {
-    color: #374151;
+    color: ${V9_COLORS.TEXT.GRAY_DARK};
     font-weight: 600;
   }
   
   &:not(:last-child) {
     padding-bottom: 0.75rem;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid ${V9_COLORS.TEXT.GRAY_LIGHTER};
   }
 `;
 
-const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
+export const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 	onDiscoveryComplete,
 	onEnvironmentIdChange,
 	onIssuerUrlChange,
 	initialEnvironmentId = '',
-	className,
+	className = '',
 	disabled = false,
-	_showSuggestions = true,
 	autoDiscover = false,
-	_region = 'us',
+	region = 'us',
 }) => {
 	const [environmentId, setEnvironmentId] = useState(initialEnvironmentId);
-	const [selectedRegion, setSelectedRegion] = useState<'us' | 'eu' | 'ap' | 'ca'>(_region);
+	const [selectedRegion, setSelectedRegion] = useState<'us' | 'eu' | 'ap' | 'ca'>(region);
 	const [isDiscovering, setIsDiscovering] = useState(false);
 	const [discoveryResult, setDiscoveryResult] = useState<DiscoveryResult | null>(null);
 	const [error, setError] = useState<string | null>(null);
@@ -432,12 +423,12 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 	const [isApplying, setIsApplying] = useState(false);
 	const [isDiscoveryResultsCollapsed, setIsDiscoveryResultsCollapsed] = useState(false);
 
-	const regionUrls = {
+	const regionUrls = useMemo(() => ({
 		us: 'https://auth.pingone.com',
 		eu: 'https://auth.pingone.eu',
 		ap: 'https://auth.pingone.asia',
 		ca: 'https://auth.pingone.ca',
-	};
+	}), []);
 
 	const regionLabels = {
 		us: 'US (North America)',
@@ -459,7 +450,7 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 					setSelectedRegion(config.region || 'us');
 					setDiscoveryResult({
 						success: true,
-						document: config.discoveryResult,
+						data: config.discoveryResult,
 					});
 				}
 			} catch (err) {
@@ -484,7 +475,7 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 			onEnvironmentIdChange?.(value);
 			onIssuerUrlChange?.(value ? `${regionUrls[selectedRegion]}/${value}` : '');
 		},
-		[selectedRegion, discoveryResult, onEnvironmentIdChange, onIssuerUrlChange, regionUrls]
+		[selectedRegion, discoveryResult, onEnvironmentIdChange, onIssuerUrlChange]
 	);
 
 	const handleRegionChange = useCallback(
@@ -500,7 +491,7 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 				setDiscoveryResult(null);
 			}
 		},
-		[environmentId, discoveryResult, onIssuerUrlChange, regionUrls]
+		[environmentId, discoveryResult, onIssuerUrlChange]
 	);
 
 	const handleDiscover = useCallback(async () => {
@@ -821,8 +812,8 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 							$isSaved={isSaved}
 							disabled={isSaved || isApplying}
 							style={{
-								background: isApplying ? '#f59e0b' : '#10b981',
-								borderColor: isApplying ? '#d97706' : '#059669',
+								background: isApplying ? V9_COLORS.PRIMARY.YELLOW : V9_COLORS.PRIMARY.GREEN,
+								borderColor: isApplying ? V9_COLORS.PRIMARY.YELLOW_DARK : V9_COLORS.PRIMARY.GREEN_DARK,
 							}}
 						>
 							{isApplying ? <FiLoader className="animate-spin" size={16} /> : <FiCheck size={16} />}

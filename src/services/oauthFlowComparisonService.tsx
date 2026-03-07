@@ -1,9 +1,33 @@
 // src/services/oauthFlowComparisonService.tsx
 // Service for displaying OAuth flow comparisons with collapsible headers
 
-import { FiAlertTriangle, FiCheckCircle, FiGlobe, FiShield, FiUsers, FiXCircle } from '@icons';
 import styled from 'styled-components';
 import { CollapsibleHeader } from './collapsibleHeaderService';
+
+// MDI Icon Component for React Icons migration
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
+	icon, 
+	size = 16, 
+	className = '' 
+}) => {
+	const iconMap: Record<string, string> = {
+		'FiAlertTriangle': 'mdi-alert-triangle',
+		'FiCheckCircle': 'mdi-check-circle',
+		'FiGlobe': 'mdi-earth',
+		'FiShield': 'mdi-shield-check',
+		'FiUsers': 'mdi-account-group',
+		'FiXCircle': 'mdi-close-circle',
+	};
+	
+	const mdiIcon = iconMap[icon] || 'mdi-help';
+	
+	return (
+		<i 
+			className={`mdi ${mdiIcon} ${className}`}
+			style={{ fontSize: `${size}px` }}
+		></i>
+	);
+};
 
 const Table = styled.table`
 	width: 100%;
@@ -143,12 +167,12 @@ export class OAuthFlowComparisonService {
 		return (
 			<CollapsibleHeader
 				title="OAuth Flow Comparison: Authorization vs JWT Bearer vs SAML Bearer"
-				icon={<FiGlobe />}
+				icon={<MDIIcon icon="FiGlobe" />}
 				defaultCollapsed={collapsed}
 				showArrow={true}
 			>
 				<InfoBox $variant="info">
-					<FiShield size={24} />
+					<MDIIcon icon="FiShield" size={24} />
 					<div>
 						<InfoTitle>Understanding Different OAuth Flows</InfoTitle>
 						<InfoText>
@@ -179,17 +203,17 @@ export class OAuthFlowComparisonService {
 							</Td>
 							<Td>
 								<Badge $variant="success">
-									<FiCheckCircle /> Required
+									<MDIIcon icon="FiCheckCircle" /> Required
 								</Badge>
 							</Td>
 							<Td>
 								<Badge $variant="error">
-									<FiXCircle /> None
+									<MDIIcon icon="FiXCircle" /> None
 								</Badge>
 							</Td>
 							<Td>
 								<Badge $variant="error">
-									<FiXCircle /> None
+									<MDIIcon icon="FiXCircle" /> None
 								</Badge>
 							</Td>
 						</tr>
@@ -200,17 +224,17 @@ export class OAuthFlowComparisonService {
 							</Td>
 							<Td>
 								<Badge $variant="success">
-									<FiCheckCircle /> Yes
+									<MDIIcon icon="FiCheckCircle" /> Yes
 								</Badge>
 							</Td>
 							<Td>
 								<Badge $variant="error">
-									<FiXCircle /> No
+									<MDIIcon icon="FiXCircle" /> No
 								</Badge>
 							</Td>
 							<Td>
 								<Badge $variant="error">
-									<FiXCircle /> No
+									<MDIIcon icon="FiXCircle" /> No
 								</Badge>
 							</Td>
 						</tr>
@@ -246,12 +270,12 @@ export class OAuthFlowComparisonService {
 							<Td>Optional (PKCE recommended)</Td>
 							<Td>
 								<Badge $variant="warning">
-									<FiAlertTriangle /> Required (JWT signing)
+									<MDIIcon icon="FiAlertTriangle" /> Required (JWT signing)
 								</Badge>
 							</Td>
 							<Td>
 								<Badge $variant="warning">
-									<FiAlertTriangle /> Required (SAML signing)
+									<MDIIcon icon="FiAlertTriangle" /> Required (SAML signing)
 								</Badge>
 							</Td>
 						</tr>
@@ -271,17 +295,17 @@ export class OAuthFlowComparisonService {
 							</Td>
 							<Td>
 								<IconWrapper>
-									<FiUsers /> User authentication
+									<MDIIcon icon="FiUsers" /> User authentication
 								</IconWrapper>
 							</Td>
 							<Td>
 								<IconWrapper>
-									<FiShield /> Server-to-server
+									<MDIIcon icon="FiShield" /> Server-to-server
 								</IconWrapper>
 							</Td>
 							<Td>
 								<IconWrapper>
-									<FiGlobe /> Enterprise SSO
+									<MDIIcon icon="FiGlobe" /> Enterprise SSO
 								</IconWrapper>
 							</Td>
 						</tr>
@@ -307,17 +331,17 @@ export class OAuthFlowComparisonService {
 							</Td>
 							<Td>
 								<Badge $variant="success">
-									<FiCheckCircle /> Supported
+									<MDIIcon icon="FiCheckCircle" /> Supported
 								</Badge>
 							</Td>
 							<Td>
 								<Badge $variant="error">
-									<FiXCircle /> Not Supported
+									<MDIIcon icon="FiXCircle" /> Not Supported
 								</Badge>
 							</Td>
 							<Td>
 								<Badge $variant="error">
-									<FiXCircle /> Not Supported
+									<MDIIcon icon="FiXCircle" /> Not Supported
 								</Badge>
 							</Td>
 						</tr>
@@ -326,7 +350,7 @@ export class OAuthFlowComparisonService {
 
 				<div style={{ marginTop: '2rem' }}>
 					<InfoTitle style={{ color: '#1f2937', marginBottom: '1rem' }}>
-						<FiUsers /> When to Use Each Flow
+						<MDIIcon icon="FiUsers" /> When to Use Each Flow
 					</InfoTitle>
 
 					<Table>
