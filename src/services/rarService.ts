@@ -12,7 +12,7 @@ export interface AuthorizationDetail {
 	datatypes?: string[]; // Optional
 	identifier?: string; // Optional
 	privileges?: string[]; // Optional
-	[key: string]: any; // Type-specific fields
+	[key: string]: unknown; // Type-specific fields
 }
 
 export interface PaymentInitiationDetail extends AuthorizationDetail {
@@ -316,7 +316,9 @@ export class RARService {
 	/**
 	 * Parse authorization response and extract authorization_details
 	 */
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	static parseAuthorizationResponse(tokenResponse: any): {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		tokens: any;
 		authorizationDetails?: AuthorizationDetail[];
 	} {

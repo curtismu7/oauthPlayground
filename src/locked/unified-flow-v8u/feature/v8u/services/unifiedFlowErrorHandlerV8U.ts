@@ -20,7 +20,7 @@ const toastV8 = {
 };
 import { UnifiedFlowLoggerService } from './unifiedFlowLoggerServiceV8U';
 
-const _MODULE_TAG = '[🛡️ UNIFIED-FLOW-ERROR-HANDLER-V8U]';
+const MODULE_TAG = '[🛡️ UNIFIED-FLOW-ERROR-HANDLER-V8U]';
 
 export interface ErrorContext {
 	flowType?: FlowType;
@@ -155,13 +155,10 @@ export class UnifiedFlowErrorHandler {
 
 			// Parse PingOne error format
 			const errorMessage =
-				(typeof errorBody.error === 'string' ? errorBody.error : '') ||
-				(typeof errorBody.message === 'string' ? errorBody.message : '') ||
 				(typeof errorBody.error_description === 'string' ? errorBody.error_description : '') ||
+				(typeof errorBody.message === 'string' ? errorBody.message : '') ||
+				(typeof errorBody.error === 'string' ? errorBody.error : '') ||
 				errorText;
-
-			const _errorCode =
-				(typeof errorBody.error === 'string' ? errorBody.error : '') || response.status.toString();
 
 			return UnifiedFlowErrorHandler.parsePingOneError(new Error(errorMessage));
 		} catch (parseError) {
@@ -193,7 +190,7 @@ export class UnifiedFlowErrorHandler {
 		// Log error
 		if (logError) {
 			UnifiedFlowLoggerService.error(
-				`Error: ${parsedError.message}`,
+				`${MODULE_TAG} Error: ${parsedError.message}`,
 				{
 					...context,
 					errorCode: parsedError.errorCode,
@@ -235,7 +232,7 @@ export class UnifiedFlowErrorHandler {
 
 		// Log error
 		if (logError) {
-			UnifiedFlowLoggerService.error(`API Error: ${parsedError.message}`, {
+			UnifiedFlowLoggerService.error(`${MODULE_TAG} API Error: ${parsedError.message}`, {
 				...context,
 				status: response.status,
 				statusText: response.statusText,
@@ -270,7 +267,7 @@ export class UnifiedFlowErrorHandler {
 	): void {
 		const { showToast = true, setValidationErrors } = options;
 
-		UnifiedFlowLoggerService.warn(`Validation Error: ${message}`, context);
+		UnifiedFlowLoggerService.warn(`${MODULE_TAG} Validation Error: ${message}`, context);
 
 		if (showToast) {
 			toastV8.error(message);
@@ -284,7 +281,7 @@ export class UnifiedFlowErrorHandler {
 	/**
 	 * Get recovery suggestion for error
 	 */
-	static getRecoverySuggestion(error: unknown, _context: ErrorContext = {}): string | undefined {
+	static getRecoverySuggestion(error: unknown): string | undefined {
 		const parsedError = UnifiedFlowErrorHandler.parsePingOneError(error);
 		return parsedError.recoverySuggestion;
 	}

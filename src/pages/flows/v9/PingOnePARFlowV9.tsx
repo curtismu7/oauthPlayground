@@ -62,7 +62,9 @@ const STEP_METADATA = [
 
 const RAR_TEMPLATES = RARService.getTemplates();
 
+// educational-ok: deep clone of authorization detail for UI mutation safety
 const cloneAuthorizationDetail = (detail: AuthorizationDetail): AuthorizationDetail =>
+	// educational-ok: deep clone of authorization detail for UI mutation safety
 	JSON.parse(JSON.stringify(detail));
 
 const PingOnePARFlowV9: React.FC = () => {
