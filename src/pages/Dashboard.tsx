@@ -9,6 +9,7 @@ import AppVersionBadge from '../components/AppVersionBadge';
 import { Icon } from '../components/Icon/Icon';
 import { useServerStatusOptional } from '../components/ServerStatusProvider';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
+import { V9_COLORS } from '../services/v9/V9ColorStandards';
 import {
 	getAppUrlForDomain,
 	getCustomDomain,
@@ -534,7 +535,7 @@ const Dashboard = () => {
 						<div className="d-flex flex-column gap-2">
 							<div className="d-flex align-items-center gap-2 flex-wrap">
 								<span className="fw-600 text-muted">App URL (HTTPS):</span>
-								<code className="text-small fw-600" style={{ color: '#111827' }}>
+								<code className="text-small fw-600" style={{ color: V9_COLORS.TEXT.GRAY_DARK }}>
 									{appDisplayUrl}
 								</code>
 							</div>
@@ -558,7 +559,7 @@ const Dashboard = () => {
 									<p
 										id="dashboard-domain-error"
 										className="text-small mb-0"
-										style={{ color: '#dc2626' }}
+										style={{ color: V9_COLORS.PRIMARY.RED }}
 									>
 										{domainError}
 									</p>

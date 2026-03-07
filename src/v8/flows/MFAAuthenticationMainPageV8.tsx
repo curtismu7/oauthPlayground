@@ -178,10 +178,10 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	const devicesSpinner = useProductionSpinner('mfa-devices'); // Load devices
 
 	// Action button hooks for consistent button state management
-	// const _startMFAAction = useActionButton();
-	// const _registerDeviceAction = useActionButton();
-	// const _usernamelessFIDO2Action = useActionButton();
-	// const _clearTokensAction = useActionButton();
+const startMFAAction = useActionButton();
+const registerDeviceAction = useActionButton();
+const usernamelessFIDO2Action = useActionButton();
+const clearTokensAction = useActionButton();
 
 	usePageScroll({ pageName: 'MFA Authentication', force: true });
 
@@ -1386,16 +1386,17 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 	// Handle Start MFA (Username-based)
 	const handleStartMFA = useCallback(async () => {
-		// FOOLPROOF: Enhanced debugging for authentication flow
-		console.log(`${MODULE_TAG} 🚀 Starting MFA Authentication`, {
-			hasValidToken: tokenStatus.isValid,
-			hasEnvironmentId: !!credentials.environmentId,
-			hasPolicyId: !!credentials.deviceAuthenticationPolicyId,
-			hasUsername: !!usernameInput.trim(),
-			username: usernameInput.trim(),
-			environmentId: credentials.environmentId,
-			policyId: credentials.deviceAuthenticationPolicyId,
-		});
+		return startMFAAction.executeAction(async () => {
+			// FOOLPROOF: Enhanced debugging for authentication flow
+			console.log(`${MODULE_TAG} 🚀 Starting MFA Authentication`, {
+				hasValidToken: tokenStatus.isValid,
+				hasEnvironmentId: !!credentials.environmentId,
+				hasPolicyId: !!credentials.deviceAuthenticationPolicyId,
+				hasUsername: !!usernameInput.trim(),
+				username: usernameInput.trim(),
+				environmentId: credentials.environmentId,
+				policyId: credentials.deviceAuthenticationPolicyId,
+			});
 
 		if (!tokenStatus.isValid) {
 			console.warn(`${MODULE_TAG} ❌ Worker token invalid - cannot start authentication`);
@@ -1697,7 +1698,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		credentials.customDomain,
 		credentials.region,
 		deviceAuthPolicies.find,
-	]);
+		]);
+	}, 'start-mfa-authentication');
 
 	// Clear all tokens (worker and user tokens) and end PingOne session
 	const handleClearTokens = useCallback(async () => {
@@ -2601,10 +2603,10 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
 						{/* Primary Button: Start MFA */}
 						<ButtonSpinner
-							loading={authState.isLoading}
+							loading={startMFAAction.isLoading}
 							onClick={handleStartMFA}
 							disabled={
-								authState.isLoading ||
+								startMFAAction.isLoading ||
 								!tokenStatus.isValid ||
 								!credentials.environmentId ||
 								!credentials.deviceAuthenticationPolicyId

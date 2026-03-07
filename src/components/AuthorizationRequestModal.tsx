@@ -1,8 +1,30 @@
-import { FiCheck, FiCopy, FiExternalLink, FiX } from '@icons';
 import React, { useEffect, useId } from 'react';
 import styled from 'styled-components';
 import { logger } from '../utils/logger';
 import ColorCodedURL from './ColorCodedURL';
+
+// MDI Icon Component for React Icons migration
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
+	icon, 
+	size = 16, 
+	className = '' 
+}) => {
+	const iconMap: Record<string, string> = {
+		'FiCheck': 'mdi-check',
+		'FiCopy': 'mdi-content-copy',
+		'FiExternalLink': 'mdi-open-in-new',
+		'FiX': 'mdi-close',
+	};
+	
+	const mdiIcon = iconMap[icon] || 'mdi-help';
+	
+	return (
+		<i 
+			className={`mdi ${mdiIcon} ${className}`}
+			style={{ fontSize: `${size}px` }}
+		></i>
+	);
+};
 
 interface AuthorizationRequestModalProps {
 	isOpen: boolean;
@@ -309,7 +331,7 @@ const AuthorizationRequestModal: React.FC<AuthorizationRequestModalProps> = ({
 				<ModalHeader>
 					<h2>OAuth Authorization Request</h2>
 					<button type="button" className="close-button" onClick={onClose}>
-						<FiX />
+						<MDIIcon icon="FiX" />
 					</button>
 				</ModalHeader>
 
@@ -342,7 +364,7 @@ const AuthorizationRequestModal: React.FC<AuthorizationRequestModalProps> = ({
 								<ColorCodedURL url={authorizationUrl} />
 							</AuthorizationUrl>
 							<CopyButton $copied={copied} onClick={handleCopy}>
-								{copied ? <FiCheck size={14} /> : <FiCopy size={14} />}
+								{copied ? <MDIIcon icon="FiCheck" size={14} /> : <MDIIcon icon="FiCopy" size={14} />}
 								{copied ? 'Copied!' : 'Copy URL'}
 							</CopyButton>
 						</AuthorizationUrlBox>
@@ -361,7 +383,7 @@ const AuthorizationRequestModal: React.FC<AuthorizationRequestModalProps> = ({
 					<ActionButtons>
 						<Button onClick={onClose}>Cancel</Button>
 						<Button $variant="primary" onClick={handleProceed}>
-							<FiExternalLink size={16} />
+							<MDIIcon icon="FiExternalLink" size={16} />
 							Proceed to PingOne
 						</Button>
 					</ActionButtons>

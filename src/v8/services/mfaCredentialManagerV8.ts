@@ -140,20 +140,20 @@ export class MFACredentialManagerV8 {
 			const mfaCredentials: MFACredentials = {
 				environmentId: stored.environmentId || '',
 				clientId: stored.clientId || '',
-				username: (stored as any).username || '',
-				deviceType: (stored as any).deviceType || 'SMS',
-				countryCode: (stored as any).countryCode || '+1',
-				phoneNumber: (stored as any).phoneNumber || '',
-				email: (stored as any).email || '',
-				deviceName: (stored as any).deviceName || '',
-				deviceStatus: (stored as any).deviceStatus,
-				deviceAuthenticationPolicyId: (stored as any).deviceAuthenticationPolicyId,
-				registrationPolicyId: (stored as any).registrationPolicyId,
-				fido2PolicyId: (stored as any).fido2PolicyId,
-				tokenType: (stored as any).tokenType || 'worker',
-				userToken: (stored as any).userToken,
-				region: (stored as any).region || 'na',
-				customDomain: (stored as any).customDomain,
+				username: ((stored as Record<string, unknown>).username as string) || '',
+				deviceType: ((stored as Record<string, unknown>).deviceType as string) || 'SMS',
+				countryCode: ((stored as Record<string, unknown>).countryCode as string) || '+1',
+				phoneNumber: ((stored as Record<string, unknown>).phoneNumber as string) || '',
+				email: ((stored as Record<string, unknown>).email as string) || '',
+				deviceName: ((stored as Record<string, unknown>).deviceName as string) || '',
+				deviceStatus: (stored as Record<string, unknown>).deviceStatus as string | undefined,
+				deviceAuthenticationPolicyId: (stored as Record<string, unknown>).deviceAuthenticationPolicyId as string | undefined,
+				registrationPolicyId: (stored as Record<string, unknown>).registrationPolicyId as string | undefined,
+				fido2PolicyId: (stored as Record<string, unknown>).fido2PolicyId as string | undefined,
+				tokenType: ((stored as Record<string, unknown>).tokenType as string) || 'worker',
+				userToken: (stored as Record<string, unknown>).userToken as string | undefined,
+				region: ((stored as Record<string, unknown>).region as string) || 'na',
+				customDomain: (stored as Record<string, unknown>).customDomain as string | undefined,
 			};
 
 			// Update internal state
@@ -195,20 +195,20 @@ export class MFACredentialManagerV8 {
 			const mfaCredentials: MFACredentials = {
 				environmentId: stored.environmentId || '',
 				clientId: stored.clientId || '',
-				username: (stored as any).username || '',
-				deviceType: (stored as any).deviceType || 'SMS',
-				countryCode: (stored as any).countryCode || '+1',
-				phoneNumber: (stored as any).phoneNumber || '',
-				email: (stored as any).email || '',
-				deviceName: (stored as any).deviceName || '',
-				deviceStatus: (stored as any).deviceStatus,
-				deviceAuthenticationPolicyId: (stored as any).deviceAuthenticationPolicyId,
-				registrationPolicyId: (stored as any).registrationPolicyId,
-				fido2PolicyId: (stored as any).fido2PolicyId,
-				tokenType: (stored as any).tokenType || 'worker',
-				userToken: (stored as any).userToken,
-				region: (stored as any).region || 'na',
-				customDomain: (stored as any).customDomain,
+				username: ((stored as Record<string, unknown>).username as string) || '',
+				deviceType: ((stored as Record<string, unknown>).deviceType as string) || 'SMS',
+				countryCode: ((stored as Record<string, unknown>).countryCode as string) || '+1',
+				phoneNumber: ((stored as Record<string, unknown>).phoneNumber as string) || '',
+				email: ((stored as Record<string, unknown>).email as string) || '',
+				deviceName: ((stored as Record<string, unknown>).deviceName as string) || '',
+				deviceStatus: (stored as Record<string, unknown>).deviceStatus as string | undefined,
+				deviceAuthenticationPolicyId: (stored as Record<string, unknown>).deviceAuthenticationPolicyId as string | undefined,
+				registrationPolicyId: (stored as Record<string, unknown>).registrationPolicyId as string | undefined,
+				fido2PolicyId: (stored as Record<string, unknown>).fido2PolicyId as string | undefined,
+				tokenType: ((stored as Record<string, unknown>).tokenType as string) || 'worker',
+				userToken: (stored as Record<string, unknown>).userToken as string | undefined,
+				region: ((stored as Record<string, unknown>).region as string) || 'na',
+				customDomain: (stored as Record<string, unknown>).customDomain as string | undefined,
 			};
 
 			// Update internal state and notify
@@ -239,7 +239,7 @@ export class MFACredentialManagerV8 {
 
 		try {
 			// Save using existing service
-			CredentialsServiceV8.saveCredentials(flowKey, credentials as any);
+			CredentialsServiceV8.saveCredentials(flowKey, credentials as unknown as Parameters<typeof CredentialsServiceV8.saveCredentials>[1]);
 
 			// Update internal state
 			this.credentials = credentials;

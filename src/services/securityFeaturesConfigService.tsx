@@ -1,9 +1,32 @@
 // src/services/securityFeaturesConfigService.tsx
 
-import { FiAlertTriangle, FiCheckCircle, FiInfo, FiSettings, FiShield } from '@icons';
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import type { PingOneApplicationState } from '../components/PingOneApplicationConfig';
+
+// MDI Icon Component for React Icons migration
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
+	icon, 
+	size = 16, 
+	className = '' 
+}) => {
+	const iconMap: Record<string, string> = {
+		'FiAlertTriangle': 'mdi-alert-triangle',
+		'FiCheckCircle': 'mdi-check-circle',
+		'FiInfo': 'mdi-information',
+		'FiSettings': 'mdi-cog',
+		'FiShield': 'mdi-shield-check',
+	};
+	
+	const mdiIcon = iconMap[icon] || 'mdi-help';
+	
+	return (
+		<i 
+			className={`mdi ${mdiIcon} ${className}`}
+			style={{ fontSize: `${size}px` }}
+		></i>
+	);
+};
 
 // Security Features Configuration Interface
 export interface SecurityFeaturesConfig {
@@ -537,13 +560,13 @@ export const SecurityFeaturesConfig: React.FC<SecurityFeaturesConfigProps> = ({
 		const status = getFeatureStatus(feature);
 		switch (status) {
 			case 'enabled':
-				return <FiCheckCircle size={20} />;
+				return <MDIIcon icon="FiCheckCircle" size={20} />;
 			case 'warning':
-				return <FiAlertTriangle size={20} />;
+				return <MDIIcon icon="FiAlertTriangle" size={20} />;
 			case 'disabled':
-				return <FiShield size={20} />;
+				return <MDIIcon icon="FiShield" size={20} />;
 			default:
-				return <FiShield size={20} />;
+				return <MDIIcon icon="FiShield" size={20} />;
 		}
 	};
 
@@ -551,7 +574,7 @@ export const SecurityFeaturesConfig: React.FC<SecurityFeaturesConfigProps> = ({
 		<SecurityConfigContainer>
 			<SecurityConfigHeader $primaryColor="#3b82f6">
 				<SecurityConfigTitle>
-					<FiShield size={24} />
+					<MDIIcon icon="FiShield" size={24} />
 					Security Features Configuration
 				</SecurityConfigTitle>
 				<SecurityConfigSubtitle>
@@ -562,7 +585,7 @@ export const SecurityFeaturesConfig: React.FC<SecurityFeaturesConfigProps> = ({
 			<SecurityConfigContent>
 				<ConfigurationSummary>
 					<SummaryTitle>
-						<FiSettings size={20} />
+						<MDIIcon icon="FiSettings" size={20} />
 						Security Configuration Summary
 					</SummaryTitle>
 					<SummaryStats>
@@ -619,7 +642,7 @@ export const SecurityFeaturesConfig: React.FC<SecurityFeaturesConfigProps> = ({
 
 				<ConfigurationSummary>
 					<SummaryTitle>
-						<FiInfo size={20} />
+						<MDIIcon icon="FiInfo" size={20} />
 						Configuration Instructions
 					</SummaryTitle>
 					<p style={{ color: '#6b7280', lineHeight: '1.6', margin: 0 }}>

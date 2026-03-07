@@ -1,7 +1,7 @@
 {
   "group_id": "admin-configuration",
   "label": "Admin & Configuration",
-  "scanned_at": "2026-03-07T17:05:18.178309+00:00",
+  "scanned_at": "2026-03-07T18:40:25.054732+00:00",
   "scanned_by": null,
   "files_scanned": [
     "src/components/ApiCallColorLegend.tsx",

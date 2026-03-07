@@ -6,9 +6,31 @@
  * Includes success confirmation, summary of completed steps, and next steps guidance.
  */
 
-import { FiCheckCircle, FiInfo, FiRefreshCw, FiZap } from '@icons';
 import React from 'react';
 import styled from 'styled-components';
+
+// MDI Icon Component for React Icons migration
+const MDIIcon: React.FC<{ icon: string; size?: number; className?: string }> = ({ 
+	icon, 
+	size = 16, 
+	className = '' 
+}) => {
+	const iconMap: Record<string, string> = {
+		'FiCheckCircle': 'mdi-check-circle',
+		'FiInfo': 'mdi-information',
+		'FiRefreshCw': 'mdi-refresh',
+		'FiZap': 'mdi-lightning-bolt',
+	};
+	
+	const mdiIcon = iconMap[icon] || 'mdi-help';
+	
+	return (
+		<i 
+			className={`mdi ${mdiIcon} ${className}`}
+			style={{ fontSize: `${size}px` }}
+		></i>
+	);
+};
 
 export interface FlowCompletionStep {
 	completed: boolean;
@@ -234,17 +256,17 @@ export const FlowCompletionService: React.FC<{
 		<CollapsibleSection>
 			<CollapsibleHeaderButton onClick={onToggleCollapsed}>
 				<CollapsibleTitle>
-					<FiCheckCircle /> Flow Complete
+					<MDIIcon icon="FiCheckCircle" /> Flow Complete
 				</CollapsibleTitle>
 				<CollapsibleToggleIcon $collapsed={collapsed}>
-					<FiInfo />
+					<MDIIcon icon="FiInfo" />
 				</CollapsibleToggleIcon>
 			</CollapsibleHeaderButton>
 
 			{!collapsed && (
 				<CollapsibleContent>
 					<InfoBox $variant="success">
-						<FiCheckCircle size={24} />
+						<MDIIcon icon="FiCheckCircle" size={24} />
 						<div>
 							<InfoTitle>{flowName} Complete!</InfoTitle>
 							<InfoText>{flowDescription}</InfoText>
@@ -253,7 +275,7 @@ export const FlowCompletionService: React.FC<{
 
 					<ExplanationSection>
 						<ExplanationHeading>
-							<FiInfo /> Summary
+							<MDIIcon icon="FiInfo" /> Summary
 						</ExplanationHeading>
 						<SummaryContainer>
 							<SummaryList>
@@ -274,7 +296,7 @@ export const FlowCompletionService: React.FC<{
 
 					<ExplanationSection>
 						<ExplanationHeading>
-							<FiZap /> Next Steps
+							<MDIIcon icon="FiZap" /> Next Steps
 						</ExplanationHeading>
 						<InfoText>In a production application, you would:</InfoText>
 						<NextStepsList>
@@ -286,7 +308,7 @@ export const FlowCompletionService: React.FC<{
 
 					<ActionRow>
 						<Button onClick={onStartNewFlow} $variant="danger">
-							<FiRefreshCw /> Start New Flow
+							<MDIIcon icon="FiRefreshCw" /> Start New Flow
 						</Button>
 					</ActionRow>
 				</CollapsibleContent>

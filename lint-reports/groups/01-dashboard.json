@@ -1,7 +1,7 @@
 {
   "group_id": "dashboard",
   "label": "Dashboard",
-  "scanned_at": "2026-03-07T16:26:43.699219+00:00",
+  "scanned_at": "2026-03-07T18:40:18.335940+00:00",
   "scanned_by": null,
   "files_scanned": [
     "src/components/AppVersionBadge.tsx",
