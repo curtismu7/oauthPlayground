@@ -1,21 +1,24 @@
 # Linter Audit System — Developer Guide
 
-> Version 1.0 | Tool: `scripts/lint_per_group.py` | Updated: 2026-03-07
+> Version 2.0 | Tool: `scripts/lint_per_group.py` | Updated: 2026-03-07
 
 ---
 
 ## 1. Overview
 
-The **Linter Audit System** scans source code app-by-app — following the sidebar menu order — using six analysis layers:
+The **Linter Audit System** scans source code app-by-app — following the sidebar menu order — using seven analysis layers (plus optional tests):
 
-| Layer | Tool | What it finds |
-|-------|------|---------------|
+| Layer | Tool tag | What it finds |
+|-------|----------|---------------|
 | 1 | **Biome auto-fix** | Formatting + safe import fixes (applied automatically with `--fix`) |
-| 2 | **Biome check** | Style, suspicious patterns, correctness rules |
-| 3 | **ESLint** | React hooks rules, import rules, custom project rules |
-| 4 | **tsc** | TypeScript type errors (all strict flags on) |
-| 5 | **Runtime analysis** | 7 custom Python patterns that tsc/Biome don't catch (JSON.parse without try/catch, JWT decode-only, setInterval not assigned, etc.) |
-| 6 | **Tests** (opt-in) | Vitest unit tests, Jest API tests, Playwright E2E — mapped per group |
+| 2 | **Biome check** (`biome`) | Style, suspicious patterns, correctness rules |
+| 3 | **ESLint** (`eslint`) | React hooks rules, import rules, custom project rules |
+| 4 | **tsc** (`tsc`) | TypeScript type errors (all strict flags on) |
+| 5 | **runtime-analysis** | 7 patterns: JSON.parse without try/catch, JWT decode-only, setInterval not assigned, localStorage null-deref, fetch response.ok, map-on-nullable, unsafe `as any` cast |
+| 6 | **a11y-keyboard** | 7 keyboard accessibility patterns (WCAG 2.1 SC 2.1.1): `<div onClick>` without role, `tabIndex > 0`, onClick without onKeyDown, icon button with no aria-label, autofocus advisory |
+| 7 | **a11y-color** | 4 color/visual accessibility patterns (WCAG 1.4.1/1.4.3): hardcoded hex/rgb in style props, color-only state communication, inline `style={{ color:` advisory |
+| 8 | **migration-check** | 9 V8→V9 migration gate patterns: `token-value-in-jsx` (**error**), `v4toast-straggler` (**error**), `toastv8-straggler` (**error**), fetch-in-component, fetch without AbortController, useEffect async no-cleanup, raw console.error/warn, throw in service (Gate B), missing loading state |
+| 9 | **Tests** (opt-in) | Vitest unit tests, Jest API tests, Playwright E2E — mapped per group |
 
 Each scan writes a **per-group JSON report** to `lint-reports/groups/<id>.json` and regenerates the shared **STATUS.md** dashboard automatically.
 
@@ -121,7 +124,7 @@ For each sidebar group the script:
    - **Services** — `src/services/**`
    - **Components** — `src/components/**`
    - **Hooks** — `src/hooks/**`
-4. Runs all six analysis layers on that full file set
+4. Runs all seven analysis layers on that full file set
 
 The resolved file list is written to `files_scanned[]` in the group JSON so you can audit exactly what was checked.
 
@@ -235,7 +238,10 @@ Each `lint-reports/groups/<num>-<group-id>.json` follows this schema:
 | `status: "fixed"` | Code has been fixed and verified |
 | `status: "waived"` | Intentionally suppressed — `notes` must explain why |
 | `status: "auto_fixed"` | Applied by Biome `--write` automatically |
-| `tool: "runtime-analysis"` | Flagged by the Python pattern scanner (not Biome/ESLint/tsc) |
+| `tool: "runtime-analysis"` | Runtime bug patterns (JSON.parse, JWT, setInterval, etc.) |
+| `tool: "a11y-keyboard"` | Keyboard accessibility patterns (WCAG 2.1 SC 2.1.1) |
+| `tool: "a11y-color"` | Color/visual accessibility patterns (WCAG 1.4.1/1.4.3) |
+| `tool: "migration-check"` | V8→V9 migration gate regressions — **token-value-in-jsx**, **v4toast-straggler**, **toastv8-straggler** are `error` severity |
 
 ---
 
@@ -340,7 +346,21 @@ When you add a new tool that other programmers should know about:
 
 | Tool | Command | Purpose |
 |------|---------|---------|
-| `lint_per_group.py` | `python3 scripts/lint_per_group.py` | Per-group Biome+ESLint+tsc+runtime scan with manual-fix tracking and service regression detection |
+| `lint_per_group.py` | `python3 scripts/lint_per_group.py` | Per-group Biome+ESLint+tsc+runtime-analysis+a11y-keyboard+a11y-color+migration-check scan with manual-fix tracking and service regression detection |
+
+### migration-check patterns — priority triage
+
+These three patterns are `error` severity and should be fixed before anything else:
+
+| Rule | What it catches | Where to fix |
+|------|----------------|-------------|
+| `migration-check/token-value-in-jsx` | Raw `access_token`/`id_token`/`client_secret` string interpolated directly into JSX output — security gate | Sanitize/truncate the value before rendering |
+| `migration-check/v4toast-straggler` | `v4ToastManager`/`toastV4`/`showToastV4` still referenced | Migrate to `modernMessaging` |
+| `migration-check/toastv8-straggler` | `toastV8`/`showToastV8` still referenced | Migrate to `modernMessaging` |
+
+> **Full-codebase scan completed 2026-03-07**: 23,663 total issues / 1,630 errors across all 17 groups.
+> Top migration errors: oauth-flows (60 token hits), oidc-flows (61 token hits), pingone-flows (39 token hits).
+> Clean group: `ai-prompts` (0 issues).
 
 *Append new tools here as they are built.*
 
