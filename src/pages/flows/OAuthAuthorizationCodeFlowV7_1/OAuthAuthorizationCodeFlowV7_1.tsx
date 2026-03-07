@@ -21,13 +21,6 @@ import { usePerformanceMonitoring } from './hooks/usePerformanceMonitoring';
 import type { FlowCredentials, FlowVariant, TokenResponse, UserInfo } from './types/flowTypes';
 import { logger } from '../../../utils/logger';
 
-// Mock services - these would be imported from actual services in real implementation
-const _v4ToastManager = {
-	showSuccess: (message: string) => console.log('✅ Toast:', message),
-	showError: (message: string) => logger.error('❌ Toast:', message),
-	showInfo: (message: string) => console.log('ℹ️ Toast:', message),
-};
-
 const _FlowCredentialService = {
 	loadSharedCredentials: async (key: string): Promise<Partial<FlowCredentials> | null> => {
 		try {
