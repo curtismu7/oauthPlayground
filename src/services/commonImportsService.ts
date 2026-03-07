@@ -152,8 +152,6 @@ import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBann
 import { WorkerTokenModal } from '../components/WorkerTokenModal';
 import type { ClientAuthMethod } from '../utils/clientAuthentication';
 import { trackedFetch } from '../utils/trackedFetch';
-// educational-ok: v4ToastManager re-exported for backward-compat during incremental migration
-import { v4ToastManager } from '../utils/v4ToastMessages';
 import type { CodeDisplayProps, SupportedLanguage } from './codeHighlightingService';
 import {
 	formatAndHighlightJSON,
@@ -339,8 +337,6 @@ export {
 	environmentIdPersistenceService,
 	oidcDiscoveryService,
 	workerTokenCredentialsService,
-	// educational-ok: v4ToastManager retained for backward-compat aggregation export
-	v4ToastManager,
 	comprehensiveDiscoveryService,
 };
 
