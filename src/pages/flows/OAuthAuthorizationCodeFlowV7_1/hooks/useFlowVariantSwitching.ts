@@ -26,15 +26,6 @@ const FlowCredentialService = {
 	},
 };
 
-const _v4ToastManager = {
-	showSuccess: (message: string) => {
-		console.log('✅ Toast:', message);
-	},
-	showError: (message: string) => {
-		logger.error('❌ Toast:', message);
-	},
-};
-
 export const useFlowVariantSwitching = (
 	currentCredentials: FlowCredentials,
 	onCredentialsChange: (credentials: FlowCredentials) => void,
