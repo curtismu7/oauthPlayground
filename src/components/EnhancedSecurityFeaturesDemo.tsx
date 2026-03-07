@@ -62,27 +62,8 @@ const Content = styled.div`
 	padding: 2rem;
 `;
 
-const _Section = styled.div`
-	margin-bottom: 2rem;
-	border: 1px solid #e2e8f0;
-	border-radius: 8px;
-	overflow: hidden;
-`;
 
-const _SectionHeader = styled.div`
-	background: #f8fafc;
-	padding: 1rem 1.5rem;
-	border-bottom: 1px solid #e2e8f0;
-	font-weight: 600;
-	color: #374151;
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-`;
 
-const _SectionContent = styled.div`
-	padding: 1.5rem;
-`;
 
 const FeatureGrid = styled.div`
 	display: grid;
@@ -186,25 +167,8 @@ const CodeBlock = styled.pre<{ $isVisible: boolean }>`
 	min-height: 60px;
 `;
 
-const _ParameterGrid = styled.div`
-	display: grid;
-	grid-template-columns: auto 1fr;
-	gap: 0.5rem 1rem;
-	margin: 1rem 0;
-`;
 
-const _ParamLabel = styled.div`
-	font-weight: 600;
-	color: #374151;
-`;
 
-const _ParamValue = styled.div`
-	font-family: 'Monaco', 'Menlo', monospace;
-	background: #f1f5f9;
-	padding: 0.25rem 0.5rem;
-	border-radius: 4px;
-	word-break: break-all;
-`;
 
 const InfoBox = styled.div`
 	background: #eff6ff;
@@ -226,56 +190,10 @@ const InfoText = styled.div`
 	line-height: 1.5;
 `;
 
-const _CollapsibleHeader = styled.div<{ $isCollapsed: boolean }>`
-	background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-	color: white;
-	padding: 1rem 1.5rem;
-	cursor: pointer;
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	border-radius: 8px 8px ${(props) => (props.$isCollapsed ? '8px 8px' : '0 0')};
-	transition: all 0.2s ease;
-	
-	&:hover {
-		background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-	}
-`;
 
-const _CollapsibleTitle = styled.h3`
-	margin: 0;
-	font-size: 1.1rem;
-	font-weight: 600;
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-`;
 
-const _CollapsibleContent = styled.div<{ $isCollapsed: boolean }>`
-	background: white;
-	border: 1px solid #e2e8f0;
-	border-top: none;
-	border-radius: 0 0 8px 8px;
-	padding: ${(props) => (props.$isCollapsed ? '0' : '1.5rem')};
-	max-height: ${(props) => (props.$isCollapsed ? '0' : '1000px')};
-	overflow: hidden;
-	transition: all 0.3s ease;
-`;
 
-const _ActionRow = styled.div`
-	text-align: center;
-	margin-top: 2rem;
-	padding-top: 2rem;
-	border-top: 1px solid #e2e8f0;
-`;
 
-const _List = styled.ul`
-	margin: 0;
-	padding-left: 1.5rem;
-	color: #374151;
-	font-size: 0.9rem;
-	line-height: 1.6;
-`;
 
 const TabContainer = styled.div`
 	border-bottom: 1px solid #e2e8f0;
@@ -404,16 +322,11 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 	const [activeTab, setActiveTab] = useState<'config' | 'demo' | 'analysis'>('config');
 	const [showLogoutUrl, setShowLogoutUrl] = useState(false);
 	const [isValidating, setIsValidating] = useState(false);
-	const [_validationResults, _setValidationResults] = useState<string | null>(null);
 	const [expirationResults, setExpirationResults] = useState<string | null>(null);
 	const [signatureResults, setSignatureResults] = useState<string | null>(null);
 	const [signatureValidationResults, setSignatureValidationResults] = useState<string | null>(null);
-	const [_revokeResults, _setRevokeResults] = useState<string | null>(null);
 	const [securityReportResults, setSecurityReportResults] = useState<string | null>(null);
 	const [securityTestResults, setSecurityTestResults] = useState<string | null>(null);
-	const [_collapsedSecurityReport, _setCollapsedSecurityReport] = useState(false);
-	const [_collapsedSecurityTest, _setCollapsedSecurityTest] = useState(false);
-	const [_sessionResults, _setSessionResults] = useState<string | null>(null);
 	const [x5tResults, setX5tResults] = useState<string | null>(null);
 	const [corsResults, setCorsResults] = useState<string | null>(null);
 
