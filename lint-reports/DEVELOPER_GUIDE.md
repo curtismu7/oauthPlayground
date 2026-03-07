@@ -399,7 +399,60 @@ Other programmers will see your results in `STATUS.md` after `git pull`.
 
 ---
 
-## 15. FAQ
+## 15. Priority Work Queue
+
+> **Baseline scan: 2026-03-07** — 23,663 issues / 1,630 errors across all 17 groups.
+> Pick a group from this table, claim it in STATUS.md, and work top-down.
+
+Groups are ordered by **error count** (highest impact first). Tackle errors before warnings — errors include all `migration-check` security/gate violations.
+
+| Priority | Group ID | Errors | Warnings | Top migration errors |
+|----------|----------|-------:|----------:|----------------------|
+| 🔴 1 | `oauth-flows` | 324 | 1,562 | token-value-in-jsx×60, v4toast-straggler×4, toastv8-straggler×2 |
+| 🔴 2 | `oidc-flows` | 280 | 1,331 | token-value-in-jsx×61, v4toast-straggler×4, toastv8-straggler×2 |
+| 🔴 3 | `pingone-flows` | 194 | 996 | token-value-in-jsx×39, toastv8-straggler×2, v4toast-straggler×1 |
+| 🔴 4 | `tokens-session` | 143 | 750 | token-value-in-jsx×30, toastv8-straggler×2, v4toast-straggler×1 |
+| 🟠 5 | `oauth-mock-flows` | 116 | 398 | token-value-in-jsx×10, toastv8-straggler×2 |
+| 🟠 6 | `review` | 114 | 919 | token-value-in-jsx×26, toastv8-straggler×2 |
+| 🟠 7 | `advanced-mock-flows` | 82 | 389 | token-value-in-jsx×21, toastv8-straggler×2 |
+| 🟠 8 | `developer-tools` | 69 | 569 | token-value-in-jsx×7 |
+| 🟡 9 | `v7m-mock-server-flows` | 62 | 124 | token-value-in-jsx×12 |
+| 🟡 10 | `admin-configuration` | 59 | 417 | token-value-in-jsx×4, toastv8-straggler×2 |
+| 🟡 11 | `pingone-platform` | 59 | 886 | token-value-in-jsx×28, toastv8-straggler×2 |
+| 🟡 12 | `unified-production-flows` | 48 | 757 | token-value-in-jsx×15, toastv8-straggler×2 |
+| 🟡 13 | `documentation-reference` | 48 | 539 | token-value-in-jsx×20, v4toast-straggler×4 |
+| 🟢 14 | `education-tutorials` | 16 | 68 | token-value-in-jsx×1 |
+| 🟢 15 | `dashboard` | 13 | 32 | — |
+| 🟢 16 | `ai-ping` | 3 | 102 | — |
+| ✅ 17 | `ai-prompts` | **0** | **0** | **Clean** |
+
+### How to claim a group
+
+1. Check `lint-reports/STATUS.md` — confirm no one else has claimed it
+2. Run the scan with your name:
+   ```bash
+   python3 scripts/lint_per_group.py --fix --group oauth-flows --scanned-by yourname
+   ```
+3. Commit the updated JSON + STATUS.md so others see it claimed
+
+### Where to start within a group
+
+Filter the group JSON for `error` severity + `status: "open"` + `tool: "migration-check"` first — these are the gate-blocking issues. Then work `error` severity from other tools, then `warning`.
+
+```bash
+# Quick triage: show all open errors in a group
+python3 -c "
+import json
+d = json.load(open('lint-reports/groups/05-oauth-flows.json'))
+errs = [i for i in d['issues'] if i['severity']=='error' and i['status']=='open']
+for i in errs:
+    print(f\"{i['id']}  {i['tool']:<20} {i['file']}:{i['line']}  {i['rule']}\")
+"
+```
+
+---
+
+## 16. FAQ
 
 **Q: The script says "biome: 0 issues" but I can see linter errors in VS Code.**
 A: VS Code uses the workspace biome extension, which may use a different config scope. Run with `--fix` to apply all safe fixes first, then re-scan.
