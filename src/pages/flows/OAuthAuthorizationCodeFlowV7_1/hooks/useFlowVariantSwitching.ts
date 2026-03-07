@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { FLOW_CONSTANTS } from '../constants/flowConstants';
 import type { FlowCredentials, FlowVariant } from '../types/flowTypes';
+import { logger } from '../../../../utils/logger';
 
 // Mock services - these would be imported from actual services in real implementation
 const FlowCredentialService = {
@@ -20,7 +21,7 @@ const FlowCredentialService = {
 		try {
 			sessionStorage.setItem(key, JSON.stringify(credentials));
 		} catch (error) {
-			console.warn('Failed to save credentials:', error);
+			logger.warn('Failed to save credentials:', error);
 		}
 	},
 };
@@ -30,7 +31,7 @@ const _v4ToastManager = {
 		console.log('✅ Toast:', message);
 	},
 	showError: (message: string) => {
-		console.error('❌ Toast:', message);
+		logger.error('❌ Toast:', message);
 	},
 };
 
@@ -119,7 +120,7 @@ export const useFlowVariantSwitching = (
 				console.log(`✅ Successfully switched to ${newVariant.toUpperCase()} variant`);
 			} catch (error) {
 				const errorMessage = `Failed to switch to ${newVariant} variant: ${error instanceof Error ? error.message : 'Unknown error'}`;
-				console.error('❌ Variant switch error:', errorMessage);
+				logger.error('❌ Variant switch error:', errorMessage);
 				setSwitchError(errorMessage);
 				modernMessaging.showBanner({
 					type: 'error',
@@ -264,7 +265,7 @@ export const useFlowVariantSwitching = (
 		try {
 			sessionStorage.setItem('oauth-authorization-code-v7-variant', flowVariant);
 		} catch (error) {
-			console.warn('Failed to save variant to storage:', error);
+			logger.warn('Failed to save variant to storage:', error);
 		}
 	}, [flowVariant]);
 
