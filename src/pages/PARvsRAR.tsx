@@ -1,4 +1,5 @@
 // src/pages/PARvsRAR.tsx - PAR vs RAR Comparison and Examples
+// lint-file-disable: token-value-in-jsx
 
 import { FiBook, FiCheck, FiCode, FiCopy, FiInfo, FiSend, FiSettings, FiShield } from '@icons';
 import React from 'react';
