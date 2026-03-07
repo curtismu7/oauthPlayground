@@ -25,13 +25,13 @@ export enum ErrorSeverity {
 export interface FlowError {
 	type: ErrorType;
 	severity: ErrorSeverity;
-	originalError: Error | any;
+	originalError: unknown;
 	flowId: string;
 	stepId?: string;
 	userMessage: string;
 	technicalMessage: string;
 	timestamp: Date;
-	context?: Record<string, any>;
+	context?: Record<string, unknown>;
 	userId?: string;
 	sessionId?: string;
 }
@@ -41,7 +41,7 @@ export interface ErrorContext {
 	stepId?: string;
 	userId?: string;
 	sessionId?: string;
-	metadata?: Record<string, any>;
+	metadata?: Record<string, unknown>;
 }
 
 export interface ErrorResponse {
@@ -103,7 +103,7 @@ export class ErrorHandlingService {
 	/**
 	 * Main error handling method - processes any error and returns standardized response
 	 */
-	static handleFlowError(error: Error | any, context: ErrorContext): ErrorResponse {
+	static handleFlowError(error: unknown, context: ErrorContext): ErrorResponse {
 		const flowError = ErrorHandlingService.createFlowError(error, context);
 		const errorResponse = ErrorHandlingService.generateErrorResponse(flowError);
 		const recoveryOptions = ErrorHandlingService.generateRecoveryOptions(flowError);
@@ -127,7 +127,7 @@ export class ErrorHandlingService {
 	/**
 	 * Classify error based on message, code, and other properties
 	 */
-	static classifyError(error: Error | any): ErrorType {
+	static classifyError(error: unknown): ErrorType {
 		const errorMessage = ErrorHandlingService.extractErrorMessage(error).toLowerCase();
 
 		// Check against known patterns
@@ -342,7 +342,7 @@ export class ErrorHandlingService {
 	/**
 	 * Create standardized FlowError object
 	 */
-	private static createFlowError(error: Error | any, context: ErrorContext): FlowError {
+	private static createFlowError(error: unknown, context: ErrorContext): FlowError {
 		const errorType = ErrorHandlingService.classifyError(error);
 		const severity = ErrorHandlingService.determineSeverity(errorType, context);
 
@@ -380,7 +380,7 @@ export class ErrorHandlingService {
 	/**
 	 * Extract error message from various error formats
 	 */
-	private static extractErrorMessage(error: Error | any): string {
+	private static extractErrorMessage(error: unknown): string {
 		if (typeof error === 'string') return error;
 		if (error?.message) return error.message;
 		if (error?.error_description) return error.error_description;
