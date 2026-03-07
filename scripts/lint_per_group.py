@@ -1030,7 +1030,7 @@ def run_runtime_analysis(files: list[str]) -> list[dict[str, Any]]:
 
                     # --- heuristic: json_parse — skip if inside a try block ---
                     if check == "json_parse":
-                        start = max(0, lineno - 10)
+                        start = max(0, lineno - 50)
                         context_lines = lines[start : lineno - 1]
                         in_try = any("try {" in cl or "try{" in cl for cl in context_lines)
                         if in_try:
