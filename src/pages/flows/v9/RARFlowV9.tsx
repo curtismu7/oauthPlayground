@@ -25,6 +25,17 @@ import type { DiscoveredApp } from '../../../v8/components/AppPickerV8';
 import WorkerTokenStatusDisplayV8 from '../../../v8/components/WorkerTokenStatusDisplayV8';
 import { CompactAppPickerV8U } from '../../../v8u/components/CompactAppPickerV8U';
 
+/**
+ * Utility function to mask tokens for security
+ * Shows first 8 characters, masks middle, shows last 4 characters
+ */
+const maskToken = (token: string): string => {
+	if (!token || token.length <= 12) {
+		return '••••••••';
+	}
+	return `${token.slice(0, 8)}...${token.slice(-4)}`;
+};
+
 const {
 	Container,
 	ContentWrapper,
@@ -674,7 +685,7 @@ const RARFlowV9: React.FC = () => {
 										<ParameterGrid>
 											<ParameterLabel>Access Token:</ParameterLabel>
 											<ParameterValue>
-												<CodeBlock>{tokens.access_token}</CodeBlock>
+												<CodeBlock>{maskToken(tokens.access_token)}</CodeBlock>
 											</ParameterValue>
 										</ParameterGrid>
 

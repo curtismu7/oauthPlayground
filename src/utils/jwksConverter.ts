@@ -99,7 +99,7 @@ function generateValidRSAJWKSKey(kid: string): JWKSKey {
 /**
  * Validate JWKS format
  */
-export function validateJWKS(jwks: any): { valid: boolean; errors: string[] } {
+export function validateJWKS(jwks: Record<string, unknown>): { valid: boolean; errors: string[] } {
 	const errors: string[] = [];
 
 	if (!jwks || typeof jwks !== 'object') {
@@ -117,7 +117,7 @@ export function validateJWKS(jwks: any): { valid: boolean; errors: string[] } {
 		return { valid: false, errors };
 	}
 
-	jwks.keys.forEach((key: any, index: number) => {
+	(jwks.keys as Record<string, unknown>[]).forEach((key, index: number) => {
 		if (!key.kty) {
 			errors.push(`Key ${index}: missing "kty" (key type)`);
 		}

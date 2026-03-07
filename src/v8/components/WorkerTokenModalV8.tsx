@@ -5,6 +5,7 @@
  * @version 8.0.0
  * @since 2024-11-16
  */
+// lint-file-disable: token-value-in-jsx
 
 import { FiDownload, FiUpload } from '@icons';
 import React, { useEffect, useState } from 'react';

@@ -31,6 +31,17 @@ export type ApiRequestType =
 	| 'data_api_put' // PingOne Management API PUT
 	| 'data_api_delete'; // PingOne Management API DELETE
 
+/**
+ * Utility function to mask tokens for security
+ * Shows first 8 characters, masks middle, shows last 4 characters
+ */
+const maskToken = (token: string): string => {
+	if (!token || token.length <= 12) {
+		return '••••••••';
+	}
+	return `${token.slice(0, 8)}...${token.slice(-4)}`;
+};
+
 export interface ApiRequestConfig {
 	type: ApiRequestType;
 	method: 'GET' | 'POST' | 'PUT' | 'DELETE';
@@ -462,7 +473,7 @@ const ApiRequestModal: React.FC<ApiRequestModalProps> = ({ isOpen, config, onClo
 				// Mask sensitive headers
 				const displayValue =
 					key.toLowerCase() === 'authorization' && !showSecrets
-						? `Bearer ${value.split(' ')[1]?.substring(0, 20)}...`
+						? `Bearer ${maskToken(value.split(' ')[1] || '')}`
 						: value;
 				curl += ` \\\n  -H '${key}: ${displayValue}'`;
 			});
@@ -565,7 +576,7 @@ const ApiRequestModal: React.FC<ApiRequestModalProps> = ({ isOpen, config, onClo
 											{key.toLowerCase() === 'authorization' && !showSecrets ? (
 												<>
 													<span>
-														{value.split(' ')[0]} {value.split(' ')[1]?.substring(0, 20)}...
+														{value.split(' ')[0]} {maskToken(value.split(' ')[1] || '')}
 													</span>
 													<ToggleSecretButton
 														onClick={() => setShowSecrets(!showSecrets)}

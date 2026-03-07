@@ -223,8 +223,8 @@ export const InlineTokenDisplay: React.FC<InlineTokenDisplayProps> = ({
 	defaultMasked = false,
 	allowMaskToggle = true,
 }) => {
-	// Tokens always visible (no masking)
-	const [masked] = useState(false);
+	// Respect defaultMasked prop for security
+	const [masked, setMasked] = useState(defaultMasked);
 	const [showDecoded, setShowDecoded] = useState(false);
 	const [decodedContent, setDecodedContent] = useState<DecodedJWT | null>(null);
 	const [isOpaque, setIsOpaque] = useState(false);
