@@ -2,6 +2,7 @@
 // V7.1 Performance Monitoring - Performance tracking and optimization
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { logger } from '../../../../utils/logger';
 
 interface PerformanceMetrics {
 	componentName: string;
@@ -78,16 +79,16 @@ export const usePerformanceMonitoring = (
 
 		// Log slow renders
 		if (renderTime > finalThresholds.slowRenderThreshold) {
-			console.warn(`[Performance] ${componentName} slow render: ${renderTime.toFixed(2)}ms`);
+			logger.warn(`[Performance] ${componentName} slow render: ${renderTime.toFixed(2)}ms`);
 		}
 
 		// Log performance warnings
 		if (renderCount.current > finalThresholds.renderCountThreshold) {
-			console.warn(`[Performance] ${componentName} high render count: ${renderCount.current}`);
+			logger.warn(`[Performance] ${componentName} high render count: ${renderCount.current}`);
 		}
 
 		if (errorCount.current > finalThresholds.errorThreshold) {
-			console.warn(`[Performance] ${componentName} high error count: ${errorCount.current}`);
+			logger.warn(`[Performance] ${componentName} high error count: ${errorCount.current}`);
 		}
 	}, [componentName, finalThresholds]);
 
@@ -100,7 +101,7 @@ export const usePerformanceMonitoring = (
 				errors: errorCount.current,
 			}));
 
-			console.error(`[Performance] ${componentName} error recorded:`, error);
+			logger.error(`[Performance] ${componentName} error recorded:`, error);
 		},
 		[componentName]
 	);
@@ -270,7 +271,7 @@ export const useOperationTiming = (operationName: string) => {
 
 		if (duration > 100) {
 			// Log operations taking more than 100ms
-			console.warn(`[Performance] ${operationName} took ${duration.toFixed(2)}ms`);
+			logger.warn(`[Performance] ${operationName} took ${duration.toFixed(2)}ms`);
 		}
 
 		return duration;
