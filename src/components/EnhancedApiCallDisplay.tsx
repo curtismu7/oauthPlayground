@@ -1,7 +1,7 @@
 // src/components/EnhancedApiCallDisplay.tsx
 // React component for displaying API calls with enhanced features
 
-import { FiChevronDown, FiCode, FiCopy, FiExternalLink } from '@icons';
+import { FiChevronDown, FiCode, FiCopy, FiExternalLink, FiEye, FiEyeOff, FiLock } from '@icons';
 import React, { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -383,6 +383,85 @@ const ParameterValue = styled.code`
 	font-size: 0.8rem;
 `;
 
+const RevealableValue = styled.code<{ $revealed: boolean }>`
+	background: ${({ $revealed }) => ($revealed ? '#e2e8f0' : '#fef3c7')};
+	padding: 0.25rem 0.5rem;
+	border-radius: 4px;
+	font-size: 0.8rem;
+	word-break: break-all;
+	max-width: 420px;
+	display: inline-block;
+`;
+
+const RevealToggleBtn = styled.button`
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 0.2rem 0.35rem;
+	border-radius: 4px;
+	color: #6b7280;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	font-size: 0.75rem;
+	&:hover { background: #f3f4f6; color: #374151; }
+`;
+
+const REDACTED_SENTINELS = ['***REDACTED***', '[REDACTED]'];
+const isRedacted = (v: string) => REDACTED_SENTINELS.includes(v) || v.startsWith('[REDACTED_');
+
+/** True for fields that are passwords/secrets — never reveal in UI. */
+const isCredentialField = (key: string): boolean => {
+	const lk = key.toLowerCase();
+	return lk.includes('client_secret') || lk === 'password';
+};
+
+const maskValue = (v: string): string => {
+	if (v.length <= 16) return '••••••••••••••••';
+	return `${v.substring(0, 8)}••••••••••${v.substring(v.length - 6)}`;
+};
+
+/** Renders a value with a show/hide eye toggle. Used for tokens/codes in API call display. */
+const MaskedRevealValue: React.FC<{ value: string; fieldKey: string }> = ({ value, fieldKey }) => {
+	const [revealed, setRevealed] = React.useState(false);
+	return (
+		<span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+			<RevealableValue $revealed={revealed}>
+				{revealed ? value : maskValue(value)}
+			</RevealableValue>
+			<RevealToggleBtn
+				type="button"
+				onClick={() => setRevealed((r) => !r)}
+				title={revealed ? `Mask ${fieldKey}` : `Reveal ${fieldKey} for educational inspection`}
+				aria-label={revealed ? `Mask ${fieldKey}` : `Reveal ${fieldKey}`}
+			>
+				{revealed ? <FiEyeOff size={13} /> : <FiEye size={13} />}
+				{revealed ? 'mask' : 'reveal'}
+			</RevealToggleBtn>
+		</span>
+	);
+};
+
+/** Renders a permanently-masked credential field (client_secret etc.) */
+const CredentialMaskedValue: React.FC = () => (
+	<span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+		<ParameterValue style={{ background: '#fee2e2', color: '#991b1b' }}>***REDACTED***</ParameterValue>
+		<span style={{ fontSize: '0.7rem', color: '#9ca3af', display: 'inline-flex', alignItems: 'center', gap: '0.2rem' }}>
+			<FiLock size={11} /> credential
+		</span>
+	</span>
+);
+
+/** Renders a masked token with no reveal available (Basic auth, or service not yet wired). */
+const TokenMaskedNoReveal: React.FC = () => (
+	<span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+		<ParameterValue style={{ background: '#fef3c7', color: '#78350f' }}>••••••••masked••••••••</ParameterValue>
+		<span style={{ fontSize: '0.7rem', color: '#9ca3af', display: 'inline-flex', alignItems: 'center', gap: '0.2rem' }}>
+			<FiLock size={11} /> token
+		</span>
+	</span>
+);
+
 interface EnhancedApiCallDisplayProps {
 	apiCall: EnhancedApiCallData;
 	options?: ApiCallDisplayOptions;
@@ -576,14 +655,23 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 								Headers
 							</h5>
 							<ParameterList>
-								{Object.entries(apiCall.headers).map(([key, value]) => (
-									<ParameterItem key={key}>
-										<span>
-											<strong>{key}:</strong>
-										</span>
-										<ParameterValue>{value}</ParameterValue>
-									</ParameterItem>
-								))}
+								{Object.entries(apiCall.headers).map(([key, value]) => {
+									const revealVal = apiCall.revealableFields?.headers?.[key];
+									return (
+										<ParameterItem key={key}>
+											<span><strong>{key}:</strong></span>
+											{isRedacted(value) ? (
+												revealVal
+													? <MaskedRevealValue value={revealVal} fieldKey={key} />
+													: isCredentialField(key)
+														? <CredentialMaskedValue />
+														: <TokenMaskedNoReveal />
+											) : (
+												<ParameterValue>{value}</ParameterValue>
+											)}
+										</ParameterItem>
+									);
+								})}
 							</ParameterList>
 						</div>
 					)}
@@ -601,11 +689,43 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 							>
 								Body
 							</h5>
-							<CodeBlock $theme={theme}>
-								{typeof apiCall.body === 'string'
-									? apiCall.body
-									: JSON.stringify(apiCall.body, null, 2)}
-							</CodeBlock>
+							{/* If body is a URL-encoded string and we have revealable params, render as a
+							     key=value list with show/hide toggles on masked fields */}
+							{typeof apiCall.body === 'string' &&
+							apiCall.body.includes('=') &&
+							(apiCall.revealableFields?.bodyParams ||
+								apiCall.body.includes('***REDACTED***') ||
+								apiCall.body.includes('[REDACTED]')) ? (
+								<ParameterList>
+									{apiCall.body.split('&').map((pair) => {
+										const eqIdx = pair.indexOf('=');
+										if (eqIdx === -1) return null;
+										const k = decodeURIComponent(pair.substring(0, eqIdx));
+										const v = decodeURIComponent(pair.substring(eqIdx + 1));
+										const revealVal = apiCall.revealableFields?.bodyParams?.[k];
+										return (
+											<ParameterItem key={k}>
+												<span><strong>{k}=</strong></span>
+												{isRedacted(v) ? (
+													revealVal
+														? <MaskedRevealValue value={revealVal} fieldKey={k} />
+														: isCredentialField(k)
+															? <CredentialMaskedValue />
+															: <TokenMaskedNoReveal />
+												) : (
+													<ParameterValue>{v}</ParameterValue>
+												)}
+											</ParameterItem>
+										);
+									})}
+								</ParameterList>
+							) : (
+								<CodeBlock $theme={theme}>
+									{typeof apiCall.body === 'string'
+										? apiCall.body
+										: JSON.stringify(apiCall.body, null, 2)}
+								</CodeBlock>
+							)}
 						</div>
 					)}
 				</SectionContent>

@@ -15,6 +15,7 @@ const mapApiCallToEnhancedData = (call: ApiCall): EnhancedApiCallData => {
 		duration: call.duration,
 		stepName: call.step,
 		description: `API Call: ${call.method} ${call.url}`,
+		revealableFields: call.revealableFields,
 	};
 };
 
