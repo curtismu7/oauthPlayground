@@ -231,7 +231,11 @@ export function loadPKCECodes(flowKey: string): PKCECodes | null {
 		logger.error('PkceStorageServiceV8U', `Failed to load from localStorage`, undefined, err);
 	}
 
-	logger.warn('PkceStorageServiceV8U', `No PKCE codes found in sync storage (try async load for unified storage)`, { flowKey });
+	logger.warn(
+		'PkceStorageServiceV8U',
+		`No PKCE codes found in sync storage (try async load for unified storage)`,
+		{ flowKey }
+	);
 	return null;
 }
 

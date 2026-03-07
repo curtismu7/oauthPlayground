@@ -1,8 +1,8 @@
 // src/hooks/useCibaFlow.ts
 // OIDC Client Initiated Backchannel Authentication (CIBA) V5 flow logic
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { logger } from '../utils/logger';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { logger } from '../utils/logger';
 
 export type CibaAuthMethod = 'client_secret_post' | 'client_secret_basic';
 
@@ -203,7 +203,11 @@ export const useCibaFlow = (): UseCibaFlowReturn => {
 			setStage('success');
 			setIsPolling(false);
 			setError(null);
-			modernMessaging.showFooterMessage({ type: 'status', message: 'CIBA request approved. Tokens issued successfully.', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'CIBA request approved. Tokens issued successfully.',
+				duration: 4000,
+			});
 			clearPollingTimer();
 		},
 		[clearPollingTimer, config, persistMockState]
@@ -215,7 +219,12 @@ export const useCibaFlow = (): UseCibaFlowReturn => {
 			setStage('error');
 			setIsPolling(false);
 			setError(message);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: message, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: message,
+				dismissible: true,
+			});
 			clearPollingTimer();
 		},
 		[clearPollingTimer, config, persistMockState]
@@ -280,7 +289,12 @@ export const useCibaFlow = (): UseCibaFlowReturn => {
 		if (!activeConfig.environmentId || !activeConfig.clientId || !activeConfig.scope) {
 			const errorMsg = 'Environment ID, Client ID, and Scope are required.';
 			setError(errorMsg);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMsg, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: errorMsg,
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -291,7 +305,12 @@ export const useCibaFlow = (): UseCibaFlowReturn => {
 		) {
 			const errorMsg = 'Client secret is required for the selected authentication method.';
 			setError(errorMsg);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMsg, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: errorMsg,
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -305,7 +324,11 @@ export const useCibaFlow = (): UseCibaFlowReturn => {
 
 		setStage('awaiting-approval');
 		setIsPolling(true);
-		modernMessaging.showFooterMessage({ type: 'status', message: 'Mock CIBA request sent. Awaiting simulated approval.', duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'status',
+			message: 'Mock CIBA request sent. Awaiting simulated approval.',
+			duration: 4000,
+		});
 		scheduleMockPoll(mockRequest.interval);
 	}, [config, persistMockState, scheduleMockPoll]);
 
@@ -315,7 +338,11 @@ export const useCibaFlow = (): UseCibaFlowReturn => {
 		setStage('idle');
 		setError(null);
 		persistMockState(config || buildInitialConfig(), null, tokens);
-		modernMessaging.showFooterMessage({ type: 'status', message: 'Mock polling cancelled. You can restart the flow when ready.', duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'status',
+			message: 'Mock polling cancelled. You can restart the flow when ready.',
+			duration: 4000,
+		});
 	}, [clearPollingTimer, config, persistMockState, tokens]);
 
 	const reset = useCallback(() => {

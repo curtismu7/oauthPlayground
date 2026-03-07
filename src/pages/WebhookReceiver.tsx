@@ -135,12 +135,20 @@ const WebhookReceiver: React.FC = () => {
 
 	const handleCopyUrl = () => {
 		navigator.clipboard.writeText(webhookUrl);
-		modernMessaging.showFooterMessage({ type: 'status', message: 'Webhook URL copied to clipboard', duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'status',
+			message: 'Webhook URL copied to clipboard',
+			duration: 4000,
+		});
 	};
 
 	const handleClearEvents = () => {
 		setEvents([]);
-		modernMessaging.showFooterMessage({ type: 'info', message: 'Webhook history cleared', duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'info',
+			message: 'Webhook history cleared',
+			duration: 4000,
+		});
 	};
 
 	// This component would typically be backed by an API endpoint

@@ -3,6 +3,7 @@
 
 import React from 'react';
 import styled from 'styled-components';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import {
 	FiAlertCircle,
 	FiBook,
@@ -15,7 +16,6 @@ import {
 	FiXCircle,
 } from '../../../services/commonImportsService';
 import { readPasswordState } from '../../../services/passwordResetService';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { ColoredJsonDisplay } from '../../ColoredJsonDisplay';
 import {
 	Alert,
@@ -118,7 +118,12 @@ export const ReadStateTab: React.FC<ReadStateTabProps> = ({ environmentId, worke
 
 	const handleReadState = async () => {
 		if (!user || !user.id || !workerToken || !environmentId) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please lookup a user first', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please lookup a user first',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -127,12 +132,26 @@ export const ReadStateTab: React.FC<ReadStateTabProps> = ({ environmentId, worke
 			const result = await readPasswordState(environmentId, user.id, workerToken);
 			if (result.success && result.passwordState) {
 				setPasswordState(result.passwordState);
-				modernMessaging.showFooterMessage({ type: 'status', message: 'Password state retrieved successfully!', duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: 'Password state retrieved successfully!',
+					duration: 4000,
+				});
 			} else {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: result.errorDescription || 'Failed to read password state', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: result.errorDescription || 'Failed to read password state',
+					dismissible: true,
+				});
 			}
 		} catch (error) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Failed to read password state', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: error instanceof Error ? error.message : 'Failed to read password state',
+				dismissible: true,
+			});
 		} finally {
 			setLoading(false);
 		}

@@ -4,10 +4,10 @@
 import { FiBook, FiCheckCircle, FiExternalLink, FiEye, FiEyeOff, FiSearch } from '@icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { setPasswordValue as setPasswordValueService } from '../../services/passwordResetService';
 import { lookupPingOneUser } from '../../services/pingOneUserProfileService';
 import { logger } from '../../utils/logger';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const HELIOMART_ACCENT_START = '#F59E0B';
 
@@ -232,7 +232,12 @@ export const PasswordSetValueTab: React.FC<PasswordSetValueTabProps> = ({
 
 	const handleLookup = async () => {
 		if (!identifier || !workerToken || !environmentId) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please configure worker token and environment ID first', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please configure worker token and environment ID first',
+				dismissible: true,
+			});
 			return;
 		}
 		setLookupLoading(true);
@@ -254,9 +259,18 @@ export const PasswordSetValueTab: React.FC<PasswordSetValueTabProps> = ({
 			});
 			if (result.user?.id) {
 				setUser(result.user as unknown as User);
-				modernMessaging.showFooterMessage({ type: 'status', message: `User found: ${result.user.email || result.user.username || result.user.id}`, duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: `User found: ${result.user.email || result.user.username || result.user.id}`,
+					duration: 4000,
+				});
 			} else {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: `User not found with identifier: ${identifier}. Please check the username or email address.`, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: `User not found with identifier: ${identifier}. Please check the username or email address.`,
+					dismissible: true,
+				});
 			}
 		} catch (error) {
 			logger.error(
@@ -266,7 +280,12 @@ export const PasswordSetValueTab: React.FC<PasswordSetValueTabProps> = ({
 				error as Error
 			);
 			const errorMessage = error instanceof Error ? error.message : 'Failed to lookup user';
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `${errorMessage}. Make sure the worker token has p1:read:user scope.`, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: `${errorMessage}. Make sure the worker token has p1:read:user scope.`,
+				dismissible: true,
+			});
 		} finally {
 			setLookupLoading(false);
 		}
@@ -274,7 +293,12 @@ export const PasswordSetValueTab: React.FC<PasswordSetValueTabProps> = ({
 
 	const handleSetPassword = async () => {
 		if (!user || !password || !workerToken || !environmentId) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please fill in all required fields', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please fill in all required fields',
+				dismissible: true,
+			});
 			return;
 		}
 		setLoading(true);
@@ -297,10 +321,20 @@ export const PasswordSetValueTab: React.FC<PasswordSetValueTabProps> = ({
 				// Clear success message after 5 seconds
 				setTimeout(() => setSuccess(false), 5000);
 			} else {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: result.errorDescription || 'Password set failed', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: result.errorDescription || 'Password set failed',
+					dismissible: true,
+				});
 			}
 		} catch (error) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: error instanceof Error ? error.message : 'Password set failed', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: error instanceof Error ? error.message : 'Password set failed',
+				dismissible: true,
+			});
 		} finally {
 			setLoading(false);
 		}

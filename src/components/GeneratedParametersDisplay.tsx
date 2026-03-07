@@ -219,7 +219,11 @@ export const GeneratedParametersDisplay: React.FC<GeneratedParametersDisplayProp
 
 	const handleCopy = (value: string, label: string) => {
 		navigator.clipboard.writeText(value);
-		modernMessaging.showFooterMessage({ type: 'status', message: `${label} copied to clipboard!`, duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'status',
+			message: `${label} copied to clipboard!`,
+			duration: 4000,
+		});
 		onCopy?.(value, label);
 	};
 
