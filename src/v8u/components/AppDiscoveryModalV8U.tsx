@@ -261,7 +261,9 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 	return (
 		<>
 			{/* Backdrop */}
-			<div
+			<button
+				type="button"
+				aria-label="Close app discovery modal"
 				onClick={onClose}
 				onKeyDown={(e) => {
 					if (e.key === 'Escape') {
@@ -280,11 +282,22 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 					display: 'flex',
 					alignItems: 'center',
 					justifyContent: 'center',
+					border: 'none',
+					margin: 0,
+					padding: 0,
+					cursor: 'pointer',
 				}}
 			>
 				{/* Modal */}
 				<div
+					role="dialog"
+					aria-modal="true"
 					onClick={(e) => e.stopPropagation()}
+					onKeyDown={(e) => {
+						if (e.key === 'Escape') {
+							onClose();
+						}
+					}}
 					style={{
 						background: 'white',
 						borderRadius: '10px',
@@ -535,19 +548,29 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 										}}
 									>
 										{filteredApps.map((app) => (
-											<div
+											<button
 												key={app.id}
+												type="button"
 												onClick={() => handleSelectApp(app)}
+												onKeyDown={(e) => {
+													if (e.key === 'Enter' || e.key === ' ') {
+														e.preventDefault();
+														handleSelectApp(app);
+													}
+												}}
 												style={{
 													padding: '8px 12px',
 													borderBottom: '1px solid #e5e7eb',
 													cursor: 'pointer',
-													background: selectedAppId === app.id ? '#eff6ff' : 'white',
 													borderLeft:
 														selectedAppId === app.id
 															? '3px solid #3b82f6'
 															: '3px solid transparent',
 													transition: 'background 0.2s ease',
+													border: 'none',
+													background: selectedAppId === app.id ? '#eff6ff' : 'white',
+													textAlign: 'left',
+													width: '100%',
 												}}
 												onMouseEnter={(e) => {
 													if (selectedAppId !== app.id) {
@@ -618,7 +641,7 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 														Redirect URIs: {app.redirectUris.length}
 													</div>
 												)}
-											</div>
+											</button>
 										))}
 									</div>
 								)}
@@ -686,7 +709,7 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 							)}
 					</div>
 				</div>
-			</div>
+			</button>
 		</>
 	);
 };
