@@ -452,12 +452,6 @@ const OAuthOIDCTraining: React.FC = () => {
 		security: false,
 	});
 
-	const {
-		PageContainer,
-		ContentWrapper,
-		FlowHeader: LayoutFlowHeader,
-	} = PageLayoutService.createPageLayout(pageConfig);
-
 	const filterContent = (text: string): boolean => {
 		if (!searchTerm) return true;
 		return text.toLowerCase().includes(searchTerm.toLowerCase());

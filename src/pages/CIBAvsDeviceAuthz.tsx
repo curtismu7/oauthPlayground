@@ -218,18 +218,6 @@ const CIBAvsDeviceAuthz: React.FC = () => {
 		showFlowSuccess(`Copied ${description} to clipboard`);
 	};
 
-	// Use PageLayoutService for consistent layout and FlowHeader integration
-	const pageConfig = {
-		flowType: 'documentation' as const,
-		theme: 'blue' as const,
-		maxWidth: '1400px',
-		showHeader: false, // We handle the header manually with FlowHeader
-		showFooter: false,
-		responsive: true,
-	};
-
-	const { PageContainer, ContentWrapper } = PageLayoutService.createPageLayout(pageConfig);
-
 	return (
 		<PageContainer>
 			<ContentWrapper>
