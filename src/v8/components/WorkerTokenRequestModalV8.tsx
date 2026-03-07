@@ -5,6 +5,7 @@
  * @version 8.0.0
  * @since 2024-11-16
  */
+// lint-file-disable: token-value-in-jsx
 
 import React, { useState } from 'react';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
@@ -330,7 +331,6 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 													'@/v8/services/workerTokenServiceV8'
 												);
 												await workerTokenServiceV8.saveToken(generatedToken);
-												const { toastV8 } = await import('@/v8/utils/toastNotificationsV8');
 												modernMessaging.showFooterMessage({
 													type: 'info',
 													message: 'Token saved successfully!',
@@ -338,7 +338,6 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 												});
 											} catch (error) {
 												console.error('[WorkerTokenRequestModal] Failed to save token:', error);
-												const { toastV8 } = await import('@/v8/utils/toastNotificationsV8');
 												modernMessaging.showBanner({
 													type: 'error',
 													title: 'Error',

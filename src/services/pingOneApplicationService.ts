@@ -86,7 +86,7 @@ export async function fetchApplications(
 
 	const data = await response.json();
 	const apps = data._embedded?.applications || [];
-	return (apps as any[]).map((app) => ({
+	return (apps as Record<string, unknown>[]).map((app) => ({
 		id: app.id,
 		name: app.name,
 		description: app.description,

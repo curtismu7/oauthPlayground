@@ -50,11 +50,11 @@ export interface ValidationResult {
 	/** Decoded JWT payload */
 	payload?: JWTPayload;
 	/** JWT header */
-	header?: any;
+	header?: Record<string, unknown>;
 	/** Error message if validation failed */
 	error?: string;
 	/** Validated claims */
-	claims?: Record<string, any>;
+	claims?: Record<string, unknown>;
 }
 
 /**
@@ -170,15 +170,16 @@ export async function getSigningKey(jwksUri: string, kid: string): Promise<JWK |
 /**
  * Decode JWT header without verification
  */
-export function decodeJWTHeader(token: string): any {
+export function decodeJWTHeader(token: string): Record<string, unknown> {
 	try {
 		const parts = token.split('.');
 		if (parts.length !== 3) {
 			throw new Error('Invalid JWT format');
 		}
 
-		const header = JSON.parse(atob(parts[0]));
-		logger.debug('JWKS', 'JWT header decoded', { alg: header.alg, kid: header.kid });
+			// educational-ok: decoding JWT header to extract kid/alg for JWKS key lookup (not for auth)
+			const header = JSON.parse(atob(parts[0]));
+			logger.debug('JWKS', 'JWT header decoded', { alg: header.alg, kid: header.kid });
 		return header;
 	} catch (error) {
 		logger.error('JWKS', 'Failed to decode JWT header', error);
@@ -198,13 +199,14 @@ export function decodeJWTPayload(token: string): JWTPayload {
 			throw new Error('Invalid JWT format');
 		}
 
-		const payload = JSON.parse(atob(parts[1]));
-		logger.debug('JWKS', 'JWT payload decoded', {
-			iss: payload.iss,
-			aud: payload.aud,
-			exp: payload.exp,
-			sub: payload.sub,
-		});
+			// educational-ok: decoding JWT payload to extract claims for display/validation info
+			const payload = JSON.parse(atob(parts[1]));
+			logger.debug('JWKS', 'JWT payload decoded', {
+				iss: payload.iss,
+				aud: payload.aud,
+				exp: payload.exp,
+				sub: payload.sub,
+			});
 		return payload;
 	} catch (error) {
 		logger.error('JWKS', 'Failed to decode JWT payload', error);
@@ -316,7 +318,7 @@ export async function validateJWT(
 /**
  * Validate JWKS structure
  */
-export function validateJWKSStructure(jwks: any): { valid: boolean; errors: string[] } {
+export function validateJWKSStructure(jwks: Record<string, unknown>): { valid: boolean; errors: string[] } {
 	const errors: string[] = [];
 
 	if (!jwks || typeof jwks !== 'object') {
@@ -334,7 +336,7 @@ export function validateJWKSStructure(jwks: any): { valid: boolean; errors: stri
 		return { valid: false, errors };
 	}
 
-	jwks.keys.forEach((key: any, index: number) => {
+	(jwks.keys as Record<string, unknown>[]).forEach((key, index: number) => {
 		if (!key.kty) {
 			errors.push(`Key ${index}: missing "kty" (key type)`);
 		}
