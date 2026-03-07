@@ -55,7 +55,7 @@ export interface SecurityEvent {
 	userAgent?: string;
 	source: string;
 	description: string;
-	details: Record<string, any>;
+	details: Record<string, unknown>;
 	riskScore: number;
 	complianceImpact?: ComplianceStandard[];
 	remediation?: string;
@@ -203,7 +203,7 @@ export class SecurityAnalyticsManager {
 		type: SecurityEventType,
 		severity: SecuritySeverity,
 		description: string,
-		details: Record<string, any> = {},
+		details: Record<string, unknown> = {},
 		options: {
 			userId?: string;
 			sessionId?: string;
@@ -268,7 +268,7 @@ export class SecurityAnalyticsManager {
 	public trackAuthenticationFailure(
 		userId: string,
 		reason: string,
-		details: Record<string, any> = {}
+		details: Record<string, unknown> = {}
 	): string {
 		return this.trackSecurityEvent(
 			'authentication_failure',
@@ -284,7 +284,7 @@ export class SecurityAnalyticsManager {
 		userId: string,
 		resource: string,
 		action: string,
-		details: Record<string, any> = {}
+		details: Record<string, unknown> = {}
 	): string {
 		return this.trackSecurityEvent(
 			'authorization_failure',
@@ -299,7 +299,7 @@ export class SecurityAnalyticsManager {
 	public trackTokenValidationFailure(
 		tokenType: string,
 		reason: string,
-		details: Record<string, any> = {}
+		details: Record<string, unknown> = {}
 	): string {
 		return this.trackSecurityEvent(
 			'token_validation_failure',
@@ -314,7 +314,7 @@ export class SecurityAnalyticsManager {
 	public trackSuspiciousActivity(
 		activity: string,
 		severity: SecuritySeverity,
-		details: Record<string, any> = {}
+		details: Record<string, unknown> = {}
 	): string {
 		return this.trackSecurityEvent(
 			'suspicious_activity',
@@ -329,7 +329,7 @@ export class SecurityAnalyticsManager {
 	public trackRateLimitExceeded(
 		endpoint: string,
 		limit: number,
-		details: Record<string, any> = {}
+		details: Record<string, unknown> = {}
 	): string {
 		return this.trackSecurityEvent(
 			'rate_limit_exceeded',
@@ -344,7 +344,7 @@ export class SecurityAnalyticsManager {
 	public trackSecurityViolation(
 		violation: string,
 		severity: SecuritySeverity,
-		details: Record<string, any> = {}
+		details: Record<string, unknown> = {}
 	): string {
 		return this.trackSecurityEvent(
 			'security_violation',
@@ -360,7 +360,7 @@ export class SecurityAnalyticsManager {
 		standard: ComplianceStandard,
 		requirement: string,
 		violation: string,
-		details: Record<string, any> = {}
+		details: Record<string, unknown> = {}
 	): string {
 		const eventId = this.trackSecurityEvent(
 			'compliance_violation',
@@ -454,7 +454,7 @@ export class SecurityAnalyticsManager {
 	private calculateRiskScore(
 		type: SecurityEventType,
 		severity: SecuritySeverity,
-		details: Record<string, any>
+		details: Record<string, unknown>
 	): number {
 		const baseScores = {
 			low: 25,
@@ -873,8 +873,8 @@ export const trackSecurityEvent = (
 	type: SecurityEventType,
 	severity: SecuritySeverity,
 	description: string,
-	details?: Record<string, any>,
-	options?: any
+	details?: Record<string, unknown>,
+	options?: Record<string, unknown>
 ) => {
 	return securityAnalyticsManager.trackSecurityEvent(type, severity, description, details, options);
 };
@@ -882,7 +882,7 @@ export const trackSecurityEvent = (
 export const trackAuthenticationFailure = (
 	userId: string,
 	reason: string,
-	details?: Record<string, any>
+	details?: Record<string, unknown>
 ) => {
 	return securityAnalyticsManager.trackAuthenticationFailure(userId, reason, details);
 };
@@ -891,7 +891,7 @@ export const trackAuthorizationFailure = (
 	userId: string,
 	resource: string,
 	action: string,
-	details?: Record<string, any>
+	details?: Record<string, unknown>
 ) => {
 	return securityAnalyticsManager.trackAuthorizationFailure(userId, resource, action, details);
 };
@@ -899,7 +899,7 @@ export const trackAuthorizationFailure = (
 export const trackTokenValidationFailure = (
 	tokenType: string,
 	reason: string,
-	details?: Record<string, any>
+	details?: Record<string, unknown>
 ) => {
 	return securityAnalyticsManager.trackTokenValidationFailure(tokenType, reason, details);
 };
@@ -907,7 +907,7 @@ export const trackTokenValidationFailure = (
 export const trackSuspiciousActivity = (
 	activity: string,
 	severity: SecuritySeverity,
-	details?: Record<string, any>
+	details?: Record<string, unknown>
 ) => {
 	return securityAnalyticsManager.trackSuspiciousActivity(activity, severity, details);
 };
@@ -916,7 +916,7 @@ export const trackComplianceViolation = (
 	standard: ComplianceStandard,
 	requirement: string,
 	violation: string,
-	details?: Record<string, any>
+	details?: Record<string, unknown>
 ) => {
 	return securityAnalyticsManager.trackComplianceViolation(
 		standard,
