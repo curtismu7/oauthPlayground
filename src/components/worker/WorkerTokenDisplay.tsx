@@ -12,13 +12,13 @@ import {
 } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import {
 	JWTPayload,
 	TokenIntrospectionResponse,
 	WorkerTokenResponse,
 } from '../../types/workerToken';
 import { logger } from '../../utils/logger';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { formatScopes, parseJWTPayload } from '../../utils/workerToken';
 
 const Container = styled.div`
@@ -303,12 +303,21 @@ export const WorkerTokenDisplay: React.FC<WorkerTokenDisplayProps> = ({
 			onCopy?.(token.access_token);
 
 			logger.success('TOKEN-DISPLAY', 'Token copied to clipboard');
-			modernMessaging.showFooterMessage({ type: 'status', message: 'Access Token copied to clipboard', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'Access Token copied to clipboard',
+				duration: 4000,
+			});
 
 			setTimeout(() => setCopySuccess(false), 2000);
 		} catch (error) {
 			logger.error('TOKEN-DISPLAY', 'Failed to copy token', error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to copy Access Token', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to copy Access Token',
+				dismissible: true,
+			});
 		}
 	}, [token.access_token, onCopy]);
 
@@ -316,10 +325,19 @@ export const WorkerTokenDisplay: React.FC<WorkerTokenDisplayProps> = ({
 		try {
 			await navigator.clipboard.writeText(value);
 			logger.success('TOKEN-DISPLAY', `${label} copied to clipboard`);
-			modernMessaging.showFooterMessage({ type: 'status', message: `${label} copied to clipboard`, duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: `${label} copied to clipboard`,
+				duration: 4000,
+			});
 		} catch (error) {
 			logger.error('TOKEN-DISPLAY', `Failed to copy ${label}`, error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Failed to copy ${label}`, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: `Failed to copy ${label}`,
+				dismissible: true,
+			});
 		}
 	}, []);
 

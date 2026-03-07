@@ -11,12 +11,12 @@ import {
 } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import {
 	fetchApplications as fetchPingOneApplications,
 	type PingOneApplication,
 } from '../services/pingOneApplicationService';
 import { logger } from '../utils/logger';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 export interface PingOneApplicationPickerProps {
 	environmentId: string;
@@ -351,7 +351,11 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 
 	const handleCopy = useCallback((text: string, label: string) => {
 		navigator.clipboard.writeText(text);
-		modernMessaging.showFooterMessage({ type: 'status', message: `${label} copied to clipboard`, duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'status',
+			message: `${label} copied to clipboard`,
+			duration: 4000,
+		});
 	}, []);
 
 	// Auto-fetch applications when credentials are available

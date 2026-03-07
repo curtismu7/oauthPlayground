@@ -15223,7 +15223,8 @@ app.get('/api/pingone/mfa/oath-tokens', async (req, res) =>
 )
 
 // Create OATH Token
-app.post('/api/pingone/mfa/oath-tokens', async (req, res) => {
+app.post('/api/pingone/mfa/oath-tokens', async (req, res) =>
+{
 	try {
 		const { environmentId, workerToken, region, tokenData } = req.body;
 
@@ -15285,7 +15286,8 @@ app.post('/api/pingone/mfa/oath-tokens', async (req, res) => {
 		console.error('[OATH Tokens] Error:', error);
 		res.status(500).json({ error: 'Failed to create OATH token', message: error.message });
 	}
-});
+}
+)
 
 // Resync OATH Token
 app.post('/api/pingone/mfa/oath-tokens/:tokenId/resync', async (req, res) => {

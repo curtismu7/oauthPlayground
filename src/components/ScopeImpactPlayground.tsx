@@ -683,7 +683,11 @@ const ScopeImpactPlayground: React.FC = () => {
 				if (definition?.dependsOn) {
 					const missing = definition.dependsOn.filter((dep) => !prev.includes(dep));
 					if (missing.length) {
-						modernMessaging.showFooterMessage({ type: 'info', message: `Added required scopes: ${missing.join(', ')} for ${scope}.`, duration: 4000 });
+						modernMessaging.showFooterMessage({
+							type: 'info',
+							message: `Added required scopes: ${missing.join(', ')} for ${scope}.`,
+							duration: 4000,
+						});
 						return [...prev, ...missing, scope];
 					}
 				}

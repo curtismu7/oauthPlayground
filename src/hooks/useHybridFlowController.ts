@@ -8,6 +8,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { FlowCredentialService } from '../services/flowCredentialService';
 import {
 	HybridFlowConfig,
@@ -28,7 +29,6 @@ import {
 	storeRedirectUriFromAuthUrl,
 } from '../utils/redirectUriHelpers';
 import { safeSessionStorageParse } from '../utils/secureJson';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 export interface HybridFlowControllerOptions {
 	flowKey?: string;
@@ -324,7 +324,12 @@ export const useHybridFlowController = (
 		} catch (error) {
 			const errorMsg = error instanceof Error ? error.message : 'Failed to save credentials';
 			log.error('Failed to save credentials', error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMsg, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: errorMsg,
+				dismissible: true,
+			});
 			throw error;
 		} finally {
 			setIsLoading(false);
@@ -344,7 +349,12 @@ export const useHybridFlowController = (
 		} catch (error) {
 			const errorMsg = error instanceof Error ? error.message : 'Failed to generate PKCE codes';
 			log.error('Failed to generate PKCE codes', error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMsg, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: errorMsg,
+				dismissible: true,
+			});
 			throw error;
 		} finally {
 			setIsLoading(false);
@@ -430,7 +440,12 @@ export const useHybridFlowController = (
 			const errorMsg =
 				error instanceof Error ? error.message : 'Failed to generate authorization URL';
 			log.error('Failed to generate authorization URL', error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMsg, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: errorMsg,
+				dismissible: true,
+			});
 			return null;
 		}
 	}, [credentials, flowConfig, state, nonce, pkceCodes, flowKey]);
@@ -536,7 +551,12 @@ export const useHybridFlowController = (
 					error instanceof Error ? error.message : 'Failed to exchange authorization code';
 				log.error('Code exchange failed', error);
 				setError(errorMsg);
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMsg, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: errorMsg,
+					dismissible: true,
+				});
 				throw error;
 			} finally {
 				setIsExchangingCode(false);

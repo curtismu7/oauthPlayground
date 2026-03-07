@@ -19,6 +19,7 @@ import {
 import React, { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 // Import V7 service architecture components
@@ -26,7 +27,6 @@ import { FlowHeader } from '../../services/flowHeaderService';
 // Get shared UI components from FlowUIService
 import { FlowUIService } from '../../services/flowUIService';
 import { OAuthFlowComparisonService } from '../../services/oauthFlowComparisonService';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const { Container, ContentWrapper, MainCard, InfoBox, InfoTitle, SectionDivider, HelperText } =
 	FlowUIService.getFlowUIComponents();
@@ -399,13 +399,13 @@ const OIDCOverviewV7: React.FC = () => {
 	const handleFlowClick = useCallback(
 		(flow: OIDCFlow) => {
 			if (flow.deprecated) {
-				modernMessaging.showBanner({ 
-					type: 'warning', 
-					title: 'Warning', 
+				modernMessaging.showBanner({
+					type: 'warning',
+					title: 'Warning',
 					message: `${flow.title} is deprecated`,
 					description: 'This flow is deprecated and should not be used in new applications.',
-					duration: 4000, 
-					dismissible: true 
+					duration: 4000,
+					dismissible: true,
 				});
 			}
 

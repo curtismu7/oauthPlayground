@@ -16,13 +16,13 @@ import {
 } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import {
 	type WorkerTokenCredentials,
 	type WorkerTokenValidationResult,
 	workerTokenCredentialsService,
 } from '../services/workerTokenCredentialsService';
 import { logger } from '../utils/logger';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 interface WorkerTokenCredentialsInputProps {
 	credentials: WorkerTokenCredentials;
@@ -351,7 +351,11 @@ export const WorkerTokenCredentialsInput: React.FC<WorkerTokenCredentialsInputPr
 		try {
 			const success = workerTokenCredentialsService.saveCredentials(credentials);
 			if (success) {
-				modernMessaging.showFooterMessage({ type: 'status', message: 'Worker Token credentials saved successfully', duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: 'Worker Token credentials saved successfully',
+					duration: 4000,
+				});
 				onSave?.();
 
 				// Show "Saved" for 10 seconds
@@ -360,7 +364,12 @@ export const WorkerTokenCredentialsInput: React.FC<WorkerTokenCredentialsInputPr
 					setIsSaved(false);
 				}, 10000);
 			} else {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save credentials', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'Failed to save credentials',
+					dismissible: true,
+				});
 			}
 		} catch (error) {
 			logger.error(
@@ -369,7 +378,12 @@ export const WorkerTokenCredentialsInput: React.FC<WorkerTokenCredentialsInputPr
 				undefined,
 				error as Error
 			);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save credentials', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to save credentials',
+				dismissible: true,
+			});
 		}
 	}, [credentials, validation, isSaving, onSave]);
 

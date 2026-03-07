@@ -4,6 +4,7 @@
 import { FiAlertTriangle, FiCheck, FiDownload, FiFile, FiUpload, FiX } from '@icons';
 import React, { useCallback, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import {
 	exportImportService,
 	exportUtils,
@@ -12,7 +13,6 @@ import {
 import type { BuilderAppType, FormDataState } from '../services/presetManagerService';
 import { FileDropHandler, validateFile } from '../utils/fileHandling';
 import { logger } from '../utils/logger';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 const Container = styled.div`
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.98) 0%, rgba(244, 247, 255, 0.92) 100%);
@@ -303,9 +303,18 @@ export const ExportImportPanel: React.FC<ExportImportPanelProps> = ({
 			if (result.isValid && result.configuration) {
 				// Auto-apply if valid
 				onImport(result.configuration, result.metadata);
-				modernMessaging.showFooterMessage({ type: 'status', message: 'Configuration imported and applied successfully!', duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: 'Configuration imported and applied successfully!',
+					duration: 4000,
+				});
 			} else {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Configuration import failed. Please check the validation errors.', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'Configuration import failed. Please check the validation errors.',
+					dismissible: true,
+				});
 			}
 		} catch (error) {
 			logger.error('ExportImportPanel', '[ExportImport] Import failed:', undefined, error as Error);
@@ -339,16 +348,30 @@ export const ExportImportPanel: React.FC<ExportImportPanelProps> = ({
 
 	const handleExport = useCallback(() => {
 		if (!appType) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please select an application type first', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please select an application type first',
+				dismissible: true,
+			});
 			return;
 		}
 
 		try {
 			exportUtils.quickExport(formData, appType, formData.name || 'app-config');
-			modernMessaging.showFooterMessage({ type: 'status', message: 'Configuration exported successfully!', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'Configuration exported successfully!',
+				duration: 4000,
+			});
 		} catch (error) {
 			logger.error('ExportImportPanel', '[ExportImport] Export failed:', undefined, error as Error);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to export configuration', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to export configuration',
+				dismissible: true,
+			});
 		}
 	}, [formData, appType]);
 

@@ -2,8 +2,8 @@
 // V7.0.0 OIDC Client Initiated Backchannel Authentication (CIBA) Flow - Enhanced Service Architecture
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { logger } from '../utils/logger';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { logger } from '../utils/logger';
 
 export type CibaAuthMethod = 'client_secret_post' | 'client_secret_basic';
 
@@ -218,7 +218,12 @@ export const useCibaFlowV7 = (options: CibaFlowV7Options) => {
 					}
 					setStage('expired');
 					setError('CIBA authentication request expired');
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'CIBA request expired. Please initiate again.', dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: 'CIBA request expired. Please initiate again.',
+						dismissible: true,
+					});
 					return;
 				}
 
@@ -285,7 +290,12 @@ export const useCibaFlowV7 = (options: CibaFlowV7Options) => {
 							}
 							setStage('expired');
 							setError(data.error_description || 'CIBA authentication request expired');
-							modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'CIBA request expired. Please initiate again.', dismissible: true });
+							modernMessaging.showBanner({
+								type: 'error',
+								title: 'Error',
+								message: 'CIBA request expired. Please initiate again.',
+								dismissible: true,
+							});
 							return;
 						}
 
@@ -298,7 +308,12 @@ export const useCibaFlowV7 = (options: CibaFlowV7Options) => {
 							}
 							setStage('failed');
 							setError(data.error_description || 'User denied the authentication request');
-							modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'User denied the authentication request.', dismissible: true });
+							modernMessaging.showBanner({
+								type: 'error',
+								title: 'Error',
+								message: 'User denied the authentication request.',
+								dismissible: true,
+							});
 							setAuthRequest((prev) => (prev ? { ...prev, status: 'denied' } : null));
 							return;
 						}
@@ -312,7 +327,12 @@ export const useCibaFlowV7 = (options: CibaFlowV7Options) => {
 						}
 						setStage('failed');
 						setError(errorMsg);
-						modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMsg, dismissible: true });
+						modernMessaging.showBanner({
+							type: 'error',
+							title: 'Error',
+							message: errorMsg,
+							dismissible: true,
+						});
 						return;
 					}
 
@@ -343,7 +363,11 @@ export const useCibaFlowV7 = (options: CibaFlowV7Options) => {
 					setAuthRequest((prev) => (prev ? { ...prev, status: 'approved' } : null));
 					setStage('completed');
 					stepManager.next();
-					modernMessaging.showFooterMessage({ type: 'status', message: 'CIBA authentication successful! Tokens received.', duration: 4000 });
+					modernMessaging.showFooterMessage({
+						type: 'status',
+						message: 'CIBA authentication successful! Tokens received.',
+						duration: 4000,
+					});
 				} catch (err) {
 					logger.error('useCibaFlowV7', 'Polling error', undefined, err as Error);
 					// Don't stop polling on network errors - retry next interval
@@ -367,7 +391,12 @@ export const useCibaFlowV7 = (options: CibaFlowV7Options) => {
 					return;
 				}
 				setStage('expired');
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'CIBA request expired', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'CIBA request expired',
+					dismissible: true,
+				});
 			}, authRequest.expiresIn * 1000);
 		},
 		[stepManager]
@@ -448,7 +477,12 @@ export const useCibaFlowV7 = (options: CibaFlowV7Options) => {
 					});
 					setError(errorMsg);
 					setStage('failed');
-					modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMsg, dismissible: true });
+					modernMessaging.showBanner({
+						type: 'error',
+						title: 'Error',
+						message: errorMsg,
+						dismissible: true,
+					});
 					return;
 				}
 
@@ -484,7 +518,11 @@ export const useCibaFlowV7 = (options: CibaFlowV7Options) => {
 				setStage('awaiting-approval');
 				stepManager.next();
 
-				modernMessaging.showFooterMessage({ type: 'status', message: 'CIBA authentication request initiated successfully', duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: 'CIBA authentication request initiated successfully',
+					duration: 4000,
+				});
 
 				// Start real polling
 				startPolling(authRequest, config);
@@ -493,7 +531,12 @@ export const useCibaFlowV7 = (options: CibaFlowV7Options) => {
 				logger.error('useCibaFlowV7', 'Error initiating request', undefined, err as Error);
 				setError(errorMessage);
 				setStage('failed');
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: errorMessage, dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: errorMessage,
+					dismissible: true,
+				});
 			} finally {
 				setIsLoading(false);
 			}
@@ -504,14 +547,24 @@ export const useCibaFlowV7 = (options: CibaFlowV7Options) => {
 	// V7 Enhanced flow control
 	const startFlow = useCallback(async () => {
 		if (!config) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Configuration required to start flow', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Configuration required to start flow',
+				dismissible: true,
+			});
 			return;
 		}
 
 		const errors = validateConfig(config);
 		if (errors.length > 0) {
 			setError(errors.join(', '));
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: `Configuration errors: ${errors.join(', ')}`, dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: `Configuration errors: ${errors.join(', ')}`,
+				dismissible: true,
+			});
 			return;
 		}
 

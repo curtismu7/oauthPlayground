@@ -19,8 +19,8 @@ import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { ButtonSpinner } from '@/components/ui/ButtonSpinner';
-import TokenDisplayService from '../services/tokenDisplayService';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import TokenDisplayService from '../services/tokenDisplayService';
 
 interface TokenSet {
 	access_token?: string;
@@ -494,13 +494,22 @@ export const UltimateTokenDisplay: React.FC<UltimateTokenDisplayProps> = ({
 		try {
 			await navigator.clipboard.writeText(token);
 			setCopiedStates((prev) => ({ ...prev, [tokenType]: true }));
-			modernMessaging.showFooterMessage({ type: 'status', message: `${getTokenLabel(tokenType)} copied to clipboard`, duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: `${getTokenLabel(tokenType)} copied to clipboard`,
+				duration: 4000,
+			});
 
 			setTimeout(() => {
 				setCopiedStates((prev) => ({ ...prev, [tokenType]: false }));
 			}, 2000);
 		} catch (_error) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to copy token', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to copy token',
+				dismissible: true,
+			});
 		}
 	};
 
@@ -513,7 +522,11 @@ export const UltimateTokenDisplay: React.FC<UltimateTokenDisplayProps> = ({
 				source: flowKey || 'ultimate-token-display',
 			},
 		});
-		modernMessaging.showFooterMessage({ type: 'status', message: `${getTokenLabel(tokenType)} sent to Token Management`, duration: 4000 });
+		modernMessaging.showFooterMessage({
+			type: 'status',
+			message: `${getTokenLabel(tokenType)} sent to Token Management`,
+			duration: 4000,
+		});
 	};
 
 	const renderToken = (tokenType: TokenType) => {

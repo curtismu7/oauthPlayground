@@ -15,10 +15,10 @@ import {
 } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { ClientCredentialsTokenRequest } from '../services/clientCredentialsSharedService';
 import { workerTokenCredentialsService } from '../services/workerTokenCredentialsService';
 import { logger } from '../utils/logger';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 // Types
 interface MFAUserSettings {
@@ -469,7 +469,13 @@ export const MFAUserSettingsGatherer: React.FC<Props> = ({
 			!workerTokenCredentials.clientId ||
 			!workerTokenCredentials.clientSecret
 		) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please configure worker token credentials (Environment ID, Client ID, and Client Secret)', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message:
+					'Please configure worker token credentials (Environment ID, Client ID, and Client Secret)',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -488,7 +494,11 @@ export const MFAUserSettingsGatherer: React.FC<Props> = ({
 
 			setWorkerToken(tokenData.access_token);
 			onWorkerTokenObtained(tokenData.access_token);
-			modernMessaging.showFooterMessage({ type: 'status', message: 'Worker token obtained successfully!', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'Worker token obtained successfully!',
+				duration: 4000,
+			});
 		} catch (error) {
 			logger.error(
 				'MFAUserSettingsGatherer',
@@ -496,7 +506,12 @@ export const MFAUserSettingsGatherer: React.FC<Props> = ({
 				undefined,
 				error as Error
 			);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to obtain worker token. Please check your credentials.', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to obtain worker token. Please check your credentials.',
+				dismissible: true,
+			});
 		} finally {
 			setIsGettingWorkerToken(false);
 		}
@@ -632,7 +647,11 @@ export const MFAUserSettingsGatherer: React.FC<Props> = ({
 							<ActionButton
 								onClick={() => {
 									navigator.clipboard.writeText(workerToken);
-									modernMessaging.showFooterMessage({ type: 'status', message: 'Worker token copied to clipboard', duration: 4000 });
+									modernMessaging.showFooterMessage({
+										type: 'status',
+										message: 'Worker token copied to clipboard',
+										duration: 4000,
+									});
 								}}
 							>
 								<FiCheck />

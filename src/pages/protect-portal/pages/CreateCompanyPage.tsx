@@ -365,7 +365,11 @@ export const CreateCompanyPage: React.FC = () => {
 
 		// Show subtle feedback for important fields
 		if (field === 'name' && value.length > 0) {
-			modernMessaging.showFooterMessage({ type: 'info', message: 'Company name updated', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: 'Company name updated',
+				duration: 4000,
+			});
 		}
 	}, []);
 
@@ -384,7 +388,11 @@ export const CreateCompanyPage: React.FC = () => {
 
 			// Show feedback for color changes
 			const colorName = colorField.charAt(0).toUpperCase() + colorField.slice(1);
-			modernMessaging.showFooterMessage({ type: 'info', message: `${colorName} color updated`, duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'info',
+				message: `${colorName} color updated`,
+				duration: 4000,
+			});
 		},
 		[]
 	);
@@ -409,7 +417,12 @@ export const CreateCompanyPage: React.FC = () => {
 		(assetField: keyof CompanyConfigDraft['assets'], file: File) => {
 			// Validate file size (5MB limit)
 			if (file.size > 5 * 1024 * 1024) {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'File size must be less than 5MB', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'File size must be less than 5MB',
+					dismissible: true,
+				});
 				return;
 			}
 
@@ -423,7 +436,12 @@ export const CreateCompanyPage: React.FC = () => {
 				'image/svg+xml',
 			];
 			if (!allowedTypes.includes(file.type)) {
-				modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Only JPG, PNG, GIF, WebP, and SVG files are allowed', dismissible: true });
+				modernMessaging.showBanner({
+					type: 'error',
+					title: 'Error',
+					message: 'Only JPG, PNG, GIF, WebP, and SVG files are allowed',
+					dismissible: true,
+				});
 				return;
 			}
 
@@ -433,7 +451,11 @@ export const CreateCompanyPage: React.FC = () => {
 
 			// Show success message
 			const assetName = assetField === 'logoUrl' ? 'Logo' : 'Footer image';
-			modernMessaging.showFooterMessage({ type: 'status', message: `${assetName} uploaded successfully`, duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: `${assetName} uploaded successfully`,
+				duration: 4000,
+			});
 		},
 		[handleAssetChange]
 	);
@@ -457,7 +479,12 @@ export const CreateCompanyPage: React.FC = () => {
 
 	const handleSave = useCallback(async () => {
 		if (!state.validation.isValid) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please fill in all required fields', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please fill in all required fields',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -466,14 +493,23 @@ export const CreateCompanyPage: React.FC = () => {
 		try {
 			await companyService.saveDraft(state.config);
 			setState((prev) => ({ ...prev, saveStatus: 'success' }));
-			modernMessaging.showFooterMessage({ type: 'status', message: 'Company configuration saved successfully!', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'Company configuration saved successfully!',
+				duration: 4000,
+			});
 		} catch (error) {
 			setState((prev) => ({
 				...prev,
 				saveStatus: 'error',
 				lastError: error instanceof Error ? error.message : 'Unknown error',
 			}));
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to save configuration. Please try again.', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to save configuration. Please try again.',
+				dismissible: true,
+			});
 		} finally {
 			setState((prev) => ({ ...prev, isSaving: false }));
 		}
@@ -481,7 +517,12 @@ export const CreateCompanyPage: React.FC = () => {
 
 	const handleCreate = useCallback(async () => {
 		if (!state.validation.isValid) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Please fill in all required fields', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Please fill in all required fields',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -494,7 +535,11 @@ export const CreateCompanyPage: React.FC = () => {
 			// Navigate to the Protect Portal with the new company
 			const companyTheme = newCompany.name.toLowerCase().replace(/\s+/g, '-');
 			console.log('Company created:', newCompany);
-			modernMessaging.showFooterMessage({ type: 'status', message: `Perfect! The delta theme has been successfully updated with all the required properties from the BrandTheme interface. Company "${state.config.name}" created successfully! Redirecting to portal...`, duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: `Perfect! The delta theme has been successfully updated with all the required properties from the BrandTheme interface. Company "${state.config.name}" created successfully! Redirecting to portal...`,
+				duration: 4000,
+			});
 
 			// Dispatch custom event to notify other components
 			window.dispatchEvent(
@@ -513,7 +558,12 @@ export const CreateCompanyPage: React.FC = () => {
 				createStatus: 'error',
 				lastError: error instanceof Error ? error.message : 'Unknown error',
 			}));
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to create company. Please try again.', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to create company. Please try again.',
+				dismissible: true,
+			});
 		} finally {
 			setState((prev) => ({ ...prev, isCreating: false }));
 		}

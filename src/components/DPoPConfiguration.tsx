@@ -7,9 +7,9 @@
 import { FiAlertCircle, FiInfo, FiKey, FiRefreshCw, FiShield } from '@icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { type DPoPConfig, DPoPService, DPoPStatus } from '../services/dpopService';
 import { logger } from '../utils/logger';
-import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 
 export interface DPoPConfigurationProps {
 	enabled: boolean;
@@ -214,7 +214,12 @@ const DPoPConfiguration: React.FC<DPoPConfigurationProps> = ({
 
 	const handleGenerateKeyPair = useCallback(async () => {
 		if (!status.supported) {
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'DPoP is not supported in this browser', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'DPoP is not supported in this browser',
+				dismissible: true,
+			});
 			return;
 		}
 
@@ -222,7 +227,11 @@ const DPoPConfiguration: React.FC<DPoPConfigurationProps> = ({
 		try {
 			await DPoPService.generateKeyPair(config);
 			refreshStatus();
-			modernMessaging.showFooterMessage({ type: 'status', message: 'DPoP key pair generated successfully', duration: 4000 });
+			modernMessaging.showFooterMessage({
+				type: 'status',
+				message: 'DPoP key pair generated successfully',
+				duration: 4000,
+			});
 		} catch (error) {
 			logger.error(
 				'DPoPConfiguration',
@@ -230,7 +239,12 @@ const DPoPConfiguration: React.FC<DPoPConfigurationProps> = ({
 				undefined,
 				error as Error
 			);
-			modernMessaging.showBanner({ type: 'error', title: 'Error', message: 'Failed to generate DPoP key pair', dismissible: true });
+			modernMessaging.showBanner({
+				type: 'error',
+				title: 'Error',
+				message: 'Failed to generate DPoP key pair',
+				dismissible: true,
+			});
 		} finally {
 			setIsGenerating(false);
 		}

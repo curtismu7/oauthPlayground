@@ -1,8 +1,8 @@
 import { FiBookOpen, FiCheck, FiInfo, FiKey, FiLink2, FiRefreshCw, FiSearch } from '@icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { fetchApplications, type PingOneApplication } from '../services/pingOneApplicationService';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
+import { fetchApplications, type PingOneApplication } from '../services/pingOneApplicationService';
 import { DraggableModal } from './DraggableModal';
 import { WorkerTokenModal } from './WorkerTokenModal';
 
@@ -341,7 +341,11 @@ const PingOneApplicationPickerModal: React.FC<Props> = ({
 			if (!apps.length) {
 				setError('No applications were returned for this environment.');
 			} else {
-				modernMessaging.showFooterMessage({ type: 'status', message: `Loaded ${apps.length} PingOne applications.`, duration: 4000 });
+				modernMessaging.showFooterMessage({
+					type: 'status',
+					message: `Loaded ${apps.length} PingOne applications.`,
+					duration: 4000,
+				});
 			}
 		} catch (err) {
 			const message = err instanceof Error ? err.message : 'Failed to fetch PingOne applications.';
@@ -561,7 +565,11 @@ const PingOneApplicationPickerModal: React.FC<Props> = ({
 						const storedToken = localStorage.getItem('worker_token');
 						if (storedToken && onWorkerTokenChange) {
 							onWorkerTokenChange(storedToken);
-							modernMessaging.showFooterMessage({ type: 'status', message: 'Worker token obtained. You can now fetch applications.', duration: 4000 });
+							modernMessaging.showFooterMessage({
+								type: 'status',
+								message: 'Worker token obtained. You can now fetch applications.',
+								duration: 4000,
+							});
 						}
 					}}
 					flowType="application-picker"

@@ -1829,7 +1829,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 						</li>
 					</ul>
 				</div>
-				
+
 				{/* Validation Insights */}
 				<div
 					style={{
@@ -1839,9 +1839,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 						marginBottom: '1rem',
 					}}
 				>
-					<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>
-						Validation Insights:
-					</h4>
+					<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>Validation Insights:</h4>
 					<div style={{ fontSize: '0.875rem', color: '#4b5563' }}>
 						<p>
 							<strong>Security Status:</strong> ✅ MFA device properly configured
@@ -1864,7 +1862,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 						)}
 					</div>
 				</div>
-				
+
 				<div
 					style={{
 						background: 'white',
