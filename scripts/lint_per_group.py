@@ -758,7 +758,11 @@ def run_biome_fix(files: list[str]) -> int:
     if not files:
         return 0
     cmd = ["npx", "--yes", "@biomejs/biome", "check", "--write", "--unsafe"] + files
-    result = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
+    try:
+        result = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
+    except KeyboardInterrupt:
+        # Stray Ctrl+C from terminal — skip auto-fix silently
+        return 0
     # Count files changed from output
     changed = len([l for l in result.stdout.splitlines() if "fixed" in l.lower()])
     return changed
@@ -769,7 +773,10 @@ def run_biome_check(files: list[str]) -> list[dict[str, Any]]:
     if not files:
         return []
     cmd = ["npx", "--yes", "@biomejs/biome", "check", "--reporter", "json"] + files
-    result = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
+    try:
+        result = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
+    except KeyboardInterrupt:
+        return []
 
     issues = []
     try:
@@ -868,7 +875,10 @@ def run_eslint_check(files: list[str]) -> list[dict[str, Any]]:
         return []
 
     cmd = ["npx", "--yes", "eslint", "--format", "json"] + eslint_files
-    result = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
+    try:
+        result = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
+    except KeyboardInterrupt:
+        return []
 
     issues = []
     try:
@@ -926,7 +936,10 @@ def run_tsc_check(files: list[str]) -> list[dict[str, Any]]:
 
     file_set = set(files)
     cmd = ["npx", "--yes", "tsc", "--noEmit"]
-    result = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
+    try:
+        result = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
+    except KeyboardInterrupt:
+        return []
 
     # tsc output format:  path/file.ts(line,col): error TSxxxx: message
     TSC_RE = re.compile(r"^(.+)\((\d+),(\d+)\):\s+(error|warning|message)\s+(TS\d+):\s+(.+)$")

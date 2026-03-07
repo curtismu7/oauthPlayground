@@ -1,0 +1,44 @@
+{
+  "group_id": "ai-prompts",
+  "label": "AI Prompts & Development",
+  "scanned_at": "2026-03-07T14:09:03.736234+00:00",
+  "scanned_by": null,
+  "files_scanned": [],
+  "services_scanned": [],
+  "service_cross_refs": [],
+  "biome": {
+    "errors": 0,
+    "warnings": 0,
+    "auto_fixed": 0
+  },
+  "eslint": {
+    "errors": 0,
+    "warnings": 0
+  },
+  "tsc": {
+    "errors": 0
+  },
+  "runtime": {
+    "errors": 0,
+    "warnings": 0
+  },
+  "tests": {
+    "ran_at": null,
+    "unit": null,
+    "api": null,
+    "e2e": null,
+    "overall": "not_run"
+  },
+  "issues": [],
+  "summary": {
+    "total": 0,
+    "errors": 0,
+    "warnings": 0,
+    "auto_fixed": 0,
+    "manual_required": 0,
+    "open": 0,
+    "in_progress": 0,
+    "fixed": 0,
+    "waived": 0
+  }
+}
