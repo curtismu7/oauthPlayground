@@ -41,6 +41,7 @@ import type {
 	UnifiedWorkerTokenStatus,
 } from '@/services/unifiedWorkerTokenService';
 import { unifiedWorkerTokenService } from '@/services/unifiedWorkerTokenService';
+import { logger } from '@/utils/logger';
 import { modernMessaging } from '@/services/v9/V9ModernMessagingService';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
@@ -600,7 +601,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 						};
 					}
 				} catch (credError) {
-					console.warn('[WorkerTokenStatusDisplayV8] Failed to load MFA credentials:', credError);
+					logger.warn('[WorkerTokenStatusDisplayV8] Failed to load MFA credentials:', credError);
 					// Fallback to unified service
 					const loadResult = await unifiedWorkerTokenService.loadCredentials();
 					credentials = loadResult.success ? loadResult.data : null;
@@ -625,11 +626,11 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 				setFullTokenData(tokenData);
 				setTokenStatusInfo(status);
 			} catch (dataError) {
-				console.warn('[WorkerTokenStatusDisplayV8] Failed to fetch additional data:', dataError);
+				logger.warn('[WorkerTokenStatusDisplayV8] Failed to fetch additional data:', dataError);
 				// Don't let additional data failure break the main status
 			}
 		} catch (error) {
-			console.error('[WorkerTokenStatusDisplayV8] Failed to check token status:', error);
+			logger.error('[WorkerTokenStatusDisplayV8] Failed to check token status:', error);
 		} finally {
 			setIsLoading(false);
 		}
@@ -646,7 +647,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 				duration: 3000,
 			});
 		} catch (error) {
-			console.error('[WorkerTokenStatusDisplayV8] Failed to refresh token status:', error);
+			logger.error('[WorkerTokenStatusDisplayV8] Failed to refresh token status:', error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
@@ -799,7 +800,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 						});
 					}
 				} catch (error) {
-					console.warn('[WorkerTokenStatusDisplayV8] Failed to fetch PingOne config:', error);
+					logger.warn('[WorkerTokenStatusDisplayV8] Failed to fetch PingOne config:', error);
 					// Use default config as fallback
 					setOauthConfig({
 						pkceEnabled: false, // Default value since oauth property doesn't exist
@@ -870,7 +871,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 						});
 					}
 				} catch (error) {
-					console.warn('[WorkerTokenStatusDisplayV8] Failed to sync config with PingOne:', error);
+					logger.warn('[WorkerTokenStatusDisplayV8] Failed to sync config with PingOne:', error);
 					modernMessaging.showBanner({
 						type: 'warning',
 						title: 'Warning',
@@ -890,7 +891,7 @@ export const WorkerTokenStatusDisplayV8: React.FC<WorkerTokenStatusDisplayV8Prop
 			// Dispatch event to notify other components
 			window.dispatchEvent(new CustomEvent('oauthConfigurationUpdated', { detail: oauthConfig }));
 		} catch (error) {
-			console.error('[WorkerTokenStatusDisplayV8] Failed to save config:', error);
+			logger.error('[WorkerTokenStatusDisplayV8] Failed to save config:', error);
 			modernMessaging.showBanner({
 				type: 'error',
 				title: 'Error',
