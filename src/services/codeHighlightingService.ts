@@ -88,7 +88,7 @@ export const highlightCode = (code: string, language: SupportedLanguage = 'javas
 /**
  * Format JSON with proper indentation and highlight it
  */
-export const formatAndHighlightJSON = (data: any): string => {
+export const formatAndHighlightJSON = (data: unknown): string => {
 	try {
 		const jsonString = JSON.stringify(data, null, 2);
 		return highlightCode(jsonString, 'json');
