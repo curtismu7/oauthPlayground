@@ -153,8 +153,8 @@ export const useSecurityAnalytics = (config: UseSecurityAnalyticsConfig = {}) =>
 			type: SecurityEventType,
 			severity: SecuritySeverity,
 			description: string,
-			details: Record<string, any> = {},
-			options: any = {}
+			details: Record<string, unknown> = {},
+			options: Record<string, unknown> = {}
 		) => {
 			if (enabled) {
 				const eventId = trackSecurityEvent(type, severity, description, details, options);
@@ -176,7 +176,7 @@ export const useSecurityAnalytics = (config: UseSecurityAnalyticsConfig = {}) =>
 
 	// Track authentication failure
 	const handleTrackAuthenticationFailure = useCallback(
-		(userId: string, reason: string, details: Record<string, any> = {}) => {
+		(userId: string, reason: string, details: Record<string, unknown> = {}) => {
 			if (enabled) {
 				const eventId = trackAuthenticationFailure(userId, reason, details);
 
@@ -197,7 +197,7 @@ export const useSecurityAnalytics = (config: UseSecurityAnalyticsConfig = {}) =>
 
 	// Track authorization failure
 	const handleTrackAuthorizationFailure = useCallback(
-		(userId: string, resource: string, action: string, details: Record<string, any> = {}) => {
+		(userId: string, resource: string, action: string, details: Record<string, unknown> = {}) => {
 			if (enabled) {
 				const eventId = trackAuthorizationFailure(userId, resource, action, details);
 
@@ -219,7 +219,7 @@ export const useSecurityAnalytics = (config: UseSecurityAnalyticsConfig = {}) =>
 
 	// Track token validation failure
 	const handleTrackTokenValidationFailure = useCallback(
-		(tokenType: string, reason: string, details: Record<string, any> = {}) => {
+		(tokenType: string, reason: string, details: Record<string, unknown> = {}) => {
 			if (enabled) {
 				const eventId = trackTokenValidationFailure(tokenType, reason, details);
 
@@ -240,7 +240,7 @@ export const useSecurityAnalytics = (config: UseSecurityAnalyticsConfig = {}) =>
 
 	// Track suspicious activity
 	const handleTrackSuspiciousActivity = useCallback(
-		(activity: string, severity: SecuritySeverity, details: Record<string, any> = {}) => {
+		(activity: string, severity: SecuritySeverity, details: Record<string, unknown> = {}) => {
 			if (enabled) {
 				const eventId = trackSuspiciousActivity(activity, severity, details);
 
@@ -265,7 +265,7 @@ export const useSecurityAnalytics = (config: UseSecurityAnalyticsConfig = {}) =>
 			standard: ComplianceStandard,
 			requirement: string,
 			violation: string,
-			details: Record<string, any> = {}
+			details: Record<string, unknown> = {}
 		) => {
 			if (enabled) {
 				const eventId = trackComplianceViolation(standard, requirement, violation, details);
@@ -532,21 +532,21 @@ export const useAuthenticationSecurity = (enabled: boolean = true) => {
 	const { trackAuthenticationFailure, trackSuspiciousActivity } = useSecurityAnalytics({ enabled });
 
 	const trackLoginFailure = useCallback(
-		(userId: string, reason: string, details?: Record<string, any>) => {
+		(userId: string, reason: string, details?: Record<string, unknown>) => {
 			return trackAuthenticationFailure(userId, reason, details);
 		},
 		[trackAuthenticationFailure]
 	);
 
 	const trackLoginSuccess = useCallback(
-		(userId: string, details?: Record<string, any>) => {
+		(userId: string, details?: Record<string, unknown>) => {
 			return trackSuspiciousActivity(`Successful login for user ${userId}`, 'low', details);
 		},
 		[trackSuspiciousActivity]
 	);
 
 	const trackMultipleLoginAttempts = useCallback(
-		(userId: string, attemptCount: number, details?: Record<string, any>) => {
+		(userId: string, attemptCount: number, details?: Record<string, unknown>) => {
 			return trackSuspiciousActivity(
 				`Multiple login attempts for user ${userId}`,
 				attemptCount > 5 ? 'high' : 'medium',
@@ -557,7 +557,7 @@ export const useAuthenticationSecurity = (enabled: boolean = true) => {
 	);
 
 	const trackBruteForceAttempt = useCallback(
-		(userId: string, details?: Record<string, any>) => {
+		(userId: string, details?: Record<string, unknown>) => {
 			return trackSuspiciousActivity(
 				`Brute force attack attempt on user ${userId}`,
 				'critical',
@@ -580,14 +580,14 @@ export const useAuthorizationSecurity = (enabled: boolean = true) => {
 	const { trackAuthorizationFailure, trackSuspiciousActivity } = useSecurityAnalytics({ enabled });
 
 	const trackAccessDenied = useCallback(
-		(userId: string, resource: string, action: string, details?: Record<string, any>) => {
+		(userId: string, resource: string, action: string, details?: Record<string, unknown>) => {
 			return trackAuthorizationFailure(userId, resource, action, details);
 		},
 		[trackAuthorizationFailure]
 	);
 
 	const trackPrivilegeEscalation = useCallback(
-		(userId: string, details?: Record<string, any>) => {
+		(userId: string, details?: Record<string, unknown>) => {
 			return trackSuspiciousActivity(
 				`Privilege escalation attempt by user ${userId}`,
 				'critical',
@@ -598,7 +598,7 @@ export const useAuthorizationSecurity = (enabled: boolean = true) => {
 	);
 
 	const trackUnauthorizedAccess = useCallback(
-		(userId: string, resource: string, details?: Record<string, any>) => {
+		(userId: string, resource: string, details?: Record<string, unknown>) => {
 			return trackSuspiciousActivity(
 				`Unauthorized access attempt by user ${userId} to ${resource}`,
 				'high',
@@ -622,21 +622,21 @@ export const useTokenSecurity = (enabled: boolean = true) => {
 	});
 
 	const trackTokenExpired = useCallback(
-		(tokenType: string, details?: Record<string, any>) => {
+		(tokenType: string, details?: Record<string, unknown>) => {
 			return trackTokenValidationFailure(tokenType, 'Token expired', details);
 		},
 		[trackTokenValidationFailure]
 	);
 
 	const trackTokenInvalid = useCallback(
-		(tokenType: string, reason: string, details?: Record<string, any>) => {
+		(tokenType: string, reason: string, details?: Record<string, unknown>) => {
 			return trackTokenValidationFailure(tokenType, reason, details);
 		},
 		[trackTokenValidationFailure]
 	);
 
 	const trackTokenTheft = useCallback(
-		(tokenType: string, details?: Record<string, any>) => {
+		(tokenType: string, details?: Record<string, unknown>) => {
 			return trackSuspiciousActivity(
 				`Potential token theft detected for ${tokenType}`,
 				'critical',
@@ -647,7 +647,7 @@ export const useTokenSecurity = (enabled: boolean = true) => {
 	);
 
 	const trackTokenReuse = useCallback(
-		(tokenType: string, details?: Record<string, any>) => {
+		(tokenType: string, details?: Record<string, unknown>) => {
 			return trackSuspiciousActivity(`Token reuse detected for ${tokenType}`, 'high', details);
 		},
 		[trackSuspiciousActivity]
@@ -671,28 +671,28 @@ export const useComplianceMonitoring = (enabled: boolean = true) => {
 	} = useSecurityAnalytics({ enabled });
 
 	const trackGDPRViolation = useCallback(
-		(violation: string, details?: Record<string, any>) => {
+		(violation: string, details?: Record<string, unknown>) => {
 			return trackComplianceViolation('GDPR', 'Data Protection', violation, details);
 		},
 		[trackComplianceViolation]
 	);
 
 	const trackCCPAViolation = useCallback(
-		(violation: string, details?: Record<string, any>) => {
+		(violation: string, details?: Record<string, unknown>) => {
 			return trackComplianceViolation('CCPA', 'Privacy Rights', violation, details);
 		},
 		[trackComplianceViolation]
 	);
 
 	const trackSOC2Violation = useCallback(
-		(violation: string, details?: Record<string, any>) => {
+		(violation: string, details?: Record<string, unknown>) => {
 			return trackComplianceViolation('SOC2', 'Security Controls', violation, details);
 		},
 		[trackComplianceViolation]
 	);
 
 	const trackOAuthViolation = useCallback(
-		(violation: string, details?: Record<string, any>) => {
+		(violation: string, details?: Record<string, unknown>) => {
 			return trackComplianceViolation('OAuth2.1', 'OAuth Standards', violation, details);
 		},
 		[trackComplianceViolation]

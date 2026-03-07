@@ -21,7 +21,7 @@ export interface LogEntry {
 	level: LogLevel;
 	module: string;
 	message: string;
-	data?: any;
+	data?: unknown;
 }
 
 export interface LoggingConfig {
@@ -53,35 +53,35 @@ class LoggingService {
 	/**
 	 * Log an error message
 	 */
-	error(module: string, message: string, data?: any): void {
+	error(module: string, message: string, data?: unknown): void {
 		this.log(LogLevel.ERROR, module, message, data);
 	}
 
 	/**
 	 * Log a warning message
 	 */
-	warn(module: string, message: string, data?: any): void {
+	warn(module: string, message: string, data?: unknown): void {
 		this.log(LogLevel.WARN, module, message, data);
 	}
 
 	/**
 	 * Log an info message
 	 */
-	info(module: string, message: string, data?: any): void {
+	info(module: string, message: string, data?: unknown): void {
 		this.log(LogLevel.INFO, module, message, data);
 	}
 
 	/**
 	 * Log a debug message
 	 */
-	debug(module: string, message: string, data?: any): void {
+	debug(module: string, message: string, data?: unknown): void {
 		this.log(LogLevel.DEBUG, module, message, data);
 	}
 
 	/**
 	 * Internal logging method
 	 */
-	private log(level: LogLevel, module: string, message: string, data?: any): void {
+	private log(level: LogLevel, module: string, message: string, data?: unknown): void {
 		// Check if we should log this level
 		if (level > this.config.minLogLevel) {
 			return;
@@ -207,11 +207,11 @@ class LoggingService {
 export const logger = new LoggingService();
 
 // Export convenience functions
-export const logError = (module: string, message: string, data?: any) =>
+export const logError = (module: string, message: string, data?: unknown) =>
 	logger.error(module, message, data);
-export const logWarn = (module: string, message: string, data?: any) =>
+export const logWarn = (module: string, message: string, data?: unknown) =>
 	logger.warn(module, message, data);
-export const logInfo = (module: string, message: string, data?: any) =>
+export const logInfo = (module: string, message: string, data?: unknown) =>
 	logger.info(module, message, data);
-export const logDebug = (module: string, message: string, data?: any) =>
+export const logDebug = (module: string, message: string, data?: unknown) =>
 	logger.debug(module, message, data);

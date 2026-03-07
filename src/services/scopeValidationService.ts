@@ -577,17 +577,18 @@ export { ScopeValidationService };
 
 // Global access for debugging
 if (typeof window !== 'undefined') {
-	(window as any).scopeValidationService = scopeValidationService;
+	const devWindow = window as Record<string, unknown>;
+	devWindow.scopeValidationService = scopeValidationService;
 
 	// Convenience functions
-	(window as any).validateScopes = (scopes: string, flowType: string) =>
+	devWindow.validateScopes = (scopes: string, flowType: string) =>
 		scopeValidationService.validateForAuthorizationUrl(scopes, flowType);
-	(window as any).getScopeSummary = (scopes: string, flowType: string) =>
+	devWindow.getScopeSummary = (scopes: string, flowType: string) =>
 		scopeValidationService.getValidationSummary(scopes, flowType);
-	(window as any).getRecommendedScopes = (flowType: string) =>
+	devWindow.getRecommendedScopes = (flowType: string) =>
 		scopeValidationService.getRecommendedScopes(flowType);
-	(window as any).getScopeMetrics = () => scopeValidationService.getMetrics();
-	(window as any).getScopeCacheStats = () => scopeValidationService.getCacheStats();
-	(window as any).clearScopeCache = () => scopeValidationService.clearCache();
-	(window as any).resetScopeMetrics = () => scopeValidationService.resetMetrics();
+	devWindow.getScopeMetrics = () => scopeValidationService.getMetrics();
+	devWindow.getScopeCacheStats = () => scopeValidationService.getCacheStats();
+	devWindow.clearScopeCache = () => scopeValidationService.clearCache();
+	devWindow.resetScopeMetrics = () => scopeValidationService.resetMetrics();
 }
